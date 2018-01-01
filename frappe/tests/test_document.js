@@ -4,7 +4,7 @@ const frappe = require('frappe-core');
 describe('Document', () => {
 	before(function() {
 		frappe.init();
-		frappe.db.create_table('ToDo');
+		frappe.db.migrate();
 	});
 
 	it('should insert a doc', () => {

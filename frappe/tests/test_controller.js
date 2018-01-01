@@ -4,7 +4,7 @@ const frappe = require('frappe-core');
 describe('Controller', () => {
 	before(function() {
 		frappe.init();
-		frappe.db.create_table('ToDo');
+		frappe.db.migrate();
 	});
 
 	it('should call controller method', () => {

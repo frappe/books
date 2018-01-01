@@ -4,6 +4,7 @@ const frappe = require('frappe-core');
 describe('Models', () => {
 	before(function() {
 		frappe.init();
+		frappe.db.migrate();
 	});
 
 	it('should get todo json', () => {

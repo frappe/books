@@ -4,6 +4,7 @@ const frappe = require('frappe-core');
 describe('Meta', () => {
 	before(function() {
 		frappe.init();
+		frappe.db.migrate();
 	});
 
 	it('should get init from json file', () => {
