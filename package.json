@@ -1,0 +1,29 @@
+{
+  "name": "frappe-core",
+  "version": "1.0.0",
+  "description": "Frappe Core",
+  "main": "frappe/index.js",
+  "scripts": {
+    "test": "mocha frappe/tests"
+  },
+  "dependencies": {
+    "sql.js": "^0.4.0",
+    "walk": "^2.3.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frappe/frappe-js.git"
+  },
+  "author": "Frappe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/frappe/frappe-js/issues"
+  },
+  "homepage": "https://github.com/frappe/frappe-js#readme",
+  "devDependencies": {
+    "babel-eslint": "^8.0.1",
+    "eslint": "^4.9.0",
+    "mocha": "^4.0.1",
+    "webpack": "^3.8.1"
+  }
+}
