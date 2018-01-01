@@ -41,7 +41,7 @@ Models are declared by adding a `.json` model file in the `models/doctype` folde
 
 ### Setup / Migrate
 
-	const frappe = require('frappe-core);
+	const frappe = require('frappe-core');
 	frappe.init();
 
 	// sync all schema from `models` folders in all apps
@@ -55,7 +55,7 @@ Documents are stored in SQLite using `sql.js`
 
 #### Create
 
-	const frappe = require('frappe-core);
+	const frappe = require('frappe-core');
 	frappe.init();
 
 	// make a new todo
@@ -64,7 +64,7 @@ Documents are stored in SQLite using `sql.js`
 
 #### Read
 
-	const frappe = require('frappe-core);
+	const frappe = require('frappe-core');
 	frappe.init();
 
 	// get all open todos
@@ -74,7 +74,7 @@ Documents are stored in SQLite using `sql.js`
 
 #### Update
 
-	const frappe = require('frappe-core);
+	const frappe = require('frappe-core');
 	frappe.init();
 
 	// get all open todos
@@ -86,7 +86,7 @@ Documents are stored in SQLite using `sql.js`
 
 ### Metadata
 
-	const frappe = require('frappe-core);
+	const frappe = require('frappe-core');
 	frappe.init();
 
 	let todo_meta = frappe.get_meta('ToDo');
@@ -117,7 +117,7 @@ The name of the class must be the slugged name of the DocType
 
 You can also directly write SQL with `frappe.db.sql`
 
-	const frappe = require('frappe-core);
+	const frappe = require('frappe-core');
 	frappe.init();
 
 	all_todos = frappe.db.sql('select name from todo');
