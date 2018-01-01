@@ -2,9 +2,7 @@
 
 Core libs for Frappe Framework JS
 
-## Examples
-
-### Declaring Models
+## Declaring Models
 
 Models are declared by adding a `.json` model file in the `models/doctype` folder of the module/app.
 
@@ -39,7 +37,7 @@ Models are declared by adding a `.json` model file in the `models/doctype` folde
 		]
 	}
 
-### Setup / Migrate
+## Setup / Migrate
 
 	const frappe = require('frappe-core');
 	frappe.init();
@@ -47,13 +45,13 @@ Models are declared by adding a `.json` model file in the `models/doctype` folde
 	// sync all schema from `models` folders in all apps
 	frappe.migrate();
 
-### Managing Documents
+## Managing Documents
 
 Frappe Object-Relational-Mapper (ORM) helps you manage (create, read, update, delete) documents based on the DocTypes declared.
 
 Documents are stored in SQLite using `sql.js`
 
-#### Create
+### Create
 
 	const frappe = require('frappe-core');
 	frappe.init();
@@ -62,7 +60,7 @@ Documents are stored in SQLite using `sql.js`
 	let todo = frappe.get_doc({doctype: 'ToDo', subject: 'something'});
 	todo.insert();
 
-#### Read
+### Read
 
 	const frappe = require('frappe-core');
 	frappe.init();
@@ -72,7 +70,7 @@ Documents are stored in SQLite using `sql.js`
 	let first_todo = frappe.get_doc('ToDo', toods[0].name);
 
 
-#### Update
+### Update
 
 	const frappe = require('frappe-core');
 	frappe.init();
@@ -84,7 +82,7 @@ Documents are stored in SQLite using `sql.js`
 	first_todo.status = 'Closed';
 	first_todo.update();
 
-### Metadata
+## Metadata
 
 	const frappe = require('frappe-core');
 	frappe.init();
@@ -94,7 +92,7 @@ Documents are stored in SQLite using `sql.js`
 	// get all fields of type "Data"
 	let data_fields = todo_meta.fields.map(d => d.fieldtype=='Data' ? d : null);
 
-### Controllers
+## Controllers
 
 You can write event handlers in controllers, by declaring a `.js` file in the `models/doctype/` folder along with the model file.
 
@@ -113,7 +111,7 @@ The name of the class must be the slugged name of the DocType
 
 	module.exports = { todo: todo };
 
-### Database
+## Database
 
 You can also directly write SQL with `frappe.db.sql`
 
@@ -122,3 +120,76 @@ You can also directly write SQL with `frappe.db.sql`
 
 	all_todos = frappe.db.sql('select name from todo');
 
+## REST API
+
+You can directly access documents at `/api/resource/:doctype`
+
+### Create
+
+- URL: `/api/resource/:doctype`
+- Method: `POST`
+- Data: document properties
+
+**Example:**
+
+- URL: `/api/resource/todo`
+- Method: `POST`
+
+Data:
+
+	{
+		"subject": "test",
+		"description": "
+	}
+
+### Read
+
+- URL: `/api/resource/:doctype/:name`
+- Method: `GET`
+
+**Example:**
+
+- URL: `/api/resource/todo/uig7d1v12`
+
+Reponse:
+
+	{
+		"name": "uig7d1v12",
+		"owner": "guest",
+		"modified_by": "guest",
+		"creation": "2018-01-01T12:08:19.482Z",
+		"modified": "2018-01-01T12:08:19.482Z",
+		"docstatus": 0,
+		"subject": "test 1",
+		"description": "description 1",
+		"status": "Open"
+	}
+
+### List
+
+- URL: `/api/resource/:doctype/`
+- Method: `GET`
+- Params (optional)
+	- `start`: Page start
+	- `limit`: Page limit
+
+**Example:**
+
+- URL: `/api/resource/todo`
+
+Response:
+
+	[
+		{
+			"name": "r4qxyki0i6",
+			"subject": "test 1"
+		},
+		{
+			"name": "efywwvtwcp",
+			"subject": "test 1"
+		},
+		{
+			"name": "9ioz05urgp",
+			"subject": "test 1"
+		}
+	]

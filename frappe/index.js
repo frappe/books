@@ -1,7 +1,8 @@
-const path = require('path')
+const path = require('path');
+
 module.exports = {
-	init(db_path, user, user_key) {
-		this.db_path = db_path || 'test.db';
+	init(db_path = 'test.db', user, user_key) {
+		this.db_path = db_path;
 		if (this._initialized) return;
 		this.init_config();
 		this.init_errors();
@@ -29,6 +30,7 @@ module.exports = {
 		this.document = require('./model/document');
 		this.meta = require('./model/meta');
 		this.session_lib = require('./session');
+		this.rest = require('./rest');
 	},
 	init_db() {
 		let database = require('./model/database');
