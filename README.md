@@ -42,7 +42,6 @@ Models are declared by adding a `.json` model file in the `models/doctype` folde
 ### Setup / Migrate
 
 	const frappe = require('frappe-core);
-
 	frappe.init();
 
 	// sync all schema from `models` folders in all apps
@@ -50,7 +49,9 @@ Models are declared by adding a `.json` model file in the `models/doctype` folde
 
 ### Managing Documents
 
-Frappe Object-Relational-Mapper (ORM) helps you manage (create, read, update, delete) documents based on the DocTypes declared
+Frappe Object-Relational-Mapper (ORM) helps you manage (create, read, update, delete) documents based on the DocTypes declared.
+
+Documents are stored in SQLite using `sql.js`
 
 #### Create
 
@@ -58,8 +59,8 @@ Frappe Object-Relational-Mapper (ORM) helps you manage (create, read, update, de
 	frappe.init();
 
 	// make a new todo
-	let todo = frappe.get_doc({doctype: 'ToDo', subject: 'something'})
-	todo.insert()
+	let todo = frappe.get_doc({doctype: 'ToDo', subject: 'something'});
+	todo.insert();
 
 #### Read
 
@@ -68,7 +69,7 @@ Frappe Object-Relational-Mapper (ORM) helps you manage (create, read, update, de
 
 	// get all open todos
 	let todos = frappe.db.get_all('ToDo', ['name'], {status: "Open"});
-	let first_todo = frappe.get_doc('ToDo', toods.name);
+	let first_todo = frappe.get_doc('ToDo', toods[0].name);
 
 
 #### Update
@@ -78,7 +79,7 @@ Frappe Object-Relational-Mapper (ORM) helps you manage (create, read, update, de
 
 	// get all open todos
 	let todos = frappe.db.get_all('ToDo', ['name'], {status: "Open"});
-	let first_todo = frappe.get_doc('ToDo', toods.name);
+	let first_todo = frappe.get_doc('ToDo', toods[0].name);
 
 	first_todo.status = 'Closed';
 	first_todo.update();
@@ -86,7 +87,6 @@ Frappe Object-Relational-Mapper (ORM) helps you manage (create, read, update, de
 ### Metadata
 
 	const frappe = require('frappe-core);
-
 	frappe.init();
 
 	let todo_meta = frappe.get_meta('ToDo');
@@ -118,7 +118,6 @@ The name of the class must be the slugged name of the DocType
 You can also directly write SQL with `frappe.db.sql`
 
 	const frappe = require('frappe-core);
-
 	frappe.init();
 
 	all_todos = frappe.db.sql('select name from todo');
