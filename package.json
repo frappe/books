@@ -10,15 +10,18 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "ms": "^2.1.1",
-    "multer": "^1.3.0",
+    "node-fetch": "^1.7.3",
     "nodemon": "^1.14.7",
     "sql.js": "^0.4.0",
+    "sqlite3": "^3.1.13",
     "walk": "^2.3.9"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/frappe/frappe-js.git"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017
   },
   "author": "Frappe",
   "license": "MIT",

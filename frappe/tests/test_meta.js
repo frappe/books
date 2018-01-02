@@ -2,9 +2,9 @@ const assert = require('assert');
 const frappe = require('frappe-core');
 
 describe('Meta', () => {
-	before(function() {
-		frappe.init();
-		frappe.db.migrate();
+	before(async function() {
+		await frappe.init();
+		await frappe.db.migrate();
 	});
 
 	it('should get init from json file', () => {

@@ -1,42 +1,45 @@
 const assert = require('assert');
 const frappe = require('frappe-core');
 
-describe('Document', () => {
-	before(function() {
-		frappe.init();
-		frappe.db.migrate();
+describe('Database', () => {
+	before(async function() {
+		await frappe.init();
+		await frappe.db.migrate();
 	});
 
-	it('should insert and get values', () => {
-		frappe.db.sql('delete from todo');
-		frappe.get_doc({doctype:'ToDo', subject: 'testing 1'}).insert();
-		frappe.get_doc({doctype:'ToDo', subject: 'testing 3'}).insert();
-		frappe.get_doc({doctype:'ToDo', subject: 'testing 2'}).insert();
+	it('should insert and get values', async () => {
+		await frappe.db.sql('delete from todo');
+		await frappe.insert({doctype:'ToDo', subject: 'testing 1'});
+		await frappe.insert({doctype:'ToDo', subject: 'testing 3'});
+		await frappe.insert({doctype:'ToDo', subject: 'testing 2'});
 
-		let subjects = frappe.db.get_all('ToDo', ['name', 'subject']).map(d => d.subject);
+		let subjects = await frappe.db.get_all('ToDo', ['name', 'subject'])
+		subjects = subjects.map(d => d.subject);
 
 		assert.ok(subjects.includes('testing 1'));
 		assert.ok(subjects.includes('testing 2'));
 		assert.ok(subjects.includes('testing 3'));
 	});
 
-	it('should filter correct values', () => {
+	it('should filter correct values', async () => {
 		let subjects = null;
 
-		frappe.db.sql('delete from todo');
-		frappe.get_doc({doctype:'ToDo', subject: 'testing 1', status: 'Open'}).insert();
-		frappe.get_doc({doctype:'ToDo', subject: 'testing 3', status: 'Open'}).insert();
-		frappe.get_doc({doctype:'ToDo', subject: 'testing 2', status: 'Closed'}).insert();
+		await frappe.db.sql('delete from todo');
+		await frappe.insert({doctype:'ToDo', subject: 'testing 1', status: 'Open'});
+		await frappe.insert({doctype:'ToDo', subject: 'testing 3', status: 'Open'});
+		await frappe.insert({doctype:'ToDo', subject: 'testing 2', status: 'Closed'});
 
-		subjects = frappe.db.get_all('ToDo', ['name', 'subject'],
-			{status: 'Open'}).map(d => d.subject);
+		subjects = await frappe.db.get_all('ToDo', ['name', 'subject'],
+			{status: 'Open'})
+		subjects = subjects.map(d => d.subject);
 
 		assert.ok(subjects.includes('testing 1'));
 		assert.ok(subjects.includes('testing 3'));
 		assert.equal(subjects.includes('testing 2'), false);
 
-		subjects = frappe.db.get_all('ToDo', ['name', 'subject'],
-			{status: 'Closed'}).map(d => d.subject);
+		subjects = await frappe.db.get_all('ToDo', ['name', 'subject'],
+			{status: 'Closed'})
+		subjects = subjects.map(d => d.subject);
 
 		assert.equal(subjects.includes('testing 1'), false);
 		assert.equal(subjects.includes('testing 3'), false);

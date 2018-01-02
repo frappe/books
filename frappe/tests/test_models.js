@@ -2,9 +2,9 @@ const assert = require('assert');
 const frappe = require('frappe-core');
 
 describe('Models', () => {
-	before(function() {
-		frappe.init();
-		frappe.db.migrate();
+	before(async function() {
+		await frappe.init();
+		await frappe.db.migrate();
 	});
 
 	it('should get todo json', () => {

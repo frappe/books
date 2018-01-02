@@ -32,32 +32,5 @@ module.exports = {
 		{
 			fieldname: 'parentfield', fieldtype: 'Data', reqd: 1
 		}
-	],
-	type_map: {
-		'Currency':		'real'
-		,'Int':			'integer'
-		,'Float':		'real'
-		,'Percent':		'real'
-		,'Check':		'integer'
-		,'Small Text':	'text'
-		,'Long Text':	'text'
-		,'Code':		'text'
-		,'Text Editor':	'text'
-		,'Date':		'text'
-		,'Datetime':	'text'
-		,'Time':		'text'
-		,'Text':		'text'
-		,'Data':		'text'
-		,'Link':		'text'
-		,'Dynamic Link':'text'
-		,'Password':	'text'
-		,'Select':		'text'
-		,'Read Only':	'text'
-		,'Attach':		'text'
-		,'Attach Image':'text'
-		,'Signature':	'text'
-		,'Color':		'text'
-		,'Barcode':		'text'
-		,'Geolocation':	'text'
-	}
+	]
 };

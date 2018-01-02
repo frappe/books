@@ -42,7 +42,7 @@ class Meta extends Document {
 
 			// doctype fields
 			for (let df of this.fields) {
-				if (frappe.model.type_map[df.fieldtype]) {
+				if (frappe.db.type_map[df.fieldtype]) {
 					this._valid_fields.push(df);
 				}
 			}

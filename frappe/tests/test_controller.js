@@ -2,17 +2,17 @@ const assert = require('assert');
 const frappe = require('frappe-core');
 
 describe('Controller', () => {
-	before(function() {
-		frappe.init();
-		frappe.db.migrate();
+	before(async function() {
+		await frappe.init();
+		await frappe.db.migrate();
 	});
 
-	it('should call controller method', () => {
-		let doc = frappe.get_doc({
+	it('should call controller method', async () => {
+		let doc = await frappe.get_doc({
 			doctype:'ToDo',
 			subject: 'test'
 		});
-		doc.validate();
+		doc.trigger('validate');
 		assert.equal(doc.status, 'Open');
 	});
 });

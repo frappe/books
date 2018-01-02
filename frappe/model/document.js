@@ -2,7 +2,20 @@ const frappe = require('frappe-core');
 
 class Document {
 	constructor(data) {
+		this.handlers = {};
+		this.setup();
 		Object.assign(this, data);
+	}
+
+	setup() {
+		// add handlers
+	}
+
+	add_handler(key, method) {
+		if (!this.handlers[key]) {
+			this.handlers[key] = [];
+		}
+		this.handlers[key].push(method || key);
 	}
 
 	get(key) {
@@ -51,13 +64,6 @@ class Document {
 		}
 	}
 
-	validate() { }
-	before_insert() { }
-	after_insert() { }
-	before_update() { }
-	after_update() { }
-	after_save() { }
-
 	get_valid_dict() {
 		let doc = {};
 		for(let df of this.meta.get_valid_fields()) {
@@ -79,29 +85,43 @@ class Document {
 		this.modified = now;
 	}
 
-	load() {
-		Object.assign(this, frappe.db.get(this.doctype, this.name));
-		return this;
+	async load() {
+		Object.assign(this, await frappe.db.get(this.doctype, this.name));
 	}
 
-	insert() {
+	async insert() {
 		this.set_name();
 		this.set_standard_values();
-		this.validate();
-		this.before_insert();
-		frappe.db.insert(this.doctype, this.get_valid_dict())
-		this.after_insert();
-		this.after_save();
-		return this;
+		await this.trigger('validate', 'before_insert');
+		await frappe.db.insert(this.doctype, this.get_valid_dict());
+		await this.trigger('after_insert', 'after_save');
 	}
 
-	update() {
+	async delete() {
+		await this.trigger('before_delete');
+		await frappe.db.delete(this.doctype, this.name);
+		await this.trigger('after_delete');
+	}
+
+	async trigger() {
+		for(var key of arguments) {
+			if (this.handlers[key]) {
+				for (let method of this.handlers[key]) {
+					if (typeof method === 'string') {
+						await this[method]();
+					} else {
+						await method(this);
+					}
+				}
+			}
+		}
+	}
+
+	async update() {
 		this.set_standard_values();
-		this.validate();
-		this.before_insert();
-		frappe.db.update(this.doctype, this.get_valid_dict());
-		this.after_update();
-		this.after_save();
+		await this.trigger('validate', 'before_update');
+		await frappe.db.update(this.doctype, this.get_valid_dict());
+		await this.trigger('after_update', 'after_save');
 		return this;
 	}
 };
