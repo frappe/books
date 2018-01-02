@@ -7,46 +7,46 @@ Core libs for Frappe Framework JS
 Models are declared by adding a `.json` model file in the `models/doctype` folder of the module/app.
 
 ```json
-	{
-		"autoname": "hash",
-		"name": "ToDo",
-		"doctype": "DocType",
-		"issingle": 0,
-		"fields": [
-			{
-				"fieldname": "subject",
-				"label": "Subject",
-				"fieldtype": "Data",
-				"reqd": 1
-			},
-			{
-				"fieldname": "description",
-				"label": "Description",
-				"fieldtype": "Text"
-			},
-			{
-				"fieldname": "status",
-				"label": "Status",
-				"fieldtype": "Select",
-				"options": [
-					"Open",
-					"Closed"
-				],
-				"default": "Open",
-				"reqd": 1
-			}
-		]
-	}
+{
+	"autoname": "hash",
+	"name": "ToDo",
+	"doctype": "DocType",
+	"issingle": 0,
+	"fields": [
+		{
+			"fieldname": "subject",
+			"label": "Subject",
+			"fieldtype": "Data",
+			"reqd": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text"
+		},
+		{
+			"fieldname": "status",
+			"label": "Status",
+			"fieldtype": "Select",
+			"options": [
+				"Open",
+				"Closed"
+			],
+			"default": "Open",
+			"reqd": 1
+		}
+	]
+}
 ```
 
 ## Setup / Migrate
 
 ```js
-	const frappe = require('frappe-core');
-	frappe.init();
+const frappe = require('frappe-core');
+frappe.init();
 
-	// sync all schema from `models` folders in all apps
-	frappe.migrate();
+// sync all schema from `models` folders in all apps
+frappe.migrate();
 ```
 
 ## Managing Documents
@@ -62,11 +62,11 @@ All document write methods are asynchronous and return javascript Promise object
 Documents are initialized with the `frappe.get_doc` method. If `doctype` and `name` are passed as parameters, then the document is fetched from the backend. If a simple object is passed, then object properties are set in the document.
 
 ```js
-	const frappe = require('frappe-core');
-	await frappe.init();
+const frappe = require('frappe-core');
+await frappe.init();
 
-	// make a new todo
-	let todo = await frappe.get_doc({doctype: 'ToDo', subject: 'something'});
+// make a new todo
+let todo = await frappe.get_doc({doctype: 'ToDo', subject: 'something'});
 ```
 
 ### Create
@@ -74,12 +74,12 @@ Documents are initialized with the `frappe.get_doc` method. If `doctype` and `na
 You can insert a document in the backend with the `insert` method.
 
 ```js
-	const frappe = require('frappe-core');
-	await frappe.init();
+const frappe = require('frappe-core');
+await frappe.init();
 
-	// make a new todo
-	let todo = await frappe.get_doc({doctype: 'ToDo', subject: 'something'});
-	await todo.insert();
+// make a new todo
+let todo = await frappe.get_doc({doctype: 'ToDo', subject: 'something'});
+await todo.insert();
 ```
 
 ### Read
@@ -87,12 +87,12 @@ You can insert a document in the backend with the `insert` method.
 You can read a document from the backend with the `frappe.get_doc` method
 
 ```js
-	const frappe = require('frappe-core');
-	await frappe.init();
+const frappe = require('frappe-core');
+await frappe.init();
 
-	// get all open todos
-	let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
-	let first_todo = await frappe.get_doc('ToDo', toods[0].name);
+// get all open todos
+let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
+let first_todo = await frappe.get_doc('ToDo', toods[0].name);
 ```
 
 ### Update
@@ -100,15 +100,15 @@ You can read a document from the backend with the `frappe.get_doc` method
 The `update` method updates a document.
 
 ```js
-	const frappe = require('frappe-core');
-	await frappe.init();
+const frappe = require('frappe-core');
+await frappe.init();
 
-	// get all open todos
-	let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
-	let first_todo = await frappe.get_doc('ToDo', toods[0].name);
+// get all open todos
+let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
+let first_todo = await frappe.get_doc('ToDo', toods[0].name);
 
-	first_todo.status = 'Closed';
-	await first_todo.update();
+first_todo.status = 'Closed';
+await first_todo.update();
 ```
 
 ### Delete
@@ -116,14 +116,14 @@ The `update` method updates a document.
 The `delete` method deletes a document.
 
 ```js
-	const frappe = require('frappe-core');
-	await frappe.init();
+const frappe = require('frappe-core');
+await frappe.init();
 
-	// get all open todos
-	let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
-	let first_todo = await frappe.get_doc('ToDo', toods[0].name);
+// get all open todos
+let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
+let first_todo = await frappe.get_doc('ToDo', toods[0].name);
 
-	await first_todo.delete();
+await first_todo.delete();
 ```
 
 ## Metadata
@@ -131,13 +131,13 @@ The `delete` method deletes a document.
 Metadata are first class objects in Frappe. You can get a metadata object by `frappe.get_meta`. All objects from the `models` folders of all modules are loaded.
 
 ```js
-	const frappe = require('frappe-core');
-	frappe.init();
+const frappe = require('frappe-core');
+frappe.init();
 
-	let todo_meta = frappe.get_meta('ToDo');
+let todo_meta = frappe.get_meta('ToDo');
 
-	// get all fields of type "Data"
-	let data_fields = todo_meta.fields.map(d => d.fieldtype=='Data' ? d : null);
+// get all fields of type "Data"
+let data_fields = todo_meta.fields.map(d => d.fieldtype=='Data' ? d : null);
 ```
 
 ## Controllers
@@ -149,22 +149,22 @@ The name of the class must be the slugged name of the DocType
 To add a standard handler, you must bind all handlers in `setup` method.
 
 ```js
-	const frappe = require('frappe-core');
+const frappe = require('frappe-core');
 
-	class todo extends frappe.document.Document {
-		setup() {
-			this.add_handler('validate');
-		}
-
-		validate() {
-			// set default status as "Open" if not set
-			if (!this.status) {
-				this.status = 'Open';
-			}
-		}
+class todo extends frappe.document.Document {
+	setup() {
+		this.add_handler('validate');
 	}
 
-	module.exports = { todo: todo };
+	validate() {
+		// set default status as "Open" if not set
+		if (!this.status) {
+			this.status = 'Open';
+		}
+	}
+}
+
+module.exports = { todo: todo };
 ```
 
 ### Controller Events
@@ -188,10 +188,10 @@ Standard events on which you can bind handlers are
 You can also directly write SQL with `frappe.db.sql`
 
 ```js
-	const frappe = require('frappe-core');
-	frappe.init();
+const frappe = require('frappe-core');
+frappe.init();
 
-	all_todos = frappe.db.sql('select name from todo');
+all_todos = frappe.db.sql('select name from todo');
 ```
 
 ## REST API
@@ -212,10 +212,10 @@ You can directly access documents at `/api/resource/:doctype`
 Data:
 
 ```json
-	{
-		"subject": "test",
-		"description": "test description"
-	}
+{
+	"subject": "test",
+	"description": "test description"
+}
 ```
 
 ### Read
@@ -230,17 +230,17 @@ Data:
 Reponse:
 
 ```json
-	{
-		"name": "uig7d1v12",
-		"owner": "guest",
-		"modified_by": "guest",
-		"creation": "2018-01-01T12:08:19.482Z",
-		"modified": "2018-01-01T12:08:19.482Z",
-		"docstatus": 0,
-		"subject": "test 1",
-		"description": "description 1",
-		"status": "Open"
-	}
+{
+	"name": "uig7d1v12",
+	"owner": "guest",
+	"modified_by": "guest",
+	"creation": "2018-01-01T12:08:19.482Z",
+	"modified": "2018-01-01T12:08:19.482Z",
+	"docstatus": 0,
+	"subject": "test 1",
+	"description": "description 1",
+	"status": "Open"
+}
 ```
 
 ### List
@@ -258,26 +258,26 @@ Reponse:
 Response:
 
 ```json
-	[
-		{
-			"name": "r4qxyki0i6",
-			"subject": "test 1"
-		},
-		{
-			"name": "efywwvtwcp",
-			"subject": "test 1"
-		},
-		{
-			"name": "9ioz05urgp",
-			"subject": "test 1"
-		}
-	]
+[
+	{
+		"name": "r4qxyki0i6",
+		"subject": "test 1"
+	},
+	{
+		"name": "efywwvtwcp",
+		"subject": "test 1"
+	},
+	{
+		"name": "9ioz05urgp",
+		"subject": "test 1"
+	}
+]
 ```
 ## Tests
 
 All tests are in the `tests` folder and are run using `mocha`. To run tests
 
 ```sh
-	npm run test
+npm run test
 ```
 
