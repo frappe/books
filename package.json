@@ -11,7 +11,6 @@
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
     "node-fetch": "^1.7.3",
-    "nodemon": "^1.14.7",
     "sqlite3": "^3.1.13",
     "walk": "^2.3.9"
   },
@@ -29,8 +28,14 @@
   },
   "homepage": "https://github.com/frappe/frappe-js#readme",
   "devDependencies": {
+    "css-loader": "^0.28.7",
     "eslint": "^4.9.0",
     "mocha": "^4.0.1",
-    "webpack": "^3.8.1"
+    "node-sass": "^4.7.2",
+    "nodemon": "^1.14.7",
+    "primer": "10.2.0",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.19.1",
+    "webpack": "^3.10.0"
   }
 }

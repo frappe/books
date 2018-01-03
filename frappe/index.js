@@ -1,5 +1,6 @@
 const path = require('path');
 const bodyParser = require('body-parser');
+const express = require('express');
 
 module.exports = {
 	async init() {
@@ -49,6 +50,7 @@ module.exports = {
 	init_middleware() {
 		this.app.use(bodyParser.json());
 		this.app.use(bodyParser.urlencoded({ extended: true }));
+		this.app.use(express.static('frappe/client'));
 	},
 
 	async start(port=8000) {

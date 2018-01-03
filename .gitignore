@@ -3,6 +3,7 @@ node_modules
 Thumbs.db
 test.db
 *.log
+.cache
 
 /dist
 /temp
