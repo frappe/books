@@ -1,10 +1,10 @@
 const assert = require('assert');
 const frappe = require('frappe-core');
+const helpers = require('./helpers');
 
 describe('Meta', () => {
 	before(async function() {
-		await frappe.init();
-		await frappe.db.migrate();
+		await helpers.init_sqlite();
 	});
 
 	it('should get init from json file', () => {

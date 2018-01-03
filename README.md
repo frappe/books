@@ -43,10 +43,11 @@ Models are declared by adding a `.json` model file in the `models/doctype` folde
 
 ```js
 const frappe = require('frappe-core');
-frappe.init();
+await frappe.init();
+await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // sync all schema from `models` folders in all apps
-frappe.migrate();
+await frappe.migrate();
 ```
 
 ## Managing Documents
@@ -64,6 +65,7 @@ Documents are initialized with the `frappe.get_doc` method. If `doctype` and `na
 ```js
 const frappe = require('frappe-core');
 await frappe.init();
+await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // make a new todo
 let todo = await frappe.get_doc({doctype: 'ToDo', subject: 'something'});
@@ -76,6 +78,7 @@ You can insert a document in the backend with the `insert` method.
 ```js
 const frappe = require('frappe-core');
 await frappe.init();
+await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // make a new todo
 let todo = await frappe.get_doc({doctype: 'ToDo', subject: 'something'});
@@ -89,6 +92,7 @@ You can read a document from the backend with the `frappe.get_doc` method
 ```js
 const frappe = require('frappe-core');
 await frappe.init();
+await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // get all open todos
 let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
@@ -102,6 +106,7 @@ The `update` method updates a document.
 ```js
 const frappe = require('frappe-core');
 await frappe.init();
+await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // get all open todos
 let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
@@ -118,6 +123,7 @@ The `delete` method deletes a document.
 ```js
 const frappe = require('frappe-core');
 await frappe.init();
+await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // get all open todos
 let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
@@ -132,7 +138,8 @@ Metadata are first class objects in Frappe. You can get a metadata object by `fr
 
 ```js
 const frappe = require('frappe-core');
-frappe.init();
+await frappe.init();
+await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 let todo_meta = frappe.get_meta('ToDo');
 
@@ -189,7 +196,8 @@ You can also directly write SQL with `frappe.db.sql`
 
 ```js
 const frappe = require('frappe-core');
-frappe.init();
+await frappe.init();
+await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 all_todos = frappe.db.sql('select name from todo');
 ```

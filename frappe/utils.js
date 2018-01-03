@@ -19,5 +19,10 @@ module.exports = {
 			// number
 			return value + '';
 		}
+	},
+	async sleep(seconds) {
+		return new Promise(resolve => {
+			setTimeout(resolve, seconds * 1000);
+		});
 	}
 }

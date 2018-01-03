@@ -1,18 +1,18 @@
 const frappe = require('frappe-core');
 const sqlite3 = require('sqlite3').verbose();
 
-class SQLLiteDatabase {
-	constructor(db_name) {
-		this.conn_name = db_name;
+class sqliteDatabase {
+	constructor({db_path}) {
+		this.db_path = db_path;
 		this.init_type_map();
 	}
 
-	connect(db_name) {
-		if (db_name) {
-			this.conn_name = db_name;
+	connect(db_path) {
+		if (db_path) {
+			this.db_path = db_path;
 		}
 		return new Promise(resolve => {
-			this.conn = new sqlite3.Database(this.conn_name, () => {
+			this.conn = new sqlite3.Database(this.db_path, () => {
 				resolve();
 			});
 		});
@@ -211,4 +211,4 @@ class SQLLiteDatabase {
 
 }
 
-module.exports = { Database: SQLLiteDatabase };
+module.exports = { Database: sqliteDatabase };

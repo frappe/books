@@ -2,21 +2,21 @@ const path = require('path');
 const bodyParser = require('body-parser');
 
 module.exports = {
-	async init({db_name ='test.db', user, user_key, for_test} = {}) {
-		this.db_name = db_name;
+	async init() {
 		if (this._initialized) return;
 		this.init_config();
 		this.init_errors();
 		this.init_globals();
 		this.init_libs();
-		await this.init_db();
 		this._initialized = true;
-		this.login(user, user_key);
+
+		// login as guest
+		this.login();
 	},
 
 	init_config() {
 		this.config = {
-			backend: 'sqllite'
+			backend: 'sqlite'
 		};
 	},
 
@@ -56,10 +56,20 @@ module.exports = {
 		this.server = this.app.listen(port);
 	},
 
-	async init_db() {
-		let database = require('./backends/' + this.config.backend);
-		this.db = new database.Database(this.db_name);
-		await this.db.connect(this.db_name);
+	async init_db(db_type, options) {
+		var Database;
+		switch (db_type) {
+			case 'sqlite':
+				Database = require('./backends/sqlite').Database;
+				break;
+			case 'rest':
+				Database = require('./backends/rest_client').Database;
+				break;
+			default:
+				throw new Error(`${db_type} is not a supported database type`);
+		}
+		this.db = new Database(options);
+		await this.db.connect();
 	},
 
 	get_meta(doctype) {
@@ -86,7 +96,7 @@ module.exports = {
 		return await doc.insert();
 	},
 
-	login(user, user_key) {
+	login(user='guest', user_key) {
 		this.session = new this.session_lib.Session(user);
 		if (user && user_key) {
 			this.login(user_key);
@@ -95,6 +105,9 @@ module.exports = {
 
 	close() {
 		this.db.close();
-		this.server.close();
+
+		if (this.server) {
+			this.server.close();
+		}
 	}
 };

@@ -19,13 +19,13 @@ module.exports = {
 			return response.json(doc.get_valid_dict());
 		});
 
-		// get list
+		// get document
 		app.get('/api/resource/:doctype/:name', async function(request, response) {
 			let data = await frappe.get_doc(request.params.doctype, request.params.name).get_valid_dict();
 			return response.json(data);
 		});
 
-		// get list
+		// delete
 		app.delete('/api/resource/:doctype/:name', async function(request, response) {
 			let data = await frappe.get_doc(request.params.doctype, request.params.name).delete();
 			return response.json(data);

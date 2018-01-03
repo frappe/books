@@ -1,22 +1,33 @@
 const assert = require('assert');
 const frappe = require('frappe-core');
 const fetch = require('node-fetch');
+const helpers = require('./helpers');
+const { spawn } = require('child_process');
+const process = require('process');
 
-describe('Models', () => {
+// create a copy of frappe
+
+var test_server;
+
+describe('REST', () => {
 	before(async function() {
-		var app = require('express')();
-		await frappe.init();
-		frappe.init_app(app);
-		await frappe.start();
+		await helpers.init_sqlite();
+		test_server = spawn('node', ['frappe/tests/test_server.js'], {
+			stdio: [0, 'pipe', 'pipe' ]
+		});
+
+		// wait for server to start
+		await frappe.sleep(1);
 	});
 
 	after(() => {
 		frappe.close();
+		test_server.kill();
 	});
 
 	it('should create a document', async () => {
 		let res = await fetch('http://localhost:8000/api/resource/todo', {
-			method: 'post',
+			method: 'POST',
 			headers: {
 			  'Accept': 'application/json',
 			  'Content-Type': 'application/json'
@@ -29,9 +40,8 @@ describe('Models', () => {
 	});
 
 	// it('should create a document with rest backend', async () => {
-	// 	frappe.set_backend('rest', {
-	// 		server: 'http://localhost:8000'
-	// 	});
+
+	// 	frappe.init_db('rest', { server: 'http://localhost:8000' });
 
 	// 	let doc = await frappe.get_doc({doctype: 'ToDo', subject: 'test rest backend 1'});
 	// 	await doc.insert();
