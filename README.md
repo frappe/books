@@ -95,7 +95,7 @@ await frappe.init();
 await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // get all open todos
-let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
+let todos = await frappe.db.get_all({doctype:'ToDo', fields:['name'], filters: {status: "Open"});
 let first_todo = await frappe.get_doc('ToDo', toods[0].name);
 ```
 
@@ -109,7 +109,7 @@ await frappe.init();
 await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // get all open todos
-let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
+let todos = await frappe.db.get_all({doctype:'ToDo', fields:['name'], filters: {status: "Open"});
 let first_todo = await frappe.get_doc('ToDo', toods[0].name);
 
 first_todo.status = 'Closed';
@@ -126,7 +126,7 @@ await frappe.init();
 await frappe.init_db('sqlite', {db_path: 'test.db'});
 
 // get all open todos
-let todos = await frappe.db.get_all('ToDo', ['name'], {status: "Open"});
+let todos = await frappe.db.get_all({doctype:'ToDo', fields:['name'], filters: {status: "Open"});
 let first_todo = await frappe.get_doc('ToDo', toods[0].name);
 
 await first_todo.delete();
@@ -281,6 +281,28 @@ Response:
 	}
 ]
 ```
+
+## REST Client
+
+Frappe comes with a built in REST client so you can also use REST as a database backend with the frappe API
+
+### Create, Read, Update, Delete
+
+You can manage documents, using the same Document API as if it were a local database
+
+```js
+await frappe.init();
+await frappe.init_db('rest', {server: 'localhost:8000'});
+
+let doc = await frappe.get_doc({doctype:'ToDo', subject:'test rest insert 1'});
+await doc.insert();
+
+doc.subject = 'subject changed';
+await doc.update();
+
+let data = await frappe.db.get_all({doctype:'ToDo'});
+```
+
 ## Tests
 
 All tests are in the `tests` folder and are run using `mocha`. To run tests

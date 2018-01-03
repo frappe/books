@@ -88,11 +88,12 @@ class sqliteDatabase {
 		return await this.run(`delete from ${frappe.slug(doctype)} where name=?`, name);
 	}
 
-	get_all(doctype, fields=['name'], filters, start, limit) {
+	get_all({doctype, fields=['name'], filters, start, limit, order_by='modified', order='desc'} = {}) {
 		return new Promise(resolve => {
 			this.conn.all(`select ${fields.join(", ")}
 				from ${frappe.slug(doctype)}
 				${filters ? "where" : ""} ${this.get_filter_conditions(filters)}
+				${order_by ? ("order by " + order_by) : ""} ${order_by ? (order || "asc") : ""}
 				${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`,
 				(err, rows) => {
 					resolve(rows);
@@ -153,7 +154,12 @@ class sqliteDatabase {
 			filters = {name: filters};
 		}
 
-		let row = await this.get_all(doctype, [fieldname], filters, 0, 1);
+		let row = await this.get_all({
+			doctype:doctype,
+			fields: [fieldname],
+			filters: filters,
+			start: 0,
+			limit: 1});
 		return row.length ? row[0][fieldname] : null;
 	}
 
