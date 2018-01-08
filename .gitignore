@@ -1,0 +1,14 @@
+node_modules
+.DS_Store
+Thumbs.db
+test.db
+*.log
+.cache
+
+/dist
+/temp
+
+# ignore everything in 'app' folder what had been generated from 'src' folder
+/app/app.js
+/app/background.js
+/app/**/*.map

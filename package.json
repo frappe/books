@@ -1,0 +1,23 @@
+{
+  "name": "frappe-todo",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "node-fetch": "^1.7.3",
+    "sqlite3": "^3.1.13",
+    "walk": "^2.3.9",
+    "autoprefixer": "^7.2.4",
+    "bootstrap": "4.0.0-alpha.6",
+    "css-loader": "^0.28.8",
+    "node-sass": "^4.7.2",
+    "postcss-loader": "^2.0.10",
+    "precss": "^2.0.0",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.19.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.7"
+  }
+}

@@ -1,0 +1,27 @@
+$gray-000:        #fafbfc !default;
+$gray-100:        #f6f8fa !default;
+$gray-200:        #e1e4e8 !default;
+$gray-300:        #d1d5da !default;
+$gray-400:        #959da5 !default;
+$gray-500:        #6a737d !default;
+$gray-600:        #586069 !default;
+$gray-700:        #444d56 !default;
+$gray-800:        #2f363d !default;
+$gray-900: #24292e !default; // body font color
+
+@import "node_modules/bootstrap/scss/bootstrap";
+
+html {
+	font-size: 14px;
+}
+
+.wrapper {
+	margin-top: 20px;
+	display: grid;
+	grid-template-columns: 1fr 4fr;
+	grid-auto-rows: minmax(500px, auto);
+}
+
+.sidebar {
+	background-color: $gray-100;
+}
