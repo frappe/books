@@ -1,23 +1,16 @@
-const path = require('path');
-const bodyParser = require('body-parser');
-const express = require('express');
-
 module.exports = {
 	async init() {
 		if (this._initialized) return;
 		this.init_config();
 		this.init_errors();
 		this.init_globals();
-		this.init_libs();
 		this._initialized = true;
-
-		// login as guest
-		this.login();
 	},
 
 	init_config() {
 		this.config = {
-			backend: 'sqlite'
+			backend: 'sqlite',
+			port: 8000
 		};
 	},
 
@@ -29,56 +22,33 @@ module.exports = {
 		this.meta_cache = {};
 	},
 
-	init_libs() {
-		this.utils = require('./utils');
-		Object.assign(this, this.utils);
-		let models = require('./model/models');
-		this.models = new models.Models();
-		this.model = require('./model');
-		this.document = require('./model/document');
-		this.meta = require('./model/meta');
-		this.session_lib = require('./session');
-		this.rest_server = require('./rest_server');
-	},
+	init_view({container, main, sidebar}) {
+		this.container = container;
 
-	init_app(app) {
-		this.app = app;
-		this.init_middleware();
-		this.rest_server.setup(this.app);
-	},
-
-	init_middleware() {
-		this.app.use(bodyParser.json());
-		this.app.use(bodyParser.urlencoded({ extended: true }));
-		this.app.use(express.static('frappe/client'));
-	},
-
-	async start(port=8000) {
-		await this.db.migrate();
-		this.server = this.app.listen(port);
-	},
-
-	async init_db(db_type, options) {
-		var Database;
-		switch (db_type) {
-			case 'sqlite':
-				Database = require('./backends/sqlite').Database;
-				break;
-			case 'rest':
-				Database = require('./backends/rest_client').Database;
-				break;
-			default:
-				throw new Error(`${db_type} is not a supported database type`);
+		if (sidebar) {
+			this.sidebar = sidebar;
+		} else {
+			this.sidebar = $('<div class="sidebar"></div>').appendTo(this.container);
 		}
-		this.db = new Database(options);
-		await this.db.connect();
+
+		if (main) {
+			this.main = main;
+		} else {
+			this.main = $('<div class="main"></div>').appendTo(this.container);
+		}
 	},
 
 	get_meta(doctype) {
 		if (!this.meta_cache[doctype]) {
-			this.meta_cache[doctype] = new this.meta.Meta(this.models.get('DocType', doctype));
+			this.meta_cache[doctype] = new (this.models.get_meta_class(doctype))(this.models.get('DocType', doctype));
 		}
 		return this.meta_cache[doctype];
+	},
+
+	init_controller(doctype, module) {
+		doctype = this.slug(doctype);
+		this.models.controllers[doctype] = module[doctype];
+		this.models.meta_classes[doctype] = module[doctype + '_meta'];
 	},
 
 	async get_doc(data, name) {
@@ -99,9 +69,9 @@ module.exports = {
 	},
 
 	login(user='guest', user_key) {
-		this.session = new this.session_lib.Session(user);
+		this.session = new this._session.Session(user);
 		if (user && user_key) {
-			this.login(user_key);
+			this.authenticate(user_key);
 		}
 	},
 

@@ -1,11 +1,6 @@
-const app = require('express')();
-const frappe = require('frappe-core');
+const server = require('frappe-core/frappe/server');
 
-async function start() {
-	await frappe.init();
-	await frappe.init_db('sqlite', {db_path: 'test.db'});
-	await frappe.init_app(app);
-	await frappe.start();
-}
-
-start();
+server.start({
+	backend: 'sqllite',
+	connection_params: {db_path: 'test.db'}
+});

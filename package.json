@@ -12,7 +12,8 @@
     "express": "^4.16.2",
     "node-fetch": "^1.7.3",
     "sqlite3": "^3.1.13",
-    "walk": "^2.3.9"
+    "walk": "^2.3.9",
+    "webpack-dev-server": "^2.9.7"
   },
   "repository": {
     "type": "git",

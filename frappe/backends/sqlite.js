@@ -19,7 +19,7 @@ class sqliteDatabase {
 	}
 
 	async migrate() {
-		for (let doctype in frappe.models.path_map.doctype) {
+		for (let doctype in frappe.models.data.doctype) {
 			if (await this.table_exists(doctype)) {
 				await this.alter_table(doctype);
 			} else {
@@ -35,7 +35,7 @@ class sqliteDatabase {
 
 		for (let df of this.get_fields(meta)) {
 			if (this.type_map[df.fieldtype]) {
-				columns.push(`${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd ? "not null" : ""} ${df.default ? ("default " + frappe.utils.sqlescape(df.default)) : ""}`);
+				columns.push(`${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd ? "not null" : ""} ${df.default ? ("default " + frappe.sqlescape(df.default)) : ""}`);
 			}
 		}
 
@@ -164,7 +164,7 @@ class sqliteDatabase {
 	}
 
 	escape(value) {
-		return frappe.utils.sqlescape(value);
+		return frappe.sqlescape(value);
 	}
 
 	get_fields(meta) {

@@ -1,9 +1,10 @@
-const frappe = require('frappe-core');
+const server = require('frappe-core/frappe/server');
 
 module.exports = {
 	async init_sqlite() {
-		await frappe.init();
-		await frappe.init_db('sqlite', {db_path: 'test.db'});
-		await frappe.db.migrate();
+		server.init({
+			backend: 'sqllite',
+			connection_params: {db_path: 'test.db'}
+		});
 	}
 }

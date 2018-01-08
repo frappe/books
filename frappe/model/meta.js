@@ -65,6 +65,21 @@ class Meta extends Document {
 	trigger(key) {
 
 	}
+
+	// views
+	async get_list(start, limit=20) {
+		return await frappe.db.get_all({
+			doctype: this.name,
+			fields: ['name'],
+			start: start,
+			limit: limit
+		});
+	}
+
+	get_row_html(data) {
+		return `<a href="/view/${this.name}/${data.name}">${data.name}</a>`;
+	}
+
 }
 
 module.exports = { Meta: Meta }
