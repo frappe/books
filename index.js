@@ -1,32 +1,50 @@
 require('./scss/main.scss');
-window.$ = require('jquery');
 
-const common = require('frappe-core/frappe/common');
-const Database = require('frappe-core/frappe/backends/rest_client').Database
+const client = require('frappe-core/frappe/client');
 
-window.frappe = require('frappe-core');
-const listview = require('frappe-core/frappe/view/list.js');
+const ListView = require('frappe-core/frappe/client/view/list').ListView;
+const Page = require('frappe-core/frappe/client/view/page').Page;
+const Form = require('frappe-core/frappe/client/view/form').Form;
 
-async function start() {
-	frappe.init();
-	common.init_libs(frappe);
+window.todo_app = {};
 
-	frappe.db = await new Database({
-		server: 'localhost:8000',
-		fetch: window.fetch.bind()
-	});
-
+// start server
+client.start({
+	server: 'localhost:8000',
+	container: document.querySelector('.container'),
+}).then(() => {
 	const todo = require('frappe-core/frappe/models/doctype/todo/todo.js');
 	frappe.init_controller('todo', todo);
 
-	frappe.init_view({container: $('.container')});
-}
+	// make pages
+	todo_app.edit_page = new Page('Edit To Do');
+	todo_app.todo_list = new Page('ToDo List');
 
-start().then(() => {
-	let todo_list = new listview.ListView({
-		doctype: 'ToDo',
-		parent: frappe.main
+	// to do list
+	frappe.router.add('default', () => {
+		todo_app.todo_list.show();
+		if (!todo_app.todo_list.list) {
+			todo_app.todo_list.list = new ListView({
+				doctype: 'ToDo',
+				parent: todo_app.todo_list.body
+			});
+		}
+		todo_app.todo_list.list.run();
 	});
-	todo_list.render();
-})
 
+	// setup todo form
+	frappe.router.add('todo/:name', async (params) => {
+		todo_app.edit_page.show();
+		if (!todo_app.edit_page.form) {
+			todo_app.edit_page.form = new Form({
+				doctype: 'ToDo',
+				parent: todo_app.edit_page.body
+			});
+			todo_app.edit_page.form.make();
+		}
+		todo_app.doc = await frappe.get_doc('ToDo', params.name);
+		todo_app.edit_page.form.use(todo_app.doc);
+	});
+
+	frappe.router.show(window.location.hash);
+});
