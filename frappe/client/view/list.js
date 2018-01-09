@@ -13,9 +13,9 @@ class ListView {
 		this.rows = [];
 	}
 
-	async render() {
+	async run() {
 		this.make_body();
-		let data = await this.meta.get_list(this.start, this.page_length);
+		let data = await this.meta.get_list({start:this.start, limit:this.page_length});
 
 		for (let i=0; i< data.length; i++) {
 			this.render_row(this.start + i, data[i]);
@@ -24,19 +24,18 @@ class ListView {
 
 	make_body() {
 		if (!this.body) {
-			this.body = $('<div class="list-body"></div>')
-				.appendTo(frappe.main);
+			this.body = frappe.ui.add('div', 'list-body', this.parent);
 		}
 	}
 
 	render_row(i, data) {
 		let row = this.get_row(i);
-		row.html(this.meta.get_row_html(data));
+		row.innerHTML = this.meta.get_row_html(data);
 	}
 
 	get_row(i) {
 		if (!this.rows[i]) {
-			this.rows[i] = $('<div class="list-row"></div>').appendTo(this.body);
+			this.rows[i] = frappe.ui.add('div', 'list-row', this.body);
 		}
 		return this.rows[i];
 	}

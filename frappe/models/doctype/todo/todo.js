@@ -1,17 +1,14 @@
 const frappe = require('frappe-core');
 
 class todo_meta extends frappe.meta.Meta {
-	async get_list(start, limit=20) {
-		return await frappe.db.get_all({
-			doctype: 'ToDo',
-			fields: ['name', 'subject', 'status', 'description'],
-			start: start,
-			limit: limit
-		});
+	setup_meta() {
+		Object.assign(this, require('./todo.json'));
+		this.name = 'ToDo';
+		this.list_options.fields = ['name', 'subject', 'status', 'description'];
 	}
 
 	get_row_html(data) {
-		return `<a href="/view/todo/${data.name}">${data.subject}</a>`;
+		return `<a href="#todo/${data.name}">${data.subject}</a>`;
 	}
 
 }

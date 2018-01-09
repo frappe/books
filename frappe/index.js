@@ -22,22 +22,6 @@ module.exports = {
 		this.meta_cache = {};
 	},
 
-	init_view({container, main, sidebar}) {
-		this.container = container;
-
-		if (sidebar) {
-			this.sidebar = sidebar;
-		} else {
-			this.sidebar = $('<div class="sidebar"></div>').appendTo(this.container);
-		}
-
-		if (main) {
-			this.main = main;
-		} else {
-			this.main = $('<div class="main"></div>').appendTo(this.container);
-		}
-	},
-
 	get_meta(doctype) {
 		if (!this.meta_cache[doctype]) {
 			this.meta_cache[doctype] = new (this.models.get_meta_class(doctype))(this.models.get('DocType', doctype));

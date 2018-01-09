@@ -5,6 +5,12 @@ class Meta extends Document {
 	constructor(data) {
 		super(data);
 		this.event_handlers = {};
+		this.list_options = {
+			fields: ['name', 'modified']
+		};
+		if (this.setup_meta)  {
+			this.setup_meta();
+		}
 	}
 
 	get_field(fieldname) {
@@ -22,6 +28,15 @@ class Meta extends Document {
 			this.event_handlers[key] = [];
 		}
 		this.event_handlers[key].push(fn);
+	}
+
+	async set(fieldname, value) {
+		this[fieldname] = value;
+		await this.trigger(fieldname);
+	}
+
+	get(fieldname) {
+		return this[fieldname];
 	}
 
 	get_valid_fields() {
@@ -62,15 +77,26 @@ class Meta extends Document {
 		}
 	}
 
-	trigger(key) {
+	async trigger(key, event = {}) {
 
+		Object.assign(event, {
+			doc: this,
+			name: key
+		});
+
+		if (this.event_handlers[key]) {
+			for (var handler of this.event_handlers[key]) {
+				await handler(event);
+			}
+		}
 	}
 
-	// views
-	async get_list(start, limit=20) {
+	// collections
+	async get_list({start, limit=20, filters}) {
 		return await frappe.db.get_all({
 			doctype: this.name,
-			fields: ['name'],
+			fields: this.list_options.fields,
+			filters: filters,
 			start: start,
 			limit: limit
 		});

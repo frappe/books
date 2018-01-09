@@ -11,6 +11,10 @@ class Document {
 		// add handlers
 	}
 
+	clear_handlers() {
+		this.handlers = {};
+	}
+
 	add_handler(key, method) {
 		if (!this.handlers[key]) {
 			this.handlers[key] = [];
