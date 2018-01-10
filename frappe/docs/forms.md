@@ -44,20 +44,19 @@ edit_page.on('show', async (params) => {
 To setup a form for a new document, just create a new document with the Frappe.js document helpers, and `use` it with paramter `is_new` = true
 
 ```js
-	// setup todo new
-	frappe.router.add('new/todo', async (params) => {
+// setup todo new
+frappe.router.add('new/todo', async (params) => {
 
-		// new document
-		app.doc = await frappe.get_doc({doctype: 'ToDo'});
+	// new document
+	app.doc = await frappe.get_doc({doctype: 'ToDo'});
 
-		// set a random name
-		app.doc.set_name();
+	// set a random name
+	app.doc.set_name();
 
-		// show the page
-		app.edit_page.show();
+	// show the page
+	app.edit_page.show();
 
-		// is_new=true
-		app.edit_page.form.use(app.doc, true);
-	});
-
+	// is_new=true
+	app.edit_page.form.use(app.doc, true);
+});
 ```
