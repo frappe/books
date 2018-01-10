@@ -2,13 +2,12 @@ const frappe = require('frappe-core');
 const path = require('path');
 
 class RESTClient {
-	constructor({server, protocol='http', fetch}) {
+	constructor({server, protocol='http'}) {
 		this.server = server;
 		this.protocol = protocol;
 
 		this.init_type_map();
 
-		frappe.fetch = fetch;
 		this.json_headers = {
 			'Accept': 'application/json',
 			'Content-Type': 'application/json'

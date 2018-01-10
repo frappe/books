@@ -11,9 +11,13 @@ class Form {
 		this.controls_list = [];
 
 		this.meta = frappe.get_meta(this.doctype);
+		this.make();
 	}
 
 	make() {
+		if (this.body || !this.parent) {
+			return;
+		}
 		this.body = frappe.ui.add('form', null, this.parent);
 		for(let df of this.meta.fields) {
 			if (controls.get_control_class(df.fieldtype)) {

@@ -1,0 +1,65 @@
+# Controllers
+
+In Frappe.js you can extend the metadata class as well as the document class for a particular DocType. The `meta` class contains actions that are done on a group of objects and a document represents a single object. So properties and actions related to the group will be part of the `meta` class
+
+You can write event handlers in controllers, by declaring a `.js` file in the `models/doctype/` folder along with the model file.
+
+### Naming
+
+1. The name of the controller class must be the slugged name of the DocType (example `todo`)
+2. The name of the `meta` class must be the name of the controller class prefixed by `meta_` (example `meta_todo`)
+
+To add a standard handler, you must bind all handlers in `setup` method.
+
+### Example
+
+```js
+const frappe = require('frappe-core');
+
+// extend the meta class
+class todo_meta extends frappe.meta.Meta {
+	setup_meta() {
+		Object.assign(this, require('./todo.json'));
+		this.name = 'ToDo';
+		this.list_options.fields = ['name', 'subject', 'status', 'description'];
+	}
+
+	get_row_html(data) {
+		return `<a href="#edit/todo/${data.name}">${data.subject}</a>`;
+	}
+
+}
+
+// extend the document and add event handlers
+class todo extends frappe.document.Document {
+	setup() {
+		this.add_handler('validate');
+	}
+	validate() {
+		if (!this.status) {
+			this.status = 'Open';
+		}
+	}
+}
+
+module.exports = {
+	todo: todo,
+	todo_meta: todo_meta
+};
+```
+
+### Controller Events
+
+Standard events on which you can bind handlers are
+
+- `before_insert`
+- `before_update`
+- `validate` (called before any write)
+- `after_insert`,
+- `after_update` (called after any write)
+- `before_submit`
+- `after_submit`
+- `before_cancel`
+- `after_cancel`
+- `before_delete`
+- `after_delete`
