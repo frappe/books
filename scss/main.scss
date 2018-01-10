@@ -18,13 +18,26 @@ html {
 .wrapper {
 	display: grid;
 	grid-template-columns: 1fr 4fr;
-	grid-auto-rows: minmax(500px, auto);
+	grid-auto-rows: minmax(100%, auto);
+	height: 100vh;
 }
 
 .sidebar {
 	background-color: $gray-100;
 }
 
+.main, .sidebar {
+	padding: 2rem;
+}
+
 .hide {
 	display: none !important;
+}
+
+form .alert {
+	margin-top: 1rem;
+}
+
+textarea.form-control {
+	line-height: 1.5;
 }
