@@ -13,7 +13,6 @@ window.app = {
 			doctype: 'ToDo',
 			parent: this.edit_page.body
 		});
-		this.edit_page.form.make();
 	},
 	setup_list() {
 		this.todo_list = new Page('ToDo List');
