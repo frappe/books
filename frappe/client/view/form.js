@@ -26,12 +26,25 @@ class Form {
 	}
 
 	make_submit() {
-		this.submit_btn = frappe.ui.add('button', 'btn btn-primary', this.body);
+		this.submit_btn = frappe.ui.add('button', 'btn btn-outline-primary', this.body);
 		this.submit_btn.setAttribute('type', 'submit');
 		this.submit_btn.textContent = this.submit_label;
 		this.submit_btn.addEventListener('click', (event) => {
 			this.submit();
+			event.preventDefault();
 		})
+	}
+
+	show_alert(message, type) {
+		this.alert = frappe.ui.add('div', `alert alert-${type}`, this.body);
+		this.alert.textContent = message;
+	}
+
+	clear_alert() {
+		if (this.alert) {
+			frappe.ui.remove(this.alert);
+			this.alert = null;
+		}
 	}
 
 	async use(doc, is_new = false) {
@@ -39,6 +52,7 @@ class Form {
 			// clear handlers of outgoing doc
 			this.doc.clear_handlers();
 		}
+		this.clear_alert();
 		this.doc = doc;
 		this.is_new = is_new;
 		for (let control of this.controls_list) {
@@ -47,12 +61,17 @@ class Form {
 	}
 
 	async submit() {
-		if (this.is_new) {
-			await this.doc.insert();
-		} else {
-			await this.doc.update();
+		try {
+			if (this.is_new) {
+				await this.doc.insert();
+			} else {
+				await this.doc.update();
+			}
+			await this.refresh();
+			this.show_alert('Saved', 'success');
+		} catch (e) {
+			this.show_alert('Failed', 'danger');
 		}
-		await this.refresh();
 	}
 
 	refresh() {

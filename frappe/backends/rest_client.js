@@ -5,6 +5,9 @@ class RESTClient {
 	constructor({server, protocol='http', fetch}) {
 		this.server = server;
 		this.protocol = protocol;
+
+		this.init_type_map();
+
 		frappe.fetch = fetch;
 		this.json_headers = {
 			'Accept': 'application/json',
@@ -76,6 +79,36 @@ class RESTClient {
 		});
 
 		return await response.json();
+	}
+
+	init_type_map() {
+		this.type_map = {
+			'Currency':		true
+			,'Int':			true
+			,'Float':		true
+			,'Percent':		true
+			,'Check':		true
+			,'Small Text':	true
+			,'Long Text':	true
+			,'Code':		true
+			,'Text Editor':	true
+			,'Date':		true
+			,'Datetime':	true
+			,'Time':		true
+			,'Text':		true
+			,'Data':		true
+			,'Link':		true
+			,'Dynamic Link':true
+			,'Password':	true
+			,'Select':		true
+			,'Read Only':	true
+			,'Attach':		true
+			,'Attach Image':true
+			,'Signature':	true
+			,'Color':		true
+			,'Barcode':		true
+			,'Geolocation':	true
+		}
 	}
 
 	close() {

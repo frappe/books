@@ -38,6 +38,7 @@ class BaseControl {
 			this.make_form_group();
 			this.make_label();
 			this.make_input();
+			this.set_input_name();
 			this.make_description();
 			this.bind_change_event();
 		}
@@ -54,7 +55,10 @@ class BaseControl {
 
 	make_input() {
 		this.input = frappe.ui.add('input', 'form-control', this.form_group);
-		this.input.setAttribute('type', this.fieldname);
+	}
+
+	set_input_name() {
+		this.input.setAttribute('name', this.fieldname);
 	}
 
 	make_description() {
@@ -65,6 +69,9 @@ class BaseControl {
 	}
 
 	set_input_value(value) {
+		if (value === undefined || value === null) {
+			value = '';
+		}
 		this.input.value = value;
 	}
 
@@ -76,8 +83,12 @@ class BaseControl {
 		return value;
 	}
 
+	async validate(value) {
+		return value;
+	}
+
 	bind_change_event() {
-		this.input.addEventListener('change', () => this.handle_change(e));
+		this.input.addEventListener('change', (e) => this.handle_change(e));
 	}
 
 	async handle_change(e) {

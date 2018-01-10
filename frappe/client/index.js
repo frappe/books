@@ -18,6 +18,7 @@ module.exports = {
 
 		frappe.view.init({container: container});
 		frappe.router = new Router();
+		await frappe.login();
 	}
 };
 

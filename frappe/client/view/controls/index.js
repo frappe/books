@@ -1,5 +1,7 @@
 const control_classes = {
-	Data: require('./data')
+	Data: require('./data'),
+	Text: require('./text'),
+	Select: require('./select')
 }
 
 

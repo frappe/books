@@ -13,6 +13,8 @@ class sqliteDatabase {
 		}
 		return new Promise(resolve => {
 			this.conn = new sqlite3.Database(this.db_path, () => {
+				// debug
+				// this.conn.on('trace', (trace) => console.log(trace));
 				resolve();
 			});
 		});
@@ -32,10 +34,14 @@ class sqliteDatabase {
 	async create_table(doctype) {
 		let meta = frappe.get_meta(doctype);
 		let columns = [];
+		let values = [];
 
 		for (let df of this.get_fields(meta)) {
 			if (this.type_map[df.fieldtype]) {
-				columns.push(`${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd ? "not null" : ""} ${df.default ? ("default " + frappe.sqlescape(df.default)) : ""}`);
+				columns.push(`${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd ? "not null" : ""} ${df.default ? "default ?" : ""}`);
+				if (df.default) {
+					values.push(df.default);
+				}
 			}
 		}
 
@@ -70,18 +76,29 @@ class sqliteDatabase {
 	}
 
 	async insert(doctype, doc) {
+		let placeholders = Object.keys(doc).map(d => '?').join(', ');
 		return await this.run(`insert into ${frappe.slug(doctype)}
 			(${Object.keys(doc).join(", ")})
-			values (${Object.values(doc).map(d => frappe.db.escape(d)).join(", ")})`);
+			values (${placeholders})`, this.get_formatted_values(doc));
 	}
 
 	async update(doctype, doc) {
-		let assigns = [];
-		for (let key in doc) {
-			assigns.push(`${key} = ${this.escape(doc[key])}`);
-		}
+		let assigns = Object.keys(doc).map(key => `${key} = ?`);
+		let values = this.get_formatted_values(doc);
+		values.push(doc.name);
+
 		return await this.run(`update ${frappe.slug(doctype)}
-				set ${assigns.join(", ")}`);
+				set ${assigns.join(", ")} where name=?`, values);
+	}
+
+	get_formatted_values(doc) {
+		return Object.values(doc).map(value => {
+			if (value instanceof Date) {
+				return value.toISOString();
+			} else {
+				return value;
+			}
+		})
 	}
 
 	async delete(doctype, name) {
@@ -89,14 +106,20 @@ class sqliteDatabase {
 	}
 
 	get_all({doctype, fields=['name'], filters, start, limit, order_by='modified', order='desc'} = {}) {
-		return new Promise(resolve => {
+		return new Promise((resolve, reject) => {
+			let conditions = this.get_filter_conditions(filters);
+
 			this.conn.all(`select ${fields.join(", ")}
 				from ${frappe.slug(doctype)}
-				${filters ? "where" : ""} ${this.get_filter_conditions(filters)}
+				${conditions.conditions ? "where" : ""} ${conditions.conditions}
 				${order_by ? ("order by " + order_by) : ""} ${order_by ? (order || "asc") : ""}
-				${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`,
+				${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`, conditions.values,
 				(err, rows) => {
-					resolve(rows);
+					if (err) {
+						reject(err);
+					} else {
+						resolve(rows);
+					}
 				});
 		});
 	}
@@ -106,22 +129,27 @@ class sqliteDatabase {
 		// {"status": "Open", "name": ["like", "apple%"]}
 			// => `status="Open" and name like "apple%"
 		let conditions = [];
+		let values = [];
 		for (let key in filters) {
 			const value = filters[key];
 			if (value instanceof Array) {
-				conditions.push(`${key} ${value[0]} ${this.escape(value)}`);
+				conditions.push(`${key} ${value[0]} ?`);
 			} else {
-				conditions.push(`${key} = ${this.escape(value)}`);
+				conditions.push(`${key} = ?`);
 			}
+			values.push(value);
 		}
-		return conditions.join(" and ");
+		return {
+			conditions: conditions.length ? conditions.join(" and ") : "",
+			values: values
+		};
 	}
 
 	run(query, params) {
-		//console.log(query);
 		return new Promise((resolve, reject) => {
 			this.conn.run(query, params, (err) => {
 				if (err) {
+					console.log(err);
 					reject(err);
 				} else {
 					resolve();
@@ -131,7 +159,6 @@ class sqliteDatabase {
 	}
 
 	sql(query, params) {
-		//console.log(query);
 		return new Promise((resolve) => {
 			this.conn.all(query, params, (err, rows) => {
 				resolve(rows);
@@ -161,10 +188,6 @@ class sqliteDatabase {
 			start: 0,
 			limit: 1});
 		return row.length ? row[0][fieldname] : null;
-	}
-
-	escape(value) {
-		return frappe.sqlescape(value);
 	}
 
 	get_fields(meta) {

@@ -8,7 +8,7 @@ class todo_meta extends frappe.meta.Meta {
 	}
 
 	get_row_html(data) {
-		return `<a href="#todo/${data.name}">${data.subject}</a>`;
+		return `<a href="#edit/todo/${data.name}">${data.subject}</a>`;
 	}
 
 }

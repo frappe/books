@@ -14,6 +14,10 @@ module.exports = {
 		return element;
 	},
 
+	remove(element) {
+		element.parentNode.removeChild(element);
+	},
+
 	add_class(element, className) {
 		if (element.classList) {
 			element.classList.add(className);
