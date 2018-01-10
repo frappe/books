@@ -12,7 +12,7 @@ Frappe.js is a meta-data driven framework that enables rapid application develop
 - [Server](server.md)
 	 - [REST API](rest.md)
 - [Client](client.md)
-	- [Routing](routing.md)
+	- [Routing](router.md)
 	- [Page](page.md)
 	- [Lists](lists.md)
 	- [Forms](forms.md)
