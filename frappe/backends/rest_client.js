@@ -41,16 +41,18 @@ class RESTClient {
 
 	async get_all({doctype, fields, filters, start, limit, sort_by, order}) {
 		let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}`);
+
+		url = url + "?" + this.get_query_string({
+			fields: JSON.stringify(fields),
+			filters: JSON.stringify(filters),
+			start: start,
+			limit: limit,
+			sort_by: sort_by,
+			order: order
+		});
+
 		let response = await frappe.fetch(url, {
 			method: 'GET',
-			params: {
-				fields: JSON.stringify(fields),
-				filters: JSON.stringify(filters),
-				start: start,
-				limit: limit,
-				sort_by: sort_by,
-				order: order
-			},
 			headers: this.json_headers
 		});
 		return await response.json();
@@ -78,6 +80,13 @@ class RESTClient {
 		});
 
 		return await response.json();
+	}
+
+	get_query_string(params) {
+		return Object.keys(params)
+			.map(k => params[k] != null ? encodeURIComponent(k) + '=' + encodeURIComponent(params[k]) : null)
+			.filter(v => v)
+			.join('&');
 	}
 
 	init_type_map() {

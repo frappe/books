@@ -19,7 +19,8 @@ describe('REST', () => {
 		await frappe.init();
 		await frappe.login();
 
-		frappe.db = await new Database({server: 'localhost:8000', fetch: fetch});
+		frappe.db = await new Database({server: 'localhost:8000'});
+		frappe.fetch = fetch;
 
 		// wait for server to start
 		await frappe.sleep(1);

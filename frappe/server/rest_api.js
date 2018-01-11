@@ -6,19 +6,19 @@ module.exports = {
 		app.get('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
 			let fields, filters;
 			for (key of ['fields', 'filters']) {
-				if (request.params[key]) {
-					request.params[key] = JSON.parse(request.params[key]);
+				if (request.query[key]) {
+					request.query[key] = JSON.parse(request.query[key]);
 				}
 			}
 
 			let data = await frappe.db.get_all({
 				doctype: request.params.doctype,
-				fields: request.params.fields || ['name', 'subject'],
-				filters: request.params.filters,
-				start: request.params.start || 0,
-				limit: request.params.limit || 20,
-				order_by: request.params.order_by,
-				order: request.params.order
+				fields: request.query.fields || ['name', 'subject'],
+				filters: request.query.filters,
+				start: request.query.start || 0,
+				limit: request.query.limit || 20,
+				order_by: request.query.order_by,
+				order: request.query.order
 			});
 
 			return response.json(data);

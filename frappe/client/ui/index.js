@@ -1,4 +1,5 @@
 const frappe = require('frappe-core');
+const Dropdown = require('./dropdown');
 
 module.exports = {
 	add(tag, className, parent) {
@@ -32,6 +33,14 @@ module.exports = {
 		} else {
 			element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
 		}
+	},
+
+	toggle(element, default_display = '') {
+		element.style.display = element.style.display === 'none' ? default_display : 'none';
+	},
+
+	make_dropdown(label, parent, btn_class = 'btn-secondary') {
+		return new Dropdown({parent: parent, label:label, btn_class:btn_class});
 	}
 
 }

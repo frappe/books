@@ -1,5 +1,5 @@
 const backends = {};
-backends.sqllite = require('frappe-core/frappe/backends/sqlite');
+backends.sqlite = require('frappe-core/frappe/backends/sqlite');
 
 const express = require('express');
 const app = express();
@@ -20,13 +20,16 @@ module.exports = {
 
 	},
 
-	async start({backend, connection_params, static}) {
-		await this.init();
-
-		// database
+	async init_db({backend, connection_params}) {
 		frappe.db = await new backends[backend].Database(connection_params);
 		await frappe.db.connect();
 		await frappe.db.migrate();
+	},
+
+	async start({backend, connection_params, static}) {
+		await this.init();
+		await this.init_db({backend:backend, connection_params:connection_params});
+		// database
 
 		// app
 		app.use(bodyParser.json());

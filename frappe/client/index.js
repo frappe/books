@@ -11,10 +11,8 @@ module.exports = {
 		frappe.init();
 		common.init_libs(frappe);
 
-		frappe.db = await new Database({
-			server: server,
-			fetch: window.fetch.bind()
-		});
+		frappe.fetch = window.fetch.bind();
+		frappe.db = await new Database({server: server});
 
 		frappe.view.init({container: container});
 		frappe.router = new Router();
