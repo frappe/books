@@ -18,15 +18,20 @@ window.app = {
 		this.todo_list = new Page('ToDo List');
 		this.todo_list.list = new ListView({
 			doctype: 'ToDo',
-			parent: this.todo_list.body
+			parent: this.todo_list.body,
+			fields: ['name', 'subject', 'status']
 		});
+		this.todo_list.list.meta.get_row_html = (data) => {
+			const sign = data.status === 'Open' ? '✔' : '✘';
+			return `<p><a href="#edit/todo/${data.name}">${sign} ${data.subject}</a></p>`;
+		}
 	}
 };
 
 // start server
 client.start({
 	server: 'localhost:8000',
-	container: document.querySelector('.container'),
+	container: document.querySelector('.wrapper'),
 }).then(() => {
 	const todo = require('frappe-core/frappe/models/doctype/todo/todo.js');
 	frappe.init_controller('todo', todo);

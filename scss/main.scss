@@ -24,6 +24,7 @@ html {
 
 .sidebar {
 	background-color: $gray-100;
+	margin-left: -15px;
 }
 
 .main, .sidebar {
@@ -34,8 +35,15 @@ html {
 	display: none !important;
 }
 
-form .alert {
-	margin-top: 1rem;
+.form-body {
+	.form-toolbar {
+		height: 2rem;
+		margin-bottom: 1rem;
+	}
+
+	.alert {
+		margin-top: 1rem;
+	}
 }
 
 textarea.form-control {
