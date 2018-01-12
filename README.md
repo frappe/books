@@ -12,7 +12,7 @@ Frappe.js is a meta-data driven framework that enables rapid application develop
 
 ## Documentation
 
-[Read the full docs](frappe/docs/index.md)
+[Read the full docs](docs/index.md)
 
 ## License
 
