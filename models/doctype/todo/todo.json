@@ -1,0 +1,34 @@
+{
+	"autoname": "hash",
+	"name": "ToDo",
+	"doctype": "DocType",
+	"issingle": 0,
+	"keyword_fields": [
+		"subject",
+		"description"
+	],
+	"fields": [
+		{
+			"fieldname": "subject",
+			"label": "Subject",
+			"fieldtype": "Data",
+			"reqd": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text"
+		},
+		{
+			"fieldname": "status",
+			"label": "Status",
+			"fieldtype": "Select",
+			"options": [
+				"Open",
+				"Closed"
+			],
+			"default": "Open",
+			"reqd": 1
+		}
+	]
+}

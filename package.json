@@ -2,10 +2,10 @@
   "name": "frappe-core",
   "version": "1.0.0",
   "description": "Frappe Core",
-  "main": "frappe/index.js",
+  "main": "index.js",
   "scripts": {
-    "test": "mocha frappe/tests",
-    "start": "nodemon frappe/app.js"
+    "test": "mocha tests",
+    "start": "nodemon app.js"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
