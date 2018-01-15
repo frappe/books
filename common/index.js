@@ -4,6 +4,7 @@ const model = require('../model');
 const _document = require('../model/document');
 const meta = require('../model/meta');
 const _session = require('../session');
+const errors = require('./errors');
 
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
         frappe.document = _document;
         frappe.meta = meta;
         frappe._session = _session;
+        frappe.errors = errors;
     }
 }

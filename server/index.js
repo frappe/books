@@ -36,10 +36,6 @@ module.exports = {
         app.use(bodyParser.urlencoded({ extended: true }));
         app.use(express.static('./'));
 
-        app.use(function (err, req, res, next) {
-            console.error(err.stack);
-            res.status(500).send('Something broke!');
-        })
         // routes
         rest_api.setup(app);
 

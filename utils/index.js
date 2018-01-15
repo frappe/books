@@ -5,7 +5,10 @@ module.exports = {
 
     async_handler(fn) {
         return (req, res, next) => Promise.resolve(fn(req, res, next))
-            .catch(next);
+            .catch((err) => {
+                // handle error
+                res.status(err.status_code).send({ error: err.message });
+            });
     },
 
     async sleep(seconds) {

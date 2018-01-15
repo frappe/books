@@ -77,7 +77,7 @@ class Meta extends Document {
             options = df.options.split('\n');
         }
         if (!options.includes(value)) {
-            throw new frappe.ValueError(`${value} must be one of ${options.join(", ")}`);
+            throw new frappe.errors.ValueError(`${value} must be one of ${options.join(", ")}`);
         }
     }
 

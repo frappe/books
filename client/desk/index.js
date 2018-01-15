@@ -1,10 +1,14 @@
 const frappe = require('frappe-core');
 const Search = require('./search');
-const Router = require('./router');
+const Router = require('frappe-core/common/router');
+const Page = require('frappe-core/client/view/page');
+const List = require('frappe-core/client/view/list');
+const Form = require('frappe-core/client/view/form');
 
 module.exports = class Desk {
     constructor() {
         frappe.router = new Router();
+        frappe.router.listen();
 
         this.wrapper = document.querySelector('.desk');
 
@@ -15,20 +19,67 @@ module.exports = class Desk {
         this.main = frappe.ui.add('div', 'main', this.body);
 
         this.sidebar_items = [];
-        this.list_pages = {};
-        this.edit_pages = {};
+        this.pages = {
+            lists: {},
+            forms: {}
+        };
+
+        this.init_routes();
 
         // this.search = new Search(this.nav);
     }
 
     init_routes() {
-        frappe.router.on('list/:doctype', (params) => {
+        frappe.router.add('list/:doctype', async (params) => {
+            let page = this.get_list_page(params.doctype);
+            await page.show(params);
+        });
 
+        frappe.router.add('edit/:doctype/:name', async (params) => {
+            let page = this.get_form_page(params.doctype);
+            await page.show(params);
         })
-        frappe.router.on('edit/:doctype/:name', (params) => {
 
-        })
+        frappe.router.add('new/:doctype', async (params) => {
+            let doc = await frappe.get_new_doc(params.doctype);
+            frappe.router.set_route('edit', doc.doctype, doc.name);
+        });
 
+    }
+
+    get_list_page(doctype) {
+        if (!this.pages.lists[doctype]) {
+            let page = new Page('List ' + doctype);
+            page.list = new List({
+                doctype: doctype,
+                parent: page.body
+            });
+            page.on('show', async () => {
+                await page.list.run();
+            });
+            this.pages.lists[doctype] = page;
+        }
+        return this.pages.lists[doctype];
+    }
+
+    get_form_page(doctype) {
+        if (!this.pages.forms[doctype]) {
+            let page = new Page('Edit ' + doctype);
+            page.form = new Form({
+                doctype: doctype,
+                parent: page.body
+            });
+            page.on('show', async (params) => {
+                try {
+                    page.doc = await frappe.get_doc(params.doctype, params.name);
+                    page.form.use(page.doc);
+                } catch (e) {
+                    page.render_error(e.status_code, e.message);
+                }
+            });
+            this.pages.forms[doctype] = page;
+        }
+        return this.pages.forms[doctype];
     }
 
     add_sidebar_item(label, action) {

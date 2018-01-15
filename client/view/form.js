@@ -1,7 +1,7 @@
 const frappe = require('frappe-core');
 const controls = require('./controls');
 
-class Form {
+module.exports = class Form {
     constructor({doctype, parent, submit_label='Submit'}) {
         this.parent = parent;
         this.doctype = doctype;
@@ -85,7 +85,7 @@ class Form {
 
     async submit() {
         try {
-            if (this.is_new) {
+            if (this.is_new || this.doc.__not_inserted) {
                 await this.doc.insert();
             } else {
                 await this.doc.update();
@@ -104,5 +104,3 @@ class Form {
     }
 
 }
-
-module.exports = {Form: Form};

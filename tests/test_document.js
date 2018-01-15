@@ -48,7 +48,7 @@ describe('Document', () => {
             () => {
                 doc.set('status', 'Illegal');
             },
-            frappe.ValueError
+            frappe.errors.ValueError
         );
     });
 

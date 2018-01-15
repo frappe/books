@@ -1,6 +1,6 @@
 const frappe = require('frappe-core');
 
-class ListView {
+module.exports = class List {
     constructor({doctype, parent, fields}) {
         this.doctype = doctype;
         this.parent = parent;
@@ -117,8 +117,4 @@ class ListView {
         }
     }
 
-};
-
-module.exports = {
-    ListView: ListView
 };

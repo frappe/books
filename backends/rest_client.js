@@ -1,7 +1,7 @@
 const frappe = require('frappe-core');
 const path = require('path');
 
-class RESTClient {
+module.exports = class RESTClient {
     constructor({server, protocol='http'}) {
         this.server = server;
         this.protocol = protocol;
@@ -123,8 +123,4 @@ class RESTClient {
 
     }
 
-}
-
-module.exports = {
-    Database: RESTClient
 }

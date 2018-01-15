@@ -98,7 +98,12 @@ class Document {
     }
 
     async load() {
-        Object.assign(this, await frappe.db.get(this.doctype, this.name));
+        let data = await frappe.db.get(this.doctype, this.name);
+        if (data.name) {
+            Object.assign(this, data);
+        } else {
+            throw new frappe.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
+        }
     }
 
     async insert() {

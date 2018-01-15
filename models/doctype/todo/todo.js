@@ -4,11 +4,12 @@ class todo_meta extends frappe.meta.Meta {
     setup_meta() {
         Object.assign(this, require('./todo.json'));
         this.name = 'ToDo';
-        this.list_options.fields = ['name', 'subject', 'status', 'description'];
+        this.list_options.fields = ['name', 'subject', 'status'];
     }
 
     get_row_html(data) {
-        return `<a href="#edit/todo/${data.name}">${data.subject}</a>`;
+        const sign = data.status === 'Open' ? '' : '✔';
+        return `<p><a href="#edit/todo/${data.name}">${sign} ${data.subject}</a></p>`;
     }
 
 }
