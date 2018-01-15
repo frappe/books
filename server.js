@@ -1,7 +1,7 @@
-const server = require('frappe-core/frappe/server');
+const server = require('frappe-core/server');
 
 server.start({
-	backend: 'sqlite',
-	connection_params: {db_path: 'test.db'},
-	static: './'
+    backend: 'sqlite',
+    connection_params: {db_path: 'test.db'},
+    static: './'
 });

@@ -7,32 +7,54 @@ $gray-500:        #6a737d !default;
 $gray-600:        #586069 !default;
 $gray-700:        #444d56 !default;
 $gray-800:        #2f363d !default;
-$gray-900: #24292e !default; // body font color
+$gray-900: 	#24292e !default; // body font color
+
+$blue: #0366d6 !default;
+$secondary: $gray-300 !default;
+$border-color: $gray-300 !default;
+$input-border-color: $border-color !default;
 
 @import "node_modules/bootstrap/scss/bootstrap";
+
+$nav-height: 4.5rem;
 
 html {
 	font-size: 14px;
 }
 
-.wrapper {
+.desk {
+	padding: 0px;
+}
+
+.nav {
+	display: none;
+	border-bottom: 1px solid $border-color;
+	align-items: center;
+	justify-content: center;
+}
+
+.two-column {
 	display: grid;
 	grid-template-columns: 1fr 4fr;
 	grid-auto-rows: minmax(100%, auto);
-	height: 100vh;
-}
-
-.sidebar {
-	background-color: $gray-100;
-	margin-left: -15px;
 }
 
 .main, .sidebar {
 	padding: 2rem;
+	min-height: 100vh;
+}
+
+.sidebar {
+	border-right: 1px solid $border-color;
 }
 
 .hide {
 	display: none !important;
+}
+
+.page-error {
+	text-align: center;
+	padding: 200px 0px;
 }
 
 .form-body {
@@ -48,4 +70,9 @@ html {
 
 textarea.form-control {
 	line-height: 1.5;
+}
+
+.list-search {
+	max-width: 400px;
+	margin-bottom: 1rem;
 }

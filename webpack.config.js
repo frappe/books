@@ -11,7 +11,7 @@ module.exports = {
     output: {
         filename: './js/bundle.js',
         publicPath: '/'
-	},
+    },
     module: {
         rules: [{
             test: /\.scss$/,
@@ -36,9 +36,9 @@ module.exports = {
             {
                 loader: "sass-loader", // compiles Sass to CSS
                 options: {
-                    includePaths: ["node_modules", "./frappe/client/scss"]
-				}
-			}]
-		}]
-	}
+                    includePaths: ["node_modules", "./client/scss"]
+                }
+            }]
+        }]
+    }
 };
