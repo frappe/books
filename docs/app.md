@@ -1,6 +1,6 @@
 # Creating a new App
 
-### Install Frappe.js
+## Install Frappe.js
 
 ```
 yarn add frappejs
@@ -115,4 +115,25 @@ client.start({
     frappe.router.default = '/list/todo';
     frappe.router.show(window.location.hash);
 });
+```
+
+## Start
+
+To start the app and build webpack simultaneously you can use a `Procfile`
+
+```yml
+server: nodemon server.js
+watch: node_modules/.bin/webpack --watch
+```
+
+You can use any procfile handler like `node-foreman` to start the processes.
+
+```
+yarn global add node-foreman
+```
+
+Then
+
+```
+nf start
 ```
