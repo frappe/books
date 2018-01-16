@@ -10,7 +10,7 @@ module.exports = class Desk {
         frappe.router = new Router();
         frappe.router.listen();
 
-        this.wrapper = document.querySelector('.desk');
+        this.wrapper = frappe.ui.add('div', 'desk', document.querySelector('body'));
 
         this.nav = frappe.ui.add('header', 'nav text-center', this.wrapper);
 

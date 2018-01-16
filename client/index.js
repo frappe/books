@@ -5,7 +5,7 @@ frappe.ui = require('./ui');
 const Desk = require('./desk');
 
 module.exports = {
-    async start({server, container}) {
+    async start({server}) {
         window.frappe = frappe;
         frappe.init();
         common.init_libs(frappe);
