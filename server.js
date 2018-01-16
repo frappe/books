@@ -1,4 +1,4 @@
-const server = require('frappe-core/server');
+const server = require('frappejs/server');
 
 server.start({
     backend: 'sqlite',

@@ -1,13 +1,13 @@
 require('./scss/main.scss');
 
-const client = require('frappe-core/client');
+const client = require('frappejs/client');
 
 // start server
 client.start({
     server: 'localhost:8000',
     container: document.querySelector('.wrapper'),
 }).then(() => {
-    const todo = require('frappe-core/models/doctype/todo/todo.js');
+    const todo = require('frappejs/models/doctype/todo/todo.js');
     frappe.init_controller('todo', todo);
 
     frappe.desk.add_sidebar_item('Home', '#');

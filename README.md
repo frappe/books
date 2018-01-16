@@ -1,6 +1,6 @@
-# Sample app for frappe-core
+# Sample app for frappe
 
-Sample To Do app for frappe-core
+Sample To Do app for frappe
 
 ### Install
 
