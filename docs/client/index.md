@@ -23,13 +23,13 @@ You can setup your client by setting up the server and then importing your contr
 ### Example
 
 ```js
-const client = require('frappe-core/frappe/client');
+const client = require('frappejs/frappe/client');
 
 client.start({
 	server: 'localhost:8000',
 	container: document.querySelector('.container'),
 }).then(() => {
-	const todo = require('frappe-core/frappe/models/doctype/todo/todo.js');
+	const todo = require('frappejs/frappe/models/doctype/todo/todo.js');
 	frappe.init_controller('todo', todo);
 
 	// ....

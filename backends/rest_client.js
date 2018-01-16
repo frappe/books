@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 const path = require('path');
 
 module.exports = class RESTClient {

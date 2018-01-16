@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 
 class Session {
     constructor(user, user_key) {

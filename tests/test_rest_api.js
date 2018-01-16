@@ -1,10 +1,10 @@
 const assert = require('assert');
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 const fetch = require('node-fetch');
 const helpers = require('./helpers');
 const { spawn } = require('child_process');
 const process = require('process');
-const RESTClient = require('frappe-core/backends/rest_client')
+const RESTClient = require('frappejs/backends/rest_client')
 
 // create a copy of frappe
 

@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 
 class Dropdown {
     constructor({parent, label, btn_class = 'btn-secondary', items = []}) {
@@ -64,11 +64,13 @@ class Dropdown {
     }
 
     add_item(label, action) {
-        let item = frappe.ui.add('a', 'dropdown-item', this.dropdown_menu);
+        let item = frappe.ui.add('button', 'dropdown-item', this.dropdown_menu);
         item.textContent = label;
+        item.setAttribute('type', 'button');
         if (typeof action === 'string') {
             item.src = action;
-            item.addEventListener('click', () => {
+            item.addEventListener('click', async () => {
+                await frappe.router.set_route(action);
                 this.toggle();
             });
         } else {

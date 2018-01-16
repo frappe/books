@@ -1,4 +1,4 @@
-const Router = require('frappe-core/common/router');
+const Router = require('frappejs/common/router');
 const assert = require('assert');
 
 describe('Router', () => {
@@ -15,13 +15,15 @@ describe('Router', () => {
 
 	it('router should sort dynamic routes', () => {
 		let router = new Router();
-		router.add('/edit/todo/mytest', 'static');
+		router.add('/edit/:doctype', 'catch');
 		router.add('/edit/:doctype/:name', 'all');
 		router.add('/edit/todo/:name', 'todo');
+		router.add('/edit/todo/mytest', 'static');
 
 		assert.equal(router.match('/edit/todo/test').handler, 'todo');
 		assert.equal(router.match('/edit/user/test').handler, 'all');
 		assert.equal(router.match('/edit/todo/mytest').handler, 'static');
+		assert.equal(router.match('/edit/user').handler, 'catch');
 	});
 
 

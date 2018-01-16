@@ -1,5 +1,5 @@
 const Document = require('./document').Document;
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 
 class Meta extends Document {
     constructor(data) {

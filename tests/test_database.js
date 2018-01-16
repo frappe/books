@@ -1,5 +1,5 @@
 const assert = require('assert');
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 const helpers = require('./helpers');
 
 describe('Database', () => {

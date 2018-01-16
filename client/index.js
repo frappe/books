@@ -1,6 +1,6 @@
-const common = require('frappe-core/common');
-const RESTClient = require('frappe-core/backends/rest_client');
-const frappe = require('frappe-core');
+const common = require('frappejs/common');
+const RESTClient = require('frappejs/backends/rest_client');
+const frappe = require('frappejs');
 frappe.ui = require('./ui');
 const Desk = require('./desk');
 

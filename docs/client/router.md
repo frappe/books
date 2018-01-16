@@ -11,7 +11,7 @@ Dynamic routes can be added by declaring each parameter as `:param` in the route
 ### Example
 
 ```js
-const Page = require('frappe-core/frappe/client/view/page').Page;
+const Page = require('frappejs/frappe/client/view/page').Page;
 
 let todo_list = new Page('ToDo List');
 

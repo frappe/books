@@ -1,7 +1,7 @@
 {
-  "name": "frappe-core",
+  "name": "frappejs",
   "version": "1.0.0",
-  "description": "Frappe Core",
+  "description": "Frappe.js",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests",
@@ -9,15 +9,15 @@
   },
   "dependencies": {
     "body-parser": "^1.18.2",
+    "bootstrap": "4.0.0-beta.3",
     "express": "^4.16.2",
     "node-fetch": "^1.7.3",
     "sqlite3": "^3.1.13",
-    "walk": "^2.3.9",
-    "webpack-dev-server": "^2.9.7"
+    "walk": "^2.3.9"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/frappe/frappe-js.git"
+    "url": "git+https://github.com/frappe/frappejs.git"
   },
   "parserOptions": {
     "ecmaVersion": 2017
@@ -25,9 +25,9 @@
   "author": "Frappe",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/frappe/frappe-js/issues"
+    "url": "https://github.com/frappe/frappejs/issues"
   },
-  "homepage": "https://github.com/frappe/frappe-js#readme",
+  "homepage": "https://github.com/frappe/frappejs#readme",
   "devDependencies": {
     "css-loader": "^0.28.7",
     "eslint": "^4.9.0",

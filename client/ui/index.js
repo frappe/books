@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 const Dropdown = require('./dropdown');
 
 module.exports = {

@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 
 class todo_meta extends frappe.meta.Meta {
     setup_meta() {

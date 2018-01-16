@@ -1,5 +1,5 @@
 const process = require('process');
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 
 class Models {
     constructor() {

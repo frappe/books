@@ -18,7 +18,7 @@ You can bind events to the controller that will be called when an action is comp
 The document controller represents a single record and is subclassed from the `frappe.document.Document` class
 
 ```js
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 
 // extend the document and add event handlers
 class todo extends frappe.document.Document {

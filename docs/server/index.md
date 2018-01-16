@@ -5,7 +5,7 @@ The framework comes bundles with an `express.js` web server with pre-built backe
 ### Example
 
 ```js
-const server = require('frappe-core/frappe/server');
+const server = require('frappejs/frappe/server');
 
 server.start({
 	backend: 'sqllite',

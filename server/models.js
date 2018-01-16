@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 const walk = require('walk');
 const path = require('path');
 
@@ -27,7 +27,7 @@ module.exports = {
             frappe.config.apps = [];
         }
 
-        frappe.config.apps.unshift('frappe-core');
+        frappe.config.apps.unshift('frappejs');
 
         // walk and sync
         for (let app_name of frappe.config.apps) {

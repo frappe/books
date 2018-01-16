@@ -5,7 +5,7 @@ A page is a basic container that fills up the `main` area of the Frappe.js SPA.
 ### Example
 
 ```js
-const Page = require('frappe-core/frappe/client/view/page').Page;
+const Page = require('frappejs/frappe/client/view/page').Page;
 
 let todo_list = new Page('ToDo List');
 

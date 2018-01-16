@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 const sqlite3 = require('sqlite3').verbose();
 
 class sqliteDatabase {

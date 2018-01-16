@@ -4,6 +4,7 @@ Frappe.js is a meta-data driven framework that enables rapid application develop
 
 ## Contents
 
+- [Making a new App](app.md)
 - Models and Documents
 	- [Declaring Models](models/index.md)
 	- [Controllers](models/controllers.md)
@@ -19,5 +20,7 @@ Frappe.js is a meta-data driven framework that enables rapid application develop
 		- [Controls](client/controls.md)
 	- [UI](client/ui/index.md)
 		- [Dropdown](client/ui/dropdown.md)
+	- [Desk](client/desk.md)
 - [Backends](backends.md)
+- [Errors](errors.md)
 - [Testing](testing.md)

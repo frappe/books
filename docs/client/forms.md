@@ -9,8 +9,8 @@ Note: A single Form object can handle multiple documents.
 ### Example
 
 ```js
-const Page = require('frappe-core/frappe/client/view/page').Page;
-const Form = require('frappe-core/frappe/client/view/form').Form;
+const Page = require('frappejs/frappe/client/view/page');
+const Form = require('frappejs/frappe/client/view/form');
 
 edit_page = new Page('Edit To Do');
 

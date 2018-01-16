@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 
 module.exports = class Router {
     constructor() {
@@ -16,6 +16,7 @@ module.exports = class Router {
         if (page.param_keys) {
             // make expression
             // '/todo/:name/:place'.replace(/\/:([a-z1-9]+)/g, "\/([a-z0-9]+)");
+            page.depth = route.split('/').length;
             page.expression = route.replace(/\/:([a-z1-9]+)/g, "\/([a-z0-9]+)");
             this.dynamic_routes.push(page);
             this.sort_dynamic_routes();
@@ -26,14 +27,18 @@ module.exports = class Router {
     }
 
     sort_dynamic_routes() {
-        // routes with fewer parameters first
+        // routes with more parts first
         this.dynamic_routes = this.dynamic_routes.sort((a, b) => {
-            if (a.param_keys.length > b.param_keys.length) {
+            if (a.depth < b.depth) {
                 return 1;
-            } else if (a.param_keys.length < b.param_keys.length) {
+            } else if (a.depth > b.depth) {
                 return -1;
             } else {
-                return a.route.length > b.route.length ? 1 : -1;
+                if (a.param_keys.length !== b.param_keys.length) {
+                    return a.param_keys.length > b.param_keys.length ? 1 : -1;
+                } else {
+                    return a.route.length > b.route.length ? 1 : -1;
+                }
             }
         })
     }

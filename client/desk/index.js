@@ -1,9 +1,9 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 const Search = require('./search');
-const Router = require('frappe-core/common/router');
-const Page = require('frappe-core/client/view/page');
-const List = require('frappe-core/client/view/list');
-const Form = require('frappe-core/client/view/form');
+const Router = require('frappejs/common/router');
+const Page = require('frappejs/client/view/page');
+const List = require('frappejs/client/view/list');
+const Form = require('frappejs/client/view/form');
 
 module.exports = class Desk {
     constructor() {

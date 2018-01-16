@@ -22,7 +22,7 @@ The backend will implement the following `async` methods
 Connection paramter required for the sqlite backend is the path of the file
 
 ```js
-sqllite = require('frappe-core/frappe/backends/sqlite');
+sqllite = require('frappejs/frappe/backends/sqlite');
 
 frappe.db = await new sqlite.Database({db_path: db_path})
 ```
@@ -42,7 +42,7 @@ For the client, the backend is the REST API that executes calls with web-request
 Before using, you must initialize the `frappe.fetch` property with `window.fetch` or `node-fetch`
 
 ```js
-const Database = require('frappe-core/frappe/backends/rest_client').Database;
+const Database = require('frappejs/frappe/backends/rest_client').Database;
 
 frappe.fetch = window.fetch.bind();
 frappe.db = await new Database({server: server});

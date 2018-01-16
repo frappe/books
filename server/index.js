@@ -1,12 +1,12 @@
 const backends = {};
-backends.sqlite = require('frappe-core/backends/sqlite');
+backends.sqlite = require('frappejs/backends/sqlite');
 
 const express = require('express');
 const app = express();
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 const rest_api = require('./rest_api')
-const models = require('frappe-core/server/models');
-const common = require('frappe-core/common');
+const models = require('frappejs/server/models');
+const common = require('frappejs/common');
 const bodyParser = require('body-parser');
 
 module.exports = {

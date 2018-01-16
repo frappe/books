@@ -1,4 +1,4 @@
-const server = require('frappe-core/server');
+const server = require('frappejs/server');
 
 module.exports = {
     async init_sqlite() {

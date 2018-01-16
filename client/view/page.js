@@ -1,4 +1,4 @@
-const frappe = require('frappe-core');
+const frappe = require('frappejs');
 
 module.exports = class Page {
     constructor(title) {
@@ -17,7 +17,7 @@ module.exports = class Page {
         this.trigger('hide');
     }
 
-    show(params) {
+    async show(params) {
         if (frappe.router.current_page) {
             frappe.router.current_page.hide();
         }
@@ -31,7 +31,7 @@ module.exports = class Page {
         frappe.router.current_page = this;
         document.title = this.title;
 
-        this.trigger('show', params);
+        await this.trigger('show', params);
     }
 
     render_error(status_code, message) {

@@ -17,7 +17,7 @@ Methods
 ### Create
 
 ```js
-const Dropdown = require('frappe-core/frappe/client/ui/dropdown');
+const Dropdown = require('frappejs/frappe/client/ui/dropdown');
 
 let dropdown = new Dropdown({label:'Actions', parent:this.toolbar});
 ```

@@ -5,14 +5,14 @@ A list object handles object listing and paging, for a standard model.
 ### Example
 
 ```js
-const Page = require('frappe-core/frappe/client/view/page').Page;
-const ListView = require('frappe-core/frappe/client/view/list').ListView;
+const Page = require('frappejs/frappe/client/view/page');
+const List = require('frappejs/frappe/client/view/list');
 
 // create a new page
 let todo_list = new Page('ToDo List');
 
 // init a new list
-todo_list.list = new ListView({
+todo_list.list = new List({
 	doctype: 'ToDo',
 	parent: this.todo_list.body
 });
