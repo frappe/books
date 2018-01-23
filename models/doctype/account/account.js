@@ -25,9 +25,13 @@ class account extends frappe.document.Document {
     setup() {
         this.add_handler('validate');
     }
-    validate() {
+    async validate() {
         if (!this.account_type) {
-            this.status = 'Asset';
+            if (this.parent_account) {
+                this.account_type = await frappe.db.get_value('Account', this.parent_account, 'account_type');
+            } else {
+                this.account_type = 'Asset';
+            }
         }
     }
 }
