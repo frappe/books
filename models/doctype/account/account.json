@@ -14,6 +14,12 @@
 			"reqd": 1
 		},
 		{
+			"fieldname": "parent_account",
+			"label": "Parent Account",
+			"fieldtype": "Link",
+			"options": "Account"
+		},
+		{
 			"fieldname": "account_type",
 			"label": "Account Type",
 			"fieldtype": "Select",

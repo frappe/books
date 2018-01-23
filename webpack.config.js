@@ -15,6 +15,9 @@ module.exports = {
                     loader: 'style-loader'
                 },
                 {
+                    loader: 'css-loader'
+                },
+                {
                     loader: 'postcss-loader', // Run post css actions
                     options: {
                         plugins: function () { // post css plugins, can be exported to postcss.config.js
@@ -27,9 +30,6 @@ module.exports = {
                 },
                 {
                     loader: "sass-loader", // compiles Sass to CSS
-                    options: {
-                        includePaths: ["node_modules", "./client/scss"]
-                    }
                 }]
         }]
     }
