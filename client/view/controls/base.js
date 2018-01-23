@@ -1,12 +1,13 @@
 const frappe = require('frappejs');
 
 class BaseControl {
-    constructor(docfield, parent) {
+    constructor(docfield, form) {
         Object.assign(this, docfield);
+        this.form = form;
         if (!this.fieldname) {
             this.fieldname = frappe.slug(this.label);
         }
-        this.parent = parent;
+        this.parent = form.form;
         if (this.setup) {
             this.setup();
         }

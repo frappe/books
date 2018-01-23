@@ -25,7 +25,7 @@ module.exports = class Form {
         this.form = frappe.ui.add('form', null, this.body);
         for(let df of this.meta.fields) {
             if (controls.get_control_class(df.fieldtype)) {
-                let control = controls.make_control(df, this.form);
+                let control = controls.make_control(df, this);
                 this.controls_list.push(control);
                 this.controls[df.fieldname] = control;
             }
