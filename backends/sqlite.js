@@ -1,5 +1,6 @@
 const frappe = require('frappejs');
 const sqlite3 = require('sqlite3').verbose();
+const debug = false;
 
 class sqliteDatabase {
     constructor({db_path}) {
@@ -13,8 +14,9 @@ class sqliteDatabase {
         }
         return new Promise(resolve => {
             this.conn = new sqlite3.Database(this.db_path, () => {
-                // debug
-                // this.conn.on('trace', (trace) => console.log(trace));
+                if (debug) {
+                    this.conn.on('trace', (trace) => console.log(trace));
+                }
                 resolve();
             });
         });
@@ -119,7 +121,10 @@ class sqliteDatabase {
         return await this.run(`delete from ${frappe.slug(doctype)} where name=?`, name);
     }
 
-    get_all({doctype, fields=['name'], filters, start, limit, order_by='modified', order='desc'} = {}) {
+    get_all({doctype, fields, filters, start, limit, order_by='modified', order='desc'} = {}) {
+        if (!fields) {
+            fields = frappe.get_meta(doctype).get_keyword_fields();
+        }
         return new Promise((resolve, reject) => {
             let conditions = this.get_filter_conditions(filters);
 
@@ -147,6 +152,10 @@ class sqliteDatabase {
         for (let key in filters) {
             const value = filters[key];
             if (value instanceof Array) {
+                // if its like, we should add the wildcard "%" if the user has not added
+                if (value[0].toLowerCase()==='like' && !value[1].includes('%')) {
+                    value[1] = `%${value[1]}%`;
+                }
                 conditions.push(`${key} ${value[0]} ?`);
                 values.push(value[1]);
             } else {

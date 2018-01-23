@@ -16,7 +16,6 @@ module.exports = {
         models.init_models(path.resolve('node_modules', 'frappejs', 'models'));
         models.init_models(models_path);
 
-        console.log(frappe.models.controllers);
         await this.init_db({backend:backend, connection_params:connection_params});
         // database
 

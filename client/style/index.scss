@@ -1,4 +1,5 @@
 @import "node_modules/bootstrap/scss/bootstrap";
+@import "node_modules/awesomplete/awesomplete";
 
 html {
 	font-size: 14px;
@@ -29,4 +30,38 @@ html {
 .dropdown-menu-right {
 	right: 0;
 	left: auto;
+}
+
+.awesomplete {
+	display: block;
+}
+
+.awesomplete > ul > li {
+	padding: .75rem .375rem;
+}
+
+.awesomplete > ul > li:hover {
+	background: $gray-300;
+	color: $body-color;
+}
+
+.awesomplete > ul > li[aria-selected="true"] {
+	background: $gray-300;
+	color: $body-color;
+}
+
+.awesomplete > ul > li[aria-selected="true"]:hover {
+	background: $gray-300;
+	color: $body-color;
+}
+
+mark {
+	padding: none;
+	background: inherit;
+}
+
+.awesomplete li[aria-selected="true"] mark, .awesomplete li[aria-selected="false"] mark {
+    background: inherit;
+	color: inherit;
+	padding: 0px;
 }

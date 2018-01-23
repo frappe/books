@@ -8,7 +8,7 @@ module.exports = {
             .catch((err) => {
                 console.log(err);
                 // handle error
-                res.status(err ? err.status_code : 500).send({ error: err ? err.message : 'Unknown Error'});
+                res.status(err.status_code || 500).send({error: err.message});
             });
     },
 
