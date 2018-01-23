@@ -1,0 +1,29 @@
+{
+	"name": "Account",
+	"doctype": "DocType",
+	"issingle": 0,
+	"keyword_fields": [
+		"name",
+		"account_type"
+	],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Account Name",
+			"fieldtype": "Data",
+			"reqd": 1
+		},
+		{
+			"fieldname": "account_type",
+			"label": "Account Type",
+			"fieldtype": "Select",
+			"options": [
+				"Asset",
+				"Liability",
+				"Equity",
+				"Income",
+				"Expense"
+			]
+		}
+	]
+}
