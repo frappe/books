@@ -4,19 +4,20 @@ const Router = require('frappejs/common/router');
 const Page = require('frappejs/client/view/page');
 const List = require('frappejs/client/view/list');
 const Form = require('frappejs/client/view/form');
+const Navbar = require('./navbar');
 
 module.exports = class Desk {
     constructor() {
         frappe.router = new Router();
         frappe.router.listen();
 
-        this.wrapper = frappe.ui.add('div', 'desk', document.querySelector('body'));
+        let body = document.querySelector('body');
+        this.navbar = new Navbar();
+        this.container = frappe.ui.add('div', 'container-fluid', body);
 
-        this.nav = frappe.ui.add('header', 'nav text-center', this.wrapper);
-
-        this.body = frappe.ui.add('div', 'desk-body two-column', this.wrapper);
-        this.sidebar = frappe.ui.add('div', 'sidebar', this.body);
-        this.main = frappe.ui.add('div', 'main', this.body);
+        this.container_row = frappe.ui.add('div', 'row', this.container)
+        this.sidebar = frappe.ui.add('div', 'col-md-2 p-3 sidebar', this.container_row);
+        this.body = frappe.ui.add('div', 'col-md-10 p-3 main', this.container_row);
 
         this.sidebar_items = [];
         this.pages = {
@@ -30,6 +31,14 @@ module.exports = class Desk {
     }
 
     init_routes() {
+        frappe.router.add('not-found', async (params) => {
+            if (!this.not_found_page) {
+                this.not_found_page = new Page('Not Found');
+            }
+            await this.not_found_page.show();
+            this.not_found_page.render_error('Not Found', params ? params.route : '');
+        })
+
         frappe.router.add('list/:doctype', async (params) => {
             let page = this.get_list_page(params.doctype);
             await page.show(params);

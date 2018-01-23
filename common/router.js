@@ -15,9 +15,9 @@ module.exports = class Router {
 
         if (page.param_keys) {
             // make expression
-            // '/todo/:name/:place'.replace(/\/:([a-z1-9]+)/g, "\/([a-z0-9]+)");
+            // '/todo/:name/:place'.replace(/\/:([^/]+)/g, "\/([^/]+)");
             page.depth = route.split('/').length;
-            page.expression = route.replace(/\/:([a-z1-9]+)/g, "\/([a-z0-9]+)");
+            page.expression = route.replace(/\/:([^/]+)/g, "\/([^/]+)");
             this.dynamic_routes.push(page);
             this.sort_dynamic_routes();
         } else {
@@ -77,6 +77,8 @@ module.exports = class Router {
             } else {
                 await page.handler.show(page.params);
             }
+        } else {
+            await this.match('not-found').handler({route: route});
         }
     }
 

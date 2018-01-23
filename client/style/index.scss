@@ -1,33 +1,7 @@
 @import "node_modules/bootstrap/scss/bootstrap";
 
-// html {
-// 	font-size: 14px;
-// }
-
-.desk {
-	padding: 0px;
-}
-
-.nav {
-	display: none;
-	border-bottom: 1px solid $border-color;
-	align-items: center;
-	justify-content: center;
-}
-
-.two-column {
-	display: grid;
-	grid-template-columns: 1fr 4fr;
-	grid-auto-rows: minmax(100%, auto);
-}
-
-.main, .sidebar {
-	padding: 2rem;
-	min-height: 100vh;
-}
-
-.sidebar {
-	border-right: 1px solid $border-color;
+html {
+	font-size: 14px;
 }
 
 .hide {
@@ -40,6 +14,8 @@
 }
 
 .form-body {
+	max-width: 600px;
+
 	.form-toolbar {
 		height: 2rem;
 		margin-bottom: 1rem;
@@ -53,9 +29,4 @@
 .dropdown-menu-right {
 	right: 0;
 	left: auto;
-}
-
-.list-search {
-	max-width: 400px;
-	margin-bottom: 1rem;
 }

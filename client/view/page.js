@@ -8,7 +8,7 @@ module.exports = class Page {
     }
 
     make() {
-        this.wrapper = frappe.ui.add('div', 'page hide', frappe.desk.main);
+        this.wrapper = frappe.ui.add('div', 'page hide', frappe.desk.body);
         this.body = frappe.ui.add('div', 'page-body', this.wrapper);
     }
 
@@ -34,13 +34,13 @@ module.exports = class Page {
         await this.trigger('show', params);
     }
 
-    render_error(status_code, message) {
+    render_error(title, message) {
         if (!this.page_error) {
             this.page_error = frappe.ui.add('div', 'page-error', this.wrapper);
         }
         this.body.classList.add('hide');
         this.page_error.classList.remove('hide');
-        this.page_error.innerHTML = `<h3 class="text-extra-muted">${status_code}</h3><p class="text-muted">${message}</p>`;
+        this.page_error.innerHTML = `<h3 class="text-extra-muted">${title ? title : ""}</h3><p class="text-muted">${message ? message : ""}</p>`;
     }
 
     on(event, fn) {

@@ -36,7 +36,7 @@ class sqliteDatabase {
         let columns = [];
         let values = [];
 
-        for (let df of this.get_fields(meta)) {
+        for (let df of meta.get_valid_fields()) {
             if (this.type_map[df.fieldtype]) {
                 columns.push(this.get_column_definition(df));
                 if (df.default) {
@@ -65,7 +65,7 @@ class sqliteDatabase {
         let meta = frappe.get_meta(doctype);
         let values = [];
 
-        for (let df of this.get_fields(meta)) {
+        for (let df of meta.get_valid_fields()) {
             if (!table_columns.includes(df.fieldname) && this.type_map[df.fieldtype]) {
                 values = []
                 if (df.default) {
@@ -203,19 +203,6 @@ class sqliteDatabase {
             start: 0,
             limit: 1});
         return row.length ? row[0][fieldname] : null;
-    }
-
-    get_fields(meta) {
-        // add standard fields
-        let fields = frappe.model.standard_fields.slice();
-        if (meta.istable) {
-            fields = fields.concat(frappe.model.child_fields);
-        }
-
-        // add model fields
-        fields = fields.concat(meta.fields);
-
-        return fields;
     }
 
     async table_exists(table) {

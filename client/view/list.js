@@ -54,25 +54,41 @@ module.exports = class List {
 
     make_body() {
         if (!this.body) {
-            this.make_search();
+            this.make_toolbar();
+            //this.make_new();
             this.body = frappe.ui.add('div', 'list-body', this.parent);
             this.make_more_btn();
         }
     }
 
-    make_search() {
-        this.search_input_group = frappe.ui.add('div', 'input-group list-search', this.parent);
+    make_toolbar() {
+        this.toolbar = frappe.ui.add('div', 'list-toolbar', this.parent);
+        this.toolbar.innerHTML = `
+            <div class="row">
+                <div class="col-md-6 col-9">
+                    <div class="input-group list-search mb-2">
+                        <input class="form-control" type="text" placeholder="Search...">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-search">Search</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-3">
+                    <a href="#new/${frappe.slug(this.doctype)}" class="btn btn-outline-primary">
+                        New
+                    </a>
+                </div>
+            </div>
+        `;
 
-        this.search_input = frappe.ui.add('input', 'form-control', this.search_input_group);
+        this.search_input = this.toolbar.querySelector('input');
         this.search_input.addEventListener('keypress', (event) => {
             if (event.keyCode===13) {
                 this.run();
             }
         });
 
-        this.search_input_group_append = frappe.ui.add('div', 'input-group-append', this.search_input_group);
-        this.search_button = frappe.ui.add('button', 'btn btn-secondary', this.search_input_group_append);
-        this.search_button.textContent = 'Search';
+        this.search_button = this.toolbar.querySelector('.btn-search');
         this.search_button.addEventListener('click', (event) => {
             this.run();
         });
@@ -94,7 +110,7 @@ module.exports = class List {
 
     get_row(i) {
         if (!this.rows[i]) {
-            this.rows[i] = frappe.ui.add('div', 'list-row', this.body);
+            this.rows[i] = frappe.ui.add('div', 'list-row py-2', this.body);
         }
         return this.rows[i];
     }

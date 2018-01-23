@@ -6,8 +6,9 @@ module.exports = {
     async_handler(fn) {
         return (req, res, next) => Promise.resolve(fn(req, res, next))
             .catch((err) => {
+                console.log(err);
                 // handle error
-                res.status(err.status_code).send({ error: err.message });
+                res.status(err ? err.status_code : 500).send({ error: err ? err.message : 'Unknown Error'});
             });
     },
 

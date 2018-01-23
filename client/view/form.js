@@ -20,7 +20,7 @@ module.exports = class Form {
         }
 
         this.body = frappe.ui.add('div', 'form-body', this.parent);
-        this.make_actions();
+        this.make_toolbar();
 
         this.form = frappe.ui.add('form', null, this.body);
         for(let df of this.meta.fields) {
@@ -30,32 +30,28 @@ module.exports = class Form {
                 this.controls[df.fieldname] = control;
             }
         }
-        this.make_submit();
     }
 
-    make_actions() {
-        this.toolbar = frappe.ui.add('div', 'form-toolbar', this.body);
-        this.actions = frappe.ui.make_dropdown('Actions', this.toolbar);
+    make_toolbar() {
+        this.toolbar = frappe.ui.add('div', 'form-toolbar text-right', this.body);
+        this.toolbar.innerHTML = `
+            <button class="btn btn-outline-secondary btn-delete">Delete</button>
+            <button class="btn btn-primary btn-submit">Save</button>
+        `
 
-        // delete
-        this.actions.add_item('Delete', async () => {
-            await this.doc.delete();
-            this.show_alert('Deleted', 'success');
-        });
-
-        this.actions.float_right();
-    }
-
-    make_submit() {
-        this.submit_btn = frappe.ui.add('button', 'btn btn-outline-primary',
-            this.body);
-        this.submit_btn.setAttribute('type', 'submit');
-        this.submit_btn.textContent = this.submit_label;
-        this.submit_btn.addEventListener('click', (event) => {
+        this.btn_submit = this.toolbar.querySelector('.btn-submit');;
+        this.btn_submit.addEventListener('click', async (event) => {
             this.submit();
             event.preventDefault();
         })
+
+        this.btn_delete = this.toolbar.querySelector('.btn-delete');
+        this.btn_delete.addEventListener('click', async () => {
+            await this.doc.delete();
+            this.show_alert('Deleted', 'success');
+        });
     }
+
 
     show_alert(message, type) {
         this.clear_alert();

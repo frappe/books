@@ -43,15 +43,21 @@ class Meta extends Document {
         if (!this._valid_fields) {
             this._valid_fields = [];
 
+            const doctype_fields = this.fields.map((df) => df.fieldname);
+
             // standard fields
             for (let df of frappe.model.standard_fields) {
-                this._valid_fields.push(df);
+                if (frappe.db.type_map[df.fieldtype] && !doctype_fields.includes(df.fieldname)) {
+                    this._valid_fields.push(df);
+                }
             }
 
             // parent fields
             if (this.istable) {
                 for (let df of frappe.model.child_fields) {
-                    this._valid_fields.push(df);
+                    if (frappe.db.type_map[df.fieldtype] && !doctype_fields.includes(df.fieldname)) {
+                        this._valid_fields.push(df);
+                    }
                 }
             }
 

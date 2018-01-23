@@ -8,26 +8,15 @@ const rest_api = require('./rest_api')
 const models = require('frappejs/server/models');
 const common = require('frappejs/common');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 module.exports = {
-    async init() {
-        await frappe.init();
-        common.init_libs(frappe);
-        await frappe.login();
-
-        // walk and find models
-        models.init();
-
-    },
-
-    async init_db({backend, connection_params}) {
-        frappe.db = await new backends[backend].Database(connection_params);
-        await frappe.db.connect();
-        await frappe.db.migrate();
-    },
-
-    async start({backend, connection_params, static}) {
+    async start({backend, connection_params, static, models_path}) {
         await this.init();
+        models.init_models(path.resolve('node_modules', 'frappejs', 'models'));
+        models.init_models(models_path);
+
+        console.log(frappe.models.controllers);
         await this.init_db({backend:backend, connection_params:connection_params});
         // database
 
@@ -43,6 +32,18 @@ module.exports = {
         frappe.app = app;
         frappe.server = app.listen(frappe.config.port);
 
-    }
+    },
+
+    async init() {
+        await frappe.init();
+        common.init_libs(frappe);
+        await frappe.login();
+    },
+
+    async init_db({backend, connection_params}) {
+        frappe.db = await new backends[backend].Database(connection_params);
+        await frappe.db.connect();
+        await frappe.db.migrate();
+    },
 }
 
