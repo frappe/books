@@ -51,6 +51,12 @@ module.exports = {
             return response.json(doc.get_valid_dict());
         }));
 
+        // get value
+        app.get('/api/resource/:doctype/:name/:fieldname', frappe.async_handler(async function(request, response) {
+            let value = await frappe.db.get_value(request.params.doctype, request.params.name, request.params.fieldname);
+            return response.json({value: value});
+        }));
+
         // delete
         app.delete('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
             let doc = await frappe.get_doc(request.params.doctype, request.params.name)

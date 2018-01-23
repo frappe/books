@@ -89,6 +89,15 @@ module.exports = class RESTClient {
             .join('&');
     }
 
+    async get_value(doctype, name, fieldname) {
+        let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}/${name}/${fieldname}`);
+        let response = await frappe.fetch(url, {
+            method: 'GET',
+            headers: this.json_headers
+        });
+        return (await response.json()).value;
+    }
+
     init_type_map() {
         this.type_map = {
             'Currency':        true
