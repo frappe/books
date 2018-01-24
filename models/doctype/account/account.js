@@ -1,27 +1,14 @@
 const frappe = require('frappejs');
+const BaseMeta = require('frappejs/model/meta');
+const BaseDocument = require('frappejs/model/document');
 
-class account_meta extends frappe.meta.Meta {
+class AccountMeta extends BaseMeta {
     setup_meta() {
         Object.assign(this, require('./account.json'));
-        this.list_options.fields = ['name', 'account_type'];
-        this.setup_links();
-    }
-
-    setup_links() {
-        this.get_field('parent_account').get_filters = function(query) {
-            return {
-                keywords: ["like", query],
-                name: ["!=", this.form.doc.name]
-            }
-        }
-    }
-
-    get_row_html(data) {
-        return `<a href="#edit/account/${data.name}">${data.name} (${data.account_type})</a>`;
     }
 }
 
-class account extends frappe.document.Document {
+class Account extends BaseDocument {
     setup() {
         this.add_handler('validate');
     }
@@ -36,4 +23,7 @@ class account extends frappe.document.Document {
     }
 }
 
-module.exports = {account:account, account_meta:account_meta};
+module.exports = {
+    Document: Account,
+    Meta: AccountMeta
+};

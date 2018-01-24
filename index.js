@@ -7,11 +7,12 @@ client.start({
     server: 'localhost:8000',
     container: document.querySelector('.wrapper'),
 }).then(() => {
-    frappe.todo_module = require('frappejs/models/doctype/todo/todo.js');
-    frappe.account_module = require('./models/doctype/account/account.js');
 
-    frappe.init_controller('account', frappe.account_module);
-    frappe.init_controller('todo', frappe.todo_module);
+    // require modules
+    frappe.modules.todo = require('frappejs/models/doctype/todo/todo.js');
+    frappe.modules.account = require('./models/doctype/account/account.js');
+    frappe.modules.todo_client = require('frappejs/models/doctype/todo/todo_client.js');
+    frappe.modules.account_client = require('./models/doctype/account/account_client.js');
 
     frappe.desk.add_sidebar_item('ToDo', '#list/todo');
     frappe.desk.add_sidebar_item('Accounts', '#list/account');
