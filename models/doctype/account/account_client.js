@@ -2,19 +2,19 @@ const BaseList = require('frappejs/client/view/list');
 const BaseForm = require('frappejs/client/view/form');
 
 class AccountList extends BaseList {
-	get_fields()  {
-		return ['name', 'account_type'];
-	}
-	get_row_html(data) {
+    get_fields()  {
+        return ['name', 'account_type'];
+    }
+    get_row_html(data) {
         return `<a href="#edit/account/${data.name}">${data.name} (${data.account_type})</a>`;
-	}
+    }
 }
 
 class AccountForm extends BaseForm {
     make() {
-		this.super();
+        this.super();
 
-		// override controller event
+        // override controller event
         this.controls['parent_account'].get_filters = (query) => {
             return {
                 keywords: ["like", query],
@@ -25,6 +25,6 @@ class AccountForm extends BaseForm {
 }
 
 module.exports = {
-	Form: AccountForm,
-	List: AccountList
+    Form: AccountForm,
+    List: AccountList
 }
