@@ -97,6 +97,14 @@ class BaseControl {
         value = await this.validate(value);
         await this.doc.set(this.fieldname, value);
     }
+
+    disable() {
+        this.input.setAttribute('disabled', 'disabled');
+    }
+
+    enable() {
+        this.input.removeAttribute('disabled');
+    }
 }
 
 module.exports = BaseControl;

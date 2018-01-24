@@ -5,7 +5,7 @@ const express = require('express');
 const app = express();
 const frappe = require('frappejs');
 const rest_api = require('./rest_api')
-const models = require('frappejs/server/models');
+const init_models = require('frappejs/server/init_models');
 const common = require('frappejs/common');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -13,11 +13,11 @@ const path = require('path');
 module.exports = {
     async start({backend, connection_params, static, models_path}) {
         await this.init();
-        models.init_models(path.resolve('node_modules', 'frappejs', 'models'));
-        models.init_models(models_path);
 
-        await this.init_db({backend:backend, connection_params:connection_params});
+        this.init_models(models_path);
+
         // database
+        await this.init_db({backend:backend, connection_params:connection_params});
 
         // app
         app.use(bodyParser.json());
@@ -30,7 +30,14 @@ module.exports = {
         // listen
         frappe.app = app;
         frappe.server = app.listen(frappe.config.port);
+    },
 
+    init_models(models_path) {
+        // import frappe modules
+        init_models(path.join(path.dirname(require.resolve('frappejs')), 'models'));
+
+        // import modules from the app
+        init_models(models_path);
     },
 
     async init() {

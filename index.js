@@ -15,6 +15,7 @@ module.exports = {
 
     init_globals() {
         this.meta_cache = {};
+        this.modules = {};
         this.docs = {};
         this.flags = {
             cache_docs: false
@@ -41,32 +42,44 @@ module.exports = {
 
     get_meta(doctype) {
         if (!this.meta_cache[doctype]) {
-            this.meta_cache[doctype] = new (this.models.get_meta_class(doctype))(this.models.get('DocType', doctype));
+            this.meta_cache[doctype] = new (this.get_meta_class(doctype))();
         }
         return this.meta_cache[doctype];
     },
 
-    init_controller(doctype, module) {
+    get_meta_class(doctype) {
         doctype = this.slug(doctype);
-        this.models.controllers[doctype] = module[doctype];
-        this.models.meta_classes[doctype] = module[doctype + '_meta'];
+        if (this.modules[doctype] && this.modules[doctype].Meta) {
+            return this.modules[doctype].Meta;
+        } else {
+            return this.BaseMeta;
+        }
     },
 
     async get_doc(data, name) {
         if (typeof data==='string' && typeof name==='string') {
             let doc = this.get_doc_from_cache(data, name);
             if (!doc) {
-                let controller_class = this.models.get_controller(data);
+                let controller_class = this.get_controller_class(data);
                 doc = new controller_class({doctype:data, name: name});
                 await doc.load();
                 this.add_to_cache(doc);
             }
             return doc;
         } else {
-            let controller_class = this.models.get_controller(data.doctype);
+            let controller_class = this.get_controller_class(data.doctype);
             var doc = new controller_class(data);
         }
         return doc;
+    },
+
+    get_controller_class(doctype) {
+        doctype = this.slug(doctype);
+        if (this.modules[doctype] && this.modules[doctype].Document) {
+            return this.modules[doctype].Document;
+        } else {
+            return this.BaseDocument;
+        }
     },
 
     async get_new_doc(doctype) {

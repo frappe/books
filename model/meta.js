@@ -1,7 +1,7 @@
-const Document = require('./document').Document;
+const BaseDocument = require('./document');
 const frappe = require('frappejs');
 
-class Meta extends Document {
+module.exports = class BaseMeta extends BaseDocument {
     constructor(data) {
         super(data);
         this.event_handlers = {};
@@ -100,22 +100,4 @@ class Meta extends Document {
             }
         }
     }
-
-    // collections
-    async get_list({start, limit=20, filters}) {
-        return await frappe.db.get_all({
-            doctype: this.name,
-            fields: this.list_options.fields,
-            filters: filters,
-            start: start,
-            limit: limit
-        });
-    }
-
-    get_row_html(data) {
-        return `<a href="/view/${this.name}/${data.name}">${data.name}</a>`;
-    }
-
 }
-
-module.exports = { Meta: Meta }

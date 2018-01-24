@@ -2,8 +2,8 @@ const frappe = require('frappejs');
 const Search = require('./search');
 const Router = require('frappejs/common/router');
 const Page = require('frappejs/client/view/page');
-const List = require('frappejs/client/view/list');
-const Form = require('frappejs/client/view/form');
+const BaseList = require('frappejs/client/view/list');
+const BaseForm = require('frappejs/client/view/form');
 const Navbar = require('./navbar');
 
 module.exports = class Desk {
@@ -58,8 +58,8 @@ module.exports = class Desk {
 
     get_list_page(doctype) {
         if (!this.pages.lists[doctype]) {
-            let page = new Page('List ' + doctype);
-            page.list = new List({
+            let page = new Page('List ' + frappe.get_meta(doctype).name);
+            page.list = new (this.get_view_class(doctype, 'List', BaseList))({
                 doctype: doctype,
                 parent: page.body
             });
@@ -73,8 +73,8 @@ module.exports = class Desk {
 
     get_form_page(doctype) {
         if (!this.pages.forms[doctype]) {
-            let page = new Page('Edit ' + doctype);
-            page.form = new Form({
+            let page = new Page('Edit ' + frappe.get_meta(doctype).name);
+            page.form = new (this.get_view_class(doctype, 'Form', BaseForm))({
                 doctype: doctype,
                 parent: page.body
             });
@@ -89,6 +89,20 @@ module.exports = class Desk {
             this.pages.forms[doctype] = page;
         }
         return this.pages.forms[doctype];
+    }
+
+    get_view_class(doctype, class_name, default_class) {
+        let client_module = this.get_client_module(doctype);
+        if (client_module && client_module[class_name]) {
+            return client_module[class_name];
+        } else {
+            return default_class;
+        }
+
+    }
+
+    get_client_module(doctype) {
+        return frappe.modules[`${doctype}_client`];
     }
 
     add_sidebar_item(label, action) {

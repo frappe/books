@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 
-module.exports = class List {
+module.exports = class BaseList {
     constructor({doctype, parent, fields}) {
         this.doctype = doctype;
         this.parent = parent;
@@ -18,13 +18,8 @@ module.exports = class List {
 
     async run() {
         this.make_body();
-        this.set_filters();
 
-        let data = await this.meta.get_list({
-            filters: this.filters,
-            start:this.start,
-            limit:this.page_length + 1
-        });
+        let data = await this.get_data();
 
         for (let i=0; i< Math.min(this.page_length, data.length); i++) {
             this.render_row(this.start + i, data[i]);
@@ -40,16 +35,31 @@ module.exports = class List {
         this.update_more(data.length > this.page_length);
     }
 
+    async get_data() {
+        return await frappe.db.get_all({
+            doctype: this.doctype,
+            fields: this.get_fields(),
+            filters: this.get_filters(),
+            start: this.start,
+            limit: this.page_length + 1
+        });
+    }
+
+    get_fields() {
+        return ['name'];
+    }
+
     async append() {
         this.start += this.page_length;
         await this.run();
     }
 
-    set_filters() {
-        this.filters = {};
+    get_filters() {
+        let filters = {};
         if (this.search_input.value) {
-            this.filters.keywords = ['like', '%' + this.search_input.value + '%'];
+            filters.keywords = ['like', '%' + this.search_input.value + '%'];
         }
+        return filters;
     }
 
     make_body() {
@@ -104,8 +114,12 @@ module.exports = class List {
 
     render_row(i, data) {
         let row = this.get_row(i);
-        row.innerHTML = this.meta.get_row_html(data);
+        row.innerHTML = this.get_row_html(data);
         row.style.display = 'block';
+    }
+
+    get_row_html(data) {
+        return `<a href="#edit/${this.doctype}/${data.name}>${data.name}</a>`;
     }
 
     get_row(i) {

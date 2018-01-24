@@ -4,7 +4,6 @@ module.exports = {
     setup(app) {
         // get list
         app.get('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
-            let fields, filters;
             for (key of ['fields', 'filters']) {
                 if (request.query[key]) {
                     request.query[key] = JSON.parse(request.query[key]);

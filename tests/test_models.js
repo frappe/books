@@ -8,7 +8,7 @@ describe('Models', () => {
     });
 
     it('should get todo json', () => {
-        let todo = frappe.models.get('DocType', 'ToDo');
+        let todo = frappe.get_meta('todo');
         assert.equal(todo.issingle, 0);
     });
 });

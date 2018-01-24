@@ -23,11 +23,15 @@ class sqliteDatabase {
     }
 
     async migrate() {
-        for (let doctype in frappe.models.data.doctype) {
-            if (await this.table_exists(doctype)) {
-                await this.alter_table(doctype);
-            } else {
-                await this.create_table(doctype);
+        for (let doctype in frappe.modules) {
+            // check if controller module
+            if (frappe.modules[doctype].Meta) {
+                if (await this.table_exists(doctype)) {
+                    await this.alter_table(doctype);
+                } else {
+                    await this.create_table(doctype);
+                }
+
             }
         }
         await this.commit();

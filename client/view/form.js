@@ -1,7 +1,7 @@
 const frappe = require('frappejs');
 const controls = require('./controls');
 
-module.exports = class Form {
+module.exports = class BaseForm {
     constructor({doctype, parent, submit_label='Submit'}) {
         this.parent = parent;
         this.doctype = doctype;
@@ -11,6 +11,9 @@ module.exports = class Form {
         this.controls_list = [];
 
         this.meta = frappe.get_meta(this.doctype);
+        if (this.setup) {
+            this.setup();
+        }
         this.make();
     }
 

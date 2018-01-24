@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 
-class Document {
+module.exports = class BaseDocument {
     constructor(data) {
         this.handlers = {};
         this.setup();
@@ -144,5 +144,3 @@ class Document {
         return this;
     }
 };
-
-module.exports = { Document: Document };

@@ -1,19 +1,13 @@
-const frappe = require('frappejs');
+const BaseMeta = require('frappejs/model/meta');
+const BaseDocument = require('frappejs/model/document');
 
-class todo_meta extends frappe.meta.Meta {
+class ToDoMeta extends BaseMeta {
     setup_meta() {
         Object.assign(this, require('./todo.json'));
-        this.list_options.fields = ['name', 'subject', 'status'];
     }
-
-    get_row_html(data) {
-        const sign = data.status === 'Open' ? '' : '✔';
-        return `<a href="#edit/todo/${data.name}">${sign} ${data.subject}</a>`;
-    }
-
 }
 
-class todo extends frappe.document.Document {
+class ToDo extends BaseDocument {
     setup() {
         this.add_handler('validate');
     }
@@ -24,4 +18,7 @@ class todo extends frappe.document.Document {
     }
 }
 
-module.exports = {todo:todo, todo_meta:todo_meta};
+module.exports = {
+    Document: ToDo,
+    Meta: ToDoMeta
+};
