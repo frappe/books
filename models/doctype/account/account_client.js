@@ -12,7 +12,7 @@ class AccountList extends BaseList {
 
 class AccountForm extends BaseForm {
     make() {
-        this.super();
+        super.make();
 
         // override controller event
         this.controls['parent_account'].get_filters = (query) => {

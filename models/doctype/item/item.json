@@ -1,0 +1,39 @@
+{
+	"name": "Item",
+	"doctype": "DocType",
+	"issingle": 0,
+	"keyword_fields": [
+		"name",
+		"description"
+	],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Item Name",
+			"fieldtype": "Data",
+			"reqd": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text"
+		},
+		{
+			"fieldname": "unit",
+			"label": "Unit",
+			"fieldtype": "Select",
+			"options": [
+				"No",
+				"Kg",
+				"Gram",
+				"Hour",
+				"Day"
+			]
+		},
+		{
+			"fieldname": "rate",
+			"label": "Rate",
+			"fieldtype": "Currency"
+		}
+	]
+}
