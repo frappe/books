@@ -2,9 +2,10 @@ const control_classes = {
     Data: require('./data'),
     Text: require('./text'),
     Select: require('./select'),
-    Link: require('./link')
+    Link: require('./link'),
+    Float: require('./float'),
+    Currency: require('./currency')
 }
-
 
 module.exports = {
     get_control_class(fieldtype) {

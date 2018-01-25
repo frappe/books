@@ -80,6 +80,14 @@ module.exports = class BaseForm {
         for (let control of this.controls_list) {
             control.bind(this.doc);
         }
+
+        // refresh value in control
+        this.doc.add_handler('change', (params) => {
+            let control = this.controls[params.fieldname];
+            if (control && control.get_input_value() !== control.format(params.fieldname)) {
+                control.set_doc_value();
+            }
+        });
     }
 
     async submit() {

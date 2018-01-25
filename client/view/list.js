@@ -119,7 +119,7 @@ module.exports = class BaseList {
     }
 
     get_row_html(data) {
-        return `<a href="#edit/${this.doctype}/${data.name}>${data.name}</a>`;
+        return `<a href="#edit/${this.doctype}/${data.name}">${data.name}</a>`;
     }
 
     get_row(i) {

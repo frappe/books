@@ -15,11 +15,6 @@ class BaseControl {
 
     bind(doc) {
         this.doc = doc;
-
-        this.doc.add_handler(this.fieldname, () => {
-            this.set_doc_value();
-        });
-
         this.set_doc_value();
     }
 
@@ -56,6 +51,7 @@ class BaseControl {
 
     make_input() {
         this.input = frappe.ui.add('input', 'form-control', this.form_group);
+        this.input.setAttribute('autocomplete', 'off');
     }
 
     set_input_name() {
@@ -70,14 +66,22 @@ class BaseControl {
     }
 
     set_input_value(value) {
+        this.input.value = this.format(value);
+    }
+
+    format(value) {
         if (value === undefined || value === null) {
             value = '';
         }
-        this.input.value = value;
+        return value;
     }
 
-    async get_input_value() {
+    async get_parsed_value() {
         return await this.parse(this.input.value);
+    }
+
+    get_input_value() {
+        return this.input.value;
     }
 
     async parse(value) {
@@ -93,9 +97,11 @@ class BaseControl {
     }
 
     async handle_change(e) {
-        let value = await this.get_input_value();
+        let value = await this.parse(this.get_input_value());
         value = await this.validate(value);
-        await this.doc.set(this.fieldname, value);
+        if (this.doc[this.fieldname] !== value) {
+            await this.doc.set(this.fieldname, value);
+        }
     }
 
     disable() {

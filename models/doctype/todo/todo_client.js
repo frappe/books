@@ -6,7 +6,8 @@ class ToDoList extends BaseList {
         return ['name', 'subject', 'status'];
     }
     get_row_html(data) {
-        return `<a href="#edit/todo/${data.name}">${data.subject}</a>`;
+        let symbol = data.status=="Closed" ? "✔" : "";
+        return `<a href="#edit/todo/${data.name}">${symbol} ${data.subject}</a>`;
     }
 }
 

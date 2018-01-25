@@ -22,13 +22,14 @@ module.exports = class BaseDocument {
         this.handlers[key].push(method || key);
     }
 
-    get(key) {
-        return this[key];
+    get(fieldname) {
+        return this[fieldname];
     }
 
-    set(key, value) {
-        this.validate_field(key, value);
-        this[key] = value;
+    // set value and trigger change
+    async set(fieldname, value) {
+        this[fieldname] = await this.validate_field(fieldname, value);
+        await this.trigger('change', {doc: this, fieldname: fieldname, value: value});
     }
 
     set_name() {
@@ -69,11 +70,12 @@ module.exports = class BaseDocument {
         }
     }
 
-    validate_field (key, value) {
+    async validate_field (key, value) {
         let df = this.meta.get_field(key);
         if (df.fieldtype=='Select') {
-            this.meta.validate_select(df, value);
+            return this.meta.validate_select(df, value);
         }
+        return value;
     }
 
     get_valid_dict() {
@@ -110,9 +112,11 @@ module.exports = class BaseDocument {
         this.set_name();
         this.set_standard_values();
         this.set_keywords();
-        await this.trigger('validate', 'before_insert');
+        await this.trigger('validate');
+        await this.trigger('before_insert');
         await frappe.db.insert(this.doctype, this.get_valid_dict());
-        await this.trigger('after_insert', 'after_save');
+        await this.trigger('after_insert');
+        await this.trigger('after_save');
     }
 
     async delete() {
@@ -121,15 +125,13 @@ module.exports = class BaseDocument {
         await this.trigger('after_delete');
     }
 
-    async trigger() {
-        for(var key of arguments) {
-            if (this.handlers[key]) {
-                for (let method of this.handlers[key]) {
-                    if (typeof method === 'string') {
-                        await this[method]();
-                    } else {
-                        await method(this);
-                    }
+    async trigger(key, params) {
+        if (this.handlers[key]) {
+            for (let method of this.handlers[key]) {
+                if (typeof method === 'string') {
+                    await this[method](params);
+                } else {
+                    await method(params);
                 }
             }
         }
@@ -138,9 +140,11 @@ module.exports = class BaseDocument {
     async update() {
         this.set_standard_values();
         this.set_keywords();
-        await this.trigger('validate', 'before_update');
+        await this.trigger('validate');
+        await this.trigger('before_update');
         await frappe.db.update(this.doctype, this.get_valid_dict());
-        await this.trigger('after_update', 'after_save');
+        await this.trigger('after_update');
+        await this.trigger('after_save');
         return this;
     }
 };

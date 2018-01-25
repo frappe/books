@@ -1,4 +1,8 @@
-module.exports = {
+let utils = {};
+
+Object.assign(utils, require('./number_format'));
+
+Object.assign(utils, {
     slug(text) {
         return text.toLowerCase().replace(/ /g, '_');
     },
@@ -17,4 +21,6 @@ module.exports = {
             setTimeout(resolve, seconds * 1000);
         });
     }
-}
+});
+
+module.exports = utils;

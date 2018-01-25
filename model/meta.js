@@ -85,10 +85,10 @@ module.exports = class BaseMeta extends BaseDocument {
         if (!options.includes(value)) {
             throw new frappe.errors.ValueError(`${value} must be one of ${options.join(", ")}`);
         }
+        return value;
     }
 
     async trigger(key, event = {}) {
-
         Object.assign(event, {
             doc: this,
             name: key
