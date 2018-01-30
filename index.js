@@ -1,5 +1,3 @@
-require('./scss/main.scss');
-
 const client = require('frappejs/client');
 
 // start server
