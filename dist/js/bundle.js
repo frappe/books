@@ -1,3 +1,4 @@
+var desk = (function () {
 'use strict';
 
 const number_formats = {
@@ -2260,6 +2261,67 @@ var form = class BaseForm {
 
 };
 
+var view = {
+    get_form_class(doctype) {
+        return this.get_view_class(doctype, 'Form', form);
+    },
+    get_list_class(doctype) {
+        return this.get_view_class(doctype, 'List', list);
+    },
+    get_view_class(doctype, class_name, default_class) {
+        let client_module = this.get_client_module(doctype);
+        if (client_module && client_module[class_name]) {
+            return client_module[class_name];
+        } else {
+            return default_class;
+        }
+    },
+
+    get_client_module(doctype) {
+        return frappe.modules[`${doctype}_client`];
+    }
+};
+
+var formpage = class FormPage extends page {
+	constructor(doctype) {
+		let meta = frappe.get_meta(doctype);
+		super(`Edit ${meta.name}`);
+		this.meta = meta;
+
+		this.form = new (view.get_form_class(doctype))({
+			doctype: doctype,
+			parent: this.body
+		});
+
+		this.on('show', async (params) => {
+			await this.show_doc(params.doctype, params.name);
+		});
+	}
+
+	async show_doc(doctype, name) {
+		try {
+			this.doc = await frappe.get_doc(doctype, name);
+			this.form.use(this.doc);
+		} catch (e) {
+			this.render_error(e.status_code, e.message);
+		}
+	}
+};
+
+var listpage = class FormPage extends page {
+	constructor(doctype) {
+		let meta = frappe.get_meta(doctype);
+		super(`List ${meta.name}`);
+		this.list = new (view.get_list_class(doctype))({
+			doctype: doctype,
+			parent: this.body
+		});
+		this.on('show', async () => {
+			await this.list.run();
+		});
+	}
+};
+
 var navbar = class Navbar {
 	constructor({brand_label = 'Home'} = {}) {
 		Object.assign(this, arguments[0]);
@@ -2355,51 +2417,16 @@ var desk = class Desk {
 
     get_list_page(doctype) {
         if (!this.pages.lists[doctype]) {
-            let page$$1 = new page('List ' + frappejs.get_meta(doctype).name);
-            page$$1.list = new (this.get_view_class(doctype, 'List', list))({
-                doctype: doctype,
-                parent: page$$1.body
-            });
-            page$$1.on('show', async () => {
-                await page$$1.list.run();
-            });
-            this.pages.lists[doctype] = page$$1;
+            this.pages.lists[doctype] = new listpage(doctype);
         }
         return this.pages.lists[doctype];
     }
 
     get_form_page(doctype) {
         if (!this.pages.forms[doctype]) {
-            let page$$1 = new page('Edit ' + frappejs.get_meta(doctype).name);
-            page$$1.form = new (this.get_view_class(doctype, 'Form', form))({
-                doctype: doctype,
-                parent: page$$1.body
-            });
-            page$$1.on('show', async (params) => {
-                try {
-                    page$$1.doc = await frappejs.get_doc(params.doctype, params.name);
-                    page$$1.form.use(page$$1.doc);
-                } catch (e) {
-                    page$$1.render_error(e.status_code, e.message);
-                }
-            });
-            this.pages.forms[doctype] = page$$1;
+            this.pages.forms[doctype] = new formpage(doctype);
         }
         return this.pages.forms[doctype];
-    }
-
-    get_view_class(doctype, class_name, default_class) {
-        let client_module = this.get_client_module(doctype);
-        if (client_module && client_module[class_name]) {
-            return client_module[class_name];
-        } else {
-            return default_class;
-        }
-
-    }
-
-    get_client_module(doctype) {
-        return frappejs.modules[`${doctype}_client`];
     }
 
     add_sidebar_item(label, action) {
@@ -2583,7 +2610,6 @@ class ToDoList extends list {
 }
 
 var todo_client = {
-    Form: form,
     List: ToDoList
 };
 
@@ -2615,7 +2641,6 @@ var account_client = {
     List: AccountList
 };
 
-// start server
 client.start({
     server: 'localhost:8000',
     container: document.querySelector('.wrapper'),
@@ -2637,8 +2662,8 @@ client.start({
     frappe.router.show(window.location.hash);
 });
 
-var frappeTodo = {
+var src = false;
 
-};
+return src;
 
-module.exports = frappeTodo;
+}());

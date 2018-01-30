@@ -8,10 +8,10 @@ client.start({
 
     // require modules
     frappe.modules.todo = require('frappejs/models/doctype/todo/todo.js');
-    frappe.modules.account = require('./models/doctype/account/account.js');
-    frappe.modules.item = require('./models/doctype/item/item.js');
+    frappe.modules.account = require('../models/doctype/account/account.js');
+    frappe.modules.item = require('../models/doctype/item/item.js');
     frappe.modules.todo_client = require('frappejs/models/doctype/todo/todo_client.js');
-    frappe.modules.account_client = require('./models/doctype/account/account_client.js');
+    frappe.modules.account_client = require('../models/doctype/account/account_client.js');
 
     frappe.desk.add_sidebar_item('ToDo', '#list/todo');
     frappe.desk.add_sidebar_item('Accounts', '#list/account');
@@ -21,3 +21,5 @@ client.start({
 
     frappe.router.show(window.location.hash);
 });
+
+module.exports = false;

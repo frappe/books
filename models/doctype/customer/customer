@@ -1,0 +1,16 @@
+{
+	"name": "Customer",
+	"doctype": "DocType",
+	"issingle": 0,
+	"istable": 0,
+	"keyword_fields": [
+	],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"reqd": 1
+		}
+	]
+}
