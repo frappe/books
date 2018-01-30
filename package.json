@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Frappe.js",
   "main": "index.js",
+  "bin": "cli.js",
   "scripts": {
     "test": "mocha tests",
     "start": "nodemon app.js"
@@ -11,6 +12,7 @@
     "awesomplete": "^1.1.2",
     "body-parser": "^1.18.2",
     "bootstrap": "^4.0.0",
+    "commander": "^2.13.0",
     "express": "^4.16.2",
     "jquery": "^3.3.1",
     "node-fetch": "^1.7.3",
@@ -39,11 +41,11 @@
     "nodemon": "^1.14.7",
     "precss": "^2.0.0",
     "rollup": "^0.55.1",
-    "rollup-plugin-postcss": "^1.2.7",
-    "rollup-plugin-sass": "^0.5.3",
     "rollup-plugin-commonjs": "^8.3.0",
     "rollup-plugin-json": "^2.3.0",
     "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-resolve": "^3.0.2"
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup-plugin-postcss": "^1.2.7",
+    "rollup-plugin-sass": "^0.5.3"
   }
 }

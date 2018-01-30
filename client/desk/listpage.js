@@ -9,8 +9,8 @@ module.exports = class FormPage extends Page {
 			doctype: doctype,
 			parent: this.body
 		});
-		page.on('show', async () => {
-			await page.list.run();
+		this.on('show', async () => {
+			await this.list.run();
 		});
 	}
 }
