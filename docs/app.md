@@ -6,54 +6,22 @@
 yarn add frappejs
 ```
 
-## Webpack
+FrappeJS comes with built in rollup config for your files
 
-You can use webpack to build your JS bundle.
+## Build
 
-Since Frappe.js use Bootstrap 4, you will need to add SASS handlers
+There are 2 files that get built for the Desk single page application
 
-Your `webpack.config.js` should look like:
+- `/dist/js/bundle.js`
+- `/dist/css/style.css`
+
+Your `rollup.config.js` should look like:
 
 ```js
-const path = require('path');
-
-module.exports = {
-    entry: './index.js',
-    devtool: 'inline-source-map',
-    output: {
-        filename: './js/bundle.js',
-        publicPath: '/'
-    },
-    module: {
-        rules: [{
-            test: /\.scss$/,
-            use: [
-            {
-                loader: "style-loader" // creates style nodes from JS strings
-            },
-            {
-                loader: "css-loader" // translates CSS into CommonJS
-            },
-            {
-                loader: 'postcss-loader', // Run post css actions
-                options: {
-                  plugins: function () { // post css plugins, can be exported to postcss.config.js
-                    return [
-                      require('precss'),
-                      require('autoprefixer')
-                    ];
-                  }
-                },
-            },
-            {
-                loader: "sass-loader", // compiles Sass to CSS
-                options: {
-                    includePaths: ["node_modules", "./client/scss"]
-                }
-            }]
-        }]
-    }
-};
+module.exports = [
+	require('frappejs/config/rollup.config.style.js'),
+	require('frappejs/config/rollup.config.app.js')
+]
 ```
 
 ## Create a basic app
@@ -70,6 +38,8 @@ Sample index.html
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link href="/dist/css/style.css" rel="stylesheet">
 </head>
 <body>
 	<script src="js/bundle.js"></script>
@@ -123,7 +93,7 @@ To start the app and build webpack simultaneously you can use a `Procfile`
 
 ```yml
 server: nodemon server.js
-watch: node_modules/.bin/webpack --watch
+watch: node_modules/.bin/rolluo -c --watch
 ```
 
 You can use any procfile handler like `node-foreman` to start the processes.

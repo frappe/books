@@ -28,7 +28,7 @@ To create a new Form, you need to pass the model (DocType) and `parent` element.
 
 Controls will be created for all the `fields` of the model that is passed along with a `Submit` button
 
-## Editing
+## Set Document for Editing
 
 To setup a form for editing, you can bind a document by calling the `use` method.
 
@@ -37,6 +37,36 @@ edit_page.on('show', async (params) => {
 	let doc = await frappe.get_doc('ToDo', params.name);
 	edit_page.form.use(doc);
 })
+```
+
+## Extending
+
+You can extend the form for any DocType by passing creating a module with `_client` suffix. For example `account_client` for Account
+
+The module can export two classes `Form` and `List` these will be used to override the forms and list for the given doctypes
+
+Example:
+
+```js
+const BaseForm = require('frappejs/client/view/form');
+
+class AccountForm extends BaseForm {
+    make() {
+        super.make();
+
+        // override controller event
+        this.controls['parent_account'].get_filters = (query) => {
+            return {
+                keywords: ["like", query],
+                name: ["!=", this.doc.name]
+            }
+        }
+    }
+}
+
+module.exports = {
+    Form: AccountForm
+}
 ```
 
 ## New Document

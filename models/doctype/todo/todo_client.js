@@ -1,5 +1,4 @@
 const BaseList = require('frappejs/client/view/list');
-const BaseForm = require('frappejs/client/view/form');
 
 class ToDoList extends BaseList {
     get_fields()  {
@@ -12,6 +11,5 @@ class ToDoList extends BaseList {
 }
 
 module.exports = {
-    Form: BaseForm,
     List: ToDoList
 }

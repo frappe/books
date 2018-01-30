@@ -30,3 +30,25 @@ You can create a new list object by passing the `DocType` and the parent element
 ## Refreshing
 
 To reload the list, call the `run` method
+
+## Extending
+
+Lists can be extended by defining a client module for the doctype, similar to forms
+
+```js
+const BaseList = require('frappejs/client/view/list');
+
+class ToDoList extends BaseList {
+    get_fields()  {
+        return ['name', 'subject', 'status'];
+    }
+    get_row_html(data) {
+        let symbol = data.status=="Closed" ? "✔" : "";
+        return `<a href="#edit/todo/${data.name}">${symbol} ${data.subject}</a>`;
+    }
+}
+
+module.exports = {
+    List: ToDoList
+}
+```
