@@ -358,7 +358,7 @@ var document$1 = class BaseDocument {
 
     async validate_field (key, value) {
         let df = this.meta.get_field(key);
-        if (df.fieldtype=='Select') {
+        if (df && df.fieldtype=='Select') {
             return this.meta.validate_select(df, value);
         }
         return value;
@@ -1105,6 +1105,7 @@ var ui = {
 
 var router = class Router {
     constructor() {
+        this.last_route = null;
         this.current_page = null;
         this.static_routes = [];
         this.dynamic_routes = [];
@@ -1155,19 +1156,41 @@ var router = class Router {
 
     listen() {
         window.addEventListener('hashchange', (event) => {
-            this.show(window.location.hash);
+            let route = this.get_route_string();
+            if (this.last_route !== route) {
+                this.show(route);
+            }
         });
     }
 
-    set_route(...parts) {
+    // split and get routes
+    get_route() {
+        let route = this.get_route_string();
+        if (route) {
+            return route.split('/');
+        } else {
+            return [];
+        }
+    }
+
+    async set_route(...parts) {
         const route = parts.join('/');
+
+        // setting this first, does not trigger show via hashchange,
+        // since we want to this with async/await, we need to trigger
+        // the show method
+        this.last_route = route;
+
         window.location.hash = route;
+        await this.show(route);
     }
 
     async show(route) {
         if (route && route[0]==='#') {
             route = route.substr(1);
         }
+
+        this.last_route = route;
 
         if (!route) {
             route = this.default;
@@ -1206,11 +1229,40 @@ var router = class Router {
             }
         }
     }
+
+    get_route_string() {
+        let route = window.location.hash;
+        if (route && route[0]==='#') {
+            route = route.substr(1);
+        }
+        return route;
+    }
 };
 
-var page = class Page {
+var observable = class Observable {
+	constructor() {
+		this._handlers = {};
+	}
+
+    on(event, fn) {
+        if (!this._handlers[event]) {
+			this._handlers[event] = [];
+		}
+        this._handlers[event].push(fn);
+    }
+
+    async trigger(event, params) {
+        if (this._handlers[event]) {
+            for (let handler of this._handlers[event]) {
+                await handler(params);
+            }
+        }
+    }
+};
+
+var page = class Page extends observable {
     constructor(title) {
-        this.handlers = {};
+        super();
         this.title = title;
         this.make();
     }
@@ -1249,19 +1301,6 @@ var page = class Page {
         this.body.classList.add('hide');
         this.page_error.classList.remove('hide');
         this.page_error.innerHTML = `<h3 class="text-extra-muted">${title ? title : ""}</h3><p class="text-muted">${message ? message : ""}</p>`;
-    }
-
-    on(event, fn) {
-        if (!this.handlers[event]) this.handlers[event] = [];
-        this.handlers[event].push(fn);
-    }
-
-    async trigger(event, params) {
-        if (this.handlers[event]) {
-            for (let handler of this.handlers[event]) {
-                await handler(params);
-            }
-        }
     }
 };
 
@@ -2150,8 +2189,9 @@ var controls = {
     }
 };
 
-var form = class BaseForm {
+var form = class BaseForm extends observable {
     constructor({doctype, parent, submit_label='Submit'}) {
+        super();
         this.parent = parent;
         this.doctype = doctype;
         this.submit_label = submit_label;
@@ -2201,21 +2241,8 @@ var form = class BaseForm {
         this.btn_delete.addEventListener('click', async () => {
             await this.doc.delete();
             this.show_alert('Deleted', 'success');
+            this.trigger('delete');
         });
-    }
-
-
-    show_alert(message, type) {
-        this.clear_alert();
-        this.alert = frappejs.ui.add('div', `alert alert-${type}`, this.body);
-        this.alert.textContent = message;
-    }
-
-    clear_alert() {
-        if (this.alert) {
-            frappejs.ui.remove(this.alert);
-            this.alert = null;
-        }
     }
 
     async use(doc, is_new = false) {
@@ -2237,6 +2264,8 @@ var form = class BaseForm {
                 control.set_doc_value();
             }
         });
+
+        this.trigger('use', {doc:doc});
     }
 
     async submit() {
@@ -2251,11 +2280,28 @@ var form = class BaseForm {
         } catch (e) {
             this.show_alert('Failed', 'danger');
         }
+        await this.trigger('submit');
     }
 
     refresh() {
         for(let control of this.controls_list) {
             control.refresh();
+        }
+    }
+
+    show_alert(message, type, clear_after = 5) {
+        this.clear_alert();
+        this.alert = frappejs.ui.add('div', `alert alert-${type}`, this.body);
+        this.alert.textContent = message;
+        setTimeout(() => {
+            this.clear_alert();
+        }, clear_after * 1000);
+    }
+
+    clear_alert() {
+        if (this.alert) {
+            frappejs.ui.remove(this.alert);
+            this.alert = null;
         }
     }
 
@@ -2295,6 +2341,19 @@ var formpage = class FormPage extends page {
 
 		this.on('show', async (params) => {
 			await this.show_doc(params.doctype, params.name);
+		});
+
+		// if name is different after saving, change the route
+		this.form.on('submit', async (params) => {
+			let route = frappe.router.get_route();
+			if (!(route && route[2] === this.form.doc.name)) {
+				await frappe.router.set_route('edit', this.form.doc.doctype, this.form.doc.name);
+				this.form.show_alert('Added', 'success');
+			}
+		});
+
+		this.form.on('delete', async (params) => {
+			await frappe.router.set_route('list', this.form.doctype);
 		});
 	}
 
@@ -2599,6 +2658,47 @@ var item$3 = {
     Meta: ItemMeta
 };
 
+var name$3 = "Customer";
+var doctype$3 = "DocType";
+var issingle$3 = 0;
+var istable = 0;
+var keyword_fields$3 = ["name"];
+var fields$3 = [{"fieldname":"name","label":"Name","fieldtype":"Data","reqd":1}];
+var customer = {
+	name: name$3,
+	doctype: doctype$3,
+	issingle: issingle$3,
+	istable: istable,
+	keyword_fields: keyword_fields$3,
+	fields: fields$3
+};
+
+var customer$1 = Object.freeze({
+	name: name$3,
+	doctype: doctype$3,
+	issingle: issingle$3,
+	istable: istable,
+	keyword_fields: keyword_fields$3,
+	fields: fields$3,
+	default: customer
+});
+
+var require$$0$6 = ( customer$1 && customer ) || customer$1;
+
+class CustomerMeta extends meta {
+    setup_meta() {
+        Object.assign(this, require$$0$6);
+    }
+}
+
+class Customer extends document$1 {
+}
+
+var customer$2 = {
+    Document: Customer,
+    Meta: CustomerMeta
+};
+
 class ToDoList extends list {
     get_fields()  {
         return ['name', 'subject', 'status'];
@@ -2650,12 +2750,15 @@ client.start({
     frappe.modules.todo = todo$2;
     frappe.modules.account = account$2;
     frappe.modules.item = item$3;
+    frappe.modules.customer = customer$2;
+
     frappe.modules.todo_client = todo_client;
     frappe.modules.account_client = account_client;
 
     frappe.desk.add_sidebar_item('ToDo', '#list/todo');
     frappe.desk.add_sidebar_item('Accounts', '#list/account');
     frappe.desk.add_sidebar_item('Items', '#list/item');
+    frappe.desk.add_sidebar_item('Customers', '#list/customer');
 
     frappe.router.default = '#list/todo';
 

@@ -4,6 +4,7 @@
 	"issingle": 0,
 	"istable": 0,
 	"keyword_fields": [
+		"name"
 	],
 	"fields": [
 		{
