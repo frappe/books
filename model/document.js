@@ -29,7 +29,7 @@ module.exports = class BaseDocument {
     // set value and trigger change
     async set(fieldname, value) {
         this[fieldname] = await this.validate_field(fieldname, value);
-        await this.trigger('change', {doc: this, fieldname: fieldname, value: value});
+        await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
     }
 
     set_name() {
@@ -70,9 +70,9 @@ module.exports = class BaseDocument {
         }
     }
 
-    async validate_field (key, value) {
+    async validate_field(key, value) {
         let field = this.meta.get_field(key);
-        if (field && field.fieldtype=='Select') {
+        if (field && field.fieldtype == 'Select') {
             return this.meta.validate_select(field, value);
         }
         return value;
@@ -80,7 +80,7 @@ module.exports = class BaseDocument {
 
     get_valid_dict() {
         let doc = {};
-        for(let field of this.meta.get_valid_fields()) {
+        for (let field of this.meta.get_valid_fields()) {
             doc[field.fieldname] = this.get(field.fieldname);
         }
         return doc;

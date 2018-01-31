@@ -8,7 +8,7 @@ module.exports = class BaseMeta extends BaseDocument {
         this.list_options = {
             fields: ['name', 'modified']
         };
-        if (this.setup_meta)  {
+        if (this.setup_meta) {
             this.setup_meta();
         }
     }
@@ -21,14 +21,14 @@ module.exports = class BaseMeta extends BaseDocument {
             }
         }
         return this._field_map[fieldname];
-	}
+    }
 
-	get_table_fields() {
-		if (!this._table_fields) {
-			this._table_fields = this.fields.filter(field => field.fieldtype==='Table');
-		}
-		return this._table_fields;
-	}
+    get_table_fields() {
+        if (!this._table_fields) {
+            this._table_fields = this.fields.filter(field => field.fieldtype === 'Table');
+        }
+        return this._table_fields;
+    }
 
     on(key, fn) {
         if (!this.event_handlers[key]) {
@@ -46,7 +46,7 @@ module.exports = class BaseMeta extends BaseDocument {
         return this[fieldname];
     }
 
-    get_valid_fields({with_children = true} = {}) {
+    get_valid_fields({ with_children = true } = {}) {
         if (!this._valid_fields) {
             this._valid_fields = [];
 
@@ -60,29 +60,29 @@ module.exports = class BaseMeta extends BaseDocument {
             }
 
             if (this.is_child) {
-				// child fields
-				for (let field of frappe.model.child_fields) {
+                // child fields
+                for (let field of frappe.model.child_fields) {
                     if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
                         this._valid_fields.push(field);
                     }
                 }
             } else {
-				// parent fields
-				for (let field of frappe.model.parent_fields) {
+                // parent fields
+                for (let field of frappe.model.parent_fields) {
                     if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
                         this._valid_fields.push(field);
                     }
                 }
-			}
+            }
 
             // doctype fields
             for (let field of this.fields) {
-				let include = frappe.db.type_map[field.fieldtype];
+                let include = frappe.db.type_map[field.fieldtype];
 
-				// include tables if (with_children = True)
-				if (!include && with_children) {
-					include = field.fieldtype === 'Table';
-				}
+                // include tables if (with_children = True)
+                if (!include && with_children) {
+                    include = field.fieldtype === 'Table';
+                }
                 if (include) {
                     this._valid_fields.push(field);
                 }
