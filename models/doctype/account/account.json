@@ -1,7 +1,7 @@
 {
 	"name": "Account",
 	"doctype": "DocType",
-	"issingle": 0,
+	"is_single": 0,
 	"keyword_fields": [
 		"name",
 		"account_type"
@@ -17,7 +17,7 @@
 			"fieldname": "parent_account",
 			"label": "Parent Account",
 			"fieldtype": "Link",
-			"options": "Account"
+			"target": "Account"
 		},
 		{
 			"fieldname": "account_type",

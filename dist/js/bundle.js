@@ -1240,14 +1240,14 @@ var router = class Router {
 };
 
 var observable = class Observable {
-	constructor() {
-		this._handlers = {};
-	}
+    constructor() {
+        this._handlers = {};
+    }
 
     on(event, fn) {
         if (!this._handlers[event]) {
-			this._handlers[event] = [];
-		}
+            this._handlers[event] = [];
+        }
         this._handlers[event].push(fn);
     }
 
@@ -2741,6 +2741,7 @@ var account_client = {
     List: AccountList
 };
 
+// start server
 client.start({
     server: 'localhost:8000',
     container: document.querySelector('.wrapper'),

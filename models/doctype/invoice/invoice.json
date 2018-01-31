@@ -1,0 +1,30 @@
+{
+	"name": "Invoice",
+	"doctype": "DocType",
+	"is_single": 0,
+	"istable": 0,
+	"keyword_fields": [],
+	"fields": [
+		{
+			"fieldname": "customer",
+			"label": "Customer",
+			"fieldtype": "Link",
+			"target": "Customer",
+			"reqd": 1
+		},
+		{
+			"fieldname": "items",
+			"label": "Items",
+			"fieldtype": "Table",
+			"childtype": "Invoice Item",
+			"reqd": 1
+		},
+		{
+			"fieldname": "total",
+			"label": "Total",
+			"fieldtype": "Currency",
+			"formula": "doc.get_total()",
+			"reqd": 1
+		}
+	]
+}

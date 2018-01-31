@@ -1,0 +1,42 @@
+{
+	"name": "Invoice Item",
+	"doctype": "DocType",
+	"is_single": 0,
+	"is_child": 1,
+	"keyword_fields": [],
+	"fields": [
+		{
+			"fieldname": "item",
+			"label": "Item",
+			"fieldtype": "Link",
+			"options": "Item",
+			"reqd": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text",
+			"fetch": "item.description",
+			"reqd": 1
+		},
+		{
+			"fieldname": "quantity",
+			"label": "Quantity",
+			"fieldtype": "Float",
+			"reqd": 1
+		},
+		{
+			"fieldname": "rate",
+			"label": "Rate",
+			"fieldtype": "Currency",
+			"reqd": 1
+		},
+		{
+			"fieldname": "amount",
+			"label": "Amount",
+			"fieldtype": "Currency",
+			"readonly": 1,
+			"formula": "doc.quantity * doc.rate"
+		}
+	]
+}
