@@ -1,8 +1,10 @@
 module.exports = {
-    standard_fields: [
+	common_fields: [
         {
             fieldname: 'name', fieldtype: 'Data', reqd: 1
-        },
+        }
+	],
+    parent_fields: [
         {
             fieldname: 'owner', fieldtype: 'Link', reqd: 1, options: 'User'
         },

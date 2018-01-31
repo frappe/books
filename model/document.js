@@ -71,17 +71,17 @@ module.exports = class BaseDocument {
     }
 
     async validate_field (key, value) {
-        let df = this.meta.get_field(key);
-        if (df && df.fieldtype=='Select') {
-            return this.meta.validate_select(df, value);
+        let field = this.meta.get_field(key);
+        if (field && field.fieldtype=='Select') {
+            return this.meta.validate_select(field, value);
         }
         return value;
     }
 
     get_valid_dict() {
         let doc = {};
-        for(let df of this.meta.get_valid_fields()) {
-            doc[df.fieldname] = this.get(df.fieldname);
+        for(let field of this.meta.get_valid_fields()) {
+            doc[field.fieldname] = this.get(field.fieldname);
         }
         return doc;
     }

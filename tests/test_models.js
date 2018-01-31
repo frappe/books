@@ -9,6 +9,6 @@ describe('Models', () => {
 
     it('should get todo json', () => {
         let todo = frappe.get_meta('todo');
-        assert.equal(todo.issingle, 0);
+        assert.equal(todo.is_single, 0);
     });
 });

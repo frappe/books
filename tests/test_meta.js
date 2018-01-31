@@ -9,7 +9,7 @@ describe('Meta', () => {
 
     it('should get init from json file', () => {
         let todo = frappe.get_meta('ToDo');
-        assert.equal(todo.issingle, 0);
+        assert.equal(todo.is_single, 0);
     });
 
     it('should get fields from meta', () => {

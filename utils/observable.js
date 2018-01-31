@@ -1,12 +1,12 @@
 module.exports = class Observable {
-	constructor() {
-		this._handlers = {};
-	}
+    constructor() {
+        this._handlers = {};
+    }
 
     on(event, fn) {
         if (!this._handlers[event]) {
-			this._handlers[event] = [];
-		}
+            this._handlers[event] = [];
+        }
         this._handlers[event].push(fn);
     }
 

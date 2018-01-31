@@ -7,20 +7,19 @@ module.exports = {
 		// [doctype].json
 		fs.mkdirSync(`./models/doctype/${utils.slug(name)}`);
 		fs.writeFileSync(`./models/doctype/${utils.slug(name)}/${utils.slug(name)}.json`, `{
-"name": "${name}",
-"doctype": "DocType",
-"issingle": 0,
-"istable": 0,
-"keyword_fields": [
-],
-"fields": [
-{
-	"fieldname": "name",
-	"label": "Name",
-	"fieldtype": "Data",
-	"reqd": 1
-}
-]
+	"name": "${name}",
+	"doctype": "DocType",
+	"is_single": 0,
+	"istable": 0,
+	"keyword_fields": [],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"reqd": 1
+		}
+	]
 }`);
 
 		// [doctype].js
@@ -29,17 +28,17 @@ module.exports = {
 const BaseDocument = require('frappejs/model/document');
 
 class ${thinname}Meta extends BaseMeta {
-setup_meta() {
-Object.assign(this, require('./${utils.slug(name)}.json'));
-}
+	setup_meta() {
+		Object.assign(this, require('./${utils.slug(name)}.json'));
+	}
 }
 
 class ${thinname} extends BaseDocument {
 }
 
 module.exports = {
-Document: ${thinname},
-Meta: ${thinname}Meta
+	Document: ${thinname},
+	Meta: ${thinname}Meta
 };`);
 
 	}

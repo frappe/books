@@ -43,13 +43,13 @@ describe('Document', () => {
     });
 
     it('should not allow incorrect Select option', async () => {
-        let doc = await test_doc();
-        assert.throws(
-            () => {
-                doc.set('status', 'Illegal');
-            },
-            frappe.errors.ValueError
-        );
+		let doc = await test_doc();
+		try {
+			await doc.set('status', 'Illegal');
+			assert.fail();
+		} catch (e) {
+			assert.ok(e instanceof frappe.errors.ValueError);
+		}
     });
 
     it('should delete a document', async () => {

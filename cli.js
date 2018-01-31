@@ -2,7 +2,7 @@
 
 const program = require('commander');
 const process = require('process');
-const boilerplate = require('frappejs/models/boilerplate');
+const boilerplate = require('frappejs/model/boilerplate');
 
 program.command('new-model <name>')
 	.description('Create a new model in the `models/doctype` folder')

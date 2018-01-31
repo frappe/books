@@ -14,14 +14,21 @@ module.exports = class BaseMeta extends BaseDocument {
     }
 
     get_field(fieldname) {
-        if (!this.field_map) {
-            this.field_map = {};
-            for (let df of this.fields) {
-                this.field_map[df.fieldname] = df;
+        if (!this._field_map) {
+            this._field_map = {};
+            for (let field of this.fields) {
+                this._field_map[field.fieldname] = field;
             }
         }
-        return this.field_map[fieldname];
-    }
+        return this._field_map[fieldname];
+	}
+
+	get_table_fields() {
+		if (!this._table_fields) {
+			this._table_fields = this.fields.filter(field => field.fieldtype==='Table');
+		}
+		return this._table_fields;
+	}
 
     on(key, fn) {
         if (!this.event_handlers[key]) {
@@ -39,32 +46,45 @@ module.exports = class BaseMeta extends BaseDocument {
         return this[fieldname];
     }
 
-    get_valid_fields() {
+    get_valid_fields({with_children = true} = {}) {
         if (!this._valid_fields) {
             this._valid_fields = [];
 
-            const doctype_fields = this.fields.map((df) => df.fieldname);
+            const doctype_fields = this.fields.map((field) => field.fieldname);
 
             // standard fields
-            for (let df of frappe.model.standard_fields) {
-                if (frappe.db.type_map[df.fieldtype] && !doctype_fields.includes(df.fieldname)) {
-                    this._valid_fields.push(df);
+            for (let field of frappe.model.common_fields) {
+                if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                    this._valid_fields.push(field);
                 }
             }
 
-            // parent fields
-            if (this.istable) {
-                for (let df of frappe.model.child_fields) {
-                    if (frappe.db.type_map[df.fieldtype] && !doctype_fields.includes(df.fieldname)) {
-                        this._valid_fields.push(df);
+            if (this.is_child) {
+				// child fields
+				for (let field of frappe.model.child_fields) {
+                    if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                        this._valid_fields.push(field);
                     }
                 }
-            }
+            } else {
+				// parent fields
+				for (let field of frappe.model.parent_fields) {
+                    if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                        this._valid_fields.push(field);
+                    }
+                }
+			}
 
             // doctype fields
-            for (let df of this.fields) {
-                if (frappe.db.type_map[df.fieldtype]) {
-                    this._valid_fields.push(df);
+            for (let field of this.fields) {
+				let include = frappe.db.type_map[field.fieldtype];
+
+				// include tables if (with_children = True)
+				if (!include && with_children) {
+					include = field.fieldtype === 'Table';
+				}
+                if (include) {
+                    this._valid_fields.push(field);
                 }
             }
         }
@@ -73,14 +93,14 @@ module.exports = class BaseMeta extends BaseDocument {
     }
 
     get_keyword_fields() {
-        return this.keyword_fields || this.meta.fields.filter(df => df.reqd).map(df => df.fieldname);
+        return this.keyword_fields || this.meta.fields.filter(field => field.reqd).map(field => field.fieldname);
     }
 
-    validate_select(df, value) {
-        let options = df.options;
+    validate_select(field, value) {
+        let options = field.options;
         if (typeof options === 'string') {
             // values given as string
-            options = df.options.split('\n');
+            options = field.options.split('\n');
         }
         if (!options.includes(value)) {
             throw new frappe.errors.ValueError(`${value} must be one of ${options.join(", ")}`);
