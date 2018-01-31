@@ -24,3 +24,4 @@ Frappe.js is a meta-data driven framework that enables rapid application develop
 - [Backends](backends.md)
 - [Errors](errors.md)
 - [Testing](testing.md)
+- [Command Line Tools](cli.md)

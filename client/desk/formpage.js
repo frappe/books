@@ -1,5 +1,6 @@
 const Page = require('frappejs/client/view/page');
 const view = require('frappejs/client/view');
+const frappejs = require('frappejs');
 
 module.exports = class FormPage extends Page {
 	constructor(doctype) {
@@ -14,6 +15,19 @@ module.exports = class FormPage extends Page {
 
 		this.on('show', async (params) => {
 			await this.show_doc(params.doctype, params.name);
+		});
+
+		// if name is different after saving, change the route
+		this.form.on('submit', async (params) => {
+			let route = frappe.router.get_route();
+			if (!(route && route[2] === this.form.doc.name)) {
+				await frappe.router.set_route('edit', this.form.doc.doctype, this.form.doc.name);
+				this.form.show_alert('Added', 'success');
+			}
+		});
+
+		this.form.on('delete', async (params) => {
+			await frappe.router.set_route('list', this.form.doctype);
 		});
 	}
 

@@ -72,7 +72,7 @@ module.exports = class BaseDocument {
 
     async validate_field (key, value) {
         let df = this.meta.get_field(key);
-        if (df.fieldtype=='Select') {
+        if (df && df.fieldtype=='Select') {
             return this.meta.validate_select(df, value);
         }
         return value;

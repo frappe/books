@@ -1,8 +1,9 @@
 const frappe = require('frappejs');
+const Observable = require('frappejs/utils/observable');
 
-module.exports = class Page {
+module.exports = class Page extends Observable {
     constructor(title) {
-        this.handlers = {};
+        super();
         this.title = title;
         this.make();
     }
@@ -41,18 +42,5 @@ module.exports = class Page {
         this.body.classList.add('hide');
         this.page_error.classList.remove('hide');
         this.page_error.innerHTML = `<h3 class="text-extra-muted">${title ? title : ""}</h3><p class="text-muted">${message ? message : ""}</p>`;
-    }
-
-    on(event, fn) {
-        if (!this.handlers[event]) this.handlers[event] = [];
-        this.handlers[event].push(fn);
-    }
-
-    async trigger(event, params) {
-        if (this.handlers[event]) {
-            for (let handler of this.handlers[event]) {
-                await handler(params);
-            }
-        }
     }
 }

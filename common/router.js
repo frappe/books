@@ -2,6 +2,7 @@ const frappe = require('frappejs');
 
 module.exports = class Router {
     constructor() {
+        this.last_route = null;
         this.current_page = null;
         this.static_routes = [];
         this.dynamic_routes = [];
@@ -52,19 +53,41 @@ module.exports = class Router {
 
     listen() {
         window.addEventListener('hashchange', (event) => {
-            this.show(window.location.hash);
+            let route = this.get_route_string();
+            if (this.last_route !== route) {
+                this.show(route);
+            }
         });
     }
 
-    set_route(...parts) {
+    // split and get routes
+    get_route() {
+        let route = this.get_route_string();
+        if (route) {
+            return route.split('/');
+        } else {
+            return [];
+        }
+    }
+
+    async set_route(...parts) {
         const route = parts.join('/');
+
+        // setting this first, does not trigger show via hashchange,
+        // since we want to this with async/await, we need to trigger
+        // the show method
+        this.last_route = route;
+
         window.location.hash = route;
+        await this.show(route);
     }
 
     async show(route) {
         if (route && route[0]==='#') {
             route = route.substr(1);
         }
+
+        this.last_route = route;
 
         if (!route) {
             route = this.default;
@@ -102,5 +125,13 @@ module.exports = class Router {
                 return {handler:page.handler, params: params};
             }
         }
+    }
+
+    get_route_string() {
+        let route = window.location.hash;
+        if (route && route[0]==='#') {
+            route = route.substr(1);
+        }
+        return route;
     }
 }

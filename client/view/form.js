@@ -1,8 +1,10 @@
 const frappe = require('frappejs');
 const controls = require('./controls');
+const Observable = require('frappejs/utils/observable');
 
-module.exports = class BaseForm {
+module.exports = class BaseForm extends Observable {
     constructor({doctype, parent, submit_label='Submit'}) {
+        super();
         this.parent = parent;
         this.doctype = doctype;
         this.submit_label = submit_label;
@@ -52,21 +54,8 @@ module.exports = class BaseForm {
         this.btn_delete.addEventListener('click', async () => {
             await this.doc.delete();
             this.show_alert('Deleted', 'success');
+            this.trigger('delete');
         });
-    }
-
-
-    show_alert(message, type) {
-        this.clear_alert();
-        this.alert = frappe.ui.add('div', `alert alert-${type}`, this.body);
-        this.alert.textContent = message;
-    }
-
-    clear_alert() {
-        if (this.alert) {
-            frappe.ui.remove(this.alert);
-            this.alert = null;
-        }
     }
 
     async use(doc, is_new = false) {
@@ -88,6 +77,8 @@ module.exports = class BaseForm {
                 control.set_doc_value();
             }
         });
+
+        this.trigger('use', {doc:doc});
     }
 
     async submit() {
@@ -102,11 +93,28 @@ module.exports = class BaseForm {
         } catch (e) {
             this.show_alert('Failed', 'danger');
         }
+        await this.trigger('submit');
     }
 
     refresh() {
         for(let control of this.controls_list) {
             control.refresh();
+        }
+    }
+
+    show_alert(message, type, clear_after = 5) {
+        this.clear_alert();
+        this.alert = frappe.ui.add('div', `alert alert-${type}`, this.body);
+        this.alert.textContent = message;
+        setTimeout(() => {
+            this.clear_alert();
+        }, clear_after * 1000);
+    }
+
+    clear_alert() {
+        if (this.alert) {
+            frappe.ui.remove(this.alert);
+            this.alert = null;
         }
     }
 

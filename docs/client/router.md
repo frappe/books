@@ -2,7 +2,7 @@
 
 The Frappe.js client comes in with a built in router, that is handles via hashing (example `#route`)
 
-## Add a new route
+## Adding new route handlers
 
 You can add a new route by calling `frappe.router.add`
 
@@ -41,6 +41,25 @@ frappe.router.add('new/todo', async (params) => {
 	app.edit_page.show();
 	app.edit_page.form.use(app.doc, true);
 });
+```
+
+## Setting route
+
+You can change route with
+
+```js
+await frappe.router.set_route('list', 'todo');
+```
+
+## Getting current route
+
+`frappe.router.get_route()` will return the current route as a list.
+
+```js
+await frappe.router.set_route('list', 'todo');
+
+// returns ['list', 'todo'];
+route = frappe.router.get_route();
 ```
 
 ## Show a route
