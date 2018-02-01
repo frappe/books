@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const sqlite3 = require('sqlite3').verbose();
-const debug = true;
+const debug = false;
 
 class sqliteDatabase {
     constructor({ db_path }) {
@@ -29,17 +29,12 @@ class sqliteDatabase {
             if (frappe.modules[doctype].Meta) {
                 if (await this.table_exists(doctype)) {
                     await this.alter_table(doctype);
-                    commit = true
                 } else {
                     await this.create_table(doctype);
-                    commit = true
                 }
 
             }
         }
-
-        if ( commit )
-            await this.commit();
     }
 
     async create_table(doctype) {
@@ -50,9 +45,6 @@ class sqliteDatabase {
         for (let df of meta.get_valid_fields({ with_children: false })) {
             if (this.type_map[df.fieldtype]) {
                 columns.push(this.get_column_definition(df));
-                // if (df.default) {
-                //     values.push(df.default);
-                // }
             }
         }
 
