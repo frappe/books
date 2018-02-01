@@ -227,8 +227,6 @@ class sqliteDatabase {
 
     run(query, params) {
         // TODO promisify
-        console.log(query, params)
-        console.log(this.conn.prepare(query, params))
         return new Promise((resolve, reject) => {
             this.conn.run(query, params, (err) => {
                 if (err) {
