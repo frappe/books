@@ -309,6 +309,10 @@ boom@5.x.x:
   dependencies:
     hoek "4.x.x"
 
+bootstrap@4.0.0-beta.3:
+  version "4.0.0-beta.3"
+  resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-4.0.0-beta.3.tgz#60f0660bc3d121176514b361f6f83201c7ff8874"
+
 bootstrap@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/bootstrap/-/bootstrap-4.0.0.tgz#ceb03842c145fcc1b9b4e15da2a05656ba68469a"
@@ -1383,6 +1387,17 @@ form-data@~2.3.1:
 forwarded@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.1.2.tgz#98c23dab1175657b8c0573e8ceccd91b0ff18c84"
+
+frappejs@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/frappejs/-/frappejs-0.0.1.tgz#8926c6043327535aa11683c1f7831b2cfb8ed414"
+  dependencies:
+    body-parser "^1.18.2"
+    bootstrap "4.0.0-beta.3"
+    express "^4.16.2"
+    node-fetch "^1.7.3"
+    sqlite3 "^3.1.13"
+    walk "^2.3.9"
 
 fresh@0.5.2:
   version "0.5.2"

@@ -45,9 +45,6 @@ class sqliteDatabase {
         for (let df of meta.get_valid_fields({ with_children: false })) {
             if (this.type_map[df.fieldtype]) {
                 columns.push(this.get_column_definition(df));
-                if (df.default) {
-                    values.push(df.default);
-                }
             }
         }
 
@@ -62,7 +59,7 @@ class sqliteDatabase {
     }
 
     get_column_definition(df) {
-        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd ? "not null" : ""} ${df.default ? "default ?" : ""}`
+        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default ${df.default}` : ""}`
     }
 
     async alter_table(doctype) {
@@ -226,10 +223,11 @@ class sqliteDatabase {
     }
 
     run(query, params) {
+        // TODO promisify
         return new Promise((resolve, reject) => {
             this.conn.run(query, params, (err) => {
                 if (err) {
-                    console.log(err);
+                    console.error(err);
                     reject(err);
                 } else {
                     resolve();
