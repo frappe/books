@@ -66,7 +66,7 @@ module.exports = class BaseDocument {
         if (data.prototype instanceof Document) {
             return data;
         } else {
-            return new Document(d);
+            return new Document(data);
         }
     }
 
