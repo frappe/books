@@ -1,7 +1,7 @@
 language: node_js
 
 node_js:
-  - "7"
+  - "8"
 
 before_isntall:
   - "git clone https://github.com/frappe/frappejs && cd frappejs"
