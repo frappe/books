@@ -23,18 +23,23 @@ class sqliteDatabase {
     }
 
     async migrate() {
+        let commit = false;
         for (let doctype in frappe.modules) {
             // check if controller module
             if (frappe.modules[doctype].Meta) {
                 if (await this.table_exists(doctype)) {
                     await this.alter_table(doctype);
+                    commit = true
                 } else {
                     await this.create_table(doctype);
+                    commit = true
                 }
 
             }
         }
-        await this.commit();
+
+        if ( commit )
+            await this.commit();
     }
 
     async create_table(doctype) {
@@ -45,9 +50,9 @@ class sqliteDatabase {
         for (let df of meta.get_valid_fields({ with_children: false })) {
             if (this.type_map[df.fieldtype]) {
                 columns.push(this.get_column_definition(df));
-                if (df.default) {
-                    values.push(df.default);
-                }
+                // if (df.default) {
+                //     values.push(df.default);
+                // }
             }
         }
 
@@ -62,7 +67,7 @@ class sqliteDatabase {
     }
 
     get_column_definition(df) {
-        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? "default ?" : ""}`
+        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default ${df.default}` : ""}`
     }
 
     async alter_table(doctype) {
