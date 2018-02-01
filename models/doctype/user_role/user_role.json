@@ -1,0 +1,15 @@
+{
+	"name": "User Role",
+	"doctype": "DocType",
+	"is_single": 0,
+	"is_child": 1,
+	"keyword_fields": [],
+	"fields": [
+		{
+			"fieldname": "role",
+			"label": "Role",
+			"fieldtype": "Link",
+			"target": "Role"
+        }
+	]
+}

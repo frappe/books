@@ -1,0 +1,30 @@
+{
+	"name": "User",
+	"doctype": "DocType",
+	"is_single": 0,
+	"is_child": 0,
+	"keyword_fields": [
+        "name",
+        "full_name"
+    ],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"reqd": 1
+        },
+        {
+            "fieldname": "full_name",
+            "label": "Full Name",
+            "fieldtype": "Data",
+            "reqd": 1
+        },
+        {
+            "fieldname": "roles",
+            "label": "Roles",
+            "fieldtype": "Table",
+            "childtype": "User Role"
+        }
+	]
+}

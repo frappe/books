@@ -32,7 +32,7 @@ describe('REST', () => {
     });
 
     it('should create a document', async () => {
-        let doc = await frappe.get_doc({doctype:'ToDo', subject:'test rest insert 1'});
+        let doc = frappe.new_doc({doctype:'ToDo', subject:'test rest insert 1'});
         await doc.insert();
 
         let doc1 = await frappe.get_doc('ToDo', doc.name);
@@ -42,7 +42,7 @@ describe('REST', () => {
     });
 
     it('should update a document', async () => {
-        let doc = await frappe.get_doc({doctype:'ToDo', subject:'test rest insert 1'});
+        let doc = frappe.new_doc({doctype:'ToDo', subject:'test rest insert 1'});
         await doc.insert();
 
         doc.subject = 'subject changed';

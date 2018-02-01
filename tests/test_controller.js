@@ -8,7 +8,7 @@ describe('Controller', () => {
     });
 
     it('should call controller method', async () => {
-        let doc = await frappe.get_doc({
+        let doc = frappe.new_doc({
             doctype:'ToDo',
             subject: 'test'
         });

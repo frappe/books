@@ -7,6 +7,10 @@ Object.assign(utils, {
         return text.toLowerCase().replace(/ /g, '_');
     },
 
+    get_random_name() {
+        return Math.random().toString(36).substr(3);
+    },
+
     async_handler(fn) {
         return (req, res, next) => Promise.resolve(fn(req, res, next))
             .catch((err) => {
