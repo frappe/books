@@ -34,6 +34,7 @@ class sqliteDatabase {
 
             }
         }
+        await this.commit();
     }
 
     async create_table(doctype) {
