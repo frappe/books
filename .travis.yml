@@ -6,7 +6,8 @@ node_js:
 before_isntall:
   - "git clone https://github.com/frappe/frappejs && cd frappejs"
   - "npm install -g yarn"
-  - "yarn && yarn link frappejs"
+  - "yarn"
+  - "yarn link frappejs"
 
 script:
   - "yarn run test"
