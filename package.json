@@ -14,7 +14,6 @@
     "bootstrap": "^4.0.0",
     "commander": "^2.13.0",
     "express": "^4.16.2",
-    "frappejs": "^0.0.1",
     "jquery": "^3.3.1",
     "node-fetch": "^1.7.3",
     "popper.js": "^1.12.9",

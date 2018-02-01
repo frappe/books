@@ -23,7 +23,6 @@ class sqliteDatabase {
     }
 
     async migrate() {
-        let commit = false;
         for (let doctype in frappe.modules) {
             // check if controller module
             if (frappe.modules[doctype].Meta) {
