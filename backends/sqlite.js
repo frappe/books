@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const sqlite3 = require('sqlite3').verbose();
-const debug = false;
+const debug = true;
 
 class sqliteDatabase {
     constructor({ db_path }) {
@@ -62,7 +62,7 @@ class sqliteDatabase {
     }
 
     get_column_definition(df) {
-        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd ? "not null" : ""} ${df.default ? "default ?" : ""}`
+        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? "default ?" : ""}`
     }
 
     async alter_table(doctype) {
@@ -226,10 +226,13 @@ class sqliteDatabase {
     }
 
     run(query, params) {
+        // TODO promisify
+        console.log(query, params)
+        console.log(this.conn.prepare(query, params))
         return new Promise((resolve, reject) => {
             this.conn.run(query, params, (err) => {
                 if (err) {
-                    console.log(err);
+                    console.error(err);
                     reject(err);
                 } else {
                     resolve();
