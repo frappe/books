@@ -112,34 +112,58 @@ class sqliteDatabase {
         // insert children
         let table_fields = frappe.get_meta(doctype).get_table_fields();
         for (let field of table_fields) {
+            let idx = 0;
             for (let child of (doc[field.fieldname] || [])) {
+                this.prepare_child(doctype, doc.name, child, field, idx);
                 await this.insert_one(field.childtype, child);
+                idx++;
             }
         }
+
+        return doc;
     }
 
     async insert_one(doctype, doc) {
         let fields = this.get_keys(doctype);
         let placeholders = fields.map(d => '?').join(', ');
 
+        if (!doc.name) {
+            doc.name = frappe.get_random_name();
+        }
+
         return await this.run(`insert into ${frappe.slug(doctype)}
-            (${Object.keys(doc).join(", ")})
+            (${fields.map(field => field.fieldname).join(", ")})
             values (${placeholders})`, this.get_formatted_values(fields, doc));
     }
 
     async update(doctype, doc) {
-        // updates parent and child, similar to insert, but writing separately for clarity
-
         // update parent
         await this.update_one(doctype, doc);
 
-        // update children
+        // insert or update children
         let table_fields = frappe.get_meta(doctype).get_table_fields();
         for (let field of table_fields) {
+
+            // first key is "parent" - for SQL params
+            let added_children = [doc.name];
             for (let child of (doc[field.fieldname] || [])) {
-                await this.update_one(field.childtype, child);
+                this.prepare_child(doctype, doc.name, child, field, added_children.length - 1);
+                if (await this.exists(field.childtype, child.name)) {
+                    await this.update_one(field.childtype, child);
+                } else {
+                    await this.insert_one(field.childtype, child);
+                }
+                added_children.push(child.name);
             }
+
+            // delete other children
+            // `delete from doctype where parent = ? and name not in (?, ?, ?)}`
+            await this.run(`delete from ${frappe.slug(field.childtype)}
+                where
+                    parent = ? and
+                    name not in (${added_children.map(d => '?').join(', ')})`, added_children);
         }
+        return doc;
     }
 
     async update_one(doctype, doc) {
@@ -152,6 +176,13 @@ class sqliteDatabase {
 
         return await this.run(`update ${frappe.slug(doctype)}
                 set ${assigns.join(", ")} where name=?`, values);
+    }
+
+    prepare_child(parenttype, parent, child, field, idx) {
+        child.parent = parent;
+        child.parenttype = parenttype;
+        child.parentfield = field.fieldname;
+        child.idx = idx;
     }
 
     get_keys(doctype) {
@@ -171,7 +202,32 @@ class sqliteDatabase {
     }
 
     async delete(doctype, name) {
-        return await this.run(`delete from ${frappe.slug(doctype)} where name=?`, name);
+        await this.run(`delete from ${frappe.slug(doctype)} where name=?`, name);
+
+        // delete children
+        let table_fields = frappe.get_meta(doctype).get_table_fields();
+        for (let field of table_fields) {
+            await this.run(`delete from ${frappe.slug(field.childtype)} where parent=?`, name)
+        }
+    }
+
+    async exists(doctype, name) {
+        return (await this.get_value(doctype, name)) ? true : false;
+    }
+
+    async get_value(doctype, filters, fieldname = 'name') {
+        if (typeof filters === 'string') {
+            filters = { name: filters };
+        }
+
+        let row = await this.get_all({
+            doctype: doctype,
+            fields: [fieldname],
+            filters: filters,
+            start: 0,
+            limit: 1
+        });
+        return row.length ? row[0][fieldname] : null;
     }
 
     get_all({ doctype, fields, filters, start, limit, order_by = 'modified', order = 'desc' } = {}) {
@@ -227,7 +283,9 @@ class sqliteDatabase {
         return new Promise((resolve, reject) => {
             this.conn.run(query, params, (err) => {
                 if (err) {
-                    console.error(err);
+                    if (debug) {
+                        console.error(err);
+                    }
                     reject(err);
                 } else {
                     resolve();
@@ -252,21 +310,6 @@ class sqliteDatabase {
                 throw e;
             }
         }
-    }
-
-    async get_value(doctype, filters, fieldname = 'name') {
-        if (typeof filters === 'string') {
-            filters = { name: filters };
-        }
-
-        let row = await this.get_all({
-            doctype: doctype,
-            fields: [fieldname],
-            filters: filters,
-            start: 0,
-            limit: 1
-        });
-        return row.length ? row[0][fieldname] : null;
     }
 
     async table_exists(table) {

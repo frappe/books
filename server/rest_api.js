@@ -27,7 +27,7 @@ module.exports = {
         app.post('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
             data = request.body;
             data.doctype = request.params.doctype;
-            let doc = await frappe.get_doc(data);
+            let doc = frappe.new_doc(data);
             await doc.insert();
             await frappe.db.commit();
             return response.json(doc.get_valid_dict());

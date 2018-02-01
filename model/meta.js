@@ -48,14 +48,21 @@ module.exports = class BaseMeta extends BaseDocument {
 
     get_valid_fields({ with_children = true } = {}) {
         if (!this._valid_fields) {
+
             this._valid_fields = [];
+            this._valid_fields_with_children = [];
+
+            const _add = (field) => {
+                this._valid_fields.push(field);
+                this._valid_fields_with_children.push(field);
+            }
 
             const doctype_fields = this.fields.map((field) => field.fieldname);
 
             // standard fields
             for (let field of frappe.model.common_fields) {
                 if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                    this._valid_fields.push(field);
+                    _add(field);
                 }
             }
 
@@ -63,14 +70,14 @@ module.exports = class BaseMeta extends BaseDocument {
                 // child fields
                 for (let field of frappe.model.child_fields) {
                     if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                        this._valid_fields.push(field);
+                        _add(field);
                     }
                 }
             } else {
                 // parent fields
                 for (let field of frappe.model.parent_fields) {
                     if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                        this._valid_fields.push(field);
+                        _add(field);
                     }
                 }
             }
@@ -79,17 +86,22 @@ module.exports = class BaseMeta extends BaseDocument {
             for (let field of this.fields) {
                 let include = frappe.db.type_map[field.fieldtype];
 
-                // include tables if (with_children = True)
-                if (!include && with_children) {
-                    include = field.fieldtype === 'Table';
-                }
                 if (include) {
-                    this._valid_fields.push(field);
+                    _add(field);
+                }
+
+                // include tables if (with_children = True)
+                if (!include && field.fieldtype === 'Table') {
+                    this._valid_fields_with_children.push(field);
                 }
             }
         }
 
-        return this._valid_fields;
+        if (with_children) {
+            return this._valid_fields_with_children;
+        } else {
+            return this._valid_fields;
+        }
     }
 
     get_keyword_fields() {

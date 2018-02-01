@@ -36,7 +36,7 @@ module.exports = class BaseDocument {
         // assign a random name by default
         // override this to set a name
         if (!this.name) {
-            this.name = Math.random().toString(36).substr(3);
+            this.name = frappe.get_random_name();
         }
     }
 
@@ -79,11 +79,11 @@ module.exports = class BaseDocument {
     }
 
     get_valid_dict() {
-        let doc = {};
+        let data = {};
         for (let field of this.meta.get_valid_fields()) {
-            doc[field.fieldname] = this.get(field.fieldname);
+            data[field.fieldname] = this[field.fieldname];
         }
-        return doc;
+        return data;
     }
 
     set_standard_values() {
@@ -102,9 +102,22 @@ module.exports = class BaseDocument {
     async load() {
         let data = await frappe.db.get(this.doctype, this.name);
         if (data.name) {
-            Object.assign(this, data);
+            this.sync_values(data);
         } else {
             throw new frappe.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
+        }
+    }
+
+    sync_values(data) {
+        this.clear_values();
+        Object.assign(this, data);
+    }
+
+    clear_values() {
+        for (let field of this.meta.get_valid_fields()) {
+            if(this[field.fieldname]) {
+                delete this[field.fieldname];
+            }
         }
     }
 
@@ -114,9 +127,23 @@ module.exports = class BaseDocument {
         this.set_keywords();
         await this.trigger('validate');
         await this.trigger('before_insert');
-        await frappe.db.insert(this.doctype, this.get_valid_dict());
+        this.sync_values(await frappe.db.insert(this.doctype, this.get_valid_dict()));
         await this.trigger('after_insert');
         await this.trigger('after_save');
+
+        return this;
+    }
+
+        async update() {
+        this.set_standard_values();
+        this.set_keywords();
+        await this.trigger('validate');
+        await this.trigger('before_update');
+        this.sync_values(await frappe.db.update(this.doctype, this.get_valid_dict()));
+        await this.trigger('after_update');
+        await this.trigger('after_save');
+
+        return this;
     }
 
     async delete() {
@@ -135,16 +162,5 @@ module.exports = class BaseDocument {
                 }
             }
         }
-    }
-
-    async update() {
-        this.set_standard_values();
-        this.set_keywords();
-        await this.trigger('validate');
-        await this.trigger('before_update');
-        await frappe.db.update(this.doctype, this.get_valid_dict());
-        await this.trigger('after_update');
-        await this.trigger('after_save');
-        return this;
     }
 };

@@ -8,7 +8,7 @@ describe('Document', () => {
     });
 
     it('should insert a doc', async () => {
-        let doc1 = await test_doc();
+        let doc1 = test_doc();
         doc1.subject = 'insert subject 1';
         doc1.description = 'insert description 1';
         await doc1.insert();
@@ -20,7 +20,7 @@ describe('Document', () => {
     });
 
     it('should update a doc', async () => {
-        let doc = await test_doc();
+        let doc = test_doc();
         await doc.insert();
 
         assert.notEqual(await frappe.db.get_value(doc.doctype, doc.name, 'subject'), 'subject 2');
@@ -32,18 +32,18 @@ describe('Document', () => {
     })
 
     it('should get a value', async () => {
-        let doc = await test_doc();
+        let doc = test_doc();
         assert.equal(doc.get('subject'), 'testing 1');
     });
 
     it('should set a value', async () => {
-        let doc = await test_doc();
+        let doc = test_doc();
         doc.set('subject', 'testing 1')
         assert.equal(doc.get('subject'), 'testing 1');
     });
 
     it('should not allow incorrect Select option', async () => {
-		let doc = await test_doc();
+		let doc = test_doc();
 		try {
 			await doc.set('status', 'Illegal');
 			assert.fail();
@@ -53,7 +53,7 @@ describe('Document', () => {
     });
 
     it('should delete a document', async () => {
-        let doc = await test_doc();
+        let doc = test_doc();
         await doc.insert();
 
         assert.equal(await frappe.db.get_value(doc.doctype, doc.name), doc.name);
@@ -63,10 +63,36 @@ describe('Document', () => {
         assert.equal(await frappe.db.get_value(doc.doctype, doc.name), null);
     });
 
+    it('should add, fetch and delete documents with children', async() => {
+        await frappe.new_doc({doctype: 'Role', name: 'Test Role'}).insert();
+        await frappe.new_doc({doctype: 'Role', name: 'Test Role 1'}).insert();
+
+        let user = frappe.new_doc({
+            doctype: 'User',
+            name: 'test_user',
+            full_name: 'Test User',
+            roles: [
+                {
+                    role: 'Test Role'
+                }
+            ]
+        });
+        await user.insert();
+
+        assert.equal(user.roles.length, 1);
+        assert.equal(user.roles[0].parent, user.name);
+        assert.equal(user.roles[0].parenttype, user.doctype);
+        assert.equal(user.roles[0].parentfield, 'roles');
+
+        // add another role
+        user.roles.push({role: 'Test Role 1'});
+
+    });
+
 });
 
-async function test_doc() {
-    return await frappe.get_doc({
+function test_doc() {
+    return frappe.new_doc({
         doctype: 'ToDo',
         status: 'Open',
         subject: 'testing 1',

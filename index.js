@@ -56,21 +56,20 @@ module.exports = {
         }
     },
 
-    async get_doc(data, name) {
-        if (typeof data==='string' && typeof name==='string') {
-            let doc = this.get_doc_from_cache(data, name);
-            if (!doc) {
-                let controller_class = this.get_controller_class(data);
-                doc = new controller_class({doctype:data, name: name});
-                await doc.load();
-                this.add_to_cache(doc);
-            }
-            return doc;
-        } else {
-            let controller_class = this.get_controller_class(data.doctype);
-            var doc = new controller_class(data);
+    async get_doc(doctype, name) {
+        let doc = this.get_doc_from_cache(doctype, name);
+        if (!doc) {
+            let controller_class = this.get_controller_class(doctype);
+            doc = new controller_class({doctype:doctype, name: name});
+            await doc.load();
+            this.add_to_cache(doc);
         }
         return doc;
+    },
+
+    new_doc(data) {
+        let controller_class = this.get_controller_class(data.doctype);
+        return new controller_class(data);
     },
 
     get_controller_class(doctype) {
@@ -83,7 +82,7 @@ module.exports = {
     },
 
     async get_new_doc(doctype) {
-        let doc = await frappe.get_doc({doctype: doctype});
+        let doc = frappe.new_doc({doctype: doctype});
         doc.set_name();
         doc.__not_inserted = true;
         this.add_to_cache(doc);
@@ -91,8 +90,7 @@ module.exports = {
     },
 
     async insert(data) {
-        const doc = await this.get_doc(data);
-        return await doc.insert();
+        return await (this.new_doc(data)).insert();
     },
 
     login(user='guest', user_key) {

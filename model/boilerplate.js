@@ -10,7 +10,7 @@ module.exports = {
 	"name": "${name}",
 	"doctype": "DocType",
 	"is_single": 0,
-	"istable": 0,
+	"is_child": 0,
 	"keyword_fields": [],
 	"fields": [
 		{
