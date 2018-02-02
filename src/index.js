@@ -6,6 +6,8 @@ client.start({
     container: document.querySelector('.wrapper'),
 }).then(() => {
 
+    frappe.modules.session = require('frappejs/models/doctype/session/session.js')
+
     // require modules
     frappe.modules.todo = require('frappejs/models/doctype/todo/todo.js');
     frappe.modules.account = require('../models/doctype/account/account.js');
@@ -14,6 +16,8 @@ client.start({
 
     frappe.modules.todo_client = require('frappejs/models/doctype/todo/todo_client.js');
     frappe.modules.account_client = require('../models/doctype/account/account_client.js');
+
+    frappe.desk.add_sidebar_item('Session', '#list/session');
 
     frappe.desk.add_sidebar_item('ToDo', '#list/todo');
     frappe.desk.add_sidebar_item('Accounts', '#list/account');
