@@ -1,0 +1,21 @@
+{
+	"name": "Session",
+	"doctype": "DocType",
+	"is_single": 0,
+	"is_child": 0,
+	"keyword_fields": [],
+	"fields": [
+		{
+			"fieldname": "username",
+			"label": "Username",
+			"fieldtype": "Data",
+			"reqd": 1
+		},
+		{
+			"fieldname": "password",
+			"label": "Password",
+			"fieldtype": "Password",
+			"reqd": 1
+		}
+	]
+}
