@@ -5,3 +5,4 @@ test.db
 *.log
 .cache
 /temp
+dist
