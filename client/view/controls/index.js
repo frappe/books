@@ -4,7 +4,8 @@ const control_classes = {
     Select: require('./select'),
     Link: require('./link'),
     Float: require('./float'),
-    Currency: require('./currency')
+    Currency: require('./currency'),
+    Password: require('./password')
 }
 
 module.exports = {
