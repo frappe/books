@@ -6,12 +6,6 @@
 	"keyword_fields": [],
 	"fields": [
 		{
-			"fieldname": "name",
-			"label": "Name",
-			"fieldtype": "Data",
-			"reqd": 1
-		},
-		{
 			"fieldname": "username",
 			"label": "Username",
 			"fieldtype": "Data",
