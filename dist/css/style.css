@@ -5752,7 +5752,8 @@ html {
   right: 0;
   left: auto; }
 .awesomplete {
-  display: block; }
+  display: block;
+  z-index: 100; }
 .awesomplete > ul > li {
   padding: .75rem .375rem; }
 .awesomplete > ul > li:hover {
@@ -5771,3 +5772,15 @@ mark {
   background: inherit;
   color: inherit;
   padding: 0px; }
+.data-table-col .edit-cell {
+  padding: 0px !important; }
+.data-table-col .edit-cell input, .data-table-col .edit-cell textarea {
+    z-index: 100;
+    border-radius: none;
+    margin: none;
+    padding: 0.25rem; }
+.data-table-col .edit-cell .awesomplete > ul {
+    position: fixed;
+    left: auto;
+    width: auto;
+    min-width: 120px; }

@@ -17,7 +17,7 @@ class Invoice extends BaseDocument {
 	}
 
 	get_total() {
-		return this.items.map(d => d.amount).reduce((a, b) => a + b, 0);
+		return this.items.map(d => (d.amount || 0)).reduce((a, b) => a + b, 0);
 	}
 }
 

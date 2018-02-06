@@ -9,7 +9,7 @@
 			"fieldname": "item",
 			"label": "Item",
 			"fieldtype": "Link",
-			"options": "Item",
+			"target": "Item",
 			"reqd": 1
 		},
 		{
@@ -35,7 +35,7 @@
 			"fieldname": "amount",
 			"label": "Amount",
 			"fieldtype": "Currency",
-			"readonly": 1,
+			"read_only": 1,
 			"formula": "doc.quantity * doc.rate"
 		}
 	]

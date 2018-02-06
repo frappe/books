@@ -11,7 +11,7 @@ Install dependencies
 ### Build
 
 ```sh
-node_modules/.bin/webpack
+node_modules/.bin/rollup
 ```
 
 ### Start
