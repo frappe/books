@@ -65,3 +65,20 @@ mark {
 	color: inherit;
 	padding: 0px;
 }
+
+.data-table-col .edit-cell {
+	padding: 0px !important;
+
+	input, textarea {
+		border-radius: none;
+		margin: none;
+		padding: 0.25rem;
+	}
+
+	.awesomplete > ul {
+		position: fixed;
+		left: auto;
+		width: auto;
+		min-width: 120px;
+	}
+}

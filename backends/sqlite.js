@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const sqlite3 = require('sqlite3').verbose();
-const debug = false;
+const debug = true;
 
 class sqliteDatabase {
     constructor({ db_path }) {
@@ -86,7 +86,13 @@ class sqliteDatabase {
         // load children
         let table_fields = frappe.get_meta(doctype).get_table_fields();
         for (let field of table_fields) {
-            doc[fieldname] = await this.get_all({ doctype: field.childtype, fields: ["*"], filters: { parent: doc.name } });
+            doc[field.fieldname] = await this.get_all({
+                doctype: field.childtype,
+                fields: ["*"],
+                filters: { parent: doc.name },
+                order_by: 'idx',
+                order: 'asc'
+            });
         }
         return doc;
     }
@@ -225,7 +231,9 @@ class sqliteDatabase {
             fields: [fieldname],
             filters: filters,
             start: 0,
-            limit: 1
+            limit: 1,
+            order_by: 'name',
+            order: 'asc'
         });
         return row.length ? row[0][fieldname] : null;
     }
