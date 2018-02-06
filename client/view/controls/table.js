@@ -36,18 +36,18 @@ class TableControl extends BaseControl {
         field.only_input = true;
         const control = controls.make_control({field: field, parent: parent});
 
-		return {
-			initValue: (value, rowIndex, column) => {
+        return {
+            initValue: (value, rowIndex, column) => {
                 control.parent_control = this;
                 control.doc = this.doc[this.fieldname][rowIndex];
                 control.set_focus();
-				return control.set_input_value(value);
-			},
-			setValue: (value, rowIndex, column) => {
                 return control.set_input_value(value);
-			},
-			getValue: () => {
-				return control.get_input_value();
+            },
+            setValue: (value, rowIndex, column) => {
+                return control.set_input_value(value);
+            },
+            getValue: () => {
+                return control.get_input_value();
             }
         }
     }
