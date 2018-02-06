@@ -3,6 +3,13 @@ let utils = {};
 Object.assign(utils, require('./number_format'));
 
 Object.assign(utils, {
+    format(value, field) {
+        if (field.fieldtype==='Currency') {
+            return frappe.format_number(value);
+        } else {
+            return value + '';
+        }
+    },
     slug(text) {
         return text.toLowerCase().replace(/ /g, '_');
     },

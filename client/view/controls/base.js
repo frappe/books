@@ -1,13 +1,17 @@
 const frappe = require('frappejs');
 
 class BaseControl {
-    constructor(docfield, form) {
-        Object.assign(this, docfield);
+    constructor({field, parent, form}) {
+        Object.assign(this, field);
+        this.parent = parent;
         this.form = form;
+
         if (!this.fieldname) {
             this.fieldname = frappe.slug(this.label);
         }
-        this.parent = form.form;
+        if (!this.parent) {
+            this.parent = this.form.form;
+        }
         if (this.setup) {
             this.setup();
         }
@@ -30,12 +34,16 @@ class BaseControl {
     }
 
     make() {
-        if (!this.form_group) {
-            this.make_form_group();
-            this.make_label();
+        if (!this.input) {
+            if (!this.only_input) {
+                this.make_form_group();
+                this.make_label();
+            }
             this.make_input();
             this.set_input_name();
-            this.make_description();
+            if (!this.only_input) {
+                this.make_description();
+            }
             this.bind_change_event();
         }
     }
@@ -50,8 +58,12 @@ class BaseControl {
     }
 
     make_input() {
-        this.input = frappe.ui.add('input', 'form-control', this.form_group);
+        this.input = frappe.ui.add('input', 'form-control', this.get_input_parent());
         this.input.setAttribute('autocomplete', 'off');
+    }
+
+    get_input_parent() {
+        return this.form_group || this.parent;
     }
 
     set_input_name() {
@@ -100,7 +112,12 @@ class BaseControl {
         let value = await this.parse(this.get_input_value());
         value = await this.validate(value);
         if (this.doc[this.fieldname] !== value) {
-            await this.doc.set(this.fieldname, value);
+            if (this.doc.set) {
+                await this.doc.set(this.fieldname, value);
+            }
+            if (this.parent_control) {
+                await this.parent_control.doc.set(this.fieldname, this.parent_control.get_input_value());
+            }
         }
     }
 
@@ -110,6 +127,10 @@ class BaseControl {
 
     enable() {
         this.input.removeAttribute('disabled');
+    }
+
+    set_focus() {
+        this.input.focus();
     }
 }
 

@@ -18,7 +18,9 @@
     "node-fetch": "^1.7.3",
     "popper.js": "^1.12.9",
     "sqlite3": "^3.1.13",
-    "walk": "^2.3.9"
+    "walk": "^2.3.9",
+    "clusterize.js": "^0.18.0",
+    "sortablejs": "^1.7.0"
   },
   "repository": {
     "type": "git",
