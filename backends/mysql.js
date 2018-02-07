@@ -333,8 +333,8 @@ class mysqlDatabse{
     init_type_map() {
         this.type_map = {
             'Currency': 'real'
-            , 'Int': 'integer'
-            , 'Float': 'real'
+            , 'Int': 'INT'
+            , 'Float': 'decimal(18,6)'
             , 'Percent': 'real'
             , 'Check': 'integer'
             , 'Small Text': 'text'
