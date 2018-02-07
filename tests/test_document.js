@@ -17,6 +17,10 @@ describe('Document', () => {
         let doc2 = await frappe.get_doc(doc1.doctype, doc1.name);
         assert.equal(doc1.subject, doc2.subject);
         assert.equal(doc1.description, doc2.description);
+
+        // test frappe.db.exists
+        assert.ok(await frappe.db.exists(doc1.doctype, doc1.name));
+        assert.equal(await frappe.db.exists(doc1.doctype, doc1.name + '---'), false);
     });
 
     it('should update a doc', async () => {
@@ -80,6 +84,7 @@ describe('Document', () => {
         await user.insert();
 
         assert.equal(user.roles.length, 1);
+        assert.equal(user.roles[0].role, 'Test Role');
         assert.equal(user.roles[0].parent, user.name);
         assert.equal(user.roles[0].parenttype, user.doctype);
         assert.equal(user.roles[0].parentfield, 'roles');
@@ -87,6 +92,27 @@ describe('Document', () => {
         // add another role
         user.roles.push({role: 'Test Role 1'});
 
+        await user.update();
+
+        assert.equal(user.roles.length, 2);
+        assert.equal(user.roles[1].role, 'Test Role 1');
+        assert.equal(user.roles[1].parent, user.name);
+        assert.equal(user.roles[1].parenttype, user.doctype);
+        assert.equal(user.roles[1].parentfield, 'roles');
+
+        // remove the first row
+        user.roles = user.roles.filter((d, i) => i === 1);
+
+        await user.update();
+
+        user = await frappe.get_doc('User', user.name);
+
+        assert.equal(user.roles.length, 1);
+        assert.equal(user.roles[0].role, 'Test Role 1');
+        assert.equal(user.roles[0].idx, 0);
+        assert.equal(user.roles[0].parent, user.name);
+        assert.equal(user.roles[0].parenttype, user.doctype);
+        assert.equal(user.roles[0].parentfield, 'roles');
     });
 
 });

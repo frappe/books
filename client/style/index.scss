@@ -1,6 +1,11 @@
 @import "node_modules/bootstrap/scss/bootstrap";
 @import "node_modules/awesomplete/awesomplete";
 
+$spacer-1: 0.25rem;
+$spacer-2: 0.5rem;
+$spacer-3: 1rem;
+$spacer-4: 2rem;
+
 html {
 	font-size: 14px;
 }
@@ -18,12 +23,12 @@ html {
 	max-width: 600px;
 
 	.form-toolbar {
-		height: 2rem;
-		margin-bottom: 1rem;
+		height: $spacer-4;
+		margin-bottom: $spacer-3;
 	}
 
 	.alert {
-		margin-top: 1rem;
+		margin-top: $spacer-3;
 	}
 }
 
@@ -66,13 +71,21 @@ mark {
 	padding: 0px;
 }
 
+.table-wrapper {
+	margin-bottom: $spacer-2;
+}
+
+.table-toolbar {
+	margin-top: $spacer-2;
+}
+
 .data-table-col .edit-cell {
 	padding: 0px !important;
 
 	input, textarea {
 		border-radius: none;
 		margin: none;
-		padding: 0.25rem;
+		padding: $spacer-1;
 	}
 
 	.awesomplete > ul {
