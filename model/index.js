@@ -1,4 +1,20 @@
+const frappe = require('frappejs');
+
 module.exports = {
+    async get_series_next(prefix) {
+        let series;
+        try {
+            series = await frappe.get_doc('Number Series', prefix);
+        } catch (e) {
+            if (!e.status_code || e.status_code !== 404) {
+                throw e;
+            }
+            series = frappe.new_doc({doctype: 'Number Series', name: prefix, current: 0});
+            await series.insert();
+        }
+        let next = await series.next()
+        return prefix + next;
+    },
     common_fields: [
         {
             fieldname: 'name', fieldtype: 'Data', reqd: 1

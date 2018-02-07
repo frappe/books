@@ -91,10 +91,12 @@ class TableControl extends BaseControl {
             primary_label: frappe._('Submit'),
             primary_action: (modal) => {
                 this.datatable.cellmanager.submitEditing();
-                this.datatable.cellmanager.deactivateEditing();
                 modal.hide();
             }
         });
+        this.text_modal.$modal.on('hidden.bs.modal', () => {
+            this.datatable.cellmanager.deactivateEditing();
+        })
 
         return this.get_control(field, this.text_modal.get_body());
     }

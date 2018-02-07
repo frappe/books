@@ -296,7 +296,7 @@ class sqliteDatabase {
             this.conn.run(query, params, (err) => {
                 if (err) {
                     if (debug) {
-                        console.error(err);
+                        console.log(err);
                     }
                     reject(err);
                 } else {
