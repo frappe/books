@@ -26,7 +26,6 @@ module.exports = class Desk {
         };
 
         this.init_routes();
-
         // this.search = new Search(this.nav);
     }
 

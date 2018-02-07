@@ -121,11 +121,29 @@ module.exports = class BaseDocument {
         }
     }
 
-    async insert() {
+    set_child_idx() {
+        // renumber children
+        for (let field of this.meta.get_valid_fields()) {
+            if (field.fieldtype==='Table') {
+                for(let i=0; i < (this[field.fieldname] || []).length; i++) {
+                    this[field.fieldname][i].idx = i;
+                }
+            }
+        }
+    }
+
+    async commit() {
+        // re-run triggers
         this.set_name();
         this.set_standard_values();
         this.set_keywords();
+        this.set_child_idx();
         await this.trigger('validate');
+        await this.trigger('commit');
+    }
+
+    async insert() {
+        await this.commit();
         await this.trigger('before_insert');
         this.sync_values(await frappe.db.insert(this.doctype, this.get_valid_dict()));
         await this.trigger('after_insert');
@@ -134,10 +152,8 @@ module.exports = class BaseDocument {
         return this;
     }
 
-        async update() {
-        this.set_standard_values();
-        this.set_keywords();
-        await this.trigger('validate');
+    async update() {
+        await this.commit();
         await this.trigger('before_update');
         this.sync_values(await frappe.db.update(this.doctype, this.get_valid_dict()));
         await this.trigger('after_update');

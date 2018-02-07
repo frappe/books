@@ -27,7 +27,7 @@ module.exports = class BaseForm extends Observable {
         this.body = frappe.ui.add('div', 'form-body', this.parent);
         this.make_toolbar();
 
-        this.form = frappe.ui.add('form', null, this.body);
+        this.form = frappe.ui.add('div', 'form-container', this.body);
         for(let field of this.meta.fields) {
             if (controls.get_control_class(field.fieldtype)) {
                 let control = controls.make_control({field: field, form: this});

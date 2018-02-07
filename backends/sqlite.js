@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const sqlite3 = require('sqlite3').verbose();
-const debug = true;
+const debug = false;
 
 class sqliteDatabase {
     constructor({ db_path }) {
@@ -164,10 +164,11 @@ class sqliteDatabase {
 
             // delete other children
             // `delete from doctype where parent = ? and name not in (?, ?, ?)}`
+
             await this.run(`delete from ${frappe.slug(field.childtype)}
                 where
                     parent = ? and
-                    name not in (${added_children.map(d => '?').join(', ')})`, added_children);
+                    name not in (${added_children.slice(1).map(d => '?').join(', ')})`, added_children);
         }
         return doc;
     }
@@ -185,6 +186,9 @@ class sqliteDatabase {
     }
 
     prepare_child(parenttype, parent, child, field, idx) {
+        if (!child.name) {
+            child.name = frappe.get_random_name();
+        }
         child.parent = parent;
         child.parenttype = parenttype;
         child.parentfield = field.fieldname;
