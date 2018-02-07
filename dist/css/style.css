@@ -5752,8 +5752,7 @@ html {
   right: 0;
   left: auto; }
 .awesomplete {
-  display: block;
-  z-index: 100; }
+  display: block; }
 .awesomplete > ul > li {
   padding: .75rem .375rem; }
 .awesomplete > ul > li:hover {
@@ -5772,10 +5771,13 @@ mark {
   background: inherit;
   color: inherit;
   padding: 0px; }
+.table-wrapper {
+  margin-bottom: 0.5rem; }
+.table-toolbar {
+  margin-top: 0.5rem; }
 .data-table-col .edit-cell {
   padding: 0px !important; }
 .data-table-col .edit-cell input, .data-table-col .edit-cell textarea {
-    z-index: 100;
     border-radius: none;
     margin: none;
     padding: 0.25rem; }
