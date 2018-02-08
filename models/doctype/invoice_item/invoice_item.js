@@ -2,7 +2,7 @@ const BaseMeta = require('frappejs/model/meta');
 const BaseDocument = require('frappejs/model/document');
 
 class InvoiceItemMeta extends BaseMeta {
-	setup_meta() {
+	setupMeta() {
 		Object.assign(this, require('./invoice_item.json'));
 	}
 }
