@@ -47,7 +47,7 @@ module.exports = {
     },
 
     async init_db({backend, connection_params}) {
-        frappe.db = await new backends[backend].Database(connection_params);
+        frappe.db = await new backends[backend](connection_params);
         await frappe.db.connect();
         await frappe.db.migrate();
     },

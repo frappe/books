@@ -12,7 +12,7 @@ module.exports = class BaseForm extends Observable {
         this.controls = {};
         this.controls_list = [];
 
-        this.meta = frappe.get_meta(this.doctype);
+        this.meta = frappe.getMeta(this.doctype);
         if (this.setup) {
             this.setup();
         }

@@ -56,7 +56,7 @@ describe('REST', () => {
         await frappe.insert({doctype:'ToDo', subject:'all test 1'});
         await frappe.insert({doctype:'ToDo', subject:'all test 2'});
 
-        let data = await frappe.db.get_all({doctype:'ToDo'});
+        let data = await frappe.db.getAll({doctype:'ToDo'});
         let subjects = data.map(d => d.subject);
         assert.ok(subjects.includes('all test 1'));
         assert.ok(subjects.includes('all test 2'));

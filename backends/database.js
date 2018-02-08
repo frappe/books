@@ -1,0 +1,303 @@
+const frappe = require('frappejs');
+
+module.exports = class Database {
+    constructor() {
+        this.initTypeMap();
+    }
+
+    async connect() {
+        // this.conn
+    }
+
+    close() {
+        this.conn.close();
+    }
+
+    async migrate() {
+        for (let doctype in frappe.modules) {
+            // check if controller module
+            if (frappe.modules[doctype].Meta) {
+                if (await this.tableExists(doctype)) {
+                    await this.alterTable(doctype);
+                } else {
+                    await this.createTable(doctype);
+                }
+
+            }
+        }
+        await this.commit();
+    }
+
+    async createTable(doctype) {
+        let meta = frappe.getMeta(doctype);
+        let columns = [];
+        let values = [];
+
+        for (let df of meta.getValidFields({ with_children: false })) {
+            if (this.type_map[df.fieldtype]) {
+                columns.push(this.getColumnDefinition(df));
+            }
+        }
+
+        return await this.runCreateTableQuery(doctype, columns, values);
+    }
+
+    async tableExists(table) {
+        // return true if table exists
+    }
+
+    async runCreateTableQuery(doctype, columns, values) {
+        // override
+    }
+
+    getColumnDefinition(df) {
+        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default ${df.default}` : ""}`
+    }
+
+    async alterTable(doctype) {
+        // get columns
+        let tableColumns = await this.getTableColumns(doctype);
+        let meta = frappe.getMeta(doctype);
+        let values = [];
+
+        for (let field of meta.getValidFields({ with_children: false })) {
+            if (!tableColumns.includes(field.fieldname) && this.type_map[field.fieldtype]) {
+                values = []
+                if (field.default) {
+                    values.push(field.default);
+                }
+                await this.runAlterTableQuery(doctype, field, values);
+            }
+        }
+    }
+
+    async getTableColumns(doctype) {
+        return [];
+    }
+
+    async runAlterTableQuery(doctype, field, values) {
+        // alter table {doctype} add column ({column_def});
+    }
+
+    async get(doctype, name, fields = '*') {
+        // load parent
+        let doc = await this.getOne(doctype, name, fields);
+
+        // load children
+        let tableFields = frappe.getMeta(doctype).getTableFields();
+        for (let field of tableFields) {
+            doc[field.fieldname] = await this.getAll({
+                doctype: field.childtype,
+                fields: ["*"],
+                filters: { parent: doc.name },
+                order_by: 'idx',
+                order: 'asc'
+            });
+        }
+        return doc;
+    }
+
+    async getOne(doctype, name, fields = '*') {
+        // select {fields} form {doctype} where name = ?
+    }
+
+    prepareFields(fields) {
+        if (fields instanceof Array) {
+            fields = fields.join(", ");
+        }
+        return fields;
+    }
+
+    async insert(doctype, doc) {
+        // insert parent
+        await this.insertOne(doctype, doc);
+
+        // insert children
+        let tableFields = frappe.getMeta(doctype).getTableFields();
+        for (let field of tableFields) {
+            let idx = 0;
+            for (let child of (doc[field.fieldname] || [])) {
+                this.prepareChild(doctype, doc.name, child, field, idx);
+                await this.insertOne(field.childtype, child);
+                idx++;
+            }
+        }
+
+        return doc;
+    }
+
+    async insertOne(doctype, doc) {
+        // insert into {doctype} ({fields}) values ({values})
+    }
+
+    async update(doctype, doc) {
+        // update parent
+        await this.updateOne(doctype, doc);
+
+        // insert or update children
+        let tableFields = frappe.getMeta(doctype).getTableFields();
+        for (let field of tableFields) {
+
+            // first key is "parent" - for SQL params
+            let added = [doc.name];
+            for (let child of (doc[field.fieldname] || [])) {
+                this.prepareChild(doctype, doc.name, child, field, added.length - 1);
+                if (await this.exists(field.childtype, child.name)) {
+                    await this.updateOne(field.childtype, child);
+                } else {
+                    await this.insertOne(field.childtype, child);
+                }
+                added.push(child.name);
+            }
+
+            await this.runDeleteOtherChildren(field, added);
+        }
+        return doc;
+    }
+
+    async updateOne(doctype, doc) {
+        // update {doctype} set {field=value} where name=?
+    }
+
+    async runDeleteOtherChildren(field, added) {
+        // delete from doctype where parent = ? and name not in (?, ?, ?)
+    }
+
+    prepareChild(parenttype, parent, child, field, idx) {
+        if (!child.name) {
+            child.name = frappe.getRandomName();
+        }
+        child.parent = parent;
+        child.parenttype = parenttype;
+        child.parentfield = field.fieldname;
+        child.idx = idx;
+    }
+
+    getKeys(doctype) {
+        return frappe.getMeta(doctype).getValidFields({ with_children: false });
+    }
+
+    getFormattedValues(fields, doc) {
+        let values = fields.map(field => {
+            let value = doc[field.fieldname];
+            if (value instanceof Date) {
+                return value.toISOString();
+            } else {
+                return value;
+            }
+        });
+        return values;
+    }
+
+    async delete(doctype, name) {
+        await this.deleteOne(doctype, name);
+
+        // delete children
+        let tableFields = frappe.getMeta(doctype).getTableFields();
+        for (let field of tableFields) {
+            await this.deleteChildren(frappe.slug(field.childtype), name);
+        }
+    }
+
+    async deleteOne(doctype, name) {
+        // delete from {doctype} where name = ?
+    }
+
+    async deleteChildren(parenttype, parent) {
+        // delete from {parenttype} where parent = ?
+    }
+
+    async exists(doctype, name) {
+        return (await this.get_value(doctype, name)) ? true : false;
+    }
+
+    async get_value(doctype, filters, fieldname = 'name') {
+        if (typeof filters === 'string') {
+            filters = { name: filters };
+        }
+
+        let row = await this.getAll({
+            doctype: doctype,
+            fields: [fieldname],
+            filters: filters,
+            start: 0,
+            limit: 1,
+            order_by: 'name',
+            order: 'asc'
+        });
+        return row.length ? row[0][fieldname] : null;
+    }
+
+    getAll({ doctype, fields, filters, start, limit, order_by = 'modified', order = 'desc' } = {}) {
+        // select {fields} from {doctype} where {filters} order by {order_by} {order} limit {start} {limit}
+    }
+
+    getFilterConditions(filters) {
+        // {"status": "Open"} => `status = "Open"`
+        // {"status": "Open", "name": ["like", "apple%"]}
+        // => `status="Open" and name like "apple%"
+        let conditions = [];
+        let values = [];
+        for (let key in filters) {
+            const value = filters[key];
+            if (value instanceof Array) {
+                // if its like, we should add the wildcard "%" if the user has not added
+                if (value[0].toLowerCase() === 'like' && !value[1].includes('%')) {
+                    value[1] = `%${value[1]}%`;
+                }
+                conditions.push(`${key} ${value[0]} ?`);
+                values.push(value[1]);
+            } else {
+                conditions.push(`${key} = ?`);
+                values.push(value);
+            }
+        }
+        return {
+            conditions: conditions.length ? conditions.join(" and ") : "",
+            values: values
+        };
+    }
+
+    async run(query, params) {
+        // run query
+    }
+
+    async sql(query, params) {
+        // run sql
+    }
+
+    async commit() {
+        // commit
+    }
+
+    initTypeMap() {
+        this.type_map = {
+            'Currency': 'real'
+            , 'Int': 'integer'
+            , 'Float': 'real'
+            , 'Percent': 'real'
+            , 'Check': 'integer'
+            , 'Small Text': 'text'
+            , 'Long Text': 'text'
+            , 'Code': 'text'
+            , 'Text Editor': 'text'
+            , 'Date': 'text'
+            , 'Datetime': 'text'
+            , 'Time': 'text'
+            , 'Text': 'text'
+            , 'Data': 'text'
+            , 'Link': 'text'
+            , 'Dynamic Link': 'text'
+            , 'Password': 'text'
+            , 'Select': 'text'
+            , 'Read Only': 'text'
+            , 'Attach': 'text'
+            , 'Attach Image': 'text'
+            , 'Signature': 'text'
+            , 'Color': 'text'
+            , 'Barcode': 'text'
+            , 'Geolocation': 'text'
+        }
+    }
+
+}

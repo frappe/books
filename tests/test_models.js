@@ -8,7 +8,7 @@ describe('Models', () => {
     });
 
     it('should get todo json', () => {
-        let todo = frappe.get_meta('todo');
+        let todo = frappe.getMeta('todo');
         assert.equal(todo.is_single, 0);
     });
 });

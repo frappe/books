@@ -10,7 +10,7 @@ module.exports = {
                 }
             }
 
-            let data = await frappe.db.get_all({
+            let data = await frappe.db.getAll({
                 doctype: request.params.doctype,
                 fields: request.query.fields,
                 filters: request.query.filters,

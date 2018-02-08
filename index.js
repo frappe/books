@@ -40,14 +40,14 @@ module.exports = {
         }
     },
 
-    get_meta(doctype) {
+    getMeta(doctype) {
         if (!this.meta_cache[doctype]) {
-            this.meta_cache[doctype] = new (this.get_meta_class(doctype))();
+            this.meta_cache[doctype] = new (this.getMeta_class(doctype))();
         }
         return this.meta_cache[doctype];
     },
 
-    get_meta_class(doctype) {
+    getMeta_class(doctype) {
         doctype = this.slug(doctype);
         if (this.modules[doctype] && this.modules[doctype].Meta) {
             return this.modules[doctype].Meta;

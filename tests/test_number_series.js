@@ -2,7 +2,7 @@ const assert = require('assert');
 const frappe = require('frappejs');
 const helpers = require('./helpers');
 
-describe('Document', () => {
+describe('Number Series', () => {
     before(async function() {
         await helpers.init_sqlite();
     });
