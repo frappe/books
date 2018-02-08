@@ -35,44 +35,44 @@ class BaseControl {
 
     make() {
         if (!this.input) {
-            if (!this.only_input) {
-                this.make_form_group();
-                this.make_label();
+            if (!this.onlyInput) {
+                this.makeFormGroup();
+                this.makeLabel();
             }
-            this.make_input();
-            this.set_input_name();
-            if (!this.only_input) {
-                this.make_description();
+            this.makeInput();
+            this.setInputName();
+            if (!this.onlyInput) {
+                this.makeDescription();
             }
-            this.bind_change_event();
+            this.bindChangeEvent();
         }
     }
 
-    make_form_group() {
-        this.form_group = frappe.ui.add('div', 'form-group', this.parent);
+    makeFormGroup() {
+        this.formGroup = frappe.ui.add('div', 'form-group', this.parent);
     }
 
-    make_label() {
-        this.label_element = frappe.ui.add('label', null, this.form_group);
+    makeLabel() {
+        this.label_element = frappe.ui.add('label', null, this.formGroup);
         this.label_element.textContent = this.label;
     }
 
-    make_input() {
+    makeInput() {
         this.input = frappe.ui.add('input', 'form-control', this.get_input_parent());
         this.input.setAttribute('autocomplete', 'off');
     }
 
     get_input_parent() {
-        return this.form_group || this.parent;
+        return this.formGroup || this.parent;
     }
 
-    set_input_name() {
+    setInputName() {
         this.input.setAttribute('name', this.fieldname);
     }
 
-    make_description() {
+    makeDescription() {
         if (this.description) {
-            this.description_element = frappe.ui.add('small', 'form-text text-muted', this.form_group);
+            this.description_element = frappe.ui.add('small', 'form-text text-muted', this.formGroup);
             this.description_element.textContent = this.description;
         }
     }
@@ -88,7 +88,7 @@ class BaseControl {
         return value;
     }
 
-    async get_parsed_value() {
+    async getParsedValue() {
         return await this.parse(this.input.value);
     }
 
@@ -104,11 +104,11 @@ class BaseControl {
         return value;
     }
 
-    bind_change_event() {
-        this.input.addEventListener('change', (e) => this.handle_change(e));
+    bindChangeEvent() {
+        this.input.addEventListener('change', (e) => this.handleChange());
     }
 
-    async handle_change(e) {
+    async handleChange() {
         let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
         if (this.doc[this.fieldname] !== value) {
@@ -116,6 +116,7 @@ class BaseControl {
                 await this.doc.set(this.fieldname, value);
             }
             if (this.parent_control) {
+                this.doc[this.fieldname] = value;
                 await this.parent_control.doc.set(this.fieldname, this.parent_control.getInputValue());
             }
         }

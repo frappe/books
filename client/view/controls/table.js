@@ -16,12 +16,12 @@ class TableControl extends BaseControl {
             </div>`;
 
             this.datatable = new DataTable(this.wrapper.querySelector('.datatable-wrapper'), {
-                columns: this.get_columns(),
-                data: this.get_table_data(),
+                columns: this.getColumns(),
+                data: this.getTableData(),
                 takeAvailableSpace: true,
                 enableClusterize: true,
                 addCheckboxColumn: true,
-                editing: this.get_table_input.bind(this),
+                editing: this.getTableInput.bind(this),
             });
 
             this.wrapper.querySelector('.btn-add').addEventListener('click', async (event) => {
@@ -45,25 +45,25 @@ class TableControl extends BaseControl {
     }
 
     setInputValue(value) {
-        this.datatable.refresh(this.get_table_data(value));
+        this.datatable.refresh(this.getTableData(value));
     }
 
-    get_table_data(value) {
-        return value || this.get_default_data();
+    getTableData(value) {
+        return value || this.getDefaultData();
     }
 
-    get_table_input(colIndex, rowIndex, value, parent) {
+    getTableInput(colIndex, rowIndex, value, parent) {
         let field = this.datatable.getColumn(colIndex).field;
 
         if (field.fieldtype==='Text') {
-            return this.get_text_control(field);
+            return this.getControlInModal(field);
         } else {
-            return this.get_control(field, parent);
+            return this.getControl(field, parent);
         }
     }
 
-    get_control(field, parent) {
-        field.only_input = true;
+    getControl(field, parent) {
+        field.onlyInput = true;
         const control = controls.makeControl({field: field, parent: parent});
 
         return {
@@ -73,8 +73,8 @@ class TableControl extends BaseControl {
                 control.set_focus();
                 return control.setInputValue(value);
             },
-            setValue: (value, rowIndex, column) => {
-                return control.setInputValue(value);
+            setValue: async (value, rowIndex, column) => {
+                // triggers change event
             },
             getValue: () => {
                 return control.getInputValue();
@@ -83,9 +83,8 @@ class TableControl extends BaseControl {
 
     }
 
-    get_text_control(field, parent) {
-
-        this.text_modal = new Modal({
+    getControlInModal(field, parent) {
+        this.modal = new Modal({
             title: frappe._('Edit {0}', field.label),
             body: '',
             primary_label: frappe._('Submit'),
@@ -94,15 +93,15 @@ class TableControl extends BaseControl {
                 modal.hide();
             }
         });
-        this.text_modal.$modal.on('hidden.bs.modal', () => {
+        this.modal.$modal.on('hidden.bs.modal', () => {
             this.datatable.cellmanager.deactivateEditing();
         })
 
-        return this.get_control(field, this.text_modal.get_body());
+        return this.getControl(field, this.modal.get_body());
     }
 
-    get_columns() {
-        return this.get_child_fields().map(field => {
+    getColumns() {
+        return this.getChildFields().map(field => {
             return {
                 id: field.fieldname,
                 field: field,
@@ -115,11 +114,11 @@ class TableControl extends BaseControl {
         });
     }
 
-    get_child_fields() {
+    getChildFields() {
         return frappe.getMeta(this.childtype).fields;
     }
 
-    get_default_data() {
+    getDefaultData() {
         // build flat table
         if (!this.doc) {
             return [];

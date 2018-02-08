@@ -30,7 +30,7 @@ module.exports = {
             let doc = frappe.new_doc(data);
             await doc.insert();
             await frappe.db.commit();
-            return response.json(doc.get_valid_dict());
+            return response.json(doc.getValidDict());
         }));
 
         // update
@@ -40,14 +40,14 @@ module.exports = {
             Object.assign(doc, data);
             await doc.update();
             await frappe.db.commit();
-            return response.json(doc.get_valid_dict());
+            return response.json(doc.getValidDict());
         }));
 
 
         // get document
         app.get('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
             let doc = await frappe.get_doc(request.params.doctype, request.params.name);
-            return response.json(doc.get_valid_dict());
+            return response.json(doc.getValidDict());
         }));
 
         // get value

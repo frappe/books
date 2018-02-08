@@ -60,9 +60,15 @@ module.exports = class BaseForm extends Observable {
 
         // refresh value in control
         this.doc.addHandler('change', (params) => {
-            let control = this.controls[params.fieldname];
-            if (control && control.getInputValue() !== control.format(params.fieldname)) {
-                control.setDocValue();
+            if (params.fieldname) {
+                // only single value changed
+                let control = this.controls[params.fieldname];
+                if (control && control.getInputValue() !== control.format(params.fieldname)) {
+                    control.setDocValue();
+                }
+            } else {
+                // multiple values changed
+                this.refresh();
             }
         });
 
