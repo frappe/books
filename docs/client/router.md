@@ -17,14 +17,11 @@ let todo_list = new Page('ToDo List');
 
 // make the current page active
 todo_list.show();
-```
 
-
-```js
 // to do list
 frappe.router.add('default', () => {
-	app.todo_list.show();
-	app.todo_list.list.run();
+	todo_list.show();
+	todo_list.list.run();
 });
 
 // setup todo form
@@ -48,18 +45,18 @@ frappe.router.add('new/todo', async (params) => {
 You can change route with
 
 ```js
-await frappe.router.set_route('list', 'todo');
+await frappe.router.setRoute('list', 'todo');
 ```
 
 ## Getting current route
 
-`frappe.router.get_route()` will return the current route as a list.
+`frappe.router.getRoute()` will return the current route as a list.
 
 ```js
-await frappe.router.set_route('list', 'todo');
+await frappe.router.setRoute('list', 'todo');
 
 // returns ['list', 'todo'];
-route = frappe.router.get_route();
+route = frappe.router.getRoute();
 ```
 
 ## Show a route

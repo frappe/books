@@ -2,7 +2,7 @@ const BaseMeta = require('frappejs/model/meta');
 const BaseDocument = require('frappejs/model/document');
 
 class RoleMeta extends BaseMeta {
-	setup_meta() {
+	setupMeta() {
 		Object.assign(this, require('./role.json'));
 	}
 }

@@ -78,10 +78,10 @@ To setup a form for a new document, just create a new document with the Frappe.j
 frappe.router.add('new/todo', async (params) => {
 
 	// new document
-	app.doc = await frappe.get_doc({doctype: 'ToDo'});
+	app.doc = await frappe.getDoc({doctype: 'ToDo'});
 
 	// set a random name
-	app.doc.set_name();
+	app.doc.setName();
 
 	// show the page
 	app.edit_page.show();
