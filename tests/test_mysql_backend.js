@@ -1,5 +1,4 @@
 const server = require('frappejs/server');
-
 server.start({
     backend: 'mysql',
     connection_params: {
