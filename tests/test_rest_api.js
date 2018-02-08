@@ -62,5 +62,28 @@ describe('REST', () => {
         assert.ok(subjects.includes('all test 2'));
     });
 
+    it('should delete a document', async () => {
+        let doc = frappe.new_doc({doctype:'ToDo', subject:'test rest insert 1'});
+
+        await doc.insert();
+        assert.equal(await frappe.db.exists(doc.doctype, doc.name), true);
+
+        await doc.delete();
+        assert.equal(await frappe.db.exists(doc.doctype, doc.name), false);
+    });
+
+    it('should delete multiple documents', async () => {
+        let doc1 = frappe.new_doc({doctype:'ToDo', subject:'test rest insert 5'});
+        let doc2 = frappe.new_doc({doctype:'ToDo', subject:'test rest insert 6'});
+
+        await doc1.insert();
+        await doc2.insert();
+        assert.equal(await frappe.db.exists(doc1.doctype, doc1.name), true);
+        assert.equal(await frappe.db.exists(doc2.doctype, doc2.name), true);
+
+        await frappe.db.deleteMany(doc1.doctype, [doc1.name, doc2.name]);
+        assert.equal(await frappe.db.exists(doc1.doctype, doc1.name), false);
+        assert.equal(await frappe.db.exists(doc2.doctype, doc2.name), false);
+    });
 
 });

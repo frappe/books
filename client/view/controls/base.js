@@ -19,17 +19,17 @@ class BaseControl {
 
     bind(doc) {
         this.doc = doc;
-        this.set_doc_value();
+        this.setDocValue();
     }
 
     refresh() {
         this.make();
-        this.set_doc_value();
+        this.setDocValue();
     }
 
-    set_doc_value() {
+    setDocValue() {
         if (this.doc) {
-            this.set_input_value(this.doc.get(this.fieldname));
+            this.setInputValue(this.doc.get(this.fieldname));
         }
     }
 
@@ -77,7 +77,7 @@ class BaseControl {
         }
     }
 
-    set_input_value(value) {
+    setInputValue(value) {
         this.input.value = this.format(value);
     }
 
@@ -92,7 +92,7 @@ class BaseControl {
         return await this.parse(this.input.value);
     }
 
-    get_input_value() {
+    getInputValue() {
         return this.input.value;
     }
 
@@ -109,14 +109,14 @@ class BaseControl {
     }
 
     async handle_change(e) {
-        let value = await this.parse(this.get_input_value());
+        let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
         if (this.doc[this.fieldname] !== value) {
             if (this.doc.set) {
                 await this.doc.set(this.fieldname, value);
             }
             if (this.parent_control) {
-                await this.parent_control.doc.set(this.fieldname, this.parent_control.get_input_value());
+                await this.parent_control.doc.set(this.fieldname, this.parent_control.getInputValue());
             }
         }
     }

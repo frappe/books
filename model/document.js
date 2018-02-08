@@ -11,11 +11,11 @@ module.exports = class BaseDocument {
         // add handlers
     }
 
-    clear_handlers() {
+    clearHandlers() {
         this.handlers = {};
     }
 
-    add_handler(key, method) {
+    addHandler(key, method) {
         if (!this.handlers[key]) {
             this.handlers[key] = [];
         }

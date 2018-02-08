@@ -70,7 +70,7 @@ class Dropdown {
         if (typeof action === 'string') {
             item.src = action;
             item.addEventListener('click', async () => {
-                await frappe.router.set_route(action);
+                await frappe.router.setRoute(action);
                 this.toggle();
             });
         } else {

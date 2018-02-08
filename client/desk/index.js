@@ -1,5 +1,5 @@
 const frappe = require('frappejs');
-const Search = require('./search');
+// const Search = require('./search');
 const Router = require('frappejs/common/router');
 const Page = require('frappejs/client/view/page');
 const FormPage = require('frappejs/client/desk/formpage');
@@ -16,7 +16,7 @@ module.exports = class Desk {
         this.container = frappe.ui.add('div', 'container-fluid', body);
 
         this.container_row = frappe.ui.add('div', 'row', this.container)
-        this.sidebar = frappe.ui.add('div', 'col-md-2 p-3 sidebar', this.container_row);
+        this.sidebar = frappe.ui.add('div', 'col-md-2 p-3 sidebar d-none d-md-block', this.container_row);
         this.body = frappe.ui.add('div', 'col-md-10 p-3 main', this.container_row);
 
         this.sidebar_items = [];
@@ -35,11 +35,11 @@ module.exports = class Desk {
                 this.not_found_page = new Page('Not Found');
             }
             await this.not_found_page.show();
-            this.not_found_page.render_error('Not Found', params ? params.route : '');
+            this.not_found_page.renderError('Not Found', params ? params.route : '');
         })
 
         frappe.router.add('list/:doctype', async (params) => {
-            let page = this.get_list_page(params.doctype);
+            let page = this.getList_page(params.doctype);
             await page.show(params);
         });
 
@@ -51,13 +51,13 @@ module.exports = class Desk {
         frappe.router.add('new/:doctype', async (params) => {
             let doc = await frappe.get_new_doc(params.doctype);
             // unset the name, its local
-            await frappe.router.set_route('edit', doc.doctype, doc.name);
+            await frappe.router.setRoute('edit', doc.doctype, doc.name);
             await doc.set('name', '');
         });
 
     }
 
-    get_list_page(doctype) {
+    getList_page(doctype) {
         if (!this.pages.lists[doctype]) {
             this.pages.lists[doctype] = new ListPage(doctype);
         }
