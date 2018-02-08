@@ -1,8 +1,9 @@
 const BaseControl = require('./base');
+const frappe = require('frappejs');
 
 class SelectControl extends BaseControl {
-    make_input() {
-        this.input = frappe.ui.add('select', 'form-control', this.form_group);
+    makeInput() {
+        this.input = frappe.ui.add('select', 'form-control', this.formGroup);
 
         let options = this.options;
         if (typeof options==='string') {

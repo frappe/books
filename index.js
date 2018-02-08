@@ -83,7 +83,7 @@ module.exports = {
 
     async get_new_doc(doctype) {
         let doc = frappe.new_doc({doctype: doctype});
-        doc.set_name();
+        doc.setName();
         doc.__not_inserted = true;
         this.add_to_cache(doc);
         return doc;

@@ -11,6 +11,10 @@ class FloatControl extends BaseControl {
             }, 100);
         })
     }
+    parse(value) {
+        value = parseFloat(value);
+        return value===NaN ? 0 : value;
+    }
 };
 
 module.exports = FloatControl;

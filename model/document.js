@@ -28,11 +28,17 @@ module.exports = class BaseDocument {
 
     // set value and trigger change
     async set(fieldname, value) {
-        this[fieldname] = await this.validate_field(fieldname, value);
-        await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
+        this[fieldname] = await this.validateField(fieldname, value);
+        if (this.applyFormulae()) {
+            // multiple changes
+            await this.trigger('change', { doc: this });
+        } else {
+            // no other change, trigger control refresh
+            await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
+        }
     }
 
-    set_name() {
+    setName() {
         // assign a random name by default
         // override this to set a name
         if (!this.name) {
@@ -40,7 +46,7 @@ module.exports = class BaseDocument {
         }
     }
 
-    set_keywords() {
+    setKeywords() {
         let keywords = [];
         for (let fieldname of this.meta.getKeywordFields()) {
             keywords.push(this[fieldname]);
@@ -59,10 +65,10 @@ module.exports = class BaseDocument {
         if (!this[key]) {
             this[key] = [];
         }
-        this[key].push(this.init_doc(document));
+        this[key].push(this.initDoc(document));
     }
 
-    init_doc(data) {
+    initDoc(data) {
         if (data.prototype instanceof Document) {
             return data;
         } else {
@@ -70,15 +76,15 @@ module.exports = class BaseDocument {
         }
     }
 
-    async validate_field(key, value) {
-        let field = this.meta.get_field(key);
+    async validateField(key, value) {
+        let field = this.meta.getField(key);
         if (field && field.fieldtype == 'Select') {
             return this.meta.validate_select(field, value);
         }
         return value;
     }
 
-    get_valid_dict() {
+    getValidDict() {
         let data = {};
         for (let field of this.meta.getValidFields()) {
             data[field.fieldname] = this[field.fieldname];
@@ -86,7 +92,7 @@ module.exports = class BaseDocument {
         return data;
     }
 
-    set_standard_values() {
+    setStandardValues() {
         let now = new Date();
         if (this.docstatus === null || this.docstatus === undefined) {
             this.docstatus = 0;
@@ -102,18 +108,18 @@ module.exports = class BaseDocument {
     async load() {
         let data = await frappe.db.get(this.doctype, this.name);
         if (data.name) {
-            this.sync_values(data);
+            this.syncValues(data);
         } else {
             throw new frappe.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
         }
     }
 
-    sync_values(data) {
-        this.clear_values();
+    syncValues(data) {
+        this.clearValues();
         Object.assign(this, data);
     }
 
-    clear_values() {
+    clearValues() {
         for (let field of this.meta.getValidFields()) {
             if(this[field.fieldname]) {
                 delete this[field.fieldname];
@@ -121,7 +127,7 @@ module.exports = class BaseDocument {
         }
     }
 
-    set_child_idx() {
+    setChildIdx() {
         // renumber children
         for (let field of this.meta.getValidFields()) {
             if (field.fieldtype==='Table') {
@@ -132,12 +138,60 @@ module.exports = class BaseDocument {
         }
     }
 
+    applyFormulae() {
+        if (!this.hasFormulae()) {
+            return false;
+        }
+
+        let doc;
+
+        // children
+        for (let tablefield of this.meta.getTableFields()) {
+            let formulaFields = frappe.getMeta(tablefield.childtype).getFormulaFields();
+            if (formulaFields.length) {
+
+                // for each row
+                for (doc of this[tablefield.fieldname]) {
+                    for (let field of formulaFields) {
+                        doc[field.fieldname] = eval(field.formula);
+                    }
+                }
+            }
+        }
+
+        // parent
+        doc = this;
+        for (let field of this.meta.getFormulaFields()) {
+            doc[field.fieldname] = eval(field.formula);
+        }
+
+        return true;
+    }
+
+    hasFormulae() {
+        if (this._hasFormulae===undefined) {
+            this._hasFormulae = false;
+            if (this.meta.getFormulaFields().length) {
+                this._hasFormulae = true;
+            } else {
+                for (let tablefield of this.meta.getTableFields()) {
+                    if (frappe.getMeta(tablefield.childtype).getFormulaFields().length) {
+                        this._hasFormulae = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return this._hasFormulae;
+    }
+
     async commit() {
         // re-run triggers
-        this.set_name();
-        this.set_standard_values();
-        this.set_keywords();
-        this.set_child_idx();
+        this.setName();
+        this.setStandardValues();
+        this.setKeywords();
+        this.setChildIdx();
+        this.applyFormulae();
         await this.trigger('validate');
         await this.trigger('commit');
     }
@@ -145,7 +199,7 @@ module.exports = class BaseDocument {
     async insert() {
         await this.commit();
         await this.trigger('before_insert');
-        this.sync_values(await frappe.db.insert(this.doctype, this.get_valid_dict()));
+        this.syncValues(await frappe.db.insert(this.doctype, this.getValidDict()));
         await this.trigger('after_insert');
         await this.trigger('after_save');
 
@@ -155,7 +209,7 @@ module.exports = class BaseDocument {
     async update() {
         await this.commit();
         await this.trigger('before_update');
-        this.sync_values(await frappe.db.update(this.doctype, this.get_valid_dict()));
+        this.syncValues(await frappe.db.update(this.doctype, this.getValidDict()));
         await this.trigger('after_update');
         await this.trigger('after_save');
 

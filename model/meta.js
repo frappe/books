@@ -13,7 +13,7 @@ module.exports = class BaseMeta extends BaseDocument {
         }
     }
 
-    get_field(fieldname) {
+    getField(fieldname) {
         if (!this._field_map) {
             this._field_map = {};
             for (let field of this.fields) {
@@ -24,10 +24,17 @@ module.exports = class BaseMeta extends BaseDocument {
     }
 
     getTableFields() {
-        if (!this._tableFields) {
+        if (this._tableFields===undefined) {
             this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
         }
         return this._tableFields;
+    }
+
+    getFormulaFields() {
+        if (this._formulaFields===undefined) {
+            this._formulaFields = this.fields.filter(field => field.formula);
+        }
+        return this._formulaFields;
     }
 
     on(key, fn) {
