@@ -336,7 +336,7 @@ class mysqlDatabse{
             , 'Int': 'INT'
             , 'Float': 'decimal(18,6)'
             , 'Percent': 'real'
-            , 'Check': 'integer'
+            , 'Check': 'INT(1)'
             , 'Small Text': 'text'
             , 'Long Text': 'text'
             , 'Code': 'text'
