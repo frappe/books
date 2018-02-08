@@ -49,7 +49,7 @@ module.exports = class Desk {
         })
 
         frappe.router.add('new/:doctype', async (params) => {
-            let doc = await frappe.get_new_doc(params.doctype);
+            let doc = await frappe.getNewDoc(params.doctype);
             // unset the name, its local
             await frappe.router.setRoute('edit', doc.doctype, doc.name);
             await doc.set('name', '');

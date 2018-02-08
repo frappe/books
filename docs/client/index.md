@@ -48,13 +48,13 @@ You can manage documents, using the same Document API as if it were a local data
 
 ```js
 await frappe.init();
-await frappe.init_db('rest', {server: 'localhost:8000'});
+await frappe.initDb('rest', {server: 'localhost:8000'});
 
-let doc = await frappe.get_doc({doctype:'ToDo', subject:'test rest insert 1'});
+let doc = await frappe.getDoc({doctype:'ToDo', subject:'test rest insert 1'});
 await doc.insert();
 
 doc.subject = 'subject changed';
 await doc.update();
 
-let data = await frappe.db.get_all({doctype:'ToDo'});
+let data = await frappe.db.getAll({doctype:'ToDo'});
 ```

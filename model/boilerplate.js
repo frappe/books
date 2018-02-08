@@ -28,7 +28,7 @@ module.exports = {
 const BaseDocument = require('frappejs/model/document');
 
 class ${thinname}Meta extends BaseMeta {
-	setup_meta() {
+	setupMeta() {
 		Object.assign(this, require('./${utils.slug(name)}.json'));
 	}
 }

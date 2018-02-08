@@ -34,7 +34,7 @@ module.exports = class FormPage extends Page {
 
 	async show_doc(doctype, name) {
 		try {
-			this.doc = await frappe.get_doc(doctype, name);
+			this.doc = await frappe.getDoc(doctype, name);
 			this.form.use(this.doc);
 		} catch (e) {
 			this.renderError(e.status_code, e.message);

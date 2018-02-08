@@ -8,8 +8,8 @@ module.exports = class BaseMeta extends BaseDocument {
         this.list_options = {
             fields: ['name', 'modified']
         };
-        if (this.setup_meta) {
-            this.setup_meta();
+        if (this.setupMeta) {
+            this.setupMeta();
         }
     }
 

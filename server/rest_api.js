@@ -27,7 +27,7 @@ module.exports = {
         app.post('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
             let data = request.body;
             data.doctype = request.params.doctype;
-            let doc = frappe.new_doc(data);
+            let doc = frappe.newDoc(data);
             await doc.insert();
             await frappe.db.commit();
             return response.json(doc.getValidDict());
@@ -36,7 +36,7 @@ module.exports = {
         // update
         app.put('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
             let data = request.body;
-            let doc = await frappe.get_doc(request.params.doctype, request.params.name);
+            let doc = await frappe.getDoc(request.params.doctype, request.params.name);
             Object.assign(doc, data);
             await doc.update();
             await frappe.db.commit();
@@ -46,7 +46,7 @@ module.exports = {
 
         // get document
         app.get('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
-            let doc = await frappe.get_doc(request.params.doctype, request.params.name);
+            let doc = await frappe.getDoc(request.params.doctype, request.params.name);
             return response.json(doc.getValidDict());
         }));
 
@@ -58,7 +58,7 @@ module.exports = {
 
         // delete
         app.delete('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
-            let doc = await frappe.get_doc(request.params.doctype, request.params.name)
+            let doc = await frappe.getDoc(request.params.doctype, request.params.name)
             await doc.delete();
             return response.json({});
         }));
@@ -67,7 +67,7 @@ module.exports = {
         app.delete('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
             let names = request.body;
             for (let name of names) {
-                let doc = await frappe.get_doc(request.params.doctype, name);
+                let doc = await frappe.getDoc(request.params.doctype, name);
                 await doc.delete();
             }
             return response.json({});

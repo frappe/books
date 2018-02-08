@@ -40,13 +40,13 @@ The `meta` class contains actions that are done on a group of objects and a docu
 ```js
 // extend the meta class
 class todo_meta extends frappe.meta.Meta {
-	setup_meta() {
+	setupMeta() {
 		Object.assign(this, require('./todo.json'));
 		this.name = 'ToDo';
 		this.list_options.fields = ['name', 'subject', 'status', 'description'];
 	}
 
-	get_row_html(data) {
+	getRowHTML(data) {
 		return `<a href="#edit/todo/${data.name}">${data.subject}</a>`;
 	}
 

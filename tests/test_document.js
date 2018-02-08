@@ -14,7 +14,7 @@ describe('Document', () => {
         await doc1.insert();
 
         // get it back from the db
-        let doc2 = await frappe.get_doc(doc1.doctype, doc1.name);
+        let doc2 = await frappe.getDoc(doc1.doctype, doc1.name);
         assert.equal(doc1.subject, doc2.subject);
         assert.equal(doc1.description, doc2.description);
 
@@ -68,10 +68,10 @@ describe('Document', () => {
     });
 
     it('should add, fetch and delete documents with children', async() => {
-        await frappe.new_doc({doctype: 'Role', name: 'Test Role'}).insert();
-        await frappe.new_doc({doctype: 'Role', name: 'Test Role 1'}).insert();
+        await frappe.newDoc({doctype: 'Role', name: 'Test Role'}).insert();
+        await frappe.newDoc({doctype: 'Role', name: 'Test Role 1'}).insert();
 
-        let user = frappe.new_doc({
+        let user = frappe.newDoc({
             doctype: 'User',
             name: 'test_user',
             full_name: 'Test User',
@@ -105,7 +105,7 @@ describe('Document', () => {
 
         await user.update();
 
-        user = await frappe.get_doc('User', user.name);
+        user = await frappe.getDoc('User', user.name);
 
         assert.equal(user.roles.length, 1);
         assert.equal(user.roles[0].role, 'Test Role 1');
@@ -118,7 +118,7 @@ describe('Document', () => {
 });
 
 function test_doc() {
-    return frappe.new_doc({
+    return frappe.newDoc({
         doctype: 'ToDo',
         status: 'Open',
         subject: 'testing 1',

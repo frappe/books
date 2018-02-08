@@ -1,19 +1,19 @@
 module.exports = {
     async init() {
         if (this._initialized) return;
-        this.init_config();
-        this.init_globals();
+        this.initConfig();
+        this.initGlobals();
         this._initialized = true;
     },
 
-    init_config() {
+    initConfig() {
         this.config = {
             backend: 'sqlite',
             port: 8000
         };
     },
 
-    init_globals() {
+    initGlobals() {
         this.meta_cache = {};
         this.modules = {};
         this.docs = {};
@@ -22,7 +22,7 @@ module.exports = {
         }
     },
 
-    add_to_cache(doc) {
+    addToCache(doc) {
         if (!this.flags.cache_docs) return;
 
         // add to `docs` cache
@@ -34,7 +34,7 @@ module.exports = {
         }
     },
 
-    get_doc_from_cache(doctype, name) {
+    getDocFromCache(doctype, name) {
         if (this.docs[doctype] && this.docs[doctype][name]) {
             return this.docs[doctype][name];
         }
@@ -42,12 +42,12 @@ module.exports = {
 
     getMeta(doctype) {
         if (!this.meta_cache[doctype]) {
-            this.meta_cache[doctype] = new (this.getMeta_class(doctype))();
+            this.meta_cache[doctype] = new (this.getMetaClass(doctype))();
         }
         return this.meta_cache[doctype];
     },
 
-    getMeta_class(doctype) {
+    getMetaClass(doctype) {
         doctype = this.slug(doctype);
         if (this.modules[doctype] && this.modules[doctype].Meta) {
             return this.modules[doctype].Meta;
@@ -56,23 +56,23 @@ module.exports = {
         }
     },
 
-    async get_doc(doctype, name) {
-        let doc = this.get_doc_from_cache(doctype, name);
+    async getDoc(doctype, name) {
+        let doc = this.getDocFromCache(doctype, name);
         if (!doc) {
-            let controller_class = this.get_controller_class(doctype);
+            let controller_class = this.getControllerClass(doctype);
             doc = new controller_class({doctype:doctype, name: name});
             await doc.load();
-            this.add_to_cache(doc);
+            this.addToCache(doc);
         }
         return doc;
     },
 
-    new_doc(data) {
-        let controller_class = this.get_controller_class(data.doctype);
+    newDoc(data) {
+        let controller_class = this.getControllerClass(data.doctype);
         return new controller_class(data);
     },
 
-    get_controller_class(doctype) {
+    getControllerClass(doctype) {
         doctype = this.slug(doctype);
         if (this.modules[doctype] && this.modules[doctype].Document) {
             return this.modules[doctype].Document;
@@ -81,16 +81,16 @@ module.exports = {
         }
     },
 
-    async get_new_doc(doctype) {
-        let doc = frappe.new_doc({doctype: doctype});
+    async getNewDoc(doctype) {
+        let doc = this.newDoc({doctype: doctype});
         doc.setName();
         doc.__not_inserted = true;
-        this.add_to_cache(doc);
+        this.addToCache(doc);
         return doc;
     },
 
     async insert(data) {
-        return await (this.new_doc(data)).insert();
+        return await (this.newDoc(data)).insert();
     },
 
     login(user='guest', user_key) {
