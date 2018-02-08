@@ -116,7 +116,7 @@ class TableControl extends BaseControl {
     }
 
     get_child_fields() {
-        return frappe.get_meta(this.childtype).fields;
+        return frappe.getMeta(this.childtype).fields;
     }
 
     get_default_data() {

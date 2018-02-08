@@ -4,8 +4,27 @@
         "es6": true,
         "node": true
     },
+
     "parserOptions": {
         "ecmaVersion": 2017,
         "sourceType": "module"
+    },
+
+    "globals": {
+        "document": false,
+        "escape": false,
+        "navigator": false,
+        "unescape": false,
+        "window": false,
+        "describe": true,
+        "before": true,
+        "it": true
+    },
+
+    "rules": {
+        "no-unused-vars": [2, { "vars": "all", "args": "none" }],
+        "no-trailing-spaces": 2,
+        "no-undef": 2,
+        "no-undef-init": 2
     }
 }

@@ -13,7 +13,7 @@ describe('Database', () => {
         await frappe.insert({doctype:'ToDo', subject: 'testing 3'});
         await frappe.insert({doctype:'ToDo', subject: 'testing 2'});
 
-        let subjects = await frappe.db.get_all({doctype:'ToDo', fields:['name', 'subject']})
+        let subjects = await frappe.db.getAll({doctype:'ToDo', fields:['name', 'subject']})
         subjects = subjects.map(d => d.subject);
 
         assert.ok(subjects.includes('testing 1'));
@@ -29,7 +29,7 @@ describe('Database', () => {
         await frappe.insert({doctype:'ToDo', subject: 'testing 3', status: 'Open'});
         await frappe.insert({doctype:'ToDo', subject: 'testing 2', status: 'Closed'});
 
-        subjects = await frappe.db.get_all({doctype:'ToDo', fields:['name', 'subject'],
+        subjects = await frappe.db.getAll({doctype:'ToDo', fields:['name', 'subject'],
             filters:{status: 'Open'}});
         subjects = subjects.map(d => d.subject);
 
@@ -37,7 +37,7 @@ describe('Database', () => {
         assert.ok(subjects.includes('testing 3'));
         assert.equal(subjects.includes('testing 2'), false);
 
-        subjects = await frappe.db.get_all({doctype:'ToDo', fields:['name', 'subject'],
+        subjects = await frappe.db.getAll({doctype:'ToDo', fields:['name', 'subject'],
             filters:{status: 'Closed'}});
         subjects = subjects.map(d => d.subject);
 

@@ -19,7 +19,7 @@ class LinkControl extends BaseControl {
     }
 
     async get_list(query) {
-        return (await frappe.db.get_all({
+        return (await frappe.db.getAll({
             doctype: this.target,
             filters: this.get_filters(query),
             limit: 50

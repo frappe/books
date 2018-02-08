@@ -15,7 +15,7 @@ module.exports = {
         return text.toLowerCase().replace(/ /g, '_');
     },
 
-    get_random_name() {
+    getRandomName() {
         return Math.random().toString(36).substr(3);
     },
 

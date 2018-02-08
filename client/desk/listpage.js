@@ -3,7 +3,7 @@ const view = require('frappejs/client/view');
 
 module.exports = class FormPage extends Page {
 	constructor(doctype) {
-		let meta = frappe.get_meta(doctype);
+		let meta = frappe.getMeta(doctype);
 		super(`List ${meta.name}`);
 		this.list = new (view.get_list_class(doctype))({
 			doctype: doctype,

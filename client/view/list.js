@@ -6,7 +6,7 @@ module.exports = class BaseList {
         this.parent = parent;
         this.fields = fields;
 
-        this.meta = frappe.get_meta(this.doctype);
+        this.meta = frappe.getMeta(this.doctype);
 
         this.start = 0;
         this.page_length = 20;
@@ -36,7 +36,7 @@ module.exports = class BaseList {
     }
 
     async get_data() {
-        return await frappe.db.get_all({
+        return await frappe.db.getAll({
             doctype: this.doctype,
             fields: this.get_fields(),
             filters: this.get_filters(),

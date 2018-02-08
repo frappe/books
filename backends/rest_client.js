@@ -6,7 +6,7 @@ module.exports = class RESTClient {
         this.server = server;
         this.protocol = protocol;
 
-        this.init_type_map();
+        this.initTypeMap();
 
         this.json_headers = {
             'Accept': 'application/json',
@@ -39,7 +39,7 @@ module.exports = class RESTClient {
         return await response.json();
     }
 
-    async get_all({doctype, fields, filters, start, limit, sort_by, order}) {
+    async getAll({doctype, fields, filters, start, limit, sort_by, order}) {
         let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}`);
 
         url = url + "?" + this.get_query_string({
@@ -98,7 +98,7 @@ module.exports = class RESTClient {
         return (await response.json()).value;
     }
 
-    init_type_map() {
+    initTypeMap() {
         this.type_map = {
             'Currency':        true
             ,'Int':            true

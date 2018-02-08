@@ -23,11 +23,11 @@ module.exports = class BaseMeta extends BaseDocument {
         return this._field_map[fieldname];
     }
 
-    get_table_fields() {
-        if (!this._table_fields) {
-            this._table_fields = this.fields.filter(field => field.fieldtype === 'Table');
+    getTableFields() {
+        if (!this._tableFields) {
+            this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
         }
-        return this._table_fields;
+        return this._tableFields;
     }
 
     on(key, fn) {
@@ -46,7 +46,7 @@ module.exports = class BaseMeta extends BaseDocument {
         return this[fieldname];
     }
 
-    get_valid_fields({ with_children = true } = {}) {
+    getValidFields({ with_children = true } = {}) {
         if (!this._valid_fields) {
 
             this._valid_fields = [];
@@ -104,7 +104,7 @@ module.exports = class BaseMeta extends BaseDocument {
         }
     }
 
-    get_keyword_fields() {
+    getKeywordFields() {
         return this.keyword_fields || this.meta.fields.filter(field => field.reqd).map(field => field.fieldname);
     }
 

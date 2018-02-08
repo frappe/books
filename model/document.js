@@ -36,13 +36,13 @@ module.exports = class BaseDocument {
         // assign a random name by default
         // override this to set a name
         if (!this.name) {
-            this.name = frappe.get_random_name();
+            this.name = frappe.getRandomName();
         }
     }
 
     set_keywords() {
         let keywords = [];
-        for (let fieldname of this.meta.get_keyword_fields()) {
+        for (let fieldname of this.meta.getKeywordFields()) {
             keywords.push(this[fieldname]);
         }
         this.keywords = keywords.join(', ');
@@ -50,7 +50,7 @@ module.exports = class BaseDocument {
 
     get meta() {
         if (!this._meta) {
-            this._meta = frappe.get_meta(this.doctype);
+            this._meta = frappe.getMeta(this.doctype);
         }
         return this._meta;
     }
@@ -80,7 +80,7 @@ module.exports = class BaseDocument {
 
     get_valid_dict() {
         let data = {};
-        for (let field of this.meta.get_valid_fields()) {
+        for (let field of this.meta.getValidFields()) {
             data[field.fieldname] = this[field.fieldname];
         }
         return data;
@@ -114,7 +114,7 @@ module.exports = class BaseDocument {
     }
 
     clear_values() {
-        for (let field of this.meta.get_valid_fields()) {
+        for (let field of this.meta.getValidFields()) {
             if(this[field.fieldname]) {
                 delete this[field.fieldname];
             }
@@ -123,7 +123,7 @@ module.exports = class BaseDocument {
 
     set_child_idx() {
         // renumber children
-        for (let field of this.meta.get_valid_fields()) {
+        for (let field of this.meta.getValidFields()) {
             if (field.fieldtype==='Table') {
                 for(let i=0; i < (this[field.fieldname] || []).length; i++) {
                     this[field.fieldname][i].idx = i;
