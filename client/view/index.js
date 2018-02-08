@@ -5,7 +5,7 @@ module.exports = {
     get_form_class(doctype) {
         return this.get_view_class(doctype, 'Form', BaseForm);
     },
-    get_list_class(doctype) {
+    getList_class(doctype) {
         return this.get_view_class(doctype, 'List', BaseList);
     },
     get_view_class(doctype, class_name, default_class) {

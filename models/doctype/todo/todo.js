@@ -9,7 +9,7 @@ class ToDoMeta extends BaseMeta {
 
 class ToDo extends BaseDocument {
     setup() {
-        this.add_handler('validate');
+        this.addHandler('validate');
     }
     validate() {
         if (!this.status) {

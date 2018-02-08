@@ -2,16 +2,11 @@ const frappe = require('frappejs');
 const path = require('path');
 
 module.exports = class RESTClient {
-    constructor({server, protocol='http'}) {
+    constructor({ server, protocol = 'http' }) {
         this.server = server;
         this.protocol = protocol;
 
         this.initTypeMap();
-
-        this.json_headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        }
     }
 
     connect() {
@@ -20,29 +15,25 @@ module.exports = class RESTClient {
 
     async insert(doctype, doc) {
         doc.doctype = doctype;
-        let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}`);
-        let response = await frappe.fetch(url, {
+        let url = this.getURL('/api/resource', frappe.slug(doctype));
+        return await this.fetch(url, {
             method: 'POST',
-            headers: this.json_headers,
             body: JSON.stringify(doc)
-        });
-
-        return await response.json();
+        })
     }
 
     async get(doctype, name) {
-        let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}/${name}`);
-        let response = await frappe.fetch(url, {
+        let url = this.getURL('/api/resource', frappe.slug(doctype), name);
+        return await this.fetch(url, {
             method: 'GET',
-            headers: this.json_headers
-        });
-        return await response.json();
+            headers: this.getHeaders()
+        })
     }
 
-    async getAll({doctype, fields, filters, start, limit, sort_by, order}) {
-        let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}`);
+    async getAll({ doctype, fields, filters, start, limit, sort_by, order }) {
+        let url = this.getURL('/api/resource', frappe.slug(doctype));
 
-        url = url + "?" + this.get_query_string({
+        url = url + "?" + this.getQueryString({
             fields: JSON.stringify(fields),
             filters: JSON.stringify(filters),
             start: start,
@@ -51,80 +42,101 @@ module.exports = class RESTClient {
             order: order
         });
 
-        let response = await frappe.fetch(url, {
+        return await this.fetch(url, {
             method: 'GET',
-            headers: this.json_headers
         });
-        return await response.json();
-
     }
 
     async update(doctype, doc) {
         doc.doctype = doctype;
-        let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}/${doc.name}`);
-        let response = await frappe.fetch(url, {
+        let url = this.getURL('/api/resource', frappe.slug(doctype), doc.name);
+
+        return await this.fetch(url, {
             method: 'PUT',
-            headers: this.json_headers,
             body: JSON.stringify(doc)
         });
-
-        return await response.json();
     }
 
     async delete(doctype, name) {
-        let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}/${name}`);
+        let url = this.getURL('/api/resource', frappe.slug(doctype), name);
 
-        let response = await frappe.fetch(url, {
+        return await this.fetch(url, {
             method: 'DELETE',
-            headers: this.json_headers
         });
+    }
 
+    async deleteMany(doctype, names) {
+        let url = this.getURL('/api/resource', frappe.slug(doctype));
+
+        return await this.fetch(url, {
+            method: 'DELETE',
+            body: JSON.stringify(names)
+        });
+    }
+
+    async exists(doctype, name) {
+        return (await this.getValue(doctype, name, 'name')) ? true : false;
+    }
+
+    async getValue(doctype, name, fieldname) {
+        let url = this.getURL('/api/resource', frappe.slug(doctype), name, fieldname);
+
+        return (await this.fetch(url, {
+            method: 'GET',
+        })).value;
+    }
+
+    async fetch(url, args) {
+        args.headers = this.getHeaders();
+        let response = await frappe.fetch(url, args);
         return await response.json();
     }
 
-    get_query_string(params) {
+    getURL(...parts) {
+        return this.protocol + '://' + path.join(this.server, ...parts);
+    }
+
+    getQueryString(params) {
         return Object.keys(params)
             .map(k => params[k] != null ? encodeURIComponent(k) + '=' + encodeURIComponent(params[k]) : null)
             .filter(v => v)
             .join('&');
     }
 
-    async get_value(doctype, name, fieldname) {
-        let url = this.protocol + '://' + path.join(this.server, `/api/resource/${frappe.slug(doctype)}/${name}/${fieldname}`);
-        let response = await frappe.fetch(url, {
-            method: 'GET',
-            headers: this.json_headers
-        });
-        return (await response.json()).value;
+    getHeaders() {
+        return {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
     }
 
     initTypeMap() {
         this.type_map = {
-            'Currency':        true
-            ,'Int':            true
-            ,'Float':        true
-            ,'Percent':        true
-            ,'Check':        true
-            ,'Small Text':    true
-            ,'Long Text':    true
-            ,'Code':        true
-            ,'Text Editor':    true
-            ,'Date':        true
-            ,'Datetime':    true
-            ,'Time':        true
-            ,'Text':        true
-            ,'Data':        true
-            ,'Link':        true
-            ,'Dynamic Link':true
-            ,'Password':    true
-            ,'Select':        true
-            ,'Read Only':    true
-            ,'Attach':        true
-            ,'Attach Image':true
-            ,'Signature':    true
-            ,'Color':        true
-            ,'Barcode':        true
-            ,'Geolocation':    true
+            'Currency': true
+            , 'Int': true
+            , 'Float': true
+            , 'Percent': true
+            , 'Check': true
+            , 'Small Text': true
+            , 'Long Text': true
+            , 'Code': true
+            , 'Text Editor': true
+            , 'Date': true
+            , 'Datetime': true
+            , 'Time': true
+            , 'Text': true
+            , 'Data': true
+            , 'Link': true
+            , 'Dynamic Link': true
+            , 'Password': true
+            , 'Select': true
+            , 'Read Only': true
+            , 'Attach': true
+            , 'Attach Image': true
+            , 'Signature': true
+            , 'Color': true
+            , 'Barcode': true
+            , 'Geolocation': true
         }
     }
 

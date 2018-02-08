@@ -14,19 +14,19 @@ class LinkControl extends BaseControl {
 
         // rebuild the list on input
         this.input.addEventListener('input', async (event) => {
-            this.awesomplete.list = await this.get_list(this.input.value);
+            this.awesomplete.list = await this.getList(this.input.value);
         });
     }
 
-    async get_list(query) {
+    async getList(query) {
         return (await frappe.db.getAll({
             doctype: this.target,
-            filters: this.get_filters(query),
+            filters: this.getFilters(query),
             limit: 50
         })).map(d => d.name);
     }
 
-    get_filters(query) {
+    getFilters(query) {
         return { keywords: ["like", query] }
     }
 };

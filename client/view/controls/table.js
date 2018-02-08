@@ -40,11 +40,11 @@ class TableControl extends BaseControl {
         }
     }
 
-    get_input_value() {
+    getInputValue() {
         return this.doc[this.fieldname];
     }
 
-    set_input_value(value) {
+    setInputValue(value) {
         this.datatable.refresh(this.get_table_data(value));
     }
 
@@ -64,20 +64,20 @@ class TableControl extends BaseControl {
 
     get_control(field, parent) {
         field.only_input = true;
-        const control = controls.make_control({field: field, parent: parent});
+        const control = controls.makeControl({field: field, parent: parent});
 
         return {
             initValue: (value, rowIndex, column) => {
                 control.parent_control = this;
                 control.doc = this.doc[this.fieldname][rowIndex];
                 control.set_focus();
-                return control.set_input_value(value);
+                return control.setInputValue(value);
             },
             setValue: (value, rowIndex, column) => {
-                return control.set_input_value(value);
+                return control.setInputValue(value);
             },
             getValue: () => {
-                return control.get_input_value();
+                return control.getInputValue();
             }
         }
 

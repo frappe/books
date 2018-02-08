@@ -1,5 +1,5 @@
 module.exports = {
-    input: './node_modules/frappejs/client/style/index.scss',
+    input: './node_modules/frappejs/client/style/style.scss',
     output: {
         file: './dist/css/style.css',
         format: 'cjs'

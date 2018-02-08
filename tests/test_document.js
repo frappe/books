@@ -27,12 +27,12 @@ describe('Document', () => {
         let doc = test_doc();
         await doc.insert();
 
-        assert.notEqual(await frappe.db.get_value(doc.doctype, doc.name, 'subject'), 'subject 2');
+        assert.notEqual(await frappe.db.getValue(doc.doctype, doc.name, 'subject'), 'subject 2');
 
         doc.subject = 'subject 2'
         await doc.update();
 
-        assert.equal(await frappe.db.get_value(doc.doctype, doc.name, 'subject'), 'subject 2');
+        assert.equal(await frappe.db.getValue(doc.doctype, doc.name, 'subject'), 'subject 2');
     })
 
     it('should get a value', async () => {
@@ -60,11 +60,11 @@ describe('Document', () => {
         let doc = test_doc();
         await doc.insert();
 
-        assert.equal(await frappe.db.get_value(doc.doctype, doc.name), doc.name);
+        assert.equal(await frappe.db.getValue(doc.doctype, doc.name), doc.name);
 
         await doc.delete();
 
-        assert.equal(await frappe.db.get_value(doc.doctype, doc.name), null);
+        assert.equal(await frappe.db.getValue(doc.doctype, doc.name), null);
     });
 
     it('should add, fetch and delete documents with children', async() => {

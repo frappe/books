@@ -70,7 +70,7 @@ module.exports = class Router {
         }
     }
 
-    async set_route(...parts) {
+    async setRoute(...parts) {
         const route = parts.join('/');
 
         // setting this first, does not trigger show via hashchange,

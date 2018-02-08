@@ -10,11 +10,11 @@ const control_classes = {
 }
 
 module.exports = {
-    get_control_class(fieldtype) {
+    getControlClass(fieldtype) {
         return control_classes[fieldtype];
     },
-    make_control({field, form, parent}) {
-        const control_class = this.get_control_class(field.fieldtype);
+    makeControl({field, form, parent}) {
+        const control_class = this.getControlClass(field.fieldtype);
         let control = new control_class({field:field, form:form, parent:parent});
         control.make();
         return control;

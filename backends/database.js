@@ -189,6 +189,12 @@ module.exports = class Database {
         return values;
     }
 
+    async deleteMany(doctype, names) {
+        for (const name of names) {
+            await this.delete(doctype, name);
+        }
+    }
+
     async delete(doctype, name) {
         await this.deleteOne(doctype, name);
 
@@ -208,10 +214,10 @@ module.exports = class Database {
     }
 
     async exists(doctype, name) {
-        return (await this.get_value(doctype, name)) ? true : false;
+        return (await this.getValue(doctype, name)) ? true : false;
     }
 
-    async get_value(doctype, filters, fieldname = 'name') {
+    async getValue(doctype, filters, fieldname = 'name') {
         if (typeof filters === 'string') {
             filters = { name: filters };
         }

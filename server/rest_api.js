@@ -25,7 +25,7 @@ module.exports = {
 
         // create
         app.post('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
-            data = request.body;
+            let data = request.body;
             data.doctype = request.params.doctype;
             let doc = frappe.new_doc(data);
             await doc.insert();
@@ -35,7 +35,7 @@ module.exports = {
 
         // update
         app.put('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
-            data = request.body;
+            let data = request.body;
             let doc = await frappe.get_doc(request.params.doctype, request.params.name);
             Object.assign(doc, data);
             await doc.update();
@@ -52,7 +52,7 @@ module.exports = {
 
         // get value
         app.get('/api/resource/:doctype/:name/:fieldname', frappe.async_handler(async function(request, response) {
-            let value = await frappe.db.get_value(request.params.doctype, request.params.name, request.params.fieldname);
+            let value = await frappe.db.getValue(request.params.doctype, request.params.name, request.params.fieldname);
             return response.json({value: value});
         }));
 
@@ -62,5 +62,16 @@ module.exports = {
             await doc.delete();
             return response.json({});
         }));
+
+        // delete many
+        app.delete('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
+            let names = request.body;
+            for (let name of names) {
+                let doc = await frappe.get_doc(request.params.doctype, name);
+                await doc.delete();
+            }
+            return response.json({});
+        }));
+
     }
 };

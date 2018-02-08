@@ -18,6 +18,7 @@
         "window": false,
         "describe": true,
         "before": true,
+        "after": true,
         "it": true
     },
 
