@@ -255,7 +255,7 @@ var frappejs = {
 
     async get_new_doc(doctype) {
         let doc = frappe.new_doc({doctype: doctype});
-        doc.set_name();
+        doc.setName();
         doc.__not_inserted = true;
         this.add_to_cache(doc);
         return doc;
@@ -365,11 +365,17 @@ var document$1 = class BaseDocument {
 
     // set value and trigger change
     async set(fieldname, value) {
-        this[fieldname] = await this.validate_field(fieldname, value);
-        await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
+        this[fieldname] = await this.validateField(fieldname, value);
+        if (this.applyFormulae()) {
+            // multiple changes
+            await this.trigger('change', { doc: this });
+        } else {
+            // no other change, trigger control refresh
+            await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
+        }
     }
 
-    set_name() {
+    setName() {
         // assign a random name by default
         // override this to set a name
         if (!this.name) {
@@ -377,7 +383,7 @@ var document$1 = class BaseDocument {
         }
     }
 
-    set_keywords() {
+    setKeywords() {
         let keywords = [];
         for (let fieldname of this.meta.getKeywordFields()) {
             keywords.push(this[fieldname]);
@@ -396,10 +402,10 @@ var document$1 = class BaseDocument {
         if (!this[key]) {
             this[key] = [];
         }
-        this[key].push(this.init_doc(document));
+        this[key].push(this.initDoc(document));
     }
 
-    init_doc(data) {
+    initDoc(data) {
         if (data.prototype instanceof Document) {
             return data;
         } else {
@@ -407,15 +413,15 @@ var document$1 = class BaseDocument {
         }
     }
 
-    async validate_field(key, value) {
-        let field = this.meta.get_field(key);
+    async validateField(key, value) {
+        let field = this.meta.getField(key);
         if (field && field.fieldtype == 'Select') {
             return this.meta.validate_select(field, value);
         }
         return value;
     }
 
-    get_valid_dict() {
+    getValidDict() {
         let data = {};
         for (let field of this.meta.getValidFields()) {
             data[field.fieldname] = this[field.fieldname];
@@ -423,7 +429,7 @@ var document$1 = class BaseDocument {
         return data;
     }
 
-    set_standard_values() {
+    setStandardValues() {
         let now = new Date();
         if (this.docstatus === null || this.docstatus === undefined) {
             this.docstatus = 0;
@@ -439,18 +445,18 @@ var document$1 = class BaseDocument {
     async load() {
         let data = await frappejs.db.get(this.doctype, this.name);
         if (data.name) {
-            this.sync_values(data);
+            this.syncValues(data);
         } else {
             throw new frappejs.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
         }
     }
 
-    sync_values(data) {
-        this.clear_values();
+    syncValues(data) {
+        this.clearValues();
         Object.assign(this, data);
     }
 
-    clear_values() {
+    clearValues() {
         for (let field of this.meta.getValidFields()) {
             if(this[field.fieldname]) {
                 delete this[field.fieldname];
@@ -458,7 +464,7 @@ var document$1 = class BaseDocument {
         }
     }
 
-    set_child_idx() {
+    setChildIdx() {
         // renumber children
         for (let field of this.meta.getValidFields()) {
             if (field.fieldtype==='Table') {
@@ -469,12 +475,60 @@ var document$1 = class BaseDocument {
         }
     }
 
+    applyFormulae() {
+        if (!this.hasFormulae()) {
+            return false;
+        }
+
+        let doc;
+
+        // children
+        for (let tablefield of this.meta.getTableFields()) {
+            let formulaFields = frappejs.getMeta(tablefield.childtype).getFormulaFields();
+            if (formulaFields.length) {
+
+                // for each row
+                for (doc of this[tablefield.fieldname]) {
+                    for (let field of formulaFields) {
+                        doc[field.fieldname] = eval(field.formula);
+                    }
+                }
+            }
+        }
+
+        // parent
+        doc = this;
+        for (let field of this.meta.getFormulaFields()) {
+            doc[field.fieldname] = eval(field.formula);
+        }
+
+        return true;
+    }
+
+    hasFormulae() {
+        if (this._hasFormulae===undefined) {
+            this._hasFormulae = false;
+            if (this.meta.getFormulaFields().length) {
+                this._hasFormulae = true;
+            } else {
+                for (let tablefield of this.meta.getTableFields()) {
+                    if (frappejs.getMeta(tablefield.childtype).getFormulaFields().length) {
+                        this._hasFormulae = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return this._hasFormulae;
+    }
+
     async commit() {
         // re-run triggers
-        this.set_name();
-        this.set_standard_values();
-        this.set_keywords();
-        this.set_child_idx();
+        this.setName();
+        this.setStandardValues();
+        this.setKeywords();
+        this.setChildIdx();
+        this.applyFormulae();
         await this.trigger('validate');
         await this.trigger('commit');
     }
@@ -482,7 +536,7 @@ var document$1 = class BaseDocument {
     async insert() {
         await this.commit();
         await this.trigger('before_insert');
-        this.sync_values(await frappejs.db.insert(this.doctype, this.get_valid_dict()));
+        this.syncValues(await frappejs.db.insert(this.doctype, this.getValidDict()));
         await this.trigger('after_insert');
         await this.trigger('after_save');
 
@@ -492,7 +546,7 @@ var document$1 = class BaseDocument {
     async update() {
         await this.commit();
         await this.trigger('before_update');
-        this.sync_values(await frappejs.db.update(this.doctype, this.get_valid_dict()));
+        this.syncValues(await frappejs.db.update(this.doctype, this.getValidDict()));
         await this.trigger('after_update');
         await this.trigger('after_save');
 
@@ -530,7 +584,7 @@ var meta = class BaseMeta extends document$1 {
         }
     }
 
-    get_field(fieldname) {
+    getField(fieldname) {
         if (!this._field_map) {
             this._field_map = {};
             for (let field of this.fields) {
@@ -541,10 +595,17 @@ var meta = class BaseMeta extends document$1 {
     }
 
     getTableFields() {
-        if (!this._tableFields) {
+        if (this._tableFields===undefined) {
             this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
         }
         return this._tableFields;
+    }
+
+    getFormulaFields() {
+        if (this._formulaFields===undefined) {
+            this._formulaFields = this.fields.filter(field => field.formula);
+        }
+        return this._formulaFields;
     }
 
     on(key, fn) {
@@ -1647,44 +1708,44 @@ class BaseControl {
 
     make() {
         if (!this.input) {
-            if (!this.only_input) {
-                this.make_form_group();
-                this.make_label();
+            if (!this.onlyInput) {
+                this.makeFormGroup();
+                this.makeLabel();
             }
-            this.make_input();
-            this.set_input_name();
-            if (!this.only_input) {
-                this.make_description();
+            this.makeInput();
+            this.setInputName();
+            if (!this.onlyInput) {
+                this.makeDescription();
             }
-            this.bind_change_event();
+            this.bindChangeEvent();
         }
     }
 
-    make_form_group() {
-        this.form_group = frappejs.ui.add('div', 'form-group', this.parent);
+    makeFormGroup() {
+        this.formGroup = frappejs.ui.add('div', 'form-group', this.parent);
     }
 
-    make_label() {
-        this.label_element = frappejs.ui.add('label', null, this.form_group);
+    makeLabel() {
+        this.label_element = frappejs.ui.add('label', null, this.formGroup);
         this.label_element.textContent = this.label;
     }
 
-    make_input() {
+    makeInput() {
         this.input = frappejs.ui.add('input', 'form-control', this.get_input_parent());
         this.input.setAttribute('autocomplete', 'off');
     }
 
     get_input_parent() {
-        return this.form_group || this.parent;
+        return this.formGroup || this.parent;
     }
 
-    set_input_name() {
+    setInputName() {
         this.input.setAttribute('name', this.fieldname);
     }
 
-    make_description() {
+    makeDescription() {
         if (this.description) {
-            this.description_element = frappejs.ui.add('small', 'form-text text-muted', this.form_group);
+            this.description_element = frappejs.ui.add('small', 'form-text text-muted', this.formGroup);
             this.description_element.textContent = this.description;
         }
     }
@@ -1700,7 +1761,7 @@ class BaseControl {
         return value;
     }
 
-    async get_parsed_value() {
+    async getParsedValue() {
         return await this.parse(this.input.value);
     }
 
@@ -1716,11 +1777,11 @@ class BaseControl {
         return value;
     }
 
-    bind_change_event() {
-        this.input.addEventListener('change', (e) => this.handle_change(e));
+    bindChangeEvent() {
+        this.input.addEventListener('change', (e) => this.handleChange());
     }
 
-    async handle_change(e) {
+    async handleChange() {
         let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
         if (this.doc[this.fieldname] !== value) {
@@ -1728,6 +1789,7 @@ class BaseControl {
                 await this.doc.set(this.fieldname, value);
             }
             if (this.parent_control) {
+                this.doc[this.fieldname] = value;
                 await this.parent_control.doc.set(this.fieldname, this.parent_control.getInputValue());
             }
         }
@@ -1758,7 +1820,7 @@ class DataControl extends base {
 var data = DataControl;
 
 class TextControl extends base {
-    make_input() {
+    makeInput() {
         this.input = frappe.ui.add('textarea', 'form-control', this.get_input_parent());
     }
     make() {
@@ -1770,8 +1832,8 @@ class TextControl extends base {
 var text = TextControl;
 
 class SelectControl extends base {
-    make_input() {
-        this.input = frappe.ui.add('select', 'form-control', this.form_group);
+    makeInput() {
+        this.input = frappejs.ui.add('select', 'form-control', this.formGroup);
 
         let options = this.options;
         if (typeof options==='string') {
@@ -1779,7 +1841,7 @@ class SelectControl extends base {
         }
 
         for (let value of options) {
-            let option = frappe.ui.add('option', null, this.input);
+            let option = frappejs.ui.add('option', null, this.input);
             option.textContent = value;
             option.setAttribute('value', value);
         }
@@ -2345,6 +2407,10 @@ class FloatControl extends base {
                 this.input.select();
             }, 100);
         });
+    }
+    parse(value) {
+        value = parseFloat(value);
+        return value===NaN ? 0 : value;
     }
 }
 
@@ -6544,6 +6610,9 @@ var DataTable = function () {
       this.datamanager.init(data);
       this.render();
       this.setDimensions();
+      if (this.cellmanager.$focusedCell) {
+        this.cellmanager.$focusedCell.focus();
+      }
     }
   }, {
     key: 'destroy',
@@ -7135,12 +7204,6 @@ var DataManager = function () {
         if (newVal !== undefined) {
           cell[key] = newVal;
         }
-      }
-
-      // update model
-      if (!Array.isArray(this.data[rowIndex])) {
-        var col = this.getColumn(colIndex);
-        this.data[rowIndex][col.id] = options.content;
       }
 
       return cell;
@@ -24920,12 +24983,12 @@ class TableControl extends base {
             </div>`;
 
             this.datatable = new frappeDatatable(this.wrapper.querySelector('.datatable-wrapper'), {
-                columns: this.get_columns(),
-                data: this.get_table_data(),
+                columns: this.getColumns(),
+                data: this.getTableData(),
                 takeAvailableSpace: true,
                 enableClusterize: true,
                 addCheckboxColumn: true,
-                editing: this.get_table_input.bind(this),
+                editing: this.getTableInput.bind(this),
             });
 
             this.wrapper.querySelector('.btn-add').addEventListener('click', async (event) => {
@@ -24949,25 +25012,25 @@ class TableControl extends base {
     }
 
     setInputValue(value) {
-        this.datatable.refresh(this.get_table_data(value));
+        this.datatable.refresh(this.getTableData(value));
     }
 
-    get_table_data(value) {
-        return value || this.get_default_data();
+    getTableData(value) {
+        return value || this.getDefaultData();
     }
 
-    get_table_input(colIndex, rowIndex, value, parent) {
+    getTableInput(colIndex, rowIndex, value, parent) {
         let field = this.datatable.getColumn(colIndex).field;
 
         if (field.fieldtype==='Text') {
-            return this.get_text_control(field);
+            return this.getControlInModal(field);
         } else {
-            return this.get_control(field, parent);
+            return this.getControl(field, parent);
         }
     }
 
-    get_control(field, parent) {
-        field.only_input = true;
+    getControl(field, parent) {
+        field.onlyInput = true;
         const control = controls$1.makeControl({field: field, parent: parent});
 
         return {
@@ -24977,8 +25040,8 @@ class TableControl extends base {
                 control.set_focus();
                 return control.setInputValue(value);
             },
-            setValue: (value, rowIndex, column) => {
-                return control.setInputValue(value);
+            setValue: async (value, rowIndex, column) => {
+                // triggers change event
             },
             getValue: () => {
                 return control.getInputValue();
@@ -24987,9 +25050,8 @@ class TableControl extends base {
 
     }
 
-    get_text_control(field, parent) {
-
-        this.text_modal = new modal({
+    getControlInModal(field, parent) {
+        this.modal = new modal({
             title: frappejs._('Edit {0}', field.label),
             body: '',
             primary_label: frappejs._('Submit'),
@@ -24998,15 +25060,15 @@ class TableControl extends base {
                 modal$$1.hide();
             }
         });
-        this.text_modal.$modal.on('hidden.bs.modal', () => {
+        this.modal.$modal.on('hidden.bs.modal', () => {
             this.datatable.cellmanager.deactivateEditing();
         });
 
-        return this.get_control(field, this.text_modal.get_body());
+        return this.getControl(field, this.modal.get_body());
     }
 
-    get_columns() {
-        return this.get_child_fields().map(field => {
+    getColumns() {
+        return this.getChildFields().map(field => {
             return {
                 id: field.fieldname,
                 field: field,
@@ -25019,11 +25081,11 @@ class TableControl extends base {
         });
     }
 
-    get_child_fields() {
+    getChildFields() {
         return frappejs.getMeta(this.childtype).fields;
     }
 
-    get_default_data() {
+    getDefaultData() {
         // build flat table
         if (!this.doc) {
             return [];
@@ -25119,9 +25181,15 @@ var form = class BaseForm extends observable {
 
         // refresh value in control
         this.doc.addHandler('change', (params) => {
-            let control = this.controls[params.fieldname];
-            if (control && control.getInputValue() !== control.format(params.fieldname)) {
-                control.setDocValue();
+            if (params.fieldname) {
+                // only single value changed
+                let control = this.controls[params.fieldname];
+                if (control && control.getInputValue() !== control.format(params.fieldname)) {
+                    control.setDocValue();
+                }
+            } else {
+                // multiple values changed
+                this.refresh();
             }
         });
 
@@ -25594,14 +25662,6 @@ class InvoiceMeta extends meta {
 }
 
 class Invoice extends document$1 {
-	setup() {
-		this.addHandler('validate');
-	}
-
-	validate() {
-		this.total = this.get_total();
-	}
-
 	get_total() {
 		return this.items.map(d => (d.amount || 0)).reduce((a, b) => a + b, 0);
 	}
@@ -25617,7 +25677,7 @@ var doctype$5 = "DocType";
 var is_single$5 = 0;
 var is_child = 1;
 var keyword_fields$5 = [];
-var fields$5 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","reqd":1},{"fieldname":"description","label":"Description","fieldtype":"Text","fetch":"item.description","reqd":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","reqd":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","reqd":1},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","read_only":1,"formula":"doc.quantity * doc.rate"}];
+var fields$5 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","reqd":1},{"fieldname":"description","label":"Description","fieldtype":"Text","fetch":{"from":"item","value":"description"},"reqd":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","reqd":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","reqd":1},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","read_only":1,"formula":"doc.quantity * doc.rate"}];
 var invoice_item = {
 	name: name$5,
 	doctype: doctype$5,

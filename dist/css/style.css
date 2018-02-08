@@ -5735,7 +5735,7 @@ a.text-dark:hover, a.text-dark:focus {
   background: #3d6b00;
   color: inherit; }
 html {
-  font-size: 14px; }
+  font-size: 16px; }
 .main {
   border-left: 1px solid #dee2e6; }
 .hide {
@@ -5754,6 +5754,8 @@ html {
     margin-bottom: 1rem; }
 .form-body .alert {
     margin-top: 1rem; }
+.list-row .checkbox {
+  margin-right: 0.5rem; }
 .dropdown-menu-right {
   right: 0;
   left: auto; }

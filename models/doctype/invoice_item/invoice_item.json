@@ -16,7 +16,7 @@
 			"fieldname": "description",
 			"label": "Description",
 			"fieldtype": "Text",
-			"fetch": "item.description",
+			"fetch": {"from": "item", "value": "description"},
 			"reqd": 1
 		},
 		{

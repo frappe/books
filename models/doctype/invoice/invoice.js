@@ -8,14 +8,6 @@ class InvoiceMeta extends BaseMeta {
 }
 
 class Invoice extends BaseDocument {
-	setup() {
-		this.addHandler('validate');
-	}
-
-	validate() {
-		this.total = this.get_total();
-	}
-
 	get_total() {
 		return this.items.map(d => (d.amount || 0)).reduce((a, b) => a + b, 0);
 	}
