@@ -6,6 +6,9 @@ node_js:
 services:
   - mysql
 
+install:
+  - sudo apt-get purge -y mysql-common mysql-server mysql-client
+
 before_install:
   - mysql -u root -ptravis -e 'create database test_frappejs'
   - echo "USE mysql;\nCREATE USER 'test_frappejs'@'localhost' IDENTIFIED BY 'test_frappejs';\nFLUSH PRIVILEGES;\n" | mysql -u root -ptravis
