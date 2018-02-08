@@ -3,6 +3,9 @@ language: node_js
 node_js:
   - "8"
 
+services:
+  - mysql
+
 before_install:
   - mysql -u root -ptravis -e 'create database test_frappejs'
   - echo "USE mysql;\nCREATE USER 'test_frappejs'@'localhost' IDENTIFIED BY 'test_frappejs';\nFLUSH PRIVILEGES;\n" | mysql -u root -ptravis
