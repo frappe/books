@@ -9,7 +9,7 @@ class InvoiceMeta extends BaseMeta {
 
 class Invoice extends BaseDocument {
 	setup() {
-		this.add_handler('validate');
+		this.addHandler('validate');
 	}
 
 	validate() {

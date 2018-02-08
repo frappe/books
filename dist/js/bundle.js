@@ -18,7 +18,7 @@ var utils = {
         return text.toLowerCase().replace(/ /g, '_');
     },
 
-    get_random_name() {
+    getRandomName() {
         return Math.random().toString(36).substr(3);
     },
 
@@ -170,48 +170,6 @@ var number_format = {
 	}
 };
 
-var model = {
-    common_fields: [
-        {
-            fieldname: 'name', fieldtype: 'Data', reqd: 1
-        }
-    ],
-    parent_fields: [
-        {
-            fieldname: 'owner', fieldtype: 'Link', reqd: 1, options: 'User'
-        },
-        {
-            fieldname: 'modified_by', fieldtype: 'Link', reqd: 1, options: 'User'
-        },
-        {
-            fieldname: 'creation', fieldtype: 'Datetime', reqd: 1
-        },
-        {
-            fieldname: 'modified', fieldtype: 'Datetime', reqd: 1
-        },
-        {
-            fieldname: 'keywords', fieldtype: 'Text'
-        },
-        {
-            fieldname: 'docstatus', fieldtype: 'Int', reqd: 1, default: 0
-        }
-    ],
-    child_fields: [
-        {
-            fieldname: 'idx', fieldtype: 'Int', reqd: 1
-        },
-        {
-            fieldname: 'parent', fieldtype: 'Data', reqd: 1
-        },
-        {
-            fieldname: 'parenttype', fieldtype: 'Link', reqd: 1, options: 'DocType'
-        },
-        {
-            fieldname: 'parentfield', fieldtype: 'Data', reqd: 1
-        }
-    ]
-};
-
 var frappejs = {
     async init() {
         if (this._initialized) return;
@@ -254,14 +212,14 @@ var frappejs = {
         }
     },
 
-    get_meta(doctype) {
+    getMeta(doctype) {
         if (!this.meta_cache[doctype]) {
-            this.meta_cache[doctype] = new (this.get_meta_class(doctype))();
+            this.meta_cache[doctype] = new (this.getMeta_class(doctype))();
         }
         return this.meta_cache[doctype];
     },
 
-    get_meta_class(doctype) {
+    getMeta_class(doctype) {
         doctype = this.slug(doctype);
         if (this.modules[doctype] && this.modules[doctype].Meta) {
             return this.modules[doctype].Meta;
@@ -323,6 +281,62 @@ var frappejs = {
     }
 };
 
+var model = {
+    async get_series_next(prefix) {
+        let series;
+        try {
+            series = await frappejs.get_doc('Number Series', prefix);
+        } catch (e) {
+            if (!e.status_code || e.status_code !== 404) {
+                throw e;
+            }
+            series = frappejs.new_doc({doctype: 'Number Series', name: prefix, current: 0});
+            await series.insert();
+        }
+        let next = await series.next();
+        return prefix + next;
+    },
+    common_fields: [
+        {
+            fieldname: 'name', fieldtype: 'Data', reqd: 1
+        }
+    ],
+    parent_fields: [
+        {
+            fieldname: 'owner', fieldtype: 'Link', reqd: 1, options: 'User'
+        },
+        {
+            fieldname: 'modified_by', fieldtype: 'Link', reqd: 1, options: 'User'
+        },
+        {
+            fieldname: 'creation', fieldtype: 'Datetime', reqd: 1
+        },
+        {
+            fieldname: 'modified', fieldtype: 'Datetime', reqd: 1
+        },
+        {
+            fieldname: 'keywords', fieldtype: 'Text'
+        },
+        {
+            fieldname: 'docstatus', fieldtype: 'Int', reqd: 1, default: 0
+        }
+    ],
+    child_fields: [
+        {
+            fieldname: 'idx', fieldtype: 'Int', reqd: 1
+        },
+        {
+            fieldname: 'parent', fieldtype: 'Data', reqd: 1
+        },
+        {
+            fieldname: 'parenttype', fieldtype: 'Link', reqd: 1, options: 'DocType'
+        },
+        {
+            fieldname: 'parentfield', fieldtype: 'Data', reqd: 1
+        }
+    ]
+};
+
 var document$1 = class BaseDocument {
     constructor(data) {
         this.handlers = {};
@@ -334,11 +348,11 @@ var document$1 = class BaseDocument {
         // add handlers
     }
 
-    clear_handlers() {
+    clearHandlers() {
         this.handlers = {};
     }
 
-    add_handler(key, method) {
+    addHandler(key, method) {
         if (!this.handlers[key]) {
             this.handlers[key] = [];
         }
@@ -359,13 +373,13 @@ var document$1 = class BaseDocument {
         // assign a random name by default
         // override this to set a name
         if (!this.name) {
-            this.name = frappejs.get_random_name();
+            this.name = frappejs.getRandomName();
         }
     }
 
     set_keywords() {
         let keywords = [];
-        for (let fieldname of this.meta.get_keyword_fields()) {
+        for (let fieldname of this.meta.getKeywordFields()) {
             keywords.push(this[fieldname]);
         }
         this.keywords = keywords.join(', ');
@@ -373,7 +387,7 @@ var document$1 = class BaseDocument {
 
     get meta() {
         if (!this._meta) {
-            this._meta = frappejs.get_meta(this.doctype);
+            this._meta = frappejs.getMeta(this.doctype);
         }
         return this._meta;
     }
@@ -403,7 +417,7 @@ var document$1 = class BaseDocument {
 
     get_valid_dict() {
         let data = {};
-        for (let field of this.meta.get_valid_fields()) {
+        for (let field of this.meta.getValidFields()) {
             data[field.fieldname] = this[field.fieldname];
         }
         return data;
@@ -437,7 +451,7 @@ var document$1 = class BaseDocument {
     }
 
     clear_values() {
-        for (let field of this.meta.get_valid_fields()) {
+        for (let field of this.meta.getValidFields()) {
             if(this[field.fieldname]) {
                 delete this[field.fieldname];
             }
@@ -446,7 +460,7 @@ var document$1 = class BaseDocument {
 
     set_child_idx() {
         // renumber children
-        for (let field of this.meta.get_valid_fields()) {
+        for (let field of this.meta.getValidFields()) {
             if (field.fieldtype==='Table') {
                 for(let i=0; i < (this[field.fieldname] || []).length; i++) {
                     this[field.fieldname][i].idx = i;
@@ -526,11 +540,11 @@ var meta = class BaseMeta extends document$1 {
         return this._field_map[fieldname];
     }
 
-    get_table_fields() {
-        if (!this._table_fields) {
-            this._table_fields = this.fields.filter(field => field.fieldtype === 'Table');
+    getTableFields() {
+        if (!this._tableFields) {
+            this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
         }
-        return this._table_fields;
+        return this._tableFields;
     }
 
     on(key, fn) {
@@ -549,7 +563,7 @@ var meta = class BaseMeta extends document$1 {
         return this[fieldname];
     }
 
-    get_valid_fields({ with_children = true } = {}) {
+    getValidFields({ with_children = true } = {}) {
         if (!this._valid_fields) {
 
             this._valid_fields = [];
@@ -607,7 +621,7 @@ var meta = class BaseMeta extends document$1 {
         }
     }
 
-    get_keyword_fields() {
+    getKeywordFields() {
         return this.keyword_fields || this.meta.fields.filter(field => field.reqd).map(field => field.fieldname);
     }
 
@@ -939,16 +953,11 @@ var path$1 = Object.freeze({
 var path$2 = ( path$1 && path ) || path$1;
 
 var rest_client = class RESTClient {
-    constructor({server, protocol='http'}) {
+    constructor({ server, protocol = 'http' }) {
         this.server = server;
         this.protocol = protocol;
 
-        this.init_type_map();
-
-        this.json_headers = {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-        };
+        this.initTypeMap();
     }
 
     connect() {
@@ -957,29 +966,25 @@ var rest_client = class RESTClient {
 
     async insert(doctype, doc) {
         doc.doctype = doctype;
-        let url = this.protocol + '://' + path$2.join(this.server, `/api/resource/${frappejs.slug(doctype)}`);
-        let response = await frappejs.fetch(url, {
+        let url = this.getURL('/api/resource', frappejs.slug(doctype));
+        return await this.fetch(url, {
             method: 'POST',
-            headers: this.json_headers,
             body: JSON.stringify(doc)
-        });
-
-        return await response.json();
+        })
     }
 
     async get(doctype, name) {
-        let url = this.protocol + '://' + path$2.join(this.server, `/api/resource/${frappejs.slug(doctype)}/${name}`);
-        let response = await frappejs.fetch(url, {
+        let url = this.getURL('/api/resource', frappejs.slug(doctype), name);
+        return await this.fetch(url, {
             method: 'GET',
-            headers: this.json_headers
-        });
-        return await response.json();
+            headers: this.getHeaders()
+        })
     }
 
-    async get_all({doctype, fields, filters, start, limit, sort_by, order}) {
-        let url = this.protocol + '://' + path$2.join(this.server, `/api/resource/${frappejs.slug(doctype)}`);
+    async getAll({ doctype, fields, filters, start, limit, sort_by, order }) {
+        let url = this.getURL('/api/resource', frappejs.slug(doctype));
 
-        url = url + "?" + this.get_query_string({
+        url = url + "?" + this.getQueryString({
             fields: JSON.stringify(fields),
             filters: JSON.stringify(filters),
             start: start,
@@ -988,80 +993,101 @@ var rest_client = class RESTClient {
             order: order
         });
 
-        let response = await frappejs.fetch(url, {
+        return await this.fetch(url, {
             method: 'GET',
-            headers: this.json_headers
         });
-        return await response.json();
-
     }
 
     async update(doctype, doc) {
         doc.doctype = doctype;
-        let url = this.protocol + '://' + path$2.join(this.server, `/api/resource/${frappejs.slug(doctype)}/${doc.name}`);
-        let response = await frappejs.fetch(url, {
+        let url = this.getURL('/api/resource', frappejs.slug(doctype), doc.name);
+
+        return await this.fetch(url, {
             method: 'PUT',
-            headers: this.json_headers,
             body: JSON.stringify(doc)
         });
-
-        return await response.json();
     }
 
     async delete(doctype, name) {
-        let url = this.protocol + '://' + path$2.join(this.server, `/api/resource/${frappejs.slug(doctype)}/${name}`);
+        let url = this.getURL('/api/resource', frappejs.slug(doctype), name);
 
-        let response = await frappejs.fetch(url, {
+        return await this.fetch(url, {
             method: 'DELETE',
-            headers: this.json_headers
         });
+    }
 
+    async deleteMany(doctype, names) {
+        let url = this.getURL('/api/resource', frappejs.slug(doctype));
+
+        return await this.fetch(url, {
+            method: 'DELETE',
+            body: JSON.stringify(names)
+        });
+    }
+
+    async exists(doctype, name) {
+        return (await this.getValue(doctype, name, 'name')) ? true : false;
+    }
+
+    async getValue(doctype, name, fieldname) {
+        let url = this.getURL('/api/resource', frappejs.slug(doctype), name, fieldname);
+
+        return (await this.fetch(url, {
+            method: 'GET',
+        })).value;
+    }
+
+    async fetch(url, args) {
+        args.headers = this.getHeaders();
+        let response = await frappejs.fetch(url, args);
         return await response.json();
     }
 
-    get_query_string(params) {
+    getURL(...parts) {
+        return this.protocol + '://' + path$2.join(this.server, ...parts);
+    }
+
+    getQueryString(params) {
         return Object.keys(params)
             .map(k => params[k] != null ? encodeURIComponent(k) + '=' + encodeURIComponent(params[k]) : null)
             .filter(v => v)
             .join('&');
     }
 
-    async get_value(doctype, name, fieldname) {
-        let url = this.protocol + '://' + path$2.join(this.server, `/api/resource/${frappejs.slug(doctype)}/${name}/${fieldname}`);
-        let response = await frappejs.fetch(url, {
-            method: 'GET',
-            headers: this.json_headers
-        });
-        return (await response.json()).value;
+    getHeaders() {
+        return {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
     }
 
-    init_type_map() {
+    initTypeMap() {
         this.type_map = {
-            'Currency':        true
-            ,'Int':            true
-            ,'Float':        true
-            ,'Percent':        true
-            ,'Check':        true
-            ,'Small Text':    true
-            ,'Long Text':    true
-            ,'Code':        true
-            ,'Text Editor':    true
-            ,'Date':        true
-            ,'Datetime':    true
-            ,'Time':        true
-            ,'Text':        true
-            ,'Data':        true
-            ,'Link':        true
-            ,'Dynamic Link':true
-            ,'Password':    true
-            ,'Select':        true
-            ,'Read Only':    true
-            ,'Attach':        true
-            ,'Attach Image':true
-            ,'Signature':    true
-            ,'Color':        true
-            ,'Barcode':        true
-            ,'Geolocation':    true
+            'Currency': true
+            , 'Int': true
+            , 'Float': true
+            , 'Percent': true
+            , 'Check': true
+            , 'Small Text': true
+            , 'Long Text': true
+            , 'Code': true
+            , 'Text Editor': true
+            , 'Date': true
+            , 'Datetime': true
+            , 'Time': true
+            , 'Text': true
+            , 'Data': true
+            , 'Link': true
+            , 'Dynamic Link': true
+            , 'Password': true
+            , 'Select': true
+            , 'Read Only': true
+            , 'Attach': true
+            , 'Attach Image': true
+            , 'Signature': true
+            , 'Color': true
+            , 'Barcode': true
+            , 'Geolocation': true
         };
     }
 
@@ -1141,7 +1167,7 @@ class Dropdown {
         if (typeof action === 'string') {
             item.src = action;
             item.addEventListener('click', async () => {
-                await frappejs.router.set_route(action);
+                await frappejs.router.setRoute(action);
                 this.toggle();
             });
         } else {
@@ -1275,7 +1301,7 @@ var router = class Router {
         }
     }
 
-    async set_route(...parts) {
+    async setRoute(...parts) {
         const route = parts.join('/');
 
         // setting this first, does not trigger show via hashchange,
@@ -1371,12 +1397,23 @@ var page = class Page extends observable {
 
     make() {
         this.wrapper = frappejs.ui.add('div', 'page hide', frappejs.desk.body);
-        this.body = frappejs.ui.add('div', 'page-body', this.wrapper);
+        this.wrapper.innerHTML = `<div class="page-head hide"></div>
+            <div class="page-body"></div>`;
+        this.head = this.wrapper.querySelector('.page-head');
+        this.body = this.wrapper.querySelector('.page-body');
     }
 
     hide() {
         this.wrapper.classList.add('hide');
         this.trigger('hide');
+    }
+
+    addButton(label, cssClass, action) {
+        this.head.classList.remove('hide');
+        this.button = frappejs.ui.add('button', 'btn btn-sm ' + cssClass, this.head);
+        this.button.innerHTML = label;
+        this.button.addEventListener('click', action);
+        return this.button;
     }
 
     async show(params) {
@@ -1396,7 +1433,7 @@ var page = class Page extends observable {
         await this.trigger('show', params);
     }
 
-    render_error(title, message) {
+    renderError(title, message) {
         if (!this.page_error) {
             this.page_error = frappejs.ui.add('div', 'page-error', this.wrapper);
         }
@@ -1407,28 +1444,30 @@ var page = class Page extends observable {
 };
 
 var list = class BaseList {
-    constructor({doctype, parent, fields}) {
-        this.doctype = doctype;
-        this.parent = parent;
-        this.fields = fields;
+    constructor({doctype, parent, fields, page}) {
+        Object.assign(this, arguments[0]);
 
-        this.meta = frappejs.get_meta(this.doctype);
+        this.meta = frappejs.getMeta(this.doctype);
 
         this.start = 0;
-        this.page_length = 20;
+        this.pageLength = 20;
 
         this.body = null;
         this.rows = [];
         this.data = [];
     }
 
+    async refresh() {
+        return await this.run();
+    }
+
     async run() {
-        this.make_body();
+        this.makeBody();
 
-        let data = await this.get_data();
+        let data = await this.getData();
 
-        for (let i=0; i< Math.min(this.page_length, data.length); i++) {
-            this.render_row(this.start + i, data[i]);
+        for (let i=0; i< Math.min(this.pageLength, data.length); i++) {
+            this.renderRow(this.start + i, data[i]);
         }
 
         if (this.start > 0) {
@@ -1437,47 +1476,62 @@ var list = class BaseList {
             this.data = data;
         }
 
-        this.clear_empty_rows();
-        this.update_more(data.length > this.page_length);
+        this.clearEmptyRows();
+        this.updateMore(data.length > this.pageLength);
     }
 
-    async get_data() {
-        return await frappejs.db.get_all({
+    async getData() {
+        return await frappejs.db.getAll({
             doctype: this.doctype,
-            fields: this.get_fields(),
-            filters: this.get_filters(),
+            fields: this.getFields(),
+            filters: this.getFilters(),
             start: this.start,
-            limit: this.page_length + 1
+            limit: this.pageLength + 1
         });
     }
 
-    get_fields() {
+    getFields() {
         return ['name'];
     }
 
     async append() {
-        this.start += this.page_length;
+        this.start += this.pageLength;
         await this.run();
     }
 
-    get_filters() {
+    getFilters() {
         let filters = {};
-        if (this.search_input.value) {
-            filters.keywords = ['like', '%' + this.search_input.value + '%'];
+        if (this.searchInput.value) {
+            filters.keywords = ['like', '%' + this.searchInput.value + '%'];
         }
         return filters;
     }
 
-    make_body() {
+    makeBody() {
         if (!this.body) {
-            this.make_toolbar();
-            //this.make_new();
+            this.makeToolbar();
             this.body = frappejs.ui.add('div', 'list-body', this.parent);
-            this.make_more_btn();
+            this.makeMoreBtn();
         }
     }
 
-    make_toolbar() {
+    makeToolbar() {
+        this.makeSearch();
+        this.btnNew = this.page.addButton(frappejs._('New'), 'btn-outline-primary', async () => {
+            await frappejs.router.setRoute('new', frappejs.slug(this.doctype));
+        });
+        this.btnDelete = this.page.addButton(frappejs._('Delete'), 'btn-outline-secondary hide', async () => {
+            await frappejs.db.deleteMany(this.doctype, this.getCheckedRowNames());
+            await this.refresh();
+        });
+        this.page.body.addEventListener('click', (event) => {
+            if(event.target.classList.contains('checkbox')) {
+                this.btnDelete.classList.toggle('hide', this.getCheckedRowNames().length===0);
+            }
+        });
+    }
+
+    makeSearch() {
         this.toolbar = frappejs.ui.add('div', 'list-toolbar', this.parent);
         this.toolbar.innerHTML = `
             <div class="row">
@@ -1489,67 +1543,70 @@ var list = class BaseList {
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3 col-3">
-                    <a href="#new/${frappejs.slug(this.doctype)}" class="btn btn-outline-primary">
-                        New
-                    </a>
-                </div>
             </div>
         `;
 
-        this.search_input = this.toolbar.querySelector('input');
-        this.search_input.addEventListener('keypress', (event) => {
+        this.searchInput = this.toolbar.querySelector('input');
+        this.searchInput.addEventListener('keypress', (event) => {
             if (event.keyCode===13) {
-                this.run();
+                this.refresh();
             }
         });
 
-        this.search_button = this.toolbar.querySelector('.btn-search');
-        this.search_button.addEventListener('click', (event) => {
-            this.run();
+        this.btnSearch = this.toolbar.querySelector('.btn-search');
+        this.btnSearch.addEventListener('click', (event) => {
+            this.refresh();
         });
     }
 
-    make_more_btn() {
-        this.more_btn = frappejs.ui.add('button', 'btn btn-secondary hide', this.parent);
-        this.more_btn.textContent = 'More';
-        this.more_btn.addEventListener('click', () => {
+    makeMoreBtn() {
+        this.btnMore = frappejs.ui.add('button', 'btn btn-secondary hide', this.parent);
+        this.btnMore.textContent = 'More';
+        this.btnMore.addEventListener('click', () => {
             this.append();
         });
     }
 
-    render_row(i, data) {
-        let row = this.get_row(i);
-        row.innerHTML = this.get_row_html(data);
+    renderRow(i, data) {
+        let row = this.getRow(i);
+        row.innerHTML = this.getRowBodyHTML(data);
         row.style.display = 'block';
     }
 
-    get_row_html(data) {
+    getRowBodyHTML(data) {
+        return `<input class="checkbox" type="checkbox" data-name="${data.name}"> ` + this.getRowHTML(data);
+    }
+
+    getRowHTML(data) {
         return `<a href="#edit/${this.doctype}/${data.name}">${data.name}</a>`;
     }
 
-    get_row(i) {
+    getRow(i) {
         if (!this.rows[i]) {
             this.rows[i] = frappejs.ui.add('div', 'list-row py-2', this.body);
         }
         return this.rows[i];
     }
 
-    clear_empty_rows() {
+    getCheckedRowNames() {
+        return [...this.body.querySelectorAll('.checkbox:checked')].map(check => check.getAttribute('data-name'));
+    }
+
+    clearEmptyRows() {
         if (this.rows.length > this.data.length) {
             for (let i=this.data.length; i < this.rows.length; i++) {
-                let row = this.get_row(i);
+                let row = this.getRow(i);
                 row.innerHTML = '';
                 row.style.display = 'none';
             }
         }
     }
 
-    update_more(show) {
+    updateMore(show) {
         if (show) {
-            this.more_btn.classList.remove('hide');
+            this.btnMore.classList.remove('hide');
         } else {
-            this.more_btn.classList.add('hide');
+            this.btnMore.classList.add('hide');
         }
     }
 
@@ -1574,17 +1631,17 @@ class BaseControl {
 
     bind(doc) {
         this.doc = doc;
-        this.set_doc_value();
+        this.setDocValue();
     }
 
     refresh() {
         this.make();
-        this.set_doc_value();
+        this.setDocValue();
     }
 
-    set_doc_value() {
+    setDocValue() {
         if (this.doc) {
-            this.set_input_value(this.doc.get(this.fieldname));
+            this.setInputValue(this.doc.get(this.fieldname));
         }
     }
 
@@ -1632,7 +1689,7 @@ class BaseControl {
         }
     }
 
-    set_input_value(value) {
+    setInputValue(value) {
         this.input.value = this.format(value);
     }
 
@@ -1647,7 +1704,7 @@ class BaseControl {
         return await this.parse(this.input.value);
     }
 
-    get_input_value() {
+    getInputValue() {
         return this.input.value;
     }
 
@@ -1664,14 +1721,14 @@ class BaseControl {
     }
 
     async handle_change(e) {
-        let value = await this.parse(this.get_input_value());
+        let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
         if (this.doc[this.fieldname] !== value) {
             if (this.doc.set) {
                 await this.doc.set(this.fieldname, value);
             }
             if (this.parent_control) {
-                await this.parent_control.doc.set(this.fieldname, this.parent_control.get_input_value());
+                await this.parent_control.doc.set(this.fieldname, this.parent_control.getInputValue());
             }
         }
     }
@@ -2259,19 +2316,19 @@ class LinkControl extends base {
 
         // rebuild the list on input
         this.input.addEventListener('input', async (event) => {
-            this.awesomplete.list = await this.get_list(this.input.value);
+            this.awesomplete.list = await this.getList(this.input.value);
         });
     }
 
-    async get_list(query) {
-        return (await frappejs.db.get_all({
+    async getList(query) {
+        return (await frappejs.db.getAll({
             doctype: this.target,
-            filters: this.get_filters(query),
+            filters: this.getFilters(query),
             limit: 50
         })).map(d => d.name);
     }
 
-    get_filters(query) {
+    getFilters(query) {
         return { keywords: ["like", query] }
     }
 }
@@ -5097,8 +5154,6 @@ var CellManager = function () {
       });
 
       _keyboard2.default.on('esc', function () {
-        // keep focus on the cell so that keyboard navigation works
-        _this2.$editingCell.focus();
         _this2.deactivateEditing();
       });
     }
@@ -5415,6 +5470,9 @@ var CellManager = function () {
     key: 'deactivateEditing',
     value: function deactivateEditing() {
       if (!this.$editingCell) return;
+
+      // keep focus on the cell so that keyboard navigation works
+      this.$editingCell.focus();
       this.$editingCell.classList.remove('editing');
       this.$editingCell = null;
     }
@@ -24886,11 +24944,11 @@ class TableControl extends base {
         }
     }
 
-    get_input_value() {
+    getInputValue() {
         return this.doc[this.fieldname];
     }
 
-    set_input_value(value) {
+    setInputValue(value) {
         this.datatable.refresh(this.get_table_data(value));
     }
 
@@ -24910,20 +24968,20 @@ class TableControl extends base {
 
     get_control(field, parent) {
         field.only_input = true;
-        const control = controls$1.make_control({field: field, parent: parent});
+        const control = controls$1.makeControl({field: field, parent: parent});
 
         return {
             initValue: (value, rowIndex, column) => {
                 control.parent_control = this;
                 control.doc = this.doc[this.fieldname][rowIndex];
                 control.set_focus();
-                return control.set_input_value(value);
+                return control.setInputValue(value);
             },
             setValue: (value, rowIndex, column) => {
-                return control.set_input_value(value);
+                return control.setInputValue(value);
             },
             getValue: () => {
-                return control.get_input_value();
+                return control.getInputValue();
             }
         }
 
@@ -24937,9 +24995,11 @@ class TableControl extends base {
             primary_label: frappejs._('Submit'),
             primary_action: (modal$$1) => {
                 this.datatable.cellmanager.submitEditing();
-                this.datatable.cellmanager.deactivateEditing();
                 modal$$1.hide();
             }
+        });
+        this.text_modal.$modal.on('hidden.bs.modal', () => {
+            this.datatable.cellmanager.deactivateEditing();
         });
 
         return this.get_control(field, this.text_modal.get_body());
@@ -24960,7 +25020,7 @@ class TableControl extends base {
     }
 
     get_child_fields() {
-        return frappejs.get_meta(this.childtype).fields;
+        return frappejs.getMeta(this.childtype).fields;
     }
 
     get_default_data() {
@@ -24990,11 +25050,11 @@ const control_classes = {
 };
 
 var controls$1 = {
-    get_control_class(fieldtype) {
+    getControlClass(fieldtype) {
         return control_classes[fieldtype];
     },
-    make_control({field, form, parent}) {
-        const control_class = this.get_control_class(field.fieldtype);
+    makeControl({field, form, parent}) {
+        const control_class = this.getControlClass(field.fieldtype);
         let control = new control_class({field:field, form:form, parent:parent});
         control.make();
         return control;
@@ -25002,16 +25062,13 @@ var controls$1 = {
 };
 
 var form = class BaseForm extends observable {
-    constructor({doctype, parent, submit_label='Submit'}) {
+    constructor({doctype, parent, submit_label='Submit', page}) {
         super();
-        this.parent = parent;
-        this.doctype = doctype;
-        this.submit_label = submit_label;
-
+        Object.assign(this, arguments[0]);
         this.controls = {};
-        this.controls_list = [];
+        this.controlList = [];
 
-        this.meta = frappejs.get_meta(this.doctype);
+        this.meta = frappejs.getMeta(this.doctype);
         if (this.setup) {
             this.setup();
         }
@@ -25024,35 +25081,26 @@ var form = class BaseForm extends observable {
         }
 
         this.body = frappejs.ui.add('div', 'form-body', this.parent);
-        this.make_toolbar();
+        this.makeToolbar();
 
         this.form = frappejs.ui.add('div', 'form-container', this.body);
         for(let field of this.meta.fields) {
-            if (controls$1.get_control_class(field.fieldtype)) {
-                let control = controls$1.make_control({field: field, form: this});
-                this.controls_list.push(control);
+            if (controls$1.getControlClass(field.fieldtype)) {
+                let control = controls$1.makeControl({field: field, form: this});
+                this.controlList.push(control);
                 this.controls[field.fieldname] = control;
             }
         }
     }
 
-    make_toolbar() {
-        this.toolbar = frappejs.ui.add('div', 'form-toolbar text-right', this.body);
-        this.toolbar.innerHTML = `
-            <button class="btn btn-outline-secondary btn-delete">Delete</button>
-            <button class="btn btn-primary btn-submit">Save</button>
-        `;
-
-        this.btn_submit = this.toolbar.querySelector('.btn-submit');
-        this.btn_submit.addEventListener('click', async (event) => {
-            this.submit();
-            event.preventDefault();
+    makeToolbar() {
+        this.btnSubmit = this.page.addButton(frappejs._("Save"), 'btn-primary', async () => {
+            await this.submit();
         });
 
-        this.btn_delete = this.toolbar.querySelector('.btn-delete');
-        this.btn_delete.addEventListener('click', async () => {
+        this.btnDelete = this.page.addButton(frappejs._("Delete"), 'btn-outline-secondary', async () => {
             await this.doc.delete();
-            this.show_alert('Deleted', 'success');
+            this.showAlert('Deleted', 'success');
             this.trigger('delete');
         });
     }
@@ -25060,20 +25108,20 @@ var form = class BaseForm extends observable {
     async use(doc, is_new = false) {
         if (this.doc) {
             // clear handlers of outgoing doc
-            this.doc.clear_handlers();
+            this.doc.clearHandlers();
         }
-        this.clear_alert();
+        this.clearAlert();
         this.doc = doc;
         this.is_new = is_new;
-        for (let control of this.controls_list) {
+        for (let control of this.controlList) {
             control.bind(this.doc);
         }
 
         // refresh value in control
-        this.doc.add_handler('change', (params) => {
+        this.doc.addHandler('change', (params) => {
             let control = this.controls[params.fieldname];
-            if (control && control.get_input_value() !== control.format(params.fieldname)) {
-                control.set_doc_value();
+            if (control && control.getInputValue() !== control.format(params.fieldname)) {
+                control.setDocValue();
             }
         });
 
@@ -25088,29 +25136,29 @@ var form = class BaseForm extends observable {
                 await this.doc.update();
             }
             await this.refresh();
-            this.show_alert('Saved', 'success');
+            this.showAlert('Saved', 'success');
         } catch (e) {
-            this.show_alert('Failed', 'danger');
+            this.showAlert('Failed', 'danger');
         }
         await this.trigger('submit');
     }
 
     refresh() {
-        for(let control of this.controls_list) {
+        for(let control of this.controlList) {
             control.refresh();
         }
     }
 
-    show_alert(message, type, clear_after = 5) {
-        this.clear_alert();
+    showAlert(message, type, clear_after = 5) {
+        this.clearAlert();
         this.alert = frappejs.ui.add('div', `alert alert-${type}`, this.body);
         this.alert.textContent = message;
         setTimeout(() => {
-            this.clear_alert();
+            this.clearAlert();
         }, clear_after * 1000);
     }
 
-    clear_alert() {
+    clearAlert() {
         if (this.alert) {
             frappejs.ui.remove(this.alert);
             this.alert = null;
@@ -25123,7 +25171,7 @@ var view = {
     get_form_class(doctype) {
         return this.get_view_class(doctype, 'Form', form);
     },
-    get_list_class(doctype) {
+    getList_class(doctype) {
         return this.get_view_class(doctype, 'List', list);
     },
     get_view_class(doctype, class_name, default_class) {
@@ -25142,13 +25190,14 @@ var view = {
 
 var formpage = class FormPage extends page {
 	constructor(doctype) {
-		let meta = frappe.get_meta(doctype);
+		let meta = frappejs.getMeta(doctype);
 		super(`Edit ${meta.name}`);
 		this.meta = meta;
 
 		this.form = new (view.get_form_class(doctype))({
 			doctype: doctype,
-			parent: this.body
+			parent: this.body,
+			page: this
 		});
 
 		this.on('show', async (params) => {
@@ -25157,35 +25206,36 @@ var formpage = class FormPage extends page {
 
 		// if name is different after saving, change the route
 		this.form.on('submit', async (params) => {
-			let route = frappe.router.get_route();
+			let route = frappejs.router.get_route();
 			if (this.form.doc.name && !(route && route[2] === this.form.doc.name)) {
-				await frappe.router.set_route('edit', this.form.doc.doctype, this.form.doc.name);
-				this.form.show_alert('Added', 'success');
+				await frappejs.router.setRoute('edit', this.form.doc.doctype, this.form.doc.name);
+				this.form.showAlert('Added', 'success');
 			}
 		});
 
 		this.form.on('delete', async (params) => {
-			await frappe.router.set_route('list', this.form.doctype);
+			await frappejs.router.setRoute('list', this.form.doctype);
 		});
 	}
 
 	async show_doc(doctype, name) {
 		try {
-			this.doc = await frappe.get_doc(doctype, name);
+			this.doc = await frappejs.get_doc(doctype, name);
 			this.form.use(this.doc);
 		} catch (e) {
-			this.render_error(e.status_code, e.message);
+			this.renderError(e.status_code, e.message);
 		}
 	}
 };
 
-var listpage = class FormPage extends page {
+var listpage = class ListPage extends page {
 	constructor(doctype) {
-		let meta = frappe.get_meta(doctype);
-		super(`List ${meta.name}`);
-		this.list = new (view.get_list_class(doctype))({
+		let meta = frappejs.getMeta(doctype);
+		super(frappejs._("List: {0}", meta.name));
+		this.list = new (view.getList_class(doctype))({
 			doctype: doctype,
-			parent: this.body
+			parent: this.body,
+			page: this
 		});
 		this.on('show', async () => {
 			await this.list.run();
@@ -25244,7 +25294,7 @@ var desk = class Desk {
         this.container = frappejs.ui.add('div', 'container-fluid', body);
 
         this.container_row = frappejs.ui.add('div', 'row', this.container);
-        this.sidebar = frappejs.ui.add('div', 'col-md-2 p-3 sidebar', this.container_row);
+        this.sidebar = frappejs.ui.add('div', 'col-md-2 p-3 sidebar d-none d-md-block', this.container_row);
         this.body = frappejs.ui.add('div', 'col-md-10 p-3 main', this.container_row);
 
         this.sidebar_items = [];
@@ -25263,11 +25313,11 @@ var desk = class Desk {
                 this.not_found_page = new page('Not Found');
             }
             await this.not_found_page.show();
-            this.not_found_page.render_error('Not Found', params ? params.route : '');
+            this.not_found_page.renderError('Not Found', params ? params.route : '');
         });
 
         frappejs.router.add('list/:doctype', async (params) => {
-            let page$$1 = this.get_list_page(params.doctype);
+            let page$$1 = this.getList_page(params.doctype);
             await page$$1.show(params);
         });
 
@@ -25279,13 +25329,13 @@ var desk = class Desk {
         frappejs.router.add('new/:doctype', async (params) => {
             let doc = await frappejs.get_new_doc(params.doctype);
             // unset the name, its local
-            await frappejs.router.set_route('edit', doc.doctype, doc.name);
+            await frappejs.router.setRoute('edit', doc.doctype, doc.name);
             await doc.set('name', '');
         });
 
     }
 
-    get_list_page(doctype) {
+    getList_page(doctype) {
         if (!this.pages.lists[doctype]) {
             this.pages.lists[doctype] = new listpage(doctype);
         }
@@ -25367,7 +25417,7 @@ class ToDoMeta extends meta {
 
 class ToDo extends document$1 {
     setup() {
-        this.add_handler('validate');
+        this.addHandler('validate');
     }
     validate() {
         if (!this.status) {
@@ -25413,12 +25463,12 @@ class AccountMeta extends meta {
 
 class Account extends document$1 {
     setup() {
-        this.add_handler('validate');
+        this.addHandler('validate');
     }
     async validate() {
         if (!this.account_type) {
             if (this.parent_account) {
-                this.account_type = await frappejs.db.get_value('Account', this.parent_account, 'account_type');
+                this.account_type = await frappejs.db.getValue('Account', this.parent_account, 'account_type');
             } else {
                 this.account_type = 'Asset';
             }
@@ -25545,7 +25595,7 @@ class InvoiceMeta extends meta {
 
 class Invoice extends document$1 {
 	setup() {
-		this.add_handler('validate');
+		this.addHandler('validate');
 	}
 
 	validate() {
@@ -25604,10 +25654,10 @@ var invoice_item$2 = {
 };
 
 class ToDoList extends list {
-    get_fields()  {
+    getFields()  {
         return ['name', 'subject', 'status'];
     }
-    get_row_html(data) {
+    getRowHTML(data) {
         let symbol = data.status=="Closed" ? "✔" : "";
         return `<a href="#edit/todo/${data.name}">${symbol} ${data.subject}</a>`;
     }
@@ -25618,10 +25668,10 @@ var todo_client = {
 };
 
 class AccountList extends list {
-    get_fields()  {
+    getFields()  {
         return ['name', 'account_type'];
     }
-    get_row_html(data) {
+    getRowHTML(data) {
         return `<a href="#edit/account/${data.name}">${data.name} (${data.account_type})</a>`;
     }
 }
@@ -25631,7 +25681,7 @@ class AccountForm extends form {
         super.make();
 
         // override controller event
-        this.controls['parent_account'].get_filters = (query) => {
+        this.controls['parent_account'].getFilters = (query) => {
             return {
                 keywords: ["like", query],
                 name: ["!=", this.doc.name]

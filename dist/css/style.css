@@ -5736,8 +5736,14 @@ a.text-dark:hover, a.text-dark:focus {
   color: inherit; }
 html {
   font-size: 14px; }
+.main {
+  border-left: 1px solid #dee2e6; }
 .hide {
   display: none !important; }
+.page-head {
+  padding-bottom: 1rem; }
+.page-head .btn {
+    margin-right: 0.5rem; }
 .page-error {
   text-align: center;
   padding: 200px 0px; }
@@ -5772,7 +5778,8 @@ mark {
   color: inherit;
   padding: 0px; }
 .table-wrapper {
-  margin-bottom: 0.5rem; }
+  margin-top: 1rem;
+  margin-bottom: 1rem; }
 .table-toolbar {
   margin-top: 0.5rem; }
 .data-table-col .edit-cell {

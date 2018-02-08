@@ -10,12 +10,12 @@ class AccountMeta extends BaseMeta {
 
 class Account extends BaseDocument {
     setup() {
-        this.add_handler('validate');
+        this.addHandler('validate');
     }
     async validate() {
         if (!this.account_type) {
             if (this.parent_account) {
-                this.account_type = await frappe.db.get_value('Account', this.parent_account, 'account_type');
+                this.account_type = await frappe.db.getValue('Account', this.parent_account, 'account_type');
             } else {
                 this.account_type = 'Asset';
             }
