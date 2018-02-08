@@ -39,7 +39,7 @@
   "devDependencies": {
     "autoprefixer": "^7.2.4",
     "eslint": "^4.9.0",
-    "mocha": "^4.0.1",
+    "mocha": "^4.1.0",
     "node-sass": "^4.7.2",
     "nodemon": "^1.14.7",
     "precss": "^2.0.0",
