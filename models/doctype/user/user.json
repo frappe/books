@@ -12,13 +12,13 @@
 			"fieldname": "name",
 			"label": "Name",
 			"fieldtype": "Data",
-			"reqd": 1
+			"required": 1
         },
         {
             "fieldname": "full_name",
             "label": "Full Name",
             "fieldtype": "Data",
-            "reqd": 1
+            "required": 1
         },
         {
             "fieldname": "roles",

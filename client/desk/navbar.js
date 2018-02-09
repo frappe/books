@@ -4,7 +4,7 @@ module.exports = class Navbar {
 	constructor({brand_label = 'Home'} = {}) {
 		Object.assign(this, arguments[0]);
 		this.items = {};
-		this.navbar = frappe.ui.add('div', 'navbar navbar-expand-md border-bottom', document.querySelector('body'));
+		this.navbar = frappe.ui.add('div', 'navbar navbar-expand-md border-bottom navbar-dark bg-dark', document.querySelector('body'));
 
 		this.brand = frappe.ui.add('a', 'navbar-brand', this.navbar);
 		this.brand.href = '#';

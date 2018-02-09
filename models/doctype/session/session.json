@@ -9,13 +9,13 @@
 			"fieldname": "username",
 			"label": "Username",
 			"fieldtype": "Data",
-			"reqd": 1
+			"required": 1
 		},
 		{
 			"fieldname": "password",
 			"label": "Password",
 			"fieldtype": "Password",
-			"reqd": 1
+			"required": 1
 		}
 	]
 }

@@ -37,6 +37,23 @@ module.exports = class BaseMeta extends BaseDocument {
         return this._formulaFields;
     }
 
+    hasFormulae() {
+        if (this._hasFormulae===undefined) {
+            this._hasFormulae = false;
+            if (this.getFormulaFields().length) {
+                this._hasFormulae = true;
+            } else {
+                for (let tablefield of this.getTableFields()) {
+                    if (frappe.getMeta(tablefield.childtype).getFormulaFields().length) {
+                        this._hasFormulae = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return this._hasFormulae;
+    }
+
     on(key, fn) {
         if (!this.event_handlers[key]) {
             this.event_handlers[key] = [];
@@ -112,7 +129,7 @@ module.exports = class BaseMeta extends BaseDocument {
     }
 
     getKeywordFields() {
-        return this.keyword_fields || this.meta.fields.filter(field => field.reqd).map(field => field.fieldname);
+        return this.keyword_fields || this.meta.fields.filter(field => field.required).map(field => field.fieldname);
     }
 
     validate_select(field, value) {

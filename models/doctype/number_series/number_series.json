@@ -9,13 +9,13 @@
 			"fieldname": "name",
 			"label": "Name",
 			"fieldtype": "Data",
-			"reqd": 1
+			"required": 1
 		},
 		{
 			"fieldname": "current",
 			"label": "Current",
 			"fieldtype": "Int",
-			"reqd": 1
+			"required": 1
 		}
 	]
 }

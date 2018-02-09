@@ -3,6 +3,7 @@ const frappe = require('frappejs');
 module.exports = class BaseDocument {
     constructor(data) {
         this.handlers = {};
+        this.fetchValues = {};
         this.setup();
         Object.assign(this, data);
     }
@@ -29,7 +30,7 @@ module.exports = class BaseDocument {
     // set value and trigger change
     async set(fieldname, value) {
         this[fieldname] = await this.validateField(fieldname, value);
-        if (this.applyFormulae()) {
+        if (await this.applyFormulae()) {
             // multiple changes
             await this.trigger('change', { doc: this });
         } else {
@@ -138,12 +139,12 @@ module.exports = class BaseDocument {
         }
     }
 
-    applyFormulae() {
-        if (!this.hasFormulae()) {
+    async applyFormulae() {
+        if (!this.meta.hasFormulae()) {
             return false;
         }
 
-        let doc;
+        let doc = this;
 
         // children
         for (let tablefield of this.meta.getTableFields()) {
@@ -151,38 +152,20 @@ module.exports = class BaseDocument {
             if (formulaFields.length) {
 
                 // for each row
-                for (doc of this[tablefield.fieldname]) {
+                for (let row of this[tablefield.fieldname]) {
                     for (let field of formulaFields) {
-                        doc[field.fieldname] = eval(field.formula);
+                        row[field.fieldname] = await eval(field.formula);
                     }
                 }
             }
         }
 
         // parent
-        doc = this;
         for (let field of this.meta.getFormulaFields()) {
             doc[field.fieldname] = eval(field.formula);
         }
 
         return true;
-    }
-
-    hasFormulae() {
-        if (this._hasFormulae===undefined) {
-            this._hasFormulae = false;
-            if (this.meta.getFormulaFields().length) {
-                this._hasFormulae = true;
-            } else {
-                for (let tablefield of this.meta.getTableFields()) {
-                    if (frappe.getMeta(tablefield.childtype).getFormulaFields().length) {
-                        this._hasFormulae = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return this._hasFormulae;
     }
 
     async commit() {
@@ -191,7 +174,7 @@ module.exports = class BaseDocument {
         this.setStandardValues();
         this.setKeywords();
         this.setChildIdx();
-        this.applyFormulae();
+        await this.applyFormulae();
         await this.trigger('validate');
         await this.trigger('commit');
     }
@@ -232,5 +215,19 @@ module.exports = class BaseDocument {
                 }
             }
         }
+    }
+
+    // helper functions
+    getSum(tablefield, childfield) {
+		return this[tablefield].map(d => (d[childfield] || 0)).reduce((a, b) => a + b, 0);
+    }
+
+    async getFrom(doctype, name, fieldname) {
+        if (!name) return '';
+        let key = `${doctype}:${name}:${fieldname}`;
+        if (!this.fetchValues[key]) {
+            this.fetchValues[key] = await frappe.db.getValue(doctype, name, fieldname);
+        }
+        return this.fetchValues[key];
     }
 };

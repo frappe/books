@@ -1,7 +1,8 @@
-const frappe = require('frappejs');
+const Observable = require('frappejs/utils/observable');
 
-module.exports = class Router {
+module.exports = class Router extends Observable {
     constructor() {
+        super();
         this.last_route = null;
         this.current_page = null;
         this.static_routes = [];
@@ -103,6 +104,7 @@ module.exports = class Router {
         } else {
             await this.match('not-found').handler({route: route});
         }
+        await this.trigger('change');
     }
 
     match(route) {
