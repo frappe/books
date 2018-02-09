@@ -173,19 +173,19 @@ var number_format = {
 var frappejs = {
     async init() {
         if (this._initialized) return;
-        this.init_config();
-        this.init_globals();
+        this.initConfig();
+        this.initGlobals();
         this._initialized = true;
     },
 
-    init_config() {
+    initConfig() {
         this.config = {
             backend: 'sqlite',
             port: 8000
         };
     },
 
-    init_globals() {
+    initGlobals() {
         this.meta_cache = {};
         this.modules = {};
         this.docs = {};
@@ -194,7 +194,7 @@ var frappejs = {
         };
     },
 
-    add_to_cache(doc) {
+    addToCache(doc) {
         if (!this.flags.cache_docs) return;
 
         // add to `docs` cache
@@ -206,7 +206,7 @@ var frappejs = {
         }
     },
 
-    get_doc_from_cache(doctype, name) {
+    getDocFromCache(doctype, name) {
         if (this.docs[doctype] && this.docs[doctype][name]) {
             return this.docs[doctype][name];
         }
@@ -214,12 +214,12 @@ var frappejs = {
 
     getMeta(doctype) {
         if (!this.meta_cache[doctype]) {
-            this.meta_cache[doctype] = new (this.getMeta_class(doctype))();
+            this.meta_cache[doctype] = new (this.getMetaClass(doctype))();
         }
         return this.meta_cache[doctype];
     },
 
-    getMeta_class(doctype) {
+    getMetaClass(doctype) {
         doctype = this.slug(doctype);
         if (this.modules[doctype] && this.modules[doctype].Meta) {
             return this.modules[doctype].Meta;
@@ -228,23 +228,23 @@ var frappejs = {
         }
     },
 
-    async get_doc(doctype, name) {
-        let doc = this.get_doc_from_cache(doctype, name);
+    async getDoc(doctype, name) {
+        let doc = this.getDocFromCache(doctype, name);
         if (!doc) {
-            let controller_class = this.get_controller_class(doctype);
+            let controller_class = this.getControllerClass(doctype);
             doc = new controller_class({doctype:doctype, name: name});
             await doc.load();
-            this.add_to_cache(doc);
+            this.addToCache(doc);
         }
         return doc;
     },
 
-    new_doc(data) {
-        let controller_class = this.get_controller_class(data.doctype);
+    newDoc(data) {
+        let controller_class = this.getControllerClass(data.doctype);
         return new controller_class(data);
     },
 
-    get_controller_class(doctype) {
+    getControllerClass(doctype) {
         doctype = this.slug(doctype);
         if (this.modules[doctype] && this.modules[doctype].Document) {
             return this.modules[doctype].Document;
@@ -253,16 +253,16 @@ var frappejs = {
         }
     },
 
-    async get_new_doc(doctype) {
-        let doc = frappe.new_doc({doctype: doctype});
+    async getNewDoc(doctype) {
+        let doc = this.newDoc({doctype: doctype});
         doc.setName();
-        doc.__not_inserted = true;
-        this.add_to_cache(doc);
+        doc._notInserted = true;
+        this.addToCache(doc);
         return doc;
     },
 
     async insert(data) {
-        return await (this.new_doc(data)).insert();
+        return await (this.newDoc(data)).insert();
     },
 
     login(user='guest', user_key) {
@@ -285,12 +285,12 @@ var model = {
     async get_series_next(prefix) {
         let series;
         try {
-            series = await frappejs.get_doc('Number Series', prefix);
+            series = await frappejs.getDoc('Number Series', prefix);
         } catch (e) {
             if (!e.status_code || e.status_code !== 404) {
                 throw e;
             }
-            series = frappejs.new_doc({doctype: 'Number Series', name: prefix, current: 0});
+            series = frappejs.newDoc({doctype: 'Number Series', name: prefix, current: 0});
             await series.insert();
         }
         let next = await series.next();
@@ -298,41 +298,41 @@ var model = {
     },
     common_fields: [
         {
-            fieldname: 'name', fieldtype: 'Data', reqd: 1
+            fieldname: 'name', fieldtype: 'Data', required: 1
         }
     ],
     parent_fields: [
         {
-            fieldname: 'owner', fieldtype: 'Link', reqd: 1, options: 'User'
+            fieldname: 'owner', fieldtype: 'Link', required: 1, options: 'User'
         },
         {
-            fieldname: 'modified_by', fieldtype: 'Link', reqd: 1, options: 'User'
+            fieldname: 'modified_by', fieldtype: 'Link', required: 1, options: 'User'
         },
         {
-            fieldname: 'creation', fieldtype: 'Datetime', reqd: 1
+            fieldname: 'creation', fieldtype: 'Datetime', required: 1
         },
         {
-            fieldname: 'modified', fieldtype: 'Datetime', reqd: 1
+            fieldname: 'modified', fieldtype: 'Datetime', required: 1
         },
         {
             fieldname: 'keywords', fieldtype: 'Text'
         },
         {
-            fieldname: 'docstatus', fieldtype: 'Int', reqd: 1, default: 0
+            fieldname: 'docstatus', fieldtype: 'Int', required: 1, default: 0
         }
     ],
     child_fields: [
         {
-            fieldname: 'idx', fieldtype: 'Int', reqd: 1
+            fieldname: 'idx', fieldtype: 'Int', required: 1
         },
         {
-            fieldname: 'parent', fieldtype: 'Data', reqd: 1
+            fieldname: 'parent', fieldtype: 'Data', required: 1
         },
         {
-            fieldname: 'parenttype', fieldtype: 'Link', reqd: 1, options: 'DocType'
+            fieldname: 'parenttype', fieldtype: 'Link', required: 1, options: 'DocType'
         },
         {
-            fieldname: 'parentfield', fieldtype: 'Data', reqd: 1
+            fieldname: 'parentfield', fieldtype: 'Data', required: 1
         }
     ]
 };
@@ -340,6 +340,7 @@ var model = {
 var document$1 = class BaseDocument {
     constructor(data) {
         this.handlers = {};
+        this.fetchValues = {};
         this.setup();
         Object.assign(this, data);
     }
@@ -366,7 +367,7 @@ var document$1 = class BaseDocument {
     // set value and trigger change
     async set(fieldname, value) {
         this[fieldname] = await this.validateField(fieldname, value);
-        if (this.applyFormulae()) {
+        if (await this.applyFormulae()) {
             // multiple changes
             await this.trigger('change', { doc: this });
         } else {
@@ -475,12 +476,12 @@ var document$1 = class BaseDocument {
         }
     }
 
-    applyFormulae() {
-        if (!this.hasFormulae()) {
+    async applyFormulae() {
+        if (!this.meta.hasFormulae()) {
             return false;
         }
 
-        let doc;
+        let doc = this;
 
         // children
         for (let tablefield of this.meta.getTableFields()) {
@@ -488,38 +489,20 @@ var document$1 = class BaseDocument {
             if (formulaFields.length) {
 
                 // for each row
-                for (doc of this[tablefield.fieldname]) {
+                for (let row of this[tablefield.fieldname]) {
                     for (let field of formulaFields) {
-                        doc[field.fieldname] = eval(field.formula);
+                        row[field.fieldname] = await eval(field.formula);
                     }
                 }
             }
         }
 
         // parent
-        doc = this;
         for (let field of this.meta.getFormulaFields()) {
             doc[field.fieldname] = eval(field.formula);
         }
 
         return true;
-    }
-
-    hasFormulae() {
-        if (this._hasFormulae===undefined) {
-            this._hasFormulae = false;
-            if (this.meta.getFormulaFields().length) {
-                this._hasFormulae = true;
-            } else {
-                for (let tablefield of this.meta.getTableFields()) {
-                    if (frappejs.getMeta(tablefield.childtype).getFormulaFields().length) {
-                        this._hasFormulae = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return this._hasFormulae;
     }
 
     async commit() {
@@ -528,7 +511,7 @@ var document$1 = class BaseDocument {
         this.setStandardValues();
         this.setKeywords();
         this.setChildIdx();
-        this.applyFormulae();
+        await this.applyFormulae();
         await this.trigger('validate');
         await this.trigger('commit');
     }
@@ -570,6 +553,20 @@ var document$1 = class BaseDocument {
             }
         }
     }
+
+    // helper functions
+    getSum(tablefield, childfield) {
+		return this[tablefield].map(d => (d[childfield] || 0)).reduce((a, b) => a + b, 0);
+    }
+
+    async getFrom(doctype, name, fieldname) {
+        if (!name) return '';
+        let key = `${doctype}:${name}:${fieldname}`;
+        if (!this.fetchValues[key]) {
+            this.fetchValues[key] = await frappejs.db.getValue(doctype, name, fieldname);
+        }
+        return this.fetchValues[key];
+    }
 };
 
 var meta = class BaseMeta extends document$1 {
@@ -579,8 +576,8 @@ var meta = class BaseMeta extends document$1 {
         this.list_options = {
             fields: ['name', 'modified']
         };
-        if (this.setup_meta) {
-            this.setup_meta();
+        if (this.setupMeta) {
+            this.setupMeta();
         }
     }
 
@@ -606,6 +603,23 @@ var meta = class BaseMeta extends document$1 {
             this._formulaFields = this.fields.filter(field => field.formula);
         }
         return this._formulaFields;
+    }
+
+    hasFormulae() {
+        if (this._hasFormulae===undefined) {
+            this._hasFormulae = false;
+            if (this.getFormulaFields().length) {
+                this._hasFormulae = true;
+            } else {
+                for (let tablefield of this.getTableFields()) {
+                    if (frappejs.getMeta(tablefield.childtype).getFormulaFields().length) {
+                        this._hasFormulae = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return this._hasFormulae;
     }
 
     on(key, fn) {
@@ -683,7 +697,7 @@ var meta = class BaseMeta extends document$1 {
     }
 
     getKeywordFields() {
-        return this.keyword_fields || this.meta.fields.filter(field => field.reqd).map(field => field.fieldname);
+        return this.keyword_fields || this.meta.fields.filter(field => field.required).map(field => field.fieldname);
     }
 
     validate_select(field, value) {
@@ -1101,7 +1115,13 @@ var rest_client = class RESTClient {
     async fetch(url, args) {
         args.headers = this.getHeaders();
         let response = await frappejs.fetch(url, args);
-        return await response.json();
+        let data = await response.json();
+
+        if (response.status !== 200) {
+            throw Error(data.error);
+        }
+
+        return data;
     }
 
     getURL(...parts) {
@@ -1292,8 +1312,30 @@ var ui = {
 
 };
 
-var router = class Router {
+var observable = class Observable {
     constructor() {
+        this._handlers = {};
+    }
+
+    on(event, fn) {
+        if (!this._handlers[event]) {
+            this._handlers[event] = [];
+        }
+        this._handlers[event].push(fn);
+    }
+
+    async trigger(event, params) {
+        if (this._handlers[event]) {
+            for (let handler of this._handlers[event]) {
+                await handler(params);
+            }
+        }
+    }
+};
+
+var router = class Router extends observable {
+    constructor() {
+        super();
         this.last_route = null;
         this.current_page = null;
         this.static_routes = [];
@@ -1395,6 +1437,7 @@ var router = class Router {
         } else {
             await this.match('not-found').handler({route: route});
         }
+        await this.trigger('change');
     }
 
     match(route) {
@@ -1428,27 +1471,6 @@ var router = class Router {
     }
 };
 
-var observable = class Observable {
-    constructor() {
-        this._handlers = {};
-    }
-
-    on(event, fn) {
-        if (!this._handlers[event]) {
-            this._handlers[event] = [];
-        }
-        this._handlers[event].push(fn);
-    }
-
-    async trigger(event, params) {
-        if (this._handlers[event]) {
-            for (let handler of this._handlers[event]) {
-                await handler(params);
-            }
-        }
-    }
-};
-
 var page = class Page extends observable {
     constructor(title) {
         super();
@@ -1471,7 +1493,7 @@ var page = class Page extends observable {
 
     addButton(label, cssClass, action) {
         this.head.classList.remove('hide');
-        this.button = frappejs.ui.add('button', 'btn btn-sm ' + cssClass, this.head);
+        this.button = frappejs.ui.add('button', 'btn ' + cssClass, this.head);
         this.button.innerHTML = label;
         this.button.addEventListener('click', action);
         return this.button;
@@ -1675,9 +1697,12 @@ var list = class BaseList {
 
 class BaseControl {
     constructor({field, parent, form}) {
+        BaseControl.count++;
+
         Object.assign(this, field);
         this.parent = parent;
         this.form = form;
+        this.id = 'control-' + BaseControl.count;
 
         if (!this.fieldname) {
             this.fieldname = frappejs.slug(this.label);
@@ -1714,10 +1739,12 @@ class BaseControl {
             }
             this.makeInput();
             this.setInputName();
+            this.setRequiredAttribute();
+            this.setDisabled();
             if (!this.onlyInput) {
                 this.makeDescription();
             }
-            this.bindChangeEvent();
+            this.addChangeHandler();
         }
     }
 
@@ -1726,13 +1753,21 @@ class BaseControl {
     }
 
     makeLabel() {
-        this.label_element = frappejs.ui.add('label', null, this.formGroup);
-        this.label_element.textContent = this.label;
+        this.labelElement = frappejs.ui.add('label', null, this.formGroup);
+        this.labelElement.textContent = this.label;
+        this.labelElement.setAttribute('for', this.id);
     }
 
     makeInput() {
         this.input = frappejs.ui.add('input', 'form-control', this.get_input_parent());
-        this.input.setAttribute('autocomplete', 'off');
+        this.input.autocomplete = "off";
+        this.input.id = this.id;
+    }
+
+    setDisabled() {
+        if (this.readonly || this.disabled) {
+            this.input.disabled = true;
+        }
     }
 
     get_input_parent() {
@@ -1741,6 +1776,12 @@ class BaseControl {
 
     setInputName() {
         this.input.setAttribute('name', this.fieldname);
+    }
+
+    setRequiredAttribute() {
+        if (this.required) {
+            this.input.required = true;
+        }
     }
 
     makeDescription() {
@@ -1777,11 +1818,14 @@ class BaseControl {
         return value;
     }
 
-    bindChangeEvent() {
-        this.input.addEventListener('change', (e) => this.handleChange());
+    addChangeHandler() {
+        this.input.addEventListener('change', () => {
+            if (this.skipChangeEvent) return;
+            this.handleChange();
+        });
     }
 
-    async handleChange() {
+    async handleChange(event) {
         let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
         if (this.doc[this.fieldname] !== value) {
@@ -1808,6 +1852,8 @@ class BaseControl {
     }
 }
 
+BaseControl.count = 0;
+
 var base = BaseControl;
 
 class DataControl extends base {
@@ -1821,7 +1867,7 @@ var data = DataControl;
 
 class TextControl extends base {
     makeInput() {
-        this.input = frappe.ui.add('textarea', 'form-control', this.get_input_parent());
+        this.input = frappejs.ui.add('textarea', 'form-control', this.get_input_parent());
     }
     make() {
         super.make();
@@ -5162,6 +5208,7 @@ var CellManager = function () {
       var _this2 = this;
 
       var focusCell = function focusCell(direction) {
+        console.log(direction);
         if (!_this2.$focusedCell || _this2.$editingCell) {
           return false;
         }
@@ -5170,7 +5217,7 @@ var CellManager = function () {
 
         if (direction === 'left') {
           $cell = _this2.getLeftCell$($cell);
-        } else if (direction === 'right') {
+        } else if (direction === 'right' || direction === 'tab') {
           $cell = _this2.getRightCell$($cell);
         } else if (direction === 'up') {
           $cell = _this2.getAboveCell$($cell);
@@ -5207,7 +5254,7 @@ var CellManager = function () {
         return true;
       };
 
-      ['left', 'right', 'up', 'down'].map(function (direction) {
+      ['left', 'right', 'up', 'down', 'tab'].map(function (direction) {
         return _keyboard2.default.on(direction, function () {
           return focusCell(direction);
         });
@@ -5535,10 +5582,10 @@ var CellManager = function () {
   }, {
     key: 'deactivateEditing',
     value: function deactivateEditing() {
-      if (!this.$editingCell) return;
-
       // keep focus on the cell so that keyboard navigation works
-      this.$editingCell.focus();
+      if (this.$focusedCell) this.$focusedCell.focus();
+
+      if (!this.$editingCell) return;
       this.$editingCell.classList.remove('editing');
       this.$editingCell = null;
     }
@@ -5790,7 +5837,9 @@ function getCellContent(cell) {
   var hasDropdown = isHeader && cell.dropdown !== false;
   var dropdown = hasDropdown ? '<div class="data-table-dropdown">' + (0, _columnmanager.getDropdownHTML)() + '</div>' : '';
 
-  return '\n    <div class="content ellipsis">\n      ' + (!cell.isHeader && cell.column.format ? cell.column.format(cell.content) : cell.content) + '\n      ' + sortIndicator + '\n      ' + resizeColumn + '\n      ' + dropdown + '\n    </div>\n    ' + editCellHTML + '\n  ';
+  var contentHTML = !cell.isHeader && cell.column.format ? cell.column.format(cell.content) : cell.content;
+
+  return '\n    <div class="content ellipsis">\n      ' + contentHTML + '\n      ' + sortIndicator + '\n      ' + resizeColumn + '\n      ' + dropdown + '\n    </div>\n    ' + editCellHTML + '\n  ';
 }
 
 function getEditCellHTML() {
@@ -7438,6 +7487,7 @@ var BodyRenderer = function () {
 
       this.bodyScrollable.innerHTML = '\n      <table class="data-table-body">\n        ' + getBodyHTML(rows) + '\n      </table>\n    ';
       this.instance.setDimensions();
+      this.restoreState();
     }
   }, {
     key: 'renderBodyWithClusterize',
@@ -7460,9 +7510,7 @@ var BodyRenderer = function () {
           contentElem: (0, _dom2.default)('tbody', this.bodyScrollable),
           callbacks: {
             clusterChanged: function clusterChanged() {
-              _this.rowmanager.highlightCheckedRows();
-              _this.cellmanager.selectAreaOnClusterChanged();
-              _this.cellmanager.focusCellOnClusterChanged();
+              _this.restoreState();
             }
           },
           /* eslint-disable */
@@ -7478,6 +7526,13 @@ var BodyRenderer = function () {
       }
 
       this.appendRemainingData();
+    }
+  }, {
+    key: 'restoreState',
+    value: function restoreState() {
+      this.rowmanager.highlightCheckedRows();
+      this.cellmanager.selectAreaOnClusterChanged();
+      this.cellmanager.focusCellOnClusterChanged();
     }
   }, {
     key: 'appendRemainingData',
@@ -7618,14 +7673,14 @@ exports.default = {
     desc: '↓',
     none: ''
   },
-  freezeMessage: 'Loading...',
+  freezeMessage: '',
   editing: function editing() {},
   addSerialNoColumn: true,
   addCheckboxColumn: false,
   enableClusterize: true,
   enableLogs: false,
   takeAvailableSpace: false,
-  loadingText: 'Loading...'
+  loadingText: ''
 };
 module.exports = exports['default'];
 
@@ -8208,7 +8263,7 @@ module.exports = {"name":"frappe-datatable","version":"0.0.1","description":"A m
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=frappe-datatable.js.map
+
 });
 
 unwrapExports(frappeDatatable);
@@ -24915,7 +24970,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 unwrapExports(bootstrap);
 
 var modal = class Modal {
-    constructor({ title, body, primary_label, primary_action, secondary_label, secondary_action }) {
+    constructor({ title, body, primary, secondary }) {
         Object.assign(this, arguments[0]);
         this.$modal = jquery(`<div class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -24935,23 +24990,23 @@ var modal = class Modal {
             </div>
         </div>`).appendTo(document.body);
 
-        if (this.primary_label) {
-            this.add_primary(this.primary_label, this.primary_action);
+        if (this.primary) {
+            this.addPrimary(this.primary.label, this.primary.action);
         }
-        if (this.secondary_label) {
-            this.add_secondary(this.secondary_label, this.secondary_action);
+        if (this.secondary) {
+            this.addSecondary(this.secondary.label, this.secondary.action);
         }
         this.show();
     }
 
-    add_primary(label, action) {
+    addPrimary(label, action) {
         this.$primary = jquery(`<button type="button" class="btn btn-primary">
             ${label}</button>`)
             .appendTo(this.$modal.find('.modal-footer'))
             .on('click', () => action(this));
     }
 
-    add_secondary(label, action) {
+    addSecondary(label, action) {
         this.$primary = jquery(`<button type="button" class="btn btn-secondary">
             ${label}</button>`)
             .appendTo(this.$modal.find('.modal-footer'))
@@ -24966,7 +25021,7 @@ var modal = class Modal {
         this.$modal.modal('hide');
     }
 
-    get_body() {
+    getBody() {
         return this.$modal.find('.modal-body').get(0);
     }
 };
@@ -24978,15 +25033,16 @@ class TableControl extends base {
             this.wrapper.innerHTML =
             `<div class="datatable-wrapper"></div>
             <div class="table-toolbar">
-                <button class="btn btn-sm btn-outline-secondary btn-add">${frappejs._("Add")}</button>
-                <button class="btn btn-sm btn-outline-danger btn-remove">${frappejs._("Remove")}</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-add">
+                    ${frappejs._("Add")}</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-remove">
+                    ${frappejs._("Remove")}</button>
             </div>`;
 
             this.datatable = new frappeDatatable(this.wrapper.querySelector('.datatable-wrapper'), {
                 columns: this.getColumns(),
                 data: this.getTableData(),
                 takeAvailableSpace: true,
-                enableClusterize: true,
                 addCheckboxColumn: true,
                 editing: this.getTableInput.bind(this),
             });
@@ -25023,15 +25079,18 @@ class TableControl extends base {
         let field = this.datatable.getColumn(colIndex).field;
 
         if (field.fieldtype==='Text') {
-            return this.getControlInModal(field);
-        } else {
-            return this.getControl(field, parent);
+            // text in modal
+            parent = this.getControlModal(field).getBody();
         }
+        return this.getControl(field, parent);
     }
 
     getControl(field, parent) {
         field.onlyInput = true;
         const control = controls$1.makeControl({field: field, parent: parent});
+
+        // change will be triggered by datatable
+        control.skipChangeEvent = true;
 
         return {
             initValue: (value, rowIndex, column) => {
@@ -25041,7 +25100,7 @@ class TableControl extends base {
                 return control.setInputValue(value);
             },
             setValue: async (value, rowIndex, column) => {
-                // triggers change event
+                control.handleChange();
             },
             getValue: () => {
                 return control.getInputValue();
@@ -25050,21 +25109,24 @@ class TableControl extends base {
 
     }
 
-    getControlInModal(field, parent) {
+    getControlModal(field) {
         this.modal = new modal({
             title: frappejs._('Edit {0}', field.label),
             body: '',
-            primary_label: frappejs._('Submit'),
-            primary_action: (modal$$1) => {
-                this.datatable.cellmanager.submitEditing();
-                modal$$1.hide();
+            primary: {
+                label: frappejs._('Submit'),
+                action: (modal$$1) => {
+                    this.datatable.cellmanager.submitEditing();
+                    modal$$1.hide();
+                }
             }
         });
         this.modal.$modal.on('hidden.bs.modal', () => {
             this.datatable.cellmanager.deactivateEditing();
+            this.datatable.cellmanager.$focusedCell.focus();
         });
 
-        return this.getControl(field, this.modal.get_body());
+        return this.modal;
     }
 
     getColumns() {
@@ -25073,8 +25135,11 @@ class TableControl extends base {
                 id: field.fieldname,
                 field: field,
                 content: field.label,
-                editable: true,
                 width: 120,
+                editable: field.disabled ? false : true,
+                sortable: false,
+                resizable: true,
+                dropdown: false,
                 align: ['Int', 'Float', 'Currency'].includes(field.fieldtype) ? 'right' : 'left',
                 format: (value) => frappejs.format(value, field)
             }
@@ -25082,7 +25147,7 @@ class TableControl extends base {
     }
 
     getChildFields() {
-        return frappejs.getMeta(this.childtype).fields;
+        return frappejs.getMeta(this.childtype).fields.filter(f => f.hidden ? false : true);
     }
 
     getDefaultData() {
@@ -25145,9 +25210,15 @@ var form = class BaseForm extends observable {
         this.body = frappejs.ui.add('div', 'form-body', this.parent);
         this.makeToolbar();
 
-        this.form = frappejs.ui.add('div', 'form-container', this.body);
+        this.form = frappejs.ui.add('form', 'form-container', this.body);
+        this.form.onValidate = true;
+
+        this.makeControls();
+    }
+
+    makeControls() {
         for(let field of this.meta.fields) {
-            if (controls$1.getControlClass(field.fieldtype)) {
+            if (!field.hidden && controls$1.getControlClass(field.fieldtype)) {
                 let control = controls$1.makeControl({field: field, form: this});
                 this.controlList.push(control);
                 this.controls[field.fieldname] = control;
@@ -25156,29 +25227,33 @@ var form = class BaseForm extends observable {
     }
 
     makeToolbar() {
-        this.btnSubmit = this.page.addButton(frappejs._("Save"), 'btn-primary', async () => {
+        this.btnSubmit = this.page.addButton(frappejs._("Save"), 'btn-primary', async (event) => {
             await this.submit();
         });
 
-        this.btnDelete = this.page.addButton(frappejs._("Delete"), 'btn-outline-secondary', async () => {
+        this.btnDelete = this.page.addButton(frappejs._("Delete"), 'btn-outline-secondary', async (e) => {
             await this.doc.delete();
             this.showAlert('Deleted', 'success');
             this.trigger('delete');
         });
     }
 
-    async use(doc, is_new = false) {
+    async use(doc) {
         if (this.doc) {
             // clear handlers of outgoing doc
             this.doc.clearHandlers();
         }
         this.clearAlert();
         this.doc = doc;
-        this.is_new = is_new;
         for (let control of this.controlList) {
             control.bind(this.doc);
         }
 
+        this.setupChangeHandler();
+        this.trigger('use', {doc:doc});
+    }
+
+    setupChangeHandler() {
         // refresh value in control
         this.doc.addHandler('change', (params) => {
             if (params.fieldname) {
@@ -25191,14 +25266,17 @@ var form = class BaseForm extends observable {
                 // multiple values changed
                 this.refresh();
             }
+            this.form.classList.remove('was-validated');
         });
-
-        this.trigger('use', {doc:doc});
     }
 
     async submit() {
+        if (!this.form.checkValidity()) {
+            this.form.classList.add('was-validated');
+            return;
+        }
         try {
-            if (this.is_new || this.doc.__not_inserted) {
+            if (this.doc._notInserted) {
                 await this.doc.insert();
             } else {
                 await this.doc.update();
@@ -25207,6 +25285,7 @@ var form = class BaseForm extends observable {
             this.showAlert('Saved', 'success');
         } catch (e) {
             this.showAlert('Failed', 'danger');
+            return;
         }
         await this.trigger('submit');
     }
@@ -25288,7 +25367,7 @@ var formpage = class FormPage extends page {
 
 	async show_doc(doctype, name) {
 		try {
-			this.doc = await frappejs.get_doc(doctype, name);
+			this.doc = await frappejs.getDoc(doctype, name);
 			this.form.use(this.doc);
 		} catch (e) {
 			this.renderError(e.status_code, e.message);
@@ -25315,7 +25394,7 @@ var navbar = class Navbar {
 	constructor({brand_label = 'Home'} = {}) {
 		Object.assign(this, arguments[0]);
 		this.items = {};
-		this.navbar = frappejs.ui.add('div', 'navbar navbar-expand-md border-bottom', document.querySelector('body'));
+		this.navbar = frappejs.ui.add('div', 'navbar navbar-expand-md border-bottom navbar-dark bg-dark', document.querySelector('body'));
 
 		this.brand = frappejs.ui.add('a', 'navbar-brand', this.navbar);
 		this.brand.href = '#';
@@ -25361,70 +25440,89 @@ var desk = class Desk {
         this.navbar = new navbar();
         this.container = frappejs.ui.add('div', 'container-fluid', body);
 
-        this.container_row = frappejs.ui.add('div', 'row', this.container);
-        this.sidebar = frappejs.ui.add('div', 'col-md-2 p-3 sidebar d-none d-md-block', this.container_row);
-        this.body = frappejs.ui.add('div', 'col-md-10 p-3 main', this.container_row);
+        this.containerRow = frappejs.ui.add('div', 'row', this.container);
+        this.sidebar = frappejs.ui.add('div', 'col-md-2 p-3 sidebar d-none d-md-block', this.containerRow);
+        this.sidebarList = frappejs.ui.add('div', 'list-group list-group-flush', this.sidebar);
+        this.body = frappejs.ui.add('div', 'col-md-10 p-4 main', this.containerRow);
 
-        this.sidebar_items = [];
         this.pages = {
             lists: {},
             forms: {}
         };
 
-        this.init_routes();
+        this.routeItems = {};
+
+        this.initRoutes();
         // this.search = new Search(this.nav);
     }
 
-    init_routes() {
+    initRoutes() {
         frappejs.router.add('not-found', async (params) => {
-            if (!this.not_found_page) {
-                this.not_found_page = new page('Not Found');
+            if (!this.notFoundPage) {
+                this.notFoundPage = new page('Not Found');
             }
-            await this.not_found_page.show();
-            this.not_found_page.renderError('Not Found', params ? params.route : '');
+            await this.notFoundPage.show();
+            this.notFoundPage.renderError('Not Found', params ? params.route : '');
         });
 
         frappejs.router.add('list/:doctype', async (params) => {
-            let page$$1 = this.getList_page(params.doctype);
+            let page$$1 = this.getListPage(params.doctype);
             await page$$1.show(params);
         });
 
         frappejs.router.add('edit/:doctype/:name', async (params) => {
-            let page$$1 = this.get_form_page(params.doctype);
+            let page$$1 = this.getFormPage(params.doctype);
             await page$$1.show(params);
         });
 
         frappejs.router.add('new/:doctype', async (params) => {
-            let doc = await frappejs.get_new_doc(params.doctype);
+            let doc = await frappejs.getNewDoc(params.doctype);
             // unset the name, its local
             await frappejs.router.setRoute('edit', doc.doctype, doc.name);
             await doc.set('name', '');
         });
 
+        frappejs.router.on('change', () => {
+            if (this.routeItems[window.location.hash]) {
+                this.setActive(this.routeItems[window.location.hash]);
+            }
+        });
+
     }
 
-    getList_page(doctype) {
+    getListPage(doctype) {
         if (!this.pages.lists[doctype]) {
             this.pages.lists[doctype] = new listpage(doctype);
         }
         return this.pages.lists[doctype];
     }
 
-    get_form_page(doctype) {
+    getFormPage(doctype) {
         if (!this.pages.forms[doctype]) {
             this.pages.forms[doctype] = new formpage(doctype);
         }
         return this.pages.forms[doctype];
     }
 
-    add_sidebar_item(label, action) {
-        let item = frappejs.ui.add('a', '', frappejs.ui.add('p', null, frappejs.desk.sidebar));
+    setActive(item) {
+        let className = 'list-group-item-secondary';
+        let activeItem = this.sidebarList.querySelector('.' + className);
+        if (activeItem) {
+            activeItem.classList.remove(className);
+        }
+        item.classList.add(className);
+    }
+
+    addSidebarItem(label, action) {
+        let item = frappejs.ui.add('a', 'list-group-item list-group-item-action', this.sidebarList);
         item.textContent = label;
         if (typeof action === 'string') {
             item.href = action;
+            this.routeItems[action] = item;
         } else {
             item.addEventHandler('click', () => {
                 action();
+                this.setActive(item);
             });
         }
     }
@@ -25455,7 +25553,7 @@ var name = "ToDo";
 var doctype = "DocType";
 var is_single = 0;
 var keyword_fields = ["subject","description"];
-var fields = [{"fieldname":"subject","label":"Subject","fieldtype":"Data","reqd":1},{"fieldname":"description","label":"Description","fieldtype":"Text"},{"fieldname":"status","label":"Status","fieldtype":"Select","options":["Open","Closed"],"default":"Open","reqd":1}];
+var fields = [{"fieldname":"subject","label":"Subject","fieldtype":"Data","required":1},{"fieldname":"status","label":"Status","fieldtype":"Select","options":["Open","Closed"],"default":"Open","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text"}];
 var todo = {
 	autoname: autoname,
 	name: name,
@@ -25478,7 +25576,7 @@ var todo$1 = Object.freeze({
 var require$$0$4 = ( todo$1 && todo ) || todo$1;
 
 class ToDoMeta extends meta {
-    setup_meta() {
+    setupMeta() {
         Object.assign(this, require$$0$4);
     }
 }
@@ -25503,7 +25601,7 @@ var name$1 = "Account";
 var doctype$1 = "DocType";
 var is_single$1 = 0;
 var keyword_fields$1 = ["name","account_type"];
-var fields$1 = [{"fieldname":"name","label":"Account Name","fieldtype":"Data","reqd":1},{"fieldname":"parent_account","label":"Parent Account","fieldtype":"Link","target":"Account"},{"fieldname":"account_type","label":"Account Type","fieldtype":"Select","options":["Asset","Liability","Equity","Income","Expense"]}];
+var fields$1 = [{"fieldname":"name","label":"Account Name","fieldtype":"Data","required":1},{"fieldname":"parent_account","label":"Parent Account","fieldtype":"Link","target":"Account"},{"fieldname":"account_type","label":"Account Type","fieldtype":"Select","options":["Asset","Liability","Equity","Income","Expense"]}];
 var account = {
 	name: name$1,
 	doctype: doctype$1,
@@ -25524,7 +25622,7 @@ var account$1 = Object.freeze({
 var require$$0$5 = ( account$1 && account ) || account$1;
 
 class AccountMeta extends meta {
-    setup_meta() {
+    setupMeta() {
         Object.assign(this, require$$0$5);
     }
 }
@@ -25553,7 +25651,7 @@ var name$2 = "Item";
 var doctype$2 = "DocType";
 var is_single$2 = 0;
 var keyword_fields$2 = ["name","description"];
-var fields$2 = [{"fieldname":"name","label":"Item Name","fieldtype":"Data","reqd":1},{"fieldname":"description","label":"Description","fieldtype":"Text"},{"fieldname":"unit","label":"Unit","fieldtype":"Select","options":["No","Kg","Gram","Hour","Day"]},{"fieldname":"rate","label":"Rate","fieldtype":"Currency"}];
+var fields$2 = [{"fieldname":"name","label":"Item Name","fieldtype":"Data","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text"},{"fieldname":"unit","label":"Unit","fieldtype":"Select","options":["No","Kg","Gram","Hour","Day"]},{"fieldname":"rate","label":"Rate","fieldtype":"Currency"}];
 var item$1 = {
 	name: name$2,
 	doctype: doctype$2,
@@ -25574,7 +25672,7 @@ var item$2 = Object.freeze({
 var require$$0$6 = ( item$2 && item$1 ) || item$2;
 
 class ItemMeta extends meta {
-    setup_meta() {
+    setupMeta() {
         Object.assign(this, require$$0$6);
     }
 }
@@ -25592,7 +25690,7 @@ var doctype$3 = "DocType";
 var is_single$3 = 0;
 var istable = 0;
 var keyword_fields$3 = ["name"];
-var fields$3 = [{"fieldname":"name","label":"Name","fieldtype":"Data","reqd":1}];
+var fields$3 = [{"fieldname":"name","label":"Name","fieldtype":"Data","required":1}];
 var customer = {
 	name: name$3,
 	doctype: doctype$3,
@@ -25615,7 +25713,7 @@ var customer$1 = Object.freeze({
 var require$$0$7 = ( customer$1 && customer ) || customer$1;
 
 class CustomerMeta extends meta {
-    setup_meta() {
+    setupMeta() {
         Object.assign(this, require$$0$7);
     }
 }
@@ -25633,7 +25731,7 @@ var doctype$4 = "DocType";
 var is_single$4 = 0;
 var istable$1 = 0;
 var keyword_fields$4 = [];
-var fields$4 = [{"fieldname":"customer","label":"Customer","fieldtype":"Link","target":"Customer","reqd":1},{"fieldname":"items","label":"Items","fieldtype":"Table","childtype":"Invoice Item","reqd":1},{"fieldname":"total","label":"Total","fieldtype":"Currency","formula":"doc.get_total()","reqd":1}];
+var fields$4 = [{"fieldname":"customer","label":"Customer","fieldtype":"Link","target":"Customer","required":1},{"fieldname":"items","label":"Items","fieldtype":"Table","childtype":"Invoice Item","required":true},{"fieldname":"total","label":"Total","fieldtype":"Currency","formula":"doc.getSum('items', 'amount')","required":true,"disabled":true}];
 var invoice = {
 	name: name$4,
 	doctype: doctype$4,
@@ -25656,15 +25754,12 @@ var invoice$1 = Object.freeze({
 var require$$0$8 = ( invoice$1 && invoice ) || invoice$1;
 
 class InvoiceMeta extends meta {
-	setup_meta() {
+	setupMeta() {
 		Object.assign(this, require$$0$8);
 	}
 }
 
 class Invoice extends document$1 {
-	get_total() {
-		return this.items.map(d => (d.amount || 0)).reduce((a, b) => a + b, 0);
-	}
 }
 
 var invoice$2 = {
@@ -25677,7 +25772,7 @@ var doctype$5 = "DocType";
 var is_single$5 = 0;
 var is_child = 1;
 var keyword_fields$5 = [];
-var fields$5 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","reqd":1},{"fieldname":"description","label":"Description","fieldtype":"Text","fetch":{"from":"item","value":"description"},"reqd":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","reqd":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","reqd":1},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","read_only":1,"formula":"doc.quantity * doc.rate"}];
+var fields$5 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text","formula":"doc.getFrom('Item', row.item, 'description')","required":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","required":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","required":1},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","disabled":1,"formula":"row.quantity * row.rate"}];
 var invoice_item = {
 	name: name$5,
 	doctype: doctype$5,
@@ -25700,7 +25795,7 @@ var invoice_item$1 = Object.freeze({
 var require$$0$9 = ( invoice_item$1 && invoice_item ) || invoice_item$1;
 
 class InvoiceItemMeta extends meta {
-	setup_meta() {
+	setupMeta() {
 		Object.assign(this, require$$0$9);
 	}
 }
@@ -25771,11 +25866,11 @@ client.start({
     frappe.modules.todo_client = todo_client;
     frappe.modules.account_client = account_client;
 
-    frappe.desk.add_sidebar_item('ToDo', '#list/todo');
-    frappe.desk.add_sidebar_item('Accounts', '#list/account');
-    frappe.desk.add_sidebar_item('Items', '#list/item');
-    frappe.desk.add_sidebar_item('Customers', '#list/customer');
-    frappe.desk.add_sidebar_item('Invoice', '#list/invoice');
+    frappe.desk.addSidebarItem('ToDo', '#list/todo');
+    frappe.desk.addSidebarItem('Accounts', '#list/account');
+    frappe.desk.addSidebarItem('Items', '#list/item');
+    frappe.desk.addSidebarItem('Customers', '#list/customer');
+    frappe.desk.addSidebarItem('Invoice', '#list/invoice');
 
     frappe.router.default = '#list/todo';
 

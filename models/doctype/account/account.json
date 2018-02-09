@@ -11,7 +11,7 @@
 			"fieldname": "name",
 			"label": "Account Name",
 			"fieldtype": "Data",
-			"reqd": 1
+			"required": 1
 		},
 		{
 			"fieldname": "parent_account",

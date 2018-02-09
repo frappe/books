@@ -5735,9 +5735,13 @@ a.text-dark:hover, a.text-dark:focus {
   background: #3d6b00;
   color: inherit; }
 html {
-  font-size: 16px; }
+  font-size: 14px; }
 .main {
   border-left: 1px solid #dee2e6; }
+.sidebar .list-group-item {
+  padding: 0.5rem 1rem; }
+.sidebar .list-group-flush {
+  margin: -1rem; }
 .hide {
   display: none !important; }
 .page-head {
@@ -5780,8 +5784,8 @@ mark {
   color: inherit;
   padding: 0px; }
 .table-wrapper {
-  margin-top: 1rem;
-  margin-bottom: 1rem; }
+  margin-top: 2rem;
+  margin-bottom: 2rem; }
 .table-toolbar {
   margin-top: 0.5rem; }
 .data-table-col .edit-cell {

@@ -10,21 +10,22 @@
 			"label": "Customer",
 			"fieldtype": "Link",
 			"target": "Customer",
-			"reqd": 1
+			"required": 1
 		},
 		{
 			"fieldname": "items",
 			"label": "Items",
 			"fieldtype": "Table",
 			"childtype": "Invoice Item",
-			"reqd": 1
+			"required": true
 		},
 		{
 			"fieldname": "total",
 			"label": "Total",
 			"fieldtype": "Currency",
-			"formula": "doc.get_total()",
-			"reqd": 1
+			"formula": "doc.getSum('items', 'amount')",
+			"required": true,
+			"disabled": true
 		}
 	]
 }
