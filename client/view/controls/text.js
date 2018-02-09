@@ -1,4 +1,5 @@
 const BaseControl = require('./base');
+const frappe = require('frappejs');
 
 class TextControl extends BaseControl {
     makeInput() {

@@ -15,36 +15,38 @@ module.exports = class Desk {
         this.navbar = new Navbar();
         this.container = frappe.ui.add('div', 'container-fluid', body);
 
-        this.container_row = frappe.ui.add('div', 'row', this.container)
-        this.sidebar = frappe.ui.add('div', 'col-md-2 p-3 sidebar d-none d-md-block', this.container_row);
-        this.body = frappe.ui.add('div', 'col-md-10 p-3 main', this.container_row);
+        this.containerRow = frappe.ui.add('div', 'row', this.container)
+        this.sidebar = frappe.ui.add('div', 'col-md-2 p-3 sidebar d-none d-md-block', this.containerRow);
+        this.sidebarList = frappe.ui.add('div', 'list-group list-group-flush', this.sidebar);
+        this.body = frappe.ui.add('div', 'col-md-10 p-4 main', this.containerRow);
 
-        this.sidebar_items = [];
         this.pages = {
             lists: {},
             forms: {}
         };
 
-        this.init_routes();
+        this.routeItems = {};
+
+        this.initRoutes();
         // this.search = new Search(this.nav);
     }
 
-    init_routes() {
+    initRoutes() {
         frappe.router.add('not-found', async (params) => {
-            if (!this.not_found_page) {
-                this.not_found_page = new Page('Not Found');
+            if (!this.notFoundPage) {
+                this.notFoundPage = new Page('Not Found');
             }
-            await this.not_found_page.show();
-            this.not_found_page.renderError('Not Found', params ? params.route : '');
+            await this.notFoundPage.show();
+            this.notFoundPage.renderError('Not Found', params ? params.route : '');
         })
 
         frappe.router.add('list/:doctype', async (params) => {
-            let page = this.getList_page(params.doctype);
+            let page = this.getListPage(params.doctype);
             await page.show(params);
         });
 
         frappe.router.add('edit/:doctype/:name', async (params) => {
-            let page = this.get_form_page(params.doctype);
+            let page = this.getFormPage(params.doctype);
             await page.show(params);
         })
 
@@ -55,30 +57,47 @@ module.exports = class Desk {
             await doc.set('name', '');
         });
 
+        frappe.router.on('change', () => {
+            if (this.routeItems[window.location.hash]) {
+                this.setActive(this.routeItems[window.location.hash]);
+            }
+        })
+
     }
 
-    getList_page(doctype) {
+    getListPage(doctype) {
         if (!this.pages.lists[doctype]) {
             this.pages.lists[doctype] = new ListPage(doctype);
         }
         return this.pages.lists[doctype];
     }
 
-    get_form_page(doctype) {
+    getFormPage(doctype) {
         if (!this.pages.forms[doctype]) {
             this.pages.forms[doctype] = new FormPage(doctype);
         }
         return this.pages.forms[doctype];
     }
 
-    add_sidebar_item(label, action) {
-        let item = frappe.ui.add('a', '', frappe.ui.add('p', null, frappe.desk.sidebar));
+    setActive(item) {
+        let className = 'list-group-item-secondary';
+        let activeItem = this.sidebarList.querySelector('.' + className);
+        if (activeItem) {
+            activeItem.classList.remove(className);
+        }
+        item.classList.add(className);
+    }
+
+    addSidebarItem(label, action) {
+        let item = frappe.ui.add('a', 'list-group-item list-group-item-action', this.sidebarList);
         item.textContent = label;
         if (typeof action === 'string') {
             item.href = action;
+            this.routeItems[action] = item;
         } else {
             item.addEventHandler('click', () => {
                 action();
+                this.setActive(item);
             });
         }
     }

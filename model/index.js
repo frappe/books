@@ -17,41 +17,41 @@ module.exports = {
     },
     common_fields: [
         {
-            fieldname: 'name', fieldtype: 'Data', reqd: 1
+            fieldname: 'name', fieldtype: 'Data', required: 1
         }
     ],
     parent_fields: [
         {
-            fieldname: 'owner', fieldtype: 'Link', reqd: 1, options: 'User'
+            fieldname: 'owner', fieldtype: 'Link', required: 1, options: 'User'
         },
         {
-            fieldname: 'modified_by', fieldtype: 'Link', reqd: 1, options: 'User'
+            fieldname: 'modified_by', fieldtype: 'Link', required: 1, options: 'User'
         },
         {
-            fieldname: 'creation', fieldtype: 'Datetime', reqd: 1
+            fieldname: 'creation', fieldtype: 'Datetime', required: 1
         },
         {
-            fieldname: 'modified', fieldtype: 'Datetime', reqd: 1
+            fieldname: 'modified', fieldtype: 'Datetime', required: 1
         },
         {
             fieldname: 'keywords', fieldtype: 'Text'
         },
         {
-            fieldname: 'docstatus', fieldtype: 'Int', reqd: 1, default: 0
+            fieldname: 'docstatus', fieldtype: 'Int', required: 1, default: 0
         }
     ],
     child_fields: [
         {
-            fieldname: 'idx', fieldtype: 'Int', reqd: 1
+            fieldname: 'idx', fieldtype: 'Int', required: 1
         },
         {
-            fieldname: 'parent', fieldtype: 'Data', reqd: 1
+            fieldname: 'parent', fieldtype: 'Data', required: 1
         },
         {
-            fieldname: 'parenttype', fieldtype: 'Link', reqd: 1, options: 'DocType'
+            fieldname: 'parenttype', fieldtype: 'Link', required: 1, options: 'DocType'
         },
         {
-            fieldname: 'parentfield', fieldtype: 'Data', reqd: 1
+            fieldname: 'parentfield', fieldtype: 'Data', required: 1
         }
     ]
 };

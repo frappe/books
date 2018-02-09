@@ -7,11 +7,21 @@ $spacer-3: 1rem;
 $spacer-4: 2rem;
 
 html {
-	font-size: 16px;
+	font-size: 14px;
 }
 
 .main {
 	border-left: 1px solid $gray-300;
+}
+
+.sidebar {
+	.list-group-item {
+		padding: $spacer-2 $spacer-3;
+	}
+
+	.list-group-flush {
+		margin: -$spacer-3;
+	}
 }
 
 .hide {
@@ -90,8 +100,8 @@ mark {
 }
 
 .table-wrapper {
-	margin-top: $spacer-3;
-	margin-bottom: $spacer-3;
+	margin-top: $spacer-4;
+	margin-bottom: $spacer-4;
 }
 
 .table-toolbar {

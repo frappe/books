@@ -2,7 +2,7 @@ const $ = require('jquery');
 const bootstrap = require('bootstrap');
 
 module.exports = class Modal {
-    constructor({ title, body, primary_label, primary_action, secondary_label, secondary_action }) {
+    constructor({ title, body, primary, secondary }) {
         Object.assign(this, arguments[0]);
         this.$modal = $(`<div class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -22,23 +22,23 @@ module.exports = class Modal {
             </div>
         </div>`).appendTo(document.body);
 
-        if (this.primary_label) {
-            this.add_primary(this.primary_label, this.primary_action);
+        if (this.primary) {
+            this.addPrimary(this.primary.label, this.primary.action);
         }
-        if (this.secondary_label) {
-            this.add_secondary(this.secondary_label, this.secondary_action);
+        if (this.secondary) {
+            this.addSecondary(this.secondary.label, this.secondary.action);
         }
         this.show();
     }
 
-    add_primary(label, action) {
+    addPrimary(label, action) {
         this.$primary = $(`<button type="button" class="btn btn-primary">
             ${label}</button>`)
             .appendTo(this.$modal.find('.modal-footer'))
             .on('click', () => action(this));
     }
 
-    add_secondary(label, action) {
+    addSecondary(label, action) {
         this.$primary = $(`<button type="button" class="btn btn-secondary">
             ${label}</button>`)
             .appendTo(this.$modal.find('.modal-footer'))
@@ -53,7 +53,7 @@ module.exports = class Modal {
         this.$modal.modal('hide');
     }
 
-    get_body() {
+    getBody() {
         return this.$modal.find('.modal-body').get(0);
     }
 }

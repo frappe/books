@@ -89,7 +89,13 @@ module.exports = class RESTClient {
     async fetch(url, args) {
         args.headers = this.getHeaders();
         let response = await frappe.fetch(url, args);
-        return await response.json();
+        let data = await response.json();
+
+        if (response.status !== 200) {
+            throw Error(data.error);
+        }
+
+        return data;
     }
 
     getURL(...parts) {

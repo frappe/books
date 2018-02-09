@@ -17,7 +17,7 @@ module.exports = {
 			"fieldname": "name",
 			"label": "Name",
 			"fieldtype": "Data",
-			"reqd": 1
+			"required": 1
 		}
 	]
 }`);

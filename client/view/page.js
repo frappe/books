@@ -23,7 +23,7 @@ module.exports = class Page extends Observable {
 
     addButton(label, cssClass, action) {
         this.head.classList.remove('hide');
-        this.button = frappe.ui.add('button', 'btn btn-sm ' + cssClass, this.head);
+        this.button = frappe.ui.add('button', 'btn ' + cssClass, this.head);
         this.button.innerHTML = label;
         this.button.addEventListener('click', action);
         return this.button;

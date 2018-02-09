@@ -84,7 +84,7 @@ module.exports = {
     async getNewDoc(doctype) {
         let doc = this.newDoc({doctype: doctype});
         doc.setName();
-        doc.__not_inserted = true;
+        doc._notInserted = true;
         this.addToCache(doc);
         return doc;
     },

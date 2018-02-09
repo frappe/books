@@ -12,12 +12,7 @@
 			"fieldname": "subject",
 			"label": "Subject",
 			"fieldtype": "Data",
-			"reqd": 1
-		},
-		{
-			"fieldname": "description",
-			"label": "Description",
-			"fieldtype": "Text"
+			"required": 1
 		},
 		{
 			"fieldname": "status",
@@ -28,7 +23,12 @@
 				"Closed"
 			],
 			"default": "Open",
-			"reqd": 1
+			"required": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text"
 		}
 	]
 }

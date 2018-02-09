@@ -51,7 +51,7 @@ module.exports = class Database {
     }
 
     getColumnDefinition(df) {
-        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default ${df.default}` : ""}`
+        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.required && !df.default ? "not null" : ""} ${df.default ? `default ${df.default}` : ""}`
     }
 
     async alterTable(doctype) {

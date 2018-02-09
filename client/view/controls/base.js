@@ -2,9 +2,12 @@ const frappe = require('frappejs');
 
 class BaseControl {
     constructor({field, parent, form}) {
+        BaseControl.count++;
+
         Object.assign(this, field);
         this.parent = parent;
         this.form = form;
+        this.id = 'control-' + BaseControl.count;
 
         if (!this.fieldname) {
             this.fieldname = frappe.slug(this.label);
@@ -41,10 +44,12 @@ class BaseControl {
             }
             this.makeInput();
             this.setInputName();
+            this.setRequiredAttribute();
+            this.setDisabled();
             if (!this.onlyInput) {
                 this.makeDescription();
             }
-            this.bindChangeEvent();
+            this.addChangeHandler();
         }
     }
 
@@ -53,13 +58,21 @@ class BaseControl {
     }
 
     makeLabel() {
-        this.label_element = frappe.ui.add('label', null, this.formGroup);
-        this.label_element.textContent = this.label;
+        this.labelElement = frappe.ui.add('label', null, this.formGroup);
+        this.labelElement.textContent = this.label;
+        this.labelElement.setAttribute('for', this.id);
     }
 
     makeInput() {
         this.input = frappe.ui.add('input', 'form-control', this.get_input_parent());
-        this.input.setAttribute('autocomplete', 'off');
+        this.input.autocomplete = "off";
+        this.input.id = this.id;
+    }
+
+    setDisabled() {
+        if (this.readonly || this.disabled) {
+            this.input.disabled = true;
+        }
     }
 
     get_input_parent() {
@@ -68,6 +81,12 @@ class BaseControl {
 
     setInputName() {
         this.input.setAttribute('name', this.fieldname);
+    }
+
+    setRequiredAttribute() {
+        if (this.required) {
+            this.input.required = true;
+        }
     }
 
     makeDescription() {
@@ -104,11 +123,14 @@ class BaseControl {
         return value;
     }
 
-    bindChangeEvent() {
-        this.input.addEventListener('change', (e) => this.handleChange());
+    addChangeHandler() {
+        this.input.addEventListener('change', () => {
+            if (this.skipChangeEvent) return;
+            this.handleChange();
+        });
     }
 
-    async handleChange() {
+    async handleChange(event) {
         let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
         if (this.doc[this.fieldname] !== value) {
@@ -134,5 +156,7 @@ class BaseControl {
         this.input.focus();
     }
 }
+
+BaseControl.count = 0;
 
 module.exports = BaseControl;

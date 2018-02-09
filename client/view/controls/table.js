@@ -11,15 +11,16 @@ class TableControl extends BaseControl {
             this.wrapper.innerHTML =
             `<div class="datatable-wrapper"></div>
             <div class="table-toolbar">
-                <button class="btn btn-sm btn-outline-secondary btn-add">${frappe._("Add")}</button>
-                <button class="btn btn-sm btn-outline-danger btn-remove">${frappe._("Remove")}</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-add">
+                    ${frappe._("Add")}</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-remove">
+                    ${frappe._("Remove")}</button>
             </div>`;
 
             this.datatable = new DataTable(this.wrapper.querySelector('.datatable-wrapper'), {
                 columns: this.getColumns(),
                 data: this.getTableData(),
                 takeAvailableSpace: true,
-                enableClusterize: true,
                 addCheckboxColumn: true,
                 editing: this.getTableInput.bind(this),
             });
@@ -56,15 +57,18 @@ class TableControl extends BaseControl {
         let field = this.datatable.getColumn(colIndex).field;
 
         if (field.fieldtype==='Text') {
-            return this.getControlInModal(field);
-        } else {
-            return this.getControl(field, parent);
+            // text in modal
+            parent = this.getControlModal(field).getBody();
         }
+        return this.getControl(field, parent);
     }
 
     getControl(field, parent) {
         field.onlyInput = true;
         const control = controls.makeControl({field: field, parent: parent});
+
+        // change will be triggered by datatable
+        control.skipChangeEvent = true;
 
         return {
             initValue: (value, rowIndex, column) => {
@@ -74,7 +78,7 @@ class TableControl extends BaseControl {
                 return control.setInputValue(value);
             },
             setValue: async (value, rowIndex, column) => {
-                // triggers change event
+                control.handleChange();
             },
             getValue: () => {
                 return control.getInputValue();
@@ -83,21 +87,24 @@ class TableControl extends BaseControl {
 
     }
 
-    getControlInModal(field, parent) {
+    getControlModal(field) {
         this.modal = new Modal({
             title: frappe._('Edit {0}', field.label),
             body: '',
-            primary_label: frappe._('Submit'),
-            primary_action: (modal) => {
-                this.datatable.cellmanager.submitEditing();
-                modal.hide();
+            primary: {
+                label: frappe._('Submit'),
+                action: (modal) => {
+                    this.datatable.cellmanager.submitEditing();
+                    modal.hide();
+                }
             }
         });
         this.modal.$modal.on('hidden.bs.modal', () => {
             this.datatable.cellmanager.deactivateEditing();
-        })
+            this.datatable.cellmanager.$focusedCell.focus();
+        });
 
-        return this.getControl(field, this.modal.get_body());
+        return this.modal;
     }
 
     getColumns() {
@@ -106,8 +113,11 @@ class TableControl extends BaseControl {
                 id: field.fieldname,
                 field: field,
                 content: field.label,
-                editable: true,
                 width: 120,
+                editable: field.disabled ? false : true,
+                sortable: false,
+                resizable: true,
+                dropdown: false,
                 align: ['Int', 'Float', 'Currency'].includes(field.fieldtype) ? 'right' : 'left',
                 format: (value) => frappe.format(value, field)
             }
@@ -115,7 +125,7 @@ class TableControl extends BaseControl {
     }
 
     getChildFields() {
-        return frappe.getMeta(this.childtype).fields;
+        return frappe.getMeta(this.childtype).fields.filter(f => f.hidden ? false : true);
     }
 
     getDefaultData() {
