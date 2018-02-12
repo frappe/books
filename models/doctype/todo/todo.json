@@ -2,8 +2,8 @@
 	"autoname": "hash",
 	"name": "ToDo",
 	"doctype": "DocType",
-	"is_single": 0,
-	"keyword_fields": [
+	"isSingle": 0,
+	"keywordFields": [
 		"subject",
 		"description"
 	],

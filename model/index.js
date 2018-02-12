@@ -1,7 +1,7 @@
 const frappe = require('frappejs');
 
 module.exports = {
-    async get_series_next(prefix) {
+    async getSeriesNext(prefix) {
         let series;
         try {
             series = await frappe.getDoc('Number Series', prefix);

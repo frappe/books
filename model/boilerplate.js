@@ -9,9 +9,9 @@ module.exports = {
 		fs.writeFileSync(`./models/doctype/${utils.slug(name)}/${utils.slug(name)}.json`, `{
 	"name": "${name}",
 	"doctype": "DocType",
-	"is_single": 0,
-	"is_child": 0,
-	"keyword_fields": [],
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": [],
 	"fields": [
 		{
 			"fieldname": "name",

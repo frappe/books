@@ -8,10 +8,16 @@ class NumberSeriesMeta extends BaseMeta {
 }
 
 class NumberSeries extends BaseDocument {
-	async next() {
+	setup() {
+        this.addHandler('validate');
+	}
+	validate() {
 		if (this.current===null || this.current===undefined) {
 			this.current = 0;
 		}
+	}
+	async next() {
+		this.validate();
 		this.current++;
 		await this.update();
 		return this.current;

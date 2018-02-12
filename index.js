@@ -59,17 +59,23 @@ module.exports = {
     async getDoc(doctype, name) {
         let doc = this.getDocFromCache(doctype, name);
         if (!doc) {
-            let controller_class = this.getControllerClass(doctype);
-            doc = new controller_class({doctype:doctype, name: name});
+            let controllerClass = this.getControllerClass(doctype);
+            doc = new controllerClass({doctype:doctype, name: name});
             await doc.load();
             this.addToCache(doc);
         }
         return doc;
     },
 
+    async getSingle(doctype) {
+        return await this.getDoc(doctype, doctype);
+    },
+
     newDoc(data) {
-        let controller_class = this.getControllerClass(data.doctype);
-        return new controller_class(data);
+        let controllerClass = this.getControllerClass(data.doctype);
+        let doc = new controllerClass(data);
+        doc.setDefaults();
+        return doc;
     },
 
     getControllerClass(doctype) {
@@ -83,8 +89,8 @@ module.exports = {
 
     async getNewDoc(doctype) {
         let doc = this.newDoc({doctype: doctype});
-        doc.setName();
         doc._notInserted = true;
+        doc.name = this.getRandomName();
         this.addToCache(doc);
         return doc;
     },

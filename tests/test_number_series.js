@@ -9,8 +9,8 @@ describe('Number Series', () => {
 
     it('should start a series and get next value', async () => {
         frappe.db.delete('Number Series', 'test-series-')
-        assert.equal(await frappe.model.get_series_next('test-series-'), 'test-series-1');
-        assert.equal(await frappe.model.get_series_next('test-series-'), 'test-series-2');
-        assert.equal(await frappe.model.get_series_next('test-series-'), 'test-series-3');
+        assert.equal(await frappe.model.getSeriesNext('test-series-'), 'test-series-1');
+        assert.equal(await frappe.model.getSeriesNext('test-series-'), 'test-series-2');
+        assert.equal(await frappe.model.getSeriesNext('test-series-'), 'test-series-3');
     });
 });
