@@ -3,7 +3,13 @@ language: node_js
 node_js:
   - "8"
 
+services:
+  - mysql
+
 before_install:
+  - mysql -u root -e 'create database test_frappejs'
+  - echo "USE mysql;\nCREATE USER 'test_frappejs'@'localhost' IDENTIFIED BY 'test_frappejs';\nFLUSH PRIVILEGES;\n"
+  - echo "USE mysql;\nGRANT ALL PRIVILEGES ON \`test_frappejs\`.* TO 'test_frappejs'@'localhost';\n"
   - "git clone https://github.com/frappe/frappejs && cd frappejs"
   - "npm install -g yarn"
   - "yarn"
