@@ -84,8 +84,24 @@ module.exports = class BaseForm extends Observable {
         });
     }
 
+    checkValidity() {
+        let validity = this.form.checkValidity();
+        if (validity) {
+            for (let control of this.controlList) {
+                // check validity in table
+                if (control.fieldtype==='Table') {
+                    validity = control.checkValidity();
+                    if (!validity) {
+                        break;
+                    }
+                }
+            }
+        }
+        return validity;
+    }
+
     async submit() {
-        if (!this.form.checkValidity()) {
+        if (!this.checkValidity()) {
             this.form.classList.add('was-validated');
             return;
         }

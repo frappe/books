@@ -12,11 +12,13 @@ html {
 
 .main {
 	border-left: 1px solid $gray-300;
+	min-height: calc(100vh - 50px);
 }
 
 .sidebar {
 	.list-group-item {
 		padding: $spacer-2 $spacer-3;
+		border: none;
 	}
 
 	.list-group-flush {

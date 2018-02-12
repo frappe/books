@@ -72,6 +72,7 @@ class TableControl extends BaseControl {
 
         return {
             initValue: (value, rowIndex, column) => {
+                column.activeControl = control;
                 control.parent_control = this;
                 control.doc = this.doc[this.fieldname][rowIndex];
                 control.set_focus();
@@ -134,10 +135,28 @@ class TableControl extends BaseControl {
             return [];
         }
         if (!this.doc[this.fieldname]) {
-            this.doc[this.fieldname] = [{}];
+            this.doc[this.fieldname] = [{idx: 0}];
         }
 
         return this.doc[this.fieldname];
+    }
+
+    checkValidity() {
+        let data = this.getTableData();
+        for (let rowIndex=0; rowIndex < data.length; rowIndex++) {
+            let row = data[rowIndex];
+            for (let column of this.datatable.datamanager.columns) {
+                if (column.field && column.field.required) {
+                    let value = row[column.field.fieldname];
+                    if (value==='' || value===undefined || value===null) {
+                        let $cell = this.datatable.cellmanager.getCell$(column.colIndex, rowIndex);
+                        this.datatable.cellmanager.activateEditing($cell);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 };
 
