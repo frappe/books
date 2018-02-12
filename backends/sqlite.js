@@ -97,7 +97,11 @@ module.exports = class sqliteDatabase extends Database {
     }
 
     async deleteChildren(parenttype, parent) {
-        await this.run(`delete from ${parent} where parent=?`, parent);
+        await this.run(`delete from ${parenttype} where parent=?`, parent);
+    }
+
+    async deleteSingleValues(name) {
+        await frappe.db.run('delete from single_value where parent=?', name)
     }
 
     getAll({ doctype, fields, filters, start, limit, order_by = 'modified', order = 'desc' } = {}) {
@@ -106,12 +110,13 @@ module.exports = class sqliteDatabase extends Database {
         }
         return new Promise((resolve, reject) => {
             let conditions = this.getFilterConditions(filters);
-
-            this.conn.all(`select ${fields.join(", ")}
+            let query = `select ${fields.join(", ")}
                 from ${frappe.slug(doctype)}
                 ${conditions.conditions ? "where" : ""} ${conditions.conditions}
                 ${order_by ? ("order by " + order_by) : ""} ${order_by ? (order || "asc") : ""}
-                ${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`, conditions.values,
+                ${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`;
+
+            this.conn.all(query, conditions.values,
                 (err, rows) => {
                     if (err) {
                         reject(err);

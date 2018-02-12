@@ -23,6 +23,20 @@ module.exports = class BaseDocument {
         this.handlers[key].push(method || key);
     }
 
+    get meta() {
+        if (!this._meta) {
+            this._meta = frappe.getMeta(this.doctype);
+        }
+        return this._meta;
+    }
+
+    async getSettings() {
+        if (!this._settings) {
+            this._settings = await frappe.getSingle(this.meta.settings);
+        }
+        return this._settings;
+    }
+
     get(fieldname) {
         return this[fieldname];
     }
@@ -39,11 +53,34 @@ module.exports = class BaseDocument {
         }
     }
 
-    setName() {
+    async setName() {
+        // name === doctype for Single
+        if (this.meta.isSingle) {
+            this.name = this.meta.name;
+            return;
+        }
+
+        if (this.meta.settings) {
+            const number_series = (await this.getSettings()).number_series;
+            console.log(1, number_series);
+            if(number_series) {
+                this.name = await frappe.model.getSeriesNext(number_series);
+                console.log(2, this.name);
+            }
+        }
+
         // assign a random name by default
         // override this to set a name
         if (!this.name) {
             this.name = frappe.getRandomName();
+        }
+    }
+
+    setDefaults() {
+        for (let field of this.meta.fields) {
+            if (!this[field.fieldname] && field.default) {
+                this[field.fieldname] = field.default;
+            }
         }
     }
 
@@ -53,13 +90,6 @@ module.exports = class BaseDocument {
             keywords.push(this[fieldname]);
         }
         this.keywords = keywords.join(', ');
-    }
-
-    get meta() {
-        if (!this._meta) {
-            this._meta = frappe.getMeta(this.doctype);
-        }
-        return this._meta;
     }
 
     append(key, document) {
@@ -170,7 +200,7 @@ module.exports = class BaseDocument {
 
     async commit() {
         // re-run triggers
-        this.setName();
+        await this.setName();
         this.setStandardValues();
         this.setKeywords();
         this.setChildIdx();

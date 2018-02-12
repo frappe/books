@@ -70,15 +70,15 @@ module.exports = class BaseMeta extends BaseDocument {
         return this[fieldname];
     }
 
-    getValidFields({ with_children = true } = {}) {
+    getValidFields({ withChildren = true } = {}) {
         if (!this._valid_fields) {
 
             this._valid_fields = [];
-            this._valid_fields_with_children = [];
+            this._valid_fields_withChildren = [];
 
             const _add = (field) => {
                 this._valid_fields.push(field);
-                this._valid_fields_with_children.push(field);
+                this._valid_fields_withChildren.push(field);
             }
 
             const doctype_fields = this.fields.map((field) => field.fieldname);
@@ -90,7 +90,7 @@ module.exports = class BaseMeta extends BaseDocument {
                 }
             }
 
-            if (this.is_child) {
+            if (this.isChild) {
                 // child fields
                 for (let field of frappe.model.child_fields) {
                     if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
@@ -114,22 +114,31 @@ module.exports = class BaseMeta extends BaseDocument {
                     _add(field);
                 }
 
-                // include tables if (with_children = True)
+                // include tables if (withChildren = True)
                 if (!include && field.fieldtype === 'Table') {
-                    this._valid_fields_with_children.push(field);
+                    this._valid_fields_withChildren.push(field);
                 }
             }
         }
 
-        if (with_children) {
-            return this._valid_fields_with_children;
+        if (withChildren) {
+            return this._valid_fields_withChildren;
         } else {
             return this._valid_fields;
         }
     }
 
     getKeywordFields() {
-        return this.keyword_fields || this.meta.fields.filter(field => field.required).map(field => field.fieldname);
+        if (!this._keywordFields) {
+            this._keywordFields = this.keywordFields;
+            if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
+                this._keywordFields = this.fields.filter(field => field.required).map(field => field.fieldname);
+            }
+            if (!(this._keywordFields && this._keywordFields.length)) {
+                this._keywordFields = ['name']
+            }
+        }
+        return this._keywordFields;
     }
 
     validate_select(field, value) {

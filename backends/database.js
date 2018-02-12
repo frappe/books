@@ -17,12 +17,14 @@ module.exports = class Database {
         for (let doctype in frappe.modules) {
             // check if controller module
             if (frappe.modules[doctype].Meta) {
-                if (await this.tableExists(doctype)) {
-                    await this.alterTable(doctype);
-                } else {
-                    await this.createTable(doctype);
+                let meta = frappe.getMeta(doctype);
+                if (!meta.isSingle) {
+                    if (await this.tableExists(doctype)) {
+                        await this.alterTable(doctype);
+                    } else {
+                        await this.createTable(doctype);
+                    }
                 }
-
             }
         }
         await this.commit();
@@ -33,9 +35,9 @@ module.exports = class Database {
         let columns = [];
         let values = [];
 
-        for (let df of meta.getValidFields({ with_children: false })) {
-            if (this.type_map[df.fieldtype]) {
-                columns.push(this.getColumnDefinition(df));
+        for (let field of meta.getValidFields({ withChildren: false })) {
+            if (this.type_map[field.fieldtype]) {
+                columns.push(this.getColumnDefinition(field));
             }
         }
 
@@ -60,7 +62,7 @@ module.exports = class Database {
         let meta = frappe.getMeta(doctype);
         let values = [];
 
-        for (let field of meta.getValidFields({ with_children: false })) {
+        for (let field of meta.getValidFields({ withChildren: false })) {
             if (!tableColumns.includes(field.fieldname) && this.type_map[field.fieldtype]) {
                 values = []
                 if (field.default) {
@@ -79,12 +81,25 @@ module.exports = class Database {
         // alter table {doctype} add column ({column_def});
     }
 
-    async get(doctype, name, fields = '*') {
-        // load parent
-        let doc = await this.getOne(doctype, name, fields);
+    async get(doctype, name=null, fields = '*') {
+        let meta = frappe.getMeta(doctype);
+        let doc;
+        if (meta.isSingle) {
+            doc = await this.getSingle(doctype);
+            doc.name = doctype;
+        } else {
+            if (!name) {
+                throw frappe.errors.ValueError('name is mandatory');
+            }
+            doc = await this.getOne(doctype, name, fields);
+        }
+        await this.loadChildren(doc, meta);
+        return doc;
+    }
 
+    async loadChildren(doc, meta) {
         // load children
-        let tableFields = frappe.getMeta(doctype).getTableFields();
+        let tableFields = meta.getTableFields();
         for (let field of tableFields) {
             doc[field.fieldname] = await this.getAll({
                 doctype: field.childtype,
@@ -93,6 +108,20 @@ module.exports = class Database {
                 order_by: 'idx',
                 order: 'asc'
             });
+        }
+    }
+
+    async getSingle(doctype) {
+        let values = await this.getAll({
+            doctype: 'Single Value',
+            fields: ['fieldname', 'value'],
+            filters: { parent: doctype },
+            order_by: 'fieldname',
+            order: 'asc'
+        });
+        let doc = {};
+        for (let row of values) {
+            doc[row.fieldname] = row.value;
         }
         return doc;
     }
@@ -109,11 +138,23 @@ module.exports = class Database {
     }
 
     async insert(doctype, doc) {
-        // insert parent
-        await this.insertOne(doctype, doc);
+        let meta = frappe.getMeta(doctype);
+
+            // insert parent
+        if (meta.isSingle) {
+            await this.updateSingle(meta, doc, doctype);
+        } else {
+            await this.insertOne(doctype, doc);
+        }
 
         // insert children
-        let tableFields = frappe.getMeta(doctype).getTableFields();
+        await this.insertChildren(meta, doc, doctype);
+
+        return doc;
+    }
+
+    async insertChildren(meta, doc, doctype) {
+        let tableFields = meta.getTableFields();
         for (let field of tableFields) {
             let idx = 0;
             for (let child of (doc[field.fieldname] || [])) {
@@ -122,8 +163,6 @@ module.exports = class Database {
                 idx++;
             }
         }
-
-        return doc;
     }
 
     async insertOne(doctype, doc) {
@@ -131,28 +170,37 @@ module.exports = class Database {
     }
 
     async update(doctype, doc) {
+        let meta = frappe.getMeta(doctype);
+
         // update parent
-        await this.updateOne(doctype, doc);
+        if (meta.isSingle) {
+            await this.updateSingle(meta, doc, doctype);
+        } else {
+            await this.updateOne(doctype, doc);
+        }
 
         // insert or update children
-        let tableFields = frappe.getMeta(doctype).getTableFields();
-        for (let field of tableFields) {
+        await this.updateChildren(meta, doc, doctype);
+        return doc;
+    }
 
+    async updateChildren(meta, doc, doctype) {
+        let tableFields = meta.getTableFields();
+        for (let field of tableFields) {
             // first key is "parent" - for SQL params
             let added = [doc.name];
             for (let child of (doc[field.fieldname] || [])) {
                 this.prepareChild(doctype, doc.name, child, field, added.length - 1);
                 if (await this.exists(field.childtype, child.name)) {
                     await this.updateOne(field.childtype, child);
-                } else {
+                }
+                else {
                     await this.insertOne(field.childtype, child);
                 }
                 added.push(child.name);
             }
-
             await this.runDeleteOtherChildren(field, added);
         }
-        return doc;
     }
 
     async updateOne(doctype, doc) {
@@ -161,6 +209,26 @@ module.exports = class Database {
 
     async runDeleteOtherChildren(field, added) {
         // delete from doctype where parent = ? and name not in (?, ?, ?)
+    }
+
+    async updateSingle(meta, doc, doctype) {
+        await this.deleteSingleValues();
+        for (let field of meta.getValidFields({withChildren: false})) {
+            let value = doc[field.fieldname];
+            if (value) {
+                let singleValue = frappe.newDoc({
+                    doctype: 'Single Value',
+                    parent: doctype,
+                    fieldname: field.fieldname,
+                    value: value
+                })
+                await singleValue.insert();
+            }
+        }
+    }
+
+    async deleteSingleValues(name) {
+        // await frappe.db.run('delete from single_value where parent=?', name)
     }
 
     prepareChild(parenttype, parent, child, field, idx) {
@@ -174,7 +242,7 @@ module.exports = class Database {
     }
 
     getKeys(doctype) {
-        return frappe.getMeta(doctype).getValidFields({ with_children: false });
+        return frappe.getMeta(doctype).getValidFields({ withChildren: false });
     }
 
     getFormattedValues(fields, doc) {
