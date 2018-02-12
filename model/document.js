@@ -54,6 +54,10 @@ module.exports = class BaseDocument {
     }
 
     async setName() {
+        if (this.name) {
+            return;
+        }
+
         // name === doctype for Single
         if (this.meta.isSingle) {
             this.name = this.meta.name;
@@ -62,10 +66,8 @@ module.exports = class BaseDocument {
 
         if (this.meta.settings) {
             const number_series = (await this.getSettings()).number_series;
-            console.log(1, number_series);
             if(number_series) {
                 this.name = await frappe.model.getSeriesNext(number_series);
-                console.log(2, this.name);
             }
         }
 

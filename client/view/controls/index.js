@@ -4,6 +4,7 @@ const control_classes = {
     Select: require('./select'),
     Link: require('./link'),
     Float: require('./float'),
+    Int: require('./int'),
     Currency: require('./currency'),
     Password: require('./password'),
     Table: require('./table')
