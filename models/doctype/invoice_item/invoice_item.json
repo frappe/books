@@ -1,9 +1,9 @@
 {
 	"name": "Invoice Item",
 	"doctype": "DocType",
-	"is_single": 0,
-	"is_child": 1,
-	"keyword_fields": [],
+	"isSingle": 0,
+	"isChild": 1,
+	"keywordFields": [],
 	"fields": [
 		{
 			"fieldname": "item",

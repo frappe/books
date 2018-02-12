@@ -1,9 +1,10 @@
 {
 	"name": "Invoice",
 	"doctype": "DocType",
-	"is_single": 0,
+	"isSingle": 0,
 	"istable": 0,
-	"keyword_fields": [],
+	"keywordFields": [],
+	"settings": "Invoice Settings",
 	"fields": [
 		{
 			"fieldname": "customer",

@@ -1,9 +1,9 @@
 {
 	"name": "Customer",
 	"doctype": "DocType",
-	"is_single": 0,
+	"isSingle": 0,
 	"istable": 0,
-	"keyword_fields": [
+	"keywordFields": [
 		"name"
 	],
 	"fields": [

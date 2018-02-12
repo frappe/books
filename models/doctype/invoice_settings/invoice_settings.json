@@ -1,0 +1,16 @@
+{
+	"name": "Invoice Settings",
+	"doctype": "DocType",
+	"isSingle": 1,
+	"isChild": 0,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "number_series",
+			"label": "Number Series",
+			"fieldtype": "Link",
+			"target": "Number Series",
+			"required": 1
+		}
+	]
+}

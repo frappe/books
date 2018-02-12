@@ -1,8 +1,8 @@
 {
 	"name": "Item",
 	"doctype": "DocType",
-	"is_single": 0,
-	"keyword_fields": [
+	"isSingle": 0,
+	"keywordFields": [
 		"name",
 		"description"
 	],

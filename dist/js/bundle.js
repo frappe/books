@@ -231,17 +231,23 @@ var frappejs = {
     async getDoc(doctype, name) {
         let doc = this.getDocFromCache(doctype, name);
         if (!doc) {
-            let controller_class = this.getControllerClass(doctype);
-            doc = new controller_class({doctype:doctype, name: name});
+            let controllerClass = this.getControllerClass(doctype);
+            doc = new controllerClass({doctype:doctype, name: name});
             await doc.load();
             this.addToCache(doc);
         }
         return doc;
     },
 
+    async getSingle(doctype) {
+        return await this.getDoc(doctype, doctype);
+    },
+
     newDoc(data) {
-        let controller_class = this.getControllerClass(data.doctype);
-        return new controller_class(data);
+        let controllerClass = this.getControllerClass(data.doctype);
+        let doc = new controllerClass(data);
+        doc.setDefaults();
+        return doc;
     },
 
     getControllerClass(doctype) {
@@ -255,8 +261,8 @@ var frappejs = {
 
     async getNewDoc(doctype) {
         let doc = this.newDoc({doctype: doctype});
-        doc.setName();
         doc._notInserted = true;
+        doc.name = this.getRandomName();
         this.addToCache(doc);
         return doc;
     },
@@ -282,7 +288,7 @@ var frappejs = {
 };
 
 var model = {
-    async get_series_next(prefix) {
+    async getSeriesNext(prefix) {
         let series;
         try {
             series = await frappejs.getDoc('Number Series', prefix);
@@ -360,6 +366,20 @@ var document$1 = class BaseDocument {
         this.handlers[key].push(method || key);
     }
 
+    get meta() {
+        if (!this._meta) {
+            this._meta = frappejs.getMeta(this.doctype);
+        }
+        return this._meta;
+    }
+
+    async getSettings() {
+        if (!this._settings) {
+            this._settings = await frappejs.getSingle(this.meta.settings);
+        }
+        return this._settings;
+    }
+
     get(fieldname) {
         return this[fieldname];
     }
@@ -376,11 +396,36 @@ var document$1 = class BaseDocument {
         }
     }
 
-    setName() {
+    async setName() {
+        if (this.name) {
+            return;
+        }
+
+        // name === doctype for Single
+        if (this.meta.isSingle) {
+            this.name = this.meta.name;
+            return;
+        }
+
+        if (this.meta.settings) {
+            const number_series = (await this.getSettings()).number_series;
+            if(number_series) {
+                this.name = await frappejs.model.getSeriesNext(number_series);
+            }
+        }
+
         // assign a random name by default
         // override this to set a name
         if (!this.name) {
             this.name = frappejs.getRandomName();
+        }
+    }
+
+    setDefaults() {
+        for (let field of this.meta.fields) {
+            if (!this[field.fieldname] && field.default) {
+                this[field.fieldname] = field.default;
+            }
         }
     }
 
@@ -390,13 +435,6 @@ var document$1 = class BaseDocument {
             keywords.push(this[fieldname]);
         }
         this.keywords = keywords.join(', ');
-    }
-
-    get meta() {
-        if (!this._meta) {
-            this._meta = frappejs.getMeta(this.doctype);
-        }
-        return this._meta;
     }
 
     append(key, document) {
@@ -507,7 +545,7 @@ var document$1 = class BaseDocument {
 
     async commit() {
         // re-run triggers
-        this.setName();
+        await this.setName();
         this.setStandardValues();
         this.setKeywords();
         this.setChildIdx();
@@ -638,15 +676,15 @@ var meta = class BaseMeta extends document$1 {
         return this[fieldname];
     }
 
-    getValidFields({ with_children = true } = {}) {
+    getValidFields({ withChildren = true } = {}) {
         if (!this._valid_fields) {
 
             this._valid_fields = [];
-            this._valid_fields_with_children = [];
+            this._valid_fields_withChildren = [];
 
             const _add = (field) => {
                 this._valid_fields.push(field);
-                this._valid_fields_with_children.push(field);
+                this._valid_fields_withChildren.push(field);
             };
 
             const doctype_fields = this.fields.map((field) => field.fieldname);
@@ -658,7 +696,7 @@ var meta = class BaseMeta extends document$1 {
                 }
             }
 
-            if (this.is_child) {
+            if (this.isChild) {
                 // child fields
                 for (let field of frappejs.model.child_fields) {
                     if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
@@ -682,22 +720,31 @@ var meta = class BaseMeta extends document$1 {
                     _add(field);
                 }
 
-                // include tables if (with_children = True)
+                // include tables if (withChildren = True)
                 if (!include && field.fieldtype === 'Table') {
-                    this._valid_fields_with_children.push(field);
+                    this._valid_fields_withChildren.push(field);
                 }
             }
         }
 
-        if (with_children) {
-            return this._valid_fields_with_children;
+        if (withChildren) {
+            return this._valid_fields_withChildren;
         } else {
             return this._valid_fields;
         }
     }
 
     getKeywordFields() {
-        return this.keyword_fields || this.meta.fields.filter(field => field.required).map(field => field.fieldname);
+        if (!this._keywordFields) {
+            this._keywordFields = this.keywordFields;
+            if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
+                this._keywordFields = this.fields.filter(field => field.required).map(field => field.fieldname);
+            }
+            if (!(this._keywordFields && this._keywordFields.length)) {
+                this._keywordFields = ['name'];
+            }
+        }
+        return this._keywordFields;
     }
 
     validate_select(field, value) {
@@ -2461,6 +2508,15 @@ class FloatControl extends base {
 }
 
 var float_1 = FloatControl;
+
+class IntControl extends float_1 {
+    parse(value) {
+        value = parseInt(value);
+        return value===NaN ? 0 : value;
+    }
+}
+
+var int_1 = IntControl;
 
 class CurrencyControl extends float_1 {
 	parse(value) {
@@ -5208,7 +5264,6 @@ var CellManager = function () {
       var _this2 = this;
 
       var focusCell = function focusCell(direction) {
-        console.log(direction);
         if (!_this2.$focusedCell || _this2.$editingCell) {
           return false;
         }
@@ -5540,6 +5595,8 @@ var CellManager = function () {
   }, {
     key: 'activateEditing',
     value: function activateEditing($cell) {
+      this.focusCell($cell);
+
       var _$$data6 = _dom2.default.data($cell),
           rowIndex = _$$data6.rowIndex,
           colIndex = _$$data6.colIndex;
@@ -8263,7 +8320,7 @@ module.exports = {"name":"frappe-datatable","version":"0.0.1","description":"A m
 /***/ })
 /******/ ]);
 });
-
+//# sourceMappingURL=frappe-datatable.js.map
 });
 
 unwrapExports(frappeDatatable);
@@ -25094,6 +25151,7 @@ class TableControl extends base {
 
         return {
             initValue: (value, rowIndex, column) => {
+                column.activeControl = control;
                 control.parent_control = this;
                 control.doc = this.doc[this.fieldname][rowIndex];
                 control.set_focus();
@@ -25156,10 +25214,28 @@ class TableControl extends base {
             return [];
         }
         if (!this.doc[this.fieldname]) {
-            this.doc[this.fieldname] = [{}];
+            this.doc[this.fieldname] = [{idx: 0}];
         }
 
         return this.doc[this.fieldname];
+    }
+
+    checkValidity() {
+        let data = this.getTableData();
+        for (let rowIndex=0; rowIndex < data.length; rowIndex++) {
+            let row = data[rowIndex];
+            for (let column of this.datatable.datamanager.columns) {
+                if (column.field && column.field.required) {
+                    let value = row[column.field.fieldname];
+                    if (value==='' || value===undefined || value===null) {
+                        let $cell = this.datatable.cellmanager.getCell$(column.colIndex, rowIndex);
+                        this.datatable.cellmanager.activateEditing($cell);
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 }
 
@@ -25171,6 +25247,7 @@ const control_classes = {
     Select: select,
     Link: link,
     Float: float_1,
+    Int: int_1,
     Currency: currency,
     Password: password,
     Table: table
@@ -25270,8 +25347,24 @@ var form = class BaseForm extends observable {
         });
     }
 
+    checkValidity() {
+        let validity = this.form.checkValidity();
+        if (validity) {
+            for (let control of this.controlList) {
+                // check validity in table
+                if (control.fieldtype==='Table') {
+                    validity = control.checkValidity();
+                    if (!validity) {
+                        break;
+                    }
+                }
+            }
+        }
+        return validity;
+    }
+
     async submit() {
-        if (!this.form.checkValidity()) {
+        if (!this.checkValidity()) {
             this.form.classList.add('was-validated');
             return;
         }
@@ -25551,15 +25644,15 @@ var client = {
 var autoname = "hash";
 var name = "ToDo";
 var doctype = "DocType";
-var is_single = 0;
-var keyword_fields = ["subject","description"];
+var isSingle = 0;
+var keywordFields = ["subject","description"];
 var fields = [{"fieldname":"subject","label":"Subject","fieldtype":"Data","required":1},{"fieldname":"status","label":"Status","fieldtype":"Select","options":["Open","Closed"],"default":"Open","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text"}];
 var todo = {
 	autoname: autoname,
 	name: name,
 	doctype: doctype,
-	is_single: is_single,
-	keyword_fields: keyword_fields,
+	isSingle: isSingle,
+	keywordFields: keywordFields,
 	fields: fields
 };
 
@@ -25567,8 +25660,8 @@ var todo$1 = Object.freeze({
 	autoname: autoname,
 	name: name,
 	doctype: doctype,
-	is_single: is_single,
-	keyword_fields: keyword_fields,
+	isSingle: isSingle,
+	keywordFields: keywordFields,
 	fields: fields,
 	default: todo
 });
@@ -25597,33 +25690,88 @@ var todo$2 = {
     Meta: ToDoMeta
 };
 
-var name$1 = "Account";
+var name$1 = "Number Series";
 var doctype$1 = "DocType";
-var is_single$1 = 0;
-var keyword_fields$1 = ["name","account_type"];
-var fields$1 = [{"fieldname":"name","label":"Account Name","fieldtype":"Data","required":1},{"fieldname":"parent_account","label":"Parent Account","fieldtype":"Link","target":"Account"},{"fieldname":"account_type","label":"Account Type","fieldtype":"Select","options":["Asset","Liability","Equity","Income","Expense"]}];
-var account = {
+var isSingle$1 = 0;
+var isChild = 0;
+var keywordFields$1 = [];
+var fields$1 = [{"fieldname":"name","label":"Name","fieldtype":"Data","required":1},{"fieldname":"current","label":"Current","fieldtype":"Int","required":1}];
+var number_series = {
 	name: name$1,
 	doctype: doctype$1,
-	is_single: is_single$1,
-	keyword_fields: keyword_fields$1,
+	isSingle: isSingle$1,
+	isChild: isChild,
+	keywordFields: keywordFields$1,
 	fields: fields$1
 };
 
-var account$1 = Object.freeze({
+var number_series$1 = Object.freeze({
 	name: name$1,
 	doctype: doctype$1,
-	is_single: is_single$1,
-	keyword_fields: keyword_fields$1,
+	isSingle: isSingle$1,
+	isChild: isChild,
+	keywordFields: keywordFields$1,
 	fields: fields$1,
+	default: number_series
+});
+
+var require$$0$5 = ( number_series$1 && number_series ) || number_series$1;
+
+class NumberSeriesMeta extends meta {
+	setupMeta() {
+		Object.assign(this, require$$0$5);
+	}
+}
+
+class NumberSeries extends document$1 {
+	setup() {
+        this.addHandler('validate');
+	}
+	validate() {
+		if (this.current===null || this.current===undefined) {
+			this.current = 0;
+		}
+	}
+	async next() {
+		this.validate();
+		this.current++;
+		await this.update();
+		return this.current;
+	}
+}
+
+var number_series$2 = {
+	Document: NumberSeries,
+	Meta: NumberSeriesMeta
+};
+
+var name$2 = "Account";
+var doctype$2 = "DocType";
+var isSingle$2 = 0;
+var keywordFields$2 = ["name","account_type"];
+var fields$2 = [{"fieldname":"name","label":"Account Name","fieldtype":"Data","required":1},{"fieldname":"parent_account","label":"Parent Account","fieldtype":"Link","target":"Account"},{"fieldname":"account_type","label":"Account Type","fieldtype":"Select","options":["Asset","Liability","Equity","Income","Expense"]}];
+var account = {
+	name: name$2,
+	doctype: doctype$2,
+	isSingle: isSingle$2,
+	keywordFields: keywordFields$2,
+	fields: fields$2
+};
+
+var account$1 = Object.freeze({
+	name: name$2,
+	doctype: doctype$2,
+	isSingle: isSingle$2,
+	keywordFields: keywordFields$2,
+	fields: fields$2,
 	default: account
 });
 
-var require$$0$5 = ( account$1 && account ) || account$1;
+var require$$0$6 = ( account$1 && account ) || account$1;
 
 class AccountMeta extends meta {
     setupMeta() {
-        Object.assign(this, require$$0$5);
+        Object.assign(this, require$$0$6);
     }
 }
 
@@ -25647,33 +25795,33 @@ var account$2 = {
     Meta: AccountMeta
 };
 
-var name$2 = "Item";
-var doctype$2 = "DocType";
-var is_single$2 = 0;
-var keyword_fields$2 = ["name","description"];
-var fields$2 = [{"fieldname":"name","label":"Item Name","fieldtype":"Data","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text"},{"fieldname":"unit","label":"Unit","fieldtype":"Select","options":["No","Kg","Gram","Hour","Day"]},{"fieldname":"rate","label":"Rate","fieldtype":"Currency"}];
+var name$3 = "Item";
+var doctype$3 = "DocType";
+var isSingle$3 = 0;
+var keywordFields$3 = ["name","description"];
+var fields$3 = [{"fieldname":"name","label":"Item Name","fieldtype":"Data","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text"},{"fieldname":"unit","label":"Unit","fieldtype":"Select","options":["No","Kg","Gram","Hour","Day"]},{"fieldname":"rate","label":"Rate","fieldtype":"Currency"}];
 var item$1 = {
-	name: name$2,
-	doctype: doctype$2,
-	is_single: is_single$2,
-	keyword_fields: keyword_fields$2,
-	fields: fields$2
+	name: name$3,
+	doctype: doctype$3,
+	isSingle: isSingle$3,
+	keywordFields: keywordFields$3,
+	fields: fields$3
 };
 
 var item$2 = Object.freeze({
-	name: name$2,
-	doctype: doctype$2,
-	is_single: is_single$2,
-	keyword_fields: keyword_fields$2,
-	fields: fields$2,
+	name: name$3,
+	doctype: doctype$3,
+	isSingle: isSingle$3,
+	keywordFields: keywordFields$3,
+	fields: fields$3,
 	default: item$1
 });
 
-var require$$0$6 = ( item$2 && item$1 ) || item$2;
+var require$$0$7 = ( item$2 && item$1 ) || item$2;
 
 class ItemMeta extends meta {
     setupMeta() {
-        Object.assign(this, require$$0$6);
+        Object.assign(this, require$$0$7);
     }
 }
 
@@ -25685,36 +25833,36 @@ var item$3 = {
     Meta: ItemMeta
 };
 
-var name$3 = "Customer";
-var doctype$3 = "DocType";
-var is_single$3 = 0;
+var name$4 = "Customer";
+var doctype$4 = "DocType";
+var isSingle$4 = 0;
 var istable = 0;
-var keyword_fields$3 = ["name"];
-var fields$3 = [{"fieldname":"name","label":"Name","fieldtype":"Data","required":1}];
+var keywordFields$4 = ["name"];
+var fields$4 = [{"fieldname":"name","label":"Name","fieldtype":"Data","required":1}];
 var customer = {
-	name: name$3,
-	doctype: doctype$3,
-	is_single: is_single$3,
+	name: name$4,
+	doctype: doctype$4,
+	isSingle: isSingle$4,
 	istable: istable,
-	keyword_fields: keyword_fields$3,
-	fields: fields$3
+	keywordFields: keywordFields$4,
+	fields: fields$4
 };
 
 var customer$1 = Object.freeze({
-	name: name$3,
-	doctype: doctype$3,
-	is_single: is_single$3,
+	name: name$4,
+	doctype: doctype$4,
+	isSingle: isSingle$4,
 	istable: istable,
-	keyword_fields: keyword_fields$3,
-	fields: fields$3,
+	keywordFields: keywordFields$4,
+	fields: fields$4,
 	default: customer
 });
 
-var require$$0$7 = ( customer$1 && customer ) || customer$1;
+var require$$0$8 = ( customer$1 && customer ) || customer$1;
 
 class CustomerMeta extends meta {
     setupMeta() {
-        Object.assign(this, require$$0$7);
+        Object.assign(this, require$$0$8);
     }
 }
 
@@ -25726,36 +25874,39 @@ var customer$2 = {
     Meta: CustomerMeta
 };
 
-var name$4 = "Invoice";
-var doctype$4 = "DocType";
-var is_single$4 = 0;
+var name$5 = "Invoice";
+var doctype$5 = "DocType";
+var isSingle$5 = 0;
 var istable$1 = 0;
-var keyword_fields$4 = [];
-var fields$4 = [{"fieldname":"customer","label":"Customer","fieldtype":"Link","target":"Customer","required":1},{"fieldname":"items","label":"Items","fieldtype":"Table","childtype":"Invoice Item","required":true},{"fieldname":"total","label":"Total","fieldtype":"Currency","formula":"doc.getSum('items', 'amount')","required":true,"disabled":true}];
+var keywordFields$5 = [];
+var settings = "Invoice Settings";
+var fields$5 = [{"fieldname":"customer","label":"Customer","fieldtype":"Link","target":"Customer","required":1},{"fieldname":"items","label":"Items","fieldtype":"Table","childtype":"Invoice Item","required":true},{"fieldname":"total","label":"Total","fieldtype":"Currency","formula":"doc.getSum('items', 'amount')","required":true,"disabled":true}];
 var invoice = {
-	name: name$4,
-	doctype: doctype$4,
-	is_single: is_single$4,
+	name: name$5,
+	doctype: doctype$5,
+	isSingle: isSingle$5,
 	istable: istable$1,
-	keyword_fields: keyword_fields$4,
-	fields: fields$4
+	keywordFields: keywordFields$5,
+	settings: settings,
+	fields: fields$5
 };
 
 var invoice$1 = Object.freeze({
-	name: name$4,
-	doctype: doctype$4,
-	is_single: is_single$4,
+	name: name$5,
+	doctype: doctype$5,
+	isSingle: isSingle$5,
 	istable: istable$1,
-	keyword_fields: keyword_fields$4,
-	fields: fields$4,
+	keywordFields: keywordFields$5,
+	settings: settings,
+	fields: fields$5,
 	default: invoice
 });
 
-var require$$0$8 = ( invoice$1 && invoice ) || invoice$1;
+var require$$0$9 = ( invoice$1 && invoice ) || invoice$1;
 
 class InvoiceMeta extends meta {
 	setupMeta() {
-		Object.assign(this, require$$0$8);
+		Object.assign(this, require$$0$9);
 	}
 }
 
@@ -25767,36 +25918,36 @@ var invoice$2 = {
 	Meta: InvoiceMeta
 };
 
-var name$5 = "Invoice Item";
-var doctype$5 = "DocType";
-var is_single$5 = 0;
-var is_child = 1;
-var keyword_fields$5 = [];
-var fields$5 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text","formula":"doc.getFrom('Item', row.item, 'description')","required":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","required":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","required":1},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","disabled":1,"formula":"row.quantity * row.rate"}];
+var name$6 = "Invoice Item";
+var doctype$6 = "DocType";
+var isSingle$6 = 0;
+var isChild$1 = 1;
+var keywordFields$6 = [];
+var fields$6 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text","formula":"doc.getFrom('Item', row.item, 'description')","required":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","required":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","required":1},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","disabled":1,"formula":"row.quantity * row.rate"}];
 var invoice_item = {
-	name: name$5,
-	doctype: doctype$5,
-	is_single: is_single$5,
-	is_child: is_child,
-	keyword_fields: keyword_fields$5,
-	fields: fields$5
+	name: name$6,
+	doctype: doctype$6,
+	isSingle: isSingle$6,
+	isChild: isChild$1,
+	keywordFields: keywordFields$6,
+	fields: fields$6
 };
 
 var invoice_item$1 = Object.freeze({
-	name: name$5,
-	doctype: doctype$5,
-	is_single: is_single$5,
-	is_child: is_child,
-	keyword_fields: keyword_fields$5,
-	fields: fields$5,
+	name: name$6,
+	doctype: doctype$6,
+	isSingle: isSingle$6,
+	isChild: isChild$1,
+	keywordFields: keywordFields$6,
+	fields: fields$6,
 	default: invoice_item
 });
 
-var require$$0$9 = ( invoice_item$1 && invoice_item ) || invoice_item$1;
+var require$$0$10 = ( invoice_item$1 && invoice_item ) || invoice_item$1;
 
 class InvoiceItemMeta extends meta {
 	setupMeta() {
-		Object.assign(this, require$$0$9);
+		Object.assign(this, require$$0$10);
 	}
 }
 
@@ -25806,6 +25957,47 @@ class InvoiceItem extends document$1 {
 var invoice_item$2 = {
 	Document: InvoiceItem,
 	Meta: InvoiceItemMeta
+};
+
+var name$7 = "Invoice Settings";
+var doctype$7 = "DocType";
+var isSingle$7 = 1;
+var isChild$2 = 0;
+var keywordFields$7 = [];
+var fields$7 = [{"fieldname":"number_series","label":"Number Series","fieldtype":"Link","target":"Number Series","required":1}];
+var invoice_settings = {
+	name: name$7,
+	doctype: doctype$7,
+	isSingle: isSingle$7,
+	isChild: isChild$2,
+	keywordFields: keywordFields$7,
+	fields: fields$7
+};
+
+var invoice_settings$1 = Object.freeze({
+	name: name$7,
+	doctype: doctype$7,
+	isSingle: isSingle$7,
+	isChild: isChild$2,
+	keywordFields: keywordFields$7,
+	fields: fields$7,
+	default: invoice_settings
+});
+
+var require$$0$11 = ( invoice_settings$1 && invoice_settings ) || invoice_settings$1;
+
+class InvoiceSettingsMeta extends meta {
+	setupMeta() {
+		Object.assign(this, require$$0$11);
+	}
+}
+
+class InvoiceSettings extends document$1 {
+}
+
+var invoice_settings$2 = {
+	Document: InvoiceSettings,
+	Meta: InvoiceSettingsMeta
 };
 
 class ToDoList extends list {
@@ -25857,11 +26049,13 @@ client.start({
 
     // require modules
     frappe.modules.todo = todo$2;
+    frappe.modules.number_series = number_series$2;
     frappe.modules.account = account$2;
     frappe.modules.item = item$3;
     frappe.modules.customer = customer$2;
     frappe.modules.invoice = invoice$2;
     frappe.modules.invoice_item = invoice_item$2;
+    frappe.modules.invoice_settings = invoice_settings$2;
 
     frappe.modules.todo_client = todo_client;
     frappe.modules.account_client = account_client;

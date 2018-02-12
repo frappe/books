@@ -1,6 +1,6 @@
-# Sample app for frappe
+# Frappe Accounting
 
-Sample To Do app for frappe
+Simple JS based app for personal and small businesses accounting
 
 ### Install
 
