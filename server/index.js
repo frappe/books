@@ -1,5 +1,6 @@
 const backends = {};
 backends.sqlite = require('frappejs/backends/sqlite');
+backends.mysql = require('frappejs/backends/mysql');
 
 const express = require('express');
 const app = express();
@@ -52,4 +53,3 @@ module.exports = {
         await frappe.db.migrate();
     },
 }
-

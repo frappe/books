@@ -15,6 +15,7 @@
     "commander": "^2.13.0",
     "express": "^4.16.2",
     "jquery": "^3.3.1",
+    "mysql": "^2.15.0",
     "node-fetch": "^1.7.3",
     "popper.js": "^1.12.9",
     "sqlite3": "^3.1.13",
@@ -38,7 +39,7 @@
   "devDependencies": {
     "autoprefixer": "^7.2.4",
     "eslint": "^4.9.0",
-    "mocha": "^4.0.1",
+    "mocha": "^4.1.0",
     "node-sass": "^4.7.2",
     "nodemon": "^1.14.7",
     "precss": "^2.0.0",
