@@ -8,14 +8,15 @@ module.exports = class FormPage extends Page {
 		super(`Edit ${meta.name}`);
 		this.meta = meta;
 
-		this.form = new (view.get_form_class(doctype))({
+		this.form = new (view.getFormClass(doctype))({
 			doctype: doctype,
 			parent: this.body,
-			page: this
+			container: this,
+			actions: ['submit', 'delete']
 		});
 
 		this.on('show', async (params) => {
-			await this.show_doc(params.doctype, params.name);
+			await this.showDoc(params.doctype, params.name);
 		});
 
 		// if name is different after saving, change the route
@@ -32,10 +33,9 @@ module.exports = class FormPage extends Page {
 		});
 	}
 
-	async show_doc(doctype, name) {
+	async showDoc(doctype, name) {
 		try {
-			this.doc = await frappe.getDoc(doctype, name);
-			this.form.use(this.doc);
+			await this.form.setDoc(doctype, name);
 		} catch (e) {
 			this.renderError(e.status_code, e.message);
 		}

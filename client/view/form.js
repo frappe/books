@@ -1,9 +1,10 @@
 const frappe = require('frappejs');
 const controls = require('./controls');
 const Observable = require('frappejs/utils/observable');
+const keyboard = require('frappejs/client/ui/keyboard');
 
 module.exports = class BaseForm extends Observable {
-    constructor({doctype, parent, submit_label='Submit', page}) {
+    constructor({doctype, parent, submit_label='Submit', container}) {
         super();
         Object.assign(this, arguments[0]);
         this.controls = {};
@@ -28,6 +29,7 @@ module.exports = class BaseForm extends Observable {
         this.form.onValidate = true;
 
         this.makeControls();
+        this.bindKeyboard();
     }
 
     makeControls() {
@@ -41,18 +43,42 @@ module.exports = class BaseForm extends Observable {
     }
 
     makeToolbar() {
-        this.btnSubmit = this.page.addButton(frappe._("Save"), 'btn-primary', async (event) => {
-            await this.submit();
-        })
+        if (this.actions.includes('submit')) {
+            this.btnSubmit = this.container.addButton(frappe._("Save"), 'primary', async (event) => {
+                await this.submit();
+            })
+        }
 
-        this.btnDelete = this.page.addButton(frappe._("Delete"), 'btn-outline-secondary', async (e) => {
-            await this.doc.delete();
-            this.showAlert('Deleted', 'success');
-            this.trigger('delete');
+        if (this.actions.includes('delete')) {
+            this.btnDelete = this.container.addButton(frappe._("Delete"), 'secondary', async (e) => {
+                await this.doc.delete();
+                this.showAlert('Deleted', 'success');
+                this.trigger('delete');
+            });
+        }
+    }
+
+    bindKeyboard() {
+        keyboard.bindKey(this.form, 'ctrl+s', (e) => {
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+            e.preventDefault();
+            this.submit();
         });
     }
 
-    async use(doc) {
+    async setDoc(doctype, name) {
+        this.doc = await frappe.getDoc(doctype, name);
+        this.bindEvents(this.doc);
+        if (this.doc._notInserted && !this.doc._nameCleared) {
+            this.doc._nameCleared = true;
+            // flag so that name is cleared only once
+            await this.doc.set('name', '');
+        }
+    }
+
+    async bindEvents(doc) {
         if (this.doc) {
             // clear handlers of outgoing doc
             this.doc.clearHandlers();

@@ -21,9 +21,9 @@ module.exports = class Page extends Observable {
         this.trigger('hide');
     }
 
-    addButton(label, cssClass, action) {
+    addButton(label, className, action) {
         this.head.classList.remove('hide');
-        this.button = frappe.ui.add('button', 'btn ' + cssClass, this.head);
+        this.button = frappe.ui.add('button', 'btn ' + this.getClassName(className), this.head);
         this.button.innerHTML = label;
         this.button.addEventListener('click', action);
         return this.button;
@@ -53,5 +53,14 @@ module.exports = class Page extends Observable {
         this.body.classList.add('hide');
         this.page_error.classList.remove('hide');
         this.page_error.innerHTML = `<h3 class="text-extra-muted">${title ? title : ""}</h3><p class="text-muted">${message ? message : ""}</p>`;
+    }
+
+    getClassName(className) {
+        const newName = {
+            'primary': 'btn-primary',
+            'secondary': 'btn-outline-secondary'
+        }[className];
+
+        return newName || className;
     }
 }
