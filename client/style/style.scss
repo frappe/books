@@ -60,6 +60,10 @@ html {
 	.checkbox {
 		margin-right: $spacer-2;
 	}
+
+	a, a:hover, a:visited, a:active {
+		color: $gray-800;
+	}
 }
 
 .dropdown-menu-right {

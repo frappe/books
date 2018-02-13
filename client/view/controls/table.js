@@ -100,7 +100,7 @@ class TableControl extends BaseControl {
                 }
             }
         });
-        this.modal.$modal.on('hidden.bs.modal', () => {
+        this.modal.on('hide', () => {
             this.datatable.cellmanager.deactivateEditing();
             this.datatable.cellmanager.$focusedCell.focus();
         });

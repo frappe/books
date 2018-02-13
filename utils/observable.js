@@ -1,18 +1,33 @@
 module.exports = class Observable {
-    constructor() {
-        this._handlers = {};
+    on(event, handler) {
+        this._addHandler('_handlers', event, handler);
     }
 
-    on(event, fn) {
-        if (!this._handlers[event]) {
-            this._handlers[event] = [];
-        }
-        this._handlers[event].push(fn);
+    once(event, handler) {
+        this._addHandler('_onceHandlers', event, handler);
     }
 
     async trigger(event, params) {
-        if (this._handlers[event]) {
-            for (let handler of this._handlers[event]) {
+        await this._triggerHandler('_handlers', event, params);
+        await this._triggerHandler('_onceHandlers', event, params);
+        if (this._onceHandlers && this._onceHandlers[event]) {
+            delete this._onceHandlers[event];
+        }
+    }
+
+    _addHandler(name, event, handler) {
+        if (!this[name]) {
+            this[name] = {};
+        }
+        if (!this[name][event]) {
+            this[name][event] = [];
+        }
+        this[name][event].push(handler);
+    }
+
+    async _triggerHandler(name, event, params) {
+        if (this[name] && this[name][event]) {
+            for (let handler of this[name][event]) {
                 await handler(params);
             }
         }

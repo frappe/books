@@ -2,7 +2,7 @@ const BaseList = require('frappejs/client/view/list');
 const BaseForm = require('frappejs/client/view/form');
 
 module.exports = {
-    get_form_class(doctype) {
+    getFormClass(doctype) {
         return this.get_view_class(doctype, 'Form', BaseForm);
     },
     getList_class(doctype) {

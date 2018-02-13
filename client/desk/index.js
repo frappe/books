@@ -5,6 +5,7 @@ const Page = require('frappejs/client/view/page');
 const FormPage = require('frappejs/client/desk/formpage');
 const ListPage = require('frappejs/client/desk/listpage');
 const Navbar = require('./navbar');
+const FormModal = require('frappejs/client/desk/formmodal');
 
 module.exports = class Desk {
     constructor() {
@@ -22,7 +23,8 @@ module.exports = class Desk {
 
         this.pages = {
             lists: {},
-            forms: {}
+            forms: {},
+            formModals: {}
         };
 
         this.routeItems = {};
@@ -54,7 +56,6 @@ module.exports = class Desk {
             let doc = await frappe.getNewDoc(params.doctype);
             // unset the name, its local
             await frappe.router.setRoute('edit', doc.doctype, doc.name);
-            await doc.set('name', '');
         });
 
         frappe.router.on('change', () => {
@@ -77,6 +78,15 @@ module.exports = class Desk {
             this.pages.forms[doctype] = new FormPage(doctype);
         }
         return this.pages.forms[doctype];
+    }
+
+    showFormModal(doctype, name) {
+        if (!this.pages.formModals[doctype]) {
+            this.pages.formModals[doctype] = new FormModal(doctype, name);
+        } else {
+            this.pages.formModals[doctype].showWith(doctype, name);
+        }
+        return this.pages.formModals[doctype];
     }
 
     setActive(item) {
