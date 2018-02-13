@@ -1,9 +1,18 @@
 const frappe = require('frappejs');
 
 module.exports = {
+    asyncHandler(fn) {
+        return (req, res, next) => Promise.resolve(fn(req, res, next))
+            .catch((err) => {
+                console.log(err);
+                // handle error
+                res.status(err.status_code || 500).send({error: err.message});
+            });
+    },
+
     setup(app) {
         // get list
-        app.get('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
+        app.get('/api/resource/:doctype', this.asyncHandler(async function(request, response) {
             for (let key of ['fields', 'filters']) {
                 if (request.query[key]) {
                     request.query[key] = JSON.parse(request.query[key]);
@@ -24,7 +33,7 @@ module.exports = {
         }));
 
         // create
-        app.post('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
+        app.post('/api/resource/:doctype', this.asyncHandler(async function(request, response) {
             let data = request.body;
             data.doctype = request.params.doctype;
             let doc = frappe.newDoc(data);
@@ -34,7 +43,7 @@ module.exports = {
         }));
 
         // update
-        app.put('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
+        app.put('/api/resource/:doctype/:name', this.asyncHandler(async function(request, response) {
             let data = request.body;
             let doc = await frappe.getDoc(request.params.doctype, request.params.name);
             Object.assign(doc, data);
@@ -45,26 +54,26 @@ module.exports = {
 
 
         // get document
-        app.get('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
+        app.get('/api/resource/:doctype/:name', this.asyncHandler(async function(request, response) {
             let doc = await frappe.getDoc(request.params.doctype, request.params.name);
             return response.json(doc.getValidDict());
         }));
 
         // get value
-        app.get('/api/resource/:doctype/:name/:fieldname', frappe.async_handler(async function(request, response) {
+        app.get('/api/resource/:doctype/:name/:fieldname', this.asyncHandler(async function(request, response) {
             let value = await frappe.db.getValue(request.params.doctype, request.params.name, request.params.fieldname);
             return response.json({value: value});
         }));
 
         // delete
-        app.delete('/api/resource/:doctype/:name', frappe.async_handler(async function(request, response) {
+        app.delete('/api/resource/:doctype/:name', this.asyncHandler(async function(request, response) {
             let doc = await frappe.getDoc(request.params.doctype, request.params.name)
             await doc.delete();
             return response.json({});
         }));
 
         // delete many
-        app.delete('/api/resource/:doctype', frappe.async_handler(async function(request, response) {
+        app.delete('/api/resource/:doctype', this.asyncHandler(async function(request, response) {
             let names = request.body;
             for (let name of names) {
                 let doc = await frappe.getDoc(request.params.doctype, name);

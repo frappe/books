@@ -10,9 +10,7 @@ class LinkControl extends BaseControl {
             autoFirst: true,
             minChars: 0,
             maxItems: 99,
-            filter: function() {
-				return true;
-			}
+            filter: () => true,
         });
 
         // rebuild the list on input
@@ -36,8 +34,8 @@ class LinkControl extends BaseControl {
                 e.preventDefault();
                 const newDoc = await frappe.getNewDoc(this.target);
                 const formModal = frappe.desk.showFormModal(this.target, newDoc.name);
-                formModal.form.once('submit', () => {
-                    this.form.doc.set(this.fieldname, formModal.form.doc.name);
+                formModal.form.once('submit', async () => {
+                    await this.updateDocValue(formModal.form.doc.name);
                 })
             }
         });

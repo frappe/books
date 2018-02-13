@@ -80,8 +80,8 @@ module.exports = class BaseForm extends Observable {
 
     async bindEvents(doc) {
         if (this.doc) {
-            // clear handlers of outgoing doc
-            this.doc.clearHandlers();
+            // clear listeners of outgoing doc
+            this.doc.clearListeners();
         }
         this.clearAlert();
         this.doc = doc;
@@ -89,13 +89,13 @@ module.exports = class BaseForm extends Observable {
             control.bind(this.doc);
         }
 
-        this.setupChangeHandler();
+        this.setupChangeListener();
         this.trigger('use', {doc:doc});
     }
 
-    setupChangeHandler() {
+    setupChangeListener() {
         // refresh value in control
-        this.doc.addHandler('change', (params) => {
+        this.doc.on('change', (params) => {
             if (params.fieldname) {
                 // only single value changed
                 let control = this.controls[params.fieldname];

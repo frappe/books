@@ -17,28 +17,35 @@ class TableControl extends BaseControl {
                     ${frappe._("Remove")}</button>
             </div>`;
 
-            this.datatable = new DataTable(this.wrapper.querySelector('.datatable-wrapper'), {
-                columns: this.getColumns(),
-                data: this.getTableData(),
-                takeAvailableSpace: true,
-                addCheckboxColumn: true,
-                editing: this.getTableInput.bind(this),
-            });
-
-            this.wrapper.querySelector('.btn-add').addEventListener('click', async (event) => {
-                this.doc[this.fieldname].push({});
-                await this.doc.commit();
-                this.refresh();
-            });
-
-            this.wrapper.querySelector('.btn-remove').addEventListener('click', async (event) => {
-                let checked = this.datatable.rowmanager.getCheckedRows();
-                this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx));
-                await this.doc.commit();
-                this.refresh();
-                this.datatable.rowmanager.checkAll(false);
-            });
+            this.makeDatatable();
+            this.setupToolbar();
         }
+    }
+
+    makeDatatable() {
+        this.datatable = new DataTable(this.wrapper.querySelector('.datatable-wrapper'), {
+            columns: this.getColumns(),
+            data: this.getTableData(),
+            takeAvailableSpace: true,
+            addCheckboxColumn: true,
+            getEditor: this.getTableInput.bind(this),
+        });
+    }
+
+    setupToolbar() {
+        this.wrapper.querySelector('.btn-add').addEventListener('click', async (event) => {
+            this.doc[this.fieldname].push({});
+            await this.doc.commit();
+            this.refresh();
+        });
+
+        this.wrapper.querySelector('.btn-remove').addEventListener('click', async (event) => {
+            let checked = this.datatable.rowmanager.getCheckedRows();
+            this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx));
+            await this.doc.commit();
+            this.refresh();
+            this.datatable.rowmanager.checkAll(false);
+        });
     }
 
     getInputValue() {
@@ -73,7 +80,7 @@ class TableControl extends BaseControl {
         return {
             initValue: (value, rowIndex, column) => {
                 column.activeControl = control;
-                control.parent_control = this;
+                control.parentControl = this;
                 control.doc = this.doc[this.fieldname][rowIndex];
                 control.set_focus();
                 return control.setInputValue(value);

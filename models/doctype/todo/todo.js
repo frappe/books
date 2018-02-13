@@ -8,9 +8,6 @@ class ToDoMeta extends BaseMeta {
 }
 
 class ToDo extends BaseDocument {
-    setup() {
-        this.addHandler('validate');
-    }
     validate() {
         if (!this.status) {
             this.status = 'Open';
