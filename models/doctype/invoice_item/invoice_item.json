@@ -29,7 +29,8 @@
 			"fieldname": "rate",
 			"label": "Rate",
 			"fieldtype": "Currency",
-			"required": 1
+			"required": 1,
+			"formula": "doc.getFrom('Item', row.item, 'rate')"
 		},
 		{
 			"fieldname": "amount",

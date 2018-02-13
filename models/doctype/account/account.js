@@ -9,9 +9,6 @@ class AccountMeta extends BaseMeta {
 }
 
 class Account extends BaseDocument {
-    setup() {
-        this.addHandler('validate');
-    }
     async validate() {
         if (!this.account_type) {
             if (this.parent_account) {

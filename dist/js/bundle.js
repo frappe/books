@@ -22,15 +22,6 @@ var utils = {
         return Math.random().toString(36).substr(3);
     },
 
-    async_handler(fn) {
-        return (req, res, next) => Promise.resolve(fn(req, res, next))
-            .catch((err) => {
-                console.log(err);
-                // handle error
-                res.status(err.status_code || 500).send({error: err.message});
-            });
-    },
-
     async sleep(seconds) {
         return new Promise(resolve => {
             setTimeout(resolve, seconds * 1000);
@@ -343,27 +334,59 @@ var model = {
     ]
 };
 
-var document$1 = class BaseDocument {
+var observable = class Observable {
+    on(event, listener) {
+        this._addListener('_listeners', event, listener);
+    }
+
+    once(event, listener) {
+        this._addListener('_onceListeners', event, listener);
+    }
+
+    async trigger(event, params) {
+        await this._triggerEvent('_listeners', event, params);
+        await this._triggerEvent('_onceListeners', event, params);
+
+        // clear once-listeners
+        if (this._onceListeners && this._onceListeners[event]) {
+            delete this._onceListeners[event];
+        }
+    }
+
+    _addListener(name, event, listener) {
+        if (!this[name]) {
+            this[name] = {};
+        }
+        if (!this[name][event]) {
+            this[name][event] = [];
+        }
+        this[name][event].push(listener);
+    }
+
+    async _triggerEvent(name, event, params) {
+        if (this[name] && this[name][event]) {
+            for (let listener of this[name][event]) {
+                await listener(params);
+            }
+        }
+    }
+
+    clearListeners() {
+        this._listeners = {};
+        this._onceListeners = {};
+    }
+};
+
+var document$1 = class BaseDocument extends observable {
     constructor(data) {
-        this.handlers = {};
+        super();
         this.fetchValues = {};
         this.setup();
         Object.assign(this, data);
     }
 
     setup() {
-        // add handlers
-    }
-
-    clearHandlers() {
-        this.handlers = {};
-    }
-
-    addHandler(key, method) {
-        if (!this.handlers[key]) {
-            this.handlers[key] = [];
-        }
-        this.handlers[key].push(method || key);
+        // add listeners
     }
 
     get meta() {
@@ -455,7 +478,7 @@ var document$1 = class BaseDocument {
     async validateField(key, value) {
         let field = this.meta.getField(key);
         if (field && field.fieldtype == 'Select') {
-            return this.meta.validate_select(field, value);
+            return this.meta.validateSelect(field, value);
         }
         return value;
     }
@@ -551,7 +574,6 @@ var document$1 = class BaseDocument {
         this.setChildIdx();
         await this.applyFormulae();
         await this.trigger('validate');
-        await this.trigger('commit');
     }
 
     async insert() {
@@ -580,16 +602,11 @@ var document$1 = class BaseDocument {
         await this.trigger('after_delete');
     }
 
-    async trigger(key, params) {
-        if (this.handlers[key]) {
-            for (let method of this.handlers[key]) {
-                if (typeof method === 'string') {
-                    await this[method](params);
-                } else {
-                    await method(params);
-                }
-            }
+    async trigger(event, params) {
+        if (this[event]) {
+            await this[event](params);
         }
+        await super.trigger(event, params);
     }
 
     // helper functions
@@ -610,7 +627,6 @@ var document$1 = class BaseDocument {
 var meta = class BaseMeta extends document$1 {
     constructor(data) {
         super(data);
-        this.event_handlers = {};
         this.list_options = {
             fields: ['name', 'modified']
         };
@@ -658,13 +674,6 @@ var meta = class BaseMeta extends document$1 {
             }
         }
         return this._hasFormulae;
-    }
-
-    on(key, fn) {
-        if (!this.event_handlers[key]) {
-            this.event_handlers[key] = [];
-        }
-        this.event_handlers[key].push(fn);
     }
 
     async set(fieldname, value) {
@@ -747,7 +756,7 @@ var meta = class BaseMeta extends document$1 {
         return this._keywordFields;
     }
 
-    validate_select(field, value) {
+    validateSelect(field, value) {
         let options = field.options;
         if (typeof options === 'string') {
             // values given as string
@@ -759,17 +768,13 @@ var meta = class BaseMeta extends document$1 {
         return value;
     }
 
-    async trigger(key, event = {}) {
-        Object.assign(event, {
+    async trigger(event, params = {}) {
+        Object.assign(params, {
             doc: this,
-            name: key
+            name: event
         });
 
-        if (this.event_handlers[key]) {
-            for (var handler of this.event_handlers[key]) {
-                await handler(event);
-            }
-        }
+        await super.trigger(event, params);
     }
 };
 
@@ -1359,27 +1364,6 @@ var ui = {
 
 };
 
-var observable = class Observable {
-    constructor() {
-        this._handlers = {};
-    }
-
-    on(event, fn) {
-        if (!this._handlers[event]) {
-            this._handlers[event] = [];
-        }
-        this._handlers[event].push(fn);
-    }
-
-    async trigger(event, params) {
-        if (this._handlers[event]) {
-            for (let handler of this._handlers[event]) {
-                await handler(params);
-            }
-        }
-    }
-};
-
 var router = class Router extends observable {
     constructor() {
         super();
@@ -1538,9 +1522,9 @@ var page = class Page extends observable {
         this.trigger('hide');
     }
 
-    addButton(label, cssClass, action) {
+    addButton(label, className, action) {
         this.head.classList.remove('hide');
-        this.button = frappejs.ui.add('button', 'btn ' + cssClass, this.head);
+        this.button = frappejs.ui.add('button', 'btn ' + this.getClassName(className), this.head);
         this.button.innerHTML = label;
         this.button.addEventListener('click', action);
         return this.button;
@@ -1570,6 +1554,15 @@ var page = class Page extends observable {
         this.body.classList.add('hide');
         this.page_error.classList.remove('hide');
         this.page_error.innerHTML = `<h3 class="text-extra-muted">${title ? title : ""}</h3><p class="text-muted">${message ? message : ""}</p>`;
+    }
+
+    getClassName(className) {
+        const newName = {
+            'primary': 'btn-primary',
+            'secondary': 'btn-outline-secondary'
+        }[className];
+
+        return newName || className;
     }
 };
 
@@ -1875,13 +1868,18 @@ class BaseControl {
     async handleChange(event) {
         let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
+        await this.updateDocValue(value);
+    }
+
+    async updateDocValue(value) {
         if (this.doc[this.fieldname] !== value) {
-            if (this.doc.set) {
-                await this.doc.set(this.fieldname, value);
-            }
-            if (this.parent_control) {
+            if (this.parentControl) {
+                // its a child
                 this.doc[this.fieldname] = value;
-                await this.parent_control.doc.set(this.fieldname, this.parent_control.getInputValue());
+                await this.parentControl.doc.set(this.fieldname, this.parentControl.getInputValue());
+            } else {
+                // parent
+                await this.doc.set(this.fieldname, value);
             }
         }
     }
@@ -2466,12 +2464,35 @@ class LinkControl extends base {
         this.awesomplete = new awesomplete(this.input, {
             autoFirst: true,
             minChars: 0,
-            maxItems: 99
+            maxItems: 99,
+            filter: () => true,
         });
 
         // rebuild the list on input
         this.input.addEventListener('input', async (event) => {
-            this.awesomplete.list = await this.getList(this.input.value);
+            let list = await this.getList(this.input.value);
+
+            // action to add new item
+            list.push({
+                label:frappejs._('+ New {0}', this.target),
+                value: '__newItem',
+                action: () => {
+                }
+            });
+
+            this.awesomplete.list = list;
+        });
+
+        // new item action
+        this.input.addEventListener('awesomplete-select', async (e) => {
+            if (e.text && e.text.value === '__newItem') {
+                e.preventDefault();
+                const newDoc = await frappejs.getNewDoc(this.target);
+                const formModal = frappejs.desk.showFormModal(this.target, newDoc.name);
+                formModal.form.once('submit', async () => {
+                    await this.updateDocValue(formModal.form.doc.name);
+                });
+            }
         });
     }
 
@@ -4399,7 +4420,7 @@ var clusterize = createCommonjsModule(function (module) {
 var frappeDatatable = createCommonjsModule(function (module, exports) {
 (function webpackUniversalModuleDefinition(root, factory) {
 	module.exports = factory(Sortable, clusterize);
-})(typeof self !== 'undefined' ? self : commonjsGlobal, function(__WEBPACK_EXTERNAL_MODULE_9__, __WEBPACK_EXTERNAL_MODULE_11__) {
+})(typeof self !== 'undefined' ? self : commonjsGlobal, function(__WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_11__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -4462,7 +4483,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -4924,997 +4945,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.getRowHTML = getRowHTML;
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-var _utils = __webpack_require__(1);
-
-var _cellmanager = __webpack_require__(3);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var RowManager = function () {
-  function RowManager(instance) {
-    _classCallCheck(this, RowManager);
-
-    this.instance = instance;
-    this.options = this.instance.options;
-    this.wrapper = this.instance.wrapper;
-    this.bodyScrollable = this.instance.bodyScrollable;
-
-    this.bindEvents();
-    this.refreshRows = (0, _utils.promisify)(this.refreshRows, this);
-  }
-
-  _createClass(RowManager, [{
-    key: 'bindEvents',
-    value: function bindEvents() {
-      this.bindCheckbox();
-    }
-  }, {
-    key: 'bindCheckbox',
-    value: function bindCheckbox() {
-      var _this = this;
-
-      if (!this.options.addCheckboxColumn) return;
-
-      // map of checked rows
-      this.checkMap = [];
-
-      _dom2.default.on(this.wrapper, 'click', '.data-table-col[data-col-index="0"] [type="checkbox"]', function (e, $checkbox) {
-        var $cell = $checkbox.closest('.data-table-col');
-
-        var _$$data = _dom2.default.data($cell),
-            rowIndex = _$$data.rowIndex,
-            isHeader = _$$data.isHeader;
-
-        var checked = $checkbox.checked;
-
-        if (isHeader) {
-          _this.checkAll(checked);
-        } else {
-          _this.checkRow(rowIndex, checked);
-        }
-      });
-    }
-  }, {
-    key: 'refreshRows',
-    value: function refreshRows() {
-      this.instance.renderBody();
-      this.instance.setDimensions();
-    }
-  }, {
-    key: 'refreshRow',
-    value: function refreshRow(row, rowIndex) {
-      var _this2 = this;
-
-      var _row = this.datamanager.updateRow(row, rowIndex);
-
-      _row.forEach(function (cell) {
-        _this2.cellmanager.refreshCell(cell);
-      });
-    }
-  }, {
-    key: 'getCheckedRows',
-    value: function getCheckedRows() {
-      if (!this.checkMap) {
-        return [];
-      }
-
-      return this.checkMap.map(function (c, rowIndex) {
-        if (c) {
-          return rowIndex;
-        }
-        return null;
-      }).filter(function (c) {
-        return c !== null || c !== undefined;
-      });
-    }
-  }, {
-    key: 'highlightCheckedRows',
-    value: function highlightCheckedRows() {
-      var _this3 = this;
-
-      this.getCheckedRows().map(function (rowIndex) {
-        return _this3.checkRow(rowIndex, true);
-      });
-    }
-  }, {
-    key: 'checkRow',
-    value: function checkRow(rowIndex, toggle) {
-      var value = toggle ? 1 : 0;
-
-      // update internal map
-      this.checkMap[rowIndex] = value;
-      // set checkbox value explicitly
-      _dom2.default.each('.data-table-col[data-row-index="' + rowIndex + '"][data-col-index="0"] [type="checkbox"]', this.bodyScrollable).map(function (input) {
-        input.checked = toggle;
-      });
-      // highlight row
-      this.highlightRow(rowIndex, toggle);
-    }
-  }, {
-    key: 'checkAll',
-    value: function checkAll(toggle) {
-      var value = toggle ? 1 : 0;
-
-      // update internal map
-      if (toggle) {
-        this.checkMap = Array.from(Array(this.getTotalRows())).map(function (c) {
-          return value;
-        });
-      } else {
-        this.checkMap = [];
-      }
-      // set checkbox value
-      _dom2.default.each('.data-table-col[data-col-index="0"] [type="checkbox"]', this.bodyScrollable).map(function (input) {
-        input.checked = toggle;
-      });
-      // highlight all
-      this.highlightAll(toggle);
-    }
-  }, {
-    key: 'highlightRow',
-    value: function highlightRow(rowIndex) {
-      var toggle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-      var $row = this.getRow$(rowIndex);
-      if (!$row) return;
-
-      if (!toggle && this.bodyScrollable.classList.contains('row-highlight-all')) {
-        $row.classList.add('row-unhighlight');
-        return;
-      }
-
-      if (toggle && $row.classList.contains('row-unhighlight')) {
-        $row.classList.remove('row-unhighlight');
-      }
-
-      this._highlightedRows = this._highlightedRows || {};
-
-      if (toggle) {
-        $row.classList.add('row-highlight');
-        this._highlightedRows[rowIndex] = $row;
-      } else {
-        $row.classList.remove('row-highlight');
-        delete this._highlightedRows[rowIndex];
-      }
-    }
-  }, {
-    key: 'highlightAll',
-    value: function highlightAll() {
-      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-      if (toggle) {
-        this.bodyScrollable.classList.add('row-highlight-all');
-      } else {
-        this.bodyScrollable.classList.remove('row-highlight-all');
-        for (var rowIndex in this._highlightedRows) {
-          var $row = this._highlightedRows[rowIndex];
-          $row.classList.remove('row-highlight');
-        }
-        this._highlightedRows = {};
-      }
-    }
-  }, {
-    key: 'getRow$',
-    value: function getRow$(rowIndex) {
-      return (0, _dom2.default)('.data-table-row[data-row-index="' + rowIndex + '"]', this.bodyScrollable);
-    }
-  }, {
-    key: 'getTotalRows',
-    value: function getTotalRows() {
-      return this.datamanager.getRowCount();
-    }
-  }, {
-    key: 'getFirstRowIndex',
-    value: function getFirstRowIndex() {
-      return 0;
-    }
-  }, {
-    key: 'getLastRowIndex',
-    value: function getLastRowIndex() {
-      return this.datamanager.getRowCount() - 1;
-    }
-  }, {
-    key: 'scrollToRow',
-    value: function scrollToRow(rowIndex) {
-      rowIndex = +rowIndex;
-      this._lastScrollTo = this._lastScrollTo || 0;
-      var $row = this.getRow$(rowIndex);
-      if (_dom2.default.inViewport($row, this.bodyScrollable)) return;
-
-      var _$row$getBoundingClie = $row.getBoundingClientRect(),
-          height = _$row$getBoundingClie.height;
-
-      var _bodyScrollable$getBo = this.bodyScrollable.getBoundingClientRect(),
-          top = _bodyScrollable$getBo.top,
-          bottom = _bodyScrollable$getBo.bottom;
-
-      var rowsInView = Math.floor((bottom - top) / height);
-
-      var offset = 0;
-      if (rowIndex > this._lastScrollTo) {
-        offset = height * (rowIndex + 1 - rowsInView);
-      } else {
-        offset = height * (rowIndex + 1 - 1);
-      }
-
-      this._lastScrollTo = rowIndex;
-      _dom2.default.scrollTop(this.bodyScrollable, offset);
-    }
-  }, {
-    key: 'datamanager',
-    get: function get() {
-      return this.instance.datamanager;
-    }
-  }, {
-    key: 'cellmanager',
-    get: function get() {
-      return this.instance.cellmanager;
-    }
-  }]);
-
-  return RowManager;
-}();
-
-exports.default = RowManager;
-function getRowHTML(row, props) {
-  var dataAttr = (0, _utils.makeDataAttributeString)(props);
-
-  return '\n    <tr class="data-table-row" ' + dataAttr + '>\n      ' + row.map(_cellmanager.getCellHTML).join('') + '\n    </tr>\n  ';
-}
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.getCellHTML = getCellHTML;
-exports.getCellContent = getCellContent;
-exports.getEditCellHTML = getEditCellHTML;
-
-var _utils = __webpack_require__(1);
-
-var _keyboard = __webpack_require__(4);
-
-var _keyboard2 = _interopRequireDefault(_keyboard);
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-var _columnmanager = __webpack_require__(5);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var CellManager = function () {
-  function CellManager(instance) {
-    _classCallCheck(this, CellManager);
-
-    this.instance = instance;
-    this.wrapper = this.instance.wrapper;
-    this.options = this.instance.options;
-    this.style = this.instance.style;
-    this.bodyScrollable = this.instance.bodyScrollable;
-    this.columnmanager = this.instance.columnmanager;
-    this.rowmanager = this.instance.rowmanager;
-    this.datamanager = this.instance.datamanager;
-
-    this.bindEvents();
-  }
-
-  _createClass(CellManager, [{
-    key: 'bindEvents',
-    value: function bindEvents() {
-      this.bindFocusCell();
-      this.bindEditCell();
-      this.bindKeyboardSelection();
-      this.bindCopyCellContents();
-      this.bindMouseEvents();
-    }
-  }, {
-    key: 'bindFocusCell',
-    value: function bindFocusCell() {
-      this.bindKeyboardNav();
-    }
-  }, {
-    key: 'bindEditCell',
-    value: function bindEditCell() {
-      var _this = this;
-
-      this.$editingCell = null;
-
-      _dom2.default.on(this.bodyScrollable, 'dblclick', '.data-table-col', function (e, cell) {
-        _this.activateEditing(cell);
-      });
-
-      _keyboard2.default.on('enter', function (e) {
-        if (_this.$focusedCell && !_this.$editingCell) {
-          // enter keypress on focused cell
-          _this.activateEditing(_this.$focusedCell);
-        } else if (_this.$editingCell) {
-          // enter keypress on editing cell
-          _this.submitEditing();
-          _this.deactivateEditing();
-        }
-      });
-    }
-  }, {
-    key: 'bindKeyboardNav',
-    value: function bindKeyboardNav() {
-      var _this2 = this;
-
-      var focusCell = function focusCell(direction) {
-        if (!_this2.$focusedCell || _this2.$editingCell) {
-          return false;
-        }
-
-        var $cell = _this2.$focusedCell;
-
-        if (direction === 'left') {
-          $cell = _this2.getLeftCell$($cell);
-        } else if (direction === 'right' || direction === 'tab') {
-          $cell = _this2.getRightCell$($cell);
-        } else if (direction === 'up') {
-          $cell = _this2.getAboveCell$($cell);
-        } else if (direction === 'down') {
-          $cell = _this2.getBelowCell$($cell);
-        }
-
-        _this2.focusCell($cell);
-        return true;
-      };
-
-      var focusLastCell = function focusLastCell(direction) {
-        if (!_this2.$focusedCell || _this2.$editingCell) {
-          return false;
-        }
-
-        var $cell = _this2.$focusedCell;
-
-        var _$$data = _dom2.default.data($cell),
-            rowIndex = _$$data.rowIndex,
-            colIndex = _$$data.colIndex;
-
-        if (direction === 'left') {
-          $cell = _this2.getLeftMostCell$(rowIndex);
-        } else if (direction === 'right') {
-          $cell = _this2.getRightMostCell$(rowIndex);
-        } else if (direction === 'up') {
-          $cell = _this2.getTopMostCell$(colIndex);
-        } else if (direction === 'down') {
-          $cell = _this2.getBottomMostCell$(colIndex);
-        }
-
-        _this2.focusCell($cell);
-        return true;
-      };
-
-      ['left', 'right', 'up', 'down', 'tab'].map(function (direction) {
-        return _keyboard2.default.on(direction, function () {
-          return focusCell(direction);
-        });
-      });
-
-      ['left', 'right', 'up', 'down'].map(function (direction) {
-        return _keyboard2.default.on('ctrl+' + direction, function () {
-          return focusLastCell(direction);
-        });
-      });
-
-      _keyboard2.default.on('esc', function () {
-        _this2.deactivateEditing();
-      });
-    }
-  }, {
-    key: 'bindKeyboardSelection',
-    value: function bindKeyboardSelection() {
-      var _this3 = this;
-
-      var getNextSelectionCursor = function getNextSelectionCursor(direction) {
-        var $selectionCursor = _this3.getSelectionCursor();
-
-        if (direction === 'left') {
-          $selectionCursor = _this3.getLeftCell$($selectionCursor);
-        } else if (direction === 'right') {
-          $selectionCursor = _this3.getRightCell$($selectionCursor);
-        } else if (direction === 'up') {
-          $selectionCursor = _this3.getAboveCell$($selectionCursor);
-        } else if (direction === 'down') {
-          $selectionCursor = _this3.getBelowCell$($selectionCursor);
-        }
-
-        return $selectionCursor;
-      };
-
-      ['left', 'right', 'up', 'down'].map(function (direction) {
-        return _keyboard2.default.on('shift+' + direction, function () {
-          return _this3.selectArea(getNextSelectionCursor(direction));
-        });
-      });
-    }
-  }, {
-    key: 'bindCopyCellContents',
-    value: function bindCopyCellContents() {
-      var _this4 = this;
-
-      _keyboard2.default.on('ctrl+c', function () {
-        _this4.copyCellContents(_this4.$focusedCell, _this4.$selectionCursor);
-      });
-    }
-  }, {
-    key: 'bindMouseEvents',
-    value: function bindMouseEvents() {
-      var _this5 = this;
-
-      var mouseDown = null;
-
-      _dom2.default.on(this.bodyScrollable, 'mousedown', '.data-table-col', function (e) {
-        mouseDown = true;
-        _this5.focusCell((0, _dom2.default)(e.delegatedTarget));
-      });
-
-      _dom2.default.on(this.bodyScrollable, 'mouseup', function () {
-        mouseDown = false;
-      });
-
-      var selectArea = function selectArea(e) {
-        if (!mouseDown) return;
-        _this5.selectArea((0, _dom2.default)(e.delegatedTarget));
-      };
-
-      _dom2.default.on(this.bodyScrollable, 'mousemove', '.data-table-col', (0, _utils.throttle)(selectArea, 50));
-    }
-  }, {
-    key: 'focusCell',
-    value: function focusCell($cell) {
-      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref$skipClearSelecti = _ref.skipClearSelection,
-          skipClearSelection = _ref$skipClearSelecti === undefined ? 0 : _ref$skipClearSelecti;
-
-      if (!$cell) return;
-
-      // don't focus if already editing cell
-      if ($cell === this.$editingCell) return;
-
-      var _$$data2 = _dom2.default.data($cell),
-          colIndex = _$$data2.colIndex,
-          isHeader = _$$data2.isHeader;
-
-      if (isHeader) {
-        return;
-      }
-
-      var column = this.columnmanager.getColumn(colIndex);
-      if (column.focusable === false) {
-        return;
-      }
-
-      this.deactivateEditing();
-      if (!skipClearSelection) {
-        this.clearSelection();
-      }
-
-      if (this.$focusedCell) {
-        this.$focusedCell.classList.remove('selected');
-      }
-
-      this.$focusedCell = $cell;
-      $cell.classList.add('selected');
-
-      this.highlightRowColumnHeader($cell);
-      this.scrollToCell($cell);
-    }
-  }, {
-    key: 'highlightRowColumnHeader',
-    value: function highlightRowColumnHeader($cell) {
-      var _$$data3 = _dom2.default.data($cell),
-          colIndex = _$$data3.colIndex,
-          rowIndex = _$$data3.rowIndex;
-
-      var _colIndex = this.datamanager.getColumnIndexById('_rowIndex');
-      var colHeaderSelector = '.data-table-header .data-table-col[data-col-index="' + colIndex + '"]';
-      var rowHeaderSelector = '.data-table-col[data-row-index="' + rowIndex + '"][data-col-index="' + _colIndex + '"]';
-
-      if (this.lastHeaders) {
-        _dom2.default.removeStyle(this.lastHeaders, 'backgroundColor');
-      }
-
-      var colHeader = (0, _dom2.default)(colHeaderSelector, this.wrapper);
-      var rowHeader = (0, _dom2.default)(rowHeaderSelector, this.wrapper);
-
-      _dom2.default.style([colHeader, rowHeader], {
-        backgroundColor: '#f5f7fa' // light-bg
-      });
-
-      this.lastHeaders = [colHeader, rowHeader];
-    }
-  }, {
-    key: 'selectAreaOnClusterChanged',
-    value: function selectAreaOnClusterChanged() {
-      if (!(this.$focusedCell && this.$selectionCursor)) return;
-
-      var _$$data4 = _dom2.default.data(this.$selectionCursor),
-          colIndex = _$$data4.colIndex,
-          rowIndex = _$$data4.rowIndex;
-
-      var $cell = this.getCell$(colIndex, rowIndex);
-
-      if (!$cell || $cell === this.$selectionCursor) return;
-
-      // selectArea needs $focusedCell
-      var fCell = _dom2.default.data(this.$focusedCell);
-      this.$focusedCell = this.getCell$(fCell.colIndex, fCell.rowIndex);
-
-      this.selectArea($cell);
-    }
-  }, {
-    key: 'focusCellOnClusterChanged',
-    value: function focusCellOnClusterChanged() {
-      if (!this.$focusedCell) return;
-
-      var _$$data5 = _dom2.default.data(this.$focusedCell),
-          colIndex = _$$data5.colIndex,
-          rowIndex = _$$data5.rowIndex;
-
-      var $cell = this.getCell$(colIndex, rowIndex);
-
-      if (!$cell) return;
-      // this function is called after selectAreaOnClusterChanged,
-      // focusCell calls clearSelection which resets the area selection
-      // so a flag to skip it
-      this.focusCell($cell, { skipClearSelection: 1 });
-    }
-  }, {
-    key: 'selectArea',
-    value: function selectArea($selectionCursor) {
-      if (!this.$focusedCell) return;
-
-      if (this._selectArea(this.$focusedCell, $selectionCursor)) {
-        // valid selection
-        this.$selectionCursor = $selectionCursor;
-      }
-    }
-  }, {
-    key: '_selectArea',
-    value: function _selectArea($cell1, $cell2) {
-      var _this6 = this;
-
-      if ($cell1 === $cell2) return false;
-
-      var cells = this.getCellsInRange($cell1, $cell2);
-      if (!cells) return false;
-
-      this.clearSelection();
-      cells.map(function (index) {
-        return _this6.getCell$.apply(_this6, _toConsumableArray(index));
-      }).map(function ($cell) {
-        return $cell.classList.add('highlight');
-      });
-      return true;
-    }
-  }, {
-    key: 'getCellsInRange',
-    value: function getCellsInRange($cell1, $cell2) {
-      var colIndex1 = void 0,
-          rowIndex1 = void 0,
-          colIndex2 = void 0,
-          rowIndex2 = void 0;
-
-      if (typeof $cell1 === 'number') {
-        var _arguments = Array.prototype.slice.call(arguments);
-
-        colIndex1 = _arguments[0];
-        rowIndex1 = _arguments[1];
-        colIndex2 = _arguments[2];
-        rowIndex2 = _arguments[3];
-      } else if ((typeof $cell1 === 'undefined' ? 'undefined' : _typeof($cell1)) === 'object') {
-
-        if (!($cell1 && $cell2)) {
-          return false;
-        }
-
-        var cell1 = _dom2.default.data($cell1);
-        var cell2 = _dom2.default.data($cell2);
-
-        colIndex1 = cell1.colIndex;
-        rowIndex1 = cell1.rowIndex;
-        colIndex2 = cell2.colIndex;
-        rowIndex2 = cell2.rowIndex;
-      }
-
-      if (rowIndex1 > rowIndex2) {
-        var _ref2 = [rowIndex2, rowIndex1];
-        rowIndex1 = _ref2[0];
-        rowIndex2 = _ref2[1];
-      }
-
-      if (colIndex1 > colIndex2) {
-        var _ref3 = [colIndex2, colIndex1];
-        colIndex1 = _ref3[0];
-        colIndex2 = _ref3[1];
-      }
-
-      if (this.isStandardCell(colIndex1) || this.isStandardCell(colIndex2)) {
-        return false;
-      }
-
-      var cells = [];
-      var colIndex = colIndex1;
-      var rowIndex = rowIndex1;
-      var rowIndices = [];
-
-      while (rowIndex <= rowIndex2) {
-        rowIndices.push(rowIndex);
-        rowIndex++;
-      }
-
-      rowIndices.map(function (rowIndex) {
-        while (colIndex <= colIndex2) {
-          cells.push([colIndex, rowIndex]);
-          colIndex++;
-        }
-        colIndex = colIndex1;
-      });
-
-      return cells;
-    }
-  }, {
-    key: 'clearSelection',
-    value: function clearSelection() {
-      _dom2.default.each('.data-table-col.highlight', this.bodyScrollable).map(function (cell) {
-        return cell.classList.remove('highlight');
-      });
-
-      this.$selectionCursor = null;
-    }
-  }, {
-    key: 'getSelectionCursor',
-    value: function getSelectionCursor() {
-      return this.$selectionCursor || this.$focusedCell;
-    }
-  }, {
-    key: 'activateEditing',
-    value: function activateEditing($cell) {
-      this.focusCell($cell);
-
-      var _$$data6 = _dom2.default.data($cell),
-          rowIndex = _$$data6.rowIndex,
-          colIndex = _$$data6.colIndex;
-
-      var col = this.columnmanager.getColumn(colIndex);
-      if (col && (col.editable === false || col.focusable === false)) {
-        return;
-      }
-
-      var cell = this.getCell(colIndex, rowIndex);
-      if (cell && cell.editable === false) {
-        return;
-      }
-
-      if (this.$editingCell) {
-        var _$$data7 = _dom2.default.data(this.$editingCell),
-            _rowIndex = _$$data7._rowIndex,
-            _colIndex = _$$data7._colIndex;
-
-        if (rowIndex === _rowIndex && colIndex === _colIndex) {
-          // editing the same cell
-          return;
-        }
-      }
-
-      this.$editingCell = $cell;
-      $cell.classList.add('editing');
-
-      var $editCell = (0, _dom2.default)('.edit-cell', $cell);
-      $editCell.innerHTML = '';
-
-      var editing = this.getEditingObject(colIndex, rowIndex, cell.content, $editCell);
-
-      if (editing) {
-        this.currentCellEditing = editing;
-        // initialize editing input with cell value
-        editing.initValue(cell.content, rowIndex, col);
-      }
-    }
-  }, {
-    key: 'deactivateEditing',
-    value: function deactivateEditing() {
-      // keep focus on the cell so that keyboard navigation works
-      if (this.$focusedCell) this.$focusedCell.focus();
-
-      if (!this.$editingCell) return;
-      this.$editingCell.classList.remove('editing');
-      this.$editingCell = null;
-    }
-  }, {
-    key: 'getEditingObject',
-    value: function getEditingObject(colIndex, rowIndex, value, parent) {
-      // debugger;
-      var obj = this.options.editing(colIndex, rowIndex, value, parent);
-      if (obj && obj.setValue) return obj;
-
-      // editing fallback
-      var $input = _dom2.default.create('input', {
-        type: 'text',
-        inside: parent
-      });
-
-      return {
-        initValue: function initValue(value) {
-          $input.focus();
-          $input.value = value;
-        },
-        getValue: function getValue() {
-          return $input.value;
-        },
-        setValue: function setValue(value) {
-          $input.value = value;
-        }
-      };
-    }
-  }, {
-    key: 'submitEditing',
-    value: function submitEditing() {
-      var _this7 = this;
-
-      if (!this.$editingCell) return;
-      var $cell = this.$editingCell;
-
-      var _$$data8 = _dom2.default.data($cell),
-          rowIndex = _$$data8.rowIndex,
-          colIndex = _$$data8.colIndex;
-
-      var col = this.datamanager.getColumn(colIndex);
-
-      if ($cell) {
-        var editing = this.currentCellEditing;
-
-        if (editing) {
-          var value = editing.getValue();
-          var done = editing.setValue(value, rowIndex, col);
-          var oldValue = this.getCell(colIndex, rowIndex).content;
-
-          // update cell immediately
-          this.updateCell(colIndex, rowIndex, value);
-          $cell.focus();
-
-          if (done && done.then) {
-            // revert to oldValue if promise fails
-            done.catch(function (e) {
-              console.log(e);
-              _this7.updateCell(colIndex, rowIndex, oldValue);
-            });
-          }
-        }
-      }
-
-      this.currentCellEditing = null;
-    }
-  }, {
-    key: 'copyCellContents',
-    value: function copyCellContents($cell1, $cell2) {
-      var _this8 = this;
-
-      if (!$cell2 && $cell1) {
-        // copy only focusedCell
-        var _$$data9 = _dom2.default.data($cell1),
-            colIndex = _$$data9.colIndex,
-            rowIndex = _$$data9.rowIndex;
-
-        var cell = this.getCell(colIndex, rowIndex);
-        (0, _utils.copyTextToClipboard)(cell.content);
-        return;
-      }
-      var cells = this.getCellsInRange($cell1, $cell2);
-
-      if (!cells) return;
-
-      var values = cells
-      // get cell objects
-      .map(function (index) {
-        return _this8.getCell.apply(_this8, _toConsumableArray(index));
-      })
-      // convert to array of rows
-      .reduce(function (acc, curr) {
-        var rowIndex = curr.rowIndex;
-
-        acc[rowIndex] = acc[rowIndex] || [];
-        acc[rowIndex].push(curr.content);
-
-        return acc;
-      }, [])
-      // join values by tab
-      .map(function (row) {
-        return row.join('\t');
-      })
-      // join rows by newline
-      .join('\n');
-
-      (0, _utils.copyTextToClipboard)(values);
-    }
-  }, {
-    key: 'updateCell',
-    value: function updateCell(colIndex, rowIndex, value) {
-      var cell = this.datamanager.updateCell(colIndex, rowIndex, {
-        content: value
-      });
-      this.refreshCell(cell);
-    }
-  }, {
-    key: 'refreshCell',
-    value: function refreshCell(cell) {
-      var $cell = (0, _dom2.default)(cellSelector(cell.colIndex, cell.rowIndex), this.bodyScrollable);
-      $cell.innerHTML = getCellContent(cell);
-    }
-  }, {
-    key: 'isStandardCell',
-    value: function isStandardCell(colIndex) {
-      // Standard cells are in Sr. No and Checkbox column
-      return colIndex < this.columnmanager.getFirstColumnIndex();
-    }
-  }, {
-    key: 'getCell$',
-    value: function getCell$(colIndex, rowIndex) {
-      return (0, _dom2.default)(cellSelector(colIndex, rowIndex), this.bodyScrollable);
-    }
-  }, {
-    key: 'getAboveCell$',
-    value: function getAboveCell$($cell) {
-      var _$$data10 = _dom2.default.data($cell),
-          colIndex = _$$data10.colIndex;
-
-      var $aboveRow = $cell.parentElement.previousElementSibling;
-
-      return (0, _dom2.default)('[data-col-index="' + colIndex + '"]', $aboveRow);
-    }
-  }, {
-    key: 'getBelowCell$',
-    value: function getBelowCell$($cell) {
-      var _$$data11 = _dom2.default.data($cell),
-          colIndex = _$$data11.colIndex;
-
-      var $belowRow = $cell.parentElement.nextElementSibling;
-
-      return (0, _dom2.default)('[data-col-index="' + colIndex + '"]', $belowRow);
-    }
-  }, {
-    key: 'getLeftCell$',
-    value: function getLeftCell$($cell) {
-      return $cell.previousElementSibling;
-    }
-  }, {
-    key: 'getRightCell$',
-    value: function getRightCell$($cell) {
-      return $cell.nextElementSibling;
-    }
-  }, {
-    key: 'getLeftMostCell$',
-    value: function getLeftMostCell$(rowIndex) {
-      return this.getCell$(this.columnmanager.getFirstColumnIndex(), rowIndex);
-    }
-  }, {
-    key: 'getRightMostCell$',
-    value: function getRightMostCell$(rowIndex) {
-      return this.getCell$(this.columnmanager.getLastColumnIndex(), rowIndex);
-    }
-  }, {
-    key: 'getTopMostCell$',
-    value: function getTopMostCell$(colIndex) {
-      return this.getCell$(colIndex, this.rowmanager.getFirstRowIndex());
-    }
-  }, {
-    key: 'getBottomMostCell$',
-    value: function getBottomMostCell$(colIndex) {
-      return this.getCell$(colIndex, this.rowmanager.getLastRowIndex());
-    }
-  }, {
-    key: 'getCell',
-    value: function getCell(colIndex, rowIndex) {
-      return this.instance.datamanager.getCell(colIndex, rowIndex);
-    }
-  }, {
-    key: 'getCellAttr',
-    value: function getCellAttr($cell) {
-      return this.instance.getCellAttr($cell);
-    }
-  }, {
-    key: 'getRowHeight',
-    value: function getRowHeight() {
-      return _dom2.default.style((0, _dom2.default)('.data-table-row', this.bodyScrollable), 'height');
-    }
-  }, {
-    key: 'scrollToCell',
-    value: function scrollToCell($cell) {
-      if (_dom2.default.inViewport($cell, this.bodyScrollable)) return false;
-
-      var _$$data12 = _dom2.default.data($cell),
-          rowIndex = _$$data12.rowIndex;
-
-      this.rowmanager.scrollToRow(rowIndex);
-      return false;
-    }
-  }, {
-    key: 'getRowCountPerPage',
-    value: function getRowCountPerPage() {
-      return Math.ceil(this.instance.getViewportHeight() / this.getRowHeight());
-    }
-  }]);
-
-  return CellManager;
-}();
-
-exports.default = CellManager;
-function getCellHTML(cell) {
-  var rowIndex = cell.rowIndex,
-      colIndex = cell.colIndex,
-      isHeader = cell.isHeader;
-
-  var dataAttr = (0, _utils.makeDataAttributeString)({
-    rowIndex: rowIndex,
-    colIndex: colIndex,
-    isHeader: isHeader
-  });
-
-  return '\n    <td class="data-table-col noselect" ' + dataAttr + ' tabindex="0">\n      ' + getCellContent(cell) + '\n    </td>\n  ';
-}
-
-function getCellContent(cell) {
-  var isHeader = cell.isHeader;
-
-
-  var editable = !isHeader && cell.editable !== false;
-  var editCellHTML = editable ? getEditCellHTML() : '';
-
-  var sortable = isHeader && cell.sortable !== false;
-  var sortIndicator = sortable ? '<span class="sort-indicator"></span>' : '';
-
-  var resizable = isHeader && cell.resizable !== false;
-  var resizeColumn = resizable ? '<span class="column-resizer"></span>' : '';
-
-  var hasDropdown = isHeader && cell.dropdown !== false;
-  var dropdown = hasDropdown ? '<div class="data-table-dropdown">' + (0, _columnmanager.getDropdownHTML)() + '</div>' : '';
-
-  var contentHTML = !cell.isHeader && cell.column.format ? cell.column.format(cell.content) : cell.content;
-
-  return '\n    <div class="content ellipsis">\n      ' + contentHTML + '\n      ' + sortIndicator + '\n      ' + resizeColumn + '\n      ' + dropdown + '\n    </div>\n    ' + editCellHTML + '\n  ';
-}
-
-function getEditCellHTML() {
-  return '\n    <div class="edit-cell"></div>\n  ';
-}
-
-function cellSelector(colIndex, rowIndex) {
-  return '.data-table-col[data-col-index="' + colIndex + '"][data-row-index="' + rowIndex + '"]';
-}
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
 var _dom = __webpack_require__(0);
 
 var _dom2 = _interopRequireDefault(_dom);
@@ -5987,7 +5017,7 @@ exports.default = {
 module.exports = exports['default'];
 
 /***/ }),
-/* 5 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -6001,11 +5031,9 @@ var _dom = __webpack_require__(0);
 
 var _dom2 = _interopRequireDefault(_dom);
 
-var _sortablejs = __webpack_require__(9);
+var _sortablejs = __webpack_require__(8);
 
 var _sortablejs2 = _interopRequireDefault(_sortablejs);
-
-var _rowmanager = __webpack_require__(2);
 
 var _utils = __webpack_require__(1);
 
@@ -6045,13 +5073,13 @@ var ColumnManager = function () {
 
       if (!(0, _dom2.default)('.data-table-col', this.header)) {
         // insert html
-        (0, _dom2.default)('thead', this.header).innerHTML = (0, _rowmanager.getRowHTML)(columns, { isHeader: 1 });
+        (0, _dom2.default)('thead', this.header).innerHTML = this.rowmanager.getRowHTML(columns, { isHeader: 1 });
       } else {
         // refresh dom state
         var $cols = _dom2.default.each('.data-table-col', this.header);
         if (columns.length < $cols.length) {
           // deleted column
-          (0, _dom2.default)('thead', this.header).innerHTML = (0, _rowmanager.getRowHTML)(columns, { isHeader: 1 });
+          (0, _dom2.default)('thead', this.header).innerHTML = this.rowmanager.getRowHTML(columns, { isHeader: 1 });
           return;
         }
 
@@ -6583,14 +5611,14 @@ var getDropdownHTML = function getDropdownHTML() {
 exports.getDropdownHTML = getDropdownHTML;
 
 /***/ }),
-/* 6 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _datatable = __webpack_require__(7);
+var _datatable = __webpack_require__(5);
 
 var _datatable2 = _interopRequireDefault(_datatable);
 
@@ -6606,7 +5634,7 @@ exports.default = _datatable2.default;
 module.exports = exports['default'];
 
 /***/ }),
-/* 7 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -6619,19 +5647,19 @@ var _dom = __webpack_require__(0);
 
 var _dom2 = _interopRequireDefault(_dom);
 
-var _datamanager = __webpack_require__(8);
+var _datamanager = __webpack_require__(6);
 
 var _datamanager2 = _interopRequireDefault(_datamanager);
 
-var _cellmanager = __webpack_require__(3);
+var _cellmanager = __webpack_require__(7);
 
 var _cellmanager2 = _interopRequireDefault(_cellmanager);
 
-var _columnmanager = __webpack_require__(5);
+var _columnmanager = __webpack_require__(3);
 
 var _columnmanager2 = _interopRequireDefault(_columnmanager);
 
-var _rowmanager = __webpack_require__(2);
+var _rowmanager = __webpack_require__(9);
 
 var _rowmanager2 = _interopRequireDefault(_rowmanager);
 
@@ -6643,7 +5671,7 @@ var _style = __webpack_require__(12);
 
 var _style2 = _interopRequireDefault(_style);
 
-var _keyboard = __webpack_require__(4);
+var _keyboard = __webpack_require__(2);
 
 var _keyboard2 = _interopRequireDefault(_keyboard);
 
@@ -6716,9 +5744,6 @@ var DataTable = function () {
       this.datamanager.init(data);
       this.render();
       this.setDimensions();
-      if (this.cellmanager.$focusedCell) {
-        this.cellmanager.$focusedCell.focus();
-      }
     }
   }, {
     key: 'destroy',
@@ -6855,7 +5880,7 @@ exports.default = DataTable;
 module.exports = exports['default'];
 
 /***/ }),
-/* 8 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -7481,10 +6506,1009 @@ var DataError = exports.DataError = function (_extendableBuiltin2) {
 
 
 /***/ }),
-/* 9 */
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = __webpack_require__(1);
+
+var _keyboard = __webpack_require__(2);
+
+var _keyboard2 = _interopRequireDefault(_keyboard);
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _columnmanager = __webpack_require__(3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var CellManager = function () {
+  function CellManager(instance) {
+    _classCallCheck(this, CellManager);
+
+    this.instance = instance;
+    this.wrapper = this.instance.wrapper;
+    this.options = this.instance.options;
+    this.style = this.instance.style;
+    this.bodyScrollable = this.instance.bodyScrollable;
+    this.columnmanager = this.instance.columnmanager;
+    this.rowmanager = this.instance.rowmanager;
+    this.datamanager = this.instance.datamanager;
+
+    this.bindEvents();
+  }
+
+  _createClass(CellManager, [{
+    key: 'bindEvents',
+    value: function bindEvents() {
+      this.bindFocusCell();
+      this.bindEditCell();
+      this.bindKeyboardSelection();
+      this.bindCopyCellContents();
+      this.bindMouseEvents();
+    }
+  }, {
+    key: 'bindFocusCell',
+    value: function bindFocusCell() {
+      this.bindKeyboardNav();
+    }
+  }, {
+    key: 'bindEditCell',
+    value: function bindEditCell() {
+      var _this = this;
+
+      this.$editingCell = null;
+
+      _dom2.default.on(this.bodyScrollable, 'dblclick', '.data-table-col', function (e, cell) {
+        _this.activateEditing(cell);
+      });
+
+      _keyboard2.default.on('enter', function (e) {
+        if (_this.$focusedCell && !_this.$editingCell) {
+          // enter keypress on focused cell
+          _this.activateEditing(_this.$focusedCell);
+        } else if (_this.$editingCell) {
+          // enter keypress on editing cell
+          _this.submitEditing();
+          _this.deactivateEditing();
+        }
+      });
+    }
+  }, {
+    key: 'bindKeyboardNav',
+    value: function bindKeyboardNav() {
+      var _this2 = this;
+
+      var focusCell = function focusCell(direction) {
+        if (!_this2.$focusedCell || _this2.$editingCell) {
+          return false;
+        }
+
+        var $cell = _this2.$focusedCell;
+
+        if (direction === 'left') {
+          $cell = _this2.getLeftCell$($cell);
+        } else if (direction === 'right' || direction === 'tab') {
+          $cell = _this2.getRightCell$($cell);
+        } else if (direction === 'up') {
+          $cell = _this2.getAboveCell$($cell);
+        } else if (direction === 'down') {
+          $cell = _this2.getBelowCell$($cell);
+        }
+
+        _this2.focusCell($cell);
+        return true;
+      };
+
+      var focusLastCell = function focusLastCell(direction) {
+        if (!_this2.$focusedCell || _this2.$editingCell) {
+          return false;
+        }
+
+        var $cell = _this2.$focusedCell;
+
+        var _$$data = _dom2.default.data($cell),
+            rowIndex = _$$data.rowIndex,
+            colIndex = _$$data.colIndex;
+
+        if (direction === 'left') {
+          $cell = _this2.getLeftMostCell$(rowIndex);
+        } else if (direction === 'right') {
+          $cell = _this2.getRightMostCell$(rowIndex);
+        } else if (direction === 'up') {
+          $cell = _this2.getTopMostCell$(colIndex);
+        } else if (direction === 'down') {
+          $cell = _this2.getBottomMostCell$(colIndex);
+        }
+
+        _this2.focusCell($cell);
+        return true;
+      };
+
+      ['left', 'right', 'up', 'down', 'tab'].map(function (direction) {
+        return _keyboard2.default.on(direction, function () {
+          return focusCell(direction);
+        });
+      });
+
+      ['left', 'right', 'up', 'down'].map(function (direction) {
+        return _keyboard2.default.on('ctrl+' + direction, function () {
+          return focusLastCell(direction);
+        });
+      });
+
+      _keyboard2.default.on('esc', function () {
+        _this2.deactivateEditing();
+      });
+    }
+  }, {
+    key: 'bindKeyboardSelection',
+    value: function bindKeyboardSelection() {
+      var _this3 = this;
+
+      var getNextSelectionCursor = function getNextSelectionCursor(direction) {
+        var $selectionCursor = _this3.getSelectionCursor();
+
+        if (direction === 'left') {
+          $selectionCursor = _this3.getLeftCell$($selectionCursor);
+        } else if (direction === 'right') {
+          $selectionCursor = _this3.getRightCell$($selectionCursor);
+        } else if (direction === 'up') {
+          $selectionCursor = _this3.getAboveCell$($selectionCursor);
+        } else if (direction === 'down') {
+          $selectionCursor = _this3.getBelowCell$($selectionCursor);
+        }
+
+        return $selectionCursor;
+      };
+
+      ['left', 'right', 'up', 'down'].map(function (direction) {
+        return _keyboard2.default.on('shift+' + direction, function () {
+          return _this3.selectArea(getNextSelectionCursor(direction));
+        });
+      });
+    }
+  }, {
+    key: 'bindCopyCellContents',
+    value: function bindCopyCellContents() {
+      var _this4 = this;
+
+      _keyboard2.default.on('ctrl+c', function () {
+        _this4.copyCellContents(_this4.$focusedCell, _this4.$selectionCursor);
+      });
+    }
+  }, {
+    key: 'bindMouseEvents',
+    value: function bindMouseEvents() {
+      var _this5 = this;
+
+      var mouseDown = null;
+
+      _dom2.default.on(this.bodyScrollable, 'mousedown', '.data-table-col', function (e) {
+        mouseDown = true;
+        _this5.focusCell((0, _dom2.default)(e.delegatedTarget));
+      });
+
+      _dom2.default.on(this.bodyScrollable, 'mouseup', function () {
+        mouseDown = false;
+      });
+
+      var selectArea = function selectArea(e) {
+        if (!mouseDown) return;
+        _this5.selectArea((0, _dom2.default)(e.delegatedTarget));
+      };
+
+      _dom2.default.on(this.bodyScrollable, 'mousemove', '.data-table-col', (0, _utils.throttle)(selectArea, 50));
+    }
+  }, {
+    key: 'focusCell',
+    value: function focusCell($cell) {
+      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref$skipClearSelecti = _ref.skipClearSelection,
+          skipClearSelection = _ref$skipClearSelecti === undefined ? 0 : _ref$skipClearSelecti;
+
+      if (!$cell) return;
+
+      // don't focus if already editing cell
+      if ($cell === this.$editingCell) return;
+
+      var _$$data2 = _dom2.default.data($cell),
+          colIndex = _$$data2.colIndex,
+          isHeader = _$$data2.isHeader;
+
+      if (isHeader) {
+        return;
+      }
+
+      var column = this.columnmanager.getColumn(colIndex);
+      if (column.focusable === false) {
+        return;
+      }
+
+      this.deactivateEditing();
+      if (!skipClearSelection) {
+        this.clearSelection();
+      }
+
+      if (this.$focusedCell) {
+        this.$focusedCell.classList.remove('selected');
+      }
+
+      this.$focusedCell = $cell;
+      $cell.classList.add('selected');
+
+      // so that keyboard nav works
+      $cell.focus();
+
+      this.highlightRowColumnHeader($cell);
+      this.scrollToCell($cell);
+    }
+  }, {
+    key: 'highlightRowColumnHeader',
+    value: function highlightRowColumnHeader($cell) {
+      var _$$data3 = _dom2.default.data($cell),
+          colIndex = _$$data3.colIndex,
+          rowIndex = _$$data3.rowIndex;
+
+      var _colIndex = this.datamanager.getColumnIndexById('_rowIndex');
+      var colHeaderSelector = '.data-table-header .data-table-col[data-col-index="' + colIndex + '"]';
+      var rowHeaderSelector = '.data-table-col[data-row-index="' + rowIndex + '"][data-col-index="' + _colIndex + '"]';
+
+      if (this.lastHeaders) {
+        _dom2.default.removeStyle(this.lastHeaders, 'backgroundColor');
+      }
+
+      var colHeader = (0, _dom2.default)(colHeaderSelector, this.wrapper);
+      var rowHeader = (0, _dom2.default)(rowHeaderSelector, this.wrapper);
+
+      _dom2.default.style([colHeader, rowHeader], {
+        backgroundColor: '#f5f7fa' // light-bg
+      });
+
+      this.lastHeaders = [colHeader, rowHeader];
+    }
+  }, {
+    key: 'selectAreaOnClusterChanged',
+    value: function selectAreaOnClusterChanged() {
+      if (!(this.$focusedCell && this.$selectionCursor)) return;
+
+      var _$$data4 = _dom2.default.data(this.$selectionCursor),
+          colIndex = _$$data4.colIndex,
+          rowIndex = _$$data4.rowIndex;
+
+      var $cell = this.getCell$(colIndex, rowIndex);
+
+      if (!$cell || $cell === this.$selectionCursor) return;
+
+      // selectArea needs $focusedCell
+      var fCell = _dom2.default.data(this.$focusedCell);
+      this.$focusedCell = this.getCell$(fCell.colIndex, fCell.rowIndex);
+
+      this.selectArea($cell);
+    }
+  }, {
+    key: 'focusCellOnClusterChanged',
+    value: function focusCellOnClusterChanged() {
+      if (!this.$focusedCell) return;
+
+      var _$$data5 = _dom2.default.data(this.$focusedCell),
+          colIndex = _$$data5.colIndex,
+          rowIndex = _$$data5.rowIndex;
+
+      var $cell = this.getCell$(colIndex, rowIndex);
+
+      if (!$cell) return;
+      // this function is called after selectAreaOnClusterChanged,
+      // focusCell calls clearSelection which resets the area selection
+      // so a flag to skip it
+      this.focusCell($cell, { skipClearSelection: 1 });
+    }
+  }, {
+    key: 'selectArea',
+    value: function selectArea($selectionCursor) {
+      if (!this.$focusedCell) return;
+
+      if (this._selectArea(this.$focusedCell, $selectionCursor)) {
+        // valid selection
+        this.$selectionCursor = $selectionCursor;
+      }
+    }
+  }, {
+    key: '_selectArea',
+    value: function _selectArea($cell1, $cell2) {
+      var _this6 = this;
+
+      if ($cell1 === $cell2) return false;
+
+      var cells = this.getCellsInRange($cell1, $cell2);
+      if (!cells) return false;
+
+      this.clearSelection();
+      cells.map(function (index) {
+        return _this6.getCell$.apply(_this6, _toConsumableArray(index));
+      }).map(function ($cell) {
+        return $cell.classList.add('highlight');
+      });
+      return true;
+    }
+  }, {
+    key: 'getCellsInRange',
+    value: function getCellsInRange($cell1, $cell2) {
+      var colIndex1 = void 0,
+          rowIndex1 = void 0,
+          colIndex2 = void 0,
+          rowIndex2 = void 0;
+
+      if (typeof $cell1 === 'number') {
+        var _arguments = Array.prototype.slice.call(arguments);
+
+        colIndex1 = _arguments[0];
+        rowIndex1 = _arguments[1];
+        colIndex2 = _arguments[2];
+        rowIndex2 = _arguments[3];
+      } else if ((typeof $cell1 === 'undefined' ? 'undefined' : _typeof($cell1)) === 'object') {
+
+        if (!($cell1 && $cell2)) {
+          return false;
+        }
+
+        var cell1 = _dom2.default.data($cell1);
+        var cell2 = _dom2.default.data($cell2);
+
+        colIndex1 = cell1.colIndex;
+        rowIndex1 = cell1.rowIndex;
+        colIndex2 = cell2.colIndex;
+        rowIndex2 = cell2.rowIndex;
+      }
+
+      if (rowIndex1 > rowIndex2) {
+        var _ref2 = [rowIndex2, rowIndex1];
+        rowIndex1 = _ref2[0];
+        rowIndex2 = _ref2[1];
+      }
+
+      if (colIndex1 > colIndex2) {
+        var _ref3 = [colIndex2, colIndex1];
+        colIndex1 = _ref3[0];
+        colIndex2 = _ref3[1];
+      }
+
+      if (this.isStandardCell(colIndex1) || this.isStandardCell(colIndex2)) {
+        return false;
+      }
+
+      var cells = [];
+      var colIndex = colIndex1;
+      var rowIndex = rowIndex1;
+      var rowIndices = [];
+
+      while (rowIndex <= rowIndex2) {
+        rowIndices.push(rowIndex);
+        rowIndex++;
+      }
+
+      rowIndices.map(function (rowIndex) {
+        while (colIndex <= colIndex2) {
+          cells.push([colIndex, rowIndex]);
+          colIndex++;
+        }
+        colIndex = colIndex1;
+      });
+
+      return cells;
+    }
+  }, {
+    key: 'clearSelection',
+    value: function clearSelection() {
+      _dom2.default.each('.data-table-col.highlight', this.bodyScrollable).map(function (cell) {
+        return cell.classList.remove('highlight');
+      });
+
+      this.$selectionCursor = null;
+    }
+  }, {
+    key: 'getSelectionCursor',
+    value: function getSelectionCursor() {
+      return this.$selectionCursor || this.$focusedCell;
+    }
+  }, {
+    key: 'activateEditing',
+    value: function activateEditing($cell) {
+      this.focusCell($cell);
+
+      var _$$data6 = _dom2.default.data($cell),
+          rowIndex = _$$data6.rowIndex,
+          colIndex = _$$data6.colIndex;
+
+      var col = this.columnmanager.getColumn(colIndex);
+      if (col && (col.editable === false || col.focusable === false)) {
+        return;
+      }
+
+      var cell = this.getCell(colIndex, rowIndex);
+      if (cell && cell.editable === false) {
+        return;
+      }
+
+      if (this.$editingCell) {
+        var _$$data7 = _dom2.default.data(this.$editingCell),
+            _rowIndex = _$$data7._rowIndex,
+            _colIndex = _$$data7._colIndex;
+
+        if (rowIndex === _rowIndex && colIndex === _colIndex) {
+          // editing the same cell
+          return;
+        }
+      }
+
+      this.$editingCell = $cell;
+      $cell.classList.add('editing');
+
+      var $editCell = (0, _dom2.default)('.edit-cell', $cell);
+      $editCell.innerHTML = '';
+
+      var editor = this.getEditor(colIndex, rowIndex, cell.content, $editCell);
+
+      if (editor) {
+        this.currentCellEditor = editor;
+        // initialize editing input with cell value
+        editor.initValue(cell.content, rowIndex, col);
+      }
+    }
+  }, {
+    key: 'deactivateEditing',
+    value: function deactivateEditing() {
+      // keep focus on the cell so that keyboard navigation works
+      if (this.$focusedCell) this.$focusedCell.focus();
+
+      if (!this.$editingCell) return;
+      this.$editingCell.classList.remove('editing');
+      this.$editingCell = null;
+    }
+  }, {
+    key: 'getEditor',
+    value: function getEditor(colIndex, rowIndex, value, parent) {
+      // debugger;
+      var obj = this.options.getEditor(colIndex, rowIndex, value, parent);
+      if (obj && obj.setValue) return obj;
+
+      // editing fallback
+      var $input = _dom2.default.create('input', {
+        type: 'text',
+        inside: parent
+      });
+
+      return {
+        initValue: function initValue(value) {
+          $input.focus();
+          $input.value = value;
+        },
+        getValue: function getValue() {
+          return $input.value;
+        },
+        setValue: function setValue(value) {
+          $input.value = value;
+        }
+      };
+    }
+  }, {
+    key: 'submitEditing',
+    value: function submitEditing() {
+      var _this7 = this;
+
+      if (!this.$editingCell) return;
+      var $cell = this.$editingCell;
+
+      var _$$data8 = _dom2.default.data($cell),
+          rowIndex = _$$data8.rowIndex,
+          colIndex = _$$data8.colIndex;
+
+      var col = this.datamanager.getColumn(colIndex);
+
+      if ($cell) {
+        var editor = this.currentCellEditor;
+
+        if (editor) {
+          var value = editor.getValue();
+          var done = editor.setValue(value, rowIndex, col);
+          var oldValue = this.getCell(colIndex, rowIndex).content;
+
+          // update cell immediately
+          this.updateCell(colIndex, rowIndex, value);
+          $cell.focus();
+
+          if (done && done.then) {
+            // revert to oldValue if promise fails
+            done.catch(function (e) {
+              console.log(e);
+              _this7.updateCell(colIndex, rowIndex, oldValue);
+            });
+          }
+        }
+      }
+
+      this.currentCellEditor = null;
+    }
+  }, {
+    key: 'copyCellContents',
+    value: function copyCellContents($cell1, $cell2) {
+      var _this8 = this;
+
+      if (!$cell2 && $cell1) {
+        // copy only focusedCell
+        var _$$data9 = _dom2.default.data($cell1),
+            colIndex = _$$data9.colIndex,
+            rowIndex = _$$data9.rowIndex;
+
+        var cell = this.getCell(colIndex, rowIndex);
+        (0, _utils.copyTextToClipboard)(cell.content);
+        return;
+      }
+      var cells = this.getCellsInRange($cell1, $cell2);
+
+      if (!cells) return;
+
+      var values = cells
+      // get cell objects
+      .map(function (index) {
+        return _this8.getCell.apply(_this8, _toConsumableArray(index));
+      })
+      // convert to array of rows
+      .reduce(function (acc, curr) {
+        var rowIndex = curr.rowIndex;
+
+        acc[rowIndex] = acc[rowIndex] || [];
+        acc[rowIndex].push(curr.content);
+
+        return acc;
+      }, [])
+      // join values by tab
+      .map(function (row) {
+        return row.join('\t');
+      })
+      // join rows by newline
+      .join('\n');
+
+      (0, _utils.copyTextToClipboard)(values);
+    }
+  }, {
+    key: 'updateCell',
+    value: function updateCell(colIndex, rowIndex, value) {
+      var cell = this.datamanager.updateCell(colIndex, rowIndex, {
+        content: value
+      });
+      this.refreshCell(cell);
+    }
+  }, {
+    key: 'refreshCell',
+    value: function refreshCell(cell) {
+      var $cell = (0, _dom2.default)(this.cellSelector(cell.colIndex, cell.rowIndex), this.bodyScrollable);
+      $cell.innerHTML = this.getCellContent(cell);
+    }
+  }, {
+    key: 'isStandardCell',
+    value: function isStandardCell(colIndex) {
+      // Standard cells are in Sr. No and Checkbox column
+      return colIndex < this.columnmanager.getFirstColumnIndex();
+    }
+  }, {
+    key: 'getCell$',
+    value: function getCell$(colIndex, rowIndex) {
+      return (0, _dom2.default)(this.cellSelector(colIndex, rowIndex), this.bodyScrollable);
+    }
+  }, {
+    key: 'getAboveCell$',
+    value: function getAboveCell$($cell) {
+      var _$$data10 = _dom2.default.data($cell),
+          colIndex = _$$data10.colIndex;
+
+      var $aboveRow = $cell.parentElement.previousElementSibling;
+
+      return (0, _dom2.default)('[data-col-index="' + colIndex + '"]', $aboveRow);
+    }
+  }, {
+    key: 'getBelowCell$',
+    value: function getBelowCell$($cell) {
+      var _$$data11 = _dom2.default.data($cell),
+          colIndex = _$$data11.colIndex;
+
+      var $belowRow = $cell.parentElement.nextElementSibling;
+
+      return (0, _dom2.default)('[data-col-index="' + colIndex + '"]', $belowRow);
+    }
+  }, {
+    key: 'getLeftCell$',
+    value: function getLeftCell$($cell) {
+      return $cell.previousElementSibling;
+    }
+  }, {
+    key: 'getRightCell$',
+    value: function getRightCell$($cell) {
+      return $cell.nextElementSibling;
+    }
+  }, {
+    key: 'getLeftMostCell$',
+    value: function getLeftMostCell$(rowIndex) {
+      return this.getCell$(this.columnmanager.getFirstColumnIndex(), rowIndex);
+    }
+  }, {
+    key: 'getRightMostCell$',
+    value: function getRightMostCell$(rowIndex) {
+      return this.getCell$(this.columnmanager.getLastColumnIndex(), rowIndex);
+    }
+  }, {
+    key: 'getTopMostCell$',
+    value: function getTopMostCell$(colIndex) {
+      return this.getCell$(colIndex, this.rowmanager.getFirstRowIndex());
+    }
+  }, {
+    key: 'getBottomMostCell$',
+    value: function getBottomMostCell$(colIndex) {
+      return this.getCell$(colIndex, this.rowmanager.getLastRowIndex());
+    }
+  }, {
+    key: 'getCell',
+    value: function getCell(colIndex, rowIndex) {
+      return this.instance.datamanager.getCell(colIndex, rowIndex);
+    }
+  }, {
+    key: 'getCellAttr',
+    value: function getCellAttr($cell) {
+      return this.instance.getCellAttr($cell);
+    }
+  }, {
+    key: 'getRowHeight',
+    value: function getRowHeight() {
+      return _dom2.default.style((0, _dom2.default)('.data-table-row', this.bodyScrollable), 'height');
+    }
+  }, {
+    key: 'scrollToCell',
+    value: function scrollToCell($cell) {
+      if (_dom2.default.inViewport($cell, this.bodyScrollable)) return false;
+
+      var _$$data12 = _dom2.default.data($cell),
+          rowIndex = _$$data12.rowIndex;
+
+      this.rowmanager.scrollToRow(rowIndex);
+      return false;
+    }
+  }, {
+    key: 'getRowCountPerPage',
+    value: function getRowCountPerPage() {
+      return Math.ceil(this.instance.getViewportHeight() / this.getRowHeight());
+    }
+  }, {
+    key: 'getCellHTML',
+    value: function getCellHTML(cell) {
+      var rowIndex = cell.rowIndex,
+          colIndex = cell.colIndex,
+          isHeader = cell.isHeader;
+
+      var dataAttr = (0, _utils.makeDataAttributeString)({
+        rowIndex: rowIndex,
+        colIndex: colIndex,
+        isHeader: isHeader
+      });
+
+      return '\n      <td class="data-table-col noselect" ' + dataAttr + ' tabindex="0">\n        ' + this.getCellContent(cell) + '\n      </td>\n    ';
+    }
+  }, {
+    key: 'getCellContent',
+    value: function getCellContent(cell) {
+      var isHeader = cell.isHeader;
+
+
+      var editable = !isHeader && cell.editable !== false;
+      var editCellHTML = editable ? this.getEditCellHTML() : '';
+
+      var sortable = isHeader && cell.sortable !== false;
+      var sortIndicator = sortable ? '<span class="sort-indicator"></span>' : '';
+
+      var resizable = isHeader && cell.resizable !== false;
+      var resizeColumn = resizable ? '<span class="column-resizer"></span>' : '';
+
+      var hasDropdown = isHeader && cell.dropdown !== false;
+      var dropdown = hasDropdown ? '<div class="data-table-dropdown">' + (0, _columnmanager.getDropdownHTML)() + '</div>' : '';
+
+      var contentHTML = !cell.isHeader && cell.column.format ? cell.column.format(cell.content) : cell.content;
+
+      return '\n      <div class="content ellipsis">\n        ' + contentHTML + '\n        ' + sortIndicator + '\n        ' + resizeColumn + '\n        ' + dropdown + '\n      </div>\n      ' + editCellHTML + '\n    ';
+    }
+  }, {
+    key: 'getEditCellHTML',
+    value: function getEditCellHTML() {
+      return '\n      <div class="edit-cell"></div>\n    ';
+    }
+  }, {
+    key: 'cellSelector',
+    value: function cellSelector(colIndex, rowIndex) {
+      return '.data-table-col[data-col-index="' + colIndex + '"][data-row-index="' + rowIndex + '"]';
+    }
+  }]);
+
+  return CellManager;
+}();
+
+exports.default = CellManager;
+module.exports = exports['default'];
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_9__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _utils = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RowManager = function () {
+  function RowManager(instance) {
+    _classCallCheck(this, RowManager);
+
+    this.instance = instance;
+    this.options = this.instance.options;
+    this.wrapper = this.instance.wrapper;
+    this.bodyScrollable = this.instance.bodyScrollable;
+
+    this.bindEvents();
+    this.refreshRows = (0, _utils.promisify)(this.refreshRows, this);
+  }
+
+  _createClass(RowManager, [{
+    key: 'bindEvents',
+    value: function bindEvents() {
+      this.bindCheckbox();
+    }
+  }, {
+    key: 'bindCheckbox',
+    value: function bindCheckbox() {
+      var _this = this;
+
+      if (!this.options.addCheckboxColumn) return;
+
+      // map of checked rows
+      this.checkMap = [];
+
+      _dom2.default.on(this.wrapper, 'click', '.data-table-col[data-col-index="0"] [type="checkbox"]', function (e, $checkbox) {
+        var $cell = $checkbox.closest('.data-table-col');
+
+        var _$$data = _dom2.default.data($cell),
+            rowIndex = _$$data.rowIndex,
+            isHeader = _$$data.isHeader;
+
+        var checked = $checkbox.checked;
+
+        if (isHeader) {
+          _this.checkAll(checked);
+        } else {
+          _this.checkRow(rowIndex, checked);
+        }
+      });
+    }
+  }, {
+    key: 'refreshRows',
+    value: function refreshRows() {
+      this.instance.renderBody();
+      this.instance.setDimensions();
+    }
+  }, {
+    key: 'refreshRow',
+    value: function refreshRow(row, rowIndex) {
+      var _this2 = this;
+
+      var _row = this.datamanager.updateRow(row, rowIndex);
+
+      _row.forEach(function (cell) {
+        _this2.cellmanager.refreshCell(cell);
+      });
+    }
+  }, {
+    key: 'getCheckedRows',
+    value: function getCheckedRows() {
+      if (!this.checkMap) {
+        return [];
+      }
+
+      return this.checkMap.map(function (c, rowIndex) {
+        if (c) {
+          return rowIndex;
+        }
+        return null;
+      }).filter(function (c) {
+        return c !== null || c !== undefined;
+      });
+    }
+  }, {
+    key: 'highlightCheckedRows',
+    value: function highlightCheckedRows() {
+      var _this3 = this;
+
+      this.getCheckedRows().map(function (rowIndex) {
+        return _this3.checkRow(rowIndex, true);
+      });
+    }
+  }, {
+    key: 'checkRow',
+    value: function checkRow(rowIndex, toggle) {
+      var value = toggle ? 1 : 0;
+
+      // update internal map
+      this.checkMap[rowIndex] = value;
+      // set checkbox value explicitly
+      _dom2.default.each('.data-table-col[data-row-index="' + rowIndex + '"][data-col-index="0"] [type="checkbox"]', this.bodyScrollable).map(function (input) {
+        input.checked = toggle;
+      });
+      // highlight row
+      this.highlightRow(rowIndex, toggle);
+    }
+  }, {
+    key: 'checkAll',
+    value: function checkAll(toggle) {
+      var value = toggle ? 1 : 0;
+
+      // update internal map
+      if (toggle) {
+        this.checkMap = Array.from(Array(this.getTotalRows())).map(function (c) {
+          return value;
+        });
+      } else {
+        this.checkMap = [];
+      }
+      // set checkbox value
+      _dom2.default.each('.data-table-col[data-col-index="0"] [type="checkbox"]', this.bodyScrollable).map(function (input) {
+        input.checked = toggle;
+      });
+      // highlight all
+      this.highlightAll(toggle);
+    }
+  }, {
+    key: 'highlightRow',
+    value: function highlightRow(rowIndex) {
+      var toggle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+      var $row = this.getRow$(rowIndex);
+      if (!$row) return;
+
+      if (!toggle && this.bodyScrollable.classList.contains('row-highlight-all')) {
+        $row.classList.add('row-unhighlight');
+        return;
+      }
+
+      if (toggle && $row.classList.contains('row-unhighlight')) {
+        $row.classList.remove('row-unhighlight');
+      }
+
+      this._highlightedRows = this._highlightedRows || {};
+
+      if (toggle) {
+        $row.classList.add('row-highlight');
+        this._highlightedRows[rowIndex] = $row;
+      } else {
+        $row.classList.remove('row-highlight');
+        delete this._highlightedRows[rowIndex];
+      }
+    }
+  }, {
+    key: 'highlightAll',
+    value: function highlightAll() {
+      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+      if (toggle) {
+        this.bodyScrollable.classList.add('row-highlight-all');
+      } else {
+        this.bodyScrollable.classList.remove('row-highlight-all');
+        for (var rowIndex in this._highlightedRows) {
+          var $row = this._highlightedRows[rowIndex];
+          $row.classList.remove('row-highlight');
+        }
+        this._highlightedRows = {};
+      }
+    }
+  }, {
+    key: 'getRow$',
+    value: function getRow$(rowIndex) {
+      return (0, _dom2.default)('.data-table-row[data-row-index="' + rowIndex + '"]', this.bodyScrollable);
+    }
+  }, {
+    key: 'getTotalRows',
+    value: function getTotalRows() {
+      return this.datamanager.getRowCount();
+    }
+  }, {
+    key: 'getFirstRowIndex',
+    value: function getFirstRowIndex() {
+      return 0;
+    }
+  }, {
+    key: 'getLastRowIndex',
+    value: function getLastRowIndex() {
+      return this.datamanager.getRowCount() - 1;
+    }
+  }, {
+    key: 'scrollToRow',
+    value: function scrollToRow(rowIndex) {
+      rowIndex = +rowIndex;
+      this._lastScrollTo = this._lastScrollTo || 0;
+      var $row = this.getRow$(rowIndex);
+      if (_dom2.default.inViewport($row, this.bodyScrollable)) return;
+
+      var _$row$getBoundingClie = $row.getBoundingClientRect(),
+          height = _$row$getBoundingClie.height;
+
+      var _bodyScrollable$getBo = this.bodyScrollable.getBoundingClientRect(),
+          top = _bodyScrollable$getBo.top,
+          bottom = _bodyScrollable$getBo.bottom;
+
+      var rowsInView = Math.floor((bottom - top) / height);
+
+      var offset = 0;
+      if (rowIndex > this._lastScrollTo) {
+        offset = height * (rowIndex + 1 - rowsInView);
+      } else {
+        offset = height * (rowIndex + 1 - 1);
+      }
+
+      this._lastScrollTo = rowIndex;
+      _dom2.default.scrollTop(this.bodyScrollable, offset);
+    }
+  }, {
+    key: 'getRowHTML',
+    value: function getRowHTML(row, props) {
+      var _this4 = this;
+
+      var dataAttr = (0, _utils.makeDataAttributeString)(props);
+
+      return '\n      <tr class="data-table-row" ' + dataAttr + '>\n        ' + row.map(function (cell) {
+        return _this4.cellmanager.getCellHTML(cell);
+      }).join('') + '\n      </tr>\n    ';
+    }
+  }, {
+    key: 'datamanager',
+    get: function get() {
+      return this.instance.datamanager;
+    }
+  }, {
+    key: 'cellmanager',
+    get: function get() {
+      return this.instance.cellmanager;
+    }
+  }]);
+
+  return RowManager;
+}();
+
+exports.default = RowManager;
+module.exports = exports['default'];
 
 /***/ }),
 /* 10 */
@@ -7505,8 +7529,6 @@ var _dom2 = _interopRequireDefault(_dom);
 var _clusterize = __webpack_require__(11);
 
 var _clusterize2 = _interopRequireDefault(_clusterize);
-
-var _rowmanager = __webpack_require__(2);
 
 var _utils = __webpack_require__(1);
 
@@ -7601,8 +7623,10 @@ var BodyRenderer = function () {
   }, {
     key: 'getDataForClusterize',
     value: function getDataForClusterize(rows) {
+      var _this2 = this;
+
       return rows.map(function (row) {
-        return (0, _rowmanager.getRowHTML)(row, { rowIndex: row[0].rowIndex });
+        return _this2.rowmanager.getRowHTML(row, { rowIndex: row[0].rowIndex });
       });
     }
   }]);
@@ -7614,8 +7638,10 @@ exports.default = BodyRenderer;
 
 
 function getBodyHTML(rows) {
+  var _this3 = this;
+
   return '\n    <tbody>\n      ' + rows.map(function (row) {
-    return (0, _rowmanager.getRowHTML)(row, { rowIndex: row[0].rowIndex });
+    return _this3.rowmanager.getRowHTML(row, { rowIndex: row[0].rowIndex });
   }).join('') + '\n    </tbody>\n  ';
 }
 
@@ -7731,7 +7757,7 @@ exports.default = {
     none: ''
   },
   freezeMessage: '',
-  editing: function editing() {},
+  getEditor: function getEditor() {},
   addSerialNoColumn: true,
   addCheckboxColumn: false,
   enableClusterize: true,
@@ -7770,7 +7796,7 @@ exports = module.exports = __webpack_require__(16)(false);
 
 
 // module
-exports.push([module.i, "/* variables */\n/* resets */\n*, *::after, *::before {\n  box-sizing: border-box; }\n\n.data-table button, .data-table input {\n  overflow: visible;\n  font-family: inherit;\n  font-size: inherit;\n  line-height: inherit;\n  margin: 0;\n  padding: 0; }\n\n/* styling */\n.data-table *, .data-table *:focus {\n  outline: none !important;\n  border-radius: 0px;\n  box-shadow: none; }\n\n.data-table {\n  width: 100%;\n  position: relative;\n  overflow: auto; }\n  .data-table table {\n    border-collapse: collapse; }\n  .data-table table td {\n    padding: 0;\n    border: 1px solid #d1d8dd; }\n  .data-table thead td {\n    border-bottom-width: 1px; }\n  .data-table .freeze-container {\n    display: flex;\n    justify-content: center;\n    align-content: center;\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: #f5f7fa;\n    opacity: 0.5;\n    font-size: 2em; }\n    .data-table .freeze-container span {\n      position: absolute;\n      top: 50%;\n      transform: translateY(-50%); }\n  .data-table .trash-container {\n    position: absolute;\n    bottom: 0;\n    left: 30%;\n    right: 30%;\n    height: 70px;\n    background: palevioletred;\n    opacity: 0.5; }\n\n.body-scrollable {\n  max-height: 500px;\n  overflow: auto;\n  border-bottom: 1px solid #d1d8dd; }\n  .body-scrollable.row-highlight-all .data-table-row:not(.row-unhighlight) {\n    background-color: #f5f7fa; }\n\n.data-table-header {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background-color: white;\n  font-weight: bold; }\n  .data-table-header .content span:not(.column-resizer) {\n    cursor: pointer; }\n  .data-table-header .column-resizer {\n    display: none;\n    position: absolute;\n    right: 0;\n    top: 0;\n    width: 0.25rem;\n    height: 100%;\n    background-color: #5292f7;\n    cursor: col-resize; }\n  .data-table-header .data-table-dropdown {\n    position: absolute;\n    right: 10px;\n    display: inline-flex;\n    vertical-align: top;\n    text-align: left; }\n    .data-table-header .data-table-dropdown.is-active .data-table-dropdown-list {\n      display: block; }\n    .data-table-header .data-table-dropdown.is-active .data-table-dropdown-toggle {\n      display: block; }\n  .data-table-header .data-table-dropdown-toggle {\n    display: none;\n    background-color: transparent;\n    border: none; }\n  .data-table-header .data-table-dropdown-list {\n    display: none;\n    font-weight: normal;\n    position: absolute;\n    min-width: 8rem;\n    top: 100%;\n    right: 0;\n    z-index: 1;\n    background-color: white;\n    border-radius: 3px;\n    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);\n    padding-bottom: 0.5rem;\n    padding-top: 0.5rem; }\n    .data-table-header .data-table-dropdown-list > div {\n      padding: 0.5rem 1rem; }\n      .data-table-header .data-table-dropdown-list > div:hover {\n        background-color: #f5f7fa; }\n  .data-table-header .data-table-col.remove-column {\n    background-color: #FD8B8B;\n    transition: 300ms background-color ease-in-out; }\n  .data-table-header .data-table-col.sortable-chosen {\n    background-color: #f5f7fa; }\n\n.data-table-col {\n  position: relative; }\n  .data-table-col .content {\n    padding: 0.25rem;\n    border: 2px solid transparent; }\n    .data-table-col .content.ellipsis {\n      text-overflow: ellipsis;\n      white-space: nowrap;\n      overflow: hidden; }\n  .data-table-col .edit-cell {\n    display: none;\n    padding: 0.25rem;\n    background: #fff;\n    z-index: 1;\n    height: 100%; }\n    .data-table-col .edit-cell input {\n      outline: none;\n      width: 100%;\n      border: none; }\n  .data-table-col.selected .content {\n    border: 2px solid #5292f7; }\n  .data-table-col.editing .content {\n    display: none; }\n  .data-table-col.editing .edit-cell {\n    border: 2px solid #5292f7;\n    display: block; }\n  .data-table-col.highlight {\n    background-color: #f5f7fa; }\n  .data-table-col:hover .column-resizer {\n    display: inline-block; }\n  .data-table-col:hover .data-table-dropdown-toggle {\n    display: block; }\n\n.data-table-row.row-highlight {\n  background-color: #f5f7fa; }\n\n.noselect {\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  -khtml-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none; }\n\nbody.data-table-resize {\n  cursor: col-resize; }\n", ""]);
+exports.push([module.i, "/* variables */\n.data-table {\n  /* resets */\n  /* styling */\n  width: 100%;\n  position: relative;\n  overflow: auto; }\n  .data-table *, .data-table *::after, .data-table *::before {\n    box-sizing: border-box; }\n  .data-table button, .data-table input {\n    overflow: visible;\n    font-family: inherit;\n    font-size: inherit;\n    line-height: inherit;\n    margin: 0;\n    padding: 0; }\n  .data-table *, .data-table *:focus {\n    outline: none;\n    border-radius: 0px;\n    box-shadow: none; }\n  .data-table table {\n    border-collapse: collapse; }\n  .data-table table td {\n    padding: 0;\n    border: 1px solid #d1d8dd; }\n  .data-table thead td {\n    border-bottom-width: 1px; }\n  .data-table .freeze-container {\n    display: flex;\n    justify-content: center;\n    align-content: center;\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: #f5f7fa;\n    opacity: 0.5;\n    font-size: 2em; }\n    .data-table .freeze-container span {\n      position: absolute;\n      top: 50%;\n      transform: translateY(-50%); }\n  .data-table .trash-container {\n    position: absolute;\n    bottom: 0;\n    left: 30%;\n    right: 30%;\n    height: 70px;\n    background: palevioletred;\n    opacity: 0.5; }\n\n.body-scrollable {\n  max-height: 500px;\n  overflow: auto;\n  border-bottom: 1px solid #d1d8dd; }\n  .body-scrollable.row-highlight-all .data-table-row:not(.row-unhighlight) {\n    background-color: #f5f7fa; }\n\n.data-table-header {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background-color: white;\n  font-weight: bold; }\n  .data-table-header .content span:not(.column-resizer) {\n    cursor: pointer; }\n  .data-table-header .column-resizer {\n    display: none;\n    position: absolute;\n    right: 0;\n    top: 0;\n    width: 0.25rem;\n    height: 100%;\n    background-color: #5292f7;\n    cursor: col-resize; }\n  .data-table-header .data-table-dropdown {\n    position: absolute;\n    right: 10px;\n    display: inline-flex;\n    vertical-align: top;\n    text-align: left; }\n    .data-table-header .data-table-dropdown.is-active .data-table-dropdown-list {\n      display: block; }\n    .data-table-header .data-table-dropdown.is-active .data-table-dropdown-toggle {\n      display: block; }\n  .data-table-header .data-table-dropdown-toggle {\n    display: none;\n    background-color: transparent;\n    border: none; }\n  .data-table-header .data-table-dropdown-list {\n    display: none;\n    font-weight: normal;\n    position: absolute;\n    min-width: 8rem;\n    top: 100%;\n    right: 0;\n    z-index: 1;\n    background-color: white;\n    border-radius: 3px;\n    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);\n    padding-bottom: 0.5rem;\n    padding-top: 0.5rem; }\n    .data-table-header .data-table-dropdown-list > div {\n      padding: 0.5rem 1rem; }\n      .data-table-header .data-table-dropdown-list > div:hover {\n        background-color: #f5f7fa; }\n  .data-table-header .data-table-col.remove-column {\n    background-color: #FD8B8B;\n    transition: 300ms background-color ease-in-out; }\n  .data-table-header .data-table-col.sortable-chosen {\n    background-color: #f5f7fa; }\n\n.data-table-col {\n  position: relative; }\n  .data-table-col .content {\n    padding: 0.25rem;\n    border: 2px solid transparent; }\n    .data-table-col .content.ellipsis {\n      text-overflow: ellipsis;\n      white-space: nowrap;\n      overflow: hidden; }\n  .data-table-col .edit-cell {\n    display: none;\n    padding: 0.25rem;\n    background: #fff;\n    z-index: 1;\n    height: 100%; }\n    .data-table-col .edit-cell input {\n      outline: none;\n      width: 100%;\n      border: none; }\n  .data-table-col.selected .content {\n    border: 2px solid #5292f7; }\n  .data-table-col.editing .content {\n    display: none; }\n  .data-table-col.editing .edit-cell {\n    border: 2px solid #5292f7;\n    display: block; }\n  .data-table-col.highlight {\n    background-color: #f5f7fa; }\n  .data-table-col:hover .column-resizer {\n    display: inline-block; }\n  .data-table-col:hover .data-table-dropdown-toggle {\n    display: block; }\n\n.data-table-row.row-highlight {\n  background-color: #f5f7fa; }\n\n.noselect {\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  -khtml-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none; }\n\nbody.data-table-resize {\n  cursor: col-resize; }\n", ""]);
 
 // exports
 
@@ -25026,20 +25052,26 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 unwrapExports(bootstrap);
 
-var modal = class Modal {
+var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
+        super();
         Object.assign(this, arguments[0]);
+        this.make();
+        this.show();
+    }
+
+    make() {
         this.$modal = jquery(`<div class="modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">${title}</h5>
+                        <h5 class="modal-title">${this.title}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        ${body}
+                        ${this.getBodyHTML()}
                     </div>
                     <div class="modal-footer">
                     </div>
@@ -25053,21 +25085,31 @@ var modal = class Modal {
         if (this.secondary) {
             this.addSecondary(this.secondary.label, this.secondary.action);
         }
-        this.show();
+
+        this.$modal.on('hidden.bs.modal', () => this.trigger('hide'));
+        this.$modal.on('shown.bs.modal', () => this.trigger('show'));
+    }
+
+    getBodyHTML() {
+        return this.body || '';
     }
 
     addPrimary(label, action) {
-        this.$primary = jquery(`<button type="button" class="btn btn-primary">
+        return jquery(`<button type="button" class="btn btn-primary">
             ${label}</button>`)
             .appendTo(this.$modal.find('.modal-footer'))
             .on('click', () => action(this));
     }
 
     addSecondary(label, action) {
-        this.$primary = jquery(`<button type="button" class="btn btn-secondary">
+        return jquery(`<button type="button" class="btn btn-secondary">
             ${label}</button>`)
             .appendTo(this.$modal.find('.modal-footer'))
             .on('click', () => action(this));
+    }
+
+    setTitle(title) {
+        this.$modal.find('.modal-title').text(title);
     }
 
     show() {
@@ -25096,28 +25138,35 @@ class TableControl extends base {
                     ${frappejs._("Remove")}</button>
             </div>`;
 
-            this.datatable = new frappeDatatable(this.wrapper.querySelector('.datatable-wrapper'), {
-                columns: this.getColumns(),
-                data: this.getTableData(),
-                takeAvailableSpace: true,
-                addCheckboxColumn: true,
-                editing: this.getTableInput.bind(this),
-            });
-
-            this.wrapper.querySelector('.btn-add').addEventListener('click', async (event) => {
-                this.doc[this.fieldname].push({});
-                await this.doc.commit();
-                this.refresh();
-            });
-
-            this.wrapper.querySelector('.btn-remove').addEventListener('click', async (event) => {
-                let checked = this.datatable.rowmanager.getCheckedRows();
-                this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx));
-                await this.doc.commit();
-                this.refresh();
-                this.datatable.rowmanager.checkAll(false);
-            });
+            this.makeDatatable();
+            this.setupToolbar();
         }
+    }
+
+    makeDatatable() {
+        this.datatable = new frappeDatatable(this.wrapper.querySelector('.datatable-wrapper'), {
+            columns: this.getColumns(),
+            data: this.getTableData(),
+            takeAvailableSpace: true,
+            addCheckboxColumn: true,
+            getEditor: this.getTableInput.bind(this),
+        });
+    }
+
+    setupToolbar() {
+        this.wrapper.querySelector('.btn-add').addEventListener('click', async (event) => {
+            this.doc[this.fieldname].push({});
+            await this.doc.commit();
+            this.refresh();
+        });
+
+        this.wrapper.querySelector('.btn-remove').addEventListener('click', async (event) => {
+            let checked = this.datatable.rowmanager.getCheckedRows();
+            this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx));
+            await this.doc.commit();
+            this.refresh();
+            this.datatable.rowmanager.checkAll(false);
+        });
     }
 
     getInputValue() {
@@ -25152,7 +25201,7 @@ class TableControl extends base {
         return {
             initValue: (value, rowIndex, column) => {
                 column.activeControl = control;
-                control.parent_control = this;
+                control.parentControl = this;
                 control.doc = this.doc[this.fieldname][rowIndex];
                 control.set_focus();
                 return control.setInputValue(value);
@@ -25179,7 +25228,7 @@ class TableControl extends base {
                 }
             }
         });
-        this.modal.$modal.on('hidden.bs.modal', () => {
+        this.modal.on('hide', () => {
             this.datatable.cellmanager.deactivateEditing();
             this.datatable.cellmanager.$focusedCell.focus();
         });
@@ -25265,8 +25314,49 @@ var controls$1 = {
     }
 };
 
+var keyboard = {
+	bindKey(element, key, listener) {
+		element.addEventListener('keydown', (e) => {
+			if (key === this.getKey(e)) {
+				listener(e);
+			}
+		});
+	},
+
+	getKey(e) {
+		var keycode = e.keyCode || e.which;
+		var key = this.keyMap[keycode] || String.fromCharCode(keycode);
+
+		if(e.ctrlKey || e.metaKey) {
+			// add ctrl+ the key
+			key = 'ctrl+' + key;
+		}
+		if(e.shiftKey) {
+			// add ctrl+ the key
+			key = 'shift+' + key;
+		}
+		return key.toLowerCase();
+	},
+
+	keyMap: {
+		8: 'backspace',
+		9: 'tab',
+		13: 'enter',
+		16: 'shift',
+		17: 'ctrl',
+		91: 'meta',
+		18: 'alt',
+		27: 'escape',
+		37: 'left',
+		39: 'right',
+		38: 'up',
+		40: 'down',
+		32: 'space'
+	},
+};
+
 var form = class BaseForm extends observable {
-    constructor({doctype, parent, submit_label='Submit', page}) {
+    constructor({doctype, parent, submit_label='Submit', container}) {
         super();
         Object.assign(this, arguments[0]);
         this.controls = {};
@@ -25291,6 +25381,7 @@ var form = class BaseForm extends observable {
         this.form.onValidate = true;
 
         this.makeControls();
+        this.bindKeyboard();
     }
 
     makeControls() {
@@ -25304,21 +25395,45 @@ var form = class BaseForm extends observable {
     }
 
     makeToolbar() {
-        this.btnSubmit = this.page.addButton(frappejs._("Save"), 'btn-primary', async (event) => {
-            await this.submit();
-        });
+        if (this.actions.includes('submit')) {
+            this.btnSubmit = this.container.addButton(frappejs._("Save"), 'primary', async (event) => {
+                await this.submit();
+            });
+        }
 
-        this.btnDelete = this.page.addButton(frappejs._("Delete"), 'btn-outline-secondary', async (e) => {
-            await this.doc.delete();
-            this.showAlert('Deleted', 'success');
-            this.trigger('delete');
+        if (this.actions.includes('delete')) {
+            this.btnDelete = this.container.addButton(frappejs._("Delete"), 'secondary', async (e) => {
+                await this.doc.delete();
+                this.showAlert('Deleted', 'success');
+                this.trigger('delete');
+            });
+        }
+    }
+
+    bindKeyboard() {
+        keyboard.bindKey(this.form, 'ctrl+s', (e) => {
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
+            e.preventDefault();
+            this.submit();
         });
     }
 
-    async use(doc) {
+    async setDoc(doctype, name) {
+        this.doc = await frappejs.getDoc(doctype, name);
+        this.bindEvents(this.doc);
+        if (this.doc._notInserted && !this.doc._nameCleared) {
+            this.doc._nameCleared = true;
+            // flag so that name is cleared only once
+            await this.doc.set('name', '');
+        }
+    }
+
+    async bindEvents(doc) {
         if (this.doc) {
-            // clear handlers of outgoing doc
-            this.doc.clearHandlers();
+            // clear listeners of outgoing doc
+            this.doc.clearListeners();
         }
         this.clearAlert();
         this.doc = doc;
@@ -25326,13 +25441,13 @@ var form = class BaseForm extends observable {
             control.bind(this.doc);
         }
 
-        this.setupChangeHandler();
+        this.setupChangeListener();
         this.trigger('use', {doc:doc});
     }
 
-    setupChangeHandler() {
+    setupChangeListener() {
         // refresh value in control
-        this.doc.addHandler('change', (params) => {
+        this.doc.on('change', (params) => {
             if (params.fieldname) {
                 // only single value changed
                 let control = this.controls[params.fieldname];
@@ -25408,7 +25523,7 @@ var form = class BaseForm extends observable {
 };
 
 var view = {
-    get_form_class(doctype) {
+    getFormClass(doctype) {
         return this.get_view_class(doctype, 'Form', form);
     },
     getList_class(doctype) {
@@ -25434,14 +25549,15 @@ var formpage = class FormPage extends page {
 		super(`Edit ${meta.name}`);
 		this.meta = meta;
 
-		this.form = new (view.get_form_class(doctype))({
+		this.form = new (view.getFormClass(doctype))({
 			doctype: doctype,
 			parent: this.body,
-			page: this
+			container: this,
+			actions: ['submit', 'delete']
 		});
 
 		this.on('show', async (params) => {
-			await this.show_doc(params.doctype, params.name);
+			await this.showDoc(params.doctype, params.name);
 		});
 
 		// if name is different after saving, change the route
@@ -25458,10 +25574,9 @@ var formpage = class FormPage extends page {
 		});
 	}
 
-	async show_doc(doctype, name) {
+	async showDoc(doctype, name) {
 		try {
-			this.doc = await frappejs.getDoc(doctype, name);
-			this.form.use(this.doc);
+			await this.form.setDoc(doctype, name);
 		} catch (e) {
 			this.renderError(e.status_code, e.message);
 		}
@@ -25524,6 +25639,47 @@ var navbar = class Navbar {
 	}
 };
 
+var formmodal = class FormModal extends modal {
+    constructor(doctype, name) {
+        super({title: doctype});
+        this.doctype = doctype;
+        this.makeForm();
+        this.showWith(doctype, name);
+    }
+
+    makeForm() {
+		this.form = new (view.getFormClass(this.doctype))({
+			doctype: this.doctype,
+			parent: this.getBody(),
+            container: this,
+            actions: ['submit']
+        });
+
+        this.form.on('submit', () => {
+            this.hide();
+        });
+    }
+
+    addButton(label, className, action) {
+        if (className === 'primary') {
+            this.addPrimary(label, action);
+        } else {
+            this.addSecondary(label, action);
+        }
+    }
+
+    async showWith(doctype, name) {
+        await this.form.setDoc(doctype, name);
+        if (this.form.doc._notInserted) {
+            this.setTitle(frappejs._('New {0}', doctype));
+        } else {
+            this.setTitle(`${doctype} ${name}`);
+        }
+        this.show();
+        this.$modal.find('input:first').focus();
+    }
+};
+
 var desk = class Desk {
     constructor() {
         frappejs.router = new router();
@@ -25540,7 +25696,8 @@ var desk = class Desk {
 
         this.pages = {
             lists: {},
-            forms: {}
+            forms: {},
+            formModals: {}
         };
 
         this.routeItems = {};
@@ -25572,7 +25729,6 @@ var desk = class Desk {
             let doc = await frappejs.getNewDoc(params.doctype);
             // unset the name, its local
             await frappejs.router.setRoute('edit', doc.doctype, doc.name);
-            await doc.set('name', '');
         });
 
         frappejs.router.on('change', () => {
@@ -25595,6 +25751,15 @@ var desk = class Desk {
             this.pages.forms[doctype] = new formpage(doctype);
         }
         return this.pages.forms[doctype];
+    }
+
+    showFormModal(doctype, name) {
+        if (!this.pages.formModals[doctype]) {
+            this.pages.formModals[doctype] = new formmodal(doctype, name);
+        } else {
+            this.pages.formModals[doctype].showWith(doctype, name);
+        }
+        return this.pages.formModals[doctype];
     }
 
     setActive(item) {
@@ -25675,9 +25840,6 @@ class ToDoMeta extends meta {
 }
 
 class ToDo extends document$1 {
-    setup() {
-        this.addHandler('validate');
-    }
     validate() {
         if (!this.status) {
             this.status = 'Open';
@@ -25724,9 +25886,6 @@ class NumberSeriesMeta extends meta {
 }
 
 class NumberSeries extends document$1 {
-	setup() {
-        this.addHandler('validate');
-	}
 	validate() {
 		if (this.current===null || this.current===undefined) {
 			this.current = 0;
@@ -25776,9 +25935,6 @@ class AccountMeta extends meta {
 }
 
 class Account extends document$1 {
-    setup() {
-        this.addHandler('validate');
-    }
     async validate() {
         if (!this.account_type) {
             if (this.parent_account) {
@@ -25923,7 +26079,7 @@ var doctype$6 = "DocType";
 var isSingle$6 = 0;
 var isChild$1 = 1;
 var keywordFields$6 = [];
-var fields$6 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text","formula":"doc.getFrom('Item', row.item, 'description')","required":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","required":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","required":1},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","disabled":1,"formula":"row.quantity * row.rate"}];
+var fields$6 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text","formula":"doc.getFrom('Item', row.item, 'description')","required":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","required":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","required":1,"formula":"doc.getFrom('Item', row.item, 'rate')"},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","disabled":1,"formula":"row.quantity * row.rate"}];
 var invoice_item = {
 	name: name$6,
 	doctype: doctype$6,
