@@ -4,7 +4,7 @@ const Database = require('./database');
 const debug = false;
 
 
-module.exports = class mysqlDatabse extends Database{
+module.exports = class mysqlDatabase extends Database{
     constructor({ db_name, username, password, host }) {
         super();
         this.db_name = db_name;
