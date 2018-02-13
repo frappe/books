@@ -1,26 +1,16 @@
 const frappe = require('frappejs');
+const Observable = require('frappejs/utils/observable');
 
-module.exports = class BaseDocument {
+module.exports = class BaseDocument extends Observable {
     constructor(data) {
-        this.handlers = {};
+        super();
         this.fetchValues = {};
         this.setup();
         Object.assign(this, data);
     }
 
     setup() {
-        // add handlers
-    }
-
-    clearHandlers() {
-        this.handlers = {};
-    }
-
-    addHandler(key, method) {
-        if (!this.handlers[key]) {
-            this.handlers[key] = [];
-        }
-        this.handlers[key].push(method || key);
+        // add listeners
     }
 
     get meta() {
@@ -112,7 +102,7 @@ module.exports = class BaseDocument {
     async validateField(key, value) {
         let field = this.meta.getField(key);
         if (field && field.fieldtype == 'Select') {
-            return this.meta.validate_select(field, value);
+            return this.meta.validateSelect(field, value);
         }
         return value;
     }
@@ -208,7 +198,6 @@ module.exports = class BaseDocument {
         this.setChildIdx();
         await this.applyFormulae();
         await this.trigger('validate');
-        await this.trigger('commit');
     }
 
     async insert() {
@@ -237,16 +226,11 @@ module.exports = class BaseDocument {
         await this.trigger('after_delete');
     }
 
-    async trigger(key, params) {
-        if (this.handlers[key]) {
-            for (let method of this.handlers[key]) {
-                if (typeof method === 'string') {
-                    await this[method](params);
-                } else {
-                    await method(params);
-                }
-            }
+    async trigger(event, params) {
+        if (this[event]) {
+            await this[event](params);
         }
+        await super.trigger(event, params);
     }
 
     // helper functions

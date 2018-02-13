@@ -1,8 +1,8 @@
 module.exports = {
-	bindKey(element, key, handler) {
+	bindKey(element, key, listener) {
 		element.addEventListener('keydown', (e) => {
 			if (key === this.getKey(e)) {
-				handler(e);
+				listener(e);
 			}
 		})
 	},

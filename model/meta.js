@@ -4,7 +4,6 @@ const frappe = require('frappejs');
 module.exports = class BaseMeta extends BaseDocument {
     constructor(data) {
         super(data);
-        this.event_handlers = {};
         this.list_options = {
             fields: ['name', 'modified']
         };
@@ -52,13 +51,6 @@ module.exports = class BaseMeta extends BaseDocument {
             }
         }
         return this._hasFormulae;
-    }
-
-    on(key, fn) {
-        if (!this.event_handlers[key]) {
-            this.event_handlers[key] = [];
-        }
-        this.event_handlers[key].push(fn);
     }
 
     async set(fieldname, value) {
@@ -141,7 +133,7 @@ module.exports = class BaseMeta extends BaseDocument {
         return this._keywordFields;
     }
 
-    validate_select(field, value) {
+    validateSelect(field, value) {
         let options = field.options;
         if (typeof options === 'string') {
             // values given as string
@@ -153,16 +145,12 @@ module.exports = class BaseMeta extends BaseDocument {
         return value;
     }
 
-    async trigger(key, event = {}) {
-        Object.assign(event, {
+    async trigger(event, params = {}) {
+        Object.assign(params, {
             doc: this,
-            name: key
+            name: event
         });
 
-        if (this.event_handlers[key]) {
-            for (var handler of this.event_handlers[key]) {
-                await handler(event);
-            }
-        }
+        await super.trigger(event, params);
     }
 }

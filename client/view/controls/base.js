@@ -133,13 +133,18 @@ class BaseControl {
     async handleChange(event) {
         let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
+        await this.updateDocValue(value);
+    }
+
+    async updateDocValue(value) {
         if (this.doc[this.fieldname] !== value) {
-            if (this.doc.set) {
-                await this.doc.set(this.fieldname, value);
-            }
-            if (this.parent_control) {
+            if (this.parentControl) {
+                // its a child
                 this.doc[this.fieldname] = value;
-                await this.parent_control.doc.set(this.fieldname, this.parent_control.getInputValue());
+                await this.parentControl.doc.set(this.fieldname, this.parentControl.getInputValue());
+            } else {
+                // parent
+                await this.doc.set(this.fieldname, value);
             }
         }
     }
