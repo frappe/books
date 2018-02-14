@@ -5,7 +5,7 @@ frappe.ui = require('./ui');
 const Desk = require('./desk');
 
 module.exports = {
-    async start({server}) {
+    async start({server, columns = 2}) {
         window.frappe = frappe;
         frappe.init();
         common.init_libs(frappe);
@@ -15,7 +15,7 @@ module.exports = {
 
         frappe.flags.cache_docs = true;
 
-        frappe.desk = new Desk();
+        frappe.desk = new Desk(columns);
         await frappe.login();
     }
 };

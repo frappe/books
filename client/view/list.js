@@ -74,7 +74,7 @@ module.exports = class BaseList {
 
     makeToolbar() {
         this.makeSearch();
-        this.btnNew = this.page.addButton(frappe._('New'), 'btn-primary', async () => {
+        this.btnNew = this.page.addButton(frappe._('New'), 'btn-outline-primary', async () => {
             await frappe.router.setRoute('new', frappe.slug(this.doctype));
         })
         this.btnDelete = this.page.addButton(frappe._('Delete'), 'btn-outline-secondary hide', async () => {
@@ -92,7 +92,7 @@ module.exports = class BaseList {
         this.toolbar = frappe.ui.add('div', 'list-toolbar', this.parent);
         this.toolbar.innerHTML = `
             <div class="row">
-                <div class="col-md-6 col-9">
+                <div class="col-12" style="max-width: 300px">
                     <div class="input-group list-search mb-2">
                         <input class="form-control" type="text" placeholder="Search...">
                         <div class="input-group-append">

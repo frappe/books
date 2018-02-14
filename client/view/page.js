@@ -3,15 +3,18 @@ const Observable = require('frappejs/utils/observable');
 const Dropdown = require('frappejs/client/ui/dropdown');
 
 module.exports = class Page extends Observable {
-    constructor(title) {
+    constructor({title, parent, hasRoute=true}) {
         super();
-        this.title = title;
+        Object.assign(this, arguments[0]);
+        if (!this.parent) {
+            this.parent = frappe.desk.body;
+        }
         this.make();
         this.dropdowns = {};
     }
 
     make() {
-        this.wrapper = frappe.ui.add('div', 'page hide', frappe.desk.body);
+        this.wrapper = frappe.ui.add('div', 'page hide', this.parent);
         this.wrapper.innerHTML = `<div class="page-head hide"></div>
             <div class="page-body"></div>`
         this.head = this.wrapper.querySelector('.page-head');
@@ -39,9 +42,10 @@ module.exports = class Page extends Observable {
     }
 
     async show(params) {
-        if (frappe.router.current_page) {
-            frappe.router.current_page.hide();
+        if (this.parent.activePage) {
+            this.parent.activePage.hide();
         }
+
         this.wrapper.classList.remove('hide');
         this.body.classList.remove('hide');
 
@@ -49,8 +53,11 @@ module.exports = class Page extends Observable {
             this.page_error.classList.add('hide');
         }
 
-        frappe.router.current_page = this;
-        document.title = this.title;
+        this.parent.activePage = this;
+
+        if (this.hasRoute) {
+            document.title = this.title;
+        }
 
         await this.trigger('show', params);
     }

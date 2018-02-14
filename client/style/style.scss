@@ -14,13 +14,16 @@ html {
 	font-size: 12px;
 }
 
-.main {
-	margin-left: -1px;
+.desk-body {
 	border-left: 1px solid $gray-300;
 	min-height: calc(100vh - 50px);
 }
 
-.sidebar {
+.desk-center {
+	border-left: 1px solid $gray-300;
+}
+
+.desk-menu {
 	margin-right: -1px;
 
 	.list-group-item {
@@ -76,7 +79,7 @@ html {
 	margin-right: -15px;
 
 	.list-row {
-		padding: $spacer-2;
+		padding: $spacer-2 15px;
 		border-bottom: 1px solid $gray-200;
 		.checkbox {
 			margin-right: $spacer-2;
