@@ -7,7 +7,7 @@ const Modal = require('frappejs/client/ui/modal');
 class TableControl extends BaseControl {
     make() {
         if (!this.datatable) {
-            this.wrapper = frappe.ui.add('div', 'table-wrapper', this.get_input_parent());
+            this.wrapper = frappe.ui.add('div', 'table-wrapper', this.getInputParent());
             this.wrapper.innerHTML =
             `<div class="datatable-wrapper"></div>
             <div class="table-toolbar">

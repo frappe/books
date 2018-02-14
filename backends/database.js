@@ -249,7 +249,13 @@ module.exports = class Database {
         let values = fields.map(field => {
             let value = doc[field.fieldname];
             if (value instanceof Date) {
-                return value.toISOString();
+                if (field.fieldtype==='Date') {
+                    // date
+                    return value.toISOString().substr(0, 10);
+                } else {
+                    // datetime
+                    return value.toISOString();
+                }
             } else {
                 return value;
             }

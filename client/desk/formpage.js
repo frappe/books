@@ -12,7 +12,7 @@ module.exports = class FormPage extends Page {
 			doctype: doctype,
 			parent: this.body,
 			container: this,
-			actions: ['submit', 'delete']
+			actions: ['submit', 'delete', 'duplicate', 'settings']
 		});
 
 		this.on('show', async (params) => {

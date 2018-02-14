@@ -12,16 +12,17 @@
     "awesomplete": "^1.1.2",
     "body-parser": "^1.18.2",
     "bootstrap": "^4.0.0",
+    "clusterize.js": "^0.18.0",
     "commander": "^2.13.0",
     "express": "^4.16.2",
+    "flatpickr": "^4.3.2",
     "jquery": "^3.3.1",
     "mysql": "^2.15.0",
     "node-fetch": "^1.7.3",
     "popper.js": "^1.12.9",
+    "sortablejs": "^1.7.0",
     "sqlite3": "^3.1.13",
-    "walk": "^2.3.9",
-    "clusterize.js": "^0.18.0",
-    "sortablejs": "^1.7.0"
+    "walk": "^2.3.9"
   },
   "repository": {
     "type": "git",

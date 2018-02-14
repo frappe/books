@@ -1,16 +1,4 @@
 module.exports = {
-    format(value, field) {
-        if (field.fieldtype==='Currency') {
-            return frappe.format_number(value);
-        } else {
-            if (value===null || value===undefined) {
-                return '';
-            } else {
-                return value + '';
-            }
-        }
-    },
-
     slug(text) {
         return text.toLowerCase().replace(/ /g, '_');
     },

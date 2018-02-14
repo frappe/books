@@ -12,7 +12,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 module.exports = {
-    async start({backend, connection_params, static, models_path}) {
+    async start({backend, connection_params, models_path}) {
         await this.init();
 
         this.init_models(models_path);

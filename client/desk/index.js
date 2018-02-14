@@ -17,9 +17,9 @@ module.exports = class Desk {
         this.container = frappe.ui.add('div', 'container-fluid', body);
 
         this.containerRow = frappe.ui.add('div', 'row', this.container)
-        this.sidebar = frappe.ui.add('div', 'col-md-2 p-3 sidebar d-none d-md-block', this.containerRow);
+        this.sidebar = frappe.ui.add('div', 'col-md-2 sidebar d-none d-md-block', this.containerRow);
         this.sidebarList = frappe.ui.add('div', 'list-group list-group-flush', this.sidebar);
-        this.body = frappe.ui.add('div', 'col-md-10 p-4 main', this.containerRow);
+        this.body = frappe.ui.add('div', 'col-md-10 main', this.containerRow);
 
         this.pages = {
             lists: {},
