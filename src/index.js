@@ -2,8 +2,8 @@ const client = require('frappejs/client');
 
 // start server
 client.start({
-    server: 'localhost:8000',
-    container: document.querySelector('.wrapper'),
+    columns: 3,
+    server: 'localhost:8000'
 }).then(() => {
 
     // require modules
@@ -19,11 +19,11 @@ client.start({
     frappe.modules.todo_client = require('frappejs/models/doctype/todo/todo_client.js');
     frappe.modules.account_client = require('../models/doctype/account/account_client.js');
 
-    frappe.desk.addSidebarItem('ToDo', '#list/todo');
-    frappe.desk.addSidebarItem('Accounts', '#list/account');
-    frappe.desk.addSidebarItem('Items', '#list/item');
-    frappe.desk.addSidebarItem('Customers', '#list/customer');
-    frappe.desk.addSidebarItem('Invoice', '#list/invoice');
+    frappe.desk.menu.addItem('ToDo', '#list/todo');
+    frappe.desk.menu.addItem('Accounts', '#list/account');
+    frappe.desk.menu.addItem('Items', '#list/item');
+    frappe.desk.menu.addItem('Customers', '#list/customer');
+    frappe.desk.menu.addItem('Invoice', '#list/invoice');
 
     frappe.router.default = '#list/todo';
 

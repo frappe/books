@@ -6813,16 +6813,17 @@ span.flatpickr-day.today, span.flatpickr-day.prevMonthDay.today, span.flatpickr-
   border-right: 0; }
 html {
   font-size: 12px; }
-.main {
-  margin-left: -1px;
+.desk-body {
   border-left: 1px solid #dee2e6;
   min-height: calc(100vh - 50px); }
-.sidebar {
+.desk-center {
+  border-left: 1px solid #dee2e6; }
+.desk-menu {
   margin-right: -1px; }
-.sidebar .list-group-item {
+.desk-menu .list-group-item {
     padding: 0.5rem 1rem;
     border: none; }
-.sidebar .list-group-flush {
+.desk-menu .list-group-flush {
     margin-left: -1rem;
     margin-right: -1rem; }
 .hide {
@@ -6849,7 +6850,7 @@ html {
   margin-left: -15px;
   margin-right: -15px; }
 .list-body .list-row {
-    padding: 0.5rem;
+    padding: 0.5rem 15px;
     border-bottom: 1px solid #e9ecef; }
 .list-body .list-row .checkbox {
       margin-right: 0.5rem; }

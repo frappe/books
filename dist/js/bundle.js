@@ -17796,15 +17796,18 @@ var router = class Router extends observable {
 };
 
 var page = class Page extends observable {
-    constructor(title) {
+    constructor({title, parent, hasRoute=true}) {
         super();
-        this.title = title;
+        Object.assign(this, arguments[0]);
+        if (!this.parent) {
+            this.parent = frappejs.desk.body;
+        }
         this.make();
         this.dropdowns = {};
     }
 
     make() {
-        this.wrapper = frappejs.ui.add('div', 'page hide', frappejs.desk.body);
+        this.wrapper = frappejs.ui.add('div', 'page hide', this.parent);
         this.wrapper.innerHTML = `<div class="page-head hide"></div>
             <div class="page-body"></div>`;
         this.head = this.wrapper.querySelector('.page-head');
@@ -17832,9 +17835,10 @@ var page = class Page extends observable {
     }
 
     async show(params) {
-        if (frappejs.router.current_page) {
-            frappejs.router.current_page.hide();
+        if (this.parent.activePage) {
+            this.parent.activePage.hide();
         }
+
         this.wrapper.classList.remove('hide');
         this.body.classList.remove('hide');
 
@@ -17842,8 +17846,11 @@ var page = class Page extends observable {
             this.page_error.classList.add('hide');
         }
 
-        frappejs.router.current_page = this;
-        document.title = this.title;
+        this.parent.activePage = this;
+
+        if (this.hasRoute) {
+            document.title = this.title;
+        }
 
         await this.trigger('show', params);
     }
@@ -17941,7 +17948,7 @@ var list = class BaseList {
 
     makeToolbar() {
         this.makeSearch();
-        this.btnNew = this.page.addButton(frappejs._('New'), 'btn-primary', async () => {
+        this.btnNew = this.page.addButton(frappejs._('New'), 'btn-outline-primary', async () => {
             await frappejs.router.setRoute('new', frappejs.slug(this.doctype));
         });
         this.btnDelete = this.page.addButton(frappejs._('Delete'), 'btn-outline-secondary hide', async () => {
@@ -17959,7 +17966,7 @@ var list = class BaseList {
         this.toolbar = frappejs.ui.add('div', 'list-toolbar', this.parent);
         this.toolbar.innerHTML = `
             <div class="row">
-                <div class="col-md-6 col-9">
+                <div class="col-12" style="max-width: 300px">
                     <div class="input-group list-search mb-2">
                         <input class="form-control" type="text" placeholder="Search...">
                         <div class="input-group-append">
@@ -27258,7 +27265,7 @@ var view = {
 var formpage = class FormPage extends page {
 	constructor(doctype) {
 		let meta = frappejs.getMeta(doctype);
-		super(`Edit ${meta.name}`);
+		super({title: `Edit ${meta.name}`});
 		this.meta = meta;
 
 		this.form = new (view.getFormClass(doctype))({
@@ -27298,12 +27305,22 @@ var formpage = class FormPage extends page {
 var listpage = class ListPage extends page {
 	constructor(doctype) {
 		let meta = frappejs.getMeta(doctype);
-		super(frappejs._("List: {0}", meta.name));
+
+		// if center column is present, list does not have its route
+		const hasRoute = frappejs.desk.center ? false : true;
+
+		super({
+			title: frappejs._("List: {0}", meta.name),
+			parent: hasRoute ? frappejs.desk.body : frappejs.desk.center,
+			hasRoute: hasRoute
+		});
+
 		this.list = new (view.getList_class(doctype))({
 			doctype: doctype,
 			parent: this.body,
 			page: this
 		});
+
 		this.on('show', async () => {
 			await this.list.run();
 		});
@@ -27351,6 +27368,45 @@ var navbar = class Navbar {
 	}
 };
 
+var menu = class DeskMenu {
+    constructor(parent) {
+        this.parent = parent;
+        this.routeItems = {};
+        this.make();
+    }
+
+    make() {
+        this.listGroup = frappejs.ui.add('div', 'list-group list-group-flush', this.parent);
+    }
+
+    addItem(label, action) {
+        let item = frappejs.ui.add('a', 'list-group-item list-group-item-action', this.listGroup);
+        item.textContent = label;
+        if (typeof action === 'string') {
+            item.href = action;
+            this.routeItems[action] = item;
+        } else {
+            item.addEventListener('click', () => {
+                action();
+                this.setActive(item);
+            });
+        }
+    }
+
+    setActive() {
+        if (this.routeItems[window.location.hash]) {
+            let item = this.routeItems[window.location.hash];
+            let className = 'list-group-item-secondary';
+            let activeItem = this.listGroup.querySelector('.' + className);
+
+            if (activeItem) {
+                activeItem.classList.remove(className);
+            }
+            item.classList.add(className);
+        }
+    }
+};
+
 var formmodal = class FormModal extends modal {
     constructor(doctype, name) {
         super({title: doctype});
@@ -27393,18 +27449,15 @@ var formmodal = class FormModal extends modal {
 };
 
 var desk = class Desk {
-    constructor() {
+    constructor(columns=2) {
         frappejs.router = new router();
         frappejs.router.listen();
 
         let body = document.querySelector('body');
         this.navbar = new navbar();
         this.container = frappejs.ui.add('div', 'container-fluid', body);
-
         this.containerRow = frappejs.ui.add('div', 'row', this.container);
-        this.sidebar = frappejs.ui.add('div', 'col-md-2 sidebar d-none d-md-block', this.containerRow);
-        this.sidebarList = frappejs.ui.add('div', 'list-group list-group-flush', this.sidebar);
-        this.body = frappejs.ui.add('div', 'col-md-10 main', this.containerRow);
+        this.makeColumns(columns);
 
         this.pages = {
             lists: {},
@@ -27418,10 +27471,38 @@ var desk = class Desk {
         // this.search = new Search(this.nav);
     }
 
+    makeColumns(columns) {
+        this.menu = null; this.center = null;
+        this.columnCount = columns;
+        if (columns === 3) {
+            this.makeMenu();
+            this.center = frappejs.ui.add('div', 'col-md-4 desk-center', this.containerRow);
+            this.body = frappejs.ui.add('div', 'col-md-6 desk-body', this.containerRow);
+        } else if (columns === 2) {
+            this.makeMenu();
+            this.body = frappejs.ui.add('div', 'col-md-10 desk-body', this.containerRow);
+        } else if (columns === 1) {
+            this.makeMenuPage();
+            this.body = frappejs.ui.add('div', 'col-md-12 desk-body', this.containerRow);
+        } else {
+            throw 'columns can be 1, 2 or 3'
+        }
+    }
+
+    makeMenu() {
+        this.menuColumn = frappejs.ui.add('div', 'col-md-2 desk-menu', this.containerRow);
+        this.menu = new menu(this.menuColumn);
+    }
+
+    makeMenuPage() {
+        // make menu page for 1 column layout
+        this.menuPage = null;
+    }
+
     initRoutes() {
         frappejs.router.add('not-found', async (params) => {
             if (!this.notFoundPage) {
-                this.notFoundPage = new page('Not Found');
+                this.notFoundPage = new page({title: 'Not Found'});
             }
             await this.notFoundPage.show();
             this.notFoundPage.renderError('Not Found', params ? params.route : '');
@@ -27444,8 +27525,8 @@ var desk = class Desk {
         });
 
         frappejs.router.on('change', () => {
-            if (this.routeItems[window.location.hash]) {
-                this.setActive(this.routeItems[window.location.hash]);
+            if (this.menu) {
+                this.menu.setActive();
             }
         });
 
@@ -27503,7 +27584,7 @@ frappejs.ui = ui;
 
 
 var client = {
-    async start({server}) {
+    async start({server, columns = 2}) {
         window.frappe = frappejs;
         frappejs.init();
         common.init_libs(frappejs);
@@ -27513,7 +27594,7 @@ var client = {
 
         frappejs.flags.cache_docs = true;
 
-        frappejs.desk = new desk();
+        frappejs.desk = new desk(columns);
         await frappejs.login();
     }
 };
@@ -28316,8 +28397,8 @@ var account_client = {
 };
 
 client.start({
-    server: 'localhost:8000',
-    container: document.querySelector('.wrapper'),
+    columns: 3,
+    server: 'localhost:8000'
 }).then(() => {
 
     // require modules
@@ -28333,11 +28414,11 @@ client.start({
     frappe.modules.todo_client = todo_client;
     frappe.modules.account_client = account_client;
 
-    frappe.desk.addSidebarItem('ToDo', '#list/todo');
-    frappe.desk.addSidebarItem('Accounts', '#list/account');
-    frappe.desk.addSidebarItem('Items', '#list/item');
-    frappe.desk.addSidebarItem('Customers', '#list/customer');
-    frappe.desk.addSidebarItem('Invoice', '#list/invoice');
+    frappe.desk.menu.addItem('ToDo', '#list/todo');
+    frappe.desk.menu.addItem('Accounts', '#list/account');
+    frappe.desk.menu.addItem('Items', '#list/item');
+    frappe.desk.menu.addItem('Customers', '#list/customer');
+    frappe.desk.menu.addItem('Invoice', '#list/invoice');
 
     frappe.router.default = '#list/todo';
 
