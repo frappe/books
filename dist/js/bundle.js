@@ -2,18 +2,6 @@ var desk = (function () {
 'use strict';
 
 var utils = {
-    format(value, field) {
-        if (field.fieldtype==='Currency') {
-            return frappe.format_number(value);
-        } else {
-            if (value===null || value===undefined) {
-                return '';
-            } else {
-                return value + '';
-            }
-        }
-    },
-
     slug(text) {
         return text.toLowerCase().replace(/ /g, '_');
     },
@@ -161,6 +149,25 @@ var number_format = {
 	}
 };
 
+var format = {
+    format(value, field) {
+        if (field.fieldtype==='Currency') {
+            value = number_format.format_number(value);
+        } else if (field.fieldtype==='Date') {
+            if (value instanceof Date) {
+                value = value.toISOString().substr(0, 10);
+            }
+        } else {
+            if (value===null || value===undefined) {
+                value = '';
+            } else {
+                value = value + '';
+            }
+        }
+        return value;
+    }
+};
+
 var frappejs = {
     async init() {
         if (this._initialized) return;
@@ -177,7 +184,7 @@ var frappejs = {
     },
 
     initGlobals() {
-        this.meta_cache = {};
+        this.metaCache = {};
         this.modules = {};
         this.docs = {};
         this.flags = {
@@ -204,10 +211,10 @@ var frappejs = {
     },
 
     getMeta(doctype) {
-        if (!this.meta_cache[doctype]) {
-            this.meta_cache[doctype] = new (this.getMetaClass(doctype))();
+        if (!this.metaCache[doctype]) {
+            this.metaCache[doctype] = new (this.getMetaClass(doctype))();
         }
-        return this.meta_cache[doctype];
+        return this.metaCache[doctype];
     },
 
     getMetaClass(doctype) {
@@ -232,6 +239,19 @@ var frappejs = {
 
     async getSingle(doctype) {
         return await this.getDoc(doctype, doctype);
+    },
+
+    async getDuplicate(doc) {
+        const newDoc = await this.getNewDoc(doc.doctype);
+        for (let field of this.getMeta(doc.doctype).getValidFields()) {
+            if (field.fieldname === 'name') continue;
+            if (field.fieldtype === 'Table') {
+                newDoc[field.fieldname] = (doc[field.fieldname] || []).map(d => Object.assign({}, d));
+            } else {
+                newDoc[field.fieldname] = doc[field.fieldname];
+            }
+        }
+        return newDoc;
     },
 
     newDoc(data) {
@@ -334,450 +354,6 @@ var model = {
     ]
 };
 
-var observable = class Observable {
-    on(event, listener) {
-        this._addListener('_listeners', event, listener);
-    }
-
-    once(event, listener) {
-        this._addListener('_onceListeners', event, listener);
-    }
-
-    async trigger(event, params) {
-        await this._triggerEvent('_listeners', event, params);
-        await this._triggerEvent('_onceListeners', event, params);
-
-        // clear once-listeners
-        if (this._onceListeners && this._onceListeners[event]) {
-            delete this._onceListeners[event];
-        }
-    }
-
-    _addListener(name, event, listener) {
-        if (!this[name]) {
-            this[name] = {};
-        }
-        if (!this[name][event]) {
-            this[name][event] = [];
-        }
-        this[name][event].push(listener);
-    }
-
-    async _triggerEvent(name, event, params) {
-        if (this[name] && this[name][event]) {
-            for (let listener of this[name][event]) {
-                await listener(params);
-            }
-        }
-    }
-
-    clearListeners() {
-        this._listeners = {};
-        this._onceListeners = {};
-    }
-};
-
-var document$1 = class BaseDocument extends observable {
-    constructor(data) {
-        super();
-        this.fetchValues = {};
-        this.setup();
-        Object.assign(this, data);
-    }
-
-    setup() {
-        // add listeners
-    }
-
-    get meta() {
-        if (!this._meta) {
-            this._meta = frappejs.getMeta(this.doctype);
-        }
-        return this._meta;
-    }
-
-    async getSettings() {
-        if (!this._settings) {
-            this._settings = await frappejs.getSingle(this.meta.settings);
-        }
-        return this._settings;
-    }
-
-    get(fieldname) {
-        return this[fieldname];
-    }
-
-    // set value and trigger change
-    async set(fieldname, value) {
-        this[fieldname] = await this.validateField(fieldname, value);
-        if (await this.applyFormulae()) {
-            // multiple changes
-            await this.trigger('change', { doc: this });
-        } else {
-            // no other change, trigger control refresh
-            await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
-        }
-    }
-
-    async setName() {
-        if (this.name) {
-            return;
-        }
-
-        // name === doctype for Single
-        if (this.meta.isSingle) {
-            this.name = this.meta.name;
-            return;
-        }
-
-        if (this.meta.settings) {
-            const number_series = (await this.getSettings()).number_series;
-            if(number_series) {
-                this.name = await frappejs.model.getSeriesNext(number_series);
-            }
-        }
-
-        // assign a random name by default
-        // override this to set a name
-        if (!this.name) {
-            this.name = frappejs.getRandomName();
-        }
-    }
-
-    setDefaults() {
-        for (let field of this.meta.fields) {
-            if (!this[field.fieldname] && field.default) {
-                this[field.fieldname] = field.default;
-            }
-        }
-    }
-
-    setKeywords() {
-        let keywords = [];
-        for (let fieldname of this.meta.getKeywordFields()) {
-            keywords.push(this[fieldname]);
-        }
-        this.keywords = keywords.join(', ');
-    }
-
-    append(key, document) {
-        if (!this[key]) {
-            this[key] = [];
-        }
-        this[key].push(this.initDoc(document));
-    }
-
-    initDoc(data) {
-        if (data.prototype instanceof Document) {
-            return data;
-        } else {
-            return new Document(data);
-        }
-    }
-
-    async validateField(key, value) {
-        let field = this.meta.getField(key);
-        if (field && field.fieldtype == 'Select') {
-            return this.meta.validateSelect(field, value);
-        }
-        return value;
-    }
-
-    getValidDict() {
-        let data = {};
-        for (let field of this.meta.getValidFields()) {
-            data[field.fieldname] = this[field.fieldname];
-        }
-        return data;
-    }
-
-    setStandardValues() {
-        let now = new Date();
-        if (this.docstatus === null || this.docstatus === undefined) {
-            this.docstatus = 0;
-        }
-        if (!this.owner) {
-            this.owner = frappejs.session.user;
-            this.creation = now;
-        }
-        this.modified_by = frappejs.session.user;
-        this.modified = now;
-    }
-
-    async load() {
-        let data = await frappejs.db.get(this.doctype, this.name);
-        if (data.name) {
-            this.syncValues(data);
-        } else {
-            throw new frappejs.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
-        }
-    }
-
-    syncValues(data) {
-        this.clearValues();
-        Object.assign(this, data);
-    }
-
-    clearValues() {
-        for (let field of this.meta.getValidFields()) {
-            if(this[field.fieldname]) {
-                delete this[field.fieldname];
-            }
-        }
-    }
-
-    setChildIdx() {
-        // renumber children
-        for (let field of this.meta.getValidFields()) {
-            if (field.fieldtype==='Table') {
-                for(let i=0; i < (this[field.fieldname] || []).length; i++) {
-                    this[field.fieldname][i].idx = i;
-                }
-            }
-        }
-    }
-
-    async applyFormulae() {
-        if (!this.meta.hasFormulae()) {
-            return false;
-        }
-
-        let doc = this;
-
-        // children
-        for (let tablefield of this.meta.getTableFields()) {
-            let formulaFields = frappejs.getMeta(tablefield.childtype).getFormulaFields();
-            if (formulaFields.length) {
-
-                // for each row
-                for (let row of this[tablefield.fieldname]) {
-                    for (let field of formulaFields) {
-                        row[field.fieldname] = await eval(field.formula);
-                    }
-                }
-            }
-        }
-
-        // parent
-        for (let field of this.meta.getFormulaFields()) {
-            doc[field.fieldname] = eval(field.formula);
-        }
-
-        return true;
-    }
-
-    async commit() {
-        // re-run triggers
-        await this.setName();
-        this.setStandardValues();
-        this.setKeywords();
-        this.setChildIdx();
-        await this.applyFormulae();
-        await this.trigger('validate');
-    }
-
-    async insert() {
-        await this.commit();
-        await this.trigger('before_insert');
-        this.syncValues(await frappejs.db.insert(this.doctype, this.getValidDict()));
-        await this.trigger('after_insert');
-        await this.trigger('after_save');
-
-        return this;
-    }
-
-    async update() {
-        await this.commit();
-        await this.trigger('before_update');
-        this.syncValues(await frappejs.db.update(this.doctype, this.getValidDict()));
-        await this.trigger('after_update');
-        await this.trigger('after_save');
-
-        return this;
-    }
-
-    async delete() {
-        await this.trigger('before_delete');
-        await frappejs.db.delete(this.doctype, this.name);
-        await this.trigger('after_delete');
-    }
-
-    async trigger(event, params) {
-        if (this[event]) {
-            await this[event](params);
-        }
-        await super.trigger(event, params);
-    }
-
-    // helper functions
-    getSum(tablefield, childfield) {
-		return this[tablefield].map(d => (d[childfield] || 0)).reduce((a, b) => a + b, 0);
-    }
-
-    async getFrom(doctype, name, fieldname) {
-        if (!name) return '';
-        let key = `${doctype}:${name}:${fieldname}`;
-        if (!this.fetchValues[key]) {
-            this.fetchValues[key] = await frappejs.db.getValue(doctype, name, fieldname);
-        }
-        return this.fetchValues[key];
-    }
-};
-
-var meta = class BaseMeta extends document$1 {
-    constructor(data) {
-        super(data);
-        this.list_options = {
-            fields: ['name', 'modified']
-        };
-        if (this.setupMeta) {
-            this.setupMeta();
-        }
-    }
-
-    getField(fieldname) {
-        if (!this._field_map) {
-            this._field_map = {};
-            for (let field of this.fields) {
-                this._field_map[field.fieldname] = field;
-            }
-        }
-        return this._field_map[fieldname];
-    }
-
-    getTableFields() {
-        if (this._tableFields===undefined) {
-            this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
-        }
-        return this._tableFields;
-    }
-
-    getFormulaFields() {
-        if (this._formulaFields===undefined) {
-            this._formulaFields = this.fields.filter(field => field.formula);
-        }
-        return this._formulaFields;
-    }
-
-    hasFormulae() {
-        if (this._hasFormulae===undefined) {
-            this._hasFormulae = false;
-            if (this.getFormulaFields().length) {
-                this._hasFormulae = true;
-            } else {
-                for (let tablefield of this.getTableFields()) {
-                    if (frappejs.getMeta(tablefield.childtype).getFormulaFields().length) {
-                        this._hasFormulae = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return this._hasFormulae;
-    }
-
-    async set(fieldname, value) {
-        this[fieldname] = value;
-        await this.trigger(fieldname);
-    }
-
-    get(fieldname) {
-        return this[fieldname];
-    }
-
-    getValidFields({ withChildren = true } = {}) {
-        if (!this._valid_fields) {
-
-            this._valid_fields = [];
-            this._valid_fields_withChildren = [];
-
-            const _add = (field) => {
-                this._valid_fields.push(field);
-                this._valid_fields_withChildren.push(field);
-            };
-
-            const doctype_fields = this.fields.map((field) => field.fieldname);
-
-            // standard fields
-            for (let field of frappejs.model.common_fields) {
-                if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                    _add(field);
-                }
-            }
-
-            if (this.isChild) {
-                // child fields
-                for (let field of frappejs.model.child_fields) {
-                    if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                        _add(field);
-                    }
-                }
-            } else {
-                // parent fields
-                for (let field of frappejs.model.parent_fields) {
-                    if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                        _add(field);
-                    }
-                }
-            }
-
-            // doctype fields
-            for (let field of this.fields) {
-                let include = frappejs.db.type_map[field.fieldtype];
-
-                if (include) {
-                    _add(field);
-                }
-
-                // include tables if (withChildren = True)
-                if (!include && field.fieldtype === 'Table') {
-                    this._valid_fields_withChildren.push(field);
-                }
-            }
-        }
-
-        if (withChildren) {
-            return this._valid_fields_withChildren;
-        } else {
-            return this._valid_fields;
-        }
-    }
-
-    getKeywordFields() {
-        if (!this._keywordFields) {
-            this._keywordFields = this.keywordFields;
-            if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
-                this._keywordFields = this.fields.filter(field => field.required).map(field => field.fieldname);
-            }
-            if (!(this._keywordFields && this._keywordFields.length)) {
-                this._keywordFields = ['name'];
-            }
-        }
-        return this._keywordFields;
-    }
-
-    validateSelect(field, value) {
-        let options = field.options;
-        if (typeof options === 'string') {
-            // values given as string
-            options = field.options.split('\n');
-        }
-        if (!options.includes(value)) {
-            throw new frappejs.errors.ValueError(`${value} must be one of ${options.join(", ")}`);
-        }
-        return value;
-    }
-
-    async trigger(event, params = {}) {
-        Object.assign(params, {
-            doc: this,
-            name: event
-        });
-
-        await super.trigger(event, params);
-    }
-};
-
 class Session {
     constructor(user, user_key) {
         this.user = user || 'guest';
@@ -820,9 +396,8 @@ var common = {
     init_libs(frappe) {
         Object.assign(frappe, utils);
         Object.assign(frappe, number_format);
+        Object.assign(frappe, format);
         frappe.model = model;
-        frappe.BaseDocument = document$1;
-        frappe.BaseMeta = meta;
         frappe._session = session;
         frappe.errors = errors;
     }
@@ -1230,721 +805,6 @@ var rest_client = class RESTClient {
 
 };
 
-class Dropdown {
-    constructor({parent, label, btn_class = 'btn-secondary', items = []}) {
-        Object.assign(this, arguments[0]);
-
-        this.dropdown_items = [];
-        this.setup_background_click();
-        this.make();
-
-        // init items
-        if (this.items) {
-            for (item of this.items) {
-                this.add_item(item.label, item.action);
-            }
-        }
-    }
-
-    setup_background_click() {
-        if (!document.dropdown_setup) {
-            frappejs.dropdowns = [];
-            // setup hiding all dropdowns on click
-            document.addEventListener('click', (event) => {
-                for (let d of frappejs.dropdowns) {
-                    if (d.button !== event.target) {
-                        d.collapse();
-                    }
-                }
-            });
-            document.dropdown_setup = true;
-        }
-        frappejs.dropdowns.push(this);
-    }
-
-    make() {
-        this.dropdown = frappejs.ui.add('div', 'dropdown', this.parent);
-        this.make_button();
-        this.dropdown_menu = frappejs.ui.add('div', 'dropdown-menu', this.dropdown);
-    }
-
-    make_button() {
-        this.button = frappejs.ui.add('button', 'btn ' + this.btn_class,
-            this.dropdown);
-        frappejs.ui.add_class(this.button, 'dropdown-toggle');
-        this.button.textContent = this.label;
-        this.button.addEventListener('click', () => {
-            this.toggle();
-        });
-    }
-
-    expand() {
-        this.dropdown.classList.add('show');
-        this.dropdown_menu.classList.add('show');
-    }
-
-    collapse() {
-        this.dropdown.classList.remove('show');
-        this.dropdown_menu.classList.remove('show');
-    }
-
-    toggle() {
-        this.dropdown.classList.toggle('show');
-        this.dropdown_menu.classList.toggle('show');
-    }
-
-    add_item(label, action) {
-        let item = frappejs.ui.add('button', 'dropdown-item', this.dropdown_menu);
-        item.textContent = label;
-        item.setAttribute('type', 'button');
-        if (typeof action === 'string') {
-            item.src = action;
-            item.addEventListener('click', async () => {
-                await frappejs.router.setRoute(action);
-                this.toggle();
-            });
-        } else {
-            item.addEventListener('click', async () => {
-                await action();
-                this.toggle();
-            });
-        }
-        this.dropdown_items.push(item);
-    }
-
-    float_right() {
-        frappejs.ui.add_class(this.dropdown, 'float-right');
-        frappejs.ui.add_class(this.dropdown_menu, 'dropdown-menu-right');
-    }
-}
-
-var dropdown = Dropdown;
-
-var ui = {
-    add(tag, className, parent) {
-        let element = document.createElement(tag);
-        if (className) {
-            for (let c of className.split(' ')) {
-                this.add_class(element, c);
-            }
-        }
-        if (parent) {
-            parent.appendChild(element);
-        }
-        return element;
-    },
-
-    remove(element) {
-        element.parentNode.removeChild(element);
-    },
-
-    add_class(element, className) {
-        if (element.classList) {
-            element.classList.add(className);
-        } else {
-            element.className += " " + className;
-        }
-    },
-
-    remove_class(element, className) {
-        if (element.classList) {
-            element.classList.remove(className);
-        } else {
-            element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-        }
-    },
-
-    toggle(element, default_display = '') {
-        element.style.display = element.style.display === 'none' ? default_display : 'none';
-    },
-
-    make_dropdown(label, parent, btn_class = 'btn-secondary') {
-        return new dropdown({parent: parent, label:label, btn_class:btn_class});
-    }
-
-};
-
-var router = class Router extends observable {
-    constructor() {
-        super();
-        this.last_route = null;
-        this.current_page = null;
-        this.static_routes = [];
-        this.dynamic_routes = [];
-    }
-
-    add(route, handler) {
-        let page = {handler: handler, route: route};
-
-        // '/todo/:name/:place'.match(/:([^/]+)/g);
-        page.param_keys = route.match(/:([^/]+)/g);
-
-        if (page.param_keys) {
-            // make expression
-            // '/todo/:name/:place'.replace(/\/:([^/]+)/g, "\/([^/]+)");
-            page.depth = route.split('/').length;
-            page.expression = route.replace(/\/:([^/]+)/g, "\/([^/]+)");
-            this.dynamic_routes.push(page);
-            this.sort_dynamic_routes();
-        } else {
-            this.static_routes.push(page);
-            this.sort_static_routes();
-        }
-    }
-
-    sort_dynamic_routes() {
-        // routes with more parts first
-        this.dynamic_routes = this.dynamic_routes.sort((a, b) => {
-            if (a.depth < b.depth) {
-                return 1;
-            } else if (a.depth > b.depth) {
-                return -1;
-            } else {
-                if (a.param_keys.length !== b.param_keys.length) {
-                    return a.param_keys.length > b.param_keys.length ? 1 : -1;
-                } else {
-                    return a.route.length > b.route.length ? 1 : -1;
-                }
-            }
-        });
-    }
-
-    sort_static_routes() {
-        // longer routes on first
-        this.static_routes = this.static_routes.sort((a, b) => {
-            return a.route.length > b.route.length ? 1 : -1;
-        });
-    }
-
-    listen() {
-        window.addEventListener('hashchange', (event) => {
-            let route = this.get_route_string();
-            if (this.last_route !== route) {
-                this.show(route);
-            }
-        });
-    }
-
-    // split and get routes
-    get_route() {
-        let route = this.get_route_string();
-        if (route) {
-            return route.split('/');
-        } else {
-            return [];
-        }
-    }
-
-    async setRoute(...parts) {
-        const route = parts.join('/');
-
-        // setting this first, does not trigger show via hashchange,
-        // since we want to this with async/await, we need to trigger
-        // the show method
-        this.last_route = route;
-
-        window.location.hash = route;
-        await this.show(route);
-    }
-
-    async show(route) {
-        if (route && route[0]==='#') {
-            route = route.substr(1);
-        }
-
-        this.last_route = route;
-
-        if (!route) {
-            route = this.default;
-        }
-        let page = this.match(route);
-
-        if (page) {
-            if (typeof page.handler==='function') {
-                await page.handler(page.params);
-            } else {
-                await page.handler.show(page.params);
-            }
-        } else {
-            await this.match('not-found').handler({route: route});
-        }
-        await this.trigger('change');
-    }
-
-    match(route) {
-        // match static
-        for(let page of this.static_routes) {
-            if (page.route === route) {
-                return {handler: page.handler};
-            }
-        }
-
-        // match dynamic
-        for(let page of this.dynamic_routes) {
-            let matches = route.match(new RegExp(page.expression));
-
-            if (matches && matches.length == page.param_keys.length + 1) {
-                let params = {};
-                for (let i=0; i < page.param_keys.length; i++) {
-                    params[page.param_keys[i].substr(1)] = matches[i + 1];
-                }
-                return {handler:page.handler, params: params};
-            }
-        }
-    }
-
-    get_route_string() {
-        let route = window.location.hash;
-        if (route && route[0]==='#') {
-            route = route.substr(1);
-        }
-        return route;
-    }
-};
-
-var page = class Page extends observable {
-    constructor(title) {
-        super();
-        this.title = title;
-        this.make();
-    }
-
-    make() {
-        this.wrapper = frappejs.ui.add('div', 'page hide', frappejs.desk.body);
-        this.wrapper.innerHTML = `<div class="page-head hide"></div>
-            <div class="page-body"></div>`;
-        this.head = this.wrapper.querySelector('.page-head');
-        this.body = this.wrapper.querySelector('.page-body');
-    }
-
-    hide() {
-        this.wrapper.classList.add('hide');
-        this.trigger('hide');
-    }
-
-    addButton(label, className, action) {
-        this.head.classList.remove('hide');
-        this.button = frappejs.ui.add('button', 'btn ' + this.getClassName(className), this.head);
-        this.button.innerHTML = label;
-        this.button.addEventListener('click', action);
-        return this.button;
-    }
-
-    async show(params) {
-        if (frappejs.router.current_page) {
-            frappejs.router.current_page.hide();
-        }
-        this.wrapper.classList.remove('hide');
-        this.body.classList.remove('hide');
-
-        if (this.page_error) {
-            this.page_error.classList.add('hide');
-        }
-
-        frappejs.router.current_page = this;
-        document.title = this.title;
-
-        await this.trigger('show', params);
-    }
-
-    renderError(title, message) {
-        if (!this.page_error) {
-            this.page_error = frappejs.ui.add('div', 'page-error', this.wrapper);
-        }
-        this.body.classList.add('hide');
-        this.page_error.classList.remove('hide');
-        this.page_error.innerHTML = `<h3 class="text-extra-muted">${title ? title : ""}</h3><p class="text-muted">${message ? message : ""}</p>`;
-    }
-
-    getClassName(className) {
-        const newName = {
-            'primary': 'btn-primary',
-            'secondary': 'btn-outline-secondary'
-        }[className];
-
-        return newName || className;
-    }
-};
-
-var list = class BaseList {
-    constructor({doctype, parent, fields, page}) {
-        Object.assign(this, arguments[0]);
-
-        this.meta = frappejs.getMeta(this.doctype);
-
-        this.start = 0;
-        this.pageLength = 20;
-
-        this.body = null;
-        this.rows = [];
-        this.data = [];
-    }
-
-    async refresh() {
-        return await this.run();
-    }
-
-    async run() {
-        this.makeBody();
-
-        let data = await this.getData();
-
-        for (let i=0; i< Math.min(this.pageLength, data.length); i++) {
-            this.renderRow(this.start + i, data[i]);
-        }
-
-        if (this.start > 0) {
-            this.data = this.data.concat(data);
-        } else {
-            this.data = data;
-        }
-
-        this.clearEmptyRows();
-        this.updateMore(data.length > this.pageLength);
-    }
-
-    async getData() {
-        return await frappejs.db.getAll({
-            doctype: this.doctype,
-            fields: this.getFields(),
-            filters: this.getFilters(),
-            start: this.start,
-            limit: this.pageLength + 1
-        });
-    }
-
-    getFields() {
-        return ['name'];
-    }
-
-    async append() {
-        this.start += this.pageLength;
-        await this.run();
-    }
-
-    getFilters() {
-        let filters = {};
-        if (this.searchInput.value) {
-            filters.keywords = ['like', '%' + this.searchInput.value + '%'];
-        }
-        return filters;
-    }
-
-    makeBody() {
-        if (!this.body) {
-            this.makeToolbar();
-            this.body = frappejs.ui.add('div', 'list-body', this.parent);
-            this.makeMoreBtn();
-        }
-    }
-
-    makeToolbar() {
-        this.makeSearch();
-        this.btnNew = this.page.addButton(frappejs._('New'), 'btn-outline-primary', async () => {
-            await frappejs.router.setRoute('new', frappejs.slug(this.doctype));
-        });
-        this.btnDelete = this.page.addButton(frappejs._('Delete'), 'btn-outline-secondary hide', async () => {
-            await frappejs.db.deleteMany(this.doctype, this.getCheckedRowNames());
-            await this.refresh();
-        });
-        this.page.body.addEventListener('click', (event) => {
-            if(event.target.classList.contains('checkbox')) {
-                this.btnDelete.classList.toggle('hide', this.getCheckedRowNames().length===0);
-            }
-        });
-    }
-
-    makeSearch() {
-        this.toolbar = frappejs.ui.add('div', 'list-toolbar', this.parent);
-        this.toolbar.innerHTML = `
-            <div class="row">
-                <div class="col-md-6 col-9">
-                    <div class="input-group list-search mb-2">
-                        <input class="form-control" type="text" placeholder="Search...">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary btn-search">Search</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        this.searchInput = this.toolbar.querySelector('input');
-        this.searchInput.addEventListener('keypress', (event) => {
-            if (event.keyCode===13) {
-                this.refresh();
-            }
-        });
-
-        this.btnSearch = this.toolbar.querySelector('.btn-search');
-        this.btnSearch.addEventListener('click', (event) => {
-            this.refresh();
-        });
-    }
-
-    makeMoreBtn() {
-        this.btnMore = frappejs.ui.add('button', 'btn btn-secondary hide', this.parent);
-        this.btnMore.textContent = 'More';
-        this.btnMore.addEventListener('click', () => {
-            this.append();
-        });
-    }
-
-    renderRow(i, data) {
-        let row = this.getRow(i);
-        row.innerHTML = this.getRowBodyHTML(data);
-        row.style.display = 'block';
-    }
-
-    getRowBodyHTML(data) {
-        return `<input class="checkbox" type="checkbox" data-name="${data.name}"> ` + this.getRowHTML(data);
-    }
-
-    getRowHTML(data) {
-        return `<a href="#edit/${this.doctype}/${data.name}">${data.name}</a>`;
-    }
-
-    getRow(i) {
-        if (!this.rows[i]) {
-            this.rows[i] = frappejs.ui.add('div', 'list-row py-2', this.body);
-        }
-        return this.rows[i];
-    }
-
-    getCheckedRowNames() {
-        return [...this.body.querySelectorAll('.checkbox:checked')].map(check => check.getAttribute('data-name'));
-    }
-
-    clearEmptyRows() {
-        if (this.rows.length > this.data.length) {
-            for (let i=this.data.length; i < this.rows.length; i++) {
-                let row = this.getRow(i);
-                row.innerHTML = '';
-                row.style.display = 'none';
-            }
-        }
-    }
-
-    updateMore(show) {
-        if (show) {
-            this.btnMore.classList.remove('hide');
-        } else {
-            this.btnMore.classList.add('hide');
-        }
-    }
-
-};
-
-class BaseControl {
-    constructor({field, parent, form}) {
-        BaseControl.count++;
-
-        Object.assign(this, field);
-        this.parent = parent;
-        this.form = form;
-        this.id = 'control-' + BaseControl.count;
-
-        if (!this.fieldname) {
-            this.fieldname = frappejs.slug(this.label);
-        }
-        if (!this.parent) {
-            this.parent = this.form.form;
-        }
-        if (this.setup) {
-            this.setup();
-        }
-    }
-
-    bind(doc) {
-        this.doc = doc;
-        this.setDocValue();
-    }
-
-    refresh() {
-        this.make();
-        this.setDocValue();
-    }
-
-    setDocValue() {
-        if (this.doc) {
-            this.setInputValue(this.doc.get(this.fieldname));
-        }
-    }
-
-    make() {
-        if (!this.input) {
-            if (!this.onlyInput) {
-                this.makeFormGroup();
-                this.makeLabel();
-            }
-            this.makeInput();
-            this.setInputName();
-            this.setRequiredAttribute();
-            this.setDisabled();
-            if (!this.onlyInput) {
-                this.makeDescription();
-            }
-            this.addChangeHandler();
-        }
-    }
-
-    makeFormGroup() {
-        this.formGroup = frappejs.ui.add('div', 'form-group', this.parent);
-    }
-
-    makeLabel() {
-        this.labelElement = frappejs.ui.add('label', null, this.formGroup);
-        this.labelElement.textContent = this.label;
-        this.labelElement.setAttribute('for', this.id);
-    }
-
-    makeInput() {
-        this.input = frappejs.ui.add('input', 'form-control', this.get_input_parent());
-        this.input.autocomplete = "off";
-        this.input.id = this.id;
-    }
-
-    setDisabled() {
-        if (this.readonly || this.disabled) {
-            this.input.disabled = true;
-        }
-    }
-
-    get_input_parent() {
-        return this.formGroup || this.parent;
-    }
-
-    setInputName() {
-        this.input.setAttribute('name', this.fieldname);
-    }
-
-    setRequiredAttribute() {
-        if (this.required) {
-            this.input.required = true;
-        }
-    }
-
-    makeDescription() {
-        if (this.description) {
-            this.description_element = frappejs.ui.add('small', 'form-text text-muted', this.formGroup);
-            this.description_element.textContent = this.description;
-        }
-    }
-
-    setInputValue(value) {
-        this.input.value = this.format(value);
-    }
-
-    format(value) {
-        if (value === undefined || value === null) {
-            value = '';
-        }
-        return value;
-    }
-
-    async getParsedValue() {
-        return await this.parse(this.input.value);
-    }
-
-    getInputValue() {
-        return this.input.value;
-    }
-
-    async parse(value) {
-        return value;
-    }
-
-    async validate(value) {
-        return value;
-    }
-
-    addChangeHandler() {
-        this.input.addEventListener('change', () => {
-            if (this.skipChangeEvent) return;
-            this.handleChange();
-        });
-    }
-
-    async handleChange(event) {
-        let value = await this.parse(this.getInputValue());
-        value = await this.validate(value);
-        await this.updateDocValue(value);
-    }
-
-    async updateDocValue(value) {
-        if (this.doc[this.fieldname] !== value) {
-            if (this.parentControl) {
-                // its a child
-                this.doc[this.fieldname] = value;
-                await this.parentControl.doc.set(this.fieldname, this.parentControl.getInputValue());
-            } else {
-                // parent
-                await this.doc.set(this.fieldname, value);
-            }
-        }
-    }
-
-    disable() {
-        this.input.setAttribute('disabled', 'disabled');
-    }
-
-    enable() {
-        this.input.removeAttribute('disabled');
-    }
-
-    set_focus() {
-        this.input.focus();
-    }
-}
-
-BaseControl.count = 0;
-
-var base = BaseControl;
-
-class DataControl extends base {
-    make() {
-        super.make();
-        this.input.setAttribute('type', 'text');
-    }
-}
-
-var data = DataControl;
-
-class TextControl extends base {
-    makeInput() {
-        this.input = frappejs.ui.add('textarea', 'form-control', this.get_input_parent());
-    }
-    make() {
-        super.make();
-        this.input.setAttribute('rows', '8');
-    }
-}
-
-var text = TextControl;
-
-class SelectControl extends base {
-    makeInput() {
-        this.input = frappejs.ui.add('select', 'form-control', this.formGroup);
-
-        let options = this.options;
-        if (typeof options==='string') {
-            options = options.split('\n');
-        }
-
-        for (let value of options) {
-            let option = frappejs.ui.add('option', null, this.input);
-            option.textContent = value;
-            option.setAttribute('value', value);
-        }
-    }
-    make() {
-        super.make();
-        this.input.setAttribute('row', '3');
-    }
-}
-
-var select = SelectControl;
-
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
 
@@ -1956,6400 +816,6 @@ function unwrapExports (x) {
 function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }
-
-var awesomplete = createCommonjsModule(function (module) {
-/**
- * Simple, lightweight, usable local autocomplete library for modern browsers
- * Because there weren’t enough autocomplete scripts in the world? Because I’m completely insane and have NIH syndrome? Probably both. :P
- * @author Lea Verou http://leaverou.github.io/awesomplete
- * MIT license
- */
-
-(function () {
-
-var _ = function (input, o) {
-	var me = this;
-
-	// Setup
-
-	this.isOpened = false;
-
-	this.input = $(input);
-	this.input.setAttribute("autocomplete", "off");
-	this.input.setAttribute("aria-autocomplete", "list");
-
-	o = o || {};
-
-	configure(this, {
-		minChars: 2,
-		maxItems: 10,
-		autoFirst: false,
-		data: _.DATA,
-		filter: _.FILTER_CONTAINS,
-		sort: o.sort === false ? false : _.SORT_BYLENGTH,
-		item: _.ITEM,
-		replace: _.REPLACE
-	}, o);
-
-	this.index = -1;
-
-	// Create necessary elements
-
-	this.container = $.create("div", {
-		className: "awesomplete",
-		around: input
-	});
-
-	this.ul = $.create("ul", {
-		hidden: "hidden",
-		inside: this.container
-	});
-
-	this.status = $.create("span", {
-		className: "visually-hidden",
-		role: "status",
-		"aria-live": "assertive",
-		"aria-relevant": "additions",
-		inside: this.container
-	});
-
-	// Bind events
-
-	this._events = {
-		input: {
-			"input": this.evaluate.bind(this),
-			"blur": this.close.bind(this, { reason: "blur" }),
-			"keydown": function(evt) {
-				var c = evt.keyCode;
-
-				// If the dropdown `ul` is in view, then act on keydown for the following keys:
-				// Enter / Esc / Up / Down
-				if(me.opened) {
-					if (c === 13 && me.selected) { // Enter
-						evt.preventDefault();
-						me.select();
-					}
-					else if (c === 27) { // Esc
-						me.close({ reason: "esc" });
-					}
-					else if (c === 38 || c === 40) { // Down/Up arrow
-						evt.preventDefault();
-						me[c === 38? "previous" : "next"]();
-					}
-				}
-			}
-		},
-		form: {
-			"submit": this.close.bind(this, { reason: "submit" })
-		},
-		ul: {
-			"mousedown": function(evt) {
-				var li = evt.target;
-
-				if (li !== this) {
-
-					while (li && !/li/i.test(li.nodeName)) {
-						li = li.parentNode;
-					}
-
-					if (li && evt.button === 0) {  // Only select on left click
-						evt.preventDefault();
-						me.select(li, evt.target);
-					}
-				}
-			}
-		}
-	};
-
-	$.bind(this.input, this._events.input);
-	$.bind(this.input.form, this._events.form);
-	$.bind(this.ul, this._events.ul);
-
-	if (this.input.hasAttribute("list")) {
-		this.list = "#" + this.input.getAttribute("list");
-		this.input.removeAttribute("list");
-	}
-	else {
-		this.list = this.input.getAttribute("data-list") || o.list || [];
-	}
-
-	_.all.push(this);
-};
-
-_.prototype = {
-	set list(list) {
-		if (Array.isArray(list)) {
-			this._list = list;
-		}
-		else if (typeof list === "string" && list.indexOf(",") > -1) {
-				this._list = list.split(/\s*,\s*/);
-		}
-		else { // Element or CSS selector
-			list = $(list);
-
-			if (list && list.children) {
-				var items = [];
-				slice.apply(list.children).forEach(function (el) {
-					if (!el.disabled) {
-						var text = el.textContent.trim();
-						var value = el.value || text;
-						var label = el.label || text;
-						if (value !== "") {
-							items.push({ label: label, value: value });
-						}
-					}
-				});
-				this._list = items;
-			}
-		}
-
-		if (document.activeElement === this.input) {
-			this.evaluate();
-		}
-	},
-
-	get selected() {
-		return this.index > -1;
-	},
-
-	get opened() {
-		return this.isOpened;
-	},
-
-	close: function (o) {
-		if (!this.opened) {
-			return;
-		}
-
-		this.ul.setAttribute("hidden", "");
-		this.isOpened = false;
-		this.index = -1;
-
-		$.fire(this.input, "awesomplete-close", o || {});
-	},
-
-	open: function () {
-		this.ul.removeAttribute("hidden");
-		this.isOpened = true;
-
-		if (this.autoFirst && this.index === -1) {
-			this.goto(0);
-		}
-
-		$.fire(this.input, "awesomplete-open");
-	},
-
-	destroy: function() {
-		//remove events from the input and its form
-		$.unbind(this.input, this._events.input);
-		$.unbind(this.input.form, this._events.form);
-
-		//move the input out of the awesomplete container and remove the container and its children
-		var parentNode = this.container.parentNode;
-
-		parentNode.insertBefore(this.input, this.container);
-		parentNode.removeChild(this.container);
-
-		//remove autocomplete and aria-autocomplete attributes
-		this.input.removeAttribute("autocomplete");
-		this.input.removeAttribute("aria-autocomplete");
-
-		//remove this awesomeplete instance from the global array of instances
-		var indexOfAwesomplete = _.all.indexOf(this);
-
-		if (indexOfAwesomplete !== -1) {
-			_.all.splice(indexOfAwesomplete, 1);
-		}
-	},
-
-	next: function () {
-		var count = this.ul.children.length;
-		this.goto(this.index < count - 1 ? this.index + 1 : (count ? 0 : -1) );
-	},
-
-	previous: function () {
-		var count = this.ul.children.length;
-		var pos = this.index - 1;
-
-		this.goto(this.selected && pos !== -1 ? pos : count - 1);
-	},
-
-	// Should not be used, highlights specific item without any checks!
-	goto: function (i) {
-		var lis = this.ul.children;
-
-		if (this.selected) {
-			lis[this.index].setAttribute("aria-selected", "false");
-		}
-
-		this.index = i;
-
-		if (i > -1 && lis.length > 0) {
-			lis[i].setAttribute("aria-selected", "true");
-			this.status.textContent = lis[i].textContent;
-
-			// scroll to highlighted element in case parent's height is fixed
-			this.ul.scrollTop = lis[i].offsetTop - this.ul.clientHeight + lis[i].clientHeight;
-
-			$.fire(this.input, "awesomplete-highlight", {
-				text: this.suggestions[this.index]
-			});
-		}
-	},
-
-	select: function (selected, origin) {
-		if (selected) {
-			this.index = $.siblingIndex(selected);
-		} else {
-			selected = this.ul.children[this.index];
-		}
-
-		if (selected) {
-			var suggestion = this.suggestions[this.index];
-
-			var allowed = $.fire(this.input, "awesomplete-select", {
-				text: suggestion,
-				origin: origin || selected
-			});
-
-			if (allowed) {
-				this.replace(suggestion);
-				this.close({ reason: "select" });
-				$.fire(this.input, "awesomplete-selectcomplete", {
-					text: suggestion
-				});
-			}
-		}
-	},
-
-	evaluate: function() {
-		var me = this;
-		var value = this.input.value;
-
-		if (value.length >= this.minChars && this._list.length > 0) {
-			this.index = -1;
-			// Populate list with options that match
-			this.ul.innerHTML = "";
-
-			this.suggestions = this._list
-				.map(function(item) {
-					return new Suggestion(me.data(item, value));
-				})
-				.filter(function(item) {
-					return me.filter(item, value);
-				});
-
-			if (this.sort !== false) {
-				this.suggestions = this.suggestions.sort(this.sort);
-			}
-
-			this.suggestions = this.suggestions.slice(0, this.maxItems);
-
-			this.suggestions.forEach(function(text) {
-					me.ul.appendChild(me.item(text, value));
-				});
-
-			if (this.ul.children.length === 0) {
-				this.close({ reason: "nomatches" });
-			} else {
-				this.open();
-			}
-		}
-		else {
-			this.close({ reason: "nomatches" });
-		}
-	}
-};
-
-// Static methods/properties
-
-_.all = [];
-
-_.FILTER_CONTAINS = function (text, input) {
-	return RegExp($.regExpEscape(input.trim()), "i").test(text);
-};
-
-_.FILTER_STARTSWITH = function (text, input) {
-	return RegExp("^" + $.regExpEscape(input.trim()), "i").test(text);
-};
-
-_.SORT_BYLENGTH = function (a, b) {
-	if (a.length !== b.length) {
-		return a.length - b.length;
-	}
-
-	return a < b? -1 : 1;
-};
-
-_.ITEM = function (text, input) {
-	var html = input.trim() === "" ? text : text.replace(RegExp($.regExpEscape(input.trim()), "gi"), "<mark>$&</mark>");
-	return $.create("li", {
-		innerHTML: html,
-		"aria-selected": "false"
-	});
-};
-
-_.REPLACE = function (text) {
-	this.input.value = text.value;
-};
-
-_.DATA = function (item/*, input*/) { return item; };
-
-// Private functions
-
-function Suggestion(data) {
-	var o = Array.isArray(data)
-	  ? { label: data[0], value: data[1] }
-	  : typeof data === "object" && "label" in data && "value" in data ? data : { label: data, value: data };
-
-	this.label = o.label || o.value;
-	this.value = o.value;
-}
-Object.defineProperty(Suggestion.prototype = Object.create(String.prototype), "length", {
-	get: function() { return this.label.length; }
-});
-Suggestion.prototype.toString = Suggestion.prototype.valueOf = function () {
-	return "" + this.label;
-};
-
-function configure(instance, properties, o) {
-	for (var i in properties) {
-		var initial = properties[i],
-		    attrValue = instance.input.getAttribute("data-" + i.toLowerCase());
-
-		if (typeof initial === "number") {
-			instance[i] = parseInt(attrValue);
-		}
-		else if (initial === false) { // Boolean options must be false by default anyway
-			instance[i] = attrValue !== null;
-		}
-		else if (initial instanceof Function) {
-			instance[i] = null;
-		}
-		else {
-			instance[i] = attrValue;
-		}
-
-		if (!instance[i] && instance[i] !== 0) {
-			instance[i] = (i in o)? o[i] : initial;
-		}
-	}
-}
-
-// Helpers
-
-var slice = Array.prototype.slice;
-
-function $(expr, con) {
-	return typeof expr === "string"? (con || document).querySelector(expr) : expr || null;
-}
-
-function $$(expr, con) {
-	return slice.call((con || document).querySelectorAll(expr));
-}
-
-$.create = function(tag, o) {
-	var element = document.createElement(tag);
-
-	for (var i in o) {
-		var val = o[i];
-
-		if (i === "inside") {
-			$(val).appendChild(element);
-		}
-		else if (i === "around") {
-			var ref = $(val);
-			ref.parentNode.insertBefore(element, ref);
-			element.appendChild(ref);
-		}
-		else if (i in element) {
-			element[i] = val;
-		}
-		else {
-			element.setAttribute(i, val);
-		}
-	}
-
-	return element;
-};
-
-$.bind = function(element, o) {
-	if (element) {
-		for (var event in o) {
-			var callback = o[event];
-
-			event.split(/\s+/).forEach(function (event) {
-				element.addEventListener(event, callback);
-			});
-		}
-	}
-};
-
-$.unbind = function(element, o) {
-	if (element) {
-		for (var event in o) {
-			var callback = o[event];
-
-			event.split(/\s+/).forEach(function(event) {
-				element.removeEventListener(event, callback);
-			});
-		}
-	}
-};
-
-$.fire = function(target, type, properties) {
-	var evt = document.createEvent("HTMLEvents");
-
-	evt.initEvent(type, true, true );
-
-	for (var j in properties) {
-		evt[j] = properties[j];
-	}
-
-	return target.dispatchEvent(evt);
-};
-
-$.regExpEscape = function (s) {
-	return s.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&");
-};
-
-$.siblingIndex = function (el) {
-	/* eslint-disable no-cond-assign */
-	for (var i = 0; el = el.previousElementSibling; i++);
-	return i;
-};
-
-// Initialization
-
-function init() {
-	$$("input.awesomplete").forEach(function (input) {
-		new _(input);
-	});
-}
-
-// Are we in a browser? Check for Document constructor
-if (typeof Document !== "undefined") {
-	// DOM already loaded?
-	if (document.readyState !== "loading") {
-		init();
-	}
-	else {
-		// Wait for it
-		document.addEventListener("DOMContentLoaded", init);
-	}
-}
-
-_.$ = $;
-_.$$ = $$;
-
-// Make sure to export Awesomplete on self when in a browser
-if (typeof self !== "undefined") {
-	self.Awesomplete = _;
-}
-
-// Expose Awesomplete as a CJS module
-if ('object' === "object" && module.exports) {
-	module.exports = _;
-}
-
-return _;
-
-}());
-});
-
-class LinkControl extends base {
-    make() {
-        super.make();
-        this.input.setAttribute('type', 'text');
-        this.awesomplete = new awesomplete(this.input, {
-            autoFirst: true,
-            minChars: 0,
-            maxItems: 99,
-            filter: () => true,
-        });
-
-        // rebuild the list on input
-        this.input.addEventListener('input', async (event) => {
-            let list = await this.getList(this.input.value);
-
-            // action to add new item
-            list.push({
-                label:frappejs._('+ New {0}', this.target),
-                value: '__newItem',
-                action: () => {
-                }
-            });
-
-            this.awesomplete.list = list;
-        });
-
-        // new item action
-        this.input.addEventListener('awesomplete-select', async (e) => {
-            if (e.text && e.text.value === '__newItem') {
-                e.preventDefault();
-                const newDoc = await frappejs.getNewDoc(this.target);
-                const formModal = frappejs.desk.showFormModal(this.target, newDoc.name);
-                formModal.form.once('submit', async () => {
-                    await this.updateDocValue(formModal.form.doc.name);
-                });
-            }
-        });
-    }
-
-    async getList(query) {
-        return (await frappejs.db.getAll({
-            doctype: this.target,
-            filters: this.getFilters(query),
-            limit: 50
-        })).map(d => d.name);
-    }
-
-    getFilters(query) {
-        return { keywords: ["like", query] }
-    }
-}
-
-var link = LinkControl;
-
-class FloatControl extends base {
-    make() {
-        super.make();
-		this.input.setAttribute('type', 'text');
-        this.input.classList.add('text-right');
-        this.input.addEventListener('focus', () => {
-            setTimeout(() => {
-                this.input.select();
-            }, 100);
-        });
-    }
-    parse(value) {
-        value = parseFloat(value);
-        return value===NaN ? 0 : value;
-    }
-}
-
-var float_1 = FloatControl;
-
-class IntControl extends float_1 {
-    parse(value) {
-        value = parseInt(value);
-        return value===NaN ? 0 : value;
-    }
-}
-
-var int_1 = IntControl;
-
-class CurrencyControl extends float_1 {
-	parse(value) {
-		return frappejs.parse_number(value);
-	}
-	format(value) {
-		return frappejs.format_number(value);
-	}
-}
-
-var currency = CurrencyControl;
-
-class PasswordControl extends base {
-    make() {
-        super.make();
-        this.input.setAttribute('type', 'password');
-    }
-}
-
-var password = PasswordControl;
-
-var Sortable = createCommonjsModule(function (module) {
-/**!
- * Sortable
- * @author	RubaXa   <trash@rubaxa.org>
- * @license MIT
- */
-
-(function sortableModule(factory) {
-	if (typeof undefined === "function" && undefined.amd) {
-		undefined(factory);
-	}
-	else {
-		module.exports = factory();
-	}
-})(function sortableFactory() {
-	if (typeof window === "undefined" || !window.document) {
-		return function sortableError() {
-			throw new Error("Sortable.js requires a window with a document");
-		};
-	}
-
-	var dragEl,
-		parentEl,
-		ghostEl,
-		cloneEl,
-		rootEl,
-		nextEl,
-		lastDownEl,
-
-		scrollEl,
-		scrollParentEl,
-		scrollCustomFn,
-
-		lastEl,
-		lastCSS,
-		lastParentCSS,
-
-		oldIndex,
-		newIndex,
-
-		activeGroup,
-		putSortable,
-
-		autoScroll = {},
-
-		tapEvt,
-		touchEvt,
-
-		moved,
-
-		/** @const */
-		R_SPACE = /\s+/g,
-		R_FLOAT = /left|right|inline/,
-
-		expando = 'Sortable' + (new Date).getTime(),
-
-		win = window,
-		document = win.document,
-		parseInt = win.parseInt,
-		setTimeout = win.setTimeout,
-
-		$ = win.jQuery || win.Zepto,
-		Polymer = win.Polymer,
-
-		captureMode = false,
-		passiveMode = false,
-
-		supportDraggable = ('draggable' in document.createElement('div')),
-		supportCssPointerEvents = (function (el) {
-			// false when IE11
-			if (!!navigator.userAgent.match(/(?:Trident.*rv[ :]?11\.|msie)/i)) {
-				return false;
-			}
-			el = document.createElement('x');
-			el.style.cssText = 'pointer-events:auto';
-			return el.style.pointerEvents === 'auto';
-		})(),
-
-		_silent = false,
-
-		abs = Math.abs,
-		min = Math.min,
-
-		savedInputChecked = [],
-		touchDragOverListeners = [],
-
-		_autoScroll = _throttle(function (/**Event*/evt, /**Object*/options, /**HTMLElement*/rootEl) {
-			// Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=505521
-			if (rootEl && options.scroll) {
-				var _this = rootEl[expando],
-					el,
-					rect,
-					sens = options.scrollSensitivity,
-					speed = options.scrollSpeed,
-
-					x = evt.clientX,
-					y = evt.clientY,
-
-					winWidth = window.innerWidth,
-					winHeight = window.innerHeight,
-
-					vx,
-					vy,
-
-					scrollOffsetX,
-					scrollOffsetY;
-
-				// Delect scrollEl
-				if (scrollParentEl !== rootEl) {
-					scrollEl = options.scroll;
-					scrollParentEl = rootEl;
-					scrollCustomFn = options.scrollFn;
-
-					if (scrollEl === true) {
-						scrollEl = rootEl;
-
-						do {
-							if ((scrollEl.offsetWidth < scrollEl.scrollWidth) ||
-								(scrollEl.offsetHeight < scrollEl.scrollHeight)
-							) {
-								break;
-							}
-							/* jshint boss:true */
-						} while (scrollEl = scrollEl.parentNode);
-					}
-				}
-
-				if (scrollEl) {
-					el = scrollEl;
-					rect = scrollEl.getBoundingClientRect();
-					vx = (abs(rect.right - x) <= sens) - (abs(rect.left - x) <= sens);
-					vy = (abs(rect.bottom - y) <= sens) - (abs(rect.top - y) <= sens);
-				}
-
-
-				if (!(vx || vy)) {
-					vx = (winWidth - x <= sens) - (x <= sens);
-					vy = (winHeight - y <= sens) - (y <= sens);
-
-					/* jshint expr:true */
-					(vx || vy) && (el = win);
-				}
-
-
-				if (autoScroll.vx !== vx || autoScroll.vy !== vy || autoScroll.el !== el) {
-					autoScroll.el = el;
-					autoScroll.vx = vx;
-					autoScroll.vy = vy;
-
-					clearInterval(autoScroll.pid);
-
-					if (el) {
-						autoScroll.pid = setInterval(function () {
-							scrollOffsetY = vy ? vy * speed : 0;
-							scrollOffsetX = vx ? vx * speed : 0;
-
-							if ('function' === typeof(scrollCustomFn)) {
-								return scrollCustomFn.call(_this, scrollOffsetX, scrollOffsetY, evt);
-							}
-
-							if (el === win) {
-								win.scrollTo(win.pageXOffset + scrollOffsetX, win.pageYOffset + scrollOffsetY);
-							} else {
-								el.scrollTop += scrollOffsetY;
-								el.scrollLeft += scrollOffsetX;
-							}
-						}, 24);
-					}
-				}
-			}
-		}, 30),
-
-		_prepareGroup = function (options) {
-			function toFn(value, pull) {
-				if (value === void 0 || value === true) {
-					value = group.name;
-				}
-
-				if (typeof value === 'function') {
-					return value;
-				} else {
-					return function (to, from) {
-						var fromGroup = from.options.group.name;
-
-						return pull
-							? value
-							: value && (value.join
-								? value.indexOf(fromGroup) > -1
-								: (fromGroup == value)
-							);
-					};
-				}
-			}
-
-			var group = {};
-			var originalGroup = options.group;
-
-			if (!originalGroup || typeof originalGroup != 'object') {
-				originalGroup = {name: originalGroup};
-			}
-
-			group.name = originalGroup.name;
-			group.checkPull = toFn(originalGroup.pull, true);
-			group.checkPut = toFn(originalGroup.put);
-			group.revertClone = originalGroup.revertClone;
-
-			options.group = group;
-		};
-
-	// Detect support a passive mode
-	try {
-		window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
-			get: function () {
-				// `false`, because everything starts to work incorrectly and instead of d'n'd,
-				// begins the page has scrolled.
-				passiveMode = false;
-				captureMode = {
-					capture: false,
-					passive: passiveMode
-				};
-			}
-		}));
-	} catch (err) {}
-
-	/**
-	 * @class  Sortable
-	 * @param  {HTMLElement}  el
-	 * @param  {Object}       [options]
-	 */
-	function Sortable(el, options) {
-		if (!(el && el.nodeType && el.nodeType === 1)) {
-			throw 'Sortable: `el` must be HTMLElement, and not ' + {}.toString.call(el);
-		}
-
-		this.el = el; // root element
-		this.options = options = _extend({}, options);
-
-
-		// Export instance
-		el[expando] = this;
-
-		// Default options
-		var defaults = {
-			group: Math.random(),
-			sort: true,
-			disabled: false,
-			store: null,
-			handle: null,
-			scroll: true,
-			scrollSensitivity: 30,
-			scrollSpeed: 10,
-			draggable: /[uo]l/i.test(el.nodeName) ? 'li' : '>*',
-			ghostClass: 'sortable-ghost',
-			chosenClass: 'sortable-chosen',
-			dragClass: 'sortable-drag',
-			ignore: 'a, img',
-			filter: null,
-			preventOnFilter: true,
-			animation: 0,
-			setData: function (dataTransfer, dragEl) {
-				dataTransfer.setData('Text', dragEl.textContent);
-			},
-			dropBubble: false,
-			dragoverBubble: false,
-			dataIdAttr: 'data-id',
-			delay: 0,
-			forceFallback: false,
-			fallbackClass: 'sortable-fallback',
-			fallbackOnBody: false,
-			fallbackTolerance: 0,
-			fallbackOffset: {x: 0, y: 0},
-			supportPointer: Sortable.supportPointer !== false
-		};
-
-
-		// Set default options
-		for (var name in defaults) {
-			!(name in options) && (options[name] = defaults[name]);
-		}
-
-		_prepareGroup(options);
-
-		// Bind all private methods
-		for (var fn in this) {
-			if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
-				this[fn] = this[fn].bind(this);
-			}
-		}
-
-		// Setup drag mode
-		this.nativeDraggable = options.forceFallback ? false : supportDraggable;
-
-		// Bind events
-		_on(el, 'mousedown', this._onTapStart);
-		_on(el, 'touchstart', this._onTapStart);
-		options.supportPointer && _on(el, 'pointerdown', this._onTapStart);
-
-		if (this.nativeDraggable) {
-			_on(el, 'dragover', this);
-			_on(el, 'dragenter', this);
-		}
-
-		touchDragOverListeners.push(this._onDragOver);
-
-		// Restore sorting
-		options.store && this.sort(options.store.get(this));
-	}
-
-
-	Sortable.prototype = /** @lends Sortable.prototype */ {
-		constructor: Sortable,
-
-		_onTapStart: function (/** Event|TouchEvent */evt) {
-			var _this = this,
-				el = this.el,
-				options = this.options,
-				preventOnFilter = options.preventOnFilter,
-				type = evt.type,
-				touch = evt.touches && evt.touches[0],
-				target = (touch || evt).target,
-				originalTarget = evt.target.shadowRoot && (evt.path && evt.path[0]) || target,
-				filter = options.filter,
-				startIndex;
-
-			_saveInputCheckedState(el);
-
-
-			// Don't trigger start event when an element is been dragged, otherwise the evt.oldindex always wrong when set option.group.
-			if (dragEl) {
-				return;
-			}
-
-			if (/mousedown|pointerdown/.test(type) && evt.button !== 0 || options.disabled) {
-				return; // only left button or enabled
-			}
-
-			// cancel dnd if original target is content editable
-			if (originalTarget.isContentEditable) {
-				return;
-			}
-
-			target = _closest(target, options.draggable, el);
-
-			if (!target) {
-				return;
-			}
-
-			if (lastDownEl === target) {
-				// Ignoring duplicate `down`
-				return;
-			}
-
-			// Get the index of the dragged element within its parent
-			startIndex = _index(target, options.draggable);
-
-			// Check filter
-			if (typeof filter === 'function') {
-				if (filter.call(this, evt, target, this)) {
-					_dispatchEvent(_this, originalTarget, 'filter', target, el, el, startIndex);
-					preventOnFilter && evt.preventDefault();
-					return; // cancel dnd
-				}
-			}
-			else if (filter) {
-				filter = filter.split(',').some(function (criteria) {
-					criteria = _closest(originalTarget, criteria.trim(), el);
-
-					if (criteria) {
-						_dispatchEvent(_this, criteria, 'filter', target, el, el, startIndex);
-						return true;
-					}
-				});
-
-				if (filter) {
-					preventOnFilter && evt.preventDefault();
-					return; // cancel dnd
-				}
-			}
-
-			if (options.handle && !_closest(originalTarget, options.handle, el)) {
-				return;
-			}
-
-			// Prepare `dragstart`
-			this._prepareDragStart(evt, touch, target, startIndex);
-		},
-
-		_prepareDragStart: function (/** Event */evt, /** Touch */touch, /** HTMLElement */target, /** Number */startIndex) {
-			var _this = this,
-				el = _this.el,
-				options = _this.options,
-				ownerDocument = el.ownerDocument,
-				dragStartFn;
-
-			if (target && !dragEl && (target.parentNode === el)) {
-				tapEvt = evt;
-
-				rootEl = el;
-				dragEl = target;
-				parentEl = dragEl.parentNode;
-				nextEl = dragEl.nextSibling;
-				lastDownEl = target;
-				activeGroup = options.group;
-				oldIndex = startIndex;
-
-				this._lastX = (touch || evt).clientX;
-				this._lastY = (touch || evt).clientY;
-
-				dragEl.style['will-change'] = 'all';
-
-				dragStartFn = function () {
-					// Delayed drag has been triggered
-					// we can re-enable the events: touchmove/mousemove
-					_this._disableDelayedDrag();
-
-					// Make the element draggable
-					dragEl.draggable = _this.nativeDraggable;
-
-					// Chosen item
-					_toggleClass(dragEl, options.chosenClass, true);
-
-					// Bind the events: dragstart/dragend
-					_this._triggerDragStart(evt, touch);
-
-					// Drag start event
-					_dispatchEvent(_this, rootEl, 'choose', dragEl, rootEl, rootEl, oldIndex);
-				};
-
-				// Disable "draggable"
-				options.ignore.split(',').forEach(function (criteria) {
-					_find(dragEl, criteria.trim(), _disableDraggable);
-				});
-
-				_on(ownerDocument, 'mouseup', _this._onDrop);
-				_on(ownerDocument, 'touchend', _this._onDrop);
-				_on(ownerDocument, 'touchcancel', _this._onDrop);
-				_on(ownerDocument, 'selectstart', _this);
-				options.supportPointer && _on(ownerDocument, 'pointercancel', _this._onDrop);
-
-				if (options.delay) {
-					// If the user moves the pointer or let go the click or touch
-					// before the delay has been reached:
-					// disable the delayed drag
-					_on(ownerDocument, 'mouseup', _this._disableDelayedDrag);
-					_on(ownerDocument, 'touchend', _this._disableDelayedDrag);
-					_on(ownerDocument, 'touchcancel', _this._disableDelayedDrag);
-					_on(ownerDocument, 'mousemove', _this._disableDelayedDrag);
-					_on(ownerDocument, 'touchmove', _this._disableDelayedDrag);
-					options.supportPointer && _on(ownerDocument, 'pointermove', _this._disableDelayedDrag);
-
-					_this._dragStartTimer = setTimeout(dragStartFn, options.delay);
-				} else {
-					dragStartFn();
-				}
-
-
-			}
-		},
-
-		_disableDelayedDrag: function () {
-			var ownerDocument = this.el.ownerDocument;
-
-			clearTimeout(this._dragStartTimer);
-			_off(ownerDocument, 'mouseup', this._disableDelayedDrag);
-			_off(ownerDocument, 'touchend', this._disableDelayedDrag);
-			_off(ownerDocument, 'touchcancel', this._disableDelayedDrag);
-			_off(ownerDocument, 'mousemove', this._disableDelayedDrag);
-			_off(ownerDocument, 'touchmove', this._disableDelayedDrag);
-			_off(ownerDocument, 'pointermove', this._disableDelayedDrag);
-		},
-
-		_triggerDragStart: function (/** Event */evt, /** Touch */touch) {
-			touch = touch || (evt.pointerType == 'touch' ? evt : null);
-
-			if (touch) {
-				// Touch device support
-				tapEvt = {
-					target: dragEl,
-					clientX: touch.clientX,
-					clientY: touch.clientY
-				};
-
-				this._onDragStart(tapEvt, 'touch');
-			}
-			else if (!this.nativeDraggable) {
-				this._onDragStart(tapEvt, true);
-			}
-			else {
-				_on(dragEl, 'dragend', this);
-				_on(rootEl, 'dragstart', this._onDragStart);
-			}
-
-			try {
-				if (document.selection) {
-					// Timeout neccessary for IE9
-					_nextTick(function () {
-						document.selection.empty();
-					});
-				} else {
-					window.getSelection().removeAllRanges();
-				}
-			} catch (err) {
-			}
-		},
-
-		_dragStarted: function () {
-			if (rootEl && dragEl) {
-				var options = this.options;
-
-				// Apply effect
-				_toggleClass(dragEl, options.ghostClass, true);
-				_toggleClass(dragEl, options.dragClass, false);
-
-				Sortable.active = this;
-
-				// Drag start event
-				_dispatchEvent(this, rootEl, 'start', dragEl, rootEl, rootEl, oldIndex);
-			} else {
-				this._nulling();
-			}
-		},
-
-		_emulateDragOver: function () {
-			if (touchEvt) {
-				if (this._lastX === touchEvt.clientX && this._lastY === touchEvt.clientY) {
-					return;
-				}
-
-				this._lastX = touchEvt.clientX;
-				this._lastY = touchEvt.clientY;
-
-				if (!supportCssPointerEvents) {
-					_css(ghostEl, 'display', 'none');
-				}
-
-				var target = document.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
-				var parent = target;
-				var i = touchDragOverListeners.length;
-
-				if (target && target.shadowRoot) {
-					target = target.shadowRoot.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
-					parent = target;
-				}
-
-				if (parent) {
-					do {
-						if (parent[expando]) {
-							while (i--) {
-								touchDragOverListeners[i]({
-									clientX: touchEvt.clientX,
-									clientY: touchEvt.clientY,
-									target: target,
-									rootEl: parent
-								});
-							}
-
-							break;
-						}
-
-						target = parent; // store last element
-					}
-					/* jshint boss:true */
-					while (parent = parent.parentNode);
-				}
-
-				if (!supportCssPointerEvents) {
-					_css(ghostEl, 'display', '');
-				}
-			}
-		},
-
-
-		_onTouchMove: function (/**TouchEvent*/evt) {
-			if (tapEvt) {
-				var	options = this.options,
-					fallbackTolerance = options.fallbackTolerance,
-					fallbackOffset = options.fallbackOffset,
-					touch = evt.touches ? evt.touches[0] : evt,
-					dx = (touch.clientX - tapEvt.clientX) + fallbackOffset.x,
-					dy = (touch.clientY - tapEvt.clientY) + fallbackOffset.y,
-					translate3d = evt.touches ? 'translate3d(' + dx + 'px,' + dy + 'px,0)' : 'translate(' + dx + 'px,' + dy + 'px)';
-
-				// only set the status to dragging, when we are actually dragging
-				if (!Sortable.active) {
-					if (fallbackTolerance &&
-						min(abs(touch.clientX - this._lastX), abs(touch.clientY - this._lastY)) < fallbackTolerance
-					) {
-						return;
-					}
-
-					this._dragStarted();
-				}
-
-				// as well as creating the ghost element on the document body
-				this._appendGhost();
-
-				moved = true;
-				touchEvt = touch;
-
-				_css(ghostEl, 'webkitTransform', translate3d);
-				_css(ghostEl, 'mozTransform', translate3d);
-				_css(ghostEl, 'msTransform', translate3d);
-				_css(ghostEl, 'transform', translate3d);
-
-				evt.preventDefault();
-			}
-		},
-
-		_appendGhost: function () {
-			if (!ghostEl) {
-				var rect = dragEl.getBoundingClientRect(),
-					css = _css(dragEl),
-					options = this.options,
-					ghostRect;
-
-				ghostEl = dragEl.cloneNode(true);
-
-				_toggleClass(ghostEl, options.ghostClass, false);
-				_toggleClass(ghostEl, options.fallbackClass, true);
-				_toggleClass(ghostEl, options.dragClass, true);
-
-				_css(ghostEl, 'top', rect.top - parseInt(css.marginTop, 10));
-				_css(ghostEl, 'left', rect.left - parseInt(css.marginLeft, 10));
-				_css(ghostEl, 'width', rect.width);
-				_css(ghostEl, 'height', rect.height);
-				_css(ghostEl, 'opacity', '0.8');
-				_css(ghostEl, 'position', 'fixed');
-				_css(ghostEl, 'zIndex', '100000');
-				_css(ghostEl, 'pointerEvents', 'none');
-
-				options.fallbackOnBody && document.body.appendChild(ghostEl) || rootEl.appendChild(ghostEl);
-
-				// Fixing dimensions.
-				ghostRect = ghostEl.getBoundingClientRect();
-				_css(ghostEl, 'width', rect.width * 2 - ghostRect.width);
-				_css(ghostEl, 'height', rect.height * 2 - ghostRect.height);
-			}
-		},
-
-		_onDragStart: function (/**Event*/evt, /**boolean*/useFallback) {
-			var _this = this;
-			var dataTransfer = evt.dataTransfer;
-			var options = _this.options;
-
-			_this._offUpEvents();
-
-			if (activeGroup.checkPull(_this, _this, dragEl, evt)) {
-				cloneEl = _clone(dragEl);
-
-				cloneEl.draggable = false;
-				cloneEl.style['will-change'] = '';
-
-				_css(cloneEl, 'display', 'none');
-				_toggleClass(cloneEl, _this.options.chosenClass, false);
-
-				// #1143: IFrame support workaround
-				_this._cloneId = _nextTick(function () {
-					rootEl.insertBefore(cloneEl, dragEl);
-					_dispatchEvent(_this, rootEl, 'clone', dragEl);
-				});
-			}
-
-			_toggleClass(dragEl, options.dragClass, true);
-
-			if (useFallback) {
-				if (useFallback === 'touch') {
-					// Bind touch events
-					_on(document, 'touchmove', _this._onTouchMove);
-					_on(document, 'touchend', _this._onDrop);
-					_on(document, 'touchcancel', _this._onDrop);
-
-					if (options.supportPointer) {
-						_on(document, 'pointermove', _this._onTouchMove);
-						_on(document, 'pointerup', _this._onDrop);
-					}
-				} else {
-					// Old brwoser
-					_on(document, 'mousemove', _this._onTouchMove);
-					_on(document, 'mouseup', _this._onDrop);
-				}
-
-				_this._loopId = setInterval(_this._emulateDragOver, 50);
-			}
-			else {
-				if (dataTransfer) {
-					dataTransfer.effectAllowed = 'move';
-					options.setData && options.setData.call(_this, dataTransfer, dragEl);
-				}
-
-				_on(document, 'drop', _this);
-
-				// #1143: Бывает элемент с IFrame внутри блокирует `drop`,
-				// поэтому если вызвался `mouseover`, значит надо отменять весь d'n'd.
-				// Breaking Chrome 62+
-				// _on(document, 'mouseover', _this);
-
-				_this._dragStartId = _nextTick(_this._dragStarted);
-			}
-		},
-
-		_onDragOver: function (/**Event*/evt) {
-			var el = this.el,
-				target,
-				dragRect,
-				targetRect,
-				revert,
-				options = this.options,
-				group = options.group,
-				activeSortable = Sortable.active,
-				isOwner = (activeGroup === group),
-				isMovingBetweenSortable = false,
-				canSort = options.sort;
-
-			if (evt.preventDefault !== void 0) {
-				evt.preventDefault();
-				!options.dragoverBubble && evt.stopPropagation();
-			}
-
-			if (dragEl.animated) {
-				return;
-			}
-
-			moved = true;
-
-			if (activeSortable && !options.disabled &&
-				(isOwner
-					? canSort || (revert = !rootEl.contains(dragEl)) // Reverting item into the original list
-					: (
-						putSortable === this ||
-						(
-							(activeSortable.lastPullMode = activeGroup.checkPull(this, activeSortable, dragEl, evt)) &&
-							group.checkPut(this, activeSortable, dragEl, evt)
-						)
-					)
-				) &&
-				(evt.rootEl === void 0 || evt.rootEl === this.el) // touch fallback
-			) {
-				// Smart auto-scrolling
-				_autoScroll(evt, options, this.el);
-
-				if (_silent) {
-					return;
-				}
-
-				target = _closest(evt.target, options.draggable, el);
-				dragRect = dragEl.getBoundingClientRect();
-
-				if (putSortable !== this) {
-					putSortable = this;
-					isMovingBetweenSortable = true;
-				}
-
-				if (revert) {
-					_cloneHide(activeSortable, true);
-					parentEl = rootEl; // actualization
-
-					if (cloneEl || nextEl) {
-						rootEl.insertBefore(dragEl, cloneEl || nextEl);
-					}
-					else if (!canSort) {
-						rootEl.appendChild(dragEl);
-					}
-
-					return;
-				}
-
-
-				if ((el.children.length === 0) || (el.children[0] === ghostEl) ||
-					(el === evt.target) && (_ghostIsLast(el, evt))
-				) {
-					//assign target only if condition is true
-					if (el.children.length !== 0 && el.children[0] !== ghostEl && el === evt.target) {
-						target = el.lastElementChild;
-					}
-
-					if (target) {
-						if (target.animated) {
-							return;
-						}
-
-						targetRect = target.getBoundingClientRect();
-					}
-
-					_cloneHide(activeSortable, isOwner);
-
-					if (_onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt) !== false) {
-						if (!dragEl.contains(el)) {
-							el.appendChild(dragEl);
-							parentEl = el; // actualization
-						}
-
-						this._animate(dragRect, dragEl);
-						target && this._animate(targetRect, target);
-					}
-				}
-				else if (target && !target.animated && target !== dragEl && (target.parentNode[expando] !== void 0)) {
-					if (lastEl !== target) {
-						lastEl = target;
-						lastCSS = _css(target);
-						lastParentCSS = _css(target.parentNode);
-					}
-
-					targetRect = target.getBoundingClientRect();
-
-					var width = targetRect.right - targetRect.left,
-						height = targetRect.bottom - targetRect.top,
-						floating = R_FLOAT.test(lastCSS.cssFloat + lastCSS.display)
-							|| (lastParentCSS.display == 'flex' && lastParentCSS['flex-direction'].indexOf('row') === 0),
-						isWide = (target.offsetWidth > dragEl.offsetWidth),
-						isLong = (target.offsetHeight > dragEl.offsetHeight),
-						halfway = (floating ? (evt.clientX - targetRect.left) / width : (evt.clientY - targetRect.top) / height) > 0.5,
-						nextSibling = target.nextElementSibling,
-						after = false;
-
-					if (floating) {
-						var elTop = dragEl.offsetTop,
-							tgTop = target.offsetTop;
-
-						if (elTop === tgTop) {
-							after = (target.previousElementSibling === dragEl) && !isWide || halfway && isWide;
-						}
-						else if (target.previousElementSibling === dragEl || dragEl.previousElementSibling === target) {
-							after = (evt.clientY - targetRect.top) / height > 0.5;
-						} else {
-							after = tgTop > elTop;
-						}
-						} else if (!isMovingBetweenSortable) {
-						after = (nextSibling !== dragEl) && !isLong || halfway && isLong;
-					}
-
-					var moveVector = _onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, after);
-
-					if (moveVector !== false) {
-						if (moveVector === 1 || moveVector === -1) {
-							after = (moveVector === 1);
-						}
-
-						_silent = true;
-						setTimeout(_unsilent, 30);
-
-						_cloneHide(activeSortable, isOwner);
-
-						if (!dragEl.contains(el)) {
-							if (after && !nextSibling) {
-								el.appendChild(dragEl);
-							} else {
-								target.parentNode.insertBefore(dragEl, after ? nextSibling : target);
-							}
-						}
-
-						parentEl = dragEl.parentNode; // actualization
-
-						this._animate(dragRect, dragEl);
-						this._animate(targetRect, target);
-					}
-				}
-			}
-		},
-
-		_animate: function (prevRect, target) {
-			var ms = this.options.animation;
-
-			if (ms) {
-				var currentRect = target.getBoundingClientRect();
-
-				if (prevRect.nodeType === 1) {
-					prevRect = prevRect.getBoundingClientRect();
-				}
-
-				_css(target, 'transition', 'none');
-				_css(target, 'transform', 'translate3d('
-					+ (prevRect.left - currentRect.left) + 'px,'
-					+ (prevRect.top - currentRect.top) + 'px,0)'
-				);
-
-				target.offsetWidth; // repaint
-
-				_css(target, 'transition', 'all ' + ms + 'ms');
-				_css(target, 'transform', 'translate3d(0,0,0)');
-
-				clearTimeout(target.animated);
-				target.animated = setTimeout(function () {
-					_css(target, 'transition', '');
-					_css(target, 'transform', '');
-					target.animated = false;
-				}, ms);
-			}
-		},
-
-		_offUpEvents: function () {
-			var ownerDocument = this.el.ownerDocument;
-
-			_off(document, 'touchmove', this._onTouchMove);
-			_off(document, 'pointermove', this._onTouchMove);
-			_off(ownerDocument, 'mouseup', this._onDrop);
-			_off(ownerDocument, 'touchend', this._onDrop);
-			_off(ownerDocument, 'pointerup', this._onDrop);
-			_off(ownerDocument, 'touchcancel', this._onDrop);
-			_off(ownerDocument, 'pointercancel', this._onDrop);
-			_off(ownerDocument, 'selectstart', this);
-		},
-
-		_onDrop: function (/**Event*/evt) {
-			var el = this.el,
-				options = this.options;
-
-			clearInterval(this._loopId);
-			clearInterval(autoScroll.pid);
-			clearTimeout(this._dragStartTimer);
-
-			_cancelNextTick(this._cloneId);
-			_cancelNextTick(this._dragStartId);
-
-			// Unbind events
-			_off(document, 'mouseover', this);
-			_off(document, 'mousemove', this._onTouchMove);
-
-			if (this.nativeDraggable) {
-				_off(document, 'drop', this);
-				_off(el, 'dragstart', this._onDragStart);
-			}
-
-			this._offUpEvents();
-
-			if (evt) {
-				if (moved) {
-					evt.preventDefault();
-					!options.dropBubble && evt.stopPropagation();
-				}
-
-				ghostEl && ghostEl.parentNode && ghostEl.parentNode.removeChild(ghostEl);
-
-				if (rootEl === parentEl || Sortable.active.lastPullMode !== 'clone') {
-					// Remove clone
-					cloneEl && cloneEl.parentNode && cloneEl.parentNode.removeChild(cloneEl);
-				}
-
-				if (dragEl) {
-					if (this.nativeDraggable) {
-						_off(dragEl, 'dragend', this);
-					}
-
-					_disableDraggable(dragEl);
-					dragEl.style['will-change'] = '';
-
-					// Remove class's
-					_toggleClass(dragEl, this.options.ghostClass, false);
-					_toggleClass(dragEl, this.options.chosenClass, false);
-
-					// Drag stop event
-					_dispatchEvent(this, rootEl, 'unchoose', dragEl, parentEl, rootEl, oldIndex);
-
-					if (rootEl !== parentEl) {
-						newIndex = _index(dragEl, options.draggable);
-
-						if (newIndex >= 0) {
-							// Add event
-							_dispatchEvent(null, parentEl, 'add', dragEl, parentEl, rootEl, oldIndex, newIndex);
-
-							// Remove event
-							_dispatchEvent(this, rootEl, 'remove', dragEl, parentEl, rootEl, oldIndex, newIndex);
-
-							// drag from one list and drop into another
-							_dispatchEvent(null, parentEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex);
-							_dispatchEvent(this, rootEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex);
-						}
-					}
-					else {
-						if (dragEl.nextSibling !== nextEl) {
-							// Get the index of the dragged element within its parent
-							newIndex = _index(dragEl, options.draggable);
-
-							if (newIndex >= 0) {
-								// drag & drop within the same list
-								_dispatchEvent(this, rootEl, 'update', dragEl, parentEl, rootEl, oldIndex, newIndex);
-								_dispatchEvent(this, rootEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex);
-							}
-						}
-					}
-
-					if (Sortable.active) {
-						/* jshint eqnull:true */
-						if (newIndex == null || newIndex === -1) {
-							newIndex = oldIndex;
-						}
-
-						_dispatchEvent(this, rootEl, 'end', dragEl, parentEl, rootEl, oldIndex, newIndex);
-
-						// Save sorting
-						this.save();
-					}
-				}
-
-			}
-
-			this._nulling();
-		},
-
-		_nulling: function() {
-			rootEl =
-			dragEl =
-			parentEl =
-			ghostEl =
-			nextEl =
-			cloneEl =
-			lastDownEl =
-
-			scrollEl =
-			scrollParentEl =
-
-			tapEvt =
-			touchEvt =
-
-			moved =
-			newIndex =
-
-			lastEl =
-			lastCSS =
-
-			putSortable =
-			activeGroup =
-			Sortable.active = null;
-
-			savedInputChecked.forEach(function (el) {
-				el.checked = true;
-			});
-			savedInputChecked.length = 0;
-		},
-
-		handleEvent: function (/**Event*/evt) {
-			switch (evt.type) {
-				case 'drop':
-				case 'dragend':
-					this._onDrop(evt);
-					break;
-
-				case 'dragover':
-				case 'dragenter':
-					if (dragEl) {
-						this._onDragOver(evt);
-						_globalDragOver(evt);
-					}
-					break;
-
-				case 'mouseover':
-					this._onDrop(evt);
-					break;
-
-				case 'selectstart':
-					evt.preventDefault();
-					break;
-			}
-		},
-
-
-		/**
-		 * Serializes the item into an array of string.
-		 * @returns {String[]}
-		 */
-		toArray: function () {
-			var order = [],
-				el,
-				children = this.el.children,
-				i = 0,
-				n = children.length,
-				options = this.options;
-
-			for (; i < n; i++) {
-				el = children[i];
-				if (_closest(el, options.draggable, this.el)) {
-					order.push(el.getAttribute(options.dataIdAttr) || _generateId(el));
-				}
-			}
-
-			return order;
-		},
-
-
-		/**
-		 * Sorts the elements according to the array.
-		 * @param  {String[]}  order  order of the items
-		 */
-		sort: function (order) {
-			var items = {}, rootEl = this.el;
-
-			this.toArray().forEach(function (id, i) {
-				var el = rootEl.children[i];
-
-				if (_closest(el, this.options.draggable, rootEl)) {
-					items[id] = el;
-				}
-			}, this);
-
-			order.forEach(function (id) {
-				if (items[id]) {
-					rootEl.removeChild(items[id]);
-					rootEl.appendChild(items[id]);
-				}
-			});
-		},
-
-
-		/**
-		 * Save the current sorting
-		 */
-		save: function () {
-			var store = this.options.store;
-			store && store.set(this);
-		},
-
-
-		/**
-		 * For each element in the set, get the first element that matches the selector by testing the element itself and traversing up through its ancestors in the DOM tree.
-		 * @param   {HTMLElement}  el
-		 * @param   {String}       [selector]  default: `options.draggable`
-		 * @returns {HTMLElement|null}
-		 */
-		closest: function (el, selector) {
-			return _closest(el, selector || this.options.draggable, this.el);
-		},
-
-
-		/**
-		 * Set/get option
-		 * @param   {string} name
-		 * @param   {*}      [value]
-		 * @returns {*}
-		 */
-		option: function (name, value) {
-			var options = this.options;
-
-			if (value === void 0) {
-				return options[name];
-			} else {
-				options[name] = value;
-
-				if (name === 'group') {
-					_prepareGroup(options);
-				}
-			}
-		},
-
-
-		/**
-		 * Destroy
-		 */
-		destroy: function () {
-			var el = this.el;
-
-			el[expando] = null;
-
-			_off(el, 'mousedown', this._onTapStart);
-			_off(el, 'touchstart', this._onTapStart);
-			_off(el, 'pointerdown', this._onTapStart);
-
-			if (this.nativeDraggable) {
-				_off(el, 'dragover', this);
-				_off(el, 'dragenter', this);
-			}
-
-			// Remove draggable attributes
-			Array.prototype.forEach.call(el.querySelectorAll('[draggable]'), function (el) {
-				el.removeAttribute('draggable');
-			});
-
-			touchDragOverListeners.splice(touchDragOverListeners.indexOf(this._onDragOver), 1);
-
-			this._onDrop();
-
-			this.el = el = null;
-		}
-	};
-
-
-	function _cloneHide(sortable, state) {
-		if (sortable.lastPullMode !== 'clone') {
-			state = true;
-		}
-
-		if (cloneEl && (cloneEl.state !== state)) {
-			_css(cloneEl, 'display', state ? 'none' : '');
-
-			if (!state) {
-				if (cloneEl.state) {
-					if (sortable.options.group.revertClone) {
-						rootEl.insertBefore(cloneEl, nextEl);
-						sortable._animate(dragEl, cloneEl);
-					} else {
-						rootEl.insertBefore(cloneEl, dragEl);
-					}
-				}
-			}
-
-			cloneEl.state = state;
-		}
-	}
-
-
-	function _closest(/**HTMLElement*/el, /**String*/selector, /**HTMLElement*/ctx) {
-		if (el) {
-			ctx = ctx || document;
-
-			do {
-				if ((selector === '>*' && el.parentNode === ctx) || _matches(el, selector)) {
-					return el;
-				}
-				/* jshint boss:true */
-			} while (el = _getParentOrHost(el));
-		}
-
-		return null;
-	}
-
-
-	function _getParentOrHost(el) {
-		var parent = el.host;
-
-		return (parent && parent.nodeType) ? parent : el.parentNode;
-	}
-
-
-	function _globalDragOver(/**Event*/evt) {
-		if (evt.dataTransfer) {
-			evt.dataTransfer.dropEffect = 'move';
-		}
-		evt.preventDefault();
-	}
-
-
-	function _on(el, event, fn) {
-		el.addEventListener(event, fn, captureMode);
-	}
-
-
-	function _off(el, event, fn) {
-		el.removeEventListener(event, fn, captureMode);
-	}
-
-
-	function _toggleClass(el, name, state) {
-		if (el) {
-			if (el.classList) {
-				el.classList[state ? 'add' : 'remove'](name);
-			}
-			else {
-				var className = (' ' + el.className + ' ').replace(R_SPACE, ' ').replace(' ' + name + ' ', ' ');
-				el.className = (className + (state ? ' ' + name : '')).replace(R_SPACE, ' ');
-			}
-		}
-	}
-
-
-	function _css(el, prop, val) {
-		var style = el && el.style;
-
-		if (style) {
-			if (val === void 0) {
-				if (document.defaultView && document.defaultView.getComputedStyle) {
-					val = document.defaultView.getComputedStyle(el, '');
-				}
-				else if (el.currentStyle) {
-					val = el.currentStyle;
-				}
-
-				return prop === void 0 ? val : val[prop];
-			}
-			else {
-				if (!(prop in style)) {
-					prop = '-webkit-' + prop;
-				}
-
-				style[prop] = val + (typeof val === 'string' ? '' : 'px');
-			}
-		}
-	}
-
-
-	function _find(ctx, tagName, iterator) {
-		if (ctx) {
-			var list = ctx.getElementsByTagName(tagName), i = 0, n = list.length;
-
-			if (iterator) {
-				for (; i < n; i++) {
-					iterator(list[i], i);
-				}
-			}
-
-			return list;
-		}
-
-		return [];
-	}
-
-
-
-	function _dispatchEvent(sortable, rootEl, name, targetEl, toEl, fromEl, startIndex, newIndex) {
-		sortable = (sortable || rootEl[expando]);
-
-		var evt = document.createEvent('Event'),
-			options = sortable.options,
-			onName = 'on' + name.charAt(0).toUpperCase() + name.substr(1);
-
-		evt.initEvent(name, true, true);
-
-		evt.to = toEl || rootEl;
-		evt.from = fromEl || rootEl;
-		evt.item = targetEl || rootEl;
-		evt.clone = cloneEl;
-
-		evt.oldIndex = startIndex;
-		evt.newIndex = newIndex;
-
-		rootEl.dispatchEvent(evt);
-
-		if (options[onName]) {
-			options[onName].call(sortable, evt);
-		}
-	}
-
-
-	function _onMove(fromEl, toEl, dragEl, dragRect, targetEl, targetRect, originalEvt, willInsertAfter) {
-		var evt,
-			sortable = fromEl[expando],
-			onMoveFn = sortable.options.onMove,
-			retVal;
-
-		evt = document.createEvent('Event');
-		evt.initEvent('move', true, true);
-
-		evt.to = toEl;
-		evt.from = fromEl;
-		evt.dragged = dragEl;
-		evt.draggedRect = dragRect;
-		evt.related = targetEl || toEl;
-		evt.relatedRect = targetRect || toEl.getBoundingClientRect();
-		evt.willInsertAfter = willInsertAfter;
-
-		fromEl.dispatchEvent(evt);
-
-		if (onMoveFn) {
-			retVal = onMoveFn.call(sortable, evt, originalEvt);
-		}
-
-		return retVal;
-	}
-
-
-	function _disableDraggable(el) {
-		el.draggable = false;
-	}
-
-
-	function _unsilent() {
-		_silent = false;
-	}
-
-
-	/** @returns {HTMLElement|false} */
-	function _ghostIsLast(el, evt) {
-		var lastEl = el.lastElementChild,
-			rect = lastEl.getBoundingClientRect();
-
-		// 5 — min delta
-		// abs — нельзя добавлять, а то глюки при наведении сверху
-		return (evt.clientY - (rect.top + rect.height) > 5) ||
-			(evt.clientX - (rect.left + rect.width) > 5);
-	}
-
-
-	/**
-	 * Generate id
-	 * @param   {HTMLElement} el
-	 * @returns {String}
-	 * @private
-	 */
-	function _generateId(el) {
-		var str = el.tagName + el.className + el.src + el.href + el.textContent,
-			i = str.length,
-			sum = 0;
-
-		while (i--) {
-			sum += str.charCodeAt(i);
-		}
-
-		return sum.toString(36);
-	}
-
-	/**
-	 * Returns the index of an element within its parent for a selected set of
-	 * elements
-	 * @param  {HTMLElement} el
-	 * @param  {selector} selector
-	 * @return {number}
-	 */
-	function _index(el, selector) {
-		var index = 0;
-
-		if (!el || !el.parentNode) {
-			return -1;
-		}
-
-		while (el && (el = el.previousElementSibling)) {
-			if ((el.nodeName.toUpperCase() !== 'TEMPLATE') && (selector === '>*' || _matches(el, selector))) {
-				index++;
-			}
-		}
-
-		return index;
-	}
-
-	function _matches(/**HTMLElement*/el, /**String*/selector) {
-		if (el) {
-			selector = selector.split('.');
-
-			var tag = selector.shift().toUpperCase(),
-				re = new RegExp('\\s(' + selector.join('|') + ')(?=\\s)', 'g');
-
-			return (
-				(tag === '' || el.nodeName.toUpperCase() == tag) &&
-				(!selector.length || ((' ' + el.className + ' ').match(re) || []).length == selector.length)
-			);
-		}
-
-		return false;
-	}
-
-	function _throttle(callback, ms) {
-		var args, _this;
-
-		return function () {
-			if (args === void 0) {
-				args = arguments;
-				_this = this;
-
-				setTimeout(function () {
-					if (args.length === 1) {
-						callback.call(_this, args[0]);
-					} else {
-						callback.apply(_this, args);
-					}
-
-					args = void 0;
-				}, ms);
-			}
-		};
-	}
-
-	function _extend(dst, src) {
-		if (dst && src) {
-			for (var key in src) {
-				if (src.hasOwnProperty(key)) {
-					dst[key] = src[key];
-				}
-			}
-		}
-
-		return dst;
-	}
-
-	function _clone(el) {
-		if (Polymer && Polymer.dom) {
-			return Polymer.dom(el).cloneNode(true);
-		}
-		else if ($) {
-			return $(el).clone(true)[0];
-		}
-		else {
-			return el.cloneNode(true);
-		}
-	}
-
-	function _saveInputCheckedState(root) {
-		var inputs = root.getElementsByTagName('input');
-		var idx = inputs.length;
-
-		while (idx--) {
-			var el = inputs[idx];
-			el.checked && savedInputChecked.push(el);
-		}
-	}
-
-	function _nextTick(fn) {
-		return setTimeout(fn, 0);
-	}
-
-	function _cancelNextTick(id) {
-		return clearTimeout(id);
-	}
-
-	// Fixed #973:
-	_on(document, 'touchmove', function (evt) {
-		if (Sortable.active) {
-			evt.preventDefault();
-		}
-	});
-
-	// Export utils
-	Sortable.utils = {
-		on: _on,
-		off: _off,
-		css: _css,
-		find: _find,
-		is: function (el, selector) {
-			return !!_closest(el, selector, el);
-		},
-		extend: _extend,
-		throttle: _throttle,
-		closest: _closest,
-		toggleClass: _toggleClass,
-		clone: _clone,
-		index: _index,
-		nextTick: _nextTick,
-		cancelNextTick: _cancelNextTick
-	};
-
-
-	/**
-	 * Create sortable instance
-	 * @param {HTMLElement}  el
-	 * @param {Object}      [options]
-	 */
-	Sortable.create = function (el, options) {
-		return new Sortable(el, options);
-	};
-
-
-	// Export
-	Sortable.version = '1.7.0';
-	return Sortable;
-});
-});
-
-var clusterize = createCommonjsModule(function (module) {
-/*! Clusterize.js - v0.18.0 - 2017-11-04
-* http://NeXTs.github.com/Clusterize.js/
-* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
-
-(function(name, definition) {
-    module.exports = definition();
-}('Clusterize', function() {
-  var ie = (function(){
-    for( var v = 3,
-             el = document.createElement('b'),
-             all = el.all || [];
-         el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];
-       ){}
-    return v > 4 ? v : document.documentMode;
-  }()),
-  is_mac = navigator.platform.toLowerCase().indexOf('mac') + 1;
-  var Clusterize = function(data) {
-    if( ! (this instanceof Clusterize))
-      return new Clusterize(data);
-    var self = this;
-
-    var defaults = {
-      rows_in_block: 50,
-      blocks_in_cluster: 4,
-      tag: null,
-      show_no_data_row: true,
-      no_data_class: 'clusterize-no-data',
-      no_data_text: 'No data',
-      keep_parity: true,
-      callbacks: {}
-    };
-
-    // public parameters
-    self.options = {};
-    var options = ['rows_in_block', 'blocks_in_cluster', 'show_no_data_row', 'no_data_class', 'no_data_text', 'keep_parity', 'tag', 'callbacks'];
-    for(var i = 0, option; option = options[i]; i++) {
-      self.options[option] = typeof data[option] != 'undefined' && data[option] != null
-        ? data[option]
-        : defaults[option];
-    }
-
-    var elems = ['scroll', 'content'];
-    for(var i = 0, elem; elem = elems[i]; i++) {
-      self[elem + '_elem'] = data[elem + 'Id']
-        ? document.getElementById(data[elem + 'Id'])
-        : data[elem + 'Elem'];
-      if( ! self[elem + '_elem'])
-        throw new Error("Error! Could not find " + elem + " element");
-    }
-
-    // tabindex forces the browser to keep focus on the scrolling list, fixes #11
-    if( ! self.content_elem.hasAttribute('tabindex'))
-      self.content_elem.setAttribute('tabindex', 0);
-
-    // private parameters
-    var rows = isArray(data.rows)
-        ? data.rows
-        : self.fetchMarkup(),
-      cache = {},
-      scroll_top = self.scroll_elem.scrollTop;
-
-    // append initial data
-    self.insertToDOM(rows, cache);
-
-    // restore the scroll position
-    self.scroll_elem.scrollTop = scroll_top;
-
-    // adding scroll handler
-    var last_cluster = false,
-    scroll_debounce = 0,
-    pointer_events_set = false,
-    scrollEv = function() {
-      // fixes scrolling issue on Mac #3
-      if (is_mac) {
-          if( ! pointer_events_set) self.content_elem.style.pointerEvents = 'none';
-          pointer_events_set = true;
-          clearTimeout(scroll_debounce);
-          scroll_debounce = setTimeout(function () {
-              self.content_elem.style.pointerEvents = 'auto';
-              pointer_events_set = false;
-          }, 50);
-      }
-      if (last_cluster != (last_cluster = self.getClusterNum()))
-        self.insertToDOM(rows, cache);
-      if (self.options.callbacks.scrollingProgress)
-        self.options.callbacks.scrollingProgress(self.getScrollProgress());
-    },
-    resize_debounce = 0,
-    resizeEv = function() {
-      clearTimeout(resize_debounce);
-      resize_debounce = setTimeout(self.refresh, 100);
-    };
-    on('scroll', self.scroll_elem, scrollEv);
-    on('resize', window, resizeEv);
-
-    // public methods
-    self.destroy = function(clean) {
-      off('scroll', self.scroll_elem, scrollEv);
-      off('resize', window, resizeEv);
-      self.html((clean ? self.generateEmptyRow() : rows).join(''));
-    };
-    self.refresh = function(force) {
-      if(self.getRowsHeight(rows) || force) self.update(rows);
-    };
-    self.update = function(new_rows) {
-      rows = isArray(new_rows)
-        ? new_rows
-        : [];
-      var scroll_top = self.scroll_elem.scrollTop;
-      // fixes #39
-      if(rows.length * self.options.item_height < scroll_top) {
-        self.scroll_elem.scrollTop = 0;
-        last_cluster = 0;
-      }
-      self.insertToDOM(rows, cache);
-      self.scroll_elem.scrollTop = scroll_top;
-    };
-    self.clear = function() {
-      self.update([]);
-    };
-    self.getRowsAmount = function() {
-      return rows.length;
-    };
-    self.getScrollProgress = function() {
-      return this.options.scroll_top / (rows.length * this.options.item_height) * 100 || 0;
-    };
-
-    var add = function(where, _new_rows) {
-      var new_rows = isArray(_new_rows)
-        ? _new_rows
-        : [];
-      if( ! new_rows.length) return;
-      rows = where == 'append'
-        ? rows.concat(new_rows)
-        : new_rows.concat(rows);
-      self.insertToDOM(rows, cache);
-    };
-    self.append = function(rows) {
-      add('append', rows);
-    };
-    self.prepend = function(rows) {
-      add('prepend', rows);
-    };
-  };
-
-  Clusterize.prototype = {
-    constructor: Clusterize,
-    // fetch existing markup
-    fetchMarkup: function() {
-      var rows = [], rows_nodes = this.getChildNodes(this.content_elem);
-      while (rows_nodes.length) {
-        rows.push(rows_nodes.shift().outerHTML);
-      }
-      return rows;
-    },
-    // get tag name, content tag name, tag height, calc cluster height
-    exploreEnvironment: function(rows, cache) {
-      var opts = this.options;
-      opts.content_tag = this.content_elem.tagName.toLowerCase();
-      if( ! rows.length) return;
-      if(ie && ie <= 9 && ! opts.tag) opts.tag = rows[0].match(/<([^>\s/]*)/)[1].toLowerCase();
-      if(this.content_elem.children.length <= 1) cache.data = this.html(rows[0] + rows[0] + rows[0]);
-      if( ! opts.tag) opts.tag = this.content_elem.children[0].tagName.toLowerCase();
-      this.getRowsHeight(rows);
-    },
-    getRowsHeight: function(rows) {
-      var opts = this.options,
-        prev_item_height = opts.item_height;
-      opts.cluster_height = 0;
-      if( ! rows.length) return;
-      var nodes = this.content_elem.children;
-      var node = nodes[Math.floor(nodes.length / 2)];
-      opts.item_height = node.offsetHeight;
-      // consider table's border-spacing
-      if(opts.tag == 'tr' && getStyle('borderCollapse', this.content_elem) != 'collapse')
-        opts.item_height += parseInt(getStyle('borderSpacing', this.content_elem), 10) || 0;
-      // consider margins (and margins collapsing)
-      if(opts.tag != 'tr') {
-        var marginTop = parseInt(getStyle('marginTop', node), 10) || 0;
-        var marginBottom = parseInt(getStyle('marginBottom', node), 10) || 0;
-        opts.item_height += Math.max(marginTop, marginBottom);
-      }
-      opts.block_height = opts.item_height * opts.rows_in_block;
-      opts.rows_in_cluster = opts.blocks_in_cluster * opts.rows_in_block;
-      opts.cluster_height = opts.blocks_in_cluster * opts.block_height;
-      return prev_item_height != opts.item_height;
-    },
-    // get current cluster number
-    getClusterNum: function () {
-      this.options.scroll_top = this.scroll_elem.scrollTop;
-      return Math.floor(this.options.scroll_top / (this.options.cluster_height - this.options.block_height)) || 0;
-    },
-    // generate empty row if no data provided
-    generateEmptyRow: function() {
-      var opts = this.options;
-      if( ! opts.tag || ! opts.show_no_data_row) return [];
-      var empty_row = document.createElement(opts.tag),
-        no_data_content = document.createTextNode(opts.no_data_text), td;
-      empty_row.className = opts.no_data_class;
-      if(opts.tag == 'tr') {
-        td = document.createElement('td');
-        // fixes #53
-        td.colSpan = 100;
-        td.appendChild(no_data_content);
-      }
-      empty_row.appendChild(td || no_data_content);
-      return [empty_row.outerHTML];
-    },
-    // generate cluster for current scroll position
-    generate: function (rows, cluster_num) {
-      var opts = this.options,
-        rows_len = rows.length;
-      if (rows_len < opts.rows_in_block) {
-        return {
-          top_offset: 0,
-          bottom_offset: 0,
-          rows_above: 0,
-          rows: rows_len ? rows : this.generateEmptyRow()
-        }
-      }
-      var items_start = Math.max((opts.rows_in_cluster - opts.rows_in_block) * cluster_num, 0),
-        items_end = items_start + opts.rows_in_cluster,
-        top_offset = Math.max(items_start * opts.item_height, 0),
-        bottom_offset = Math.max((rows_len - items_end) * opts.item_height, 0),
-        this_cluster_rows = [],
-        rows_above = items_start;
-      if(top_offset < 1) {
-        rows_above++;
-      }
-      for (var i = items_start; i < items_end; i++) {
-        rows[i] && this_cluster_rows.push(rows[i]);
-      }
-      return {
-        top_offset: top_offset,
-        bottom_offset: bottom_offset,
-        rows_above: rows_above,
-        rows: this_cluster_rows
-      }
-    },
-    renderExtraTag: function(class_name, height) {
-      var tag = document.createElement(this.options.tag),
-        clusterize_prefix = 'clusterize-';
-      tag.className = [clusterize_prefix + 'extra-row', clusterize_prefix + class_name].join(' ');
-      height && (tag.style.height = height + 'px');
-      return tag.outerHTML;
-    },
-    // if necessary verify data changed and insert to DOM
-    insertToDOM: function(rows, cache) {
-      // explore row's height
-      if( ! this.options.cluster_height) {
-        this.exploreEnvironment(rows, cache);
-      }
-      var data = this.generate(rows, this.getClusterNum()),
-        this_cluster_rows = data.rows.join(''),
-        this_cluster_content_changed = this.checkChanges('data', this_cluster_rows, cache),
-        top_offset_changed = this.checkChanges('top', data.top_offset, cache),
-        only_bottom_offset_changed = this.checkChanges('bottom', data.bottom_offset, cache),
-        callbacks = this.options.callbacks,
-        layout = [];
-
-      if(this_cluster_content_changed || top_offset_changed) {
-        if(data.top_offset) {
-          this.options.keep_parity && layout.push(this.renderExtraTag('keep-parity'));
-          layout.push(this.renderExtraTag('top-space', data.top_offset));
-        }
-        layout.push(this_cluster_rows);
-        data.bottom_offset && layout.push(this.renderExtraTag('bottom-space', data.bottom_offset));
-        callbacks.clusterWillChange && callbacks.clusterWillChange();
-        this.html(layout.join(''));
-        this.options.content_tag == 'ol' && this.content_elem.setAttribute('start', data.rows_above);
-        this.content_elem.style['counter-increment'] = 'clusterize-counter ' + (data.rows_above-1);
-        callbacks.clusterChanged && callbacks.clusterChanged();
-      } else if(only_bottom_offset_changed) {
-        this.content_elem.lastChild.style.height = data.bottom_offset + 'px';
-      }
-    },
-    // unfortunately ie <= 9 does not allow to use innerHTML for table elements, so make a workaround
-    html: function(data) {
-      var content_elem = this.content_elem;
-      if(ie && ie <= 9 && this.options.tag == 'tr') {
-        var div = document.createElement('div'), last;
-        div.innerHTML = '<table><tbody>' + data + '</tbody></table>';
-        while((last = content_elem.lastChild)) {
-          content_elem.removeChild(last);
-        }
-        var rows_nodes = this.getChildNodes(div.firstChild.firstChild);
-        while (rows_nodes.length) {
-          content_elem.appendChild(rows_nodes.shift());
-        }
-      } else {
-        content_elem.innerHTML = data;
-      }
-    },
-    getChildNodes: function(tag) {
-        var child_nodes = tag.children, nodes = [];
-        for (var i = 0, ii = child_nodes.length; i < ii; i++) {
-            nodes.push(child_nodes[i]);
-        }
-        return nodes;
-    },
-    checkChanges: function(type, value, cache) {
-      var changed = value != cache[type];
-      cache[type] = value;
-      return changed;
-    }
-  };
-
-  // support functions
-  function on(evt, element, fnc) {
-    return element.addEventListener ? element.addEventListener(evt, fnc, false) : element.attachEvent("on" + evt, fnc);
-  }
-  function off(evt, element, fnc) {
-    return element.removeEventListener ? element.removeEventListener(evt, fnc, false) : element.detachEvent("on" + evt, fnc);
-  }
-  function isArray(arr) {
-    return Object.prototype.toString.call(arr) === '[object Array]';
-  }
-  function getStyle(prop, elem) {
-    return window.getComputedStyle ? window.getComputedStyle(elem)[prop] : elem.currentStyle[prop];
-  }
-
-  return Clusterize;
-}));
-});
-
-var frappeDatatable = createCommonjsModule(function (module, exports) {
-(function webpackUniversalModuleDefinition(root, factory) {
-	module.exports = factory(Sortable, clusterize);
-})(typeof self !== 'undefined' ? self : commonjsGlobal, function(__WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_11__) {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-exports.default = $;
-function $(expr, con) {
-  return typeof expr === 'string' ? (con || document).querySelector(expr) : expr || null;
-}
-
-$.each = function (expr, con) {
-  return typeof expr === 'string' ? Array.from((con || document).querySelectorAll(expr)) : expr || null;
-};
-
-$.create = function (tag, o) {
-  var element = document.createElement(tag);
-
-  var _loop = function _loop(i) {
-    var val = o[i];
-
-    if (i === 'inside') {
-      $(val).appendChild(element);
-    } else if (i === 'around') {
-      var ref = $(val);
-      ref.parentNode.insertBefore(element, ref);
-      element.appendChild(ref);
-    } else if (i === 'styles') {
-      if ((typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object') {
-        Object.keys(val).map(function (prop) {
-          element.style[prop] = val[prop];
-        });
-      }
-    } else if (i in element) {
-      element[i] = val;
-    } else {
-      element.setAttribute(i, val);
-    }
-  };
-
-  for (var i in o) {
-    _loop(i);
-  }
-
-  return element;
-};
-
-$.on = function (element, event, selector, callback) {
-  if (!callback) {
-    callback = selector;
-    $.bind(element, event, callback);
-  } else {
-    $.delegate(element, event, selector, callback);
-  }
-};
-
-$.off = function (element, event, handler) {
-  element.removeEventListener(event, handler);
-};
-
-$.bind = function (element, event, callback) {
-  event.split(/\s+/).forEach(function (event) {
-    element.addEventListener(event, callback);
-  });
-};
-
-$.delegate = function (element, event, selector, callback) {
-  element.addEventListener(event, function (e) {
-    var delegatedTarget = e.target.closest(selector);
-    if (delegatedTarget) {
-      e.delegatedTarget = delegatedTarget;
-      callback.call(this, e, delegatedTarget);
-    }
-  });
-};
-
-$.unbind = function (element, o) {
-  if (element) {
-    var _loop2 = function _loop2(event) {
-      var callback = o[event];
-
-      event.split(/\s+/).forEach(function (event) {
-        element.removeEventListener(event, callback);
-      });
-    };
-
-    for (var event in o) {
-      _loop2(event);
-    }
-  }
-};
-
-$.fire = function (target, type, properties) {
-  var evt = document.createEvent('HTMLEvents');
-
-  evt.initEvent(type, true, true);
-
-  for (var j in properties) {
-    evt[j] = properties[j];
-  }
-
-  return target.dispatchEvent(evt);
-};
-
-$.data = function (element, attrs) {
-  // eslint-disable-line
-  if (!attrs) {
-    return element.dataset;
-  }
-
-  for (var attr in attrs) {
-    element.dataset[attr] = attrs[attr];
-  }
-};
-
-$.style = function (elements, styleMap) {
-  // eslint-disable-line
-
-  if (typeof styleMap === 'string') {
-    return $.getStyle(elements, styleMap);
-  }
-
-  if (!Array.isArray(elements)) {
-    elements = [elements];
-  }
-
-  elements.map(function (element) {
-    for (var prop in styleMap) {
-      element.style[prop] = styleMap[prop];
-    }
-  });
-};
-
-$.removeStyle = function (elements, styleProps) {
-  if (!Array.isArray(elements)) {
-    elements = [elements];
-  }
-
-  if (!Array.isArray(styleProps)) {
-    styleProps = [styleProps];
-  }
-
-  elements.map(function (element) {
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      for (var _iterator = styleProps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var prop = _step.value;
-
-        element.style[prop] = '';
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
-  });
-};
-
-$.getStyle = function (element, prop) {
-  var val = getComputedStyle(element)[prop];
-
-  if (['width', 'height'].includes(prop)) {
-    val = parseFloat(val);
-  }
-
-  return val;
-};
-
-$.closest = function (selector, element) {
-  if (!element) return null;
-
-  if (element.matches(selector)) {
-    return element;
-  }
-
-  return $.closest(selector, element.parentNode);
-};
-
-$.inViewport = function (el, parentEl) {
-  var _el$getBoundingClient = el.getBoundingClientRect(),
-      top = _el$getBoundingClient.top,
-      left = _el$getBoundingClient.left,
-      bottom = _el$getBoundingClient.bottom,
-      right = _el$getBoundingClient.right;
-
-  var _parentEl$getBounding = parentEl.getBoundingClientRect(),
-      pTop = _parentEl$getBounding.top,
-      pLeft = _parentEl$getBounding.left,
-      pBottom = _parentEl$getBounding.bottom,
-      pRight = _parentEl$getBounding.right;
-
-  return top >= pTop && left >= pLeft && bottom <= pBottom && right <= pRight;
-};
-
-$.scrollTop = function scrollTop(element, pixels) {
-  requestAnimationFrame(function () {
-    element.scrollTop = pixels;
-  });
-};
-module.exports = exports['default'];
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.camelCaseToDash = camelCaseToDash;
-exports.makeDataAttributeString = makeDataAttributeString;
-exports.getDefault = getDefault;
-exports.escapeRegExp = escapeRegExp;
-exports.getCSSString = getCSSString;
-exports.getCSSRuleBlock = getCSSRuleBlock;
-exports.buildCSSRule = buildCSSRule;
-exports.removeCSSRule = removeCSSRule;
-exports.copyTextToClipboard = copyTextToClipboard;
-exports.isNumeric = isNumeric;
-exports.throttle = throttle;
-exports.promisify = promisify;
-exports.chainPromises = chainPromises;
-function camelCaseToDash(str) {
-  return str.replace(/([A-Z])/g, function (g) {
-    return '-' + g[0].toLowerCase();
-  });
-}
-
-function makeDataAttributeString(props) {
-  var keys = Object.keys(props);
-
-  return keys.map(function (key) {
-    var _key = camelCaseToDash(key);
-    var val = props[key];
-
-    if (val === undefined) return '';
-    return 'data-' + _key + '="' + val + '" ';
-  }).join('').trim();
-}
-
-function getDefault(a, b) {
-  return a !== undefined ? a : b;
-}
-
-function escapeRegExp(str) {
-  // https://stackoverflow.com/a/6969486
-  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
-}
-
-function getCSSString(styleMap) {
-  var style = '';
-
-  for (var prop in styleMap) {
-    if (styleMap.hasOwnProperty(prop)) {
-      style += prop + ': ' + styleMap[prop] + '; ';
-    }
-  }
-
-  return style.trim();
-}
-
-function getCSSRuleBlock(rule, styleMap) {
-  return rule + ' { ' + getCSSString(styleMap) + ' }';
-}
-
-function buildCSSRule(rule, styleMap) {
-  var cssRulesString = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-
-  // build css rules efficiently,
-  // append new rule if doesnt exist,
-  // update existing ones
-
-  var rulePatternStr = escapeRegExp(rule) + ' {([^}]*)}';
-  var rulePattern = new RegExp(rulePatternStr, 'g');
-
-  if (cssRulesString && cssRulesString.match(rulePattern)) {
-    var _loop = function _loop(property) {
-      var value = styleMap[property];
-      var propPattern = new RegExp(escapeRegExp(property) + ':([^;]*);');
-
-      cssRulesString = cssRulesString.replace(rulePattern, function (match, propertyStr) {
-        if (propertyStr.match(propPattern)) {
-          // property exists, replace value with new value
-          propertyStr = propertyStr.replace(propPattern, function (match, valueStr) {
-            return property + ': ' + value + ';';
-          });
-        }
-        propertyStr = propertyStr.trim();
-
-        var replacer = rule + ' { ' + propertyStr + ' }';
-
-        return replacer;
-      });
-    };
-
-    for (var property in styleMap) {
-      _loop(property);
-    }
-
-    return cssRulesString;
-  }
-  // no match, append new rule block
-  return '' + cssRulesString + getCSSRuleBlock(rule, styleMap);
-}
-
-function removeCSSRule(rule) {
-  var cssRulesString = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-
-  var rulePatternStr = escapeRegExp(rule) + ' {([^}]*)}';
-  var rulePattern = new RegExp(rulePatternStr, 'g');
-  var output = cssRulesString;
-
-  if (cssRulesString && cssRulesString.match(rulePattern)) {
-    output = cssRulesString.replace(rulePattern, '');
-  }
-
-  return output.trim();
-}
-
-function copyTextToClipboard(text) {
-  // https://stackoverflow.com/a/30810322/5353542
-  var textArea = document.createElement('textarea');
-
-  //
-  // *** This styling is an extra step which is likely not required. ***
-  //
-  // Why is it here? To ensure:
-  // 1. the element is able to have focus and selection.
-  // 2. if element was to flash render it has minimal visual impact.
-  // 3. less flakyness with selection and copying which **might** occur if
-  //    the textarea element is not visible.
-  //
-  // The likelihood is the element won't even render, not even a flash,
-  // so some of these are just precautions. However in IE the element
-  // is visible whilst the popup box asking the user for permission for
-  // the web page to copy to the clipboard.
-  //
-
-  // Place in top-left corner of screen regardless of scroll position.
-  textArea.style.position = 'fixed';
-  textArea.style.top = 0;
-  textArea.style.left = 0;
-
-  // Ensure it has a small width and height. Setting to 1px / 1em
-  // doesn't work as this gives a negative w/h on some browsers.
-  textArea.style.width = '2em';
-  textArea.style.height = '2em';
-
-  // We don't need padding, reducing the size if it does flash render.
-  textArea.style.padding = 0;
-
-  // Clean up any borders.
-  textArea.style.border = 'none';
-  textArea.style.outline = 'none';
-  textArea.style.boxShadow = 'none';
-
-  // Avoid flash of white box if rendered for any reason.
-  textArea.style.background = 'transparent';
-
-  textArea.value = text;
-
-  document.body.appendChild(textArea);
-
-  textArea.select();
-
-  try {
-    document.execCommand('copy');
-  } catch (err) {
-    console.log('Oops, unable to copy');
-  }
-
-  document.body.removeChild(textArea);
-}
-
-function isNumeric(val) {
-  return !isNaN(val);
-}
-
-// https://stackoverflow.com/a/27078401
-function throttle(func, wait, options) {
-  var context, args, result;
-  var timeout = null;
-  var previous = 0;
-  if (!options) options = {};
-
-  var later = function later() {
-    previous = options.leading === false ? 0 : Date.now();
-    timeout = null;
-    result = func.apply(context, args);
-    if (!timeout) context = args = null;
-  };
-
-  return function () {
-    var now = Date.now();
-    if (!previous && options.leading === false) previous = now;
-    var remaining = wait - (now - previous);
-    context = this;
-    args = arguments;
-    if (remaining <= 0 || remaining > wait) {
-      if (timeout) {
-        clearTimeout(timeout);
-        timeout = null;
-      }
-      previous = now;
-      result = func.apply(context, args);
-      if (!timeout) context = args = null;
-    } else if (!timeout && options.trailing !== false) {
-      timeout = setTimeout(later, remaining);
-    }
-    return result;
-  };
-}
-
-function promisify(fn) {
-  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
-  return function () {
-    for (var _len = arguments.length, args = Array(_len), _key2 = 0; _key2 < _len; _key2++) {
-      args[_key2] = arguments[_key2];
-    }
-
-    return new Promise(function (resolve) {
-      setTimeout(function () {
-        fn.apply(context, args);
-        resolve('done', fn.name);
-      }, 0);
-    });
-  };
-}
-
-function chainPromises(promises) {
-  return promises.reduce(function (prev, cur) {
-    return prev.then(cur);
-  }, Promise.resolve());
-}
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var KEYCODES = {
-  13: 'enter',
-  91: 'meta',
-  16: 'shift',
-  17: 'ctrl',
-  18: 'alt',
-  37: 'left',
-  38: 'up',
-  39: 'right',
-  40: 'down',
-  9: 'tab',
-  27: 'esc',
-  67: 'c'
-};
-
-var initDone = false;
-var handlers = {};
-
-function bind(dom) {
-  if (initDone) return;
-  _dom2.default.on(dom, 'keydown', handler);
-  initDone = true;
-}
-
-function handler(e) {
-  var key = KEYCODES[e.keyCode];
-
-  if (e.shiftKey && key !== 'shift') {
-    key = 'shift+' + key;
-  }
-
-  if (e.ctrlKey && key !== 'ctrl' || e.metaKey && key !== 'meta') {
-    key = 'ctrl+' + key;
-  }
-
-  var _handlers = handlers[key];
-
-  if (_handlers && _handlers.length > 0) {
-    _handlers.map(function (handler) {
-      var preventBubbling = handler();
-
-      if (preventBubbling === undefined || preventBubbling === true) {
-        e.preventDefault();
-      }
-    });
-  }
-}
-
-exports.default = {
-  init: function init(dom) {
-    bind(dom);
-  },
-  on: function on(key, handler) {
-    var keys = key.split(',').map(function (k) {
-      return k.trim();
-    });
-
-    keys.map(function (key) {
-      handlers[key] = handlers[key] || [];
-      handlers[key].push(handler);
-    });
-  }
-};
-module.exports = exports['default'];
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getDropdownHTML = undefined;
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-var _sortablejs = __webpack_require__(8);
-
-var _sortablejs2 = _interopRequireDefault(_sortablejs);
-
-var _utils = __webpack_require__(1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ColumnManager = function () {
-  function ColumnManager(instance) {
-    _classCallCheck(this, ColumnManager);
-
-    this.instance = instance;
-    this.options = this.instance.options;
-    this.fireEvent = this.instance.fireEvent;
-    this.header = this.instance.header;
-    this.datamanager = this.instance.datamanager;
-    this.style = this.instance.style;
-    this.wrapper = this.instance.wrapper;
-    this.rowmanager = this.instance.rowmanager;
-
-    this.bindEvents();
-    exports.getDropdownHTML = getDropdownHTML = getDropdownHTML.bind(this, this.options.dropdownButton);
-  }
-
-  _createClass(ColumnManager, [{
-    key: 'renderHeader',
-    value: function renderHeader() {
-      this.header.innerHTML = '<thead></thead>';
-      this.refreshHeader();
-    }
-  }, {
-    key: 'refreshHeader',
-    value: function refreshHeader() {
-      var _this = this;
-
-      var columns = this.datamanager.getColumns();
-
-      if (!(0, _dom2.default)('.data-table-col', this.header)) {
-        // insert html
-        (0, _dom2.default)('thead', this.header).innerHTML = this.rowmanager.getRowHTML(columns, { isHeader: 1 });
-      } else {
-        // refresh dom state
-        var $cols = _dom2.default.each('.data-table-col', this.header);
-        if (columns.length < $cols.length) {
-          // deleted column
-          (0, _dom2.default)('thead', this.header).innerHTML = this.rowmanager.getRowHTML(columns, { isHeader: 1 });
-          return;
-        }
-
-        $cols.map(function ($col, i) {
-          var column = columns[i];
-          // column sorted or order changed
-          // update colIndex of each header cell
-          _dom2.default.data($col, {
-            colIndex: column.colIndex
-          });
-
-          // refresh sort indicator
-          var sortIndicator = (0, _dom2.default)('.sort-indicator', $col);
-          if (sortIndicator) {
-            sortIndicator.innerHTML = _this.options.sortIndicator[column.sortOrder];
-          }
-        });
-      }
-      // reset columnMap
-      this.$columnMap = [];
-    }
-  }, {
-    key: 'bindEvents',
-    value: function bindEvents() {
-      this.bindDropdown();
-      this.bindResizeColumn();
-      this.bindMoveColumn();
-    }
-  }, {
-    key: 'bindDropdown',
-    value: function bindDropdown() {
-      var _this2 = this;
-
-      var $activeDropdown = void 0;
-      _dom2.default.on(this.header, 'click', '.data-table-dropdown-toggle', function (e, $button) {
-        var $dropdown = _dom2.default.closest('.data-table-dropdown', $button);
-
-        if (!$dropdown.classList.contains('is-active')) {
-          deactivateDropdown();
-          $dropdown.classList.add('is-active');
-          $activeDropdown = $dropdown;
-        } else {
-          deactivateDropdown();
-        }
-      });
-
-      _dom2.default.on(document.body, 'click', function (e) {
-        if (e.target.matches('.data-table-dropdown-toggle')) return;
-        deactivateDropdown();
-      });
-
-      var dropdownItems = this.options.headerDropdown;
-
-      _dom2.default.on(this.header, 'click', '.data-table-dropdown-list > div', function (e, $item) {
-        var $col = _dom2.default.closest('.data-table-col', $item);
-
-        var _$$data = _dom2.default.data($item),
-            index = _$$data.index;
-
-        var _$$data2 = _dom2.default.data($col),
-            colIndex = _$$data2.colIndex;
-
-        var callback = dropdownItems[index].action;
-
-        callback && callback.call(_this2.instance, _this2.getColumn(colIndex));
-      });
-
-      function deactivateDropdown(e) {
-        $activeDropdown && $activeDropdown.classList.remove('is-active');
-        $activeDropdown = null;
-      }
-    }
-  }, {
-    key: 'bindResizeColumn',
-    value: function bindResizeColumn() {
-      var _this3 = this;
-
-      var isDragging = false;
-      var $resizingCell = void 0,
-          startWidth = void 0,
-          startX = void 0;
-
-      _dom2.default.on(this.header, 'mousedown', '.data-table-col .column-resizer', function (e, $handle) {
-        document.body.classList.add('data-table-resize');
-        var $cell = $handle.parentNode.parentNode;
-        $resizingCell = $cell;
-
-        var _$$data3 = _dom2.default.data($resizingCell),
-            colIndex = _$$data3.colIndex;
-
-        var col = _this3.getColumn(colIndex);
-
-        if (col && col.resizable === false) {
-          return;
-        }
-
-        isDragging = true;
-        startWidth = _dom2.default.style((0, _dom2.default)('.content', $resizingCell), 'width');
-        startX = e.pageX;
-      });
-
-      _dom2.default.on(document.body, 'mouseup', function (e) {
-        document.body.classList.remove('data-table-resize');
-        if (!$resizingCell) return;
-        isDragging = false;
-
-        var _$$data4 = _dom2.default.data($resizingCell),
-            colIndex = _$$data4.colIndex;
-
-        _this3.setColumnWidth(colIndex);
-        _this3.instance.setBodyWidth();
-        $resizingCell = null;
-      });
-
-      _dom2.default.on(document.body, 'mousemove', function (e) {
-        if (!isDragging) return;
-        var finalWidth = startWidth + (e.pageX - startX);
-
-        var _$$data5 = _dom2.default.data($resizingCell),
-            colIndex = _$$data5.colIndex;
-
-        if (_this3.getColumnMinWidth(colIndex) > finalWidth) {
-          // don't resize past minWidth
-          return;
-        }
-        _this3.datamanager.updateColumn(colIndex, { width: finalWidth });
-        _this3.setColumnHeaderWidth(colIndex);
-      });
-    }
-  }, {
-    key: 'bindMoveColumn',
-    value: function bindMoveColumn() {
-      var _this4 = this;
-
-      var initialized = void 0;
-
-      var initialize = function initialize() {
-        if (initialized) {
-          _dom2.default.off(document.body, 'mousemove', initialize);
-          return;
-        }
-        var ready = (0, _dom2.default)('.data-table-col', _this4.header);
-        if (!ready) return;
-
-        var $parent = (0, _dom2.default)('.data-table-row', _this4.header);
-
-        _this4.sortable = _sortablejs2.default.create($parent, {
-          onEnd: function onEnd(e) {
-            var oldIndex = e.oldIndex,
-                newIndex = e.newIndex;
-
-            var $draggedCell = e.item;
-
-            var _$$data6 = _dom2.default.data($draggedCell),
-                colIndex = _$$data6.colIndex;
-
-            if (+colIndex === newIndex) return;
-
-            _this4.switchColumn(oldIndex, newIndex);
-          },
-          preventOnFilter: false,
-          filter: '.column-resizer, .data-table-dropdown',
-          animation: 150
-        });
-      };
-
-      _dom2.default.on(document.body, 'mousemove', initialize);
-    }
-  }, {
-    key: 'bindSortColumn',
-    value: function bindSortColumn() {
-      var _this5 = this;
-
-      _dom2.default.on(this.header, 'click', '.data-table-col .column-title', function (e, span) {
-        var $cell = span.closest('.data-table-col');
-
-        var _$$data7 = _dom2.default.data($cell),
-            colIndex = _$$data7.colIndex,
-            sortOrder = _$$data7.sortOrder;
-
-        sortOrder = (0, _utils.getDefault)(sortOrder, 'none');
-        var col = _this5.getColumn(colIndex);
-
-        if (col && col.sortable === false) {
-          return;
-        }
-
-        // reset sort indicator
-        (0, _dom2.default)('.sort-indicator', _this5.header).textContent = '';
-        _dom2.default.each('.data-table-col', _this5.header).map(function ($cell) {
-          _dom2.default.data($cell, {
-            sortOrder: 'none'
-          });
-        });
-
-        var nextSortOrder = void 0,
-            textContent = void 0;
-        if (sortOrder === 'none') {
-          nextSortOrder = 'asc';
-          textContent = '▲';
-        } else if (sortOrder === 'asc') {
-          nextSortOrder = 'desc';
-          textContent = '▼';
-        } else if (sortOrder === 'desc') {
-          nextSortOrder = 'none';
-          textContent = '';
-        }
-
-        _dom2.default.data($cell, {
-          sortOrder: nextSortOrder
-        });
-        (0, _dom2.default)('.sort-indicator', $cell).textContent = textContent;
-
-        _this5.sortColumn(colIndex, nextSortOrder);
-      });
-    }
-  }, {
-    key: 'sortColumn',
-    value: function sortColumn(colIndex, nextSortOrder) {
-      var _this6 = this;
-
-      this.instance.freeze();
-      this.sortRows(colIndex, nextSortOrder).then(function () {
-        _this6.refreshHeader();
-        return _this6.rowmanager.refreshRows();
-      }).then(function () {
-        return _this6.instance.unfreeze();
-      }).then(function () {
-        _this6.fireEvent('onSortColumn', _this6.getColumn(colIndex));
-      });
-    }
-  }, {
-    key: 'removeColumn',
-    value: function removeColumn(colIndex) {
-      var _this7 = this;
-
-      var removedCol = this.getColumn(colIndex);
-      this.instance.freeze();
-      this.datamanager.removeColumn(colIndex).then(function () {
-        _this7.refreshHeader();
-        return _this7.rowmanager.refreshRows();
-      }).then(function () {
-        return _this7.instance.unfreeze();
-      }).then(function () {
-        _this7.fireEvent('onRemoveColumn', removedCol);
-      });
-    }
-  }, {
-    key: 'switchColumn',
-    value: function switchColumn(oldIndex, newIndex) {
-      var _this8 = this;
-
-      this.instance.freeze();
-      this.datamanager.switchColumn(oldIndex, newIndex).then(function () {
-        _this8.refreshHeader();
-        return _this8.rowmanager.refreshRows();
-      }).then(function () {
-        _this8.setColumnWidth(oldIndex);
-        _this8.setColumnWidth(newIndex);
-        _this8.instance.unfreeze();
-      }).then(function () {
-        _this8.fireEvent('onSwitchColumn', _this8.getColumn(oldIndex), _this8.getColumn(newIndex));
-      });
-    }
-  }, {
-    key: 'setDimensions',
-    value: function setDimensions() {
-      this.setHeaderStyle();
-      this.setupMinWidth();
-      this.setupNaturalColumnWidth();
-      this.distributeRemainingWidth();
-      this.setColumnStyle();
-      this.setDefaultCellHeight();
-    }
-  }, {
-    key: 'setHeaderStyle',
-    value: function setHeaderStyle() {
-      if (!this.options.takeAvailableSpace) {
-        // setting width as 0 will ensure that the
-        // header doesn't take the available space
-        _dom2.default.style(this.header, {
-          width: 0
-        });
-      }
-
-      _dom2.default.style(this.header, {
-        margin: 0
-      });
-
-      // don't show resize cursor on nonResizable columns
-      var nonResizableColumnsSelector = this.datamanager.getColumns().filter(function (col) {
-        return col.resizable === false;
-      }).map(function (col) {
-        return col.colIndex;
-      }).map(function (i) {
-        return '.data-table-header [data-col-index="' + i + '"]';
-      }).join();
-
-      this.style.setStyle(nonResizableColumnsSelector, {
-        cursor: 'pointer'
-      });
-    }
-  }, {
-    key: 'setupMinWidth',
-    value: function setupMinWidth() {
-      var _this9 = this;
-
-      _dom2.default.each('.data-table-col', this.header).map(function (col) {
-        var width = _dom2.default.style((0, _dom2.default)('.content', col), 'width');
-
-        var _$$data8 = _dom2.default.data(col),
-            colIndex = _$$data8.colIndex;
-
-        var column = _this9.getColumn(colIndex);
-
-        if (!column.minWidth) {
-          // only set this once
-          _this9.datamanager.updateColumn(colIndex, { minWidth: width });
-        }
-      });
-    }
-  }, {
-    key: 'setupNaturalColumnWidth',
-    value: function setupNaturalColumnWidth() {
-      var _this10 = this;
-
-      // set initial width as naturally calculated by table's first row
-      _dom2.default.each('.data-table-row[data-row-index="0"] .data-table-col', this.bodyScrollable).map(function ($cell) {
-        var _$$data9 = _dom2.default.data($cell),
-            colIndex = _$$data9.colIndex;
-
-        if (_this10.getColumn(colIndex).width > 0) {
-          // already set
-          return;
-        }
-
-        var width = _dom2.default.style((0, _dom2.default)('.content', $cell), 'width');
-        var minWidth = _this10.getColumnMinWidth(colIndex);
-
-        if (width < minWidth) {
-          width = minWidth;
-        }
-        _this10.datamanager.updateColumn(colIndex, { width: width });
-      });
-    }
-  }, {
-    key: 'distributeRemainingWidth',
-    value: function distributeRemainingWidth() {
-      var _this11 = this;
-
-      if (!this.options.takeAvailableSpace) return;
-
-      var wrapperWidth = _dom2.default.style(this.instance.datatableWrapper, 'width');
-      var headerWidth = _dom2.default.style(this.header, 'width');
-
-      if (headerWidth >= wrapperWidth) {
-        // don't resize, horizontal scroll takes place
-        return;
-      }
-
-      var resizableColumns = this.datamanager.getColumns().filter(function (col) {
-        return col.resizable === undefined || col.resizable;
-      });
-
-      var deltaWidth = (wrapperWidth - headerWidth) / resizableColumns.length;
-
-      resizableColumns.map(function (col) {
-        var width = _dom2.default.style(_this11.getColumnHeaderElement(col.colIndex), 'width');
-        var finalWidth = Math.min(width + deltaWidth) - 2;
-
-        _this11.datamanager.updateColumn(col.colIndex, { width: finalWidth });
-      });
-    }
-  }, {
-    key: 'setDefaultCellHeight',
-    value: function setDefaultCellHeight() {
-      if (this.__cellHeightSet) return;
-      var height = _dom2.default.style((0, _dom2.default)('.data-table-col', this.instance.datatableWrapper), 'height');
-      if (height) {
-        this.setCellHeight(height);
-        this.__cellHeightSet = true;
-      }
-    }
-  }, {
-    key: 'setCellHeight',
-    value: function setCellHeight(height) {
-      this.style.setStyle('.data-table-col .content', {
-        height: height + 'px'
-      });
-      this.style.setStyle('.data-table-col .edit-cell', {
-        height: height + 'px'
-      });
-    }
-  }, {
-    key: 'setColumnStyle',
-    value: function setColumnStyle() {
-      var _this12 = this;
-
-      // align columns
-      this.getColumns().map(function (column) {
-        // alignment
-        if (['left', 'center', 'right'].includes(column.align)) {
-          _this12.style.setStyle('[data-col-index="' + column.colIndex + '"]', {
-            'text-align': column.align
-          });
-        }
-        // width
-        _this12.setColumnHeaderWidth(column.colIndex);
-        _this12.setColumnWidth(column.colIndex);
-      });
-      this.instance.setBodyWidth();
-    }
-  }, {
-    key: 'sortRows',
-    value: function sortRows(colIndex, sortOrder) {
-      return this.datamanager.sortRows(colIndex, sortOrder);
-    }
-  }, {
-    key: 'getColumn',
-    value: function getColumn(colIndex) {
-      return this.datamanager.getColumn(colIndex);
-    }
-  }, {
-    key: 'getColumns',
-    value: function getColumns() {
-      return this.datamanager.getColumns();
-    }
-  }, {
-    key: 'setColumnWidth',
-    value: function setColumnWidth(colIndex) {
-      colIndex = +colIndex;
-      this._columnWidthMap = this._columnWidthMap || [];
-
-      var _getColumn = this.getColumn(colIndex),
-          width = _getColumn.width;
-
-      var index = this._columnWidthMap[colIndex];
-      var selector = '[data-col-index="' + colIndex + '"] .content, [data-col-index="' + colIndex + '"] .edit-cell';
-      var styles = {
-        width: width + 'px'
-      };
-
-      index = this.style.setStyle(selector, styles, index);
-      this._columnWidthMap[colIndex] = index;
-    }
-  }, {
-    key: 'setColumnHeaderWidth',
-    value: function setColumnHeaderWidth(colIndex) {
-      colIndex = +colIndex;
-      this.$columnMap = this.$columnMap || [];
-      var selector = '[data-col-index="' + colIndex + '"][data-is-header] .content';
-
-      var _getColumn2 = this.getColumn(colIndex),
-          width = _getColumn2.width;
-
-      var $column = this.$columnMap[colIndex];
-      if (!$column) {
-        $column = this.header.querySelector(selector);
-        this.$columnMap[colIndex] = $column;
-      }
-
-      $column.style.width = width + 'px';
-    }
-  }, {
-    key: 'getColumnMinWidth',
-    value: function getColumnMinWidth(colIndex) {
-      colIndex = +colIndex;
-      return this.getColumn(colIndex).minWidth || 24;
-    }
-  }, {
-    key: 'getFirstColumnIndex',
-    value: function getFirstColumnIndex() {
-      if (this.options.addCheckboxColumn && this.options.addSerialNoColumn) {
-        return 2;
-      }
-
-      if (this.options.addCheckboxColumn || this.options.addSerialNoColumn) {
-        return 1;
-      }
-
-      return 0;
-    }
-  }, {
-    key: 'getHeaderCell$',
-    value: function getHeaderCell$(colIndex) {
-      return (0, _dom2.default)('.data-table-col[data-col-index="' + colIndex + '"]', this.header);
-    }
-  }, {
-    key: 'getLastColumnIndex',
-    value: function getLastColumnIndex() {
-      return this.datamanager.getColumnCount() - 1;
-    }
-  }, {
-    key: 'getColumnHeaderElement',
-    value: function getColumnHeaderElement(colIndex) {
-      colIndex = +colIndex;
-      if (colIndex < 0) return null;
-      return (0, _dom2.default)('.data-table-col[data-is-header][data-col-index="' + colIndex + '"]', this.wrapper);
-    }
-  }, {
-    key: 'getSerialColumnIndex',
-    value: function getSerialColumnIndex() {
-      var columns = this.datamanager.getColumns();
-
-      return columns.findIndex(function (column) {
-        return column.content.includes('Sr. No');
-      });
-    }
-  }]);
-
-  return ColumnManager;
-}();
-
-// eslint-disable-next-line
-
-
-exports.default = ColumnManager;
-var getDropdownHTML = function getDropdownHTML() {
-  var dropdownButton = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'v';
-
-  // add dropdown buttons
-  var dropdownItems = this.options.headerDropdown;
-
-  return '<div class="data-table-dropdown-toggle">' + dropdownButton + '</div>\n    <div class="data-table-dropdown-list">\n      ' + dropdownItems.map(function (d, i) {
-    return '<div data-index="' + i + '">' + d.label + '</div>';
-  }).join('') + '\n    </div>\n  ';
-};
-
-exports.getDropdownHTML = getDropdownHTML;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _datatable = __webpack_require__(5);
-
-var _datatable2 = _interopRequireDefault(_datatable);
-
-var _package = __webpack_require__(19);
-
-var _package2 = _interopRequireDefault(_package);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-_datatable2.default.__version__ = _package2.default.version;
-
-exports.default = _datatable2.default;
-module.exports = exports['default'];
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-var _datamanager = __webpack_require__(6);
-
-var _datamanager2 = _interopRequireDefault(_datamanager);
-
-var _cellmanager = __webpack_require__(7);
-
-var _cellmanager2 = _interopRequireDefault(_cellmanager);
-
-var _columnmanager = __webpack_require__(3);
-
-var _columnmanager2 = _interopRequireDefault(_columnmanager);
-
-var _rowmanager = __webpack_require__(9);
-
-var _rowmanager2 = _interopRequireDefault(_rowmanager);
-
-var _bodyRenderer = __webpack_require__(10);
-
-var _bodyRenderer2 = _interopRequireDefault(_bodyRenderer);
-
-var _style = __webpack_require__(12);
-
-var _style2 = _interopRequireDefault(_style);
-
-var _keyboard = __webpack_require__(2);
-
-var _keyboard2 = _interopRequireDefault(_keyboard);
-
-var _defaults = __webpack_require__(13);
-
-var _defaults2 = _interopRequireDefault(_defaults);
-
-__webpack_require__(14);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var DataTable = function () {
-  function DataTable(wrapper, options) {
-    _classCallCheck(this, DataTable);
-
-    DataTable.instances++;
-
-    if (typeof wrapper === 'string') {
-      // css selector
-      wrapper = document.querySelector(wrapper);
-    }
-    this.wrapper = wrapper;
-    if (!(this.wrapper instanceof HTMLElement)) {
-      throw new Error('Invalid argument given for `wrapper`');
-    }
-
-    this.options = Object.assign({}, _defaults2.default, options);
-    this.options.headerDropdown = _defaults2.default.headerDropdown.concat(options.headerDropdown || []);
-    // custom user events
-    this.events = Object.assign({}, _defaults2.default.events, options.events || {});
-    this.fireEvent = this.fireEvent.bind(this);
-
-    this.prepare();
-
-    this.style = new _style2.default(this);
-    this.datamanager = new _datamanager2.default(this.options);
-    this.rowmanager = new _rowmanager2.default(this);
-    this.columnmanager = new _columnmanager2.default(this);
-    this.cellmanager = new _cellmanager2.default(this);
-    this.bodyRenderer = new _bodyRenderer2.default(this);
-
-    _keyboard2.default.init(this.wrapper);
-
-    if (this.options.data) {
-      this.refresh();
-    }
-  }
-
-  _createClass(DataTable, [{
-    key: 'prepare',
-    value: function prepare() {
-      this.prepareDom();
-      this.unfreeze();
-    }
-  }, {
-    key: 'prepareDom',
-    value: function prepareDom() {
-      this.wrapper.innerHTML = '\n      <div class="data-table">\n        <table class="data-table-header">\n        </table>\n        <div class="body-scrollable">\n        </div>\n        <div class="freeze-container">\n          <span>' + this.options.freezeMessage + '</span>\n        </div>\n        <div class="data-table-footer">\n        </div>\n      </div>\n    ';
-
-      this.datatableWrapper = (0, _dom2.default)('.data-table', this.wrapper);
-      this.header = (0, _dom2.default)('.data-table-header', this.wrapper);
-      this.bodyScrollable = (0, _dom2.default)('.body-scrollable', this.wrapper);
-      this.freezeContainer = (0, _dom2.default)('.freeze-container', this.wrapper);
-    }
-  }, {
-    key: 'refresh',
-    value: function refresh(data) {
-      this.datamanager.init(data);
-      this.render();
-      this.setDimensions();
-    }
-  }, {
-    key: 'destroy',
-    value: function destroy() {
-      this.wrapper.innerHTML = '';
-      this.style.destroy();
-    }
-  }, {
-    key: 'appendRows',
-    value: function appendRows(rows) {
-      this.datamanager.appendRows(rows);
-      this.rowmanager.refreshRows();
-    }
-  }, {
-    key: 'refreshRow',
-    value: function refreshRow(row, rowIndex) {
-      this.rowmanager.refreshRow(row, rowIndex);
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      this.renderHeader();
-      this.renderBody();
-    }
-  }, {
-    key: 'renderHeader',
-    value: function renderHeader() {
-      this.columnmanager.renderHeader();
-    }
-  }, {
-    key: 'renderBody',
-    value: function renderBody() {
-      this.bodyRenderer.render();
-    }
-  }, {
-    key: 'setDimensions',
-    value: function setDimensions() {
-      this.columnmanager.setDimensions();
-
-      this.setBodyWidth();
-
-      _dom2.default.style(this.bodyScrollable, {
-        marginTop: _dom2.default.style(this.header, 'height') + 'px'
-      });
-
-      _dom2.default.style((0, _dom2.default)('table', this.bodyScrollable), {
-        margin: 0
-      });
-    }
-  }, {
-    key: 'setBodyWidth',
-    value: function setBodyWidth() {
-      var width = _dom2.default.style(this.header, 'width');
-
-      _dom2.default.style(this.bodyScrollable, { width: width + 'px' });
-    }
-  }, {
-    key: 'getColumn',
-    value: function getColumn(colIndex) {
-      return this.datamanager.getColumn(colIndex);
-    }
-  }, {
-    key: 'getCell',
-    value: function getCell(colIndex, rowIndex) {
-      return this.datamanager.getCell(colIndex, rowIndex);
-    }
-  }, {
-    key: 'getColumnHeaderElement',
-    value: function getColumnHeaderElement(colIndex) {
-      return this.columnmanager.getColumnHeaderElement(colIndex);
-    }
-  }, {
-    key: 'getViewportHeight',
-    value: function getViewportHeight() {
-      if (!this.viewportHeight) {
-        this.viewportHeight = _dom2.default.style(this.bodyScrollable, 'height');
-      }
-
-      return this.viewportHeight;
-    }
-  }, {
-    key: 'sortColumn',
-    value: function sortColumn(colIndex, sortOrder) {
-      this.columnmanager.sortColumn(colIndex, sortOrder);
-    }
-  }, {
-    key: 'removeColumn',
-    value: function removeColumn(colIndex) {
-      this.columnmanager.removeColumn(colIndex);
-    }
-  }, {
-    key: 'scrollToLastColumn',
-    value: function scrollToLastColumn() {
-      this.datatableWrapper.scrollLeft = 9999;
-    }
-  }, {
-    key: 'freeze',
-    value: function freeze() {
-      _dom2.default.style(this.freezeContainer, {
-        display: ''
-      });
-    }
-  }, {
-    key: 'unfreeze',
-    value: function unfreeze() {
-      _dom2.default.style(this.freezeContainer, {
-        display: 'none'
-      });
-    }
-  }, {
-    key: 'fireEvent',
-    value: function fireEvent(eventName) {
-      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-        args[_key - 1] = arguments[_key];
-      }
-
-      this.events[eventName].apply(this, args);
-    }
-  }, {
-    key: 'log',
-    value: function log() {
-      if (this.options.enableLogs) {
-        console.log.apply(console, arguments);
-      }
-    }
-  }]);
-
-  return DataTable;
-}();
-
-DataTable.instances = 0;
-
-exports.default = DataTable;
-module.exports = exports['default'];
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.DataError = undefined;
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _utils = __webpack_require__(1);
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _extendableBuiltin(cls) {
-  function ExtendableBuiltin() {
-    var instance = Reflect.construct(cls, Array.from(arguments));
-    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
-    return instance;
-  }
-
-  ExtendableBuiltin.prototype = Object.create(cls.prototype, {
-    constructor: {
-      value: cls,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-
-  if (Object.setPrototypeOf) {
-    Object.setPrototypeOf(ExtendableBuiltin, cls);
-  } else {
-    ExtendableBuiltin.__proto__ = cls;
-  }
-
-  return ExtendableBuiltin;
-}
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var DataManager = function () {
-  function DataManager(options) {
-    _classCallCheck(this, DataManager);
-
-    this.options = options;
-    this.sortRows = (0, _utils.promisify)(this.sortRows, this);
-    this.switchColumn = (0, _utils.promisify)(this.switchColumn, this);
-    this.removeColumn = (0, _utils.promisify)(this.removeColumn, this);
-  }
-
-  _createClass(DataManager, [{
-    key: 'init',
-    value: function init(data) {
-      if (!data) {
-        data = this.options.data;
-      }
-
-      this.data = data;
-
-      this.rowCount = 0;
-      this.columns = [];
-      this.rows = [];
-
-      this.prepareColumns();
-      this.prepareRows();
-
-      this.prepareNumericColumns();
-    }
-
-    // computed property
-
-  }, {
-    key: 'prepareColumns',
-    value: function prepareColumns() {
-      this.columns = [];
-      this.validateColumns();
-      this.prepareDefaultColumns();
-      this.prepareHeader();
-    }
-  }, {
-    key: 'prepareDefaultColumns',
-    value: function prepareDefaultColumns() {
-      if (this.options.addCheckboxColumn && !this.hasColumnById('_checkbox')) {
-        var cell = {
-          id: '_checkbox',
-          content: this.getCheckboxHTML(),
-          editable: false,
-          resizable: false,
-          sortable: false,
-          focusable: false,
-          dropdown: false,
-          width: 25
-        };
-        this.columns.push(cell);
-      }
-
-      if (this.options.addSerialNoColumn && !this.hasColumnById('_rowIndex')) {
-        var _cell = {
-          id: '_rowIndex',
-          content: '',
-          align: 'center',
-          editable: false,
-          resizable: false,
-          focusable: false,
-          dropdown: false,
-          width: 30
-        };
-
-        this.columns.push(_cell);
-      }
-    }
-  }, {
-    key: 'prepareRow',
-    value: function prepareRow(row, i) {
-      var _this = this;
-
-      var baseRowCell = {
-        rowIndex: i
-      };
-
-      return row.map(function (cell, i) {
-        return _this.prepareCell(cell, i);
-      }).map(function (cell) {
-        return Object.assign({}, baseRowCell, cell);
-      });
-    }
-  }, {
-    key: 'prepareHeader',
-    value: function prepareHeader() {
-      var _this2 = this;
-
-      var columns = this.columns.concat(this.options.columns);
-      var baseCell = {
-        isHeader: 1,
-        editable: true,
-        sortable: true,
-        resizable: true,
-        focusable: true,
-        dropdown: true,
-        format: function format(value) {
-          if (value === null || value === undefined) {
-            return '';
-          }
-          return value + '';
-        }
-      };
-
-      this.columns = columns.map(function (cell, i) {
-        return _this2.prepareCell(cell, i);
-      }).map(function (col) {
-        return Object.assign({}, baseCell, col);
-      }).map(function (col) {
-        col.id = col.id || col.content;
-        return col;
-      });
-    }
-  }, {
-    key: 'prepareCell',
-    value: function prepareCell(content, i) {
-      var cell = {
-        content: '',
-        align: 'left',
-        sortOrder: 'none',
-        colIndex: i,
-        column: this.columns[i],
-        width: 0
-      };
-
-      if (content !== null && (typeof content === 'undefined' ? 'undefined' : _typeof(content)) === 'object') {
-        // passed as column/header
-        Object.assign(cell, content);
-      } else {
-        cell.content = content;
-      }
-
-      return cell;
-    }
-  }, {
-    key: 'prepareNumericColumns',
-    value: function prepareNumericColumns() {
-      var row0 = this.getRow(0);
-      if (!row0) return;
-      this.columns = this.columns.map(function (column, i) {
-
-        var cellValue = row0[i].content;
-        if (!column.align && cellValue && (0, _utils.isNumeric)(cellValue)) {
-          column.align = 'right';
-        }
-
-        return column;
-      });
-    }
-  }, {
-    key: 'prepareRows',
-    value: function prepareRows() {
-      var _this3 = this;
-
-      this.validateData(this.data);
-
-      this.rows = this.data.map(function (d, i) {
-        var index = _this3._getNextRowCount();
-
-        var row = [];
-
-        if (Array.isArray(d)) {
-          // row is an array
-          if (_this3.options.addCheckboxColumn) {
-            row.push(_this3.getCheckboxHTML());
-          }
-          if (_this3.options.addSerialNoColumn) {
-            row.push(index + 1 + '');
-          }
-          row = row.concat(d);
-        } else {
-          // row is a dict
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = _this3.columns[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var col = _step.value;
-
-              if (col.id === '_checkbox') {
-                row.push(_this3.getCheckboxHTML());
-              } else if (col.id === '_rowIndex') {
-                row.push(index + 1 + '');
-              } else {
-                row.push(col.format(d[col.id]));
-              }
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-        }
-
-        return _this3.prepareRow(row, index);
-      });
-    }
-  }, {
-    key: 'validateColumns',
-    value: function validateColumns() {
-      var columns = this.options.columns;
-      if (!Array.isArray(columns)) {
-        throw new DataError('`columns` must be an array');
-      }
-
-      columns.forEach(function (column, i) {
-        if (typeof column !== 'string' && (typeof column === 'undefined' ? 'undefined' : _typeof(column)) !== 'object') {
-          throw new DataError('column "' + i + '" must be a string or an object');
-        }
-      });
-    }
-  }, {
-    key: 'validateData',
-    value: function validateData(data) {
-      if (Array.isArray(data) && (data.length === 0 || Array.isArray(data[0]) || _typeof(data[0]) === 'object')) {
-        return true;
-      }
-      throw new DataError('`data` must be an array of arrays or objects');
-    }
-  }, {
-    key: 'appendRows',
-    value: function appendRows(rows) {
-      this.validateData(rows);
-
-      this.rows = this.rows.concat(this.prepareRows(rows));
-    }
-  }, {
-    key: 'sortRows',
-    value: function sortRows(colIndex) {
-      var sortOrder = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'none';
-
-      colIndex = +colIndex;
-
-      // reset sortOrder and update for colIndex
-      this.getColumns().map(function (col) {
-        if (col.colIndex === colIndex) {
-          col.sortOrder = sortOrder;
-        } else {
-          col.sortOrder = 'none';
-        }
-      });
-
-      this._sortRows(colIndex, sortOrder);
-    }
-  }, {
-    key: '_sortRows',
-    value: function _sortRows(colIndex, sortOrder) {
-
-      if (this.currentSort.colIndex === colIndex) {
-        // reverse the array if only sortOrder changed
-        if (this.currentSort.sortOrder === 'asc' && sortOrder === 'desc' || this.currentSort.sortOrder === 'desc' && sortOrder === 'asc') {
-          this.reverseArray(this.rows);
-          this.currentSort.sortOrder = sortOrder;
-          return;
-        }
-      }
-
-      this.rows.sort(function (a, b) {
-        var _aIndex = a[0].rowIndex;
-        var _bIndex = b[0].rowIndex;
-        var _a = a[colIndex].content;
-        var _b = b[colIndex].content;
-
-        if (sortOrder === 'none') {
-          return _aIndex - _bIndex;
-        } else if (sortOrder === 'asc') {
-          if (_a < _b) return -1;
-          if (_a > _b) return 1;
-          if (_a === _b) return 0;
-        } else if (sortOrder === 'desc') {
-          if (_a < _b) return 1;
-          if (_a > _b) return -1;
-          if (_a === _b) return 0;
-        }
-        return 0;
-      });
-
-      if (this.hasColumnById('_rowIndex')) {
-        // update row index
-        var srNoColIndex = this.getColumnIndexById('_rowIndex');
-        this.rows = this.rows.map(function (row, index) {
-          return row.map(function (cell) {
-            if (cell.colIndex === srNoColIndex) {
-              cell.content = index + 1 + '';
-            }
-            return cell;
-          });
-        });
-      }
-    }
-  }, {
-    key: 'reverseArray',
-    value: function reverseArray(array) {
-      var left = null;
-      var right = null;
-      var length = array.length;
-
-      for (left = 0, right = length - 1; left < right; left += 1, right -= 1) {
-        var temporary = array[left];
-
-        array[left] = array[right];
-        array[right] = temporary;
-      }
-    }
-  }, {
-    key: 'switchColumn',
-    value: function switchColumn(index1, index2) {
-      // update columns
-      var temp = this.columns[index1];
-      this.columns[index1] = this.columns[index2];
-      this.columns[index2] = temp;
-
-      this.columns[index1].colIndex = index1;
-      this.columns[index2].colIndex = index2;
-
-      // update rows
-      this.rows = this.rows.map(function (row) {
-        var newCell1 = Object.assign({}, row[index1], { colIndex: index2 });
-        var newCell2 = Object.assign({}, row[index2], { colIndex: index1 });
-
-        var newRow = row.map(function (cell) {
-          // make object copy
-          return Object.assign({}, cell);
-        });
-
-        newRow[index2] = newCell1;
-        newRow[index1] = newCell2;
-
-        return newRow;
-      });
-    }
-  }, {
-    key: 'removeColumn',
-    value: function removeColumn(index) {
-      index = +index;
-      var filter = function filter(cell) {
-        return cell.colIndex !== index;
-      };
-      var map = function map(cell, i) {
-        return Object.assign({}, cell, { colIndex: i });
-      };
-      // update columns
-      this.columns = this.columns.filter(filter).map(map);
-
-      // update rows
-      this.rows = this.rows.map(function (row) {
-        var newRow = row.filter(filter).map(map);
-
-        return newRow;
-      });
-    }
-  }, {
-    key: 'updateRow',
-    value: function updateRow(row, rowIndex) {
-      if (row.length < this.columns.length) {
-        if (this.hasColumnById('_rowIndex')) {
-          var val = rowIndex + 1 + '';
-
-          row = [val].concat(row);
-        }
-
-        if (this.hasColumnById('_checkbox')) {
-          var _val = '<input type="checkbox" />';
-
-          row = [_val].concat(row);
-        }
-      }
-
-      var _row = this.prepareRow(row, rowIndex);
-      var index = this.rows.findIndex(function (row) {
-        return row[0].rowIndex === rowIndex;
-      });
-      this.rows[index] = _row;
-
-      return _row;
-    }
-  }, {
-    key: 'updateCell',
-    value: function updateCell(colIndex, rowIndex, options) {
-      var cell = void 0;
-      if ((typeof colIndex === 'undefined' ? 'undefined' : _typeof(colIndex)) === 'object') {
-        // cell object was passed,
-        // must have colIndex, rowIndex
-        cell = colIndex;
-        colIndex = cell.colIndex;
-        rowIndex = cell.rowIndex;
-        // the object passed must be merged with original cell
-        options = cell;
-      }
-      cell = this.getCell(colIndex, rowIndex);
-
-      // mutate object directly
-      for (var key in options) {
-        var newVal = options[key];
-        if (newVal !== undefined) {
-          cell[key] = newVal;
-        }
-      }
-
-      return cell;
-    }
-  }, {
-    key: 'updateColumn',
-    value: function updateColumn(colIndex, keyValPairs) {
-      var column = this.getColumn(colIndex);
-      for (var key in keyValPairs) {
-        var newVal = keyValPairs[key];
-        if (newVal !== undefined) {
-          column[key] = newVal;
-        }
-      }
-      return column;
-    }
-  }, {
-    key: 'getRowCount',
-    value: function getRowCount() {
-      return this.rowCount;
-    }
-  }, {
-    key: '_getNextRowCount',
-    value: function _getNextRowCount() {
-      var val = this.rowCount;
-
-      this.rowCount++;
-      return val;
-    }
-  }, {
-    key: 'getRows',
-    value: function getRows(start, end) {
-      return this.rows.slice(start, end);
-    }
-  }, {
-    key: 'getColumns',
-    value: function getColumns(skipStandardColumns) {
-      var columns = this.columns;
-
-      if (skipStandardColumns) {
-        columns = columns.slice(this.getStandardColumnCount());
-      }
-
-      return columns;
-    }
-  }, {
-    key: 'getStandardColumnCount',
-    value: function getStandardColumnCount() {
-      if (this.options.addCheckboxColumn && this.options.addSerialNoColumn) {
-        return 2;
-      }
-
-      if (this.options.addCheckboxColumn || this.options.addSerialNoColumn) {
-        return 1;
-      }
-
-      return 0;
-    }
-  }, {
-    key: 'getColumnCount',
-    value: function getColumnCount(skipStandardColumns) {
-      var val = this.columns.length;
-
-      if (skipStandardColumns) {
-        val = val - this.getStandardColumnCount();
-      }
-
-      return val;
-    }
-  }, {
-    key: 'getColumn',
-    value: function getColumn(colIndex) {
-      colIndex = +colIndex;
-      return this.columns.find(function (col) {
-        return col.colIndex === colIndex;
-      });
-    }
-  }, {
-    key: 'getRow',
-    value: function getRow(rowIndex) {
-      rowIndex = +rowIndex;
-      return this.rows.find(function (row) {
-        return row[0].rowIndex === rowIndex;
-      });
-    }
-  }, {
-    key: 'getCell',
-    value: function getCell(colIndex, rowIndex) {
-      rowIndex = +rowIndex;
-      colIndex = +colIndex;
-      return this.rows.find(function (row) {
-        return row[0].rowIndex === rowIndex;
-      })[colIndex];
-    }
-  }, {
-    key: 'get',
-    value: function get() {
-      return {
-        columns: this.columns,
-        rows: this.rows
-      };
-    }
-  }, {
-    key: 'hasColumn',
-    value: function hasColumn(name) {
-      return Boolean(this.columns.find(function (col) {
-        return col.content === name;
-      }));
-    }
-  }, {
-    key: 'hasColumnById',
-    value: function hasColumnById(id) {
-      return Boolean(this.columns.find(function (col) {
-        return col.id === id;
-      }));
-    }
-  }, {
-    key: 'getColumnIndex',
-    value: function getColumnIndex(name) {
-      return this.columns.findIndex(function (col) {
-        return col.content === name;
-      });
-    }
-  }, {
-    key: 'getColumnIndexById',
-    value: function getColumnIndexById(id) {
-      return this.columns.findIndex(function (col) {
-        return col.id === id;
-      });
-    }
-  }, {
-    key: 'getCheckboxHTML',
-    value: function getCheckboxHTML() {
-      return '<input type="checkbox" />';
-    }
-  }, {
-    key: 'currentSort',
-    get: function get() {
-      var col = this.columns.find(function (col) {
-        return col.sortOrder !== 'none';
-      });
-      return col || {
-        colIndex: -1,
-        sortOrder: 'none'
-      };
-    }
-  }]);
-
-  return DataManager;
-}();
-
-// Custom Errors
-
-
-exports.default = DataManager;
-
-var DataError = exports.DataError = function (_extendableBuiltin2) {
-  _inherits(DataError, _extendableBuiltin2);
-
-  function DataError() {
-    _classCallCheck(this, DataError);
-
-    return _possibleConstructorReturn(this, (DataError.__proto__ || Object.getPrototypeOf(DataError)).apply(this, arguments));
-  }
-
-  return DataError;
-}(_extendableBuiltin(TypeError));
-
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _utils = __webpack_require__(1);
-
-var _keyboard = __webpack_require__(2);
-
-var _keyboard2 = _interopRequireDefault(_keyboard);
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-var _columnmanager = __webpack_require__(3);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var CellManager = function () {
-  function CellManager(instance) {
-    _classCallCheck(this, CellManager);
-
-    this.instance = instance;
-    this.wrapper = this.instance.wrapper;
-    this.options = this.instance.options;
-    this.style = this.instance.style;
-    this.bodyScrollable = this.instance.bodyScrollable;
-    this.columnmanager = this.instance.columnmanager;
-    this.rowmanager = this.instance.rowmanager;
-    this.datamanager = this.instance.datamanager;
-
-    this.bindEvents();
-  }
-
-  _createClass(CellManager, [{
-    key: 'bindEvents',
-    value: function bindEvents() {
-      this.bindFocusCell();
-      this.bindEditCell();
-      this.bindKeyboardSelection();
-      this.bindCopyCellContents();
-      this.bindMouseEvents();
-    }
-  }, {
-    key: 'bindFocusCell',
-    value: function bindFocusCell() {
-      this.bindKeyboardNav();
-    }
-  }, {
-    key: 'bindEditCell',
-    value: function bindEditCell() {
-      var _this = this;
-
-      this.$editingCell = null;
-
-      _dom2.default.on(this.bodyScrollable, 'dblclick', '.data-table-col', function (e, cell) {
-        _this.activateEditing(cell);
-      });
-
-      _keyboard2.default.on('enter', function (e) {
-        if (_this.$focusedCell && !_this.$editingCell) {
-          // enter keypress on focused cell
-          _this.activateEditing(_this.$focusedCell);
-        } else if (_this.$editingCell) {
-          // enter keypress on editing cell
-          _this.submitEditing();
-          _this.deactivateEditing();
-        }
-      });
-    }
-  }, {
-    key: 'bindKeyboardNav',
-    value: function bindKeyboardNav() {
-      var _this2 = this;
-
-      var focusCell = function focusCell(direction) {
-        if (!_this2.$focusedCell || _this2.$editingCell) {
-          return false;
-        }
-
-        var $cell = _this2.$focusedCell;
-
-        if (direction === 'left') {
-          $cell = _this2.getLeftCell$($cell);
-        } else if (direction === 'right' || direction === 'tab') {
-          $cell = _this2.getRightCell$($cell);
-        } else if (direction === 'up') {
-          $cell = _this2.getAboveCell$($cell);
-        } else if (direction === 'down') {
-          $cell = _this2.getBelowCell$($cell);
-        }
-
-        _this2.focusCell($cell);
-        return true;
-      };
-
-      var focusLastCell = function focusLastCell(direction) {
-        if (!_this2.$focusedCell || _this2.$editingCell) {
-          return false;
-        }
-
-        var $cell = _this2.$focusedCell;
-
-        var _$$data = _dom2.default.data($cell),
-            rowIndex = _$$data.rowIndex,
-            colIndex = _$$data.colIndex;
-
-        if (direction === 'left') {
-          $cell = _this2.getLeftMostCell$(rowIndex);
-        } else if (direction === 'right') {
-          $cell = _this2.getRightMostCell$(rowIndex);
-        } else if (direction === 'up') {
-          $cell = _this2.getTopMostCell$(colIndex);
-        } else if (direction === 'down') {
-          $cell = _this2.getBottomMostCell$(colIndex);
-        }
-
-        _this2.focusCell($cell);
-        return true;
-      };
-
-      ['left', 'right', 'up', 'down', 'tab'].map(function (direction) {
-        return _keyboard2.default.on(direction, function () {
-          return focusCell(direction);
-        });
-      });
-
-      ['left', 'right', 'up', 'down'].map(function (direction) {
-        return _keyboard2.default.on('ctrl+' + direction, function () {
-          return focusLastCell(direction);
-        });
-      });
-
-      _keyboard2.default.on('esc', function () {
-        _this2.deactivateEditing();
-      });
-    }
-  }, {
-    key: 'bindKeyboardSelection',
-    value: function bindKeyboardSelection() {
-      var _this3 = this;
-
-      var getNextSelectionCursor = function getNextSelectionCursor(direction) {
-        var $selectionCursor = _this3.getSelectionCursor();
-
-        if (direction === 'left') {
-          $selectionCursor = _this3.getLeftCell$($selectionCursor);
-        } else if (direction === 'right') {
-          $selectionCursor = _this3.getRightCell$($selectionCursor);
-        } else if (direction === 'up') {
-          $selectionCursor = _this3.getAboveCell$($selectionCursor);
-        } else if (direction === 'down') {
-          $selectionCursor = _this3.getBelowCell$($selectionCursor);
-        }
-
-        return $selectionCursor;
-      };
-
-      ['left', 'right', 'up', 'down'].map(function (direction) {
-        return _keyboard2.default.on('shift+' + direction, function () {
-          return _this3.selectArea(getNextSelectionCursor(direction));
-        });
-      });
-    }
-  }, {
-    key: 'bindCopyCellContents',
-    value: function bindCopyCellContents() {
-      var _this4 = this;
-
-      _keyboard2.default.on('ctrl+c', function () {
-        _this4.copyCellContents(_this4.$focusedCell, _this4.$selectionCursor);
-      });
-    }
-  }, {
-    key: 'bindMouseEvents',
-    value: function bindMouseEvents() {
-      var _this5 = this;
-
-      var mouseDown = null;
-
-      _dom2.default.on(this.bodyScrollable, 'mousedown', '.data-table-col', function (e) {
-        mouseDown = true;
-        _this5.focusCell((0, _dom2.default)(e.delegatedTarget));
-      });
-
-      _dom2.default.on(this.bodyScrollable, 'mouseup', function () {
-        mouseDown = false;
-      });
-
-      var selectArea = function selectArea(e) {
-        if (!mouseDown) return;
-        _this5.selectArea((0, _dom2.default)(e.delegatedTarget));
-      };
-
-      _dom2.default.on(this.bodyScrollable, 'mousemove', '.data-table-col', (0, _utils.throttle)(selectArea, 50));
-    }
-  }, {
-    key: 'focusCell',
-    value: function focusCell($cell) {
-      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref$skipClearSelecti = _ref.skipClearSelection,
-          skipClearSelection = _ref$skipClearSelecti === undefined ? 0 : _ref$skipClearSelecti;
-
-      if (!$cell) return;
-
-      // don't focus if already editing cell
-      if ($cell === this.$editingCell) return;
-
-      var _$$data2 = _dom2.default.data($cell),
-          colIndex = _$$data2.colIndex,
-          isHeader = _$$data2.isHeader;
-
-      if (isHeader) {
-        return;
-      }
-
-      var column = this.columnmanager.getColumn(colIndex);
-      if (column.focusable === false) {
-        return;
-      }
-
-      this.deactivateEditing();
-      if (!skipClearSelection) {
-        this.clearSelection();
-      }
-
-      if (this.$focusedCell) {
-        this.$focusedCell.classList.remove('selected');
-      }
-
-      this.$focusedCell = $cell;
-      $cell.classList.add('selected');
-
-      // so that keyboard nav works
-      $cell.focus();
-
-      this.highlightRowColumnHeader($cell);
-      this.scrollToCell($cell);
-    }
-  }, {
-    key: 'highlightRowColumnHeader',
-    value: function highlightRowColumnHeader($cell) {
-      var _$$data3 = _dom2.default.data($cell),
-          colIndex = _$$data3.colIndex,
-          rowIndex = _$$data3.rowIndex;
-
-      var _colIndex = this.datamanager.getColumnIndexById('_rowIndex');
-      var colHeaderSelector = '.data-table-header .data-table-col[data-col-index="' + colIndex + '"]';
-      var rowHeaderSelector = '.data-table-col[data-row-index="' + rowIndex + '"][data-col-index="' + _colIndex + '"]';
-
-      if (this.lastHeaders) {
-        _dom2.default.removeStyle(this.lastHeaders, 'backgroundColor');
-      }
-
-      var colHeader = (0, _dom2.default)(colHeaderSelector, this.wrapper);
-      var rowHeader = (0, _dom2.default)(rowHeaderSelector, this.wrapper);
-
-      _dom2.default.style([colHeader, rowHeader], {
-        backgroundColor: '#f5f7fa' // light-bg
-      });
-
-      this.lastHeaders = [colHeader, rowHeader];
-    }
-  }, {
-    key: 'selectAreaOnClusterChanged',
-    value: function selectAreaOnClusterChanged() {
-      if (!(this.$focusedCell && this.$selectionCursor)) return;
-
-      var _$$data4 = _dom2.default.data(this.$selectionCursor),
-          colIndex = _$$data4.colIndex,
-          rowIndex = _$$data4.rowIndex;
-
-      var $cell = this.getCell$(colIndex, rowIndex);
-
-      if (!$cell || $cell === this.$selectionCursor) return;
-
-      // selectArea needs $focusedCell
-      var fCell = _dom2.default.data(this.$focusedCell);
-      this.$focusedCell = this.getCell$(fCell.colIndex, fCell.rowIndex);
-
-      this.selectArea($cell);
-    }
-  }, {
-    key: 'focusCellOnClusterChanged',
-    value: function focusCellOnClusterChanged() {
-      if (!this.$focusedCell) return;
-
-      var _$$data5 = _dom2.default.data(this.$focusedCell),
-          colIndex = _$$data5.colIndex,
-          rowIndex = _$$data5.rowIndex;
-
-      var $cell = this.getCell$(colIndex, rowIndex);
-
-      if (!$cell) return;
-      // this function is called after selectAreaOnClusterChanged,
-      // focusCell calls clearSelection which resets the area selection
-      // so a flag to skip it
-      this.focusCell($cell, { skipClearSelection: 1 });
-    }
-  }, {
-    key: 'selectArea',
-    value: function selectArea($selectionCursor) {
-      if (!this.$focusedCell) return;
-
-      if (this._selectArea(this.$focusedCell, $selectionCursor)) {
-        // valid selection
-        this.$selectionCursor = $selectionCursor;
-      }
-    }
-  }, {
-    key: '_selectArea',
-    value: function _selectArea($cell1, $cell2) {
-      var _this6 = this;
-
-      if ($cell1 === $cell2) return false;
-
-      var cells = this.getCellsInRange($cell1, $cell2);
-      if (!cells) return false;
-
-      this.clearSelection();
-      cells.map(function (index) {
-        return _this6.getCell$.apply(_this6, _toConsumableArray(index));
-      }).map(function ($cell) {
-        return $cell.classList.add('highlight');
-      });
-      return true;
-    }
-  }, {
-    key: 'getCellsInRange',
-    value: function getCellsInRange($cell1, $cell2) {
-      var colIndex1 = void 0,
-          rowIndex1 = void 0,
-          colIndex2 = void 0,
-          rowIndex2 = void 0;
-
-      if (typeof $cell1 === 'number') {
-        var _arguments = Array.prototype.slice.call(arguments);
-
-        colIndex1 = _arguments[0];
-        rowIndex1 = _arguments[1];
-        colIndex2 = _arguments[2];
-        rowIndex2 = _arguments[3];
-      } else if ((typeof $cell1 === 'undefined' ? 'undefined' : _typeof($cell1)) === 'object') {
-
-        if (!($cell1 && $cell2)) {
-          return false;
-        }
-
-        var cell1 = _dom2.default.data($cell1);
-        var cell2 = _dom2.default.data($cell2);
-
-        colIndex1 = cell1.colIndex;
-        rowIndex1 = cell1.rowIndex;
-        colIndex2 = cell2.colIndex;
-        rowIndex2 = cell2.rowIndex;
-      }
-
-      if (rowIndex1 > rowIndex2) {
-        var _ref2 = [rowIndex2, rowIndex1];
-        rowIndex1 = _ref2[0];
-        rowIndex2 = _ref2[1];
-      }
-
-      if (colIndex1 > colIndex2) {
-        var _ref3 = [colIndex2, colIndex1];
-        colIndex1 = _ref3[0];
-        colIndex2 = _ref3[1];
-      }
-
-      if (this.isStandardCell(colIndex1) || this.isStandardCell(colIndex2)) {
-        return false;
-      }
-
-      var cells = [];
-      var colIndex = colIndex1;
-      var rowIndex = rowIndex1;
-      var rowIndices = [];
-
-      while (rowIndex <= rowIndex2) {
-        rowIndices.push(rowIndex);
-        rowIndex++;
-      }
-
-      rowIndices.map(function (rowIndex) {
-        while (colIndex <= colIndex2) {
-          cells.push([colIndex, rowIndex]);
-          colIndex++;
-        }
-        colIndex = colIndex1;
-      });
-
-      return cells;
-    }
-  }, {
-    key: 'clearSelection',
-    value: function clearSelection() {
-      _dom2.default.each('.data-table-col.highlight', this.bodyScrollable).map(function (cell) {
-        return cell.classList.remove('highlight');
-      });
-
-      this.$selectionCursor = null;
-    }
-  }, {
-    key: 'getSelectionCursor',
-    value: function getSelectionCursor() {
-      return this.$selectionCursor || this.$focusedCell;
-    }
-  }, {
-    key: 'activateEditing',
-    value: function activateEditing($cell) {
-      this.focusCell($cell);
-
-      var _$$data6 = _dom2.default.data($cell),
-          rowIndex = _$$data6.rowIndex,
-          colIndex = _$$data6.colIndex;
-
-      var col = this.columnmanager.getColumn(colIndex);
-      if (col && (col.editable === false || col.focusable === false)) {
-        return;
-      }
-
-      var cell = this.getCell(colIndex, rowIndex);
-      if (cell && cell.editable === false) {
-        return;
-      }
-
-      if (this.$editingCell) {
-        var _$$data7 = _dom2.default.data(this.$editingCell),
-            _rowIndex = _$$data7._rowIndex,
-            _colIndex = _$$data7._colIndex;
-
-        if (rowIndex === _rowIndex && colIndex === _colIndex) {
-          // editing the same cell
-          return;
-        }
-      }
-
-      this.$editingCell = $cell;
-      $cell.classList.add('editing');
-
-      var $editCell = (0, _dom2.default)('.edit-cell', $cell);
-      $editCell.innerHTML = '';
-
-      var editor = this.getEditor(colIndex, rowIndex, cell.content, $editCell);
-
-      if (editor) {
-        this.currentCellEditor = editor;
-        // initialize editing input with cell value
-        editor.initValue(cell.content, rowIndex, col);
-      }
-    }
-  }, {
-    key: 'deactivateEditing',
-    value: function deactivateEditing() {
-      // keep focus on the cell so that keyboard navigation works
-      if (this.$focusedCell) this.$focusedCell.focus();
-
-      if (!this.$editingCell) return;
-      this.$editingCell.classList.remove('editing');
-      this.$editingCell = null;
-    }
-  }, {
-    key: 'getEditor',
-    value: function getEditor(colIndex, rowIndex, value, parent) {
-      // debugger;
-      var obj = this.options.getEditor(colIndex, rowIndex, value, parent);
-      if (obj && obj.setValue) return obj;
-
-      // editing fallback
-      var $input = _dom2.default.create('input', {
-        type: 'text',
-        inside: parent
-      });
-
-      return {
-        initValue: function initValue(value) {
-          $input.focus();
-          $input.value = value;
-        },
-        getValue: function getValue() {
-          return $input.value;
-        },
-        setValue: function setValue(value) {
-          $input.value = value;
-        }
-      };
-    }
-  }, {
-    key: 'submitEditing',
-    value: function submitEditing() {
-      var _this7 = this;
-
-      if (!this.$editingCell) return;
-      var $cell = this.$editingCell;
-
-      var _$$data8 = _dom2.default.data($cell),
-          rowIndex = _$$data8.rowIndex,
-          colIndex = _$$data8.colIndex;
-
-      var col = this.datamanager.getColumn(colIndex);
-
-      if ($cell) {
-        var editor = this.currentCellEditor;
-
-        if (editor) {
-          var value = editor.getValue();
-          var done = editor.setValue(value, rowIndex, col);
-          var oldValue = this.getCell(colIndex, rowIndex).content;
-
-          // update cell immediately
-          this.updateCell(colIndex, rowIndex, value);
-          $cell.focus();
-
-          if (done && done.then) {
-            // revert to oldValue if promise fails
-            done.catch(function (e) {
-              console.log(e);
-              _this7.updateCell(colIndex, rowIndex, oldValue);
-            });
-          }
-        }
-      }
-
-      this.currentCellEditor = null;
-    }
-  }, {
-    key: 'copyCellContents',
-    value: function copyCellContents($cell1, $cell2) {
-      var _this8 = this;
-
-      if (!$cell2 && $cell1) {
-        // copy only focusedCell
-        var _$$data9 = _dom2.default.data($cell1),
-            colIndex = _$$data9.colIndex,
-            rowIndex = _$$data9.rowIndex;
-
-        var cell = this.getCell(colIndex, rowIndex);
-        (0, _utils.copyTextToClipboard)(cell.content);
-        return;
-      }
-      var cells = this.getCellsInRange($cell1, $cell2);
-
-      if (!cells) return;
-
-      var values = cells
-      // get cell objects
-      .map(function (index) {
-        return _this8.getCell.apply(_this8, _toConsumableArray(index));
-      })
-      // convert to array of rows
-      .reduce(function (acc, curr) {
-        var rowIndex = curr.rowIndex;
-
-        acc[rowIndex] = acc[rowIndex] || [];
-        acc[rowIndex].push(curr.content);
-
-        return acc;
-      }, [])
-      // join values by tab
-      .map(function (row) {
-        return row.join('\t');
-      })
-      // join rows by newline
-      .join('\n');
-
-      (0, _utils.copyTextToClipboard)(values);
-    }
-  }, {
-    key: 'updateCell',
-    value: function updateCell(colIndex, rowIndex, value) {
-      var cell = this.datamanager.updateCell(colIndex, rowIndex, {
-        content: value
-      });
-      this.refreshCell(cell);
-    }
-  }, {
-    key: 'refreshCell',
-    value: function refreshCell(cell) {
-      var $cell = (0, _dom2.default)(this.cellSelector(cell.colIndex, cell.rowIndex), this.bodyScrollable);
-      $cell.innerHTML = this.getCellContent(cell);
-    }
-  }, {
-    key: 'isStandardCell',
-    value: function isStandardCell(colIndex) {
-      // Standard cells are in Sr. No and Checkbox column
-      return colIndex < this.columnmanager.getFirstColumnIndex();
-    }
-  }, {
-    key: 'getCell$',
-    value: function getCell$(colIndex, rowIndex) {
-      return (0, _dom2.default)(this.cellSelector(colIndex, rowIndex), this.bodyScrollable);
-    }
-  }, {
-    key: 'getAboveCell$',
-    value: function getAboveCell$($cell) {
-      var _$$data10 = _dom2.default.data($cell),
-          colIndex = _$$data10.colIndex;
-
-      var $aboveRow = $cell.parentElement.previousElementSibling;
-
-      return (0, _dom2.default)('[data-col-index="' + colIndex + '"]', $aboveRow);
-    }
-  }, {
-    key: 'getBelowCell$',
-    value: function getBelowCell$($cell) {
-      var _$$data11 = _dom2.default.data($cell),
-          colIndex = _$$data11.colIndex;
-
-      var $belowRow = $cell.parentElement.nextElementSibling;
-
-      return (0, _dom2.default)('[data-col-index="' + colIndex + '"]', $belowRow);
-    }
-  }, {
-    key: 'getLeftCell$',
-    value: function getLeftCell$($cell) {
-      return $cell.previousElementSibling;
-    }
-  }, {
-    key: 'getRightCell$',
-    value: function getRightCell$($cell) {
-      return $cell.nextElementSibling;
-    }
-  }, {
-    key: 'getLeftMostCell$',
-    value: function getLeftMostCell$(rowIndex) {
-      return this.getCell$(this.columnmanager.getFirstColumnIndex(), rowIndex);
-    }
-  }, {
-    key: 'getRightMostCell$',
-    value: function getRightMostCell$(rowIndex) {
-      return this.getCell$(this.columnmanager.getLastColumnIndex(), rowIndex);
-    }
-  }, {
-    key: 'getTopMostCell$',
-    value: function getTopMostCell$(colIndex) {
-      return this.getCell$(colIndex, this.rowmanager.getFirstRowIndex());
-    }
-  }, {
-    key: 'getBottomMostCell$',
-    value: function getBottomMostCell$(colIndex) {
-      return this.getCell$(colIndex, this.rowmanager.getLastRowIndex());
-    }
-  }, {
-    key: 'getCell',
-    value: function getCell(colIndex, rowIndex) {
-      return this.instance.datamanager.getCell(colIndex, rowIndex);
-    }
-  }, {
-    key: 'getCellAttr',
-    value: function getCellAttr($cell) {
-      return this.instance.getCellAttr($cell);
-    }
-  }, {
-    key: 'getRowHeight',
-    value: function getRowHeight() {
-      return _dom2.default.style((0, _dom2.default)('.data-table-row', this.bodyScrollable), 'height');
-    }
-  }, {
-    key: 'scrollToCell',
-    value: function scrollToCell($cell) {
-      if (_dom2.default.inViewport($cell, this.bodyScrollable)) return false;
-
-      var _$$data12 = _dom2.default.data($cell),
-          rowIndex = _$$data12.rowIndex;
-
-      this.rowmanager.scrollToRow(rowIndex);
-      return false;
-    }
-  }, {
-    key: 'getRowCountPerPage',
-    value: function getRowCountPerPage() {
-      return Math.ceil(this.instance.getViewportHeight() / this.getRowHeight());
-    }
-  }, {
-    key: 'getCellHTML',
-    value: function getCellHTML(cell) {
-      var rowIndex = cell.rowIndex,
-          colIndex = cell.colIndex,
-          isHeader = cell.isHeader;
-
-      var dataAttr = (0, _utils.makeDataAttributeString)({
-        rowIndex: rowIndex,
-        colIndex: colIndex,
-        isHeader: isHeader
-      });
-
-      return '\n      <td class="data-table-col noselect" ' + dataAttr + ' tabindex="0">\n        ' + this.getCellContent(cell) + '\n      </td>\n    ';
-    }
-  }, {
-    key: 'getCellContent',
-    value: function getCellContent(cell) {
-      var isHeader = cell.isHeader;
-
-
-      var editable = !isHeader && cell.editable !== false;
-      var editCellHTML = editable ? this.getEditCellHTML() : '';
-
-      var sortable = isHeader && cell.sortable !== false;
-      var sortIndicator = sortable ? '<span class="sort-indicator"></span>' : '';
-
-      var resizable = isHeader && cell.resizable !== false;
-      var resizeColumn = resizable ? '<span class="column-resizer"></span>' : '';
-
-      var hasDropdown = isHeader && cell.dropdown !== false;
-      var dropdown = hasDropdown ? '<div class="data-table-dropdown">' + (0, _columnmanager.getDropdownHTML)() + '</div>' : '';
-
-      var contentHTML = !cell.isHeader && cell.column.format ? cell.column.format(cell.content) : cell.content;
-
-      return '\n      <div class="content ellipsis">\n        ' + contentHTML + '\n        ' + sortIndicator + '\n        ' + resizeColumn + '\n        ' + dropdown + '\n      </div>\n      ' + editCellHTML + '\n    ';
-    }
-  }, {
-    key: 'getEditCellHTML',
-    value: function getEditCellHTML() {
-      return '\n      <div class="edit-cell"></div>\n    ';
-    }
-  }, {
-    key: 'cellSelector',
-    value: function cellSelector(colIndex, rowIndex) {
-      return '.data-table-col[data-col-index="' + colIndex + '"][data-row-index="' + rowIndex + '"]';
-    }
-  }]);
-
-  return CellManager;
-}();
-
-exports.default = CellManager;
-module.exports = exports['default'];
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-var _utils = __webpack_require__(1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var RowManager = function () {
-  function RowManager(instance) {
-    _classCallCheck(this, RowManager);
-
-    this.instance = instance;
-    this.options = this.instance.options;
-    this.wrapper = this.instance.wrapper;
-    this.bodyScrollable = this.instance.bodyScrollable;
-
-    this.bindEvents();
-    this.refreshRows = (0, _utils.promisify)(this.refreshRows, this);
-  }
-
-  _createClass(RowManager, [{
-    key: 'bindEvents',
-    value: function bindEvents() {
-      this.bindCheckbox();
-    }
-  }, {
-    key: 'bindCheckbox',
-    value: function bindCheckbox() {
-      var _this = this;
-
-      if (!this.options.addCheckboxColumn) return;
-
-      // map of checked rows
-      this.checkMap = [];
-
-      _dom2.default.on(this.wrapper, 'click', '.data-table-col[data-col-index="0"] [type="checkbox"]', function (e, $checkbox) {
-        var $cell = $checkbox.closest('.data-table-col');
-
-        var _$$data = _dom2.default.data($cell),
-            rowIndex = _$$data.rowIndex,
-            isHeader = _$$data.isHeader;
-
-        var checked = $checkbox.checked;
-
-        if (isHeader) {
-          _this.checkAll(checked);
-        } else {
-          _this.checkRow(rowIndex, checked);
-        }
-      });
-    }
-  }, {
-    key: 'refreshRows',
-    value: function refreshRows() {
-      this.instance.renderBody();
-      this.instance.setDimensions();
-    }
-  }, {
-    key: 'refreshRow',
-    value: function refreshRow(row, rowIndex) {
-      var _this2 = this;
-
-      var _row = this.datamanager.updateRow(row, rowIndex);
-
-      _row.forEach(function (cell) {
-        _this2.cellmanager.refreshCell(cell);
-      });
-    }
-  }, {
-    key: 'getCheckedRows',
-    value: function getCheckedRows() {
-      if (!this.checkMap) {
-        return [];
-      }
-
-      return this.checkMap.map(function (c, rowIndex) {
-        if (c) {
-          return rowIndex;
-        }
-        return null;
-      }).filter(function (c) {
-        return c !== null || c !== undefined;
-      });
-    }
-  }, {
-    key: 'highlightCheckedRows',
-    value: function highlightCheckedRows() {
-      var _this3 = this;
-
-      this.getCheckedRows().map(function (rowIndex) {
-        return _this3.checkRow(rowIndex, true);
-      });
-    }
-  }, {
-    key: 'checkRow',
-    value: function checkRow(rowIndex, toggle) {
-      var value = toggle ? 1 : 0;
-
-      // update internal map
-      this.checkMap[rowIndex] = value;
-      // set checkbox value explicitly
-      _dom2.default.each('.data-table-col[data-row-index="' + rowIndex + '"][data-col-index="0"] [type="checkbox"]', this.bodyScrollable).map(function (input) {
-        input.checked = toggle;
-      });
-      // highlight row
-      this.highlightRow(rowIndex, toggle);
-    }
-  }, {
-    key: 'checkAll',
-    value: function checkAll(toggle) {
-      var value = toggle ? 1 : 0;
-
-      // update internal map
-      if (toggle) {
-        this.checkMap = Array.from(Array(this.getTotalRows())).map(function (c) {
-          return value;
-        });
-      } else {
-        this.checkMap = [];
-      }
-      // set checkbox value
-      _dom2.default.each('.data-table-col[data-col-index="0"] [type="checkbox"]', this.bodyScrollable).map(function (input) {
-        input.checked = toggle;
-      });
-      // highlight all
-      this.highlightAll(toggle);
-    }
-  }, {
-    key: 'highlightRow',
-    value: function highlightRow(rowIndex) {
-      var toggle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-      var $row = this.getRow$(rowIndex);
-      if (!$row) return;
-
-      if (!toggle && this.bodyScrollable.classList.contains('row-highlight-all')) {
-        $row.classList.add('row-unhighlight');
-        return;
-      }
-
-      if (toggle && $row.classList.contains('row-unhighlight')) {
-        $row.classList.remove('row-unhighlight');
-      }
-
-      this._highlightedRows = this._highlightedRows || {};
-
-      if (toggle) {
-        $row.classList.add('row-highlight');
-        this._highlightedRows[rowIndex] = $row;
-      } else {
-        $row.classList.remove('row-highlight');
-        delete this._highlightedRows[rowIndex];
-      }
-    }
-  }, {
-    key: 'highlightAll',
-    value: function highlightAll() {
-      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-      if (toggle) {
-        this.bodyScrollable.classList.add('row-highlight-all');
-      } else {
-        this.bodyScrollable.classList.remove('row-highlight-all');
-        for (var rowIndex in this._highlightedRows) {
-          var $row = this._highlightedRows[rowIndex];
-          $row.classList.remove('row-highlight');
-        }
-        this._highlightedRows = {};
-      }
-    }
-  }, {
-    key: 'getRow$',
-    value: function getRow$(rowIndex) {
-      return (0, _dom2.default)('.data-table-row[data-row-index="' + rowIndex + '"]', this.bodyScrollable);
-    }
-  }, {
-    key: 'getTotalRows',
-    value: function getTotalRows() {
-      return this.datamanager.getRowCount();
-    }
-  }, {
-    key: 'getFirstRowIndex',
-    value: function getFirstRowIndex() {
-      return 0;
-    }
-  }, {
-    key: 'getLastRowIndex',
-    value: function getLastRowIndex() {
-      return this.datamanager.getRowCount() - 1;
-    }
-  }, {
-    key: 'scrollToRow',
-    value: function scrollToRow(rowIndex) {
-      rowIndex = +rowIndex;
-      this._lastScrollTo = this._lastScrollTo || 0;
-      var $row = this.getRow$(rowIndex);
-      if (_dom2.default.inViewport($row, this.bodyScrollable)) return;
-
-      var _$row$getBoundingClie = $row.getBoundingClientRect(),
-          height = _$row$getBoundingClie.height;
-
-      var _bodyScrollable$getBo = this.bodyScrollable.getBoundingClientRect(),
-          top = _bodyScrollable$getBo.top,
-          bottom = _bodyScrollable$getBo.bottom;
-
-      var rowsInView = Math.floor((bottom - top) / height);
-
-      var offset = 0;
-      if (rowIndex > this._lastScrollTo) {
-        offset = height * (rowIndex + 1 - rowsInView);
-      } else {
-        offset = height * (rowIndex + 1 - 1);
-      }
-
-      this._lastScrollTo = rowIndex;
-      _dom2.default.scrollTop(this.bodyScrollable, offset);
-    }
-  }, {
-    key: 'getRowHTML',
-    value: function getRowHTML(row, props) {
-      var _this4 = this;
-
-      var dataAttr = (0, _utils.makeDataAttributeString)(props);
-
-      return '\n      <tr class="data-table-row" ' + dataAttr + '>\n        ' + row.map(function (cell) {
-        return _this4.cellmanager.getCellHTML(cell);
-      }).join('') + '\n      </tr>\n    ';
-    }
-  }, {
-    key: 'datamanager',
-    get: function get() {
-      return this.instance.datamanager;
-    }
-  }, {
-    key: 'cellmanager',
-    get: function get() {
-      return this.instance.cellmanager;
-    }
-  }]);
-
-  return RowManager;
-}();
-
-exports.default = RowManager;
-module.exports = exports['default'];
-
-/***/ }),
-/* 10 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-exports.getBodyHTML = getBodyHTML;
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-var _clusterize = __webpack_require__(11);
-
-var _clusterize2 = _interopRequireDefault(_clusterize);
-
-var _utils = __webpack_require__(1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var BodyRenderer = function () {
-  function BodyRenderer(instance) {
-    _classCallCheck(this, BodyRenderer);
-
-    this.instance = instance;
-    this.options = instance.options;
-    this.datamanager = instance.datamanager;
-    this.rowmanager = instance.rowmanager;
-    this.cellmanager = instance.cellmanager;
-    this.bodyScrollable = instance.bodyScrollable;
-    this.log = instance.log;
-    this.appendRemainingData = (0, _utils.promisify)(this.appendRemainingData, this);
-  }
-
-  _createClass(BodyRenderer, [{
-    key: 'render',
-    value: function render() {
-      if (this.options.enableClusterize) {
-        this.renderBodyWithClusterize();
-      } else {
-        this.renderBodyHTML();
-      }
-    }
-  }, {
-    key: 'renderBodyHTML',
-    value: function renderBodyHTML() {
-      var rows = this.datamanager.getRows();
-
-      this.bodyScrollable.innerHTML = '\n      <table class="data-table-body">\n        ' + getBodyHTML(rows) + '\n      </table>\n    ';
-      this.instance.setDimensions();
-      this.restoreState();
-    }
-  }, {
-    key: 'renderBodyWithClusterize',
-    value: function renderBodyWithClusterize() {
-      var _this = this;
-
-      // first page
-      var rows = this.datamanager.getRows(0, 20);
-      var initialData = this.getDataForClusterize(rows);
-
-      if (!this.clusterize) {
-        // empty body
-        this.bodyScrollable.innerHTML = '\n        <table class="data-table-body">\n          ' + getBodyHTML([]) + '\n        </table>\n      ';
-
-        // first 20 rows will appended
-        // rest of them in nextTick
-        this.clusterize = new _clusterize2.default({
-          rows: initialData,
-          scrollElem: this.bodyScrollable,
-          contentElem: (0, _dom2.default)('tbody', this.bodyScrollable),
-          callbacks: {
-            clusterChanged: function clusterChanged() {
-              _this.restoreState();
-            }
-          },
-          /* eslint-disable */
-          no_data_text: this.options.loadingText,
-          no_data_class: 'empty-state'
-          /* eslint-enable */
-        });
-
-        // setDimensions requires atleast 1 row to exist in dom
-        this.instance.setDimensions();
-      } else {
-        this.clusterize.update(initialData);
-      }
-
-      this.appendRemainingData();
-    }
-  }, {
-    key: 'restoreState',
-    value: function restoreState() {
-      this.rowmanager.highlightCheckedRows();
-      this.cellmanager.selectAreaOnClusterChanged();
-      this.cellmanager.focusCellOnClusterChanged();
-    }
-  }, {
-    key: 'appendRemainingData',
-    value: function appendRemainingData() {
-      var rows = this.datamanager.getRows(20);
-      var data = this.getDataForClusterize(rows);
-      this.clusterize.append(data);
-    }
-  }, {
-    key: 'getDataForClusterize',
-    value: function getDataForClusterize(rows) {
-      var _this2 = this;
-
-      return rows.map(function (row) {
-        return _this2.rowmanager.getRowHTML(row, { rowIndex: row[0].rowIndex });
-      });
-    }
-  }]);
-
-  return BodyRenderer;
-}();
-
-exports.default = BodyRenderer;
-
-
-function getBodyHTML(rows) {
-  var _this3 = this;
-
-  return '\n    <tbody>\n      ' + rows.map(function (row) {
-    return _this3.rowmanager.getRowHTML(row, { rowIndex: row[0].rowIndex });
-  }).join('') + '\n    </tbody>\n  ';
-}
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE_11__;
-
-/***/ }),
-/* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _utils = __webpack_require__(1);
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Style = function () {
-  function Style(datatable) {
-    _classCallCheck(this, Style);
-
-    this.datatable = datatable;
-    this.scopeClass = 'datatable-instance-' + datatable.constructor.instances;
-    datatable.datatableWrapper.classList.add(this.scopeClass);
-
-    var styleEl = document.createElement('style');
-    datatable.wrapper.insertBefore(styleEl, datatable.datatableWrapper);
-    this.styleEl = styleEl;
-    this.styleSheet = styleEl.sheet;
-  }
-
-  _createClass(Style, [{
-    key: 'destroy',
-    value: function destroy() {
-      this.styleEl.remove();
-    }
-  }, {
-    key: 'setStyle',
-    value: function setStyle(rule, styleMap) {
-      var index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
-
-      var styles = Object.keys(styleMap).map(function (prop) {
-        if (!prop.includes('-')) {
-          prop = (0, _utils.camelCaseToDash)(prop);
-        }
-        return prop + ':' + styleMap[prop] + ';';
-      }).join('');
-      var ruleString = '.' + this.scopeClass + ' ' + rule + ' { ' + styles + ' }';
-
-      var _index = this.styleSheet.cssRules.length;
-      if (index !== -1) {
-        this.styleSheet.deleteRule(index);
-        _index = index;
-      }
-
-      this.styleSheet.insertRule(ruleString, _index);
-      return _index;
-    }
-  }]);
-
-  return Style;
-}();
-
-exports.default = Style;
-module.exports = exports['default'];
-
-/***/ }),
-/* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = {
-  columns: [],
-  data: [],
-  dropdownButton: '▼',
-  headerDropdown: [{
-    label: 'Sort Ascending',
-    action: function action(column) {
-      this.sortColumn(column.colIndex, 'asc');
-    }
-  }, {
-    label: 'Sort Descending',
-    action: function action(column) {
-      this.sortColumn(column.colIndex, 'desc');
-    }
-  }, {
-    label: 'Reset sorting',
-    action: function action(column) {
-      this.sortColumn(column.colIndex, 'none');
-    }
-  }, {
-    label: 'Remove column',
-    action: function action(column) {
-      this.removeColumn(column.colIndex);
-    }
-  }],
-  events: {
-    onRemoveColumn: function onRemoveColumn(column) {},
-    onSwitchColumn: function onSwitchColumn(column1, column2) {},
-    onSortColumn: function onSortColumn(column) {}
-  },
-  sortIndicator: {
-    asc: '↑',
-    desc: '↓',
-    none: ''
-  },
-  freezeMessage: '',
-  getEditor: function getEditor() {},
-  addSerialNoColumn: true,
-  addCheckboxColumn: false,
-  enableClusterize: true,
-  enableLogs: false,
-  takeAvailableSpace: false,
-  loadingText: ''
-};
-module.exports = exports['default'];
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-// style-loader: Adds some css to the DOM by adding a <style> tag
-
-// load the styles
-var content = __webpack_require__(15);
-if(typeof content === 'string') content = [[module.i, content, '']];
-// Prepare cssTransformation
-var transform;
-
-var options = {};
-options.transform = transform;
-// add the styles to the DOM
-var update = __webpack_require__(17)(content, options);
-if(content.locals) module.exports = content.locals;
-// Hot Module Replacement
-
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-exports = module.exports = __webpack_require__(16)(false);
-// imports
-
-
-// module
-exports.push([module.i, "/* variables */\n.data-table {\n  /* resets */\n  /* styling */\n  width: 100%;\n  position: relative;\n  overflow: auto; }\n  .data-table *, .data-table *::after, .data-table *::before {\n    box-sizing: border-box; }\n  .data-table button, .data-table input {\n    overflow: visible;\n    font-family: inherit;\n    font-size: inherit;\n    line-height: inherit;\n    margin: 0;\n    padding: 0; }\n  .data-table *, .data-table *:focus {\n    outline: none;\n    border-radius: 0px;\n    box-shadow: none; }\n  .data-table table {\n    border-collapse: collapse; }\n  .data-table table td {\n    padding: 0;\n    border: 1px solid #d1d8dd; }\n  .data-table thead td {\n    border-bottom-width: 1px; }\n  .data-table .freeze-container {\n    display: flex;\n    justify-content: center;\n    align-content: center;\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: #f5f7fa;\n    opacity: 0.5;\n    font-size: 2em; }\n    .data-table .freeze-container span {\n      position: absolute;\n      top: 50%;\n      transform: translateY(-50%); }\n  .data-table .trash-container {\n    position: absolute;\n    bottom: 0;\n    left: 30%;\n    right: 30%;\n    height: 70px;\n    background: palevioletred;\n    opacity: 0.5; }\n\n.body-scrollable {\n  max-height: 500px;\n  overflow: auto;\n  border-bottom: 1px solid #d1d8dd; }\n  .body-scrollable.row-highlight-all .data-table-row:not(.row-unhighlight) {\n    background-color: #f5f7fa; }\n\n.data-table-header {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background-color: white;\n  font-weight: bold; }\n  .data-table-header .content span:not(.column-resizer) {\n    cursor: pointer; }\n  .data-table-header .column-resizer {\n    display: none;\n    position: absolute;\n    right: 0;\n    top: 0;\n    width: 0.25rem;\n    height: 100%;\n    background-color: #5292f7;\n    cursor: col-resize; }\n  .data-table-header .data-table-dropdown {\n    position: absolute;\n    right: 10px;\n    display: inline-flex;\n    vertical-align: top;\n    text-align: left; }\n    .data-table-header .data-table-dropdown.is-active .data-table-dropdown-list {\n      display: block; }\n    .data-table-header .data-table-dropdown.is-active .data-table-dropdown-toggle {\n      display: block; }\n  .data-table-header .data-table-dropdown-toggle {\n    display: none;\n    background-color: transparent;\n    border: none; }\n  .data-table-header .data-table-dropdown-list {\n    display: none;\n    font-weight: normal;\n    position: absolute;\n    min-width: 8rem;\n    top: 100%;\n    right: 0;\n    z-index: 1;\n    background-color: white;\n    border-radius: 3px;\n    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);\n    padding-bottom: 0.5rem;\n    padding-top: 0.5rem; }\n    .data-table-header .data-table-dropdown-list > div {\n      padding: 0.5rem 1rem; }\n      .data-table-header .data-table-dropdown-list > div:hover {\n        background-color: #f5f7fa; }\n  .data-table-header .data-table-col.remove-column {\n    background-color: #FD8B8B;\n    transition: 300ms background-color ease-in-out; }\n  .data-table-header .data-table-col.sortable-chosen {\n    background-color: #f5f7fa; }\n\n.data-table-col {\n  position: relative; }\n  .data-table-col .content {\n    padding: 0.25rem;\n    border: 2px solid transparent; }\n    .data-table-col .content.ellipsis {\n      text-overflow: ellipsis;\n      white-space: nowrap;\n      overflow: hidden; }\n  .data-table-col .edit-cell {\n    display: none;\n    padding: 0.25rem;\n    background: #fff;\n    z-index: 1;\n    height: 100%; }\n    .data-table-col .edit-cell input {\n      outline: none;\n      width: 100%;\n      border: none; }\n  .data-table-col.selected .content {\n    border: 2px solid #5292f7; }\n  .data-table-col.editing .content {\n    display: none; }\n  .data-table-col.editing .edit-cell {\n    border: 2px solid #5292f7;\n    display: block; }\n  .data-table-col.highlight {\n    background-color: #f5f7fa; }\n  .data-table-col:hover .column-resizer {\n    display: inline-block; }\n  .data-table-col:hover .data-table-dropdown-toggle {\n    display: block; }\n\n.data-table-row.row-highlight {\n  background-color: #f5f7fa; }\n\n.noselect {\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  -khtml-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none; }\n\nbody.data-table-resize {\n  cursor: col-resize; }\n", ""]);
-
-// exports
-
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-// css base code, injected by the css-loader
-module.exports = function(useSourceMap) {
-	var list = [];
-
-	// return the list of modules as css string
-	list.toString = function toString() {
-		return this.map(function (item) {
-			var content = cssWithMappingToString(item, useSourceMap);
-			if(item[2]) {
-				return "@media " + item[2] + "{" + content + "}";
-			} else {
-				return content;
-			}
-		}).join("");
-	};
-
-	// import a list of modules into the list
-	list.i = function(modules, mediaQuery) {
-		if(typeof modules === "string")
-			modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for(var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if(typeof id === "number")
-				alreadyImportedModules[id] = true;
-		}
-		for(i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if(mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if(mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
-};
-
-function cssWithMappingToString(item, useSourceMap) {
-	var content = item[1] || '';
-	var cssMapping = item[3];
-	if (!cssMapping) {
-		return content;
-	}
-
-	if (useSourceMap && typeof btoa === 'function') {
-		var sourceMapping = toComment(cssMapping);
-		var sourceURLs = cssMapping.sources.map(function (source) {
-			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
-		});
-
-		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
-	}
-
-	return [content].join('\n');
-}
-
-// Adapted from convert-source-map (MIT)
-function toComment(sourceMap) {
-	// eslint-disable-next-line no-undef
-	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
-	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
-
-	return '/*# ' + data + ' */';
-}
-
-
-/***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
-*/
-
-var stylesInDom = {};
-
-var	memoize = function (fn) {
-	var memo;
-
-	return function () {
-		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-		return memo;
-	};
-};
-
-var isOldIE = memoize(function () {
-	// Test for IE <= 9 as proposed by Browserhacks
-	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
-	// Tests for existence of standard globals is to allow style-loader
-	// to operate correctly into non-standard environments
-	// @see https://github.com/webpack-contrib/style-loader/issues/177
-	return window && document && document.all && !window.atob;
-});
-
-var getElement = (function (fn) {
-	var memo = {};
-
-	return function(selector) {
-		if (typeof memo[selector] === "undefined") {
-			memo[selector] = fn.call(this, selector);
-		}
-
-		return memo[selector]
-	};
-})(function (target) {
-	return document.querySelector(target)
-});
-
-var singleton = null;
-var	singletonCounter = 0;
-var	stylesInsertedAtTop = [];
-
-var	fixUrls = __webpack_require__(18);
-
-module.exports = function(list, options) {
-	if (typeof DEBUG !== "undefined" && DEBUG) {
-		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-	}
-
-	options = options || {};
-
-	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
-
-	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-	// tags it will allow on a page
-	if (!options.singleton) options.singleton = isOldIE();
-
-	// By default, add <style> tags to the <head> element
-	if (!options.insertInto) options.insertInto = "head";
-
-	// By default, add <style> tags to the bottom of the target
-	if (!options.insertAt) options.insertAt = "bottom";
-
-	var styles = listToStyles(list, options);
-
-	addStylesToDom(styles, options);
-
-	return function update (newList) {
-		var mayRemove = [];
-
-		for (var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
-
-			domStyle.refs--;
-			mayRemove.push(domStyle);
-		}
-
-		if(newList) {
-			var newStyles = listToStyles(newList, options);
-			addStylesToDom(newStyles, options);
-		}
-
-		for (var i = 0; i < mayRemove.length; i++) {
-			var domStyle = mayRemove[i];
-
-			if(domStyle.refs === 0) {
-				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
-
-				delete stylesInDom[domStyle.id];
-			}
-		}
-	};
-};
-
-function addStylesToDom (styles, options) {
-	for (var i = 0; i < styles.length; i++) {
-		var item = styles[i];
-		var domStyle = stylesInDom[item.id];
-
-		if(domStyle) {
-			domStyle.refs++;
-
-			for(var j = 0; j < domStyle.parts.length; j++) {
-				domStyle.parts[j](item.parts[j]);
-			}
-
-			for(; j < item.parts.length; j++) {
-				domStyle.parts.push(addStyle(item.parts[j], options));
-			}
-		} else {
-			var parts = [];
-
-			for(var j = 0; j < item.parts.length; j++) {
-				parts.push(addStyle(item.parts[j], options));
-			}
-
-			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-		}
-	}
-}
-
-function listToStyles (list, options) {
-	var styles = [];
-	var newStyles = {};
-
-	for (var i = 0; i < list.length; i++) {
-		var item = list[i];
-		var id = options.base ? item[0] + options.base : item[0];
-		var css = item[1];
-		var media = item[2];
-		var sourceMap = item[3];
-		var part = {css: css, media: media, sourceMap: sourceMap};
-
-		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
-		else newStyles[id].parts.push(part);
-	}
-
-	return styles;
-}
-
-function insertStyleElement (options, style) {
-	var target = getElement(options.insertInto);
-
-	if (!target) {
-		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
-	}
-
-	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
-
-	if (options.insertAt === "top") {
-		if (!lastStyleElementInsertedAtTop) {
-			target.insertBefore(style, target.firstChild);
-		} else if (lastStyleElementInsertedAtTop.nextSibling) {
-			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
-		} else {
-			target.appendChild(style);
-		}
-		stylesInsertedAtTop.push(style);
-	} else if (options.insertAt === "bottom") {
-		target.appendChild(style);
-	} else {
-		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-	}
-}
-
-function removeStyleElement (style) {
-	if (style.parentNode === null) return false;
-	style.parentNode.removeChild(style);
-
-	var idx = stylesInsertedAtTop.indexOf(style);
-	if(idx >= 0) {
-		stylesInsertedAtTop.splice(idx, 1);
-	}
-}
-
-function createStyleElement (options) {
-	var style = document.createElement("style");
-
-	options.attrs.type = "text/css";
-
-	addAttrs(style, options.attrs);
-	insertStyleElement(options, style);
-
-	return style;
-}
-
-function createLinkElement (options) {
-	var link = document.createElement("link");
-
-	options.attrs.type = "text/css";
-	options.attrs.rel = "stylesheet";
-
-	addAttrs(link, options.attrs);
-	insertStyleElement(options, link);
-
-	return link;
-}
-
-function addAttrs (el, attrs) {
-	Object.keys(attrs).forEach(function (key) {
-		el.setAttribute(key, attrs[key]);
-	});
-}
-
-function addStyle (obj, options) {
-	var style, update, remove, result;
-
-	// If a transform function was defined, run it on the css
-	if (options.transform && obj.css) {
-	    result = options.transform(obj.css);
-
-	    if (result) {
-	    	// If transform returns a value, use that instead of the original css.
-	    	// This allows running runtime transformations on the css.
-	    	obj.css = result;
-	    } else {
-	    	// If the transform function returns a falsy value, don't add this css.
-	    	// This allows conditional loading of css
-	    	return function() {
-	    		// noop
-	    	};
-	    }
-	}
-
-	if (options.singleton) {
-		var styleIndex = singletonCounter++;
-
-		style = singleton || (singleton = createStyleElement(options));
-
-		update = applyToSingletonTag.bind(null, style, styleIndex, false);
-		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
-
-	} else if (
-		obj.sourceMap &&
-		typeof URL === "function" &&
-		typeof URL.createObjectURL === "function" &&
-		typeof URL.revokeObjectURL === "function" &&
-		typeof Blob === "function" &&
-		typeof btoa === "function"
-	) {
-		style = createLinkElement(options);
-		update = updateLink.bind(null, style, options);
-		remove = function () {
-			removeStyleElement(style);
-
-			if(style.href) URL.revokeObjectURL(style.href);
-		};
-	} else {
-		style = createStyleElement(options);
-		update = applyToTag.bind(null, style);
-		remove = function () {
-			removeStyleElement(style);
-		};
-	}
-
-	update(obj);
-
-	return function updateStyle (newObj) {
-		if (newObj) {
-			if (
-				newObj.css === obj.css &&
-				newObj.media === obj.media &&
-				newObj.sourceMap === obj.sourceMap
-			) {
-				return;
-			}
-
-			update(obj = newObj);
-		} else {
-			remove();
-		}
-	};
-}
-
-var replaceText = (function () {
-	var textStore = [];
-
-	return function (index, replacement) {
-		textStore[index] = replacement;
-
-		return textStore.filter(Boolean).join('\n');
-	};
-})();
-
-function applyToSingletonTag (style, index, remove, obj) {
-	var css = remove ? "" : obj.css;
-
-	if (style.styleSheet) {
-		style.styleSheet.cssText = replaceText(index, css);
-	} else {
-		var cssNode = document.createTextNode(css);
-		var childNodes = style.childNodes;
-
-		if (childNodes[index]) style.removeChild(childNodes[index]);
-
-		if (childNodes.length) {
-			style.insertBefore(cssNode, childNodes[index]);
-		} else {
-			style.appendChild(cssNode);
-		}
-	}
-}
-
-function applyToTag (style, obj) {
-	var css = obj.css;
-	var media = obj.media;
-
-	if(media) {
-		style.setAttribute("media", media);
-	}
-
-	if(style.styleSheet) {
-		style.styleSheet.cssText = css;
-	} else {
-		while(style.firstChild) {
-			style.removeChild(style.firstChild);
-		}
-
-		style.appendChild(document.createTextNode(css));
-	}
-}
-
-function updateLink (link, options, obj) {
-	var css = obj.css;
-	var sourceMap = obj.sourceMap;
-
-	/*
-		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
-		and there is no publicPath defined then lets turn convertToAbsoluteUrls
-		on by default.  Otherwise default to the convertToAbsoluteUrls option
-		directly
-	*/
-	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
-
-	if (options.convertToAbsoluteUrls || autoFixUrls) {
-		css = fixUrls(css);
-	}
-
-	if (sourceMap) {
-		// http://stackoverflow.com/a/26603875
-		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-	}
-
-	var blob = new Blob([css], { type: "text/css" });
-
-	var oldSrc = link.href;
-
-	link.href = URL.createObjectURL(blob);
-
-	if(oldSrc) URL.revokeObjectURL(oldSrc);
-}
-
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports) {
-
-
-/**
- * When source maps are enabled, `style-loader` uses a link element with a data-uri to
- * embed the css on the page. This breaks all relative urls because now they are relative to a
- * bundle instead of the current page.
- *
- * One solution is to only use full urls, but that may be impossible.
- *
- * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
- *
- * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
- *
- */
-
-module.exports = function (css) {
-  // get current location
-  var location = typeof window !== "undefined" && window.location;
-
-  if (!location) {
-    throw new Error("fixUrls requires window.location");
-  }
-
-	// blank or null?
-	if (!css || typeof css !== "string") {
-	  return css;
-  }
-
-  var baseUrl = location.protocol + "//" + location.host;
-  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
-
-	// convert each url(...)
-	/*
-	This regular expression is just a way to recursively match brackets within
-	a string.
-
-	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
-	   (  = Start a capturing group
-	     (?:  = Start a non-capturing group
-	         [^)(]  = Match anything that isn't a parentheses
-	         |  = OR
-	         \(  = Match a start parentheses
-	             (?:  = Start another non-capturing groups
-	                 [^)(]+  = Match anything that isn't a parentheses
-	                 |  = OR
-	                 \(  = Match a start parentheses
-	                     [^)(]*  = Match anything that isn't a parentheses
-	                 \)  = Match a end parentheses
-	             )  = End Group
-              *\) = Match anything and then a close parens
-          )  = Close non-capturing group
-          *  = Match anything
-       )  = Close capturing group
-	 \)  = Match a close parens
-
-	 /gi  = Get all matches, not the first.  Be case insensitive.
-	 */
-	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
-		// strip quotes (if they exist)
-		var unquotedOrigUrl = origUrl
-			.trim()
-			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
-			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
-
-		// already a full url? no change
-		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
-		  return fullMatch;
-		}
-
-		// convert the url to a full url
-		var newUrl;
-
-		if (unquotedOrigUrl.indexOf("//") === 0) {
-		  	//TODO: should we add protocol?
-			newUrl = unquotedOrigUrl;
-		} else if (unquotedOrigUrl.indexOf("/") === 0) {
-			// path should be relative to the base url
-			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
-		} else {
-			// path should be relative to current directory
-			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
-		}
-
-		// send back the fixed url(...)
-		return "url(" + JSON.stringify(newUrl) + ")";
-	});
-
-	// send back the fixed css
-	return fixedCss;
-};
-
-
-/***/ }),
-/* 19 */
-/***/ (function(module, exports) {
-
-module.exports = {"name":"frappe-datatable","version":"0.0.1","description":"A modern datatable library for the web","main":"lib/frappe-datatable.js","scripts":{"start":"npm run dev","build":"webpack --env build","dev":"webpack --progress --colors --watch --env dev","test":"mocha --compilers js:babel-core/register --colors ./test/*.spec.js","test:watch":"mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js"},"devDependencies":{"babel-cli":"6.24.1","babel-core":"6.24.1","babel-eslint":"7.2.3","babel-loader":"7.0.0","babel-plugin-add-module-exports":"0.2.1","babel-plugin-transform-builtin-extend":"^1.1.2","babel-preset-env":"^1.6.1","chai":"3.5.0","css-loader":"^0.28.7","eslint":"3.19.0","eslint-loader":"1.7.1","mocha":"3.3.0","node-sass":"^4.5.3","sass-loader":"^6.0.6","style-loader":"^0.18.2","webpack":"^3.1.0","yargs":"7.1.0"},"repository":{"type":"git","url":"https://github.com/frappe/datatable.git"},"keywords":["webpack","es6","starter","library","universal","umd","commonjs"],"author":"Faris Ansari","license":"MIT","bugs":{"url":"https://github.com/frappe/datatable/issues"},"homepage":"https://frappe.github.io/datatable","dependencies":{"clusterize.js":"^0.18.0","sortablejs":"^1.7.0"}};
-
-/***/ })
-/******/ ]);
-});
-//# sourceMappingURL=frappe-datatable.js.map
-});
-
-unwrapExports(frappeDatatable);
 
 var jquery = createCommonjsModule(function (module) {
 /*!
@@ -21155,7 +13621,7 @@ var popper = Object.freeze({
 	default: Popper
 });
 
-var require$$1$1 = ( popper && Popper ) || popper;
+var require$$1 = ( popper && Popper ) || popper;
 
 var bootstrap = createCommonjsModule(function (module, exports) {
 /*!
@@ -21164,7 +13630,7 @@ var bootstrap = createCommonjsModule(function (module, exports) {
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
   */
 (function (global, factory) {
-	factory(exports, jquery, require$$1$1);
+	factory(exports, jquery, require$$1);
 }(commonjsGlobal, (function (exports,$,Popper) { $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
 Popper = Popper && Popper.hasOwnProperty('default') ? Popper['default'] : Popper;
 
@@ -25052,6 +17518,9220 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 unwrapExports(bootstrap);
 
+class Dropdown {
+    constructor({parent, label, items = [], right}) {
+        Object.assign(this, arguments[0]);
+        Dropdown.instances += 1;
+        this.id = 'dropdownMenuButton-' + Dropdown.instances;
+
+        this.make();
+
+        // init items
+        if (this.items) {
+            for (let item of this.items) {
+                this.addItem(item.label, item.action);
+            }
+        }
+    }
+
+    make() {
+        this.$dropdown = jquery(`<div class="dropdown ${this.right ? 'float-right' : ''}">
+            <button class="btn btn-outline-secondary dropdown-toggle"
+                type="button" id="${this.id}" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">${this.label}
+            </button>
+            <div class="dropdown-menu ${this.right ? 'dropdown-menu-right' : ''}" aria-labelledby="${this.id}"></div>
+        </div>`).appendTo(this.parent);
+        this.dropdown = this.$dropdown.get(0);
+        this.dropdownMenu = this.dropdown.querySelector('.dropdown-menu');
+    }
+
+    addItem(label, action) {
+        let item = frappejs.ui.add('button', 'dropdown-item', this.dropdownMenu);
+        item.textContent = label;
+        item.setAttribute('type', 'button');
+        if (typeof action === 'string') {
+            item.addEventListener('click', async () => {
+                await frappejs.router.setRoute(action);
+            });
+        } else {
+            item.addEventListener('click', async () => {
+                await action();
+            });
+        }
+    }
+
+    floatRight() {
+        frappejs.ui.addClass(this.dropdown, 'float-right');
+    }
+}
+
+Dropdown.instances = 0;
+
+var dropdown = Dropdown;
+
+var ui = {
+    add(tag, className, parent) {
+        let element = document.createElement(tag);
+        if (className) {
+            for (let c of className.split(' ')) {
+                this.addClass(element, c);
+            }
+        }
+        if (parent) {
+            parent.appendChild(element);
+        }
+        return element;
+    },
+
+    remove(element) {
+        element.parentNode.removeChild(element);
+    },
+
+    addClass(element, className) {
+        if (element.classList) {
+            element.classList.add(className);
+        } else {
+            element.className += " " + className;
+        }
+    },
+
+    remove_class(element, className) {
+        if (element.classList) {
+            element.classList.remove(className);
+        } else {
+            element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+        }
+    },
+
+    toggle(element, default_display = '') {
+        element.style.display = element.style.display === 'none' ? default_display : 'none';
+    },
+
+    make_dropdown(label, parent, btn_class = 'btn-secondary') {
+        return new dropdown({parent: parent, label:label, btn_class:btn_class});
+    }
+
+};
+
+var observable = class Observable {
+    on(event, listener) {
+        this._addListener('_listeners', event, listener);
+    }
+
+    once(event, listener) {
+        this._addListener('_onceListeners', event, listener);
+    }
+
+    async trigger(event, params) {
+        await this._triggerEvent('_listeners', event, params);
+        await this._triggerEvent('_onceListeners', event, params);
+
+        // clear once-listeners
+        if (this._onceListeners && this._onceListeners[event]) {
+            delete this._onceListeners[event];
+        }
+    }
+
+    _addListener(name, event, listener) {
+        if (!this[name]) {
+            this[name] = {};
+        }
+        if (!this[name][event]) {
+            this[name][event] = [];
+        }
+        this[name][event].push(listener);
+    }
+
+    async _triggerEvent(name, event, params) {
+        if (this[name] && this[name][event]) {
+            for (let listener of this[name][event]) {
+                await listener(params);
+            }
+        }
+    }
+
+    clearListeners() {
+        this._listeners = {};
+        this._onceListeners = {};
+    }
+};
+
+var router = class Router extends observable {
+    constructor() {
+        super();
+        this.last_route = null;
+        this.current_page = null;
+        this.static_routes = [];
+        this.dynamic_routes = [];
+    }
+
+    add(route, handler) {
+        let page = {handler: handler, route: route};
+
+        // '/todo/:name/:place'.match(/:([^/]+)/g);
+        page.param_keys = route.match(/:([^/]+)/g);
+
+        if (page.param_keys) {
+            // make expression
+            // '/todo/:name/:place'.replace(/\/:([^/]+)/g, "\/([^/]+)");
+            page.depth = route.split('/').length;
+            page.expression = route.replace(/\/:([^/]+)/g, "\/([^/]+)");
+            this.dynamic_routes.push(page);
+            this.sort_dynamic_routes();
+        } else {
+            this.static_routes.push(page);
+            this.sort_static_routes();
+        }
+    }
+
+    sort_dynamic_routes() {
+        // routes with more parts first
+        this.dynamic_routes = this.dynamic_routes.sort((a, b) => {
+            if (a.depth < b.depth) {
+                return 1;
+            } else if (a.depth > b.depth) {
+                return -1;
+            } else {
+                if (a.param_keys.length !== b.param_keys.length) {
+                    return a.param_keys.length > b.param_keys.length ? 1 : -1;
+                } else {
+                    return a.route.length > b.route.length ? 1 : -1;
+                }
+            }
+        });
+    }
+
+    sort_static_routes() {
+        // longer routes on first
+        this.static_routes = this.static_routes.sort((a, b) => {
+            return a.route.length > b.route.length ? 1 : -1;
+        });
+    }
+
+    listen() {
+        window.addEventListener('hashchange', (event) => {
+            let route = this.get_route_string();
+            if (this.last_route !== route) {
+                this.show(route);
+            }
+        });
+    }
+
+    // split and get routes
+    get_route() {
+        let route = this.get_route_string();
+        if (route) {
+            return route.split('/');
+        } else {
+            return [];
+        }
+    }
+
+    async setRoute(...parts) {
+        const route = parts.join('/');
+
+        // setting this first, does not trigger show via hashchange,
+        // since we want to this with async/await, we need to trigger
+        // the show method
+        this.last_route = route;
+
+        window.location.hash = route;
+        await this.show(route);
+    }
+
+    async show(route) {
+        if (route && route[0]==='#') {
+            route = route.substr(1);
+        }
+
+        this.last_route = route;
+
+        if (!route) {
+            route = this.default;
+        }
+        let page = this.match(route);
+
+        if (page) {
+            if (typeof page.handler==='function') {
+                await page.handler(page.params);
+            } else {
+                await page.handler.show(page.params);
+            }
+        } else {
+            await this.match('not-found').handler({route: route});
+        }
+        await this.trigger('change');
+    }
+
+    match(route) {
+        // match static
+        for(let page of this.static_routes) {
+            if (page.route === route) {
+                return {handler: page.handler};
+            }
+        }
+
+        // match dynamic
+        for(let page of this.dynamic_routes) {
+            let matches = route.match(new RegExp(page.expression));
+
+            if (matches && matches.length == page.param_keys.length + 1) {
+                let params = {};
+                for (let i=0; i < page.param_keys.length; i++) {
+                    params[page.param_keys[i].substr(1)] = matches[i + 1];
+                }
+                return {handler:page.handler, params: params};
+            }
+        }
+    }
+
+    get_route_string() {
+        let route = window.location.hash;
+        if (route && route[0]==='#') {
+            route = route.substr(1);
+        }
+        return route;
+    }
+};
+
+var page = class Page extends observable {
+    constructor(title) {
+        super();
+        this.title = title;
+        this.make();
+        this.dropdowns = {};
+    }
+
+    make() {
+        this.wrapper = frappejs.ui.add('div', 'page hide', frappejs.desk.body);
+        this.wrapper.innerHTML = `<div class="page-head hide"></div>
+            <div class="page-body"></div>`;
+        this.head = this.wrapper.querySelector('.page-head');
+        this.body = this.wrapper.querySelector('.page-body');
+    }
+
+    hide() {
+        this.wrapper.classList.add('hide');
+        this.trigger('hide');
+    }
+
+    addButton(label, className, action) {
+        this.head.classList.remove('hide');
+        this.button = frappejs.ui.add('button', 'btn ' + this.getClassName(className), this.head);
+        this.button.innerHTML = label;
+        this.button.addEventListener('click', action);
+        return this.button;
+    }
+
+    getDropdown(label) {
+        if (!this.dropdowns[label]) {
+            this.dropdowns[label] = new dropdown({parent: this.head, label: label, right: true});
+        }
+        return this.dropdowns[label];
+    }
+
+    async show(params) {
+        if (frappejs.router.current_page) {
+            frappejs.router.current_page.hide();
+        }
+        this.wrapper.classList.remove('hide');
+        this.body.classList.remove('hide');
+
+        if (this.page_error) {
+            this.page_error.classList.add('hide');
+        }
+
+        frappejs.router.current_page = this;
+        document.title = this.title;
+
+        await this.trigger('show', params);
+    }
+
+    renderError(title, message) {
+        if (!this.page_error) {
+            this.page_error = frappejs.ui.add('div', 'page-error', this.wrapper);
+        }
+        this.body.classList.add('hide');
+        this.page_error.classList.remove('hide');
+        this.page_error.innerHTML = `<h3 class="text-extra-muted">${title ? title : ""}</h3><p class="text-muted">${message ? message : ""}</p>`;
+    }
+
+    getClassName(className) {
+        const newName = {
+            'primary': 'btn-primary',
+            'secondary': 'btn-outline-secondary'
+        }[className];
+
+        return newName || className;
+    }
+};
+
+var list = class BaseList {
+    constructor({doctype, parent, fields, page}) {
+        Object.assign(this, arguments[0]);
+
+        this.meta = frappejs.getMeta(this.doctype);
+
+        this.start = 0;
+        this.pageLength = 20;
+
+        this.body = null;
+        this.rows = [];
+        this.data = [];
+    }
+
+    async refresh() {
+        return await this.run();
+    }
+
+    async run() {
+        this.makeBody();
+
+        let data = await this.getData();
+
+        for (let i=0; i< Math.min(this.pageLength, data.length); i++) {
+            this.renderRow(this.start + i, data[i]);
+        }
+
+        if (this.start > 0) {
+            this.data = this.data.concat(data);
+        } else {
+            this.data = data;
+        }
+
+        this.clearEmptyRows();
+        this.updateMore(data.length > this.pageLength);
+    }
+
+    async getData() {
+        return await frappejs.db.getAll({
+            doctype: this.doctype,
+            fields: this.getFields(),
+            filters: this.getFilters(),
+            start: this.start,
+            limit: this.pageLength + 1
+        });
+    }
+
+    getFields() {
+        return ['name'];
+    }
+
+    async append() {
+        this.start += this.pageLength;
+        await this.run();
+    }
+
+    getFilters() {
+        let filters = {};
+        if (this.searchInput.value) {
+            filters.keywords = ['like', '%' + this.searchInput.value + '%'];
+        }
+        return filters;
+    }
+
+    makeBody() {
+        if (!this.body) {
+            this.makeToolbar();
+            this.body = frappejs.ui.add('div', 'list-body', this.parent);
+            this.makeMoreBtn();
+        }
+    }
+
+    makeToolbar() {
+        this.makeSearch();
+        this.btnNew = this.page.addButton(frappejs._('New'), 'btn-primary', async () => {
+            await frappejs.router.setRoute('new', frappejs.slug(this.doctype));
+        });
+        this.btnDelete = this.page.addButton(frappejs._('Delete'), 'btn-outline-secondary hide', async () => {
+            await frappejs.db.deleteMany(this.doctype, this.getCheckedRowNames());
+            await this.refresh();
+        });
+        this.page.body.addEventListener('click', (event) => {
+            if(event.target.classList.contains('checkbox')) {
+                this.btnDelete.classList.toggle('hide', this.getCheckedRowNames().length===0);
+            }
+        });
+    }
+
+    makeSearch() {
+        this.toolbar = frappejs.ui.add('div', 'list-toolbar', this.parent);
+        this.toolbar.innerHTML = `
+            <div class="row">
+                <div class="col-md-6 col-9">
+                    <div class="input-group list-search mb-2">
+                        <input class="form-control" type="text" placeholder="Search...">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary btn-search">Search</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        this.searchInput = this.toolbar.querySelector('input');
+        this.searchInput.addEventListener('keypress', (event) => {
+            if (event.keyCode===13) {
+                this.refresh();
+            }
+        });
+
+        this.btnSearch = this.toolbar.querySelector('.btn-search');
+        this.btnSearch.addEventListener('click', (event) => {
+            this.refresh();
+        });
+    }
+
+    makeMoreBtn() {
+        this.btnMore = frappejs.ui.add('button', 'btn btn-secondary hide', this.parent);
+        this.btnMore.textContent = 'More';
+        this.btnMore.addEventListener('click', () => {
+            this.append();
+        });
+    }
+
+    renderRow(i, data) {
+        let row = this.getRow(i);
+        row.innerHTML = this.getRowBodyHTML(data);
+        row.style.display = 'block';
+    }
+
+    getRowBodyHTML(data) {
+        return `<input class="checkbox" type="checkbox" data-name="${data.name}"> ` + this.getRowHTML(data);
+    }
+
+    getRowHTML(data) {
+        return `<a href="#edit/${this.doctype}/${data.name}">${data.name}</a>`;
+    }
+
+    getRow(i) {
+        if (!this.rows[i]) {
+            this.rows[i] = frappejs.ui.add('div', 'list-row', this.body);
+        }
+        return this.rows[i];
+    }
+
+    getCheckedRowNames() {
+        return [...this.body.querySelectorAll('.checkbox:checked')].map(check => check.getAttribute('data-name'));
+    }
+
+    clearEmptyRows() {
+        if (this.rows.length > this.data.length) {
+            for (let i=this.data.length; i < this.rows.length; i++) {
+                let row = this.getRow(i);
+                row.innerHTML = '';
+                row.style.display = 'none';
+            }
+        }
+    }
+
+    updateMore(show) {
+        if (show) {
+            this.btnMore.classList.remove('hide');
+        } else {
+            this.btnMore.classList.add('hide');
+        }
+    }
+
+};
+
+class BaseControl {
+    constructor({field, parent, form}) {
+        BaseControl.count++;
+
+        Object.assign(this, field);
+        this.parent = parent;
+        this.form = form;
+        this.id = 'control-' + BaseControl.count;
+
+        if (!this.fieldname) {
+            this.fieldname = frappejs.slug(this.label);
+        }
+        if (!this.parent) {
+            this.parent = this.form.form;
+        }
+        if (this.setup) {
+            this.setup();
+        }
+    }
+
+    bind(doc) {
+        this.doc = doc;
+        this.setDocValue();
+    }
+
+    refresh() {
+        this.make();
+        this.setDocValue();
+    }
+
+    setDocValue() {
+        if (this.doc) {
+            this.setInputValue(this.doc.get(this.fieldname));
+        }
+    }
+
+    make() {
+        if (!this.input) {
+            if (!this.onlyInput) {
+                this.makeFormGroup();
+                this.makeLabel();
+            }
+            this.makeInput();
+            this.setInputName();
+            this.setRequiredAttribute();
+            this.setDisabled();
+            if (!this.onlyInput) {
+                this.makeDescription();
+            }
+            this.addChangeHandler();
+        }
+    }
+
+    makeFormGroup() {
+        this.formGroup = frappejs.ui.add('div', 'form-group', this.parent);
+    }
+
+    makeLabel() {
+        this.labelElement = frappejs.ui.add('label', null, this.formGroup);
+        this.labelElement.textContent = this.label;
+        this.labelElement.setAttribute('for', this.id);
+    }
+
+    makeInput() {
+        this.input = frappejs.ui.add('input', 'form-control', this.getInputParent());
+        this.input.autocomplete = "off";
+        this.input.id = this.id;
+    }
+
+    setDisabled() {
+        if (this.readonly || this.disabled) {
+            this.input.disabled = true;
+        }
+    }
+
+    getInputParent() {
+        return this.formGroup || this.parent;
+    }
+
+    setInputName() {
+        this.input.setAttribute('name', this.fieldname);
+    }
+
+    setRequiredAttribute() {
+        if (this.required) {
+            this.input.required = true;
+            this.input.classList.add('font-weight-bold');
+        }
+    }
+
+    makeDescription() {
+        if (this.description) {
+            this.description_element = frappejs.ui.add('small', 'form-text text-muted', this.formGroup);
+            this.description_element.textContent = this.description;
+        }
+    }
+
+    setInputValue(value) {
+        this.input.value = this.format(value);
+    }
+
+    format(value) {
+        if (value === undefined || value === null) {
+            value = '';
+        }
+        return value;
+    }
+
+    async getParsedValue() {
+        return await this.parse(this.input.value);
+    }
+
+    getInputValue() {
+        return this.input.value;
+    }
+
+    async parse(value) {
+        return value;
+    }
+
+    async validate(value) {
+        return value;
+    }
+
+    addChangeHandler() {
+        this.input.addEventListener('change', () => {
+            if (this.skipChangeEvent) return;
+            this.handleChange();
+        });
+    }
+
+    async handleChange(event) {
+        let value = await this.parse(this.getInputValue());
+        value = await this.validate(value);
+        await this.updateDocValue(value);
+    }
+
+    async updateDocValue(value) {
+        if (this.doc[this.fieldname] !== value) {
+            if (this.parentControl) {
+                // its a child
+                this.doc[this.fieldname] = value;
+                await this.parentControl.doc.set(this.fieldname, this.parentControl.getInputValue());
+            } else {
+                // parent
+                await this.doc.set(this.fieldname, value);
+            }
+        }
+    }
+
+    disable() {
+        this.input.setAttribute('disabled', 'disabled');
+    }
+
+    enable() {
+        this.input.removeAttribute('disabled');
+    }
+
+    set_focus() {
+        this.input.focus();
+    }
+}
+
+BaseControl.count = 0;
+
+var base = BaseControl;
+
+class DataControl extends base {
+    make() {
+        super.make();
+        this.input.setAttribute('type', 'text');
+    }
+}
+
+var data = DataControl;
+
+var flatpickr = createCommonjsModule(function (module, exports) {
+/* flatpickr v4.3.2, @license MIT */
+(function (global, factory) {
+	factory(exports);
+}(commonjsGlobal, (function (exports) { var __assign = Object.assign || function __assign(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+    }
+    return t;
+};
+
+var pad = function (number) { return ("0" + number).slice(-2); };
+var int = function (bool) { return (bool === true ? 1 : 0); };
+function debounce(func, wait, immediate) {
+    if (immediate === void 0) { immediate = false; }
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        timeout !== null && clearTimeout(timeout);
+        timeout = window.setTimeout(function () {
+            timeout = null;
+            if (!immediate)
+                func.apply(context, args);
+        }, wait);
+        if (immediate && !timeout)
+            func.apply(context, args);
+    };
+}
+var arrayify = function (obj) {
+    return obj instanceof Array ? obj : [obj];
+};
+
+var do_nothing = function () { return undefined; };
+var revFormat = {
+    D: do_nothing,
+    F: function (dateObj, monthName, locale) {
+        dateObj.setMonth(locale.months.longhand.indexOf(monthName));
+    },
+    G: function (dateObj, hour) {
+        dateObj.setHours(parseFloat(hour));
+    },
+    H: function (dateObj, hour) {
+        dateObj.setHours(parseFloat(hour));
+    },
+    J: function (dateObj, day) {
+        dateObj.setDate(parseFloat(day));
+    },
+    K: function (dateObj, amPM, locale) {
+        dateObj.setHours(dateObj.getHours() % 12 +
+            12 * int(new RegExp(locale.amPM[1], "i").test(amPM)));
+    },
+    M: function (dateObj, shortMonth, locale) {
+        dateObj.setMonth(locale.months.shorthand.indexOf(shortMonth));
+    },
+    S: function (dateObj, seconds) {
+        dateObj.setSeconds(parseFloat(seconds));
+    },
+    U: function (_, unixSeconds) { return new Date(parseFloat(unixSeconds) * 1000); },
+    W: function (dateObj, weekNum) {
+        var weekNumber = parseInt(weekNum);
+        return new Date(dateObj.getFullYear(), 0, 2 + (weekNumber - 1) * 7, 0, 0, 0, 0);
+    },
+    Y: function (dateObj, year) {
+        dateObj.setFullYear(parseFloat(year));
+    },
+    Z: function (_, ISODate) { return new Date(ISODate); },
+    d: function (dateObj, day) {
+        dateObj.setDate(parseFloat(day));
+    },
+    h: function (dateObj, hour) {
+        dateObj.setHours(parseFloat(hour));
+    },
+    i: function (dateObj, minutes) {
+        dateObj.setMinutes(parseFloat(minutes));
+    },
+    j: function (dateObj, day) {
+        dateObj.setDate(parseFloat(day));
+    },
+    l: do_nothing,
+    m: function (dateObj, month) {
+        dateObj.setMonth(parseFloat(month) - 1);
+    },
+    n: function (dateObj, month) {
+        dateObj.setMonth(parseFloat(month) - 1);
+    },
+    s: function (dateObj, seconds) {
+        dateObj.setSeconds(parseFloat(seconds));
+    },
+    w: do_nothing,
+    y: function (dateObj, year) {
+        dateObj.setFullYear(2000 + parseFloat(year));
+    },
+};
+var tokenRegex = {
+    D: "(\\w+)",
+    F: "(\\w+)",
+    G: "(\\d\\d|\\d)",
+    H: "(\\d\\d|\\d)",
+    J: "(\\d\\d|\\d)\\w+",
+    K: "",
+    M: "(\\w+)",
+    S: "(\\d\\d|\\d)",
+    U: "(.+)",
+    W: "(\\d\\d|\\d)",
+    Y: "(\\d{4})",
+    Z: "(.+)",
+    d: "(\\d\\d|\\d)",
+    h: "(\\d\\d|\\d)",
+    i: "(\\d\\d|\\d)",
+    j: "(\\d\\d|\\d)",
+    l: "(\\w+)",
+    m: "(\\d\\d|\\d)",
+    n: "(\\d\\d|\\d)",
+    s: "(\\d\\d|\\d)",
+    w: "(\\d\\d|\\d)",
+    y: "(\\d{2})",
+};
+var formats = {
+    Z: function (date) { return date.toISOString(); },
+    D: function (date, locale, options) {
+        return locale.weekdays.shorthand[formats.w(date, locale, options)];
+    },
+    F: function (date, locale, options) {
+        return monthToStr(formats.n(date, locale, options) - 1, false, locale);
+    },
+    G: function (date, locale, options) {
+        return pad(formats.h(date, locale, options));
+    },
+    H: function (date) { return pad(date.getHours()); },
+    J: function (date, locale) {
+        return locale.ordinal !== undefined
+            ? date.getDate() + locale.ordinal(date.getDate())
+            : date.getDate();
+    },
+    K: function (date, locale) { return locale.amPM[int(date.getHours() > 11)]; },
+    M: function (date, locale) {
+        return monthToStr(date.getMonth(), true, locale);
+    },
+    S: function (date) { return pad(date.getSeconds()); },
+    U: function (date) { return date.getTime() / 1000; },
+    W: function (date, _, options) {
+        return options.getWeek(date);
+    },
+    Y: function (date) { return date.getFullYear(); },
+    d: function (date) { return pad(date.getDate()); },
+    h: function (date) { return (date.getHours() % 12 ? date.getHours() % 12 : 12); },
+    i: function (date) { return pad(date.getMinutes()); },
+    j: function (date) { return date.getDate(); },
+    l: function (date, locale) {
+        return locale.weekdays.longhand[date.getDay()];
+    },
+    m: function (date) { return pad(date.getMonth() + 1); },
+    n: function (date) { return date.getMonth() + 1; },
+    s: function (date) { return date.getSeconds(); },
+    w: function (date) { return date.getDay(); },
+    y: function (date) { return String(date.getFullYear()).substring(2); },
+};
+
+var english = {
+    weekdays: {
+        shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        longhand: [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ],
+    },
+    months: {
+        shorthand: [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Aug",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec",
+        ],
+        longhand: [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
+        ],
+    },
+    daysInMonth: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+    firstDayOfWeek: 0,
+    ordinal: function (nth) {
+        var s = nth % 100;
+        if (s > 3 && s < 21)
+            return "th";
+        switch (s % 10) {
+            case 1:
+                return "st";
+            case 2:
+                return "nd";
+            case 3:
+                return "rd";
+            default:
+                return "th";
+        }
+    },
+    rangeSeparator: " to ",
+    weekAbbreviation: "Wk",
+    scrollTitle: "Scroll to increment",
+    toggleTitle: "Click to toggle",
+    amPM: ["AM", "PM"],
+};
+
+var createDateFormatter = function (_a) {
+    var _b = _a.config, config = _b === void 0 ? defaults : _b, _c = _a.l10n, l10n = _c === void 0 ? english : _c;
+    return function (dateObj, frmt, overrideLocale) {
+        if (config.formatDate !== undefined)
+            return config.formatDate(dateObj, frmt);
+        var locale = overrideLocale || l10n;
+        return frmt
+            .split("")
+            .map(function (c, i, arr) {
+            return formats[c] && arr[i - 1] !== "\\"
+                ? formats[c](dateObj, locale, config)
+                : c !== "\\" ? c : "";
+        })
+            .join("");
+    };
+};
+var createDateParser = function (_a) {
+    var _b = _a.config, config = _b === void 0 ? defaults : _b, _c = _a.l10n, l10n = _c === void 0 ? english : _c;
+    return function (date, givenFormat, timeless) {
+        if (date !== 0 && !date)
+            return undefined;
+        var parsedDate;
+        var date_orig = date;
+        if (date instanceof Date)
+            parsedDate = new Date(date.getTime());
+        else if (typeof date !== "string" &&
+            date.toFixed !== undefined)
+            parsedDate = new Date(date);
+        else if (typeof date === "string") {
+            var format = givenFormat || (config || defaults).dateFormat;
+            var datestr = String(date).trim();
+            if (datestr === "today") {
+                parsedDate = new Date();
+                timeless = true;
+            }
+            else if (/Z$/.test(datestr) ||
+                /GMT$/.test(datestr))
+                parsedDate = new Date(date);
+            else if (config && config.parseDate)
+                parsedDate = config.parseDate(date, format);
+            else {
+                parsedDate =
+                    !config || !config.noCalendar
+                        ? new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0)
+                        : new Date(new Date().setHours(0, 0, 0, 0));
+                var matched = void 0, ops = [];
+                for (var i = 0, matchIndex = 0, regexStr = ""; i < format.length; i++) {
+                    var token = format[i];
+                    var isBackSlash = token === "\\";
+                    var escaped = format[i - 1] === "\\" || isBackSlash;
+                    if (tokenRegex[token] && !escaped) {
+                        regexStr += tokenRegex[token];
+                        var match = new RegExp(regexStr).exec(date);
+                        if (match && (matched = true)) {
+                            ops[token !== "Y" ? "push" : "unshift"]({
+                                fn: revFormat[token],
+                                val: match[++matchIndex],
+                            });
+                        }
+                    }
+                    else if (!isBackSlash)
+                        regexStr += ".";
+                    ops.forEach(function (_a) {
+                        var fn = _a.fn, val = _a.val;
+                        return (parsedDate = fn(parsedDate, val, l10n) || parsedDate);
+                    });
+                }
+                parsedDate = matched ? parsedDate : undefined;
+            }
+        }
+        if (!(parsedDate instanceof Date)) {
+            config.errorHandler(new Error("Invalid date provided: " + date_orig));
+            return undefined;
+        }
+        if (timeless === true)
+            parsedDate.setHours(0, 0, 0, 0);
+        return parsedDate;
+    };
+};
+function compareDates(date1, date2, timeless) {
+    if (timeless === void 0) { timeless = true; }
+    if (timeless !== false) {
+        return (new Date(date1.getTime()).setHours(0, 0, 0, 0) -
+            new Date(date2.getTime()).setHours(0, 0, 0, 0));
+    }
+    return date1.getTime() - date2.getTime();
+}
+
+var monthToStr = function (monthNumber, shorthand, locale) { return locale.months[shorthand ? "shorthand" : "longhand"][monthNumber]; };
+var getWeek = function (givenDate) {
+    var date = new Date(givenDate.getTime());
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    return (1 +
+        Math.round(((date.getTime() - week1.getTime()) / 86400000 -
+            3 +
+            (week1.getDay() + 6) % 7) /
+            7));
+};
+var duration = {
+    DAY: 86400000,
+};
+
+var defaults = {
+    _disable: [],
+    _enable: [],
+    allowInput: false,
+    altFormat: "F j, Y",
+    altInput: false,
+    altInputClass: "form-control input",
+    animate: typeof window === "object" &&
+        window.navigator.userAgent.indexOf("MSIE") === -1,
+    ariaDateFormat: "F j, Y",
+    clickOpens: true,
+    closeOnSelect: true,
+    conjunction: ", ",
+    dateFormat: "Y-m-d",
+    defaultHour: 12,
+    defaultMinute: 0,
+    defaultSeconds: 0,
+    disable: [],
+    disableMobile: false,
+    enable: [],
+    enableSeconds: false,
+    enableTime: false,
+    errorHandler: console.warn,
+    getWeek: getWeek,
+    hourIncrement: 1,
+    ignoredFocusElements: [],
+    inline: false,
+    locale: "default",
+    minuteIncrement: 5,
+    mode: "single",
+    nextArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z' /></svg>",
+    noCalendar: false,
+    onChange: [],
+    onClose: [],
+    onDayCreate: [],
+    onDestroy: [],
+    onKeyDown: [],
+    onMonthChange: [],
+    onOpen: [],
+    onParseConfig: [],
+    onReady: [],
+    onValueUpdate: [],
+    onYearChange: [],
+    onPreCalendarPosition: [],
+    plugins: [],
+    position: "auto",
+    positionElement: undefined,
+    prevArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z' /></svg>",
+    shorthandCurrentMonth: false,
+    static: false,
+    time_24hr: false,
+    weekNumbers: false,
+    wrap: false,
+};
+
+function toggleClass(elem, className, bool) {
+    if (bool === true)
+        return elem.classList.add(className);
+    elem.classList.remove(className);
+}
+function createElement(tag, className, content) {
+    var e = window.document.createElement(tag);
+    className = className || "";
+    content = content || "";
+    e.className = className;
+    if (content !== undefined)
+        e.textContent = content;
+    return e;
+}
+function clearNode(node) {
+    while (node.firstChild)
+        node.removeChild(node.firstChild);
+}
+function findParent(node, condition) {
+    if (condition(node))
+        return node;
+    else if (node.parentNode)
+        return findParent(node.parentNode, condition);
+    return undefined;
+}
+function createNumberInput(inputClassName, opts) {
+    var wrapper = createElement("div", "numInputWrapper"), numInput = createElement("input", "numInput " + inputClassName), arrowUp = createElement("span", "arrowUp"), arrowDown = createElement("span", "arrowDown");
+    numInput.type = "text";
+    numInput.pattern = "\\d*";
+    if (opts !== undefined)
+        for (var key in opts)
+            numInput.setAttribute(key, opts[key]);
+    wrapper.appendChild(numInput);
+    wrapper.appendChild(arrowUp);
+    wrapper.appendChild(arrowDown);
+    return wrapper;
+}
+
+if (typeof Object.assign !== "function") {
+    Object.assign = function (target) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        if (!target) {
+            throw TypeError("Cannot convert undefined or null to object");
+        }
+        var _loop_1 = function (source) {
+            if (source) {
+                Object.keys(source).forEach(function (key) { return (target[key] = source[key]); });
+            }
+        };
+        for (var _a = 0, args_1 = args; _a < args_1.length; _a++) {
+            var source = args_1[_a];
+            _loop_1(source);
+        }
+        return target;
+    };
+}
+
+var DEBOUNCED_CHANGE_MS = 300;
+function FlatpickrInstance(element, instanceConfig) {
+    var self = {
+        config: __assign({}, flatpickr.defaultConfig),
+        l10n: english,
+    };
+    self.parseDate = createDateParser({ config: self.config, l10n: self.l10n });
+    self._handlers = [];
+    self._bind = bind;
+    self._setHoursFromDate = setHoursFromDate;
+    self.changeMonth = changeMonth;
+    self.changeYear = changeYear;
+    self.clear = clear;
+    self.close = close;
+    self._createElement = createElement;
+    self.destroy = destroy;
+    self.isEnabled = isEnabled;
+    self.jumpToDate = jumpToDate;
+    self.open = open;
+    self.redraw = redraw;
+    self.set = set;
+    self.setDate = setDate;
+    self.toggle = toggle;
+    function setupHelperFunctions() {
+        self.utils = {
+            getDaysInMonth: function (month, yr) {
+                if (month === void 0) { month = self.currentMonth; }
+                if (yr === void 0) { yr = self.currentYear; }
+                if (month === 1 && ((yr % 4 === 0 && yr % 100 !== 0) || yr % 400 === 0))
+                    return 29;
+                return self.l10n.daysInMonth[month];
+            },
+        };
+    }
+    function init() {
+        self.element = self.input = element;
+        self.isOpen = false;
+        parseConfig();
+        setupLocale();
+        setupInputs();
+        setupDates();
+        setupHelperFunctions();
+        if (!self.isMobile)
+            build();
+        bindEvents();
+        if (self.selectedDates.length || self.config.noCalendar) {
+            if (self.config.enableTime) {
+                setHoursFromDate(self.config.noCalendar
+                    ? self.latestSelectedDateObj || self.config.minDate
+                    : undefined);
+            }
+            updateValue(false);
+        }
+        self.showTimeInput =
+            self.selectedDates.length > 0 || self.config.noCalendar;
+        if (self.weekWrapper !== undefined && self.daysContainer !== undefined) {
+            self.calendarContainer.style.visibility = "hidden";
+            self.calendarContainer.style.display = "block";
+            self.calendarContainer.style.width =
+                self.daysContainer.offsetWidth + self.weekWrapper.offsetWidth + "px";
+            self.calendarContainer.style.visibility = "visible";
+            self.calendarContainer.style.display = null;
+        }
+        var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+        if (!self.isMobile && isSafari) {
+            positionCalendar();
+        }
+        triggerEvent("onReady");
+    }
+    function bindToInstance(fn) {
+        return fn.bind(self);
+    }
+    function updateTime(e) {
+        if (self.config.noCalendar && self.selectedDates.length === 0) {
+            self.setDate(self.config.minDate !== undefined
+                ? new Date(self.config.minDate.getTime())
+                : new Date().setHours(self.config.defaultHour, self.config.defaultMinute, self.config.defaultSeconds, 0), false);
+            setHoursFromInputs();
+            updateValue();
+        }
+        timeWrapper(e);
+        if (self.selectedDates.length === 0)
+            return;
+        if (e.type !== "input") {
+            setHoursFromInputs();
+            updateValue();
+        }
+        else {
+            setTimeout(function () {
+                setHoursFromInputs();
+                updateValue();
+            }, DEBOUNCED_CHANGE_MS);
+        }
+    }
+    function ampm2military(hour, amPM) {
+        return hour % 12 + 12 * int(amPM === self.l10n.amPM[1]);
+    }
+    function military2ampm(hour) {
+        switch (hour % 24) {
+            case 0:
+            case 12:
+                return 12;
+            default:
+                return hour % 12;
+        }
+    }
+    function setHoursFromInputs() {
+        if (self.hourElement === undefined || self.minuteElement === undefined)
+            return;
+        var hours = (parseInt(self.hourElement.value.slice(-2), 10) || 0) % 24, minutes = (parseInt(self.minuteElement.value, 10) || 0) % 60, seconds = self.secondElement !== undefined
+            ? (parseInt(self.secondElement.value, 10) || 0) % 60
+            : 0;
+        if (self.amPM !== undefined)
+            hours = ampm2military(hours, self.amPM.textContent);
+        var limitMinHours = self.config.minTime !== undefined ||
+            (self.config.minDate &&
+                self.minDateHasTime &&
+                self.latestSelectedDateObj &&
+                compareDates(self.latestSelectedDateObj, self.config.minDate, true) ===
+                    0);
+        var limitMaxHours = self.config.maxTime !== undefined ||
+            (self.config.maxDate &&
+                self.maxDateHasTime &&
+                self.latestSelectedDateObj &&
+                compareDates(self.latestSelectedDateObj, self.config.maxDate, true) ===
+                    0);
+        if (limitMaxHours) {
+            var maxTime = self.config.maxTime !== undefined
+                ? self.config.maxTime
+                : self.config.maxDate;
+            hours = Math.min(hours, maxTime.getHours());
+            if (hours === maxTime.getHours())
+                minutes = Math.min(minutes, maxTime.getMinutes());
+        }
+        if (limitMinHours) {
+            var minTime = self.config.minTime !== undefined
+                ? self.config.minTime
+                : self.config.minDate;
+            hours = Math.max(hours, minTime.getHours());
+            if (hours === minTime.getHours())
+                minutes = Math.max(minutes, minTime.getMinutes());
+        }
+        setHours(hours, minutes, seconds);
+    }
+    function setHoursFromDate(dateObj) {
+        var date = dateObj || self.latestSelectedDateObj;
+        if (date)
+            setHours(date.getHours(), date.getMinutes(), date.getSeconds());
+    }
+    function setHours(hours, minutes, seconds) {
+        if (self.latestSelectedDateObj !== undefined) {
+            self.latestSelectedDateObj.setHours(hours % 24, minutes, seconds || 0, 0);
+        }
+        if (!self.hourElement || !self.minuteElement || self.isMobile)
+            return;
+        self.hourElement.value = pad(!self.config.time_24hr
+            ? (12 + hours) % 12 + 12 * int(hours % 12 === 0)
+            : hours);
+        self.minuteElement.value = pad(minutes);
+        if (self.amPM !== undefined)
+            self.amPM.textContent = self.l10n.amPM[int(hours >= 12)];
+        if (self.secondElement !== undefined)
+            self.secondElement.value = pad(seconds);
+    }
+    function onYearInput(event) {
+        var year = parseInt(event.target.value) + (event.delta || 0);
+        if (year.toString().length === 4 || event.key === "Enter") {
+            self.currentYearElement.blur();
+            if (!/[^\d]/.test(year.toString()))
+                changeYear(year);
+        }
+    }
+    function bind(element, event, handler, options) {
+        if (event instanceof Array)
+            return event.forEach(function (ev) { return bind(element, ev, handler, options); });
+        if (element instanceof Array)
+            return element.forEach(function (el) { return bind(el, event, handler, options); });
+        element.addEventListener(event, handler, options);
+        self._handlers.push({ element: element, event: event, handler: handler });
+    }
+    function onClick(handler) {
+        return function (evt) {
+            evt.which === 1 && handler(evt);
+        };
+    }
+    function triggerChange() {
+        triggerEvent("onChange");
+    }
+    function bindEvents() {
+        if (self.config.wrap) {
+            ["open", "close", "toggle", "clear"].forEach(function (evt) {
+                Array.prototype.forEach.call(self.element.querySelectorAll("[data-" + evt + "]"), function (el) {
+                    return bind(el, "click", self[evt]);
+                });
+            });
+        }
+        if (self.isMobile) {
+            setupMobile();
+            return;
+        }
+        var debouncedResize = debounce(onResize, 50);
+        self._debouncedChange = debounce(triggerChange, DEBOUNCED_CHANGE_MS);
+        if (self.daysContainer && !/iPhone|iPad|iPod/i.test(navigator.userAgent))
+            bind(self.daysContainer, "mouseover", function (e) {
+                if (self.config.mode === "range")
+                    onMouseOver(e.target);
+            });
+        bind(window.document.body, "keydown", onKeyDown);
+        if (!self.config.static)
+            bind(self._input, "keydown", onKeyDown);
+        if (!self.config.inline && !self.config.static)
+            bind(window, "resize", debouncedResize);
+        if (window.ontouchstart !== undefined)
+            bind(window.document, "touchstart", documentClick);
+        bind(window.document, "mousedown", onClick(documentClick));
+        bind(window.document, "focus", documentClick, { capture: true });
+        if (self.config.clickOpens === true) {
+            bind(self._input, "focus", self.open);
+            bind(self._input, "mousedown", onClick(self.open));
+        }
+        if (self.daysContainer !== undefined) {
+            bind(self.monthNav, "mousedown", onClick(onMonthNavClick));
+            bind(self.monthNav, ["keyup", "increment"], onYearInput);
+            bind(self.daysContainer, "mousedown", onClick(selectDate));
+        }
+        if (self.timeContainer !== undefined &&
+            self.minuteElement !== undefined &&
+            self.hourElement !== undefined) {
+            var selText = function (e) {
+                return e.target.select();
+            };
+            bind(self.timeContainer, ["input", "increment"], updateTime);
+            bind(self.timeContainer, "mousedown", onClick(timeIncrement));
+            bind(self.timeContainer, ["input", "increment"], self._debouncedChange, {
+                passive: true,
+            });
+            bind([self.hourElement, self.minuteElement], ["focus", "click"], selText);
+            if (self.secondElement !== undefined)
+                bind(self.secondElement, "focus", function () { return self.secondElement && self.secondElement.select(); });
+            if (self.amPM !== undefined) {
+                bind(self.amPM, "mousedown", onClick(function (e) {
+                    updateTime(e);
+                    triggerChange();
+                }));
+            }
+        }
+    }
+    function jumpToDate(jumpDate) {
+        var jumpTo = jumpDate !== undefined
+            ? self.parseDate(jumpDate)
+            : self.latestSelectedDateObj ||
+                (self.config.minDate && self.config.minDate > self.now
+                    ? self.config.minDate
+                    : self.config.maxDate && self.config.maxDate < self.now
+                        ? self.config.maxDate
+                        : self.now);
+        try {
+            if (jumpTo !== undefined) {
+                self.currentYear = jumpTo.getFullYear();
+                self.currentMonth = jumpTo.getMonth();
+            }
+        }
+        catch (e) {
+            e.message = "Invalid date supplied: " + jumpTo;
+            self.config.errorHandler(e);
+        }
+        self.redraw();
+    }
+    function timeIncrement(e) {
+        if (~e.target.className.indexOf("arrow"))
+            incrementNumInput(e, e.target.classList.contains("arrowUp") ? 1 : -1);
+    }
+    function incrementNumInput(e, delta, inputElem) {
+        var target = e && e.target;
+        var input = inputElem ||
+            (target && target.parentNode && target.parentNode.firstChild);
+        var event = createEvent("increment");
+        event.delta = delta;
+        input && input.dispatchEvent(event);
+    }
+    function build() {
+        var fragment = window.document.createDocumentFragment();
+        self.calendarContainer = createElement("div", "flatpickr-calendar");
+        self.calendarContainer.tabIndex = -1;
+        if (!self.config.noCalendar) {
+            fragment.appendChild(buildMonthNav());
+            self.innerContainer = createElement("div", "flatpickr-innerContainer");
+            if (self.config.weekNumbers) {
+                var _a = buildWeeks(), weekWrapper = _a.weekWrapper, weekNumbers = _a.weekNumbers;
+                self.innerContainer.appendChild(weekWrapper);
+                self.weekNumbers = weekNumbers;
+                self.weekWrapper = weekWrapper;
+            }
+            self.rContainer = createElement("div", "flatpickr-rContainer");
+            self.rContainer.appendChild(buildWeekdays());
+            if (!self.daysContainer) {
+                self.daysContainer = createElement("div", "flatpickr-days");
+                self.daysContainer.tabIndex = -1;
+            }
+            buildDays();
+            self.rContainer.appendChild(self.daysContainer);
+            self.innerContainer.appendChild(self.rContainer);
+            fragment.appendChild(self.innerContainer);
+        }
+        if (self.config.enableTime) {
+            fragment.appendChild(buildTime());
+        }
+        toggleClass(self.calendarContainer, "rangeMode", self.config.mode === "range");
+        toggleClass(self.calendarContainer, "animate", self.config.animate);
+        self.calendarContainer.appendChild(fragment);
+        var customAppend = self.config.appendTo !== undefined && self.config.appendTo.nodeType;
+        if (self.config.inline || self.config.static) {
+            self.calendarContainer.classList.add(self.config.inline ? "inline" : "static");
+            if (self.config.inline) {
+                if (!customAppend && self.element.parentNode)
+                    self.element.parentNode.insertBefore(self.calendarContainer, self._input.nextSibling);
+                else if (self.config.appendTo !== undefined)
+                    self.config.appendTo.appendChild(self.calendarContainer);
+            }
+            if (self.config.static) {
+                var wrapper = createElement("div", "flatpickr-wrapper");
+                if (self.element.parentNode)
+                    self.element.parentNode.insertBefore(wrapper, self.element);
+                wrapper.appendChild(self.element);
+                if (self.altInput)
+                    wrapper.appendChild(self.altInput);
+                wrapper.appendChild(self.calendarContainer);
+            }
+        }
+        if (!self.config.static && !self.config.inline)
+            (self.config.appendTo !== undefined
+                ? self.config.appendTo
+                : window.document.body).appendChild(self.calendarContainer);
+    }
+    function createDay(className, date, dayNumber, i) {
+        var dateIsEnabled = isEnabled(date, true), dayElement = createElement("span", "flatpickr-day " + className, date.getDate().toString());
+        dayElement.dateObj = date;
+        dayElement.$i = i;
+        dayElement.setAttribute("aria-label", self.formatDate(date, self.config.ariaDateFormat));
+        if (compareDates(date, self.now) === 0) {
+            self.todayDateElem = dayElement;
+            dayElement.classList.add("today");
+        }
+        if (dateIsEnabled) {
+            dayElement.tabIndex = -1;
+            if (isDateSelected(date)) {
+                dayElement.classList.add("selected");
+                self.selectedDateElem = dayElement;
+                if (self.config.mode === "range") {
+                    toggleClass(dayElement, "startRange", self.selectedDates[0] &&
+                        compareDates(date, self.selectedDates[0]) === 0);
+                    toggleClass(dayElement, "endRange", self.selectedDates[1] &&
+                        compareDates(date, self.selectedDates[1]) === 0);
+                }
+            }
+        }
+        else {
+            dayElement.classList.add("disabled");
+            if (self.selectedDates[0] &&
+                self.minRangeDate &&
+                date > self.minRangeDate &&
+                date < self.selectedDates[0])
+                self.minRangeDate = date;
+            else if (self.selectedDates[0] &&
+                self.maxRangeDate &&
+                date < self.maxRangeDate &&
+                date > self.selectedDates[0])
+                self.maxRangeDate = date;
+        }
+        if (self.config.mode === "range") {
+            if (isDateInRange(date) && !isDateSelected(date))
+                dayElement.classList.add("inRange");
+            if (self.selectedDates.length === 1 &&
+                self.minRangeDate !== undefined &&
+                self.maxRangeDate !== undefined &&
+                (date < self.minRangeDate || date > self.maxRangeDate))
+                dayElement.classList.add("notAllowed");
+        }
+        if (self.weekNumbers &&
+            className !== "prevMonthDay" &&
+            dayNumber % 7 === 1) {
+            self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='flatpickr-day'>" + self.config.getWeek(date) + "</span>");
+        }
+        triggerEvent("onDayCreate", dayElement);
+        return dayElement;
+    }
+    function focusOnDay(currentIndex, offset) {
+        var newIndex = currentIndex + offset || 0, targetNode = (currentIndex !== undefined
+            ? self.days.childNodes[newIndex]
+            : self.selectedDateElem ||
+                self.todayDateElem ||
+                self.days.childNodes[0]);
+        var focus = function () {
+            targetNode = targetNode || self.days.childNodes[newIndex];
+            targetNode.focus();
+            if (self.config.mode === "range")
+                onMouseOver(targetNode);
+        };
+        if (targetNode === undefined && offset !== 0) {
+            if (offset > 0) {
+                self.changeMonth(1, true, true);
+                newIndex = newIndex % 42;
+            }
+            else if (offset < 0) {
+                self.changeMonth(-1, true, true);
+                newIndex += 42;
+            }
+        }
+        focus();
+    }
+    function buildDays() {
+        if (self.daysContainer === undefined) {
+            return;
+        }
+        var firstOfMonth = (new Date(self.currentYear, self.currentMonth, 1).getDay() -
+            self.l10n.firstDayOfWeek +
+            7) %
+            7, isRangeMode = self.config.mode === "range";
+        var prevMonthDays = self.utils.getDaysInMonth((self.currentMonth - 1 + 12) % 12);
+        var daysInMonth = self.utils.getDaysInMonth(), days = window.document.createDocumentFragment();
+        var dayNumber = prevMonthDays + 1 - firstOfMonth, dayIndex = 0;
+        if (self.weekNumbers && self.weekNumbers.firstChild)
+            self.weekNumbers.textContent = "";
+        if (isRangeMode) {
+            self.minRangeDate = new Date(self.currentYear, self.currentMonth - 1, dayNumber);
+            self.maxRangeDate = new Date(self.currentYear, self.currentMonth + 1, (42 - firstOfMonth) % daysInMonth);
+        }
+        for (; dayNumber <= prevMonthDays; dayNumber++, dayIndex++) {
+            days.appendChild(createDay("prevMonthDay", new Date(self.currentYear, self.currentMonth - 1, dayNumber), dayNumber, dayIndex));
+        }
+        for (dayNumber = 1; dayNumber <= daysInMonth; dayNumber++, dayIndex++) {
+            days.appendChild(createDay("", new Date(self.currentYear, self.currentMonth, dayNumber), dayNumber, dayIndex));
+        }
+        for (var dayNum = daysInMonth + 1; dayNum <= 42 - firstOfMonth; dayNum++, dayIndex++) {
+            days.appendChild(createDay("nextMonthDay", new Date(self.currentYear, self.currentMonth + 1, dayNum % daysInMonth), dayNum, dayIndex));
+        }
+        if (isRangeMode && self.selectedDates.length === 1 && days.childNodes[0]) {
+            self._hidePrevMonthArrow =
+                self._hidePrevMonthArrow ||
+                    (!!self.minRangeDate &&
+                        self.minRangeDate > days.childNodes[0].dateObj);
+            self._hideNextMonthArrow =
+                self._hideNextMonthArrow ||
+                    (!!self.maxRangeDate &&
+                        self.maxRangeDate <
+                            new Date(self.currentYear, self.currentMonth + 1, 1));
+        }
+        else
+            updateNavigationCurrentMonth();
+        var dayContainer = createElement("div", "dayContainer");
+        dayContainer.appendChild(days);
+        clearNode(self.daysContainer);
+        self.daysContainer.insertBefore(dayContainer, self.daysContainer.firstChild);
+        self.days = self.daysContainer.firstChild;
+    }
+    function buildMonthNav() {
+        var monthNavFragment = window.document.createDocumentFragment();
+        self.monthNav = createElement("div", "flatpickr-month");
+        self.prevMonthNav = createElement("span", "flatpickr-prev-month");
+        self.prevMonthNav.innerHTML = self.config.prevArrow;
+        self.currentMonthElement = createElement("span", "cur-month");
+        var yearInput = createNumberInput("cur-year", { tabindex: "-1" });
+        self.currentYearElement = yearInput.childNodes[0];
+        if (self.config.minDate)
+            self.currentYearElement.setAttribute("data-min", self.config.minDate.getFullYear().toString());
+        if (self.config.maxDate) {
+            self.currentYearElement.setAttribute("data-max", self.config.maxDate.getFullYear().toString());
+            self.currentYearElement.disabled =
+                !!self.config.minDate &&
+                    self.config.minDate.getFullYear() === self.config.maxDate.getFullYear();
+        }
+        self.nextMonthNav = createElement("span", "flatpickr-next-month");
+        self.nextMonthNav.innerHTML = self.config.nextArrow;
+        self.navigationCurrentMonth = createElement("div", "flatpickr-current-month");
+        self.navigationCurrentMonth.appendChild(self.currentMonthElement);
+        self.navigationCurrentMonth.appendChild(yearInput);
+        monthNavFragment.appendChild(self.prevMonthNav);
+        monthNavFragment.appendChild(self.navigationCurrentMonth);
+        monthNavFragment.appendChild(self.nextMonthNav);
+        self.monthNav.appendChild(monthNavFragment);
+        Object.defineProperty(self, "_hidePrevMonthArrow", {
+            get: function () { return self.__hidePrevMonthArrow; },
+            set: function (bool) {
+                if (self.__hidePrevMonthArrow !== bool)
+                    self.prevMonthNav.style.display = bool ? "none" : "block";
+                self.__hidePrevMonthArrow = bool;
+            },
+        });
+        Object.defineProperty(self, "_hideNextMonthArrow", {
+            get: function () { return self.__hideNextMonthArrow; },
+            set: function (bool) {
+                if (self.__hideNextMonthArrow !== bool)
+                    self.nextMonthNav.style.display = bool ? "none" : "block";
+                self.__hideNextMonthArrow = bool;
+            },
+        });
+        updateNavigationCurrentMonth();
+        return self.monthNav;
+    }
+    function buildTime() {
+        self.calendarContainer.classList.add("hasTime");
+        if (self.config.noCalendar)
+            self.calendarContainer.classList.add("noCalendar");
+        self.timeContainer = createElement("div", "flatpickr-time");
+        self.timeContainer.tabIndex = -1;
+        var separator = createElement("span", "flatpickr-time-separator", ":");
+        var hourInput = createNumberInput("flatpickr-hour");
+        self.hourElement = hourInput.childNodes[0];
+        var minuteInput = createNumberInput("flatpickr-minute");
+        self.minuteElement = minuteInput.childNodes[0];
+        self.hourElement.tabIndex = self.minuteElement.tabIndex = -1;
+        self.hourElement.value = pad(self.latestSelectedDateObj
+            ? self.latestSelectedDateObj.getHours()
+            : self.config.time_24hr
+                ? self.config.defaultHour
+                : military2ampm(self.config.defaultHour));
+        self.minuteElement.value = pad(self.latestSelectedDateObj
+            ? self.latestSelectedDateObj.getMinutes()
+            : self.config.defaultMinute);
+        self.hourElement.setAttribute("data-step", self.config.hourIncrement.toString());
+        self.minuteElement.setAttribute("data-step", self.config.minuteIncrement.toString());
+        self.hourElement.setAttribute("data-min", self.config.time_24hr ? "0" : "1");
+        self.hourElement.setAttribute("data-max", self.config.time_24hr ? "23" : "12");
+        self.minuteElement.setAttribute("data-min", "0");
+        self.minuteElement.setAttribute("data-max", "59");
+        self.timeContainer.appendChild(hourInput);
+        self.timeContainer.appendChild(separator);
+        self.timeContainer.appendChild(minuteInput);
+        if (self.config.time_24hr)
+            self.timeContainer.classList.add("time24hr");
+        if (self.config.enableSeconds) {
+            self.timeContainer.classList.add("hasSeconds");
+            var secondInput = createNumberInput("flatpickr-second");
+            self.secondElement = secondInput.childNodes[0];
+            self.secondElement.value = pad(self.latestSelectedDateObj
+                ? self.latestSelectedDateObj.getSeconds()
+                : self.config.defaultSeconds);
+            self.secondElement.setAttribute("data-step", self.minuteElement.getAttribute("data-step"));
+            self.secondElement.setAttribute("data-min", self.minuteElement.getAttribute("data-min"));
+            self.secondElement.setAttribute("data-max", self.minuteElement.getAttribute("data-max"));
+            self.timeContainer.appendChild(createElement("span", "flatpickr-time-separator", ":"));
+            self.timeContainer.appendChild(secondInput);
+        }
+        if (!self.config.time_24hr) {
+            self.amPM = createElement("span", "flatpickr-am-pm", self.l10n.amPM[int((self.latestSelectedDateObj
+                ? self.hourElement.value
+                : self.config.defaultHour) > 11)]);
+            self.amPM.title = self.l10n.toggleTitle;
+            self.amPM.tabIndex = -1;
+            self.timeContainer.appendChild(self.amPM);
+        }
+        return self.timeContainer;
+    }
+    function buildWeekdays() {
+        if (!self.weekdayContainer)
+            self.weekdayContainer = createElement("div", "flatpickr-weekdays");
+        var firstDayOfWeek = self.l10n.firstDayOfWeek;
+        var weekdays = self.l10n.weekdays.shorthand.slice();
+        if (firstDayOfWeek > 0 && firstDayOfWeek < weekdays.length) {
+            weekdays = weekdays.splice(firstDayOfWeek, weekdays.length).concat(weekdays.splice(0, firstDayOfWeek));
+        }
+        self.weekdayContainer.innerHTML = "\n    <span class=flatpickr-weekday>\n      " + weekdays.join("</span><span class=flatpickr-weekday>") + "\n    </span>\n    ";
+        return self.weekdayContainer;
+    }
+    function buildWeeks() {
+        self.calendarContainer.classList.add("hasWeeks");
+        var weekWrapper = createElement("div", "flatpickr-weekwrapper");
+        weekWrapper.appendChild(createElement("span", "flatpickr-weekday", self.l10n.weekAbbreviation));
+        var weekNumbers = createElement("div", "flatpickr-weeks");
+        weekWrapper.appendChild(weekNumbers);
+        return {
+            weekWrapper: weekWrapper,
+            weekNumbers: weekNumbers,
+        };
+    }
+    function changeMonth(value, is_offset, from_keyboard) {
+        if (is_offset === void 0) { is_offset = true; }
+        if (from_keyboard === void 0) { from_keyboard = false; }
+        var delta = is_offset ? value : value - self.currentMonth;
+        if ((delta < 0 && self._hidePrevMonthArrow) ||
+            (delta > 0 && self._hideNextMonthArrow))
+            return;
+        self.currentMonth += delta;
+        if (self.currentMonth < 0 || self.currentMonth > 11) {
+            self.currentYear += self.currentMonth > 11 ? 1 : -1;
+            self.currentMonth = (self.currentMonth + 12) % 12;
+            triggerEvent("onYearChange");
+        }
+        buildDays();
+        triggerEvent("onMonthChange");
+        updateNavigationCurrentMonth();
+        if (from_keyboard &&
+            document.activeElement &&
+            document.activeElement.$i) {
+            var index = document.activeElement.$i;
+            focusOnDay(index, 0);
+        }
+    }
+    function clear(triggerChangeEvent) {
+        if (triggerChangeEvent === void 0) { triggerChangeEvent = true; }
+        self.input.value = "";
+        if (self.altInput)
+            self.altInput.value = "";
+        if (self.mobileInput)
+            self.mobileInput.value = "";
+        self.selectedDates = [];
+        self.latestSelectedDateObj = undefined;
+        self.showTimeInput = false;
+        if (self.config.enableTime) {
+            if (self.config.minDate !== undefined)
+                setHoursFromDate(self.config.minDate);
+            else
+                setHours(self.config.defaultHour, self.config.defaultMinute, self.config.defaultSeconds);
+        }
+        self.redraw();
+        if (triggerChangeEvent)
+            triggerEvent("onChange");
+    }
+    function close() {
+        self.isOpen = false;
+        if (!self.isMobile) {
+            self.calendarContainer.classList.remove("open");
+            self._input.classList.remove("active");
+        }
+        triggerEvent("onClose");
+    }
+    function destroy() {
+        if (self.config !== undefined)
+            triggerEvent("onDestroy");
+        for (var i = self._handlers.length; i--;) {
+            var h = self._handlers[i];
+            h.element.removeEventListener(h.event, h.handler);
+        }
+        self._handlers = [];
+        if (self.mobileInput) {
+            if (self.mobileInput.parentNode)
+                self.mobileInput.parentNode.removeChild(self.mobileInput);
+            self.mobileInput = undefined;
+        }
+        else if (self.calendarContainer && self.calendarContainer.parentNode)
+            self.calendarContainer.parentNode.removeChild(self.calendarContainer);
+        if (self.altInput) {
+            self.input.type = "text";
+            if (self.altInput.parentNode)
+                self.altInput.parentNode.removeChild(self.altInput);
+            delete self.altInput;
+        }
+        if (self.input) {
+            self.input.type = self.input._type;
+            self.input.classList.remove("flatpickr-input");
+            self.input.removeAttribute("readonly");
+            self.input.value = "";
+        }
+        [
+            "_showTimeInput",
+            "latestSelectedDateObj",
+            "_hideNextMonthArrow",
+            "_hidePrevMonthArrow",
+            "__hideNextMonthArrow",
+            "__hidePrevMonthArrow",
+            "isMobile",
+            "isOpen",
+            "selectedDateElem",
+            "minDateHasTime",
+            "maxDateHasTime",
+            "days",
+            "daysContainer",
+            "_input",
+            "_positionElement",
+            "innerContainer",
+            "rContainer",
+            "monthNav",
+            "todayDateElem",
+            "calendarContainer",
+            "weekdayContainer",
+            "prevMonthNav",
+            "nextMonthNav",
+            "currentMonthElement",
+            "currentYearElement",
+            "navigationCurrentMonth",
+            "selectedDateElem",
+            "config",
+        ].forEach(function (k) {
+            try {
+                delete self[k];
+            }
+            catch (_) { }
+        });
+    }
+    function isCalendarElem(elem) {
+        if (self.config.appendTo && self.config.appendTo.contains(elem))
+            return true;
+        return self.calendarContainer.contains(elem);
+    }
+    function documentClick(e) {
+        if (self.isOpen && !self.config.inline) {
+            var isCalendarElement = isCalendarElem(e.target);
+            var isInput = e.target === self.input ||
+                e.target === self.altInput ||
+                self.element.contains(e.target) ||
+                (e.path &&
+                    e.path.indexOf &&
+                    (~e.path.indexOf(self.input) ||
+                        ~e.path.indexOf(self.altInput)));
+            var lostFocus = e.type === "blur"
+                ? isInput &&
+                    e.relatedTarget &&
+                    !isCalendarElem(e.relatedTarget)
+                : !isInput && !isCalendarElement;
+            var isIgnored = !self.config.ignoredFocusElements.some(function (elem) {
+                return elem.contains(e.target);
+            });
+            if (lostFocus && isIgnored) {
+                self.close();
+                if (self.config.mode === "range" && self.selectedDates.length === 1) {
+                    self.clear(false);
+                    self.redraw();
+                }
+            }
+        }
+    }
+    function changeYear(newYear) {
+        if (!newYear ||
+            (self.currentYearElement.getAttribute("data-min") &&
+                newYear <
+                    parseInt(self.currentYearElement.getAttribute("data-min"))) ||
+            (self.currentYearElement.getAttribute("data-max") &&
+                newYear >
+                    parseInt(self.currentYearElement.getAttribute("data-max"))))
+            return;
+        var newYearNum = newYear, isNewYear = self.currentYear !== newYearNum;
+        self.currentYear = newYearNum || self.currentYear;
+        if (self.config.maxDate &&
+            self.currentYear === self.config.maxDate.getFullYear()) {
+            self.currentMonth = Math.min(self.config.maxDate.getMonth(), self.currentMonth);
+        }
+        else if (self.config.minDate &&
+            self.currentYear === self.config.minDate.getFullYear()) {
+            self.currentMonth = Math.max(self.config.minDate.getMonth(), self.currentMonth);
+        }
+        if (isNewYear) {
+            self.redraw();
+            triggerEvent("onYearChange");
+        }
+    }
+    function isEnabled(date, timeless) {
+        if (timeless === void 0) { timeless = true; }
+        var dateToCheck = self.parseDate(date, undefined, timeless);
+        if ((self.config.minDate &&
+            dateToCheck &&
+            compareDates(dateToCheck, self.config.minDate, timeless !== undefined ? timeless : !self.minDateHasTime) < 0) ||
+            (self.config.maxDate &&
+                dateToCheck &&
+                compareDates(dateToCheck, self.config.maxDate, timeless !== undefined ? timeless : !self.maxDateHasTime) > 0))
+            return false;
+        if (!self.config.enable.length && !self.config.disable.length)
+            return true;
+        if (dateToCheck === undefined)
+            return false;
+        var bool = self.config.enable.length > 0, array = bool ? self.config.enable : self.config.disable;
+        for (var i = 0, d = void 0; i < array.length; i++) {
+            d = array[i];
+            if (typeof d === "function" &&
+                d(dateToCheck))
+                return bool;
+            else if (d instanceof Date &&
+                dateToCheck !== undefined &&
+                d.getTime() === dateToCheck.getTime())
+                return bool;
+            else if (typeof d === "string" && dateToCheck !== undefined) {
+                var parsed = self.parseDate(d, undefined, true);
+                return parsed && parsed.getTime() === dateToCheck.getTime()
+                    ? bool
+                    : !bool;
+            }
+            else if (typeof d === "object" &&
+                dateToCheck !== undefined &&
+                d.from &&
+                d.to &&
+                dateToCheck.getTime() >= d.from.getTime() &&
+                dateToCheck.getTime() <= d.to.getTime())
+                return bool;
+        }
+        return !bool;
+    }
+    function onKeyDown(e) {
+        var isInput = e.target === self._input;
+        var calendarElem = isCalendarElem(e.target);
+        var allowInput = self.config.allowInput;
+        var allowKeydown = self.isOpen && (!allowInput || !isInput);
+        var allowInlineKeydown = self.config.inline && isInput && !allowInput;
+        if (e.keyCode === 13 && isInput) {
+            if (allowInput) {
+                self.setDate(self._input.value, true, e.target === self.altInput
+                    ? self.config.altFormat
+                    : self.config.dateFormat);
+                return e.target.blur();
+            }
+            else
+                self.open();
+        }
+        else if (calendarElem || allowKeydown || allowInlineKeydown) {
+            var isTimeObj = !!self.timeContainer &&
+                self.timeContainer.contains(e.target);
+            switch (e.keyCode) {
+                case 13:
+                    if (isTimeObj)
+                        updateValue();
+                    else
+                        selectDate(e);
+                    break;
+                case 27:
+                    e.preventDefault();
+                    self.close();
+                    break;
+                case 8:
+                case 46:
+                    if (isInput && !self.config.allowInput)
+                        self.clear();
+                    break;
+                case 37:
+                case 39:
+                    if (!isTimeObj) {
+                        e.preventDefault();
+                        if (self.daysContainer) {
+                            var delta_1 = e.keyCode === 39 ? 1 : -1;
+                            if (!e.ctrlKey)
+                                focusOnDay(e.target.$i, delta_1);
+                            else
+                                changeMonth(delta_1, true, true);
+                        }
+                    }
+                    else if (self.hourElement)
+                        self.hourElement.focus();
+                    break;
+                case 38:
+                case 40:
+                    e.preventDefault();
+                    var delta = e.keyCode === 40 ? 1 : -1;
+                    if (self.daysContainer && e.target.$i !== undefined) {
+                        if (e.ctrlKey) {
+                            changeYear(self.currentYear - delta);
+                            focusOnDay(e.target.$i, 0);
+                        }
+                        else if (!isTimeObj)
+                            focusOnDay(e.target.$i, delta * 7);
+                    }
+                    else if (self.config.enableTime) {
+                        if (!isTimeObj && self.hourElement)
+                            self.hourElement.focus();
+                        updateTime(e);
+                        self._debouncedChange();
+                    }
+                    break;
+                case 9:
+                    if (e.target === self.hourElement) {
+                        e.preventDefault();
+                        self.minuteElement.select();
+                    }
+                    else if (e.target === self.minuteElement &&
+                        (self.secondElement || self.amPM)) {
+                        e.preventDefault();
+                        if (self.secondElement !== undefined)
+                            self.secondElement.focus();
+                        else if (self.amPM !== undefined)
+                            self.amPM.focus();
+                    }
+                    else if (e.target === self.secondElement && self.amPM) {
+                        e.preventDefault();
+                        self.amPM.focus();
+                    }
+                    break;
+                default:
+                    break;
+            }
+            switch (e.key) {
+                case self.l10n.amPM[0].charAt(0):
+                    if (self.amPM !== undefined && e.target === self.amPM) {
+                        self.amPM.textContent = self.l10n.amPM[0];
+                        setHoursFromInputs();
+                        updateValue();
+                    }
+                    break;
+                case self.l10n.amPM[1].charAt(0):
+                    if (self.amPM !== undefined && e.target === self.amPM) {
+                        self.amPM.textContent = self.l10n.amPM[1];
+                        setHoursFromInputs();
+                        updateValue();
+                    }
+                    break;
+                default:
+                    break;
+            }
+            triggerEvent("onKeyDown", e);
+        }
+    }
+    function onMouseOver(elem) {
+        if (self.selectedDates.length !== 1 ||
+            !elem.classList.contains("flatpickr-day") ||
+            elem.classList.contains("disabled") ||
+            self.minRangeDate === undefined ||
+            self.maxRangeDate === undefined)
+            return;
+        var hoverDate = elem.dateObj, initialDate = self.parseDate(self.selectedDates[0], undefined, true), rangeStartDate = Math.min(hoverDate.getTime(), self.selectedDates[0].getTime()), rangeEndDate = Math.max(hoverDate.getTime(), self.selectedDates[0].getTime()), containsDisabled = false;
+        for (var t = rangeStartDate; t < rangeEndDate; t += duration.DAY) {
+            if (!isEnabled(new Date(t))) {
+                containsDisabled = true;
+                break;
+            }
+        }
+        var _loop_1 = function (i, date) {
+            var timestamp = date.getTime();
+            var outOfRange = timestamp < self.minRangeDate.getTime() ||
+                timestamp > self.maxRangeDate.getTime(), dayElem = self.days.childNodes[i];
+            if (outOfRange) {
+                dayElem.classList.add("notAllowed");
+                ["inRange", "startRange", "endRange"].forEach(function (c) {
+                    dayElem.classList.remove(c);
+                });
+                return "continue";
+            }
+            else if (containsDisabled && !outOfRange)
+                return "continue";
+            ["startRange", "inRange", "endRange", "notAllowed"].forEach(function (c) {
+                dayElem.classList.remove(c);
+            });
+            var minRangeDate = Math.max(self.minRangeDate.getTime(), rangeStartDate), maxRangeDate = Math.min(self.maxRangeDate.getTime(), rangeEndDate);
+            elem.classList.add(hoverDate < self.selectedDates[0] ? "startRange" : "endRange");
+            if (initialDate < hoverDate && timestamp === initialDate.getTime())
+                dayElem.classList.add("startRange");
+            else if (initialDate > hoverDate && timestamp === initialDate.getTime())
+                dayElem.classList.add("endRange");
+            if (timestamp >= minRangeDate && timestamp <= maxRangeDate)
+                dayElem.classList.add("inRange");
+        };
+        for (var i = 0, date = self.days.childNodes[i].dateObj; i < 42; i++, date =
+                self.days.childNodes[i] &&
+                    self.days.childNodes[i].dateObj) {
+            _loop_1(i, date);
+        }
+    }
+    function onResize() {
+        if (self.isOpen && !self.config.static && !self.config.inline)
+            positionCalendar();
+    }
+    function open(e, positionElement) {
+        if (positionElement === void 0) { positionElement = self._input; }
+        if (self.isMobile) {
+            if (e) {
+                e.preventDefault();
+                e.target && e.target.blur();
+            }
+            setTimeout(function () {
+                self.mobileInput !== undefined && self.mobileInput.click();
+            }, 0);
+            triggerEvent("onOpen");
+            return;
+        }
+        if (self._input.disabled || self.config.inline)
+            return;
+        var wasOpen = self.isOpen;
+        self.isOpen = true;
+        if (!wasOpen) {
+            self.calendarContainer.classList.add("open");
+            self._input.classList.add("active");
+            triggerEvent("onOpen");
+            positionCalendar(positionElement);
+        }
+    }
+    function minMaxDateSetter(type) {
+        return function (date) {
+            var dateObj = (self.config["_" + type + "Date"] = self.parseDate(date, self.config.dateFormat));
+            var inverseDateObj = self.config["_" + (type === "min" ? "max" : "min") + "Date"];
+            if (dateObj !== undefined) {
+                self[type === "min" ? "minDateHasTime" : "maxDateHasTime"] =
+                    dateObj.getHours() > 0 ||
+                        dateObj.getMinutes() > 0 ||
+                        dateObj.getSeconds() > 0;
+            }
+            if (self.selectedDates) {
+                self.selectedDates = self.selectedDates.filter(function (d) { return isEnabled(d); });
+                if (!self.selectedDates.length && type === "min")
+                    setHoursFromDate(dateObj);
+                updateValue();
+            }
+            if (self.daysContainer) {
+                redraw();
+                if (dateObj !== undefined)
+                    self.currentYearElement[type] = dateObj.getFullYear().toString();
+                else
+                    self.currentYearElement.removeAttribute(type);
+                self.currentYearElement.disabled =
+                    !!inverseDateObj &&
+                        dateObj !== undefined &&
+                        inverseDateObj.getFullYear() === dateObj.getFullYear();
+            }
+        };
+    }
+    function parseConfig() {
+        var boolOpts = [
+            "wrap",
+            "weekNumbers",
+            "allowInput",
+            "clickOpens",
+            "time_24hr",
+            "enableTime",
+            "noCalendar",
+            "altInput",
+            "shorthandCurrentMonth",
+            "inline",
+            "static",
+            "enableSeconds",
+            "disableMobile",
+        ];
+        var hooks = [
+            "onChange",
+            "onClose",
+            "onDayCreate",
+            "onDestroy",
+            "onKeyDown",
+            "onMonthChange",
+            "onOpen",
+            "onParseConfig",
+            "onReady",
+            "onValueUpdate",
+            "onYearChange",
+            "onPreCalendarPosition",
+        ];
+        var userConfig = __assign({}, instanceConfig, JSON.parse(JSON.stringify(element.dataset || {})));
+        var formats$$1 = {};
+        self.config.parseDate = userConfig.parseDate;
+        self.config.formatDate = userConfig.formatDate;
+        Object.defineProperty(self.config, "enable", {
+            get: function () { return self.config._enable || []; },
+            set: function (dates) {
+                self.config._enable = parseDateRules(dates);
+            },
+        });
+        Object.defineProperty(self.config, "disable", {
+            get: function () { return self.config._disable || []; },
+            set: function (dates) {
+                self.config._disable = parseDateRules(dates);
+            },
+        });
+        if (!userConfig.dateFormat && userConfig.enableTime) {
+            formats$$1.dateFormat = userConfig.noCalendar
+                ? "H:i" + (userConfig.enableSeconds ? ":S" : "")
+                : flatpickr.defaultConfig.dateFormat +
+                    " H:i" +
+                    (userConfig.enableSeconds ? ":S" : "");
+        }
+        if (userConfig.altInput && userConfig.enableTime && !userConfig.altFormat) {
+            formats$$1.altFormat = userConfig.noCalendar
+                ? "h:i" + (userConfig.enableSeconds ? ":S K" : " K")
+                : flatpickr.defaultConfig.altFormat +
+                    (" h:i" + (userConfig.enableSeconds ? ":S" : "") + " K");
+        }
+        Object.defineProperty(self.config, "minDate", {
+            get: function () { return self.config._minDate; },
+            set: minMaxDateSetter("min"),
+        });
+        Object.defineProperty(self.config, "maxDate", {
+            get: function () { return self.config._maxDate; },
+            set: minMaxDateSetter("max"),
+        });
+        var minMaxTimeSetter = function (type) { return function (val) {
+            self.config[type === "min" ? "_minTime" : "_maxTime"] = self.parseDate(val, "H:i");
+        }; };
+        Object.defineProperty(self.config, "minTime", {
+            get: function () { return self.config._minTime; },
+            set: minMaxTimeSetter("min"),
+        });
+        Object.defineProperty(self.config, "maxTime", {
+            get: function () { return self.config._maxTime; },
+            set: minMaxTimeSetter("max"),
+        });
+        Object.assign(self.config, formats$$1, userConfig);
+        for (var i = 0; i < boolOpts.length; i++)
+            self.config[boolOpts[i]] =
+                self.config[boolOpts[i]] === true ||
+                    self.config[boolOpts[i]] === "true";
+        for (var i = hooks.length; i--;) {
+            if (self.config[hooks[i]] !== undefined) {
+                self.config[hooks[i]] = arrayify(self.config[hooks[i]] || []).map(bindToInstance);
+            }
+        }
+        for (var i = 0; i < self.config.plugins.length; i++) {
+            var pluginConf = self.config.plugins[i](self) || {};
+            for (var key in pluginConf) {
+                if (~hooks.indexOf(key)) {
+                    self.config[key] = arrayify(pluginConf[key])
+                        .map(bindToInstance)
+                        .concat(self.config[key]);
+                }
+                else if (typeof userConfig[key] === "undefined")
+                    self.config[key] = pluginConf[key];
+            }
+        }
+        self.isMobile =
+            !self.config.disableMobile &&
+                !self.config.inline &&
+                self.config.mode === "single" &&
+                !self.config.disable.length &&
+                !self.config.enable.length &&
+                !self.config.weekNumbers &&
+                /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        triggerEvent("onParseConfig");
+    }
+    function setupLocale() {
+        if (typeof self.config.locale !== "object" &&
+            typeof flatpickr.l10ns[self.config.locale] === "undefined")
+            self.config.errorHandler(new Error("flatpickr: invalid locale " + self.config.locale));
+        self.l10n = __assign({}, flatpickr.l10ns.default, (typeof self.config.locale === "object"
+            ? self.config.locale
+            : self.config.locale !== "default"
+                ? flatpickr.l10ns[self.config.locale]
+                : undefined));
+        tokenRegex.K = "(" + self.l10n.amPM[0] + "|" + self.l10n.amPM[1] + "|" + self.l10n.amPM[0].toLowerCase() + "|" + self.l10n.amPM[1].toLowerCase() + ")";
+        self.formatDate = createDateFormatter(self);
+    }
+    function positionCalendar(customPositionElement) {
+        if (self.calendarContainer === undefined)
+            return;
+        triggerEvent("onPreCalendarPosition");
+        var positionElement = customPositionElement || self._positionElement;
+        var calendarHeight = Array.prototype.reduce.call(self.calendarContainer.children, function (acc, child) { return acc + child.offsetHeight; }, 0), calendarWidth = self.calendarContainer.offsetWidth, configPos = self.config.position, inputBounds = positionElement.getBoundingClientRect(), distanceFromBottom = window.innerHeight - inputBounds.bottom, showOnTop = configPos === "above" ||
+            (configPos !== "below" &&
+                distanceFromBottom < calendarHeight &&
+                inputBounds.top > calendarHeight);
+        var top = window.pageYOffset +
+            inputBounds.top +
+            (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2);
+        toggleClass(self.calendarContainer, "arrowTop", !showOnTop);
+        toggleClass(self.calendarContainer, "arrowBottom", showOnTop);
+        if (self.config.inline)
+            return;
+        var left = window.pageXOffset + inputBounds.left;
+        var right = window.document.body.offsetWidth - inputBounds.right;
+        var rightMost = left + calendarWidth > window.document.body.offsetWidth;
+        toggleClass(self.calendarContainer, "rightMost", rightMost);
+        if (self.config.static)
+            return;
+        self.calendarContainer.style.top = top + "px";
+        if (!rightMost) {
+            self.calendarContainer.style.left = left + "px";
+            self.calendarContainer.style.right = "auto";
+        }
+        else {
+            self.calendarContainer.style.left = "auto";
+            self.calendarContainer.style.right = right + "px";
+        }
+    }
+    function redraw() {
+        if (self.config.noCalendar || self.isMobile)
+            return;
+        buildWeekdays();
+        updateNavigationCurrentMonth();
+        buildDays();
+    }
+    function focusAndClose() {
+        self._input.focus();
+        if (window.navigator.userAgent.indexOf("MSIE") !== -1 ||
+            navigator.msMaxTouchPoints !== undefined) {
+            setTimeout(self.close, 0);
+        }
+        else {
+            self.close();
+        }
+    }
+    function selectDate(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var isSelectable = function (day) {
+            return day.classList &&
+                day.classList.contains("flatpickr-day") &&
+                !day.classList.contains("disabled") &&
+                !day.classList.contains("notAllowed");
+        };
+        var t = findParent(e.target, isSelectable);
+        if (t === undefined)
+            return;
+        var target = t;
+        var selectedDate = (self.latestSelectedDateObj = new Date(target.dateObj.getTime()));
+        var shouldChangeMonth = selectedDate.getMonth() !== self.currentMonth &&
+            self.config.mode !== "range";
+        self.selectedDateElem = target;
+        if (self.config.mode === "single")
+            self.selectedDates = [selectedDate];
+        else if (self.config.mode === "multiple") {
+            var selectedIndex = isDateSelected(selectedDate);
+            if (selectedIndex)
+                self.selectedDates.splice(parseInt(selectedIndex), 1);
+            else
+                self.selectedDates.push(selectedDate);
+        }
+        else if (self.config.mode === "range") {
+            if (self.selectedDates.length === 2)
+                self.clear();
+            self.selectedDates.push(selectedDate);
+            if (compareDates(selectedDate, self.selectedDates[0], true) !== 0)
+                self.selectedDates.sort(function (a, b) { return a.getTime() - b.getTime(); });
+        }
+        setHoursFromInputs();
+        if (shouldChangeMonth) {
+            var isNewYear = self.currentYear !== selectedDate.getFullYear();
+            self.currentYear = selectedDate.getFullYear();
+            self.currentMonth = selectedDate.getMonth();
+            if (isNewYear)
+                triggerEvent("onYearChange");
+            triggerEvent("onMonthChange");
+        }
+        buildDays();
+        if (self.config.minDate &&
+            self.minDateHasTime &&
+            self.config.enableTime &&
+            compareDates(selectedDate, self.config.minDate) === 0)
+            setHoursFromDate(self.config.minDate);
+        updateValue();
+        if (self.config.enableTime)
+            setTimeout(function () { return (self.showTimeInput = true); }, 50);
+        if (self.config.mode === "range") {
+            if (self.selectedDates.length === 1) {
+                onMouseOver(target);
+                self._hidePrevMonthArrow =
+                    self._hidePrevMonthArrow ||
+                        (self.minRangeDate !== undefined &&
+                            self.minRangeDate >
+                                self.days.childNodes[0].dateObj);
+                self._hideNextMonthArrow =
+                    self._hideNextMonthArrow ||
+                        (self.maxRangeDate !== undefined &&
+                            self.maxRangeDate <
+                                new Date(self.currentYear, self.currentMonth + 1, 1));
+            }
+            else
+                updateNavigationCurrentMonth();
+        }
+        if (!shouldChangeMonth)
+            focusOnDay(target.$i, 0);
+        else
+            self.selectedDateElem && self.selectedDateElem.focus();
+        if (self.hourElement !== undefined)
+            setTimeout(function () { return self.hourElement !== undefined && self.hourElement.select(); }, 451);
+        if (self.config.closeOnSelect) {
+            var single = self.config.mode === "single" && !self.config.enableTime;
+            var range = self.config.mode === "range" &&
+                self.selectedDates.length === 2 &&
+                !self.config.enableTime;
+            if (single || range) {
+                focusAndClose();
+            }
+        }
+        triggerChange();
+    }
+    var CALLBACKS = {
+        locale: [setupLocale],
+    };
+    function set(option, value) {
+        if (option !== null && typeof option === "object")
+            Object.assign(self.config, option);
+        else {
+            self.config[option] = value;
+            if (CALLBACKS[option] !== undefined)
+                CALLBACKS[option].forEach(function (x) { return x(); });
+        }
+        self.redraw();
+        jumpToDate();
+    }
+    function setSelectedDate(inputDate, format) {
+        var dates = [];
+        if (inputDate instanceof Array)
+            dates = inputDate.map(function (d) { return self.parseDate(d, format); });
+        else if (inputDate instanceof Date || typeof inputDate === "number")
+            dates = [self.parseDate(inputDate, format)];
+        else if (typeof inputDate === "string") {
+            switch (self.config.mode) {
+                case "single":
+                    dates = [self.parseDate(inputDate, format)];
+                    break;
+                case "multiple":
+                    dates = inputDate
+                        .split(self.config.conjunction)
+                        .map(function (date) { return self.parseDate(date, format); });
+                    break;
+                case "range":
+                    dates = inputDate
+                        .split(self.l10n.rangeSeparator)
+                        .map(function (date) { return self.parseDate(date, format); });
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+            self.config.errorHandler(new Error("Invalid date supplied: " + JSON.stringify(inputDate)));
+        self.selectedDates = dates.filter(function (d) { return d instanceof Date && isEnabled(d, false); });
+        if (self.config.mode === "range")
+            self.selectedDates.sort(function (a, b) { return a.getTime() - b.getTime(); });
+    }
+    function setDate(date, triggerChange, format) {
+        if (triggerChange === void 0) { triggerChange = false; }
+        if (format === void 0) { format = self.config.dateFormat; }
+        if (date !== 0 && !date)
+            return self.clear(triggerChange);
+        setSelectedDate(date, format);
+        self.showTimeInput = self.selectedDates.length > 0;
+        self.latestSelectedDateObj = self.selectedDates[0];
+        self.redraw();
+        jumpToDate();
+        setHoursFromDate();
+        updateValue(triggerChange);
+        if (triggerChange)
+            triggerEvent("onChange");
+    }
+    function parseDateRules(arr) {
+        return arr
+            .map(function (rule) {
+            if (typeof rule === "string" ||
+                typeof rule === "number" ||
+                rule instanceof Date) {
+                return self.parseDate(rule, undefined, true);
+            }
+            else if (rule &&
+                typeof rule === "object" &&
+                rule.from &&
+                rule.to)
+                return {
+                    from: self.parseDate(rule.from, undefined),
+                    to: self.parseDate(rule.to, undefined),
+                };
+            return rule;
+        })
+            .filter(function (x) { return x; });
+    }
+    function setupDates() {
+        self.selectedDates = [];
+        self.now = new Date();
+        var preloadedDate = self.config.defaultDate || self.input.value;
+        if (preloadedDate)
+            setSelectedDate(preloadedDate, self.config.dateFormat);
+        var initialDate = self.selectedDates.length
+            ? self.selectedDates[0]
+            : self.config.minDate &&
+                self.config.minDate.getTime() > self.now.getTime()
+                ? self.config.minDate
+                : self.config.maxDate &&
+                    self.config.maxDate.getTime() < self.now.getTime()
+                    ? self.config.maxDate
+                    : self.now;
+        self.currentYear = initialDate.getFullYear();
+        self.currentMonth = initialDate.getMonth();
+        if (self.selectedDates.length)
+            self.latestSelectedDateObj = self.selectedDates[0];
+        if (self.config.minTime !== undefined)
+            self.config.minTime = self.parseDate(self.config.minTime, "H:i");
+        if (self.config.maxTime !== undefined)
+            self.config.maxTime = self.parseDate(self.config.maxTime, "H:i");
+        self.minDateHasTime =
+            !!self.config.minDate &&
+                (self.config.minDate.getHours() > 0 ||
+                    self.config.minDate.getMinutes() > 0 ||
+                    self.config.minDate.getSeconds() > 0);
+        self.maxDateHasTime =
+            !!self.config.maxDate &&
+                (self.config.maxDate.getHours() > 0 ||
+                    self.config.maxDate.getMinutes() > 0 ||
+                    self.config.maxDate.getSeconds() > 0);
+        Object.defineProperty(self, "showTimeInput", {
+            get: function () { return self._showTimeInput; },
+            set: function (bool) {
+                self._showTimeInput = bool;
+                if (self.calendarContainer)
+                    toggleClass(self.calendarContainer, "showTimeInput", bool);
+                self.isOpen && positionCalendar();
+            },
+        });
+    }
+    function setupInputs() {
+        self.input = self.config.wrap
+            ? element.querySelector("[data-input]")
+            : element;
+        if (!self.input) {
+            self.config.errorHandler(new Error("Invalid input element specified"));
+            return;
+        }
+        self.input._type = self.input.type;
+        self.input.type = "text";
+        self.input.classList.add("flatpickr-input");
+        self._input = self.input;
+        if (self.config.altInput) {
+            self.altInput = createElement(self.input.nodeName, self.input.className + " " + self.config.altInputClass);
+            self._input = self.altInput;
+            self.altInput.placeholder = self.input.placeholder;
+            self.altInput.disabled = self.input.disabled;
+            self.altInput.required = self.input.required;
+            self.altInput.tabIndex = self.input.tabIndex;
+            self.altInput.type = "text";
+            self.input.type = "hidden";
+            if (!self.config.static && self.input.parentNode)
+                self.input.parentNode.insertBefore(self.altInput, self.input.nextSibling);
+        }
+        if (!self.config.allowInput)
+            self._input.setAttribute("readonly", "readonly");
+        self._positionElement = self.config.positionElement || self._input;
+    }
+    function setupMobile() {
+        var inputType = self.config.enableTime
+            ? self.config.noCalendar ? "time" : "datetime-local"
+            : "date";
+        self.mobileInput = createElement("input", self.input.className + " flatpickr-mobile");
+        self.mobileInput.step = self.input.getAttribute("step") || "any";
+        self.mobileInput.tabIndex = 1;
+        self.mobileInput.type = inputType;
+        self.mobileInput.disabled = self.input.disabled;
+        self.mobileInput.required = self.input.required;
+        self.mobileInput.placeholder = self.input.placeholder;
+        self.mobileFormatStr =
+            inputType === "datetime-local"
+                ? "Y-m-d\\TH:i:S"
+                : inputType === "date" ? "Y-m-d" : "H:i:S";
+        if (self.selectedDates.length) {
+            self.mobileInput.defaultValue = self.mobileInput.value = self.formatDate(self.selectedDates[0], self.mobileFormatStr);
+        }
+        if (self.config.minDate)
+            self.mobileInput.min = self.formatDate(self.config.minDate, "Y-m-d");
+        if (self.config.maxDate)
+            self.mobileInput.max = self.formatDate(self.config.maxDate, "Y-m-d");
+        self.input.type = "hidden";
+        if (self.altInput !== undefined)
+            self.altInput.type = "hidden";
+        try {
+            if (self.input.parentNode)
+                self.input.parentNode.insertBefore(self.mobileInput, self.input.nextSibling);
+        }
+        catch (_a) { }
+        bind(self.mobileInput, "change", function (e) {
+            self.setDate(e.target.value, false, self.mobileFormatStr);
+            triggerEvent("onChange");
+            triggerEvent("onClose");
+        });
+    }
+    function toggle() {
+        if (self.isOpen)
+            return self.close();
+        self.open();
+    }
+    function triggerEvent(event, data) {
+        var hooks = self.config[event];
+        if (hooks !== undefined && hooks.length > 0) {
+            for (var i = 0; hooks[i] && i < hooks.length; i++)
+                hooks[i](self.selectedDates, self.input.value, self, data);
+        }
+        if (event === "onChange") {
+            self.input.dispatchEvent(createEvent("change"));
+            self.input.dispatchEvent(createEvent("input"));
+        }
+    }
+    function createEvent(name) {
+        var e = document.createEvent("Event");
+        e.initEvent(name, true, true);
+        return e;
+    }
+    function isDateSelected(date) {
+        for (var i = 0; i < self.selectedDates.length; i++) {
+            if (compareDates(self.selectedDates[i], date) === 0)
+                return "" + i;
+        }
+        return false;
+    }
+    function isDateInRange(date) {
+        if (self.config.mode !== "range" || self.selectedDates.length < 2)
+            return false;
+        return (compareDates(date, self.selectedDates[0]) >= 0 &&
+            compareDates(date, self.selectedDates[1]) <= 0);
+    }
+    function updateNavigationCurrentMonth() {
+        if (self.config.noCalendar || self.isMobile || !self.monthNav)
+            return;
+        self.currentMonthElement.textContent =
+            monthToStr(self.currentMonth, self.config.shorthandCurrentMonth, self.l10n) + " ";
+        self.currentYearElement.value = self.currentYear.toString();
+        self._hidePrevMonthArrow =
+            self.config.minDate !== undefined &&
+                (self.currentYear === self.config.minDate.getFullYear()
+                    ? self.currentMonth <= self.config.minDate.getMonth()
+                    : self.currentYear < self.config.minDate.getFullYear());
+        self._hideNextMonthArrow =
+            self.config.maxDate !== undefined &&
+                (self.currentYear === self.config.maxDate.getFullYear()
+                    ? self.currentMonth + 1 > self.config.maxDate.getMonth()
+                    : self.currentYear > self.config.maxDate.getFullYear());
+    }
+    function updateValue(triggerChange) {
+        if (triggerChange === void 0) { triggerChange = true; }
+        if (!self.selectedDates.length)
+            return self.clear(triggerChange);
+        if (self.mobileInput !== undefined && self.mobileFormatStr) {
+            self.mobileInput.value =
+                self.latestSelectedDateObj !== undefined
+                    ? self.formatDate(self.latestSelectedDateObj, self.mobileFormatStr)
+                    : "";
+        }
+        var joinChar = self.config.mode !== "range"
+            ? self.config.conjunction
+            : self.l10n.rangeSeparator;
+        self.input.value = self.selectedDates
+            .map(function (dObj) { return self.formatDate(dObj, self.config.dateFormat); })
+            .join(joinChar);
+        if (self.altInput !== undefined) {
+            self.altInput.value = self.selectedDates
+                .map(function (dObj) { return self.formatDate(dObj, self.config.altFormat); })
+                .join(joinChar);
+        }
+        if (triggerChange !== false)
+            triggerEvent("onValueUpdate");
+    }
+    function onMonthNavClick(e) {
+        e.preventDefault();
+        var isPrevMonth = self.prevMonthNav.contains(e.target);
+        var isNextMonth = self.nextMonthNav.contains(e.target);
+        if (isPrevMonth || isNextMonth) {
+            changeMonth(isPrevMonth ? -1 : 1);
+        }
+        else if (e.target === self.currentYearElement) {
+            self.currentYearElement.select();
+        }
+        else if (e.target.className === "arrowUp") {
+            self.changeYear(self.currentYear + 1);
+        }
+        else if (e.target.className === "arrowDown") {
+            self.changeYear(self.currentYear - 1);
+        }
+    }
+    function timeWrapper(e) {
+        e.preventDefault();
+        var isKeyDown = e.type === "keydown", input = e.target;
+        if (self.amPM !== undefined && e.target === self.amPM) {
+            self.amPM.textContent =
+                self.l10n.amPM[int(self.amPM.textContent === self.l10n.amPM[0])];
+        }
+        var min = parseFloat(input.getAttribute("data-min")), max = parseFloat(input.getAttribute("data-max")), step = parseFloat(input.getAttribute("data-step")), curValue = parseInt(input.value, 10), delta = e.delta ||
+            (isKeyDown ? (e.which === 38 ? 1 : -1) : 0);
+        var newValue = curValue + step * delta;
+        if (typeof input.value !== "undefined" && input.value.length === 2) {
+            var isHourElem = input === self.hourElement, isMinuteElem = input === self.minuteElement;
+            if (newValue < min) {
+                newValue =
+                    max +
+                        newValue +
+                        int(!isHourElem) +
+                        (int(isHourElem) && int(!self.amPM));
+                if (isMinuteElem)
+                    incrementNumInput(undefined, -1, self.hourElement);
+            }
+            else if (newValue > max) {
+                newValue =
+                    input === self.hourElement ? newValue - max - int(!self.amPM) : min;
+                if (isMinuteElem)
+                    incrementNumInput(undefined, 1, self.hourElement);
+            }
+            if (self.amPM &&
+                isHourElem &&
+                (step === 1
+                    ? newValue + curValue === 23
+                    : Math.abs(newValue - curValue) > step)) {
+                self.amPM.textContent =
+                    self.l10n.amPM[int(self.amPM.textContent === self.l10n.amPM[0])];
+            }
+            input.value = pad(newValue);
+        }
+    }
+    init();
+    return self;
+}
+function _flatpickr(nodeList, config) {
+    var nodes = Array.prototype.slice.call(nodeList);
+    var instances = [];
+    for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        try {
+            if (node.getAttribute("data-fp-omit") !== null)
+                continue;
+            if (node._flatpickr !== undefined) {
+                node._flatpickr.destroy();
+                node._flatpickr = undefined;
+            }
+            node._flatpickr = FlatpickrInstance(node, config || {});
+            instances.push(node._flatpickr);
+        }
+        catch (e) {
+            console.error(e);
+        }
+    }
+    return instances.length === 1 ? instances[0] : instances;
+}
+if (typeof HTMLElement !== "undefined") {
+    HTMLCollection.prototype.flatpickr = NodeList.prototype.flatpickr = function (config) {
+        return _flatpickr(this, config);
+    };
+    HTMLElement.prototype.flatpickr = function (config) {
+        return _flatpickr([this], config);
+    };
+}
+var flatpickr;
+flatpickr = function (selector, config) {
+    if (selector instanceof NodeList)
+        return _flatpickr(selector, config);
+    else if (typeof selector === "string")
+        return _flatpickr(window.document.querySelectorAll(selector), config);
+    return _flatpickr([selector], config);
+};
+if (typeof window === "object")
+    window.flatpickr = flatpickr;
+flatpickr.defaultConfig = defaults;
+flatpickr.l10ns = {
+    en: __assign({}, english),
+    default: __assign({}, english),
+};
+flatpickr.localize = function (l10n) {
+    flatpickr.l10ns.default = __assign({}, flatpickr.l10ns.default, l10n);
+};
+flatpickr.setDefaults = function (config) {
+    flatpickr.defaultConfig = __assign({}, flatpickr.defaultConfig, config);
+};
+flatpickr.parseDate = createDateParser({});
+flatpickr.formatDate = createDateFormatter({});
+flatpickr.compareDates = compareDates;
+if (typeof jQuery !== "undefined") {
+    jQuery.fn.flatpickr = function (config) {
+        return _flatpickr(this, config);
+    };
+}
+Date.prototype.fp_incr = function (days) {
+    return new Date(this.getFullYear(), this.getMonth(), this.getDate() + (typeof days === "string" ? parseInt(days, 10) : days));
+};
+var flatpickr$1 = flatpickr;
+
+exports.default = flatpickr$1;
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
+});
+
+unwrapExports(flatpickr);
+
+class DateControl extends base {
+    make() {
+        super.make();
+        this.input.setAttribute('type', 'text');
+        flatpickr.default(this.input, {
+            dateFormat: "Y-m-d"
+        });
+    }
+}
+
+var date = DateControl;
+
+class FloatControl extends base {
+    make() {
+        super.make();
+		this.input.setAttribute('type', 'text');
+        this.input.classList.add('text-right');
+        this.input.addEventListener('focus', () => {
+            setTimeout(() => {
+                this.input.select();
+            }, 100);
+        });
+    }
+    parse(value) {
+        value = parseFloat(value);
+        return value===NaN ? 0 : value;
+    }
+}
+
+var float_1 = FloatControl;
+
+class CurrencyControl extends float_1 {
+	parse(value) {
+		return frappejs.parse_number(value);
+	}
+	format(value) {
+		return frappejs.format_number(value);
+	}
+}
+
+var currency = CurrencyControl;
+
+class IntControl extends float_1 {
+    parse(value) {
+        value = parseInt(value);
+        return value===NaN ? 0 : value;
+    }
+}
+
+var int_1 = IntControl;
+
+var awesomplete = createCommonjsModule(function (module) {
+/**
+ * Simple, lightweight, usable local autocomplete library for modern browsers
+ * Because there weren’t enough autocomplete scripts in the world? Because I’m completely insane and have NIH syndrome? Probably both. :P
+ * @author Lea Verou http://leaverou.github.io/awesomplete
+ * MIT license
+ */
+
+(function () {
+
+var _ = function (input, o) {
+	var me = this;
+
+	// Setup
+
+	this.isOpened = false;
+
+	this.input = $(input);
+	this.input.setAttribute("autocomplete", "off");
+	this.input.setAttribute("aria-autocomplete", "list");
+
+	o = o || {};
+
+	configure(this, {
+		minChars: 2,
+		maxItems: 10,
+		autoFirst: false,
+		data: _.DATA,
+		filter: _.FILTER_CONTAINS,
+		sort: o.sort === false ? false : _.SORT_BYLENGTH,
+		item: _.ITEM,
+		replace: _.REPLACE
+	}, o);
+
+	this.index = -1;
+
+	// Create necessary elements
+
+	this.container = $.create("div", {
+		className: "awesomplete",
+		around: input
+	});
+
+	this.ul = $.create("ul", {
+		hidden: "hidden",
+		inside: this.container
+	});
+
+	this.status = $.create("span", {
+		className: "visually-hidden",
+		role: "status",
+		"aria-live": "assertive",
+		"aria-relevant": "additions",
+		inside: this.container
+	});
+
+	// Bind events
+
+	this._events = {
+		input: {
+			"input": this.evaluate.bind(this),
+			"blur": this.close.bind(this, { reason: "blur" }),
+			"keydown": function(evt) {
+				var c = evt.keyCode;
+
+				// If the dropdown `ul` is in view, then act on keydown for the following keys:
+				// Enter / Esc / Up / Down
+				if(me.opened) {
+					if (c === 13 && me.selected) { // Enter
+						evt.preventDefault();
+						me.select();
+					}
+					else if (c === 27) { // Esc
+						me.close({ reason: "esc" });
+					}
+					else if (c === 38 || c === 40) { // Down/Up arrow
+						evt.preventDefault();
+						me[c === 38? "previous" : "next"]();
+					}
+				}
+			}
+		},
+		form: {
+			"submit": this.close.bind(this, { reason: "submit" })
+		},
+		ul: {
+			"mousedown": function(evt) {
+				var li = evt.target;
+
+				if (li !== this) {
+
+					while (li && !/li/i.test(li.nodeName)) {
+						li = li.parentNode;
+					}
+
+					if (li && evt.button === 0) {  // Only select on left click
+						evt.preventDefault();
+						me.select(li, evt.target);
+					}
+				}
+			}
+		}
+	};
+
+	$.bind(this.input, this._events.input);
+	$.bind(this.input.form, this._events.form);
+	$.bind(this.ul, this._events.ul);
+
+	if (this.input.hasAttribute("list")) {
+		this.list = "#" + this.input.getAttribute("list");
+		this.input.removeAttribute("list");
+	}
+	else {
+		this.list = this.input.getAttribute("data-list") || o.list || [];
+	}
+
+	_.all.push(this);
+};
+
+_.prototype = {
+	set list(list) {
+		if (Array.isArray(list)) {
+			this._list = list;
+		}
+		else if (typeof list === "string" && list.indexOf(",") > -1) {
+				this._list = list.split(/\s*,\s*/);
+		}
+		else { // Element or CSS selector
+			list = $(list);
+
+			if (list && list.children) {
+				var items = [];
+				slice.apply(list.children).forEach(function (el) {
+					if (!el.disabled) {
+						var text = el.textContent.trim();
+						var value = el.value || text;
+						var label = el.label || text;
+						if (value !== "") {
+							items.push({ label: label, value: value });
+						}
+					}
+				});
+				this._list = items;
+			}
+		}
+
+		if (document.activeElement === this.input) {
+			this.evaluate();
+		}
+	},
+
+	get selected() {
+		return this.index > -1;
+	},
+
+	get opened() {
+		return this.isOpened;
+	},
+
+	close: function (o) {
+		if (!this.opened) {
+			return;
+		}
+
+		this.ul.setAttribute("hidden", "");
+		this.isOpened = false;
+		this.index = -1;
+
+		$.fire(this.input, "awesomplete-close", o || {});
+	},
+
+	open: function () {
+		this.ul.removeAttribute("hidden");
+		this.isOpened = true;
+
+		if (this.autoFirst && this.index === -1) {
+			this.goto(0);
+		}
+
+		$.fire(this.input, "awesomplete-open");
+	},
+
+	destroy: function() {
+		//remove events from the input and its form
+		$.unbind(this.input, this._events.input);
+		$.unbind(this.input.form, this._events.form);
+
+		//move the input out of the awesomplete container and remove the container and its children
+		var parentNode = this.container.parentNode;
+
+		parentNode.insertBefore(this.input, this.container);
+		parentNode.removeChild(this.container);
+
+		//remove autocomplete and aria-autocomplete attributes
+		this.input.removeAttribute("autocomplete");
+		this.input.removeAttribute("aria-autocomplete");
+
+		//remove this awesomeplete instance from the global array of instances
+		var indexOfAwesomplete = _.all.indexOf(this);
+
+		if (indexOfAwesomplete !== -1) {
+			_.all.splice(indexOfAwesomplete, 1);
+		}
+	},
+
+	next: function () {
+		var count = this.ul.children.length;
+		this.goto(this.index < count - 1 ? this.index + 1 : (count ? 0 : -1) );
+	},
+
+	previous: function () {
+		var count = this.ul.children.length;
+		var pos = this.index - 1;
+
+		this.goto(this.selected && pos !== -1 ? pos : count - 1);
+	},
+
+	// Should not be used, highlights specific item without any checks!
+	goto: function (i) {
+		var lis = this.ul.children;
+
+		if (this.selected) {
+			lis[this.index].setAttribute("aria-selected", "false");
+		}
+
+		this.index = i;
+
+		if (i > -1 && lis.length > 0) {
+			lis[i].setAttribute("aria-selected", "true");
+			this.status.textContent = lis[i].textContent;
+
+			// scroll to highlighted element in case parent's height is fixed
+			this.ul.scrollTop = lis[i].offsetTop - this.ul.clientHeight + lis[i].clientHeight;
+
+			$.fire(this.input, "awesomplete-highlight", {
+				text: this.suggestions[this.index]
+			});
+		}
+	},
+
+	select: function (selected, origin) {
+		if (selected) {
+			this.index = $.siblingIndex(selected);
+		} else {
+			selected = this.ul.children[this.index];
+		}
+
+		if (selected) {
+			var suggestion = this.suggestions[this.index];
+
+			var allowed = $.fire(this.input, "awesomplete-select", {
+				text: suggestion,
+				origin: origin || selected
+			});
+
+			if (allowed) {
+				this.replace(suggestion);
+				this.close({ reason: "select" });
+				$.fire(this.input, "awesomplete-selectcomplete", {
+					text: suggestion
+				});
+			}
+		}
+	},
+
+	evaluate: function() {
+		var me = this;
+		var value = this.input.value;
+
+		if (value.length >= this.minChars && this._list.length > 0) {
+			this.index = -1;
+			// Populate list with options that match
+			this.ul.innerHTML = "";
+
+			this.suggestions = this._list
+				.map(function(item) {
+					return new Suggestion(me.data(item, value));
+				})
+				.filter(function(item) {
+					return me.filter(item, value);
+				});
+
+			if (this.sort !== false) {
+				this.suggestions = this.suggestions.sort(this.sort);
+			}
+
+			this.suggestions = this.suggestions.slice(0, this.maxItems);
+
+			this.suggestions.forEach(function(text) {
+					me.ul.appendChild(me.item(text, value));
+				});
+
+			if (this.ul.children.length === 0) {
+				this.close({ reason: "nomatches" });
+			} else {
+				this.open();
+			}
+		}
+		else {
+			this.close({ reason: "nomatches" });
+		}
+	}
+};
+
+// Static methods/properties
+
+_.all = [];
+
+_.FILTER_CONTAINS = function (text, input) {
+	return RegExp($.regExpEscape(input.trim()), "i").test(text);
+};
+
+_.FILTER_STARTSWITH = function (text, input) {
+	return RegExp("^" + $.regExpEscape(input.trim()), "i").test(text);
+};
+
+_.SORT_BYLENGTH = function (a, b) {
+	if (a.length !== b.length) {
+		return a.length - b.length;
+	}
+
+	return a < b? -1 : 1;
+};
+
+_.ITEM = function (text, input) {
+	var html = input.trim() === "" ? text : text.replace(RegExp($.regExpEscape(input.trim()), "gi"), "<mark>$&</mark>");
+	return $.create("li", {
+		innerHTML: html,
+		"aria-selected": "false"
+	});
+};
+
+_.REPLACE = function (text) {
+	this.input.value = text.value;
+};
+
+_.DATA = function (item/*, input*/) { return item; };
+
+// Private functions
+
+function Suggestion(data) {
+	var o = Array.isArray(data)
+	  ? { label: data[0], value: data[1] }
+	  : typeof data === "object" && "label" in data && "value" in data ? data : { label: data, value: data };
+
+	this.label = o.label || o.value;
+	this.value = o.value;
+}
+Object.defineProperty(Suggestion.prototype = Object.create(String.prototype), "length", {
+	get: function() { return this.label.length; }
+});
+Suggestion.prototype.toString = Suggestion.prototype.valueOf = function () {
+	return "" + this.label;
+};
+
+function configure(instance, properties, o) {
+	for (var i in properties) {
+		var initial = properties[i],
+		    attrValue = instance.input.getAttribute("data-" + i.toLowerCase());
+
+		if (typeof initial === "number") {
+			instance[i] = parseInt(attrValue);
+		}
+		else if (initial === false) { // Boolean options must be false by default anyway
+			instance[i] = attrValue !== null;
+		}
+		else if (initial instanceof Function) {
+			instance[i] = null;
+		}
+		else {
+			instance[i] = attrValue;
+		}
+
+		if (!instance[i] && instance[i] !== 0) {
+			instance[i] = (i in o)? o[i] : initial;
+		}
+	}
+}
+
+// Helpers
+
+var slice = Array.prototype.slice;
+
+function $(expr, con) {
+	return typeof expr === "string"? (con || document).querySelector(expr) : expr || null;
+}
+
+function $$(expr, con) {
+	return slice.call((con || document).querySelectorAll(expr));
+}
+
+$.create = function(tag, o) {
+	var element = document.createElement(tag);
+
+	for (var i in o) {
+		var val = o[i];
+
+		if (i === "inside") {
+			$(val).appendChild(element);
+		}
+		else if (i === "around") {
+			var ref = $(val);
+			ref.parentNode.insertBefore(element, ref);
+			element.appendChild(ref);
+		}
+		else if (i in element) {
+			element[i] = val;
+		}
+		else {
+			element.setAttribute(i, val);
+		}
+	}
+
+	return element;
+};
+
+$.bind = function(element, o) {
+	if (element) {
+		for (var event in o) {
+			var callback = o[event];
+
+			event.split(/\s+/).forEach(function (event) {
+				element.addEventListener(event, callback);
+			});
+		}
+	}
+};
+
+$.unbind = function(element, o) {
+	if (element) {
+		for (var event in o) {
+			var callback = o[event];
+
+			event.split(/\s+/).forEach(function(event) {
+				element.removeEventListener(event, callback);
+			});
+		}
+	}
+};
+
+$.fire = function(target, type, properties) {
+	var evt = document.createEvent("HTMLEvents");
+
+	evt.initEvent(type, true, true );
+
+	for (var j in properties) {
+		evt[j] = properties[j];
+	}
+
+	return target.dispatchEvent(evt);
+};
+
+$.regExpEscape = function (s) {
+	return s.replace(/[-\\^$*+?.()|[\]{}]/g, "\\$&");
+};
+
+$.siblingIndex = function (el) {
+	/* eslint-disable no-cond-assign */
+	for (var i = 0; el = el.previousElementSibling; i++);
+	return i;
+};
+
+// Initialization
+
+function init() {
+	$$("input.awesomplete").forEach(function (input) {
+		new _(input);
+	});
+}
+
+// Are we in a browser? Check for Document constructor
+if (typeof Document !== "undefined") {
+	// DOM already loaded?
+	if (document.readyState !== "loading") {
+		init();
+	}
+	else {
+		// Wait for it
+		document.addEventListener("DOMContentLoaded", init);
+	}
+}
+
+_.$ = $;
+_.$$ = $$;
+
+// Make sure to export Awesomplete on self when in a browser
+if (typeof self !== "undefined") {
+	self.Awesomplete = _;
+}
+
+// Expose Awesomplete as a CJS module
+if ('object' === "object" && module.exports) {
+	module.exports = _;
+}
+
+return _;
+
+}());
+});
+
+class LinkControl extends base {
+    make() {
+        super.make();
+        this.input.setAttribute('type', 'text');
+        this.awesomplete = new awesomplete(this.input, {
+            autoFirst: true,
+            minChars: 0,
+            maxItems: 99,
+            filter: () => true,
+        });
+
+        // rebuild the list on input
+        this.input.addEventListener('input', async (event) => {
+            let list = await this.getList(this.input.value);
+
+            // action to add new item
+            list.push({
+                label:frappejs._('+ New {0}', this.target),
+                value: '__newItem',
+                action: () => {
+                }
+            });
+
+            this.awesomplete.list = list;
+        });
+
+        // new item action
+        this.input.addEventListener('awesomplete-select', async (e) => {
+            if (e.text && e.text.value === '__newItem') {
+                e.preventDefault();
+                const newDoc = await frappejs.getNewDoc(this.target);
+                const formModal = frappejs.desk.showFormModal(this.target, newDoc.name);
+                formModal.form.once('submit', async () => {
+                    await this.updateDocValue(formModal.form.doc.name);
+                });
+            }
+        });
+    }
+
+    async getList(query) {
+        return (await frappejs.db.getAll({
+            doctype: this.target,
+            filters: this.getFilters(query),
+            limit: 50
+        })).map(d => d.name);
+    }
+
+    getFilters(query) {
+        return { keywords: ["like", query] }
+    }
+}
+
+var link = LinkControl;
+
+class PasswordControl extends base {
+    make() {
+        super.make();
+        this.input.setAttribute('type', 'password');
+    }
+}
+
+var password = PasswordControl;
+
+class SelectControl extends base {
+    makeInput() {
+        this.input = frappejs.ui.add('select', 'form-control', this.formGroup);
+
+        let options = this.options;
+        if (typeof options==='string') {
+            options = options.split('\n');
+        }
+
+        for (let value of options) {
+            let option = frappejs.ui.add('option', null, this.input);
+            option.textContent = value;
+            option.setAttribute('value', value);
+        }
+    }
+    make() {
+        super.make();
+        this.input.setAttribute('row', '3');
+    }
+}
+
+var select = SelectControl;
+
+var Sortable = createCommonjsModule(function (module) {
+/**!
+ * Sortable
+ * @author	RubaXa   <trash@rubaxa.org>
+ * @license MIT
+ */
+
+(function sortableModule(factory) {
+	if (typeof undefined === "function" && undefined.amd) {
+		undefined(factory);
+	}
+	else {
+		module.exports = factory();
+	}
+})(function sortableFactory() {
+	if (typeof window === "undefined" || !window.document) {
+		return function sortableError() {
+			throw new Error("Sortable.js requires a window with a document");
+		};
+	}
+
+	var dragEl,
+		parentEl,
+		ghostEl,
+		cloneEl,
+		rootEl,
+		nextEl,
+		lastDownEl,
+
+		scrollEl,
+		scrollParentEl,
+		scrollCustomFn,
+
+		lastEl,
+		lastCSS,
+		lastParentCSS,
+
+		oldIndex,
+		newIndex,
+
+		activeGroup,
+		putSortable,
+
+		autoScroll = {},
+
+		tapEvt,
+		touchEvt,
+
+		moved,
+
+		/** @const */
+		R_SPACE = /\s+/g,
+		R_FLOAT = /left|right|inline/,
+
+		expando = 'Sortable' + (new Date).getTime(),
+
+		win = window,
+		document = win.document,
+		parseInt = win.parseInt,
+		setTimeout = win.setTimeout,
+
+		$ = win.jQuery || win.Zepto,
+		Polymer = win.Polymer,
+
+		captureMode = false,
+		passiveMode = false,
+
+		supportDraggable = ('draggable' in document.createElement('div')),
+		supportCssPointerEvents = (function (el) {
+			// false when IE11
+			if (!!navigator.userAgent.match(/(?:Trident.*rv[ :]?11\.|msie)/i)) {
+				return false;
+			}
+			el = document.createElement('x');
+			el.style.cssText = 'pointer-events:auto';
+			return el.style.pointerEvents === 'auto';
+		})(),
+
+		_silent = false,
+
+		abs = Math.abs,
+		min = Math.min,
+
+		savedInputChecked = [],
+		touchDragOverListeners = [],
+
+		_autoScroll = _throttle(function (/**Event*/evt, /**Object*/options, /**HTMLElement*/rootEl) {
+			// Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=505521
+			if (rootEl && options.scroll) {
+				var _this = rootEl[expando],
+					el,
+					rect,
+					sens = options.scrollSensitivity,
+					speed = options.scrollSpeed,
+
+					x = evt.clientX,
+					y = evt.clientY,
+
+					winWidth = window.innerWidth,
+					winHeight = window.innerHeight,
+
+					vx,
+					vy,
+
+					scrollOffsetX,
+					scrollOffsetY;
+
+				// Delect scrollEl
+				if (scrollParentEl !== rootEl) {
+					scrollEl = options.scroll;
+					scrollParentEl = rootEl;
+					scrollCustomFn = options.scrollFn;
+
+					if (scrollEl === true) {
+						scrollEl = rootEl;
+
+						do {
+							if ((scrollEl.offsetWidth < scrollEl.scrollWidth) ||
+								(scrollEl.offsetHeight < scrollEl.scrollHeight)
+							) {
+								break;
+							}
+							/* jshint boss:true */
+						} while (scrollEl = scrollEl.parentNode);
+					}
+				}
+
+				if (scrollEl) {
+					el = scrollEl;
+					rect = scrollEl.getBoundingClientRect();
+					vx = (abs(rect.right - x) <= sens) - (abs(rect.left - x) <= sens);
+					vy = (abs(rect.bottom - y) <= sens) - (abs(rect.top - y) <= sens);
+				}
+
+
+				if (!(vx || vy)) {
+					vx = (winWidth - x <= sens) - (x <= sens);
+					vy = (winHeight - y <= sens) - (y <= sens);
+
+					/* jshint expr:true */
+					(vx || vy) && (el = win);
+				}
+
+
+				if (autoScroll.vx !== vx || autoScroll.vy !== vy || autoScroll.el !== el) {
+					autoScroll.el = el;
+					autoScroll.vx = vx;
+					autoScroll.vy = vy;
+
+					clearInterval(autoScroll.pid);
+
+					if (el) {
+						autoScroll.pid = setInterval(function () {
+							scrollOffsetY = vy ? vy * speed : 0;
+							scrollOffsetX = vx ? vx * speed : 0;
+
+							if ('function' === typeof(scrollCustomFn)) {
+								return scrollCustomFn.call(_this, scrollOffsetX, scrollOffsetY, evt);
+							}
+
+							if (el === win) {
+								win.scrollTo(win.pageXOffset + scrollOffsetX, win.pageYOffset + scrollOffsetY);
+							} else {
+								el.scrollTop += scrollOffsetY;
+								el.scrollLeft += scrollOffsetX;
+							}
+						}, 24);
+					}
+				}
+			}
+		}, 30),
+
+		_prepareGroup = function (options) {
+			function toFn(value, pull) {
+				if (value === void 0 || value === true) {
+					value = group.name;
+				}
+
+				if (typeof value === 'function') {
+					return value;
+				} else {
+					return function (to, from) {
+						var fromGroup = from.options.group.name;
+
+						return pull
+							? value
+							: value && (value.join
+								? value.indexOf(fromGroup) > -1
+								: (fromGroup == value)
+							);
+					};
+				}
+			}
+
+			var group = {};
+			var originalGroup = options.group;
+
+			if (!originalGroup || typeof originalGroup != 'object') {
+				originalGroup = {name: originalGroup};
+			}
+
+			group.name = originalGroup.name;
+			group.checkPull = toFn(originalGroup.pull, true);
+			group.checkPut = toFn(originalGroup.put);
+			group.revertClone = originalGroup.revertClone;
+
+			options.group = group;
+		};
+
+	// Detect support a passive mode
+	try {
+		window.addEventListener('test', null, Object.defineProperty({}, 'passive', {
+			get: function () {
+				// `false`, because everything starts to work incorrectly and instead of d'n'd,
+				// begins the page has scrolled.
+				passiveMode = false;
+				captureMode = {
+					capture: false,
+					passive: passiveMode
+				};
+			}
+		}));
+	} catch (err) {}
+
+	/**
+	 * @class  Sortable
+	 * @param  {HTMLElement}  el
+	 * @param  {Object}       [options]
+	 */
+	function Sortable(el, options) {
+		if (!(el && el.nodeType && el.nodeType === 1)) {
+			throw 'Sortable: `el` must be HTMLElement, and not ' + {}.toString.call(el);
+		}
+
+		this.el = el; // root element
+		this.options = options = _extend({}, options);
+
+
+		// Export instance
+		el[expando] = this;
+
+		// Default options
+		var defaults = {
+			group: Math.random(),
+			sort: true,
+			disabled: false,
+			store: null,
+			handle: null,
+			scroll: true,
+			scrollSensitivity: 30,
+			scrollSpeed: 10,
+			draggable: /[uo]l/i.test(el.nodeName) ? 'li' : '>*',
+			ghostClass: 'sortable-ghost',
+			chosenClass: 'sortable-chosen',
+			dragClass: 'sortable-drag',
+			ignore: 'a, img',
+			filter: null,
+			preventOnFilter: true,
+			animation: 0,
+			setData: function (dataTransfer, dragEl) {
+				dataTransfer.setData('Text', dragEl.textContent);
+			},
+			dropBubble: false,
+			dragoverBubble: false,
+			dataIdAttr: 'data-id',
+			delay: 0,
+			forceFallback: false,
+			fallbackClass: 'sortable-fallback',
+			fallbackOnBody: false,
+			fallbackTolerance: 0,
+			fallbackOffset: {x: 0, y: 0},
+			supportPointer: Sortable.supportPointer !== false
+		};
+
+
+		// Set default options
+		for (var name in defaults) {
+			!(name in options) && (options[name] = defaults[name]);
+		}
+
+		_prepareGroup(options);
+
+		// Bind all private methods
+		for (var fn in this) {
+			if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
+				this[fn] = this[fn].bind(this);
+			}
+		}
+
+		// Setup drag mode
+		this.nativeDraggable = options.forceFallback ? false : supportDraggable;
+
+		// Bind events
+		_on(el, 'mousedown', this._onTapStart);
+		_on(el, 'touchstart', this._onTapStart);
+		options.supportPointer && _on(el, 'pointerdown', this._onTapStart);
+
+		if (this.nativeDraggable) {
+			_on(el, 'dragover', this);
+			_on(el, 'dragenter', this);
+		}
+
+		touchDragOverListeners.push(this._onDragOver);
+
+		// Restore sorting
+		options.store && this.sort(options.store.get(this));
+	}
+
+
+	Sortable.prototype = /** @lends Sortable.prototype */ {
+		constructor: Sortable,
+
+		_onTapStart: function (/** Event|TouchEvent */evt) {
+			var _this = this,
+				el = this.el,
+				options = this.options,
+				preventOnFilter = options.preventOnFilter,
+				type = evt.type,
+				touch = evt.touches && evt.touches[0],
+				target = (touch || evt).target,
+				originalTarget = evt.target.shadowRoot && (evt.path && evt.path[0]) || target,
+				filter = options.filter,
+				startIndex;
+
+			_saveInputCheckedState(el);
+
+
+			// Don't trigger start event when an element is been dragged, otherwise the evt.oldindex always wrong when set option.group.
+			if (dragEl) {
+				return;
+			}
+
+			if (/mousedown|pointerdown/.test(type) && evt.button !== 0 || options.disabled) {
+				return; // only left button or enabled
+			}
+
+			// cancel dnd if original target is content editable
+			if (originalTarget.isContentEditable) {
+				return;
+			}
+
+			target = _closest(target, options.draggable, el);
+
+			if (!target) {
+				return;
+			}
+
+			if (lastDownEl === target) {
+				// Ignoring duplicate `down`
+				return;
+			}
+
+			// Get the index of the dragged element within its parent
+			startIndex = _index(target, options.draggable);
+
+			// Check filter
+			if (typeof filter === 'function') {
+				if (filter.call(this, evt, target, this)) {
+					_dispatchEvent(_this, originalTarget, 'filter', target, el, el, startIndex);
+					preventOnFilter && evt.preventDefault();
+					return; // cancel dnd
+				}
+			}
+			else if (filter) {
+				filter = filter.split(',').some(function (criteria) {
+					criteria = _closest(originalTarget, criteria.trim(), el);
+
+					if (criteria) {
+						_dispatchEvent(_this, criteria, 'filter', target, el, el, startIndex);
+						return true;
+					}
+				});
+
+				if (filter) {
+					preventOnFilter && evt.preventDefault();
+					return; // cancel dnd
+				}
+			}
+
+			if (options.handle && !_closest(originalTarget, options.handle, el)) {
+				return;
+			}
+
+			// Prepare `dragstart`
+			this._prepareDragStart(evt, touch, target, startIndex);
+		},
+
+		_prepareDragStart: function (/** Event */evt, /** Touch */touch, /** HTMLElement */target, /** Number */startIndex) {
+			var _this = this,
+				el = _this.el,
+				options = _this.options,
+				ownerDocument = el.ownerDocument,
+				dragStartFn;
+
+			if (target && !dragEl && (target.parentNode === el)) {
+				tapEvt = evt;
+
+				rootEl = el;
+				dragEl = target;
+				parentEl = dragEl.parentNode;
+				nextEl = dragEl.nextSibling;
+				lastDownEl = target;
+				activeGroup = options.group;
+				oldIndex = startIndex;
+
+				this._lastX = (touch || evt).clientX;
+				this._lastY = (touch || evt).clientY;
+
+				dragEl.style['will-change'] = 'all';
+
+				dragStartFn = function () {
+					// Delayed drag has been triggered
+					// we can re-enable the events: touchmove/mousemove
+					_this._disableDelayedDrag();
+
+					// Make the element draggable
+					dragEl.draggable = _this.nativeDraggable;
+
+					// Chosen item
+					_toggleClass(dragEl, options.chosenClass, true);
+
+					// Bind the events: dragstart/dragend
+					_this._triggerDragStart(evt, touch);
+
+					// Drag start event
+					_dispatchEvent(_this, rootEl, 'choose', dragEl, rootEl, rootEl, oldIndex);
+				};
+
+				// Disable "draggable"
+				options.ignore.split(',').forEach(function (criteria) {
+					_find(dragEl, criteria.trim(), _disableDraggable);
+				});
+
+				_on(ownerDocument, 'mouseup', _this._onDrop);
+				_on(ownerDocument, 'touchend', _this._onDrop);
+				_on(ownerDocument, 'touchcancel', _this._onDrop);
+				_on(ownerDocument, 'selectstart', _this);
+				options.supportPointer && _on(ownerDocument, 'pointercancel', _this._onDrop);
+
+				if (options.delay) {
+					// If the user moves the pointer or let go the click or touch
+					// before the delay has been reached:
+					// disable the delayed drag
+					_on(ownerDocument, 'mouseup', _this._disableDelayedDrag);
+					_on(ownerDocument, 'touchend', _this._disableDelayedDrag);
+					_on(ownerDocument, 'touchcancel', _this._disableDelayedDrag);
+					_on(ownerDocument, 'mousemove', _this._disableDelayedDrag);
+					_on(ownerDocument, 'touchmove', _this._disableDelayedDrag);
+					options.supportPointer && _on(ownerDocument, 'pointermove', _this._disableDelayedDrag);
+
+					_this._dragStartTimer = setTimeout(dragStartFn, options.delay);
+				} else {
+					dragStartFn();
+				}
+
+
+			}
+		},
+
+		_disableDelayedDrag: function () {
+			var ownerDocument = this.el.ownerDocument;
+
+			clearTimeout(this._dragStartTimer);
+			_off(ownerDocument, 'mouseup', this._disableDelayedDrag);
+			_off(ownerDocument, 'touchend', this._disableDelayedDrag);
+			_off(ownerDocument, 'touchcancel', this._disableDelayedDrag);
+			_off(ownerDocument, 'mousemove', this._disableDelayedDrag);
+			_off(ownerDocument, 'touchmove', this._disableDelayedDrag);
+			_off(ownerDocument, 'pointermove', this._disableDelayedDrag);
+		},
+
+		_triggerDragStart: function (/** Event */evt, /** Touch */touch) {
+			touch = touch || (evt.pointerType == 'touch' ? evt : null);
+
+			if (touch) {
+				// Touch device support
+				tapEvt = {
+					target: dragEl,
+					clientX: touch.clientX,
+					clientY: touch.clientY
+				};
+
+				this._onDragStart(tapEvt, 'touch');
+			}
+			else if (!this.nativeDraggable) {
+				this._onDragStart(tapEvt, true);
+			}
+			else {
+				_on(dragEl, 'dragend', this);
+				_on(rootEl, 'dragstart', this._onDragStart);
+			}
+
+			try {
+				if (document.selection) {
+					// Timeout neccessary for IE9
+					_nextTick(function () {
+						document.selection.empty();
+					});
+				} else {
+					window.getSelection().removeAllRanges();
+				}
+			} catch (err) {
+			}
+		},
+
+		_dragStarted: function () {
+			if (rootEl && dragEl) {
+				var options = this.options;
+
+				// Apply effect
+				_toggleClass(dragEl, options.ghostClass, true);
+				_toggleClass(dragEl, options.dragClass, false);
+
+				Sortable.active = this;
+
+				// Drag start event
+				_dispatchEvent(this, rootEl, 'start', dragEl, rootEl, rootEl, oldIndex);
+			} else {
+				this._nulling();
+			}
+		},
+
+		_emulateDragOver: function () {
+			if (touchEvt) {
+				if (this._lastX === touchEvt.clientX && this._lastY === touchEvt.clientY) {
+					return;
+				}
+
+				this._lastX = touchEvt.clientX;
+				this._lastY = touchEvt.clientY;
+
+				if (!supportCssPointerEvents) {
+					_css(ghostEl, 'display', 'none');
+				}
+
+				var target = document.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
+				var parent = target;
+				var i = touchDragOverListeners.length;
+
+				if (target && target.shadowRoot) {
+					target = target.shadowRoot.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
+					parent = target;
+				}
+
+				if (parent) {
+					do {
+						if (parent[expando]) {
+							while (i--) {
+								touchDragOverListeners[i]({
+									clientX: touchEvt.clientX,
+									clientY: touchEvt.clientY,
+									target: target,
+									rootEl: parent
+								});
+							}
+
+							break;
+						}
+
+						target = parent; // store last element
+					}
+					/* jshint boss:true */
+					while (parent = parent.parentNode);
+				}
+
+				if (!supportCssPointerEvents) {
+					_css(ghostEl, 'display', '');
+				}
+			}
+		},
+
+
+		_onTouchMove: function (/**TouchEvent*/evt) {
+			if (tapEvt) {
+				var	options = this.options,
+					fallbackTolerance = options.fallbackTolerance,
+					fallbackOffset = options.fallbackOffset,
+					touch = evt.touches ? evt.touches[0] : evt,
+					dx = (touch.clientX - tapEvt.clientX) + fallbackOffset.x,
+					dy = (touch.clientY - tapEvt.clientY) + fallbackOffset.y,
+					translate3d = evt.touches ? 'translate3d(' + dx + 'px,' + dy + 'px,0)' : 'translate(' + dx + 'px,' + dy + 'px)';
+
+				// only set the status to dragging, when we are actually dragging
+				if (!Sortable.active) {
+					if (fallbackTolerance &&
+						min(abs(touch.clientX - this._lastX), abs(touch.clientY - this._lastY)) < fallbackTolerance
+					) {
+						return;
+					}
+
+					this._dragStarted();
+				}
+
+				// as well as creating the ghost element on the document body
+				this._appendGhost();
+
+				moved = true;
+				touchEvt = touch;
+
+				_css(ghostEl, 'webkitTransform', translate3d);
+				_css(ghostEl, 'mozTransform', translate3d);
+				_css(ghostEl, 'msTransform', translate3d);
+				_css(ghostEl, 'transform', translate3d);
+
+				evt.preventDefault();
+			}
+		},
+
+		_appendGhost: function () {
+			if (!ghostEl) {
+				var rect = dragEl.getBoundingClientRect(),
+					css = _css(dragEl),
+					options = this.options,
+					ghostRect;
+
+				ghostEl = dragEl.cloneNode(true);
+
+				_toggleClass(ghostEl, options.ghostClass, false);
+				_toggleClass(ghostEl, options.fallbackClass, true);
+				_toggleClass(ghostEl, options.dragClass, true);
+
+				_css(ghostEl, 'top', rect.top - parseInt(css.marginTop, 10));
+				_css(ghostEl, 'left', rect.left - parseInt(css.marginLeft, 10));
+				_css(ghostEl, 'width', rect.width);
+				_css(ghostEl, 'height', rect.height);
+				_css(ghostEl, 'opacity', '0.8');
+				_css(ghostEl, 'position', 'fixed');
+				_css(ghostEl, 'zIndex', '100000');
+				_css(ghostEl, 'pointerEvents', 'none');
+
+				options.fallbackOnBody && document.body.appendChild(ghostEl) || rootEl.appendChild(ghostEl);
+
+				// Fixing dimensions.
+				ghostRect = ghostEl.getBoundingClientRect();
+				_css(ghostEl, 'width', rect.width * 2 - ghostRect.width);
+				_css(ghostEl, 'height', rect.height * 2 - ghostRect.height);
+			}
+		},
+
+		_onDragStart: function (/**Event*/evt, /**boolean*/useFallback) {
+			var _this = this;
+			var dataTransfer = evt.dataTransfer;
+			var options = _this.options;
+
+			_this._offUpEvents();
+
+			if (activeGroup.checkPull(_this, _this, dragEl, evt)) {
+				cloneEl = _clone(dragEl);
+
+				cloneEl.draggable = false;
+				cloneEl.style['will-change'] = '';
+
+				_css(cloneEl, 'display', 'none');
+				_toggleClass(cloneEl, _this.options.chosenClass, false);
+
+				// #1143: IFrame support workaround
+				_this._cloneId = _nextTick(function () {
+					rootEl.insertBefore(cloneEl, dragEl);
+					_dispatchEvent(_this, rootEl, 'clone', dragEl);
+				});
+			}
+
+			_toggleClass(dragEl, options.dragClass, true);
+
+			if (useFallback) {
+				if (useFallback === 'touch') {
+					// Bind touch events
+					_on(document, 'touchmove', _this._onTouchMove);
+					_on(document, 'touchend', _this._onDrop);
+					_on(document, 'touchcancel', _this._onDrop);
+
+					if (options.supportPointer) {
+						_on(document, 'pointermove', _this._onTouchMove);
+						_on(document, 'pointerup', _this._onDrop);
+					}
+				} else {
+					// Old brwoser
+					_on(document, 'mousemove', _this._onTouchMove);
+					_on(document, 'mouseup', _this._onDrop);
+				}
+
+				_this._loopId = setInterval(_this._emulateDragOver, 50);
+			}
+			else {
+				if (dataTransfer) {
+					dataTransfer.effectAllowed = 'move';
+					options.setData && options.setData.call(_this, dataTransfer, dragEl);
+				}
+
+				_on(document, 'drop', _this);
+
+				// #1143: Бывает элемент с IFrame внутри блокирует `drop`,
+				// поэтому если вызвался `mouseover`, значит надо отменять весь d'n'd.
+				// Breaking Chrome 62+
+				// _on(document, 'mouseover', _this);
+
+				_this._dragStartId = _nextTick(_this._dragStarted);
+			}
+		},
+
+		_onDragOver: function (/**Event*/evt) {
+			var el = this.el,
+				target,
+				dragRect,
+				targetRect,
+				revert,
+				options = this.options,
+				group = options.group,
+				activeSortable = Sortable.active,
+				isOwner = (activeGroup === group),
+				isMovingBetweenSortable = false,
+				canSort = options.sort;
+
+			if (evt.preventDefault !== void 0) {
+				evt.preventDefault();
+				!options.dragoverBubble && evt.stopPropagation();
+			}
+
+			if (dragEl.animated) {
+				return;
+			}
+
+			moved = true;
+
+			if (activeSortable && !options.disabled &&
+				(isOwner
+					? canSort || (revert = !rootEl.contains(dragEl)) // Reverting item into the original list
+					: (
+						putSortable === this ||
+						(
+							(activeSortable.lastPullMode = activeGroup.checkPull(this, activeSortable, dragEl, evt)) &&
+							group.checkPut(this, activeSortable, dragEl, evt)
+						)
+					)
+				) &&
+				(evt.rootEl === void 0 || evt.rootEl === this.el) // touch fallback
+			) {
+				// Smart auto-scrolling
+				_autoScroll(evt, options, this.el);
+
+				if (_silent) {
+					return;
+				}
+
+				target = _closest(evt.target, options.draggable, el);
+				dragRect = dragEl.getBoundingClientRect();
+
+				if (putSortable !== this) {
+					putSortable = this;
+					isMovingBetweenSortable = true;
+				}
+
+				if (revert) {
+					_cloneHide(activeSortable, true);
+					parentEl = rootEl; // actualization
+
+					if (cloneEl || nextEl) {
+						rootEl.insertBefore(dragEl, cloneEl || nextEl);
+					}
+					else if (!canSort) {
+						rootEl.appendChild(dragEl);
+					}
+
+					return;
+				}
+
+
+				if ((el.children.length === 0) || (el.children[0] === ghostEl) ||
+					(el === evt.target) && (_ghostIsLast(el, evt))
+				) {
+					//assign target only if condition is true
+					if (el.children.length !== 0 && el.children[0] !== ghostEl && el === evt.target) {
+						target = el.lastElementChild;
+					}
+
+					if (target) {
+						if (target.animated) {
+							return;
+						}
+
+						targetRect = target.getBoundingClientRect();
+					}
+
+					_cloneHide(activeSortable, isOwner);
+
+					if (_onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt) !== false) {
+						if (!dragEl.contains(el)) {
+							el.appendChild(dragEl);
+							parentEl = el; // actualization
+						}
+
+						this._animate(dragRect, dragEl);
+						target && this._animate(targetRect, target);
+					}
+				}
+				else if (target && !target.animated && target !== dragEl && (target.parentNode[expando] !== void 0)) {
+					if (lastEl !== target) {
+						lastEl = target;
+						lastCSS = _css(target);
+						lastParentCSS = _css(target.parentNode);
+					}
+
+					targetRect = target.getBoundingClientRect();
+
+					var width = targetRect.right - targetRect.left,
+						height = targetRect.bottom - targetRect.top,
+						floating = R_FLOAT.test(lastCSS.cssFloat + lastCSS.display)
+							|| (lastParentCSS.display == 'flex' && lastParentCSS['flex-direction'].indexOf('row') === 0),
+						isWide = (target.offsetWidth > dragEl.offsetWidth),
+						isLong = (target.offsetHeight > dragEl.offsetHeight),
+						halfway = (floating ? (evt.clientX - targetRect.left) / width : (evt.clientY - targetRect.top) / height) > 0.5,
+						nextSibling = target.nextElementSibling,
+						after = false;
+
+					if (floating) {
+						var elTop = dragEl.offsetTop,
+							tgTop = target.offsetTop;
+
+						if (elTop === tgTop) {
+							after = (target.previousElementSibling === dragEl) && !isWide || halfway && isWide;
+						}
+						else if (target.previousElementSibling === dragEl || dragEl.previousElementSibling === target) {
+							after = (evt.clientY - targetRect.top) / height > 0.5;
+						} else {
+							after = tgTop > elTop;
+						}
+						} else if (!isMovingBetweenSortable) {
+						after = (nextSibling !== dragEl) && !isLong || halfway && isLong;
+					}
+
+					var moveVector = _onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, after);
+
+					if (moveVector !== false) {
+						if (moveVector === 1 || moveVector === -1) {
+							after = (moveVector === 1);
+						}
+
+						_silent = true;
+						setTimeout(_unsilent, 30);
+
+						_cloneHide(activeSortable, isOwner);
+
+						if (!dragEl.contains(el)) {
+							if (after && !nextSibling) {
+								el.appendChild(dragEl);
+							} else {
+								target.parentNode.insertBefore(dragEl, after ? nextSibling : target);
+							}
+						}
+
+						parentEl = dragEl.parentNode; // actualization
+
+						this._animate(dragRect, dragEl);
+						this._animate(targetRect, target);
+					}
+				}
+			}
+		},
+
+		_animate: function (prevRect, target) {
+			var ms = this.options.animation;
+
+			if (ms) {
+				var currentRect = target.getBoundingClientRect();
+
+				if (prevRect.nodeType === 1) {
+					prevRect = prevRect.getBoundingClientRect();
+				}
+
+				_css(target, 'transition', 'none');
+				_css(target, 'transform', 'translate3d('
+					+ (prevRect.left - currentRect.left) + 'px,'
+					+ (prevRect.top - currentRect.top) + 'px,0)'
+				);
+
+				target.offsetWidth; // repaint
+
+				_css(target, 'transition', 'all ' + ms + 'ms');
+				_css(target, 'transform', 'translate3d(0,0,0)');
+
+				clearTimeout(target.animated);
+				target.animated = setTimeout(function () {
+					_css(target, 'transition', '');
+					_css(target, 'transform', '');
+					target.animated = false;
+				}, ms);
+			}
+		},
+
+		_offUpEvents: function () {
+			var ownerDocument = this.el.ownerDocument;
+
+			_off(document, 'touchmove', this._onTouchMove);
+			_off(document, 'pointermove', this._onTouchMove);
+			_off(ownerDocument, 'mouseup', this._onDrop);
+			_off(ownerDocument, 'touchend', this._onDrop);
+			_off(ownerDocument, 'pointerup', this._onDrop);
+			_off(ownerDocument, 'touchcancel', this._onDrop);
+			_off(ownerDocument, 'pointercancel', this._onDrop);
+			_off(ownerDocument, 'selectstart', this);
+		},
+
+		_onDrop: function (/**Event*/evt) {
+			var el = this.el,
+				options = this.options;
+
+			clearInterval(this._loopId);
+			clearInterval(autoScroll.pid);
+			clearTimeout(this._dragStartTimer);
+
+			_cancelNextTick(this._cloneId);
+			_cancelNextTick(this._dragStartId);
+
+			// Unbind events
+			_off(document, 'mouseover', this);
+			_off(document, 'mousemove', this._onTouchMove);
+
+			if (this.nativeDraggable) {
+				_off(document, 'drop', this);
+				_off(el, 'dragstart', this._onDragStart);
+			}
+
+			this._offUpEvents();
+
+			if (evt) {
+				if (moved) {
+					evt.preventDefault();
+					!options.dropBubble && evt.stopPropagation();
+				}
+
+				ghostEl && ghostEl.parentNode && ghostEl.parentNode.removeChild(ghostEl);
+
+				if (rootEl === parentEl || Sortable.active.lastPullMode !== 'clone') {
+					// Remove clone
+					cloneEl && cloneEl.parentNode && cloneEl.parentNode.removeChild(cloneEl);
+				}
+
+				if (dragEl) {
+					if (this.nativeDraggable) {
+						_off(dragEl, 'dragend', this);
+					}
+
+					_disableDraggable(dragEl);
+					dragEl.style['will-change'] = '';
+
+					// Remove class's
+					_toggleClass(dragEl, this.options.ghostClass, false);
+					_toggleClass(dragEl, this.options.chosenClass, false);
+
+					// Drag stop event
+					_dispatchEvent(this, rootEl, 'unchoose', dragEl, parentEl, rootEl, oldIndex);
+
+					if (rootEl !== parentEl) {
+						newIndex = _index(dragEl, options.draggable);
+
+						if (newIndex >= 0) {
+							// Add event
+							_dispatchEvent(null, parentEl, 'add', dragEl, parentEl, rootEl, oldIndex, newIndex);
+
+							// Remove event
+							_dispatchEvent(this, rootEl, 'remove', dragEl, parentEl, rootEl, oldIndex, newIndex);
+
+							// drag from one list and drop into another
+							_dispatchEvent(null, parentEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex);
+							_dispatchEvent(this, rootEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex);
+						}
+					}
+					else {
+						if (dragEl.nextSibling !== nextEl) {
+							// Get the index of the dragged element within its parent
+							newIndex = _index(dragEl, options.draggable);
+
+							if (newIndex >= 0) {
+								// drag & drop within the same list
+								_dispatchEvent(this, rootEl, 'update', dragEl, parentEl, rootEl, oldIndex, newIndex);
+								_dispatchEvent(this, rootEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex);
+							}
+						}
+					}
+
+					if (Sortable.active) {
+						/* jshint eqnull:true */
+						if (newIndex == null || newIndex === -1) {
+							newIndex = oldIndex;
+						}
+
+						_dispatchEvent(this, rootEl, 'end', dragEl, parentEl, rootEl, oldIndex, newIndex);
+
+						// Save sorting
+						this.save();
+					}
+				}
+
+			}
+
+			this._nulling();
+		},
+
+		_nulling: function() {
+			rootEl =
+			dragEl =
+			parentEl =
+			ghostEl =
+			nextEl =
+			cloneEl =
+			lastDownEl =
+
+			scrollEl =
+			scrollParentEl =
+
+			tapEvt =
+			touchEvt =
+
+			moved =
+			newIndex =
+
+			lastEl =
+			lastCSS =
+
+			putSortable =
+			activeGroup =
+			Sortable.active = null;
+
+			savedInputChecked.forEach(function (el) {
+				el.checked = true;
+			});
+			savedInputChecked.length = 0;
+		},
+
+		handleEvent: function (/**Event*/evt) {
+			switch (evt.type) {
+				case 'drop':
+				case 'dragend':
+					this._onDrop(evt);
+					break;
+
+				case 'dragover':
+				case 'dragenter':
+					if (dragEl) {
+						this._onDragOver(evt);
+						_globalDragOver(evt);
+					}
+					break;
+
+				case 'mouseover':
+					this._onDrop(evt);
+					break;
+
+				case 'selectstart':
+					evt.preventDefault();
+					break;
+			}
+		},
+
+
+		/**
+		 * Serializes the item into an array of string.
+		 * @returns {String[]}
+		 */
+		toArray: function () {
+			var order = [],
+				el,
+				children = this.el.children,
+				i = 0,
+				n = children.length,
+				options = this.options;
+
+			for (; i < n; i++) {
+				el = children[i];
+				if (_closest(el, options.draggable, this.el)) {
+					order.push(el.getAttribute(options.dataIdAttr) || _generateId(el));
+				}
+			}
+
+			return order;
+		},
+
+
+		/**
+		 * Sorts the elements according to the array.
+		 * @param  {String[]}  order  order of the items
+		 */
+		sort: function (order) {
+			var items = {}, rootEl = this.el;
+
+			this.toArray().forEach(function (id, i) {
+				var el = rootEl.children[i];
+
+				if (_closest(el, this.options.draggable, rootEl)) {
+					items[id] = el;
+				}
+			}, this);
+
+			order.forEach(function (id) {
+				if (items[id]) {
+					rootEl.removeChild(items[id]);
+					rootEl.appendChild(items[id]);
+				}
+			});
+		},
+
+
+		/**
+		 * Save the current sorting
+		 */
+		save: function () {
+			var store = this.options.store;
+			store && store.set(this);
+		},
+
+
+		/**
+		 * For each element in the set, get the first element that matches the selector by testing the element itself and traversing up through its ancestors in the DOM tree.
+		 * @param   {HTMLElement}  el
+		 * @param   {String}       [selector]  default: `options.draggable`
+		 * @returns {HTMLElement|null}
+		 */
+		closest: function (el, selector) {
+			return _closest(el, selector || this.options.draggable, this.el);
+		},
+
+
+		/**
+		 * Set/get option
+		 * @param   {string} name
+		 * @param   {*}      [value]
+		 * @returns {*}
+		 */
+		option: function (name, value) {
+			var options = this.options;
+
+			if (value === void 0) {
+				return options[name];
+			} else {
+				options[name] = value;
+
+				if (name === 'group') {
+					_prepareGroup(options);
+				}
+			}
+		},
+
+
+		/**
+		 * Destroy
+		 */
+		destroy: function () {
+			var el = this.el;
+
+			el[expando] = null;
+
+			_off(el, 'mousedown', this._onTapStart);
+			_off(el, 'touchstart', this._onTapStart);
+			_off(el, 'pointerdown', this._onTapStart);
+
+			if (this.nativeDraggable) {
+				_off(el, 'dragover', this);
+				_off(el, 'dragenter', this);
+			}
+
+			// Remove draggable attributes
+			Array.prototype.forEach.call(el.querySelectorAll('[draggable]'), function (el) {
+				el.removeAttribute('draggable');
+			});
+
+			touchDragOverListeners.splice(touchDragOverListeners.indexOf(this._onDragOver), 1);
+
+			this._onDrop();
+
+			this.el = el = null;
+		}
+	};
+
+
+	function _cloneHide(sortable, state) {
+		if (sortable.lastPullMode !== 'clone') {
+			state = true;
+		}
+
+		if (cloneEl && (cloneEl.state !== state)) {
+			_css(cloneEl, 'display', state ? 'none' : '');
+
+			if (!state) {
+				if (cloneEl.state) {
+					if (sortable.options.group.revertClone) {
+						rootEl.insertBefore(cloneEl, nextEl);
+						sortable._animate(dragEl, cloneEl);
+					} else {
+						rootEl.insertBefore(cloneEl, dragEl);
+					}
+				}
+			}
+
+			cloneEl.state = state;
+		}
+	}
+
+
+	function _closest(/**HTMLElement*/el, /**String*/selector, /**HTMLElement*/ctx) {
+		if (el) {
+			ctx = ctx || document;
+
+			do {
+				if ((selector === '>*' && el.parentNode === ctx) || _matches(el, selector)) {
+					return el;
+				}
+				/* jshint boss:true */
+			} while (el = _getParentOrHost(el));
+		}
+
+		return null;
+	}
+
+
+	function _getParentOrHost(el) {
+		var parent = el.host;
+
+		return (parent && parent.nodeType) ? parent : el.parentNode;
+	}
+
+
+	function _globalDragOver(/**Event*/evt) {
+		if (evt.dataTransfer) {
+			evt.dataTransfer.dropEffect = 'move';
+		}
+		evt.preventDefault();
+	}
+
+
+	function _on(el, event, fn) {
+		el.addEventListener(event, fn, captureMode);
+	}
+
+
+	function _off(el, event, fn) {
+		el.removeEventListener(event, fn, captureMode);
+	}
+
+
+	function _toggleClass(el, name, state) {
+		if (el) {
+			if (el.classList) {
+				el.classList[state ? 'add' : 'remove'](name);
+			}
+			else {
+				var className = (' ' + el.className + ' ').replace(R_SPACE, ' ').replace(' ' + name + ' ', ' ');
+				el.className = (className + (state ? ' ' + name : '')).replace(R_SPACE, ' ');
+			}
+		}
+	}
+
+
+	function _css(el, prop, val) {
+		var style = el && el.style;
+
+		if (style) {
+			if (val === void 0) {
+				if (document.defaultView && document.defaultView.getComputedStyle) {
+					val = document.defaultView.getComputedStyle(el, '');
+				}
+				else if (el.currentStyle) {
+					val = el.currentStyle;
+				}
+
+				return prop === void 0 ? val : val[prop];
+			}
+			else {
+				if (!(prop in style)) {
+					prop = '-webkit-' + prop;
+				}
+
+				style[prop] = val + (typeof val === 'string' ? '' : 'px');
+			}
+		}
+	}
+
+
+	function _find(ctx, tagName, iterator) {
+		if (ctx) {
+			var list = ctx.getElementsByTagName(tagName), i = 0, n = list.length;
+
+			if (iterator) {
+				for (; i < n; i++) {
+					iterator(list[i], i);
+				}
+			}
+
+			return list;
+		}
+
+		return [];
+	}
+
+
+
+	function _dispatchEvent(sortable, rootEl, name, targetEl, toEl, fromEl, startIndex, newIndex) {
+		sortable = (sortable || rootEl[expando]);
+
+		var evt = document.createEvent('Event'),
+			options = sortable.options,
+			onName = 'on' + name.charAt(0).toUpperCase() + name.substr(1);
+
+		evt.initEvent(name, true, true);
+
+		evt.to = toEl || rootEl;
+		evt.from = fromEl || rootEl;
+		evt.item = targetEl || rootEl;
+		evt.clone = cloneEl;
+
+		evt.oldIndex = startIndex;
+		evt.newIndex = newIndex;
+
+		rootEl.dispatchEvent(evt);
+
+		if (options[onName]) {
+			options[onName].call(sortable, evt);
+		}
+	}
+
+
+	function _onMove(fromEl, toEl, dragEl, dragRect, targetEl, targetRect, originalEvt, willInsertAfter) {
+		var evt,
+			sortable = fromEl[expando],
+			onMoveFn = sortable.options.onMove,
+			retVal;
+
+		evt = document.createEvent('Event');
+		evt.initEvent('move', true, true);
+
+		evt.to = toEl;
+		evt.from = fromEl;
+		evt.dragged = dragEl;
+		evt.draggedRect = dragRect;
+		evt.related = targetEl || toEl;
+		evt.relatedRect = targetRect || toEl.getBoundingClientRect();
+		evt.willInsertAfter = willInsertAfter;
+
+		fromEl.dispatchEvent(evt);
+
+		if (onMoveFn) {
+			retVal = onMoveFn.call(sortable, evt, originalEvt);
+		}
+
+		return retVal;
+	}
+
+
+	function _disableDraggable(el) {
+		el.draggable = false;
+	}
+
+
+	function _unsilent() {
+		_silent = false;
+	}
+
+
+	/** @returns {HTMLElement|false} */
+	function _ghostIsLast(el, evt) {
+		var lastEl = el.lastElementChild,
+			rect = lastEl.getBoundingClientRect();
+
+		// 5 — min delta
+		// abs — нельзя добавлять, а то глюки при наведении сверху
+		return (evt.clientY - (rect.top + rect.height) > 5) ||
+			(evt.clientX - (rect.left + rect.width) > 5);
+	}
+
+
+	/**
+	 * Generate id
+	 * @param   {HTMLElement} el
+	 * @returns {String}
+	 * @private
+	 */
+	function _generateId(el) {
+		var str = el.tagName + el.className + el.src + el.href + el.textContent,
+			i = str.length,
+			sum = 0;
+
+		while (i--) {
+			sum += str.charCodeAt(i);
+		}
+
+		return sum.toString(36);
+	}
+
+	/**
+	 * Returns the index of an element within its parent for a selected set of
+	 * elements
+	 * @param  {HTMLElement} el
+	 * @param  {selector} selector
+	 * @return {number}
+	 */
+	function _index(el, selector) {
+		var index = 0;
+
+		if (!el || !el.parentNode) {
+			return -1;
+		}
+
+		while (el && (el = el.previousElementSibling)) {
+			if ((el.nodeName.toUpperCase() !== 'TEMPLATE') && (selector === '>*' || _matches(el, selector))) {
+				index++;
+			}
+		}
+
+		return index;
+	}
+
+	function _matches(/**HTMLElement*/el, /**String*/selector) {
+		if (el) {
+			selector = selector.split('.');
+
+			var tag = selector.shift().toUpperCase(),
+				re = new RegExp('\\s(' + selector.join('|') + ')(?=\\s)', 'g');
+
+			return (
+				(tag === '' || el.nodeName.toUpperCase() == tag) &&
+				(!selector.length || ((' ' + el.className + ' ').match(re) || []).length == selector.length)
+			);
+		}
+
+		return false;
+	}
+
+	function _throttle(callback, ms) {
+		var args, _this;
+
+		return function () {
+			if (args === void 0) {
+				args = arguments;
+				_this = this;
+
+				setTimeout(function () {
+					if (args.length === 1) {
+						callback.call(_this, args[0]);
+					} else {
+						callback.apply(_this, args);
+					}
+
+					args = void 0;
+				}, ms);
+			}
+		};
+	}
+
+	function _extend(dst, src) {
+		if (dst && src) {
+			for (var key in src) {
+				if (src.hasOwnProperty(key)) {
+					dst[key] = src[key];
+				}
+			}
+		}
+
+		return dst;
+	}
+
+	function _clone(el) {
+		if (Polymer && Polymer.dom) {
+			return Polymer.dom(el).cloneNode(true);
+		}
+		else if ($) {
+			return $(el).clone(true)[0];
+		}
+		else {
+			return el.cloneNode(true);
+		}
+	}
+
+	function _saveInputCheckedState(root) {
+		var inputs = root.getElementsByTagName('input');
+		var idx = inputs.length;
+
+		while (idx--) {
+			var el = inputs[idx];
+			el.checked && savedInputChecked.push(el);
+		}
+	}
+
+	function _nextTick(fn) {
+		return setTimeout(fn, 0);
+	}
+
+	function _cancelNextTick(id) {
+		return clearTimeout(id);
+	}
+
+	// Fixed #973:
+	_on(document, 'touchmove', function (evt) {
+		if (Sortable.active) {
+			evt.preventDefault();
+		}
+	});
+
+	// Export utils
+	Sortable.utils = {
+		on: _on,
+		off: _off,
+		css: _css,
+		find: _find,
+		is: function (el, selector) {
+			return !!_closest(el, selector, el);
+		},
+		extend: _extend,
+		throttle: _throttle,
+		closest: _closest,
+		toggleClass: _toggleClass,
+		clone: _clone,
+		index: _index,
+		nextTick: _nextTick,
+		cancelNextTick: _cancelNextTick
+	};
+
+
+	/**
+	 * Create sortable instance
+	 * @param {HTMLElement}  el
+	 * @param {Object}      [options]
+	 */
+	Sortable.create = function (el, options) {
+		return new Sortable(el, options);
+	};
+
+
+	// Export
+	Sortable.version = '1.7.0';
+	return Sortable;
+});
+});
+
+var clusterize = createCommonjsModule(function (module) {
+/*! Clusterize.js - v0.18.0 - 2017-11-04
+* http://NeXTs.github.com/Clusterize.js/
+* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
+
+(function(name, definition) {
+    module.exports = definition();
+}('Clusterize', function() {
+  var ie = (function(){
+    for( var v = 3,
+             el = document.createElement('b'),
+             all = el.all || [];
+         el.innerHTML = '<!--[if gt IE ' + (++v) + ']><i><![endif]-->', all[0];
+       ){}
+    return v > 4 ? v : document.documentMode;
+  }()),
+  is_mac = navigator.platform.toLowerCase().indexOf('mac') + 1;
+  var Clusterize = function(data) {
+    if( ! (this instanceof Clusterize))
+      return new Clusterize(data);
+    var self = this;
+
+    var defaults = {
+      rows_in_block: 50,
+      blocks_in_cluster: 4,
+      tag: null,
+      show_no_data_row: true,
+      no_data_class: 'clusterize-no-data',
+      no_data_text: 'No data',
+      keep_parity: true,
+      callbacks: {}
+    };
+
+    // public parameters
+    self.options = {};
+    var options = ['rows_in_block', 'blocks_in_cluster', 'show_no_data_row', 'no_data_class', 'no_data_text', 'keep_parity', 'tag', 'callbacks'];
+    for(var i = 0, option; option = options[i]; i++) {
+      self.options[option] = typeof data[option] != 'undefined' && data[option] != null
+        ? data[option]
+        : defaults[option];
+    }
+
+    var elems = ['scroll', 'content'];
+    for(var i = 0, elem; elem = elems[i]; i++) {
+      self[elem + '_elem'] = data[elem + 'Id']
+        ? document.getElementById(data[elem + 'Id'])
+        : data[elem + 'Elem'];
+      if( ! self[elem + '_elem'])
+        throw new Error("Error! Could not find " + elem + " element");
+    }
+
+    // tabindex forces the browser to keep focus on the scrolling list, fixes #11
+    if( ! self.content_elem.hasAttribute('tabindex'))
+      self.content_elem.setAttribute('tabindex', 0);
+
+    // private parameters
+    var rows = isArray(data.rows)
+        ? data.rows
+        : self.fetchMarkup(),
+      cache = {},
+      scroll_top = self.scroll_elem.scrollTop;
+
+    // append initial data
+    self.insertToDOM(rows, cache);
+
+    // restore the scroll position
+    self.scroll_elem.scrollTop = scroll_top;
+
+    // adding scroll handler
+    var last_cluster = false,
+    scroll_debounce = 0,
+    pointer_events_set = false,
+    scrollEv = function() {
+      // fixes scrolling issue on Mac #3
+      if (is_mac) {
+          if( ! pointer_events_set) self.content_elem.style.pointerEvents = 'none';
+          pointer_events_set = true;
+          clearTimeout(scroll_debounce);
+          scroll_debounce = setTimeout(function () {
+              self.content_elem.style.pointerEvents = 'auto';
+              pointer_events_set = false;
+          }, 50);
+      }
+      if (last_cluster != (last_cluster = self.getClusterNum()))
+        self.insertToDOM(rows, cache);
+      if (self.options.callbacks.scrollingProgress)
+        self.options.callbacks.scrollingProgress(self.getScrollProgress());
+    },
+    resize_debounce = 0,
+    resizeEv = function() {
+      clearTimeout(resize_debounce);
+      resize_debounce = setTimeout(self.refresh, 100);
+    };
+    on('scroll', self.scroll_elem, scrollEv);
+    on('resize', window, resizeEv);
+
+    // public methods
+    self.destroy = function(clean) {
+      off('scroll', self.scroll_elem, scrollEv);
+      off('resize', window, resizeEv);
+      self.html((clean ? self.generateEmptyRow() : rows).join(''));
+    };
+    self.refresh = function(force) {
+      if(self.getRowsHeight(rows) || force) self.update(rows);
+    };
+    self.update = function(new_rows) {
+      rows = isArray(new_rows)
+        ? new_rows
+        : [];
+      var scroll_top = self.scroll_elem.scrollTop;
+      // fixes #39
+      if(rows.length * self.options.item_height < scroll_top) {
+        self.scroll_elem.scrollTop = 0;
+        last_cluster = 0;
+      }
+      self.insertToDOM(rows, cache);
+      self.scroll_elem.scrollTop = scroll_top;
+    };
+    self.clear = function() {
+      self.update([]);
+    };
+    self.getRowsAmount = function() {
+      return rows.length;
+    };
+    self.getScrollProgress = function() {
+      return this.options.scroll_top / (rows.length * this.options.item_height) * 100 || 0;
+    };
+
+    var add = function(where, _new_rows) {
+      var new_rows = isArray(_new_rows)
+        ? _new_rows
+        : [];
+      if( ! new_rows.length) return;
+      rows = where == 'append'
+        ? rows.concat(new_rows)
+        : new_rows.concat(rows);
+      self.insertToDOM(rows, cache);
+    };
+    self.append = function(rows) {
+      add('append', rows);
+    };
+    self.prepend = function(rows) {
+      add('prepend', rows);
+    };
+  };
+
+  Clusterize.prototype = {
+    constructor: Clusterize,
+    // fetch existing markup
+    fetchMarkup: function() {
+      var rows = [], rows_nodes = this.getChildNodes(this.content_elem);
+      while (rows_nodes.length) {
+        rows.push(rows_nodes.shift().outerHTML);
+      }
+      return rows;
+    },
+    // get tag name, content tag name, tag height, calc cluster height
+    exploreEnvironment: function(rows, cache) {
+      var opts = this.options;
+      opts.content_tag = this.content_elem.tagName.toLowerCase();
+      if( ! rows.length) return;
+      if(ie && ie <= 9 && ! opts.tag) opts.tag = rows[0].match(/<([^>\s/]*)/)[1].toLowerCase();
+      if(this.content_elem.children.length <= 1) cache.data = this.html(rows[0] + rows[0] + rows[0]);
+      if( ! opts.tag) opts.tag = this.content_elem.children[0].tagName.toLowerCase();
+      this.getRowsHeight(rows);
+    },
+    getRowsHeight: function(rows) {
+      var opts = this.options,
+        prev_item_height = opts.item_height;
+      opts.cluster_height = 0;
+      if( ! rows.length) return;
+      var nodes = this.content_elem.children;
+      var node = nodes[Math.floor(nodes.length / 2)];
+      opts.item_height = node.offsetHeight;
+      // consider table's border-spacing
+      if(opts.tag == 'tr' && getStyle('borderCollapse', this.content_elem) != 'collapse')
+        opts.item_height += parseInt(getStyle('borderSpacing', this.content_elem), 10) || 0;
+      // consider margins (and margins collapsing)
+      if(opts.tag != 'tr') {
+        var marginTop = parseInt(getStyle('marginTop', node), 10) || 0;
+        var marginBottom = parseInt(getStyle('marginBottom', node), 10) || 0;
+        opts.item_height += Math.max(marginTop, marginBottom);
+      }
+      opts.block_height = opts.item_height * opts.rows_in_block;
+      opts.rows_in_cluster = opts.blocks_in_cluster * opts.rows_in_block;
+      opts.cluster_height = opts.blocks_in_cluster * opts.block_height;
+      return prev_item_height != opts.item_height;
+    },
+    // get current cluster number
+    getClusterNum: function () {
+      this.options.scroll_top = this.scroll_elem.scrollTop;
+      return Math.floor(this.options.scroll_top / (this.options.cluster_height - this.options.block_height)) || 0;
+    },
+    // generate empty row if no data provided
+    generateEmptyRow: function() {
+      var opts = this.options;
+      if( ! opts.tag || ! opts.show_no_data_row) return [];
+      var empty_row = document.createElement(opts.tag),
+        no_data_content = document.createTextNode(opts.no_data_text), td;
+      empty_row.className = opts.no_data_class;
+      if(opts.tag == 'tr') {
+        td = document.createElement('td');
+        // fixes #53
+        td.colSpan = 100;
+        td.appendChild(no_data_content);
+      }
+      empty_row.appendChild(td || no_data_content);
+      return [empty_row.outerHTML];
+    },
+    // generate cluster for current scroll position
+    generate: function (rows, cluster_num) {
+      var opts = this.options,
+        rows_len = rows.length;
+      if (rows_len < opts.rows_in_block) {
+        return {
+          top_offset: 0,
+          bottom_offset: 0,
+          rows_above: 0,
+          rows: rows_len ? rows : this.generateEmptyRow()
+        }
+      }
+      var items_start = Math.max((opts.rows_in_cluster - opts.rows_in_block) * cluster_num, 0),
+        items_end = items_start + opts.rows_in_cluster,
+        top_offset = Math.max(items_start * opts.item_height, 0),
+        bottom_offset = Math.max((rows_len - items_end) * opts.item_height, 0),
+        this_cluster_rows = [],
+        rows_above = items_start;
+      if(top_offset < 1) {
+        rows_above++;
+      }
+      for (var i = items_start; i < items_end; i++) {
+        rows[i] && this_cluster_rows.push(rows[i]);
+      }
+      return {
+        top_offset: top_offset,
+        bottom_offset: bottom_offset,
+        rows_above: rows_above,
+        rows: this_cluster_rows
+      }
+    },
+    renderExtraTag: function(class_name, height) {
+      var tag = document.createElement(this.options.tag),
+        clusterize_prefix = 'clusterize-';
+      tag.className = [clusterize_prefix + 'extra-row', clusterize_prefix + class_name].join(' ');
+      height && (tag.style.height = height + 'px');
+      return tag.outerHTML;
+    },
+    // if necessary verify data changed and insert to DOM
+    insertToDOM: function(rows, cache) {
+      // explore row's height
+      if( ! this.options.cluster_height) {
+        this.exploreEnvironment(rows, cache);
+      }
+      var data = this.generate(rows, this.getClusterNum()),
+        this_cluster_rows = data.rows.join(''),
+        this_cluster_content_changed = this.checkChanges('data', this_cluster_rows, cache),
+        top_offset_changed = this.checkChanges('top', data.top_offset, cache),
+        only_bottom_offset_changed = this.checkChanges('bottom', data.bottom_offset, cache),
+        callbacks = this.options.callbacks,
+        layout = [];
+
+      if(this_cluster_content_changed || top_offset_changed) {
+        if(data.top_offset) {
+          this.options.keep_parity && layout.push(this.renderExtraTag('keep-parity'));
+          layout.push(this.renderExtraTag('top-space', data.top_offset));
+        }
+        layout.push(this_cluster_rows);
+        data.bottom_offset && layout.push(this.renderExtraTag('bottom-space', data.bottom_offset));
+        callbacks.clusterWillChange && callbacks.clusterWillChange();
+        this.html(layout.join(''));
+        this.options.content_tag == 'ol' && this.content_elem.setAttribute('start', data.rows_above);
+        this.content_elem.style['counter-increment'] = 'clusterize-counter ' + (data.rows_above-1);
+        callbacks.clusterChanged && callbacks.clusterChanged();
+      } else if(only_bottom_offset_changed) {
+        this.content_elem.lastChild.style.height = data.bottom_offset + 'px';
+      }
+    },
+    // unfortunately ie <= 9 does not allow to use innerHTML for table elements, so make a workaround
+    html: function(data) {
+      var content_elem = this.content_elem;
+      if(ie && ie <= 9 && this.options.tag == 'tr') {
+        var div = document.createElement('div'), last;
+        div.innerHTML = '<table><tbody>' + data + '</tbody></table>';
+        while((last = content_elem.lastChild)) {
+          content_elem.removeChild(last);
+        }
+        var rows_nodes = this.getChildNodes(div.firstChild.firstChild);
+        while (rows_nodes.length) {
+          content_elem.appendChild(rows_nodes.shift());
+        }
+      } else {
+        content_elem.innerHTML = data;
+      }
+    },
+    getChildNodes: function(tag) {
+        var child_nodes = tag.children, nodes = [];
+        for (var i = 0, ii = child_nodes.length; i < ii; i++) {
+            nodes.push(child_nodes[i]);
+        }
+        return nodes;
+    },
+    checkChanges: function(type, value, cache) {
+      var changed = value != cache[type];
+      cache[type] = value;
+      return changed;
+    }
+  };
+
+  // support functions
+  function on(evt, element, fnc) {
+    return element.addEventListener ? element.addEventListener(evt, fnc, false) : element.attachEvent("on" + evt, fnc);
+  }
+  function off(evt, element, fnc) {
+    return element.removeEventListener ? element.removeEventListener(evt, fnc, false) : element.detachEvent("on" + evt, fnc);
+  }
+  function isArray(arr) {
+    return Object.prototype.toString.call(arr) === '[object Array]';
+  }
+  function getStyle(prop, elem) {
+    return window.getComputedStyle ? window.getComputedStyle(elem)[prop] : elem.currentStyle[prop];
+  }
+
+  return Clusterize;
+}));
+});
+
+var frappeDatatable = createCommonjsModule(function (module, exports) {
+(function webpackUniversalModuleDefinition(root, factory) {
+	module.exports = factory(Sortable, clusterize);
+})(typeof self !== 'undefined' ? self : commonjsGlobal, function(__WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_11__) {
+return /******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+exports.default = $;
+function $(expr, con) {
+  return typeof expr === 'string' ? (con || document).querySelector(expr) : expr || null;
+}
+
+$.each = function (expr, con) {
+  return typeof expr === 'string' ? Array.from((con || document).querySelectorAll(expr)) : expr || null;
+};
+
+$.create = function (tag, o) {
+  var element = document.createElement(tag);
+
+  var _loop = function _loop(i) {
+    var val = o[i];
+
+    if (i === 'inside') {
+      $(val).appendChild(element);
+    } else if (i === 'around') {
+      var ref = $(val);
+      ref.parentNode.insertBefore(element, ref);
+      element.appendChild(ref);
+    } else if (i === 'styles') {
+      if ((typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object') {
+        Object.keys(val).map(function (prop) {
+          element.style[prop] = val[prop];
+        });
+      }
+    } else if (i in element) {
+      element[i] = val;
+    } else {
+      element.setAttribute(i, val);
+    }
+  };
+
+  for (var i in o) {
+    _loop(i);
+  }
+
+  return element;
+};
+
+$.on = function (element, event, selector, callback) {
+  if (!callback) {
+    callback = selector;
+    $.bind(element, event, callback);
+  } else {
+    $.delegate(element, event, selector, callback);
+  }
+};
+
+$.off = function (element, event, handler) {
+  element.removeEventListener(event, handler);
+};
+
+$.bind = function (element, event, callback) {
+  event.split(/\s+/).forEach(function (event) {
+    element.addEventListener(event, callback);
+  });
+};
+
+$.delegate = function (element, event, selector, callback) {
+  element.addEventListener(event, function (e) {
+    var delegatedTarget = e.target.closest(selector);
+    if (delegatedTarget) {
+      e.delegatedTarget = delegatedTarget;
+      callback.call(this, e, delegatedTarget);
+    }
+  });
+};
+
+$.unbind = function (element, o) {
+  if (element) {
+    var _loop2 = function _loop2(event) {
+      var callback = o[event];
+
+      event.split(/\s+/).forEach(function (event) {
+        element.removeEventListener(event, callback);
+      });
+    };
+
+    for (var event in o) {
+      _loop2(event);
+    }
+  }
+};
+
+$.fire = function (target, type, properties) {
+  var evt = document.createEvent('HTMLEvents');
+
+  evt.initEvent(type, true, true);
+
+  for (var j in properties) {
+    evt[j] = properties[j];
+  }
+
+  return target.dispatchEvent(evt);
+};
+
+$.data = function (element, attrs) {
+  // eslint-disable-line
+  if (!attrs) {
+    return element.dataset;
+  }
+
+  for (var attr in attrs) {
+    element.dataset[attr] = attrs[attr];
+  }
+};
+
+$.style = function (elements, styleMap) {
+  // eslint-disable-line
+
+  if (typeof styleMap === 'string') {
+    return $.getStyle(elements, styleMap);
+  }
+
+  if (!Array.isArray(elements)) {
+    elements = [elements];
+  }
+
+  elements.map(function (element) {
+    for (var prop in styleMap) {
+      element.style[prop] = styleMap[prop];
+    }
+  });
+};
+
+$.removeStyle = function (elements, styleProps) {
+  if (!Array.isArray(elements)) {
+    elements = [elements];
+  }
+
+  if (!Array.isArray(styleProps)) {
+    styleProps = [styleProps];
+  }
+
+  elements.map(function (element) {
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = styleProps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var prop = _step.value;
+
+        element.style[prop] = '';
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+  });
+};
+
+$.getStyle = function (element, prop) {
+  var val = getComputedStyle(element)[prop];
+
+  if (['width', 'height'].includes(prop)) {
+    val = parseFloat(val);
+  }
+
+  return val;
+};
+
+$.closest = function (selector, element) {
+  if (!element) return null;
+
+  if (element.matches(selector)) {
+    return element;
+  }
+
+  return $.closest(selector, element.parentNode);
+};
+
+$.inViewport = function (el, parentEl) {
+  var _el$getBoundingClient = el.getBoundingClientRect(),
+      top = _el$getBoundingClient.top,
+      left = _el$getBoundingClient.left,
+      bottom = _el$getBoundingClient.bottom,
+      right = _el$getBoundingClient.right;
+
+  var _parentEl$getBounding = parentEl.getBoundingClientRect(),
+      pTop = _parentEl$getBounding.top,
+      pLeft = _parentEl$getBounding.left,
+      pBottom = _parentEl$getBounding.bottom,
+      pRight = _parentEl$getBounding.right;
+
+  return top >= pTop && left >= pLeft && bottom <= pBottom && right <= pRight;
+};
+
+$.scrollTop = function scrollTop(element, pixels) {
+  requestAnimationFrame(function () {
+    element.scrollTop = pixels;
+  });
+};
+module.exports = exports['default'];
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.camelCaseToDash = camelCaseToDash;
+exports.makeDataAttributeString = makeDataAttributeString;
+exports.getDefault = getDefault;
+exports.escapeRegExp = escapeRegExp;
+exports.getCSSString = getCSSString;
+exports.getCSSRuleBlock = getCSSRuleBlock;
+exports.buildCSSRule = buildCSSRule;
+exports.removeCSSRule = removeCSSRule;
+exports.copyTextToClipboard = copyTextToClipboard;
+exports.isNumeric = isNumeric;
+exports.throttle = throttle;
+exports.promisify = promisify;
+exports.chainPromises = chainPromises;
+function camelCaseToDash(str) {
+  return str.replace(/([A-Z])/g, function (g) {
+    return '-' + g[0].toLowerCase();
+  });
+}
+
+function makeDataAttributeString(props) {
+  var keys = Object.keys(props);
+
+  return keys.map(function (key) {
+    var _key = camelCaseToDash(key);
+    var val = props[key];
+
+    if (val === undefined) return '';
+    return 'data-' + _key + '="' + val + '" ';
+  }).join('').trim();
+}
+
+function getDefault(a, b) {
+  return a !== undefined ? a : b;
+}
+
+function escapeRegExp(str) {
+  // https://stackoverflow.com/a/6969486
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
+}
+
+function getCSSString(styleMap) {
+  var style = '';
+
+  for (var prop in styleMap) {
+    if (styleMap.hasOwnProperty(prop)) {
+      style += prop + ': ' + styleMap[prop] + '; ';
+    }
+  }
+
+  return style.trim();
+}
+
+function getCSSRuleBlock(rule, styleMap) {
+  return rule + ' { ' + getCSSString(styleMap) + ' }';
+}
+
+function buildCSSRule(rule, styleMap) {
+  var cssRulesString = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
+
+  // build css rules efficiently,
+  // append new rule if doesnt exist,
+  // update existing ones
+
+  var rulePatternStr = escapeRegExp(rule) + ' {([^}]*)}';
+  var rulePattern = new RegExp(rulePatternStr, 'g');
+
+  if (cssRulesString && cssRulesString.match(rulePattern)) {
+    var _loop = function _loop(property) {
+      var value = styleMap[property];
+      var propPattern = new RegExp(escapeRegExp(property) + ':([^;]*);');
+
+      cssRulesString = cssRulesString.replace(rulePattern, function (match, propertyStr) {
+        if (propertyStr.match(propPattern)) {
+          // property exists, replace value with new value
+          propertyStr = propertyStr.replace(propPattern, function (match, valueStr) {
+            return property + ': ' + value + ';';
+          });
+        }
+        propertyStr = propertyStr.trim();
+
+        var replacer = rule + ' { ' + propertyStr + ' }';
+
+        return replacer;
+      });
+    };
+
+    for (var property in styleMap) {
+      _loop(property);
+    }
+
+    return cssRulesString;
+  }
+  // no match, append new rule block
+  return '' + cssRulesString + getCSSRuleBlock(rule, styleMap);
+}
+
+function removeCSSRule(rule) {
+  var cssRulesString = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
+
+  var rulePatternStr = escapeRegExp(rule) + ' {([^}]*)}';
+  var rulePattern = new RegExp(rulePatternStr, 'g');
+  var output = cssRulesString;
+
+  if (cssRulesString && cssRulesString.match(rulePattern)) {
+    output = cssRulesString.replace(rulePattern, '');
+  }
+
+  return output.trim();
+}
+
+function copyTextToClipboard(text) {
+  // https://stackoverflow.com/a/30810322/5353542
+  var textArea = document.createElement('textarea');
+
+  //
+  // *** This styling is an extra step which is likely not required. ***
+  //
+  // Why is it here? To ensure:
+  // 1. the element is able to have focus and selection.
+  // 2. if element was to flash render it has minimal visual impact.
+  // 3. less flakyness with selection and copying which **might** occur if
+  //    the textarea element is not visible.
+  //
+  // The likelihood is the element won't even render, not even a flash,
+  // so some of these are just precautions. However in IE the element
+  // is visible whilst the popup box asking the user for permission for
+  // the web page to copy to the clipboard.
+  //
+
+  // Place in top-left corner of screen regardless of scroll position.
+  textArea.style.position = 'fixed';
+  textArea.style.top = 0;
+  textArea.style.left = 0;
+
+  // Ensure it has a small width and height. Setting to 1px / 1em
+  // doesn't work as this gives a negative w/h on some browsers.
+  textArea.style.width = '2em';
+  textArea.style.height = '2em';
+
+  // We don't need padding, reducing the size if it does flash render.
+  textArea.style.padding = 0;
+
+  // Clean up any borders.
+  textArea.style.border = 'none';
+  textArea.style.outline = 'none';
+  textArea.style.boxShadow = 'none';
+
+  // Avoid flash of white box if rendered for any reason.
+  textArea.style.background = 'transparent';
+
+  textArea.value = text;
+
+  document.body.appendChild(textArea);
+
+  textArea.select();
+
+  try {
+    document.execCommand('copy');
+  } catch (err) {
+    console.log('Oops, unable to copy');
+  }
+
+  document.body.removeChild(textArea);
+}
+
+function isNumeric(val) {
+  return !isNaN(val);
+}
+
+// https://stackoverflow.com/a/27078401
+function throttle(func, wait, options) {
+  var context, args, result;
+  var timeout = null;
+  var previous = 0;
+  if (!options) options = {};
+
+  var later = function later() {
+    previous = options.leading === false ? 0 : Date.now();
+    timeout = null;
+    result = func.apply(context, args);
+    if (!timeout) context = args = null;
+  };
+
+  return function () {
+    var now = Date.now();
+    if (!previous && options.leading === false) previous = now;
+    var remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+    if (remaining <= 0 || remaining > wait) {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      previous = now;
+      result = func.apply(context, args);
+      if (!timeout) context = args = null;
+    } else if (!timeout && options.trailing !== false) {
+      timeout = setTimeout(later, remaining);
+    }
+    return result;
+  };
+}
+
+function promisify(fn) {
+  var context = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+  return function () {
+    for (var _len = arguments.length, args = Array(_len), _key2 = 0; _key2 < _len; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    return new Promise(function (resolve) {
+      setTimeout(function () {
+        fn.apply(context, args);
+        resolve('done', fn.name);
+      }, 0);
+    });
+  };
+}
+
+function chainPromises(promises) {
+  return promises.reduce(function (prev, cur) {
+    return prev.then(cur);
+  }, Promise.resolve());
+}
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var KEYCODES = {
+  13: 'enter',
+  91: 'meta',
+  16: 'shift',
+  17: 'ctrl',
+  18: 'alt',
+  37: 'left',
+  38: 'up',
+  39: 'right',
+  40: 'down',
+  9: 'tab',
+  27: 'esc',
+  67: 'c'
+};
+
+var initDone = false;
+var handlers = {};
+
+function bind(dom) {
+  if (initDone) return;
+  _dom2.default.on(dom, 'keydown', handler);
+  initDone = true;
+}
+
+function handler(e) {
+  var key = KEYCODES[e.keyCode];
+
+  if (e.shiftKey && key !== 'shift') {
+    key = 'shift+' + key;
+  }
+
+  if (e.ctrlKey && key !== 'ctrl' || e.metaKey && key !== 'meta') {
+    key = 'ctrl+' + key;
+  }
+
+  var _handlers = handlers[key];
+
+  if (_handlers && _handlers.length > 0) {
+    _handlers.map(function (handler) {
+      var preventBubbling = handler();
+
+      if (preventBubbling === undefined || preventBubbling === true) {
+        e.preventDefault();
+      }
+    });
+  }
+}
+
+exports.default = {
+  init: function init(dom) {
+    bind(dom);
+  },
+  on: function on(key, handler) {
+    var keys = key.split(',').map(function (k) {
+      return k.trim();
+    });
+
+    keys.map(function (key) {
+      handlers[key] = handlers[key] || [];
+      handlers[key].push(handler);
+    });
+  }
+};
+module.exports = exports['default'];
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getDropdownHTML = undefined;
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _sortablejs = __webpack_require__(8);
+
+var _sortablejs2 = _interopRequireDefault(_sortablejs);
+
+var _utils = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ColumnManager = function () {
+  function ColumnManager(instance) {
+    _classCallCheck(this, ColumnManager);
+
+    this.instance = instance;
+    this.options = this.instance.options;
+    this.fireEvent = this.instance.fireEvent;
+    this.header = this.instance.header;
+    this.datamanager = this.instance.datamanager;
+    this.style = this.instance.style;
+    this.wrapper = this.instance.wrapper;
+    this.rowmanager = this.instance.rowmanager;
+
+    this.bindEvents();
+    exports.getDropdownHTML = getDropdownHTML = getDropdownHTML.bind(this, this.options.dropdownButton);
+  }
+
+  _createClass(ColumnManager, [{
+    key: 'renderHeader',
+    value: function renderHeader() {
+      this.header.innerHTML = '<thead></thead>';
+      this.refreshHeader();
+    }
+  }, {
+    key: 'refreshHeader',
+    value: function refreshHeader() {
+      var _this = this;
+
+      var columns = this.datamanager.getColumns();
+
+      if (!(0, _dom2.default)('.data-table-col', this.header)) {
+        // insert html
+        (0, _dom2.default)('thead', this.header).innerHTML = this.rowmanager.getRowHTML(columns, { isHeader: 1 });
+      } else {
+        // refresh dom state
+        var $cols = _dom2.default.each('.data-table-col', this.header);
+        if (columns.length < $cols.length) {
+          // deleted column
+          (0, _dom2.default)('thead', this.header).innerHTML = this.rowmanager.getRowHTML(columns, { isHeader: 1 });
+          return;
+        }
+
+        $cols.map(function ($col, i) {
+          var column = columns[i];
+          // column sorted or order changed
+          // update colIndex of each header cell
+          _dom2.default.data($col, {
+            colIndex: column.colIndex
+          });
+
+          // refresh sort indicator
+          var sortIndicator = (0, _dom2.default)('.sort-indicator', $col);
+          if (sortIndicator) {
+            sortIndicator.innerHTML = _this.options.sortIndicator[column.sortOrder];
+          }
+        });
+      }
+      // reset columnMap
+      this.$columnMap = [];
+    }
+  }, {
+    key: 'bindEvents',
+    value: function bindEvents() {
+      this.bindDropdown();
+      this.bindResizeColumn();
+      this.bindMoveColumn();
+    }
+  }, {
+    key: 'bindDropdown',
+    value: function bindDropdown() {
+      var _this2 = this;
+
+      var $activeDropdown = void 0;
+      _dom2.default.on(this.header, 'click', '.data-table-dropdown-toggle', function (e, $button) {
+        var $dropdown = _dom2.default.closest('.data-table-dropdown', $button);
+
+        if (!$dropdown.classList.contains('is-active')) {
+          deactivateDropdown();
+          $dropdown.classList.add('is-active');
+          $activeDropdown = $dropdown;
+        } else {
+          deactivateDropdown();
+        }
+      });
+
+      _dom2.default.on(document.body, 'click', function (e) {
+        if (e.target.matches('.data-table-dropdown-toggle')) return;
+        deactivateDropdown();
+      });
+
+      var dropdownItems = this.options.headerDropdown;
+
+      _dom2.default.on(this.header, 'click', '.data-table-dropdown-list > div', function (e, $item) {
+        var $col = _dom2.default.closest('.data-table-col', $item);
+
+        var _$$data = _dom2.default.data($item),
+            index = _$$data.index;
+
+        var _$$data2 = _dom2.default.data($col),
+            colIndex = _$$data2.colIndex;
+
+        var callback = dropdownItems[index].action;
+
+        callback && callback.call(_this2.instance, _this2.getColumn(colIndex));
+      });
+
+      function deactivateDropdown(e) {
+        $activeDropdown && $activeDropdown.classList.remove('is-active');
+        $activeDropdown = null;
+      }
+    }
+  }, {
+    key: 'bindResizeColumn',
+    value: function bindResizeColumn() {
+      var _this3 = this;
+
+      var isDragging = false;
+      var $resizingCell = void 0,
+          startWidth = void 0,
+          startX = void 0;
+
+      _dom2.default.on(this.header, 'mousedown', '.data-table-col .column-resizer', function (e, $handle) {
+        document.body.classList.add('data-table-resize');
+        var $cell = $handle.parentNode.parentNode;
+        $resizingCell = $cell;
+
+        var _$$data3 = _dom2.default.data($resizingCell),
+            colIndex = _$$data3.colIndex;
+
+        var col = _this3.getColumn(colIndex);
+
+        if (col && col.resizable === false) {
+          return;
+        }
+
+        isDragging = true;
+        startWidth = _dom2.default.style((0, _dom2.default)('.content', $resizingCell), 'width');
+        startX = e.pageX;
+      });
+
+      _dom2.default.on(document.body, 'mouseup', function (e) {
+        document.body.classList.remove('data-table-resize');
+        if (!$resizingCell) return;
+        isDragging = false;
+
+        var _$$data4 = _dom2.default.data($resizingCell),
+            colIndex = _$$data4.colIndex;
+
+        _this3.setColumnWidth(colIndex);
+        _this3.instance.setBodyWidth();
+        $resizingCell = null;
+      });
+
+      _dom2.default.on(document.body, 'mousemove', function (e) {
+        if (!isDragging) return;
+        var finalWidth = startWidth + (e.pageX - startX);
+
+        var _$$data5 = _dom2.default.data($resizingCell),
+            colIndex = _$$data5.colIndex;
+
+        if (_this3.getColumnMinWidth(colIndex) > finalWidth) {
+          // don't resize past minWidth
+          return;
+        }
+        _this3.datamanager.updateColumn(colIndex, { width: finalWidth });
+        _this3.setColumnHeaderWidth(colIndex);
+      });
+    }
+  }, {
+    key: 'bindMoveColumn',
+    value: function bindMoveColumn() {
+      var _this4 = this;
+
+      var initialized = void 0;
+
+      var initialize = function initialize() {
+        if (initialized) {
+          _dom2.default.off(document.body, 'mousemove', initialize);
+          return;
+        }
+        var ready = (0, _dom2.default)('.data-table-col', _this4.header);
+        if (!ready) return;
+
+        var $parent = (0, _dom2.default)('.data-table-row', _this4.header);
+
+        _this4.sortable = _sortablejs2.default.create($parent, {
+          onEnd: function onEnd(e) {
+            var oldIndex = e.oldIndex,
+                newIndex = e.newIndex;
+
+            var $draggedCell = e.item;
+
+            var _$$data6 = _dom2.default.data($draggedCell),
+                colIndex = _$$data6.colIndex;
+
+            if (+colIndex === newIndex) return;
+
+            _this4.switchColumn(oldIndex, newIndex);
+          },
+          preventOnFilter: false,
+          filter: '.column-resizer, .data-table-dropdown',
+          animation: 150
+        });
+      };
+
+      _dom2.default.on(document.body, 'mousemove', initialize);
+    }
+  }, {
+    key: 'bindSortColumn',
+    value: function bindSortColumn() {
+      var _this5 = this;
+
+      _dom2.default.on(this.header, 'click', '.data-table-col .column-title', function (e, span) {
+        var $cell = span.closest('.data-table-col');
+
+        var _$$data7 = _dom2.default.data($cell),
+            colIndex = _$$data7.colIndex,
+            sortOrder = _$$data7.sortOrder;
+
+        sortOrder = (0, _utils.getDefault)(sortOrder, 'none');
+        var col = _this5.getColumn(colIndex);
+
+        if (col && col.sortable === false) {
+          return;
+        }
+
+        // reset sort indicator
+        (0, _dom2.default)('.sort-indicator', _this5.header).textContent = '';
+        _dom2.default.each('.data-table-col', _this5.header).map(function ($cell) {
+          _dom2.default.data($cell, {
+            sortOrder: 'none'
+          });
+        });
+
+        var nextSortOrder = void 0,
+            textContent = void 0;
+        if (sortOrder === 'none') {
+          nextSortOrder = 'asc';
+          textContent = '▲';
+        } else if (sortOrder === 'asc') {
+          nextSortOrder = 'desc';
+          textContent = '▼';
+        } else if (sortOrder === 'desc') {
+          nextSortOrder = 'none';
+          textContent = '';
+        }
+
+        _dom2.default.data($cell, {
+          sortOrder: nextSortOrder
+        });
+        (0, _dom2.default)('.sort-indicator', $cell).textContent = textContent;
+
+        _this5.sortColumn(colIndex, nextSortOrder);
+      });
+    }
+  }, {
+    key: 'sortColumn',
+    value: function sortColumn(colIndex, nextSortOrder) {
+      var _this6 = this;
+
+      this.instance.freeze();
+      this.sortRows(colIndex, nextSortOrder).then(function () {
+        _this6.refreshHeader();
+        return _this6.rowmanager.refreshRows();
+      }).then(function () {
+        return _this6.instance.unfreeze();
+      }).then(function () {
+        _this6.fireEvent('onSortColumn', _this6.getColumn(colIndex));
+      });
+    }
+  }, {
+    key: 'removeColumn',
+    value: function removeColumn(colIndex) {
+      var _this7 = this;
+
+      var removedCol = this.getColumn(colIndex);
+      this.instance.freeze();
+      this.datamanager.removeColumn(colIndex).then(function () {
+        _this7.refreshHeader();
+        return _this7.rowmanager.refreshRows();
+      }).then(function () {
+        return _this7.instance.unfreeze();
+      }).then(function () {
+        _this7.fireEvent('onRemoveColumn', removedCol);
+      });
+    }
+  }, {
+    key: 'switchColumn',
+    value: function switchColumn(oldIndex, newIndex) {
+      var _this8 = this;
+
+      this.instance.freeze();
+      this.datamanager.switchColumn(oldIndex, newIndex).then(function () {
+        _this8.refreshHeader();
+        return _this8.rowmanager.refreshRows();
+      }).then(function () {
+        _this8.setColumnWidth(oldIndex);
+        _this8.setColumnWidth(newIndex);
+        _this8.instance.unfreeze();
+      }).then(function () {
+        _this8.fireEvent('onSwitchColumn', _this8.getColumn(oldIndex), _this8.getColumn(newIndex));
+      });
+    }
+  }, {
+    key: 'setDimensions',
+    value: function setDimensions() {
+      this.setHeaderStyle();
+      this.setupMinWidth();
+      this.setupNaturalColumnWidth();
+      this.distributeRemainingWidth();
+      this.setColumnStyle();
+      this.setDefaultCellHeight();
+    }
+  }, {
+    key: 'setHeaderStyle',
+    value: function setHeaderStyle() {
+      if (!this.options.takeAvailableSpace) {
+        // setting width as 0 will ensure that the
+        // header doesn't take the available space
+        _dom2.default.style(this.header, {
+          width: 0
+        });
+      }
+
+      _dom2.default.style(this.header, {
+        margin: 0
+      });
+
+      // don't show resize cursor on nonResizable columns
+      var nonResizableColumnsSelector = this.datamanager.getColumns().filter(function (col) {
+        return col.resizable === false;
+      }).map(function (col) {
+        return col.colIndex;
+      }).map(function (i) {
+        return '.data-table-header [data-col-index="' + i + '"]';
+      }).join();
+
+      this.style.setStyle(nonResizableColumnsSelector, {
+        cursor: 'pointer'
+      });
+    }
+  }, {
+    key: 'setupMinWidth',
+    value: function setupMinWidth() {
+      var _this9 = this;
+
+      _dom2.default.each('.data-table-col', this.header).map(function (col) {
+        var width = _dom2.default.style((0, _dom2.default)('.content', col), 'width');
+
+        var _$$data8 = _dom2.default.data(col),
+            colIndex = _$$data8.colIndex;
+
+        var column = _this9.getColumn(colIndex);
+
+        if (!column.minWidth) {
+          // only set this once
+          _this9.datamanager.updateColumn(colIndex, { minWidth: width });
+        }
+      });
+    }
+  }, {
+    key: 'setupNaturalColumnWidth',
+    value: function setupNaturalColumnWidth() {
+      var _this10 = this;
+
+      // set initial width as naturally calculated by table's first row
+      _dom2.default.each('.data-table-row[data-row-index="0"] .data-table-col', this.bodyScrollable).map(function ($cell) {
+        var _$$data9 = _dom2.default.data($cell),
+            colIndex = _$$data9.colIndex;
+
+        if (_this10.getColumn(colIndex).width > 0) {
+          // already set
+          return;
+        }
+
+        var width = _dom2.default.style((0, _dom2.default)('.content', $cell), 'width');
+        var minWidth = _this10.getColumnMinWidth(colIndex);
+
+        if (width < minWidth) {
+          width = minWidth;
+        }
+        _this10.datamanager.updateColumn(colIndex, { width: width });
+      });
+    }
+  }, {
+    key: 'distributeRemainingWidth',
+    value: function distributeRemainingWidth() {
+      var _this11 = this;
+
+      if (!this.options.takeAvailableSpace) return;
+
+      var wrapperWidth = _dom2.default.style(this.instance.datatableWrapper, 'width');
+      var headerWidth = _dom2.default.style(this.header, 'width');
+
+      if (headerWidth >= wrapperWidth) {
+        // don't resize, horizontal scroll takes place
+        return;
+      }
+
+      var resizableColumns = this.datamanager.getColumns().filter(function (col) {
+        return col.resizable === undefined || col.resizable;
+      });
+
+      var deltaWidth = (wrapperWidth - headerWidth) / resizableColumns.length;
+
+      resizableColumns.map(function (col) {
+        var width = _dom2.default.style(_this11.getColumnHeaderElement(col.colIndex), 'width');
+        var finalWidth = Math.min(width + deltaWidth) - 2;
+
+        _this11.datamanager.updateColumn(col.colIndex, { width: finalWidth });
+      });
+    }
+  }, {
+    key: 'setDefaultCellHeight',
+    value: function setDefaultCellHeight() {
+      if (this.__cellHeightSet) return;
+      var height = _dom2.default.style((0, _dom2.default)('.data-table-col', this.instance.datatableWrapper), 'height');
+      if (height) {
+        this.setCellHeight(height);
+        this.__cellHeightSet = true;
+      }
+    }
+  }, {
+    key: 'setCellHeight',
+    value: function setCellHeight(height) {
+      this.style.setStyle('.data-table-col .content', {
+        height: height + 'px'
+      });
+      this.style.setStyle('.data-table-col .edit-cell', {
+        height: height + 'px'
+      });
+    }
+  }, {
+    key: 'setColumnStyle',
+    value: function setColumnStyle() {
+      var _this12 = this;
+
+      // align columns
+      this.getColumns().map(function (column) {
+        // alignment
+        if (['left', 'center', 'right'].includes(column.align)) {
+          _this12.style.setStyle('[data-col-index="' + column.colIndex + '"]', {
+            'text-align': column.align
+          });
+        }
+        // width
+        _this12.setColumnHeaderWidth(column.colIndex);
+        _this12.setColumnWidth(column.colIndex);
+      });
+      this.instance.setBodyWidth();
+    }
+  }, {
+    key: 'sortRows',
+    value: function sortRows(colIndex, sortOrder) {
+      return this.datamanager.sortRows(colIndex, sortOrder);
+    }
+  }, {
+    key: 'getColumn',
+    value: function getColumn(colIndex) {
+      return this.datamanager.getColumn(colIndex);
+    }
+  }, {
+    key: 'getColumns',
+    value: function getColumns() {
+      return this.datamanager.getColumns();
+    }
+  }, {
+    key: 'setColumnWidth',
+    value: function setColumnWidth(colIndex) {
+      colIndex = +colIndex;
+      this._columnWidthMap = this._columnWidthMap || [];
+
+      var _getColumn = this.getColumn(colIndex),
+          width = _getColumn.width;
+
+      var index = this._columnWidthMap[colIndex];
+      var selector = '[data-col-index="' + colIndex + '"] .content, [data-col-index="' + colIndex + '"] .edit-cell';
+      var styles = {
+        width: width + 'px'
+      };
+
+      index = this.style.setStyle(selector, styles, index);
+      this._columnWidthMap[colIndex] = index;
+    }
+  }, {
+    key: 'setColumnHeaderWidth',
+    value: function setColumnHeaderWidth(colIndex) {
+      colIndex = +colIndex;
+      this.$columnMap = this.$columnMap || [];
+      var selector = '[data-col-index="' + colIndex + '"][data-is-header] .content';
+
+      var _getColumn2 = this.getColumn(colIndex),
+          width = _getColumn2.width;
+
+      var $column = this.$columnMap[colIndex];
+      if (!$column) {
+        $column = this.header.querySelector(selector);
+        this.$columnMap[colIndex] = $column;
+      }
+
+      $column.style.width = width + 'px';
+    }
+  }, {
+    key: 'getColumnMinWidth',
+    value: function getColumnMinWidth(colIndex) {
+      colIndex = +colIndex;
+      return this.getColumn(colIndex).minWidth || 24;
+    }
+  }, {
+    key: 'getFirstColumnIndex',
+    value: function getFirstColumnIndex() {
+      if (this.options.addCheckboxColumn && this.options.addSerialNoColumn) {
+        return 2;
+      }
+
+      if (this.options.addCheckboxColumn || this.options.addSerialNoColumn) {
+        return 1;
+      }
+
+      return 0;
+    }
+  }, {
+    key: 'getHeaderCell$',
+    value: function getHeaderCell$(colIndex) {
+      return (0, _dom2.default)('.data-table-col[data-col-index="' + colIndex + '"]', this.header);
+    }
+  }, {
+    key: 'getLastColumnIndex',
+    value: function getLastColumnIndex() {
+      return this.datamanager.getColumnCount() - 1;
+    }
+  }, {
+    key: 'getColumnHeaderElement',
+    value: function getColumnHeaderElement(colIndex) {
+      colIndex = +colIndex;
+      if (colIndex < 0) return null;
+      return (0, _dom2.default)('.data-table-col[data-is-header][data-col-index="' + colIndex + '"]', this.wrapper);
+    }
+  }, {
+    key: 'getSerialColumnIndex',
+    value: function getSerialColumnIndex() {
+      var columns = this.datamanager.getColumns();
+
+      return columns.findIndex(function (column) {
+        return column.content.includes('Sr. No');
+      });
+    }
+  }]);
+
+  return ColumnManager;
+}();
+
+// eslint-disable-next-line
+
+
+exports.default = ColumnManager;
+var getDropdownHTML = function getDropdownHTML() {
+  var dropdownButton = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'v';
+
+  // add dropdown buttons
+  var dropdownItems = this.options.headerDropdown;
+
+  return '<div class="data-table-dropdown-toggle">' + dropdownButton + '</div>\n    <div class="data-table-dropdown-list">\n      ' + dropdownItems.map(function (d, i) {
+    return '<div data-index="' + i + '">' + d.label + '</div>';
+  }).join('') + '\n    </div>\n  ';
+};
+
+exports.getDropdownHTML = getDropdownHTML;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _datatable = __webpack_require__(5);
+
+var _datatable2 = _interopRequireDefault(_datatable);
+
+var _package = __webpack_require__(19);
+
+var _package2 = _interopRequireDefault(_package);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+_datatable2.default.__version__ = _package2.default.version;
+
+exports.default = _datatable2.default;
+module.exports = exports['default'];
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _datamanager = __webpack_require__(6);
+
+var _datamanager2 = _interopRequireDefault(_datamanager);
+
+var _cellmanager = __webpack_require__(7);
+
+var _cellmanager2 = _interopRequireDefault(_cellmanager);
+
+var _columnmanager = __webpack_require__(3);
+
+var _columnmanager2 = _interopRequireDefault(_columnmanager);
+
+var _rowmanager = __webpack_require__(9);
+
+var _rowmanager2 = _interopRequireDefault(_rowmanager);
+
+var _bodyRenderer = __webpack_require__(10);
+
+var _bodyRenderer2 = _interopRequireDefault(_bodyRenderer);
+
+var _style = __webpack_require__(12);
+
+var _style2 = _interopRequireDefault(_style);
+
+var _keyboard = __webpack_require__(2);
+
+var _keyboard2 = _interopRequireDefault(_keyboard);
+
+var _defaults = __webpack_require__(13);
+
+var _defaults2 = _interopRequireDefault(_defaults);
+
+__webpack_require__(14);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var DataTable = function () {
+  function DataTable(wrapper, options) {
+    _classCallCheck(this, DataTable);
+
+    DataTable.instances++;
+
+    if (typeof wrapper === 'string') {
+      // css selector
+      wrapper = document.querySelector(wrapper);
+    }
+    this.wrapper = wrapper;
+    if (!(this.wrapper instanceof HTMLElement)) {
+      throw new Error('Invalid argument given for `wrapper`');
+    }
+
+    this.options = Object.assign({}, _defaults2.default, options);
+    this.options.headerDropdown = _defaults2.default.headerDropdown.concat(options.headerDropdown || []);
+    // custom user events
+    this.events = Object.assign({}, _defaults2.default.events, options.events || {});
+    this.fireEvent = this.fireEvent.bind(this);
+
+    this.prepare();
+
+    this.style = new _style2.default(this);
+    this.datamanager = new _datamanager2.default(this.options);
+    this.rowmanager = new _rowmanager2.default(this);
+    this.columnmanager = new _columnmanager2.default(this);
+    this.cellmanager = new _cellmanager2.default(this);
+    this.bodyRenderer = new _bodyRenderer2.default(this);
+
+    _keyboard2.default.init(this.wrapper);
+
+    if (this.options.data) {
+      this.refresh();
+    }
+  }
+
+  _createClass(DataTable, [{
+    key: 'prepare',
+    value: function prepare() {
+      this.prepareDom();
+      this.unfreeze();
+    }
+  }, {
+    key: 'prepareDom',
+    value: function prepareDom() {
+      this.wrapper.innerHTML = '\n      <div class="data-table">\n        <table class="data-table-header">\n        </table>\n        <div class="body-scrollable">\n        </div>\n        <div class="freeze-container">\n          <span>' + this.options.freezeMessage + '</span>\n        </div>\n        <div class="data-table-footer">\n        </div>\n      </div>\n    ';
+
+      this.datatableWrapper = (0, _dom2.default)('.data-table', this.wrapper);
+      this.header = (0, _dom2.default)('.data-table-header', this.wrapper);
+      this.bodyScrollable = (0, _dom2.default)('.body-scrollable', this.wrapper);
+      this.freezeContainer = (0, _dom2.default)('.freeze-container', this.wrapper);
+    }
+  }, {
+    key: 'refresh',
+    value: function refresh(data) {
+      this.datamanager.init(data);
+      this.render();
+      this.setDimensions();
+    }
+  }, {
+    key: 'destroy',
+    value: function destroy() {
+      this.wrapper.innerHTML = '';
+      this.style.destroy();
+    }
+  }, {
+    key: 'appendRows',
+    value: function appendRows(rows) {
+      this.datamanager.appendRows(rows);
+      this.rowmanager.refreshRows();
+    }
+  }, {
+    key: 'refreshRow',
+    value: function refreshRow(row, rowIndex) {
+      this.rowmanager.refreshRow(row, rowIndex);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      this.renderHeader();
+      this.renderBody();
+    }
+  }, {
+    key: 'renderHeader',
+    value: function renderHeader() {
+      this.columnmanager.renderHeader();
+    }
+  }, {
+    key: 'renderBody',
+    value: function renderBody() {
+      this.bodyRenderer.render();
+    }
+  }, {
+    key: 'setDimensions',
+    value: function setDimensions() {
+      this.columnmanager.setDimensions();
+
+      this.setBodyWidth();
+
+      _dom2.default.style(this.bodyScrollable, {
+        marginTop: _dom2.default.style(this.header, 'height') + 'px'
+      });
+
+      _dom2.default.style((0, _dom2.default)('table', this.bodyScrollable), {
+        margin: 0
+      });
+    }
+  }, {
+    key: 'setBodyWidth',
+    value: function setBodyWidth() {
+      var width = _dom2.default.style(this.header, 'width');
+
+      _dom2.default.style(this.bodyScrollable, { width: width + 'px' });
+    }
+  }, {
+    key: 'getColumn',
+    value: function getColumn(colIndex) {
+      return this.datamanager.getColumn(colIndex);
+    }
+  }, {
+    key: 'getCell',
+    value: function getCell(colIndex, rowIndex) {
+      return this.datamanager.getCell(colIndex, rowIndex);
+    }
+  }, {
+    key: 'getColumnHeaderElement',
+    value: function getColumnHeaderElement(colIndex) {
+      return this.columnmanager.getColumnHeaderElement(colIndex);
+    }
+  }, {
+    key: 'getViewportHeight',
+    value: function getViewportHeight() {
+      if (!this.viewportHeight) {
+        this.viewportHeight = _dom2.default.style(this.bodyScrollable, 'height');
+      }
+
+      return this.viewportHeight;
+    }
+  }, {
+    key: 'sortColumn',
+    value: function sortColumn(colIndex, sortOrder) {
+      this.columnmanager.sortColumn(colIndex, sortOrder);
+    }
+  }, {
+    key: 'removeColumn',
+    value: function removeColumn(colIndex) {
+      this.columnmanager.removeColumn(colIndex);
+    }
+  }, {
+    key: 'scrollToLastColumn',
+    value: function scrollToLastColumn() {
+      this.datatableWrapper.scrollLeft = 9999;
+    }
+  }, {
+    key: 'freeze',
+    value: function freeze() {
+      _dom2.default.style(this.freezeContainer, {
+        display: ''
+      });
+    }
+  }, {
+    key: 'unfreeze',
+    value: function unfreeze() {
+      _dom2.default.style(this.freezeContainer, {
+        display: 'none'
+      });
+    }
+  }, {
+    key: 'fireEvent',
+    value: function fireEvent(eventName) {
+      for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      this.events[eventName].apply(this, args);
+    }
+  }, {
+    key: 'log',
+    value: function log() {
+      if (this.options.enableLogs) {
+        console.log.apply(console, arguments);
+      }
+    }
+  }]);
+
+  return DataTable;
+}();
+
+DataTable.instances = 0;
+
+exports.default = DataTable;
+module.exports = exports['default'];
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DataError = undefined;
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = __webpack_require__(1);
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _extendableBuiltin(cls) {
+  function ExtendableBuiltin() {
+    var instance = Reflect.construct(cls, Array.from(arguments));
+    Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+    return instance;
+  }
+
+  ExtendableBuiltin.prototype = Object.create(cls.prototype, {
+    constructor: {
+      value: cls,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+
+  if (Object.setPrototypeOf) {
+    Object.setPrototypeOf(ExtendableBuiltin, cls);
+  } else {
+    ExtendableBuiltin.__proto__ = cls;
+  }
+
+  return ExtendableBuiltin;
+}
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var DataManager = function () {
+  function DataManager(options) {
+    _classCallCheck(this, DataManager);
+
+    this.options = options;
+    this.sortRows = (0, _utils.promisify)(this.sortRows, this);
+    this.switchColumn = (0, _utils.promisify)(this.switchColumn, this);
+    this.removeColumn = (0, _utils.promisify)(this.removeColumn, this);
+  }
+
+  _createClass(DataManager, [{
+    key: 'init',
+    value: function init(data) {
+      if (!data) {
+        data = this.options.data;
+      }
+
+      this.data = data;
+
+      this.rowCount = 0;
+      this.columns = [];
+      this.rows = [];
+
+      this.prepareColumns();
+      this.prepareRows();
+
+      this.prepareNumericColumns();
+    }
+
+    // computed property
+
+  }, {
+    key: 'prepareColumns',
+    value: function prepareColumns() {
+      this.columns = [];
+      this.validateColumns();
+      this.prepareDefaultColumns();
+      this.prepareHeader();
+    }
+  }, {
+    key: 'prepareDefaultColumns',
+    value: function prepareDefaultColumns() {
+      if (this.options.addCheckboxColumn && !this.hasColumnById('_checkbox')) {
+        var cell = {
+          id: '_checkbox',
+          content: this.getCheckboxHTML(),
+          editable: false,
+          resizable: false,
+          sortable: false,
+          focusable: false,
+          dropdown: false,
+          width: 25
+        };
+        this.columns.push(cell);
+      }
+
+      if (this.options.addSerialNoColumn && !this.hasColumnById('_rowIndex')) {
+        var _cell = {
+          id: '_rowIndex',
+          content: '',
+          align: 'center',
+          editable: false,
+          resizable: false,
+          focusable: false,
+          dropdown: false,
+          width: 30
+        };
+
+        this.columns.push(_cell);
+      }
+    }
+  }, {
+    key: 'prepareRow',
+    value: function prepareRow(row, i) {
+      var _this = this;
+
+      var baseRowCell = {
+        rowIndex: i
+      };
+
+      return row.map(function (cell, i) {
+        return _this.prepareCell(cell, i);
+      }).map(function (cell) {
+        return Object.assign({}, baseRowCell, cell);
+      });
+    }
+  }, {
+    key: 'prepareHeader',
+    value: function prepareHeader() {
+      var _this2 = this;
+
+      var columns = this.columns.concat(this.options.columns);
+      var baseCell = {
+        isHeader: 1,
+        editable: true,
+        sortable: true,
+        resizable: true,
+        focusable: true,
+        dropdown: true,
+        format: function format(value) {
+          if (value === null || value === undefined) {
+            return '';
+          }
+          return value + '';
+        }
+      };
+
+      this.columns = columns.map(function (cell, i) {
+        return _this2.prepareCell(cell, i);
+      }).map(function (col) {
+        return Object.assign({}, baseCell, col);
+      }).map(function (col) {
+        col.id = col.id || col.content;
+        return col;
+      });
+    }
+  }, {
+    key: 'prepareCell',
+    value: function prepareCell(content, i) {
+      var cell = {
+        content: '',
+        align: 'left',
+        sortOrder: 'none',
+        colIndex: i,
+        column: this.columns[i],
+        width: 0
+      };
+
+      if (content !== null && (typeof content === 'undefined' ? 'undefined' : _typeof(content)) === 'object') {
+        // passed as column/header
+        Object.assign(cell, content);
+      } else {
+        cell.content = content;
+      }
+
+      return cell;
+    }
+  }, {
+    key: 'prepareNumericColumns',
+    value: function prepareNumericColumns() {
+      var row0 = this.getRow(0);
+      if (!row0) return;
+      this.columns = this.columns.map(function (column, i) {
+
+        var cellValue = row0[i].content;
+        if (!column.align && cellValue && (0, _utils.isNumeric)(cellValue)) {
+          column.align = 'right';
+        }
+
+        return column;
+      });
+    }
+  }, {
+    key: 'prepareRows',
+    value: function prepareRows() {
+      var _this3 = this;
+
+      this.validateData(this.data);
+
+      this.rows = this.data.map(function (d, i) {
+        var index = _this3._getNextRowCount();
+
+        var row = [];
+
+        if (Array.isArray(d)) {
+          // row is an array
+          if (_this3.options.addCheckboxColumn) {
+            row.push(_this3.getCheckboxHTML());
+          }
+          if (_this3.options.addSerialNoColumn) {
+            row.push(index + 1 + '');
+          }
+          row = row.concat(d);
+        } else {
+          // row is a dict
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = _this3.columns[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var col = _step.value;
+
+              if (col.id === '_checkbox') {
+                row.push(_this3.getCheckboxHTML());
+              } else if (col.id === '_rowIndex') {
+                row.push(index + 1 + '');
+              } else {
+                row.push(col.format(d[col.id]));
+              }
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+        }
+
+        return _this3.prepareRow(row, index);
+      });
+    }
+  }, {
+    key: 'validateColumns',
+    value: function validateColumns() {
+      var columns = this.options.columns;
+      if (!Array.isArray(columns)) {
+        throw new DataError('`columns` must be an array');
+      }
+
+      columns.forEach(function (column, i) {
+        if (typeof column !== 'string' && (typeof column === 'undefined' ? 'undefined' : _typeof(column)) !== 'object') {
+          throw new DataError('column "' + i + '" must be a string or an object');
+        }
+      });
+    }
+  }, {
+    key: 'validateData',
+    value: function validateData(data) {
+      if (Array.isArray(data) && (data.length === 0 || Array.isArray(data[0]) || _typeof(data[0]) === 'object')) {
+        return true;
+      }
+      throw new DataError('`data` must be an array of arrays or objects');
+    }
+  }, {
+    key: 'appendRows',
+    value: function appendRows(rows) {
+      this.validateData(rows);
+
+      this.rows = this.rows.concat(this.prepareRows(rows));
+    }
+  }, {
+    key: 'sortRows',
+    value: function sortRows(colIndex) {
+      var sortOrder = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'none';
+
+      colIndex = +colIndex;
+
+      // reset sortOrder and update for colIndex
+      this.getColumns().map(function (col) {
+        if (col.colIndex === colIndex) {
+          col.sortOrder = sortOrder;
+        } else {
+          col.sortOrder = 'none';
+        }
+      });
+
+      this._sortRows(colIndex, sortOrder);
+    }
+  }, {
+    key: '_sortRows',
+    value: function _sortRows(colIndex, sortOrder) {
+
+      if (this.currentSort.colIndex === colIndex) {
+        // reverse the array if only sortOrder changed
+        if (this.currentSort.sortOrder === 'asc' && sortOrder === 'desc' || this.currentSort.sortOrder === 'desc' && sortOrder === 'asc') {
+          this.reverseArray(this.rows);
+          this.currentSort.sortOrder = sortOrder;
+          return;
+        }
+      }
+
+      this.rows.sort(function (a, b) {
+        var _aIndex = a[0].rowIndex;
+        var _bIndex = b[0].rowIndex;
+        var _a = a[colIndex].content;
+        var _b = b[colIndex].content;
+
+        if (sortOrder === 'none') {
+          return _aIndex - _bIndex;
+        } else if (sortOrder === 'asc') {
+          if (_a < _b) return -1;
+          if (_a > _b) return 1;
+          if (_a === _b) return 0;
+        } else if (sortOrder === 'desc') {
+          if (_a < _b) return 1;
+          if (_a > _b) return -1;
+          if (_a === _b) return 0;
+        }
+        return 0;
+      });
+
+      if (this.hasColumnById('_rowIndex')) {
+        // update row index
+        var srNoColIndex = this.getColumnIndexById('_rowIndex');
+        this.rows = this.rows.map(function (row, index) {
+          return row.map(function (cell) {
+            if (cell.colIndex === srNoColIndex) {
+              cell.content = index + 1 + '';
+            }
+            return cell;
+          });
+        });
+      }
+    }
+  }, {
+    key: 'reverseArray',
+    value: function reverseArray(array) {
+      var left = null;
+      var right = null;
+      var length = array.length;
+
+      for (left = 0, right = length - 1; left < right; left += 1, right -= 1) {
+        var temporary = array[left];
+
+        array[left] = array[right];
+        array[right] = temporary;
+      }
+    }
+  }, {
+    key: 'switchColumn',
+    value: function switchColumn(index1, index2) {
+      // update columns
+      var temp = this.columns[index1];
+      this.columns[index1] = this.columns[index2];
+      this.columns[index2] = temp;
+
+      this.columns[index1].colIndex = index1;
+      this.columns[index2].colIndex = index2;
+
+      // update rows
+      this.rows = this.rows.map(function (row) {
+        var newCell1 = Object.assign({}, row[index1], { colIndex: index2 });
+        var newCell2 = Object.assign({}, row[index2], { colIndex: index1 });
+
+        var newRow = row.map(function (cell) {
+          // make object copy
+          return Object.assign({}, cell);
+        });
+
+        newRow[index2] = newCell1;
+        newRow[index1] = newCell2;
+
+        return newRow;
+      });
+    }
+  }, {
+    key: 'removeColumn',
+    value: function removeColumn(index) {
+      index = +index;
+      var filter = function filter(cell) {
+        return cell.colIndex !== index;
+      };
+      var map = function map(cell, i) {
+        return Object.assign({}, cell, { colIndex: i });
+      };
+      // update columns
+      this.columns = this.columns.filter(filter).map(map);
+
+      // update rows
+      this.rows = this.rows.map(function (row) {
+        var newRow = row.filter(filter).map(map);
+
+        return newRow;
+      });
+    }
+  }, {
+    key: 'updateRow',
+    value: function updateRow(row, rowIndex) {
+      if (row.length < this.columns.length) {
+        if (this.hasColumnById('_rowIndex')) {
+          var val = rowIndex + 1 + '';
+
+          row = [val].concat(row);
+        }
+
+        if (this.hasColumnById('_checkbox')) {
+          var _val = '<input type="checkbox" />';
+
+          row = [_val].concat(row);
+        }
+      }
+
+      var _row = this.prepareRow(row, rowIndex);
+      var index = this.rows.findIndex(function (row) {
+        return row[0].rowIndex === rowIndex;
+      });
+      this.rows[index] = _row;
+
+      return _row;
+    }
+  }, {
+    key: 'updateCell',
+    value: function updateCell(colIndex, rowIndex, options) {
+      var cell = void 0;
+      if ((typeof colIndex === 'undefined' ? 'undefined' : _typeof(colIndex)) === 'object') {
+        // cell object was passed,
+        // must have colIndex, rowIndex
+        cell = colIndex;
+        colIndex = cell.colIndex;
+        rowIndex = cell.rowIndex;
+        // the object passed must be merged with original cell
+        options = cell;
+      }
+      cell = this.getCell(colIndex, rowIndex);
+
+      // mutate object directly
+      for (var key in options) {
+        var newVal = options[key];
+        if (newVal !== undefined) {
+          cell[key] = newVal;
+        }
+      }
+
+      return cell;
+    }
+  }, {
+    key: 'updateColumn',
+    value: function updateColumn(colIndex, keyValPairs) {
+      var column = this.getColumn(colIndex);
+      for (var key in keyValPairs) {
+        var newVal = keyValPairs[key];
+        if (newVal !== undefined) {
+          column[key] = newVal;
+        }
+      }
+      return column;
+    }
+  }, {
+    key: 'getRowCount',
+    value: function getRowCount() {
+      return this.rowCount;
+    }
+  }, {
+    key: '_getNextRowCount',
+    value: function _getNextRowCount() {
+      var val = this.rowCount;
+
+      this.rowCount++;
+      return val;
+    }
+  }, {
+    key: 'getRows',
+    value: function getRows(start, end) {
+      return this.rows.slice(start, end);
+    }
+  }, {
+    key: 'getColumns',
+    value: function getColumns(skipStandardColumns) {
+      var columns = this.columns;
+
+      if (skipStandardColumns) {
+        columns = columns.slice(this.getStandardColumnCount());
+      }
+
+      return columns;
+    }
+  }, {
+    key: 'getStandardColumnCount',
+    value: function getStandardColumnCount() {
+      if (this.options.addCheckboxColumn && this.options.addSerialNoColumn) {
+        return 2;
+      }
+
+      if (this.options.addCheckboxColumn || this.options.addSerialNoColumn) {
+        return 1;
+      }
+
+      return 0;
+    }
+  }, {
+    key: 'getColumnCount',
+    value: function getColumnCount(skipStandardColumns) {
+      var val = this.columns.length;
+
+      if (skipStandardColumns) {
+        val = val - this.getStandardColumnCount();
+      }
+
+      return val;
+    }
+  }, {
+    key: 'getColumn',
+    value: function getColumn(colIndex) {
+      colIndex = +colIndex;
+      return this.columns.find(function (col) {
+        return col.colIndex === colIndex;
+      });
+    }
+  }, {
+    key: 'getRow',
+    value: function getRow(rowIndex) {
+      rowIndex = +rowIndex;
+      return this.rows.find(function (row) {
+        return row[0].rowIndex === rowIndex;
+      });
+    }
+  }, {
+    key: 'getCell',
+    value: function getCell(colIndex, rowIndex) {
+      rowIndex = +rowIndex;
+      colIndex = +colIndex;
+      return this.rows.find(function (row) {
+        return row[0].rowIndex === rowIndex;
+      })[colIndex];
+    }
+  }, {
+    key: 'get',
+    value: function get() {
+      return {
+        columns: this.columns,
+        rows: this.rows
+      };
+    }
+  }, {
+    key: 'hasColumn',
+    value: function hasColumn(name) {
+      return Boolean(this.columns.find(function (col) {
+        return col.content === name;
+      }));
+    }
+  }, {
+    key: 'hasColumnById',
+    value: function hasColumnById(id) {
+      return Boolean(this.columns.find(function (col) {
+        return col.id === id;
+      }));
+    }
+  }, {
+    key: 'getColumnIndex',
+    value: function getColumnIndex(name) {
+      return this.columns.findIndex(function (col) {
+        return col.content === name;
+      });
+    }
+  }, {
+    key: 'getColumnIndexById',
+    value: function getColumnIndexById(id) {
+      return this.columns.findIndex(function (col) {
+        return col.id === id;
+      });
+    }
+  }, {
+    key: 'getCheckboxHTML',
+    value: function getCheckboxHTML() {
+      return '<input type="checkbox" />';
+    }
+  }, {
+    key: 'currentSort',
+    get: function get() {
+      var col = this.columns.find(function (col) {
+        return col.sortOrder !== 'none';
+      });
+      return col || {
+        colIndex: -1,
+        sortOrder: 'none'
+      };
+    }
+  }]);
+
+  return DataManager;
+}();
+
+// Custom Errors
+
+
+exports.default = DataManager;
+
+var DataError = exports.DataError = function (_extendableBuiltin2) {
+  _inherits(DataError, _extendableBuiltin2);
+
+  function DataError() {
+    _classCallCheck(this, DataError);
+
+    return _possibleConstructorReturn(this, (DataError.__proto__ || Object.getPrototypeOf(DataError)).apply(this, arguments));
+  }
+
+  return DataError;
+}(_extendableBuiltin(TypeError));
+
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = __webpack_require__(1);
+
+var _keyboard = __webpack_require__(2);
+
+var _keyboard2 = _interopRequireDefault(_keyboard);
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _columnmanager = __webpack_require__(3);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var CellManager = function () {
+  function CellManager(instance) {
+    _classCallCheck(this, CellManager);
+
+    this.instance = instance;
+    this.wrapper = this.instance.wrapper;
+    this.options = this.instance.options;
+    this.style = this.instance.style;
+    this.bodyScrollable = this.instance.bodyScrollable;
+    this.columnmanager = this.instance.columnmanager;
+    this.rowmanager = this.instance.rowmanager;
+    this.datamanager = this.instance.datamanager;
+
+    this.bindEvents();
+  }
+
+  _createClass(CellManager, [{
+    key: 'bindEvents',
+    value: function bindEvents() {
+      this.bindFocusCell();
+      this.bindEditCell();
+      this.bindKeyboardSelection();
+      this.bindCopyCellContents();
+      this.bindMouseEvents();
+    }
+  }, {
+    key: 'bindFocusCell',
+    value: function bindFocusCell() {
+      this.bindKeyboardNav();
+    }
+  }, {
+    key: 'bindEditCell',
+    value: function bindEditCell() {
+      var _this = this;
+
+      this.$editingCell = null;
+
+      _dom2.default.on(this.bodyScrollable, 'dblclick', '.data-table-col', function (e, cell) {
+        _this.activateEditing(cell);
+      });
+
+      _keyboard2.default.on('enter', function (e) {
+        if (_this.$focusedCell && !_this.$editingCell) {
+          // enter keypress on focused cell
+          _this.activateEditing(_this.$focusedCell);
+        } else if (_this.$editingCell) {
+          // enter keypress on editing cell
+          _this.submitEditing();
+          _this.deactivateEditing();
+        }
+      });
+    }
+  }, {
+    key: 'bindKeyboardNav',
+    value: function bindKeyboardNav() {
+      var _this2 = this;
+
+      var focusCell = function focusCell(direction) {
+        if (!_this2.$focusedCell || _this2.$editingCell) {
+          return false;
+        }
+
+        var $cell = _this2.$focusedCell;
+
+        if (direction === 'left') {
+          $cell = _this2.getLeftCell$($cell);
+        } else if (direction === 'right' || direction === 'tab') {
+          $cell = _this2.getRightCell$($cell);
+        } else if (direction === 'up') {
+          $cell = _this2.getAboveCell$($cell);
+        } else if (direction === 'down') {
+          $cell = _this2.getBelowCell$($cell);
+        }
+
+        _this2.focusCell($cell);
+        return true;
+      };
+
+      var focusLastCell = function focusLastCell(direction) {
+        if (!_this2.$focusedCell || _this2.$editingCell) {
+          return false;
+        }
+
+        var $cell = _this2.$focusedCell;
+
+        var _$$data = _dom2.default.data($cell),
+            rowIndex = _$$data.rowIndex,
+            colIndex = _$$data.colIndex;
+
+        if (direction === 'left') {
+          $cell = _this2.getLeftMostCell$(rowIndex);
+        } else if (direction === 'right') {
+          $cell = _this2.getRightMostCell$(rowIndex);
+        } else if (direction === 'up') {
+          $cell = _this2.getTopMostCell$(colIndex);
+        } else if (direction === 'down') {
+          $cell = _this2.getBottomMostCell$(colIndex);
+        }
+
+        _this2.focusCell($cell);
+        return true;
+      };
+
+      ['left', 'right', 'up', 'down', 'tab'].map(function (direction) {
+        return _keyboard2.default.on(direction, function () {
+          return focusCell(direction);
+        });
+      });
+
+      ['left', 'right', 'up', 'down'].map(function (direction) {
+        return _keyboard2.default.on('ctrl+' + direction, function () {
+          return focusLastCell(direction);
+        });
+      });
+
+      _keyboard2.default.on('esc', function () {
+        _this2.deactivateEditing();
+      });
+    }
+  }, {
+    key: 'bindKeyboardSelection',
+    value: function bindKeyboardSelection() {
+      var _this3 = this;
+
+      var getNextSelectionCursor = function getNextSelectionCursor(direction) {
+        var $selectionCursor = _this3.getSelectionCursor();
+
+        if (direction === 'left') {
+          $selectionCursor = _this3.getLeftCell$($selectionCursor);
+        } else if (direction === 'right') {
+          $selectionCursor = _this3.getRightCell$($selectionCursor);
+        } else if (direction === 'up') {
+          $selectionCursor = _this3.getAboveCell$($selectionCursor);
+        } else if (direction === 'down') {
+          $selectionCursor = _this3.getBelowCell$($selectionCursor);
+        }
+
+        return $selectionCursor;
+      };
+
+      ['left', 'right', 'up', 'down'].map(function (direction) {
+        return _keyboard2.default.on('shift+' + direction, function () {
+          return _this3.selectArea(getNextSelectionCursor(direction));
+        });
+      });
+    }
+  }, {
+    key: 'bindCopyCellContents',
+    value: function bindCopyCellContents() {
+      var _this4 = this;
+
+      _keyboard2.default.on('ctrl+c', function () {
+        _this4.copyCellContents(_this4.$focusedCell, _this4.$selectionCursor);
+      });
+    }
+  }, {
+    key: 'bindMouseEvents',
+    value: function bindMouseEvents() {
+      var _this5 = this;
+
+      var mouseDown = null;
+
+      _dom2.default.on(this.bodyScrollable, 'mousedown', '.data-table-col', function (e) {
+        mouseDown = true;
+        _this5.focusCell((0, _dom2.default)(e.delegatedTarget));
+      });
+
+      _dom2.default.on(this.bodyScrollable, 'mouseup', function () {
+        mouseDown = false;
+      });
+
+      var selectArea = function selectArea(e) {
+        if (!mouseDown) return;
+        _this5.selectArea((0, _dom2.default)(e.delegatedTarget));
+      };
+
+      _dom2.default.on(this.bodyScrollable, 'mousemove', '.data-table-col', (0, _utils.throttle)(selectArea, 50));
+    }
+  }, {
+    key: 'focusCell',
+    value: function focusCell($cell) {
+      var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref$skipClearSelecti = _ref.skipClearSelection,
+          skipClearSelection = _ref$skipClearSelecti === undefined ? 0 : _ref$skipClearSelecti;
+
+      if (!$cell) return;
+
+      // don't focus if already editing cell
+      if ($cell === this.$editingCell) return;
+
+      var _$$data2 = _dom2.default.data($cell),
+          colIndex = _$$data2.colIndex,
+          isHeader = _$$data2.isHeader;
+
+      if (isHeader) {
+        return;
+      }
+
+      var column = this.columnmanager.getColumn(colIndex);
+      if (column.focusable === false) {
+        return;
+      }
+
+      this.deactivateEditing();
+      if (!skipClearSelection) {
+        this.clearSelection();
+      }
+
+      if (this.$focusedCell) {
+        this.$focusedCell.classList.remove('selected');
+      }
+
+      this.$focusedCell = $cell;
+      $cell.classList.add('selected');
+
+      // so that keyboard nav works
+      $cell.focus();
+
+      this.highlightRowColumnHeader($cell);
+      this.scrollToCell($cell);
+    }
+  }, {
+    key: 'highlightRowColumnHeader',
+    value: function highlightRowColumnHeader($cell) {
+      var _$$data3 = _dom2.default.data($cell),
+          colIndex = _$$data3.colIndex,
+          rowIndex = _$$data3.rowIndex;
+
+      var _colIndex = this.datamanager.getColumnIndexById('_rowIndex');
+      var colHeaderSelector = '.data-table-header .data-table-col[data-col-index="' + colIndex + '"]';
+      var rowHeaderSelector = '.data-table-col[data-row-index="' + rowIndex + '"][data-col-index="' + _colIndex + '"]';
+
+      if (this.lastHeaders) {
+        _dom2.default.removeStyle(this.lastHeaders, 'backgroundColor');
+      }
+
+      var colHeader = (0, _dom2.default)(colHeaderSelector, this.wrapper);
+      var rowHeader = (0, _dom2.default)(rowHeaderSelector, this.wrapper);
+
+      _dom2.default.style([colHeader, rowHeader], {
+        backgroundColor: '#f5f7fa' // light-bg
+      });
+
+      this.lastHeaders = [colHeader, rowHeader];
+    }
+  }, {
+    key: 'selectAreaOnClusterChanged',
+    value: function selectAreaOnClusterChanged() {
+      if (!(this.$focusedCell && this.$selectionCursor)) return;
+
+      var _$$data4 = _dom2.default.data(this.$selectionCursor),
+          colIndex = _$$data4.colIndex,
+          rowIndex = _$$data4.rowIndex;
+
+      var $cell = this.getCell$(colIndex, rowIndex);
+
+      if (!$cell || $cell === this.$selectionCursor) return;
+
+      // selectArea needs $focusedCell
+      var fCell = _dom2.default.data(this.$focusedCell);
+      this.$focusedCell = this.getCell$(fCell.colIndex, fCell.rowIndex);
+
+      this.selectArea($cell);
+    }
+  }, {
+    key: 'focusCellOnClusterChanged',
+    value: function focusCellOnClusterChanged() {
+      if (!this.$focusedCell) return;
+
+      var _$$data5 = _dom2.default.data(this.$focusedCell),
+          colIndex = _$$data5.colIndex,
+          rowIndex = _$$data5.rowIndex;
+
+      var $cell = this.getCell$(colIndex, rowIndex);
+
+      if (!$cell) return;
+      // this function is called after selectAreaOnClusterChanged,
+      // focusCell calls clearSelection which resets the area selection
+      // so a flag to skip it
+      this.focusCell($cell, { skipClearSelection: 1 });
+    }
+  }, {
+    key: 'selectArea',
+    value: function selectArea($selectionCursor) {
+      if (!this.$focusedCell) return;
+
+      if (this._selectArea(this.$focusedCell, $selectionCursor)) {
+        // valid selection
+        this.$selectionCursor = $selectionCursor;
+      }
+    }
+  }, {
+    key: '_selectArea',
+    value: function _selectArea($cell1, $cell2) {
+      var _this6 = this;
+
+      if ($cell1 === $cell2) return false;
+
+      var cells = this.getCellsInRange($cell1, $cell2);
+      if (!cells) return false;
+
+      this.clearSelection();
+      cells.map(function (index) {
+        return _this6.getCell$.apply(_this6, _toConsumableArray(index));
+      }).map(function ($cell) {
+        return $cell.classList.add('highlight');
+      });
+      return true;
+    }
+  }, {
+    key: 'getCellsInRange',
+    value: function getCellsInRange($cell1, $cell2) {
+      var colIndex1 = void 0,
+          rowIndex1 = void 0,
+          colIndex2 = void 0,
+          rowIndex2 = void 0;
+
+      if (typeof $cell1 === 'number') {
+        var _arguments = Array.prototype.slice.call(arguments);
+
+        colIndex1 = _arguments[0];
+        rowIndex1 = _arguments[1];
+        colIndex2 = _arguments[2];
+        rowIndex2 = _arguments[3];
+      } else if ((typeof $cell1 === 'undefined' ? 'undefined' : _typeof($cell1)) === 'object') {
+
+        if (!($cell1 && $cell2)) {
+          return false;
+        }
+
+        var cell1 = _dom2.default.data($cell1);
+        var cell2 = _dom2.default.data($cell2);
+
+        colIndex1 = cell1.colIndex;
+        rowIndex1 = cell1.rowIndex;
+        colIndex2 = cell2.colIndex;
+        rowIndex2 = cell2.rowIndex;
+      }
+
+      if (rowIndex1 > rowIndex2) {
+        var _ref2 = [rowIndex2, rowIndex1];
+        rowIndex1 = _ref2[0];
+        rowIndex2 = _ref2[1];
+      }
+
+      if (colIndex1 > colIndex2) {
+        var _ref3 = [colIndex2, colIndex1];
+        colIndex1 = _ref3[0];
+        colIndex2 = _ref3[1];
+      }
+
+      if (this.isStandardCell(colIndex1) || this.isStandardCell(colIndex2)) {
+        return false;
+      }
+
+      var cells = [];
+      var colIndex = colIndex1;
+      var rowIndex = rowIndex1;
+      var rowIndices = [];
+
+      while (rowIndex <= rowIndex2) {
+        rowIndices.push(rowIndex);
+        rowIndex++;
+      }
+
+      rowIndices.map(function (rowIndex) {
+        while (colIndex <= colIndex2) {
+          cells.push([colIndex, rowIndex]);
+          colIndex++;
+        }
+        colIndex = colIndex1;
+      });
+
+      return cells;
+    }
+  }, {
+    key: 'clearSelection',
+    value: function clearSelection() {
+      _dom2.default.each('.data-table-col.highlight', this.bodyScrollable).map(function (cell) {
+        return cell.classList.remove('highlight');
+      });
+
+      this.$selectionCursor = null;
+    }
+  }, {
+    key: 'getSelectionCursor',
+    value: function getSelectionCursor() {
+      return this.$selectionCursor || this.$focusedCell;
+    }
+  }, {
+    key: 'activateEditing',
+    value: function activateEditing($cell) {
+      this.focusCell($cell);
+
+      var _$$data6 = _dom2.default.data($cell),
+          rowIndex = _$$data6.rowIndex,
+          colIndex = _$$data6.colIndex;
+
+      var col = this.columnmanager.getColumn(colIndex);
+      if (col && (col.editable === false || col.focusable === false)) {
+        return;
+      }
+
+      var cell = this.getCell(colIndex, rowIndex);
+      if (cell && cell.editable === false) {
+        return;
+      }
+
+      if (this.$editingCell) {
+        var _$$data7 = _dom2.default.data(this.$editingCell),
+            _rowIndex = _$$data7._rowIndex,
+            _colIndex = _$$data7._colIndex;
+
+        if (rowIndex === _rowIndex && colIndex === _colIndex) {
+          // editing the same cell
+          return;
+        }
+      }
+
+      this.$editingCell = $cell;
+      $cell.classList.add('editing');
+
+      var $editCell = (0, _dom2.default)('.edit-cell', $cell);
+      $editCell.innerHTML = '';
+
+      var editor = this.getEditor(colIndex, rowIndex, cell.content, $editCell);
+
+      if (editor) {
+        this.currentCellEditor = editor;
+        // initialize editing input with cell value
+        editor.initValue(cell.content, rowIndex, col);
+      }
+    }
+  }, {
+    key: 'deactivateEditing',
+    value: function deactivateEditing() {
+      // keep focus on the cell so that keyboard navigation works
+      if (this.$focusedCell) this.$focusedCell.focus();
+
+      if (!this.$editingCell) return;
+      this.$editingCell.classList.remove('editing');
+      this.$editingCell = null;
+    }
+  }, {
+    key: 'getEditor',
+    value: function getEditor(colIndex, rowIndex, value, parent) {
+      // debugger;
+      var obj = this.options.getEditor(colIndex, rowIndex, value, parent);
+      if (obj && obj.setValue) return obj;
+
+      // editing fallback
+      var $input = _dom2.default.create('input', {
+        type: 'text',
+        inside: parent
+      });
+
+      return {
+        initValue: function initValue(value) {
+          $input.focus();
+          $input.value = value;
+        },
+        getValue: function getValue() {
+          return $input.value;
+        },
+        setValue: function setValue(value) {
+          $input.value = value;
+        }
+      };
+    }
+  }, {
+    key: 'submitEditing',
+    value: function submitEditing() {
+      var _this7 = this;
+
+      if (!this.$editingCell) return;
+      var $cell = this.$editingCell;
+
+      var _$$data8 = _dom2.default.data($cell),
+          rowIndex = _$$data8.rowIndex,
+          colIndex = _$$data8.colIndex;
+
+      var col = this.datamanager.getColumn(colIndex);
+
+      if ($cell) {
+        var editor = this.currentCellEditor;
+
+        if (editor) {
+          var value = editor.getValue();
+          var done = editor.setValue(value, rowIndex, col);
+          var oldValue = this.getCell(colIndex, rowIndex).content;
+
+          // update cell immediately
+          this.updateCell(colIndex, rowIndex, value);
+          $cell.focus();
+
+          if (done && done.then) {
+            // revert to oldValue if promise fails
+            done.catch(function (e) {
+              console.log(e);
+              _this7.updateCell(colIndex, rowIndex, oldValue);
+            });
+          }
+        }
+      }
+
+      this.currentCellEditor = null;
+    }
+  }, {
+    key: 'copyCellContents',
+    value: function copyCellContents($cell1, $cell2) {
+      var _this8 = this;
+
+      if (!$cell2 && $cell1) {
+        // copy only focusedCell
+        var _$$data9 = _dom2.default.data($cell1),
+            colIndex = _$$data9.colIndex,
+            rowIndex = _$$data9.rowIndex;
+
+        var cell = this.getCell(colIndex, rowIndex);
+        (0, _utils.copyTextToClipboard)(cell.content);
+        return;
+      }
+      var cells = this.getCellsInRange($cell1, $cell2);
+
+      if (!cells) return;
+
+      var values = cells
+      // get cell objects
+      .map(function (index) {
+        return _this8.getCell.apply(_this8, _toConsumableArray(index));
+      })
+      // convert to array of rows
+      .reduce(function (acc, curr) {
+        var rowIndex = curr.rowIndex;
+
+        acc[rowIndex] = acc[rowIndex] || [];
+        acc[rowIndex].push(curr.content);
+
+        return acc;
+      }, [])
+      // join values by tab
+      .map(function (row) {
+        return row.join('\t');
+      })
+      // join rows by newline
+      .join('\n');
+
+      (0, _utils.copyTextToClipboard)(values);
+    }
+  }, {
+    key: 'updateCell',
+    value: function updateCell(colIndex, rowIndex, value) {
+      var cell = this.datamanager.updateCell(colIndex, rowIndex, {
+        content: value
+      });
+      this.refreshCell(cell);
+    }
+  }, {
+    key: 'refreshCell',
+    value: function refreshCell(cell) {
+      var $cell = (0, _dom2.default)(this.cellSelector(cell.colIndex, cell.rowIndex), this.bodyScrollable);
+      $cell.innerHTML = this.getCellContent(cell);
+    }
+  }, {
+    key: 'isStandardCell',
+    value: function isStandardCell(colIndex) {
+      // Standard cells are in Sr. No and Checkbox column
+      return colIndex < this.columnmanager.getFirstColumnIndex();
+    }
+  }, {
+    key: 'getCell$',
+    value: function getCell$(colIndex, rowIndex) {
+      return (0, _dom2.default)(this.cellSelector(colIndex, rowIndex), this.bodyScrollable);
+    }
+  }, {
+    key: 'getAboveCell$',
+    value: function getAboveCell$($cell) {
+      var _$$data10 = _dom2.default.data($cell),
+          colIndex = _$$data10.colIndex;
+
+      var $aboveRow = $cell.parentElement.previousElementSibling;
+
+      return (0, _dom2.default)('[data-col-index="' + colIndex + '"]', $aboveRow);
+    }
+  }, {
+    key: 'getBelowCell$',
+    value: function getBelowCell$($cell) {
+      var _$$data11 = _dom2.default.data($cell),
+          colIndex = _$$data11.colIndex;
+
+      var $belowRow = $cell.parentElement.nextElementSibling;
+
+      return (0, _dom2.default)('[data-col-index="' + colIndex + '"]', $belowRow);
+    }
+  }, {
+    key: 'getLeftCell$',
+    value: function getLeftCell$($cell) {
+      return $cell.previousElementSibling;
+    }
+  }, {
+    key: 'getRightCell$',
+    value: function getRightCell$($cell) {
+      return $cell.nextElementSibling;
+    }
+  }, {
+    key: 'getLeftMostCell$',
+    value: function getLeftMostCell$(rowIndex) {
+      return this.getCell$(this.columnmanager.getFirstColumnIndex(), rowIndex);
+    }
+  }, {
+    key: 'getRightMostCell$',
+    value: function getRightMostCell$(rowIndex) {
+      return this.getCell$(this.columnmanager.getLastColumnIndex(), rowIndex);
+    }
+  }, {
+    key: 'getTopMostCell$',
+    value: function getTopMostCell$(colIndex) {
+      return this.getCell$(colIndex, this.rowmanager.getFirstRowIndex());
+    }
+  }, {
+    key: 'getBottomMostCell$',
+    value: function getBottomMostCell$(colIndex) {
+      return this.getCell$(colIndex, this.rowmanager.getLastRowIndex());
+    }
+  }, {
+    key: 'getCell',
+    value: function getCell(colIndex, rowIndex) {
+      return this.instance.datamanager.getCell(colIndex, rowIndex);
+    }
+  }, {
+    key: 'getCellAttr',
+    value: function getCellAttr($cell) {
+      return this.instance.getCellAttr($cell);
+    }
+  }, {
+    key: 'getRowHeight',
+    value: function getRowHeight() {
+      return _dom2.default.style((0, _dom2.default)('.data-table-row', this.bodyScrollable), 'height');
+    }
+  }, {
+    key: 'scrollToCell',
+    value: function scrollToCell($cell) {
+      if (_dom2.default.inViewport($cell, this.bodyScrollable)) return false;
+
+      var _$$data12 = _dom2.default.data($cell),
+          rowIndex = _$$data12.rowIndex;
+
+      this.rowmanager.scrollToRow(rowIndex);
+      return false;
+    }
+  }, {
+    key: 'getRowCountPerPage',
+    value: function getRowCountPerPage() {
+      return Math.ceil(this.instance.getViewportHeight() / this.getRowHeight());
+    }
+  }, {
+    key: 'getCellHTML',
+    value: function getCellHTML(cell) {
+      var rowIndex = cell.rowIndex,
+          colIndex = cell.colIndex,
+          isHeader = cell.isHeader;
+
+      var dataAttr = (0, _utils.makeDataAttributeString)({
+        rowIndex: rowIndex,
+        colIndex: colIndex,
+        isHeader: isHeader
+      });
+
+      return '\n      <td class="data-table-col noselect" ' + dataAttr + ' tabindex="0">\n        ' + this.getCellContent(cell) + '\n      </td>\n    ';
+    }
+  }, {
+    key: 'getCellContent',
+    value: function getCellContent(cell) {
+      var isHeader = cell.isHeader;
+
+
+      var editable = !isHeader && cell.editable !== false;
+      var editCellHTML = editable ? this.getEditCellHTML() : '';
+
+      var sortable = isHeader && cell.sortable !== false;
+      var sortIndicator = sortable ? '<span class="sort-indicator"></span>' : '';
+
+      var resizable = isHeader && cell.resizable !== false;
+      var resizeColumn = resizable ? '<span class="column-resizer"></span>' : '';
+
+      var hasDropdown = isHeader && cell.dropdown !== false;
+      var dropdown = hasDropdown ? '<div class="data-table-dropdown">' + (0, _columnmanager.getDropdownHTML)() + '</div>' : '';
+
+      var contentHTML = !cell.isHeader && cell.column.format ? cell.column.format(cell.content) : cell.content;
+
+      return '\n      <div class="content ellipsis">\n        ' + contentHTML + '\n        ' + sortIndicator + '\n        ' + resizeColumn + '\n        ' + dropdown + '\n      </div>\n      ' + editCellHTML + '\n    ';
+    }
+  }, {
+    key: 'getEditCellHTML',
+    value: function getEditCellHTML() {
+      return '\n      <div class="edit-cell"></div>\n    ';
+    }
+  }, {
+    key: 'cellSelector',
+    value: function cellSelector(colIndex, rowIndex) {
+      return '.data-table-col[data-col-index="' + colIndex + '"][data-row-index="' + rowIndex + '"]';
+    }
+  }]);
+
+  return CellManager;
+}();
+
+exports.default = CellManager;
+module.exports = exports['default'];
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _utils = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RowManager = function () {
+  function RowManager(instance) {
+    _classCallCheck(this, RowManager);
+
+    this.instance = instance;
+    this.options = this.instance.options;
+    this.wrapper = this.instance.wrapper;
+    this.bodyScrollable = this.instance.bodyScrollable;
+
+    this.bindEvents();
+    this.refreshRows = (0, _utils.promisify)(this.refreshRows, this);
+  }
+
+  _createClass(RowManager, [{
+    key: 'bindEvents',
+    value: function bindEvents() {
+      this.bindCheckbox();
+    }
+  }, {
+    key: 'bindCheckbox',
+    value: function bindCheckbox() {
+      var _this = this;
+
+      if (!this.options.addCheckboxColumn) return;
+
+      // map of checked rows
+      this.checkMap = [];
+
+      _dom2.default.on(this.wrapper, 'click', '.data-table-col[data-col-index="0"] [type="checkbox"]', function (e, $checkbox) {
+        var $cell = $checkbox.closest('.data-table-col');
+
+        var _$$data = _dom2.default.data($cell),
+            rowIndex = _$$data.rowIndex,
+            isHeader = _$$data.isHeader;
+
+        var checked = $checkbox.checked;
+
+        if (isHeader) {
+          _this.checkAll(checked);
+        } else {
+          _this.checkRow(rowIndex, checked);
+        }
+      });
+    }
+  }, {
+    key: 'refreshRows',
+    value: function refreshRows() {
+      this.instance.renderBody();
+      this.instance.setDimensions();
+    }
+  }, {
+    key: 'refreshRow',
+    value: function refreshRow(row, rowIndex) {
+      var _this2 = this;
+
+      var _row = this.datamanager.updateRow(row, rowIndex);
+
+      _row.forEach(function (cell) {
+        _this2.cellmanager.refreshCell(cell);
+      });
+    }
+  }, {
+    key: 'getCheckedRows',
+    value: function getCheckedRows() {
+      if (!this.checkMap) {
+        return [];
+      }
+
+      return this.checkMap.map(function (c, rowIndex) {
+        if (c) {
+          return rowIndex;
+        }
+        return null;
+      }).filter(function (c) {
+        return c !== null || c !== undefined;
+      });
+    }
+  }, {
+    key: 'highlightCheckedRows',
+    value: function highlightCheckedRows() {
+      var _this3 = this;
+
+      this.getCheckedRows().map(function (rowIndex) {
+        return _this3.checkRow(rowIndex, true);
+      });
+    }
+  }, {
+    key: 'checkRow',
+    value: function checkRow(rowIndex, toggle) {
+      var value = toggle ? 1 : 0;
+
+      // update internal map
+      this.checkMap[rowIndex] = value;
+      // set checkbox value explicitly
+      _dom2.default.each('.data-table-col[data-row-index="' + rowIndex + '"][data-col-index="0"] [type="checkbox"]', this.bodyScrollable).map(function (input) {
+        input.checked = toggle;
+      });
+      // highlight row
+      this.highlightRow(rowIndex, toggle);
+    }
+  }, {
+    key: 'checkAll',
+    value: function checkAll(toggle) {
+      var value = toggle ? 1 : 0;
+
+      // update internal map
+      if (toggle) {
+        this.checkMap = Array.from(Array(this.getTotalRows())).map(function (c) {
+          return value;
+        });
+      } else {
+        this.checkMap = [];
+      }
+      // set checkbox value
+      _dom2.default.each('.data-table-col[data-col-index="0"] [type="checkbox"]', this.bodyScrollable).map(function (input) {
+        input.checked = toggle;
+      });
+      // highlight all
+      this.highlightAll(toggle);
+    }
+  }, {
+    key: 'highlightRow',
+    value: function highlightRow(rowIndex) {
+      var toggle = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+      var $row = this.getRow$(rowIndex);
+      if (!$row) return;
+
+      if (!toggle && this.bodyScrollable.classList.contains('row-highlight-all')) {
+        $row.classList.add('row-unhighlight');
+        return;
+      }
+
+      if (toggle && $row.classList.contains('row-unhighlight')) {
+        $row.classList.remove('row-unhighlight');
+      }
+
+      this._highlightedRows = this._highlightedRows || {};
+
+      if (toggle) {
+        $row.classList.add('row-highlight');
+        this._highlightedRows[rowIndex] = $row;
+      } else {
+        $row.classList.remove('row-highlight');
+        delete this._highlightedRows[rowIndex];
+      }
+    }
+  }, {
+    key: 'highlightAll',
+    value: function highlightAll() {
+      var toggle = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
+
+      if (toggle) {
+        this.bodyScrollable.classList.add('row-highlight-all');
+      } else {
+        this.bodyScrollable.classList.remove('row-highlight-all');
+        for (var rowIndex in this._highlightedRows) {
+          var $row = this._highlightedRows[rowIndex];
+          $row.classList.remove('row-highlight');
+        }
+        this._highlightedRows = {};
+      }
+    }
+  }, {
+    key: 'getRow$',
+    value: function getRow$(rowIndex) {
+      return (0, _dom2.default)('.data-table-row[data-row-index="' + rowIndex + '"]', this.bodyScrollable);
+    }
+  }, {
+    key: 'getTotalRows',
+    value: function getTotalRows() {
+      return this.datamanager.getRowCount();
+    }
+  }, {
+    key: 'getFirstRowIndex',
+    value: function getFirstRowIndex() {
+      return 0;
+    }
+  }, {
+    key: 'getLastRowIndex',
+    value: function getLastRowIndex() {
+      return this.datamanager.getRowCount() - 1;
+    }
+  }, {
+    key: 'scrollToRow',
+    value: function scrollToRow(rowIndex) {
+      rowIndex = +rowIndex;
+      this._lastScrollTo = this._lastScrollTo || 0;
+      var $row = this.getRow$(rowIndex);
+      if (_dom2.default.inViewport($row, this.bodyScrollable)) return;
+
+      var _$row$getBoundingClie = $row.getBoundingClientRect(),
+          height = _$row$getBoundingClie.height;
+
+      var _bodyScrollable$getBo = this.bodyScrollable.getBoundingClientRect(),
+          top = _bodyScrollable$getBo.top,
+          bottom = _bodyScrollable$getBo.bottom;
+
+      var rowsInView = Math.floor((bottom - top) / height);
+
+      var offset = 0;
+      if (rowIndex > this._lastScrollTo) {
+        offset = height * (rowIndex + 1 - rowsInView);
+      } else {
+        offset = height * (rowIndex + 1 - 1);
+      }
+
+      this._lastScrollTo = rowIndex;
+      _dom2.default.scrollTop(this.bodyScrollable, offset);
+    }
+  }, {
+    key: 'getRowHTML',
+    value: function getRowHTML(row, props) {
+      var _this4 = this;
+
+      var dataAttr = (0, _utils.makeDataAttributeString)(props);
+
+      return '\n      <tr class="data-table-row" ' + dataAttr + '>\n        ' + row.map(function (cell) {
+        return _this4.cellmanager.getCellHTML(cell);
+      }).join('') + '\n      </tr>\n    ';
+    }
+  }, {
+    key: 'datamanager',
+    get: function get() {
+      return this.instance.datamanager;
+    }
+  }, {
+    key: 'cellmanager',
+    get: function get() {
+      return this.instance.cellmanager;
+    }
+  }]);
+
+  return RowManager;
+}();
+
+exports.default = RowManager;
+module.exports = exports['default'];
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+exports.getBodyHTML = getBodyHTML;
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+var _clusterize = __webpack_require__(11);
+
+var _clusterize2 = _interopRequireDefault(_clusterize);
+
+var _utils = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var BodyRenderer = function () {
+  function BodyRenderer(instance) {
+    _classCallCheck(this, BodyRenderer);
+
+    this.instance = instance;
+    this.options = instance.options;
+    this.datamanager = instance.datamanager;
+    this.rowmanager = instance.rowmanager;
+    this.cellmanager = instance.cellmanager;
+    this.bodyScrollable = instance.bodyScrollable;
+    this.log = instance.log;
+    this.appendRemainingData = (0, _utils.promisify)(this.appendRemainingData, this);
+  }
+
+  _createClass(BodyRenderer, [{
+    key: 'render',
+    value: function render() {
+      if (this.options.enableClusterize) {
+        this.renderBodyWithClusterize();
+      } else {
+        this.renderBodyHTML();
+      }
+    }
+  }, {
+    key: 'renderBodyHTML',
+    value: function renderBodyHTML() {
+      var rows = this.datamanager.getRows();
+
+      this.bodyScrollable.innerHTML = '\n      <table class="data-table-body">\n        ' + getBodyHTML(rows) + '\n      </table>\n    ';
+      this.instance.setDimensions();
+      this.restoreState();
+    }
+  }, {
+    key: 'renderBodyWithClusterize',
+    value: function renderBodyWithClusterize() {
+      var _this = this;
+
+      // first page
+      var rows = this.datamanager.getRows(0, 20);
+      var initialData = this.getDataForClusterize(rows);
+
+      if (!this.clusterize) {
+        // empty body
+        this.bodyScrollable.innerHTML = '\n        <table class="data-table-body">\n          ' + getBodyHTML([]) + '\n        </table>\n      ';
+
+        // first 20 rows will appended
+        // rest of them in nextTick
+        this.clusterize = new _clusterize2.default({
+          rows: initialData,
+          scrollElem: this.bodyScrollable,
+          contentElem: (0, _dom2.default)('tbody', this.bodyScrollable),
+          callbacks: {
+            clusterChanged: function clusterChanged() {
+              _this.restoreState();
+            }
+          },
+          /* eslint-disable */
+          no_data_text: this.options.loadingText,
+          no_data_class: 'empty-state'
+          /* eslint-enable */
+        });
+
+        // setDimensions requires atleast 1 row to exist in dom
+        this.instance.setDimensions();
+      } else {
+        this.clusterize.update(initialData);
+      }
+
+      this.appendRemainingData();
+    }
+  }, {
+    key: 'restoreState',
+    value: function restoreState() {
+      this.rowmanager.highlightCheckedRows();
+      this.cellmanager.selectAreaOnClusterChanged();
+      this.cellmanager.focusCellOnClusterChanged();
+    }
+  }, {
+    key: 'appendRemainingData',
+    value: function appendRemainingData() {
+      var rows = this.datamanager.getRows(20);
+      var data = this.getDataForClusterize(rows);
+      this.clusterize.append(data);
+    }
+  }, {
+    key: 'getDataForClusterize',
+    value: function getDataForClusterize(rows) {
+      var _this2 = this;
+
+      return rows.map(function (row) {
+        return _this2.rowmanager.getRowHTML(row, { rowIndex: row[0].rowIndex });
+      });
+    }
+  }]);
+
+  return BodyRenderer;
+}();
+
+exports.default = BodyRenderer;
+
+
+function getBodyHTML(rows) {
+  var _this3 = this;
+
+  return '\n    <tbody>\n      ' + rows.map(function (row) {
+    return _this3.rowmanager.getRowHTML(row, { rowIndex: row[0].rowIndex });
+  }).join('') + '\n    </tbody>\n  ';
+}
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE_11__;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _utils = __webpack_require__(1);
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Style = function () {
+  function Style(datatable) {
+    _classCallCheck(this, Style);
+
+    this.datatable = datatable;
+    this.scopeClass = 'datatable-instance-' + datatable.constructor.instances;
+    datatable.datatableWrapper.classList.add(this.scopeClass);
+
+    var styleEl = document.createElement('style');
+    datatable.wrapper.insertBefore(styleEl, datatable.datatableWrapper);
+    this.styleEl = styleEl;
+    this.styleSheet = styleEl.sheet;
+  }
+
+  _createClass(Style, [{
+    key: 'destroy',
+    value: function destroy() {
+      this.styleEl.remove();
+    }
+  }, {
+    key: 'setStyle',
+    value: function setStyle(rule, styleMap) {
+      var index = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
+
+      var styles = Object.keys(styleMap).map(function (prop) {
+        if (!prop.includes('-')) {
+          prop = (0, _utils.camelCaseToDash)(prop);
+        }
+        return prop + ':' + styleMap[prop] + ';';
+      }).join('');
+      var ruleString = '.' + this.scopeClass + ' ' + rule + ' { ' + styles + ' }';
+
+      var _index = this.styleSheet.cssRules.length;
+      if (index !== -1) {
+        this.styleSheet.deleteRule(index);
+        _index = index;
+      }
+
+      this.styleSheet.insertRule(ruleString, _index);
+      return _index;
+    }
+  }]);
+
+  return Style;
+}();
+
+exports.default = Style;
+module.exports = exports['default'];
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = {
+  columns: [],
+  data: [],
+  dropdownButton: '▼',
+  headerDropdown: [{
+    label: 'Sort Ascending',
+    action: function action(column) {
+      this.sortColumn(column.colIndex, 'asc');
+    }
+  }, {
+    label: 'Sort Descending',
+    action: function action(column) {
+      this.sortColumn(column.colIndex, 'desc');
+    }
+  }, {
+    label: 'Reset sorting',
+    action: function action(column) {
+      this.sortColumn(column.colIndex, 'none');
+    }
+  }, {
+    label: 'Remove column',
+    action: function action(column) {
+      this.removeColumn(column.colIndex);
+    }
+  }],
+  events: {
+    onRemoveColumn: function onRemoveColumn(column) {},
+    onSwitchColumn: function onSwitchColumn(column1, column2) {},
+    onSortColumn: function onSortColumn(column) {}
+  },
+  sortIndicator: {
+    asc: '↑',
+    desc: '↓',
+    none: ''
+  },
+  freezeMessage: '',
+  getEditor: function getEditor() {},
+  addSerialNoColumn: true,
+  addCheckboxColumn: false,
+  enableClusterize: true,
+  enableLogs: false,
+  takeAvailableSpace: false,
+  loadingText: ''
+};
+module.exports = exports['default'];
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(15);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {};
+options.transform = transform;
+// add the styles to the DOM
+var update = __webpack_require__(17)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(16)(false);
+// imports
+
+
+// module
+exports.push([module.i, "/* variables */\n.data-table {\n  /* resets */\n  /* styling */\n  width: 100%;\n  position: relative;\n  overflow: auto; }\n  .data-table *, .data-table *::after, .data-table *::before {\n    box-sizing: border-box; }\n  .data-table button, .data-table input {\n    overflow: visible;\n    font-family: inherit;\n    font-size: inherit;\n    line-height: inherit;\n    margin: 0;\n    padding: 0; }\n  .data-table *, .data-table *:focus {\n    outline: none;\n    border-radius: 0px;\n    box-shadow: none; }\n  .data-table table {\n    border-collapse: collapse; }\n  .data-table table td {\n    padding: 0;\n    border: 1px solid #d1d8dd; }\n  .data-table thead td {\n    border-bottom-width: 1px; }\n  .data-table .freeze-container {\n    display: flex;\n    justify-content: center;\n    align-content: center;\n    position: absolute;\n    left: 0;\n    right: 0;\n    top: 0;\n    bottom: 0;\n    background-color: #f5f7fa;\n    opacity: 0.5;\n    font-size: 2em; }\n    .data-table .freeze-container span {\n      position: absolute;\n      top: 50%;\n      transform: translateY(-50%); }\n  .data-table .trash-container {\n    position: absolute;\n    bottom: 0;\n    left: 30%;\n    right: 30%;\n    height: 70px;\n    background: palevioletred;\n    opacity: 0.5; }\n\n.body-scrollable {\n  max-height: 500px;\n  overflow: auto;\n  border-bottom: 1px solid #d1d8dd; }\n  .body-scrollable.row-highlight-all .data-table-row:not(.row-unhighlight) {\n    background-color: #f5f7fa; }\n\n.data-table-header {\n  position: absolute;\n  top: 0;\n  left: 0;\n  background-color: white;\n  font-weight: bold; }\n  .data-table-header .content span:not(.column-resizer) {\n    cursor: pointer; }\n  .data-table-header .column-resizer {\n    display: none;\n    position: absolute;\n    right: 0;\n    top: 0;\n    width: 0.25rem;\n    height: 100%;\n    background-color: #5292f7;\n    cursor: col-resize; }\n  .data-table-header .data-table-dropdown {\n    position: absolute;\n    right: 10px;\n    display: inline-flex;\n    vertical-align: top;\n    text-align: left; }\n    .data-table-header .data-table-dropdown.is-active .data-table-dropdown-list {\n      display: block; }\n    .data-table-header .data-table-dropdown.is-active .data-table-dropdown-toggle {\n      display: block; }\n  .data-table-header .data-table-dropdown-toggle {\n    display: none;\n    background-color: transparent;\n    border: none; }\n  .data-table-header .data-table-dropdown-list {\n    display: none;\n    font-weight: normal;\n    position: absolute;\n    min-width: 8rem;\n    top: 100%;\n    right: 0;\n    z-index: 1;\n    background-color: white;\n    border-radius: 3px;\n    box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);\n    padding-bottom: 0.5rem;\n    padding-top: 0.5rem; }\n    .data-table-header .data-table-dropdown-list > div {\n      padding: 0.5rem 1rem; }\n      .data-table-header .data-table-dropdown-list > div:hover {\n        background-color: #f5f7fa; }\n  .data-table-header .data-table-col.remove-column {\n    background-color: #FD8B8B;\n    transition: 300ms background-color ease-in-out; }\n  .data-table-header .data-table-col.sortable-chosen {\n    background-color: #f5f7fa; }\n\n.data-table-col {\n  position: relative; }\n  .data-table-col .content {\n    padding: 0.25rem;\n    border: 2px solid transparent; }\n    .data-table-col .content.ellipsis {\n      text-overflow: ellipsis;\n      white-space: nowrap;\n      overflow: hidden; }\n  .data-table-col .edit-cell {\n    display: none;\n    padding: 0.25rem;\n    background: #fff;\n    z-index: 1;\n    height: 100%; }\n    .data-table-col .edit-cell input {\n      outline: none;\n      width: 100%;\n      border: none; }\n  .data-table-col.selected .content {\n    border: 2px solid #5292f7; }\n  .data-table-col.editing .content {\n    display: none; }\n  .data-table-col.editing .edit-cell {\n    border: 2px solid #5292f7;\n    display: block; }\n  .data-table-col.highlight {\n    background-color: #f5f7fa; }\n  .data-table-col:hover .column-resizer {\n    display: inline-block; }\n  .data-table-col:hover .data-table-dropdown-toggle {\n    display: block; }\n\n.data-table-row.row-highlight {\n  background-color: #f5f7fa; }\n\n.noselect {\n  -webkit-touch-callout: none;\n  -webkit-user-select: none;\n  -khtml-user-select: none;\n  -moz-user-select: none;\n  -ms-user-select: none;\n  user-select: none; }\n\nbody.data-table-resize {\n  cursor: col-resize; }\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+// css base code, injected by the css-loader
+module.exports = function(useSourceMap) {
+	var list = [];
+
+	// return the list of modules as css string
+	list.toString = function toString() {
+		return this.map(function (item) {
+			var content = cssWithMappingToString(item, useSourceMap);
+			if(item[2]) {
+				return "@media " + item[2] + "{" + content + "}";
+			} else {
+				return content;
+			}
+		}).join("");
+	};
+
+	// import a list of modules into the list
+	list.i = function(modules, mediaQuery) {
+		if(typeof modules === "string")
+			modules = [[null, modules, ""]];
+		var alreadyImportedModules = {};
+		for(var i = 0; i < this.length; i++) {
+			var id = this[i][0];
+			if(typeof id === "number")
+				alreadyImportedModules[id] = true;
+		}
+		for(i = 0; i < modules.length; i++) {
+			var item = modules[i];
+			// skip already imported module
+			// this implementation is not 100% perfect for weird media query combinations
+			//  when a module is imported multiple times with different media queries.
+			//  I hope this will never occur (Hey this way we have smaller bundles)
+			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+				if(mediaQuery && !item[2]) {
+					item[2] = mediaQuery;
+				} else if(mediaQuery) {
+					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+				}
+				list.push(item);
+			}
+		}
+	};
+	return list;
+};
+
+function cssWithMappingToString(item, useSourceMap) {
+	var content = item[1] || '';
+	var cssMapping = item[3];
+	if (!cssMapping) {
+		return content;
+	}
+
+	if (useSourceMap && typeof btoa === 'function') {
+		var sourceMapping = toComment(cssMapping);
+		var sourceURLs = cssMapping.sources.map(function (source) {
+			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+		});
+
+		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+	}
+
+	return [content].join('\n');
+}
+
+// Adapted from convert-source-map (MIT)
+function toComment(sourceMap) {
+	// eslint-disable-next-line no-undef
+	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+
+	return '/*# ' + data + ' */';
+}
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/*
+	MIT License http://www.opensource.org/licenses/mit-license.php
+	Author Tobias Koppers @sokra
+*/
+
+var stylesInDom = {};
+
+var	memoize = function (fn) {
+	var memo;
+
+	return function () {
+		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+		return memo;
+	};
+};
+
+var isOldIE = memoize(function () {
+	// Test for IE <= 9 as proposed by Browserhacks
+	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+	// Tests for existence of standard globals is to allow style-loader
+	// to operate correctly into non-standard environments
+	// @see https://github.com/webpack-contrib/style-loader/issues/177
+	return window && document && document.all && !window.atob;
+});
+
+var getElement = (function (fn) {
+	var memo = {};
+
+	return function(selector) {
+		if (typeof memo[selector] === "undefined") {
+			memo[selector] = fn.call(this, selector);
+		}
+
+		return memo[selector]
+	};
+})(function (target) {
+	return document.querySelector(target)
+});
+
+var singleton = null;
+var	singletonCounter = 0;
+var	stylesInsertedAtTop = [];
+
+var	fixUrls = __webpack_require__(18);
+
+module.exports = function(list, options) {
+	if (typeof DEBUG !== "undefined" && DEBUG) {
+		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+	}
+
+	options = options || {};
+
+	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+
+	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+	// tags it will allow on a page
+	if (!options.singleton) options.singleton = isOldIE();
+
+	// By default, add <style> tags to the <head> element
+	if (!options.insertInto) options.insertInto = "head";
+
+	// By default, add <style> tags to the bottom of the target
+	if (!options.insertAt) options.insertAt = "bottom";
+
+	var styles = listToStyles(list, options);
+
+	addStylesToDom(styles, options);
+
+	return function update (newList) {
+		var mayRemove = [];
+
+		for (var i = 0; i < styles.length; i++) {
+			var item = styles[i];
+			var domStyle = stylesInDom[item.id];
+
+			domStyle.refs--;
+			mayRemove.push(domStyle);
+		}
+
+		if(newList) {
+			var newStyles = listToStyles(newList, options);
+			addStylesToDom(newStyles, options);
+		}
+
+		for (var i = 0; i < mayRemove.length; i++) {
+			var domStyle = mayRemove[i];
+
+			if(domStyle.refs === 0) {
+				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+
+				delete stylesInDom[domStyle.id];
+			}
+		}
+	};
+};
+
+function addStylesToDom (styles, options) {
+	for (var i = 0; i < styles.length; i++) {
+		var item = styles[i];
+		var domStyle = stylesInDom[item.id];
+
+		if(domStyle) {
+			domStyle.refs++;
+
+			for(var j = 0; j < domStyle.parts.length; j++) {
+				domStyle.parts[j](item.parts[j]);
+			}
+
+			for(; j < item.parts.length; j++) {
+				domStyle.parts.push(addStyle(item.parts[j], options));
+			}
+		} else {
+			var parts = [];
+
+			for(var j = 0; j < item.parts.length; j++) {
+				parts.push(addStyle(item.parts[j], options));
+			}
+
+			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+		}
+	}
+}
+
+function listToStyles (list, options) {
+	var styles = [];
+	var newStyles = {};
+
+	for (var i = 0; i < list.length; i++) {
+		var item = list[i];
+		var id = options.base ? item[0] + options.base : item[0];
+		var css = item[1];
+		var media = item[2];
+		var sourceMap = item[3];
+		var part = {css: css, media: media, sourceMap: sourceMap};
+
+		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+		else newStyles[id].parts.push(part);
+	}
+
+	return styles;
+}
+
+function insertStyleElement (options, style) {
+	var target = getElement(options.insertInto);
+
+	if (!target) {
+		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+	}
+
+	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+
+	if (options.insertAt === "top") {
+		if (!lastStyleElementInsertedAtTop) {
+			target.insertBefore(style, target.firstChild);
+		} else if (lastStyleElementInsertedAtTop.nextSibling) {
+			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+		} else {
+			target.appendChild(style);
+		}
+		stylesInsertedAtTop.push(style);
+	} else if (options.insertAt === "bottom") {
+		target.appendChild(style);
+	} else {
+		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+	}
+}
+
+function removeStyleElement (style) {
+	if (style.parentNode === null) return false;
+	style.parentNode.removeChild(style);
+
+	var idx = stylesInsertedAtTop.indexOf(style);
+	if(idx >= 0) {
+		stylesInsertedAtTop.splice(idx, 1);
+	}
+}
+
+function createStyleElement (options) {
+	var style = document.createElement("style");
+
+	options.attrs.type = "text/css";
+
+	addAttrs(style, options.attrs);
+	insertStyleElement(options, style);
+
+	return style;
+}
+
+function createLinkElement (options) {
+	var link = document.createElement("link");
+
+	options.attrs.type = "text/css";
+	options.attrs.rel = "stylesheet";
+
+	addAttrs(link, options.attrs);
+	insertStyleElement(options, link);
+
+	return link;
+}
+
+function addAttrs (el, attrs) {
+	Object.keys(attrs).forEach(function (key) {
+		el.setAttribute(key, attrs[key]);
+	});
+}
+
+function addStyle (obj, options) {
+	var style, update, remove, result;
+
+	// If a transform function was defined, run it on the css
+	if (options.transform && obj.css) {
+	    result = options.transform(obj.css);
+
+	    if (result) {
+	    	// If transform returns a value, use that instead of the original css.
+	    	// This allows running runtime transformations on the css.
+	    	obj.css = result;
+	    } else {
+	    	// If the transform function returns a falsy value, don't add this css.
+	    	// This allows conditional loading of css
+	    	return function() {
+	    		// noop
+	    	};
+	    }
+	}
+
+	if (options.singleton) {
+		var styleIndex = singletonCounter++;
+
+		style = singleton || (singleton = createStyleElement(options));
+
+		update = applyToSingletonTag.bind(null, style, styleIndex, false);
+		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+
+	} else if (
+		obj.sourceMap &&
+		typeof URL === "function" &&
+		typeof URL.createObjectURL === "function" &&
+		typeof URL.revokeObjectURL === "function" &&
+		typeof Blob === "function" &&
+		typeof btoa === "function"
+	) {
+		style = createLinkElement(options);
+		update = updateLink.bind(null, style, options);
+		remove = function () {
+			removeStyleElement(style);
+
+			if(style.href) URL.revokeObjectURL(style.href);
+		};
+	} else {
+		style = createStyleElement(options);
+		update = applyToTag.bind(null, style);
+		remove = function () {
+			removeStyleElement(style);
+		};
+	}
+
+	update(obj);
+
+	return function updateStyle (newObj) {
+		if (newObj) {
+			if (
+				newObj.css === obj.css &&
+				newObj.media === obj.media &&
+				newObj.sourceMap === obj.sourceMap
+			) {
+				return;
+			}
+
+			update(obj = newObj);
+		} else {
+			remove();
+		}
+	};
+}
+
+var replaceText = (function () {
+	var textStore = [];
+
+	return function (index, replacement) {
+		textStore[index] = replacement;
+
+		return textStore.filter(Boolean).join('\n');
+	};
+})();
+
+function applyToSingletonTag (style, index, remove, obj) {
+	var css = remove ? "" : obj.css;
+
+	if (style.styleSheet) {
+		style.styleSheet.cssText = replaceText(index, css);
+	} else {
+		var cssNode = document.createTextNode(css);
+		var childNodes = style.childNodes;
+
+		if (childNodes[index]) style.removeChild(childNodes[index]);
+
+		if (childNodes.length) {
+			style.insertBefore(cssNode, childNodes[index]);
+		} else {
+			style.appendChild(cssNode);
+		}
+	}
+}
+
+function applyToTag (style, obj) {
+	var css = obj.css;
+	var media = obj.media;
+
+	if(media) {
+		style.setAttribute("media", media);
+	}
+
+	if(style.styleSheet) {
+		style.styleSheet.cssText = css;
+	} else {
+		while(style.firstChild) {
+			style.removeChild(style.firstChild);
+		}
+
+		style.appendChild(document.createTextNode(css));
+	}
+}
+
+function updateLink (link, options, obj) {
+	var css = obj.css;
+	var sourceMap = obj.sourceMap;
+
+	/*
+		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+		and there is no publicPath defined then lets turn convertToAbsoluteUrls
+		on by default.  Otherwise default to the convertToAbsoluteUrls option
+		directly
+	*/
+	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+
+	if (options.convertToAbsoluteUrls || autoFixUrls) {
+		css = fixUrls(css);
+	}
+
+	if (sourceMap) {
+		// http://stackoverflow.com/a/26603875
+		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+	}
+
+	var blob = new Blob([css], { type: "text/css" });
+
+	var oldSrc = link.href;
+
+	link.href = URL.createObjectURL(blob);
+
+	if(oldSrc) URL.revokeObjectURL(oldSrc);
+}
+
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+
+/**
+ * When source maps are enabled, `style-loader` uses a link element with a data-uri to
+ * embed the css on the page. This breaks all relative urls because now they are relative to a
+ * bundle instead of the current page.
+ *
+ * One solution is to only use full urls, but that may be impossible.
+ *
+ * Instead, this function "fixes" the relative urls to be absolute according to the current page location.
+ *
+ * A rudimentary test suite is located at `test/fixUrls.js` and can be run via the `npm test` command.
+ *
+ */
+
+module.exports = function (css) {
+  // get current location
+  var location = typeof window !== "undefined" && window.location;
+
+  if (!location) {
+    throw new Error("fixUrls requires window.location");
+  }
+
+	// blank or null?
+	if (!css || typeof css !== "string") {
+	  return css;
+  }
+
+  var baseUrl = location.protocol + "//" + location.host;
+  var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
+
+	// convert each url(...)
+	/*
+	This regular expression is just a way to recursively match brackets within
+	a string.
+
+	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+	   (  = Start a capturing group
+	     (?:  = Start a non-capturing group
+	         [^)(]  = Match anything that isn't a parentheses
+	         |  = OR
+	         \(  = Match a start parentheses
+	             (?:  = Start another non-capturing groups
+	                 [^)(]+  = Match anything that isn't a parentheses
+	                 |  = OR
+	                 \(  = Match a start parentheses
+	                     [^)(]*  = Match anything that isn't a parentheses
+	                 \)  = Match a end parentheses
+	             )  = End Group
+              *\) = Match anything and then a close parens
+          )  = Close non-capturing group
+          *  = Match anything
+       )  = Close capturing group
+	 \)  = Match a close parens
+
+	 /gi  = Get all matches, not the first.  Be case insensitive.
+	 */
+	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+		// strip quotes (if they exist)
+		var unquotedOrigUrl = origUrl
+			.trim()
+			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
+			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+
+		// already a full url? no change
+		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+		  return fullMatch;
+		}
+
+		// convert the url to a full url
+		var newUrl;
+
+		if (unquotedOrigUrl.indexOf("//") === 0) {
+		  	//TODO: should we add protocol?
+			newUrl = unquotedOrigUrl;
+		} else if (unquotedOrigUrl.indexOf("/") === 0) {
+			// path should be relative to the base url
+			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+		} else {
+			// path should be relative to current directory
+			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+		}
+
+		// send back the fixed url(...)
+		return "url(" + JSON.stringify(newUrl) + ")";
+	});
+
+	// send back the fixed css
+	return fixedCss;
+};
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports) {
+
+module.exports = {"name":"frappe-datatable","version":"0.0.1","description":"A modern datatable library for the web","main":"lib/frappe-datatable.js","scripts":{"start":"npm run dev","build":"webpack --env build","dev":"webpack --progress --colors --watch --env dev","test":"mocha --compilers js:babel-core/register --colors ./test/*.spec.js","test:watch":"mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js"},"devDependencies":{"babel-cli":"6.24.1","babel-core":"6.24.1","babel-eslint":"7.2.3","babel-loader":"7.0.0","babel-plugin-add-module-exports":"0.2.1","babel-plugin-transform-builtin-extend":"^1.1.2","babel-preset-env":"^1.6.1","chai":"3.5.0","css-loader":"^0.28.7","eslint":"3.19.0","eslint-loader":"1.7.1","mocha":"3.3.0","node-sass":"^4.5.3","sass-loader":"^6.0.6","style-loader":"^0.18.2","webpack":"^3.1.0","yargs":"7.1.0"},"repository":{"type":"git","url":"https://github.com/frappe/datatable.git"},"keywords":["webpack","es6","starter","library","universal","umd","commonjs"],"author":"Faris Ansari","license":"MIT","bugs":{"url":"https://github.com/frappe/datatable/issues"},"homepage":"https://frappe.github.io/datatable","dependencies":{"clusterize.js":"^0.18.0","sortablejs":"^1.7.0"}};
+
+/***/ })
+/******/ ]);
+});
+//# sourceMappingURL=frappe-datatable.js.map
+});
+
+unwrapExports(frappeDatatable);
+
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
         super();
@@ -25128,7 +26808,7 @@ var modal = class Modal extends observable {
 class TableControl extends base {
     make() {
         if (!this.datatable) {
-            this.wrapper = frappejs.ui.add('div', 'table-wrapper', this.get_input_parent());
+            this.wrapper = frappejs.ui.add('div', 'table-wrapper', this.getInputParent());
             this.wrapper.innerHTML =
             `<div class="datatable-wrapper"></div>
             <div class="table-toolbar">
@@ -25290,16 +26970,29 @@ class TableControl extends base {
 
 var table = TableControl;
 
+class TextControl extends base {
+    makeInput() {
+        this.input = frappejs.ui.add('textarea', 'form-control', this.getInputParent());
+    }
+    make() {
+        super.make();
+        this.input.setAttribute('rows', '8');
+    }
+}
+
+var text = TextControl;
+
 const control_classes = {
     Data: data,
-    Text: text,
-    Select: select,
-    Link: link,
+    Date: date,
+    Currency: currency,
     Float: float_1,
     Int: int_1,
-    Currency: currency,
+    Link: link,
     Password: password,
-    Table: table
+    Select: select,
+    Table: table,
+    Text: text
 };
 
 var controls$1 = {
@@ -25396,18 +27089,37 @@ var form = class BaseForm extends observable {
 
     makeToolbar() {
         if (this.actions.includes('submit')) {
-            this.btnSubmit = this.container.addButton(frappejs._("Save"), 'primary', async (event) => {
+            this.container.addButton(frappejs._("Save"), 'primary', async (event) => {
                 await this.submit();
             });
         }
 
-        if (this.actions.includes('delete')) {
-            this.btnDelete = this.container.addButton(frappejs._("Delete"), 'secondary', async (e) => {
+        if (!this.meta.isSingle && this.actions.includes('delete')) {
+            let menu = this.container.getDropdown(frappejs._('Menu'));
+            menu.addItem(frappejs._("Delete"), async (e) => {
                 await this.doc.delete();
                 this.showAlert('Deleted', 'success');
                 this.trigger('delete');
             });
         }
+
+        if (!this.meta.isSingle && this.actions.includes('duplicate')) {
+            let menu = this.container.getDropdown(frappejs._('Menu'));
+            menu.addItem(frappejs._('Duplicate'), async () => {
+                let newDoc = await frappejs.getDuplicate(this.doc);
+                console.log(newDoc);
+                await frappejs.router.setRoute('edit', newDoc.doctype, newDoc.name);
+                newDoc.set('name', '');
+            });
+        }
+
+        if (this.meta.settings && this.actions.includes('settings')) {
+            let menu = this.container.getDropdown(frappejs._('Menu'));
+            menu.addItem(frappejs._('Settings...'), () => {
+                frappejs.router.setRoute('edit', frappejs.slug(this.meta.settings), this.meta.settings);
+            });
+        }
+
     }
 
     bindKeyboard() {
@@ -25553,7 +27265,7 @@ var formpage = class FormPage extends page {
 			doctype: doctype,
 			parent: this.body,
 			container: this,
-			actions: ['submit', 'delete']
+			actions: ['submit', 'delete', 'duplicate', 'settings']
 		});
 
 		this.on('show', async (params) => {
@@ -25620,7 +27332,7 @@ var navbar = class Navbar {
 		this.nav = frappejs.ui.add('ul', 'navbar-nav mr-auto', this.navbar_collapse);
 	}
 
-	add_item(label, route) {
+	addItem(label, route) {
 		let item = frappejs.ui.add('li', 'nav-item', this.nav);
 		item.link = frappejs.ui.add('a', 'nav-link', item);
 		item.link.textContent = label;
@@ -25690,9 +27402,9 @@ var desk = class Desk {
         this.container = frappejs.ui.add('div', 'container-fluid', body);
 
         this.containerRow = frappejs.ui.add('div', 'row', this.container);
-        this.sidebar = frappejs.ui.add('div', 'col-md-2 p-3 sidebar d-none d-md-block', this.containerRow);
+        this.sidebar = frappejs.ui.add('div', 'col-md-2 sidebar d-none d-md-block', this.containerRow);
         this.sidebarList = frappejs.ui.add('div', 'list-group list-group-flush', this.sidebar);
-        this.body = frappejs.ui.add('div', 'col-md-10 p-4 main', this.containerRow);
+        this.body = frappejs.ui.add('div', 'col-md-10 main', this.containerRow);
 
         this.pages = {
             lists: {},
@@ -25806,6 +27518,411 @@ var client = {
     }
 };
 
+var document$1 = class BaseDocument extends observable {
+    constructor(data) {
+        super();
+        this.fetchValues = {};
+        this.setup();
+        Object.assign(this, data);
+    }
+
+    setup() {
+        // add listeners
+    }
+
+    get meta() {
+        if (!this._meta) {
+            this._meta = frappejs.getMeta(this.doctype);
+        }
+        return this._meta;
+    }
+
+    async getSettings() {
+        if (!this._settings) {
+            this._settings = await frappejs.getSingle(this.meta.settings);
+        }
+        return this._settings;
+    }
+
+    get(fieldname) {
+        return this[fieldname];
+    }
+
+    // set value and trigger change
+    async set(fieldname, value) {
+        this[fieldname] = await this.validateField(fieldname, value);
+        if (await this.applyFormulae()) {
+            // multiple changes
+            await this.trigger('change', { doc: this });
+        } else {
+            // no other change, trigger control refresh
+            await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
+        }
+    }
+
+    async setName() {
+        if (this.name) {
+            return;
+        }
+
+        // name === doctype for Single
+        if (this.meta.isSingle) {
+            this.name = this.meta.name;
+            return;
+        }
+
+        if (this.meta.settings) {
+            const number_series = (await this.getSettings()).number_series;
+            if(number_series) {
+                this.name = await frappejs.model.getSeriesNext(number_series);
+            }
+        }
+
+        // assign a random name by default
+        // override this to set a name
+        if (!this.name) {
+            this.name = frappejs.getRandomName();
+        }
+    }
+
+    setDefaults() {
+        for (let field of this.meta.fields) {
+            if (field.fieldtype === 'Date') {
+                this[field.fieldname] = (new Date()).toISOString().substr(0, 10);
+            } else if (!this[field.fieldname]) {
+                if(field.default) {
+                    this[field.fieldname] = field.default;
+                }
+            }
+        }
+    }
+
+    setKeywords() {
+        let keywords = [];
+        for (let fieldname of this.meta.getKeywordFields()) {
+            keywords.push(this[fieldname]);
+        }
+        this.keywords = keywords.join(', ');
+    }
+
+    append(key, document) {
+        if (!this[key]) {
+            this[key] = [];
+        }
+        this[key].push(this.initDoc(document));
+    }
+
+    initDoc(data) {
+        if (data.prototype instanceof Document) {
+            return data;
+        } else {
+            return new Document(data);
+        }
+    }
+
+    async validateField(key, value) {
+        let field = this.meta.getField(key);
+        if (field && field.fieldtype == 'Select') {
+            return this.meta.validateSelect(field, value);
+        }
+        return value;
+    }
+
+    getValidDict() {
+        let data = {};
+        for (let field of this.meta.getValidFields()) {
+            data[field.fieldname] = this[field.fieldname];
+        }
+        return data;
+    }
+
+    setStandardValues() {
+        let now = new Date();
+        if (this.docstatus === null || this.docstatus === undefined) {
+            this.docstatus = 0;
+        }
+        if (!this.owner) {
+            this.owner = frappejs.session.user;
+            this.creation = now;
+        }
+        this.modified_by = frappejs.session.user;
+        this.modified = now;
+    }
+
+    async load() {
+        let data = await frappejs.db.get(this.doctype, this.name);
+        if (data.name) {
+            this.syncValues(data);
+        } else {
+            throw new frappejs.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
+        }
+    }
+
+    syncValues(data) {
+        this.clearValues();
+        Object.assign(this, data);
+    }
+
+    clearValues() {
+        for (let field of this.meta.getValidFields()) {
+            if(this[field.fieldname]) {
+                delete this[field.fieldname];
+            }
+        }
+    }
+
+    setChildIdx() {
+        // renumber children
+        for (let field of this.meta.getValidFields()) {
+            if (field.fieldtype==='Table') {
+                for(let i=0; i < (this[field.fieldname] || []).length; i++) {
+                    this[field.fieldname][i].idx = i;
+                }
+            }
+        }
+    }
+
+    async applyFormulae() {
+        if (!this.meta.hasFormulae()) {
+            return false;
+        }
+
+        let doc = this;
+
+        // children
+        for (let tablefield of this.meta.getTableFields()) {
+            let formulaFields = frappejs.getMeta(tablefield.childtype).getFormulaFields();
+            if (formulaFields.length) {
+
+                // for each row
+                for (let row of this[tablefield.fieldname]) {
+                    for (let field of formulaFields) {
+                        row[field.fieldname] = await eval(field.formula);
+                    }
+                }
+            }
+        }
+
+        // parent
+        for (let field of this.meta.getFormulaFields()) {
+            doc[field.fieldname] = eval(field.formula);
+        }
+
+        return true;
+    }
+
+    async commit() {
+        // re-run triggers
+        await this.setName();
+        this.setStandardValues();
+        this.setKeywords();
+        this.setChildIdx();
+        await this.applyFormulae();
+        await this.trigger('validate');
+    }
+
+    async insert() {
+        await this.commit();
+        await this.trigger('before_insert');
+        this.syncValues(await frappejs.db.insert(this.doctype, this.getValidDict()));
+        await this.trigger('after_insert');
+        await this.trigger('after_save');
+
+        return this;
+    }
+
+    async update() {
+        await this.commit();
+        await this.trigger('before_update');
+        this.syncValues(await frappejs.db.update(this.doctype, this.getValidDict()));
+        await this.trigger('after_update');
+        await this.trigger('after_save');
+
+        return this;
+    }
+
+    async delete() {
+        await this.trigger('before_delete');
+        await frappejs.db.delete(this.doctype, this.name);
+        await this.trigger('after_delete');
+    }
+
+    async trigger(event, params) {
+        if (this[event]) {
+            await this[event](params);
+        }
+        await super.trigger(event, params);
+    }
+
+    // helper functions
+    getSum(tablefield, childfield) {
+		return this[tablefield].map(d => (d[childfield] || 0)).reduce((a, b) => a + b, 0);
+    }
+
+    async getFrom(doctype, name, fieldname) {
+        if (!name) return '';
+        let key = `${doctype}:${name}:${fieldname}`;
+        if (!this.fetchValues[key]) {
+            this.fetchValues[key] = await frappejs.db.getValue(doctype, name, fieldname);
+        }
+        return this.fetchValues[key];
+    }
+};
+
+var meta = class BaseMeta extends document$1 {
+    constructor(data) {
+        super(data);
+        this.list_options = {
+            fields: ['name', 'modified']
+        };
+        if (this.setupMeta) {
+            this.setupMeta();
+        }
+    }
+
+    getField(fieldname) {
+        if (!this._field_map) {
+            this._field_map = {};
+            for (let field of this.fields) {
+                this._field_map[field.fieldname] = field;
+            }
+        }
+        return this._field_map[fieldname];
+    }
+
+    getTableFields() {
+        if (this._tableFields===undefined) {
+            this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
+        }
+        return this._tableFields;
+    }
+
+    getFormulaFields() {
+        if (this._formulaFields===undefined) {
+            this._formulaFields = this.fields.filter(field => field.formula);
+        }
+        return this._formulaFields;
+    }
+
+    hasFormulae() {
+        if (this._hasFormulae===undefined) {
+            this._hasFormulae = false;
+            if (this.getFormulaFields().length) {
+                this._hasFormulae = true;
+            } else {
+                for (let tablefield of this.getTableFields()) {
+                    if (frappejs.getMeta(tablefield.childtype).getFormulaFields().length) {
+                        this._hasFormulae = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return this._hasFormulae;
+    }
+
+    async set(fieldname, value) {
+        this[fieldname] = value;
+        await this.trigger(fieldname);
+    }
+
+    get(fieldname) {
+        return this[fieldname];
+    }
+
+    getValidFields({ withChildren = true } = {}) {
+        if (!this._valid_fields) {
+
+            this._valid_fields = [];
+            this._valid_fields_withChildren = [];
+
+            const _add = (field) => {
+                this._valid_fields.push(field);
+                this._valid_fields_withChildren.push(field);
+            };
+
+            const doctype_fields = this.fields.map((field) => field.fieldname);
+
+            // standard fields
+            for (let field of frappejs.model.common_fields) {
+                if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                    _add(field);
+                }
+            }
+
+            if (this.isChild) {
+                // child fields
+                for (let field of frappejs.model.child_fields) {
+                    if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                        _add(field);
+                    }
+                }
+            } else {
+                // parent fields
+                for (let field of frappejs.model.parent_fields) {
+                    if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                        _add(field);
+                    }
+                }
+            }
+
+            // doctype fields
+            for (let field of this.fields) {
+                let include = frappejs.db.type_map[field.fieldtype];
+
+                if (include) {
+                    _add(field);
+                }
+
+                // include tables if (withChildren = True)
+                if (!include && field.fieldtype === 'Table') {
+                    this._valid_fields_withChildren.push(field);
+                }
+            }
+        }
+
+        if (withChildren) {
+            return this._valid_fields_withChildren;
+        } else {
+            return this._valid_fields;
+        }
+    }
+
+    getKeywordFields() {
+        if (!this._keywordFields) {
+            this._keywordFields = this.keywordFields;
+            if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
+                this._keywordFields = this.fields.filter(field => field.required).map(field => field.fieldname);
+            }
+            if (!(this._keywordFields && this._keywordFields.length)) {
+                this._keywordFields = ['name'];
+            }
+        }
+        return this._keywordFields;
+    }
+
+    validateSelect(field, value) {
+        let options = field.options;
+        if (typeof options === 'string') {
+            // values given as string
+            options = field.options.split('\n');
+        }
+        if (!options.includes(value)) {
+            throw new frappejs.errors.ValueError(`${value} must be one of ${options.join(", ")}`);
+        }
+        return value;
+    }
+
+    async trigger(event, params = {}) {
+        Object.assign(params, {
+            doc: this,
+            name: event
+        });
+
+        await super.trigger(event, params);
+    }
+};
+
 var autoname = "hash";
 var name = "ToDo";
 var doctype = "DocType";
@@ -25831,11 +27948,11 @@ var todo$1 = Object.freeze({
 	default: todo
 });
 
-var require$$0$4 = ( todo$1 && todo ) || todo$1;
+var require$$0$3 = ( todo$1 && todo ) || todo$1;
 
 class ToDoMeta extends meta {
     setupMeta() {
-        Object.assign(this, require$$0$4);
+        Object.assign(this, require$$0$3);
     }
 }
 
@@ -25877,11 +27994,11 @@ var number_series$1 = Object.freeze({
 	default: number_series
 });
 
-var require$$0$5 = ( number_series$1 && number_series ) || number_series$1;
+var require$$0$4 = ( number_series$1 && number_series ) || number_series$1;
 
 class NumberSeriesMeta extends meta {
 	setupMeta() {
-		Object.assign(this, require$$0$5);
+		Object.assign(this, require$$0$4);
 	}
 }
 
@@ -25926,11 +28043,11 @@ var account$1 = Object.freeze({
 	default: account
 });
 
-var require$$0$6 = ( account$1 && account ) || account$1;
+var require$$0$5 = ( account$1 && account ) || account$1;
 
 class AccountMeta extends meta {
     setupMeta() {
-        Object.assign(this, require$$0$6);
+        Object.assign(this, require$$0$5);
     }
 }
 
@@ -25956,7 +28073,7 @@ var doctype$3 = "DocType";
 var isSingle$3 = 0;
 var keywordFields$3 = ["name","description"];
 var fields$3 = [{"fieldname":"name","label":"Item Name","fieldtype":"Data","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text"},{"fieldname":"unit","label":"Unit","fieldtype":"Select","options":["No","Kg","Gram","Hour","Day"]},{"fieldname":"rate","label":"Rate","fieldtype":"Currency"}];
-var item$1 = {
+var item = {
 	name: name$3,
 	doctype: doctype$3,
 	isSingle: isSingle$3,
@@ -25964,27 +28081,27 @@ var item$1 = {
 	fields: fields$3
 };
 
-var item$2 = Object.freeze({
+var item$1 = Object.freeze({
 	name: name$3,
 	doctype: doctype$3,
 	isSingle: isSingle$3,
 	keywordFields: keywordFields$3,
 	fields: fields$3,
-	default: item$1
+	default: item
 });
 
-var require$$0$7 = ( item$2 && item$1 ) || item$2;
+var require$$0$6 = ( item$1 && item ) || item$1;
 
 class ItemMeta extends meta {
     setupMeta() {
-        Object.assign(this, require$$0$7);
+        Object.assign(this, require$$0$6);
     }
 }
 
 class Item extends document$1 {
 }
 
-var item$3 = {
+var item$2 = {
     Document: Item,
     Meta: ItemMeta
 };
@@ -26014,11 +28131,11 @@ var customer$1 = Object.freeze({
 	default: customer
 });
 
-var require$$0$8 = ( customer$1 && customer ) || customer$1;
+var require$$0$7 = ( customer$1 && customer ) || customer$1;
 
 class CustomerMeta extends meta {
     setupMeta() {
-        Object.assign(this, require$$0$8);
+        Object.assign(this, require$$0$7);
     }
 }
 
@@ -26036,7 +28153,7 @@ var isSingle$5 = 0;
 var istable$1 = 0;
 var keywordFields$5 = [];
 var settings = "Invoice Settings";
-var fields$5 = [{"fieldname":"customer","label":"Customer","fieldtype":"Link","target":"Customer","required":1},{"fieldname":"items","label":"Items","fieldtype":"Table","childtype":"Invoice Item","required":true},{"fieldname":"total","label":"Total","fieldtype":"Currency","formula":"doc.getSum('items', 'amount')","required":true,"disabled":true}];
+var fields$5 = [{"fieldname":"date","label":"Date","fieldtype":"Date"},{"fieldname":"customer","label":"Customer","fieldtype":"Link","target":"Customer","required":1},{"fieldname":"items","label":"Items","fieldtype":"Table","childtype":"Invoice Item","required":true},{"fieldname":"total","label":"Total","fieldtype":"Currency","formula":"doc.getSum('items', 'amount')","required":true,"disabled":true}];
 var invoice = {
 	name: name$5,
 	doctype: doctype$5,
@@ -26058,11 +28175,11 @@ var invoice$1 = Object.freeze({
 	default: invoice
 });
 
-var require$$0$9 = ( invoice$1 && invoice ) || invoice$1;
+var require$$0$8 = ( invoice$1 && invoice ) || invoice$1;
 
 class InvoiceMeta extends meta {
 	setupMeta() {
-		Object.assign(this, require$$0$9);
+		Object.assign(this, require$$0$8);
 	}
 }
 
@@ -26099,11 +28216,11 @@ var invoice_item$1 = Object.freeze({
 	default: invoice_item
 });
 
-var require$$0$10 = ( invoice_item$1 && invoice_item ) || invoice_item$1;
+var require$$0$9 = ( invoice_item$1 && invoice_item ) || invoice_item$1;
 
 class InvoiceItemMeta extends meta {
 	setupMeta() {
-		Object.assign(this, require$$0$10);
+		Object.assign(this, require$$0$9);
 	}
 }
 
@@ -26140,11 +28257,11 @@ var invoice_settings$1 = Object.freeze({
 	default: invoice_settings
 });
 
-var require$$0$11 = ( invoice_settings$1 && invoice_settings ) || invoice_settings$1;
+var require$$0$10 = ( invoice_settings$1 && invoice_settings ) || invoice_settings$1;
 
 class InvoiceSettingsMeta extends meta {
 	setupMeta() {
-		Object.assign(this, require$$0$11);
+		Object.assign(this, require$$0$10);
 	}
 }
 
@@ -26207,7 +28324,7 @@ client.start({
     frappe.modules.todo = todo$2;
     frappe.modules.number_series = number_series$2;
     frappe.modules.account = account$2;
-    frappe.modules.item = item$3;
+    frappe.modules.item = item$2;
     frappe.modules.customer = customer$2;
     frappe.modules.invoice = invoice$2;
     frappe.modules.invoice_item = invoice_item$2;

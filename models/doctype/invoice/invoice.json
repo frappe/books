@@ -7,6 +7,11 @@
 	"settings": "Invoice Settings",
 	"fields": [
 		{
+			"fieldname": "date",
+			"label": "Date",
+			"fieldtype": "Date"
+		},
+		{
 			"fieldname": "customer",
 			"label": "Customer",
 			"fieldtype": "Link",
