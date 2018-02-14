@@ -70,8 +70,12 @@ module.exports = class BaseDocument extends Observable {
 
     setDefaults() {
         for (let field of this.meta.fields) {
-            if (!this[field.fieldname] && field.default) {
-                this[field.fieldname] = field.default;
+            if (field.fieldtype === 'Date') {
+                this[field.fieldname] = (new Date()).toISOString().substr(0, 10);
+            } else if (!this[field.fieldname]) {
+                if(field.default) {
+                    this[field.fieldname] = field.default;
+                }
             }
         }
     }

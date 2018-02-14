@@ -14,7 +14,7 @@ module.exports = {
     },
 
     initGlobals() {
-        this.meta_cache = {};
+        this.metaCache = {};
         this.modules = {};
         this.docs = {};
         this.flags = {
@@ -41,10 +41,10 @@ module.exports = {
     },
 
     getMeta(doctype) {
-        if (!this.meta_cache[doctype]) {
-            this.meta_cache[doctype] = new (this.getMetaClass(doctype))();
+        if (!this.metaCache[doctype]) {
+            this.metaCache[doctype] = new (this.getMetaClass(doctype))();
         }
-        return this.meta_cache[doctype];
+        return this.metaCache[doctype];
     },
 
     getMetaClass(doctype) {
@@ -69,6 +69,19 @@ module.exports = {
 
     async getSingle(doctype) {
         return await this.getDoc(doctype, doctype);
+    },
+
+    async getDuplicate(doc) {
+        const newDoc = await this.getNewDoc(doc.doctype);
+        for (let field of this.getMeta(doc.doctype).getValidFields()) {
+            if (field.fieldname === 'name') continue;
+            if (field.fieldtype === 'Table') {
+                newDoc[field.fieldname] = (doc[field.fieldname] || []).map(d => Object.assign({}, d));
+            } else {
+                newDoc[field.fieldname] = doc[field.fieldname];
+            }
+        }
+        return newDoc;
     },
 
     newDoc(data) {

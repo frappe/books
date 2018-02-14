@@ -1,11 +1,13 @@
 const frappe = require('frappejs');
 const Observable = require('frappejs/utils/observable');
+const Dropdown = require('frappejs/client/ui/dropdown');
 
 module.exports = class Page extends Observable {
     constructor(title) {
         super();
         this.title = title;
         this.make();
+        this.dropdowns = {};
     }
 
     make() {
@@ -27,6 +29,13 @@ module.exports = class Page extends Observable {
         this.button.innerHTML = label;
         this.button.addEventListener('click', action);
         return this.button;
+    }
+
+    getDropdown(label) {
+        if (!this.dropdowns[label]) {
+            this.dropdowns[label] = new Dropdown({parent: this.head, label: label, right: true});
+        }
+        return this.dropdowns[label];
     }
 
     async show(params) {

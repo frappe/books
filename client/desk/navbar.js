@@ -22,7 +22,7 @@ module.exports = class Navbar {
 		this.nav = frappe.ui.add('ul', 'navbar-nav mr-auto', this.navbar_collapse);
 	}
 
-	add_item(label, route) {
+	addItem(label, route) {
 		let item = frappe.ui.add('li', 'nav-item', this.nav);
 		item.link = frappe.ui.add('a', 'nav-link', item);
 		item.link.textContent = label;

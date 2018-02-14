@@ -44,18 +44,37 @@ module.exports = class BaseForm extends Observable {
 
     makeToolbar() {
         if (this.actions.includes('submit')) {
-            this.btnSubmit = this.container.addButton(frappe._("Save"), 'primary', async (event) => {
+            this.container.addButton(frappe._("Save"), 'primary', async (event) => {
                 await this.submit();
             })
         }
 
-        if (this.actions.includes('delete')) {
-            this.btnDelete = this.container.addButton(frappe._("Delete"), 'secondary', async (e) => {
+        if (!this.meta.isSingle && this.actions.includes('delete')) {
+            let menu = this.container.getDropdown(frappe._('Menu'));
+            menu.addItem(frappe._("Delete"), async (e) => {
                 await this.doc.delete();
                 this.showAlert('Deleted', 'success');
                 this.trigger('delete');
             });
         }
+
+        if (!this.meta.isSingle && this.actions.includes('duplicate')) {
+            let menu = this.container.getDropdown(frappe._('Menu'));
+            menu.addItem(frappe._('Duplicate'), async () => {
+                let newDoc = await frappe.getDuplicate(this.doc);
+                console.log(newDoc);
+                await frappe.router.setRoute('edit', newDoc.doctype, newDoc.name);
+                newDoc.set('name', '');
+            });
+        }
+
+        if (this.meta.settings && this.actions.includes('settings')) {
+            let menu = this.container.getDropdown(frappe._('Menu'));
+            menu.addItem(frappe._('Settings...'), () => {
+                frappe.router.setRoute('edit', frappe.slug(this.meta.settings), this.meta.settings);
+            });
+        }
+
     }
 
     bindKeyboard() {

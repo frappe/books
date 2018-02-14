@@ -64,7 +64,7 @@ class BaseControl {
     }
 
     makeInput() {
-        this.input = frappe.ui.add('input', 'form-control', this.get_input_parent());
+        this.input = frappe.ui.add('input', 'form-control', this.getInputParent());
         this.input.autocomplete = "off";
         this.input.id = this.id;
     }
@@ -75,7 +75,7 @@ class BaseControl {
         }
     }
 
-    get_input_parent() {
+    getInputParent() {
         return this.formGroup || this.parent;
     }
 
@@ -86,6 +86,7 @@ class BaseControl {
     setRequiredAttribute() {
         if (this.required) {
             this.input.required = true;
+            this.input.classList.add('font-weight-bold');
         }
     }
 

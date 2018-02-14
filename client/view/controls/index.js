@@ -1,13 +1,14 @@
 const control_classes = {
     Data: require('./data'),
-    Text: require('./text'),
-    Select: require('./select'),
-    Link: require('./link'),
+    Date: require('./date'),
+    Currency: require('./currency'),
     Float: require('./float'),
     Int: require('./int'),
-    Currency: require('./currency'),
+    Link: require('./link'),
     Password: require('./password'),
-    Table: require('./table')
+    Select: require('./select'),
+    Table: require('./table'),
+    Text: require('./text')
 }
 
 module.exports = {

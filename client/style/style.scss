@@ -1,28 +1,36 @@
 @import "node_modules/bootstrap/scss/bootstrap";
 @import "node_modules/awesomplete/awesomplete";
+@import "node_modules/flatpickr/dist/flatpickr";
+@import "node_modules/flatpickr/dist/themes/airbnb";
 
 $spacer-1: 0.25rem;
 $spacer-2: 0.5rem;
 $spacer-3: 1rem;
 $spacer-4: 2rem;
 
+$page-width: 500px;
+
 html {
-	font-size: 14px;
+	font-size: 12px;
 }
 
 .main {
+	margin-left: -1px;
 	border-left: 1px solid $gray-300;
 	min-height: calc(100vh - 50px);
 }
 
 .sidebar {
+	margin-right: -1px;
+
 	.list-group-item {
 		padding: $spacer-2 $spacer-3;
 		border: none;
 	}
 
 	.list-group-flush {
-		margin: -$spacer-3;
+		margin-left: -$spacer-3;
+		margin-right: -$spacer-3;
 	}
 }
 
@@ -30,7 +38,13 @@ html {
 	display: none !important;
 }
 
+.page {
+	max-width: $page-width;
+	padding-bottom: $spacer-4;
+}
+
 .page-head {
+	padding-top: $spacer-3;
 	padding-bottom: $spacer-3;
 
 	.btn {
@@ -44,7 +58,7 @@ html {
 }
 
 .form-body {
-	max-width: 600px;
+	max-width: $page-width;
 
 	.form-toolbar {
 		height: $spacer-4;
@@ -56,19 +70,27 @@ html {
 	}
 }
 
-.list-row {
-	.checkbox {
-		margin-right: $spacer-2;
-	}
 
-	a, a:hover, a:visited, a:active {
-		color: $gray-800;
+.list-body {
+	margin-left: -15px;
+	margin-right: -15px;
+
+	.list-row {
+		padding: $spacer-2;
+		border-bottom: 1px solid $gray-200;
+		.checkbox {
+			margin-right: $spacer-2;
+		}
+
+		a, a:hover, a:visited, a:active {
+			color: $gray-800;
+		}
 	}
 }
 
-.dropdown-menu-right {
-	right: 0;
-	left: auto;
+
+.dropdown-item {
+	padding: $spacer-2 $spacer-3;
 }
 
 .awesomplete {
@@ -112,6 +134,11 @@ mark {
 
 .table-toolbar {
 	margin-top: $spacer-2;
+}
+
+.data-table thead td {
+	border-bottom: 0px !important;
+	background-color: $gray-200 !important;
 }
 
 .data-table-col .edit-cell {

@@ -74,7 +74,7 @@ module.exports = class BaseList {
 
     makeToolbar() {
         this.makeSearch();
-        this.btnNew = this.page.addButton(frappe._('New'), 'btn-outline-primary', async () => {
+        this.btnNew = this.page.addButton(frappe._('New'), 'btn-primary', async () => {
             await frappe.router.setRoute('new', frappe.slug(this.doctype));
         })
         this.btnDelete = this.page.addButton(frappe._('Delete'), 'btn-outline-secondary hide', async () => {
@@ -140,7 +140,7 @@ module.exports = class BaseList {
 
     getRow(i) {
         if (!this.rows[i]) {
-            this.rows[i] = frappe.ui.add('div', 'list-row py-2', this.body);
+            this.rows[i] = frappe.ui.add('div', 'list-row', this.body);
         }
         return this.rows[i];
     }

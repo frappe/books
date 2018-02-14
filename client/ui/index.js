@@ -6,7 +6,7 @@ module.exports = {
         let element = document.createElement(tag);
         if (className) {
             for (let c of className.split(' ')) {
-                this.add_class(element, c);
+                this.addClass(element, c);
             }
         }
         if (parent) {
@@ -19,7 +19,7 @@ module.exports = {
         element.parentNode.removeChild(element);
     },
 
-    add_class(element, className) {
+    addClass(element, className) {
         if (element.classList) {
             element.classList.add(className);
         } else {
