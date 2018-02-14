@@ -5,21 +5,19 @@ const Page = require('frappejs/client/view/page');
 const FormPage = require('frappejs/client/desk/formpage');
 const ListPage = require('frappejs/client/desk/listpage');
 const Navbar = require('./navbar');
+const DeskMenu = require('./menu');
 const FormModal = require('frappejs/client/desk/formmodal');
 
 module.exports = class Desk {
-    constructor() {
+    constructor(columns=2) {
         frappe.router = new Router();
         frappe.router.listen();
 
         let body = document.querySelector('body');
         this.navbar = new Navbar();
         this.container = frappe.ui.add('div', 'container-fluid', body);
-
         this.containerRow = frappe.ui.add('div', 'row', this.container)
-        this.sidebar = frappe.ui.add('div', 'col-md-2 sidebar d-none d-md-block', this.containerRow);
-        this.sidebarList = frappe.ui.add('div', 'list-group list-group-flush', this.sidebar);
-        this.body = frappe.ui.add('div', 'col-md-10 main', this.containerRow);
+        this.makeColumns(columns);
 
         this.pages = {
             lists: {},
@@ -33,10 +31,38 @@ module.exports = class Desk {
         // this.search = new Search(this.nav);
     }
 
+    makeColumns(columns) {
+        this.menu = null; this.center = null;
+        this.columnCount = columns;
+        if (columns === 3) {
+            this.makeMenu();
+            this.center = frappe.ui.add('div', 'col-md-4 desk-center', this.containerRow);
+            this.body = frappe.ui.add('div', 'col-md-6 desk-body', this.containerRow);
+        } else if (columns === 2) {
+            this.makeMenu();
+            this.body = frappe.ui.add('div', 'col-md-10 desk-body', this.containerRow);
+        } else if (columns === 1) {
+            this.makeMenuPage();
+            this.body = frappe.ui.add('div', 'col-md-12 desk-body', this.containerRow);
+        } else {
+            throw 'columns can be 1, 2 or 3'
+        }
+    }
+
+    makeMenu() {
+        this.menuColumn = frappe.ui.add('div', 'col-md-2 desk-menu', this.containerRow);
+        this.menu = new DeskMenu(this.menuColumn);
+    }
+
+    makeMenuPage() {
+        // make menu page for 1 column layout
+        this.menuPage = null;
+    }
+
     initRoutes() {
         frappe.router.add('not-found', async (params) => {
             if (!this.notFoundPage) {
-                this.notFoundPage = new Page('Not Found');
+                this.notFoundPage = new Page({title: 'Not Found'});
             }
             await this.notFoundPage.show();
             this.notFoundPage.renderError('Not Found', params ? params.route : '');
@@ -59,8 +85,8 @@ module.exports = class Desk {
         });
 
         frappe.router.on('change', () => {
-            if (this.routeItems[window.location.hash]) {
-                this.setActive(this.routeItems[window.location.hash]);
+            if (this.menu) {
+                this.menu.setActive();
             }
         })
 
