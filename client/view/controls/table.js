@@ -55,6 +55,7 @@ class TableControl extends BaseControl {
 
     setInputValue(value) {
         this.datatable.refresh(this.getTableData(value));
+        this.datatable.setDimensions();
     }
 
     getTableData(value) {

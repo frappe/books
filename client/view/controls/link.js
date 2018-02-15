@@ -25,8 +25,6 @@ class LinkControl extends BaseControl {
             list.push({
                 label:frappe._('+ New {0}', this.target),
                 value: '__newItem',
-                action: () => {
-                }
             });
 
             this.awesomplete.list = list;
@@ -38,7 +36,7 @@ class LinkControl extends BaseControl {
                 e.preventDefault();
                 const newDoc = await frappe.getNewDoc(this.target);
                 const formModal = frappe.desk.showFormModal(this.target, newDoc.name);
-                formModal.form.once('submit', async () => {
+                formModal.once('submit', async () => {
                     await this.updateDocValue(formModal.form.doc.name);
                 })
             }

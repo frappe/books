@@ -28,6 +28,7 @@ module.exports = class Modal extends Observable {
                 </div>
             </div>
         </div>`).appendTo(document.body);
+        this.modal = this.$modal.get(0);
 
         if (this.primary) {
             this.addPrimary(this.primary.label, this.primary.action);
@@ -37,7 +38,9 @@ module.exports = class Modal extends Observable {
         }
 
         this.$modal.on('hidden.bs.modal', () => this.trigger('hide'));
-        this.$modal.on('shown.bs.modal', () => this.trigger('show'));
+        this.$modal.on('shown.bs.modal', () => {
+            this.trigger('show');
+        });
     }
 
     getBodyHTML() {

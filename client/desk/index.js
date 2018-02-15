@@ -69,8 +69,7 @@ module.exports = class Desk {
         })
 
         frappe.router.add('list/:doctype', async (params) => {
-            let page = this.getListPage(params.doctype);
-            await page.show(params);
+            await this.showListPage(params.doctype);
         });
 
         frappe.router.add('edit/:doctype/:name', async (params) => {
@@ -92,10 +91,11 @@ module.exports = class Desk {
 
     }
 
-    getListPage(doctype) {
+    async showListPage(doctype) {
         if (!this.pages.lists[doctype]) {
             this.pages.lists[doctype] = new ListPage(doctype);
         }
+        await this.pages.lists[doctype].show(doctype);
         return this.pages.lists[doctype];
     }
 
@@ -108,10 +108,9 @@ module.exports = class Desk {
 
     showFormModal(doctype, name) {
         if (!this.pages.formModals[doctype]) {
-            this.pages.formModals[doctype] = new FormModal(doctype, name);
-        } else {
-            this.pages.formModals[doctype].showWith(doctype, name);
+            this.pages.formModals[doctype] = new FormModal(doctype);
         }
+        this.pages.formModals[doctype].showWith(doctype, name);
         return this.pages.formModals[doctype];
     }
 
