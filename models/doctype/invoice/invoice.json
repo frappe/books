@@ -5,6 +5,7 @@
 	"istable": 0,
 	"keywordFields": [],
 	"settings": "Invoice Settings",
+	"showTitle": true,
 	"fields": [
 		{
 			"fieldname": "date",

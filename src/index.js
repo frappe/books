@@ -18,6 +18,7 @@ client.start({
 
     frappe.modules.todo_client = require('frappejs/models/doctype/todo/todo_client.js');
     frappe.modules.account_client = require('../models/doctype/account/account_client.js');
+    frappe.modules.invoice_client = require('../models/doctype/invoice/invoiceClient.js');
 
     frappe.desk.menu.addItem('ToDo', '#list/todo');
     frappe.desk.menu.addItem('Accounts', '#list/account');

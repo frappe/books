@@ -17519,7 +17519,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 unwrapExports(bootstrap);
 
 class Dropdown {
-    constructor({parent, label, items = [], right}) {
+    constructor({parent, label, items = [], right, cssClass='btn-secondary'}) {
         Object.assign(this, arguments[0]);
         Dropdown.instances += 1;
         this.id = 'dropdownMenuButton-' + Dropdown.instances;
@@ -17536,7 +17536,7 @@ class Dropdown {
 
     make() {
         this.$dropdown = jquery(`<div class="dropdown ${this.right ? 'float-right' : ''}">
-            <button class="btn btn-outline-secondary dropdown-toggle"
+            <button class="btn ${this.cssClass} dropdown-toggle"
                 type="button" id="${this.id}" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">${this.label}
             </button>
@@ -17804,14 +17804,28 @@ var page = class Page extends observable {
         }
         this.make();
         this.dropdowns = {};
+
+        if(this.title) {
+            this.setTitle(this.title);
+        }
     }
 
     make() {
         this.wrapper = frappejs.ui.add('div', 'page hide', this.parent);
-        this.wrapper.innerHTML = `<div class="page-head hide"></div>
+        this.wrapper.innerHTML = `<div class="page-head clearfix hide">
+                <span class="page-title"></span>
+            </div>
             <div class="page-body"></div>`;
         this.head = this.wrapper.querySelector('.page-head');
         this.body = this.wrapper.querySelector('.page-body');
+        this.titleElement = this.head.querySelector('.page-title');
+    }
+
+    setTitle(title) {
+        this.titleElement.textContent = title;
+        if (this.hasRoute) {
+            document.title = title;
+        }
     }
 
     hide() {
@@ -17821,7 +17835,7 @@ var page = class Page extends observable {
 
     addButton(label, className, action) {
         this.head.classList.remove('hide');
-        this.button = frappejs.ui.add('button', 'btn ' + this.getClassName(className), this.head);
+        this.button = frappejs.ui.add('button', 'btn btn-sm float-right ' + this.getClassName(className), this.head);
         this.button.innerHTML = label;
         this.button.addEventListener('click', action);
         return this.button;
@@ -17829,7 +17843,8 @@ var page = class Page extends observable {
 
     getDropdown(label) {
         if (!this.dropdowns[label]) {
-            this.dropdowns[label] = new dropdown({parent: this.head, label: label, right: true});
+            this.dropdowns[label] = new dropdown({parent: this.head, label: label,
+                right: true, cssClass: 'btn-secondary btn-sm'});
         }
         return this.dropdowns[label];
     }
@@ -17847,10 +17862,6 @@ var page = class Page extends observable {
         }
 
         this.parent.activePage = this;
-
-        if (this.hasRoute) {
-            document.title = this.title;
-        }
 
         await this.trigger('show', params);
     }
@@ -17941,17 +17952,19 @@ var list = class BaseList {
     makeBody() {
         if (!this.body) {
             this.makeToolbar();
+            this.parent.classList.add('list-page');
             this.body = frappejs.ui.add('div', 'list-body', this.parent);
+            this.body.setAttribute('data-doctype', this.doctype);
             this.makeMoreBtn();
         }
     }
 
     makeToolbar() {
         this.makeSearch();
-        this.btnNew = this.page.addButton(frappejs._('New'), 'btn-outline-primary', async () => {
+        this.btnNew = this.page.addButton(frappejs._('New'), 'btn-primary', async () => {
             await frappejs.router.setRoute('new', frappejs.slug(this.doctype));
         });
-        this.btnDelete = this.page.addButton(frappejs._('Delete'), 'btn-outline-secondary hide', async () => {
+        this.btnDelete = this.page.addButton(frappejs._('Delete'), 'btn-secondary hide', async () => {
             await frappejs.db.deleteMany(this.doctype, this.getCheckedRowNames());
             await this.refresh();
         });
@@ -17965,14 +17978,10 @@ var list = class BaseList {
     makeSearch() {
         this.toolbar = frappejs.ui.add('div', 'list-toolbar', this.parent);
         this.toolbar.innerHTML = `
-            <div class="row">
-                <div class="col-12" style="max-width: 300px">
-                    <div class="input-group list-search mb-2">
-                        <input class="form-control" type="text" placeholder="Search...">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary btn-search">Search</button>
-                        </div>
-                    </div>
+            <div class="input-group list-search">
+                <input class="form-control" type="text" placeholder="Search...">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary btn-search">Search</button>
                 </div>
             </div>
         `;
@@ -18001,20 +18010,32 @@ var list = class BaseList {
     renderRow(i, data) {
         let row = this.getRow(i);
         row.innerHTML = this.getRowBodyHTML(data);
-        row.style.display = 'block';
+        row.setAttribute('data-name', data.name);
+        row.style.display = 'flex';
     }
 
     getRowBodyHTML(data) {
-        return `<input class="checkbox" type="checkbox" data-name="${data.name}"> ` + this.getRowHTML(data);
+        return `<div class="col-1">
+            <input class="checkbox" type="checkbox" data-name="${data.name}">
+        </div>` + this.getRowHTML(data);
     }
 
     getRowHTML(data) {
-        return `<a href="#edit/${this.doctype}/${data.name}">${data.name}</a>`;
+        return `<div class="col-11">${data.name}</div>`;
     }
 
     getRow(i) {
         if (!this.rows[i]) {
-            this.rows[i] = frappejs.ui.add('div', 'list-row', this.body);
+            this.rows[i] = frappejs.ui.add('div', 'list-row row no-gutters', this.body);
+
+            // open on click
+            let doctype = this.doctype;
+            this.rows[i].addEventListener('click', function(e) {
+                if (!e.target.tagName !== 'input') {
+                    let name = this.getAttribute('data-name');
+                    frappejs.router.setRoute('edit', doctype, name);
+                }
+            });
         }
         return this.rows[i];
     }
@@ -18061,6 +18082,7 @@ class BaseControl {
         if (this.setup) {
             this.setup();
         }
+        this.make();
     }
 
     bind(doc) {
@@ -18069,7 +18091,6 @@ class BaseControl {
     }
 
     refresh() {
-        this.make();
         this.setDocValue();
     }
 
@@ -18080,20 +18101,18 @@ class BaseControl {
     }
 
     make() {
-        if (!this.input) {
-            if (!this.onlyInput) {
-                this.makeFormGroup();
-                this.makeLabel();
-            }
-            this.makeInput();
-            this.setInputName();
-            this.setRequiredAttribute();
-            this.setDisabled();
-            if (!this.onlyInput) {
-                this.makeDescription();
-            }
-            this.addChangeHandler();
+        if (!this.onlyInput) {
+            this.makeFormGroup();
+            this.makeLabel();
         }
+        this.makeInput();
+        this.setInputName();
+        this.setRequiredAttribute();
+        this.setDisabled();
+        if (!this.onlyInput) {
+            this.makeDescription();
+        }
+        this.addChangeHandler();
     }
 
     makeFormGroup() {
@@ -20865,6 +20884,10 @@ class LinkControl extends base {
     make() {
         super.make();
         this.input.setAttribute('type', 'text');
+        this.setupAwesomplete();
+    }
+
+    setupAwesomplete() {
         this.awesomplete = new awesomplete(this.input, {
             autoFirst: true,
             minChars: 0,
@@ -20898,6 +20921,7 @@ class LinkControl extends base {
                 });
             }
         });
+
     }
 
     async getList(query) {
@@ -26814,20 +26838,21 @@ var modal = class Modal extends observable {
 
 class TableControl extends base {
     make() {
-        if (!this.datatable) {
-            this.wrapper = frappejs.ui.add('div', 'table-wrapper', this.getInputParent());
-            this.wrapper.innerHTML =
-            `<div class="datatable-wrapper"></div>
-            <div class="table-toolbar">
-                <button type="button" class="btn btn-sm btn-outline-secondary btn-add">
-                    ${frappejs._("Add")}</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary btn-remove">
-                    ${frappejs._("Remove")}</button>
-            </div>`;
+        this.makeWrapper();
+        this.makeDatatable();
+        this.setupToolbar();
+    }
 
-            this.makeDatatable();
-            this.setupToolbar();
-        }
+    makeWrapper() {
+        this.wrapper = frappejs.ui.add('div', 'table-wrapper', this.getInputParent());
+        this.wrapper.innerHTML =
+        `<div class="datatable-wrapper"></div>
+        <div class="table-toolbar">
+            <button type="button" class="btn btn-sm btn-outline-secondary btn-add">
+                ${frappejs._("Add")}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary btn-remove">
+                ${frappejs._("Remove")}</button>
+        </div>`;
     }
 
     makeDatatable() {
@@ -26989,7 +27014,7 @@ class TextControl extends base {
 
 var text = TextControl;
 
-const control_classes = {
+const controlClasses = {
     Data: data,
     Date: date,
     Currency: currency,
@@ -27004,12 +27029,11 @@ const control_classes = {
 
 var controls$1 = {
     getControlClass(fieldtype) {
-        return control_classes[fieldtype];
+        return controlClasses[fieldtype];
     },
     makeControl({field, form, parent}) {
-        const control_class = this.getControlClass(field.fieldtype);
-        let control = new control_class({field:field, form:form, parent:parent});
-        control.make();
+        const controlClass = this.getControlClass(field.fieldtype);
+        let control = new controlClass({field:field, form:form, parent:parent});
         return control;
     }
 };
@@ -27123,7 +27147,7 @@ var form = class BaseForm extends observable {
         if (this.meta.settings && this.actions.includes('settings')) {
             let menu = this.container.getDropdown(frappejs._('Menu'));
             menu.addItem(frappejs._('Settings...'), () => {
-                frappejs.router.setRoute('edit', frappejs.slug(this.meta.settings), this.meta.settings);
+                frappejs.desk.showFormModal(frappejs.slug(this.meta.settings), this.meta.settings);
             });
         }
 
@@ -27146,6 +27170,18 @@ var form = class BaseForm extends observable {
             this.doc._nameCleared = true;
             // flag so that name is cleared only once
             await this.doc.set('name', '');
+        }
+        this.setTitle();
+    }
+
+    setTitle() {
+        const doctype = this.doc.meta.name;
+        if (this.doc.meta.isSingle || !this.doc.meta.showTitle) {
+            this.container.setTitle(doctype);
+        } else if (this.doc._notInserted) {
+            this.container.setTitle(frappejs._('New {0}', doctype));
+        } else {
+            this.container.setTitle(`${doctype} ${this.doc.name}`);
         }
     }
 
@@ -27296,8 +27332,21 @@ var formpage = class FormPage extends page {
 	async showDoc(doctype, name) {
 		try {
 			await this.form.setDoc(doctype, name);
+			this.setActiveListRow(doctype, name);
 		} catch (e) {
 			this.renderError(e.status_code, e.message);
+		}
+	}
+
+	setActiveListRow(doctype, name) {
+		let activeListRow = document.querySelector('.list-page .list-body .list-row.active');
+		if (activeListRow) {
+			activeListRow.classList.remove('active');
+		}
+
+		let myListRow = document.querySelector(`.list-body[data-doctype="${doctype}"] .list-row[data-name="${name}"]`);
+		if (myListRow) {
+			myListRow.classList.add('active');
 		}
 	}
 };
@@ -27327,47 +27376,6 @@ var listpage = class ListPage extends page {
 	}
 };
 
-var navbar = class Navbar {
-	constructor({brand_label = 'Home'} = {}) {
-		Object.assign(this, arguments[0]);
-		this.items = {};
-		this.navbar = frappejs.ui.add('div', 'navbar navbar-expand-md border-bottom navbar-dark bg-dark', document.querySelector('body'));
-
-		this.brand = frappejs.ui.add('a', 'navbar-brand', this.navbar);
-		this.brand.href = '#';
-		this.brand.textContent = brand_label;
-
-		this.toggler = frappejs.ui.add('button', 'navbar-toggler', this.navbar);
-		this.toggler.setAttribute('type', 'button');
-		this.toggler.setAttribute('data-toggle', 'collapse');
-		this.toggler.setAttribute('data-target', 'desk-navbar');
-		this.toggler.innerHTML = `<span class="navbar-toggler-icon"></span>`;
-
-		this.navbar_collapse = frappejs.ui.add('div', 'collapse navbar-collapse', this.navbar);
-		this.navbar_collapse.setAttribute('id', 'desk-navbar');
-
-		this.nav = frappejs.ui.add('ul', 'navbar-nav mr-auto', this.navbar_collapse);
-	}
-
-	addItem(label, route) {
-		let item = frappejs.ui.add('li', 'nav-item', this.nav);
-		item.link = frappejs.ui.add('a', 'nav-link', item);
-		item.link.textContent = label;
-		item.link.href = route;
-		this.items[label] = item;
-		return item;
-	}
-
-	add_dropdown(label) {
-
-	}
-
-	add_search() {
-		let form = frappejs.ui.add('form', 'form-inline my-2 my-md-0', this.nav);
-
-	}
-};
-
 var menu = class DeskMenu {
     constructor(parent) {
         this.parent = parent;
@@ -27376,27 +27384,29 @@ var menu = class DeskMenu {
     }
 
     make() {
-        this.listGroup = frappejs.ui.add('div', 'list-group list-group-flush', this.parent);
+        this.listGroup = frappejs.ui.add('div', 'list-body', this.parent);
     }
 
     addItem(label, action) {
-        let item = frappejs.ui.add('a', 'list-group-item list-group-item-action', this.listGroup);
+        let item = frappejs.ui.add('div', 'list-row', this.listGroup);
         item.textContent = label;
         if (typeof action === 'string') {
-            item.href = action;
             this.routeItems[action] = item;
-        } else {
-            item.addEventListener('click', () => {
-                action();
-                this.setActive(item);
-            });
         }
+        item.addEventListener('click', async () => {
+            if (typeof action === 'string') {
+                await frappejs.router.setRoute(action);
+            } else {
+                action();
+            }
+            this.setActive(item);
+        });
     }
 
     setActive() {
         if (this.routeItems[window.location.hash]) {
             let item = this.routeItems[window.location.hash];
-            let className = 'list-group-item-secondary';
+            let className = 'active';
             let activeItem = this.listGroup.querySelector('.' + className);
 
             if (activeItem) {
@@ -27438,11 +27448,6 @@ var formmodal = class FormModal extends modal {
 
     async showWith(doctype, name) {
         await this.form.setDoc(doctype, name);
-        if (this.form.doc._notInserted) {
-            this.setTitle(frappejs._('New {0}', doctype));
-        } else {
-            this.setTitle(`${doctype} ${name}`);
-        }
         this.show();
         this.$modal.find('input:first').focus();
     }
@@ -27454,9 +27459,9 @@ var desk = class Desk {
         frappejs.router.listen();
 
         let body = document.querySelector('body');
-        this.navbar = new navbar();
-        this.container = frappejs.ui.add('div', 'container-fluid', body);
-        this.containerRow = frappejs.ui.add('div', 'row', this.container);
+        //this.navbar = new Navbar();
+        this.container = frappejs.ui.add('div', '', body);
+        this.containerRow = frappejs.ui.add('div', 'row no-gutters', this.container);
         this.makeColumns(columns);
 
         this.pages = {
@@ -28234,6 +28239,7 @@ var isSingle$5 = 0;
 var istable$1 = 0;
 var keywordFields$5 = [];
 var settings = "Invoice Settings";
+var showTitle = true;
 var fields$5 = [{"fieldname":"date","label":"Date","fieldtype":"Date"},{"fieldname":"customer","label":"Customer","fieldtype":"Link","target":"Customer","required":1},{"fieldname":"items","label":"Items","fieldtype":"Table","childtype":"Invoice Item","required":true},{"fieldname":"total","label":"Total","fieldtype":"Currency","formula":"doc.getSum('items', 'amount')","required":true,"disabled":true}];
 var invoice = {
 	name: name$5,
@@ -28242,6 +28248,7 @@ var invoice = {
 	istable: istable$1,
 	keywordFields: keywordFields$5,
 	settings: settings,
+	showTitle: showTitle,
 	fields: fields$5
 };
 
@@ -28252,6 +28259,7 @@ var invoice$1 = Object.freeze({
 	istable: istable$1,
 	keywordFields: keywordFields$5,
 	settings: settings,
+	showTitle: showTitle,
 	fields: fields$5,
 	default: invoice
 });
@@ -28396,6 +28404,21 @@ var account_client = {
     List: AccountList
 };
 
+class InvoiceList extends list {
+    getFields()  {
+        return ['name', 'customer', 'total'];
+    }
+    getRowHTML(data) {
+        return `<div class="col-2">${data.name}</div>
+                <div class="col-5 text-muted">${data.customer}</div>
+                <div class="col-4 text-muted text-right">${frappejs.format(data.total, {fieldtype:"Currency"})}</div>`;
+    }
+}
+
+var invoiceClient = {
+    List: InvoiceList
+};
+
 client.start({
     columns: 3,
     server: 'localhost:8000'
@@ -28413,6 +28436,7 @@ client.start({
 
     frappe.modules.todo_client = todo_client;
     frappe.modules.account_client = account_client;
+    frappe.modules.invoice_client = invoiceClient;
 
     frappe.desk.menu.addItem('ToDo', '#list/todo');
     frappe.desk.menu.addItem('Accounts', '#list/account');
