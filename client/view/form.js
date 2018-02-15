@@ -71,7 +71,7 @@ module.exports = class BaseForm extends Observable {
         if (this.meta.settings && this.actions.includes('settings')) {
             let menu = this.container.getDropdown(frappe._('Menu'));
             menu.addItem(frappe._('Settings...'), () => {
-                frappe.router.setRoute('edit', frappe.slug(this.meta.settings), this.meta.settings);
+                frappe.desk.showFormModal(frappe.slug(this.meta.settings), this.meta.settings);
             });
         }
 
@@ -94,6 +94,18 @@ module.exports = class BaseForm extends Observable {
             this.doc._nameCleared = true;
             // flag so that name is cleared only once
             await this.doc.set('name', '');
+        }
+        this.setTitle();
+    }
+
+    setTitle() {
+        const doctype = this.doc.meta.name;
+        if (this.doc.meta.isSingle || !this.doc.meta.showTitle) {
+            this.container.setTitle(doctype);
+        } else if (this.doc._notInserted) {
+            this.container.setTitle(frappe._('New {0}', doctype));
+        } else {
+            this.container.setTitle(`${doctype} ${this.doc.name}`);
         }
     }
 

@@ -11,14 +11,28 @@ module.exports = class Page extends Observable {
         }
         this.make();
         this.dropdowns = {};
+
+        if(this.title) {
+            this.setTitle(this.title);
+        }
     }
 
     make() {
         this.wrapper = frappe.ui.add('div', 'page hide', this.parent);
-        this.wrapper.innerHTML = `<div class="page-head hide"></div>
+        this.wrapper.innerHTML = `<div class="page-head clearfix hide">
+                <span class="page-title"></span>
+            </div>
             <div class="page-body"></div>`
         this.head = this.wrapper.querySelector('.page-head');
         this.body = this.wrapper.querySelector('.page-body');
+        this.titleElement = this.head.querySelector('.page-title');
+    }
+
+    setTitle(title) {
+        this.titleElement.textContent = title;
+        if (this.hasRoute) {
+            document.title = title;
+        }
     }
 
     hide() {
@@ -28,7 +42,7 @@ module.exports = class Page extends Observable {
 
     addButton(label, className, action) {
         this.head.classList.remove('hide');
-        this.button = frappe.ui.add('button', 'btn ' + this.getClassName(className), this.head);
+        this.button = frappe.ui.add('button', 'btn btn-sm float-right ' + this.getClassName(className), this.head);
         this.button.innerHTML = label;
         this.button.addEventListener('click', action);
         return this.button;
@@ -36,7 +50,8 @@ module.exports = class Page extends Observable {
 
     getDropdown(label) {
         if (!this.dropdowns[label]) {
-            this.dropdowns[label] = new Dropdown({parent: this.head, label: label, right: true});
+            this.dropdowns[label] = new Dropdown({parent: this.head, label: label,
+                right: true, cssClass: 'btn-secondary btn-sm'});
         }
         return this.dropdowns[label];
     }
@@ -54,10 +69,6 @@ module.exports = class Page extends Observable {
         }
 
         this.parent.activePage = this;
-
-        if (this.hasRoute) {
-            document.title = this.title;
-        }
 
         await this.trigger('show', params);
     }

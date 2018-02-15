@@ -36,8 +36,21 @@ module.exports = class FormPage extends Page {
 	async showDoc(doctype, name) {
 		try {
 			await this.form.setDoc(doctype, name);
+			this.setActiveListRow(doctype, name);
 		} catch (e) {
 			this.renderError(e.status_code, e.message);
+		}
+	}
+
+	setActiveListRow(doctype, name) {
+		let activeListRow = document.querySelector('.list-page .list-body .list-row.active');
+		if (activeListRow) {
+			activeListRow.classList.remove('active');
+		}
+
+		let myListRow = document.querySelector(`.list-body[data-doctype="${doctype}"] .list-row[data-name="${name}"]`);
+		if (myListRow) {
+			myListRow.classList.add('active');
 		}
 	}
 }

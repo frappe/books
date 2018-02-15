@@ -3,7 +3,7 @@ const bootstrap = require('bootstrap');
 const $ = require('jquery');
 
 class Dropdown {
-    constructor({parent, label, items = [], right}) {
+    constructor({parent, label, items = [], right, cssClass='btn-secondary'}) {
         Object.assign(this, arguments[0]);
         Dropdown.instances += 1;
         this.id = 'dropdownMenuButton-' + Dropdown.instances;
@@ -20,7 +20,7 @@ class Dropdown {
 
     make() {
         this.$dropdown = $(`<div class="dropdown ${this.right ? 'float-right' : ''}">
-            <button class="btn btn-outline-secondary dropdown-toggle"
+            <button class="btn ${this.cssClass} dropdown-toggle"
                 type="button" id="${this.id}" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">${this.label}
             </button>
