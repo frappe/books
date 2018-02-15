@@ -67,17 +67,19 @@ module.exports = class BaseList {
     makeBody() {
         if (!this.body) {
             this.makeToolbar();
+            this.parent.classList.add('list-page');
             this.body = frappe.ui.add('div', 'list-body', this.parent);
+            this.body.setAttribute('data-doctype', this.doctype);
             this.makeMoreBtn();
         }
     }
 
     makeToolbar() {
         this.makeSearch();
-        this.btnNew = this.page.addButton(frappe._('New'), 'btn-outline-primary', async () => {
+        this.btnNew = this.page.addButton(frappe._('New'), 'btn-primary', async () => {
             await frappe.router.setRoute('new', frappe.slug(this.doctype));
         })
-        this.btnDelete = this.page.addButton(frappe._('Delete'), 'btn-outline-secondary hide', async () => {
+        this.btnDelete = this.page.addButton(frappe._('Delete'), 'btn-secondary hide', async () => {
             await frappe.db.deleteMany(this.doctype, this.getCheckedRowNames());
             await this.refresh();
         });
@@ -91,14 +93,10 @@ module.exports = class BaseList {
     makeSearch() {
         this.toolbar = frappe.ui.add('div', 'list-toolbar', this.parent);
         this.toolbar.innerHTML = `
-            <div class="row">
-                <div class="col-12" style="max-width: 300px">
-                    <div class="input-group list-search mb-2">
-                        <input class="form-control" type="text" placeholder="Search...">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary btn-search">Search</button>
-                        </div>
-                    </div>
+            <div class="input-group list-search">
+                <input class="form-control" type="text" placeholder="Search...">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary btn-search">Search</button>
                 </div>
             </div>
         `;
@@ -127,20 +125,32 @@ module.exports = class BaseList {
     renderRow(i, data) {
         let row = this.getRow(i);
         row.innerHTML = this.getRowBodyHTML(data);
-        row.style.display = 'block';
+        row.setAttribute('data-name', data.name);
+        row.style.display = 'flex';
     }
 
     getRowBodyHTML(data) {
-        return `<input class="checkbox" type="checkbox" data-name="${data.name}"> ` + this.getRowHTML(data);
+        return `<div class="col-1">
+            <input class="checkbox" type="checkbox" data-name="${data.name}">
+        </div>` + this.getRowHTML(data);
     }
 
     getRowHTML(data) {
-        return `<a href="#edit/${this.doctype}/${data.name}">${data.name}</a>`;
+        return `<div class="col-11">${data.name}</div>`;
     }
 
     getRow(i) {
         if (!this.rows[i]) {
-            this.rows[i] = frappe.ui.add('div', 'list-row', this.body);
+            this.rows[i] = frappe.ui.add('div', 'list-row row no-gutters', this.body);
+
+            // open on click
+            let doctype = this.doctype;
+            this.rows[i].addEventListener('click', function(e) {
+                if (!e.target.tagName !== 'input') {
+                    let name = this.getAttribute('data-name');
+                    frappe.router.setRoute('edit', doctype, name);
+                }
+            });
         }
         return this.rows[i];
     }

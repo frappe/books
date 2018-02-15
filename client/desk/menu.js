@@ -8,27 +8,29 @@ module.exports = class DeskMenu {
     }
 
     make() {
-        this.listGroup = frappe.ui.add('div', 'list-group list-group-flush', this.parent);
+        this.listGroup = frappe.ui.add('div', 'list-body', this.parent);
     }
 
     addItem(label, action) {
-        let item = frappe.ui.add('a', 'list-group-item list-group-item-action', this.listGroup);
+        let item = frappe.ui.add('div', 'list-row', this.listGroup);
         item.textContent = label;
         if (typeof action === 'string') {
-            item.href = action;
             this.routeItems[action] = item;
-        } else {
-            item.addEventListener('click', () => {
-                action();
-                this.setActive(item);
-            });
         }
+        item.addEventListener('click', async () => {
+            if (typeof action === 'string') {
+                await frappe.router.setRoute(action);
+            } else {
+                action();
+            }
+            this.setActive(item);
+        });
     }
 
     setActive() {
         if (this.routeItems[window.location.hash]) {
             let item = this.routeItems[window.location.hash];
-            let className = 'list-group-item-secondary';
+            let className = 'active';
             let activeItem = this.listGroup.querySelector('.' + className);
 
             if (activeItem) {

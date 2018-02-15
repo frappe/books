@@ -1,4 +1,4 @@
-const control_classes = {
+const controlClasses = {
     Data: require('./data'),
     Date: require('./date'),
     Currency: require('./currency'),
@@ -13,12 +13,11 @@ const control_classes = {
 
 module.exports = {
     getControlClass(fieldtype) {
-        return control_classes[fieldtype];
+        return controlClasses[fieldtype];
     },
     makeControl({field, form, parent}) {
-        const control_class = this.getControlClass(field.fieldtype);
-        let control = new control_class({field:field, form:form, parent:parent});
-        control.make();
+        const controlClass = this.getControlClass(field.fieldtype);
+        let control = new controlClass({field:field, form:form, parent:parent});
         return control;
     }
 }

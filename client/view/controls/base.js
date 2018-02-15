@@ -18,6 +18,7 @@ class BaseControl {
         if (this.setup) {
             this.setup();
         }
+        this.make();
     }
 
     bind(doc) {
@@ -26,7 +27,6 @@ class BaseControl {
     }
 
     refresh() {
-        this.make();
         this.setDocValue();
     }
 
@@ -37,20 +37,18 @@ class BaseControl {
     }
 
     make() {
-        if (!this.input) {
-            if (!this.onlyInput) {
-                this.makeFormGroup();
-                this.makeLabel();
-            }
-            this.makeInput();
-            this.setInputName();
-            this.setRequiredAttribute();
-            this.setDisabled();
-            if (!this.onlyInput) {
-                this.makeDescription();
-            }
-            this.addChangeHandler();
+        if (!this.onlyInput) {
+            this.makeFormGroup();
+            this.makeLabel();
         }
+        this.makeInput();
+        this.setInputName();
+        this.setRequiredAttribute();
+        this.setDisabled();
+        if (!this.onlyInput) {
+            this.makeDescription();
+        }
+        this.addChangeHandler();
     }
 
     makeFormGroup() {

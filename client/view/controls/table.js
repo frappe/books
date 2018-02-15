@@ -6,20 +6,21 @@ const Modal = require('frappejs/client/ui/modal');
 
 class TableControl extends BaseControl {
     make() {
-        if (!this.datatable) {
-            this.wrapper = frappe.ui.add('div', 'table-wrapper', this.getInputParent());
-            this.wrapper.innerHTML =
-            `<div class="datatable-wrapper"></div>
-            <div class="table-toolbar">
-                <button type="button" class="btn btn-sm btn-outline-secondary btn-add">
-                    ${frappe._("Add")}</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary btn-remove">
-                    ${frappe._("Remove")}</button>
-            </div>`;
+        this.makeWrapper();
+        this.makeDatatable();
+        this.setupToolbar();
+    }
 
-            this.makeDatatable();
-            this.setupToolbar();
-        }
+    makeWrapper() {
+        this.wrapper = frappe.ui.add('div', 'table-wrapper', this.getInputParent());
+        this.wrapper.innerHTML =
+        `<div class="datatable-wrapper"></div>
+        <div class="table-toolbar">
+            <button type="button" class="btn btn-sm btn-outline-secondary btn-add">
+                ${frappe._("Add")}</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary btn-remove">
+                ${frappe._("Remove")}</button>
+        </div>`;
     }
 
     makeDatatable() {

@@ -14,9 +14,9 @@ module.exports = class Desk {
         frappe.router.listen();
 
         let body = document.querySelector('body');
-        this.navbar = new Navbar();
-        this.container = frappe.ui.add('div', 'container-fluid', body);
-        this.containerRow = frappe.ui.add('div', 'row', this.container)
+        //this.navbar = new Navbar();
+        this.container = frappe.ui.add('div', '', body);
+        this.containerRow = frappe.ui.add('div', 'row no-gutters', this.container)
         this.makeColumns(columns);
 
         this.pages = {

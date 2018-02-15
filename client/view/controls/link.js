@@ -6,6 +6,10 @@ class LinkControl extends BaseControl {
     make() {
         super.make();
         this.input.setAttribute('type', 'text');
+        this.setupAwesomplete();
+    }
+
+    setupAwesomplete() {
         this.awesomplete = new Awesomplete(this.input, {
             autoFirst: true,
             minChars: 0,
@@ -39,6 +43,7 @@ class LinkControl extends BaseControl {
                 })
             }
         });
+
     }
 
     async getList(query) {

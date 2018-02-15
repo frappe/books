@@ -33,11 +33,6 @@ module.exports = class FormModal extends Modal {
 
     async showWith(doctype, name) {
         await this.form.setDoc(doctype, name);
-        if (this.form.doc._notInserted) {
-            this.setTitle(frappe._('New {0}', doctype));
-        } else {
-            this.setTitle(`${doctype} ${name}`);
-        }
         this.show();
         this.$modal.find('input:first').focus();
     }
