@@ -36,7 +36,6 @@ html {
 }
 
 .page {
-	max-width: $page-width;
 	padding-bottom: $spacer-4;
 
 	.page-head {
@@ -62,7 +61,6 @@ html {
 
 .form-body {
 	padding: $spacer-3;
-	max-width: $page-width;
 
 	.form-control.font-weight-bold {
 		background-color: lightyellow;

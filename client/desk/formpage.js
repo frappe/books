@@ -17,6 +17,9 @@ module.exports = class FormPage extends Page {
 
 		this.on('show', async (params) => {
 			await this.showDoc(params.doctype, params.name);
+			if (frappe.desk.center && !frappe.desk.center.activePage) {
+				frappe.desk.showListPage(doctype);
+			}
 		});
 
 		// if name is different after saving, change the route

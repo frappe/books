@@ -1,13 +1,23 @@
 const Modal = require('frappejs/client/ui/modal');
 const view = require('frappejs/client/view');
-const frappe = require('frappejs');
 
 module.exports = class FormModal extends Modal {
     constructor(doctype, name) {
         super({title: doctype});
         this.doctype = doctype;
-        this.makeForm();
-        this.showWith(doctype, name);
+    }
+
+    async showWith(doctype, name) {
+        this.show();
+        await this.setDoc(doctype, name);
+    }
+
+    async setDoc(doctype, name) {
+        if (!this.form) {
+            this.makeForm();
+        }
+        await this.form.setDoc(doctype, name);
+        this.modal.querySelector('input').focus();
     }
 
     makeForm() {
@@ -18,7 +28,8 @@ module.exports = class FormModal extends Modal {
             actions: ['submit']
         });
 
-        this.form.on('submit', () => {
+        this.form.on('submit', async () => {
+            await this.trigger('submit');
             this.hide();
         });
     }
@@ -31,9 +42,4 @@ module.exports = class FormModal extends Modal {
         }
     }
 
-    async showWith(doctype, name) {
-        await this.form.setDoc(doctype, name);
-        this.show();
-        this.$modal.find('input:first').focus();
-    }
 }
