@@ -14,16 +14,14 @@ module.exports = class Database {
     }
 
     async migrate() {
-        for (let doctype in frappe.modules) {
+        for (let doctype in frappe.models) {
             // check if controller module
-            if (frappe.modules[doctype].Meta) {
-                let meta = frappe.getMeta(doctype);
-                if (!meta.isSingle) {
-                    if (await this.tableExists(doctype)) {
-                        await this.alterTable(doctype);
-                    } else {
-                        await this.createTable(doctype);
-                    }
+            let meta = frappe.getMeta(doctype);
+            if (!meta.isSingle) {
+                if (await this.tableExists(doctype)) {
+                    await this.alterTable(doctype);
+                } else {
+                    await this.createTable(doctype);
                 }
             }
         }
@@ -53,7 +51,7 @@ module.exports = class Database {
     }
 
     getColumnDefinition(df) {
-        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.required && !df.default ? "not null" : ""} ${df.default ? `default ${df.default}` : ""}`
+        // return `${df.fieldname} ${this.type_map[df.fieldtype]} ${ ? "PRIMARY KEY" : ""} ${df.required && !df.default ? "NOT NULL" : ""} ${df.default ? `DEFAULT ${df.default}` : ""}`
     }
 
     async alterTable(doctype) {
@@ -89,7 +87,7 @@ module.exports = class Database {
             doc.name = doctype;
         } else {
             if (!name) {
-                throw frappe.errors.ValueError('name is mandatory');
+                throw new frappe.errors.ValueError('name is mandatory');
             }
             doc = await this.getOne(doctype, name, fields);
         }
@@ -113,7 +111,7 @@ module.exports = class Database {
 
     async getSingle(doctype) {
         let values = await this.getAll({
-            doctype: 'Single Value',
+            doctype: 'SingleValue',
             fields: ['fieldname', 'value'],
             filters: { parent: doctype },
             order_by: 'fieldname',
@@ -217,7 +215,7 @@ module.exports = class Database {
             let value = doc[field.fieldname];
             if (value) {
                 let singleValue = frappe.newDoc({
-                    doctype: 'Single Value',
+                    doctype: 'SingleValue',
                     parent: doctype,
                     fieldname: field.fieldname,
                     value: value
@@ -228,7 +226,7 @@ module.exports = class Database {
     }
 
     async deleteSingleValues(name) {
-        // await frappe.db.run('delete from single_value where parent=?', name)
+        // await frappe.db.run('delete from SingleValue where parent=?', name)
     }
 
     prepareChild(parenttype, parent, child, field, idx) {
@@ -275,7 +273,7 @@ module.exports = class Database {
         // delete children
         let tableFields = frappe.getMeta(doctype).getTableFields();
         for (let field of tableFields) {
-            await this.deleteChildren(frappe.slug(field.childtype), name);
+            await this.deleteChildren(field.childtype, name);
         }
     }
 

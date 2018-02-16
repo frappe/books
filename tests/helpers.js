@@ -1,12 +1,15 @@
 const server = require('frappejs/server');
+const frappe = require('frappejs');
 
 module.exports = {
-    async init_sqlite() {
+    async initSqlite({dbPath = '_test.db', models} = {}) {
         server.init();
-        server.init_models();
-        server.init_db({
+        if (models) {
+            frappe.registerModels(models);
+        }
+        await server.initDb({
             backend: 'sqlite',
-            connection_params: {dbPath: 'test.db'}
+            connectionParams: {dbPath: dbPath},
         });
     }
 }

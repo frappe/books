@@ -17,12 +17,12 @@ describe('Router', () => {
 		let router = new Router();
 		router.add('/edit/:doctype', 'catch');
 		router.add('/edit/:doctype/:name', 'all');
-		router.add('/edit/todo/:name', 'todo');
-		router.add('/edit/todo/mytest', 'static');
+		router.add('/edit/ToDo/:name', 'ToDo');
+		router.add('/edit/ToDo/mytest', 'static');
 
-		assert.equal(router.match('/edit/todo/test').handler, 'todo');
+		assert.equal(router.match('/edit/ToDo/test').handler, 'ToDo');
 		assert.equal(router.match('/edit/user/test').handler, 'all');
-		assert.equal(router.match('/edit/todo/mytest').handler, 'static');
+		assert.equal(router.match('/edit/ToDo/mytest').handler, 'static');
 		assert.equal(router.match('/edit/user').handler, 'catch');
 	});
 

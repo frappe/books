@@ -15,7 +15,7 @@ module.exports = class ListPage extends Page {
 			hasRoute: hasRoute
 		});
 
-		this.list = new (view.getList_class(doctype))({
+		this.list = new (view.geListClass(doctype))({
 			doctype: doctype,
 			parent: this.body,
 			page: this

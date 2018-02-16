@@ -1,5 +1,6 @@
 const BaseDocument = require('./document');
 const frappe = require('frappejs');
+const model = require('./index')
 
 module.exports = class BaseMeta extends BaseDocument {
     constructor(data) {
@@ -36,21 +37,21 @@ module.exports = class BaseMeta extends BaseDocument {
         return this._formulaFields;
     }
 
-    hasFormulae() {
-        if (this._hasFormulae===undefined) {
-            this._hasFormulae = false;
+    hasFormula() {
+        if (this._hasFormula===undefined) {
+            this._hasFormula = false;
             if (this.getFormulaFields().length) {
-                this._hasFormulae = true;
+                this._hasFormula = true;
             } else {
                 for (let tablefield of this.getTableFields()) {
                     if (frappe.getMeta(tablefield.childtype).getFormulaFields().length) {
-                        this._hasFormulae = true;
+                        this._hasFormula = true;
                         break;
                     }
                 }
             }
         }
-        return this._hasFormulae;
+        return this._hasFormula;
     }
 
     async set(fieldname, value) {
@@ -76,7 +77,7 @@ module.exports = class BaseMeta extends BaseDocument {
             const doctype_fields = this.fields.map((field) => field.fieldname);
 
             // standard fields
-            for (let field of frappe.model.common_fields) {
+            for (let field of model.common_fields) {
                 if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
                     _add(field);
                 }
@@ -84,14 +85,14 @@ module.exports = class BaseMeta extends BaseDocument {
 
             if (this.isChild) {
                 // child fields
-                for (let field of frappe.model.child_fields) {
+                for (let field of model.child_fields) {
                     if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
                         _add(field);
                     }
                 }
             } else {
                 // parent fields
-                for (let field of frappe.model.parent_fields) {
+                for (let field of model.parent_fields) {
                     if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
                         _add(field);
                     }

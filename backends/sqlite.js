@@ -29,14 +29,14 @@ module.exports = class sqliteDatabase extends Database {
     }
 
     async runCreateTableQuery(doctype, columns, values) {
-        const query = `CREATE TABLE IF NOT EXISTS ${frappe.slug(doctype)} (
+        const query = `CREATE TABLE IF NOT EXISTS ${doctype} (
             ${columns.join(", ")})`;
 
         return await this.run(query, values);
     }
 
     getColumnDefinition(df) {
-        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.required && !df.default ? "not null" : ""} ${df.default ? `default ${df.default}` : ""}`
+        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${ df.fieldname==="name" ? "PRIMARY KEY" : ""} ${df.required && !df.default ? "NOT NULL" : ""} ${df.default ? `DEFAULT ${df.default}` : ""}`
     }
 
     async getTableColumns(doctype) {
@@ -44,13 +44,13 @@ module.exports = class sqliteDatabase extends Database {
     }
 
     async runAlterTableQuery(doctype, field, values) {
-        await this.run(`ALTER TABLE ${frappe.slug(doctype)} ADD COLUMN ${this.getColumnDefinition(field)}`, values);
+        await this.run(`ALTER TABLE ${doctype} ADD COLUMN ${this.getColumnDefinition(field)}`, values);
     }
 
     getOne(doctype, name, fields = '*') {
         fields = this.prepareFields(fields);
         return new Promise((resolve, reject) => {
-            this.conn.get(`select ${fields} from ${frappe.slug(doctype)}
+            this.conn.get(`select ${fields} from ${doctype}
                 where name = ?`, name,
                 (err, row) => {
                     resolve(row || {});
@@ -66,7 +66,7 @@ module.exports = class sqliteDatabase extends Database {
             doc.name = frappe.getRandomName();
         }
 
-        return await this.run(`insert into ${frappe.slug(doctype)}
+        return await this.run(`insert into ${doctype}
             (${fields.map(field => field.fieldname).join(", ")})
             values (${placeholders})`, this.getFormattedValues(fields, doc));
     }
@@ -79,21 +79,21 @@ module.exports = class sqliteDatabase extends Database {
         // additional name for where clause
         values.push(doc.name);
 
-        return await this.run(`update ${frappe.slug(doctype)}
+        return await this.run(`update ${doctype}
                 set ${assigns.join(", ")} where name=?`, values);
     }
 
     async runDeleteOtherChildren(field, added) {
         // delete other children
         // `delete from doctype where parent = ? and name not in (?, ?, ?)}`
-        await this.run(`delete from ${frappe.slug(field.childtype)}
+        await this.run(`delete from ${field.childtype}
             where
                 parent = ? and
                 name not in (${added.slice(1).map(d => '?').join(', ')})`, added);
     }
 
     async deleteOne(doctype, name) {
-        return await this.run(`delete from ${frappe.slug(doctype)} where name=?`, name);
+        return await this.run(`delete from ${doctype} where name=?`, name);
     }
 
     async deleteChildren(parenttype, parent) {
@@ -101,7 +101,7 @@ module.exports = class sqliteDatabase extends Database {
     }
 
     async deleteSingleValues(name) {
-        await frappe.db.run('delete from single_value where parent=?', name)
+        await frappe.db.run('delete from SingleValue where parent=?', name)
     }
 
     getAll({ doctype, fields, filters, start, limit, order_by = 'modified', order = 'desc' } = {}) {
@@ -111,7 +111,7 @@ module.exports = class sqliteDatabase extends Database {
         return new Promise((resolve, reject) => {
             let conditions = this.getFilterConditions(filters);
             let query = `select ${fields.join(", ")}
-                from ${frappe.slug(doctype)}
+                from ${doctype}
                 ${conditions.conditions ? "where" : ""} ${conditions.conditions}
                 ${order_by ? ("order by " + order_by) : ""} ${order_by ? (order || "asc") : ""}
                 ${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`;

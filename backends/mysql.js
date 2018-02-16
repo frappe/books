@@ -45,7 +45,7 @@ module.exports = class mysqlDatabase extends Database{
     }
 
     async runCreateTableQuery(doctype, columns, values){
-        const query = `CREATE TABLE IF NOT EXISTS ${frappe.slug(doctype)} (
+        const query = `CREATE TABLE IF NOT EXISTS ${doctype} (
             ${columns.join(", ")})`;
 
         return await this.run(query, values);
@@ -62,7 +62,7 @@ module.exports = class mysqlDatabase extends Database{
 
 
     async runAlterTableQuery(doctype) {
-        await this.run(`ALTER TABLE ${frappe.slug(doctype)} ADD COLUMN ${this.get_column_definition(df)}`, values);
+        await this.run(`ALTER TABLE ${doctype} ADD COLUMN ${this.get_column_definition(df)}`, values);
     }
 
     getOne(doctype, name, fields = '*') {
@@ -70,7 +70,7 @@ module.exports = class mysqlDatabase extends Database{
         fields = this.prepareFields(fields);
 
         return new Promise((resolve, reject) => {
-            this.conn.get(`select ${fields} from ${frappe.slug(doctype)}
+            this.conn.get(`select ${fields} from ${doctype}
                 where name = ?`, name,
                 (err, row) => {
                     resolve(row || {});
@@ -86,7 +86,7 @@ module.exports = class mysqlDatabase extends Database{
             doc.name = frappe.getRandomName();
         }
 
-        return await this.run(`insert into ${frappe.slug(doctype)}
+        return await this.run(`insert into ${doctype}
             (${fields.map(field => field.fieldname).join(", ")})
             values (${placeholders})`, this.getFormattedValues(fields, doc));
     }
@@ -99,19 +99,19 @@ module.exports = class mysqlDatabase extends Database{
         // additional name for where clause
         values.push(doc.name);
 
-        return await this.run(`update ${frappe.slug(doctype)}
+        return await this.run(`update ${doctype}
                 set ${assigns.join(", ")} where name=?`, values);
     }
 
     async runDeleteOtherChildren(field, added) {
-        await this.run(`delete from ${frappe.slug(field.childtype)}
+        await this.run(`delete from ${field.childtype}
             where
                 parent = ? and
                 name not in (${added.slice(1).map(d => '?').join(', ')})`, added);
     }
 
     async deleteOne(doctype, name) {
-        return await this.run(`delete from ${frappe.slug(doctype)} where name=?`, name);
+        return await this.run(`delete from ${doctype} where name=?`, name);
     }
 
     async deleteChildren(parenttype, parent) {
@@ -127,7 +127,7 @@ module.exports = class mysqlDatabase extends Database{
             let conditions = this.getFilterConditions(filters);
 
             this.conn.all(`select ${fields.join(", ")}
-                from ${frappe.slug(doctype)}
+                from ${doctype}
                 ${conditions.conditions ? "where" : ""} ${conditions.conditions}
                 ${order_by ? ("order by " + order_by) : ""} ${order_by ? (order || "asc") : ""}
                 ${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`, conditions.values,

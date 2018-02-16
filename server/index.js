@@ -1,24 +1,25 @@
 const backends = {};
 backends.sqlite = require('frappejs/backends/sqlite');
-backends.mysql = require('frappejs/backends/mysql');
+//backends.mysql = require('frappejs/backends/mysql');
 
 const express = require('express');
 const app = express();
 const frappe = require('frappejs');
-const rest_api = require('./rest_api')
-const init_models = require('frappejs/server/init_models');
+const rest_api = require('./rest_api');
+const frappeModels = require('frappejs/models');
 const common = require('frappejs/common');
 const bodyParser = require('body-parser');
-const path = require('path');
 
 module.exports = {
-    async start({backend, connection_params, models_path}) {
+    async start({backend, connectionParams, models}) {
         await this.init();
 
-        this.init_models(models_path);
+        if (models) {
+            frappe.registerModels(models);
+        }
 
         // database
-        await this.init_db({backend:backend, connection_params:connection_params});
+        await this.initDb({backend:backend, connectionParams:connectionParams});
 
         // app
         app.use(bodyParser.json());
@@ -33,22 +34,15 @@ module.exports = {
         frappe.server = app.listen(frappe.config.port);
     },
 
-    init_models(models_path) {
-        // import frappe modules
-        init_models(path.join(path.dirname(require.resolve('frappejs')), 'models'));
-
-        // import modules from the app
-        init_models(models_path);
-    },
-
     async init() {
         await frappe.init();
-        common.init_libs(frappe);
+        frappe.registerModels(frappeModels);
+        frappe.registerLibs(common);
         await frappe.login();
     },
 
-    async init_db({backend, connection_params}) {
-        frappe.db = await new backends[backend](connection_params);
+    async initDb({backend, connectionParams}) {
+        frappe.db = await new backends[backend](connectionParams);
         await frappe.db.connect();
         await frappe.db.migrate();
     },

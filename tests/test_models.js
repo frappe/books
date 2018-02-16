@@ -4,11 +4,11 @@ const helpers = require('./helpers');
 
 describe('Models', () => {
     before(async function() {
-        await helpers.init_sqlite();
+        await helpers.initSqlite();
     });
 
     it('should get todo json', () => {
-        let todo = frappe.getMeta('todo');
+        let todo = frappe.getMeta('ToDo');
         assert.equal(todo.isSingle, 0);
     });
 });

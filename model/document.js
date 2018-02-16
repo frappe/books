@@ -1,5 +1,6 @@
 const frappe = require('frappejs');
 const Observable = require('frappejs/utils/observable');
+const model = require('./index');
 
 module.exports = class BaseDocument extends Observable {
     constructor(data) {
@@ -34,12 +35,16 @@ module.exports = class BaseDocument extends Observable {
     // set value and trigger change
     async set(fieldname, value) {
         this[fieldname] = await this.validateField(fieldname, value);
-        if (await this.applyFormulae()) {
+        await this.applyChange(fieldname);
+    }
+
+    async applyChange(fieldname) {
+        if (await this.applyFormula()) {
             // multiple changes
             await this.trigger('change', { doc: this });
         } else {
             // no other change, trigger control refresh
-            await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
+            await this.trigger('change', { doc: this, fieldname: fieldname });
         }
     }
 
@@ -55,9 +60,9 @@ module.exports = class BaseDocument extends Observable {
         }
 
         if (this.meta.settings) {
-            const number_series = (await this.getSettings()).number_series;
-            if(number_series) {
-                this.name = await frappe.model.getSeriesNext(number_series);
+            const numberSeries = (await this.getSettings()).numberSeries;
+            if(numberSeries) {
+                this.name = await model.getSeriesNext(numberSeries);
             }
         }
 
@@ -165,8 +170,8 @@ module.exports = class BaseDocument extends Observable {
         }
     }
 
-    async applyFormulae() {
-        if (!this.meta.hasFormulae()) {
+    async applyFormula() {
+        if (!this.meta.hasFormula()) {
             return false;
         }
 
@@ -180,7 +185,7 @@ module.exports = class BaseDocument extends Observable {
                 // for each row
                 for (let row of this[tablefield.fieldname]) {
                     for (let field of formulaFields) {
-                        row[field.fieldname] = await eval(field.formula);
+                        row[field.fieldname] = await field.formula(row, doc);
                     }
                 }
             }
@@ -188,7 +193,7 @@ module.exports = class BaseDocument extends Observable {
 
         // parent
         for (let field of this.meta.getFormulaFields()) {
-            doc[field.fieldname] = eval(field.formula);
+            doc[field.fieldname] = await field.formula(doc);
         }
 
         return true;
@@ -200,7 +205,7 @@ module.exports = class BaseDocument extends Observable {
         this.setStandardValues();
         this.setKeywords();
         this.setChildIdx();
-        await this.applyFormulae();
+        await this.applyFormula();
         await this.trigger('validate');
     }
 

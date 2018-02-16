@@ -4,7 +4,7 @@ const helpers = require('./helpers');
 
 describe('Document', () => {
     before(async function() {
-        await helpers.init_sqlite();
+        await helpers.initSqlite();
     });
 
     it('should insert a doc', async () => {
@@ -68,8 +68,8 @@ describe('Document', () => {
     });
 
     it('should add, fetch and delete documents with children', async() => {
-        await frappe.newDoc({doctype: 'Role', name: 'Test Role'}).insert();
-        await frappe.newDoc({doctype: 'Role', name: 'Test Role 1'}).insert();
+        await frappe.insert({doctype: 'Role', name: 'Test Role'});
+        await frappe.insert({doctype: 'Role', name: 'Test Role 1'});
 
         let user = frappe.newDoc({
             doctype: 'User',

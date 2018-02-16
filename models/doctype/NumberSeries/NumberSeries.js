@@ -1,5 +1,6 @@
-{
-	"name": "Number Series",
+module.exports = {
+	"name": "NumberSeries",
+	"documentClass": require('./NumberSeriesDocument.js'),
 	"doctype": "DocType",
 	"isSingle": 0,
 	"isChild": 0,

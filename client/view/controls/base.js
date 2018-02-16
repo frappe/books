@@ -140,7 +140,7 @@ class BaseControl {
             if (this.parentControl) {
                 // its a child
                 this.doc[this.fieldname] = value;
-                await this.parentControl.doc.set(this.fieldname, this.parentControl.getInputValue());
+                await this.parentControl.doc.applyChange(this.fieldname);
             } else {
                 // parent
                 await this.doc.set(this.fieldname, value);

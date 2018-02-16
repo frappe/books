@@ -1,17 +1,21 @@
-const BaseMeta = require('frappejs/model/meta');
-const BaseDocument = require('frappejs/model/document');
-
-class SessionMeta extends BaseMeta {
-	setupMeta() {
-		Object.assign(this, require('./session.json'));
-	}
-}
-
-class Session extends BaseDocument {
-
-}
-
 module.exports = {
-	Document: Session,
-	Meta: SessionMeta
-};
+	"name": "Session",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "username",
+			"label": "Username",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "password",
+			"label": "Password",
+			"fieldtype": "Password",
+			"required": 1
+		}
+	]
+}

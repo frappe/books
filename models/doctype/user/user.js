@@ -1,16 +1,30 @@
-const BaseMeta = require('frappejs/model/meta');
-const BaseDocument = require('frappejs/model/document');
-
-class UserMeta extends BaseMeta {
-	setupMeta() {
-		Object.assign(this, require('./user.json'));
-	}
-}
-
-class User extends BaseDocument {
-}
-
 module.exports = {
-	Document: User,
-	Meta: UserMeta
-};
+	"name": "User",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": [
+        "name",
+        "full_name"
+    ],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"required": 1
+        },
+        {
+            "fieldname": "full_name",
+            "label": "Full Name",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "roles",
+            "label": "Roles",
+            "fieldtype": "Table",
+            "childtype": "UserRole"
+        }
+	]
+}

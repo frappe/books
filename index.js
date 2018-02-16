@@ -1,3 +1,4 @@
+
 module.exports = {
     async init() {
         if (this._initialized) return;
@@ -15,11 +16,27 @@ module.exports = {
 
     initGlobals() {
         this.metaCache = {};
-        this.modules = {};
+        this.models = {};
+        this.forms = {};
+        this.views = {};
         this.docs = {};
         this.flags = {
             cache_docs: false
         }
+    },
+
+    registerLibs(common) {
+        // add standard libs and utils to frappe
+        common.initLibs(this);
+    },
+
+    registerModels(models) {
+        Object.assign(this.models, models);
+    },
+
+    registerView(view, doctype, module) {
+        if (!this.views[view]) this.views[view] = {};
+        this.views[view][doctype] = module;
     },
 
     addToCache(doc) {
@@ -42,29 +59,30 @@ module.exports = {
 
     getMeta(doctype) {
         if (!this.metaCache[doctype]) {
-            this.metaCache[doctype] = new (this.getMetaClass(doctype))();
+            let model = this.models[doctype];
+            if (!model) {
+                throw `${doctype} is not a registered doctype`;
+            }
+            let metaClass = model.metaClass || this.BaseMeta;
+            this.metaCache[doctype] = new metaClass(model);
         }
-        return this.metaCache[doctype];
-    },
 
-    getMetaClass(doctype) {
-        doctype = this.slug(doctype);
-        if (this.modules[doctype] && this.modules[doctype].Meta) {
-            return this.modules[doctype].Meta;
-        } else {
-            return this.BaseMeta;
-        }
+        return this.metaCache[doctype];
     },
 
     async getDoc(doctype, name) {
         let doc = this.getDocFromCache(doctype, name);
         if (!doc) {
-            let controllerClass = this.getControllerClass(doctype);
-            doc = new controllerClass({doctype:doctype, name: name});
+            doc = new (this.getDocumentClass(doctype))({doctype:doctype, name: name});
             await doc.load();
             this.addToCache(doc);
         }
         return doc;
+    },
+
+    getDocumentClass(doctype) {
+        const meta = this.getMeta(doctype);
+        return meta.documentClass || this.BaseDocument;
     },
 
     async getSingle(doctype) {
@@ -85,19 +103,9 @@ module.exports = {
     },
 
     newDoc(data) {
-        let controllerClass = this.getControllerClass(data.doctype);
-        let doc = new controllerClass(data);
+        let doc = new (this.getDocumentClass(data.doctype))(data);
         doc.setDefaults();
         return doc;
-    },
-
-    getControllerClass(doctype) {
-        doctype = this.slug(doctype);
-        if (this.modules[doctype] && this.modules[doctype].Document) {
-            return this.modules[doctype].Document;
-        } else {
-            return this.BaseDocument;
-        }
     },
 
     async getNewDoc(doctype) {
@@ -113,10 +121,7 @@ module.exports = {
     },
 
     login(user='guest', user_key) {
-        this.session = new this._session.Session(user);
-        if (user && user_key) {
-            this.authenticate(user_key);
-        }
+        this.session = {user: user};
     },
 
     close() {

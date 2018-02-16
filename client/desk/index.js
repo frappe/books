@@ -4,7 +4,7 @@ const Router = require('frappejs/common/router');
 const Page = require('frappejs/client/view/page');
 const FormPage = require('frappejs/client/desk/formpage');
 const ListPage = require('frappejs/client/desk/listpage');
-const Navbar = require('./navbar');
+// const Navbar = require('./navbar');
 const DeskMenu = require('./menu');
 const FormModal = require('frappejs/client/desk/formmodal');
 

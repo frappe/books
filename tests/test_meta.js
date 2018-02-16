@@ -4,7 +4,7 @@ const helpers = require('./helpers');
 
 describe('Meta', () => {
     before(async function() {
-        await helpers.init_sqlite();
+        await helpers.initSqlite();
     });
 
     it('should get init from json file', () => {

@@ -8,7 +8,9 @@ module.exports = {
     async start({server, columns = 2}) {
         window.frappe = frappe;
         frappe.init();
-        common.init_libs(frappe);
+        frappe.registerLibs(common);
+        frappe.registerModels(require('frappejs/models'));
+        frappe.registerModels(require('../models'));
 
         frappe.fetch = window.fetch.bind();
         frappe.db = await new RESTClient({server: server});

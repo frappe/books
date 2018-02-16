@@ -77,7 +77,7 @@ module.exports = class BaseList {
     makeToolbar() {
         this.makeSearch();
         this.btnNew = this.page.addButton(frappe._('New'), 'btn-primary', async () => {
-            await frappe.router.setRoute('new', frappe.slug(this.doctype));
+            await frappe.router.setRoute('new', this.doctype);
         })
         this.btnDelete = this.page.addButton(frappe._('Delete'), 'btn-secondary hide', async () => {
             await frappe.db.deleteMany(this.doctype, this.getCheckedRowNames());

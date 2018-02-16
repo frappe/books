@@ -55,7 +55,11 @@ class TableControl extends BaseControl {
 
     setInputValue(value) {
         this.datatable.refresh(this.getTableData(value));
-        this.datatable.setDimensions();
+        this.refreshToolbar();
+    }
+
+    refreshToolbar() {
+        this.wrapper.querySelector('.table-toolbar').classList.toggle('hide', this.disabled ? true : false);
     }
 
     getTableData(value) {
@@ -124,7 +128,7 @@ class TableControl extends BaseControl {
                 field: field,
                 content: field.label,
                 width: 120,
-                editable: field.disabled ? false : true,
+                editable: (this.disabled || field.disabled) ? false : true,
                 sortable: false,
                 resizable: true,
                 dropdown: false,
