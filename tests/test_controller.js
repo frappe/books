@@ -4,7 +4,7 @@ const helpers = require('./helpers');
 
 describe('Controller', () => {
     before(async function() {
-        await helpers.init_sqlite();
+        await helpers.initSqlite();
     });
 
     it('should call controller method', async () => {

@@ -1,5 +1,5 @@
-{
-	"name": "System Settings",
+module.exports = {
+	"name": "SystemSettings",
 	"doctype": "DocType",
 	"isSingle": 1,
 	"isChild": 0,

@@ -71,7 +71,7 @@ module.exports = class BaseForm extends Observable {
         if (this.meta.settings && this.actions.includes('settings')) {
             let menu = this.container.getDropdown(frappe._('Menu'));
             menu.addItem(frappe._('Settings...'), () => {
-                frappe.desk.showFormModal(frappe.slug(this.meta.settings), this.meta.settings);
+                frappe.desk.showFormModal(this.meta.settings, this.meta.settings);
             });
         }
 
@@ -99,13 +99,14 @@ module.exports = class BaseForm extends Observable {
     }
 
     setTitle() {
-        const doctype = this.doc.meta.name;
+        const doctypeLabel = this.doc.meta.label || this.doc.meta.name;
+
         if (this.doc.meta.isSingle || !this.doc.meta.showTitle) {
-            this.container.setTitle(doctype);
+            this.container.setTitle(doctypeLabel);
         } else if (this.doc._notInserted) {
-            this.container.setTitle(frappe._('New {0}', doctype));
+            this.container.setTitle(frappe._('New {0}', doctypeLabel));
         } else {
-            this.container.setTitle(`${doctype} ${this.doc.name}`);
+            this.container.setTitle(`${doctypeLabel} ${this.doc.name}`);
         }
     }
 

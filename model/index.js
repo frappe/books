@@ -4,12 +4,12 @@ module.exports = {
     async getSeriesNext(prefix) {
         let series;
         try {
-            series = await frappe.getDoc('Number Series', prefix);
+            series = await frappe.getDoc('NumberSeries', prefix);
         } catch (e) {
             if (!e.status_code || e.status_code !== 404) {
                 throw e;
             }
-            series = frappe.newDoc({doctype: 'Number Series', name: prefix, current: 0});
+            series = frappe.newDoc({doctype: 'NumberSeries', name: prefix, current: 0});
             await series.insert();
         }
         let next = await series.next()

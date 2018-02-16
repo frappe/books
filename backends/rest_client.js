@@ -15,7 +15,7 @@ module.exports = class RESTClient {
 
     async insert(doctype, doc) {
         doc.doctype = doctype;
-        let url = this.getURL('/api/resource', frappe.slug(doctype));
+        let url = this.getURL('/api/resource', doctype);
         return await this.fetch(url, {
             method: 'POST',
             body: JSON.stringify(doc)
@@ -23,7 +23,7 @@ module.exports = class RESTClient {
     }
 
     async get(doctype, name) {
-        let url = this.getURL('/api/resource', frappe.slug(doctype), name);
+        let url = this.getURL('/api/resource', doctype, name);
         return await this.fetch(url, {
             method: 'GET',
             headers: this.getHeaders()
@@ -31,7 +31,7 @@ module.exports = class RESTClient {
     }
 
     async getAll({ doctype, fields, filters, start, limit, sort_by, order }) {
-        let url = this.getURL('/api/resource', frappe.slug(doctype));
+        let url = this.getURL('/api/resource', doctype);
 
         url = url + "?" + this.getQueryString({
             fields: JSON.stringify(fields),
@@ -49,7 +49,7 @@ module.exports = class RESTClient {
 
     async update(doctype, doc) {
         doc.doctype = doctype;
-        let url = this.getURL('/api/resource', frappe.slug(doctype), doc.name);
+        let url = this.getURL('/api/resource', doctype, doc.name);
 
         return await this.fetch(url, {
             method: 'PUT',
@@ -58,7 +58,7 @@ module.exports = class RESTClient {
     }
 
     async delete(doctype, name) {
-        let url = this.getURL('/api/resource', frappe.slug(doctype), name);
+        let url = this.getURL('/api/resource', doctype, name);
 
         return await this.fetch(url, {
             method: 'DELETE',
@@ -66,7 +66,7 @@ module.exports = class RESTClient {
     }
 
     async deleteMany(doctype, names) {
-        let url = this.getURL('/api/resource', frappe.slug(doctype));
+        let url = this.getURL('/api/resource', doctype);
 
         return await this.fetch(url, {
             method: 'DELETE',
@@ -79,7 +79,7 @@ module.exports = class RESTClient {
     }
 
     async getValue(doctype, name, fieldname) {
-        let url = this.getURL('/api/resource', frappe.slug(doctype), name, fieldname);
+        let url = this.getURL('/api/resource', doctype, name, fieldname);
 
         return (await this.fetch(url, {
             method: 'GET',

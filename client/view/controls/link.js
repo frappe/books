@@ -11,7 +11,6 @@ class LinkControl extends BaseControl {
 
     setupAwesomplete() {
         this.awesomplete = new Awesomplete(this.input, {
-            autoFirst: true,
             minChars: 0,
             maxItems: 99,
             filter: () => true,
@@ -23,7 +22,7 @@ class LinkControl extends BaseControl {
 
             // action to add new item
             list.push({
-                label:frappe._('+ New {0}', this.target),
+                label: frappe._('+ New {0}', this.label),
                 value: '__newItem',
             });
 

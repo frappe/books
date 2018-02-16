@@ -153,10 +153,15 @@ mark {
 .data-table {
 	.body-scrollable {
 		border-bottom: 0px !important;
+
+		tr:first-child {
+			.data-table-col {
+				border-top: 0px !important;
+			}
+		}
 	}
 
 	thead td {
-		border-bottom: 0px !important;
 		background-color: $gray-200 !important;
 	}
 

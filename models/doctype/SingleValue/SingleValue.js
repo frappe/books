@@ -1,5 +1,5 @@
-{
-	"name": "Single Value",
+module.exports = {
+	"name": "SingleValue",
 	"doctype": "DocType",
 	"isSingle": 0,
 	"isChild": 0,

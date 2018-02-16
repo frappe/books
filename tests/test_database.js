@@ -4,7 +4,7 @@ const helpers = require('./helpers');
 
 describe('Database', () => {
     before(async function() {
-        await helpers.init_sqlite();
+        await helpers.initSqlite();
     });
 
     it('should insert and get values', async () => {

@@ -1,21 +1,34 @@
-const BaseMeta = require('frappejs/model/meta');
-const BaseDocument = require('frappejs/model/document');
-
-class ToDoMeta extends BaseMeta {
-    setupMeta() {
-        Object.assign(this, require('./todo.json'));
-    }
-}
-
-class ToDo extends BaseDocument {
-    validate() {
-        if (!this.status) {
-            this.status = 'Open';
-        }
-    }
-}
-
 module.exports = {
-    Document: ToDo,
-    Meta: ToDoMeta
-};
+	"autoname": "random",
+	"name": "ToDo",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"keywordFields": [
+		"subject",
+		"description"
+	],
+	"fields": [
+		{
+			"fieldname": "subject",
+			"label": "Subject",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "status",
+			"label": "Status",
+			"fieldtype": "Select",
+			"options": [
+				"Open",
+				"Closed"
+			],
+			"default": "Open",
+			"required": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text"
+		}
+	]
+}
