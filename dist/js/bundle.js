@@ -168,6 +168,28 @@ var format = {
     }
 };
 
+class BaseError extends Error {
+	constructor(status_code, ...params) {
+		super(...params);
+		this.status_code = status_code;
+	}
+}
+
+class ValidationError extends BaseError {
+	constructor(...params) { super(417, ...params); }
+}
+
+var errors = {
+	ValidationError: ValidationError,
+	ValueError: class ValueError extends ValidationError { },
+	NotFound: class NotFound extends BaseError {
+		constructor(...params) { super(404, ...params); }
+	},
+	Forbidden: class Forbidden extends BaseError {
+		constructor(...params) { super(403, ...params); }
+	},
+};
+
 var frappejs = {
     async init() {
         if (this._initialized) return;
@@ -185,11 +207,27 @@ var frappejs = {
 
     initGlobals() {
         this.metaCache = {};
-        this.modules = {};
+        this.models = {};
+        this.forms = {};
+        this.views = {};
         this.docs = {};
         this.flags = {
             cache_docs: false
         };
+    },
+
+    registerLibs(common) {
+        // add standard libs and utils to frappe
+        common.initLibs(this);
+    },
+
+    registerModels(models) {
+        Object.assign(this.models, models);
+    },
+
+    registerView(view, doctype, module) {
+        if (!this.views[view]) this.views[view] = {};
+        this.views[view][doctype] = module;
     },
 
     addToCache(doc) {
@@ -212,29 +250,30 @@ var frappejs = {
 
     getMeta(doctype) {
         if (!this.metaCache[doctype]) {
-            this.metaCache[doctype] = new (this.getMetaClass(doctype))();
+            let model = this.models[doctype];
+            if (!model) {
+                throw `${doctype} is not a registered doctype`;
+            }
+            let metaClass = model.metaClass || this.BaseMeta;
+            this.metaCache[doctype] = new metaClass(model);
         }
-        return this.metaCache[doctype];
-    },
 
-    getMetaClass(doctype) {
-        doctype = this.slug(doctype);
-        if (this.modules[doctype] && this.modules[doctype].Meta) {
-            return this.modules[doctype].Meta;
-        } else {
-            return this.BaseMeta;
-        }
+        return this.metaCache[doctype];
     },
 
     async getDoc(doctype, name) {
         let doc = this.getDocFromCache(doctype, name);
         if (!doc) {
-            let controllerClass = this.getControllerClass(doctype);
-            doc = new controllerClass({doctype:doctype, name: name});
+            doc = new (this.getDocumentClass(doctype))({doctype:doctype, name: name});
             await doc.load();
             this.addToCache(doc);
         }
         return doc;
+    },
+
+    getDocumentClass(doctype) {
+        const meta = this.getMeta(doctype);
+        return meta.documentClass || this.BaseDocument;
     },
 
     async getSingle(doctype) {
@@ -255,19 +294,9 @@ var frappejs = {
     },
 
     newDoc(data) {
-        let controllerClass = this.getControllerClass(data.doctype);
-        let doc = new controllerClass(data);
+        let doc = new (this.getDocumentClass(data.doctype))(data);
         doc.setDefaults();
         return doc;
-    },
-
-    getControllerClass(doctype) {
-        doctype = this.slug(doctype);
-        if (this.modules[doctype] && this.modules[doctype].Document) {
-            return this.modules[doctype].Document;
-        } else {
-            return this.BaseDocument;
-        }
     },
 
     async getNewDoc(doctype) {
@@ -283,10 +312,7 @@ var frappejs = {
     },
 
     login(user='guest', user_key) {
-        this.session = new this._session.Session(user);
-        if (user && user_key) {
-            this.authenticate(user_key);
-        }
+        this.session = {user: user};
     },
 
     close() {
@@ -298,16 +324,59 @@ var frappejs = {
     }
 };
 
+var observable = class Observable {
+    on(event, listener) {
+        this._addListener('_listeners', event, listener);
+    }
+
+    once(event, listener) {
+        this._addListener('_onceListeners', event, listener);
+    }
+
+    async trigger(event, params) {
+        await this._triggerEvent('_listeners', event, params);
+        await this._triggerEvent('_onceListeners', event, params);
+
+        // clear once-listeners
+        if (this._onceListeners && this._onceListeners[event]) {
+            delete this._onceListeners[event];
+        }
+    }
+
+    _addListener(name, event, listener) {
+        if (!this[name]) {
+            this[name] = {};
+        }
+        if (!this[name][event]) {
+            this[name][event] = [];
+        }
+        this[name][event].push(listener);
+    }
+
+    async _triggerEvent(name, event, params) {
+        if (this[name] && this[name][event]) {
+            for (let listener of this[name][event]) {
+                await listener(params);
+            }
+        }
+    }
+
+    clearListeners() {
+        this._listeners = {};
+        this._onceListeners = {};
+    }
+};
+
 var model = {
     async getSeriesNext(prefix) {
         let series;
         try {
-            series = await frappejs.getDoc('Number Series', prefix);
+            series = await frappejs.getDoc('NumberSeries', prefix);
         } catch (e) {
             if (!e.status_code || e.status_code !== 404) {
                 throw e;
             }
-            series = frappejs.newDoc({doctype: 'Number Series', name: prefix, current: 0});
+            series = frappejs.newDoc({doctype: 'NumberSeries', name: prefix, current: 0});
             await series.insert();
         }
         let next = await series.next();
@@ -354,52 +423,423 @@ var model = {
     ]
 };
 
-class Session {
-    constructor(user, user_key) {
-        this.user = user || 'guest';
-        if (this.user !== 'guest') {
-            this.login(user_key);
+var document$1 = class BaseDocument extends observable {
+    constructor(data) {
+        super();
+        this.fetchValues = {};
+        this.setup();
+        Object.assign(this, data);
+    }
+
+    setup() {
+        // add listeners
+    }
+
+    get meta() {
+        if (!this._meta) {
+            this._meta = frappejs.getMeta(this.doctype);
+        }
+        return this._meta;
+    }
+
+    async getSettings() {
+        if (!this._settings) {
+            this._settings = await frappejs.getSingle(this.meta.settings);
+        }
+        return this._settings;
+    }
+
+    get(fieldname) {
+        return this[fieldname];
+    }
+
+    // set value and trigger change
+    async set(fieldname, value) {
+        this[fieldname] = await this.validateField(fieldname, value);
+        await this.applyChange(fieldname);
+    }
+
+    async applyChange(fieldname) {
+        if (await this.applyFormula()) {
+            // multiple changes
+            await this.trigger('change', { doc: this });
+        } else {
+            // no other change, trigger control refresh
+            await this.trigger('change', { doc: this, fieldname: fieldname });
         }
     }
 
-    login(user_key) {
-        // could be password, sessionid, otp
+    async setName() {
+        if (this.name) {
+            return;
+        }
+
+        // name === doctype for Single
+        if (this.meta.isSingle) {
+            this.name = this.meta.name;
+            return;
+        }
+
+        if (this.meta.settings) {
+            const numberSeries = (await this.getSettings()).numberSeries;
+            if(numberSeries) {
+                this.name = await model.getSeriesNext(numberSeries);
+            }
+        }
+
+        // assign a random name by default
+        // override this to set a name
+        if (!this.name) {
+            this.name = frappejs.getRandomName();
+        }
     }
 
-}
+    setDefaults() {
+        for (let field of this.meta.fields) {
+            if (field.fieldtype === 'Date') {
+                this[field.fieldname] = (new Date()).toISOString().substr(0, 10);
+            } else if (!this[field.fieldname]) {
+                if(field.default) {
+                    this[field.fieldname] = field.default;
+                }
+            }
+        }
+    }
 
-var session = { Session: Session };
+    setKeywords() {
+        let keywords = [];
+        for (let fieldname of this.meta.getKeywordFields()) {
+            keywords.push(this[fieldname]);
+        }
+        this.keywords = keywords.join(', ');
+    }
 
-class BaseError extends Error {
-	constructor(status_code, ...params) {
-		super(...params);
-		this.status_code = status_code;
-	}
-}
+    append(key, document) {
+        if (!this[key]) {
+            this[key] = [];
+        }
+        this[key].push(this.initDoc(document));
+    }
 
-class ValidationError extends BaseError {
-	constructor(...params) { super(417, ...params); }
-}
+    initDoc(data) {
+        if (data.prototype instanceof Document) {
+            return data;
+        } else {
+            return new Document(data);
+        }
+    }
 
-var errors = {
-	ValidationError: ValidationError,
-	ValueError: class ValueError extends ValidationError { },
-	NotFound: class NotFound extends BaseError {
-		constructor(...params) { super(404, ...params); }
-	},
-	Forbidden: class Forbidden extends BaseError {
-		constructor(...params) { super(403, ...params); }
-	},
+    async validateField(key, value) {
+        let field = this.meta.getField(key);
+        if (field && field.fieldtype == 'Select') {
+            return this.meta.validateSelect(field, value);
+        }
+        return value;
+    }
+
+    getValidDict() {
+        let data = {};
+        for (let field of this.meta.getValidFields()) {
+            data[field.fieldname] = this[field.fieldname];
+        }
+        return data;
+    }
+
+    setStandardValues() {
+        let now = new Date();
+        if (this.docstatus === null || this.docstatus === undefined) {
+            this.docstatus = 0;
+        }
+        if (!this.owner) {
+            this.owner = frappejs.session.user;
+            this.creation = now;
+        }
+        this.modified_by = frappejs.session.user;
+        this.modified = now;
+    }
+
+    async load() {
+        let data = await frappejs.db.get(this.doctype, this.name);
+        if (data.name) {
+            this.syncValues(data);
+        } else {
+            throw new frappejs.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
+        }
+    }
+
+    syncValues(data) {
+        this.clearValues();
+        Object.assign(this, data);
+    }
+
+    clearValues() {
+        for (let field of this.meta.getValidFields()) {
+            if(this[field.fieldname]) {
+                delete this[field.fieldname];
+            }
+        }
+    }
+
+    setChildIdx() {
+        // renumber children
+        for (let field of this.meta.getValidFields()) {
+            if (field.fieldtype==='Table') {
+                for(let i=0; i < (this[field.fieldname] || []).length; i++) {
+                    this[field.fieldname][i].idx = i;
+                }
+            }
+        }
+    }
+
+    async applyFormula() {
+        if (!this.meta.hasFormula()) {
+            return false;
+        }
+
+        let doc = this;
+
+        // children
+        for (let tablefield of this.meta.getTableFields()) {
+            let formulaFields = frappejs.getMeta(tablefield.childtype).getFormulaFields();
+            if (formulaFields.length) {
+
+                // for each row
+                for (let row of this[tablefield.fieldname]) {
+                    for (let field of formulaFields) {
+                        row[field.fieldname] = await field.formula(row, doc);
+                    }
+                }
+            }
+        }
+
+        // parent
+        for (let field of this.meta.getFormulaFields()) {
+            doc[field.fieldname] = await field.formula(doc);
+        }
+
+        return true;
+    }
+
+    async commit() {
+        // re-run triggers
+        await this.setName();
+        this.setStandardValues();
+        this.setKeywords();
+        this.setChildIdx();
+        await this.applyFormula();
+        await this.trigger('validate');
+    }
+
+    async insert() {
+        await this.commit();
+        await this.trigger('before_insert');
+        this.syncValues(await frappejs.db.insert(this.doctype, this.getValidDict()));
+        await this.trigger('after_insert');
+        await this.trigger('after_save');
+
+        return this;
+    }
+
+    async update() {
+        await this.commit();
+        await this.trigger('before_update');
+        this.syncValues(await frappejs.db.update(this.doctype, this.getValidDict()));
+        await this.trigger('after_update');
+        await this.trigger('after_save');
+
+        return this;
+    }
+
+    async delete() {
+        await this.trigger('before_delete');
+        await frappejs.db.delete(this.doctype, this.name);
+        await this.trigger('after_delete');
+    }
+
+    async trigger(event, params) {
+        if (this[event]) {
+            await this[event](params);
+        }
+        await super.trigger(event, params);
+    }
+
+    // helper functions
+    getSum(tablefield, childfield) {
+		return this[tablefield].map(d => (d[childfield] || 0)).reduce((a, b) => a + b, 0);
+    }
+
+    async getFrom(doctype, name, fieldname) {
+        if (!name) return '';
+        let key = `${doctype}:${name}:${fieldname}`;
+        if (!this.fetchValues[key]) {
+            this.fetchValues[key] = await frappejs.db.getValue(doctype, name, fieldname);
+        }
+        return this.fetchValues[key];
+    }
+};
+
+var meta = class BaseMeta extends document$1 {
+    constructor(data) {
+        super(data);
+        this.list_options = {
+            fields: ['name', 'modified']
+        };
+        if (this.setupMeta) {
+            this.setupMeta();
+        }
+    }
+
+    getField(fieldname) {
+        if (!this._field_map) {
+            this._field_map = {};
+            for (let field of this.fields) {
+                this._field_map[field.fieldname] = field;
+            }
+        }
+        return this._field_map[fieldname];
+    }
+
+    getTableFields() {
+        if (this._tableFields===undefined) {
+            this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
+        }
+        return this._tableFields;
+    }
+
+    getFormulaFields() {
+        if (this._formulaFields===undefined) {
+            this._formulaFields = this.fields.filter(field => field.formula);
+        }
+        return this._formulaFields;
+    }
+
+    hasFormula() {
+        if (this._hasFormula===undefined) {
+            this._hasFormula = false;
+            if (this.getFormulaFields().length) {
+                this._hasFormula = true;
+            } else {
+                for (let tablefield of this.getTableFields()) {
+                    if (frappejs.getMeta(tablefield.childtype).getFormulaFields().length) {
+                        this._hasFormula = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return this._hasFormula;
+    }
+
+    async set(fieldname, value) {
+        this[fieldname] = value;
+        await this.trigger(fieldname);
+    }
+
+    get(fieldname) {
+        return this[fieldname];
+    }
+
+    getValidFields({ withChildren = true } = {}) {
+        if (!this._valid_fields) {
+
+            this._valid_fields = [];
+            this._valid_fields_withChildren = [];
+
+            const _add = (field) => {
+                this._valid_fields.push(field);
+                this._valid_fields_withChildren.push(field);
+            };
+
+            const doctype_fields = this.fields.map((field) => field.fieldname);
+
+            // standard fields
+            for (let field of model.common_fields) {
+                if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                    _add(field);
+                }
+            }
+
+            if (this.isChild) {
+                // child fields
+                for (let field of model.child_fields) {
+                    if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                        _add(field);
+                    }
+                }
+            } else {
+                // parent fields
+                for (let field of model.parent_fields) {
+                    if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                        _add(field);
+                    }
+                }
+            }
+
+            // doctype fields
+            for (let field of this.fields) {
+                let include = frappejs.db.type_map[field.fieldtype];
+
+                if (include) {
+                    _add(field);
+                }
+
+                // include tables if (withChildren = True)
+                if (!include && field.fieldtype === 'Table') {
+                    this._valid_fields_withChildren.push(field);
+                }
+            }
+        }
+
+        if (withChildren) {
+            return this._valid_fields_withChildren;
+        } else {
+            return this._valid_fields;
+        }
+    }
+
+    getKeywordFields() {
+        if (!this._keywordFields) {
+            this._keywordFields = this.keywordFields;
+            if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
+                this._keywordFields = this.fields.filter(field => field.required).map(field => field.fieldname);
+            }
+            if (!(this._keywordFields && this._keywordFields.length)) {
+                this._keywordFields = ['name'];
+            }
+        }
+        return this._keywordFields;
+    }
+
+    validateSelect(field, value) {
+        let options = field.options;
+        if (typeof options === 'string') {
+            // values given as string
+            options = field.options.split('\n');
+        }
+        if (!options.includes(value)) {
+            throw new frappejs.errors.ValueError(`${value} must be one of ${options.join(", ")}`);
+        }
+        return value;
+    }
+
+    async trigger(event, params = {}) {
+        Object.assign(params, {
+            doc: this,
+            name: event
+        });
+
+        await super.trigger(event, params);
+    }
 };
 
 var common = {
-    init_libs(frappe) {
+    initLibs(frappe) {
         Object.assign(frappe, utils);
         Object.assign(frappe, number_format);
         Object.assign(frappe, format);
-        frappe.model = model;
-        frappe._session = session;
         frappe.errors = errors;
+        frappe.BaseDocument = document$1;
+        frappe.BaseMeta = meta;
     }
 };
 
@@ -668,7 +1108,7 @@ var rest_client = class RESTClient {
 
     async insert(doctype, doc) {
         doc.doctype = doctype;
-        let url = this.getURL('/api/resource', frappejs.slug(doctype));
+        let url = this.getURL('/api/resource', doctype);
         return await this.fetch(url, {
             method: 'POST',
             body: JSON.stringify(doc)
@@ -676,7 +1116,7 @@ var rest_client = class RESTClient {
     }
 
     async get(doctype, name) {
-        let url = this.getURL('/api/resource', frappejs.slug(doctype), name);
+        let url = this.getURL('/api/resource', doctype, name);
         return await this.fetch(url, {
             method: 'GET',
             headers: this.getHeaders()
@@ -684,7 +1124,7 @@ var rest_client = class RESTClient {
     }
 
     async getAll({ doctype, fields, filters, start, limit, sort_by, order }) {
-        let url = this.getURL('/api/resource', frappejs.slug(doctype));
+        let url = this.getURL('/api/resource', doctype);
 
         url = url + "?" + this.getQueryString({
             fields: JSON.stringify(fields),
@@ -702,7 +1142,7 @@ var rest_client = class RESTClient {
 
     async update(doctype, doc) {
         doc.doctype = doctype;
-        let url = this.getURL('/api/resource', frappejs.slug(doctype), doc.name);
+        let url = this.getURL('/api/resource', doctype, doc.name);
 
         return await this.fetch(url, {
             method: 'PUT',
@@ -711,7 +1151,7 @@ var rest_client = class RESTClient {
     }
 
     async delete(doctype, name) {
-        let url = this.getURL('/api/resource', frappejs.slug(doctype), name);
+        let url = this.getURL('/api/resource', doctype, name);
 
         return await this.fetch(url, {
             method: 'DELETE',
@@ -719,7 +1159,7 @@ var rest_client = class RESTClient {
     }
 
     async deleteMany(doctype, names) {
-        let url = this.getURL('/api/resource', frappejs.slug(doctype));
+        let url = this.getURL('/api/resource', doctype);
 
         return await this.fetch(url, {
             method: 'DELETE',
@@ -732,7 +1172,7 @@ var rest_client = class RESTClient {
     }
 
     async getValue(doctype, name, fieldname) {
-        let url = this.getURL('/api/resource', frappejs.slug(doctype), name, fieldname);
+        let url = this.getURL('/api/resource', doctype, name, fieldname);
 
         return (await this.fetch(url, {
             method: 'GET',
@@ -17614,49 +18054,6 @@ var ui = {
 
 };
 
-var observable = class Observable {
-    on(event, listener) {
-        this._addListener('_listeners', event, listener);
-    }
-
-    once(event, listener) {
-        this._addListener('_onceListeners', event, listener);
-    }
-
-    async trigger(event, params) {
-        await this._triggerEvent('_listeners', event, params);
-        await this._triggerEvent('_onceListeners', event, params);
-
-        // clear once-listeners
-        if (this._onceListeners && this._onceListeners[event]) {
-            delete this._onceListeners[event];
-        }
-    }
-
-    _addListener(name, event, listener) {
-        if (!this[name]) {
-            this[name] = {};
-        }
-        if (!this[name][event]) {
-            this[name][event] = [];
-        }
-        this[name][event].push(listener);
-    }
-
-    async _triggerEvent(name, event, params) {
-        if (this[name] && this[name][event]) {
-            for (let listener of this[name][event]) {
-                await listener(params);
-            }
-        }
-    }
-
-    clearListeners() {
-        this._listeners = {};
-        this._onceListeners = {};
-    }
-};
-
 var router = class Router extends observable {
     constructor() {
         super();
@@ -17962,7 +18359,7 @@ var list = class BaseList {
     makeToolbar() {
         this.makeSearch();
         this.btnNew = this.page.addButton(frappejs._('New'), 'btn-primary', async () => {
-            await frappejs.router.setRoute('new', frappejs.slug(this.doctype));
+            await frappejs.router.setRoute('new', this.doctype);
         });
         this.btnDelete = this.page.addButton(frappejs._('Delete'), 'btn-secondary hide', async () => {
             await frappejs.db.deleteMany(this.doctype, this.getCheckedRowNames());
@@ -18204,7 +18601,7 @@ class BaseControl {
             if (this.parentControl) {
                 // its a child
                 this.doc[this.fieldname] = value;
-                await this.parentControl.doc.set(this.fieldname, this.parentControl.getInputValue());
+                await this.parentControl.doc.applyChange(this.fieldname);
             } else {
                 // parent
                 await this.doc.set(this.fieldname, value);
@@ -20889,7 +21286,6 @@ class LinkControl extends base {
 
     setupAwesomplete() {
         this.awesomplete = new awesomplete(this.input, {
-            autoFirst: true,
             minChars: 0,
             maxItems: 99,
             filter: () => true,
@@ -20901,10 +21297,8 @@ class LinkControl extends base {
 
             // action to add new item
             list.push({
-                label:frappejs._('+ New {0}', this.target),
+                label: frappejs._('+ New {0}', this.label),
                 value: '__newItem',
-                action: () => {
-                }
             });
 
             this.awesomplete.list = list;
@@ -20916,7 +21310,7 @@ class LinkControl extends base {
                 e.preventDefault();
                 const newDoc = await frappejs.getNewDoc(this.target);
                 const formModal = frappejs.desk.showFormModal(this.target, newDoc.name);
-                formModal.form.once('submit', async () => {
+                formModal.once('submit', async () => {
                     await this.updateDocValue(formModal.form.doc.name);
                 });
             }
@@ -22832,7 +23226,7 @@ var clusterize = createCommonjsModule(function (module) {
 var frappeDatatable = createCommonjsModule(function (module, exports) {
 (function webpackUniversalModuleDefinition(root, factory) {
 	module.exports = factory(Sortable, clusterize);
-})(typeof self !== 'undefined' ? self : commonjsGlobal, function(__WEBPACK_EXTERNAL_MODULE_8__, __WEBPACK_EXTERNAL_MODULE_11__) {
+})(typeof self !== 'undefined' ? self : commonjsGlobal, function(__WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_10__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -22895,7 +23289,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 4);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -23356,85 +23750,6 @@ function chainPromises(promises) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-var _dom = __webpack_require__(0);
-
-var _dom2 = _interopRequireDefault(_dom);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var KEYCODES = {
-  13: 'enter',
-  91: 'meta',
-  16: 'shift',
-  17: 'ctrl',
-  18: 'alt',
-  37: 'left',
-  38: 'up',
-  39: 'right',
-  40: 'down',
-  9: 'tab',
-  27: 'esc',
-  67: 'c'
-};
-
-var initDone = false;
-var handlers = {};
-
-function bind(dom) {
-  if (initDone) return;
-  _dom2.default.on(dom, 'keydown', handler);
-  initDone = true;
-}
-
-function handler(e) {
-  var key = KEYCODES[e.keyCode];
-
-  if (e.shiftKey && key !== 'shift') {
-    key = 'shift+' + key;
-  }
-
-  if (e.ctrlKey && key !== 'ctrl' || e.metaKey && key !== 'meta') {
-    key = 'ctrl+' + key;
-  }
-
-  var _handlers = handlers[key];
-
-  if (_handlers && _handlers.length > 0) {
-    _handlers.map(function (handler) {
-      var preventBubbling = handler();
-
-      if (preventBubbling === undefined || preventBubbling === true) {
-        e.preventDefault();
-      }
-    });
-  }
-}
-
-exports.default = {
-  init: function init(dom) {
-    bind(dom);
-  },
-  on: function on(key, handler) {
-    var keys = key.split(',').map(function (k) {
-      return k.trim();
-    });
-
-    keys.map(function (key) {
-      handlers[key] = handlers[key] || [];
-      handlers[key].push(handler);
-    });
-  }
-};
-module.exports = exports['default'];
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
 exports.getDropdownHTML = undefined;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -23443,7 +23758,7 @@ var _dom = __webpack_require__(0);
 
 var _dom2 = _interopRequireDefault(_dom);
 
-var _sortablejs = __webpack_require__(8);
+var _sortablejs = __webpack_require__(7);
 
 var _sortablejs2 = _interopRequireDefault(_sortablejs);
 
@@ -23465,6 +23780,7 @@ var ColumnManager = function () {
     this.style = this.instance.style;
     this.wrapper = this.instance.wrapper;
     this.rowmanager = this.instance.rowmanager;
+    this.bodyScrollable = this.instance.bodyScrollable;
 
     this.bindEvents();
     exports.getDropdownHTML = getDropdownHTML = getDropdownHTML.bind(this, this.options.dropdownButton);
@@ -24023,14 +24339,14 @@ var getDropdownHTML = function getDropdownHTML() {
 exports.getDropdownHTML = getDropdownHTML;
 
 /***/ }),
-/* 4 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _datatable = __webpack_require__(5);
+var _datatable = __webpack_require__(4);
 
 var _datatable2 = _interopRequireDefault(_datatable);
 
@@ -24046,7 +24362,7 @@ exports.default = _datatable2.default;
 module.exports = exports['default'];
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -24059,31 +24375,31 @@ var _dom = __webpack_require__(0);
 
 var _dom2 = _interopRequireDefault(_dom);
 
-var _datamanager = __webpack_require__(6);
+var _datamanager = __webpack_require__(5);
 
 var _datamanager2 = _interopRequireDefault(_datamanager);
 
-var _cellmanager = __webpack_require__(7);
+var _cellmanager = __webpack_require__(6);
 
 var _cellmanager2 = _interopRequireDefault(_cellmanager);
 
-var _columnmanager = __webpack_require__(3);
+var _columnmanager = __webpack_require__(2);
 
 var _columnmanager2 = _interopRequireDefault(_columnmanager);
 
-var _rowmanager = __webpack_require__(9);
+var _rowmanager = __webpack_require__(8);
 
 var _rowmanager2 = _interopRequireDefault(_rowmanager);
 
-var _bodyRenderer = __webpack_require__(10);
+var _bodyRenderer = __webpack_require__(9);
 
 var _bodyRenderer2 = _interopRequireDefault(_bodyRenderer);
 
-var _style = __webpack_require__(12);
+var _style = __webpack_require__(11);
 
 var _style2 = _interopRequireDefault(_style);
 
-var _keyboard = __webpack_require__(2);
+var _keyboard = __webpack_require__(12);
 
 var _keyboard2 = _interopRequireDefault(_keyboard);
 
@@ -24121,13 +24437,12 @@ var DataTable = function () {
     this.prepare();
 
     this.style = new _style2.default(this);
+    this.keyboard = new _keyboard2.default(this.wrapper);
     this.datamanager = new _datamanager2.default(this.options);
     this.rowmanager = new _rowmanager2.default(this);
     this.columnmanager = new _columnmanager2.default(this);
     this.cellmanager = new _cellmanager2.default(this);
     this.bodyRenderer = new _bodyRenderer2.default(this);
-
-    _keyboard2.default.init(this.wrapper);
 
     if (this.options.data) {
       this.refresh();
@@ -24292,7 +24607,7 @@ exports.default = DataTable;
 module.exports = exports['default'];
 
 /***/ }),
-/* 6 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -24918,7 +25233,7 @@ var DataError = exports.DataError = function (_extendableBuiltin2) {
 
 
 /***/ }),
-/* 7 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -24931,15 +25246,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _utils = __webpack_require__(1);
 
-var _keyboard = __webpack_require__(2);
-
-var _keyboard2 = _interopRequireDefault(_keyboard);
-
 var _dom = __webpack_require__(0);
 
 var _dom2 = _interopRequireDefault(_dom);
 
-var _columnmanager = __webpack_require__(3);
+var _columnmanager = __webpack_require__(2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24959,6 +25270,7 @@ var CellManager = function () {
     this.columnmanager = this.instance.columnmanager;
     this.rowmanager = this.instance.rowmanager;
     this.datamanager = this.instance.datamanager;
+    this.keyboard = this.instance.keyboard;
 
     this.bindEvents();
   }
@@ -24988,7 +25300,7 @@ var CellManager = function () {
         _this.activateEditing(cell);
       });
 
-      _keyboard2.default.on('enter', function (e) {
+      this.keyboard.on('enter', function (e) {
         if (_this.$focusedCell && !_this.$editingCell) {
           // enter keypress on focused cell
           _this.activateEditing(_this.$focusedCell);
@@ -25051,18 +25363,18 @@ var CellManager = function () {
       };
 
       ['left', 'right', 'up', 'down', 'tab'].map(function (direction) {
-        return _keyboard2.default.on(direction, function () {
+        return _this2.keyboard.on(direction, function () {
           return focusCell(direction);
         });
       });
 
       ['left', 'right', 'up', 'down'].map(function (direction) {
-        return _keyboard2.default.on('ctrl+' + direction, function () {
+        return _this2.keyboard.on('ctrl+' + direction, function () {
           return focusLastCell(direction);
         });
       });
 
-      _keyboard2.default.on('esc', function () {
+      this.keyboard.on('esc', function () {
         _this2.deactivateEditing();
       });
     }
@@ -25088,7 +25400,7 @@ var CellManager = function () {
       };
 
       ['left', 'right', 'up', 'down'].map(function (direction) {
-        return _keyboard2.default.on('shift+' + direction, function () {
+        return _this3.keyboard.on('shift+' + direction, function () {
           return _this3.selectArea(getNextSelectionCursor(direction));
         });
       });
@@ -25098,7 +25410,7 @@ var CellManager = function () {
     value: function bindCopyCellContents() {
       var _this4 = this;
 
-      _keyboard2.default.on('ctrl+c', function () {
+      this.keyboard.on('ctrl+c', function () {
         _this4.copyCellContents(_this4.$focusedCell, _this4.$selectionCursor);
       });
     }
@@ -25658,13 +25970,13 @@ exports.default = CellManager;
 module.exports = exports['default'];
 
 /***/ }),
-/* 8 */
+/* 7 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_8__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_7__;
 
 /***/ }),
-/* 9 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -25923,7 +26235,7 @@ exports.default = RowManager;
 module.exports = exports['default'];
 
 /***/ }),
-/* 10 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -25938,7 +26250,7 @@ var _dom = __webpack_require__(0);
 
 var _dom2 = _interopRequireDefault(_dom);
 
-var _clusterize = __webpack_require__(11);
+var _clusterize = __webpack_require__(10);
 
 var _clusterize2 = _interopRequireDefault(_clusterize);
 
@@ -26058,13 +26370,13 @@ function getBodyHTML(rows) {
 }
 
 /***/ }),
-/* 11 */
+/* 10 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_11__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_10__;
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 Object.defineProperty(exports, "__esModule", {
@@ -26124,6 +26436,114 @@ var Style = function () {
 }();
 
 exports.default = Style;
+module.exports = exports['default'];
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var KEYCODES = {
+  13: 'enter',
+  91: 'meta',
+  16: 'shift',
+  17: 'ctrl',
+  18: 'alt',
+  37: 'left',
+  38: 'up',
+  39: 'right',
+  40: 'down',
+  9: 'tab',
+  27: 'esc',
+  67: 'c'
+};
+
+var Keyboard = function () {
+  function Keyboard(element) {
+    _classCallCheck(this, Keyboard);
+
+    this.listeners = {};
+    _dom2.default.on(element, 'keydown', this.handler.bind(this));
+  }
+
+  _createClass(Keyboard, [{
+    key: 'handler',
+    value: function handler(e) {
+      var key = KEYCODES[e.keyCode];
+
+      if (e.shiftKey && key !== 'shift') {
+        key = 'shift+' + key;
+      }
+
+      if (e.ctrlKey && key !== 'ctrl' || e.metaKey && key !== 'meta') {
+        key = 'ctrl+' + key;
+      }
+
+      var listeners = this.listeners[key];
+
+      if (listeners && listeners.length > 0) {
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = listeners[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var listener = _step.value;
+
+            var preventBubbling = listener();
+            if (preventBubbling === undefined || preventBubbling === true) {
+              e.preventDefault();
+            }
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      }
+    }
+  }, {
+    key: 'on',
+    value: function on(key, listener) {
+      var _this = this;
+
+      var keys = key.split(',').map(function (k) {
+        return k.trim();
+      });
+
+      keys.map(function (key) {
+        _this.listeners[key] = _this.listeners[key] || [];
+        _this.listeners[key].push(listener);
+      });
+    }
+  }]);
+
+  return Keyboard;
+}();
+
+exports.default = Keyboard;
 module.exports = exports['default'];
 
 /***/ }),
@@ -26789,6 +27209,7 @@ var modal = class Modal extends observable {
                 </div>
             </div>
         </div>`).appendTo(document.body);
+        this.modal = this.$modal.get(0);
 
         if (this.primary) {
             this.addPrimary(this.primary.label, this.primary.action);
@@ -26798,7 +27219,9 @@ var modal = class Modal extends observable {
         }
 
         this.$modal.on('hidden.bs.modal', () => this.trigger('hide'));
-        this.$modal.on('shown.bs.modal', () => this.trigger('show'));
+        this.$modal.on('shown.bs.modal', () => {
+            this.trigger('show');
+        });
     }
 
     getBodyHTML() {
@@ -26887,6 +27310,11 @@ class TableControl extends base {
 
     setInputValue(value) {
         this.datatable.refresh(this.getTableData(value));
+        this.refreshToolbar();
+    }
+
+    refreshToolbar() {
+        this.wrapper.querySelector('.table-toolbar').classList.toggle('hide', this.disabled ? true : false);
     }
 
     getTableData(value) {
@@ -26955,7 +27383,7 @@ class TableControl extends base {
                 field: field,
                 content: field.label,
                 width: 120,
-                editable: field.disabled ? false : true,
+                editable: (this.disabled || field.disabled) ? false : true,
                 sortable: false,
                 resizable: true,
                 dropdown: false,
@@ -27147,7 +27575,7 @@ var form = class BaseForm extends observable {
         if (this.meta.settings && this.actions.includes('settings')) {
             let menu = this.container.getDropdown(frappejs._('Menu'));
             menu.addItem(frappejs._('Settings...'), () => {
-                frappejs.desk.showFormModal(frappejs.slug(this.meta.settings), this.meta.settings);
+                frappejs.desk.showFormModal(this.meta.settings, this.meta.settings);
             });
         }
 
@@ -27175,13 +27603,14 @@ var form = class BaseForm extends observable {
     }
 
     setTitle() {
-        const doctype = this.doc.meta.name;
+        const doctypeLabel = this.doc.meta.label || this.doc.meta.name;
+
         if (this.doc.meta.isSingle || !this.doc.meta.showTitle) {
-            this.container.setTitle(doctype);
+            this.container.setTitle(doctypeLabel);
         } else if (this.doc._notInserted) {
-            this.container.setTitle(frappejs._('New {0}', doctype));
+            this.container.setTitle(frappejs._('New {0}', doctypeLabel));
         } else {
-            this.container.setTitle(`${doctype} ${this.doc.name}`);
+            this.container.setTitle(`${doctypeLabel} ${this.doc.name}`);
         }
     }
 
@@ -27279,22 +27708,10 @@ var form = class BaseForm extends observable {
 
 var view = {
     getFormClass(doctype) {
-        return this.get_view_class(doctype, 'Form', form);
+        return (frappejs.views['Form'] && frappejs.views['Form'][doctype]) || form;
     },
-    getList_class(doctype) {
-        return this.get_view_class(doctype, 'List', list);
-    },
-    get_view_class(doctype, class_name, default_class) {
-        let client_module = this.get_client_module(doctype);
-        if (client_module && client_module[class_name]) {
-            return client_module[class_name];
-        } else {
-            return default_class;
-        }
-    },
-
-    get_client_module(doctype) {
-        return frappe.modules[`${doctype}_client`];
+    geListClass(doctype) {
+        return (frappejs.views['List'] && frappejs.views['List'][doctype]) || list;
     }
 };
 
@@ -27313,6 +27730,9 @@ var formpage = class FormPage extends page {
 
 		this.on('show', async (params) => {
 			await this.showDoc(params.doctype, params.name);
+			if (frappejs.desk.center && !frappejs.desk.center.activePage) {
+				frappejs.desk.showListPage(doctype);
+			}
 		});
 
 		// if name is different after saving, change the route
@@ -27364,7 +27784,7 @@ var listpage = class ListPage extends page {
 			hasRoute: hasRoute
 		});
 
-		this.list = new (view.getList_class(doctype))({
+		this.list = new (view.geListClass(doctype))({
 			doctype: doctype,
 			parent: this.body,
 			page: this
@@ -27421,8 +27841,19 @@ var formmodal = class FormModal extends modal {
     constructor(doctype, name) {
         super({title: doctype});
         this.doctype = doctype;
-        this.makeForm();
-        this.showWith(doctype, name);
+    }
+
+    async showWith(doctype, name) {
+        this.show();
+        await this.setDoc(doctype, name);
+    }
+
+    async setDoc(doctype, name) {
+        if (!this.form) {
+            this.makeForm();
+        }
+        await this.form.setDoc(doctype, name);
+        this.modal.querySelector('input').focus();
     }
 
     makeForm() {
@@ -27433,7 +27864,8 @@ var formmodal = class FormModal extends modal {
             actions: ['submit']
         });
 
-        this.form.on('submit', () => {
+        this.form.on('submit', async () => {
+            await this.trigger('submit');
             this.hide();
         });
     }
@@ -27446,11 +27878,6 @@ var formmodal = class FormModal extends modal {
         }
     }
 
-    async showWith(doctype, name) {
-        await this.form.setDoc(doctype, name);
-        this.show();
-        this.$modal.find('input:first').focus();
-    }
 };
 
 var desk = class Desk {
@@ -27514,8 +27941,7 @@ var desk = class Desk {
         });
 
         frappejs.router.add('list/:doctype', async (params) => {
-            let page$$1 = this.getListPage(params.doctype);
-            await page$$1.show(params);
+            await this.showListPage(params.doctype);
         });
 
         frappejs.router.add('edit/:doctype/:name', async (params) => {
@@ -27537,10 +27963,11 @@ var desk = class Desk {
 
     }
 
-    getListPage(doctype) {
+    async showListPage(doctype) {
         if (!this.pages.lists[doctype]) {
             this.pages.lists[doctype] = new listpage(doctype);
         }
+        await this.pages.lists[doctype].show(doctype);
         return this.pages.lists[doctype];
     }
 
@@ -27553,10 +27980,9 @@ var desk = class Desk {
 
     showFormModal(doctype, name) {
         if (!this.pages.formModals[doctype]) {
-            this.pages.formModals[doctype] = new formmodal(doctype, name);
-        } else {
-            this.pages.formModals[doctype].showWith(doctype, name);
+            this.pages.formModals[doctype] = new formmodal(doctype);
         }
+        this.pages.formModals[doctype].showWith(doctype, name);
         return this.pages.formModals[doctype];
     }
 
@@ -27585,510 +28011,7 @@ var desk = class Desk {
 
 };
 
-frappejs.ui = ui;
-
-
-var client = {
-    async start({server, columns = 2}) {
-        window.frappe = frappejs;
-        frappejs.init();
-        common.init_libs(frappejs);
-
-        frappejs.fetch = window.fetch.bind();
-        frappejs.db = await new rest_client({server: server});
-
-        frappejs.flags.cache_docs = true;
-
-        frappejs.desk = new desk(columns);
-        await frappejs.login();
-    }
-};
-
-var document$1 = class BaseDocument extends observable {
-    constructor(data) {
-        super();
-        this.fetchValues = {};
-        this.setup();
-        Object.assign(this, data);
-    }
-
-    setup() {
-        // add listeners
-    }
-
-    get meta() {
-        if (!this._meta) {
-            this._meta = frappejs.getMeta(this.doctype);
-        }
-        return this._meta;
-    }
-
-    async getSettings() {
-        if (!this._settings) {
-            this._settings = await frappejs.getSingle(this.meta.settings);
-        }
-        return this._settings;
-    }
-
-    get(fieldname) {
-        return this[fieldname];
-    }
-
-    // set value and trigger change
-    async set(fieldname, value) {
-        this[fieldname] = await this.validateField(fieldname, value);
-        if (await this.applyFormulae()) {
-            // multiple changes
-            await this.trigger('change', { doc: this });
-        } else {
-            // no other change, trigger control refresh
-            await this.trigger('change', { doc: this, fieldname: fieldname, value: value });
-        }
-    }
-
-    async setName() {
-        if (this.name) {
-            return;
-        }
-
-        // name === doctype for Single
-        if (this.meta.isSingle) {
-            this.name = this.meta.name;
-            return;
-        }
-
-        if (this.meta.settings) {
-            const number_series = (await this.getSettings()).number_series;
-            if(number_series) {
-                this.name = await frappejs.model.getSeriesNext(number_series);
-            }
-        }
-
-        // assign a random name by default
-        // override this to set a name
-        if (!this.name) {
-            this.name = frappejs.getRandomName();
-        }
-    }
-
-    setDefaults() {
-        for (let field of this.meta.fields) {
-            if (field.fieldtype === 'Date') {
-                this[field.fieldname] = (new Date()).toISOString().substr(0, 10);
-            } else if (!this[field.fieldname]) {
-                if(field.default) {
-                    this[field.fieldname] = field.default;
-                }
-            }
-        }
-    }
-
-    setKeywords() {
-        let keywords = [];
-        for (let fieldname of this.meta.getKeywordFields()) {
-            keywords.push(this[fieldname]);
-        }
-        this.keywords = keywords.join(', ');
-    }
-
-    append(key, document) {
-        if (!this[key]) {
-            this[key] = [];
-        }
-        this[key].push(this.initDoc(document));
-    }
-
-    initDoc(data) {
-        if (data.prototype instanceof Document) {
-            return data;
-        } else {
-            return new Document(data);
-        }
-    }
-
-    async validateField(key, value) {
-        let field = this.meta.getField(key);
-        if (field && field.fieldtype == 'Select') {
-            return this.meta.validateSelect(field, value);
-        }
-        return value;
-    }
-
-    getValidDict() {
-        let data = {};
-        for (let field of this.meta.getValidFields()) {
-            data[field.fieldname] = this[field.fieldname];
-        }
-        return data;
-    }
-
-    setStandardValues() {
-        let now = new Date();
-        if (this.docstatus === null || this.docstatus === undefined) {
-            this.docstatus = 0;
-        }
-        if (!this.owner) {
-            this.owner = frappejs.session.user;
-            this.creation = now;
-        }
-        this.modified_by = frappejs.session.user;
-        this.modified = now;
-    }
-
-    async load() {
-        let data = await frappejs.db.get(this.doctype, this.name);
-        if (data.name) {
-            this.syncValues(data);
-        } else {
-            throw new frappejs.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
-        }
-    }
-
-    syncValues(data) {
-        this.clearValues();
-        Object.assign(this, data);
-    }
-
-    clearValues() {
-        for (let field of this.meta.getValidFields()) {
-            if(this[field.fieldname]) {
-                delete this[field.fieldname];
-            }
-        }
-    }
-
-    setChildIdx() {
-        // renumber children
-        for (let field of this.meta.getValidFields()) {
-            if (field.fieldtype==='Table') {
-                for(let i=0; i < (this[field.fieldname] || []).length; i++) {
-                    this[field.fieldname][i].idx = i;
-                }
-            }
-        }
-    }
-
-    async applyFormulae() {
-        if (!this.meta.hasFormulae()) {
-            return false;
-        }
-
-        let doc = this;
-
-        // children
-        for (let tablefield of this.meta.getTableFields()) {
-            let formulaFields = frappejs.getMeta(tablefield.childtype).getFormulaFields();
-            if (formulaFields.length) {
-
-                // for each row
-                for (let row of this[tablefield.fieldname]) {
-                    for (let field of formulaFields) {
-                        row[field.fieldname] = await eval(field.formula);
-                    }
-                }
-            }
-        }
-
-        // parent
-        for (let field of this.meta.getFormulaFields()) {
-            doc[field.fieldname] = eval(field.formula);
-        }
-
-        return true;
-    }
-
-    async commit() {
-        // re-run triggers
-        await this.setName();
-        this.setStandardValues();
-        this.setKeywords();
-        this.setChildIdx();
-        await this.applyFormulae();
-        await this.trigger('validate');
-    }
-
-    async insert() {
-        await this.commit();
-        await this.trigger('before_insert');
-        this.syncValues(await frappejs.db.insert(this.doctype, this.getValidDict()));
-        await this.trigger('after_insert');
-        await this.trigger('after_save');
-
-        return this;
-    }
-
-    async update() {
-        await this.commit();
-        await this.trigger('before_update');
-        this.syncValues(await frappejs.db.update(this.doctype, this.getValidDict()));
-        await this.trigger('after_update');
-        await this.trigger('after_save');
-
-        return this;
-    }
-
-    async delete() {
-        await this.trigger('before_delete');
-        await frappejs.db.delete(this.doctype, this.name);
-        await this.trigger('after_delete');
-    }
-
-    async trigger(event, params) {
-        if (this[event]) {
-            await this[event](params);
-        }
-        await super.trigger(event, params);
-    }
-
-    // helper functions
-    getSum(tablefield, childfield) {
-		return this[tablefield].map(d => (d[childfield] || 0)).reduce((a, b) => a + b, 0);
-    }
-
-    async getFrom(doctype, name, fieldname) {
-        if (!name) return '';
-        let key = `${doctype}:${name}:${fieldname}`;
-        if (!this.fetchValues[key]) {
-            this.fetchValues[key] = await frappejs.db.getValue(doctype, name, fieldname);
-        }
-        return this.fetchValues[key];
-    }
-};
-
-var meta = class BaseMeta extends document$1 {
-    constructor(data) {
-        super(data);
-        this.list_options = {
-            fields: ['name', 'modified']
-        };
-        if (this.setupMeta) {
-            this.setupMeta();
-        }
-    }
-
-    getField(fieldname) {
-        if (!this._field_map) {
-            this._field_map = {};
-            for (let field of this.fields) {
-                this._field_map[field.fieldname] = field;
-            }
-        }
-        return this._field_map[fieldname];
-    }
-
-    getTableFields() {
-        if (this._tableFields===undefined) {
-            this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
-        }
-        return this._tableFields;
-    }
-
-    getFormulaFields() {
-        if (this._formulaFields===undefined) {
-            this._formulaFields = this.fields.filter(field => field.formula);
-        }
-        return this._formulaFields;
-    }
-
-    hasFormulae() {
-        if (this._hasFormulae===undefined) {
-            this._hasFormulae = false;
-            if (this.getFormulaFields().length) {
-                this._hasFormulae = true;
-            } else {
-                for (let tablefield of this.getTableFields()) {
-                    if (frappejs.getMeta(tablefield.childtype).getFormulaFields().length) {
-                        this._hasFormulae = true;
-                        break;
-                    }
-                }
-            }
-        }
-        return this._hasFormulae;
-    }
-
-    async set(fieldname, value) {
-        this[fieldname] = value;
-        await this.trigger(fieldname);
-    }
-
-    get(fieldname) {
-        return this[fieldname];
-    }
-
-    getValidFields({ withChildren = true } = {}) {
-        if (!this._valid_fields) {
-
-            this._valid_fields = [];
-            this._valid_fields_withChildren = [];
-
-            const _add = (field) => {
-                this._valid_fields.push(field);
-                this._valid_fields_withChildren.push(field);
-            };
-
-            const doctype_fields = this.fields.map((field) => field.fieldname);
-
-            // standard fields
-            for (let field of frappejs.model.common_fields) {
-                if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                    _add(field);
-                }
-            }
-
-            if (this.isChild) {
-                // child fields
-                for (let field of frappejs.model.child_fields) {
-                    if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                        _add(field);
-                    }
-                }
-            } else {
-                // parent fields
-                for (let field of frappejs.model.parent_fields) {
-                    if (frappejs.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
-                        _add(field);
-                    }
-                }
-            }
-
-            // doctype fields
-            for (let field of this.fields) {
-                let include = frappejs.db.type_map[field.fieldtype];
-
-                if (include) {
-                    _add(field);
-                }
-
-                // include tables if (withChildren = True)
-                if (!include && field.fieldtype === 'Table') {
-                    this._valid_fields_withChildren.push(field);
-                }
-            }
-        }
-
-        if (withChildren) {
-            return this._valid_fields_withChildren;
-        } else {
-            return this._valid_fields;
-        }
-    }
-
-    getKeywordFields() {
-        if (!this._keywordFields) {
-            this._keywordFields = this.keywordFields;
-            if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
-                this._keywordFields = this.fields.filter(field => field.required).map(field => field.fieldname);
-            }
-            if (!(this._keywordFields && this._keywordFields.length)) {
-                this._keywordFields = ['name'];
-            }
-        }
-        return this._keywordFields;
-    }
-
-    validateSelect(field, value) {
-        let options = field.options;
-        if (typeof options === 'string') {
-            // values given as string
-            options = field.options.split('\n');
-        }
-        if (!options.includes(value)) {
-            throw new frappejs.errors.ValueError(`${value} must be one of ${options.join(", ")}`);
-        }
-        return value;
-    }
-
-    async trigger(event, params = {}) {
-        Object.assign(params, {
-            doc: this,
-            name: event
-        });
-
-        await super.trigger(event, params);
-    }
-};
-
-var autoname = "hash";
-var name = "ToDo";
-var doctype = "DocType";
-var isSingle = 0;
-var keywordFields = ["subject","description"];
-var fields = [{"fieldname":"subject","label":"Subject","fieldtype":"Data","required":1},{"fieldname":"status","label":"Status","fieldtype":"Select","options":["Open","Closed"],"default":"Open","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text"}];
-var todo = {
-	autoname: autoname,
-	name: name,
-	doctype: doctype,
-	isSingle: isSingle,
-	keywordFields: keywordFields,
-	fields: fields
-};
-
-var todo$1 = Object.freeze({
-	autoname: autoname,
-	name: name,
-	doctype: doctype,
-	isSingle: isSingle,
-	keywordFields: keywordFields,
-	fields: fields,
-	default: todo
-});
-
-var require$$0$3 = ( todo$1 && todo ) || todo$1;
-
-class ToDoMeta extends meta {
-    setupMeta() {
-        Object.assign(this, require$$0$3);
-    }
-}
-
-class ToDo extends document$1 {
-    validate() {
-        if (!this.status) {
-            this.status = 'Open';
-        }
-    }
-}
-
-var todo$2 = {
-    Document: ToDo,
-    Meta: ToDoMeta
-};
-
-var name$1 = "Number Series";
-var doctype$1 = "DocType";
-var isSingle$1 = 0;
-var isChild = 0;
-var keywordFields$1 = [];
-var fields$1 = [{"fieldname":"name","label":"Name","fieldtype":"Data","required":1},{"fieldname":"current","label":"Current","fieldtype":"Int","required":1}];
-var number_series = {
-	name: name$1,
-	doctype: doctype$1,
-	isSingle: isSingle$1,
-	isChild: isChild,
-	keywordFields: keywordFields$1,
-	fields: fields$1
-};
-
-var number_series$1 = Object.freeze({
-	name: name$1,
-	doctype: doctype$1,
-	isSingle: isSingle$1,
-	isChild: isChild,
-	keywordFields: keywordFields$1,
-	fields: fields$1,
-	default: number_series
-});
-
-var require$$0$4 = ( number_series$1 && number_series ) || number_series$1;
-
-class NumberSeriesMeta extends meta {
-	setupMeta() {
-		Object.assign(this, require$$0$4);
-	}
-}
-
-class NumberSeries extends document$1 {
+var NumberSeriesDocument = class NumberSeries extends document$1 {
 	validate() {
 		if (this.current===null || this.current===undefined) {
 			this.current = 0;
@@ -28100,44 +28023,234 @@ class NumberSeries extends document$1 {
 		await this.update();
 		return this.current;
 	}
-}
-
-var number_series$2 = {
-	Document: NumberSeries,
-	Meta: NumberSeriesMeta
 };
 
-var name$2 = "Account";
-var doctype$2 = "DocType";
-var isSingle$2 = 0;
-var keywordFields$2 = ["name","account_type"];
-var fields$2 = [{"fieldname":"name","label":"Account Name","fieldtype":"Data","required":1},{"fieldname":"parent_account","label":"Parent Account","fieldtype":"Link","target":"Account"},{"fieldname":"account_type","label":"Account Type","fieldtype":"Select","options":["Asset","Liability","Equity","Income","Expense"]}];
-var account = {
-	name: name$2,
-	doctype: doctype$2,
-	isSingle: isSingle$2,
-	keywordFields: keywordFields$2,
-	fields: fields$2
+var NumberSeries = {
+	"name": "NumberSeries",
+	"documentClass": NumberSeriesDocument,
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "current",
+			"label": "Current",
+			"fieldtype": "Int",
+			"required": 1
+		}
+	]
 };
 
-var account$1 = Object.freeze({
-	name: name$2,
-	doctype: doctype$2,
-	isSingle: isSingle$2,
-	keywordFields: keywordFields$2,
-	fields: fields$2,
-	default: account
-});
+var Role = {
+	"name": "Role",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"required": 1
+		}
+	]
+};
 
-var require$$0$5 = ( account$1 && account ) || account$1;
+var Session = {
+	"name": "Session",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "username",
+			"label": "Username",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "password",
+			"label": "Password",
+			"fieldtype": "Password",
+			"required": 1
+		}
+	]
+};
 
-class AccountMeta extends meta {
-    setupMeta() {
-        Object.assign(this, require$$0$5);
+var SingleValue = {
+	"name": "SingleValue",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "parent",
+			"label": "Parent",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "fieldname",
+			"label": "Fieldname",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "value",
+			"label": "Value",
+			"fieldtype": "Data",
+			"required": 1
+		}
+	]
+};
+
+var SystemSettings = {
+	"name": "SystemSettings",
+	"doctype": "DocType",
+	"isSingle": 1,
+	"isChild": 0,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "dateFormat",
+			"label": "Date Format",
+			"fieldtype": "Select",
+			"options": [
+				"dd/mm/yyyy",
+				"mm/dd/yyyy",
+				"dd-mm-yyyy",
+				"mm-dd-yyyy"
+			],
+			"required": 1
+		}
+	]
+};
+
+var ToDo = {
+	"autoname": "random",
+	"name": "ToDo",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"keywordFields": [
+		"subject",
+		"description"
+	],
+	"fields": [
+		{
+			"fieldname": "subject",
+			"label": "Subject",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "status",
+			"label": "Status",
+			"fieldtype": "Select",
+			"options": [
+				"Open",
+				"Closed"
+			],
+			"default": "Open",
+			"required": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text"
+		}
+	]
+};
+
+var User = {
+	"name": "User",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": [
+        "name",
+        "full_name"
+    ],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"required": 1
+        },
+        {
+            "fieldname": "full_name",
+            "label": "Full Name",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "roles",
+            "label": "Roles",
+            "fieldtype": "Table",
+            "childtype": "UserRole"
+        }
+	]
+};
+
+var UserRole = {
+	"name": "UserRole",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 1,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "role",
+			"label": "Role",
+			"fieldtype": "Link",
+			"target": "Role"
+        }
+	]
+};
+
+var models = {
+    NumberSeries: NumberSeries,
+    Role: Role,
+    Session: Session,
+    SingleValue: SingleValue,
+    SystemSettings: SystemSettings,
+    ToDo: ToDo,
+    User: User,
+    UserRole: UserRole
+};
+
+frappejs.ui = ui;
+
+
+var client = {
+    async start({server, columns = 2}) {
+        window.frappe = frappejs;
+        frappejs.init();
+        frappejs.registerLibs(common);
+        frappejs.registerModels(models);
+        frappejs.registerModels(models);
+
+        frappejs.fetch = window.fetch.bind();
+        frappejs.db = await new rest_client({server: server});
+
+        frappejs.flags.cache_docs = true;
+
+        frappejs.desk = new desk(columns);
+        await frappejs.login();
     }
-}
+};
 
-class Account extends document$1 {
+var AccountDocument = class Account extends document$1 {
     async validate() {
         if (!this.account_type) {
             if (this.parent_account) {
@@ -28147,245 +28260,412 @@ class Account extends document$1 {
             }
         }
     }
-}
-
-var account$2 = {
-    Document: Account,
-    Meta: AccountMeta
 };
 
-var name$3 = "Item";
-var doctype$3 = "DocType";
-var isSingle$3 = 0;
-var keywordFields$3 = ["name","description"];
-var fields$3 = [{"fieldname":"name","label":"Item Name","fieldtype":"Data","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text"},{"fieldname":"unit","label":"Unit","fieldtype":"Select","options":["No","Kg","Gram","Hour","Day"]},{"fieldname":"rate","label":"Rate","fieldtype":"Currency"}];
-var item = {
-	name: name$3,
-	doctype: doctype$3,
-	isSingle: isSingle$3,
-	keywordFields: keywordFields$3,
-	fields: fields$3
+var Account = {
+	"name": "Account",
+	"doctype": "DocType",
+	"documentClass": AccountDocument,
+	"isSingle": 0,
+	"keywordFields": [
+		"name",
+		"account_type"
+	],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Account Name",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "parent_account",
+			"label": "Parent Account",
+			"fieldtype": "Link",
+			"target": "Account"
+		},
+		{
+			"fieldname": "account_type",
+			"label": "Account Type",
+			"fieldtype": "Select",
+			"options": [
+				"Asset",
+				"Liability",
+				"Equity",
+				"Income",
+				"Expense"
+			]
+		}
+	]
 };
 
-var item$1 = Object.freeze({
-	name: name$3,
-	doctype: doctype$3,
-	isSingle: isSingle$3,
-	keywordFields: keywordFields$3,
-	fields: fields$3,
-	default: item
-});
-
-var require$$0$6 = ( item$1 && item ) || item$1;
-
-class ItemMeta extends meta {
-    setupMeta() {
-        Object.assign(this, require$$0$6);
-    }
-}
-
-class Item extends document$1 {
-}
-
-var item$2 = {
-    Document: Item,
-    Meta: ItemMeta
+var Customer = {
+	"name": "Customer",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"istable": 0,
+	"keywordFields": [
+		"name"
+	],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"required": 1
+		}
+	]
 };
 
-var name$4 = "Customer";
-var doctype$4 = "DocType";
-var isSingle$4 = 0;
-var istable = 0;
-var keywordFields$4 = ["name"];
-var fields$4 = [{"fieldname":"name","label":"Name","fieldtype":"Data","required":1}];
-var customer = {
-	name: name$4,
-	doctype: doctype$4,
-	isSingle: isSingle$4,
-	istable: istable,
-	keywordFields: keywordFields$4,
-	fields: fields$4
+var Item = {
+	"name": "Item",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"keywordFields": [
+		"name",
+		"description"
+	],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Item Name",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text"
+		},
+		{
+			"fieldname": "unit",
+			"label": "Unit",
+			"fieldtype": "Select",
+			"options": [
+				"No",
+				"Kg",
+				"Gram",
+				"Hour",
+				"Day"
+			]
+		},
+		{
+			"fieldname": "tax",
+			"label": "Tax",
+			"fieldtype": "Link",
+			"target": "Tax"
+		},
+		{
+			"fieldname": "rate",
+			"label": "Rate",
+			"fieldtype": "Currency"
+		}
+	]
 };
 
-var customer$1 = Object.freeze({
-	name: name$4,
-	doctype: doctype$4,
-	isSingle: isSingle$4,
-	istable: istable,
-	keywordFields: keywordFields$4,
-	fields: fields$4,
-	default: customer
-});
-
-var require$$0$7 = ( customer$1 && customer ) || customer$1;
-
-class CustomerMeta extends meta {
-    setupMeta() {
-        Object.assign(this, require$$0$7);
-    }
-}
-
-class Customer extends document$1 {
-}
-
-var customer$2 = {
-    Document: Customer,
-    Meta: CustomerMeta
-};
-
-var name$5 = "Invoice";
-var doctype$5 = "DocType";
-var isSingle$5 = 0;
-var istable$1 = 0;
-var keywordFields$5 = [];
-var settings = "Invoice Settings";
-var showTitle = true;
-var fields$5 = [{"fieldname":"date","label":"Date","fieldtype":"Date"},{"fieldname":"customer","label":"Customer","fieldtype":"Link","target":"Customer","required":1},{"fieldname":"items","label":"Items","fieldtype":"Table","childtype":"Invoice Item","required":true},{"fieldname":"total","label":"Total","fieldtype":"Currency","formula":"doc.getSum('items', 'amount')","required":true,"disabled":true}];
-var invoice = {
-	name: name$5,
-	doctype: doctype$5,
-	isSingle: isSingle$5,
-	istable: istable$1,
-	keywordFields: keywordFields$5,
-	settings: settings,
-	showTitle: showTitle,
-	fields: fields$5
-};
-
-var invoice$1 = Object.freeze({
-	name: name$5,
-	doctype: doctype$5,
-	isSingle: isSingle$5,
-	istable: istable$1,
-	keywordFields: keywordFields$5,
-	settings: settings,
-	showTitle: showTitle,
-	fields: fields$5,
-	default: invoice
-});
-
-var require$$0$8 = ( invoice$1 && invoice ) || invoice$1;
-
-class InvoiceMeta extends meta {
-	setupMeta() {
-		Object.assign(this, require$$0$8);
+var InvoiceDocument = class Invoice extends document$1 {
+	async getRowTax(row) {
+		if (row.tax) {
+			let tax = await this.getTax(row.tax);
+			let taxAmount = [];
+			for (let d of (tax.details || [])) {
+				taxAmount.push({account: d.account, rate: d.rate, amount: row.amount * d.rate / 100});
+			}
+			return JSON.stringify(taxAmount);
+		} else {
+			return '';
+		}
 	}
-}
-
-class Invoice extends document$1 {
-}
-
-var invoice$2 = {
-	Document: Invoice,
-	Meta: InvoiceMeta
-};
-
-var name$6 = "Invoice Item";
-var doctype$6 = "DocType";
-var isSingle$6 = 0;
-var isChild$1 = 1;
-var keywordFields$6 = [];
-var fields$6 = [{"fieldname":"item","label":"Item","fieldtype":"Link","target":"Item","required":1},{"fieldname":"description","label":"Description","fieldtype":"Text","formula":"doc.getFrom('Item', row.item, 'description')","required":1},{"fieldname":"quantity","label":"Quantity","fieldtype":"Float","required":1},{"fieldname":"rate","label":"Rate","fieldtype":"Currency","required":1,"formula":"doc.getFrom('Item', row.item, 'rate')"},{"fieldname":"amount","label":"Amount","fieldtype":"Currency","disabled":1,"formula":"row.quantity * row.rate"}];
-var invoice_item = {
-	name: name$6,
-	doctype: doctype$6,
-	isSingle: isSingle$6,
-	isChild: isChild$1,
-	keywordFields: keywordFields$6,
-	fields: fields$6
-};
-
-var invoice_item$1 = Object.freeze({
-	name: name$6,
-	doctype: doctype$6,
-	isSingle: isSingle$6,
-	isChild: isChild$1,
-	keywordFields: keywordFields$6,
-	fields: fields$6,
-	default: invoice_item
-});
-
-var require$$0$9 = ( invoice_item$1 && invoice_item ) || invoice_item$1;
-
-class InvoiceItemMeta extends meta {
-	setupMeta() {
-		Object.assign(this, require$$0$9);
+	async getTax(tax) {
+		if (!this._taxes) this._taxes = {};
+		if (!this._taxes[tax]) this._taxes[tax] = await frappejs.getDoc('Tax', tax);
+		return this._taxes[tax];
 	}
-}
+	makeTaxSummary() {
+		if (!this.taxes) this.taxes = [];
 
-class InvoiceItem extends document$1 {
-}
+		// reset tax amount
+		this.taxes.map(d => d.amount = 0);
 
-var invoice_item$2 = {
-	Document: InvoiceItem,
-	Meta: InvoiceItemMeta
-};
+		// calculate taxes
+		for (let row of this.items) {
+			if (row.taxAmount) {
+				let taxAmount = JSON.parse(row.taxAmount);
+				for (let rowTaxDetail of taxAmount) {
+					let found = false;
 
-var name$7 = "Invoice Settings";
-var doctype$7 = "DocType";
-var isSingle$7 = 1;
-var isChild$2 = 0;
-var keywordFields$7 = [];
-var fields$7 = [{"fieldname":"number_series","label":"Number Series","fieldtype":"Link","target":"Number Series","required":1}];
-var invoice_settings = {
-	name: name$7,
-	doctype: doctype$7,
-	isSingle: isSingle$7,
-	isChild: isChild$2,
-	keywordFields: keywordFields$7,
-	fields: fields$7
-};
+					// check if added in summary
+					for (let taxDetail of this.taxes) {
+						if (taxDetail.account === rowTaxDetail.account) {
+							taxDetail.amount += rowTaxDetail.amount;
+							found = true;
+						}
+					}
 
-var invoice_settings$1 = Object.freeze({
-	name: name$7,
-	doctype: doctype$7,
-	isSingle: isSingle$7,
-	isChild: isChild$2,
-	keywordFields: keywordFields$7,
-	fields: fields$7,
-	default: invoice_settings
-});
+					// add new row
+					if (!found) {
+						this.taxes.push({
+							account: rowTaxDetail.account,
+							rate: rowTaxDetail.rate,
+							amount: rowTaxDetail.amount
+						});
+					}
+				}
+			}
+		}
 
-var require$$0$10 = ( invoice_settings$1 && invoice_settings ) || invoice_settings$1;
-
-class InvoiceSettingsMeta extends meta {
-	setupMeta() {
-		Object.assign(this, require$$0$10);
+		// clear no taxes
+		this.taxes = this.taxes.filter(d => d.amount);
 	}
-}
-
-class InvoiceSettings extends document$1 {
-}
-
-var invoice_settings$2 = {
-	Document: InvoiceSettings,
-	Meta: InvoiceSettingsMeta
+	getGrandTotal() {
+		this.makeTaxSummary();
+		let grandTotal = this.netTotal;
+		if (this.taxes) {
+			for (let row of this.taxes) {
+				grandTotal += row.amount;
+			}
+		}
+		return grandTotal;
+	}
 };
 
-class ToDoList extends list {
+var Invoice = {
+	"name": "Invoice",
+	"doctype": "DocType",
+	"documentClass": InvoiceDocument,
+	"isSingle": 0,
+	"istable": 0,
+	"keywordFields": ["name", "customer"],
+	"settings": "InvoiceSettings",
+	"showTitle": true,
+	"fields": [
+		{
+			"fieldname": "date",
+			"label": "Date",
+			"fieldtype": "Date"
+		},
+		{
+			"fieldname": "customer",
+			"label": "Customer",
+			"fieldtype": "Link",
+			"target": "Customer",
+			"required": 1
+		},
+		{
+			"fieldname": "items",
+			"label": "Items",
+			"fieldtype": "Table",
+			"childtype": "InvoiceItem",
+			"required": true
+		},
+		{
+			"fieldname": "netTotal",
+			"label": "Total",
+			"fieldtype": "Currency",
+			formula: (doc) => doc.getSum('items', 'amount'),
+			"disabled": true
+		},
+		{
+			"fieldname": "taxes",
+			"label": "Taxes",
+			"fieldtype": "Table",
+			"childtype": "TaxSummary",
+			"disabled": true,
+			"template": `<div></div>`
+		},
+		{
+			"fieldname": "grandTotal",
+			"label": "Total",
+			"fieldtype": "Currency",
+			formula: (doc) => doc.getGrandTotal(),
+			"disabled": true
+		}
+	]
+};
+
+var InvoiceItem = {
+	"name": "InvoiceItem",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 1,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "item",
+			"label": "Item",
+			"fieldtype": "Link",
+			"target": "Item",
+			"required": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text",
+			formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
+			"required": 1
+		},
+		{
+			"fieldname": "quantity",
+			"label": "Quantity",
+			"fieldtype": "Float",
+			"required": 1
+		},
+		{
+			"fieldname": "rate",
+			"label": "Rate",
+			"fieldtype": "Currency",
+			"required": 1,
+			formula: (row, doc) => doc.getFrom('Item', row.item, 'rate')
+		},
+		{
+			"fieldname": "tax",
+			"label": "Tax",
+			"fieldtype": "Link",
+			"target": "Tax"
+		},
+		{
+			"fieldname": "amount",
+			"label": "Amount",
+			"fieldtype": "Currency",
+			"disabled": 1,
+			formula: (row, doc) => row.quantity * row.rate
+		},
+		{
+			"fieldname": "taxAmount",
+			"label": "Tax Amount",
+			"hidden": 1,
+			"fieldtype": "Text",
+			formula: (row, doc) => doc.getRowTax(row)
+		}
+	]
+};
+
+var InvoiceSettings = {
+	"name": "InvoiceSettings",
+	"label": "Invoice Settings",
+	"doctype": "DocType",
+	"isSingle": 1,
+	"isChild": 0,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "numberSeries",
+			"label": "Number Series",
+			"fieldtype": "Link",
+			"target": "NumberSeries",
+			"required": 1
+		}
+	]
+};
+
+var Tax = {
+	"name": "Tax",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 0,
+	"keywordFields": ["name"],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Name",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "details",
+			"label": "Details",
+			"fieldtype": "Table",
+			"childtype": "TaxDetail",
+			"required": 1
+		}
+	]
+};
+
+var TaxDetail = {
+	"name": "TaxDetail",
+	"label": "Tax Detail",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 1,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "account",
+			"label": "Tax Account",
+			"fieldtype": "Link",
+			"target": "Account",
+			"required": 1
+		},
+		{
+			"fieldname": "rate",
+			"label": "Rate",
+			"fieldtype": "Float",
+			"required": 1
+		}
+	]
+};
+
+var TaxSummary = {
+	"name": "TaxSummary",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"isChild": 1,
+	"keywordFields": [],
+	"fields": [
+		{
+			"fieldname": "account",
+			"label": "Tax Account",
+			"fieldtype": "Link",
+			"target": "Account",
+			"required": 1
+		},
+		{
+			"fieldname": "rate",
+			"label": "Rate",
+			"fieldtype": "Float",
+			"required": 1
+		},
+		{
+			"fieldname": "amount",
+			"label": "Amount",
+			"fieldtype": "Currency",
+			"required": 1
+		}
+	]
+};
+
+var models$2 = {
+    Account: Account,
+    Customer: Customer,
+    Item: Item,
+    Invoice: Invoice,
+    InvoiceItem: InvoiceItem,
+    InvoiceSettings: InvoiceSettings,
+    Tax: Tax,
+    TaxDetail: TaxDetail,
+    TaxSummary: TaxSummary
+};
+
+var ToDoList_1 = class ToDoList extends list {
     getFields()  {
         return ['name', 'subject', 'status'];
     }
     getRowHTML(data) {
         let symbol = data.status=="Closed" ? "✔" : "";
-        return `<a href="#edit/todo/${data.name}">${symbol} ${data.subject}</a>`;
+        return `<a href="#edit/ToDo/${data.name}">${symbol} ${data.subject}</a>`;
     }
-}
-
-var todo_client = {
-    List: ToDoList
 };
 
-class AccountList extends list {
+var AccountList_1 = class AccountList extends list {
     getFields()  {
         return ['name', 'account_type'];
     }
     getRowHTML(data) {
         return `<a href="#edit/account/${data.name}">${data.name} (${data.account_type})</a>`;
     }
-}
+};
 
-class AccountForm extends form {
+var AccountForm_1 = class AccountForm extends form {
     make() {
         super.make();
 
@@ -28397,14 +28677,9 @@ class AccountForm extends form {
             }
         };
     }
-}
-
-var account_client = {
-    Form: AccountForm,
-    List: AccountList
 };
 
-class InvoiceList extends list {
+var InvoiceList_1 = class InvoiceList extends list {
     getFields()  {
         return ['name', 'customer', 'total'];
     }
@@ -28413,10 +28688,6 @@ class InvoiceList extends list {
                 <div class="col-5 text-muted">${data.customer}</div>
                 <div class="col-4 text-muted text-right">${frappejs.format(data.total, {fieldtype:"Currency"})}</div>`;
     }
-}
-
-var invoiceClient = {
-    List: InvoiceList
 };
 
 client.start({
@@ -28425,26 +28696,20 @@ client.start({
 }).then(() => {
 
     // require modules
-    frappe.modules.todo = todo$2;
-    frappe.modules.number_series = number_series$2;
-    frappe.modules.account = account$2;
-    frappe.modules.item = item$2;
-    frappe.modules.customer = customer$2;
-    frappe.modules.invoice = invoice$2;
-    frappe.modules.invoice_item = invoice_item$2;
-    frappe.modules.invoice_settings = invoice_settings$2;
+    frappe.registerModels(models$2);
 
-    frappe.modules.todo_client = todo_client;
-    frappe.modules.account_client = account_client;
-    frappe.modules.invoice_client = invoiceClient;
+    frappe.registerView('List', 'ToDo', ToDoList_1);
+    frappe.registerView('List', 'Account', AccountList_1);
+    frappe.registerView('Form', 'Account', AccountForm_1);
+    frappe.registerView('List', 'Invoice', InvoiceList_1);
 
-    frappe.desk.menu.addItem('ToDo', '#list/todo');
-    frappe.desk.menu.addItem('Accounts', '#list/account');
-    frappe.desk.menu.addItem('Items', '#list/item');
-    frappe.desk.menu.addItem('Customers', '#list/customer');
-    frappe.desk.menu.addItem('Invoice', '#list/invoice');
+    frappe.desk.menu.addItem('ToDo', '#list/ToDo');
+    frappe.desk.menu.addItem('Accounts', '#list/Account');
+    frappe.desk.menu.addItem('Items', '#list/Item');
+    frappe.desk.menu.addItem('Customers', '#list/Customer');
+    frappe.desk.menu.addItem('Invoice', '#list/Invoice');
 
-    frappe.router.default = '#list/todo';
+    frappe.router.default = '#list/ToDo';
 
     frappe.router.show(window.location.hash);
 });

@@ -1,5 +1,5 @@
-{
-	"name": "Invoice Item",
+module.exports = {
+	"name": "InvoiceItem",
 	"doctype": "DocType",
 	"isSingle": 0,
 	"isChild": 1,
@@ -16,7 +16,7 @@
 			"fieldname": "description",
 			"label": "Description",
 			"fieldtype": "Text",
-			"formula": "doc.getFrom('Item', row.item, 'description')",
+			formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
 			"required": 1
 		},
 		{
@@ -30,14 +30,27 @@
 			"label": "Rate",
 			"fieldtype": "Currency",
 			"required": 1,
-			"formula": "doc.getFrom('Item', row.item, 'rate')"
+			formula: (row, doc) => doc.getFrom('Item', row.item, 'rate')
+		},
+		{
+			"fieldname": "tax",
+			"label": "Tax",
+			"fieldtype": "Link",
+			"target": "Tax"
 		},
 		{
 			"fieldname": "amount",
 			"label": "Amount",
 			"fieldtype": "Currency",
 			"disabled": 1,
-			"formula": "row.quantity * row.rate"
+			formula: (row, doc) => row.quantity * row.rate
+		},
+		{
+			"fieldname": "taxAmount",
+			"label": "Tax Amount",
+			"hidden": 1,
+			"fieldtype": "Text",
+			formula: (row, doc) => doc.getRowTax(row)
 		}
 	]
 }

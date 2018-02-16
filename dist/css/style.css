@@ -6824,7 +6824,6 @@ html {
 .hide {
   display: none !important; }
 .page {
-  max-width: 500px;
   padding-bottom: 2rem; }
 .page .page-head {
     padding: 0.5rem 1rem;
@@ -6839,8 +6838,7 @@ html {
     text-align: center;
     padding: 200px 0px; }
 .form-body {
-  padding: 1rem;
-  max-width: 500px; }
+  padding: 1rem; }
 .form-body .form-control.font-weight-bold {
     background-color: lightyellow; }
 .form-body .alert {
@@ -6888,8 +6886,9 @@ mark {
   margin-top: 0.5rem; }
 .data-table .body-scrollable {
   border-bottom: 0px !important; }
+.data-table .body-scrollable tr:first-child .data-table-col {
+    border-top: 0px !important; }
 .data-table thead td {
-  border-bottom: 0px !important;
   background-color: #e9ecef !important; }
 .data-table .data-table-col .edit-cell {
   padding: 0px !important; }

@@ -1,15 +1,16 @@
-{
-	"name": "Invoice Settings",
+module.exports = {
+	"name": "InvoiceSettings",
+	"label": "Invoice Settings",
 	"doctype": "DocType",
 	"isSingle": 1,
 	"isChild": 0,
 	"keywordFields": [],
 	"fields": [
 		{
-			"fieldname": "number_series",
+			"fieldname": "numberSeries",
 			"label": "Number Series",
 			"fieldtype": "Link",
-			"target": "Number Series",
+			"target": "NumberSeries",
 			"required": 1
 		}
 	]

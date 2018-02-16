@@ -1,7 +1,7 @@
 const BaseList = require('frappejs/client/view/list');
 const frappe = require('frappejs');
 
-class InvoiceList extends BaseList {
+module.exports = class InvoiceList extends BaseList {
     getFields()  {
         return ['name', 'customer', 'total'];
     }
@@ -10,8 +10,4 @@ class InvoiceList extends BaseList {
                 <div class="col-5 text-muted">${data.customer}</div>
                 <div class="col-4 text-muted text-right">${frappe.format(data.total, {fieldtype:"Currency"})}</div>`;
     }
-}
-
-module.exports = {
-    List: InvoiceList
 }

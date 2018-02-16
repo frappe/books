@@ -1,26 +1,36 @@
-const frappe = require('frappejs');
-const BaseMeta = require('frappejs/model/meta');
-const BaseDocument = require('frappejs/model/document');
-
-class AccountMeta extends BaseMeta {
-    setupMeta() {
-        Object.assign(this, require('./account.json'));
-    }
-}
-
-class Account extends BaseDocument {
-    async validate() {
-        if (!this.account_type) {
-            if (this.parent_account) {
-                this.account_type = await frappe.db.getValue('Account', this.parent_account, 'account_type');
-            } else {
-                this.account_type = 'Asset';
-            }
-        }
-    }
-}
-
 module.exports = {
-    Document: Account,
-    Meta: AccountMeta
-};
+	"name": "Account",
+	"doctype": "DocType",
+	"documentClass": require("./AccountDocument.js"),
+	"isSingle": 0,
+	"keywordFields": [
+		"name",
+		"account_type"
+	],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Account Name",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "parent_account",
+			"label": "Parent Account",
+			"fieldtype": "Link",
+			"target": "Account"
+		},
+		{
+			"fieldname": "account_type",
+			"label": "Account Type",
+			"fieldtype": "Select",
+			"options": [
+				"Asset",
+				"Liability",
+				"Equity",
+				"Income",
+				"Expense"
+			]
+		}
+	]
+}

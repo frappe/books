@@ -1,16 +1,45 @@
-const BaseMeta = require('frappejs/model/meta');
-const BaseDocument = require('frappejs/model/document');
-
-class ItemMeta extends BaseMeta {
-    setupMeta() {
-        Object.assign(this, require('./item.json'));
-    }
-}
-
-class Item extends BaseDocument {
-}
-
 module.exports = {
-    Document: Item,
-    Meta: ItemMeta
-};
+	"name": "Item",
+	"doctype": "DocType",
+	"isSingle": 0,
+	"keywordFields": [
+		"name",
+		"description"
+	],
+	"fields": [
+		{
+			"fieldname": "name",
+			"label": "Item Name",
+			"fieldtype": "Data",
+			"required": 1
+		},
+		{
+			"fieldname": "description",
+			"label": "Description",
+			"fieldtype": "Text"
+		},
+		{
+			"fieldname": "unit",
+			"label": "Unit",
+			"fieldtype": "Select",
+			"options": [
+				"No",
+				"Kg",
+				"Gram",
+				"Hour",
+				"Day"
+			]
+		},
+		{
+			"fieldname": "tax",
+			"label": "Tax",
+			"fieldtype": "Link",
+			"target": "Tax"
+		},
+		{
+			"fieldname": "rate",
+			"label": "Rate",
+			"fieldtype": "Currency"
+		}
+	]
+}
