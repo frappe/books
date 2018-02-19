@@ -18,20 +18,37 @@ class BaseControl {
         if (this.setup) {
             this.setup();
         }
-        this.make();
+        if (this.template) {
+            this.wrapper = frappe.ui.add('div', 'field-template', this.parent);
+            this.renderTemplate();
+        } else {
+            this.make();
+        }
     }
 
     bind(doc) {
         this.doc = doc;
-        this.setDocValue();
+        this.refresh();
     }
 
     refresh() {
-        this.setDocValue();
+        if (this.template) {
+            this.renderTemplate();
+        } else {
+            this.setDocValue();
+        }
+    }
+
+    renderTemplate() {
+        if (this.form.doc) {
+            this.wrapper.innerHTML = this.template(this.form.doc, this.doc);
+        } else {
+            this.wrapper.innerHTML = '';
+        }
     }
 
     setDocValue() {
-        if (this.doc) {
+        if (this.doc && !this.template) {
             this.setInputValue(this.doc.get(this.fieldname));
         }
     }
