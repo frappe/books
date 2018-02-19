@@ -1,7 +1,9 @@
 const frappe = require('frappejs');
+const Observable = require('frappejs/utils/observable');
 
-module.exports = class Database {
+module.exports = class Database extends Observable {
     constructor() {
+        super();
         this.initTypeMap();
     }
 
@@ -135,6 +137,10 @@ module.exports = class Database {
         return fields;
     }
 
+    triggerChange(doctype, name) {
+        this.trigger(`change:${doctype}`, {name:name});
+    }
+
     async insert(doctype, doc) {
         let meta = frappe.getMeta(doctype);
 
@@ -148,8 +154,11 @@ module.exports = class Database {
         // insert children
         await this.insertChildren(meta, doc, doctype);
 
+        this.triggerChange(doctype, doc.name);
+
         return doc;
     }
+
 
     async insertChildren(meta, doc, doctype) {
         let tableFields = meta.getTableFields();
@@ -179,6 +188,9 @@ module.exports = class Database {
 
         // insert or update children
         await this.updateChildren(meta, doc, doctype);
+
+        this.triggerChange(doctype, doc.name);
+
         return doc;
     }
 
@@ -275,6 +287,8 @@ module.exports = class Database {
         for (let field of tableFields) {
             await this.deleteChildren(field.childtype, name);
         }
+
+        this.triggerChange(doctype, name);
     }
 
     async deleteOne(doctype, name) {

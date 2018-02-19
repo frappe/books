@@ -1,8 +1,10 @@
 const frappe = require('frappejs');
-const path = require('path');
+const Observable = require('frappejs/utils/observable');
 
-module.exports = class RESTClient {
+module.exports = class HTTPClient extends Observable {
     constructor({ server, protocol = 'http' }) {
+        super();
+
         this.server = server;
         this.protocol = protocol;
 
@@ -99,7 +101,7 @@ module.exports = class RESTClient {
     }
 
     getURL(...parts) {
-        return this.protocol + '://' + path.join(this.server, ...parts);
+        return this.protocol + '://' + this.server + parts.join('/');
     }
 
     getQueryString(params) {

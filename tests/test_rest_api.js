@@ -1,10 +1,9 @@
 const assert = require('assert');
 const frappe = require('frappejs');
 const fetch = require('node-fetch');
-const helpers = require('./helpers');
 const { spawn } = require('child_process');
 const process = require('process');
-const RESTClient = require('frappejs/backends/rest_client')
+const HTTPClient = require('frappejs/backends/http')
 
 // create a copy of frappe
 
@@ -19,7 +18,7 @@ describe('REST', () => {
         await frappe.init();
         await frappe.login();
 
-        frappe.db = await new RESTClient({server: 'localhost:8000'});
+        frappe.db = await new HTTPClient({server: 'localhost:8000'});
         frappe.fetch = fetch;
 
         // wait for server to start

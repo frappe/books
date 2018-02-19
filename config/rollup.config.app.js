@@ -3,12 +3,14 @@ module.exports = {
 	output: {
 		file: './dist/js/bundle.js',
 		format: 'iife',
-		name: 'desk'
+		name: 'desk',
+		globals: ['io']
 	},
 	plugins: [
 		require('rollup-plugin-commonjs')(),
 		require('rollup-plugin-json')(),
-		require('rollup-plugin-node-resolve')(),
-		require('rollup-plugin-node-builtins')()
-	]
+		require('rollup-plugin-node-resolve')({
+			preferBuiltins: true
+		})
+	],
 }

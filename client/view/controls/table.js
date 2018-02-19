@@ -154,6 +154,9 @@ class TableControl extends BaseControl {
     }
 
     checkValidity() {
+        if (!this.datatable) {
+            return true;
+        }
         let data = this.getTableData();
         for (let rowIndex=0; rowIndex < data.length; rowIndex++) {
             let row = data[rowIndex];
