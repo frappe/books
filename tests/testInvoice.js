@@ -1,7 +1,6 @@
 const assert = require('assert');
 const frappe = require('frappejs');
 const helpers = require('frappejs/tests/helpers');
-const path = require('path');
 const models = require('../models');
 
 async function makeFixtures() {

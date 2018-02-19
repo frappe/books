@@ -285,7 +285,11 @@ var frappejs = {
         for (let field of this.getMeta(doc.doctype).getValidFields()) {
             if (field.fieldname === 'name') continue;
             if (field.fieldtype === 'Table') {
-                newDoc[field.fieldname] = (doc[field.fieldname] || []).map(d => Object.assign({}, d));
+                newDoc[field.fieldname] = (doc[field.fieldname] || []).map(d => {
+                    let newd = Object.assign({}, d);
+                    newd.name = '';
+                    return newd;
+                });
             } else {
                 newDoc[field.fieldname] = doc[field.fieldname];
             }
@@ -327,20 +331,39 @@ var frappejs = {
 var observable = class Observable {
     on(event, listener) {
         this._addListener('_listeners', event, listener);
+        if (this._socketClient) {
+            this._socketClient.on(event, listener);
+        }
     }
 
     once(event, listener) {
         this._addListener('_onceListeners', event, listener);
     }
 
+    bindSocketClient(socket) {
+        // also send events with sockets
+        this._socketClient = socket;
+    }
+
+    bindSocketServer(socket) {
+        // also send events with sockets
+        this._socketServer = socket;
+    }
+
     async trigger(event, params) {
         await this._triggerEvent('_listeners', event, params);
         await this._triggerEvent('_onceListeners', event, params);
+
+        if (this._socketServer) {
+            this._socketServer.emit(event, params);
+        }
 
         // clear once-listeners
         if (this._onceListeners && this._onceListeners[event]) {
             delete this._onceListeners[event];
         }
+
+
     }
 
     _addListener(name, event, listener) {
@@ -847,259 +870,10 @@ var common = {
     }
 };
 
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// resolves . and .. elements in a path array with directory names there
-// must be no slashes, empty elements, or device names (c:\) in the array
-// (so also no leading and trailing slashes - it does not distinguish
-// relative and absolute paths)
-function normalizeArray(parts, allowAboveRoot) {
-  // if the path tries to go above the root, `up` ends up > 0
-  var up = 0;
-  for (var i = parts.length - 1; i >= 0; i--) {
-    var last = parts[i];
-    if (last === '.') {
-      parts.splice(i, 1);
-    } else if (last === '..') {
-      parts.splice(i, 1);
-      up++;
-    } else if (up) {
-      parts.splice(i, 1);
-      up--;
-    }
-  }
-
-  // if the path is allowed to go above the root, restore leading ..s
-  if (allowAboveRoot) {
-    for (; up--; up) {
-      parts.unshift('..');
-    }
-  }
-
-  return parts;
-}
-
-// Split a filename into [root, dir, basename, ext], unix version
-// 'root' is just a slash, or nothing.
-var splitPathRe =
-    /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
-var splitPath = function(filename) {
-  return splitPathRe.exec(filename).slice(1);
-};
-
-// path.resolve([from ...], to)
-// posix version
-function resolve() {
-  var resolvedPath = '',
-      resolvedAbsolute = false;
-
-  for (var i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    var path = (i >= 0) ? arguments[i] : '/';
-
-    // Skip empty and invalid entries
-    if (typeof path !== 'string') {
-      throw new TypeError('Arguments to path.resolve must be strings');
-    } else if (!path) {
-      continue;
-    }
-
-    resolvedPath = path + '/' + resolvedPath;
-    resolvedAbsolute = path.charAt(0) === '/';
-  }
-
-  // At this point the path should be resolved to a full absolute path, but
-  // handle relative paths to be safe (might happen when process.cwd() fails)
-
-  // Normalize the path
-  resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
-    return !!p;
-  }), !resolvedAbsolute).join('/');
-
-  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
-}
-
-// path.normalize(path)
-// posix version
-function normalize(path) {
-  var isPathAbsolute = isAbsolute(path),
-      trailingSlash = substr(path, -1) === '/';
-
-  // Normalize the path
-  path = normalizeArray(filter(path.split('/'), function(p) {
-    return !!p;
-  }), !isPathAbsolute).join('/');
-
-  if (!path && !isPathAbsolute) {
-    path = '.';
-  }
-  if (path && trailingSlash) {
-    path += '/';
-  }
-
-  return (isPathAbsolute ? '/' : '') + path;
-}
-
-// posix version
-function isAbsolute(path) {
-  return path.charAt(0) === '/';
-}
-
-// posix version
-function join() {
-  var paths = Array.prototype.slice.call(arguments, 0);
-  return normalize(filter(paths, function(p, index) {
-    if (typeof p !== 'string') {
-      throw new TypeError('Arguments to path.join must be strings');
-    }
-    return p;
-  }).join('/'));
-}
-
-
-// path.relative(from, to)
-// posix version
-function relative(from, to) {
-  from = resolve(from).substr(1);
-  to = resolve(to).substr(1);
-
-  function trim(arr) {
-    var start = 0;
-    for (; start < arr.length; start++) {
-      if (arr[start] !== '') break;
-    }
-
-    var end = arr.length - 1;
-    for (; end >= 0; end--) {
-      if (arr[end] !== '') break;
-    }
-
-    if (start > end) return [];
-    return arr.slice(start, end - start + 1);
-  }
-
-  var fromParts = trim(from.split('/'));
-  var toParts = trim(to.split('/'));
-
-  var length = Math.min(fromParts.length, toParts.length);
-  var samePartsLength = length;
-  for (var i = 0; i < length; i++) {
-    if (fromParts[i] !== toParts[i]) {
-      samePartsLength = i;
-      break;
-    }
-  }
-
-  var outputParts = [];
-  for (var i = samePartsLength; i < fromParts.length; i++) {
-    outputParts.push('..');
-  }
-
-  outputParts = outputParts.concat(toParts.slice(samePartsLength));
-
-  return outputParts.join('/');
-}
-
-var sep = '/';
-var delimiter = ':';
-
-function dirname(path) {
-  var result = splitPath(path),
-      root = result[0],
-      dir = result[1];
-
-  if (!root && !dir) {
-    // No dirname whatsoever
-    return '.';
-  }
-
-  if (dir) {
-    // It has a dirname, strip trailing slash
-    dir = dir.substr(0, dir.length - 1);
-  }
-
-  return root + dir;
-}
-
-function basename(path, ext) {
-  var f = splitPath(path)[2];
-  // TODO: make this comparison case-insensitive on windows?
-  if (ext && f.substr(-1 * ext.length) === ext) {
-    f = f.substr(0, f.length - ext.length);
-  }
-  return f;
-}
-
-
-function extname(path) {
-  return splitPath(path)[3];
-}
-var path = {
-  extname: extname,
-  basename: basename,
-  dirname: dirname,
-  sep: sep,
-  delimiter: delimiter,
-  relative: relative,
-  join: join,
-  isAbsolute: isAbsolute,
-  normalize: normalize,
-  resolve: resolve
-};
-function filter (xs, f) {
-    if (xs.filter) return xs.filter(f);
-    var res = [];
-    for (var i = 0; i < xs.length; i++) {
-        if (f(xs[i], i, xs)) res.push(xs[i]);
-    }
-    return res;
-}
-
-// String.prototype.substr - negative index don't work in IE8
-var substr = 'ab'.substr(-1) === 'b' ?
-    function (str, start, len) { return str.substr(start, len) } :
-    function (str, start, len) {
-        if (start < 0) start = str.length + start;
-        return str.substr(start, len);
-    };
-
-
-var path$1 = Object.freeze({
-	resolve: resolve,
-	normalize: normalize,
-	isAbsolute: isAbsolute,
-	join: join,
-	relative: relative,
-	sep: sep,
-	delimiter: delimiter,
-	dirname: dirname,
-	basename: basename,
-	extname: extname,
-	default: path
-});
-
-var path$2 = ( path$1 && path ) || path$1;
-
-var rest_client = class RESTClient {
+var http = class HTTPClient extends observable {
     constructor({ server, protocol = 'http' }) {
+        super();
+
         this.server = server;
         this.protocol = protocol;
 
@@ -1196,7 +970,7 @@ var rest_client = class RESTClient {
     }
 
     getURL(...parts) {
-        return this.protocol + '://' + path$2.join(this.server, ...parts);
+        return this.protocol + '://' + this.server + parts.join('/');
     }
 
     getQueryString(params) {
@@ -18298,6 +18072,14 @@ var list = class BaseList {
         this.body = null;
         this.rows = [];
         this.data = [];
+
+        frappejs.db.on(`change:${this.doctype}`, (params) => {
+            this.dirty = true;
+        });
+
+        setInterval(() => {
+            if (this.dirty) this.refresh();
+        }, 500);
     }
 
     async refresh() {
@@ -18306,6 +18088,7 @@ var list = class BaseList {
 
     async run() {
         this.makeBody();
+        this.dirty = false;
 
         let data = await this.getData();
 
@@ -27494,6 +27277,9 @@ class TableControl extends base {
     }
 
     checkValidity() {
+        if (!this.datatable) {
+            return true;
+        }
         let data = this.getTableData();
         for (let rowIndex=0; rowIndex < data.length; rowIndex++) {
             let row = data[rowIndex];
@@ -27551,44 +27337,44 @@ var controls$1 = {
 };
 
 var keyboard = {
-	bindKey(element, key, listener) {
-		element.addEventListener('keydown', (e) => {
-			if (key === this.getKey(e)) {
-				listener(e);
-			}
-		});
-	},
+    bindKey(element, key, listener) {
+        element.addEventListener('keydown', (e) => {
+            if (key === this.getKey(e)) {
+                listener(e);
+            }
+        });
+    },
 
-	getKey(e) {
-		var keycode = e.keyCode || e.which;
-		var key = this.keyMap[keycode] || String.fromCharCode(keycode);
+    getKey(e) {
+        var keycode = e.keyCode || e.which;
+        var key = this.keyMap[keycode] || String.fromCharCode(keycode);
 
-		if(e.ctrlKey || e.metaKey) {
-			// add ctrl+ the key
-			key = 'ctrl+' + key;
-		}
-		if(e.shiftKey) {
-			// add ctrl+ the key
-			key = 'shift+' + key;
-		}
-		return key.toLowerCase();
-	},
+        if(e.ctrlKey || e.metaKey) {
+            // add ctrl+ the key
+            key = 'ctrl+' + key;
+        }
+        if(e.shiftKey) {
+            // add ctrl+ the key
+            key = 'shift+' + key;
+        }
+        return key.toLowerCase();
+    },
 
-	keyMap: {
-		8: 'backspace',
-		9: 'tab',
-		13: 'enter',
-		16: 'shift',
-		17: 'ctrl',
-		91: 'meta',
-		18: 'alt',
-		27: 'escape',
-		37: 'left',
-		39: 'right',
-		38: 'up',
-		40: 'down',
-		32: 'space'
-	},
+    keyMap: {
+        8: 'backspace',
+        9: 'tab',
+        13: 'enter',
+        16: 'shift',
+        17: 'ctrl',
+        91: 'meta',
+        18: 'alt',
+        27: 'escape',
+        37: 'left',
+        39: 'right',
+        38: 'up',
+        40: 'down',
+        32: 'space'
+    },
 };
 
 var form = class BaseForm extends observable {
@@ -27800,84 +27586,84 @@ var view = {
 };
 
 var formpage = class FormPage extends page {
-	constructor(doctype) {
-		let meta = frappejs.getMeta(doctype);
-		super({title: `Edit ${meta.name}`});
-		this.meta = meta;
+    constructor(doctype) {
+        let meta = frappejs.getMeta(doctype);
+        super({title: `Edit ${meta.name}`});
+        this.meta = meta;
 
-		this.form = new (view.getFormClass(doctype))({
-			doctype: doctype,
-			parent: this.body,
-			container: this,
-			actions: ['submit', 'delete', 'duplicate', 'settings']
-		});
+        this.form = new (view.getFormClass(doctype))({
+            doctype: doctype,
+            parent: this.body,
+            container: this,
+            actions: ['submit', 'delete', 'duplicate', 'settings']
+        });
 
-		this.on('show', async (params) => {
-			await this.showDoc(params.doctype, params.name);
-			if (frappejs.desk.center && !frappejs.desk.center.activePage) {
-				frappejs.desk.showListPage(doctype);
-			}
-		});
+        this.on('show', async (params) => {
+            await this.showDoc(params.doctype, params.name);
+            if (frappejs.desk.center && !frappejs.desk.center.activePage) {
+                frappejs.desk.showListPage(doctype);
+            }
+        });
 
-		// if name is different after saving, change the route
-		this.form.on('submit', async (params) => {
-			let route = frappejs.router.get_route();
-			if (this.form.doc.name && !(route && route[2] === this.form.doc.name)) {
-				await frappejs.router.setRoute('edit', this.form.doc.doctype, this.form.doc.name);
-				this.form.showAlert('Added', 'success');
-			}
-		});
+        // if name is different after saving, change the route
+        this.form.on('submit', async (params) => {
+            let route = frappejs.router.get_route();
+            if (this.form.doc.name && !(route && route[2] === this.form.doc.name)) {
+                await frappejs.router.setRoute('edit', this.form.doc.doctype, this.form.doc.name);
+                this.form.showAlert('Added', 'success');
+            }
+        });
 
-		this.form.on('delete', async (params) => {
-			await frappejs.router.setRoute('list', this.form.doctype);
-		});
-	}
+        this.form.on('delete', async (params) => {
+            await frappejs.router.setRoute('list', this.form.doctype);
+        });
+    }
 
-	async showDoc(doctype, name) {
-		try {
-			await this.form.setDoc(doctype, name);
-			this.setActiveListRow(doctype, name);
-		} catch (e) {
-			this.renderError(e.status_code, e.message);
-		}
-	}
+    async showDoc(doctype, name) {
+        try {
+            await this.form.setDoc(doctype, name);
+            this.setActiveListRow(doctype, name);
+        } catch (e) {
+            this.renderError(e.status_code, e.message);
+        }
+    }
 
-	setActiveListRow(doctype, name) {
-		let activeListRow = document.querySelector('.list-page .list-body .list-row.active');
-		if (activeListRow) {
-			activeListRow.classList.remove('active');
-		}
+    setActiveListRow(doctype, name) {
+        let activeListRow = document.querySelector('.list-page .list-body .list-row.active');
+        if (activeListRow) {
+            activeListRow.classList.remove('active');
+        }
 
-		let myListRow = document.querySelector(`.list-body[data-doctype="${doctype}"] .list-row[data-name="${name}"]`);
-		if (myListRow) {
-			myListRow.classList.add('active');
-		}
-	}
+        let myListRow = document.querySelector(`.list-body[data-doctype="${doctype}"] .list-row[data-name="${name}"]`);
+        if (myListRow) {
+            myListRow.classList.add('active');
+        }
+    }
 };
 
 var listpage = class ListPage extends page {
-	constructor(doctype) {
-		let meta = frappejs.getMeta(doctype);
+    constructor(doctype) {
+        let meta = frappejs.getMeta(doctype);
 
-		// if center column is present, list does not have its route
-		const hasRoute = frappejs.desk.center ? false : true;
+        // if center column is present, list does not have its route
+        const hasRoute = frappejs.desk.center ? false : true;
 
-		super({
-			title: frappejs._("List: {0}", meta.name),
-			parent: hasRoute ? frappejs.desk.body : frappejs.desk.center,
-			hasRoute: hasRoute
-		});
+        super({
+            title: frappejs._("List: {0}", meta.name),
+            parent: hasRoute ? frappejs.desk.body : frappejs.desk.center,
+            hasRoute: hasRoute
+        });
 
-		this.list = new (view.geListClass(doctype))({
-			doctype: doctype,
-			parent: this.body,
-			page: this
-		});
+        this.list = new (view.geListClass(doctype))({
+            doctype: doctype,
+            parent: this.body,
+            page: this
+        });
 
-		this.on('show', async () => {
-			await this.list.run();
-		});
-	}
+        this.on('show', async () => {
+            await this.list.run();
+        });
+    }
 };
 
 var menu = class DeskMenu {
@@ -28325,7 +28111,9 @@ var client = {
         frappejs.registerModels(models);
 
         frappejs.fetch = window.fetch.bind();
-        frappejs.db = await new rest_client({server: server});
+        frappejs.db = await new http({server: server});
+        this.socket = io.connect('http://localhost:8000'); // eslint-disable-line
+        frappejs.db.bindSocketClient(this.socket);
 
         frappejs.flags.cache_docs = true;
 
@@ -28448,69 +28236,69 @@ var Item = {
 };
 
 var InvoiceDocument = class Invoice extends document$1 {
-	async getRowTax(row) {
-		if (row.tax) {
-			let tax = await this.getTax(row.tax);
-			let taxAmount = [];
-			for (let d of (tax.details || [])) {
-				taxAmount.push({account: d.account, rate: d.rate, amount: row.amount * d.rate / 100});
-			}
-			return JSON.stringify(taxAmount);
-		} else {
-			return '';
-		}
-	}
-	async getTax(tax) {
-		if (!this._taxes) this._taxes = {};
-		if (!this._taxes[tax]) this._taxes[tax] = await frappejs.getDoc('Tax', tax);
-		return this._taxes[tax];
-	}
-	makeTaxSummary() {
-		if (!this.taxes) this.taxes = [];
+    async getRowTax(row) {
+        if (row.tax) {
+            let tax = await this.getTax(row.tax);
+            let taxAmount = [];
+            for (let d of (tax.details || [])) {
+                taxAmount.push({account: d.account, rate: d.rate, amount: row.amount * d.rate / 100});
+            }
+            return JSON.stringify(taxAmount);
+        } else {
+            return '';
+        }
+    }
+    async getTax(tax) {
+        if (!this._taxes) this._taxes = {};
+        if (!this._taxes[tax]) this._taxes[tax] = await frappejs.getDoc('Tax', tax);
+        return this._taxes[tax];
+    }
+    makeTaxSummary() {
+        if (!this.taxes) this.taxes = [];
 
-		// reset tax amount
-		this.taxes.map(d => d.amount = 0);
+        // reset tax amount
+        this.taxes.map(d => d.amount = 0);
 
-		// calculate taxes
-		for (let row of this.items) {
-			if (row.taxAmount) {
-				let taxAmount = JSON.parse(row.taxAmount);
-				for (let rowTaxDetail of taxAmount) {
-					let found = false;
+        // calculate taxes
+        for (let row of this.items) {
+            if (row.taxAmount) {
+                let taxAmount = JSON.parse(row.taxAmount);
+                for (let rowTaxDetail of taxAmount) {
+                    let found = false;
 
-					// check if added in summary
-					for (let taxDetail of this.taxes) {
-						if (taxDetail.account === rowTaxDetail.account) {
-							taxDetail.amount += rowTaxDetail.amount;
-							found = true;
-						}
-					}
+                    // check if added in summary
+                    for (let taxDetail of this.taxes) {
+                        if (taxDetail.account === rowTaxDetail.account) {
+                            taxDetail.amount += rowTaxDetail.amount;
+                            found = true;
+                        }
+                    }
 
-					// add new row
-					if (!found) {
-						this.taxes.push({
-							account: rowTaxDetail.account,
-							rate: rowTaxDetail.rate,
-							amount: rowTaxDetail.amount
-						});
-					}
-				}
-			}
-		}
+                    // add new row
+                    if (!found) {
+                        this.taxes.push({
+                            account: rowTaxDetail.account,
+                            rate: rowTaxDetail.rate,
+                            amount: rowTaxDetail.amount
+                        });
+                    }
+                }
+            }
+        }
 
-		// clear no taxes
-		this.taxes = this.taxes.filter(d => d.amount);
-	}
-	getGrandTotal() {
-		this.makeTaxSummary();
-		let grandTotal = this.netTotal;
-		if (this.taxes) {
-			for (let row of this.taxes) {
-				grandTotal += row.amount;
-			}
-		}
-		return grandTotal;
-	}
+        // clear no taxes
+        this.taxes = this.taxes.filter(d => d.amount);
+    }
+    getGrandTotal() {
+        this.makeTaxSummary();
+        let grandTotal = this.netTotal;
+        if (this.taxes) {
+            for (let row of this.taxes) {
+                grandTotal += row.amount;
+            }
+        }
+        return grandTotal;
+    }
 };
 
 var Invoice = createCommonjsModule(function (module) {
@@ -28582,78 +28370,78 @@ module.exports = {
 });
 
 var InvoiceItem = {
-	"name": "InvoiceItem",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 1,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "item",
-			"label": "Item",
-			"fieldtype": "Link",
-			"target": "Item",
-			"required": 1
-		},
-		{
-			"fieldname": "description",
-			"label": "Description",
-			"fieldtype": "Text",
-			formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
-			"required": 1
-		},
-		{
-			"fieldname": "quantity",
-			"label": "Quantity",
-			"fieldtype": "Float",
-			"required": 1
-		},
-		{
-			"fieldname": "rate",
-			"label": "Rate",
-			"fieldtype": "Currency",
-			"required": 1,
-			formula: (row, doc) => row.rate || doc.getFrom('Item', row.item, 'rate')
-		},
-		{
-			"fieldname": "tax",
-			"label": "Tax",
-			"fieldtype": "Link",
-			"target": "Tax"
-		},
-		{
-			"fieldname": "amount",
-			"label": "Amount",
-			"fieldtype": "Currency",
-			"disabled": 1,
-			formula: (row, doc) => row.quantity * row.rate
-		},
-		{
-			"fieldname": "taxAmount",
-			"label": "Tax Amount",
-			"hidden": 1,
-			"fieldtype": "Text",
-			formula: (row, doc) => doc.getRowTax(row)
-		}
-	]
+    "name": "InvoiceItem",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 1,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "item",
+            "label": "Item",
+            "fieldtype": "Link",
+            "target": "Item",
+            "required": 1
+        },
+        {
+            "fieldname": "description",
+            "label": "Description",
+            "fieldtype": "Text",
+            formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
+            "required": 1
+        },
+        {
+            "fieldname": "quantity",
+            "label": "Quantity",
+            "fieldtype": "Float",
+            "required": 1
+        },
+        {
+            "fieldname": "rate",
+            "label": "Rate",
+            "fieldtype": "Currency",
+            "required": 1,
+            formula: (row, doc) => row.rate || doc.getFrom('Item', row.item, 'rate')
+        },
+        {
+            "fieldname": "tax",
+            "label": "Tax",
+            "fieldtype": "Link",
+            "target": "Tax"
+        },
+        {
+            "fieldname": "amount",
+            "label": "Amount",
+            "fieldtype": "Currency",
+            "disabled": 1,
+            formula: (row, doc) => row.quantity * row.rate
+        },
+        {
+            "fieldname": "taxAmount",
+            "label": "Tax Amount",
+            "hidden": 1,
+            "fieldtype": "Text",
+            formula: (row, doc) => doc.getRowTax(row)
+        }
+    ]
 };
 
 var InvoiceSettings = {
-	"name": "InvoiceSettings",
-	"label": "Invoice Settings",
-	"doctype": "DocType",
-	"isSingle": 1,
-	"isChild": 0,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "numberSeries",
-			"label": "Number Series",
-			"fieldtype": "Link",
-			"target": "NumberSeries",
-			"required": 1
-		}
-	]
+    "name": "InvoiceSettings",
+    "label": "Invoice Settings",
+    "doctype": "DocType",
+    "isSingle": 1,
+    "isChild": 0,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "label": "Number Series",
+            "fieldtype": "Link",
+            "target": "NumberSeries",
+            "required": 1
+        }
+    ]
 };
 
 var Tax = {
@@ -28779,12 +28567,12 @@ var AccountForm_1 = class AccountForm extends form {
 
 var InvoiceList_1 = class InvoiceList extends list {
     getFields()  {
-        return ['name', 'customer', 'total'];
+        return ['name', 'customer', 'grandTotal'];
     }
     getRowHTML(data) {
         return `<div class="col-2">${data.name}</div>
                 <div class="col-5 text-muted">${data.customer}</div>
-                <div class="col-4 text-muted text-right">${frappejs.format(data.total, {fieldtype:"Currency"})}</div>`;
+                <div class="col-4 text-muted text-right">${frappejs.format(data.grandTotal, {fieldtype:"Currency"})}</div>`;
     }
 };
 

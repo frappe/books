@@ -1,5 +1,4 @@
 const server = require('frappejs/server');
-const path = require('path');
 
 server.start({
     backend: 'sqlite',
