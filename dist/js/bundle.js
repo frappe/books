@@ -689,6 +689,10 @@ var meta = class BaseMeta extends document$1 {
         }
     }
 
+    hasField(fieldname) {
+        return this.getField(fieldname) ? true : false;
+    }
+
     getField(fieldname) {
         if (!this._field_map) {
             this._field_map = {};
@@ -18479,20 +18483,37 @@ class BaseControl {
         if (this.setup) {
             this.setup();
         }
-        this.make();
+        if (this.template) {
+            this.wrapper = frappejs.ui.add('div', 'field-template', this.parent);
+            this.renderTemplate();
+        } else {
+            this.make();
+        }
     }
 
     bind(doc) {
         this.doc = doc;
-        this.setDocValue();
+        this.refresh();
     }
 
     refresh() {
-        this.setDocValue();
+        if (this.template) {
+            this.renderTemplate();
+        } else {
+            this.setDocValue();
+        }
+    }
+
+    renderTemplate() {
+        if (this.form.doc) {
+            this.wrapper.innerHTML = this.template(this.form.doc, this.doc);
+        } else {
+            this.wrapper.innerHTML = '';
+        }
     }
 
     setDocValue() {
-        if (this.doc) {
+        if (this.doc && !this.template) {
             this.setInputValue(this.doc.get(this.fieldname));
         }
     }
@@ -21309,7 +21330,11 @@ class LinkControl extends base {
             if (e.text && e.text.value === '__newItem') {
                 e.preventDefault();
                 const newDoc = await frappejs.getNewDoc(this.target);
-                const formModal = frappejs.desk.showFormModal(this.target, newDoc.name);
+                const formModal = await frappejs.desk.showFormModal(this.target, newDoc.name);
+                if (formModal.form.doc.meta.hasField('name')) {
+                    formModal.form.doc.set('name', this.input.value);
+                }
+
                 formModal.once('submit', async () => {
                     await this.updateDocValue(formModal.form.doc.name);
                 });
@@ -23529,6 +23554,7 @@ exports.isNumeric = isNumeric;
 exports.throttle = throttle;
 exports.promisify = promisify;
 exports.chainPromises = chainPromises;
+exports.linkProperties = linkProperties;
 function camelCaseToDash(str) {
   return str.replace(/([A-Z])/g, function (g) {
     return '-' + g[0].toLowerCase();
@@ -23743,6 +23769,18 @@ function chainPromises(promises) {
   }, Promise.resolve());
 }
 
+function linkProperties(target, source, properties) {
+  var props = properties.reduce(function (acc, prop) {
+    acc[prop] = {
+      get: function get() {
+        return source[prop];
+      }
+    };
+    return acc;
+  }, {});
+  Object.defineProperties(target, props);
+}
+
 /***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -23773,14 +23811,8 @@ var ColumnManager = function () {
     _classCallCheck(this, ColumnManager);
 
     this.instance = instance;
-    this.options = this.instance.options;
-    this.fireEvent = this.instance.fireEvent;
-    this.header = this.instance.header;
-    this.datamanager = this.instance.datamanager;
-    this.style = this.instance.style;
-    this.wrapper = this.instance.wrapper;
-    this.rowmanager = this.instance.rowmanager;
-    this.bodyScrollable = this.instance.bodyScrollable;
+
+    (0, _utils.linkProperties)(this, this.instance, ['options', 'fireEvent', 'header', 'datamanager', 'style', 'wrapper', 'rowmanager', 'bodyScrollable']);
 
     this.bindEvents();
     exports.getDropdownHTML = getDropdownHTML = getDropdownHTML.bind(this, this.options.dropdownButton);
@@ -23918,7 +23950,7 @@ var ColumnManager = function () {
             colIndex = _$$data4.colIndex;
 
         _this3.setColumnWidth(colIndex);
-        _this3.instance.setBodyWidth();
+        _this3.style.setBodyStyle();
         $resizingCell = null;
       });
 
@@ -24073,154 +24105,6 @@ var ColumnManager = function () {
       });
     }
   }, {
-    key: 'setDimensions',
-    value: function setDimensions() {
-      this.setHeaderStyle();
-      this.setupMinWidth();
-      this.setupNaturalColumnWidth();
-      this.distributeRemainingWidth();
-      this.setColumnStyle();
-      this.setDefaultCellHeight();
-    }
-  }, {
-    key: 'setHeaderStyle',
-    value: function setHeaderStyle() {
-      if (!this.options.takeAvailableSpace) {
-        // setting width as 0 will ensure that the
-        // header doesn't take the available space
-        _dom2.default.style(this.header, {
-          width: 0
-        });
-      }
-
-      _dom2.default.style(this.header, {
-        margin: 0
-      });
-
-      // don't show resize cursor on nonResizable columns
-      var nonResizableColumnsSelector = this.datamanager.getColumns().filter(function (col) {
-        return col.resizable === false;
-      }).map(function (col) {
-        return col.colIndex;
-      }).map(function (i) {
-        return '.data-table-header [data-col-index="' + i + '"]';
-      }).join();
-
-      this.style.setStyle(nonResizableColumnsSelector, {
-        cursor: 'pointer'
-      });
-    }
-  }, {
-    key: 'setupMinWidth',
-    value: function setupMinWidth() {
-      var _this9 = this;
-
-      _dom2.default.each('.data-table-col', this.header).map(function (col) {
-        var width = _dom2.default.style((0, _dom2.default)('.content', col), 'width');
-
-        var _$$data8 = _dom2.default.data(col),
-            colIndex = _$$data8.colIndex;
-
-        var column = _this9.getColumn(colIndex);
-
-        if (!column.minWidth) {
-          // only set this once
-          _this9.datamanager.updateColumn(colIndex, { minWidth: width });
-        }
-      });
-    }
-  }, {
-    key: 'setupNaturalColumnWidth',
-    value: function setupNaturalColumnWidth() {
-      var _this10 = this;
-
-      // set initial width as naturally calculated by table's first row
-      _dom2.default.each('.data-table-row[data-row-index="0"] .data-table-col', this.bodyScrollable).map(function ($cell) {
-        var _$$data9 = _dom2.default.data($cell),
-            colIndex = _$$data9.colIndex;
-
-        if (_this10.getColumn(colIndex).width > 0) {
-          // already set
-          return;
-        }
-
-        var width = _dom2.default.style((0, _dom2.default)('.content', $cell), 'width');
-        var minWidth = _this10.getColumnMinWidth(colIndex);
-
-        if (width < minWidth) {
-          width = minWidth;
-        }
-        _this10.datamanager.updateColumn(colIndex, { width: width });
-      });
-    }
-  }, {
-    key: 'distributeRemainingWidth',
-    value: function distributeRemainingWidth() {
-      var _this11 = this;
-
-      if (!this.options.takeAvailableSpace) return;
-
-      var wrapperWidth = _dom2.default.style(this.instance.datatableWrapper, 'width');
-      var headerWidth = _dom2.default.style(this.header, 'width');
-
-      if (headerWidth >= wrapperWidth) {
-        // don't resize, horizontal scroll takes place
-        return;
-      }
-
-      var resizableColumns = this.datamanager.getColumns().filter(function (col) {
-        return col.resizable === undefined || col.resizable;
-      });
-
-      var deltaWidth = (wrapperWidth - headerWidth) / resizableColumns.length;
-
-      resizableColumns.map(function (col) {
-        var width = _dom2.default.style(_this11.getColumnHeaderElement(col.colIndex), 'width');
-        var finalWidth = Math.min(width + deltaWidth) - 2;
-
-        _this11.datamanager.updateColumn(col.colIndex, { width: finalWidth });
-      });
-    }
-  }, {
-    key: 'setDefaultCellHeight',
-    value: function setDefaultCellHeight() {
-      if (this.__cellHeightSet) return;
-      var height = _dom2.default.style((0, _dom2.default)('.data-table-col', this.instance.datatableWrapper), 'height');
-      if (height) {
-        this.setCellHeight(height);
-        this.__cellHeightSet = true;
-      }
-    }
-  }, {
-    key: 'setCellHeight',
-    value: function setCellHeight(height) {
-      this.style.setStyle('.data-table-col .content', {
-        height: height + 'px'
-      });
-      this.style.setStyle('.data-table-col .edit-cell', {
-        height: height + 'px'
-      });
-    }
-  }, {
-    key: 'setColumnStyle',
-    value: function setColumnStyle() {
-      var _this12 = this;
-
-      // align columns
-      this.getColumns().map(function (column) {
-        // alignment
-        if (['left', 'center', 'right'].includes(column.align)) {
-          _this12.style.setStyle('[data-col-index="' + column.colIndex + '"]', {
-            'text-align': column.align
-          });
-        }
-        // width
-        _this12.setColumnHeaderWidth(column.colIndex);
-        _this12.setColumnWidth(column.colIndex);
-      });
-      this.instance.setBodyWidth();
-    }
-  }, {
     key: 'sortRows',
     value: function sortRows(colIndex, sortOrder) {
       return this.datamanager.sortRows(colIndex, sortOrder);
@@ -24299,13 +24183,6 @@ var ColumnManager = function () {
     key: 'getLastColumnIndex',
     value: function getLastColumnIndex() {
       return this.datamanager.getColumnCount() - 1;
-    }
-  }, {
-    key: 'getColumnHeaderElement',
-    value: function getColumnHeaderElement(colIndex) {
-      colIndex = +colIndex;
-      if (colIndex < 0) return null;
-      return (0, _dom2.default)('.data-table-col[data-is-header][data-col-index="' + colIndex + '"]', this.wrapper);
     }
   }, {
     key: 'getSerialColumnIndex',
@@ -24508,29 +24385,22 @@ var DataTable = function () {
   }, {
     key: 'setDimensions',
     value: function setDimensions() {
-      this.columnmanager.setDimensions();
-
-      this.setBodyWidth();
-
-      _dom2.default.style(this.bodyScrollable, {
-        marginTop: _dom2.default.style(this.header, 'height') + 'px'
-      });
-
-      _dom2.default.style((0, _dom2.default)('table', this.bodyScrollable), {
-        margin: 0
-      });
-    }
-  }, {
-    key: 'setBodyWidth',
-    value: function setBodyWidth() {
-      var width = _dom2.default.style(this.header, 'width');
-
-      _dom2.default.style(this.bodyScrollable, { width: width + 'px' });
+      this.style.setDimensions();
     }
   }, {
     key: 'getColumn',
     value: function getColumn(colIndex) {
       return this.datamanager.getColumn(colIndex);
+    }
+  }, {
+    key: 'getColumns',
+    value: function getColumns() {
+      return this.datamanager.getColumns();
+    }
+  }, {
+    key: 'getRows',
+    value: function getRows() {
+      return this.datamanager.getRows();
     }
   }, {
     key: 'getCell',
@@ -24751,6 +24621,7 @@ var DataManager = function () {
         resizable: true,
         focusable: true,
         dropdown: true,
+        width: null,
         format: function format(value) {
           if (value === null || value === undefined) {
             return '';
@@ -24776,8 +24647,7 @@ var DataManager = function () {
         align: 'left',
         sortOrder: 'none',
         colIndex: i,
-        column: this.columns[i],
-        width: 0
+        column: this.columns[i]
       };
 
       if (content !== null && (typeof content === 'undefined' ? 'undefined' : _typeof(content)) === 'object') {
@@ -24825,6 +24695,10 @@ var DataManager = function () {
             row.push(index + 1 + '');
           }
           row = row.concat(d);
+
+          while (row.length < _this3.columns.length) {
+            row.push('');
+          }
         } else {
           // row is a dict
           var _iteratorNormalCompletion = true;
@@ -25323,7 +25197,7 @@ var CellManager = function () {
 
         var $cell = _this2.$focusedCell;
 
-        if (direction === 'left') {
+        if (direction === 'left' || direction === 'shift+tab') {
           $cell = _this2.getLeftCell$($cell);
         } else if (direction === 'right' || direction === 'tab') {
           $cell = _this2.getRightCell$($cell);
@@ -25362,7 +25236,7 @@ var CellManager = function () {
         return true;
       };
 
-      ['left', 'right', 'up', 'down', 'tab'].map(function (direction) {
+      ['left', 'right', 'up', 'down', 'tab', 'shift+tab'].map(function (direction) {
         return _this2.keyboard.on(direction, function () {
           return focusCell(direction);
         });
@@ -26317,7 +26191,7 @@ var BodyRenderer = function () {
             }
           },
           /* eslint-disable */
-          no_data_text: this.options.loadingText,
+          no_data_text: this.options.noDataMessage,
           no_data_class: 'empty-state'
           /* eslint-enable */
         });
@@ -26385,25 +26259,49 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _dom = __webpack_require__(0);
+
+var _dom2 = _interopRequireDefault(_dom);
+
 var _utils = __webpack_require__(1);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Style = function () {
-  function Style(datatable) {
+  function Style(instance) {
     _classCallCheck(this, Style);
 
-    this.datatable = datatable;
-    this.scopeClass = 'datatable-instance-' + datatable.constructor.instances;
-    datatable.datatableWrapper.classList.add(this.scopeClass);
+    this.instance = instance;
+
+    (0, _utils.linkProperties)(this, this.instance, ['options', 'datamanager', 'columnmanager', 'header', 'bodyScrollable', 'getColumn']);
+
+    this.scopeClass = 'datatable-instance-' + instance.constructor.instances;
+    instance.datatableWrapper.classList.add(this.scopeClass);
 
     var styleEl = document.createElement('style');
-    datatable.wrapper.insertBefore(styleEl, datatable.datatableWrapper);
+    instance.wrapper.insertBefore(styleEl, instance.datatableWrapper);
     this.styleEl = styleEl;
     this.styleSheet = styleEl.sheet;
+
+    this.bindResizeWindow();
   }
 
   _createClass(Style, [{
+    key: 'bindResizeWindow',
+    value: function bindResizeWindow() {
+      var _this = this;
+
+      if (this.options.layout === 'fluid') {
+        _dom2.default.on(window, 'resize', (0, _utils.throttle)(function () {
+          _this.distributeRemainingWidth();
+          _this.refreshColumnWidth();
+          _this.setBodyStyle();
+        }, 300));
+      }
+    }
+  }, {
     key: 'destroy',
     value: function destroy() {
       this.styleEl.remove();
@@ -26429,6 +26327,193 @@ var Style = function () {
 
       this.styleSheet.insertRule(ruleString, _index);
       return _index;
+    }
+  }, {
+    key: 'setDimensions',
+    value: function setDimensions() {
+      this.setHeaderStyle();
+
+      this.setupMinWidth();
+      this.setupNaturalColumnWidth();
+      this.setupColumnWidth();
+
+      this.distributeRemainingWidth();
+      this.setColumnStyle();
+      this.setDefaultCellHeight();
+      this.setBodyStyle();
+    }
+  }, {
+    key: 'setHeaderStyle',
+    value: function setHeaderStyle() {
+      if (this.options.layout === 'fluid') {
+        // setting width as 0 will ensure that the
+        // header doesn't take the available space
+        _dom2.default.style(this.header, {
+          width: 0
+        });
+      }
+
+      _dom2.default.style(this.header, {
+        margin: 0
+      });
+
+      // don't show resize cursor on nonResizable columns
+      var nonResizableColumnsSelector = this.datamanager.getColumns().filter(function (col) {
+        return col.resizable === false;
+      }).map(function (col) {
+        return col.colIndex;
+      }).map(function (i) {
+        return '.data-table-header [data-col-index="' + i + '"]';
+      }).join();
+
+      this.setStyle(nonResizableColumnsSelector, {
+        cursor: 'pointer'
+      });
+    }
+  }, {
+    key: 'setupMinWidth',
+    value: function setupMinWidth() {
+      var _this2 = this;
+
+      _dom2.default.each('.data-table-col', this.header).map(function (col) {
+        var width = _dom2.default.style((0, _dom2.default)('.content', col), 'width');
+
+        var _$$data = _dom2.default.data(col),
+            colIndex = _$$data.colIndex;
+
+        var column = _this2.getColumn(colIndex);
+
+        if (!column.minWidth) {
+          // only set this once
+          column.minWidth = width;
+        }
+      });
+    }
+  }, {
+    key: 'setupNaturalColumnWidth',
+    value: function setupNaturalColumnWidth() {
+      var _this3 = this;
+
+      if (!(0, _dom2.default)('.data-table-row')) return;
+
+      // set initial width as naturally calculated by table's first row
+      _dom2.default.each('.data-table-row[data-row-index="0"] .data-table-col', this.bodyScrollable).map(function ($cell) {
+        var _$$data2 = _dom2.default.data($cell),
+            colIndex = _$$data2.colIndex;
+
+        var column = _this3.datamanager.getColumn(colIndex);
+
+        var naturalWidth = _dom2.default.style((0, _dom2.default)('.content', $cell), 'width');
+        column.naturalWidth = naturalWidth;
+      });
+    }
+  }, {
+    key: 'setupColumnWidth',
+    value: function setupColumnWidth() {
+      this.datamanager.getColumns().map(function (column) {
+        if (column.width === null) {
+          column.width = column.naturalWidth;
+        }
+        if (column.width < column.minWidth) {
+          column.width = column.minWidth;
+        }
+      });
+    }
+  }, {
+    key: 'distributeRemainingWidth',
+    value: function distributeRemainingWidth() {
+      var _this4 = this;
+
+      if (this.options.layout !== 'fluid') return;
+
+      var wrapperWidth = _dom2.default.style(this.instance.datatableWrapper, 'width');
+      var headerWidth = _dom2.default.style(this.header, 'width');
+      var resizableColumns = this.datamanager.getColumns().filter(function (col) {
+        return col.resizable;
+      });
+      var deltaWidth = (wrapperWidth - headerWidth) / resizableColumns.length;
+
+      resizableColumns.map(function (col) {
+        var width = _dom2.default.style(_this4.getColumnHeaderElement(col.colIndex), 'width');
+        var finalWidth = Math.floor(width + deltaWidth) - 2;
+
+        _this4.datamanager.updateColumn(col.colIndex, {
+          width: finalWidth
+        });
+      });
+    }
+  }, {
+    key: 'setDefaultCellHeight',
+    value: function setDefaultCellHeight() {
+      if (this.__cellHeightSet) return;
+      var height = _dom2.default.style((0, _dom2.default)('.data-table-col', this.instance.datatableWrapper), 'height');
+      if (height) {
+        this.setCellHeight(height);
+        this.__cellHeightSet = true;
+      }
+    }
+  }, {
+    key: 'setCellHeight',
+    value: function setCellHeight(height) {
+      this.setStyle('.data-table-col .content', {
+        height: height + 'px'
+      });
+      this.setStyle('.data-table-col .edit-cell', {
+        height: height + 'px'
+      });
+    }
+  }, {
+    key: 'setColumnStyle',
+    value: function setColumnStyle() {
+      var _this5 = this;
+
+      // align columns
+      this.datamanager.getColumns().map(function (column) {
+        // alignment
+        if (['left', 'center', 'right'].includes(column.align)) {
+          _this5.setStyle('[data-col-index="' + column.colIndex + '"]', {
+            'text-align': column.align
+          });
+        }
+        // width
+        _this5.columnmanager.setColumnHeaderWidth(column.colIndex);
+        _this5.columnmanager.setColumnWidth(column.colIndex);
+      });
+      this.setBodyStyle();
+    }
+  }, {
+    key: 'refreshColumnWidth',
+    value: function refreshColumnWidth() {
+      var _this6 = this;
+
+      this.datamanager.getColumns().map(function (column) {
+        _this6.columnmanager.setColumnHeaderWidth(column.colIndex);
+        _this6.columnmanager.setColumnWidth(column.colIndex);
+      });
+    }
+  }, {
+    key: 'setBodyStyle',
+    value: function setBodyStyle() {
+      var width = _dom2.default.style(this.header, 'width');
+
+      _dom2.default.style(this.bodyScrollable, {
+        width: width + 'px'
+      });
+
+      _dom2.default.style(this.bodyScrollable, {
+        marginTop: _dom2.default.style(this.header, 'height') + 'px'
+      });
+
+      _dom2.default.style((0, _dom2.default)('table', this.bodyScrollable), {
+        margin: 0
+      });
+    }
+  }, {
+    key: 'getColumnHeaderElement',
+    value: function getColumnHeaderElement(colIndex) {
+      colIndex = +colIndex;
+      if (colIndex < 0) return null;
+      return (0, _dom2.default)('.data-table-col[data-col-index="' + colIndex + '"]', this.header);
     }
   }]);
 
@@ -26594,8 +26679,8 @@ exports.default = {
   addCheckboxColumn: false,
   enableClusterize: true,
   enableLogs: false,
-  takeAvailableSpace: false,
-  loadingText: ''
+  layout: 'fixed', // fixed, fluid
+  noDataMessage: 'No Data'
 };
 module.exports = exports['default'];
 
@@ -27282,7 +27367,7 @@ class TableControl extends base {
         this.datatable = new frappeDatatable(this.wrapper.querySelector('.datatable-wrapper'), {
             columns: this.getColumns(),
             data: this.getTableData(),
-            takeAvailableSpace: true,
+            layout: 'fluid',
             addCheckboxColumn: true,
             getEditor: this.getTableInput.bind(this),
         });
@@ -27382,7 +27467,6 @@ class TableControl extends base {
                 id: field.fieldname,
                 field: field,
                 content: field.label,
-                width: 120,
                 editable: (this.disabled || field.disabled) ? false : true,
                 sortable: false,
                 resizable: true,
@@ -27636,7 +27720,7 @@ var form = class BaseForm extends observable {
                 // only single value changed
                 let control = this.controls[params.fieldname];
                 if (control && control.getInputValue() !== control.format(params.fieldname)) {
-                    control.setDocValue();
+                    control.refresh();
                 }
             } else {
                 // multiple values changed
@@ -27978,11 +28062,11 @@ var desk = class Desk {
         return this.pages.forms[doctype];
     }
 
-    showFormModal(doctype, name) {
+    async showFormModal(doctype, name) {
         if (!this.pages.formModals[doctype]) {
             this.pages.formModals[doctype] = new formmodal(doctype);
         }
-        this.pages.formModals[doctype].showWith(doctype, name);
+        await this.pages.formModals[doctype].showWith(doctype, name);
         return this.pages.formModals[doctype];
     }
 
@@ -28429,59 +28513,73 @@ var InvoiceDocument = class Invoice extends document$1 {
 	}
 };
 
-var Invoice = {
-	"name": "Invoice",
-	"doctype": "DocType",
-	"documentClass": InvoiceDocument,
-	"isSingle": 0,
-	"istable": 0,
-	"keywordFields": ["name", "customer"],
-	"settings": "InvoiceSettings",
-	"showTitle": true,
-	"fields": [
-		{
-			"fieldname": "date",
-			"label": "Date",
-			"fieldtype": "Date"
-		},
-		{
-			"fieldname": "customer",
-			"label": "Customer",
-			"fieldtype": "Link",
-			"target": "Customer",
-			"required": 1
-		},
-		{
-			"fieldname": "items",
-			"label": "Items",
-			"fieldtype": "Table",
-			"childtype": "InvoiceItem",
-			"required": true
-		},
-		{
-			"fieldname": "netTotal",
-			"label": "Total",
-			"fieldtype": "Currency",
-			formula: (doc) => doc.getSum('items', 'amount'),
-			"disabled": true
-		},
-		{
-			"fieldname": "taxes",
-			"label": "Taxes",
-			"fieldtype": "Table",
-			"childtype": "TaxSummary",
-			"disabled": true,
-			"template": `<div></div>`
-		},
-		{
-			"fieldname": "grandTotal",
-			"label": "Total",
-			"fieldtype": "Currency",
-			formula: (doc) => doc.getGrandTotal(),
-			"disabled": true
-		}
-	]
+var Invoice = createCommonjsModule(function (module) {
+module.exports = {
+    "name": "Invoice",
+    "doctype": "DocType",
+    "documentClass": InvoiceDocument,
+    "isSingle": 0,
+    "istable": 0,
+    "keywordFields": ["name", "customer"],
+    "settings": "InvoiceSettings",
+    "showTitle": true,
+    "fields": [
+        {
+            "fieldname": "date",
+            "label": "Date",
+            "fieldtype": "Date"
+        },
+        {
+            "fieldname": "customer",
+            "label": "Customer",
+            "fieldtype": "Link",
+            "target": "Customer",
+            "required": 1
+        },
+        {
+            "fieldname": "items",
+            "label": "Items",
+            "fieldtype": "Table",
+            "childtype": "InvoiceItem",
+            "required": true
+        },
+        {
+            "fieldname": "netTotal",
+            "label": "Total",
+            "fieldtype": "Currency",
+            formula: (doc) => doc.getSum('items', 'amount'),
+            "disabled": true
+        },
+        {
+            "fieldname": "taxes",
+            "label": "Taxes",
+            "fieldtype": "Table",
+            "childtype": "TaxSummary",
+            "disabled": true,
+            template: (doc, row) => {
+                return `<div class='row'>
+                    <div class='col-6'><!-- empty left side --></div>
+                    <div class='col-6'>${(doc.taxes || []).map(row => {
+                        return `<div class='row'>
+                                <div class='col-6'>${row.account} (${row.rate}%)</div>
+                                <div class='col-6 text-right'>
+                                    ${frappejs.format(row.amount, {fieldtype:'Currency'})}
+                                </div>
+                            </div>`
+                        }).join('')}
+                    </div></div>`;
+            }
+        },
+        {
+            "fieldname": "grandTotal",
+            "label": "Total",
+            "fieldtype": "Currency",
+            formula: (doc) => doc.getGrandTotal(),
+            "disabled": true
+        }
+    ]
 };
+});
 
 var InvoiceItem = {
 	"name": "InvoiceItem",
@@ -28515,7 +28613,7 @@ var InvoiceItem = {
 			"label": "Rate",
 			"fieldtype": "Currency",
 			"required": 1,
-			formula: (row, doc) => doc.getFrom('Item', row.item, 'rate')
+			formula: (row, doc) => row.rate || doc.getFrom('Item', row.item, 'rate')
 		},
 		{
 			"fieldname": "tax",
