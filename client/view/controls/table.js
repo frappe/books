@@ -27,7 +27,7 @@ class TableControl extends BaseControl {
         this.datatable = new DataTable(this.wrapper.querySelector('.datatable-wrapper'), {
             columns: this.getColumns(),
             data: this.getTableData(),
-            takeAvailableSpace: true,
+            layout: 'fluid',
             addCheckboxColumn: true,
             getEditor: this.getTableInput.bind(this),
         });
@@ -127,7 +127,6 @@ class TableControl extends BaseControl {
                 id: field.fieldname,
                 field: field,
                 content: field.label,
-                width: 120,
                 editable: (this.disabled || field.disabled) ? false : true,
                 sortable: false,
                 resizable: true,

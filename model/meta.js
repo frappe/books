@@ -13,6 +13,10 @@ module.exports = class BaseMeta extends BaseDocument {
         }
     }
 
+    hasField(fieldname) {
+        return this.getField(fieldname) ? true : false;
+    }
+
     getField(fieldname) {
         if (!this._field_map) {
             this._field_map = {};

@@ -106,11 +106,11 @@ module.exports = class Desk {
         return this.pages.forms[doctype];
     }
 
-    showFormModal(doctype, name) {
+    async showFormModal(doctype, name) {
         if (!this.pages.formModals[doctype]) {
             this.pages.formModals[doctype] = new FormModal(doctype);
         }
-        this.pages.formModals[doctype].showWith(doctype, name);
+        await this.pages.formModals[doctype].showWith(doctype, name);
         return this.pages.formModals[doctype];
     }
 

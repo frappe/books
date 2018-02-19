@@ -34,10 +34,14 @@ class LinkControl extends BaseControl {
             if (e.text && e.text.value === '__newItem') {
                 e.preventDefault();
                 const newDoc = await frappe.getNewDoc(this.target);
-                const formModal = frappe.desk.showFormModal(this.target, newDoc.name);
+                const formModal = await frappe.desk.showFormModal(this.target, newDoc.name);
+                if (formModal.form.doc.meta.hasField('name')) {
+                    formModal.form.doc.set('name', this.input.value);
+                }
+
                 formModal.once('submit', async () => {
                     await this.updateDocValue(formModal.form.doc.name);
-                })
+                });
             }
         });
 
