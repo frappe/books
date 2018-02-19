@@ -94,7 +94,11 @@ module.exports = {
         for (let field of this.getMeta(doc.doctype).getValidFields()) {
             if (field.fieldname === 'name') continue;
             if (field.fieldtype === 'Table') {
-                newDoc[field.fieldname] = (doc[field.fieldname] || []).map(d => Object.assign({}, d));
+                newDoc[field.fieldname] = (doc[field.fieldname] || []).map(d => {
+                    let newd = Object.assign({}, d);
+                    newd.name = '';
+                    return newd;
+                });
             } else {
                 newDoc[field.fieldname] = doc[field.fieldname];
             }

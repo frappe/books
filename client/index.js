@@ -1,5 +1,5 @@
 const common = require('frappejs/common');
-const RESTClient = require('frappejs/backends/rest_client');
+const HTTPClient = require('frappejs/backends/http');
 const frappe = require('frappejs');
 frappe.ui = require('./ui');
 const Desk = require('./desk');
@@ -13,7 +13,9 @@ module.exports = {
         frappe.registerModels(require('../models'));
 
         frappe.fetch = window.fetch.bind();
-        frappe.db = await new RESTClient({server: server});
+        frappe.db = await new HTTPClient({server: server});
+        this.socket = io.connect('http://localhost:8000'); // eslint-disable-line
+        frappe.db.bindSocketClient(this.socket);
 
         frappe.flags.cache_docs = true;
 

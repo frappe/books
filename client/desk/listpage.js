@@ -3,26 +3,26 @@ const Page = require('frappejs/client/view/page');
 const view = require('frappejs/client/view');
 
 module.exports = class ListPage extends Page {
-	constructor(doctype) {
-		let meta = frappe.getMeta(doctype);
+    constructor(doctype) {
+        let meta = frappe.getMeta(doctype);
 
-		// if center column is present, list does not have its route
-		const hasRoute = frappe.desk.center ? false : true;
+        // if center column is present, list does not have its route
+        const hasRoute = frappe.desk.center ? false : true;
 
-		super({
-			title: frappe._("List: {0}", meta.name),
-			parent: hasRoute ? frappe.desk.body : frappe.desk.center,
-			hasRoute: hasRoute
-		});
+        super({
+            title: frappe._("List: {0}", meta.name),
+            parent: hasRoute ? frappe.desk.body : frappe.desk.center,
+            hasRoute: hasRoute
+        });
 
-		this.list = new (view.geListClass(doctype))({
-			doctype: doctype,
-			parent: this.body,
-			page: this
-		});
+        this.list = new (view.geListClass(doctype))({
+            doctype: doctype,
+            parent: this.body,
+            page: this
+        });
 
-		this.on('show', async () => {
-			await this.list.run();
-		});
-	}
+        this.on('show', async () => {
+            await this.list.run();
+        });
+    }
 }

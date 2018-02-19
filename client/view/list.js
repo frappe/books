@@ -12,6 +12,14 @@ module.exports = class BaseList {
         this.body = null;
         this.rows = [];
         this.data = [];
+
+        frappe.db.on(`change:${this.doctype}`, (params) => {
+            this.dirty = true;
+        });
+
+        setInterval(() => {
+            if (this.dirty) this.refresh();
+        }, 500);
     }
 
     async refresh() {
@@ -20,6 +28,7 @@ module.exports = class BaseList {
 
     async run() {
         this.makeBody();
+        this.dirty = false;
 
         let data = await this.getData();
 

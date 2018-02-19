@@ -4,6 +4,8 @@ backends.sqlite = require('frappejs/backends/sqlite');
 
 const express = require('express');
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 const frappe = require('frappejs');
 const rest_api = require('./rest_api');
 const frappeModels = require('frappejs/models');
@@ -26,12 +28,18 @@ module.exports = {
         app.use(bodyParser.urlencoded({ extended: true }));
         app.use(express.static('./'));
 
+        // socketio
+        io.on('connection', function (socket) {
+            frappe.db.bindSocketServer(socket);
+        });
         // routes
         rest_api.setup(app);
 
         // listen
         frappe.app = app;
-        frappe.server = app.listen(frappe.config.port);
+        frappe.server = server;
+
+        server.listen(frappe.config.port);
     },
 
     async init() {
