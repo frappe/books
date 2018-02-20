@@ -59,12 +59,6 @@ class BaseControl {
             this.makeLabel();
         }
         this.makeInput();
-        this.setInputName();
-        this.setRequiredAttribute();
-        this.setDisabled();
-        if (!this.onlyInput) {
-            this.makeDescription();
-        }
         this.addChangeHandler();
     }
 
@@ -82,6 +76,14 @@ class BaseControl {
         this.input = frappe.ui.add('input', 'form-control', this.getInputParent());
         this.input.autocomplete = "off";
         this.input.id = this.id;
+
+        this.setInputName();
+        this.setRequiredAttribute();
+        this.setDisabled();
+        if (!this.onlyInput) {
+            this.makeDescription();
+        }
+
     }
 
     setDisabled() {
@@ -124,7 +126,7 @@ class BaseControl {
     }
 
     async getParsedValue() {
-        return await this.parse(this.input.value);
+        return await this.parse(this.getInputValue());
     }
 
     getInputValue() {

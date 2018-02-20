@@ -11,6 +11,11 @@ const rest_api = require('./rest_api');
 const frappeModels = require('frappejs/models');
 const common = require('frappejs/common');
 const bodyParser = require('body-parser');
+const fs = require('fs');
+
+require.extensions['.html'] = function (module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+};
 
 module.exports = {
     async start({backend, connectionParams, models}) {

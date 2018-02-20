@@ -14,13 +14,14 @@
     "bootstrap": "^4.0.0",
     "bufferutil": "^3.0.3",
     "clusterize.js": "^0.18.0",
+    "codemirror": "^5.35.0",
     "commander": "^2.13.0",
-    "debug": "^3.1.0",
     "express": "^4.16.2",
     "flatpickr": "^4.3.2",
     "jquery": "^3.3.1",
     "mysql": "^2.15.0",
     "node-fetch": "^1.7.3",
+    "nunjucks": "^3.1.0",
     "popper.js": "^1.12.9",
     "rollup-plugin-ignore": "^1.0.3",
     "socket.io": "^2.0.4",
@@ -57,6 +58,7 @@
     "rollup-plugin-node-globals": "^1.1.0",
     "rollup-plugin-node-resolve": "^3.0.2",
     "rollup-plugin-postcss": "^1.2.7",
+    "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-sass": "^0.5.3"
   }
 }

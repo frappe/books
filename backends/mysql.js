@@ -61,8 +61,8 @@ module.exports = class mysqlDatabase extends Database{
     }
 
 
-    async runAddColumnQuery(doctype) {
-        await this.run(`ALTER TABLE ${doctype} ADD COLUMN ${this.get_column_definition(df)}`, values);
+    async runAddColumnQuery(doctype, fields) {
+        await this.run(`ALTER TABLE ${doctype} ADD COLUMN ${this.get_column_definition(doctype)}`);
     }
 
     getOne(doctype, name, fields = '*') {

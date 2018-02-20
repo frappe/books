@@ -5,7 +5,7 @@ module.exports = {
 
         // [doctype].json
         fs.mkdirSync(`./models/doctype/${name}`);
-        fs.writeFileSync(`./models/doctype/${name}/${name}.js`, `{
+        fs.writeFileSync(`./models/doctype/${name}/${name}.js`, `module.exports = {
     name: "${name}",
     doctype: "DocType",
     isSingle: 0,

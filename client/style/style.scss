@@ -2,6 +2,8 @@
 @import "node_modules/awesomplete/awesomplete";
 @import "node_modules/flatpickr/dist/flatpickr";
 @import "node_modules/flatpickr/dist/themes/airbnb";
+@import "node_modules/codemirror/lib/codemirror";
+// @import "node_modules/codemirror/theme/cobalt";
 
 $spacer-1: 0.25rem;
 $spacer-2: 0.5rem;
@@ -104,6 +106,13 @@ html {
 	padding: $spacer-2 $spacer-3;
 }
 
+.CodeMirror {
+	font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
+	border: 1px solid $gray-300;
+	border-radius: 0.25rem;
+	padding: $spacer-2;
+}
+
 .awesomplete {
 	display: block;
 
@@ -182,3 +191,4 @@ mark {
 		}
 	}
 }
+
