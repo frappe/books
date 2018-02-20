@@ -106,12 +106,6 @@ module.exports = {
         return newDoc;
     },
 
-    newDoc(data) {
-        let doc = new (this.getDocumentClass(data.doctype))(data);
-        doc.setDefaults();
-        return doc;
-    },
-
     async getNewDoc(doctype) {
         let doc = this.newDoc({doctype: doctype});
         doc._notInserted = true;
@@ -120,8 +114,26 @@ module.exports = {
         return doc;
     },
 
+    newDoc(data) {
+        let doc = new (this.getDocumentClass(data.doctype))(data);
+        doc.setDefaults();
+        return doc;
+    },
+
     async insert(data) {
         return await (this.newDoc(data)).insert();
+    },
+
+    async syncDoc(data) {
+        let doc;
+        if (await this.db.exists(data.doctype, data.name)) {
+            doc = await this.getDoc(data.doctype, data.name);
+            Object.assign(doc, data);
+            await doc.update();
+        } else {
+            doc = this.newDoc(data);
+            await doc.insert();
+        }
     },
 
     login(user='guest', user_key) {

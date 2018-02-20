@@ -22,10 +22,10 @@ module.exports = {
     ],
     parent_fields: [
         {
-            fieldname: 'owner', fieldtype: 'Text', required: 1
+            fieldname: 'owner', fieldtype: 'Data', required: 1
         },
         {
-            fieldname: 'modifieldBy', fieldtype: 'Text', required: 1
+            fieldname: 'modifieldBy', fieldtype: 'Data', required: 1
         },
         {
             fieldname: 'creation', fieldtype: 'Datetime', required: 1
@@ -48,7 +48,7 @@ module.exports = {
             fieldname: 'parent', fieldtype: 'Data', required: 1
         },
         {
-            fieldname: 'parenttype', fieldtype: 'Text', required: 1
+            fieldname: 'parenttype', fieldtype: 'Data', required: 1
         },
         {
             fieldname: 'parentfield', fieldtype: 'Data', required: 1

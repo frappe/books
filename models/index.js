@@ -1,5 +1,6 @@
 module.exports = {
     NumberSeries: require('./doctype/NumberSeries/NumberSeries.js'),
+    PrintFormat: require('./doctype/PrintFormat/PrintFormat.js'),
     Role: require('./doctype/Role/Role.js'),
     Session: require('./doctype/Session/Session.js'),
     SingleValue: require('./doctype/SingleValue/SingleValue.js'),
