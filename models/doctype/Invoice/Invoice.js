@@ -4,6 +4,7 @@ module.exports = {
     "name": "Invoice",
     "doctype": "DocType",
     "documentClass": require("./InvoiceDocument.js"),
+    "defaultPrintFormat": "Standard Invoice Format",
     "isSingle": 0,
     "istable": 0,
     "keywordFields": ["name", "customer"],
