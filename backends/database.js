@@ -30,54 +30,90 @@ module.exports = class Database extends Observable {
         await this.commit();
     }
 
-    async createTable(doctype) {
+    async createTable(doctype, newName=null) {
         let meta = frappe.getMeta(doctype);
         let columns = [];
-        let values = [];
+        let indexes = [];
 
         for (let field of meta.getValidFields({ withChildren: false })) {
             if (this.type_map[field.fieldtype]) {
-                columns.push(this.getColumnDefinition(field));
+                this.updateColumnDefinition(field, columns, indexes);
             }
         }
 
-        return await this.runCreateTableQuery(doctype, columns, values);
+        return await this.runCreateTableQuery(newName || doctype, columns, indexes);
     }
 
     async tableExists(table) {
         // return true if table exists
     }
 
-    async runCreateTableQuery(doctype, columns, values) {
+    async runCreateTableQuery(doctype, columns, indexes) {
         // override
     }
 
-    getColumnDefinition(df) {
+    updateColumnDefinition(field, columns, indexes) {
         // return `${df.fieldname} ${this.type_map[df.fieldtype]} ${ ? "PRIMARY KEY" : ""} ${df.required && !df.default ? "NOT NULL" : ""} ${df.default ? `DEFAULT ${df.default}` : ""}`
     }
 
     async alterTable(doctype) {
         // get columns
+        let newColumns = await this.getNewColumns(doctype);
+        let newForeignKeys = await this.getNewForeignKeys(doctype);
+
+        if (newColumns.length) {
+            await this.addColumns(doctype, newColumns);
+        }
+        if (newForeignKeys.length) {
+            await this.addForeignKeys(doctype);
+        }
+    }
+
+    async getNewColumns(doctype) {
         let tableColumns = await this.getTableColumns(doctype);
         let meta = frappe.getMeta(doctype);
-        let values = [];
-
+        let newColumns = [];
         for (let field of meta.getValidFields({ withChildren: false })) {
             if (!tableColumns.includes(field.fieldname) && this.type_map[field.fieldtype]) {
-                values = []
-                if (field.default) {
-                    values.push(field.default);
-                }
-                await this.runAlterTableQuery(doctype, field, values);
+                newColumns.push(field);
             }
         }
+        return newColumns;
+    }
+
+    async addColumns(doctype, newColumns) {
+        for (let field of newColumns) {
+            await this.runAddColumnQuery(doctype, field);
+        }
+    }
+
+    async getNewForeignKeys(doctype) {
+        let foreignKeys = await this.getForeignKeys(doctype);
+        let newForeignKeys = [];
+        let meta = frappe.getMeta(doctype);
+        for (let field of meta.getValidFields({ withChildren: false})) {
+            if (field.fieldtype==='Link' && !foreignKeys.includes(field.fieldname)) {
+                newForeignKeys.push(field);
+            }
+        }
+        return newForeignKeys;
+    }
+
+    async addForeignKeys(doctype, newForeignKeys) {
+        for (let field of newForeignKeys) {
+            this.addForeignKey(doctype, field);
+        }
+    }
+
+    async getForeignKey(doctype, field) {
+
     }
 
     async getTableColumns(doctype) {
         return [];
     }
 
-    async runAlterTableQuery(doctype, field, values) {
+    async runAddColumnQuery(doctype, field) {
         // alter table {doctype} add column ({column_def});
     }
 
