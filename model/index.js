@@ -22,10 +22,10 @@ module.exports = {
     ],
     parent_fields: [
         {
-            fieldname: 'owner', fieldtype: 'Link', required: 1, options: 'User'
+            fieldname: 'owner', fieldtype: 'Text', required: 1
         },
         {
-            fieldname: 'modified_by', fieldtype: 'Link', required: 1, options: 'User'
+            fieldname: 'modifieldBy', fieldtype: 'Text', required: 1
         },
         {
             fieldname: 'creation', fieldtype: 'Datetime', required: 1
@@ -48,7 +48,7 @@ module.exports = {
             fieldname: 'parent', fieldtype: 'Data', required: 1
         },
         {
-            fieldname: 'parenttype', fieldtype: 'Link', required: 1, options: 'DocType'
+            fieldname: 'parenttype', fieldtype: 'Text', required: 1
         },
         {
             fieldname: 'parentfield', fieldtype: 'Data', required: 1

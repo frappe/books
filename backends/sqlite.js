@@ -18,7 +18,7 @@ module.exports = class sqliteDatabase extends Database {
                 if (debug) {
                     this.conn.on('trace', (trace) => console.log(trace));
                 }
-                resolve();
+                this.run('PRAGMA foreign_keys=ON').then(resolve);
             });
         });
     }
@@ -28,22 +28,70 @@ module.exports = class sqliteDatabase extends Database {
         return (name && name.length) ? true : false;
     }
 
-    async runCreateTableQuery(doctype, columns, values) {
-        const query = `CREATE TABLE IF NOT EXISTS ${doctype} (
-            ${columns.join(", ")})`;
+    async alterTable(doctype) {
+        let newColumns = await this.getNewColumns(doctype);
+        let newForeignKeys = await this.getNewForeignKeys(doctype);
 
-        return await this.run(query, values);
+        if (newColumns.length || newForeignKeys.length) {
+            await this.migrateToNewTable(doctype);
+        }
     }
 
-    getColumnDefinition(df) {
-        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${ df.fieldname==="name" ? "PRIMARY KEY" : ""} ${df.required && !df.default ? "NOT NULL" : ""} ${df.default ? `DEFAULT ${df.default}` : ""}`
+    async migrateToNewTable(doctype) {
+        await this.run('PRAGMA foreign_keys=OFF');
+        await this.run('BEGIN TRANSACTION');
+
+        // create temp table
+        await this.createTable(doctype, 'TEMP' + doctype);
+
+        // copy from old to new table
+        await this.run(`INSERT INTO TEMP${doctype} SELECT * from ${doctype}`);
+
+        // drop old table
+        await this.run(`DROP TABLE ${doctype}`);
+
+        // rename new table
+        await this.run(`ALTER TABLE TEMP${doctype} RENAME TO ${doctype}`);
+
+        await this.run('COMMIT');
+        await this.run('PRAGMA foreign_keys=ON');
+    }
+
+    async runCreateTableQuery(doctype, columns, indexes) {
+        const query = `CREATE TABLE IF NOT EXISTS ${doctype} (
+            ${columns.join(", ")} ${indexes.length ? (", " + indexes.join(", ")) : ''})`;
+
+        return await this.run(query);
+    }
+
+    updateColumnDefinition(field, columns, indexes) {
+        let def = `${field.fieldname} ${this.type_map[field.fieldtype]}`;
+        if (field.fieldname==='name') {
+            def += ' PRIMARY KEY NOT NULL';
+        }
+        else if (field.reqd) {
+            def += ' NOT NULL';
+        }
+        if (field.default) {
+            def += `DEFAULT ${field.default}`;
+        }
+
+        columns.push(def);
+
+        if (field.fieldtype==='Link' && field.target) {
+            indexes.push(`FOREIGN KEY (${field.fieldname}) REFERENCES ${field.target} ON UPDATE RESTRICT ON DELETE RESTRICT`);
+        }
     }
 
     async getTableColumns(doctype) {
         return (await this.sql(`PRAGMA table_info(${doctype})`)).map(d => d.name);
     }
 
-    async runAlterTableQuery(doctype, field, values) {
+    async getForeignKeys(doctype) {
+        return (await this.sql(`PRAGMA foreign_key_list(${doctype})`)).map(d => d.from);
+    }
+
+    async runAddColumnQuery(doctype, field, values) {
         await this.run(`ALTER TABLE ${doctype} ADD COLUMN ${this.getColumnDefinition(field)}`, values);
     }
 

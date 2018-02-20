@@ -52,8 +52,8 @@ module.exports = class mysqlDatabase extends Database{
     }
 
 
-    getColumnDefinition(df) {
-        return `${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default '${df.default}'` : ""}`
+    updateColumnDefinition(df, columns, indexes) {
+        columns.push(`${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default '${df.default}'` : ""}`);
     }
 
     async getTableColumns(doctype) {
@@ -61,7 +61,7 @@ module.exports = class mysqlDatabase extends Database{
     }
 
 
-    async runAlterTableQuery(doctype) {
+    async runAddColumnQuery(doctype) {
         await this.run(`ALTER TABLE ${doctype} ADD COLUMN ${this.get_column_definition(df)}`, values);
     }
 

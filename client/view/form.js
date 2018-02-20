@@ -52,9 +52,7 @@ module.exports = class BaseForm extends Observable {
         if (!this.meta.isSingle && this.actions.includes('delete')) {
             let menu = this.container.getDropdown(frappe._('Menu'));
             menu.addItem(frappe._("Delete"), async (e) => {
-                await this.doc.delete();
-                this.showAlert('Deleted', 'success');
-                this.trigger('delete');
+                await this.delete();
             });
         }
 
@@ -176,6 +174,16 @@ module.exports = class BaseForm extends Observable {
             return;
         }
         await this.trigger('submit');
+    }
+
+    async delete() {
+        try {
+            await this.doc.delete();
+            this.showAlert('Deleted', 'success');
+            this.trigger('delete');
+        } catch (e) {
+            this.showAlert(e, 'danger');
+        }
     }
 
     refresh() {
