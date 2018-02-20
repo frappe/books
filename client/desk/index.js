@@ -81,6 +81,9 @@ module.exports = class Desk {
             let doc = await frappe.getNewDoc(params.doctype);
             // unset the name, its local
             await frappe.router.setRoute('edit', doc.doctype, doc.name);
+
+            // focus on new page
+            frappe.desk.body.activePage.body.querySelector('input').focus();
         });
 
         frappe.router.on('change', () => {

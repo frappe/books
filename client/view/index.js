@@ -6,7 +6,7 @@ module.exports = {
     getFormClass(doctype) {
         return (frappe.views['Form'] && frappe.views['Form'][doctype]) || BaseForm;
     },
-    geListClass(doctype) {
+    getListClass(doctype) {
         return (frappe.views['List'] && frappe.views['List'][doctype]) || BaseList;
     }
 }

@@ -7,6 +7,7 @@ module.exports = class FormPage extends Page {
         let meta = frappe.getMeta(doctype)
         super({title: `Edit ${meta.name}`});
         this.meta = meta;
+        this.doctype = doctype;
 
         this.form = new (view.getFormClass(doctype))({
             doctype: doctype,
@@ -32,6 +33,7 @@ module.exports = class FormPage extends Page {
         });
 
         this.form.on('delete', async (params) => {
+            this.hide();
             await frappe.router.setRoute('list', this.form.doctype);
         });
     }
@@ -39,21 +41,15 @@ module.exports = class FormPage extends Page {
     async showDoc(doctype, name) {
         try {
             await this.form.setDoc(doctype, name);
-            this.setActiveListRow(doctype, name);
+            this.setActiveListRow(name);
         } catch (e) {
             this.renderError(e.status_code, e.message);
         }
     }
 
-    setActiveListRow(doctype, name) {
-        let activeListRow = document.querySelector('.list-page .list-body .list-row.active');
-        if (activeListRow) {
-            activeListRow.classList.remove('active');
-        }
-
-        let myListRow = document.querySelector(`.list-body[data-doctype="${doctype}"] .list-row[data-name="${name}"]`);
-        if (myListRow) {
-            myListRow.classList.add('active');
+    setActiveListRow(name) {
+        if (frappe.desk.pages.lists[this.doctype]) {
+            frappe.desk.pages.lists[this.doctype].list.setActiveListRow(name);
         }
     }
 }

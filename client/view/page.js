@@ -36,6 +36,7 @@ module.exports = class Page extends Observable {
     }
 
     hide() {
+        this.parent.activePage = null;
         this.wrapper.classList.add('hide');
         this.trigger('hide');
     }
