@@ -36,7 +36,8 @@ module.exports = {
             "fieldname": "tax",
             "label": "Tax",
             "fieldtype": "Link",
-            "target": "Tax"
+            "target": "Tax",
+            formula: (row, doc) => doc.getFrom('Item', row.item, 'tax')
         },
         {
             "fieldname": "amount",

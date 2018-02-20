@@ -23,7 +23,7 @@ module.exports = class Invoice extends BaseDocument {
         if (!this.taxes) this.taxes = [];
 
         // reset tax amount
-        this.taxes.map(d => d.amount = 0);
+        this.taxes.map(d => { d.amount = 0; d.rate = 0; });
 
         // calculate taxes
         for (let row of this.items) {
@@ -35,6 +35,7 @@ module.exports = class Invoice extends BaseDocument {
                     // check if added in summary
                     for (let taxDetail of this.taxes) {
                         if (taxDetail.account === rowTaxDetail.account) {
+                            taxDetail.rate = rowTaxDetail.rate;
                             taxDetail.amount += rowTaxDetail.amount;
                             found = true;
                         }
