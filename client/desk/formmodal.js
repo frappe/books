@@ -21,9 +21,9 @@ module.exports = class FormModal extends Modal {
     }
 
     makeForm() {
-		this.form = new (view.getFormClass(this.doctype))({
-			doctype: this.doctype,
-			parent: this.getBody(),
+        this.form = new (view.getFormClass(this.doctype))({
+            doctype: this.doctype,
+            parent: this.getBody(),
             container: this,
             actions: ['submit']
         });

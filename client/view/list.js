@@ -1,4 +1,5 @@
 const frappe = require('frappejs');
+const keyboard = require('frappejs/client/ui/keyboard');
 
 module.exports = class BaseList {
     constructor({doctype, parent, fields, page}) {
@@ -20,6 +21,17 @@ module.exports = class BaseList {
         setInterval(() => {
             if (this.dirty) this.refresh();
         }, 500);
+    }
+
+    makeBody() {
+        if (!this.body) {
+            this.makeToolbar();
+            this.parent.classList.add('list-page');
+            this.body = frappe.ui.add('div', 'list-body', this.parent);
+            this.body.setAttribute('data-doctype', this.doctype);
+            this.makeMoreBtn();
+            this.bindKeys();
+        }
     }
 
     async refresh() {
@@ -44,6 +56,8 @@ module.exports = class BaseList {
 
         this.clearEmptyRows();
         this.updateMore(data.length > this.pageLength);
+        this.selectDefaultRow();
+        this.setActiveListRow();
     }
 
     async getData() {
@@ -73,13 +87,63 @@ module.exports = class BaseList {
         return filters;
     }
 
-    makeBody() {
-        if (!this.body) {
-            this.makeToolbar();
-            this.parent.classList.add('list-page');
-            this.body = frappe.ui.add('div', 'list-body', this.parent);
-            this.body.setAttribute('data-doctype', this.doctype);
-            this.makeMoreBtn();
+    renderRow(i, data) {
+        let row = this.getRow(i);
+        row.innerHTML = this.getRowBodyHTML(data);
+        row.docName = data.name;
+        row.setAttribute('data-name', data.name);
+        row.style.display = 'flex';
+
+        // make element focusable
+        row.setAttribute('tabindex', -1);
+    }
+
+    getRowBodyHTML(data) {
+        return `<div class="col-1">
+            <input class="checkbox" type="checkbox" data-name="${data.name}">
+        </div>` + this.getRowHTML(data);
+    }
+
+    getRowHTML(data) {
+        return `<div class="col-11">${data.name}</div>`;
+    }
+
+    getRow(i) {
+        if (!this.rows[i]) {
+            this.rows[i] = frappe.ui.add('div', 'list-row row no-gutters', this.body);
+
+            // open on click
+            let me = this;
+            this.rows[i].addEventListener('click', async function(e) {
+                if (!e.target.tagName !== 'input') {
+                    await me.showItem(this.docName);
+                }
+            });
+        }
+        return this.rows[i];
+    }
+
+    async showItem(name) {
+        await frappe.router.setRoute('edit', this.doctype, name);
+    }
+
+    getCheckedRowNames() {
+        return [...this.body.querySelectorAll('.checkbox:checked')].map(check => check.getAttribute('data-name'));
+    }
+
+    clearEmptyRows() {
+        if (this.rows.length > this.data.length) {
+            for (let i=this.data.length; i < this.rows.length; i++) {
+                let row = this.getRow(i);
+                row.innerHTML = '';
+                row.style.display = 'none';
+            }
+        }
+    }
+
+    selectDefaultRow() {
+        if (!frappe.desk.body.activePage && this.rows.length) {
+            this.showItem(this.rows[0].docName);
         }
     }
 
@@ -123,59 +187,33 @@ module.exports = class BaseList {
         });
     }
 
+    bindKeys() {
+        keyboard.bindKey(this.body, 'up', async (e) => await this.move('up'));
+        keyboard.bindKey(this.body, 'down', async (e) => await this.move('down'))
+
+        keyboard.bindKey(this.body, 'right', () => {
+            if (frappe.desk.body.activePage) {
+                frappe.desk.body.activePage.body.querySelector('input').focus();
+            }
+        })
+    }
+
+    async move(direction) {
+        let elementRef = direction === 'up' ? 'previousSibling' : 'nextSibling';
+        if (document.activeElement && document.activeElement.classList.contains('list-row')) {
+            let next = document.activeElement[elementRef];
+            if (next && next.docName) {
+                await this.showItem(next.docName);
+            }
+        }
+    }
+
     makeMoreBtn() {
         this.btnMore = frappe.ui.add('button', 'btn btn-secondary hide', this.parent);
         this.btnMore.textContent = 'More';
         this.btnMore.addEventListener('click', () => {
             this.append();
         })
-    }
-
-    renderRow(i, data) {
-        let row = this.getRow(i);
-        row.innerHTML = this.getRowBodyHTML(data);
-        row.setAttribute('data-name', data.name);
-        row.style.display = 'flex';
-    }
-
-    getRowBodyHTML(data) {
-        return `<div class="col-1">
-            <input class="checkbox" type="checkbox" data-name="${data.name}">
-        </div>` + this.getRowHTML(data);
-    }
-
-    getRowHTML(data) {
-        return `<div class="col-11">${data.name}</div>`;
-    }
-
-    getRow(i) {
-        if (!this.rows[i]) {
-            this.rows[i] = frappe.ui.add('div', 'list-row row no-gutters', this.body);
-
-            // open on click
-            let doctype = this.doctype;
-            this.rows[i].addEventListener('click', function(e) {
-                if (!e.target.tagName !== 'input') {
-                    let name = this.getAttribute('data-name');
-                    frappe.router.setRoute('edit', doctype, name);
-                }
-            });
-        }
-        return this.rows[i];
-    }
-
-    getCheckedRowNames() {
-        return [...this.body.querySelectorAll('.checkbox:checked')].map(check => check.getAttribute('data-name'));
-    }
-
-    clearEmptyRows() {
-        if (this.rows.length > this.data.length) {
-            for (let i=this.data.length; i < this.rows.length; i++) {
-                let row = this.getRow(i);
-                row.innerHTML = '';
-                row.style.display = 'none';
-            }
-        }
     }
 
     updateMore(show) {
@@ -185,5 +223,27 @@ module.exports = class BaseList {
             this.btnMore.classList.add('hide');
         }
     }
+
+    setActiveListRow(name) {
+        let activeListRow = this.body.querySelector('.list-row.active');
+        if (activeListRow) {
+            activeListRow.classList.remove('active');
+        }
+
+        if (!name) {
+            // get name from active page
+            name = frappe.desk.body.activePage && frappe.desk.body.activePage.form.doc
+            && frappe.desk.body.activePage.form.doc.name;
+        }
+
+        if (name) {
+            let myListRow = this.body.querySelector(`.list-row[data-name="${name}"]`);
+            if (myListRow) {
+                myListRow.classList.add('active');
+                myListRow.focus();
+            }
+        }
+    }
+
 
 };
