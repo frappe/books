@@ -21,7 +21,7 @@ module.exports = {
         this.views = {};
         this.docs = {};
         this.flags = {
-            cache_docs: false
+            cacheDocs: false
         }
     },
 
@@ -40,7 +40,7 @@ module.exports = {
     },
 
     addToCache(doc) {
-        if (!this.flags.cache_docs) return;
+        if (!this.flags.cacheDocs) return;
 
         // add to `docs` cache
         if (doc.doctype && doc.name) {
@@ -48,6 +48,11 @@ module.exports = {
                 this.docs[doc.doctype] = {};
             }
             this.docs[doc.doctype][doc.name] = doc;
+
+            // singles available as first level objects too
+            if (doc.doctype === doc.name) {
+                this[doc.name] = doc;
+            }
         }
     },
 

@@ -1,5 +1,5 @@
 const $ = require('jquery');
-const bootstrap = require('bootstrap');
+const bootstrap = require('bootstrap'); // eslint-disable-line
 const Observable = require('frappejs/utils/observable');
 
 module.exports = class Modal extends Observable {

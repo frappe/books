@@ -8,6 +8,7 @@ module.exports = class FormModal extends Modal {
     }
 
     async showWith(doctype, name) {
+        if (!name) name = doctype;
         this.show();
         await this.setDoc(doctype, name);
     }
@@ -17,7 +18,8 @@ module.exports = class FormModal extends Modal {
             this.makeForm();
         }
         await this.form.setDoc(doctype, name);
-        this.modal.querySelector('input').focus();
+        let input = this.modal.querySelector('input') || this.modal.querySelector('select');
+        input && input.focus();
     }
 
     makeForm() {

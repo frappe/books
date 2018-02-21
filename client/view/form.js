@@ -49,6 +49,13 @@ module.exports = class BaseForm extends Observable {
             })
         }
 
+        if (this.meta.print && this.actions.includes('print')) {
+            let menu = this.container.getDropdown(frappe._('Menu'));
+            menu.addItem(frappe._("Print"), async (e) => {
+                await frappe.router.setRoute('print', this.doctype, this.doc.name);
+            });
+        }
+
         if (!this.meta.isSingle && this.actions.includes('delete')) {
             let menu = this.container.getDropdown(frappe._('Menu'));
             menu.addItem(frappe._("Delete"), async (e) => {

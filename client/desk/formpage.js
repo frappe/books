@@ -13,14 +13,11 @@ module.exports = class FormPage extends Page {
             doctype: doctype,
             parent: this.body,
             container: this,
-            actions: ['submit', 'delete', 'duplicate', 'settings']
+            actions: ['submit', 'delete', 'duplicate', 'settings', 'print']
         });
 
         this.on('show', async (params) => {
             await this.showDoc(params.doctype, params.name);
-            if (frappe.desk.center && !frappe.desk.center.activePage) {
-                frappe.desk.showListPage(doctype);
-            }
         });
 
         // if name is different after saving, change the route
@@ -41,15 +38,9 @@ module.exports = class FormPage extends Page {
     async showDoc(doctype, name) {
         try {
             await this.form.setDoc(doctype, name);
-            this.setActiveListRow(name);
+            frappe.desk.setActiveDoc(this.form.doc);
         } catch (e) {
             this.renderError(e.status_code, e.message);
-        }
-    }
-
-    setActiveListRow(name) {
-        if (frappe.desk.pages.lists[this.doctype]) {
-            frappe.desk.pages.lists[this.doctype].list.setActiveListRow(name);
         }
     }
 }

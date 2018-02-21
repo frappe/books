@@ -124,7 +124,11 @@ module.exports = class BaseList {
     }
 
     async showItem(name) {
-        await frappe.router.setRoute('edit', this.doctype, name);
+        if (this.meta.print) {
+            await frappe.router.setRoute('print', this.doctype, name);
+        } else {
+            await frappe.router.setRoute('edit', this.doctype, name);
+        }
     }
 
     getCheckedRowNames() {
@@ -188,14 +192,29 @@ module.exports = class BaseList {
     }
 
     bindKeys() {
-        keyboard.bindKey(this.body, 'up', async (e) => await this.move('up'));
-        keyboard.bindKey(this.body, 'down', async (e) => await this.move('down'))
+        keyboard.bindKey(this.body, 'up', () => this.move('up'));
+        keyboard.bindKey(this.body, 'down', () => this.move('down'))
 
         keyboard.bindKey(this.body, 'right', () => {
             if (frappe.desk.body.activePage) {
                 frappe.desk.body.activePage.body.querySelector('input').focus();
             }
-        })
+        });
+
+        keyboard.bindKey(this.body, 'n', (e) => {
+            frappe.router.setRoute('new', this.doctype);
+            e.preventDefault();
+        });
+
+        keyboard.bindKey(this.body, 'x', async (e) => {
+            let activeListRow = this.getActiveListRow();
+            if (activeListRow && activeListRow.docName) {
+                e.preventDefault();
+                await frappe.db.delete(this.doctype, activeListRow.docName);
+                frappe.desk.body.activePage.hide();
+            }
+        });
+
     }
 
     async move(direction) {
@@ -225,15 +244,14 @@ module.exports = class BaseList {
     }
 
     setActiveListRow(name) {
-        let activeListRow = this.body.querySelector('.list-row.active');
+        let activeListRow = this.getActiveListRow();
         if (activeListRow) {
             activeListRow.classList.remove('active');
         }
 
         if (!name) {
             // get name from active page
-            name = frappe.desk.body.activePage && frappe.desk.body.activePage.form.doc
-            && frappe.desk.body.activePage.form.doc.name;
+            name = frappe.desk.activeDoc && frappe.desk.activeDoc.name;
         }
 
         if (name) {
@@ -245,5 +263,7 @@ module.exports = class BaseList {
         }
     }
 
-
+    getActiveListRow() {
+        return this.body.querySelector('.list-row.active');
+    }
 };

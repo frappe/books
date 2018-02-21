@@ -1,21 +1,24 @@
 module.exports = {
-	"name": "SystemSettings",
-	"doctype": "DocType",
-	"isSingle": 1,
-	"isChild": 0,
-	"keywordFields": [],
-	"fields": [
+	name: "SystemSettings",
+	label: "System Settings",
+	doctype: "DocType",
+	isSingle: 1,
+	isChild: 0,
+	keywordFields: [],
+	fields: [
 		{
-			"fieldname": "dateFormat",
-			"label": "Date Format",
-			"fieldtype": "Select",
-			"options": [
+			fieldname: "dateFormat",
+			label: "Date Format",
+			fieldtype: "Select",
+			options: [
 				"dd/mm/yyyy",
 				"mm/dd/yyyy",
 				"dd-mm-yyyy",
-				"mm-dd-yyyy"
+				"mm-dd-yyyy",
+				"yyyy-mm-dd"
 			],
-			"required": 1
+			default: "yyyy-mm-dd",
+			required: 1
 		}
 	]
 }
