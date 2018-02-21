@@ -17,7 +17,9 @@ module.exports = {
         this.socket = io.connect('http://localhost:8000'); // eslint-disable-line
         frappe.db.bindSocketClient(this.socket);
 
-        frappe.flags.cache_docs = true;
+        frappe.flags.cacheDocs = true;
+
+        await frappe.getSingle('SystemSettings');
 
         frappe.desk = new Desk(columns);
         await frappe.login();

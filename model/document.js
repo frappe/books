@@ -75,10 +75,10 @@ module.exports = class BaseDocument extends Observable {
 
     setDefaults() {
         for (let field of this.meta.fields) {
-            if (field.fieldtype === 'Date') {
-                this[field.fieldname] = (new Date()).toISOString().substr(0, 10);
-            } else if (!this[field.fieldname]) {
-                if(field.default) {
+            if (this[field.fieldname]===null || this[field.fieldname]===undefined) {
+                if (field.fieldtype === 'Date') {
+                    this[field.fieldname] = (new Date()).toISOString().substr(0, 10);
+                } else if(field.default) {
                     this[field.fieldname] = field.default;
                 }
             }
@@ -141,6 +141,9 @@ module.exports = class BaseDocument extends Observable {
         let data = await frappe.db.get(this.doctype, this.name);
         if (data.name) {
             this.syncValues(data);
+            if (this.meta.isSingle) {
+                this.setDefaults();
+            }
         } else {
             throw new frappe.errors.NotFound(`Not Found: ${this.doctype} ${this.name}`);
         }

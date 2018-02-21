@@ -1,5 +1,6 @@
 module.exports = {
     name: "PrintFormat",
+    label: "Print Format",
     doctype: "DocType",
     isSingle: 0,
     isChild: 0,

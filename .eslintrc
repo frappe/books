@@ -19,7 +19,8 @@
         "describe": true,
         "before": true,
         "after": true,
-        "it": true
+        "it": true,
+        "io": true
     },
 
     "rules": {

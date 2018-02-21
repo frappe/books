@@ -89,7 +89,7 @@ class TableControl extends BaseControl {
                 control.parentControl = this;
                 control.doc = this.doc[this.fieldname][rowIndex];
                 control.set_focus();
-                return control.setInputValue(value);
+                return control.setInputValue(control.doc[column.id]);
             },
             setValue: async (value, rowIndex, column) => {
                 control.handleChange();

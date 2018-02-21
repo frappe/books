@@ -4,7 +4,7 @@ module.exports = {
 		file: './dist/js/bundle.js',
 		format: 'iife',
 		name: 'desk',
-		globals: ['io'] // for socketio client, which is imported directly
+		globals: ['io', 'nunjucks'] // for socketio client, which is imported directly
 	},
 	plugins: [
 		require('rollup-plugin-commonjs')(),

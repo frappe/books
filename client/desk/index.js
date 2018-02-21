@@ -2,11 +2,13 @@ const frappe = require('frappejs');
 // const Search = require('./search');
 const Router = require('frappejs/common/router');
 const Page = require('frappejs/client/view/page');
-const FormPage = require('frappejs/client/desk/formpage');
-const ListPage = require('frappejs/client/desk/listpage');
-// const Navbar = require('./navbar');
+
+const views = {};
+views.Form = require('frappejs/client/desk/formpage');
+views.List = require('frappejs/client/desk/listpage');
+views.Print = require('frappejs/client/desk/printpage');
+views.FormModal = require('frappejs/client/desk/formmodal');
 const DeskMenu = require('./menu');
-const FormModal = require('frappejs/client/desk/formmodal');
 
 module.exports = class Desk {
     constructor(columns=2) {
@@ -20,9 +22,8 @@ module.exports = class Desk {
         this.makeColumns(columns);
 
         this.pages = {
-            lists: {},
-            forms: {},
-            formModals: {}
+            formModals: {},
+            List: {}
         };
 
         this.routeItems = {};
@@ -69,12 +70,15 @@ module.exports = class Desk {
         })
 
         frappe.router.add('list/:doctype', async (params) => {
-            await this.showListPage(params.doctype);
+            await this.showViewPage('List', params.doctype);
         });
 
         frappe.router.add('edit/:doctype/:name', async (params) => {
-            let page = this.getFormPage(params.doctype);
-            await page.show(params);
+            await this.showViewPage('Form', params.doctype, params);
+        })
+
+        frappe.router.add('print/:doctype/:name', async (params) => {
+            await this.showViewPage('Print', params.doctype, params);
         })
 
         frappe.router.add('new/:doctype', async (params) => {
@@ -94,27 +98,29 @@ module.exports = class Desk {
 
     }
 
-    async showListPage(doctype) {
-        if (!this.pages.lists[doctype]) {
-            this.pages.lists[doctype] = new ListPage(doctype);
-        }
-        await this.pages.lists[doctype].show(doctype);
-        return this.pages.lists[doctype];
-    }
-
-    getFormPage(doctype) {
-        if (!this.pages.forms[doctype]) {
-            this.pages.forms[doctype] = new FormPage(doctype);
-        }
-        return this.pages.forms[doctype];
+    async showViewPage(view, doctype, params) {
+        if (!params) params = doctype;
+        if (!this.pages[view]) this.pages[view] = {};
+        if (!this.pages[view][doctype]) this.pages[view][doctype] = new views[view](doctype);
+        await this.pages[view][doctype].show(params);
     }
 
     async showFormModal(doctype, name) {
         if (!this.pages.formModals[doctype]) {
-            this.pages.formModals[doctype] = new FormModal(doctype);
+            this.pages.formModals[doctype] = new views.FormModal(doctype);
         }
         await this.pages.formModals[doctype].showWith(doctype, name);
         return this.pages.formModals[doctype];
+    }
+
+    async setActiveDoc(doc) {
+        this.activeDoc = doc;
+        if (frappe.desk.center && !frappe.desk.center.activePage) {
+            await frappe.desk.showViewPage('List', doc.doctype);
+        }
+        if (frappe.desk.pages.List[doc.doctype]) {
+            frappe.desk.pages.List[doc.doctype].list.setActiveListRow(doc.name);
+        }
     }
 
     setActive(item) {
