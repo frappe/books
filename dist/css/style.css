@@ -7224,3 +7224,8 @@ mark {
     left: auto;
     width: auto;
     min-width: 120px; }
+.print-page {
+  padding: 3rem;
+  line-height: 1.8; }
+.print-page td, .print-page th {
+    padding: 0.5rem; }
