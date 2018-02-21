@@ -5,6 +5,6 @@ module.exports = class AccountList extends BaseList {
         return ['name', 'account_type'];
     }
     getRowHTML(data) {
-        return `<a href="#edit/account/${data.name}">${data.name} (${data.account_type})</a>`;
+        return `${data.name} (${data.account_type})`;
     }
 }
