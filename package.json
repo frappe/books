@@ -16,15 +16,17 @@
     "codemirror": "^5.35.0",
     "css-loader": "^0.28.9",
     "express": "^4.16.2",
+    "extract-text-webpack-plugin": "^3.0.2",
     "flatpickr": "^4.3.2",
     "jquery": "^3.3.1",
+    "moment": "^2.20.1",
     "node-fetch": "^1.7.3",
-    "node-sass": "^4.7.2",
     "nunjucks": "^3.1.0",
     "popper.js": "^1.12.9",
+    "postcss-loader": "^2.1.0",
     "sass-loader": "^6.0.6",
+    "showdown": "^1.8.6",
     "socket.io": "^2.0.4",
-    "socket.io-client": "^2.0.4",
     "sortablejs": "^1.7.0",
     "sqlite3": "^3.1.13",
     "style-loader": "^0.20.2",
@@ -36,6 +38,7 @@
     "autoprefixer": "^7.2.4",
     "eslint": "^4.9.0",
     "mocha": "^4.0.1",
+    "node-sass": "^4.7.2",
     "nodemon": "^1.15.1"
   }
 }

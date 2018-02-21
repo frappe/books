@@ -4,7 +4,9 @@ module.exports = {
     "name": "Invoice",
     "doctype": "DocType",
     "documentClass": require("./InvoiceDocument.js"),
-    "defaultPrintFormat": "Standard Invoice Format",
+    "print": {
+        "printFormat": "Standard Invoice Format",
+    },
     "isSingle": 0,
     "istable": 0,
     "keywordFields": ["name", "customer"],
@@ -32,7 +34,7 @@ module.exports = {
         },
         {
             "fieldname": "netTotal",
-            "label": "Total",
+            "label": "Net Total",
             "fieldtype": "Currency",
             formula: (doc) => doc.getSum('items', 'amount'),
             "disabled": true
@@ -50,7 +52,7 @@ module.exports = {
                         return `<div class='row'>
                                 <div class='col-6'>${row.account} (${row.rate}%)</div>
                                 <div class='col-6 text-right'>
-                                    ${frappe.format(row.amount, {fieldtype:'Currency'})}
+                                    ${frappe.format(row.amount, 'Currency')}
                                 </div>
                             </div>`
                         }).join('')}
@@ -59,7 +61,7 @@ module.exports = {
         },
         {
             "fieldname": "grandTotal",
-            "label": "Total",
+            "label": "Grand Total",
             "fieldtype": "Currency",
             formula: (doc) => doc.getGrandTotal(),
             "disabled": true

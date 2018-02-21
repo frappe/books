@@ -19,6 +19,7 @@ client.start({
     frappe.desk.menu.addItem('Items', '#list/Item');
     frappe.desk.menu.addItem('Customers', '#list/Customer');
     frappe.desk.menu.addItem('Invoice', '#list/Invoice');
+    frappe.desk.menu.addItem('Settings', () => frappe.desk.showFormModal('SystemSettings'));
 
     frappe.router.default = '#list/ToDo';
 
