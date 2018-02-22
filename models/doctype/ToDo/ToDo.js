@@ -7,6 +7,14 @@ module.exports = {
         "subject",
         "description"
     ],
+    titleField: 'subject',
+    indicators: {
+        key: 'status',
+        colors: {
+            Open: 'gray',
+            Closed: 'green'
+        }
+    },
     "fields": [
         {
             "fieldname": "subject",

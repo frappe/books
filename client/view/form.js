@@ -116,9 +116,9 @@ module.exports = class BaseForm extends Observable {
     }
 
     async bindEvents(doc) {
-        if (this.doc) {
-            // clear listeners of outgoing doc
-            this.doc.clearListeners();
+        if (this.doc && this.docListener) {
+            // stop listening to the old doc
+            this.doc.off(this.docListener);
         }
         this.clearAlert();
         this.doc = doc;
@@ -132,7 +132,7 @@ module.exports = class BaseForm extends Observable {
 
     setupChangeListener() {
         // refresh value in control
-        this.doc.on('change', (params) => {
+        this.docListener = (params) => {
             if (params.fieldname) {
                 // only single value changed
                 let control = this.controls[params.fieldname];
@@ -144,7 +144,9 @@ module.exports = class BaseForm extends Observable {
                 this.refresh();
             }
             this.form.classList.remove('was-validated');
-        });
+        };
+
+        this.doc.on('change', this.docListener);
     }
 
     checkValidity() {
@@ -174,7 +176,6 @@ module.exports = class BaseForm extends Observable {
             } else {
                 await this.doc.update();
             }
-            await this.refresh();
             this.showAlert('Saved', 'success');
         } catch (e) {
             this.showAlert('Failed', 'danger');

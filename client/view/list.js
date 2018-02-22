@@ -15,12 +15,8 @@ module.exports = class BaseList {
         this.data = [];
 
         frappe.db.on(`change:${this.doctype}`, (params) => {
-            this.dirty = true;
+            this.refresh();
         });
-
-        setInterval(() => {
-            if (this.dirty) this.refresh();
-        }, 500);
     }
 
     makeBody() {
@@ -45,7 +41,8 @@ module.exports = class BaseList {
         let data = await this.getData();
 
         for (let i=0; i< Math.min(this.pageLength, data.length); i++) {
-            this.renderRow(this.start + i, data[i]);
+            let row = this.getRow(this.start + i);
+            this.renderRow(row, data[i]);
         }
 
         if (this.start > 0) {
@@ -87,15 +84,10 @@ module.exports = class BaseList {
         return filters;
     }
 
-    renderRow(i, data) {
-        let row = this.getRow(i);
+    renderRow(row, data) {
         row.innerHTML = this.getRowBodyHTML(data);
         row.docName = data.name;
         row.setAttribute('data-name', data.name);
-        row.style.display = 'flex';
-
-        // make element focusable
-        row.setAttribute('tabindex', -1);
     }
 
     getRowBodyHTML(data) {
@@ -105,22 +97,40 @@ module.exports = class BaseList {
     }
 
     getRowHTML(data) {
-        return `<div class="col-11">${data.name}</div>`;
+        return `<div class="col-11">
+            ${this.getNameHTML(data)}
+        </div>`;
+    }
+
+    getNameHTML(data) {
+        return `<span class="indicator ${this.meta.getIndicatorColor(data)}">${data[this.meta.titleField]}</span>`;
     }
 
     getRow(i) {
         if (!this.rows[i]) {
-            this.rows[i] = frappe.ui.add('div', 'list-row row no-gutters', this.body);
+            let row = frappe.ui.add('div', 'list-row row no-gutters', this.body);
 
             // open on click
             let me = this;
-            this.rows[i].addEventListener('click', async function(e) {
+            row.addEventListener('click', async function(e) {
                 if (!e.target.tagName !== 'input') {
                     await me.showItem(this.docName);
                 }
             });
+            row.style.display = 'flex';
+
+            // make element focusable
+            row.setAttribute('tabindex', -1);
+            this.rows[i] = row;
         }
         return this.rows[i];
+    }
+
+    refreshRow(doc) {
+        let row = this.getRowByName(doc.name);
+        if (row) {
+            this.renderRow(row, doc);
+        }
     }
 
     async showItem(name) {
@@ -255,12 +265,16 @@ module.exports = class BaseList {
         }
 
         if (name) {
-            let myListRow = this.body.querySelector(`.list-row[data-name="${name}"]`);
-            if (myListRow) {
-                myListRow.classList.add('active');
-                myListRow.focus();
+            let row = this.getRowByName(name);
+            if (row) {
+                row.classList.add('active');
+                row.focus();
             }
         }
+    }
+
+    getRowByName(name) {
+        return this.body.querySelector(`.list-row[data-name="${name}"]`);
     }
 
     getActiveListRow() {

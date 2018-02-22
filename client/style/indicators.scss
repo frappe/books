@@ -1,0 +1,68 @@
+.indicator,
+.indicator-right {
+    background: none;
+    vertical-align: middle;
+}
+
+.indicator::before,
+.indicator-right::after {
+    content:'';
+    display: inline-block;
+    height: 8px;
+    width: 8px;
+    border-radius: 8px;
+    background: $gray-300;
+}
+
+.indicator::before {
+	margin:0 $spacer-2 0 0;
+}
+
+.indicator-right::after {
+	margin:0 0 0 $spacer-2;
+}
+
+.indicator.grey::before,
+.indicator-right.grey::after {
+    background: $gray-300;
+}
+.indicator.blue::before,
+.indicator-right.blue::after {
+    background: $blue;
+}
+.indicator.red::before,
+.indicator-right.red::after {
+    background: $red;
+}
+.indicator.green::before,
+.indicator-right.green::after {
+    background: $green;
+}
+.indicator.orange::before,
+.indicator-right.orange::after {
+    background: $orange;
+}
+.indicator.purple::before,
+.indicator-right.purple::after {
+    background: $purple;
+}
+.indicator.darkgrey::before,
+.indicator-right.darkgrey::after {
+    background: $gray-600;
+}
+
+.indicator.black::before,
+.indicator-right.black::after {
+    background: $gray-800;
+}
+
+.indicator.yellow::before,
+.indicator-right.yellow::after {
+    background: $yellow;
+}
+
+.modal-header .indicator {
+	float: left;
+	margin-top: 7.5px;
+	margin-right: 3px;
+}

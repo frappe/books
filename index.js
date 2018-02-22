@@ -19,10 +19,7 @@ module.exports = {
         this.models = {};
         this.forms = {};
         this.views = {};
-        this.docs = {};
-        this.flags = {
-            cacheDocs: false
-        }
+        this.flags = {};
     },
 
     registerLibs(common) {
@@ -40,7 +37,7 @@ module.exports = {
     },
 
     addToCache(doc) {
-        if (!this.flags.cacheDocs) return;
+        if (!this.docs) return;
 
         // add to `docs` cache
         if (doc.doctype && doc.name) {
@@ -53,11 +50,21 @@ module.exports = {
             if (doc.doctype === doc.name) {
                 this[doc.name] = doc;
             }
+
+            // propogate change to `docs`
+            doc.on('change', params => {
+                this.docs.trigger('change', params);
+            });
         }
     },
 
+    isDirty(doctype, name) {
+        return (this.docs && this.docs[doctype] && this.docs[doctype][name]
+            && this.docs[doctype][name]._dirty) || false;
+    },
+
     getDocFromCache(doctype, name) {
-        if (this.docs[doctype] && this.docs[doctype][name]) {
+        if (this.docs && this.docs[doctype] && this.docs[doctype][name]) {
             return this.docs[doctype][name];
         }
     },

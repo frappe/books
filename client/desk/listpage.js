@@ -22,7 +22,13 @@ module.exports = class ListPage extends Page {
         });
 
         this.on('show', async () => {
-            await this.list.run();
+            await this.list.refresh();
+        });
+
+        frappe.docs.on('change', (params) => {
+            if (params.doc.doctype === doctype) {
+                this.list.refreshRow(params.doc);
+            }
         });
     }
 }

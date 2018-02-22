@@ -34,8 +34,11 @@ module.exports = class BaseDocument extends Observable {
 
     // set value and trigger change
     async set(fieldname, value) {
-        this[fieldname] = await this.validateField(fieldname, value);
-        await this.applyChange(fieldname);
+        if (this[fieldname] !== value) {
+            this._dirty = true;
+            this[fieldname] = await this.validateField(fieldname, value);
+            await this.applyChange(fieldname);
+        }
     }
 
     async applyChange(fieldname) {
@@ -152,6 +155,8 @@ module.exports = class BaseDocument extends Observable {
     syncValues(data) {
         this.clearValues();
         Object.assign(this, data);
+        this._dirty = false;
+        this.trigger('change', {doc: this});
     }
 
     clearValues() {
