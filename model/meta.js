@@ -5,11 +5,12 @@ const model = require('./index')
 module.exports = class BaseMeta extends BaseDocument {
     constructor(data) {
         super(data);
-        this.list_options = {
-            fields: ['name', 'modified']
-        };
+        this.setDefaultIndicators();
         if (this.setupMeta) {
             this.setupMeta();
+        }
+        if (!this.titleField) {
+            this.titleField = 'name';
         }
     }
 
@@ -157,5 +158,31 @@ module.exports = class BaseMeta extends BaseDocument {
         });
 
         await super.trigger(event, params);
+    }
+
+    setDefaultIndicators() {
+        if (!this.indicators) {
+            this.indicators = {
+                key: 'docstatus',
+                colors: {
+                    0: 'gray',
+                    1: 'blue',
+                    2: 'red'
+                }
+            }
+        }
+    }
+
+    getIndicatorColor(doc) {
+        if (frappe.isDirty(this.name, doc.name)) {
+            return 'orange';
+        } else {
+            let value = doc[this.indicators.key];
+            if (value) {
+                return this.indicators.colors[value] || 'gray';
+            } else {
+                return 'gray';
+            }
+        }
     }
 }

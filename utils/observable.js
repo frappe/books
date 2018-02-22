@@ -1,8 +1,23 @@
 module.exports = class Observable {
+    constructor() {
+        this._isHot = {};
+        this._eventQueue = {};
+    }
+
     on(event, listener) {
         this._addListener('_listeners', event, listener);
         if (this._socketClient) {
             this._socketClient.on(event, listener);
+        }
+    }
+
+    // remove listener
+    off(event, listener) {
+        for (let type of ['_listeners', '_onceListeners']) {
+            let index = this[type] && this[type][event] && this[type][event].indexOf(listener);
+            if (index) {
+                this[type][event].splice(index, 1);
+            }
         }
     }
 
@@ -20,7 +35,12 @@ module.exports = class Observable {
         this._socketServer = socket;
     }
 
-    async trigger(event, params) {
+    async trigger(event, params, throttle=false) {
+        if (this._throttled(event, params, throttle)) return;
+
+        // listify if throttled
+        if (throttle) params = [params];
+
         await this._triggerEvent('_listeners', event, params);
         await this._triggerEvent('_onceListeners', event, params);
 
@@ -34,6 +54,39 @@ module.exports = class Observable {
         }
 
 
+    }
+
+    _throttled(event, params, throttle) {
+        if (throttle) {
+            if (this._isHot[event]) {
+
+                // hot, add to queue
+                if (this._eventQueue[event]) {
+
+                    // queue exists, just add
+                    this._eventQueue[event].push(params);
+                } else {
+
+                    // create a new queue to be called after cool-off
+                    this._eventQueue[event] = [params];
+
+                    // call after cool-off
+                    setTimeout(() => {
+                        let _queuedParams = this._eventQueue[event];
+
+                        // reset queues
+                        this._isHot[event] = false;
+                        this._eventQueue[event] = null;
+
+                        this.trigger(event, _queuedParams, true);
+                    }, throttle);
+
+                }
+                return true;
+            }
+            this._isHot[event] = true;
+        }
+        return false;
     }
 
     _addListener(name, event, listener) {

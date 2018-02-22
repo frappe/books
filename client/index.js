@@ -3,6 +3,7 @@ const HTTPClient = require('frappejs/backends/http');
 const frappe = require('frappejs');
 frappe.ui = require('./ui');
 const Desk = require('./desk');
+const Observable = require('frappejs/utils/observable');
 
 module.exports = {
     async start({server, columns = 2}) {
@@ -17,7 +18,7 @@ module.exports = {
         this.socket = io.connect('http://localhost:8000'); // eslint-disable-line
         frappe.db.bindSocketClient(this.socket);
 
-        frappe.flags.cacheDocs = true;
+        frappe.docs = new Observable();
 
         await frappe.getSingle('SystemSettings');
 
