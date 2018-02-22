@@ -1,14 +1,25 @@
 # Declaring Models
 
-Models are declared by adding a `.json` model file in the `models/doctype` folder of the module/app.
+Models are declared by adding a `.js` model file in the `models/doctype` folder of the module/app.
 
 Note: A model is called `DocType` in Frappe.js
 
+### Fields
+
+Every model must have a set of fields (these become database columns). All fields must have
+
+- `fieldname`: Column name in database / property name
+- `fieldtype`: Data type ([see details](fields.md))
+- `label`: Display label
+- `required`: Is mandatory
+- `hidden`: Is hidden
+- `disabled`: Is disabled
+
 ### Example
 
-```json
-{
-	"autoname": "hash",
+```js
+module.exports = {
+	"naming": "random",
 	"name": "ToDo",
 	"doctype": "DocType",
 	"issingle": 0,

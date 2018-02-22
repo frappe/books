@@ -3,7 +3,7 @@ const Observable = require('frappejs/utils/observable');
 const Dropdown = require('frappejs/client/ui/dropdown');
 
 module.exports = class Page extends Observable {
-    constructor({title, parent, hasRoute=true}) {
+    constructor({title, parent, hasRoute=true} = {}) {
         super();
         Object.assign(this, arguments[0]);
         if (!this.parent) {
@@ -20,7 +20,7 @@ module.exports = class Page extends Observable {
     make() {
         this.wrapper = frappe.ui.add('div', 'page hide', this.parent);
         this.wrapper.innerHTML = `<div class="page-head clearfix hide">
-                <span class="page-title"></span>
+                <span class="page-title font-weight-bold"></span>
             </div>
             <div class="page-body"></div>`
         this.head = this.wrapper.querySelector('.page-head');

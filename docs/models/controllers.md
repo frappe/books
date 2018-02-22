@@ -4,6 +4,8 @@ In Frappe.js you can extend the metadata class as well as the document class for
 
 You can write event handlers in controllers, by declaring a `.js` file in the `models/doctype/` folder along with the model file.
 
+You must also mind the controller to the model file by the `documentClass` property.
+
 ## Naming
 
 1. The name of the controller class must be the slugged name of the DocType (example `todo`)
@@ -22,9 +24,6 @@ const frappe = require('frappejs');
 
 // extend the document and add event handlers
 class todo extends frappe.document.Document {
-	setup() {
-		this.add_handler('validate');
-	}
 	validate() {
 		if (!this.status) {
 			this.status = 'Open';
@@ -40,16 +39,9 @@ The `meta` class contains actions that are done on a group of objects and a docu
 ```js
 // extend the meta class
 class todo_meta extends frappe.meta.Meta {
-	setupMeta() {
-		Object.assign(this, require('./todo.json'));
-		this.name = 'ToDo';
-		this.list_options.fields = ['name', 'subject', 'status', 'description'];
-	}
-
 	getRowHTML(data) {
 		return `<a href="#edit/todo/${data.name}">${data.subject}</a>`;
 	}
-
 }
 ```
 

@@ -8,7 +8,7 @@ module.exports = {
     "fields": [
         {
             "fieldname": "name",
-            "label": "Name",
+            "label": "Prefix",
             "fieldtype": "Data",
             "required": 1
         },

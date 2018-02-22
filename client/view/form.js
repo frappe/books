@@ -106,12 +106,12 @@ module.exports = class BaseForm extends Observable {
     setTitle() {
         const doctypeLabel = this.doc.meta.label || this.doc.meta.name;
 
-        if (this.doc.meta.isSingle || !this.doc.meta.showTitle) {
+        if (this.doc.meta.isSingle || this.doc.meta.naming == 'random') {
             this.container.setTitle(doctypeLabel);
         } else if (this.doc._notInserted) {
             this.container.setTitle(frappe._('New {0}', doctypeLabel));
         } else {
-            this.container.setTitle(`${doctypeLabel} ${this.doc.name}`);
+            this.container.setTitle(this.doc.name);
         }
     }
 

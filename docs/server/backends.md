@@ -24,7 +24,7 @@ Connection paramter required for the sqlite backend is the path of the file
 ```js
 sqllite = require('frappejs/frappe/backends/sqlite');
 
-frappe.db = await new sqlite.Database({db_path: db_path})
+frappe.db = await new sqlite.Database({dbPath: dbPath})
 ```
 
 ### SQL Queries
