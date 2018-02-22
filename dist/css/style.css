@@ -7129,6 +7129,42 @@ div.CodeMirror-dragcursors {
 /* Help users use markselection to safely style text background */
 span.CodeMirror-selectedtext {
   background: none; }
+.indicator, .indicator-right {
+  background: none;
+  vertical-align: middle; }
+.indicator::before, .indicator-right::after {
+  content: '';
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+  border-radius: 8px;
+  background: #dee2e6; }
+.indicator::before {
+  margin: 0 0.5rem 0 0; }
+.indicator-right::after {
+  margin: 0 0 0 0.5rem; }
+.indicator.grey::before, .indicator-right.grey::after {
+  background: #dee2e6; }
+.indicator.blue::before, .indicator-right.blue::after {
+  background: #007bff; }
+.indicator.red::before, .indicator-right.red::after {
+  background: #dc3545; }
+.indicator.green::before, .indicator-right.green::after {
+  background: #28a745; }
+.indicator.orange::before, .indicator-right.orange::after {
+  background: #fd7e14; }
+.indicator.purple::before, .indicator-right.purple::after {
+  background: #6f42c1; }
+.indicator.darkgrey::before, .indicator-right.darkgrey::after {
+  background: #6c757d; }
+.indicator.black::before, .indicator-right.black::after {
+  background: #343a40; }
+.indicator.yellow::before, .indicator-right.yellow::after {
+  background: #ffc107; }
+.modal-header .indicator {
+  float: left;
+  margin-top: 7.5px;
+  margin-right: 3px; }
 html {
   font-size: 12px; }
 .desk-body {

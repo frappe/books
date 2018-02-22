@@ -5,6 +5,6 @@ module.exports = class AccountList extends BaseList {
         return ['name', 'account_type'];
     }
     getRowHTML(data) {
-        return `${data.name} (${data.account_type})`;
+        return `<div class="col-11">${this.getNameHTML(data)} (${data.account_type})</div>`;
     }
 }
