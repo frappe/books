@@ -45,95 +45,95 @@ var utils = {
 };
 
 const number_formats = {
-	"#,###.##": { fraction_sep: ".", group_sep: ",", precision: 2 },
-	"#.###,##": { fraction_sep: ",", group_sep: ".", precision: 2 },
-	"# ###.##": { fraction_sep: ".", group_sep: " ", precision: 2 },
-	"# ###,##": { fraction_sep: ",", group_sep: " ", precision: 2 },
-	"#'###.##": { fraction_sep: ".", group_sep: "'", precision: 2 },
-	"#, ###.##": { fraction_sep: ".", group_sep: ", ", precision: 2 },
-	"#,##,###.##": { fraction_sep: ".", group_sep: ",", precision: 2 },
-	"#,###.###": { fraction_sep: ".", group_sep: ",", precision: 3 },
-	"#.###": { fraction_sep: "", group_sep: ".", precision: 0 },
-	"#,###": { fraction_sep: "", group_sep: ",", precision: 0 },
+    "#,###.##": { fraction_sep: ".", group_sep: ",", precision: 2 },
+    "#.###,##": { fraction_sep: ",", group_sep: ".", precision: 2 },
+    "# ###.##": { fraction_sep: ".", group_sep: " ", precision: 2 },
+    "# ###,##": { fraction_sep: ",", group_sep: " ", precision: 2 },
+    "#'###.##": { fraction_sep: ".", group_sep: "'", precision: 2 },
+    "#, ###.##": { fraction_sep: ".", group_sep: ", ", precision: 2 },
+    "#,##,###.##": { fraction_sep: ".", group_sep: ",", precision: 2 },
+    "#,###.###": { fraction_sep: ".", group_sep: ",", precision: 3 },
+    "#.###": { fraction_sep: "", group_sep: ".", precision: 0 },
+    "#,###": { fraction_sep: "", group_sep: ",", precision: 0 },
 };
 
 var number_format = {
-	// parse a formatted number string
-	// from "4,555,000.34" -> 4555000.34
-	parse_number(number, format='#,###.##') {
-		if (!number) {
-			return 0;
-		}
-		if (typeof number === 'number') {
-			return number;
-		}
-		const info = this.get_format_info(format);
-		return parseFloat(this.remove_separator(number, info.group_sep));
-	},
+    // parse a formatted number string
+    // from "4,555,000.34" -> 4555000.34
+    parse_number(number, format='#,###.##') {
+        if (!number) {
+            return 0;
+        }
+        if (typeof number === 'number') {
+            return number;
+        }
+        const info = this.get_format_info(format);
+        return parseFloat(this.remove_separator(number, info.group_sep));
+    },
 
-	format_number(number, format = '#,###.##', precision = null) {
-		if (!number) {
-			number = 0;
-		}
-		let info = this.get_format_info(format);
-		if (precision) {
-			info.precision = precision;
-		}
-		let is_negative = false;
+    format_number(number, format = '#,###.##', precision = null) {
+        if (!number) {
+            number = 0;
+        }
+        let info = this.get_format_info(format);
+        if (precision) {
+            info.precision = precision;
+        }
+        let is_negative = false;
 
-		number = this.parse_number(number);
-		if (number < 0) {
-			is_negative = true;
-		}
-		number = Math.abs(number);
-		number = number.toFixed(info.precision);
+        number = this.parse_number(number);
+        if (number < 0) {
+            is_negative = true;
+        }
+        number = Math.abs(number);
+        number = number.toFixed(info.precision);
 
-		var parts = number.split('.');
+        var parts = number.split('.');
 
-		// get group position and parts
-		var group_position = info.group_sep ? 3 : 0;
+        // get group position and parts
+        var group_position = info.group_sep ? 3 : 0;
 
-		if (group_position) {
-			var integer = parts[0];
-			var str = '';
-			var offset = integer.length % group_position;
-			for (var i = integer.length; i >= 0; i--) {
-				var l = this.remove_separator(str, info.group_sep).length;
-				if (format == "#,##,###.##" && str.indexOf(",") != -1) { // INR
-					group_position = 2;
-					l += 1;
-				}
+        if (group_position) {
+            var integer = parts[0];
+            var str = '';
+            var offset = integer.length % group_position;
+            for (var i = integer.length; i >= 0; i--) {
+                var l = this.remove_separator(str, info.group_sep).length;
+                if (format == "#,##,###.##" && str.indexOf(",") != -1) { // INR
+                    group_position = 2;
+                    l += 1;
+                }
 
-				str += integer.charAt(i);
+                str += integer.charAt(i);
 
-				if (l && !((l + 1) % group_position) && i != 0) {
-					str += info.group_sep;
-				}
-			}
-			parts[0] = str.split("").reverse().join("");
-		}
-		if (parts[0] + "" == "") {
-			parts[0] = "0";
-		}
+                if (l && !((l + 1) % group_position) && i != 0) {
+                    str += info.group_sep;
+                }
+            }
+            parts[0] = str.split("").reverse().join("");
+        }
+        if (parts[0] + "" == "") {
+            parts[0] = "0";
+        }
 
-		// join decimal
-		parts[1] = (parts[1] && info.fraction_sep) ? (info.fraction_sep + parts[1]) : "";
+        // join decimal
+        parts[1] = (parts[1] && info.fraction_sep) ? (info.fraction_sep + parts[1]) : "";
 
-		// join
-		return (is_negative ? "-" : "") + parts[0] + parts[1];
-	},
+        // join
+        return (is_negative ? "-" : "") + parts[0] + parts[1];
+    },
 
-	get_format_info(format) {
-		let format_info = number_formats[format];
+    get_format_info(format) {
+        let format_info = number_formats[format];
 
-		if (!format_info) {
-			throw `Unknown number format "${format}"`;
-		}
+        if (!format_info) {
+            throw `Unknown number format "${format}"`;
+        }
 
-		return format_info;
-	},
+        return format_info;
+    },
 
-	round(num, precision) {
+    round(num, precision) {
         var is_negative = num < 0 ? true : false;
         var d = parseInt(precision || 0);
         var m = Math.pow(10, d);
@@ -142,11 +142,11 @@ var number_format = {
         var r = ((!precision && f == 0.5) ? ((i % 2 == 0) ? i : i + 1) : Math.round(n));
         r = d ? r / m : r;
         return is_negative ? -r : r;
-	},
+    },
 
-	remove_separator(text, sep) {
-		return text.replace(new RegExp(sep === "." ? "\\." : sep, "g"), '');
-	}
+    remove_separator(text, sep) {
+        return text.replace(new RegExp(sep === "." ? "\\." : sep, "g"), '');
+    }
 };
 
 var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -9105,10 +9105,7 @@ var frappejs = {
         this.models = {};
         this.forms = {};
         this.views = {};
-        this.docs = {};
-        this.flags = {
-            cacheDocs: false
-        };
+        this.flags = {};
     },
 
     registerLibs(common) {
@@ -9126,7 +9123,7 @@ var frappejs = {
     },
 
     addToCache(doc) {
-        if (!this.flags.cacheDocs) return;
+        if (!this.docs) return;
 
         // add to `docs` cache
         if (doc.doctype && doc.name) {
@@ -9139,11 +9136,21 @@ var frappejs = {
             if (doc.doctype === doc.name) {
                 this[doc.name] = doc;
             }
+
+            // propogate change to `docs`
+            doc.on('change', params => {
+                this.docs.trigger('change', params);
+            });
         }
     },
 
+    isDirty(doctype, name) {
+        return (this.docs && this.docs[doctype] && this.docs[doctype][name]
+            && this.docs[doctype][name]._dirty) || false;
+    },
+
     getDocFromCache(doctype, name) {
-        if (this.docs[doctype] && this.docs[doctype][name]) {
+        if (this.docs && this.docs[doctype] && this.docs[doctype][name]) {
             return this.docs[doctype][name];
         }
     },
@@ -9271,32 +9278,47 @@ var format = {
 };
 
 class BaseError extends Error {
-	constructor(status_code, ...params) {
-		super(...params);
-		this.status_code = status_code;
-	}
+    constructor(status_code, ...params) {
+        super(...params);
+        this.status_code = status_code;
+    }
 }
 
 class ValidationError extends BaseError {
-	constructor(...params) { super(417, ...params); }
+    constructor(...params) { super(417, ...params); }
 }
 
 var errors = {
-	ValidationError: ValidationError,
-	ValueError: class ValueError extends ValidationError { },
-	NotFound: class NotFound extends BaseError {
-		constructor(...params) { super(404, ...params); }
-	},
-	Forbidden: class Forbidden extends BaseError {
-		constructor(...params) { super(403, ...params); }
-	},
+    ValidationError: ValidationError,
+    ValueError: class ValueError extends ValidationError { },
+    NotFound: class NotFound extends BaseError {
+        constructor(...params) { super(404, ...params); }
+    },
+    Forbidden: class Forbidden extends BaseError {
+        constructor(...params) { super(403, ...params); }
+    },
 };
 
 var observable = class Observable {
+    constructor() {
+        this._isHot = {};
+        this._eventQueue = {};
+    }
+
     on(event, listener) {
         this._addListener('_listeners', event, listener);
         if (this._socketClient) {
             this._socketClient.on(event, listener);
+        }
+    }
+
+    // remove listener
+    off(event, listener) {
+        for (let type of ['_listeners', '_onceListeners']) {
+            let index = this[type] && this[type][event] && this[type][event].indexOf(listener);
+            if (index) {
+                this[type][event].splice(index, 1);
+            }
         }
     }
 
@@ -9314,7 +9336,12 @@ var observable = class Observable {
         this._socketServer = socket;
     }
 
-    async trigger(event, params) {
+    async trigger(event, params, throttle=false) {
+        if (this._throttled(event, params, throttle)) return;
+
+        // listify if throttled
+        if (throttle) params = [params];
+
         await this._triggerEvent('_listeners', event, params);
         await this._triggerEvent('_onceListeners', event, params);
 
@@ -9328,6 +9355,39 @@ var observable = class Observable {
         }
 
 
+    }
+
+    _throttled(event, params, throttle) {
+        if (throttle) {
+            if (this._isHot[event]) {
+
+                // hot, add to queue
+                if (this._eventQueue[event]) {
+
+                    // queue exists, just add
+                    this._eventQueue[event].push(params);
+                } else {
+
+                    // create a new queue to be called after cool-off
+                    this._eventQueue[event] = [params];
+
+                    // call after cool-off
+                    setTimeout(() => {
+                        let _queuedParams = this._eventQueue[event];
+
+                        // reset queues
+                        this._isHot[event] = false;
+                        this._eventQueue[event] = null;
+
+                        this.trigger(event, _queuedParams, true);
+                    }, throttle);
+
+                }
+                return true;
+            }
+            this._isHot[event] = true;
+        }
+        return false;
     }
 
     _addListener(name, event, listener) {
@@ -9442,8 +9502,11 @@ var document$1 = class BaseDocument extends observable {
 
     // set value and trigger change
     async set(fieldname, value) {
-        this[fieldname] = await this.validateField(fieldname, value);
-        await this.applyChange(fieldname);
+        if (this[fieldname] !== value) {
+            this._dirty = true;
+            this[fieldname] = await this.validateField(fieldname, value);
+            await this.applyChange(fieldname);
+        }
     }
 
     async applyChange(fieldname) {
@@ -9560,6 +9623,8 @@ var document$1 = class BaseDocument extends observable {
     syncValues(data) {
         this.clearValues();
         Object.assign(this, data);
+        this._dirty = false;
+        this.trigger('change', {doc: this});
     }
 
     clearValues() {
@@ -9655,7 +9720,7 @@ var document$1 = class BaseDocument extends observable {
 
     // helper functions
     getSum(tablefield, childfield) {
-		return this[tablefield].map(d => (d[childfield] || 0)).reduce((a, b) => a + b, 0);
+        return this[tablefield].map(d => (d[childfield] || 0)).reduce((a, b) => a + b, 0);
     }
 
     async getFrom(doctype, name, fieldname) {
@@ -9671,11 +9736,12 @@ var document$1 = class BaseDocument extends observable {
 var meta = class BaseMeta extends document$1 {
     constructor(data) {
         super(data);
-        this.list_options = {
-            fields: ['name', 'modified']
-        };
+        this.setDefaultIndicators();
         if (this.setupMeta) {
             this.setupMeta();
+        }
+        if (!this.titleField) {
+            this.titleField = 'name';
         }
     }
 
@@ -9823,6 +9889,32 @@ var meta = class BaseMeta extends document$1 {
         });
 
         await super.trigger(event, params);
+    }
+
+    setDefaultIndicators() {
+        if (!this.indicators) {
+            this.indicators = {
+                key: 'docstatus',
+                colors: {
+                    0: 'gray',
+                    1: 'blue',
+                    2: 'red'
+                }
+            };
+        }
+    }
+
+    getIndicatorColor(doc) {
+        if (frappejs.isDirty(this.name, doc.name)) {
+            return 'orange';
+        } else {
+            let value = doc[this.indicators.key];
+            if (value) {
+                return this.indicators.colors[value] || 'gray';
+            } else {
+                return 'gray';
+            }
+        }
     }
 };
 
@@ -26926,7 +27018,7 @@ var router = class Router extends observable {
 };
 
 var page = class Page extends observable {
-    constructor({title, parent, hasRoute=true}) {
+    constructor({title, parent, hasRoute=true} = {}) {
         super();
         Object.assign(this, arguments[0]);
         if (!this.parent) {
@@ -26943,7 +27035,7 @@ var page = class Page extends observable {
     make() {
         this.wrapper = frappejs.ui.add('div', 'page hide', this.parent);
         this.wrapper.innerHTML = `<div class="page-head clearfix hide">
-                <span class="page-title"></span>
+                <span class="page-title font-weight-bold"></span>
             </div>
             <div class="page-body"></div>`;
         this.head = this.wrapper.querySelector('.page-head');
@@ -27071,12 +27163,8 @@ var list = class BaseList {
         this.data = [];
 
         frappejs.db.on(`change:${this.doctype}`, (params) => {
-            this.dirty = true;
+            this.refresh();
         });
-
-        setInterval(() => {
-            if (this.dirty) this.refresh();
-        }, 500);
     }
 
     makeBody() {
@@ -27101,7 +27189,8 @@ var list = class BaseList {
         let data = await this.getData();
 
         for (let i=0; i< Math.min(this.pageLength, data.length); i++) {
-            this.renderRow(this.start + i, data[i]);
+            let row = this.getRow(this.start + i);
+            this.renderRow(row, data[i]);
         }
 
         if (this.start > 0) {
@@ -27143,15 +27232,10 @@ var list = class BaseList {
         return filters;
     }
 
-    renderRow(i, data) {
-        let row = this.getRow(i);
+    renderRow(row, data) {
         row.innerHTML = this.getRowBodyHTML(data);
         row.docName = data.name;
         row.setAttribute('data-name', data.name);
-        row.style.display = 'flex';
-
-        // make element focusable
-        row.setAttribute('tabindex', -1);
     }
 
     getRowBodyHTML(data) {
@@ -27161,22 +27245,40 @@ var list = class BaseList {
     }
 
     getRowHTML(data) {
-        return `<div class="col-11">${data.name}</div>`;
+        return `<div class="col-11">
+            ${this.getNameHTML(data)}
+        </div>`;
+    }
+
+    getNameHTML(data) {
+        return `<span class="indicator ${this.meta.getIndicatorColor(data)}">${data[this.meta.titleField]}</span>`;
     }
 
     getRow(i) {
         if (!this.rows[i]) {
-            this.rows[i] = frappejs.ui.add('div', 'list-row row no-gutters', this.body);
+            let row = frappejs.ui.add('div', 'list-row row no-gutters', this.body);
 
             // open on click
             let me = this;
-            this.rows[i].addEventListener('click', async function(e) {
+            row.addEventListener('click', async function(e) {
                 if (!e.target.tagName !== 'input') {
                     await me.showItem(this.docName);
                 }
             });
+            row.style.display = 'flex';
+
+            // make element focusable
+            row.setAttribute('tabindex', -1);
+            this.rows[i] = row;
         }
         return this.rows[i];
+    }
+
+    refreshRow(doc) {
+        let row = this.getRowByName(doc.name);
+        if (row) {
+            this.renderRow(row, doc);
+        }
     }
 
     async showItem(name) {
@@ -27311,12 +27413,16 @@ var list = class BaseList {
         }
 
         if (name) {
-            let myListRow = this.body.querySelector(`.list-row[data-name="${name}"]`);
-            if (myListRow) {
-                myListRow.classList.add('active');
-                myListRow.focus();
+            let row = this.getRowByName(name);
+            if (row) {
+                row.classList.add('active');
+                row.focus();
             }
         }
+    }
+
+    getRowByName(name) {
+        return this.body.querySelector(`.list-row[data-name="${name}"]`);
     }
 
     getActiveListRow() {
@@ -27411,7 +27517,7 @@ class BaseControl {
     }
 
     setDisabled() {
-        if (this.readonly || this.disabled) {
+        if (this.disabled) {
             this.input.disabled = true;
         }
     }
@@ -41575,7 +41681,7 @@ var date = DateControl;
 class FloatControl extends base {
     make() {
         super.make();
-		this.input.setAttribute('type', 'text');
+        this.input.setAttribute('type', 'text');
         this.input.classList.add('text-right');
         this.input.addEventListener('focus', () => {
             setTimeout(() => {
@@ -41592,12 +41698,12 @@ class FloatControl extends base {
 var float_1 = FloatControl;
 
 class CurrencyControl extends float_1 {
-	parse(value) {
-		return frappejs.parse_number(value);
-	}
-	format(value) {
-		return frappejs.format_number(value);
-	}
+    parse(value) {
+        return frappejs.parse_number(value);
+    }
+    format(value) {
+        return frappejs.format_number(value);
+    }
 }
 
 var currency = CurrencyControl;
@@ -44063,71 +44169,71 @@ var clusterize = createCommonjsModule(function (module) {
 
 var frappeDatatable = createCommonjsModule(function (module, exports) {
 (function webpackUniversalModuleDefinition(root, factory) {
-	module.exports = factory(Sortable, clusterize);
+    module.exports = factory(Sortable, clusterize);
 })(typeof self !== 'undefined' ? self : commonjsGlobal, function(__WEBPACK_EXTERNAL_MODULE_7__, __WEBPACK_EXTERNAL_MODULE_10__) {
 return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
+/******/     // The module cache
+/******/     var installedModules = {};
 /******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
+/******/     // The require function
+/******/     function __webpack_require__(moduleId) {
 /******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
+/******/         // Check if module is in cache
+/******/         if(installedModules[moduleId]) {
+/******/             return installedModules[moduleId].exports;
+/******/         }
+/******/         // Create a new module (and put it into the cache)
+/******/         var module = installedModules[moduleId] = {
+/******/             i: moduleId,
+/******/             l: false,
+/******/             exports: {}
+/******/         };
 /******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/         // Execute the module function
+/******/         modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
+/******/         // Flag the module as loaded
+/******/         module.l = true;
 /******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
+/******/         // Return the exports of the module
+/******/         return module.exports;
+/******/     }
 /******/
 /******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
+/******/     // expose the modules object (__webpack_modules__)
+/******/     __webpack_require__.m = modules;
 /******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
+/******/     // expose the module cache
+/******/     __webpack_require__.c = installedModules;
 /******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, {
-/******/ 				configurable: false,
-/******/ 				enumerable: true,
-/******/ 				get: getter
-/******/ 			});
-/******/ 		}
-/******/ 	};
+/******/     // define getter function for harmony exports
+/******/     __webpack_require__.d = function(exports, name, getter) {
+/******/         if(!__webpack_require__.o(exports, name)) {
+/******/             Object.defineProperty(exports, name, {
+/******/                 configurable: false,
+/******/                 enumerable: true,
+/******/                 get: getter
+/******/             });
+/******/         }
+/******/     };
 /******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
+/******/     // getDefaultExport function for compatibility with non-harmony modules
+/******/     __webpack_require__.n = function(module) {
+/******/         var getter = module && module.__esModule ?
+/******/             function getDefault() { return module['default']; } :
+/******/             function getModuleExports() { return module; };
+/******/         __webpack_require__.d(getter, 'a', getter);
+/******/         return getter;
+/******/     };
 /******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/     // Object.prototype.hasOwnProperty.call
+/******/     __webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
 /******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+/******/     // __webpack_public_path__
+/******/     __webpack_require__.p = "";
 /******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/     // Load entry module and return exports
+/******/     return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -47536,80 +47642,80 @@ exports.push([module.i, "/* variables */\n.data-table {\n  /* resets */\n  /* st
 /***/ (function(module, exports) {
 
 /*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
+    MIT License http://www.opensource.org/licenses/mit-license.php
+    Author Tobias Koppers @sokra
 */
 // css base code, injected by the css-loader
 module.exports = function(useSourceMap) {
-	var list = [];
+    var list = [];
 
-	// return the list of modules as css string
-	list.toString = function toString() {
-		return this.map(function (item) {
-			var content = cssWithMappingToString(item, useSourceMap);
-			if(item[2]) {
-				return "@media " + item[2] + "{" + content + "}";
-			} else {
-				return content;
-			}
-		}).join("");
-	};
+    // return the list of modules as css string
+    list.toString = function toString() {
+        return this.map(function (item) {
+            var content = cssWithMappingToString(item, useSourceMap);
+            if(item[2]) {
+                return "@media " + item[2] + "{" + content + "}";
+            } else {
+                return content;
+            }
+        }).join("");
+    };
 
-	// import a list of modules into the list
-	list.i = function(modules, mediaQuery) {
-		if(typeof modules === "string")
-			modules = [[null, modules, ""]];
-		var alreadyImportedModules = {};
-		for(var i = 0; i < this.length; i++) {
-			var id = this[i][0];
-			if(typeof id === "number")
-				alreadyImportedModules[id] = true;
-		}
-		for(i = 0; i < modules.length; i++) {
-			var item = modules[i];
-			// skip already imported module
-			// this implementation is not 100% perfect for weird media query combinations
-			//  when a module is imported multiple times with different media queries.
-			//  I hope this will never occur (Hey this way we have smaller bundles)
-			if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
-				if(mediaQuery && !item[2]) {
-					item[2] = mediaQuery;
-				} else if(mediaQuery) {
-					item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
-				}
-				list.push(item);
-			}
-		}
-	};
-	return list;
+    // import a list of modules into the list
+    list.i = function(modules, mediaQuery) {
+        if(typeof modules === "string")
+            modules = [[null, modules, ""]];
+        var alreadyImportedModules = {};
+        for(var i = 0; i < this.length; i++) {
+            var id = this[i][0];
+            if(typeof id === "number")
+                alreadyImportedModules[id] = true;
+        }
+        for(i = 0; i < modules.length; i++) {
+            var item = modules[i];
+            // skip already imported module
+            // this implementation is not 100% perfect for weird media query combinations
+            //  when a module is imported multiple times with different media queries.
+            //  I hope this will never occur (Hey this way we have smaller bundles)
+            if(typeof item[0] !== "number" || !alreadyImportedModules[item[0]]) {
+                if(mediaQuery && !item[2]) {
+                    item[2] = mediaQuery;
+                } else if(mediaQuery) {
+                    item[2] = "(" + item[2] + ") and (" + mediaQuery + ")";
+                }
+                list.push(item);
+            }
+        }
+    };
+    return list;
 };
 
 function cssWithMappingToString(item, useSourceMap) {
-	var content = item[1] || '';
-	var cssMapping = item[3];
-	if (!cssMapping) {
-		return content;
-	}
+    var content = item[1] || '';
+    var cssMapping = item[3];
+    if (!cssMapping) {
+        return content;
+    }
 
-	if (useSourceMap && typeof btoa === 'function') {
-		var sourceMapping = toComment(cssMapping);
-		var sourceURLs = cssMapping.sources.map(function (source) {
-			return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
-		});
+    if (useSourceMap && typeof btoa === 'function') {
+        var sourceMapping = toComment(cssMapping);
+        var sourceURLs = cssMapping.sources.map(function (source) {
+            return '/*# sourceURL=' + cssMapping.sourceRoot + source + ' */'
+        });
 
-		return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
-	}
+        return [content].concat(sourceURLs).concat([sourceMapping]).join('\n');
+    }
 
-	return [content].join('\n');
+    return [content].join('\n');
 }
 
 // Adapted from convert-source-map (MIT)
 function toComment(sourceMap) {
-	// eslint-disable-next-line no-undef
-	var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
-	var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
+    // eslint-disable-next-line no-undef
+    var base64 = btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap))));
+    var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
 
-	return '/*# ' + data + ' */';
+    return '/*# ' + data + ' */';
 }
 
 
@@ -47618,357 +47724,357 @@ function toComment(sourceMap) {
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
-	MIT License http://www.opensource.org/licenses/mit-license.php
-	Author Tobias Koppers @sokra
+    MIT License http://www.opensource.org/licenses/mit-license.php
+    Author Tobias Koppers @sokra
 */
 
 var stylesInDom = {};
 
-var	memoize = function (fn) {
-	var memo;
+var    memoize = function (fn) {
+    var memo;
 
-	return function () {
-		if (typeof memo === "undefined") memo = fn.apply(this, arguments);
-		return memo;
-	};
+    return function () {
+        if (typeof memo === "undefined") memo = fn.apply(this, arguments);
+        return memo;
+    };
 };
 
 var isOldIE = memoize(function () {
-	// Test for IE <= 9 as proposed by Browserhacks
-	// @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
-	// Tests for existence of standard globals is to allow style-loader
-	// to operate correctly into non-standard environments
-	// @see https://github.com/webpack-contrib/style-loader/issues/177
-	return window && document && document.all && !window.atob;
+    // Test for IE <= 9 as proposed by Browserhacks
+    // @see http://browserhacks.com/#hack-e71d8692f65334173fee715c222cb805
+    // Tests for existence of standard globals is to allow style-loader
+    // to operate correctly into non-standard environments
+    // @see https://github.com/webpack-contrib/style-loader/issues/177
+    return window && document && document.all && !window.atob;
 });
 
 var getElement = (function (fn) {
-	var memo = {};
+    var memo = {};
 
-	return function(selector) {
-		if (typeof memo[selector] === "undefined") {
-			memo[selector] = fn.call(this, selector);
-		}
+    return function(selector) {
+        if (typeof memo[selector] === "undefined") {
+            memo[selector] = fn.call(this, selector);
+        }
 
-		return memo[selector]
-	};
+        return memo[selector]
+    };
 })(function (target) {
-	return document.querySelector(target)
+    return document.querySelector(target)
 });
 
 var singleton = null;
-var	singletonCounter = 0;
-var	stylesInsertedAtTop = [];
+var    singletonCounter = 0;
+var    stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(18);
+var    fixUrls = __webpack_require__(18);
 
 module.exports = function(list, options) {
-	if (typeof DEBUG !== "undefined" && DEBUG) {
-		if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
-	}
+    if (typeof DEBUG !== "undefined" && DEBUG) {
+        if (typeof document !== "object") throw new Error("The style-loader cannot be used in a non-browser environment");
+    }
 
-	options = options || {};
+    options = options || {};
 
-	options.attrs = typeof options.attrs === "object" ? options.attrs : {};
+    options.attrs = typeof options.attrs === "object" ? options.attrs : {};
 
-	// Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
-	// tags it will allow on a page
-	if (!options.singleton) options.singleton = isOldIE();
+    // Force single-tag solution on IE6-9, which has a hard limit on the # of <style>
+    // tags it will allow on a page
+    if (!options.singleton) options.singleton = isOldIE();
 
-	// By default, add <style> tags to the <head> element
-	if (!options.insertInto) options.insertInto = "head";
+    // By default, add <style> tags to the <head> element
+    if (!options.insertInto) options.insertInto = "head";
 
-	// By default, add <style> tags to the bottom of the target
-	if (!options.insertAt) options.insertAt = "bottom";
+    // By default, add <style> tags to the bottom of the target
+    if (!options.insertAt) options.insertAt = "bottom";
 
-	var styles = listToStyles(list, options);
+    var styles = listToStyles(list, options);
 
-	addStylesToDom(styles, options);
+    addStylesToDom(styles, options);
 
-	return function update (newList) {
-		var mayRemove = [];
+    return function update (newList) {
+        var mayRemove = [];
 
-		for (var i = 0; i < styles.length; i++) {
-			var item = styles[i];
-			var domStyle = stylesInDom[item.id];
+        for (var i = 0; i < styles.length; i++) {
+            var item = styles[i];
+            var domStyle = stylesInDom[item.id];
 
-			domStyle.refs--;
-			mayRemove.push(domStyle);
-		}
+            domStyle.refs--;
+            mayRemove.push(domStyle);
+        }
 
-		if(newList) {
-			var newStyles = listToStyles(newList, options);
-			addStylesToDom(newStyles, options);
-		}
+        if(newList) {
+            var newStyles = listToStyles(newList, options);
+            addStylesToDom(newStyles, options);
+        }
 
-		for (var i = 0; i < mayRemove.length; i++) {
-			var domStyle = mayRemove[i];
+        for (var i = 0; i < mayRemove.length; i++) {
+            var domStyle = mayRemove[i];
 
-			if(domStyle.refs === 0) {
-				for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
+            if(domStyle.refs === 0) {
+                for (var j = 0; j < domStyle.parts.length; j++) domStyle.parts[j]();
 
-				delete stylesInDom[domStyle.id];
-			}
-		}
-	};
+                delete stylesInDom[domStyle.id];
+            }
+        }
+    };
 };
 
 function addStylesToDom (styles, options) {
-	for (var i = 0; i < styles.length; i++) {
-		var item = styles[i];
-		var domStyle = stylesInDom[item.id];
+    for (var i = 0; i < styles.length; i++) {
+        var item = styles[i];
+        var domStyle = stylesInDom[item.id];
 
-		if(domStyle) {
-			domStyle.refs++;
+        if(domStyle) {
+            domStyle.refs++;
 
-			for(var j = 0; j < domStyle.parts.length; j++) {
-				domStyle.parts[j](item.parts[j]);
-			}
+            for(var j = 0; j < domStyle.parts.length; j++) {
+                domStyle.parts[j](item.parts[j]);
+            }
 
-			for(; j < item.parts.length; j++) {
-				domStyle.parts.push(addStyle(item.parts[j], options));
-			}
-		} else {
-			var parts = [];
+            for(; j < item.parts.length; j++) {
+                domStyle.parts.push(addStyle(item.parts[j], options));
+            }
+        } else {
+            var parts = [];
 
-			for(var j = 0; j < item.parts.length; j++) {
-				parts.push(addStyle(item.parts[j], options));
-			}
+            for(var j = 0; j < item.parts.length; j++) {
+                parts.push(addStyle(item.parts[j], options));
+            }
 
-			stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
-		}
-	}
+            stylesInDom[item.id] = {id: item.id, refs: 1, parts: parts};
+        }
+    }
 }
 
 function listToStyles (list, options) {
-	var styles = [];
-	var newStyles = {};
+    var styles = [];
+    var newStyles = {};
 
-	for (var i = 0; i < list.length; i++) {
-		var item = list[i];
-		var id = options.base ? item[0] + options.base : item[0];
-		var css = item[1];
-		var media = item[2];
-		var sourceMap = item[3];
-		var part = {css: css, media: media, sourceMap: sourceMap};
+    for (var i = 0; i < list.length; i++) {
+        var item = list[i];
+        var id = options.base ? item[0] + options.base : item[0];
+        var css = item[1];
+        var media = item[2];
+        var sourceMap = item[3];
+        var part = {css: css, media: media, sourceMap: sourceMap};
 
-		if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
-		else newStyles[id].parts.push(part);
-	}
+        if(!newStyles[id]) styles.push(newStyles[id] = {id: id, parts: [part]});
+        else newStyles[id].parts.push(part);
+    }
 
-	return styles;
+    return styles;
 }
 
 function insertStyleElement (options, style) {
-	var target = getElement(options.insertInto);
+    var target = getElement(options.insertInto);
 
-	if (!target) {
-		throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
-	}
+    if (!target) {
+        throw new Error("Couldn't find a style target. This probably means that the value for the 'insertInto' parameter is invalid.");
+    }
 
-	var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
+    var lastStyleElementInsertedAtTop = stylesInsertedAtTop[stylesInsertedAtTop.length - 1];
 
-	if (options.insertAt === "top") {
-		if (!lastStyleElementInsertedAtTop) {
-			target.insertBefore(style, target.firstChild);
-		} else if (lastStyleElementInsertedAtTop.nextSibling) {
-			target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
-		} else {
-			target.appendChild(style);
-		}
-		stylesInsertedAtTop.push(style);
-	} else if (options.insertAt === "bottom") {
-		target.appendChild(style);
-	} else {
-		throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
-	}
+    if (options.insertAt === "top") {
+        if (!lastStyleElementInsertedAtTop) {
+            target.insertBefore(style, target.firstChild);
+        } else if (lastStyleElementInsertedAtTop.nextSibling) {
+            target.insertBefore(style, lastStyleElementInsertedAtTop.nextSibling);
+        } else {
+            target.appendChild(style);
+        }
+        stylesInsertedAtTop.push(style);
+    } else if (options.insertAt === "bottom") {
+        target.appendChild(style);
+    } else {
+        throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");
+    }
 }
 
 function removeStyleElement (style) {
-	if (style.parentNode === null) return false;
-	style.parentNode.removeChild(style);
+    if (style.parentNode === null) return false;
+    style.parentNode.removeChild(style);
 
-	var idx = stylesInsertedAtTop.indexOf(style);
-	if(idx >= 0) {
-		stylesInsertedAtTop.splice(idx, 1);
-	}
+    var idx = stylesInsertedAtTop.indexOf(style);
+    if(idx >= 0) {
+        stylesInsertedAtTop.splice(idx, 1);
+    }
 }
 
 function createStyleElement (options) {
-	var style = document.createElement("style");
+    var style = document.createElement("style");
 
-	options.attrs.type = "text/css";
+    options.attrs.type = "text/css";
 
-	addAttrs(style, options.attrs);
-	insertStyleElement(options, style);
+    addAttrs(style, options.attrs);
+    insertStyleElement(options, style);
 
-	return style;
+    return style;
 }
 
 function createLinkElement (options) {
-	var link = document.createElement("link");
+    var link = document.createElement("link");
 
-	options.attrs.type = "text/css";
-	options.attrs.rel = "stylesheet";
+    options.attrs.type = "text/css";
+    options.attrs.rel = "stylesheet";
 
-	addAttrs(link, options.attrs);
-	insertStyleElement(options, link);
+    addAttrs(link, options.attrs);
+    insertStyleElement(options, link);
 
-	return link;
+    return link;
 }
 
 function addAttrs (el, attrs) {
-	Object.keys(attrs).forEach(function (key) {
-		el.setAttribute(key, attrs[key]);
-	});
+    Object.keys(attrs).forEach(function (key) {
+        el.setAttribute(key, attrs[key]);
+    });
 }
 
 function addStyle (obj, options) {
-	var style, update, remove, result;
+    var style, update, remove, result;
 
-	// If a transform function was defined, run it on the css
-	if (options.transform && obj.css) {
-	    result = options.transform(obj.css);
+    // If a transform function was defined, run it on the css
+    if (options.transform && obj.css) {
+        result = options.transform(obj.css);
 
-	    if (result) {
-	    	// If transform returns a value, use that instead of the original css.
-	    	// This allows running runtime transformations on the css.
-	    	obj.css = result;
-	    } else {
-	    	// If the transform function returns a falsy value, don't add this css.
-	    	// This allows conditional loading of css
-	    	return function() {
-	    		// noop
-	    	};
-	    }
-	}
+        if (result) {
+            // If transform returns a value, use that instead of the original css.
+            // This allows running runtime transformations on the css.
+            obj.css = result;
+        } else {
+            // If the transform function returns a falsy value, don't add this css.
+            // This allows conditional loading of css
+            return function() {
+                // noop
+            };
+        }
+    }
 
-	if (options.singleton) {
-		var styleIndex = singletonCounter++;
+    if (options.singleton) {
+        var styleIndex = singletonCounter++;
 
-		style = singleton || (singleton = createStyleElement(options));
+        style = singleton || (singleton = createStyleElement(options));
 
-		update = applyToSingletonTag.bind(null, style, styleIndex, false);
-		remove = applyToSingletonTag.bind(null, style, styleIndex, true);
+        update = applyToSingletonTag.bind(null, style, styleIndex, false);
+        remove = applyToSingletonTag.bind(null, style, styleIndex, true);
 
-	} else if (
-		obj.sourceMap &&
-		typeof URL === "function" &&
-		typeof URL.createObjectURL === "function" &&
-		typeof URL.revokeObjectURL === "function" &&
-		typeof Blob === "function" &&
-		typeof btoa === "function"
-	) {
-		style = createLinkElement(options);
-		update = updateLink.bind(null, style, options);
-		remove = function () {
-			removeStyleElement(style);
+    } else if (
+        obj.sourceMap &&
+        typeof URL === "function" &&
+        typeof URL.createObjectURL === "function" &&
+        typeof URL.revokeObjectURL === "function" &&
+        typeof Blob === "function" &&
+        typeof btoa === "function"
+    ) {
+        style = createLinkElement(options);
+        update = updateLink.bind(null, style, options);
+        remove = function () {
+            removeStyleElement(style);
 
-			if(style.href) URL.revokeObjectURL(style.href);
-		};
-	} else {
-		style = createStyleElement(options);
-		update = applyToTag.bind(null, style);
-		remove = function () {
-			removeStyleElement(style);
-		};
-	}
+            if(style.href) URL.revokeObjectURL(style.href);
+        };
+    } else {
+        style = createStyleElement(options);
+        update = applyToTag.bind(null, style);
+        remove = function () {
+            removeStyleElement(style);
+        };
+    }
 
-	update(obj);
+    update(obj);
 
-	return function updateStyle (newObj) {
-		if (newObj) {
-			if (
-				newObj.css === obj.css &&
-				newObj.media === obj.media &&
-				newObj.sourceMap === obj.sourceMap
-			) {
-				return;
-			}
+    return function updateStyle (newObj) {
+        if (newObj) {
+            if (
+                newObj.css === obj.css &&
+                newObj.media === obj.media &&
+                newObj.sourceMap === obj.sourceMap
+            ) {
+                return;
+            }
 
-			update(obj = newObj);
-		} else {
-			remove();
-		}
-	};
+            update(obj = newObj);
+        } else {
+            remove();
+        }
+    };
 }
 
 var replaceText = (function () {
-	var textStore = [];
+    var textStore = [];
 
-	return function (index, replacement) {
-		textStore[index] = replacement;
+    return function (index, replacement) {
+        textStore[index] = replacement;
 
-		return textStore.filter(Boolean).join('\n');
-	};
+        return textStore.filter(Boolean).join('\n');
+    };
 })();
 
 function applyToSingletonTag (style, index, remove, obj) {
-	var css = remove ? "" : obj.css;
+    var css = remove ? "" : obj.css;
 
-	if (style.styleSheet) {
-		style.styleSheet.cssText = replaceText(index, css);
-	} else {
-		var cssNode = document.createTextNode(css);
-		var childNodes = style.childNodes;
+    if (style.styleSheet) {
+        style.styleSheet.cssText = replaceText(index, css);
+    } else {
+        var cssNode = document.createTextNode(css);
+        var childNodes = style.childNodes;
 
-		if (childNodes[index]) style.removeChild(childNodes[index]);
+        if (childNodes[index]) style.removeChild(childNodes[index]);
 
-		if (childNodes.length) {
-			style.insertBefore(cssNode, childNodes[index]);
-		} else {
-			style.appendChild(cssNode);
-		}
-	}
+        if (childNodes.length) {
+            style.insertBefore(cssNode, childNodes[index]);
+        } else {
+            style.appendChild(cssNode);
+        }
+    }
 }
 
 function applyToTag (style, obj) {
-	var css = obj.css;
-	var media = obj.media;
+    var css = obj.css;
+    var media = obj.media;
 
-	if(media) {
-		style.setAttribute("media", media);
-	}
+    if(media) {
+        style.setAttribute("media", media);
+    }
 
-	if(style.styleSheet) {
-		style.styleSheet.cssText = css;
-	} else {
-		while(style.firstChild) {
-			style.removeChild(style.firstChild);
-		}
+    if(style.styleSheet) {
+        style.styleSheet.cssText = css;
+    } else {
+        while(style.firstChild) {
+            style.removeChild(style.firstChild);
+        }
 
-		style.appendChild(document.createTextNode(css));
-	}
+        style.appendChild(document.createTextNode(css));
+    }
 }
 
 function updateLink (link, options, obj) {
-	var css = obj.css;
-	var sourceMap = obj.sourceMap;
+    var css = obj.css;
+    var sourceMap = obj.sourceMap;
 
-	/*
-		If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
-		and there is no publicPath defined then lets turn convertToAbsoluteUrls
-		on by default.  Otherwise default to the convertToAbsoluteUrls option
-		directly
-	*/
-	var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
+    /*
+        If convertToAbsoluteUrls isn't defined, but sourcemaps are enabled
+        and there is no publicPath defined then lets turn convertToAbsoluteUrls
+        on by default.  Otherwise default to the convertToAbsoluteUrls option
+        directly
+    */
+    var autoFixUrls = options.convertToAbsoluteUrls === undefined && sourceMap;
 
-	if (options.convertToAbsoluteUrls || autoFixUrls) {
-		css = fixUrls(css);
-	}
+    if (options.convertToAbsoluteUrls || autoFixUrls) {
+        css = fixUrls(css);
+    }
 
-	if (sourceMap) {
-		// http://stackoverflow.com/a/26603875
-		css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
-	}
+    if (sourceMap) {
+        // http://stackoverflow.com/a/26603875
+        css += "\n/*# sourceMappingURL=data:application/json;base64," + btoa(unescape(encodeURIComponent(JSON.stringify(sourceMap)))) + " */";
+    }
 
-	var blob = new Blob([css], { type: "text/css" });
+    var blob = new Blob([css], { type: "text/css" });
 
-	var oldSrc = link.href;
+    var oldSrc = link.href;
 
-	link.href = URL.createObjectURL(blob);
+    link.href = URL.createObjectURL(blob);
 
-	if(oldSrc) URL.revokeObjectURL(oldSrc);
+    if(oldSrc) URL.revokeObjectURL(oldSrc);
 }
 
 
@@ -47998,72 +48104,72 @@ module.exports = function (css) {
     throw new Error("fixUrls requires window.location");
   }
 
-	// blank or null?
-	if (!css || typeof css !== "string") {
-	  return css;
+    // blank or null?
+    if (!css || typeof css !== "string") {
+      return css;
   }
 
   var baseUrl = location.protocol + "//" + location.host;
   var currentDir = baseUrl + location.pathname.replace(/\/[^\/]*$/, "/");
 
-	// convert each url(...)
-	/*
-	This regular expression is just a way to recursively match brackets within
-	a string.
+    // convert each url(...)
+    /*
+    This regular expression is just a way to recursively match brackets within
+    a string.
 
-	 /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
-	   (  = Start a capturing group
-	     (?:  = Start a non-capturing group
-	         [^)(]  = Match anything that isn't a parentheses
-	         |  = OR
-	         \(  = Match a start parentheses
-	             (?:  = Start another non-capturing groups
-	                 [^)(]+  = Match anything that isn't a parentheses
-	                 |  = OR
-	                 \(  = Match a start parentheses
-	                     [^)(]*  = Match anything that isn't a parentheses
-	                 \)  = Match a end parentheses
-	             )  = End Group
+     /url\s*\(  = Match on the word "url" with any whitespace after it and then a parens
+       (  = Start a capturing group
+         (?:  = Start a non-capturing group
+             [^)(]  = Match anything that isn't a parentheses
+             |  = OR
+             \(  = Match a start parentheses
+                 (?:  = Start another non-capturing groups
+                     [^)(]+  = Match anything that isn't a parentheses
+                     |  = OR
+                     \(  = Match a start parentheses
+                         [^)(]*  = Match anything that isn't a parentheses
+                     \)  = Match a end parentheses
+                 )  = End Group
               *\) = Match anything and then a close parens
           )  = Close non-capturing group
           *  = Match anything
        )  = Close capturing group
-	 \)  = Match a close parens
+     \)  = Match a close parens
 
-	 /gi  = Get all matches, not the first.  Be case insensitive.
-	 */
-	var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
-		// strip quotes (if they exist)
-		var unquotedOrigUrl = origUrl
-			.trim()
-			.replace(/^"(.*)"$/, function(o, $1){ return $1; })
-			.replace(/^'(.*)'$/, function(o, $1){ return $1; });
+     /gi  = Get all matches, not the first.  Be case insensitive.
+     */
+    var fixedCss = css.replace(/url\s*\(((?:[^)(]|\((?:[^)(]+|\([^)(]*\))*\))*)\)/gi, function(fullMatch, origUrl) {
+        // strip quotes (if they exist)
+        var unquotedOrigUrl = origUrl
+            .trim()
+            .replace(/^"(.*)"$/, function(o, $1){ return $1; })
+            .replace(/^'(.*)'$/, function(o, $1){ return $1; });
 
-		// already a full url? no change
-		if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
-		  return fullMatch;
-		}
+        // already a full url? no change
+        if (/^(#|data:|http:\/\/|https:\/\/|file:\/\/\/)/i.test(unquotedOrigUrl)) {
+          return fullMatch;
+        }
 
-		// convert the url to a full url
-		var newUrl;
+        // convert the url to a full url
+        var newUrl;
 
-		if (unquotedOrigUrl.indexOf("//") === 0) {
-		  	//TODO: should we add protocol?
-			newUrl = unquotedOrigUrl;
-		} else if (unquotedOrigUrl.indexOf("/") === 0) {
-			// path should be relative to the base url
-			newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
-		} else {
-			// path should be relative to current directory
-			newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
-		}
+        if (unquotedOrigUrl.indexOf("//") === 0) {
+              //TODO: should we add protocol?
+            newUrl = unquotedOrigUrl;
+        } else if (unquotedOrigUrl.indexOf("/") === 0) {
+            // path should be relative to the base url
+            newUrl = baseUrl + unquotedOrigUrl; // already starts with '/'
+        } else {
+            // path should be relative to current directory
+            newUrl = currentDir + unquotedOrigUrl.replace(/^\.\//, ""); // Strip leading './'
+        }
 
-		// send back the fixed url(...)
-		return "url(" + JSON.stringify(newUrl) + ")";
-	});
+        // send back the fixed url(...)
+        return "url(" + JSON.stringify(newUrl) + ")";
+    });
 
-	// send back the fixed css
-	return fixedCss;
+    // send back the fixed css
+    return fixedCss;
 };
 
 
@@ -48470,19 +48576,19 @@ var form = class BaseForm extends observable {
     setTitle() {
         const doctypeLabel = this.doc.meta.label || this.doc.meta.name;
 
-        if (this.doc.meta.isSingle || !this.doc.meta.showTitle) {
+        if (this.doc.meta.isSingle || this.doc.meta.naming == 'random') {
             this.container.setTitle(doctypeLabel);
         } else if (this.doc._notInserted) {
             this.container.setTitle(frappejs._('New {0}', doctypeLabel));
         } else {
-            this.container.setTitle(`${doctypeLabel} ${this.doc.name}`);
+            this.container.setTitle(this.doc.name);
         }
     }
 
     async bindEvents(doc) {
-        if (this.doc) {
-            // clear listeners of outgoing doc
-            this.doc.clearListeners();
+        if (this.doc && this.docListener) {
+            // stop listening to the old doc
+            this.doc.off(this.docListener);
         }
         this.clearAlert();
         this.doc = doc;
@@ -48496,7 +48602,7 @@ var form = class BaseForm extends observable {
 
     setupChangeListener() {
         // refresh value in control
-        this.doc.on('change', (params) => {
+        this.docListener = (params) => {
             if (params.fieldname) {
                 // only single value changed
                 let control = this.controls[params.fieldname];
@@ -48508,7 +48614,9 @@ var form = class BaseForm extends observable {
                 this.refresh();
             }
             this.form.classList.remove('was-validated');
-        });
+        };
+
+        this.doc.on('change', this.docListener);
     }
 
     checkValidity() {
@@ -48538,7 +48646,6 @@ var form = class BaseForm extends observable {
             } else {
                 await this.doc.update();
             }
-            await this.refresh();
             this.showAlert('Saved', 'success');
         } catch (e) {
             this.showAlert('Failed', 'danger');
@@ -48593,7 +48700,7 @@ var view = {
 var formpage = class FormPage extends page {
     constructor(doctype) {
         let meta = frappejs.getMeta(doctype);
-        super({title: `Edit ${meta.name}`});
+        super({title: `Edit ${meta.name}`, hasRoute: true});
         this.meta = meta;
         this.doctype = doctype;
 
@@ -48653,7 +48760,13 @@ var listpage = class ListPage extends page {
         });
 
         this.on('show', async () => {
-            await this.list.run();
+            await this.list.refresh();
+        });
+
+        frappejs.docs.on('change', (params) => {
+            if (params.doc.doctype === doctype) {
+                this.list.refreshRow(params.doc);
+            }
         });
     }
 };
@@ -56393,7 +56506,7 @@ nunjucks.configure({ autoescape: false });
 var printpage = class PrintPage extends page {
     constructor(doctype) {
         let meta = frappejs.getMeta(doctype);
-        super({title: `View ${meta.name}`});
+        super({title: `${meta.name}`, hasRoute: true});
         this.meta = meta;
         this.doctype = doctype;
 
@@ -56421,6 +56534,7 @@ var printpage = class PrintPage extends page {
 
         try {
             this.body.innerHTML = `<div class="print-page">${nunjucks.renderString(this.printFormat.template, context)}</div>`;
+            this.setTitle(doc.name);
         } catch (e) {
             this.renderError('Template Error', e);
             throw e;
@@ -56660,40 +56774,40 @@ var desk = class Desk {
 };
 
 var NumberSeriesDocument = class NumberSeries extends document$1 {
-	validate() {
-		if (this.current===null || this.current===undefined) {
-			this.current = 0;
-		}
-	}
-	async next() {
-		this.validate();
-		this.current++;
-		await this.update();
-		return this.current;
-	}
+    validate() {
+        if (this.current===null || this.current===undefined) {
+            this.current = 0;
+        }
+    }
+    async next() {
+        this.validate();
+        this.current++;
+        await this.update();
+        return this.current;
+    }
 };
 
 var NumberSeries = {
-	"name": "NumberSeries",
-	"documentClass": NumberSeriesDocument,
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 0,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "name",
-			"label": "Name",
-			"fieldtype": "Data",
-			"required": 1
-		},
-		{
-			"fieldname": "current",
-			"label": "Current",
-			"fieldtype": "Int",
-			"required": 1
-		}
-	]
+    "name": "NumberSeries",
+    "documentClass": NumberSeriesDocument,
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 0,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "name",
+            "label": "Prefix",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "current",
+            "label": "Current",
+            "fieldtype": "Int",
+            "required": 1
+        }
+    ]
 };
 
 var PrintFormat = {
@@ -56729,146 +56843,154 @@ var PrintFormat = {
 };
 
 var Role = {
-	"name": "Role",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 0,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "name",
-			"label": "Name",
-			"fieldtype": "Data",
-			"required": 1
-		}
-	]
+    "name": "Role",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 0,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "name",
+            "label": "Name",
+            "fieldtype": "Data",
+            "required": 1
+        }
+    ]
 };
 
 var Session = {
-	"name": "Session",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 0,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "username",
-			"label": "Username",
-			"fieldtype": "Data",
-			"required": 1
-		},
-		{
-			"fieldname": "password",
-			"label": "Password",
-			"fieldtype": "Password",
-			"required": 1
-		}
-	]
+    "name": "Session",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 0,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "username",
+            "label": "Username",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "password",
+            "label": "Password",
+            "fieldtype": "Password",
+            "required": 1
+        }
+    ]
 };
 
 var SingleValue = {
-	"name": "SingleValue",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 0,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "parent",
-			"label": "Parent",
-			"fieldtype": "Data",
-			"required": 1
-		},
-		{
-			"fieldname": "fieldname",
-			"label": "Fieldname",
-			"fieldtype": "Data",
-			"required": 1
-		},
-		{
-			"fieldname": "value",
-			"label": "Value",
-			"fieldtype": "Data",
-			"required": 1
-		}
-	]
+    "name": "SingleValue",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 0,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "parent",
+            "label": "Parent",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "fieldname",
+            "label": "Fieldname",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "value",
+            "label": "Value",
+            "fieldtype": "Data",
+            "required": 1
+        }
+    ]
 };
 
 var SystemSettings = {
-	name: "SystemSettings",
-	label: "System Settings",
-	doctype: "DocType",
-	isSingle: 1,
-	isChild: 0,
-	keywordFields: [],
-	fields: [
-		{
-			fieldname: "dateFormat",
-			label: "Date Format",
-			fieldtype: "Select",
-			options: [
-				"dd/mm/yyyy",
-				"mm/dd/yyyy",
-				"dd-mm-yyyy",
-				"mm-dd-yyyy",
-				"yyyy-mm-dd"
-			],
-			default: "yyyy-mm-dd",
-			required: 1
-		}
-	]
+    name: "SystemSettings",
+    label: "System Settings",
+    doctype: "DocType",
+    isSingle: 1,
+    isChild: 0,
+    keywordFields: [],
+    fields: [
+        {
+            fieldname: "dateFormat",
+            label: "Date Format",
+            fieldtype: "Select",
+            options: [
+                "dd/mm/yyyy",
+                "mm/dd/yyyy",
+                "dd-mm-yyyy",
+                "mm-dd-yyyy",
+                "yyyy-mm-dd"
+            ],
+            default: "yyyy-mm-dd",
+            required: 1
+        }
+    ]
 };
 
 var ToDo = {
-	"autoname": "random",
-	"name": "ToDo",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"keywordFields": [
-		"subject",
-		"description"
-	],
-	"fields": [
-		{
-			"fieldname": "subject",
-			"label": "Subject",
-			"fieldtype": "Data",
-			"required": 1
-		},
-		{
-			"fieldname": "status",
-			"label": "Status",
-			"fieldtype": "Select",
-			"options": [
-				"Open",
-				"Closed"
-			],
-			"default": "Open",
-			"required": 1
-		},
-		{
-			"fieldname": "description",
-			"label": "Description",
-			"fieldtype": "Text"
-		}
-	]
+    "naming": "random",
+    "name": "ToDo",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "keywordFields": [
+        "subject",
+        "description"
+    ],
+    titleField: 'subject',
+    indicators: {
+        key: 'status',
+        colors: {
+            Open: 'gray',
+            Closed: 'green'
+        }
+    },
+    "fields": [
+        {
+            "fieldname": "subject",
+            "label": "Subject",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "status",
+            "label": "Status",
+            "fieldtype": "Select",
+            "options": [
+                "Open",
+                "Closed"
+            ],
+            "default": "Open",
+            "required": 1
+        },
+        {
+            "fieldname": "description",
+            "label": "Description",
+            "fieldtype": "Text"
+        }
+    ]
 };
 
 var User = {
-	"name": "User",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 0,
-	"keywordFields": [
+    "name": "User",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 0,
+    "keywordFields": [
         "name",
         "full_name"
     ],
-	"fields": [
-		{
-			"fieldname": "name",
-			"label": "Name",
-			"fieldtype": "Data",
-			"required": 1
+    "fields": [
+        {
+            "fieldname": "name",
+            "label": "Name",
+            "fieldtype": "Data",
+            "required": 1
         },
         {
             "fieldname": "full_name",
@@ -56882,23 +57004,23 @@ var User = {
             "fieldtype": "Table",
             "childtype": "UserRole"
         }
-	]
+    ]
 };
 
 var UserRole = {
-	"name": "UserRole",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 1,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "role",
-			"label": "Role",
-			"fieldtype": "Link",
-			"target": "Role"
+    "name": "UserRole",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 1,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "role",
+            "label": "Role",
+            "fieldtype": "Link",
+            "target": "Role"
         }
-	]
+    ]
 };
 
 var models = {
@@ -56916,6 +57038,7 @@ var models = {
 frappejs.ui = ui;
 
 
+
 var client = {
     async start({server, columns = 2}) {
         window.frappe = frappejs;
@@ -56929,7 +57052,7 @@ var client = {
         this.socket = io.connect('http://localhost:8000'); // eslint-disable-line
         frappejs.db.bindSocketClient(this.socket);
 
-        frappejs.flags.cacheDocs = true;
+        frappejs.docs = new observable();
 
         await frappejs.getSingle('SystemSettings');
 
@@ -56951,104 +57074,104 @@ var AccountDocument = class Account extends document$1 {
 };
 
 var Account = {
-	"name": "Account",
-	"doctype": "DocType",
-	"documentClass": AccountDocument,
-	"isSingle": 0,
-	"keywordFields": [
-		"name",
-		"account_type"
-	],
-	"fields": [
-		{
-			"fieldname": "name",
-			"label": "Account Name",
-			"fieldtype": "Data",
-			"required": 1
-		},
-		{
-			"fieldname": "parent_account",
-			"label": "Parent Account",
-			"fieldtype": "Link",
-			"target": "Account"
-		},
-		{
-			"fieldname": "account_type",
-			"label": "Account Type",
-			"fieldtype": "Select",
-			"options": [
-				"Asset",
-				"Liability",
-				"Equity",
-				"Income",
-				"Expense"
-			]
-		}
-	]
+    "name": "Account",
+    "doctype": "DocType",
+    "documentClass": AccountDocument,
+    "isSingle": 0,
+    "keywordFields": [
+        "name",
+        "account_type"
+    ],
+    "fields": [
+        {
+            "fieldname": "name",
+            "label": "Account Name",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "parent_account",
+            "label": "Parent Account",
+            "fieldtype": "Link",
+            "target": "Account"
+        },
+        {
+            "fieldname": "account_type",
+            "label": "Account Type",
+            "fieldtype": "Select",
+            "options": [
+                "Asset",
+                "Liability",
+                "Equity",
+                "Income",
+                "Expense"
+            ]
+        }
+    ]
 };
 
 var Customer = {
-	"name": "Customer",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"istable": 0,
-	"keywordFields": [
-		"name"
-	],
-	"fields": [
-		{
-			"fieldname": "name",
-			"label": "Name",
-			"fieldtype": "Data",
-			"required": 1
-		}
-	]
+    "name": "Customer",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "istable": 0,
+    "keywordFields": [
+        "name"
+    ],
+    "fields": [
+        {
+            "fieldname": "name",
+            "label": "Name",
+            "fieldtype": "Data",
+            "required": 1
+        }
+    ]
 };
 
 var Item = {
-	"name": "Item",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"keywordFields": [
-		"name",
-		"description"
-	],
-	"fields": [
-		{
-			"fieldname": "name",
-			"label": "Item Name",
-			"fieldtype": "Data",
-			"required": 1
-		},
-		{
-			"fieldname": "description",
-			"label": "Description",
-			"fieldtype": "Text"
-		},
-		{
-			"fieldname": "unit",
-			"label": "Unit",
-			"fieldtype": "Select",
-			"options": [
-				"No",
-				"Kg",
-				"Gram",
-				"Hour",
-				"Day"
-			]
-		},
-		{
-			"fieldname": "tax",
-			"label": "Tax",
-			"fieldtype": "Link",
-			"target": "Tax"
-		},
-		{
-			"fieldname": "rate",
-			"label": "Rate",
-			"fieldtype": "Currency"
-		}
-	]
+    "name": "Item",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "keywordFields": [
+        "name",
+        "description"
+    ],
+    "fields": [
+        {
+            "fieldname": "name",
+            "label": "Item Name",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "description",
+            "label": "Description",
+            "fieldtype": "Text"
+        },
+        {
+            "fieldname": "unit",
+            "label": "Unit",
+            "fieldtype": "Select",
+            "options": [
+                "No",
+                "Kg",
+                "Gram",
+                "Hour",
+                "Day"
+            ]
+        },
+        {
+            "fieldname": "tax",
+            "label": "Tax",
+            "fieldtype": "Link",
+            "target": "Tax"
+        },
+        {
+            "fieldname": "rate",
+            "label": "Rate",
+            "fieldtype": "Currency"
+        }
+    ]
 };
 
 var InvoiceDocument = class Invoice extends document$1 {
@@ -57266,79 +57389,79 @@ var InvoiceSettings = {
 };
 
 var Tax = {
-	"name": "Tax",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 0,
-	"keywordFields": ["name"],
-	"fields": [
-		{
-			"fieldname": "name",
-			"label": "Name",
-			"fieldtype": "Data",
-			"required": 1
-		},
-		{
-			"fieldname": "details",
-			"label": "Details",
-			"fieldtype": "Table",
-			"childtype": "TaxDetail",
-			"required": 1
-		}
-	]
+    "name": "Tax",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 0,
+    "keywordFields": ["name"],
+    "fields": [
+        {
+            "fieldname": "name",
+            "label": "Name",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "details",
+            "label": "Details",
+            "fieldtype": "Table",
+            "childtype": "TaxDetail",
+            "required": 1
+        }
+    ]
 };
 
 var TaxDetail = {
-	"name": "TaxDetail",
-	"label": "Tax Detail",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 1,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "account",
-			"label": "Tax Account",
-			"fieldtype": "Link",
-			"target": "Account",
-			"required": 1
-		},
-		{
-			"fieldname": "rate",
-			"label": "Rate",
-			"fieldtype": "Float",
-			"required": 1
-		}
-	]
+    "name": "TaxDetail",
+    "label": "Tax Detail",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 1,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "account",
+            "label": "Tax Account",
+            "fieldtype": "Link",
+            "target": "Account",
+            "required": 1
+        },
+        {
+            "fieldname": "rate",
+            "label": "Rate",
+            "fieldtype": "Float",
+            "required": 1
+        }
+    ]
 };
 
 var TaxSummary = {
-	"name": "TaxSummary",
-	"doctype": "DocType",
-	"isSingle": 0,
-	"isChild": 1,
-	"keywordFields": [],
-	"fields": [
-		{
-			"fieldname": "account",
-			"label": "Tax Account",
-			"fieldtype": "Link",
-			"target": "Account",
-			"required": 1
-		},
-		{
-			"fieldname": "rate",
-			"label": "Rate",
-			"fieldtype": "Float",
-			"required": 1
-		},
-		{
-			"fieldname": "amount",
-			"label": "Amount",
-			"fieldtype": "Currency",
-			"required": 1
-		}
-	]
+    "name": "TaxSummary",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 1,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "account",
+            "label": "Tax Account",
+            "fieldtype": "Link",
+            "target": "Account",
+            "required": 1
+        },
+        {
+            "fieldname": "rate",
+            "label": "Rate",
+            "fieldtype": "Float",
+            "required": 1
+        },
+        {
+            "fieldname": "amount",
+            "label": "Amount",
+            "fieldtype": "Currency",
+            "required": 1
+        }
+    ]
 };
 
 var models$2 = {
@@ -57357,10 +57480,6 @@ var ToDoList_1 = class ToDoList extends list {
     getFields()  {
         return ['name', 'subject', 'status'];
     }
-    getRowHTML(data) {
-        let symbol = data.status=="Closed" ? "✔" : "";
-        return `<a href="#edit/ToDo/${data.name}">${symbol} ${data.subject}</a>`;
-    }
 };
 
 var AccountList_1 = class AccountList extends list {
@@ -57368,7 +57487,7 @@ var AccountList_1 = class AccountList extends list {
         return ['name', 'account_type'];
     }
     getRowHTML(data) {
-        return `${data.name} (${data.account_type})`;
+        return `<div class="col-11">${this.getNameHTML(data)} (${data.account_type})</div>`;
     }
 };
 
@@ -57391,8 +57510,8 @@ var InvoiceList_1 = class InvoiceList extends list {
         return ['name', 'customer', 'grandTotal'];
     }
     getRowHTML(data) {
-        return `<div class="col-2">${data.name}</div>
-                <div class="col-5 text-muted">${data.customer}</div>
+        return `<div class="col-3">${this.getNameHTML(data)}</div>
+                <div class="col-4 text-muted">${data.customer}</div>
                 <div class="col-4 text-muted text-right">${frappejs.format(data.grandTotal, "Currency")}</div>`;
     }
 };
