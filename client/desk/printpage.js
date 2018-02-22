@@ -7,7 +7,7 @@ nunjucks.configure({ autoescape: false });
 module.exports = class PrintPage extends Page {
     constructor(doctype) {
         let meta = frappe.getMeta(doctype);
-        super({title: `View ${meta.name}`});
+        super({title: `${meta.name}`, hasRoute: true});
         this.meta = meta;
         this.doctype = doctype;
 
@@ -35,6 +35,7 @@ module.exports = class PrintPage extends Page {
 
         try {
             this.body.innerHTML = `<div class="print-page">${nunjucks.renderString(this.printFormat.template, context)}</div>`;
+            this.setTitle(doc.name);
         } catch (e) {
             this.renderError('Template Error', e);
             throw e;

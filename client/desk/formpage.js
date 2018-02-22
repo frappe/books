@@ -5,7 +5,7 @@ const frappe = require('frappejs');
 module.exports = class FormPage extends Page {
     constructor(doctype) {
         let meta = frappe.getMeta(doctype)
-        super({title: `Edit ${meta.name}`});
+        super({title: `Edit ${meta.name}`, hasRoute: true});
         this.meta = meta;
         this.doctype = doctype;
 

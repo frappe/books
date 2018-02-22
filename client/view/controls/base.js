@@ -87,7 +87,7 @@ class BaseControl {
     }
 
     setDisabled() {
-        if (this.readonly || this.disabled) {
+        if (this.disabled) {
             this.input.disabled = true;
         }
     }
