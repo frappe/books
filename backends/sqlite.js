@@ -28,16 +28,7 @@ module.exports = class sqliteDatabase extends Database {
         return (name && name.length) ? true : false;
     }
 
-    async alterTable(doctype) {
-        let newColumns = await this.getNewColumns(doctype);
-        let newForeignKeys = await this.getNewForeignKeys(doctype);
-
-        if (newColumns.length || newForeignKeys.length) {
-            await this.migrateToNewTable(doctype);
-        }
-    }
-
-    async migrateToNewTable(doctype) {
+    async addForeignKeys(doctype, newForeignKeys) {
         await this.run('PRAGMA foreign_keys=OFF');
         await this.run('BEGIN TRANSACTION');
 
@@ -65,6 +56,16 @@ module.exports = class sqliteDatabase extends Database {
     }
 
     updateColumnDefinition(field, columns, indexes) {
+        let def = this.getColumnDefinition(field);
+
+        columns.push(def);
+
+        if (field.fieldtype==='Link' && field.target) {
+            indexes.push(`FOREIGN KEY (${field.fieldname}) REFERENCES ${field.target} ON UPDATE RESTRICT ON DELETE RESTRICT`);
+        }
+    }
+
+    getColumnDefinition(field) {
         let def = `${field.fieldname} ${this.type_map[field.fieldtype]}`;
         if (field.fieldname==='name') {
             def += ' PRIMARY KEY NOT NULL';
@@ -75,12 +76,7 @@ module.exports = class sqliteDatabase extends Database {
         if (field.default) {
             def += `DEFAULT ${field.default}`;
         }
-
-        columns.push(def);
-
-        if (field.fieldtype==='Link' && field.target) {
-            indexes.push(`FOREIGN KEY (${field.fieldname}) REFERENCES ${field.target} ON UPDATE RESTRICT ON DELETE RESTRICT`);
-        }
+        return def;
     }
 
     async getTableColumns(doctype) {

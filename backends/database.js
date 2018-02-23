@@ -65,7 +65,7 @@ module.exports = class Database extends Observable {
             await this.addColumns(doctype, newColumns);
         }
         if (newForeignKeys.length) {
-            await this.addForeignKeys(doctype);
+            await this.addForeignKeys(doctype, newForeignKeys);
         }
     }
 
