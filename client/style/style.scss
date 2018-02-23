@@ -27,14 +27,6 @@ html {
 	border-left: 1px solid $gray-300;
 }
 
-.desk-menu {
-
-	.list-group-item {
-		padding: $spacer-2 $spacer-3;
-		border: none;
-	}
-}
-
 .hide {
 	display: none !important;
 }
@@ -106,6 +98,31 @@ html {
 
 .dropdown-item {
 	padding: $spacer-2 $spacer-3;
+}
+
+.desk-menu {
+	background-color: $gray-200;
+
+	.list-row {
+		border-bottom: 1px solid $gray-200;
+	}
+
+	.list-row:hover {
+		background-color: $gray-300;
+	}
+
+	.list-row.active {
+		background-color: $gray-400;
+	}
+}
+
+.print-page {
+	padding: $spacer-5;
+	line-height: 1.8;
+
+	td, th {
+		padding: $spacer-2;
+	}
 }
 
 .CodeMirror {
@@ -191,15 +208,6 @@ mark {
 			width: auto;
 			min-width: 120px;
 		}
-	}
-}
-
-.print-page {
-	padding: $spacer-5;
-	line-height: 1.8;
-
-	td, th {
-		padding: $spacer-2;
 	}
 }
 

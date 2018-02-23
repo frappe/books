@@ -36,11 +36,15 @@ module.exports = class Observable {
     }
 
     async trigger(event, params, throttle=false) {
-        if (this._throttled(event, params, throttle)) return;
+        if (throttle) {
+            if (this._throttled(event, params, throttle)) return;
+            params = [params]
+        }
 
-        // listify if throttled
-        if (throttle) params = [params];
+        await this._executeTriggers(event, params);
+    }
 
+    async _executeTriggers(event, params) {
         await this._triggerEvent('_listeners', event, params);
         await this._triggerEvent('_onceListeners', event, params);
 
@@ -52,40 +56,31 @@ module.exports = class Observable {
         if (this._onceListeners && this._onceListeners[event]) {
             delete this._onceListeners[event];
         }
-
-
     }
 
     _throttled(event, params, throttle) {
-        if (throttle) {
-            if (this._isHot[event]) {
+        if (this._isHot[event]) {
+            // hot, add to queue
+            if (!this._eventQueue[event]) this._eventQueue[event] = [];
+            this._eventQueue[event].push(params);
 
-                // hot, add to queue
-                if (this._eventQueue[event]) {
-
-                    // queue exists, just add
-                    this._eventQueue[event].push(params);
-                } else {
-
-                    // create a new queue to be called after cool-off
-                    this._eventQueue[event] = [params];
-
-                    // call after cool-off
-                    setTimeout(() => {
-                        let _queuedParams = this._eventQueue[event];
-
-                        // reset queues
-                        this._isHot[event] = false;
-                        this._eventQueue[event] = null;
-
-                        this.trigger(event, _queuedParams, true);
-                    }, throttle);
-
-                }
-                return true;
-            }
-            this._isHot[event] = true;
+            // aleady hot, quit
+            return true;
         }
+        this._isHot[event] = true;
+
+        // cool-off
+        setTimeout(() => {
+            this._isHot[event] = false;
+
+            // flush queue
+            if (this._eventQueue[event]) {
+                let _queuedParams = this._eventQueue[event];
+                this._eventQueue[event] = null;
+                this._executeTriggers(event, _queuedParams);
+            }
+        }, throttle);
+
         return false;
     }
 
