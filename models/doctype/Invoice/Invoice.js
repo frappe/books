@@ -8,7 +8,8 @@ module.exports = {
         "printFormat": "Standard Invoice Format",
     },
     "isSingle": 0,
-    "istable": 0,
+    "isChild": 0,
+    "isSubmittable": 1,
     "keywordFields": ["name", "customer"],
     "settings": "InvoiceSettings",
     "showTitle": true,
@@ -65,6 +66,11 @@ module.exports = {
             "fieldtype": "Currency",
             formula: (doc) => doc.getGrandTotal(),
             "disabled": true
+        },
+        {
+            "fieldname": "terms",
+            "label": "Terms",
+            "fieldtype": "Text"
         }
     ]
 }

@@ -2,6 +2,10 @@ const BaseDocument = require('frappejs/model/document');
 const frappe = require('frappejs');
 
 module.exports = class Invoice extends BaseDocument {
+    async afterSubmit() {
+        // make ledger entry
+    }
+
     async getRowTax(row) {
         if (row.tax) {
             let tax = await this.getTax(row.tax);
@@ -14,11 +18,13 @@ module.exports = class Invoice extends BaseDocument {
             return '';
         }
     }
+
     async getTax(tax) {
         if (!this._taxes) this._taxes = {};
         if (!this._taxes[tax]) this._taxes[tax] = await frappe.getDoc('Tax', tax);
         return this._taxes[tax];
     }
+
     makeTaxSummary() {
         if (!this.taxes) this.taxes = [];
 

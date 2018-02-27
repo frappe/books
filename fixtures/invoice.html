@@ -53,13 +53,15 @@
         </div>
         {% endfor %}
         <div class='row py-3'>
-                <div class='col-6'>
-                    <h5>{{ frappe._("Grand Total") }}</h5>
-                </div>
-                <div class='col-6 text-right'>
-                    <h5>{{ frappe.format(doc.grandTotal, 'Currency')}}</h5>
-                </div>
+            <div class='col-6'>
+                <h5>{{ frappe._("Grand Total") }}</h5>
+            </div>
+            <div class='col-6 text-right'>
+                <h5>{{ frappe.format(doc.grandTotal, 'Currency')}}</h5>
             </div>
         </div>
     </div>
+</div>
+<div class='py-3'>
+    {{ frappe.format(doc.terms, 'Text') }}
 </div>
