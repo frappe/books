@@ -3,7 +3,7 @@ const frappe = require('frappejs');
 
 module.exports = class InvoiceList extends BaseList {
     getFields()  {
-        return ['name', 'customer', 'grandTotal'];
+        return ['name', 'customer', 'grandTotal', 'submitted'];
     }
     getRowHTML(data) {
         return `<div class="col-3">${this.getNameHTML(data)}</div>

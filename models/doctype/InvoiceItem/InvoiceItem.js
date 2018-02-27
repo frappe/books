@@ -30,7 +30,7 @@ module.exports = {
             "label": "Rate",
             "fieldtype": "Currency",
             "required": 1,
-            formula: (row, doc) => row.rate || doc.getFrom('Item', row.item, 'rate')
+            formula: (row, doc) => doc.getFrom('Item', row.item, 'rate')
         },
         {
             "fieldname": "tax",
