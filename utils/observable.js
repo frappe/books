@@ -1,38 +1,32 @@
 module.exports = class Observable {
     constructor() {
-        this._isHot = {};
-        this._eventQueue = {};
+        this._observable = {
+            isHot: {},
+            eventQueue: {},
+            listeners: {},
+            onceListeners: {}
+        }
     }
 
     on(event, listener) {
-        this._addListener('_listeners', event, listener);
-        if (this._socketClient) {
-            this._socketClient.on(event, listener);
+        this._addListener('listeners', event, listener);
+        if (this._observable.socketClient) {
+            this._observable.socketClient.on(event, listener);
         }
     }
 
     // remove listener
     off(event, listener) {
-        for (let type of ['_listeners', '_onceListeners']) {
-            let index = this[type] && this[type][event] && this[type][event].indexOf(listener);
+        for (let type of ['listeners', 'onceListeners']) {
+            let index = this._observable[type][event] && this._observable[type][event].indexOf(listener);
             if (index) {
-                this[type][event].splice(index, 1);
+                this._observable[type][event].splice(index, 1);
             }
         }
     }
 
     once(event, listener) {
-        this._addListener('_onceListeners', event, listener);
-    }
-
-    bindSocketClient(socket) {
-        // also send events with sockets
-        this._socketClient = socket;
-    }
-
-    bindSocketServer(socket) {
-        // also send events with sockets
-        this._socketServer = socket;
+        this._addListener('onceListeners', event, listener);
     }
 
     async trigger(event, params, throttle=false) {
@@ -45,38 +39,58 @@ module.exports = class Observable {
     }
 
     async _executeTriggers(event, params) {
-        await this._triggerEvent('_listeners', event, params);
-        await this._triggerEvent('_onceListeners', event, params);
+        let response = await this._triggerEvent('listeners', event, params);
+        if (response === false) return false;
 
-        if (this._socketServer) {
-            this._socketServer.emit(event, params);
+        response = await this._triggerEvent('onceListeners', event, params);
+        if (response === false) return false;
+
+        // emit via socket
+        if (this._observable.socketServer) {
+            this._observable.socketServer.emit(event, params);
         }
 
         // clear once-listeners
-        if (this._onceListeners && this._onceListeners[event]) {
-            delete this._onceListeners[event];
+        if (this._observable.onceListeners && this._observable.onceListeners[event]) {
+            delete this._observable.onceListeners[event];
         }
+
+    }
+
+    clearListeners() {
+        this._observable.listeners = {};
+        this._observable.onceListeners = {};
+    }
+
+    bindSocketClient(socket) {
+        // also send events with sockets
+        this._observable.socketClient = socket;
+    }
+
+    bindSocketServer(socket) {
+        // also send events with sockets
+        this._observable.socketServer = socket;
     }
 
     _throttled(event, params, throttle) {
-        if (this._isHot[event]) {
+        if (this._observable.isHot[event]) {
             // hot, add to queue
-            if (!this._eventQueue[event]) this._eventQueue[event] = [];
-            this._eventQueue[event].push(params);
+            if (!this._observable.eventQueue[event]) this._observable.eventQueue[event] = [];
+            this._observable.eventQueue[event].push(params);
 
             // aleady hot, quit
             return true;
         }
-        this._isHot[event] = true;
+        this._observable.isHot[event] = true;
 
         // cool-off
         setTimeout(() => {
-            this._isHot[event] = false;
+            this._observable.isHot[event] = false;
 
             // flush queue
-            if (this._eventQueue[event]) {
-                let _queuedParams = this._eventQueue[event];
-                this._eventQueue[event] = null;
+            if (this._observable.eventQueue[event]) {
+                let _queuedParams = this._observable.eventQueue[event];
+                this._observable.eventQueue[event] = null;
                 this._executeTriggers(event, _queuedParams);
             }
         }, throttle);
@@ -84,26 +98,18 @@ module.exports = class Observable {
         return false;
     }
 
-    _addListener(name, event, listener) {
-        if (!this[name]) {
-            this[name] = {};
+    _addListener(type, event, listener) {
+        if (!this._observable[type][event]) {
+            this._observable[type][event] = [];
         }
-        if (!this[name][event]) {
-            this[name][event] = [];
-        }
-        this[name][event].push(listener);
+        this._observable[type][event].push(listener);
     }
 
-    async _triggerEvent(name, event, params) {
-        if (this[name] && this[name][event]) {
-            for (let listener of this[name][event]) {
+    async _triggerEvent(type, event, params) {
+        if (this._observable[type][event]) {
+            for (let listener of this._observable[type][event]) {
                 await listener(params);
             }
         }
-    }
-
-    clearListeners() {
-        this._listeners = {};
-        this._onceListeners = {};
     }
 }

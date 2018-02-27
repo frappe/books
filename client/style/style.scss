@@ -3,6 +3,7 @@
 @import "node_modules/flatpickr/dist/flatpickr";
 @import "node_modules/flatpickr/dist/themes/airbnb";
 @import "node_modules/codemirror/lib/codemirror";
+@import "node_modules/frappe-datatable/dist/frappe-datatable";
 
 $spacer-1: 0.25rem;
 $spacer-2: 0.5rem;
@@ -36,8 +37,8 @@ html {
 
 	.page-head {
 		padding: $spacer-2 $spacer-3;
-		background-color: $gray-800;
-		color: $gray-100;
+		background-color: $gray-100;
+		border-bottom: 1px solid $gray-300;
 
 		.page-title {
 			display: inline-block;
@@ -56,7 +57,7 @@ html {
 }
 
 .form-body {
-	padding: $spacer-3;
+	padding: $spacer-4;
 
 	.form-control.font-weight-bold {
 		background-color: lightyellow;
@@ -97,6 +98,15 @@ html {
 
 
 .dropdown-item {
+	padding: $spacer-2 $spacer-3;
+}
+
+.bottom-right-float {
+	position: fixed;
+	margin-bottom: 0px;
+	bottom: $spacer-3;
+	right: $spacer-3;
+	max-width: 200px;
 	padding: $spacer-2 $spacer-3;
 }
 

@@ -43,6 +43,7 @@ module.exports = {
         // listen
         frappe.app = app;
         frappe.server = server;
+        frappe.isServer = true;
 
         server.listen(frappe.config.port);
     },

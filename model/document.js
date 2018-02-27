@@ -128,16 +128,17 @@ module.exports = class BaseDocument extends Observable {
     }
 
     setStandardValues() {
-        let now = new Date();
-        if (this.docstatus === null || this.docstatus === undefined) {
-            this.docstatus = 0;
+        // set standard values on server-side only
+        if (frappe.isServer) {
+            let now = new Date();
+            if (!this.submitted) this.submitted = 0;
+            if (!this.owner) {
+                this.owner = frappe.session.user;
+                this.creation = now;
+            }
+            this.modifieldBy = frappe.session.user;
+            this.modified = now;
         }
-        if (!this.owner) {
-            this.owner = frappe.session.user;
-            this.creation = now;
-        }
-        this.modifieldBy = frappe.session.user;
-        this.modified = now;
     }
 
     async load() {
@@ -174,6 +175,30 @@ module.exports = class BaseDocument extends Observable {
                 for(let i=0; i < (this[field.fieldname] || []).length; i++) {
                     this[field.fieldname][i].idx = i;
                 }
+            }
+        }
+    }
+
+    async compareWithCurrentDoc() {
+        if (frappe.isServer && !this._notInserted) {
+            let currentDoc = await frappe.db.get(this.doctype, this.name);
+
+            // check for conflict
+            if (currentDoc && this.modified != currentDoc.modified) {
+                throw new frappe.errors.Conflict(frappe._('Document {0} {1} has been modified after loading', [this.doctype, this.name]));
+            }
+
+            if (this.submitted && !this.meta.isSubmittable) {
+                throw new frappe.errors.ValidationError(frappe._('Document type {1} is not submittable', [this.doctype]));
+            }
+
+            // set submit action flag
+            if (this.submitted && !currentDoc.submitted) {
+                this.submitAction = true;
+            }
+
+            if (currentDoc.submitted && !this.submitted) {
+                this.unSubmitAction = true;
             }
         }
     }
@@ -219,20 +244,25 @@ module.exports = class BaseDocument extends Observable {
 
     async insert() {
         await this.commit();
-        await this.trigger('before_insert');
+        await this.trigger('beforeInsert');
         this.syncValues(await frappe.db.insert(this.doctype, this.getValidDict()));
-        await this.trigger('after_insert');
-        await this.trigger('after_save');
+        await this.trigger('afterInsert');
+        await this.trigger('afterSave');
 
         return this;
     }
 
     async update() {
+        await this.compareWithCurrentDoc();
         await this.commit();
-        await this.trigger('before_update');
+        await this.trigger('beforeUpdate');
+        if (this.submitAction) this.trigger('beforeSubmit');
+        if (this.unSubmitAction) this.trigger('beforeUnSubmit');
         this.syncValues(await frappe.db.update(this.doctype, this.getValidDict()));
-        await this.trigger('after_update');
-        await this.trigger('after_save');
+        await this.trigger('afterUpdate');
+        await this.trigger('afterSave');
+        if (this.submitAction) this.trigger('afterSubmit');
+        if (this.unSubmitAction) this.trigger('afterUnSubmit');
 
         return this;
     }
@@ -243,6 +273,8 @@ module.exports = class BaseDocument extends Observable {
         await this.trigger('after_delete');
     }
 
+    // trigger methods on the class if they match
+    // with the trigger name
     async trigger(event, params) {
         if (this[event]) {
             await this[event](params);

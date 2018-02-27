@@ -41,6 +41,12 @@ module.exports = {
 
     make_dropdown(label, parent, btn_class = 'btn-secondary') {
         return new Dropdown({parent: parent, label:label, btn_class:btn_class});
-    }
+    },
 
+    showAlert({message, color='yellow', timeout=4}) {
+        let alert = this.add('div', 'alert alert-warning bottom-right-float', document.body);
+        alert.innerHTML = `<span class='indicator ${color}'>${message}</span>`;
+        frappe.sleep(timeout).then(() => alert.remove());
+        return alert;
+    }
 }

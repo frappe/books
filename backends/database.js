@@ -36,7 +36,7 @@ module.exports = class Database extends Observable {
         let indexes = [];
 
         for (let field of meta.getValidFields({ withChildren: false })) {
-            if (this.type_map[field.fieldtype]) {
+            if (this.typeMap[field.fieldtype]) {
                 this.updateColumnDefinition(field, columns, indexes);
             }
         }
@@ -53,7 +53,7 @@ module.exports = class Database extends Observable {
     }
 
     updateColumnDefinition(field, columns, indexes) {
-        // return `${df.fieldname} ${this.type_map[df.fieldtype]} ${ ? "PRIMARY KEY" : ""} ${df.required && !df.default ? "NOT NULL" : ""} ${df.default ? `DEFAULT ${df.default}` : ""}`
+        // return `${df.fieldname} ${this.typeMap[df.fieldtype]} ${ ? "PRIMARY KEY" : ""} ${df.required && !df.default ? "NOT NULL" : ""} ${df.default ? `DEFAULT ${df.default}` : ""}`
     }
 
     async alterTable(doctype) {
@@ -74,7 +74,7 @@ module.exports = class Database extends Observable {
         let meta = frappe.getMeta(doctype);
         let newColumns = [];
         for (let field of meta.getValidFields({ withChildren: false })) {
-            if (!tableColumns.includes(field.fieldname) && this.type_map[field.fieldtype]) {
+            if (!tableColumns.includes(field.fieldname) && this.typeMap[field.fieldtype]) {
                 newColumns.push(field);
             }
         }
@@ -399,7 +399,7 @@ module.exports = class Database extends Observable {
     }
 
     initTypeMap() {
-        this.type_map = {
+        this.typeMap = {
             'Currency': 'real'
             , 'Int': 'integer'
             , 'Float': 'real'

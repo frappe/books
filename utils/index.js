@@ -15,10 +15,10 @@ module.exports = {
 
     _(text, args) {
         // should return translated text
-        return this.string_replace(text, args);
+        return this.stringReplace(text, args);
     },
 
-    string_replace(str, args) {
+    stringReplace(str, args) {
         if (!Array.isArray(args)) {
             args = [args];
         }

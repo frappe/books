@@ -12,6 +12,7 @@ class ValidationError extends BaseError {
 module.exports = {
     ValidationError: ValidationError,
     ValueError: class ValueError extends ValidationError { },
+    Conflict: class Conflict extends ValidationError { },
     NotFound: class NotFound extends BaseError {
         constructor(...params) { super(404, ...params); }
     },

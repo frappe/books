@@ -13,7 +13,7 @@ module.exports = class FormPage extends Page {
             doctype: doctype,
             parent: this.body,
             container: this,
-            actions: ['submit', 'delete', 'duplicate', 'settings', 'print']
+            actions: ['save', 'delete', 'duplicate', 'settings', 'print']
         });
 
         this.on('show', async (params) => {
@@ -21,11 +21,11 @@ module.exports = class FormPage extends Page {
         });
 
         // if name is different after saving, change the route
-        this.form.on('submit', async (params) => {
+        this.form.on('save', async (params) => {
             let route = frappe.router.get_route();
             if (this.form.doc.name && !(route && route[2] === this.form.doc.name)) {
                 await frappe.router.setRoute('edit', this.form.doc.doctype, this.form.doc.name);
-                this.form.showAlert('Added', 'success');
+                frappe.ui.showAlert({message: 'Added', color: 'green'});
             }
         });
 

@@ -66,7 +66,7 @@ module.exports = class sqliteDatabase extends Database {
     }
 
     getColumnDefinition(field) {
-        let def = `${field.fieldname} ${this.type_map[field.fieldtype]}`;
+        let def = `${field.fieldname} ${this.typeMap[field.fieldtype]}`;
         if (field.fieldname==='name') {
             def += ' PRIMARY KEY NOT NULL';
         }
@@ -205,7 +205,7 @@ module.exports = class sqliteDatabase extends Database {
     }
 
     initTypeMap() {
-        this.type_map = {
+        this.typeMap = {
             'Currency': 'real'
             , 'Int': 'integer'
             , 'Float': 'real'

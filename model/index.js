@@ -15,12 +15,12 @@ module.exports = {
         let next = await series.next()
         return prefix + next;
     },
-    common_fields: [
+    commonFields: [
         {
             fieldname: 'name', fieldtype: 'Data', required: 1
         }
     ],
-    parent_fields: [
+    parentFields: [
         {
             fieldname: 'owner', fieldtype: 'Data', required: 1
         },
@@ -35,12 +35,9 @@ module.exports = {
         },
         {
             fieldname: 'keywords', fieldtype: 'Text'
-        },
-        {
-            fieldname: 'docstatus', fieldtype: 'Int', required: 1, default: 0
         }
     ],
-    child_fields: [
+    childFields: [
         {
             fieldname: 'idx', fieldtype: 'Int', required: 1
         },
