@@ -37,6 +37,7 @@ class BaseControl {
         } else {
             this.setDocValue();
         }
+        this.setDisabled();
     }
 
     renderTemplate() {
@@ -86,10 +87,12 @@ class BaseControl {
 
     }
 
+    isDisabled() {
+        return this.disabled || this.formula || (this.doc && this.doc.submitted);
+    }
+
     setDisabled() {
-        if (this.disabled) {
-            this.input.disabled = true;
-        }
+        this.input.disabled = this.isDisabled();
     }
 
     getInputParent() {

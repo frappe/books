@@ -36,6 +36,7 @@ module.exports = class PrintPage extends Page {
         try {
             this.body.innerHTML = `<div class="print-page">${nunjucks.renderString(this.printFormat.template, context)}</div>`;
             this.setTitle(doc.name);
+            if (doc.submitted) this.addTitleBadge('✓', 'Submitted');
         } catch (e) {
             this.renderError('Template Error', e);
             throw e;

@@ -58,9 +58,11 @@ module.exports = class BaseList {
     }
 
     async getData() {
+        let fields = this.getFields();
+        this.updateStandardFields(fields);
         return await frappe.db.getAll({
             doctype: this.doctype,
-            fields: this.getFields(),
+            fields: fields,
             filters: this.getFilters(),
             start: this.start,
             limit: this.pageLength + 1
@@ -68,7 +70,13 @@ module.exports = class BaseList {
     }
 
     getFields() {
-        return ['name'];
+        return [];
+    }
+
+    updateStandardFields(fields) {
+        if (!fields.includes('name')) fields.push('name');
+        if (!fields.includes('modified')) fields.push('modified');
+        if (this.meta.isSubmittable && !fields.includes('submitted')) fields.push('submitted');
     }
 
     async append() {

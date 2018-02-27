@@ -27,11 +27,11 @@ module.exports = class FormModal extends Modal {
             doctype: this.doctype,
             parent: this.getBody(),
             container: this,
-            actions: ['submit']
+            actions: ['save']
         });
 
-        this.form.on('submit', async () => {
-            await this.trigger('submit');
+        this.form.on('save', async () => {
+            await this.trigger('save');
             this.hide();
         });
     }

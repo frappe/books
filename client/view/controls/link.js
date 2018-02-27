@@ -39,7 +39,7 @@ class LinkControl extends BaseControl {
                     formModal.form.doc.set('name', this.input.value);
                 }
 
-                formModal.once('submit', async () => {
+                formModal.once('save', async () => {
                     await this.updateDocValue(formModal.form.doc.name);
                 });
             }

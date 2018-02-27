@@ -35,6 +35,11 @@ module.exports = class Page extends Observable {
         }
     }
 
+    addTitleBadge(message, title='', style='secondary') {
+        this.titleElement.innerHTML += ` <span class='badge badge-${style}' title='${title}'>
+            ${message}</span>`;
+    }
+
     hide() {
         this.parent.activePage = null;
         this.wrapper.classList.add('hide');

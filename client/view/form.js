@@ -43,10 +43,12 @@ module.exports = class BaseForm extends Observable {
     }
 
     makeToolbar() {
-        if (this.actions.includes('submit')) {
-            this.container.addButton(frappe._("Save"), 'primary', async (event) => {
-                await this.submit();
-            })
+        if (this.actions.includes('save')) {
+            this.makeSaveButton();
+
+            if (this.meta.isSubmittable) {
+                this.makeSubmitButton();
+            }
         }
 
         if (this.meta.print && this.actions.includes('print')) {
@@ -67,7 +69,6 @@ module.exports = class BaseForm extends Observable {
             let menu = this.container.getDropdown(frappe._('Menu'));
             menu.addItem(frappe._('Duplicate'), async () => {
                 let newDoc = await frappe.getDuplicate(this.doc);
-                console.log(newDoc);
                 await frappe.router.setRoute('edit', newDoc.doctype, newDoc.name);
                 newDoc.set('name', '');
             });
@@ -82,13 +83,38 @@ module.exports = class BaseForm extends Observable {
 
     }
 
+    makeSaveButton() {
+        this.saveButton = this.container.addButton(frappe._("Save"), 'primary', async (event) => {
+            await this.save();
+        });
+        this.on('change', () => {
+            const show = this.doc._dirty && !this.doc.submitted;
+            this.saveButton.classList.toggle('hide', !show);
+        });
+    }
+
+    makeSubmitButton() {
+        this.submitButton = this.container.addButton(frappe._("Submit"), 'primary', async (event) => {
+            await this.submit();
+        });
+        this.on('change', () => {
+            const show = this.meta.isSubmittable && !this.doc._dirty && !this.doc.submitted;
+            this.submitButton.classList.toggle('hide', !show);
+        });
+
+    }
+
     bindKeyboard() {
         keyboard.bindKey(this.form, 'ctrl+s', (e) => {
             if (document.activeElement) {
                 document.activeElement.blur();
             }
             e.preventDefault();
-            this.submit();
+            if (this.doc._notInserted || this.doc._dirty) {
+                this.save();
+            } else {
+                if (this.meta.isSubmittable && !this.doc.submitted) this.submit();
+            }
         });
     }
 
@@ -101,6 +127,7 @@ module.exports = class BaseForm extends Observable {
             await this.doc.set('name', '');
         }
         this.setTitle();
+        frappe._curFrm = this;
     }
 
     setTitle() {
@@ -113,6 +140,7 @@ module.exports = class BaseForm extends Observable {
         } else {
             this.container.setTitle(this.doc.name);
         }
+        if (this.doc.submitted) this.container.addTitleBadge('✓', frappe._('Submitted'));
     }
 
     async bindEvents(doc) {
@@ -120,17 +148,16 @@ module.exports = class BaseForm extends Observable {
             // stop listening to the old doc
             this.doc.off(this.docListener);
         }
-        this.clearAlert();
         this.doc = doc;
         for (let control of this.controlList) {
             control.bind(this.doc);
         }
 
-        this.setupChangeListener();
+        this.setupDocListener();
         this.trigger('use', {doc:doc});
     }
 
-    setupChangeListener() {
+    setupDocListener() {
         // refresh value in control
         this.docListener = (params) => {
             if (params.fieldname) {
@@ -143,10 +170,12 @@ module.exports = class BaseForm extends Observable {
                 // multiple values changed
                 this.refresh();
             }
+            this.trigger('change');
             this.form.classList.remove('was-validated');
         };
 
         this.doc.on('change', this.docListener);
+        this.trigger('change');
     }
 
     checkValidity() {
@@ -165,7 +194,18 @@ module.exports = class BaseForm extends Observable {
         return validity;
     }
 
+    refresh() {
+        for(let control of this.controlList) {
+            control.refresh();
+        }
+    }
+
     async submit() {
+        this.doc.submitted = 1;
+        await this.save();
+    }
+
+    async save() {
         if (!this.checkValidity()) {
             this.form.classList.add('was-validated');
             return;
@@ -176,44 +216,23 @@ module.exports = class BaseForm extends Observable {
             } else {
                 await this.doc.update();
             }
-            this.showAlert('Saved', 'success');
+            frappe.ui.showAlert({message: frappe._('Saved'), color: 'green'});
+            this.refresh();
+            this.trigger('change');
         } catch (e) {
-            this.showAlert('Failed', 'danger');
+            frappe.ui.showAlert({message: frappe._('Failed'), color: 'red'});
             return;
         }
-        await this.trigger('submit');
+        await this.trigger('save');
     }
 
     async delete() {
         try {
             await this.doc.delete();
-            this.showAlert('Deleted', 'success');
+            frappe.ui.showAlert({message: frappe._('Deleted'), color: 'green'});
             this.trigger('delete');
         } catch (e) {
-            this.showAlert(e, 'danger');
+            frappe.ui.showAlert({message: e, color: 'red'});
         }
     }
-
-    refresh() {
-        for(let control of this.controlList) {
-            control.refresh();
-        }
-    }
-
-    showAlert(message, type, clear_after = 5) {
-        this.clearAlert();
-        this.alert = frappe.ui.add('div', `alert alert-${type}`, this.body);
-        this.alert.textContent = message;
-        setTimeout(() => {
-            this.clearAlert();
-        }, clear_after * 1000);
-    }
-
-    clearAlert() {
-        if (this.alert) {
-            frappe.ui.remove(this.alert);
-            this.alert = null;
-        }
-    }
-
 }

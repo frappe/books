@@ -69,36 +69,40 @@ module.exports = class BaseMeta extends BaseDocument {
     }
 
     getValidFields({ withChildren = true } = {}) {
-        if (!this._valid_fields) {
+        if (!this._validFields) {
 
-            this._valid_fields = [];
-            this._valid_fields_withChildren = [];
+            this._validFields = [];
+            this._validFieldsWithChildren = [];
 
             const _add = (field) => {
-                this._valid_fields.push(field);
-                this._valid_fields_withChildren.push(field);
+                this._validFields.push(field);
+                this._validFieldsWithChildren.push(field);
             }
 
             const doctype_fields = this.fields.map((field) => field.fieldname);
 
             // standard fields
-            for (let field of model.common_fields) {
-                if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+            for (let field of model.commonFields) {
+                if (frappe.db.typeMap[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
                     _add(field);
                 }
             }
 
+            if (this.isSubmittable) {
+                _add({fieldtype:'Check', fieldname: 'submitted', label: frappe._('Submitted')})
+            }
+
             if (this.isChild) {
                 // child fields
-                for (let field of model.child_fields) {
-                    if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                for (let field of model.childFields) {
+                    if (frappe.db.typeMap[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
                         _add(field);
                     }
                 }
             } else {
                 // parent fields
-                for (let field of model.parent_fields) {
-                    if (frappe.db.type_map[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                for (let field of model.parentFields) {
+                    if (frappe.db.typeMap[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
                         _add(field);
                     }
                 }
@@ -106,7 +110,7 @@ module.exports = class BaseMeta extends BaseDocument {
 
             // doctype fields
             for (let field of this.fields) {
-                let include = frappe.db.type_map[field.fieldtype];
+                let include = frappe.db.typeMap[field.fieldtype];
 
                 if (include) {
                     _add(field);
@@ -114,15 +118,15 @@ module.exports = class BaseMeta extends BaseDocument {
 
                 // include tables if (withChildren = True)
                 if (!include && field.fieldtype === 'Table') {
-                    this._valid_fields_withChildren.push(field);
+                    this._validFieldsWithChildren.push(field);
                 }
             }
         }
 
         if (withChildren) {
-            return this._valid_fields_withChildren;
+            return this._validFieldsWithChildren;
         } else {
-            return this._valid_fields;
+            return this._validFields;
         }
     }
 
@@ -162,12 +166,13 @@ module.exports = class BaseMeta extends BaseDocument {
 
     setDefaultIndicators() {
         if (!this.indicators) {
-            this.indicators = {
-                key: 'docstatus',
-                colors: {
-                    0: 'gray',
-                    1: 'blue',
-                    2: 'red'
+            if (this.isSubmittable) {
+                this.indicators = {
+                    key: 'submitted',
+                    colors: {
+                        0: 'gray',
+                        1: 'blue'
+                    }
                 }
             }
         }
@@ -177,9 +182,13 @@ module.exports = class BaseMeta extends BaseDocument {
         if (frappe.isDirty(this.name, doc.name)) {
             return 'orange';
         } else {
-            let value = doc[this.indicators.key];
-            if (value) {
-                return this.indicators.colors[value] || 'gray';
+            if (this.indicators) {
+                let value = doc[this.indicators.key];
+                if (value) {
+                    return this.indicators.colors[value] || 'gray';
+                } else {
+                    return 'gray';
+                }
             } else {
                 return 'gray';
             }

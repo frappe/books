@@ -119,7 +119,7 @@ module.exports = class HTTPClient extends Observable {
     }
 
     initTypeMap() {
-        this.type_map = {
+        this.typeMap = {
             'Currency': true
             , 'Int': true
             , 'Float': true

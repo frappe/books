@@ -22,6 +22,13 @@ class DateControl extends BaseControl {
         });
     }
 
+    setDisabled() {
+        this.input.disabled = this.isDisabled();
+        if (this.flatpickr && this.flatpickr.altInput) {
+            this.flatpickr.altInput.disabled = this.isDisabled();
+        }
+    }
+
     setInputValue(value) {
         super.setInputValue(value);
         this.flatpickr.setDate(value);

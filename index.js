@@ -104,7 +104,7 @@ module.exports = {
     async getDuplicate(doc) {
         const newDoc = await this.getNewDoc(doc.doctype);
         for (let field of this.getMeta(doc.doctype).getValidFields()) {
-            if (field.fieldname === 'name') continue;
+            if (['name', 'submitted'].includes(field.fieldname)) continue;
             if (field.fieldtype === 'Table') {
                 newDoc[field.fieldname] = (doc[field.fieldname] || []).map(d => {
                     let newd = Object.assign({}, d);

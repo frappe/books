@@ -55,11 +55,21 @@ class TableControl extends BaseControl {
 
     setInputValue(value) {
         this.datatable.refresh(this.getTableData(value));
+    }
+
+    setDisabled() {
         this.refreshToolbar();
     }
 
+    getToolbar() {
+        return this.wrapper.querySelector('.table-toolbar');
+    }
+
     refreshToolbar() {
-        this.wrapper.querySelector('.table-toolbar').classList.toggle('hide', this.disabled ? true : false);
+        const toolbar = this.wrapper.querySelector('.table-toolbar');
+        if (toolbar) {
+            toolbar.classList.toggle('hide', this.isDisabled() ? true : false);
+        }
     }
 
     getTableData(value) {
@@ -68,6 +78,9 @@ class TableControl extends BaseControl {
 
     getTableInput(colIndex, rowIndex, value, parent) {
         let field = this.datatable.getColumn(colIndex).field;
+        if (field.disabled || field.forumla || this.isDisabled()) {
+            return false;
+        }
 
         if (field.fieldtype==='Text') {
             // text in modal
@@ -92,6 +105,7 @@ class TableControl extends BaseControl {
                 return control.setInputValue(control.doc[column.id]);
             },
             setValue: async (value, rowIndex, column) => {
+                this.doc._dirty = true;
                 control.handleChange();
             },
             getValue: () => {
@@ -127,7 +141,7 @@ class TableControl extends BaseControl {
                 id: field.fieldname,
                 field: field,
                 content: field.label,
-                editable: (this.disabled || field.disabled) ? false : true,
+                editable: true,
                 sortable: false,
                 resizable: true,
                 dropdown: false,

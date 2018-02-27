@@ -11,7 +11,7 @@ module.exports = class mysqlDatabase extends Database{
         this.username = username;
         this.password = password;
         this.host = host;
-        this.init_type_map();
+        this.init_typeMap();
     }
 
     connect(db_name) {
@@ -53,7 +53,7 @@ module.exports = class mysqlDatabase extends Database{
 
 
     updateColumnDefinition(df, columns, indexes) {
-        columns.push(`${df.fieldname} ${this.type_map[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default '${df.default}'` : ""}`);
+        columns.push(`${df.fieldname} ${this.typeMap[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default '${df.default}'` : ""}`);
     }
 
     async getTableColumns(doctype) {
@@ -176,8 +176,8 @@ module.exports = class mysqlDatabase extends Database{
     }
 
 
-    init_type_map() {
-        this.type_map = {
+    init_typeMap() {
+        this.typeMap = {
             'Currency': 'real'
             , 'Int': 'INT'
             , 'Float': 'decimal(18,6)'
