@@ -30,7 +30,7 @@ describe('REST', () => {
         test_server.kill();
     });
 
-    it('should create a document', async () => {
+    it('REST: should create a document', async () => {
         let doc = frappe.newDoc({doctype:'ToDo', subject:'test rest insert 1'});
         await doc.insert();
 
@@ -40,7 +40,7 @@ describe('REST', () => {
         assert.equal(doc1.status, 'Open');
     });
 
-    it('should update a document', async () => {
+    it('REST: should update a document', async () => {
         let doc = frappe.newDoc({doctype:'ToDo', subject:'test rest insert 1'});
         await doc.insert();
 
@@ -51,7 +51,7 @@ describe('REST', () => {
         assert.equal(doc.subject, doc1.subject);
     });
 
-    it('should get multiple documents', async () => {
+    it('REST: should get multiple documents', async () => {
         await frappe.insert({doctype:'ToDo', subject:'all test 1'});
         await frappe.insert({doctype:'ToDo', subject:'all test 2'});
 
@@ -61,7 +61,7 @@ describe('REST', () => {
         assert.ok(subjects.includes('all test 2'));
     });
 
-    it('should delete a document', async () => {
+    it('REST: should delete a document', async () => {
         let doc = frappe.newDoc({doctype:'ToDo', subject:'test rest insert 1'});
 
         await doc.insert();
@@ -71,7 +71,7 @@ describe('REST', () => {
         assert.equal(await frappe.db.exists(doc.doctype, doc.name), false);
     });
 
-    it('should delete multiple documents', async () => {
+    it('REST: should delete multiple documents', async () => {
         let doc1 = frappe.newDoc({doctype:'ToDo', subject:'test rest insert 5'});
         let doc2 = frappe.newDoc({doctype:'ToDo', subject:'test rest insert 6'});
 

@@ -68,12 +68,14 @@ describe('Document', () => {
     });
 
     it('should add, fetch and delete documents with children', async() => {
-        await frappe.insert({doctype: 'Role', name: 'Test Role'});
-        await frappe.insert({doctype: 'Role', name: 'Test Role 1'});
+        if (!await frappe.db.exists('Role', 'Test Role 1')) {
+            await frappe.insert({doctype: 'Role', name: 'Test Role'});
+            await frappe.insert({doctype: 'Role', name: 'Test Role 1'});
+        }
 
         let user = frappe.newDoc({
             doctype: 'User',
-            name: 'test_user',
+            name: frappe.getRandomString(),
             full_name: 'Test User',
             roles: [
                 {

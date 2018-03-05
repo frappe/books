@@ -1,8 +1,11 @@
 const frappe = require('frappejs');
 const keyboard = require('frappejs/client/ui/keyboard');
+const Observable = require('frappejs/utils/observable');
 
-module.exports = class BaseList {
+module.exports = class BaseList extends Observable {
     constructor({doctype, parent, fields, page}) {
+        super();
+
         Object.assign(this, arguments[0]);
 
         this.meta = frappe.getMeta(this.doctype);
@@ -55,6 +58,7 @@ module.exports = class BaseList {
         this.updateMore(data.length > this.pageLength);
         this.selectDefaultRow();
         this.setActiveListRow();
+        this.trigger('state-change');
     }
 
     async getData() {
@@ -171,16 +175,30 @@ module.exports = class BaseList {
 
     makeToolbar() {
         this.makeSearch();
+
         this.btnNew = this.page.addButton(frappe._('New'), 'btn-primary', async () => {
             await frappe.router.setRoute('new', this.doctype);
-        })
+        });
+
         this.btnDelete = this.page.addButton(frappe._('Delete'), 'btn-secondary hide', async () => {
             await frappe.db.deleteMany(this.doctype, this.getCheckedRowNames());
             await this.refresh();
         });
+
+        this.btnReport = this.page.addButton(frappe._('Report'), 'btn-outline-secondary hide', async () => {
+            await frappe.router.setRoute('table', this.doctype);
+        });
+
+        this.on('state-change', () => {
+            const checkedCount = this.getCheckedRowNames().length;
+            this.btnDelete.classList.toggle('hide', checkedCount ? false : true);
+            this.btnNew.classList.toggle('hide', checkedCount ? true : false);
+            this.btnReport.classList.toggle('hide', checkedCount ? true : false);
+        });
+
         this.page.body.addEventListener('click', (event) => {
             if(event.target.classList.contains('checkbox')) {
-                this.btnDelete.classList.toggle('hide', this.getCheckedRowNames().length===0);
+                this.trigger('state-change');
             }
         })
     }

@@ -32,20 +32,28 @@ module.exports = class sqliteDatabase extends Database {
         await this.run('PRAGMA foreign_keys=OFF');
         await this.run('BEGIN TRANSACTION');
 
+        const tempName = 'TEMP' + doctype
+
         // create temp table
-        await this.createTable(doctype, 'TEMP' + doctype);
+        await this.createTable(doctype, tempName);
+
+        const columns = (await this.getTableColumns(tempName)).join(', ');
 
         // copy from old to new table
-        await this.run(`INSERT INTO TEMP${doctype} SELECT * from ${doctype}`);
+        await this.run(`INSERT INTO ${tempName} (${columns}) SELECT ${columns} from ${doctype}`);
 
         // drop old table
         await this.run(`DROP TABLE ${doctype}`);
 
         // rename new table
-        await this.run(`ALTER TABLE TEMP${doctype} RENAME TO ${doctype}`);
+        await this.run(`ALTER TABLE ${tempName} RENAME TO ${doctype}`);
 
         await this.run('COMMIT');
         await this.run('PRAGMA foreign_keys=ON');
+    }
+
+    removeColumns() {
+        // pass
     }
 
     async runCreateTableQuery(doctype, columns, indexes) {
@@ -107,7 +115,7 @@ module.exports = class sqliteDatabase extends Database {
         let placeholders = fields.map(d => '?').join(', ');
 
         if (!doc.name) {
-            doc.name = frappe.getRandomName();
+            doc.name = frappe.getRandomString();
         }
 
         return await this.run(`insert into ${doctype}
@@ -151,6 +159,9 @@ module.exports = class sqliteDatabase extends Database {
     getAll({ doctype, fields, filters, start, limit, order_by = 'modified', order = 'desc' } = {}) {
         if (!fields) {
             fields = frappe.getMeta(doctype).getKeywordFields();
+        }
+        if (typeof fields === 'string') {
+            fields = [fields];
         }
         return new Promise((resolve, reject) => {
             let conditions = this.getFilterConditions(filters);

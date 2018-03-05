@@ -56,25 +56,25 @@ class BaseControl {
 
     make() {
         if (!this.onlyInput) {
-            this.makeFormGroup();
+            this.makeInputContainer();
             this.makeLabel();
         }
         this.makeInput();
         this.addChangeHandler();
     }
 
-    makeFormGroup() {
-        this.formGroup = frappe.ui.add('div', 'form-group', this.parent);
+    makeInputContainer(className = 'form-group') {
+        this.inputContainer = frappe.ui.add('div', className, this.parent);
     }
 
-    makeLabel() {
-        this.labelElement = frappe.ui.add('label', null, this.formGroup);
+    makeLabel(labelClass = null) {
+        this.labelElement = frappe.ui.add('label', labelClass, this.inputContainer);
         this.labelElement.textContent = this.label;
         this.labelElement.setAttribute('for', this.id);
     }
 
-    makeInput() {
-        this.input = frappe.ui.add('input', 'form-control', this.getInputParent());
+    makeInput(inputClass='form-control') {
+        this.input = frappe.ui.add('input', inputClass, this.getInputParent());
         this.input.autocomplete = "off";
         this.input.id = this.id;
 
@@ -96,7 +96,7 @@ class BaseControl {
     }
 
     getInputParent() {
-        return this.formGroup || this.parent;
+        return this.inputContainer || this.parent;
     }
 
     setInputName() {
@@ -112,7 +112,7 @@ class BaseControl {
 
     makeDescription() {
         if (this.description) {
-            this.description_element = frappe.ui.add('small', 'form-text text-muted', this.formGroup);
+            this.description_element = frappe.ui.add('small', 'form-text text-muted', this.inputContainer);
             this.description_element.textContent = this.description;
         }
     }

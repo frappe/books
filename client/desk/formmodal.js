@@ -38,9 +38,9 @@ module.exports = class FormModal extends Modal {
 
     addButton(label, className, action) {
         if (className === 'primary') {
-            this.addPrimary(label, action);
+            return this.addPrimary(label, action).get(0);
         } else {
-            this.addSecondary(label, action);
+            return this.addSecondary(label, action).get(0);
         }
     }
 

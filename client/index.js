@@ -10,8 +10,8 @@ module.exports = {
         window.frappe = frappe;
         frappe.init();
         frappe.registerLibs(common);
-        frappe.registerModels(require('frappejs/models'));
-        frappe.registerModels(require('../models'));
+        frappe.registerModels(require('frappejs/models'), 'client');
+        frappe.registerModels(require('../models'), 'client');
 
         frappe.fetch = window.fetch.bind();
         frappe.db = await new HTTPClient({server: server});

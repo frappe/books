@@ -7,7 +7,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const frappe = require('frappejs');
-const rest_api = require('./rest_api');
+const restAPI = require('./restAPI');
 const frappeModels = require('frappejs/models');
 const common = require('frappejs/common');
 const bodyParser = require('body-parser');
@@ -22,7 +22,7 @@ module.exports = {
         await this.init();
 
         if (models) {
-            frappe.registerModels(models);
+            frappe.registerModels(models, 'server');
         }
 
         // database
@@ -38,19 +38,19 @@ module.exports = {
             frappe.db.bindSocketServer(socket);
         });
         // routes
-        rest_api.setup(app);
+        restAPI.setup(app);
 
         // listen
         frappe.app = app;
         frappe.server = server;
-        frappe.isServer = true;
 
         server.listen(frappe.config.port);
     },
 
     async init() {
+        frappe.isServer = true;
         await frappe.init();
-        frappe.registerModels(frappeModels);
+        frappe.registerModels(frappeModels, 'server');
         frappe.registerLibs(common);
         await frappe.login();
     },

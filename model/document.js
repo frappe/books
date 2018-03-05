@@ -1,11 +1,12 @@
 const frappe = require('frappejs');
 const Observable = require('frappejs/utils/observable');
-const model = require('./index');
+const naming = require('./naming');
 
 module.exports = class BaseDocument extends Observable {
     constructor(data) {
         super();
         this.fetchValues = {};
+        this.flags = {};
         this.setup();
         Object.assign(this, data);
     }
@@ -48,31 +49,6 @@ module.exports = class BaseDocument extends Observable {
         } else {
             // no other change, trigger control refresh
             await this.trigger('change', { doc: this, fieldname: fieldname });
-        }
-    }
-
-    async setName() {
-        if (this.name) {
-            return;
-        }
-
-        // name === doctype for Single
-        if (this.meta.isSingle) {
-            this.name = this.meta.name;
-            return;
-        }
-
-        if (this.meta.settings) {
-            const numberSeries = (await this.getSettings()).numberSeries;
-            if(numberSeries) {
-                this.name = await model.getSeriesNext(numberSeries);
-            }
-        }
-
-        // assign a random name by default
-        // override this to set a name
-        if (!this.name) {
-            this.name = frappe.getRandomName();
         }
     }
 
@@ -127,10 +103,15 @@ module.exports = class BaseDocument extends Observable {
         return data;
     }
 
+    getFullDict() {
+        let data = this.getValidDict();
+        return data;
+    }
+
     setStandardValues() {
         // set standard values on server-side only
         if (frappe.isServer) {
-            let now = new Date();
+            let now = (new Date()).toISOString();
             if (!this.submitted) this.submitted = 0;
             if (!this.owner) {
                 this.owner = frappe.session.user;
@@ -194,12 +175,13 @@ module.exports = class BaseDocument extends Observable {
 
             // set submit action flag
             if (this.submitted && !currentDoc.submitted) {
-                this.submitAction = true;
+                this.flags.submitAction = true;
             }
 
             if (currentDoc.submitted && !this.submitted) {
-                this.unSubmitAction = true;
+                this.flags.revertAction = true;
             }
+
         }
     }
 
@@ -234,7 +216,7 @@ module.exports = class BaseDocument extends Observable {
 
     async commit() {
         // re-run triggers
-        await this.setName();
+        await naming.setName(this);
         this.setStandardValues();
         this.setKeywords();
         this.setChildIdx();
@@ -245,7 +227,10 @@ module.exports = class BaseDocument extends Observable {
     async insert() {
         await this.commit();
         await this.trigger('beforeInsert');
-        this.syncValues(await frappe.db.insert(this.doctype, this.getValidDict()));
+
+        const data = await frappe.db.insert(this.doctype, this.getValidDict());
+        this.syncValues(data);
+
         await this.trigger('afterInsert');
         await this.trigger('afterSave');
 
@@ -256,13 +241,20 @@ module.exports = class BaseDocument extends Observable {
         await this.compareWithCurrentDoc();
         await this.commit();
         await this.trigger('beforeUpdate');
-        if (this.submitAction) this.trigger('beforeSubmit');
-        if (this.unSubmitAction) this.trigger('beforeUnSubmit');
-        this.syncValues(await frappe.db.update(this.doctype, this.getValidDict()));
+
+        // before submit
+        if (this.flags.submitAction) await this.trigger('beforeSubmit');
+        if (this.flags.revertAction) await this.trigger('beforeRevert');
+
+        const data = await frappe.db.update(this.doctype, this.getValidDict());
+        this.syncValues(data);
+
         await this.trigger('afterUpdate');
         await this.trigger('afterSave');
-        if (this.submitAction) this.trigger('afterSubmit');
-        if (this.unSubmitAction) this.trigger('afterUnSubmit');
+
+        // after submit
+        if (this.flags.submitAction) await this.trigger('afterSubmit');
+        if (this.flags.revertAction) await this.trigger('afterRevert');
 
         return this;
     }
@@ -271,6 +263,16 @@ module.exports = class BaseDocument extends Observable {
         await this.trigger('before_delete');
         await frappe.db.delete(this.doctype, this.name);
         await this.trigger('after_delete');
+    }
+
+    async submit() {
+        this.submitted = 1;
+        this.update();
+    }
+
+    async revert() {
+        this.submitted = 0;
+        this.update();
     }
 
     // trigger methods on the class if they match

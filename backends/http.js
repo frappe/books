@@ -8,6 +8,9 @@ module.exports = class HTTPClient extends Observable {
         this.server = server;
         this.protocol = protocol;
 
+        // if the backend is http, then always client!
+        frappe.isServer = false;
+
         this.initTypeMap();
     }
 

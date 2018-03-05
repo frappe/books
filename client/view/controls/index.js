@@ -1,4 +1,5 @@
 const controlClasses = {
+    Check: require('./check'),
     Code: require('./code'),
     Data: require('./data'),
     Date: require('./date'),

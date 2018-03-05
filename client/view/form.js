@@ -9,6 +9,7 @@ module.exports = class BaseForm extends Observable {
         Object.assign(this, arguments[0]);
         this.controls = {};
         this.controlList = [];
+        this.sections = [];
 
         this.meta = frappe.getMeta(this.doctype);
         if (this.setup) {
@@ -28,14 +29,42 @@ module.exports = class BaseForm extends Observable {
         this.form = frappe.ui.add('form', 'form-container', this.body);
         this.form.onValidate = true;
 
-        this.makeControls();
+        this.makeLayout();
         this.bindKeyboard();
     }
 
-    makeControls() {
-        for(let field of this.meta.fields) {
+    makeLayout() {
+        if (this.meta.layout) {
+            for (let section of this.meta.layout) {
+                this.makeSection(section);
+            }
+        } else {
+            this.makeControls(this.meta.fields);
+        }
+    }
+
+    makeSection(section) {
+        const sectionElement = frappe.ui.add('div', 'form-section', this.form);
+        if (section.columns) {
+            sectionElement.classList.add('row');
+            for (let column of section.columns) {
+                let columnElement = frappe.ui.add('div', 'col', sectionElement);
+                this.makeControls(this.getFieldsFromLayoutElement(column.fields), columnElement);
+            }
+        } else {
+            this.makeControls(this.getFieldsFromLayoutElement(section.fields), sectionElement);
+        }
+        this.sections.push(sectionElement);
+    }
+
+    getFieldsFromLayoutElement(fields) {
+        return this.meta.fields.filter(d => fields.includes(d.fieldname));
+    }
+
+    makeControls(fields, parent) {
+        for(let field of fields) {
             if (!field.hidden && controls.getControlClass(field.fieldtype)) {
-                let control = controls.makeControl({field: field, form: this});
+                let control = controls.makeControl({field: field, form: this, parent: parent});
                 this.controlList.push(control);
                 this.controls[field.fieldname] = control;
             }
@@ -48,6 +77,7 @@ module.exports = class BaseForm extends Observable {
 
             if (this.meta.isSubmittable) {
                 this.makeSubmitButton();
+                this.makeRevertButton();
             }
         }
 
@@ -101,7 +131,16 @@ module.exports = class BaseForm extends Observable {
             const show = this.meta.isSubmittable && !this.doc._dirty && !this.doc.submitted;
             this.submitButton.classList.toggle('hide', !show);
         });
+    }
 
+    makeRevertButton() {
+        this.revertButton = this.container.addButton(frappe._("Revert"), 'secondary', async (event) => {
+            await this.revert();
+        });
+        this.on('change', () => {
+            const show = this.meta.isSubmittable && !this.doc._dirty && this.doc.submitted;
+            this.revertButton.classList.toggle('hide', !show);
+        });
     }
 
     bindKeyboard() {
@@ -133,14 +172,16 @@ module.exports = class BaseForm extends Observable {
     setTitle() {
         const doctypeLabel = this.doc.meta.label || this.doc.meta.name;
 
-        if (this.doc.meta.isSingle || this.doc.meta.naming == 'random') {
+        if (this.doc.meta.isSingle || this.doc.meta.naming === 'random') {
             this.container.setTitle(doctypeLabel);
         } else if (this.doc._notInserted) {
             this.container.setTitle(frappe._('New {0}', doctypeLabel));
         } else {
             this.container.setTitle(this.doc.name);
         }
-        if (this.doc.submitted) this.container.addTitleBadge('✓', frappe._('Submitted'));
+        if (this.doc.submitted) {
+            this.container.addTitleBadge('✓', frappe._('Submitted'));
+        }
     }
 
     async bindEvents(doc) {
@@ -205,18 +246,28 @@ module.exports = class BaseForm extends Observable {
         await this.save();
     }
 
+    async revert() {
+        this.doc.submitted = 0;
+        await this.save();
+    }
+
     async save() {
         if (!this.checkValidity()) {
             this.form.classList.add('was-validated');
             return;
         }
         try {
+            let oldName = this.doc.name;
             if (this.doc._notInserted) {
                 await this.doc.insert();
             } else {
                 await this.doc.update();
             }
             frappe.ui.showAlert({message: frappe._('Saved'), color: 'green'});
+            if (oldName !== this.doc.name) {
+                frappe.router.setRoute('edit', this.doctype, this.doc.name);
+                return;
+            }
             this.refresh();
             this.trigger('change');
         } catch (e) {
