@@ -7,5 +7,9 @@ server.start({
     static: './',
     models: require('./models')
 }).then(() => {
+    // set server-side modules
+    frappe.models.Invoice.documentClass = require('./models/doctype/Invoice/InvoiceServer.js');
+    frappe.metaCache = {};
+
     frappe.syncDoc(require('./fixtures/invoicePrint'));
 });

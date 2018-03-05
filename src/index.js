@@ -7,12 +7,13 @@ client.start({
 }).then(() => {
 
     // require modules
-    frappe.registerModels(require('../models'));
+    frappe.registerModels(require('../models'), 'client');
 
     frappe.registerView('List', 'ToDo', require('frappejs/models/doctype/ToDo/ToDoList.js'));
     frappe.registerView('List', 'Account', require('../models/doctype/Account/AccountList.js'));
     frappe.registerView('Form', 'Account', require('../models/doctype/Account/AccountForm.js'));
     frappe.registerView('List', 'Invoice', require('../models/doctype/Invoice/InvoiceList.js'));
+    frappe.registerView('List', 'Customer', require('../models/doctype/Party/CustomerList.js'));
 
     frappe.desk.menu.addItem('ToDo', '#list/ToDo');
     frappe.desk.menu.addItem('Accounts', '#list/Account');

@@ -2,10 +2,6 @@ const BaseDocument = require('frappejs/model/document');
 const frappe = require('frappejs');
 
 module.exports = class Invoice extends BaseDocument {
-    async afterSubmit() {
-        // make ledger entry
-    }
-
     async getRowTax(row) {
         if (row.tax) {
             let tax = await this.getTax(row.tax);
@@ -62,6 +58,7 @@ module.exports = class Invoice extends BaseDocument {
         // clear no taxes
         this.taxes = this.taxes.filter(d => d.amount);
     }
+
     getGrandTotal() {
         this.makeTaxSummary();
         let grandTotal = this.netTotal;
