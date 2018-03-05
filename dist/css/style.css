@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*!
  * Bootstrap v4.0.0 (https://getbootstrap.com)
  * Copyright 2011-2018 The Bootstrap Authors
@@ -7129,10 +7130,10 @@ div.CodeMirror-dragcursors {
 /* Help users use markselection to safely style text background */
 span.CodeMirror-selectedtext {
   background: none; }
+/* This file is processed by postcss */
 /* variables */
 .data-table {
   /* styling */
-  width: 100%;
   position: relative;
   overflow: auto; }
 /* resets */
@@ -7184,16 +7185,22 @@ span.CodeMirror-selectedtext {
   top: 50%;
   -webkit-transform: translateY(-50%);
   transform: translateY(-50%); }
-.data-table .trash-container {
-  position: absolute;
-  bottom: 0;
-  left: 30%;
-  right: 30%;
-  height: 70px;
-  background: palevioletred;
-  opacity: 0.5; }
 .data-table .hide {
   display: none; }
+.data-table .toast-message {
+  position: absolute;
+  bottom: 16px;
+  bottom: 1rem;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%); }
+.data-table .toast-message span {
+  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #dfe2e5;
+  border-radius: 3px;
+  padding: 8px 16px;
+  padding: 0.5rem 1rem; }
 .body-scrollable {
   max-height: 500px;
   overflow: auto;
@@ -7256,42 +7263,54 @@ span.CodeMirror-selectedtext {
   padding: 0.5rem 1rem; }
 .data-table-header .data-table-dropdown-list > div:hover {
   background-color: #f5f7fa; }
-.data-table-header .data-table-col.remove-column {
+.data-table-header .data-table-cell.remove-column {
   background-color: #FD8B8B;
   -webkit-transition: 300ms background-color ease-in-out;
   transition: 300ms background-color ease-in-out; }
-.data-table-header .data-table-col.sortable-chosen {
+.data-table-header .data-table-cell.sortable-chosen {
   background-color: #f5f7fa; }
-.data-table-col {
+.data-table-cell {
   position: relative; }
-.data-table-col .content {
+.data-table-cell .content {
   padding: 8px;
   padding: 0.5rem;
   border: 2px solid transparent; }
-.data-table-col .content.ellipsis {
+.data-table-cell .content.ellipsis {
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden; }
-.data-table-col .edit-cell {
+.data-table-cell .edit-cell {
   display: none;
   padding: 8px;
   padding: 0.5rem;
   background: #fff;
   z-index: 1;
   height: 100%; }
-.data-table-col.selected .content {
+.data-table-cell.selected .content {
   border: 2px solid #5292f7; }
-.data-table-col.editing .content {
+.data-table-cell.editing .content {
   display: none; }
-.data-table-col.editing .edit-cell {
+.data-table-cell.editing .edit-cell {
   border: 2px solid #5292f7;
   display: block; }
-.data-table-col.highlight {
+.data-table-cell.highlight {
   background-color: #f5f7fa; }
-.data-table-col:hover .column-resizer {
+.data-table-cell:hover .column-resizer {
   display: inline-block; }
-.data-table-col:hover .data-table-dropdown-toggle {
+.data-table-cell:hover .data-table-dropdown-toggle {
   display: block; }
+.data-table-cell .tree-node {
+  display: inline-block;
+  position: relative; }
+.data-table-cell .toggle {
+  display: inline-block;
+  position: absolute;
+  padding: 0 4px;
+  cursor: pointer; }
+.data-table-cell .toggle:before {
+  content: '▼'; }
+.data-table-cell.tree-close .toggle:before {
+  content: '►'; }
 .data-table-row.row-highlight {
   background-color: #f5f7fa; }
 .noselect {
@@ -7363,6 +7382,12 @@ html {
     padding: 200px 0px; }
 .form-body {
   padding: 2rem; }
+.form-body .form-check {
+    margin-bottom: 0.5rem; }
+.form-body .form-check .form-check-input {
+      margin-top: 0.25rem; }
+.form-body .form-check .form-check-label {
+      margin-left: 0.25rem; }
 .form-body .form-control.font-weight-bold {
     background-color: lightyellow; }
 .form-body .alert {

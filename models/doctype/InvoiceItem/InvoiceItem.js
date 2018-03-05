@@ -1,10 +1,11 @@
 module.exports = {
-    "name": "InvoiceItem",
-    "doctype": "DocType",
-    "isSingle": 0,
-    "isChild": 1,
-    "keywordFields": [],
-    "fields": [
+    name: "InvoiceItem",
+    doctype: "DocType",
+    isSingle: 0,
+    isChild: 1,
+    keywordFields: [],
+    layout: 'ratio',
+    fields: [
         {
             "fieldname": "item",
             "label": "Item",
@@ -31,6 +32,14 @@ module.exports = {
             "fieldtype": "Currency",
             "required": 1,
             formula: (row, doc) => doc.getFrom('Item', row.item, 'rate')
+        },
+        {
+            fieldname: "account",
+            label: "Account",
+            hidden: 1,
+            fieldtype: "Link",
+            target: "Account",
+            formula: (row, doc) => doc.getFrom('Item', row.item, 'incomeAccount')
         },
         {
             "fieldname": "tax",

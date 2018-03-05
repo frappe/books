@@ -4,8 +4,8 @@ const helpers = require('frappejs/tests/helpers');
 const models = require('../models');
 
 async function makeFixtures() {
-    if (!(await frappe.db.exists('Customer', 'Test Customer'))) {
-        await frappe.insert({doctype:'Customer', name:'Test Customer'})
+    if (!(await frappe.db.exists('Party', 'Test Customer'))) {
+        await frappe.insert({doctype:'Party', name:'Test Customer'})
         await frappe.insert({doctype:'Item', name:'Test Item 1', description:'Test Item Description 1', unit:'No', rate: 100})
         await frappe.insert({doctype:'Item', name:'Test Item 2', description:'Test Item Description 2', unit:'No', rate: 200})
         await frappe.insert({doctype:'Account', name:'GST', parent_account: 'Liabilities'});

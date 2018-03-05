@@ -23,8 +23,14 @@ module.exports = {
             "fieldname": "customer",
             "label": "Customer",
             "fieldtype": "Link",
-            "target": "Customer",
+            "target": "Party",
             "required": 1
+        },
+        {
+            "fieldname": "account",
+            "label": "Account",
+            "fieldtype": "Link",
+            "target": "Account"
         },
         {
             "fieldname": "items",
@@ -72,5 +78,24 @@ module.exports = {
             "label": "Terms",
             "fieldtype": "Text"
         }
+    ],
+
+    layout: [
+        // section 1
+        {
+            columns: [
+                { fields: [ "customer", "account" ] },
+                { fields: [ "date" ] }
+            ]
+        },
+
+        // section 2
+        { fields: [ "items" ] },
+
+        // section 3
+        { fields: [ "netTotal", "taxes", "grandTotal" ] },
+
+        // section 4
+        { fields: [ "terms" ] },
     ]
 }
