@@ -3,7 +3,7 @@ const frappe = require('frappejs');
 
 class SelectControl extends BaseControl {
     makeInput() {
-        this.input = frappe.ui.add('select', 'form-control', this.formGroup);
+        this.input = frappe.ui.add('select', 'form-control', this.inputContainer);
 
         let options = this.options;
         if (typeof options==='string') {

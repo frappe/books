@@ -27,13 +27,21 @@ module.exports = {
         common.initLibs(this);
     },
 
-    registerModels(models) {
-        Object.assign(this.models, models);
+    registerModels(models, type) {
+        // register models from app/models/index.js
+        const toAdd = Object.assign({}, models.models);
+
+        // post process based on type
+        if (models[type]) {
+            models[type](toAdd);
+        }
+
+        Object.assign(this.models, toAdd);
     },
 
-    registerView(view, doctype, module) {
+    registerView(view, name, module) {
         if (!this.views[view]) this.views[view] = {};
-        this.views[view][doctype] = module;
+        this.views[view][name] = module;
     },
 
     addToCache(doc) {
@@ -121,7 +129,7 @@ module.exports = {
     async getNewDoc(doctype) {
         let doc = this.newDoc({doctype: doctype});
         doc._notInserted = true;
-        doc.name = this.getRandomName();
+        doc.name = this.getRandomString();
         this.addToCache(doc);
         return doc;
     },

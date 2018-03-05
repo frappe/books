@@ -11,19 +11,20 @@ module.exports = class PrintPage extends Page {
         this.meta = meta;
         this.doctype = doctype;
 
-        this.on('show', async (params) => {
-            this.name = params.name;
-            if (this.meta.print) {
-                // render
-                this.renderTemplate();
-            } else {
-                this.renderError('No Print Settings');
-            }
-        });
-
         this.addButton(frappe._('Edit'), 'primary', () => {
             frappe.router.setRoute('edit', this.doctype, this.name)
         });
+    }
+
+    async show(params) {
+        super.show();
+        this.name = params.name;
+        if (this.meta.print) {
+            // render
+            this.renderTemplate();
+        } else {
+            this.renderError('No Print Settings');
+        }
     }
 
     async renderTemplate() {

@@ -1,13 +1,18 @@
 const frappe = require('frappejs');
 const BaseControl = require('./base');
-const DataTable = require('frappe-datatable');
-const controls = require('./index');
-const Modal = require('frappejs/client/ui/modal');
+const ModelTable = require('frappejs/client/ui/modelTable');
 
 class TableControl extends BaseControl {
     make() {
         this.makeWrapper();
-        this.makeDatatable();
+        this.modelTable = new ModelTable({
+            doctype: this.childtype,
+            parent: this.wrapper.querySelector('.datatable-wrapper'),
+            parentControl: this,
+            layout: this.layout || 'fixed',
+            getRowDoc: (rowIndex) => this.doc[this.fieldname][rowIndex],
+            isDisabled: () => this.isDisabled()
+        });
         this.setupToolbar();
     }
 
@@ -23,16 +28,6 @@ class TableControl extends BaseControl {
         </div>`;
     }
 
-    makeDatatable() {
-        this.datatable = new DataTable(this.wrapper.querySelector('.datatable-wrapper'), {
-            columns: this.getColumns(),
-            data: this.getTableData(),
-            layout: 'fluid',
-            addCheckboxColumn: true,
-            getEditor: this.getTableInput.bind(this),
-        });
-    }
-
     setupToolbar() {
         this.wrapper.querySelector('.btn-add').addEventListener('click', async (event) => {
             this.doc[this.fieldname].push({});
@@ -41,11 +36,11 @@ class TableControl extends BaseControl {
         });
 
         this.wrapper.querySelector('.btn-remove').addEventListener('click', async (event) => {
-            let checked = this.datatable.rowmanager.getCheckedRows();
+            let checked = this.modelTable.getChecked();
             this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx));
             await this.doc.commit();
             this.refresh();
-            this.datatable.rowmanager.checkAll(false);
+            this.modelTable.checkAll(false);
         });
     }
 
@@ -54,7 +49,7 @@ class TableControl extends BaseControl {
     }
 
     setInputValue(value) {
-        this.datatable.refresh(this.getTableData(value));
+        this.modelTable.refresh(this.getTableData(value));
     }
 
     setDisabled() {
@@ -76,85 +71,6 @@ class TableControl extends BaseControl {
         return value || this.getDefaultData();
     }
 
-    getTableInput(colIndex, rowIndex, value, parent) {
-        let field = this.datatable.getColumn(colIndex).field;
-        if (field.disabled || field.forumla || this.isDisabled()) {
-            return false;
-        }
-
-        if (field.fieldtype==='Text') {
-            // text in modal
-            parent = this.getControlModal(field).getBody();
-        }
-        return this.getControl(field, parent);
-    }
-
-    getControl(field, parent) {
-        field.onlyInput = true;
-        const control = controls.makeControl({field: field, parent: parent});
-
-        // change will be triggered by datatable
-        control.skipChangeEvent = true;
-
-        return {
-            initValue: (value, rowIndex, column) => {
-                column.activeControl = control;
-                control.parentControl = this;
-                control.doc = this.doc[this.fieldname][rowIndex];
-                control.set_focus();
-                return control.setInputValue(control.doc[column.id]);
-            },
-            setValue: async (value, rowIndex, column) => {
-                this.doc._dirty = true;
-                control.handleChange();
-            },
-            getValue: () => {
-                return control.getInputValue();
-            }
-        }
-
-    }
-
-    getControlModal(field) {
-        this.modal = new Modal({
-            title: frappe._('Edit {0}', field.label),
-            body: '',
-            primary: {
-                label: frappe._('Submit'),
-                action: (modal) => {
-                    this.datatable.cellmanager.submitEditing();
-                    modal.hide();
-                }
-            }
-        });
-        this.modal.on('hide', () => {
-            this.datatable.cellmanager.deactivateEditing();
-            this.datatable.cellmanager.$focusedCell.focus();
-        });
-
-        return this.modal;
-    }
-
-    getColumns() {
-        return this.getChildFields().map(field => {
-            return {
-                id: field.fieldname,
-                field: field,
-                content: field.label,
-                editable: true,
-                sortable: false,
-                resizable: true,
-                dropdown: false,
-                align: ['Int', 'Float', 'Currency'].includes(field.fieldtype) ? 'right' : 'left',
-                format: (value) => frappe.format(value, field)
-            }
-        });
-    }
-
-    getChildFields() {
-        return frappe.getMeta(this.childtype).fields.filter(f => f.hidden ? false : true);
-    }
-
     getDefaultData() {
         // build flat table
         if (!this.doc) {
@@ -168,24 +84,10 @@ class TableControl extends BaseControl {
     }
 
     checkValidity() {
-        if (!this.datatable) {
+        if (!this.modelTable) {
             return true;
         }
-        let data = this.getTableData();
-        for (let rowIndex=0; rowIndex < data.length; rowIndex++) {
-            let row = data[rowIndex];
-            for (let column of this.datatable.datamanager.columns) {
-                if (column.field && column.field.required) {
-                    let value = row[column.field.fieldname];
-                    if (value==='' || value===undefined || value===null) {
-                        let $cell = this.datatable.cellmanager.getCell$(column.colIndex, rowIndex);
-                        this.datatable.cellmanager.activateEditing($cell);
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        return this.modelTable.checkValidity();
     }
 };
 

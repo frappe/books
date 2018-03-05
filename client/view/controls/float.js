@@ -13,7 +13,7 @@ class FloatControl extends BaseControl {
     }
     parse(value) {
         value = parseFloat(value);
-        return value===NaN ? 0 : value;
+        return isNaN(value) ? 0 : value;
     }
 };
 

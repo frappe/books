@@ -59,6 +59,17 @@ html {
 .form-body {
 	padding: $spacer-4;
 
+	.form-check {
+		margin-bottom: $spacer-2;
+
+		.form-check-input {
+			margin-top: 0.25rem;
+		}
+		.form-check-label {
+			margin-left: $spacer-1;
+		}
+	}
+
 	.form-control.font-weight-bold {
 		background-color: lightyellow;
 	}

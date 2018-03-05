@@ -3,7 +3,7 @@ module.exports = {
         return text.toLowerCase().replace(/ /g, '_');
     },
 
-    getRandomName() {
+    getRandomString() {
         return Math.random().toString(36).substr(3);
     },
 

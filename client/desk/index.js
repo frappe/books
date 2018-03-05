@@ -4,10 +4,11 @@ const Router = require('frappejs/common/router');
 const Page = require('frappejs/client/view/page');
 
 const views = {};
-views.Form = require('frappejs/client/desk/formpage');
-views.List = require('frappejs/client/desk/listpage');
-views.Print = require('frappejs/client/desk/printpage');
-views.FormModal = require('frappejs/client/desk/formmodal');
+views.Form = require('./formpage');
+views.List = require('./listpage');
+views.Print = require('./printpage');
+views.FormModal = require('./formmodal');
+views.Table = require('./tablepage');
 const DeskMenu = require('./menu');
 
 module.exports = class Desk {
@@ -73,6 +74,10 @@ module.exports = class Desk {
             await this.showViewPage('List', params.doctype);
         });
 
+        frappe.router.add('table/:doctype', async (params) => {
+            await this.showViewPage('Table', params.doctype, params);
+        })
+
         frappe.router.add('edit/:doctype/:name', async (params) => {
             await this.showViewPage('Form', params.doctype, params);
         })
@@ -98,11 +103,36 @@ module.exports = class Desk {
 
     }
 
+    toggleCenter(show) {
+        const current = !frappe.desk.center.classList.contains('hide');
+        if (show===undefined) {
+            show = current;
+        } else if (!!show===!!current) {
+            // no change
+            return;
+        }
+
+        // add hide
+        frappe.desk.center.classList.toggle('hide', !show);
+
+        if (show) {
+            // set body to 6
+            frappe.desk.body.classList.toggle('col-md-6', true);
+            frappe.desk.body.classList.toggle('col-md-10', false);
+        } else {
+            // set body to 10
+            frappe.desk.body.classList.toggle('col-md-6', false);
+            frappe.desk.body.classList.toggle('col-md-10', true);
+        }
+    }
+
     async showViewPage(view, doctype, params) {
         if (!params) params = doctype;
         if (!this.pages[view]) this.pages[view] = {};
         if (!this.pages[view][doctype]) this.pages[view][doctype] = new views[view](doctype);
-        await this.pages[view][doctype].show(params);
+        const page = this.pages[view][doctype];
+        await page.show(params);
+        this.toggleCenter(page.fullPage ? false : true);
     }
 
     async showFormModal(doctype, name) {

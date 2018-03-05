@@ -58,34 +58,55 @@ module.exports = class Database extends Observable {
 
     async alterTable(doctype) {
         // get columns
-        let newColumns = await this.getNewColumns(doctype);
+        let diff = await this.getColumnDiff(doctype);
         let newForeignKeys = await this.getNewForeignKeys(doctype);
 
-        if (newColumns.length) {
-            await this.addColumns(doctype, newColumns);
+        if (diff.added.length) {
+            await this.addColumns(doctype, diff.added);
         }
+
+        if (diff.removed.length) {
+            await this.removeColumns(doctype, diff.removed);
+        }
+
         if (newForeignKeys.length) {
             await this.addForeignKeys(doctype, newForeignKeys);
         }
     }
 
-    async getNewColumns(doctype) {
-        let tableColumns = await this.getTableColumns(doctype);
-        let meta = frappe.getMeta(doctype);
-        let newColumns = [];
-        for (let field of meta.getValidFields({ withChildren: false })) {
+    async getColumnDiff(doctype) {
+        const tableColumns = await this.getTableColumns(doctype);
+        const validFields = frappe.getMeta(doctype).getValidFields({ withChildren: false });
+        const diff = { added: [], removed: [] };
+
+        for (let field of validFields) {
             if (!tableColumns.includes(field.fieldname) && this.typeMap[field.fieldtype]) {
-                newColumns.push(field);
+                diff.added.push(field);
             }
         }
-        return newColumns;
+
+        const validFieldNames = validFields.map(field => field.fieldname);
+        for (let column of tableColumns) {
+            if (!validFieldNames.includes(column)) {
+                diff.removed.push(column);
+            }
+        }
+
+        return diff;
     }
 
-    async addColumns(doctype, newColumns) {
-        for (let field of newColumns) {
+    async addColumns(doctype, added) {
+        for (let field of added) {
             await this.runAddColumnQuery(doctype, field);
         }
     }
+
+    async removeColumns(doctype, removed) {
+        for (let column of removed) {
+            await this.runRemoveColumnQuery(doctype, column);
+        }
+    }
+
 
     async getNewForeignKeys(doctype) {
         let foreignKeys = await this.getForeignKeys(doctype);
@@ -279,7 +300,7 @@ module.exports = class Database extends Observable {
 
     prepareChild(parenttype, parent, child, field, idx) {
         if (!child.name) {
-            child.name = frappe.getRandomName();
+            child.name = frappe.getRandomString();
         }
         child.parent = parent;
         child.parenttype = parenttype;

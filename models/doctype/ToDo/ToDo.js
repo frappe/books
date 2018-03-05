@@ -1,5 +1,5 @@
 module.exports = {
-    "naming": "random",
+    "naming": "autoincrement",
     "name": "ToDo",
     "doctype": "DocType",
     "isSingle": 0,

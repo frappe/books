@@ -75,8 +75,6 @@ module.exports = class Page extends Observable {
         }
 
         this.parent.activePage = this;
-
-        await this.trigger('show', params);
     }
 
     renderError(title, message) {

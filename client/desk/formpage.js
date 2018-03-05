@@ -4,7 +4,7 @@ const frappe = require('frappejs');
 
 module.exports = class FormPage extends Page {
     constructor(doctype) {
-        let meta = frappe.getMeta(doctype)
+        let meta = frappe.getMeta(doctype);
         super({title: `Edit ${meta.name}`, hasRoute: true});
         this.meta = meta;
         this.doctype = doctype;
@@ -14,10 +14,6 @@ module.exports = class FormPage extends Page {
             parent: this.body,
             container: this,
             actions: ['save', 'delete', 'duplicate', 'settings', 'print']
-        });
-
-        this.on('show', async (params) => {
-            await this.showDoc(params.doctype, params.name);
         });
 
         // if name is different after saving, change the route
@@ -35,9 +31,10 @@ module.exports = class FormPage extends Page {
         });
     }
 
-    async showDoc(doctype, name) {
+    async show(params) {
+        super.show();
         try {
-            await this.form.setDoc(doctype, name);
+            await this.form.setDoc(params.doctype, params.name);
             frappe.desk.setActiveDoc(this.form.doc);
         } catch (e) {
             this.renderError(e.status_code, e.message);

@@ -13,7 +13,7 @@ module.exports = {
             value = number_format.format_number(value);
 
         } else if (field.fieldtype === 'Text') {
-            value = markdown.makeHtml(value);
+            value = markdown.makeHtml(value || '');
 
         } else if (field.fieldtype === 'Date') {
             value = moment(value).format(frappe.SystemSettings.dateFormat.toUpperCase());

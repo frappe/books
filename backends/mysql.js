@@ -83,7 +83,7 @@ module.exports = class mysqlDatabase extends Database{
         let placeholders = fields.map(d => '?').join(', ');
 
         if (!doc.name) {
-            doc.name = frappe.getRandomName();
+            doc.name = frappe.getRandomString();
         }
 
         return await this.run(`insert into ${doctype}
