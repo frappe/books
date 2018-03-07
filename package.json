@@ -8,39 +8,8 @@
     "start": "nodemon server.js"
   },
   "dependencies": {
-    "awesomplete": "^1.1.2",
-    "body-parser": "^1.18.2",
-    "bootstrap": "^4.0.0",
-    "bufferutil": "^3.0.3",
-    "clusterize.js": "^0.18.0",
-    "codemirror": "^5.35.0",
-    "express": "^4.16.2",
-    "flatpickr": "^4.3.2",
-    "jquery": "^3.3.1",
-    "moment": "^2.20.1",
-    "node-fetch": "^1.7.3",
-    "nunjucks": "^3.1.0",
-    "popper.js": "^1.12.9",
-    "showdown": "^1.8.6",
-    "socket.io": "^2.0.4",
-    "sortablejs": "^1.7.0",
-    "sqlite3": "^3.1.13"
+    "frappejs": "link:../frappejs"
   },
   "devDependencies": {
-    "autoprefixer": "^7.2.4",
-    "eslint": "^4.9.0",
-    "mocha": "^4.0.1",
-    "node-sass": "^4.7.2",
-    "nodemon": "^1.14.7",
-    "precss": "^2.0.0",
-    "rollup": "^0.55.1",
-    "rollup-plugin-commonjs": "^8.3.0",
-    "rollup-plugin-json": "^2.3.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-globals": "^1.1.0",
-    "rollup-plugin-node-resolve": "^3.0.2",
-    "rollup-plugin-postcss": "^1.2.7",
-    "rollup-plugin-replace": "^2.0.0",
-    "rollup-plugin-sass": "^0.5.3"
   }
 }
