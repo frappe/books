@@ -17,6 +17,7 @@
     "commander": "^2.13.0",
     "express": "^4.16.2",
     "flatpickr": "^4.3.2",
+    "frappe-datatable": "link:../datatable",
     "jquery": "^3.3.1",
     "moment": "^2.20.1",
     "mysql": "^2.15.0",
@@ -27,7 +28,20 @@
     "socket.io": "^2.0.4",
     "sortablejs": "^1.7.0",
     "sqlite3": "^3.1.13",
-    "walk": "^2.3.9"
+    "walk": "^2.3.9",
+    "autoprefixer": "^7.2.4",
+    "eslint": "^4.9.0",
+    "mocha": "^4.1.0",
+    "node-sass": "^4.7.2",
+    "nodemon": "^1.14.7",
+    "precss": "^2.0.0",
+    "rollup": "^0.55.1",
+    "rollup-plugin-commonjs": "^8.3.0",
+    "rollup-plugin-json": "^2.3.0",
+    "rollup-plugin-node-resolve": "^3.0.2",
+    "rollup-plugin-postcss": "^1.2.7",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-sass": "^0.5.3"
   },
   "repository": {
     "type": "git",
@@ -43,20 +57,5 @@
   },
   "homepage": "https://github.com/frappe/frappejs#readme",
   "devDependencies": {
-    "autoprefixer": "^7.2.4",
-    "eslint": "^4.9.0",
-    "mocha": "^4.1.0",
-    "node-sass": "^4.7.2",
-    "nodemon": "^1.14.7",
-    "precss": "^2.0.0",
-    "rollup": "^0.55.1",
-    "rollup-plugin-commonjs": "^8.3.0",
-    "rollup-plugin-json": "^2.3.0",
-    "rollup-plugin-node-builtins": "^2.1.2",
-    "rollup-plugin-node-globals": "^1.1.0",
-    "rollup-plugin-node-resolve": "^3.0.2",
-    "rollup-plugin-postcss": "^1.2.7",
-    "rollup-plugin-replace": "^2.0.0",
-    "rollup-plugin-sass": "^0.5.3"
   }
 }
