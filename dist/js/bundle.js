@@ -4548,7 +4548,7 @@ if (typeof undefined === 'function' && undefined.amd) {
 }
 }).call(commonjsGlobal);
 
-//# sourceMappingURL=showdown.js.map
+
 });
 
 var moment = createCommonjsModule(function (module, exports) {
@@ -22992,7 +22992,7 @@ Popper.placements = placements;
 Popper.Defaults = Defaults;
 
 
-//# sourceMappingURL=popper.js.map
+
 
 
 var popper = Object.freeze({
@@ -26891,7 +26891,7 @@ exports.Tooltip = Tooltip;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=bootstrap.js.map
+
 });
 
 unwrapExports(bootstrap);
@@ -39707,6 +39707,11 @@ var htmlmixed = createCommonjsModule(function (module, exports) {
 });
 });
 
+// const frappe = require('frappejs');
+
+ // eslint-disable-line
+ // eslint-disable-line
+
 class CodeControl extends base {
     makeInput() {
         if (!this.options) {
@@ -47939,6 +47944,9 @@ DataTable.__version__ = packageJson.version;
 
 module.exports = DataTable;
 });
+
+// eslint-disable-line
+
 
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
@@ -56381,7 +56389,7 @@ module.exports = installCompat;
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=nunjucks.js.map
+
 });
 
 unwrapExports(nunjucks);
@@ -56539,6 +56547,10 @@ var menu = class DeskMenu {
         }
     }
 };
+
+// const Search = require('./search');
+
+
 
 const views = {};
 views.Form = formpage;
@@ -57631,6 +57643,7 @@ var CustomerList_1 = class CustomerList extends list {
     }
 };
 
+// start server
 client.start({
     columns: 3,
     server: 'localhost:8000'
