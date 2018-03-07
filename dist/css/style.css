@@ -7464,13 +7464,13 @@ mark {
     border-top: 0px !important; }
 .data-table thead td {
   background-color: #e9ecef !important; }
-.data-table .data-table-col .edit-cell {
+.data-table .data-table-cell .edit-cell {
   padding: 0px !important; }
-.data-table .data-table-col .edit-cell input, .data-table .data-table-col .edit-cell textarea {
+.data-table .data-table-cell .edit-cell input, .data-table .data-table-cell .edit-cell textarea {
     border-radius: none;
     margin: none;
-    padding: 0.25rem; }
-.data-table .data-table-col .edit-cell .awesomplete > ul {
+    padding: 0.5rem; }
+.data-table .data-table-cell .edit-cell .awesomplete > ul {
     position: fixed;
     left: auto;
     width: auto;

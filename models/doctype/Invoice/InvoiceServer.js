@@ -21,7 +21,6 @@ module.exports = class InvoiceServer extends Invoice {
     }
 
     async afterSubmit() {
-        console.log('here');
         await this.getPosting().post();
     }
 
