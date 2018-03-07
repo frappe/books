@@ -9504,6 +9504,7 @@ var document$1 = class BaseDocument extends observable {
         this.flags = {};
         this.setup();
         Object.assign(this, data);
+        frappejs.db.on('change', (params) => this.fetchValues[`${params.doctype}:${params.name}`] = {});
     }
 
     setup() {
@@ -9711,7 +9712,6 @@ var document$1 = class BaseDocument extends observable {
 
     async commit() {
         // re-run triggers
-        await naming.setName(this);
         this.setStandardValues();
         this.setKeywords();
         this.setChildIdx();
@@ -9720,6 +9720,7 @@ var document$1 = class BaseDocument extends observable {
     }
 
     async insert() {
+        await naming.setName(this);
         await this.commit();
         await this.trigger('beforeInsert');
 
@@ -9786,11 +9787,11 @@ var document$1 = class BaseDocument extends observable {
 
     async getFrom(doctype, name, fieldname) {
         if (!name) return '';
-        let key = `${doctype}:${name}:${fieldname}`;
-        if (!this.fetchValues[key]) {
-            this.fetchValues[key] = await frappejs.db.getValue(doctype, name, fieldname);
+        let _values = this.fetchValues[`${doctype}:${name}`] || (this.fetchValues[`${doctype}:${name}`] = {});
+        if (!_values[fieldname]) {
+            _values[fieldname] = await frappejs.db.getValue(doctype, name, fieldname);
         }
-        return this.fetchValues[key];
+        return _values[fieldname];
     }
 };
 
@@ -27051,7 +27052,7 @@ var router = class Router extends observable {
 
     listen() {
         window.addEventListener('hashchange', (event) => {
-            let route = this.get_route_string();
+            let route = this.getRoute_string();
             if (this.last_route !== route) {
                 this.show(route);
             }
@@ -27059,8 +27060,8 @@ var router = class Router extends observable {
     }
 
     // split and get routes
-    get_route() {
-        let route = this.get_route_string();
+    getRoute() {
+        let route = this.getRoute_string();
         if (route) {
             return route.split('/');
         } else {
@@ -27126,7 +27127,7 @@ var router = class Router extends observable {
         }
     }
 
-    get_route_string() {
+    getRoute_string() {
         let route = window.location.hash;
         if (route && route[0]==='#') {
             route = route.substr(1);
@@ -45225,9 +45226,12 @@ class DataManager {
         this.filterRows = promisify(this.filterRows, this);
     }
 
-    init(data) {
+    init(data, columns) {
         if (!data) {
             data = this.options.data;
+        }
+        if (columns) {
+            this.options.columns = columns;
         }
 
         this.data = data;
@@ -45779,6 +45783,17 @@ class DataManager {
             columns: this.columns,
             rows: this.rows
         };
+    }
+
+    /**
+     * Returns the original data which was passed
+     * based on rowIndex
+     * @param {Number} rowIndex
+     * @returns Array|Object
+     * @memberof DataManager
+     */
+    getData(rowIndex) {
+        return this.data[rowIndex];
     }
 
     hasColumn(name) {
@@ -46910,10 +46925,12 @@ class CellManager {
         if (isHeader || isFilter || !cell.column.format) {
             contentHTML = cell.content;
         } else {
-            contentHTML = cell.column.format(cell.content, cell);
+            const row = this.datamanager.getRow(cell.rowIndex);
+            const data = this.datamanager.getData(cell.rowIndex);
+            contentHTML = cell.column.format(cell.content, row, cell.column, data);
         }
 
-        if (!(isHeader || isFilter) && cell.indent !== undefined) {
+        if (this.options.enableTreeView && !(isHeader || isFilter) && cell.indent !== undefined) {
             const nextRow = this.datamanager.getRow(cell.rowIndex + 1);
             const addToggle = nextRow && nextRow.meta.indent > cell.indent;
 
@@ -47711,7 +47728,8 @@ var DEFAULT_OPTIONS = {
     layout: 'ratio', // fixed, fluid, ratio
     noDataMessage: 'No Data',
     cellHeight: null,
-    enableInlineFilters: false
+    enableInlineFilters: false,
+    enableTreeView: false
 };
 
 class DataTable {
@@ -47778,8 +47796,8 @@ class DataTable {
         this.toastMessage = $('.toast-message', this.wrapper);
     }
 
-    refresh(data) {
-        this.datamanager.init(data);
+    refresh(data, columns) {
+        this.datamanager.init(data, columns);
         this.render();
         this.setDimensions();
     }
@@ -47999,7 +48017,8 @@ var modal = class Modal extends observable {
 };
 
 var modelTable = class ModelTable {
-    constructor({doctype, parent, layout='fixed', parentControl, getRowDoc, isDisabled}) {
+    constructor({doctype, parent, layout='fixed', parentControl, getRowDoc,
+        isDisabled, getTableData}) {
         Object.assign(this, arguments[0]);
         this.meta = frappejs.getMeta(this.doctype);
         this.make();
@@ -48147,7 +48166,8 @@ class TableControl extends base {
             parentControl: this,
             layout: this.layout || 'fixed',
             getRowDoc: (rowIndex) => this.doc[this.fieldname][rowIndex],
-            isDisabled: () => this.isDisabled()
+            isDisabled: () => this.isDisabled(),
+            getTableData: () => this.getTableData()
         });
         this.setupToolbar();
     }
@@ -48444,7 +48464,7 @@ var form = class BaseForm extends observable {
             this.container.setTitle(this.doc.name);
         }
         if (this.doc.submitted) {
-            this.container.addTitleBadge('✓', frappejs._('Submitted'));
+            // this.container.addTitleBadge('✓', frappe._('Submitted'));
         }
     }
 
@@ -48577,7 +48597,7 @@ var formpage = class FormPage extends page {
 
         // if name is different after saving, change the route
         this.form.on('save', async (params) => {
-            let route = frappejs.router.get_route();
+            let route = frappejs.router.getRoute();
             if (this.form.doc.name && !(route && route[2] === this.form.doc.name)) {
                 await frappejs.router.setRoute('edit', this.form.doc.doctype, this.form.doc.name);
                 frappejs.ui.showAlert({message: 'Added', color: 'green'});
@@ -48629,7 +48649,9 @@ var listpage = class ListPage extends page {
     async show(params) {
         super.show();
         this.setTitle(name===this.list.doctype ? (this.list.meta.label || this.list.meta.name) : name);
-        frappejs.desk.body.activePage.hide();
+        if (frappejs.desk.body.activePage && frappejs.router.getRoute()[0]==='list') {
+            frappejs.desk.body.activePage.hide();
+        }
         await this.list.refresh();
     }
 };
