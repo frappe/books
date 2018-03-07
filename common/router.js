@@ -54,7 +54,7 @@ module.exports = class Router extends Observable {
 
     listen() {
         window.addEventListener('hashchange', (event) => {
-            let route = this.get_route_string();
+            let route = this.getRoute_string();
             if (this.last_route !== route) {
                 this.show(route);
             }
@@ -62,8 +62,8 @@ module.exports = class Router extends Observable {
     }
 
     // split and get routes
-    get_route() {
-        let route = this.get_route_string();
+    getRoute() {
+        let route = this.getRoute_string();
         if (route) {
             return route.split('/');
         } else {
@@ -129,7 +129,7 @@ module.exports = class Router extends Observable {
         }
     }
 
-    get_route_string() {
+    getRoute_string() {
         let route = window.location.hash;
         if (route && route[0]==='#') {
             route = route.substr(1);

@@ -214,13 +214,13 @@ mark {
 		background-color: $gray-200 !important;
 	}
 
-	.data-table-col .edit-cell {
+	.data-table-cell .edit-cell {
 		padding: 0px !important;
 
 		input, textarea {
 			border-radius: none;
 			margin: none;
-			padding: $spacer-1;
+			padding: $spacer-2;
 		}
 
 		.awesomplete > ul {

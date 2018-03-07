@@ -4,7 +4,8 @@ const controls = require('frappejs/client/view/controls');
 const Modal = require('frappejs/client/ui/modal');
 
 module.exports = class ModelTable {
-    constructor({doctype, parent, layout='fixed', parentControl, getRowDoc, isDisabled}) {
+    constructor({doctype, parent, layout='fixed', parentControl, getRowDoc,
+        isDisabled, getTableData}) {
         Object.assign(this, arguments[0]);
         this.meta = frappe.getMeta(this.doctype);
         this.make();

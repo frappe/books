@@ -69,7 +69,7 @@ module.exports = class sqliteDatabase extends Database {
         columns.push(def);
 
         if (field.fieldtype==='Link' && field.target) {
-            indexes.push(`FOREIGN KEY (${field.fieldname}) REFERENCES ${field.target} ON UPDATE RESTRICT ON DELETE RESTRICT`);
+            indexes.push(`FOREIGN KEY (${field.fieldname}) REFERENCES ${field.target} ON UPDATE CASCADE ON DELETE RESTRICT`);
         }
     }
 

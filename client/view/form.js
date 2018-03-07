@@ -180,7 +180,7 @@ module.exports = class BaseForm extends Observable {
             this.container.setTitle(this.doc.name);
         }
         if (this.doc.submitted) {
-            this.container.addTitleBadge('✓', frappe._('Submitted'));
+            // this.container.addTitleBadge('✓', frappe._('Submitted'));
         }
     }
 
