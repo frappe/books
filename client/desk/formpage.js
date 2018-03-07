@@ -18,7 +18,7 @@ module.exports = class FormPage extends Page {
 
         // if name is different after saving, change the route
         this.form.on('save', async (params) => {
-            let route = frappe.router.get_route();
+            let route = frappe.router.getRoute();
             if (this.form.doc.name && !(route && route[2] === this.form.doc.name)) {
                 await frappe.router.setRoute('edit', this.form.doc.doctype, this.form.doc.name);
                 frappe.ui.showAlert({message: 'Added', color: 'green'});

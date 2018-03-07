@@ -195,7 +195,8 @@ module.exports = class Database extends Observable {
     }
 
     triggerChange(doctype, name) {
-        this.trigger(`change:${doctype}`, {name:name}, 1000);
+        this.trigger(`change:${doctype}`, {name:name}, 500);
+        this.trigger(`change`, {doctype:name, name:name}, 500);
     }
 
     async insert(doctype, doc) {
@@ -323,6 +324,10 @@ module.exports = class Database extends Observable {
                     // datetime
                     return value.toISOString();
                 }
+            } else if (field.fieldtype === 'Link' && !value) {
+                // empty value must be null to satisfy
+                // foreign key constraint
+                return null;
             } else {
                 return value;
             }

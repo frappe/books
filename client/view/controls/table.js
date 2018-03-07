@@ -11,7 +11,8 @@ class TableControl extends BaseControl {
             parentControl: this,
             layout: this.layout || 'fixed',
             getRowDoc: (rowIndex) => this.doc[this.fieldname][rowIndex],
-            isDisabled: () => this.isDisabled()
+            isDisabled: () => this.isDisabled(),
+            getTableData: () => this.getTableData()
         });
         this.setupToolbar();
     }

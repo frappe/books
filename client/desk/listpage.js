@@ -30,7 +30,9 @@ module.exports = class ListPage extends Page {
     async show(params) {
         super.show();
         this.setTitle(name===this.list.doctype ? (this.list.meta.label || this.list.meta.name) : name);
-        frappe.desk.body.activePage.hide();
+        if (frappe.desk.body.activePage && frappe.router.getRoute()[0]==='list') {
+            frappe.desk.body.activePage.hide();
+        }
         await this.list.refresh();
     }
 }

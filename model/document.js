@@ -9,6 +9,7 @@ module.exports = class BaseDocument extends Observable {
         this.flags = {};
         this.setup();
         Object.assign(this, data);
+        frappe.db.on('change', (params) => this.fetchValues[`${params.doctype}:${params.name}`] = {});
     }
 
     setup() {
@@ -216,7 +217,6 @@ module.exports = class BaseDocument extends Observable {
 
     async commit() {
         // re-run triggers
-        await naming.setName(this);
         this.setStandardValues();
         this.setKeywords();
         this.setChildIdx();
@@ -225,6 +225,7 @@ module.exports = class BaseDocument extends Observable {
     }
 
     async insert() {
+        await naming.setName(this);
         await this.commit();
         await this.trigger('beforeInsert');
 
@@ -291,10 +292,10 @@ module.exports = class BaseDocument extends Observable {
 
     async getFrom(doctype, name, fieldname) {
         if (!name) return '';
-        let key = `${doctype}:${name}:${fieldname}`;
-        if (!this.fetchValues[key]) {
-            this.fetchValues[key] = await frappe.db.getValue(doctype, name, fieldname);
+        let _values = this.fetchValues[`${doctype}:${name}`] || (this.fetchValues[`${doctype}:${name}`] = {});
+        if (!_values[fieldname]) {
+            _values[fieldname] = await frappe.db.getValue(doctype, name, fieldname);
         }
-        return this.fetchValues[key];
+        return _values[fieldname];
     }
 };
