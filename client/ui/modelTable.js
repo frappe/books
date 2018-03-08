@@ -4,7 +4,7 @@ const controls = require('frappejs/client/view/controls');
 const Modal = require('frappejs/client/ui/modal');
 
 module.exports = class ModelTable {
-    constructor({doctype, parent, layout='fixed', parentControl, getRowDoc,
+    constructor({doctype, parent, layout, parentControl, getRowDoc,
         isDisabled, getTableData}) {
         Object.assign(this, arguments[0]);
         this.meta = frappe.getMeta(this.doctype);
@@ -15,10 +15,14 @@ module.exports = class ModelTable {
         this.datatable = new DataTable(this.parent, {
             columns: this.getColumns(),
             data: [],
-            layout: this.meta.layout || 'fixed',
+            layout: this.meta.layout || this.layout || 'fluid',
             addCheckboxColumn: true,
             getEditor: this.getTableInput.bind(this),
         });
+    }
+
+    resize() {
+        this.datatable.setDimensions();
     }
 
     getColumns() {
@@ -51,7 +55,7 @@ module.exports = class ModelTable {
 
     getTableInput(colIndex, rowIndex, value, parent) {
         let field = this.datatable.getColumn(colIndex).field;
-        if (field.disabled || field.forumla || (this.isDisabled && this.isDisabled())) {
+        if (field.disabled || (this.isDisabled && this.isDisabled())) {
             return false;
         }
 
@@ -59,7 +63,8 @@ module.exports = class ModelTable {
             // text in modal
             parent = this.getControlModal(field).getBody();
         }
-        return this.getControl(field, parent);
+        const editor = this.getControl(field, parent);
+        return editor;
     }
 
     getControl(field, parent) {
@@ -75,12 +80,11 @@ module.exports = class ModelTable {
                 column.activeControl = control;
                 control.parentControl = this.parentControl;
                 control.doc = doc;
-                control.set_focus();
-                return control.setInputValue(control.doc[column.id]);
+                control.setFocus();
+                control.setInputValue(control.doc[column.id]);
+                return control;
             },
             setValue: async (value, rowIndex, column) => {
-                if (this.doc) this.doc._dirty = true;
-                control.doc._dirty = true;
                 control.handleChange();
             },
             getValue: () => {

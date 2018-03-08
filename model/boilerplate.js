@@ -7,7 +7,8 @@ module.exports = {
         fs.mkdirSync(`./models/doctype/${name}`);
         fs.writeFileSync(`./models/doctype/${name}/${name}.js`, `module.exports = {
     name: "${name}",
-    doctype: "DocType",
+    label: "${name}",
+    naming: "name", // {random|autoincrement}
     isSingle: 0,
     isChild: 0,
     keywordFields: [],

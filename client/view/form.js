@@ -16,6 +16,7 @@ module.exports = class BaseForm extends Observable {
             this.setup();
         }
         this.make();
+        this.bindFormEvents();
     }
 
     make() {
@@ -31,6 +32,14 @@ module.exports = class BaseForm extends Observable {
 
         this.makeLayout();
         this.bindKeyboard();
+    }
+
+    bindFormEvents() {
+        if (this.meta.formEvents) {
+            for (let key in this.meta.formEvents) {
+                this.on(key, this.meta.formEvents[key]);
+            }
+        }
     }
 
     makeLayout() {
@@ -194,6 +203,7 @@ module.exports = class BaseForm extends Observable {
             control.bind(this.doc);
         }
 
+        this.refresh();
         this.setupDocListener();
         this.trigger('use', {doc:doc});
     }
@@ -239,6 +249,7 @@ module.exports = class BaseForm extends Observable {
         for(let control of this.controlList) {
             control.refresh();
         }
+        this.trigger('refresh', this);
     }
 
     async submit() {

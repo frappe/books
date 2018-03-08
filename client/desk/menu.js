@@ -12,8 +12,7 @@ module.exports = class DeskMenu {
     }
 
     addItem(label, action) {
-        let item = frappe.ui.add('div', 'list-row', this.listGroup);
-        item.textContent = label;
+        let item = frappe.ui.add('div', 'list-row', this.listGroup, label);
         if (typeof action === 'string') {
             this.routeItems[action] = item;
         }

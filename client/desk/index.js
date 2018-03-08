@@ -131,8 +131,8 @@ module.exports = class Desk {
         if (!this.pages[view]) this.pages[view] = {};
         if (!this.pages[view][doctype]) this.pages[view][doctype] = new views[view](doctype);
         const page = this.pages[view][doctype];
-        await page.show(params);
         this.toggleCenter(page.fullPage ? false : true);
+        await page.show(params);
     }
 
     async showFormModal(doctype, name) {
@@ -163,8 +163,7 @@ module.exports = class Desk {
     }
 
     addSidebarItem(label, action) {
-        let item = frappe.ui.add('a', 'list-group-item list-group-item-action', this.sidebarList);
-        item.textContent = label;
+        let item = frappe.ui.add('a', 'list-group-item list-group-item-action', this.sidebarList, label);
         if (typeof action === 'string') {
             item.href = action;
             this.routeItems[action] = item;

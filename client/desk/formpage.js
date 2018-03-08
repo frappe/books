@@ -6,6 +6,7 @@ module.exports = class FormPage extends Page {
     constructor(doctype) {
         let meta = frappe.getMeta(doctype);
         super({title: `Edit ${meta.name}`, hasRoute: true});
+        this.wrapper.classList.add('page-form');
         this.meta = meta;
         this.doctype = doctype;
 
@@ -15,6 +16,10 @@ module.exports = class FormPage extends Page {
             container: this,
             actions: ['save', 'delete', 'duplicate', 'settings', 'print']
         });
+
+        if (this.meta.pageSettings && this.meta.pageSettings.hideTitle) {
+            this.titleElement.classList.add('hide');
+        }
 
         // if name is different after saving, change the route
         this.form.on('save', async (params) => {

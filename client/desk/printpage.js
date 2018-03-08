@@ -10,6 +10,7 @@ module.exports = class PrintPage extends Page {
         super({title: `${meta.name}`, hasRoute: true});
         this.meta = meta;
         this.doctype = doctype;
+        this.titleElement.classList.add('hide');
 
         this.addButton(frappe._('Edit'), 'primary', () => {
             frappe.router.setRoute('edit', this.doctype, this.name)
@@ -36,8 +37,7 @@ module.exports = class PrintPage extends Page {
 
         try {
             this.body.innerHTML = `<div class="print-page">${nunjucks.renderString(this.printFormat.template, context)}</div>`;
-            this.setTitle(doc.name);
-            if (doc.submitted) this.addTitleBadge('✓', 'Submitted');
+            // this.setTitle(doc.name);
         } catch (e) {
             this.renderError('Template Error', e);
             throw e;

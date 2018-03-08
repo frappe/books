@@ -134,7 +134,7 @@ module.exports = class BaseMeta extends BaseDocument {
         if (!this._keywordFields) {
             this._keywordFields = this.keywordFields;
             if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
-                this._keywordFields = this.fields.filter(field => field.required).map(field => field.fieldname);
+                this._keywordFields = this.fields.filter(field => field.fieldtype !== 'Table' && field.required).map(field => field.fieldname);
             }
             if (!(this._keywordFields && this._keywordFields.length)) {
                 this._keywordFields = ['name']
@@ -145,6 +145,8 @@ module.exports = class BaseMeta extends BaseDocument {
 
     validateSelect(field, value) {
         let options = field.options;
+        if (!options) return;
+
         if (typeof options === 'string') {
             // values given as string
             options = field.options.split('\n');

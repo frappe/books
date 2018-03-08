@@ -19,13 +19,10 @@ module.exports = class Page extends Observable {
 
     make() {
         this.wrapper = frappe.ui.add('div', 'page hide', this.parent);
-        this.wrapper.innerHTML = `<div class="page-head clearfix hide">
-                <span class="page-title font-weight-bold"></span>
-            </div>
-            <div class="page-body"></div>`
-        this.head = this.wrapper.querySelector('.page-head');
-        this.body = this.wrapper.querySelector('.page-body');
-        this.titleElement = this.head.querySelector('.page-title');
+        this.head = frappe.ui.add('div', 'page-nav clearfix hide', this.wrapper);
+        this.titleElement = frappe.ui.add('h3', 'page-title', this.wrapper);
+        this.linksElement = frappe.ui.add('div', 'page-links hide', this.wrapper);
+        this.body = frappe.ui.add('div', 'page-body', this.wrapper);
     }
 
     setTitle(title) {
@@ -38,6 +35,15 @@ module.exports = class Page extends Observable {
     addTitleBadge(message, title='', style='secondary') {
         this.titleElement.innerHTML += ` <span class='badge badge-${style}' title='${title}'>
             ${message}</span>`;
+    }
+
+    addLink(label, action, unhide = true) {
+        const link = frappe.ui.add('a', 'page-link', this.linksElement, label);
+        link.addEventListener('click', action);
+        if (unhide) {
+            this.linksElement.classList.remove('hide');
+        }
+        return link;
     }
 
     hide() {

@@ -264,8 +264,7 @@ module.exports = class BaseList extends Observable {
     }
 
     makeMoreBtn() {
-        this.btnMore = frappe.ui.add('button', 'btn btn-secondary hide', this.parent);
-        this.btnMore.textContent = 'More';
+        this.btnMore = frappe.ui.add('button', 'btn btn-secondary hide', this.parent, 'More');
         this.btnMore.addEventListener('click', () => {
             this.append();
         })

@@ -9,7 +9,7 @@ class TableControl extends BaseControl {
             doctype: this.childtype,
             parent: this.wrapper.querySelector('.datatable-wrapper'),
             parentControl: this,
-            layout: this.layout || 'fixed',
+            layout: this.layout || 'ratio',
             getRowDoc: (rowIndex) => this.doc[this.fieldname][rowIndex],
             isDisabled: () => this.isDisabled(),
             getTableData: () => this.getTableData()
@@ -20,7 +20,7 @@ class TableControl extends BaseControl {
     makeWrapper() {
         this.wrapper = frappe.ui.add('div', 'table-wrapper', this.getInputParent());
         this.wrapper.innerHTML =
-        `<div class="datatable-wrapper"></div>
+        `<div class="datatable-wrapper" style="width: 100%"></div>
         <div class="table-toolbar">
             <button type="button" class="btn btn-sm btn-outline-secondary btn-add">
                 ${frappe._("Add")}</button>
@@ -38,7 +38,7 @@ class TableControl extends BaseControl {
 
         this.wrapper.querySelector('.btn-remove').addEventListener('click', async (event) => {
             let checked = this.modelTable.getChecked();
-            this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx));
+            this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx + ''));
             await this.doc.commit();
             this.refresh();
             this.modelTable.checkAll(false);
@@ -69,7 +69,7 @@ class TableControl extends BaseControl {
     }
 
     getTableData(value) {
-        return value || this.getDefaultData();
+        return (value && value.length) ? value : this.getDefaultData();
     }
 
     getDefaultData() {
@@ -77,7 +77,12 @@ class TableControl extends BaseControl {
         if (!this.doc) {
             return [];
         }
+
         if (!this.doc[this.fieldname]) {
+            this.doc[this.fieldname] = [{idx: 0}];
+        }
+
+        if (this.doc[this.fieldname].length === 0 && this.neverEmpty) {
             this.doc[this.fieldname] = [{idx: 0}];
         }
 
