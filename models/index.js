@@ -1,5 +1,8 @@
 module.exports = {
     models: {
+        FilterItem: require('./doctype/FilterItem/FilterItem.js'),
+        FilterGroup: require('./doctype/FilterGroup/FilterGroup.js'),
+        FilterSelector: require('./doctype/FilterSelector/FilterSelector.js'),
         NumberSeries: require('./doctype/NumberSeries/NumberSeries.js'),
         PrintFormat: require('./doctype/PrintFormat/PrintFormat.js'),
         Role: require('./doctype/Role/Role.js'),

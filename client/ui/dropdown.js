@@ -31,8 +31,7 @@ class Dropdown {
     }
 
     addItem(label, action) {
-        let item = frappe.ui.add('button', 'dropdown-item', this.dropdownMenu);
-        item.textContent = label;
+        let item = frappe.ui.add('button', 'dropdown-item', this.dropdownMenu, label);
         item.setAttribute('type', 'button');
         if (typeof action === 'string') {
             item.addEventListener('click', async () => {

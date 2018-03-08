@@ -2,7 +2,7 @@ const frappe = require('frappejs');
 const Dropdown = require('./dropdown');
 
 module.exports = {
-    add(tag, className, parent) {
+    add(tag, className, parent, textContent) {
         let element = document.createElement(tag);
         if (className) {
             for (let c of className.split(' ')) {
@@ -12,11 +12,20 @@ module.exports = {
         if (parent) {
             parent.appendChild(element);
         }
+        if (textContent) {
+            element.textContent = textContent;
+        }
         return element;
     },
 
     remove(element) {
         element.parentNode.removeChild(element);
+    },
+
+    empty(element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
     },
 
     addClass(element, className) {

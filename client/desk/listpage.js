@@ -14,6 +14,8 @@ module.exports = class ListPage extends Page {
             hasRoute: hasRoute
         });
 
+        this.name = name;
+
         this.list = new (view.getListClass(name))({
             doctype: name,
             parent: this.body,
@@ -29,7 +31,8 @@ module.exports = class ListPage extends Page {
 
     async show(params) {
         super.show();
-        this.setTitle(name===this.list.doctype ? (this.list.meta.label || this.list.meta.name) : name);
+
+        this.setTitle(this.name===this.list.meta.name ? (this.list.meta.label || this.list.meta.name) : this.name);
         if (frappe.desk.body.activePage && frappe.router.getRoute()[0]==='list') {
             frappe.desk.body.activePage.hide();
         }

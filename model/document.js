@@ -201,7 +201,10 @@ module.exports = class BaseDocument extends Observable {
                 // for each row
                 for (let row of this[tablefield.fieldname]) {
                     for (let field of formulaFields) {
-                        row[field.fieldname] = await field.formula(row, doc);
+                        const val = await field.formula(row, doc);
+                        if (val !== false) {
+                            row[field.fieldname] = val;
+                        }
                     }
                 }
             }
@@ -209,7 +212,10 @@ module.exports = class BaseDocument extends Observable {
 
         // parent
         for (let field of this.meta.getFormulaFields()) {
-            doc[field.fieldname] = await field.formula(doc);
+            const val = await field.formula(doc);
+            if (val !== false) {
+                doc[field.fieldname] = val;
+            }
         }
 
         return true;

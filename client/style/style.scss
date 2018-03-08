@@ -35,18 +35,27 @@ html {
 .page {
 	padding-bottom: $spacer-4;
 
-	.page-head {
+	.page-nav {
 		padding: $spacer-2 $spacer-3;
 		background-color: $gray-100;
 		border-bottom: 1px solid $gray-300;
 
-		.page-title {
-			display: inline-block;
-			margin-top: 0.3rem;
-		}
-
 		.btn {
 			margin-left: $spacer-2;
+		}
+	}
+
+	.page-title {
+		font-weight: bold;
+		padding: $spacer-4;
+		padding-bottom: 0;
+	}
+
+	.page-links {
+		padding: $spacer-3 $spacer-4;
+
+		.page-link {
+			display: inline-block;
 		}
 	}
 
@@ -57,7 +66,7 @@ html {
 }
 
 .form-body {
-	padding: $spacer-4;
+	padding: $spacer-3 $spacer-4;
 
 	.form-check {
 		margin-bottom: $spacer-2;
@@ -80,12 +89,12 @@ html {
 }
 
 .list-search {
-	padding: $spacer-3;
+	padding: $spacer-3 $spacer-4;
 }
 
 .list-body {
 	.list-row {
-		padding: $spacer-2 15px;
+		padding: $spacer-2 $spacer-4;
 		border-bottom: 1px solid $gray-200;
 		cursor: pointer;
 
@@ -146,49 +155,10 @@ html {
 	}
 }
 
-.CodeMirror {
-	font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
-	border: 1px solid $gray-300;
-	border-radius: 0.25rem;
-	padding: $spacer-2;
+.table-page-wrapper {
+	width: 100%;
+	padding: $spacer-3 $spacer-4;
 }
-
-.awesomplete {
-	display: block;
-
-	> ul > li {
-		padding: .75rem .375rem;
-	}
-
-	> ul > li:hover {
-		background: $gray-300;
-		color: $body-color;
-	}
-
-	> ul > li[aria-selected="true"] {
-		background: $gray-300;
-		color: $body-color;
-	}
-
-	> ul > li[aria-selected="true"]:hover {
-		background: $gray-300;
-		color: $body-color;
-	}
-
-	li[aria-selected="true"] mark, li[aria-selected="false"] mark {
-		background: inherit;
-		color: inherit;
-		padding: 0px;
-	}
-
-}
-
-
-mark {
-	padding: none;
-	background: inherit;
-}
-
 
 .table-wrapper {
 	margin-top: $spacer-4;
@@ -230,5 +200,48 @@ mark {
 			min-width: 120px;
 		}
 	}
+}
+
+.CodeMirror {
+	font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
+	border: 1px solid $gray-300;
+	border-radius: 0.25rem;
+	padding: $spacer-2;
+}
+
+.awesomplete {
+	display: block;
+
+	> ul > li {
+		padding: .75rem .375rem;
+	}
+
+	> ul > li:hover {
+		background: $gray-300;
+		color: $body-color;
+	}
+
+	> ul > li[aria-selected="true"] {
+		background: $gray-300;
+		color: $body-color;
+	}
+
+	> ul > li[aria-selected="true"]:hover {
+		background: $gray-300;
+		color: $body-color;
+	}
+
+	li[aria-selected="true"] mark, li[aria-selected="false"] mark {
+		background: inherit;
+		color: inherit;
+		padding: 0px;
+	}
+
+}
+
+
+mark {
+	padding: none;
+	background: inherit;
 }
 

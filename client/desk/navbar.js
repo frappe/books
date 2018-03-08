@@ -6,9 +6,8 @@ module.exports = class Navbar {
         this.items = {};
         this.navbar = frappe.ui.add('div', 'navbar navbar-expand-md border-bottom navbar-dark bg-dark', document.querySelector('body'));
 
-        this.brand = frappe.ui.add('a', 'navbar-brand', this.navbar);
+        this.brand = frappe.ui.add('a', 'navbar-brand', this.navbar, brand_label);
         this.brand.href = '#';
-        this.brand.textContent = brand_label;
 
         this.toggler = frappe.ui.add('button', 'navbar-toggler', this.navbar);
         this.toggler.setAttribute('type', 'button');
@@ -24,8 +23,7 @@ module.exports = class Navbar {
 
     addItem(label, route) {
         let item = frappe.ui.add('li', 'nav-item', this.nav);
-        item.link = frappe.ui.add('a', 'nav-link', item);
-        item.link.textContent = label;
+        item.link = frappe.ui.add('a', 'nav-link', item, label);
         item.link.href = route;
         this.items[label] = item;
         return item;

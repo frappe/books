@@ -1,7 +1,10 @@
 module.exports = {
-    "naming": "autoincrement",
-    "name": "ToDo",
-    "doctype": "DocType",
+    name: "ToDo",
+    label: "To Do",
+    naming: "autoincrement",
+    pageSettings: {
+        hideTitle: true
+    },
     "isSingle": 0,
     "keywordFields": [
         "subject",

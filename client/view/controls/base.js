@@ -68,8 +68,7 @@ class BaseControl {
     }
 
     makeLabel(labelClass = null) {
-        this.labelElement = frappe.ui.add('label', labelClass, this.inputContainer);
-        this.labelElement.textContent = this.label;
+        this.labelElement = frappe.ui.add('label', labelClass, this.inputContainer, this.label);
         this.labelElement.setAttribute('for', this.id);
     }
 
@@ -88,7 +87,17 @@ class BaseControl {
     }
 
     isDisabled() {
-        return this.disabled || this.formula || (this.doc && this.doc.submitted);
+        let disabled = this.disabled;
+
+        if (this.doc && this.doc.submitted) {
+            disabled = true;
+        }
+
+        if (this.formula && this.fieldtype !== 'Table') {
+            disabled = true;
+        }
+
+        return disabled;
     }
 
     setDisabled() {
@@ -112,8 +121,8 @@ class BaseControl {
 
     makeDescription() {
         if (this.description) {
-            this.description_element = frappe.ui.add('small', 'form-text text-muted', this.inputContainer);
-            this.description_element.textContent = this.description;
+            this.description_element = frappe.ui.add('small', 'form-text text-muted',
+                this.inputContainer, this.description);
         }
     }
 
@@ -162,6 +171,7 @@ class BaseControl {
             if (this.parentControl) {
                 // its a child
                 this.doc[this.fieldname] = value;
+                this.parentControl.doc._dirty = true;
                 await this.parentControl.doc.applyChange(this.fieldname);
             } else {
                 // parent
@@ -178,7 +188,7 @@ class BaseControl {
         this.input.removeAttribute('disabled');
     }
 
-    set_focus() {
+    setFocus() {
         this.input.focus();
     }
 }
