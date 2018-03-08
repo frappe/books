@@ -7368,20 +7368,25 @@ html {
   display: none !important; }
 .page {
   padding-bottom: 2rem; }
-.page .page-head {
+.page .page-nav {
     padding: 0.5rem 1rem;
     background-color: #f8f9fa;
     border-bottom: 1px solid #dee2e6; }
-.page .page-head .page-title {
-      display: inline-block;
-      margin-top: 0.3rem; }
-.page .page-head .btn {
+.page .page-nav .btn {
       margin-left: 0.5rem; }
+.page .page-title {
+    font-weight: bold;
+    padding: 2rem;
+    padding-bottom: 0; }
+.page .page-links {
+    padding: 1rem 2rem; }
+.page .page-links .page-link {
+      display: inline-block; }
 .page .page-error {
     text-align: center;
     padding: 200px 0px; }
 .form-body {
-  padding: 2rem; }
+  padding: 1rem 2rem; }
 .form-body .form-check {
     margin-bottom: 0.5rem; }
 .form-body .form-check .form-check-input {
@@ -7393,9 +7398,9 @@ html {
 .form-body .alert {
     margin-top: 1rem; }
 .list-search {
-  padding: 1rem; }
+  padding: 1rem 2rem; }
 .list-body .list-row {
-  padding: 0.5rem 15px;
+  padding: 0.5rem 2rem;
   border-bottom: 1px solid #e9ecef;
   cursor: pointer; }
 .list-body .list-row .checkbox {
@@ -7428,6 +7433,31 @@ html {
   line-height: 1.8; }
 .print-page td, .print-page th {
     padding: 0.5rem; }
+.table-page-wrapper {
+  width: 100%;
+  padding: 1rem 2rem; }
+.table-wrapper {
+  margin-top: 2rem;
+  margin-bottom: 2rem; }
+.table-toolbar {
+  margin-top: 0.5rem; }
+.data-table .body-scrollable {
+  border-bottom: 0px !important; }
+.data-table .body-scrollable tr:first-child .data-table-col {
+    border-top: 0px !important; }
+.data-table thead td {
+  background-color: #e9ecef !important; }
+.data-table .data-table-cell .edit-cell {
+  padding: 0px !important; }
+.data-table .data-table-cell .edit-cell input, .data-table .data-table-cell .edit-cell textarea {
+    border-radius: none;
+    margin: none;
+    padding: 0.5rem; }
+.data-table .data-table-cell .edit-cell .awesomplete > ul {
+    position: fixed;
+    left: auto;
+    width: auto;
+    min-width: 120px; }
 .CodeMirror {
   font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
   border: 1px solid #dee2e6;
@@ -7453,25 +7483,3 @@ html {
 mark {
   padding: none;
   background: inherit; }
-.table-wrapper {
-  margin-top: 2rem;
-  margin-bottom: 2rem; }
-.table-toolbar {
-  margin-top: 0.5rem; }
-.data-table .body-scrollable {
-  border-bottom: 0px !important; }
-.data-table .body-scrollable tr:first-child .data-table-col {
-    border-top: 0px !important; }
-.data-table thead td {
-  background-color: #e9ecef !important; }
-.data-table .data-table-cell .edit-cell {
-  padding: 0px !important; }
-.data-table .data-table-cell .edit-cell input, .data-table .data-table-cell .edit-cell textarea {
-    border-radius: none;
-    margin: none;
-    padding: 0.5rem; }
-.data-table .data-table-cell .edit-cell .awesomplete > ul {
-    position: fixed;
-    left: auto;
-    width: auto;
-    min-width: 120px; }

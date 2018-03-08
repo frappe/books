@@ -11,14 +11,15 @@ module.exports = {
             "label": "Item",
             "fieldtype": "Link",
             "target": "Item",
-            "required": 1
+            "required": 1,
+            width: 2
         },
         {
             "fieldname": "description",
             "label": "Description",
             "fieldtype": "Text",
             formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
-            "required": 1
+            hidden: 1
         },
         {
             "fieldname": "quantity",
