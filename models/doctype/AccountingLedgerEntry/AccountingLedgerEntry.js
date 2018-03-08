@@ -5,7 +5,11 @@ module.exports = {
     doctype: "DocType",
     isSingle: 0,
     isChild: 0,
-    keywordFields: [],
+    keywordFields: [
+        'account',
+        'party',
+        'reference_name'
+    ],
     fields: [
         {
             fieldname: "date",

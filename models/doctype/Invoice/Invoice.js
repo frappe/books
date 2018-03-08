@@ -97,5 +97,19 @@ module.exports = {
 
         // section 4
         { fields: [ "terms" ] },
-    ]
+    ],
+
+    formEvents: {
+        refresh: (form) => {
+            if (!form.ledgerLink) {
+                form.ledgerLink = form.container.addLink('Ledger Entries', () => {
+                    frappe.flags.filters = {
+                        reference_type: 'Invoice',
+                        reference_name: form.doc.name
+                    }
+                    frappe.router.setRoute('table', 'AccountingLedgerEntry');
+                });
+            }
+        }
+    }
 }

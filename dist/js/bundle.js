@@ -4548,7 +4548,7 @@ if (typeof undefined === 'function' && undefined.amd) {
 }
 }).call(commonjsGlobal);
 
-
+//# sourceMappingURL=showdown.js.map
 });
 
 var moment = createCommonjsModule(function (module, exports) {
@@ -9696,7 +9696,10 @@ var document$1 = class BaseDocument extends observable {
                 // for each row
                 for (let row of this[tablefield.fieldname]) {
                     for (let field of formulaFields) {
-                        row[field.fieldname] = await field.formula(row, doc);
+                        const val = await field.formula(row, doc);
+                        if (val !== false) {
+                            row[field.fieldname] = val;
+                        }
                     }
                 }
             }
@@ -9704,7 +9707,10 @@ var document$1 = class BaseDocument extends observable {
 
         // parent
         for (let field of this.meta.getFormulaFields()) {
-            doc[field.fieldname] = await field.formula(doc);
+            const val = await field.formula(doc);
+            if (val !== false) {
+                doc[field.fieldname] = val;
+            }
         }
 
         return true;
@@ -9966,7 +9972,7 @@ var meta = class BaseMeta extends document$1 {
         if (!this._keywordFields) {
             this._keywordFields = this.keywordFields;
             if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
-                this._keywordFields = this.fields.filter(field => field.required).map(field => field.fieldname);
+                this._keywordFields = this.fields.filter(field => field.fieldtype !== 'Table' && field.required).map(field => field.fieldname);
             }
             if (!(this._keywordFields && this._keywordFields.length)) {
                 this._keywordFields = ['name'];
@@ -9977,6 +9983,8 @@ var meta = class BaseMeta extends document$1 {
 
     validateSelect(field, value) {
         let options = field.options;
+        if (!options) return;
+
         if (typeof options === 'string') {
             // values given as string
             options = field.options.split('\n');
@@ -22992,7 +23000,7 @@ Popper.placements = placements;
 Popper.Defaults = Defaults;
 
 
-
+//# sourceMappingURL=popper.js.map
 
 
 var popper = Object.freeze({
@@ -26891,7 +26899,7 @@ exports.Tooltip = Tooltip;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-
+//# sourceMappingURL=bootstrap.js.map
 });
 
 unwrapExports(bootstrap);
@@ -26925,8 +26933,7 @@ class Dropdown {
     }
 
     addItem(label, action) {
-        let item = frappejs.ui.add('button', 'dropdown-item', this.dropdownMenu);
-        item.textContent = label;
+        let item = frappejs.ui.add('button', 'dropdown-item', this.dropdownMenu, label);
         item.setAttribute('type', 'button');
         if (typeof action === 'string') {
             item.addEventListener('click', async () => {
@@ -26949,7 +26956,7 @@ Dropdown.instances = 0;
 var dropdown = Dropdown;
 
 var ui = {
-    add(tag, className, parent) {
+    add(tag, className, parent, textContent) {
         let element = document.createElement(tag);
         if (className) {
             for (let c of className.split(' ')) {
@@ -26959,11 +26966,20 @@ var ui = {
         if (parent) {
             parent.appendChild(element);
         }
+        if (textContent) {
+            element.textContent = textContent;
+        }
         return element;
     },
 
     remove(element) {
         element.parentNode.removeChild(element);
+    },
+
+    empty(element) {
+        while (element.firstChild) {
+            element.removeChild(element.firstChild);
+        }
     },
 
     addClass(element, className) {
@@ -27153,13 +27169,10 @@ var page = class Page extends observable {
 
     make() {
         this.wrapper = frappejs.ui.add('div', 'page hide', this.parent);
-        this.wrapper.innerHTML = `<div class="page-head clearfix hide">
-                <span class="page-title font-weight-bold"></span>
-            </div>
-            <div class="page-body"></div>`;
-        this.head = this.wrapper.querySelector('.page-head');
-        this.body = this.wrapper.querySelector('.page-body');
-        this.titleElement = this.head.querySelector('.page-title');
+        this.head = frappejs.ui.add('div', 'page-nav clearfix hide', this.wrapper);
+        this.titleElement = frappejs.ui.add('h3', 'page-title', this.wrapper);
+        this.linksElement = frappejs.ui.add('div', 'page-links hide', this.wrapper);
+        this.body = frappejs.ui.add('div', 'page-body', this.wrapper);
     }
 
     setTitle(title) {
@@ -27172,6 +27185,15 @@ var page = class Page extends observable {
     addTitleBadge(message, title='', style='secondary') {
         this.titleElement.innerHTML += ` <span class='badge badge-${style}' title='${title}'>
             ${message}</span>`;
+    }
+
+    addLink(label, action, unhide = true) {
+        const link = frappejs.ui.add('a', 'page-link', this.linksElement, label);
+        link.addEventListener('click', action);
+        if (unhide) {
+            this.linksElement.classList.remove('hide');
+        }
+        return link;
     }
 
     hide() {
@@ -27533,8 +27555,7 @@ var list = class BaseList extends observable {
     }
 
     makeMoreBtn() {
-        this.btnMore = frappejs.ui.add('button', 'btn btn-secondary hide', this.parent);
-        this.btnMore.textContent = 'More';
+        this.btnMore = frappejs.ui.add('button', 'btn btn-secondary hide', this.parent, 'More');
         this.btnMore.addEventListener('click', () => {
             this.append();
         });
@@ -27645,8 +27666,7 @@ class BaseControl {
     }
 
     makeLabel(labelClass = null) {
-        this.labelElement = frappejs.ui.add('label', labelClass, this.inputContainer);
-        this.labelElement.textContent = this.label;
+        this.labelElement = frappejs.ui.add('label', labelClass, this.inputContainer, this.label);
         this.labelElement.setAttribute('for', this.id);
     }
 
@@ -27665,7 +27685,17 @@ class BaseControl {
     }
 
     isDisabled() {
-        return this.disabled || this.formula || (this.doc && this.doc.submitted);
+        let disabled = this.disabled;
+
+        if (this.doc && this.doc.submitted) {
+            disabled = true;
+        }
+
+        if (this.formula && this.fieldtype !== 'Table') {
+            disabled = true;
+        }
+
+        return disabled;
     }
 
     setDisabled() {
@@ -27689,8 +27719,8 @@ class BaseControl {
 
     makeDescription() {
         if (this.description) {
-            this.description_element = frappejs.ui.add('small', 'form-text text-muted', this.inputContainer);
-            this.description_element.textContent = this.description;
+            this.description_element = frappejs.ui.add('small', 'form-text text-muted',
+                this.inputContainer, this.description);
         }
     }
 
@@ -27739,6 +27769,7 @@ class BaseControl {
             if (this.parentControl) {
                 // its a child
                 this.doc[this.fieldname] = value;
+                this.parentControl.doc._dirty = true;
                 await this.parentControl.doc.applyChange(this.fieldname);
             } else {
                 // parent
@@ -27755,7 +27786,7 @@ class BaseControl {
         this.input.removeAttribute('disabled');
     }
 
-    set_focus() {
+    setFocus() {
         this.input.focus();
     }
 }
@@ -39707,11 +39738,6 @@ var htmlmixed = createCommonjsModule(function (module, exports) {
 });
 });
 
-// const frappe = require('frappejs');
-
- // eslint-disable-line
- // eslint-disable-line
-
 class CodeControl extends base {
     makeInput() {
         if (!this.options) {
@@ -42464,7 +42490,7 @@ class LinkControl extends base {
     async getList(query) {
         return (await frappejs.db.getAll({
             doctype: this.target,
-            filters: this.getFilters(query),
+            filters: this.getFilters(query, this),
             limit: 50
         })).map(d => d.name);
     }
@@ -42487,19 +42513,46 @@ var password = PasswordControl;
 
 class SelectControl extends base {
     makeInput() {
-        this.input = frappejs.ui.add('select', 'form-control', this.inputContainer);
+        this.input = frappejs.ui.add('select', 'form-control', this.getInputParent());
+        this.addOptions();
+    }
 
+    refresh() {
+        this.addOptions();
+        super.refresh();
+    }
+
+    addOptions() {
+        const options = this.getOptions();
+        if (this.areOptionsSame(options)) return;
+
+        frappejs.ui.empty(this.input);
+        for (let value of options) {
+            let option = frappejs.ui.add('option', null, this.input, value.label || value);
+            option.setAttribute('value', value.value || value);
+        }
+        this.lastOptions = options;
+    }
+
+    getOptions() {
         let options = this.options;
         if (typeof options==='string') {
             options = options.split('\n');
         }
-
-        for (let value of options) {
-            let option = frappejs.ui.add('option', null, this.input);
-            option.textContent = value;
-            option.setAttribute('value', value);
-        }
+        return options;
     }
+
+    areOptionsSame(options) {
+        let same = false;
+        if (this.lastOptions && options.length===this.lastOptions.length) {
+            same = options.every((v ,i) => {
+                const v1 = this.lastOptions[i];
+                return (v.value || v) === (v1.value || v1)
+            });
+        }
+        return same;
+    }
+
     make() {
         super.make();
         this.input.setAttribute('row', '3');
@@ -46676,11 +46729,26 @@ class CellManager {
     }
 
     getEditor(colIndex, rowIndex, value, parent) {
-        // debugger;
-        const obj = this.options.getEditor(colIndex, rowIndex, value, parent);
-        if (obj && obj.setValue) return obj;
+        const column = this.datamanager.getColumn(colIndex);
+        const row = this.datamanager.getRow(rowIndex);
+        const data = this.datamanager.getData(rowIndex);
+        let editor = this.options.getEditor ?
+            this.options.getEditor(colIndex, rowIndex, value, parent, column, row, data) :
+            this.getDefaultEditor(parent);
 
-        // editing fallback
+        if (editor === false) {
+            // explicitly returned false
+            return false;
+        }
+        if (editor === undefined) {
+            // didn't return editor, fallback to default
+            editor = this.getDefaultEditor(parent);
+        }
+
+        return editor;
+    }
+
+    getDefaultEditor(parent) {
         const $input = $.create('input', {
             class: 'input-style',
             type: 'text',
@@ -47725,7 +47793,7 @@ var DEFAULT_OPTIONS = {
         none: ''
     },
     freezeMessage: '',
-    getEditor: () => {},
+    getEditor: null,
     addSerialNoColumn: true,
     addCheckboxColumn: false,
     enableClusterize: true,
@@ -47945,9 +48013,6 @@ DataTable.__version__ = packageJson.version;
 module.exports = DataTable;
 });
 
-// eslint-disable-line
-
-
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
         super();
@@ -48025,7 +48090,7 @@ var modal = class Modal extends observable {
 };
 
 var modelTable = class ModelTable {
-    constructor({doctype, parent, layout='fixed', parentControl, getRowDoc,
+    constructor({doctype, parent, layout, parentControl, getRowDoc,
         isDisabled, getTableData}) {
         Object.assign(this, arguments[0]);
         this.meta = frappejs.getMeta(this.doctype);
@@ -48036,10 +48101,14 @@ var modelTable = class ModelTable {
         this.datatable = new frappeDatatable_cjs(this.parent, {
             columns: this.getColumns(),
             data: [],
-            layout: this.meta.layout || 'fixed',
+            layout: this.meta.layout || this.layout || 'fluid',
             addCheckboxColumn: true,
             getEditor: this.getTableInput.bind(this),
         });
+    }
+
+    resize() {
+        this.datatable.setDimensions();
     }
 
     getColumns() {
@@ -48072,7 +48141,7 @@ var modelTable = class ModelTable {
 
     getTableInput(colIndex, rowIndex, value, parent) {
         let field = this.datatable.getColumn(colIndex).field;
-        if (field.disabled || field.forumla || (this.isDisabled && this.isDisabled())) {
+        if (field.disabled || (this.isDisabled && this.isDisabled())) {
             return false;
         }
 
@@ -48080,7 +48149,8 @@ var modelTable = class ModelTable {
             // text in modal
             parent = this.getControlModal(field).getBody();
         }
-        return this.getControl(field, parent);
+        const editor = this.getControl(field, parent);
+        return editor;
     }
 
     getControl(field, parent) {
@@ -48096,12 +48166,11 @@ var modelTable = class ModelTable {
                 column.activeControl = control;
                 control.parentControl = this.parentControl;
                 control.doc = doc;
-                control.set_focus();
-                return control.setInputValue(control.doc[column.id]);
+                control.setFocus();
+                control.setInputValue(control.doc[column.id]);
+                return control;
             },
             setValue: async (value, rowIndex, column) => {
-                if (this.doc) this.doc._dirty = true;
-                control.doc._dirty = true;
                 control.handleChange();
             },
             getValue: () => {
@@ -48172,7 +48241,7 @@ class TableControl extends base {
             doctype: this.childtype,
             parent: this.wrapper.querySelector('.datatable-wrapper'),
             parentControl: this,
-            layout: this.layout || 'fixed',
+            layout: this.layout || 'ratio',
             getRowDoc: (rowIndex) => this.doc[this.fieldname][rowIndex],
             isDisabled: () => this.isDisabled(),
             getTableData: () => this.getTableData()
@@ -48183,7 +48252,7 @@ class TableControl extends base {
     makeWrapper() {
         this.wrapper = frappejs.ui.add('div', 'table-wrapper', this.getInputParent());
         this.wrapper.innerHTML =
-        `<div class="datatable-wrapper"></div>
+        `<div class="datatable-wrapper" style="width: 100%"></div>
         <div class="table-toolbar">
             <button type="button" class="btn btn-sm btn-outline-secondary btn-add">
                 ${frappejs._("Add")}</button>
@@ -48201,7 +48270,7 @@ class TableControl extends base {
 
         this.wrapper.querySelector('.btn-remove').addEventListener('click', async (event) => {
             let checked = this.modelTable.getChecked();
-            this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx));
+            this.doc[this.fieldname] = this.doc[this.fieldname].filter(d => !checked.includes(d.idx + ''));
             await this.doc.commit();
             this.refresh();
             this.modelTable.checkAll(false);
@@ -48232,7 +48301,7 @@ class TableControl extends base {
     }
 
     getTableData(value) {
-        return value || this.getDefaultData();
+        return (value && value.length) ? value : this.getDefaultData();
     }
 
     getDefaultData() {
@@ -48240,7 +48309,12 @@ class TableControl extends base {
         if (!this.doc) {
             return [];
         }
+
         if (!this.doc[this.fieldname]) {
+            this.doc[this.fieldname] = [{idx: 0}];
+        }
+
+        if (this.doc[this.fieldname].length === 0 && this.neverEmpty) {
             this.doc[this.fieldname] = [{idx: 0}];
         }
 
@@ -48308,6 +48382,7 @@ var form = class BaseForm extends observable {
             this.setup();
         }
         this.make();
+        this.bindFormEvents();
     }
 
     make() {
@@ -48323,6 +48398,14 @@ var form = class BaseForm extends observable {
 
         this.makeLayout();
         this.bindKeyboard();
+    }
+
+    bindFormEvents() {
+        if (this.meta.formEvents) {
+            for (let key in this.meta.formEvents) {
+                this.on(key, this.meta.formEvents[key]);
+            }
+        }
     }
 
     makeLayout() {
@@ -48486,6 +48569,7 @@ var form = class BaseForm extends observable {
             control.bind(this.doc);
         }
 
+        this.refresh();
         this.setupDocListener();
         this.trigger('use', {doc:doc});
     }
@@ -48531,6 +48615,7 @@ var form = class BaseForm extends observable {
         for(let control of this.controlList) {
             control.refresh();
         }
+        this.trigger('refresh', this);
     }
 
     async submit() {
@@ -48593,6 +48678,7 @@ var formpage = class FormPage extends page {
     constructor(doctype) {
         let meta = frappejs.getMeta(doctype);
         super({title: `Edit ${meta.name}`, hasRoute: true});
+        this.wrapper.classList.add('page-form');
         this.meta = meta;
         this.doctype = doctype;
 
@@ -48602,6 +48688,10 @@ var formpage = class FormPage extends page {
             container: this,
             actions: ['save', 'delete', 'duplicate', 'settings', 'print']
         });
+
+        if (this.meta.pageSettings && this.meta.pageSettings.hideTitle) {
+            this.titleElement.classList.add('hide');
+        }
 
         // if name is different after saving, change the route
         this.form.on('save', async (params) => {
@@ -48641,6 +48731,8 @@ var listpage = class ListPage extends page {
             hasRoute: hasRoute
         });
 
+        this.name = name;
+
         this.list = new (view.getListClass(name))({
             doctype: name,
             parent: this.body,
@@ -48656,7 +48748,8 @@ var listpage = class ListPage extends page {
 
     async show(params) {
         super.show();
-        this.setTitle(name===this.list.doctype ? (this.list.meta.label || this.list.meta.name) : name);
+
+        this.setTitle(this.name===this.list.meta.name ? (this.list.meta.label || this.list.meta.name) : this.name);
         if (frappejs.desk.body.activePage && frappejs.router.getRoute()[0]==='list') {
             frappejs.desk.body.activePage.hide();
         }
@@ -56389,7 +56482,7 @@ module.exports = installCompat;
 /***/ })
 /******/ ]);
 });
-
+//# sourceMappingURL=nunjucks.js.map
 });
 
 unwrapExports(nunjucks);
@@ -56402,6 +56495,7 @@ var printpage = class PrintPage extends page {
         super({title: `${meta.name}`, hasRoute: true});
         this.meta = meta;
         this.doctype = doctype;
+        this.titleElement.classList.add('hide');
 
         this.addButton(frappejs._('Edit'), 'primary', () => {
             frappejs.router.setRoute('edit', this.doctype, this.name);
@@ -56428,8 +56522,7 @@ var printpage = class PrintPage extends page {
 
         try {
             this.body.innerHTML = `<div class="print-page">${nunjucks.renderString(this.printFormat.template, context)}</div>`;
-            this.setTitle(doc.name);
-            if (doc.submitted) this.addTitleBadge('✓', 'Submitted');
+            // this.setTitle(doc.name);
         } catch (e) {
             this.renderError('Template Error', e);
             throw e;
@@ -56485,21 +56578,45 @@ var formmodal = class FormModal extends modal {
 var tablepage = class TablePage extends page {
     constructor(doctype) {
         let meta = frappejs.getMeta(doctype);
-        super({title: `${meta.name}`, hasRoute: true});
+        super({title: `${meta.label || meta.name}`, hasRoute: true});
+        this.tableWrapper = frappejs.ui.add('div', 'table-page-wrapper', this.body);
         this.doctype = doctype;
         this.fullPage = true;
-    }
 
+        this.addButton('Set Filters', 'btn-secondary', async () => {
+            const formModal = await frappejs.desk.showFormModal('FilterSelector');
+            formModal.form.once('apply-filters', () => {
+                formModal.hide();
+                this.run();
+            });
+        });
+
+    }
 
     async show(params) {
         super.show();
-        if (!this.modelTable) {
-            this.modelTable = new modelTable({doctype: this.doctype, parent: this.body, layout: 'fixed'});
+
+        if (!this.filterSelector) {
+            this.filterSelector = await frappejs.getSingle('FilterSelector');
+            this.filterSelector.reset(this.doctype);
         }
 
+        if (!this.modelTable) {
+            this.modelTable = new modelTable({
+                doctype: this.doctype,
+                parent: this.tableWrapper,
+                layout: 'fluid'
+            });
+        }
+
+        this.run();
+    }
+
+    async run() {
         const data = await frappejs.db.getAll({
             doctype: this.doctype,
             fields: ['*'],
+            filters: this.filterSelector.getFilters(),
             start: this.start,
             limit: 500
         });
@@ -56519,8 +56636,7 @@ var menu = class DeskMenu {
     }
 
     addItem(label, action) {
-        let item = frappejs.ui.add('div', 'list-row', this.listGroup);
-        item.textContent = label;
+        let item = frappejs.ui.add('div', 'list-row', this.listGroup, label);
         if (typeof action === 'string') {
             this.routeItems[action] = item;
         }
@@ -56547,10 +56663,6 @@ var menu = class DeskMenu {
         }
     }
 };
-
-// const Search = require('./search');
-
-
 
 const views = {};
 views.Form = formpage;
@@ -56680,8 +56792,8 @@ var desk = class Desk {
         if (!this.pages[view]) this.pages[view] = {};
         if (!this.pages[view][doctype]) this.pages[view][doctype] = new views[view](doctype);
         const page$$1 = this.pages[view][doctype];
-        await page$$1.show(params);
         this.toggleCenter(page$$1.fullPage ? false : true);
+        await page$$1.show(params);
     }
 
     async showFormModal(doctype, name) {
@@ -56712,8 +56824,7 @@ var desk = class Desk {
     }
 
     addSidebarItem(label, action) {
-        let item = frappejs.ui.add('a', 'list-group-item list-group-item-action', this.sidebarList);
-        item.textContent = label;
+        let item = frappejs.ui.add('a', 'list-group-item list-group-item-action', this.sidebarList, label);
         if (typeof action === 'string') {
             item.href = action;
             this.routeItems[action] = item;
@@ -56726,6 +56837,214 @@ var desk = class Desk {
     }
 
 };
+
+var FilterItem = {
+    name: "FilterItem",
+    doctype: "DocType",
+    isSingle: 0,
+    isChild: 1,
+    keywordFields: [],
+    fields: [
+        {
+            fieldname: "field",
+            label: "Field",
+            fieldtype: "Select",
+            required: 1
+        },
+        {
+            fieldname: "condition",
+            label: "Condition",
+            fieldtype: "Select",
+            options: [
+                'Equals',
+                '>',
+                '<',
+                '>=',
+                '<=',
+                'Between',
+                'Includes',
+                'One Of'
+            ],
+            required: 1
+        },
+        {
+            fieldname: "value",
+            label: "Value",
+            fieldtype: "Data",
+        }
+    ]
+};
+
+var FilterGroup = {
+    name: "FilterGroup",
+    isSingle: 0,
+    isChild: 0,
+    keywordFields: [],
+    fields: [
+        {
+            fieldname: "name",
+            label: "Name",
+            fieldtype: "Data",
+            required: 1
+        },
+        {
+            fieldname: "forDocType",
+            label: "Document Type",
+            fieldtype: "Data",
+            required: 1,
+            disabled: 1,
+        },
+        {
+            fieldname: "items",
+            fieldtype: "Table",
+            childtype: "FilterItem",
+            label: "Items",
+            required: 1
+        }
+   ]
+};
+
+var FilterSelectorDocument = class FormSelector extends document$1 {
+    reset(doctype) {
+        this.forDocType = doctype;
+        this.items = [];
+        this.filterGroup = '';
+        this.filterGroupName = '';
+    }
+
+    getFilters() {
+        const filters = {};
+        for (let item of (this.items || [])) {
+            if (item.condition === 'Equals') item.condition = '=';
+            filters[item.field] = [item.condition, item.value];
+        }
+        return filters;
+    }
+
+    async update() {
+        // save new group filter
+        if (frappejs.isServer) {
+            if (this.filterGroupName) {
+                await this.makeFilterGroup();
+            } else if (this.filterGroup) {
+                await this.updateFilterGroup();
+            }
+            return this;
+        } else {
+            return super.update();
+        }
+    }
+
+    async makeFilterGroup() {
+        const filterGroup = frappejs.newDoc({doctype:'FilterGroup'});
+        filterGroup.name = this.filterGroupName;
+        this.updateFilterGroupValues(filterGroup);
+        await filterGroup.insert();
+    }
+
+    async updateFilterGroup() {
+        const filterGroup = await frappejs.getDoc('FilterGroup', this.filterGroup);
+        this.updateFilterGroupValues(filterGroup);
+        await filterGroup.update();
+    }
+
+    updateFilterGroupValues(filterGroup) {
+        filterGroup.forDocType = this.forDocType;
+        filterGroup.items = [];
+        for (let item of this.items) {
+            filterGroup.items.push({field: item.field, condition: item.condition, value: item.value});
+        }
+    }
+};
+
+var FilterSelector = createCommonjsModule(function (module) {
+module.exports = {
+    name: "FilterSelector",
+    label: "Set Filters",
+    documentClass: FilterSelectorDocument,
+    isSingle: 1,
+    isChild: 0,
+    keywordFields: [],
+    fields: [
+        {
+            fieldname: "forDocType",
+            label: "Document Type",
+            fieldtype: "Data",
+            hidden: 1,
+        },
+        {
+            fieldname: "filterGroup",
+            label: "Saved Filters",
+            fieldtype: "Link",
+            target: "FilterGroup",
+            getFilters: (query, control) => {
+                return {
+                    forDocType: control.doc.forDocType,
+                    keywords: ["like", query]
+                }
+            }
+        },
+        {
+            fieldname: "filterGroupName",
+            label: "New Filter Name",
+            fieldtype: "Data",
+        },
+        {
+            fieldname: "items",
+            label: "Items",
+            fieldtype: "Table",
+            childtype: "FilterItem",
+            neverEmpty: 1,
+
+            // copy items from saved filter group
+            formula: async (doc) => {
+                if (doc._lastFilterGroup !== doc.filterGroup) {
+                    // fitler changed
+
+                    if (doc.filterGroup) {
+                        doc.items = [];
+                        const filterGroup = await frappejs.getDoc('FilterGroup', doc.filterGroup);
+
+                        // copy items
+                        for(let source of filterGroup.items) {
+                            const item = Object.assign({}, source);
+                            item.parent = item.name = '';
+                            doc.items.push(item);
+                        }
+                    } else {
+                        // no filter group selected
+                        doc.items = [{idx: 0}];
+                    }
+
+                    doc._lastFilterGroup = doc.filterGroup;
+                }
+                return false;
+            },
+        }
+    ],
+
+    formEvents: {
+        // set the fields of the selected item in the 'select'
+        refresh: (form) => {
+            // override the `getOptions` method in the `field` property
+            frappejs.getMeta('FilterItem').getField('field').getOptions = () => {
+                return frappejs.getMeta(form.doc.forDocType).fields.map((f) => {
+                    return {label: f.label, value: f.fieldname};
+                });
+            };
+        }
+    }
+};
+});
+
+var FilterSelector_1 = FilterSelector.name;
+var FilterSelector_2 = FilterSelector.label;
+var FilterSelector_3 = FilterSelector.documentClass;
+var FilterSelector_4 = FilterSelector.isSingle;
+var FilterSelector_5 = FilterSelector.isChild;
+var FilterSelector_6 = FilterSelector.keywordFields;
+var FilterSelector_7 = FilterSelector.fields;
+var FilterSelector_8 = FilterSelector.formEvents;
 
 var NumberSeriesDocument = class NumberSeries extends document$1 {
     validate() {
@@ -56888,9 +57207,12 @@ var SystemSettings = {
 };
 
 var ToDo = {
-    "naming": "autoincrement",
-    "name": "ToDo",
-    "doctype": "DocType",
+    name: "ToDo",
+    label: "To Do",
+    naming: "autoincrement",
+    pageSettings: {
+        hideTitle: true
+    },
     "isSingle": 0,
     "keywordFields": [
         "subject",
@@ -56979,6 +57301,9 @@ var UserRole = {
 
 var models = {
     models: {
+        FilterItem: FilterItem,
+        FilterGroup: FilterGroup,
+        FilterSelector: FilterSelector,
         NumberSeries: NumberSeries,
         PrintFormat: PrintFormat,
         Role: Role,
@@ -57073,7 +57398,11 @@ var AccountingLedgerEntry = {
     doctype: "DocType",
     isSingle: 0,
     isChild: 0,
-    keywordFields: [],
+    keywordFields: [
+        'account',
+        'party',
+        'reference_name'
+    ],
     fields: [
         {
             fieldname: "date",
@@ -57410,11 +57739,26 @@ module.exports = {
 
         // section 4
         { fields: [ "terms" ] },
-    ]
+    ],
+
+    formEvents: {
+        refresh: (form) => {
+            if (!form.ledgerLink) {
+                form.ledgerLink = form.container.addLink('Ledger Entries', () => {
+                    frappejs.flags.filters = {
+                        reference_type: 'Invoice',
+                        reference_name: form.doc.name
+                    };
+                    frappejs.router.setRoute('table', 'AccountingLedgerEntry');
+                });
+            }
+        }
+    }
 };
 });
 
 var Invoice_1 = Invoice.layout;
+var Invoice_2 = Invoice.formEvents;
 
 var InvoiceItem = {
     name: "InvoiceItem",
@@ -57429,14 +57773,15 @@ var InvoiceItem = {
             "label": "Item",
             "fieldtype": "Link",
             "target": "Item",
-            "required": 1
+            "required": 1,
+            width: 2
         },
         {
             "fieldname": "description",
             "label": "Description",
             "fieldtype": "Text",
             formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
-            "required": 1
+            hidden: 1
         },
         {
             "fieldname": "quantity",
@@ -57598,6 +57943,18 @@ var ToDoList_1 = class ToDoList extends list {
     }
 };
 
+var FilterSelectorForm_1 = class FilterSelectorForm extends form {
+    makeSaveButton() {
+        this.saveButton = this.container.addButton(frappejs._("Apply"), 'primary', async (event) => {
+            if (this.doc.filterGroupName || (this.doc.filterGroup && this.doc._dirty)) {
+                // new filter, call update
+                await this.save();
+            }
+            this.trigger('apply-filters');
+        });
+    }
+};
+
 var AccountList_1 = class AccountList extends list {
     getFields()  {
         return ['name', 'account_type'];
@@ -57643,7 +58000,6 @@ var CustomerList_1 = class CustomerList extends list {
     }
 };
 
-// start server
 client.start({
     columns: 3,
     server: 'localhost:8000'
@@ -57653,8 +58009,11 @@ client.start({
     frappe.registerModels(models$2, 'client');
 
     frappe.registerView('List', 'ToDo', ToDoList_1);
+    frappe.registerView('Form', 'FilterSelector', FilterSelectorForm_1);
+
     frappe.registerView('List', 'Account', AccountList_1);
     frappe.registerView('Form', 'Account', AccountForm_1);
+
     frappe.registerView('List', 'Invoice', InvoiceList_1);
     frappe.registerView('List', 'Customer', CustomerList_1);
 

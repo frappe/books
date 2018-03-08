@@ -10,8 +10,11 @@ client.start({
     frappe.registerModels(require('../models'), 'client');
 
     frappe.registerView('List', 'ToDo', require('frappejs/models/doctype/ToDo/ToDoList.js'));
+    frappe.registerView('Form', 'FilterSelector', require('frappejs/models/doctype/FilterSelector/FilterSelectorForm.js'));
+
     frappe.registerView('List', 'Account', require('../models/doctype/Account/AccountList.js'));
     frappe.registerView('Form', 'Account', require('../models/doctype/Account/AccountForm.js'));
+
     frappe.registerView('List', 'Invoice', require('../models/doctype/Invoice/InvoiceList.js'));
     frappe.registerView('List', 'Customer', require('../models/doctype/Party/CustomerList.js'));
 
