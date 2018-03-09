@@ -3,7 +3,9 @@ const frappe = require('frappejs');
 
 module.exports = class FormSelector extends BaseDocument {
     reset(doctype) {
-        this.forDocType = doctype;
+        if (doctype) {
+            this.forDocType = doctype;
+        }
         this.items = [];
         this.filterGroup = '';
         this.filterGroupName = '';
@@ -12,10 +14,31 @@ module.exports = class FormSelector extends BaseDocument {
     getFilters() {
         const filters = {};
         for (let item of (this.items || [])) {
-            if (item.condition === 'Equals') item.condition = '=';
-            filters[item.field] = [item.condition, item.value];
+            filters[item.field] = [(item.condition === 'Equals') ? '=' : item.condition,
+                item.value];
         }
         return filters;
+    }
+
+    setFilters(filters) {
+        this.reset();
+        for (let key in filters) {
+            let value  = filters[key];
+            if (value instanceof Array) {
+                this.items.push({field: key, condition: value[0], value: value[1]});
+            } else {
+                this.items.push({field: key, condition: 'Equals', value: value});
+            }
+        }
+    }
+
+    getText() {
+        if (this.items && this.items.length) {
+            this.forMeta = frappe.getMeta(this.forDocType);
+            return this.items.map(v => `${this.forMeta.getLabel(v.field)} ${v.condition} ${v.value}`).join(', ');
+        } else {
+            return 'Set Filters';
+        }
     }
 
     async update() {

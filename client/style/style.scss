@@ -53,10 +53,6 @@ html {
 
 	.page-links {
 		padding: $spacer-3 $spacer-4;
-
-		.page-link {
-			display: inline-block;
-		}
 	}
 
 	.page-error {
@@ -157,6 +153,10 @@ html {
 
 .table-page-wrapper {
 	width: 100%;
+	padding: $spacer-3 $spacer-4;
+}
+
+.filter-toolbar {
 	padding: $spacer-3 $spacer-4;
 }
 
