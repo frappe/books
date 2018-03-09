@@ -6,11 +6,13 @@ module.exports = class TablePage extends Page {
     constructor(doctype) {
         let meta = frappe.getMeta(doctype);
         super({title: `${meta.label || meta.name}`, hasRoute: true});
+        this.filterWrapper = frappe.ui.add('div', 'filter-toolbar', this.body);
+        this.fitlerButton = frappe.ui.add('button', 'btn btn-sm btn-outline-secondary', this.filterWrapper, 'Set Filters');
         this.tableWrapper = frappe.ui.add('div', 'table-page-wrapper', this.body);
         this.doctype = doctype;
         this.fullPage = true;
 
-        this.addButton('Set Filters', 'btn-secondary', async () => {
+        this.fitlerButton.addEventListener('click', async () => {
             const formModal = await frappe.desk.showFormModal('FilterSelector');
             formModal.form.once('apply-filters', () => {
                 formModal.hide();
@@ -28,6 +30,11 @@ module.exports = class TablePage extends Page {
             this.filterSelector.reset(this.doctype);
         }
 
+        if (frappe.flags.filters) {
+            this.filterSelector.setFilters(frappe.flags.filters);
+            frappe.flags.filters = null;
+        }
+
         if (!this.modelTable) {
             this.modelTable = new ModelTable({
                 doctype: this.doctype,
@@ -40,6 +47,7 @@ module.exports = class TablePage extends Page {
     }
 
     async run() {
+        this.displayFilters();
         const data = await frappe.db.getAll({
             doctype: this.doctype,
             fields: ['*'],
@@ -48,5 +56,9 @@ module.exports = class TablePage extends Page {
             limit: 500
         });
         this.modelTable.refresh(data);
+    }
+
+    displayFilters() {
+        this.fitlerButton.textContent = this.filterSelector.getText();
     }
 }

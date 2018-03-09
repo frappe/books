@@ -28,6 +28,10 @@ module.exports = class BaseMeta extends BaseDocument {
         return this._field_map[fieldname];
     }
 
+    getLabel(fieldname) {
+        return this.getField(fieldname).label;
+    }
+
     getTableFields() {
         if (this._tableFields===undefined) {
             this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');

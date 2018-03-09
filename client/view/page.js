@@ -21,7 +21,7 @@ module.exports = class Page extends Observable {
         this.wrapper = frappe.ui.add('div', 'page hide', this.parent);
         this.head = frappe.ui.add('div', 'page-nav clearfix hide', this.wrapper);
         this.titleElement = frappe.ui.add('h3', 'page-title', this.wrapper);
-        this.linksElement = frappe.ui.add('div', 'page-links hide', this.wrapper);
+        this.linksElement = frappe.ui.add('div', 'btn-group page-links hide', this.wrapper);
         this.body = frappe.ui.add('div', 'page-body', this.wrapper);
     }
 
@@ -38,7 +38,7 @@ module.exports = class Page extends Observable {
     }
 
     addLink(label, action, unhide = true) {
-        const link = frappe.ui.add('a', 'page-link', this.linksElement, label);
+        const link = frappe.ui.add('button', 'btn btn-sm btn-outline-secondary', this.linksElement, label);
         link.addEventListener('click', action);
         if (unhide) {
             this.linksElement.classList.remove('hide');
