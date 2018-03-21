@@ -42,9 +42,30 @@ Sample index.html
 	<link href="/dist/css/style.css" rel="stylesheet">
 </head>
 <body>
+	<script src="/dist/js/socket.io.js"></script>
 	<script src="js/bundle.js"></script>
 </body>
 </html>
+```
+## For development setup
+
+Clone frappejs in the same folder as your app, since you will be developing frappejs on the side.
+
+### Link frappejs
+
+```sh
+# make frappejs linkable
+cd frappejs
+
+yarn link
+yarn link frappejs
+
+# link frappejs in all
+cd ../myapp
+yarn link frappejs
+
+# install libs
+yarn
 ```
 
 ### server.js
