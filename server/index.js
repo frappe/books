@@ -19,7 +19,6 @@ module.exports = {
 
         frappe.registerMethod({
             method: 'general-ledger',
-            type: 'get',
             handler: async (args) => {
                 const generalLedger = new GeneralLedger();
                 return await generalLedger.run(args);
