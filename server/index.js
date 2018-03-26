@@ -18,7 +18,7 @@ require.extensions['.html'] = function (module, filename) {
 };
 
 module.exports = {
-    async start({backend, connectionParams, models}) {
+    async start({backend, connectionParams, models, staticPath = './'}) {
         await this.init();
 
         if (models) {
@@ -31,7 +31,7 @@ module.exports = {
         // app
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
-        app.use(express.static('./'));
+        app.use(express.static(staticPath));
 
         // socketio
         io.on('connection', function (socket) {

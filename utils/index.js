@@ -4,8 +4,10 @@ Array.prototype.equals = function( array ) {
 }
 
 module.exports = {
-    slug(text) {
-        return text.toLowerCase().replace(/ /g, '_');
+    slug(str) {
+        return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+            return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+        }).replace(/\s+/g, '');
     },
 
     getRandomString() {
@@ -42,6 +44,23 @@ module.exports = {
                     : match;
             }
         });
-    }
+    },
+
+    getQueryString(params) {
+        if (!params) return '';
+        return Object.keys(params)
+            .map(k => params[k] != null ? encodeURIComponent(k) + '=' + encodeURIComponent(params[k]) : null)
+            .filter(v => v)
+            .join('&');
+    },
+
+    asyncHandler(fn) {
+        return (req, res, next) => Promise.resolve(fn(req, res, next))
+            .catch((err) => {
+                console.log(err);
+                // handle error
+                res.status(err.status_code || 500).send({error: err.message});
+            });
+    },
 
 };

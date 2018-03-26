@@ -1,7 +1,7 @@
 module.exports = {
     input: './node_modules/frappejs/client/style/style.scss',
     output: {
-        file: './dist/css/style.css',
+        file: './www/dist/css/style.css',
         format: 'cjs'
     },
     plugins: [

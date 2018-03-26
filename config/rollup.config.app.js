@@ -1,7 +1,7 @@
 module.exports = {
-    input: './src/index.js',
+    input: './www/index.js',
     output: {
-        file: './dist/js/bundle.js',
+        file: './www/dist/js/bundle.js',
         format: 'iife',
         name: 'desk',
         globals: ['io', 'nunjucks'] // for socketio client, which is imported directly
