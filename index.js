@@ -20,6 +20,7 @@ module.exports = {
         this.forms = {};
         this.views = {};
         this.flags = {};
+        this.methods = {};
         // temp params while calling routes
         this.params = {};
     },
@@ -44,6 +45,32 @@ module.exports = {
     registerView(view, name, module) {
         if (!this.views[view]) this.views[view] = {};
         this.views[view][name] = module;
+    },
+
+    registerMethod({method, type, handler}) {
+        type = type.toLowerCase();
+        this.methods[method] = handler;
+        if (this.app) {
+            // add to router if client-server
+            this.app[type](`/api/method/${method}`, this.asyncHandler(async function(request, response) {
+                let args = {};
+                if (type==='get') {
+                    args = request.query;
+                } else {
+                    args = request.body;
+                }
+                const data = await handler(args);
+                response.json(data);
+            }));
+        }
+    },
+
+    call({method, type, args}) {
+        if (this.methods[method]) {
+            return this.methods[method](args);
+        } else {
+            throw `${method} not found`;
+        }
     },
 
     addToCache(doc) {
