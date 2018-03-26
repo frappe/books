@@ -4575,7 +4575,7 @@ if (typeof undefined === 'function' && undefined.amd) {
 }
 }).call(commonjsGlobal);
 
-//# sourceMappingURL=showdown.js.map
+
 });
 
 var moment = createCommonjsModule(function (module, exports) {
@@ -9160,19 +9160,12 @@ var frappejs = {
         this.views[view][name] = module;
     },
 
-    registerMethod({method, type, handler}) {
-        type = type.toLowerCase();
+    registerMethod({method, handler}) {
         this.methods[method] = handler;
         if (this.app) {
             // add to router if client-server
-            this.app[type](`/api/method/${method}`, this.asyncHandler(async function(request, response) {
-                let args = {};
-                if (type==='get') {
-                    args = request.query;
-                } else {
-                    args = request.body;
-                }
-                const data = await handler(args);
+            this.app.post(`/api/method/${method}`, this.asyncHandler(async function(request, response) {
+                const data = await handler(request.body);
                 response.json(data);
             }));
         }
@@ -23053,7 +23046,7 @@ Popper.placements = placements;
 Popper.Defaults = Defaults;
 
 
-//# sourceMappingURL=popper.js.map
+
 
 
 var popper = Object.freeze({
@@ -26952,7 +26945,7 @@ exports.Tooltip = Tooltip;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=bootstrap.js.map
+
 });
 
 unwrapExports(bootstrap);
@@ -39803,6 +39796,11 @@ var htmlmixed = createCommonjsModule(function (module, exports) {
 });
 });
 
+// const frappe = require('frappejs');
+
+ // eslint-disable-line
+ // eslint-disable-line
+
 class CodeControl extends base {
     makeInput() {
         if (!this.options) {
@@ -48119,6 +48117,9 @@ DataTable.__version__ = packageJson.version;
 
 module.exports = DataTable;
 });
+
+// eslint-disable-line
+
 
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
@@ -56644,7 +56645,7 @@ module.exports = installCompat;
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=nunjucks.js.map
+
 });
 
 unwrapExports(nunjucks);
@@ -56844,6 +56845,10 @@ var menu = class DeskMenu {
         }
     }
 };
+
+// const Search = require('./search');
+
+
 
 const views = {};
 views.Form = formpage;
@@ -57566,28 +57571,25 @@ var client = {
     },
 
     setCall() {
-        frappejs.call = async ({method, type='get', args}) => {
+        frappejs.call = async (method, args) => {
             let url = `/api/method/${method}`;
-            let request = {};
-
-            if (args) {
-                if (type.toLowerCase()==='get') {
-                    url += '?' + frappejs.getQueryString(args);
-                } else {
-                    // POST / PUT / DELETE
-                    request.body = JSON.stringify(args);
-                }
-            }
-
-            request.headers = { 'Accept': 'application/json' };
-            request.method = type.toUpperCase();
-
-            let response = await fetch(url, request);
+            let response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(args || {})
+            });
 
             return await response.json();
         };
     }
 };
+
+// baseclass for report
+// `url` url for report
+// `getColumns` return columns
 
 var reportpage = class ReportPage extends page {
     constructor({title, }) {
@@ -57647,7 +57649,7 @@ var reportpage = class ReportPage extends page {
         const filterValues = this.getFilterValues();
         if (filterValues === false) return;
 
-        let data = await frappejs.call({method: this.method, args: filterValues});
+        let data = await frappejs.call(this.method, filterValues);
         this.datatable.refresh(data);
     }
 
@@ -58410,6 +58412,7 @@ var client$2 = {
     }
 };
 
+// start server
 client.start({
     columns: 3,
     server: 'localhost:8000'
