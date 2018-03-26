@@ -1,11 +1,11 @@
 {
   "name": "frappe-accounting",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "start.js",
   "license": "MIT",
   "scripts": {
     "test": "mocha tests",
-    "start": "nodemon server.js"
+    "start": "nodemon start.js"
   },
   "dependencies": {
     "frappejs": "link:../frappejs"

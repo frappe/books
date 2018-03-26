@@ -1,9 +1,16 @@
 var desk = (function () {
 'use strict';
 
+Array.prototype.equals = function( array ) {
+    return this.length == array.length &&
+           this.every( function(item,i) { return item == array[i] } );
+};
+
 var utils = {
-    slug(text) {
-        return text.toLowerCase().replace(/ /g, '_');
+    slug(str) {
+        return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+            return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+        }).replace(/\s+/g, '');
     },
 
     getRandomString() {
@@ -40,7 +47,24 @@ var utils = {
                     : match;
             }
         });
-    }
+    },
+
+    getQueryString(params) {
+        if (!params) return '';
+        return Object.keys(params)
+            .map(k => params[k] != null ? encodeURIComponent(k) + '=' + encodeURIComponent(params[k]) : null)
+            .filter(v => v)
+            .join('&');
+    },
+
+    asyncHandler(fn) {
+        return (req, res, next) => Promise.resolve(fn(req, res, next))
+            .catch((err) => {
+                console.log(err);
+                // handle error
+                res.status(err.status_code || 500).send({error: err.message});
+            });
+    },
 
 };
 
@@ -9106,6 +9130,8 @@ var frappejs = {
         this.forms = {};
         this.views = {};
         this.flags = {};
+        // temp params while calling routes
+        this.params = {};
     },
 
     registerLibs(common) {
@@ -9866,6 +9892,10 @@ var meta = class BaseMeta extends document$1 {
         return this._field_map[fieldname];
     }
 
+    getLabel(fieldname) {
+        return this.getField(fieldname).label;
+    }
+
     getTableFields() {
         if (this._tableFields===undefined) {
             this._tableFields = this.fields.filter(field => field.fieldtype === 'Table');
@@ -10084,7 +10114,7 @@ var http = class HTTPClient extends observable {
     async getAll({ doctype, fields, filters, start, limit, sort_by, order }) {
         let url = this.getURL('/api/resource', doctype);
 
-        url = url + "?" + this.getQueryString({
+        url = url + "?" + frappejs.getQueryString({
             fields: JSON.stringify(fields),
             filters: JSON.stringify(filters),
             start: start,
@@ -10151,13 +10181,6 @@ var http = class HTTPClient extends observable {
 
     getURL(...parts) {
         return this.protocol + '://' + this.server + parts.join('/');
-    }
-
-    getQueryString(params) {
-        return Object.keys(params)
-            .map(k => params[k] != null ? encodeURIComponent(k) + '=' + encodeURIComponent(params[k]) : null)
-            .filter(v => v)
-            .join('&');
     }
 
     getHeaders() {
@@ -27171,7 +27194,7 @@ var page = class Page extends observable {
         this.wrapper = frappejs.ui.add('div', 'page hide', this.parent);
         this.head = frappejs.ui.add('div', 'page-nav clearfix hide', this.wrapper);
         this.titleElement = frappejs.ui.add('h3', 'page-title', this.wrapper);
-        this.linksElement = frappejs.ui.add('div', 'page-links hide', this.wrapper);
+        this.linksElement = frappejs.ui.add('div', 'btn-group page-links hide', this.wrapper);
         this.body = frappejs.ui.add('div', 'page-body', this.wrapper);
     }
 
@@ -27188,12 +27211,16 @@ var page = class Page extends observable {
     }
 
     addLink(label, action, unhide = true) {
-        const link = frappejs.ui.add('a', 'page-link', this.linksElement, label);
+        const link = frappejs.ui.add('button', 'btn btn-sm btn-outline-secondary', this.linksElement, label);
         link.addEventListener('click', action);
         if (unhide) {
             this.linksElement.classList.remove('hide');
         }
         return link;
+    }
+
+    clearLinks() {
+        frappejs.ui.empty(this.linksElement);
     }
 
     hide() {
@@ -27231,6 +27258,8 @@ var page = class Page extends observable {
         }
 
         this.parent.activePage = this;
+
+        frappejs.desk.toggleCenter(this.fullPage ? false : true);
     }
 
     renderError(title, message) {
@@ -27668,6 +27697,9 @@ class BaseControl {
     makeLabel(labelClass = null) {
         this.labelElement = frappejs.ui.add('label', labelClass, this.inputContainer, this.label);
         this.labelElement.setAttribute('for', this.id);
+        if (this.inline) {
+            this.labelElement.classList.add("sr-only");
+        }
     }
 
     makeInput(inputClass='form-control') {
@@ -27680,6 +27712,9 @@ class BaseControl {
         this.setDisabled();
         if (!this.onlyInput) {
             this.makeDescription();
+        }
+        if (this.placeholder) {
+            this.input.setAttribute('placeholder', this.placeholder);
         }
 
     }
@@ -44607,6 +44642,27 @@ $.scrollTop = function scrollTop(element, pixels) {
     });
 };
 
+$.scrollbarWidth = function scrollbarWidth() {
+    // Create the measurement node
+    const scrollDiv = document.createElement('div');
+    $.style(scrollDiv, {
+        width: '100px',
+        height: '100px',
+        overflow: 'scroll',
+        position: 'absolute',
+        top: '-9999px'
+    });
+    document.body.appendChild(scrollDiv);
+
+    // Get the scrollbar width
+    const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+
+    // Delete the DIV
+    document.body.removeChild(scrollDiv);
+
+    return scrollbarWidth;
+};
+
 /**
  * Checks if `value` is the
  * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -44641,12 +44697,10 @@ var isObject_1 = isObject;
 
 var commonjsGlobal$$1 = typeof window !== 'undefined' ? window : typeof commonjsGlobal !== 'undefined' ? commonjsGlobal : typeof self !== 'undefined' ? self : {};
 
-/** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof commonjsGlobal$$1 == 'object' && commonjsGlobal$$1 && commonjsGlobal$$1.Object === Object && commonjsGlobal$$1;
 
 var _freeGlobal = freeGlobal;
 
-/** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
 
 /** Used as a reference to the global object. */
@@ -44654,34 +44708,16 @@ var root = _freeGlobal || freeSelf || Function('return this')();
 
 var _root = root;
 
-/**
- * Gets the timestamp of the number of milliseconds that have elapsed since
- * the Unix epoch (1 January 1970 00:00:00 UTC).
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Date
- * @returns {number} Returns the timestamp.
- * @example
- *
- * _.defer(function(stamp) {
- *   console.log(_.now() - stamp);
- * }, _.now());
- * // => Logs the number of milliseconds it took for the deferred invocation.
- */
 var now = function() {
   return _root.Date.now();
 };
 
 var now_1 = now;
 
-/** Built-in value references. */
 var Symbol = _root.Symbol;
 
 var _Symbol = Symbol;
 
-/** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
@@ -44749,9 +44785,8 @@ function objectToString(value) {
 
 var _objectToString = objectToString;
 
-/** `Object#toString` result references. */
-var nullTag = '[object Null]',
-    undefinedTag = '[object Undefined]';
+var nullTag = '[object Null]';
+var undefinedTag = '[object Undefined]';
 
 /** Built-in value references. */
 var symToStringTag$1 = _Symbol ? _Symbol.toStringTag : undefined;
@@ -44804,7 +44839,6 @@ function isObjectLike(value) {
 
 var isObjectLike_1 = isObjectLike;
 
-/** `Object#toString` result references. */
 var symbolTag = '[object Symbol]';
 
 /**
@@ -44831,7 +44865,6 @@ function isSymbol(value) {
 
 var isSymbol_1 = isSymbol;
 
-/** Used as references for various `Number` constants. */
 var NAN = 0 / 0;
 
 /** Used to match leading and trailing whitespace. */
@@ -44895,12 +44928,11 @@ function toNumber(value) {
 
 var toNumber_1 = toNumber;
 
-/** Error message constants. */
 var FUNC_ERROR_TEXT = 'Expected a function';
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeMax = Math.max,
-    nativeMin = Math.min;
+var nativeMax = Math.max;
+var nativeMin = Math.min;
 
 /**
  * Creates a debounced function that delays invoking `func` until after `wait`
@@ -45082,7 +45114,6 @@ function debounce(func, wait, options) {
 
 var debounce_1 = debounce;
 
-/** Error message constants. */
 var FUNC_ERROR_TEXT$1 = 'Expected a function';
 
 /**
@@ -45168,10 +45199,6 @@ function makeDataAttributeString(props) {
         .trim();
 }
 
-function getDefault(a, b) {
-    return a !== undefined ? a : b;
-}
-
 function copyTextToClipboard(text) {
     // https://stackoverflow.com/a/30810322/5353542
     var textArea = document.createElement('textarea');
@@ -45233,18 +45260,27 @@ function isNumeric(val) {
 
 let throttle$1 = throttle_1;
 
-let debounce$1 = debounce_1;
+let debounce$2 = debounce_1;
 
-function promisify(fn, context = null) {
+function nextTick(fn, context = null) {
     return (...args) => {
         return new Promise(resolve => {
-            setTimeout(() => {
+            const execute = () => {
                 const out = fn.apply(context, args);
                 resolve(out);
-            }, 0);
+            };
+
+            if (window.setImmediate) {
+                setImmediate(execute);
+            } else if (window.requestAnimationFrame) {
+                requestAnimationFrame(execute);
+            } else {
+                setTimeout(execute);
+            }
         });
     };
 }
+
 function linkProperties(target, source, properties) {
     const props = properties.reduce((acc, prop) => {
         acc[prop] = {
@@ -45256,6 +45292,7 @@ function linkProperties(target, source, properties) {
     }, {});
     Object.defineProperties(target, props);
 }
+
 function isSet(val) {
     return val !== undefined || val !== null;
 }
@@ -45278,10 +45315,10 @@ function ensureArray(val) {
 class DataManager {
     constructor(options) {
         this.options = options;
-        this.sortRows = promisify(this.sortRows, this);
-        this.switchColumn = promisify(this.switchColumn, this);
-        this.removeColumn = promisify(this.removeColumn, this);
-        this.filterRows = promisify(this.filterRows, this);
+        this.sortRows = nextTick(this.sortRows, this);
+        this.switchColumn = nextTick(this.switchColumn, this);
+        this.removeColumn = nextTick(this.removeColumn, this);
+        this.filterRows = nextTick(this.filterRows, this);
     }
 
     init(data, columns) {
@@ -45323,7 +45360,7 @@ class DataManager {
     }
 
     prepareDefaultColumns() {
-        if (this.options.addCheckboxColumn && !this.hasColumnById('_checkbox')) {
+        if (this.options.checkboxColumn && !this.hasColumnById('_checkbox')) {
             const cell = {
                 id: '_checkbox',
                 content: this.getCheckboxHTML(),
@@ -45337,7 +45374,7 @@ class DataManager {
             this.columns.push(cell);
         }
 
-        if (this.options.addSerialNoColumn && !this.hasColumnById('_rowIndex')) {
+        if (this.options.serialNoColumn && !this.hasColumnById('_rowIndex')) {
             let cell = {
                 id: '_rowIndex',
                 content: '',
@@ -45374,6 +45411,7 @@ class DataManager {
             .map((cell, i) => this.prepareCell(cell, i))
             .map(col => Object.assign({}, baseCell, col))
             .map(col => {
+                col.content = col.content || col.name || '';
                 col.id = col.id || col.content;
                 return col;
             });
@@ -45425,10 +45463,10 @@ class DataManager {
 
             if (Array.isArray(d)) {
                 // row is an array
-                if (this.options.addCheckboxColumn) {
+                if (this.options.checkboxColumn) {
                     row.push(this.getCheckboxHTML());
                 }
-                if (this.options.addSerialNoColumn) {
+                if (this.options.serialNoColumn) {
                     row.push((index + 1) + '');
                 }
                 row = row.concat(d);
@@ -45752,11 +45790,11 @@ class DataManager {
     }
 
     getStandardColumnCount() {
-        if (this.options.addCheckboxColumn && this.options.addSerialNoColumn) {
+        if (this.options.checkboxColumn && this.options.serialNoColumn) {
             return 2;
         }
 
-        if (this.options.addCheckboxColumn || this.options.addSerialNoColumn) {
+        if (this.options.checkboxColumn || this.options.serialNoColumn) {
             return 1;
         }
 
@@ -45775,6 +45813,12 @@ class DataManager {
 
     getColumn(colIndex) {
         colIndex = +colIndex;
+
+        if (colIndex < 0) {
+            // negative indexes
+            colIndex = this.columns.length + colIndex;
+        }
+
         return this.columns.find(col => col.colIndex === colIndex);
     }
 
@@ -45945,7 +45989,7 @@ class ColumnManager {
         let html = this.rowmanager.getRowHTML(columns, {
             isHeader: 1
         });
-        if (this.options.enableInlineFilters) {
+        if (this.options.inlineFilters) {
             html += this.rowmanager.getRowHTML(columns, {
                 isFilter: 1
             });
@@ -46095,9 +46139,8 @@ class ColumnManager {
             const $cell = span.closest('.data-table-cell');
             let {
                 colIndex,
-                sortOrder
+                sortOrder = 'none'
             } = $.data($cell);
-            sortOrder = getDefault(sortOrder, 'none');
             const col = this.getColumn(colIndex);
 
             if (col && col.sortable === false) {
@@ -46205,7 +46248,7 @@ class ColumnManager {
     }
 
     bindFilter() {
-        if (!this.options.enableInlineFilters) return;
+        if (!this.options.inlineFilters) return;
         const handler = e => {
             const $filterCell = $.closest('.data-table-cell', e.target);
             const {
@@ -46222,7 +46265,7 @@ class ColumnManager {
                     this.rowmanager.showRows(rowsToShow);
                 });
         };
-        $.on(this.header, 'keydown', '.data-table-filter', debounce$1(handler, 300));
+        $.on(this.header, 'keydown', '.data-table-filter', debounce$2(handler, 300));
     }
 
     sortRows(colIndex, sortOrder) {
@@ -46237,18 +46280,16 @@ class ColumnManager {
         return this.datamanager.getColumns();
     }
 
-    setColumnWidth(colIndex) {
+    setColumnWidth(colIndex, width) {
         colIndex = +colIndex;
         this._columnWidthMap = this._columnWidthMap || [];
 
-        const {
-            width
-        } = this.getColumn(colIndex);
+        let columnWidth = width || this.getColumn(colIndex).width;
 
         let index = this._columnWidthMap[colIndex];
         const selector = `[data-col-index="${colIndex}"] .content, [data-col-index="${colIndex}"] .edit-cell`;
         const styles = {
-            width: width + 'px'
+            width: columnWidth + 'px'
         };
 
         index = this.style.setStyle(selector, styles, index);
@@ -46416,7 +46457,7 @@ class CellManager {
             this.deactivateEditing();
         });
 
-        if (this.options.enableInlineFilters) {
+        if (this.options.inlineFilters) {
             this.keyboard.on('ctrl+f', (e) => {
                 const $cell = $.closest('.data-table-cell', e.target);
                 let {
@@ -47003,7 +47044,7 @@ class CellManager {
             contentHTML = cell.column.format(cell.content, row, cell.column, data);
         }
 
-        if (this.options.enableTreeView && !(isHeader || isFilter) && cell.indent !== undefined) {
+        if (this.options.treeView && !(isHeader || isFilter) && cell.indent !== undefined) {
             const nextRow = this.datamanager.getRow(cell.rowIndex + 1);
             const addToggle = nextRow && nextRow.meta.indent > cell.indent;
 
@@ -47044,13 +47085,14 @@ class RowManager {
         this.instance = instance;
         linkProperties(this, this.instance, [
             'options',
+            'fireEvent',
             'wrapper',
             'bodyScrollable',
             'bodyRenderer'
         ]);
 
         this.bindEvents();
-        this.refreshRows = promisify(this.refreshRows, this);
+        this.refreshRows = nextTick(this.refreshRows, this);
     }
 
     get datamanager() {
@@ -47066,7 +47108,7 @@ class RowManager {
     }
 
     bindCheckbox() {
-        if (!this.options.addCheckboxColumn) return;
+        if (!this.options.checkboxColumn) return;
 
         // map of checked rows
         this.checkMap = [];
@@ -47135,6 +47177,7 @@ class RowManager {
         // highlight row
         this.highlightRow(rowIndex, toggle);
         this.showCheckStatus();
+        this.fireEvent('onCheckRow', this.datamanager.getRow(rowIndex));
     }
 
     checkAll(toggle) {
@@ -47157,9 +47200,11 @@ class RowManager {
     }
 
     showCheckStatus() {
+        if (!this.options.checkedRowStatus) return;
         const checkedRows = this.getCheckedRows();
-        if (checkedRows.length > 0) {
-            this.bodyRenderer.showToastMessage(checkedRows.length + ' rows selected');
+        const count = checkedRows.length;
+        if (count > 0) {
+            this.bodyRenderer.showToastMessage(`${count} row${count > 1 ? 's' : ''} selected`);
         } else {
             this.bodyRenderer.clearToastMessage();
         }
@@ -47322,11 +47367,11 @@ class BodyRenderer {
         this.cellmanager = instance.cellmanager;
         this.bodyScrollable = instance.bodyScrollable;
         this.log = instance.log;
-        this.appendRemainingData = promisify(this.appendRemainingData, this);
+        this.appendRemainingData = nextTick(this.appendRemainingData, this);
     }
 
     render() {
-        if (this.options.enableClusterize) {
+        if (this.options.clusterize) {
             this.renderBodyWithClusterize();
         } else {
             this.renderBodyHTML();
@@ -47443,6 +47488,7 @@ class Style {
             $.on(window, 'resize', throttle$1(() => {
                 this.distributeRemainingWidth();
                 this.refreshColumnWidth();
+                this.compensateScrollbarWidth();
                 this.setBodyStyle();
             }, 300));
         }
@@ -47484,9 +47530,10 @@ class Style {
         this.setupMinWidth();
         this.setupNaturalColumnWidth();
         this.setupColumnWidth();
-
         this.distributeRemainingWidth();
         this.setColumnStyle();
+        this.compensateScrollbarWidth();
+
         this.setDefaultCellHeight();
         this.setBodyStyle();
     }
@@ -47556,12 +47603,12 @@ class Style {
         if (this.options.layout === 'ratio') {
             let totalWidth = $.style(this.datatableWrapper, 'width');
 
-            if (this.options.addSerialNoColumn) {
+            if (this.options.serialNoColumn) {
                 const rowIndexColumn = this.datamanager.getColumnById('_rowIndex');
                 totalWidth = totalWidth - rowIndexColumn.width - 1;
             }
 
-            if (this.options.addCheckboxColumn) {
+            if (this.options.checkboxColumn) {
                 const rowIndexColumn = this.datamanager.getColumnById('_checkbox');
                 totalWidth = totalWidth - rowIndexColumn.width - 1;
             }
@@ -47597,6 +47644,13 @@ class Style {
                     }
                 });
         }
+    }
+
+    compensateScrollbarWidth() {
+        const scrollbarWidth = $.scrollbarWidth();
+        const lastCol = this.datamanager.getColumn(-1);
+        const width = lastCol.width - scrollbarWidth;
+        this.columnmanager.setColumnWidth(lastCol.colIndex, width);
     }
 
     distributeRemainingWidth() {
@@ -47785,7 +47839,8 @@ var DEFAULT_OPTIONS = {
     events: {
         onRemoveColumn(column) {},
         onSwitchColumn(column1, column2) {},
-        onSortColumn(column) {}
+        onSortColumn(column) {},
+        onCheckRow(row) {}
     },
     sortIndicator: {
         asc: '↑',
@@ -47794,15 +47849,16 @@ var DEFAULT_OPTIONS = {
     },
     freezeMessage: '',
     getEditor: null,
-    addSerialNoColumn: true,
-    addCheckboxColumn: false,
-    enableClusterize: true,
-    enableLogs: false,
-    layout: 'ratio', // fixed, fluid, ratio
+    serialNoColumn: true,
+    checkboxColumn: false,
+    clusterize: true,
+    logs: false,
+    layout: 'fixed', // fixed, fluid, ratio
     noDataMessage: 'No Data',
     cellHeight: null,
-    enableInlineFilters: false,
-    enableTreeView: false
+    inlineFilters: false,
+    treeView: false,
+    checkedRowStatus: true
 };
 
 class DataTable {
@@ -47818,14 +47874,7 @@ class DataTable {
             throw new Error('Invalid argument given for `wrapper`');
         }
 
-        this.options = Object.assign({}, DEFAULT_OPTIONS, options);
-        this.options.headerDropdown =
-            DEFAULT_OPTIONS.headerDropdown
-            .concat(options.headerDropdown || []);
-        // custom user events
-        this.events = Object.assign({}, DEFAULT_OPTIONS.events, options.events || {});
-        this.fireEvent = this.fireEvent.bind(this);
-
+        this.buildOptions(options);
         this.prepare();
 
         this.style = new Style(this);
@@ -47839,6 +47888,30 @@ class DataTable {
         if (this.options.data) {
             this.refresh();
         }
+    }
+
+    buildOptions(options) {
+        this.options = this.options || {};
+
+        this.options = Object.assign(
+            {}, DEFAULT_OPTIONS,
+            this.options || {}, options
+        );
+
+        this.options.headerDropdown =
+            DEFAULT_OPTIONS.headerDropdown
+                .concat(
+                    this.options.headerDropdown || [],
+                    options.headerDropdown || []
+                );
+
+        // custom user events
+        this.events = Object.assign(
+            {}, DEFAULT_OPTIONS.events,
+            this.options.events || {},
+            options.events || {}
+        );
+        this.fireEvent = this.fireEvent.bind(this);
     }
 
     prepare() {
@@ -47966,12 +48039,16 @@ class DataTable {
         });
     }
 
+    updateOptions(options) {
+        this.buildOptions(options);
+    }
+
     fireEvent(eventName, ...args) {
         this.events[eventName].apply(this, args);
     }
 
     log() {
-        if (this.options.enableLogs) {
+        if (this.options.logs) {
             console.log.apply(console, arguments);
         }
     }
@@ -47983,7 +48060,7 @@ var name = "frappe-datatable";
 var version = "0.0.2";
 var description = "A modern datatable library for the web";
 var main = "dist/frappe-datatable.cjs.js";
-var scripts = {"start":"npm run dev","build":"rollup -c","dev":"rollup -c -w","test":"mocha --compilers js:babel-core/register --colors ./test/*.spec.js","test:watch":"mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js"};
+var scripts = {"start":"yarn run dev","build":"rollup -c","dev":"rollup -c -w","test":"mocha --compilers js:babel-core/register --colors ./test/*.spec.js","test:watch":"mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js"};
 var devDependencies = {"chai":"3.5.0","cssnano":"^3.10.0","deepmerge":"^2.0.1","eslint":"3.19.0","eslint-loader":"1.7.1","mocha":"3.3.0","postcss-cssnext":"^3.1.0","postcss-nested":"^3.0.0","precss":"^3.1.0","rollup-plugin-commonjs":"^8.3.0","rollup-plugin-json":"^2.3.0","rollup-plugin-node-resolve":"^3.0.3","rollup-plugin-postcss":"^1.2.8","rollup-plugin-uglify":"^3.0.0"};
 var repository = {"type":"git","url":"https://github.com/frappe/datatable.git"};
 var keywords = ["datatable","data","grid","table"];
@@ -48089,8 +48166,35 @@ var modal = class Modal extends observable {
     }
 };
 
+var utils$3 = {
+    convertFieldsToDatatableColumns(fields, layout = 'fixed') {
+        return fields.map(field => {
+            if (!field.width) {
+                if (layout==='ratio') {
+                    field.width = 1;
+                } else if (layout==='fixed') {
+                    field.width = 120;
+                }
+            }
+            return {
+                id: field.fieldname || frappejs.slug(field.label),
+                field: field,
+                content: field.label,
+                editable: true,
+                sortable: false,
+                resizable: true,
+                dropdown: false,
+                width: field.width,
+                align: ['Int', 'Float', 'Currency'].includes(field.fieldtype) ? 'right' : 'left',
+                format: (value) => frappejs.format(value, field)
+            }
+        });
+
+    }
+};
+
 var modelTable = class ModelTable {
-    constructor({doctype, parent, layout, parentControl, getRowDoc,
+    constructor({doctype, parent, layout, parentControl, getRowData,
         isDisabled, getTableData}) {
         Object.assign(this, arguments[0]);
         this.meta = frappejs.getMeta(this.doctype);
@@ -48112,27 +48216,7 @@ var modelTable = class ModelTable {
     }
 
     getColumns() {
-        return this.getTableFields().map(field => {
-            if (!field.width) {
-                if (this.layout==='ratio') {
-                    field.width = 1;
-                } else if (this.layout==='fixed') {
-                    field.width = 120;
-                }
-            }
-            return {
-                id: field.fieldname,
-                field: field,
-                content: field.label,
-                editable: true,
-                sortable: false,
-                resizable: true,
-                dropdown: false,
-                width: field.width,
-                align: ['Int', 'Float', 'Currency'].includes(field.fieldtype) ? 'right' : 'left',
-                format: (value) => frappejs.format(value, field)
-            }
-        });
+        return utils$3.convertFieldsToDatatableColumns(this.getTableFields(), this.layout);
     }
 
     getTableFields() {
@@ -48161,23 +48245,26 @@ var modelTable = class ModelTable {
         control.skipChangeEvent = true;
 
         return {
-            initValue: (value, rowIndex, column) => {
-                let doc = this.getRowDoc(rowIndex);
+            initValue: async (value, rowIndex, column) => {
                 column.activeControl = control;
                 control.parentControl = this.parentControl;
-                control.doc = doc;
+                control.doc = await this.getRowData(rowIndex);
                 control.setFocus();
                 control.setInputValue(control.doc[column.id]);
                 return control;
             },
             setValue: async (value, rowIndex, column) => {
-                control.handleChange();
+                await this.setValue(control);
             },
             getValue: () => {
                 return control.getInputValue();
             }
         }
 
+    }
+
+    async setValue(control) {
+        await control.handleChange();
     }
 
     getControlModal(field) {
@@ -48242,9 +48329,9 @@ class TableControl extends base {
             parent: this.wrapper.querySelector('.datatable-wrapper'),
             parentControl: this,
             layout: this.layout || 'ratio',
-            getRowDoc: (rowIndex) => this.doc[this.fieldname][rowIndex],
+            getTableData: () => this.getTableData(),
+            getRowData: (rowIndex) => this.doc[this.fieldname][rowIndex],
             isDisabled: () => this.isDisabled(),
-            getTableData: () => this.getTableData()
         });
         this.setupToolbar();
     }
@@ -48376,6 +48463,7 @@ var form = class BaseForm extends observable {
         this.controls = {};
         this.controlList = [];
         this.sections = [];
+        this.links = [];
 
         this.meta = frappejs.getMeta(this.doctype);
         if (this.setup) {
@@ -48559,6 +48647,49 @@ var form = class BaseForm extends observable {
         }
     }
 
+    setLinks(label, options) {
+        // set links to helpful reports as identified by this.meta.links
+        if (this.meta.links) {
+            let links = this.getLinks();
+            if (!links.equals(this.links)) {
+                this.refreshLinks(links);
+                this.links = links;
+            }
+        }
+    }
+
+    getLinks() {
+        let links = [];
+        for (let link of this.meta.links) {
+            if (link.condition(this)) {
+                links.push(link);
+            }
+        }
+        return links;
+    }
+
+    refreshLinks(links) {
+        this.container.clearLinks();
+        for(let link of links) {
+            // make the link
+            this.container.addLink(link.label, () => {
+                let options = link.action(this);
+
+                if (options) {
+                    if (options.params) {
+                        // set route parameters
+                        frappejs.params = options.params;
+                    }
+
+                    if (options.route) {
+                        // go to the given route
+                        frappejs.router.setRoute(...options.route);
+                    }
+                }
+            });
+        }
+    }
+
     async bindEvents(doc) {
         if (this.doc && this.docListener) {
             // stop listening to the old doc
@@ -48616,6 +48747,7 @@ var form = class BaseForm extends observable {
             control.refresh();
         }
         this.trigger('refresh', this);
+        this.setLinks();
     }
 
     async submit() {
@@ -56579,11 +56711,13 @@ var tablepage = class TablePage extends page {
     constructor(doctype) {
         let meta = frappejs.getMeta(doctype);
         super({title: `${meta.label || meta.name}`, hasRoute: true});
+        this.filterWrapper = frappejs.ui.add('div', 'filter-toolbar', this.body);
+        this.fitlerButton = frappejs.ui.add('button', 'btn btn-sm btn-outline-secondary', this.filterWrapper, 'Set Filters');
         this.tableWrapper = frappejs.ui.add('div', 'table-page-wrapper', this.body);
         this.doctype = doctype;
         this.fullPage = true;
 
-        this.addButton('Set Filters', 'btn-secondary', async () => {
+        this.fitlerButton.addEventListener('click', async () => {
             const formModal = await frappejs.desk.showFormModal('FilterSelector');
             formModal.form.once('apply-filters', () => {
                 formModal.hide();
@@ -56601,11 +56735,23 @@ var tablepage = class TablePage extends page {
             this.filterSelector.reset(this.doctype);
         }
 
+        if (frappejs.params.filters) {
+            this.filterSelector.setFilters(frappejs.params.filters);
+        }
+        frappejs.params = null;
+
         if (!this.modelTable) {
             this.modelTable = new modelTable({
                 doctype: this.doctype,
                 parent: this.tableWrapper,
-                layout: 'fluid'
+                layout: 'fluid',
+                getRowData: async (rowIndex) => {
+                    return await frappejs.getDoc(this.doctype, this.data[rowIndex].name);
+                },
+                setValue: async (control) => {
+                    await control.handleChange();
+                    await control.doc.update();
+                }
             });
         }
 
@@ -56613,14 +56759,19 @@ var tablepage = class TablePage extends page {
     }
 
     async run() {
-        const data = await frappejs.db.getAll({
+        this.displayFilters();
+        this.data = await frappejs.db.getAll({
             doctype: this.doctype,
             fields: ['*'],
             filters: this.filterSelector.getFilters(),
             start: this.start,
             limit: 500
         });
-        this.modelTable.refresh(data);
+        this.modelTable.refresh(this.data);
+    }
+
+    displayFilters() {
+        this.fitlerButton.textContent = this.filterSelector.getText();
     }
 };
 
@@ -56792,7 +56943,6 @@ var desk = class Desk {
         if (!this.pages[view]) this.pages[view] = {};
         if (!this.pages[view][doctype]) this.pages[view][doctype] = new views[view](doctype);
         const page$$1 = this.pages[view][doctype];
-        this.toggleCenter(page$$1.fullPage ? false : true);
         await page$$1.show(params);
     }
 
@@ -56906,7 +57056,9 @@ var FilterGroup = {
 
 var FilterSelectorDocument = class FormSelector extends document$1 {
     reset(doctype) {
-        this.forDocType = doctype;
+        if (doctype) {
+            this.forDocType = doctype;
+        }
         this.items = [];
         this.filterGroup = '';
         this.filterGroupName = '';
@@ -56915,10 +57067,31 @@ var FilterSelectorDocument = class FormSelector extends document$1 {
     getFilters() {
         const filters = {};
         for (let item of (this.items || [])) {
-            if (item.condition === 'Equals') item.condition = '=';
-            filters[item.field] = [item.condition, item.value];
+            filters[item.field] = [(item.condition === 'Equals') ? '=' : item.condition,
+                item.value];
         }
         return filters;
+    }
+
+    setFilters(filters) {
+        this.reset();
+        for (let key in filters) {
+            let value  = filters[key];
+            if (value instanceof Array) {
+                this.items.push({field: key, condition: value[0], value: value[1]});
+            } else {
+                this.items.push({field: key, condition: 'Equals', value: value});
+            }
+        }
+    }
+
+    getText() {
+        if (this.items && this.items.length) {
+            this.forMeta = frappejs.getMeta(this.forDocType);
+            return this.items.map(v => `${this.forMeta.getLabel(v.field)} ${v.condition} ${v.value}`).join(', ');
+        } else {
+            return 'Set Filters';
+        }
     }
 
     async update() {
@@ -57249,6 +57422,25 @@ var ToDo = {
             "label": "Description",
             "fieldtype": "Text"
         }
+    ],
+
+    links: [
+        {
+            label: 'Close',
+            condition: (form) => form.doc.status !== 'Closed',
+            action: async (form) => {
+                await form.doc.set('status', 'Closed');
+                await form.doc.update();
+            }
+        },
+        {
+            label: 'Re-Open',
+            condition: (form) => form.doc.status !== 'Open',
+            action: async (form) => {
+                await form.doc.set('status', 'Open');
+                await form.doc.update();
+            }
+        }
     ]
 };
 
@@ -57342,6 +57534,108 @@ var client = {
     }
 };
 
+var reportpage = class ReportPage extends page {
+    constructor({title, }) {
+        super({title: title, hasRoute: true});
+
+        this.fullPage = true;
+
+        this.filterWrapper = frappejs.ui.add('div', 'filter-toolbar form-inline', this.body);
+        this.tableWrapper = frappejs.ui.add('div', 'table-page-wrapper', this.body);
+
+        this.btnNew = this.addButton(frappejs._('Refresh'), 'btn-primary', async () => {
+            await this.run();
+        });
+
+        this.filters = {};
+    }
+
+    getColumns() {
+        // overrride
+    }
+
+    addFilter(field) {
+        if (field.fieldname) {
+            field.fieldname = frappejs.slug(field.label);
+        }
+
+        field.placeholder = field.label;
+        field.inline = true;
+
+        this.filters[field.fieldname] = controls$1.makeControl({field: field, form: this, parent: this.filterWrapper});
+        return this.filters[field.fieldname];
+    }
+
+    getFilterValues() {
+        const values = {};
+        for (let fieldname in this.filters) {
+            let control = this.filters[fieldname];
+            values[fieldname] = control.getInputValue();
+            if (control.required && !values[fieldname]) {
+                frappejs.ui.showAlert({message: frappejs._('{0} is mandatory', control.label), color: 'red'});
+                return false;
+            }
+        }
+        return values;
+    }
+
+    async show(params) {
+        super.show();
+        await this.run();
+    }
+
+    async run() {
+        if (!this.datatable) {
+            this.makeDataTable();
+        }
+
+        const filterValues = this.getFilterValues();
+        if (filterValues === false) return;
+
+        let response = await fetch(this.url + '?' + frappejs.getQueryString(filterValues), {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json'
+            }
+        });
+        const data = await response.json();
+        this.datatable.refresh(data);
+    }
+
+    makeDataTable() {
+        this.datatable = new frappeDatatable_cjs(this.tableWrapper, {
+            columns: utils$3.convertFieldsToDatatableColumns(this.getColumns(), this.layout),
+            data: [],
+            layout: this.layout || 'fluid',
+        });
+    }
+};
+
+var GeneralLedgerView_1 = class GeneralLedgerView extends reportpage {
+    constructor() {
+        super({title: frappejs._('General Ledger')});
+
+        this.addFilter({fieldtype: 'Link', target: 'Account', label: 'Account'});
+        this.addFilter({fieldtype: 'Link', target: 'Party', label: 'Party'});
+        this.addFilter({fieldtype: 'Date', label: 'From Date'});
+        this.addFilter({fieldtype: 'Date', label: 'To Date'});
+
+        this.url = '/api/report/general-ledger';
+    }
+
+    getColumns() {
+        return [
+            {label: 'Date', fieldtype: 'Date'},
+            {label: 'Account', fieldtype: 'Link'},
+            {label: 'Party', fieldtype: 'Link'},
+            {label: 'Description', fieldtype: 'Data'},
+            {label: 'Debit', fieldtype: 'Currency'},
+            {label: 'Credit', fieldtype: 'Currency'},
+            {label: 'Balance', fieldtype: 'Currency'}
+        ]
+    }
+};
+
 var AccountDocument = class Account extends document$1 {
     async validate() {
         if (!this.account_type) {
@@ -57388,7 +57682,13 @@ var Account = {
                 "Expense"
             ]
         }
-    ]
+    ],
+
+    events: {
+        validate: (doc) => {
+
+        }
+    }
 };
 
 var AccountingLedgerEntry = {
@@ -57401,7 +57701,7 @@ var AccountingLedgerEntry = {
     keywordFields: [
         'account',
         'party',
-        'reference_name'
+        'referenceName'
     ],
     fields: [
         {
@@ -57463,7 +57763,8 @@ var AccountingLedgerEntry = {
     ]
 };
 
-var Party = {
+var Party = createCommonjsModule(function (module) {
+module.exports = {
     "name": "Party",
     "doctype": "DocType",
     "isSingle": 0,
@@ -57488,8 +57789,29 @@ var Party = {
             "label": "Supplier",
             "fieldtype": "Check"
         }
+    ],
+
+    links: [
+        {
+            label: 'Invoices',
+            condition: (form) => form.doc.customer,
+            action: (form) => {
+                return {
+                    route: ['table', 'Invoice'],
+                    params: {
+                        filters: {
+                            customer: form.doc.name,
+                        }
+                    }
+                };
+            }
+        }
     ]
+
 };
+});
+
+var Party_1 = Party.links;
 
 var Item = {
     name: "Item",
@@ -57741,24 +58063,28 @@ module.exports = {
         { fields: [ "terms" ] },
     ],
 
-    formEvents: {
-        refresh: (form) => {
-            if (!form.ledgerLink) {
-                form.ledgerLink = form.container.addLink('Ledger Entries', () => {
-                    frappejs.flags.filters = {
-                        reference_type: 'Invoice',
-                        reference_name: form.doc.name
-                    };
-                    frappejs.router.setRoute('table', 'AccountingLedgerEntry');
-                });
+    links: [
+        {
+            label: 'Ledger Entries',
+            condition: (form) => form.doc.submitted,
+            action:(form) => {
+                return {
+                    route: ['table', 'AccountingLedgerEntry'],
+                    params: {
+                        filters: {
+                            referenceType: 'Invoice',
+                            referenceName: form.doc.name
+                        }
+                    }
+                };
             }
         }
-    }
+    ]
 };
 });
 
 var Invoice_1 = Invoice.layout;
-var Invoice_2 = Invoice.formEvents;
+var Invoice_2 = Invoice.links;
 
 var InvoiceItem = {
     name: "InvoiceItem",
@@ -58000,37 +58326,50 @@ var CustomerList_1 = class CustomerList extends list {
     }
 };
 
+var client$2 = {
+    start() {
+        // require modules
+        frappejs.registerModels(models$2, 'client');
+
+        frappejs.registerView('List', 'ToDo', ToDoList_1);
+        frappejs.registerView('Form', 'FilterSelector', FilterSelectorForm_1);
+
+        frappejs.registerView('List', 'Account', AccountList_1);
+        frappejs.registerView('Form', 'Account', AccountForm_1);
+
+        frappejs.registerView('List', 'Invoice', InvoiceList_1);
+        frappejs.registerView('List', 'Customer', CustomerList_1);
+
+        frappejs.router.add('report/general-ledger', async (params) => {
+            if (!frappejs.views.generalLedger) {
+                frappejs.views.generalLedger = new GeneralLedgerView_1();
+            }
+            await frappejs.views.generalLedger.show(params);
+        });
+
+        frappejs.desk.menu.addItem('ToDo', '#list/ToDo');
+        frappejs.desk.menu.addItem('Accounts', '#list/Account');
+        frappejs.desk.menu.addItem('Items', '#list/Item');
+        frappejs.desk.menu.addItem('Customers', '#list/Customer');
+        frappejs.desk.menu.addItem('Invoice', '#list/Invoice');
+        frappejs.desk.menu.addItem('Settings', () => frappejs.desk.showFormModal('SystemSettings'));
+
+        frappejs.router.default = '#list/ToDo';
+
+        frappejs.router.show(window.location.hash);
+
+    }
+};
+
 client.start({
     columns: 3,
     server: 'localhost:8000'
 }).then(() => {
-
-    // require modules
-    frappe.registerModels(models$2, 'client');
-
-    frappe.registerView('List', 'ToDo', ToDoList_1);
-    frappe.registerView('Form', 'FilterSelector', FilterSelectorForm_1);
-
-    frappe.registerView('List', 'Account', AccountList_1);
-    frappe.registerView('Form', 'Account', AccountForm_1);
-
-    frappe.registerView('List', 'Invoice', InvoiceList_1);
-    frappe.registerView('List', 'Customer', CustomerList_1);
-
-    frappe.desk.menu.addItem('ToDo', '#list/ToDo');
-    frappe.desk.menu.addItem('Accounts', '#list/Account');
-    frappe.desk.menu.addItem('Items', '#list/Item');
-    frappe.desk.menu.addItem('Customers', '#list/Customer');
-    frappe.desk.menu.addItem('Invoice', '#list/Invoice');
-    frappe.desk.menu.addItem('Settings', () => frappe.desk.showFormModal('SystemSettings'));
-
-    frappe.router.default = '#list/ToDo';
-
-    frappe.router.show(window.location.hash);
+    client$2.start();
 });
 
-var src = false;
+var www = false;
 
-return src;
+return www;
 
 }());
