@@ -10,6 +10,7 @@ module.exports = class BaseForm extends Observable {
         this.controls = {};
         this.controlList = [];
         this.sections = [];
+        this.links = [];
 
         this.meta = frappe.getMeta(this.doctype);
         if (this.setup) {
@@ -193,6 +194,49 @@ module.exports = class BaseForm extends Observable {
         }
     }
 
+    setLinks(label, options) {
+        // set links to helpful reports as identified by this.meta.links
+        if (this.meta.links) {
+            let links = this.getLinks();
+            if (!links.equals(this.links)) {
+                this.refreshLinks(links);
+                this.links = links;
+            }
+        }
+    }
+
+    getLinks() {
+        let links = [];
+        for (let link of this.meta.links) {
+            if (link.condition(this)) {
+                links.push(link);
+            }
+        }
+        return links;
+    }
+
+    refreshLinks(links) {
+        this.container.clearLinks();
+        for(let link of links) {
+            // make the link
+            this.container.addLink(link.label, () => {
+                let options = link.action(this);
+
+                if (options) {
+                    if (options.params) {
+                        // set route parameters
+                        frappe.params = options.params;
+                    }
+
+                    if (options.route) {
+                        // go to the given route
+                        frappe.router.setRoute(...options.route);
+                    }
+                }
+            });
+        }
+    }
+
     async bindEvents(doc) {
         if (this.doc && this.docListener) {
             // stop listening to the old doc
@@ -250,6 +294,7 @@ module.exports = class BaseForm extends Observable {
             control.refresh();
         }
         this.trigger('refresh', this);
+        this.setLinks();
     }
 
     async submit() {

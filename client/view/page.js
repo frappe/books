@@ -46,6 +46,10 @@ module.exports = class Page extends Observable {
         return link;
     }
 
+    clearLinks() {
+        frappe.ui.empty(this.linksElement);
+    }
+
     hide() {
         this.parent.activePage = null;
         this.wrapper.classList.add('hide');

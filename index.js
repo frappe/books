@@ -20,6 +20,8 @@ module.exports = {
         this.forms = {};
         this.views = {};
         this.flags = {};
+        // temp params while calling routes
+        this.params = {};
     },
 
     registerLibs(common) {

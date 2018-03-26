@@ -30,16 +30,23 @@ module.exports = class TablePage extends Page {
             this.filterSelector.reset(this.doctype);
         }
 
-        if (frappe.flags.filters) {
-            this.filterSelector.setFilters(frappe.flags.filters);
-            frappe.flags.filters = null;
+        if (frappe.params.filters) {
+            this.filterSelector.setFilters(frappe.params.filters);
         }
+        frappe.params = null;
 
         if (!this.modelTable) {
             this.modelTable = new ModelTable({
                 doctype: this.doctype,
                 parent: this.tableWrapper,
-                layout: 'fluid'
+                layout: 'fluid',
+                getRowData: async (rowIndex) => {
+                    return await frappe.getDoc(this.doctype, this.data[rowIndex].name);
+                },
+                setValue: async (control) => {
+                    await control.handleChange();
+                    await control.doc.update();
+                }
             });
         }
 
@@ -48,14 +55,14 @@ module.exports = class TablePage extends Page {
 
     async run() {
         this.displayFilters();
-        const data = await frappe.db.getAll({
+        this.data = await frappe.db.getAll({
             doctype: this.doctype,
             fields: ['*'],
             filters: this.filterSelector.getFilters(),
             start: this.start,
             limit: 500
         });
-        this.modelTable.refresh(data);
+        this.modelTable.refresh(this.data);
     }
 
     displayFilters() {

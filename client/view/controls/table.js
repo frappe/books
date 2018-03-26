@@ -10,9 +10,9 @@ class TableControl extends BaseControl {
             parent: this.wrapper.querySelector('.datatable-wrapper'),
             parentControl: this,
             layout: this.layout || 'ratio',
-            getRowDoc: (rowIndex) => this.doc[this.fieldname][rowIndex],
+            getTableData: () => this.getTableData(),
+            getRowData: (rowIndex) => this.doc[this.fieldname][rowIndex],
             isDisabled: () => this.isDisabled(),
-            getTableData: () => this.getTableData()
         });
         this.setupToolbar();
     }
