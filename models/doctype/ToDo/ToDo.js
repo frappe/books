@@ -41,5 +41,24 @@ module.exports = {
             "label": "Description",
             "fieldtype": "Text"
         }
+    ],
+
+    links: [
+        {
+            label: 'Close',
+            condition: (form) => form.doc.status !== 'Closed',
+            action: async (form) => {
+                await form.doc.set('status', 'Closed');
+                await form.doc.update();
+            }
+        },
+        {
+            label: 'Re-Open',
+            condition: (form) => form.doc.status !== 'Open',
+            action: async (form) => {
+                await form.doc.set('status', 'Open');
+                await form.doc.update();
+            }
+        }
     ]
 }

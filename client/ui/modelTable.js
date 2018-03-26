@@ -4,7 +4,7 @@ const controls = require('frappejs/client/view/controls');
 const Modal = require('frappejs/client/ui/modal');
 
 module.exports = class ModelTable {
-    constructor({doctype, parent, layout, parentControl, getRowDoc,
+    constructor({doctype, parent, layout, parentControl, getRowData,
         isDisabled, getTableData}) {
         Object.assign(this, arguments[0]);
         this.meta = frappe.getMeta(this.doctype);
@@ -75,23 +75,26 @@ module.exports = class ModelTable {
         control.skipChangeEvent = true;
 
         return {
-            initValue: (value, rowIndex, column) => {
-                let doc = this.getRowDoc(rowIndex);
+            initValue: async (value, rowIndex, column) => {
                 column.activeControl = control;
                 control.parentControl = this.parentControl;
-                control.doc = doc;
+                control.doc = await this.getRowData(rowIndex);
                 control.setFocus();
                 control.setInputValue(control.doc[column.id]);
                 return control;
             },
             setValue: async (value, rowIndex, column) => {
-                control.handleChange();
+                await this.setValue(control);
             },
             getValue: () => {
                 return control.getInputValue();
             }
         }
 
+    }
+
+    async setValue(control) {
+        await control.handleChange();
     }
 
     getControlModal(field) {

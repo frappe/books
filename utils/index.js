@@ -1,3 +1,8 @@
+Array.prototype.equals = function( array ) {
+    return this.length == array.length &&
+           this.every( function(item,i) { return item == array[i] } );
+}
+
 module.exports = {
     slug(text) {
         return text.toLowerCase().replace(/ /g, '_');
