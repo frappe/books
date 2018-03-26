@@ -32,5 +32,11 @@ module.exports = {
                 "Expense"
             ]
         }
-    ]
+    ],
+
+    events: {
+        validate: (doc) => {
+
+        }
+    }
 }

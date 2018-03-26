@@ -7380,8 +7380,6 @@ html {
     padding-bottom: 0; }
 .page .page-links {
     padding: 1rem 2rem; }
-.page .page-links .page-link {
-      display: inline-block; }
 .page .page-error {
     text-align: center;
     padding: 200px 0px; }
@@ -7397,6 +7395,8 @@ html {
     background-color: lightyellow; }
 .form-body .alert {
     margin-top: 1rem; }
+.form-inline .form-group {
+  margin-right: 0.5rem; }
 .list-search {
   padding: 1rem 2rem; }
 .list-body .list-row {
@@ -7435,6 +7435,8 @@ html {
     padding: 0.5rem; }
 .table-page-wrapper {
   width: 100%;
+  padding: 1rem 2rem; }
+.filter-toolbar {
   padding: 1rem 2rem; }
 .table-wrapper {
   margin-top: 2rem;
