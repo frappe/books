@@ -85,6 +85,8 @@ module.exports = class Page extends Observable {
         }
 
         this.parent.activePage = this;
+
+        frappe.desk.toggleCenter(this.fullPage ? false : true);
     }
 
     renderError(title, message) {

@@ -78,7 +78,7 @@ module.exports = class sqliteDatabase extends Database {
         if (field.fieldname==='name') {
             def += ' PRIMARY KEY NOT NULL';
         }
-        else if (field.reqd) {
+        else if (field.required) {
             def += ' NOT NULL';
         }
         if (field.default) {

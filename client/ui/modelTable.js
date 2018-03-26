@@ -2,6 +2,7 @@ const frappe = require('frappejs');
 const DataTable = require('frappe-datatable');
 const controls = require('frappejs/client/view/controls');
 const Modal = require('frappejs/client/ui/modal');
+const utils = require('./utils');
 
 module.exports = class ModelTable {
     constructor({doctype, parent, layout, parentControl, getRowData,
@@ -26,27 +27,7 @@ module.exports = class ModelTable {
     }
 
     getColumns() {
-        return this.getTableFields().map(field => {
-            if (!field.width) {
-                if (this.layout==='ratio') {
-                    field.width = 1;
-                } else if (this.layout==='fixed') {
-                    field.width = 120;
-                }
-            }
-            return {
-                id: field.fieldname,
-                field: field,
-                content: field.label,
-                editable: true,
-                sortable: false,
-                resizable: true,
-                dropdown: false,
-                width: field.width,
-                align: ['Int', 'Float', 'Currency'].includes(field.fieldtype) ? 'right' : 'left',
-                format: (value) => frappe.format(value, field)
-            }
-        });
+        return utils.convertFieldsToDatatableColumns(this.getTableFields(), this.layout);
     }
 
     getTableFields() {

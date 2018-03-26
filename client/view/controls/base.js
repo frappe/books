@@ -70,6 +70,9 @@ class BaseControl {
     makeLabel(labelClass = null) {
         this.labelElement = frappe.ui.add('label', labelClass, this.inputContainer, this.label);
         this.labelElement.setAttribute('for', this.id);
+        if (this.inline) {
+            this.labelElement.classList.add("sr-only");
+        }
     }
 
     makeInput(inputClass='form-control') {
@@ -82,6 +85,9 @@ class BaseControl {
         this.setDisabled();
         if (!this.onlyInput) {
             this.makeDescription();
+        }
+        if (this.placeholder) {
+            this.input.setAttribute('placeholder', this.placeholder);
         }
 
     }

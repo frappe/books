@@ -53,7 +53,7 @@ module.exports = class mysqlDatabase extends Database{
 
 
     updateColumnDefinition(df, columns, indexes) {
-        columns.push(`${df.fieldname} ${this.typeMap[df.fieldtype]} ${df.reqd && !df.default ? "not null" : ""} ${df.default ? `default '${df.default}'` : ""}`);
+        columns.push(`${df.fieldname} ${this.typeMap[df.fieldtype]} ${df.required && !df.default ? "not null" : ""} ${df.default ? `default '${df.default}'` : ""}`);
     }
 
     async getTableColumns(doctype) {

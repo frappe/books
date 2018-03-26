@@ -131,7 +131,6 @@ module.exports = class Desk {
         if (!this.pages[view]) this.pages[view] = {};
         if (!this.pages[view][doctype]) this.pages[view][doctype] = new views[view](doctype);
         const page = this.pages[view][doctype];
-        this.toggleCenter(page.fullPage ? false : true);
         await page.show(params);
     }
 
