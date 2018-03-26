@@ -10,7 +10,7 @@ module.exports = class GeneralLedgerView extends ReportPage {
         this.addFilter({fieldtype: 'Date', label: 'From Date'});
         this.addFilter({fieldtype: 'Date', label: 'To Date'});
 
-        this.url = '/api/report/general-ledger';
+        this.method = 'general-ledger';
     }
 
     getColumns() {
