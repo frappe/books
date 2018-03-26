@@ -66,7 +66,7 @@ module.exports = class ReportPage extends Page {
         const filterValues = this.getFilterValues();
         if (filterValues === false) return;
 
-        let data = await frappe.call({method: this.method, args: filterValues});
+        let data = await frappe.call(this.method, filterValues);
         this.datatable.refresh(data);
     }
 
