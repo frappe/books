@@ -48,10 +48,13 @@ module.exports = {
 
     getQueryString(params) {
         if (!params) return '';
-        return Object.keys(params)
-            .map(k => params[k] != null ? encodeURIComponent(k) + '=' + encodeURIComponent(params[k]) : null)
-            .filter(v => v)
-            .join('&');
+        let parts = [];
+        for (let key in params) {
+            if (key!=null && params[key]!=null) {
+                parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
+            }
+        }
+        return parts.join('&');
     },
 
     asyncHandler(fn) {

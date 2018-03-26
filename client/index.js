@@ -14,6 +14,8 @@ module.exports = {
         frappe.registerModels(require('../models'), 'client');
 
         frappe.fetch = window.fetch.bind();
+
+        this.setCall();
         frappe.db = await new HTTPClient({server: server});
         this.socket = io.connect('http://localhost:8000'); // eslint-disable-line
         frappe.db.bindSocketClient(this.socket);
@@ -24,6 +26,29 @@ module.exports = {
 
         frappe.desk = new Desk(columns);
         await frappe.login();
+    },
+
+    setCall() {
+        frappe.call = async ({method, type='get', args}) => {
+            let url = `/api/method/${method}`;
+            let request = {};
+
+            if (args) {
+                if (type.toLowerCase()==='get') {
+                    url += '?' + frappe.getQueryString(args);
+                } else {
+                    // POST / PUT / DELETE
+                    request.body = JSON.stringify(args);
+                }
+            }
+
+            request.headers = { 'Accept': 'application/json' };
+            request.method = type.toUpperCase();
+
+            let response = await fetch(url, request);
+
+            return await response.json();
+        }
     }
 };
 

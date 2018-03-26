@@ -66,13 +66,7 @@ module.exports = class ReportPage extends Page {
         const filterValues = this.getFilterValues();
         if (filterValues === false) return;
 
-        let response = await fetch(this.url + '?' + frappe.getQueryString(filterValues), {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json'
-            }
-        })
-        const data = await response.json();
+        let data = await frappe.call({method: this.method, args: filterValues});
         this.datatable.refresh(data);
     }
 
