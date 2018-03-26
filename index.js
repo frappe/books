@@ -47,19 +47,12 @@ module.exports = {
         this.views[view][name] = module;
     },
 
-    registerMethod({method, type, handler}) {
-        type = type.toLowerCase();
+    registerMethod({method, handler}) {
         this.methods[method] = handler;
         if (this.app) {
             // add to router if client-server
-            this.app[type](`/api/method/${method}`, this.asyncHandler(async function(request, response) {
-                let args = {};
-                if (type==='get') {
-                    args = request.query;
-                } else {
-                    args = request.body;
-                }
-                const data = await handler(args);
+            this.app.post(`/api/method/${method}`, this.asyncHandler(async function(request, response) {
+                const data = await handler(request.body);
                 response.json(data);
             }));
         }

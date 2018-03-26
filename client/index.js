@@ -29,23 +29,16 @@ module.exports = {
     },
 
     setCall() {
-        frappe.call = async ({method, type='get', args}) => {
+        frappe.call = async (method, args) => {
             let url = `/api/method/${method}`;
-            let request = {};
-
-            if (args) {
-                if (type.toLowerCase()==='get') {
-                    url += '?' + frappe.getQueryString(args);
-                } else {
-                    // POST / PUT / DELETE
-                    request.body = JSON.stringify(args);
-                }
-            }
-
-            request.headers = { 'Accept': 'application/json' };
-            request.method = type.toUpperCase();
-
-            let response = await fetch(url, request);
+            let response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(args || {})
+            });
 
             return await response.json();
         }
