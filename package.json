@@ -1,15 +1,26 @@
 {
   "name": "frappe-accounting",
+  "productName": "ERPNext Desktop",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "electron/main.js",
   "license": "MIT",
   "scripts": {
     "test": "mocha tests",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "watch": "rollup -c --watch",
+    "start-electron": "electron electron/main.js",
+    "electron-dev": "yarn run start-electron & yarn run watch",
+    "postinstall": "electron-builder install-app-deps",
+    "electron-pack": "electron-packager . --overwrite"
   },
   "dependencies": {
-    "frappejs": "link:../frappejs"
+    "frappejs": "^0.0.5",
+    "nunjucks": "^3.1.2",
+    "sqlite3": "^4.0.0"
   },
   "devDependencies": {
+    "electron": "1.8.4",
+    "electron-builder": "^20.6.2",
+    "electron-packager": "^11.2.0"
   }
 }
