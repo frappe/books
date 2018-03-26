@@ -51,10 +51,13 @@ var utils = {
 
     getQueryString(params) {
         if (!params) return '';
-        return Object.keys(params)
-            .map(k => params[k] != null ? encodeURIComponent(k) + '=' + encodeURIComponent(params[k]) : null)
-            .filter(v => v)
-            .join('&');
+        let parts = [];
+        for (let key in params) {
+            if (key!=null && params[key]!=null) {
+                parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+            }
+        }
+        return parts.join('&');
     },
 
     asyncHandler(fn) {
@@ -9130,6 +9133,7 @@ var frappejs = {
         this.forms = {};
         this.views = {};
         this.flags = {};
+        this.methods = {};
         // temp params while calling routes
         this.params = {};
     },
@@ -9154,6 +9158,32 @@ var frappejs = {
     registerView(view, name, module) {
         if (!this.views[view]) this.views[view] = {};
         this.views[view][name] = module;
+    },
+
+    registerMethod({method, type, handler}) {
+        type = type.toLowerCase();
+        this.methods[method] = handler;
+        if (this.app) {
+            // add to router if client-server
+            this.app[type](`/api/method/${method}`, this.asyncHandler(async function(request, response) {
+                let args = {};
+                if (type==='get') {
+                    args = request.query;
+                } else {
+                    args = request.body;
+                }
+                const data = await handler(args);
+                response.json(data);
+            }));
+        }
+    },
+
+    call({method, type, args}) {
+        if (this.methods[method]) {
+            return this.methods[method](args);
+        } else {
+            throw `${method} not found`;
+        }
     },
 
     addToCache(doc) {
@@ -57521,6 +57551,8 @@ var client = {
         frappejs.registerModels(models, 'client');
 
         frappejs.fetch = window.fetch.bind();
+
+        this.setCall();
         frappejs.db = await new http({server: server});
         this.socket = io.connect('http://localhost:8000'); // eslint-disable-line
         frappejs.db.bindSocketClient(this.socket);
@@ -57531,6 +57563,29 @@ var client = {
 
         frappejs.desk = new desk(columns);
         await frappejs.login();
+    },
+
+    setCall() {
+        frappejs.call = async ({method, type='get', args}) => {
+            let url = `/api/method/${method}`;
+            let request = {};
+
+            if (args) {
+                if (type.toLowerCase()==='get') {
+                    url += '?' + frappejs.getQueryString(args);
+                } else {
+                    // POST / PUT / DELETE
+                    request.body = JSON.stringify(args);
+                }
+            }
+
+            request.headers = { 'Accept': 'application/json' };
+            request.method = type.toUpperCase();
+
+            let response = await fetch(url, request);
+
+            return await response.json();
+        };
     }
 };
 
@@ -57592,13 +57647,7 @@ var reportpage = class ReportPage extends page {
         const filterValues = this.getFilterValues();
         if (filterValues === false) return;
 
-        let response = await fetch(this.url + '?' + frappejs.getQueryString(filterValues), {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json'
-            }
-        });
-        const data = await response.json();
+        let data = await frappejs.call({method: this.method, args: filterValues});
         this.datatable.refresh(data);
     }
 
@@ -57620,7 +57669,7 @@ var GeneralLedgerView_1 = class GeneralLedgerView extends reportpage {
         this.addFilter({fieldtype: 'Date', label: 'From Date'});
         this.addFilter({fieldtype: 'Date', label: 'To Date'});
 
-        this.url = '/api/report/general-ledger';
+        this.method = 'general-ledger';
     }
 
     getColumns() {
