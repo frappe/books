@@ -1,10 +1,13 @@
+const utils = require('../../../accounting/utils');
+
 module.exports = {
     name: "Payment",
     label: "Payment",
-    naming: "name", // {random|autoincrement}
     isSingle: 0,
     isChild: 0,
+    isSubmittable: 1,
     keywordFields: [],
+    settings: "PaymentSettings",
     fields: [
         {
             "fieldname": "date",
@@ -67,5 +70,9 @@ module.exports = {
         {
             fields: ['amount', 'writeoff']
         }
+    ],
+
+    links: [
+        utils.ledgerLink
     ]
 }

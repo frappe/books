@@ -1,10 +1,9 @@
 module.exports = {
-    "name": "InvoiceSettings",
-    "label": "Invoice Settings",
-    "doctype": "DocType",
-    "isSingle": 1,
-    "isChild": 0,
-    "keywordFields": [],
+    name: "PaymentSettings",
+    label: "Payment Settings",
+    isSingle: 1,
+    isChild: 0,
+    keywordFields: [],
     "fields": [
         {
             "fieldname": "numberSeries",
@@ -12,7 +11,7 @@ module.exports = {
             "fieldtype": "Link",
             "target": "NumberSeries",
             "required": 1,
-            "default": "INV"
+            "default": "PAY"
         }
     ]
 }
