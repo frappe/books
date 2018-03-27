@@ -29,7 +29,7 @@ module.exports = class ReportPage extends Page {
     }
 
     addFilter(field) {
-        if (field.fieldname) {
+        if (!field.fieldname) {
             field.fieldname = frappe.slug(field.label);
         }
 
@@ -50,6 +50,7 @@ module.exports = class ReportPage extends Page {
                 return false;
             }
         }
+        console.log(values);
         return values;
     }
 

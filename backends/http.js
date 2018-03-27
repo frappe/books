@@ -131,7 +131,7 @@ module.exports = class HTTPClient extends Observable {
             , 'Text': true
             , 'Data': true
             , 'Link': true
-            , 'Dynamic Link': true
+            , 'DynamicLink': true
             , 'Password': true
             , 'Select': true
             , 'Read Only': true
