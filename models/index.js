@@ -11,6 +11,7 @@ module.exports = {
         InvoiceSettings: require('./doctype/InvoiceSettings/InvoiceSettings.js'),
         Tax: require('./doctype/Tax/Tax.js'),
         TaxDetail: require('./doctype/TaxDetail/TaxDetail.js'),
-        TaxSummary: require('./doctype/TaxSummary/TaxSummary.js')
+        TaxSummary: require('./doctype/TaxSummary/TaxSummary.js'),
+        Address: require('./doctype/Address/Address.js')
     }
 }
