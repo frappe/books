@@ -1,4 +1,4 @@
-const Invoice = require('./invoiceDocument');
+const Invoice = require('./InvoiceDocument');
 const frappe = require('frappejs');
 const LedgerPosting = require.main.require('./accounting/ledgerPosting');
 
