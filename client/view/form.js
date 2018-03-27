@@ -3,6 +3,7 @@ const controls = require('./controls');
 const FormLayout = require('./formLayout');
 const Observable = require('frappejs/utils/observable');
 const keyboard = require('frappejs/client/ui/keyboard');
+const utils = require('frappejs/client/ui/utils');
 
 module.exports = class BaseForm extends Observable {
     constructor({doctype, parent, submit_label='Submit', container, meta, inline=false}) {
@@ -208,7 +209,7 @@ module.exports = class BaseForm extends Observable {
         this.container.clearLinks();
         for(let link of links) {
             // make the link
-            this.container.addLink(link.label, () => {
+            utils.addLink(link.label, this.container.linksElement, () => {
                 let options = link.action(this);
 
                 if (options) {
@@ -279,9 +280,7 @@ module.exports = class BaseForm extends Observable {
     }
 
     refresh() {
-        for(let control of this.formLayout.controlList) {
-            control.refresh();
-        }
+        this.formLayout.refresh();
         this.trigger('refresh', this);
         this.setLinks();
     }

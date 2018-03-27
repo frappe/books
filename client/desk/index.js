@@ -18,6 +18,7 @@ module.exports = class Desk {
 
         let body = document.querySelector('body');
         //this.navbar = new Navbar();
+        frappe.ui.empty(body);
         this.container = frappe.ui.add('div', '', body);
         this.containerRow = frappe.ui.add('div', 'row no-gutters', this.container)
         this.makeColumns(columns);
@@ -100,7 +101,6 @@ module.exports = class Desk {
                 this.menu.setActive();
             }
         })
-
     }
 
     toggleCenter(show) {
@@ -173,5 +173,4 @@ module.exports = class Desk {
             });
         }
     }
-
 }

@@ -6,7 +6,7 @@ const Desk = require('./desk');
 const Observable = require('frappejs/utils/observable');
 
 module.exports = {
-    async start({server, columns = 2}) {
+    async start({server, columns = 2, makeDesk = 1}) {
         window.frappe = frappe;
         frappe.init();
         frappe.registerLibs(common);
@@ -24,6 +24,12 @@ module.exports = {
 
         await frappe.getSingle('SystemSettings');
 
+        if(makeDesk) {
+            this.makeDesk(columns);
+        }
+    },
+
+    async makeDesk(columns) {
         frappe.desk = new Desk(columns);
         await frappe.login();
     },
