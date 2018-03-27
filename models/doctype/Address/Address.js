@@ -6,6 +6,10 @@ module.exports = {
     "keywordFields": [
         "addressTitle"
     ],
+    pageSettings: {
+        hideTitle: true
+    },
+    "naming": "autoincrement",
     "fields": [
         {
             "fieldname": "addressTitle",
