@@ -4,7 +4,7 @@ const Observable = require('frappejs/utils/observable');
 const keyboard = require('frappejs/client/ui/keyboard');
 
 module.exports = class BaseForm extends Observable {
-    constructor({doctype, parent, submit_label='Submit', container}) {
+    constructor({doctype, parent, submit_label='Submit', container, meta, inline=false}) {
         super();
         Object.assign(this, arguments[0]);
         this.controls = {};
@@ -12,12 +12,21 @@ module.exports = class BaseForm extends Observable {
         this.sections = [];
         this.links = [];
 
-        this.meta = frappe.getMeta(this.doctype);
+        if (!this.meta) {
+            this.meta = frappe.getMeta(this.doctype);
+        }
+
         if (this.setup) {
             this.setup();
         }
+
         this.make();
         this.bindFormEvents();
+
+        if (this.doc) {
+            // bootstrapped with a doc
+            this.bindEvents(this.doc);
+        }
     }
 
     make() {
@@ -25,10 +34,22 @@ module.exports = class BaseForm extends Observable {
             return;
         }
 
-        this.body = frappe.ui.add('div', 'form-body', this.parent);
-        this.makeToolbar();
+        if (this.inline) {
+            this.body = this.parent
+        } else {
+            this.body = frappe.ui.add('div', 'form-body', this.parent);
+        }
+
+        if (this.actions) {
+            this.makeToolbar();
+        }
 
         this.form = frappe.ui.add('form', 'form-container', this.body);
+
+        if (this.inline) {
+            this.form.classList.add('form-inline');
+        }
+
         this.form.onValidate = true;
 
         this.makeLayout();
@@ -74,6 +95,9 @@ module.exports = class BaseForm extends Observable {
     makeControls(fields, parent) {
         for(let field of fields) {
             if (!field.hidden && controls.getControlClass(field.fieldtype)) {
+                if (this.inline) {
+                    field.inline = true;
+                }
                 let control = controls.makeControl({field: field, form: this, parent: parent});
                 this.controlList.push(control);
                 this.controls[field.fieldname] = control;
@@ -180,6 +204,8 @@ module.exports = class BaseForm extends Observable {
     }
 
     setTitle() {
+        if (!this.container) return;
+
         const doctypeLabel = this.doc.meta.label || this.doc.meta.name;
 
         if (this.doc.meta.isSingle || this.doc.meta.naming === 'random') {
@@ -216,6 +242,8 @@ module.exports = class BaseForm extends Observable {
     }
 
     refreshLinks(links) {
+        if (!this.container) return;
+
         this.container.clearLinks();
         for(let link of links) {
             // make the link

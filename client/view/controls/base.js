@@ -86,8 +86,8 @@ class BaseControl {
         if (!this.onlyInput) {
             this.makeDescription();
         }
-        if (this.placeholder) {
-            this.input.setAttribute('placeholder', this.placeholder);
+        if (this.placeholder || this.inline) {
+            this.input.setAttribute('placeholder', this.placeholder || this.label);
         }
 
     }

@@ -33,8 +33,8 @@ class LinkControl extends BaseControl {
         this.input.addEventListener('awesomplete-select', async (e) => {
             if (e.text && e.text.value === '__newItem') {
                 e.preventDefault();
-                const newDoc = await frappe.getNewDoc(this.target);
-                const formModal = await frappe.desk.showFormModal(this.target, newDoc.name);
+                const newDoc = await frappe.getNewDoc(this.getTarget());
+                const formModal = await frappe.desk.showFormModal(this.getTarget(), newDoc.name);
                 if (formModal.form.doc.meta.hasField('name')) {
                     formModal.form.doc.set('name', this.input.value);
                 }
@@ -49,7 +49,7 @@ class LinkControl extends BaseControl {
 
     async getList(query) {
         return (await frappe.db.getAll({
-            doctype: this.target,
+            doctype: this.getTarget(),
             filters: this.getFilters(query, this),
             limit: 50
         })).map(d => d.name);
@@ -57,6 +57,10 @@ class LinkControl extends BaseControl {
 
     getFilters(query) {
         return { keywords: ["like", query] }
+    }
+
+    getTarget() {
+        return this.target;
     }
 };
 

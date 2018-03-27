@@ -65,10 +65,22 @@ module.exports = {
             if (!e.status_code || e.status_code !== 404) {
                 throw e;
             }
-            series = frappe.newDoc({doctype: 'NumberSeries', name: prefix, current: 0});
-            await series.insert();
+            await this.createNumberSeries(prefix);
         }
         let next = await series.next()
         return prefix + next;
+    },
+
+    async createNumberSeries(prefix, setting, start=1000) {
+        if (!(await frappe.db.exists('NumberSeries', prefix))) {
+            const series = frappe.newDoc({doctype: 'NumberSeries', name: prefix, current: start});
+            await series.insert();
+
+            if (setting) {
+                const settingDoc = await frappe.getSingle(setting);
+                settingDoc.numberSeries = series.name;
+                await settingDoc.update();
+            }
+        }
     }
 }

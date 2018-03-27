@@ -1,56 +1,54 @@
 const Page = require('frappejs/client/view/page');
-const controls = require('frappejs/client/view/controls');
+const Form = require('frappejs/client/view/form');
 const DataTable = require('frappe-datatable');
 const frappe = require('frappejs');
 const utils = require('frappejs/client/ui/utils');
+const Observable = require('frappejs/utils/observable');
 
 // baseclass for report
 // `url` url for report
 // `getColumns` return columns
 
 module.exports = class ReportPage extends Page {
-    constructor({title, }) {
+    constructor({title, filterFields}) {
         super({title: title, hasRoute: true});
 
         this.fullPage = true;
+        this.filterFields = filterFields;
 
-        this.filterWrapper = frappe.ui.add('div', 'filter-toolbar form-inline', this.body);
+        this.filterWrapper = frappe.ui.add('div', 'filter-toolbar', this.body);
         this.tableWrapper = frappe.ui.add('div', 'table-page-wrapper', this.body);
 
         this.btnNew = this.addButton(frappe._('Refresh'), 'btn-primary', async () => {
             await this.run();
         });
 
-        this.filters = {};
+        this.makeFilters();
     }
 
     getColumns() {
         // overrride
     }
 
-    addFilter(field) {
-        if (!field.fieldname) {
-            field.fieldname = frappe.slug(field.label);
-        }
-
-        field.placeholder = field.label;
-        field.inline = true;
-
-        this.filters[field.fieldname] = controls.makeControl({field: field, form: this, parent: this.filterWrapper});
-        return this.filters[field.fieldname];
+    makeFilters() {
+        this.form = new Form({
+            parent: this.filterWrapper,
+            meta: { fields: this.filterFields },
+            doc: new Observable(),
+            inline: true,
+            container: this
+        });
     }
 
     getFilterValues() {
         const values = {};
-        for (let fieldname in this.filters) {
-            let control = this.filters[fieldname];
-            values[fieldname] = control.getInputValue();
-            if (control.required && !values[fieldname]) {
+        for (let control of this.form.controlList) {
+            values[control.fieldname] = control.getInputValue();
+            if (control.required && !values[control.fieldname]) {
                 frappe.ui.showAlert({message: frappe._('{0} is mandatory', control.label), color: 'red'});
                 return false;
             }
         }
-        console.log(values);
         return values;
     }
 
@@ -60,6 +58,16 @@ module.exports = class ReportPage extends Page {
     }
 
     async run() {
+        if (frappe.params && frappe.params.filters) {
+            for (let key in frappe.params.filters) {
+                if (this.form.controls[key]) {
+                    this.form.controls[key].setInputValue(frappe.params.filters[key]);
+                }
+            }
+        }
+        frappe.params = null;
+
+
         if (!this.datatable) {
             this.makeDataTable();
         }
