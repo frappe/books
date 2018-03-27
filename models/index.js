@@ -3,6 +3,8 @@ module.exports = {
         Account: require('./doctype/Account/Account.js'),
         AccountingLedgerEntry: require('./doctype/AccountingLedgerEntry/AccountingLedgerEntry.js'),
         Party: require('./doctype/Party/Party.js'),
+        Payment: require('./doctype/Payment/Payment.js'),
+        PaymentFor: require('./doctype/PaymentFor/PaymentFor.js'),
         Item: require('./doctype/Item/Item.js'),
         Invoice: require('./doctype/Invoice/Invoice.js'),
         InvoiceItem: require('./doctype/InvoiceItem/InvoiceItem.js'),
