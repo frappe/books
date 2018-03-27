@@ -1,10 +1,10 @@
 module.exports = {
-    "name": "Account",
+    "name": "Address",
     "doctype": "DocType",
     "isSingle": 0,
+    "titleField": "addressTitle",
     "keywordFields": [
-        "name",
-        "addressType"
+        "addressTitle"
     ],
     "fields": [
         {
@@ -97,9 +97,10 @@ module.exports = {
 
     listSettings: {
         getFields(list)  {
-            return ['name', 'addressType'];
+            return ['addressTitle', 'addressType'];
         },
         getRowHTML(list, data) {
+            console.log(list, data);
             return `<div class="col-11">${list.getNameHTML(data)} (${data.addressType})</div>`;
         }
     },
