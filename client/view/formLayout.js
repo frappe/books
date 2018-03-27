@@ -1,20 +1,21 @@
 const controls = require('./controls');
 
 module.exports = class FormLayout {
-	constructor({fields, layout}) {
-		this.fields = fields;
-		this.layout = layout;
+    constructor({fields, layout}) {
+        this.fields = fields;
+        this.layout = layout;
 
-		this.controls = {};
+        this.controls = {};
         this.controlList = [];
-		this.sections = [];
+        this.sections = [];
 
-		this.form = document.createElement('div');
+        this.form = document.createElement('div');
+        this.form.classList.add('form-body');
 
-		this.makeLayout();
-	}
+        this.makeLayout();
+    }
 
-	makeLayout() {
+    makeLayout() {
         if (this.layout) {
             for (let section of this.layout) {
                 this.makeSection(section);
