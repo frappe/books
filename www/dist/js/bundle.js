@@ -4575,7 +4575,7 @@ if (typeof undefined === 'function' && undefined.amd) {
 }
 }).call(commonjsGlobal);
 
-
+//# sourceMappingURL=showdown.js.map
 });
 
 var moment = createCommonjsModule(function (module, exports) {
@@ -10230,7 +10230,7 @@ var http = class HTTPClient extends observable {
             , 'Text': true
             , 'Data': true
             , 'Link': true
-            , 'Dynamic Link': true
+            , 'DynamicLink': true
             , 'Password': true
             , 'Select': true
             , 'Read Only': true
@@ -23046,7 +23046,7 @@ Popper.placements = placements;
 Popper.Defaults = Defaults;
 
 
-
+//# sourceMappingURL=popper.js.map
 
 
 var popper = Object.freeze({
@@ -26945,7 +26945,7 @@ exports.Tooltip = Tooltip;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-
+//# sourceMappingURL=bootstrap.js.map
 });
 
 unwrapExports(bootstrap);
@@ -27346,7 +27346,7 @@ var keyboard = {
 };
 
 var list = class BaseList extends observable {
-    constructor({doctype, parent, fields, page}) {
+    constructor({doctype, parent, fields=[], page}) {
         super();
 
         Object.assign(this, arguments[0]);
@@ -27360,9 +27360,27 @@ var list = class BaseList extends observable {
         this.rows = [];
         this.data = [];
 
+        this.setupListSettings();
+
         frappejs.db.on(`change:${this.doctype}`, (params) => {
             this.refresh();
         });
+    }
+
+    setupListSettings() {
+        // list settings that can be overridden by meta
+        this.listSettings = {
+            getFields: list => list.fields,
+            getRowHTML: (list, data) => {
+                return `<div class="col-11">
+                    ${list.getNameHTML(data)}
+                </div>`;
+            }
+        };
+
+        if (this.meta.listSettings) {
+            Object.assign(this.listSettings, this.meta.listSettings);
+        }
     }
 
     makeBody() {
@@ -27405,7 +27423,7 @@ var list = class BaseList extends observable {
     }
 
     async getData() {
-        let fields = this.getFields();
+        let fields = this.listSettings.getFields(this) || [];
         this.updateStandardFields(fields);
         return await frappejs.db.getAll({
             doctype: this.doctype,
@@ -27414,10 +27432,6 @@ var list = class BaseList extends observable {
             start: this.start,
             limit: this.pageLength + 1
         });
-    }
-
-    getFields() {
-        return [];
     }
 
     updateStandardFields(fields) {
@@ -27448,14 +27462,9 @@ var list = class BaseList extends observable {
     getRowBodyHTML(data) {
         return `<div class="col-1">
             <input class="checkbox" type="checkbox" data-name="${data.name}">
-        </div>` + this.getRowHTML(data);
+        </div>` + this.listSettings.getRowHTML(this, data);
     }
 
-    getRowHTML(data) {
-        return `<div class="col-11">
-            ${this.getNameHTML(data)}
-        </div>`;
-    }
 
     getNameHTML(data) {
         return `<span class="indicator ${this.meta.getIndicatorColor(data)}">${data[this.meta.titleField]}</span>`;
@@ -27691,7 +27700,7 @@ class BaseControl {
     }
 
     renderTemplate() {
-        if (this.form.doc) {
+        if (this.form && this.form.doc) {
             this.wrapper.innerHTML = this.template(this.form.doc, this.doc);
         } else {
             this.wrapper.innerHTML = '';
@@ -27823,6 +27832,7 @@ class BaseControl {
     }
 
     async updateDocValue(value) {
+        if (!this.doc) return;
         if (this.doc[this.fieldname] !== value) {
             if (this.parentControl) {
                 // its a child
@@ -39796,11 +39806,6 @@ var htmlmixed = createCommonjsModule(function (module, exports) {
 });
 });
 
-// const frappe = require('frappejs');
-
- // eslint-disable-line
- // eslint-disable-line
-
 class CodeControl extends base {
     makeInput() {
         if (!this.options) {
@@ -48117,9 +48122,6 @@ DataTable.__version__ = packageJson.version;
 
 module.exports = DataTable;
 });
-
-// eslint-disable-line
-
 
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
@@ -56645,7 +56647,7 @@ module.exports = installCompat;
 /***/ })
 /******/ ]);
 });
-
+//# sourceMappingURL=nunjucks.js.map
 });
 
 unwrapExports(nunjucks);
@@ -56845,10 +56847,6 @@ var menu = class DeskMenu {
         }
     }
 };
-
-// const Search = require('./search');
-
-
 
 const views = {};
 views.Form = formpage;
@@ -57587,10 +57585,6 @@ var client = {
     }
 };
 
-// baseclass for report
-// `url` url for report
-// `getColumns` return columns
-
 var reportpage = class ReportPage extends page {
     constructor({title, }) {
         super({title: title, hasRoute: true});
@@ -57612,7 +57606,7 @@ var reportpage = class ReportPage extends page {
     }
 
     addFilter(field) {
-        if (field.fieldname) {
+        if (!field.fieldname) {
             field.fieldname = frappejs.slug(field.label);
         }
 
@@ -57633,6 +57627,7 @@ var reportpage = class ReportPage extends page {
                 return false;
             }
         }
+        console.log(values);
         return values;
     }
 
@@ -57699,7 +57694,8 @@ var AccountDocument = class Account extends document$1 {
     }
 };
 
-var Account = {
+var Account = createCommonjsModule(function (module) {
+module.exports = {
     "name": "Account",
     "doctype": "DocType",
     "documentClass": AccountDocument,
@@ -57719,7 +57715,13 @@ var Account = {
             "fieldname": "parent_account",
             "label": "Parent Account",
             "fieldtype": "Link",
-            "target": "Account"
+            "target": "Account",
+            getFilters: (query, control) => {
+                return {
+                    keywords: ["like", query],
+                    name: ["!=", control.doc.name]
+                }
+            }
         },
         {
             "fieldname": "account_type",
@@ -57739,8 +57741,21 @@ var Account = {
         validate: (doc) => {
 
         }
+    },
+
+    listSettings: {
+        getFields(list)  {
+            return ['name', 'account_type'];
+        },
+        getRowHTML(list, data) {
+            return `<div class="col-11">${list.getNameHTML(data)} (${data.account_type})</div>`;
+        }
     }
 };
+});
+
+var Account_1 = Account.events;
+var Account_2 = Account.listSettings;
 
 var AccountingLedgerEntry = {
     name: "AccountingLedgerEntry",
@@ -57803,7 +57818,7 @@ var AccountingLedgerEntry = {
         {
             fieldname: "referenceName",
             label: "Reference Name",
-            fieldtype: "Dynamic Link",
+            fieldtype: "DynamicLink",
             references: "referenceType"
         },
         {
@@ -57863,6 +57878,107 @@ module.exports = {
 });
 
 var Party_1 = Party.links;
+
+var Payment = {
+    name: "Payment",
+    label: "Payment",
+    naming: "name", // {random|autoincrement}
+    isSingle: 0,
+    isChild: 0,
+    keywordFields: [],
+    fields: [
+        {
+            "fieldname": "date",
+            "label": "Date",
+            "fieldtype": "Date"
+        },
+        {
+            fieldname: "party",
+            label: "Party",
+            fieldtype: "Link",
+            target: "Party",
+            required: 1
+        },
+        {
+            fieldname: "account",
+            label: "Account",
+            fieldtype: "Link",
+            target: "Account",
+            required: 1
+        },
+        {
+            fieldname: "paymentAccount",
+            label: "Payment Account",
+            fieldtype: "Link",
+            target: "Account",
+            required: 1
+        },
+        {
+            fieldname: "amount",
+            label: "Amount",
+            fieldtype: "Currency",
+            required: 1,
+            disabled: true,
+            formula: (doc) => doc.getSum('for', 'amount')
+        },
+        {
+            fieldname: "writeoff",
+            label: "Write Off / Refund",
+            fieldtype: "Currency",
+        },
+        {
+            fieldname: "for",
+            label: "Payment For",
+            fieldtype: "Table",
+            childtype: "PaymentFor",
+            required: 1
+        }
+    ],
+
+    layout: [
+        {
+            columns: [
+                { fields: ['date', 'party'] },
+                { fields: ['account', 'paymentAccount'] },
+            ]
+        },
+        {
+            fields: ['for']
+        },
+        {
+            fields: ['amount', 'writeoff']
+        }
+    ]
+};
+
+var PaymentFor = {
+    name: "PaymentFor",
+    label: "Payment For",
+    isSingle: 0,
+    isChild: 1,
+    keywordFields: [],
+    fields: [
+        {
+            fieldname: "referenceType",
+            label: "Reference Type",
+            fieldtype: "Data",
+            required: 1
+        },
+        {
+            fieldname: "referenceName",
+            label: "Reference Name",
+            fieldtype: "DynamicLink",
+            references: "referenceType",
+            required: 1
+        },
+        {
+            fieldname: "amount",
+            label: "Amount",
+            fieldtype: "Currency",
+            required: 1
+        },
+    ]
+};
 
 var Item = {
     name: "Item",
@@ -58117,8 +58233,8 @@ module.exports = {
     links: [
         {
             label: 'Ledger Entries',
-            condition: (form) => form.doc.submitted,
-            action:(form) => {
+            condition: form => form.doc.submitted,
+            action: form => {
                 return {
                     route: ['table', 'AccountingLedgerEntry'],
                     params: {
@@ -58129,13 +58245,35 @@ module.exports = {
                     }
                 };
             }
+        },
+        {
+            label: 'Make Payment',
+            condition: form => form.doc.submitted,
+            action: async form => {
+                const payment = await frappejs.getNewDoc('Payment');
+                payment.party = form.doc.customer, payment.account = form.doc.account, payment.for = [{referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal}];
+                const formModal = await frappejs.desk.showFormModal('Payment', payment.name);
+            }
         }
-    ]
+    ],
+
+    listSettings: {
+        getFields(list)  {
+            return ['name', 'customer', 'grandTotal', 'submitted'];
+        },
+
+        getRowHTML(list, data) {
+            return `<div class="col-3">${list.getNameHTML(data)}</div>
+                    <div class="col-4 text-muted">${data.customer}</div>
+                    <div class="col-4 text-muted text-right">${frappejs.format(data.grandTotal, "Currency")}</div>`;
+        }
+    }
 };
 });
 
 var Invoice_1 = Invoice.layout;
 var Invoice_2 = Invoice.links;
+var Invoice_3 = Invoice.listSettings;
 
 var InvoiceItem = {
     name: "InvoiceItem",
@@ -58304,6 +58442,8 @@ var models$2 = {
         Account: Account,
         AccountingLedgerEntry: AccountingLedgerEntry,
         Party: Party,
+        Payment: Payment,
+        PaymentFor: PaymentFor,
         Item: Item,
         Invoice: Invoice,
         InvoiceItem: InvoiceItem,
@@ -58315,7 +58455,7 @@ var models$2 = {
 };
 
 var ToDoList_1 = class ToDoList extends list {
-    getFields()  {
+    getFields(list$$1)  {
         return ['name', 'subject', 'status'];
     }
 };
@@ -58329,40 +58469,6 @@ var FilterSelectorForm_1 = class FilterSelectorForm extends form {
             }
             this.trigger('apply-filters');
         });
-    }
-};
-
-var AccountList_1 = class AccountList extends list {
-    getFields()  {
-        return ['name', 'account_type'];
-    }
-    getRowHTML(data) {
-        return `<div class="col-11">${this.getNameHTML(data)} (${data.account_type})</div>`;
-    }
-};
-
-var AccountForm_1 = class AccountForm extends form {
-    make() {
-        super.make();
-
-        // override controller event
-        this.controls['parent_account'].getFilters = (query) => {
-            return {
-                keywords: ["like", query],
-                name: ["!=", this.doc.name]
-            }
-        };
-    }
-};
-
-var InvoiceList_1 = class InvoiceList extends list {
-    getFields()  {
-        return ['name', 'customer', 'grandTotal', 'submitted'];
-    }
-    getRowHTML(data) {
-        return `<div class="col-3">${this.getNameHTML(data)}</div>
-                <div class="col-4 text-muted">${data.customer}</div>
-                <div class="col-4 text-muted text-right">${frappejs.format(data.grandTotal, "Currency")}</div>`;
     }
 };
 
@@ -58385,10 +58491,6 @@ var client$2 = {
         frappejs.registerView('List', 'ToDo', ToDoList_1);
         frappejs.registerView('Form', 'FilterSelector', FilterSelectorForm_1);
 
-        frappejs.registerView('List', 'Account', AccountList_1);
-        frappejs.registerView('Form', 'Account', AccountForm_1);
-
-        frappejs.registerView('List', 'Invoice', InvoiceList_1);
         frappejs.registerView('List', 'Customer', CustomerList_1);
 
         frappejs.router.add('report/general-ledger', async (params) => {
@@ -58412,7 +58514,6 @@ var client$2 = {
     }
 };
 
-// start server
 client.start({
     columns: 3,
     server: 'localhost:8000'

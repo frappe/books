@@ -59,7 +59,7 @@ module.exports = {
         {
             fieldname: "referenceName",
             label: "Reference Name",
-            fieldtype: "Dynamic Link",
+            fieldtype: "DynamicLink",
             references: "referenceType"
         },
         {
