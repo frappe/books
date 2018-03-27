@@ -99,17 +99,21 @@ module.exports = {
         { fields: [ "terms" ] },
     ],
 
-    formEvents: {
-        refresh: (form) => {
-            if (!form.ledgerLink) {
-                form.ledgerLink = form.container.addLink('Ledger Entries', () => {
-                    frappe.flags.filters = {
-                        reference_type: 'Invoice',
-                        reference_name: form.doc.name
+    links: [
+        {
+            label: 'Ledger Entries',
+            condition: (form) => form.doc.submitted,
+            action:(form) => {
+                return {
+                    route: ['table', 'AccountingLedgerEntry'],
+                    params: {
+                        filters: {
+                            referenceType: 'Invoice',
+                            referenceName: form.doc.name
+                        }
                     }
-                    frappe.router.setRoute('table', 'AccountingLedgerEntry');
-                });
+                };
             }
         }
-    }
+    ]
 }

@@ -23,5 +23,23 @@ module.exports = {
             "label": "Supplier",
             "fieldtype": "Check"
         }
+    ],
+
+    links: [
+        {
+            label: 'Invoices',
+            condition: (form) => form.doc.customer,
+            action: (form) => {
+                return {
+                    route: ['table', 'Invoice'],
+                    params: {
+                        filters: {
+                            customer: form.doc.name,
+                        }
+                    }
+                };
+            }
+        }
     ]
+
 }

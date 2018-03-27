@@ -8,7 +8,7 @@ module.exports = {
     keywordFields: [
         'account',
         'party',
-        'reference_name'
+        'referenceName'
     ],
     fields: [
         {
