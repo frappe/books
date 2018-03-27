@@ -24,5 +24,14 @@ module.exports = {
             }
         });
 
+    },
+
+    addLink(label, parent, action, unhide = true) {
+        const link = frappe.ui.add('button', 'btn btn-sm btn-outline-secondary', parent, label);
+        link.addEventListener('click', action);
+        if (unhide) {
+            parent.classList.remove('hide');
+        }
+        return link;
     }
 }

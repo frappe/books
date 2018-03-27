@@ -37,15 +37,6 @@ module.exports = class Page extends Observable {
             ${message}</span>`;
     }
 
-    addLink(label, action, unhide = true) {
-        const link = frappe.ui.add('button', 'btn btn-sm btn-outline-secondary', this.linksElement, label);
-        link.addEventListener('click', action);
-        if (unhide) {
-            this.linksElement.classList.remove('hide');
-        }
-        return link;
-    }
-
     clearLinks() {
         frappe.ui.empty(this.linksElement);
     }
