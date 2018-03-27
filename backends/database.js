@@ -444,7 +444,7 @@ module.exports = class Database extends Observable {
             , 'Text': 'text'
             , 'Data': 'text'
             , 'Link': 'text'
-            , 'Dynamic Link': 'text'
+            , 'DynamicLink': 'text'
             , 'Password': 'text'
             , 'Select': 'text'
             , 'Read Only': 'text'
