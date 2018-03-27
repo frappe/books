@@ -11,8 +11,8 @@ module.exports = class Page extends Observable {
         }
         this.make();
         this.dropdowns = {};
-
         if(this.title) {
+            this.wrapper.setAttribute('title', this.title);
             this.setTitle(this.title);
         }
     }

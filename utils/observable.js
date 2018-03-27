@@ -8,6 +8,16 @@ module.exports = class Observable {
         }
     }
 
+    // getter, setter stubs, so Observable can be used as a simple Document
+    get(key) {
+        return this[key];
+    }
+
+    set(key, value) {
+        this[key] = value;
+        this.trigger('change', {doc: this, fieldname: key});
+    }
+
     on(event, listener) {
         this._addListener('listeners', event, listener);
         if (this._observable.socketClient) {

@@ -5,11 +5,13 @@ const naming = require('./naming');
 module.exports = class BaseDocument extends Observable {
     constructor(data) {
         super();
-        this.fetchValues = {};
+        this.fetchValuesCache = {};
         this.flags = {};
         this.setup();
         Object.assign(this, data);
-        frappe.db.on('change', (params) => this.fetchValues[`${params.doctype}:${params.name}`] = {});
+
+        // clear fetch-values cache
+        frappe.db.on('change', (params) => this.fetchValuesCache[`${params.doctype}:${params.name}`] = {});
     }
 
     setup() {
@@ -28,10 +30,6 @@ module.exports = class BaseDocument extends Observable {
             this._settings = await frappe.getSingle(this.meta.settings);
         }
         return this._settings;
-    }
-
-    get(fieldname) {
-        return this[fieldname];
     }
 
     // set value and trigger change
@@ -298,7 +296,7 @@ module.exports = class BaseDocument extends Observable {
 
     async getFrom(doctype, name, fieldname) {
         if (!name) return '';
-        let _values = this.fetchValues[`${doctype}:${name}`] || (this.fetchValues[`${doctype}:${name}`] = {});
+        let _values = this.fetchValuesCache[`${doctype}:${name}`] || (this.fetchValuesCache[`${doctype}:${name}`] = {});
         if (!_values[fieldname]) {
             _values[fieldname] = await frappe.db.getValue(doctype, name, fieldname);
         }

@@ -30,7 +30,7 @@ module.exports = class TablePage extends Page {
             this.filterSelector.reset(this.doctype);
         }
 
-        if (frappe.params.filters) {
+        if (frappe.params && frappe.params.filters) {
             this.filterSelector.setFilters(frappe.params.filters);
         }
         frappe.params = null;
