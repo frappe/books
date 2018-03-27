@@ -1,4 +1,5 @@
 const frappe = require('frappejs');
+const utils = require('../../../accounting/utils');
 
 module.exports = {
     "name": "Invoice",
@@ -100,21 +101,7 @@ module.exports = {
     ],
 
     links: [
-        {
-            label: 'Ledger Entries',
-            condition: form => form.doc.submitted,
-            action: form => {
-                return {
-                    route: ['table', 'AccountingLedgerEntry'],
-                    params: {
-                        filters: {
-                            referenceType: 'Invoice',
-                            referenceName: form.doc.name
-                        }
-                    }
-                };
-            }
-        },
+        utils.ledgerLink,
         {
             label: 'Make Payment',
             condition: form => form.doc.submitted,

@@ -7396,7 +7396,8 @@ html {
 .form-body .alert {
     margin-top: 1rem; }
 .form-inline .form-group {
-  margin-right: 0.5rem; }
+  margin-right: 1rem;
+  margin-bottom: 1rem; }
 .list-search {
   padding: 1rem 2rem; }
 .list-body .list-row {

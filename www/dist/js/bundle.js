@@ -9367,6 +9367,16 @@ var observable = class Observable {
         };
     }
 
+    // getter, setter stubs, so Observable can be used as a simple Document
+    get(key) {
+        return this[key];
+    }
+
+    set(key, value) {
+        this[key] = value;
+        this.trigger('change', {doc: this, fieldname: key});
+    }
+
     on(event, listener) {
         this._addListener('listeners', event, listener);
         if (this._observable.socketClient) {
@@ -9538,22 +9548,36 @@ var naming = {
             if (!e.status_code || e.status_code !== 404) {
                 throw e;
             }
-            series = frappejs.newDoc({doctype: 'NumberSeries', name: prefix, current: 0});
-            await series.insert();
+            await this.createNumberSeries(prefix);
         }
         let next = await series.next();
         return prefix + next;
+    },
+
+    async createNumberSeries(prefix, setting, start=1000) {
+        if (!(await frappejs.db.exists('NumberSeries', prefix))) {
+            const series = frappejs.newDoc({doctype: 'NumberSeries', name: prefix, current: start});
+            await series.insert();
+
+            if (setting) {
+                const settingDoc = await frappejs.getSingle(setting);
+                settingDoc.numberSeries = series.name;
+                await settingDoc.update();
+            }
+        }
     }
 };
 
 var document$1 = class BaseDocument extends observable {
     constructor(data) {
         super();
-        this.fetchValues = {};
+        this.fetchValuesCache = {};
         this.flags = {};
         this.setup();
         Object.assign(this, data);
-        frappejs.db.on('change', (params) => this.fetchValues[`${params.doctype}:${params.name}`] = {});
+
+        // clear fetch-values cache
+        frappejs.db.on('change', (params) => this.fetchValuesCache[`${params.doctype}:${params.name}`] = {});
     }
 
     setup() {
@@ -9572,10 +9596,6 @@ var document$1 = class BaseDocument extends observable {
             this._settings = await frappejs.getSingle(this.meta.settings);
         }
         return this._settings;
-    }
-
-    get(fieldname) {
-        return this[fieldname];
     }
 
     // set value and trigger change
@@ -9842,7 +9862,7 @@ var document$1 = class BaseDocument extends observable {
 
     async getFrom(doctype, name, fieldname) {
         if (!name) return '';
-        let _values = this.fetchValues[`${doctype}:${name}`] || (this.fetchValues[`${doctype}:${name}`] = {});
+        let _values = this.fetchValuesCache[`${doctype}:${name}`] || (this.fetchValuesCache[`${doctype}:${name}`] = {});
         if (!_values[fieldname]) {
             _values[fieldname] = await frappejs.db.getValue(doctype, name, fieldname);
         }
@@ -27207,8 +27227,8 @@ var page = class Page extends observable {
         }
         this.make();
         this.dropdowns = {};
-
         if(this.title) {
+            this.wrapper.setAttribute('title', this.title);
             this.setTitle(this.title);
         }
     }
@@ -27745,8 +27765,8 @@ class BaseControl {
         if (!this.onlyInput) {
             this.makeDescription();
         }
-        if (this.placeholder) {
-            this.input.setAttribute('placeholder', this.placeholder);
+        if (this.placeholder || this.inline) {
+            this.input.setAttribute('placeholder', this.placeholder || this.label);
         }
 
     }
@@ -41971,45 +41991,6 @@ class DateControl extends base {
 
 var date = DateControl;
 
-class FloatControl extends base {
-    make() {
-        super.make();
-        this.input.setAttribute('type', 'text');
-        this.input.classList.add('text-right');
-        this.input.addEventListener('focus', () => {
-            setTimeout(() => {
-                this.input.select();
-            }, 100);
-        });
-    }
-    parse(value) {
-        value = parseFloat(value);
-        return isNaN(value) ? 0 : value;
-    }
-}
-
-var float_1 = FloatControl;
-
-class CurrencyControl extends float_1 {
-    parse(value) {
-        return frappejs.parse_number(value);
-    }
-    format(value) {
-        return frappejs.format_number(value);
-    }
-}
-
-var currency = CurrencyControl;
-
-class IntControl extends float_1 {
-    parse(value) {
-        value = parseInt(value);
-        return isNaN(value) ? 0 : value;
-    }
-}
-
-var int_1 = IntControl;
-
 var awesomplete = createCommonjsModule(function (module) {
 /**
  * Simple, lightweight, usable local autocomplete library for modern browsers
@@ -42541,8 +42522,8 @@ class LinkControl extends base {
         this.input.addEventListener('awesomplete-select', async (e) => {
             if (e.text && e.text.value === '__newItem') {
                 e.preventDefault();
-                const newDoc = await frappejs.getNewDoc(this.target);
-                const formModal = await frappejs.desk.showFormModal(this.target, newDoc.name);
+                const newDoc = await frappejs.getNewDoc(this.getTarget());
+                const formModal = await frappejs.desk.showFormModal(this.getTarget(), newDoc.name);
                 if (formModal.form.doc.meta.hasField('name')) {
                     formModal.form.doc.set('name', this.input.value);
                 }
@@ -42557,7 +42538,7 @@ class LinkControl extends base {
 
     async getList(query) {
         return (await frappejs.db.getAll({
-            doctype: this.target,
+            doctype: this.getTarget(),
             filters: this.getFilters(query, this),
             limit: 50
         })).map(d => d.name);
@@ -42566,9 +42547,60 @@ class LinkControl extends base {
     getFilters(query) {
         return { keywords: ["like", query] }
     }
+
+    getTarget() {
+        return this.target;
+    }
 }
 
 var link = LinkControl;
+
+class DynamicLinkControl extends link {
+    getTarget() {
+        return this.doc[this.references];
+    }
+}
+
+var dynamicLink = DynamicLinkControl;
+
+class FloatControl extends base {
+    make() {
+        super.make();
+        this.input.setAttribute('type', 'text');
+        this.input.classList.add('text-right');
+        this.input.addEventListener('focus', () => {
+            setTimeout(() => {
+                this.input.select();
+            }, 100);
+        });
+    }
+    parse(value) {
+        value = parseFloat(value);
+        return isNaN(value) ? 0 : value;
+    }
+}
+
+var float_1 = FloatControl;
+
+class CurrencyControl extends float_1 {
+    parse(value) {
+        return frappejs.parse_number(value);
+    }
+    format(value) {
+        return frappejs.format_number(value);
+    }
+}
+
+var currency = CurrencyControl;
+
+class IntControl extends float_1 {
+    parse(value) {
+        value = parseInt(value);
+        return isNaN(value) ? 0 : value;
+    }
+}
+
+var int_1 = IntControl;
 
 class PasswordControl extends base {
     make() {
@@ -48468,6 +48500,7 @@ const controlClasses = {
     Code: code,
     Data: data,
     Date: date,
+    DynamicLink: dynamicLink,
     Currency: currency,
     Float: float_1,
     Int: int_1,
@@ -48490,7 +48523,7 @@ var controls$1 = {
 };
 
 var form = class BaseForm extends observable {
-    constructor({doctype, parent, submit_label='Submit', container}) {
+    constructor({doctype, parent, submit_label='Submit', container, meta, inline=false}) {
         super();
         Object.assign(this, arguments[0]);
         this.controls = {};
@@ -48498,12 +48531,21 @@ var form = class BaseForm extends observable {
         this.sections = [];
         this.links = [];
 
-        this.meta = frappejs.getMeta(this.doctype);
+        if (!this.meta) {
+            this.meta = frappejs.getMeta(this.doctype);
+        }
+
         if (this.setup) {
             this.setup();
         }
+
         this.make();
         this.bindFormEvents();
+
+        if (this.doc) {
+            // bootstrapped with a doc
+            this.bindEvents(this.doc);
+        }
     }
 
     make() {
@@ -48511,10 +48553,22 @@ var form = class BaseForm extends observable {
             return;
         }
 
-        this.body = frappejs.ui.add('div', 'form-body', this.parent);
-        this.makeToolbar();
+        if (this.inline) {
+            this.body = this.parent;
+        } else {
+            this.body = frappejs.ui.add('div', 'form-body', this.parent);
+        }
+
+        if (this.actions) {
+            this.makeToolbar();
+        }
 
         this.form = frappejs.ui.add('form', 'form-container', this.body);
+
+        if (this.inline) {
+            this.form.classList.add('form-inline');
+        }
+
         this.form.onValidate = true;
 
         this.makeLayout();
@@ -48560,6 +48614,9 @@ var form = class BaseForm extends observable {
     makeControls(fields, parent) {
         for(let field of fields) {
             if (!field.hidden && controls$1.getControlClass(field.fieldtype)) {
+                if (this.inline) {
+                    field.inline = true;
+                }
                 let control = controls$1.makeControl({field: field, form: this, parent: parent});
                 this.controlList.push(control);
                 this.controls[field.fieldname] = control;
@@ -48666,6 +48723,8 @@ var form = class BaseForm extends observable {
     }
 
     setTitle() {
+        if (!this.container) return;
+
         const doctypeLabel = this.doc.meta.label || this.doc.meta.name;
 
         if (this.doc.meta.isSingle || this.doc.meta.naming === 'random') {
@@ -48702,6 +48761,8 @@ var form = class BaseForm extends observable {
     }
 
     refreshLinks(links) {
+        if (!this.container) return;
+
         this.container.clearLinks();
         for(let link of links) {
             // make the link
@@ -56768,7 +56829,7 @@ var tablepage = class TablePage extends page {
             this.filterSelector.reset(this.doctype);
         }
 
-        if (frappejs.params.filters) {
+        if (frappejs.params && frappejs.params.filters) {
             this.filterSelector.setFilters(frappejs.params.filters);
         }
         frappejs.params = null;
@@ -57586,48 +57647,45 @@ var client = {
 };
 
 var reportpage = class ReportPage extends page {
-    constructor({title, }) {
+    constructor({title, filterFields}) {
         super({title: title, hasRoute: true});
 
         this.fullPage = true;
+        this.filterFields = filterFields;
 
-        this.filterWrapper = frappejs.ui.add('div', 'filter-toolbar form-inline', this.body);
+        this.filterWrapper = frappejs.ui.add('div', 'filter-toolbar', this.body);
         this.tableWrapper = frappejs.ui.add('div', 'table-page-wrapper', this.body);
 
         this.btnNew = this.addButton(frappejs._('Refresh'), 'btn-primary', async () => {
             await this.run();
         });
 
-        this.filters = {};
+        this.makeFilters();
     }
 
     getColumns() {
         // overrride
     }
 
-    addFilter(field) {
-        if (!field.fieldname) {
-            field.fieldname = frappejs.slug(field.label);
-        }
-
-        field.placeholder = field.label;
-        field.inline = true;
-
-        this.filters[field.fieldname] = controls$1.makeControl({field: field, form: this, parent: this.filterWrapper});
-        return this.filters[field.fieldname];
+    makeFilters() {
+        this.form = new form({
+            parent: this.filterWrapper,
+            meta: { fields: this.filterFields },
+            doc: new observable(),
+            inline: true,
+            container: this
+        });
     }
 
     getFilterValues() {
         const values = {};
-        for (let fieldname in this.filters) {
-            let control = this.filters[fieldname];
-            values[fieldname] = control.getInputValue();
-            if (control.required && !values[fieldname]) {
+        for (let control of this.form.controlList) {
+            values[control.fieldname] = control.getInputValue();
+            if (control.required && !values[control.fieldname]) {
                 frappejs.ui.showAlert({message: frappejs._('{0} is mandatory', control.label), color: 'red'});
                 return false;
             }
         }
-        console.log(values);
         return values;
     }
 
@@ -57637,6 +57695,16 @@ var reportpage = class ReportPage extends page {
     }
 
     async run() {
+        if (frappejs.params && frappejs.params.filters) {
+            for (let key in frappejs.params.filters) {
+                if (this.form.controls[key]) {
+                    this.form.controls[key].setInputValue(frappejs.params.filters[key]);
+                }
+            }
+        }
+        frappejs.params = null;
+
+
         if (!this.datatable) {
             this.makeDataTable();
         }
@@ -57659,12 +57727,19 @@ var reportpage = class ReportPage extends page {
 
 var GeneralLedgerView_1 = class GeneralLedgerView extends reportpage {
     constructor() {
-        super({title: frappejs._('General Ledger')});
-
-        this.addFilter({fieldtype: 'Link', target: 'Account', label: 'Account'});
-        this.addFilter({fieldtype: 'Link', target: 'Party', label: 'Party'});
-        this.addFilter({fieldtype: 'Date', label: 'From Date'});
-        this.addFilter({fieldtype: 'Date', label: 'To Date'});
+        super({
+            title: frappejs._('General Ledger'),
+            filterFields: [
+                {fieldtype: 'Select', options: ['', 'Invoice', 'Payment'],
+                    label: 'Reference Type', fieldname: 'referenceType'},
+                {fieldtype: 'DynamicLink', references: 'referenceType',
+                    label: 'Reference Name', fieldname: 'referenceName'},
+                {fieldtype: 'Link', target: 'Account', label: 'Account'},
+                {fieldtype: 'Link', target: 'Party', label: 'Party'},
+                {fieldtype: 'Date', label: 'From Date'},
+                {fieldtype: 'Date', label: 'To Date'}
+            ]
+        });
 
         this.method = 'general-ledger';
     }
@@ -57879,13 +57954,36 @@ module.exports = {
 
 var Party_1 = Party.links;
 
+var utils$6 = createCommonjsModule(function (module) {
+module.exports = {
+    ledgerLink: {
+        label: 'Ledger Entries',
+        condition: form => form.doc.submitted,
+        action: form => {
+            return {
+                route: ['report', 'general-ledger'],
+                params: {
+                    filters: {
+                        referenceType: form.doc.doctype,
+                        referenceName: form.doc.name
+                    }
+                }
+            };
+        }
+    },
+};
+});
+
+var utils_1$2 = utils$6.ledgerLink;
+
 var Payment = {
     name: "Payment",
     label: "Payment",
-    naming: "name", // {random|autoincrement}
     isSingle: 0,
     isChild: 0,
+    isSubmittable: 1,
     keywordFields: [],
+    settings: "PaymentSettings",
     fields: [
         {
             "fieldname": "date",
@@ -57948,6 +58046,10 @@ var Payment = {
         {
             fields: ['amount', 'writeoff']
         }
+    ],
+
+    links: [
+        utils$6.ledgerLink
     ]
 };
 
@@ -57977,6 +58079,24 @@ var PaymentFor = {
             fieldtype: "Currency",
             required: 1
         },
+    ]
+};
+
+var PaymentSettings = {
+    name: "PaymentSettings",
+    label: "Payment Settings",
+    isSingle: 1,
+    isChild: 0,
+    keywordFields: [],
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "label": "Number Series",
+            "fieldtype": "Link",
+            "target": "NumberSeries",
+            "required": 1,
+            "default": "PAY"
+        }
     ]
 };
 
@@ -58231,21 +58351,7 @@ module.exports = {
     ],
 
     links: [
-        {
-            label: 'Ledger Entries',
-            condition: form => form.doc.submitted,
-            action: form => {
-                return {
-                    route: ['table', 'AccountingLedgerEntry'],
-                    params: {
-                        filters: {
-                            referenceType: 'Invoice',
-                            referenceName: form.doc.name
-                        }
-                    }
-                };
-            }
-        },
+        utils$6.ledgerLink,
         {
             label: 'Make Payment',
             condition: form => form.doc.submitted,
@@ -58356,7 +58462,8 @@ var InvoiceSettings = {
             "label": "Number Series",
             "fieldtype": "Link",
             "target": "NumberSeries",
-            "required": 1
+            "required": 1,
+            "default": "INV"
         }
     ]
 };
@@ -58442,12 +58549,17 @@ var models$2 = {
         Account: Account,
         AccountingLedgerEntry: AccountingLedgerEntry,
         Party: Party,
+
         Payment: Payment,
         PaymentFor: PaymentFor,
+        PaymentSettings: PaymentSettings,
+
         Item: Item,
+
         Invoice: Invoice,
         InvoiceItem: InvoiceItem,
         InvoiceSettings: InvoiceSettings,
+
         Tax: Tax,
         TaxDetail: TaxDetail,
         TaxSummary: TaxSummary
