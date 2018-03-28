@@ -33,5 +33,24 @@ module.exports = {
             parent.classList.remove('hide');
         }
         return link;
-    }
+    },
+
+    // https://css-tricks.com/snippets/javascript/loop-queryselectorall-matches/
+    forEachNode(nodeList, callback, scope) {
+        if(!nodeList) return;
+        for (var i = 0; i < nodeList.length; i++) {
+            callback.call(scope, nodeList[i], i);
+        }
+    },
+
+    activate($parent, $child, commonClass, activeClass='active', index = -1) {
+        let $children = $parent.querySelectorAll(`.${commonClass}.${activeClass}`);
+
+        this.forEachNode($children, (node, i) => {
+            if(index >= 0 && i <= index) return;
+            node.classList.remove(activeClass);
+        })
+
+		$child.classList.add(activeClass);
+	}
 }
