@@ -9,6 +9,7 @@ client.start({
 }).then(() => {
     new SetupWizard({
         postSetup: async (data) => {
+            console.log(data);
             client.makeDesk(3);
             appClient.start();
 

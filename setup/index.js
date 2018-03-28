@@ -8,88 +8,85 @@ module.exports = class SetupWizard {
 	constructor({postSetup = () => {}}) {
 		this.slideList = [];
 		this.indicatorList = [];
-		this.currentIndex = 0;
 		this.footerLinks = {};
+
+		this.currentIndex = 0;
 		this.data = {};
 
 		this.postSetup = postSetup;
+		this.make();
+
+		this.showSlide(this.currentIndex);
+	}
+
+	make() {
 		let body = document.querySelector('body');
-
-		// container
 		this.container = frappe.ui.add('form', 'setup-container container', body);
-
-		// dots
 		this.$indicators = frappe.ui.add('div', 'indicators vertical-margin align-center', this.container);
 
-		// make form
+		this.makeSlides();
+		this.makeLinks();
+	}
+
+	makeSlides() {
 		slideConfigs.forEach(config => {
 			this.formLayout = new FormLayout(config);
 			this.slideList.push(this.formLayout);
 			let form = this.formLayout.form;
-
-			let title = document.createElement('h3');
-			title.innerHTML = config.title;
-			title.classList.add('text-extra-muted');
-			form.insertBefore(title, form.firstChild);
 			this.container.appendChild(form);
 
-			let indicator = document.createElement('span');
-			indicator.classList.add('indicator', 'gray');
-			this.indicatorList.push(indicator);
-			this.$indicators.appendChild(indicator);
-		});
+			let title = frappe.ui.create('h3', {
+				className: 'text-extra-muted',
+				innerHTML: config.title
+			})
+			form.insertBefore(title, form.firstChild);
 
-		// make links
+			let indicator = frappe.ui.create('span', {
+				inside: this.$indicators,
+				className: 'indicator gray'
+			})
+			this.indicatorList.push(indicator);
+		});
+	}
+
+	makeLinks() {
 		this.linkArea = frappe.ui.add('div', 'setup-link-area align-right', this.container);
-		let links = [
-			{
-				label: 'Prev',
-				name: 'prev',
-				action: () => {
-					this.prevSlide();
-				}
-			},
-			{
-				label: 'Next',
-				name: 'next',
-				action: () => {
-					this.nextSlide();
-				}
-			},
-			{
-				label: 'Complete',
-				name: 'complete',
-				action: (data) => {
-					this.postSetup();
-				}
-			}
-		];
 
         // this.formLayout.on('change', () => {
         //     const show = this.doc._dirty && !this.doc.submitted;
         //     this.saveButton.classList.toggle('hide', !show);
         // });
 
-		links.map(link => {
+		this.getFooterLinks().map(link => {
 			let $link = utils.addLink(link.label, this.linkArea, () => {
+				this.buildData();
 				link.action(this.data);
 			});
 			this.footerLinks[link.name] = $link;
 		})
-
-		this.showSlide(this.currentIndex);
 	}
 
-	make() {
-		//
+	buildData() {
+		this.data = {};
+		this.slideList.forEach(slide => {
+			Object.assign(this.data, slide.doc);
+		});
 	}
 
 	showSlide(index) {
 		utils.activate(this.container, this.slideList[index].form, 'form-body', 'active');
 		this.slideList[index].controlList[0].input.blur();
 		this.activateIndicator(index);
-		this.setFooterLinks(index);
+		this.showFooterLinks(index);
 		this.currentIndex = index;
+	}
+
+	prevSlide() {
+		this.showSlide(this.currentIndex - 1);
+	}
+
+	nextSlide() {
+		this.showSlide(this.currentIndex + 1);
 	}
 
 	activateIndicator(index) {
@@ -101,28 +98,38 @@ module.exports = class SetupWizard {
 		indicator.classList.remove('gray');
 	}
 
-	prevSlide() {
-		this.showSlide(this.currentIndex - 1);
-	}
-
-	nextSlide() {
-		this.showSlide(this.currentIndex + 1);
-	}
-
-	setFooterLinks(index) {
+	showFooterLinks(index) {
+		let mat = [1, 1, 0]
 		if(index === 0) {
-			this.footerLinks.prev.classList.add('hide');
-			this.footerLinks.next.classList.remove('hide');
-			this.footerLinks.complete.classList.add('hide');
+			mat = [0, 1, 0];
 		} else if (index === this.slideList.length - 1) {
-			this.footerLinks.prev.classList.remove('hide');
-			this.footerLinks.next.classList.add('hide');
-			this.footerLinks.complete.classList.remove('hide');
-		} else {
-			this.footerLinks.prev.classList.remove('hide');
-			this.footerLinks.next.classList.remove('hide');
-			this.footerLinks.complete.classList.add('hide');
+			mat = [1, 0, 1];
 		}
+		this.showHideLinks(mat);
+	}
 
+	showHideLinks(matrix = [1, 1, 0]) {
+		let linkNames = this.getFooterLinks().map(link => link.name);
+		matrix.forEach((value, i) => {
+			const fn = value ? 'remove' : 'add';
+			this.footerLinks[linkNames[i]].classList[fn]('hide');
+		});
+	}
+
+	getFooterLinks() {
+		return [
+			{
+				label: 'Prev', name: 'prev',
+				action: this.prevSlide.bind(this)
+			},
+			{
+				label: 'Next', name: 'next',
+				action: this.nextSlide.bind(this)
+			},
+			{
+				label: 'Complete', name: 'complete',
+				action: this.postSetup.bind(this)
+			}
+		];
 	}
 }
