@@ -4,6 +4,7 @@
 @import "node_modules/flatpickr/dist/themes/airbnb";
 @import "node_modules/codemirror/lib/codemirror";
 @import "node_modules/frappe-datatable/dist/frappe-datatable";
+// @import "node_modules/octicons/build/build.css";
 
 $spacer-1: 0.25rem;
 $spacer-2: 0.5rem;
@@ -252,3 +253,45 @@ mark {
 	background: inherit;
 }
 
+.align-right {
+	text-align: right;
+}
+
+.align-center {
+	text-align: center;
+}
+
+.btn-sm {
+	margin: $spacer-1;
+}
+
+.vertical-margin {
+	margin: $spacer-3 0px;
+}
+
+// just for accounting
+
+.setup-container {
+	margin: 40px auto;
+	padding: 20px 0px;
+	width: 450px;
+
+	border: 1px solid $gray-300;
+	border-radius: 4px;
+
+	h3 {
+		text-align: center;
+	}
+
+	.form-body {
+		display: none;
+	}
+
+	.form-body.active {
+		display: block;
+	}
+
+	.setup-link-area {
+		margin: $spacer-1 $spacer-4;
+	}
+}

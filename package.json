@@ -28,6 +28,7 @@
     "node-sass": "^4.7.2",
     "nodemon": "^1.14.7",
     "nunjucks": "^3.1.0",
+    "octicons": "^7.2.0",
     "popper.js": "^1.12.9",
     "precss": "^2.0.0",
     "rollup": "^0.55.1",
