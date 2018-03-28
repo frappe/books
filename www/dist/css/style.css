@@ -7486,3 +7486,25 @@ html {
 mark {
   padding: none;
   background: inherit; }
+.align-right {
+  text-align: right; }
+.align-center {
+  text-align: center; }
+.btn-sm, .btn-group-sm > .btn {
+  margin: 0.25rem; }
+.vertical-margin {
+  margin: 1rem 0px; }
+.setup-container {
+  margin: 40px auto;
+  padding: 20px 0px;
+  width: 450px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px; }
+.setup-container h3 {
+    text-align: center; }
+.setup-container .form-body {
+    display: none; }
+.setup-container .form-body.active {
+    display: block; }
+.setup-container .setup-link-area {
+    margin: 0.25rem 2rem; }
