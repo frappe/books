@@ -4575,7 +4575,7 @@ if (typeof undefined === 'function' && undefined.amd) {
 }
 }).call(commonjsGlobal);
 
-
+//# sourceMappingURL=showdown.js.map
 });
 
 var moment = createCommonjsModule(function (module, exports) {
@@ -23066,7 +23066,7 @@ Popper.placements = placements;
 Popper.Defaults = Defaults;
 
 
-
+//# sourceMappingURL=popper.js.map
 
 
 var popper = Object.freeze({
@@ -26965,7 +26965,7 @@ exports.Tooltip = Tooltip;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-
+//# sourceMappingURL=bootstrap.js.map
 });
 
 unwrapExports(bootstrap);
@@ -27022,6 +27022,43 @@ Dropdown.instances = 0;
 var dropdown = Dropdown;
 
 var ui = {
+    create(tag, o) {
+        let element = document.createElement(tag);
+
+        let $ = (expr, con) => {
+            return typeof expr === "string"
+                ? (con || document).querySelector(expr)
+                : expr || null;
+        };
+
+        for (var i in o) {
+            let val = o[i];
+
+            if (i === "inside") {
+                $(val).appendChild(element);
+            }
+            else if (i === "around") {
+                let ref = $(val);
+                ref.parentNode.insertBefore(element, ref);
+                element.appendChild(ref);
+
+            } else if (i === "styles") {
+                if(typeof val === "object") {
+                    Object.keys(val).map(prop => {
+                        element.style[prop] = val[prop];
+                    });
+                }
+            } else if (i in element ) {
+                element[i] = val;
+            }
+            else {
+                element.setAttribute(i, val);
+            }
+        }
+
+        return element;
+    },
+
     add(tag, className, parent, textContent) {
         let element = document.createElement(tag);
         if (className) {
@@ -39817,11 +39854,6 @@ var htmlmixed = createCommonjsModule(function (module, exports) {
 });
 });
 
-// const frappe = require('frappejs');
-
- // eslint-disable-line
- // eslint-disable-line
-
 class CodeControl extends base {
     makeInput() {
         if (!this.options) {
@@ -48152,9 +48184,6 @@ DataTable.__version__ = packageJson.version;
 module.exports = DataTable;
 });
 
-// eslint-disable-line
-
-
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
         super();
@@ -48607,9 +48636,6 @@ var formLayout = class FormLayout extends observable {
     makeControls(fields, parent) {
         for(let field of fields) {
             if (!field.hidden && controls$1.getControlClass(field.fieldtype)) {
-                if (this.inline) {
-                    field.inline = true;
-                }
                 let control = controls$1.makeControl({field: field, form: this, parent: parent});
                 this.controlList.push(control);
                 this.controls[field.fieldname] = control;
@@ -54669,7 +54695,7 @@ module.exports = rawAsap;
 function rawAsap(task) {
     if (!queue.length) {
         requestFlush();
-
+        
     }
     // Equivalent to push, but avoids a function call.
     queue[queue.length] = task;
@@ -54718,7 +54744,7 @@ function flush() {
     }
     queue.length = 0;
     index = 0;
-
+    
 }
 
 // `requestFlush` is implemented using a strategy based on data collected from
@@ -54940,7 +54966,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;// MIT license (
     };
     return makeCallback(0);
   };
-
+  
   var _isArray = Array.isArray || function(maybeArray){
     return Object.prototype.toString.call(maybeArray) === '[object Array]';
   };
@@ -56784,7 +56810,7 @@ module.exports = installCompat;
 /***/ })
 /******/ ]);
 });
-
+//# sourceMappingURL=nunjucks.js.map
 });
 
 unwrapExports(nunjucks);
@@ -56984,10 +57010,6 @@ var menu = class DeskMenu {
         }
     }
 };
-
-// const Search = require('./search');
-
-
 
 const views = {};
 views.Form = formpage;
@@ -57730,10 +57752,6 @@ var client = {
         };
     }
 };
-
-// baseclass for report
-// `url` url for report
-// `getColumns` return columns
 
 var reportpage = class ReportPage extends page {
     constructor({title, filterFields}) {
@@ -58633,6 +58651,215 @@ var TaxSummary = {
     ]
 };
 
+var Address = {
+    "name": "Address",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "titleField": "addressTitle",
+    "keywordFields": [
+        "addressTitle"
+    ],
+    pageSettings: {
+        hideTitle: true
+    },
+    "naming": "autoincrement",
+    "fields": [
+        {
+            "fieldname": "addressTitle",
+            "label": "Address Title",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "addressType",
+            "label": "Address Type",
+            "fieldtype": "Select",
+            "options": [
+                "Billing", "Shipping", "Office",
+                "Personal", "Plant", "Postal",
+                "Shop", "Subsidary", "Warehouse",
+                "Current", "Permanent", "Other"
+            ]
+        },
+        {
+            "fieldname": "addressLine1",
+            "label": "Address Line 1",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "addressLine2",
+            "label": "Address Line 2",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "city",
+            "label": "City / Town",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "county",
+            "label": "County",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "state",
+            "label": "State",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "country",
+            "label": "Country",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "postalCode",
+            "label": "Postal Code",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "emailAddress",
+            "label": "Email Address",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "phone",
+            "label": "Phone",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "fax",
+            "label": "Fax",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "isPreferredBilling",
+            "label": "Preferred Billing Address",
+            "fieldtype": "Check"
+        },
+        {
+            "fieldname": "isShippingBilling",
+            "label": "Preferred Shipping Address",
+            "fieldtype": "Check"
+        }
+    ],
+
+    events: {
+        validate: (doc) => {
+
+        }
+    },
+
+    listSettings: {
+        getFields(list)  {
+            return ['addressTitle', 'addressType'];
+        },
+        getRowHTML(list, data) {
+            console.log(list, data);
+            return `<div class="col-11">${list.getNameHTML(data)} (${data.addressType})</div>`;
+        }
+    },
+
+    layout: [
+        // section 1
+        {
+            columns: [
+                {
+                    fields: [ "addressTitle", "addressType", "addressLine1",
+                            "addressLine2", "city", "county", "state", "country",
+                            "postalCode"] 
+                },
+                { fields: [ "emailAddress", "phone", "fax", "isPreferredBilling", "isShippingBilling" ] }
+            ]
+        }
+    ]
+};
+
+var Contact = {
+    "name": "Contact",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "naming": "autoincrement",
+    "pageSettings": {
+        "hideTitle": true
+    },
+    "titleField": "fullName",
+    "keywordFields": [
+        "fullName"
+    ],
+    "titleField": "fullName",
+    "fields": [
+        {
+            "fieldname": "fullName",
+            "label": "Full Name",
+            "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "emailAddress",
+            "label": "Email Address",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "userId",
+            "label": "User ID",
+            "fieldtype": "Link",
+            "target": "User",
+            "hidden": 1
+        },
+        {
+            "fieldname": "status",
+            "label": "Status",
+            "fieldtype": "Select",
+            "options": ["Passive", "Open", "Replied"]
+        },
+        {
+            "fieldname": "gender",
+            "label": "Gender",
+            "fieldtype": "Select",
+            "options": ["Male", "Female", "Gender"]
+        },
+        {
+            "fieldname": "mobileNumber",
+            "label": "Mobile Number",
+            "fieldtype": "Data"
+        },
+        {
+            "fieldname": "phone",
+            "label": "Phone",
+            "fieldtype": "Data"
+        }
+    ],
+
+    events: {
+        validate: (doc) => {
+
+        }
+    },
+
+    listSettings: {
+        getFields(list)  {
+            return ['fullName'];
+        },
+        getRowHTML(list, data) {
+            console.log(list, data);
+            return `<div class="col-11">${list.getNameHTML(data)}</div>`;
+        }
+    },
+
+    layout: [
+        // section 1
+        {
+            columns: [
+                { fields: [ "fullName", "emailAddress", "userId", "status" ] },
+                { fields: [ "postalCode", "gender", "phone", "mobileNumber" ] }
+            ]
+        }
+    ]
+};
+
 var models$2 = {
     models: {
         Account: Account,
@@ -58651,7 +58878,9 @@ var models$2 = {
 
         Tax: Tax,
         TaxDetail: TaxDetail,
-        TaxSummary: TaxSummary
+        TaxSummary: TaxSummary,
+        Address: Address,
+        Contact: Contact
     }
 };
 
@@ -58706,6 +58935,8 @@ var client$2 = {
         frappejs.desk.menu.addItem('Items', '#list/Item');
         frappejs.desk.menu.addItem('Customers', '#list/Customer');
         frappejs.desk.menu.addItem('Invoice', '#list/Invoice');
+        frappejs.desk.menu.addItem('Address', "#list/Address");
+        frappejs.desk.menu.addItem('Contact', "#list/Contact");
         frappejs.desk.menu.addItem('Settings', () => frappejs.desk.showFormModal('SystemSettings'));
 
         frappejs.router.default = '#list/ToDo';
@@ -59154,7 +59385,6 @@ object-assign
 @license MIT
 */
 
-/* eslint-disable no-unused-vars */
 var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 var propIsEnumerable = Object.prototype.propertyIsEnumerable;
@@ -59304,93 +59534,91 @@ var octicons = data$4;
 const triangleRight = octicons["triangle-right"].toSVG({ "width": 5});
 const triangleDown = octicons["triangle-down"].toSVG({ "width": 10});
 const triangleLeft = octicons["triangle-left"].toSVG({ "width": 5});
+// const octiconPrimitiveDot = octicons["octicon-primitive-dot"].toSVG({ "width": 7});
 
 var setup = class SetupWizard {
 	constructor({postSetup = () => {}}) {
 		this.slideList = [];
 		this.indicatorList = [];
-		this.currentIndex = 0;
 		this.footerLinks = {};
+
+		this.currentIndex = 0;
 		this.data = {};
 
 		this.postSetup = postSetup;
+		this.make();
+
+		this.showSlide(this.currentIndex);
+	}
+
+	make() {
 		let body = document.querySelector('body');
-
-		// container
 		this.container = frappejs.ui.add('form', 'setup-container container', body);
-
-		// dots
 		this.$indicators = frappejs.ui.add('div', 'indicators vertical-margin align-center', this.container);
 
-		// make form
+		this.makeSlides();
+		this.makeLinks();
+	}
+
+	makeSlides() {
 		config.forEach(config$$1 => {
 			this.formLayout = new formLayout(config$$1);
 			this.slideList.push(this.formLayout);
 			let form = this.formLayout.form;
-
-			let title = document.createElement('h3');
-			title.innerHTML = config$$1.title;
-			title.classList.add('text-extra-muted');
-			form.insertBefore(title, form.firstChild);
 			this.container.appendChild(form);
 
-			let indicator = document.createElement('span');
-			indicator.classList.add('indicator', 'gray');
-			this.indicatorList.push(indicator);
-			this.$indicators.appendChild(indicator);
-		});
+			let title = frappejs.ui.create('h3', {
+				className: 'text-extra-muted',
+				innerHTML: config$$1.title
+			});
+			form.insertBefore(title, form.firstChild);
 
-		// make links
+			let indicator = frappejs.ui.create('span', {
+				inside: this.$indicators,
+				className: 'indicator gray'
+			});
+			this.indicatorList.push(indicator);
+		});
+	}
+
+	makeLinks() {
 		this.linkArea = frappejs.ui.add('div', 'setup-link-area align-right', this.container);
-		let links = [
-			{
-				label: 'Prev',
-				name: 'prev',
-				action: () => {
-					this.prevSlide();
-				}
-			},
-			{
-				label: 'Next',
-				name: 'next',
-				action: () => {
-					this.nextSlide();
-				}
-			},
-			{
-				label: 'Complete',
-				name: 'complete',
-				action: (data) => {
-					this.postSetup();
-				}
-			}
-		];
 
         // this.formLayout.on('change', () => {
         //     const show = this.doc._dirty && !this.doc.submitted;
         //     this.saveButton.classList.toggle('hide', !show);
         // });
 
-		links.map(link => {
+		this.getFooterLinks().map(link => {
 			let $link = utils$3.addLink(link.label, this.linkArea, () => {
+				this.buildData();
 				link.action(this.data);
 			});
 			this.footerLinks[link.name] = $link;
 		});
-
-		this.showSlide(this.currentIndex);
 	}
 
-	make() {
-		//
+	buildData() {
+		this.data = {};
+		this.slideList.forEach(slide => {
+			Object.assign(this.data, slide.doc);
+		});
 	}
 
 	showSlide(index) {
 		utils$3.activate(this.container, this.slideList[index].form, 'form-body', 'active');
 		this.slideList[index].controlList[0].input.blur();
 		this.activateIndicator(index);
-		this.setFooterLinks(index);
+		this.showFooterLinks(index);
 		this.currentIndex = index;
+	}
+
+	prevSlide() {
+		this.showSlide(this.currentIndex - 1);
+	}
+
+	nextSlide() {
+		this.showSlide(this.currentIndex + 1);
 	}
 
 	activateIndicator(index) {
@@ -59402,39 +59630,49 @@ var setup = class SetupWizard {
 		indicator.classList.remove('gray');
 	}
 
-	prevSlide() {
-		this.showSlide(this.currentIndex - 1);
-	}
-
-	nextSlide() {
-		this.showSlide(this.currentIndex + 1);
-	}
-
-	setFooterLinks(index) {
+	showFooterLinks(index) {
+		let mat = [1, 1, 0];
 		if(index === 0) {
-			this.footerLinks.prev.classList.add('hide');
-			this.footerLinks.next.classList.remove('hide');
-			this.footerLinks.complete.classList.add('hide');
+			mat = [0, 1, 0];
 		} else if (index === this.slideList.length - 1) {
-			this.footerLinks.prev.classList.remove('hide');
-			this.footerLinks.next.classList.add('hide');
-			this.footerLinks.complete.classList.remove('hide');
-		} else {
-			this.footerLinks.prev.classList.remove('hide');
-			this.footerLinks.next.classList.remove('hide');
-			this.footerLinks.complete.classList.add('hide');
+			mat = [1, 0, 1];
 		}
+		this.showHideLinks(mat);
+	}
 
+	showHideLinks(matrix = [1, 1, 0]) {
+		let linkNames = this.getFooterLinks().map(link => link.name);
+		matrix.forEach((value, i) => {
+			const fn = value ? 'remove' : 'add';
+			this.footerLinks[linkNames[i]].classList[fn]('hide');
+		});
+	}
+
+	getFooterLinks() {
+		return [
+			{
+				label: 'Prev', name: 'prev',
+				action: this.prevSlide.bind(this)
+			},
+			{
+				label: 'Next', name: 'next',
+				action: this.nextSlide.bind(this)
+			},
+			{
+				label: 'Complete', name: 'complete',
+				action: this.postSetup.bind(this)
+			}
+		];
 	}
 };
 
-// start server
 client.start({
     server: 'localhost:8000',
     makeDesk: 0
 }).then(() => {
     new setup({
         postSetup: async (data) => {
+            console.log(data);
             client.makeDesk(3);
             client$2.start();
 
