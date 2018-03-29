@@ -26,5 +26,6 @@ module.exports = {
         JournalEntrySettings: require('./doctype/JournalEntrySettings/JournalEntrySettings.js'),
 
         Quotation: require('./doctype/Quotation/Quotation.js'),
+        QuotationSettings: require('./doctype/QuotationSettings/QuotationSettings.js'),
     }
 }

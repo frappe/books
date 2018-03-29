@@ -25,6 +25,7 @@ module.exports = {
         await naming.createNumberSeries('INV-', 'InvoiceSettings');
         await naming.createNumberSeries('PAY-', 'PaymentSettings');
         await naming.createNumberSeries('JV-', 'JournalEntrySettings');
+        await naming.createNumberSeries('QTN-', 'QuotationSettings');
 
         frappe.registerMethod({
             method: 'general-ledger',
