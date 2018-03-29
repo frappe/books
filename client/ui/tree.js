@@ -11,7 +11,7 @@ const triangleLeft = octicons["triangle-left"].toSVG({ "width": 5, "class": "nod
 // add node classes later
 
 class Tree {
-    constructor({parent, label, iconSet, withSkeleton=1, method}) {
+    constructor({parent, label, iconSet, withSkeleton, method}) {
 		Object.assign(this, arguments[0]);
 		this.nodes = {};
 		if(!iconSet) {
@@ -27,9 +27,8 @@ class Tree {
     make() {
 		this.tree = frappe.ui.create('div', {
 			inside: this.parent,
-			className: 'tree'
+			className: 'tree ' + (this.withSkeleton ? 'with-skeleton' : '')
 		});
-		if(this.withSkeleton) this.tree.classList.add('tree-with-skeleton');
 
 		this.rootNode = this.makeNode(this.label, this.label, true, null, this.tree);
 		this.expandNode(this.rootNode, false);
@@ -98,7 +97,7 @@ class Tree {
 	}
 
 	buildNodeElement(node) {
-		let parentLi = frappe.ui.create('li', {
+		node.parentLi = frappe.ui.create('li', {
 			inside: node.parent,
 			className: 'tree-node'
 		});
@@ -110,7 +109,7 @@ class Tree {
 		let $label = `<a class="tree-label"> ${node.label}</a>`;
 
 		node.$treeLink = frappe.ui.create('span', {
-			inside: parentLi,
+			inside: node.parentLi,
 			className: 'tree-link',
 			'data-label': node.label,
 			innerHTML: iconHtml + $label
@@ -122,7 +121,7 @@ class Tree {
 		});
 
 		node.$childrenList = frappe.ui.create('ul', {
-			inside: parentLi,
+			inside: node.parentLi,
 			className: 'tree-children hide'
 		});
 
@@ -148,7 +147,9 @@ class Tree {
 		}
 
 		node.expanded = !node.expanded;
-		node.parent.classList.toggle('opened', node.expanded);
+		// node.parent.classList.toggle('opened', node.expanded);
+		node.parent.classList.add('opened');
+		node.parentLi.classList.add('opened');
 	}
 
 	toggleNode(node) {
@@ -164,7 +165,8 @@ class Tree {
 			if(this.iconSet) {
 				const oldIcon = node.$treeLink.querySelector('svg');
 				const newIconKey = !node.expanded ? 'closed' : 'open';
-				// node.$treeLink.replaceChild(oldIcon, this.iconSet[newIconKey]);
+				const newIcon = frappe.ui.create(this.iconSet[newIconKey]);
+				node.$treeLink.replaceChild(newIcon, oldIcon);
 			}
 		}
 	}
