@@ -2,8 +2,8 @@ const frappe = require('frappejs');
 const Dropdown = require('./dropdown');
 
 module.exports = {
-    create(tag, o) {
-        if(!o) {
+    create(tag, obj) {
+        if(!obj) {
             let div = document.createElement('div');
             div.innerHTML = tag.trim();
             return div.firstChild;
@@ -16,8 +16,8 @@ module.exports = {
                 : expr || null;
         }
 
-        for (var i in o) {
-            let val = o[i];
+        for (var i in obj) {
+            let val = obj[i];
 
             if (i === "inside") {
                 $(val).appendChild(element);
