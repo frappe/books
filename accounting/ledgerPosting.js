@@ -7,24 +7,24 @@ module.exports = class LedgerPosting {
         this.entryMap = {};
     }
 
-    debit(account, amount) {
-        const entry = this.getEntry(account);
+    debit(account, amount, referenceType, referenceName) {
+        const entry = this.getEntry(account, referenceType, referenceName);
         entry.debit += amount;
     }
 
-    credit(account, amount) {
-        const entry = this.getEntry(account);
+    credit(account, amount, referenceType, referenceName) {
+        const entry = this.getEntry(account, referenceType, referenceName);
         entry.credit += amount;
     }
 
-    getEntry(account) {
+    getEntry(account, referenceType, referenceName) {
         if (!this.entryMap[account]) {
             const entry = {
                 account: account,
                 party: this.party,
                 date: this.date || this.reference.date,
-                referenceType: this.reference.doctype,
-                referenceName: this.reference.name,
+                referenceType: referenceType || this.reference.doctype,
+                referenceName: referenceName || this.reference.name,
                 description: this.description,
                 debit: 0,
                 credit: 0
