@@ -3,6 +3,11 @@ const Dropdown = require('./dropdown');
 
 module.exports = {
     create(tag, o) {
+        if(!o) {
+            let div = document.createElement('div');
+            div.innerHTML = tag.trim();
+            return div.firstChild;
+        }
         let element = document.createElement(tag);
 
         let $ = (expr, con) => {
