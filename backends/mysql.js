@@ -197,6 +197,7 @@ module.exports = class mysqlDatabase extends Database{
             , 'Password': 'varchar(140)'
             , 'Select': 'VARCHAR(140)'
             , 'Read Only': 'varchar(140)'
+            , 'File': 'text'
             , 'Attach': 'text'
             , 'Attach Image': 'text'
             , 'Signature': 'text'
