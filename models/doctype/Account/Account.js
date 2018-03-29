@@ -18,7 +18,13 @@ module.exports = {
             "fieldname": "parent_account",
             "label": "Parent Account",
             "fieldtype": "Link",
-            "target": "Account"
+            "target": "Account",
+            getFilters: (query, control) => {
+                return {
+                    keywords: ["like", query],
+                    name: ["!=", control.doc.name]
+                }
+            }
         },
         {
             "fieldname": "account_type",
@@ -37,6 +43,15 @@ module.exports = {
     events: {
         validate: (doc) => {
 
+        }
+    },
+
+    listSettings: {
+        getFields(list)  {
+            return ['name', 'account_type'];
+        },
+        getRowHTML(list, data) {
+            return `<div class="col-11">${list.getNameHTML(data)} (${data.account_type})</div>`;
         }
     }
 }

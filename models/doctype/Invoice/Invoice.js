@@ -1,4 +1,5 @@
 const frappe = require('frappejs');
+const utils = require('../../../accounting/utils');
 
 module.exports = {
     "name": "Invoice",
@@ -100,20 +101,29 @@ module.exports = {
     ],
 
     links: [
+        utils.ledgerLink,
         {
-            label: 'Ledger Entries',
-            condition: (form) => form.doc.submitted,
-            action:(form) => {
-                return {
-                    route: ['table', 'AccountingLedgerEntry'],
-                    params: {
-                        filters: {
-                            referenceType: 'Invoice',
-                            referenceName: form.doc.name
-                        }
-                    }
-                };
+            label: 'Make Payment',
+            condition: form => form.doc.submitted,
+            action: async form => {
+                const payment = await frappe.getNewDoc('Payment');
+                payment.party = form.doc.customer,
+                payment.account = form.doc.account,
+                payment.for = [{referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal}]
+                const formModal = await frappe.desk.showFormModal('Payment', payment.name);
             }
         }
-    ]
+    ],
+
+    listSettings: {
+        getFields(list)  {
+            return ['name', 'customer', 'grandTotal', 'submitted'];
+        },
+
+        getRowHTML(list, data) {
+            return `<div class="col-3">${list.getNameHTML(data)}</div>
+                    <div class="col-4 text-muted">${data.customer}</div>
+                    <div class="col-4 text-muted text-right">${frappe.format(data.grandTotal, "Currency")}</div>`;
+        }
+    }
 }
