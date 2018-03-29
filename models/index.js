@@ -23,7 +23,8 @@ module.exports = {
 
         JournalEntry: require('./doctype/JournalEntry/JournalEntry.js'),
         JournalEntryAccount: require('./doctype/JournalEntryAccount/JournalEntryAccount.js'),
-        JournalEntrySetting: require('./doctype/JournalEntrySetting/JournalEntrySetting.js'),
+        JournalEntrySettings: require('./doctype/JournalEntrySettings/JournalEntrySettings.js'),
 
+        Quotation: require('./doctype/Quotation/Quotation.js'),
     }
 }
