@@ -3,6 +3,7 @@ const controlClasses = {
     Code: require('./code'),
     Data: require('./data'),
     Date: require('./date'),
+    DynamicLink: require('./dynamicLink'),
     Currency: require('./currency'),
     Float: require('./float'),
     Int: require('./int'),

@@ -2,6 +2,48 @@ const frappe = require('frappejs');
 const Dropdown = require('./dropdown');
 
 module.exports = {
+    create(tag, obj) {
+        if(!obj) {
+            let div = document.createElement('div');
+            div.innerHTML = tag.trim();
+            return div.firstChild;
+        }
+        let element = document.createElement(tag);
+
+        let $ = (expr, con) => {
+            return typeof expr === "string"
+                ? (con || document).querySelector(expr)
+                : expr || null;
+        }
+
+        for (var i in obj) {
+            let val = obj[i];
+
+            if (i === "inside") {
+                $(val).appendChild(element);
+            }
+            else if (i === "around") {
+                let ref = $(val);
+                ref.parentNode.insertBefore(element, ref);
+                element.appendChild(ref);
+
+            } else if (i === "styles") {
+                if(typeof val === "object") {
+                    Object.keys(val).map(prop => {
+                        element.style[prop] = val[prop];
+                    });
+                }
+            } else if (i in element ) {
+                element[i] = val;
+            }
+            else {
+                element.setAttribute(i, val);
+            }
+        }
+
+        return element;
+    },
+
     add(tag, className, parent, textContent) {
         let element = document.createElement(tag);
         if (className) {
@@ -36,7 +78,7 @@ module.exports = {
         }
     },
 
-    remove_class(element, className) {
+    removeClass(element, className) {
         if (element.classList) {
             element.classList.remove(className);
         } else {

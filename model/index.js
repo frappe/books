@@ -9,7 +9,7 @@ module.exports = {
             fieldname: 'owner', fieldtype: 'Data', required: 1
         },
         {
-            fieldname: 'modifieldBy', fieldtype: 'Data', required: 1
+            fieldname: 'modifiedBy', fieldtype: 'Data', required: 1
         },
         {
             fieldname: 'creation', fieldtype: 'Datetime', required: 1
