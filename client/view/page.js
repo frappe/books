@@ -11,8 +11,8 @@ module.exports = class Page extends Observable {
         }
         this.make();
         this.dropdowns = {};
-
         if(this.title) {
+            this.wrapper.setAttribute('title', this.title);
             this.setTitle(this.title);
         }
     }
@@ -35,15 +35,6 @@ module.exports = class Page extends Observable {
     addTitleBadge(message, title='', style='secondary') {
         this.titleElement.innerHTML += ` <span class='badge badge-${style}' title='${title}'>
             ${message}</span>`;
-    }
-
-    addLink(label, action, unhide = true) {
-        const link = frappe.ui.add('button', 'btn btn-sm btn-outline-secondary', this.linksElement, label);
-        link.addEventListener('click', action);
-        if (unhide) {
-            this.linksElement.classList.remove('hide');
-        }
-        return link;
     }
 
     clearLinks() {

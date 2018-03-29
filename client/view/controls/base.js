@@ -41,7 +41,7 @@ class BaseControl {
     }
 
     renderTemplate() {
-        if (this.form.doc) {
+        if (this.form && this.form.doc) {
             this.wrapper.innerHTML = this.template(this.form.doc, this.doc);
         } else {
             this.wrapper.innerHTML = '';
@@ -86,8 +86,8 @@ class BaseControl {
         if (!this.onlyInput) {
             this.makeDescription();
         }
-        if (this.placeholder) {
-            this.input.setAttribute('placeholder', this.placeholder);
+        if (this.placeholder || this.inline) {
+            this.input.setAttribute('placeholder', this.placeholder || this.label);
         }
 
     }
@@ -173,6 +173,7 @@ class BaseControl {
     }
 
     async updateDocValue(value) {
+        if (!this.doc) return;
         if (this.doc[this.fieldname] !== value) {
             if (this.parentControl) {
                 // its a child

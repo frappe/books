@@ -193,7 +193,7 @@ module.exports = class mysqlDatabase extends Database{
             , 'Text': 'text'
             , 'Data': 'VARCHAR(140)'
             , 'Link': ' varchar(140)'
-            , 'Dynamic Link': 'text'
+            , 'DynamicLink': 'text'
             , 'Password': 'varchar(140)'
             , 'Select': 'VARCHAR(140)'
             , 'Read Only': 'varchar(140)'

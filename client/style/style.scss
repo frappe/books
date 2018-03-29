@@ -4,6 +4,7 @@
 @import "node_modules/flatpickr/dist/themes/airbnb";
 @import "node_modules/codemirror/lib/codemirror";
 @import "node_modules/frappe-datatable/dist/frappe-datatable";
+// @import "node_modules/octicons/build/build.css";
 
 $spacer-1: 0.25rem;
 $spacer-2: 0.5rem;
@@ -86,7 +87,8 @@ html {
 
 .form-inline {
 	.form-group {
-		margin-right: $spacer-2;
+		margin-right: $spacer-3;
+		margin-bottom: $spacer-3;
 	}
 }
 
@@ -251,3 +253,157 @@ mark {
 	background: inherit;
 }
 
+.align-right {
+	text-align: right;
+}
+
+.align-center {
+	text-align: center;
+}
+
+.btn-sm {
+	margin: $spacer-1;
+}
+
+.vertical-margin {
+	margin: $spacer-3 0px;
+}
+
+.tree {
+	padding: 15px;
+}
+
+.tree li {
+	list-style: none;
+	margin: 2px 0px;
+}
+
+ul.tree-children {
+	padding-left: 20px;
+}
+
+.tree-link {
+	cursor: pointer;
+	display: inline-block;
+	padding: 1px;
+}
+
+.tree-link .node-parent {
+	color: $gray-600;
+	font-size: 14px;
+	width: 10px;
+	text-align: center;
+}
+
+.tree-link .node-leaf {
+	color: $gray-400;
+}
+
+.tree-link .node-parent, .tree-link .node-leaf {
+	margin-right: 5px;
+    margin-left: 2px;
+    margin-top: 3px;
+}
+
+.tree-link.active {
+	svg {
+		color: $blue;
+	}
+
+	a {
+		color: $gray-600;
+	}
+}
+
+.tree-hover {
+	background-color: $gray-200;
+	min-height: 20px;
+	border: 1px solid $gray-600;
+}
+
+.tree-node-toolbar {
+	display: inline-block;
+	padding: 0px 5px;
+	margin-left: 15px;
+	margin-bottom: -4px;
+	margin-top: -8px;
+}
+
+// @media (max-width: @screen-xs) {
+// 	ul.tree-children {
+// 		padding-left: 10px;
+// 	}
+// }
+
+// decoration
+// .tree, .tree-node {
+.tree.with-skeleton, .tree.with-skeleton .tree-node {
+	position: relative;
+
+	&.opened::before, &:last-child::after {
+		content: '';
+		position: absolute;
+		top: 12px;
+		left: 7px;
+		height: calc(100% - 23px);
+		width: 1px;
+		background: $gray-400;
+		z-index: -1;
+	}
+
+	&:last-child::after {
+		top: 11px;
+		left: -13px;
+		height: calc(100% - 15px);
+		width: 3px;
+		background: #fff;
+	}
+
+	&.opened > .tree-children > .tree-node > .tree-link::before {
+		content: '';
+		position: absolute;
+		width: 18px;
+		height: 1px;
+		top: 10px;
+		left: -12px;
+		z-index: -1;
+		background: $gray-400;
+	}
+}
+
+.tree.with-skeleton.opened::before {
+	left: 22px;
+	top: 33px;
+	height: calc(100% - 67px);
+}
+
+.tree-link.active ~ .balance-area {
+	color: $gray-600 !important;
+}
+
+// just for accounting
+
+.setup-container {
+	margin: 40px auto;
+	padding: 20px 0px;
+	width: 450px;
+
+	border: 1px solid $gray-300;
+	border-radius: 4px;
+
+	h3 {
+		text-align: center;
+	}
+
+	.form-body {
+		display: none;
+	}
+
+	.form-body.active {
+		display: block;
+	}
+
+	.setup-link-area {
+		margin: $spacer-1 $spacer-4;
+	}
+}

@@ -74,16 +74,14 @@ module.exports = class sqliteDatabase extends Database {
     }
 
     getColumnDefinition(field) {
-        let def = `${field.fieldname} ${this.typeMap[field.fieldtype]}`;
-        if (field.fieldname==='name') {
-            def += ' PRIMARY KEY NOT NULL';
-        }
-        else if (field.required) {
-            def += ' NOT NULL';
-        }
-        if (field.default) {
-            def += `DEFAULT ${field.default}`;
-        }
+        let def = [
+            field.fieldname,
+            this.typeMap[field.fieldtype],
+            field.fieldname === 'name' ? 'PRIMARY KEY NOT NULL' : '',
+            field.required ? 'NOT NULL' : '',
+            field.default ? `DEFAULT ${field.default}` : ''
+        ].join(' ');
+
         return def;
     }
 
@@ -232,7 +230,7 @@ module.exports = class sqliteDatabase extends Database {
             , 'Text': 'text'
             , 'Data': 'text'
             , 'Link': 'text'
-            , 'Dynamic Link': 'text'
+            , 'DynamicLink': 'text'
             , 'Password': 'text'
             , 'Select': 'text'
             , 'Read Only': 'text'

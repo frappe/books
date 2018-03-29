@@ -11,6 +11,8 @@ module.exports = {
     naming: "name", // {random|autoincrement}
     isSingle: 0,
     isChild: 0,
+    isSubmittable: 0,
+    settings: null,
     keywordFields: [],
     fields: [
         {

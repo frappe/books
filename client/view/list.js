@@ -3,7 +3,7 @@ const keyboard = require('frappejs/client/ui/keyboard');
 const Observable = require('frappejs/utils/observable');
 
 module.exports = class BaseList extends Observable {
-    constructor({doctype, parent, fields, page}) {
+    constructor({doctype, parent, fields=[], page}) {
         super();
 
         Object.assign(this, arguments[0]);
@@ -17,9 +17,27 @@ module.exports = class BaseList extends Observable {
         this.rows = [];
         this.data = [];
 
+        this.setupListSettings();
+
         frappe.db.on(`change:${this.doctype}`, (params) => {
             this.refresh();
         });
+    }
+
+    setupListSettings() {
+        // list settings that can be overridden by meta
+        this.listSettings = {
+            getFields: list => list.fields,
+            getRowHTML: (list, data) => {
+                return `<div class="col-11">
+                    ${list.getNameHTML(data)}
+                </div>`;
+            }
+        }
+
+        if (this.meta.listSettings) {
+            Object.assign(this.listSettings, this.meta.listSettings);
+        }
     }
 
     makeBody() {
@@ -62,7 +80,7 @@ module.exports = class BaseList extends Observable {
     }
 
     async getData() {
-        let fields = this.getFields();
+        let fields = this.listSettings.getFields(this) || [];
         this.updateStandardFields(fields);
         return await frappe.db.getAll({
             doctype: this.doctype,
@@ -71,10 +89,6 @@ module.exports = class BaseList extends Observable {
             start: this.start,
             limit: this.pageLength + 1
         });
-    }
-
-    getFields() {
-        return [];
     }
 
     updateStandardFields(fields) {
@@ -105,14 +119,9 @@ module.exports = class BaseList extends Observable {
     getRowBodyHTML(data) {
         return `<div class="col-1">
             <input class="checkbox" type="checkbox" data-name="${data.name}">
-        </div>` + this.getRowHTML(data);
+        </div>` + this.listSettings.getRowHTML(this, data);
     }
 
-    getRowHTML(data) {
-        return `<div class="col-11">
-            ${this.getNameHTML(data)}
-        </div>`;
-    }
 
     getNameHTML(data) {
         return `<span class="indicator ${this.meta.getIndicatorColor(data)}">${data[this.meta.titleField]}</span>`;
