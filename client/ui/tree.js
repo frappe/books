@@ -1,14 +1,6 @@
 const frappe = require('frappejs');
-const bootstrap = require('bootstrap');
-const $ = require('jquery');
 const octicons = require('octicons');
 const utils = require('frappejs/client/ui/utils');
-
-const triangleRight = octicons["triangle-right"].toSVG({ "width": 5, "class": "node-parent"});
-const triangleDown = octicons["triangle-down"].toSVG({ "width": 10, "class": "node-parent"});
-const triangleLeft = octicons["triangle-left"].toSVG({ "width": 5, "class": "node-leaf"});
-// const octiconPrimitiveDot = octicons["octicon-primitive-dot"].toSVG({ "width": 7, "class": "node-leaf"});
-// add node classes later
 
 class Tree {
     constructor({parent, label, iconSet, withSkeleton, method}) {
@@ -16,9 +8,9 @@ class Tree {
 		this.nodes = {};
 		if(!iconSet) {
 			this.iconSet = {
-				open: triangleDown,
-				closed: triangleRight,
-				leaf: triangleLeft
+				open: octicons["triangle-down"].toSVG({ "width": 10, "class": "node-parent"}),
+				closed: octicons["triangle-right"].toSVG({ "width": 5, "class": "node-parent"}),
+				leaf: octicons["primitive-dot"].toSVG({ "width": 7, "class": "node-leaf"})
 			};
 		}
 		this.make();
@@ -31,7 +23,7 @@ class Tree {
 		});
 
 		this.rootNode = this.makeNode(this.label, this.label, true, null, this.tree);
-		this.expandNode(this.rootNode, false);
+		this.expandNode(this.rootNode);
 	}
 
 	refresh() {
@@ -51,21 +43,20 @@ class Tree {
 		dataList.map(d => { this.renderNodeChildren(this.nodes[d.parent], d.data); });
 	}
 
-	renderNodeChildren(node, dataSet) {
-		console.log("dataSet", dataSet);
-		frappe.ui.empty(node.$childrenList);
+	renderNodeChildren(node, dataSet=[]) {
+		frappe.ui.empty(node.childrenList);
 
 		dataSet.forEach(data => {
 			let parentNode = this.nodes[node.value];
 			let childNode = this.makeNode(data.label || data.value, data.value,
 				data.expandable, parentNode);
-			childNode.$treeLink.dataset.nodeData = data;
+			childNode.treeLink.dataset.nodeData = data;
 		});
 		node.expanded = false;
 
 		// As children loaded
 		node.loaded = true;
-		this.expandNode(node);
+		this.onNodeClick(node, false);
 	}
 
 	getAllNodes() { }
@@ -82,7 +73,7 @@ class Tree {
 
 		if(parentNode){
 			node.parentNode = parentNode;
-			node.parent = parentNode.$childrenList;
+			node.parent = parentNode.childrenList;
 			node.isRoot = 0;
 		} else {
 			node.isRoot = 1;
@@ -106,27 +97,26 @@ class Tree {
 		if(this.iconSet) {
 			iconHtml = node.expandable ? this.iconSet.closed : this.iconSet.leaf;
 		}
-		let $label = `<a class="tree-label"> ${node.label}</a>`;
+		let labelEl = `<a class="tree-label"> ${node.label}</a>`;
 
-		node.$treeLink = frappe.ui.create('span', {
+		node.treeLink = frappe.ui.create('span', {
 			inside: node.parentLi,
 			className: 'tree-link',
 			'data-label': node.label,
-			innerHTML: iconHtml + $label
+			innerHTML: iconHtml + labelEl
 		});
-		node.$treeLink.dataset.node = node;
-		node.$treeLink.addEventListener('click', () => {
-			console.log('clicked');
+		node.treeLink.dataset.node = node;
+		node.treeLink.addEventListener('click', () => {
 			this.onNodeClick(node);
 		});
 
-		node.$childrenList = frappe.ui.create('ul', {
+		node.childrenList = frappe.ui.create('ul', {
 			inside: node.parentLi,
 			className: 'tree-children hide'
 		});
 
 		// if(this.toolbar) {
-		// 	node.$toolbar = this.getToolbar(node).insertAfter(node.$treeLink);
+		// 	node.toolbar = this.getToolbar(node).insertAfter(node.treeLink);
 		// }
 	}
 
@@ -137,8 +127,8 @@ class Tree {
 		}
 		this.expandNode(node);
 		// select link
-		utils.activate(this.tree, node.$treeLink, 'tree-link', 'active');
-		if(node.$toolbar) this.showToolbar(node);
+		utils.activate(this.tree, node.treeLink, 'tree-link', 'active');
+		if(node.toolbar) this.showToolbar(node);
 	}
 
 	expandNode(node) {
@@ -153,20 +143,20 @@ class Tree {
 	}
 
 	toggleNode(node) {
-		if(!node.loaded) return this.loadChildren(node);
+		if(!node.loaded) this.loadChildren(node);
 
 		// expand children
-		if(node.$childrenList) {
-			if(node.$childrenList.innerHTML.length) {
-				node.$childrenList.classList.toggle('hide', !node.expanded);
+		if(node.childrenList) {
+			if(node.childrenList.innerHTML.length) {
+				node.childrenList.classList.toggle('hide', !node.expanded);
 			}
 
 			// open close icon
 			if(this.iconSet) {
-				const oldIcon = node.$treeLink.querySelector('svg');
+				const oldIcon = node.treeLink.querySelector('svg');
 				const newIconKey = !node.expanded ? 'closed' : 'open';
 				const newIcon = frappe.ui.create(this.iconSet[newIconKey]);
-				node.$treeLink.replaceChild(newIcon, oldIcon);
+				node.treeLink.replaceChild(newIcon, oldIcon);
 			}
 		}
 	}
