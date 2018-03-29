@@ -236,6 +236,7 @@ module.exports = class sqliteDatabase extends Database {
             , 'Password': 'text'
             , 'Select': 'text'
             , 'Read Only': 'text'
+            , 'File': 'text'
             , 'Attach': 'text'
             , 'Attach Image': 'text'
             , 'Signature': 'text'
