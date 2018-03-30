@@ -178,7 +178,8 @@ module.exports = class mysqlDatabase extends Database{
 
     init_typeMap() {
         this.typeMap = {
-            'Currency': 'real'
+            'Autocomplete': 'VARCHAR(140)'
+            , 'Currency': 'real'
             , 'Int': 'INT'
             , 'Float': 'decimal(18,6)'
             , 'Percent': 'real'
