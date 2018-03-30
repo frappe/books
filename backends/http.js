@@ -116,7 +116,8 @@ module.exports = class HTTPClient extends Observable {
 
     initTypeMap() {
         this.typeMap = {
-            'Currency': true
+            'Autocomplete': true
+            , 'Currency': true
             , 'Int': true
             , 'Float': true
             , 'Percent': true
