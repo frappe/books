@@ -2014,9 +2014,9 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-frappe-datatable@^0.0.3:
+frappe-datatable@frappe/datatable:
   version "0.0.3"
-  resolved "https://registry.yarnpkg.com/frappe-datatable/-/frappe-datatable-0.0.3.tgz#55d3fd7bafdf2a7380efab2ae2aaaa956624fca0"
+  resolved "https://codeload.github.com/frappe/datatable/tar.gz/e5af37fb07ddaaa43cfb42dd84ac4f98d93816bc"
   dependencies:
     clusterize.js "^0.18.0"
     lodash "^4.17.5"
@@ -2035,7 +2035,7 @@ frappejs@../frappejs:
     eslint "^4.19.1"
     express "^4.16.2"
     flatpickr "^4.3.2"
-    frappe-datatable "^0.0.3"
+    frappe-datatable frappe/datatable
     frappejs "../frappejs"
     jquery "^3.3.1"
     mocha "^4.1.0"
@@ -2045,6 +2045,7 @@ frappejs@../frappejs:
     node-sass "^4.7.2"
     nodemon "^1.14.7"
     nunjucks "^3.1.0"
+    octicons "^7.2.0"
     popper.js "^1.12.9"
     precss "^2.0.0"
     puppeteer "^1.2.0"
@@ -4836,15 +4837,6 @@ rollup-plugin-replace@^2.0.0:
 rollup-plugin-sass@^0.5.3:
   version "0.5.3"
   resolved "https://registry.yarnpkg.com/rollup-plugin-sass/-/rollup-plugin-sass-0.5.3.tgz#f275ee19d40f4f915287dbf7fef92b9cd03c6181"
-  dependencies:
-    babel-runtime "^6.23.0"
-    fs-extra "^0.30.0"
-    node-sass ">= 3.8.0"
-    rollup-pluginutils ">= 1.3.1"
-
-rollup-plugin-sass@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-sass/-/rollup-plugin-sass-0.6.0.tgz#7d490827f395db4b5252485c45cc1a39da88901b"
   dependencies:
     babel-runtime "^6.23.0"
     fs-extra "^0.30.0"

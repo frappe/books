@@ -1,15 +1,23 @@
 {
   "name": "frappe-accounting",
-  "productName": "ERPNext Desktop",
+  "description": "Simple Accounting app for everyone",
+  "productName": "Frappe Accounting",
   "version": "1.0.0",
-  "main": "electron/main.js",
+  "author": {
+    "name": "Frappe Technologies Pvt. Ltd.",
+    "email": "hello@frappe.io"
+  },
+  "build": {
+    "appId": "io.frappe.accounting"
+  },
+  "main": "main.js",
   "license": "MIT",
   "scripts": {
     "test": "mocha tests",
     "start": "nodemon server.js",
     "watch": "rollup -c --watch",
-    "electron": "electron electron/main.js",
-    "electron-pack": "electron-packager electron/main.js --overwrite",
+    "electron": "electron main.js",
+    "electron-pack": "electron-packager . --overwrite",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
