@@ -1,7 +1,7 @@
 const server = require('frappejs/server');
 const frappe = require('frappejs');
-const GeneralLedger = require('../reports/generalLedger/GeneralLedger')
-const naming = require('frappejs/model/naming')
+const GeneralLedger = require('../reports/generalLedger/GeneralLedger');
+const naming = require('frappejs/model/naming');
 
 module.exports = {
     async start() {
