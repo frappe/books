@@ -21,8 +21,8 @@ module.exports = {
         frappe.syncDoc(require('../fixtures/invoicePrint'));
 
         // init naming series if missing
-        await naming.createNumberSeries('INV-', 'InvoiceSetting');
-        await naming.createNumberSeries('PAY-', 'PaymentSetting');
+        await naming.createNumberSeries('INV-', 'InvoiceSettings');
+        await naming.createNumberSeries('PAY-', 'PaymentSettings');
 
         frappe.registerMethod({
             method: 'general-ledger',
