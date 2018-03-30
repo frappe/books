@@ -26,8 +26,9 @@ module.exports = {
 
     },
 
-    addLink(label, parent, action, unhide = true) {
+    addButton(label, parent, action, unhide = true) {
         const link = frappe.ui.add('button', 'btn btn-sm btn-outline-secondary', parent, label);
+        link.type = 'button';
         link.addEventListener('click', action);
         if (unhide) {
             parent.classList.remove('hide');
@@ -43,8 +44,12 @@ module.exports = {
         }
     },
 
-    activate($parent, $child, commonClass, activeClass='active', index = -1) {
-        let $children = $parent.querySelectorAll(`.${commonClass}.${activeClass}`);
+    activate($parent, $child, commonSelector, activeClass='active', index = -1) {
+        let $children = $parent.querySelectorAll(`${commonSelector}.${activeClass}`);
+
+        if (typeof $child === 'string') {
+            $child = $parent.querySelector($child);
+        }
 
         this.forEachNode($children, (node, i) => {
             if(index >= 0 && i <= index) return;
