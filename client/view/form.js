@@ -1,20 +1,17 @@
 const frappe = require('frappejs');
 const controls = require('./controls');
+const FormLayout = require('./formLayout');
 const Observable = require('frappejs/utils/observable');
 const keyboard = require('frappejs/client/ui/keyboard');
+const utils = require('frappejs/client/ui/utils');
 
 module.exports = class BaseForm extends Observable {
     constructor({doctype, parent, submit_label='Submit', container, meta, inline=false}) {
         super();
         Object.assign(this, arguments[0]);
-        this.controls = {};
-        this.controlList = [];
-        this.sections = [];
         this.links = [];
 
-        if (!this.meta) {
-            this.meta = frappe.getMeta(this.doctype);
-        }
+        this.meta = frappe.getMeta(this.doctype);
 
         if (this.setup) {
             this.setup();
@@ -52,7 +49,13 @@ module.exports = class BaseForm extends Observable {
 
         this.form.onValidate = true;
 
-        this.makeLayout();
+        this.formLayout = new FormLayout({
+            fields: this.meta.fields,
+            layout: this.meta.layout
+        });
+
+        this.form.appendChild(this.formLayout.form);
+
         this.bindKeyboard();
     }
 
@@ -60,47 +63,6 @@ module.exports = class BaseForm extends Observable {
         if (this.meta.formEvents) {
             for (let key in this.meta.formEvents) {
                 this.on(key, this.meta.formEvents[key]);
-            }
-        }
-    }
-
-    makeLayout() {
-        if (this.meta.layout) {
-            for (let section of this.meta.layout) {
-                this.makeSection(section);
-            }
-        } else {
-            this.makeControls(this.meta.fields);
-        }
-    }
-
-    makeSection(section) {
-        const sectionElement = frappe.ui.add('div', 'form-section', this.form);
-        if (section.columns) {
-            sectionElement.classList.add('row');
-            for (let column of section.columns) {
-                let columnElement = frappe.ui.add('div', 'col', sectionElement);
-                this.makeControls(this.getFieldsFromLayoutElement(column.fields), columnElement);
-            }
-        } else {
-            this.makeControls(this.getFieldsFromLayoutElement(section.fields), sectionElement);
-        }
-        this.sections.push(sectionElement);
-    }
-
-    getFieldsFromLayoutElement(fields) {
-        return this.meta.fields.filter(d => fields.includes(d.fieldname));
-    }
-
-    makeControls(fields, parent) {
-        for(let field of fields) {
-            if (!field.hidden && controls.getControlClass(field.fieldtype)) {
-                if (this.inline) {
-                    field.inline = true;
-                }
-                let control = controls.makeControl({field: field, form: this, parent: parent});
-                this.controlList.push(control);
-                this.controls[field.fieldname] = control;
             }
         }
     }
@@ -247,7 +209,7 @@ module.exports = class BaseForm extends Observable {
         this.container.clearLinks();
         for(let link of links) {
             // make the link
-            this.container.addLink(link.label, () => {
+            utils.addLink(link.label, this.container.linksElement, () => {
                 let options = link.action(this);
 
                 if (options) {
@@ -271,7 +233,7 @@ module.exports = class BaseForm extends Observable {
             this.doc.off(this.docListener);
         }
         this.doc = doc;
-        for (let control of this.controlList) {
+        for (let control of this.formLayout.controlList) {
             control.bind(this.doc);
         }
 
@@ -285,7 +247,7 @@ module.exports = class BaseForm extends Observable {
         this.docListener = (params) => {
             if (params.fieldname) {
                 // only single value changed
-                let control = this.controls[params.fieldname];
+                let control = this.formLayout.controls[params.fieldname];
                 if (control && control.getInputValue() !== control.format(params.fieldname)) {
                     control.refresh();
                 }
@@ -304,7 +266,7 @@ module.exports = class BaseForm extends Observable {
     checkValidity() {
         let validity = this.form.checkValidity();
         if (validity) {
-            for (let control of this.controlList) {
+            for (let control of this.formLayout.controlList) {
                 // check validity in table
                 if (control.fieldtype==='Table') {
                     validity = control.checkValidity();
@@ -318,9 +280,7 @@ module.exports = class BaseForm extends Observable {
     }
 
     refresh() {
-        for(let control of this.controlList) {
-            control.refresh();
-        }
+        this.formLayout.refresh();
         this.trigger('refresh', this);
         this.setLinks();
     }

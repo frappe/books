@@ -1317,9 +1317,13 @@ forwarded@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.1.2.tgz#98c23dab1175657b8c0573e8ceccd91b0ff18c84"
 
-"frappe-datatable@link:../datatable":
-  version "0.0.0"
-  uid ""
+frappe-datatable@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/frappe-datatable/-/frappe-datatable-0.0.3.tgz#55d3fd7bafdf2a7380efab2ae2aaaa956624fca0"
+  dependencies:
+    clusterize.js "^0.18.0"
+    lodash "^4.17.5"
+    sortablejs "^1.7.0"
 
 fresh@0.5.2:
   version "0.5.2"
@@ -2471,7 +2475,7 @@ oauth-sign@~0.8.1, oauth-sign@~0.8.2:
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/oauth-sign/-/oauth-sign-0.8.2.tgz#46a6ab7f0aead8deae9ec0565780b7d4efeb9d43"
 
-object-assign@^4.0.1, object-assign@^4.1.0:
+object-assign@^4.0.1, object-assign@^4.1.0, object-assign@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
 
@@ -2485,6 +2489,12 @@ object.omit@^2.0.0:
   dependencies:
     for-own "^0.1.4"
     is-extendable "^0.1.1"
+
+octicons@^7.2.0:
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/octicons/-/octicons-7.2.0.tgz#a721635f73c774d7ffda56a83a29dbde03fc4b53"
+  dependencies:
+    object-assign "^4.1.1"
 
 on-finished@~2.3.0:
   version "2.3.0"
