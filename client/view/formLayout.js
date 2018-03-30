@@ -1,8 +1,9 @@
+const frappe = require('frappejs');
 const controls = require('./controls');
 const Observable = require('frappejs/utils/observable');
 
 module.exports = class FormLayout extends Observable {
-    constructor({fields, layout, events = []}) {
+    constructor({fields, doc, layout, events = []}) {
         super();
         Object.assign(this, arguments[0]);
         this.controls = {};
@@ -10,21 +11,14 @@ module.exports = class FormLayout extends Observable {
         this.sections = [];
         this.links = [];
 
-        this.doc = {
-            get(fieldname) {
-                return this[fieldname]
-            },
-
-            set(fieldname, value) {
-                this[fieldname] = value;
-            }
-        };
-
         this.form = document.createElement('div');
         this.form.classList.add('form-body');
 
         this.makeLayout();
-        this.bindEvents(this.doc);
+
+        if (doc) {
+            this.bindEvents(doc);
+        }
     }
 
     makeLayout() {
@@ -39,16 +33,24 @@ module.exports = class FormLayout extends Observable {
 
     makeSection(section) {
         const sectionElement = frappe.ui.add('div', 'form-section', this.form);
+        const sectionHead = frappe.ui.add('div', 'form-section-head', sectionElement);
+        const sectionBody = frappe.ui.add('div', 'form-section-body', sectionElement);
+
+        if (section.title) {
+            const head = frappe.ui.add('h6', 'uppercase', sectionHead);
+            head.textContent = section.title;
+        }
+
         if (section.columns) {
-            sectionElement.classList.add('row');
+            sectionBody.classList.add('row');
             for (let column of section.columns) {
-                let columnElement = frappe.ui.add('div', 'col', sectionElement);
+                let columnElement = frappe.ui.add('div', 'col', sectionBody);
                 this.makeControls(this.getFieldsFromLayoutElement(column.fields), columnElement);
             }
         } else {
-            this.makeControls(this.getFieldsFromLayoutElement(section.fields), sectionElement);
+            this.makeControls(this.getFieldsFromLayoutElement(section.fields), sectionBody);
         }
-        this.sections.push(sectionElement);
+        this.sections.push(sectionBody);
     }
 
     getFieldsFromLayoutElement(fields) {
