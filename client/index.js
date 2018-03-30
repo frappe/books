@@ -11,7 +11,6 @@ module.exports = {
         frappe.init();
         frappe.registerLibs(common);
         frappe.registerModels(require('frappejs/models'), 'client');
-        frappe.registerModels(require('../models'), 'client');
 
         frappe.fetch = window.fetch.bind();
 

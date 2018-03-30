@@ -8,8 +8,8 @@ const Observable = require('frappejs/utils/observable');
 module.exports = {
     async start({dbPath, columns = 3, models}) {
         window.frappe = frappe;
+        frappe.isServer = true;
         frappe.init();
-
         frappe.registerLibs(common);
         frappe.registerModels(require('frappejs/models'));
 
@@ -29,8 +29,6 @@ module.exports = {
 
         frappe.desk = new Desk(columns);
         await frappe.login();
-
-        return frappe;
     }
 };
 
