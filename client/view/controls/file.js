@@ -7,6 +7,7 @@ class FileControl extends BaseControl {
         this.fileButton = frappe.ui.create('button', {
             className: 'btn btn-outline-secondary btn-block',
             inside: this.getInputParent(),
+            type: 'button',
             textContent: 'Choose a file...',
             onclick: () => {
                 this.input.click();
