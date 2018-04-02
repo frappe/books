@@ -7587,3 +7587,5 @@ input[type=file] {
   overflow: hidden;
   position: absolute;
   z-index: -1; }
+.was-validated input[type=file]:invalid + button {
+  border-color: #dc3545; }
