@@ -30,19 +30,13 @@ module.exports = {
             "fieldname": "email",
             "label": "Email",
             "fieldtype": "Data",
-            "required": 1
+            "required": 1,
+            "inputType": "email"
         },
 
         {
             "fieldname": "companyName",
             "label": "Company Name",
-            "fieldtype": "Data",
-            "required": 1
-        },
-
-        {
-            "fieldname": "abbreviation",
-            "label": "Abbreviation",
             "fieldtype": "Data",
             "required": 1
         },
@@ -73,14 +67,7 @@ module.exports = {
 
         {
             title: 'Add your Company',
-            columns: [
-                {
-                    fields: ['companyName', 'bankName']
-                },
-                {
-                    fields: ['abbreviation']
-                },
-            ]
+            fields: ['companyName', 'bankName']
         }
     ]
 }

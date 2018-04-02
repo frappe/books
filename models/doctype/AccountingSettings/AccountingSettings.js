@@ -24,14 +24,6 @@ module.exports = {
         },
 
         {
-            "fieldname": "file",
-            "label": "File",
-            "fieldtype": "Data",
-            "required": 1,
-            "directory": 1
-        },
-
-        {
             "fieldname": "country",
             "label": "Country",
             "fieldtype": "Autocomplete",
@@ -49,13 +41,6 @@ module.exports = {
         {
             "fieldname": "email",
             "label": "Email",
-            "fieldtype": "Data",
-            "required": 1
-        },
-
-        {
-            "fieldname": "abbreviation",
-            "label": "Abbreviation",
             "fieldtype": "Data",
             "required": 1
         },
