@@ -3,20 +3,44 @@ const utils = require('frappejs/client/ui/utils');
 const slideConfigs = require('./config');
 const Tree = require('frappejs/client/ui/tree');
 const FormLayout = require('frappejs/client/view/formLayout');
+const Observable = require('frappejs/utils/observable');
 
 module.exports = class SetupWizard {
-	constructor({postSetup = () => {}}) {
-		this.slideList = [];
+	constructor() {
+		this.slideCount = slideConfigs.layout.length;
 		this.indicatorList = [];
-		this.footerLinks = {};
 
 		this.currentIndex = 0;
-		this.data = {};
+		this.doc = new Observable();
 
-		this.postSetup = postSetup;
+		this.promise = new Promise(resolve => {
+			this.onComplete = resolve;
+		});
+
+		this.footerButtons = [
+			{
+				label: 'Prev', name: 'prev',
+				action: this.prevSlide.bind(this),
+				condition: index => index !== 0
+			},
+			{
+				label: 'Next', name: 'next',
+				action: this.nextSlide.bind(this),
+				condition: index => index !== this.slideCount - 1
+			},
+			{
+				label: 'Complete', name: 'complete',
+				action: this.onComplete.bind(this, this.doc),
+				condition: index => index === this.slideCount - 1
+			}
+		];
+
 		this.make();
+	}
 
-		this.showSlide(this.currentIndex);
+	async start() {
+		this.showSlide(0);
+		return this.promise;
 	}
 
 	make() {
@@ -25,60 +49,39 @@ module.exports = class SetupWizard {
 		this.$indicators = frappe.ui.add('div', 'indicators vertical-margin align-center', this.container);
 
 		this.makeSlides();
-		this.makeLinks();
+		this.makeButtons();
 	}
 
 	makeSlides() {
-		slideConfigs.forEach(config => {
-			this.formLayout = new FormLayout(config);
-			this.slideList.push(this.formLayout);
-			let form = this.formLayout.form;
-			this.container.appendChild(form);
+		this.formLayout = new FormLayout(Object.assign(slideConfigs, {
+			doc: this.doc
+		}));
+		this.container.appendChild(this.formLayout.form);
 
-			let title = frappe.ui.create('h3', {
-				className: 'text-extra-muted',
-				innerHTML: config.title
-			})
-			form.insertBefore(title, form.firstChild);
-
+		slideConfigs.layout.forEach(() => {
+			// indicator for each section
 			let indicator = frappe.ui.create('span', {
 				inside: this.$indicators,
 				className: 'indicator gray'
-			})
+			});
 			this.indicatorList.push(indicator);
 		});
+
 	}
 
-	makeLinks() {
+	makeButtons() {
 		this.linkArea = frappe.ui.add('div', 'setup-link-area align-right', this.container);
 
-        // this.formLayout.on('change', () => {
-        //     const show = this.doc._dirty && !this.doc.submitted;
-        //     this.saveButton.classList.toggle('hide', !show);
-        // });
-
-		this.getFooterLinks().map(link => {
-			let $link = utils.addLink(link.label, this.linkArea, () => {
-				this.buildData();
-				link.action(this.data);
-			});
-			this.footerLinks[link.name] = $link;
-		})
-	}
-
-	buildData() {
-		this.data = {};
-		this.slideList.forEach(slide => {
-			Object.assign(this.data, slide.doc);
+		this.footerButtons.map(link => {
+			link.element = utils.addButton(link.label, this.linkArea, link.action);
 		});
 	}
 
 	showSlide(index) {
-		utils.activate(this.container, this.slideList[index].form, 'form-body', 'active');
-		this.slideList[index].controlList[0].input.blur();
+		this.currentIndex = index;
+		utils.activate(this.container, `.form-section:nth-child(${index + 1})`, '.form-section', 'active');
 		this.activateIndicator(index);
 		this.showFooterLinks(index);
-		this.currentIndex = index;
 	}
 
 	prevSlide() {
@@ -90,46 +93,22 @@ module.exports = class SetupWizard {
 	}
 
 	activateIndicator(index) {
-		this.indicatorList.forEach(indicator => {indicator.classList.add('gray')});
+		this.indicatorList.forEach(indicator => indicator.classList.add('gray'));
 		let indicator = this.indicatorList[index];
-		utils.activate(this.$indicators, indicator, 'gray', 'blue', index);
+		utils.activate(this.$indicators, indicator, '.gray', 'blue', index);
 
 		frappe.ui.removeClass(indicator, 'gray');
 		indicator.classList.remove('gray');
 	}
 
 	showFooterLinks(index) {
-		let mat = [1, 1, 0]
-		if(index === 0) {
-			mat = [0, 1, 0];
-		} else if (index === this.slideList.length - 1) {
-			mat = [1, 0, 1];
-		}
-		this.showHideLinks(mat);
-	}
-
-	showHideLinks(matrix = [1, 1, 0]) {
-		let linkNames = this.getFooterLinks().map(link => link.name);
-		matrix.forEach((value, i) => {
-			const fn = value ? 'remove' : 'add';
-			this.footerLinks[linkNames[i]].classList[fn]('hide');
-		});
-	}
-
-	getFooterLinks() {
-		return [
-			{
-				label: 'Prev', name: 'prev',
-				action: this.prevSlide.bind(this)
-			},
-			{
-				label: 'Next', name: 'next',
-				action: this.nextSlide.bind(this)
-			},
-			{
-				label: 'Complete', name: 'complete',
-				action: this.postSetup.bind(this)
+		this.footerButtons.map(link => {
+			const show = link.condition(this.currentIndex);
+			if (show) {
+				link.element.classList.remove('hide');
+			} else {
+				link.element.classList.add('hide');
 			}
-		];
+		})
 	}
 }
