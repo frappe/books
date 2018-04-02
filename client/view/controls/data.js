@@ -3,7 +3,11 @@ const BaseControl = require('./base');
 class DataControl extends BaseControl {
     make() {
         super.make();
-        this.input.setAttribute('type', 'text');
+
+        if (!this.inputType) {
+            this.inputType = 'text';
+        }
+        this.input.setAttribute('type', this.inputType);
     }
 };
 
