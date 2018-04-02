@@ -50,14 +50,17 @@ const SetupWizard = require('../setup');
             const doc = await frappe.getDoc('AccountingSettings');
 
             await doc.set('companyName', companyName);
-            await doc.set('file', dbPath);
             await doc.set('country', country);
             await doc.set('fullname', name);
             await doc.set('email', email);
-            await doc.set('abbreviation', abbreviation);
             await doc.set('bankName', bankName);
 
             await doc.update();
+
+            // bootstrap Chart of Accounts
+            const importCOA = require('../models/doctype/account/importCOA');
+            const chart = require('../fixtures/standardCOA');
+            await importCOA(chart);
 
             appClient.start();
         })

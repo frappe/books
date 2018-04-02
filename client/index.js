@@ -27,7 +27,7 @@ module.exports = {
         frappe.desk.menu.addItem('Contact', "#list/Contact");
         frappe.desk.menu.addItem('Settings', () => frappe.desk.showFormModal('SystemSettings'));
 
-        frappe.router.default = '#list/ToDo';
+        frappe.router.default = '#list/Invoice';
 
         frappe.router.show(window.location.hash);
 
