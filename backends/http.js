@@ -116,7 +116,8 @@ module.exports = class HTTPClient extends Observable {
 
     initTypeMap() {
         this.typeMap = {
-            'Currency': true
+            'Autocomplete': true
+            , 'Currency': true
             , 'Int': true
             , 'Float': true
             , 'Percent': true
@@ -135,6 +136,7 @@ module.exports = class HTTPClient extends Observable {
             , 'Password': true
             , 'Select': true
             , 'Read Only': true
+            , 'File': true
             , 'Attach': true
             , 'Attach Image': true
             , 'Signature': true

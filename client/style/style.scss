@@ -395,15 +395,26 @@ ul.tree-children {
 		text-align: center;
 	}
 
-	.form-body {
+	.form-section {
 		display: none;
 	}
 
-	.form-body.active {
+	.form-section.active {
 		display: block;
 	}
 
 	.setup-link-area {
 		margin: $spacer-1 $spacer-4;
 	}
+}
+
+// File Input
+
+input[type=file] {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
 }

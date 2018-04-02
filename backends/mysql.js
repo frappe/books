@@ -178,7 +178,8 @@ module.exports = class mysqlDatabase extends Database{
 
     init_typeMap() {
         this.typeMap = {
-            'Currency': 'real'
+            'Autocomplete': 'VARCHAR(140)'
+            , 'Currency': 'real'
             , 'Int': 'INT'
             , 'Float': 'decimal(18,6)'
             , 'Percent': 'real'
@@ -197,6 +198,7 @@ module.exports = class mysqlDatabase extends Database{
             , 'Password': 'varchar(140)'
             , 'Select': 'VARCHAR(140)'
             , 'Read Only': 'varchar(140)'
+            , 'File': 'text'
             , 'Attach': 'text'
             , 'Attach Image': 'text'
             , 'Signature': 'text'
