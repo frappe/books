@@ -3,11 +3,11 @@ const BaseDocument = require('frappejs/model/document');
 
 module.exports = class Account extends BaseDocument {
     async validate() {
-        if (!this.account_type) {
-            if (this.parent_account) {
-                this.account_type = await frappe.db.getValue('Account', this.parent_account, 'account_type');
+        if (!this.accountType) {
+            if (this.parentAccount) {
+                this.accountType = await frappe.db.getValue('Account', this.parentAccount, 'accountType');
             } else {
-                this.account_type = 'Asset';
+                this.accountType = 'Asset';
             }
         }
     }
