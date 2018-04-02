@@ -57989,11 +57989,11 @@ var GeneralLedgerView_1 = class GeneralLedgerView extends reportpage {
 
 var AccountDocument = class Account extends document$1 {
     async validate() {
-        if (!this.account_type) {
-            if (this.parent_account) {
-                this.account_type = await frappejs.db.getValue('Account', this.parent_account, 'account_type');
+        if (!this.accountType) {
+            if (this.parentAccount) {
+                this.accountType = await frappejs.db.getValue('Account', this.parentAccount, 'accountType');
             } else {
-                this.account_type = 'Asset';
+                this.accountType = 'Asset';
             }
         }
     }
@@ -58007,7 +58007,8 @@ module.exports = {
     "isSingle": 0,
     "keywordFields": [
         "name",
-        "account_type"
+        "rootType",
+        "accountType"
     ],
     "fields": [
         {
@@ -58017,7 +58018,7 @@ module.exports = {
             "required": 1
         },
         {
-            "fieldname": "parent_account",
+            "fieldname": "parentAccount",
             "label": "Parent Account",
             "fieldtype": "Link",
             "target": "Account",
@@ -58029,8 +58030,8 @@ module.exports = {
             }
         },
         {
-            "fieldname": "account_type",
-            "label": "Account Type",
+            "fieldname": "rootType",
+            "label": "Root Type",
             "fieldtype": "Select",
             "options": [
                 "Asset",
@@ -58039,6 +58040,37 @@ module.exports = {
                 "Income",
                 "Expense"
             ]
+        },
+        {
+            "fieldname": "accountType",
+            "label": "Account Type",
+            "fieldtype": "Select",
+            "options": [
+                "Accumulated Depreciation",
+                "Bank",
+                "Cash",
+                "Chargeable",
+                "Cost of Goods Sold",
+                "Depreciation",
+                "Equity",
+                "Expense Account",
+                "Expenses Included In Valuation",
+                "Fixed Asset",
+                "Income Account",
+                "Payable",
+                "Receivable",
+                "Round Off",
+                "Stock",
+                "Stock Adjustment",
+                "Stock Received But Not Billed",
+                "Tax",
+                "Temporary"
+            ]
+        },
+        {
+            "fieldname": "isGroup",
+            "label": "Is Group",
+            "fieldtype": "Check"
         }
     ],
 
@@ -58050,10 +58082,10 @@ module.exports = {
 
     listSettings: {
         getFields(list)  {
-            return ['name', 'account_type'];
+            return ['name', 'accountType', 'rootType'];
         },
         getRowHTML(list, data) {
-            return `<div class="col-11">${list.getNameHTML(data)} (${data.account_type})</div>`;
+            return `<div class="col-11">${list.getNameHTML(data)} (${data.rootType})</div>`;
         }
     }
 };
@@ -59718,7 +59750,7 @@ var client$2 = {
         frappejs.desk.menu.addItem('Contact', "#list/Contact");
         frappejs.desk.menu.addItem('Settings', () => frappejs.desk.showFormModal('SystemSettings'));
 
-        frappejs.router.default = '#list/ToDo';
+        frappejs.router.default = '#list/Invoice';
 
         frappejs.router.show(window.location.hash);
 
