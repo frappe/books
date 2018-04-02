@@ -209,7 +209,7 @@ module.exports = class BaseForm extends Observable {
         this.container.clearLinks();
         for(let link of links) {
             // make the link
-            utils.addLink(link.label, this.container.linksElement, () => {
+            utils.addButton(link.label, this.container.linksElement, () => {
                 let options = link.action(this);
 
                 if (options) {

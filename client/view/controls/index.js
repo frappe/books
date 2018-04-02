@@ -1,4 +1,5 @@
 const controlClasses = {
+    Autocomplete: require('./autocomplete'),
     Check: require('./check'),
     Code: require('./code'),
     Data: require('./data'),
@@ -6,6 +7,7 @@ const controlClasses = {
     DynamicLink: require('./dynamicLink'),
     Currency: require('./currency'),
     Float: require('./float'),
+    File: require('./file'),
     Int: require('./int'),
     Link: require('./link'),
     Password: require('./password'),

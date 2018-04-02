@@ -215,7 +215,8 @@ module.exports = class sqliteDatabase extends Database {
 
     initTypeMap() {
         this.typeMap = {
-            'Currency': 'real'
+            'Autocomplete': 'text'
+            , 'Currency': 'real'
             , 'Int': 'integer'
             , 'Float': 'real'
             , 'Percent': 'real'
@@ -234,6 +235,7 @@ module.exports = class sqliteDatabase extends Database {
             , 'Password': 'text'
             , 'Select': 'text'
             , 'Read Only': 'text'
+            , 'File': 'text'
             , 'Attach': 'text'
             , 'Attach Image': 'text'
             , 'Signature': 'text'
