@@ -169,6 +169,7 @@ class BaseControl {
     async handleChange(event) {
         let value = await this.parse(this.getInputValue());
         value = await this.validate(value);
+        this.input.setCustomValidity(value === false ? 'error' : '');
         await this.updateDocValue(value);
     }
 
