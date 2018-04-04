@@ -86,6 +86,18 @@ module.exports = {
         }
     },
 
+    toggleClass(element, className, flag) {
+        if (flag === undefined) {
+            flag = !element.classList.contains(className);
+        }
+
+        if (!flag) {
+            this.removeClass(element, className);
+        } else {
+            this.addClass(element, className);
+        }
+    },
+
     toggle(element, default_display = '') {
         element.style.display = element.style.display === 'none' ? default_display : 'none';
     },

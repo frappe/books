@@ -8,17 +8,25 @@ class AutocompleteControl extends BaseControl {
         this.setupAwesomplete();
     }
 
-    setupAwesomplete() {
+    async setupAwesomplete() {
         this.awesomplete = new Awesomplete(this.input, {
             minChars: 0,
             maxItems: 99
         });
 
+        this.list = await this.getList();
+
         // rebuild the list on input
-        this.input.addEventListener('input', async (event) => {
-            let list = await this.getList();
-            this.awesomplete.list = list;
+        this.input.addEventListener('input', (event) => {
+            this.awesomplete.list = this.list;
         });
+    }
+
+    validate(value) {
+        if (this.list.includes(value)) {
+            return value;
+        }
+        return false;
     }
 };
 
