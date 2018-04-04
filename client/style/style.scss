@@ -418,3 +418,7 @@ input[type=file] {
 	position: absolute;
 	z-index: -1;
 }
+
+.was-validated input[type=file]:invalid + button {
+	border-color: $red;
+}
