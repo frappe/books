@@ -114,7 +114,7 @@ To start the app and build webpack simultaneously you can use a `Procfile`
 
 ```yml
 server: nodemon server.js
-watch: node_modules/.bin/rolluo -c --watch
+watch: node_modules/.bin/rollup -c --watch
 ```
 
 You can use any procfile handler like `node-foreman` to start the processes.
