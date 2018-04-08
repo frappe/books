@@ -395,17 +395,18 @@ module.exports = class Database extends Observable {
         for (let key in filters) {
             const value = filters[key];
             if (value instanceof Array) {
+                const condition = value[0];
                 // if its like, we should add the wildcard "%" if the user has not added
-                if (value[0].toLowerCase()==='includes') {
-                    value[0] = 'like';
+                if (condition.toLowerCase()==='includes') {
+                    condition = 'like';
                 }
-                if (['like', 'includes'].includes(value[0].toLowerCase()) && !value[1].includes('%')) {
+                if (['like', 'includes'].includes(condition.toLowerCase()) && !value[1].includes('%')) {
                     value[1] = `%${value[1]}%`;
                 }
-                conditions.push(`${key} ${value[0]} ?`);
+                conditions.push(`ifnull(${key}, '') ${condition} ?`);
                 values.push(value[1]);
             } else {
-                conditions.push(`${key} = ?`);
+                conditions.push(`ifnull(${key}, '') = ?`);
                 values.push(value);
             }
         }
