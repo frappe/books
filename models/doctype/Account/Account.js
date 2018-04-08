@@ -85,5 +85,9 @@ module.exports = {
         getRowHTML(list, data) {
             return `<div class="col-11">${list.getNameHTML(data)} (${data.rootType})</div>`;
         }
+    },
+
+    treeSettings: {
+        parentField: 'parentAccount'
     }
 }
