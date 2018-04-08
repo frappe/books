@@ -7499,29 +7499,31 @@ mark {
 .vertical-margin {
   margin: 1rem 0px; }
 .tree {
-  padding: 15px; }
+  padding: 1rem 2rem; }
 .tree li {
-  list-style: none;
-  margin: 2px 0px; }
+  list-style: none; }
 ul.tree-children {
-  padding-left: 20px; }
+  padding-left: 2rem; }
 .tree-link {
   cursor: pointer;
-  display: inline-block;
-  padding: 1px; }
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  width: 100%; }
+.tree-link:hover {
+  background-color: #f8f9fa; }
 .tree-link .node-parent {
   color: #6c757d;
-  font-size: 14px;
-  width: 10px;
+  width: 24px;
+  height: 24px;
   text-align: center; }
 .tree-link .node-leaf {
   color: #ced4da; }
 .tree-link .node-parent, .tree-link .node-leaf {
-  margin-right: 5px;
-  margin-left: 2px;
-  margin-top: 3px; }
-.tree-link.active svg {
-  color: #007bff; }
+  padding: 0.5rem; }
 .tree-link.active a {
   color: #6c757d; }
 .tree-hover {
@@ -7587,3 +7589,5 @@ input[type=file] {
   overflow: hidden;
   position: absolute;
   z-index: -1; }
+.was-validated input[type=file]:invalid + button {
+  border-color: #dc3545; }
