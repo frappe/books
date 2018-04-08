@@ -11,7 +11,6 @@ async function importAccounts(children, parent, rootType, rootAccount) {
 
         if (!accountFields.includes(accountName)) {
             let isGroup = identifyIsGroup(child);
-
             const doc = frappe.newDoc({
                 doctype: 'Account',
                 name: accountName,
@@ -33,11 +32,14 @@ function identifyIsGroup(child) {
         return child.isGroup;
     }
 
-    if (Object.keys(child).some(key => accountFields.includes(key))) {
-        return 0;
+    const keys = Object.keys(child);
+    const children = keys.filter(key => !accountFields.includes(key))
+
+    if (children.length) {
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 module.exports = async function importCharts(chart) {
