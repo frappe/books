@@ -6,6 +6,7 @@ const Page = require('frappejs/client/view/page');
 const views = {};
 views.Form = require('./formpage');
 views.List = require('./listpage');
+views.Tree = require('./treepage');
 views.Print = require('./printpage');
 views.FormModal = require('./formmodal');
 views.Table = require('./tablepage');
@@ -73,6 +74,10 @@ module.exports = class Desk {
 
         frappe.router.add('list/:doctype', async (params) => {
             await this.showViewPage('List', params.doctype);
+        });
+
+        frappe.router.add('tree/:doctype', async (params) => {
+            await this.showViewPage('Tree', params.doctype);
         });
 
         frappe.router.add('table/:doctype', async (params) => {

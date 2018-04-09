@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const DataTable = require('frappe-datatable');
-const controls = require('frappejs/client/view/controls');
+
 const Modal = require('frappejs/client/ui/modal');
 const utils = require('./utils');
 
@@ -50,6 +50,7 @@ module.exports = class ModelTable {
 
     getControl(field, parent) {
         field.onlyInput = true;
+        const controls = require('frappejs/client/view/controls');
         const control = controls.makeControl({field: field, parent: parent});
 
         // change will be triggered by datatable
