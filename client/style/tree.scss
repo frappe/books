@@ -1,111 +1,123 @@
 @import "./variables.scss";
 
-.tree {
+.tree-body {
 	padding: $spacer-3 $spacer-4;
 }
 
-.tree li {
-	list-style: none;
+f-tree, f-tree-node {
+	display: block;
 }
 
-ul.tree-children {
-	padding-left: $spacer-4;
-}
-
-.tree-link {
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	width: 100%;
-}
-
-.tree-link:hover {
+f-tree-node:hover {
 	background-color: $gray-100;
+	cursor: pointer;
 }
 
-.tree-link .node-parent {
-	color: $gray-600;
-	width: 24px;
-	height: 24px;
-	text-align: center;
-}
+// .tree {
+// 	padding: $spacer-3 $spacer-4;
+// }
 
-.tree-link .node-leaf {
-	color: $gray-400;
-}
+// .tree li {
+// 	list-style: none;
+// }
 
-.tree-link .node-parent, .tree-link .node-leaf {
-	padding: $spacer-2;
-}
+// ul.tree-children {
+// 	padding-left: $spacer-4;
+// }
 
-.tree-link.active {
-	a {
-		color: $gray-600;
-	}
-}
+// .tree-link {
+// 	cursor: pointer;
+// 	display: flex;
+// 	align-items: center;
+// 	width: 100%;
+// }
 
-.tree-hover {
-	background-color: $gray-200;
-	min-height: 20px;
-	border: 1px solid $gray-600;
-}
+// .tree-link:hover {
+// 	background-color: $gray-100;
+// }
 
-.tree-node-toolbar {
-	display: inline-block;
-	padding: 0px 5px;
-	margin-left: 15px;
-	margin-bottom: -4px;
-	margin-top: -8px;
-}
+// .tree-link .node-parent {
+// 	color: $gray-200;
+// 	width: 24px;
+// 	height: 24px;
+// }
 
-// @media (max-width: @screen-xs) {
-// 	ul.tree-children {
-// 		padding-left: 10px;
+// .tree-link .node-leaf {
+// 	color: $gray-400;
+// }
+
+// .tree-link .node-parent, .tree-link .node-leaf {
+// 	padding: $spacer-2;
+// }
+
+// .tree-link.active {
+// 	a {
+// 		color: $gray-600;
 // 	}
 // }
 
-// decoration
-// .tree, .tree-node {
-.tree.with-skeleton, .tree.with-skeleton .tree-node {
-	position: relative;
+// .tree-hover {
+// 	background-color: $gray-200;
+// 	min-height: 20px;
+// 	border: 1px solid $gray-600;
+// }
 
-	&.opened::before, &:last-child::after {
-		content: '';
-		position: absolute;
-		top: 12px;
-		left: 7px;
-		height: calc(100% - 23px);
-		width: 1px;
-		background: $gray-400;
-		z-index: -1;
-	}
+// .tree-node-toolbar {
+// 	display: inline-block;
+// 	padding: 0px 5px;
+// 	margin-left: 15px;
+// 	margin-bottom: -4px;
+// 	margin-top: -8px;
+// }
 
-	&:last-child::after {
-		top: 11px;
-		left: -13px;
-		height: calc(100% - 15px);
-		width: 3px;
-		background: #fff;
-	}
+// // @media (max-width: @screen-xs) {
+// // 	ul.tree-children {
+// // 		padding-left: 10px;
+// // 	}
+// // }
 
-	&.opened > .tree-children > .tree-node > .tree-link::before {
-		content: '';
-		position: absolute;
-		width: 18px;
-		height: 1px;
-		top: 10px;
-		left: -12px;
-		z-index: -1;
-		background: $gray-400;
-	}
-}
+// // decoration
+// // .tree, .tree-node {
+// .tree.with-skeleton, .tree.with-skeleton .tree-node {
+// 	position: relative;
 
-.tree.with-skeleton.opened::before {
-	left: 22px;
-	top: 33px;
-	height: calc(100% - 67px);
-}
+// 	&.opened::before, &:last-child::after {
+// 		content: '';
+// 		position: absolute;
+// 		top: 12px;
+// 		left: 7px;
+// 		height: calc(100% - 23px);
+// 		width: 1px;
+// 		background: $gray-400;
+// 		z-index: -1;
+// 	}
 
-.tree-link.active ~ .balance-area {
-	color: $gray-600 !important;
-}
+// 	&:last-child::after {
+// 		top: 11px;
+// 		left: -13px;
+// 		height: calc(100% - 15px);
+// 		width: 3px;
+// 		background: #fff;
+// 	}
+
+// 	&.opened > .tree-children > .tree-node > .tree-link::before {
+// 		content: '';
+// 		position: absolute;
+// 		width: 18px;
+// 		height: 1px;
+// 		top: 10px;
+// 		left: -12px;
+// 		z-index: -1;
+// 		background: $gray-400;
+// 	}
+// }
+
+// .tree.with-skeleton.opened::before {
+// 	left: 22px;
+// 	top: 33px;
+// 	height: calc(100% - 67px);
+// }
+
+// .tree-link.active ~ .balance-area {
+// 	color: $gray-600 !important;
+// }
