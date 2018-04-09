@@ -5,7 +5,6 @@ module.exports = {
         format: 'cjs'
     },
     plugins: [
-        require('rollup-plugin-sass')(),
         require('rollup-plugin-postcss')({
             extract: true,
             plugins: [

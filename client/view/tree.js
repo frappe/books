@@ -56,18 +56,83 @@ module.exports = class BaseTree extends BaseList {
     }
 
     renderTree(rootLabel) {
-        this.tree = new Tree({
+        // const tree = new Tree();
+        // tree.getChildNodes = async node => {
+        //     const children = await this.getData(node) || [];
+        //     return children.map(d => ({
+        //         label: d.name,
+        //         value: d.name,
+        //         expandable: d.isGroup
+        //     }));
+        // }
+        // tree.rootNode = {
+        //     label: rootLabel,
+        //     value: rootLabel,
+        //     isRoot: 1,
+        //     expandable: 1
+        // }
+        // this.body.appendChild(tree);
+
+        this.rootNode = {
             label: rootLabel,
-            parent: this.body,
-            method: async node => {
-                const children = await this.getData(node) || [];
-                return children.map(d => ({
-                    label: d.name,
-                    value: d.name,
-                    expandable: d.isGroup
-                }));
-            }
+            value: rootLabel,
+            isRoot: true,
+            expanded: true,
+            children: []
+        }
+
+        const getNodeHTML = node =>
+            `<f-tree-node
+                label="${node.label}"
+                value="${node.value}"
+                ${node.expanded ? 'expanded' : ''}
+                ${node.isRoot ? 'is-root' : ''}>
+            </f-tree-node>`;
+
+        this.treeWrapper = frappe.ui.create('f-tree');
+
+        this.rootNode.el = frappe.ui.create(getNodeHTML(this.rootNode), {
+            inside: this.treeWrapper
         });
+
+        this.treeWrapper = frappe.ui.create(`
+            <f-tree>
+                ${getNodeHTML(this.rootNode)}
+            </f-tree>
+        `);
+
+        this.body.appendChild(this.treeWrapper);
+
+        frappe.ui.on(this.treeWrapper, 'click', 'f-tree-node', async (e, treeNode) => {
+            if (treeNode.expanded) {
+                treeNode.removeAttribute('expanded');
+            } else {
+                treeNode.setAttribute('expanded', '');
+            }
+
+            let node = null;
+            // if (treeNode.hasAttribute('is-root')) {
+            //     node = this.rootNode;
+            // } else {
+
+            // }
+
+
+        });
+
+
+        // this.tree = new Tree({
+        //     label: rootLabel,
+        //     parent: this.body,
+        //     method: async node => {
+        //         const children = await this.getData(node) || [];
+        //         return children.map(d => ({
+        //             label: d.name,
+        //             value: d.name,
+        //             expandable: d.isGroup
+        //         }));
+        //     }
+        // });
     }
 
     async getData(node) {
@@ -119,7 +184,7 @@ module.exports = class BaseTree extends BaseList {
         });
 
         this.page.body.addEventListener('click', (event) => {
-            if(event.target.classList.contains('checkbox')) {
+            if (event.target.classList.contains('checkbox')) {
                 this.trigger('state-change');
             }
         })
@@ -138,7 +203,7 @@ module.exports = class BaseTree extends BaseList {
 
         this.searchInput = this.toolbar.querySelector('input');
         this.searchInput.addEventListener('keypress', (event) => {
-            if (event.keyCode===13) {
+            if (event.keyCode === 13) {
                 this.refresh();
             }
         });
