@@ -89,7 +89,29 @@ module.exports = class SetupWizard {
 	}
 
 	nextSlide() {
-		this.showSlide(this.currentIndex + 1);
+		const isValid = this.validateCurrentSlide();
+		frappe.ui.toggleClass(this.formLayout.sections[this.currentIndex], 'was-validated', !isValid);
+
+		if (isValid) {
+			this.showSlide(this.currentIndex + 1);
+		}
+	}
+
+	validateCurrentSlide() {
+		const fields = this.getFieldsInSlide(this.currentIndex);
+		const inputValidityMap = fields.map(field => this.formLayout.controls[field].input.checkValidity());
+		const isValid = !inputValidityMap.includes(false);
+		return isValid;
+	}
+
+	getFieldsInSlide(index) {
+		const visibleSection = slideConfigs.layout[index];
+		const fieldsInSlide = visibleSection.fields ||
+			visibleSection.columns.reduce(
+				(col, fields) => fields.concat(col.fields), []
+			);
+
+		return fieldsInSlide;
 	}
 
 	activateIndicator(index) {

@@ -8,7 +8,7 @@ async function makeFixtures() {
         await frappe.insert({doctype:'Party', name:'Test Customer'})
         await frappe.insert({doctype:'Item', name:'Test Item 1', description:'Test Item Description 1', unit:'No', rate: 100})
         await frappe.insert({doctype:'Item', name:'Test Item 2', description:'Test Item Description 2', unit:'No', rate: 200})
-        await frappe.insert({doctype:'Account', name:'GST', parent_account: 'Liabilities'});
+        await frappe.insert({doctype:'Account', name:'GST', parentAccount: 'Liabilities'});
         await frappe.insert({doctype:'Tax', name:'GST',
             details: [{account: 'GST', rate:10}]
         })
