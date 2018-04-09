@@ -5,7 +5,8 @@ module.exports = {
     "isSingle": 0,
     "keywordFields": [
         "name",
-        "account_type"
+        "rootType",
+        "accountType"
     ],
     "fields": [
         {
@@ -15,7 +16,7 @@ module.exports = {
             "required": 1
         },
         {
-            "fieldname": "parent_account",
+            "fieldname": "parentAccount",
             "label": "Parent Account",
             "fieldtype": "Link",
             "target": "Account",
@@ -27,8 +28,8 @@ module.exports = {
             }
         },
         {
-            "fieldname": "account_type",
-            "label": "Account Type",
+            "fieldname": "rootType",
+            "label": "Root Type",
             "fieldtype": "Select",
             "options": [
                 "Asset",
@@ -37,6 +38,37 @@ module.exports = {
                 "Income",
                 "Expense"
             ]
+        },
+        {
+            "fieldname": "accountType",
+            "label": "Account Type",
+            "fieldtype": "Select",
+            "options": [
+                "Accumulated Depreciation",
+                "Bank",
+                "Cash",
+                "Chargeable",
+                "Cost of Goods Sold",
+                "Depreciation",
+                "Equity",
+                "Expense Account",
+                "Expenses Included In Valuation",
+                "Fixed Asset",
+                "Income Account",
+                "Payable",
+                "Receivable",
+                "Round Off",
+                "Stock",
+                "Stock Adjustment",
+                "Stock Received But Not Billed",
+                "Tax",
+                "Temporary"
+            ]
+        },
+        {
+            "fieldname": "isGroup",
+            "label": "Is Group",
+            "fieldtype": "Check"
         }
     ],
 
@@ -48,10 +80,14 @@ module.exports = {
 
     listSettings: {
         getFields(list)  {
-            return ['name', 'account_type'];
+            return ['name', 'accountType', 'rootType'];
         },
         getRowHTML(list, data) {
-            return `<div class="col-11">${list.getNameHTML(data)} (${data.account_type})</div>`;
+            return `<div class="col-11">${list.getNameHTML(data)} (${data.rootType})</div>`;
         }
+    },
+
+    treeSettings: {
+        parentField: 'parentAccount'
     }
 }

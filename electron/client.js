@@ -4,6 +4,12 @@ const { writeFile } = require('frappejs/server/utils');
 const appClient = require('../client');
 const SetupWizard = require('../setup');
 
+const fs = require('fs');
+
+require.extensions['.html'] = function (module, filename) {
+    module.exports = fs.readFileSync(filename, 'utf8');
+};
+
 (async () => {
     const configFilePath = path.join(require('os').homedir(), '.config', 'frappe-accounting', 'settings.json');
 
@@ -20,6 +26,8 @@ const SetupWizard = require('../setup');
             dbPath,
             models: require('../models')
         }).then(() => {
+
+            frappe.syncDoc(require('../fixtures/invoicePrint'));
             appClient.start();
         });
     } else {
@@ -50,15 +58,20 @@ const SetupWizard = require('../setup');
             const doc = await frappe.getDoc('AccountingSettings');
 
             await doc.set('companyName', companyName);
-            await doc.set('file', dbPath);
             await doc.set('country', country);
             await doc.set('fullname', name);
             await doc.set('email', email);
-            await doc.set('abbreviation', abbreviation);
             await doc.set('bankName', bankName);
 
             await doc.update();
 
+            // bootstrap Chart of Accounts
+            const importCOA = require('../models/doctype/account/importCOA');
+            const chart = require('../fixtures/standardCOA');
+            await importCOA(chart);
+
+
+            frappe.syncDoc(require('../fixtures/invoicePrint'));
             appClient.start();
         })
     }
