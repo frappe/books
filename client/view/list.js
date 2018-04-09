@@ -5,9 +5,11 @@ const Observable = require('frappejs/utils/observable');
 module.exports = class BaseList extends Observable {
     constructor({doctype, parent, fields=[], page}) {
         super();
-
         Object.assign(this, arguments[0]);
+        this.init();
+    }
 
+    init() {
         this.meta = frappe.getMeta(this.doctype);
 
         this.start = 0;
@@ -17,14 +19,14 @@ module.exports = class BaseList extends Observable {
         this.rows = [];
         this.data = [];
 
-        this.setupListSettings();
+        this.setupTreeSettings();
 
         frappe.db.on(`change:${this.doctype}`, (params) => {
             this.refresh();
         });
     }
 
-    setupListSettings() {
+    setupTreeSettings() {
         // list settings that can be overridden by meta
         this.listSettings = {
             getFields: list => list.fields,
