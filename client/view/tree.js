@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const BaseList = require('./list');
-const Tree = require('frappejs/client/ui/tree');
+const Tree = require('frappejs/client/components/tree');
 // const keyboard = require('frappejs/client/ui/keyboard');
 
 module.exports = class BaseTree extends BaseList {
@@ -56,83 +56,62 @@ module.exports = class BaseTree extends BaseList {
     }
 
     renderTree(rootLabel) {
-        // const tree = new Tree();
-        // tree.getChildNodes = async node => {
-        //     const children = await this.getData(node) || [];
-        //     return children.map(d => ({
-        //         label: d.name,
-        //         value: d.name,
-        //         expandable: d.isGroup
-        //     }));
-        // }
-        // tree.rootNode = {
-        //     label: rootLabel,
-        //     value: rootLabel,
-        //     isRoot: 1,
-        //     expandable: 1
-        // }
-        // this.body.appendChild(tree);
-
         this.rootNode = {
             label: rootLabel,
             value: rootLabel,
             isRoot: true,
-            expanded: true,
-            children: []
+            isGroup: true,
+            children: null
         }
-
-        const getNodeHTML = node =>
-            `<f-tree-node
-                label="${node.label}"
-                value="${node.value}"
-                ${node.expanded ? 'expanded' : ''}
-                ${node.isRoot ? 'is-root' : ''}>
-            </f-tree-node>`;
-
-        this.treeWrapper = frappe.ui.create('f-tree');
-
-        this.rootNode.el = frappe.ui.create(getNodeHTML(this.rootNode), {
-            inside: this.treeWrapper
-        });
 
         this.treeWrapper = frappe.ui.create(`
             <f-tree>
-                ${getNodeHTML(this.rootNode)}
+                ${this.getTreeNodeHTML(this.rootNode)}
             </f-tree>
         `);
 
+        const rootNode = this.treeWrapper.querySelector('f-tree-node[is-root]');
+        rootNode.props = this.rootNode;
+
         this.body.appendChild(this.treeWrapper);
 
-        frappe.ui.on(this.treeWrapper, 'click', 'f-tree-node', async (e, treeNode) => {
-            if (treeNode.expanded) {
-                treeNode.removeAttribute('expanded');
-            } else {
-                treeNode.setAttribute('expanded', '');
+        frappe.ui.on(this.treeWrapper, 'tree-node-expand', 'f-tree-node', async (e, treeNode) => {
+            if (!treeNode.expanded) return;
+
+            if (!treeNode.props.children) {
+                const data = await this.getData(treeNode.props);
+                const children = data.map(d => ({
+                    label: d.name,
+                    value: d.name,
+                    isGroup: d.isGroup,
+                    doc: d
+                }));
+                treeNode.props.children = children;
+
+                for (let child of children) {
+                    const childNode = frappe.ui.create(this.getTreeNodeHTML(child));
+                    childNode.props = child;
+                    treeNode.appendChild(childNode);
+                }
             }
-
-            let node = null;
-            // if (treeNode.hasAttribute('is-root')) {
-            //     node = this.rootNode;
-            // } else {
-
-            // }
-
-
         });
 
+        frappe.ui.on(this.treeWrapper, 'tree-node-action', 'f-tree-node', (e, treeNode) => {
+            if (treeNode.isRoot) return;
 
-        // this.tree = new Tree({
-        //     label: rootLabel,
-        //     parent: this.body,
-        //     method: async node => {
-        //         const children = await this.getData(node) || [];
-        //         return children.map(d => ({
-        //             label: d.name,
-        //             value: d.name,
-        //             expandable: d.isGroup
-        //         }));
-        //     }
-        // });
+            const button = e.detail.actionEl;
+            const action = button.getAttribute('data-action');
+
+            if (action === 'edit') {
+                this.edit(treeNode.props.doc.name);
+            }
+        });
+
+        rootNode.click(); // open the root node
+    }
+
+    edit(name) {
+        frappe.desk.showFormModal(this.doctype, name);
     }
 
     async getData(node) {
@@ -154,63 +133,36 @@ module.exports = class BaseTree extends BaseList {
         });
     }
 
+    getTreeNodeHTML(node) {
+        return (
+            `<f-tree-node
+                label="${node.label}"
+                value="${node.value}"
+                ${node.expanded ? 'expanded' : ''}
+                ${node.isRoot ? 'is-root' : ''}
+                ${node.isGroup ? '' : 'is-leaf'}
+            >
+                ${this.getActionButtonsHTML()}
+            </f-tree-node>`
+        );
+    }
+
+    getActionButtonsHTML() {
+        return [
+            { id: 'edit', label: frappe._('Edit') }
+            // { id: 'addChild', label: frappe._('Add Child') },
+            // { id: 'delete', label: frappe._('Delete') },
+        ].map(button => {
+            return `<button class="btn btn-link btn-sm m-0" slot="actions" data-action="${button.id}">
+                ${button.label}
+            </button>`;
+        })
+        .join('');
+    }
+
     getFields() {
         let fields = [this.treeSettings.parentField, 'isGroup']
         this.updateStandardFields(fields);
         return fields;
-    }
-
-    makeToolbar() {
-        this.makeSearch();
-
-        this.btnNew = this.page.addButton(frappe._('New'), 'btn-primary', async () => {
-            await frappe.router.setRoute('new', this.doctype);
-        });
-
-        this.btnDelete = this.page.addButton(frappe._('Delete'), 'btn-secondary hide', async () => {
-            await frappe.db.deleteMany(this.doctype, this.getCheckedRowNames());
-            await this.refresh();
-        });
-
-        this.btnReport = this.page.addButton(frappe._('Report'), 'btn-outline-secondary hide', async () => {
-            await frappe.router.setRoute('table', this.doctype);
-        });
-
-        this.on('state-change', () => {
-            const checkedCount = this.getCheckedRowNames().length;
-            this.btnDelete.classList.toggle('hide', checkedCount ? false : true);
-            this.btnNew.classList.toggle('hide', checkedCount ? true : false);
-            this.btnReport.classList.toggle('hide', checkedCount ? true : false);
-        });
-
-        this.page.body.addEventListener('click', (event) => {
-            if (event.target.classList.contains('checkbox')) {
-                this.trigger('state-change');
-            }
-        })
-    }
-
-    makeSearch() {
-        this.toolbar = frappe.ui.add('div', 'list-toolbar', this.parent);
-        this.toolbar.innerHTML = `
-            <div class="input-group list-search">
-                <input class="form-control" type="text" placeholder="Search...">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary btn-search">Search</button>
-                </div>
-            </div>
-        `;
-
-        this.searchInput = this.toolbar.querySelector('input');
-        this.searchInput.addEventListener('keypress', (event) => {
-            if (event.keyCode === 13) {
-                this.refresh();
-            }
-        });
-
-        this.btnSearch = this.toolbar.querySelector('.btn-search');
-        this.btnSearch.addEventListener('click', (event) => {
-            this.refresh();
-        });
     }
 };

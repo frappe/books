@@ -3,12 +3,13 @@ const Dropdown = require('./dropdown');
 
 module.exports = {
     create(tag, obj) {
-        if(!obj) {
+        if(tag.includes('<')) {
             let div = document.createElement('div');
             div.innerHTML = tag.trim();
             return div.firstChild;
         }
         let element = document.createElement(tag);
+        obj = obj || {};
 
         let $ = (expr, con) => {
             return typeof expr === "string"
