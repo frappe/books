@@ -27086,6 +27086,35 @@ var ui = {
         element.parentNode.removeChild(element);
     },
 
+    on(element, event, selector, handler) {
+        if (!handler) {
+            handler = selector;
+            this.bind(element, event, handler);
+        } else {
+            this.delegate(element, event, selector, handler);
+        }
+    },
+
+    off(element, event, handler) {
+        element.removeEventListener(event, handler);
+    },
+
+    bind(element, event, callback) {
+        event.split(/\s+/).forEach(function (event) {
+            element.addEventListener(event, callback);
+        });
+    },
+
+    delegate(element, event, selector, callback) {
+        element.addEventListener(event, function (e) {
+            const delegatedTarget = e.target.closest(selector);
+            if (delegatedTarget) {
+                e.delegatedTarget = delegatedTarget;
+                callback.call(this, e, delegatedTarget);
+            }
+        });
+    },
+
     empty(element) {
         while (element.firstChild) {
             element.removeChild(element.firstChild);
@@ -28318,173 +28347,115 @@ var utils$3 = {
 	}
 };
 
-class Tree {
-    constructor({parent, label, iconSet, withSkeleton, method}) {
-        Object.assign(this, arguments[0]);
-        this.nodes = {};
-        if(!iconSet) {
-            this.iconSet = {
-                open: octicons["triangle-down"].toSVG({ "width": 10, "class": "node-parent"}),
-                closed: octicons["triangle-right"].toSVG({ "width": 5, "class": "node-parent"}),
-                leaf: octicons["primitive-dot"].toSVG({ "width": 7, "class": "node-leaf"})
-            };
+const iconSet = {
+    open: octicons["triangle-down"].toSVG({ width: "12", height: "12", "class": "tree-icon-open" }),
+    close: octicons["triangle-right"].toSVG({ width: "12", height: "12", "class": "tree-icon-closed" })
+};
+
+let TreeTemplate = document.createElement('template');
+TreeTemplate.innerHTML = `
+    <style>
+        :host {
+            display: block;
         }
-        this.make();
+    </style>
+    <div class="tree">
+        <slot></slot>
+    </div>
+`;
+
+class Tree extends HTMLElement {
+    constructor() {
+        super();
+
+        this.attachShadow({ mode: 'open' })
+            .appendChild(TreeTemplate.content.cloneNode(true));
     }
-
-    make() {
-        this.tree = frappejs.ui.create('div', {
-            inside: this.parent,
-            className: 'tree ' + (this.withSkeleton ? 'with-skeleton' : '')
-        });
-
-        this.rootNode = this.makeNode(this.label, this.label, true, null, this.tree);
-        this.expandNode(this.rootNode);
-    }
-
-    refresh() {
-        // this.selectedNode.parentNode &&
-        // 	this.loadChildren(this.selectedNode.parentNode, true);
-    }
-
-    async loadChildren(node, deep=false) {
-        let children = !deep ? await this.method(node) : await this.getAllNodes(node);
-        this.renderNodeChildren(node, children);
-    }
-
-    renderChildrenDeep(dataList) {
-        dataList.map(d => { this.renderNodeChildren(this.nodes[d.parent], d.data); });
-    }
-
-    renderNodeChildren(node, dataSet=[]) {
-        frappejs.ui.empty(node.childrenList);
-
-        dataSet.forEach(data => {
-            let parentNode = this.nodes[node.value];
-            let childNode = this.makeNode(data.label || data.value, data.value,
-                data.expandable, parentNode);
-            childNode.treeLink.dataset.nodeData = data;
-        });
-        node.expanded = false;
-
-        // As children loaded
-        node.loaded = true;
-        this.onNodeClick(node, true);
-    }
-
-    getAllNodes() { }
-
-    makeNode(label, value, expandable, parentNode, parentEl) {
-        let node = {
-            label: label,
-            value: value,
-            loaded: 0,
-            expanded: 0,
-            expandable: expandable,
-        };
-
-        if(parentNode){
-            node.parentNode = parentNode;
-            node.parent = parentNode.childrenList;
-            node.isRoot = 0;
-        } else {
-            node.isRoot = 1;
-            node.parent = parentEl;
-        }
-
-        this.nodes[value] = node;
-        this.buildNodeElement(node);
-        this.onRender && this.onRender(node);
-
-        return node;
-    }
-
-    buildNodeElement(node) {
-        node.parentLi = frappejs.ui.create('li', {
-            inside: node.parent,
-            className: 'tree-node'
-        });
-
-        let iconHtml = '';
-        if(this.iconSet) {
-            iconHtml = node.expandable ? this.iconSet.closed : this.iconSet.leaf;
-        }
-        let labelEl = `<a class="tree-label"> ${node.label}</a>`;
-
-        node.treeLink = frappejs.ui.create('span', {
-            inside: node.parentLi,
-            className: 'tree-link',
-            'data-label': node.label,
-            innerHTML: iconHtml + labelEl
-        });
-        node.treeLink.dataset.node = node;
-        node.treeLink.addEventListener('click', () => {
-            this.onNodeClick(node);
-        });
-
-        node.childrenList = frappejs.ui.create('ul', {
-            inside: node.parentLi,
-            className: 'tree-children hide'
-        });
-
-        // if(this.toolbar) {
-        // 	node.toolbar = this.getToolbar(node).insertAfter(node.treeLink);
-        // }
-    }
-
-    async onNodeClick(node, click = true) {
-        this.setSelectedNode(node);
-        if(click) {
-            this.onClick && this.onClick(node);
-        }
-        await this.expandNode(node);
-        // select link
-        utils$3.activate(this.tree, node.treeLink, 'tree-link', 'active');
-        if(node.toolbar) this.showToolbar(node);
-    }
-
-    async expandNode(node) {
-        if(node.expandable) {
-            await this.toggleNode(node);
-        }
-
-        node.expanded = !node.expanded;
-        // node.parent.classList.toggle('opened', node.expanded);
-        node.parent.classList.add('opened');
-        node.parentLi.classList.add('opened');
-    }
-
-    async toggleNode(node) {
-        if(!node.loaded) await this.loadChildren(node);
-
-        // expand children
-        if(node.childrenList) {
-            if(node.childrenList.innerHTML.length) {
-                if (node.expanded) {
-                    node.childrenList.classList.add('hide');
-                } else {
-                    node.childrenList.classList.remove('hide');
-                }
-            }
-
-            // open close icon
-            if(this.iconSet) {
-                const oldIcon = node.treeLink.querySelector('svg');
-                const newIconKey = node.expanded ? 'closed' : 'open';
-                const newIcon = frappejs.ui.create(this.iconSet[newIconKey]);
-                node.treeLink.replaceChild(newIcon, oldIcon);
-            }
-        }
-    }
-
-    getSelectedNode() { return this.selectedNode; }
-
-    setSelectedNode(node) { this.selectedNode = node; }
-
-    showToolbar() { }
 }
 
-var tree = Tree;
+window.customElements.define('f-tree', Tree);
+
+let TreeNodeTemplate = document.createElement('template');
+TreeNodeTemplate.innerHTML = `
+    <style>
+        :host {
+            display: block;
+        }
+
+        :host:hover {
+            background-color: gray;
+            background-color: var(--tree-node-hover);
+            cursor: pointer;
+        }
+
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+        }
+
+        .tree-node-icon {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        .tree-node-icon svg {
+            padding: 0.5rem;
+        }
+
+        .tree-node-children {
+            padding-left: 2rem;
+        }
+    </style>
+    <div class="tree-node-content">
+        <div class="tree-node-icon"></div>
+        <div class="tree-node-label"></div>
+        <div class="tree-node-actions"></div>
+    </div>
+    <slot class="tree-node-children"></slot>
+`;
+
+
+class TreeNode extends HTMLElement {
+    static get observedAttributes() {
+        return ['label', 'expanded']
+    }
+
+    constructor() {
+        super();
+
+        let shadowRoot = this.attachShadow({ mode: 'open' });
+        shadowRoot.appendChild(TreeNodeTemplate.content.cloneNode(true));
+        this.iconEl = shadowRoot.querySelector('.tree-node-icon');
+        this.labelEl = shadowRoot.querySelector('.tree-node-label');
+        this.actionsEl = shadowRoot.querySelector('.tree-node-actions');
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+        console.log(name, oldValue, newValue);
+
+        switch(name) {
+            case 'label': {
+                this.labelEl.innerHTML = newValue || '';
+                break;
+            }
+
+            case 'expanded': {
+                this.expanded = this.hasAttribute('expanded');
+
+                if (this.expanded) {
+                    this.iconEl.innerHTML = iconSet.open;
+                } else {
+                    this.iconEl.innerHTML = iconSet.close;
+                }
+                break;
+            }
+
+            default: break;
+        }
+    }
+}
+
+window.customElements.define('f-tree-node', TreeNode);
 
 // const keyboard = require('frappejs/client/ui/keyboard');
 
@@ -28527,11 +28498,6 @@ var tree$2 = class BaseTree extends list {
         let rootLabel = accountingSettings.companyName;
 
         this.renderTree(rootLabel);
-
-        // this.clearEmptyRows();
-        // this.updateMore(data.length > this.pageLength);
-        // this.selectDefaultRow();
-        // this.setActiveListRow();
         this.trigger('state-change');
     }
 
@@ -28546,18 +28512,74 @@ var tree$2 = class BaseTree extends list {
     }
 
     renderTree(rootLabel) {
-        this.tree = new tree({
+        // const tree = new Tree();
+        // tree.getChildNodes = async node => {
+        //     const children = await this.getData(node) || [];
+        //     return children.map(d => ({
+        //         label: d.name,
+        //         value: d.name,
+        //         expandable: d.isGroup
+        //     }));
+        // }
+        // tree.rootNode = {
+        //     label: rootLabel,
+        //     value: rootLabel,
+        //     isRoot: 1,
+        //     expandable: 1
+        // }
+        // this.body.appendChild(tree);
+
+        this.rootNode = {
             label: rootLabel,
-            parent: this.body,
-            method: async node => {
-                const children = await this.getData(node) || [];
-                return children.map(d => ({
-                    label: d.name,
-                    value: d.name,
-                    expandable: d.isGroup
-                }));
+            value: rootLabel,
+            isRoot: true,
+            expanded: true,
+            children: []
+        };
+
+        this.treeWrapper = frappejs.ui.create(`
+            <f-tree>
+                <f-tree-node label="TennisMart" expanded>
+                    <f-tree-node label="Expense" expanded>
+                        <f-tree-node label="Direct Expense" expanded>
+                        </f-tree-node>
+                    </f-tree-node>
+                </f-tree-node>
+            </f-tree>
+        `);
+
+        this.body.appendChild(this.treeWrapper);
+
+        frappejs.ui.on(this.treeWrapper, 'click', 'f-tree-node', async (e, treeNode) => {
+            if (treeNode.expanded) {
+                treeNode.removeAttribute('expanded');
+            } else {
+                treeNode.setAttribute('expanded', '');
             }
+
+            
+            // if (treeNode.hasAttribute('is-root')) {
+            //     node = this.rootNode;
+            // } else {
+
+            // }
+
+
         });
+
+
+        // this.tree = new Tree({
+        //     label: rootLabel,
+        //     parent: this.body,
+        //     method: async node => {
+        //         const children = await this.getData(node) || [];
+        //         return children.map(d => ({
+        //             label: d.name,
+        //             value: d.name,
+        //             expandable: d.isGroup
+        //         }));
+        //     }
+        // });
     }
 
     async getData(node) {
@@ -28585,65 +28607,6 @@ var tree$2 = class BaseTree extends list {
         return fields;
     }
 
-    getNameHTML(data) {
-        return `<span class="indicator ${this.meta.getIndicatorColor(data)}">${data[this.meta.titleField]}</span>`;
-    }
-
-    getRow(i) {
-        if (!this.rows[i]) {
-            let row = frappejs.ui.add('div', 'list-row row no-gutters', this.body);
-
-            // open on click
-            let me = this;
-            row.addEventListener('click', async function(e) {
-                if (!e.target.tagName !== 'input') {
-                    await me.showItem(this.docName);
-                }
-            });
-            row.style.display = 'flex';
-
-            // make element focusable
-            row.setAttribute('tabindex', -1);
-            this.rows[i] = row;
-        }
-        return this.rows[i];
-    }
-
-    refreshRow(doc) {
-        let row = this.getRowByName(doc.name);
-        if (row) {
-            this.renderRow(row, doc);
-        }
-    }
-
-    async showItem(name) {
-        if (this.meta.print) {
-            await frappejs.router.setRoute('print', this.doctype, name);
-        } else {
-            await frappejs.router.setRoute('edit', this.doctype, name);
-        }
-    }
-
-    getCheckedRowNames() {
-        return [...this.body.querySelectorAll('.checkbox:checked')].map(check => check.getAttribute('data-name'));
-    }
-
-    clearEmptyRows() {
-        if (this.rows.length > this.data.length) {
-            for (let i=this.data.length; i < this.rows.length; i++) {
-                let row = this.getRow(i);
-                row.innerHTML = '';
-                row.style.display = 'none';
-            }
-        }
-    }
-
-    selectDefaultRow() {
-        if (!frappejs.desk.body.activePage && this.rows.length) {
-            this.showItem(this.rows[0].docName);
-        }
-    }
-
     makeToolbar() {
         this.makeSearch();
 
@@ -28668,7 +28631,7 @@ var tree$2 = class BaseTree extends list {
         });
 
         this.page.body.addEventListener('click', (event) => {
-            if(event.target.classList.contains('checkbox')) {
+            if (event.target.classList.contains('checkbox')) {
                 this.trigger('state-change');
             }
         });
@@ -28687,7 +28650,7 @@ var tree$2 = class BaseTree extends list {
 
         this.searchInput = this.toolbar.querySelector('input');
         this.searchInput.addEventListener('keypress', (event) => {
-            if (event.keyCode===13) {
+            if (event.keyCode === 13) {
                 this.refresh();
             }
         });
@@ -28696,69 +28659,6 @@ var tree$2 = class BaseTree extends list {
         this.btnSearch.addEventListener('click', (event) => {
             this.refresh();
         });
-    }
-
-    bindKeys() {
-        // keyboard.bindKey(this.body, 'up', () => this.move('up'));
-        // keyboard.bindKey(this.body, 'down', () => this.move('down'))
-
-        // keyboard.bindKey(this.body, 'right', () => {
-        //     if (frappe.desk.body.activePage) {
-        //         frappe.desk.body.activePage.body.querySelector('input').focus();
-        //     }
-        // });
-
-        // keyboard.bindKey(this.body, 'n', (e) => {
-        //     frappe.router.setRoute('new', this.doctype);
-        //     e.preventDefault();
-        // });
-
-        // keyboard.bindKey(this.body, 'x', async (e) => {
-        //     let activeListRow = this.getActiveListRow();
-        //     if (activeListRow && activeListRow.docName) {
-        //         e.preventDefault();
-        //         await frappe.db.delete(this.doctype, activeListRow.docName);
-        //         frappe.desk.body.activePage.hide();
-        //     }
-        // });
-    }
-
-    async move(direction) {
-        let elementRef = direction === 'up' ? 'previousSibling' : 'nextSibling';
-        if (document.activeElement && document.activeElement.classList.contains('list-row')) {
-            let next = document.activeElement[elementRef];
-            if (next && next.docName) {
-                await this.showItem(next.docName);
-            }
-        }
-    }
-
-    setActiveListRow(name) {
-        let activeListRow = this.getActiveListRow();
-        if (activeListRow) {
-            activeListRow.classList.remove('active');
-        }
-
-        if (!name) {
-            // get name from active page
-            name = frappejs.desk.activeDoc && frappejs.desk.activeDoc.name;
-        }
-
-        if (name) {
-            let row = this.getRowByName(name);
-            if (row) {
-                row.classList.add('active');
-                row.focus();
-            }
-        }
-    }
-
-    getRowByName(name) {
-        return this.body.querySelector(`.list-row[data-name="${name}"]`);
-    }
-
-    getActiveListRow() {
-        return this.body.querySelector('.list-row.active');
     }
 };
 
@@ -49466,7 +49366,8 @@ var modelTable = class ModelTable {
 
     getControl(field, parent) {
         field.onlyInput = true;
-        const control = controls$1.makeControl({field: field, parent: parent});
+        const controls = controls$1;
+        const control = controls.makeControl({field: field, parent: parent});
 
         // change will be triggered by datatable
         control.skipChangeEvent = true;
@@ -50215,12 +50116,6 @@ var treepage = class TreePage extends page {
             parent: this.body,
             page: this
         });
-
-        // frappe.docs.on('change', (params) => {
-        //     if (params.doc.doctype === this.tree.meta.name) {
-        //         this.tree.refreshRow(params.doc);
-        //     }
-        // });
     }
 
     async show(params) {
@@ -60782,7 +60677,6 @@ var client$2 = {
 
         frappejs.desk.menu.addItem('ToDo', '#list/ToDo');
         frappejs.desk.menu.addItem('Chart of Accounts', '#tree/Account');
-        frappejs.desk.menu.addItem('Accounts', '#list/Account');
         frappejs.desk.menu.addItem('Items', '#list/Item');
         frappejs.desk.menu.addItem('Customers', '#list/Customer');
         frappejs.desk.menu.addItem('Invoice', '#list/Invoice');
