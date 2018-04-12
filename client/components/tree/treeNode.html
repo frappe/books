@@ -1,0 +1,58 @@
+<!-- styles -->
+<style>
+    :host {
+        display: block;
+    }
+
+    .tree-node {
+        display: flex;
+        align-items: center;
+    }
+
+    .tree-node:hover {
+        background-color: gray;
+        background-color: var(--tree-node-hover);
+        cursor: pointer;
+    }
+
+    .tree-node:hover .tree-node-actions {
+        display: block;
+    }
+
+    .tree-node-content {
+        display: flex;
+        align-items: center;
+    }
+
+    .tree-node-actions {
+        display: none;
+        margin-left: 2rem;
+    }
+
+    .tree-node-icon {
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .tree-node-icon svg {
+        padding: 0.5rem;
+    }
+
+    .tree-node-children {
+        padding-left: 2rem;
+    }
+</style>
+
+<!-- template -->
+<div class="tree-node">
+    <div class="tree-node-content">
+        <div class="tree-node-icon"></div>
+        <div class="tree-node-label"></div>
+    </div>
+    <div class="tree-node-actions">
+        <slot name="actions"></slot>
+    </div>
+</div>
+<div class="tree-node-children">
+    <slot></slot>
+</div>
