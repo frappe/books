@@ -3,12 +3,13 @@ const Dropdown = require('./dropdown');
 
 module.exports = {
     create(tag, obj) {
-        if(!obj) {
+        if(tag.includes('<')) {
             let div = document.createElement('div');
             div.innerHTML = tag.trim();
             return div.firstChild;
         }
         let element = document.createElement(tag);
+        obj = obj || {};
 
         let $ = (expr, con) => {
             return typeof expr === "string"
@@ -62,6 +63,35 @@ module.exports = {
 
     remove(element) {
         element.parentNode.removeChild(element);
+    },
+
+    on(element, event, selector, handler) {
+        if (!handler) {
+            handler = selector;
+            this.bind(element, event, handler);
+        } else {
+            this.delegate(element, event, selector, handler);
+        }
+    },
+
+    off(element, event, handler) {
+        element.removeEventListener(event, handler);
+    },
+
+    bind(element, event, callback) {
+        event.split(/\s+/).forEach(function (event) {
+            element.addEventListener(event, callback);
+        });
+    },
+
+    delegate(element, event, selector, callback) {
+        element.addEventListener(event, function (e) {
+            const delegatedTarget = e.target.closest(selector);
+            if (delegatedTarget) {
+                e.delegatedTarget = delegatedTarget;
+                callback.call(this, e, delegatedTarget);
+            }
+        });
     },
 
     empty(element) {
