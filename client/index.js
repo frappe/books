@@ -4,6 +4,7 @@ const frappe = require('frappejs');
 frappe.ui = require('./ui');
 const Desk = require('./desk');
 const Observable = require('frappejs/utils/observable');
+const { getPDF } = require('frappejs/client/pdf');
 
 module.exports = {
     async start({server, columns = 2, makeDesk = 1}) {
@@ -47,6 +48,8 @@ module.exports = {
 
             return await response.json();
         }
+
+        frappe.getPDF = getPDF;
     }
 };
 
