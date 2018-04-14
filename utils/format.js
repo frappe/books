@@ -16,7 +16,14 @@ module.exports = {
             value = markdown.makeHtml(value || '');
 
         } else if (field.fieldtype === 'Date') {
-            value = moment(value).format(frappe.SystemSettings.dateFormat.toUpperCase());
+            let dateFormat;
+            if (!frappe.SystemSettings) {
+                dateFormat = 'yyyy-mm-dd';
+            } else {
+                dateFormat = frappe.SystemSettings.dateFormat;
+            }
+
+            value = moment(value).format(dateFormat.toUpperCase());
 
         } else {
             if (value===null || value===undefined) {

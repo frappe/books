@@ -1,6 +1,7 @@
 const mkdirp = require('mkdirp');
 const fs = require('fs');
 const getDirName = require('path').dirname;
+const os = require('os');
 
 module.exports = {
     writeFile(fullpath, contents) {
@@ -13,5 +14,9 @@ module.exports = {
                 });
             });
         });
+    },
+
+    getTmpDir() {
+        return os.tmpdir();
     }
 }

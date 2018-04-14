@@ -38,8 +38,9 @@ module.exports = class BaseTree extends BaseList {
         this.body.innerHTML = '';
         this.dirty = false;
 
-        let accountingSettings = await frappe.db.getSingle('AccountingSettings');
-        let rootLabel = accountingSettings.companyName;
+        const rootLabel = this.treeSettings.getRootLabel ?
+            await this.treeSettings.getRootLabel() :
+            this.doctype;
 
         this.renderTree(rootLabel);
         this.trigger('state-change');
