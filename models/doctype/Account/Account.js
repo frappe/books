@@ -88,6 +88,10 @@ module.exports = {
     },
 
     treeSettings: {
-        parentField: 'parentAccount'
+        parentField: 'parentAccount',
+        async getRootLabel() {
+            let accountingSettings = await frappe.getSingle('AccountingSettings');
+            return accountingSettings.companyName;
+        }
     }
 }
