@@ -4575,7 +4575,7 @@ if (typeof undefined === 'function' && undefined.amd) {
 }
 }).call(commonjsGlobal);
 
-
+//# sourceMappingURL=showdown.js.map
 });
 
 var moment = createCommonjsModule(function (module, exports) {
@@ -9321,7 +9321,14 @@ var format = {
             value = markdown.makeHtml(value || '');
 
         } else if (field.fieldtype === 'Date') {
-            value = moment(value).format(frappejs.SystemSettings.dateFormat.toUpperCase());
+            let dateFormat;
+            if (!frappejs.SystemSettings) {
+                dateFormat = 'yyyy-mm-dd';
+            } else {
+                dateFormat = frappejs.SystemSettings.dateFormat;
+            }
+
+            value = moment(value).format(dateFormat.toUpperCase());
 
         } else {
             if (value===null || value===undefined) {
@@ -23068,7 +23075,7 @@ Popper.placements = placements;
 Popper.Defaults = Defaults;
 
 
-
+//# sourceMappingURL=popper.js.map
 
 
 var popper = Object.freeze({
@@ -26967,7 +26974,7 @@ exports.Tooltip = Tooltip;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-
+//# sourceMappingURL=bootstrap.js.map
 });
 
 unwrapExports(bootstrap);
@@ -27025,12 +27032,13 @@ var dropdown = Dropdown;
 
 var ui = {
     create(tag, obj) {
-        if(!obj) {
+        if(tag.includes('<')) {
             let div = document.createElement('div');
             div.innerHTML = tag.trim();
             return div.firstChild;
         }
         let element = document.createElement(tag);
+        obj = obj || {};
 
         let $ = (expr, con) => {
             return typeof expr === "string"
@@ -27757,6 +27765,50 @@ var list = class BaseList extends observable {
     }
 };
 
+let templates = {};
+
+class BaseComponent extends HTMLElement {
+    constructor(name) {
+        super();
+
+        this._name = name;
+        this._shadowRoot = this.attachShadow({ mode: 'open' });
+
+        if (!templates[name]) {
+            makeTemplate(name, this.templateHTML);
+        }
+
+        let template = getTemplate(name);
+        this._shadowRoot.appendChild(template);
+    }
+
+    triggerEvent(eventName, detail = {}) {
+        const event = new CustomEvent(eventName, {
+            bubbles: true,
+            composed: true,
+            detail
+        });
+        this.dispatchEvent(event);
+    }
+}
+
+
+function makeTemplate(name, html) {
+    if (!templates[name]) {
+        let template = document.createElement('template');
+        template.id = name;
+        template.innerHTML = html;
+
+        templates[name] = template;
+    }
+}
+
+function getTemplate(name) {
+    return templates[name].content.cloneNode(true);
+}
+
+var baseComponent = BaseComponent;
+
 var alert$1 = {"name":"alert","figma":{"id":"0:5","file":"FP7lqd1V00LUaT5zvdklkkZr"},"keywords":["warning","triangle","exclamation","point"],"width":16,"height":16,"path":"<path fill-rule=\"evenodd\" d=\"M8.893 1.5c-.183-.31-.52-.5-.887-.5s-.703.19-.886.5L.138 13.499a.98.98 0 0 0 0 1.001c.193.31.53.501.886.501h13.964c.367 0 .704-.19.877-.5a1.03 1.03 0 0 0 .01-1.002L8.893 1.5zm.133 11.497H6.987v-2.003h2.039v2.003zm0-3.004H6.987V5.987h2.039v4.006z\"/>"};
 var beaker = {"name":"beaker","figma":{"id":"0:26","file":"FP7lqd1V00LUaT5zvdklkkZr"},"keywords":["experiment","labs","experimental","feature","test","science","education","study","development","testing"],"width":16,"height":16,"path":"<path fill-rule=\"evenodd\" d=\"M14.84 14.59L11.46 7V3h1V2h-9v1h1v4l-3.37 7.59A1 1 0 0 0 2 16h11.94c.72 0 1.2-.75.91-1.41h-.01zM4.21 10l1.25-3V3h5v4l1.25 3h-7.5zm4.25-2h1v1h-1V8zm-1-1h-1V6h1v1zm0-3h1v1h-1V4zm0-3h-1V0h1v1z\"/>"};
 var bell = {"name":"bell","figma":{"id":"0:34","file":"FP7lqd1V00LUaT5zvdklkkZr"},"keywords":["notification"],"width":14,"height":16,"path":"<path fill-rule=\"evenodd\" d=\"M14 12v1H0v-1l.73-.58c.77-.77.81-2.55 1.19-4.42C2.69 3.23 6 2 6 2c0-.55.45-1 1-1s1 .45 1 1c0 0 3.39 1.23 4.16 5 .38 1.88.42 3.66 1.19 4.42l.66.58H14zm-7 4c1.11 0 2-.89 2-2H5c0 1.11.89 2 2 2z\"/>"};
@@ -28140,7 +28192,6 @@ object-assign
 @license MIT
 */
 
-/* eslint-disable no-unused-vars */
 var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 var propIsEnumerable = Object.prototype.propertyIsEnumerable;
@@ -28287,152 +28338,57 @@ Object.keys(data$2).forEach(function(key) {
 // Import data into exports
 var octicons = data$2;
 
-var utils$3 = {
-    convertFieldsToDatatableColumns(fields, layout = 'fixed') {
-        return fields.map(field => {
-            if (!field.width) {
-                if (layout==='ratio') {
-                    field.width = 1;
-                } else if (layout==='fixed') {
-                    field.width = 120;
-                }
-            }
-            return {
-                id: field.fieldname || frappejs.slug(field.label),
-                field: field,
-                content: field.label,
-                editable: true,
-                sortable: false,
-                resizable: true,
-                dropdown: false,
-                width: field.width,
-                align: ['Int', 'Float', 'Currency'].includes(field.fieldtype) ? 'right' : 'left',
-                format: (value) => frappejs.format(value, field)
-            }
-        });
+var treeNode = "<!-- styles -->\n<style>\n    :host {\n        display: block;\n    }\n\n    .tree-node {\n        display: flex;\n        align-items: center;\n    }\n\n    .tree-node:hover {\n        background-color: gray;\n        background-color: var(--tree-node-hover);\n        cursor: pointer;\n    }\n\n    .tree-node:hover .tree-node-actions {\n        display: block;\n    }\n\n    .tree-node-content {\n        display: flex;\n        align-items: center;\n    }\n\n    .tree-node-actions {\n        display: none;\n        margin-left: 2rem;\n    }\n\n    .tree-node-icon {\n        width: 2rem;\n        height: 2rem;\n    }\n\n    .tree-node-icon svg {\n        padding: 0.5rem;\n    }\n\n    .tree-node-children {\n        padding-left: 2rem;\n    }\n</style>\n\n<!-- template -->\n<div class=\"tree-node\">\n    <div class=\"tree-node-content\">\n        <div class=\"tree-node-icon\"></div>\n        <div class=\"tree-node-label\"></div>\n    </div>\n    <div class=\"tree-node-actions\">\n        <slot name=\"actions\"></slot>\n    </div>\n</div>\n<div class=\"tree-node-children\">\n    <slot></slot>\n</div>";
 
-    },
+var treeNode$1 = Object.freeze({
+	default: treeNode
+});
 
-    addButton(label, parent, action, unhide = true) {
-        const link = frappejs.ui.add('button', 'btn btn-sm btn-outline-secondary', parent, label);
-        link.type = 'button';
-        link.addEventListener('click', action);
-        if (unhide) {
-            parent.classList.remove('hide');
-        }
-        return link;
-    },
-
-    // https://css-tricks.com/snippets/javascript/loop-queryselectorall-matches/
-    forEachNode(nodeList, callback, scope) {
-        if(!nodeList) return;
-        for (var i = 0; i < nodeList.length; i++) {
-            callback.call(scope, nodeList[i], i);
-        }
-    },
-
-    activate($parent, $child, commonSelector, activeClass='active', index = -1) {
-        let $children = $parent.querySelectorAll(`${commonSelector}.${activeClass}`);
-
-        if (typeof $child === 'string') {
-            $child = $parent.querySelector($child);
-        }
-
-        this.forEachNode($children, (node, i) => {
-            if(index >= 0 && i <= index) return;
-            node.classList.remove(activeClass);
-        });
-
-		$child.classList.add(activeClass);
-	}
-};
+var require$$0$1 = ( treeNode$1 && treeNode ) || treeNode$1;
 
 const iconSet = {
     open: octicons["triangle-down"].toSVG({ width: "12", height: "12", "class": "tree-icon-open" }),
     close: octicons["triangle-right"].toSVG({ width: "12", height: "12", "class": "tree-icon-closed" })
 };
 
-let TreeTemplate = document.createElement('template');
-TreeTemplate.innerHTML = `
-    <style>
-        :host {
-            display: block;
-        }
-    </style>
-    <div class="tree">
-        <slot></slot>
-    </div>
-`;
-
-class Tree extends HTMLElement {
-    constructor() {
-        super();
-
-        this.attachShadow({ mode: 'open' })
-            .appendChild(TreeTemplate.content.cloneNode(true));
-    }
-}
-
-window.customElements.define('f-tree', Tree);
-
-let TreeNodeTemplate = document.createElement('template');
-TreeNodeTemplate.innerHTML = `
-    <style>
-        :host {
-            display: block;
-        }
-
-        :host:hover {
-            background-color: gray;
-            background-color: var(--tree-node-hover);
-            cursor: pointer;
-        }
-
-        .tree-node-content {
-            display: flex;
-            align-items: center;
-        }
-
-        .tree-node-icon {
-            width: 2rem;
-            height: 2rem;
-        }
-
-        .tree-node-icon svg {
-            padding: 0.5rem;
-        }
-
-        .tree-node-children {
-            padding-left: 2rem;
-        }
-    </style>
-    <div class="tree-node-content">
-        <div class="tree-node-icon"></div>
-        <div class="tree-node-label"></div>
-        <div class="tree-node-actions"></div>
-    </div>
-    <slot class="tree-node-children"></slot>
-`;
-
-
-class TreeNode extends HTMLElement {
+class TreeNode extends baseComponent {
     static get observedAttributes() {
-        return ['label', 'expanded']
+        return ['label', 'expanded'];
+    }
+
+    get templateHTML() {
+        return require$$0$1;
     }
 
     constructor() {
-        super();
+        super('TreeNode');
 
-        let shadowRoot = this.attachShadow({ mode: 'open' });
-        shadowRoot.appendChild(TreeNodeTemplate.content.cloneNode(true));
+        let shadowRoot = this._shadowRoot;
         this.iconEl = shadowRoot.querySelector('.tree-node-icon');
         this.labelEl = shadowRoot.querySelector('.tree-node-label');
         this.actionsEl = shadowRoot.querySelector('.tree-node-actions');
+        this.childrenEl = shadowRoot.querySelector('.tree-node-children');
+
+        this.addEventListener('click', e => {
+            e.stopImmediatePropagation();
+
+            if (e.target.matches('[slot="actions"]')) {
+                this.triggerEvent('tree-node-action', {
+                    actionEl: e.target
+                });
+                return;
+            }
+
+            if (this.expanded) {
+                this.removeAttribute('expanded');
+            } else {
+                this.setAttribute('expanded', '');
+            }
+        });
+        this.onExpand();
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
-        console.log(name, oldValue, newValue);
-
         switch(name) {
             case 'label': {
                 this.labelEl.innerHTML = newValue || '';
@@ -28440,26 +28396,67 @@ class TreeNode extends HTMLElement {
             }
 
             case 'expanded': {
-                this.expanded = this.hasAttribute('expanded');
-
-                if (this.expanded) {
-                    this.iconEl.innerHTML = iconSet.open;
-                } else {
-                    this.iconEl.innerHTML = iconSet.close;
-                }
+                const isExpanded = this.hasAttribute('expanded');
+                this.onExpand(isExpanded);
                 break;
             }
 
             default: break;
         }
     }
+
+    onExpand(isExpanded = false) {
+        if (this.isLeaf) return;
+
+        if (isExpanded) {
+            this.iconEl.innerHTML = iconSet.open;
+            this.childrenEl.style.display = '';
+        } else {
+            this.iconEl.innerHTML = iconSet.close;
+            this.childrenEl.style.display = 'none';
+        }
+
+        this.triggerEvent('tree-node-expand', {
+            expanded: isExpanded
+        });
+    }
+
+    get isRoot() {
+        return this.hasAttribute('is-root');
+    }
+
+    get expanded() {
+        return this.hasAttribute('expanded');
+    }
+
+    get isLeaf() {
+        return this.hasAttribute('is-leaf');
+    }
 }
 
 window.customElements.define('f-tree-node', TreeNode);
 
-// const keyboard = require('frappejs/client/ui/keyboard');
+var index = "<!-- styles -->\n<style>\n    :host {\n        display: block;\n    }\n</style>\n\n<!-- template -->\n<div class=\"tree\">\n    <slot></slot>\n</div>\n";
 
-var tree$2 = class BaseTree extends list {
+var tree = Object.freeze({
+	default: index
+});
+
+var require$$0$2 = ( tree && index ) || tree;
+
+class Tree extends baseComponent {
+    get templateHTML() {
+        return require$$0$2;
+    }
+
+    constructor() {
+        super('Tree');
+    }
+}
+
+window.customElements.define('f-tree', Tree);
+
+var tree$3 = class BaseTree extends list {
 
     init() {
         this.meta = frappejs.getMeta(this.doctype);
@@ -28494,8 +28491,9 @@ var tree$2 = class BaseTree extends list {
         this.body.innerHTML = '';
         this.dirty = false;
 
-        let accountingSettings = await frappejs.db.getSingle('AccountingSettings');
-        let rootLabel = accountingSettings.companyName;
+        const rootLabel = this.treeSettings.getRootLabel ?
+            await this.treeSettings.getRootLabel() :
+            this.doctype;
 
         this.renderTree(rootLabel);
         this.trigger('state-change');
@@ -28512,74 +28510,62 @@ var tree$2 = class BaseTree extends list {
     }
 
     renderTree(rootLabel) {
-        // const tree = new Tree();
-        // tree.getChildNodes = async node => {
-        //     const children = await this.getData(node) || [];
-        //     return children.map(d => ({
-        //         label: d.name,
-        //         value: d.name,
-        //         expandable: d.isGroup
-        //     }));
-        // }
-        // tree.rootNode = {
-        //     label: rootLabel,
-        //     value: rootLabel,
-        //     isRoot: 1,
-        //     expandable: 1
-        // }
-        // this.body.appendChild(tree);
-
         this.rootNode = {
             label: rootLabel,
             value: rootLabel,
             isRoot: true,
-            expanded: true,
-            children: []
+            isGroup: true,
+            children: null
         };
 
         this.treeWrapper = frappejs.ui.create(`
             <f-tree>
-                <f-tree-node label="TennisMart" expanded>
-                    <f-tree-node label="Expense" expanded>
-                        <f-tree-node label="Direct Expense" expanded>
-                        </f-tree-node>
-                    </f-tree-node>
-                </f-tree-node>
+                ${this.getTreeNodeHTML(this.rootNode)}
             </f-tree>
         `);
 
+        const rootNode = this.treeWrapper.querySelector('f-tree-node[is-root]');
+        rootNode.props = this.rootNode;
+
         this.body.appendChild(this.treeWrapper);
 
-        frappejs.ui.on(this.treeWrapper, 'click', 'f-tree-node', async (e, treeNode) => {
-            if (treeNode.expanded) {
-                treeNode.removeAttribute('expanded');
-            } else {
-                treeNode.setAttribute('expanded', '');
+        frappejs.ui.on(this.treeWrapper, 'tree-node-expand', 'f-tree-node', async (e, treeNode) => {
+            if (!treeNode.expanded) return;
+
+            if (!treeNode.props.children) {
+                const data = await this.getData(treeNode.props);
+                const children = data.map(d => ({
+                    label: d.name,
+                    value: d.name,
+                    isGroup: d.isGroup,
+                    doc: d
+                }));
+                treeNode.props.children = children;
+
+                for (let child of children) {
+                    const childNode = frappejs.ui.create(this.getTreeNodeHTML(child));
+                    childNode.props = child;
+                    treeNode.appendChild(childNode);
+                }
             }
-
-            
-            // if (treeNode.hasAttribute('is-root')) {
-            //     node = this.rootNode;
-            // } else {
-
-            // }
-
-
         });
 
+        frappejs.ui.on(this.treeWrapper, 'tree-node-action', 'f-tree-node', (e, treeNode) => {
+            if (treeNode.isRoot) return;
 
-        // this.tree = new Tree({
-        //     label: rootLabel,
-        //     parent: this.body,
-        //     method: async node => {
-        //         const children = await this.getData(node) || [];
-        //         return children.map(d => ({
-        //             label: d.name,
-        //             value: d.name,
-        //             expandable: d.isGroup
-        //         }));
-        //     }
-        // });
+            const button = e.detail.actionEl;
+            const action = button.getAttribute('data-action');
+
+            if (action === 'edit') {
+                this.edit(treeNode.props.doc.name);
+            }
+        });
+
+        rootNode.click(); // open the root node
+    }
+
+    edit(name) {
+        frappejs.desk.showFormModal(this.doctype, name);
     }
 
     async getData(node) {
@@ -28601,64 +28587,37 @@ var tree$2 = class BaseTree extends list {
         });
     }
 
+    getTreeNodeHTML(node) {
+        return (
+            `<f-tree-node
+                label="${node.label}"
+                value="${node.value}"
+                ${node.expanded ? 'expanded' : ''}
+                ${node.isRoot ? 'is-root' : ''}
+                ${node.isGroup ? '' : 'is-leaf'}
+            >
+                ${this.getActionButtonsHTML()}
+            </f-tree-node>`
+        );
+    }
+
+    getActionButtonsHTML() {
+        return [
+            { id: 'edit', label: frappejs._('Edit') }
+            // { id: 'addChild', label: frappe._('Add Child') },
+            // { id: 'delete', label: frappe._('Delete') },
+        ].map(button => {
+            return `<button class="btn btn-link btn-sm m-0" slot="actions" data-action="${button.id}">
+                ${button.label}
+            </button>`;
+        })
+        .join('');
+    }
+
     getFields() {
         let fields = [this.treeSettings.parentField, 'isGroup'];
         this.updateStandardFields(fields);
         return fields;
-    }
-
-    makeToolbar() {
-        this.makeSearch();
-
-        this.btnNew = this.page.addButton(frappejs._('New'), 'btn-primary', async () => {
-            await frappejs.router.setRoute('new', this.doctype);
-        });
-
-        this.btnDelete = this.page.addButton(frappejs._('Delete'), 'btn-secondary hide', async () => {
-            await frappejs.db.deleteMany(this.doctype, this.getCheckedRowNames());
-            await this.refresh();
-        });
-
-        this.btnReport = this.page.addButton(frappejs._('Report'), 'btn-outline-secondary hide', async () => {
-            await frappejs.router.setRoute('table', this.doctype);
-        });
-
-        this.on('state-change', () => {
-            const checkedCount = this.getCheckedRowNames().length;
-            this.btnDelete.classList.toggle('hide', checkedCount ? false : true);
-            this.btnNew.classList.toggle('hide', checkedCount ? true : false);
-            this.btnReport.classList.toggle('hide', checkedCount ? true : false);
-        });
-
-        this.page.body.addEventListener('click', (event) => {
-            if (event.target.classList.contains('checkbox')) {
-                this.trigger('state-change');
-            }
-        });
-    }
-
-    makeSearch() {
-        this.toolbar = frappejs.ui.add('div', 'list-toolbar', this.parent);
-        this.toolbar.innerHTML = `
-            <div class="input-group list-search">
-                <input class="form-control" type="text" placeholder="Search...">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary btn-search">Search</button>
-                </div>
-            </div>
-        `;
-
-        this.searchInput = this.toolbar.querySelector('input');
-        this.searchInput.addEventListener('keypress', (event) => {
-            if (event.keyCode === 13) {
-                this.refresh();
-            }
-        });
-
-        this.btnSearch = this.toolbar.querySelector('.btn-search');
-        this.btnSearch.addEventListener('click', (event) => {
-            this.refresh();
-        });
     }
 };
 
@@ -41341,11 +41300,6 @@ var htmlmixed = createCommonjsModule(function (module, exports) {
 });
 });
 
-// const frappe = require('frappejs');
-
- // eslint-disable-line
- // eslint-disable-line
-
 class CodeControl extends base {
     makeInput() {
         if (!this.options) {
@@ -49241,9 +49195,6 @@ DataTable.__version__ = packageJson.version;
 module.exports = DataTable;
 });
 
-// eslint-disable-line
-
-
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
         super();
@@ -49318,6 +49269,66 @@ var modal = class Modal extends observable {
     getBody() {
         return this.$modal.find('.modal-body').get(0);
     }
+};
+
+var utils$3 = {
+    convertFieldsToDatatableColumns(fields, layout = 'fixed') {
+        return fields.map(field => {
+            if (!field.width) {
+                if (layout==='ratio') {
+                    field.width = 1;
+                } else if (layout==='fixed') {
+                    field.width = 120;
+                }
+            }
+            return {
+                id: field.fieldname || frappejs.slug(field.label),
+                field: field,
+                content: field.label,
+                editable: true,
+                sortable: false,
+                resizable: true,
+                dropdown: false,
+                width: field.width,
+                align: ['Int', 'Float', 'Currency'].includes(field.fieldtype) ? 'right' : 'left',
+                format: (value) => frappejs.format(value, field)
+            }
+        });
+
+    },
+
+    addButton(label, parent, action, unhide = true) {
+        const link = frappejs.ui.add('button', 'btn btn-sm btn-outline-secondary', parent, label);
+        link.type = 'button';
+        link.addEventListener('click', action);
+        if (unhide) {
+            parent.classList.remove('hide');
+        }
+        return link;
+    },
+
+    // https://css-tricks.com/snippets/javascript/loop-queryselectorall-matches/
+    forEachNode(nodeList, callback, scope) {
+        if(!nodeList) return;
+        for (var i = 0; i < nodeList.length; i++) {
+            callback.call(scope, nodeList[i], i);
+        }
+    },
+
+    activate($parent, $child, commonSelector, activeClass='active', index = -1) {
+        let $children = $parent.querySelectorAll(`${commonSelector}.${activeClass}`);
+
+        if (typeof $child === 'string') {
+            $child = $parent.querySelector($child);
+        }
+
+        this.forEachNode($children, (node, i) => {
+            if(index >= 0 && i <= index) return;
+            node.classList.remove(activeClass);
+        });
+
+		$child.classList.add(activeClass);
+	}
 };
 
 var modelTable = class ModelTable {
@@ -50010,7 +50021,7 @@ var view = {
         return (frappejs.views['List'] && frappejs.views['List'][doctype]) || list;
     },
     getTreeClass(doctype) {
-        return (frappejs.views['Tree'] && frappejs.views['Tree'][doctype] || tree$2);
+        return (frappejs.views['Tree'] && frappejs.views['Tree'][doctype] || tree$3);
     }
 };
 
@@ -57850,10 +57861,40 @@ module.exports = installCompat;
 /***/ })
 /******/ ]);
 });
-
+//# sourceMappingURL=nunjucks.js.map
 });
 
 unwrapExports(nunjucks);
+
+async function getHTML(doctype, name) {
+    const meta = frappejs.getMeta(doctype);
+    const printFormat = await frappejs.getDoc('PrintFormat', meta.print.printFormat);
+    let doc = await frappejs.getDoc(doctype, name);
+    let context = {doc: doc, frappe: frappejs};
+
+    console.log(context);
+
+    let html;
+    try {
+        html = nunjucks.renderString(printFormat.template, context);
+    } catch (error) {
+        console.log(error);
+        html = '';
+    }
+
+    return `
+        <div class="print-page">
+            ${html}
+        </div>
+    `;
+}
+
+var print = {
+    getHTML
+};
+
+const { getHTML: getHTML$1 } = print;
+
 
 nunjucks.configure({ autoescape: false });
 
@@ -57867,6 +57908,10 @@ var printpage = class PrintPage extends page {
 
         this.addButton(frappejs._('Edit'), 'primary', () => {
             frappejs.router.setRoute('edit', this.doctype, this.name);
+        });
+
+        this.addButton(frappejs._('PDF'), 'secondary', async () => {
+            frappejs.getPDF(this.doctype, this.name);
         });
     }
 
@@ -57882,14 +57927,11 @@ var printpage = class PrintPage extends page {
     }
 
     async renderTemplate() {
-        this.printFormat = await frappejs.getDoc('PrintFormat', this.meta.print.printFormat);
         let doc = await frappejs.getDoc(this.doctype, this.name);
-        let context = {doc: doc, frappe: frappejs};
-
         frappejs.desk.setActiveDoc(doc);
-
+        const html = await getHTML$1(this.doctype, this.name);
         try {
-            this.body.innerHTML = `<div class="print-page">${nunjucks.renderString(this.printFormat.template, context)}</div>`;
+            this.body.innerHTML = html;
             // this.setTitle(doc.name);
         } catch (e) {
             this.renderError('Template Error', e);
@@ -58050,10 +58092,6 @@ var menu = class DeskMenu {
         }
     }
 };
-
-// const Search = require('./search');
-
-
 
 const views = {};
 views.Form = formpage;
@@ -58230,6 +58268,37 @@ var desk = class Desk {
             });
         }
     }
+};
+
+async function getPDF(doctype, name) {
+    const headers = {
+        'Accept': 'application/pdf',
+        'Content-Type': 'application/json'
+    };
+
+    const res = await fetch('/api/method/pdf', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ doctype, name })
+    });
+
+    const blob = await res.blob();
+    showFile(blob);
+}
+
+
+function showFile(blob, filename='file.pdf') {
+    const newBlob = new Blob([blob], { type: "application/pdf" });
+    const data = window.URL.createObjectURL(newBlob);
+    const link = document.createElement('a');
+    link.href = data;
+    link.download = filename;
+    link.click();
+    setTimeout(() => window.URL.revokeObjectURL(data), 100);
+}
+
+var pdf = {
+    getPDF
 };
 
 var FilterItem = {
@@ -58755,6 +58824,7 @@ var models = {
 frappejs.ui = ui;
 
 
+const { getPDF: getPDF$1 } = pdf;
 
 var client = {
     async start({server, columns = 2, makeDesk = 1}) {
@@ -58798,12 +58868,10 @@ var client = {
 
             return await response.json();
         };
+
+        frappejs.getPDF = getPDF$1;
     }
 };
-
-// baseclass for report
-// `url` url for report
-// `getColumns` return columns
 
 var reportpage = class ReportPage extends page {
     constructor({title, filterFields}) {
@@ -59019,7 +59087,11 @@ module.exports = {
     },
 
     treeSettings: {
-        parentField: 'parentAccount'
+        parentField: 'parentAccount',
+        async getRootLabel() {
+            let accountingSettings = await frappe.getSingle('AccountingSettings');
+            return accountingSettings.companyName;
+        }
     }
 };
 });
@@ -59624,9 +59696,9 @@ var countryInfo$1 = Object.freeze({
 	default: countryInfo
 });
 
-var require$$0$10 = ( countryInfo$1 && countryInfo ) || countryInfo$1;
+var require$$0$13 = ( countryInfo$1 && countryInfo ) || countryInfo$1;
 
-const countryList = Object.keys(require$$0$10).sort();
+const countryList = Object.keys(require$$0$13).sort();
 
 var AccountingSettings = {
     name: "AccountingSettings",
@@ -60691,9 +60763,8 @@ var client$2 = {
     }
 };
 
-const countryList$1 = Object.keys(require$$0$10).sort();
+const countryList$1 = Object.keys(require$$0$13).sort();
 
-// start server
 client.start({
     server: 'localhost:8000',
     makeDesk: 0
@@ -60715,3 +60786,4 @@ var www = false;
 return www;
 
 }());
+//# sourceMappingURL=bundle.js.map
