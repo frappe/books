@@ -1,5 +1,6 @@
-const Page = require('frappejs/client/view/page');
 const frappe = require('frappejs');
+const Page = require('frappejs/client/view/page');
+const { getHTML } = require('frappejs/common/print');
 const nunjucks = require('nunjucks/browser/nunjucks');
 
 nunjucks.configure({ autoescape: false });
@@ -15,6 +16,10 @@ module.exports = class PrintPage extends Page {
         this.addButton(frappe._('Edit'), 'primary', () => {
             frappe.router.setRoute('edit', this.doctype, this.name)
         });
+
+        this.addButton(frappe._('PDF'), 'secondary', async () => {
+            frappe.getPDF(this.doctype, this.name);
+        });
     }
 
     async show(params) {
@@ -29,14 +34,11 @@ module.exports = class PrintPage extends Page {
     }
 
     async renderTemplate() {
-        this.printFormat = await frappe.getDoc('PrintFormat', this.meta.print.printFormat);
         let doc = await frappe.getDoc(this.doctype, this.name);
-        let context = {doc: doc, frappe: frappe};
-
         frappe.desk.setActiveDoc(doc);
-
+        const html = await getHTML(this.doctype, this.name);
         try {
-            this.body.innerHTML = `<div class="print-page">${nunjucks.renderString(this.printFormat.template, context)}</div>`;
+            this.body.innerHTML = html;
             // this.setTitle(doc.name);
         } catch (e) {
             this.renderError('Template Error', e);
