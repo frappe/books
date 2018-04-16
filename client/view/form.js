@@ -11,7 +11,9 @@ module.exports = class BaseForm extends Observable {
         Object.assign(this, arguments[0]);
         this.links = [];
 
-        this.meta = frappe.getMeta(this.doctype);
+        if (!this.meta) {
+            this.meta = frappe.getMeta(this.doctype);
+        }
 
         if (this.setup) {
             this.setup();
