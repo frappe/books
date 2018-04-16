@@ -20,7 +20,7 @@ async function makePDF(html, filepath) {
 
 async function getPDFForElectron(doctype, name) {
     const html = await getHTML(doctype, name);
-    const filepath = path.join(frappe.electronConfig.directory, name + '.pdf');
+    const filepath = path.join(frappe.electronSettings.directory, name + '.pdf');
     await makePDF(html, filepath);
     shell.openItem(filepath);
 }

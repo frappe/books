@@ -42,7 +42,7 @@ module.exports = class ReportPage extends Page {
 
     getFilterValues() {
         const values = {};
-        for (let control of this.form.controlList) {
+        for (let control of this.form.formLayout.controlList) {
             values[control.fieldname] = control.getInputValue();
             if (control.required && !values[control.fieldname]) {
                 frappe.ui.showAlert({message: frappe._('{0} is mandatory', control.label), color: 'red'});
@@ -75,7 +75,10 @@ module.exports = class ReportPage extends Page {
         const filterValues = this.getFilterValues();
         if (filterValues === false) return;
 
-        let data = await frappe.call(this.method, filterValues);
+        let data = await frappe.call({
+            method: this.method,
+            args: filterValues
+        });
         this.datatable.refresh(data);
     }
 
