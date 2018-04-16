@@ -1,8 +1,10 @@
+const frappe = require('frappejs');
 const path = require('path');
 const electron = require('frappejs/client/electron');
 const { writeFile } = require('frappejs/server/utils');
 const appClient = require('../client');
 const SetupWizard = require('../setup');
+const { getPDFForElectron } = require('frappejs/server/pdf');
 
 const fs = require('fs');
 
@@ -19,6 +21,10 @@ require.extensions['.html'] = function (module, filename) {
     } catch(e) {
         settings = {}
     }
+
+    frappe.electronConfig = settings;
+
+    frappe.getPDF = getPDFForElectron;
 
     if (settings.dbPath) {
         dbPath = settings.dbPath;
@@ -50,10 +56,14 @@ require.extensions['.html'] = function (module, filename) {
             dbPath,
             models: require('../models')
         }).then(async () => {
-            await writeFile(configFilePath, JSON.stringify({
+            const config = {
                 directory: path.dirname(dbPath),
                 dbPath: dbPath
-            }));
+            };
+
+            await writeFile(configFilePath, JSON.stringify(config));
+
+            frappe.electronConfig = config;
 
             const doc = await frappe.getDoc('AccountingSettings');
 

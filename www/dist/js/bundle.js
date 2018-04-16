@@ -4575,7 +4575,7 @@ if (typeof undefined === 'function' && undefined.amd) {
 }
 }).call(commonjsGlobal);
 
-//# sourceMappingURL=showdown.js.map
+
 });
 
 var moment = createCommonjsModule(function (module, exports) {
@@ -23075,7 +23075,7 @@ Popper.placements = placements;
 Popper.Defaults = Defaults;
 
 
-//# sourceMappingURL=popper.js.map
+
 
 
 var popper = Object.freeze({
@@ -26974,7 +26974,7 @@ exports.Tooltip = Tooltip;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=bootstrap.js.map
+
 });
 
 unwrapExports(bootstrap);
@@ -28192,6 +28192,7 @@ object-assign
 @license MIT
 */
 
+/* eslint-disable no-unused-vars */
 var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 var propIsEnumerable = Object.prototype.propertyIsEnumerable;
@@ -28455,6 +28456,8 @@ class Tree extends baseComponent {
 }
 
 window.customElements.define('f-tree', Tree);
+
+// const keyboard = require('frappejs/client/ui/keyboard');
 
 var tree$3 = class BaseTree extends list {
 
@@ -41300,6 +41303,11 @@ var htmlmixed = createCommonjsModule(function (module, exports) {
 });
 });
 
+// const frappe = require('frappejs');
+
+ // eslint-disable-line
+ // eslint-disable-line
+
 class CodeControl extends base {
     makeInput() {
         if (!this.options) {
@@ -49194,6 +49202,9 @@ DataTable.__version__ = packageJson.version;
 
 module.exports = DataTable;
 });
+
+// eslint-disable-line
+
 
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
@@ -57861,7 +57872,7 @@ module.exports = installCompat;
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=nunjucks.js.map
+
 });
 
 unwrapExports(nunjucks);
@@ -58092,6 +58103,10 @@ var menu = class DeskMenu {
         }
     }
 };
+
+// const Search = require('./search');
+
+
 
 const views = {};
 views.Form = formpage;
@@ -58872,6 +58887,10 @@ var client = {
         frappejs.getPDF = getPDF$1;
     }
 };
+
+// baseclass for report
+// `url` url for report
+// `getColumns` return columns
 
 var reportpage = class ReportPage extends page {
     constructor({title, filterFields}) {
@@ -60765,6 +60784,7 @@ var client$2 = {
 
 const countryList$1 = Object.keys(require$$0$13).sort();
 
+// start server
 client.start({
     server: 'localhost:8000',
     makeDesk: 0
