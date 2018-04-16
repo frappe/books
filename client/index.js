@@ -6,9 +6,6 @@ module.exports = {
         // require modules
         frappe.registerModels(require('../models'), 'client');
 
-        frappe.registerView('List', 'ToDo', require('frappejs/models/doctype/ToDo/ToDoList.js'));
-        frappe.registerView('Form', 'FilterSelector', require('frappejs/models/doctype/FilterSelector/FilterSelectorForm.js'));
-
         frappe.registerView('List', 'Customer', require('../models/doctype/Party/CustomerList.js'));
 
         frappe.router.add('report/general-ledger', async (params) => {
@@ -26,6 +23,7 @@ module.exports = {
         frappe.desk.menu.addItem('Address', "#list/Address");
         frappe.desk.menu.addItem('Contact', "#list/Contact");
         frappe.desk.menu.addItem('Settings', () => frappe.desk.showFormModal('SystemSettings'));
+        frappe.desk.menu.addItem('General Ledger', '#report/general-ledger');
 
         frappe.router.default = '#tree/Account';
 
