@@ -1,6 +1,7 @@
 const frappe = require('frappejs');
+const { getData } = require('../financialStatements');
 
-class GeneralLedger {
+class ProfitAndLoss {
     async run(params) {
         const filters = {};
         if (params.account) filters.account = params.account;
@@ -10,10 +11,14 @@ class GeneralLedger {
         if (params.fromDate) filters.date = ['>=', params.fromDate];
         if (params.toDate) filters.date = ['<=', params.toDate];
 
-        let data = await frappe.db.getAll({
-            doctype: 'AccountingLedgerEntry',
-            fields: ['date', 'account', 'party', 'referenceType', 'referenceName', 'debit', 'credit'],
-            filters: filters
+        let income = await getData({
+            rootType: 'Income',
+            balanceMustBe: 'Credit'
+        });
+
+        let expense = await getData({
+            rootType: 'Expense',
+            balanceMustBe: 'Credit'
         });
 
         return data;
@@ -21,5 +26,5 @@ class GeneralLedger {
 }
 
 module.exports = function execute(params) {
-    return new GeneralLedger().run(params);
+    return new ProfitAndLoss().run(params);
 }

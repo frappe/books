@@ -1,8 +1,8 @@
 const frappe = require('frappejs');
 
-async function getData(rootType) {
+async function getData({ rootType, balanceMustBe }) {
     const accounts = await getAccounts(rootType);
-    if (!accounts || accounts.length === 0) return;
+    if (!accounts || accounts.length === 0) return [];
 
     const ledgerEntries = await frappe.db.getAll({
         doctype: 'AccountingLedgerEntry',

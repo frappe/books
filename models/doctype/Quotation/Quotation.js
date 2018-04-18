@@ -1,8 +1,10 @@
+const deepmerge = require('deepmerge');
 const Invoice = require('../Invoice/Invoice');
-const Quotation = Invoice;
 
-Quotation.name = "Quotation";
-Quotation.label = "Quotation";
-Quotation.settings = "QuotationSettings";
+const Quotation = deepmerge(Invoice, {
+    name: "Quotation",
+    label: "Quotation",
+    settings: "QuotationSettings"
+});
 
 module.exports = Quotation;
