@@ -1,4 +1,5 @@
 const os = require('os');
+const path = require('path');
 const { writeFile } = require('frappejs/server/utils');
 
 const homedir = os.homedir();

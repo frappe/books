@@ -6,6 +6,7 @@ const SetupWizard = require('../setup');
 const { getPDFForElectron } = require('frappejs/server/pdf');
 const { getSettings, saveSettings } = require('./settings');
 const { postStart } = require('../server');
+const { slug } = require('frappejs/utils');
 
 const fs = require('fs');
 
@@ -19,7 +20,7 @@ require.extensions['.html'] = function (module, filename) {
 
     if (!electronSettings.dbPath) {
         const values = await runSetupWizard();
-        const dbPath = path.join(values.file[0].path, frappe.slug(values.companyName) + '.db');
+        const dbPath = path.join(values.file[0].path, slug(values.companyName) + '.db');
         const config = {
             directory: path.dirname(dbPath),
             dbPath: dbPath
@@ -36,10 +37,10 @@ require.extensions['.html'] = function (module, filename) {
         models: require('../models')
     });
 
-    // await postStart();
+    await postStart();
 
     if (firstRun) {
-        await saveSetupWizardValues(values);
+        await saveSetupWizardValues(setupWizardValues);
         await bootstrapChartOfAccounts();
     }
 

@@ -3,6 +3,7 @@ module.exports = {
     "doctype": "DocType",
     "documentClass": require("./AccountDocument.js"),
     "isSingle": 0,
+    "isTree": 1,
     "keywordFields": [
         "name",
         "rootType",
