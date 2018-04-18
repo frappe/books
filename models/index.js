@@ -18,7 +18,15 @@ module.exports = {
         Tax: require('./doctype/Tax/Tax.js'),
         TaxDetail: require('./doctype/TaxDetail/TaxDetail.js'),
         TaxSummary: require('./doctype/TaxSummary/TaxSummary.js'),
+
         Address: require('./doctype/Address/Address.js'),
-        Contact: require('./doctype/Contact/Contact.js')
+        Contact: require('./doctype/Contact/Contact.js'),
+
+        JournalEntry: require('./doctype/JournalEntry/JournalEntry.js'),
+        JournalEntryAccount: require('./doctype/JournalEntryAccount/JournalEntryAccount.js'),
+        JournalEntrySettings: require('./doctype/JournalEntrySettings/JournalEntrySettings.js'),
+
+        Quotation: require('./doctype/Quotation/Quotation.js'),
+        QuotationSettings: require('./doctype/QuotationSettings/QuotationSettings.js'),
     }
 }
