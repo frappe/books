@@ -1,10 +1,10 @@
-const BaseDocument = require('frappejs/model/document');
+const JournalEntry = require('./JournalEntry');
 const frappe = require('frappejs');
-const LedgerPosting = require.main.require('./accounting/ledgerPosting');
+const LedgerPosting = rootRequire('accounting/ledgerPosting');
 
-module.exports = class PaymentServer extends BaseDocument {
+module.exports = class JournalEntryServer extends BaseDocument {
     /**
-    
+
     getPosting() {
         let entries = new LedgerPosting({reference: this, party: this.party});
         entries.debit(this.paymentAccount, this.amount);
@@ -24,6 +24,6 @@ module.exports = class PaymentServer extends BaseDocument {
     async afterRevert() {
         await this.getPosting().postReverse();
     }
-    
+
     **/
 }
