@@ -112,6 +112,15 @@ module.exports = class BaseMeta extends BaseDocument {
                 }
             }
 
+            if (this.isTree) {
+                // tree fields
+                for (let field of model.treeFields) {
+                    if (frappe.db.typeMap[field.fieldtype] && !doctype_fields.includes(field.fieldname)) {
+                        _add(field);
+                    }
+                }
+            }
+
             // doctype fields
             for (let field of this.fields) {
                 let include = frappe.db.typeMap[field.fieldtype];

@@ -34,5 +34,13 @@ module.exports = {
         {
             fieldname: 'parentfield', fieldtype: 'Data', required: 1
         }
+    ],
+    treeFields: [
+        {
+            fieldname: 'lft', fieldtype: 'Int', required: 1
+        },
+        {
+            fieldname: 'rgt', fieldtype: 'Int', required: 1
+        }
     ]
 };

@@ -7,8 +7,6 @@ async function getHTML(doctype, name) {
     let doc = await frappe.getDoc(doctype, name);
     let context = {doc: doc, frappe: frappe};
 
-    console.log(context);
-
     let html;
     try {
         html = nunjucks.renderString(printFormat.template, context);
