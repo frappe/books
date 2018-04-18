@@ -19,7 +19,7 @@ module.exports = {
         })
 
         frappe.desk.menu.addItem('ToDo', '#list/ToDo');
-        frappe.desk.menu.addItem('Accounts', '#list/Account');
+        frappe.desk.menu.addItem('Chart of Accounts', '#tree/Account');
         frappe.desk.menu.addItem('Items', '#list/Item');
         frappe.desk.menu.addItem('Customers', '#list/Customer');
         frappe.desk.menu.addItem('Quotation', '#list/Quotation');
@@ -29,7 +29,7 @@ module.exports = {
         frappe.desk.menu.addItem('Contact', "#list/Contact");
         frappe.desk.menu.addItem('Settings', () => frappe.desk.showFormModal('SystemSettings'));
 
-        frappe.router.default = '#list/ToDo';
+        frappe.router.default = '#tree/Account';
 
         frappe.router.show(window.location.hash);
 

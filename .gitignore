@@ -5,3 +5,5 @@ Thumbs.db
 *.log
 .cache
 /temp
+dist
+Frappe Accounting*

@@ -7207,6 +7207,10 @@ span.CodeMirror-selectedtext {
   border-bottom: 1px solid #d1d8dd; }
 .body-scrollable.row-highlight-all .data-table-row:not(.row-unhighlight) {
   background-color: #f5f7fa; }
+.body-scrollable .no-data td {
+  text-align: center;
+  padding: 8px;
+  padding: 0.5rem; }
 .data-table-header {
   position: absolute;
   top: 0;
@@ -7486,3 +7490,38 @@ html {
 mark {
   padding: none;
   background: inherit; }
+.align-right {
+  text-align: right; }
+.align-center {
+  text-align: center; }
+.btn-sm, .btn-group-sm > .btn {
+  margin: 0.25rem; }
+.vertical-margin {
+  margin: 1rem 0px; }
+.tree-body {
+  padding: 1rem 2rem; }
+f-tree-node {
+  --tree-node-hover: #f8f9fa; }
+.setup-container {
+  margin: 40px auto;
+  padding: 20px 0px;
+  width: 450px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px; }
+.setup-container h3 {
+    text-align: center; }
+.setup-container .form-section {
+    display: none; }
+.setup-container .form-section.active {
+    display: block; }
+.setup-container .setup-link-area {
+    margin: 0.25rem 2rem; }
+input[type=file] {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1; }
+.was-validated input[type=file]:invalid + button {
+  border-color: #dc3545; }
