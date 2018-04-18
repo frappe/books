@@ -16,6 +16,7 @@
     "clusterize.js": "^0.18.0",
     "codemirror": "^5.35.0",
     "commander": "^2.13.0",
+    "deepmerge": "^2.1.0",
     "eslint": "^4.19.1",
     "express": "^4.16.2",
     "flatpickr": "^4.3.2",
