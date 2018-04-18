@@ -393,20 +393,36 @@ module.exports = class Database extends Observable {
         let conditions = [];
         let values = [];
         for (let key in filters) {
+
+            let field = `ifnull(${key}, '')`;
             const value = filters[key];
+
             if (value instanceof Array) {
-                const condition = value[0];
+
+                let condition = value[0];
+                let comparisonValue = value[1];
+                let placeholder = '?';
+
                 // if its like, we should add the wildcard "%" if the user has not added
                 if (condition.toLowerCase()==='includes') {
                     condition = 'like';
                 }
-                if (['like', 'includes'].includes(condition.toLowerCase()) && !value[1].includes('%')) {
-                    value[1] = `%${value[1]}%`;
+                if (['like', 'includes'].includes(condition.toLowerCase()) && !comparisonValue.includes('%')) {
+                    comparisonValue = `%${comparisonValue}%`;
                 }
-                conditions.push(`ifnull(${key}, '') ${condition} ?`);
-                values.push(value[1]);
+                if (['in', 'not in'].includes(condition) && Array.isArray(comparisonValue)) {
+                    placeholder = `(${comparisonValue.map(v => '?').join(", ")})`;
+                }
+                conditions.push(`${field} ${condition} ${placeholder}`);
+
+                if (Array.isArray(comparisonValue)) {
+                    values = values.concat(comparisonValue);
+                } else {
+                    values.push(comparisonValue);
+                }
+
             } else {
-                conditions.push(`ifnull(${key}, '') = ?`);
+                conditions.push(`${field} = ?`);
                 values.push(value);
             }
         }
