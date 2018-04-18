@@ -1,3 +1,5 @@
+const countryList = Object.keys(require('../../../fixtures/countryInfo.json')).sort();
+
 module.exports = {
     name: "AccountingSettings",
     label: "AccountingSettings",
@@ -9,15 +11,45 @@ module.exports = {
     keywordFields: [],
     fields: [
         {
-            fieldname: "Company Name",
-            label: "companyName",
+            label: "Company Name",
+            fieldname: "companyName",
             fieldtype: "Data",
             required: 1
         },
+
         {
-            fieldname: "Writeoff Account",
-            label: "writeOffAccount",
+            label: "Writeoff Account",
+            fieldname: "writeOffAccount",
             fieldtype: "Account"
+        },
+
+        {
+            "fieldname": "country",
+            "label": "Country",
+            "fieldtype": "Autocomplete",
+            "required": 1,
+            getList: () => countryList
+        },
+
+        {
+            "fieldname": "fullname",
+            "label": "Name",
+            "fieldtype": "Data",
+            "required": 1
+        },
+
+        {
+            "fieldname": "email",
+            "label": "Email",
+            "fieldtype": "Data",
+            "required": 1
+        },
+
+        {
+            "fieldname": "bankName",
+            "label": "Bank Name",
+            "fieldtype": "Data",
+            "required": 1
         }
 
     ]
