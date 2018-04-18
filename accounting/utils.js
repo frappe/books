@@ -6,10 +6,8 @@ module.exports = {
             return {
                 route: ['report', 'general-ledger'],
                 params: {
-                    filters: {
-                        referenceType: form.doc.doctype,
-                        referenceName: form.doc.name
-                    }
+                    referenceType: form.doc.doctype,
+                    referenceName: form.doc.name
                 }
             };
         }
