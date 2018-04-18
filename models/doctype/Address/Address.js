@@ -104,7 +104,6 @@ module.exports = {
             return ['addressTitle', 'addressType'];
         },
         getRowHTML(list, data) {
-            console.log(list, data);
             return `<div class="col-11">${list.getNameHTML(data)} (${data.addressType})</div>`;
         }
     },
