@@ -4,8 +4,8 @@ global.rootRequire = function(name) {
 
 const server = require('frappejs/server');
 const frappe = require('frappejs');
-const GeneralLedger = require('../reports/generalLedger/GeneralLedger');
 const naming = require('frappejs/model/naming');
+const { registerReportMethods } = require('../reports');
 
 module.exports = {
     async start() {
@@ -35,9 +35,6 @@ module.exports = {
         await naming.createNumberSeries('JV-', 'JournalEntrySettings');
         await naming.createNumberSeries('QTN-', 'QuotationSettings');
 
-        frappe.registerMethod({
-            method: 'general-ledger',
-            handler: args => GeneralLedger(args)
-        });
+        registerReportMethods();
     }
 }

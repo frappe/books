@@ -2,26 +2,25 @@ const frappe = require('frappejs');
 const { getData } = require('../financialStatements');
 
 class ProfitAndLoss {
-    async run(params) {
-        const filters = {};
-        if (params.account) filters.account = params.account;
-        if (params.party) filters.party = params.party;
-        if (params.referenceType) filters.referenceType = params.referenceType;
-        if (params.referenceName) filters.referenceName = params.referenceName;
-        if (params.fromDate) filters.date = ['>=', params.fromDate];
-        if (params.toDate) filters.date = ['<=', params.toDate];
+    async run({ fromDate, toDate, periodicity }) {
 
         let income = await getData({
             rootType: 'Income',
-            balanceMustBe: 'Credit'
+            balanceMustBe: 'Credit',
+            fromDate,
+            toDate,
+            periodicity
         });
 
         let expense = await getData({
             rootType: 'Expense',
-            balanceMustBe: 'Credit'
+            balanceMustBe: 'Debit',
+            fromDate,
+            toDate,
+            periodicity
         });
 
-        return data;
+        return { income, expense };
     }
 }
 

@@ -31,7 +31,13 @@ module.exports = {
             "fieldname": "account",
             "label": "Account",
             "fieldtype": "Link",
-            "target": "Account"
+            "target": "Account",
+            getFilters: (query, control) => {
+                return {
+                    keywords: ["like", query],
+                    isGroup: 0
+                }
+            }
         },
         {
             "fieldname": "items",
