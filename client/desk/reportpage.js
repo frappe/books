@@ -10,7 +10,7 @@ const Observable = require('frappejs/utils/observable');
 // `getColumns` return columns
 
 module.exports = class ReportPage extends Page {
-    constructor({title, filterFields}) {
+    constructor({title, filterFields = []}) {
         super({title: title, hasRoute: true});
 
         this.fullPage = true;
@@ -28,6 +28,10 @@ module.exports = class ReportPage extends Page {
 
     getColumns() {
         // overrride
+    }
+
+    getRowsForDataTable(data) {
+        return data;
     }
 
     makeFilters() {
@@ -79,14 +83,16 @@ module.exports = class ReportPage extends Page {
             method: this.method,
             args: filterValues
         });
-        this.datatable.refresh(data);
+
+        const rows = this.getRowsForDataTable(data);
+        this.datatable.refresh(rows);
     }
 
     makeDataTable() {
-        this.datatable = new DataTable(this.tableWrapper, {
+        this.datatable = new DataTable(this.tableWrapper, Object.assign({
             columns: utils.convertFieldsToDatatableColumns(this.getColumns(), this.layout),
             data: [],
             layout: this.layout || 'fluid',
-        });
+        }, this.datatableOptions || {}));
     }
 }
