@@ -85,7 +85,8 @@ module.exports = class ReportPage extends Page {
         });
 
         const rows = this.getRowsForDataTable(data);
-        this.datatable.refresh(rows);
+        const columns = utils.convertFieldsToDatatableColumns(this.getColumns(data), this.layout);
+        this.datatable.refresh(rows, columns);
     }
 
     makeDataTable() {
