@@ -1396,6 +1396,7 @@ frappejs@../frappejs:
     clusterize.js "^0.18.0"
     codemirror "^5.35.0"
     commander "^2.13.0"
+    deepmerge "^2.1.0"
     eslint "^4.19.1"
     express "^4.16.2"
     flatpickr "^4.3.2"
@@ -2268,6 +2269,10 @@ lru-cache@^4.0.1:
   dependencies:
     pseudomap "^1.0.2"
     yallist "^2.1.2"
+
+luxon@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-1.0.0.tgz#ec1cba8cf53be14d2375c2f17e3468eb195c20bb"
 
 macaddress@^0.2.8:
   version "0.2.8"
