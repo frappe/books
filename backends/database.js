@@ -388,47 +388,68 @@ module.exports = class Database extends Observable {
 
     getFilterConditions(filters) {
         // {"status": "Open"} => `status = "Open"`
+
         // {"status": "Open", "name": ["like", "apple%"]}
         // => `status="Open" and name like "apple%"
-        let conditions = [];
-        let values = [];
+
+        // {"date": [">=", "2017-09-09", "<=", "2017-11-01"]}
+        // => `date >= 2017-09-09 and date <= 2017-11-01`
+
+        let filtersArray = [];
+
         for (let key in filters) {
+            let value = filters[key];
+            let field = key;
+            let operator = '=';
+            let comparisonValue = value;
 
-            let field = `ifnull(${key}, '')`;
-            const value = filters[key];
+            if (Array.isArray(value)) {
+                operator = value[0];
+                comparisonValue = value[1];
+                operator = operator.toLowerCase();
 
-            if (value instanceof Array) {
-
-                let condition = value[0];
-                let comparisonValue = value[1];
-                let placeholder = '?';
-
-                // if its like, we should add the wildcard "%" if the user has not added
-                if (condition.toLowerCase()==='includes') {
-                    condition = 'like';
+                if (operator === 'includes') {
+                    operator = 'like';
                 }
-                if (['like', 'includes'].includes(condition.toLowerCase()) && !comparisonValue.includes('%')) {
+
+                if (['like', 'includes'].includes(operator) && !comparisonValue.includes('%')) {
                     comparisonValue = `%${comparisonValue}%`;
                 }
-                if (['in', 'not in'].includes(condition) && Array.isArray(comparisonValue)) {
-                    placeholder = `(${comparisonValue.map(v => '?').join(", ")})`;
-                }
-                conditions.push(`${field} ${condition} ${placeholder}`);
+            }
 
-                if (Array.isArray(comparisonValue)) {
-                    values = values.concat(comparisonValue);
-                } else {
-                    values.push(comparisonValue);
-                }
+            filtersArray.push([field, operator, comparisonValue]);
 
-            } else {
-                conditions.push(`${field} = ?`);
-                values.push(value);
+            if (Array.isArray(value) && value.length > 2) {
+                // multiple conditions
+                let operator = value[2];
+                let comparisonValue = value[3];
+                filtersArray.push([field, operator, comparisonValue]);
             }
         }
+
+        let conditions = filtersArray.map(filter => {
+            const [field, operator, comparisonValue] = filter;
+
+            let placeholder = Array.isArray(comparisonValue) ?
+                comparisonValue.map(v => '?').join(', ') :
+                '?';
+
+            return `${field} ${operator} (${placeholder})`;
+        });
+
+        let values = filtersArray.reduce((acc, filter) => {
+            const comparisonValue = filter[2];
+            if (Array.isArray(comparisonValue)) {
+                acc = acc.concat(comparisonValue);
+            } else {
+                acc.push(comparisonValue);
+            }
+            return acc;
+        }, []);
+
         return {
             conditions: conditions.length ? conditions.join(" and ") : "",
-            values: values
+            values
         };
     }
 
