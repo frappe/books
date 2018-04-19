@@ -1,5 +1,5 @@
-const GeneralLedgerView = require('../reports/generalLedger/GeneralLedgerView');
 const frappe = require('frappejs');
+const { registerReportRoutes } = require('../reports');
 
 module.exports = {
     start() {
@@ -8,12 +8,7 @@ module.exports = {
 
         frappe.registerView('List', 'Customer', require('../models/doctype/Party/CustomerList.js'));
 
-        frappe.router.add('report/general-ledger', async (params) => {
-            if (!frappe.views.generalLedger) {
-                frappe.views.generalLedger = new GeneralLedgerView();
-            }
-            await frappe.views.generalLedger.show(params);
-        })
+        registerReportRoutes();
 
         frappe.desk.menu.addItem('ToDo', '#list/ToDo');
         frappe.desk.menu.addItem('Chart of Accounts', '#tree/Account');
