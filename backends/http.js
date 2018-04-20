@@ -108,10 +108,14 @@ module.exports = class HTTPClient extends Observable {
     }
 
     getHeaders() {
-        return {
+        const headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-        }
+        };
+        if (frappe.auth && frappe.auth.token) {
+            headers.token = frappe.auth.token;
+        };
+        return headers;
     }
 
     initTypeMap() {
