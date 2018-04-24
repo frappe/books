@@ -46,7 +46,21 @@ module.exports = {
             "label": "Bank Name",
             "fieldtype": "Data",
             "required": 1
-        }
+        },
+
+        {
+            "fieldname": "fiscalYearStart",
+            "label": "Fiscal Year Start Date",
+            "fieldtype": "Date",
+            "required": 1
+        },
+
+        {
+            "fieldname": "fiscalYearEnd",
+            "label": "Fiscal Year End Date",
+            "fieldtype": "Date",
+            "required": 1
+        },
     ],
 
     layout: [
@@ -67,7 +81,7 @@ module.exports = {
 
         {
             title: 'Add your Company',
-            fields: ['companyName', 'bankName']
+            fields: ['companyName', 'bankName', 'fiscalYearStart', 'fiscalYearEnd']
         }
     ]
 }

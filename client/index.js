@@ -21,6 +21,8 @@ module.exports = {
         frappe.desk.menu.addItem('Contact', "#list/Contact");
         frappe.desk.menu.addItem('Settings', () => frappe.desk.showFormModal('SystemSettings'));
         frappe.desk.menu.addItem('General Ledger', '#report/general-ledger');
+        frappe.desk.menu.addItem('Profit And Loss', '#report/profit-and-loss');
+        frappe.desk.menu.addItem('Balance Sheet', '#report/balance-sheet');
 
         frappe.router.default = '#tree/Account';
 
