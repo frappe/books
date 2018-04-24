@@ -434,7 +434,7 @@ module.exports = class Database extends Observable {
                 comparisonValue.map(v => '?').join(', ') :
                 '?';
 
-            return `${field} ${operator} (${placeholder})`;
+            return `ifnull(${field}, '') ${operator} (${placeholder})`;
         });
 
         let values = filtersArray.reduce((acc, filter) => {

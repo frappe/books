@@ -11,7 +11,9 @@ class DateControl extends BaseControl {
             'mm/dd/yyyy': 'm/d/Y',
             'mm-dd-yyyy': 'm-d-Y'
         }
-        let altFormat = dateFormat[frappe.SystemSettings.dateFormat];
+        let altFormat = frappe.SystemSettings ?
+            dateFormat[frappe.SystemSettings.dateFormat] :
+            dateFormat['yyyy-mm-dd'];
 
         super.make();
         this.input.setAttribute('type', 'text');

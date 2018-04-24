@@ -1,5 +1,5 @@
 const Page = require('frappejs/client/view/page');
-const Form = require('frappejs/client/view/form');
+const FormLayout = require('frappejs/client/view/formLayout');
 const DataTable = require('frappe-datatable');
 const frappe = require('frappejs');
 const utils = require('frappejs/client/ui/utils');
@@ -35,18 +35,19 @@ module.exports = class ReportPage extends Page {
     }
 
     makeFilters() {
-        this.form = new Form({
+        this.filters = new FormLayout({
             parent: this.filterWrapper,
-            meta: { fields: this.filterFields },
+            fields: this.filterFields,
             doc: new Observable(),
-            inline: true,
-            container: this
+            inline: true
         });
+
+        this.filterWrapper.appendChild(this.filters.form);
     }
 
     getFilterValues() {
         const values = {};
-        for (let control of this.form.formLayout.controlList) {
+        for (let control of this.filters.controlList) {
             values[control.fieldname] = control.getInputValue();
             if (control.required && !values[control.fieldname]) {
                 frappe.ui.showAlert({message: frappe._('{0} is mandatory', control.label), color: 'red'});
@@ -64,8 +65,8 @@ module.exports = class ReportPage extends Page {
     async run() {
         if (frappe.params && frappe.params.filters) {
             for (let key in frappe.params.filters) {
-                if (this.form.controls[key]) {
-                    this.form.controls[key].setInputValue(frappe.params.filters[key]);
+                if (this.filters.controls[key]) {
+                    this.filters.controls[key].setInputValue(frappe.params.filters[key]);
                 }
             }
         }
