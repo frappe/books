@@ -206,7 +206,7 @@ module.exports = class BaseForm extends Observable {
     }
 
     refreshLinks(links) {
-        if (!this.container) return;
+        if (!(this.container && this.container.clearLinks)) return;
 
         this.container.clearLinks();
         for(let link of links) {

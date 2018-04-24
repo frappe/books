@@ -14,6 +14,12 @@ class LinkControl extends BaseControl {
             minChars: 0,
             maxItems: 99,
             filter: () => true,
+            sort: (a, b) => {
+                if (a.value === '__newitem' || b.value === '__newitem') {
+                    return -1;
+                }
+                return a.value > b.value;
+            }
         });
 
         // rebuild the list on input
