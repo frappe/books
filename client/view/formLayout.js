@@ -3,7 +3,7 @@ const controls = require('./controls');
 const Observable = require('frappejs/utils/observable');
 
 module.exports = class FormLayout extends Observable {
-    constructor({fields, doc, layout, events = []}) {
+    constructor({fields, doc, layout, inline = false, events = []}) {
         super();
         Object.assign(this, arguments[0]);
         this.controls = {};
@@ -13,6 +13,11 @@ module.exports = class FormLayout extends Observable {
 
         this.form = document.createElement('div');
         this.form.classList.add('form-body');
+
+        if (this.inline) {
+            this.form.classList.add('row');
+            this.form.classList.add('p-0');
+        }
 
         this.makeLayout();
 
@@ -63,6 +68,9 @@ module.exports = class FormLayout extends Observable {
                 let control = controls.makeControl({field: field, form: this, parent: parent});
                 this.controlList.push(control);
                 this.controls[field.fieldname] = control;
+                if (this.inline) {
+                    control.inputContainer.classList.add('col');
+                }
             }
         }
     }
