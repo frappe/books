@@ -1,9 +1,5 @@
 const frappe = require('frappejs');
 
-module.exports = function execute(params) {
-    return new GeneralLedger().run(params);
-}
-
 class GeneralLedger {
     async run(params) {
         const filters = {};
@@ -22,4 +18,8 @@ class GeneralLedger {
 
         return data;
     }
+}
+
+module.exports = function execute(params) {
+    return new GeneralLedger().run(params);
 }

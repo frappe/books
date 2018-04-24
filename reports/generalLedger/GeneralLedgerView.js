@@ -24,11 +24,13 @@ module.exports = class GeneralLedgerView extends ReportPage {
         return [
             {label: 'Date', fieldtype: 'Date'},
             {label: 'Account', fieldtype: 'Link'},
-            {label: 'Party', fieldtype: 'Link'},
-            {label: 'Description', fieldtype: 'Data'},
             {label: 'Debit', fieldtype: 'Currency'},
             {label: 'Credit', fieldtype: 'Currency'},
-            {label: 'Balance', fieldtype: 'Currency'}
+            {label: 'Balance', fieldtype: 'Currency'},
+            {label: 'Reference Type', fieldtype: 'Data'},
+            {label: 'Reference Name', fieldtype: 'Data'},
+            {label: 'Party', fieldtype: 'Link'},
+            {label: 'Description', fieldtype: 'Data'},
         ]
     }
 }

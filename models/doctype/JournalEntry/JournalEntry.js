@@ -70,7 +70,7 @@ module.exports = {
         // section 2
         { fields: ["accounts"]},
         // section 3
-        {    
+        {
             columns: [
                 { fields: [ "referenceNumber"] },
                 { fields: [ "referenceDate"] }

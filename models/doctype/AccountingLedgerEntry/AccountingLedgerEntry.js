@@ -49,7 +49,7 @@ module.exports = {
             fieldname: "againstAccount",
             label: "Against Account",
             fieldtype: "Text",
-            required: 1
+            required: 0
         },
         {
             fieldname: "referenceType",

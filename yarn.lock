@@ -1260,6 +1260,10 @@ deep-is@~0.1.3:
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/deep-is/-/deep-is-0.1.3.tgz#b369d6fb5dbc13eecf524f91b070feedc357cf34"
 
+deepmerge@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.1.0.tgz#511a54fff405fc346f0240bb270a3e9533a31102"
+
 define-property@^0.2.5:
   version "0.2.5"
   resolved "https://registry.yarnpkg.com/define-property/-/define-property-0.2.5.tgz#c35b1ef918ec3c990f9a5bc57be04aacec5c8116"
@@ -2035,9 +2039,8 @@ fragment-cache@^0.2.1:
   dependencies:
     map-cache "^0.2.2"
 
-frappe-datatable@frappe/datatable:
-  version "0.0.3"
-  resolved "https://codeload.github.com/frappe/datatable/tar.gz/e5af37fb07ddaaa43cfb42dd84ac4f98d93816bc"
+frappe-datatable@../datatable:
+  version "0.0.5"
   dependencies:
     clusterize.js "^0.18.0"
     lodash "^4.17.5"
@@ -2053,12 +2056,14 @@ frappejs@../frappejs:
     clusterize.js "^0.18.0"
     codemirror "^5.35.0"
     commander "^2.13.0"
+    deepmerge "^2.1.0"
     eslint "^4.19.1"
     express "^4.16.2"
     flatpickr "^4.3.2"
-    frappe-datatable frappe/datatable
+    frappe-datatable "../datatable"
     frappejs "../frappejs"
     jquery "^3.3.1"
+    luxon "^1.0.0"
     mkdirp "^0.5.1"
     mocha "^4.1.0"
     moment "^2.20.1"
@@ -3150,6 +3155,10 @@ lru-cache@^4.0.1:
   dependencies:
     pseudomap "^1.0.2"
     yallist "^2.1.2"
+
+luxon@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-1.0.0.tgz#ec1cba8cf53be14d2375c2f17e3468eb195c20bb"
 
 macaddress@^0.2.8:
   version "0.2.8"
