@@ -105,6 +105,8 @@ module.exports = class BaseTree extends BaseList {
 
             if (action === 'edit') {
                 this.edit(treeNode.props.doc.name);
+            } else if (action === 'addChild') {
+                this.addChildNode(treeNode.props.doc.name);
             }
         });
 
@@ -113,6 +115,15 @@ module.exports = class BaseTree extends BaseList {
 
     edit(name) {
         frappe.desk.showFormModal(this.doctype, name);
+    }
+
+    async addChildNode(name) {
+        const newDoc = await frappe.getNewDoc(this.doctype);
+        const formModal = await frappe.desk.showFormModal(this.doctype, newDoc.name);
+        const parentField = this.treeSettings.parentField;
+        if (formModal.form.doc.meta.hasField(parentField)) {
+            formModal.form.doc.set(parentField, name);
+        }
     }
 
     async getData(node) {
@@ -150,8 +161,8 @@ module.exports = class BaseTree extends BaseList {
 
     getActionButtonsHTML() {
         return [
-            { id: 'edit', label: frappe._('Edit') }
-            // { id: 'addChild', label: frappe._('Add Child') },
+            { id: 'edit', label: frappe._('Edit') },
+            { id: 'addChild', label: frappe._('Add Child') },
             // { id: 'delete', label: frappe._('Delete') },
         ].map(button => {
             return `<button class="btn btn-link btn-sm m-0" slot="actions" data-action="${button.id}">
