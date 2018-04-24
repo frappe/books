@@ -1,22 +1,14 @@
-const GeneralLedgerView = require('../reports/generalLedger/GeneralLedgerView');
 const frappe = require('frappejs');
+const { registerReportRoutes } = require('../reports');
 
 module.exports = {
     start() {
         // require modules
         frappe.registerModels(require('../models'), 'client');
 
-        frappe.registerView('List', 'ToDo', require('frappejs/models/doctype/ToDo/ToDoList.js'));
-        frappe.registerView('Form', 'FilterSelector', require('frappejs/models/doctype/FilterSelector/FilterSelectorForm.js'));
-
         frappe.registerView('List', 'Customer', require('../models/doctype/Party/CustomerList.js'));
 
-        frappe.router.add('report/general-ledger', async (params) => {
-            if (!frappe.views.generalLedger) {
-                frappe.views.generalLedger = new GeneralLedgerView();
-            }
-            await frappe.views.generalLedger.show(params);
-        })
+        registerReportRoutes();
 
         frappe.desk.menu.addItem('ToDo', '#list/ToDo');
         frappe.desk.menu.addItem('Chart of Accounts', '#tree/Account');
@@ -28,6 +20,9 @@ module.exports = {
         frappe.desk.menu.addItem('Address', "#list/Address");
         frappe.desk.menu.addItem('Contact', "#list/Contact");
         frappe.desk.menu.addItem('Settings', () => frappe.desk.showFormModal('SystemSettings'));
+        frappe.desk.menu.addItem('General Ledger', '#report/general-ledger');
+        frappe.desk.menu.addItem('Profit And Loss', '#report/profit-and-loss');
+        frappe.desk.menu.addItem('Balance Sheet', '#report/balance-sheet');
 
         frappe.router.default = '#tree/Account';
 

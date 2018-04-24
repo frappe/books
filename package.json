@@ -16,11 +16,12 @@
     "test": "mocha tests",
     "start": "nodemon server.js",
     "watch": "rollup -c --watch",
-    "electron": "electron main.js",
+    "electron": "EIO_WS_ENGINE=ws electron main.js",
     "electron-pack": "electron-packager . --overwrite",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "frappe-datatable": "../datatable",
     "frappejs": "../frappejs"
   },
   "devDependencies": {

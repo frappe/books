@@ -1,6 +1,6 @@
 const Invoice = require('./InvoiceDocument');
 const frappe = require('frappejs');
-const LedgerPosting = require.main.require('./accounting/ledgerPosting');
+const LedgerPosting = rootRequire('accounting/ledgerPosting');
 
 module.exports = class InvoiceServer extends Invoice {
     getPosting() {

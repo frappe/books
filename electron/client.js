@@ -1,10 +1,12 @@
 const frappe = require('frappejs');
 const path = require('path');
 const electron = require('frappejs/client/electron');
-const { writeFile } = require('frappejs/server/utils');
 const appClient = require('../client');
 const SetupWizard = require('../setup');
 const { getPDFForElectron } = require('frappejs/server/pdf');
+const { getSettings, saveSettings } = require('./settings');
+const { postStart } = require('../server');
+const { slug } = require('frappejs/utils');
 
 const fs = require('fs');
 
@@ -13,79 +15,74 @@ require.extensions['.html'] = function (module, filename) {
 };
 
 (async () => {
-    const configFilePath = path.join(require('os').homedir(), '.config', 'frappe-accounting', 'settings.json');
+    let electronSettings = getSettings();
+    let firstRun = false, setupWizardValues = null;
 
-    let settings, dbPath;
-    try {
-        settings = require(configFilePath);
-    } catch(e) {
-        settings = {}
+    if (!electronSettings.dbPath) {
+        const values = await runSetupWizard();
+        const dbPath = path.join(values.file[0].path, slug(values.companyName) + '.db');
+        const config = {
+            directory: path.dirname(dbPath),
+            dbPath: dbPath
+        };
+        await saveSettings(config);
+
+        firstRun = true;
+        electronSettings = config;
+        setupWizardValues = values;
     }
 
-    frappe.electronConfig = settings;
+    await electron.start({
+        dbPath: electronSettings.dbPath,
+        models: require('../models')
+    });
+
+    await postStart();
+
+    if (firstRun) {
+        await saveSetupWizardValues(setupWizardValues);
+        await bootstrapChartOfAccounts();
+    }
 
     frappe.getPDF = getPDFForElectron;
+    frappe.electronSettings = electronSettings;
 
-    if (settings.dbPath) {
-        dbPath = settings.dbPath;
-        electron.start({
-            dbPath,
-            models: require('../models')
-        }).then(() => {
-
-            frappe.syncDoc(require('../fixtures/invoicePrint'));
-            appClient.start();
-        });
-    } else {
-        const setup = new SetupWizard();
-        window.setup = setup;
-        const values = await setup.start();
-        const {
-            companyName,
-            file,
-            country,
-            name,
-            email,
-            abbreviation,
-            bankName
-        } = values;
-
-        dbPath = path.join(file[0].path, companyName + '.db');
-
-        electron.start({
-            dbPath,
-            models: require('../models')
-        }).then(async () => {
-            const config = {
-                directory: path.dirname(dbPath),
-                dbPath: dbPath
-            };
-
-            await writeFile(configFilePath, JSON.stringify(config));
-
-            frappe.electronConfig = config;
-
-            const doc = await frappe.getDoc('AccountingSettings');
-
-            await doc.set('companyName', companyName);
-            await doc.set('country', country);
-            await doc.set('fullname', name);
-            await doc.set('email', email);
-            await doc.set('bankName', bankName);
-
-            await doc.update();
-
-            // bootstrap Chart of Accounts
-            const importCOA = require('../models/doctype/account/importCOA');
-            const chart = require('../fixtures/standardCOA');
-            await importCOA(chart);
-
-
-            frappe.syncDoc(require('../fixtures/invoicePrint'));
-            appClient.start();
-        })
-    }
-
-
+    appClient.start();
 })();
 
+async function runSetupWizard() {
+    const setup = new SetupWizard();
+    const values = await setup.start();
+    return values;
+}
+
+async function saveSetupWizardValues(values) {
+    const {
+        companyName,
+        country,
+        name,
+        email,
+        abbreviation,
+        bankName,
+        fiscalYearStart,
+        fiscalYearEnd
+    } = values;
+
+    const doc = await frappe.getDoc('AccountingSettings');
+
+    await doc.set('companyName', companyName);
+    await doc.set('country', country);
+    await doc.set('fullname', name);
+    await doc.set('email', email);
+    await doc.set('bankName', bankName);
+    await doc.set('fiscalYearStart', fiscalYearStart);
+    await doc.set('fiscalYearEnd', fiscalYearEnd);
+
+    await doc.update();
+}
+
+async function bootstrapChartOfAccounts() {
+    const importCOA = require('../models/doctype/account/importCOA');
+    const chart = require('../fixtures/standardCOA');
+    await importCOA(chart);
+}

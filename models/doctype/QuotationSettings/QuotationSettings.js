@@ -1,8 +1,11 @@
+const deepmerge = require('deepmerge');
 const InvoiceSettings = require('../InvoiceSettings/InvoiceSettings');
-const QuotationSettings = InvoiceSettings;
-QuotationSettings.name = "QuotationSettings";
-QuotationSettings.label = "Quotation Settings";
-QuotationSettings.fields.find((field)=>{
-    if (field.fieldname == "numberSeries") field.default = "QTN";
-});
+const QuotationSettings = deepmerge(InvoiceSettings, {
+    "name": "QuotationSettings",
+    "label": "Quotation Settings",
+    "fields": {
+        "default": "INV"
+    }
+})
+
 module.exports = QuotationSettings;
