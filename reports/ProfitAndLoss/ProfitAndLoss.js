@@ -1,5 +1,6 @@
 const frappe = require('frappejs');
-const { getData } = require('../financialStatements');
+const { unique } = require('frappejs/utils');
+const { getData } = require('../FinancialStatements/FinancialStatements');
 
 class ProfitAndLoss {
     async run({ fromDate, toDate, periodicity }) {
@@ -20,7 +21,24 @@ class ProfitAndLoss {
             periodicity
         });
 
-        return { income, expense };
+        const rows = [
+            ...income.accounts, income.totalRow, [],
+            ...expense.accounts, expense.totalRow, []
+        ];
+
+        const columns = unique([...income.periodList, ...expense.periodList])
+
+        let profitRow = {
+            account: 'Total Profit'
+        }
+
+        for (let column of columns) {
+            profitRow[column] = (income.totalRow[column] || 0.0) - (expense.totalRow[column] || 0.0);
+        }
+
+        rows.push(profitRow);
+
+        return { rows, columns };
     }
 }
 

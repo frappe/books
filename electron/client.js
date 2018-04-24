@@ -63,7 +63,9 @@ async function saveSetupWizardValues(values) {
         name,
         email,
         abbreviation,
-        bankName
+        bankName,
+        fiscalYearStart,
+        fiscalYearEnd
     } = values;
 
     const doc = await frappe.getDoc('AccountingSettings');
@@ -73,6 +75,8 @@ async function saveSetupWizardValues(values) {
     await doc.set('fullname', name);
     await doc.set('email', email);
     await doc.set('bankName', bankName);
+    await doc.set('fiscalYearStart', fiscalYearStart);
+    await doc.set('fiscalYearEnd', fiscalYearEnd);
 
     await doc.update();
 }

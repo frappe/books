@@ -21,6 +21,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "frappe-datatable": "../datatable",
     "frappejs": "../frappejs"
   },
   "devDependencies": {
