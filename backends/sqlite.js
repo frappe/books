@@ -154,24 +154,26 @@ module.exports = class sqliteDatabase extends Database {
         await frappe.db.run('delete from SingleValue where parent=?', name)
     }
 
-    getAll({ doctype, fields, filters, start, limit, order_by = 'modified', order = 'desc' } = {}) {
+    getAll({ doctype, fields, filters, start, limit, orderBy = 'modified', order = 'desc' } = {}) {
         if (!fields) {
             fields = frappe.getMeta(doctype).getKeywordFields();
         }
         if (typeof fields === 'string') {
             fields = [fields];
         }
+
         return new Promise((resolve, reject) => {
             let conditions = this.getFilterConditions(filters);
             let query = `select ${fields.join(", ")}
                 from ${doctype}
                 ${conditions.conditions ? "where" : ""} ${conditions.conditions}
-                ${order_by ? ("order by " + order_by) : ""} ${order_by ? (order || "asc") : ""}
+                ${orderBy ? ("order by " + orderBy) : ""} ${orderBy ? (order || "asc") : ""}
                 ${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`;
 
             this.conn.all(query, conditions.values,
                 (err, rows) => {
                     if (err) {
+                        console.error(err);
                         reject(err);
                     } else {
                         resolve(rows);
@@ -184,9 +186,7 @@ module.exports = class sqliteDatabase extends Database {
         return new Promise((resolve, reject) => {
             this.conn.run(query, params, (err) => {
                 if (err) {
-                    if (debug) {
-                        console.log(err);
-                    }
+                    console.error(err);
                     reject(err);
                 } else {
                     resolve();
