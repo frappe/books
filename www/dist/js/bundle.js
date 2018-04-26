@@ -58972,9 +58972,7 @@ class GeneralLedger {
     }
 }
 
-var GeneralLedger_1 = function execute(params) {
-    return new GeneralLedger().run(params);
-};
+var GeneralLedger_1 = GeneralLedger;
 
 var reportpage = class ReportPage extends page {
     constructor({title, filterFields = []}) {
@@ -65181,9 +65179,7 @@ class ProfitAndLoss {
     }
 }
 
-var ProfitAndLoss_1 = function execute(params) {
-    return new ProfitAndLoss().run(params);
-};
+var ProfitAndLoss_1 = ProfitAndLoss;
 
 var FinancialStatementsView_1 = class FinancialStatementsView extends reportpage {
     constructor(opts) {
@@ -65287,9 +65283,7 @@ class BalanceSheet {
     }
 }
 
-var BalanceSheet_1 = function execute(params) {
-    return new BalanceSheet().run(params);
-};
+var BalanceSheet_1 = BalanceSheet;
 
 var BalanceSheetView_1 = class BalanceSheetView extends FinancialStatementsView_1 {
     constructor() {
@@ -65305,20 +65299,100 @@ var BalanceSheetView_1 = class BalanceSheetView extends FinancialStatementsView_
     }
 };
 
+class SalesRegister {
+    async run({ fromDate, toDate }) {
+        const invoices = await frappejs.db.getAll({
+            doctype: 'Invoice',
+            fields: ['name', 'date', 'customer', 'account', 'netTotal', 'grandTotal'],
+            filters: {
+                date: ['>=', fromDate, '<=', toDate],
+                submitted: 1
+            },
+            orderBy: 'date',
+            order: 'desc'
+        });
+
+        const invoiceNames = invoices.map(d => d.name);
+
+        const taxes = await frappejs.db.getAll({
+            doctype: 'TaxSummary',
+            fields: ['parent', 'amount'],
+            filters: {
+                parenttype: 'Invoice',
+                parent: ['in', invoiceNames]
+            },
+            orderBy: 'name'
+        });
+
+        for (let invoice of invoices) {
+            invoice.totalTax = taxes
+                .filter(tax => tax.parent === invoice.name)
+                .reduce((acc, tax) => {
+                    if (tax.amount) {
+                        acc = acc + tax.amount;
+                    }
+                    return acc;
+                }, 0);
+        }
+
+        return { rows: invoices };
+    }
+}
+
+var SalesRegister_1 = SalesRegister;
+
+var SalesRegisterView_1 = class SalesRegisterView extends reportpage {
+    constructor() {
+        super({
+            title: frappejs._('Sales Register'),
+            filterFields: [
+                {fieldtype: 'Date', label: 'From Date', required: 1},
+                {fieldtype: 'Date', label: 'To Date', required: 1}
+            ]
+        });
+
+        this.method = 'sales-register';
+        this.datatableOptions = {
+            layout: 'fixed'
+        };
+    }
+
+    getRowsForDataTable(data) {
+        return data.rows || [];
+    }
+
+    getColumns() {
+        return [
+            { label: 'Invoice', fieldname: 'name' },
+            { label: 'Posting Date', fieldname: 'date' },
+            { label: 'Customer', fieldname: 'customer' },
+            { label: 'Receivable Account', fieldname: 'account' },
+            { label: 'Net Total', fieldname: 'netTotal', fieldtype: 'Currency' },
+            { label: 'Total Tax', fieldname: 'totalTax', fieldtype: 'Currency' },
+            { label: 'Grand Total', fieldname: 'grandTotal', fieldtype: 'Currency' },
+        ];
+    }
+};
+
 function registerReportMethods() {
     frappejs.registerMethod({
         method: 'general-ledger',
-        handler: args => GeneralLedger_1(args)
+        handler: getReportData(GeneralLedger_1)
     });
 
     frappejs.registerMethod({
         method: 'profit-and-loss',
-        handler: args => ProfitAndLoss_1(args)
+        handler: getReportData(ProfitAndLoss_1)
     });
 
     frappejs.registerMethod({
         method: 'balance-sheet',
-        handler: args => BalanceSheet_1(args)
+        handler: getReportData(BalanceSheet_1)
+    });
+
+    frappejs.registerMethod({
+        method: 'sales-register',
+        handler: getReportData(SalesRegister_1)
     });
 }
 
@@ -65344,6 +65418,17 @@ function registerReportRoutes() {
         }
         await frappejs.views.BalanceSheet.show(params);
     });
+
+    frappejs.router.add('report/sales-register', async (params) => {
+        if (!frappejs.views.SalesRegister) {
+            frappejs.views.SalesRegister = new SalesRegisterView_1();
+        }
+        await frappejs.views.SalesRegister.show(params);
+    });
+}
+
+function getReportData(ReportClass) {
+    return args => new ReportClass().run(args);
 }
 
 var reports = {
@@ -66171,8 +66256,7 @@ var AccountingLedgerEntry = {
             fieldname: "party",
             label: "Party",
             fieldtype: "Link",
-            target: "Party",
-            required: 1
+            target: "Party"
         },
         {
             fieldname: "debit",
@@ -66187,8 +66271,7 @@ var AccountingLedgerEntry = {
         {
             fieldname: "againstAccount",
             label: "Against Account",
-            fieldtype: "Text",
-            required: 0
+            fieldtype: "Text"
         },
         {
             fieldname: "referenceType",
@@ -66578,7 +66661,13 @@ module.exports = {
             "label": "Customer",
             "fieldtype": "Link",
             "target": "Party",
-            "required": 1
+            "required": 1,
+            getFilters: (query, control) => {
+                return {
+                    keywords: ["like", query],
+                    customer: 1
+                }
+            }
         },
         {
             "fieldname": "account",
@@ -66588,7 +66677,8 @@ module.exports = {
             getFilters: (query, control) => {
                 return {
                     keywords: ["like", query],
-                    isGroup: 0
+                    isGroup: 0,
+                    accountType: "Receivable"
                 }
             }
         },
@@ -66773,6 +66863,237 @@ var InvoiceSettings = {
             "target": "NumberSeries",
             "required": 1,
             "default": "INV"
+        }
+    ]
+};
+
+var BillDocument = class Bill extends InvoiceDocument { };
+
+var Bill = createCommonjsModule(function (module) {
+module.exports = {
+    "name": "Bill",
+    "doctype": "DocType",
+    "isSingle": 0,
+    "isChild": 0,
+    "isSubmittable": 1,
+    "keywordFields": ["name", "supplier"],
+    "settings": "BillSettings",
+    "showTitle": true,
+    "fields": [
+        {
+            "fieldname": "date",
+            "label": "Date",
+            "fieldtype": "Date"
+        },
+        {
+            "fieldname": "supplier",
+            "label": "Supplier",
+            "fieldtype": "Link",
+            "target": "Party",
+            "required": 1,
+            getFilters: (query, control) => {
+                return {
+                    keywords: ["like", query],
+                    supplier: 1
+                }
+            }
+        },
+        {
+            "fieldname": "account",
+            "label": "Account",
+            "fieldtype": "Link",
+            "target": "Account",
+            getFilters: (query, control) => {
+                return {
+                    keywords: ["like", query],
+                    isGroup: 0,
+                    accountType: "Payable"
+                }
+            }
+        },
+        {
+            "fieldname": "items",
+            "label": "Items",
+            "fieldtype": "Table",
+            "childtype": "BillItem",
+            "required": true
+        },
+        {
+            "fieldname": "netTotal",
+            "label": "Net Total",
+            "fieldtype": "Currency",
+            formula: (doc) => doc.getSum('items', 'amount'),
+            "disabled": true
+        },
+        {
+            "fieldname": "taxes",
+            "label": "Taxes",
+            "fieldtype": "Table",
+            "childtype": "TaxSummary",
+            "disabled": true,
+            template: (doc, row) => {
+                return `<div class='row'>
+                    <div class='col-6'><!-- empty left side --></div>
+                    <div class='col-6'>${(doc.taxes || []).map(row => {
+                        return `<div class='row'>
+                                <div class='col-6'>${row.account} (${row.rate}%)</div>
+                                <div class='col-6 text-right'>
+                                    ${frappejs.format(row.amount, 'Currency')}
+                                </div>
+                            </div>`
+                        }).join('')}
+                    </div></div>`;
+            }
+        },
+        {
+            "fieldname": "grandTotal",
+            "label": "Grand Total",
+            "fieldtype": "Currency",
+            formula: (doc) => doc.getGrandTotal(),
+            "disabled": true
+        },
+        {
+            "fieldname": "terms",
+            "label": "Terms",
+            "fieldtype": "Text"
+        }
+    ],
+
+    layout: [
+        // section 1
+        {
+            columns: [
+                { fields: [ "supplier", "account" ] },
+                { fields: [ "date" ] }
+            ]
+        },
+
+        // section 2
+        { fields: [ "items" ] },
+
+        // section 3
+        { fields: [ "netTotal", "taxes", "grandTotal" ] },
+
+        // section 4
+        { fields: [ "terms" ] },
+    ],
+
+    links: [
+        {
+            label: 'Make Payment',
+            condition: form => form.doc.submitted,
+            action: async form => {
+                const payment = await frappejs.getNewDoc('Payment');
+                payment.party = form.doc.supplier, payment.account = form.doc.account, payment.for = [{referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal}];
+                const formModal = await frappejs.desk.showFormModal('Payment', payment.name);
+            }
+        }
+    ],
+
+    listSettings: {
+        getFields(list)  {
+            return ['name', 'supplier', 'grandTotal', 'submitted'];
+        },
+
+        getRowHTML(list, data) {
+            return `<div class="col-3">${list.getNameHTML(data)}</div>
+                    <div class="col-4 text-muted">${data.supplier}</div>
+                    <div class="col-4 text-muted text-right">${frappejs.format(data.grandTotal, "Currency")}</div>`;
+        }
+    },
+
+    documentClass: BillDocument
+};
+});
+
+var Bill_1 = Bill.layout;
+var Bill_2 = Bill.links;
+var Bill_3 = Bill.listSettings;
+var Bill_4 = Bill.documentClass;
+
+var BillItem = {
+    name: "BillItem",
+    doctype: "DocType",
+    isSingle: 0,
+    isChild: 1,
+    keywordFields: [],
+    layout: 'ratio',
+    fields: [
+        {
+            "fieldname": "item",
+            "label": "Item",
+            "fieldtype": "Link",
+            "target": "Item",
+            "required": 1,
+            width: 2
+        },
+        {
+            "fieldname": "description",
+            "label": "Description",
+            "fieldtype": "Text",
+            formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
+            hidden: 1
+        },
+        {
+            "fieldname": "quantity",
+            "label": "Quantity",
+            "fieldtype": "Float",
+            "required": 1
+        },
+        {
+            "fieldname": "rate",
+            "label": "Rate",
+            "fieldtype": "Currency",
+            "required": 1,
+            formula: (row, doc) => doc.getFrom('Item', row.item, 'rate')
+        },
+        {
+            fieldname: "account",
+            label: "Account",
+            hidden: 1,
+            fieldtype: "Link",
+            target: "Account",
+            formula: (row, doc) => doc.getFrom('Item', row.item, 'expenseAccount')
+        },
+        {
+            "fieldname": "tax",
+            "label": "Tax",
+            "fieldtype": "Link",
+            "target": "Tax",
+            formula: (row, doc) => doc.getFrom('Item', row.item, 'tax')
+        },
+        {
+            "fieldname": "amount",
+            "label": "Amount",
+            "fieldtype": "Currency",
+            "disabled": 1,
+            formula: (row, doc) => row.quantity * row.rate
+        },
+        {
+            "fieldname": "taxAmount",
+            "label": "Tax Amount",
+            "hidden": 1,
+            "fieldtype": "Text",
+            formula: (row, doc) => doc.getRowTax(row)
+        }
+    ]
+};
+
+var BillSettings = {
+    "name": "BillSettings",
+    "label": "Bill Settings",
+    "doctype": "DocType",
+    "isSingle": 1,
+    "isChild": 0,
+    "keywordFields": [],
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "label": "Number Series",
+            "fieldtype": "Link",
+            "target": "NumberSeries",
+            "required": 1,
+            "default": "BILL"
         }
     ]
 };
@@ -67069,7 +67390,7 @@ var JournalEntry = {
     isSubmittable: 1,
     keywordFields: ["name"],
     showTitle: true,
-    settings: "JournalEntrySetting",
+    settings: "JournalEntrySettings",
     fields: [
         {
             fieldname: "date",
@@ -67142,7 +67463,8 @@ var JournalEntry = {
     ]
 };
 
-var JournalEntryAccount = {
+var JournalEntryAccount = createCommonjsModule(function (module) {
+module.exports = {
     name: "JournalEntryAccount",
     doctype: "DocType",
     isSingle: 0,
@@ -67156,6 +67478,12 @@ var JournalEntryAccount = {
             "fieldtype": "Link",
             "target": "Account",
             "required": 1,
+            getFilters: (query, control) => {
+                return {
+                    keywords: ["like", query],
+                    isGroup: 0
+                }
+            }
         },
         {
             "fieldname": "debit",
@@ -67169,6 +67497,15 @@ var JournalEntryAccount = {
         }
     ]
 };
+});
+
+var JournalEntryAccount_1 = JournalEntryAccount.name;
+var JournalEntryAccount_2 = JournalEntryAccount.doctype;
+var JournalEntryAccount_3 = JournalEntryAccount.isSingle;
+var JournalEntryAccount_4 = JournalEntryAccount.isChild;
+var JournalEntryAccount_5 = JournalEntryAccount.keywordFields;
+var JournalEntryAccount_6 = JournalEntryAccount.layout;
+var JournalEntryAccount_7 = JournalEntryAccount.fields;
 
 var JournalEntrySettings = {
     "name": "JournalEntrySetting",
@@ -67321,6 +67658,10 @@ var models$2 = {
         InvoiceItem: InvoiceItem,
         InvoiceSettings: InvoiceSettings,
 
+        Bill: Bill,
+        BillItem: BillItem,
+        BillSettings: BillSettings,
+
         Tax: Tax,
         TaxDetail: TaxDetail,
         TaxSummary: TaxSummary,
@@ -67365,6 +67706,7 @@ var client$2 = {
         frappejs.desk.menu.addItem('Customers', '#list/Customer');
         frappejs.desk.menu.addItem('Quotation', '#list/Quotation');
         frappejs.desk.menu.addItem('Invoice', '#list/Invoice');
+        frappejs.desk.menu.addItem('Bill', '#list/Bill');
         frappejs.desk.menu.addItem('Journal Entry', '#list/JournalEntry');
         frappejs.desk.menu.addItem('Address', "#list/Address");
         frappejs.desk.menu.addItem('Contact', "#list/Contact");
@@ -67372,6 +67714,7 @@ var client$2 = {
         frappejs.desk.menu.addItem('General Ledger', '#report/general-ledger');
         frappejs.desk.menu.addItem('Profit And Loss', '#report/profit-and-loss');
         frappejs.desk.menu.addItem('Balance Sheet', '#report/balance-sheet');
+        frappejs.desk.menu.addItem('Sales Register', '#report/sales-register');
 
         frappejs.router.default = '#tree/Account';
 

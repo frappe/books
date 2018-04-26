@@ -20,6 +20,4 @@ class GeneralLedger {
     }
 }
 
-module.exports = function execute(params) {
-    return new GeneralLedger().run(params);
-}
+module.exports = GeneralLedger;

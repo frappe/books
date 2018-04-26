@@ -1,11 +1,13 @@
-const deepmerge = require('deepmerge');
+const model = require('frappejs/model');
 const InvoiceSettings = require('../InvoiceSettings/InvoiceSettings');
-const QuotationSettings = deepmerge(InvoiceSettings, {
+
+module.exports = model.extend(InvoiceSettings, {
     "name": "QuotationSettings",
     "label": "Quotation Settings",
-    "fields": {
-        "default": "INV"
-    }
-})
-
-module.exports = QuotationSettings;
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "default": "QTN"
+        }
+    ]
+});

@@ -48,6 +48,4 @@ class BalanceSheet {
     }
 }
 
-module.exports = function execute(params) {
-    return new BalanceSheet().run(params);
-}
+module.exports = BalanceSheet;

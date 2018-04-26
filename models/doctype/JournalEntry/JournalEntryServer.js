@@ -1,20 +1,20 @@
-const JournalEntry = require('./JournalEntry');
 const frappe = require('frappejs');
+const BaseDocument = require('frappejs/model/document');
 const LedgerPosting = rootRequire('accounting/ledgerPosting');
 
 module.exports = class JournalEntryServer extends BaseDocument {
-    /**
-
     getPosting() {
-        let entries = new LedgerPosting({reference: this, party: this.party});
-        entries.debit(this.paymentAccount, this.amount);
+        let entries = new LedgerPosting({reference: this });
 
-        for (let row of this.for) {
-            entries.credit(this.account, row.amount, row.referenceType, row.referenceName);
+        for (let row of this.accounts) {
+            if (row.debit) {
+                entries.debit(row.account, row.debit);
+            } else if (row.credit) {
+                entries.credit(row.account, row.credit);
+            }
         }
 
         return entries;
-
     }
 
     async afterSubmit() {
@@ -24,6 +24,4 @@ module.exports = class JournalEntryServer extends BaseDocument {
     async afterRevert() {
         await this.getPosting().postReverse();
     }
-
-    **/
 }

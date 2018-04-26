@@ -9,7 +9,7 @@ module.exports = {
     isSubmittable: 1,
     keywordFields: ["name"],
     showTitle: true,
-    settings: "JournalEntrySetting",
+    settings: "JournalEntrySettings",
     fields: [
         {
             fieldname: "date",

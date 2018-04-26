@@ -15,6 +15,10 @@ module.exports = {
         InvoiceItem: require('./doctype/InvoiceItem/InvoiceItem.js'),
         InvoiceSettings: require('./doctype/InvoiceSettings/InvoiceSettings.js'),
 
+        Bill: require('./doctype/Bill/Bill.js'),
+        BillItem: require('./doctype/BillItem/BillItem.js'),
+        BillSettings: require('./doctype/BillSettings/BillSettings.js'),
+
         Tax: require('./doctype/Tax/Tax.js'),
         TaxDetail: require('./doctype/TaxDetail/TaxDetail.js'),
         TaxSummary: require('./doctype/TaxSummary/TaxSummary.js'),
@@ -27,6 +31,7 @@ module.exports = {
         JournalEntrySettings: require('./doctype/JournalEntrySettings/JournalEntrySettings.js'),
 
         Quotation: require('./doctype/Quotation/Quotation.js'),
+        QuotationItem: require('./doctype/QuotationItem/QuotationItem.js'),
         QuotationSettings: require('./doctype/QuotationSettings/QuotationSettings.js'),
     }
 }
