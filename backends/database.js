@@ -162,7 +162,7 @@ module.exports = class Database extends Observable {
                 doctype: field.childtype,
                 fields: ["*"],
                 filters: { parent: doc.name },
-                order_by: 'idx',
+                orderBy: 'idx',
                 order: 'asc'
             });
         }
@@ -173,7 +173,7 @@ module.exports = class Database extends Observable {
             doctype: 'SingleValue',
             fields: ['fieldname', 'value'],
             filters: { parent: doctype },
-            order_by: 'fieldname',
+            orderBy: 'fieldname',
             order: 'asc'
         });
         let doc = {};
@@ -376,14 +376,14 @@ module.exports = class Database extends Observable {
             filters: filters,
             start: 0,
             limit: 1,
-            order_by: 'name',
+            orderBy: 'name',
             order: 'asc'
         });
         return row.length ? row[0][fieldname] : null;
     }
 
-    getAll({ doctype, fields, filters, start, limit, order_by = 'modified', order = 'desc' } = {}) {
-        // select {fields} from {doctype} where {filters} order by {order_by} {order} limit {start} {limit}
+    getAll({ doctype, fields, filters, start, limit, orderBy = 'modified', order = 'desc' } = {}) {
+        // select {fields} from {doctype} where {filters} order by {orderBy} {order} limit {start} {limit}
     }
 
     getFilterConditions(filters) {
