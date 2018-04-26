@@ -3,7 +3,6 @@
 @import "node_modules/flatpickr/dist/flatpickr";
 @import "node_modules/flatpickr/dist/themes/airbnb";
 @import "node_modules/codemirror/lib/codemirror";
-@import "node_modules/frappe-datatable/dist/frappe-datatable";
 
 @import "./variables.scss";
 @import "./indicators.scss";
@@ -169,39 +168,6 @@ html {
 	margin-top: $spacer-2;
 }
 
-.data-table {
-	.body-scrollable {
-		border-bottom: 0px !important;
-
-		tr:first-child {
-			.data-table-col {
-				border-top: 0px !important;
-			}
-		}
-	}
-
-	thead td {
-		background-color: $gray-200 !important;
-	}
-
-	.data-table-cell .edit-cell {
-		padding: 0px !important;
-
-		input, textarea {
-			border-radius: none;
-			margin: none;
-			padding: $spacer-2;
-		}
-
-		.awesomplete > ul {
-			position: fixed;
-			left: auto;
-			width: auto;
-			min-width: 120px;
-		}
-	}
-}
-
 .CodeMirror {
 	font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
 	border: 1px solid $gray-300;
@@ -211,6 +177,11 @@ html {
 
 .awesomplete {
 	display: block;
+
+	ul {
+		max-height: 150px;
+		overflow: auto;
+	}
 
 	> ul > li {
 		padding: .75rem .375rem;
@@ -262,6 +233,7 @@ mark {
 }
 
 @import "./tree.scss";
+@import "./datatable.scss";
 
 // just for accounting
 
