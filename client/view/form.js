@@ -317,6 +317,7 @@ module.exports = class BaseForm extends Observable {
             this.refresh();
             this.trigger('change');
         } catch (e) {
+            console.error(e);
             frappe.ui.showAlert({message: frappe._('Failed'), color: 'red'});
             return;
         }

@@ -24,6 +24,7 @@ module.exports = class ReportPage extends Page {
         });
 
         this.makeFilters();
+        this.setDefaultFilterValues();
     }
 
     getColumns() {
@@ -43,6 +44,10 @@ module.exports = class ReportPage extends Page {
         });
 
         this.filterWrapper.appendChild(this.filters.form);
+    }
+
+    setDefaultFilterValues() {
+
     }
 
     getFilterValues() {

@@ -80,7 +80,17 @@ module.exports = class FormLayout extends Observable {
         this.controlList.forEach(control => {
             control.bind(this.doc);
         });
+
+        this.doc.on('change', ({doc, fieldname}) => {
+            this.controls[fieldname].refresh();
+        });
+
         this.refresh();
+    }
+
+    setValue(key, value) {
+        if (!this.doc) return;
+        this.doc.set(key, value);
     }
 
     refresh() {
