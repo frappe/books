@@ -1,4 +1,28 @@
+const deepmerge = require('deepmerge');
+
 module.exports = {
+    extend: (base, target, options = {}) => {
+        const fieldsToMerge = (target.fields || []).map(df => df.fieldname);
+        const fieldsToRemove = options.skipFields || [];
+
+        base.fields = base.fields
+            .filter(df => !fieldsToRemove.includes(df.fieldname))
+            .map(df => {
+                if (fieldsToMerge.includes(df.fieldname)) {
+                    return deepmerge(df, target.fields.find(tdf => tdf.fieldname === df.fieldname));
+                }
+                return df;
+            });
+
+        const overrideProps = options.overrideProps || [];
+        for (let prop of overrideProps) {
+            if (base.hasOwnProperty(prop)) {
+                delete base[prop];
+            }
+        }
+
+        return deepmerge(base, target);
+    },
     commonFields: [
         {
             fieldname: 'name', fieldtype: 'Data', required: 1
