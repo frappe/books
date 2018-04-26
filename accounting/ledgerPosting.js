@@ -21,7 +21,7 @@ module.exports = class LedgerPosting {
         if (!this.entryMap[account]) {
             const entry = {
                 account: account,
-                party: this.party,
+                party: this.party || '',
                 date: this.date || this.reference.date,
                 referenceType: referenceType || this.reference.doctype,
                 referenceName: referenceName || this.reference.name,

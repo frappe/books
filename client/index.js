@@ -16,13 +16,18 @@ module.exports = {
         frappe.desk.menu.addItem('Customers', '#list/Customer');
         frappe.desk.menu.addItem('Quotation', '#list/Quotation');
         frappe.desk.menu.addItem('Invoice', '#list/Invoice');
+        frappe.desk.menu.addItem('Bill', '#list/Bill');
         frappe.desk.menu.addItem('Journal Entry', '#list/JournalEntry');
         frappe.desk.menu.addItem('Address', "#list/Address");
         frappe.desk.menu.addItem('Contact', "#list/Contact");
         frappe.desk.menu.addItem('Settings', () => frappe.desk.showFormModal('SystemSettings'));
+
+        // reports
         frappe.desk.menu.addItem('General Ledger', '#report/general-ledger');
         frappe.desk.menu.addItem('Profit And Loss', '#report/profit-and-loss');
         frappe.desk.menu.addItem('Balance Sheet', '#report/balance-sheet');
+        frappe.desk.menu.addItem('Sales Register', '#report/sales-register');
+        frappe.desk.menu.addItem('Purchase Register', '#report/purchase-register');
 
         frappe.router.default = '#tree/Account';
 

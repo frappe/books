@@ -2,17 +2,14 @@ const frappe = require('frappejs');
 const utils = require('../../../accounting/utils');
 
 module.exports = {
-    "name": "Invoice",
+    "name": "Bill",
     "doctype": "DocType",
-    "documentClass": require("./InvoiceDocument.js"),
-    "print": {
-        "printFormat": "Standard Invoice Format",
-    },
+    "documentClass": require('./BillDocument'),
     "isSingle": 0,
     "isChild": 0,
     "isSubmittable": 1,
-    "keywordFields": ["name", "customer"],
-    "settings": "InvoiceSettings",
+    "keywordFields": ["name", "supplier"],
+    "settings": "BillSettings",
     "showTitle": true,
     "fields": [
         {
@@ -21,15 +18,15 @@ module.exports = {
             "fieldtype": "Date"
         },
         {
-            "fieldname": "customer",
-            "label": "Customer",
+            "fieldname": "supplier",
+            "label": "Supplier",
             "fieldtype": "Link",
             "target": "Party",
             "required": 1,
             getFilters: (query, control) => {
                 return {
                     keywords: ["like", query],
-                    customer: 1
+                    supplier: 1
                 }
             }
         },
@@ -42,7 +39,7 @@ module.exports = {
                 return {
                     keywords: ["like", query],
                     isGroup: 0,
-                    accountType: "Receivable"
+                    accountType: "Payable"
                 }
             }
         },
@@ -50,7 +47,7 @@ module.exports = {
             "fieldname": "items",
             "label": "Items",
             "fieldtype": "Table",
-            "childtype": "InvoiceItem",
+            "childtype": "BillItem",
             "required": true
         },
         {
@@ -98,7 +95,7 @@ module.exports = {
         // section 1
         {
             columns: [
-                { fields: [ "customer", "account" ] },
+                { fields: [ "supplier", "account" ] },
                 { fields: [ "date" ] }
             ]
         },
@@ -114,13 +111,12 @@ module.exports = {
     ],
 
     links: [
-        utils.ledgerLink,
         {
             label: 'Make Payment',
             condition: form => form.doc.submitted,
             action: async form => {
                 const payment = await frappe.getNewDoc('Payment');
-                payment.party = form.doc.customer,
+                payment.party = form.doc.supplier,
                 payment.account = form.doc.account,
                 payment.for = [{referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal}]
                 const formModal = await frappe.desk.showFormModal('Payment', payment.name);
@@ -130,12 +126,12 @@ module.exports = {
 
     listSettings: {
         getFields(list)  {
-            return ['name', 'customer', 'grandTotal', 'submitted'];
+            return ['name', 'supplier', 'grandTotal', 'submitted'];
         },
 
         getRowHTML(list, data) {
             return `<div class="col-3">${list.getNameHTML(data)}</div>
-                    <div class="col-4 text-muted">${data.customer}</div>
+                    <div class="col-4 text-muted">${data.supplier}</div>
                     <div class="col-4 text-muted text-right">${frappe.format(data.grandTotal, "Currency")}</div>`;
         }
     }

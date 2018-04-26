@@ -42,6 +42,4 @@ class ProfitAndLoss {
     }
 }
 
-module.exports = function execute(params) {
-    return new ProfitAndLoss().run(params);
-}
+module.exports = ProfitAndLoss;

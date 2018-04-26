@@ -9,21 +9,37 @@ const ProfitAndLossView = require('./ProfitAndLoss/ProfitAndLossView');
 const BalanceSheet = require('./BalanceSheet/BalanceSheet');
 const BalanceSheetView = require('./BalanceSheet/BalanceSheetView');
 
+const SalesRegister = require('./SalesRegister/SalesRegister');
+const SalesRegisterView = require('./SalesRegister/SalesRegisterView');
+
+const PurchaseRegister = require('./PurchaseRegister/PurchaseRegister');
+const PurchaseRegisterView = require('./PurchaseRegister/PurchaseRegisterView');
+
 // called on server side
 function registerReportMethods() {
     frappe.registerMethod({
         method: 'general-ledger',
-        handler: args => GeneralLedger(args)
+        handler: getReportData(GeneralLedger)
     });
 
     frappe.registerMethod({
         method: 'profit-and-loss',
-        handler: args => ProfitAndLoss(args)
+        handler: getReportData(ProfitAndLoss)
     });
 
     frappe.registerMethod({
         method: 'balance-sheet',
-        handler: args => BalanceSheet(args)
+        handler: getReportData(BalanceSheet)
+    });
+
+    frappe.registerMethod({
+        method: 'sales-register',
+        handler: getReportData(SalesRegister)
+    });
+
+    frappe.registerMethod({
+        method: 'purchase-register',
+        handler: getReportData(PurchaseRegister)
     });
 }
 
@@ -49,6 +65,24 @@ function registerReportRoutes() {
         }
         await frappe.views.BalanceSheet.show(params);
     });
+
+    frappe.router.add('report/sales-register', async (params) => {
+        if (!frappe.views.SalesRegister) {
+            frappe.views.SalesRegister = new SalesRegisterView();
+        }
+        await frappe.views.SalesRegister.show(params);
+    });
+
+    frappe.router.add('report/purchase-register', async (params) => {
+        if (!frappe.views.PurchaseRegister) {
+            frappe.views.PurchaseRegister = new PurchaseRegisterView();
+        }
+        await frappe.views.PurchaseRegister.show(params);
+    });
+}
+
+function getReportData(ReportClass) {
+    return args => new ReportClass().run(args);
 }
 
 module.exports = {

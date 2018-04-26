@@ -32,8 +32,7 @@ module.exports = {
             fieldname: "party",
             label: "Party",
             fieldtype: "Link",
-            target: "Party",
-            required: 1
+            target: "Party"
         },
         {
             fieldname: "debit",
@@ -48,8 +47,7 @@ module.exports = {
         {
             fieldname: "againstAccount",
             label: "Against Account",
-            fieldtype: "Text",
-            required: 0
+            fieldtype: "Text"
         },
         {
             fieldname: "referenceType",

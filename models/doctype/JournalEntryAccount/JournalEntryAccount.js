@@ -12,6 +12,12 @@ module.exports = {
             "fieldtype": "Link",
             "target": "Account",
             "required": 1,
+            getFilters: (query, control) => {
+                return {
+                    keywords: ["like", query],
+                    isGroup: 0
+                }
+            }
         },
         {
             "fieldname": "debit",
