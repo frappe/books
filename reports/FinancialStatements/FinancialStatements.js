@@ -3,13 +3,13 @@ const { DateTime } = require('luxon');
 const { unique } = require('frappejs/utils');
 
 async function getData({
-        rootType,
-        balanceMustBe = 'Debit',
-        fromDate,
-        toDate,
-        periodicity = 'Monthly',
-        accumulateValues = false
-    }) {
+    rootType,
+    balanceMustBe = 'Debit',
+    fromDate,
+    toDate,
+    periodicity = 'Monthly',
+    accumulateValues = false
+}) {
 
     let accounts = await getAccounts(rootType);
     let fiscalYear = await getFiscalYear();
@@ -62,6 +62,42 @@ async function getData({
     });
 
     return { accounts, totalRow, periodList };
+}
+
+async function getTrialBalance({ rootType, fromDate, toDate }) {
+    let accounts = await getAccounts(rootType);
+    let ledgerEntries = await getLedgerEntries(null, toDate, accounts);
+
+    for (let account of accounts) {
+        const accountEntries = ledgerEntries.filter(entry => entry.account === account.name);
+        // opening
+        const beforePeriodEntries = accountEntries.filter(entry => entry.date < fromDate);
+        account.opening = beforePeriodEntries.reduce((acc, entry) => {
+            return acc + (entry.debit - entry.credit);
+        }, 0);
+
+        if (account.opening >= 0) {
+            account.openingDebit = account.opening;
+        } else {
+            account.openingCredit = -account.opening;
+        }
+
+        // debit / credit
+        const periodEntries = accountEntries.filter(entry => entry.date >= fromDate);
+        account.debit = periodEntries.reduce((acc, entry) => acc + entry.debit, 0);
+        account.credit = periodEntries.reduce((acc, entry) => acc + entry.credit, 0);
+
+        // closing
+        account.closing = account.opening + account.debit - account.credit;
+
+        if (account.closing >= 0) {
+            account.closingDebit = account.closing;
+        } else {
+            account.closingCredit = -account.closing;
+        }
+    }
+
+    return accounts;
 }
 
 function getPeriodList(fromDate, toDate, periodicity, fiscalYear) {
@@ -210,5 +246,6 @@ async function getFiscalYear() {
 }
 
 module.exports = {
-    getData
+    getData,
+    getTrialBalance
 }

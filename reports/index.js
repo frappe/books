@@ -9,6 +9,9 @@ const ProfitAndLossView = require('./ProfitAndLoss/ProfitAndLossView');
 const BalanceSheet = require('./BalanceSheet/BalanceSheet');
 const BalanceSheetView = require('./BalanceSheet/BalanceSheetView');
 
+const TrialBalance = require('./TrialBalance/TrialBalance');
+const TrialBalanceView = require('./TrialBalance/TrialBalanceView');
+
 const SalesRegister = require('./SalesRegister/SalesRegister');
 const SalesRegisterView = require('./SalesRegister/SalesRegisterView');
 
@@ -30,6 +33,11 @@ function registerReportMethods() {
     frappe.registerMethod({
         method: 'balance-sheet',
         handler: getReportData(BalanceSheet)
+    });
+
+    frappe.registerMethod({
+        method: 'trial-balance',
+        handler: getReportData(TrialBalance)
     });
 
     frappe.registerMethod({
@@ -64,6 +72,13 @@ function registerReportRoutes() {
             frappe.views.BalanceSheet = new BalanceSheetView();
         }
         await frappe.views.BalanceSheet.show(params);
+    });
+
+    frappe.router.add('report/trial-balance', async (params) => {
+        if (!frappe.views.TrialBalance) {
+            frappe.views.TrialBalance = new TrialBalanceView();
+        }
+        await frappe.views.TrialBalance.show(params);
     });
 
     frappe.router.add('report/sales-register', async (params) => {
