@@ -26,6 +26,7 @@ module.exports = {
         frappe.desk.menu.addItem('General Ledger', '#report/general-ledger');
         frappe.desk.menu.addItem('Profit And Loss', '#report/profit-and-loss');
         frappe.desk.menu.addItem('Balance Sheet', '#report/balance-sheet');
+        frappe.desk.menu.addItem('Trial Balance', '#report/trial-balance');
         frappe.desk.menu.addItem('Sales Register', '#report/sales-register');
         frappe.desk.menu.addItem('Purchase Register', '#report/purchase-register');
 
