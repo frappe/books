@@ -1,5 +1,5 @@
 const frappe = require('frappejs');
-const { registerReportRoutes } = require('../reports');
+const registerReportRoutes = require('../reports/view');
 
 module.exports = {
     start() {
