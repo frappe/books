@@ -33,5 +33,21 @@ module.exports = {
         Quotation: require('./doctype/Quotation/Quotation.js'),
         QuotationItem: require('./doctype/QuotationItem/QuotationItem.js'),
         QuotationSettings: require('./doctype/QuotationSettings/QuotationSettings.js'),
+
+        SalesOrder: require('./doctype/SalesOrder/SalesOrder.js'),
+        SalesOrderItem: require('./doctype/SalesOrderItem/SalesOrderItem.js'),
+        SalesOrderSettings: require('./doctype/SalesOrderSettings/SalesOrderSettings.js'),
+
+        Fulfillment: require('./doctype/Fulfillment/Fulfillment.js'),
+        FulfillmentItem: require('./doctype/FulfillmentItem/FulfillmentItem.js'),
+        FulfillmentSettings: require('./doctype/FulfillmentSettings/FulfillmentSettings.js'),
+
+        PurchaseOrder: require('./doctype/PurchaseOrder/PurchaseOrder.js'),
+        PurchaseOrderItem: require('./doctype/PurchaseOrderItem/PurchaseOrderItem.js'),
+        PurchaseOrderSettings: require('./doctype/PurchaseOrderSettings/PurchaseOrderSettings.js'),
+
+        PurchaseReceipt: require('./doctype/PurchaseReceipt/PurchaseReceipt.js'),
+        PurchaseReceiptItem: require('./doctype/PurchaseReceiptItem/PurchaseReceiptItem.js'),
+        PurchaseReceiptSettings: require('./doctype/PurchaseReceiptSettings/PurchaseReceiptSettings.js'),
     }
 }

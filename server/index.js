@@ -36,6 +36,10 @@ module.exports = {
         await naming.createNumberSeries('PAY-', 'PaymentSettings');
         await naming.createNumberSeries('JV-', 'JournalEntrySettings');
         await naming.createNumberSeries('QTN-', 'QuotationSettings');
+        await naming.createNumberSeries('SO-', 'SalesOrderSettings');
+        await naming.createNumberSeries('OF-', 'FulfillmentSettings');
+        await naming.createNumberSeries('PO-', 'PurchaseOrderSettings');
+        await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
         registerReportMethods();
     }
