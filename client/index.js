@@ -15,8 +15,12 @@ module.exports = {
         frappe.desk.menu.addItem('Items', '#list/Item');
         frappe.desk.menu.addItem('Customers', '#list/Customer');
         frappe.desk.menu.addItem('Quotation', '#list/Quotation');
+        frappe.desk.menu.addItem('Sales Order', '#list/SalesOrder');
+        frappe.desk.menu.addItem('Fulfillment', '#list/Fulfillment');
         frappe.desk.menu.addItem('Invoice', '#list/Invoice');
         frappe.desk.menu.addItem('Bill', '#list/Bill');
+        frappe.desk.menu.addItem('Purchase Order', '#list/PurchaseOrder');
+        frappe.desk.menu.addItem('Purchase Receipt', '#list/PurchaseReceipt');
         frappe.desk.menu.addItem('Journal Entry', '#list/JournalEntry');
         frappe.desk.menu.addItem('Address', "#list/Address");
         frappe.desk.menu.addItem('Contact', "#list/Contact");

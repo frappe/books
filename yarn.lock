@@ -2046,6 +2046,14 @@ frappe-datatable@../datatable:
     lodash "^4.17.5"
     sortablejs "^1.7.0"
 
+frappe-datatable@frappe/datatable:
+  version "0.0.5"
+  resolved "https://codeload.github.com/frappe/datatable/tar.gz/9151fe2886ebab148d7fbc3340e292bcbba1dce7"
+  dependencies:
+    clusterize.js "^0.18.0"
+    lodash "^4.17.5"
+    sortablejs "^1.7.0"
+
 frappejs@../frappejs:
   version "0.0.5"
   dependencies:
@@ -2060,7 +2068,7 @@ frappejs@../frappejs:
     eslint "^4.19.1"
     express "^4.16.2"
     flatpickr "^4.3.2"
-    frappe-datatable "../datatable"
+    frappe-datatable frappe/datatable
     frappejs "../frappejs"
     jquery "^3.3.1"
     luxon "^1.0.0"
