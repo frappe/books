@@ -4590,7 +4590,7 @@ if (typeof undefined === 'function' && undefined.amd) {
 }
 }).call(commonjsGlobal);
 
-//# sourceMappingURL=showdown.js.map
+
 });
 
 var moment = createCommonjsModule(function (module, exports) {
@@ -9892,7 +9892,127 @@ var document$1 = class BaseDocument extends observable {
     }
 };
 
-var model = {
+var isMergeableObject = function isMergeableObject(value) {
+	return isNonNullObject(value)
+		&& !isSpecial(value)
+};
+
+function isNonNullObject(value) {
+	return !!value && typeof value === 'object'
+}
+
+function isSpecial(value) {
+	var stringValue = Object.prototype.toString.call(value);
+
+	return stringValue === '[object RegExp]'
+		|| stringValue === '[object Date]'
+		|| isReactElement(value)
+}
+
+// see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
+var canUseSymbol = typeof Symbol === 'function' && Symbol.for;
+var REACT_ELEMENT_TYPE = canUseSymbol ? Symbol.for('react.element') : 0xeac7;
+
+function isReactElement(value) {
+	return value.$$typeof === REACT_ELEMENT_TYPE
+}
+
+function emptyTarget(val) {
+	return Array.isArray(val) ? [] : {}
+}
+
+function cloneUnlessOtherwiseSpecified(value, options) {
+	return (options.clone !== false && options.isMergeableObject(value))
+		? deepmerge(emptyTarget(value), value, options)
+		: value
+}
+
+function defaultArrayMerge(target, source, options) {
+	return target.concat(source).map(function(element) {
+		return cloneUnlessOtherwiseSpecified(element, options)
+	})
+}
+
+function mergeObject(target, source, options) {
+	var destination = {};
+	if (options.isMergeableObject(target)) {
+		Object.keys(target).forEach(function(key) {
+			destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
+		});
+	}
+	Object.keys(source).forEach(function(key) {
+		if (!options.isMergeableObject(source[key]) || !target[key]) {
+			destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
+		} else {
+			destination[key] = deepmerge(target[key], source[key], options);
+		}
+	});
+	return destination
+}
+
+function deepmerge(target, source, options) {
+	options = options || {};
+	options.arrayMerge = options.arrayMerge || defaultArrayMerge;
+	options.isMergeableObject = options.isMergeableObject || isMergeableObject;
+
+	var sourceIsArray = Array.isArray(source);
+	var targetIsArray = Array.isArray(target);
+	var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
+
+	if (!sourceAndTargetTypesMatch) {
+		return cloneUnlessOtherwiseSpecified(source, options)
+	} else if (sourceIsArray) {
+		return options.arrayMerge(target, source, options)
+	} else {
+		return mergeObject(target, source, options)
+	}
+}
+
+deepmerge.all = function deepmergeAll(array, options) {
+	if (!Array.isArray(array)) {
+		throw new Error('first argument should be an array')
+	}
+
+	return array.reduce(function(prev, next) {
+		return deepmerge(prev, next, options)
+	}, {})
+};
+
+var deepmerge_1 = deepmerge;
+
+
+
+
+var es = Object.freeze({
+	default: deepmerge_1
+});
+
+var deepmerge$1 = ( es && deepmerge_1 ) || es;
+
+var model = createCommonjsModule(function (module) {
+module.exports = {
+    extend: (base, target, options = {}) => {
+        const fieldsToMerge = (target.fields || []).map(df => df.fieldname);
+        const fieldsToRemove = options.skipFields || [];
+
+        base.fields = base.fields
+            .filter(df => !fieldsToRemove.includes(df.fieldname))
+            .map(df => {
+                if (fieldsToMerge.includes(df.fieldname)) {
+                    return deepmerge$1(df, target.fields.find(tdf => tdf.fieldname === df.fieldname));
+                }
+                return df;
+            });
+
+        const overrideProps = options.overrideProps || [];
+        for (let prop of overrideProps) {
+            if (base.hasOwnProperty(prop)) {
+                delete base[prop];
+            }
+        }
+
+        return deepmerge$1(base, target);
+    },
     commonFields: [
         {
             fieldname: 'name', fieldtype: 'Data', required: 1
@@ -9938,6 +10058,13 @@ var model = {
         }
     ]
 };
+});
+
+var model_1 = model.extend;
+var model_2 = model.commonFields;
+var model_3 = model.parentFields;
+var model_4 = model.childFields;
+var model_5 = model.treeFields;
 
 var meta = class BaseMeta extends document$1 {
     constructor(data) {
@@ -23107,14 +23234,14 @@ Popper.placements = placements;
 Popper.Defaults = Defaults;
 
 
-//# sourceMappingURL=popper.js.map
+
 
 
 var popper = Object.freeze({
 	default: Popper
 });
 
-var require$$1 = ( popper && Popper ) || popper;
+var require$$1$1 = ( popper && Popper ) || popper;
 
 var bootstrap = createCommonjsModule(function (module, exports) {
 /*!
@@ -23123,7 +23250,7 @@ var bootstrap = createCommonjsModule(function (module, exports) {
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
   */
 (function (global, factory) {
-	factory(exports, jquery, require$$1);
+	factory(exports, jquery, require$$1$1);
 }(commonjsGlobal, (function (exports,$,Popper) { $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
 Popper = Popper && Popper.hasOwnProperty('default') ? Popper['default'] : Popper;
 
@@ -27006,7 +27133,7 @@ exports.Tooltip = Tooltip;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=bootstrap.js.map
+
 });
 
 unwrapExports(bootstrap);
@@ -28224,6 +28351,7 @@ object-assign
 @license MIT
 */
 
+/* eslint-disable no-unused-vars */
 var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 var hasOwnProperty = Object.prototype.hasOwnProperty;
 var propIsEnumerable = Object.prototype.propertyIsEnumerable;
@@ -28376,7 +28504,7 @@ var treeNode$1 = Object.freeze({
 	default: treeNode
 });
 
-var require$$0$2 = ( treeNode$1 && treeNode ) || treeNode$1;
+var require$$0$1 = ( treeNode$1 && treeNode ) || treeNode$1;
 
 const iconSet = {
     open: octicons["triangle-down"].toSVG({ width: "12", height: "12", "class": "tree-icon-open" }),
@@ -28389,7 +28517,7 @@ class TreeNode extends baseComponent {
     }
 
     get templateHTML() {
-        return require$$0$2;
+        return require$$0$1;
     }
 
     constructor() {
@@ -28474,11 +28602,11 @@ var tree = Object.freeze({
 	default: index
 });
 
-var require$$0$3 = ( tree && index ) || tree;
+var require$$0$2 = ( tree && index ) || tree;
 
 class Tree extends baseComponent {
     get templateHTML() {
-        return require$$0$3;
+        return require$$0$2;
     }
 
     constructor() {
@@ -28487,6 +28615,8 @@ class Tree extends baseComponent {
 }
 
 window.customElements.define('f-tree', Tree);
+
+// const keyboard = require('frappejs/client/ui/keyboard');
 
 var tree$3 = class BaseTree extends list {
 
@@ -41343,6 +41473,11 @@ var htmlmixed = createCommonjsModule(function (module, exports) {
 });
 });
 
+// const frappe = require('frappejs');
+
+ // eslint-disable-line
+ // eslint-disable-line
+
 class CodeControl extends base {
     makeInput() {
         if (!this.options) {
@@ -45274,9 +45409,9 @@ var Sortable = createCommonjsModule(function (module) {
 });
 
 var clusterize = createCommonjsModule(function (module) {
-/*! Clusterize.js - v0.18.0 - 2017-11-04
-* http://NeXTs.github.com/Clusterize.js/
-* Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
+/* Clusterize.js - v0.18.1 - 2018-01-02
+ http://NeXTs.github.com/Clusterize.js/
+ Copyright (c) 2015 Denis Lukov; Licensed GPLv3 */
 
 (function(name, definition) {
     module.exports = definition();
@@ -45445,6 +45580,7 @@ var clusterize = createCommonjsModule(function (module) {
       opts.cluster_height = 0;
       if( ! rows.length) return;
       var nodes = this.content_elem.children;
+      if( ! nodes.length) return;
       var node = nodes[Math.floor(nodes.length / 2)];
       opts.item_height = node.offsetHeight;
       // consider table's border-spacing
@@ -47206,22 +47342,6 @@ class CellManager {
                 this.instance.showToastMessage(message, 2);
             }
         });
-
-        if (this.options.pasteFromClipboard) {
-            this.keyboard.on('ctrl+v', (e) => {
-                // hack
-                // https://stackoverflow.com/a/2177059/5353542
-                this.instance.pasteTarget.focus();
-
-                setTimeout(() => {
-                    const data = this.instance.pasteTarget.value;
-                    this.instance.pasteTarget.value = '';
-                    this.pasteContentInCell(data);
-                }, 10);
-
-                return false;
-            });
-        }
     }
 
     bindMouseEvents() {
@@ -47608,30 +47728,6 @@ class CellManager {
 
         // return no of cells copied
         return rows.reduce((total, row) => total + row.length, 0);
-    }
-
-    pasteContentInCell(data) {
-        if (!this.$focusedCell) return;
-
-        const matrix = data
-            .split('\n')
-            .map(row => row.split('\t'))
-            .filter(row => row.length && row.every(it => it));
-
-        let { colIndex, rowIndex } = $.data(this.$focusedCell);
-
-        let focusedCell = {
-            colIndex: +colIndex,
-            rowIndex: +rowIndex
-        };
-
-        matrix.forEach((row, i) => {
-            let rowIndex = i + focusedCell.rowIndex;
-            row.forEach((cell, j) => {
-                let colIndex = j + focusedCell.colIndex;
-                this.updateCell(colIndex, rowIndex, cell);
-            });
-        });
     }
 
     activateFilter(colIndex) {
@@ -48939,8 +49035,7 @@ const KEYCODES = {
     9: 'tab',
     27: 'esc',
     67: 'c',
-    70: 'f',
-    86: 'v'
+    70: 'f'
 };
 
 class Keyboard {
@@ -49035,8 +49130,7 @@ var DEFAULT_OPTIONS = {
     inlineFilters: false,
     treeView: false,
     checkedRowStatus: true,
-    dynamicRowHeight: false,
-    pasteFromClipboard: false
+    dynamicRowHeight: false
 };
 
 class DataTable {
@@ -49106,7 +49200,6 @@ class DataTable {
                     </span>
                 </div>
                 <div class="dt-toast"></div>
-                <textarea class="dt-paste-target"></textarea>
             </div>
         `;
 
@@ -49115,7 +49208,6 @@ class DataTable {
         this.bodyScrollable = $('.dt-scrollable', this.wrapper);
         this.freezeContainer = $('.dt-freeze', this.wrapper);
         this.toastMessage = $('.dt-toast', this.wrapper);
-        this.pasteTarget = $('.dt-paste-target', this.wrapper);
     }
 
     refresh(data, columns) {
@@ -49233,7 +49325,7 @@ class DataTable {
 DataTable.instances = 0;
 
 var name = "frappe-datatable";
-var version = "0.0.5";
+var version = "0.0.4";
 var description = "A modern datatable library for the web";
 var main = "dist/frappe-datatable.cjs.js";
 var scripts = {"start":"yarn run dev","build":"rollup -c","production":"rollup -c --production","build:docs":"rollup -c --docs","dev":"rollup -c -w","test":"mocha --compilers js:babel-core/register --colors ./test/*.spec.js"};
@@ -49265,6 +49357,9 @@ DataTable.__version__ = packageJson.version;
 
 module.exports = DataTable;
 });
+
+// eslint-disable-line
+
 
 var modal = class Modal extends observable {
     constructor({ title, body, primary, secondary }) {
@@ -49747,7 +49842,17 @@ var formLayout = class FormLayout extends observable {
         this.controlList.forEach(control => {
             control.bind(this.doc);
         });
+
+        this.doc.on('change', ({doc, fieldname}) => {
+            this.controls[fieldname].refresh();
+        });
+
         this.refresh();
+    }
+
+    setValue(key, value) {
+        if (!this.doc) return;
+        this.doc.set(key, value);
     }
 
     refresh() {
@@ -50077,6 +50182,7 @@ var form = class BaseForm extends observable {
             this.refresh();
             this.trigger('change');
         } catch (e) {
+            console.error(e);
             frappejs.ui.showAlert({message: frappejs._('Failed'), color: 'red'});
             return;
         }
@@ -57942,7 +58048,7 @@ module.exports = installCompat;
 /***/ })
 /******/ ]);
 });
-//# sourceMappingURL=nunjucks.js.map
+
 });
 
 unwrapExports(nunjucks);
@@ -58171,6 +58277,10 @@ var menu = class DeskMenu {
         }
     }
 };
+
+// const Search = require('./search');
+
+
 
 const views = {};
 views.Form = formpage;
@@ -58952,27 +59062,9 @@ var client = {
     }
 };
 
-class GeneralLedger {
-    async run(params) {
-        const filters = {};
-        if (params.account) filters.account = params.account;
-        if (params.party) filters.party = params.party;
-        if (params.referenceType) filters.referenceType = params.referenceType;
-        if (params.referenceName) filters.referenceName = params.referenceName;
-        if (params.fromDate) filters.date = ['>=', params.fromDate];
-        if (params.toDate) filters.date = ['<=', params.toDate];
-
-        let data = await frappejs.db.getAll({
-            doctype: 'AccountingLedgerEntry',
-            fields: ['date', 'account', 'party', 'referenceType', 'referenceName', 'debit', 'credit'],
-            filters: filters
-        });
-
-        return data;
-    }
-}
-
-var GeneralLedger_1 = GeneralLedger;
+// baseclass for report
+// `url` url for report
+// `getColumns` return columns
 
 var reportpage = class ReportPage extends page {
     constructor({title, filterFields = []}) {
@@ -58989,6 +59081,7 @@ var reportpage = class ReportPage extends page {
         });
 
         this.makeFilters();
+        this.setDefaultFilterValues();
     }
 
     getColumns() {
@@ -59008,6 +59101,10 @@ var reportpage = class ReportPage extends page {
         });
 
         this.filterWrapper.appendChild(this.filters.form);
+    }
+
+    setDefaultFilterValues() {
+
     }
 
     getFilterValues() {
@@ -59095,6 +59192,134 @@ var GeneralLedgerView_1 = class GeneralLedgerView extends reportpage {
             {label: 'Party', fieldtype: 'Link'},
             {label: 'Description', fieldtype: 'Data'},
         ]
+    }
+};
+
+var FinancialStatementsView_1 = class FinancialStatementsView extends reportpage {
+    constructor(opts) {
+        super({
+            title: opts.title,
+            filterFields: opts.filterFields
+        });
+
+        this.method = opts.method;
+        this.datatableOptions = {
+            treeView: true,
+            layout: 'fixed'
+        };
+    }
+
+    getRowsForDataTable(data) {
+        return data.rows || [];
+    }
+
+    getColumns(data) {
+        const columns = [
+            { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 340 }
+        ];
+
+        if (data && data.columns) {
+            const currencyColumns = data.columns;
+            const columnDefs = currencyColumns.map(name => ({
+                label: name,
+                fieldname: name,
+                fieldtype: 'Currency'
+            }));
+
+            columns.push(...columnDefs);
+        }
+
+        return columns;
+    }
+};
+
+var ProfitAndLossView_1 = class ProfitAndLossView extends FinancialStatementsView_1 {
+    constructor() {
+        super({
+            title: frappejs._('Profit and Loss'),
+            method: 'profit-and-loss',
+            filterFields: [
+                {fieldtype: 'Date', fieldname: 'fromDate', label: 'From Date', required: 1},
+                {fieldtype: 'Date', fieldname: 'toDate', label: 'To Date', required: 1},
+                {fieldtype: 'Select', options: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly'],
+                    label: 'Periodicity', fieldname: 'periodicity', default: 'Monthly'}
+            ]
+        });
+    }
+
+    async setDefaultFilterValues() {
+        const accountingSettings = await frappejs.getSingle('AccountingSettings');
+        this.filters.setValue('fromDate', accountingSettings.fiscalYearStart);
+        this.filters.setValue('toDate', accountingSettings.fiscalYearEnd);
+        this.filters.setValue('periodicity', 'Monthly');
+
+        this.run();
+    }
+};
+
+var BalanceSheetView_1 = class BalanceSheetView extends FinancialStatementsView_1 {
+    constructor() {
+        super({
+            title: frappejs._('Balance Sheet'),
+            method: 'balance-sheet',
+            filterFields: [
+                {fieldtype: 'Date', fieldname: 'toDate', label: 'To Date', required: 1},
+                {fieldtype: 'Select', options: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly'],
+                    label: 'Periodicity', fieldname: 'periodicity', default: 'Monthly'}
+            ]
+        });
+    }
+
+    async setDefaultFilterValues() {
+        const accountingSettings = await frappejs.getSingle('AccountingSettings');
+        this.filters.setValue('toDate', accountingSettings.fiscalYearEnd);
+        this.filters.setValue('periodicity', 'Monthly');
+
+        this.run();
+    }
+};
+
+var TrialBalanceView_1 = class TrialBalanceView extends reportpage {
+    constructor(opts) {
+        super({
+            title: frappejs._('Trial Balance'),
+            filterFields: [
+                {fieldtype: 'Date', fieldname: 'fromDate', label: 'From Date', required: 1},
+                {fieldtype: 'Date', fieldname: 'toDate', label: 'To Date', required: 1}
+            ]
+        });
+
+        this.method = 'trial-balance';
+        this.datatableOptions = {
+            treeView: true,
+            layout: 'fixed'
+        };
+    }
+
+    async setDefaultFilterValues() {
+        const accountingSettings = await frappejs.getSingle('AccountingSettings');
+        this.filters.setValue('fromDate', accountingSettings.fiscalYearStart);
+        this.filters.setValue('toDate', accountingSettings.fiscalYearEnd);
+
+        this.run();
+    }
+
+    getRowsForDataTable(data) {
+        return data.rows || [];
+    }
+
+    getColumns(data) {
+        const columns = [
+            { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 340 },
+            { label: 'Opening (Dr)', fieldtype: 'Currency', fieldname: 'openingDebit' },
+            { label: 'Opening (Cr)', fieldtype: 'Currency', fieldname: 'openingCredit' },
+            { label: 'Debit', fieldtype: 'Currency', fieldname: 'debit' },
+            { label: 'Credit', fieldtype: 'Currency', fieldname: 'credit' },
+            { label: 'Closing (Dr)', fieldtype: 'Currency', fieldname: 'closingDebit' },
+            { label: 'Closing (Cr)', fieldtype: 'Currency', fieldname: 'closingCredit' }
+        ];
+
+        return columns;
     }
 };
 
@@ -59718,6 +59943,9 @@ class ZoneIsAbstractError extends LuxonError {
 }
 
 /* eslint no-unused-vars: "off" */
+/**
+ * @interface
+*/
 class Zone {
   /**
    * The type of zone
@@ -60969,6 +61197,16 @@ class Locale {
     );
   }
 }
+
+/*
+ * This file handles parsing for well-specified formats. Here's how it works:
+ * Two things go into parsing: a regex to match with and an extractor to take apart the groups in the match.
+ * An extractor is just a function that takes a regex match array and returns a { year: ..., month: ... } object
+ * parse() does the work of executing the regex and applying the extractor. It takes multiple regex/extractor pairs to try in sequence.
+ * Extractors can take a "cursor" representing the offset in the match to look at. This makes it easy to combine extractors.
+ * combineExtractors() does the work of combining them, keeping track of the cursor through multiple extractions.
+ * Some extractions are super dumb and simpleParse and fromStrings help DRY them.
+ */
 
 function combineRegexes(...regexes) {
   const full = regexes.reduce((f, r) => f + r.source, '');
@@ -62446,6 +62684,9 @@ class Interval {
   }
 }
 
+/**
+ * The Info class contains static methods for retrieving general time and date related data. For example, it has methods for finding out if a time zone has a DST, for listing the months in any supported locale, and for discovering which of Luxon features are available in the current environment.
+ */
 class Info {
   /**
    * Return whether the specified zone contains a DST.
@@ -64926,439 +65167,43 @@ var luxon = Object.freeze({
 });
 
 const { DateTime: DateTime$1 } = luxon;
-async function getData({
-        rootType,
-        balanceMustBe = 'Debit',
-        fromDate,
-        toDate,
-        periodicity = 'Monthly',
-        accumulateValues = false
-    }) {
-
-    let accounts = await getAccounts(rootType);
-    let fiscalYear = await getFiscalYear();
-    let ledgerEntries = await getLedgerEntries(fromDate, toDate, accounts);
-    let periodList = getPeriodList(fromDate, toDate, periodicity, fiscalYear);
-
-    for (let account of accounts) {
-        const entries = ledgerEntries.filter(entry => entry.account === account.name);
-
-        for (let entry of entries) {
-            let periodKey = getPeriodKey(entry.date, periodicity);
-
-            if (!account[periodKey]) {
-                account[periodKey] = 0.0;
-            }
-
-            const multiplier = balanceMustBe === 'Debit' ? 1 : -1;
-            const value = (entry.debit - entry.credit) * multiplier;
-            account[periodKey] += value;
-        }
-    }
-
-    if (accumulateValues) {
-        periodList.forEach((periodKey, i) => {
-            if (i === 0) return;
-            const previousPeriodKey = periodList[i - 1];
-
-            for (let account of accounts) {
-                if (!account[periodKey]) {
-                    account[periodKey] = 0.0;
-                }
-                account[periodKey] += account[previousPeriodKey] || 0.0;
-            }
-        });
-    }
-
-    // calculate totalRow
-    let totalRow = {
-        account: `Total ${rootType} (${balanceMustBe})`
-    };
-
-    periodList.forEach((periodKey) => {
-        if (!totalRow[periodKey]) {
-            totalRow[periodKey] = 0.0;
-        }
-
-        for (let account of accounts) {
-            totalRow[periodKey] += account[periodKey] || 0.0;
-        }
-    });
-
-    return { accounts, totalRow, periodList };
-}
-
-function getPeriodList(fromDate, toDate, periodicity, fiscalYear) {
-    if (!fromDate) {
-        fromDate = fiscalYear.start;
-    }
-
-    let monthsToAdd = {
-        'Monthly': 1,
-        'Quarterly': 3,
-        'Half Yearly': 6,
-        'Yearly': 12
-    }[periodicity];
-
-    let startDate = DateTime$1.fromISO(fromDate).startOf('month');
-    let endDate = DateTime$1.fromISO(toDate).endOf('month');
-    let curDate = startDate;
-    let out = [];
-
-    while (curDate <= endDate) {
-        out.push(getPeriodKey(curDate, periodicity));
-        curDate = curDate.plus({ months: monthsToAdd });
-    }
-
-    return out;
-}
-
-function getPeriodKey(date, periodicity) {
-    let dateObj = DateTime$1.fromISO(date);
-    let year = dateObj.year;
-    let quarter = dateObj.quarter;
-    let month = dateObj.month;
-
-    let getKey = {
-        'Monthly': () => `${dateObj.monthShort} ${year}`,
-        'Quarterly': () => {
-            return {
-                1: `Jan ${year} - Mar ${year}`,
-                2: `Apr ${year} - Jun ${year}`,
-                3: `Jun ${year} - Sep ${year}`,
-                4: `Oct ${year} - Dec ${year}`
-            }[quarter]
-        },
-        'Half Yearly': () => {
-            return {
-                1: `Apr ${year} - Sep ${year}`,
-                2: `Oct ${year} - Mar ${year}`
-            }[[2, 3].includes(quarter) ? 1 : 2]
-        },
-        'Yearly': () => {
-            if (month > 3) {
-                return `${year} - ${year + 1}`
-            }
-            return `${year - 1} - ${year}`
-        }
-    }[periodicity];
-
-    return getKey();
-}
-
-function setIndentLevel(accounts, parentAccount, level) {
-    if (!parentAccount) {
-        // root
-        parentAccount = null;
-        level = 0;
-    }
-
-    accounts.forEach(account => {
-        if (account.parentAccount === parentAccount && account.indent === undefined) {
-            account.indent = level;
-            setIndentLevel(accounts, account.name, level + 1);
-        }
-    });
-
-    return accounts;
-}
-
-function sortAccounts(accounts) {
-    let out = [];
-    let pushed = {};
-
-    pushToOut(null);
-
-    function pushToOut(parentAccount) {
-        accounts.forEach(account => {
-            if (account.parentAccount === parentAccount && !pushed[account.name]) {
-                out.push(account);
-                pushed[account.name] = 1;
-
-                pushToOut(account.name);
-            }
-        });
-    }
-
-    return out;
-}
-
-async function getLedgerEntries(fromDate, toDate, accounts) {
-    const dateFilter = () => {
-        const before = ['<=', toDate];
-        const after = ['>=', fromDate];
-        if (fromDate) {
-            return [...after, ...before];
-        }
-        return before;
-    };
-
-    const ledgerEntries = await frappejs.db.getAll({
-        doctype: 'AccountingLedgerEntry',
-        fields: ['account', 'debit', 'credit', 'date'],
-        filters: {
-            account: ['in', accounts.map(d => d.name)],
-            date: dateFilter()
-        }
-    });
-
-    return ledgerEntries;
-}
-
-async function getAccounts(rootType) {
-    let accounts = await frappejs.db.getAll({
-        doctype: 'Account',
-        fields: ['name', 'parentAccount'],
-        filters: {
-            rootType
-        }
-    });
-
-    accounts = setIndentLevel(accounts);
-    accounts = sortAccounts(accounts);
-
-    accounts.forEach(account => {
-        account.account = account.name;
-    });
-
-    return accounts;
-}
-
-async function getFiscalYear() {
-    let { fiscalYearStart, fiscalYearEnd } = await frappejs.getSingle('AccountingSettings');
-    return {
-        start: fiscalYearStart,
-        end: fiscalYearEnd
-    };
-}
-
-var FinancialStatements = {
-    getData
-};
-
-const { unique: unique$1 } = utils;
-const { getData: getData$1 } = FinancialStatements;
-
-class ProfitAndLoss {
-    async run({ fromDate, toDate, periodicity }) {
-
-        let income = await getData$1({
-            rootType: 'Income',
-            balanceMustBe: 'Credit',
-            fromDate,
-            toDate,
-            periodicity
-        });
-
-        let expense = await getData$1({
-            rootType: 'Expense',
-            balanceMustBe: 'Debit',
-            fromDate,
-            toDate,
-            periodicity
-        });
-
-        const rows = [
-            ...income.accounts, income.totalRow, [],
-            ...expense.accounts, expense.totalRow, []
-        ];
-
-        const columns = unique$1([...income.periodList, ...expense.periodList]);
-
-        let profitRow = {
-            account: 'Total Profit'
-        };
-
-        for (let column of columns) {
-            profitRow[column] = (income.totalRow[column] || 0.0) - (expense.totalRow[column] || 0.0);
-        }
-
-        rows.push(profitRow);
-
-        return { rows, columns };
-    }
-}
-
-var ProfitAndLoss_1 = ProfitAndLoss;
-
-var FinancialStatementsView_1 = class FinancialStatementsView extends reportpage {
-    constructor(opts) {
+var RegisterView_1 = class RegisterView extends reportpage {
+    constructor({ title }) {
         super({
-            title: opts.title,
-            filterFields: opts.filterFields
+            title,
+            filterFields: [
+                {fieldtype: 'Date', fieldname: 'fromDate', label: 'From Date', required: 1},
+                {fieldtype: 'Date', fieldname: 'toDate',  label: 'To Date', required: 1}
+            ]
         });
 
-        this.method = opts.method;
         this.datatableOptions = {
-            treeView: true,
             layout: 'fixed'
         };
+    }
+
+    async setDefaultFilterValues() {
+        const today = DateTime$1.local();
+        const oneMonthAgo = today.minus({ months: 1 });
+
+        this.filters.setValue('fromDate', oneMonthAgo.toISODate());
+        this.filters.setValue('toDate', today.toISODate());
+
+        this.run();
     }
 
     getRowsForDataTable(data) {
         return data.rows || [];
     }
-
-    getColumns(data) {
-        const columns = [
-            { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 340 }
-        ];
-
-        if (data && data.columns) {
-            const currencyColumns = data.columns;
-            const columnDefs = currencyColumns.map(name => ({
-                label: name,
-                fieldname: name,
-                fieldtype: 'Currency'
-            }));
-
-            columns.push(...columnDefs);
-        }
-
-        return columns;
-    }
 };
 
-var ProfitAndLossView_1 = class ProfitAndLossView extends FinancialStatementsView_1 {
+var SalesRegisterView_1 = class SalesRegisterView extends RegisterView_1 {
     constructor() {
         super({
-            title: frappejs._('Profit and Loss'),
-            method: 'profit-and-loss',
-            filterFields: [
-                {fieldtype: 'Date', label: 'From Date', required: 1},
-                {fieldtype: 'Date', label: 'To Date', required: 1},
-                {fieldtype: 'Select', options: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly'],
-                    label: 'Periodicity', fieldname: 'periodicity', default: 'Monthly'}
-            ]
-        });
-    }
-};
-
-const { unique: unique$3 } = utils;
-const { getData: getData$2 } = FinancialStatements;
-
-class BalanceSheet {
-    async run({ fromDate, toDate, periodicity }) {
-
-        let asset = await getData$2({
-            rootType: 'Asset',
-            balanceMustBe: 'Debit',
-            fromDate,
-            toDate,
-            periodicity,
-            accumulateValues: true
-        });
-
-        let liability = await getData$2({
-            rootType: 'Liability',
-            balanceMustBe: 'Credit',
-            fromDate,
-            toDate,
-            periodicity,
-            accumulateValues: true
-        });
-
-        let equity = await getData$2({
-            rootType: 'Equity',
-            balanceMustBe: 'Credit',
-            fromDate,
-            toDate,
-            periodicity,
-            accumulateValues: true
-        });
-
-        const rows = [
-            ...asset.accounts, asset.totalRow, [],
-            ...liability.accounts, liability.totalRow, [],
-            ...equity.accounts, equity.totalRow, []
-        ];
-
-        const columns = unique$3([
-            ...asset.periodList,
-            ...liability.periodList,
-            ...equity.periodList
-        ]);
-
-        return { rows, columns };
-    }
-}
-
-var BalanceSheet_1 = BalanceSheet;
-
-var BalanceSheetView_1 = class BalanceSheetView extends FinancialStatementsView_1 {
-    constructor() {
-        super({
-            title: frappejs._('Balance Sheet'),
-            method: 'balance-sheet',
-            filterFields: [
-                {fieldtype: 'Date', label: 'To Date', required: 1},
-                {fieldtype: 'Select', options: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly'],
-                    label: 'Periodicity', fieldname: 'periodicity', default: 'Monthly'}
-            ]
-        });
-    }
-};
-
-class SalesRegister {
-    async run({ fromDate, toDate }) {
-        const invoices = await frappejs.db.getAll({
-            doctype: 'Invoice',
-            fields: ['name', 'date', 'customer', 'account', 'netTotal', 'grandTotal'],
-            filters: {
-                date: ['>=', fromDate, '<=', toDate],
-                submitted: 1
-            },
-            orderBy: 'date',
-            order: 'desc'
-        });
-
-        const invoiceNames = invoices.map(d => d.name);
-
-        const taxes = await frappejs.db.getAll({
-            doctype: 'TaxSummary',
-            fields: ['parent', 'amount'],
-            filters: {
-                parenttype: 'Invoice',
-                parent: ['in', invoiceNames]
-            },
-            orderBy: 'name'
-        });
-
-        for (let invoice of invoices) {
-            invoice.totalTax = taxes
-                .filter(tax => tax.parent === invoice.name)
-                .reduce((acc, tax) => {
-                    if (tax.amount) {
-                        acc = acc + tax.amount;
-                    }
-                    return acc;
-                }, 0);
-        }
-
-        return { rows: invoices };
-    }
-}
-
-var SalesRegister_1 = SalesRegister;
-
-var SalesRegisterView_1 = class SalesRegisterView extends reportpage {
-    constructor() {
-        super({
-            title: frappejs._('Sales Register'),
-            filterFields: [
-                {fieldtype: 'Date', label: 'From Date', required: 1},
-                {fieldtype: 'Date', label: 'To Date', required: 1}
-            ]
+            title: frappejs._('Sales Register')
         });
 
         this.method = 'sales-register';
-        this.datatableOptions = {
-            layout: 'fixed'
-        };
-    }
-
-    getRowsForDataTable(data) {
-        return data.rows || [];
     }
 
     getColumns() {
@@ -65374,27 +65219,27 @@ var SalesRegisterView_1 = class SalesRegisterView extends reportpage {
     }
 };
 
-function registerReportMethods() {
-    frappejs.registerMethod({
-        method: 'general-ledger',
-        handler: getReportData(GeneralLedger_1)
-    });
+var PurchaseRegisterView_1 = class PurchaseRegisterView extends RegisterView_1 {
+    constructor() {
+        super({
+            title: frappejs._('Purchase Register'),
+        });
 
-    frappejs.registerMethod({
-        method: 'profit-and-loss',
-        handler: getReportData(ProfitAndLoss_1)
-    });
+        this.method = 'purchase-register';
+    }
 
-    frappejs.registerMethod({
-        method: 'balance-sheet',
-        handler: getReportData(BalanceSheet_1)
-    });
-
-    frappejs.registerMethod({
-        method: 'sales-register',
-        handler: getReportData(SalesRegister_1)
-    });
-}
+    getColumns() {
+        return [
+            { label: 'Bill', fieldname: 'name' },
+            { label: 'Posting Date', fieldname: 'date' },
+            { label: 'Supplier', fieldname: 'supplier' },
+            { label: 'Payable Account', fieldname: 'account' },
+            { label: 'Net Total', fieldname: 'netTotal', fieldtype: 'Currency' },
+            { label: 'Total Tax', fieldname: 'totalTax', fieldtype: 'Currency' },
+            { label: 'Grand Total', fieldname: 'grandTotal', fieldtype: 'Currency' },
+        ];
+    }
+};
 
 // called on client side
 function registerReportRoutes() {
@@ -65419,22 +65264,29 @@ function registerReportRoutes() {
         await frappejs.views.BalanceSheet.show(params);
     });
 
+    frappejs.router.add('report/trial-balance', async (params) => {
+        if (!frappejs.views.TrialBalance) {
+            frappejs.views.TrialBalance = new TrialBalanceView_1();
+        }
+        await frappejs.views.TrialBalance.show(params);
+    });
+
     frappejs.router.add('report/sales-register', async (params) => {
         if (!frappejs.views.SalesRegister) {
             frappejs.views.SalesRegister = new SalesRegisterView_1();
         }
         await frappejs.views.SalesRegister.show(params);
     });
+
+    frappejs.router.add('report/purchase-register', async (params) => {
+        if (!frappejs.views.PurchaseRegister) {
+            frappejs.views.PurchaseRegister = new PurchaseRegisterView_1();
+        }
+        await frappejs.views.PurchaseRegister.show(params);
+    });
 }
 
-function getReportData(ReportClass) {
-    return args => new ReportClass().run(args);
-}
-
-var reports = {
-    registerReportMethods,
-    registerReportRoutes
-};
+var view$3 = registerReportRoutes;
 
 var AccountDocument = class Account extends document$1 {
     async validate() {
@@ -66149,9 +66001,9 @@ var countryInfo$1 = Object.freeze({
 	default: countryInfo
 });
 
-var require$$0$15 = ( countryInfo$1 && countryInfo ) || countryInfo$1;
+var require$$0$14 = ( countryInfo$1 && countryInfo ) || countryInfo$1;
 
-const countryList = Object.keys(require$$0$15).sort();
+const countryList = Object.keys(require$$0$14).sort();
 
 var AccountingSettings = {
     name: "AccountingSettings",
@@ -66873,6 +66725,7 @@ var Bill = createCommonjsModule(function (module) {
 module.exports = {
     "name": "Bill",
     "doctype": "DocType",
+    "documentClass": BillDocument,
     "isSingle": 0,
     "isChild": 0,
     "isSubmittable": 1,
@@ -67000,16 +66853,13 @@ module.exports = {
                     <div class="col-4 text-muted">${data.supplier}</div>
                     <div class="col-4 text-muted text-right">${frappejs.format(data.grandTotal, "Currency")}</div>`;
         }
-    },
-
-    documentClass: BillDocument
+    }
 };
 });
 
 var Bill_1 = Bill.layout;
 var Bill_2 = Bill.links;
 var Bill_3 = Bill.listSettings;
-var Bill_4 = Bill.documentClass;
 
 var BillItem = {
     name: "BillItem",
@@ -67526,120 +67376,158 @@ var JournalEntrySettings = {
     ]
 };
 
-var isMergeableObject = function isMergeableObject(value) {
-	return isNonNullObject(value)
-		&& !isSpecial(value)
-};
-
-function isNonNullObject(value) {
-	return !!value && typeof value === 'object'
-}
-
-function isSpecial(value) {
-	var stringValue = Object.prototype.toString.call(value);
-
-	return stringValue === '[object RegExp]'
-		|| stringValue === '[object Date]'
-		|| isReactElement(value)
-}
-
-// see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
-var canUseSymbol = typeof Symbol === 'function' && Symbol.for;
-var REACT_ELEMENT_TYPE = canUseSymbol ? Symbol.for('react.element') : 0xeac7;
-
-function isReactElement(value) {
-	return value.$$typeof === REACT_ELEMENT_TYPE
-}
-
-function emptyTarget(val) {
-	return Array.isArray(val) ? [] : {}
-}
-
-function cloneUnlessOtherwiseSpecified(value, options) {
-	return (options.clone !== false && options.isMergeableObject(value))
-		? deepmerge(emptyTarget(value), value, options)
-		: value
-}
-
-function defaultArrayMerge(target, source, options) {
-	return target.concat(source).map(function(element) {
-		return cloneUnlessOtherwiseSpecified(element, options)
-	})
-}
-
-function mergeObject(target, source, options) {
-	var destination = {};
-	if (options.isMergeableObject(target)) {
-		Object.keys(target).forEach(function(key) {
-			destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
-		});
-	}
-	Object.keys(source).forEach(function(key) {
-		if (!options.isMergeableObject(source[key]) || !target[key]) {
-			destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
-		} else {
-			destination[key] = deepmerge(target[key], source[key], options);
-		}
-	});
-	return destination
-}
-
-function deepmerge(target, source, options) {
-	options = options || {};
-	options.arrayMerge = options.arrayMerge || defaultArrayMerge;
-	options.isMergeableObject = options.isMergeableObject || isMergeableObject;
-
-	var sourceIsArray = Array.isArray(source);
-	var targetIsArray = Array.isArray(target);
-	var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
-
-	if (!sourceAndTargetTypesMatch) {
-		return cloneUnlessOtherwiseSpecified(source, options)
-	} else if (sourceIsArray) {
-		return options.arrayMerge(target, source, options)
-	} else {
-		return mergeObject(target, source, options)
-	}
-}
-
-deepmerge.all = function deepmergeAll(array, options) {
-	if (!Array.isArray(array)) {
-		throw new Error('first argument should be an array')
-	}
-
-	return array.reduce(function(prev, next) {
-		return deepmerge(prev, next, options)
-	}, {})
-};
-
-var deepmerge_1 = deepmerge;
-
-
-
-
-var es = Object.freeze({
-	default: deepmerge_1
-});
-
-var deepmerge$1 = ( es && deepmerge_1 ) || es;
-
-const Quotation = deepmerge$1(Invoice, {
+const Quotation = model.extend(Invoice, {
     name: "Quotation",
     label: "Quotation",
-    settings: "QuotationSettings"
+    settings: "QuotationSettings",
+    fields: [
+        {
+            "fieldname": "items",
+            "childtype": "QuotationItem"
+        }
+    ],
+    links: []
+}, {
+    skipFields: ['account'],
+    overrideProps: ['links']
 });
 
 var Quotation_1 = Quotation;
 
-const QuotationSettings = deepmerge$1(InvoiceSettings, {
-    "name": "QuotationSettings",
-    "label": "Quotation Settings",
-    "fields": {
-        "default": "INV"
-    }
+var QuotationItem = model.extend(InvoiceItem, {
+    name: "QuotationItem"
 });
 
-var QuotationSettings_1 = QuotationSettings;
+var QuotationSettings = model.extend(InvoiceSettings, {
+    "name": "QuotationSettings",
+    "label": "Quotation Settings",
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "default": "QTN"
+        }
+    ]
+});
+
+var SalesOrder = model.extend(Quotation_1, {
+    name: "SalesOrder",
+    label: "Sales Order",
+    settings: "SalesOrderSettings",
+    fields: [
+        {
+            "fieldname": "items",
+            "childtype": "SalesOrderItem"
+        }
+    ]
+});
+
+var SalesOrderItem = model.extend(QuotationItem, {
+    name: "SalesOrderItem"
+});
+
+var SalesOrderSettings = model.extend(QuotationSettings, {
+    "name": "SalesOrderSettings",
+    "label": "Sales Order Settings",
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "default": "SO"
+        }
+    ]
+});
+
+var Fulfillment = model.extend(Quotation_1, {
+    name: "Fulfillment",
+    label: "Fulfillment",
+    settings: "FulfillmentSettings",
+    fields: [
+        {
+            "fieldname": "items",
+            "childtype": "FulfillmentItem"
+        }
+    ]
+});
+
+var FulfillmentItem = model.extend(QuotationItem, {
+    name: "FulfillmentItem"
+});
+
+var FulfillmentSettings = model.extend(QuotationSettings, {
+    "name": "FulfillmentSettings",
+    "label": "Fulfillment Settings",
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "default": "OF"
+        }
+    ]
+});
+
+var PurchaseOrder = model.extend(Bill, {
+    name: "PurchaseOrder",
+    label: "Purchase Order",
+    settings: "PurchaseOrderSettings",
+    fields: [
+        {
+            "fieldname": "items",
+            "childtype": "PurchaseOrderItem"
+        }
+    ]
+}, {
+    skipFields: ['account']
+});
+
+var PurchaseOrderItem = model.extend(BillItem, {
+    name: "PurchaseOrderItem"
+});
+
+var PurchaseOrderSettings = model.extend(BillSettings, {
+    "name": "PurchaseOrderSettings",
+    "label": "Purchase Order Settings",
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "default": "PO"
+        }
+    ]
+});
+
+var PurchaseReceipt = model.extend(PurchaseOrder, {
+    name: "PurchaseReceipt",
+    label: "Purchase Receipt",
+    settings: "PurchaseReceiptSettings",
+    fields: [
+        {
+            "fieldname": "items",
+            "childtype": "PurchaseReceiptItem"
+        }
+    ]
+});
+
+var PurchaseReceiptItem = model.extend(PurchaseOrderItem, {
+    name: "PurchaseReceiptItem",
+    fields: [
+        {
+            "fieldname": "acceptedQuantity",
+            "label": "Accepted Quantity",
+            "fieldtype": "Float",
+            "required": 1
+        }
+    ]
+}, {
+    skipFields: ['expenseAccount']
+});
+
+var PurchaseReceiptSettings = model.extend(PurchaseOrderSettings, {
+    "name": "PurchaseReceiptSettings",
+    "label": "Purchase Receipt Settings",
+    "fields": [
+        {
+            "fieldname": "numberSeries",
+            "default": "PREC"
+        }
+    ]
+});
 
 var models$2 = {
     models: {
@@ -67674,7 +67562,24 @@ var models$2 = {
         JournalEntrySettings: JournalEntrySettings,
 
         Quotation: Quotation_1,
-        QuotationSettings: QuotationSettings_1,
+        QuotationItem: QuotationItem,
+        QuotationSettings: QuotationSettings,
+
+        SalesOrder: SalesOrder,
+        SalesOrderItem: SalesOrderItem,
+        SalesOrderSettings: SalesOrderSettings,
+
+        Fulfillment: Fulfillment,
+        FulfillmentItem: FulfillmentItem,
+        FulfillmentSettings: FulfillmentSettings,
+
+        PurchaseOrder: PurchaseOrder,
+        PurchaseOrderItem: PurchaseOrderItem,
+        PurchaseOrderSettings: PurchaseOrderSettings,
+
+        PurchaseReceipt: PurchaseReceipt,
+        PurchaseReceiptItem: PurchaseReceiptItem,
+        PurchaseReceiptSettings: PurchaseReceiptSettings,
     }
 };
 
@@ -67689,8 +67594,6 @@ var CustomerList_1 = class CustomerList extends list {
     }
 };
 
-const { registerReportRoutes: registerReportRoutes$1 } = reports;
-
 var client$2 = {
     start() {
         // require modules
@@ -67698,23 +67601,31 @@ var client$2 = {
 
         frappejs.registerView('List', 'Customer', CustomerList_1);
 
-        registerReportRoutes$1();
+        view$3();
 
         frappejs.desk.menu.addItem('ToDo', '#list/ToDo');
         frappejs.desk.menu.addItem('Chart of Accounts', '#tree/Account');
         frappejs.desk.menu.addItem('Items', '#list/Item');
         frappejs.desk.menu.addItem('Customers', '#list/Customer');
         frappejs.desk.menu.addItem('Quotation', '#list/Quotation');
+        frappejs.desk.menu.addItem('Sales Order', '#list/SalesOrder');
+        frappejs.desk.menu.addItem('Fulfillment', '#list/Fulfillment');
         frappejs.desk.menu.addItem('Invoice', '#list/Invoice');
         frappejs.desk.menu.addItem('Bill', '#list/Bill');
+        frappejs.desk.menu.addItem('Purchase Order', '#list/PurchaseOrder');
+        frappejs.desk.menu.addItem('Purchase Receipt', '#list/PurchaseReceipt');
         frappejs.desk.menu.addItem('Journal Entry', '#list/JournalEntry');
         frappejs.desk.menu.addItem('Address', "#list/Address");
         frappejs.desk.menu.addItem('Contact', "#list/Contact");
         frappejs.desk.menu.addItem('Settings', () => frappejs.desk.showFormModal('SystemSettings'));
+
+        // reports
         frappejs.desk.menu.addItem('General Ledger', '#report/general-ledger');
         frappejs.desk.menu.addItem('Profit And Loss', '#report/profit-and-loss');
         frappejs.desk.menu.addItem('Balance Sheet', '#report/balance-sheet');
+        frappejs.desk.menu.addItem('Trial Balance', '#report/trial-balance');
         frappejs.desk.menu.addItem('Sales Register', '#report/sales-register');
+        frappejs.desk.menu.addItem('Purchase Register', '#report/purchase-register');
 
         frappejs.router.default = '#tree/Account';
 
@@ -67723,8 +67634,9 @@ var client$2 = {
     }
 };
 
-const countryList$1 = Object.keys(require$$0$15).sort();
+const countryList$1 = Object.keys(require$$0$14).sort();
 
+// start server
 client.start({
     server: 'localhost:8000',
     makeDesk: 0
