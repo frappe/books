@@ -5,6 +5,8 @@ const BalanceSheetView = require('./BalanceSheet/BalanceSheetView');
 const TrialBalanceView = require('./TrialBalance/TrialBalanceView');
 const SalesRegisterView = require('./SalesRegister/SalesRegisterView');
 const PurchaseRegisterView = require('./PurchaseRegister/PurchaseRegisterView');
+const AccountsReceivableView = require('./AccountsReceivablePayable/AccountsReceivableView');
+const AccountsPayableView = require('./AccountsReceivablePayable/AccountsPayableView');
 
 // called on client side
 function registerReportRoutes() {
@@ -48,6 +50,20 @@ function registerReportRoutes() {
             frappe.views.PurchaseRegister = new PurchaseRegisterView();
         }
         await frappe.views.PurchaseRegister.show(params);
+    });
+
+    frappe.router.add('report/accounts-receivable', async (params) => {
+        if (!frappe.views.AccountsReceivable) {
+            frappe.views.AccountsReceivable = new AccountsReceivableView();
+        }
+        await frappe.views.AccountsReceivable.show(params);
+    });
+
+    frappe.router.add('report/accounts-payable', async (params) => {
+        if (!frappe.views.AccountsPayable) {
+            frappe.views.AccountsPayable = new AccountsPayableView();
+        }
+        await frappe.views.AccountsPayable.show(params);
     });
 }
 
