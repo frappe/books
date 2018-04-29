@@ -154,7 +154,7 @@ module.exports = class sqliteDatabase extends Database {
         await frappe.db.run('delete from SingleValue where parent=?', name)
     }
 
-    getAll({ doctype, fields, filters, start, limit, orderBy = 'modified', order = 'desc' } = {}) {
+    getAll({ doctype, fields, filters, start, limit, orderBy = 'modified', groupBy, order = 'desc' } = {}) {
         if (!fields) {
             fields = frappe.getMeta(doctype).getKeywordFields();
         }
@@ -167,6 +167,7 @@ module.exports = class sqliteDatabase extends Database {
             let query = `select ${fields.join(", ")}
                 from ${doctype}
                 ${conditions.conditions ? "where" : ""} ${conditions.conditions}
+                ${groupBy ? ("group by " + groupBy.join(', ')) : ""}
                 ${orderBy ? ("order by " + orderBy) : ""} ${orderBy ? (order || "asc") : ""}
                 ${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`;
 
