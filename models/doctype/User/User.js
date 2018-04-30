@@ -18,7 +18,8 @@ module.exports = {
             "fieldname": "password",
             "label": "Password",
             "fieldtype": "Password",
-            "required": 1
+            "required": 1,
+            "hidden": 1,
         },
         {
             "fieldname": "fullName",

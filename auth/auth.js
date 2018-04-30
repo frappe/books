@@ -2,6 +2,8 @@ const jwt = require("jwt-simple");
 const frappe = require("frappejs");
 const passport = require("passport");
 const passportJWT = require("passport-jwt");
+const bcrypt = require('bcrypt');
+const { DateTime } = require('luxon');
 const jwtSecret = require('crypto').randomBytes(256);
 
 const ExtractJwt = passportJWT.ExtractJwt;
@@ -43,30 +45,64 @@ module.exports = () => {
             return passport.authenticate("jwt", { session: false });
         },
         login: async function (req, res) {
-            if (req.body.email && req.body.password) {
-                const name = req.body.email || req.body.name;
-                const password = req.body.password;
+            const { email, password } = req.body;
 
-                const user = (await frappe.db.getAll({
-                    doctype: 'User',
-                    filters: { password, name }
-                }))[0];
+            if (!(email && password)) {
+                res.status(400).send('Email and Password are required');
+                return;
+            }
 
-                if (user) {
-                    const payload = {
-                        email: user.name,
-                        exp: timeInSecondsAfterHr(24)
-                    };
-                    const token = jwt.encode(payload, jwtSecret);
-                    res.json({
-                        token: token
-                    });
-                } else {
-                    res.sendStatus(401);
+            try {
+                const user = await frappe.getDoc('User', email);
+                const match = await bcrypt.compare(password, user.password);
+
+                if (!match) {
+                    throw new Error('Invalid password');
                 }
 
-            } else {
+                const payload = {
+                    email: user.name,
+                    exp: timeInSecondsAfterHr(24)
+                };
+                const token = jwt.encode(payload, jwtSecret);
+                res.json({
+                    token: token
+                });
+            } catch(e) {
+                console.error(e);
                 res.sendStatus(401);
+            }
+        },
+        signup: async function (req, res) {
+            const { email, password, fullName } = req.body;
+
+            if (!(email && password && fullName)) {
+                res.status(400).send('Need email, password and fullName to create User');
+                return;
+            }
+
+            try {
+                const saltRounds = 10;
+                const hash = await bcrypt.hash(password, saltRounds);
+                const now = DateTime.local().toISO();
+
+                const user = frappe.newDoc({
+                    doctype: 'User',
+                    name: email,
+                    fullName: fullName,
+                    password: hash,
+                    owner: email,
+                    modifiedBy: email,
+                    creation: now
+                });
+                await user.insert();
+
+                res.json({
+                    user: user.email
+                });
+            } catch(e) {
+                console.error(e);
+                res.status(500).send('Something went wrong!');
             }
         }
     };

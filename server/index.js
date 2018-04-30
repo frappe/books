@@ -3,6 +3,7 @@ backends.sqlite = require('frappejs/backends/sqlite');
 //backends.mysql = require('frappejs/backends/mysql');
 
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -26,6 +27,7 @@ module.exports = {
 
         if (models) {
             frappe.registerModels(models, 'server');
+            frappe.models.User.documentClass = require('frappejs/models/doctype/User/UserServer.js');
         }
 
         // database
@@ -37,10 +39,12 @@ module.exports = {
         app.use(express.static(staticPath));
         app.use(morgan('tiny'));
 
+        if (connectionParams.enableCORS) {
+            app.use(cors());
+        }
+
         if(authConfig) {
-            app.post("/api/login", auth.login);
-            app.use(auth.initialize(authConfig));
-            app.all("/api/resource/*", auth.authenticate());
+            this.setupAuthentication(app, authConfig);
         }
 
         // socketio
@@ -50,8 +54,12 @@ module.exports = {
         // routes
         restAPI.setup(app);
 
+        frappe.config.port = connectionParams.port || 8000;
+
         // listen
-        server.listen(frappe.config.port);
+        server.listen(frappe.config.port, () => {
+            console.log(`FrappeJS server running on http://localhost:${frappe.config.port}`)
+        });
 
         frappe.app = app;
         frappe.server = server;
@@ -65,7 +73,7 @@ module.exports = {
         frappe.registerModels(frappeModels, 'server');
         frappe.registerLibs(common);
 
-        await frappe.login();
+        await frappe.login('Administrator');
     },
 
     async initDb({backend, connectionParams}) {
@@ -73,4 +81,11 @@ module.exports = {
         await frappe.db.connect();
         await frappe.db.migrate();
     },
+
+    setupAuthentication(app, authConfig) {
+        app.post("/api/signup", auth.signup);
+        app.post("/api/login", auth.login);
+        app.use(auth.initialize(authConfig));
+        app.all("/api/resource/*", auth.authenticate());
+    }
 }

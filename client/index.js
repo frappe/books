@@ -7,21 +7,18 @@ const Observable = require('frappejs/utils/observable');
 const { getPDF } = require('frappejs/client/pdf');
 
 module.exports = {
-    async start({server, columns = 2, makeDesk = 1}) {
+    async start({server, columns = 2, makeDesk = false}) {
         window.frappe = frappe;
         frappe.init();
         frappe.registerLibs(common);
         frappe.registerModels(require('frappejs/models'), 'client');
-
         frappe.fetch = window.fetch.bind();
 
-        this.setCall();
         frappe.db = await new HTTPClient({server: server});
-        this.socket = io.connect('http://localhost:8000'); // eslint-disable-line
+        this.socket = io.connect(`http://${server}`); // eslint-disable-line
         frappe.db.bindSocketClient(this.socket);
 
         frappe.docs = new Observable();
-
         await frappe.getSingle('SystemSettings');
 
         if(makeDesk) {
