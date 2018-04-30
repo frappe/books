@@ -1,5 +1,5 @@
 const frappe = require('frappejs');
-const GeneralLedgerView = require('../reports/generalLedger/GeneralLedgerView');
+const GeneralLedgerView = require('../reports/GeneralLedger/GeneralLedgerView');
 const ProfitAndLossView = require('./ProfitAndLoss/ProfitAndLossView');
 const BalanceSheetView = require('./BalanceSheet/BalanceSheetView');
 const TrialBalanceView = require('./TrialBalance/TrialBalanceView');
