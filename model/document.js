@@ -116,7 +116,10 @@ module.exports = class BaseDocument extends Observable {
                 this.owner = frappe.session.user;
                 this.creation = now;
             }
-            this.modifiedBy = frappe.session.user;
+
+            if (!this.modifiedBy) {
+                this.modifiedBy = frappe.session.user;
+            }
             this.modified = now;
         }
     }

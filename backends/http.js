@@ -7,6 +7,7 @@ module.exports = class HTTPClient extends Observable {
 
         this.server = server;
         this.protocol = protocol;
+        frappe.config.serverURL = this.getURL();
 
         // if the backend is http, then always client!
         frappe.isServer = false;
@@ -104,14 +105,18 @@ module.exports = class HTTPClient extends Observable {
     }
 
     getURL(...parts) {
-        return this.protocol + '://' + this.server + parts.join('/');
+        return this.protocol + '://' + this.server + (parts || []).join('/');
     }
 
     getHeaders() {
-        return {
+        const headers = {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-        }
+        };
+        if (frappe.session && frappe.session.token) {
+            headers.token = frappe.session.token;
+        };
+        return headers;
     }
 
     initTypeMap() {
