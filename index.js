@@ -9,6 +9,7 @@ module.exports = {
 
     initConfig() {
         this.config = {
+            serverURL: '',
             backend: 'sqlite',
             port: 8000
         };
@@ -58,12 +59,25 @@ module.exports = {
         }
     },
 
-    call({method, type, args}) {
-        if (this.methods[method]) {
-            return this.methods[method](args);
-        } else {
-            throw `${method} not found`;
+    async call({method, args}) {
+        if (this.isServer) {
+            if (this.methods[method]) {
+                return await this.methods[method](args);
+            } else {
+                throw `${method} not found`;
+            }
         }
+
+        let url = `/api/method/${method}`;
+        let response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(args || {})
+        });
+        return await response.json();
     },
 
     addToCache(doc) {
@@ -178,8 +192,40 @@ module.exports = {
         }
     },
 
-    login(user='guest', user_key) {
-        this.session = {user: user};
+    // only for client side
+    async login(email, password) {
+        if (email === 'Administrator') {
+            this.session = {
+                user: 'Administrator'
+            }
+            return;
+        }
+
+        let response = await fetch(this.getServerURL() + '/api/login', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.status === 200) {
+            const res = await response.json();
+
+            this.session = {
+                user: email,
+                token: res.token
+            }
+
+            return;
+        }
+
+        return await response.text();
+    },
+
+    getServerURL() {
+        return this.config.serverURL || '';
     },
 
     close() {
