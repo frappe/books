@@ -28,7 +28,7 @@ module.exports = {
         await frappe.getSingle('SystemSettings');
 
         frappe.desk = new Desk(columns);
-        await frappe.login();
+        await frappe.login('Administrator');
     }
 };
 
