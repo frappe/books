@@ -27,7 +27,6 @@ module.exports = {
 
         if (models) {
             frappe.registerModels(models, 'server');
-            frappe.models.User.documentClass = require('frappejs/models/doctype/User/UserServer.js');
         }
 
         // database
