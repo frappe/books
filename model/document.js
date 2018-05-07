@@ -111,9 +111,15 @@ module.exports = class BaseDocument extends Observable {
         // set standard values on server-side only
         if (frappe.isServer) {
             let now = (new Date()).toISOString();
-            if (!this.submitted) this.submitted = 0;
+            if (!this.submitted) {
+                this.submitted = 0;
+            }
+
             if (!this.owner) {
                 this.owner = frappe.session.user;
+            }
+
+            if (!this.creation) {
                 this.creation = now;
             }
 
