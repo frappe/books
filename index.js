@@ -218,10 +218,27 @@ module.exports = {
                 token: res.token
             }
 
-            return;
+            return res;
         }
 
-        return await response.text();
+        return response;
+    },
+
+    async signup(email, fullName, password) {
+        let response = await fetch(this.getServerURL() + '/api/signup', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, fullName, password })
+        });
+
+        if (response.status === 200) {
+            return await response.json();
+        }
+
+        return response;
     },
 
     getServerURL() {
