@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const BaseDocument = require('frappejs/model/document');
-const LedgerPosting = rootRequire('accounting/ledgerPosting');
+const LedgerPosting = require('../../../accounting/ledgerPosting');
 
 module.exports = class JournalEntryServer extends BaseDocument {
     getPosting() {

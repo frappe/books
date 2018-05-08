@@ -1,7 +1,3 @@
-global.rootRequire = function(name) {
-    return require(process.cwd() + '/' + name);
-}
-
 const server = require('frappejs/server');
 const frappe = require('frappejs');
 const naming = require('frappejs/model/naming');
