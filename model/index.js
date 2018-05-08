@@ -61,10 +61,10 @@ module.exports = {
     ],
     treeFields: [
         {
-            fieldname: 'lft', fieldtype: 'Int', required: 1
+            fieldname: 'lft', fieldtype: 'Int'
         },
         {
-            fieldname: 'rgt', fieldtype: 'Int', required: 1
+            fieldname: 'rgt', fieldtype: 'Int'
         }
     ]
 };
