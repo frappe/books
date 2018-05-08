@@ -17,7 +17,7 @@ class DateControl extends BaseControl {
 
         super.make();
         this.input.setAttribute('type', 'text');
-        this.flatpickr = flatpickr.default(this.input, {
+        this.flatpickr = flatpickr(this.input, {
             altInput: true,
             altFormat: altFormat,
             dateFormat:'Y-m-d'
