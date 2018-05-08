@@ -6,4 +6,5 @@ Thumbs.db
 .cache
 /temp
 dist
+www/dist
 Frappe Accounting*
