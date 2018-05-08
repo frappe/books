@@ -2,7 +2,7 @@
   "name": "frappe-accounting",
   "description": "Simple Accounting app for everyone",
   "productName": "Frappe Accounting",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "author": {
     "name": "Frappe Technologies Pvt. Ltd.",
     "email": "hello@frappe.io"
