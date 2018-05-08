@@ -2086,8 +2086,9 @@ frappe-datatable@frappe/datatable:
     lodash "^4.17.5"
     sortablejs "^1.7.0"
 
-frappejs@../frappejs:
-  version "0.0.5"
+frappejs@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/frappejs/-/frappejs-0.0.6.tgz#219d9069555d9698dc88a61b0b0efb2681f6fabd"
   dependencies:
     autoprefixer "^7.2.4"
     awesomplete "^1.1.2"

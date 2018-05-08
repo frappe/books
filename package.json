@@ -21,7 +21,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "frappejs": "frappe/frappejs"
+    "frappejs": "^0.0.6"
   },
   "devDependencies": {
     "electron": "1.8.4",
