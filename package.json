@@ -15,7 +15,10 @@
   "scripts": {
     "test": "mocha tests",
     "start": "nodemon server.js",
+    "build": "rollup -c",
     "watch": "rollup -c --watch",
+    "server": "node start.js",
+    "watch:server": "nodemon start.js",
     "electron": "EIO_WS_ENGINE=ws electron main.js",
     "electron-pack": "electron-packager . --overwrite",
     "postinstall": "electron-builder install-app-deps"
