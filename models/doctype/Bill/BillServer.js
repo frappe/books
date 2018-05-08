@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const Bill = require('./BillDocument');
-const LedgerPosting = rootRequire('accounting/ledgerPosting');
+const LedgerPosting = require('../../../accounting/ledgerPosting');
 
 module.exports = class BillServer extends Bill {
     getPosting() {
