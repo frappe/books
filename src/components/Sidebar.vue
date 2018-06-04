@@ -13,7 +13,7 @@
                 <li class="nav-item">
                     <a v-for="item in sidebarGroup.items" :key="item.route"
                         :href="item.route"
-                        :class="['nav-link', isActive(item) ? 'text-light bg-primary' : 'text-dark']"
+                        :class="['nav-link', isActive(item) ? 'text-light bg-secondary' : 'text-dark']"
                     >
                         {{ item.label }}
                     </a>
@@ -58,7 +58,11 @@ export default {
     },
     methods: {
         isActive(item) {
-            return this.$route.path === item.route.slice(1);
+            if (this.$route.params.doctype) {
+                return this.$route.params.doctype === item.label;
+            }
+            const route = item.route.slice(1);
+            return this.$route.params.doctype === route;
         }
     }
 }
