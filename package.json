@@ -24,14 +24,12 @@
   },
   "dependencies": {
     "bootstrap": "^4.1.1",
+    "feather-icons": "^4.7.3",
     "frappejs": "^0.0.7",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {
-    "electron": "1.8.4",
-    "electron-builder": "^20.6.2",
-    "electron-packager": "^11.2.0",
     "autoprefixer": "^7.1.2",
     "babel-core": "^6.22.1",
     "babel-eslint": "^8.2.1",
@@ -51,6 +49,9 @@
     "copy-webpack-plugin": "^4.0.1",
     "cross-spawn": "^5.0.1",
     "css-loader": "^0.28.0",
+    "electron": "1.8.4",
+    "electron-builder": "^20.6.2",
+    "electron-packager": "^11.2.0",
     "eslint": "^4.15.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-friendly-formatter": "^3.0.0",
