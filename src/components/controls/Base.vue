@@ -8,12 +8,21 @@ export default {
         id() {
             return this.docfield.fieldname + '-'
               + document.querySelectorAll(`[data-fieldname="${this.docfield.fieldname}"]`).length;
+        },
+        inputClass() {
+            return [];
+        },
+        wrapperClass() {
+            return [];
+        },
+        labelClass() {
+            return [];
         }
     },
     methods: {
         getWrapperElement(h) {
             return h('div', {
-                class: ['form-group'],
+                class: ['form-group', ...this.wrapperClass],
                 attrs: {
                     'data-fieldname': this.docfield.fieldname
                 }
@@ -21,6 +30,7 @@ export default {
         },
         getLabelElement(h) {
             return h('label', {
+                class: this.labelClass,
                 attrs: {
                     for: this.id
                 },
@@ -30,16 +40,19 @@ export default {
             });
         },
         getInputElement(h) {
-            return h('input', {
-                class: ['form-control'],
+            return h(this.getInputTag(), {
+                class: this.getInputClass(),
                 attrs: this.getInputAttrs(),
-                on: {
-                    change: (e) => {
-                        this.$emit('change', e.target.value)
-                    }
-                },
+                on: this.getInputListeners(),
+                domProps: this.getDomProps(),
                 ref: 'input'
-            })
+            }, this.getInputChildren(h));
+        },
+        getInputTag() {
+            return 'input';
+        },
+        getInputClass() {
+            return ['form-control', ...this.inputClass];
         },
         getInputAttrs() {
             return {
@@ -48,6 +61,22 @@ export default {
                 placeholder: '',
                 value: this.value
             }
+        },
+        getInputListeners() {
+            return {
+                change: (e) => {
+                    this.$emit('change', this.parseValue(e.target.value));
+                }
+            };
+        },
+        getInputChildren() {
+            return null;
+        },
+        getDomProps() {
+            return null;
+        },
+        parseValue(value) {
+            return value;
         }
     }
 }

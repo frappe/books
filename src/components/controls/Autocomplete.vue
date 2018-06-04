@@ -4,56 +4,71 @@ import Data from './Data';
 
 export default {
   extends: Data,
-  created() {
-      this.setupAwesomplete();
+  data() {
+    return {
+      awesomplete: null
+    }
+  },
+  mounted() {
+    this.setupAwesomplete();
+    this.awesomplete.container.classList.add('form-control');
+    this.awesomplete.ul.classList.add('dropdown-menu');
   },
   methods: {
+    getInputListeners() {
+      return {
+        input: async e => {
+          this.awesomplete.list = await this.getList(e.target.value);
+        },
+        'awesomplete-select': e => {
+          this.$emit('change', e.text.value);
+        }
+      }
+    },
+    getList(text) {
+      return this.docfield.getList(text);
+    },
     setupAwesomplete() {
       const input = this.$refs.input;
       this.awesomplete = new Awesomplete(input, {
         minChars: 0,
         maxItems: 99,
-        filter: () => true,
-        sort: (a, b) => {
-          if (a.value === '__newitem' || b.value === '__newitem') {
-            return -1;
-          }
-          return a.value > b.value;
+        sort: this.sort(),
+        item: (text, input) => {
+          const li = document.createElement('li');
+          li.classList.add('dropdown-item');
+          li.classList.add('d-flex');
+          li.classList.add('align-items-center');
+          li.innerHTML = text.label;
+
+          return li;
         }
       });
-
-      // rebuild the list on input
-      this.input.addEventListener('input', async event => {
-        let list = await this.getList(this.input.value);
-
-        // action to add new item
-        list.push({
-          label: frappe._('+ New {0}', this.label),
-          value: '__newItem'
-        });
-
-        this.awesomplete.list = list;
-      });
-
-      // new item action
-      this.input.addEventListener('awesomplete-select', async e => {
-        if (e.text && e.text.value === '__newItem') {
-          e.preventDefault();
-          const newDoc = await frappe.getNewDoc(this.getTarget());
-          const formModal = await frappe.desk.showFormModal(
-            this.getTarget(),
-            newDoc.name
-          );
-          if (formModal.form.doc.meta.hasField('name')) {
-            formModal.form.doc.set('name', this.input.value);
-          }
-
-          formModal.once('save', async () => {
-            await this.updateDocValue(formModal.form.doc.name);
-          });
-        }
-      });
+    },
+    sort() {
+      return null;
     }
   }
 };
 </script>
+<style lang="scss">
+@import "../../styles/variables";
+@import "~awesomplete/awesomplete.base";
+
+.awesomplete {
+  padding: 0;
+  border: none;
+
+  &> ul {
+    padding: $dropdown-padding-y 0;
+  }
+
+  .dropdown-menu:not([hidden]) {
+    display: block;
+  }
+
+  .dropdown-item[aria-selected="true"] {
+    background-color: $dropdown-link-hover-bg;
+  }
+}
+</style>
