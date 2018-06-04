@@ -23,37 +23,12 @@
     </div>
 </template>
 <script>
+import sidebar from '../sidebar';
+
 export default {
     data() {
         return {
-            sidebarConfig: [
-                {
-                    items: [
-                        {
-                            label: 'ToDo', route: '#/list/ToDo'
-                        }
-                    ]
-                },
-                {
-                    title: 'Masters',
-                    items: [
-                        {
-                            label: 'Item', route: '#/list/Item'
-                        },
-                        {
-                            label: 'Party', route: '#/list/Party'
-                        }
-                    ]
-                },
-                {
-                    title: 'Reports',
-                    items: [
-                        {
-                            label: 'General Ledger', route: '#/report/general-ledger'
-                        }
-                    ]
-                }
-            ]
+            sidebarConfig: sidebar
         }
     },
     methods: {
