@@ -3,8 +3,16 @@ import Base from './Base';
 export default {
     extends: Base,
     methods: {
-        getInputElement(h) {
-            const options = this.docfield.options.map(option =>
+        getInputTag() {
+            return 'select';
+        },
+        getInputAttrs() {
+            return {
+                id: this.id
+            };
+        },
+        getInputChildren(h) {
+            return this.docfield.options.map(option =>
                 h('option', {
                     attrs: {
                         key: option,
@@ -15,19 +23,6 @@ export default {
                     }
                 })
             );
-
-            return h('select', {
-                class: ['form-control'],
-                attrs: {
-                    id: this.id
-                },
-                on: {
-                    change: (e) => {
-                        this.$emit('change', e.target.value)
-                    }
-                },
-                ref: 'input'
-            }, options)
         }
     }
 }
