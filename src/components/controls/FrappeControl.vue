@@ -7,6 +7,7 @@ import Check from './Check';
 import Code from './Code';
 import Currency from './Currency';
 import Data from './Data';
+import Date from './Date';
 import Float from './Float';
 import Link from './Link';
 import Select from './Select';
@@ -22,6 +23,7 @@ export default {
                 Code,
                 Currency,
                 Data,
+                Date,
                 Float,
                 Link,
                 Select,
