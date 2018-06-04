@@ -10,9 +10,10 @@
           v-if="shouldRenderForm"
           :doc="doc"
           :fields="meta.fields"
+          :layout="meta.layout"
           @field-change="updateDoc"
         />
-        <not-found v-else />
+        <not-found v-if="notFound" />
     </div>
   </keep-alive>
 </template>
@@ -40,7 +41,7 @@ export default {
       return frappe.getMeta(this.doctype);
     },
     shouldRenderForm() {
-      return this.name && this.doc && !this.notFound;
+      return this.name && this.doc;
     }
   },
   async created() {
@@ -58,14 +59,13 @@ export default {
         return;
       }
       try {
-        let oldName = this.doc.name;
         if (this.doc._notInserted) {
           await this.doc.insert();
         } else {
           await this.doc.update();
         }
-        // frappe.ui.showAlert({ message: frappe._('Saved'), color: 'green' });
-        if (oldName !== this.doc.name) {
+
+        if (this.doc.name !== this.$route.params.name) {
           this.$router.push(`/edit/${this.doctype}/${this.doc.name}`);
           return;
         }

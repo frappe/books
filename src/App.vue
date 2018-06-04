@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <frappe-desk>
-      <router-view :key="$route.path" />
+      <router-view />
     </frappe-desk>
   </div>
 </template>
