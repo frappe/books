@@ -1,13 +1,9 @@
-const common = require('./common');
-const models = require('./models');
 
 module.exports = {
     async init() {
         if (this._initialized) return;
         this.initConfig();
         this.initGlobals();
-        this.registerLibs(common);
-        this.registerModels(models);
         this._initialized = true;
     },
 
