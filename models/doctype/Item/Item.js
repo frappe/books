@@ -65,7 +65,11 @@ module.exports = {
         },
 
         // section 2
-        { fields: [ "description" ] },
+        {
+            columns: [
+                { fields: [ "description" ] }
+            ]
+        },
 
         // section 3
         {
