@@ -120,7 +120,7 @@ watch: node_modules/.bin/rollup -c --watch
 You can use any procfile handler like `node-foreman` to start the processes.
 
 ```
-yarn global add node-foreman
+yarn global add foreman
 ```
 
 Then
