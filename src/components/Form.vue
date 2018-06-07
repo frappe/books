@@ -1,5 +1,4 @@
 <template>
-  <keep-alive>
     <div class="frappe-form">
         <form-actions
           v-if="shouldRenderForm"
@@ -11,11 +10,9 @@
           :doc="doc"
           :fields="meta.fields"
           :layout="meta.layout"
-          @field-change="updateDoc"
         />
         <not-found v-if="notFound" />
     </div>
-  </keep-alive>
 </template>
 <script>
 import frappe from 'frappejs';
@@ -31,7 +28,7 @@ export default {
   },
   data() {
     return {
-      doc: null,
+      docLoaded: false,
       notFound: false,
       invalid: false
     }
@@ -41,13 +38,14 @@ export default {
       return frappe.getMeta(this.doctype);
     },
     shouldRenderForm() {
-      return this.name && this.doc;
+      return this.name && this.docLoaded;
     }
   },
   async created() {
     if (!this.name) return;
     try {
       this.doc = await frappe.getDoc(this.doctype, this.name);
+      this.docLoaded = true;
     } catch(e) {
       this.notFound = true;
     }
@@ -71,14 +69,8 @@ export default {
         }
       } catch (e) {
         console.error(e);
-        // frappe.ui.showAlert({ message: frappe._('Failed'), color: 'red' });
         return;
       }
-    },
-
-    updateDoc(fieldname, value) {
-      this.$data[fieldname] = value;
-      this.doc.set(fieldname, value);
     },
 
     checkValidity() {

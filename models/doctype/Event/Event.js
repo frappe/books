@@ -37,6 +37,7 @@ module.exports = {
             label: 'Schedule'
         }
     ],
+    titleField: 'title',
     keywordFields: [],
     isSingle: 0,
     listSettings: {

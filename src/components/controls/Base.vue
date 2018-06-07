@@ -1,9 +1,19 @@
 <script>
 export default {
     render(h) {
+        if (this.onlyInput) {
+            return this.getInputElement(h);
+        }
         return this.getWrapperElement(h);
     },
-    props: ['docfield', 'value'],
+    props: {
+        docfield: Object,
+        value: [String, Number, Array],
+        onlyInput: {
+            type: Boolean,
+            default: false
+        }
+    },
     computed: {
         id() {
             return this.docfield.fieldname + '-'
