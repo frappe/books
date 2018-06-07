@@ -7,7 +7,7 @@
                     :key="fieldname"
                     :docfield="getDocField(fieldname)"
                     :value="$data[fieldname]"
-                    @change="$emit('field-change', fieldname, $event)"
+                    @change="value => updateDoc(docfield.fieldname, value)"
                 />
             </div>
         </div>
@@ -17,36 +17,51 @@
                 :key="docfield.fieldname"
                 :docfield="docfield"
                 :value="$data[docfield.fieldname]"
-                @change="$emit('field-change', docfield.fieldname, $event)"
+                @change="value => updateDoc(docfield.fieldname, value)"
             />
         </div>
     </form>
 </template>
 <script>
-import FrappeControl from './controls/FrappeControl'
+import FrappeControl from './controls/FrappeControl';
 
 export default {
-    name: 'FormLayout',
-    props: ['doc', 'fields', 'layout'],
-    data() {
-        const dataObj = {};
-        for (let field of this.fields) {
-            dataObj[field.fieldname] = this.doc[field.fieldname];
-        }
-        return dataObj;
-    },
-    created() {
-        this.doc.on('change', ({ doc, fieldname }) => {
-            this[fieldname] = doc[fieldname];
-        });
-    },
-    methods: {
-        getDocField(fieldname) {
-            return this.fields.find(df => df.fieldname === fieldname);
-        }
-    },
-    components: {
-        FrappeControl
+  name: 'FormLayout',
+  props: ['doc', 'fields', 'layout'],
+  data() {
+    const dataObj = {};
+    for (let df of this.fields) {
+      dataObj[df.fieldname] = this.doc[df.fieldname];
+
+      if (df.fieldtype === 'Table' && !dataObj[df.fieldname]) {
+        dataObj[df.fieldname] = [];
+      }
     }
-}
+    return dataObj;
+  },
+  created() {
+    this.doc.on('change', ({ doc, fieldname }) => {
+      if (fieldname) {
+        // update value
+        this[fieldname] = doc[fieldname];
+      } else {
+        // update all values
+        this.fields.forEach(df => {
+          this[df.fieldname] = doc[df.fieldname];
+        });
+      }
+    });
+  },
+  methods: {
+    getDocField(fieldname) {
+      return this.fields.find(df => df.fieldname === fieldname);
+    },
+    updateDoc(fieldname, value) {
+      this.doc.set(fieldname, value);
+    }
+  },
+  components: {
+    FrappeControl
+  }
+};
 </script>

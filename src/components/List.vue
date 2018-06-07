@@ -1,5 +1,4 @@
 <template>
-    <keep-alive>
         <div class="frappe-list">
             <list-actions
               :doctype="doctype"
@@ -19,7 +18,6 @@
                 </list-item>
             </ul>
         </div>
-    </keep-alive>
 </template>
 <script>
 import frappe from 'frappejs';
@@ -61,7 +59,7 @@ export default {
     async updateList() {
       const data = await frappe.db.getAll({
       doctype: this.doctype,
-      fields: ['name', ...this.meta.keywordFields]
+      fields: ['name', ...this.meta.keywordFields, this.meta.titleField]
       });
 
       this.data = data;
@@ -71,9 +69,7 @@ export default {
         this.$router.push(`/edit/${this.doctype}/${name}`);
     },
     async deleteCheckedItems() {
-      debugger
       await frappe.db.deleteMany(this.doctype, this.checkList);
-      debugger
       this.checkList = [];
     },
     toggleCheck(name) {
