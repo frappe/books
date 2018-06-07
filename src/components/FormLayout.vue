@@ -1,5 +1,5 @@
 <template>
-    <form class="frappe-form-layout p-3">
+    <form :class="['frappe-form-layout p-3', { 'was-validated': invalid }]">
         <div class="row" v-if="layout" v-for="(section, i) in layout" :key="i">
             <div class="col" v-for="(column, j) in section.columns" :key="j">
                 <frappe-control
@@ -27,7 +27,7 @@ import FrappeControl from './controls/FrappeControl';
 
 export default {
   name: 'FormLayout',
-  props: ['doc', 'fields', 'layout'],
+  props: ['doc', 'fields', 'layout', 'invalid'],
   data() {
     const dataObj = {};
     for (let df of this.fields) {

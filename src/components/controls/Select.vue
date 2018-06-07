@@ -8,7 +8,8 @@ export default {
         },
         getInputAttrs() {
             return {
-                id: this.id
+                id: this.id,
+                required: this.docfield.required
             };
         },
         getInputChildren(h) {
