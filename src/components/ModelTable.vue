@@ -85,8 +85,6 @@ export default {
         }
       }
     });
-
-    console.log(this.datatable)
   },
   destroyed() {
     this.datatable.destroy();
@@ -101,7 +99,7 @@ export default {
   },
   methods: {
     getRowDocs() {
-      return this.rows.map((row, i) => {
+      return (this.rows || []).map((row, i) => {
         const doc = new Observable();
         doc.set('idx', i);
         for (let fieldname in row) {

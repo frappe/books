@@ -10,6 +10,7 @@
           :doc="doc"
           :fields="meta.fields"
           :layout="meta.layout"
+          :invalid="invalid"
         />
         <not-found v-if="notFound" />
     </div>
@@ -30,7 +31,8 @@ export default {
     return {
       docLoaded: false,
       notFound: false,
-      invalid: false
+      invalid: false,
+      invalidFields: []
     }
   },
   computed: {
@@ -52,10 +54,9 @@ export default {
   },
   methods: {
     async save() {
-      if (!this.checkValidity()) {
-        this.invalid = true;
-        return;
-      }
+      this.setValidity();
+      if (this.invalid) return;
+
       try {
         if (this.doc._notInserted) {
           await this.doc.insert();
@@ -73,8 +74,18 @@ export default {
       }
     },
 
-    checkValidity() {
-      return true;
+    onValidate(fieldname, isValid) {
+      if (!isValid && !this.invalidFields.includes(fieldname)) {
+        this.invalidFields.push(fieldname);
+      } else if (isValid) {
+        this.invalidFields = this.invalidFields.filter(invalidField => invalidField !== fieldname)
+      }
+    },
+
+    setValidity() {
+      const form = this.$el.querySelector('form');
+      let validity = form.checkValidity();
+      this.invalid = !validity;
     },
   }
 };
