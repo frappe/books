@@ -2,16 +2,20 @@
     <div class="frappe-form">
         <form-actions
           v-if="shouldRenderForm"
-          :doctype="doctype" :name="name"
+          :doctype="doctype"
+          :name="name"
+          :title="doc[meta.titleField]"
           @save="save"
         />
-        <form-layout
-          v-if="shouldRenderForm"
-          :doc="doc"
-          :fields="meta.fields"
-          :layout="meta.layout"
-          :invalid="invalid"
-        />
+        <div class="p-3">
+          <form-layout
+            v-if="shouldRenderForm"
+            :doc="doc"
+            :fields="meta.fields"
+            :layout="meta.layout"
+            :invalid="invalid"
+          />
+        </div>
         <not-found v-if="notFound" />
     </div>
 </template>
