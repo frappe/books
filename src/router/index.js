@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import ListAndForm from '@/components/ListAndForm'
+import SetupWizard from '@/pages/SetupWizard'
 
 Vue.use(Router)
 
@@ -9,12 +10,21 @@ export default new Router({
     {
       path: '/list/:doctype',
       name: 'List',
-      component: ListAndForm
+      component: ListAndForm,
+      props: true
     },
     {
       path: '/edit/:doctype/:name',
       name: 'Form',
-      component: ListAndForm
+      component: ListAndForm,
+      props: true
+    },
+    {
+      path: '/setup-wizard',
+      name: 'SetupWizard',
+      components: {
+        setup: SetupWizard
+      }
     }
     // {
     //   path: '/tree/:doctype',

@@ -21,7 +21,7 @@ export default {
           this.awesomplete.list = await this.getList(e.target.value);
         },
         'awesomplete-select': e => {
-          this.$emit('change', e.text.value);
+          this.handleChange(e.text.value);
         }
       }
     },
@@ -46,7 +46,6 @@ export default {
       });
     },
     sort() {
-      return null;
     }
   }
 };

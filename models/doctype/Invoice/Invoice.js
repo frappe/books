@@ -76,7 +76,7 @@ module.exports = {
                                     ${frappe.format(row.amount, 'Currency')}
                                 </div>
                             </div>`
-                        }).join('')}
+                    }).join('')}
                     </div></div>`;
             }
         },
@@ -98,19 +98,31 @@ module.exports = {
         // section 1
         {
             columns: [
-                { fields: [ "customer", "account" ] },
-                { fields: [ "date" ] }
+                { fields: ["customer", "account"] },
+                { fields: ["date"] }
             ]
         },
 
         // section 2
-        { fields: [ "items" ] },
+        {
+            columns: [
+                { fields: ["items"] }
+            ]
+        },
 
         // section 3
-        { fields: [ "netTotal", "taxes", "grandTotal" ] },
+        {
+            columns: [
+                { fields: ["netTotal", "taxes", "grandTotal"] }
+            ]
+        },
 
         // section 4
-        { fields: [ "terms" ] },
+        {
+            columns: [
+                { fields: ["terms"] }
+            ]
+        },
     ],
 
     links: [
@@ -121,15 +133,15 @@ module.exports = {
             action: async form => {
                 const payment = await frappe.getNewDoc('Payment');
                 payment.party = form.doc.customer,
-                payment.account = form.doc.account,
-                payment.for = [{referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal}]
+                    payment.account = form.doc.account,
+                    payment.for = [{ referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal }]
                 const formModal = await frappe.desk.showFormModal('Payment', payment.name);
             }
         }
     ],
 
     listSettings: {
-        getFields(list)  {
+        getFields(list) {
             return ['name', 'customer', 'grandTotal', 'submitted'];
         },
 

@@ -1,5 +1,4 @@
 <template>
-    <keep-alive>
         <div class="frappe-list">
             <list-actions
               :doctype="doctype"
@@ -19,7 +18,6 @@
                 </list-item>
             </ul>
         </div>
-    </keep-alive>
 </template>
 <script>
 import frappe from 'frappejs';
@@ -28,7 +26,7 @@ import ListItem from './ListItem';
 
 export default {
   name: 'List',
-  props: ['doctype'],
+  props: ['doctype', 'filters'],
   components: {
       ListActions,
       ListItem
@@ -60,8 +58,9 @@ export default {
     },
     async updateList() {
       const data = await frappe.db.getAll({
-      doctype: this.doctype,
-      fields: ['name', ...this.meta.keywordFields]
+        doctype: this.doctype,
+        fields: ['name', ...this.meta.keywordFields, this.meta.titleField],
+        filters: this.filters || null
       });
 
       this.data = data;
@@ -71,9 +70,7 @@ export default {
         this.$router.push(`/edit/${this.doctype}/${name}`);
     },
     async deleteCheckedItems() {
-      debugger
       await frappe.db.deleteMany(this.doctype, this.checkList);
-      debugger
       this.checkList = [];
     },
     toggleCheck(name) {
@@ -90,12 +87,16 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-@import "../styles/variables";
+@import "~@/styles/variables";
 
 .list-group-item {
     border-left: none;
     border-right: none;
     border-radius: 0;
+}
+
+.list-group-item:first-child {
+    border-top: none;
 }
 
 .list-group-item:not(.active):hover {

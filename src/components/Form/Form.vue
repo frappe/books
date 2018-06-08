@@ -1,21 +1,23 @@
 <template>
-  <keep-alive>
     <div class="frappe-form">
         <form-actions
           v-if="shouldRenderForm"
-          :doctype="doctype" :name="name"
+          :doctype="doctype"
+          :name="name"
+          :title="doc[meta.titleField]"
           @save="save"
         />
-        <form-layout
-          v-if="shouldRenderForm"
-          :doc="doc"
-          :fields="meta.fields"
-          :layout="meta.layout"
-          @field-change="updateDoc"
-        />
+        <div class="p-3">
+          <form-layout
+            v-if="shouldRenderForm"
+            :doc="doc"
+            :fields="meta.fields"
+            :layout="meta.layout"
+            :invalid="invalid"
+          />
+        </div>
         <not-found v-if="notFound" />
     </div>
-  </keep-alive>
 </template>
 <script>
 import frappe from 'frappejs';
@@ -31,9 +33,10 @@ export default {
   },
   data() {
     return {
-      doc: null,
+      docLoaded: false,
       notFound: false,
-      invalid: false
+      invalid: false,
+      invalidFields: []
     }
   },
   computed: {
@@ -41,23 +44,23 @@ export default {
       return frappe.getMeta(this.doctype);
     },
     shouldRenderForm() {
-      return this.name && this.doc;
+      return this.name && this.docLoaded;
     }
   },
   async created() {
     if (!this.name) return;
     try {
       this.doc = await frappe.getDoc(this.doctype, this.name);
+      this.docLoaded = true;
     } catch(e) {
       this.notFound = true;
     }
   },
   methods: {
     async save() {
-      if (!this.checkValidity()) {
-        this.invalid = true;
-        return;
-      }
+      this.setValidity();
+      if (this.invalid) return;
+
       try {
         if (this.doc._notInserted) {
           await this.doc.insert();
@@ -71,18 +74,22 @@ export default {
         }
       } catch (e) {
         console.error(e);
-        // frappe.ui.showAlert({ message: frappe._('Failed'), color: 'red' });
         return;
       }
     },
 
-    updateDoc(fieldname, value) {
-      this.$data[fieldname] = value;
-      this.doc.set(fieldname, value);
+    onValidate(fieldname, isValid) {
+      if (!isValid && !this.invalidFields.includes(fieldname)) {
+        this.invalidFields.push(fieldname);
+      } else if (isValid) {
+        this.invalidFields = this.invalidFields.filter(invalidField => invalidField !== fieldname)
+      }
     },
 
-    checkValidity() {
-      return true;
+    setValidity() {
+      const form = this.$el.querySelector('form');
+      let validity = form.checkValidity();
+      this.invalid = !validity;
     },
   }
 };

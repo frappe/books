@@ -1,9 +1,19 @@
 <script>
 export default {
     render(h) {
+        if (this.onlyInput) {
+            return this.getInputElement(h);
+        }
         return this.getWrapperElement(h);
     },
-    props: ['docfield', 'value'],
+    props: {
+        docfield: Object,
+        value: [String, Number, Array],
+        onlyInput: {
+            type: Boolean,
+            default: false
+        }
+    },
     computed: {
         id() {
             return this.docfield.fieldname + '-'
@@ -59,13 +69,14 @@ export default {
                 id: this.id,
                 type: 'text',
                 placeholder: '',
-                value: this.value
+                value: this.value,
+                required: this.docfield.required
             }
         },
         getInputListeners() {
             return {
                 change: (e) => {
-                    this.$emit('change', this.parseValue(e.target.value));
+                    this.handleChange(e.target.value);
                 }
             };
         },
@@ -75,7 +86,16 @@ export default {
         getDomProps() {
             return null;
         },
-        parseValue(value) {
+        async handleChange(value) {
+            value = this.parse(value);
+            const isValid = await this.validate(value);
+            this.$refs.input.setCustomValidity(isValid === false ? 'error' : '');
+            this.$emit('change', value);
+        },
+        validate() {
+            return true;
+        },
+        parse(value) {
             return value;
         }
     }

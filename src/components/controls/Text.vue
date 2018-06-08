@@ -9,6 +9,7 @@ export default {
         getInputAttrs() {
             return {
                 id: this.id,
+                required: this.docfield.required,
                 rows: 3
             };
         },
