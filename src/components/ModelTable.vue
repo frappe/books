@@ -31,6 +31,8 @@ export default {
       columns: this.getColumns(),
       data: this.docs,
       layout: 'fluid',
+      checkboxColumn: true,
+      checkedRowStatus: false,
       getEditor: (colIndex, rowIndex, value, parent) => {
 
         let inputComponent = null;

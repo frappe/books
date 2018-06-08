@@ -17,6 +17,15 @@ export default [
       },
       {
         label: 'Party', route: '#/list/Party'
+      },
+      {
+        label: 'Invoice', route: '#/list/Invoice'
+      },
+      {
+        label: 'Tax', route: '#/list/Tax'
+      },
+      {
+        label: 'Account', route: '#/list/Account'
       }
     ]
   },

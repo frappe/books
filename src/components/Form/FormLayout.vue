@@ -1,13 +1,15 @@
 <template>
-    <form :class="['frappe-form-layout p-3', { 'was-validated': invalid }]">
-        <div class="row" v-if="layout" v-for="(section, i) in layout" :key="i">
+    <form :class="['frappe-form-layout', { 'was-validated': invalid }]">
+        <div class="row" v-if="layoutConfig"
+          v-for="(section, i) in layoutConfig.sections" :key="i"
+        >
             <div class="col" v-for="(column, j) in section.columns" :key="j">
                 <frappe-control
                     v-for="fieldname in column.fields"
                     :key="fieldname"
                     :docfield="getDocField(fieldname)"
                     :value="$data[fieldname]"
-                    @change="value => updateDoc(docfield.fieldname, value)"
+                    @change="value => updateDoc(fieldname, value)"
                 />
             </div>
         </div>
@@ -23,11 +25,9 @@
     </form>
 </template>
 <script>
-import FrappeControl from './controls/FrappeControl';
-
 export default {
   name: 'FormLayout',
-  props: ['doc', 'fields', 'layout', 'invalid'],
+  props: ['doc', 'fields', 'layout', 'invalid', 'currentSection'],
   data() {
     const dataObj = {};
     for (let df of this.fields) {
@@ -37,6 +37,7 @@ export default {
         dataObj[df.fieldname] = [];
       }
     }
+
     return dataObj;
   },
   created() {
@@ -58,10 +59,28 @@ export default {
     },
     updateDoc(fieldname, value) {
       this.doc.set(fieldname, value);
+    },
+    showSection(i) {
+      if (this.layoutConfig.paginated) {
+        return this.currentSection === i;
+      }
+      return true;
     }
   },
-  components: {
-    FrappeControl
+  computed: {
+    layoutConfig() {
+      if (!this.layout) return false;
+
+      let config = this.layout;
+
+      if (Array.isArray(config)) {
+        config = {
+          sections: config
+        }
+      }
+
+      return config;
+    }
   }
 };
 </script>
