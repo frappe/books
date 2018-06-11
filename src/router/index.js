@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import ListAndForm from '@/components/ListAndForm'
-import SetupWizard from '@/pages/SetupWizard'
+import SetupWizard from '@/pages/SetupWizard/SetupWizard'
 
 Vue.use(Router)
 

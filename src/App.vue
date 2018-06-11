@@ -1,40 +1,32 @@
 <template>
   <div id="app">
-    <frappe-desk>
+    <frappe-desk v-if="showDesk">
       <router-view />
     </frappe-desk>
+    <router-view v-else name="setup" />
   </div>
 </template>
 
 <script>
-import frappe from 'frappejs';
-import HTTPClient from 'frappejs/backends/http';
-import Observable from 'frappejs/utils/observable';
-import common from 'frappejs/common';
-import coreModels from 'frappejs/models';
-import models from '../models';
-import io from 'socket.io-client';
 import Desk from '@/components/Desk';
-
-frappe.init();
-frappe.registerLibs(common);
-frappe.registerModels(coreModels);
-frappe.registerModels(models);
-const server = 'localhost:8000';
-frappe.fetch = window.fetch.bind();
-frappe.db = new HTTPClient({ server });
-const socket = io.connect(`http://${server}`);
-frappe.db.bindSocketClient(socket);
-frappe.registerModels(models);
-frappe.docs = new Observable();
-frappe.getSingle('SystemSettings');
-
-window.frappe = frappe;
 
 export default {
   name: 'App',
+  data() {
+    return {
+      showDesk: true
+    }
+  },
   components: {
     FrappeDesk: Desk
+  },
+  async beforeRouteUpdate(to, from, next) {
+    const accountingSettings = await frappe.getSingle('AccountingSettings');
+    if (accountingSettings.companyName) {
+      this.showDesk = true;
+    } else {
+      this.showDesk = true;
+    }
   }
 }
 </script>
