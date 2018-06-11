@@ -44,6 +44,7 @@ export default {
           return li;
         }
       });
+      input.addEventListener('awesomplete-select', (e) => { console.log(e);this.$emit('awesomplete-select', e)} )
     },
     sort() {
     }

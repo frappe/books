@@ -4,8 +4,7 @@
     <flat-pickr
       :value="value"
       class="form-control"
-      @on-change="emitChange"
-    >
+      @on-change="emitChange">
     </flat-pickr>
   </div>
   <flat-pickr

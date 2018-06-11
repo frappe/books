@@ -12,8 +12,7 @@
                     :isActive="doc.name === $route.params.name"
                     :isChecked="isChecked(doc.name)"
                     @clickItem="openForm(doc.name)"
-                    @checkItem="toggleCheck(doc.name)"
-                >
+                    @checkItem="toggleCheck(doc.name)">
                     {{ doc[meta.titleField || 'name'] }}
                 </list-item>
             </ul>

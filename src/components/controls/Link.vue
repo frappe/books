@@ -8,7 +8,7 @@ export default {
     methods: {
         async getList(query) {
             const list = await frappe.db.getAll({
-                doctype: this.docfield.target,
+                doctype: this.getTarget(),
                 filters: {
                     keywords: ["like", query]
                 },
@@ -28,9 +28,12 @@ export default {
                     value: d.name
                 }))
                 .concat({
-                    label: plusIcon + ' New ' + this.docfield.target,
+                    label: plusIcon + ' New ' + this.getTarget(),
                     value: '__newItem'
                 })
+        },
+        getTarget() {
+            return this.docfield.target;
         },
         sort() {
             return (a, b) => {

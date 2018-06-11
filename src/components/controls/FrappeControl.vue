@@ -19,6 +19,7 @@ import Link from './Link';
 import Select from './Select';
 import Table from './Table';
 import Text from './Text';
+import DynamicLink from './DynamicLink';
 
 export default {
     props: ['docfield', 'value', 'onlyInput'],
@@ -37,6 +38,7 @@ export default {
                 Select,
                 Table,
                 Text,
+                DynamicLink,
             }[this.docfield.fieldtype];
         }
     }

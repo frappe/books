@@ -9,7 +9,7 @@ module.exports = class RegisterView extends ReportPage {
             title,
             filterFields: [
                 {fieldtype: 'Date', fieldname: 'fromDate', label: 'From Date', required: 1},
-                {fieldtype: 'Date', fieldname: 'toDate',  label: 'To Date', required: 1}
+                {fieldtype: 'Date', fieldname: 'toDate', label: 'To Date', required: 1}
             ]
         });
 
