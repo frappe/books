@@ -33,7 +33,7 @@ export default [
     title: 'Reports',
     items: [
       {
-        label: 'General Ledger', route: '#/report/general-ledger'
+        label: 'General Ledger', route: '#/report/General Ledger'
       }
     ]
   }
