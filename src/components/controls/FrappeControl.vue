@@ -13,6 +13,7 @@ import Code from './Code';
 import Currency from './Currency';
 import Data from './Data';
 import Date from './Date';
+import File from './File';
 import Float from './Float';
 import Link from './Link';
 import Select from './Select';
@@ -30,6 +31,7 @@ export default {
                 Currency,
                 Data,
                 Date,
+                File,
                 Float,
                 Link,
                 Select,
