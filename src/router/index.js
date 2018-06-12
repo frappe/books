@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import ListAndForm from '@/components/ListAndForm'
 import SetupWizard from '@/pages/SetupWizard/SetupWizard'
+import POS from '@/components/POS'
 
 Vue.use(Router)
 
@@ -25,12 +26,13 @@ export default new Router({
       components: {
         setup: SetupWizard
       }
+    },
+    {
+      path: '/pos/',
+      name: 'POS',
+      component: POS,
+      props: true
     }
-    // {
-    //   path: '/tree/:doctype',
-    //   name: '',
-    //   component: ''
-    // },
     // {
     //   path: '/table/:doctype',
     //   name: '',
