@@ -5,10 +5,10 @@
                 <h1>Point of Sale</h1>
                 <div class="row">
                     <div class="col-md-6">
-                        <Transaction :items="lineItems" :edit="toggleEdit" :remove="removeItem"></Transaction>
+                        <transaction :items="lineItems" :edit="toggleEdit" :remove="removeItem"></transaction>
                     </div>
                     <div class="col-md-6">
-                        <ItemList :items="items" :add="onItemClick"></ItemList>
+                        <item-list :items="items" :add="onItemClick"></item-list>
                     </div>
                 </div>
             </div>
@@ -19,6 +19,7 @@
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
 import frappe from "frappejs";
+
 export default {
   components: {
     Transaction,
@@ -71,6 +72,7 @@ export default {
     onItemClick: function(item) {
       console.log("in", item);
       var found = false;
+
       for (var i = 0; i < this.lineItems.length; i++) {
         if (this.lineItems[i].item === item) {
           this.lineItems[i].numberOfItems++;
@@ -78,6 +80,7 @@ export default {
           break;
         }
       }
+
       if (!found) {
         this.lineItems.push({ item: item, numberOfItems: 1, editing: false });
       }

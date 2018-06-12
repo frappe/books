@@ -7,12 +7,11 @@
 </template>
 <script>
 export default {
-  name: 'ItemList',
   props: ["items", "add"],
   methods: {
-    itemClicked(item) {
-      this.add(item);
-    }
+      itemClicked(item) {
+          this.add(item);
+      }
   }
 };
 </script>

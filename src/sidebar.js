@@ -36,5 +36,11 @@ export default [
         label: 'General Ledger', route: '#/report/general-ledger'
       }
     ]
+  },
+  {
+    title: 'App',
+    items: [{
+      label: 'Point Of Sale', route: '#/pos/'
+    }]
   }
 ]
