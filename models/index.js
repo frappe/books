@@ -54,3 +54,4 @@ module.exports = {
         EmailAccount: require('./doctype/EmailAccount/EmailAccount.js'),
     }
 }
+
