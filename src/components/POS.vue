@@ -10,6 +10,9 @@
                     <div class="col-md-6">
                         <item-list :items="items" :add="onItemClick"></item-list>
                     </div>
+                    <div class="col-md-6">
+                        <create-invoice></create-invoice>
+                    </div>
                 </div>
             </div>
         </div>
@@ -18,12 +21,14 @@
 <script>
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
+import CreateInvoice from "./CreateInvoice";
 import frappe from "frappejs";
 
 export default {
   components: {
     Transaction,
-    ItemList
+    ItemList,
+    CreateInvoice
   },
   data() {
     return {
