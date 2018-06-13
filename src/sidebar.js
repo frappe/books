@@ -6,6 +6,9 @@ export default [
       },
       {
         label: 'Event', route: '#/list/Event'
+      },
+      {
+        label: 'Calendar', route: '#/calendar/Calendar'
       }
     ]
   },

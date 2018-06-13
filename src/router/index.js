@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import ListAndForm from '@/components/ListAndForm'
 import SetupWizard from '@/pages/SetupWizard/SetupWizard'
+import Calendar from '@/components/Calendar'
 
 Vue.use(Router)
 
@@ -25,6 +26,12 @@ export default new Router({
       components: {
         setup: SetupWizard
       }
+    },
+    {
+      path: '/calendar/:doctype',
+      name: 'Calendar',
+      component: Calendar,
+      props: true
     }
     // {
     //   path: '/tree/:doctype',
