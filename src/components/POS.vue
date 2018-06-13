@@ -6,12 +6,14 @@
                 <div class="row">
                     <div class="col-md-6">
                         <transaction :items="lineItems" :edit="toggleEdit" :remove="removeItem"></transaction>
+                        <div class="list-group">
+                          <button class="list-group-item item" @click="createInvoice()">
+                              <strong>Create Invoice</strong>
+                          </button>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <item-list :items="items" :add="onItemClick"></item-list>
-                    </div>
-                    <div class="col-md-6">
-                        <create-invoice></create-invoice>
                     </div>
                 </div>
             </div>
@@ -21,14 +23,12 @@
 <script>
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
-import CreateInvoice from "./CreateInvoice";
 import frappe from "frappejs";
 
 export default {
   components: {
     Transaction,
-    ItemList,
-    CreateInvoice
+    ItemList
   },
   data() {
     return {
@@ -70,6 +70,27 @@ export default {
         }
       }
     },
+    async createInvoice(){
+      var final_item=[];
+      if (!(await frappe.db.exists('Party', 'Test Customer'))) {
+        await frappe.insert({doctype:'Party', name:'Test Customer'})
+      }
+      for(var i=0;i<this.lineItems.length;i++)
+      {
+        console.log(this.lineItems[i].item.name+" "+this.lineItems[i].numberOfItems);
+        var temp={
+          item:this.lineItems[i].item.name,
+          quantity:this.lineItems[i].numberOfItems
+        };
+        final_item.push(temp);
+      }
+      frappe.insert({
+            doctype:'Invoice',
+            customer: 'Test Customer',
+            items:final_item
+        });
+      console.log("Invoice added");
+    }
   }
 };
 </script>
