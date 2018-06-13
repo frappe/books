@@ -14,8 +14,13 @@ module.exports = {
             fieldtype: "Data"
         },
         {
-            fieldname: "date",
+            fieldname: "start",
             label: "Date",
+            fieldtype: "Date"
+        },
+        {
+            fieldname: "end",
+            label: "End Date",
             fieldtype: "Date"
         },
         {
@@ -24,7 +29,7 @@ module.exports = {
             fieldtype: "Data",
             formula: (doc) => {
                 const today = DateTime.local();
-                const eventDate = DateTime.fromISO(doc.date);
+                const eventDate = DateTime.fromISO(doc.start);
                 const diff = eventDate.diff(today);
 
                 return diff.as('day');
@@ -42,10 +47,10 @@ module.exports = {
     isSingle: 0,
     listSettings: {
         getFields(list)  {
-            return ['name', 'title', 'date'];
+            return ['name', 'title', 'start'];
         },
         getRowHTML(list, data) {
-            return `<div class="col-11">${data.title} on ${data.date}</div>`;
+            return `<div class="col-11">${data.title} on ${data.start}</div>`;
         }
     },
 }

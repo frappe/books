@@ -7,12 +7,13 @@
     End: {{selected.end}}
     Allday: {{selected.allDay}}
     ID: {{selected.id}}</pre>
-    <full-calendar ref="calendar" :event-sources="eventSources" @event-selected="eventSelected" @event-created="eventCreated" :config="config"></full-calendar>
+    <full-calendar ref="calendar" :event-sources="eventSources" @event-drop="eventDrop" @event-resize="eventResize" @event-selected="eventSelected" @event-created="eventCreated" :config="config"></full-calendar>
   </div>
 </template>
 
 <script>
 import moment from 'moment';
+import frappe from "frappejs";
 
 const getCircularReplacer = () => {
   const seen = new WeakSet;
@@ -33,19 +34,19 @@ export default {
     return {
       events: [
         {
-          id: 1,
+          id: "asa123",
           title: 'event1',
           start: moment().hours(12).minutes(0),
         },
         {
-          id: 2,
+          id: "asad2346",
           title: 'event2',
           start: moment().add(-1, 'days'),
           end: moment().add(1, 'days'),
           allDay: true,
         },
         {
-          id: 3,
+          id: "jkbhjkh15",
           title: 'event3',
           start: moment().add(2, 'days'),
           end: moment().add(2, 'days').add(6, 'hours'),
@@ -57,6 +58,11 @@ export default {
         eventClick: (event) => {
           console.log(event);
           this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
+    //       alert(`Title: ${this.selected.title}
+    // Start: ${this.selected.start}
+    // End: ${this.selected.end}
+    // Allday: ${this.selected.allDay}
+    // ID: ${this.selected.id}`)
         },
       },
 
@@ -64,13 +70,53 @@ export default {
     };
   },
 
+  async created(){ 
+  var temp=await frappe.db.getAll({
+          doctype: "Event",
+          fields: ["title", "start","end","name"]
+        })
+  this.events=[];
+  for(var i=0;i<temp.length;i++){
+    var tempx = {};
+    tempx.title = temp[i].title;
+    tempx.start = temp[i].start;
+    tempx.end = temp[i].end;
+    tempx.id = temp[i].name;
+    this.events.push(tempx);
+  }
+  },
+
   methods: {
+    async eventDrop(event) {
+      this.selected = event;
+      let events = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
+      let eventsx = await frappe.getDoc('Event', events[0].name);
+      // console.log("xxxxxxxx",this.selected.start);
+      eventsx.start = this.selected.start;
+      await eventsx.update();
+      this.selected = {};
+    },
+
+    async eventResize(event) {
+      this.selected = event;
+      let events = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
+      let eventsx = await frappe.getDoc('Event', events[0].name);
+      // console.log("xxxxxxxx",this.selected.start);
+      eventsx.start = this.selected.start;
+      eventsx.end = this.selected.end;
+      await eventsx.update();
+      this.selected = {};
+    },
+
     refreshEvents() {
       this.$refs.calendar.$emit('refetch-events');
     },
 
-    removeEvent() {
+    async removeEvent() {
       this.$refs.calendar.$emit('remove-event', this.selected);
+      let events = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
+      let eventsx = await frappe.getDoc('Event', events[0].name);
+      await eventsx.delete();
       this.selected = {};
     },
 
@@ -90,7 +136,7 @@ export default {
         {
           events(start, end, timezone, callback) {
             setTimeout(() => {
-              callback(self.events.filter(() => Math.random() > 0.5));
+              callback(self.events.filter(() => Math.random() > 0));
             }, 1000);
           },
         },
@@ -108,6 +154,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  /* margin-top: 60px; */
 }
 </style>
