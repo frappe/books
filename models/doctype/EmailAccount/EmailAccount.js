@@ -1,5 +1,5 @@
 module.exports = {
-    "name": "Email",
+    "name": "Email Account",
     "doctype": "DocType",
     "isSingle": 0,
     "isChild": 0,
@@ -18,6 +18,12 @@ module.exports = {
             "fieldname": "from_emailAddress",
             "label": "Email",
             "fieldtype": "Data",
+            "required": 1
+        },
+        {
+            "fieldname": "defaultIncoming",
+            "label": "Default Incoming",
+            "fieldtype": "Check",
             "required": 1
         },
         {
@@ -40,6 +46,12 @@ module.exports = {
             "required": 1
         },
         {
+            "fieldname": "defaultOutgoing",
+            "label": "Default Outgoing",
+            "fieldtype": "Check",
+            "required": 1
+        },
+        {
             "fieldname": "clientId",
             "label": "Client Id",
             "fieldtype": "Data",
@@ -56,7 +68,14 @@ module.exports = {
             "label": "Refresh Token",
             "fieldtype": "Data",
             "required": 1
-        }    
+        },    
+        {
+            "fieldname": "initialSync",
+            "label": "Initial Sync",
+            "fieldtype": "Int",
+            "default": "50",
+            "required": 1
+        }
     ]
 }
 

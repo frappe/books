@@ -1,14 +1,14 @@
 module.exports = {
-    "name": "EmailSummary",
+    "name": "Email",
     "doctype": "DocType",
     "isSingle": 0,
-    "isChild": 0,   // isChild of Email ? 
+    "isChild": 0,   
     "keywordFields": [
         "from_emailAddress"
     ],
     "fields": [
         {
-        	// here comes question of default values
+        	// TODO : set this to default Outgoing
             "fieldname": "from_emailAddress",
             "label": "From",
             "fieldtype": "Data",
@@ -45,7 +45,14 @@ module.exports = {
           "label": "Body",
           "fieldtype" : "Text",
           "required": 0
-        }         
+        }, 
+        {
+          "fieldname": "sentReceive",
+          "label": "sentReceive",
+          "fieldtype" : "Check",
+          "required": 0,
+          "hidden" : 1
+        }
         // haven't captured attachments ?
     ]
 }
