@@ -5,6 +5,7 @@
         "xoauth2": "1.2.0",
         "nodemailer": "4.6.5",
         "nodemailer-smtp-transport": "2.7.4",
-        "imap": "v0.8.x "
+        "imap": "v0.8.x ",
+        "mailparser":"2.2.0"
     }
 }
