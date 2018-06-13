@@ -89,7 +89,7 @@ export default {
             customer: 'Test Customer',
             items:final_item
         });
-      console.log("Invoice added");
+      alert("Invoice added");
     }
   }
 };
