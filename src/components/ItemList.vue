@@ -1,7 +1,7 @@
 <template>
     <div class="list-group">
         <button class="list-group-item item" v-for="item in items" :key="item.name" @click="itemClicked(item)">
-            <strong>{{ item.name }}</strong> - {{ item.price }}
+            <strong>{{ item.name }}</strong> - {{ item.rate }}
         </button>
     </div>
 </template>
