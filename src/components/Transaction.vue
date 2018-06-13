@@ -16,7 +16,7 @@
                         <span v-if="!item.editing" @dblclick="toggleEdit(item)">{{ item.numberOfItems }}</span>
                         <input v-if="item.editing" @blur="toggleEdit(item)" type="number" v-model="item.numberOfItems">
                     </td>
-                    <td>{{ item.numberOfItems * item.item.price }}</td>
+                    <td>{{ item.numberOfItems * item.item.rate }}</td>
                     <td><a class="fa fa-times" @click="removeItem(item)">X</a></td>
                 </tr>
             </tbody>
@@ -51,7 +51,7 @@ export default {
             var subtotal = 0;
 
             this.items.forEach(function(item) {
-                subtotal += item.item.price * item.numberOfItems;
+                subtotal += item.item.rate * item.numberOfItems;
             });
 
             return subtotal;

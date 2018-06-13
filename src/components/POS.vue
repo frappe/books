@@ -31,6 +31,12 @@ export default {
       lineItems: []
     };
   },
+  async created(){ 
+  this.items=await frappe.db.getAll({
+          doctype: "Item",
+          fields: ["name", "rate"]
+        })
+  },
   methods: {
     onItemClick: function(item) {
       console.log("in", item);
@@ -59,16 +65,6 @@ export default {
         }
       }
     },
-    created: function() {
-      this.items = frappe.db
-        .getAll({
-          doctype: "Items",
-          fields: ["name", "price"]
-        })
-        .map(d => {
-          return { name: d.name, price: d.price };
-        });
-    }
   }
 };
 </script>
