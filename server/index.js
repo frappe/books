@@ -18,6 +18,7 @@ module.exports = {
 
     async postStart() {
         // set server-side modules
+        
         frappe.models.Invoice.documentClass = require('../models/doctype/Invoice/InvoiceServer.js');
         frappe.models.Payment.documentClass = require('../models/doctype/Payment/PaymentServer.js');
         frappe.models.Bill.documentClass = require('../models/doctype/Bill/BillServer.js');
@@ -39,5 +40,6 @@ module.exports = {
         await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
         registerReportMethods();
+        // const receiver = require('../email/receiver.js');
     }
 }

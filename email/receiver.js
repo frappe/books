@@ -1,9 +1,3 @@
-// TODO : Pull This off from DB , Also Take care of default feild being active 
-// TODO : have to dump received emails in db
-// TODO : Customize options on UNSEEN and Dates
-// TODO : Pull config from DB
-// TODO : issue in case of conflicting TO_addresses
-//
 
 var config = require('./config')[0];
 const frappe = require('frappejs');
@@ -33,9 +27,8 @@ imap.once('ready', function() {
     	msg.on('body', function(stream, info) {
     		
     		simpleParser(stream).then(async function(mail_object) {
-    			// console.log(mail_object);	
-    			// SEE ATTRIBUTES AT :  https://nodemailer.com/extras/mailparser/
-    			let mail = await frappe.getDoc({
+					
+    			const mail = await frappe.insert({
     				doctype : 'Email',
     				name : seqno, // needs change : THINK 
     				from_emailAddress : mail_object.from.value[0].address,
@@ -47,9 +40,8 @@ imap.once('ready', function() {
     				bodyHtml : mail_object.html,
     				bodyText : mail_object.text,
     				sentReceive : "1",
-    				});
-
-				await mail.insert();
+						});
+						console.log("Done inserting "+seqno);	// CHANGE NAME FIELD , HERE NO.
 			}).catch(function(err) {
  				 
  				console.log('An error occurred:', err.message);
@@ -85,4 +77,3 @@ imap.once('end', function() {
 });
 
 imap.connect();
-

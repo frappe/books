@@ -3,16 +3,14 @@ module.exports = {
     "doctype": "DocType",
     "isSingle": 0,
     "isChild": 0,   
-    "keywordFields": [
-    	"name"
-    ],
+    "keywordFields": ["name","from_emailAddress"],
     "fields": [
         {
             "fieldname": "name",
             "label": "name",
             "fieldtype": "Int",
             "required": 0,
-            "hidden" : 1
+            "hidden" : 1 ,
         },
         {
         	// TODO : set this to default Outgoing
@@ -60,7 +58,7 @@ module.exports = {
         }, 
         {
         	"fieldname": "bodyHtml",
-        	"label":"Body",
+        	"label":"BodyHtml",
         	"fieldtype": "Text",
         	"required" : 0,
         	"hidden" : 1,
