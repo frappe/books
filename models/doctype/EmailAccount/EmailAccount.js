@@ -7,8 +7,7 @@ module.exports = {
         "name",
         "from_emailAddress"
     ],
-    "fields": [
-        {
+    "fields": [{
             "fieldname": "name",
             "label": "Name",
             "fieldtype": "Data",
@@ -24,12 +23,12 @@ module.exports = {
             "fieldname": "defaultIncoming",
             "label": "Default Incoming",
             "fieldtype": "Check",
-            "required": 1
+            "required": 0
         },
         {
             "fieldname": "password",
             "label": "Password",
-            "fieldtype": "Data",
+            "fieldtype": "Password",
             "required": 1,
             // "hidden": 1, uncomment when s: OAuth
         },
@@ -49,26 +48,8 @@ module.exports = {
             "fieldname": "defaultOutgoing",
             "label": "Default Outgoing",
             "fieldtype": "Check",
-            "required": 1
+            "required": 0
         },
-        {
-            "fieldname": "clientId",
-            "label": "Client Id",
-            "fieldtype": "Data",
-            "required": 1
-        },
-        {
-            "fieldname": "clientSecret",
-            "label": "Client Secret",
-            "fieldtype": "Data",
-            "required": 1
-        },
-        {
-            "fieldname": "refreshToken",
-            "label": "Refresh Token",
-            "fieldtype": "Data",
-            "required": 1
-        },    
         {
             "fieldname": "initialSync",
             "label": "Initial Sync",
@@ -78,4 +59,3 @@ module.exports = {
         }
     ]
 }
-

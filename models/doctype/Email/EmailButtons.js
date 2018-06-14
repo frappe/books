@@ -1,5 +1,6 @@
 const BaseList = require('frappejs/client/view/list');
 const frappe = require('frappejs');
+//const receiver = require('../../../email/receiver'); 
 
 module.exports = class EmailButtons extends BaseList{
     constructor({doctype, parent, fields, page}) {
@@ -14,6 +15,8 @@ module.exports = class EmailButtons extends BaseList{
         });
 
          this.btnSync = this.page.addButton(frappe._('Sync'), 'btn-primary', async () => {
+            //receiver();
+            //console.log("Here");
             await this.refresh();
         });
 
@@ -31,7 +34,7 @@ module.exports = class EmailButtons extends BaseList{
         this.on('state-change', () => {
             const checkedCount = this.getCheckedRowNames().length;
             this.btnDelete.classList.toggle('hide', checkedCount ? false : true);
-            this.btnNew.classList.toggle('hide', checkedCount ? true : false);
+            this.btnCompose.classList.toggle('hide', checkedCount ? true : false);
             this.btnReport.classList.toggle('hide', checkedCount ? true : false);
         });
 

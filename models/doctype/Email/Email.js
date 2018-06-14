@@ -1,23 +1,33 @@
+const frappe = require('frappejs');
+//var out = frappe.getDoc('EmailAccount').then((data) => {this.data = data});
+/*
+async function Hello(){
+    return frappe.getDoc('EmailAccount').then((data) => {this.data = data});
+};
+*/
+
 module.exports = {
     "name": "Email",
     "doctype": "DocType",
     "isSingle": 0,
-    "isChild": 0,   
-    "keywordFields": ["name"],
-    "fields": [
-        {
+    "isChild": 0,
+    //"isSubmittable": 0,
+    "keywordFields": ["name", "from_emailAddress"],
+    "fields": [{
             "fieldname": "name",
             "label": "name",
             "fieldtype": "Data",
             "required": 0,
-            "hidden" : 1 ,
+            "hidden": 1,
         },
         {
-        	// TODO : set this to default Outgoing
+            // TODO : set this to default Outgoing
             "fieldname": "from_emailAddress",
             "label": "From",
             "fieldtype": "Data",
-            "required": 1
+            //"options":['None'],
+            "default": "None",
+            "required": 1,
         },
         {
             "fieldname": "to_emailAddress",
@@ -37,39 +47,39 @@ module.exports = {
             "label": "bcc",
             "fieldtype": "Data",
             "required": 0
-      	},
-      	{
-			"fieldname": "date",
-			"label":"Date",
-			"fieldtype":"Date",
-			"required":0,
-		},
-		{
-          	"fieldname": "subject",
-          	"label": "Subject",
-          	"fieldtype" : "Text",
-          	"required": 0
-        },
-        { 
-          	"fieldname": "bodyText",
-          	"label": "Body",
-          	"fieldtype" : "Text",
-          	"required": 0
-        }, 
-        {
-        	"fieldname": "bodyHtml",
-        	"label":"BodyHtml",
-        	"fieldtype": "Text",
-        	"required" : 0,
-        	"hidden" : 1,
         },
         {
-          	"fieldname": "sentReceive",
-          	"label": "sentReceive",
-          	"fieldtype" : "Check",
-          	"required": 0,
-          	"hidden" : 1
-        }
+            "fieldname": "date",
+            "label": "Date",
+            "fieldtype": "Date",
+            "required": 0,
+        },
+        {
+            "fieldname": "subject",
+            "label": "Subject",
+            "fieldtype": "Text",
+            "required": 0
+        },
+        {
+            "fieldname": "bodyText",
+            "label": "Body",
+            "fieldtype": "Text",
+            "required": 0
+        },
+        {
+            "fieldname": "bodyHtml",
+            "label": "BodyHtml",
+            "fieldtype": "Text",
+            "required": 0,
+            "hidden": 1,
+        },
+        {
+            "fieldname": "sentReceive",
+            "label": "sentReceive",
+            "fieldtype": "Check",
+            "required": 0,
+            "hidden": 1
+        },
         // haven't captured attachments ?
     ]
 }
