@@ -7,12 +7,13 @@ module.exports = {
         frappe.registerModels(require('../models'), 'client');
 
         frappe.registerView('List', 'Customer', require('../models/doctype/Party/CustomerList.js'));
+        frappe.registerView('List', 'EmailButtons', require('../models/doctype/Email/EmailButtons.js'));
 
         registerReportRoutes();
 
         frappe.desk.menu.addItem('ToDo', '#list/ToDo');
         frappe.desk.menu.addItem('Email Account', '#list/EmailAccount');
-        frappe.desk.menu.addItem('Email', '#list/Email');
+        frappe.desk.menu.addItem('Email', '#list/EmailButtons');
         frappe.desk.menu.addItem('Chart of Accounts', '#tree/Account');
         frappe.desk.menu.addItem('Items', '#list/Item');
         frappe.desk.menu.addItem('Customers', '#list/Customer');
