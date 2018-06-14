@@ -1,11 +1,10 @@
-{
+[{
     "user": "your_email",
     "password": "your_password",
     "host": "imap.gmail.com",
     "port": 993,
     "tls": true
-}
-
+},
 {
     "userMail" : "your_email",
     "receiverMail": "receiver_email",
@@ -19,4 +18,5 @@
     "clientSecret_input":"",
     "refreshToken_input":""
 
-}   
+}
+]

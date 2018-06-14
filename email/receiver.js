@@ -1,7 +1,6 @@
-// TODO : Pull This off from DB , Also Take care of default feild being active 
 
-var config = require('./config');
-
+var config = require('./config')[0];
+const frappe = require('frappejs');
 const simpleParser = require('mailparser').simpleParser;
 
 var Imap = require('imap'),
@@ -27,24 +26,28 @@ imap.once('ready', function() {
     	var prefix = '(#' + seqno + ') ';
     	msg.on('body', function(stream, info) {
     		
-    		simpleParser(stream).then(function(mail_object) {
-    			// console.log(mail_object);	
-    			// SEE ATTRIBUTES AT :  https://nodemailer.com/extras/mailparser/
-    			
-    			console.log("From:", mail_object.from.value);
-    			console.log("To :", mail_object.to.value);
-    			// console.log("Html:", mail_object.html);
-    			console.log("Date :", mail_object.date);
-  				console.log("Subject:", mail_object.subject);
-  				//console.log("Text body:", mail_object.text);
-				
+    		simpleParser(stream).then(async function(mail_object) {
+					
+    			const mail = await frappe.insert({
+    				doctype : 'Email',
+    				name : seqno, // needs change : THINK 
+    				from_emailAddress : mail_object.from.value[0].address,
+    				to_emailAddress : mail_object.to.value[0].address,
+    				cc_emailAddress: mail_object.cc,
+    				bcc_emailAddress: mail_object.bcc,
+    				date : mail_object.date,
+    				subject : mail_object.subject,
+    				bodyHtml : mail_object.html,
+    				bodyText : mail_object.text,
+    				sentReceive : "1",
+						});
+						console.log("Done inserting "+seqno);	// CHANGE NAME FIELD , HERE NO.
 			}).catch(function(err) {
  				 
  				console.log('An error occurred:', err.message);
 			
 			});
             
-            // TODO : have to dump this in db
           
           });
         
@@ -74,4 +77,3 @@ imap.once('end', function() {
 });
 
 imap.connect();
-
