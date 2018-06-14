@@ -3,12 +3,12 @@ module.exports = {
     "doctype": "DocType",
     "isSingle": 0,
     "isChild": 0,   
-    "keywordFields": ["name","from_emailAddress"],
+    "keywordFields": ["name"],
     "fields": [
         {
             "fieldname": "name",
             "label": "name",
-            "fieldtype": "Int",
+            "fieldtype": "Data",
             "required": 0,
             "hidden" : 1 ,
         },
