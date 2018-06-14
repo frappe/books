@@ -51,24 +51,6 @@ module.exports = {
             "required": 0
         },
         {
-            "fieldname": "clientId",
-            "label": "Client Id",
-            "fieldtype": "Data",
-            "required": 1
-        },
-        {
-            "fieldname": "clientSecret",
-            "label": "Client Secret",
-            "fieldtype": "Data",
-            "required": 1
-        },
-        {
-            "fieldname": "refreshToken",
-            "label": "Refresh Token",
-            "fieldtype": "Data",
-            "required": 1
-        },
-        {
             "fieldname": "initialSync",
             "label": "Initial Sync",
             "fieldtype": "Int",
