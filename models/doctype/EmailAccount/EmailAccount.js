@@ -24,7 +24,6 @@ module.exports = {
             "label": "Password",
             "fieldtype": "Password",
             "required": 1,
-            // "hidden": 1, uncomment when s: OAuth
         },
         {
             "fieldname": "defaultIncoming",

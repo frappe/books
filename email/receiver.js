@@ -1,15 +1,20 @@
 const frappe = require('frappejs');
 const simpleParser = require('mailparser').simpleParser;
-const Imap = require('imap'),
-  inspect = require('util').inspect;
-const getConfig = require("./getConfigReceiver");
+const Imap = require('imap');
+const getConfig = require("./getConfig");
 
 module.exports = {
   sync: async () => {
 
-    let config = await getConfig();
-    var imap = new Imap(config);
-
+    let account = await getConfig();
+    var config = {
+      "user": account[0].email,
+      "password": account[0].password,
+      "host": account[0].imapHost,
+      "port": account[0].imapPort,
+      "tls": true,
+  };
+  var imap = new Imap(config);
     function openInbox(cb) {
       imap.openBox('INBOX', true, cb);
     }
@@ -26,7 +31,6 @@ module.exports = {
           });
 
           fetch.on('message', function (msg, seqno) {
-            var prefix = '(#' + seqno + ') ';
             msg.on('body', function (stream, info) {
 
               simpleParser(stream)

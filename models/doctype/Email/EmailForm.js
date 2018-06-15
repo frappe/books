@@ -13,6 +13,7 @@ module.exports = class EmailForm extends BaseForm {
                method: 'send-mail',
                args: this.doc.getValidDict()
            });
+           await this.submit();
         });
         this.on('change', () => {
             const show = this.doc._dirty && !this.doc.submitted;

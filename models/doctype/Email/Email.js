@@ -1,10 +1,4 @@
 const frappe = require('frappejs');
-//var out = frappe.getDoc('EmailAccount').then((data) => {this.data = data});
-/*
-async function Hello(){
-    return frappe.getDoc('EmailAccount').then((data) => {this.data = data});
-};
-*/
 
 module.exports = {
     "name": "Email",
@@ -20,11 +14,9 @@ module.exports = {
             "hidden": 1,
         },
         {
-            // TODO : set this to default Outgoing
             "fieldname": "fromEmailAddress",
             "label": "From",
             "fieldtype": "Data",
-            //"options":['None'],
             "default": "None",
             "required": 1,
         },
@@ -79,6 +71,5 @@ module.exports = {
             "required": 0,
             "hidden": 1
         },
-        // haven't captured attachments ?
     ]
 }
