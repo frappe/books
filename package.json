@@ -24,7 +24,10 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "frappejs": "^0.0.7"
+    "frappejs": "^0.0.7",
+    "imap": "^0.8.19",
+    "mailparser": "^2.2.0",
+    "nodemailer": "^4.6.6"
   },
   "devDependencies": {
     "electron": "1.8.4",

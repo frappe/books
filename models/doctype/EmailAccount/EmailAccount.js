@@ -5,7 +5,7 @@ module.exports = {
     "isChild": 0,
     "keywordFields": [
         "name",
-        "from_emailAddress"
+        "email"
     ],
     "fields": [{
             "fieldname": "name",
@@ -14,7 +14,7 @@ module.exports = {
             "required": 1
         },
         {
-            "fieldname": "from_emailAddress",
+            "fieldname": "email",
             "label": "Email",
             "fieldtype": "Data",
             "required": 1

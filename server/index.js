@@ -3,6 +3,7 @@ const server = require('frappejs/server');
 const frappe = require('frappejs');
 const naming = require('frappejs/model/naming');
 const registerReportMethods = require('../reports');
+const setupEmail = require('../email');
 
 module.exports = {
     async start() {
@@ -13,7 +14,7 @@ module.exports = {
             },
             staticPath: path.resolve(__dirname, '../www'),
             models: require('../models')
-        })
+        });
 
         await this.postStart();
     },
@@ -41,7 +42,6 @@ module.exports = {
         await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
         registerReportMethods();
-        // const receiver = require('../email/receiver.js');
-        // receiver();
+        setupEmail();
     }
 }

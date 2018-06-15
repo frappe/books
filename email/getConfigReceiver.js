@@ -6,7 +6,7 @@ module.exports = async function getData() {
     })
     account = account[0];
     return {
-        "user": account.from_emailAddress,
+        "user": account.email,
         "password": account.password,
         "host": account.imapHost,
         "port": account.imapPort,
