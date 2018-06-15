@@ -12,11 +12,11 @@
             <tbody>
                 <tr v-for="item in items" :key="item.name">
                     <td>{{ item.item.name }}</td>
-                    <td>
+                    <td style="text-align:right">
                         <span v-if="!item.editing" @dblclick="toggleEdit(item)">{{ item.numberOfItems }}</span>
                         <input v-if="item.editing" @blur="toggleEdit(item)" type="number" v-model="item.numberOfItems">
                     </td>
-                    <td>{{ item.numberOfItems * item.item.rate }}</td>
+                    <td style="text-align:right">{{ item.numberOfItems * item.item.rate }}</td>
                     <td><a class="fa fa-times" @click="removeItem(item)">X</a></td>
                 </tr>
             </tbody>
@@ -27,15 +27,15 @@
             <tbody>
                 <tr>
                     <td>Subtotal:</td>
-                    <td>{{ subtotal }}</td>
+                    <td style="text-align:right">{{ subtotal }}</td>
                 </tr>
                 <tr>
                     <td>Tax:</td>
-                    <td>{{ tax }}</td>
+                    <td style="text-align:right">{{ tax }}</td>
                 </tr>
                 <tr>
                     <td>Total:</td>
-                    <td>{{ total }}</td>
+                    <td style="text-align:right">{{ total }}</td>
                 </tr>
             </tbody>
         </table>
