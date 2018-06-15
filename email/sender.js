@@ -1,43 +1,38 @@
-
 const nodemailer = require('nodemailer');
-const xoauth2 = require('xoauth2');
-const smtp = require('nodemailer-smtp-transport');
-const config = require('config.json')('./config.json');
+const frappe = require('frappejs');
+const getConfig = require("./getConfigSender");
 
-//var userEmail, receiverEmail, clientId_input, clientSecret_input, refreshToken_Input, subjectText, contentText,userPassword, attachments;
+module.exports = {
+  'sendMail': async function (mailDetails) {
+    let account = await getConfig(mailDetails.fromEmailAddress);
+    const mail = await frappe.insert({
+      doctype: 'Email',
+      name: "Sent to : " + mailDetails.toEmailAddress + " " + mailDetails.subject.slice(0, 10), // needs change : THINK 
+      fromEmailAddress: mailDetails.fromEmailAddress,
+      toEmailAddress: mailDetails.toEmailAddress,
+      ccEmailAddress: mailDetails.ccEmailAddress,
+      bccEmailAddress: mailDetails.bccEmailAddress,
+      date: mailDetails,
+      subject: mailDetails.subject,
+      bodyHtml: "",
+      bodyText: mailDetails.bodyText,
+      sent: "1",
+    });
 
-let transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
-    secure: 'true',
-    port: '465',
-    auth: {
-          type: 'OAuth2',
-          user: config.userMail,
-          clientId: config.clientId_input,
-          clientSecret:config.clientSecret_input,
-          refreshToken:config.refreshToken_input    }
-        
-    } 
-);
-
-let mailOptions = {
-    from: config.userMail,
-    to: config.receiverMail,
-    cc: config.receiverCC,
-    bcc: config.receiverBCC,
-    subject: config.subjectText,
-    text: config.contentText,
-    attachments: config._attachments
+    mailDetails = {
+      from: mail.fromEmailAddress,
+      to: mailDetails.toEmailAddress,
+      subject: mailDetails.subject,
+      text: mailDetails.bodyText,
     };
- 
 
-transporter.sendMail(mailOptions, function(e, r) {
-  if (e) {
-    console.log(e);
-  } else {
-    console.log(r);
+    let transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: account.email,
+        pass: account.password,
+      }
+    });
+    return transporter.sendMail(mailDetails);
   }
-  transporter.close();
-});
-
+};

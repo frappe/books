@@ -58,4 +58,4 @@ function getReportData(ReportClass) {
     return args => new ReportClass().run(args);
 }
 
-module.exports = registerReportMethods
+module.exports = registerReportMethods;

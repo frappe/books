@@ -11,8 +11,7 @@ module.exports = {
     "doctype": "DocType",
     "isSingle": 0,
     "isChild": 0,
-    //"isSubmittable": 0,
-    "keywordFields": ["name", "from_emailAddress"],
+    "keywordFields": ["name"],
     "fields": [{
             "fieldname": "name",
             "label": "name",
@@ -22,7 +21,7 @@ module.exports = {
         },
         {
             // TODO : set this to default Outgoing
-            "fieldname": "from_emailAddress",
+            "fieldname": "fromEmailAddress",
             "label": "From",
             "fieldtype": "Data",
             //"options":['None'],
@@ -30,20 +29,20 @@ module.exports = {
             "required": 1,
         },
         {
-            "fieldname": "to_emailAddress",
+            "fieldname": "toEmailAddress",
             "label": "To",
             "fieldtype": "Data",
             "required": 1
         },
         {
 
-            "fieldname": "cc_emailAddress",
+            "fieldname": "ccEmailAddress",
             "label": "cc",
             "fieldtype": "Data",
             "required": 0
         },
         {
-            "fieldname": "bcc_emailAddress",
+            "fieldname": "bccEmailAddress",
             "label": "bcc",
             "fieldtype": "Data",
             "required": 0
@@ -74,7 +73,7 @@ module.exports = {
             "hidden": 1,
         },
         {
-            "fieldname": "sentReceive",
+            "fieldname": "sent",
             "label": "sentReceive",
             "fieldtype": "Check",
             "required": 0,

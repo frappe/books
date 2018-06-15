@@ -5,7 +5,7 @@ module.exports = {
     "isChild": 0,
     "keywordFields": [
         "name",
-        "from_emailAddress"
+        "email"
     ],
     "fields": [{
             "fieldname": "name",
@@ -14,16 +14,10 @@ module.exports = {
             "required": 1
         },
         {
-            "fieldname": "from_emailAddress",
+            "fieldname": "email",
             "label": "Email",
             "fieldtype": "Data",
             "required": 1
-        },
-        {
-            "fieldname": "defaultIncoming",
-            "label": "Default Incoming",
-            "fieldtype": "Check",
-            "required": 0
         },
         {
             "fieldname": "password",
@@ -33,14 +27,20 @@ module.exports = {
             // "hidden": 1, uncomment when s: OAuth
         },
         {
-            "fieldname": "host",
-            "label": "Host",
+            "fieldname": "defaultIncoming",
+            "label": "Default Incoming",
+            "fieldtype": "Check",
+            "required": 0
+        },
+        {
+            "fieldname": "imapHost",
+            "label": "IMAP Host",
             "fieldtype": "Link",
             "required": 1
         },
         {
-            "fieldname": "port",
-            "label": "Port",
+            "fieldname": "imapPort",
+            "label": "IMAP Port",
             "fieldtype": "Int",
             "required": 1
         },
@@ -49,6 +49,18 @@ module.exports = {
             "label": "Default Outgoing",
             "fieldtype": "Check",
             "required": 0
+        },
+        {
+            "fieldname": "smtpHost",
+            "label": "SMTP Host",
+            "fieldtype": "Link",
+            "required": 1
+        },
+        {
+            "fieldname": "smtpPort",
+            "label": "SMTP Port",
+            "fieldtype": "Int",
+            "required": 1
         },
         {
             "fieldname": "initialSync",
