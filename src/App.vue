@@ -4,7 +4,7 @@
       <router-view />
     </frappe-desk>
     <router-view v-else name="setup" />
-    <frappe-modal ref="modal" :show="showModal" v-bind="modalOptions" />
+    <frappe-modal ref="modal" :show="showModal" v-bind="modalOptions" @close-modal="showModal = false"/>
   </div>
 </template>
 
