@@ -4,8 +4,8 @@ module.exports = async function getData(emailAddress) {
         doctype: 'EmailAccount',
         fields: ['*']
     })
-    for(var i = 0 ; i < account.length; i++ ){
-        if (emailAddress == account[i].email){
+    for (var i = 0; i < account.length; i++) {
+        if (emailAddress == account[i].email) {
             return account[i];
         }
     }

@@ -7,7 +7,7 @@ module.exports = {
     let account = await getConfig(mailDetails.fromEmailAddress);
     const mail = await frappe.insert({
       doctype: 'Email',
-      name: "Sent to : "+ mailDetails.toEmailAddress + " " + mailDetails.subject.slice(0,10), // needs change : THINK 
+      name: "Sent to : " + mailDetails.toEmailAddress + " " + mailDetails.subject.slice(0, 10), // needs change : THINK 
       fromEmailAddress: mailDetails.fromEmailAddress,
       toEmailAddress: mailDetails.toEmailAddress,
       ccEmailAddress: mailDetails.ccEmailAddress,
