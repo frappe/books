@@ -7,13 +7,15 @@
     End: {{selected.end}}
     Allday: {{selected.allDay}}
     ID: {{selected.id}}</pre>
-    <full-calendar ref="calendar" :event-sources="eventSources" @event-drop="eventDrop" @event-resize="eventResize" @event-selected="eventSelected" @event-created="eventCreated" :config="config"></full-calendar>
+    <full-calendar ref="calendar" :events="events" @event-drop="eventDrop" @event-resize="eventResize" @event-selected="eventSelected" @event-created="eventCreated" :config="config"></full-calendar>
   </div>
 </template>
 
 <script>
-import moment from 'moment';
+import moment,{ lang } from 'moment';
 import frappe from "frappejs";
+import { StringDecoder } from 'string_decoder';
+const { DateTime } = require('luxon');
 
 const getCircularReplacer = () => {
   const seen = new WeakSet;
@@ -32,37 +34,12 @@ export default {
   name: 'calendarFull',
   data() {
     return {
-      events: [
-        {
-          id: "asa123",
-          title: 'event1',
-          start: moment().hours(12).minutes(0),
-        },
-        {
-          id: "asad2346",
-          title: 'event2',
-          start: moment().add(-1, 'days'),
-          end: moment().add(1, 'days'),
-          allDay: true,
-        },
-        {
-          id: "jkbhjkh15",
-          title: 'event3',
-          start: moment().add(2, 'days'),
-          end: moment().add(2, 'days').add(6, 'hours'),
-          allDay: false,
-        },
-      ],
+      events: [],
 
       config: {
         eventClick: (event) => {
           console.log(event);
           this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
-    //       alert(`Title: ${this.selected.title}
-    // Start: ${this.selected.start}
-    // End: ${this.selected.end}
-    // Allday: ${this.selected.allDay}
-    // ID: ${this.selected.id}`)
         },
       },
 
@@ -71,40 +48,74 @@ export default {
   },
 
   async created(){ 
-  var temp=await frappe.db.getAll({
+  var allEvents=await frappe.db.getAll({
           doctype: "Event",
-          fields: ["title", "start","end","name"]
+          fields: ["title", "startDate","startHour","startMinute","endDate","endHour","endMinute","name"]
         })
   this.events=[];
-  for(var i=0;i<temp.length;i++){
-    var tempx = {};
-    tempx.title = temp[i].title;
-    tempx.start = temp[i].start;
-    tempx.end = temp[i].end;
-    tempx.id = temp[i].name;
-    this.events.push(tempx);
+  for(var i=0;i<allEvents.length;i++){
+    var event = {};
+
+    event.title = allEvents[i].title;
+    event.id = allEvents[i].name;
+
+    var dtstart = DateTime.fromISO(allEvents[i].startDate).set({hour: parseInt(allEvents[i].startHour), minute: parseInt(allEvents[i].startMinute)});
+    var dtend = DateTime.fromISO(allEvents[i].endDate).set({hour: parseInt(allEvents[i].endHour), minute: parseInt(allEvents[i].endMinute)});
+
+    console.log(dtstart,"INPUT")
+    event.start = dtstart.toISO();
+    event.end = dtend.toISO();
+    
+    var test = DateTime.fromISO(event.start).hour;
+
+    this.events.push(event);
+    // console.log(event);
   }
   },
 
   methods: {
     async eventDrop(event) {
       this.selected = event;
-      let events = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
-      let eventsx = await frappe.getDoc('Event', events[0].name);
+      let allEvents = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
+      let currEvent = await frappe.getDoc('Event', allEvents[0].name);
       // console.log("xxxxxxxx",this.selected.start);
-      eventsx.start = this.selected.start;
-      await eventsx.update();
+      this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
+      
+      var dtstart = DateTime.fromISO(String(this.selected.start));
+      currEvent.startHour = String(dtstart.hour);
+      currEvent.startMinute = String(dtstart.minute);
+      currEvent.startDate = dtstart.toISO();
+
+
+      var dtend = DateTime.fromISO(String(this.selected.end));
+      currEvent.endHour = String(dtend.hour);
+      currEvent.endMinute = String(dtend.minute);
+      currEvent.endDate = dtend.toISO();
+
+
+      await currEvent.update();
       this.selected = {};
     },
 
     async eventResize(event) {
       this.selected = event;
-      let events = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
-      let eventsx = await frappe.getDoc('Event', events[0].name);
+      let allEvents = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
+      let currEvent = await frappe.getDoc('Event', allEvents[0].name);
       // console.log("xxxxxxxx",this.selected.start);
-      eventsx.start = this.selected.start;
-      eventsx.end = this.selected.end;
-      await eventsx.update();
+      this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
+      
+      var dtstart = DateTime.fromISO(this.selected.start);
+      currEvent.startDate = dtstart.toISO();
+      currEvent.startHour = String(dtstart.hour);
+      currEvent.startMinute = String(dtstart.minute);
+
+      var dtend = DateTime.fromISO(String(this.selected.end));
+      currEvent.endDate = dtend.toISO();
+      currEvent.endHour = String(dtend.hour);
+      currEvent.endMinute = String(dtend.minute);
+
+
+      await currEvent.update();
       this.selected = {};
     },
 
@@ -114,9 +125,9 @@ export default {
 
     async removeEvent() {
       this.$refs.calendar.$emit('remove-event', this.selected);
-      let events = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
-      let eventsx = await frappe.getDoc('Event', events[0].name);
-      await eventsx.delete();
+      let allEvents = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
+      let currEvent = await frappe.getDoc('Event', allEvents[0].name);
+      await currEvent.delete();
       this.selected = {};
     },
 
@@ -126,21 +137,6 @@ export default {
 
     eventCreated(...test) {
       console.log(test);
-    },
-  },
-
-  computed: {
-    eventSources() {
-      const self = this;
-      return [
-        {
-          events(start, end, timezone, callback) {
-            setTimeout(() => {
-              callback(self.events.filter(() => Math.random() > 0));
-            }, 1000);
-          },
-        },
-      ];
     },
   },
 };
