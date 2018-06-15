@@ -2,6 +2,7 @@ const deepmerge = require('deepmerge');
 
 module.exports = {
     extend: (base, target, options = {}) => {
+        base = deepmerge({}, base);
         const fieldsToMerge = (target.fields || []).map(df => df.fieldname);
         const fieldsToRemove = options.skipFields || [];
 
