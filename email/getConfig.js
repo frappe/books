@@ -8,8 +8,8 @@ module.exports = async function getData() {
     return {
         "user": account.from_emailAddress,
         "password": account.password,
-        "host": account.host,
-        "port": account.port,
+        "host": account.imapHost,
+        "port": account.imapPort,
         "tls": true,
     };
 }

@@ -44,5 +44,5 @@ module.exports = class EmailButtons extends BaseList{
             }
         })
     }
-}
+};
 

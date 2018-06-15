@@ -33,7 +33,7 @@ module.exports = async () => {
               .then(async function (mail_object) {
                 const mail = await frappe.insert({
                   doctype: 'Email',
-                  name: mail_object.to.value[0].address + "       " + mail_object.subject, // needs change : THINK 
+                  name: mail_object.to.value[0].address + "       " + mail_object.subject.slice(0,10), // needs change : THINK 
                   from_emailAddress: mail_object.from.value[0].address,
                   to_emailAddress: mail_object.to.value[0].address,
                   cc_emailAddress: mail_object.cc,

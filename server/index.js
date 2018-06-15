@@ -41,7 +41,7 @@ module.exports = {
         await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
         registerReportMethods();
-        //const receiver = require('../email/receiver.js');
-        //receiver();
+        // const receiver = require('../email/receiver.js');
+        // receiver();
     }
 }
