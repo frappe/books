@@ -9,11 +9,12 @@ module.exports = class EmailForm extends BaseForm {
 
     makeToolbar() {
         this.sendButton = this.container.addButton(frappe._("Send"), 'primary', async (event) => {
-           frappe.call({
+           var response = await frappe.call({
                method: 'send-mail',
                args: this.doc.getValidDict()
            });
-           await this.submit();
+           await this.doc.set('name',response);
+           await this.save();
         });
         this.on('change', () => {
             const show = this.doc._dirty && !this.doc.submitted;
