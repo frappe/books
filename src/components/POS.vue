@@ -150,7 +150,7 @@ export default {
       this.tempdoc = await frappe.newDoc({
         doctype: 'Invoice', 
         name: 'something',
-        customer:'chirag shetty',
+        customer:'Test User',
         items:temp_item
         });
       await this.tempdoc.applyChange();
