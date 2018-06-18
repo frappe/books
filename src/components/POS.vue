@@ -45,8 +45,8 @@
                                 <h6>Item Select</h6>
                                 <frappe-control
                                     :docfield="itemDocfield"
-                                    :value="palue"
-                                    @change="palue => updateValue(docfield.fieldname, palue)"
+                                    :value="itemValue"
+                                    @change="itemValue => filterItemList(itemDocfield.fieldname, itemValue)"
                                     :onlyInput="true"
                                 />
                             </div>
@@ -86,6 +86,7 @@ export default {
     return {
       items: [],
       lineItems: [],
+      allItems: [],
       grandTotal: 0 ,
       netTotal: 0,
       dataready: true,
@@ -98,6 +99,7 @@ export default {
           doctype: "Item",
           fields: ["name", "rate"],
         });
+        this.allItems = this.items;
   /*this.items=it.filter(function(el) {
       return el.name.toLowerCase().indexOf(this.itemfilter.toLowerCase()) > -1;
       })*/
@@ -134,6 +136,12 @@ export default {
     },
     updateValue(field, value) {
                   this.value = value;
+                },
+    filterItemList(field, value) {
+                  if(!value)
+                    this.items = this.allItems;
+                  this.itemValue = value;
+                  this.items = this.allItems.filter((item)=> item.name.includes(value));
                 },
     async tempInvoice(){
       this.dataready=false;
