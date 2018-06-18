@@ -22,23 +22,6 @@
             </tbody>
         </table>
         <p v-if="!items.length">No items have been added.</p>
-
-        <table class="table">
-            <tbody>
-                <tr>
-                    <td>Subtotal:</td>
-                    <td style="text-align:right">{{ subtotal }}</td>
-                </tr>
-                <tr>
-                    <td>Tax:</td>
-                    <td style="text-align:right">{{ tax }}</td>
-                </tr>
-                <tr>
-                    <td>Total:</td>
-                    <td style="text-align:right">{{ total }}</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 </template>
 
@@ -46,23 +29,6 @@
 
 export default {
     props: ['items', 'edit', 'remove'],
-    computed: {
-        subtotal: function() {
-            var subtotal = 0;
-
-            this.items.forEach(function(item) {
-                subtotal += item.item.rate * item.numberOfItems;
-            });
-
-            return subtotal;
-        },
-        tax: function() {
-            return this.subtotal * 0.065;
-        },
-        total: function() {
-            return this.subtotal + this.tax;
-        }
-    },
     methods: {
         toggleEdit: function(item) {
             this.edit(item);

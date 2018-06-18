@@ -15,6 +15,24 @@
                         <br>
                         <br>
                         <transaction :items="lineItems" :edit="toggleEdit" :remove="removeItem" ></transaction>
+                        <div v-if="dataready">
+                          <table class="table">
+                              <tbody>
+                                  <tr>
+                                      <td>Subtotal:</td>
+                                      <td>{{ this.netTotal }}</td>
+                                  </tr>
+                                  <tr>
+                                      <td>Tax:</td>
+                                      <td>{{ this.grandTotal-this.netTotal }}</td>
+                                  </tr>
+                                  <tr>
+                                      <td>Total:</td>
+                                      <td>{{ this.grandTotal }}</td>
+                                  </tr>
+                                </tbody>
+                          </table>
+                        </div>
                         <div class="list-group">
                           <button class="list-group-item item" @click="createInvoice()">
                               <strong>Create Invoice</strong>
@@ -67,7 +85,12 @@ export default {
     };
     return {
       items: [],
-      lineItems: []
+      lineItems: [],
+      grandTotal: 0 ,
+      netTotal: 0,
+      dataready: true,
+      tempdoc:null,
+      value:""
     };
   },
   async created(){ 
@@ -75,9 +98,6 @@ export default {
           doctype: "Item",
           fields: ["name", "rate"],
         });
-      this.grandTotal=0;
-      this.netTotal=0;
-      this.value="";
   /*this.items=it.filter(function(el) {
       return el.name.toLowerCase().indexOf(this.itemfilter.toLowerCase()) > -1;
       })*/
@@ -116,6 +136,7 @@ export default {
                   this.value = value;
                 },
     async tempInvoice(){
+      this.dataready=false;
       var temp_item=[];
       for(var i=0;i<this.lineItems.length;i++)
       {
@@ -126,15 +147,17 @@ export default {
         };
         temp_item.push(temp);
       }
-      let tempdoc = await frappe.newDoc({
+      this.tempdoc = await frappe.newDoc({
         doctype: 'Invoice', 
         name: 'something',
         customer:'chirag shetty',
         items:temp_item
         });
-      await tempdoc.applyChange()
-      this.grandTotal=tempdoc.grandTotal;
-      this.netTotal=tempdoc.netTotal;
+      await this.tempdoc.applyChange();
+      this.grandTotal=this.tempdoc.grandTotal;
+      this.netTotal=this.tempdoc.netTotal;
+      console.log(this.grandTotal+" "+this.netTotal);
+      this.dataready=true;
     },
     async createInvoice(){
       if(!this.lineItems.length)
