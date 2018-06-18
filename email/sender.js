@@ -25,6 +25,6 @@ module.exports = {
         return mailKey;
         }
       }
-  console.log(mailDetails.fromEmailAddress + "  NOT FOUND IN RECORDS");
+  console.log(mailDetails.fromEmailAddress + " NOT FOUND IN RECORDS");
   }
 };

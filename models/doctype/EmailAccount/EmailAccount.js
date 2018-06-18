@@ -32,6 +32,29 @@ module.exports = {
             "required": 0
         },
         {
+            "fieldname": "emailSync",
+            "label": "Email Sync : Option",
+            "fieldtype": "Select",
+            "options": [
+                "ALL",
+                "ANSWERED",
+                "DELETED",
+                "DRAFT",
+                "FLAGGED",
+                "NEW",
+                "SEEN",
+                "RECENT",
+                "OLD",
+                "UNANSWERED",
+                "UNDELETED",
+                "UNDRAFT",
+                "UNFLAGGED",
+                "UNSEEN"
+            ],
+            "default": "UNSEEN",
+            "required": 1
+        },
+        {
             "fieldname": "imapHost",
             "label": "IMAP Host",
             "fieldtype": "Link",
