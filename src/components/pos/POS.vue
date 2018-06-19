@@ -63,7 +63,7 @@
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
 import frappe from "frappejs";
-import FrappeControl from './controls/FrappeControl';
+import FrappeControl from '../controls/FrappeControl';
 
 export default {
   components: {
@@ -106,21 +106,26 @@ export default {
   },
   methods: {
     onItemClick: function(item) {
-      console.log("in", item);
-      var found = false;
-
-      for (var i = 0; i < this.lineItems.length; i++) {
-        if (this.lineItems[i].item === item) {
-          this.lineItems[i].numberOfItems++;
-          found = true;
-          break;
+      if(this.value=="")
+      {
+        alert("No customer Added");
+      }
+      else
+      {
+        console.log("in", item);
+        var found = false;
+        for (var i = 0; i < this.lineItems.length; i++) {
+          if (this.lineItems[i].item === item) {
+            this.lineItems[i].numberOfItems++;
+            found = true;
+            break;
+          }
         }
+        if (!found) {
+          this.lineItems.push({ item: item, numberOfItems: 1, editing: false });
+        }
+        this.tempInvoice();
       }
-  
-      if (!found) {
-        this.lineItems.push({ item: item, numberOfItems: 1, editing: false });
-      }
-      this.tempInvoice();
     },
     toggleEdit: function(lineItem) {
       lineItem.editing = !lineItem.editing;
@@ -143,7 +148,8 @@ export default {
                   this.itemValue = value;
                   this.items = this.allItems.filter((item)=> item.name.includes(value));
                 },
-    async tempInvoice(){
+    async tempInvoice()
+    {
       this.dataready=false;
       var temp_item=[];
       for(var i=0;i<this.lineItems.length;i++)
@@ -158,7 +164,7 @@ export default {
       this.tempdoc = await frappe.newDoc({
         doctype: 'Invoice', 
         name: 'something',
-        customer:'Test User',
+        customer:this.value,
         items:temp_item
         });
       await this.tempdoc.applyChange();
@@ -171,29 +177,8 @@ export default {
       if(!this.lineItems.length)
         alert("No items selected");
       else{
-        if(this.value=="")
-        {
-          alert("No customer Added");
-        }
-        else
-        {
-          var final_item=[];
-          for(var i=0;i<this.lineItems.length;i++)
-          {
-            console.log(this.lineItems[i].item.name+" "+this.lineItems[i].numberOfItems);
-            var temp={
-              item:this.lineItems[i].item.name,
-              quantity:this.lineItems[i].numberOfItems
-            };
-            final_item.push(temp);
-          }
-          frappe.insert({
-                doctype:'Invoice',
-                customer: this.value,
-                items:final_item
-            });
+          await this.tempdoc.insert();
           alert("Invoice added");
-        }
       }
     }
   }
