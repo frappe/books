@@ -108,9 +108,6 @@ export default {
       fields: ["name", "rate"],
   });
   this.allItems = this.items;
-  /*this.items=it.filter(function(el) {
-      return el.name.toLowerCase().indexOf(this.itemfilter.toLowerCase()) > -1;
-      })*/
   },
 
   methods: {
@@ -119,15 +116,7 @@ export default {
           alert("No customer Added");
       }
       else {
-          console.log("in", item);
-          var found = false;
-          for(var i = 0; i < this.lineItems.length; i++) {
-              if(this.lineItems[i].item === item) {
-                  this.lineItems[i].numberOfItems++;
-                  found = true;
-                  break;
-              }
-          }
+          var found = this.itemPresent(item);  
           if(!found) {
               this.lineItems.push({ item: item, numberOfItems: 1, editing: false });
           }
@@ -135,7 +124,22 @@ export default {
       }
     },
 
+    itemPresent: function(item) {
+        var found = false;
+        for(var i = 0; i < this.lineItems.length; i++) {
+            if(this.lineItems[i].item === item) {
+                this.lineItems[i].numberOfItems++;
+                found = true;
+                break;
+            }
+        }
+        return found;
+    },
+
     toggleEdit: function(lineItem) {
+        if(lineItem.editing==true){
+            this.invoice();
+        }
         lineItem.editing = !lineItem.editing;
     },
 
@@ -160,8 +164,7 @@ export default {
         this.items = this.allItems.filter((item)=> item.name.includes(value));
     },
 
-    async invoice() {
-        this.dataready=false;
+    currentItems() {
         var item=[];
         for(var i=0;i<this.lineItems.length;i++) {
             console.log(this.lineItems[i].item.name+" "+this.lineItems[i].numberOfItems);
@@ -171,6 +174,12 @@ export default {
             };
             item.push(item_quantity);
         }
+        return item;
+    },
+
+    async invoice() {
+        this.dataready=false;
+        var item= this.currentItems();
         this.doc = await frappe.newDoc({
             doctype: 'Invoice', 
             name: 'something',
