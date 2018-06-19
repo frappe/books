@@ -1,4 +1,5 @@
 <template>
+
     <div class="container">
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
@@ -33,12 +34,14 @@
                                 </tbody>
                           </table>
                         </div>
+
                         <div class="list-group">
                           <button class="list-group-item item" @click="createInvoice()">
                               <strong>Create Invoice</strong>
                           </button>
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-md-6">
@@ -54,11 +57,14 @@
                         <br>
                         <item-list :items="items" :add="onItemClick"></item-list>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
+
 </template>
+
 <script>
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
@@ -70,6 +76,7 @@ export default {
     Transaction,
     ItemList
   },
+
   data() {
     this.customerDocfield={
       fieldname: "customer",
@@ -90,96 +97,100 @@ export default {
       grandTotal: 0 ,
       netTotal: 0,
       dataready: true,
-      tempdoc:null,
+      doc:null,
       value:""
     };
   },
-  async created(){ 
-  this.items=await frappe.db.getAll({
-          doctype: "Item",
-          fields: ["name", "rate"],
-        });
-        this.allItems = this.items;
+
+  async created() { 
+  this.items = await frappe.db.getAll({
+      doctype: "Item",
+      fields: ["name", "rate"],
+  });
+  this.allItems = this.items;
   /*this.items=it.filter(function(el) {
       return el.name.toLowerCase().indexOf(this.itemfilter.toLowerCase()) > -1;
       })*/
   },
+
   methods: {
     onItemClick: function(item) {
-      if(this.value=="")
-      {
-        alert("No customer Added");
+      if(this.value=="") {
+          alert("No customer Added");
       }
-      else
-      {
-        console.log("in", item);
-        var found = false;
-        for (var i = 0; i < this.lineItems.length; i++) {
-          if (this.lineItems[i].item === item) {
-            this.lineItems[i].numberOfItems++;
-            found = true;
-            break;
+      else {
+          console.log("in", item);
+          var found = false;
+          for(var i = 0; i < this.lineItems.length; i++) {
+              if(this.lineItems[i].item === item) {
+                  this.lineItems[i].numberOfItems++;
+                  found = true;
+                  break;
+              }
           }
-        }
-        if (!found) {
-          this.lineItems.push({ item: item, numberOfItems: 1, editing: false });
-        }
-        this.tempInvoice();
+          if(!found) {
+              this.lineItems.push({ item: item, numberOfItems: 1, editing: false });
+          }
+          this.invoice();
       }
     },
+
     toggleEdit: function(lineItem) {
-      lineItem.editing = !lineItem.editing;
+        lineItem.editing = !lineItem.editing;
     },
+
     removeItem: function(lineItem) {
-      for (var i = 0; i < this.lineItems.length; i++) {
-        if (this.lineItems[i] === lineItem) {
-          this.lineItems.splice(i, 1);
-          break;
+        for(var i = 0; i < this.lineItems.length; i++) {
+            if(this.lineItems[i] === lineItem) {
+                this.lineItems.splice(i, 1);
+                break;
+            }
         }
-      }
-      this.tempInvoice();
+        this.invoice();
     },
+
     updateValue(field, value) {
-                  this.value = value;
-                },
-    filterItemList(field, value) {
-                  if(!value)
-                    this.items = this.allItems;
-                  this.itemValue = value;
-                  this.items = this.allItems.filter((item)=> item.name.includes(value));
-                },
-    async tempInvoice()
-    {
-      this.dataready=false;
-      var temp_item=[];
-      for(var i=0;i<this.lineItems.length;i++)
-      {
-        console.log(this.lineItems[i].item.name+" "+this.lineItems[i].numberOfItems);
-        var temp={
-          item:this.lineItems[i].item.name,
-          quantity:this.lineItems[i].numberOfItems
-        };
-        temp_item.push(temp);
-      }
-      this.tempdoc = await frappe.newDoc({
-        doctype: 'Invoice', 
-        name: 'something',
-        customer:this.value,
-        items:temp_item
-        });
-      await this.tempdoc.applyChange();
-      this.grandTotal=this.tempdoc.grandTotal;
-      this.netTotal=this.tempdoc.netTotal;
-      console.log(this.grandTotal+" "+this.netTotal);
-      this.dataready=true;
+        this.value = value;
     },
+
+    filterItemList(field, value) {
+        if(!value)
+            this.items = this.allItems;
+        this.itemValue = value;
+        this.items = this.allItems.filter((item)=> item.name.includes(value));
+    },
+
+    async invoice() {
+        this.dataready=false;
+        var item=[];
+        for(var i=0;i<this.lineItems.length;i++) {
+            console.log(this.lineItems[i].item.name+" "+this.lineItems[i].numberOfItems);
+            var item_quantity = {
+                item:this.lineItems[i].item.name,
+                quantity:this.lineItems[i].numberOfItems
+            };
+            item.push(item_quantity);
+        }
+        this.doc = await frappe.newDoc({
+            doctype: 'Invoice', 
+            name: 'something',
+            customer:this.value,
+            items:item
+        });
+        await this.doc.applyChange();
+        this.grandTotal=this.doc.grandTotal;
+        this.netTotal=this.doc.netTotal;
+        console.log(this.grandTotal+" "+this.netTotal);
+        this.dataready=true;
+    },
+
     async createInvoice(){
-      if(!this.lineItems.length)
-        alert("No items selected");
-      else{
-          await this.tempdoc.insert();
-          alert("Invoice added");
-      }
+        if(!this.lineItems.length)
+            alert("No items selected");
+        else{
+            await this.doc.insert();
+            alert("Invoice added");
+        }
     }
   }
 };
