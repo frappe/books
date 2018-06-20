@@ -4,21 +4,47 @@
       <router-view />
     </frappe-desk>
     <router-view v-else name="setup" />
+    <frappe-modal ref="modal" :show="showModal" v-bind="modalOptions" @close-modal="showModal = false"/>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
+import Observable from 'frappejs/utils/observable';
 import Desk from '@/components/Desk';
+import Modal from '@/components/Modal';
+
+const Bus = new Observable();
+
+Vue.use({
+  // enable use of this.$modal in every component
+  // this also keeps only one modal in the DOM at any time
+  // which is the recommended way by bootstrap
+  install (Vue) {
+    Vue.prototype.$modal = {
+      show(options) {
+        Bus.trigger('showModal', options);
+      },
+
+      hide() {
+        Bus.trigger('hideModal');
+      }
+    }
+  }
+});
 
 export default {
   name: 'App',
   data() {
     return {
-      showDesk: true
+      showDesk: true,
+      showModal: false,
+      modalOptions: {}
     }
   },
   components: {
-    FrappeDesk: Desk
+    FrappeDesk: Desk,
+    FrappeModal: Modal
   },
   async beforeRouteUpdate(to, from, next) {
     const accountingSettings = await frappe.getSingle('AccountingSettings');
@@ -27,6 +53,18 @@ export default {
     } else {
       this.showDesk = true;
     }
+  },
+  mounted() {
+    Bus.on('showModal', (options = {}) => {
+      this.showModal = true;
+      this.modalOptions = options;
+    });
+
+    Bus.on('hideModal', () => {
+      this.showModal = false;
+    });
+
+    window.frappeModal = this.$modal;
   }
 }
 </script>
