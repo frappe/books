@@ -1,4 +1,5 @@
 <template>
+
     <div class="container">
         <div class="row">
             <div class="col-md-8 col-md-offset-2">
@@ -33,12 +34,14 @@
                                 </tbody>
                           </table>
                         </div>
+
                         <div class="list-group">
                           <button class="list-group-item item" @click="createInvoice()">
                               <strong>Create Invoice</strong>
                           </button>
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="row">
                             <div class="col-md-6">
@@ -54,22 +57,26 @@
                         <br>
                         <item-list :items="items" :add="onItemClick"></item-list>
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
+
 </template>
+
 <script>
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
 import frappe from "frappejs";
-import FrappeControl from './controls/FrappeControl';
+import FrappeControl from '../controls/FrappeControl';
 
 export default {
   components: {
     Transaction,
     ItemList
   },
+
   data() {
     this.customerDocfield={
       fieldname: "customer",
@@ -94,107 +101,105 @@ export default {
       value:""
     };
   },
-  async created(){ 
-  this.items=await frappe.db.getAll({
-          doctype: "Item",
-          fields: ["name", "rate"],
-        });
-        this.allItems = this.items;
-  /*this.items=it.filter(function(el) {
-      return el.name.toLowerCase().indexOf(this.itemfilter.toLowerCase()) > -1;
-      })*/
+
+  async created() { 
+  this.items = await frappe.db.getAll({
+      doctype: "Item",
+      fields: ["name", "rate"],
+  });
+  this.allItems = this.items;
   },
+
   methods: {
     onItemClick: function(item) {
-      console.log("in", item);
-      var found = false;
-
-      for (var i = 0; i < this.lineItems.length; i++) {
-        if (this.lineItems[i].item === item) {
-          this.lineItems[i].numberOfItems++;
-          found = true;
-          break;
-        }
-      }
-  
-      if (!found) {
-        this.lineItems.push({ item: item, numberOfItems: 1, editing: false });
-      }
-      this.tempInvoice();
-    },
-    toggleEdit: function(lineItem) {
-      lineItem.editing = !lineItem.editing;
-    },
-    removeItem: function(lineItem) {
-      for (var i = 0; i < this.lineItems.length; i++) {
-        if (this.lineItems[i] === lineItem) {
-          this.lineItems.splice(i, 1);
-          break;
-        }
-      }
-      this.tempInvoice();
-    },
-    updateValue(field, value) {
-                  this.value = value;
-                },
-    filterItemList(field, value) {
-                  if(!value)
-                    this.items = this.allItems;
-                  this.itemValue = value;
-                  this.items = this.allItems.filter((item)=> item.name.includes(value));
-                },
-    async tempInvoice(){
-      this.dataready=false;
-      var temp_item=[];
-      for(var i=0;i<this.lineItems.length;i++)
-      {
-        console.log(this.lineItems[i].item.name+" "+this.lineItems[i].numberOfItems);
-        var temp={
-          item:this.lineItems[i].item.name,
-          quantity:this.lineItems[i].numberOfItems
-        };
-        temp_item.push(temp);
-      }
-      this.tempdoc = await frappe.newDoc({
-        doctype: 'Invoice', 
-        name: 'something',
-        customer:'chirag shetty',
-        items:temp_item
-        });
-      await this.tempdoc.applyChange();
-      this.grandTotal=this.tempdoc.grandTotal;
-      this.netTotal=this.tempdoc.netTotal;
-      console.log(this.grandTotal+" "+this.netTotal);
-      this.dataready=true;
-    },
-    async createInvoice(){
-      if(!this.lineItems.length)
-        alert("No items selected");
-      else{
-        if(this.value=="")
-        {
+      if(this.value=="") {
           alert("No customer Added");
-        }
-        else
-        {
-          var final_item=[];
-          for(var i=0;i<this.lineItems.length;i++)
-          {
-            console.log(this.lineItems[i].item.name+" "+this.lineItems[i].numberOfItems);
-            var temp={
-              item:this.lineItems[i].item.name,
-              quantity:this.lineItems[i].numberOfItems
-            };
-            final_item.push(temp);
-          }
-          frappe.insert({
-                doctype:'Invoice',
-                customer: this.value,
-                items:final_item
-            });
-          alert("Invoice added");
-        }
       }
+      else {
+          var found = this.itemPresent(item);  
+          if(!found) {
+              this.lineItems.push({ item: item, numberOfItems: 1, editing: false });
+          }
+          this.invoice();
+      }
+    },
+
+    itemPresent: function(item) {
+        var found = false;
+        for(var i = 0; i < this.lineItems.length; i++) {
+            if(this.lineItems[i].item === item) {
+                this.lineItems[i].numberOfItems++;
+                found = true;
+                break;
+            }
+        }
+        return found;
+    },
+
+    toggleEdit: function(lineItem) {
+        if(lineItem.editing==true){
+            this.invoice();
+        }
+        lineItem.editing = !lineItem.editing;
+    },
+
+    removeItem: function(lineItem) {
+        for(var i = 0; i < this.lineItems.length; i++) {
+            if(this.lineItems[i] === lineItem) {
+                this.lineItems.splice(i, 1);
+                break;
+            }
+        }
+        this.invoice();
+    },
+
+    updateValue(field, value) {
+        this.value = value;
+    },
+
+    filterItemList(field, value) {
+        if(!value)
+            this.items = this.allItems;
+        this.itemValue = value;
+        this.items = this.allItems.filter((item)=> item.name.includes(value));
+    },
+
+    currentItems() {
+        var item=[];
+        for(var i=0;i<this.lineItems.length;i++) {
+            console.log(this.lineItems[i].item.name+" "+this.lineItems[i].numberOfItems);
+            var item_quantity = {
+                item:this.lineItems[i].item.name,
+                quantity:this.lineItems[i].numberOfItems
+            };
+            item.push(item_quantity);
+        }
+        return item;
+    },
+
+    async invoice() {
+        this.dataready=false;
+        var item= this.currentItems();
+        this.doc = await frappe.newDoc({
+            doctype: 'Invoice', 
+            name: 'something',
+            customer:this.value,
+            items:item
+        });
+        await this.doc.applyChange();
+        this.grandTotal=this.doc.grandTotal;
+        this.netTotal=this.doc.netTotal;
+        console.log(this.grandTotal+" "+this.netTotal);
+        this.dataready=true;
+    },
+
+    async createInvoice(){
+        if(!this.lineItems.length)
+            alert("No items selected");
+        else{
+            await this.doc.insert();
+            alert("Invoice added");
+        }
     }
   }
 };
