@@ -26,14 +26,14 @@ module.exports = {
             "required": 1,
         },
         {
-            "fieldname": "defaultIncoming",
-            "label": "Default Incoming",
+            "fieldname": "enableIncoming",
+            "label": "Enable Incoming",
             "fieldtype": "Check",
             "required": 0
         },
         {
             "fieldname": "emailSync",
-            "label": "Email Sync : Option",
+            "label": "Email Sync ",
             "fieldtype": "Select",
             "options": [
                 "ALL",
@@ -57,7 +57,7 @@ module.exports = {
         {
             "fieldname": "imapHost",
             "label": "IMAP Host",
-            "fieldtype": "Link",
+            "fieldtype": "Data",
             "required": 1
         },
         {
@@ -67,15 +67,15 @@ module.exports = {
             "required": 1
         },
         {
-            "fieldname": "defaultOutgoing",
-            "label": "Default Outgoing",
+            "fieldname": "enableOutgoing",
+            "label": "Enable Outgoing",
             "fieldtype": "Check",
             "required": 0
         },
         {
             "fieldname": "smtpHost",
             "label": "SMTP Host",
-            "fieldtype": "Link",
+            "fieldtype": "Data",
             "required": 1
         },
         {

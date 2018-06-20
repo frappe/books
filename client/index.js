@@ -9,6 +9,7 @@ module.exports = {
         frappe.registerView('List', 'Customer', require('../models/doctype/Party/CustomerList.js'));
         frappe.registerView('List', 'Email', require('../models/doctype/Email/EmailList.js'));
         frappe.registerView('Form', 'Email', require('../models/doctype/Email/EmailForm.js'));
+        frappe.registerView('Form', 'EmailAccount', require('../models/doctype/EmailAccount/EmailAccountForm.js'));
 
         registerReportRoutes();
 
