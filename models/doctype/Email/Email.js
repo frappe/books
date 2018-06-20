@@ -3,6 +3,9 @@ const frappe = require('frappejs');
 module.exports = {
     "name": "Email",
     "doctype": "DocType",
+    "pageSettings": {
+        hideTitle: true
+    },
     "isSingle": 0,
     "isChild": 0,
     "keywordFields": ["name"],

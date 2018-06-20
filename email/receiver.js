@@ -7,6 +7,7 @@ module.exports = {
   sync: async () => {
 
     let account = await getConfig();
+    let emailSyncOption = account[0].emailSync;
     var config = {
       "user": account[0].email,
       "password": account[0].password,
@@ -24,7 +25,7 @@ module.exports = {
       openInbox(function (err, box) {
 
         if (err) throw err;
-        imap.search(['UNSEEN', ['SINCE', 'May 28, 2018']], function (err, results) {
+        imap.search([emailSyncOption, ['SINCE', 'May 28, 2018']], function (err, results) {
           if (err) throw err;
           var fetch = imap.fetch(results, {
             bodies: ''
