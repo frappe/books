@@ -97,7 +97,7 @@ export default {
       grandTotal: 0 ,
       netTotal: 0,
       dataready: true,
-      tempdoc:null,
+      doc:null,
       value:"",
       itemValue: ""
     };
