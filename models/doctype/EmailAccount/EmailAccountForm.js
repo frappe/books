@@ -1,4 +1,4 @@
-const BaseForm = require('frappejs/client/view/Form');
+const BaseForm = require('frappejs/client/view/form');
 const frappe = require('frappejs');
 
 module.exports = class EmailAccountForm extends BaseForm {
