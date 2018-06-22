@@ -98,7 +98,8 @@ export default {
       netTotal: 0,
       dataready: true,
       doc:null,
-      value:""
+      value:"",
+      itemValue: ""
     };
   },
 
