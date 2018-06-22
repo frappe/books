@@ -51,7 +51,7 @@ module.exports = {
         {
             "fieldname": "subject",
             "label": "Subject",
-            "fieldtype": "Text",
+            "fieldtype": "Data",
             "required": 0
         },
         {
