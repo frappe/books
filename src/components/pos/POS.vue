@@ -42,8 +42,14 @@
                         </div>
                         <br>
                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="list-group">
+                                    <button type="button" class="list-group-item item" @click="checkout()">
+                                         <strong>Checkout</strong>
+                                    </button>
+                                </div>
+                            </div>
                             <billing></billing>
-                            <checkout></checkout>
                         </div>
                     </div>
 
@@ -185,6 +191,13 @@ export default {
             item.push(item_quantity);
         }
         return item;
+    },
+    checkout() {
+        let options = {
+            title: "Total Amount: "+this.grandTotal,
+            body: Checkout
+        }
+        this.$modal.show(options);
     },
 
     async invoice() {
