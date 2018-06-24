@@ -1,4 +1,4 @@
-const { _ } = require('frappejs');
+const { _ } = require('frappejs/utils');
 
 export default [
   {
