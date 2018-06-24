@@ -90,6 +90,13 @@ module.exports = {
             "fieldtype": "Int",
             "default": "50",
             "required": 1
+        },
+        {
+            "fieldname" : "initialDate",
+            "label" : "Display mails from",
+            "fieldtype" : "Date",
+            "required" : 0
         }
+               
     ]
 }
