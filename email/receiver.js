@@ -25,7 +25,7 @@ module.exports = {
       openInbox(function (err, box) {
 
         if (err) throw err;
-        imap.search([emailSyncOption], function (err, results) {
+        imap.search([emailSyncOption, ['SINCE', account[0].initialDate]], function (err, results) {
           if (err) throw err;
           var fetch = imap.fetch(results, {
             bodies: ''
