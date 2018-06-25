@@ -63,8 +63,6 @@ export default {
     event.start = DateTime.fromISO(allEvents[i].startDate+"T"+allEvents[i].startTime).toISO()
     event.end = DateTime.fromISO(allEvents[i].endDate+"T"+allEvents[i].endTime).toISO()
 
-    console.log(event.start,"XXX")
-    console.log(event.end,"YYY")
     this.events.push(event);
 
   }
