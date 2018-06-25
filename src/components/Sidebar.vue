@@ -34,8 +34,6 @@ export default {
         isActive(item) {
             if (this.$route.params.doctype) {
                 return this.$route.params.doctype === item.label;
-            } else if(this.$route.params.reportName) {
-                 return this.$route.params.reportName === item.label;
             }
             const route = item.route.slice(1);
             return this.$route.path === route;
