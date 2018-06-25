@@ -13,13 +13,15 @@ import Code from './Code';
 import Currency from './Currency';
 import Data from './Data';
 import Date from './Date';
+import DynamicLink from './DynamicLink';
 import File from './File';
 import Float from './Float';
+import Int from './Int';
 import Link from './Link';
+import Password from './Password';
 import Select from './Select';
 import Table from './Table';
 import Text from './Text';
-import DynamicLink from './DynamicLink';
 
 export default {
     props: ['docfield', 'value', 'onlyInput'],
@@ -32,13 +34,15 @@ export default {
                 Currency,
                 Data,
                 Date,
+                DynamicLink,
                 File,
                 Float,
+                Int,
                 Link,
+                Password,
                 Select,
                 Table,
                 Text,
-                DynamicLink,
             }[this.docfield.fieldtype];
         }
     }
