@@ -15,12 +15,12 @@
           </div>
           <div class="modal-footer">
             <component :is="footerComponent" v-bind="footerProps"/>
-            <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
+            <f-button secondary @click="closeModal">Close</f-button>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal-backdrop show" v-show="show"></div>
+    <div class="modal-backdrop show" v-show="show" @click="closeModal"></div>
   </div>
 </template>
 <script>
@@ -57,7 +57,7 @@ export default {
   },
   methods: {
     closeModal() {
-      this.$modal.hide();
+      this.$emit('close-modal');
     }
   }
 };

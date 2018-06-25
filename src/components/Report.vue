@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="p-4">
-            <h4 class="pb-2">{{ reportName }}</h4>
+            <h4 class="pb-2">{{ reportConfig.title }}</h4>
             <report-filters v-if="reportConfig.filterFields.length" :filters="reportConfig.filterFields" @change="getReportData"></report-filters>
             <div class="pt-2" ref="datatable" v-once></div>
         </div>
@@ -14,18 +14,16 @@ import frappe from 'frappejs'
 import FrappeControl from './controls/FrappeControl'
 import ReportFilters from './ReportFilters'
 import utils from 'frappejs/client/ui/utils'
-import getReportViewConfig from '../../reports/view'
+import reportViewConfig from '../../reports/view'
 
 export default {
     props: ['reportName'],
-    data() {
-        return {
-            'reportConfig': getReportViewConfig[this.reportName]
-        }
-    },
     computed: {
         reportColumns() {
             return utils.convertFieldsToDatatableColumns(this.reportConfig.getColumns())
+        },
+        reportConfig() {
+            return reportViewConfig[this.reportName]
         }
     },
     methods: {

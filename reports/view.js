@@ -1,3 +1,3 @@
 module.exports = {
-    'General Ledger': require('./GeneralLedger/viewConfig')
+    'general-ledger': require('./GeneralLedger/viewConfig')
 }
