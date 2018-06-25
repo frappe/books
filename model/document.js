@@ -34,6 +34,14 @@ module.exports = class BaseDocument extends Observable {
 
     // set value and trigger change
     async set(fieldname, value) {
+        if (typeof fieldname === 'object') {
+            const valueDict = fieldname;
+            for (let fieldname in valueDict) {
+                await this.set(fieldname, valueDict[fieldname]);
+            }
+            return;
+        }
+
         if (this[fieldname] !== value) {
             this._dirty = true;
             this[fieldname] = await this.validateField(fieldname, value);
@@ -54,11 +62,22 @@ module.exports = class BaseDocument extends Observable {
     setDefaults() {
         for (let field of this.meta.fields) {
             if (this[field.fieldname]===null || this[field.fieldname]===undefined) {
+
+                let defaultValue = null;
+
                 if (field.fieldtype === 'Date') {
-                    this[field.fieldname] = (new Date()).toISOString().substr(0, 10);
-                } else if(field.default) {
-                    this[field.fieldname] = field.default;
+                    defaultValue = (new Date()).toISOString().substr(0, 10);
                 }
+
+                if (field.fieldtype === 'Table') {
+                    defaultValue = [];
+                }
+
+                if (field.default) {
+                    defaultValue = field.default;
+                }
+
+                this[field.fieldname] = defaultValue;
             }
         }
     }
