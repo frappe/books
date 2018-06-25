@@ -1,8 +1,7 @@
 <template>
   <div>
     <div :class="['modal fade', modalClasses]" :style="{display: show ? 'block' : ''}" id="frappe-modal"
-      tabindex="-1" role="dialog" aria-labelledby="frappe-modal-label" aria-hidden="true"
-    >
+      tabindex="-1" role="dialog" aria-labelledby="frappe-modal-label" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -11,11 +10,11 @@
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
-          <div class="modal-body">
-            <component :is="body" />
+          <div class="modal-body modal-height">
+            <component :is="bodyComponent" v-bind="bodyProps"/>
           </div>
           <div class="modal-footer">
-            <component :is="footer" />
+            <component :is="footerComponent" v-bind="footerProps"/>
             <button type="button" class="btn btn-secondary" @click="closeModal">Close</button>
           </div>
         </div>
@@ -30,28 +29,42 @@ export default {
     show: Boolean,
     title: {
       type: String,
-      default: 'Modal Title'
+      default: "Modal Title"
     },
-    body: {
+    bodyComponent: {
       type: Object,
       default: null
     },
-    footer: {
+    bodyProps: {
       type: Object,
       default: null
-    }
+    },
+    footerComponent: {
+      type: Object,
+      default: null
+    },
+    footerProps: {
+      type: Object,
+      default: null
+    },
   },
   computed: {
     modalClasses() {
       return {
         show: this.show
-      }
+      };
     }
   },
   methods: {
     closeModal() {
-      this.$emit('closeModal');
+      this.$modal.hide();
     }
   }
-}
+};
 </script>
+<style scoped>
+.modal-height {
+  max-height: 80vh;
+  overflow: auto;
+}
+</style>
