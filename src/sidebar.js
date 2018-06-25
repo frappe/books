@@ -4,38 +4,38 @@ export default [
   {
     items: [
       {
-        label: _('ToDo'), route: '#/list/ToDo'
+        label: 'ToDo', route: '#/list/ToDo'
       },
       {
-        label: _('Event'), route: '#/list/Event'
+        label: 'Event', route: '#/list/Event'
       }
     ]
   },
   {
-    title: _('Masters'),
+    title: 'Masters',
     items: [
       {
-        label: _('Item'), route: '#/list/Item'
+        label: 'Item', route: '#/list/Item'
       },
       {
-        label: _('Party'), route: '#/list/Party'
+        label: 'Party', route: '#/list/Party'
       },
       {
-        label: _('Invoice'), route: '#/list/Invoice'
+        label: 'Invoice', route: '#/list/Invoice'
       },
       {
-        label: _('Tax'), route: '#/list/Tax'
+        label: 'Tax', route: '#/list/Tax'
       },
       {
-        label: _('Account'), route: '#/list/Account'
+        label: 'Account', route: '#/list/Account'
       }
     ]
   },
   {
-    title: _('Reports'),
+    title: 'Reports',
     items: [
       {
-        label: _('General Ledger'), route: '#/report/general-ledger'
+        label: 'General Ledger', route: '#/report/general-ledger'
       }
     ]
   },

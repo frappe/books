@@ -31,7 +31,9 @@ export default new Router({
     {
       path: '/pos/',
       name: 'POS',
-      component: POS,
+      component: POS
+    },
+    {
       path: '/report/:reportName',
       name: 'Report',
       component: Report,
