@@ -35,6 +35,7 @@ export default {
         minChars: 0,
         maxItems: 99,
         sort: this.sort(),
+        filter: this.filter(),
         item: (text, input) => {
           const li = document.createElement('li');
           li.classList.add('dropdown-item');
@@ -52,7 +53,10 @@ export default {
 
     },
     sort() {
-      //
+      // return a function that handles sorting of items
+    },
+    filter() {
+      // return a function that filters list suggestions based on input
     }
   }
 };

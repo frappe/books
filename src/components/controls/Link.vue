@@ -1,12 +1,18 @@
 <script>
 import frappe from 'frappejs';
 import feather from 'feather-icons';
+import Awesomplete from 'awesomplete';
 import Autocomplete from './Autocomplete';
 import Form from '../Form/Form';
 import { _ } from 'frappejs/utils';
 
 export default {
     extends: Autocomplete,
+    watch: {
+        value(newValue) {
+            this.$refs.input.value = newValue;
+        }
+    },
     methods: {
         async getList(query) {
             const list = await frappe.db.getAll({
@@ -43,6 +49,14 @@ export default {
                     return -1;
                 }
                 return a.value > b.value;
+            }
+        },
+        filter() {
+            return (suggestion, txt) => {
+                if (suggestion.value === '__newItem') {
+                    return true;
+                }
+                return Awesomplete.FILTER_CONTAINS(suggestion, txt);
             }
         },
         bindEvents() {
