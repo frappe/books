@@ -68,10 +68,8 @@ export default {
           await this.doc.update();
         }
 
-        if (this.doc.name !== this.$route.params.name) {
-          this.$router.push(`/edit/${this.doctype}/${this.doc.name}`);
-          return;
-        }
+        this.$emit('save', this.doc);
+
       } catch (e) {
         console.error(e);
         return;
@@ -95,7 +93,4 @@ export default {
 };
 </script>
 <style>
-.frappe-form {
-  height: calc(100vh - 50px);
-}
 </style>

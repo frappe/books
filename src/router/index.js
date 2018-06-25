@@ -32,6 +32,12 @@ export default new Router({
       name: 'POS',
       component: POS,
       props: true
+    },
+    {
+      path: '/report/:reportName',
+      name: 'Report',
+      component: Report,
+      props: true
     }
     // {
     //   path: '/table/:doctype',

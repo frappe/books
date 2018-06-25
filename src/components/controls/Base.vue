@@ -40,7 +40,7 @@ export default {
         },
         getLabelElement(h) {
             return h('label', {
-                class: this.labelClass,
+                class: [this.labelClass, 'text-muted'],
                 attrs: {
                     for: this.id
                 },

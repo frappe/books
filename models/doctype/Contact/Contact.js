@@ -10,7 +10,6 @@ module.exports = {
     "keywordFields": [
         "fullName"
     ],
-    "titleField": "fullName",
     "fields": [
         {
             "fieldname": "fullName",
@@ -61,7 +60,7 @@ module.exports = {
     },
 
     listSettings: {
-        getFields(list)  {
+        getFields(list) {
             return ['fullName'];
         },
         getRowHTML(list, data) {

@@ -21,6 +21,7 @@ import FeatherIcon from './components/FeatherIcon';
 import FrappeControl from './components/controls/FrappeControl';
 import Button from './components/Button';
 import Indicator from './components/Indicator';
+import registerReportMethods from '../reports';
 
 frappe.init();
 frappe.registerLibs(common);
@@ -34,6 +35,7 @@ frappe.db.bindSocketClient(socket);
 frappe.registerModels(models);
 frappe.docs = new Observable();
 frappe.getSingle('SystemSettings');
+registerReportMethods()
 
 frappe.getSingle('AccountingSettings')
   .then(accountingSettings => {

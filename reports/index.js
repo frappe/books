@@ -33,7 +33,7 @@ function registerReportMethods() {
         {
             method: 'purchase-register',
             class: PurchaseRegister
-        },
+        }
     ];
 
     reports.forEach(report => {

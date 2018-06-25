@@ -21,7 +21,8 @@ export default {
           this.awesomplete.list = await this.getList(e.target.value);
         },
         'awesomplete-select': e => {
-          this.handleChange(e.text.value);
+          const value = e.text.value;
+          this.handleChange(value);
         }
       }
     },
@@ -44,8 +45,14 @@ export default {
           return li;
         }
       });
+
+      this.bindEvents();
+    },
+    bindEvents() {
+
     },
     sort() {
+      //
     }
   }
 };
@@ -58,7 +65,7 @@ export default {
   padding: 0;
   border: none;
 
-  &> ul {
+  & > ul {
     padding: $dropdown-padding-y 0;
   }
 

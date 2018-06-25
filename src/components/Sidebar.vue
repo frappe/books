@@ -37,7 +37,7 @@ export default {
                 return this.$route.params.doctype === item.label;
             }
             const route = item.route.slice(1);
-            return this.$route.params.doctype === route;
+            return this.$route.path === route;
         }
     }
 }
