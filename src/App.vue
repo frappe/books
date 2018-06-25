@@ -71,6 +71,7 @@ export default {
 
 <style lang="scss">
 @import "~bootstrap/scss/bootstrap";
+@import '~frappe-datatable/dist/frappe-datatable';
 
 html {
   font-size: 14px;

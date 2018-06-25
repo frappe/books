@@ -1,39 +1,41 @@
+const { _ } = require('frappejs/utils');
+
 export default [
   {
     items: [
       {
-        label: 'ToDo', route: '#/list/ToDo'
+        label: _('ToDo'), route: '#/list/ToDo'
       },
       {
-        label: 'Event', route: '#/list/Event'
+        label: _('Event'), route: '#/list/Event'
       }
     ]
   },
   {
-    title: 'Masters',
+    title: _('Masters'),
     items: [
       {
-        label: 'Item', route: '#/list/Item'
+        label: _('Item'), route: '#/list/Item'
       },
       {
-        label: 'Party', route: '#/list/Party'
+        label: _('Party'), route: '#/list/Party'
       },
       {
-        label: 'Invoice', route: '#/list/Invoice'
+        label: _('Invoice'), route: '#/list/Invoice'
       },
       {
-        label: 'Tax', route: '#/list/Tax'
+        label: _('Tax'), route: '#/list/Tax'
       },
       {
-        label: 'Account', route: '#/list/Account'
+        label: _('Account'), route: '#/list/Account'
       }
     ]
   },
   {
-    title: 'Reports',
+    title: _('Reports'),
     items: [
       {
-        label: 'General Ledger', route: '#/report/general-ledger'
+        label: _('General Ledger'), route: '#/report/general-ledger'
       }
     ]
   },

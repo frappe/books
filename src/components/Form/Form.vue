@@ -4,7 +4,7 @@
           v-if="shouldRenderForm"
           :doctype="doctype"
           :name="name"
-          :title="doc[meta.titleField]"
+          :title="formTitle"
           @save="save"
         />
         <div class="p-3">
@@ -23,6 +23,7 @@
 import frappe from 'frappejs';
 import FormLayout from './FormLayout';
 import FormActions from './FormActions';
+import { _ } from 'frappejs/utils';
 
 export default {
   name: 'Form',
@@ -45,6 +46,12 @@ export default {
     },
     shouldRenderForm() {
       return this.name && this.docLoaded;
+    },
+    formTitle() {
+      if (this.doc._notInserted) {
+        return _('New {0}', _(this.doctype));
+      }
+      return this.doc[this.meta.titleField];
     }
   },
   async created() {
@@ -68,10 +75,8 @@ export default {
           await this.doc.update();
         }
 
-        if (this.doc.name !== this.$route.params.name) {
-          this.$router.push(`/edit/${this.doctype}/${this.doc.name}`);
-          return;
-        }
+        this.$emit('save', this.doc);
+
       } catch (e) {
         console.error(e);
         return;
@@ -95,7 +100,4 @@ export default {
 };
 </script>
 <style>
-.frappe-form {
-  height: calc(100vh - 50px);
-}
 </style>
