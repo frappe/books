@@ -9,8 +9,8 @@
     </div>
 </template>
 <script>
-import List from './List/List';
-import Form from './Form/Form';
+import List from '@/components/List/List';
+import Form from '@/components/Form/Form';
 
 export default {
     props: ['doctype', 'name', 'filters'],
