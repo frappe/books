@@ -6,10 +6,10 @@ const frappe = require('frappejs');
 module.exports = {
     format(value, field) {
         if (typeof field === 'string') {
-            field = {fieldtype: field};
+            field = { fieldtype: field };
         }
 
-        if (field.fieldtype==='Currency') {
+        if (field.fieldtype === 'Currency') {
             value = number_format.format_number(value);
 
         } else if (field.fieldtype === 'Text') {
@@ -26,7 +26,7 @@ module.exports = {
             value = moment(value).format(dateFormat.toUpperCase());
 
         } else {
-            if (value===null || value===undefined) {
+            if (value === null || value === undefined) {
                 value = '';
             } else {
                 value = value + '';

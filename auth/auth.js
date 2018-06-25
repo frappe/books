@@ -64,11 +64,12 @@ module.exports = () => {
                     email: user.name,
                     exp: timeInSecondsAfterHr(24)
                 };
+
                 const token = jwt.encode(payload, jwtSecret);
                 res.json({
                     token: token
                 });
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 res.sendStatus(401);
             }
@@ -100,7 +101,7 @@ module.exports = () => {
                 res.json({
                     user: user.email
                 });
-            } catch(e) {
+            } catch (e) {
                 console.error(e);
                 res.status(500).send('Something went wrong!');
             }
@@ -108,6 +109,6 @@ module.exports = () => {
     };
 };
 
-function timeInSecondsAfterHr(hour=1) {
+function timeInSecondsAfterHr(hour = 1) {
     return Math.floor(Date.now() / 1000) + (3600 * hour)
 }

@@ -50,14 +50,14 @@ class todo_meta extends frappe.meta.Meta {
 
 Standard events on which you can bind handlers are
 
-- `before_insert`
-- `before_update`
+- `beforeInsert`
+- `beforeUpdate`
 - `validate` (called before any write)
-- `after_insert`,
-- `after_update` (called after any write)
-- `before_submit`
-- `after_submit`
-- `before_cancel`
-- `after_cancel`
-- `before_delete`
-- `after_delete`
+- `afterInsert`,
+- `afterUpdate` (called after any write)
+- `beforeSubmit`
+- `afterSubmit`
+- `beforeCancel`
+- `afterCancel`
+- `beforeDelete`
+- `afterDelete`
