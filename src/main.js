@@ -55,7 +55,7 @@ Vue.component('frappe-control', FrappeControl);
 Vue.component('f-button', Button);
 Vue.component('indicator', Indicator);
 
-Vue.use(FullCalendar);
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

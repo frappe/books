@@ -1,19 +1,6 @@
 const { DateTime } = require('luxon');
 const EventDocument = require('./EventDocument');
 
-var hoursArray = [];
-var minutesArray = [];
-
-for(var i=0; i<25; i++)
-{
-    hoursArray.push(String(i))
-}
-
-for(var i=0; i<61; i++)
-{
-    minutesArray.push(String(i))
-}
-
 module.exports = {
     name: "Event",
     doctype: "DocType",
@@ -32,16 +19,9 @@ module.exports = {
             fieldtype: "Date"
         },
         {
-            fieldname: "startHour",
-            label: "Start Hour",
-            fieldtype: "Select",
-            options: hoursArray
-        },
-        {
-            fieldname: "startMinute",
-            label: "Start Minute",
-            fieldtype: "Select",
-            options: minutesArray
+            fieldname: "startTime",
+            label: "Start Time",
+            fieldtype: "Time",
         },
         {
             fieldname: "endDate",
@@ -49,16 +29,9 @@ module.exports = {
             fieldtype: "Date"
         },
         {
-            fieldname: "endHour",
-            label: "End Hour",
-            fieldtype: "Select",
-            options: hoursArray
-        },
-        {
-            fieldname: "endMinute",
-            label: "End Minute",
-            fieldtype: "Select",
-            options: minutesArray
+            fieldname: "endTime",
+            label: "End Time",
+            fieldtype: "Time",
         },
         {
             fieldname: "daysUntil",
@@ -72,12 +45,12 @@ module.exports = {
                 return diff.as('day');
             }
         },
-        // {
-        //     fieldname: 'schedule',
-        //     fieldtype: 'Table',
-        //     childtype: 'EventSchedule',
-        //     label: 'Schedule'
-        // }
+        {
+            fieldname: 'schedule',
+            fieldtype: 'Table',
+            childtype: 'EventSchedule',
+            label: 'Schedule'
+        }
     ],
     layout: [
         {
@@ -87,15 +60,15 @@ module.exports = {
         },
         {
             columns:[
-                {fields: ["startDate","startHour","startMinute"]},
-                {fields: ["endDate","endHour","endMinute"]},
+                {fields: ["startDate","startTime"]},
+                {fields: ["endDate","endTime"]},
             ]
         },
         {
             columns:[
                 {fields:["daysUntil"]}
             ]
-        }
+        },
     ],
     titleField: 'title',
     keywordFields: [],
