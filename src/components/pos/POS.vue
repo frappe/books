@@ -200,6 +200,7 @@ export default {
     checkout() {
         let options = {
             title: "Total Amount: "+this.grandTotal,
+            bodyMessage: null,
             bodyComponent: Checkout,
             bodyProps: {grandTotal: this.grandTotal}
         }

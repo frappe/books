@@ -6,7 +6,7 @@
     <h6>Cheque</h6>
     <input v-model="cheque" @click="() => changeFocus(this.inputFields.cheque)">
     <h6>Outstanding</h6>
-    <input v-model="outstanding">
+    <input v-model="outstandingAmount">
   </div>
   <div class="col-md-6">
     <numpad :appendNum="append" :addDecimalPoint="addDP" :delNum="del"></numpad>
@@ -20,10 +20,9 @@ export default {
     components: {
       Numpad
     },
-    bodyProps: ['grandtotal'],
+    bodyProps: ['grandTotal'],
     data() {
       return {
-
         cash: "",
 				cheque: "",
         outstanding: 0,
@@ -55,12 +54,12 @@ export default {
    	 	},
 			changeFocus: function(target){
         this.focused = target;
-        console.log(grandTotal);
+        console.log(this.grandTotal);
 			}
     },
     computed: {
         outstandingAmount(){
-            this.outstanding =  grandTotal - parseFloat(this.cash) - parseFloat(this.cheque)
+            return this.outstanding =  grandTotal - parseFloat(this.cash) - parseFloat(this.cheque)
         }
     }
 }
