@@ -129,7 +129,11 @@ export default {
   methods: {
     onItemClick: function(item) {
       if(this.value=="") {
-          alert("No customer Added");
+        let TextMessage = {
+            title: "Error",
+            bodyMessage: "No customer selected"
+        }
+        this.$modal.show(TextMessage);
       }
       else {
           var found = this.itemPresent(item);  
@@ -192,6 +196,7 @@ export default {
         }
         return item;
     },
+
     checkout() {
         let options = {
             title: "Total Amount: "+this.grandTotal,
@@ -218,11 +223,20 @@ export default {
     },
 
     async createInvoice(){
-        if(!this.lineItems.length)
-            alert("No items selected");
+        if(!this.lineItems.length){
+            let TextMessage = {
+                title: "Error",
+                bodyMessage: "No items added"
+            }
+            this.$modal.show(TextMessage);
+        }
         else{
             await this.doc.insert();
-            alert("Invoice added");
+            let TextMessage = {
+                title: "Success",
+                bodyMessage: "Invoice Added"
+            }
+            this.$modal.show(TextMessage);
         }
     }
   }
