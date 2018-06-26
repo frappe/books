@@ -5,6 +5,7 @@
           :doctype="doctype"
           :name="name"
           :title="formTitle"
+          :isDirty="isDirty"
           @save="save"
         />
         <div class="p-3">
@@ -37,6 +38,7 @@ export default {
       docLoaded: false,
       notFound: false,
       invalid: false,
+      isDirty: false,
       invalidFields: []
     }
   },
@@ -58,6 +60,9 @@ export default {
     if (!this.name) return;
     try {
       this.doc = await frappe.getDoc(this.doctype, this.name);
+      this.doc.on('change', () => {
+        this.isDirty = this.doc._dirty;
+      });
       this.docLoaded = true;
     } catch(e) {
       this.notFound = true;
