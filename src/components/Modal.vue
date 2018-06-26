@@ -12,6 +12,7 @@
           </div>
           <div class="modal-body modal-height">
             <component :is="bodyComponent" v-bind="bodyProps"/>
+            <p class="modal-title" id="frappe-modal-label">{{ bodyMessage }}</p>
           </div>
           <div class="modal-footer">
             <component :is="footerComponent" v-bind="footerProps"/>
@@ -30,6 +31,10 @@ export default {
     title: {
       type: String,
       default: "Modal Title"
+    },
+    bodyMessage: {
+      type: String,
+      default: "Modal Message"
     },
     bodyComponent: {
       type: Object,
