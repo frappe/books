@@ -21,7 +21,8 @@ export default {
           this.awesomplete.list = await this.getList(e.target.value);
         },
         'awesomplete-select': e => {
-          this.handleChange(e.text.value);
+          const value = e.text.value;
+          this.handleChange(value);
         }
       }
     },
@@ -34,6 +35,7 @@ export default {
         minChars: 0,
         maxItems: 99,
         sort: this.sort(),
+        filter: this.filter(),
         item: (text, input) => {
           const li = document.createElement('li');
           li.classList.add('dropdown-item');
@@ -44,8 +46,17 @@ export default {
           return li;
         }
       });
+
+      this.bindEvents();
+    },
+    bindEvents() {
+
     },
     sort() {
+      // return a function that handles sorting of items
+    },
+    filter() {
+      // return a function that filters list suggestions based on input
     }
   }
 };
@@ -58,7 +69,7 @@ export default {
   padding: 0;
   border: none;
 
-  &> ul {
+  & > ul {
     padding: $dropdown-padding-y 0;
   }
 

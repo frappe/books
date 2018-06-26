@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import ListAndForm from '@/components/ListAndForm'
+import ListAndForm from '@/pages/ListAndForm'
 import SetupWizard from '@/pages/SetupWizard/SetupWizard'
 import POS from '@/components/pos/POS'
+import Report from '@/components/Report'
 
 Vue.use(Router)
 
@@ -30,7 +31,12 @@ export default new Router({
     {
       path: '/pos/',
       name: 'POS',
-      component: POS,
+      component: POS
+    },
+    {
+      path: '/report/:reportName',
+      name: 'Report',
+      component: Report,
       props: true
     }
     // {

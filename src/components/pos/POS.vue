@@ -195,7 +195,8 @@ export default {
     checkout() {
         let options = {
             title: "Total Amount: "+this.grandTotal,
-            body: Checkout
+            bodyComponent: Checkout,
+            bodyProps: {grandTotal: this.grandTotal}
         }
         this.$modal.show(options);
     },

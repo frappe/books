@@ -1,3 +1,5 @@
+const { _ } = require('frappejs/utils');
+
 export default [
   {
     items: [

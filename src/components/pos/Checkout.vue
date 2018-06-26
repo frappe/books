@@ -20,6 +20,7 @@ export default {
     components: {
       Numpad
     },
+    bodyProps: ['grandtotal'],
     data() {
       return {
 
@@ -53,7 +54,8 @@ export default {
 				}
    	 	},
 			changeFocus: function(target){
-				this.focused = target;
+        this.focused = target;
+        console.log(grandTotal);
 			}
     },
     computed: {
