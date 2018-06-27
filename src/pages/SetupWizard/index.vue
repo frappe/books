@@ -34,7 +34,7 @@
 </template>
 <script>
 import Observable from 'frappejs/utils/observable';
-import FormLayout from '@/components/Form/FormLayout';
+import FormLayout from 'frappejs/ui/components/Form/FormLayout';
 import setupConfig from './config';
 
 export default {
