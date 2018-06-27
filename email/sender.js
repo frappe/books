@@ -6,10 +6,12 @@ module.exports = {
     let account = await getConfig(mailDetails.fromEmailAddress);
     for (var i = 0; i < account.length; i++) {
       if (mailDetails.fromEmailAddress == account[i].email) {
-        var mailKey = "Sent to : " + mailDetails.toEmailAddress + " " + mailDetails.subject.slice(0, 10); // needs change : THINK
+        var mailKey = "Sent to : " + mailDetails.toEmailAddress + " " + mailDetails.subject.slice(0, 10); + " " + mailDetails.subject.slice(0, 10); // needs change : THINK
         mailDetails = {
           from: mailDetails.fromEmailAddress,
           to: mailDetails.toEmailAddress,
+          cc: mailDetails.ccEmailAddress,
+          bcc: mailDetails.bccEmailAddress,
           subject: mailDetails.subject,
           text: mailDetails.bodyText,
         };
