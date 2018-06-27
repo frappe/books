@@ -23,8 +23,8 @@ export default {
     props: ['grandTotal'],
     data() {
       return {
-        cash: "",
-				cheque: "",
+        cash: 0,
+				cheque: 0,
 				focused: "",
 				inputFields: {
           cash: "CASH",
