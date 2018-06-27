@@ -1,0 +1,103 @@
+<script>
+export default {
+    render(h) {
+        if (this.onlyInput) {
+            return this.getInputElement(h);
+        }
+        return this.getWrapperElement(h);
+    },
+    props: {
+        docfield: Object,
+        value: [String, Number, Array],
+        onlyInput: {
+            type: Boolean,
+            default: false
+        }
+    },
+    computed: {
+        id() {
+            return this.docfield.fieldname + '-'
+              + document.querySelectorAll(`[data-fieldname="${this.docfield.fieldname}"]`).length;
+        },
+        inputClass() {
+            return [];
+        },
+        wrapperClass() {
+            return [];
+        },
+        labelClass() {
+            return [];
+        }
+    },
+    methods: {
+        getWrapperElement(h) {
+            return h('div', {
+                class: ['form-group', ...this.wrapperClass],
+                attrs: {
+                    'data-fieldname': this.docfield.fieldname
+                }
+            }, [this.getLabelElement(h), this.getInputElement(h)]);
+        },
+        getLabelElement(h) {
+            return h('label', {
+                class: [this.labelClass, 'text-muted'],
+                attrs: {
+                    for: this.id
+                },
+                domProps: {
+                    textContent: this.docfield.label
+                }
+            });
+        },
+        getInputElement(h) {
+            return h(this.getInputTag(), {
+                class: this.getInputClass(),
+                attrs: this.getInputAttrs(),
+                on: this.getInputListeners(),
+                domProps: this.getDomProps(),
+                ref: 'input'
+            }, this.getInputChildren(h));
+        },
+        getInputTag() {
+            return 'input';
+        },
+        getInputClass() {
+            return ['form-control', ...this.inputClass];
+        },
+        getInputAttrs() {
+            return {
+                id: this.id,
+                type: 'text',
+                placeholder: '',
+                value: this.value,
+                required: this.docfield.required
+            }
+        },
+        getInputListeners() {
+            return {
+                change: (e) => {
+                    this.handleChange(e.target.value);
+                }
+            };
+        },
+        getInputChildren() {
+            return null;
+        },
+        getDomProps() {
+            return null;
+        },
+        async handleChange(value) {
+            value = this.parse(value);
+            const isValid = await this.validate(value);
+            this.$refs.input.setCustomValidity(isValid === false ? 'error' : '');
+            this.$emit('change', value);
+        },
+        validate() {
+            return true;
+        },
+        parse(value) {
+            return value;
+        }
+    }
+}
+</script>
