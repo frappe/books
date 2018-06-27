@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const frappe = require('frappejs');
 const getConfig = require("./getConfig");
 
 module.exports = {
