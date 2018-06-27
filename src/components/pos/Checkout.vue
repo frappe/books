@@ -20,12 +20,11 @@ export default {
     components: {
       Numpad
     },
-    bodyProps: ['grandTotal'],
+    props: ['grandTotal'],
     data() {
       return {
-        cash: "",
-				cheque: "",
-        outstanding: 0,
+        cash: 0,
+				cheque: 0,
 				focused: "",
 				inputFields: {
           cash: "CASH",
@@ -59,7 +58,7 @@ export default {
     },
     computed: {
         outstandingAmount(){
-            return this.outstanding =  grandTotal - parseFloat(this.cash) - parseFloat(this.cheque)
+            return this.grandTotal - parseFloat(this.cash) - parseFloat(this.cheque)
         }
     }
 }
