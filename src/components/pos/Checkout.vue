@@ -26,39 +26,69 @@ export default {
         cash: 0,
 				cheque: 0,
 				focused: "",
+        cashDecCount: 0,
+        chequeDecCount: 0,
 				inputFields: {
           cash: "CASH",
-					cheque: "CHEQUE"
+					cheque: "CHEQUE",
+          cashDec: "CASH_DEC",
+          chequeDec: "CHEQUE_DEC"
 				}
       }
     },
     methods: {
       append: function(value){
 				switch(this.focused){
-					case "CASH": this.cash += value; break;
-					case "CHEQUE": this.cheque += value; break;
+					case "CASH": this.cash = this.cash*10 + value; break;
+          case "CASH_DEC": 
+            if(this.cashDecCount == -2) break;
+            this.cashDecCount--;
+            this.cash = this.cash + Math.pow(10, this.cashDecCount)*value;
+            if(this.cashDecCount == -2) this.cash = this.cash.toFixed(2);
+            break;
+					case "CHEQUE": this.cheque = this.cheque*10 + value; break;
+          case "CHEQUE_DEC": 
+            if(this.chequeDecCount == -2) break;
+            this.chequeDecCount--;
+            this.cheque = this.cheque + Math.pow(10, this.chequeDecCount)*value;
+            if(this.chequeDecCount == -2) this.cheque = this.cheque.toFixed(2);
+            break;
 				}	
 			},
 			del: function() {
 				switch(this.focused){
-					case "CASH": this.cash = this.cash.slice(0, -1); break;
-					case "CHEQUE": this.cheque = this.cheque.slice(0, -1);; break;
+					case "CASH": this.cash = (this.cash - this.cash%10)/10; break;
+          case "CASH_DEC": 
+            this.cash = parseFloat(this.cash.toString().slice(0,-1));
+            this.cashDecCount++;
+            if(this.cashDecCount == 0) this.focused = "CASH"; break;
+            break;
+					case "CHEQUE": this.cheque = (this.cheque - this.cheque%10)/10; break;
+          case "CHEQUE_DEC": 
+            this.cheque = parseFloat(this.cheque.toString().slice(0,-1));
+            this.chequeDecCount++;
+            if(this.chequeDecCount == 0) this.focused = "CHEQUE"; break;
+            break;
 				}
     	},
     	addDP: function(value) {
 				switch(this.focused){
-					case "CASH": if (!this.cash.includes(".")) this.cash += "."; break;
-					case "CHEQUE": if (!this.cheque.includes(".")) this.cheque += "."; break;
+					case "CASH": this.focused = "CASH_DEC"; break;
+					case "CHEQUE": this.focused = "CHEQUE_DEC"; break;
 				}
    	 	},
 			changeFocus: function(target){
         this.focused = target;
-        console.log(this.grandTotal);
+        switch(target){
+          case "CASH": if(this.cashDecCount < 0) this.focused = "CASH_DEC"; break;
+          case "CHEQUE": if(this.chequeDecCount < 0) this.focused = "CHEQUE_DEC"; break;
+        }
 			}
     },
     computed: {
         outstandingAmount(){
-            return this.grandTotal - parseFloat(this.cash) - parseFloat(this.cheque)
+          console.log(this.focused);
+            return (this.grandTotal - parseFloat(this.cash) - parseFloat(this.cheque)).toFixed(2);
         }
     }
 }
