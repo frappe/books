@@ -21,15 +21,15 @@
                               <tbody>
                                   <tr>
                                       <td>Subtotal:</td>
-                                      <td>{{ this.netTotal }}</td>
+                                      <td style="text-align:right">{{ this.netTotal }}</td>
                                   </tr>
                                   <tr>
                                       <td>Tax:</td>
-                                      <td>{{ this.grandTotal-this.netTotal }}</td>
+                                      <td style="text-align:right">{{ this.grandTotal-this.netTotal }}</td>
                                   </tr>
                                   <tr>
                                       <td>Total:</td>
-                                      <td>{{ this.grandTotal }}</td>
+                                      <td style="text-align:right">{{ this.grandTotal }}</td>
                                   </tr>
                                 </tbody>
                           </table>
@@ -243,5 +243,8 @@ export default {
   }
 };
 </script>
-<style>
+<style scoped>
+.container{
+    margin-top: 4rem;
+}
 </style>
