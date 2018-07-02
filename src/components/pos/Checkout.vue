@@ -2,11 +2,11 @@
 <div class="row">
   <div class="col-md-6">
     <h6>Cash</h6>
-    <input v-model="cash" @click="() => changeFocus(this.inputFields.cash)">
+    <input class="form-control" v-model="cash" @click="() => changeFocus(this.inputFields.cash)">
     <h6>Cheque</h6>
-    <input v-model="cheque" @click="() => changeFocus(this.inputFields.cheque)">
+    <input class="form-control" v-model="cheque" @click="() => changeFocus(this.inputFields.cheque)">
     <h6>Outstanding</h6>
-    <input v-model="outstandingAmount">
+    <input class="form-control" v-model="outstandingAmount">
   </div>
   <div class="col-md-6">
     <numpad :appendNum="append" :addDecimalPoint="addDP" :delNum="del"></numpad>
@@ -93,3 +93,9 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.form-control {
+    margin-bottom: 16px;
+}
+</style>
