@@ -2,26 +2,60 @@
 <div class="col-md-6">
     <div class="list-group">
         <button class="list-group-item item" @click="printPDF()">
-            <strong>Generate Bill</strong>
+            <strong>Print Bill</strong>
         </button>
     </div>
 </div>
 </template>
 
 <script>
+  import  jsPDF from 'jspdf';
 export default {
+  props: ["items", "customer", "netTotal", "grandTotal"],
   methods: {
-	// actual PDF options
-	async printPDF(){
-        // init the jsPDF library
-        let pdf = new jsPDF();
-        // @param 1 - Coordinate (in units declared at inception of PDF document) against left edge of the page
-        // @param 2 - Coordinate (in units declared at inception of PDF document) against upper edge of the page
-        // @param 3 - String or array of strings to be added to the page. Each line is shifted one line down per font, spacing settings declared before this call.
-        pdf.text(10, 10, `You have to pay ${tempdoc.grandTotal}$`);
-        // save the PDF document (downloadable)
-        pdf.save();
-    },
+    printPDF() {
+      // console.log(this.items, this.customer, this.netTotal, this.grandTotal);
+
+      let pdf = new jsPDF("p", "mm", "a4");
+      //format pdf
+      let x = 20;
+      let y = 25;
+
+      pdf.setFontSize(20);
+      // pdf.setFont("monospaced sans serif");
+      pdf.setFontType("bold");
+      pdf.setTextColor(65, 105, 225);
+      pdf.text(x, y, "ABC Corporation");
+      y += 5;
+      pdf.line(x, y, x + 165, y);
+
+      pdf.setFontSize(16);
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontType("normal");
+
+      y += 20;
+      pdf.text(x, 50, "Customer Name: " + this.customer);
+
+      y += 20;
+      pdf.text(x, y, "Items:");
+      y += 10;
+      this.items.forEach(item => {
+        pdf.text(x, y, item.item.name + " : " + item.numberOfItems);
+        y += 10;
+      });
+
+      y += 5;
+      pdf.line(x, y, x + 165, y);
+
+      y += 10;
+      pdf.text(x, y, "Net Total: " + this.netTotal);
+      y += 10;
+      pdf.text(x, y, "Grand Total: " + this.grandTotal);
+
+      pdf.autoPrint();
+      // pdf.save(); //to download pdf
+      window.open(pdf.output("bloburl"), "_blank");
+    }
   }
-}
+};
 </script>

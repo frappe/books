@@ -49,7 +49,8 @@
                                     </button>
                                 </div>
                             </div>
-                            <billing></billing>
+                            <billing :items="lineItems" :customer="value" :netTotal="netTotal" :grandTotal="grandTotal">
+                            </billing>
                         </div>
                     </div>
 
@@ -221,6 +222,7 @@ export default {
         this.netTotal=this.doc.netTotal;
         console.log(this.grandTotal+" "+this.netTotal);
         this.dataready=true;
+        console.log(this.doc);
     },
 
     async createInvoice(){
