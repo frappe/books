@@ -69,7 +69,7 @@
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
 import frappe from "frappejs";
-import FrappeControl from '../../components/controls/FrappeControl';
+import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';
 
 export default {
   components: {

@@ -45,4 +45,4 @@ export default [
       label: 'Point Of Sale', route: '#/pos/'
     }]
   }
-]
+];
