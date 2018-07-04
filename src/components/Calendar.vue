@@ -18,18 +18,7 @@ import FullCalendar from 'vue-full-calendar';
 const { DateTime } = require('luxon');
 Vue.use(FullCalendar);
 
-const getCircularReplacer = () => {
-  const seen = new WeakSet;
-  return (key, value) => {
-    if (typeof value === "object" && value !== null) {
-      if (seen.has(value)) {
-        return;
-      }
-      seen.add(value);
-    }
-    return value;
-  };
-};
+
 
 export default {
   name: 'calendarFull',
@@ -39,7 +28,7 @@ export default {
 
       config: {
         eventClick: (event) => {
-          this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
+          this.selected = event;
         },
       },
 
@@ -72,18 +61,14 @@ export default {
       this.selected = event;
       let allEvents = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
       let currEvent = await frappe.getDoc('Event', allEvents[0].name);
-
-      this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
       
       var dtstart = (event.start).format("YYYY-MM-DD HH:mm").split(" ")
       currEvent.startTime = dtstart[1];
       currEvent.startDate = dtstart[0];
 
-
       var dtend = (event.end).format("YYYY-MM-DD HH:mm").split(" ")
       currEvent.endTime = dtend[1];
       currEvent.endDate = dtend[0];
-
 
       await currEvent.update();
       this.selected = {};
@@ -94,7 +79,6 @@ export default {
       let allEvents = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
       let currEvent = await frappe.getDoc('Event', allEvents[0].name);
 
-      this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
       
       var dtstart = (event.start).format("YYYY-MM-DD HH:mm").split(" ")
       currEvent.startTime = dtstart[1];
@@ -116,8 +100,10 @@ export default {
 
     async removeEvent() {
       this.$refs.calendar.$emit('remove-event', this.selected);
+      
       let allEvents = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
       let currEvent = await frappe.getDoc('Event', allEvents[0].name);
+      
       await currEvent.delete();
       this.selected = {};
     },
