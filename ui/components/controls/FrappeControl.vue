@@ -22,6 +22,7 @@ import Password from './Password';
 import Select from './Select';
 import Table from './Table';
 import Text from './Text';
+import Time from './Time'
 
 export default {
     props: ['docfield', 'value', 'onlyInput'],
@@ -43,6 +44,7 @@ export default {
                 Select,
                 Table,
                 Text,
+                Time,
             }[this.docfield.fieldtype];
         }
     }
