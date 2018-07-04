@@ -30,7 +30,7 @@ const routes = [].concat(coreRoutes, [
     }
   },
   {
-    path: 'calendar/:doctype',
+    path: '/calendar/:doctype',
     name:'Calendar',
     component: Calendar,
     props: true

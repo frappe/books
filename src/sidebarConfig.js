@@ -8,6 +8,9 @@ export default [
       },
       {
         label: _('Event'), route: '#/list/Event'
+      },
+      {
+        label: _('Calendar'), route: '#/calendar/Calendar'
       }
     ]
   },
