@@ -1,24 +1,31 @@
 <template>
   <div id="app">
-    <frappe-desk v-if="showDesk">
+    <frappe-desk v-if="showDesk" :sidebarConfig="sidebarConfig">
       <router-view />
     </frappe-desk>
     <router-view v-else name="setup" />
+    <frappe-modal ref="modal" :show="modalVisible" v-bind="modalOptions" @close-modal="modalVisible = false"/>
   </div>
 </template>
 
 <script>
-import Desk from '@/components/Desk';
+import Vue from 'vue';
+import Observable from 'frappejs/utils/observable';
+import Desk from 'frappejs/ui/components/Desk';
+import Modal from 'frappejs/ui/components/Modal';
+import sidebarConfig from './sidebarConfig';
 
 export default {
   name: 'App',
   data() {
     return {
-      showDesk: true
+      showDesk: true,
+      sidebarConfig
     }
   },
   components: {
-    FrappeDesk: Desk
+    FrappeDesk: Desk,
+    FrappeModal: Modal
   },
   async beforeRouteUpdate(to, from, next) {
     const accountingSettings = await frappe.getSingle('AccountingSettings');
@@ -33,6 +40,7 @@ export default {
 
 <style lang="scss">
 @import "~bootstrap/scss/bootstrap";
+@import '~frappe-datatable/dist/frappe-datatable';
 
 html {
   font-size: 14px;
