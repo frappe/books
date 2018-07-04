@@ -83,7 +83,7 @@ import ItemList from "./ItemList";
 import Billing from "./Billing";
 import Checkout from "./Checkout";
 import frappe from "frappejs";
-import FrappeControl from '../controls/FrappeControl';
+import FrappeControl from '../../components/controls/FrappeControl';
 
 export default {
   components: {

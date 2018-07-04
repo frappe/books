@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import Numpad from "../Numpad";
+import Numpad from "./Numpad";
 export default {
     components: {
       Numpad

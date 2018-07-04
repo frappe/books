@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import ListAndForm from '@/pages/ListAndForm'
 import SetupWizard from '@/pages/SetupWizard/SetupWizard'
-import POS from '@/components/pos/POS'
+import POS from '../pages/PointOfSale/POS'
 import Report from '@/components/Report'
 
 Vue.use(Router)
