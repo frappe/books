@@ -52,6 +52,7 @@ export default {
           doctype: "Event",
           fields: ["title", "startDate","startHour","startMinute","endDate","endHour","endMinute","name"]
         })
+  console.log(allEvents)
   this.events=[];
   for(var i=0;i<allEvents.length;i++){
     var event = {};
