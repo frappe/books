@@ -12,10 +12,11 @@
 </template>
 
 <script>
-import moment,{ lang } from 'moment';
 import frappe from "frappejs";
-import { StringDecoder } from 'string_decoder';
+import Vue from 'vue'
+import FullCalendar from 'vue-full-calendar';
 const { DateTime } = require('luxon');
+Vue.use(FullCalendar);
 
 const getCircularReplacer = () => {
   const seen = new WeakSet;
@@ -38,7 +39,6 @@ export default {
 
       config: {
         eventClick: (event) => {
-          console.log(event);
           this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
         },
       },
@@ -50,9 +50,8 @@ export default {
   async created(){ 
   var allEvents=await frappe.db.getAll({
           doctype: "Event",
-          fields: ["title", "startDate","startHour","startMinute","endDate","endHour","endMinute","name"]
+          fields: ["title", "startDate","startTime","endDate","endTime","name"]
         })
-  console.log(allEvents)
   this.events=[];
   for(var i=0;i<allEvents.length;i++){
     var event = {};
@@ -60,17 +59,11 @@ export default {
     event.title = allEvents[i].title;
     event.id = allEvents[i].name;
 
-    var dtstart = DateTime.fromISO(allEvents[i].startDate).set({hour: parseInt(allEvents[i].startHour), minute: parseInt(allEvents[i].startMinute)});
-    var dtend = DateTime.fromISO(allEvents[i].endDate).set({hour: parseInt(allEvents[i].endHour), minute: parseInt(allEvents[i].endMinute)});
-
-    console.log(dtstart,"INPUT")
-    event.start = dtstart.toISO();
-    event.end = dtend.toISO();
-    
-    var test = DateTime.fromISO(event.start).hour;
+    event.start = DateTime.fromISO(allEvents[i].startDate+"T"+allEvents[i].startTime).toISO()
+    event.end = DateTime.fromISO(allEvents[i].endDate+"T"+allEvents[i].endTime).toISO()
 
     this.events.push(event);
-    // console.log(event);
+
   }
   },
 
@@ -79,19 +72,17 @@ export default {
       this.selected = event;
       let allEvents = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
       let currEvent = await frappe.getDoc('Event', allEvents[0].name);
-      // console.log("xxxxxxxx",this.selected.start);
+
       this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
       
-      var dtstart = DateTime.fromISO(String(this.selected.start));
-      currEvent.startHour = String(dtstart.hour);
-      currEvent.startMinute = String(dtstart.minute);
-      currEvent.startDate = dtstart.toISO();
+      var dtstart = (event.start).format("YYYY-MM-DD HH:mm").split(" ")
+      currEvent.startTime = dtstart[1];
+      currEvent.startDate = dtstart[0];
 
 
-      var dtend = DateTime.fromISO(String(this.selected.end));
-      currEvent.endHour = String(dtend.hour);
-      currEvent.endMinute = String(dtend.minute);
-      currEvent.endDate = dtend.toISO();
+      var dtend = (event.end).format("YYYY-MM-DD HH:mm").split(" ")
+      currEvent.endTime = dtend[1];
+      currEvent.endDate = dtend[0];
 
 
       await currEvent.update();
@@ -102,18 +93,17 @@ export default {
       this.selected = event;
       let allEvents = await frappe.db.getAll({doctype:'Event', fields:['name'], filters: {name: this.selected.id}});
       let currEvent = await frappe.getDoc('Event', allEvents[0].name);
-      // console.log("xxxxxxxx",this.selected.start);
+
       this.selected = JSON.parse(JSON.stringify(event, getCircularReplacer()));
       
-      var dtstart = DateTime.fromISO(this.selected.start);
-      currEvent.startDate = dtstart.toISO();
-      currEvent.startHour = String(dtstart.hour);
-      currEvent.startMinute = String(dtstart.minute);
+      var dtstart = (event.start).format("YYYY-MM-DD HH:mm").split(" ")
+      currEvent.startTime = dtstart[1];
+      currEvent.startDate = dtstart[0];
 
-      var dtend = DateTime.fromISO(String(this.selected.end));
-      currEvent.endDate = dtend.toISO();
-      currEvent.endHour = String(dtend.hour);
-      currEvent.endMinute = String(dtend.minute);
+
+      var dtend = (event.end).format("YYYY-MM-DD HH:mm").split(" ")
+      currEvent.endTime = dtend[1];
+      currEvent.endDate = dtend[0];
 
 
       await currEvent.update();

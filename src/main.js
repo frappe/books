@@ -5,7 +5,6 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import FullCalendar from 'vue-full-calendar';
 
 // frappejs imports
 import frappe from 'frappejs';
@@ -55,7 +54,7 @@ Vue.component('frappe-control', FrappeControl);
 Vue.component('f-button', Button);
 Vue.component('indicator', Indicator);
 
-Vue.use(FullCalendar);
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
