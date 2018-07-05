@@ -22,43 +22,50 @@ module.exports = {
             "fieldtype": "Data",
             "default": "None",
             "required": 1,
+            "disabled": true
         },
         {
             "fieldname": "toEmailAddress",
             "label": "To",
             "fieldtype": "Data",
-            "required": 1
+            "required": 1,
+            "disabled": true
         },
         {
 
             "fieldname": "ccEmailAddress",
             "label": "cc",
             "fieldtype": "Data",
-            "required": 0
+            "required": 0,
+            "disabled": true
         },
         {
             "fieldname": "bccEmailAddress",
             "label": "bcc",
             "fieldtype": "Data",
-            "required": 0
+            "required": 0,
+            "disabled": true
         },
         {
             "fieldname": "date",
             "label": "Date",
             "fieldtype": "Date",
             "required": 0,
+            "disabled": true
         },
         {
             "fieldname": "subject",
             "label": "Subject",
             "fieldtype": "Data",
-            "required": 0
+            "required": 0,
+            "disabled": true
         },
         {
             "fieldname": "bodyText",
             "label": "Body",
             "fieldtype": "Text",
-            "required": 0
+            "required": 0,
+            "disabled": true
         },
         {
             "fieldname": "bodyHtml",
@@ -66,6 +73,7 @@ module.exports = {
             "fieldtype": "Text",
             "required": 0,
             "hidden": 1,
+            "disabled": true
         },
         {
             "fieldname": "sent",
