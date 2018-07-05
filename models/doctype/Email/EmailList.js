@@ -1,6 +1,7 @@
 const BaseList = require('frappejs/client/view/list');
 const frappe = require('frappejs');
 
+
 module.exports = class EmailList extends BaseList {
     constructor({ doctype, parent, fields, page }) {
         super({ doctype: 'Email', parent: parent, fields: fields, page: page });
@@ -11,7 +12,8 @@ module.exports = class EmailList extends BaseList {
 
         this.btnCompose = this.page.addButton(frappe._('Compose'), 'btn-primary', async () => { 
             const emailDoc = await frappe.getNewDoc("Email");
-            console.log(emailDoc.fields);
+            let emailDoc_meta = frappe.getMeta('Email');
+            let fields = emailDoc_meta.fields;
             for(let i = 0; i < fields.length; i++)
             {   fields[i].disabled = false;
             }

@@ -93,7 +93,7 @@ module.exports = {
         },
         {
             "fieldname" : "initialDate",
-            "label" : "Display mails from",
+            "label" : "Display Mails From",
             "fieldtype" : "Date",
             "required" : 0
         }
