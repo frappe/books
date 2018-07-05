@@ -200,7 +200,12 @@ export default {
             title: "Total Amount: "+this.grandTotal,
             bodyMessage: null,
             bodyComponent: Checkout,
-            bodyProps: {grandTotal: this.grandTotal}
+            bodyProps: {
+                customer: this.value, 
+                lineItems: this.lineItems, 
+                netTotal: this.netTotal, 
+                grandTotal: this.grandTotal
+            }
         }
         this.$modal.show(options);
     },
