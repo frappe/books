@@ -33,6 +33,7 @@
     </div>
 </template>
 <script>
+import frappe from 'frappejs';
 import Observable from 'frappejs/utils/observable';
 import FormLayout from 'frappejs/ui/components/Form/FormLayout';
 import setupConfig from './config';
