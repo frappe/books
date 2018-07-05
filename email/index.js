@@ -18,4 +18,8 @@ module.exports = () => {
         method: 'validate-mail',
         handler: validator.validate
     });
+    frappe.registerMethod({
+        method: 'validate-auth',
+        handler: validator.authValidate
+    });
 };
