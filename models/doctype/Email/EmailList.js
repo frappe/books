@@ -11,6 +11,10 @@ module.exports = class EmailList extends BaseList {
 
         this.btnCompose = this.page.addButton(frappe._('Compose'), 'btn-primary', async () => { 
             const emailDoc = await frappe.getNewDoc("Email");
+            console.log(emailDoc.fields);
+            for(let i = 0; i < fields.length; i++)
+            {   fields[i].disabled = false;
+            }
             await frappe.desk.showFormModal("Email",emailDoc.name);
         });
 
