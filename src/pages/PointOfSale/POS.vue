@@ -34,14 +34,15 @@
                                 </tbody>
                           </table>
                         </div>
-
-                        <div class="list-group">
-                          <button class="list-group-item item" @click="createInvoice()">
-                              <strong>Create Invoice</strong>
-                          </button>
-                        </div>
                         <br>
                         <div class="row">
+                            <div class="col-md-6">
+                                <div class="list-group">
+                                    <button class="list-group-item item" @click="createInvoice()">
+                                        <strong>Create Invoice</strong>
+                                    </button>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="list-group">
                                     <button type="button" class="list-group-item item" @click="checkout()">
@@ -49,8 +50,6 @@
                                     </button>
                                 </div>
                             </div>
-                            <billing :items="lineItems" :customer="value" :netTotal="netTotal" :grandTotal="grandTotal">
-                            </billing>
                         </div>
                     </div>
 
@@ -80,7 +79,6 @@
 <script>
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
-import Billing from "./Billing";
 import Checkout from "./Checkout";
 import frappe from "frappejs";
 import FrappeControl from '../../components/controls/FrappeControl';
@@ -89,7 +87,6 @@ export default {
   components: {
     Transaction,
     ItemList,
-    Billing,
     Checkout
   },
 

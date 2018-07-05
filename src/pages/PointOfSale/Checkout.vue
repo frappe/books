@@ -7,6 +7,7 @@
     <input class="form-control" v-model="cheque" @click="() => changeFocus(this.inputFields.cheque)">
     <h6>Outstanding</h6>
     <input class="form-control" v-model="outstandingAmount">
+    <billing :items="lineItems" :customer="value" :netTotal="netTotal" :grandTotal="grandTotal"></billing>
   </div>
   <div class="col-md-6">
     <numpad :appendNum="append" :addDecimalPoint="addDP" :delNum="del"></numpad>
@@ -16,13 +17,19 @@
 
 <script>
 import Numpad from "./Numpad";
+import Billing from "./Billing";
 export default {
     components: {
-      Numpad
+      Numpad,
+      Billing
     },
     props: ['grandTotal'],
     data() {
       return {
+        items: [],
+        lineItems: [],
+        netTotal: 0,
+        value:"",
         cash: 0,
 				cheque: 0,
 				focused: "",

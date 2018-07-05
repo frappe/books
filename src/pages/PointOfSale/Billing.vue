@@ -1,5 +1,5 @@
 <template>
-<div class="col-md-6">
+<div class="col-md-12">
     <div class="list-group">
         <button class="list-group-item item" @click="printPDF()">
             <strong>Print Bill</strong>
@@ -9,7 +9,7 @@
 </template>
 
 <script>
-  import  jsPDF from 'jspdf';
+import  jsPDF from 'jspdf';
 export default {
   props: ["items", "customer", "netTotal", "grandTotal"],
   methods: {
