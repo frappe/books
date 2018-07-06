@@ -1,3 +1,4 @@
+
 <script>
 import Base from './Base';
 
