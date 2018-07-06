@@ -20,7 +20,6 @@ export default {
     },
     methods: {
         onSave: function(doc) {
-            //console.log(doc);
             this.validate();
              if (doc.name !== this.$route.params.name) {
                 this.$router.push(`/edit/${doc.doctype}/${doc.name}`);

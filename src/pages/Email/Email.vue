@@ -67,7 +67,7 @@ export default {
                         },
                     });
         doc.on('afterInsert', (data) => {
-                        this.handleChange(doc.name);
+                        //this.handleChange(doc.name);
                         this.$modal.hide();
                     });
         //this.$router.push(`/edit/${this.doctype}/${doc.name}`);
@@ -81,9 +81,22 @@ export default {
 
       this.data = data;
     },
-    openForm(name) {
+    async openForm(name) {
         this.activeItem = name;
-        this.$router.push(`/edit/${this.doctype}/${name}`);
+        
+        const data = await frappe.db.getAll({
+        doctype: this.doctype,
+        fields: ['*'],
+        filters:{name: this.activeItem},
+      });
+      this.$modal.show({
+                        title: _(this.activeItem,_(this.doctype)),
+                        bodyComponent: Form,
+                        bodyProps: {
+                            doctype: this.doctype,
+                            name: this.activeItem
+                        },
+                    });
     },
     async deleteCheckedItems() {
       await frappe.db.deleteMany(this.doctype, this.checkList);
