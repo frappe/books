@@ -3,8 +3,9 @@
             <list-actions
               :doctype="doctype"
               :showDelete="checkList.length"
-              @new="newDoc"
+              @compose="newDoc"
               @delete="deleteCheckedItems"
+              @sync="receiveEmails"
             />
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name"
@@ -19,9 +20,11 @@
         </div>
 </template>
 <script>
+import { _ } from 'frappejs/utils';
+import Form from 'frappejs/ui/components/Form/Form';
 import frappe from 'frappejs';
-import ListActions from './ListActions';
-import ListItem from './ListItem';
+import ListActions from './EmailActions';
+import ListItem from './EmailItem';
 
 export default {
   name: 'List',
@@ -53,7 +56,21 @@ export default {
   methods: {
     async newDoc() {
         let doc = await frappe.getNewDoc(this.doctype);
-        this.$router.push(`/edit/${this.doctype}/${doc.name}`);
+        console.log(doc);
+        console.log(doc.name);
+        this.$modal.show({
+                        title: _('New {0}', _(this.doctype)),
+                        bodyComponent: Form,
+                        bodyProps: {
+                            doctype: this.doctype,
+                            name: doc.name,
+                        },
+                    });
+        doc.on('afterInsert', (data) => {
+                        this.handleChange(doc.name);
+                        this.$modal.hide();
+                    });
+        //this.$router.push(`/edit/${this.doctype}/${doc.name}`);
     },
     async updateList() {
       const data = await frappe.db.getAll({
@@ -81,6 +98,9 @@ export default {
     },
     isChecked(name) {
       return this.checkList.includes(name);
+    },
+    receiveEmails(){
+        console.log("HEY THERE");
     }
   }
 }

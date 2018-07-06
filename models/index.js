@@ -53,5 +53,8 @@ module.exports = {
         Event: require('./doctype/Event/Event'),
         EventSchedule: require('./doctype/EventSchedule/EventSchedule'),
         EventSettings: require('./doctype/EventSettings/EventSettings'),
+
+        Email: require('./doctype/Email/Email'),
+        EmailAccount: require('./doctype/EmailAccount/EmailAccount'),
     }
 }

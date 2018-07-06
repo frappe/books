@@ -9,8 +9,8 @@
     </div>
 </template>
 <script>
-import List from '@/components/List/List';
-import Form from '@/components/Form/Form';
+import List from 'frappejs/ui/components/List/List';
+import Form from 'frappejs/ui/components/Form/Form';
 
 export default {
     props: ['doctype', 'name', 'filters'],
@@ -19,7 +19,9 @@ export default {
         FrappeForm: Form
     },
     methods: {
-        onSave(doc) {
+        onSave: function(doc) {
+            //console.log(doc);
+            this.validate();
              if (doc.name !== this.$route.params.name) {
                 this.$router.push(`/edit/${doc.doctype}/${doc.name}`);
             }

@@ -17,11 +17,12 @@ import models from '../models';
 import { _ } from 'frappejs/utils';
 
 // vue components
-import NotFound from './components/NotFound';
-import FeatherIcon from './components/FeatherIcon';
-import FrappeControl from './components/controls/FrappeControl';
-import Button from './components/Button';
-import Indicator from './components/Indicator';
+import NotFound from 'frappejs/ui/components/NotFound';
+import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
+import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';
+import Button from 'frappejs/ui/components/Button';
+import Indicator from 'frappejs/ui/components/Indicator';
+import modalPlugin from 'frappejs/ui/plugins/modal';
 import registerReportMethods from '../reports';
 
 frappe.init();
@@ -56,6 +57,8 @@ Vue.component('feather-icon', FeatherIcon);
 Vue.component('frappe-control', FrappeControl);
 Vue.component('f-button', Button);
 Vue.component('indicator', Indicator);
+
+Vue.use(modalPlugin);
 
 Vue.mixin({
   methods: {

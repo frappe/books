@@ -38,5 +38,16 @@ export default [
         label: _('General Ledger'), route: '#/report/general-ledger'
       }
     ]
+  },
+  {
+    title: 'App',
+    items: [
+      {
+        label: _('Email'), route: '#/email/Email'
+      },
+      {
+        label: _('Email Account'), route: '#/Account/EmailAccount'
+      }
+    ]
   }
-]
+];
