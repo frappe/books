@@ -49,5 +49,9 @@ module.exports = {
         PurchaseReceipt: require('./doctype/PurchaseReceipt/PurchaseReceipt.js'),
         PurchaseReceiptItem: require('./doctype/PurchaseReceiptItem/PurchaseReceiptItem.js'),
         PurchaseReceiptSettings: require('./doctype/PurchaseReceiptSettings/PurchaseReceiptSettings.js'),
+        
+        Email: require('./doctype/Email/Email.js'),
+        EmailAccount: require('./doctype/EmailAccount/EmailAccount.js'),
     }
 }
+
