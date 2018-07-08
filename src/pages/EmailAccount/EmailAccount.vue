@@ -21,6 +21,8 @@ export default {
     methods: {
         onSave: function(doc) {
             this.validate();
+            console.log("HYE THERE");
+            // add functionality here 
              if (doc.name !== this.$route.params.name) {
                 this.$router.push(`/edit/${doc.doctype}/${doc.name}`);
             }

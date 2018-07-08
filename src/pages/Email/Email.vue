@@ -25,6 +25,7 @@ import Form from 'frappejs/ui/components/Form/Form';
 import frappe from 'frappejs';
 import ListActions from './EmailActions';
 import ListItem from './EmailItem';
+//import email from './sender';
 
 export default {
   name: 'List',
@@ -56,8 +57,6 @@ export default {
   methods: {
     async newDoc() {
         let doc = await frappe.getNewDoc(this.doctype);
-        console.log(doc);
-        console.log(doc.name);
         this.$modal.show({
                         title: _('New {0}', _(this.doctype)),
                         bodyComponent: Form,
@@ -70,7 +69,6 @@ export default {
                         //this.handleChange(doc.name);
                         this.$modal.hide();
                     });
-        //this.$router.push(`/edit/${this.doctype}/${doc.name}`);
     },
     async updateList() {
       const data = await frappe.db.getAll({
@@ -82,25 +80,21 @@ export default {
       this.data = data;
     },
     async openForm(name) {
+        console.log("VIEW",name);
         this.activeItem = name;
         
         const data = await frappe.db.getAll({
-        doctype: this.doctype,
-        fields: ['*'],
-        filters:{name: this.activeItem},
-      });
-      this.$modal.show({
-                        title: _(this.activeItem,_(this.doctype)),
-                        bodyComponent: Form,
-                        bodyProps: {
-                            doctype: this.doctype,
-                            name: this.activeItem
-                        },
-                    });
+            doctype: this.doctype,
+            fields: ['*'],
+            filters:{name: this.activeItem},
+        });
+        this.$router.push(`/view/${this.doctype}/${name}`);
+        // :ADD BACK BUTTON 
     },
     async deleteCheckedItems() {
       await frappe.db.deleteMany(this.doctype, this.checkList);
       this.checkList = [];
+
     },
     toggleCheck(name) {
       if (this.checkList.includes(name)) {
