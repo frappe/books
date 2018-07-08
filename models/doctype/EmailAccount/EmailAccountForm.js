@@ -13,7 +13,7 @@ module.exports = class EmailAccountForm extends BaseForm {
        
         this.saveButton = this.container.addButton(frappe._("Save"), 'primary', async (event) => {
             let account = await getConfig();
-            if(account[0].password == account[0].confirmPassword) {
+            
             var response = await frappe.call({
                 method: 'validate-mail',
                 args: this.doc.getValidDict()
@@ -37,7 +37,9 @@ module.exports = class EmailAccountForm extends BaseForm {
             else{
                 frappe.ui.showAlert({message: frappe._('Failed : Invalid Email'), color: 'red'});
             }
-        }
+            if(account[0].password === account[0].confirmPassword) {
+                       console.log('haha');
+            }
             else
             { frappe.ui.showAlert({message: frappe._('Error : Passwords do not match'), color: 'red'}); } 
     });
