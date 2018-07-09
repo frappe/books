@@ -25,7 +25,6 @@ import Form from 'frappejs/ui/components/Form/Form';
 import frappe from 'frappejs';
 import ListActions from './EmailActions';
 import ListItem from './EmailItem';
-//import email from './sender';
 
 export default {
   name: 'List',
@@ -107,7 +106,7 @@ export default {
       return this.checkList.includes(name);
     },
     receiveEmails(){
-        console.log("HEY THERE");
+        frappe.call({method: 'sync-mail',});
     }
   }
 }
