@@ -1,6 +1,6 @@
 const frappe = require('frappejs');
 const utils = require('frappejs/client/ui/utils');
-const slideConfigs = require('./config');
+const slideConfigs = require('../src/pages/SetupWizard/config');
 const FormLayout = require('frappejs/client/view/formLayout');
 const Observable = require('frappejs/utils/observable');
 
