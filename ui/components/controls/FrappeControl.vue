@@ -60,3 +60,8 @@ export default {
     }
 }
 </script>
+<style scoped>
+.form-group {
+  position: relative;
+}
+</style>

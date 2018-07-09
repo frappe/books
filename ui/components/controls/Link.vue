@@ -3,6 +3,7 @@ import frappe from 'frappejs';
 import feather from 'feather-icons';
 import Awesomplete from 'awesomplete';
 import Autocomplete from './Autocomplete';
+import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 import Form from '../Form/Form';
 import { _ } from 'frappejs/utils';
 
@@ -40,6 +41,44 @@ export default {
                     value: '__newItem'
                 })
         },
+        getWrapperElement(h) {
+          return h('div', {
+            class: ['form-group', ...this.wrapperClass],
+            attrs: {
+                'data-fieldname': this.docfield.fieldname
+            }
+          }, [
+            this.getLabelElement(h),
+            this.getInputElement(h),
+            this.getFollowLink(h)
+          ]);
+        },
+        getFollowLink(h) {
+          const doctype = this.getTarget();
+          const name = this.value;
+
+          if (!name) {
+            return null;
+          }
+
+          return h(FeatherIcon, {
+            props: {
+              name: 'arrow-right-circle'
+            },
+            class: ['text-muted'],
+            style: {
+              position: 'absolute',
+              right: '8px',
+              bottom: '4px',
+              cursor: 'pointer'
+            },
+            nativeOn: {
+              click: () => {
+                this.$router.push(`/edit/${doctype}/${name}`);
+              }
+            }
+          });
+        },
         getTarget() {
             return this.docfield.target;
         },
@@ -74,6 +113,9 @@ export default {
                         bodyProps: {
                             doctype: newDoc.doctype,
                             name: newDoc.name,
+                            defaultValues: {
+                              name: input.value
+                            }
                         },
                     });
 
@@ -84,7 +126,7 @@ export default {
                         this.$modal.hide();
                     });
 
-                    this.$modal.observable().on('modal.hide', () => {
+                    this.$modal.observable().once('modal.hide', () => {
                         // if new doc was not created
                         // then reset the input value
                         if (this.value === '__newItem') {
