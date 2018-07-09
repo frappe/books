@@ -1,5 +1,6 @@
 <template>
-    <component :is="component"
+    <component
+        :is="component"
         :docfield="docfield"
         :value="value"
         :onlyInput="onlyInput"
@@ -7,6 +8,7 @@
     />
 </template>
 <script>
+import Base from './Base';
 import Autocomplete from './Autocomplete';
 import Check from './Check';
 import Code from './Code';
@@ -27,6 +29,16 @@ export default {
     props: ['docfield', 'value', 'onlyInput'],
     computed: {
         component() {
+            if (this.docfield.template) {
+                // for controls with their own template
+                // create a vue object for it
+                return {
+                    extends: Base,
+                    render: null,
+                    template: this.docfield.template()
+                }
+            }
+
             return {
                 Autocomplete,
                 Check,

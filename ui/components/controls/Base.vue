@@ -70,7 +70,8 @@ export default {
                 type: 'text',
                 placeholder: '',
                 value: this.value,
-                required: this.docfield.required
+                required: this.docfield.required,
+                disabled: this.docfield.disabled
             }
         },
         getInputListeners() {
