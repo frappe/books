@@ -41,6 +41,8 @@ registerReportMethods();
 
 frappe.getSingle('AccountingSettings')
   .then(accountingSettings => {
+    if (router.currentRoute.fullPath !== '/') return;
+
     if (accountingSettings.companyName) {
       router.push('/list/ToDo');
     } else {
@@ -59,6 +61,14 @@ Vue.component('f-button', Button);
 Vue.component('indicator', Indicator);
 
 Vue.use(modalPlugin);
+
+Vue.mixin({
+  computed: {
+    frappe() {
+      return frappe;
+    }
+  }
+});
 
 Vue.mixin({
   methods: {
