@@ -68,16 +68,16 @@ module.exports = {
             "disabled": true,
             template: (doc, row) => {
                 return `<div class='row'>
-                    <div class='col-6'><!-- empty left side --></div>
-                    <div class='col-6'>${(doc.taxes || []).map(row => {
-                        return `<div class='row'>
-                                <div class='col-6'>${row.account} (${row.rate}%)</div>
-                                <div class='col-6 text-right'>
-                                    ${frappe.format(row.amount, 'Currency')}
-                                </div>
-                            </div>`
-                    }).join('')}
-                    </div></div>`;
+                    <div class='col-6'></div>
+                    <div class='col-6'>
+                        <div class='row' v-for="row in value">
+                            <div class='col-6'>{{row.account}} ({{row.rate}}%)</div>
+                            <div class='col-6 text-right'>
+                                {{frappe.format(row.amount, 'Currency')}}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
             }
         },
         {
