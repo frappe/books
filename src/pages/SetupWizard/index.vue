@@ -36,6 +36,7 @@
 import frappe from 'frappejs';
 import Observable from 'frappejs/utils/observable';
 import FormLayout from 'frappejs/ui/components/Form/FormLayout';
+import indicatorColor from 'frappejs/ui/constants/indicators';
 import setupConfig from './config';
 
 export default {
@@ -84,7 +85,7 @@ export default {
             this.currentSection -= 1;
         },
         indicatorColor(i) {
-            return i === this.currentSection ? 'blue' : '';
+            return i === this.currentSection ? indicatorColor.BLUE : '';
         }
     },
     computed: {
