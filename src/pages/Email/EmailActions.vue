@@ -11,10 +11,10 @@
     </div>
 </template>
 <script>
+import ListActions from 'frappejs/ui/components/List/ListActions';
 export default {
-    props: ['doctype', 'showDelete']
+    extends: ListActions
 }
-
 </script>
 <style lang="scss" scoped>
 @import "~@/styles/variables";

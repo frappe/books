@@ -22,36 +22,17 @@
 <script>
 import { _ } from 'frappejs/utils';
 import Form from 'frappejs/ui/components/Form/Form';
+import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
 import ListActions from './EmailActions';
-import ListItem from './EmailItem';
+//import ListItem from './EmailItem';
 
 export default {
   name: 'List',
+  extends: List,
   props: ['doctype', 'filters'],
   components: {
       ListActions,
-      ListItem
-  },
-  data() {
-      return {
-        data: [],
-        checkList: [],
-        activeItem: ''
-      }
-  },
-  computed: {
-      meta() {
-          return frappe.getMeta(this.doctype);
-      }
-  },
-  created() {
-    frappe.db.on(`change:${this.doctype}`, () => {
-      this.updateList();
-    });
-  },
-  mounted() {
-    this.updateList();
   },
   methods: {
     async newDoc() {
@@ -69,15 +50,6 @@ export default {
                         this.$modal.hide();
                     });
     },
-    async updateList() {
-      const data = await frappe.db.getAll({
-        doctype: this.doctype,
-        fields: ['name', ...this.meta.keywordFields, this.meta.titleField],
-        filters: this.filters || null
-      });
-
-      this.data = data;
-    },
     async openForm(name) {
         console.log("VIEW",name);
         this.activeItem = name;
@@ -90,41 +62,9 @@ export default {
         this.$router.push(`/view/${this.doctype}/${name}`);
         // :ADD BACK BUTTON 
     },
-    async deleteCheckedItems() {
-      await frappe.db.deleteMany(this.doctype, this.checkList);
-      this.checkList = [];
-
-    },
-    toggleCheck(name) {
-      if (this.checkList.includes(name)) {
-          this.checkList = this.checkList.filter(docname => docname !== name);
-      } else {
-          this.checkList = this.checkList.concat(name);
-      }
-    },
-    isChecked(name) {
-      return this.checkList.includes(name);
-    },
     receiveEmails(){
         frappe.call({method: 'sync-mail',});
     }
   }
 }
 </script>
-<style lang="scss" scoped>
-@import "~@/styles/variables";
-
-.list-group-item {
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
-}
-
-.list-group-item:first-child {
-    border-top: none;
-}
-
-.list-group-item:not(.active):hover {
-    background-color: $light;
-}
-</style>
