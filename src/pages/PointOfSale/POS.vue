@@ -55,7 +55,7 @@
 
                     <div class="col-md-6">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <h6>Item Select</h6>
                                 <frappe-control
                                     :docfield="itemDocfield"
