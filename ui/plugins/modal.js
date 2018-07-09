@@ -14,6 +14,10 @@ export default {
 
       hide() {
         Bus.trigger('hideModal');
+      },
+
+      observable() {
+        return Bus;
       }
     }
 
@@ -22,9 +26,21 @@ export default {
         return {
           registered: false,
           modalVisible: false,
-          modalOptions: {}
+          modalOptions: {},
+          modalListeners: {}
         }
       },
+
+      watch: {
+        modalVisible(value) {
+          if (value === true) {
+            Bus.trigger('modal.show');
+          } else {
+            Bus.trigger('modal.hide');
+          }
+        }
+      },
+
       created: function () {
         if (this.registered) return;
 
@@ -35,6 +51,7 @@ export default {
 
         Bus.on('hideModal', () => {
           this.modalVisible = false;
+          this.modalOptions = {};
         });
 
         this.registered = true;

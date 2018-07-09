@@ -78,9 +78,19 @@ export default {
                     });
 
                     newDoc.on('afterInsert', (data) => {
+                        // if new doc was created
+                        // then set the name of the doc in input
                         this.handleChange(newDoc.name);
                         this.$modal.hide();
                     });
+
+                    this.$modal.observable().on('modal.hide', () => {
+                        // if new doc was not created
+                        // then reset the input value
+                        if (this.value === '__newItem') {
+                            this.handleChange('');
+                        }
+                    })
                 }
             })
         }
