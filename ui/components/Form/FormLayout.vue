@@ -7,6 +7,7 @@
       <div class="col" v-for="(column, j) in section.columns" :key="j">
         <frappe-control
           v-for="fieldname in column.fields"
+          v-if="fieldIsNotHidden(fieldname)"
           :key="fieldname"
           :docfield="getDocField(fieldname)"
           :value="$data[fieldname]"
@@ -57,6 +58,9 @@ export default {
   methods: {
     getDocField(fieldname) {
       return this.fields.find(df => df.fieldname === fieldname);
+    },
+    fieldIsNotHidden(fieldname) {
+      return !Boolean(this.getDocField(fieldname).hidden);
     },
     updateDoc(fieldname, value) {
       this.doc.set(fieldname, value);
