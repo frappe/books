@@ -18,6 +18,7 @@
     <div v-if="!layout">
       <frappe-control
         v-for="docfield in fields"
+        v-if="!docfield.hidden"
         :key="docfield.fieldname"
         :docfield="docfield"
         :value="$data[docfield.fieldname]"
