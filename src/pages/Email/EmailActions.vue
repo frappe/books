@@ -13,14 +13,16 @@
 <script>
 import ListActions from 'frappejs/ui/components/List/ListActions';
 export default {
-    extends: ListActions
+    extends: ListActions,
+    methods:{
+        
+    }
 }
 </script>
 <style lang="scss" scoped>
 @import "~@/styles/variables";
 .buttons{
     margin: 0%;
-    padding-right: 1px;
     position: absolute;
     right: 2%;
 }

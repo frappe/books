@@ -21,16 +21,14 @@
 </template>
 <script>
 import { _ } from 'frappejs/utils';
-import Form from 'frappejs/ui/components/Form/Form';
 import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
+import Form from 'frappejs/ui/components/Form/Form';
 import ListActions from './EmailActions';
-//import ListItem from './EmailItem';
 
 export default {
-  name: 'List',
+  name: 'EmailList',
   extends: List,
-  props: ['doctype', 'filters'],
   components: {
       ListActions,
   },
@@ -60,7 +58,6 @@ export default {
             filters:{name: this.activeItem},
         });
         this.$router.push(`/view/${this.doctype}/${name}`);
-        // :ADD BACK BUTTON 
     },
     receiveEmails(){
         frappe.call({method: 'sync-mail',});
