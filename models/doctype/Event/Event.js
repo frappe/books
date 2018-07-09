@@ -14,9 +14,24 @@ module.exports = {
             fieldtype: "Data"
         },
         {
-            fieldname: "date",
-            label: "Date",
+            fieldname: "startDate",
+            label: "Start Date",
             fieldtype: "Date"
+        },
+        {
+            fieldname: "startTime",
+            label: "Start Time",
+            fieldtype: "Time",
+        },
+        {
+            fieldname: "endDate",
+            label: "End Date",
+            fieldtype: "Date"
+        },
+        {
+            fieldname: "endTime",
+            label: "End Time",
+            fieldtype: "Time",
         },
         {
             fieldname: "daysUntil",
@@ -24,7 +39,7 @@ module.exports = {
             fieldtype: "Data",
             formula: (doc) => {
                 const today = DateTime.local();
-                const eventDate = DateTime.fromISO(doc.date);
+                const eventDate = DateTime.fromISO(doc.startDate);
                 const diff = eventDate.diff(today);
 
                 return diff.as('day');
@@ -37,15 +52,33 @@ module.exports = {
             label: 'Schedule'
         }
     ],
+    layout: [
+        {
+            columns:[
+                {fields: ["title"]}
+            ]
+        },
+        {
+            columns:[
+                {fields: ["startDate","startTime"]},
+                {fields: ["endDate","endTime"]},
+            ]
+        },
+        {
+            columns:[
+                {fields:["daysUntil"]}
+            ]
+        },
+    ],
     titleField: 'title',
     keywordFields: [],
     isSingle: 0,
     listSettings: {
         getFields(list)  {
-            return ['name', 'title', 'date'];
+            return ['name', 'title', 'startDate'];
         },
         getRowHTML(list, data) {
-            return `<div class="col-11">${data.title} on ${data.date}</div>`;
+            return `<div class="col-11">${data.title} on ${data.startDate}</div>`;
         }
     },
 }

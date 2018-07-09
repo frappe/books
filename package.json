@@ -28,6 +28,7 @@
     "frappejs": "^0.0.8",
     "vue": "^2.5.2",
     "vue-flatpickr-component": "^7.0.2",
+    "vue-full-calendar": "^4.0.0-0",
     "vue-router": "^3.0.1"
   },
   "devDependencies": {

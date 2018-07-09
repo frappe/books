@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import coreRoutes from 'frappejs/ui/routes';
+import Calendar from '@/components/Calendar';
 
 import SetupWizard from '../pages/SetupWizard';
 import Report from 'frappejs/ui/pages/Report';
@@ -27,6 +28,12 @@ const routes = [].concat(coreRoutes, [
         reportConfig: reportViewConfig[reportName] || null
       };
     }
+  },
+  {
+    path: '/calendar/:doctype',
+    name:'Calendar',
+    component: Calendar,
+    props: true
   }
 ]);
 
