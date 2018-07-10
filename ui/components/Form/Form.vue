@@ -2,10 +2,7 @@
     <div class="frappe-form">
         <form-actions
           v-if="shouldRenderForm"
-          :doctype="doctype"
-          :name="name"
-          :title="formTitle"
-          :isDirty="isDirty"
+          :doc="doc"
           @save="save"
         />
         <div class="p-3">
@@ -38,7 +35,6 @@ export default {
       docLoaded: false,
       notFound: false,
       invalid: false,
-      isDirty: false,
       invalidFields: []
     }
   },
@@ -48,21 +44,12 @@ export default {
     },
     shouldRenderForm() {
       return this.name && this.docLoaded;
-    },
-    formTitle() {
-      if (this.doc._notInserted) {
-        return _('New {0}', _(this.doctype));
-      }
-      return this.doc[this.meta.titleField];
     }
   },
   async created() {
     if (!this.name) return;
     try {
       this.doc = await frappe.getDoc(this.doctype, this.name);
-      this.doc.on('change', () => {
-        this.isDirty = this.doc._dirty;
-      });
 
       if (this.doc._notInserted && this.meta.fields.map(df => df.fieldname).includes('name')) {
         // For a user editable name field,

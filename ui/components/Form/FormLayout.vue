@@ -7,7 +7,7 @@
       <div class="col" v-for="(column, j) in section.columns" :key="j">
         <frappe-control
           v-for="fieldname in column.fields"
-          v-if="fieldIsNotHidden(fieldname)"
+          v-if="shouldRenderField(fieldname)"
           :key="fieldname"
           :docfield="getDocField(fieldname)"
           :value="$data[fieldname]"
@@ -18,7 +18,7 @@
     <div v-if="!layout">
       <frappe-control
         v-for="docfield in fields"
-        v-if="!docfield.hidden"
+        v-if="shouldRenderField(docfield.fieldname)"
         :key="docfield.fieldname"
         :docfield="docfield"
         :value="$data[docfield.fieldname]"
@@ -60,8 +60,18 @@ export default {
     getDocField(fieldname) {
       return this.fields.find(df => df.fieldname === fieldname);
     },
-    fieldIsNotHidden(fieldname) {
-      return !Boolean(this.getDocField(fieldname).hidden);
+    shouldRenderField(fieldname) {
+      const hidden = Boolean(this.getDocField(fieldname).hidden);
+
+      if (hidden) {
+        return false;
+      }
+
+      if (fieldname === 'name' && !this.doc._notInserted) {
+        return false;
+      }
+
+      return true;
     },
     updateDoc(fieldname, value) {
       this.doc.set(fieldname, value);
