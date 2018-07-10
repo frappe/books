@@ -35,6 +35,10 @@ export default {
   methods: {
     async newDoc() {
         let doc = await frappe.getNewDoc(this.doctype);
+        let emailFields = frappe.getMeta('Email').fields;
+        for(let i = 0; i < emailFields.length; i++){   
+            emailFields[i].disabled = false;
+        }
         this.$modal.show({
                         title: _('New {0}', _(this.doctype)),
                         bodyComponent: Form,
@@ -44,12 +48,10 @@ export default {
                         },
                     });
         doc.on('afterInsert', (data) => {
-                        //this.handleChange(doc.name);
                         this.$modal.hide();
                     });
     },
     async openForm(name) {
-        console.log("VIEW",name);
         this.activeItem = name;
         
         const data = await frappe.db.getAll({
@@ -57,6 +59,10 @@ export default {
             fields: ['*'],
             filters:{name: this.activeItem},
         });
+        let emailFields = frappe.getMeta('Email').fields;
+        for(let i = 0; i < emailFields.length; i++){   
+            emailFields[i].disabled = true;
+        }
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
     receiveEmails(){
