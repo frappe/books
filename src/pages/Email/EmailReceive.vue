@@ -22,10 +22,10 @@
 import { _ } from 'frappejs/utils';
 import frappe from 'frappejs';
 import Form from 'frappejs/ui/components/Form/Form';
-import FormActions from './EmailFormActions';
+import FormActions from './EmailReceiveActions';
 
 export default {
-  name: 'EmailForm',
+  name: 'EmailReceiveForm',
   extends: Form,
   components: {
     FormActions

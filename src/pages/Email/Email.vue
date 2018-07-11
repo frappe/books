@@ -25,12 +25,14 @@ import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
 import Form from 'frappejs/ui/components/Form/Form';
 import ListActions from './EmailActions';
+import EmailSend from './EmailSend';
 
 export default {
   name: 'EmailList',
   extends: List,
   components: {
       ListActions,
+      EmailSend
   },
   methods: {
     async newDoc() {
@@ -41,7 +43,7 @@ export default {
         }
         this.$modal.show({
                         title: _('New {0}', _(this.doctype)),
-                        bodyComponent: Form,
+                        bodyComponent: EmailSend,
                         bodyProps: {
                             doctype: this.doctype,
                             name: doc.name,
@@ -66,7 +68,7 @@ export default {
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
     receiveEmails(){
-        frappe.call({method: 'sync-mail',});
+        frappe.call({method: 'sync-mail'});
     }
   }
 }
