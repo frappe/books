@@ -22,7 +22,8 @@ import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';
 import Button from 'frappejs/ui/components/Button';
 import Indicator from 'frappejs/ui/components/Indicator';
-import modalPlugin from 'frappejs/ui/plugins/modal';
+import modalPlugin from 'frappejs/ui/components/Modal/plugin';
+import formModalPlugin from 'frappejs/ui/plugins/formModal';
 import registerReportMethods from '../reports';
 
 frappe.init();
@@ -41,6 +42,8 @@ registerReportMethods();
 
 frappe.getSingle('AccountingSettings')
   .then(accountingSettings => {
+    if (router.currentRoute.fullPath !== '/') return;
+
     if (accountingSettings.companyName) {
       router.push('/list/ToDo');
     } else {
@@ -59,8 +62,14 @@ Vue.component('f-button', Button);
 Vue.component('indicator', Indicator);
 
 Vue.use(modalPlugin);
+Vue.use(formModalPlugin);
 
 Vue.mixin({
+  computed: {
+    frappe() {
+      return frappe;
+    }
+  },
   methods: {
     // global translation function in every component
     _(...args) {

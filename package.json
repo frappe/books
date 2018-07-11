@@ -25,8 +25,7 @@
   "dependencies": {
     "bootstrap": "^4.1.1",
     "feather-icons": "^4.7.3",
-    "frappe-datatable": "^0.0.9",
-    "frappejs": "^0.0.7",
+    "frappejs": "^0.0.8",
     "vue": "^2.5.2",
     "vue-flatpickr-component": "^7.0.2",
     "vue-router": "^3.0.1"
