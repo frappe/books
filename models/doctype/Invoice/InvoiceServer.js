@@ -1,30 +1,28 @@
 const Invoice = require('./InvoiceDocument');
-const frappe = require('frappejs');
 const LedgerPosting = require('../../../accounting/ledgerPosting');
 
 module.exports = class InvoiceServer extends Invoice {
-    getPosting() {
-        let entries = new LedgerPosting({reference: this, party: this.customer});
-        entries.debit(this.account, this.grandTotal);
+  getPosting() {
+    let entries = new LedgerPosting({ reference: this, party: this.customer });
+    entries.debit(this.account, this.grandTotal);
 
-        for (let item of this.items) {
-            entries.credit(item.account, item.amount);
-        }
-
-        if (this.taxes) {
-            for (let tax of this.taxes) {
-                entries.credit(tax.account, tax.amount);
-            }
-        }
-        return entries;
-
+    for (let item of this.items) {
+      entries.credit(item.account, item.amount);
     }
 
-    async afterSubmit() {
-        await this.getPosting().post();
+    if (this.taxes) {
+      for (let tax of this.taxes) {
+        entries.credit(tax.account, tax.amount);
+      }
     }
+    return entries;
+  }
 
-    async afterRevert() {
-        await this.getPosting().postReverse();
-    }
-}
+  async afterSubmit() {
+    await this.getPosting().post();
+  }
+
+  async afterRevert() {
+    await this.getPosting().postReverse();
+  }
+};
