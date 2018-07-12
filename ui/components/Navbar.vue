@@ -6,27 +6,34 @@
 				@input="updateSearch"
 				name="search"
 				class="form-control shadow-none w-100"
-				placeholder="Search...">
+				:placeholder="_('Search...')">
 		</form>
-		<div class="navbar-text">HI</div>
+		<div class="navbar-text">.</div>
 	</nav>
 </template>
 <script>
 import { debounce } from 'lodash';
 export default {
-    props: ["showSearch"],
-    data() {
-        return {
-            searchValue: ''
-        };
-    },
-    mounted() {
-        this.$root.$on('newList', () => this.searchValue = '')
-    },
-    methods: {
-        updateSearch: debounce(function() {
-            this.$root.$emit("search", this.searchValue);
-        }, 500)
+  props: ['showSearch'],
+  data() {
+    return {
+        searchValue: ''
+    };
+  },
+  computed: {
+    showSearch() {
+      // TODO: Make this configurable
+      return /list|edit/.test(this.$route.path)
     }
+  },
+  mounted() {
+    this.$root.$on('newList', () => this.searchValue = '')
+  },
+  methods: {
+    updateSearch: debounce(function() {
+      this.$root.$emit('navbarSearch', this.searchValue)
+    }, 500)
+  }
 };
 </script>
+
