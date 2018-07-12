@@ -25,6 +25,7 @@ import Password from './Password';
 import Select from './Select';
 import Table from './Table';
 import Text from './Text';
+import Time from './Time';
 
 export default {
   props: ['docfield', 'value', 'onlyInput', 'doc'],
@@ -55,7 +56,8 @@ export default {
         Password,
         Select,
         Table,
-        Text
+        Text,
+        Time
       }[this.docfield.fieldtype];
     },
     isDisabled() {
