@@ -1,19 +1,12 @@
 <template>
-  <div class="form-group" v-if="!onlyInput">
-    <label>{{ docfield.label }}</label>
+  <div :class="{'form-group': !onlyInput}">
+    <label v-if="!onlyInput">{{ docfield.label }}</label>
     <flat-pickr
       :value="value"
       class="form-control"
       @on-change="emitChange">
     </flat-pickr>
   </div>
-  <flat-pickr
-    v-else
-    :value="value"
-    class="form-control"
-    @on-change="emitChange"
-  >
-  </flat-pickr>
 </template>
 <script>
 import flatPickr from 'vue-flatpickr-component';

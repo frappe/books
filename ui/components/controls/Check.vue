@@ -1,7 +1,12 @@
 <template>
     <div class="form-group">
         <div class="custom-control custom-checkbox">
-            <input class="custom-control-input" type="checkbox" :id="id" v-model="checkboxValue" @change="emitChange">
+            <input class="custom-control-input" type="checkbox"
+              :id="id"
+              v-model="checkboxValue"
+              @change="emitChange"
+              :disabled="disabled"
+            >
             <label class="custom-control-label" :for="id">{{ docfield.label }}</label>
         </div>
     </div>
