@@ -1,18 +1,40 @@
 {
-  "presets": [
-    ["env", {
-      "modules": false,
-      "targets": {
-        "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
-      }
-    }],
-    "stage-2"
-  ],
-  "plugins": ["transform-vue-jsx", "transform-runtime"],
+  "comments": false,
   "env": {
-    "test": {
-      "presets": ["env", "stage-2"],
-      "plugins": ["transform-vue-jsx", "transform-es2015-modules-commonjs", "dynamic-import-node"]
+    "main": {
+      "presets": [
+        ["env", {
+          "targets": { "node": 7 }
+        }],
+        "stage-0"
+      ]
+    },
+    "renderer": {
+      "presets": [
+        ["env", {
+          "modules": false,
+          "useBuiltIns": true,
+          "targets": {
+            "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
+          }
+        }],
+        "stage-0"
+      ]
+    },
+    "web": {
+      "presets": [
+        ["env", {
+          "modules": false
+        }],
+        "stage-0"
+      ]
     }
-  }
+  },
+  "plugins": [
+    ["transform-runtime"]
+  ],
+  "ignore": [
+    "**/models/**/*.js",
+    "**/reports/**/*.js"
+  ]
 }

@@ -7,9 +7,10 @@ import App from './App';
 import router from './router';
 
 // frappejs imports
-import io from 'socket.io-client';
+// import io from 'socket.io-client';
 import frappe from 'frappejs';
 import HTTPClient from 'frappejs/backends/http';
+import sqlite from 'frappejs/backends/sqlite';
 import Observable from 'frappejs/utils/observable';
 import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
@@ -32,9 +33,16 @@ frappe.registerModels(coreModels);
 frappe.registerModels(models);
 const server = 'localhost:8000';
 frappe.fetch = window.fetch.bind();
-frappe.db = new HTTPClient({ server });
-const socket = io.connect(`http://${server}`);
-frappe.db.bindSocketClient(socket);
+
+frappe.db = new sqlite({ dbPath: 'electron.db' });
+frappe.db.connect()
+  .then(() => {
+    frappe.db.migrate();
+  });
+
+// frappe.db = new HTTPClient({ server });
+// const socket = io.connect(`http://${server}`);
+// frappe.db.bindSocketClient(socket);
 frappe.registerModels(models);
 frappe.docs = new Observable();
 frappe.getSingle('SystemSettings');
