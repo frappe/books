@@ -18,7 +18,7 @@ export default {
     FrappeSidebar: Sidebar,
     FrappeMain: Main,
     FrappeNavbar: Navbar
-  }
+  },
 };
 </script>
 <style>
