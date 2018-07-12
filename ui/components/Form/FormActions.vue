@@ -1,7 +1,9 @@
 <template>
   <div class="frappe-form-actions d-flex justify-content-between align-items-center p-3 border-bottom">
     <h5 class="m-0">{{ title }}</h5>
-    <f-button primary :disabled="!isDirty" @click="$emit('save')">{{ _('Save') }}</f-button>
+    <f-button primary v-if="isDirty" @click="$emit('save')">{{ _('Save') }}</f-button>
+    <f-button primary v-if="showSubmit" @click="$emit('submit')">{{ _('Submit') }}</f-button>
+    <f-button secondary v-if="showRevert" @click="$emit('revert')">{{ _('Revert') }}</f-button>
   </div>
 </template>
 <script>
@@ -11,13 +13,32 @@ export default {
   props: ['doc'],
   data() {
     return {
-      isDirty: false
+      isDirty: false,
+      showSubmit: false,
+      showRevert: false
     }
   },
   created() {
     this.doc.on('change', () => {
       this.isDirty = this.doc._dirty;
+      this.updateShowSubmittable();
     });
+    this.updateShowSubmittable();
+  },
+  methods: {
+    updateShowSubmittable() {
+      this.showSubmit =
+        this.meta.isSubmittable
+        && !this.isDirty
+        && !this.doc._notInserted
+        && this.doc.submitted === 0;
+
+      this.showRevert =
+        this.meta.isSubmittable
+        && !this.isDirty
+        && !this.doc._notInserted
+        && this.doc.submitted === 1;
+    }
   },
   computed: {
     meta() {

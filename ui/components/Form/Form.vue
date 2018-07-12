@@ -4,6 +4,8 @@
           v-if="shouldRenderForm"
           :doc="doc"
           @save="save"
+          @submit="submit"
+          @revert="revert"
         />
         <div class="p-3">
           <form-layout
@@ -87,6 +89,16 @@ export default {
         console.error(e);
         return;
       }
+    },
+
+    async submit() {
+      this.doc.set('submitted', 1);
+      await this.save();
+    },
+
+    async revert() {
+      this.doc.set('submitted', 0);
+      await this.save();
     },
 
     onValidate(fieldname, isValid) {

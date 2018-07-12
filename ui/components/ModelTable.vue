@@ -1,7 +1,7 @@
 <template>
   <div>
     <div ref="wrapper" class="datatable-wrapper"></div>
-    <div class="table-actions mt-1">
+    <div class="table-actions mt-1" v-if="!disabled">
       <f-button danger @click="removeCheckedRows" v-if="checkedRows.length">Remove</f-button>
       <f-button light @click="addRow" v-if="!checkedRows.length">Add Row</f-button>
     </div>
@@ -16,7 +16,7 @@ import FrappeControl from './controls/FrappeControl';
 import { convertFieldsToDatatableColumns } from 'frappejs/client/ui/utils';
 
 export default {
-  props: ['doctype', 'rows'],
+  props: ['doctype', 'rows', 'disabled'],
   data() {
     return {
       docs: this.getRowDocs(),
@@ -121,7 +121,12 @@ export default {
     },
     getColumns() {
       const fieldsToShow = this.meta.fields.filter(df => !df.hidden);
-      return convertFieldsToDatatableColumns(fieldsToShow);
+      const columns = convertFieldsToDatatableColumns(fieldsToShow);
+
+      if (this.disabled) {
+        columns.forEach(col => col.editable = false);
+      }
+      return columns;
     },
     addRow() {
       const doc = new Observable();
