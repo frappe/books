@@ -38,7 +38,8 @@ export default {
         id: this.id,
         type: 'file',
         value: this.value,
-        required: this.docfield.required
+        required: this.docfield.required,
+        disabled: this.disabled
       }
     }
   }
