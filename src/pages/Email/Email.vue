@@ -25,31 +25,35 @@ import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
 import Form from 'frappejs/ui/components/Form/Form';
 import ListActions from './EmailActions';
+import EmailSend from './EmailSend';
 
 export default {
   name: 'EmailList',
   extends: List,
   components: {
       ListActions,
+      EmailSend
   },
   methods: {
     async newDoc() {
         let doc = await frappe.getNewDoc(this.doctype);
+        let emailFields = frappe.getMeta('Email').fields;
+        for(let i = 0; i < emailFields.length; i++){   
+            emailFields[i].disabled = false;
+        }
         this.$modal.show({
                         title: _('New {0}', _(this.doctype)),
-                        bodyComponent: Form,
+                        bodyComponent: EmailSend,
                         bodyProps: {
                             doctype: this.doctype,
                             name: doc.name,
                         },
                     });
         doc.on('afterInsert', (data) => {
-                        //this.handleChange(doc.name);
                         this.$modal.hide();
                     });
     },
     async openForm(name) {
-        console.log("VIEW",name);
         this.activeItem = name;
         
         const data = await frappe.db.getAll({
@@ -57,10 +61,14 @@ export default {
             fields: ['*'],
             filters:{name: this.activeItem},
         });
+        let emailFields = frappe.getMeta('Email').fields;
+        for(let i = 0; i < emailFields.length; i++){   
+            emailFields[i].disabled = true;
+        }
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
     receiveEmails(){
-        frappe.call({method: 'sync-mail',});
+        frappe.call({method: 'sync-mail'});
     }
   }
 }
