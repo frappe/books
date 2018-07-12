@@ -1,6 +1,7 @@
 const BaseDocument = require('./document');
 const frappe = require('frappejs');
 const model = require('./index')
+const indicatorColor = require('frappejs/ui/constants/indicators');
 
 module.exports = class BaseMeta extends BaseDocument {
     constructor(data) {
@@ -185,8 +186,8 @@ module.exports = class BaseMeta extends BaseDocument {
                 this.indicators = {
                     key: 'submitted',
                     colors: {
-                        0: 'gray',
-                        1: 'blue'
+                        0: indicatorColor.GRAY,
+                        1: indicatorColor.BLUE
                     }
                 }
             }
@@ -195,17 +196,17 @@ module.exports = class BaseMeta extends BaseDocument {
 
     getIndicatorColor(doc) {
         if (frappe.isDirty(this.name, doc.name)) {
-            return 'orange';
+            return indicatorColor.ORANGE;
         } else {
             if (this.indicators) {
                 let value = doc[this.indicators.key];
                 if (value) {
-                    return this.indicators.colors[value] || 'gray';
+                    return this.indicators.colors[value] || indicatorColor.GRAY;
                 } else {
-                    return 'gray';
+                    return indicatorColor.GRAY;
                 }
             } else {
-                return 'gray';
+                return indicatorColor.GRAY;
             }
         }
     }

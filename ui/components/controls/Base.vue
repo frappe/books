@@ -12,7 +12,8 @@ export default {
         onlyInput: {
             type: Boolean,
             default: false
-        }
+        },
+        disabled: Boolean
     },
     computed: {
         id() {
@@ -70,7 +71,8 @@ export default {
                 type: 'text',
                 placeholder: '',
                 value: this.value,
-                required: this.docfield.required
+                required: this.docfield.required,
+                disabled: this.disabled
             }
         },
         getInputListeners() {

@@ -1,12 +1,15 @@
 <template>
-    <component :is="component"
-        :docfield="docfield"
-        :value="value"
-        :onlyInput="onlyInput"
-        @change="$emit('change', $event)"
-    />
+  <component
+    :is="component"
+    :docfield="docfield"
+    :value="value"
+    :onlyInput="onlyInput"
+    :disabled="isDisabled"
+    @change="$emit('change', $event)"
+  />
 </template>
 <script>
+import Base from './Base';
 import Autocomplete from './Autocomplete';
 import Check from './Check';
 import Code from './Code';
@@ -22,31 +25,59 @@ import Password from './Password';
 import Select from './Select';
 import Table from './Table';
 import Text from './Text';
-import Time from './Time'
+import Time from './Time';
 
 export default {
-    props: ['docfield', 'value', 'onlyInput'],
-    computed: {
-        component() {
-            return {
-                Autocomplete,
-                Check,
-                Code,
-                Currency,
-                Data,
-                Date,
-                DynamicLink,
-                File,
-                Float,
-                Int,
-                Link,
-                Password,
-                Select,
-                Table,
-                Text,
-                Time,
-            }[this.docfield.fieldtype];
-        }
+  props: ['docfield', 'value', 'onlyInput', 'doc'],
+  computed: {
+    component() {
+      if (this.docfield.template) {
+        // for controls with their own template
+        // create a vue object for it
+        return {
+          extends: Base,
+          render: null,
+          template: this.docfield.template()
+        };
+      }
+
+      return {
+        Autocomplete,
+        Check,
+        Code,
+        Currency,
+        Data,
+        Date,
+        DynamicLink,
+        File,
+        Float,
+        Int,
+        Link,
+        Password,
+        Select,
+        Table,
+        Text,
+        Time
+      }[this.docfield.fieldtype];
+    },
+    isDisabled() {
+      let disabled = this.docfield.disabled;
+
+      if (this.doc && this.doc.submitted) {
+        disabled = true;
+      }
+
+      if (this.docfield.formula && this.docfield.fieldtype !== 'Table') {
+        disabled = true;
+      }
+
+      return Boolean(disabled);
     }
-}
+  }
+};
 </script>
+<style scoped>
+.form-group {
+  position: relative;
+}
+</style>

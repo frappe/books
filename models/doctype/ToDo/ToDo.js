@@ -1,3 +1,5 @@
+const indicatorColor = require('frappejs/ui/constants/indicators');
+
 module.exports = {
     name: "ToDo",
     label: "To Do",
@@ -14,8 +16,8 @@ module.exports = {
     indicators: {
         key: 'status',
         colors: {
-            Open: 'gray',
-            Closed: 'green'
+            Open: indicatorColor.BLUE,
+            Closed: indicatorColor.GREEN
         }
     },
     "fields": [
