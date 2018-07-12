@@ -10,7 +10,8 @@ export default {
             return {
                 id: this.id,
                 required: this.docfield.required,
-                rows: 3
+                rows: 3,
+                disabled: this.disabled
             };
         },
         getDomProps() {

@@ -1,6 +1,6 @@
 <template functional>
   <button type="button"
-    :class="['btn btn-sm', 'btn-' + Object.keys(props).find(key => ['primary', 'secondary', 'light', 'dark'].includes(key))]"
+    :class="['btn btn-sm', 'btn-' + Object.keys(props).find(key => ['primary', 'secondary', 'light', 'dark', 'danger'].includes(key))]"
     v-bind="data.attrs"
     v-on="listeners"
   >

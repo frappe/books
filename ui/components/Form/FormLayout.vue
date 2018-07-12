@@ -7,21 +7,14 @@
       <div class="col" v-for="(column, j) in section.columns" :key="j">
         <frappe-control
           v-for="fieldname in column.fields"
+          v-if="shouldRenderField(fieldname)"
           :key="fieldname"
           :docfield="getDocField(fieldname)"
           :value="$data[fieldname]"
+          :doc="doc"
           @change="value => updateDoc(fieldname, value)"
         />
       </div>
-    </div>
-    <div v-if="!layout">
-      <frappe-control
-        v-for="docfield in fields"
-        :key="docfield.fieldname"
-        :docfield="docfield"
-        :value="$data[docfield.fieldname]"
-        @change="value => updateDoc(docfield.fieldname, value)"
-      />
     </div>
   </form>
 </template>
@@ -58,6 +51,19 @@ export default {
     getDocField(fieldname) {
       return this.fields.find(df => df.fieldname === fieldname);
     },
+    shouldRenderField(fieldname) {
+      const hidden = Boolean(this.getDocField(fieldname).hidden);
+
+      if (hidden) {
+        return false;
+      }
+
+      if (fieldname === 'name' && !this.doc._notInserted) {
+        return false;
+      }
+
+      return true;
+    },
     updateDoc(fieldname, value) {
       this.doc.set(fieldname, value);
     },
@@ -70,17 +76,21 @@ export default {
   },
   computed: {
     layoutConfig() {
-      if (!this.layout) return false;
+      let layout = this.layout;
 
-      let config = this.layout;
-
-      if (Array.isArray(config)) {
-        config = {
-          sections: config
-        }
+      if (!layout) {
+        const fields = this.fields.map(df => df.fieldname);
+        layout = [{
+          columns: [{ fields }]
+        }];
       }
 
-      return config;
+      if (Array.isArray(layout)) {
+        layout = {
+          sections: layout
+        }
+      }
+      return layout;
     }
   }
 };
