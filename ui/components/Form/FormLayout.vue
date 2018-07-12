@@ -11,19 +11,10 @@
           :key="fieldname"
           :docfield="getDocField(fieldname)"
           :value="$data[fieldname]"
+          :doc="doc"
           @change="value => updateDoc(fieldname, value)"
         />
       </div>
-    </div>
-    <div v-if="!layout">
-      <frappe-control
-        v-for="docfield in fields"
-        v-if="shouldRenderField(docfield.fieldname)"
-        :key="docfield.fieldname"
-        :docfield="docfield"
-        :value="$data[docfield.fieldname]"
-        @change="value => updateDoc(docfield.fieldname, value)"
-      />
     </div>
   </form>
 </template>
@@ -85,17 +76,21 @@ export default {
   },
   computed: {
     layoutConfig() {
-      if (!this.layout) return false;
+      let layout = this.layout;
 
-      let config = this.layout;
-
-      if (Array.isArray(config)) {
-        config = {
-          sections: config
-        }
+      if (!layout) {
+        const fields = this.fields.map(df => df.fieldname);
+        layout = [{
+          columns: [{ fields }]
+        }];
       }
 
-      return config;
+      if (Array.isArray(layout)) {
+        layout = {
+          sections: layout
+        }
+      }
+      return layout;
     }
   }
 };
