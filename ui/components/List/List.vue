@@ -53,8 +53,8 @@ export default {
     frappe.db.on(`change:${this.doctype}`, () => {
       this.updateList();
     });
-    this.$root.$on('search', this.updateList)
-    this.$root.$emit('newList')
+    this.$root.$on('navbarSearch', this.updateList);
+    this.$root.$emit('newList');
   },
   mounted() {
     this.updateList();

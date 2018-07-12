@@ -2,7 +2,7 @@
     <div class="frappe-desk row no-gutters">
         <frappe-sidebar :sidebarConfig="sidebarConfig"></frappe-sidebar>
         <frappe-main>
-          <frappe-navbar :showSearch="showSearch"></frappe-navbar>
+          <frappe-navbar></frappe-navbar>
           <slot></slot>
         </frappe-main>
     </div>
@@ -19,11 +19,6 @@ export default {
     FrappeMain: Main,
     FrappeNavbar: Navbar
   },
-  computed: {
-    showSearch() {
-      return /list|edit/.test(this.$route.path)
-    }
-  }
 };
 </script>
 <style>
