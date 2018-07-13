@@ -8,7 +8,6 @@ import reportViewConfig from '../../reports/view';
 import Email from '@/pages/Email/Email';
 import EmailAccount from '@/pages/EmailAccount/EmailAccount';
 import EmailReceived from '@/pages/Email/EmailReceive';
-//import EmailDesk from '../components/EmailDesk';
 
 Vue.use(Router);
 
@@ -50,14 +49,7 @@ const routes = [].concat(coreRoutes, [{
     name: 'Email Account',
     component: EmailAccount,
     props: true
-  }/*,
-  {
-    path: '/menu/Email',
-    name: 'Email Desk',
-    component: EmailDesk,
-    props: true
   }
-  */
 ]);
 
 export default new Router({

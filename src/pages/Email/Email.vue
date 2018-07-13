@@ -26,19 +26,12 @@ import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
 import Form from 'frappejs/ui/components/Form/Form';
 import ListActions from './EmailActions';
-import EmailSend from './EmailSend';
 
 export default {
   name: 'EmailList',
   extends: List,
   components: {
-      ListActions,
-      EmailSend
-  },
-  data(){
-      return {
-          showEmailMenu : false,
-      }
+      ListActions
   },
   methods: {
     async newDoc() {
@@ -77,15 +70,7 @@ export default {
         await frappe.call({method: 'sync-mail',args:{Id}});
     },
     showMenu(){
-        this.showEmailMenu = true;
-        console.log("Show Menu Here");
-        //console.log(App.data().showDesk);
-        //var x = App.data()
-        //x.showDesk = false;
-        //x.showEmailDesk = true;
-        //console.log(App.data().showEmailDesk);
-        //this.App.showDesk = false;
-        //this.App.showEmailDesk = true;
+        console.log("Menu is yet to be added!");
     }
   }
 }
