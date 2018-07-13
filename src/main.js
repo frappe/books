@@ -34,6 +34,8 @@ frappe.registerModels(models);
 const server = 'localhost:8000';
 frappe.fetch = window.fetch.bind();
 
+frappe.isServer = true;
+
 frappe.db = new sqlite({ dbPath: 'electron.db' });
 frappe.db.connect()
   .then(() => {
@@ -58,6 +60,8 @@ frappe.getSingle('AccountingSettings')
       router.push('/setup-wizard');
     }
   });
+
+frappe.login('Administrator');
 
 window.frappe = frappe;
 

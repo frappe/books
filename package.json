@@ -26,10 +26,46 @@
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "postinstall": ""
   },
+  "build": {
+    "asar": false,
+    "productName": "Frappe Accounting",
+    "appId": "io.frappe.accounting",
+    "directories": {
+      "output": "build"
+    },
+    "files": [
+      "dist/electron/**/*"
+    ],
+    "dmg": {
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    },
+    "mac": {
+      "icon": "build/icons/icon.icns"
+    },
+    "win": {
+      "icon": "build/icons/icon.ico"
+    },
+    "linux": {
+      "icon": "build/icons"
+    }
+  },
   "dependencies": {
     "bootstrap": "^4.1.1",
     "feather-icons": "^4.7.3",
     "frappejs": "^0.0.8",
+    "sqlite3": "^4.0.1",
     "vue": "^2.5.2",
     "vue-flatpickr-component": "^7.0.2",
     "vue-router": "^3.0.1"
