@@ -14,7 +14,6 @@
 <script>
 import { debounce } from 'lodash';
 export default {
-  props: ['showSearch'],
   data() {
     return {
         searchValue: ''
