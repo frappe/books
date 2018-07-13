@@ -3,23 +3,28 @@
     <frappe-desk v-if="showDesk" :sidebarConfig="sidebarConfig">
       <router-view />
     </frappe-desk>
+    <frappe-desk v-else-if="showEmailDesk" :sidebarConfig="emailSidebar">
+      <router-view />
+    </frappe-desk>
     <router-view v-else name="setup" />
     <frappe-modal ref="modal" :show="modalVisible" v-bind="modalOptions" @close-modal="modalVisible = false"/>
   </div>
 </template>
-
 <script>
 import Vue from 'vue';
 import Observable from 'frappejs/utils/observable';
 import Desk from 'frappejs/ui/components/Desk';
 import Modal from 'frappejs/ui/components/Modal';
 import sidebarConfig from './sidebarConfig';
+import emailSidebar from './emailSidebar';
 
 export default {
   name: 'App',
   data() {
     return {
       showDesk: true,
+      showEmailDesk:false,
+      emailSidebar,
       sidebarConfig
     }
   },

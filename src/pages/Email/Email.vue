@@ -6,6 +6,7 @@
               @compose="newDoc"
               @delete="deleteCheckedItems"
               @sync="receiveEmails"
+              @menu="showMenu"
             />
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name"
@@ -33,6 +34,11 @@ export default {
   components: {
       ListActions,
       EmailSend
+  },
+  data(){
+      return {
+          showEmailMenu : false,
+      }
   },
   methods: {
     async newDoc() {
@@ -67,8 +73,19 @@ export default {
         }
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
-    receiveEmails(){
-        frappe.call({method: 'sync-mail'});
+    async receiveEmails(Id){
+        await frappe.call({method: 'sync-mail',args:{Id}});
+    },
+    showMenu(){
+        this.showEmailMenu = true;
+        console.log("Show Menu Here");
+        //console.log(App.data().showDesk);
+        //var x = App.data()
+        //x.showDesk = false;
+        //x.showEmailDesk = true;
+        //console.log(App.data().showEmailDesk);
+        //this.App.showDesk = false;
+        //this.App.showEmailDesk = true;
     }
   }
 }
