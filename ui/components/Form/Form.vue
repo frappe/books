@@ -7,6 +7,7 @@
           @save="save"
           @submit="submit"
           @revert="revert"
+          @print="print"
         />
         <div class="p-3">
           <form-layout
@@ -118,6 +119,10 @@ export default {
     async revert() {
       this.doc.set('submitted', 0);
       await this.save();
+    },
+
+    print() {
+      this.$router.push(`/print/${this.doctype}/${this.name}`);
     },
 
     onValidate(fieldname, isValid) {

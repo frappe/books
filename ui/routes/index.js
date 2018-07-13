@@ -1,4 +1,5 @@
 import ListAndForm from '../pages/ListAndForm';
+import ListAndPrintView from '../pages/ListAndPrintView';
 
 export default [
   {
@@ -11,6 +12,12 @@ export default [
     path: '/edit/:doctype/:name',
     name: 'Form',
     component: ListAndForm,
+    props: true
+  },
+  {
+    path: '/print/:doctype/:name',
+    name: 'PrintView',
+    component: ListAndPrintView,
     props: true
   }
 ];

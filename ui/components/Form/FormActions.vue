@@ -5,10 +5,12 @@
       <f-button primary v-if="showSave" :disabled="disableSave" @click="$emit('save')">{{ _('Save') }}</f-button>
       <f-button primary v-if="showSubmit" @click="$emit('submit')">{{ _('Submit') }}</f-button>
       <f-button secondary v-if="showRevert" @click="$emit('revert')">{{ _('Revert') }}</f-button>
+      <f-button secondary @click="$emit('print')">{{ _('Print') }}</f-button>
       <dropdown class="ml-2" v-if="showNextAction" :label="_('Actions')" :options="links"></dropdown>
     </div>
   </div>
 </template>
+
 <script>
 import frappe from 'frappejs';
 import Dropdown from '../Dropdown';
