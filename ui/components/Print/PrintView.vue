@@ -2,6 +2,8 @@
   <div class="print-view">
     <print-actions
       v-bind:title="name"
+      @view-form="viewForm"
+      @print="print"
     ></print-actions>
     <div class="print-container">
       <div class="print-template" v-html="printTemplate"></div>
@@ -27,6 +29,11 @@ export default {
   async created(vm) {
     this.printTemplate = await getHTML(this.doctype, this.name);
   },
+  methods: {
+    viewForm() {
+      this.$router.push(`/edit/${this.doctype}/${this.name}`);
+    },
+  }
 }
 </script>
 
