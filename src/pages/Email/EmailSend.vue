@@ -21,6 +21,7 @@
 import frappe from 'frappejs';
 import Form from 'frappejs/ui/components/Form/Form';
 import FormActions from './EmailSendActions';
+
 export default {
   name: 'Form',
   extends:Form,

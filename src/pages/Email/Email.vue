@@ -41,17 +41,13 @@ export default {
         for(let i = 0; i < emailFields.length; i++){   
             emailFields[i].disabled = false;
         }
-        this.$modal.show({
-                        title: _('New {0}', _(this.doctype)),
-                        bodyComponent: EmailSend,
-                        bodyProps: {
-                            doctype: this.doctype,
-                            name: doc.name,
-                        },
-                    });
+        this.$modal.show(EmailSend, {
+            doctype: doc.doctype,
+            name: doc.name, 
+        });
         doc.on('afterInsert', (data) => {
-                        this.$modal.hide();
-                    });
+            this.$modal.hide();
+        });
     },
     async openForm(name) {
         this.activeItem = name;
@@ -65,6 +61,7 @@ export default {
         for(let i = 0; i < emailFields.length; i++){   
             emailFields[i].disabled = true;
         }
+        emailFields[5].hidden = false;
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
     async receiveEmails(Id){
