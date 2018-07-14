@@ -5,7 +5,7 @@
       <f-button primary v-if="isDirty" @click="$emit('save')">{{ _('Save') }}</f-button>
       <f-button primary v-if="showSubmit" @click="$emit('submit')">{{ _('Submit') }}</f-button>
       <f-button secondary v-if="showRevert" @click="$emit('revert')">{{ _('Revert') }}</f-button>
-      <dropdown v-if="links.length" :label="'Next Action'" :options="links"></dropdown>
+      <dropdown class="ml-2" v-if="links.length" :label="'Next Action'" :options="links"></dropdown>
     </div>
   </div>
 </template>
