@@ -16,6 +16,10 @@ module.exports = {
         });
     },
 
+    readFile(filepath) {
+      return fs.readFileSync(filepath, 'utf-8');
+    },
+
     getTmpDir() {
         return os.tmpdir();
     }
