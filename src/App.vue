@@ -7,7 +7,6 @@
     <frappe-modal ref="modal" :show="modalVisible" v-bind="modalOptions" @close-modal="modalVisible = false"/>
   </div>
 </template>
-
 <script>
 import Vue from 'vue';
 import Observable from 'frappejs/utils/observable';

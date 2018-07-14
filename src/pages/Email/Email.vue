@@ -6,6 +6,7 @@
               @compose="newDoc"
               @delete="deleteCheckedItems"
               @sync="receiveEmails"
+              @menu="showMenu"
             />
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name"
@@ -25,14 +26,12 @@ import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
 import Form from 'frappejs/ui/components/Form/Form';
 import ListActions from './EmailActions';
-import EmailSend from './EmailSend';
 
 export default {
   name: 'EmailList',
   extends: List,
   components: {
-      ListActions,
-      EmailSend
+      ListActions
   },
   methods: {
     async newDoc() {
@@ -67,8 +66,11 @@ export default {
         }
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
-    receiveEmails(){
-        frappe.call({method: 'sync-mail'});
+    async receiveEmails(Id){
+        await frappe.call({method: 'sync-mail',args:{Id}});
+    },
+    showMenu(){
+        console.log("Menu is yet to be added!");
     }
   }
 }
