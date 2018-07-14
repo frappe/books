@@ -8,7 +8,7 @@ export default {
     },
     props: {
         docfield: Object,
-        value: [String, Number, Array],
+        value: [String, Number, Array, FileList],
         onlyInput: {
             type: Boolean,
             default: false
@@ -93,6 +93,9 @@ export default {
             const isValid = await this.validate(value);
             this.$refs.input.setCustomValidity(isValid === false ? 'error' : '');
             this.$emit('change', value);
+        },
+        getValueFromInput(e) {
+
         },
         validate() {
             return true;
