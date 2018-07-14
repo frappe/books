@@ -104,6 +104,7 @@ let rendererConfig = {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: paths.index,
+      package: require('../package.json'),
       minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
