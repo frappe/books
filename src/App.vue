@@ -4,14 +4,12 @@
       <router-view />
     </frappe-desk>
     <router-view v-else name="setup" />
-    <frappe-modal ref="modal" :show="modalVisible" v-bind="modalOptions" @close-modal="modalVisible = false"/>
   </div>
 </template>
 <script>
 import Vue from 'vue';
 import Observable from 'frappejs/utils/observable';
 import Desk from 'frappejs/ui/components/Desk';
-import Modal from 'frappejs/ui/components/Modal';
 import sidebarConfig from './sidebarConfig';
 
 export default {
@@ -24,7 +22,6 @@ export default {
   },
   components: {
     FrappeDesk: Desk,
-    FrappeModal: Modal
   },
   async beforeRouteUpdate(to, from, next) {
     const accountingSettings = await frappe.getSingle('AccountingSettings');

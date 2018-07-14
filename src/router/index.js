@@ -23,9 +23,7 @@ const routes = [].concat(coreRoutes, [{
     name: 'Report',
     component: Report,
     props: (route) => {
-      const {
-        reportName
-      } = route.params;
+      const { reportName } = route.params;
       return {
         reportName,
         reportConfig: reportViewConfig[reportName] || null
@@ -52,6 +50,4 @@ const routes = [].concat(coreRoutes, [{
   }
 ]);
 
-export default new Router({
-  routes
-});
+export default new Router({ routes });
