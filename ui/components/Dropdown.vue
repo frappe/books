@@ -3,18 +3,18 @@
       <a class="btn btn-sm btn-secondary dropdown-toggle"
         href="#"
         role="button"
-        id="dropdownMenuLink"
+        :id="_uid"
         data-toggle="dropdown"
         aria-haspopup="true"
         aria-expanded="false">
-        {{label}}
+        {{ label }}
       </a>
-      <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+      <div class="dropdown-menu dropdown-menu-right" :aria-labelledby="_uid">
         <a class="dropdown-item"
           v-for="option in options"
           :key="option.label"
           @click="option.handler">
-          {{option.label}}
+          {{ option.label }}
         </a>
       </div>
   </div>
@@ -22,9 +22,8 @@
 <script>
 export default {
   props: ['label', 'options']
-}
+};
 </script>
 <style>
-
 </style>
 
