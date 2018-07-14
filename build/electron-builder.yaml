@@ -1,0 +1,24 @@
+directories:
+  output: build
+  buildResources: build
+asar: false
+productName: Frappe Accounting
+appId: io.frappe.accounting
+files:
+  - dist/electron/**/*
+dmg:
+  contents:
+    - x: 410
+      'y': 150
+      type: link
+      path: /Applications
+    - x: 130
+      'y': 150
+      type: file
+mac:
+  icon: build/icons/icon.icns
+win:
+  icon: build/icons/icon.ico
+linux:
+  icon: build/icons
+electronVersion: 1.8.7

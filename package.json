@@ -24,7 +24,7 @@
     "pack": "npm run pack:main && npm run pack:renderer",
     "pack:main": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.main.config.js",
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
-    "postinstall": ""
+    "postinstall": "electron-builder install-app-deps"
   },
   "build": {
     "asar": false,
@@ -64,7 +64,7 @@
   "dependencies": {
     "bootstrap": "^4.1.1",
     "feather-icons": "^4.7.3",
-    "frappejs": "^0.0.8",
+    "frappejs": "frappe/frappejs",
     "sqlite3": "^4.0.1",
     "vue": "^2.5.2",
     "vue-flatpickr-component": "^7.0.2",
