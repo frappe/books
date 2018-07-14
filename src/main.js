@@ -8,10 +8,9 @@ import router from './router';
 import frappeVue from 'frappejs/ui/plugins/frappeVue';
 
 // frappejs imports
-import io from 'socket.io-client';
 import frappe from 'frappejs';
+import io from 'socket.io-client';
 import HTTPClient from 'frappejs/backends/http';
-import Observable from 'frappejs/utils/observable';
 import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
@@ -26,8 +25,6 @@ frappe.fetch = window.fetch.bind();
 frappe.db = new HTTPClient({ server });
 const socket = io.connect(`http://${server}`);
 frappe.db.bindSocketClient(socket);
-frappe.registerModels(models);
-frappe.docs = new Observable();
 frappe.getSingle('SystemSettings');
 registerReportMethods();
 
