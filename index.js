@@ -1,9 +1,11 @@
+const Observable = require('./utils/observable');
 
 module.exports = {
     async init() {
         if (this._initialized) return;
         this.initConfig();
         this.initGlobals();
+        this.docs = new Observable();
         this._initialized = true;
     },
 
