@@ -3,6 +3,7 @@
         <form-actions
           v-if="shouldRenderForm"
           :doc="doc"
+          :links="links"
           @save="save"
           @submit="submit"
           @revert="revert"
@@ -37,8 +38,9 @@ export default {
       docLoaded: false,
       notFound: false,
       invalid: false,
-      invalidFields: []
-    }
+      invalidFields: [],
+      links: []
+    };
   },
   computed: {
     meta() {
@@ -67,9 +69,11 @@ export default {
       }
 
       this.docLoaded = true;
-    } catch(e) {
+    } catch (e) {
       this.notFound = true;
     }
+    this.setLinks();
+    this.doc.on('change', this.setLinks);
   },
   methods: {
     async save() {
@@ -84,10 +88,25 @@ export default {
         }
 
         this.$emit('save', this.doc);
-
+        
       } catch (e) {
         console.error(e);
         return;
+      }
+    },
+
+    setLinks() {
+      if (this.meta.links) {
+        let links = [];
+        for (let link of this.meta.links) {
+          if (link.condition(this)) {
+            link.handler = () => {
+              link.action(this);
+            };
+            links.push(link);
+          }
+        }
+        this.links = links;
       }
     },
 
@@ -105,7 +124,9 @@ export default {
       if (!isValid && !this.invalidFields.includes(fieldname)) {
         this.invalidFields.push(fieldname);
       } else if (isValid) {
-        this.invalidFields = this.invalidFields.filter(invalidField => invalidField !== fieldname)
+        this.invalidFields = this.invalidFields.filter(
+          invalidField => invalidField !== fieldname
+        );
       }
     },
 
@@ -113,7 +134,7 @@ export default {
       const form = this.$el.querySelector('form');
       let validity = form.checkValidity();
       this.invalid = !validity;
-    },
+    }
   }
 };
 </script>
