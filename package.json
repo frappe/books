@@ -27,7 +27,6 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
-    "asar": false,
     "productName": "Frappe Accounting",
     "appId": "io.frappe.accounting",
     "directories": {
