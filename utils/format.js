@@ -1,4 +1,4 @@
-const number_format = require('./number_format');
+const numberFormat = require('./numberFormat');
 const markdown = new (require('showdown').Converter)();
 const moment = require('moment');
 const frappe = require('frappejs');
@@ -10,7 +10,7 @@ module.exports = {
         }
 
         if (field.fieldtype === 'Currency') {
-            value = number_format.format_number(value);
+            value = numberFormat.formatNumber(value);
 
         } else if (field.fieldtype === 'Text') {
             value = markdown.makeHtml(value || '');
