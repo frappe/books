@@ -52,7 +52,6 @@ export default {
             this.doc = await frappe.getDoc(this.doctype, this.name)
             this.doc.name = "Sent: " +this.doc["fromEmailAddress"] + " "+ this.doc["subject"].slice(0,10);
             var response = await frappe.call({method: 'send-mail',args: this.doc.getValidDict()});
-            console.log(response);
             if(response){
               let emailFields = frappe.getMeta('Email').fields;
               emailFields[5].hidden = true;

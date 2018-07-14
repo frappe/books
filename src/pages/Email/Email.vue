@@ -26,6 +26,7 @@ import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
 import Form from 'frappejs/ui/components/Form/Form';
 import ListActions from './EmailActions';
+import EmailSend from './EmailSend';
 
 export default {
   name: 'EmailList',
