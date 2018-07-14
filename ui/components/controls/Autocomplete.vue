@@ -57,6 +57,7 @@ export default {
     },
     filter() {
       // return a function that filters list suggestions based on input
+      return Awesomplete.FILTER_CONTAINS
     }
   }
 };

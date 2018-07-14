@@ -10,7 +10,7 @@ export default {
   },
   methods: {
     getWrapperElement(h) {
-      let fileName = 'Choose a file..';
+      let fileName = this._('Choose a file..');
 
       if (this.$refs.input && this.$refs.input.files.length) {
         fileName = this.$refs.input.files[0].name;
@@ -27,11 +27,11 @@ export default {
       });
 
       return h('div', {
-        class: ['form-group', ...this.wrapperClass],
-        attrs: {
+          class: ['form-group', ...this.wrapperClass],
+          attrs: {
             'data-fieldname': this.docfield.fieldname
-        }
-      }, [this.getLabelElement(h), this.getInputElement(h), fileButton]);
+          }
+        }, [this.getLabelElement(h), this.getInputElement(h), fileButton]);
     },
     getInputAttrs() {
       return {
@@ -39,9 +39,18 @@ export default {
         type: 'file',
         value: this.value,
         required: this.docfield.required,
-        disabled: this.disabled
-      }
+        disabled: this.disabled,
+        webkitdirectory: this.docfield.directory,
+        directory: this.docfield.directory
+      };
+    },
+    getInputListeners() {
+      return {
+        change: e => {
+          this.handleChange(e.target.files);
+        }
+      };
     }
   }
-}
+};
 </script>

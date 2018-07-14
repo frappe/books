@@ -159,7 +159,7 @@ export default {
 }
 </script>
 <style lang="scss">
-@import "frappe-datatable/dist/frappe-datatable.css";
+@import "~frappe-datatable/dist/frappe-datatable.css";
 
 .datatable-wrapper {
   .form-control {
