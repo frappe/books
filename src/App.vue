@@ -3,33 +3,115 @@
     <frappe-desk v-if="showDesk" :sidebarConfig="sidebarConfig">
       <router-view />
     </frappe-desk>
-    <router-view v-else name="setup" />
+    <setup-wizard v-else @complete="afterSetupWizard"/>
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
+import frappe from 'frappejs';
+import common from 'frappejs/common';
+import coreModels from 'frappejs/models';
+import models from '../models';
+import SQLite from 'frappejs/backends/sqlite';
+import postStart from '../server/postStart';
+import { getSettings, saveSettings } from '../electron/settings';
+
 import Observable from 'frappejs/utils/observable';
 import Desk from 'frappejs/ui/components/Desk';
+import SetupWizard from './pages/SetupWizard';
 import sidebarConfig from './sidebarConfig';
+import router from './router';
+
+frappe.init();
+frappe.registerLibs(common);
+frappe.registerModels(coreModels);
+frappe.registerModels(models);
+frappe.fetch = window.fetch.bind();
+frappe.isServer = true;
 
 export default {
   name: 'App',
   data() {
     return {
-      showDesk: true,
+      showDesk: false,
       sidebarConfig
     }
   },
   components: {
     FrappeDesk: Desk,
+    SetupWizard
   },
-  async beforeRouteUpdate(to, from, next) {
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    if (accountingSettings.companyName) {
-      this.showDesk = true;
+  async created() {
+    const userSettings = getSettings();
+
+    if (!userSettings.lastDbPath) {
+      this.$router.push('/setup-wizard');
+      this.showDesk = false;
     } else {
+      await frappe.login('Administrator');
+      await this.initializeDb(userSettings.lastDbPath);
+      await this.loginToDesk();
+    }
+  },
+  methods: {
+    async afterSetupWizard(values) {
+      await frappe.login('Administrator');
+      await this.connectToDb(values);
+      await this.saveAccountingSettings(values);
+      await this.loginToDesk();
+    },
+
+    async loginToDesk() {
       this.showDesk = true;
+      await frappe.getSingle('SystemSettings');
+      await postStart();
+      this.$router.push('/list/ToDo');
+    },
+
+    async saveAccountingSettings(values) {
+      const doc = await frappe.getSingle('AccountingSettings');
+
+      if (doc.companyName) {
+        return;
+      }
+
+      const {
+        companyName,
+        country,
+        name,
+        email,
+        abbreviation,
+        bankName,
+        fiscalYearStart,
+        fiscalYearEnd
+      } = values;
+
+      await doc.set({
+        companyName,
+        country,
+        fullname: name,
+        email,
+        bankName,
+        fiscalYearStart,
+        fiscalYearEnd
+      });
+      await doc.update();
+    },
+
+    async connectToDb(values) {
+      const { file, companyName } = values;
+      const dbPath = file[0].path + '/' + frappe.slug(companyName) + '.db';
+
+      await this.initializeDb(dbPath);
+      await saveSettings({
+        lastDbPath: dbPath
+      });
+    },
+
+    async initializeDb(dbPath) {
+      frappe.db = new SQLite({ dbPath });
+      await frappe.db.connect();
+      await frappe.db.migrate();
     }
   }
 }

@@ -64,7 +64,6 @@ module.exports = {
             "label": "Fiscal Year End Date",
             "fieldtype": "Date",
             "required": 1
-        },
-
+        }
     ]
 }

@@ -4,7 +4,7 @@ export default {
   fields: [
     {
       fieldname: 'file',
-      label: 'File',
+      label: 'Folder Location',
       fieldtype: 'File',
       required: 1,
       directory: 1

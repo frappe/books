@@ -54,30 +54,7 @@ export default {
   },
   methods: {
     async submit() {
-      const {
-        companyName,
-        country,
-        name,
-        email,
-        abbreviation,
-        bankName,
-        fiscalYearStart,
-        fiscalYearEnd
-      } = this.doc;
-
-      const doc = await frappe.getSingle('AccountingSettings');
-      await doc.set({
-        companyName,
-        country,
-        fullname: name,
-        email,
-        bankName,
-        fiscalYearStart,
-        fiscalYearEnd
-      });
-      await doc.update();
-
-      this.$router.push('/list/ToDo');
+      this.$emit('complete', this.doc);
     },
     nextSection() {
       this.currentSection += 1;

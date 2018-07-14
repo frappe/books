@@ -1,15 +1,20 @@
 const os = require('os');
 const path = require('path');
-const { writeFile } = require('frappejs/server/utils');
+const { readFile, writeFile } = require('frappejs/server/utils');
 
-const homedir = os.homedir();
-const configFilePath = path.join(homedir, '.config', 'frappe-accounting', 'settings.json');
+
+function getConfigPath() {
+  const homedir = os.homedir();
+  return path.join(homedir, '.config', 'frappe-accounting', 'settings.json');
+}
 
 function getSettings() {
   let settings;
+  const configFilePath = getConfigPath();
   try {
-    settings = require(configFilePath);
+    settings = JSON.parse(readFile(configFilePath));
   } catch (e) {
+    console.error(e);
     settings = {};
   }
 
@@ -17,6 +22,7 @@ function getSettings() {
 }
 
 async function saveSettings(settings) {
+  const configFilePath = getConfigPath();
   await writeFile(configFilePath, JSON.stringify(settings));
 }
 

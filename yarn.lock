@@ -3624,7 +3624,7 @@ frappe-datatable@^1.1.2:
 
 frappejs@frappe/frappejs:
   version "0.0.8"
-  resolved "https://codeload.github.com/frappe/frappejs/tar.gz/46e3fa9193ac0a27d47be4dba5a37db77decb18f"
+  resolved "https://codeload.github.com/frappe/frappejs/tar.gz/13d3d62cbadcc9271aecfa9be568c232e9dd9d2f"
   dependencies:
     autoprefixer "^7.2.4"
     awesomplete "^1.1.2"
