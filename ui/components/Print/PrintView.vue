@@ -3,7 +3,7 @@
     <print-actions
       v-bind:title="name"
       @view-form="viewForm"
-      @print="print"
+      @pdf="getPDF"
     ></print-actions>
     <div class="print-container">
       <div class="print-template" v-html="printTemplate"></div>
@@ -13,6 +13,7 @@
 
 <script>
 import { getHTML } from '../../../common/print.js';
+import { getPDF as getPDFClient } from '../../../client/pdf.js';
 import PrintActions from './PrintActions';
 
 export default {
@@ -33,6 +34,10 @@ export default {
     viewForm() {
       this.$router.push(`/edit/${this.doctype}/${this.name}`);
     },
+
+    async getPDF() {
+      await getPDFClient(this.doctype, this.name);
+    }
   }
 }
 </script>
