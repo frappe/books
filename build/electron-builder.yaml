@@ -1,7 +1,6 @@
 directories:
   output: build
   buildResources: build
-asar: false
 productName: Frappe Accounting
 appId: io.frappe.accounting
 files:
