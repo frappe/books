@@ -5,7 +5,6 @@
     <div class="button-group">
       <f-button secondary @click="$emit('view-form')">{{ _('View Form') }}</f-button>
       <f-button primary @click="$emit('pdf')">{{ _('PDF') }}</f-button>
-      <f-dropdown></f-dropdown>
     </div>
 
   </div>

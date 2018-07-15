@@ -13,8 +13,11 @@
 
 <script>
 import { getHTML } from '../../../common/print.js';
-import { getPDF as getPDFClient } from '../../../client/pdf.js';
 import PrintActions from './PrintActions';
+
+// for PDF in Electron
+import { BrowserWindow, remote, ipcMain, ipcRenderer, shell } from 'electron'
+import fs from 'fs';
 
 export default {
   name: 'PrintView',
@@ -35,8 +38,84 @@ export default {
       this.$router.push(`/edit/${this.doctype}/${this.name}`);
     },
 
-    async getPDF() {
-      await getPDFClient(this.doctype, this.name);
+    getPDF() {
+      // const win = BrowserWindow.fromWebContents()
+      const win = remote.getCurrentWindow();
+      const filePath = '/Users/prateekshasingh/Desktop/test';
+      const extension = '.pdf';
+      const data = this.printTemplate;
+      const type = 'pdf';
+
+      let mindow = new remote.BrowserWindow({
+        width: 800,
+        height: 600,
+        center: true,
+        resizable: true,
+        frame: true,
+        transparent: false,
+      });
+      mindow.setMenu(null);
+
+      // create BrowserWindow with dynamic HTML content
+      var html = [
+        "",
+        "<body>",
+          "<h1>It works</h1>",
+        "</body>",
+      ].join("");
+      mindow.loadURL("data:text/html;charset=utf-8," + encodeURI(this.printTemplate));
+
+      mindow.openDevTools();
+      mindow.on("closed", function() {
+        mindow = null;
+      });
+
+      const writeFile = (pathname, content, extension) => {
+        if (!pathname) {
+          const errMsg = '[ERROR] Cannot save file without path.'
+          return Promise.reject(errMsg)
+        }
+        pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
+
+        console.log(content);
+        return fse.outputFile(pathname, content, 'utf-8')
+      }
+
+      win.webContents.printToPDF({ printBackground: false }, (err, data) => {
+        if (err) log(err)
+        else {
+          writeFile(filePath, data, extension)
+            .then(() => {
+              win.webContents.send('AGANI::export-success', { type, filePath })
+            })
+            // .catch(log)
+        }
+      })
+
+      printPDFBtn.addEventListener('click', (event) => {
+        ipcRenderer.send('print-to-pdf')
+      })
+
+      ipcRenderer.on('wrote-pdf', (event, path) => {
+        const message = `Wrote PDF to: ${path}`
+        document.getElementById('pdf-path').innerHTML = message
+      })
+
+      ipcMain.on('print-to-pdf', (event) => {
+        const pdfPath = path.join(os.tmpdir(), 'print.pdf')
+        const win = BrowserWindow.fromWebContents(event.sender)
+        // Use default printing options
+        win.webContents.printToPDF({}, (error, data) => {
+          if (error) throw error
+          fs.writeFile(pdfPath, data, (error) => {
+            if (error) throw error
+            shell.openExternal(`file://${pdfPath}`)
+            event.sender.send('wrote-pdf', pdfPath)
+          })
+        })
+      })
+
+      // await getPDFClient(this.doctype, this.name);
     }
   }
 }
@@ -46,7 +125,7 @@ export default {
 @import "../../styles/variables";
 
 .print-container {
-  padding: 1rem;
+  padding: 1rem 5rem;
 }
 
 .print-template {
