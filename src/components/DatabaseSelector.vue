@@ -6,9 +6,10 @@
 </template>
 <script>
 import frappe from 'frappejs';
-// import SQLite from 'frappejs/backends/sqlite';
+import SQLite from 'frappejs/backends/sqlite';
 import FormLayout from 'frappejs/ui/components/Form/FormLayout';
 import Observable from 'frappejs/utils/observable';
+import { saveSettings } from '../../electron/settings';
 
 export default {
   name: 'DatabaseSelector',
@@ -40,10 +41,11 @@ export default {
         frappe.db.close();
       }
 
-      const dbPath = this.value;
-      frappe.db = new SQLite({ dbPath });
-      await frappe.db.connect();
-      await frappe.db.migrate();
+      const dbPath = this.doc.file[0].path;
+      await saveSettings({
+        lastDbPath: dbPath
+      });
+      window.location.reload();
     }
   }
 }
