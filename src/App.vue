@@ -20,7 +20,6 @@ import Observable from 'frappejs/utils/observable';
 import Desk from 'frappejs/ui/components/Desk';
 import SetupWizard from './pages/SetupWizard';
 import sidebarConfig from './sidebarConfig';
-import router from './router';
 
 frappe.init();
 frappe.registerLibs(common);
