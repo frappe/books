@@ -1,10 +1,21 @@
 <template>
   <div class="frappe-sidebar col-2 bg-light border-right">
-    <div class="navbar border-bottom navbar-title" @click="onNavbarTitleClick">
+    <div class="navbar border-bottom navbar-title" @click="toggleDropdown">
       <div class="navbar-text">
         {{ title }}
       </div>
       <feather-icon class="mt-1" name="chevron-down" />
+      <div :class="['dropdown-menu shadow w-100', showDropdown ? 'show' : '']">
+        <a
+          href="#"
+          class="dropdown-item"
+          v-for="option in sidebarConfig.titleDropdownItems"
+          :key="option.label"
+          @click.prevent="titleDropdownItemClick(option.handler)"
+        >
+          {{ option.label }}
+        </a>
+      </div>
     </div>
     <div class="my-3" v-for="(sidebarGroup, index) in sidebarConfig.groups" :key="index">
       <h6 v-if="sidebarGroup.title" class="sidebar-heading nav-link text-muted text-uppercase m-0">
@@ -27,7 +38,8 @@ export default {
   props: ['sidebarConfig'],
   data() {
     return {
-      title: ''
+      title: '',
+      showDropdown: false
     }
   },
   async created() {
@@ -41,8 +53,11 @@ export default {
       const route = item.route.slice(1);
       return this.$route.path === route;
     },
-    onNavbarTitleClick() {
-      this.sidebarConfig.onTitleClick(this);
+    titleDropdownItemClick(handler) {
+      handler(this);
+    },
+    toggleDropdown(e) {
+      this.showDropdown = !this.showDropdown;
     }
   }
 }
