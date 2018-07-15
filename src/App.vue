@@ -21,6 +21,9 @@ import Desk from 'frappejs/ui/components/Desk';
 import SetupWizard from './pages/SetupWizard';
 import sidebarConfig from './sidebarConfig';
 
+import importCOA from '../models/doctype/account/importCOA';
+import standardChartOfAccounts from '../fixtures/standardCOA';
+
 frappe.init();
 frappe.registerLibs(common);
 frappe.registerModels(coreModels);
@@ -58,6 +61,7 @@ export default {
       await frappe.login('Administrator');
       await this.connectToDb(values);
       await this.saveAccountingSettings(values);
+      await this.bootstrapChartOfAccounts();
       await this.loginToDesk();
     },
 
@@ -97,6 +101,10 @@ export default {
         fiscalYearEnd
       });
       await doc.update();
+    },
+
+    async bootstrapChartOfAccounts() {
+      await importCOA(standardChartOfAccounts);
     },
 
     async connectToDb(values) {

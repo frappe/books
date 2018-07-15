@@ -1,5 +1,5 @@
 const frappe = require('frappejs');
-const _ = frappe._.bind(frappe);
+const { _ } = require('frappejs/utils');
 
 module.exports = {
     [_("Application of Funds (Assets)")]: {
