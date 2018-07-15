@@ -1,10 +1,12 @@
 <template>
   <div class="frappe-sidebar col-2 bg-light border-right">
     <div class="navbar border-bottom navbar-title" @click="toggleDropdown">
-      <div class="navbar-text">
-        {{ title }}
-      </div>
-      <feather-icon class="mt-1" name="chevron-down" />
+      <span class="d-flex align-items-center justify-content-between text-truncate w-100">
+        <div class="navbar-text text-truncate">
+          {{ title }}
+        </div>
+        <feather-icon style="height: 16px" name="chevron-down" />
+      </span>
       <div :class="['dropdown-menu shadow w-100', showDropdown ? 'show' : '']">
         <a
           href="#"
