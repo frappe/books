@@ -134,4 +134,41 @@ html {
   font-size: 14px;
 }
 
+/* style fixes for issues that occur only in electron */
+.frappe-desk {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.frappe-list-form {
+  height: calc(100vh - 4rem);
+}
+
+.frappe-list {
+  height: 100%;
+  overflow: auto;
+}
+
+.frappe-list-actions {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #fff;
+}
+
+.frappe-form {
+  height: 100%;
+
+  .p-3:nth-child(2) {
+    height: 100%;
+    overflow: auto;
+    padding-bottom: 5rem !important;
+  }
+}
+
+.flatpickr-weekdaycontainer {
+  display: flex;
+  flex: 1;
+}
+
 </style>
