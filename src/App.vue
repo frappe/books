@@ -3,7 +3,7 @@
     <frappe-desk v-if="showDesk" :sidebarConfig="sidebarConfig">
       <router-view />
     </frappe-desk>
-    <setup-wizard v-else @complete="afterSetupWizard"/>
+    <setup-wizard v-if="showSetupWizard" @complete="afterSetupWizard"/>
   </div>
 </template>
 
@@ -34,6 +34,7 @@ export default {
   data() {
     return {
       showDesk: false,
+      showSetupWizard: false,
       sidebarConfig
     }
   },
@@ -46,7 +47,7 @@ export default {
 
     if (!userSettings.lastDbPath) {
       this.$router.push('/setup-wizard');
-      this.showDesk = false;
+      this.showSetupWizard = true;
     } else {
       await frappe.login('Administrator');
       await this.initializeDb(userSettings.lastDbPath);
@@ -62,10 +63,11 @@ export default {
     },
 
     async loginToDesk() {
-      this.showDesk = true;
       await frappe.getSingle('SystemSettings');
       await postStart();
       this.$router.push('/list/ToDo');
+      this.showSetupWizard = false;
+      this.showDesk = true;
     },
 
     async saveAccountingSettings(values) {
