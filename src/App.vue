@@ -12,7 +12,6 @@ import Vue from 'vue';
 import Observable from 'frappejs/utils/observable';
 import Desk from 'frappejs/ui/components/Desk';
 import sidebarConfig from './sidebarConfig';
-import 'bootstrap';
 
 export default {
   name: 'App',
