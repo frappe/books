@@ -1,19 +1,22 @@
 <template>
   <div class="dropdown show">
-      <a class="btn btn-sm btn-secondary dropdown-toggle"
-        href="#"
-        role="button"
+      <button
         :id="_uid"
-        data-toggle="dropdown"
+        class="btn btn-sm btn-light dropdown-toggle"
         aria-haspopup="true"
-        aria-expanded="false">
+        :aria-expanded="isShown ? 'true' : 'false'"
+        @click="isShown = !isShown"
+      >
         {{ label }}
-      </a>
-      <div class="dropdown-menu dropdown-menu-right" :aria-labelledby="_uid">
-        <a class="dropdown-item"
+      </button>
+      <div :class="['dropdown-menu dropdown-menu-right', isShown ? 'show' : '']" :aria-labelledby="_uid">
+        <a
+          href="#"
+          class="dropdown-item"
           v-for="option in options"
           :key="option.label"
-          @click="option.handler">
+          @click.prevent="option.handler"
+        >
           {{ option.label }}
         </a>
       </div>
@@ -21,9 +24,24 @@
 </template>
 <script>
 export default {
-  props: ['label', 'options']
+  props: ['label', 'options'],
+  data() {
+    return {
+      isShown: false
+    }
+  }
 };
 </script>
-<style>
+<style lang="scss">
+@import "../styles/variables.scss";
+$dropdown-link-active-bg: $gray-300;
+
+.dropdown-item {
+  &.active,
+  &:active {
+    @include gradient-bg($dropdown-link-active-bg);
+  }
+}
+
 </style>
 
