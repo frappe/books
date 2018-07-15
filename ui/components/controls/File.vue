@@ -21,6 +21,9 @@ export default {
         domProps: {
           textContent: fileName
         },
+        attrs: {
+          type: 'button'
+        },
         on: {
           click: () => this.$refs.input.click()
         }
