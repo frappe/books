@@ -17,7 +17,8 @@ const routes = [
       const { reportName } = route.params;
       return {
         reportName,
-        reportConfig: reportViewConfig[reportName] || null
+        reportConfig: reportViewConfig[reportName] || null,
+        filters: route.query
       };
     }
   }
