@@ -1,11 +1,12 @@
 <template>
   <div class="frappe-sidebar col-2 bg-light border-right">
-    <div class="navbar border-bottom">
+    <div class="navbar border-bottom navbar-title" @click="onNavbarTitleClick">
       <div class="navbar-text">
-        TennisMart
+        {{ title }}
       </div>
+      <feather-icon class="mt-1" name="chevron-down" />
     </div>
-    <div class="my-3" v-for="(sidebarGroup, index) in sidebarConfig" :key="index">
+    <div class="my-3" v-for="(sidebarGroup, index) in sidebarConfig.groups" :key="index">
       <h6 v-if="sidebarGroup.title" class="sidebar-heading nav-link text-muted text-uppercase m-0">
         {{ sidebarGroup.title }}
       </h6>
@@ -24,6 +25,14 @@
 <script>
 export default {
   props: ['sidebarConfig'],
+  data() {
+    return {
+      title: ''
+    }
+  },
+  async created() {
+    this.title = await this.sidebarConfig.getTitle();
+  },
   methods: {
     isActive(item) {
       if (this.$route.params.doctype) {
@@ -31,17 +40,29 @@ export default {
       }
       const route = item.route.slice(1);
       return this.$route.path === route;
+    },
+    onNavbarTitleClick() {
+      this.sidebarConfig.onTitleClick(this);
     }
   }
 }
 </script>
 
-<style>
+<style lang="scss">
+@import "../styles/variables";
+
 .frappe-sidebar {
     min-height: calc(100vh);
 }
 
 .sidebar-heading {
     font-size: 0.8rem;
+}
+
+.navbar-title {
+  cursor: pointer;
+}
+.navbar-title:hover {
+  background-color: $gray-200;
 }
 </style>
