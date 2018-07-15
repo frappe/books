@@ -44,7 +44,8 @@ export default {
         required: this.docfield.required,
         disabled: this.disabled,
         webkitdirectory: this.docfield.directory,
-        directory: this.docfield.directory
+        directory: this.docfield.directory,
+        accept: (this.docfield.filetypes || []).join(',')
       };
     },
     getInputListeners() {
