@@ -10,7 +10,7 @@ export default {
   },
   methods: {
     getWrapperElement(h) {
-      let fileName = this._('Choose a file..');
+      let fileName = this.docfield.placeholder || this._('Choose a file..');
 
       if (this.$refs.input && this.$refs.input.files.length) {
         fileName = this.$refs.input.files[0].name;
