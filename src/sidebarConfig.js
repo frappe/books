@@ -1,26 +1,52 @@
 import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
 import DatabaseSelector from './components/DatabaseSelector';
+import { saveSettings } from '../electron/settings';
 
 export default {
   async getTitle() {
     const accountingSettings = await frappe.getSingle('AccountingSettings');
     return accountingSettings.companyName;
   },
-  onTitleClick(vm) {
-    vm.$modal.show({
-      component: DatabaseSelector,
-      modalProps: {
-        title: _('Change Database File'),
-        primaryAction: {
-          label: _('Submit'),
-          handler: (vm) => {
-            vm.changeDatabase();
+  titleDropdownItems: [
+    {
+      label: _('Change Database'),
+      handler: (vm) => {
+        vm.$modal.show({
+          component: DatabaseSelector,
+          modalProps: {
+            title: _('Change Database'),
+            primaryAction: {
+              label: _('Submit'),
+              handler: (vm) => {
+                vm.changeDatabase();
+              }
+            }
           }
-        }
+        });
       }
-    });
-  },
+    },
+    {
+      label: _('New Database'),
+      handler: (vm) => {
+        vm.$modal.show({
+          component: {
+            template: `<span>{{ _('Are you sure you want to start over?') }}</span>`
+          },
+          modalProps: {
+            title: _('New Database'),
+            primaryAction: {
+              label: _('Confirm'),
+              handler: async () => {
+                await saveSettings({});
+                window.location.reload();
+              }
+            }
+          }
+        });
+      }
+    }
+  ],
   groups: [
     {
       items: [
