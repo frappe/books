@@ -1,3 +1,4 @@
+import frappe from 'frappejs';
 import Form from '../components/Form/Form';
 
 export default function installFormModal(Vue) {
@@ -7,11 +8,19 @@ export default function installFormModal(Vue) {
       $formModal() {
         const open = (doc, options = {}) => {
           const { defaultValues = null, onClose = null } = options;
-          this.$modal.show(Form, {
-            doctype: doc.doctype,
-            name: doc.name,
-            defaultValues,
-            onClose
+          this.$modal.show({
+            component: Form,
+            props: {
+              doctype: doc.doctype,
+              name: doc.name,
+              defaultValues,
+            },
+            events: {
+              onClose
+            },
+            modalProps: {
+              title: frappe._('Form Modal')
+            }
           });
         }
 

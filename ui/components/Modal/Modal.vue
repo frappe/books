@@ -10,10 +10,11 @@
           </button>
         </div>
         <div class="modal-body modal-height">
-          <component :is="component" v-bind="props" v-on="events"/>
+          <component ref="modalComponent" :is="component" v-bind="props" v-on="events"/>
         </div>
         <div class="modal-footer">
-          <f-button secondary @click="closeModal">{{ _('Close') }}</f-button>
+          <!-- <f-button secondary @click="closeModal">{{ _('Close') }}</f-button> -->
+          <f-button primary v-if="primaryAction" @click="onPrimaryAction">{{ primaryAction.label }}</f-button>
         </div>
       </div>
     </div>
@@ -25,6 +26,10 @@ export default {
     title: {
       type: String,
       default: "Modal Title"
+    },
+    primaryAction: {
+      type: Object,
+      default: null
     },
     component: {
       type: Object
@@ -39,6 +44,9 @@ export default {
   methods: {
     closeModal() {
       this.$emit('close-modal');
+    },
+    onPrimaryAction() {
+      this.primaryAction.handler(this.$refs.modalComponent);
     }
   }
 };
