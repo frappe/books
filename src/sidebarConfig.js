@@ -27,23 +27,10 @@ export default {
       }
     },
     {
-      label: _('New Database'),
-      handler: (vm) => {
-        vm.$modal.show({
-          component: {
-            template: `<span>{{ _('Are you sure you want to start over?') }}</span>`
-          },
-          modalProps: {
-            title: _('New Database'),
-            primaryAction: {
-              label: _('Confirm'),
-              handler: async () => {
-                await saveSettings({});
-                window.location.reload();
-              }
-            }
-          }
-        });
+      label: _('Exit'),
+      handler: async (vm) => {
+        await saveSettings({});
+        window.location.reload();
       }
     }
   ],
