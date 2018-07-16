@@ -54,10 +54,13 @@ export default {
         for(let i = 0; i < emailFields.length; i++){   
             emailFields[i].disabled = false;
         }
-        this.$modal.show(EmailSend, {
-            doctype: doc.doctype,
-            name: doc.name, 
-        });
+        this.$modal.show({
+            component: EmailSend,
+            props: {
+              doctype: doc.doctype,
+              name: doc.name,
+            }
+          });
         doc.on('afterInsert', (data) => {
             this.$modal.hide();
         });
