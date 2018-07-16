@@ -34,6 +34,19 @@ export default {
   components: {
       ListActions
   },
+  async created(){
+      console.log("Emails Loaded From Default ");
+      this.options = await frappe.db.getAll({
+            doctype: "EmailAccount",
+            fields: ['email','enableIncoming'],
+        });
+        for(let i = 0; i < this.options.length; i++){   
+            if(this.options[i].enableIncoming){
+                this.receiveEmails(this.options[i].email);
+                break;
+            }
+         }
+  },
   methods: {
     async newDoc() {
         let doc = await frappe.getNewDoc(this.doctype);
