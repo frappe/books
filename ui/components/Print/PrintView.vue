@@ -39,83 +39,31 @@ export default {
     },
 
     getPDF() {
-      // const win = BrowserWindow.fromWebContents()
-      const win = remote.getCurrentWindow();
-      const filePath = '/Users/prateekshasingh/Desktop/test';
-      const extension = '.pdf';
-      const data = this.printTemplate;
-      const type = 'pdf';
+      // Open a hidden window
+      let printWindow = new remote.BrowserWindow(
+        // { show: false }
+      );
 
-      let mindow = new remote.BrowserWindow({
-        width: 800,
-        height: 600,
-        center: true,
-        resizable: true,
-        frame: true,
-        transparent: false,
-      });
-      mindow.setMenu(null);
+      printWindow.loadURL(
+        "data:text/html;charset=utf-8," + encodeURI(this.printTemplate)
+      );
 
-      // create BrowserWindow with dynamic HTML content
-      var html = [
-        "",
-        "<body>",
-          "<h1>It works</h1>",
-        "</body>",
-      ].join("");
-      mindow.loadURL("data:text/html;charset=utf-8," + encodeURI(this.printTemplate));
-
-      mindow.openDevTools();
-      mindow.on("closed", function() {
-        mindow = null;
+      printWindow.on("closed", () => {
+        printWindow = null;
       });
 
-      const writeFile = (pathname, content, extension) => {
-        if (!pathname) {
-          const errMsg = '[ERROR] Cannot save file without path.'
-          return Promise.reject(errMsg)
-        }
-        pathname = !extension || pathname.endsWith(extension) ? pathname : `${pathname}${extension}`
+      // const pdfPath = path.join(os.tmpdir(), 'print.pdf')
+      const pdfPath = '/Users/prateekshasingh/Desktop/print.pdf';
 
-        console.log(content);
-        return fse.outputFile(pathname, content, 'utf-8')
-      }
-
-      win.webContents.printToPDF({ printBackground: false }, (err, data) => {
-        if (err) log(err)
-        else {
-          writeFile(filePath, data, extension)
-            .then(() => {
-              win.webContents.send('AGANI::export-success', { type, filePath })
-            })
-            // .catch(log)
-        }
-      })
-
-      printPDFBtn.addEventListener('click', (event) => {
-        ipcRenderer.send('print-to-pdf')
-      })
-
-      ipcRenderer.on('wrote-pdf', (event, path) => {
-        const message = `Wrote PDF to: ${path}`
-        document.getElementById('pdf-path').innerHTML = message
-      })
-
-      ipcMain.on('print-to-pdf', (event) => {
-        const pdfPath = path.join(os.tmpdir(), 'print.pdf')
-        const win = BrowserWindow.fromWebContents(event.sender)
-        // Use default printing options
-        win.webContents.printToPDF({}, (error, data) => {
-          if (error) throw error
-          fs.writeFile(pdfPath, data, (error) => {
-            if (error) throw error
-            shell.openExternal(`file://${pdfPath}`)
-            event.sender.send('wrote-pdf', pdfPath)
-          })
+      // Use default printing options
+      printWindow.webContents.printToPDF({}, (error, data) => {
+        if (error) throw error;
+        // printWindow.close();
+        fs.writeFile(pdfPath, data, (error) => {
+          if (error) throw error;
+          shell.openExternal(`file://${pdfPath}`);
         })
-      })
-
-      // await getPDFClient(this.doctype, this.name);
+      });
     }
   }
 }
@@ -133,7 +81,5 @@ export default {
   background-color: $white;
   box-shadow: 0rem 0rem 0.5rem rgba(0,0,0,0.2);
 }
-
-.print-view {}
 
 </style>
