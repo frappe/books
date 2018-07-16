@@ -1,5 +1,5 @@
 <template>
-	<nav class="frappe-navbar navbar navbar-light bg-light row no-gutters border-bottom border-top">
+	<nav class="frappe-navbar navbar navbar-light bg-light row no-gutters border-bottom">
 		<form v-if="showSearch" class="form-inline col-4 pr-3">
 			<input type="text"
 				v-model="searchValue"

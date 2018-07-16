@@ -1,5 +1,5 @@
 <template>
-  <div class="frappe-form-actions d-flex justify-content-between align-items-center p-3 border-bottom">
+  <div class="frappe-form-actions d-flex justify-content-between align-items-center">
     <h5 class="m-0">{{ title }}</h5>
     <div class="d-flex">
       <f-button primary v-if="showSave" :disabled="disableSave" @click="$emit('save')">{{ _('Save') }}</f-button>
