@@ -1,6 +1,6 @@
 import frappe from 'frappejs';
 import path from 'path';
-import { remote } from 'electron';
+import { remote, shell } from 'electron';
 import { writeFile } from 'frappejs/server/utils';
 import { getHTML } from 'frappejs/common/print.js';
 import { DateTime } from 'luxon';
@@ -38,6 +38,7 @@ async function getPDF(doctype, name) {
       if (error) throw error;
       printWindow.close();
       await writeFile(pdfPath, data);
+      shell.openExternal('file://' + pdfPath);
     });
   })
 }
