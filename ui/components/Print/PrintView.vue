@@ -15,10 +15,6 @@
 import { getHTML } from '../../../common/print.js';
 import PrintActions from './PrintActions';
 
-// for PDF in Electron
-import { BrowserWindow, remote, ipcMain, ipcRenderer, shell } from 'electron'
-import fs from 'fs';
-
 export default {
   name: 'PrintView',
   props: ['doctype', 'name'],
@@ -39,31 +35,7 @@ export default {
     },
 
     getPDF() {
-      // Open a hidden window
-      let printWindow = new remote.BrowserWindow(
-        // { show: false }
-      );
-
-      printWindow.loadURL(
-        "data:text/html;charset=utf-8," + encodeURI(this.printTemplate)
-      );
-
-      printWindow.on("closed", () => {
-        printWindow = null;
-      });
-
-      // const pdfPath = path.join(os.tmpdir(), 'print.pdf')
-      const pdfPath = '/Users/prateekshasingh/Desktop/print.pdf';
-
-      // Use default printing options
-      printWindow.webContents.printToPDF({}, (error, data) => {
-        if (error) throw error;
-        // printWindow.close();
-        fs.writeFile(pdfPath, data, (error) => {
-          if (error) throw error;
-          shell.openExternal(`file://${pdfPath}`);
-        })
-      });
+      frappe.getPDF(this.doctype, this.name);
     }
   }
 }
