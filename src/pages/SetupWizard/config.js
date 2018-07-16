@@ -1,11 +1,15 @@
-const countryList = Object.keys(require('../../../fixtures/countryInfo.json')).sort();
+import { _ } from 'frappejs/utils';
+import countryInfo from '../../../fixtures/countryInfo.json';
+
+const countryList = Object.keys(countryInfo).sort();
 
 export default {
   fields: [
     {
       fieldname: 'file',
-      label: 'Folder Location',
+      label: _('Folder Location'),
       fieldtype: 'File',
+      placeholder: _('Select Folder'),
       required: 1,
       directory: 1
     },
@@ -16,21 +20,6 @@ export default {
       fieldtype: 'Autocomplete',
       required: 1,
       getList: () => countryList
-    },
-
-    {
-      fieldname: 'name',
-      label: 'Name',
-      fieldtype: 'Data',
-      required: 1
-    },
-
-    {
-      fieldname: 'email',
-      label: 'Email',
-      fieldtype: 'Data',
-      required: 1,
-      inputType: 'email'
     },
 
     {
@@ -76,13 +65,6 @@ export default {
         title: 'Select Country',
         columns: [
           { fields: ['country'] }
-        ]
-      },
-
-      {
-        title: 'Add a Profile',
-        columns: [
-          { fields: ['name', 'email'] }
         ]
       },
 

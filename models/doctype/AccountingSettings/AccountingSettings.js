@@ -32,20 +32,6 @@ module.exports = {
         },
 
         {
-            "fieldname": "fullname",
-            "label": "Name",
-            "fieldtype": "Data",
-            "required": 1
-        },
-
-        {
-            "fieldname": "email",
-            "label": "Email",
-            "fieldtype": "Data",
-            "required": 1
-        },
-
-        {
             "fieldname": "bankName",
             "label": "Bank Name",
             "fieldtype": "Data",
