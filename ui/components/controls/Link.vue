@@ -52,10 +52,19 @@ export default {
         },
         [
           this.getLabelElement(h),
-          this.getInputElement(h),
-          this.getFollowLink(h)
+          this.getInputGroupElement(h)
         ]
       );
+    },
+    getInputGroupElement(h) {
+      return h('div', {
+        class: ['input-group']
+      }, [
+        this.getInputElement(h),
+        h('div', {
+          class: ['input-group-append']
+        }, [this.getFollowLink(h)])
+      ]);
     },
     getFollowLink(h) {
       const doctype = this.getTarget();
@@ -65,23 +74,27 @@ export default {
         return null;
       }
 
-      return h(FeatherIcon, {
+      const arrow = h(FeatherIcon, {
         props: {
-          name: 'arrow-right-circle'
+          name: 'arrow-right'
         },
         class: ['text-muted'],
         style: {
-          position: 'absolute',
-          right: '8px',
-          bottom: '4px',
-          cursor: 'pointer'
+          height: '16px'
+        }
+      });
+
+      return h('button', {
+        class: ['btn btn-sm btn-outline-light border d-flex'],
+        attrs: {
+          type: 'button'
         },
-        nativeOn: {
+        on: {
           click: () => {
             this.$router.push(`/edit/${doctype}/${name}`);
           }
         }
-      });
+      }, [arrow])
     },
     getTarget() {
       return this.docfield.target;
