@@ -168,5 +168,13 @@ export default {
     height: 100%;
     padding: 0;
   }
+
+  .awesomplete > ul {
+    position: fixed;
+    top: auto;
+    left: auto;
+    width: auto;
+    min-width: 120px;
+  }
 }
 </style>

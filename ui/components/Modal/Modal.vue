@@ -1,15 +1,15 @@
 <template>
-  <div :class="['modal fade show d-block']"
+  <div :class="['modal fade show d-block']" @click.self="onBackdropClick"
     tabindex="-1" role="dialog" aria-labelledby="frappe-modal-label" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content shadow">
-        <div class="modal-header">
+        <div class="modal-header" v-if="!noHeader">
           <h5 class="modal-title">{{ title }}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body modal-height">
+        <div class="modal-body modal-height p-0">
           <component ref="modalComponent" :is="component" v-bind="props" v-on="events"/>
         </div>
         <div class="modal-footer">
@@ -39,6 +39,10 @@ export default {
     },
     events: {
       type: Object
+    },
+    noHeader: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
@@ -47,6 +51,9 @@ export default {
     },
     onPrimaryAction() {
       this.primaryAction.handler(this.$refs.modalComponent);
+    },
+    onBackdropClick(e) {
+      this.closeModal();
     }
   }
 };
