@@ -187,7 +187,6 @@ module.exports = class sqliteDatabase extends Database {
         return new Promise((resolve, reject) => {
             this.conn.run(query, params, (err) => {
                 if (err) {
-                    console.error(err);
                     reject(err);
                 } else {
                     resolve();
