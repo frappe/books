@@ -135,7 +135,7 @@ module.exports = {
         payment.party = form.doc.customer;
         payment.account = form.doc.account;
         payment.for = [{ referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal }];
-        await frappe.desk.showFormModal('Payment', payment.name);
+        await form.$formModal.open(payment);
       }
     }
   ],
