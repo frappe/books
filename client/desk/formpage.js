@@ -42,7 +42,7 @@ module.exports = class FormPage extends Page {
             await this.form.setDoc(params.doctype, params.name);
             frappe.desk.setActiveDoc(this.form.doc);
         } catch (e) {
-            this.renderError(e.status_code, e.message);
+            this.renderError(e.statusCode, e.message);
         }
     }
 }

@@ -62,10 +62,11 @@ module.exports = {
         try {
             series = await frappe.getDoc('NumberSeries', prefix);
         } catch (e) {
-            if (!e.status_code || e.status_code !== 404) {
+            if (!e.statusCode || e.statusCode !== 404) {
                 throw e;
             }
             await this.createNumberSeries(prefix);
+            series = await frappe.getDoc('NumberSeries', prefix);
         }
         let next = await series.next()
         return prefix + next;
