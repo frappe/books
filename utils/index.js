@@ -61,7 +61,7 @@ function asyncHandler(fn) {
         .catch((err) => {
             console.log(err);
             // handle error
-            res.status(err.status_code || 500).send({error: err.message});
+            res.status(err.statusCode || 500).send({error: err.message});
         });
 }
 

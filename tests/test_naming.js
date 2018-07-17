@@ -10,9 +10,9 @@ describe('Naming', () => {
 
     it('should start a series and get next value', async () => {
         frappe.db.delete('NumberSeries', 'test-series-')
-        assert.equal(await naming.getSeriesNext('test-series-'), 'test-series-1');
-        assert.equal(await naming.getSeriesNext('test-series-'), 'test-series-2');
-        assert.equal(await naming.getSeriesNext('test-series-'), 'test-series-3');
+        assert.equal(await naming.getSeriesNext('test-series-'), 'test-series-1001');
+        assert.equal(await naming.getSeriesNext('test-series-'), 'test-series-1002');
+        assert.equal(await naming.getSeriesNext('test-series-'), 'test-series-1003');
     });
 
     it('should set name by autoincrement', async () => {

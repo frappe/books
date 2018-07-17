@@ -16,7 +16,7 @@ describe('REST', () => {
         });
 
         await frappe.init();
-        await frappe.login();
+        await frappe.login('Administrator');
 
         frappe.db = await new HTTPClient({server: 'localhost:8000'});
         frappe.fetch = fetch;

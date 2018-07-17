@@ -1,22 +1,35 @@
 class BaseError extends Error {
-    constructor(status_code, ...params) {
+    constructor(statusCode, ...params) {
         super(...params);
-        this.status_code = status_code;
+        this.statusCode = statusCode;
     }
 }
 
 class ValidationError extends BaseError {
-    constructor(...params) { super(417, ...params); }
+    constructor(...params) {
+        super(417, ...params);
+    }
 }
 
+class NotFound extends BaseError {
+    constructor(...params) {
+        super(404, ...params);
+    }
+}
+
+class Forbidden extends BaseError {
+    constructor(...params) {
+        super(403, ...params);
+    }
+}
+
+class ValueError extends ValidationError { }
+class Conflict extends ValidationError { }
+
 module.exports = {
-    ValidationError: ValidationError,
-    ValueError: class ValueError extends ValidationError { },
-    Conflict: class Conflict extends ValidationError { },
-    NotFound: class NotFound extends BaseError {
-        constructor(...params) { super(404, ...params); }
-    },
-    Forbidden: class Forbidden extends BaseError {
-        constructor(...params) { super(403, ...params); }
-    },
+    ValidationError,
+    ValueError,
+    Conflict,
+    NotFound,
+    Forbidden
 }
