@@ -1,6 +1,6 @@
 const numberFormat = require('./numberFormat');
 const markdown = new (require('showdown').Converter)();
-const moment = require('moment');
+const luxon = require('luxon');
 const frappe = require('frappejs');
 
 module.exports = {
@@ -23,7 +23,7 @@ module.exports = {
                 dateFormat = frappe.SystemSettings.dateFormat;
             }
 
-            value = moment(value).format(dateFormat.toUpperCase());
+            value = luxon.DateTime.fromISO(value).toFormat(dateFormat);
 
         } else {
             if (value === null || value === undefined) {
