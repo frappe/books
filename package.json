@@ -35,7 +35,10 @@
     "puppeteer": "^1.2.0",
     "showdown": "^1.8.6",
     "socket.io": "^2.0.4",
-    "sqlite3": "^3.1.13"
+    "sqlite3": "^3.1.13",
+    "vue": "^2.5.16",
+    "vue-flatpickr-component": "^7.0.4",
+    "vue-router": "^3.0.1"
   },
   "repository": {
     "type": "git",
