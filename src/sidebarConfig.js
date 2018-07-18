@@ -1,25 +1,10 @@
 import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
-import DatabaseSelector from './components/DatabaseSelector';
 
 export default {
   async getTitle() {
     const accountingSettings = await frappe.getSingle('AccountingSettings');
     return accountingSettings.companyName;
-  },
-  onTitleClick(vm) {
-    vm.$modal.show({
-      component: DatabaseSelector,
-      modalProps: {
-        title: _('Change Database File'),
-        primaryAction: {
-          label: _('Submit'),
-          handler: (vm) => {
-            vm.changeDatabase();
-          }
-        }
-      }
-    });
   },
   groups: [
     {
