@@ -6,7 +6,6 @@
               @compose="newDoc"
               @delete="deleteCheckedItems"
               @sync="receiveEmails"
-              @menu="showMenu"
             />
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name"
@@ -34,8 +33,9 @@ export default {
   components: {
       ListActions
   },
-  async created(){
+    async created(){
       console.log("Emails Loaded From Default ");
+      this.$root.$emit('emailConfigView');
       this.options = await frappe.db.getAll({
             doctype: "EmailAccount",
             fields: ['email','enableIncoming'],
@@ -78,14 +78,14 @@ export default {
             emailFields[i].disabled = true;
         }
         emailFields[5].hidden = false;
+        emailFields[1].hidden = true;
+        emailFields[3].hidden = true;
+        emailFields[4].hidden = true;
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
     async receiveEmails(Id){
         await frappe.call({method: 'sync-mail',args:{Id}});
     },
-    showMenu(){
-        console.log("Menu is yet to be added!");
-    }
   }
 }
 </script>

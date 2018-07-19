@@ -44,7 +44,7 @@ const routes = [].concat(coreRoutes, [{
     props: true
   },
   {
-    path: '/Account/:doctype',
+    path: '/list/:doctype',
     name: 'Email Account',
     component: EmailAccount,
     props: true
