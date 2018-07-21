@@ -23,7 +23,15 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "frappejs": "^0.0.8"
+    "bootstrap": "^4.1.1",
+    "feather-icons": "^4.7.3",
+    "frappejs": "^0.0.8",
+    "imap": "^0.8.19",
+    "mailparser": "^2.2.0",
+    "nodemailer": "^4.6.6",
+    "vue": "^2.5.2",
+    "vue-flatpickr-component": "^7.0.2",
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
