@@ -16,6 +16,19 @@ export default {
     printPDF() {
       // console.log(this.items, this.customer, this.netTotal, this.grandTotal);
 
+      // get current date
+      let today = new Date();
+      let dd = today.getDate();
+      let mm = today.getMonth() + 1; //January is 0!
+      let yyyy = today.getFullYear();
+      if (dd < 10) {
+        dd = "0" + dd;
+      }
+      if (mm < 10) {
+        mm = "0" + mm;
+      }
+      today = mm + "/" + dd + "/" + yyyy;
+
       // create new pdf object
       let pdf = new jsPDF("p", "mm", [58, 100]);
       //Initialize x, y coordinates
@@ -35,12 +48,15 @@ export default {
       pdf.line(x, y, x + lineLength, y);
       y += 5;
 
-      pdf.setFontSize(16);
+      // Body
+      pdf.setFontSize(6);
       pdf.setTextColor(0, 0, 0);
       pdf.setFontType("normal");
 
-      y += 20;
-      pdf.text(x, 50, "Customer Name: " + this.customer);
+      y += 8;
+      pdf.text(x, y, "Customer: " + this.customer);
+      pdf.text(x + 3 * columnWidth + 3, y, today);
+      y += 3;
 
       y += 20;
       pdf.text(x, y, "Items:");
