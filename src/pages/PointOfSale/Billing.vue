@@ -26,13 +26,14 @@ export default {
       const lineLength = 48;
       const rightAlign = 2;
 
-      pdf.setFontSize(20);
+      // Header
+      pdf.setFontSize(8);
       // pdf.setFont("monospaced sans serif");
       pdf.setFontType("bold");
-      pdf.setTextColor(65, 105, 225);
-      pdf.text(x, y, "ABC Corporation");
+      pdf.text(x, y, "ABC Store");
+      y += 2;
+      pdf.line(x, y, x + lineLength, y);
       y += 5;
-      pdf.line(x, y, x + 165, y);
 
       pdf.setFontSize(16);
       pdf.setTextColor(0, 0, 0);
