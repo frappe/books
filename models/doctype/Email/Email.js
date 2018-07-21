@@ -1,5 +1,3 @@
-const frappe = require('frappejs');
-
 module.exports = {
     "name": "Email",
     "doctype": "DocType",
@@ -15,21 +13,24 @@ module.exports = {
             "fieldtype": "Data",
             "required": 0,
             "hidden": 1,
+            "disabled" : 0 
         },
         {
             "fieldname": "fromEmailAddress",
             "label": "From",
-            "fieldtype": "Data",
-            "default": "None",
+            "fieldtype": "Data",//"Select",
+            //"options": [],
             "required": 1,
-            "disabled": true
+            "hidden": 0,
+            "disabled" : 0 
         },
         {
             "fieldname": "toEmailAddress",
             "label": "To",
             "fieldtype": "Data",
             "required": 1,
-            "disabled": true
+            "hidden": 0,
+            "disabled" : 0 
         },
         {
 
@@ -37,35 +38,40 @@ module.exports = {
             "label": "cc",
             "fieldtype": "Data",
             "required": 0,
-            "disabled": true
+            "hidden": 0,
+            "disabled" : 0 
         },
         {
             "fieldname": "bccEmailAddress",
             "label": "bcc",
             "fieldtype": "Data",
             "required": 0,
-            "disabled": true
+            "hidden": 0,
+            "disabled" : 0 
         },
         {
             "fieldname": "date",
             "label": "Date",
             "fieldtype": "Date",
             "required": 0,
-            "disabled": true
+            "hidden": 0,
+            "disabled" : 0 
         },
         {
             "fieldname": "subject",
             "label": "Subject",
             "fieldtype": "Data",
             "required": 0,
-            "disabled": true
+            "hidden": 0,
+            "disabled" : 0 
         },
         {
             "fieldname": "bodyText",
             "label": "Body",
             "fieldtype": "Text",
             "required": 0,
-            "disabled": true
+            "hidden": 0,
+            "disabled" : 0 
         },
         {
             "fieldname": "bodyHtml",
@@ -73,14 +79,14 @@ module.exports = {
             "fieldtype": "Text",
             "required": 0,
             "hidden": 1,
-            "disabled": true
+            "disabled" : 0 
         },
         {
             "fieldname": "sent",
             "label": "sentReceive",
             "fieldtype": "Check",
+            "hidden": 1,
             "required": 0,
-            "hidden": 1
         },
     ]
 }

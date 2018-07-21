@@ -3,18 +3,15 @@ const server = require('frappejs/server');
 const frappe = require('frappejs');
 const naming = require('frappejs/model/naming');
 const registerReportMethods = require('../reports');
-const setupEmail = require('../email');
 
 module.exports = {
     async start() {
         await server.start({
             backend: 'sqlite',
-            connectionParams: {
-                dbPath: 'test.db'
-            },
+            connectionParams: { dbPath: 'test.db', enableCORS: true },
             staticPath: path.resolve(__dirname, '../www'),
             models: require('../models')
-        });
+        })
 
         await this.postStart();
     },
@@ -42,6 +39,5 @@ module.exports = {
         await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
         registerReportMethods();
-        setupEmail();
     }
 }

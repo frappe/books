@@ -58,19 +58,26 @@ module.exports = {
                 "UNSEEN"
             ],
             "default": "UNSEEN",
-            "required": 1
         },
         {
             "fieldname": "imapHost",
             "label": "IMAP Host",
-            "fieldtype": "Data",
-            "required": 1
+            "fieldtype": "Select",
+            "options": [
+                "imap.gmail.com",
+                "imap.mail.yahoo.com",
+                "imap-mail.outlook.com",
+                "imap.mail.me.com",
+                "imap.aol.com"
+            ],
         },
         {
             "fieldname": "imapPort",
             "label": "IMAP Port",
-            "fieldtype": "Int",
-            "required": 1
+            "fieldtype": "Select",
+            "options": [
+                "993"
+            ],
         },
         {
             "fieldname": "enableOutgoing",
@@ -81,14 +88,23 @@ module.exports = {
         {
             "fieldname": "smtpHost",
             "label": "SMTP Host",
-            "fieldtype": "Data",
-            "required": 1
+            "fieldtype": "Select",
+            "options": [
+                "smtp.gmail.com",
+                "smtp.mail.yahoo.com",
+                "smtp-mail.outlook.com",
+                "smtp.mail.me.com",
+                "smtp.aol.com"
+            ],
         },
         {
             "fieldname": "smtpPort",
             "label": "SMTP Port",
-            "fieldtype": "Int",
-            "required": 1
+            "fieldtype": "Select",
+            "options": [
+              "465",
+              "587"
+            ],
         },
         {
             "fieldname": "initialSync",

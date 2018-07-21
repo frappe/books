@@ -6,20 +6,16 @@ Simple JS based app for personal and small businesses accounting
 
 Install dependencies
 
-`yarn install`
-
-### Build
-
 ```sh
-node_modules/.bin/rollup
+yarn
 ```
 
-### Start
-
-To start the app + build process
+### Development
 
 ```sh
-yarn global add foreman
+# start dev server
+yarn dev
 
-nf start
+# in another shell, start node server
+yarn server
 ```
