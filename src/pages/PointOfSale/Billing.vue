@@ -16,10 +16,15 @@ export default {
     printPDF() {
       // console.log(this.items, this.customer, this.netTotal, this.grandTotal);
 
-      let pdf = new jsPDF("p", "mm", "a4");
-      //format pdf
-      let x = 20;
-      let y = 25;
+      // create new pdf object
+      let pdf = new jsPDF("p", "mm", [58, 100]);
+      //Initialize x, y coordinates
+      let x = 5;
+      let y = 5;
+      // Set columnwidth for table
+      const columnWidth = 10.5;
+      const lineLength = 48;
+      const rightAlign = 2;
 
       pdf.setFontSize(20);
       // pdf.setFont("monospaced sans serif");
