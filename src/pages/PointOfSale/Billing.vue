@@ -98,10 +98,19 @@ export default {
 
       pdf.line(x, y, x + lineLength, y);
 
-      y += 10;
-      pdf.text(x, y, "Net Total: " + this.netTotal);
-      y += 10;
-      pdf.text(x, y, "Grand Total: " + this.grandTotal);
+      y += 5;
+      pdf.text(x, y, "Net Total: ");
+      pdf.text(x + 4 * columnWidth, y, this.netTotal + "");
+      y += 5;
+      pdf.text(x, y, "Tax: ");
+      pdf.text(x + 4 * columnWidth, y, this.grandTotal-this.netTotal + "");
+      y += 5;
+      pdf.text(x, y, "Grand Total: ");
+      pdf.text(x + 4 * columnWidth, y, this.grandTotal + "");
+      y += 3;
+      pdf.line(x, y, x + lineLength, y);
+      y += 3;
+      pdf.text(x + columnWidth, y, "Thank you for visiting!");
 
       pdf.autoPrint();
       // pdf.save(); //to download pdf
