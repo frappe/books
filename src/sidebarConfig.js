@@ -50,9 +50,6 @@ export default {
       items: [
         {
           label: _('Email'), route: '#/email/Email'
-        },
-        {
-          label: _('Email Account'), route: '#/list/EmailAccount'
         }
       ]
     }
