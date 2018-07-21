@@ -34,6 +34,9 @@ export default {
         },
         {
           label: _('Account'), route: '#/list/Account'
+        },
+        {
+          label: _('Files'), route: '#/FileList/FileContent'
         }
       ]
     },
@@ -42,6 +45,14 @@ export default {
       items: [
         {
           label: _('General Ledger'), route: '#/report/general-ledger'
+        }
+      ]
+    },
+    {
+      title: _('App'),
+      items: [
+        {
+          label: _('Point Of Sale'), route: '#/pos/'
         }
       ]
     }
