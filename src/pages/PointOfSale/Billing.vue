@@ -58,16 +58,45 @@ export default {
       pdf.text(x + 3 * columnWidth + 3, y, today);
       y += 3;
 
-      y += 20;
-      pdf.text(x, y, "Items:");
-      y += 10;
+      // table headers
+      let headerX = x;
+      pdf.line(x, y, x + lineLength, y);
+      y += 3;
+      pdf.text(headerX, y, "Sr No.");
+      headerX += columnWidth;
+      pdf.text(headerX, y, "Item");
+      headerX += columnWidth;
+      pdf.text(headerX, y, "QTY");
+      headerX += columnWidth;
+      pdf.text(headerX, y, "Rate");
+      headerX += columnWidth;
+      pdf.text(headerX, y, "AMT");
+      y += 2;
+      pdf.line(x, y, x + lineLength, y);
+      y += 5;
+
+      // items table
+      let srNo = 1;
       this.items.forEach(item => {
-        pdf.text(x, y, item.item.name + " : " + item.numberOfItems);
-        y += 10;
+        let tableX = x;
+        tableX += rightAlign;
+        pdf.text(tableX, y, srNo + ".");
+        srNo++;
+        tableX -= rightAlign;
+        tableX += columnWidth;
+        pdf.text(tableX, y, item.item.name);
+        tableX += columnWidth;
+        tableX += rightAlign;
+        pdf.text(tableX, y, item.numberOfItems + "");
+        tableX -= rightAlign;
+        tableX += columnWidth;
+        pdf.text(tableX, y, item.item.rate + "");
+        tableX += columnWidth;
+        pdf.text(tableX, y, item.item.rate * item.numberOfItems + "");
+        y += 5;
       });
 
-      y += 5;
-      pdf.line(x, y, x + 165, y);
+      pdf.line(x, y, x + lineLength, y);
 
       y += 10;
       pdf.text(x, y, "Net Total: " + this.netTotal);
