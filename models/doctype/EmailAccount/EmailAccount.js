@@ -64,6 +64,7 @@ module.exports = {
                 "imap.mail.me.com",
                 "imap.aol.com"
             ],
+            "default": "imap.gmail.com",
         },
         {
             "fieldname": "imapPort",
@@ -72,6 +73,7 @@ module.exports = {
             "options": [
                 "993"
             ],
+            "default": "993"
         },
         {
             "fieldname": "enableOutgoing",
@@ -90,6 +92,7 @@ module.exports = {
                 "smtp.mail.me.com",
                 "smtp.aol.com"
             ],
+            "default": "smtp.gmail.com"
         },
         {
             "fieldname": "smtpPort",
@@ -99,6 +102,7 @@ module.exports = {
               "465",
               "587"
             ],
+            "default": "465"
         },
         {
             "fieldname": "initialSync",
