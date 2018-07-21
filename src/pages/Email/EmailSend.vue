@@ -28,13 +28,34 @@ export default {
   components: {
     FormActions
   },
+  computed:{
+    
+  },
   async created() {
     if (!this.name) return;
     try {
         this.doc = await frappe.getDoc(this.doctype, this.name);
         let emailFields = frappe.getMeta('Email').fields;
-        emailFields[5].hidden = true;
-        if (this.doc._notInserted && this.meta.fields.map(df => df.fieldname).includes('name')) {
+        emailFields[5].hidden = true;   
+        emailFields[1].hidden = false;
+        emailFields[3].hidden = false;
+        emailFields[4].hidden = false;
+        /*
+        console.log("Email Accounts Loaded for sending and set to : Default ");
+        let options = await frappe.db.getAll({
+            doctype: "EmailAccount",
+            fields: ['email','enableOutgoing'],
+        });  
+        for(let i = 0; i < options.length; i++){   
+            if(options[i].enableOutgoing){
+              console.log(options[i]);
+              if(emailFields[1].options.indexOf(options[i].email) < 0)
+                emailFields[1].options.push(options[i].email);
+            }
+         }
+         this.doc.set("fromEmailAddress", emailFields[1].options);
+         */
+         if (this.doc._notInserted && this.meta.fields.map(df => df.fieldname).includes('name')) {
             this.doc.set('name', '');
         }
         if (this.defaultValues) {
@@ -53,6 +74,7 @@ export default {
             this.doc = await frappe.getDoc(this.doctype, this.name)
             this.doc.name = "Sent: " +this.doc["fromEmailAddress"] + " "+ this.doc["subject"].slice(0,10);
             var response = await frappe.call({method: 'send-mail',args: this.doc.getValidDict()});
+            console.log(this.doc.getValidDict());
             if(response){
               let emailFields = frappe.getMeta('Email').fields;
               emailFields[5].hidden = true;

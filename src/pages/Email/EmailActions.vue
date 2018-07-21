@@ -13,7 +13,6 @@
             <button class="btn btn-primary btn-sm" @click="$emit('sync',selected)">Sync</button>
             <button  v-if="showDelete" class="btn btn-danger btn-sm" @click="$emit('delete')">Delete</button>
             <button v-else class="btn btn-primary btn-sm" @click="$emit('compose')">Compose</button>
-            <button  class="btn btn-primary btn-sm" @click="$emit('menu')">Menu</button>
         </div>
     </div>
 </template>

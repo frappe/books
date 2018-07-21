@@ -18,9 +18,10 @@ module.exports = {
         {
             "fieldname": "fromEmailAddress",
             "label": "From",
-            "fieldtype": "Data",
-            "default": "None",
+            "fieldtype": "Data",//"Select",
+            //"options": [],
             "required": 1,
+            "hidden": 0,
             "disabled" : 0 
         },
         {
@@ -28,6 +29,7 @@ module.exports = {
             "label": "To",
             "fieldtype": "Data",
             "required": 1,
+            "hidden": 0,
             "disabled" : 0 
         },
         {
@@ -36,6 +38,7 @@ module.exports = {
             "label": "cc",
             "fieldtype": "Data",
             "required": 0,
+            "hidden": 0,
             "disabled" : 0 
         },
         {
@@ -43,6 +46,7 @@ module.exports = {
             "label": "bcc",
             "fieldtype": "Data",
             "required": 0,
+            "hidden": 0,
             "disabled" : 0 
         },
         {
@@ -50,6 +54,7 @@ module.exports = {
             "label": "Date",
             "fieldtype": "Date",
             "required": 0,
+            "hidden": 0,
             "disabled" : 0 
         },
         {
@@ -57,6 +62,7 @@ module.exports = {
             "label": "Subject",
             "fieldtype": "Data",
             "required": 0,
+            "hidden": 0,
             "disabled" : 0 
         },
         {
@@ -64,6 +70,7 @@ module.exports = {
             "label": "Body",
             "fieldtype": "Text",
             "required": 0,
+            "hidden": 0,
             "disabled" : 0 
         },
         {
@@ -78,8 +85,8 @@ module.exports = {
             "fieldname": "sent",
             "label": "sentReceive",
             "fieldtype": "Check",
-            "required": 0,
             "hidden": 1,
+            "required": 0,
         },
     ]
 }

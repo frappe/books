@@ -12,6 +12,7 @@
 import ListAndForm from 'frappejs/ui/pages/ListAndForm';
 
 export default {
+    name: 'EmailAccount',
     extends:ListAndForm,
     methods: {
     }
