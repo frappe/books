@@ -5,25 +5,15 @@
 import Vue from 'vue';
 import App from './App';
 import router from './router';
+import frappeVue from 'frappejs/ui/plugins/frappeVue';
 
 // frappejs imports
-import io from 'socket.io-client';
 import frappe from 'frappejs';
+import io from 'socket.io-client';
 import HTTPClient from 'frappejs/backends/http';
-import Observable from 'frappejs/utils/observable';
 import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
-import { _ } from 'frappejs/utils';
-
-// vue components
-import NotFound from 'frappejs/ui/components/NotFound';
-import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
-import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';
-import Button from 'frappejs/ui/components/Button';
-import Indicator from 'frappejs/ui/components/Indicator';
-import modalPlugin from 'frappejs/ui/components/Modal/plugin';
-import formModalPlugin from 'frappejs/ui/plugins/formModal';
 import registerReportMethods from '../reports';
 
 frappe.init();
@@ -35,8 +25,6 @@ frappe.fetch = window.fetch.bind();
 frappe.db = new HTTPClient({ server });
 const socket = io.connect(`http://${server}`);
 frappe.db.bindSocketClient(socket);
-frappe.registerModels(models);
-frappe.docs = new Observable();
 frappe.getSingle('SystemSettings');
 registerReportMethods();
 
@@ -54,29 +42,7 @@ frappe.getSingle('AccountingSettings')
 window.frappe = frappe;
 
 Vue.config.productionTip = false;
-
-Vue.component('not-found', NotFound);
-Vue.component('feather-icon', FeatherIcon);
-Vue.component('frappe-control', FrappeControl);
-Vue.component('f-button', Button);
-Vue.component('indicator', Indicator);
-
-Vue.use(modalPlugin);
-Vue.use(formModalPlugin);
-
-Vue.mixin({
-  computed: {
-    frappe() {
-      return frappe;
-    }
-  },
-  methods: {
-    // global translation function in every component
-    _(...args) {
-      return _(...args);
-    }
-  }
-});
+Vue.use(frappeVue);
 
 /* eslint-disable no-new */
 new Vue({
