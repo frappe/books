@@ -5,7 +5,7 @@ import coreRoutes from 'frappejs/ui/routes';
 import SetupWizard from '../pages/SetupWizard';
 import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
-
+import POS from '../pages/PointOfSale/POS'
 Vue.use(Router);
 
 const routes = [].concat(coreRoutes, [
@@ -28,7 +28,13 @@ const routes = [].concat(coreRoutes, [
         filters: route.query
       };
     }
-  }
+  },
+  {
+    path: '/pos/',
+    name: 'POS',
+    component: POS,
+    props: true
+  },
 ]);
 
 export default new Router({ routes });
