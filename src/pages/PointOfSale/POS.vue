@@ -21,30 +21,41 @@
                               <tbody>
                                   <tr>
                                       <td>Subtotal:</td>
-                                      <td>{{ this.netTotal }}</td>
+                                      <td style="text-align:right">{{ this.netTotal }}</td>
                                   </tr>
                                   <tr>
                                       <td>Tax:</td>
-                                      <td>{{ this.grandTotal-this.netTotal }}</td>
+                                      <td style="text-align:right">{{ this.grandTotal-this.netTotal }}</td>
                                   </tr>
                                   <tr>
                                       <td>Total:</td>
-                                      <td>{{ this.grandTotal }}</td>
+                                      <td style="text-align:right">{{ this.grandTotal }}</td>
                                   </tr>
                                 </tbody>
                           </table>
                         </div>
-
-                        <div class="list-group">
-                          <button class="list-group-item item" @click="createInvoice()">
-                              <strong>Create Invoice</strong>
-                          </button>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="list-group">
+                                    <button class="list-group-item item" @click="createInvoice()">
+                                        <strong>Create Invoice</strong>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="list-group">
+                                    <button type="button" class="list-group-item item" @click="checkout()">
+                                         <strong>Checkout</strong>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <h6>Item Select</h6>
                                 <frappe-control
                                     :docfield="itemDocfield"
@@ -68,13 +79,16 @@
 <script>
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
+import Checkout from "./Checkout";
+import ModalMessage from "./ModalMessage";
 import frappe from "frappejs";
 import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';
 
 export default {
   components: {
     Transaction,
-    ItemList
+    ItemList,
+    Checkout
   },
 
   data() {
@@ -114,7 +128,14 @@ export default {
   methods: {
     onItemClick: function(item) {
       if(this.value=="") {
-          alert("No customer Added");
+        let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No customer added.",
+            }
+        }
+        this.$modal.show(options);
       }
       else {
           var found = this.itemPresent(item);  
@@ -178,6 +199,20 @@ export default {
         return item;
     },
 
+    checkout() {
+        let options = {
+            title: "Total Amount: "+this.grandTotal,
+            component: Checkout,
+            props: {
+                customer: this.value, 
+                lineItems: this.lineItems, 
+                netTotal: this.netTotal, 
+                grandTotal: this.grandTotal
+            }
+        }
+        this.$modal.show(options);
+    },
+
     async invoice() {
         this.dataready=false;
         var item= this.currentItems();
@@ -192,18 +227,37 @@ export default {
         this.netTotal=this.doc.netTotal;
         console.log(this.grandTotal+" "+this.netTotal);
         this.dataready=true;
+        console.log(this.doc);
     },
 
     async createInvoice(){
-        if(!this.lineItems.length)
-            alert("No items selected");
+        if(!this.lineItems.length){
+            let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No items added.",
+            }
+        }
+        this.$modal.show(options);
+        }
         else{
             await this.doc.insert();
-            alert("Invoice added");
+            let options = {
+            title: "Success",
+            component: ModalMessage,
+            props: {
+                modalMessage: "Invoice has been added.",
+            }
+        }
+        this.$modal.show(options);
         }
     }
   }
 };
 </script>
-<style>
+<style scoped>
+.container{
+    margin-top: 4rem;
+}
 </style>
