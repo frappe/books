@@ -2,25 +2,18 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 
 // vue imports
-import Vue from 'vue'
-import App from './App'
-import router from './router'
+import Vue from 'vue';
+import App from './App';
+import router from './router';
+import frappeVue from 'frappejs/ui/plugins/frappeVue';
 
 // frappejs imports
 import frappe from 'frappejs';
+import io from 'socket.io-client';
 import HTTPClient from 'frappejs/backends/http';
-import Observable from 'frappejs/utils/observable';
 import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
-import io from 'socket.io-client';
-
-// vue components
-import NotFound from './components/NotFound';
-import FeatherIcon from './components/FeatherIcon';
-import FrappeControl from './components/controls/FrappeControl';
-import Button from './components/Button';
-import Indicator from './components/Indicator';
 import registerReportMethods from '../reports';
 
 frappe.init();
@@ -32,13 +25,13 @@ frappe.fetch = window.fetch.bind();
 frappe.db = new HTTPClient({ server });
 const socket = io.connect(`http://${server}`);
 frappe.db.bindSocketClient(socket);
-frappe.registerModels(models);
-frappe.docs = new Observable();
 frappe.getSingle('SystemSettings');
-registerReportMethods()
+registerReportMethods();
 
 frappe.getSingle('AccountingSettings')
   .then(accountingSettings => {
+    if (router.currentRoute.fullPath !== '/') return;
+
     if (accountingSettings.companyName) {
       router.push('/list/ToDo');
     } else {
@@ -48,13 +41,8 @@ frappe.getSingle('AccountingSettings')
 
 window.frappe = frappe;
 
-Vue.config.productionTip = false
-
-Vue.component('not-found', NotFound);
-Vue.component('feather-icon', FeatherIcon);
-Vue.component('frappe-control', FrappeControl);
-Vue.component('f-button', Button);
-Vue.component('indicator', Indicator);
+Vue.config.productionTip = false;
+Vue.use(frappeVue);
 
 /* eslint-disable no-new */
 new Vue({
@@ -62,4 +50,4 @@ new Vue({
   router,
   components: { App },
   template: '<App/>'
-})
+});

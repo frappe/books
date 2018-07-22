@@ -80,8 +80,9 @@
 import Transaction from "./Transaction";
 import ItemList from "./ItemList";
 import Checkout from "./Checkout";
+import ModalMessage from "./ModalMessage";
 import frappe from "frappejs";
-import FrappeControl from '../../components/controls/FrappeControl';
+import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';
 
 export default {
   components: {
@@ -127,11 +128,14 @@ export default {
   methods: {
     onItemClick: function(item) {
       if(this.value=="") {
-        let TextMessage = {
+        let options = {
             title: "Error",
-            bodyMessage: "No customer selected"
+            component: ModalMessage,
+            props: {
+                modalMessage: "No customer added.",
+            }
         }
-        this.$modal.show(TextMessage);
+        this.$modal.show(options);
       }
       else {
           var found = this.itemPresent(item);  
@@ -198,9 +202,8 @@ export default {
     checkout() {
         let options = {
             title: "Total Amount: "+this.grandTotal,
-            bodyMessage: null,
-            bodyComponent: Checkout,
-            bodyProps: {
+            component: Checkout,
+            props: {
                 customer: this.value, 
                 lineItems: this.lineItems, 
                 netTotal: this.netTotal, 
@@ -229,19 +232,25 @@ export default {
 
     async createInvoice(){
         if(!this.lineItems.length){
-            let TextMessage = {
-                title: "Error",
-                bodyMessage: "No items added"
+            let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No items added.",
             }
-            this.$modal.show(TextMessage);
+        }
+        this.$modal.show(options);
         }
         else{
             await this.doc.insert();
-            let TextMessage = {
-                title: "Success",
-                bodyMessage: "Invoice Added"
+            let options = {
+            title: "Success",
+            component: ModalMessage,
+            props: {
+                modalMessage: "Invoice has been added.",
             }
-            this.$modal.show(TextMessage);
+        }
+        this.$modal.show(options);
         }
     }
   }

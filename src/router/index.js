@@ -1,58 +1,39 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import ListAndForm from '@/pages/ListAndForm'
-import SetupWizard from '@/pages/SetupWizard/SetupWizard'
-import POS from '../pages/PointOfSale/POS'
-import Report from '@/components/Report'
+import Vue from 'vue';
+import Router from 'vue-router';
+import coreRoutes from 'frappejs/ui/routes';
+import POS from '../pages/PointOfSale/POS';
+import SetupWizard from '../pages/SetupWizard';
+import Report from 'frappejs/ui/pages/Report';
+import reportViewConfig from '../../reports/view';
 
-Vue.use(Router)
+Vue.use(Router);
 
-export default new Router({
-  routes: [
-    {
-      path: '/list/:doctype',
-      name: 'List',
-      component: ListAndForm,
-      props: true
-    },
-    {
-      path: '/edit/:doctype/:name',
-      name: 'Form',
-      component: ListAndForm,
-      props: true
-    },
-    {
-      path: '/setup-wizard',
-      name: 'SetupWizard',
-      components: {
-        setup: SetupWizard
-      }
-    },
-    {
-      path: '/pos/',
-      name: 'POS',
-      component: POS
-    },
-    {
-      path: '/report/:reportName',
-      name: 'Report',
-      component: Report,
-      props: true
+const routes = [].concat(coreRoutes, [
+  {
+    path: '/setup-wizard',
+    name: 'SetupWizard',
+    components: {
+      setup: SetupWizard
     }
-    // {
-    //   path: '/table/:doctype',
-    //   name: '',
-    //   component: ''
-    // },
-    // {
-    //   path: '/print/:doctype/:name',
-    //   name: '',
-    //   component: ''
-    // },
-    // {
-    //   path: '/new/:doctype',
-    //   name: '',
-    //   component: ''
-    // }
-  ]
-})
+  },
+  {
+    path: '/report/:reportName',
+    name: 'Report',
+    component: Report,
+    props: (route) => {
+      const { reportName } = route.params;
+      return {
+        reportName,
+        reportConfig: reportViewConfig[reportName] || null,
+        filters: route.query
+      };
+    }
+  },
+  {
+    path: '/pos/',
+    name: 'POS',
+    component: POS
+  }
+]);
+
+export default new Router({ routes });
