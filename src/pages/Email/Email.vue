@@ -2,6 +2,7 @@
         <div class="frappe-list">
             <list-actions
               :doctype="doctype"
+              :name="name"
               :showDelete="checkList.length"
               @compose="newDoc"
               @delete="deleteCheckedItems"
@@ -30,6 +31,7 @@ import EmailSend from './EmailSend';
 export default {
   name: 'EmailList',
   extends: List,
+  props: ['doctype', 'name'],
   components: {
       ListActions
   },
@@ -42,7 +44,7 @@ export default {
         });
         for(let i = 0; i < this.options.length; i++){   
             if(this.options[i].enableIncoming){
-                this.receiveEmails(this.options[i].email);
+                this.receiveEmails(this.options[i].email,this.name);
                 break;
             }
          }
@@ -83,8 +85,8 @@ export default {
         emailFields[4].hidden = true;
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
-    async receiveEmails(Id){
-        await frappe.call({method: 'sync-mail',args:{Id}});
+    async receiveEmails(Id,syncOption){
+        await frappe.call({method: 'sync-mail',args:{Id,syncOption}});
     },
   }
 }
