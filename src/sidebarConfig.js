@@ -49,7 +49,7 @@ export default {
       title: 'App',
       items: [
         {
-          label: _('Email'), route: '#/email/Email/list'
+          label: _('Email'), route: '#/email/Email/UNSEEN'
         }
       ]
     }

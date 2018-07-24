@@ -9,7 +9,7 @@ export default {
   props: ['doctype', 'name', 'title'],
   methods:{
       back(){
-        this.$router.push(`/email/Email`);
+        this.$router.push(`/email/Email/UNSEEN`);
     }
   }
 }

@@ -35,19 +35,29 @@ export default {
   components: {
       ListActions
   },
-    async created(){
-      console.log("Emails Loaded From Default ");
+  async created(){
+      console.log("CREATED : ADD HERE");
       this.$root.$emit('emailConfigView');
-      this.options = await frappe.db.getAll({
+   },
+   watch: {
+    name : async function(){
+        console.log("CREATED : ADD HERE");
+      console.log("Emails Loaded From Default ");
+        this.$root.$emit('emailConfigView');
+        this.options = await frappe.db.getAll({
             doctype: "EmailAccount",
             fields: ['email','enableIncoming'],
         });
+        var Id , syncOption;
         for(let i = 0; i < this.options.length; i++){   
             if(this.options[i].enableIncoming){
-                this.receiveEmails(this.options[i].email,this.name);
+                Id = this.options[i].email;
+                syncOption = this.name;
                 break;
             }
          }
+         this.receiveEmails(Id,syncOption);
+    }
   },
   methods: {
     async newDoc() {
@@ -85,7 +95,7 @@ export default {
         emailFields[4].hidden = true;
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
-    async receiveEmails(Id,syncOption){
+    async receiveEmails(Id,syncOption){ 
         await frappe.call({method: 'sync-mail',args:{Id,syncOption}});
     },
   }
