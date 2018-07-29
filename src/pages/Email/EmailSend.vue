@@ -53,7 +53,7 @@ export default {
                 emailFields[1].options.push(options[i].email);
             }
          }
-         this.doc.set("fromEmailAddress", emailFields[1].options);
+         await this.doc.set("fromEmailAddress", emailFields[1].options);
          */
          if (this.doc._notInserted && this.meta.fields.map(df => df.fieldname).includes('name')) {
             this.doc.set('name', '');

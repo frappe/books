@@ -8,6 +8,13 @@
               @delete="deleteCheckedItems"
               @sync="receiveEmails"
             />
+            <ul class="row">
+                <br>
+                <div class="from-title"> From </div>
+                    <div class="to-title">To</div>
+                    <div class="subject-title">Subject</div>
+                    <div class="date-title">Date</div>
+            </ul>
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name"
                     :id="doc.name"
@@ -15,7 +22,10 @@
                     :isChecked="isChecked(doc.name)"
                     @clickItem="openForm(doc.name)"
                     @checkItem="toggleCheck(doc.name)">
-                    {{ doc[meta.titleField || 'name'] }}
+                    <div class="from-item"> {{ doc['toEmailAddress'] }} </div>
+                    <div class="to-item"> {{ doc['fromEmailAddress'] }} </div>
+                    <div class="subject-item"> {{ doc['subject'] }} </div>
+                    <div class="date-item"> {{ doc['date'] }} </div>
                 </list-item>
             </ul>
         </div>
@@ -35,14 +45,22 @@ export default {
   components: {
       ListActions
   },
-  async created(){
-      console.log("CREATED : ADD HERE");
+   data(){
+     return {
+        data:[]
+     }  
+   },
+    async created(){
       this.$root.$emit('emailConfigView');
+      const data = await frappe.db.getAll({
+            doctype: this.doctype,
+            fields: ['*'],
+        });
+        this.data = data;
    },
    watch: {
     name : async function(){
-        console.log("CREATED : ADD HERE");
-      console.log("Emails Loaded From Default ");
+        console.log("Emails Loaded From Default ");
         this.$root.$emit('emailConfigView');
         this.options = await frappe.db.getAll({
             doctype: "EmailAccount",
@@ -73,6 +91,7 @@ export default {
               name: doc.name,
             }
           });
+        // unable to dump on DB [ check delete + hit refresh / sync ]
         doc.on('afterInsert', (data) => {
             this.$modal.hide();
         });
@@ -86,18 +105,59 @@ export default {
             filters:{name: this.activeItem},
         });
         let emailFields = frappe.getMeta('Email').fields;
+        emailFields[5].hidden = false;
         for(let i = 0; i < emailFields.length; i++){   
             emailFields[i].disabled = true;
         }
-        emailFields[5].hidden = false;
+        // EMAIL DATE DISABLED DOESN't Work
         emailFields[1].hidden = true;
         emailFields[3].hidden = true;
         emailFields[4].hidden = true;
         this.$router.push(`/view/${this.doctype}/${name}`);
     },
-    async receiveEmails(Id,syncOption){ 
+    async receiveEmails(Id,syncOption=null){ 
+        console.log("If you've clicked sync maybe this has raised some errors");
+        if(syncOption==null){
+            syncOption = "UNSEEN";  // FIX THIS
+        }
         await frappe.call({method: 'sync-mail',args:{Id,syncOption}});
     },
   }
 }
 </script>
+<style>
+
+.from-item{
+    position: absolute;
+    left:4%;
+}
+.to-item{
+    position: absolute;
+    left:25%;
+}
+.subject-item{
+    position: absolute;
+    left:45%;
+}
+.date-item{
+    position: absolute;
+    right:2%;
+}
+.from-title{
+    position: absolute;
+    left:10%;
+}
+.to-title{
+    position: absolute;
+    left:30%;
+}
+.subject-title{
+    position: absolute;
+    left:50%;
+}
+.date-title{
+    position: absolute;
+    right:4%;
+}
+
+</style>
