@@ -15,7 +15,10 @@ const bodyParser = require('body-parser');
 const fs = require('fs');
 const { setupExpressRoute: setRouteForPDF } = require('frappejs/server/pdf');
 const auth = require('./../auth/auth')();
-const morgan = require('morgan')
+const morgan = require('morgan');
+const { addWebpackMiddleware } = require('../webpack/serve');
+const { getAppConfig } = require('../webpack/utils');
+const appConfig = getAppConfig();
 
 require.extensions['.html'] = function (module, filename) {
     module.exports = fs.readFileSync(filename, 'utf8');
@@ -35,7 +38,6 @@ module.exports = {
         // app
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
-        app.use(express.static(staticPath));
         app.use(morgan('tiny'));
 
         if (connectionParams.enableCORS) {
@@ -53,7 +55,12 @@ module.exports = {
         // routes
         restAPI.setup(app);
 
-        frappe.config.port = connectionParams.port || 8000;
+        if (process.env.NODE_ENV === 'development') {
+            // webpack dev server
+            addWebpackMiddleware(app);
+        }
+
+        frappe.config.port = appConfig.dev.devServerPort
 
         // listen
         server.listen(frappe.config.port, () => {
