@@ -8,12 +8,12 @@
               @delete="deleteCheckedItems"
               @sync="receiveEmails"
             />
-            <ul class="row">
-                <br>
-                <div class="from-title"> From </div>
-                    <div class="to-title">To</div>
-                    <div class="subject-title">Subject</div>
-                    <div class="date-title">Date</div>
+            <br>
+            <ul class="row title">
+                <div > From </div>
+                <div > To</div>
+                <div > Subject</div>
+                <div >Date</div>
             </ul>
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name"
@@ -22,10 +22,11 @@
                     :isChecked="isChecked(doc.name)"
                     @clickItem="openForm(doc.name)"
                     @checkItem="toggleCheck(doc.name)">
-                    <div class="from-item"> {{ doc['toEmailAddress'] }} </div>
-                    <div class="to-item"> {{ doc['fromEmailAddress'] }} </div>
-                    <div class="subject-item"> {{ doc['subject'] }} </div>
-                    <div class="date-item"> {{ doc['date'] }} </div>
+                    {{ doc[meta.titleField || 'name'] }}
+                    <!-- {{ doc['toEmailAddress'] }}
+                    {{ doc['fromEmailAddress'] }} 
+                    {{ doc['subject'] }}
+                    {{ doc['date'] }} -->
                 </list-item>
             </ul>
         </div>
@@ -126,38 +127,10 @@ export default {
 }
 </script>
 <style>
-
-.from-item{
-    position: absolute;
-    left:4%;
+.title div{
+    margin-left: 10%;
+    margin-right: 10%;
+    display: flex;
+    flex-direction: row;
 }
-.to-item{
-    position: absolute;
-    left:25%;
-}
-.subject-item{
-    position: absolute;
-    left:45%;
-}
-.date-item{
-    position: absolute;
-    right:2%;
-}
-.from-title{
-    position: absolute;
-    left:10%;
-}
-.to-title{
-    position: absolute;
-    left:30%;
-}
-.subject-title{
-    position: absolute;
-    left:50%;
-}
-.date-title{
-    position: absolute;
-    right:4%;
-}
-
 </style>
