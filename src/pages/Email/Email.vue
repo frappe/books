@@ -6,14 +6,13 @@
               :showDelete="checkList.length"
               @compose="newDoc"
               @delete="deleteCheckedItems"
-              @sync="receiveEmails"
             />
             <br>
             <ul class="row title">
                 <div > From </div>
                 <div > To</div>
                 <div > Subject</div>
-                <div >Date</div>
+                <div > Date</div>
             </ul>
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name"
@@ -52,33 +51,15 @@ export default {
      }  
    },
     async created(){
-      this.$root.$emit('emailConfigView');
-      const data = await frappe.db.getAll({
+        console.log("This has to be fixed to filter specific emails");
+        this.$root.$emit('emailConfigView');
+        const data = await frappe.db.getAll({
             doctype: this.doctype,
             fields: ['*'],
         });
         this.data = data;
    },
-   watch: {
-    name : async function(){
-        console.log("Emails Loaded From Default ");
-        this.$root.$emit('emailConfigView');
-        this.options = await frappe.db.getAll({
-            doctype: "EmailAccount",
-            fields: ['email','enableIncoming'],
-        });
-        var Id , syncOption;
-        for(let i = 0; i < this.options.length; i++){   
-            if(this.options[i].enableIncoming){
-                Id = this.options[i].email;
-                syncOption = this.name;
-                break;
-            }
-         }
-         this.receiveEmails(Id,syncOption);
-    }
-  },
-  methods: {
+    methods: {
     async newDoc() {
         let doc = await frappe.getNewDoc(this.doctype);
         let emailFields = frappe.getMeta('Email').fields;
@@ -92,6 +73,7 @@ export default {
               name: doc.name,
             }
           });
+        console.log("Err Fix : dump db");
         // unable to dump on DB [ check delete + hit refresh / sync ]
         doc.on('afterInsert', (data) => {
             this.$modal.hide();
@@ -99,7 +81,6 @@ export default {
     },
     async openForm(name) {
         this.activeItem = name;
-        
         const data = await frappe.db.getAll({
             doctype: this.doctype,
             fields: ['*'],
@@ -115,14 +96,7 @@ export default {
         emailFields[3].hidden = true;
         emailFields[4].hidden = true;
         this.$router.push(`/view/${this.doctype}/${name}`);
-    },
-    async receiveEmails(Id,syncOption=null){ 
-        console.log("If you've clicked sync maybe this has raised some errors");
-        if(syncOption==null){
-            syncOption = "UNSEEN";  // FIX THIS
-        }
-        await frappe.call({method: 'sync-mail',args:{Id,syncOption}});
-    },
+    }
   }
 }
 </script>

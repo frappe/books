@@ -10,7 +10,7 @@
                    {{ option.email }}
                 </option>
             </select>
-            <button class="btn btn-primary btn-sm" @click="$emit('sync',selected)">Sync</button>
+            <button class="btn btn-primary btn-sm" @click="receiveEmails">Sync</button>
             <button  v-if="showDelete" class="btn btn-danger btn-sm" @click="$emit('delete')">Delete</button>
             <button v-else class="btn btn-primary btn-sm" @click="$emit('compose')">Compose</button>
         </div>
@@ -20,6 +20,7 @@
 import ListActions from 'frappejs/ui/components/List/ListActions';
 export default {
     extends: ListActions,
+    props:  ['doctype','name'],
     data(){
         return {
             selected: '',
@@ -38,7 +39,33 @@ export default {
             }
          }
     },
-    methods:{}
+    watch:{
+        selected : async function(){
+            console.log("Selected Watching :"+this.selected);
+            this.receiveEmails(this.selected);
+        },
+        name: async function(){
+            console.log("Current tab :"+this.name);
+            this.$root.$emit('emailConfigView');
+            this.options = await frappe.db.getAll({
+                doctype: "EmailAccount",
+                fields: ['email','enableIncoming'],
+            });
+            for(let i = 0; i < this.options.length; i++){   
+                if(this.options[i].enableIncoming){
+                    this.receiveEmails(this.options[i].email);
+                    break;
+                }
+            }
+        }
+    },
+    methods:{
+        async receiveEmails(Id=this.selected,syncOption){ 
+            // Might raise errors in some case 
+            var syncOption = this.name;
+            await frappe.call({method: 'sync-mail',args:{Id,syncOption}});
+        },
+    }
 }
 </script>
 <style lang="scss" scoped>
