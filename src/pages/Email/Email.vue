@@ -6,6 +6,7 @@
               :showDelete="checkList.length"
               @compose="newDoc"
               @delete="deleteCheckedItems"
+              @update="emailList"
             />
             <br>
             <ul class="row title">
@@ -47,17 +48,12 @@ export default {
   },
    data(){
      return {
-        data:[]
+        data:[],
      }  
    },
     async created(){
         console.log("This has to be fixed to filter specific emails");
         this.$root.$emit('emailConfigView');
-        const data = await frappe.db.getAll({
-            doctype: this.doctype,
-            fields: ['*'],
-        });
-        this.data = data;
    },
     methods: {
     async newDoc() {
@@ -96,6 +92,15 @@ export default {
         emailFields[3].hidden = true;
         emailFields[4].hidden = true;
         this.$router.push(`/view/${this.doctype}/${name}`);
+    },
+    async emailList(selectedId){
+        const data = await frappe.db.getAll({
+            doctype: this.doctype,
+            fields: ['*'],
+            filters:{toEmailAddress:selectedId},
+        });
+        console.log("Switched To : "+selectedId);
+        this.data = data;
     }
   }
 }

@@ -41,8 +41,9 @@ export default {
     },
     watch:{
         selected : async function(){
-            console.log("Selected Watching :"+this.selected);
+            console.log("Selected Watching : "+this.selected);
             this.receiveEmails(this.selected);
+            this.$emit('update',this.selected);
         },
         name: async function(){
             console.log("Current tab :"+this.name);
