@@ -62,6 +62,9 @@ export default {
     },
     methods:{
         async receiveEmails(Id=this.selected,syncOption){ 
+            if(syncOption == null){
+                syncOption = "UNSEEN";
+            }
             // Might raise errors in some case 
             var syncOption = this.name;
             await frappe.call({method: 'sync-mail',args:{Id,syncOption}});

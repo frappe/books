@@ -22,11 +22,10 @@
                     :isChecked="isChecked(doc.name)"
                     @clickItem="openForm(doc.name)"
                     @checkItem="toggleCheck(doc.name)">
-                    {{ doc[meta.titleField || 'name'] }}
-                    <!-- {{ doc['toEmailAddress'] }}
-                    {{ doc['fromEmailAddress'] }} 
-                    {{ doc['subject'] }}
-                    {{ doc['date'] }} -->
+                    <div class="from-item">{{ doc['fromEmailAddress'] }} </div>
+                    <div class="to-item">{{ doc['toEmailAddress'] }}</div>
+                    <div class="subject-item">{{ doc['subject'] }}</div>
+                    <div class="date-item">{{ doc['date'] }}</div>
                 </list-item>
             </ul>
         </div>
