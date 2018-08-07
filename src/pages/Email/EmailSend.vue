@@ -28,9 +28,6 @@ export default {
   components: {
     FormActions
   },
-  computed:{
-    
-  },
   async created() {
     if (!this.name) return;
     try {
@@ -40,21 +37,18 @@ export default {
         emailFields[1].hidden = false;
         emailFields[3].hidden = false;
         emailFields[4].hidden = false;
-        /*
         console.log("Email Accounts Loaded for sending and set to : Default ");
-        let options = await frappe.db.getAll({
+         let options = await frappe.db.getAll({
             doctype: "EmailAccount",
-            fields: ['email','enableOutgoing'],
+            fields: ['*'],
+            filters:{enableOutgoing:1},
         });  
         for(let i = 0; i < options.length; i++){   
-            if(options[i].enableOutgoing){
-              console.log(options[i]);
+              // use a set instead
               if(emailFields[1].options.indexOf(options[i].email) < 0)
                 emailFields[1].options.push(options[i].email);
-            }
-         }
+          }
          await this.doc.set("fromEmailAddress", emailFields[1].options);
-         */
          if (this.doc._notInserted && this.meta.fields.map(df => df.fieldname).includes('name')) {
             this.doc.set('name', '');
         }

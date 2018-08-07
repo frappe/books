@@ -18,8 +18,8 @@ module.exports = {
         {
             "fieldname": "fromEmailAddress",
             "label": "From",
-            "fieldtype":  "Data", // "Select"
-            //"options": [], 
+            "fieldtype": "Select", //"Data",
+            "options": [], 
             "required": 1,
             "hidden": 0,
             "disabled" : 0 
