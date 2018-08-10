@@ -73,7 +73,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-@import "~@/styles/variables";
+@import '../../styles/variables';
 .email-group{
     margin-right: 1%;
     position: absolute;

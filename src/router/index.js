@@ -5,9 +5,9 @@ import coreRoutes from 'frappejs/ui/routes';
 import SetupWizard from '../pages/SetupWizard';
 import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
-import Email from '@/pages/Email/Email';
-import EmailAccount from '@/pages/EmailAccount/EmailAccount';
-import EmailReceived from '@/pages/Email/EmailReceive';
+import Email from '../pages/Email/Email';
+import EmailAccount from '../pages/EmailAccount/EmailAccount';
+import EmailReceived from '../pages/Email/EmailReceive';
 
 Vue.use(Router);
 

@@ -10,7 +10,7 @@ export default {
     {
       items: [
         {
-          label: _('Main Menu'), route: '/setup-wizard'
+          label: _('Main Menu'), route: '#/setup-wizard'
         },
         {
           label: _('Email Account'), route: '#/list/EmailAccount'
