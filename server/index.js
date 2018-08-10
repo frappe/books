@@ -25,7 +25,7 @@ require.extensions['.html'] = function (module, filename) {
 };
 
 module.exports = {
-    async start({backend, connectionParams, models, staticPath = './', authConfig=null}) {
+    async start({backend, connectionParams, models, authConfig=null}) {
         await this.init();
 
         if (models) {
@@ -38,6 +38,11 @@ module.exports = {
         // app
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({ extended: true }));
+
+        for (let staticPath of [appConfig.distPath, appConfig.staticPath]) {
+          app.use(express.static(staticPath));
+        }
+
         app.use(morgan('tiny'));
 
         if (connectionParams.enableCORS) {

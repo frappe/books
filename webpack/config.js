@@ -87,7 +87,7 @@ function getConfig() {
             noEmitOnErrors: false
         },
         devServer: {
-            contentBase: './dist',
+            // contentBase: './dist', // dist path is directly configured in express
             hot: true,
             quiet: true
         },
