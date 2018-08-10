@@ -14,7 +14,7 @@
             :invalid="invalid"
           />
         </div>
-        <not-found v-if="notFound" />
+        <not-found v-if="notFound"/>
     </div>
 </template>
 <script>
@@ -37,18 +37,18 @@ export default {
         emailFields[1].hidden = false;
         emailFields[3].hidden = false;
         emailFields[4].hidden = false;
-        console.log("Email Accounts Loaded for sending and set to : Default ");
-         let options = await frappe.db.getAll({
-            doctype: "EmailAccount",
-            fields: ['*'],
-            filters:{enableOutgoing:1},
-        });  
-        for(let i = 0; i < options.length; i++){   
-              // use a set instead
-              if(emailFields[1].options.indexOf(options[i].email) < 0)
-                emailFields[1].options.push(options[i].email);
-          }
-         await this.doc.set("fromEmailAddress", emailFields[1].options);
+        // console.log("Email Accounts Loaded for sending and set to : Default ");
+        //  let options = await frappe.db.getAll({
+        //     doctype: "EmailAccount",
+        //     fields: ['*'],
+        //     filters:{enableOutgoing:1},
+        // });  
+        // for(let i = 0; i < options.length; i++){   
+        //       // use a set instead
+        //       if(emailFields[1].options.indexOf(options[i].email) < 0)
+        //         emailFields[1].options.push(options[i].email);
+        //   }
+        //  await this.doc.set("fromEmailAddress", emailFields[1].options);
          if (this.doc._notInserted && this.meta.fields.map(df => df.fieldname).includes('name')) {
             this.doc.set('name', '');
         }
@@ -65,7 +65,7 @@ export default {
   },
   methods: {
      async send(){
-            this.doc = await frappe.getDoc(this.doctype, this.name)
+            this.doc = await frappe.getDoc(this.doctype, this.name);
             this.doc.name = "Sent: " +this.doc["fromEmailAddress"] + " "+ this.doc["subject"].slice(0,10);
             var response = await frappe.call({method: 'send-mail',args: this.doc.getValidDict()});
             console.log(this.doc.getValidDict());
@@ -74,7 +74,6 @@ export default {
               emailFields[5].hidden = true;
               this.save();
             }else{
-              // Raise Error ;
               console.log("Email Not Found");
             }
       }

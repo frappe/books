@@ -26,7 +26,7 @@
                     <!-- <div class="from-item">{{ doc['fromEmailAddress'] }} </div>
                     <div class="to-item">{{ doc['toEmailAddress'] }}</div>
                     <div class="subject-item">{{ doc['subject'] }}</div>
-                    <div class="date-item">{{ doc['date'] }}</div> -->
+                    <div class="date-item">{{ doc['date'] }}</div>  -->
                 </list-item>
             </ul>
         </div>
@@ -98,6 +98,7 @@ export default {
             doctype: this.doctype,
             fields: ['*'],
             filters:{toEmailAddress:selectedId},
+            orderBy: 'date'
         });
         console.log("Switched To : "+selectedId);
         this.data = data;
