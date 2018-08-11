@@ -1,8 +1,8 @@
 <template>
 <div class="col-md-12">
     <div class="list-group">
-        <button class="list-group-item item" @click="printPDF()">
-            <strong>Print Bill</strong>
+        <button class="list-group-item item" @click="createInvoice(); printPDF()">
+            <strong>Submit</strong>
         </button>
     </div>
 </div>
@@ -11,8 +11,32 @@
 <script>
 import  jsPDF from 'jspdf';
 export default {
-  props: ["items", "customer", "netTotal", "grandTotal"],
+  props: ["lineItems", "items", "customer", "netTotal", "grandTotal"],
   methods: {
+    async createInvoice(){
+        if(!this.lineItems.length){
+            let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No items added.",
+            }
+        }
+        this.$modal.show(options);
+        }
+        else{
+            await this.doc.insert();
+            let options = {
+            title: "Success",
+            component: ModalMessage,
+            props: {
+                modalMessage: "Invoice has been added.",
+            }
+        }
+        this.$modal.show(options);
+        }
+    },
+
     printPDF() {
       // console.log(this.items, this.customer, this.netTotal, this.grandTotal);
 

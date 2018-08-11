@@ -35,22 +35,22 @@
                           </table>
                         </div>
                         <br>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-6">
                                 <div class="list-group">
                                     <button class="list-group-item item" @click="createInvoice()">
                                         <strong>Create Invoice</strong>
                                     </button>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="col-md-6">
                                 <div class="list-group">
                                     <button type="button" class="list-group-item item" @click="checkout()">
-                                         <strong>Checkout</strong>
+                                         <strong>Pay</strong>
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        <!-- </div> -->
                     </div>
 
                     <div class="col-md-6">
@@ -230,29 +230,29 @@ export default {
         console.log(this.doc);
     },
 
-    async createInvoice(){
-        if(!this.lineItems.length){
-            let options = {
-            title: "Error",
-            component: ModalMessage,
-            props: {
-                modalMessage: "No items added.",
-            }
-        }
-        this.$modal.show(options);
-        }
-        else{
-            await this.doc.insert();
-            let options = {
-            title: "Success",
-            component: ModalMessage,
-            props: {
-                modalMessage: "Invoice has been added.",
-            }
-        }
-        this.$modal.show(options);
-        }
-    }
+    // async createInvoice(){
+    //     if(!this.lineItems.length){
+    //         let options = {
+    //         title: "Error",
+    //         component: ModalMessage,
+    //         props: {
+    //             modalMessage: "No items added.",
+    //         }
+    //     }
+    //     this.$modal.show(options);
+    //     }
+    //     else{
+    //         await this.doc.insert();
+    //         let options = {
+    //         title: "Success",
+    //         component: ModalMessage,
+    //         props: {
+    //             modalMessage: "Invoice has been added.",
+    //         }
+    //     }
+    //     this.$modal.show(options);
+    //     }
+    // }
   }
 };
 </script>

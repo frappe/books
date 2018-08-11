@@ -7,7 +7,7 @@
     <input class="form-control" v-model="cheque" @click="() => changeFocus(this.inputFields.cheque)">
     <h6>Outstanding</h6>
     <input class="form-control" v-model="outstandingAmount">
-    <billing :items="lineItems" :customer="customer" :netTotal="netTotal" :grandTotal="grandTotal"></billing>
+    <billing :items="lineItems" :lineItems="lineItems" :customer="customer" :netTotal="netTotal" :grandTotal="grandTotal"></billing>
   </div>
   <div class="col-md-6">
     <numpad :appendNum="append" :addDecimalPoint="addDP" :delNum="del"></numpad>
