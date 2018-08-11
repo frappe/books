@@ -7,16 +7,17 @@
 <script>
 export default {
   props: ['doctype', 'name', 'title'],
-  methods:{
-      back(){
-        this.$router.push(`/email/Email/UNSEEN`);
+  methods: {
+    back() {
+      // Temporary Fix
+      this.$router.push(`/email/Email/UNSEEN`);
     }
   }
-}
+};
 </script>
 <style>
-.back-btn{
-    margin-right: 2%;
-    position: relative; 
+.back-btn {
+  margin-right: 2%;
+  position: relative;
 }
 </style>

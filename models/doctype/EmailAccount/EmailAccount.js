@@ -99,8 +99,8 @@ module.exports = {
             "label": "SMTP Port",
             "fieldtype": "Select",
             "options": [
-              "465",
-              "587"
+                "465",
+                "587"
             ],
             "default": "465"
         },
@@ -112,11 +112,11 @@ module.exports = {
             "required": 1
         },
         {
-            "fieldname" : "initialDate",
-            "label" : "Display mails from",
-            "fieldtype" : "Date",
-            "required" : 0
+            "fieldname": "initialDate",
+            "label": "Display mails from",
+            "fieldtype": "Date",
+            "required": 0
         }
-               
+
     ]
 }

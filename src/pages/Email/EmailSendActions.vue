@@ -8,16 +8,16 @@
 <script>
 import frappe from 'frappejs';
 export default {
-    props: ['doc'],
-    data() {
+  props: ['doc'],
+  data() {
     return {
       isDirty: false
-    }
+    };
   },
   created() {
     this.doc.on('change', () => {
       this.isDirty = this.doc._dirty;
     });
   }
-}
+};
 </script>
