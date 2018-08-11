@@ -17,6 +17,7 @@
     "start": "frappe start"
   },
   "dependencies": {
+    "jspdf": "^1.4.1",
     "frappejs": "^0.0.9"
   }
 }
