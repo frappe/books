@@ -13,16 +13,16 @@ module.exports = {
             "fieldtype": "Data",
             "required": 0,
             "hidden": 1,
-            "disabled" : 0 
+            "disabled": 0
         },
         {
             "fieldname": "fromEmailAddress",
             "label": "From",
             "fieldtype": "Data", //"Select"
-            "options": [], 
+            "options": [],
             "required": 1,
             "hidden": 0,
-            "disabled" : 0 
+            "disabled": 0
         },
         {
             "fieldname": "toEmailAddress",
@@ -30,7 +30,7 @@ module.exports = {
             "fieldtype": "Data",
             "required": 1,
             "hidden": 0,
-            "disabled" : 0 
+            "disabled": 0
         },
         {
 
@@ -39,7 +39,7 @@ module.exports = {
             "fieldtype": "Data",
             "required": 0,
             "hidden": 0,
-            "disabled" : 0 
+            "disabled": 0
         },
         {
             "fieldname": "bccEmailAddress",
@@ -47,7 +47,7 @@ module.exports = {
             "fieldtype": "Data",
             "required": 0,
             "hidden": 0,
-            "disabled" : 0 
+            "disabled": 0
         },
         {
             "fieldname": "date",
@@ -55,7 +55,7 @@ module.exports = {
             "fieldtype": "Date",
             "required": 0,
             "hidden": 0,
-            "disabled" : 1 
+            "disabled": 1
         },
         {
             "fieldname": "subject",
@@ -63,7 +63,7 @@ module.exports = {
             "fieldtype": "Data",
             "required": 0,
             "hidden": 0,
-            "disabled" : 0 
+            "disabled": 0
         },
         {
             "fieldname": "bodyText",
@@ -71,7 +71,7 @@ module.exports = {
             "fieldtype": "Text",
             "required": 0,
             "hidden": 0,
-            "disabled" : 0 
+            "disabled": 0
         },
         {
             "fieldname": "bodyHtml",
@@ -79,7 +79,7 @@ module.exports = {
             "fieldtype": "Text",
             "required": 0,
             "hidden": 1,
-            "disabled" : 0 
+            "disabled": 0
         },
         {
             "fieldname": "sent",
