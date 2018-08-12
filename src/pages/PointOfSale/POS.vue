@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h6>Customer</h6>
-                        <frappe-control
+                        <frappe-control v-focus
                             :docfield="customerDocfield"
                             :value="value"
                             @change="value => updateValue(this.customerDocfield.fieldname, value)"
@@ -89,6 +89,14 @@ export default {
     Transaction,
     ItemList,
     Checkout
+  },
+
+  directives: {
+      focus: {
+          inserted: function(el) {
+              el.focus()
+          }
+      }
   },
 
   data() {
