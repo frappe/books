@@ -8,7 +8,6 @@ async function start() {
     await server.start({
         backend: 'sqlite',
         connectionParams: { dbPath: 'test.db', enableCORS: true },
-        staticPath: path.resolve(__dirname, '../www'),
         models: require('../models')
     })
 
