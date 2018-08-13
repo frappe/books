@@ -1,8 +1,11 @@
 <template>
 <div class="col-md-12">
     <div class="list-group">
-        <button class="list-group-item item" @click="createInvoice(); printPDF()">
-            <strong>Submit</strong>
+        <button class="list-group-item item" @click="printPDF()">
+            <strong>Print Bill</strong>
+        </button><br>
+        <button class="list-group-item item" @click="clearForm()">
+            <strong>Clear Form</strong>
         </button>
     </div>
 </div>

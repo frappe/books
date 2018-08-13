@@ -7,7 +7,13 @@
     <input class="form-control" v-model="cheque" @click="() => changeFocus(this.inputFields.cheque)">
     <h6>Outstanding</h6>
     <input class="form-control" v-model="outstandingAmount">
-    <billing :items="lineItems" :lineItems="lineItems" :customer="customer" :netTotal="netTotal" :grandTotal="grandTotal"></billing>
+    <div class="col-md-6">
+        <div class="list-group">
+            <button type="button" class="btn btn-primary" @click="submitModal()">
+                  <strong>Submit</strong>
+            </button>
+        </div>
+    </div>
   </div>
   <div class="col-md-6">
     <numpad :appendNum="append" :addDecimalPoint="addDP" :delNum="del"></numpad>
@@ -17,11 +23,11 @@
 
 <script>
 import Numpad from "./Numpad";
-import Billing from "./Billing";
+import SubmitModal from "./SubmitModal";
 export default {
     components: {
       Numpad,
-      Billing
+      SubmitModal
     },
     props: ["lineItems", "customer", "netTotal", "grandTotal"],
     data() {
@@ -90,7 +96,19 @@ export default {
           case "CASH": if(this.cashDecCount < 0) this.focused = "CASH_DEC"; break;
           case "CHEQUE": if(this.chequeDecCount < 0) this.focused = "CHEQUE_DEC"; break;
         }
-			}
+			},
+      submitModal(){
+        let options = {
+            component: SubmitModal,
+            props: {
+                customer: this.value, 
+                lineItems: this.lineItems, 
+                netTotal: this.netTotal, 
+                grandTotal: this.grandTotal
+            }
+        }
+        this.$modal.show(options);
+    },
     },
     computed: {
         outstandingAmount(){
