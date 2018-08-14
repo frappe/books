@@ -19,15 +19,15 @@
                         <div v-if="dataready">
                           <table class="table">
                               <tbody>
-                                  <tr>
+                                  <tr v-bind:class="{detailsCollapsed: detailsCollapsed}">
                                       <td>Subtotal:</td>
                                       <td style="text-align:right">{{ this.netTotal }}</td>
                                   </tr>
-                                  <tr>
+                                  <tr v-bind:class="{detailsCollapsed: detailsCollapsed}">
                                       <td>Tax:</td>
                                       <td style="text-align:right">{{ this.grandTotal-this.netTotal }}</td>
                                   </tr>
-                                  <tr>
+                                  <tr @click="detailsCollapsed = !detailsCollapsed">
                                       <td>Total:</td>
                                       <td style="text-align:right">{{ this.grandTotal }}</td>
                                   </tr>
@@ -121,7 +121,8 @@ export default {
       dataready: true,
       doc:null,
       value:"",
-      itemValue: ""
+      itemValue: "",
+      detailsCollapsed: true
     };
   },
 
@@ -265,7 +266,12 @@ export default {
 };
 </script>
 <style scoped>
-.container{
+.container {
     margin-top: 4rem;
+}
+.detailsCollapsed {
+    display: none;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
 }
 </style>
