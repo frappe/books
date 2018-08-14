@@ -44,7 +44,7 @@
                                     </button>
                                 </div>
                             </div> -->
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <div class="list-group">
                                     <button type="button" class="btn btn-primary" @click="checkout()">
                                          <strong>Pay</strong>
