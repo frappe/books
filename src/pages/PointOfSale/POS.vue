@@ -27,9 +27,10 @@
                                       <td>Tax:</td>
                                       <td style="text-align:right">{{ this.grandTotal-this.netTotal }}</td>
                                   </tr>
-                                  <tr @click="detailsCollapsed = !detailsCollapsed">
+                                  <tr class="collapsible" @click="detailsCollapsed = !detailsCollapsed">
                                       <td>Total:</td>
                                       <td style="text-align:right">{{ this.grandTotal }}</td>
+                                      <td class="collapsible-icon">{{ detailsCollapsed ? "v" : "^" }}</td>
                                   </tr>
                                 </tbody>
                           </table>
@@ -268,6 +269,14 @@ export default {
 <style scoped>
 .container {
     margin-top: 4rem;
+}
+.collapsible:hover {
+    background-color: #f1f1f1;
+}
+.collapsible-icon {
+    /* padding: 0%; */
+    text-align: right;
+    font-size: 16px;
 }
 .detailsCollapsed {
     display: none;
