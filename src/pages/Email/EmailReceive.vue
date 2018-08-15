@@ -6,15 +6,10 @@
           :name="name"
           :title="formTitle"
         />
-        <div class="p-3">
-          <form-layout
-            v-if="shouldRenderForm"
-            :doc="doc"
-            :fields="meta.fields"
-            :layout="meta.layout"
-            :invalid="invalid"
-          />
-        </div>
+        <!-- Show From to subject etc -->
+         <div v-if="doc.bodyHtml" v-html="doc.bodyHtml"></div>
+         <div v-else>{{ doc.bodyText }}</div> <!-- needs to be fixed -->
+
         <not-found v-if="notFound" />
     </div>
 </template>
@@ -38,7 +33,7 @@ export default {
       return this.name && this.docLoaded;
     },
     formTitle() {
-      return this.doc[this.meta.titleField];
+      return this.doc.subject;
     }
   },
   methods: {

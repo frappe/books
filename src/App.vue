@@ -15,19 +15,24 @@ import emailConfig from './emailConfig';
 
 export default {
   name: 'App',
-  created(){
-    this.$root.$on('emailConfigView', () => { 
-        this.sidebarConfig = emailConfig;
-    });
-  },
   data() {
     return {
       showDesk: true,
-      sidebarConfig:sidebarConfig,
+      sidebarConfig: sidebarConfig
+    };
+  },
+  watch: {
+    $route(data) {
+      // temporary TODO: replace with better option
+      if (data.path.match(/email/i)) {
+        this.sidebarConfig = emailConfig;
+      } else {
+        this.sidebarConfig = sidebarConfig;
+      }
     }
   },
   components: {
-    FrappeDesk: Desk,
+    FrappeDesk: Desk
   },
   async beforeRouteUpdate(to, from, next) {
     const accountingSettings = await frappe.getSingle('AccountingSettings');
@@ -37,15 +42,14 @@ export default {
       this.showDesk = true;
     }
   }
-}
+};
 </script>
 
 <style lang="scss">
-@import "~bootstrap/scss/bootstrap";
+@import '~bootstrap/scss/bootstrap';
 @import '~frappe-datatable/dist/frappe-datatable';
 
 html {
   font-size: 14px;
 }
-
 </style>

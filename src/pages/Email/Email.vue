@@ -2,19 +2,24 @@
         <div class="frappe-list">
             <list-actions
               :doctype="doctype"
-              :showDelete="checkList.length"
+              :name="name"
               @compose="newDoc"
-              @delete="deleteCheckedItems"
-              @sync="receiveEmails"
+              @update="emailList"
             />
+            <br>
+            <ul class="row title">
+                <span class="col-2 ">From</span>
+                <!-- <div > To</div> -->
+                <span class="col">Subject </span>
+                <span class="col-3">Date </span>
+            </ul>
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name"
-                    :id="doc.name"
                     :isActive="doc.name === $route.params.name"
-                    :isChecked="isChecked(doc.name)"
-                    @clickItem="openForm(doc.name)"
-                    @checkItem="toggleCheck(doc.name)">
-                    {{ doc[meta.titleField || 'name'] }}
+                    @clickItem="openMail(doc.name)">
+                    <span class="col-2 text-truncate">{{ doc.fromEmailAddress }}</span>
+                    <span class="col text-truncate">{{ doc.subject }}</span>
+                    <span class="col-3">{{ doc.modified }} </span>
                 </list-item>
             </ul>
         </div>
@@ -24,68 +29,89 @@ import { _ } from 'frappejs/utils';
 import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
 import Form from 'frappejs/ui/components/Form/Form';
+import ListItem from 'frappejs/ui/components/List/ListItem';
 import ListActions from './EmailActions';
 import EmailSend from './EmailSend';
 
 export default {
   name: 'EmailList',
-  extends: List,
+  props: ['doctype', 'name'],
   components: {
-      ListActions
+    ListActions,
+    ListItem
   },
-    async created(){
-      console.log("Emails Loaded From Default ");
-      this.$root.$emit('emailConfigView');
-      this.options = await frappe.db.getAll({
-            doctype: "EmailAccount",
-            fields: ['email','enableIncoming'],
-        });
-        for(let i = 0; i < this.options.length; i++){   
-            if(this.options[i].enableIncoming){
-                this.receiveEmails(this.options[i].email);
-                break;
-            }
-         }
+  data() {
+    return {
+      data: []
+    };
+  },
+  async created() {
+    //this.$root.$emit('toggleEmailSidebar', true);
+    const data = await frappe.db.getAll({
+      doctype: this.doctype,
+      fields: ['name', 'fromEmailAddress', 'subject', 'modified']
+    });
+    this.data = data;
   },
   methods: {
     async newDoc() {
-        let doc = await frappe.getNewDoc(this.doctype);
-        let emailFields = frappe.getMeta('Email').fields;
-        for(let i = 0; i < emailFields.length; i++){   
-            emailFields[i].disabled = false;
+      let doc = await frappe.getNewDoc(this.doctype);
+    //   let emailFields = frappe.getMeta('Email').fields;
+    //   for (let i = 0; i < emailFields.length; i++) {
+    //     emailFields[i].disabled = false;
+    //   }
+      this.$modal.show({
+        component: EmailSend,
+        props: {
+          doctype: doc.doctype,
+          name: doc.name
         }
-        this.$modal.show({
-            component: EmailSend,
-            props: {
-              doctype: doc.doctype,
-              name: doc.name,
-            }
-          });
-        doc.on('afterInsert', (data) => {
-            this.$modal.hide();
-        });
+      });
+      console.log('Err Fix : dump db');
+      // unable to dump on DB [ check delete + hit refresh / sync ]
+      doc.on('afterInsert', data => {
+        this.$modal.hide();
+      });
     },
-    async openForm(name) {
-        this.activeItem = name;
-        
-        const data = await frappe.db.getAll({
-            doctype: this.doctype,
-            fields: ['*'],
-            filters:{name: this.activeItem},
-        });
-        let emailFields = frappe.getMeta('Email').fields;
-        for(let i = 0; i < emailFields.length; i++){   
-            emailFields[i].disabled = true;
-        }
-        emailFields[5].hidden = false;
-        emailFields[1].hidden = true;
-        emailFields[3].hidden = true;
-        emailFields[4].hidden = true;
-        this.$router.push(`/view/${this.doctype}/${name}`);
+    async openMail(name) {
+    //   this.activeItem = name;
+    //   const data = await frappe.db.getAll({
+    //     doctype: this.doctype,
+    //     fields: ['*'],
+    //     filters: { name: this.activeItem }
+    //   });
+    //   let emailFields = frappe.getMeta('Email').fields;
+    //   emailFields[5].hidden = false;
+    //   for (let i = 0; i < emailFields.length; i++) {
+    //     emailFields[i].disabled = true;
+    //   }
+    //   // EMAIL DATE DISABLED DOESN't Work
+    //   emailFields[1].hidden = true;
+    //   emailFields[3].hidden = true;
+    //   emailFields[4].hidden = true;
+      this.$router.push(`/view/${this.doctype}/${name}`);
     },
-    async receiveEmails(Id){
-        await frappe.call({method: 'sync-mail',args:{Id}});
-    },
+    async emailList(selectedId) {
+      const data = await frappe.db.getAll({
+        doctype: this.doctype,
+        fields: ['*'],
+        filters: { toEmailAddress: selectedId },
+        orderBy: 'date'
+      });
+      console.log('Switched To : ' + selectedId);
+      this.data = data;
+    }
   }
-}
+};
 </script>
+<style>
+.list-group {
+  cursor: pointer;
+}
+.title div {
+  margin-left: 10%;
+  margin-right: 10%;
+  display: flex;
+  flex-direction: row;
+}
+</style>

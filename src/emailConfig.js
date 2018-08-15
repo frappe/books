@@ -10,7 +10,7 @@ export default {
     {
       items: [
         {
-          label: _('Main Menu'), route: '/setup-wizard'
+          label: _('Main Menu'), route: '#/setup-wizard'
         },
         {
           label: _('Email Account'), route: '#/list/EmailAccount'
@@ -21,7 +21,13 @@ export default {
       title: 'App',
       items: [
         {
-          label: _('Email'), route: '#/email/Email'
+          label: _('Unseen'), route: '#/email/Email/UNSEEN'
+        },
+        {
+          label: _('Seen'), route: '#/email/Email/SEEN'
+        },
+        {
+          label: _('Draft'), route: '#/email/Email/DRAFT'
         }
       ]
     }
