@@ -20,7 +20,7 @@
 import ListActions from 'frappejs/ui/components/List/ListActions';
 export default {
     extends: ListActions,
-    props:  ['doctype','name'],
+    props:  ['doctype'],//,'name'],
     data(){
         return {
             selected: '',

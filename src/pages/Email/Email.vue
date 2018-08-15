@@ -3,8 +3,10 @@
             <list-actions
               :doctype="doctype"
               :name="name"
+              :showDelete="checkList.length"
               @compose="newDoc"
-              @update="emailList"
+              @update="updateList"
+              @delete="deleteCheckedItems"
             />
             <br>
             <ul class="row title">
@@ -14,9 +16,11 @@
                 <span class="col-3">Date </span>
             </ul>
             <ul class="list-group">
-                <list-item v-for="doc of data" :key="doc.name"
+                <list-item v-for="doc of data" :key="doc.name" :id="doc.name"
                     :isActive="doc.name === $route.params.name"
-                    @clickItem="openMail(doc.name)">
+                    :isChecked="isChecked(doc.name)"
+                    @clickItem="openMail(doc.name)"
+                    @checkItem="toggleCheck(doc.name)">
                     <span class="col-2 text-truncate">{{ doc.fromEmailAddress }}</span>
                     <span class="col text-truncate">{{ doc.subject }}</span>
                     <span class="col-3">{{ doc.modified }} </span>
@@ -42,10 +46,20 @@ export default {
   },
   data() {
     return {
-      data: []
+      data: [],
+      checkList: [],
+      activeItem: ''
     };
   },
+  computed: {
+    meta() {
+      return frappe.getMeta(this.doctype);
+    }
+  },
   async created() {
+    frappe.db.on(`change:${this.doctype}`, () => {
+      this.updateList();
+    });
     //this.$root.$emit('toggleEmailSidebar', true);
     const data = await frappe.db.getAll({
       doctype: this.doctype,
@@ -53,13 +67,16 @@ export default {
     });
     this.data = data;
   },
+  mounted() {
+    this.updateList();
+  },
   methods: {
     async newDoc() {
       let doc = await frappe.getNewDoc(this.doctype);
-    //   let emailFields = frappe.getMeta('Email').fields;
-    //   for (let i = 0; i < emailFields.length; i++) {
-    //     emailFields[i].disabled = false;
-    //   }
+      //   let emailFields = frappe.getMeta('Email').fields;
+      //   for (let i = 0; i < emailFields.length; i++) {
+      //     emailFields[i].disabled = false;
+      //   }
       this.$modal.show({
         component: EmailSend,
         props: {
@@ -73,34 +90,53 @@ export default {
         this.$modal.hide();
       });
     },
-    async openMail(name) {
-    //   this.activeItem = name;
-    //   const data = await frappe.db.getAll({
-    //     doctype: this.doctype,
-    //     fields: ['*'],
-    //     filters: { name: this.activeItem }
-    //   });
-    //   let emailFields = frappe.getMeta('Email').fields;
-    //   emailFields[5].hidden = false;
-    //   for (let i = 0; i < emailFields.length; i++) {
-    //     emailFields[i].disabled = true;
-    //   }
-    //   // EMAIL DATE DISABLED DOESN't Work
-    //   emailFields[1].hidden = true;
-    //   emailFields[3].hidden = true;
-    //   emailFields[4].hidden = true;
-      this.$router.push(`/view/${this.doctype}/${name}`);
-    },
-    async emailList(selectedId) {
+    async updateList(selectedId) {
+      const fields = [
+        'name',
+      ].filter(Boolean);
+
       const data = await frappe.db.getAll({
         doctype: this.doctype,
         fields: ['*'],
         filters: { toEmailAddress: selectedId },
         orderBy: 'date'
       });
-      console.log('Switched To : ' + selectedId);
+      console.log(data);
       this.data = data;
-    }
+    },
+    async openMail(name) {
+      //   this.activeItem = name;
+      //   const data = await frappe.db.getAll({
+      //     doctype: this.doctype,
+      //     fields: ['*'],
+      //     filters: { name: this.activeItem }
+      //   });
+      //   let emailFields = frappe.getMeta('Email').fields;
+      //   emailFields[5].hidden = false;
+      //   for (let i = 0; i < emailFields.length; i++) {
+      //     emailFields[i].disabled = true;
+      //   }
+      //   // EMAIL DATE DISABLED DOESN't Work
+      //   emailFields[1].hidden = true;
+      //   emailFields[3].hidden = true;
+      //   emailFields[4].hidden = true;
+      this.activeItem = name;
+      this.$router.push(`/view/${this.doctype}/${name}`);
+    },
+    async deleteCheckedItems() {
+      await frappe.db.deleteMany(this.doctype, this.checkList);
+      this.checkList = [];
+    },
+    toggleCheck(name) {
+      if (this.checkList.includes(name)) {
+        this.checkList = this.checkList.filter(docname => docname !== name);
+      } else {
+        this.checkList = this.checkList.concat(name);
+      }
+    },
+    isChecked(name) {
+      return this.checkList.includes(name);
+    },
   }
 };
 </script>
