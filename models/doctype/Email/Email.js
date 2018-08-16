@@ -84,7 +84,7 @@ module.exports = {
         {
             "fieldname": "sent",
             "label": "sentReceive",
-            "fieldtype": "Check",
+            "fieldtype": "Data",
             "hidden": 1,
             "required": 0,
         },

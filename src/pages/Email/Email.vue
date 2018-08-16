@@ -11,7 +11,6 @@
             <br>
             <ul class="row title">
                 <span class="col-2 ">From</span>
-                <!-- <div > To</div> -->
                 <span class="col">Subject </span>
                 <span class="col-3">Date </span>
             </ul>
@@ -48,7 +47,8 @@ export default {
     return {
       data: [],
       checkList: [],
-      activeItem: ''
+      activeItem: '',
+      selectedId:''
     };
   },
   computed: {
@@ -58,7 +58,7 @@ export default {
   },
   async created() {
     frappe.db.on(`change:${this.doctype}`, () => {
-      this.updateList();
+      this.updateList(this.selectedId);
     });
     //this.$root.$emit('toggleEmailSidebar', true);
     const data = await frappe.db.getAll({
@@ -68,15 +68,14 @@ export default {
     this.data = data;
   },
   mounted() {
-    this.updateList();
+    this.updateList(this.selectedId);
   },
   methods: {
     async newDoc() {
       let doc = await frappe.getNewDoc(this.doctype);
-      //   let emailFields = frappe.getMeta('Email').fields;
-      //   for (let i = 0; i < emailFields.length; i++) {
-      //     emailFields[i].disabled = false;
-      //   }
+      let emailFields = frappe.getMeta('Email').fields;
+      emailFields[5].hidden = false;
+      console.log(doc.name);
       this.$modal.show({
         component: EmailSend,
         props: {
@@ -91,17 +90,20 @@ export default {
       });
     },
     async updateList(selectedId) {
-      const fields = [
-        'name',
-      ].filter(Boolean);
-
+      this.selectedId = selectedId;
+      var filters = { toEmailAddress: this.selectedId};
+      if (this.name == 'SENT'){
+        filters['sent'] = 1;
+      }
+      const fields = ['name'].filter(Boolean);
+      console.log(filters);
       const data = await frappe.db.getAll({
         doctype: this.doctype,
         fields: ['*'],
-        filters: { toEmailAddress: selectedId },
+        filters: filters,
         orderBy: 'date'
       });
-      console.log(data);
+      console.log(data,this.name);
       this.data = data;
     },
     async openMail(name) {
@@ -111,15 +113,6 @@ export default {
       //     fields: ['*'],
       //     filters: { name: this.activeItem }
       //   });
-      //   let emailFields = frappe.getMeta('Email').fields;
-      //   emailFields[5].hidden = false;
-      //   for (let i = 0; i < emailFields.length; i++) {
-      //     emailFields[i].disabled = true;
-      //   }
-      //   // EMAIL DATE DISABLED DOESN't Work
-      //   emailFields[1].hidden = true;
-      //   emailFields[3].hidden = true;
-      //   emailFields[4].hidden = true;
       this.activeItem = name;
       this.$router.push(`/view/${this.doctype}/${name}`);
     },
@@ -136,7 +129,7 @@ export default {
     },
     isChecked(name) {
       return this.checkList.includes(name);
-    },
+    }
   }
 };
 </script>

@@ -24,6 +24,9 @@ export default {
           label: _('Unseen'), route: '#/email/Email/UNSEEN'
         },
         {
+          label: _('Sent'), route: '#/email/Email/SENT'
+        },
+        {
           label: _('Seen'), route: '#/email/Email/SEEN'
         },
         {
