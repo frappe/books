@@ -68,4 +68,3 @@ export default {
     right: 2%;
 }
 </style>
-

@@ -23,7 +23,13 @@ module.exports = {
             "fieldname": "password",
             "label": "Password",
             "fieldtype": "Password",
-            "required": 1,
+            "required": 1
+        },
+        {
+            "fieldname": "confirmPassword",
+            "label": "Confirm Password",
+            "fieldtype": "Password",
+            "required": 1
         },
         {
             "fieldname": "enableIncoming",
