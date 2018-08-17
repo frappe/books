@@ -9,7 +9,7 @@
     <input class="form-control" v-model="outstandingAmount">
     <div class="col-md-6">
         <div class="list-group">
-            <button type="button" class="btn btn-primary" @click="submitModal()">
+            <button type="button" class="btn btn-primary" @click="submit()">
                   <strong>Submit</strong>
             </button>
         </div>
@@ -23,11 +23,9 @@
 
 <script>
 import Numpad from "./Numpad";
-import SubmitModal from "./SubmitModal";
 export default {
     components: {
-      Numpad,
-      SubmitModal
+      Numpad
     },
     props: ["lineItems", "customer", "netTotal", "grandTotal", "createInvoice"],
     data() {
@@ -97,18 +95,8 @@ export default {
           case "CHEQUE": if(this.chequeDecCount < 0) this.focused = "CHEQUE_DEC"; break;
         }
 			},
-      submitModal(){
+      submit(){
         this.createInvoice(this);
-        // let options = {
-        //     component: SubmitModal,
-        //     props: {
-        //         customer: this.value, 
-        //         lineItems: this.lineItems, 
-        //         netTotal: this.netTotal, 
-        //         grandTotal: this.grandTotal
-        //     }
-        // }
-        // this.$modal.show(options);
     },
     },
     computed: {
