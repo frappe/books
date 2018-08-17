@@ -212,9 +212,9 @@ export default {
         return item;
     },
 
-    checkout() {
+    noErrors() {
         if(this.value=="") {
-        let options = {
+            let options = {
             title: "Error",
             component: ModalMessage,
             props: {
@@ -222,7 +222,7 @@ export default {
             }
         }
         this.$modal.show(options);
-        return;
+        return false;
       }
 
         if(!this.lineItems.length){
@@ -234,8 +234,13 @@ export default {
             }
         }
         this.$modal.show(options);
-        return;
+        return false;
         }
+        return true;
+    },
+
+    checkout() {
+        if(!this.noErrors()) return;
 
         let options = {
             title: "Total Amount: "+this.grandTotal,
@@ -261,6 +266,20 @@ export default {
         this.detailsCollapsed = true
 
         this.$modal.hide();
+    },
+
+    openSubmitModal() {
+        let submitModalOptions = {
+            component: SubmitModal,
+            props: {
+                customer: this.value, 
+                lineItems: this.lineItems, 
+                netTotal: this.netTotal, 
+                grandTotal: this.grandTotal,
+                clearForm: this.clearForm
+            }
+        }
+        this.$modal.show(submitModalOptions);    
     },
 
     async invoice() {
@@ -289,19 +308,9 @@ export default {
                 modalMessage: "Invoice has been added.",
             }
         }
+        // shut checkout modal
         caller.$modal.hide();
-
-        let submitModalOptions = {
-        component: SubmitModal,
-        props: {
-                customer: this.value, 
-                lineItems: this.lineItems, 
-                netTotal: this.netTotal, 
-                grandTotal: this.grandTotal,
-                clearForm: this.clearForm
-            }
-        }
-        this.$modal.show(submitModalOptions);        
+        this.openSubmitModal();       
     }
   }
 };
