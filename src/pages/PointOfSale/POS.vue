@@ -217,8 +217,7 @@ export default {
             title: "Total Amount: "+this.grandTotal,
             component: Checkout,
             props: {
-                customer: this.value, 
-                lineItems: this.lineItems, 
+                customer: this.value,
                 netTotal: this.netTotal, 
                 grandTotal: this.grandTotal,
                 createInvoice: this.createInvoice

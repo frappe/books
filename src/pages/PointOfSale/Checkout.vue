@@ -27,11 +27,9 @@ export default {
     components: {
       Numpad
     },
-    props: ["lineItems", "customer", "netTotal", "grandTotal", "createInvoice"],
+    props: ["netTotal", "grandTotal", "createInvoice"],
     data() {
       return {
-        items: [],
-        lineItems: [],
         netTotal: 0,
         value:"",
         cash: 0,
