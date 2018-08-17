@@ -98,17 +98,17 @@ export default {
         }
 			},
       submitModal(){
-        this.createInvoice();
-        let options = {
-            component: SubmitModal,
-            props: {
-                customer: this.value, 
-                lineItems: this.lineItems, 
-                netTotal: this.netTotal, 
-                grandTotal: this.grandTotal
-            }
-        }
-        this.$modal.show(options);
+        this.createInvoice(this);
+        // let options = {
+        //     component: SubmitModal,
+        //     props: {
+        //         customer: this.value, 
+        //         lineItems: this.lineItems, 
+        //         netTotal: this.netTotal, 
+        //         grandTotal: this.grandTotal
+        //     }
+        // }
+        // this.$modal.show(options);
     },
     },
     computed: {

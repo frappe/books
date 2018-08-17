@@ -84,12 +84,15 @@ import Checkout from "./Checkout";
 import ModalMessage from "./ModalMessage";
 import frappe from "frappejs";
 import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';
+import { setTimeout } from 'timers';
+import SubmitModal from "./SubmitModal";
 
 export default {
   components: {
     Transaction,
     ItemList,
-    Checkout
+    Checkout,
+    SubmitModal
   },
 
   directives: {
@@ -241,7 +244,7 @@ export default {
         console.log(this.doc);
     },
 
-    async createInvoice(){
+    async createInvoice(caller){
         if(!this.lineItems.length){
             let options = {
             title: "Error",
@@ -261,7 +264,19 @@ export default {
                 modalMessage: "Invoice has been added.",
             }
         }
-        this.$modal.show(options);
+        caller.$modal.hide();
+        // this.$modal.show(options);
+
+        let submitModalOptions = {
+        component: SubmitModal,
+        props: {
+                customer: this.value, 
+                lineItems: this.lineItems, 
+                netTotal: this.netTotal, 
+                grandTotal: this.grandTotal
+            }
+        }
+        this.$modal.show(submitModalOptions);
         }
     }
   }
