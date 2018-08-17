@@ -5,7 +5,7 @@ import coreRoutes from 'frappejs/ui/routes';
 import SetupWizard from '../pages/SetupWizard';
 import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
-import Email from '../pages/Email/Email';
+import EmailListForm from '../pages/Email/EmailListForm';
 import EmailAccount from '../pages/EmailAccount/EmailAccount';
 import EmailReceived from '../pages/Email/EmailReceive';
 
@@ -34,13 +34,13 @@ const routes = [].concat(coreRoutes, [{
   {
     path: '/view/:doctype/:name',
     name: 'Email Receive Form',
-    component: EmailReceived,
+    component: EmailListForm, //EmailReceived,
     props: true
   },
   {
     path: '/email/:doctype/:name',
     name: 'Email',
-    component: Email,
+    component: EmailListForm,
     props: true
   },
   {

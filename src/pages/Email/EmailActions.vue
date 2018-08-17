@@ -4,13 +4,13 @@
             <h5 class="m-0">{{ doctype }} List</h5>
         </div>
         <div class="email-group">
-            <span > Current Account </span>
+            <!-- <span > Current Account </span> -->
             <select v-model="selected">
                 <option v-for="option in options" v-bind:value="option.email" >
                    {{ option.email }}
                 </option>
             </select>
-            <button class="btn btn-primary btn-sm" @click="receiveEmails(selected)">Sync</button>
+            <!-- <button class="btn btn-primary btn-sm" @click="receiveEmails(selected)">Sync</button> -->
             <button  v-if="showDelete" class="btn btn-danger btn-sm" @click="$emit('delete')">Delete</button>
             <button v-else class="btn btn-primary btn-sm" @click="$emit('compose')">Compose</button>
         </div>

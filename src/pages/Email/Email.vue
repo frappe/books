@@ -8,21 +8,25 @@
               @update="updateList"
               @delete="deleteCheckedItems"
             />
-            <br>
-            <ul class="row title">
+            <!-- <ul class="row title">
                 <span class="col-2"> <b> From </b> </span>
                 <span class="col"> <b> Subject </b> </span>
                 <span class="col-3"> <b> Date </b> </span>
-            </ul>
+            </ul> -->
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name" :id="doc.name"
                     :isActive="doc.name === $route.params.name"
                     :isChecked="isChecked(doc.name)"
                     @clickItem="openMail(doc.name)"
                     @checkItem="toggleCheck(doc.name)">
-                    <span class="col-2 text-truncate">{{ doc.fromEmailAddress }}</span>
+                    <div class="list-item">
+                      <b> {{ doc.fromEmailAddress }}</b> <br>
+                       <i>   {{ doc.subject  }}</i>
+                        
+                    </div>
+                    <!-- <span class="col-2 text-truncate">{{ doc.fromEmailAddress }}</span>
                     <span class="col text-truncate">{{ doc.subject }}</span>
-                    <span class="col-3">{{ doc.modified }} </span>
+                    <span class="col-3">{{ doc.modified }} </span> -->
                 </list-item>
             </ul>
         </div>
@@ -48,7 +52,7 @@ export default {
       data: [],
       checkList: [],
       activeItem: '',
-      selectedId:''
+      selectedId: ''
     };
   },
   computed: {
@@ -76,7 +80,7 @@ export default {
       let emailFields = frappe.getMeta('Email').fields;
 
       emailFields[5].hidden = true;
-      doc["fromEmailAddress"] = this.selectedId;
+      doc['fromEmailAddress'] = this.selectedId;
 
       this.$modal.show({
         component: EmailSend,
@@ -93,8 +97,8 @@ export default {
     },
     async updateList(selectedId) {
       this.selectedId = selectedId;
-      var filters = { toEmailAddress: this.selectedId};
-      if (this.name == 'SENT'){
+      var filters = { toEmailAddress: this.selectedId };
+      if (this.name == 'SENT') {
         filters['sent'] = 1;
       }
       const fields = ['name'].filter(Boolean);
@@ -107,8 +111,8 @@ export default {
         filters: filters,
         orderBy: 'date'
       });
-      
-      console.log(data,this.name);
+
+      console.log(data, this.name);
       this.data = data;
     },
     async openMail(name) {
@@ -119,6 +123,7 @@ export default {
       //     filters: { name: this.activeItem }
       //   });
       this.activeItem = name;
+      //this.$router.push(`/edit/${this.doctype}/${name}`);
       this.$router.push(`/view/${this.doctype}/${name}`);
     },
     async deleteCheckedItems() {
@@ -146,5 +151,9 @@ export default {
   margin-left: 10%;
   margin-right: 10%;
   flex-direction: row;
+}
+.list-item{
+  margin-left: 4%;
+  height:60px;
 }
 </style>
