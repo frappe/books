@@ -213,6 +213,30 @@ export default {
     },
 
     checkout() {
+        if(this.value=="") {
+        let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No customer added.",
+            }
+        }
+        this.$modal.show(options);
+        return;
+      }
+
+        if(!this.lineItems.length){
+            let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No items added.",
+            }
+        }
+        this.$modal.show(options);
+        return;
+        }
+
         let options = {
             title: "Total Amount: "+this.grandTotal,
             component: Checkout,
@@ -257,17 +281,6 @@ export default {
     },
 
     async createInvoice(caller){
-        if(!this.lineItems.length){
-            let options = {
-            title: "Error",
-            component: ModalMessage,
-            props: {
-                modalMessage: "No items added.",
-            }
-        }
-        this.$modal.show(options);
-        }
-        else{
             await this.doc.insert();
             let options = {
             title: "Success",
@@ -277,7 +290,6 @@ export default {
             }
         }
         caller.$modal.hide();
-        // this.$modal.show(options);
 
         let submitModalOptions = {
         component: SubmitModal,
@@ -289,8 +301,7 @@ export default {
                 clearForm: this.clearForm
             }
         }
-        this.$modal.show(submitModalOptions);
-        }
+        this.$modal.show(submitModalOptions);        
     }
   }
 };
