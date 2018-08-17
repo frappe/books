@@ -1,6 +1,7 @@
 <template>
 <div class="row">
   <div class="col-md-6">
+    <br>
     <h6>Cash</h6>
     <input class="form-control" v-model="cash" @click="() => changeFocus(this.inputFields.cash)">
     <h6>Cheque</h6>
