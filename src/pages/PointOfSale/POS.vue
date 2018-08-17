@@ -226,6 +226,19 @@ export default {
         this.$modal.show(options);
     },
 
+    clearForm() {
+        this.lineItems = [],
+        this.grandTotal = 0,
+        this.netTotal = 0,
+        this.dataready = true,
+        this.doc = null,
+        this.value = "",
+        this.itemValue = "",
+        this.detailsCollapsed = true
+
+        this.$modal.hide();
+    },
+
     async invoice() {
         this.dataready=false;
         var item= this.currentItems();
@@ -272,7 +285,8 @@ export default {
                 customer: this.value, 
                 lineItems: this.lineItems, 
                 netTotal: this.netTotal, 
-                grandTotal: this.grandTotal
+                grandTotal: this.grandTotal,
+                clearForm: this.clearForm
             }
         }
         this.$modal.show(submitModalOptions);
