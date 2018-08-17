@@ -29,7 +29,7 @@ export default {
       Numpad,
       SubmitModal
     },
-    props: ["lineItems", "customer", "netTotal", "grandTotal"],
+    props: ["lineItems", "customer", "netTotal", "grandTotal", "createInvoice"],
     data() {
       return {
         items: [],
@@ -98,6 +98,7 @@ export default {
         }
 			},
       submitModal(){
+        this.createInvoice();
         let options = {
             component: SubmitModal,
             props: {

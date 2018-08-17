@@ -30,7 +30,7 @@
                                   <tr class="collapsible" @click="detailsCollapsed = !detailsCollapsed">
                                       <td>Total:</td>
                                       <td style="text-align:right">{{ this.grandTotal }}</td>
-                                      <td class="collapsible-icon">{{ detailsCollapsed ? "v" : "^" }}</td>
+                                      <!-- <td class="collapsible-icon">{{ detailsCollapsed ? "v" : "^" }}</td> -->
                                   </tr>
                                 </tbody>
                           </table>
@@ -217,7 +217,8 @@ export default {
                 customer: this.value, 
                 lineItems: this.lineItems, 
                 netTotal: this.netTotal, 
-                grandTotal: this.grandTotal
+                grandTotal: this.grandTotal,
+                createInvoice: this.createInvoice
             }
         }
         this.$modal.show(options);
@@ -240,29 +241,29 @@ export default {
         console.log(this.doc);
     },
 
-    // async createInvoice(){
-    //     if(!this.lineItems.length){
-    //         let options = {
-    //         title: "Error",
-    //         component: ModalMessage,
-    //         props: {
-    //             modalMessage: "No items added.",
-    //         }
-    //     }
-    //     this.$modal.show(options);
-    //     }
-    //     else{
-    //         await this.doc.insert();
-    //         let options = {
-    //         title: "Success",
-    //         component: ModalMessage,
-    //         props: {
-    //             modalMessage: "Invoice has been added.",
-    //         }
-    //     }
-    //     this.$modal.show(options);
-    //     }
-    // }
+    async createInvoice(){
+        if(!this.lineItems.length){
+            let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No items added.",
+            }
+        }
+        this.$modal.show(options);
+        }
+        else{
+            await this.doc.insert();
+            let options = {
+            title: "Success",
+            component: ModalMessage,
+            props: {
+                modalMessage: "Invoice has been added.",
+            }
+        }
+        this.$modal.show(options);
+        }
+    }
   }
 };
 </script>
