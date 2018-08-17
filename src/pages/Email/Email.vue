@@ -10,9 +10,9 @@
             />
             <br>
             <ul class="row title">
-                <span class="col-2 ">From</span>
-                <span class="col">Subject </span>
-                <span class="col-3">Date </span>
+                <span class="col-2"> <b> From </b> </span>
+                <span class="col"> <b> Subject </b> </span>
+                <span class="col-3"> <b> Date </b> </span>
             </ul>
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name" :id="doc.name"
@@ -74,8 +74,10 @@ export default {
     async newDoc() {
       let doc = await frappe.getNewDoc(this.doctype);
       let emailFields = frappe.getMeta('Email').fields;
-      emailFields[5].hidden = false;
-      console.log(doc.name);
+
+      emailFields[5].hidden = true;
+      doc["fromEmailAddress"] = this.selectedId;
+
       this.$modal.show({
         component: EmailSend,
         props: {
@@ -96,13 +98,16 @@ export default {
         filters['sent'] = 1;
       }
       const fields = ['name'].filter(Boolean);
+
       console.log(filters);
+
       const data = await frappe.db.getAll({
         doctype: this.doctype,
         fields: ['*'],
         filters: filters,
         orderBy: 'date'
       });
+      
       console.log(data,this.name);
       this.data = data;
     },
@@ -140,7 +145,6 @@ export default {
 .title div {
   margin-left: 10%;
   margin-right: 10%;
-  display: flex;
   flex-direction: row;
 }
 </style>

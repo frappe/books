@@ -37,8 +37,6 @@ export default {
       });
       if (response) {
         let emailFields = frappe.getMeta('Email').fields;
-        emailFields[5].hidden = true;
-        //emailFields[9].hidden = 1;
         this.doc["sent"] = 1;
         this.doc["name"] = this.name ;
         console.log(this.doc);
