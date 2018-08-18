@@ -34,10 +34,10 @@ export default {
         },
         {
           label: _('Account'), route: '#/list/Account'
-        },
-        {
-          label: _('Files'), route: '#/FileList/File'
         }
+        /*{
+          label: _('Files'), route: '#/FileList/File'
+        }*/
       ]
     },
     {

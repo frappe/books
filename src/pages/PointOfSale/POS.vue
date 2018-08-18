@@ -133,7 +133,7 @@ export default {
   async created() { 
   this.items = await frappe.db.getAll({
       doctype: "Item",
-      fields: ["name", "rate"],
+      fields: ["name", "rate","itemImage"],
   });
   this.allItems = this.items;
   },

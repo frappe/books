@@ -54,6 +54,11 @@ module.exports = {
       fieldname: 'rate',
       label: 'Rate',
       fieldtype: 'Currency'
+    },
+    {
+      fieldname: 'itemImage',
+      label: 'Item Image',
+      fieldtype: 'File'
     }
   ],
   layout: [
@@ -78,6 +83,13 @@ module.exports = {
       columns: [
         { fields: ['incomeAccount', 'expenseAccount'] },
         { fields: ['tax'] }
+      ]
+    },
+    //section 4 image
+    {
+      title:'Item Image',
+      columns:[
+        {fields:['itemImage']}
       ]
     }
   ]

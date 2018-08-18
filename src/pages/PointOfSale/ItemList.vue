@@ -2,7 +2,7 @@
     <div class="row">
         <button class="list-group-item col-sm-4" v-for="item in items" :key="item.name" @click="itemClicked(item)"> 
             <strong>{{ item.name }}</strong><br>
-            <img src=""><br>
+            <img v-bind:src=item.itemImage><br>
             <strong>INR</strong> - {{ item.rate }}
         </button>
     </div>
