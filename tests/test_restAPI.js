@@ -11,9 +11,7 @@ var test_server;
 
 describe('REST', () => {
     before(async function() {
-        test_server = spawn('node', ['tests/test_server.js'], {
-            stdio: [process.stdin, process.stdout, process.stderr, 'pipe', 'pipe']
-        });
+        test_server = spawn('node', ['tests/test_server.js'], { stdio: 'inherit' });
 
         await frappe.init();
         await frappe.login('Administrator');
@@ -22,7 +20,7 @@ describe('REST', () => {
         frappe.fetch = fetch;
 
         // wait for server to start
-        await frappe.sleep(1);
+        return await frappe.sleep(2);
     });
 
     after(() => {
