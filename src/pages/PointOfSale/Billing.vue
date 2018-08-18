@@ -1,11 +1,7 @@
 <template>
-<div class="col-md-12">
-    <div class="list-group">
-        <button class="list-group-item item" @click="printPDF()">
-            <strong>Print Bill</strong>
-        </button>
-    </div>
-</div>
+  <button class="list-group-item item" @click="printPDF()">
+      <strong>Print Bill</strong>
+  </button>
 </template>
 
 <script>

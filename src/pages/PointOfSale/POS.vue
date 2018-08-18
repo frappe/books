@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <h6>Customer</h6>
-                        <frappe-control
+                        <frappe-control v-focus
                             :docfield="customerDocfield"
                             :value="value"
                             @change="value => updateValue(this.customerDocfield.fieldname, value)"
@@ -19,38 +19,39 @@
                         <div v-if="dataready">
                           <table class="table">
                               <tbody>
-                                  <tr>
+                                  <tr v-bind:class="{detailsCollapsed: detailsCollapsed}">
                                       <td>Subtotal:</td>
                                       <td style="text-align:right">{{ this.netTotal }}</td>
                                   </tr>
-                                  <tr>
+                                  <tr v-bind:class="{detailsCollapsed: detailsCollapsed}">
                                       <td>Tax:</td>
                                       <td style="text-align:right">{{ this.grandTotal-this.netTotal }}</td>
                                   </tr>
-                                  <tr>
+                                  <tr class="collapsible" @click="detailsCollapsed = !detailsCollapsed">
                                       <td>Total:</td>
                                       <td style="text-align:right">{{ this.grandTotal }}</td>
+                                      <!-- <td class="collapsible-icon">{{ detailsCollapsed ? "v" : "^" }}</td> -->
                                   </tr>
                                 </tbody>
                           </table>
                         </div>
                         <br>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-6">
                                 <div class="list-group">
                                     <button class="list-group-item item" @click="createInvoice()">
                                         <strong>Create Invoice</strong>
                                     </button>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
+                            </div> -->
+                            <div class="col-md-12">
                                 <div class="list-group">
-                                    <button type="button" class="list-group-item item" @click="checkout()">
-                                         <strong>Checkout</strong>
+                                    <button type="button" class="btn btn-primary" @click="checkout()">
+                                         <strong>Pay</strong>
                                     </button>
                                 </div>
                             </div>
-                        </div>
+                        <!-- </div> -->
                     </div>
 
                     <div class="col-md-6">
@@ -83,12 +84,23 @@ import Checkout from "./Checkout";
 import ModalMessage from "./ModalMessage";
 import frappe from "frappejs";
 import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';
+import { setTimeout } from 'timers';
+import SubmitModal from "./SubmitModal";
 
 export default {
   components: {
     Transaction,
     ItemList,
-    Checkout
+    Checkout,
+    SubmitModal
+  },
+
+  directives: {
+      focus: {
+          inserted: function(el) {
+              el.focus()
+          }
+      }
   },
 
   data() {
@@ -113,7 +125,8 @@ export default {
       dataready: true,
       doc:null,
       value:"",
-      itemValue: ""
+      itemValue: "",
+      detailsCollapsed: true
     };
   },
 
@@ -199,18 +212,74 @@ export default {
         return item;
     },
 
+    noErrors() {
+        if(this.value=="") {
+            let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No customer added.",
+            }
+        }
+        this.$modal.show(options);
+        return false;
+      }
+
+        if(!this.lineItems.length){
+            let options = {
+            title: "Error",
+            component: ModalMessage,
+            props: {
+                modalMessage: "No items added.",
+            }
+        }
+        this.$modal.show(options);
+        return false;
+        }
+        return true;
+    },
+
     checkout() {
+        if(!this.noErrors()) return;
+
         let options = {
             title: "Total Amount: "+this.grandTotal,
             component: Checkout,
             props: {
-                customer: this.value, 
-                lineItems: this.lineItems, 
+                customer: this.value,
                 netTotal: this.netTotal, 
-                grandTotal: this.grandTotal
+                grandTotal: this.grandTotal,
+                createInvoice: this.createInvoice
             }
         }
         this.$modal.show(options);
+    },
+
+    clearForm() {
+        this.lineItems = [],
+        this.grandTotal = 0,
+        this.netTotal = 0,
+        this.dataready = true,
+        this.doc = null,
+        this.value = "",
+        this.itemValue = "",
+        this.detailsCollapsed = true
+
+        this.$modal.hide();
+    },
+
+    openSubmitModal() {
+        let submitModalOptions = {
+            component: SubmitModal,
+            props: {
+                customer: this.value, 
+                lineItems: this.lineItems, 
+                netTotal: this.netTotal, 
+                grandTotal: this.grandTotal,
+                clearForm: this.clearForm
+            }
+        }
+        this.$modal.show(submitModalOptions);    
     },
 
     async invoice() {
@@ -230,18 +299,7 @@ export default {
         console.log(this.doc);
     },
 
-    async createInvoice(){
-        if(!this.lineItems.length){
-            let options = {
-            title: "Error",
-            component: ModalMessage,
-            props: {
-                modalMessage: "No items added.",
-            }
-        }
-        this.$modal.show(options);
-        }
-        else{
+    async createInvoice(caller){
             await this.doc.insert();
             let options = {
             title: "Success",
@@ -250,14 +308,28 @@ export default {
                 modalMessage: "Invoice has been added.",
             }
         }
-        this.$modal.show(options);
-        }
+        // shut checkout modal
+        caller.$modal.hide();
+        this.openSubmitModal();       
     }
   }
 };
 </script>
 <style scoped>
-.container{
+.container {
     margin-top: 4rem;
+}
+.collapsible:hover {
+    background-color: #f1f1f1;
+}
+.collapsible-icon {
+    /* padding: 0%; */
+    text-align: right;
+    font-size: 16px;
+}
+.detailsCollapsed {
+    display: none;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
 }
 </style>
