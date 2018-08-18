@@ -19,6 +19,7 @@
                     :isChecked="isChecked(doc.name)"
                     @clickItem="openMail(doc.name)"
                     @checkItem="toggleCheck(doc.name)">
+                    <indicator v-if="hasIndicator" :color="getIndicatorColor(doc)" />
                     <div class="list-item">
                       <b> {{ doc.fromEmailAddress }}</b> <br>
                        <i>   {{ doc.subject  }}</i>
@@ -58,9 +59,13 @@ export default {
   computed: {
     meta() {
       return frappe.getMeta(this.doctype);
+    },
+    hasIndicator() {
+      return Boolean(this.meta.indicators);
     }
   },
   async created() {
+    console.log("HEY");
     frappe.db.on(`change:${this.doctype}`, () => {
       this.updateList(this.selectedId);
     });
@@ -101,7 +106,13 @@ export default {
       if (this.name == 'SENT') {
         filters['sent'] = 1;
       }
-      const fields = ['name'].filter(Boolean);
+      const indicatorField = this.hasIndicator ? this.meta.indicators.key : null;
+      const fields = [
+        'name',
+        indicatorField,
+        ...this.meta.keywordFields
+      
+      ].filter(Boolean);
 
       console.log(filters);
 
@@ -139,7 +150,11 @@ export default {
     },
     isChecked(name) {
       return this.checkList.includes(name);
+    },
+    getIndicatorColor(doc) {
+      return this.meta.getIndicatorColor(doc);
     }
+
   }
 };
 </script>

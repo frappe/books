@@ -50,6 +50,7 @@ export default {
                 this.receiveEmails(this.options[0].email);
             }
             else{
+                // Redundant
                 this.$emit('update',this.selected);
             }
         }

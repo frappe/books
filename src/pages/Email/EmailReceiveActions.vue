@@ -12,7 +12,8 @@ export default {
   methods: {
     back() {
       // Temporary Fix
-      this.$router.push(`/email/Email/UNSEEN`);
+      // this.$router.push(`/email/Email/UNSEEN`);
+      console.log("Reply functionality Haven't been implemented yet ");
     }
   }
 };

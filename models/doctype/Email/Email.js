@@ -1,3 +1,5 @@
+const indicatorColor = require('frappejs/ui/constants/indicators');
+
 module.exports = {
     "name": "Email",
     "doctype": "DocType",
@@ -7,6 +9,13 @@ module.exports = {
     "isSingle": 0,
     "isChild": 0,
     "keywordFields": ["name"],
+    indicators: {
+        key: 'status',
+        colors: {
+            Seen: indicatorColor.BLUE,
+            Unseen: indicatorColor.GREEN
+        }
+    },
     "fields": [{
             "fieldname": "name",
             "label": "name",

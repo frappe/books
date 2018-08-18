@@ -7,7 +7,6 @@ import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
 import EmailListForm from '../pages/Email/EmailListForm';
 import EmailAccount from '../pages/EmailAccount/EmailAccount';
-import EmailReceived from '../pages/Email/EmailReceive';
 
 Vue.use(Router);
 
@@ -34,7 +33,7 @@ const routes = [].concat(coreRoutes, [{
   {
     path: '/view/:doctype/:name',
     name: 'Email Receive Form',
-    component: EmailListForm, //EmailReceived,
+    component: EmailListForm,
     props: true
   },
   {

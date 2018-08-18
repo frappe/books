@@ -13,7 +13,7 @@ import List from './Email';
 import Form from './EmailReceive';
 
 export default {
-    props: ['doctype', 'name'],
+    props: ['doctype', 'name','selected'],
     components: {
         FrappeList: List,
         FrappeForm: Form

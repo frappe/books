@@ -2,6 +2,7 @@
     <div class="frappe-form">
         <form-actions
           v-if="shouldRenderForm"
+          :doc="doc"
           :doctype="doctype"
           :name="name"
           :title="formTitle"
