@@ -1,13 +1,20 @@
 <template>
 <div class="row">
   <div class="col-md-6">
+    <br>
     <h6>Cash</h6>
     <input class="form-control" v-model="cash" @click="() => changeFocus(this.inputFields.cash)">
     <h6>Cheque</h6>
     <input class="form-control" v-model="cheque" @click="() => changeFocus(this.inputFields.cheque)">
     <h6>Outstanding</h6>
     <input class="form-control" v-model="outstandingAmount">
-    <billing :items="lineItems" :customer="customer" :netTotal="netTotal" :grandTotal="grandTotal"></billing>
+    <div class="col-md-6">
+        <div class="list-group">
+            <button type="button" class="btn btn-primary" @click="submit()">
+                  <strong>Submit</strong>
+            </button>
+        </div>
+    </div>
   </div>
   <div class="col-md-6">
     <numpad :appendNum="append" :addDecimalPoint="addDP" :delNum="del"></numpad>
@@ -17,17 +24,13 @@
 
 <script>
 import Numpad from "./Numpad";
-import Billing from "./Billing";
 export default {
     components: {
-      Numpad,
-      Billing
+      Numpad
     },
-    props: ["lineItems", "customer", "netTotal", "grandTotal"],
+    props: ["netTotal", "grandTotal", "createInvoice"],
     data() {
       return {
-        items: [],
-        lineItems: [],
         netTotal: 0,
         value:"",
         cash: 0,
@@ -90,7 +93,10 @@ export default {
           case "CASH": if(this.cashDecCount < 0) this.focused = "CASH_DEC"; break;
           case "CHEQUE": if(this.chequeDecCount < 0) this.focused = "CHEQUE_DEC"; break;
         }
-			}
+			},
+      submit(){
+        this.createInvoice(this);
+    },
     },
     computed: {
         outstandingAmount(){
