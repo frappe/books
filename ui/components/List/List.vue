@@ -3,7 +3,7 @@
             <list-actions
               :doctype="doctype"
               :showDelete="checkList.length"
-              @new="newDoc"
+              @new="$emit('newDoc')"
               @delete="deleteCheckedItems"
             />
             <ul class="list-group">
@@ -60,18 +60,18 @@ export default {
     this.updateList();
   },
   methods: {
-    async newDoc() {
-      let doc = await frappe.getNewDoc(this.doctype);
-      this.$router.push(`/edit/${this.doctype}/${doc.name}`);
-    },
-    async updateList(query=null) {
-      let filters = null
+    async updateList(query = null) {
+      let filters = null;
       if (query) {
         filters = {
-          keywords : ['like', query]
-        }
+          keywords: ['like', query]
+        };
       }
-      const indicatorField = this.hasIndicator ? this.meta.indicators.key : null;
+
+      const indicatorField = this.hasIndicator
+        ? this.meta.indicators.key
+        : null;
+
       const fields = [
         'name',
         indicatorField,
@@ -89,7 +89,7 @@ export default {
     },
     openForm(name) {
       this.activeItem = name;
-      this.$router.push(`/edit/${this.doctype}/${name}`);
+      this.$emit('openForm', name);
     },
     async deleteCheckedItems() {
       await frappe.db.deleteMany(this.doctype, this.checkList);
@@ -112,7 +112,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-@import "../../styles/variables";
+@import '../../styles/variables';
 
 .list-group-item {
   border-left: none;

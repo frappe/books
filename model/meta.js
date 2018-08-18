@@ -29,6 +29,25 @@ module.exports = class BaseMeta extends BaseDocument {
         return this._field_map[fieldname];
     }
 
+    /**
+     * Get fields filtered by filters
+     * @param {Object} filters
+     *
+     * Usage:
+     *   meta = frappe.getMeta('ToDo')
+     *   dataFields = meta.getFieldsWith({ fieldtype: 'Data' })
+     */
+    getFieldsWith(filters) {
+      return this.fields.filter(df => {
+        let match = true;
+        for (const key in filters) {
+          const value = filters[key];
+          match = df[key] === value;
+        }
+        return match;
+      });
+    }
+
     getLabel(fieldname) {
         return this.getField(fieldname).label;
     }
