@@ -1,6 +1,6 @@
 <template>
   <form :class="['frappe-form-layout', { 'was-validated': invalid }]">
-    <div class="row" v-if="layoutConfig"
+    <div class="form-row" v-if="layoutConfig"
       v-for="(section, i) in layoutConfig.sections" :key="i"
       v-show="showSection(i)"
     >

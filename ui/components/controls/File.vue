@@ -3,38 +3,55 @@ import Base from './Base';
 
 export default {
   extends: Base,
-  computed: {
-    inputClass() {
-      return ['d-none'];
-    }
-  },
   methods: {
     getWrapperElement(h) {
       let fileName = this.docfield.placeholder || this._('Choose a file..');
+      let filePath = null;
 
-      if (this.$refs.input && this.$refs.input.files.length) {
+      if (this.value && typeof this.value === 'string') {
+        filePath = this.value;
+      }
+      else if (this.$refs.input && this.$refs.input.files.length) {
         fileName = this.$refs.input.files[0].name;
       }
 
-      const fileButton = h('button', {
-        class: ['btn btn-outline-secondary btn-block'],
-        domProps: {
-          textContent: fileName
-        },
+      const fileLink = h('a', {
         attrs: {
-          type: 'button'
+          href: filePath,
+          target: '_blank'
         },
-        on: {
-          click: () => this.$refs.input.click()
+        domProps: {
+          textContent: this._('View File')
         }
       });
 
-      return h('div', {
+      const helpText = h('small', {
+        class: 'form-text text-muted'
+      }, [fileLink]);
+
+      const fileNameLabel = h('label', {
+        class: ['custom-file-label'],
+        domProps: {
+          textContent: filePath || fileName
+        }
+      });
+
+      const fileInputWrapper = h('div', {
+          class: ['custom-file']
+        },
+        [this.getInputElement(h), fileNameLabel, filePath ? helpText : null]
+      );
+
+      return h(
+        'div',
+        {
           class: ['form-group', ...this.wrapperClass],
           attrs: {
             'data-fieldname': this.docfield.fieldname
           }
-        }, [this.getLabelElement(h), this.getInputElement(h), fileButton]);
+        },
+        [this.getLabelElement(h), fileInputWrapper]
+      );
     },
     getInputAttrs() {
       return {
@@ -47,6 +64,9 @@ export default {
         directory: this.docfield.directory,
         accept: (this.docfield.filetypes || []).join(',')
       };
+    },
+    getInputClass() {
+      return 'custom-file-input';
     },
     getInputListeners() {
       return {
