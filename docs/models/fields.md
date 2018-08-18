@@ -30,7 +30,7 @@ Code string (like Text but monospaced)
 
 ### Date
 
-Date (formatted by [SystemSetings.dateFormat](../utilities/system-settings.md))
+Date (formatted by [SystemSettings.dateFormat](../utilities/system-settings.md))
 
 ### Select
 
