@@ -27,7 +27,7 @@
 
 <script>
 export default {
-  name: "numpad",
+  name: 'numpad',
   props: ['appendNum', 'addDecimalPoint', 'delNum'],
   methods: {
     append: function(value) {
@@ -44,8 +44,8 @@ export default {
 </script>
 <style scoped>
 .btn {
-    font-size: 1.25rem;
-    width:64px;
-    height:64px;
+  font-size: 1.25rem;
+  width: 64px;
+  height: 64px;
 }
 </style>
