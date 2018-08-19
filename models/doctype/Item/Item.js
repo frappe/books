@@ -56,7 +56,7 @@ module.exports = {
       fieldtype: 'Currency'
     },
     {
-      fieldname: 'itemImage',
+      fieldname: 'image',
       label: 'Item Image',
       fieldtype: 'File'
     }
@@ -89,7 +89,7 @@ module.exports = {
     {
       title:'Item Image',
       columns:[
-        {fields:['itemImage']}
+        {fields:['image']}
       ]
     }
   ]

@@ -35,12 +35,7 @@ module.exports = {
       fieldtype: 'Table',
       childtype: 'EventSchedule',
       label: 'Schedule'
-    },
-    {
-      fieldname: "eventposter",
-      label: "Event Poster",
-      fieldtype: "File"
-    },
+    }
   ],
   titleField: 'title',
   keywordFields: [],

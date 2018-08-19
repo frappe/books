@@ -34,7 +34,7 @@ export default {
         netTotal: 0,
         value:"",
         cash: 0,
-				cheque: 0,
+        cheque: 0,
 				focused: "",
         cashDecCount: 0,
         chequeDecCount: 0,

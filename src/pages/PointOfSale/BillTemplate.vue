@@ -64,16 +64,18 @@
 </template>
 
 <script>
+import { DateTime } from 'luxon';
+
 export default {
   name: 'bill-template',
   props: ['items', 'customer', 'netTotal', 'grandTotal'],
   computed: {
     today() {
       // get current date
-      let today = new Date();
-      let dd = today.getDate();
-      let mm = today.getMonth() + 1; //January is 0!
-      let yyyy = today.getFullYear();
+      let today = DateTime.local();
+      let dd = today.day();
+      let mm = today.month();
+      let yyyy = today.year();
       if (dd < 10) {
         dd = '0' + dd;
       }
