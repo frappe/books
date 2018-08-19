@@ -1,9 +1,9 @@
 <template>
-<p>{{modalMessage}}</p>
+  <p>{{modalMessage}}</p>
 </template>
 
 <script>
 export default {
-    props: ["modalMessage"],
-}
+  props: ['modalMessage']
+};
 </script>
