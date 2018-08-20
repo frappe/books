@@ -21,16 +21,16 @@ export default {
       title: 'App',
       items: [
         {
-          label: _('Unseen'), route: '#/email/Email/UNSEEN'
+          label: _('Unseen'), route: '#/list/Email/UNSEEN'
         },
         {
-          label: _('Sent'), route: '#/email/Email/SENT'
+          label: _('Sent'), route: '#/list/Email/SENT'
         },
         {
-          label: _('Seen'), route: '#/email/Email/SEEN'
+          label: _('Seen'), route: '#/list/Email/SEEN'
         },
         {
-          label: _('Draft'), route: '#/email/Email/DRAFT'
+          label: _('Draft'), route: '#/list/Email/DRAFT'
         }
       ]
     }

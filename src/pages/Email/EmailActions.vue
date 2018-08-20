@@ -20,7 +20,7 @@
 import ListActions from 'frappejs/ui/components/List/ListActions';
 export default {
     extends: ListActions,
-    props:  ['doctype','name'],
+    props:  ['doctype','tab'],
     data(){
         return {
             selected: '',
@@ -43,10 +43,10 @@ export default {
             console.log("Selected Watching : "+this.selected);
             this.receiveEmails(this.selected);
         },
-        name: async function(){
-            console.log("Current tab :"+this.name);
+        tab: async function(){
+            console.log("Current tab :"+this.tab);
             this.$emit('update',this.selected)
-            if(this.name != "SENT"){
+            if(this.tab != "SENT"){
                 this.receiveEmails(this.options[0].email);
             }
             else{
@@ -57,7 +57,7 @@ export default {
     },
     methods:{
         async receiveEmails(email=this.selected){ 
-            var syncOption = this.name;
+            var syncOption = this.tab;
             if(syncOption == null || syncOption == "SENT"){
                 // TEMP HACK
                 syncOption = "UNSEEN";

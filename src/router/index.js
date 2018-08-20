@@ -37,7 +37,7 @@ const routes = [].concat(coreRoutes, [{
     props: true
   },
   {
-    path: '/email/:doctype/:name',
+    path: '/list/:doctype/:tab',
     name: 'Email',
     component: EmailListForm,
     props: true

@@ -3,6 +3,7 @@
             <list-actions
               :doctype="doctype"
               :name="name"
+              :tab="tab"
               :showDelete="checkList.length"
               @compose="newDoc"
               @update="updateList"
@@ -43,7 +44,7 @@ import EmailSend from './EmailSend';
 
 export default {
   name: 'EmailList',
-  props: ['doctype', 'name'],
+  props: ['doctype', 'tab','name'],
   components: {
     ListActions,
     ListItem
@@ -64,8 +65,12 @@ export default {
       return Boolean(this.meta.indicators);
     }
   },
+  watch:{
+        tab: async function(){
+            console.log("Reached List",this.tab,this.name);
+        }
+    },
   async created() {
-    console.log("HEY");
     frappe.db.on(`change:${this.doctype}`, () => {
       this.updateList(this.selectedId);
     });
@@ -103,7 +108,7 @@ export default {
     async updateList(selectedId) {
       this.selectedId = selectedId;
       var filters = { toEmailAddress: this.selectedId };
-      if (this.name == 'SENT') {
+      if (this.tab == 'SENT') {
         filters['sent'] = 1;
       }
       const indicatorField = this.hasIndicator ? this.meta.indicators.key : null;
@@ -123,7 +128,7 @@ export default {
         orderBy: 'date'
       });
 
-      console.log(data, this.name);
+      console.log(data, this.tab);
       this.data = data;
     },
     async openMail(name) {
