@@ -58,7 +58,7 @@ export default {
     methods:{
         async receiveEmails(email=this.selected){ 
             var syncOption = this.tab;
-            if(syncOption == null || syncOption == "SENT"){
+            if(syncOption == null || syncOption == "INBOX"){
                 // TEMP HACK
                 syncOption = "UNSEEN";
             }

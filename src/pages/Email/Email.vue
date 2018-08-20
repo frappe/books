@@ -22,9 +22,9 @@
                     @checkItem="toggleCheck(doc.name)">
                     <indicator v-if="hasIndicator" :color="getIndicatorColor(doc)" />
                     <div class="list-item">
-                      <b> {{ doc.fromEmailAddress }}</b> <br>
-                       <i>   {{ doc.subject  }}</i>
-                        
+                      <div v-if="tab!='SENT'"> <b> {{ doc.fromEmailAddress }}</b> <br></div>
+                      <div v-if="tab=='SENT'"> <b> {{ doc.toEmailAddress }}</b> <br></div>
+                       <div><i>   {{ doc.subject  }}</i></div>
                     </div>
                     <!-- <span class="col-2 text-truncate">{{ doc.fromEmailAddress }}</span>
                     <span class="col text-truncate">{{ doc.subject }}</span>
@@ -109,17 +109,16 @@ export default {
       this.selectedId = selectedId;
       var filters = { toEmailAddress: this.selectedId };
       if (this.tab == 'SENT') {
-        filters['sent'] = 1;
+        filters = { fromEmailAddress: this.selectedId ,sent:"1"};
       }
       const indicatorField = this.hasIndicator ? this.meta.indicators.key : null;
       const fields = [
         'name',
         indicatorField,
         ...this.meta.keywordFields
-      
       ].filter(Boolean);
 
-      console.log(filters);
+      // console.log(filters);
 
       const data = await frappe.db.getAll({
         doctype: this.doctype,
@@ -128,7 +127,7 @@ export default {
         orderBy: 'date'
       });
 
-      console.log(data, this.tab);
+      // console.log(data, this.tab);
       this.data = data;
     },
     async openMail(name) {
@@ -140,7 +139,7 @@ export default {
       //   });
       this.activeItem = name;
       //this.$router.push(`/edit/${this.doctype}/${name}`);
-      this.$router.push(`/view/${this.doctype}/${name}`);
+      this.$router.push(`/view/${this.doctype}/${this.tab}/${name}`);
     },
     async deleteCheckedItems() {
       await frappe.db.deleteMany(this.doctype, this.checkList);
@@ -159,7 +158,6 @@ export default {
     getIndicatorColor(doc) {
       return this.meta.getIndicatorColor(doc);
     }
-
   }
 };
 </script>
