@@ -9,11 +9,6 @@
               @update="updateList"
               @delete="deleteCheckedItems"
             />
-            <!-- <ul class="row title">
-                <span class="col-2"> <b> From </b> </span>
-                <span class="col"> <b> Subject </b> </span>
-                <span class="col-3"> <b> Date </b> </span>
-            </ul> -->
             <ul class="list-group">
                 <list-item v-for="doc of data" :key="doc.name" :id="doc.name"
                     :isActive="doc.name === $route.params.name"
@@ -22,8 +17,9 @@
                     @checkItem="toggleCheck(doc.name)">
                     <indicator v-if="hasIndicator" :color="getIndicatorColor(doc)" />
                     <div class="list-item">
-                      <div v-if="tab!='SENT'"> <b> {{ doc.fromEmailAddress }}</b> <br></div>
-                      <div v-if="tab=='SENT'"> <b> {{ doc.toEmailAddress }}</b> <br></div>
+                      <div v-if="tab=='SENT'"> <b> {{ doc.toEmailAddress }}</b> {{ doc.date }}</div>
+                      <div v-else> <b> {{ doc.fromEmailAddress }} </b> {{ doc.date }}</div>
+                      
                        <div><i>   {{ doc.subject  }}</i></div>
                     </div>
                     <!-- <span class="col-2 text-truncate">{{ doc.fromEmailAddress }}</span>
@@ -88,9 +84,9 @@ export default {
     async newDoc() {
       let doc = await frappe.getNewDoc(this.doctype);
       let emailFields = frappe.getMeta('Email').fields;
-
-      emailFields[5].hidden = true;
-      doc['fromEmailAddress'] = this.selectedId;
+      emailFields[5].hidden = true ;
+      
+      doc['fromEmailAddress'] = this.selectedId ;
 
       this.$modal.show({
         component: EmailSend,
@@ -99,8 +95,6 @@ export default {
           name: doc.name
         }
       });
-      console.log('Err Fix : dump db');
-      // unable to dump on DB [ check delete + hit refresh / sync ]
       doc.on('afterInsert', data => {
         this.$modal.hide();
       });
@@ -172,6 +166,6 @@ export default {
 }
 .list-item{
   margin-left: 4%;
-  height:60px;
+  height:80px;
 }
 </style>

@@ -2,19 +2,14 @@
   <div class="frappe-form-actions d-flex align-items-center p-3 border-bottom">
     <!-- <button  class="btn btn-primary btn-sm back-btn" @click="back">⇦</button> -->
     <h5 class="m-0 text-truncate">{{ title || name }}</h5>
-    <button  class="btn btn-primary btn-sm reply-btn" @click="back">Reply</button>
+    <button  class="btn btn-primary btn-sm reply-btn" @click="$emit('reply')">Reply</button>
     <!-- <h5 class="m-1">HEllo</h5> -->
   </div>
 </template>
 <script>
 export default {
-  props: ['doctype', 'name', 'title'],
+  props: ['doctype', 'name', 'title','selected'],
   methods: {
-    back() {
-      // Temporary Fix
-      // this.$router.push(`/email/Email/UNSEEN`);
-      console.log("Reply functionality Haven't been implemented yet ");
-    }
   }
 };
 </script>
