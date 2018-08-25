@@ -42,6 +42,7 @@ export default {
             this.$emit('update',this.selected)
             console.log("Selected Watching : "+this.selected);
             this.receiveEmails(this.selected);
+            //this.$emit('update',this.selected);
         },
         tab: async function(){
             console.log("Current tab :"+this.tab);
@@ -76,4 +77,3 @@ export default {
     right: 2%;
 }
 </style>
-
