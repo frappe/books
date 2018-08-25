@@ -84,6 +84,7 @@ export default {
     async newDoc() {
       let doc = await frappe.getNewDoc(this.doctype);
       let emailFields = frappe.getMeta('Email').fields;
+      await doc.set('read', 'Seen');
       emailFields[5].hidden = true ;
       
       doc['fromEmailAddress'] = this.selectedId ;
@@ -121,16 +122,9 @@ export default {
         orderBy: 'date'
       });
 
-      // console.log(data, this.tab);
       this.data = data;
     },
     async openMail(name) {
-      //   this.activeItem = name;
-      //   const data = await frappe.db.getAll({
-      //     doctype: this.doctype,
-      //     fields: ['*'],
-      //     filters: { name: this.activeItem }
-      //   });
       this.activeItem = name;
       //this.$router.push(`/edit/${this.doctype}/${name}`);
       this.$router.push(`/view/${this.doctype}/${this.tab}/${name}`);

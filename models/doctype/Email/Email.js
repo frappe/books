@@ -10,10 +10,10 @@ module.exports = {
     "isChild": 0,
     "keywordFields": ["name"],
     indicators: {
-        key: 'status',
+        key: 'read',
         colors: {
-            Seen: indicatorColor.BLUE,
-            Unseen: indicatorColor.GREEN
+            Seen: indicatorColor.GREY,
+            Unseen: indicatorColor.BLUE
         }
     },
     "fields": [{
@@ -96,6 +96,18 @@ module.exports = {
             "fieldtype": "Data",
             "hidden": 1,
             "required": 0,
+        },
+        {
+            "fieldname": "read",
+            "label": "Read",
+            "fieldtype": "Select",
+            "options": [
+                "Seen",
+                "Unseen"
+            ],
+            "default": "Unseen",
+            "required": 1,
+            "hidden": 1,
         },
     ]
 }

@@ -28,6 +28,13 @@ export default {
   components: {
     FormActions
   },
+  async created(){
+    this.doc = await frappe.getDoc(this.doctype, this.name);
+    this.doc.read = "Seen";
+    console.log(this.doc.read);
+    this.doc.update();
+    //this.doc.set('read', 'Seen');
+  },
   computed: {
     meta() {
       return frappe.getMeta(this.doctype);
@@ -42,7 +49,6 @@ export default {
   methods: {
     // Validation
     async openReply() {
-      //console.log("HEY open");
       let doc = await frappe.getNewDoc(this.doctype);
       let emailFields = frappe.getMeta('Email').fields;
 
