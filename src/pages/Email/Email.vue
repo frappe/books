@@ -10,26 +10,35 @@
               @delete="deleteCheckedItems"
             />
             <ul class="list-group">
-                <list-item v-for="doc of data" :key="doc.name" :id="doc.name"
+                <list-item v-for="doc of visibleList" :key="doc.name" :id="doc.name"
                     :isActive="doc.name === $route.params.name"
                     :isChecked="isChecked(doc.name)"
+                    :v-bind:visibleList="visibleList"
+                    :v-bind:currentPage="currentPage" 
                     @clickItem="openMail(doc.name)"
                     @checkItem="toggleCheck(doc.name)">
                     <indicator v-if="hasIndicator" :color="getIndicatorColor(doc)" />
                     <div class="list-item">
-                      <div v-if="tab=='SENT'"> <b> {{ doc.toEmailAddress }}</b> {{ doc.date }}</div>
-                      <div v-else> <b> {{ doc.fromEmailAddress }} </b> {{ doc.date }}</div>
-                      
-                       <div><i>   {{ doc.subject  }}</i></div>
+                      <div v-if="tab=='SENT'"> <b> {{ doc.toEmailAddress | truncate(50)}} </b> </div>
+                      <div v-else> <b> {{ doc.fromEmailAddress | truncate(30) }} </b> </div>
+                      <div><i>   {{ doc.date | truncate(50) }}</i> </div>
+                       <div><i>   {{ doc.subject | truncate(50) }}</i></div>
                     </div>
                     <!-- <span class="col-2 text-truncate">{{ doc.fromEmailAddress }}</span>
                     <span class="col text-truncate">{{ doc.subject }}</span>
                     <span class="col-3">{{ doc.modified }} </span> -->
                 </list-item>
             </ul>
+            <div v-if="totalPages() > 0" class="pagination-wrapper">
+
+              <f-button primary v-if="showPreviousLink()" v-on:click="updatePage(currentPage-1)"> ⇐ </f-button>
+                  {{ currentPage + 1 }} of {{ totalPages() }}
+              <f-button primary  v-if="showNextLink()" v-on:click="updatePage(currentPage + 1)"> ⇒ </f-button>
+            </div>
         </div>
 </template>
 <script>
+import Vue from 'vue';
 import { _ } from 'frappejs/utils';
 import List from 'frappejs/ui/components/List/List';
 import frappe from 'frappejs';
@@ -40,7 +49,7 @@ import EmailSend from './EmailSend';
 
 export default {
   name: 'EmailList',
-  props: ['doctype', 'tab','name'],
+  props: ['doctype', 'tab', 'name'],
   components: {
     ListActions,
     ListItem
@@ -50,7 +59,11 @@ export default {
       data: [],
       checkList: [],
       activeItem: '',
-      selectedId: ''
+      selectedId: '',
+      nextId: 13,
+      currentPage: 0,
+      pageSize: 6,
+      visibleList: []
     };
   },
   computed: {
@@ -61,11 +74,11 @@ export default {
       return Boolean(this.meta.indicators);
     }
   },
-  watch:{
-        tab: async function(){
-            console.log("Reached List",this.tab,this.name);
-        }
-    },
+  watch: {
+    tab: async function() {
+      console.log('Reached List', this.tab, this.name);
+    }
+  },
   async created() {
     frappe.db.on(`change:${this.doctype}`, () => {
       this.updateList(this.selectedId);
@@ -73,9 +86,14 @@ export default {
     //this.$root.$emit('toggleEmailSidebar', true);
     const data = await frappe.db.getAll({
       doctype: this.doctype,
-      fields: ['name', 'fromEmailAddress', 'subject', 'modified']
+      fields: ['name', 'fromEmailAddress', 'subject', 'date'],
+      orderBy: 'date'
     });
+    //console.log(data);
     this.data = data;
+  },
+  beforeMount: function() {
+    this.updateViewList();
   },
   mounted() {
     this.updateList(this.selectedId);
@@ -85,9 +103,9 @@ export default {
       let doc = await frappe.getNewDoc(this.doctype);
       let emailFields = frappe.getMeta('Email').fields;
       await doc.set('read', 'Seen');
-      emailFields[5].hidden = true ;
-      
-      doc['fromEmailAddress'] = this.selectedId ;
+      emailFields[5].hidden = true;
+
+      doc['fromEmailAddress'] = this.selectedId;
 
       this.$modal.show({
         component: EmailSend,
@@ -104,9 +122,11 @@ export default {
       this.selectedId = selectedId;
       var filters = { toEmailAddress: this.selectedId };
       if (this.tab == 'SENT') {
-        filters = { fromEmailAddress: this.selectedId ,sent:"1"};
+        filters = { fromEmailAddress: this.selectedId, sent: '1' };
       }
-      const indicatorField = this.hasIndicator ? this.meta.indicators.key : null;
+      const indicatorField = this.hasIndicator
+        ? this.meta.indicators.key
+        : null;
       const fields = [
         'name',
         indicatorField,
@@ -123,6 +143,7 @@ export default {
       });
 
       this.data = data;
+      this.updateViewList();
     },
     async openMail(name) {
       this.activeItem = name;
@@ -145,9 +166,36 @@ export default {
     },
     getIndicatorColor(doc) {
       return this.meta.getIndicatorColor(doc);
+    },
+    updatePage(pageNumber) {
+      this.currentPage = pageNumber;
+      this.updateViewList();
+    },
+    updateViewList() {
+      this.visibleList = this.data.slice(
+        this.currentPage * this.pageSize,
+        this.currentPage * this.pageSize + this.pageSize
+      );
+      // no email
+      if (this.visibleList.length == 0 && this.currentPage > 0) {
+        this.updatePage(this.currentPage - 1);
+      }
+    },
+    totalPages() {
+      return Math.ceil(this.data.length / this.pageSize);
+    },
+    showPreviousLink() {
+      return this.currentPage == 0 ? false : true;
+    },
+    showNextLink() {
+      return this.currentPage == this.totalPages() - 1 ? false : true;
     }
   }
 };
+
+Vue.filter('truncate', function(text, stop, clamp) {
+  return text.slice(0, stop) + (stop < text.length ? clamp || '...' : '');
+});
 </script>
 <style>
 .list-group {
@@ -158,8 +206,14 @@ export default {
   margin-right: 10%;
   flex-direction: row;
 }
-.list-item{
+.list-item {
   margin-left: 4%;
-  height:80px;
+  height: 80px;
+}
+
+.pagination-wrapper {
+  position: absolute;
+  /*bottom: 5%;*/
+  left: 40%;
 }
 </style>

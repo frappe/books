@@ -13,14 +13,14 @@ import List from './Email';
 import Form from './EmailReceive';
 
 export default {
-  props: ['doctype', 'name','tab'],
+  props: ['doctype', 'name', 'tab'],
   components: {
     FrappeList: List,
     FrappeForm: Form
   },
   watch: {
     tab: async function() {
-      console.log('Reached EmailListAndForm :',this.tab,this.name);
+      console.log('Reached EmailListAndForm :', this.tab, this.name);
     }
   },
   methods: {

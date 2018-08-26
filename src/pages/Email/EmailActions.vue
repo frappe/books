@@ -19,15 +19,15 @@
 <script>
 import ListActions from 'frappejs/ui/components/List/ListActions';
 export default {
-    extends: ListActions,
-    props:  ['doctype','tab'],
-    data(){
-        return {
-            selected: '',
-            options : []
-        }
-    },
-    async created() {
+  extends: ListActions,
+  props: ['doctype', 'tab'],
+  data() {
+    return {
+      selected: '',
+      options: []
+    };
+  },
+  async created() {
     this.options = await frappe.db.getAll({
       doctype: 'EmailAccount',
       fields: ['email'],
@@ -37,43 +37,42 @@ export default {
     });
     this.selected = this.options[0].email;
   },
-    watch:{
-        selected : async function(){
-            this.$emit('update',this.selected)
-            console.log("Selected Watching : "+this.selected);
-            this.receiveEmails(this.selected);
-            //this.$emit('update',this.selected);
-        },
-        tab: async function(){
-            console.log("Current tab :"+this.tab);
-            this.$emit('update',this.selected)
-            if(this.tab != "SENT"){
-                this.receiveEmails(this.options[0].email);
-            }
-            else{
-                // Redundant
-                this.$emit('update',this.selected);
-            }
-        }
+  watch: {
+    selected: async function() {
+      this.$emit('update', this.selected);
+      console.log('Selected Watching : ' + this.selected);
+      this.receiveEmails(this.selected);
+      //this.$emit('update',this.selected);
     },
-    methods:{
-        async receiveEmails(email=this.selected){ 
-            var syncOption = this.tab;
-            if(syncOption == null || syncOption == "INBOX"){
-                // TEMP HACK
-                syncOption = "UNSEEN";
-            }
-            // Might raise errors in some case 
-            await frappe.call({method: 'sync-mail',args:{email,syncOption}});
-        },
+    tab: async function() {
+      console.log('Current tab :' + this.tab);
+      this.$emit('update', this.selected);
+      if (this.tab != 'SENT') {
+        this.receiveEmails(this.options[0].email);
+      } else {
+        // Redundant
+        this.$emit('update', this.selected);
+      }
     }
-}
+  },
+  methods: {
+    async receiveEmails(email = this.selected) {
+      var syncOption = this.tab;
+      if (syncOption == null || syncOption == 'INBOX') {
+        // TEMP HACK
+        syncOption = 'UNSEEN';
+      }
+      // Might raise errors in some case
+      await frappe.call({ method: 'sync-mail', args: { email, syncOption } });
+    }
+  }
+};
 </script>
 <style lang="scss" scoped>
 @import '../../styles/variables';
-.email-group{
-    margin-right: 1%;
-    position: absolute;
-    right: 2%;
+.email-group {
+  margin-right: 1%;
+  position: absolute;
+  right: 2%;
 }
 </style>
