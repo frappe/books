@@ -10,9 +10,11 @@
               @delete="deleteCheckedItems"
             />
             <ul class="list-group">
-                <list-item v-for="doc of data" :key="doc.name" :id="doc.name"
+                <list-item v-for="doc of visibleList" :key="doc.name" :id="doc.name"
                     :isActive="doc.name === $route.params.name"
                     :isChecked="isChecked(doc.name)"
+                    :v-bind:visibleList="visibleList"
+                    :v-bind:currentPage="currentPage" 
                     @clickItem="openMail(doc.name)"
                     @checkItem="toggleCheck(doc.name)">
                     <indicator v-if="hasIndicator" :color="getIndicatorColor(doc)" />
@@ -27,6 +29,12 @@
                     <span class="col-3">{{ doc.modified }} </span> -->
                 </list-item>
             </ul>
+            <div v-if="totalPages() > 0" class="pagination-wrapper">
+
+              <f-button primary v-if="showPreviousLink()" v-on:click="updatePage(currentPage-1)"> ⇐ </f-button>
+                  {{ currentPage + 1 }} of {{ totalPages() }}
+              <f-button primary  v-if="showNextLink()" v-on:click="updatePage(currentPage + 1)"> ⇒ </f-button>
+            </div>
         </div>
 </template>
 <script>
@@ -50,7 +58,11 @@ export default {
       data: [],
       checkList: [],
       activeItem: '',
-      selectedId: ''
+      selectedId: '',
+      nextId:13,
+      currentPage:0,
+      pageSize:6,
+      visibleList: [],
     };
   },
   computed: {
@@ -73,9 +85,14 @@ export default {
     //this.$root.$emit('toggleEmailSidebar', true);
     const data = await frappe.db.getAll({
       doctype: this.doctype,
-      fields: ['name', 'fromEmailAddress', 'subject', 'modified']
+      fields: ['name', 'fromEmailAddress', 'subject','date'],
+      orderBy:'date'
     });
+    console.log(data);
     this.data = data;
+  },
+  beforeMount: function(){
+    this.updateViewList();
   },
   mounted() {
     this.updateList(this.selectedId);
@@ -123,6 +140,7 @@ export default {
       });
 
       this.data = data;
+      this.updateViewList(); 
     },
     async openMail(name) {
       this.activeItem = name;
@@ -145,6 +163,26 @@ export default {
     },
     getIndicatorColor(doc) {
       return this.meta.getIndicatorColor(doc);
+    },
+    updatePage(pageNumber){
+      this.currentPage = pageNumber;
+      this.updateViewList();
+    },
+    updateViewList(){
+      this.visibleList = this.data.slice(this.currentPage * this.pageSize,(this.currentPage*this.pageSize)+this.pageSize);
+      // no email 
+      if(this.visibleList.length == 0  && this.currentPage > 0 ){
+        this.updatePage(this.currentPage - 1);
+      }
+    },
+    totalPages(){
+      return Math.ceil(this.data.length / this.pageSize) ;
+    },
+    showPreviousLink(){
+      return this.currentPage == 0 ? false:true ;
+    },
+    showNextLink(){
+      return this.currentPage == (this.totalPages() - 1) ? false:true ;
     }
   }
 };
@@ -161,5 +199,11 @@ export default {
 .list-item{
   margin-left: 4%;
   height:80px;
+}
+
+.pagination-wrapper{
+  position: absolute;
+  /*bottom: 5%;*/
+  left:40%;
 }
 </style>
