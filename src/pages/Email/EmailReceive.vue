@@ -28,9 +28,9 @@ export default {
   components: {
     FormActions
   },
-  async created(){
+  async created() {
     this.doc = await frappe.getDoc(this.doctype, this.name);
-    this.doc.read = "Seen";
+    this.doc.read = 'Seen';
     this.doc.update();
     console.log(this.doc.read);
   },

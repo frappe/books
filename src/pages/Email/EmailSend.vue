@@ -37,8 +37,8 @@ export default {
       });
       if (response) {
         let emailFields = frappe.getMeta('Email').fields;
-        this.doc["sent"] = 1;
-        this.doc["name"] = this.name ;
+        this.doc['sent'] = 1;
+        this.doc['name'] = this.name;
         this.save();
       } else {
         // Raise Error ;

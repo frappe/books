@@ -8,9 +8,8 @@
 </template>
 <script>
 export default {
-  props: ['doctype', 'name', 'title','selected'],
-  methods: {
-  }
+  props: ['doctype', 'name', 'title', 'selected'],
+  methods: {}
 };
 </script>
 <style>
