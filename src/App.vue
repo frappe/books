@@ -31,6 +31,8 @@ frappe.registerModels(coreModels);
 frappe.registerModels(models);
 frappe.fetch = window.fetch.bind();
 frappe.isServer = true;
+frappe.events = new Observable();
+frappe.throw = frappe.errors.throw;
 
 export default {
   name: 'App',
