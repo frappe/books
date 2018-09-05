@@ -52,8 +52,12 @@ export default {
       let emailFields = frappe.getMeta('Email').fields;
 
       emailFields[5].hidden = true;
-      doc['fromEmailAddress'] = this.selectedId;
+      // doc['fromEmailAddress'] = this.selectedId;
+      doc['subject'] = 'Re: ' + this.doc['subject'];
+      doc['replyId'] = this.doc["name"];
+      emailFields[6].disabled = true;
 
+      // FROM EMAIL : Same
       this.$modal.show({
         component: EmailSend,
         props: {

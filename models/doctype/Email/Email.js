@@ -109,5 +109,13 @@ module.exports = {
             "required": 1,
             "hidden": 1,
         },
+        {
+            "fieldname": "replyId",
+            "label": "ReplyID",
+            "fieldtype": "Data",
+            "required": 0,
+            "hidden": 1,
+            "disabled": 0
+        },
     ]
 }
