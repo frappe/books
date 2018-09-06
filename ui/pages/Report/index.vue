@@ -25,17 +25,39 @@ export default {
     }
   },
   methods: {
-    getReportData(filters) {
-      frappe.methods[this.reportConfig.method](filters).then(data => {
-        if (this.datatable) {
-          this.datatable.refresh(data || []);
-        } else {
-          this.datatable = new DataTable(this.$refs.datatable, {
-            columns: this.reportColumns,
-            data: data || []
-          });
-        }
+    async getReportData(filters) {
+      let data = await frappe.call({
+          method: this.reportConfig.method,
+          args: filters
       });
+
+      let rows, columns;
+      if (data.rows) {
+        rows = data.rows;
+      } else {
+        rows = data;
+      }
+
+      if (data.columns) {
+        columns = data.columns;
+      }
+
+      if (!rows) {
+        rows = [];
+      }
+
+      if (!columns) {
+        columns = this.reportColumns;
+      }
+
+      if (this.datatable) {
+        this.datatable.refresh(rows, columns);
+      } else {
+        this.datatable = new DataTable(this.$refs.datatable, {
+          columns: columns,
+          data: rows
+        });
+      }
     }
   },
   components: {
