@@ -17,14 +17,22 @@ export default {
   methods: {
     getInputListeners() {
       return {
-        input: async e => {
-          this.awesomplete.list = await this.getList(e.target.value);
+        input: e => {
+          this.updateList(e.target.value);
         },
         'awesomplete-select': e => {
           const value = e.text.value;
           this.handleChange(value);
+        },
+        focus: async e => {
+          await this.updateList();
+          this.awesomplete.evaluate();
+          this.awesomplete.open();
         }
       }
+    },
+    async updateList(value) {
+      this.awesomplete.list = await this.getList(value);
     },
     getList(text) {
       return this.docfield.getList(text);
@@ -46,11 +54,9 @@ export default {
           return li;
         }
       });
-
       this.bindEvents();
     },
     bindEvents() {
-
     },
     sort() {
       // return a function that handles sorting of items
