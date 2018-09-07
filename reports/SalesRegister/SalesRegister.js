@@ -1,14 +1,26 @@
 const frappe = require('frappejs');
 
 class SalesRegister {
-    async run({ fromDate, toDate }) {
+    async run({ fromDate, toDate, customer }) {
+        let filters = {};
+        if(customer) {
+          filters.customer = customer;
+        }
+
+        if (fromDate && toDate) {
+          filters.date = ['>=', fromDate, '<=', toDate];
+        }
+        else if (fromDate) {
+          filters.date = ['>=', fromDate];
+        }
+        else if (toDate) {
+          filters.date = ['<=', toDate];
+        }
+
         const invoices = await frappe.db.getAll({
             doctype: 'Invoice',
             fields: ['name', 'date', 'customer', 'account', 'netTotal', 'grandTotal'],
-            filters: {
-                date: ['>=', fromDate, '<=', toDate],
-                submitted: 1
-            },
+            filters: filters,
             orderBy: 'date',
             order: 'desc'
         });
