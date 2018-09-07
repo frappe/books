@@ -43,6 +43,7 @@ module.exports = {
         app.use(bodyParser.urlencoded({ extended: true }));
 
         app.use(express.static(frappe.conf.distPath));
+
         app.use('/static', express.static(frappe.conf.staticPath))
 
         app.use(morgan('tiny'));
