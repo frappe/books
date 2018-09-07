@@ -31,7 +31,7 @@ module.exports = {
             condition: (form) => form.doc.customer,
             action: form => {
               form.$router.push({
-                path: `/report/sales-register?&customer=${form.doc.name}&referenceType=${form.doc.doctype}&referenceName=${form.doc.name}`
+                path: `/report/sales-register?&customer=${form.doc.name}`
               });
             }
         }
