@@ -24,9 +24,6 @@
                       <div> <i> {{ doc.date | truncate(50) }} </i></div>
                       <div><i>   {{ doc.subject | truncate(50) }}</i></div>
                     </div>
-                    <!-- <span class="col-2 text-truncate">{{ doc.fromEmailAddress }}</span>
-                    <span class="col text-truncate">{{ doc.subject }}</span>
-                    <span class="col-3">{{ doc.modified }} </span> -->
                 </list-item>
             </ul>
             <div v-if="totalPages() > 0" class="pagination-wrapper">
@@ -62,7 +59,7 @@ export default {
       selectedId: '',
       nextId: 13,
       currentPage: 0,
-      pageSize: 6,
+      pageSize: 10,
       visibleList: []
     };
   },
@@ -133,8 +130,6 @@ export default {
         ...this.meta.keywordFields
       ].filter(Boolean);
 
-      // console.log(filters);
-
       const data = await frappe.db.getAll({
         doctype: this.doctype,
         fields: ['*'],
@@ -147,7 +142,6 @@ export default {
     },
     async openMail(name) {
       this.activeItem = name;
-      //this.$router.push(`/edit/${this.doctype}/${name}`);
       this.$router.push(`/view/${this.doctype}/${this.tab}/${name}`);
     },
     async deleteCheckedItems() {

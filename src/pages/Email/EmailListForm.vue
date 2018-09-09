@@ -24,11 +24,6 @@ export default {
     }
   },
   methods: {
-    // onSave(doc) {
-    //      if (doc.name !== this.$route.params.name) {
-    //         this.$router.push(`/edit/${doc.doctype}/${doc.name}`);
-    //     }
-    // }
   }
 };
 </script>
