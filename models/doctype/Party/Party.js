@@ -14,6 +14,19 @@ module.exports = {
             "required": 1
         },
         {
+          fieldname: 'account',
+          label: 'Account',
+          fieldtype: 'Link',
+          target: 'Account',
+          getFilters: (query, control) => {
+            return {
+              keywords: ['like', query],
+              isGroup: 0,
+              accountType: 'Receivable'
+            };
+          }
+        },
+        {
             "fieldname": "customer",
             "label": "Customer",
             "fieldtype": "Check"

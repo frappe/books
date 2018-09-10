@@ -38,6 +38,7 @@ module.exports = {
       label: 'Account',
       fieldtype: 'Link',
       target: 'Account',
+      formula : (doc) => doc.getFrom('Party', doc.customer , 'account'),
       getFilters: (query, control) => {
         return {
           keywords: ['like', query],
