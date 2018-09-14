@@ -25,8 +25,6 @@ require.extensions['.html'] = function (module, filename) {
     module.exports = fs.readFileSync(filename, 'utf8');
 };
 
-process.env.NODE_ENV = 'development';
-
 module.exports = {
     async start({backend, connectionParams, models, authConfig=null}) {
         await this.init();
