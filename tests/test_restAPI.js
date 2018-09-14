@@ -4,23 +4,28 @@ const fetch = require('node-fetch');
 const { spawn } = require('child_process');
 const process = require('process');
 const HTTPClient = require('frappejs/backends/http')
+const utils = require('frappejs/utils');
+const models = require('frappejs/models');
+const common = require('frappejs/common');
 
 // create a copy of frappe
 
 var test_server;
 
-describe('REST', () => {
+describe.only('REST', () => {
     before(async function() {
         test_server = spawn('node', ['tests/test_server.js'], { stdio: 'inherit' });
 
         await frappe.init();
+        await frappe.registerLibs(common);
+        await frappe.registerModels(models);
         await frappe.login('Administrator');
 
         frappe.db = await new HTTPClient({server: 'localhost:8000'});
         frappe.fetch = fetch;
 
         // wait for server to start
-        return await frappe.sleep(2);
+        return await utils.sleep(2);
     });
 
     after(() => {
