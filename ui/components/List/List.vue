@@ -93,6 +93,7 @@ export default {
     },
     async deleteCheckedItems() {
       await frappe.db.deleteMany(this.doctype, this.checkList);
+      this.$router.push(`/list/${this.doctype}`);
       this.checkList = [];
     },
     toggleCheck(name) {

@@ -2,7 +2,7 @@
     <div>
         <div class="p-4">
             <h4 class="pb-2">{{ reportConfig.title }}</h4>
-            <report-filters v-if="reportConfig.filterFields.length" :filters="reportConfig.filterFields" :filterDefaults="filters" @change="getReportData"></report-filters>
+            <report-filters v-if="filtersExists" :filters="reportConfig.filterFields" :filterDefaults="filters" @change="getReportData"></report-filters>
             <div class="pt-2" ref="datatable" v-once></div>
         </div>
         <not-found v-if="!reportConfig" />
@@ -22,6 +22,9 @@ export default {
       return utils.convertFieldsToDatatableColumns(
         this.reportConfig.getColumns()
       );
+    },
+    filtersExists() {
+      return (this.reportConfig.filterFields || []).length;
     }
   },
   methods: {
