@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="row">
-      <div class="col-md-8 col-md-offset-2">
+      <div class="col-md-12 col-md-offset-4">
           <h1>Point of Sale</h1>
           <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <h6>Customer</h6>
                 <frappe-control v-focus
                     :docfield="customerDocfield"
@@ -53,9 +53,9 @@
                     <br>
                 <!-- </div> -->
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-8">
                   <div class="row">
-                      <div class="col-md-12">
+                      <div class="col-md-6">
                           <h6>Item Select</h6>
                             <frappe-control
                                 :docfield="itemDocfield"

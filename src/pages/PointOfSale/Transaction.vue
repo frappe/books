@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="scroll-y-wrapper">
         <table class="table table-striped table-hover table-bordered " v-if="items.length">
             <thead>
                 <tr>
@@ -26,16 +26,22 @@
 </template>
 
 <script>
-
 export default {
-    props: ['items', 'edit', 'remove'],
-    methods: {
-        toggleEdit: function(item) {
-            this.edit(item);
-        },
-        removeItem: function(item) {
-            this.remove(item);
-        }
+  props: ['items', 'edit', 'remove'],
+  methods: {
+    toggleEdit: function(item) {
+      this.edit(item);
+    },
+    removeItem: function(item) {
+      this.remove(item);
     }
-}
+  }
+};
 </script>
+
+<style scoped>
+.scroll-y-wrapper {
+  max-height: 250px;
+  overflow-y: scroll;
+}
+</style>
