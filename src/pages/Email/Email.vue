@@ -86,7 +86,6 @@ export default {
       fields: ['name', 'fromEmailAddress', 'subject', 'date'],
       orderBy: 'date'
     });
-    //console.log(data);
     this.data = data;
   },
   beforeMount: function() {
@@ -117,9 +116,11 @@ export default {
     },
     async updateList(selectedId) {
       this.selectedId = selectedId;
-      var filters = { toEmailAddress: this.selectedId };
+      var filters;
       if (this.tab == 'SENT') {
         filters = { fromEmailAddress: this.selectedId, sent: '1' };
+      } else if (this.tab == 'INBOX') {
+        filters = { toEmailAddress: this.selectedId, sent: '0' };
       }
       const indicatorField = this.hasIndicator
         ? this.meta.indicators.key
