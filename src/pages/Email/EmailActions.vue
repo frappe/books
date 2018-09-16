@@ -39,30 +39,22 @@ export default {
   },
   watch: {
     selected: async function() {
-      this.$emit('update', this.selected);
       console.log('Selected Watching : ' + this.selected);
       this.receiveEmails(this.selected);
-      //this.$emit('update',this.selected);
+      this.$emit('update', this.selected);
     },
     tab: async function() {
       console.log('Current tab :' + this.tab);
+      this.receiveEmails(this.options[0].email);
       this.$emit('update', this.selected);
-      if (this.tab != 'SENT') {
-        this.receiveEmails(this.options[0].email);
-      } else {
-        // Redundant
-        this.$emit('update', this.selected);
-      }
     }
   },
   methods: {
     async receiveEmails(email = this.selected) {
       var syncOption = this.tab;
-      if (syncOption == null || syncOption == 'INBOX') {
-        // TEMP HACK
-        syncOption = 'UNSEEN';
+      if (syncOption == null) {
+        syncOption = 'INBOX';
       }
-      // Might raise errors in some case
       await frappe.call({ method: 'sync-mail', args: { email, syncOption } });
     }
   }

@@ -1,9 +1,7 @@
 <template>
   <div class="frappe-form-actions d-flex align-items-center p-3 border-bottom">
-    <!-- <button  class="btn btn-primary btn-sm back-btn" @click="back">⇦</button> -->
     <h5 class="m-0 text-truncate">{{ title || name }}</h5>
     <button  class="btn btn-primary btn-sm reply-btn" @click="$emit('reply')">Reply</button>
-    <!-- <h5 class="m-1">HEllo</h5> -->
   </div>
 </template>
 <script>

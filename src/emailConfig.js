@@ -27,7 +27,7 @@ export default {
           label: _('Sent'), route: '#/list/Email/SENT'
         },
         {
-          label: _('Flagged'), route: '#/list/Email/Flagged'
+          label: _('Starred'), route: '#/list/Email/STARRED'
         },
         {
           label: _('Draft'), route: '#/list/Email/DRAFT'

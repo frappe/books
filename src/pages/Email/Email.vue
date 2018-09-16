@@ -59,7 +59,7 @@ export default {
       selectedId: '',
       nextId: 13,
       currentPage: 0,
-      pageSize: 10,
+      pageSize: 8,
       visibleList: []
     };
   },
@@ -80,13 +80,11 @@ export default {
     frappe.db.on(`change:${this.doctype}`, () => {
       this.updateList(this.selectedId);
     });
-    //this.$root.$emit('toggleEmailSidebar', true);
     const data = await frappe.db.getAll({
       doctype: this.doctype,
       fields: ['name', 'fromEmailAddress', 'subject', 'date'],
       orderBy: 'date'
     });
-    //console.log(data);
     this.data = data;
   },
   beforeMount: function() {
@@ -117,9 +115,11 @@ export default {
     },
     async updateList(selectedId) {
       this.selectedId = selectedId;
-      var filters = { toEmailAddress: this.selectedId };
+      var filters;
       if (this.tab == 'SENT') {
         filters = { fromEmailAddress: this.selectedId, sent: '1' };
+      } else if (this.tab == 'INBOX') {
+        filters = { toEmailAddress: this.selectedId, sent: '0' };
       }
       const indicatorField = this.hasIndicator
         ? this.meta.indicators.key
@@ -170,7 +170,6 @@ export default {
         this.currentPage * this.pageSize,
         this.currentPage * this.pageSize + this.pageSize
       );
-      // no email
       if (this.visibleList.length == 0 && this.currentPage > 0) {
         this.updatePage(this.currentPage - 1);
       }
@@ -212,13 +211,11 @@ Vue.filter('truncate', function(text, stop, clamp) {
 
 .pagination-wrapper {
   position: absolute;
-  /*bottom: 5%;*/
   left: 40%;
 }
 
 .pagination-wrapper {
   position: absolute;
-  /*bottom: 5%;*/
   left: 40%;
 }
 </style>

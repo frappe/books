@@ -10,7 +10,7 @@
         />
         <!-- Show From to subject etc -->
          <div v-if="doc.bodyHtml" v-html="doc.bodyHtml"></div>
-         <div v-else>{{ doc.bodyText }}</div> <!-- needs to be fixed -->
+         <div v-else>{{ doc.bodyText }}</div> <!-- needs to be fixed shows '0' ^ -->
 
         <not-found v-if="notFound" />
     </div>
@@ -32,7 +32,6 @@ export default {
     this.doc = await frappe.getDoc(this.doctype, this.name);
     this.doc.read = 'Seen';
     this.doc.update();
-    console.log(this.doc.read);
   },
   computed: {
     meta() {

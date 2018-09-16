@@ -41,7 +41,7 @@ export default {
         this.doc['name'] = this.name;
         this.save();
       } else {
-        // Raise Error ;
+        // Raise Error
         console.log('Email Not Found');
       }
     }

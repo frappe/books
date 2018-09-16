@@ -35,29 +35,8 @@ module.exports = {
             "fieldname": "enableIncoming",
             "label": "Enable Incoming",
             "fieldtype": "Check",
-            "required": 0
-        },
-        {
-            "fieldname": "emailSync",
-            "label": "Email Sync ",
-            "fieldtype": "Select",
-            "options": [
-                "ALL",
-                "ANSWERED",
-                "DELETED",
-                "DRAFT",
-                "FLAGGED",
-                "NEW",
-                "SEEN",
-                "RECENT",
-                "OLD",
-                "UNANSWERED",
-                "UNDELETED",
-                "UNDRAFT",
-                "UNFLAGGED",
-                "UNSEEN"
-            ],
-            "default": "UNSEEN",
+            "required": 0,
+            "default": 1
         },
         {
             "fieldname": "imapHost",
@@ -85,7 +64,8 @@ module.exports = {
             "fieldname": "enableOutgoing",
             "label": "Enable Outgoing",
             "fieldtype": "Check",
-            "required": 0
+            "required": 0,
+            "default": 1
         },
         {
             "fieldname": "smtpHost",

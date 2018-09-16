@@ -61,7 +61,7 @@ module.exports = {
         {
             "fieldname": "date",
             "label": "Date",
-            "fieldtype": "Date",
+            "fieldtype": "Datetime",
             "required": 0,
             "hidden": 0,
             "disabled": 1
