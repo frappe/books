@@ -26,8 +26,8 @@ module.exports = {
         const today = DateTime.local();
         const eventDate = DateTime.fromISO(doc.date);
         const diff = eventDate.diff(today);
-        let m = Math.floor(diff.as('day'));
-        return m+1;
+        let daydiff = Math.floor(diff.as('day'));
+        return daydiff+1;
       }
     },
     {
