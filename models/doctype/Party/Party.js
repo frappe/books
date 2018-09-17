@@ -14,8 +14,8 @@ module.exports = {
             "required": 1
         },
         {
-          fieldname: 'account',
-          label: 'Account',
+          fieldname: 'default_account',
+          label: 'Default Account',
           fieldtype: 'Link',
           target: 'Account',
           getFilters: (query, control) => {
