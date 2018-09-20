@@ -6,7 +6,9 @@
             >
             <label class="custom-control-label" :for="id"></label>
         </div>
-        <slot></slot>
+        <div @click="$emit('clickItem')">
+          <slot></slot>
+        </div>
     </div>
 </template>
 <script>

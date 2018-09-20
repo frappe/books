@@ -18,7 +18,7 @@ module.exports = {
         } else if (field.fieldtype === 'Date') {
             let dateFormat;
             if (!frappe.SystemSettings) {
-                dateFormat = 'yyyy-mm-dd';
+                dateFormat = 'yyyy-MM-dd';
             } else {
                 dateFormat = frappe.SystemSettings.dateFormat;
             }
