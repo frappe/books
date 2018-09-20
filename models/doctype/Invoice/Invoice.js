@@ -136,6 +136,10 @@ module.exports = {
         payment.party = form.doc.customer;
         payment.account = form.doc.account;
         payment.for = [{ referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal }];
+        payment.on('afterInsert', () => {
+          form.$formModal.close();
+          payment.submit();
+        })
         await form.$formModal.open(payment);
       }
     }
