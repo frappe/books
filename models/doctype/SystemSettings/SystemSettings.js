@@ -11,13 +11,13 @@ module.exports = {
             label: "Date Format",
             fieldtype: "Select",
             options: [
-                "dd/mm/yyyy",
-                "mm/dd/yyyy",
-                "dd-mm-yyyy",
-                "mm-dd-yyyy",
-                "yyyy-mm-dd"
+                "dd/MM/yyyy",
+                "MM/dd/yyyy",
+                "dd-MM-yyyy",
+                "MM-dd-yyyy",
+                "yyyy-MM-dd"
             ],
-            default: "yyyy-mm-dd",
+            default: "yyyy-MM-dd",
             required: 1
         }
     ]
