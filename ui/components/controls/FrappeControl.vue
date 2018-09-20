@@ -67,10 +67,6 @@ export default {
         disabled = true;
       }
 
-      if (this.docfield.formula && this.docfield.fieldtype !== 'Table') {
-        disabled = true;
-      }
-
       return Boolean(disabled);
     }
   }
