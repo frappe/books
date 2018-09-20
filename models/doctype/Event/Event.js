@@ -19,18 +19,6 @@ module.exports = {
       fieldtype: 'Date'
     },
     {
-      fieldname: 'daysUntil',
-      label: 'Days Until Event',
-      fieldtype: 'Data',
-      formula: (doc) => {
-        const today = DateTime.local();
-        const eventDate = DateTime.fromISO(doc.date);
-        const diff = eventDate.diff(today);
-        let daydiff = Math.floor(diff.as('day'));
-        return daydiff+1;
-      }
-    },
-    {
       fieldname: 'schedule',
       fieldtype: 'Table',
       childtype: 'EventSchedule',

@@ -10,7 +10,7 @@ module.exports = {
   getColumns() {
     return [
       { label: 'Invoice', fieldname: 'name' },
-      { label: 'Posting Date', fieldname: 'date' },
+      { label: 'Posting Date', fieldname: 'date' , fieldtype: 'Date' },
       { label: 'Customer', fieldname: 'customer' },
       { label: 'Receivable Account', fieldname: 'account' },
       { label: 'Net Total', fieldname: 'netTotal', fieldtype: 'Currency' },
