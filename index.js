@@ -6,6 +6,7 @@ module.exports = {
         this.initConfig();
         this.initGlobals();
         this.docs = new Observable();
+        this.events = new Observable();
         this._initialized = true;
     },
 

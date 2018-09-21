@@ -12,7 +12,7 @@
 <script>
 import Modal from './Modal';
 import Plugin from './plugin';
-
+import ErrorModal from './ErrorModal';
 export default {
   name: 'ModalContainer',
   components: {
@@ -26,12 +26,24 @@ export default {
   },
   created() {
     Plugin.modalContainer = this;
-
     Plugin.event.$on('hide', (id) => {
       if (!id) {
         console.warn(`id not provided in $modal.hide method, the last modal in the stack will be hidden`);
       }
       this.onModalClose(id);
+    });
+    frappe.events.on('throw', ({ message, stackTrace }) => {
+      this.$modal.show({
+        modalProps: {
+          title: 'Something went wrong',
+          noFooter: true
+        },
+        component: ErrorModal,
+        props: {
+          message,
+          stackTrace
+        }
+      }); 
     });
   },
   methods: {
