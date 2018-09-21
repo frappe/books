@@ -1,3 +1,5 @@
+const frappe = require('frappejs');
+
 class BaseError extends Error {
     constructor(statusCode, ...params) {
         super(...params);
@@ -26,10 +28,26 @@ class Forbidden extends BaseError {
 class ValueError extends ValidationError { }
 class Conflict extends ValidationError { }
 
+function throwError(message, error='ValidationError') {
+    const errorClass = {
+        'ValidationError': ValidationError,
+        'NotFound': NotFound,
+        'Forbidden': Forbidden,
+        'ValueError': ValueError,
+        'Conflict': Conflict
+    };
+    const err = new errorClass[error](message);
+    frappe.events.trigger('throw', { message, stackTrace: err.stack });
+    throw err;
+}
+
+frappe.throw = throwError;
+
 module.exports = {
     ValidationError,
     ValueError,
     Conflict,
     NotFound,
-    Forbidden
+    Forbidden,
+    throw: throwError
 }

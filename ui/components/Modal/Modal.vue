@@ -12,7 +12,7 @@
         <div class="modal-body modal-height p-0">
           <component ref="modalComponent" :is="component" v-bind="props" v-on="events"/>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer" v-if="!noFooter">
           <!-- <f-button secondary @click="closeModal">{{ _('Close') }}</f-button> -->
           <f-button primary v-if="primaryAction" @click="onPrimaryAction">{{ primaryAction.label }}</f-button>
         </div>
@@ -41,6 +41,10 @@ export default {
       type: Object
     },
     noHeader: {
+      type: Boolean,
+      default: false
+    },
+    noFooter: {
       type: Boolean,
       default: false
     }
