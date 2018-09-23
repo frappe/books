@@ -227,10 +227,12 @@ module.exports = class BaseDocument extends Observable {
                 // for each row
                 for (let row of this[tablefield.fieldname]) {
                     for (let field of formulaFields) {
+                      if (shouldApplyFormula(field, row)) {
                         const val = await field.formula(row, doc);
-                        if (val !== false) {
-                            row[field.fieldname] = val;
+                        if (val !== false && val !== undefined) {
+                          row[field.fieldname] = val;
                         }
+                      }
                     }
                 }
             }
@@ -238,13 +240,28 @@ module.exports = class BaseDocument extends Observable {
 
         // parent
         for (let field of this.meta.getFormulaFields()) {
+          if (shouldApplyFormula(field, doc)) {
             const val = await field.formula(doc);
-            if (val !== false) {
-                doc[field.fieldname] = val;
+            if (val !== false && val !== undefined) {
+              doc[field.fieldname] = val;
             }
+          }
         }
 
         return true;
+
+        function shouldApplyFormula (field, doc) {
+          if (frappe.isServer) {
+            if (field.readOnly) {
+              return true;
+            }
+          } else {
+            if (doc[field.fieldname] == null) {
+              return true;
+            }
+          }
+          return false;
+        }
     }
 
     async commit() {
