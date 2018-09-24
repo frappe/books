@@ -38,7 +38,7 @@ module.exports = {
       label: 'Account',
       fieldtype: 'Link',
       target: 'Account',
-      formula : (doc) => doc.getFrom('Party', doc.customer , 'default_account'),
+      formula: (doc) => doc.getFrom('Party', doc.customer , 'default_account'),
       getFilters: (query, control) => {
         return {
           keywords: ['like', query],
@@ -136,6 +136,10 @@ module.exports = {
         payment.party = form.doc.customer;
         payment.account = form.doc.account;
         payment.for = [{ referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal }];
+        payment.on('afterInsert', () => {
+          form.$formModal.close();
+          payment.submit();
+        })
         await form.$formModal.open(payment);
       }
     }
