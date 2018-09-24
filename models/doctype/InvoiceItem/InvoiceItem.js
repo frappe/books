@@ -47,6 +47,7 @@ module.exports = {
       label: 'Tax',
       fieldtype: 'Link',
       target: 'Tax',
+      readOnly: 1,
       formula: (row, doc) => {
         if (row.tax) return row.tax;
         return doc.getFrom('Item', row.item, 'tax');
@@ -56,13 +57,15 @@ module.exports = {
       fieldname: 'amount',
       label: 'Amount',
       fieldtype: 'Currency',
-      disabled: 1,
+      readOnly: 1,
+      disabled: true,
       formula: (row, doc) => row.quantity * row.rate
     },
     {
       fieldname: 'taxAmount',
       label: 'Tax Amount',
       hidden: 1,
+      readOnly: 1,
       fieldtype: 'Text',
       formula: (row, doc) => doc.getRowTax(row)
     }
