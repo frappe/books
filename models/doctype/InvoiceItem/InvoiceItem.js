@@ -47,7 +47,6 @@ module.exports = {
       label: 'Tax',
       fieldtype: 'Link',
       target: 'Tax',
-      readOnly: 1,
       formula: (row, doc) => {
         if (row.tax) return row.tax;
         return doc.getFrom('Item', row.item, 'tax');
