@@ -1,7 +1,6 @@
 <script>
 import frappe from 'frappejs';
 import feather from 'feather-icons';
-import Awesomplete from 'awesomplete';
 import Autocomplete from './Autocomplete';
 import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 import Form from '../Form/Form';
@@ -18,9 +17,11 @@ export default {
     async getList(query) {
       const list = await frappe.db.getAll({
         doctype: this.getTarget(),
-        filters: query ? {
-          keywords: ['like', query]
-        } : null,
+        filters: query
+          ? {
+              keywords: ['like', query]
+            }
+          : null,
         fields: ['name'],
         limit: 50
       });
@@ -41,30 +42,30 @@ export default {
           value: '__newItem'
         });
     },
-    getWrapperElement(h) {
+    getChildrenElement(h) {
+      return [
+        this.getLabelElement(h),
+        this.getInputGroupElement(h),
+        this.getDropdownElement(h)
+      ];
+    },
+    getInputGroupElement(h) {
       return h(
         'div',
         {
-          class: ['form-group', ...this.wrapperClass],
-          attrs: {
-            'data-fieldname': this.docfield.fieldname
-          }
+          class: ['input-group']
         },
         [
-          this.getLabelElement(h),
-          this.getInputGroupElement(h)
+          this.getInputElement(h),
+          h(
+            'div',
+            {
+              class: ['input-group-append']
+            },
+            [this.getFollowLink(h)]
+          )
         ]
       );
-    },
-    getInputGroupElement(h) {
-      return h('div', {
-        class: ['input-group']
-      }, [
-        this.getInputElement(h),
-        h('div', {
-          class: ['input-group-append']
-        }, [this.getFollowLink(h)])
-      ]);
     },
     getFollowLink(h) {
       const doctype = this.getTarget();
@@ -84,17 +85,21 @@ export default {
         }
       });
 
-      return h('button', {
-        class: ['btn btn-sm btn-outline-light border d-flex'],
-        attrs: {
-          type: 'button'
-        },
-        on: {
-          click: () => {
-            this.$router.push(`/edit/${doctype}/${name}`);
+      return h(
+        'button',
+        {
+          class: ['btn btn-sm btn-outline-light border d-flex'],
+          attrs: {
+            type: 'button'
+          },
+          on: {
+            click: () => {
+              this.$router.push(`/edit/${doctype}/${name}`);
+            }
           }
-        }
-      }, [arrow])
+        },
+        [arrow]
+      );
     },
     getTarget() {
       return this.docfield.target;
@@ -103,7 +108,7 @@ export default {
       return (a, b) => {
         a = a.toLowerCase();
         b = b.toLowerCase();
-        
+
         if (a.value === '__newItem') {
           return 1;
         }
@@ -126,41 +131,36 @@ export default {
         if (suggestion.value === '__newItem') {
           return true;
         }
-        return Awesomplete.FILTER_CONTAINS(suggestion, txt);
       };
     },
-    bindEvents() {
+    onItemClick(item) {
+      if (item.value === '__newItem') {
+        this.openFormModal();
+      } else {
+        this.handleChange(item.value);
+      }
+    },
+    async openFormModal() {
       const input = this.$refs.input;
-
-      input.addEventListener('awesomplete-select', async e => {
-        // new item action
-        if (e.text && e.text.value === '__newItem') {
-          e.preventDefault();
-          const newDoc = await frappe.getNewDoc(this.getTarget());
-
-          this.$formModal.open(
-            newDoc,
-            {
-              defaultValues: {
-                name: input.value !== '__newItem' ? input.value : null
-              },
-              onClose: () => {
-                // if new doc was not created
-                // then reset the input value
-                if (this.value === '__newItem') {
-                  this.handleChange('');
-                }
-              }
-            }
-          );
-
-          newDoc.on('afterInsert', data => {
-            // if new doc was created
-            // then set the name of the doc in input
-            this.handleChange(newDoc.name);
-            this.$formModal.close();
-          });
+      const newDoc = await frappe.getNewDoc(this.getTarget());
+      this.$formModal.open(newDoc, {
+        defaultValues: {
+          name: input.value !== '__newItem' ? input.value : null
+        },
+        onClose: () => {
+          // if new doc was not created
+          // then reset the input value
+          if (this.value === '__newItem') {
+            this.handleChange('');
+          }
         }
+      });
+
+      newDoc.on('afterInsert', data => {
+        // if new doc was created
+        // then set the name of the doc in input
+        this.handleChange(newDoc.name);
+        this.$formModal.close();
       });
     }
   }

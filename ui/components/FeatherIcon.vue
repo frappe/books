@@ -26,10 +26,14 @@ export default {
     },
     computed: {
         iconSVG() {
-            return feather.icons[this.name].toSvg({
-                width: this.size,
-                height: this.size
-            });
+          const icon = feather.icons[this.name];
+          if (!icon) {
+            return '';
+          }
+          return icon.toSvg({
+              width: this.size,
+              height: this.size
+          });
         }
     }
 }
