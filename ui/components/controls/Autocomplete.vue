@@ -10,6 +10,9 @@ export default {
       highlightedItem: -1
     }
   },
+  render(h) {
+      return this.getWrapperElement(h);
+  },
   methods: {
     getInputListeners() {
       return {
@@ -44,7 +47,7 @@ export default {
     },
     getChildrenElement(h) {
       return [
-        this.getLabelElement(h),
+        this.onlyInput ? null : this.getLabelElement(h),
         this.getInputElement(h),
         this.getDropdownElement(h)
       ];
