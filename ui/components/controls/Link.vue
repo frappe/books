@@ -44,7 +44,7 @@ export default {
     },
     getChildrenElement(h) {
       return [
-        this.getLabelElement(h),
+        this.onlyInput ? null : this.getLabelElement(h),
         this.getInputGroupElement(h),
         this.getDropdownElement(h)
       ];
