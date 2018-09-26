@@ -65,10 +65,18 @@ module.exports = {
             ]
         },
         {
-            fields: ['for']
+          columns: [
+            {
+              fields: ['for']
+            }
+          ]
         },
         {
-            fields: ['amount', 'writeoff']
+          columns: [
+            {
+              fields: ['amount', 'writeoff']
+            }
+          ]
         }
     ],
 

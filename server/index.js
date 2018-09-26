@@ -37,6 +37,15 @@ async function postStart() {
     await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
     registerReportMethods();
+
+    frappe.registerMethod({
+      method: 'import-coa',
+      handler() {
+        const standardCOA = require('../fixtures/standardCOA');
+        const importCOA = require('../models/doctype/Account/importCOA');
+        importCOA(standardCOA);
+      }
+    })
 }
 
 start();
