@@ -37,7 +37,10 @@ export default {
                 attrs: {
                     'data-fieldname': this.docfield.fieldname
                 }
-            }, [this.getLabelElement(h), this.getInputElement(h)]);
+            }, this.getChildrenElement(h));
+        },
+        getChildrenElement(h) {
+          return [this.getLabelElement(h), this.getInputElement(h)]
         },
         getLabelElement(h) {
             return h('label', {
@@ -77,9 +80,9 @@ export default {
         },
         getInputListeners() {
             return {
-                change: (e) => {
-                    this.handleChange(e.target.value);
-                }
+              change: (e) => {
+                  this.handleChange(e.target.value);
+              }
             };
         },
         getInputChildren() {
