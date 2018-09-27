@@ -22,11 +22,11 @@ export default {
         keydown: e => {
           if (e.keyCode === 38) {
             // up
-            this.highlightedItem -= 1;
+            this.highlightAboveItem();
           }
           if (e.keyCode === 40) {
             // down
-            this.highlightedItem += 1;
+            this.highlightBelowItem();
           }
           if (e.keyCode === 13) {
             if (this.highlightedItem > -1) {
@@ -43,6 +43,18 @@ export default {
             this.popupOpen = false;
           }, 200);
         }
+      }
+    },
+    highlightBelowItem() {
+      this.highlightedItem += 1;
+      if (this.highlightedItem > this.popupItems.length - 1) {
+        this.highlightedItem = this.popupItems.length - 1;
+      }
+    },
+    highlightAboveItem() {
+      this.highlightedItem -= 1;
+      if (this.highlightedItem < 0) {
+        this.highlightedItem = 0;
       }
     },
     getChildrenElement(h) {
