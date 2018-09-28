@@ -13,7 +13,13 @@ export default {
             type: Boolean,
             default: false
         },
-        disabled: Boolean
+        disabled: Boolean,
+        autofocus: Boolean
+    },
+    mounted() {
+      if (this.autofocus) {
+        this.$refs.input.focus();
+      }
     },
     computed: {
         id() {
@@ -33,9 +39,10 @@ export default {
     methods: {
         getWrapperElement(h) {
             return h('div', {
-                class: ['form-group', ...this.wrapperClass],
+                class: ['form-group', this.onlyInput ? 'mb-0' : '', ...this.wrapperClass],
                 attrs: {
-                    'data-fieldname': this.docfield.fieldname
+                    'data-fieldname': this.docfield.fieldname,
+                    'data-fieldtype': this.docfield.fieldtype
                 }
             }, this.getChildrenElement(h));
         },
