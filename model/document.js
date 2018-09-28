@@ -256,7 +256,7 @@ module.exports = class BaseDocument extends Observable {
           }
 
           if (!frappe.isServer) {
-            if (doc[field.fieldname] == null) {
+            if (doc[field.fieldname] == null || doc[field.fieldname] == '') {
               return true;
             }
           }
