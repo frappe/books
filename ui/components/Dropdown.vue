@@ -1,5 +1,5 @@
 <template>
-  <div class="dropdown show" ref="dropdownMenu">
+  <div class="dropdown show" ref="dropdownMenu" v-on-outside-click="hideDropdown">
       <button
         :id="_uid"
         class="btn btn-sm btn-light dropdown-toggle"
@@ -28,27 +28,17 @@ export default {
   data() {
     return {
       isShown: false
-    }
+    };
   },
-  methods:{
-      documentClick(e) {
-        let el = this.$refs.dropdownMenu;
-        let target = e.target;
-        if ((el !== target) && (!el.contains(target))) {
-          this.isShown = false;
-        }
-      }
-    },
-    created () {
-      document.addEventListener('click', this.documentClick);
-    },
-    destroyed () {
-      document.removeEventListener('click', this.documentClick);
+  methods: {
+    hideDropdown() {
+      this.isShown = false;
     }
+  }
 };
 </script>
 <style lang="scss">
-@import "../styles/variables.scss";
+@import '../styles/variables.scss';
 $dropdown-link-active-bg: $gray-300;
 
 .dropdown-item {
@@ -57,5 +47,4 @@ $dropdown-link-active-bg: $gray-300;
     @include gradient-bg($dropdown-link-active-bg);
   }
 }
-
 </style>
