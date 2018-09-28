@@ -5,6 +5,7 @@
     :value="value"
     :onlyInput="onlyInput"
     :disabled="isDisabled"
+    :autofocus="autofocus"
     @change="$emit('change', $event)"
   />
 </template>
@@ -28,7 +29,7 @@ import Text from './Text';
 import Time from './Time';
 
 export default {
-  props: ['docfield', 'value', 'onlyInput', 'doc'],
+  props: ['docfield', 'value', 'onlyInput', 'doc', 'autofocus'],
   computed: {
     component() {
       if (this.docfield.template) {
