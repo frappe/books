@@ -5,9 +5,11 @@ export default function installFormModal(Vue) {
   Vue.mixin({
     computed: {
       $formModal() {
+        let id;
+
         const open = (doc, options = {}) => {
           const { defaultValues = null, onClose = null } = options;
-          this.$modal.show({
+          id = this.$modal.show({
             component: Form,
             props: {
               doctype: doc.doctype,
@@ -23,7 +25,7 @@ export default function installFormModal(Vue) {
           });
         }
 
-        const close = () => this.$modal.hide();
+        const close = () => this.$modal.hide(id);
 
         return {
           open,
