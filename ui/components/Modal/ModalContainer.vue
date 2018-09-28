@@ -43,7 +43,7 @@ export default {
           message,
           stackTrace
         }
-      }); 
+      });
     });
   },
   methods: {

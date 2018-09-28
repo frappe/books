@@ -7,7 +7,7 @@ const Plugin = {
 
     Vue.prototype.$modal = {
       show(...args) {
-        Plugin.modalContainer.add(...args);
+        return Plugin.modalContainer.add(...args);
       },
 
       hide(id) {
