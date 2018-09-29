@@ -107,11 +107,15 @@ module.exports = class HTTPClient extends Observable {
   async fetch(url, args) {
     args.headers = this.getHeaders();
     let response = await frappe.fetch(url, args);
-    let data = await response.json();
+
+    if (response.status === 401) {
+      frappe.events.trigger('Unauthorized');
+    }
 
     if (response.status !== 200) {
       throw Error(data.error);
     }
+    let data = await response.json();
 
     return data;
   }
