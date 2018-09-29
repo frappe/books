@@ -20,7 +20,7 @@ export default {
           label: _('Tax'), route: '#/list/Tax'
         },
         {
-          label: _('Account'), route: '#/list/Account'
+          label: _('Account'), route: '#/tree/Account'
         }
       ]
     },
@@ -46,6 +46,9 @@ export default {
       items: [
         {
           label: _('General Ledger'), route: '#/report/general-ledger'
+        },
+        {
+          label: _('Sales Register'), route: '#/report/sales-register'
         }
       ]
     }
