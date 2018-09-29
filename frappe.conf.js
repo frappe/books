@@ -3,9 +3,11 @@ module.exports = {
   staticPath: './static',
   distPath: './dist',
   dev: {
+    entryHtml: 'src/index.html',
     entry: {
       app: './src/main.js'
     },
+    srcDir: './src',
     outputDir: './dist',
     assetsPublicPath: '/',
     devServerPort: 8000,
