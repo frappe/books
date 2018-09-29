@@ -55,6 +55,12 @@ function getConfig() {
                         'css-loader',
                         'sass-loader'
                     ]
+                },
+                {
+                    test: /\.(png|svg|jpg|gif)$/,
+                    use: [
+                      'file-loader'
+                    ]
                 }
             ]
         },
@@ -62,7 +68,8 @@ function getConfig() {
             extensions: ['.js', '.vue'],
             alias: {
                 'vue$': 'vue/dist/vue.esm.js',
-                'deepmerge$': 'deepmerge/dist/umd.js'
+                'deepmerge$': 'deepmerge/dist/umd.js',
+                '@': resolveAppDir(appConfig.dev.srcDir)
             }
         },
         plugins: [
@@ -71,7 +78,7 @@ function getConfig() {
             }),
             new plugins.VueLoader(),
             new plugins.Html({
-                template: resolveAppDir('src/index.html')
+                template: resolveAppDir(appConfig.dev.entryHtml)
             }),
             new plugins.CaseSensitivePaths(),
             new plugins.NamedModules(),
