@@ -1,6 +1,7 @@
 const mkdirp = require('mkdirp');
 const fs = require('fs');
-const getDirName = require('path').dirname;
+const path = require('path');
+const getDirName = path.dirname;
 const os = require('os');
 const sharp = require('sharp');
 
@@ -18,47 +19,54 @@ module.exports = {
     },
 
     readFile(filepath) {
-      return fs.readFileSync(filepath, 'utf-8');
+        return fs.readFileSync(filepath, 'utf-8');
     },
 
     getTmpDir() {
         return os.tmpdir();
     },
-    
+
     thumbnailMiddleware(staticPath) {
 
-        return function(req, res, next){    
+        return function (req, res, next) {
 
-            const file = (req.url).toString().replace(/\?.*/, "");
-            const dimension = req.query.size || ""
-            const staticFile = staticPath + file
+            const filename = req.path.split(path.sep).slice(-1)[0]
+            const dimension = req.query.size || null
+            const staticFile = path.join(staticPath, filename)
 
             fs.exists(staticFile, (exists) => {
-                if(!exists){
+                if (!exists) {
                     return next()
                 }
 
                 fs.stat(staticFile, (err, stats) => {
-                    if(err){
+                    if (err) {
                         throw err
                     }
 
                     //Check if url is static file
-                    if(stats.isFile()){
+                    if (stats.isFile()) {
 
-                        //Check if url has dimension parameters
-                        if(dimension != ""){
-                            const width = parseInt(dimension.split('x')[0])
-                            const height = parseInt(dimension.split('x')[1])
-                            const destination = staticPath + '/.thumbnails/' + width + 'x' + height + file.replace('/', '')
-                            
-                            //Check if thumbnail already present
+                        // Check if url has dimension parameters
+                        if (dimension) {
+                            let [width, height] = dimension.split('x');
+                            width = +width;
+                            height = +height;
+                            const thumbnailPath = path.join(staticPath, 'thumbnails');
+                            const destination = path.join(thumbnailPath, `${width}x${height}-${filename}`)
+
+                            // create thumbnails folder if not exists
+                            if (!fs.existsSync(thumbnailPath)) {
+                                fs.mkdirSync(thumbnailPath);
+                            }
+
+                            // Check if thumbnail already present
                             fs.existsSync(destination, (exists) => {
-                                if(exists)
+                                if (exists)
                                     return res.sendFile(destination)
                             })
 
-                            //Resize image
+                            // Resize image
                             sharp(staticFile)
                                 .resize(width, height)
                                 .toFile(destination)
@@ -73,7 +81,7 @@ module.exports = {
                             return res.sendFile(staticFile)
                         }
                     } else {
-                        console.log('File is not static.')
+                        // File is not static
                         return next()
                     }
                 })
