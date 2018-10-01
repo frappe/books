@@ -50,12 +50,16 @@ export default {
       if (this.highlightedItem > this.popupItems.length - 1) {
         this.highlightedItem = this.popupItems.length - 1;
       }
+
+      this.scrollToItem(this.highlightedItem);
     },
     highlightAboveItem() {
       this.highlightedItem -= 1;
       if (this.highlightedItem < 0) {
         this.highlightedItem = 0;
       }
+
+      this.scrollToItem(this.highlightedItem);
     },
     getChildrenElement(h) {
       return [
@@ -66,7 +70,8 @@ export default {
     },
     getDropdownElement(h) {
       return h('div', {
-        class: ['dropdown-menu w-100', this.popupOpen ? 'show' : '']
+        class: ['dropdown-menu w-100', this.popupOpen ? 'show' : ''],
+        ref: 'dropdown-menu'
       }, this.getDropdownItems(h));
     },
     getDropdownItems(h) {
@@ -77,6 +82,7 @@ export default {
             href: '#',
             'data-value': item.value
           },
+          ref: i,
           on: {
             click: e => {
               e.preventDefault();
@@ -92,6 +98,10 @@ export default {
     },
     onItemClick(item) {
       this.handleChange(item.value);
+    },
+    scrollToItem(i) {
+      const scrollTo = this.$refs[i].offsetTop - 5;
+      this.$refs['dropdown-menu'].scrollTop = scrollTo;
     },
     async updateList(keyword) {
       this.popupItems = await this.getList(keyword);
@@ -117,3 +127,9 @@ export default {
   }
 };
 </script>
+<style>
+.form-group[data-fieldtype="Link"] .dropdown-menu {
+  max-height: 200px;
+  overflow: auto;
+}
+</style>
