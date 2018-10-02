@@ -1,8 +1,10 @@
-
+// frappe.conf.js template
 module.exports = {
   staticPath: './static',
   distPath: './dist',
   dev: {
+    entryHtml: 'index.html',
+    srcDir: 'src',
     outputDir: './dist',
     assetsPublicPath: '/',
     devServerPort: 8000,
