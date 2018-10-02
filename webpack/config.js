@@ -69,7 +69,7 @@ function getConfig() {
             alias: {
                 'vue$': 'vue/dist/vue.esm.js',
                 'deepmerge$': 'deepmerge/dist/umd.js',
-                '@': resolveAppDir(appConfig.dev.srcDir)
+                '@': appConfig.dev.srcDir ? resolveAppDir(appConfig.dev.srcDir) : null
             }
         },
         plugins: [
