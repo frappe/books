@@ -17,8 +17,8 @@ const { setupExpressRoute: setRouteForPDF } = require('frappejs/server/pdf');
 const auth = require('./../auth/auth')();
 const morgan = require('morgan');
 const { addWebpackMiddleware } = require('../webpack/serve');
-const { getAppConfig } = require('../webpack/utils');
-const quickthumb = require('quickthumb')
+const { getAppConfig, resolveAppDir } = require('../webpack/utils');
+const { thumbnailMiddleware } = require('./utils');
 
 frappe.conf = getAppConfig();
 
@@ -42,7 +42,7 @@ module.exports = {
         app.use(bodyParser.urlencoded({ extended: true }));
 
         app.use(express.static(frappe.conf.distPath));
-        app.use('/static', quickthumb.static(path.resolve(frappe.conf.staticPath), { type: 'resize' }));
+        app.use('/static', thumbnailMiddleware(resolveAppDir(frappe.conf.staticPath)));
 
         app.use(morgan('tiny'));
 
