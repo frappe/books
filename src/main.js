@@ -9,6 +9,7 @@ import frappeVue from 'frappejs/ui/plugins/frappeVue';
 
 // frappejs imports
 import frappe from 'frappejs';
+import frappeConf from '../frappe.conf';
 import io from 'socket.io-client';
 import HTTPClient from 'frappejs/backends/http';
 import common from 'frappejs/common';
@@ -20,7 +21,7 @@ frappe.init();
 frappe.registerLibs(common);
 frappe.registerModels(coreModels);
 frappe.registerModels(models);
-const server = 'localhost:8000';
+const server = `localhost:${frappeConf.dev.devServerPort}`;
 frappe.fetch = window.fetch.bind();
 frappe.db = new HTTPClient({ server });
 const socket = io.connect(`http://${server}`);
@@ -33,7 +34,7 @@ frappe.getSingle('AccountingSettings')
     if (router.currentRoute.fullPath !== '/') return;
 
     if (accountingSettings.companyName) {
-      router.push('/list/ToDo');
+      router.push('/tree/Account');
     } else {
       router.push('/setup-wizard');
     }
