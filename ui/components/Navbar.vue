@@ -8,7 +8,7 @@
 				class="form-control shadow-none w-100"
 				:placeholder="_('Search...')">
 		</form>
-		<div class="navbar-text">.</div>
+		<div class="navbar-text">&nbsp;</div>
 	</nav>
 </template>
 <script>
