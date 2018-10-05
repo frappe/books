@@ -40,10 +40,10 @@ async function postStart() {
 
     frappe.registerMethod({
       method: 'import-coa',
-      handler() {
+      async handler() {
         const standardCOA = require('../fixtures/standardCOA');
         const importCOA = require('../models/doctype/Account/importCOA');
-        importCOA(standardCOA);
+        await importCOA(standardCOA);
       }
     })
 }
