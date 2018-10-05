@@ -70,7 +70,14 @@ export default {
 
       return Boolean(disabled);
     }
-  }
+  },
+  provide() {
+    return {
+      dynamicLinkTarget: reference => {
+        return this.doc[reference];
+      }
+    };
+  },
 };
 </script>
 <style scoped>
