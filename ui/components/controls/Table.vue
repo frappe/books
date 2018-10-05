@@ -28,7 +28,7 @@
             :ref="column.fieldname + i"
             @click="activateFocus(i, column.fieldname)"
             @dblclick="activateEditing(i, column.fieldname)"
-            @keydown.enter="enterPressOnCell(i, column.fieldname)"
+            @keydown.enter="enterPressOnCell()"
             @keydown.shift.tab="focusPreviousCell(i, column.fieldname)"
             @keydown.tab="focusNextCell(i, column.fieldname)"
             @keydown.left="focusPreviousCell(i, column.fieldname)"
@@ -93,12 +93,13 @@ export default {
       this.deactivateEditing();
       this.activateFocus(i, fieldname);
     },
-    enterPressOnCell(i, fieldname) {
-      if (this.isEditing(i, fieldname)) {
+    enterPressOnCell() {
+      const { index, fieldname } = this.currentlyFocused;
+      if (this.isEditing(index, fieldname)) {
         this.deactivateEditing();
-        this.activateFocus(i, fieldname);
+        this.activateFocus(index, fieldname);
       } else {
-        this.activateEditing(i, fieldname);
+        this.activateEditing(index, fieldname);
       }
     },
     focusPreviousCell(i, fieldname) {
