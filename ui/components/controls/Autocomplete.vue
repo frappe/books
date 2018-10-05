@@ -13,6 +13,13 @@ export default {
   render(h) {
       return this.getWrapperElement(h);
   },
+  watch: {
+    // prop change does not change the value of input
+    // this only happens for Autocomplete
+    value(newValue) {
+      this.$refs.input.value = newValue;
+    }
+  },
   methods: {
     getInputListeners() {
       return {
