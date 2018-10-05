@@ -8,11 +8,6 @@ import { _ } from 'frappejs/utils';
 
 export default {
   extends: Autocomplete,
-  watch: {
-    value(newValue) {
-      this.$refs.input.value = newValue;
-    }
-  },
   methods: {
     async getList(query) {
       const list = await frappe.db.getAll({
