@@ -38,6 +38,7 @@ module.exports = {
       label: 'Account',
       fieldtype: 'Link',
       target: 'Account',
+      formula: (doc) => doc.getFrom('Party', doc.customer , 'default_account'),
       getFilters: (query, control) => {
         return {
           keywords: ['like', query],
@@ -58,14 +59,15 @@ module.exports = {
       label: 'Net Total',
       fieldtype: 'Currency',
       formula: (doc) => doc.getSum('items', 'amount'),
-      disabled: true
+      disabled: true,
+      readOnly: 1
     },
     {
       fieldname: 'taxes',
       label: 'Taxes',
       fieldtype: 'Table',
       childtype: 'TaxSummary',
-      disabled: true,
+      readOnly: 1,
       template: (doc, row) => {
         return `<div class='row'>
                     <div class='col-6'></div>
@@ -85,7 +87,8 @@ module.exports = {
       label: 'Grand Total',
       fieldtype: 'Currency',
       formula: (doc) => doc.getGrandTotal(),
-      disabled: true
+      disabled: true,
+      readOnly: 1
     },
     {
       fieldname: 'terms',
@@ -135,6 +138,10 @@ module.exports = {
         payment.party = form.doc.customer;
         payment.account = form.doc.account;
         payment.for = [{ referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal }];
+        payment.on('afterInsert', () => {
+          form.$formModal.close();
+          payment.submit();
+        })
         await form.$formModal.open(payment);
       }
     }

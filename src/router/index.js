@@ -2,7 +2,6 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import coreRoutes from 'frappejs/ui/routes';
 
-import SetupWizard from '../pages/SetupWizard';
 import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
 import EmailListForm from '../pages/Email/EmailListForm';
@@ -10,13 +9,7 @@ import EmailAccount from '../pages/EmailAccount/EmailAccount';
 
 Vue.use(Router);
 
-const routes = [].concat(coreRoutes, [{
-    path: '/setup-wizard',
-    name: 'SetupWizard',
-    components: {
-      setup: SetupWizard
-    }
-  },
+const routes = [].concat(coreRoutes, [
   {
     path: '/report/:reportName',
     name: 'Report',

@@ -14,6 +14,19 @@ module.exports = {
             "required": 1
         },
         {
+          fieldname: 'default_account',
+          label: 'Default Account',
+          fieldtype: 'Link',
+          target: 'Account',
+          getFilters: (query, control) => {
+            return {
+              keywords: ['like', query],
+              isGroup: 0,
+              accountType: 'Receivable'
+            };
+          }
+        },
+        {
             "fieldname": "customer",
             "label": "Customer",
             "fieldtype": "Check"
@@ -29,15 +42,10 @@ module.exports = {
         {
             label: 'Invoices',
             condition: (form) => form.doc.customer,
-            action: (form) => {
-                return {
-                    route: ['table', 'Invoice'],
-                    params: {
-                        filters: {
-                            customer: form.doc.name,
-                        }
-                    }
-                };
+            action: form => {
+              form.$router.push({
+                path: `/report/sales-register?&customer=${form.doc.name}`
+              });
             }
         }
     ]

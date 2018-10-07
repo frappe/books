@@ -3,7 +3,7 @@
     <frappe-desk v-if="showDesk" :sidebarConfig="sidebarConfig">
       <router-view />
     </frappe-desk>
-    <router-view v-else name="setup" />
+    <setup-wizard v-else/>
   </div>
 </template>
 <script>
@@ -12,6 +12,7 @@ import Observable from 'frappejs/utils/observable';
 import Desk from 'frappejs/ui/components/Desk';
 import sidebarConfig from './sidebarConfig';
 import emailConfig from './emailConfig';
+import SetupWizard from './pages/SetupWizard/SetupWizard';
 
 export default {
   name: 'App',
@@ -32,15 +33,21 @@ export default {
     }
   },
   components: {
-    FrappeDesk: Desk
+    FrappeDesk: Desk,
+    SetupWizard
   },
-  async beforeRouteUpdate(to, from, next) {
+  async created() {
     const accountingSettings = await frappe.getSingle('AccountingSettings');
     if (accountingSettings.companyName) {
       this.showDesk = true;
     } else {
-      this.showDesk = true;
+      this.showDesk = false;
     }
+
+    frappe.events.on('setup-complete', () => {
+      this.showDesk = true;
+      this.$router.push('/tree/Account');
+    });
   }
 };
 </script>
