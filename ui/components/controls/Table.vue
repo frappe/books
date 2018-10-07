@@ -29,10 +29,10 @@
             @click="activateFocus(i, column.fieldname)"
             @dblclick="activateEditing(i, column.fieldname)"
             @keydown.enter="enterPressOnCell()"
-            @keydown.shift.tab="focusPreviousCell(i, column.fieldname)"
-            @keydown.tab="focusNextCell(i, column.fieldname)"
-            @keydown.left="focusPreviousCell(i, column.fieldname)"
-            @keydown.right="focusNextCell(i, column.fieldname)"
+            @keydown.tab.exact.prevent="focusNextCell()"
+            @keydown.shift.tab.exact.prevent="focusPreviousCell()"
+            @keydown.left="focusPreviousCell()"
+            @keydown.right="focusNextCell()"
             @keydown.up="focusAboveCell(i, column.fieldname)"
             @keydown.down="focusBelowCell(i, column.fieldname)"
             @keydown.esc="escOnCell(i, column.fieldname)"
@@ -102,34 +102,37 @@ export default {
         this.activateEditing(index, fieldname);
       }
     },
-    focusPreviousCell(i, fieldname) {
-      if (this.isFocused(i, fieldname) && !this.isEditing(i, fieldname)) {
+    focusPreviousCell() {
+      let { index, fieldname } = this.currentlyFocused;
+      if (this.isFocused(index, fieldname) && !this.isEditing(index, fieldname)) {
         let pos = this._getColumnIndex(fieldname);
-        pos = pos - 1;
+        pos -= 1;
         if (pos < 0) {
-          i -= 1;
+          index -= 1;
           pos = this.columns.length - 1;
         }
-        if (i < 0) {
-          i = 0;
+        if (index < 0) {
+          index = 0;
           pos = 0;
         }
-        this.activateFocus(i, this.columns[pos].fieldname);
+        this.activateFocus(index, this.columns[pos].fieldname);
       }
     },
-    focusNextCell(i, fieldname) {
-      if (this.isFocused(i, fieldname) && !this.isEditing(i, fieldname)) {
+    focusNextCell() {
+      let { index, fieldname } = this.currentlyFocused;
+      if (this.isFocused(index, fieldname) && !this.isEditing(index, fieldname)) {
+
         let pos = this._getColumnIndex(fieldname);
-        pos = pos + 1;
+        pos += 1;
         if (pos > this.columns.length - 1) {
-          i += 1;
+          index += 1;
           pos = 0;
         }
-        if (i > this.rows.length - 1) {
-          i = this.rows.length - 1;
+        if (index > this.rows.length - 1) {
+          index = this.rows.length - 1;
           pos = this.columns.length - 1;
         }
-        this.activateFocus(i, this.columns[pos].fieldname);
+        this.activateFocus(index, this.columns[pos].fieldname);
       }
     },
     focusAboveCell(i, fieldname) {
