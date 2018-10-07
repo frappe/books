@@ -31,6 +31,12 @@ export default {
         },
         {
           label: _('Draft'), route: '#/list/Email/DRAFT'
+        },
+        {
+          label: _('Spam'), route: '#/list/Email/SPAM'
+        },
+        {
+          label: _('Trash'), route: '#/list/Email/TRASH'
         }
       ]
     }

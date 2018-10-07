@@ -120,7 +120,13 @@ export default {
         filters = { fromEmailAddress: this.selectedId, sent: '1' };
       } else if (this.tab == 'INBOX') {
         filters = { toEmailAddress: this.selectedId, sent: '0' };
+      } else {
+        filters = {
+          toEmailAddress: this.selectedId,
+          syncOption: this.tab
+        };
       }
+
       const indicatorField = this.hasIndicator
         ? this.meta.indicators.key
         : null;
@@ -136,7 +142,6 @@ export default {
         filters: filters,
         orderBy: 'date'
       });
-
       this.data = data;
       this.updateViewList();
     },

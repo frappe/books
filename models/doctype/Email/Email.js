@@ -117,5 +117,12 @@ module.exports = {
             "hidden": 1,
             "disabled": 0
         },
+        {
+            "fieldname": "syncOption",
+            "label": "Sync Option",
+            "fieldtype": "Data", 
+            "required": 0,
+            "hidden": 1,
+        }
     ]
 }
