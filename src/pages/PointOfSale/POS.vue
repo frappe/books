@@ -21,15 +21,23 @@
                               <tr v-bind:class="{detailsCollapsed: detailsCollapsed}">
                                   <td>Subtotal:</td>
                                   <td style="text-align:right">{{ this.netTotal }}</td>
+                                  <td></td>
                               </tr>
                               <tr v-bind:class="{detailsCollapsed: detailsCollapsed}">
                                   <td>Tax:</td>
                                   <td style="text-align:right">{{ this.grandTotal-this.netTotal }}</td>
+                                  <td></td>
                               </tr>
                               <tr class="collapsible" @click="detailsCollapsed = !detailsCollapsed">
                                   <td>Total:</td>
                                   <td style="text-align:right">{{ this.grandTotal }}</td>
-                                  <!-- <td class="collapsible-icon">{{ detailsCollapsed ? "v" : "^" }}</td> -->
+                                  
+                                  <td v-if="detailsCollapsed" class="collapsible-icon">
+                                    <feather-icon style="height: 16px" name="chevron-down" />
+                                  </td>
+                                  <td v-else class="collapsible-icon">
+                                    <feather-icon style="height: 16px" name="chevron-up" />
+                                  </td>
                               </tr>
                           </tbody>
                       </table>
@@ -53,7 +61,7 @@
                     <br>
                 <!-- </div> -->
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-8 ml-0">
                   <div class="row">
                       <div class="col-md-6">
                           <h6>Item Select</h6>
@@ -323,6 +331,7 @@ export default {
   /* padding: 0%; */
   text-align: right;
   font-size: 16px;
+  width: 16px;
 }
 .detailsCollapsed {
   display: none;

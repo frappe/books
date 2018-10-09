@@ -2,7 +2,7 @@
   <div class="row scroll-y-wrapper">
     <button class="list-group-item item-grid" v-for="item in items" :key="item.name" @click="itemClicked(item)"> 
       <strong>{{ item.name }}</strong><br>
-        <img v-bind:src=item.image><br>
+        <img v-bind:src=item.image class="my-2"><br>
       <strong>INR</strong> - {{ item.rate }}
     </button>
   </div>
@@ -29,7 +29,8 @@ img {
   height: 200px;
 }
 .scroll-y-wrapper {
-  max-height: 350px;
+  max-height: 400px;
   overflow-y: scroll;
+  margin: 0px;
 }
 </style>

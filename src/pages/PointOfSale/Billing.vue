@@ -1,5 +1,5 @@
 <template>
-  <button class="list-group-item item" @click="printPDF()">
+  <button class="btn btn-primary" @click="printPDF()">
     <strong>Print Bill</strong>
   </button>
 </template>

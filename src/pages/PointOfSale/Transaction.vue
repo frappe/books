@@ -1,23 +1,27 @@
 <template>
     <div class="scroll-y-wrapper">
-        <table class="table table-striped table-hover table-bordered " v-if="items.length">
+        <table class="table table-striped table-hover " v-if="items.length">
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Number of Items</th>
-                    <th>Amount</th>
+                    <th>Quantity</th>
+                    <th class="text-right">Amount</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="item in items" :key="item.name">
                     <td>{{ item.item.name }}</td>
-                    <td>
-                        <span v-if="!item.editing" @click="toggleEdit(item)">{{ item.numberOfItems }}</span>
-                        <input v-if="item.editing" @blur="toggleEdit(item)" type="number" min=1 v-model="item.numberOfItems">
+                    <td class="p-0 fix-width">
+                        <div v-if="!item.editing" @click="toggleEdit(item)" class="pl-3 pt-2">{{ item.numberOfItems }}</div>
+                        <input autofocus v-if="item.editing" @blur="toggleEdit(item)" class="form-control mt-1" type="number" min=1 v-model="item.numberOfItems">
                     </td>
-                    <td style="text-align:right">{{ item.numberOfItems * item.item.rate }}</td>
-                    <td><a class="fa fa-times" @click="removeItem(item)">X</a></td>
+                    <td class="text-right">{{ item.numberOfItems * item.item.rate }}</td>
+                    <td>
+                        <a @click="removeItem(item)">
+                            <feather-icon name="x"/>
+                        </a>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -43,5 +47,11 @@ export default {
 .scroll-y-wrapper {
   max-height: 250px;
   overflow-y: scroll;
+}
+.table {
+    margin-bottom: 0px;
+}
+.fix-width {
+    width: 48px;
 }
 </style>

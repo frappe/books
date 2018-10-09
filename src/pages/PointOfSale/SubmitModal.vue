@@ -1,9 +1,9 @@
 <template>
 <div class="col-md-12">
-    <div class="list-group">
+    <div class="list-group p-5">
         <billing :items="lineItems" :customer="customer" :netTotal="netTotal" :grandTotal="grandTotal"></billing>
         <br>
-        <button class="list-group-item item" @click="clearform()">
+        <button class="btn btn-light border" @click="clearform()">
             <strong>Clear Form</strong>
         </button>
     </div>
