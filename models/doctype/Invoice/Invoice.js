@@ -151,5 +151,25 @@ module.exports = {
                     <div class='col-4 text-muted'>${data.customer}</div>
                     <div class='col-4 text-muted text-right'>${frappe.format(data.grandTotal, 'Currency')}</div>`;
     }
+  },
+
+  listView: {
+    columns: [
+      'customer',
+      {
+        label: 'Status',
+        getValue(doc) {
+          return doc.submitted ? 'Paid' : 'Pending';
+        }
+      },
+      'grandTotal',
+      'date',
+      {
+        label: 'INV #',
+        getValue(doc) {
+          return doc.name;
+        }
+      }
+    ]
   }
 };
