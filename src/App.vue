@@ -1,46 +1,24 @@
 <template>
   <div id="app">
-    <frappe-desk v-if="showDesk" :sidebarConfig="sidebarConfig">
-      <router-view />
-    </frappe-desk>
-    <router-view v-else name="setup" />
+    <div class="row no-gutters">
+      <sidebar class="col-2" />
+      <div class="page-container col-10 bg-light">
+        <router-view />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
-import Observable from 'frappejs/utils/observable';
-import Desk from 'frappejs/ui/components/Desk';
-import sidebarConfig from './sidebarConfig';
+import Sidebar from './components/Sidebar';
 
 export default {
   name: 'App',
-  data() {
-    return {
-      showDesk: true,
-      sidebarConfig
-    }
-  },
   components: {
-    FrappeDesk: Desk,
-  },
-  async beforeRouteUpdate(to, from, next) {
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    if (accountingSettings.companyName) {
-      this.showDesk = true;
-    } else {
-      this.showDesk = true;
-    }
+    Sidebar
   }
 }
 </script>
-
 <style lang="scss">
-@import "~bootstrap/scss/bootstrap";
-@import '~frappe-datatable/dist/frappe-datatable';
-
-html {
-  font-size: 14px;
-}
-
+@import "styles/index.scss";
 </style>
