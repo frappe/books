@@ -5,6 +5,8 @@ import coreRoutes from 'frappejs/ui/routes';
 import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
 
+import DataImport from '../pages/DataImport';
+
 Vue.use(Router);
 
 const routes = [].concat(coreRoutes, [
@@ -20,6 +22,11 @@ const routes = [].concat(coreRoutes, [
         filters: route.query
       };
     }
+  },
+  {
+    path: '/data-import',
+    name: 'Data Import',
+    component: DataImport
   }
 ]);
 
