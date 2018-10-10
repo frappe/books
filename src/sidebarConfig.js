@@ -56,7 +56,17 @@ export default {
       title: _('Tools'),
       items: [
         {
-          label: _('Data Import'), route: '#/data-import'
+          label: _('Data Import'),
+          route: '#/data-import'
+        }
+      ]
+    },
+    {
+      title: _('Kanbans'),
+      items: [
+        {
+          label: _('Kanban List'),
+          route: '#/kanban'
         }
       ]
     }
