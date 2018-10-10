@@ -51,6 +51,14 @@ export default {
           label: _('Sales Register'), route: '#/report/sales-register'
         }
       ]
+    },
+    {
+      title: _('Tools'),
+      items: [
+        {
+          label: _('Data Import'), route: '#/data-import'
+        }
+      ]
     }
   ]
 };
