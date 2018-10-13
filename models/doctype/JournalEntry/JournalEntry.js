@@ -68,7 +68,11 @@ module.exports = {
 
         },
         // section 2
-        { fields: ["accounts"]},
+        {
+          columns: [
+            { fields: ["accounts"]},
+          ]
+        },
         // section 3
         {
             columns: [
@@ -78,6 +82,8 @@ module.exports = {
             ]
         },
         // section 4
-        { fields: [ "userRemark" ] },
+        {
+          columns: [{ fields: [ "userRemark" ] }],
+        }
     ]
 }

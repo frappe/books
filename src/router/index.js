@@ -2,20 +2,14 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import coreRoutes from 'frappejs/ui/routes';
 
-import SetupWizard from '../pages/SetupWizard';
 import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
+
+import DataImport from '../pages/DataImport';
 
 Vue.use(Router);
 
 const routes = [].concat(coreRoutes, [
-  {
-    path: '/setup-wizard',
-    name: 'SetupWizard',
-    components: {
-      setup: SetupWizard
-    }
-  },
   {
     path: '/report/:reportName',
     name: 'Report',
@@ -28,6 +22,11 @@ const routes = [].concat(coreRoutes, [
         filters: route.query
       };
     }
+  },
+  {
+    path: '/data-import',
+    name: 'Data Import',
+    component: DataImport
   }
 ]);
 

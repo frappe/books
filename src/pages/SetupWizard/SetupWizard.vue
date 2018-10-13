@@ -54,30 +54,35 @@ export default {
   },
   methods: {
     async submit() {
-      const {
-        companyName,
-        country,
-        name,
-        email,
-        abbreviation,
-        bankName,
-        fiscalYearStart,
-        fiscalYearEnd
-      } = this.doc;
+      try {
+        const {
+          companyName,
+          country,
+          name,
+          email,
+          abbreviation,
+          bankName,
+          fiscalYearStart,
+          fiscalYearEnd
+        } = this.doc;
 
-      const doc = await frappe.getSingle('AccountingSettings');
-      await doc.set({
-        companyName,
-        country,
-        fullname: name,
-        email,
-        bankName,
-        fiscalYearStart,
-        fiscalYearEnd
-      });
-      await doc.update();
+        const doc = await frappe.getSingle('AccountingSettings');
+        await doc.set({
+          companyName,
+          country,
+          fullname: name,
+          email,
+          bankName,
+          fiscalYearStart,
+          fiscalYearEnd
+        });
 
-      this.$router.push('/list/ToDo');
+        await doc.update();
+        await frappe.call({ method: 'import-coa'});
+        frappe.events.trigger('setup-complete');
+      } catch (e) {
+        console.error(e);
+      }
     },
     nextSection() {
       this.currentSection += 1;
