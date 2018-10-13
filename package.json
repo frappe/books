@@ -16,7 +16,5 @@
     "test": "mocha tests",
     "start": "frappe start"
   },
-  "dependencies": {
-    "frappejs": "^0.0.10"
-  }
+  "dependencies": {}
 }
