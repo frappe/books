@@ -290,32 +290,29 @@ export default {
   }
 };
 </script>
-<style>
-.table-cell .form-control {
+<style lang="scss" scoped>
+td {
+  padding: 0;
+  outline: none;
+}
+
+.table-cell {
+  padding: 0.75rem;
+  border: 1px solid transparent;
+
+  &.active {
+    border: 1px solid var(--blue);
+  }
+}
+
+.form-control, .form-group .form-control {
   padding: 0;
   border: none;
   box-shadow: none;
   outline: none;
 }
 
-.table td {
-  padding: 0;
-}
-
-.table-cell {
-  padding: 0.75rem;
-  border: 1px solid transparent;
-}
-
-.table [data-fieldtype='Link'] .input-group-append {
+[data-fieldtype='Link'] .input-group-append {
   display: none;
-}
-
-td {
-  outline: none;
-}
-
-.table-cell.active {
-  border: 1px solid var(--blue);
 }
 </style>
