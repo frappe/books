@@ -72,7 +72,7 @@ module.exports = {
     ],
     titleField: 'title',
     keywordFields: [],
-    keywords: ['title'],
+    keywords: ['title','startDate','startTime','endDate','endTime'],
     isSingle: 0,
     listSettings: {
         getFields(list)  {
