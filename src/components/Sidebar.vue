@@ -63,7 +63,12 @@ export default {
   cursor: pointer;
   border-radius: $border-radius;
 
-  &:hover, &.active {
+  &:hover {
+    color: $gray-300;
+  }
+
+  &.active {
+    color: $white;
     background-color: $primary;
   }
 }
