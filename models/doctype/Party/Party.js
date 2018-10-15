@@ -48,6 +48,12 @@ module.exports = {
               });
             }
         }
-    ]
+    ],
+
+    listView: {
+      columns: [
+        'name'
+      ]
+    }
 
 }
