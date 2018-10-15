@@ -8,7 +8,6 @@
           :title="formTitle"
           @reply="openReply"
         />
-        <!-- Show From to subject etc -->
          <div v-if="doc.bodyHtml" v-html="doc.bodyHtml"></div>
          <div v-else>{{ doc.bodyText }}</div> <!-- needs to be fixed shows '0' ^ -->
 
@@ -45,7 +44,7 @@ export default {
     }
   },
   methods: {
-    // Validation
+    // TODO: Validation
     async openReply() {
       let doc = await frappe.getNewDoc(this.doctype);
       let emailFields = frappe.getMeta('Email').fields;
@@ -55,7 +54,7 @@ export default {
       doc['toEmailAddress'] = this.doc['fromEmailAddress'];
       doc['subject'] = 'Re: ' + this.doc['subject'];
       doc['replyId'] = this.doc['name'];
-      emailFields[6].disabled = true;
+      // emailFields[6].disabled = true;  SHOULD BE DISABLED
 
       // FROM EMAIL : Same
       this.$modal.show({

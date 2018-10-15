@@ -7,15 +7,18 @@ import reportViewConfig from '../../reports/view';
 import EmailListForm from '../pages/Email/EmailListForm';
 import EmailAccount from '../pages/EmailAccount/EmailAccount';
 
+import DataImport from '../pages/DataImport';
+
 Vue.use(Router);
 
-const routes = [].concat(coreRoutes, [
-  {
+const routes = [].concat(coreRoutes, [{
     path: '/report/:reportName',
     name: 'Report',
     component: Report,
     props: (route) => {
-      const { reportName } = route.params;
+      const {
+        reportName
+      } = route.params;
       return {
         reportName,
         reportConfig: reportViewConfig[reportName] || null,
@@ -40,7 +43,13 @@ const routes = [].concat(coreRoutes, [
     name: 'Email Account',
     component: EmailAccount,
     props: true
+  }, {
+    path: '/data-import',
+    name: 'Data Import',
+    component: DataImport
   }
 ]);
 
-export default new Router({ routes });
+export default new Router({
+  routes
+});

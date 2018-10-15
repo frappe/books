@@ -21,9 +21,10 @@
                     <div class="list-item">
                       <div v-if="tab=='SENT'"> <b> {{ doc.toEmailAddress | truncate(50)}} </b> </div>
                       <div v-else> <b> {{ doc.fromEmailAddress | truncate(30) }} </b> </div> 
-                      <div> <i> {{ doc.date | truncate(50) }} </i></div>
+                      <div> <i> {{ doc.date }} </i></div>
                       <div><i>   {{ doc.subject | truncate(50) }}</i></div>
                     </div>
+                    
                 </list-item>
             </ul>
             <div v-if="totalPages() > 0" class="pagination-wrapper">
@@ -192,13 +193,12 @@ export default {
 };
 
 Vue.filter('truncate', function(text, stop, clamp) {
-  return text.slice(0, stop) + (stop < text.length ? clamp || '...' : '');
+  if (text) {
+    return text.slice(0, stop) + (stop < text.length ? clamp || '...' : '');
+  }
+  return '< NO TEXT >';
 });
 
-// Vue.filter('format', function(date) {
-//   date = date.split(' ');
-//   return date[0] + ' ' + date[1] + ' ' + date[2] + ' ' + date[4].slice(0, 5);
-// });
 </script>
 <style>
 .list-group {

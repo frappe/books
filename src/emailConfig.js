@@ -21,22 +21,22 @@ export default {
       title: 'App',
       items: [
         {
-          label: _('Inbox'), route: '#/list/Email/INBOX'
+          label: _('INBOX'), route: '#/list/Email/INBOX'
         },
         {
-          label: _('Sent'), route: '#/list/Email/SENT'
+          label: _('SENT'), route: '#/list/Email/SENT'
         },
         {
-          label: _('Starred'), route: '#/list/Email/STARRED'
+          label: _('STARRED'), route: '#/list/Email/STARRED'
         },
         {
-          label: _('Draft'), route: '#/list/Email/DRAFT'
+          label: _('DRAFT'), route: '#/list/Email/DRAFT'
         },
         {
-          label: _('Spam'), route: '#/list/Email/SPAM'
+          label: _('SPAM'), route: '#/list/Email/SPAM'
         },
         {
-          label: _('Trash'), route: '#/list/Email/TRASH'
+          label: _('TRASH'), route: '#/list/Email/TRASH'
         }
       ]
     }
