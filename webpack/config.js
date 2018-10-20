@@ -20,7 +20,7 @@ const plugins = {
 const appConfig = getAppConfig();
 const isProduction = process.env.NODE_ENV === 'production';
 const isElectron = process.env.ELECTRON === 'true';
-const isMonoRepo = process.env.MONO_REPO === 'true' || true;
+const isMonoRepo = process.env.MONO_REPO === 'true';
 
 const whiteListedModules = ['vue'];
 const externals = Object.keys(allDependencies).filter(d => !whiteListedModules.includes(d))
