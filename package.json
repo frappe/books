@@ -14,7 +14,8 @@
   "license": "MIT",
   "scripts": {
     "test": "mocha tests",
-    "start": "frappe start"
+    "start": "frappe start",
+    "electron": "ELECTRON=true frappe start electron"
   },
   "dependencies": {
     "frappejs": "^0.0.10"

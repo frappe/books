@@ -7,22 +7,22 @@ import frappeVue from 'frappejs/ui/plugins/frappeVue';
 // frappejs imports
 import frappe from 'frappejs';
 import frappeConf from '../frappe.conf';
-import io from 'socket.io-client';
 import HTTPClient from 'frappejs/backends/http';
+import SQLite from 'frappejs/backends/sqlite';
 import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
 import registerReportMethods from '../reports';
 
+console.log('electron is here')
+
 frappe.init();
 frappe.registerLibs(common);
 frappe.registerModels(coreModels);
 frappe.registerModels(models);
-const server = `localhost:${frappeConf.dev.devServerPort}`;
 frappe.fetch = window.fetch.bind();
-frappe.db = new HTTPClient({ server });
-const socket = io.connect(`http://${server}`);
-frappe.db.bindSocketClient(socket);
+frappe.db = new SQLite({ dbPath: 'test.db' });
+
 frappe.getSingle('SystemSettings');
 registerReportMethods();
 
