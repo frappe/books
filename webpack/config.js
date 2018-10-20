@@ -1,6 +1,10 @@
 const path = require('path');
 const webpack = require('webpack');
 const { getAppConfig, resolveAppDir } = require('./utils');
+const appPackageJson = require(resolveAppDir('./package.json'));
+const appDependencies = appPackageJson.dependencies;
+const frappeDependencies = require('../package.json').dependencies;
+const allDependencies = Object.assign(frappeDependencies, appDependencies);
 
 const plugins = {
     NamedModules: webpack.NamedModulesPlugin,
@@ -15,16 +19,26 @@ const plugins = {
 
 const appConfig = getAppConfig();
 const isProduction = process.env.NODE_ENV === 'production';
+const isElectron = process.env.ELECTRON === 'true';
+const isMonoRepo = process.env.MONO_REPO === 'true' || true;
+
+const whiteListedModules = ['vue'];
+const externals = Object.keys(allDependencies).filter(d => !whiteListedModules.includes(d))
+
+console.log(externals);
 
 function getConfig() {
     const config = {
         mode: isProduction ? 'production' : 'development',
         context: resolveAppDir(),
-        entry: appConfig.dev.entry,
+        entry: isElectron ? appConfig.electron.entry : appConfig.dev.entry,
+        externals: isElectron ? externals : null,
+        target: isElectron ? 'electron-renderer' : 'web',
         output: {
-            path: path.resolve(appConfig.dev.outputDir),
+            path: isElectron ? resolveAppDir('./dist/electron') : resolveAppDir('./dist'),
             filename: '[name].js',
-            publicPath: appConfig.dev.assetsPublicPath
+            publicPath: appConfig.dev.assetsPublicPath,
+            libraryTarget: isElectron ? 'commonjs2' : null
         },
         devtool: 'cheap-module-eval-source-map',
         module: {
@@ -40,6 +54,10 @@ function getConfig() {
                         /node_modules/.test(file) &&
                         !/\.vue\.js/.test(file)
                     )
+                },
+                {
+                    test: /\.node$/,
+                    use: 'node-loader'
                 },
                 {
                     test: /\.css$/,
@@ -59,13 +77,13 @@ function getConfig() {
                 {
                     test: /\.(png|svg|jpg|gif)$/,
                     use: [
-                      'file-loader'
+                        'file-loader'
                     ]
                 }
             ]
         },
         resolve: {
-            extensions: ['.js', '.vue'],
+            extensions: ['.js', '.vue', '.json', '.css', '.node'],
             alias: {
                 'vue$': 'vue/dist/vue.esm.js',
                 'deepmerge$': 'deepmerge/dist/umd.js',
@@ -78,7 +96,10 @@ function getConfig() {
             }),
             new plugins.VueLoader(),
             new plugins.Html({
-                template: resolveAppDir(appConfig.dev.entryHtml)
+                template: resolveAppDir(appConfig.dev.entryHtml),
+                nodeModules: !isProduction
+                  ? isMonoRepo ? resolveAppDir('../../node_modules') : resolveAppDir('./node_modules')
+                  : false
             }),
             new plugins.CaseSensitivePaths(),
             new plugins.NamedModules(),
@@ -114,6 +135,27 @@ function getConfig() {
             child_process: 'empty'
         }
     }
+
+    // if (process.env.NODE_ENV === 'production') {
+    //     config.devtool = ''
+
+    //     config.plugins.push(
+    //         new BabiliWebpackPlugin(),
+    //         new CopyWebpackPlugin([
+    //             {
+    //                 from: path.join(__dirname, '../static'),
+    //                 to: path.join(__dirname, '../dist/electron/static'),
+    //                 ignore: ['.*']
+    //             }
+    //         ]),
+    //         new webpack.DefinePlugin({
+    //             'process.env.NODE_ENV': '"production"'
+    //         }),
+    //         new webpack.LoaderOptionsPlugin({
+    //             minimize: true
+    //         })
+    //     )
+    // }
 
     return config;
 }

@@ -52,7 +52,8 @@ function startWebpackDevServer() {
 
 function addWebpackEntryPoints(webpackConfig, forDevServer) {
     const devServerEntryPoints = [
-        resolveAppDir('node_modules/webpack-dev-server/client/index.js') + '?http://localhost',
+        // resolveAppDir('node_modules/webpack-dev-server/client/index.js') + '?http://localhost',
+        'webpack-dev-server/client/index.js?http://localhost',
         'webpack/hot/dev-server'
     ];
     const middlewareEntryPoints = [

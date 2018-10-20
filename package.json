@@ -24,6 +24,7 @@
     "css-loader": "^1.0.0",
     "deepmerge": "^2.1.0",
     "electron": "^3.0.2",
+    "electron-builder": "^20.28.4",
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
     "express": "^4.16.2",
