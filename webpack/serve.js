@@ -5,7 +5,7 @@ const webpackHotMiddleware = require('webpack-hot-middleware');
 
 const logger = require('./logger');
 const { getAppConfig, resolveAppDir } = require('./utils');
-const getWebpackConfig = require('./config');
+const { getConfig: getWebpackConfig } = require('./config');
 
 const log = logger('serve');
 const warn = logger('serve', 'red');

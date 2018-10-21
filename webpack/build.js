@@ -1,19 +1,30 @@
 const webpack = require('webpack');
-const getWebpackConfig = require('./config');
+const { getConfig, getElectronMainConfig } = require('./config');
 
 module.exports = function build(mode) {
-  const webpackConfig = getWebpackConfig();
+  const rendererConfig = getConfig();
+  const mainConfig = getElectronMainConfig();
+
   process.env.NODE_ENV = 'production';
 
   if (mode === 'electron') {
-    pack(webpackConfig)
+    pack(rendererConfig)
       .then(result => {
         console.log(result);
       }).catch(err => {
         console.log(`\n  Failed to build renderer process`);
         console.error(`\n${err}\n`);
         process.exit(1)
-      })
+      });
+
+    pack(mainConfig)
+      .then(result => {
+        console.log(result);
+      }).catch(err => {
+        console.log(`\n  Failed to build main process`);
+        console.error(`\n${err}\n`);
+        process.exit(1)
+      });
   }
 }
 
