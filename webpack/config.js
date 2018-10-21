@@ -114,15 +114,11 @@ function makeConfig() {
             from: resolveAppDir(appConfig.staticPath),
             to: resolveAppDir('./dist/electron/static'),
             ignore: ['.*']
-          },
-          {
-            from: resolveAppDir(appConfig.electron.paths.main),
-            to: resolveAppDir('./dist/electron/main.js')
           }
         ]) : null,
         // isProduction ? new BabiliWebpackPlugin() : null,
         // isProduction ? new webpack.LoaderOptionsPlugin({ minimize: true }) : null,
-      ],
+      ].filter(Boolean),
       optimization: {
         noEmitOnErrors: false
       },
@@ -185,7 +181,7 @@ function makeConfig() {
         isProduction && new webpack.DefinePlugin({
           'process.env.NODE_ENV': '"production"'
         })
-      ],
+      ].filter(Boolean),
       resolve: {
         extensions: ['.js', '.json', '.node']
       },
