@@ -20,6 +20,9 @@ export default {
           label: _('Warehouse'), route: '#/list/Warehouse'
         },
         {
+          label: _('StockEntry'), route: '#/list/StockEntry'
+        },
+        {
           label: _('Party'), route: '#/list/Party'
         },
         {
@@ -55,6 +58,9 @@ export default {
         },
         {
           label: _('Sales Register'), route: '#/report/sales-register'
+        },
+        {
+          label: _('Stock Ledger'), route: '#/report/stock-ledger'
         }
       ]
     },

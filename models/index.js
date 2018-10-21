@@ -57,5 +57,9 @@ module.exports = {
 
         Uom: require('./doctype/Uom/Uom.js'),
         Warehouse: require('./doctype/Warehouse/Warehouse.js'),
+
+        StockEntry: require('./doctype/StockEntry/StockEntry.js'),
+        StockEntryItem: require('./doctype/StockEntry/StockEntryItem.js'),
+        StockEntrySettings: require('./doctype/StockEntry/StockEntrySettings.js'),
     }
 }
