@@ -10,12 +10,13 @@
   "build": {
     "appId": "io.frappe.accounting"
   },
-  "main": "main.js",
+  "main": "dist/electron/main.js",
   "license": "MIT",
   "scripts": {
     "test": "mocha tests",
     "start": "frappe start",
-    "electron": "ELECTRON=true frappe start electron"
+    "electron": "ELECTRON=true frappe start electron",
+    "build-electron": "NODE_ENV=production ELECTRON=true frappe build electron && electron-builder"
   },
   "dependencies": {
     "frappejs": "^0.0.10"
