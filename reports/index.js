@@ -7,6 +7,7 @@ const SalesRegister = require('./SalesRegister/SalesRegister');
 const PurchaseRegister = require('./PurchaseRegister/PurchaseRegister');
 const AccountsReceivablePayable = require('./AccountsReceivablePayable/AccountsReceivablePayable');
 const StockLedger = require('./StockLedger/StockLedger');
+const SalesLedger = require('./SalesLedger/SalesLedger');
 
 // called on server side
 function registerReportMethods() {
@@ -38,6 +39,10 @@ function registerReportMethods() {
         {
             method: 'stock-ledger',
             class: StockLedger
+        },
+        {
+            method: 'sales-ledger',
+            class: SalesLedger
         }
     ];
 

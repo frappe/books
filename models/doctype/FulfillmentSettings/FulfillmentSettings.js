@@ -1,13 +1,16 @@
-const model = require('frappejs/model');
-const QuotationSettings = require('../QuotationSettings/QuotationSettings');
-
-module.exports = model.extend(QuotationSettings, {
+module.exports = {
     "name": "FulfillmentSettings",
     "label": "Fulfillment Settings",
-    "fields": [
-        {
-            "fieldname": "numberSeries",
-            "default": "OF"
-        }
-    ]
-});
+    "doctype": "DocType",
+    "isSingle": 1,
+    "isChild": 0,
+    "keywordFields": [],
+    "fields": [{
+        "fieldname": "numberSeries",
+        "label": "Number Series",
+        "fieldtype": "Link",
+        "target": "NumberSeries",
+        "required": 1,
+        "default": "OF"
+    }]
+}

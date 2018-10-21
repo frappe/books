@@ -26,6 +26,12 @@ export default {
           label: _('Party'), route: '#/list/Party'
         },
         {
+          label: _('SalesOrder'), route: '#/list/SalesOrder'
+        },
+        {
+          label: _('Fulfillment'), route: '#/list/Fulfillment'
+        },
+        {
           label: _('Tax'), route: '#/list/Tax'
         },
         {
@@ -61,6 +67,9 @@ export default {
         },
         {
           label: _('Stock Ledger'), route: '#/report/stock-ledger'
+        },
+        {
+          label: _('Sales Ledger'), route: '#/report/sales-ledger'
         }
       ]
     },
