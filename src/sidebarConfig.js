@@ -11,7 +11,13 @@ export default {
       title: _('Masters'),
       items: [
         {
+          label: _('Uom'), route: '#/list/Uom'
+        },
+        {
           label: _('Item'), route: '#/list/Item'
+        },
+        {
+          label: _('Warehouse'), route: '#/list/Warehouse'
         },
         {
           label: _('Party'), route: '#/list/Party'

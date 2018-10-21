@@ -10,6 +10,7 @@ module.exports = {
         PaymentSettings: require('./doctype/PaymentSettings/PaymentSettings.js'),
 
         Item: require('./doctype/Item/Item.js'),
+        ItemUomTable: require('./doctype/Item/ItemUomTable.js'),
 
         Invoice: require('./doctype/Invoice/Invoice.js'),
         InvoiceItem: require('./doctype/InvoiceItem/InvoiceItem.js'),
@@ -53,5 +54,8 @@ module.exports = {
         Event: require('./doctype/Event/Event'),
         EventSchedule: require('./doctype/EventSchedule/EventSchedule'),
         EventSettings: require('./doctype/EventSettings/EventSettings'),
+
+        Uom: require('./doctype/Uom/Uom.js'),
+        Warehouse: require('./doctype/Warehouse/Warehouse.js'),
     }
 }
