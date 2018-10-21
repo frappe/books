@@ -20,6 +20,7 @@
     "case-sensitive-paths-webpack-plugin": "^2.1.2",
     "codemirror": "^5.35.0",
     "commander": "^2.13.0",
+    "copy-webpack-plugin": "^4.5.4",
     "cors": "^2.8.4",
     "css-loader": "^1.0.0",
     "deepmerge": "^2.1.0",
