@@ -8,3 +8,6 @@ Thumbs.db
 dist
 www/dist
 Frappe Accounting*
+build
+!build/icons
+!.gitkeep
