@@ -2,7 +2,7 @@ const path = require('path');
 const server = require('frappejs/server');
 const frappe = require('frappejs');
 const naming = require('frappejs/model/naming');
-const registerReportMethods = require('../reports');
+const registerServerMethods = require('./registerServerMethods');
 
 async function start() {
     await server.start({
@@ -36,16 +36,7 @@ async function postStart() {
     await naming.createNumberSeries('PO-', 'PurchaseOrderSettings');
     await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
-    registerReportMethods();
-
-    frappe.registerMethod({
-      method: 'import-coa',
-      async handler() {
-        const standardCOA = require('../fixtures/standardCOA');
-        const importCOA = require('../models/doctype/Account/importCOA');
-        await importCOA(standardCOA);
-      }
-    })
+    registerServerMethods();
 }
 
 start();
