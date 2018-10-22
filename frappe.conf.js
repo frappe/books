@@ -3,6 +3,7 @@ module.exports = {
   staticPath: './static',
   distPath: './dist',
   dev: {
+    entryHtml: 'src/index.html',
     entry: {
       app: './src/main.js'
     },
@@ -21,6 +22,9 @@ module.exports = {
     }
   },
   electron: {
+    entry: {
+      app: './src/main-electron.js'
+    },
     paths: {
       mainDev: 'src-electron/main.dev.js',
       main: 'src-electron/main.js',

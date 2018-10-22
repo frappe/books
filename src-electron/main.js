@@ -1,3 +1,4 @@
+const path = require('path');
 const { app, BrowserWindow } = require('electron');
 const { getAppConfig } = require('frappejs/webpack/utils');
 const setupMenu = require('./menu');
@@ -5,7 +6,7 @@ const setupMenu = require('./menu');
 const appConfig = getAppConfig();
 
 if (process.env.NODE_ENV !== 'development') {
-  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
+  global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
 let mainWindow

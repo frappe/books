@@ -8,16 +8,6 @@ export default {
   },
   groups: [
     {
-      items: [
-        {
-          label: _('ToDo'), route: '#/list/ToDo'
-        },
-        {
-          label: _('Event'), route: '#/list/Event'
-        }
-      ]
-    },
-    {
       title: _('Masters'),
       items: [
         {
@@ -27,14 +17,28 @@ export default {
           label: _('Party'), route: '#/list/Party'
         },
         {
-          label: _('Invoice'), route: '#/list/Invoice'
-        },
-        {
           label: _('Tax'), route: '#/list/Tax'
         },
         {
-          label: _('Account'), route: '#/list/Account'
+          label: _('Account'), route: '#/tree/Account'
         }
+      ]
+    },
+    {
+      title: _('Transactions'),
+      items: [
+        {
+          label: _('Invoice'), route: '#/list/Invoice'
+        },
+        {
+          label: _('Journal Entry'), route: '#/list/JournalEntry'
+        }
+        // {
+        //   label: _('Payment'), route: '#/list/Payment'
+        // },
+        // {
+        //   label: _('AccountingLedgerEntry'), route: '#/list/AccountingLedgerEntry'
+        // },
       ]
     },
     {
@@ -42,6 +46,17 @@ export default {
       items: [
         {
           label: _('General Ledger'), route: '#/report/general-ledger'
+        },
+        {
+          label: _('Sales Register'), route: '#/report/sales-register'
+        }
+      ]
+    },
+    {
+      title: _('Tools'),
+      items: [
+        {
+          label: _('Data Import'), route: '#/data-import'
         }
       ]
     }
