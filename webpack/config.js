@@ -90,6 +90,7 @@ function makeConfig() {
         new webpack.DefinePlugin(Object.assign({
           'process.env': appConfig.dev.env,
           'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
+          'process.env.ELECTRON': JSON.stringify(process.env.ELECTRON)
         }, !isProduction ? {
           '__static': `"${resolveAppDir(appConfig.staticPath).replace(/\\/g, '\\\\')}"`
         } : {})),
