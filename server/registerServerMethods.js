@@ -15,13 +15,13 @@ module.exports = function registerServerMethods() {
 
   frappe.registerMethod({
     method: 'print-pdf',
-    handler({doctype, name}) {
+    handler({doctype, name, html}) {
       if (frappe.isElectron) {
         const path = require('path');
         const { getPDFForElectron } = require('frappejs/server/pdf');
         const { getSettings } = require('../electron/settings');
         const destination = path.resolve(getSettings().dbPath, '..')
-        getPDFForElectron(doctype, name, destination);
+        getPDFForElectron(doctype, name, destination, html);
       }
     }
   })
