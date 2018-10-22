@@ -10,13 +10,18 @@ export default {
   extends: Autocomplete,
   methods: {
     async getList(query) {
+      let filters = this.docfield.getFilters ?
+        this.docfield.getFilters(query) :
+        null;
+
+      if (query) {
+        if (!filters) filters = {};
+        filters.keywords = ['like', query];
+      }
+
       const list = await frappe.db.getAll({
         doctype: this.getTarget(),
-        filters: query
-          ? {
-              keywords: ['like', query]
-            }
-          : null,
+        filters,
         fields: ['name'],
         limit: 50
       });
