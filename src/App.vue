@@ -45,4 +45,9 @@ export default {
 </script>
 <style lang="scss">
 @import "styles/index.scss";
+.page-container {
+  height: 100vh;
+  overflow: auto;
+  overflow-x: hidden;
+}
 </style>

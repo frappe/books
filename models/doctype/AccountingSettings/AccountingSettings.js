@@ -14,7 +14,8 @@ module.exports = {
             label: "Company Name",
             fieldname: "companyName",
             fieldtype: "Data",
-            required: 1
+            required: 1,
+            disabled: 1
         },
 
         {
