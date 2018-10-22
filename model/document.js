@@ -255,7 +255,7 @@ module.exports = class BaseDocument extends Observable {
             return true;
           }
 
-          if (!frappe.isServer) {
+          if (!frappe.isServer || frappe.isElectron) {
             if (doc[field.fieldname] == null || doc[field.fieldname] == '') {
               return true;
             }
