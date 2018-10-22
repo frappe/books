@@ -13,6 +13,7 @@ import Vue from 'vue';
 import App from './App';
 import router from './router';
 import frappeVue from 'frappejs/ui/plugins/frappeVue';
+import Toasted from 'vue-toasted';
 
 (async () => {
   frappe.isServer = true;
@@ -79,6 +80,10 @@ import frappeVue from 'frappejs/ui/plugins/frappeVue';
 
   Vue.config.productionTip = false;
   Vue.use(frappeVue);
+  Vue.use(Toasted, {
+    position: 'bottom-right',
+    duration : 3000
+ });
 
   /* eslint-disable no-new */
   new Vue({

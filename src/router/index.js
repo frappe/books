@@ -10,6 +10,8 @@ import reportViewConfig from '../../reports/view';
 
 import DataImport from '../pages/DataImport';
 
+import Settings from '../pages/Settings/Settings';
+
 Vue.use(Router);
 
 const routes = [
@@ -48,6 +50,11 @@ const routes = [
     path: '/data-import',
     name: 'Data Import',
     component: DataImport
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: Settings
   }
 ];
 
