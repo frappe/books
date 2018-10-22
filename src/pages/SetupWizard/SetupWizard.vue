@@ -55,31 +55,7 @@ export default {
   methods: {
     async submit() {
       try {
-        const {
-          companyName,
-          country,
-          name,
-          email,
-          abbreviation,
-          bankName,
-          fiscalYearStart,
-          fiscalYearEnd
-        } = this.doc;
-
-        const doc = await frappe.getSingle('AccountingSettings');
-        await doc.set({
-          companyName,
-          country,
-          fullname: name,
-          email,
-          bankName,
-          fiscalYearStart,
-          fiscalYearEnd
-        });
-
-        await doc.update();
-        await frappe.call({ method: 'import-coa'});
-        frappe.events.trigger('setup-complete');
+        frappe.events.trigger('SetupWizard:setup-complete', { setupWizardValues: this.doc });
       } catch (e) {
         console.error(e);
       }
