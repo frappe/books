@@ -5,6 +5,7 @@
       <list-toolbar
         :doctype="doctype"
         @newClick="openNewForm"
+        @filterList="keyword => filterList(keyword)"
         class="mb-4"
       />
       <list
@@ -15,6 +16,7 @@
 </template>
 <script>
 import frappe from 'frappejs';
+import Observable from 'frappejs/utils/observable';
 import PageHeader from '@/components/PageHeader';
 import ListToolbar from './ListToolbar';
 import List from './List';
@@ -31,6 +33,9 @@ export default {
     meta() {
       return frappe.getMeta(this.doctype);
     }
+  },
+  created() {
+    frappe.listView = new Observable();
   },
   methods: {
     async openNewForm() {

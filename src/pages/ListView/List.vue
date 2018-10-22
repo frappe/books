@@ -7,7 +7,7 @@
     </list-row>
     <list-row v-for="doc in data" :key="doc.name" @click.native="openForm(doc.name)">
       <list-cell v-for="column in columns" :key="column.label">
-        {{ column.getValue(doc) }}
+        {{ frappe.format(column.getValue(doc), column.fieldtype || {}) }}
       </list-cell>
     </list-row>
   </div>
@@ -19,6 +19,13 @@ import ListCell from './ListCell';
 export default {
   name: 'List',
   props: ['doctype'],
+  watch: {
+    doctype(oldValue, newValue) {
+      if (oldValue !== newValue) {
+        this.setupColumnsAndData();
+      }
+    }
+  },
   components: {
     ListRow,
     ListCell
@@ -29,18 +36,30 @@ export default {
       data: []
     };
   },
-  async mounted() {
-    this.prepareColumns();
-
-    this.data = await frappe.db.getAll({
-      doctype: this.doctype,
-      fields: ['*']
-    });
+  mounted() {
+    this.setupColumnsAndData();
+    frappe.listView.on('filterList', this.updateData.bind(this));
   },
   methods: {
+    setupColumnsAndData() {
+      this.prepareColumns();
+      this.updateData();
+    },
     openForm(name) {
-      console.log(name);
       this.$router.push(`/edit/${this.doctype}/${name}`);
+    },
+    async updateData(keywords) {
+      let filters = null;
+      if (keywords) {
+        filters = {
+          keywords: ['like', keywords]
+        }
+      }
+      this.data = await frappe.db.getAll({
+        doctype: this.doctype,
+        fields: ['*'],
+        filters
+      });
     },
     prepareColumns() {
       this.columns = this.meta.listView.columns.map(col => {
@@ -49,6 +68,7 @@ export default {
           if (!field) return null;
           return {
             label: field.label,
+            fieldtype: field.fieldtype,
             getValue(doc) {
               return doc[col];
             }
