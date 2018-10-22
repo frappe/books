@@ -70,7 +70,7 @@ module.exports = class LedgerPosting {
     }
 
     if (debit !== credit) {
-      throw frappe.errors.ValidationError(frappe._('Debit {0} must be equal to Credit {1}', [debit, credit]));
+      throw new frappe.errors.ValidationError(frappe._('Debit {0} must be equal to Credit {1}', [debit, credit]));
     }
   }
 

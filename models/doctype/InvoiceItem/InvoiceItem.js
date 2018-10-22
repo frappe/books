@@ -56,13 +56,15 @@ module.exports = {
       fieldname: 'amount',
       label: 'Amount',
       fieldtype: 'Currency',
-      disabled: 1,
+      readOnly: 1,
+      disabled: true,
       formula: (row, doc) => row.quantity * row.rate
     },
     {
       fieldname: 'taxAmount',
       label: 'Tax Amount',
       hidden: 1,
+      readOnly: 1,
       fieldtype: 'Text',
       formula: (row, doc) => doc.getRowTax(row)
     }

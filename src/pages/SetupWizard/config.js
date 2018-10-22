@@ -1,3 +1,4 @@
+const frappe = require('frappejs');
 const countryList = Object.keys(require('../../../fixtures/countryInfo.json')).sort();
 
 export default {
@@ -65,12 +66,12 @@ export default {
   layout: {
     paginated: true,
     sections: [
-      {
+      process.env.ELECTRON === 'true' ? {
         title: 'Select File location',
         columns: [
           { fields: ['file'] }
         ]
-      },
+      } : null,
 
       {
         title: 'Select Country',
@@ -92,6 +93,6 @@ export default {
           { fields: ['companyName', 'bankName', 'fiscalYearStart', 'fiscalYearEnd'] }
         ]
       }
-    ]
+    ].filter(Boolean)
   }
 }

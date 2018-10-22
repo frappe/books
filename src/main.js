@@ -1,6 +1,3 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-
 // vue imports
 import Vue from 'vue';
 import App from './App';
@@ -9,6 +6,7 @@ import frappeVue from 'frappejs/ui/plugins/frappeVue';
 
 // frappejs imports
 import frappe from 'frappejs';
+import frappeConf from '../frappe.conf';
 import io from 'socket.io-client';
 import HTTPClient from 'frappejs/backends/http';
 import common from 'frappejs/common';
@@ -20,7 +18,7 @@ frappe.init();
 frappe.registerLibs(common);
 frappe.registerModels(coreModels);
 frappe.registerModels(models);
-const server = 'localhost:8000';
+const server = `localhost:${frappeConf.dev.devServerPort}`;
 frappe.fetch = window.fetch.bind();
 frappe.db = new HTTPClient({ server });
 const socket = io.connect(`http://${server}`);
@@ -33,11 +31,40 @@ frappe.getSingle('AccountingSettings')
     if (router.currentRoute.fullPath !== '/') return;
 
     if (accountingSettings.companyName) {
-      router.push('/list/ToDo');
+      frappe.events.trigger('show-desk');
     } else {
-      router.push('/setup-wizard');
+      frappe.events.trigger('show-setup-wizard');
     }
   });
+
+frappe.events.on('SetupWizard:setup-complete', async ({ setupWizardValues }) => {
+  const {
+    companyName,
+    country,
+    name,
+    email,
+    abbreviation,
+    bankName,
+    fiscalYearStart,
+    fiscalYearEnd
+  } = setupWizardValues;
+
+  const doc = await frappe.getSingle('AccountingSettings');
+  await doc.set({
+    companyName,
+    country,
+    fullname: name,
+    email,
+    bankName,
+    fiscalYearStart,
+    fiscalYearEnd
+  });
+
+  await doc.update();
+  await frappe.call({ method: 'import-coa' });
+
+  frappe.events.trigger('show-desk');
+});
 
 window.frappe = frappe;
 

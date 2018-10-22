@@ -5,6 +5,11 @@ import ListView from '../pages/ListView';
 import FormView from '../pages/FormView';
 import PrintView from '../pages/PrintView';
 
+import Report from 'frappejs/ui/pages/Report';
+import reportViewConfig from '../../reports/view';
+
+import DataImport from '../pages/DataImport';
+
 Vue.use(Router);
 
 const routes = [
@@ -25,6 +30,24 @@ const routes = [
     name: 'PrintView',
     component: PrintView,
     props: true
+  },
+  {
+    path: '/report/:reportName',
+    name: 'Report',
+    component: Report,
+    props: (route) => {
+      const { reportName } = route.params;
+      return {
+        reportName,
+        reportConfig: reportViewConfig[reportName] || null,
+        filters: route.query
+      };
+    }
+  },
+  {
+    path: '/data-import',
+    name: 'Data Import',
+    component: DataImport
   }
 ];
 
