@@ -20,7 +20,7 @@ export default {
         },
         {
           label: 'Customers',
-          route: '/list/Party'
+          route: '/list/Customer'
         },
         {
           label: 'Items',

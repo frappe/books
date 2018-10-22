@@ -1,13 +1,12 @@
-const BaseList = require('frappejs/client/view/list');
-const frappe = require('frappejs');
+import { _ } from 'frappejs/utils';
 
-module.exports = class CustomerList extends BaseList {
-    constructor({doctype, parent, fields, page}) {
-        super({doctype: 'Party', parent: parent, fields: fields, page: page});
-    }
-    getFilters() {
-        let filters = super.getFilters();
-        filters.customer = 1;
-        return filters;
-    }
+export default {
+  doctype: 'Party',
+  title: _('Customer'),
+  columns: [
+    'name'
+  ],
+  filters: {
+    customer: 1
+  }
 }

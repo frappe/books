@@ -14,7 +14,7 @@ Vue.use(Router);
 
 const routes = [
   {
-    path: '/list/:doctype',
+    path: '/list/:listName',
     name: 'ListView',
     component: ListView,
     props: true
