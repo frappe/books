@@ -13,22 +13,23 @@
   </div>
 </template>
 <script>
+import frappe from 'frappejs';
 import ListRow from './ListRow';
 import ListCell from './ListCell';
 
 export default {
   name: 'List',
-  props: ['doctype'],
-  watch: {
-    doctype(oldValue, newValue) {
-      if (oldValue !== newValue) {
-        this.setupColumnsAndData();
-      }
-    }
-  },
+  props: ['listConfig'],
   components: {
     ListRow,
     ListCell
+  },
+  watch: {
+    listConfig(oldValue, newValue) {
+      if (oldValue.doctype !== newValue.doctype) {
+        this.setupColumnsAndData();
+      }
+    }
   },
   data() {
     return {
@@ -42,6 +43,9 @@ export default {
   },
   methods: {
     setupColumnsAndData() {
+      this.doctype = this.listConfig.doctype;
+      this.meta = frappe.getMeta(this.doctype);
+
       this.prepareColumns();
       this.updateData();
     },
@@ -49,11 +53,10 @@ export default {
       this.$router.push(`/edit/${this.doctype}/${name}`);
     },
     async updateData(keywords) {
-      let filters = null;
+      let filters = this.listConfig.filters || null;
       if (keywords) {
-        filters = {
-          keywords: ['like', keywords]
-        }
+        if (!filters) filters = {};
+        filters.keywords = ['like', keywords];
       }
       this.data = await frappe.db.getAll({
         doctype: this.doctype,
@@ -62,7 +65,7 @@ export default {
       });
     },
     prepareColumns() {
-      this.columns = this.meta.listView.columns.map(col => {
+      this.columns = this.listConfig.columns.map(col => {
         if (typeof col === 'string') {
           const field = this.meta.getField(col);
           if (!field) return null;
@@ -76,11 +79,6 @@ export default {
         }
         return col;
       }).filter(Boolean);
-    }
-  },
-  computed: {
-    meta() {
-      return frappe.getMeta(this.doctype);
     }
   }
 };

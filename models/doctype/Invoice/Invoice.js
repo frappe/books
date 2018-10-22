@@ -26,9 +26,8 @@ module.exports = {
       fieldtype: 'Link',
       target: 'Party',
       required: 1,
-      getFilters: (query, control) => {
+      getFilters: (query) => {
         return {
-          keywords: ['like', query],
           customer: 1
         };
       }
@@ -38,7 +37,7 @@ module.exports = {
       label: 'Account',
       fieldtype: 'Link',
       target: 'Account',
-      formula: (doc) => doc.getFrom('Party', doc.customer , 'default_account'),
+      formula: (doc) => doc.getFrom('Party', doc.customer , 'defaultAccount'),
       getFilters: (query, control) => {
         return {
           keywords: ['like', query],
@@ -145,37 +144,5 @@ module.exports = {
         await form.$formModal.open(payment);
       }
     }
-  ],
-
-  listSettings: {
-    getFields(list) {
-      return ['name', 'customer', 'grandTotal', 'submitted'];
-    },
-
-    getRowHTML(list, data) {
-      return `<div class='col-3'>${list.getNameHTML(data)}</div>
-                    <div class='col-4 text-muted'>${data.customer}</div>
-                    <div class='col-4 text-muted text-right'>${frappe.format(data.grandTotal, 'Currency')}</div>`;
-    }
-  },
-
-  listView: {
-    columns: [
-      'customer',
-      {
-        label: 'Status',
-        getValue(doc) {
-          return doc.submitted ? 'Paid' : 'Pending';
-        }
-      },
-      'grandTotal',
-      'date',
-      {
-        label: 'INV #',
-        getValue(doc) {
-          return doc.name;
-        }
-      }
-    ]
-  }
+  ]
 };

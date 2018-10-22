@@ -4,7 +4,7 @@
       <search-input class="mr-2" @change="keyword => filterList(keyword)"/>
     </div>
     <div class="col-6 d-flex flex-row-reverse">
-      <f-button primary @click="$emit('newClick')">{{ _('New {0}', doctype) }}</f-button>
+      <f-button primary @click="$emit('newClick')">{{ _('New {0}', listConfig.title) }}</f-button>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@ import SearchInput from '@/components/SearchInput';
 
 export default {
   name: 'ListToolbar',
-  props: ['doctype'],
+  props: ['listConfig'],
   components: {
     SearchInput
   },

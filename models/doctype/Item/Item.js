@@ -80,11 +80,5 @@ module.exports = {
         { fields: ['tax'] }
       ]
     }
-  ],
-  listView: {
-    columns: [
-      'name',
-      'description'
-    ]
-  }
+  ]
 };

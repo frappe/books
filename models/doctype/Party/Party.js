@@ -14,13 +14,12 @@ module.exports = {
             "required": 1
         },
         {
-          fieldname: 'default_account',
+          fieldname: 'defaultAccount',
           label: 'Default Account',
           fieldtype: 'Link',
           target: 'Account',
           getFilters: (query, control) => {
             return {
-              keywords: ['like', query],
               isGroup: 0,
               accountType: 'Receivable'
             };
@@ -48,12 +47,5 @@ module.exports = {
               });
             }
         }
-    ],
-
-    listView: {
-      columns: [
-        'name'
-      ]
-    }
-
+    ]
 }
