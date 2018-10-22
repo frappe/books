@@ -10,6 +10,9 @@ async function makePDF(html, filepath) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(html);
+    await page.addStyleTag({
+      url: 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css'
+    })
     await page.pdf({
         path: filepath,
         format: 'A4'
@@ -17,9 +20,9 @@ async function makePDF(html, filepath) {
     await browser.close();
 }
 
-async function getPDFForElectron(doctype, name, destination) {
+async function getPDFForElectron(doctype, name, destination, htmlContent) {
     const { shell } = require('electron');
-    const html = await getHTML(doctype, name);
+    const html = htmlContent || await getHTML(doctype, name);
     const filepath = path.join(destination, name + '.pdf');
     await makePDF(html, filepath);
     shell.openItem(filepath);
