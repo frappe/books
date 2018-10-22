@@ -66,7 +66,7 @@ export default {
   layout: {
     paginated: true,
     sections: [
-      frappe.isElectron ? {
+      process.env.ELECTRON === 'true' ? {
         title: 'Select File location',
         columns: [
           { fields: ['file'] }
