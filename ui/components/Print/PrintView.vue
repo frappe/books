@@ -35,7 +35,13 @@ export default {
     },
 
     getPDF() {
-      frappe.getPDF(this.doctype, this.name);
+      frappe.call({
+        method: 'print-pdf',
+        args: {
+          doctype: this.doctype,
+          name: this.name
+        }
+      });
     }
   }
 }
