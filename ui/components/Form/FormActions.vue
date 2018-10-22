@@ -34,13 +34,14 @@ export default {
   },
   created() {
     this.doc.on('change', () => {
-      this.isDirty = this.doc._dirty;
       this.updateShowSubmittable();
     });
     this.updateShowSubmittable();
   },
   methods: {
     updateShowSubmittable() {
+      this.isDirty = this.doc._dirty;
+
       this.showSubmit =
         this.meta.isSubmittable
         && !this.isDirty
