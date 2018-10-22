@@ -17,10 +17,10 @@ async function makePDF(html, filepath) {
     await browser.close();
 }
 
-async function getPDFForElectron(doctype, name) {
+async function getPDFForElectron(doctype, name, destination) {
     const { shell } = require('electron');
     const html = await getHTML(doctype, name);
-    const filepath = path.join(frappe.electronSettings.directory, name + '.pdf');
+    const filepath = path.join(destination, name + '.pdf');
     await makePDF(html, filepath);
     shell.openItem(filepath);
 }
