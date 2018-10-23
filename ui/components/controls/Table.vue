@@ -47,9 +47,9 @@
                 :autofocus="true"
                 @change="onCellChange(i, column.fieldname, $event)"
               />
-              <span v-else>
+              <div class="text-truncate" v-else>
                 {{ row[column.fieldname] || '&nbsp;' }}
-              </span>
+              </div>
             </div>
           </td>
         </tr>
@@ -305,7 +305,14 @@ td {
   }
 }
 
-.form-control, .form-group .form-control {
+.form-control {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.form-group /deep/ .form-control {
   padding: 0;
   border: none;
   box-shadow: none;
