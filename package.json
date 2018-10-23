@@ -22,6 +22,7 @@
     "commander": "^2.13.0",
     "copy-webpack-plugin": "^4.5.4",
     "cors": "^2.8.4",
+    "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
     "deepmerge": "^2.1.0",
     "electron": "2.0.12",
