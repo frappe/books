@@ -4,14 +4,6 @@ const countryList = Object.keys(require('../../../fixtures/countryInfo.json')).s
 export default {
   fields: [
     {
-      fieldname: 'file',
-      label: 'File',
-      fieldtype: 'File',
-      required: 1,
-      directory: 1
-    },
-
-    {
       fieldname: 'country',
       label: 'Country',
       fieldtype: 'Autocomplete',
@@ -66,13 +58,6 @@ export default {
   layout: {
     paginated: true,
     sections: [
-      process.env.ELECTRON === 'true' ? {
-        title: 'Select File location',
-        columns: [
-          { fields: ['file'] }
-        ]
-      } : null,
-
       {
         title: 'Select Country',
         columns: [

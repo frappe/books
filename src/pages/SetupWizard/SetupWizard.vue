@@ -55,7 +55,7 @@ export default {
   methods: {
     async submit() {
       try {
-        frappe.events.trigger('SetupWizard:setup-complete', { setupWizardValues: this.doc });
+        frappe.events.trigger('SetupWizard:setup-complete', this.doc);
       } catch (e) {
         console.error(e);
       }
