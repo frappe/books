@@ -1,6 +1,6 @@
 <template>
     <div class="row pb-4">
-        <frappe-control class="col-lg col-md-3 col-sm-6"
+        <frappe-control class="col-4"
             v-for="docfield in filters"
             :key="docfield.fieldname"
             :docfield="docfield"
