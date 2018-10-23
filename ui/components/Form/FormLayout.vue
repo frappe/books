@@ -66,6 +66,10 @@ export default {
     },
     updateDoc(fieldname, value) {
       this.doc.set(fieldname, value);
+      this.$emit('updateDoc', {
+        fieldname,
+        value
+      });
     },
     showSection(i) {
       if (this.layoutConfig.paginated) {
