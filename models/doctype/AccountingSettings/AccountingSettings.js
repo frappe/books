@@ -2,7 +2,7 @@ const countryList = Object.keys(require('../../../fixtures/countryInfo.json')).s
 
 module.exports = {
     name: "AccountingSettings",
-    label: "AccountingSettings",
+    label: "Accounting Settings",
     naming: "name", // {random|autoincrement}
     isSingle: 1,
     isChild: 0,

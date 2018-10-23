@@ -1,6 +1,6 @@
 <template>
   <div v-if="doc">
-    <h4 class="mb-3">{{ doctype }}</h4>
+    <h4 class="mb-3">{{ title }}</h4>
     <form-layout
       :doc="doc"
       :fields="fields"
@@ -20,12 +20,15 @@ export default {
   data() {
     return {
       doc: null,
+      title: '',
       fields: []
     }
   },
   async mounted() {
     this.doc = await frappe.getDoc(this.doctype);
-    this.fields = frappe.getMeta(this.doctype).fields;
+    const meta = frappe.getMeta(this.doctype);
+    this.fields = meta.fields;
+    this.title = meta.label;
   },
   methods: {
     saveDoc() {
