@@ -14,6 +14,8 @@ import Settings from '../pages/Settings/Settings';
 
 import ReportList from '../pages/Report';
 
+import Tree from 'frappejs/ui/components/Tree';
+
 Vue.use(Router);
 
 const routes = [
@@ -62,7 +64,13 @@ const routes = [
     path: '/reportList',
     name: 'Report',
     component: ReportList
-  }
+  },
+  {
+    path: '/tree/:doctype',
+    name: 'Tree',
+    component: Tree,
+    props: true
+  },
 ];
 
 export default new Router({ routes });
