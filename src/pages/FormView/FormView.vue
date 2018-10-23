@@ -36,6 +36,13 @@ export default {
     FormActions,
     FormLayout
   },
+  watch: {
+    name(newValue, oldValue) {
+      if (newValue !== oldValue) {
+        this.loadDoc();
+      }
+    }
+  },
   data() {
     return {
       doc: null,
@@ -59,6 +66,8 @@ export default {
     async loadDoc() {
       if (!this.name) return;
       try {
+        // need to de-reference to let vue know that doc is changed
+        this.doc = null;
         this.doc = await frappe.getDoc(this.doctype, this.name);
 
         if (this.doc._notInserted && this.meta.fields.map(df => df.fieldname).includes('name')) {
