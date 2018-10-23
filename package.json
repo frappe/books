@@ -49,8 +49,8 @@
   "scripts": {
     "test": "mocha tests",
     "start": "frappe start",
-    "electron": "ELECTRON=true frappe start electron",
-    "pack-electron": "NODE_ENV=production ELECTRON=true frappe build electron",
+    "electron": "cross-env ELECTRON=true frappe start electron",
+    "pack-electron": "cross-env NODE_ENV=production ELECTRON=true frappe build electron",
     "build-electron": "npm run pack-electron && electron-builder",
     "postinstall": "electron-builder install-app-deps"
   },
