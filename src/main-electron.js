@@ -24,17 +24,26 @@ import Toasted from 'vue-toasted';
   frappe.registerModels(models);
   frappe.fetch = window.fetch.bind();
 
-  const electronSettings = getSettings();
-  if (!electronSettings.dbPath) {
-    localStorage.showDesk = false;
-  } else {
-    await connectToLocalDatabase();
-    localStorage.showDesk = true;
-  }
+  frappe.events.on('connect-database', async (filepath) => {
+    await connectToLocalDatabase(filepath);
+    frappe.events.trigger('show-desk');
+  });
 
-  frappe.events.on('SetupWizard:setup-complete', async ({ setupWizardValues }) => {
+  frappe.events.on('DatabaseSelector:file-selected', async (filepath) => {
+    await connectToLocalDatabase(filepath);
+
+    localStorage.dbPath = filepath;
+
+    const accountingSettings = await frappe.getSingle('AccountingSettings');
+    if (!accountingSettings.companyName) {
+      frappe.events.trigger('show-setup-wizard');
+    } else {
+      frappe.events.trigger('show-desk');
+    }
+  });
+
+  frappe.events.on('SetupWizard:setup-complete', async (setupWizardValues) => {
     const {
-      file,
       companyName,
       country,
       name,
@@ -43,11 +52,6 @@ import Toasted from 'vue-toasted';
       fiscalYearStart,
       fiscalYearEnd
     } = setupWizardValues;
-
-    // db init
-    const dbPath = path.join(file[0].path, 'frappe-accounting.db');
-    await saveSettings({ dbPath });
-    await connectToLocalDatabase();
 
     const doc = await frappe.getSingle('AccountingSettings');
     await doc.set({
@@ -66,10 +70,9 @@ import Toasted from 'vue-toasted';
     frappe.events.trigger('show-desk');
   });
 
-  async function connectToLocalDatabase() {
-    const electronSettings = getSettings();
+  async function connectToLocalDatabase(filepath) {
     frappe.login('Administrator');
-    frappe.db = new SQLite({ dbPath: electronSettings.dbPath });
+    frappe.db = new SQLite({ dbPath: filepath });
     await frappe.db.connect();
     await frappe.db.migrate();
     frappe.getSingle('SystemSettings');

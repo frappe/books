@@ -1,53 +1,57 @@
 <template>
   <div id="app">
-    <div class="row no-gutters" v-if="showDesk">
-      <sidebar class="col-2" />
-      <div class="page-container col-10 bg-light">
-        <router-view />
-      </div>
-    </div>
-    <setup-wizard v-else/>
+    <desk v-if="showDesk" />
+    <database-selector v-if="showDatabaseSelector" @file="connectToDBFile" />
+    <setup-wizard v-if="showSetupWizard" />
   </div>
 </template>
 
 <script>
-import Sidebar from './components/Sidebar';
 import frappe from 'frappejs';
-import Vue from 'vue';
-import Observable from 'frappejs/utils/observable';
-import Desk from 'frappejs/ui/components/Desk';
-import sidebarConfig from './sidebarConfig';
+import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
+import DatabaseSelector from './pages/DatabaseSelector';
 
 export default {
   name: 'App',
   data() {
     return {
-      showDesk: JSON.parse(localStorage.showDesk),
-      sidebarConfig
+      showDatabaseSelector: false,
+      showDesk: false,
+      showSetupWizard: false
     }
   },
   components: {
+    Desk,
     SetupWizard,
-    Sidebar
+    DatabaseSelector,
   },
-  async created() {
+  mounted() {
+    if (!localStorage.dbPath) {
+      this.showDatabaseSelector = true;
+    } else {
+      frappe.events.trigger('connect-database', localStorage.dbPath);
+    }
+
     frappe.events.on('show-setup-wizard', () => {
+      this.showSetupWizard = true;
       this.showDesk = false;
-    })
+      this.showDatabaseSelector = false;
+    });
 
     frappe.events.on('show-desk', () => {
       this.showDesk = true;
-      this.$router.push('/tree/Account');
-    });
+      this.showSetupWizard = false;
+      this.showDatabaseSelector = false;
+    })
+  },
+  methods: {
+    connectToDBFile(filePath) {
+      frappe.events.trigger('DatabaseSelector:file-selected', filePath);
+    }
   }
 }
 </script>
 <style lang="scss">
 @import "styles/index.scss";
-.page-container {
-  height: 100vh;
-  overflow: auto;
-  overflow-x: hidden;
-}
 </style>
