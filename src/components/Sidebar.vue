@@ -24,8 +24,8 @@ export default {
       dbFileName: '',
       items: [
         {
-          label: 'Invoices',
-          route: '/list/Invoice'
+          label: 'Chart of Accounts',
+          route: '/tree/Account'
         },
         {
           label: 'Customers',
@@ -34,6 +34,10 @@ export default {
         {
           label: 'Items',
           route: '/list/Item'
+        },
+        {
+          label: 'Invoices',
+          route: '/list/Invoice'
         },
         {
           label: 'Reports',
