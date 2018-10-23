@@ -21,6 +21,9 @@ module.exports = {
     }
   },
   electron: {
+    entry: {
+      app: './src/main-electron.js'
+    },
     paths: {
       mainDev: 'src-electron/main.dev.js',
       main: 'src-electron/main.js',

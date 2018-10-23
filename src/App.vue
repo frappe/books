@@ -7,6 +7,7 @@
   </div>
 </template>
 <script>
+import frappe from 'frappejs';
 import Vue from 'vue';
 import Observable from 'frappejs/utils/observable';
 import Desk from 'frappejs/ui/components/Desk';
@@ -37,14 +38,11 @@ export default {
     SetupWizard
   },
   async created() {
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    if (accountingSettings.companyName) {
-      this.showDesk = true;
-    } else {
+    frappe.events.on('show-setup-wizard', () => {
       this.showDesk = false;
-    }
+    });
 
-    frappe.events.on('setup-complete', () => {
+    frappe.events.on('show-desk', () => {
       this.showDesk = true;
       this.$router.push('/tree/Account');
     });
