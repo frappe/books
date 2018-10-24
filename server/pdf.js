@@ -21,11 +21,37 @@ async function makePDF(html, filepath) {
 }
 
 async function getPDFForElectron(doctype, name, destination, htmlContent) {
-    const { shell } = require('electron');
+    const { remote, shell } = require('electron');
+    const { BrowserWindow } = remote;
     const html = htmlContent || await getHTML(doctype, name);
     const filepath = path.join(destination, name + '.pdf');
-    await makePDF(html, filepath);
-    shell.openItem(filepath);
+
+    const fs = require('fs')
+    let printWindow = new BrowserWindow({width: 600, height: 800})
+    printWindow.loadURL(`file://${path.join(__static, 'print.html')}`);
+
+    printWindow.on('closed', () => {
+      printWindow = null;
+    });
+
+    const code = `
+      document.body.innerHTML = \`${html}\`;
+    `;
+
+    printWindow.webContents.executeJavaScript(code);
+
+    printWindow.webContents.on('did-finish-load', () => {
+      printWindow.webContents.printToPDF({}, (error, data) => {
+        if (error) throw error
+        printWindow.close();
+        fs.writeFile(filepath, data, (error) => {
+          if (error) throw error
+          console.log('Write PDF successfully.')
+          shell.openItem(filepath);
+        })
+      })
+    })
+    // await makePDF(html, filepath);
 }
 
 function setupExpressRoute() {
