@@ -5,7 +5,7 @@
       <f-button primary v-if="showSave" :disabled="disableSave" @click="$emit('save')">{{ _('Save') }}</f-button>
       <f-button primary v-if="showSubmit" @click="$emit('submit')">{{ _('Submit') }}</f-button>
       <f-button secondary v-if="showRevert" @click="$emit('revert')">{{ _('Revert') }}</f-button>
-      <div class="ml-2">
+      <div class="ml-2" v-if="showPrint">
         <f-button secondary v-if="showNextAction" @click="$emit('print')">{{ _('Print') }}</f-button>
       </div>
       <dropdown class="ml-2" v-if="showNextAction" :label="_('Actions')" :options="links"></dropdown>
@@ -29,6 +29,7 @@ export default {
       showSubmit: false,
       showRevert: false,
       showNextAction: false,
+      showPrint: false,
       disableSave: false
     }
   },
@@ -59,6 +60,10 @@ export default {
       this.showNextAction =
         !this.doc._notInserted
         && this.links.length;
+
+      this.showPrint =
+        this.doc.submitted === 1
+        && this.meta.print
 
       this.showSave =
         this.doc._notInserted ?
