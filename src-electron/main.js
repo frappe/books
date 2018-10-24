@@ -1,18 +1,20 @@
-const path = require('path');
 const { app, BrowserWindow } = require('electron');
-const { getAppConfig } = require('frappejs/webpack/utils');
 const setupMenu = require('./menu');
 
-const appConfig = getAppConfig();
+let mainWindow
+let winURL
 
 if (process.env.NODE_ENV !== 'development') {
-  global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\')
+  global.__static = require('path').join(__dirname, '/static').replace(/\\/g, '\\\\')
 }
 
-let mainWindow
-const winURL = process.env.NODE_ENV === 'development'
-  ? `http://localhost:${appConfig.dev.devServerPort}`
-  : `file://${__dirname}/index.html`
+if (process.env.NODE_ENV === 'development') {
+  const { getAppConfig } = require('frappejs/webpack/utils');
+  const appConfig = getAppConfig();
+  winURL = `http://localhost:${appConfig.dev.devServerPort}`;
+} else {
+  winURL = `file://${__dirname}/index.html`;
+}
 
 function createWindow() {
   /**
@@ -21,7 +23,10 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
-    useContentSize: true
+    useContentSize: true,
+    webPreferences: {
+      webSecurity: false
+    }
   })
 
   mainWindow.loadURL(winURL)
