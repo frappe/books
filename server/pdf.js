@@ -27,7 +27,11 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
     const filepath = path.join(destination, name + '.pdf');
 
     const fs = require('fs')
-    let printWindow = new BrowserWindow({width: 600, height: 800})
+    let printWindow = new BrowserWindow({
+      width: 600,
+      height: 800,
+      show: false
+    })
     printWindow.loadURL(`file://${path.join(__static, 'print.html')}`);
 
     printWindow.on('closed', () => {
@@ -40,17 +44,20 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
 
     printWindow.webContents.executeJavaScript(code);
 
-    printWindow.webContents.on('did-finish-load', () => {
-      printWindow.webContents.printToPDF({}, (error, data) => {
-        if (error) throw error
-        printWindow.close();
-        fs.writeFile(filepath, data, (error) => {
+    const printPromise = new Promise(resolve => {
+      printWindow.webContents.on('did-finish-load', () => {
+        printWindow.webContents.printToPDF({}, (error, data) => {
           if (error) throw error
-          console.log('Write PDF successfully.')
-          shell.openItem(filepath);
+          printWindow.close();
+          fs.writeFile(filepath, data, (error) => {
+            if (error) throw error
+            resolve(shell.openItem(filepath));
+          })
         })
       })
     })
+
+    await printPromise;
     // await makePDF(html, filepath);
 }
 
