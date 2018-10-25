@@ -90,6 +90,12 @@ module.exports = {
       readOnly: 1
     },
     {
+      fieldname: 'outstandingAmount',
+      label: 'Outstanding Amount',
+      fieldtype: 'Currency',
+      hidden: 1
+    },
+    {
       fieldname: 'terms',
       label: 'Terms',
       fieldtype: 'Text'
@@ -131,15 +137,17 @@ module.exports = {
     utils.ledgerLink,
     {
       label: 'Make Payment',
-      condition: form => form.doc.submitted,
+      condition: form => form.doc.submitted && form.doc.outstandingAmount !== 0.0,
       action: async form => {
         const payment = await frappe.getNewDoc('Payment');
         payment.party = form.doc.customer;
         payment.account = form.doc.account;
         payment.for = [{ referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal }];
-        payment.on('afterInsert', () => {
+        payment.on('afterInsert', async () => {
           form.$formModal.close();
-          payment.submit();
+
+          const _payment = await frappe.getDoc('Payment', payment.name);
+          await _payment.submit();
         })
         await form.$formModal.open(payment);
       }
