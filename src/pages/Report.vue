@@ -11,14 +11,20 @@
         />
         <clickable-card
           class="mt-2"
+          title="Profit and Loss"
+          description="Profit and Loss statement"
+          @click="routeTo('profit-and-loss')"
+        />
+        <clickable-card
+          class="mt-2"
           title="Trial Balance"
-          description="Balance of accounts"
+          description="Trial Balance"
           @click="routeTo('trial-balance')"
         />
         <clickable-card
           class="mt-2"
           title="Sales Register"
-          description="Sales"
+          description="Sales transactions for a given period with invoiced amount and tax details"
           @click="routeTo('sales-register')"
         />
       </div>
