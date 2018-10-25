@@ -20,13 +20,7 @@ module.exports = {
             "fieldname": "parentAccount",
             "label": "Parent Account",
             "fieldtype": "Link",
-            "target": "Account",
-            getFilters: (query, control) => {
-                return {
-                    keywords: ["like", query],
-                    name: ["!=", control.doc.name]
-                }
-            }
+            "target": "Account"
         },
         {
             "fieldname": "rootType",
