@@ -8,7 +8,7 @@ export default function installFormModal(Vue) {
         let id;
 
         const open = (doc, options = {}) => {
-          const { defaultValues = null, onClose = null } = options;
+          const { defaultValues = null, onClose = () => {} } = options;
           id = this.$modal.show({
             component: Form,
             props: {
