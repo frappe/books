@@ -1,4 +1,5 @@
 import { _ } from 'frappejs/utils';
+import indicators from 'frappejs/ui/constants/indicators';
 
 export default {
   doctype: 'Invoice',
@@ -8,7 +9,16 @@ export default {
     {
       label: 'Status',
       getValue(doc) {
-        return doc.submitted ? 'Paid' : 'Pending';
+        if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
+          return 'Paid';
+        }
+        return 'Pending';
+      },
+      getIndicator(doc) {
+        if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
+          return indicators.GREEN;
+        }
+        return indicators.ORANGE;
       }
     },
     'grandTotal',

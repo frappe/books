@@ -6,8 +6,9 @@
       </list-cell>
     </list-row>
     <list-row v-for="doc in data" :key="doc.name" @click.native="openForm(doc.name)">
-      <list-cell v-for="column in columns" :key="column.label">
-        {{ frappe.format(column.getValue(doc), column.fieldtype || {}) }}
+      <list-cell v-for="column in columns" :key="column.label" class="d-flex align-items-center">
+        <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2" />
+        <span>{{ frappe.format(column.getValue(doc), column.fieldtype || {}) }}</span>
       </list-cell>
     </list-row>
   </div>
