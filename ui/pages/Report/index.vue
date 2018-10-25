@@ -18,11 +18,6 @@ export default {
   name: 'Report',
   props: ['reportName', 'reportConfig', 'filters'],
   computed: {
-    reportColumns() {
-      return utils.convertFieldsToDatatableColumns(
-        this.reportConfig.getColumns()
-      );
-    },
     filtersExists() {
       return (this.reportConfig.filterFields || []).length;
     }
@@ -42,7 +37,7 @@ export default {
       }
 
       if (data.columns) {
-        columns = data.columns;
+        columns = this.getColumns(data);
       }
 
       if (!rows) {
@@ -50,7 +45,7 @@ export default {
       }
 
       if (!columns) {
-        columns = this.reportColumns;
+        columns = this.getColumns();
       }
 
       for(let column of columns) {
@@ -65,6 +60,10 @@ export default {
           data: rows
         });
       }
+    },
+    getColumns(data) {
+      const columns = this.reportConfig.getColumns(data);
+      return utils.convertFieldsToDatatableColumns(columns);
     }
   },
   components: {
