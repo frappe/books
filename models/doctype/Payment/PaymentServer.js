@@ -17,6 +17,11 @@ module.exports = class PaymentServer extends BaseDocument {
 
     async afterSubmit() {
         await this.getPosting().post();
+        for (let row of this.for) {
+          if (row.referenceType === 'Invoice') {
+            await frappe.db.setValue('Invoice', row.referenceName, 'outstandingAmount', 0.0);
+          }
+        }
     }
 
     async afterRevert() {
