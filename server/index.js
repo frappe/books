@@ -1,6 +1,6 @@
 const path = require('path');
 const server = require('frappejs/server');
-const frappe = require('frappejs');
+const postStart = require('./postStart');
 const naming = require('frappejs/model/naming');
 const registerReportMethods = require('../reports');
 
