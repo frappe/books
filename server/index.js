@@ -46,6 +46,31 @@ async function postStart() {
         await importCOA(standardCOA);
       }
     })
+
+    frappe.registerMethod({
+      method: 'import-data',
+      async handler({doctype, data}) {
+        let success = [];
+        let failure = [];
+        let errorMessage = [];
+        for (let d of data) {
+          try {
+            const doc = await frappe.newDoc(Object.assign(d, {
+              doctype: doctype,
+            })).insert();
+            success.push(doc);
+          } catch(e) {
+            failure.push(d);
+            errorMessage.push(e)
+          }
+        }
+        return {
+          errorMessage,
+          success,
+          failure
+        }
+      }
+    })
 }
 
 start();
