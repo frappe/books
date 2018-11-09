@@ -188,7 +188,7 @@ module.exports = class BaseDocument extends Observable {
     }
 
     async compareWithCurrentDoc() {
-        if (frappe.isServer && !this._notInserted) {
+        if (frappe.isServer && !this.isNew()) {
             let currentDoc = await frappe.db.get(this.doctype, this.name);
 
             // check for conflict
@@ -346,5 +346,9 @@ module.exports = class BaseDocument extends Observable {
             _values[fieldname] = await frappe.db.getValue(doctype, name, fieldname);
         }
         return _values[fieldname];
+    }
+
+    isNew() {
+      return this._notInserted;
     }
 };

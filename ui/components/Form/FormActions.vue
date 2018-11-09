@@ -46,19 +46,19 @@ export default {
       this.showSubmit =
         this.meta.isSubmittable
         && !this.isDirty
-        && !this.doc._notInserted
+        && !this.doc.isNew()
         && this.doc.submitted === 0;
 
       this.showRevert =
         this.meta.isSubmittable
         && !this.isDirty
-        && !this.doc._notInserted
+        && !this.doc.isNew()
         && this.doc.submitted === 1;
 
       this.showNextAction = 1
 
       this.showNextAction =
-        !this.doc._notInserted
+        !this.doc.isNew()
         && this.links.length;
 
       this.showPrint =
@@ -66,14 +66,14 @@ export default {
         && this.meta.print
 
       this.showSave =
-        this.doc._notInserted ?
+        this.doc.isNew() ?
           true :
             this.meta.isSubmittable ?
               (this.isDirty ? true : false) :
               true;
 
       this.disableSave =
-        this.doc._notInserted ? false : !this.isDirty;
+        this.doc.isNew() ? false : !this.isDirty;
     }
   },
   computed: {
@@ -83,7 +83,7 @@ export default {
     title() {
       const _ = this._;
 
-      if (this.doc._notInserted) {
+      if (this.doc.isNew()) {
         return _('New {0}', _(this.doc.doctype));
       }
 

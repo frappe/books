@@ -195,8 +195,8 @@ module.exports = class Database extends Observable {
   }
 
   triggerChange(doctype, name) {
-    this.trigger(`change:${doctype}`, { name: name }, 500);
-    this.trigger(`change`, { doctype: name, name: name }, 500);
+    this.trigger(`change:${doctype}`, { name }, 500);
+    this.trigger(`change`, { doctype, name }, 500);
   }
 
   async insert(doctype, doc) {
