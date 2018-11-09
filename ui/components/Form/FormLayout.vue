@@ -58,7 +58,7 @@ export default {
         return false;
       }
 
-      if (fieldname === 'name' && !this.doc._notInserted) {
+      if (fieldname === 'name' && !this.doc.isNew()) {
         return false;
       }
 
