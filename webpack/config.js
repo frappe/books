@@ -28,13 +28,13 @@ function makeConfig() {
       mode: isProduction ? 'production' : 'development',
       context: resolveAppDir(),
       entry: isElectron ? appConfig.electron.entry : appConfig.dev.entry,
-      externals: isElectron ? externals : null,
+      externals: isElectron ? externals : undefined,
       target: isElectron ? 'electron-renderer' : 'web',
       output: {
         path: isElectron ? resolveAppDir('./dist/electron') : resolveAppDir('./dist'),
         filename: '[name].js',
         // publicPath: appConfig.dev.assetsPublicPath,
-        libraryTarget: isElectron ? 'commonjs2' : null
+        libraryTarget: isElectron ? 'commonjs2' : undefined
       },
       devtool: !isProduction ? 'cheap-module-eval-source-map' : '',
       module: {
