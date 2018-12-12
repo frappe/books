@@ -1,6 +1,6 @@
 <template>
   <div>
-    <page-header title="Reports" />
+    <page-header title="Reports"/>
     <div class="row">
       <div class="col-8 mx-auto">
         <clickable-card
@@ -27,6 +27,12 @@
           description="Sales transactions for a given period with invoiced amount and tax details"
           @click="routeTo('sales-register')"
         />
+        <clickable-card
+          class="mt-2"
+          title="Bank Reconciliation"
+          description="Bank Reconciliation statement"
+          @click="routeTo('bank-reconciliation')"
+        />
       </div>
     </div>
   </div>
@@ -47,5 +53,5 @@ export default {
       this.$router.push(`/report/${route}?${query}`);
     }
   }
-}
+};
 </script>

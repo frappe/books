@@ -1,7 +1,7 @@
-const title = 'General Ledger';
+const title = 'Bank Reconciliation';
 module.exports = {
   title: title,
-  method: 'general-ledger',
+  method: 'bank-reconciliation',
   filterFields: [{
       fieldtype: 'Select',
       options: ['', 'Invoice', 'Payment'],

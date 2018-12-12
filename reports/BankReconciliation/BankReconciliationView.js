@@ -1,10 +1,10 @@
 const ReportPage = require('frappejs/client/desk/reportpage');
 const frappe = require('frappejs');
 
-module.exports = class GeneralLedgerView extends ReportPage {
+module.exports = class BankReconciliationView extends ReportPage {
   constructor() {
     super({
-      title: frappe._('General Ledger'),
+      title: frappe._('Bank Reconciliation'),
       filterFields: [{
           fieldtype: 'Select',
           options: ['', 'Invoice', 'Payment'],
@@ -38,7 +38,7 @@ module.exports = class GeneralLedgerView extends ReportPage {
       ]
     });
 
-    this.method = 'general-ledger';
+    this.method = 'bank-reconciliation';
   }
 
   getColumns() {
