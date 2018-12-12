@@ -82,11 +82,14 @@ export default {
             this.doc.set(fieldname, value);
           }
         }
+
+        this.setLinks();
+        this.doc.on('change', this.setLinks);
+
       } catch (e) {
         this.notFound = true;
+        this.$router.push(`/list/${this.doctype}`)//if reloaded while insert new Item,Invoice etc form.
       }
-      this.setLinks();
-      this.doc.on('change', this.setLinks);
     },
     async save() {
       this.setValidity();

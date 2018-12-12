@@ -2,7 +2,7 @@ const frappe = require('frappejs');
 const path = require('path');
 const fs = require('fs');
 const countries = require('../../../fixtures/countryInfo.json');
-const standardCOA = require('../../../fixtures/verifiedCOAs/standardCOA.json');
+const standardCOA = require('../../../fixtures/verified/standardCOA.json');
 const accountFields = ['accountType', 'rootType', 'isGroup', 'account_type', 'root_type', 'is_group'];
 
 async function importAccounts(children, parent, rootType, rootAccount) {

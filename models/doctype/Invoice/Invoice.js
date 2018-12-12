@@ -39,6 +39,9 @@ module.exports = {
       target: 'Account',
       formula: (doc) => doc.getFrom('Party', doc.customer , 'defaultAccount'),
       getFilters: (query, control) => {
+        if(!query) { // Fixes New Invoice - Account Autocomplete error
+          query = ''
+        }
         return {
           keywords: ['like', query],
           isGroup: 0,
