@@ -85,7 +85,7 @@ export default {
 
         this.setLinks();
         this.doc.on('change', this.setLinks);
-
+        
       } catch (e) {
         this.notFound = true;
         this.$router.push(`/list/${this.doctype}`)//if reloaded while insert new Item,Invoice etc form.

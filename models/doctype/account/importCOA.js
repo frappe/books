@@ -21,6 +21,7 @@ async function importAccounts(children, parent, rootType, rootAccount) {
                 parentAccount: parent,
                 isGroup,
                 rootType,
+                balance: 0,
                 accountType: child.accountType
             })
 
