@@ -30,7 +30,7 @@ export default {
       items: [
         {
           label: 'Chart of Accounts',
-          route: '/tree/Account'
+          route: '/chartOfAccounts'
         },
         {
           label: 'Customers',

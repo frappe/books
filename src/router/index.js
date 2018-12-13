@@ -13,6 +13,7 @@ import DataImport from '../pages/DataImport';
 import Settings from '../pages/Settings/Settings';
 
 import ReportList from '../pages/Report';
+import ChartOfAccounts from '../pages/ChartOfAccounts';
 
 import Tree from 'frappejs/ui/components/Tree';
 
@@ -69,6 +70,12 @@ const routes = [
     path: '/tree/:doctype',
     name: 'Tree',
     component: Tree,
+    props: true
+  },
+  {
+    path: '/chartOfAccounts',
+    name: 'Chart Of Accounts',
+    component: ChartOfAccounts,
     props: true
   },
 ];
