@@ -1,5 +1,6 @@
 node_modules
 .DS_Store
+*.db
 Thumbs.db
 *test.db
 *.log
@@ -11,4 +12,7 @@ Frappe Accounting*
 build
 !build/icons
 !.gitkeep
+<<<<<<< HEAD
 *.db
+=======
+>>>>>>> 02f07c5628056db88acd24599481fb6f0cd5c1dc

@@ -5,12 +5,12 @@ const BalanceSheet = require('./BalanceSheet/BalanceSheet');
 const TrialBalance = require('./TrialBalance/TrialBalance');
 const SalesRegister = require('./SalesRegister/SalesRegister');
 const PurchaseRegister = require('./PurchaseRegister/PurchaseRegister');
+const BankReconciliation = require('./BankReconciliation/BankReconciliation');
 const AccountsReceivablePayable = require('./AccountsReceivablePayable/AccountsReceivablePayable');
 
 // called on server side
 function registerReportMethods() {
-    const reports = [
-        {
+    const reports = [{
             method: 'general-ledger',
             class: GeneralLedger
         },
@@ -33,7 +33,11 @@ function registerReportMethods() {
         {
             method: 'purchase-register',
             class: PurchaseRegister
-        }
+        },
+        {
+            method: 'bank-reconciliation',
+            class: BankReconciliation
+        },
     ];
 
     reports.forEach(report => {

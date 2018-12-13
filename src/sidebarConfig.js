@@ -49,6 +49,9 @@ export default {
         },
         {
           label: _('Sales Register'), route: '#/report/sales-register'
+        },
+        {
+          label: _('Bank Reconciliation'), route: '#/report/bank-reconciliation'
         }
       ]
     },

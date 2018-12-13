@@ -1,22 +1,11 @@
 const ReportPage = require('frappejs/client/desk/reportpage');
 const frappe = require('frappejs');
 
-module.exports = class GeneralLedgerView extends ReportPage {
+module.exports = class BankReconciliationView extends ReportPage {
   constructor() {
     super({
-      title: frappe._('General Ledger'),
-      filterFields: [{
-          fieldtype: 'Select',
-          options: ['', 'Invoice', 'Payment'],
-          label: 'Reference Type',
-          fieldname: 'referenceType'
-        },
-        {
-          fieldtype: 'DynamicLink',
-          references: 'referenceType',
-          label: 'Reference Name',
-          fieldname: 'referenceName'
-        },
+      title: frappe._('Bank Reconciliation'),
+      filterFields: [
         {
           fieldtype: 'Link',
           target: 'Account',
@@ -38,7 +27,7 @@ module.exports = class GeneralLedgerView extends ReportPage {
       ]
     });
 
-    this.method = 'general-ledger';
+    this.method = 'bank-reconciliation';
   }
 
   getColumns() {
@@ -48,6 +37,10 @@ module.exports = class GeneralLedgerView extends ReportPage {
       },
       {
         label: 'Account',
+        fieldtype: 'Link'
+      },
+      {
+        label: 'Payment Account',
         fieldtype: 'Link'
       },
       {
@@ -73,10 +66,6 @@ module.exports = class GeneralLedgerView extends ReportPage {
       {
         label: 'Party',
         fieldtype: 'Link'
-      },
-      {
-        label: 'Description',
-        fieldtype: 'Data'
       }
     ];
   }
