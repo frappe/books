@@ -12,7 +12,7 @@ export default {
     },
 
     {
-      fieldname: 'name',
+      fieldname: 'fullname',
       label: 'Name',
       fieldtype: 'Data',
       required: 1
@@ -68,7 +68,7 @@ export default {
       {
         title: 'Add a Profile',
         columns: [
-          { fields: ['name', 'email'] }
+          { fields: ['fullname', 'email'] }
         ]
       },
 

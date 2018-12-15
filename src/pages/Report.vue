@@ -27,25 +27,41 @@
           description="Sales transactions for a given period with invoiced amount and tax details"
           @click="routeTo('sales-register')"
         />
-        <clickable-card
+        <clickable-card 
           class="mt-2"
           title="Bank Reconciliation"
           description="Bank Reconciliation statement"
           @click="routeTo('bank-reconciliation',{'toDate' : (new Date()).toISOString()})"
+        />
+        <clickable-card  v-if="country === 'India'"
+          class="mt-2"
+          title="Goods and Service Tax"
+          description="See your goods and services tax here."
+          @click="routeTo('gst-taxes',{'name' : 'GST'})"
         />
       </div>
     </div>
   </div>
 </template>
 <script>
+import frappe from 'frappejs';
 import PageHeader from '../components/PageHeader';
 import ClickableCard from '../components/ClickableCard';
-
+import generateGstTaxes from '../main-electron';
 export default {
   name: 'Report',
+  data() {
+    return {
+      country: '',
+    }
+  },
   components: {
     PageHeader,
     ClickableCard
+  },
+  async created() {
+    const doc = await frappe.getDoc('AccountingSettings');
+    this.country = doc.country;
   },
   methods: {
     routeTo(route, filters) {

@@ -25,7 +25,6 @@ class BankReconciliation {
         fields: ['date', 'referenceType', 'referenceName', 'debit', 'credit'],
         filters: {referenceType:'Payment', account:data[i].paymentAccount,referenceName:data[i].name}
       })
-      console.log(ledger);
       data[i].credit = ledger[0].credit;
       data[i].debit = ledger[0].debit;
       data[i].referenceName = ledger[0].referenceName;

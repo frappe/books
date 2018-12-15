@@ -6,6 +6,7 @@ const TrialBalance = require('./TrialBalance/TrialBalance');
 const SalesRegister = require('./SalesRegister/SalesRegister');
 const PurchaseRegister = require('./PurchaseRegister/PurchaseRegister');
 const BankReconciliation = require('./BankReconciliation/BankReconciliation');
+const GoodsAndServiceTax = require('./GoodsAndServiceTax/GoodsAndServiceTax');
 const AccountsReceivablePayable = require('./AccountsReceivablePayable/AccountsReceivablePayable');
 
 // called on server side
@@ -37,6 +38,10 @@ function registerReportMethods() {
         {
             method: 'bank-reconciliation',
             class: BankReconciliation
+        },
+        {
+            method: 'gst-taxes',
+            class: GoodsAndServiceTax
         },
     ];
 
