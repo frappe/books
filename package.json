@@ -49,14 +49,16 @@
   "scripts": {
     "test": "mocha tests",
     "start": "frappe start",
-    "electron": "cross-env ELECTRON=true frappe start electron",
+    "electron": "ELECTRON=true frappe start electron",
     "pack-electron": "cross-env NODE_ENV=production ELECTRON=true frappe build electron",
     "build-electron": "npm run pack-electron && electron-builder",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "electron": "^3.0.12",
     "frappejs": "github:frappe/frappejs",
     "popper.js": "^1.14.4",
+    "sqlite3": "^4.0.4",
     "vue-toasted": "^1.1.25"
   }
 }

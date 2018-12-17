@@ -10,7 +10,7 @@ module.exports = {
     settings: "PaymentSettings",
     fields: [{
             "fieldname": "date",
-            "label": "Date",
+            "label": "Posting Date",
             "fieldtype": "Date"
         },
         {
@@ -36,10 +36,15 @@ module.exports = {
         },
         {
             fieldname: "referenceId",
-            label: "Reference / Cheque No.",
+            label: "Ref. / Cheque No.",
             fieldtype: "Data",
             default: "ABC",
             required: 1 // TODO: UNIQUE
+        },
+        {
+            fieldname: "referenceDate",
+            label: "Ref. Date",
+            fieldtype: "Date",
         },
         {
             fieldname: "amount",
@@ -75,6 +80,8 @@ module.exports = {
         {
             columns: [{
                 fields: ['referenceId']
+            }, {
+                fields: ['referenceDate']
             }]
         },
         {

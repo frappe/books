@@ -6,7 +6,10 @@ import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
 import postStart from '../server/postStart';
-import { getSettings, saveSettings } from '../electron/settings';
+import {
+  getSettings,
+  saveSettings
+} from '../electron/settings';
 
 // vue imports
 import Vue from 'vue';
@@ -65,12 +68,13 @@ import Toasted from 'vue-toasted';
     });
 
     await doc.update();
-    await frappe.call({ method: 'import-coa' });
+    await frappe.call({
+      method: 'import-coa'
+    });
     await generateGstTaxes();
 
     frappe.events.trigger('show-desk');
   });
-
   async function generateGstTaxes() {
     const gstPercent = [5, 12, 18, 28];
     const gstType = ['CGST', 'SGST', 'IGST', 'UGST'];
@@ -85,17 +89,23 @@ import Toasted from 'vue-toasted';
           }]
         })
         await newTax.insert();
-      } 
+      }
     }
   }
 
   async function connectToLocalDatabase(filepath) {
-    frappe.login('Administrator');
-    frappe.db = new SQLite({ dbPath: filepath });
-    await frappe.db.connect();
-    await frappe.db.migrate();
-    frappe.getSingle('SystemSettings');
-    await postStart();
+    try {
+      frappe.login('Administrator');
+      frappe.db = new SQLite({
+        dbPath: filepath
+      });
+      await frappe.db.connect();
+      await frappe.db.migrate();
+      frappe.getSingle('SystemSettings');
+      await postStart();
+    } catch (e) {
+      console.log(e);
+    }
   }
 
 
@@ -105,14 +115,16 @@ import Toasted from 'vue-toasted';
   Vue.use(frappeVue);
   Vue.use(Toasted, {
     position: 'bottom-right',
-    duration : 3000
- });
+    duration: 3000
+  });
 
   /* eslint-disable no-new */
   new Vue({
     el: '#app',
     router,
-    components: { App },
+    components: {
+      App
+    },
     template: '<App/>'
   });
 })()

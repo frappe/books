@@ -2,12 +2,11 @@ const title = 'Bank Reconciliation';
 module.exports = {
   title: title,
   method: 'bank-reconciliation',
-  filterFields: [
-    {
+  filterFields: [{
       fieldtype: 'Link',
       target: 'Account',
-      label: 'Account',
-      fieldname: 'account'
+      label: 'Payement Account',
+      fieldname: 'paymentAccount'
     },
     {
       fieldtype: 'Link',
@@ -28,12 +27,9 @@ module.exports = {
   ],
   getColumns() {
     return [{
-        label: 'Date',
-        fieldtype: 'Date'
-      },
-      {
-        label: 'Account',
-        fieldtype: 'Link'
+        label: 'Posting Date',
+        fieldtype: 'Date',
+        fieldname: 'date'
       },
       {
         label: 'Payment Account',
@@ -52,12 +48,19 @@ module.exports = {
         fieldtype: 'Currency'
       },
       {
-        label: 'Reference Type',
-        fieldtype: 'Data'
+        label: 'Ref. Type',
+        fieldtype: 'Data',
+        fieldname: 'referenceType'
       },
       {
-        label: 'Reference Name',
-        fieldtype: 'Data'
+        label: 'Ref. Name',
+        fieldtype: 'Data',
+        fieldname: 'referenceName'
+      },
+      {
+        label: 'Ref. Date',
+        fieldtype: 'Date',
+        fieldname: 'referenceDate'
       },
       {
         label: 'Party',
