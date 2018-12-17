@@ -8,8 +8,7 @@ module.exports = {
     isSubmittable: 1,
     keywordFields: [],
     settings: "PaymentSettings",
-    fields: [
-        {
+    fields: [{
             "fieldname": "date",
             "label": "Date",
             "fieldtype": "Date"
@@ -36,6 +35,13 @@ module.exports = {
             required: 1
         },
         {
+            fieldname: "referenceId",
+            label: "Reference / Cheque No.",
+            fieldtype: "Data",
+            default: "ABC",
+            required: 1 // TODO: UNIQUE
+        },
+        {
             fieldname: "amount",
             label: "Amount",
             fieldtype: "Currency",
@@ -57,26 +63,29 @@ module.exports = {
         }
     ],
 
-    layout: [
-        {
-            columns: [
-                { fields: ['date', 'party'] },
-                { fields: ['account', 'paymentAccount'] },
+    layout: [{
+            columns: [{
+                    fields: ['date', 'party']
+                },
+                {
+                    fields: ['account', 'paymentAccount']
+                },
             ]
         },
         {
-          columns: [
-            {
-              fields: ['for']
-            }
-          ]
+            columns: [{
+                fields: ['referenceId']
+            }]
         },
         {
-          columns: [
-            {
-              fields: ['amount', 'writeoff']
-            }
-          ]
+            columns: [{
+                fields: ['for']
+            }]
+        },
+        {
+            columns: [{
+                fields: ['amount', 'writeoff']
+            }]
         }
     ],
 

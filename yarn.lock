@@ -6838,6 +6838,10 @@ vue-template-es2015-compiler@^1.6.0:
 vue-toasted@^1.1.25:
   version "1.1.26"
   resolved "https://registry.yarnpkg.com/vue-toasted/-/vue-toasted-1.1.26.tgz#1333d1a42157ab78389c3810023a49ba94e69c7b"
+<<<<<<< HEAD
+=======
+  integrity sha512-Z4/gfPcqdzsRvif7UITrZOkh3C6jm0yQKJyr9kX31IGWXor5dNipE1Sc5SnlL5RLmY7vlLa+SqIjc9Gbpy7V0g==
+>>>>>>> saq-master
 
 vue@^2.5.16:
   version "2.5.16"

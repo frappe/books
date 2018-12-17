@@ -1,7 +1,7 @@
 node_modules
 .DS_Store
-Thumbs.db
 *.db
+Thumbs.db
 *.log
 .cache
 /temp

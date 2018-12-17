@@ -1,19 +1,8 @@
-const title = 'General Ledger';
+const title = 'Bank Reconciliation';
 module.exports = {
   title: title,
-  method: 'general-ledger',
-  filterFields: [{
-      fieldtype: 'Select',
-      options: ['', 'Invoice', 'Payment'],
-      label: 'Reference Type',
-      fieldname: 'referenceType'
-    },
-    {
-      fieldtype: 'DynamicLink',
-      references: 'referenceType',
-      label: 'Reference Name',
-      fieldname: 'referenceName'
-    },
+  method: 'bank-reconciliation',
+  filterFields: [
     {
       fieldtype: 'Link',
       target: 'Account',
@@ -47,6 +36,10 @@ module.exports = {
         fieldtype: 'Link'
       },
       {
+        label: 'Payment Account',
+        fieldtype: 'Link'
+      },
+      {
         label: 'Debit',
         fieldtype: 'Currency'
       },
@@ -69,10 +62,6 @@ module.exports = {
       {
         label: 'Party',
         fieldtype: 'Link'
-      },
-      {
-        label: 'Description',
-        fieldtype: 'Data'
       }
     ];
   }

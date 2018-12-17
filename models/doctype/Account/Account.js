@@ -61,6 +61,13 @@ module.exports = {
             ]
         },
         {
+            "fieldname": "balance",
+            "label": "Balance",
+            "fieldtype": "Currency",
+            "default": '0',
+            "disabled": true
+        },
+        {
             "fieldname": "isGroup",
             "label": "Is Group",
             "fieldtype": "Check"

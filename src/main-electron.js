@@ -66,9 +66,28 @@ import Toasted from 'vue-toasted';
 
     await doc.update();
     await frappe.call({ method: 'import-coa' });
+    await generateGstTaxes();
 
     frappe.events.trigger('show-desk');
   });
+
+  async function generateGstTaxes() {
+    const gstPercent = [5, 12, 18, 28];
+    const gstType = ['CGST', 'SGST', 'IGST', 'UGST'];
+    for (const type of gstType) {
+      for (const percent of gstPercent) {
+        let newTax = await frappe.getNewDoc('Tax');
+        await newTax.set({
+          name: type + '-' + percent,
+          details: [{
+            account: "Duties and Taxes",
+            rate: percent
+          }]
+        })
+        await newTax.insert();
+      } 
+    }
+  }
 
   async function connectToLocalDatabase(filepath) {
     frappe.login('Administrator');
@@ -78,6 +97,7 @@ import Toasted from 'vue-toasted';
     frappe.getSingle('SystemSettings');
     await postStart();
   }
+
 
   window.frappe = frappe;
 
