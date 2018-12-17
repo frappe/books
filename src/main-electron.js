@@ -66,27 +66,54 @@ import Toasted from 'vue-toasted';
 
     await doc.update();
     await frappe.call({ method: 'import-coa' });
-    await generateGstTaxes();
+    if(country == "India")
+      await generateGstTaxes();
 
     frappe.events.trigger('show-desk');
   });
 
   async function generateGstTaxes() {
-    const gstPercent = [5, 12, 18, 28];
-    const gstType = ['CGST', 'SGST', 'IGST', 'UGST'];
-    for (const type of gstType) {
-      for (const percent of gstPercent) {
-        let newTax = await frappe.getNewDoc('Tax');
-        await newTax.set({
-          name: type + '-' + percent,
-          details: [{
-            account: "Duties and Taxes",
-            rate: percent
-          }]
-        })
+    const gstPercents = [5, 12, 18, 28];
+    const gstTypes = ['Out of State', 'In State'];
+    let newTax = await frappe.getNewDoc('Tax');
+    for (const type of gstTypes) {
+      for (const percent of gstPercents) {
+        switch (type) {
+          case 'Out of State':
+            await newTax.set({
+              name: `${type}-${percent}`,
+              details: [{
+                account: "IGST",
+                rate: percent
+              }]
+            })
+          case 'In State':
+            await newTax.set({
+              name: `${type}-${percent}`,
+              details: [{
+                  account: "CGST",
+                  rate: percent/2
+                },
+                {
+                  account: "SGST",
+                  rate: percent/2
+                }
+              ]
+            })
+        }
+        console.log(newTax);
         await newTax.insert();
-      } 
+      }
     }
+    await newTax.set({
+      name: `Exempt-0`,
+      details: [{
+        account: "Exempt",
+        rate: 0
+      }]
+    })
+    console.log(newTax);
+    await newTax.insert();
   }
 
   async function connectToLocalDatabase(filepath) {
