@@ -1,3 +1,5 @@
+const frappe = require('frappejs')
+
 module.exports = {
     "name": "Party",
     "doctype": "DocType",
@@ -14,6 +16,12 @@ module.exports = {
             "required": 1
         },
         {
+            fieldname: "address",
+            label: "Address",
+            fieldtype: "Link",
+            target: "Address"
+        },
+        {
           fieldname: 'defaultAccount',
           label: 'Default Account',
           fieldtype: 'Link',
@@ -24,6 +32,12 @@ module.exports = {
               accountType: 'Receivable'
             };
           }
+        },
+        {
+            "fieldname": "gstin",
+            "label": "GSTIN No.",
+            "fieldtype": "Data",
+            "hidden":  0
         },
         {
             "fieldname": "customer",
@@ -49,3 +63,10 @@ module.exports = {
         }
     ]
 }
+
+// function getRegion() {
+//     setTimeout(async () => {
+//         const accountingSettings = await frappe.getSingle('AccountingSettings');
+//         return accountingSettings.country === 'India'
+//     }, 500)
+// }

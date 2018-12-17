@@ -14,15 +14,33 @@ class GoodsAndServiceTax {
     // }
     if (params.name) filters.name = params.name;
 
-    let listOfTaxes = await frappe.db.getAll({
-      doctype: 'Tax',
+    let invoiceNames = await frappe.db.getAll({
+      doctype: 'Invoice',
+      filters: {}
     });
 
-    for (let [pos, tax] of listOfTaxes.entries()) {
-      let taxDetails = await frappe.getDoc('Tax', tax.name);
-      listOfTaxes[pos].rate = taxDetails.details[0].rate;
+    let tableData = [];
+
+    for (let [pos, invoice] of invoiceNames.entries()) {
+      const row = {}
+      let invoiceDetails = await frappe.getDoc('Invoice', invoice.name);
+      let customerDetails = await frappe.getDoc('Party', invoiceDetails.customer)
+      let addressDetails = await frappe.getDoc('Address', customerDetails.address)
+      row.gstin = customerDetails.gstin
+      row.cusName = invoiceDetails.customer
+      row.invNo = invoiceDetails.name
+      row.invDate = invoiceDetails.date
+      row.place = addressDetails.state
+      row.rate = 0
+      invoiceDetails.taxes.forEach(tax => {
+        row.rate += tax.rate
+      });
+      row.invAmt = invoiceDetails.netTotal
+      row.taxAmt = parseInt(invoiceDetails.grandTotal) - parseInt(invoiceDetails.netTotal)
+      tableData.push(row)
     }
-    return listOfTaxes;
+
+    return tableData;
   }
   
 }
