@@ -1,7 +1,7 @@
 node_modules
 .DS_Store
 Thumbs.db
-*test.db
+*.db
 *.log
 .cache
 /temp
