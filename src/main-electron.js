@@ -66,9 +66,12 @@ import Toasted from 'vue-toasted';
 
     await doc.update();
     await frappe.call({ method: 'import-coa' });
-    if(country == "India")
+    
+    if(country === "India"){
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
+      await frappe.db.migrate()
       await generateGstTaxes();
-
+    }
     frappe.events.trigger('show-desk');
   });
 
@@ -80,6 +83,7 @@ import Toasted from 'vue-toasted';
       for (const percent of gstPercents) {
         switch (type) {
           case 'Out of State':
+          console.log(type)
             await newTax.set({
               name: `${type}-${percent}`,
               details: [{
@@ -87,7 +91,9 @@ import Toasted from 'vue-toasted';
                 rate: percent
               }]
             })
+            break;
           case 'In State':
+            console.log(type)
             await newTax.set({
               name: `${type}-${percent}`,
               details: [{
@@ -100,8 +106,8 @@ import Toasted from 'vue-toasted';
                 }
               ]
             })
+            break;
         }
-        console.log(newTax);
         await newTax.insert();
       }
     }
@@ -112,7 +118,6 @@ import Toasted from 'vue-toasted';
         rate: 0
       }]
     })
-    console.log(newTax);
     await newTax.insert();
   }
 

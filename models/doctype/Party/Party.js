@@ -1,5 +1,3 @@
-const frappe = require('frappejs')
-
 module.exports = {
     "name": "Party",
     "doctype": "DocType",
@@ -34,12 +32,6 @@ module.exports = {
           }
         },
         {
-            "fieldname": "gstin",
-            "label": "GSTIN No.",
-            "fieldtype": "Data",
-            "hidden":  0
-        },
-        {
             "fieldname": "customer",
             "label": "Customer",
             "fieldtype": "Check"
@@ -63,10 +55,3 @@ module.exports = {
         }
     ]
 }
-
-// function getRegion() {
-//     setTimeout(async () => {
-//         const accountingSettings = await frappe.getSingle('AccountingSettings');
-//         return accountingSettings.country === 'India'
-//     }, 500)
-// }

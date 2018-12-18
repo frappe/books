@@ -4,14 +4,25 @@ module.exports = {
   method: 'gst-taxes',
   filterFields: [{
     fieldtype: 'Data',
-    label: 'Name',
-    fieldname: 'name'
+    label: 'Transfer Type',
+    fieldname: 'transferType'
   },
   {
-    fieldtype: 'Float',
-    label: 'Rate',
-    fieldname: 'rate'
+    fieldtype: 'Data',
+    label: 'Place',
+    fieldname: 'place'
+  },
+  {
+    fieldtype: 'Date',
+    label: 'From Date',
+    fieldname: 'fromDate'
+  },
+  {
+    fieldtype: 'Date',
+    label: 'To Date',
+    fieldname: 'toDate'
   }],
+
   getColumns() {
     return [{
       label: 'GSTIN No.',

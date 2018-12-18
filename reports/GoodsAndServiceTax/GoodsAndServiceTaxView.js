@@ -8,11 +8,19 @@ module.exports = class GoodsAndServiceTaxView extends ReportPage {
       filterFields: [
         {
           fieldtype: 'Data',
-          label: 'Name'
+          label: 'Transfer Type'
         },
         {
-          fieldtype: 'Float',
-          label: 'Rate'
+          fieldtype: 'Data',
+          label: 'Place'
+        },
+        {
+          fieldtype: 'Date',
+          label: 'From Date'
+        },
+        {
+          fieldtype: 'Date',
+          label: 'To Date'
         }
       ]
     });

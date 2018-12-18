@@ -37,7 +37,7 @@
           class="mt-2"
           title="Goods and Service Tax"
           description="See your goods and services tax here."
-          @click="routeTo('gst-taxes',{'name' : 'GST'})"
+          @click="routeTo('gst-taxes',{'toDate' : (new Date()).toISOString()})"
         />
       </div>
     </div>

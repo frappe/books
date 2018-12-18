@@ -6,6 +6,7 @@
             "Current Assets": {
                 "Accounts Receivable": {
                     "Debtors": {
+                        "is_group": 0,
                         "account_type": "Receivable"
                     }
                 },
