@@ -15,9 +15,10 @@ class BankReconciliation {
 
     let data = await frappe.db.getAll({
       doctype: 'Payment',
-      fields: ['date', 'account', 'paymentAccount', 'party', 'name', 'referenceDate'],
+      fields: ['date', 'account', 'paymentAccount', 'party', 'name', 'referenceDate','clearanceDate'],
       filters: filters,
     });
+    console.log(data);
 
     for (var i = 0; i < data.length; i++) {
       let ledger = await frappe.db.getAll({

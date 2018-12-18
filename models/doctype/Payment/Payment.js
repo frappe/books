@@ -47,6 +47,12 @@ module.exports = {
             fieldtype: "Date",
         },
         {
+            fieldname: "clearanceDate",
+            label: "Clearance Date",
+            fieldtype: "Date",
+            default: "None",
+        },
+        {
             fieldname: "amount",
             label: "Amount",
             fieldtype: "Currency",
@@ -82,6 +88,8 @@ module.exports = {
                 fields: ['referenceId']
             }, {
                 fields: ['referenceDate']
+            },{
+                fields: ['clearanceDate']
             }]
         },
         {

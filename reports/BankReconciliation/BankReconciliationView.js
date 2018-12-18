@@ -67,6 +67,11 @@ module.exports = class BankReconciliationView extends ReportPage {
         fieldname: 'referenceDate'
       },
       {
+        label: 'Clearance Date',
+        fieldtype: 'Date',
+        fieldname: 'clearanceDate'
+      },
+      {
         label: 'Party',
         fieldtype: 'Link'
       }

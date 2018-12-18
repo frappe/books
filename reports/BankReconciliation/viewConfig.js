@@ -63,6 +63,11 @@ module.exports = {
         fieldname: 'referenceDate'
       },
       {
+        label: 'Clearance Date',
+        fieldtype: 'Date',
+        fieldname: 'clearanceDate'
+      },
+      {
         label: 'Party',
         fieldtype: 'Link'
       }
