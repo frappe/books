@@ -26,6 +26,13 @@ module.exports = {
           }
         },
         {
+            fieldname: "address",
+            label: "Address",
+            fieldtype: "Link",
+            target: "Address",
+            required: 1
+        },
+        {
             "fieldname": "customer",
             "label": "Customer",
             "fieldtype": "Check"

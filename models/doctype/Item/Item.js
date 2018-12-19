@@ -45,10 +45,17 @@ module.exports = {
       target: 'Account'
     },
     {
-      fieldname: 'tax',
-      label: 'Tax',
-      fieldtype: 'Link',
-      target: 'Tax'
+      fieldname: 'taxRate',
+      label: 'Tax Rate',
+      fieldtype: 'Select',
+      required: 1,
+      options: [
+        "0%",
+        "5%",
+        "12%",
+        "18%",
+        "28%"
+      ]
     },
     {
       fieldname: 'rate',
@@ -77,7 +84,7 @@ module.exports = {
       title: 'Accounting',
       columns: [
         { fields: ['incomeAccount', 'expenseAccount'] },
-        { fields: ['tax'] }
+        { fields: ['taxRate'] }
       ]
     }
   ]

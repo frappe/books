@@ -87,6 +87,7 @@ import Toasted from 'vue-toasted';
                 rate: percent
               }]
             })
+            break;
           case 'In State':
             await newTax.set({
               name: `${type}-${percent}`,
@@ -100,6 +101,7 @@ import Toasted from 'vue-toasted';
                 }
               ]
             })
+            break;
         }
         console.log(newTax);
         await newTax.insert();
