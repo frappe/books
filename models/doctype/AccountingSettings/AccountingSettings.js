@@ -9,8 +9,7 @@ module.exports = {
     isSubmittable: 0,
     settings: null,
     keywordFields: [],
-    fields: [
-        {
+    fields: [{
             label: "Company Name",
             fieldname: "companyName",
             fieldtype: "Data",
@@ -44,14 +43,6 @@ module.exports = {
             "label": "Email",
             "fieldtype": "Data",
             "required": 1
-        },
-
-        {
-            "fieldname": "address",
-            "label": "Address",
-            "fieldtype": "Link",
-            "target": "Address",
-            required: 1
         },
 
         {

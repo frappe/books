@@ -5,8 +5,7 @@ module.exports = {
   isChild: 1,
   keywordFields: [],
   layout: 'ratio',
-  fields: [
-    {
+  fields: [{
       fieldname: 'item',
       label: 'Item',
       fieldtype: 'Link',
@@ -47,25 +46,9 @@ module.exports = {
       label: 'Tax',
       fieldtype: 'Link',
       target: 'Tax',
-      formula:  async (row, doc) => {
-        if (row.tax)
-          return row.tax;
-        else if(row.item){
-          let taxRate = await doc.getFrom('Item', row.item, 'taxRate');
-          taxRate = taxRate.substring(0,taxRate.length-1);
-          if(taxRate === "0")
-            return  "Exempt-0";
-          let accountSettings =  await frappe.getSingle('AccountingSettings');
-          let mainState = await doc.getFrom('Address', accountSettings.address, 'state');
-          let custDetails =  await frappe.getDoc('Party', doc.customer);
-          let custState = await doc.getFrom('Address', custDetails.address, 'state');
-          if(mainState === custState)
-            return `In State-${taxRate}`;
-          else
-            return `Out of State-${taxRate}`;
-        }
-        else
-          return ;
+      formula: (row, doc) => {
+        if (row.tax) return row.tax;
+        return doc.getFrom('Item', row.item, 'tax');
       }
     },
     {

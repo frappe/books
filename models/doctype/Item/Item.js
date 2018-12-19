@@ -6,8 +6,7 @@ module.exports = {
     'name',
     'description'
   ],
-  fields: [
-    {
+  fields: [{
       fieldname: 'name',
       label: 'Item Name',
       fieldtype: 'Data',
@@ -45,17 +44,10 @@ module.exports = {
       target: 'Account'
     },
     {
-      fieldname: 'taxRate',
-      label: 'Tax Rate',
-      fieldtype: 'Select',
-      required: 1,
-      options: [
-        "0%",
-        "5%",
-        "12%",
-        "18%",
-        "28%"
-      ]
+      fieldname: 'tax',
+      label: 'Tax',
+      fieldtype: 'Link',
+      target: 'Tax'
     },
     {
       fieldname: 'rate',
@@ -66,25 +58,31 @@ module.exports = {
   layout: [
     // section 1
     {
-      columns: [
-        { fields: ['name', 'unit'] },
-        { fields: ['rate'] }
+      columns: [{
+          fields: ['name', 'unit']
+        },
+        {
+          fields: ['rate']
+        }
       ]
     },
 
     // section 2
     {
-      columns: [
-        { fields: ['description'] }
-      ]
+      columns: [{
+        fields: ['description']
+      }]
     },
 
     // section 3
     {
       title: 'Accounting',
-      columns: [
-        { fields: ['incomeAccount', 'expenseAccount'] },
-        { fields: ['taxRate'] }
+      columns: [{
+          fields: ['incomeAccount', 'expenseAccount']
+        },
+        {
+          fields: ['tax']
+        }
       ]
     }
   ]
