@@ -8,11 +8,19 @@ module.exports = class GoodsAndServiceTaxView extends ReportPage {
       filterFields: [
         {
           fieldtype: 'Data',
-          label: 'Name'
+          label: 'Transfer Type'
         },
         {
-          fieldtype: 'Float',
-          label: 'Rate'
+          fieldtype: 'Data',
+          label: 'Place'
+        },
+        {
+          fieldtype: 'Date',
+          label: 'From Date'
+        },
+        {
+          fieldtype: 'Date',
+          label: 'To Date'
         }
       ]
     });
@@ -22,12 +30,44 @@ module.exports = class GoodsAndServiceTaxView extends ReportPage {
 
   getColumns() {
     return [{
-      label: 'Name',
+      label: 'GSTIN No.',
+      fieldname: 'gstin',
       fieldtype: 'Data'
     },
     {
-      fieldtype: 'Float',
-      label: 'Rate'
+      fieldtype: 'Data',
+      fieldname: 'cusName',
+      label: 'Customer Name'
+    },
+    {
+      label: 'Invoice No.',
+      fieldname: 'invNo',
+      fieldtype: 'Data'
+    },
+    {
+      label: 'Invoice Value',
+      fieldname: 'invAmt',
+      fieldtype: 'Data'
+    },
+    {
+      label: 'Invoice Date',
+      fieldname: 'invDate',
+      fieldtype: 'Date'
+    },
+    {
+      label: 'Place of supply',
+      fieldname: 'place',
+      fieldtype: 'Data'
+    },
+    {
+      label: 'Rate',
+      fieldname: 'rate',
+      fieldtype: 'Data'
+    },
+    {
+      label: 'Taxable Amount',
+      fieldname: 'taxAmt',
+      fieldtype: 'Data'
     }
     ];
   }
