@@ -57,6 +57,7 @@
   "dependencies": {
     "frappejs": "github:frappe/frappejs",
     "popper.js": "^1.14.4",
+    "vue-color": "^2.7.0",
     "vue-toasted": "^1.1.25"
   }
 }
