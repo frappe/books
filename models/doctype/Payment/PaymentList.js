@@ -9,13 +9,13 @@ export default {
     {
       label: 'Payment',
       getValue(doc) {
-        if (doc.submitted === 1 && doc.clearanceDate !== "None") {
+        if (doc.submitted === 1 && doc.clearanceDate !== null) {
           return 'Reconciled';
         }
         return 'Not Reconciled';
       },
       getIndicator(doc) {
-        if (doc.submitted === 1 && doc.clearanceDate !== "None") {
+        if (doc.submitted === 1 && doc.clearanceDate !== null) {
           return indicators.GREEN;
         }
         return indicators.ORANGE;

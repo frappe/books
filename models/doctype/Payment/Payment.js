@@ -50,7 +50,7 @@ module.exports = {
             fieldname: "clearanceDate",
             label: "Clearance Date",
             fieldtype: "Date",
-            default: "None",
+            default: "None"
         },
         {
             fieldname: "amount",
