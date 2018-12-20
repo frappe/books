@@ -16,7 +16,7 @@
 					:fields="fields"
 					@updateDoc="saveDoc"
 				/>
-				<sketch-picker :disableAplha="disableAlpha" v-model="color"/>	
+				<sketch-picker v-model="color"/>	
 			</div>
 		</div>
 	</div>
@@ -37,19 +37,18 @@ export default {
 			doc: null,
 			fields: [],
 			color: null,
-			disableAlpha: true
 		}
 	},
 	async created() {
-		console.log('mounted');
 		this.doc = await frappe.getDoc('InvoiceSettings');
 	  	this.color = this.doc.themeColor;
 		const meta = frappe.getMeta('InvoiceSettings');
 		this.fields = meta.fields.filter((field) => field.fieldname !== "numberSeries");
 	},
   	methods: {
-		async saveDoc() {
-			this.$emit('changeInvoice', this.doc);
+		async saveDoc(updatedValue) {
+			let { value } = updatedValue;
+			this.$emit('changeTemplate', value);
 			await this.doc.update();
     	}
   	},
@@ -58,7 +57,7 @@ export default {
 	  		if (this.doc) {
 				if (this.doc.themeColor != this.color.hex) {
 					this.doc.themeColor = this.color.hex;
-					this.$emit('changeInvoice', this.doc);
+					this.$emit('changeColor', this.color.hex);
 					await this.doc.update();
 	  			}
 			}

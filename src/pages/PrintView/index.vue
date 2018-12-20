@@ -1,19 +1,28 @@
 <template>
   <div class="bg-light">
-    <page-header :title="doctype" />
-    <div class="row mt-4 no-gutters">
-      <div v-if="showInvoiceCustomizer" class="col-3 mx-auto"></div>
-      <div class="col-8 mx-auto text-right">
+    <page-header :title="doctype"/>
+    <div class="row no-gutters">
+      <div class="col-8 mx-auto text-right mt-4">
         <f-button secondary @click="toggleInvoiceCustomizer">{{ _('Customize') }}</f-button>
         <f-button primary @click="makePDF">{{ _('PDF') }}</f-button>
       </div>
     </div>
     <div class="row no-gutters">
       <div v-if="showInvoiceCustomizer" class="col-3 mt-4 border mx-auto">
-        <invoice-customizer @closeInvoiceCustomizer="toggleInvoiceCustomizer" @changeInvoice="loadInvoice($event)" />
-      </div>      
+        <invoice-customizer
+          @closeInvoiceCustomizer="toggleInvoiceCustomizer"
+          @changeColor="changeColor($event)"
+          @changeTemplate="changeTemplate($event)"
+        />
+      </div>
       <div ref="printComponent" class="col-8 bg-white mt-4 mx-auto border shadow">
-        <component :themeColor="themeColor" :is="printComponent" v-if="doc" :doc="doc" />
+        <component
+          :themeColor="themeColor"
+          :template="template"
+          :is="printComponent"
+          v-if="doc"
+          :doc="doc"
+        />
       </div>
     </div>
   </div>
@@ -21,20 +30,10 @@
 <script>
 import PageHeader from '@/components/PageHeader';
 import InvoiceCustomizer from '@/components/InvoiceCustomizer';
-import InvoicePrint1 from '@/../models/doctype/Invoice/InvoicePrint1'
-import InvoicePrint2 from '@/../models/doctype/Invoice/InvoicePrint2'
-import InvoicePrint3 from '@/../models/doctype/Invoice/InvoicePrint3'
-
-const invoiceTemplates = {
-  'Basic I': InvoicePrint1,
-  'Basic II': InvoicePrint3,
-  'Modern': InvoicePrint2
-}
-
+import InvoicePrint from '@/../models/doctype/Invoice/InvoicePrint';
 const printComponents = {
-  Invoice: null
+  Invoice: InvoicePrint
 };
-
 export default {
   name: 'PrintView',
   props: ['doctype', 'name'],
@@ -46,23 +45,16 @@ export default {
     return {
       doc: null,
       printComponent: null,
-      themeColor: '#000000',
+      themeColor: null,
+      template: null,
       showInvoiceCustomizer: false
-    }
+    };
   },
   async mounted() {
-    this.loadInvoice();
+    this.doc = await frappe.getDoc(this.doctype, this.name);
+    this.printComponent = printComponents[this.doctype];
   },
   methods: {
-    async loadInvoice(eventValues) {
-      console.log(eventValues);
-      this.doc = await frappe.getDoc(this.doctype, this.name);
-      let invoiceSettings = eventValues || await frappe.getDoc('InvoiceSettings');
-      this.themeColor = invoiceSettings.themeColor;
-      let templateFile = invoiceTemplates[invoiceSettings.invoiceTemplate];
-      printComponents[this.doctype] = templateFile;
-      this.printComponent = printComponents[this.doctype];
-    },
     makePDF() {
       frappe.call({
         method: 'print-pdf',
@@ -71,11 +63,17 @@ export default {
           name: this.name,
           html: this.$refs.printComponent.innerHTML
         }
-      })
+      });
     },
     async toggleInvoiceCustomizer() {
       this.showInvoiceCustomizer = !this.showInvoiceCustomizer;
+    },
+    changeColor(color) {
+      this.themeColor = color;
+    },
+    changeTemplate(template) {
+      this.template = template;
     }
   }
-}
+};
 </script>
