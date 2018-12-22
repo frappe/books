@@ -2,9 +2,9 @@
     <component :themeColor="color" :is="invoiceTemplate" v-if="doc" :doc="doc"/>
 </template>
 <script>
-import InvoiceTemplate1 from '@/../models/doctype/Invoice/InvoiceTemplate1';
-import InvoiceTemplate2 from '@/../models/doctype/Invoice/InvoiceTemplate2';
-import InvoiceTemplate3 from '@/../models/doctype/Invoice/InvoiceTemplate3';
+import InvoiceTemplate1 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate1';
+import InvoiceTemplate2 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate2';
+import InvoiceTemplate3 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate3';
 
 const invoiceTemplates = {
   'Basic I': InvoiceTemplate1,
