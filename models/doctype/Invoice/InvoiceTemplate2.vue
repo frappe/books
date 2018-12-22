@@ -1,10 +1,10 @@
 <template>
     <div :style="regularFontSize" style="font-family: 'Montserrat', sans-serif;">
-        <div class="row m-0 p-5" :style="headerColor">
-            <div class="col-8" style="margin-top: 5%">
+        <div class="row no-gutters p-5" :style="headerColor">
+            <div class="col-8 text-left">
                 <h1>INVOICE</h1>
             </div>
-            <div class="col-4">
+            <div class="col-4 text-right">
                 <p :style="[bold]" style="font-size: 1.3em">Frappe Technologies</p>
                 <p :style="paraStyle">D/324 Neelkanth Business Park,</p>
                 <p :style="paraStyle">Vidyavihar West,</p>
@@ -64,7 +64,7 @@
                         <tr>
                             <td colspan="2" :style="hideBorderTop" class="text-left pl-1"></td>
                             <td colspan="2" :style="[bold, fontColor, mediumFontSize]" class="text-left pl-0">TOTAL</td>
-                            <td :style="[bold, fontColor, mediumFontSize]" class="text-right pr-1">{{ frappe.format(doc.grandTotal, 'Currency') }}</td>
+                            <td :style="[bold, mediumFontSize]" class="text-right pr-1">{{ frappe.format(doc.grandTotal, 'Currency') }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -99,14 +99,15 @@ export default {
                 fontWeight: 'bold'
             },
             regularFontSize: {
-                fontSize: '0.8em'
+                fontSize: '0.8rem'
             },
             mediumFontSize: {
-                fontSize: '1.2em'
+                fontSize: '1rem'
             },
             paraStyle: {
-                margin: '10px',
-                marginLeft: 0
+                margin: '0.8rem',
+                marginLeft: 0,
+                marginRight: 0
             },
             hideBorderTop: {
                 borderTop: '0px solid black'

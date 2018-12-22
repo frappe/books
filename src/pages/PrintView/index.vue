@@ -2,6 +2,7 @@
   <div class="bg-light">
     <page-header :title="doctype"/>
     <div class="row no-gutters">
+      <div v-if="showInvoiceCustomizer" class="col-3 mt-4 mx-auto"></div>
       <div class="col-8 mx-auto text-right mt-4">
         <f-button secondary @click="toggleInvoiceCustomizer">{{ _('Customize') }}</f-button>
         <f-button primary @click="makePDF">{{ _('PDF') }}</f-button>
@@ -43,10 +44,10 @@ export default {
   },
   data() {
     return {
-      doc: null,
-      printComponent: null,
-      themeColor: null,
-      template: null,
+      doc: undefined,
+      printComponent: undefined,
+      themeColor: undefined,
+      template: undefined,
       showInvoiceCustomizer: false
     };
   },

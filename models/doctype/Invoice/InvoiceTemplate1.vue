@@ -1,6 +1,6 @@
 <template>
     <div style="font-family: 'Montserrat', sans-serif;">
-        <div class="row pl-5 pr-5 mt-5">
+        <div class="row no-gutters pl-5 pr-5 mt-5">
             <div :style="regularFontSize" class="col-6">
                 <p :style="[bold]" style="font-size: 1.3em">Frappe Technologies</p>
                 <p :style="paraStyle">D/324 Neelkanth Business Park,</p>
@@ -83,14 +83,15 @@ export default {
                 fontWeight: 'bold'
             },
             regularFontSize: {
-                fontSize: '0.8em'
+                fontSize: '0.8rem'
             },
             mediumFontSize: {
-                fontSize: '1.2em'
+                fontSize: '1rem'
             },
             paraStyle: {
-                margin: '10px',
-                marginLeft: 0
+                margin: '0.5rem',
+                marginLeft: 0,
+                marginRight: 0
             },
             hideBorderTop: {
                 borderTop: '0px solid black'

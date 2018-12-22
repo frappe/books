@@ -1,7 +1,5 @@
 <template>
-  <div class="row no-gutters">
     <component :themeColor="color" :is="invoiceTemplate" v-if="doc" :doc="doc"/>
-  </div>
 </template>
 <script>
 import InvoiceTemplate1 from '@/../models/doctype/Invoice/InvoiceTemplate1';
@@ -19,8 +17,8 @@ export default {
   props: ['doc', 'themeColor', 'template'],
   data() {
     return {
-      color: null,
-      invoiceTemplate: null
+      color: undefined,
+      invoiceTemplate: undefined
     };
   },
   watch: {
@@ -36,8 +34,8 @@ export default {
   },
   methods: {
     async loadInvoice() {
-      this.color = this.themeColor !== null ? this.themeColor : await this.getColor();
-      let template = this.template !== null ? this.template : await this.getTemplate();
+      this.color = this.themeColor !== undefined ? this.themeColor : await this.getColor();
+      let template = this.template !== undefined ? this.template : await this.getTemplate();
       let templateFile = invoiceTemplates[template];
       this.invoiceTemplate = templateFile;
     },
