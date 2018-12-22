@@ -2,6 +2,7 @@ module.exports = {
     models: {
         Account: require('./doctype/Account/Account.js'),
         AccountingSettings: require('./doctype/AccountingSettings/AccountingSettings'),
+        CompanySettings: require('./doctype/CompanySettings/CompanySettings'),
         AccountingLedgerEntry: require('./doctype/AccountingLedgerEntry/AccountingLedgerEntry.js'),
         Party: require('./doctype/Party/Party.js'),
 

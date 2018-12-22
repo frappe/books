@@ -14,6 +14,12 @@ module.exports = {
             "required": 1
         },
         {
+            fieldname: "address",
+            label: "Address",
+            fieldtype: "Link",
+            target: "Address"
+        },
+        {
           fieldname: 'defaultAccount',
           label: 'Default Account',
           fieldtype: 'Link',

@@ -2,10 +2,15 @@
     <div style="font-family: 'Montserrat', sans-serif;">
         <div class="row no-gutters pl-5 pr-5 mt-5">
             <div :style="regularFontSize" class="col-6">
-                <p :style="[bold]" style="font-size: 1.3em">Frappe Technologies</p>
-                <p :style="paraStyle">D/324 Neelkanth Business Park,</p>
-                <p :style="paraStyle">Vidyavihar West,</p>
-                <p :style="paraStyle">Mumbai - 400086</p>            
+                <p :style="[bold]" style="font-size: 1.3em">{{ companyDetails.name }}</p>
+                <p :style="paraStyle">{{ companyDetails.address.addressLine1 }}</p>
+                <p :style="paraStyle">{{ companyDetails.address.addressLine2 }}</p>
+                <p :style="paraStyle">
+                    {{ companyDetails.address.city + ' ' + companyDetails.address.state }}
+                </p>  
+                <p :style="paraStyle">
+                    {{ companyDetails.address.country + ' - ' + companyDetails.address.postalCode }}
+                </p>                       
             </div>
             <div :style="regularFontSize" class="col-6 text-right">
                 <h2 :style="headerFontColor">INVOICE</h2>
@@ -17,9 +22,14 @@
             <div :style="regularFontSize" class="col-6 mt-1">
                 <p :style="[bold, mediumFontSize]">Billed To</p>
                 <p :style="paraStyle">{{ doc.customer }}</p>
-                <p :style="paraStyle">D/324 Neelkanth Business Park,</p>
-                <p :style="paraStyle">Vidyavihar West,</p>
-                <p :style="paraStyle">Mumbai - 400086</p>
+                <p :style="paraStyle">{{ customerAddress.addressLine1 }}</p>
+                <p :style="paraStyle">{{ customerAddress.addressLine2 }}</p>
+                <p :style="paraStyle">
+                    {{ customerAddress.city + ' ' + customerAddress.state }}
+                </p>
+                <p :style="paraStyle">
+                    {{ customerAddress.country + ' - ' + customerAddress.postalCode }}
+                </p>          
             </div>
         </div>
         <div :style="regularFontSize" class="row pl-5 pr-5 mt-5">
@@ -74,6 +84,7 @@
     </div>
 </template>
 <script>
+import invoiceDetails from './InvoiceDetails';
 export default {
     name: 'InvoicePrint1',
     props: ['doc','themeColor'],
@@ -104,7 +115,12 @@ export default {
             },
             showBorderTop: {
                 borderTop: null
-            }
+            },
+            companyDetails: {
+                name: null,
+                address: {}
+            },
+            customerAddress: {}
         }
     },
     watch: {
@@ -113,6 +129,8 @@ export default {
         }
     },
     async created() {
+        this.companyDetails = await invoiceDetails.getCompanyDetails();
+        this.customerAddress = await invoiceDetails.getCustomerAddress(this.doc.customer);
         this.setTheme();
     },
     methods: {

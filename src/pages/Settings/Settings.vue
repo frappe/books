@@ -5,6 +5,8 @@
       <div class="col-8 bg-white mt-4 mx-auto border p-5">
         <setting-section doctype="AccountingSettings" />
         <hr class="mt-4">
+        <setting-section doctype="CompanySettings" />
+        <hr class="mt-4">
         <setting-section doctype="SystemSettings" />
       </div>
     </div>

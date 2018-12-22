@@ -5,19 +5,29 @@
                 <h1>INVOICE</h1>
             </div>
             <div class="col-4 text-right">
-                <p :style="[bold]" style="font-size: 1.3em">Frappe Technologies</p>
-                <p :style="paraStyle">D/324 Neelkanth Business Park,</p>
-                <p :style="paraStyle">Vidyavihar West,</p>
-                <p :style="paraStyle">Mumbai - 400086</p>
+                <p :style="[bold]" style="font-size: 1.3em">{{ companyDetails.name }}</p>
+                <p :style="paraStyle">{{ companyDetails.address.addressLine1 }}</p>
+                <p :style="paraStyle">{{ companyDetails.address.addressLine2 }}</p>
+                <p :style="paraStyle">
+                    {{ companyDetails.address.city + ' ' + companyDetails.address.state }}
+                </p>  
+                <p :style="paraStyle">
+                    {{ companyDetails.address.country + ' - ' + companyDetails.address.postalCode }}
+                </p>
             </div>
         </div>
         <div class="row p-5 mt-4">
             <div class="col-4">
                 <p :style="[bold, mediumFontSize]">Billed To</p>
                 <p :style="paraStyle">{{ doc.customer }}</p>
-                <p :style="paraStyle">D/324 Neelkanth Business Park,</p>
-                <p :style="paraStyle">Vidyavihar West,</p>
-                <p :style="paraStyle">Mumbai - 400086</p>
+                <p :style="paraStyle">{{ customerAddress.addressLine1 }}</p>
+                <p :style="paraStyle">{{ customerAddress.addressLine2 }}</p>
+                <p :style="paraStyle">
+                    {{ customerAddress.city + ' ' + customerAddress.state }}
+                </p>
+                <p :style="paraStyle">
+                    {{ customerAddress.country + ' - ' + customerAddress.postalCode }}
+                </p>
             </div>
             <div class="col-4">
                 <p :style="[bold, mediumFontSize]">Invoice Number</p>
@@ -83,6 +93,7 @@
     </div>
 </template>
 <script>
+import invoiceDetails from './InvoiceDetails';
 export default {
     name: 'InvoicePrint',
     props: ['doc', 'themeColor'],
@@ -120,7 +131,12 @@ export default {
             },
             showBorderTop: {
                 borderTop: null
-            }
+            },
+            companyDetails: {
+                name: null,
+                address: {}
+            },
+            customerAddress: {}
         }
     },
     watch: {
@@ -128,7 +144,9 @@ export default {
             this.setTheme();
         }
     },
-    created() {
+    async created() {
+        this.companyDetails = await invoiceDetails.getCompanyDetails();
+        this.customerAddress = await invoiceDetails.getCustomerAddress(this.doc.customer);
         this.setTheme();
     },
     methods: {

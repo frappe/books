@@ -9,10 +9,15 @@
         </div>
         <div class="row no-gutters mt-5">
             <div class="col-6 text-left pl-5">
-                <p :style="[bold, mediumFontSize]">Frappe Technologies</p>
-                <p :style="paraStyle">D/324 Neelkanth Business Park,</p>
-                <p :style="paraStyle">Vidyavihar West,</p>
-                <p :style="paraStyle">Mumbai - 400086</p>
+                <p :style="[bold]" style="font-size: 1.3em">{{ companyDetails.name }}</p>
+                <p :style="paraStyle">{{ companyDetails.address.addressLine1 }}</p>
+                <p :style="paraStyle">{{ companyDetails.address.addressLine2 }}</p>
+                <p :style="paraStyle">
+                    {{ companyDetails.address.city + ' ' + companyDetails.address.state }}
+                </p>  
+                <p :style="paraStyle">
+                    {{ companyDetails.address.country + ' - ' + companyDetails.address.postalCode }}
+                </p>
             </div>
             <div class="col-6 pr-5 text-right">
                 <p :style="[paraStyle, mediumFontSize]">{{ doc.name }}</p>
@@ -21,10 +26,16 @@
         </div>
         <div class="row no-gutters mt-5">
             <div class="col-6 text-left pl-5">
-                <p :style="[bold, mediumFontSize]">ERPNext Foundation</p>
-                <p :style="paraStyle">D/324 Neelkanth Business Park,</p>
-                <p :style="paraStyle">Vidyavihar West,</p>
-                <p :style="paraStyle">Mumbai - 400086</p>
+                <p :style="[bold, mediumFontSize]">Billed To</p>
+                <p :style="paraStyle">{{ doc.customer }}</p>
+                <p :style="paraStyle">{{ customerAddress.addressLine1 }}</p>
+                <p :style="paraStyle">{{ customerAddress.addressLine2 }}</p>
+                <p :style="paraStyle">
+                    {{ customerAddress.city + ' ' + customerAddress.state }}
+                </p>
+                <p :style="paraStyle">
+                    {{ customerAddress.country + ' - ' + customerAddress.postalCode }}
+                </p>
             </div>
             <div class="col-6"></div>
         </div>
@@ -81,6 +92,7 @@
     </div>
 </template>
 <script>
+import invoiceDetails from './InvoiceDetails';
 export default {
     name: 'InvoicePrint',
     props: ['doc', 'themeColor'],
@@ -115,7 +127,12 @@ export default {
             tablePadding: {
                 paddingTop: '3%',
                 paddingBottom: '3%'
-            }
+            },
+            companyDetails: {
+                name: null,
+                address: {}
+            },
+            customerAddress: {}
         }
     },
     watch: {
@@ -123,7 +140,9 @@ export default {
             this.setTheme();
         }
     },
-    created() {
+    async created() {
+        this.companyDetails = await invoiceDetails.getCompanyDetails();
+        this.customerAddress = await invoiceDetails.getCustomerAddress(this.doc.customer);
         this.setTheme();
     },
     methods: {
