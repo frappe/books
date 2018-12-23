@@ -35,10 +35,10 @@ export default {
           noFooter: true
         },
         component: ExportWizard,
-        props: await this.getColumnNames()
+        props: await this.getReportDetails()
       });
     },
-    async getColumnNames() {
+    async getReportDetails() {
       let { title, filterFields } = this.reportConfig;
       let [rows, columns] = await this.getReportData(filterFields || []);
       let columnData = columns.map((column)=>{

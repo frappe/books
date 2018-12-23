@@ -1,8 +1,8 @@
 <template>
   <div id="exportWizard" class="modal-body">
       <div class="col-11 ml-4 text-left">
-        <input @change="toggleSelect" class="form-check-input select-cbox" type="checkbox" v-model="selectAllFlag">
-        <label class="form-check-label bold ml-2">
+        <input id="select-cbox" @change="toggleSelect" class="form-check-input" type="checkbox" v-model="selectAllFlag">
+        <label class="form-check-label bold ml-2" for="select-cbox">
             {{ "Select/Clear All" }}
         </label>
       </div>
@@ -62,9 +62,8 @@ export default {
     },
     async save() {
       if(this.checkNoneSlected(this.columns)){
-        alert(`No columns have been selected.\n
-          Please select atleast one column to perform export.
-        `);
+        alert(`No columns have been selected.\n` +
+          `Please select atleast one column to perform export.`);
       }
       else {
         let selectedColumnIds = this.columns.map((column)=>{
@@ -119,7 +118,7 @@ export default {
         font-size: 1.1rem;
         font-weight: 600;
     }
-    .select-cbox{
+    #select-cbox{
         width: 15px;
         height: 15px;
     }
