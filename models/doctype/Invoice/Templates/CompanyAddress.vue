@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="detailsPresent">
         <p :style="[$.bold]" style="font-size: 1.3em">{{ companyDetails.name }}</p>
         <p :style="$.paraStyle">{{ companyDetails.address.addressLine1 }}</p>
         <p :style="$.paraStyle">{{ companyDetails.address.addressLine2 }}</p>
@@ -19,6 +19,7 @@ export default {
     data() {
         return {
             $: styles,
+            detailsPresent: true,
             companyDetails: {
                 name: null,
                 address: {}
@@ -27,7 +28,11 @@ export default {
     },
     async created() {
         this.$ = styles;
-        this.companyDetails = await addressDetails.getCompanyDetails();
+        try {
+            this.companyDetails = await addressDetails.getCompanyDetails();
+        } catch(e) {
+            this.detailsPresent = false;
+        }
     }
 }
 </script>

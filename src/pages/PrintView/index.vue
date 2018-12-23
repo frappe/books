@@ -9,8 +9,10 @@
       </div>
     </div>
     <div class="row no-gutters">
-      <div v-if="showInvoiceCustomizer" class="col-3 mt-4 border mx-auto">
+      <div v-if="showInvoiceCustomizer" class="col-3 mt-4 mx-auto">
         <invoice-customizer
+          class="border"
+          style="position: fixed"
           @closeInvoiceCustomizer="toggleInvoiceCustomizer"
           @changeColor="changeColor($event)"
           @changeTemplate="changeTemplate($event)"

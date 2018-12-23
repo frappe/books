@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div v-if="this.detailsPresent">
         <p :style="[$.bold, $.mediumFontSize]">Billed To</p>
-        <p :style="$.paraStyle">{{ customer }}</p>
+        <p :style="[$.bold, $.paraStyle]">{{ customer }}</p>
         <p :style="$.paraStyle">{{ customerAddress.addressLine1 }}</p>
         <p :style="$.paraStyle">{{ customerAddress.addressLine2 }}</p>
         <p :style="$.paraStyle">
@@ -21,12 +21,17 @@ export default {
     data() {
         return {
             $: styles,
+            detailsPresent: true,
             customerAddress: {}
         }
     },
     async created() {
         this.$ = styles;
-        this.customerAddress = await addressDetails.getCustomerAddress(this.customer);
+        try {
+            this.customerAddress = await addressDetails.getCustomerAddress(this.customer);
+        } catch(e) {
+            this.detailsPresent = false;
+        }
     }
 }
 </script>
