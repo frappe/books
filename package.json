@@ -55,6 +55,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "file-saver": "^2.0.0",
     "frappejs": "github:frappe/frappejs",
     "popper.js": "^1.14.4",
     "vue-toasted": "^1.1.25"
