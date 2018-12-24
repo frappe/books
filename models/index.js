@@ -1,5 +1,6 @@
 module.exports = {
     models: {
+        SetupWizard: require('./doctype/SetupWizard/SetupWizard'),
         Account: require('./doctype/Account/Account.js'),
         AccountingSettings: require('./doctype/AccountingSettings/AccountingSettings'),
         AccountingLedgerEntry: require('./doctype/AccountingLedgerEntry/AccountingLedgerEntry.js'),
