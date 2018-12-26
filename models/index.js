@@ -3,7 +3,7 @@ module.exports = {
         Account: require('./doctype/Account/Account.js'),
         AccountingSettings: require('./doctype/AccountingSettings/AccountingSettings'),
         AccountingLedgerEntry: require('./doctype/AccountingLedgerEntry/AccountingLedgerEntry.js'),
-        Party: require('./doctype/Party/Party.js'),
+        // Party: require('./doctype/Party/Party.js'),
 
         Payment: require('./doctype/Payment/Payment.js'),
         PaymentFor: require('./doctype/PaymentFor/PaymentFor.js'),

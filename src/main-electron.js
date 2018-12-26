@@ -6,7 +6,10 @@ import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
 import postStart from '../server/postStart';
-import { getSettings, saveSettings } from '../electron/settings';
+import {
+  getSettings,
+  saveSettings
+} from '../electron/settings';
 
 // vue imports
 import Vue from 'vue';
@@ -26,7 +29,13 @@ import Toasted from 'vue-toasted';
 
   frappe.events.on('connect-database', async (filepath) => {
     await connectToLocalDatabase(filepath);
+    if (country === "India") {
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
+    } else {
+      frappe.models.Party = require('../models/doctype/Party/Party.js')
+    }
     frappe.events.trigger('show-desk');
+
   });
 
   frappe.events.on('DatabaseSelector:file-selected', async (filepath) => {
@@ -65,9 +74,11 @@ import Toasted from 'vue-toasted';
     });
 
     await doc.update();
-    await frappe.call({ method: 'import-coa' });
-    
-    if(country === "India"){
+    await frappe.call({
+      method: 'import-coa'
+    });
+
+    if (country === "India") {
       frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
       await frappe.db.migrate()
       await generateGstTaxes();
@@ -83,7 +94,7 @@ import Toasted from 'vue-toasted';
       for (const percent of gstPercents) {
         switch (type) {
           case 'Out of State':
-          console.log(type)
+            console.log(type)
             await newTax.set({
               name: `${type}-${percent}`,
               details: [{
@@ -98,11 +109,11 @@ import Toasted from 'vue-toasted';
               name: `${type}-${percent}`,
               details: [{
                   account: "CGST",
-                  rate: percent/2
+                  rate: percent / 2
                 },
                 {
                   account: "SGST",
-                  rate: percent/2
+                  rate: percent / 2
                 }
               ]
             })
@@ -123,7 +134,9 @@ import Toasted from 'vue-toasted';
 
   async function connectToLocalDatabase(filepath) {
     frappe.login('Administrator');
-    frappe.db = new SQLite({ dbPath: filepath });
+    frappe.db = new SQLite({
+      dbPath: filepath
+    });
     await frappe.db.connect();
     await frappe.db.migrate();
     frappe.getSingle('SystemSettings');
@@ -137,14 +150,16 @@ import Toasted from 'vue-toasted';
   Vue.use(frappeVue);
   Vue.use(Toasted, {
     position: 'bottom-right',
-    duration : 3000
- });
+    duration: 3000
+  });
 
   /* eslint-disable no-new */
   new Vue({
     el: '#app',
     router,
-    components: { App },
+    components: {
+      App
+    },
     template: '<App/>'
   });
 })()
