@@ -47,8 +47,12 @@ export default {
 	},
   	methods: {
 		async saveDoc(updatedValue) {
-			let { value } = updatedValue;
-			this.$emit('changeTemplate', value);
+			let { fieldname, value } = updatedValue;
+			if (fieldname === 'template') {
+				this.$emit('changeTemplate', value);
+			} else if (fieldname === 'font') {
+				this.$emit('changeFont', value);
+			}
 			await this.doc.update();
     	}
   	},

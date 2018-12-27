@@ -1,5 +1,5 @@
 <template>
-    <div style="font-family: 'Montserrat', sans-serif;">
+    <div :style="$.font" style="font-family: sans-serif;">
         <div class="row no-gutters pl-5 pr-5 mt-5">
             <div :style="$.regularFontSize" class="col-6">
                 <company-address />                       
@@ -78,7 +78,7 @@ export default {
         CompanyAddress,
         CustomerAddress
     },
-    props: ['doc','themeColor'],
+    props: ['doc', 'themeColor', 'font'],
     data() {
         return {
             $: Styles
@@ -86,6 +86,9 @@ export default {
     },
     watch: {
         themeColor: function() {
+            this.setTheme();
+        },
+        font: function() {
             this.setTheme();
         }
     },
@@ -98,10 +101,8 @@ export default {
             this.$.headerFontColor.color = this.themeColor;
             this.$.showBorderBottom.borderBottom = `0.22rem solid ${this.themeColor}`;
             this.$.showBorderTop.borderTop = `0.22rem solid ${this.themeColor}`;
+            this.$.font.fontFamily = this.font;
         }
     }
 }
 </script>
-<style scoped>
-    @import url('https://fonts.googleapis.com/css?family=Montserrat');
-</style>

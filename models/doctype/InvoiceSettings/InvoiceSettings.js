@@ -15,12 +15,20 @@ module.exports = {
             default: "INV"
         },
         {
-            fieldname: "invoiceTemplate",
+            fieldname: "template",
             label: "Template",
             fieldtype: "Select",
             options: ["Basic I", "Basic II", "Modern"],
             required: 1,
             default: "Basic I" 
+        },
+        {
+            fieldname: "font",
+            label: "Font",
+            fieldtype: "Select",
+            options: ["Montserrat", "Open Sans", "Oxygen", "Merriweather"],
+            required: 1,
+            default: "Montserrat" 
         },
         {
             fieldname: "themeColor",

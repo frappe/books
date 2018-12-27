@@ -16,12 +16,14 @@
           @closeInvoiceCustomizer="toggleInvoiceCustomizer"
           @changeColor="changeColor($event)"
           @changeTemplate="changeTemplate($event)"
+          @changeFont="changeFont($event)"
         />
       </div>
       <div ref="printComponent" class="col-8 bg-white mt-4 mx-auto border shadow">
         <component
           :themeColor="themeColor"
           :template="template"
+          :font="font"
           :is="printComponent"
           v-if="doc"
           :doc="doc"
@@ -50,6 +52,7 @@ export default {
       printComponent: undefined,
       themeColor: undefined,
       template: undefined,
+      font: undefined,
       showInvoiceCustomizer: false
     };
   },
@@ -76,6 +79,9 @@ export default {
     },
     changeTemplate(template) {
       this.template = template;
+    },
+    changeFont(font) {
+      this.font = font;
     }
   }
 };

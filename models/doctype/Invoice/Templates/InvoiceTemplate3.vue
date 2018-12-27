@@ -1,5 +1,5 @@
 <template>
-    <div :style="$.regularFontSize" style="font-family: 'Montserrat', sans-serif;">
+    <div :style="[$.regularFontSize, $.font]" style="font-family: sans-serif;">
         <div class="row no-gutters mt-5">
             <div class="col-6" :style="$.bgColor"></div>
             <div class="col-4 text-center" style="vertical-align: middle">
@@ -80,7 +80,7 @@ import CompanyAddress from './CompanyAddress';
 import CustomerAddress from './CustomerAddress';
 export default {
     name: 'InvoicePrint',
-    props: ['doc', 'themeColor'],
+    props: ['doc', 'themeColor', 'font'],
     components: {
         CompanyAddress,
         CustomerAddress
@@ -93,6 +93,9 @@ export default {
     watch: {
         themeColor: function() {
             this.setTheme();
+        },
+        font: function() {
+            this.setTheme();
         }
     },
     async created() {
@@ -103,10 +106,8 @@ export default {
         setTheme() {
             this.$.bgColor.backgroundColor = this.themeColor;
             this.$.showBorderBottom.borderBottom = `0.22rem solid ${this.themeColor}`;
+            this.$.font.fontFamily = this.font;
         }
     }
 }
 </script>
-<style scoped>
-    @import url('https://fonts.googleapis.com/css?family=Montserrat');
-</style>

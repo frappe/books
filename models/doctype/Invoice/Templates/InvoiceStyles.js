@@ -2,6 +2,9 @@ module.exports = {
     bold: {
         fontWeight: 'bold'
     },
+    font: {
+        fontFamily: null
+    },
     regularFontSize: {
         fontSize: '0.8rem'
     },
