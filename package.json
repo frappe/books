@@ -57,8 +57,9 @@
   "dependencies": {
     "electron": "^3.0.12",
     "frappejs": "github:frappe/frappejs",
+    "nodemailer": "^4.7.0",
     "popper.js": "^1.14.4",
-    "sqlite3": "^4.0.4",
+    "vue-color": "^2.7.0",
     "vue-toasted": "^1.1.25"
   }
 }
