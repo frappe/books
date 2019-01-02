@@ -11,7 +11,8 @@ module.exports = {
     fields: [{
             "fieldname": "date",
             "label": "Posting Date",
-            "fieldtype": "Date"
+            "fieldtype": "Date",
+            default: (new Date()).toISOString()
         },
         {
             fieldname: "party",
@@ -50,7 +51,6 @@ module.exports = {
             fieldname: "clearanceDate",
             label: "Clearance Date",
             fieldtype: "Date",
-            default: "None"
         },
         {
             fieldname: "amount",
