@@ -86,6 +86,10 @@ export default {
         props: {
           doctype: doc.doctype,
           name: doc.name
+        },
+        modalProps: {
+          title: 'Send Invoice',
+          footerMessage: 'Invoice attached along..'
         }
       });
       doc.on('afterInsert', data => {
