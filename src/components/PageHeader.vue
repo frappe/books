@@ -6,7 +6,7 @@
 <script>
 export default {
   props: ['title']
-}
+};
 </script>
 <style>
 .page-header {
