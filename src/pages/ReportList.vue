@@ -37,7 +37,7 @@
           class="mt-2"
           title="Goods and Service Tax"
           description="See your goods and services tax here."
-          @click="routeTo('gst-taxes',{'name' : 'GST'})"
+          @click="routeTo('gst-taxes',{'toDate' : (new Date()).toISOString()})"
         />
       </div>
     </div>
@@ -47,7 +47,7 @@
 import frappe from 'frappejs';
 import PageHeader from '../components/PageHeader';
 import ClickableCard from '../components/ClickableCard';
-import generateGstTaxes from '../main-electron';
+
 export default {
   name: 'Report',
   data() {
@@ -62,6 +62,7 @@ export default {
   async created() {
     const doc = await frappe.getDoc('AccountingSettings');
     this.country = doc.country;
+
   },
   methods: {
     routeTo(route, filters) {

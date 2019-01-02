@@ -52,7 +52,7 @@ async function getCountryCOA(){
     const conCode = countries[doc.country].code;
 
     const countryCOA = path.resolve(path.join('./fixtures/verified/', conCode + '.json'));
-    
+
     if(fs.existsSync(countryCOA)){
         const jsonText = fs.readFileSync(countryCOA, 'utf-8');
         const json = JSON.parse(jsonText);

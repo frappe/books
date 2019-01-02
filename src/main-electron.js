@@ -68,29 +68,59 @@ import Toasted from 'vue-toasted';
     });
 
     await doc.update();
-    await frappe.call({
-      method: 'import-coa'
-    });
-    await generateGstTaxes();
-
+    await frappe.call({ method: 'import-coa' });
+    
+    if(country === "India"){
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
+      await frappe.db.migrate()
+      await generateGstTaxes();
+    }
     frappe.events.trigger('show-desk');
   });
   async function generateGstTaxes() {
-    const gstPercent = [5, 12, 18, 28];
-    const gstType = ['CGST', 'SGST', 'IGST', 'UGST'];
-    for (const type of gstType) {
-      for (const percent of gstPercent) {
-        let newTax = await frappe.getNewDoc('Tax');
-        await newTax.set({
-          name: type + '-' + percent,
-          details: [{
-            account: "Duties and Taxes",
-            rate: percent
-          }]
-        })
+    const gstPercents = [5, 12, 18, 28];
+    const gstTypes = ['Out of State', 'In State'];
+    let newTax = await frappe.getNewDoc('Tax');
+    for (const type of gstTypes) {
+      for (const percent of gstPercents) {
+        switch (type) {
+          case 'Out of State':
+          console.log(type)
+            await newTax.set({
+              name: `${type}-${percent}`,
+              details: [{
+                account: "IGST",
+                rate: percent
+              }]
+            })
+            break;
+          case 'In State':
+            console.log(type)
+            await newTax.set({
+              name: `${type}-${percent}`,
+              details: [{
+                  account: "CGST",
+                  rate: percent/2
+                },
+                {
+                  account: "SGST",
+                  rate: percent/2
+                }
+              ]
+            })
+            break;
+        }
         await newTax.insert();
       }
     }
+    await newTax.set({
+      name: `Exempt-0`,
+      details: [{
+        account: "Exempt",
+        rate: 0
+      }]
+    })
+    await newTax.insert();
   }
 
   async function connectToLocalDatabase(filepath) {

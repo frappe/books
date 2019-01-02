@@ -5,14 +5,14 @@ import ListView from '../pages/ListView';
 import FormView from '../pages/FormView/FormView';
 import PrintView from '../pages/PrintView';
 
-import Report from 'frappejs/ui/pages/Report';
+import Report from '../pages/Report';
 import reportViewConfig from '../../reports/view';
 
 import DataImport from '../pages/DataImport';
 
 import Settings from '../pages/Settings/Settings';
 
-import ReportList from '../pages/Report';
+import ReportList from '../pages/ReportList';
 import ChartOfAccounts from '../pages/ChartOfAccounts';
 
 import Tree from 'frappejs/ui/components/Tree';
