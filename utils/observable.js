@@ -15,7 +15,10 @@ module.exports = class Observable {
 
     set(key, value) {
         this[key] = value;
-        this.trigger('change', {doc: this, fieldname: key});
+        this.trigger('change', {
+            doc: this,
+            fieldname: key
+        });
     }
 
     on(event, listener) {
@@ -39,7 +42,7 @@ module.exports = class Observable {
         this._addListener('onceListeners', event, listener);
     }
 
-    async trigger(event, params, throttle=false) {
+    async trigger(event, params, throttle = false) {
         if (throttle) {
             if (this._throttled(event, params, throttle)) return;
             params = [params]
