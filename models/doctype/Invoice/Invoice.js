@@ -19,7 +19,7 @@ module.exports = {
       fieldname: 'date',
       label: 'Date',
       fieldtype: 'Date',
-      default: (new Date()).toISOString()
+      // default: (new Date()).toISOString()
     },
     {
       fieldname: 'customer',

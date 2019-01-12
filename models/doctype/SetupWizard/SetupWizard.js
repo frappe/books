@@ -57,7 +57,6 @@ module.exports = {
                 let currentDate = date[1];
                 return new Date(currentYear,currentMonth,currentDate).toISOString().substr(0, 10);;
             },
-            default: "None",
             required: 1
         },
 
@@ -72,7 +71,6 @@ module.exports = {
                 let currentDate = date[1];
                 return new Date(currentYear,currentMonth,currentDate).toISOString().substr(0, 10);;
             },
-            default: "None",
             required: 1
         }
     ],

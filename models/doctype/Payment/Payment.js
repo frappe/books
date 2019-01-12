@@ -12,7 +12,7 @@ module.exports = {
             "fieldname": "date",
             "label": "Posting Date",
             "fieldtype": "Date",
-            default: (new Date()).toISOString()
+            // default: (new Date()).toISOString()
         },
         {
             fieldname: "party",
