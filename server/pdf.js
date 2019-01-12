@@ -46,7 +46,11 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
 
     const printPromise = new Promise(resolve => {
       printWindow.webContents.on('did-finish-load', () => {
-        printWindow.webContents.printToPDF({}, (error, data) => {
+        printWindow.webContents.printToPDF({
+          marginsType: 1, // no margin
+          pageSize: 'A4',
+          printBackground: true
+        }, (error, data) => {
           if (error) throw error
           printWindow.close();
           fs.writeFile(filepath, data, (error) => {
