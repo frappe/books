@@ -36,7 +36,6 @@ import frappe from 'frappejs';
 import Observable from 'frappejs/utils/observable';
 import FormLayout from 'frappejs/ui/components/Form/FormLayout';
 import indicatorColor from 'frappejs/ui/constants/indicators';
-// import setupConfig from './config';
 
 export default {
   name: 'SetupWizard',
@@ -50,7 +49,6 @@ export default {
     FormLayout
   },
   async created() {
-    // this.doc = new Observable();
     this.doc = await frappe.getNewDoc('SetupWizard');
     this.meta = await frappe.getMeta(this.doc.doctype);
   },

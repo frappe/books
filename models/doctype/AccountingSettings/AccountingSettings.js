@@ -14,7 +14,7 @@ module.exports = {
             fieldname: "companyName",
             fieldtype: "Data",
             required: 1,
-            disabled: 1
+            disabled: 0
         },
 
         {
