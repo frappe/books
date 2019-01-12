@@ -280,7 +280,7 @@ module.exports = class Database extends Observable {
   }
 
   async updateSingle(meta, doc, doctype) {
-    await this.deleteSingleValues();
+    await this.deleteSingleValues(doctype);
     for (let field of meta.getValidFields({ withChildren: false })) {
       let value = doc[field.fieldname];
       if (value) {
