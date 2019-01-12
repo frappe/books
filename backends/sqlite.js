@@ -13,8 +13,13 @@ module.exports = class sqliteDatabase extends Database {
     if (dbPath) {
       this.dbPath = dbPath;
     }
-    return new Promise(resolve => {
-      this.conn = new sqlite3.Database(this.dbPath, () => {
+    return new Promise((resolve, reject) => {
+      this.conn = new sqlite3.Database(this.dbPath, (err) => {
+        if (err) {
+          console.log(err);
+          reject(err);
+          return;
+        }
         if (debug) {
           this.conn.on('trace', (trace) => console.log(trace));
         }
@@ -211,6 +216,7 @@ module.exports = class sqliteDatabase extends Database {
     return new Promise((resolve, reject) => {
       this.conn.run(query, params, (err) => {
         if (err) {
+          console.error('Error in sql:', query);
           reject(err);
         } else {
           resolve();
@@ -220,8 +226,12 @@ module.exports = class sqliteDatabase extends Database {
   }
 
   sql(query, params) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.conn.all(query, params, (err, rows) => {
+        if (err) {
+          console.error('Error in sql:', query);
+          reject(err)
+        }
         resolve(rows);
       });
     });
