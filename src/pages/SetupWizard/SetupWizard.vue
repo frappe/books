@@ -51,6 +51,7 @@ export default {
   },
   created() {
     this.doc = new Observable();
+    this.doc.isNew = () => true;
   },
   methods: {
     async submit() {
