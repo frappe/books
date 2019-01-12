@@ -31,11 +31,15 @@ export default {
     async openExportWizard() {
       this.$modal.show({
         modalProps: {
-          title: 'Export Wizard',
-          noFooter: true
+          title: 'Export ' + this.reportConfig.title,
+          noFooter: true,
+          // primaryAction:{
+          //   label: "Download CSV",
+          //   handler: alert('download')
+          // }
         },
         component: ExportWizard,
-        props: await this.getReportDetails()
+        props: await this.getReportDetails(),
       });
     },
     async getReportDetails() {

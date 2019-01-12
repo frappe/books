@@ -1,6 +1,14 @@
 <template>
   <div id="exportWizard" class="modal-body">
-    <div class="col-11 ml-4 text-left">
+    <!-- <div class="row mt-2">
+      <div class="col-10 text-left">
+        <h5> Export {{ this.title }} </h5>
+      </div>
+      <div class="col-2 text-right">
+        <f-button primary @click="save">{{ 'Export' }}</f-button>
+      </div>
+    </div> -->
+    <div class="ml-4 col-6 text-left">
       <input
         id="select-cbox"
         @change="toggleSelect"
@@ -10,15 +18,18 @@
       >
       <label class="form-check-label bold ml-2" for="select-cbox">{{ "Select/Clear All" }}</label>
     </div>
-    <hr>
-    <div v-for="column in columns" :key="column.id" class="form-check mt-2 ml-4">
-      <input :id="column.id" class="form-check-input" type="checkbox" v-model="column.checked">
-      <label class="form-check-label" :for="column.id">{{ column.content }}</label>
+    <hr width="93%">
+    <div class="row ml-4 mb-4">
+      <div v-for="column in columns" :key="column.id" class="form-check mt-2 col-6">
+        <input :id="column.id" class="form-check-input" type="checkbox" v-model="column.checked">
+        <label class="form-check-label" :for="column.id">{{ column.content }}</label>
+      </div>
     </div>
     <hr>
-    <div class="col-12 text-right">
-      <f-button @click="close">{{ 'Close' }}</f-button>
-      <f-button primary @click="save">{{ 'Save' }}</f-button>
+    <div class="row">
+      <div class="col-12 text-right">
+        <f-button primary @click="save">{{ 'Download CSV' }}</f-button>
+      </div>
     </div>
   </div>
 </template>
@@ -48,7 +59,7 @@ export default {
     close() {
       this.$modal.hide();
     },
-    checkNoneSlected(columns) {
+    checkNoneSelected(columns) {
       console.log(columns);
       let selected = 0;
       columns.map(column => {
@@ -58,7 +69,7 @@ export default {
       else return true;
     },
     async save() {
-      if (this.checkNoneSlected(this.columns)) {
+      if (this.checkNoneSelected(this.columns)) {
         alert(
           `No columns have been selected.\n` +
             `Please select atleast one column to perform export.`
@@ -105,5 +116,8 @@ export default {
 #select-cbox {
   width: 15px;
   height: 15px;
+}
+#exportWizard {
+ overflow: hidden;
 }
 </style>
