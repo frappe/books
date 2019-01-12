@@ -9,7 +9,7 @@
   },
   "build": {
     "asarUnpack": [
-      "node_modules/sqlite3"
+      "node_modules/sharp"
     ],
     "productName": "Frappe Accounting",
     "appId": "io.frappe.accounting",
@@ -17,7 +17,7 @@
       "output": "build"
     },
     "files": [
-      "dist/electron/**/*"
+      "dist/electron"
     ],
     "dmg": {
       "contents": [
@@ -35,12 +35,15 @@
       ]
     },
     "mac": {
+      "target": "dmg",
       "icon": "build/icons/icon.icns"
     },
     "win": {
+      "target": "nsis",
       "icon": "build/icons/icon.ico"
     },
     "linux": {
+      "target": "AppImage",
       "icon": "build/icons"
     }
   },
@@ -55,6 +58,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "cross-env": "^5.2.0",
     "frappejs": "github:frappe/frappejs",
     "popper.js": "^1.14.4",
     "vue-toasted": "^1.1.25"
