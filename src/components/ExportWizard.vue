@@ -18,8 +18,7 @@
       </div>
     </div>
     <div class="row footer-divider mb-3">
-      <div class="col-12" style="border-bottom:1px solid #e9ecef">
-      </div>
+      <div class="col-12" style="border-bottom:1px solid #e9ecef"></div>
     </div>
     <div class="row">
       <div class="col-12 text-right">
@@ -55,9 +54,8 @@ export default {
       this.$modal.hide();
     },
     checkNoneSelected(columns) {
-      for(let column of columns) {
-        if (column.checked)
-          return false;
+      for (let column of columns) {
+        if (column.checked) return false;
       }
       return true;
     },
@@ -65,13 +63,12 @@ export default {
       if (this.checkNoneSelected(this.columns)) {
         alert(
           `No columns have been selected.\n` +
-          `Please select at least one column to perform export.`
+            `Please select at least one column to perform export.`
         );
       } else {
         let selectedColumnIds = this.columns.map(column => {
           if (column.checked) return column.id;
         });
-        // console.log(selectedColumnIds);
         let selectedColumns = this.columnData.filter(
           column => selectedColumnIds.indexOf(column.id) != -1
         );
@@ -111,6 +108,6 @@ export default {
   height: 15px;
 }
 #exportWizard {
- overflow: hidden;
+  overflow: hidden;
 }
 </style>

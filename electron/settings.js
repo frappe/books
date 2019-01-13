@@ -4,7 +4,6 @@ const fs = require('fs');
 const { writeFile } = require('frappejs/server/utils');
 
 const homedir = os.homedir();
-console.log(homedir);
 const configFilePath = path.join(homedir, '.config', 'frappe-accounting', 'settings.json');
 
 function getSettings() {

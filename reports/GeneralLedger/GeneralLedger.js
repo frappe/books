@@ -12,7 +12,6 @@ class GeneralLedger {
       if (params.toDate) filters.date.push('<=', params.toDate);
       if (params.fromDate) filters.date.push('>=', params.fromDate);
     }
-    console.log(params);
     let data = await frappe.db.getAll({
       doctype: 'AccountingLedgerEntry',
       fields: ['date', 'account', 'party', 'referenceType', 'referenceName', 'debit', 'credit'],

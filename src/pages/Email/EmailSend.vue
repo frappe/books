@@ -27,12 +27,10 @@ export default {
   methods: {
     async send() {
       this.doc = await frappe.getDoc(this.doctype, this.name);
-      console.log(this.doc);
       var response = await frappe.call({
         method: 'send-mail',
         args: this.doc.getValidDict()
       });
-      console.log(response);
       if (response) {
         let emailFields = frappe.getMeta('Email').fields;
         // this.doc['name'] = this.name;

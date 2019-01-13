@@ -17,7 +17,6 @@ module.exports = {
             "required": 1,
             formula: async () => {
                 const accountingSettings = await frappe.getDoc('AccountingSettings');
-                console.log(accountingSettings);
                 return accountingSettings.email;
             },
         },

@@ -10,7 +10,6 @@ module.exports = {
     }
 
     let account = await getConfig();
-    console.log(account, mailDetails);
     if (mailDetails.fromEmailAddress == account.email) {
       if (validator.validate(mailDetails.toEmailAddress)) {
         mailDetails = {
