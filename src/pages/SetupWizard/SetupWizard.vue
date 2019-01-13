@@ -48,9 +48,9 @@ export default {
   components: {
     FormLayout
   },
-  async created() {
-    this.doc = await frappe.getNewDoc('SetupWizard');
-    this.meta = await frappe.getMeta(this.doc.doctype);
+  created() {
+    this.doc = new Observable();
+    this.doc.isNew = () => true;
   },
   methods: {
     async submit() {
