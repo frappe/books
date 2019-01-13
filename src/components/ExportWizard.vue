@@ -1,13 +1,5 @@
 <template>
   <div id="exportWizard" class="modal-body">
-    <!-- <div class="row mt-2">
-      <div class="col-10 text-left">
-        <h5> Export {{ this.title }} </h5>
-      </div>
-      <div class="col-2 text-right">
-        <f-button primary @click="save">{{ 'Export' }}</f-button>
-      </div>
-    </div> -->
     <div class="ml-4 col-6 text-left">
       <input
         id="select-cbox"
@@ -25,7 +17,10 @@
         <label class="form-check-label" :for="column.id">{{ column.content }}</label>
       </div>
     </div>
-    <hr>
+    <div class="row footer-divider mb-3">
+      <div class="col-12" style="border-bottom:1px solid #e9ecef">
+      </div>
+    </div>
     <div class="row">
       <div class="col-12 text-right">
         <f-button primary @click="save">{{ 'Download CSV' }}</f-button>
@@ -60,25 +55,23 @@ export default {
       this.$modal.hide();
     },
     checkNoneSelected(columns) {
-      console.log(columns);
-      let selected = 0;
-      columns.map(column => {
-        if (column.checked) selected++;
-      });
-      if (selected) return false;
-      else return true;
+      for(let column of columns) {
+        if (column.checked)
+          return false;
+      }
+      return true;
     },
     async save() {
       if (this.checkNoneSelected(this.columns)) {
         alert(
           `No columns have been selected.\n` +
-            `Please select atleast one column to perform export.`
+          `Please select at least one column to perform export.`
         );
       } else {
         let selectedColumnIds = this.columns.map(column => {
           if (column.checked) return column.id;
         });
-        console.log(selectedColumnIds);
+        // console.log(selectedColumnIds);
         let selectedColumns = this.columnData.filter(
           column => selectedColumnIds.indexOf(column.id) != -1
         );
