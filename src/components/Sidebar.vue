@@ -41,6 +41,10 @@ export default {
           route: '/list/Item'
         },
         {
+          label: 'Tax',
+          route: '/list/Tax'
+        },
+        {
           label: 'Payments',
           route: '/list/Payment'
         },
