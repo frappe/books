@@ -17,6 +17,7 @@
   </div>
 </template>
 <script>
+const path = require('path');
 export default {
   data() {
     return {
@@ -54,7 +55,7 @@ export default {
     const accountingSettings = await frappe.getDoc('AccountingSettings');
     this.companyName = accountingSettings.companyName;
     if (localStorage.dbPath) {
-      const parts = localStorage.dbPath.split('/');
+      const parts = localStorage.dbPath.split(path.sep);
       this.dbFileName = parts[parts.length - 1];
     }
   },
