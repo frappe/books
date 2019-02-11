@@ -1,12 +1,16 @@
 const frappe = require('frappejs');
-const accountFields = ['accountType', 'rootType', 'isGroup'];
+const path = require('path');
+const fs = require('fs');
+const countries = require('../../../fixtures/countryInfo.json');
+const standardCOA = require('../../../fixtures/verified/standardCOA.json');
+const accountFields = ['accountType', 'rootType', 'isGroup', 'account_type', 'root_type', 'is_group'];
 
 async function importAccounts(children, parent, rootType, rootAccount) {
     for (let accountName in children) {
         const child = children[accountName];
 
         if (rootAccount) {
-            rootType = child.rootType;
+            rootType = child.rootType || child.root_type;
         }
 
         if (!accountFields.includes(accountName)) {
@@ -17,6 +21,7 @@ async function importAccounts(children, parent, rootType, rootAccount) {
                 parentAccount: parent,
                 isGroup,
                 rootType,
+                balance: 0,
                 accountType: child.accountType
             })
 
@@ -28,8 +33,8 @@ async function importAccounts(children, parent, rootType, rootAccount) {
 }
 
 function identifyIsGroup(child) {
-    if (child.isGroup) {
-        return child.isGroup;
+    if (child.isGroup || child.is_group) {
+        return child.isGroup || child.is_group;
     }
 
     const keys = Object.keys(child);
@@ -42,9 +47,23 @@ function identifyIsGroup(child) {
     return 0;
 }
 
-module.exports = async function importCharts(chart) {
-    if (chart) {
-        await importAccounts(chart, '', '', true)
+async function getCountryCOA(){
+    const doc = await frappe.getDoc('AccountingSettings');
+    const conCode = countries[doc.country].code;
+
+    const countryCOA = path.resolve(path.join('./fixtures/verified/', conCode + '.json'));
+    
+    if(fs.existsSync(countryCOA)){
+        const jsonText = fs.readFileSync(countryCOA, 'utf-8');
+        const json = JSON.parse(jsonText);
+        return json.tree;
+    } else {
+        return standardCOA;
     }
+}
+
+module.exports = async function importCharts() {
+    const chart = await getCountryCOA();
+    await importAccounts(chart, '', '', true)
 }
 
