@@ -11,3 +11,4 @@ Frappe Accounting*
 build
 !build/icons
 !.gitkeep
+*.db

@@ -40,7 +40,6 @@ module.exports = {
       formula: (doc) => doc.getFrom('Party', doc.customer , 'defaultAccount'),
       getFilters: (query, control) => {
         return {
-          keywords: ['like', query],
           isGroup: 0,
           accountType: 'Receivable'
         };
