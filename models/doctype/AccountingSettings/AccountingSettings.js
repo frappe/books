@@ -9,12 +9,13 @@ module.exports = {
     isSubmittable: 0,
     settings: null,
     keywordFields: [],
-    fields: [{
+    fields: [
+        {
             label: "Company Name",
             fieldname: "companyName",
             fieldtype: "Data",
             required: 1,
-            disabled: 0
+            disabled: 1
         },
 
         {

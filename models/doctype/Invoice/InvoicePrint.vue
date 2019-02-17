@@ -1,61 +1,73 @@
 <template>
-    <component :themeColor="color" :font="fontFamily" :is="invoiceTemplate" v-if="doc" :doc="doc"/>
+  <div class="print-view p-5">
+    <h1>{{ doc.name }}</h1>
+    <div class="row py-4">
+        <div class="col-6">
+            <div><b>{{ _("Customer") }}</b></div>
+            <div>{{ doc.customer }}</div>
+        </div>
+        <div class="col-6">
+            <div><b>{{ _("Date") }}</b></div>
+            <div>{{ frappe.format(doc.date, 'Date') }}</div>
+        </div>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th style='width: 30px'></th>
+                <th>{{ _("Item") }}</th>
+                <th class='text-right'>{{ _("Qty") }}</th>
+                <th class='text-right'>{{ _("Rate") }}</th>
+                <th class='text-right'>{{ _("Amount") }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="row in doc.items" :key="row.idx">
+                <td class='text-right'>{{ row.idx + 1 }}</td>
+                <td>{{ row.item }}<br>{{ frappe.format(row.description, 'Text') }}</td>
+                <td class='text-right'>{{ row.quantity }}</td>
+                <td class='text-right'>{{ frappe.format(row.rate, 'Currency') }}</td>
+                <td class='text-right'>{{ frappe.format(row.amount, 'Currency') }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class='row'>
+        <div class='col-6'></div>
+        <div class='col-6'>
+            <div class='row'>
+                <div class='col-6'>
+                    {{ _("Total") }}
+                </div>
+                <div class='col-6 text-right'>
+                    {{ frappe.format(doc.netTotal, 'Currency')}}
+                </div>
+            </div>
+            <div class='row' v-for="tax in doc.taxes" :key="tax.name">
+                <div class='col-6'>
+                    {{ tax.account }} ({{ tax.rate }}%)
+                </div>
+                <div class='col-6 text-right'>
+                    {{ frappe.format(tax.amount, 'Currency')}}
+                </div>
+            </div>
+            <div class='row py-3'>
+                <div class='col-6'>
+                    <h5>{{ _("Grand Total") }}</h5>
+                </div>
+                <div class='col-6 text-right'>
+                    <h5>{{ frappe.format(doc.grandTotal, 'Currency')}}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class='py-3'>
+        {{ frappe.format(doc.terms, 'Text') }}
+    </div>
+  </div>
 </template>
 <script>
-import InvoiceTemplate1 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate1';
-import InvoiceTemplate2 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate2';
-import InvoiceTemplate3 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate3';
-
-const invoiceTemplates = {
-  'Basic I': InvoiceTemplate1,
-  'Basic II': InvoiceTemplate2,
-  'Modern': InvoiceTemplate3
-};
-
 export default {
   name: 'InvoicePrint',
-  props: ['doc', 'themeColor', 'template', 'font'],
-  data() {
-    return {
-      color: undefined,
-      fontFamily: undefined,
-      invoiceTemplate: undefined
-    };
-  },
-  watch: {
-    themeColor: async function() {
-      await this.loadInvoice();
-    },
-    font: async function() {
-      await this.loadInvoice();
-    },
-    template: async function() {
-      await this.loadInvoice();
-    }
-  },
-  async created() {
-    await this.loadInvoice();
-  },
-  methods: {
-    async loadInvoice() {
-      this.color = this.themeColor !== undefined ? this.themeColor : await this.getColor();
-      this.fontFamily = this.font !== undefined ? this.font : await this.getFont();
-      let template = this.template !== undefined ? this.template : await this.getTemplate();
-      let templateFile = invoiceTemplates[template];
-      this.invoiceTemplate = templateFile;
-    },
-    async getTemplate() {
-      let invoiceSettings = await frappe.getDoc('InvoiceSettings');
-      return invoiceSettings.template;
-    },
-    async getColor() {
-      let invoiceSettings = await frappe.getDoc('InvoiceSettings');
-      return invoiceSettings.themeColor;
-    },
-    async getFont() {
-      let invoiceSettings = await frappe.getDoc('InvoiceSettings');
-      return invoiceSettings.font;
-    }
-  }
-};
+  props: ['doc']
+}
 </script>

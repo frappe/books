@@ -5,7 +5,8 @@ module.exports = {
   isChild: 1,
   keywordFields: [],
   layout: 'ratio',
-  fields: [{
+  fields: [
+    {
       fieldname: 'item',
       label: 'Item',
       fieldtype: 'Link',

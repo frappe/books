@@ -6,10 +6,7 @@ import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
 import postStart from '../server/postStart';
-import {
-  getSettings,
-  saveSettings
-} from '../electron/settings';
+import { getSettings, saveSettings } from '../electron/settings';
 
 // vue imports
 import Vue from 'vue';
@@ -26,19 +23,10 @@ import Toasted from 'vue-toasted';
   frappe.registerModels(coreModels);
   frappe.registerModels(models);
   frappe.fetch = window.fetch.bind();
+
   frappe.events.on('connect-database', async (filepath) => {
     await connectToLocalDatabase(filepath);
-
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    const country = accountingSettings.country;
-
-    if (country === "India") {
-      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
-    } else {
-      frappe.models.Party = require('../models/doctype/Party/Party.js')
-    }
     frappe.events.trigger('show-desk');
-
   });
 
   frappe.events.on('DatabaseSelector:file-selected', async (filepath) => {
@@ -77,76 +65,19 @@ import Toasted from 'vue-toasted';
     });
 
     await doc.update();
-    await frappe.call({
-      method: 'import-coa'
-    });
+    await frappe.call({ method: 'import-coa' });
 
-    if (country === "India") {
-      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
-      await frappe.db.migrate()
-      await generateGstTaxes();
-    }
     frappe.events.trigger('show-desk');
   });
-  async function generateGstTaxes() {
-    const gstPercents = [5, 12, 18, 28];
-    const gstTypes = ['Out of State', 'In State'];
-    let newTax = await frappe.getNewDoc('Tax');
-    for (const type of gstTypes) {
-      for (const percent of gstPercents) {
-        switch (type) {
-          case 'Out of State':
-            await newTax.set({
-              name: `${type}-${percent}`,
-              details: [{
-                account: "IGST",
-                rate: percent
-              }]
-            })
-            break;
-          case 'In State':
-            await newTax.set({
-              name: `${type}-${percent}`,
-              details: [{
-                  account: "CGST",
-                  rate: percent / 2
-                },
-                {
-                  account: "SGST",
-                  rate: percent / 2
-                }
-              ]
-            })
-            break;
-        }
-        await newTax.insert();
-      }
-    }
-    await newTax.set({
-      name: `Exempt-0`,
-      details: [{
-        account: "Exempt",
-        rate: 0
-      }]
-    })
-    await newTax.insert();
-  }
 
   async function connectToLocalDatabase(filepath) {
-    try {
-      frappe.login('Administrator');
-      frappe.db = new SQLite({
-        dbPath: filepath
-      });
-      await frappe.db.connect();
-      await frappe.db.migrate();
-      frappe.getSingle('SystemSettings');
-      await postStart();
-    } catch (e) {
-      console.log(e);
-    }
+    frappe.login('Administrator');
+    frappe.db = new SQLite({ dbPath: filepath });
+    await frappe.db.connect();
+    await frappe.db.migrate();
+    frappe.getSingle('SystemSettings');
+    await postStart();
   }
-
 
   window.frappe = frappe;
 
@@ -154,16 +85,14 @@ import Toasted from 'vue-toasted';
   Vue.use(frappeVue);
   Vue.use(Toasted, {
     position: 'bottom-right',
-    duration: 3000
-  });
+    duration : 3000
+ });
 
   /* eslint-disable no-new */
   new Vue({
     el: '#app',
     router,
-    components: {
-      App
-    },
+    components: { App },
     template: '<App/>'
   });
 })()

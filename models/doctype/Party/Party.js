@@ -6,29 +6,24 @@ module.exports = {
     "keywordFields": [
         "name"
     ],
-    "fields": [{
+    "fields": [
+        {
             "fieldname": "name",
             "label": "Name",
             "fieldtype": "Data",
             "required": 1
         },
         {
-            fieldname: "address",
-            label: "Address",
-            fieldtype: "Link",
-            target: "Address"
-        },
-        {
-            fieldname: 'defaultAccount',
-            label: 'Default Account',
-            fieldtype: 'Link',
-            target: 'Account',
-            getFilters: (query, control) => {
-                return {
-                    isGroup: 0,
-                    accountType: 'Receivable'
-                };
-            }
+          fieldname: 'defaultAccount',
+          label: 'Default Account',
+          fieldtype: 'Link',
+          target: 'Account',
+          getFilters: (query, control) => {
+            return {
+              isGroup: 0,
+              accountType: 'Receivable'
+            };
+          }
         },
         {
             "fieldname": "customer",
@@ -42,13 +37,15 @@ module.exports = {
         }
     ],
 
-    links: [{
-        label: 'Invoices',
-        condition: (form) => form.doc.customer,
-        action: form => {
-            form.$router.push({
+    links: [
+        {
+            label: 'Invoices',
+            condition: (form) => form.doc.customer,
+            action: form => {
+              form.$router.push({
                 path: `/report/sales-register?&customer=${form.doc.name}`
-            });
+              });
+            }
         }
-    }]
+    ]
 }

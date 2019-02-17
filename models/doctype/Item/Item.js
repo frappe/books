@@ -6,7 +6,8 @@ module.exports = {
     'name',
     'description'
   ],
-  fields: [{
+  fields: [
+    {
       fieldname: 'name',
       label: 'Item Name',
       fieldtype: 'Data',
@@ -58,31 +59,25 @@ module.exports = {
   layout: [
     // section 1
     {
-      columns: [{
-          fields: ['name', 'unit']
-        },
-        {
-          fields: ['rate']
-        }
+      columns: [
+        { fields: ['name', 'unit'] },
+        { fields: ['rate'] }
       ]
     },
 
     // section 2
     {
-      columns: [{
-        fields: ['description']
-      }]
+      columns: [
+        { fields: ['description'] }
+      ]
     },
 
     // section 3
     {
       title: 'Accounting',
-      columns: [{
-          fields: ['incomeAccount', 'expenseAccount']
-        },
-        {
-          fields: ['tax']
-        }
+      columns: [
+        { fields: ['incomeAccount', 'expenseAccount'] },
+        { fields: ['tax'] }
       ]
     }
   ]

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <page-header title="Reports"/>
+    <page-header title="Reports" />
     <div class="row">
       <div class="col-8 mx-auto">
         <clickable-card
@@ -27,42 +27,19 @@
           description="Sales transactions for a given period with invoiced amount and tax details"
           @click="routeTo('sales-register')"
         />
-        <clickable-card 
-          class="mt-2"
-          title="Bank Reconciliation"
-          description="Bank Reconciliation statement"
-          @click="routeTo('bank-reconciliation',{'toDate' : (new Date()).toISOString()})"
-        />
-        <clickable-card  v-if="country === 'India'"
-          class="mt-2"
-          title="Goods and Service Tax"
-          description="See your goods and services tax here."
-          @click="routeTo('gst-taxes',{'toDate' : (new Date()).toISOString()})"
-        />
       </div>
     </div>
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
 import PageHeader from '../components/PageHeader';
 import ClickableCard from '../components/ClickableCard';
 
 export default {
   name: 'Report',
-  data() {
-    return {
-      country: '',
-    }
-  },
   components: {
     PageHeader,
     ClickableCard
-  },
-  async created() {
-    const doc = await frappe.getDoc('AccountingSettings');
-    this.country = doc.country;
-
   },
   methods: {
     routeTo(route, filters) {
@@ -70,5 +47,5 @@ export default {
       this.$router.push(`/report/${route}?${query}`);
     }
   }
-};
+}
 </script>

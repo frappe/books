@@ -46,6 +46,11 @@ module.exports = {
             "required": 1
         },
         {
+            "fieldname": "county",
+            "label": "County",
+            "fieldtype": "Data"
+        },
+        {
             "fieldname": "state",
             "label": "State",
             "fieldtype": "Data"
@@ -88,11 +93,11 @@ module.exports = {
         }
     ],
 
-    // events: {
-    //     validate: (doc) => {
+    events: {
+        validate: (doc) => {
 
-    //     }
-    // },
+        }
+    },
 
     listSettings: {
         getFields(list)  {
@@ -108,17 +113,11 @@ module.exports = {
         {
             columns: [
                 {
-                    fields: [ 
-                        "addressTitle", "addressType", "addressLine1",
-                        "addressLine2", "city", "country", "state",
-                        "postalCode"
-                    ]
+                    fields: [ "addressTitle", "addressType", "addressLine1",
+                            "addressLine2", "city", "county", "state", "country",
+                            "postalCode"] 
                 },
-                {
-                    fields: [
-                        "emailAddress", "phone", "fax", "isPreferredBilling", "isShippingBilling"
-                    ]
-                }
+                { fields: [ "emailAddress", "phone", "fax", "isPreferredBilling", "isShippingBilling" ] }
             ]
         }
     ]
