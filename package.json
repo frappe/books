@@ -52,15 +52,22 @@
   "scripts": {
     "test": "mocha tests",
     "start": "frappe start",
-    "electron": "cross-env ELECTRON=true frappe start electron",
+    "electron": "ELECTRON=true frappe start electron",
     "pack-electron": "cross-env NODE_ENV=production ELECTRON=true frappe build electron",
     "build-electron": "npm run pack-electron && electron-builder",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "cross-env": "^5.2.0",
+    "file-saver": "^2.0.0",
     "frappejs": "github:frappe/frappejs",
+    "nodemailer": "^4.7.0",
     "popper.js": "^1.14.4",
+    "sharp": "^0.21.3",
+    "vue-color": "^2.7.0",
     "vue-toasted": "^1.1.25"
+  },
+  "devDependencies": {
+    "electron-rebuild": "^1.8.4"
   }
 }

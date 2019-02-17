@@ -8,11 +8,11 @@ module.exports = {
     isSubmittable: 1,
     keywordFields: [],
     settings: "PaymentSettings",
-    fields: [
-        {
+    fields: [{
             "fieldname": "date",
-            "label": "Date",
-            "fieldtype": "Date"
+            "label": "Posting Date",
+            "fieldtype": "Date",
+            // default: (new Date()).toISOString()
         },
         {
             fieldname: "party",
@@ -36,6 +36,23 @@ module.exports = {
             required: 1
         },
         {
+            fieldname: "referenceId",
+            label: "Ref. / Cheque No.",
+            fieldtype: "Data",
+            default: "ABC",
+            required: 1 // TODO: UNIQUE
+        },
+        {
+            fieldname: "referenceDate",
+            label: "Ref. Date",
+            fieldtype: "Date",
+        },
+        {
+            fieldname: "clearanceDate",
+            label: "Clearance Date",
+            fieldtype: "Date",
+        },
+        {
             fieldname: "amount",
             label: "Amount",
             fieldtype: "Currency",
@@ -57,26 +74,33 @@ module.exports = {
         }
     ],
 
-    layout: [
-        {
-            columns: [
-                { fields: ['date', 'party'] },
-                { fields: ['account', 'paymentAccount'] },
+    layout: [{
+            columns: [{
+                    fields: ['date', 'party']
+                },
+                {
+                    fields: ['account', 'paymentAccount']
+                },
             ]
         },
         {
-          columns: [
-            {
-              fields: ['for']
-            }
-          ]
+            columns: [{
+                fields: ['referenceId']
+            }, {
+                fields: ['referenceDate']
+            },{
+                fields: ['clearanceDate']
+            }]
         },
         {
-          columns: [
-            {
-              fields: ['amount', 'writeoff']
-            }
-          ]
+            columns: [{
+                fields: ['for']
+            }]
+        },
+        {
+            columns: [{
+                fields: ['amount', 'writeoff']
+            }]
         }
     ],
 

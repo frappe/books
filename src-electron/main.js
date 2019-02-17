@@ -1,4 +1,7 @@
-const { app, BrowserWindow } = require('electron');
+const {
+  app,
+  BrowserWindow
+} = require('electron');
 const setupMenu = require('./menu');
 
 let mainWindow
@@ -9,7 +12,9 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  const { getAppConfig } = require('frappejs/webpack/utils');
+  const {
+    getAppConfig
+  } = require('frappejs/webpack/utils');
   const appConfig = getAppConfig();
   winURL = `http://localhost:${appConfig.dev.devServerPort}`;
 } else {
@@ -20,6 +25,7 @@ function createWindow() {
   /**
    * Initial window options
    */
+
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
