@@ -1,6 +1,5 @@
 module.exports = {
     "name": "Tax",
-    "label": "Tax",
     "doctype": "DocType",
     "isSingle": 0,
     "isChild": 0,

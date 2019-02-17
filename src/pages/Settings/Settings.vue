@@ -1,15 +1,11 @@
 <template>
   <div>
-    <page-header title="Settings"/>
+    <page-header title="Settings" />
     <div class="row">
       <div class="col-8 bg-white mt-4 mx-auto border p-5">
-        <setting-section doctype="AccountingSettings"/>
+        <setting-section doctype="AccountingSettings" />
         <hr class="mt-4">
-        <setting-section doctype="CompanySettings"/>
-        <hr class="mt-4">
-        <setting-section doctype="EmailAccount"/>
-        <hr class="mt-4">
-        <setting-section doctype="SystemSettings"/>
+        <setting-section doctype="SystemSettings" />
       </div>
     </div>
   </div>
@@ -24,5 +20,5 @@ export default {
     PageHeader,
     SettingSection
   }
-};
+}
 </script>

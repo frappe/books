@@ -5,15 +5,14 @@ import ListView from '../pages/ListView';
 import FormView from '../pages/FormView/FormView';
 import PrintView from '../pages/PrintView';
 
-import Report from '../pages/Report';
+import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
 
 import DataImport from '../pages/DataImport';
 
 import Settings from '../pages/Settings/Settings';
 
-import ReportList from '../pages/ReportList';
-import ChartOfAccounts from '../pages/ChartOfAccounts';
+import ReportList from '../pages/Report';
 
 import Tree from 'frappejs/ui/components/Tree';
 
@@ -70,12 +69,6 @@ const routes = [
     path: '/tree/:doctype',
     name: 'Tree',
     component: Tree,
-    props: true
-  },
-  {
-    path: '/chartOfAccounts',
-    name: 'Chart Of Accounts',
-    component: ChartOfAccounts,
     props: true
   },
 ];

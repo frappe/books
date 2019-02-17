@@ -51,12 +51,12 @@ module.exports = {
         },
         {
             fieldname: "referenceType",
-            label: "Ref. Type",
+            label: "Reference Type",
             fieldtype: "Data",
         },
         {
             fieldname: "referenceName",
-            label: "Ref. Name",
+            label: "Reference Name",
             fieldtype: "DynamicLink",
             references: "referenceType"
         },
