@@ -29,7 +29,6 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
     let data = [];
 
     for (let entry of validEntries) {
-        // console.log(entry);
 
         const { outStandingAmount, creditNoteAmount } = getOutstandingAmount(entry);
 

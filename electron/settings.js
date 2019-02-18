@@ -20,6 +20,7 @@ function getSettings() {
 async function saveSettings(settings) {
   await writeFile(configFilePath, JSON.stringify(settings));
 }
+console.log(getSettings());
 
 module.exports = {
   getSettings,

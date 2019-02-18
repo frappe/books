@@ -1,13 +1,11 @@
 <template>
   <div class="list-container">
     <list-row class="text-muted rounded-top bg-light">
-      <list-cell v-for="column in columns" :key="column.label">
-        {{ column.label }}
-      </list-cell>
+      <list-cell v-for="column in columns" :key="column.label">{{ column.label }}</list-cell>
     </list-row>
     <list-row v-for="doc in data" :key="doc.name" @click.native="openForm(doc.name)">
       <list-cell v-for="column in columns" :key="column.label" class="d-flex align-items-center">
-        <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2" />
+        <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2"/>
         <span>{{ frappe.format(column.getValue(doc), column.fieldtype || {}) }}</span>
       </list-cell>
     </list-row>
@@ -66,20 +64,22 @@ export default {
       });
     },
     prepareColumns() {
-      this.columns = this.listConfig.columns.map(col => {
-        if (typeof col === 'string') {
-          const field = this.meta.getField(col);
-          if (!field) return null;
-          return {
-            label: field.label,
-            fieldtype: field.fieldtype,
-            getValue(doc) {
-              return doc[col];
-            }
-          };
-        }
-        return col;
-      }).filter(Boolean);
+      this.columns = this.listConfig.columns
+        .map(col => {
+          if (typeof col === 'string') {
+            const field = this.meta.getField(col);
+            if (!field) return null;
+            return {
+              label: field.label,
+              fieldtype: field.fieldtype,
+              getValue(doc) {
+                return doc[col];
+              }
+            };
+          }
+          return col;
+        })
+        .filter(Boolean);
     }
   }
 };
