@@ -49,6 +49,12 @@ export default {
         },
         {
           label: _('Sales Register'), route: '#/report/sales-register'
+        },
+        {
+          label: _('Bank Reconciliation'), route: '#/report/bank-reconciliation'
+        },
+        {
+          label: _('Goods and Service Tax'), route: '#/report/gst-taxes'
         }
       ]
     },
