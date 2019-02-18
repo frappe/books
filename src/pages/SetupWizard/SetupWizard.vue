@@ -41,7 +41,7 @@ export default {
   name: 'SetupWizard',
   data() {
     return {
-      meta: null,
+      meta: frappe.getMeta('SetupWizard'),
       currentSection: 0
     };
   },
