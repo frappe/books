@@ -2,17 +2,16 @@ module.exports = {
     "name": "Address",
     "doctype": "DocType",
     "isSingle": 0,
-    "titleField": "addressTitle",
     "keywordFields": [
-        "addressTitle"
+        "name"
     ],
     pageSettings: {
         hideTitle: true
     },
-    "naming": "autoincrement",
+    // "naming": "autoincrement",
     "fields": [
         {
-            "fieldname": "addressTitle",
+            "fieldname": "name",
             "label": "Address Title",
             "fieldtype": "Data",
             "required": 1
@@ -96,7 +95,7 @@ module.exports = {
 
     listSettings: {
         getFields(list)  {
-            return ['addressTitle', 'addressType'];
+            return ['name', 'addressType'];
         },
         getRowHTML(list, data) {
             return `<div class="col-11">${list.getNameHTML(data)} (${data.addressType})</div>`;
@@ -109,7 +108,7 @@ module.exports = {
             columns: [
                 {
                     fields: [ 
-                        "addressTitle", "addressType", "addressLine1",
+                        "name", "addressType", "addressLine1",
                         "addressLine2", "city", "country", "state",
                         "postalCode"
                     ]
