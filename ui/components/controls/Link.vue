@@ -19,10 +19,13 @@ export default {
         filters.keywords = ['like', query];
       }
 
+      let target = this.getTarget();
+      let titleField = frappe.getMeta(target).titleField;
+
       const list = await frappe.db.getAll({
-        doctype: this.getTarget(),
+        doctype: target,
         filters,
-        fields: ['name'],
+        fields: ['name', titleField],
         limit: 50
       });
 
@@ -34,7 +37,7 @@ export default {
 
       return list
         .map(d => ({
-          label: d.name,
+          label: d[titleField],
           value: d.name
         }))
         .concat({
