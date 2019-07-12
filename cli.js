@@ -14,6 +14,11 @@ program
     .action(require('./webpack/start'))
 
 program
+    .command('build [mode]')
+    .description('Build assets for production')
+    .action(require('./webpack/build'))
+
+program
     .command('new-model <name>')
     .description('Create a new model in the `models/doctype` folder')
     .action((name) => {

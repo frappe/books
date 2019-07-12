@@ -8,21 +8,24 @@ import { _ } from 'frappejs/utils';
 
 export default {
   extends: Autocomplete,
-  watch: {
-    value(newValue) {
-      this.$refs.input.value = newValue;
-    }
-  },
   methods: {
     async getList(query) {
+      let filters = this.docfield.getFilters ?
+        this.docfield.getFilters(query) :
+        null;
+
+      if (query) {
+        if (!filters) filters = {};
+        filters.keywords = ['like', query];
+      }
+
+      let target = this.getTarget();
+      let titleField = frappe.getMeta(target).titleField;
+
       const list = await frappe.db.getAll({
-        doctype: this.getTarget(),
-        filters: query
-          ? {
-              keywords: ['like', query]
-            }
-          : null,
-        fields: ['name'],
+        doctype: target,
+        filters,
+        fields: ['name', titleField],
         limit: 50
       });
 
@@ -34,7 +37,7 @@ export default {
 
       return list
         .map(d => ({
-          label: d.name,
+          label: d[titleField],
           value: d.name
         }))
         .concat({

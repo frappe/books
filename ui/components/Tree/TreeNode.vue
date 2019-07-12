@@ -1,8 +1,8 @@
 <template>
   <div class="tree-node">
     <div class="tree-label px-3 py-2" @click.self="toggleChildren">
-      <div @click="toggleChildren">
-        <feather-icon :name="iconName" v-show="iconName" />
+      <div class="d-flex align-items-center" @click="toggleChildren">
+        <feather-icon class="mr-1" :name="iconName" v-show="iconName" />
         <span>{{ label }}</span>
       </div>
     </div>
@@ -43,9 +43,9 @@ const TreeNode = {
     },
     async getChildren() {
       if (this.children) return;
-      
+
       this.children = [];
-      
+
       let filters = {
         [this.settings.parentField]: this.parentValue
       };

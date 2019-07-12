@@ -40,7 +40,7 @@ export default {
 </script>
 <style>
 .feather-icon {
-    display: inline-block;
+    display: inline-flex;
 }
 </style>
 

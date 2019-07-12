@@ -1,5 +1,5 @@
 const numberFormat = require('./numberFormat');
-const markdown = new (require('showdown').Converter)();
+// const markdown = new (require('showdown').Converter)();
 const luxon = require('luxon');
 const frappe = require('frappejs');
 
@@ -13,7 +13,7 @@ module.exports = {
             value = numberFormat.formatNumber(value);
 
         } else if (field.fieldtype === 'Text') {
-            value = markdown.makeHtml(value || '');
+            // value = markdown.makeHtml(value || '');
 
         } else if (field.fieldtype === 'Date') {
             let dateFormat;
