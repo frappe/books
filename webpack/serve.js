@@ -5,7 +5,7 @@ const webpackHotMiddleware = require('webpack-hot-middleware');
 
 const logger = require('./logger');
 const { getAppConfig, resolveAppDir } = require('./utils');
-const getWebpackConfig = require('./config');
+const { getConfig: getWebpackConfig } = require('./config');
 
 const log = logger('serve');
 const warn = logger('serve', 'red');
@@ -52,7 +52,8 @@ function startWebpackDevServer() {
 
 function addWebpackEntryPoints(webpackConfig, forDevServer) {
     const devServerEntryPoints = [
-        resolveAppDir('node_modules/webpack-dev-server/client/index.js') + '?http://localhost',
+        // resolveAppDir('node_modules/webpack-dev-server/client/index.js') + '?http://localhost',
+        'webpack-dev-server/client/index.js?http://localhost',
         'webpack/hot/dev-server'
     ];
     const middlewareEntryPoints = [

@@ -1,10 +1,11 @@
 <template>
     <div class="row pb-4">
-        <frappe-control class="col-lg col-md-3 col-sm-6"
+        <frappe-control class="col-4"
             v-for="docfield in filters"
             :key="docfield.fieldname"
             :docfield="docfield"
             :value="$data.filterValues[docfield.fieldname]"
+            :doc="$data.filterValues"
             @change="updateValue(docfield.fieldname, $event)"/>
     </div>
 </template>
@@ -29,13 +30,6 @@ export default {
     if (hasOnloadFilters) {
       this.$emit('change', this.filterValues);
     }
-  },
-  provide() {
-    return {
-      dynamicLinkTarget: reference => {
-        return this.filterValues[reference];
-      }
-    };
   },
   methods: {
     updateValue(fieldname, value) {

@@ -10,6 +10,9 @@ async function makePDF(html, filepath) {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.setContent(html);
+    await page.addStyleTag({
+      url: 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css'
+    })
     await page.pdf({
         path: filepath,
         format: 'A4'
@@ -17,12 +20,49 @@ async function makePDF(html, filepath) {
     await browser.close();
 }
 
-async function getPDFForElectron(doctype, name) {
-    const { shell } = require('electron');
-    const html = await getHTML(doctype, name);
-    const filepath = path.join(frappe.electronSettings.directory, name + '.pdf');
-    await makePDF(html, filepath);
-    shell.openItem(filepath);
+async function getPDFForElectron(doctype, name, destination, htmlContent) {
+    const { remote, shell } = require('electron');
+    const { BrowserWindow } = remote;
+    const html = htmlContent || await getHTML(doctype, name);
+    const filepath = path.join(destination, name + '.pdf');
+
+    const fs = require('fs')
+    let printWindow = new BrowserWindow({
+      width: 600,
+      height: 800,
+      show: false
+    })
+    printWindow.loadURL(`file://${path.join(__static, 'print.html')}`);
+
+    printWindow.on('closed', () => {
+      printWindow = null;
+    });
+
+    const code = `
+      document.body.innerHTML = \`${html}\`;
+    `;
+
+    printWindow.webContents.executeJavaScript(code);
+
+    const printPromise = new Promise(resolve => {
+      printWindow.webContents.on('did-finish-load', () => {
+        printWindow.webContents.printToPDF({
+          marginsType: 1, // no margin
+          pageSize: 'A4',
+          printBackground: true
+        }, (error, data) => {
+          if (error) throw error
+          printWindow.close();
+          fs.writeFile(filepath, data, (error) => {
+            if (error) throw error
+            resolve(shell.openItem(filepath));
+          })
+        })
+      })
+    })
+
+    await printPromise;
+    // await makePDF(html, filepath);
 }
 
 function setupExpressRoute() {

@@ -195,8 +195,8 @@ module.exports = class Database extends Observable {
   }
 
   triggerChange(doctype, name) {
-    this.trigger(`change:${doctype}`, { name: name }, 500);
-    this.trigger(`change`, { doctype: name, name: name }, 500);
+    this.trigger(`change:${doctype}`, { name }, 500);
+    this.trigger(`change`, { doctype, name }, 500);
   }
 
   async insert(doctype, doc) {
@@ -280,7 +280,7 @@ module.exports = class Database extends Observable {
   }
 
   async updateSingle(meta, doc, doctype) {
-    await this.deleteSingleValues();
+    await this.deleteSingleValues(doctype);
     for (let field of meta.getValidFields({ withChildren: false })) {
       let value = doc[field.fieldname];
       if (value) {

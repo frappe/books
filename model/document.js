@@ -52,27 +52,27 @@ module.exports = class BaseDocument extends Observable {
     async applyChange(fieldname) {
         if (await this.applyFormula()) {
             // multiple changes
-            await this.trigger('change', { doc: this });
+            await this.trigger('change', {
+                doc: this
+            });
         } else {
             // no other change, trigger control refresh
-            await this.trigger('change', { doc: this, fieldname: fieldname });
+            await this.trigger('change', {
+                doc: this,
+                fieldname: fieldname
+            });
         }
     }
 
     setDefaults() {
         for (let field of this.meta.fields) {
-            if (this[field.fieldname]===null || this[field.fieldname]===undefined) {
+            if (this[field.fieldname] === null || this[field.fieldname] === undefined) {
 
                 let defaultValue = null;
-
-                if (field.fieldtype === 'Date') {
-                    defaultValue = (new Date()).toISOString().substr(0, 10);
-                }
 
                 if (field.fieldtype === 'Table') {
                     defaultValue = [];
                 }
-
                 if (field.default) {
                     defaultValue = field.default;
                 }
@@ -165,12 +165,14 @@ module.exports = class BaseDocument extends Observable {
         this.clearValues();
         Object.assign(this, data);
         this._dirty = false;
-        this.trigger('change', {doc: this});
+        this.trigger('change', {
+            doc: this
+        });
     }
 
     clearValues() {
         for (let field of this.meta.getValidFields()) {
-            if(this[field.fieldname]) {
+            if (this[field.fieldname]) {
                 delete this[field.fieldname];
             }
         }
@@ -179,8 +181,8 @@ module.exports = class BaseDocument extends Observable {
     setChildIdx() {
         // renumber children
         for (let field of this.meta.getValidFields()) {
-            if (field.fieldtype==='Table') {
-                for(let i=0; i < (this[field.fieldname] || []).length; i++) {
+            if (field.fieldtype === 'Table') {
+                for (let i = 0; i < (this[field.fieldname] || []).length; i++) {
                     this[field.fieldname][i].idx = i;
                 }
             }
@@ -188,7 +190,7 @@ module.exports = class BaseDocument extends Observable {
     }
 
     async compareWithCurrentDoc() {
-        if (frappe.isServer && !this._notInserted) {
+        if (frappe.isServer && !this.isNew()) {
             let currentDoc = await frappe.db.get(this.doctype, this.name);
 
             // check for conflict
@@ -227,12 +229,12 @@ module.exports = class BaseDocument extends Observable {
                 // for each row
                 for (let row of this[tablefield.fieldname]) {
                     for (let field of formulaFields) {
-                      if (shouldApplyFormula(field, row)) {
-                        const val = await field.formula(row, doc);
-                        if (val !== false && val !== undefined) {
-                          row[field.fieldname] = val;
+                        if (shouldApplyFormula(field, row)) {
+                            const val = await field.formula(row, doc);
+                            if (val !== false && val !== undefined) {
+                                row[field.fieldname] = val;
+                            }
                         }
-                      }
                     }
                 }
             }
@@ -240,27 +242,27 @@ module.exports = class BaseDocument extends Observable {
 
         // parent
         for (let field of this.meta.getFormulaFields()) {
-          if (shouldApplyFormula(field, doc)) {
-            const val = await field.formula(doc);
-            if (val !== false && val !== undefined) {
-              doc[field.fieldname] = val;
+            if (shouldApplyFormula(field, doc)) {
+                const val = await field.formula(doc);
+                if (val !== false && val !== undefined) {
+                    doc[field.fieldname] = val;
+                }
             }
-          }
         }
 
         return true;
 
-        function shouldApplyFormula (field, doc) {
-          if (field.readOnly) {
-            return true;
-          }
-
-          if (!frappe.isServer) {
-            if (doc[field.fieldname] == null || doc[field.fieldname] == '') {
-              return true;
+        function shouldApplyFormula(field, doc) {
+            if (field.readOnly) {
+                return true;
             }
-          }
-          return false;
+
+            if (!frappe.isServer || frappe.isElectron) {
+                if (doc[field.fieldname] == null || doc[field.fieldname] == '') {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -346,5 +348,9 @@ module.exports = class BaseDocument extends Observable {
             _values[fieldname] = await frappe.db.getValue(doctype, name, fieldname);
         }
         return _values[fieldname];
+    }
+
+    isNew() {
+        return this._notInserted;
     }
 };

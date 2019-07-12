@@ -56,8 +56,11 @@ module.exports = {
         if (this.app) {
             // add to router if client-server
             this.app.post(`/api/method/${method}`, this.asyncHandler(async function(request, response) {
-                const data = await handler(request.body);
-                response.json(data);
+                let data = await handler(request.body);
+                if (data === undefined) {
+                  data = {}
+                }
+                return response.json(data);
             }));
         }
     },
