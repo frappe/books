@@ -20,7 +20,8 @@
       "dist/electron"
     ],
     "dmg": {
-      "contents": [{
+      "contents": [
+        {
           "x": 410,
           "y": 150,
           "type": "link",
@@ -58,7 +59,8 @@
   },
   "dependencies": {
     "cross-env": "^5.2.0",
-    "frappejs": "github:frappe/frappejs",
+    "file-saver": "^2.0.2",
+    "frappejs": "github:thefalconx33/frappejs#test",
     "nodemailer": "^4.7.0",
     "popper.js": "^1.14.4",
     "vue-color": "^2.7.0",
