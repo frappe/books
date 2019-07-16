@@ -1,26 +1,45 @@
 import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
+const path = require('path');
 
 export default {
-  async getTitle() {
+  getTitle: async () => {
     const accountingSettings = await frappe.getSingle('AccountingSettings');
     return accountingSettings.companyName;
+  },
+  getDbName() {
+    if (localStorage.dbPath) {
+      const parts = localStorage.dbPath.split(path.sep);
+      return parts[parts.length - 1];
+    }
+  },
+  getGroups() {
+    return this.groups.map(g => g.title);
+  },
+  getItems(groupTitle) {
+    if (groupTitle)
+      return this.groups.filter(g => g.title === groupTitle)[0].items;
+    else return [];
   },
   groups: [
     {
       title: _('Masters'),
       items: [
         {
-          label: _('Item'), route: '#/list/Item'
+          label: _('Chart Of Accounts'),
+          route: '/chartOfAccounts'
         },
         {
-          label: _('Party'), route: '#/list/Party'
+          label: _('Item'),
+          route: '/list/Item'
         },
         {
-          label: _('Tax'), route: '#/list/Tax'
+          label: _('Customer'),
+          route: '/list/Customer'
         },
         {
-          label: _('Account'), route: '#/tree/Account'
+          label: _('Tax'),
+          route: '/list/Tax'
         }
       ]
     },
@@ -28,16 +47,19 @@ export default {
       title: _('Transactions'),
       items: [
         {
-          label: _('Invoice'), route: '#/list/Invoice'
+          label: _('Invoice'),
+          route: '/list/Invoice'
         },
         {
-          label: _('Journal Entry'), route: '#/list/JournalEntry'
+          label: _('Journal Entry'),
+          route: '/list/JournalEntry'
+        },
+        {
+          label: _('Payment'),
+          route: '/list/Payment'
         }
         // {
-        //   label: _('Payment'), route: '#/list/Payment'
-        // },
-        // {
-        //   label: _('AccountingLedgerEntry'), route: '#/list/AccountingLedgerEntry'
+        //   label: _('AccountingLedgerEntry'), route: '/list/AccountingLedgerEntry'
         // },
       ]
     },
@@ -45,16 +67,20 @@ export default {
       title: _('Reports'),
       items: [
         {
-          label: _('General Ledger'), route: '#/report/general-ledger'
+          label: _('General Ledger'),
+          route: '/report/general-ledger'
         },
         {
-          label: _('Sales Register'), route: '#/report/sales-register'
+          label: _('Sales Register'),
+          route: '/report/sales-register'
         },
         {
-          label: _('Bank Reconciliation'), route: '#/report/bank-reconciliation'
+          label: _('Bank Reconciliation'),
+          route: '/report/bank-reconciliation'
         },
         {
-          label: _('Goods and Service Tax'), route: '#/report/gst-taxes'
+          label: _('Goods and Service Tax'),
+          route: '/report/gst-taxes'
         }
       ]
     },
@@ -62,7 +88,8 @@ export default {
       title: _('Tools'),
       items: [
         {
-          label: _('Data Import'), route: '#/data-import'
+          label: _('Data Import'),
+          route: '/data-import'
         }
       ]
     }

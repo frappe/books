@@ -4,12 +4,36 @@
       <div class="company-name px-3 py-2 my-2">
         <h6 class="m-0">{{ companyName }}</h6>
       </div>
-      <div
-        :class="['sidebar-item px-3 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
-        @click="routeTo(item.route)"
-        v-for="item in items"
-        :key="item.label"
-      >{{ item.label }}</div>
+      <div>
+        <!-- <transition-group name="slide-fade-group"> -->
+        <div v-for="group in groups" :key="group">
+          <div
+            :class="['sidebar-item px-3 py-2 ', activeGroup === group ? 'active' : '']"
+            @click="toggleGroup(group)"
+            style="user-select: none;"
+          >
+            {{
+            group }}
+          </div>
+          <transition name="slide-fade">
+            <div v-if="openGroup === group">
+              <div
+                v-for="item in groupItems"
+                style="user-select: none;"
+                :class="['sidebar-item px-3 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
+                @click="routeTo(item.route)"
+                :key="item.label"
+              >
+                <div class="d-flex align-items-center">
+                  <feather-icon class="mr-1" name="chevron-right" />
+                  {{ item.label }}
+                </div>
+              </div>
+            </div>
+          </transition>
+        </div>
+        <!-- </transition-group> -->
+      </div>
     </div>
     <div
       class="sidebar-item px-3 py-2 d-flex align-items-center"
@@ -22,12 +46,16 @@
   </div>
 </template>
 <script>
-const path = require('path');
+import sidebarConfig from '../sidebarConfig';
 export default {
   data() {
     return {
       companyName: '',
       dbFileName: '',
+      groups: [],
+      groupItems: [],
+      activeGroup: undefined,
+      openGroup: undefined,
       items: [
         {
           label: 'Chart of Accounts',
@@ -50,6 +78,10 @@ export default {
           route: '/list/Payment'
         },
         {
+          label: 'Journal Entry',
+          route: '/list/JournalEntry'
+        },
+        {
           label: 'Invoices',
           route: '/list/Invoice'
         },
@@ -65,18 +97,26 @@ export default {
     };
   },
   async mounted() {
-    const accountingSettings = await frappe.getDoc('AccountingSettings');
-    this.companyName = accountingSettings.companyName;
-    if (localStorage.dbPath) {
-      const parts = localStorage.dbPath.split(path.sep);
-      this.dbFileName = parts[parts.length - 1];
-    }
+    this.companyName = await sidebarConfig.getTitle();
+    this.dbFileName = await sidebarConfig.getDbName();
+    this.groups = sidebarConfig.getGroups();
   },
   methods: {
     isCurrentRoute(route) {
+      if (this.activeGroup) return false;
       return this.$route.path === route;
     },
+    toggleGroup(groupTitle) {
+      this.groupItems =
+        this.activeGroup === groupTitle
+          ? []
+          : sidebarConfig.getItems(groupTitle);
+      this.activeGroup =
+        this.activeGroup === groupTitle ? undefined : groupTitle;
+      this.openGroup = this.activeGroup === groupTitle ? groupTitle : undefined;
+    },
     routeTo(route) {
+      this.activeGroup = undefined;
       this.$router.push(route);
     },
     goToDatabaseSelector() {
@@ -107,4 +147,25 @@ export default {
     background-color: $primary;
   }
 }
+.slide-fade-enter-active {
+  transition: all 0.2s ease;
+}
+.slide-fade-leave-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-enter,
+.slide-fade-leave-to {
+  transform: translateX(-5px);
+  opacity: 0;
+}
+// .slide-fade-group-enter-active {
+//   transition: all 0.5s ease;
+// }
+// .slide-fade-group-leave-active {
+//   transition: all 0.5s ease-out;
+// }
+// .slide-fade-group-enter,
+// .slide-fade-group-leave-to {
+//   transform: translateY(-10px);
+// }
 </style>
