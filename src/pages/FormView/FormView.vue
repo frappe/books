@@ -1,6 +1,6 @@
 <template>
   <div class="bg-light">
-    <div class="form-container col-8 bg-white mt-4 ml-auto mr-auto border p-5">
+    <div class="form-container col-10 bg-white mt-4 ml-auto mr-auto border p-5">
       <form-actions
         v-if="shouldRenderForm"
         :doc="doc"
@@ -10,7 +10,7 @@
         @print="print"
         :links="links"
       />
-      <hr class="mb-3">
+      <hr class="mb-3" />
       <form-layout
         v-if="shouldRenderForm"
         :doc="doc"
@@ -87,10 +87,9 @@ export default {
 
         this.setLinks();
         this.doc.on('change', this.setLinks);
-        
       } catch (e) {
         this.notFound = true;
-        this.$router.push(`/list/${this.doctype}`)//if reloaded while insert new Item,Invoice etc form.
+        this.$router.push(`/list/${this.doctype}`); //if reloaded while insert new Item,Invoice etc form.
       }
     },
     async save() {
@@ -148,3 +147,16 @@ export default {
   }
 };
 </script>
+<style>
+/* FIX: For table cell expanding when active */
+.table-cell {
+  min-height: 58px;
+}
+.table-cell > div {
+  margin-top: 6px;
+}
+.table th,
+.table td {
+  vertical-align: middle;
+}
+</style>

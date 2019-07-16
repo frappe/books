@@ -5,46 +5,68 @@
         <feather-icon class="mr-1" :name="iconName" v-show="iconName" />
         <span>{{ label }}</span>
         <div class="ml-auto d-flex align-items-center">
-          <feather-icon v-if="balance !== ''" style="width:15px; height:15px" name="dollar-sign"/>
-          <span>{{ balance }}</span>
+          <span>
+            {{ currency }}
+            <span style="font-weight: 800">{{ computedBalance }}</span>
+          </span>
         </div>
       </div>
     </div>
     <div :class="['branch-children', expanded ? '' : 'd-none']">
-      <branch v-for="child in children" :key="child.label"
+      <branch
+        v-for="child in children"
+        :key="child.label"
         :label="child.label"
         :balance="child.balance"
         :parentValue="child.name"
         :doctype="doctype"
+        :currency="currency"
+        @updateBalance="updateBalance"
       />
     </div>
   </div>
 </template>
 <script>
 const Branch = {
-  props: ['label', 'parentValue', 'doctype', 'balance'],
+  props: ['label', 'parentValue', 'doctype', 'balance', 'currency'],
   data() {
     return {
       expanded: false,
-      children: null
-    }
+      children: null,
+      nodeBalance: this.balance
+    };
   },
   computed: {
     iconName() {
-      if (this.children && this.children.length ==0) return 'chevron-right';
+      if (this.children && this.children.length == 0) return 'chevron-right';
       return this.expanded ? 'chevron-down' : 'chevron-right';
+    },
+    computedBalance() {
+      return this.nodeBalance;
     }
   },
   components: {
     Branch: () => Promise.resolve(Branch)
   },
-  mounted() {
+  async mounted() {
     this.settings = frappe.getMeta(this.doctype).treeSettings;
+    if (this.nodeBalance > 0) {
+      this.$emit('updateBalance', this.nodeBalance);
+    }
+    await this.toggleChildren();
+    this.expanded = !this.expanded;
+    if (this.label === (await this.settings.getRootLabel())) {
+      await this.toggleChildren();
+    }
   },
   methods: {
     async toggleChildren() {
       await this.getChildren();
       this.expanded = !this.expanded;
+    },
+    updateBalance(balance) {
+      this.nodeBalance += balance;
+      this.$emit('updateBalance', this.nodeBalance);
     },
     async getChildren() {
       if (this.children) return;
@@ -65,7 +87,7 @@ const Branch = {
 
       this.children = children.map(c => {
         c.label = c.name;
-        c.balance = c.balance
+        c.balance = c.balance;
         return c;
       });
     }
@@ -75,7 +97,7 @@ const Branch = {
 export default Branch;
 </script>
 <style lang="scss">
-@import "../../styles/variables";
+@import '../../styles/variables';
 
 .branch {
   font-size: 1rem;

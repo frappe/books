@@ -23,11 +23,6 @@ export default {
     },
     'grandTotal',
     'date',
-    {
-      label: 'INV #',
-      getValue(doc) {
-        return doc.name;
-      }
-    }
+    'outstandingAmount'
   ]
-}
+};

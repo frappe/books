@@ -6,10 +6,7 @@ import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
 import postStart from '../server/postStart';
-import {
-  getSettings,
-  saveSettings
-} from '../electron/settings';
+import { getSettings, saveSettings } from '../electron/settings';
 
 // vue imports
 import Vue from 'vue';
@@ -26,35 +23,34 @@ import Toasted from 'vue-toasted';
   frappe.registerModels(coreModels);
   frappe.registerModels(models);
   frappe.fetch = window.fetch.bind();
-  frappe.events.on('connect-database', async (filepath) => {
+  frappe.events.on('connect-database', async filepath => {
     await connectToLocalDatabase(filepath);
 
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    const country = accountingSettings.country;
+    const { country } = await frappe.getSingle('AccountingSettings');
 
-    if (country === "India") {
-      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
+    if (country === 'India') {
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js');
     } else {
-      frappe.models.Party = require('../models/doctype/Party/Party.js')
+      frappe.models.Party = require('../models/doctype/Party/Party.js');
     }
     frappe.events.trigger('show-desk');
-
   });
 
-  frappe.events.on('DatabaseSelector:file-selected', async (filepath) => {
+  frappe.events.on('DatabaseSelector:file-selected', async filepath => {
     await connectToLocalDatabase(filepath);
 
     localStorage.dbPath = filepath;
 
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    if (!accountingSettings.companyName) {
+    const { companyName } = await frappe.getSingle('AccountingSettings');
+    if (!companyName) {
       frappe.events.trigger('show-setup-wizard');
     } else {
       frappe.events.trigger('show-desk');
     }
   });
 
-  frappe.events.on('SetupWizard:setup-complete', async (setupWizardValues) => {
+  frappe.events.on('SetupWizard:setup-complete', async setupWizardValues => {
+    const countryList = require('../fixtures/countryInfo.json');
     const {
       companyName,
       country,
@@ -73,7 +69,8 @@ import Toasted from 'vue-toasted';
       email,
       bankName,
       fiscalYearStart,
-      fiscalYearEnd
+      fiscalYearEnd,
+      currency: countryList[country]['currency']
     });
 
     await doc.update();
@@ -81,9 +78,9 @@ import Toasted from 'vue-toasted';
       method: 'import-coa'
     });
 
-    if (country === "India") {
-      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
-      await frappe.db.migrate()
+    if (country === 'India') {
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js');
+      await frappe.db.migrate();
       await generateGstTaxes();
     }
     frappe.events.trigger('show-desk');
@@ -98,25 +95,28 @@ import Toasted from 'vue-toasted';
           case 'Out of State':
             await newTax.set({
               name: `${type}-${percent}`,
-              details: [{
-                account: "IGST",
-                rate: percent
-              }]
-            })
+              details: [
+                {
+                  account: 'IGST',
+                  rate: percent
+                }
+              ]
+            });
             break;
           case 'In State':
             await newTax.set({
               name: `${type}-${percent}`,
-              details: [{
-                  account: "CGST",
+              details: [
+                {
+                  account: 'CGST',
                   rate: percent / 2
                 },
                 {
-                  account: "SGST",
+                  account: 'SGST',
                   rate: percent / 2
                 }
               ]
-            })
+            });
             break;
         }
         await newTax.insert();
@@ -124,11 +124,13 @@ import Toasted from 'vue-toasted';
     }
     await newTax.set({
       name: `Exempt-0`,
-      details: [{
-        account: "Exempt",
-        rate: 0
-      }]
-    })
+      details: [
+        {
+          account: 'Exempt',
+          rate: 0
+        }
+      ]
+    });
     await newTax.insert();
   }
 
@@ -146,7 +148,6 @@ import Toasted from 'vue-toasted';
       console.log(e);
     }
   }
-
 
   window.frappe = frappe;
 
@@ -166,4 +167,4 @@ import Toasted from 'vue-toasted';
     },
     template: '<App/>'
   });
-})()
+})();
