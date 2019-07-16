@@ -10,9 +10,9 @@ export default {
   extends: Autocomplete,
   methods: {
     async getList(query) {
-      let filters = this.docfield.getFilters ?
-        this.docfield.getFilters(query) :
-        null;
+      let filters = this.docfield.getFilters
+        ? this.docfield.getFilters(query, this.doc)
+        : null;
 
       if (query) {
         if (!filters) filters = {};
