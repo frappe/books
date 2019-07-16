@@ -1,28 +1,42 @@
 <template>
   <div class="p-3" v-if="root">
-    <branch :label="root.label" :balance="root.balance" :parentValue="''" :doctype="doctype" ref="root"/>
+    <branch
+      :label="root.label"
+      :balance="root.balance"
+      :parentValue="''"
+      :doctype="doctype"
+      ref="root"
+      :currency="root.currency"
+      @updateBalance="updateBalance"
+    />
   </div>
 </template>
 <script>
 import frappe from 'frappejs';
 import Branch from './Branch';
-import { setTimeout } from 'timers';
 
 export default {
   components: {
-    Branch,
+    Branch
   },
   data() {
     return {
       root: null,
-      doctype: "Account"
+      doctype: 'Account'
+    };
+  },
+  computed: {
+    rootBalance() {
+      return this.root.balance;
     }
   },
   async mounted() {
     this.settings = frappe.getMeta(this.doctype).treeSettings;
+    const { currency } = await frappe.getSingle('AccountingSettings');
     this.root = {
       label: await this.settings.getRootLabel(),
-      balance: 'Net Worth'
+      balance: 0,
+      currency
     };
   },
   methods: {
@@ -44,7 +58,10 @@ export default {
         c.balance = c.balance;
         return c;
       });
+    },
+    updateBalance(balance) {
+      this.root.balance += balance;
     }
   }
-}
+};
 </script>

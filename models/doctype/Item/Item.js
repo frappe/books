@@ -2,11 +2,9 @@ module.exports = {
   name: 'Item',
   doctype: 'DocType',
   isSingle: 0,
-  keywordFields: [
-    'name',
-    'description'
-  ],
-  fields: [{
+  keywordFields: ['name', 'description'],
+  fields: [
+    {
       fieldname: 'name',
       label: 'Item Name',
       fieldtype: 'Data',
@@ -22,20 +20,20 @@ module.exports = {
       label: 'Unit',
       fieldtype: 'Select',
       default: 'No',
-      options: [
-        'No',
-        'Kg',
-        'Gram',
-        'Hour',
-        'Day'
-      ]
+      options: ['No', 'Kg', 'Gram', 'Hour', 'Day']
     },
     {
       fieldname: 'incomeAccount',
       label: 'Income Account',
       fieldtype: 'Link',
       target: 'Account',
-      required: 1
+      required: 1,
+      getFilters: (query, control) => {
+        return {
+          isGroup: 0,
+          accountType: 'Income Account'
+        };
+      }
     },
     {
       fieldname: 'expenseAccount',
@@ -58,7 +56,8 @@ module.exports = {
   layout: [
     // section 1
     {
-      columns: [{
+      columns: [
+        {
           fields: ['name', 'unit']
         },
         {
@@ -69,15 +68,18 @@ module.exports = {
 
     // section 2
     {
-      columns: [{
-        fields: ['description']
-      }]
+      columns: [
+        {
+          fields: ['description']
+        }
+      ]
     },
 
     // section 3
     {
       title: 'Accounting',
-      columns: [{
+      columns: [
+        {
           fields: ['incomeAccount', 'expenseAccount']
         },
         {
