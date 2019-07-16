@@ -6,6 +6,7 @@
     :onlyInput="onlyInput"
     :disabled="isDisabled"
     :autofocus="autofocus"
+    :doc="doc"
     @change="$emit('change', $event)"
   />
 </template>
@@ -77,7 +78,7 @@ export default {
         return this.doc[reference];
       }
     };
-  },
+  }
 };
 </script>
 <style scoped>
