@@ -1,13 +1,15 @@
 <template>
-    <div class="row pb-4">
-        <frappe-control class="col-4"
-            v-for="docfield in filters"
-            :key="docfield.fieldname"
-            :docfield="docfield"
-            :value="$data.filterValues[docfield.fieldname]"
-            :doc="$data.filterValues"
-            @change="updateValue(docfield.fieldname, $event)"/>
-    </div>
+  <div class="row pb-4">
+    <frappe-control
+      class="col-3"
+      v-for="docfield in filters"
+      :key="docfield.fieldname"
+      :docfield="docfield"
+      :value="$data.filterValues[docfield.fieldname]"
+      :doc="$data.filterValues"
+      @change="updateValue(docfield.fieldname, $event)"
+    />
+  </div>
 </template>
 <script>
 import FrappeControl from 'frappejs/ui/components/controls/FrappeControl';

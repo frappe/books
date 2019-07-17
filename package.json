@@ -30,6 +30,7 @@
     "electron-debug": "^2.0.0",
     "electron-devtools-installer": "^2.2.4",
     "express": "^4.16.2",
+    "file-saver": "^2.0.2",
     "feather-icons": "^4.7.3",
     "file-loader": "^1.1.11",
     "flatpickr": "^4.3.2",
