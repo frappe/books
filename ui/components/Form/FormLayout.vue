@@ -1,7 +1,10 @@
 <template>
   <form :class="['frappe-form-layout', { 'was-validated': invalid }]">
-    <div class="form-row" v-if="layoutConfig"
-      v-for="(section, i) in layoutConfig.sections" :key="i"
+    <div
+      class="form-row"
+      v-if="layoutConfig"
+      v-for="(section, i) in layoutConfig.sections"
+      :key="i"
       v-show="showSection(i)"
     >
       <div class="col" v-for="(column, j) in section.columns" :key="j">
@@ -84,15 +87,17 @@ export default {
 
       if (!layout) {
         const fields = this.fields.map(df => df.fieldname);
-        layout = [{
-          columns: [{ fields }]
-        }];
+        layout = [
+          {
+            columns: [{ fields }]
+          }
+        ];
       }
 
       if (Array.isArray(layout)) {
         layout = {
           sections: layout
-        }
+        };
       }
       return layout;
     }

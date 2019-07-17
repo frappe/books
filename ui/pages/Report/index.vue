@@ -1,17 +1,27 @@
 <template>
-    <div>
-        <div class="p-4">
-            <h4 class="pb-2">{{ reportConfig.title }}</h4>
-            <report-filters v-if="filtersExists" :filters="reportConfig.filterFields" :filterDefaults="filters" @change="getReportData"></report-filters>
-            <div class="pt-2" ref="datatable" v-once></div>
-        </div>
-        <not-found v-if="!reportConfig" />
+  <div>
+    <div class="p-4">
+      <h4 class="pb-2">{{ reportConfig.title }}</h4>
+      <div class="row pb-4">
+        <report-filters
+          :class="linksExists ? 'col-10' : 'col-12'"
+          v-if="filtersExists"
+          :filters="reportConfig.filterFields"
+          :filterDefaults="filters"
+          @change="getReportData"
+        ></report-filters>
+        <report-links class="col-2" v-if="linksExists" :links="links"></report-links>
+      </div>
+      <div class="pt-2" ref="datatable" v-once></div>
     </div>
+    <not-found v-if="!reportConfig" />
+  </div>
 </template>
 <script>
 import DataTable from 'frappe-datatable';
 import frappe from 'frappejs';
 import ReportFilters from './ReportFilters';
+import ReportLinks from './ReportLinks';
 import utils from 'frappejs/client/ui/utils';
 
 export default {
@@ -20,13 +30,25 @@ export default {
   computed: {
     filtersExists() {
       return (this.reportConfig.filterFields || []).length;
+    },
+    linksExists() {
+      return (this.reportConfig.linkFields || []).length;
     }
+  },
+  data() {
+    return {
+      links: []
+    };
+  },
+  async created() {
+    this.setLinks();
+    // this.doc.on('change', this.setLinks);
   },
   methods: {
     async getReportData(filters) {
       let data = await frappe.call({
-          method: this.reportConfig.method,
-          args: filters
+        method: this.reportConfig.method,
+        args: filters
       });
 
       let rows, columns;
@@ -48,8 +70,8 @@ export default {
         columns = this.getColumns();
       }
 
-      for(let column of columns) {
-         column.editable = false;
+      for (let column of columns) {
+        column.editable = false;
       }
 
       if (this.datatable) {
@@ -60,6 +82,21 @@ export default {
           data: rows
         });
       }
+      return [rows, columns];
+    },
+    setLinks() {
+      if (this.linksExists) {
+        let links = [];
+        for (let link of this.reportConfig.linkFields) {
+          links.push({
+            label: link.label,
+            handler: () => {
+              link.action(this);
+            }
+          });
+        }
+        this.links = links;
+      }
     },
     getColumns(data) {
       const columns = this.reportConfig.getColumns(data);
@@ -67,7 +104,8 @@ export default {
     }
   },
   components: {
-    ReportFilters
+    ReportFilters,
+    ReportLinks
   }
 };
 </script>
