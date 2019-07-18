@@ -8,26 +8,28 @@
         <!-- <transition-group name="slide-fade-group"> -->
         <div v-for="group in groups" :key="group">
           <div
-            :class="['sidebar-item px-3 py-2 ', activeGroup === group ? 'active' : '']"
+            :class="['sidebar-item px-1 py-2', activeGroup === group ? 'active' : '']"
             @click="toggleGroup(group)"
             style="user-select: none;"
           >
-            {{
-            group }}
+            <div class="d-flex align-items-center">
+              <feather-icon
+                class="mr-1"
+                :name="openGroup === group ? 'chevron-down' : 'chevron-right'"
+              />
+              {{group }}
+            </div>
           </div>
           <transition name="slide-fade">
             <div v-if="openGroup === group">
               <div
                 v-for="item in groupItems"
                 style="user-select: none;"
-                :class="['sidebar-item px-3 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
+                :class="['sidebar-item pl-4 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
                 @click="routeTo(item.route)"
                 :key="item.label"
               >
-                <div class="d-flex align-items-center">
-                  <feather-icon class="mr-1" name="chevron-right" />
-                  {{ item.label }}
-                </div>
+                <div class="d-flex align-items-center">{{ item.label }}</div>
               </div>
             </div>
           </transition>
@@ -55,45 +57,45 @@ export default {
       groups: [],
       groupItems: [],
       activeGroup: undefined,
-      openGroup: undefined,
-      items: [
-        {
-          label: 'Chart of Accounts',
-          route: '/chartOfAccounts'
-        },
-        {
-          label: 'Customers',
-          route: '/list/Customer'
-        },
-        {
-          label: 'Items',
-          route: '/list/Item'
-        },
-        {
-          label: 'Tax',
-          route: '/list/Tax'
-        },
-        {
-          label: 'Payments',
-          route: '/list/Payment'
-        },
-        {
-          label: 'Journal Entry',
-          route: '/list/JournalEntry'
-        },
-        {
-          label: 'Invoices',
-          route: '/list/Invoice'
-        },
-        {
-          label: 'Reports',
-          route: '/reportList'
-        },
-        {
-          label: 'Settings',
-          route: '/settings'
-        }
-      ]
+      openGroup: undefined
+      // items: [
+      //   {
+      //     label: 'Chart of Accounts',
+      //     route: '/chartOfAccounts'
+      //   },
+      //   {
+      //     label: 'Customers',
+      //     route: '/list/Customer'
+      //   },
+      //   {
+      //     label: 'Items',
+      //     route: '/list/Item'
+      //   },
+      //   {
+      //     label: 'Tax',
+      //     route: '/list/Tax'
+      //   },
+      //   {
+      //     label: 'Payments',
+      //     route: '/list/Payment'
+      //   },
+      //   {
+      //     label: 'Journal Entry',
+      //     route: '/list/JournalEntry'
+      //   },
+      //   {
+      //     label: 'Invoices',
+      //     route: '/list/Invoice'
+      //   },
+      //   {
+      //     label: 'Reports',
+      //     route: '/reportList'
+      //   },
+      //   {
+      //     label: 'Settings',
+      //     route: '/settings'
+      //   }
+      // ]
     };
   },
   async mounted() {
@@ -144,7 +146,7 @@ export default {
 
   &.active {
     color: $white;
-    background-color: $primary;
+    background-color: $frappe;
   }
 }
 .slide-fade-enter-active {

@@ -18,7 +18,7 @@ module.exports = {
     {
       fieldname: 'date',
       label: 'Date',
-      fieldtype: 'Date',
+      fieldtype: 'Date'
       // default: (new Date()).toISOString()
     },
     {
@@ -27,7 +27,13 @@ module.exports = {
       fieldtype: 'Link',
       target: 'Party',
       required: 1,
-      getFilters: (query) => {
+      getFilters: query => {
+        if (query)
+          return {
+            keywords: ['like', query],
+            customer: 1
+          };
+
         return {
           customer: 1
         };
@@ -38,8 +44,14 @@ module.exports = {
       label: 'Account',
       fieldtype: 'Link',
       target: 'Account',
-      formula: (doc) => doc.getFrom('Party', doc.customer , 'defaultAccount'),
+      formula: doc => doc.getFrom('Party', doc.customer, 'defaultAccount'),
       getFilters: (query, control) => {
+        if (query)
+          return {
+            keywords: ['like', query],
+            isGroup: 0,
+            accountType: 'Receivable'
+          };
         return {
           isGroup: 0,
           accountType: 'Receivable'
@@ -57,7 +69,7 @@ module.exports = {
       fieldname: 'netTotal',
       label: 'Net Total',
       fieldtype: 'Currency',
-      formula: (doc) => doc.getSum('items', 'amount'),
+      formula: doc => doc.getSum('items', 'amount'),
       disabled: true,
       readOnly: 1
     },
@@ -85,7 +97,7 @@ module.exports = {
       fieldname: 'grandTotal',
       label: 'Grand Total',
       fieldtype: 'Currency',
-      formula: (doc) => doc.getGrandTotal(),
+      formula: doc => doc.getGrandTotal(),
       disabled: true,
       readOnly: 1
     },
@@ -105,31 +117,22 @@ module.exports = {
   layout: [
     // section 1
     {
-      columns: [
-        { fields: ['customer', 'account'] },
-        { fields: ['date'] }
-      ]
+      columns: [{ fields: ['customer', 'account'] }, { fields: ['date'] }]
     },
 
     // section 2
     {
-      columns: [
-        { fields: ['items'] }
-      ]
+      columns: [{ fields: ['items'] }]
     },
 
     // section 3
     {
-      columns: [
-        { fields: ['netTotal', 'taxes', 'grandTotal'] }
-      ]
+      columns: [{ fields: ['netTotal', 'taxes', 'grandTotal'] }]
     },
 
     // section 4
     {
-      columns: [
-        { fields: ['terms'] }
-      ]
+      columns: [{ fields: ['terms'] }]
     }
   ],
 
@@ -137,18 +140,25 @@ module.exports = {
     utils.ledgerLink,
     {
       label: 'Make Payment',
-      condition: form => form.doc.submitted && form.doc.outstandingAmount !== 0.0,
+      condition: form =>
+        form.doc.submitted && form.doc.outstandingAmount !== 0.0,
       action: async form => {
         const payment = await frappe.getNewDoc('Payment');
         payment.party = form.doc.customer;
         payment.account = form.doc.account;
-        payment.for = [{ referenceType: form.doc.doctype, referenceName: form.doc.name, amount: form.doc.grandTotal }];
+        payment.for = [
+          {
+            referenceType: form.doc.doctype,
+            referenceName: form.doc.name,
+            amount: form.doc.grandTotal
+          }
+        ];
         payment.on('afterInsert', async () => {
           form.$formModal.close();
 
           const _payment = await frappe.getDoc('Payment', payment.name);
           await _payment.submit();
-        })
+        });
         await form.$formModal.open(payment);
       }
     }

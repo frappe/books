@@ -38,6 +38,10 @@ export default {
           route: '/list/Customer'
         },
         {
+          label: _('Supplier'),
+          route: '/list/Supplier'
+        },
+        {
           label: _('Tax'),
           route: '/list/Tax'
         }
@@ -71,6 +75,10 @@ export default {
           route: '/report/general-ledger'
         },
         {
+          label: _('Trial Balance'),
+          route: '/report/trial-balance'
+        },
+        {
           label: _('Sales Register'),
           route: '/report/sales-register'
         },
@@ -90,6 +98,10 @@ export default {
         {
           label: _('Data Import'),
           route: '/data-import'
+        },
+        {
+          label: _('Settings'),
+          route: '/settings'
         }
       ]
     }

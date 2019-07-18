@@ -5,7 +5,7 @@
     </list-row>
     <list-row v-for="doc in data" :key="doc.name" @click.native="openForm(doc.name)">
       <list-cell v-for="column in columns" :key="column.label" class="d-flex align-items-center">
-        <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2"/>
+        <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2" />
         <span>{{ frappe.format(column.getValue(doc), column.fieldtype || {}) }}</span>
       </list-cell>
     </list-row>
@@ -25,7 +25,11 @@ export default {
   },
   watch: {
     listConfig(oldValue, newValue) {
-      if (oldValue.doctype !== newValue.doctype) {
+      if (
+        oldValue.doctype !== newValue.doctype ||
+        // To differntiate Customer and Supplier List based on same Party Doctype
+        oldValue.title !== newValue.title
+      ) {
         this.setupColumnsAndData();
       }
     }
@@ -36,17 +40,17 @@ export default {
       data: []
     };
   },
-  mounted() {
-    this.setupColumnsAndData();
+  async mounted() {
+    await this.setupColumnsAndData();
     frappe.listView.on('filterList', this.updateData.bind(this));
   },
   methods: {
-    setupColumnsAndData() {
+    async setupColumnsAndData() {
       this.doctype = this.listConfig.doctype;
       this.meta = frappe.getMeta(this.doctype);
 
-      this.prepareColumns();
-      this.updateData();
+      await this.prepareColumns();
+      await this.updateData();
     },
     openForm(name) {
       this.$router.push(`/edit/${this.doctype}/${name}`);

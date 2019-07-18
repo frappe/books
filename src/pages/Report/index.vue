@@ -1,27 +1,30 @@
 <template>
   <div>
     <div class="p-4">
-      <h4 class="pb-2">{{ reportConfig.title }}</h4>
-      <div class="col-12 text-right mt-4 mb-4">
-        <f-button primary @click="openExportWizard">{{ 'Export' }}</f-button>
+      <div class="row pb-4">
+        <h4 class="col-6 d-flex">{{ reportConfig.title }}</h4>
+        <report-links class="col-6 d-flex pr-0 flex-row-reverse" v-if="linksExists" :links="links"></report-links>
       </div>
-      <report-filters
-        v-if="filtersExists"
-        :filters="reportConfig.filterFields"
-        :filterDefaults="filters"
-        @change="getReportData"
-      ></report-filters>
-      <div class="pt-2" ref="datatable" v-once></div>
+      <div class="row pb-4">
+        <report-filters
+          class="col-12 pr-0"
+          v-if="filtersExists"
+          :filters="reportConfig.filterFields"
+          :filterDefaults="filters"
+          @change="getReportData"
+        ></report-filters>
+      </div>
+      <div class="pt-2 pr-3" ref="datatable" v-once></div>
     </div>
-    <not-found v-if="!reportConfig"/>
+    <not-found v-if="!reportConfig" />
   </div>
 </template>
 <script>
 import DataTable from 'frappe-datatable';
 import frappe from 'frappejs';
 import ReportFilters from 'frappejs/ui/pages/Report/ReportFilters';
+import ReportLinks from 'frappejs/ui/pages/Report/ReportLinks';
 import utils from 'frappejs/client/ui/utils';
-import ExportWizard from '../../components/ExportWizard';
 
 export default {
   name: 'Report',
@@ -29,35 +32,21 @@ export default {
   computed: {
     filtersExists() {
       return (this.reportConfig.filterFields || []).length;
+    },
+    linksExists() {
+      return (this.reportConfig.linkFields || []).length;
     }
   },
+  data() {
+    return {
+      links: []
+    };
+  },
+  async created() {
+    this.setLinks();
+    // this.doc.on('change', this.setLinks);
+  },
   methods: {
-    async openExportWizard() {
-      this.$modal.show({
-        modalProps: {
-          title: `Export ${this.reportConfig.title}`,
-          noFooter: true
-        },
-        component: ExportWizard,
-        props: await this.getReportDetails()
-      });
-    },
-    async getReportDetails() {
-      let { title, filterFields } = this.reportConfig;
-      let [rows, columns] = await this.getReportData(filterFields || []);
-      let columnData = columns.map(column => {
-        return {
-          id: column.id,
-          content: column.content,
-          checked: true
-        };
-      });
-      return {
-        title: title,
-        rows: rows,
-        columnData: columnData
-      };
-    },
     async getReportData(filters) {
       let data = await frappe.call({
         method: this.reportConfig.method,
@@ -97,15 +86,33 @@ export default {
       }
       return [rows, columns];
     },
+    setLinks() {
+      if (this.linksExists) {
+        let links = [];
+        for (let link of this.reportConfig.linkFields) {
+          links.push({
+            label: link.label,
+            handler: () => {
+              link.action(this);
+            }
+          });
+        }
+        this.links = links;
+      }
+    },
     getColumns(data) {
       const columns = this.reportConfig.getColumns(data);
       return utils.convertFieldsToDatatableColumns(columns);
     }
   },
   components: {
-    ReportFilters
+    ReportFilters,
+    ReportLinks
   }
 };
 </script>
 <style>
+.datatable {
+  /* font-size: 12px; */
+}
 </style>
