@@ -1,44 +1,78 @@
-const title = 'General Ledger';
-module.exports = {
-  title: title,
+let title = 'General Ledger';
+let filterFields = [
+  {
+    fieldtype: 'Select',
+    options: ['', 'Invoice', 'Payment'],
+    label: 'Reference Type',
+    fieldname: 'referenceType'
+  },
+  {
+    fieldtype: 'DynamicLink',
+    references: 'referenceType',
+    label: 'Reference Name',
+    fieldname: 'referenceName'
+  },
+  {
+    fieldtype: 'Link',
+    target: 'Account',
+    label: 'Account',
+    fieldname: 'account'
+  },
+  {
+    fieldtype: 'Link',
+    target: 'Party',
+    label: 'Party',
+    fieldname: 'party'
+  },
+  {
+    fieldtype: 'Date',
+    label: 'From Date',
+    fieldname: 'fromDate'
+  },
+  {
+    fieldtype: 'Date',
+    label: 'To Date',
+    fieldname: 'toDate'
+  }
+];
+
+const viewConfig = {
+  title,
+  filterFields,
   method: 'general-ledger',
-  filterFields: [{
-      fieldtype: 'Select',
-      options: ['', 'Invoice', 'Payment'],
-      label: 'Reference Type',
-      fieldname: 'referenceType'
-    },
+  linkFields: [
     {
-      fieldtype: 'DynamicLink',
-      references: 'referenceType',
-      label: 'Reference Name',
-      fieldname: 'referenceName'
-    },
-    {
-      fieldtype: 'Link',
-      target: 'Account',
-      label: 'Account',
-      fieldname: 'account'
-    },
-    {
-      fieldtype: 'Link',
-      target: 'Party',
-      label: 'Party',
-      fieldname: 'party'
-    },
-    {
-      fieldtype: 'Date',
-      label: 'From Date',
-      fieldname: 'fromDate'
-    },
-    {
-      fieldtype: 'Date',
-      label: 'To Date',
-      fieldname: 'toDate'
+      label: 'Export',
+      action: async report => {
+        async function getReportDetails() {
+          let [rows, columns] = await report.getReportData(filterFields);
+          let columnData = columns.map(column => {
+            return {
+              id: column.id,
+              content: column.content,
+              checked: true
+            };
+          });
+          return {
+            title: title,
+            rows: rows,
+            columnData: columnData
+          };
+        }
+        report.$modal.show({
+          modalProps: {
+            title: `Export ${title}`,
+            noFooter: true
+          },
+          component: require('../../src/components/ExportWizard').default,
+          props: await getReportDetails()
+        });
+      }
     }
   ],
   getColumns() {
-    return [{
+    return [
+      {
         label: 'Date',
         fieldtype: 'Date'
       },
@@ -77,3 +111,5 @@ module.exports = {
     ];
   }
 };
+
+module.exports = viewConfig;
