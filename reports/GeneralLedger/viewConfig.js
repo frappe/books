@@ -43,6 +43,7 @@ const viewConfig = {
   linkFields: [
     {
       label: 'Export',
+      type: 'primary',
       action: async report => {
         async function getReportDetails() {
           let [rows, columns] = await report.getReportData(filterFields);
@@ -67,6 +68,13 @@ const viewConfig = {
           component: require('../../src/components/ExportWizard').default,
           props: await getReportDetails()
         });
+      }
+    },
+    {
+      label: 'Clear Filters',
+      type: 'secondary',
+      action: async report => {
+        await report.getReportData({});
       }
     }
   ],

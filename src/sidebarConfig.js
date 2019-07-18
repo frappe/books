@@ -30,6 +30,10 @@ export default {
           route: '/chartOfAccounts'
         },
         {
+          label: _('Accounts'),
+          route: '/list/Account'
+        },
+        {
           label: _('Item'),
           route: '/list/Item'
         },

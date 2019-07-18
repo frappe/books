@@ -5,7 +5,8 @@ import ListView from '../pages/ListView';
 import FormView from '../pages/FormView/FormView';
 import PrintView from '../pages/PrintView';
 
-import Report from '../pages/Report';
+// import Report from '../pages/Report';
+import Report from 'frappejs/ui/pages/Report';
 import reportViewConfig from '../../reports/view';
 
 import DataImport from '../pages/DataImport';
@@ -42,7 +43,7 @@ const routes = [
     path: '/report/:reportName',
     name: 'Report',
     component: Report,
-    props: (route) => {
+    props: route => {
       const { reportName } = route.params;
       return {
         reportName,
@@ -77,7 +78,7 @@ const routes = [
     name: 'Chart Of Accounts',
     component: ChartOfAccounts,
     props: true
-  },
+  }
 ];
 
 export default new Router({ routes });
