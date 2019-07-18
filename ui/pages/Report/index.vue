@@ -1,18 +1,20 @@
 <template>
   <div>
     <div class="p-4">
-      <h4 class="pb-2">{{ reportConfig.title }}</h4>
+      <div class="row pb-4">
+        <h4 class="col-6 d-flex">{{ reportConfig.title }}</h4>
+        <report-links class="col-6 d-flex pr-0 flex-row-reverse" v-if="linksExists" :links="links"></report-links>
+      </div>
       <div class="row pb-4">
         <report-filters
-          :class="linksExists ? 'col-10' : 'col-12'"
+          class="col-12 pr-0"
           v-if="filtersExists"
           :filters="reportConfig.filterFields"
           :filterDefaults="filters"
           @change="getReportData"
         ></report-filters>
-        <report-links class="col-2" v-if="linksExists" :links="links"></report-links>
       </div>
-      <div class="pt-2" ref="datatable" v-once></div>
+      <div class="pt-2 pr-3" ref="datatable" v-once></div>
     </div>
     <not-found v-if="!reportConfig" />
   </div>
@@ -20,8 +22,8 @@
 <script>
 import DataTable from 'frappe-datatable';
 import frappe from 'frappejs';
-import ReportFilters from './ReportFilters';
-import ReportLinks from './ReportLinks';
+import ReportFilters from 'frappejs/ui/pages/Report/ReportFilters';
+import ReportLinks from 'frappejs/ui/pages/Report/ReportLinks';
 import utils from 'frappejs/client/ui/utils';
 
 export default {
@@ -35,6 +37,12 @@ export default {
       return (this.reportConfig.linkFields || []).length;
     }
   },
+  watch: {
+    reportName() {
+      //FIX: Report's data forwards to next consecutively changed report
+      this.getReportData(this.filters);
+    }
+  },
   data() {
     return {
       links: []
@@ -42,7 +50,6 @@ export default {
   },
   async created() {
     this.setLinks();
-    // this.doc.on('change', this.setLinks);
   },
   methods: {
     async getReportData(filters) {
@@ -79,7 +86,9 @@ export default {
       } else {
         this.datatable = new DataTable(this.$refs.datatable, {
           columns: columns,
-          data: rows
+          data: rows,
+          treeView: this.reportConfig.treeView || false,
+          cellHeight: 35
         });
       }
       return [rows, columns];
@@ -110,4 +119,7 @@ export default {
 };
 </script>
 <style>
+.datatable {
+  font-size: 12px;
+}
 </style>

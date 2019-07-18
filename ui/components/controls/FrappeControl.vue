@@ -7,7 +7,6 @@
     :disabled="isDisabled"
     :autofocus="autofocus"
     :doc="doc"
-    :config="dateConfig"
     @change="$emit('change', $event)"
   />
 </template>
