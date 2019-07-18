@@ -1,7 +1,7 @@
 <template>
   <div class="row">
-    <div class="col-12 text-right" v-for="link of links" :key="link.label">
-      <f-button primary @click="link.handler">{{ link.label }}</f-button>
+    <div class="text-right ml-2" v-for="link of links" :key="link.label">
+      <f-button secondary @click="link.handler">{{ link.label }}</f-button>
     </div>
   </div>
 </template>
