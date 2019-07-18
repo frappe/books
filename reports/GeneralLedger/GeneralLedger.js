@@ -12,6 +12,7 @@ class GeneralLedger {
       if (params.toDate) filters.date.push('<=', params.toDate);
       if (params.fromDate) filters.date.push('>=', params.fromDate);
     }
+
     let data = await frappe.db.getAll({
       doctype: 'AccountingLedgerEntry',
       fields: [
@@ -36,7 +37,7 @@ class GeneralLedger {
 
     glEntries.push({
       date: '',
-      account: 'Opening',
+      account: '<b>Opening</b>',
       party: '',
       debit: 0,
       credit: 0,
@@ -53,7 +54,7 @@ class GeneralLedger {
     }
     glEntries.push({
       date: '',
-      account: 'Total',
+      account: '<b>Total</b>',
       party: '',
       debit: debitTotal,
       credit: creditTotal,
@@ -63,7 +64,7 @@ class GeneralLedger {
     });
     glEntries.push({
       date: '',
-      account: 'Closing',
+      account: '<b>Closing</b>',
       party: '',
       debit: debitTotal,
       credit: creditTotal,

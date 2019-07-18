@@ -37,6 +37,12 @@ export default {
       return (this.reportConfig.linkFields || []).length;
     }
   },
+  watch: {
+    reportName() {
+      //FIX: Report data forwards to next consecutively changed report
+      this.getReportData(this.filters);
+    }
+  },
   data() {
     return {
       links: []
@@ -44,7 +50,6 @@ export default {
   },
   async created() {
     this.setLinks();
-    // this.doc.on('change', this.setLinks);
   },
   methods: {
     async getReportData(filters) {
@@ -81,7 +86,9 @@ export default {
       } else {
         this.datatable = new DataTable(this.$refs.datatable, {
           columns: columns,
-          data: rows
+          data: rows,
+          treeView: this.reportConfig.treeView || false,
+          cellHeight: 35
         });
       }
       return [rows, columns];
@@ -113,6 +120,6 @@ export default {
 </script>
 <style>
 .datatable {
-  /* font-size: 12px; */
+  font-size: 12px;
 }
 </style>

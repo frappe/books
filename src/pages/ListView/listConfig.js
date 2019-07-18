@@ -5,6 +5,7 @@ import Item from '../../../models/doctype/Item/ItemList';
 import Payment from '../../../models/doctype/Payment/PaymentList';
 import Tax from '../../../models/doctype/Tax/TaxList';
 import JournalEntry from '../../../models/doctype/JournalEntry/JournalEntryList';
+import Account from '../../../models/doctype/Account/AccountList';
 
 export default {
   Invoice,
@@ -13,5 +14,6 @@ export default {
   Item,
   Payment,
   Tax,
-  JournalEntry
+  JournalEntry,
+  Account
 };
