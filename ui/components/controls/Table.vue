@@ -4,12 +4,10 @@
       <thead>
         <tr>
           <th scope="col" width="60">
-            <input class="mr-2" type="checkbox" @change="toggleCheckAll">
+            <input class="mr-2" type="checkbox" @change="toggleCheckAll" />
             <span>#</span>
           </th>
-          <th scope="col" v-for="column in columns" :key="column.fieldname">
-            {{ column.label }}
-          </th>
+          <th scope="col" v-for="column in columns" :key="column.fieldname">{{ column.label }}</th>
         </tr>
       </thead>
       <tbody v-if="rows.length">
@@ -20,10 +18,12 @@
               type="checkbox"
               :checked="checkedRows.includes(i)"
               @change="e => onCheck(e, i)"
-            >
+            />
             <span>{{ i + 1 }}</span>
           </th>
-          <td v-for="column in columns" :key="column.fieldname"
+          <td
+            v-for="column in columns"
+            :key="column.fieldname"
             tabindex="1"
             :ref="column.fieldname + i"
             @click="activateFocus(i, column.fieldname)"
@@ -37,7 +37,10 @@
             @keydown.down="focusBelowCell(i, column.fieldname)"
             @keydown.esc="escOnCell(i, column.fieldname)"
           >
-            <div class="table-cell" :class="{'active': isFocused(i, column.fieldname)}">
+            <div
+              class="table-cell"
+              :class="{'active': isFocused(i, column.fieldname),'p-1': isEditing(i, column.fieldname)}"
+            >
               <frappe-control
                 v-if="isEditing(i, column.fieldname)"
                 :docfield="getDocfield(column.fieldname)"
@@ -47,9 +50,11 @@
                 :autofocus="true"
                 @change="onCellChange(i, column.fieldname, $event)"
               />
-              <div class="text-truncate" v-else>
-                {{ row[column.fieldname] || '&nbsp;' }}
-              </div>
+              <div
+                class="text-truncate"
+                :data-fieldtype="column.fieldtype"
+                v-else
+              >{{ row[column.fieldname] || '&nbsp;' }}</div>
             </div>
           </td>
         </tr>
@@ -57,9 +62,7 @@
       <tbody v-else>
         <tr>
           <td :colspan="columns.length + 1" class="text-center">
-            <div class="table-cell">
-              No Data
-            </div>
+            <div class="table-cell">No Data</div>
           </td>
         </tr>
       </tbody>
@@ -104,7 +107,10 @@ export default {
     },
     focusPreviousCell() {
       let { index, fieldname } = this.currentlyFocused;
-      if (this.isFocused(index, fieldname) && !this.isEditing(index, fieldname)) {
+      if (
+        this.isFocused(index, fieldname) &&
+        !this.isEditing(index, fieldname)
+      ) {
         let pos = this._getColumnIndex(fieldname);
         pos -= 1;
         if (pos < 0) {
@@ -120,8 +126,10 @@ export default {
     },
     focusNextCell() {
       let { index, fieldname } = this.currentlyFocused;
-      if (this.isFocused(index, fieldname) && !this.isEditing(index, fieldname)) {
-
+      if (
+        this.isFocused(index, fieldname) &&
+        !this.isEditing(index, fieldname)
+      ) {
         let pos = this._getColumnIndex(fieldname);
         pos += 1;
         if (pos > this.columns.length - 1) {
@@ -292,7 +300,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 td {
-  padding: 0;
+  padding: 0rem;
   outline: none;
 }
 
@@ -321,5 +329,10 @@ td {
 
 [data-fieldtype='Link'] .input-group-append {
   display: none;
+}
+
+[data-fieldtype='Currency'],
+[data-fieldtype='Float'] {
+  text-align: right !important;
 }
 </style>
