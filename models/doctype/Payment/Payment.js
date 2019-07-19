@@ -13,7 +13,7 @@ module.exports = {
       fieldname: 'date',
       label: 'Posting Date',
       fieldtype: 'Date'
-      // default: (new Date()).toISOString()
+      // default: new Date().toISOString().substring(0, 10)
     },
     {
       fieldname: 'party',
@@ -24,14 +24,21 @@ module.exports = {
     },
     {
       fieldname: 'account',
-      label: 'Account',
+      label: 'From Account',
       fieldtype: 'Link',
       target: 'Account',
       required: 1
     },
     {
+      fieldname: 'paymentType',
+      label: 'Payment Type',
+      fieldtype: 'Select',
+      options: ['Recieve', 'Pay'],
+      required: 1
+    },
+    {
       fieldname: 'paymentAccount',
-      label: 'Payment Account',
+      label: 'To Account',
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
@@ -42,10 +49,16 @@ module.exports = {
       }
     },
     {
+      fieldname: 'paymentMethod',
+      label: 'Payment Method',
+      fieldtype: 'Select',
+      options: ['', 'Cash', 'Cheque'],
+      required: 1
+    },
+    {
       fieldname: 'referenceId',
       label: 'Ref. / Cheque No.',
       fieldtype: 'Data',
-      default: 'ABC',
       required: 1 // TODO: UNIQUE
     },
     {
@@ -56,7 +69,10 @@ module.exports = {
     {
       fieldname: 'clearanceDate',
       label: 'Clearance Date',
-      fieldtype: 'Date'
+      fieldtype: 'Date',
+      hidden: doc => {
+        return doc.paymentMethod === 'Cheque' ? 0 : 1;
+      }
     },
     {
       fieldname: 'amount',
@@ -84,18 +100,28 @@ module.exports = {
     {
       columns: [
         {
-          fields: ['date', 'party']
+          fields: ['date', 'account']
         },
         {
-          fields: ['account', 'paymentAccount']
+          fields: ['party', 'paymentAccount']
         }
       ]
     },
     {
       columns: [
         {
-          fields: ['referenceId']
+          fields: ['paymentMethod']
         },
+        {
+          fields: ['paymentType']
+        },
+        {
+          fields: ['referenceId']
+        }
+      ]
+    },
+    {
+      columns: [
         {
           fields: ['referenceDate']
         },

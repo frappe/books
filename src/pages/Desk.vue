@@ -2,7 +2,7 @@
   <div class="row no-gutters">
     <sidebar class="col-2" />
     <div class="page-container col-10 bg-light">
-      <router-view />
+      <router-view :key="$route.fullPath" />
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@ export default {
   components: {
     Sidebar
   }
-}
+};
 </script>
 <style>
 .page-container {

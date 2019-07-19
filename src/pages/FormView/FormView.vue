@@ -150,13 +150,6 @@ export default {
 };
 </script>
 <style>
-/* FIX: For table cell expanding when active */
-.table-cell {
-  min-height: 58px;
-}
-.table-cell > div {
-  margin-top: 6px;
-}
 .table th,
 .table td {
   vertical-align: middle;

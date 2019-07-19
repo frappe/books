@@ -6,30 +6,28 @@ module.exports = class PaymentServer extends BaseDocument {
   async getPosting() {
     let entries = new LedgerPosting({ reference: this, party: this.party });
     await entries.debit(this.paymentAccount, this.amount);
-
     for (let row of this.for) {
-      await entries.credit(
-        this.account,
-        row.amount,
-        row.referenceType,
-        row.referenceName
-      );
+      await entries.credit(this.account, row.amount);
     }
     return entries;
   }
 
   async afterSubmit() {
     for (let row of this.for) {
-      if (row.referenceType === 'Invoice') {
-        const { outstandingAmount } = await frappe.getDoc(
-          'Invoice',
+      if (['Invoice', 'Bill'].includes(row.referenceType)) {
+        const { outstandingAmount, grandTotal } = await frappe.getDoc(
+          row.referenceType,
           row.referenceName
         );
+        if (outstandingAmount === null) {
+          outstandingAmount = grandTotal;
+          console.log('Outstanding null');
+        }
         if (this.amount > outstandingAmount) {
           console.log('Over Payment');
         } else {
           await frappe.db.setValue(
-            'Invoice',
+            row.referenceType,
             row.referenceName,
             'outstandingAmount',
             outstandingAmount - this.amount

@@ -144,6 +144,7 @@ module.exports = {
         form.doc.submitted && form.doc.outstandingAmount !== 0.0,
       action: async form => {
         const payment = await frappe.getNewDoc('Payment');
+        payment.paymentType = 'Recieve';
         payment.party = form.doc.customer;
         payment.account = form.doc.account;
         payment.for = [
@@ -155,9 +156,9 @@ module.exports = {
         ];
         payment.on('afterInsert', async () => {
           form.$formModal.close();
-
-          const _payment = await frappe.getDoc('Payment', payment.name);
-          await _payment.submit();
+          form.$router.push({
+            path: `/edit/Payment/${payment.name}`
+          });
         });
         await form.$formModal.open(payment);
       }

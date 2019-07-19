@@ -1,4 +1,5 @@
 import Invoice from '../../../models/doctype/Invoice/InvoiceList';
+import Bill from '../../../models/doctype/Bill/BillList';
 import Customer from '../../../models/doctype/Party/CustomerList';
 import Supplier from '../../../models/doctype/Party/SupplierList';
 import Item from '../../../models/doctype/Item/ItemList';
@@ -9,6 +10,7 @@ import Account from '../../../models/doctype/Account/AccountList';
 
 export default {
   Invoice,
+  Bill,
   Customer,
   Supplier,
   Item,

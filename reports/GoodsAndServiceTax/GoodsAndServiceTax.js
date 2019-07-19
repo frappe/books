@@ -17,43 +17,55 @@ class GoodsAndServiceTax {
 
     let tableData = [];
     for (let invoice of invoiceNames) {
-      const row = await this.getRow(invoice.name)
-      tableData.push(row)
-    }  
+      const row = await this.getRow(invoice.name);
+      tableData.push(row);
+    }
 
-    if(Object.keys(filters).length != 0){
-      tableData = tableData.filter((row) => {
-        if(filters.account) return row.account === filters.account
-        if(filters.transferType) return row.transferType === filters.transferType
-        if(filters.place) return row.place === filters.place
-        return true
-      })
+    if (Object.keys(filters).length != 0) {
+      tableData = tableData.filter(row => {
+        if (filters.account) return row.account === filters.account;
+        if (filters.transferType)
+          return row.transferType === filters.transferType;
+        if (filters.place) return row.place === filters.place;
+        return true;
+      });
     }
 
     return tableData;
   }
 
-  async getRow(name) {
-    let row = {}
-    let invoiceDetails = await frappe.getDoc('Invoice', name);
+  async getRow(invoiceName) {
+    let row = {};
+    let invoiceDetails = await frappe.getDoc('Invoice', invoiceName);
     let customerDetails = await frappe.getDoc('Party', invoiceDetails.customer);
-    let addressDetails = await frappe.getDoc('Address', customerDetails.address);
-    row.gstin = customerDetails.gstin
-    row.cusName = invoiceDetails.customer
-    row.invNo = invoiceDetails.name
-    row.invDate = invoiceDetails.date
-    row.place = addressDetails.state
-    row.rate = 0
+    if (customerDetails.address) {
+      let addressDetails = await frappe.getDoc(
+        'Address',
+        customerDetails.address
+      );
+      row.place = addressDetails.state || '';
+    }
+    row.gstin = customerDetails.gstin;
+    row.cusName = invoiceDetails.customer;
+    row.invNo = invoiceDetails.name;
+    row.invDate = invoiceDetails.date;
+
+    row.rate = 0;
     row.transferType = 'In State';
     invoiceDetails.taxes.forEach(tax => {
-      row.rate += tax.rate
-      if (tax.account === 'IGST') row.transferType = 'Out of State';
+      row.rate += tax.rate;
+      const taxAmt = (tax.rate * invoiceDetails.netTotal) / 100;
+      if (tax.account === 'IGST') {
+        row.transferType = 'Out of State';
+        row.igstAmt = taxAmt;
+      }
+      if (tax.account === 'CGST') row.cgstAmt = taxAmt;
+      if (tax.account === 'SGST') row.sgstAmt = taxAmt;
     });
-    row.invAmt = invoiceDetails.grandTotal
-    row.taxAmt = invoiceDetails.netTotal
-    return row
+    row.invAmt = invoiceDetails.grandTotal;
+    row.taxAmt = invoiceDetails.netTotal;
+    return row;
   }
-  
 }
 
 module.exports = GoodsAndServiceTax;
