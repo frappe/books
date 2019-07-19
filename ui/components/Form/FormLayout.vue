@@ -55,7 +55,12 @@ export default {
       return this.fields.find(df => df.fieldname === fieldname);
     },
     shouldRenderField(fieldname) {
-      const hidden = Boolean(this.getDocField(fieldname).hidden);
+      let hidden;
+      try {
+        hidden = Boolean(this.getDocField(fieldname).hidden(this.doc));
+      } catch (e) {
+        hidden = Boolean(this.getDocField(fieldname).hidden) || false;
+      }
 
       if (hidden) {
         return false;
