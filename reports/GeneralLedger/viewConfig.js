@@ -2,7 +2,7 @@ let title = 'General Ledger';
 let filterFields = [
   {
     fieldtype: 'Select',
-    options: ['', 'Invoice', 'Payment'],
+    options: ['', 'Invoice', 'Payment', 'Bill'],
     label: 'Reference Type',
     fieldname: 'referenceType'
   },
@@ -74,7 +74,7 @@ const viewConfig = {
       label: 'Clear Filters',
       type: 'secondary',
       action: async report => {
-        await report.getReportData({});
+        await report.$router.replace(`/report/general-ledger`);
       }
     }
   ],

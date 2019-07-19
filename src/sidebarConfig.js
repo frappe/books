@@ -59,6 +59,10 @@ export default {
           route: '/list/Invoice'
         },
         {
+          label: _('Bill'),
+          route: '/list/Bill'
+        },
+        {
           label: _('Journal Entry'),
           route: '/list/JournalEntry'
         },

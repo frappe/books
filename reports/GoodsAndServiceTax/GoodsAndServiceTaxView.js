@@ -8,7 +8,8 @@ module.exports = class GoodsAndServiceTaxView extends ReportPage {
       filterFields: [
         {
           fieldtype: 'Data',
-          label: 'Transfer Type'
+          label: 'Transfer Type',
+          options: ['In State', 'Out of State']
         },
         {
           fieldtype: 'Data',
@@ -29,46 +30,62 @@ module.exports = class GoodsAndServiceTaxView extends ReportPage {
   }
 
   getColumns() {
-    return [{
-      label: 'GSTIN No.',
-      fieldname: 'gstin',
-      fieldtype: 'Data'
-    },
-    {
-      fieldtype: 'Data',
-      fieldname: 'cusName',
-      label: 'Customer Name'
-    },
-    {
-      label: 'Invoice No.',
-      fieldname: 'invNo',
-      fieldtype: 'Data'
-    },
-    {
-      label: 'Invoice Value',
-      fieldname: 'invAmt',
-      fieldtype: 'Data'
-    },
-    {
-      label: 'Invoice Date',
-      fieldname: 'invDate',
-      fieldtype: 'Date'
-    },
-    {
-      label: 'Place of supply',
-      fieldname: 'place',
-      fieldtype: 'Data'
-    },
-    {
-      label: 'Rate',
-      fieldname: 'rate',
-      fieldtype: 'Data'
-    },
-    {
-      label: 'Taxable Amount',
-      fieldname: 'taxAmt',
-      fieldtype: 'Data'
-    }
+    return [
+      {
+        label: 'GSTIN No.',
+        fieldname: 'gstin',
+        fieldtype: 'Data'
+      },
+      {
+        fieldtype: 'Data',
+        fieldname: 'cusName',
+        label: 'Customer Name'
+      },
+      {
+        label: 'Invoice No.',
+        fieldname: 'invNo',
+        fieldtype: 'Data'
+      },
+      {
+        label: 'Invoice Value',
+        fieldname: 'invAmt',
+        fieldtype: 'Currency'
+      },
+      {
+        label: 'Invoice Date',
+        fieldname: 'invDate',
+        fieldtype: 'Date'
+      },
+      {
+        label: 'Place of supply',
+        fieldname: 'place',
+        fieldtype: 'Data'
+      },
+      {
+        label: 'Rate',
+        fieldname: 'rate',
+        fieldtype: 'Data'
+      },
+      {
+        label: 'Taxable Amount',
+        fieldname: 'taxAmt',
+        fieldtype: 'Currency'
+      },
+      {
+        label: 'Intergrated Tax',
+        fieldname: 'igstAmt',
+        fieldtype: 'Currency'
+      },
+      {
+        label: 'Central Tax',
+        fieldname: 'cgstAmt',
+        fieldtype: 'Currency'
+      },
+      {
+        label: 'State Tax',
+        fieldname: 'sgstAmt',
+        fieldtype: 'Currency'
+      }
     ];
   }
 };

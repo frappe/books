@@ -5,7 +5,8 @@ module.exports = {
   isChild: 1,
   keywordFields: [],
   layout: 'ratio',
-  fields: [{
+  fields: [
+    {
       fieldname: 'item',
       label: 'Item',
       fieldtype: 'Link',
@@ -39,6 +40,7 @@ module.exports = {
       hidden: 1,
       fieldtype: 'Link',
       target: 'Account',
+      required: 1,
       formula: (row, doc) => doc.getFrom('Item', row.item, 'incomeAccount')
     },
     {

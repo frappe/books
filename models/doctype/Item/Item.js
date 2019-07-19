@@ -28,7 +28,7 @@ module.exports = {
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
-      getFilters: (query, control) => {
+      getFilters: query => {
         return {
           isGroup: 0,
           accountType: 'Income Account'
@@ -39,7 +39,21 @@ module.exports = {
       fieldname: 'expenseAccount',
       label: 'Expense Account',
       fieldtype: 'Link',
-      target: 'Account'
+      target: 'Account',
+      required: 1,
+      getFilters: query => {
+        return {
+          isGroup: 0,
+          accountType: [
+            'in',
+            [
+              'Cost of Goods Sold',
+              'Expense Account',
+              'Stock Received But Not Billed'
+            ]
+          ]
+        };
+      }
     },
     {
       fieldname: 'tax',

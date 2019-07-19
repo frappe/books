@@ -40,25 +40,6 @@ export default {
     };
   },
   methods: {
-    async getChildren(parentValue) {
-      let filters = {
-        [this.settings.parentField]: parentValue
-      };
-
-      const children = await frappe.db.getAll({
-        doctype: this.doctype,
-        filters,
-        fields: [this.settings.parentField, 'isGroup', 'name', 'balance'],
-        orderBy: 'name',
-        order: 'asc'
-      });
-
-      return children.map(c => {
-        c.label = c.name;
-        c.balance = c.balance;
-        return c;
-      });
-    },
     updateBalance(balance) {
       this.root.balance += balance;
     }

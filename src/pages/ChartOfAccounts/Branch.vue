@@ -21,6 +21,7 @@
         :parentValue="child.name"
         :doctype="doctype"
         :currency="currency"
+        :rootType="child.rootType"
         @updateBalance="updateBalance"
       />
     </div>
@@ -28,7 +29,7 @@
 </template>
 <script>
 const Branch = {
-  props: ['label', 'parentValue', 'doctype', 'balance', 'currency'],
+  props: ['label', 'parentValue', 'doctype', 'balance', 'currency', 'rootType'],
   data() {
     return {
       expanded: false,
@@ -50,7 +51,7 @@ const Branch = {
   },
   async mounted() {
     this.settings = frappe.getMeta(this.doctype).treeSettings;
-    if (this.nodeBalance > 0) {
+    if (this.nodeBalance != 0) {
       this.$emit('updateBalance', this.nodeBalance);
     }
     await this.toggleChildren();
@@ -64,7 +65,7 @@ const Branch = {
       await this.getChildren();
       this.expanded = !this.expanded;
     },
-    updateBalance(balance) {
+    async updateBalance(balance) {
       this.nodeBalance += balance;
       this.$emit('updateBalance', this.nodeBalance);
     },
@@ -80,7 +81,13 @@ const Branch = {
       const children = await frappe.db.getAll({
         doctype: this.doctype,
         filters,
-        fields: [this.settings.parentField, 'isGroup', 'name', 'balance'],
+        fields: [
+          this.settings.parentField,
+          'isGroup',
+          'name',
+          'balance',
+          'rootType'
+        ],
         orderBy: 'name',
         order: 'asc'
       });
@@ -88,6 +95,7 @@ const Branch = {
       this.children = children.map(c => {
         c.label = c.name;
         c.balance = c.balance;
+        c.rootType = c.rootType;
         return c;
       });
     }

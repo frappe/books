@@ -77,62 +77,14 @@ import Toasted from 'vue-toasted';
     await frappe.call({
       method: 'import-coa'
     });
-
+    const generateRegionalTaxes = require('../models/doctype/Tax/RegionalChanges');
+    await generateRegionalTaxes(country);
     if (country === 'India') {
-      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js');
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges');
       await frappe.db.migrate();
-      await generateGstTaxes();
     }
     frappe.events.trigger('show-desk');
   });
-  async function generateGstTaxes() {
-    const gstPercents = [5, 12, 18, 28];
-    const gstTypes = ['Out of State', 'In State'];
-    let newTax = await frappe.getNewDoc('Tax');
-    for (const type of gstTypes) {
-      for (const percent of gstPercents) {
-        switch (type) {
-          case 'Out of State':
-            await newTax.set({
-              name: `${type}-${percent}`,
-              details: [
-                {
-                  account: 'IGST',
-                  rate: percent
-                }
-              ]
-            });
-            break;
-          case 'In State':
-            await newTax.set({
-              name: `${type}-${percent}`,
-              details: [
-                {
-                  account: 'CGST',
-                  rate: percent / 2
-                },
-                {
-                  account: 'SGST',
-                  rate: percent / 2
-                }
-              ]
-            });
-            break;
-        }
-        await newTax.insert();
-      }
-    }
-    await newTax.set({
-      name: `Exempt-0`,
-      details: [
-        {
-          account: 'Exempt',
-          rate: 0
-        }
-      ]
-    });
-    await newTax.insert();
-  }
 
   async function connectToLocalDatabase(filepath) {
     try {

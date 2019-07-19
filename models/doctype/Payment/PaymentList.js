@@ -9,13 +9,19 @@ export default {
     {
       label: 'Payment',
       getValue(doc) {
-        if (doc.submitted === 1 && doc.clearanceDate !== null) {
+        if (
+          doc.submitted === 1 &&
+          (doc.clearanceDate !== null || doc.paymentMethod === 'Cash')
+        ) {
           return 'Reconciled';
         }
         return 'Not Reconciled';
       },
       getIndicator(doc) {
-        if (doc.submitted === 1 && doc.clearanceDate !== null) {
+        if (
+          doc.submitted === 1 &&
+          (doc.clearanceDate !== null || doc.paymentMethod === 'Cash')
+        ) {
           return indicators.GREEN;
         }
         return indicators.ORANGE;
@@ -27,4 +33,4 @@ export default {
     'clearanceDate',
     'name'
   ]
-}
+};
