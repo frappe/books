@@ -5,8 +5,7 @@ import ListView from '../pages/ListView';
 import FormView from '../pages/FormView/FormView';
 import PrintView from '../pages/PrintView';
 
-// import Report from '../pages/Report';
-import Report from 'frappejs/ui/pages/Report';
+import Report from '../pages/Report';
 import reportViewConfig from '../../reports/view';
 
 import DataImport from '../pages/DataImport';

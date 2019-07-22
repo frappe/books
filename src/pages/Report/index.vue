@@ -1,8 +1,9 @@
 <template>
   <div>
-    <div class="p-4">
+    <div class="px-3">
       <div class="row pb-4">
-        <h4 class="col-6 d-flex">{{ reportConfig.title }}</h4>
+        <!-- <h4 class="col-6 d-flex">{{ reportConfig.title }}</h4> -->
+        <page-header :class="linksExists ? 'col-6':'col-12'" :breadcrumbs="breadcrumbs" />
         <report-links class="col-6 d-flex pr-0 flex-row-reverse" v-if="linksExists" :links="links"></report-links>
       </div>
       <div class="row pb-4">
@@ -24,12 +25,25 @@ import DataTable from 'frappe-datatable';
 import frappe from 'frappejs';
 import ReportFilters from 'frappejs/ui/pages/Report/ReportFilters';
 import ReportLinks from 'frappejs/ui/pages/Report/ReportLinks';
+import PageHeader from '@/components/PageHeader';
 import utils from 'frappejs/client/ui/utils';
 
 export default {
   name: 'Report',
   props: ['reportName', 'reportConfig', 'filters'],
   computed: {
+    breadcrumbs() {
+      return [
+        {
+          title: 'Reports',
+          route: '#/reportList'
+        },
+        {
+          title: this.reportConfig.title,
+          route: ''
+        }
+      ];
+    },
     filtersExists() {
       return (this.reportConfig.filterFields || []).length;
     },
@@ -39,7 +53,7 @@ export default {
   },
   watch: {
     reportName() {
-      //FIX: Report data forwards to next consecutively changed report
+      //FIX: Report's data forwards to next consecutively changed report
       this.getReportData(this.filters);
     }
   },
@@ -114,7 +128,8 @@ export default {
   },
   components: {
     ReportFilters,
-    ReportLinks
+    ReportLinks,
+    PageHeader
   }
 };
 </script>

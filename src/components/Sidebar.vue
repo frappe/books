@@ -5,36 +5,36 @@
         <h6 class="m-0">{{ companyName }}</h6>
       </div>
       <div>
-        <!-- <transition-group name="slide-fade-group"> -->
-        <div v-for="group in groups" :key="group">
-          <div
-            :class="['sidebar-item px-1 py-2', activeGroup === group ? 'active' : '']"
-            @click="toggleGroup(group)"
-            style="user-select: none;"
-          >
-            <div class="d-flex align-items-center">
-              <feather-icon
-                class="mr-1"
-                :name="openGroup === group ? 'chevron-down' : 'chevron-right'"
-              />
-              {{group }}
-            </div>
-          </div>
-          <transition name="slide-fade">
-            <div v-if="openGroup === group">
-              <div
-                v-for="item in groupItems"
-                style="user-select: none;"
-                :class="['sidebar-item pl-4 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
-                @click="routeTo(item.route)"
-                :key="item.label"
-              >
-                <div class="d-flex align-items-center">{{ item.label }}</div>
+        <transition-group name="slide-fade" mode="out-in">
+          <div v-for="group in groups" :key="group">
+            <div
+              :class="['sidebar-item px-1 py-2', activeGroup === group ? 'active' : '']"
+              @click="toggleGroup(group)"
+              style="user-select: none;"
+            >
+              <div class="d-flex align-items-center">
+                <feather-icon
+                  class="mr-1"
+                  :name="openGroup === group ? 'chevron-down' : 'chevron-right'"
+                />
+                {{group }}
               </div>
             </div>
-          </transition>
-        </div>
-        <!-- </transition-group> -->
+            <transition name="slide-fade" mode="out-in">
+              <div v-if="openGroup === group">
+                <div
+                  v-for="item in groupItems"
+                  style="user-select: none;"
+                  :class="['sidebar-item pl-4 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
+                  @click="routeTo(item.route)"
+                  :key="item.label"
+                >
+                  <div class="d-flex align-items-center">{{ item.label }}</div>
+                </div>
+              </div>
+            </transition>
+          </div>
+        </transition-group>
       </div>
     </div>
     <div
@@ -150,24 +150,18 @@ export default {
   }
 }
 .slide-fade-enter-active {
-  transition: all 0.2s ease;
+  transition: all 0.6s ease 0.1s;
 }
 .slide-fade-leave-active {
-  transition: all 0.3s ease-out;
+  transition: all 0.3s ease;
+  position: absolute;
 }
 .slide-fade-enter,
 .slide-fade-leave-to {
-  transform: translateX(-5px);
+  transform: translateX(-15px);
   opacity: 0;
 }
-// .slide-fade-group-enter-active {
-//   transition: all 0.5s ease;
-// }
-// .slide-fade-group-leave-active {
-//   transition: all 0.5s ease-out;
-// }
-// .slide-fade-group-enter,
-// .slide-fade-group-leave-to {
-//   transform: translateY(-10px);
-// }
+.slide-fade-move {
+  transition: transform 0.5s 0.1s;
+}
 </style>
