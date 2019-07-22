@@ -4,10 +4,11 @@
       <div class="d-flex align-items-center" @click="toggleChildren">
         <feather-icon class="mr-1" :name="iconName" v-show="iconName" />
         <span>{{ label }}</span>
-        <div class="ml-auto d-flex align-items-center">
+        <div class="ml-auto d-flex align-items-center" v-if="rootType != null">
           <span>
             {{ currency }}
-            <span style="font-weight: 800">{{ computedBalance }}</span>
+            <span style="font-weight: 800">{{ Math.abs(computedBalance) }}</span>
+            {{ creditOrDebit }}
           </span>
         </div>
       </div>
@@ -44,6 +45,12 @@ const Branch = {
     },
     computedBalance() {
       return this.nodeBalance;
+    },
+    creditOrDebit() {
+      if (['Asset', 'Expense'].includes(this.rootType))
+        return this.nodeBalance > 0 ? 'Dr' : 'Cr';
+
+      return this.nodeBalance > 0 ? 'Cr' : 'Dr';
     }
   },
   components: {
