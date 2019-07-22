@@ -45,7 +45,6 @@ frappe.events.on(
       country,
       name,
       email,
-      abbreviation,
       bankName,
       fiscalYearStart,
       fiscalYearEnd
@@ -64,10 +63,16 @@ frappe.events.on(
     });
 
     await doc.update();
-    await frappe.call({ method: 'import-coa' });
-
+    await frappe.call({
+      method: 'import-coa'
+    });
+    const generateRegionalTaxes = require('../models/doctype/Tax/RegionalChanges');
+    await generateRegionalTaxes(country);
+    if (country === 'India') {
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges');
+      await frappe.db.migrate();
+    }
     frappe.events.trigger('show-desk');
-  }
 );
 
 window.frappe = frappe;
