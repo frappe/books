@@ -13,10 +13,20 @@ class BankReconciliation {
       if (params.fromDate) filters.date.push('>=', params.fromDate);
     }
 
+    filters.paymentMethod = ['in', ['Cheque', 'Transfer']];
+
     let data = await frappe.db.getAll({
       doctype: 'Payment',
-      fields: ['date', 'account', 'paymentAccount', 'party', 'name', 'referenceDate','clearanceDate'],
-      filters: filters,
+      fields: [
+        'date',
+        'account',
+        'paymentAccount',
+        'party',
+        'name',
+        'referenceDate',
+        'clearanceDate'
+      ],
+      filters: filters
     });
 
     for (var i = 0; i < data.length; i++) {
@@ -28,7 +38,7 @@ class BankReconciliation {
           account: data[i].paymentAccount,
           referenceName: data[i].name
         }
-      })
+      });
       data[i].credit = ledger[0].credit;
       data[i].debit = ledger[0].debit;
       data[i].referenceName = ledger[0].referenceName;

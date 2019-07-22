@@ -1,12 +1,21 @@
-const party = require('./Party')
+const party = require('./Party');
 
-party.fields.splice(3, 0, { //insert at 3rd position
+party.fields.splice(3, 0, {
+  //insert at 3rd position
   fieldname: 'gstin',
   label: 'GSTIN No.',
   fieldtype: 'Data',
-  hidden: 0
-})
-party.fields.join()
-const newParty = party
+  hidden: form => {
+    return form.individualType === 'Registered Regular' ? 0 : 1;
+  }
+});
+party.fields.splice(4, 0, {
+  fieldname: 'individualType',
+  label: 'GST Registration Type',
+  fieldtype: 'Select',
+  options: ['Unregistered', 'Registered Regular', 'Consumer']
+});
+party.fields.join();
+const newParty = party;
 
-module.exports = newParty
+module.exports = newParty;

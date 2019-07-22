@@ -1,5 +1,6 @@
 <template>
   <div class="bg-light">
+    <page-header :breadcrumbs="breadcrumbs" />
     <div class="form-container col-10 bg-white mt-4 ml-auto mr-auto border p-5">
       <form-actions
         v-if="shouldRenderForm"
@@ -51,6 +52,21 @@ export default {
     };
   },
   computed: {
+    breadcrumbs() {
+      if (this.doc)
+        return [
+          {
+            title: this.doctype,
+            route: '#/list/' + this.doctype
+          },
+          {
+            title: this.doc._notInserted
+              ? 'New ' + this.doctype
+              : this.doc.name,
+            route: ''
+          }
+        ];
+    },
     shouldRenderForm() {
       return this.name && this.doc;
     },

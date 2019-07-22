@@ -4,6 +4,12 @@ module.exports = {
   method: 'gst-taxes',
   filterFields: [
     {
+      fieldtype: 'Select',
+      label: 'Report Type',
+      fieldname: 'reportType',
+      options: ['', 'GSTR-1', 'GSTR-2', 'GSTR-3B']
+    },
+    {
       fieldtype: 'Data',
       label: 'Transfer Type',
       fieldname: 'transferType'
@@ -35,8 +41,8 @@ module.exports = {
       },
       {
         fieldtype: 'Data',
-        fieldname: 'cusName',
-        label: 'Customer Name',
+        fieldname: 'partyName',
+        label: 'Party',
         width: 100
       },
       {

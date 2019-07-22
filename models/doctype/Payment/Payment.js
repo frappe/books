@@ -43,7 +43,10 @@ module.exports = {
       target: 'Account',
       required: 1,
       getFilters: (query, doc) => {
+        if (doc.paymentMethod === 'Cash')
+          return { accountType: 'Cash', isGroup: 0 };
         return {
+          accountType: ['in', ['Bank', 'Cash']],
           isGroup: 0
         };
       }
@@ -52,7 +55,7 @@ module.exports = {
       fieldname: 'paymentMethod',
       label: 'Payment Method',
       fieldtype: 'Select',
-      options: ['', 'Cash', 'Cheque'],
+      options: ['', 'Cash', 'Cheque', 'Transfer'],
       required: 1
     },
     {
@@ -71,7 +74,7 @@ module.exports = {
       label: 'Clearance Date',
       fieldtype: 'Date',
       hidden: doc => {
-        return doc.paymentMethod === 'Cheque' ? 0 : 1;
+        return doc.paymentMethod === 'Cash' ? 1 : 0;
       }
     },
     {
