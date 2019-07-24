@@ -58,44 +58,6 @@ export default {
       groupItems: [],
       activeGroup: undefined,
       openGroup: undefined
-      // items: [
-      //   {
-      //     label: 'Chart of Accounts',
-      //     route: '/chartOfAccounts'
-      //   },
-      //   {
-      //     label: 'Customers',
-      //     route: '/list/Customer'
-      //   },
-      //   {
-      //     label: 'Items',
-      //     route: '/list/Item'
-      //   },
-      //   {
-      //     label: 'Tax',
-      //     route: '/list/Tax'
-      //   },
-      //   {
-      //     label: 'Payments',
-      //     route: '/list/Payment'
-      //   },
-      //   {
-      //     label: 'Journal Entry',
-      //     route: '/list/JournalEntry'
-      //   },
-      //   {
-      //     label: 'Invoices',
-      //     route: '/list/Invoice'
-      //   },
-      //   {
-      //     label: 'Reports',
-      //     route: '/reportList'
-      //   },
-      //   {
-      //     label: 'Settings',
-      //     route: '/settings'
-      //   }
-      // ]
     };
   },
   async mounted() {
@@ -131,6 +93,7 @@ export default {
 
 <style lang="scss">
 @import '../styles/variables.scss';
+@import '../styles/animation.scss';
 
 .page-sidebar {
   height: 100vh;
@@ -148,20 +111,5 @@ export default {
     color: $white;
     background-color: $frappe;
   }
-}
-.slide-fade-enter-active {
-  transition: all 0.6s ease 0.1s;
-}
-.slide-fade-leave-active {
-  transition: all 0.3s ease;
-  position: absolute;
-}
-.slide-fade-enter,
-.slide-fade-leave-to {
-  transform: translateX(-15px);
-  opacity: 0;
-}
-.slide-fade-move {
-  transition: transform 0.5s 0.1s;
 }
 </style>

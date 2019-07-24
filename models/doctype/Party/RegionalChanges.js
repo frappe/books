@@ -6,11 +6,11 @@ party.fields.splice(3, 0, {
   label: 'GSTIN No.',
   fieldtype: 'Data',
   hidden: form => {
-    return form.individualType === 'Registered Regular' ? 0 : 1;
+    return form.gstType === 'Registered Regular' ? 0 : 1;
   }
 });
 party.fields.splice(4, 0, {
-  fieldname: 'individualType',
+  fieldname: 'gstType',
   label: 'GST Registration Type',
   fieldtype: 'Select',
   options: ['Unregistered', 'Registered Regular', 'Consumer']
