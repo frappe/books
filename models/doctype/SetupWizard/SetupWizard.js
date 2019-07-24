@@ -81,9 +81,9 @@ module.exports = {
     {
       fieldname: 'currency',
       label: 'Currency',
-      fieldtype: 'Currency',
+      fieldtype: 'Data',
       formula: doc => {
-        return countryList[doc.country]['currency'];
+        return countryList[doc.country].currency;
       },
       required: 1
     }
@@ -117,6 +117,7 @@ module.exports = {
             fields: [
               'companyName',
               'bankName',
+              'currency',
               'fiscalYearStart',
               'fiscalYearEnd'
             ]
