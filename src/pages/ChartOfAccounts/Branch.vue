@@ -1,16 +1,29 @@
 <template>
   <div class="branch">
-    <div class="branch-label px-3 py-2" @click.self="toggleChildren">
-      <div class="d-flex align-items-center" @click="toggleChildren">
-        <feather-icon class="mr-1" :name="iconName" v-show="iconName" />
-        <span>{{ label }}</span>
-        <div class="ml-auto d-flex align-items-center" v-if="rootType != null">
-          <span>
-            {{ currency }}
-            <span style="font-weight: 800">{{ Math.abs(computedBalance) }}</span>
-            {{ creditOrDebit }}
-          </span>
-        </div>
+    <div
+      class="branch-label px-3 py-2 d-flex align-items-center"
+      @click="toggleChildren"
+      @mouseover="editing = true"
+      @mouseleave="editing = false"
+    >
+      <feather-icon class="mr-1" :name="iconName" v-show="iconName" />
+      <div>{{ label }}</div>
+      <div
+        class="btn btn-sm btn-secondary ml-2 py-0 btn-edit"
+        @click="$router.push(`/edit/Account/${label}`)"
+        v-if="editing && rootType != null"
+      >Edit</div>
+      <div
+        class="btn btn-sm btn-secondary ml-2 py-0 btn-edit"
+        @click="openFormModal({rootType, isGroup: 0, parentAccount: label})"
+        v-if="editing && rootType != null"
+      >Create</div>
+      <div class="ml-auto d-flex align-items-center" v-if="rootType != null">
+        <span>
+          {{ currency }}
+          <span style="font-weight: 800">{{ Math.abs(computedBalance) }}</span>
+          {{ creditOrDebit }}
+        </span>
       </div>
     </div>
     <div :class="['branch-children', expanded ? '' : 'd-none']">
@@ -29,13 +42,16 @@
   </div>
 </template>
 <script>
+import { setTimeout } from 'timers';
+
 const Branch = {
   props: ['label', 'parentValue', 'doctype', 'balance', 'currency', 'rootType'],
   data() {
     return {
       expanded: false,
       children: null,
-      nodeBalance: this.balance
+      nodeBalance: this.balance,
+      editing: false
     };
   },
   computed: {
@@ -72,7 +88,22 @@ const Branch = {
       await this.getChildren();
       this.expanded = !this.expanded;
     },
-    async updateBalance(balance) {
+    async openFormModal(filters) {
+      // const input = this.$refs.input;
+      const newDoc = await frappe.getNewDoc('Account');
+      let defaultValues = {};
+      for (let key of Object.keys(filters)) {
+        defaultValues[key] = filters[key];
+      }
+      this.$formModal.open(newDoc, { defaultValues });
+
+      newDoc.on('afterInsert', data => {
+        // if new doc was created
+        // then set the name of the doc in input
+        this.$formModal.close();
+      });
+    },
+    updateBalance(balance) {
       this.nodeBalance += balance;
       this.$emit('updateBalance', this.nodeBalance);
     },
@@ -129,5 +160,14 @@ export default Branch;
 }
 .branch-children {
   padding-left: 2.25rem;
+}
+.btn-edit {
+  font-size: 10px;
+  padding: 1px 4px;
+  opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 </style>

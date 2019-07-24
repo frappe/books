@@ -1,44 +1,43 @@
 let title = 'General Ledger';
-let filterFields = [
-  {
-    fieldtype: 'Select',
-    options: ['', 'Invoice', 'Payment', 'Bill'],
-    label: 'Reference Type',
-    fieldname: 'referenceType'
-  },
-  {
-    fieldtype: 'DynamicLink',
-    references: 'referenceType',
-    label: 'Reference Name',
-    fieldname: 'referenceName'
-  },
-  {
-    fieldtype: 'Link',
-    target: 'Account',
-    label: 'Account',
-    fieldname: 'account'
-  },
-  {
-    fieldtype: 'Link',
-    target: 'Party',
-    label: 'Party',
-    fieldname: 'party'
-  },
-  {
-    fieldtype: 'Date',
-    label: 'From Date',
-    fieldname: 'fromDate'
-  },
-  {
-    fieldtype: 'Date',
-    label: 'To Date',
-    fieldname: 'toDate'
-  }
-];
 
 const viewConfig = {
   title,
-  filterFields,
+  filterFields: [
+    {
+      fieldtype: 'Select',
+      options: ['', 'Invoice', 'Payment', 'Bill'],
+      label: 'Reference Type',
+      fieldname: 'referenceType'
+    },
+    {
+      fieldtype: 'DynamicLink',
+      references: 'referenceType',
+      label: 'Reference Name',
+      fieldname: 'referenceName'
+    },
+    {
+      fieldtype: 'Link',
+      target: 'Account',
+      label: 'Account',
+      fieldname: 'account'
+    },
+    {
+      fieldtype: 'Link',
+      target: 'Party',
+      label: 'Party',
+      fieldname: 'party'
+    },
+    {
+      fieldtype: 'Date',
+      label: 'From Date',
+      fieldname: 'fromDate'
+    },
+    {
+      fieldtype: 'Date',
+      label: 'To Date',
+      fieldname: 'toDate'
+    }
+  ],
   method: 'general-ledger',
   linkFields: [
     {
@@ -46,7 +45,9 @@ const viewConfig = {
       type: 'primary',
       action: async report => {
         async function getReportDetails() {
-          let [rows, columns] = await report.getReportData(filterFields);
+          let [rows, columns] = await report.getReportData(
+            report.currentFilters
+          );
           let columnData = columns.map(column => {
             return {
               id: column.id,
@@ -74,7 +75,7 @@ const viewConfig = {
       label: 'Clear Filters',
       type: 'secondary',
       action: async report => {
-        await report.$router.replace(`/report/general-ledger`);
+        await report.$router.push(`/report/general-ledger`);
       }
     }
   ],

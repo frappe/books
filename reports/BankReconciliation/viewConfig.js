@@ -56,6 +56,11 @@ module.exports = {
         fieldtype: 'Currency'
       },
       {
+        label: 'Clearance Date',
+        fieldtype: 'Date',
+        fieldname: 'clearanceDate'
+      },
+      {
         label: 'Ref. Type',
         fieldtype: 'Data',
         fieldname: 'referenceType'
@@ -70,11 +75,7 @@ module.exports = {
         fieldtype: 'Date',
         fieldname: 'referenceDate'
       },
-      {
-        label: 'Clearance Date',
-        fieldtype: 'Date',
-        fieldname: 'clearanceDate'
-      },
+
       {
         label: 'Party',
         fieldtype: 'Link'

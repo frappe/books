@@ -31,6 +31,11 @@ import utils from 'frappejs/client/ui/utils';
 export default {
   name: 'Report',
   props: ['reportName', 'reportConfig', 'filters'],
+  data() {
+    return {
+      currentFilters: this.filters
+    };
+  },
   computed: {
     breadcrumbs() {
       return [
@@ -67,6 +72,7 @@ export default {
   },
   methods: {
     async getReportData(filters) {
+      this.currentFilters = filters;
       let data = await frappe.call({
         method: this.reportConfig.method,
         args: filters
