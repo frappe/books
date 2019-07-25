@@ -10,9 +10,16 @@ module.exports = {
       options: ['', 'GSTR-1', 'GSTR-2', 'GSTR-3B']
     },
     {
-      fieldtype: 'Data',
+      fieldtype: 'Select',
       label: 'Transfer Type',
-      fieldname: 'transferType'
+      fieldname: 'transferType',
+      options: [
+        '',
+        'B2B',
+        'B2C-Large',
+        'B2C-Small',
+        'Nil Rated, Exempted and Non GST supplies'
+      ]
     },
     {
       fieldtype: 'Data',
@@ -109,10 +116,16 @@ module.exports = {
         width: 80
       },
       {
-        label: 'Taxable Amount',
-        fieldname: 'taxAmt',
+        label: 'Taxable Value',
+        fieldname: 'taxVal',
         fieldtype: 'Currency',
         width: 100
+      },
+      {
+        label: 'Reverse Chrg.',
+        fieldname: 'reverseCharge',
+        fieldtype: 'Data',
+        width: 80
       },
       {
         label: 'Intergrated Tax',

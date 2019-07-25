@@ -21,6 +21,10 @@ Vue.use(Router);
 
 const routes = [
   {
+    path: '/',
+    redirect: '/chartOfAccounts'
+  },
+  {
     path: '/list/:listName',
     name: 'ListView',
     component: ListView,
