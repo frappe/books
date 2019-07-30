@@ -8,6 +8,7 @@ module.exports = async function postStart() {
   frappe.models.Payment.documentClass = require('../models/doctype/Payment/PaymentServer.js');
   frappe.models.Bill.documentClass = require('../models/doctype/Bill/BillServer.js');
   frappe.models.JournalEntry.documentClass = require('../models/doctype/JournalEntry/JournalEntryServer.js');
+  frappe.models.GSTR3B.documentClass = require('../models/doctype/GSTR3B/GSTR3BServer.js');
 
   frappe.metaCache = {};
 
@@ -25,4 +26,4 @@ module.exports = async function postStart() {
   await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
   registerServerMethods();
-}
+};

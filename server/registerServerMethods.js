@@ -9,7 +9,7 @@ module.exports = function registerServerMethods() {
     method: 'send-mail',
     handler: sender.sendMail
   });
-  
+
   frappe.registerMethod({
     method: 'import-coa',
     async handler() {
@@ -20,14 +20,24 @@ module.exports = function registerServerMethods() {
 
   frappe.registerMethod({
     method: 'print-pdf',
-    handler({doctype, name, html}) {
+    handler({ doctype, name, html }) {
       if (frappe.isElectron) {
         const path = require('path');
         const { getPDFForElectron } = require('frappejs/server/pdf');
         const { getSettings } = require('../electron/settings');
-        const destination = path.resolve('.')
+        const destination = path.resolve('.');
         getPDFForElectron(doctype, name, destination, html);
       }
     }
-  })
-}
+  });
+  frappe.registerMethod({
+    method: 'show_dialog',
+    handler({ title, message }) {
+      frappe.showModal({
+        modalProps: { title, noFooter: true },
+        component: require('../src/components/MessageDialog').default,
+        props: { message }
+      });
+    }
+  });
+};

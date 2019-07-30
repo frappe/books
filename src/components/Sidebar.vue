@@ -68,7 +68,7 @@ export default {
   methods: {
     isCurrentRoute(route) {
       if (this.activeGroup) return false;
-      return this.$route.path === route;
+      return this.$route.fullPath === route;
     },
     toggleGroup(groupTitle) {
       this.groupItems =

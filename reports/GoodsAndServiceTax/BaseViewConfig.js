@@ -1,14 +1,5 @@
-const title = 'Goods and Service Tax';
 module.exports = {
-  title: title,
-  method: 'gst-taxes',
   filterFields: [
-    {
-      fieldtype: 'Select',
-      label: 'Report Type',
-      fieldname: 'reportType',
-      options: ['', 'GSTR-1', 'GSTR-2', 'GSTR-3B']
-    },
     {
       fieldtype: 'Select',
       label: 'Transfer Type',
@@ -35,6 +26,13 @@ module.exports = {
       fieldtype: 'Date',
       label: 'To Date',
       fieldname: 'toDate'
+    },
+    {
+      fieldtype: 'Select',
+      label: 'Report Type',
+      fieldname: 'reportType',
+      options: ['', 'GSTR-1', 'GSTR-2', 'GSTR-3B'],
+      hidden: 1
     }
   ],
   linkFields: [

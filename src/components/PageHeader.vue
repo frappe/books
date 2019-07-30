@@ -5,7 +5,7 @@
       <a v-for="(item, index) in clickableBreadcrumbs" :key="index" :href="item.route">
         <h5 class="breadCrumbRoute">
           {{ item.title }}
-          <feather-icon name="arrow-right" style="color: #212529 !important;"></feather-icon>
+          <feather-icon name="chevron-right" style="color: #212529 !important;"></feather-icon>
         </h5>
       </a>
       <h5 class="breadCrumbRoute">{{ lastBreadcrumb.title }}</h5>

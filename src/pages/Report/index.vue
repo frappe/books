@@ -2,15 +2,15 @@
   <div>
     <div class="px-3">
       <div class="row pb-4">
-        <!-- <h4 class="col-6 d-flex">{{ reportConfig.title }}</h4> -->
         <page-header :class="linksExists ? 'col-6':'col-12'" :breadcrumbs="breadcrumbs" />
         <report-links class="col-6 d-flex pr-0 flex-row-reverse" v-if="linksExists" :links="links"></report-links>
       </div>
       <div class="row pb-4">
         <report-filters
           class="col-12 pr-0"
-          v-if="filtersExists"
-          :filters="reportConfig.filterFields"
+          v-if="shouldRenderFields"
+          :filterFields="reportConfig.filterFields"
+          :filterDoc="filterDoc"
           :filterDefaults="filters"
           @change="getReportData"
         ></report-filters>
@@ -33,7 +33,9 @@ export default {
   props: ['reportName', 'reportConfig', 'filters'],
   data() {
     return {
-      currentFilters: this.filters
+      currentFilters: this.filters,
+      filterDoc: undefined,
+      links: []
     };
   },
   computed: {
@@ -49,26 +51,16 @@ export default {
         }
       ];
     },
-    filtersExists() {
-      return (this.reportConfig.filterFields || []).length;
+    shouldRenderFields() {
+      return (this.reportConfig.filterFields || []).length && this.filterDoc;
     },
     linksExists() {
       return (this.reportConfig.linkFields || []).length;
     }
   },
-  watch: {
-    reportName() {
-      //FIX: Report's data forwards to next consecutively changed report
-      this.getReportData(this.filters);
-    }
-  },
-  data() {
-    return {
-      links: []
-    };
-  },
   async created() {
     this.setLinks();
+    this.filterDoc = await frappe.newCustomDoc(this.reportConfig.filterFields);
   },
   methods: {
     async getReportData(filters) {
@@ -102,7 +94,7 @@ export default {
       }
 
       if (this.datatable) {
-        this.datatable.refresh(rows, columns);
+        if (rows.length) this.datatable.refresh(rows, columns);
       } else {
         this.datatable = new DataTable(this.$refs.datatable, {
           columns: columns,
