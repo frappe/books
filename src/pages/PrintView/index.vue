@@ -1,61 +1,50 @@
 <template>
   <div class="bg-light">
-    <page-header :title="doctype"/>
-    <div class="row no-gutters">
-      <div v-if="showInvoiceCustomizer" class="col-3 mt-4 mx-auto"></div>
-      <div class="col-8 mx-auto text-right mt-4">
-        <f-button primary @click="send">{{ _('Send') }}</f-button>
-        <f-button secondary @click="toggleInvoiceCustomizer">{{ _('Customize') }}</f-button>
-        <f-button secondary @click="makePDF">{{ _('PDF') }}</f-button>
-      </div>
-    </div>
-    <div class="row no-gutters">
-      <div v-if="showInvoiceCustomizer" class="col-3 mt-4 mx-auto">
-        <invoice-customizer
-          class="border"
-          style="position: fixed"
-          @closeInvoiceCustomizer="toggleInvoiceCustomizer"
-          @changeColor="changeColor($event)"
-          @changeTemplate="changeTemplate($event)"
-          @changeFont="changeFont($event)"
-        />
-      </div>
-      <div ref="printComponent" class="col-8 bg-white mt-4 mx-auto border shadow">
-        <component
-          :themeColor="themeColor"
-          :template="template"
-          :font="font"
-          :is="printComponent"
-          v-if="doc"
-          :doc="doc"
-        />
-      </div>
-    </div>
+    <page-header :breadcrumbs="breadcrumbs" />
+    <component :is="printComponent" v-if="doc" :doc="doc" @send="send" @makePDF="makePDF" />
   </div>
 </template>
 <script>
 import PageHeader from '@/components/PageHeader';
-import InvoiceCustomizer from '@/components/InvoiceCustomizer';
 import InvoicePrint from '@/../models/doctype/Invoice/InvoicePrint';
+import GSTR3BPrintView from '@/../models/doctype/GSTR3B/GSTR3BPrintView';
 import EmailSend from '../Email/EmailSend';
 
 const printComponents = {
-  Invoice: InvoicePrint
+  Invoice: InvoicePrint,
+  GSTR3B: GSTR3BPrintView
 };
 export default {
   name: 'PrintView',
   props: ['doctype', 'name'],
   components: {
-    PageHeader,
-    InvoiceCustomizer
+    PageHeader
+  },
+  computed: {
+    breadcrumbs() {
+      if (this.doc)
+        return [
+          {
+            title: this.doctype,
+            route: '#/list/' + this.doctype
+          },
+          {
+            title: this.doc._notInserted
+              ? 'New ' + this.doctype
+              : this.doc.name,
+            route: `#/edit/${this.doctype}/${this.name}`
+          },
+          {
+            title: 'Print',
+            route: ``
+          }
+        ];
+    }
   },
   data() {
     return {
       doc: undefined,
       printComponent: undefined,
-      themeColor: undefined,
-      template: undefined,
-      font: undefined,
       showInvoiceCustomizer: false
     };
   },
@@ -64,22 +53,22 @@ export default {
     this.printComponent = printComponents[this.doctype];
   },
   methods: {
-    makePDF() {
+    makePDF(html) {
       frappe.call({
         method: 'print-pdf',
         args: {
           doctype: this.doctype,
           name: this.name,
-          html: this.$refs.printComponent.innerHTML
+          html
         }
       });
     },
-    async send() {
+    async send(html) {
       let doc = await frappe.getNewDoc('Email');
       let emailFields = frappe.getMeta('Email').fields;
       var file_path = this.name;
       doc['fromEmailAddress'] = this.selectedId;
-      this.makePDF();
+      this.makePDF(html);
       doc['filePath'] = this.name + '.pdf';
       this.$modal.show({
         component: EmailSend,
@@ -88,25 +77,13 @@ export default {
           name: doc.name
         },
         modalProps: {
-          title: 'Send Invoice',
-          footerMessage: 'Invoice attached along..'
+          title: `Send ${this.doctype}`,
+          footerMessage: `${this.doctype} attached along..`
         }
       });
       doc.on('afterInsert', data => {
         this.$modal.hide();
       });
-    },
-    async toggleInvoiceCustomizer() {
-      this.showInvoiceCustomizer = !this.showInvoiceCustomizer;
-    },
-    changeColor(color) {
-      this.themeColor = color;
-    },
-    changeTemplate(template) {
-      this.template = template;
-    },
-    changeFont(font) {
-      this.font = font;
     }
   }
 };

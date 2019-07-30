@@ -124,18 +124,28 @@ export default {
         this.$emit('save', this.doc);
       } catch (e) {
         console.error(e);
-        return;
+        throw e;
       }
     },
 
     async submit() {
       this.doc.set('submitted', 1);
-      await this.save();
+      try {
+        await this.save();
+      } catch (e) {
+        this.doc.set('submitted', 0);
+        this.doc.set('_dirty', false);
+      }
     },
 
     async revert() {
       this.doc.set('submitted', 0);
-      await this.save();
+      try {
+        await this.save();
+      } catch (e) {
+        this.doc.set('submitted', 1);
+        this.doc._dirty = false;
+      }
     },
 
     print() {

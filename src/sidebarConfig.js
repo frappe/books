@@ -70,9 +70,6 @@ export default {
           label: _('Payment'),
           route: '/list/Payment'
         }
-        // {
-        //   label: _('AccountingLedgerEntry'), route: '/list/AccountingLedgerEntry'
-        // },
       ]
     },
     {
@@ -95,8 +92,16 @@ export default {
           route: '/report/bank-reconciliation'
         },
         {
-          label: _('Goods and Service Tax'),
-          route: '/report/gst-taxes'
+          label: _('GSTR 1'),
+          route: '/report/gstr-1?transferType=B2B'
+        },
+        {
+          label: _('GSTR 2'),
+          route: '/report/gstr-2?transferType=B2B'
+        },
+        {
+          label: _('GSTR 3B'),
+          route: '/list/GSTR3B'
         }
       ]
     },

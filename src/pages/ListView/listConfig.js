@@ -7,6 +7,7 @@ import Payment from '../../../models/doctype/Payment/PaymentList';
 import Tax from '../../../models/doctype/Tax/TaxList';
 import JournalEntry from '../../../models/doctype/JournalEntry/JournalEntryList';
 import Account from '../../../models/doctype/Account/AccountList';
+import GSTR3B from '../../../models/doctype/GSTR3B/GSTR3BList';
 
 export default {
   Invoice,
@@ -17,5 +18,6 @@ export default {
   Payment,
   Tax,
   JournalEntry,
-  Account
+  Account,
+  GSTR3B
 };

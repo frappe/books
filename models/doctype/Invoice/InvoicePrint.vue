@@ -1,60 +1,89 @@
 <template>
-    <component :themeColor="color" :font="fontFamily" :is="invoiceTemplate" v-if="doc" :doc="doc"/>
+  <div>
+    <div class="row no-gutters">
+      <div v-if="showInvoiceCustomizer" class="col-3 mt-4 mx-auto"></div>
+      <div class="col-8 mx-auto text-right mt-4">
+        <f-button primary @click="$emit('send', $refs.printComponent.innerHTML)">{{ _('Send') }}</f-button>
+        <f-button secondary @click="toggleCustomizer">{{ _('Customize') }}</f-button>
+        <f-button secondary @click="$emit('makePDF', $refs.printComponent.innerHTML)">{{ _('PDF') }}</f-button>
+      </div>
+    </div>
+    <div class="row no-gutters">
+      <div v-if="showInvoiceCustomizer" class="col-3 mt-4 mx-auto">
+        <invoice-customizer
+          class="border"
+          style="position: fixed"
+          @closeInvoiceCustomizer="toggleCustomizer"
+          @changeColor="changeColor($event)"
+          @changeTemplate="changeTemplate($event)"
+          @changeFont="changeFont($event)"
+        />
+      </div>
+      <div class="col-8 bg-white mt-4 mx-auto border shadow" ref="printComponent">
+        <component :themeColor="themeColor" :font="font" :is="template" v-if="doc" :doc="doc" />
+      </div>
+    </div>
+  </div>
 </template>
 <script>
 import InvoiceTemplate1 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate1';
 import InvoiceTemplate2 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate2';
 import InvoiceTemplate3 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate3';
+import InvoiceCustomizer from '@/components/InvoiceCustomizer';
 
 const invoiceTemplates = {
   'Basic I': InvoiceTemplate1,
   'Basic II': InvoiceTemplate2,
-  'Modern': InvoiceTemplate3
+  Modern: InvoiceTemplate3
 };
 
 export default {
   name: 'InvoicePrint',
-  props: ['doc', 'themeColor', 'template', 'font'],
+  props: ['doc'],
+  components: {
+    InvoiceCustomizer
+  },
   data() {
     return {
-      color: undefined,
-      fontFamily: undefined,
-      invoiceTemplate: undefined
+      showInvoiceCustomizer: false,
+      themeColor: undefined,
+      template: undefined,
+      font: undefined
     };
-  },
-  watch: {
-    themeColor: async function() {
-      await this.loadInvoice();
-    },
-    font: async function() {
-      await this.loadInvoice();
-    },
-    template: async function() {
-      await this.loadInvoice();
-    }
   },
   async created() {
     await this.loadInvoice();
   },
   methods: {
     async loadInvoice() {
-      this.color = this.themeColor !== undefined ? this.themeColor : await this.getColor();
-      this.fontFamily = this.font !== undefined ? this.font : await this.getFont();
-      let template = this.template !== undefined ? this.template : await this.getTemplate();
-      let templateFile = invoiceTemplates[template];
-      this.invoiceTemplate = templateFile;
+      await this.getTemplate();
+      await this.getColor();
+      await this.getFont();
     },
     async getTemplate() {
       let invoiceSettings = await frappe.getDoc('InvoiceSettings');
-      return invoiceSettings.template;
+      this.template = invoiceTemplates[invoiceSettings.template];
     },
     async getColor() {
       let invoiceSettings = await frappe.getDoc('InvoiceSettings');
-      return invoiceSettings.themeColor;
+      this.themeColor = invoiceSettings.themeColor;
     },
     async getFont() {
       let invoiceSettings = await frappe.getDoc('InvoiceSettings');
-      return invoiceSettings.font;
+      this.font = invoiceSettings.font;
+    },
+    async toggleCustomizer() {
+      await this.loadInvoice();
+      this.showInvoiceCustomizer = !this.showInvoiceCustomizer;
+    },
+    async changeColor(color) {
+      this.themeColor = color;
+    },
+    async changeTemplate(template) {
+      this.template = invoiceTemplates[template];
+    },
+    async changeFont(font) {
+      this.font = font;
     }
   }
 };
