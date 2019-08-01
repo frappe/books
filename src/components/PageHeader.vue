@@ -12,7 +12,7 @@
       </a>
       <h5 class="breadCrumbRoute">{{ lastBreadcrumb.title }}</h5>
     </div>
-    <div class="col-4 p-0">
+    <div class="col-4 p-1">
       <SearchBar />
     </div>
   </div>

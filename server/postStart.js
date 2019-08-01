@@ -6,6 +6,7 @@ module.exports = async function postStart() {
   // set server-side modules
   frappe.models.SalesInvoice.documentClass = require('../models/doctype/SalesInvoice/SalesInvoiceServer.js');
   frappe.models.Payment.documentClass = require('../models/doctype/Payment/PaymentServer.js');
+  frappe.models.Party.documentClass = require('../models/doctype/Party/PartyServer.js');
   frappe.models.PurchaseInvoice.documentClass = require('../models/doctype/PurchaseInvoice/PurchaseInvoiceServer.js');
   frappe.models.JournalEntry.documentClass = require('../models/doctype/JournalEntry/JournalEntryServer.js');
   frappe.models.GSTR3B.documentClass = require('../models/doctype/GSTR3B/GSTR3BServer.js');

@@ -1,7 +1,7 @@
 module.exports = {
   name: 'Party',
+  label: 'Party',
   doctype: 'DocType',
-  documentClass: require('./PartyDocument.js'),
   isSingle: 0,
   istable: 0,
   keywordFields: ['name'],

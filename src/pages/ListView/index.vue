@@ -46,7 +46,18 @@ export default {
   },
   computed: {
     listConfig() {
-      return listConfigs[this.listName];
+      if (listConfigs[this.listName]) {
+        return listConfigs[this.listName];
+      } else {
+        frappe.call({
+          method: 'show-dialog',
+          args: {
+            title: 'Not Found',
+            message: `${this.listName} List not Registered`
+          }
+        });
+        this.$router.go(-1);
+      }
     }
   }
 };
