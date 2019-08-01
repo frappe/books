@@ -46,6 +46,30 @@ module.exports = {
     Object.assign(this.models, toAdd);
   },
 
+  getDoctypeList(filters) {
+    let doctypeList = [];
+    if (filters && Object.keys(filters).length) {
+      for (let model in this.models) {
+        let doctypeName = model;
+        let doctype = this.models[doctypeName];
+        let matchedFields = 0;
+        for (let key in filters) {
+          let field = key;
+          let value = filters[field];
+
+          if (Boolean(doctype[field]) === Boolean(value)) {
+            matchedFields++;
+          }
+        }
+
+        if (matchedFields === Object.keys(filters).length)
+          doctypeList.push(doctypeName);
+      }
+    }
+
+    return doctypeList;
+  },
+
   registerView(view, name, module) {
     if (!this.views[view]) this.views[view] = {};
     this.views[view][name] = module;
