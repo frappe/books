@@ -25,12 +25,12 @@ export default {
       if (this.doc)
         return [
           {
-            title: this.doctype,
+            title: this.meta.label || this.meta.name,
             route: '#/list/' + this.doctype
           },
           {
             title: this.doc._notInserted
-              ? 'New ' + this.doctype
+              ? 'New ' + this.meta.label || this.meta.name
               : this.doc.name,
             route: `#/edit/${this.doctype}/${this.name}`
           },
@@ -39,6 +39,9 @@ export default {
             route: ``
           }
         ];
+    },
+    meta() {
+      return frappe.getMeta(this.doctype);
     }
   },
   data() {

@@ -31,7 +31,7 @@ module.exports = function registerServerMethods() {
     }
   });
   frappe.registerMethod({
-    method: 'show_dialog',
+    method: 'show-dialog',
     handler({ title, message }) {
       frappe.showModal({
         modalProps: { title, noFooter: true },

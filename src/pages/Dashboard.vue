@@ -1,10 +1,8 @@
 <template>
   <div>
     <PageHeader title="Dashboard" />
-    <div class="container mt-3">
-      <div class="row no-gutters">
-        <DashboardCard v-for="chart in chartData" :key="chart.title" :chartData="chart" />
-      </div>
+    <div class="row no-gutters mt-3 mx-3">
+      <DashboardCard v-for="chart in chartData" :key="chart.title" :chartData="chart" />
     </div>
   </div>
 </template>
@@ -74,9 +72,14 @@ export default {
         : 'credit';
       let { labels, datasets } = this.createLabelsAndDataSet(chartType);
       const currentMonthIndex = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
       for (let entry of ledgerEntries) {
         let monthIndex = parseInt(entry.date.split('-')[1]) - 1;
-        let pos = (monthIndex + currentMonthIndex) % 13;
+        let year = parseInt(entry.date.split('-')[0]);
+        let pos = 12 - (currentMonthIndex - monthIndex);
+        if (pos <= 0) {
+          pos = pos === 0 ? (year === currentYear ? 12 : 0) : Math.abs(pos);
+        }
         if (accountType === 'debit')
           datasets[0].values[pos] += entry.debit || -entry.credit;
         else if (accountType === 'credit')

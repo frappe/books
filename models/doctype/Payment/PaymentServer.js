@@ -25,7 +25,7 @@ module.exports = class PaymentServer extends BaseDocument {
           }
           if (this.amount > outstandingAmount) {
             frappe.call({
-              method: 'show_dialog',
+              method: 'show-dialog',
               args: {
                 title: 'Invalid Payment Entry',
                 message: `Payment amount is greater than Outstanding amount by \
@@ -45,7 +45,7 @@ module.exports = class PaymentServer extends BaseDocument {
       }
     else {
       frappe.call({
-        method: 'show_dialog',
+        method: 'show-dialog',
         args: {
           title: 'Invalid Payment Entry',
           message: `No reference for the payment.`

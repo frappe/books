@@ -2,7 +2,7 @@
   <div>
     <div class="input-group">
       <div class="input-group-prepend">
-        <span class="input-group-text pt-0">
+        <span class="input-group-text pt-1">
           <feather-icon name="search" style="color: #212529 !important;"></feather-icon>
         </span>
       </div>

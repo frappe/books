@@ -20,10 +20,9 @@ export default {
   height: 100vh;
   width: 100%;
   padding-left: 208px;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 .sidebar {
   position: fixed;
-  /* flex-basis: 220px; */
 }
 </style>

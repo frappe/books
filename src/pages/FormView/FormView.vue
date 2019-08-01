@@ -56,12 +56,12 @@ export default {
       if (this.doc)
         return [
           {
-            title: this.meta.label,
+            title: this.meta.label || this.meta.name,
             route: '#/list/' + this.doctype
           },
           {
             title: this.doc._notInserted
-              ? 'New ' + this.meta.label
+              ? 'New ' + this.meta.label || this.meta.name
               : this.doc.name,
             route: ''
           }
