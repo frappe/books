@@ -28,25 +28,28 @@ module.exports = class GSTR3B extends BaseDocument {
         `${this.year}-${month}-${lastDate}`
       ]
     };
-    const invoices = frappe.db.getAll({
-      doctype: 'Invoice',
+    const salesInvoices = frappe.db.getAll({
+      doctype: 'SalesInvoice',
       filters,
       fields: ['*']
     });
-    const bills = frappe.db.getAll({
-      doctype: 'Bill',
+    const purchaseInvoices = frappe.db.getAll({
+      doctype: 'PurchaseInvoice',
       filters,
       fields: ['*']
     });
-    const [gstr1Data, gstr2Data] = await Promise.all([invoices, bills]);
+    const [gstr1Data, gstr2Data] = await Promise.all([
+      salesInvoices,
+      purchaseInvoices
+    ]);
     let gstr3bData = [[], []];
 
     for (let ledgerEntry of gstr1Data) {
-      ledgerEntry.doctype = 'Invoice';
+      ledgerEntry.doctype = 'SalesInvoice';
       gstr3bData[0].push(await this.makeGSTRow(ledgerEntry));
     }
     for (let ledgerEntry of gstr2Data) {
-      ledgerEntry.doctype = 'Bill';
+      ledgerEntry.doctype = 'BiPurchaseInvoicell';
       gstr3bData[1].push(await this.makeGSTRow(ledgerEntry));
     }
 

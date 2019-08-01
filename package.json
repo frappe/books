@@ -60,6 +60,7 @@
   "dependencies": {
     "cross-env": "^5.2.0",
     "file-saver": "^2.0.2",
+    "frappe-charts": "^1.2.4",
     "frappejs": "github:thefalconx33/frappejs#test",
     "nodemailer": "^4.7.0",
     "popper.js": "^1.14.4",

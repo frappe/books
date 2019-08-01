@@ -6,7 +6,7 @@
           :docfield="{
             fieldtype: 'Select',
             fieldname: 'referenceDoctype',
-            options: ['Select a doctype...', 'ToDo', 'Item', 'Party', 'Invoice']
+            options: ['Select a doctype...', 'ToDo', 'Item', 'Party', 'SalesInvoice']
           }"
           @change="doctype => showTable(doctype)"
         />

@@ -1,17 +1,17 @@
 <template>
-  <div class="bg-light">
+  <div class="bg-white">
     <page-header :breadcrumbs="breadcrumbs" />
     <component :is="printComponent" v-if="doc" :doc="doc" @send="send" @makePDF="makePDF" />
   </div>
 </template>
 <script>
 import PageHeader from '@/components/PageHeader';
-import InvoicePrint from '@/../models/doctype/Invoice/InvoicePrint';
+import SalesInvoicePrint from '@/../models/doctype/SalesInvoice/SalesInvoicePrint';
 import GSTR3BPrintView from '@/../models/doctype/GSTR3B/GSTR3BPrintView';
 import EmailSend from '../Email/EmailSend';
 
 const printComponents = {
-  Invoice: InvoicePrint,
+  SalesInvoice: SalesInvoicePrint,
   GSTR3B: GSTR3BPrintView
 };
 export default {

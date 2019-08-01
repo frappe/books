@@ -1,5 +1,7 @@
 <template>
-  <div class="page-header px-4 py-3 border-bottom bg-white d-flex align-items-center">
+  <div
+    class="page-header px-4 py-2 border-bottom bg-white d-flex align-items-center justify-content-between"
+  >
     <h5 class="m-0" v-if="title">{{ title }}</h5>
     <div v-if="breadcrumbs">
       <a v-for="(item, index) in clickableBreadcrumbs" :key="index" :href="item.route">
@@ -10,11 +12,19 @@
       </a>
       <h5 class="breadCrumbRoute">{{ lastBreadcrumb.title }}</h5>
     </div>
+    <div class="col-4 p-0">
+      <SearchBar />
+    </div>
   </div>
 </template>
 <script>
+import SearchBar from './SearchBar';
+
 export default {
   props: ['title', 'breadcrumbs'],
+  components: {
+    SearchBar
+  },
   computed: {
     clickableBreadcrumbs() {
       return this.breadcrumbs.slice(0, this.breadcrumbs.length - 1);

@@ -1,18 +1,19 @@
-const Invoice = require('./InvoiceDocument');
+const frappe = require('frappejs');
+const PurchaseInvoice = require('./PurchaseInvoiceDocument');
 const LedgerPosting = require('../../../accounting/ledgerPosting');
 
-module.exports = class InvoiceServer extends Invoice {
+module.exports = class PurchaseInvoiceServer extends PurchaseInvoice {
   async getPosting() {
-    let entries = new LedgerPosting({ reference: this, party: this.customer });
-    await entries.debit(this.account, this.grandTotal);
+    let entries = new LedgerPosting({ reference: this, party: this.supplier });
+    await entries.credit(this.account, this.grandTotal);
 
     for (let item of this.items) {
-      await entries.credit(item.account, item.amount);
+      await entries.debit(item.account, item.amount);
     }
 
     if (this.taxes) {
       for (let tax of this.taxes) {
-        await entries.credit(tax.account, tax.amount);
+        await entries.debit(tax.account, tax.amount);
       }
     }
     return entries;
@@ -35,7 +36,7 @@ module.exports = class InvoiceServer extends Invoice {
     const entries = await this.getPosting();
     await entries.post();
     await frappe.db.setValue(
-      'Invoice',
+      'PurchaseInvoice',
       this.name,
       'outstandingAmount',
       this.grandTotal

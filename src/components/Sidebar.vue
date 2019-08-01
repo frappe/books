@@ -2,7 +2,7 @@
   <div class="page-sidebar bg-dark p-2 text-light d-flex flex-column justify-content-between">
     <div>
       <div class="company-name px-3 py-2 my-2">
-        <h6 class="m-0">{{ companyName }}</h6>
+        <h6 class="m-0" @click="$router.push('/')">{{ companyName }}</h6>
       </div>
       <div>
         <transition-group name="slide-fade" mode="out-in">
@@ -95,6 +95,9 @@ export default {
 @import '../styles/variables.scss';
 @import '../styles/animation.scss';
 
+.company-name {
+  cursor: pointer;
+}
 .page-sidebar {
   height: 100vh;
 }

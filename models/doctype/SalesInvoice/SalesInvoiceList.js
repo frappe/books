@@ -2,8 +2,8 @@ import { _ } from 'frappejs/utils';
 import indicators from 'frappejs/ui/constants/indicators';
 
 export default {
-  doctype: 'Invoice',
-  title: _('Invoice'),
+  doctype: 'SalesInvoice',
+  title: _('Sales Invoice'),
   columns: [
     'customer',
     {

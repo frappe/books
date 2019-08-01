@@ -44,11 +44,20 @@ module.exports = {
 
   links: [
     {
-      label: 'Invoices',
+      label: 'Sales Invoices',
       condition: form => form.doc.customer,
       action: form => {
         form.$router.push({
           path: `/report/sales-register?&customer=${form.doc.name}`
+        });
+      }
+    },
+    {
+      label: 'Purchase Invoices',
+      condition: form => form.doc.supplier,
+      action: form => {
+        form.$router.push({
+          path: `/report/purchase-register?&supplier=${form.doc.name}`
         });
       }
     },

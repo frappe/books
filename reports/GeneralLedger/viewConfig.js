@@ -5,7 +5,7 @@ const viewConfig = {
   filterFields: [
     {
       fieldtype: 'Select',
-      options: ['', 'Invoice', 'Payment', 'Bill'],
+      options: ['', 'SalesInvoice', 'Payment', 'PurchaseInvoice'],
       label: 'Reference Type',
       fieldname: 'referenceType'
     },

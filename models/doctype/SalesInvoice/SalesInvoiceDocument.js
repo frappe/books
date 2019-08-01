@@ -1,7 +1,7 @@
 const BaseDocument = require('frappejs/model/document');
 const frappe = require('frappejs');
 
-module.exports = class Invoice extends BaseDocument {
+module.exports = class SalesInvoice extends BaseDocument {
   async getRowTax(row) {
     if (row.tax) {
       let tax = await this.getTax(row.tax);

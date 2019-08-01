@@ -3,7 +3,7 @@
     <div v-if="doc" class="p-4">
       <div class="row">
         <div class="col-6 text-center">
-          <h4>Customizer</h4>
+          <h4>Customize</h4>
         </div>
         <div class="col-6 text-right">
           <f-button secondary @click="saveAndClose">{{ _('Save & Close') }}</f-button>
@@ -36,9 +36,9 @@ export default {
     };
   },
   async created() {
-    this.doc = await frappe.getDoc('InvoiceSettings');
+    this.doc = await frappe.getDoc('SalesInvoiceSettings');
     this.color.hex = this.doc.themeColor;
-    const meta = frappe.getMeta('InvoiceSettings');
+    const meta = frappe.getMeta('SalesInvoiceSettings');
     this.fields = meta.fields.filter(
       field => field.fieldname !== 'numberSeries'
     );

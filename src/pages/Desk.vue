@@ -1,7 +1,7 @@
 <template>
-  <div class="row no-gutters">
-    <sidebar class="col-2" />
-    <div class="page-container col-10 bg-light">
+  <div class="row no-gutters d-flex">
+    <sidebar class="sidebar" />
+    <div class="page-container bg-white">
       <router-view :key="$route.fullPath" />
     </div>
   </div>
@@ -18,7 +18,12 @@ export default {
 <style>
 .page-container {
   height: 100vh;
-  overflow: auto;
-  overflow-x: hidden;
+  width: 100%;
+  padding-left: 208px;
+  overflow: hidden;
+}
+.sidebar {
+  position: fixed;
+  /* flex-basis: 220px; */
 }
 </style>

@@ -19,7 +19,7 @@ module.exports = class SalesRegisterView extends RegisterView {
 
     getColumns() {
         return [
-            { label: 'Invoice', fieldname: 'name' },
+            { label: 'SalesInvoice', fieldname: 'name' },
             { label: 'Posting Date', fieldname: 'date' , fieldtype: 'Date' },
             { label: 'Customer', fieldname: 'customer' },
             { label: 'Receivable Account', fieldname: 'account' },

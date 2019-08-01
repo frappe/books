@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 
 import ListView from '../pages/ListView';
+import Dashboard from '../pages/Dashboard';
 import FormView from '../pages/FormView/FormView';
 import PrintView from '../pages/PrintView';
 
@@ -22,7 +23,7 @@ Vue.use(Router);
 const routes = [
   {
     path: '/',
-    redirect: '/chartOfAccounts'
+    component: Dashboard
   },
   {
     path: '/list/:listName',

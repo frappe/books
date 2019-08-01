@@ -4,13 +4,13 @@ class BaseGSTR {
   async getCompleteReport(gstrType, filters) {
     if (['GSTR-1', 'GSTR-2'].includes(gstrType)) {
       let entries = await frappe.db.getAll({
-        doctype: gstrType === 'GSTR-1' ? 'Invoice' : 'Bill',
+        doctype: gstrType === 'GSTR-1' ? 'SalesInvoice' : 'PurchaseInvoice',
         filters
       });
 
       let tableData = [];
       for (let entry of entries) {
-        entry.doctype = gstrType === 'GSTR-1' ? 'Invoice' : 'Bill';
+        entry.doctype = gstrType === 'GSTR-1' ? 'SalesInvoice' : 'PurchaseInvoice';
         const row = await this.getRow(entry);
         tableData.push(row);
       }
