@@ -1,9 +1,9 @@
 <template>
   <div>
     <div class="px-3">
-      <div class="row pb-4">
-        <page-header :class="linksExists ? 'col-6':'col-12'" :breadcrumbs="breadcrumbs" />
-        <report-links class="col-6 d-flex pr-0 flex-row-reverse" v-if="linksExists" :links="links"></report-links>
+      <div class="row pb-4 d-flex">
+        <page-header :breadcrumbs="breadcrumbs" style="flex-grow: 1;" />
+        <report-links class="d-flex flex-row-reverse" v-if="linksExists" :links="links"></report-links>
       </div>
       <div class="row pb-4">
         <report-filters

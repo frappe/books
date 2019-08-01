@@ -2,14 +2,15 @@ const frappe = require('frappejs');
 const utils = require('../../../accounting/utils');
 
 module.exports = {
-  name: 'Bill',
+  name: 'PurchaseInvoice',
   doctype: 'DocType',
-  documentClass: require('./BillDocument'),
+  label: 'Purchase Invoice',
+  documentClass: require('./PurchaseInvoiceDocument'),
   isSingle: 0,
   isChild: 0,
   isSubmittable: 1,
   keywordFields: ['name', 'supplier'],
-  settings: 'BillSettings',
+  settings: 'PurchaseInvoiceSettings',
   showTitle: true,
   fields: [
     {
@@ -50,7 +51,7 @@ module.exports = {
       fieldname: 'items',
       label: 'Items',
       fieldtype: 'Table',
-      childtype: 'BillItem',
+      childtype: 'PurchaseInvoiceItem',
       required: true
     },
     {

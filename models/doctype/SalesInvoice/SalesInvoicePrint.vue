@@ -26,9 +26,9 @@
   </div>
 </template>
 <script>
-import InvoiceTemplate1 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate1';
-import InvoiceTemplate2 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate2';
-import InvoiceTemplate3 from '@/../models/doctype/Invoice/Templates/InvoiceTemplate3';
+import InvoiceTemplate1 from '@/../models/doctype/SalesInvoice/Templates/InvoiceTemplate1';
+import InvoiceTemplate2 from '@/../models/doctype/SalesInvoice/Templates/InvoiceTemplate2';
+import InvoiceTemplate3 from '@/../models/doctype/SalesInvoice/Templates/InvoiceTemplate3';
 import InvoiceCustomizer from '@/components/InvoiceCustomizer';
 
 const invoiceTemplates = {

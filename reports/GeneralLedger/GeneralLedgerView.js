@@ -8,7 +8,7 @@ module.exports = class GeneralLedgerView extends ReportPage {
       filterFields: [
         {
           fieldtype: 'Select',
-          options: ['', 'Invoice', 'Payment'],
+          options: ['', 'SalesInvoice', 'Payment'],
           label: 'Reference Type',
           fieldname: 'referenceType'
         },

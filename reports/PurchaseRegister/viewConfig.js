@@ -1,22 +1,22 @@
-const title = 'Sales Register';
+const title = 'Purchase Register';
 module.exports = {
   title: title,
-  method: 'sales-register',
+  method: 'purchase-register',
   filterFields: [
     {
       fieldtype: 'Link',
       target: 'Party',
-      label: 'Customer Name',
-      fieldname: 'customer',
+      label: 'Supplier Name',
+      fieldname: 'supplier',
       getFilters: query => {
         if (query)
           return {
             keywords: ['like', query],
-            customer: 1
+            supplier: 1
           };
 
         return {
-          customer: 1
+          supplier: 1
         };
       }
     },
@@ -30,10 +30,10 @@ module.exports = {
   ],
   getColumns() {
     return [
-      { label: 'SalesInvoice', fieldname: 'name' },
-      { label: 'Posting Date', fieldname: 'date', fieldtype: 'Date' },
-      { label: 'Customer', fieldname: 'customer' },
-      { label: 'Receivable Account', fieldname: 'account' },
+      { label: 'PurchaseInvoice', fieldname: 'name' },
+      { label: 'Posting Date', fieldname: 'date' },
+      { label: 'Supplier', fieldname: 'supplier' },
+      { label: 'Payable Account', fieldname: 'account' },
       { label: 'Net Total', fieldname: 'netTotal', fieldtype: 'Currency' },
       { label: 'Total Tax', fieldname: 'totalTax', fieldtype: 'Currency' },
       { label: 'Grand Total', fieldname: 'grandTotal', fieldtype: 'Currency' }

@@ -2,9 +2,10 @@ const frappe = require('frappejs');
 const utils = require('../../../accounting/utils');
 
 module.exports = {
-  name: 'Invoice',
+  name: 'SalesInvoice',
+  label: 'Sales Invoice',
   doctype: 'DocType',
-  documentClass: require('./InvoiceDocument.js'),
+  documentClass: require('./SalesInvoiceDocument'),
   print: {
     printFormat: 'Standard Invoice Format'
   },
@@ -12,7 +13,7 @@ module.exports = {
   isChild: 0,
   isSubmittable: 1,
   keywordFields: ['name', 'customer'],
-  settings: 'InvoiceSettings',
+  settings: 'SalesInvoiceSettings',
   showTitle: true,
   fields: [
     {
@@ -62,7 +63,7 @@ module.exports = {
       fieldname: 'items',
       label: 'Items',
       fieldtype: 'Table',
-      childtype: 'InvoiceItem',
+      childtype: 'SalesInvoiceItem',
       required: true
     },
     {

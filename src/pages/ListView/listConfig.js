@@ -1,5 +1,5 @@
-import Invoice from '../../../models/doctype/Invoice/InvoiceList';
-import Bill from '../../../models/doctype/Bill/BillList';
+import SalesInvoice from '../../../models/doctype/SalesInvoice/SalesInvoiceList';
+import PurchaseInvoice from '../../../models/doctype/PurchaseInvoice/PurchaseInvoiceList';
 import Customer from '../../../models/doctype/Party/CustomerList';
 import Supplier from '../../../models/doctype/Party/SupplierList';
 import Item from '../../../models/doctype/Item/ItemList';
@@ -10,8 +10,8 @@ import Account from '../../../models/doctype/Account/AccountList';
 import GSTR3B from '../../../models/doctype/GSTR3B/GSTR3BList';
 
 export default {
-  Invoice,
-  Bill,
+  SalesInvoice,
+  PurchaseInvoice,
   Customer,
   Supplier,
   Item,

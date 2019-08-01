@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-light">
+  <div class="bg-white">
     <page-header :breadcrumbs="breadcrumbs" />
-    <div class="form-container col-10 bg-white mt-4 ml-auto mr-auto border p-5">
+    <div class="form-container col-sm-8 col-lg-6 mx-2 mt-4">
       <form-actions
         v-if="shouldRenderForm"
         :doc="doc"
@@ -56,12 +56,12 @@ export default {
       if (this.doc)
         return [
           {
-            title: this.doctype,
+            title: this.meta.label,
             route: '#/list/' + this.doctype
           },
           {
             title: this.doc._notInserted
-              ? 'New ' + this.doctype
+              ? 'New ' + this.meta.label
               : this.doc.name,
             route: ''
           }

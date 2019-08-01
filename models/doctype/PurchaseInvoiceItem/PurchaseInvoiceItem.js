@@ -1,5 +1,6 @@
 module.exports = {
-  name: 'InvoiceItem',
+  name: 'PurchaseInvoiceItem',
+  label: 'Purchase Invoice Item',
   doctype: 'DocType',
   isSingle: 0,
   isChild: 1,
@@ -37,11 +38,10 @@ module.exports = {
     {
       fieldname: 'account',
       label: 'Account',
-      hidden: 1,
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
-      formula: (row, doc) => doc.getFrom('Item', row.item, 'incomeAccount')
+      formula: (row, doc) => doc.getFrom('Item', row.item, 'expenseAccount')
     },
     {
       fieldname: 'tax',

@@ -1,6 +1,8 @@
 module.exports = {
   models: {
     SetupWizard: require('./doctype/SetupWizard/SetupWizard'),
+    DashboardSettings: require('./doctype/DashboardSettings/DashboardSettings'),
+    DashboardChart: require('./doctype/DashboardChart/DashboardChart'),
     Account: require('./doctype/Account/Account.js'),
     AccountingSettings: require('./doctype/AccountingSettings/AccountingSettings'),
     CompanySettings: require('./doctype/CompanySettings/CompanySettings'),
@@ -13,13 +15,13 @@ module.exports = {
 
     Item: require('./doctype/Item/Item.js'),
 
-    Invoice: require('./doctype/Invoice/Invoice.js'),
-    InvoiceItem: require('./doctype/InvoiceItem/InvoiceItem.js'),
-    InvoiceSettings: require('./doctype/InvoiceSettings/InvoiceSettings.js'),
+    SalesInvoice: require('./doctype/SalesInvoice/SalesInvoice.js'),
+    SalesInvoiceItem: require('./doctype/SalesInvoiceItem/SalesInvoiceItem.js'),
+    SalesInvoiceSettings: require('./doctype/SalesInvoiceSettings/SalesInvoiceSettings.js'),
 
-    Bill: require('./doctype/Bill/Bill.js'),
-    BillItem: require('./doctype/BillItem/BillItem.js'),
-    BillSettings: require('./doctype/BillSettings/BillSettings.js'),
+    PurchaseInvoice: require('./doctype/PurchaseInvoice/PurchaseInvoice.js'),
+    PurchaseInvoiceItem: require('./doctype/PurchaseInvoiceItem/PurchaseInvoiceItem.js'),
+    PurchaseInvoiceSettings: require('./doctype/PurchaseInvoiceSettings/PurchaseInvoiceSettings.js'),
 
     Tax: require('./doctype/Tax/Tax.js'),
     TaxDetail: require('./doctype/TaxDetail/TaxDetail.js'),

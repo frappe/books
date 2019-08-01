@@ -1,6 +1,7 @@
 module.exports = {
   'general-ledger': require('./GeneralLedger/viewConfig'),
   'sales-register': require('./SalesRegister/viewConfig'),
+  'purchase-register': require('./PurchaseRegister/viewConfig'),
   'profit-and-loss': require('./ProfitAndLoss/viewConfig'),
   'trial-balance': require('./TrialBalance/viewConfig'),
   'bank-reconciliation': require('./BankReconciliation/viewConfig'),

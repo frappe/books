@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-light">
+  <div class="bg-white">
     <page-header :title="listConfig.title" />
     <div class="px-4 py-3">
       <list-toolbar
@@ -8,9 +8,7 @@
         @filterList="keyword => filterList(keyword)"
         class="mb-4"
       />
-      <list
-        :listConfig="listConfig"
-      />
+      <list :listConfig="listConfig" />
     </div>
   </div>
 </template>
@@ -51,5 +49,5 @@ export default {
       return listConfigs[this.listName];
     }
   }
-}
+};
 </script>

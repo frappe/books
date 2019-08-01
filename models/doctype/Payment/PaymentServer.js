@@ -15,7 +15,7 @@ module.exports = class PaymentServer extends BaseDocument {
   async beforeSubmit() {
     if (this.for.length > 0)
       for (let row of this.for) {
-        if (['Invoice', 'Bill'].includes(row.referenceType)) {
+        if (['SalesInvoice', 'PurchaseInvoice'].includes(row.referenceType)) {
           let { outstandingAmount, grandTotal } = await frappe.getDoc(
             row.referenceType,
             row.referenceName

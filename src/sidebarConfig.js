@@ -2,10 +2,28 @@ import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
 const path = require('path');
 
-export default {
+const config = {
   getTitle: async () => {
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    return accountingSettings.companyName;
+    const { companyName, country } = await frappe.getSingle(
+      'AccountingSettings'
+    );
+    if (country === 'India') {
+      config.groups[2].items.push(
+        {
+          label: _('GSTR 1'),
+          route: '/report/gstr-1?transferType=B2B'
+        },
+        {
+          label: _('GSTR 2'),
+          route: '/report/gstr-2?transferType=B2B'
+        },
+        {
+          label: _('GSTR 3B'),
+          route: '/list/GSTR3B'
+        }
+      );
+    }
+    return companyName;
   },
   getDbName() {
     if (localStorage.dbPath) {
@@ -55,12 +73,12 @@ export default {
       title: _('Transactions'),
       items: [
         {
-          label: _('Invoice'),
-          route: '/list/Invoice'
+          label: _('Sales Invoice'),
+          route: '/list/SalesInvoice'
         },
         {
-          label: _('Bill'),
-          route: '/list/Bill'
+          label: _('Purchase Invoice'),
+          route: '/list/PurchaseInvoice'
         },
         {
           label: _('Journal Entry'),
@@ -88,20 +106,12 @@ export default {
           route: '/report/sales-register'
         },
         {
+          label: _('Purchase Register'),
+          route: '/report/purchase-register'
+        },
+        {
           label: _('Bank Reconciliation'),
           route: '/report/bank-reconciliation'
-        },
-        {
-          label: _('GSTR 1'),
-          route: '/report/gstr-1?transferType=B2B'
-        },
-        {
-          label: _('GSTR 2'),
-          route: '/report/gstr-2?transferType=B2B'
-        },
-        {
-          label: _('GSTR 3B'),
-          route: '/list/GSTR3B'
         }
       ]
     },
@@ -120,3 +130,5 @@ export default {
     }
   ]
 };
+
+export default config;
