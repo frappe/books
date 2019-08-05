@@ -8,11 +8,11 @@
           <hr class="mt-4" />
           <setting-section doctype="CompanySettings" />
           <hr class="mt-4" />
+          <setting-section doctype="DashboardSettings" />
+          <hr class="mt-4" />
           <setting-section doctype="EmailAccount" />
           <hr class="mt-4" />
           <setting-section doctype="SystemSettings" />
-          <hr class="mt-4" />
-          <setting-section doctype="DashboardSettings" />
         </div>
       </div>
     </div>

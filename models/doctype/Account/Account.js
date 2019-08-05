@@ -1,5 +1,6 @@
 module.exports = {
   name: 'Account',
+  label: 'Account',
   doctype: 'DocType',
   documentClass: require('./AccountDocument.js'),
   isSingle: 0,

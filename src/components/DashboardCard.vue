@@ -1,6 +1,6 @@
 <template>
   <div class="col-6">
-    <div class="card mx-2 my-2">
+    <div class="card mx-3 my-3">
       <div class="card-body">
         <div :ref="chartData.title"></div>
       </div>

@@ -49,7 +49,7 @@ module.exports = class GSTR3B extends BaseDocument {
       gstr3bData[0].push(await this.makeGSTRow(ledgerEntry));
     }
     for (let ledgerEntry of gstr2Data) {
-      ledgerEntry.doctype = 'BiPurchaseInvoicell';
+      ledgerEntry.doctype = 'PurchaseInvoice';
       gstr3bData[1].push(await this.makeGSTRow(ledgerEntry));
     }
 

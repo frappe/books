@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white">
+  <div class="bg-light">
     <page-header :breadcrumbs="breadcrumbs" />
     <component :is="printComponent" v-if="doc" :doc="doc" @send="send" @makePDF="makePDF" />
   </div>
@@ -25,12 +25,12 @@ export default {
       if (this.doc)
         return [
           {
-            title: this.meta.label || this.meta.name,
+            title: this.meta.label || this.doctype,
             route: '#/list/' + this.doctype
           },
           {
             title: this.doc._notInserted
-              ? 'New ' + this.meta.label || this.meta.name
+              ? 'New ' + this.meta.label || this.doctype
               : this.doc.name,
             route: `#/edit/${this.doctype}/${this.name}`
           },

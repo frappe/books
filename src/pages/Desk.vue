@@ -24,5 +24,6 @@ export default {
 }
 .sidebar {
   position: fixed;
+  z-index: 1;
 }
 </style>
