@@ -2,19 +2,19 @@
   <form :class="['frappe-form-layout', { 'was-validated': invalid }]">
     <div
       class="form-row"
-      v-if="layoutConfig"
+      v-if="layoutConfig && showSection(i)"
       v-for="(section, i) in layoutConfig.sections"
       :key="i"
-      v-show="showSection(i)"
     >
       <div class="col" v-for="(column, j) in section.columns" :key="j">
         <frappe-control
-          v-for="fieldname in column.fields"
+          v-for="(fieldname, k) in column.fields"
           v-if="shouldRenderField(fieldname)"
-          :key="fieldname"
+          :key="k"
           :docfield="getDocField(fieldname)"
           :value="$data[fieldname]"
           :doc="doc"
+          :autofocus="doc.isNew() && (i === currentSection || i === 0) && j === 0 && k === 0"
           @change="value => updateDoc(fieldname, value)"
         />
       </div>

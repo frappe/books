@@ -69,7 +69,7 @@
     </table>
     <div class="table-actions" v-if="!disabled">
       <f-button danger @click="removeCheckedRows" v-if="checkedRows.length">Remove</f-button>
-      <f-button light @click="addRow" v-if="!checkedRows.length">Add Row</f-button>
+      <f-button secondary @click="addRow" v-if="!checkedRows.length">Add Row</f-button>
     </div>
   </div>
 </template>
@@ -100,7 +100,11 @@ export default {
       const { index, fieldname } = this.currentlyFocused;
       if (this.isEditing(index, fieldname)) {
         // FIX: enter pressing on a cell with a value throws error.
-        // this.deactivateEditing();
+        // Problem: input gets undefined on deactivating
+        setTimeout(() => {
+          this.deactivateEditing();
+        }, 300);
+
         this.activateFocus(index, fieldname);
       } else {
         this.activateEditing(index, fieldname);
