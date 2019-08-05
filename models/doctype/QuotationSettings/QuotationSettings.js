@@ -1,7 +1,7 @@
 const model = require('frappejs/model');
-const InvoiceSettings = require('../InvoiceSettings/InvoiceSettings');
+const SalesInvoiceSettings = require('../SalesInvoiceSettings/SalesInvoiceSettings');
 
-module.exports = model.extend(InvoiceSettings, {
+module.exports = model.extend(SalesInvoiceSettings, {
     "name": "QuotationSettings",
     "label": "Quotation Settings",
     "fields": [

@@ -155,9 +155,6 @@ export default Branch;
   border-radius: 4px;
   cursor: pointer;
 }
-.branch-label:hover {
-  background-color: $dropdown-link-hover-bg;
-}
 .branch-children {
   padding-left: 2.25rem;
 }

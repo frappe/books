@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-on-outside-click="clearInput">
     <div class="input-group">
       <div class="input-group-prepend">
         <span class="input-group-text pt-1">
@@ -17,18 +17,15 @@
         aria-label="Recipient's username"
       />
     </div>
-    <div v-if="inputValue" class="suggestion-list position-absolute shadow-sm" style="width: 100%">
+    <div v-if="inputValue" class="suggestion-list position-absolute shadow-sm" style="width: 98%">
       <list-row
         v-for="doc in suggestion"
         :key="doc.name"
-        :class="doc.sep ? 'seperator': ''"
+        :class="doc.seperator ? 'seperator': ''"
         class="d-flex align-items-center"
         @click.native="routeTo(doc.route)"
       >
-        <span v-if="!doc.sep">
-          <feather-icon class="mr-1" name="minus" />
-        </span>
-        <div :class="doc.sep ? 'small' : ''">{{ doc.name }}</div>
+        <div :class="doc.seperator ? 'small' : ''">{{ doc.name }}</div>
         <div class="small ml-auto">{{ doc.doctype }}</div>
       </list-row>
     </div>
@@ -61,17 +58,18 @@ export default {
         isSingle: 0,
         isChild: 0
       });
-      const documents = await this.getSearchedDocuments(searchableDoctypes);
-      const doctypes = await this.getSearchedDoctypes(searchableDoctypes);
-      this.suggestion = documents.concat(doctypes);
+      const documents = await this.getDocuments(searchableDoctypes);
+      const doctypes = this.getDoctypes(searchableDoctypes);
+      const reports = this.getReports();
+      this.suggestion = documents.concat(doctypes).concat(reports);
       if (this.suggestion.length === 0)
-        this.suggestion = [{ sep: true, name: 'No results found.' }];
+        this.suggestion = [{ seperator: true, name: 'No results found.' }];
     },
-    clearInput() {
+    clearInput(e) {
       this.inputValue = '';
       this.$emit('change', null);
     },
-    async getSearchedDocuments(searchableDoctypes) {
+    async getDocuments(searchableDoctypes) {
       const promises = searchableDoctypes.map(doctype => {
         return frappe.db.getAll({
           doctype,
@@ -83,7 +81,7 @@ export default {
       // data contains list of documents, sorted according to position of its doctype in searchableDoctypes
       const items = [];
       items.push({
-        sep: true,
+        seperator: true,
         name: 'Documents'
       });
       for (let i = 0; i < data.length; i++) {
@@ -102,18 +100,41 @@ export default {
       if (items.length !== 1) return items;
       return [];
     },
-    getSearchedDoctypes(searchableDoctypes) {
-      const items = [{ sep: true, name: 'DocTypes' }];
+    getDoctypes(searchableDoctypes) {
+      const items = [{ seperator: true, name: 'Lists' }];
       let filteredDoctypes = searchableDoctypes.filter(doctype => {
-        return doctype.indexOf(this.inputValue) != -1;
+        return (
+          doctype.toLowerCase().indexOf(this.inputValue.toLowerCase()) != -1
+        );
       });
       filteredDoctypes = filteredDoctypes.map(doctype => {
+        var titleCase = doctype.replace(/([A-Z])/g, ' $1');
+        titleCase = titleCase.charAt(0).toUpperCase() + titleCase.slice(1);
         return {
-          name: doctype,
+          name: titleCase,
           route: `/list/${doctype}`
         };
       });
       if (filteredDoctypes.length > 0) return items.concat(filteredDoctypes);
+      return [];
+    },
+    getReports() {
+      const items = [{ seperator: true, name: 'Reports' }];
+      let reports = require('../../reports/view');
+      reports = Object.values(reports);
+      let filteredReports = reports.filter(report => {
+        return (
+          report.title.toLowerCase().indexOf(this.inputValue.toLowerCase()) !=
+          -1
+        );
+      });
+      filteredReports = filteredReports.map(report => {
+        return {
+          name: report.title,
+          route: `/report/${report.method}`
+        };
+      });
+      if (filteredReports.length > 0) return items.concat(filteredReports);
       return [];
     },
     routeTo(route) {
@@ -147,6 +168,8 @@ input:focus {
 }
 .suggestion-list {
   z-index: 2;
+  max-height: 90vh;
+  overflow: auto;
 }
 </style>
 

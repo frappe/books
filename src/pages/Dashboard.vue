@@ -25,8 +25,8 @@ export default {
     };
   },
   async beforeMount() {
-    const dashboardSettings = await frappe.getDoc('DashboardSettings');
-    this.charts = dashboardSettings.charts;
+    const { charts } = await frappe.getDoc('DashboardSettings');
+    this.charts = charts;
     this.charts.forEach(async c => {
       const { labels, datasets } = await this.getAccountData(c.account, c.type);
       this.chartData.push({
@@ -44,6 +44,7 @@ export default {
     async getAccountData(account, chartType) {
       let entriesArray = [];
       let accountType;
+
       async function getAccountEntries(accountName) {
         const account = await frappe.getDoc('Account', accountName);
         accountType = account.rootType;
@@ -66,7 +67,9 @@ export default {
         }
         return entriesArray;
       }
+
       let ledgerEntries = await getAccountEntries(account);
+
       accountType = ['Asset', 'Expense'].includes(accountType)
         ? 'debit'
         : 'credit';
@@ -111,6 +114,7 @@ export default {
           values: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         }
       ];
+      // Arrange month labels according to current month.
       for (let i = 0; i < 13; i++) {
         let year = i + currentMonthIndex >= 12 ? currentYear : currentYear - 1;
         labels.push(monthName[(i + currentMonthIndex) % 12]);

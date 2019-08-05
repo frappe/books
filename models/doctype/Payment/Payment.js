@@ -27,13 +27,24 @@ module.exports = {
       label: 'From Account',
       fieldtype: 'Link',
       target: 'Account',
-      required: 1
+      required: 1,
+      getFilters: (query, doc) => {
+        if (doc.paymentType === 'Pay') {
+          if (doc.paymentMethod === 'Cash')
+            return { accountType: 'Cash', isGroup: 0 };
+          else
+            return {
+              accountType: ['in', ['Bank', 'Cash']],
+              isGroup: 0
+            };
+        }
+      }
     },
     {
       fieldname: 'paymentType',
       label: 'Payment Type',
       fieldtype: 'Select',
-      options: ['Recieve', 'Pay'],
+      options: ['', 'Receive', 'Pay'],
       required: 1
     },
     {
@@ -43,12 +54,13 @@ module.exports = {
       target: 'Account',
       required: 1,
       getFilters: (query, doc) => {
-        if (doc.paymentMethod === 'Cash')
-          return { accountType: 'Cash', isGroup: 0 };
-        return {
-          accountType: ['in', ['Bank', 'Cash']],
-          isGroup: 0
-        };
+        if (doc.paymentType === 'Receive') {
+          if (doc.paymentMethod === 'Cash') {
+            return { accountType: 'Cash', isGroup: 0 };
+          } else {
+            return { accountType: ['in', ['Bank', 'Cash']], isGroup: 0 };
+          }
+        }
       }
     },
     {

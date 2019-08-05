@@ -145,7 +145,7 @@ module.exports = {
         form.doc.submitted && form.doc.outstandingAmount !== 0.0,
       action: async form => {
         const payment = await frappe.getNewDoc('Payment');
-        payment.paymentType = 'Recieve';
+        payment.paymentType = 'Receive';
         payment.party = form.doc.customer;
         payment.account = form.doc.account;
         payment.for = [

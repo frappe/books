@@ -2,6 +2,7 @@ const frappe = require('frappejs');
 
 module.exports = {
   name: 'GSTR3B',
+  label: 'GSTR 3B',
   doctype: 'DocType',
   documentClass: require('./GSTR3BDocument.js'),
   print: {

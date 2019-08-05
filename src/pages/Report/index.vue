@@ -5,9 +5,9 @@
         <page-header :breadcrumbs="breadcrumbs" style="flex-grow: 1;" />
         <report-links class="d-flex flex-row-reverse" v-if="linksExists" :links="links"></report-links>
       </div>
-      <div class="row pb-4">
+      <div class="row pb-4 pl-1">
         <report-filters
-          class="col-12 pr-0"
+          class="col-12"
           v-if="shouldRenderFields"
           :filterFields="reportConfig.filterFields"
           :filterDoc="filterDoc"
@@ -15,7 +15,7 @@
           @change="getReportData"
         ></report-filters>
       </div>
-      <div class="pt-2 pr-3" ref="datatable" v-once></div>
+      <div class="pt-2 pr-2 pl-2" ref="datatable" v-once></div>
     </div>
     <not-found v-if="!reportConfig" />
   </div>
