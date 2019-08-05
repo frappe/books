@@ -99,7 +99,8 @@ export default {
     enterPressOnCell() {
       const { index, fieldname } = this.currentlyFocused;
       if (this.isEditing(index, fieldname)) {
-        this.deactivateEditing();
+        // FIX: enter pressing on a cell with a value throws error.
+        // this.deactivateEditing();
         this.activateFocus(index, fieldname);
       } else {
         this.activateEditing(index, fieldname);
@@ -212,7 +213,8 @@ export default {
       };
     },
     activateFocus(i, fieldname) {
-      this.deactivateEditing();
+      // FIX: enter pressing on a cell with a value throws error.
+      // this.deactivateEditing();
       const docfield = this.columns.find(c => c.fieldname === fieldname);
       this.currentlyFocused = {
         index: i,
