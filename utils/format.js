@@ -8,7 +8,6 @@ module.exports = {
     if (typeof field === 'string') {
       field = { fieldtype: field };
     }
-
     if (field.fieldtype === 'Currency') {
       value = numberFormat.formatNumber(value);
     } else if (field.fieldtype === 'Text') {
@@ -25,6 +24,10 @@ module.exports = {
       if (value === 'Invalid DateTime') {
         value = '';
       }
+    } else if (field.fieldtype === 'Check') {
+      typeof parseInt(value) === 'number'
+        ? (value = parseInt(value))
+        : (value = Boolean(value));
     } else {
       if (value === null || value === undefined) {
         value = '';

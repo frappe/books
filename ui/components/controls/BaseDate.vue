@@ -1,7 +1,14 @@
 <template>
   <div :class="{'form-group': !onlyInput}">
     <label v-if="!onlyInput">{{ docfield.label }}</label>
-    <flat-pickr class="form-control" :value="value" :config="config" @on-change="emitChange"></flat-pickr>
+    <flat-pickr
+      class="form-control"
+      :class="getFormControlSize()"
+      :placeholder="docfield.placeholder"
+      :value="value"
+      :config="config"
+      @on-change="emitChange"
+    ></flat-pickr>
   </div>
 </template>
 <script>
@@ -23,4 +30,7 @@ export default {
 </script>
 <style lang="scss">
 @import '~flatpickr/dist/flatpickr.css';
+.flat-pickr-input {
+  background-color: #fff;
+}
 </style>

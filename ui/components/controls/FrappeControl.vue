@@ -63,32 +63,6 @@ export default {
         Time
       }[this.docfield.fieldtype];
     },
-    dateConfig() {
-      if (this.docfield.fieldtype === 'Date') {
-        if (frappe.SystemSettings) {
-          let systemDateFormat = frappe.SystemSettings.dateFormat;
-          let divider = systemDateFormat.indexOf('/') != -1 ? '/' : '-';
-          let flatPickrFormat = '';
-          for (let char of systemDateFormat) {
-            if (
-              !flatPickrFormat.includes(char.toLowerCase()) &&
-              !flatPickrFormat.includes(char.toUpperCase())
-            ) {
-              if (char.toLowerCase() !== 'y')
-                flatPickrFormat += char.toLowerCase() + divider;
-              else flatPickrFormat += char.toUpperCase() + divider;
-            }
-          }
-
-          return {
-            dateFormat: flatPickrFormat.slice(0, -1)
-          };
-        }
-        return {
-          dateFormat: 'Y/m/d'
-        };
-      }
-    },
     isDisabled() {
       let disabled = this.docfield.disabled;
 

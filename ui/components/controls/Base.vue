@@ -90,14 +90,21 @@ export default {
     getInputTag() {
       return 'input';
     },
+    getFormControlSize() {
+      return this.docfield.size === 'small'
+        ? 'form-control-sm'
+        : this.size === 'large'
+        ? 'form-control-lg'
+        : '';
+    },
     getInputClass() {
-      return ['form-control', ...this.inputClass];
+      return ['form-control', this.getFormControlSize(), ...this.inputClass];
     },
     getInputAttrs() {
       return {
         id: this.id,
         type: 'text',
-        placeholder: '',
+        placeholder: this.docfield.placeholder || '',
         value: this.value,
         required: this.docfield.required,
         disabled: this.disabled
