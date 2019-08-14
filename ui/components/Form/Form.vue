@@ -73,7 +73,7 @@ export default {
         this.doc.set('name', '');
       }
 
-      if (this.defaults) {
+      if (this.doc.isNew() && this.defaults) {
         for (let fieldname in this.defaults) {
           const value = this.defaults[fieldname];
           await this.doc.set(fieldname, value);
@@ -123,13 +123,23 @@ export default {
     },
 
     async submit() {
-      this.doc.set('submitted', 1);
-      await this.save();
+      await this.doc.set('submitted', 1);
+      try {
+        await this.save();
+      } catch (e) {
+        await this.doc.set('submitted', 0);
+        await this.doc.set('_dirty', false);
+      }
     },
 
     async revert() {
-      this.doc.set('submitted', 0);
-      await this.save();
+      await this.doc.set('submitted', 0);
+      try {
+        await this.save();
+      } catch (e) {
+        await this.doc.set('submitted', 1);
+        await this.doc.set('_dirty', false);
+      }
     },
 
     print() {

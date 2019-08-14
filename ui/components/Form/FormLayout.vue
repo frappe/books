@@ -14,7 +14,7 @@
           :docfield="getDocField(fieldname)"
           :value="$data[fieldname]"
           :doc="doc"
-          :autofocus="doc.isNew() && (i === currentSection || i === 0) && j === 0 && k === 0"
+          :autofocus="doc.isNew() && (i === currentSection || i === 0) && j === 0 && k === 0 && !$data[fieldname]"
           @change="value => updateDoc(fieldname, value)"
         />
       </div>

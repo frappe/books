@@ -75,6 +75,19 @@ export default {
         : true;
 
       this.disableSave = this.doc.isNew() ? false : !this.isDirty;
+    },
+    getFormTitle() {
+      const _ = this._;
+
+      try {
+        return _(
+          this.meta.getFormTitle(this.doc) ||
+            this.meta.label ||
+            this.doc.doctype
+        );
+      } catch (e) {
+        return _(this.meta.label || this.doc.doctype);
+      }
     }
   },
   computed: {
@@ -85,7 +98,7 @@ export default {
       const _ = this._;
 
       if (this.doc.isNew()) {
-        return _('New {0}', _(this.meta.label || this.doc.doctype));
+        return _('New {0}', this.getFormTitle());
       }
 
       const titleField = this.meta.titleField || 'name';
