@@ -1,12 +1,14 @@
 <template>
-  <div class="row pb-4">
+  <div class="d-flex px-1">
     <div class="col-3" v-for="docfield in filterFields" :key="docfield.fieldname">
       <frappe-control
         v-if="shouldRenderField(docfield)"
         :docfield="docfield"
         :value="$data.filterValues[docfield.fieldname]"
+        :onlyInput="true"
         :doc="filterDoc"
         @change="updateValue(docfield.fieldname, $event)"
+        class="mb-4"
       />
     </div>
   </div>
@@ -43,10 +45,6 @@ export default {
       }
 
       if (hidden) {
-        return false;
-      }
-
-      if (field.fieldname === 'name' && !this.doc.isNew()) {
         return false;
       }
 

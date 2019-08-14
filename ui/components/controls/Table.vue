@@ -217,7 +217,9 @@ export default {
       };
     },
     activateFocus(i, fieldname) {
-      // FIX: enter pressing on a cell with a value throws error.
+      if (this.isFocused(i, fieldname) && this.isEditing(i, fieldname)) {
+        return;
+      }
       // this.deactivateEditing();
       const docfield = this.columns.find(c => c.fieldname === fieldname);
       this.currentlyFocused = {
@@ -238,14 +240,13 @@ export default {
         this.currentlyFocused = {};
       }
     },
-    addRow() {
+    async addRow() {
       const rows = this.rows.slice();
-      const newRow = {
-        idx: rows.length
-      };
+      const newRow = { idx: rows.length };
 
       for (let column of this.columns) {
-        newRow[column.fieldname] = null;
+        if (column.defaultValue) newRow[column.fieldname] = column.defaultValue;
+        else newRow[column.fieldname] = null;
       }
 
       rows.push(newRow);

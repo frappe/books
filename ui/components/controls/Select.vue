@@ -1,31 +1,32 @@
 <script>
 import Base from './Base';
 export default {
-    extends: Base,
-    methods: {
-        getInputTag() {
-            return 'select';
-        },
-        getInputAttrs() {
-            return {
-                id: this.id,
-                required: this.docfield.required,
-                disabled: this.disabled
-            };
-        },
-        getInputChildren(h) {
-            return this.docfield.options.map(option =>
-                h('option', {
-                    attrs: {
-                        key: option,
-                        selected: option === this.value
-                    },
-                    domProps: {
-                        textContent: option
-                    }
-                })
-            );
-        }
+  extends: Base,
+  methods: {
+    getInputTag() {
+      return 'select';
+    },
+    getInputAttrs() {
+      return {
+        id: this.id,
+        required: this.docfield.required,
+        disabled: this.disabled
+      };
+    },
+    getInputChildren(h) {
+      return this.docfield.options.map(option =>
+        h('option', {
+          attrs: {
+            key: option,
+            selected: option === this.value,
+            value: option
+          },
+          domProps: {
+            textContent: option
+          }
+        })
+      );
     }
-}
+  }
+};
 </script>
