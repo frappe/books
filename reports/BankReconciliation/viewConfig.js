@@ -6,7 +6,9 @@ module.exports = {
     {
       fieldtype: 'Link',
       target: 'Account',
-      label: 'Payement Account',
+      size: 'small',
+      placeholder: 'Payment Account',
+      label: 'Payment Account',
       fieldname: 'paymentAccount',
       getFilters: () => {
         return {
@@ -18,18 +20,34 @@ module.exports = {
     {
       fieldtype: 'Link',
       target: 'Party',
+      size: 'small',
       label: 'Party',
+      placeholder: 'Party',
       fieldname: 'party'
     },
     {
       fieldtype: 'Date',
+      size: 'small',
+      placeholder: 'From Date',
       label: 'From Date',
       fieldname: 'fromDate'
     },
     {
       fieldtype: 'Date',
+      size: 'small',
+      placeholder: 'To Date',
       label: 'To Date',
       fieldname: 'toDate'
+    }
+  ],
+  linkFields: [
+    {
+      label: 'Clear Filters',
+      type: 'secondary',
+      action: async report => {
+        await report.getReportData({});
+        report.usedToReRender += 1;
+      }
     }
   ],
   getColumns() {

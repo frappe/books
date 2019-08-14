@@ -12,13 +12,15 @@ module.exports = {
     {
       fieldname: 'type',
       fieldtype: 'Select',
-      options: ['', 'Bar', 'Line', 'Percentage'],
-      label: 'Chart Type'
+      options: ['Bar', 'Line', 'Percentage'],
+      label: 'Chart Type',
+      defaultValue: 'Bar'
     },
     {
       fieldname: 'color',
-      fieldtype: 'Data',
-      label: 'Color'
+      fieldtype: 'Link',
+      label: 'Color',
+      target: 'Color'
     }
   ]
 };

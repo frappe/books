@@ -2,6 +2,8 @@ const frappe = require('frappejs');
 
 class SalesRegister {
   async run({ fromDate, toDate, customer }) {
+    if (!fromDate && !toDate && !customer) return { rows: [] };
+
     let filters = {};
     if (customer) {
       filters.customer = customer;

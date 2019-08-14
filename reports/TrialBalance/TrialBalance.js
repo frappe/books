@@ -5,6 +5,9 @@ const {
 
 module.exports = class TrialBalance {
   async run({ fromDate, toDate }) {
+    if (!fromDate && !toDate) {
+      return { rows: [] };
+    }
     const promises = ['Asset', 'Expense', 'Income', 'Liability', 'Equity'].map(
       rootType => {
         return getTrialBalance({ rootType, fromDate, toDate });

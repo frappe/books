@@ -17,10 +17,18 @@
           @changeColor="changeColor($event)"
           @changeTemplate="changeTemplate($event)"
           @changeFont="changeFont($event)"
+          @updateTemplateView="updateTemplateView"
         />
       </div>
       <div class="col-8 bg-white mt-4 mx-auto border shadow" ref="printComponent">
-        <component :themeColor="themeColor" :font="font" :is="template" v-if="doc" :doc="doc" />
+        <component
+          :themeColor="themeColor"
+          :font="font"
+          :is="template"
+          v-if="doc"
+          :doc="doc"
+          :key="usedForReRender"
+        />
       </div>
     </div>
   </div>
@@ -48,7 +56,8 @@ export default {
       showInvoiceCustomizer: false,
       themeColor: undefined,
       template: undefined,
-      font: undefined
+      font: undefined,
+      usedForReRender: 0
     };
   },
   async created() {
@@ -76,14 +85,17 @@ export default {
       await this.loadInvoice();
       this.showInvoiceCustomizer = !this.showInvoiceCustomizer;
     },
-    async changeColor(color) {
+    changeColor(color) {
       this.themeColor = color;
     },
-    async changeTemplate(template) {
+    changeTemplate(template) {
       this.template = invoiceTemplates[template];
     },
-    async changeFont(font) {
+    changeFont(font) {
       this.font = font;
+    },
+    updateTemplateView() {
+      this.usedForReRender += 1;
     }
   }
 };

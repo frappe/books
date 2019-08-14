@@ -8,6 +8,8 @@ module.exports = {
       target: 'Party',
       label: 'Supplier Name',
       fieldname: 'supplier',
+      size: 'small',
+      placeholder: 'Supplier Name',
       getFilters: query => {
         if (query)
           return {
@@ -23,10 +25,29 @@ module.exports = {
     {
       fieldtype: 'Date',
       fieldname: 'fromDate',
+      size: 'small',
+      placeholder: 'From Date',
       label: 'From Date',
       required: 1
     },
-    { fieldtype: 'Date', fieldname: 'toDate', label: 'To Date', required: 1 }
+    {
+      fieldtype: 'Date',
+      size: 'small',
+      placeholder: 'To Date',
+      fieldname: 'toDate',
+      label: 'To Date',
+      required: 1
+    }
+  ],
+  linkFields: [
+    {
+      label: 'Clear Filters',
+      type: 'secondary',
+      action: async report => {
+        await report.getReportData({});
+        report.usedToReRender += 1;
+      }
+    }
   ],
   getColumns() {
     return [

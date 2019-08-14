@@ -56,14 +56,8 @@ export default {
       if (this.doc)
         return [
           {
-            title: this.meta.label || this.doctype,
-            route: '#/list/' + this.doctype
-          },
-          {
-            title: this.doc._notInserted
-              ? 'New ' + (this.meta.label || this.doctype)
-              : this.doc.name,
-            route: ''
+            title: this.getFormTitle(),
+            route: '#/list/' + this.getListTitle()
           }
         ];
     },
@@ -75,6 +69,13 @@ export default {
     }
   },
   created() {
+    if (!this.defaults) {
+      this.defaults = {};
+    }
+    this.meta.fields.map(field => {
+      if (field.defaultValue)
+        this.defaults[field.fieldname] = field.defaultValue;
+    });
     this.loadDoc();
   },
   methods: {
@@ -94,9 +95,9 @@ export default {
           this.doc.set('name', '');
         }
 
-        if (this.defaultValues) {
-          for (let fieldname in this.defaultValues) {
-            const value = this.defaultValues[fieldname];
+        if (this.defaults) {
+          for (let fieldname in this.defaults) {
+            const value = this.defaults[fieldname];
             this.doc.set(fieldname, value);
           }
         }
@@ -105,9 +106,25 @@ export default {
         this.doc.on('change', this.setLinks);
       } catch (e) {
         this.notFound = true;
-        this.$router.push(
-          `/list/${this.doctype === 'Party' ? 'Customer' : this.doctype}`
-        ); //if reloaded while insert new Item,Invoice etc form.
+      }
+    },
+    getFormTitle() {
+      try {
+        // For different list/form based on same doctype since they will have different title
+        return (
+          this.meta.getFormTitle(this.doc) || this.meta.label || this.doctype
+        );
+      } catch (e) {
+        return this.meta.label || this.doctype;
+      }
+    },
+    getListTitle() {
+      try {
+        // For different list/form based on same doctype
+        // Since they will have different list route
+        return this.meta.getListTitle(this.doc);
+      } catch (e) {
+        return this.doctype;
       }
     },
     async save() {

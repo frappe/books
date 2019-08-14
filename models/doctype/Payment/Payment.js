@@ -10,17 +10,17 @@ module.exports = {
   settings: 'PaymentSettings',
   fields: [
     {
-      fieldname: 'date',
-      label: 'Posting Date',
-      fieldtype: 'Date'
-      // default: new Date().toISOString().substring(0, 10)
-    },
-    {
       fieldname: 'party',
       label: 'Party',
       fieldtype: 'Link',
       target: 'Party',
       required: 1
+    },
+    {
+      fieldname: 'date',
+      label: 'Posting Date',
+      fieldtype: 'Date',
+      defaultValue: new Date().toISOString()
     },
     {
       fieldname: 'account',
@@ -95,7 +95,10 @@ module.exports = {
       fieldtype: 'Currency',
       required: 1,
       disabled: true,
-      formula: doc => doc.getSum('for', 'amount')
+      formula: doc => {
+        console.log(doc.getSum('for', 'amount'));
+        return frappe.format(doc.getSum('for', 'amount'), 'Currency');
+      }
     },
     {
       fieldname: 'writeoff',
@@ -115,10 +118,10 @@ module.exports = {
     {
       columns: [
         {
-          fields: ['date', 'account']
+          fields: ['party', 'account']
         },
         {
-          fields: ['party', 'paymentAccount']
+          fields: ['date', 'paymentAccount']
         }
       ]
     },

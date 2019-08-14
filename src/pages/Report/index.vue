@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="px-3">
-      <div class="row pb-4 d-flex">
+    <div>
+      <div class="pb-4 d-flex">
         <page-header :breadcrumbs="breadcrumbs" style="flex-grow: 1;" />
         <report-links class="d-flex flex-row-reverse" v-if="linksExists" :links="links"></report-links>
       </div>
-      <div class="row pb-4 pl-1">
+      <div class="pl-1">
         <report-filters
           class="col-12"
           v-if="shouldRenderFields"
@@ -13,9 +13,10 @@
           :filterDoc="filterDoc"
           :filterDefaults="filters"
           @change="getReportData"
+          :key="usedToReRender"
         ></report-filters>
       </div>
-      <div class="pt-2 pr-2 pl-2" ref="datatable" v-once></div>
+      <div class="pt-2 px-4" ref="datatable" v-once></div>
     </div>
     <not-found v-if="!reportConfig" />
   </div>
@@ -34,6 +35,7 @@ export default {
   data() {
     return {
       currentFilters: this.filters,
+      usedToReRender: 0,
       filterDoc: undefined,
       links: []
     };
@@ -43,7 +45,7 @@ export default {
       return [
         {
           title: 'Reports',
-          route: '#/reportList'
+          route: ''
         },
         {
           title: this.reportConfig.title,
@@ -94,14 +96,22 @@ export default {
       }
 
       if (this.datatable) {
-        if (rows.length) this.datatable.refresh(rows, columns);
+        if (rows.length) {
+          this.datatable.refresh(rows, columns);
+        } else {
+          // remove all rows form datatable
+          this.datatable.wrapper.innerHTML = '';
+          this.datatable = undefined;
+        }
       } else {
-        this.datatable = new DataTable(this.$refs.datatable, {
-          columns: columns,
-          data: rows,
-          treeView: this.reportConfig.treeView || false,
-          cellHeight: 35
-        });
+        if (rows.length) {
+          this.datatable = new DataTable(this.$refs.datatable, {
+            columns: columns,
+            data: rows,
+            treeView: this.reportConfig.treeView || false,
+            cellHeight: 35
+          });
+        }
       }
       return [rows, columns];
     },

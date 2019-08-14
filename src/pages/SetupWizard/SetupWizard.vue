@@ -15,7 +15,7 @@
         :doc="doc"
         :fields="fields"
         :layout="layout"
-        :currentSection="currentSection"
+        :currentSection="compCurrentSection"
       />
       <div class="d-flex justify-content-between">
         <div>
@@ -80,6 +80,9 @@ export default {
     }
   },
   computed: {
+    compCurrentSection() {
+      return this.currentSection;
+    },
     fields() {
       return this.meta.fields;
     },

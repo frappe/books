@@ -101,5 +101,49 @@ module.exports = {
         }
       ]
     }
+  ],
+  links: [
+    {
+      label: 'New Sales Invoice',
+      condition: form => !form.doc._notInserted,
+      action: async form => {
+        const invoice = await frappe.getNewDoc('SalesInvoice');
+        invoice.items = [
+          {
+            item: form.doc.name,
+            rate: form.doc.rate,
+            tax: form.doc.tax
+          }
+        ];
+        invoice.on('afterInsert', async () => {
+          form.$formModal.close();
+          form.$router.push({
+            path: `/edit/PurchaseInvoice/${invoice.name}`
+          });
+        });
+        await form.$formModal.open(invoice);
+      }
+    },
+    {
+      label: 'New Purchase Invoice',
+      condition: form => !form.doc._notInserted,
+      action: async form => {
+        const invoice = await frappe.getNewDoc('PurchaseInvoice');
+        invoice.items = [
+          {
+            item: form.doc.name,
+            rate: form.doc.rate,
+            tax: form.doc.tax
+          }
+        ];
+        invoice.on('afterInsert', async () => {
+          form.$formModal.close();
+          form.$router.push({
+            path: `/edit/PurchaseInvoice/${invoice.name}`
+          });
+        });
+        await form.$formModal.open(invoice);
+      }
+    }
   ]
 };

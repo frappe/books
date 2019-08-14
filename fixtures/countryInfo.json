@@ -271,7 +271,7 @@
         "currency_fraction_units": 100,
         "currency_name": "Belize Dollar",
         "currency_symbol": "$",
-        "date_format": "mm-dd-yyyy",
+        "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
         "timezones": [
             "America/Belize"
@@ -356,7 +356,7 @@
         "currency_fraction": "Centavo",
         "currency_fraction_units": 100,
         "currency_symbol": "R$",
-        "date_format": "dd/mm/yyyy",
+        "date_format": "dd/MM/yyyy",
         "number_format": "#.###,##",
         "timezones": [
             "America/Araguaina",
@@ -463,7 +463,7 @@
         "currency_fraction_units": 100,
         "currency_name": "Canadian Dollar",
         "currency_symbol": "$",
-        "date_format": "mm-dd-yyyy",
+        "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
         "timezones": [
             "America/Atikokan",
@@ -563,7 +563,7 @@
         "code": "cn",
         "currency": "CNY",
         "currency_name": "Yuan Renminbi",
-        "date_format": "yyyy-mm-dd",
+        "date_format": "yyyy-MM-dd",
         "number_format": "#,###.##",
         "timezones": [
             "Asia/Chongqing",
@@ -884,7 +884,7 @@
         "currency_fraction_units": 100,
         "currency_symbol": "\u20ac",
         "number_format": "# ###,##",
-        "date_format": "dd/mm/yyyy",
+        "date_format": "dd/MM/yyyy",
         "timezones": [
             "Europe/Paris"
         ]
@@ -1136,7 +1136,7 @@
         "currency_fraction_units": 100,
         "currency_name": "Forint",
         "currency_symbol": "Ft",
-        "date_format": "yyyy-mm-dd",
+        "date_format": "yyyy-MM-dd",
         "number_format": "#.###",
         "timezones": [
             "Europe/Budapest"
@@ -1161,6 +1161,7 @@
         "currency_fraction_units": 100,
         "currency_name": "Indian Rupee",
         "currency_symbol": "\u20b9",
+        "date_format": "dd/MM/yyyy",
         "number_format": "#,##,###.##",
         "timezones": [
             "Asia/Kolkata"
@@ -1247,7 +1248,7 @@
         "currency_fraction_units": 100,
         "currency_symbol": "\u20ac",
         "number_format": "#.###,##",
-        "date_format": "dd/mm/yyyy",
+        "date_format": "dd/MM/yyyy",
         "timezones": [
             "Europe/Rome"
         ],
@@ -1471,7 +1472,7 @@
         "currency_fraction_units": 100,
         "currency_name": "Lithuanian Litas",
         "currency_symbol": "Lt",
-        "date_format": "yyyy-mm-dd",
+        "date_format": "yyyy-MM-dd",
         "number_format": "# ###,##",
         "timezones": [
             "Europe/Vilnius"
@@ -1674,7 +1675,7 @@
         "currency_fraction_units": 100,
         "currency_name": "Tugrik",
         "currency_symbol": "\u20ae",
-        "date_format": "yyyy-mm-dd",
+        "date_format": "yyyy-MM-dd",
         "number_format": "#,###.##",
         "timezones": [
             "Asia/Choibalsan",
@@ -1911,7 +1912,7 @@
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
-        "date_format": "mm-dd-yyyy",
+        "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
         "timezones": [
             "Pacific/Palau"
@@ -1974,7 +1975,7 @@
         "currency_fraction_units": 100,
         "currency_name": "Philippine Peso",
         "currency_symbol": "\u20b1",
-        "date_format": "mm-dd-yyyy",
+        "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
         "timezones": [
             "Asia/Manila"
@@ -2278,7 +2279,7 @@
         "currency_fraction_units": 100,
         "currency_name": "Rand",
         "currency_symbol": "R",
-        "date_format": "yyyy-mm-dd",
+        "date_format": "yyyy-MM-dd",
         "number_format": "# ###.##",
         "timezones": [
             "Africa/Johannesburg"
@@ -2398,7 +2399,7 @@
     "Taiwan": {
         "code": "tw",
         "currency": "TWD",
-        "date_format": "yyyy-mm-dd",
+        "date_format": "yyyy-MM-dd",
         "number_format": "#,###.##"
     },
     "Tajikistan": {
@@ -2591,7 +2592,7 @@
         "smallest_currency_fraction_value": 0.05,
         "currency_name": "US Dollar",
         "currency_symbol": "$",
-        "date_format": "mm-dd-yyyy",
+        "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
         "timezones": [
             "America/Adak",

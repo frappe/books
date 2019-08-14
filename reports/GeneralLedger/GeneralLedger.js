@@ -2,6 +2,8 @@ const frappe = require('frappejs');
 
 class GeneralLedger {
   async run(params) {
+    if (!Object.keys(params).length) return [];
+
     const filters = {};
     if (params.account) filters.account = params.account;
     if (params.party) filters.party = params.party;

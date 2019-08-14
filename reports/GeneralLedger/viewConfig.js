@@ -5,12 +5,15 @@ const viewConfig = {
   filterFields: [
     {
       fieldtype: 'Select',
-      options: ['', 'SalesInvoice', 'Payment', 'PurchaseInvoice'],
+      options: ['Select...', 'SalesInvoice', 'Payment', 'PurchaseInvoice'],
+      size: 'small',
       label: 'Reference Type',
       fieldname: 'referenceType'
     },
     {
       fieldtype: 'DynamicLink',
+      size: 'small',
+      placeholder: 'Reference Name',
       references: 'referenceType',
       label: 'Reference Name',
       fieldname: 'referenceName'
@@ -18,6 +21,8 @@ const viewConfig = {
     {
       fieldtype: 'Link',
       target: 'Account',
+      size: 'small',
+      placeholder: 'Account',
       label: 'Account',
       fieldname: 'account'
     },
@@ -25,21 +30,35 @@ const viewConfig = {
       fieldtype: 'Link',
       target: 'Party',
       label: 'Party',
+      size: 'small',
+      placeholder: 'Party',
       fieldname: 'party'
     },
     {
       fieldtype: 'Date',
+      size: 'small',
+      placeholder: 'From Date',
       label: 'From Date',
       fieldname: 'fromDate'
     },
     {
       fieldtype: 'Date',
+      size: 'small',
+      placeholder: 'To Date',
       label: 'To Date',
       fieldname: 'toDate'
     }
   ],
   method: 'general-ledger',
   linkFields: [
+    {
+      label: 'Clear Filters',
+      type: 'secondary',
+      action: async report => {
+        await report.getReportData({});
+        report.usedToReRender += 1;
+      }
+    },
     {
       label: 'Export',
       type: 'primary',
@@ -69,13 +88,6 @@ const viewConfig = {
           component: require('../../src/components/ExportWizard').default,
           props: await getReportDetails()
         });
-      }
-    },
-    {
-      label: 'Clear Filters',
-      type: 'secondary',
-      action: async report => {
-        await report.$router.push(`/report/general-ledger`);
       }
     }
   ],

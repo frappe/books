@@ -2,6 +2,8 @@ const frappe = require('frappejs');
 
 class PurchaseRegister {
   async run({ fromDate, toDate, supplier }) {
+    if (!fromDate && !toDate && !supplier) return { rows: [] };
+
     let filters = {};
     if (supplier) {
       filters.supplier = supplier;

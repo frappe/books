@@ -64,8 +64,29 @@ export default {
     this.companyName = await sidebarConfig.getTitle();
     this.dbFileName = await sidebarConfig.getDbName();
     this.groups = sidebarConfig.getGroups();
+    this.setActive();
   },
   methods: {
+    setActive() {
+      let currentRoute = this.$route.fullPath;
+      // check each group items
+      this.groups.forEach(title => {
+        // filter items which contains the current route
+        sidebarConfig.getItems(title).filter(item => {
+          // check for substring 'list' 'SalesInvoice' etc.
+          let found = true;
+          currentRoute.split('/').forEach(str => {
+            if (str.length) {
+              item.route.indexOf(str) != -1 ? '' : (found = false);
+            }
+          });
+          if (found) {
+            this.toggleGroup(title);
+          }
+          return found;
+        });
+      });
+    },
     isCurrentRoute(route) {
       if (this.activeGroup) return false;
       return this.$route.fullPath === route;
@@ -100,6 +121,7 @@ export default {
 }
 .page-sidebar {
   height: 100vh;
+  min-width: 208px;
 }
 
 .sidebar-item {

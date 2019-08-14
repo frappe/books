@@ -29,7 +29,13 @@ const routes = [
     path: '/list/:listName',
     name: 'ListView',
     component: ListView,
-    props: true
+    props: route => {
+      const { listName } = route.params;
+      return {
+        listName,
+        filters: route.query
+      };
+    }
   },
   {
     path: '/edit/:doctype/:name',
