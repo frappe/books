@@ -10,29 +10,29 @@ module.exports = {
         'B2C-Large',
         'B2C-Small',
         'Nil Rated, Exempted and Non GST supplies'
-      ]
+      ],
+      size: 'small'
     },
     {
       fieldtype: 'Data',
       label: 'Place',
+      size: 'small',
+      placeholder: 'Place',
       fieldname: 'place'
     },
     {
       fieldtype: 'Date',
       label: 'From Date',
+      size: 'small',
+      placeholder: 'From Date',
       fieldname: 'fromDate'
     },
     {
       fieldtype: 'Date',
       label: 'To Date',
+      size: 'small',
+      placeholder: 'To Date',
       fieldname: 'toDate'
-    },
-    {
-      fieldtype: 'Select',
-      label: 'Report Type',
-      fieldname: 'reportType',
-      options: ['', 'GSTR-1', 'GSTR-2', 'GSTR-3B'],
-      hidden: 1
     }
   ],
   linkFields: [
@@ -65,6 +65,14 @@ module.exports = {
           component: require('../../src/components/ExportWizard').default,
           props: await getReportDetails()
         });
+      }
+    },
+    {
+      label: 'Clear Filters',
+      type: 'secondary',
+      action: async report => {
+        await report.getReportData({});
+        report.usedToReRender += 1;
       }
     }
   ],

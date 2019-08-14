@@ -7,6 +7,8 @@ module.exports = {
       fieldtype: 'Link',
       target: 'Party',
       label: 'Customer Name',
+      size: 'small',
+      placeholder: 'Customer Name',
       fieldname: 'customer',
       getFilters: query => {
         if (query)
@@ -23,10 +25,29 @@ module.exports = {
     {
       fieldtype: 'Date',
       fieldname: 'fromDate',
+      size: 'small',
+      placeholder: 'From Date',
       label: 'From Date',
       required: 1
     },
-    { fieldtype: 'Date', fieldname: 'toDate', label: 'To Date', required: 1 }
+    {
+      fieldtype: 'Date',
+      size: 'small',
+      placeholder: 'To Date',
+      fieldname: 'toDate',
+      label: 'To Date',
+      required: 1
+    }
+  ],
+  linkFields: [
+    {
+      label: 'Clear Filters',
+      type: 'secondary',
+      action: async report => {
+        await report.getReportData({});
+        report.usedToReRender += 1;
+      }
+    }
   ],
   getColumns() {
     return [

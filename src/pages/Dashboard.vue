@@ -32,7 +32,7 @@ export default {
       this.chartData.push({
         title: c.account,
         type: c.type.toLowerCase(),
-        color: c.color,
+        color: await frappe.db.getValue('Color', c.color, 'hexvalue'),
         data: {
           labels,
           datasets

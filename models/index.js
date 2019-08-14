@@ -3,6 +3,7 @@ module.exports = {
     SetupWizard: require('./doctype/SetupWizard/SetupWizard'),
     DashboardSettings: require('./doctype/DashboardSettings/DashboardSettings'),
     DashboardChart: require('./doctype/DashboardChart/DashboardChart'),
+    Color: require('./doctype/Color/Color'),
     Account: require('./doctype/Account/Account.js'),
     AccountingSettings: require('./doctype/AccountingSettings/AccountingSettings'),
     CompanySettings: require('./doctype/CompanySettings/CompanySettings'),

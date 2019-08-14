@@ -68,13 +68,14 @@ module.exports = class SalesInvoice extends BaseDocument {
 
   getGrandTotal() {
     this.makeTaxSummary();
-    let grandTotal = this.netTotal;
+    let grandTotal = frappe.parseNumber(this.netTotal);
     if (this.taxes) {
       for (let row of this.taxes) {
         grandTotal += row.amount;
       }
     }
     grandTotal = Math.floor(grandTotal * 100) / 100;
-    return grandTotal;
+
+    return frappe.format(grandTotal, 'Currency');
   }
 };

@@ -5,11 +5,6 @@ module.exports = {
   isSingle: 1,
   fields: [
     {
-      fieldname: 'name',
-      fieldtype: 'Data',
-      label: 'Dashboard Name'
-    },
-    {
       fieldname: 'charts',
       fieldtype: 'Table',
       label: 'Charts',

@@ -8,6 +8,10 @@ export default {
     'supplier',
     {
       label: 'Status',
+      fieldname: 'status',
+      fieldtype: 'Select',
+      size: 'small',
+      options: ['Status...', 'Paid', 'Pending'],
       getValue(doc) {
         if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
           return 'Paid';
@@ -21,8 +25,8 @@ export default {
         return indicators.ORANGE;
       }
     },
-    'grandTotal',
     'date',
+    'grandTotal',
     'outstandingAmount'
   ]
 };

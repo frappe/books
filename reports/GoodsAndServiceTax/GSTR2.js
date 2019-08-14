@@ -2,6 +2,8 @@ const BaseGSTR = require('./BaseGSTR');
 
 class GSTR2 extends BaseGSTR {
   async run(params) {
+    if (!Object.keys(params).length) return [];
+
     let filters = {};
     if (params.toDate || params.fromDate) {
       filters.date = [];

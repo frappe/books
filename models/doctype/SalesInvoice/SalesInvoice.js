@@ -19,8 +19,8 @@ module.exports = {
     {
       fieldname: 'date',
       label: 'Date',
-      fieldtype: 'Date'
-      // default: (new Date()).toISOString()
+      fieldtype: 'Date',
+      defaultValue: new Date().toISOString()
     },
     {
       fieldname: 'customer',
@@ -70,7 +70,7 @@ module.exports = {
       fieldname: 'netTotal',
       label: 'Net Total',
       fieldtype: 'Currency',
-      formula: doc => doc.getSum('items', 'amount'),
+      formula: doc => frappe.format(doc.getSum('items', 'amount'), 'Currency'),
       disabled: true,
       readOnly: 1
     },

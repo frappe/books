@@ -7,7 +7,11 @@ export default {
   columns: [
     'party',
     {
-      label: 'Payment',
+      label: 'Status',
+      fieldname: 'status',
+      fieldtype: 'Select',
+      size: 'small',
+      options: ['Status...', 'Reconciled', 'Not Reconciled'],
       getValue(doc) {
         if (
           doc.submitted === 1 &&
@@ -27,10 +31,9 @@ export default {
         return indicators.ORANGE;
       }
     },
-    'account',
-    'amount',
+    'paymentType',
     'date',
     'clearanceDate',
-    'name'
+    'amount'
   ]
 };

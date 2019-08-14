@@ -14,24 +14,31 @@ module.exports = {
       required: 1
     },
     {
+      fieldname: 'rootType',
+      label: 'Root Type',
+      fieldtype: 'Select',
+      options: [
+        'Select...',
+        'Asset',
+        'Liability',
+        'Equity',
+        'Income',
+        'Expense'
+      ],
+      required: 1
+    },
+    {
       fieldname: 'parentAccount',
       label: 'Parent Account',
       fieldtype: 'Link',
       target: 'Account',
       getFilters: (query, doc) => {
-        console.log(doc);
-        return {
-          isGroup: 1,
-          rootType: doc.rootType
+        const filter = {
+          isGroup: 1
         };
+        doc.rootType ? (filter.rootType = doc.rootType) : '';
+        return filter;
       }
-    },
-    {
-      fieldname: 'rootType',
-      label: 'Root Type',
-      fieldtype: 'Select',
-      options: ['', 'Asset', 'Liability', 'Equity', 'Income', 'Expense'],
-      required: 1
     },
     {
       fieldname: 'accountType',

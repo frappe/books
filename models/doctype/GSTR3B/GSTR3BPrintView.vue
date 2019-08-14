@@ -6,7 +6,7 @@
       </div>
     </div>
     <div ref="printComponent" class="col-8 bg-white mt-4 mx-auto border shadow">
-      <div class="print-format" style="padding: 3.5rem;">
+      <div class="print-format" style="padding: 3.5rem; font-size: 8pt !important;">
         <div>
           <h3 class="text-center">GSTR3B-Form</h3>
           <h5>GSTIN: &nbsp; {{ jsonData.gstin }}</h5>
@@ -292,7 +292,6 @@ export default {
 
 <style>
 .print-format {
-  font-size: 8pt !important;
 }
 .disabled {
   background-color: #d9d9d9;

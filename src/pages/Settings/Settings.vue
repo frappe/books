@@ -1,9 +1,9 @@
 <template>
   <div>
     <page-header title="Settings" />
-    <div class="row">
-      <div class="col-12 bg-white border p-5">
-        <div class="col-9 col-lg-6 ml-1">
+    <div>
+      <div class="col-9 col-lg-7 col-xl-6 mx-2 mt-4">
+        <div>
           <setting-section doctype="AccountingSettings" />
           <hr class="mt-4" />
           <setting-section doctype="CompanySettings" />

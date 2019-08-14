@@ -1,14 +1,9 @@
 <template>
   <div class="bg-white">
-    <page-header :title="listConfig.title" />
+    <page-header :title="title" />
     <div class="px-4 py-3">
-      <list-toolbar
-        :listConfig="listConfig"
-        @newClick="openNewForm"
-        @filterList="keyword => filterList(keyword)"
-        class="mb-4"
-      />
-      <list :listConfig="listConfig" />
+      <list-toolbar :title="title" :filters="filters" @newClick="openNewForm" class="mb-2" />
+      <list :listConfig="listConfig" :filters="filters" />
     </div>
   </div>
 </template>
@@ -22,7 +17,7 @@ import listConfigs from './listConfig';
 
 export default {
   name: 'ListView',
-  props: ['listName'],
+  props: ['listName', 'filters'],
   components: {
     PageHeader,
     ListToolbar,
@@ -37,6 +32,9 @@ export default {
       const doc = await frappe.getNewDoc(doctype);
       if (this.listConfig.filters) {
         doc.set(this.listConfig.filters);
+      }
+      if (this.filters) {
+        doc.set(this.filters);
       }
       this.$router.push(`/edit/${doctype}/${doc.name}`);
       doc.on('afterInsert', () => {
@@ -57,6 +55,13 @@ export default {
           }
         });
         this.$router.go(-1);
+      }
+    },
+    title() {
+      try {
+        return this.listConfig.title(this.filters);
+      } catch (e) {
+        return this.listConfig.title;
       }
     }
   }

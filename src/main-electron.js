@@ -74,17 +74,75 @@ import Toasted from 'vue-toasted';
     });
 
     await doc.update();
+
+    const systemSettings = await frappe.getSingle('SystemSettings');
+    await systemSettings.set({
+      dateFormat: countryList[country]['date_format'] || 'yyyy-MM-dd'
+    });
+    await systemSettings.update();
+
+    await setupAccountsAndDashboard(bankName);
+    await setupRegionalChanges(country);
+
+    frappe.events.trigger('show-desk');
+  });
+  async function setupAccountsAndDashboard(bankName) {
     await frappe.call({
       method: 'import-coa'
     });
+
+    const accountDoc = await frappe.newDoc({
+      doctype: 'Account'
+    });
+    Object.assign(accountDoc, {
+      name: bankName,
+      rootType: 'Asset',
+      parentAccount: 'Bank Accounts',
+      accountType: 'Bank'
+    });
+    accountDoc.insert();
+
+    const dashboardSettings = await frappe.getSingle('DashboardSettings');
+    const accounts = await frappe.db.getAll({
+      doctype: 'Account',
+      filters: { parentAccount: ['in', ['', undefined, null]] }
+    });
+
+    const colors = [
+      { name: 'Red', hexvalue: '#d32f2f' },
+      { name: 'Green', hexvalue: '#388e3c' },
+      { name: 'Blue', hexvalue: '#0288d1' },
+      { name: 'Yellow', hexvalue: '#cddc39' }
+    ];
+    colors.forEach(async color => {
+      const c = await frappe.newDoc({ doctype: 'Color' });
+      c.set(color);
+      c.insert();
+    });
+
+    let charts = [];
+    accounts.forEach(account => {
+      charts.push({
+        account: account.name,
+        type: 'Bar',
+        color: colors[Math.floor(Math.random() * 4)].name
+      });
+    });
+
+    await dashboardSettings.set({
+      charts
+    });
+    await dashboardSettings.update();
+  }
+
+  async function setupRegionalChanges(country) {
     const generateRegionalTaxes = require('../models/doctype/Tax/RegionalChanges');
     await generateRegionalTaxes(country);
     if (country === 'India') {
       frappe.models.Party = require('../models/doctype/Party/RegionalChanges');
       await frappe.db.migrate();
     }
-    frappe.events.trigger('show-desk');
-  });
+  }
 
   async function connectToLocalDatabase(filepath) {
     try {

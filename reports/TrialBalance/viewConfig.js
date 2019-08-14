@@ -8,9 +8,28 @@ module.exports = {
       fieldtype: 'Date',
       fieldname: 'fromDate',
       label: 'From Date',
+      size: 'small',
+      placeholder: 'From Date',
       required: 1
     },
-    { fieldtype: 'Date', fieldname: 'toDate', label: 'To Date', required: 1 }
+    {
+      fieldtype: 'Date',
+      size: 'small',
+      placeholder: 'To Date',
+      fieldname: 'toDate',
+      label: 'To Date',
+      required: 1
+    }
+  ],
+  linkFields: [
+    {
+      label: 'Clear Filters',
+      type: 'secondary',
+      action: async report => {
+        await report.getReportData({});
+        report.usedToReRender += 1;
+      }
+    }
   ],
   getColumns(data) {
     const columns = [

@@ -2,6 +2,8 @@ const frappe = require('frappejs');
 
 class BankReconciliation {
   async run(params) {
+    if (!Object.keys(params).length) return [];
+
     const filters = {};
     if (params.paymentAccount) filters.paymentAccount = params.paymentAccount;
     if (params.party) filters.party = params.party;
