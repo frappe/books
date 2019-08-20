@@ -98,6 +98,14 @@ const config = {
           route: '/report/general-ledger'
         },
         {
+          label: _('Profit And Loss'),
+          route: '/report/profit-and-loss'
+        },
+        {
+          label: _('Balance Sheet'),
+          route: '/report/balance-sheet'
+        },
+        {
           label: _('Trial Balance'),
           route: '/report/trial-balance'
         },

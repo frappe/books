@@ -85,9 +85,9 @@ module.exports = {
                     <div class='col-6'></div>
                     <div class='col-6'>
                         <div class='row' v-for='row in value'>
-                            <div class='col-6'>{{row.account}} ({{row.rate}}%)</div>
+                            <div class='col-6'>{{ row.account }} ({{row.rate}}%)</div>
                             <div class='col-6 text-right'>
-                                {{frappe.format(row.amount, 'Currency')}}
+                                {{ frappe.format(row.amount, 'Currency')}}
                             </div>
                         </div>
                     </div>
@@ -98,7 +98,7 @@ module.exports = {
       fieldname: 'grandTotal',
       label: 'Grand Total',
       fieldtype: 'Currency',
-      formula: doc => doc.getGrandTotal(),
+      formula: doc => frappe.format(doc.getGrandTotal(), 'Currency'),
       disabled: true,
       readOnly: 1
     },
@@ -142,7 +142,7 @@ module.exports = {
     {
       label: 'Make Payment',
       condition: form =>
-        form.doc.submitted && form.doc.outstandingAmount !== 0.0,
+        form.doc.submitted && form.doc.outstandingAmount != 0.0,
       action: async form => {
         const payment = await frappe.getNewDoc('Payment');
         payment.paymentType = 'Receive';

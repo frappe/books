@@ -127,9 +127,11 @@ module.exports = {
   ],
 
   links: [
+    utils.ledgerLink,
     {
       label: 'Make Payment',
-      condition: form => form.doc.submitted,
+      condition: form =>
+        form.doc.submitted && form.doc.outstandingAmount != 0.0,
       action: async form => {
         const payment = await frappe.getNewDoc('Payment');
         payment.paymentType = 'Pay';

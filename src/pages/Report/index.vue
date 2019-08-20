@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="report-view">
     <div>
       <div class="pb-4 d-flex">
         <page-header :breadcrumbs="breadcrumbs" style="flex-grow: 1;" />
@@ -144,5 +144,11 @@ export default {
 <style>
 .datatable {
   font-size: 12px;
+}
+.dt-scrollable {
+  height: 77vh;
+}
+.report-view {
+  overflow: hidden;
 }
 </style>

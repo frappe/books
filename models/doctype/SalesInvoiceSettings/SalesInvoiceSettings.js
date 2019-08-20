@@ -20,7 +20,7 @@ module.exports = {
       fieldtype: 'Select',
       options: ['Basic I', 'Basic II', 'Modern'],
       required: 1,
-      defaultValue: 'Basic I'
+      default: 'Basic I'
     },
     {
       fieldname: 'font',
@@ -28,14 +28,14 @@ module.exports = {
       fieldtype: 'Select',
       options: ['Montserrat', 'Open Sans', 'Oxygen', 'Merriweather'],
       required: 1,
-      defaultValue: 'Montserrat'
+      default: 'Montserrat'
     },
     {
       fieldname: 'themeColor',
       label: 'Theme Color',
       fieldtype: 'Data',
       required: 1,
-      defaultValue: '#000000',
+      default: '#000000',
       hidden: 1
     }
   ]

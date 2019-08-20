@@ -26,6 +26,13 @@ import Toasted from 'vue-toasted';
   frappe.events.on('connect-database', async filepath => {
     await connectToLocalDatabase(filepath);
 
+    const { completed } = await frappe.getSingle('SetupWizard');
+
+    if (!completed) {
+      frappe.events.trigger('show-setup-wizard');
+      return;
+    }
+
     const { country } = await frappe.getSingle('AccountingSettings');
 
     if (country === 'India') {
@@ -84,8 +91,12 @@ import Toasted from 'vue-toasted';
     await setupAccountsAndDashboard(bankName);
     await setupRegionalChanges(country);
 
+    await setupWizardValues.set({ completed: 1 });
+    await setupWizardValues.update();
+
     frappe.events.trigger('show-desk');
   });
+
   async function setupAccountsAndDashboard(bankName) {
     await frappe.call({
       method: 'import-coa'
@@ -98,7 +109,8 @@ import Toasted from 'vue-toasted';
       name: bankName,
       rootType: 'Asset',
       parentAccount: 'Bank Accounts',
-      accountType: 'Bank'
+      accountType: 'Bank',
+      isGroup: 0
     });
     accountDoc.insert();
 

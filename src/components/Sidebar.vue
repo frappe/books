@@ -70,19 +70,20 @@ export default {
     setActive() {
       let currentRoute = this.$route.fullPath;
       // check each group items
-      this.groups.forEach(title => {
+      this.groups.forEach(groupTitle => {
         // filter items which contains the current route
-        sidebarConfig.getItems(title).filter(item => {
+        sidebarConfig.getItems(groupTitle).some(item => {
           // check for substring 'list' 'SalesInvoice' etc.
-          let found = true;
-          currentRoute.split('/').forEach(str => {
+          let found = false;
+          currentRoute.split('/').some(str => {
             if (str.length) {
-              item.route.indexOf(str) != -1 ? '' : (found = false);
+              item.route.indexOf(str) > -1 ? (found = true) : (found = false);
+            }
+            if (found) {
+              this.toggleGroup(groupTitle);
+              return found;
             }
           });
-          if (found) {
-            this.toggleGroup(title);
-          }
           return found;
         });
       });
@@ -122,6 +123,7 @@ export default {
 .page-sidebar {
   height: 100vh;
   min-width: 208px;
+  max-width: 208px;
 }
 
 .sidebar-item {

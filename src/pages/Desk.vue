@@ -18,12 +18,13 @@ export default {
 <style>
 .page-container {
   height: 100vh;
+  max-height: 100vh;
   width: 100%;
   padding-left: 208px;
   overflow-x: hidden;
 }
 .sidebar {
   position: fixed;
-  z-index: 1;
+  z-index: 20;
 }
 </style>

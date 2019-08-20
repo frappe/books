@@ -30,13 +30,11 @@ module.exports = {
       required: 1,
       getFilters: (query, doc) => {
         if (doc.paymentType === 'Pay') {
-          if (doc.paymentMethod === 'Cash')
+          if (doc.paymentMethod === 'Cash') {
             return { accountType: 'Cash', isGroup: 0 };
-          else
-            return {
-              accountType: ['in', ['Bank', 'Cash']],
-              isGroup: 0
-            };
+          } else {
+            return { accountType: ['in', ['Bank', 'Cash']], isGroup: 0 };
+          }
         }
       }
     },
@@ -96,7 +94,6 @@ module.exports = {
       required: 1,
       disabled: true,
       formula: doc => {
-        console.log(doc.getSum('for', 'amount'));
         return frappe.format(doc.getSum('for', 'amount'), 'Currency');
       }
     },

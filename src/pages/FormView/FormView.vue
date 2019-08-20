@@ -95,10 +95,10 @@ export default {
           this.doc.set('name', '');
         }
 
-        if (this.defaults) {
+        if (this.doc._notInserted && this.defaults) {
           for (let fieldname in this.defaults) {
             const value = this.defaults[fieldname];
-            this.doc.set(fieldname, value);
+            await this.doc.set(fieldname, value);
           }
         }
 
@@ -106,11 +106,15 @@ export default {
         this.doc.on('change', this.setLinks);
       } catch (e) {
         this.notFound = true;
+        this.$router.push({
+          path: `/`
+        });
       }
     },
     getFormTitle() {
       try {
-        // For different list/form based on same doctype since they will have different title
+        // For different list/form based on same doctype
+        // Since they will have different title
         return (
           this.meta.getFormTitle(this.doc) || this.meta.label || this.doctype
         );
@@ -121,7 +125,7 @@ export default {
     getListTitle() {
       try {
         // For different list/form based on same doctype
-        // Since they will have different list route
+        // Since they will have different route to their list
         return this.meta.getListTitle(this.doc);
       } catch (e) {
         return this.doctype;
@@ -132,12 +136,11 @@ export default {
       if (this.isFormInvalid) return;
 
       try {
-        if (this.doc._notInserted) {
+        if (this.doc.isNew()) {
           await this.doc.insert();
         } else {
           await this.doc.update();
         }
-
         this.$emit('save', this.doc);
       } catch (e) {
         console.error(e);
@@ -146,12 +149,12 @@ export default {
     },
 
     async submit() {
-      this.doc.set('submitted', 1);
+      await this.doc.set('submitted', 1);
       try {
         await this.save();
       } catch (e) {
-        this.doc.set('submitted', 0);
-        this.doc.set('_dirty', false);
+        await this.doc.set('submitted', 0);
+        await this.doc.set('_dirty', false);
       }
     },
 
@@ -160,8 +163,8 @@ export default {
       try {
         await this.save();
       } catch (e) {
-        this.doc.set('submitted', 1);
-        this.doc._dirty = false;
+        await this.doc.set('submitted', 1);
+        await this.doc.set('_dirty', false);
       }
     },
 

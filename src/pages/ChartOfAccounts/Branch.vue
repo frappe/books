@@ -42,8 +42,6 @@
   </div>
 </template>
 <script>
-import { setTimeout } from 'timers';
-
 const Branch = {
   props: ['label', 'parentValue', 'doctype', 'balance', 'currency', 'rootType'],
   data() {
@@ -64,9 +62,9 @@ const Branch = {
     },
     creditOrDebit() {
       if (['Asset', 'Expense'].includes(this.rootType))
-        return this.nodeBalance > 0 ? 'Dr' : 'Cr';
+        return this.nodeBalance >= 0 ? 'Dr' : 'Cr';
 
-      return this.nodeBalance > 0 ? 'Cr' : 'Dr';
+      return this.nodeBalance >= 0 ? 'Cr' : 'Dr';
     }
   },
   components: {

@@ -1,22 +1,12 @@
-const title = 'Profit and Loss';
 module.exports = {
-  title: title,
-  method: 'profit-and-loss',
-  treeView: true,
+  title: 'Balance Sheet',
+  method: 'balance-sheet',
   filterFields: [
-    {
-      fieldtype: 'Date',
-      fieldname: 'fromDate',
-      size: 'small',
-      placeholder: 'From Date',
-      label: 'From Date',
-      required: 1
-    },
     {
       fieldtype: 'Date',
       fieldname: 'toDate',
       size: 'small',
-      placeholder: 'To Date',
+      placeholder: 'ToDate',
       label: 'To Date',
       required: 1
     },
@@ -31,7 +21,8 @@ module.exports = {
         'Yearly'
       ],
       label: 'Periodicity',
-      fieldname: 'periodicity'
+      fieldname: 'periodicity',
+      default: 'Monthly'
     }
   ],
   getColumns(data) {
