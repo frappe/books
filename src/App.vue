@@ -19,12 +19,12 @@ export default {
       showDatabaseSelector: false,
       showDesk: false,
       showSetupWizard: false
-    }
+    };
   },
   components: {
     Desk,
     SetupWizard,
-    DatabaseSelector,
+    DatabaseSelector
   },
   mounted() {
     if (!localStorage.dbPath) {
@@ -43,15 +43,15 @@ export default {
       this.showDesk = true;
       this.showSetupWizard = false;
       this.showDatabaseSelector = false;
-    })
+    });
   },
   methods: {
     connectToDBFile(filePath) {
       frappe.events.trigger('DatabaseSelector:file-selected', filePath);
     }
   }
-}
+};
 </script>
 <style lang="scss">
-@import "styles/index.scss";
+@import 'styles/index.scss';
 </style>

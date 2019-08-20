@@ -23,13 +23,12 @@ module.exports = class PaymentServer extends BaseDocument {
           if (outstandingAmount === null) {
             outstandingAmount = grandTotal;
           }
-          if (this.amount > outstandingAmount) {
+          if (0 >= this.amount || this.amount > outstandingAmount) {
             frappe.call({
               method: 'show-dialog',
               args: {
                 title: 'Invalid Payment Entry',
-                message: `Payment amount is greater than Outstanding amount by \
-                            ${this.amount - outstandingAmount}`
+                message: `Payment amount is greater than 0 and less than Outstanding amount (${outstandingAmount})`
               }
             });
             throw new Error();
@@ -38,7 +37,8 @@ module.exports = class PaymentServer extends BaseDocument {
               row.referenceType,
               row.referenceName,
               'outstandingAmount',
-              outstandingAmount - this.amount
+              frappe.parseNumber(outstandingAmount) -
+                frappe.parseNumber(this.amount)
             );
           }
         }

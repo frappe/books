@@ -17,6 +17,7 @@ module.exports = {
       label: 'Entry Type',
       fieldtype: 'Select',
       options: [
+        'Select...',
         'Journal Entry',
         'Bank Entry',
         'Cash Entry',

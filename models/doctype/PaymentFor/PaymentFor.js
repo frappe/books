@@ -22,9 +22,8 @@ module.exports = {
       fieldname: 'amount',
       label: 'Amount',
       fieldtype: 'Currency',
-      formula: (row, doc) => {
-        doc.getFrom(doc.referenceType, doc.referenceName, 'grandTotal');
-      },
+      formula: (row, doc) =>
+        doc.getFrom(row.referenceType, row.referenceName, 'grandTotal'),
       required: 1
     }
   ]

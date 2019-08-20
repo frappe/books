@@ -118,7 +118,7 @@ module.exports = {
         invoice.on('afterInsert', async () => {
           form.$formModal.close();
           form.$router.push({
-            path: `/edit/PurchaseInvoice/${invoice.name}`
+            path: `/edit/SalesInvoice/${invoice.name}`
           });
         });
         await form.$formModal.open(invoice);

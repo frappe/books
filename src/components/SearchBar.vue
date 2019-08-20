@@ -9,19 +9,23 @@
       <input
         type="search"
         class="form-control"
+        @click="focus(0)"
+        @keydown.down="navigate('down')"
+        @keydown.up="navigate('up')"
         placeholder="Search..."
         autocomplete="off"
         spellcheck="false"
         v-model="inputValue"
-        @keyup.enter="search"
-        aria-label="Recipient's username"
+        @keydown.enter="searchOrSelect"
       />
     </div>
-    <div v-if="inputValue" class="suggestion-list position-absolute shadow-sm" style="width: 98%">
+    <div v-if="inputValue" class="search-list position-absolute shadow-sm" style="width: 98%">
       <list-row
-        v-for="doc in suggestion"
-        :key="doc.name"
-        :class="doc.seperator ? 'seperator': ''"
+        v-for="(doc, i) in suggestion"
+        :key="i+1"
+        :ref="i+1"
+        :route="doc.route"
+        :class="{ 'seperator': doc.seperator, 'item-active': isFocused(i+1) && !doc.seperator }"
         class="d-flex align-items-center"
         @click.native="routeTo(doc.route)"
       >
@@ -40,7 +44,8 @@ export default {
   data() {
     return {
       inputValue: '',
-      suggestion: []
+      suggestion: [],
+      currentlyFocused: 0
     };
   },
   components: {
@@ -53,7 +58,31 @@ export default {
     }
   },
   methods: {
-    async search() {
+    focus(key) {
+      this.currentlyFocused = key % (this.suggestion.length + 1);
+    },
+    navigate(dir) {
+      const seperatorIndexes = this.suggestion.map((item, i) => {
+        if (item.seperator) return i;
+      });
+      let nextItem = this.currentlyFocused + (dir === 'up' ? -1 : 1);
+      if (seperatorIndexes.includes(this.currentlyFocused)) {
+        nextItem = this.currentlyFocused + (dir === 'up' ? -2 : 2);
+      }
+      this.focus(nextItem);
+    },
+    isFocused(i) {
+      if (i === this.currentlyFocused) {
+        return true;
+      }
+      return false;
+    },
+    async searchOrSelect() {
+      if (this.currentlyFocused != 0) {
+        this.routeTo(this.$refs[this.currentlyFocused][0].$attrs.route);
+        return;
+      }
+
       const searchableDoctypes = frappe.getDoctypeList({
         isSingle: 0,
         isChild: 0
@@ -73,7 +102,10 @@ export default {
       const promises = searchableDoctypes.map(doctype => {
         return frappe.db.getAll({
           doctype,
-          filters: { name: ['includes', this.inputValue] },
+          filters: {
+            name: ['includes', this.inputValue],
+            keywords: ['like', this.inputValue]
+          },
           fields: ['name']
         });
       });
@@ -166,10 +198,14 @@ input:focus {
   outline: none !important;
   box-shadow: none !important;
 }
-.suggestion-list {
+.search-list {
   z-index: 2;
   max-height: 90vh;
   overflow: auto;
+}
+
+.item-active {
+  background-color: var(--light);
 }
 </style>
 

@@ -76,6 +76,6 @@ module.exports = class SalesInvoice extends BaseDocument {
     }
     grandTotal = Math.floor(grandTotal * 100) / 100;
 
-    return frappe.format(grandTotal, 'Currency');
+    return grandTotal;
   }
 };

@@ -11,12 +11,14 @@ module.exports = class LedgerPosting {
 
   async debit(account, amount, referenceType, referenceName) {
     const entry = this.getEntry(account, referenceType, referenceName);
+    amount = frappe.parseNumber(amount);
     entry.debit += amount;
     await this.setAccountBalanceChange(account, 'debit', amount);
   }
 
   async credit(account, amount, referenceType, referenceName) {
     const entry = this.getEntry(account, referenceType, referenceName);
+    amount = frappe.parseNumber(amount);
     entry.credit += amount;
     await this.setAccountBalanceChange(account, 'credit', amount);
   }
@@ -83,7 +85,6 @@ module.exports = class LedgerPosting {
     let credit = 0;
     let debitAccounts = [];
     let creditAccounts = [];
-
     for (let entry of this.entries) {
       debit += entry.debit;
       credit += entry.credit;
@@ -93,11 +94,20 @@ module.exports = class LedgerPosting {
         creditAccounts.push(entry.account);
       }
     }
-
+    debit = Math.floor(debit * 100) / 100;
+    credit = Math.floor(credit * 100) / 100;
     if (debit !== credit) {
-      throw new frappe.errors.ValidationError(
-        frappe._('Debit {0} must be equal to Credit {1}', [debit, credit])
-      );
+      frappe.call({
+        method: 'show-dialog',
+        args: {
+          title: 'Invalid Entry',
+          message: frappe._('Debit {0} must be equal to Credit {1}', [
+            debit,
+            credit
+          ])
+        }
+      });
+      throw new Error();
     }
   }
 

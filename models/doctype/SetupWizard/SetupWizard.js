@@ -86,6 +86,12 @@ module.exports = {
         return countryList[doc.country].currency;
       },
       required: 1
+    },
+    {
+      fieldname: 'completed',
+      label: 'Completed',
+      fieldtype: 'Check',
+      readonly: 1
     }
   ],
 
