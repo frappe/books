@@ -18,8 +18,9 @@ export default {
         h('option', {
           attrs: {
             key: option,
-            selected: option === this.value,
-            value: option
+            value: option,
+            disabled: option.indexOf('...') > -1,
+            selected: option.indexOf('...') > -1 || option === this.value
           },
           domProps: {
             textContent: option
