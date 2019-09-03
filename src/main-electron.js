@@ -40,6 +40,7 @@ import Toasted from 'vue-toasted';
     } else {
       frappe.models.Party = require('../models/doctype/Party/Party.js');
     }
+
     frappe.events.trigger('show-desk');
   });
 
@@ -77,6 +78,8 @@ import Toasted from 'vue-toasted';
       bankName,
       fiscalYearStart,
       fiscalYearEnd,
+      numberFormat: countryList[country]['number_format'],
+      symbol: countryList[country]['currency_symbol'],
       currency: countryList[country]['currency']
     });
 
@@ -88,6 +91,7 @@ import Toasted from 'vue-toasted';
     });
     await systemSettings.update();
 
+    await setupGlobalCurrencies(countryList);
     await setupAccountsAndDashboard(bankName);
     await setupRegionalChanges(country);
 
@@ -96,6 +100,39 @@ import Toasted from 'vue-toasted';
 
     frappe.events.trigger('show-desk');
   });
+
+  async function setupGlobalCurrencies(countries) {
+    const promises = [];
+    const queue = [];
+    for (let country of Object.values(countries)) {
+      const {
+        currency,
+        currency_fraction: fraction,
+        currency_fraction_units: fractionUnits,
+        smallest_currency_fraction_value: smallestValue,
+        currency_symbol: symbol,
+        number_format: numberFormat
+      } = country;
+
+      if (currency) {
+        const exists = queue.includes(currency);
+        if (!exists) {
+          const doc = await frappe.newDoc({
+            doctype: 'Currency',
+            name: currency,
+            fraction,
+            fractionUnits,
+            smallestValue,
+            symbol,
+            numberFormat: numberFormat || '#,###.##'
+          });
+          promises.push(doc.insert());
+          queue.push(currency);
+        }
+      }
+    }
+    Promise.all(promises);
+  }
 
   async function setupAccountsAndDashboard(bankName) {
     await frappe.call({

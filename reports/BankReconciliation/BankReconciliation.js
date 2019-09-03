@@ -7,8 +7,6 @@ class BankReconciliation {
     const filters = {};
     if (params.paymentAccount) filters.paymentAccount = params.paymentAccount;
     if (params.party) filters.party = params.party;
-    // if (params.referenceType) filters.referenceType = params.referenceType;
-    // if (params.referenceName) filters.referenceName = params.referenceName;
     if (params.toDate || params.fromDate) {
       filters.date = [];
       if (params.toDate) filters.date.push('<=', params.toDate);
@@ -26,6 +24,7 @@ class BankReconciliation {
         'party',
         'name',
         'referenceDate',
+        'referenceId',
         'clearanceDate'
       ],
       filters: filters
@@ -42,6 +41,7 @@ class BankReconciliation {
         }
       });
       data[i].credit = ledger[0].credit;
+      data[i].debit = ledger[0].debit;
       data[i].debit = ledger[0].debit;
       data[i].referenceName = ledger[0].referenceName;
       data[i].referenceType = ledger[0].referenceType;
