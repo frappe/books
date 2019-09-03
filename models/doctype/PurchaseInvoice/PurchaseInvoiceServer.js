@@ -5,15 +5,23 @@ const LedgerPosting = require('../../../accounting/ledgerPosting');
 module.exports = class PurchaseInvoiceServer extends PurchaseInvoice {
   async getPosting() {
     let entries = new LedgerPosting({ reference: this, party: this.supplier });
-    await entries.credit(this.account, this.grandTotal);
+    await entries.credit(this.account, this.baseGrandTotal);
 
     for (let item of this.items) {
-      await entries.debit(item.account, item.amount);
+      const baseItemAmount = frappe.format(
+        frappe.parseNumber(item.amount) * this.exchangeRate,
+        'Currency'
+      );
+      await entries.debit(item.account, baseItemAmount);
     }
 
     if (this.taxes) {
       for (let tax of this.taxes) {
-        await entries.debit(tax.account, tax.amount);
+        const baseTaxAmount = frappe.format(
+          frappe.parseNumber(tax.amount) * this.exchangeRate,
+          'Currency'
+        );
+        await entries.debit(tax.account, baseTaxAmount);
       }
     }
     return entries;
@@ -32,6 +40,11 @@ module.exports = class PurchaseInvoiceServer extends PurchaseInvoice {
     return [];
   }
 
+  async beforeInsert() {
+    const entries = await this.getPosting();
+    await entries.validateEntries();
+  }
+
   async afterSubmit() {
     const entries = await this.getPosting();
     await entries.post();
@@ -39,7 +52,7 @@ module.exports = class PurchaseInvoiceServer extends PurchaseInvoice {
       'PurchaseInvoice',
       this.name,
       'outstandingAmount',
-      this.grandTotal
+      this.baseGrandTotal
     );
   }
 
