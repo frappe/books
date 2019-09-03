@@ -59,7 +59,11 @@ module.exports = {
       fieldtype: 'Currency',
       readOnly: 1,
       disabled: true,
-      formula: (row, doc) => row.quantity * row.rate
+      formula: async (row, doc) => {
+        return await doc.formatIntoCustomerCurrency(
+          row.quantity * frappe.parseNumber(row.rate)
+        );
+      }
     },
     {
       fieldname: 'taxAmount',

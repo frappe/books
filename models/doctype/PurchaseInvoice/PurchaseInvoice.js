@@ -49,6 +49,21 @@ module.exports = {
       }
     },
     {
+      fieldname: 'currency',
+      label: 'Customer Currency',
+      fieldtype: 'Link',
+      target: 'Currency',
+      hidden: 1,
+      formula: doc => doc.getFrom('Party', doc.supplier, 'currency')
+    },
+    {
+      fieldname: 'exchangeRate',
+      label: 'Exchange Rate',
+      fieldtype: 'Float',
+      placeholder: '1 USD = [?] INR',
+      hidden: doc => !doc.isForeignTransaction()
+    },
+    {
       fieldname: 'items',
       label: 'Items',
       fieldtype: 'Table',
@@ -56,10 +71,20 @@ module.exports = {
       required: true
     },
     {
-      fieldname: 'netTotal',
-      label: 'Net Total',
+      fieldname: 'baseNetTotal',
+      label: 'Net Total (INR)',
       fieldtype: 'Currency',
-      formula: doc => doc.getSum('items', 'amount'),
+      formula: async doc => await doc.getBaseNetTotal(),
+      disabled: true,
+      readOnly: 1
+    },
+    {
+      fieldname: 'netTotal',
+      label: 'Net Total (USD)',
+      fieldtype: 'Currency',
+      hidden: doc => !doc.isForeignTransaction(),
+      formula: async doc =>
+        await doc.formatIntoCustomerCurrency(doc.getSum('items', 'amount')),
       disabled: true,
       readOnly: 1
     },
@@ -74,9 +99,9 @@ module.exports = {
                     <div class='col-6'></div>
                     <div class='col-6'>
                         <div class='row' v-for='row in value'>
-                            <div class='col-6'>{{row.account}} ({{row.rate}}%)</div>
+                            <div class='col-6'>{{ row.account }} ({{row.rate}}%)</div>
                             <div class='col-6 text-right'>
-                                {{frappe.format(row.amount, 'Currency')}}
+                                {{ row.amount }}
                             </div>
                         </div>
                     </div>
@@ -84,10 +109,19 @@ module.exports = {
       }
     },
     {
-      fieldname: 'grandTotal',
-      label: 'Grand Total',
+      fieldname: 'baseGrandTotal',
+      label: 'Grand Total (INR)',
       fieldtype: 'Currency',
-      formula: doc => doc.getGrandTotal(),
+      formula: async doc => await doc.getBaseGrandTotal(),
+      disabled: true,
+      readOnly: 1
+    },
+    {
+      fieldname: 'grandTotal',
+      label: 'Grand Total (USD)',
+      fieldtype: 'Currency',
+      hidden: doc => !doc.isForeignTransaction(),
+      formula: async doc => await doc.getGrandTotal(),
       disabled: true,
       readOnly: 1
     },
@@ -107,7 +141,10 @@ module.exports = {
   layout: [
     // section 1
     {
-      columns: [{ fields: ['supplier', 'account'] }, { fields: ['date'] }]
+      columns: [
+        { fields: ['supplier', 'account'] },
+        { fields: ['date', 'exchangeRate'] }
+      ]
     },
 
     // section 2
@@ -117,7 +154,17 @@ module.exports = {
 
     // section 3
     {
-      columns: [{ fields: ['netTotal', 'taxes', 'grandTotal'] }]
+      columns: [
+        {
+          fields: [
+            'baseNetTotal',
+            'netTotal',
+            'taxes',
+            'baseGrandTotal',
+            'grandTotal'
+          ]
+        }
+      ]
     },
 
     // section 4
@@ -141,7 +188,7 @@ module.exports = {
           {
             referenceType: form.doc.doctype,
             referenceName: form.doc.name,
-            amount: form.doc.grandTotal
+            amount: form.doc.outstandingAmount
           }
         ];
         payment.on('afterInsert', async () => {

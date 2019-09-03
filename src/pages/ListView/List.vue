@@ -13,7 +13,7 @@
         <span
           style="width: 100%"
           :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right':''"
-        >{{ frappe.format(column.getValue(doc), column.fieldtype || {}) }}</span>
+        >{{ getColumnValue(column, doc) }}</span>
       </list-cell>
     </list-row>
   </div>
@@ -55,6 +55,15 @@ export default {
     frappe.listView.on('filterList', this.updateData.bind(this));
   },
   methods: {
+    getColumnValue(column, doc) {
+      // Since currency is formatted in customer currency
+      // frappe.format parses it back into company currency
+      if (['Float', 'Currency'].includes(column.fieldtype)) {
+        return column.getValue(doc);
+      } else {
+        return frappe.format(column.getValue(doc), column.fieldtype);
+      }
+    },
     async setupColumnsAndData() {
       this.doctype = this.listConfig.doctype;
       await this.updateData();

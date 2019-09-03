@@ -3,6 +3,16 @@ const frappe = require('frappejs');
 const LedgerPosting = require('../../../accounting/ledgerPosting');
 
 module.exports = class PaymentServer extends BaseDocument {
+  async change({ changed }) {
+    if (changed === 'for') {
+      this.amount = 0;
+      for (let paymentReference of this.for) {
+        this.amount += frappe.parseNumber(paymentReference.amount);
+      }
+      this.amount = frappe.format(this.amount, 'Currency');
+    }
+  }
+
   async getPosting() {
     let entries = new LedgerPosting({ reference: this, party: this.party });
     await entries.debit(this.paymentAccount, this.amount);
@@ -23,12 +33,18 @@ module.exports = class PaymentServer extends BaseDocument {
           if (outstandingAmount === null) {
             outstandingAmount = grandTotal;
           }
-          if (0 >= this.amount || this.amount > outstandingAmount) {
+          if (
+            0 >= frappe.parseNumber(this.amount) ||
+            frappe.parseNumber(this.amount) >
+              frappe.parseNumber(outstandingAmount)
+          ) {
             frappe.call({
               method: 'show-dialog',
               args: {
                 title: 'Invalid Payment Entry',
-                message: `Payment amount is greater than 0 and less than Outstanding amount (${outstandingAmount})`
+                message: `Payment amount (${
+                  this.amount
+                }) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
               }
             });
             throw new Error();

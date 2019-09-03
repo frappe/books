@@ -30,6 +30,16 @@ module.exports = {
       }
     },
     {
+      fieldname: 'currency',
+      label: 'Currency',
+      fieldtype: 'Link',
+      target: 'Currency',
+      formula: async doc => {
+        const { currency } = await frappe.getSingle('AccountingSettings');
+        return currency;
+      }
+    },
+    {
       fieldname: 'customer',
       label: 'Customer',
       fieldtype: 'Check'

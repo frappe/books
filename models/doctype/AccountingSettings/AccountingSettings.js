@@ -42,6 +42,16 @@ module.exports = {
     },
 
     {
+      fieldname: 'numberFormat',
+      fieldtype: 'Data'
+    },
+
+    {
+      fieldname: 'symbol',
+      fieldtype: 'Data'
+    },
+
+    {
       fieldname: 'fullname',
       label: 'Name',
       fieldtype: 'Data',
