@@ -61,16 +61,38 @@ export default {
       );
     },
     getChildrenElement(h) {
-      return [this.getLabelElement(h), this.getInputElement(h)];
+      return [
+        this.getLabelElement(h),
+        this.getInputElement(h),
+        this.getDescriptionElement(h)
+      ];
     },
     getLabelElement(h) {
+      const hasLabelOptions = Boolean(this.docfield.labelOption);
+      let label = this.docfield.label;
+
+      if (hasLabelOptions) {
+        const replaceableKeys = Object.keys(this.docfield.labelOption);
+        for (let key of replaceableKeys) {
+          label = label.replace(key.toString(), this.docfield.labelOption[key]);
+        }
+      }
+
       return h('label', {
         class: [this.labelClass, 'text-muted'],
         attrs: {
           for: this.id
         },
         domProps: {
-          textContent: this.docfield.label
+          textContent: label
+        }
+      });
+    },
+    getDescriptionElement(h) {
+      return h('small', {
+        class: ['form-text', 'text-muted'],
+        domProps: {
+          textContent: this.docfield.description || ''
         }
       });
     },
