@@ -49,6 +49,7 @@ export default {
         });
       }
     });
+    this.setLabelOptions();
   },
   methods: {
     getDocField(fieldname) {
@@ -71,6 +72,13 @@ export default {
       }
 
       return true;
+    },
+    setLabelOptions() {
+      this.fields.forEach(field => {
+        if (field.labelOption) {
+          field.labelOption = field.labelOption(this.doc);
+        }
+      });
     },
     updateDoc(fieldname, value) {
       this.doc.set(fieldname, value);
