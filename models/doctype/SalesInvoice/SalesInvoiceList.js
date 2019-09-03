@@ -26,7 +26,13 @@ export default {
       }
     },
     'date',
-    'grandTotal',
+    {
+      label: 'Grand Total',
+      fieldtype: 'Currency',
+      getValue(doc) {
+        return doc['grandTotal'];
+      }
+    },
     'outstandingAmount'
   ]
 };

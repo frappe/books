@@ -60,7 +60,7 @@ module.exports = {
       fieldname: 'exchangeRate',
       label: 'Exchange Rate',
       fieldtype: 'Float',
-      placeholder: '1 USD = [?] INR',
+      description: '1 USD = [?] INR',
       hidden: doc => !doc.isForeignTransaction()
     },
     {
@@ -72,7 +72,12 @@ module.exports = {
     },
     {
       fieldname: 'baseNetTotal',
-      label: 'Net Total (INR)',
+      label: 'Net Total (companyCurrency)',
+      labelOption: doc => {
+        if (doc.currency)
+          return { companyCurrency: frappe.AccountingSettings.currency };
+        return undefined;
+      },
       fieldtype: 'Currency',
       formula: async doc => await doc.getBaseNetTotal(),
       disabled: true,
@@ -80,7 +85,11 @@ module.exports = {
     },
     {
       fieldname: 'netTotal',
-      label: 'Net Total (USD)',
+      label: 'Net Total (customerCurrency)',
+      labelOption: doc => {
+        if (doc.currency) return { customerCurrency: doc.currency };
+        return undefined;
+      },
       fieldtype: 'Currency',
       hidden: doc => !doc.isForeignTransaction(),
       formula: async doc =>
@@ -110,7 +119,12 @@ module.exports = {
     },
     {
       fieldname: 'baseGrandTotal',
-      label: 'Grand Total (INR)',
+      label: 'Grand Total (companyCurrency)',
+      labelOption: doc => {
+        if (doc.currency)
+          return { companyCurrency: frappe.AccountingSettings.currency };
+        return undefined;
+      },
       fieldtype: 'Currency',
       formula: async doc => await doc.getBaseGrandTotal(),
       disabled: true,
@@ -118,7 +132,11 @@ module.exports = {
     },
     {
       fieldname: 'grandTotal',
-      label: 'Grand Total (USD)',
+      label: 'Grand Total (customerCurrency)',
+      labelOption: doc => {
+        if (doc.currency) return { customerCurrency: doc.currency };
+        return undefined;
+      },
       fieldtype: 'Currency',
       hidden: doc => !doc.isForeignTransaction(),
       formula: async doc => await doc.getGrandTotal(),
