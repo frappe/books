@@ -1,7 +1,7 @@
 module.exports = {
   doctype: "PrintFormat",
   name: "Standard Invoice Format",
-  for: "Invoice",
+  for: "SalesInvoice",
   template: `
     <h1>{{ doc.name }}</h1>
     <div class="row py-4">

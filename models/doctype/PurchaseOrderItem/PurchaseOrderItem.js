@@ -1,6 +1,6 @@
 const model = require('frappejs/model');
-const BillItem = require('../BillItem/BillItem');
+const PurchaseInvoiceItem = require('../PurchaseInvoiceItem/PurchaseInvoiceItem');
 
-module.exports = model.extend(BillItem, {
+module.exports = model.extend(PurchaseInvoiceItem, {
     name: "PurchaseOrderItem"
 });

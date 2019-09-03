@@ -1,8 +1,8 @@
 <template>
-  <div class="row no-gutters">
-    <sidebar class="col-2" />
-    <div class="page-container col-10 bg-light">
-      <router-view />
+  <div class="row no-gutters d-flex">
+    <sidebar class="sidebar" />
+    <div class="page-container bg-white">
+      <router-view :key="$route.fullPath" />
     </div>
   </div>
 </template>
@@ -13,12 +13,18 @@ export default {
   components: {
     Sidebar
   }
-}
+};
 </script>
 <style>
 .page-container {
   height: 100vh;
-  overflow: auto;
+  max-height: 100vh;
+  width: 100%;
+  padding-left: 208px;
   overflow-x: hidden;
+}
+.sidebar {
+  position: fixed;
+  z-index: 20;
 }
 </style>

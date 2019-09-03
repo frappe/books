@@ -5,9 +5,10 @@ module.exports = class GeneralLedgerView extends ReportPage {
   constructor() {
     super({
       title: frappe._('General Ledger'),
-      filterFields: [{
+      filterFields: [
+        {
           fieldtype: 'Select',
-          options: ['', 'Invoice', 'Payment'],
+          options: ['', 'SalesInvoice', 'Payment'],
           label: 'Reference Type',
           fieldname: 'referenceType'
         },
@@ -42,7 +43,8 @@ module.exports = class GeneralLedgerView extends ReportPage {
   }
 
   getColumns() {
-    return [{
+    return [
+      {
         label: 'Date',
         fieldtype: 'Date'
       },

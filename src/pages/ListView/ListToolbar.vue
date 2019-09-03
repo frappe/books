@@ -1,30 +1,23 @@
 <template>
-  <div class="row">
-    <div class="col-6 d-flex">
-      <search-input class="mr-2" @change="keyword => filterList(keyword)"/>
+  <div class="d-flex mt-2">
+    <div style="flex: 1;">
+      <list-filters :filters="filters"></list-filters>
     </div>
-    <div class="col-6 d-flex flex-row-reverse">
-      <f-button primary @click="$emit('newClick')">{{ _('New {0}', listConfig.title) }}</f-button>
+    <div class="d-flex flex-column-reverse" style="padding-bottom: 1rem;">
+      <f-button primary @click="$emit('newClick')">{{ _('New {0}', title) }}</f-button>
     </div>
   </div>
 </template>
 <script>
-import SearchInput from '@/components/SearchInput';
+import ListFilters from './ListFilters';
 
 export default {
   name: 'ListToolbar',
-  props: ['listConfig'],
+  props: ['title', 'filters'],
   components: {
-    SearchInput
-  },
-  methods: {
-    async newInvoice() {
-      const doc = await frappe.getNewDoc('Invoice');
-      this.$formModal.open(doc);
-    },
-    filterList(keyword) {
-      frappe.listView.trigger('filterList', keyword);
-    }
+    ListFilters
   }
-}
+};
 </script>
+
+

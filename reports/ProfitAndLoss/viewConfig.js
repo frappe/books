@@ -2,12 +2,36 @@ const title = 'Profit and Loss';
 module.exports = {
   title: title,
   method: 'profit-and-loss',
+  treeView: true,
   filterFields: [
-    { fieldtype: 'Date', fieldname: 'fromDate', label: 'From Date', required: 1 },
-    { fieldtype: 'Date', fieldname: 'toDate', label: 'To Date', required: 1 },
     {
-      fieldtype: 'Select', options: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly'],
-      label: 'Periodicity', fieldname: 'periodicity', default: 'Monthly'
+      fieldtype: 'Date',
+      fieldname: 'fromDate',
+      size: 'small',
+      placeholder: 'From Date',
+      label: 'From Date',
+      required: 1
+    },
+    {
+      fieldtype: 'Date',
+      fieldname: 'toDate',
+      size: 'small',
+      placeholder: 'To Date',
+      label: 'To Date',
+      required: 1
+    },
+    {
+      fieldtype: 'Select',
+      size: 'small',
+      options: [
+        'Select Period...',
+        'Monthly',
+        'Quarterly',
+        'Half Yearly',
+        'Yearly'
+      ],
+      label: 'Periodicity',
+      fieldname: 'periodicity'
     }
   ],
   getColumns(data) {

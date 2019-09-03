@@ -26,45 +26,54 @@ frappe.db.bindSocketClient(socket);
 frappe.getSingle('SystemSettings');
 registerReportMethods();
 
-frappe.getSingle('AccountingSettings')
-  .then(accountingSettings => {
-    if (router.currentRoute.fullPath !== '/') return;
+frappe.getSingle('AccountingSettings').then(accountingSettings => {
+  if (router.currentRoute.fullPath !== '/') return;
 
-    if (accountingSettings.companyName) {
-      frappe.events.trigger('show-desk');
-    } else {
-      frappe.events.trigger('show-setup-wizard');
-    }
-  });
-
-frappe.events.on('SetupWizard:setup-complete', async ({ setupWizardValues }) => {
-  const {
-    companyName,
-    country,
-    name,
-    email,
-    abbreviation,
-    bankName,
-    fiscalYearStart,
-    fiscalYearEnd
-  } = setupWizardValues;
-
-  const doc = await frappe.getSingle('AccountingSettings');
-  await doc.set({
-    companyName,
-    country,
-    fullname: name,
-    email,
-    bankName,
-    fiscalYearStart,
-    fiscalYearEnd
-  });
-
-  await doc.update();
-  await frappe.call({ method: 'import-coa' });
-
-  frappe.events.trigger('show-desk');
+  if (accountingSettings.companyName) {
+    frappe.events.trigger('show-desk');
+  } else {
+    frappe.events.trigger('show-setup-wizard');
+  }
 });
+
+frappe.events.on(
+  'SetupWizard:setup-complete',
+  async ({ setupWizardValues }) => {
+    const countryList = require('../fixtures/countryInfo.json');
+    const {
+      companyName,
+      country,
+      name,
+      email,
+      bankName,
+      fiscalYearStart,
+      fiscalYearEnd
+    } = setupWizardValues;
+
+    const doc = await frappe.getSingle('AccountingSettings');
+    await doc.set({
+      companyName,
+      country,
+      fullname: name,
+      email,
+      bankName,
+      fiscalYearStart,
+      fiscalYearEnd,
+      currency: countryList[country]['currency']
+    });
+
+    await doc.update();
+    await frappe.call({
+      method: 'import-coa'
+    });
+    const generateRegionalTaxes = require('../models/doctype/Tax/RegionalChanges');
+    await generateRegionalTaxes(country);
+    if (country === 'India') {
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges');
+      await frappe.db.migrate();
+    }
+    frappe.events.trigger('show-desk');
+);
 
 window.frappe = frappe;
 

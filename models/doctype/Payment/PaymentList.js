@@ -7,24 +7,33 @@ export default {
   columns: [
     'party',
     {
-      label: 'Payment',
+      label: 'Status',
+      fieldname: 'status',
+      fieldtype: 'Select',
+      size: 'small',
+      options: ['Status...', 'Reconciled', 'Not Reconciled'],
       getValue(doc) {
-        if (doc.submitted === 1 && doc.clearanceDate !== null) {
+        if (
+          doc.submitted === 1 &&
+          (doc.clearanceDate !== null || doc.paymentMethod === 'Cash')
+        ) {
           return 'Reconciled';
         }
         return 'Not Reconciled';
       },
       getIndicator(doc) {
-        if (doc.submitted === 1 && doc.clearanceDate !== null) {
+        if (
+          doc.submitted === 1 &&
+          (doc.clearanceDate !== null || doc.paymentMethod === 'Cash')
+        ) {
           return indicators.GREEN;
         }
         return indicators.ORANGE;
       }
     },
-    'account',
-    'amount',
+    'paymentType',
     'date',
     'clearanceDate',
-    'name'
+    'amount'
   ]
-}
+};

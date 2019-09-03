@@ -1,6 +1,7 @@
 <template>
-  <div class="bg-light">
-    <div class="form-container col-8 bg-white mt-4 ml-auto mr-auto border p-5">
+  <div class="bg-white">
+    <page-header :breadcrumbs="breadcrumbs" />
+    <div class="form-container col-9 col-lg-8 col-xl-7 mx-2 mt-4">
       <form-actions
         v-if="shouldRenderForm"
         :doc="doc"
@@ -10,7 +11,7 @@
         @print="print"
         :links="links"
       />
-      <hr class="mb-3">
+      <hr class="mb-3" />
       <form-layout
         v-if="shouldRenderForm"
         :doc="doc"
@@ -51,6 +52,15 @@ export default {
     };
   },
   computed: {
+    breadcrumbs() {
+      if (this.doc)
+        return [
+          {
+            title: this.getFormTitle(),
+            route: '#/list/' + this.getListTitle()
+          }
+        ];
+    },
     shouldRenderForm() {
       return this.name && this.doc;
     },
@@ -59,6 +69,13 @@ export default {
     }
   },
   created() {
+    if (!this.defaults) {
+      this.defaults = {};
+    }
+    this.meta.fields.map(field => {
+      if (field.defaultValue)
+        this.defaults[field.fieldname] = field.defaultValue;
+    });
     this.loadDoc();
   },
   methods: {
@@ -78,19 +95,41 @@ export default {
           this.doc.set('name', '');
         }
 
-        if (this.defaultValues) {
-          for (let fieldname in this.defaultValues) {
-            const value = this.defaultValues[fieldname];
-            this.doc.set(fieldname, value);
+        if (this.doc._notInserted && this.defaults) {
+          for (let fieldname in this.defaults) {
+            const value = this.defaults[fieldname];
+            await this.doc.set(fieldname, value);
           }
         }
 
         this.setLinks();
         this.doc.on('change', this.setLinks);
-        
       } catch (e) {
+        console.log(e);
         this.notFound = true;
-        this.$router.push(`/list/${this.doctype}`)//if reloaded while insert new Item,Invoice etc form.
+        this.$router.push({
+          path: `/`
+        });
+      }
+    },
+    getFormTitle() {
+      try {
+        // For different list/form based on same doctype
+        // Since they will have different title
+        return (
+          this.meta.getFormTitle(this.doc) || this.meta.label || this.doctype
+        );
+      } catch (e) {
+        return this.meta.label || this.doctype;
+      }
+    },
+    getListTitle() {
+      try {
+        // For different list/form based on same doctype
+        // Since they will have different route to their list
+        return this.meta.getListTitle(this.doc);
+      } catch (e) {
+        return this.doctype;
       }
     },
     async save() {
@@ -98,27 +137,36 @@ export default {
       if (this.isFormInvalid) return;
 
       try {
-        if (this.doc._notInserted) {
+        if (this.doc.isNew()) {
           await this.doc.insert();
         } else {
           await this.doc.update();
         }
-
         this.$emit('save', this.doc);
       } catch (e) {
         console.error(e);
-        return;
+        throw e;
       }
     },
 
     async submit() {
-      this.doc.set('submitted', 1);
-      await this.save();
+      await this.doc.set('submitted', 1);
+      try {
+        await this.save();
+      } catch (e) {
+        await this.doc.set('submitted', 0);
+        await this.doc.set('_dirty', false);
+      }
     },
 
     async revert() {
       this.doc.set('submitted', 0);
-      await this.save();
+      try {
+        await this.save();
+      } catch (e) {
+        await this.doc.set('submitted', 1);
+        await this.doc.set('_dirty', false);
+      }
     },
 
     print() {
@@ -148,3 +196,9 @@ export default {
   }
 };
 </script>
+<style>
+.table th,
+.table td {
+  vertical-align: middle;
+}
+</style>

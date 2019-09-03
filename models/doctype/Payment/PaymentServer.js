@@ -3,28 +3,83 @@ const frappe = require('frappejs');
 const LedgerPosting = require('../../../accounting/ledgerPosting');
 
 module.exports = class PaymentServer extends BaseDocument {
-    getPosting() {
-        let entries = new LedgerPosting({reference: this, party: this.party});
-        entries.debit(this.paymentAccount, this.amount);
-
-        for (let row of this.for) {
-            entries.credit(this.account, row.amount, row.referenceType, row.referenceName);
-        }
-
-        return entries;
-
+  async change({ changed }) {
+    if (changed === 'for') {
+      this.amount = 0;
+      for (let paymentReference of this.for) {
+        this.amount += frappe.parseNumber(paymentReference.amount);
+      }
+      this.amount = frappe.format(this.amount, 'Currency');
     }
+  }
 
-    async afterSubmit() {
-        await this.getPosting().post();
-        for (let row of this.for) {
-          if (row.referenceType === 'Invoice') {
-            await frappe.db.setValue('Invoice', row.referenceName, 'outstandingAmount', 0.0);
+  async getPosting() {
+    let entries = new LedgerPosting({ reference: this, party: this.party });
+    await entries.debit(this.paymentAccount, this.amount);
+    for (let row of this.for) {
+      await entries.credit(this.account, row.amount);
+    }
+    return entries;
+  }
+
+  async beforeSubmit() {
+    if (this.for.length > 0)
+      for (let row of this.for) {
+        if (['SalesInvoice', 'PurchaseInvoice'].includes(row.referenceType)) {
+          let { outstandingAmount, grandTotal } = await frappe.getDoc(
+            row.referenceType,
+            row.referenceName
+          );
+          if (outstandingAmount === null) {
+            outstandingAmount = grandTotal;
+          }
+          if (
+            0 >= frappe.parseNumber(this.amount) ||
+            frappe.parseNumber(this.amount) >
+              frappe.parseNumber(outstandingAmount)
+          ) {
+            frappe.call({
+              method: 'show-dialog',
+              args: {
+                title: 'Invalid Payment Entry',
+                message: `Payment amount (${
+                  this.amount
+                }) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
+              }
+            });
+            throw new Error();
+          } else {
+            await frappe.db.setValue(
+              row.referenceType,
+              row.referenceName,
+              'outstandingAmount',
+              frappe.parseNumber(outstandingAmount) -
+                frappe.parseNumber(this.amount)
+            );
           }
         }
+      }
+    else {
+      frappe.call({
+        method: 'show-dialog',
+        args: {
+          title: 'Invalid Payment Entry',
+          message: `No reference for the payment.`
+        }
+      });
+      throw new Error();
     }
+  }
 
-    async afterRevert() {
-        await this.getPosting().postReverse();
-    }
-}
+  async afterSubmit() {
+    const entries = await this.getPosting();
+    await entries.post();
+  }
+
+  async afterRevert() {
+    const entries = await this.getPosting();
+    await entries.postReverse();
+
+    // Maybe revert outstanding amount of invoice too?
+  }
+};

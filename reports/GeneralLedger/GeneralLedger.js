@@ -2,6 +2,8 @@ const frappe = require('frappejs');
 
 class GeneralLedger {
   async run(params) {
+    if (!Object.keys(params).length) return [];
+
     const filters = {};
     if (params.account) filters.account = params.account;
     if (params.party) filters.party = params.party;
@@ -12,13 +14,67 @@ class GeneralLedger {
       if (params.toDate) filters.date.push('<=', params.toDate);
       if (params.fromDate) filters.date.push('>=', params.fromDate);
     }
+
     let data = await frappe.db.getAll({
       doctype: 'AccountingLedgerEntry',
-      fields: ['date', 'account', 'party', 'referenceType', 'referenceName', 'debit', 'credit'],
+      fields: [
+        'date',
+        'account',
+        'party',
+        'referenceType',
+        'referenceName',
+        'debit',
+        'credit'
+      ],
       filters: filters
     });
 
-    return data;
+    return this.appendOpeningEntry(data);
+  }
+  appendOpeningEntry(data) {
+    let glEntries = [];
+    let balance = 0,
+      debitTotal = 0,
+      creditTotal = 0;
+
+    glEntries.push({
+      date: '',
+      account: '<b>Opening</b>',
+      party: '',
+      debit: 0,
+      credit: 0,
+      balance: 0,
+      referenceType: '',
+      referenceName: ''
+    });
+    for (let entry of data) {
+      balance += entry.debit > 0 ? entry.debit : -entry.credit;
+      debitTotal += entry.debit;
+      creditTotal += entry.credit;
+      entry.balance = balance;
+      glEntries.push(entry);
+    }
+    glEntries.push({
+      date: '',
+      account: '<b>Total</b>',
+      party: '',
+      debit: debitTotal,
+      credit: creditTotal,
+      balance: balance,
+      referenceType: '',
+      referenceName: ''
+    });
+    glEntries.push({
+      date: '',
+      account: '<b>Closing</b>',
+      party: '',
+      debit: debitTotal,
+      credit: creditTotal,
+      balance: balance,
+      referenceType: '',
+      referenceName: ''
+    });
+    return glEntries;
   }
 }
 
