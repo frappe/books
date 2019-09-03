@@ -10,7 +10,13 @@
           :key="index"
         />
       </div>
-      <form-layout :doc="doc" :fields="fields" :layout="layout" :currentSection="currentSection"/>
+      <form-layout
+        v-if="doc"
+        :doc="doc"
+        :fields="fields"
+        :layout="layout"
+        :currentSection="compCurrentSection"
+      />
       <div class="d-flex justify-content-between">
         <div>
           <f-button secondary v-if="currentSection > 0" @click="prevSection">Prev</f-button>
@@ -42,14 +48,15 @@ export default {
   data() {
     return {
       meta: frappe.getMeta('SetupWizard'),
-      currentSection: 0
+      currentSection: 0,
+      doc: undefined
     };
   },
   components: {
     FormLayout
   },
-  created() {
-    this.doc = new Observable();
+  async beforeMount() {
+    this.doc = await frappe.newDoc({ doctype: 'SetupWizard' });
     this.doc.isNew = () => true;
   },
   methods: {
@@ -73,6 +80,9 @@ export default {
     }
   },
   computed: {
+    compCurrentSection() {
+      return this.currentSection;
+    },
     fields() {
       return this.meta.fields;
     },

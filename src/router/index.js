@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 
 import ListView from '../pages/ListView';
+import Dashboard from '../pages/Dashboard';
 import FormView from '../pages/FormView/FormView';
 import PrintView from '../pages/PrintView';
 
@@ -21,10 +22,20 @@ Vue.use(Router);
 
 const routes = [
   {
+    path: '/',
+    component: Dashboard
+  },
+  {
     path: '/list/:listName',
     name: 'ListView',
     component: ListView,
-    props: true
+    props: route => {
+      const { listName } = route.params;
+      return {
+        listName,
+        filters: route.query
+      };
+    }
   },
   {
     path: '/edit/:doctype/:name',
@@ -42,7 +53,7 @@ const routes = [
     path: '/report/:reportName',
     name: 'Report',
     component: Report,
-    props: (route) => {
+    props: route => {
       const { reportName } = route.params;
       return {
         reportName,
@@ -77,7 +88,7 @@ const routes = [
     name: 'Chart Of Accounts',
     component: ChartOfAccounts,
     props: true
-  },
+  }
 ];
 
 export default new Router({ routes });

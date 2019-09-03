@@ -1,64 +1,72 @@
 <template>
-  <div>
-    <div class="p-4">
-      <h4 class="pb-2">{{ reportConfig.title }}</h4>
-      <div class="col-12 text-right mt-4 mb-4">
-        <f-button primary @click="openExportWizard">{{ 'Export' }}</f-button>
+  <div class="report-view" style="height: 100%">
+    <div style="height: 100%">
+      <div class="pb-4 d-flex">
+        <page-header :breadcrumbs="breadcrumbs" style="flex-grow: 1;" />
+        <report-links class="d-flex flex-row-reverse" v-if="linksExists" :links="links"></report-links>
       </div>
-      <report-filters
-        v-if="filtersExists"
-        :filters="reportConfig.filterFields"
-        :filterDefaults="filters"
-        @change="getReportData"
-      ></report-filters>
-      <div class="pt-2" ref="datatable" v-once></div>
+      <div class="pl-1">
+        <report-filters
+          class="col-12"
+          v-if="shouldRenderFields"
+          :filterFields="reportConfig.filterFields"
+          :filterDoc="filterDoc"
+          :filterDefaults="filters"
+          @change="getReportData"
+          :key="usedToReRender"
+        ></report-filters>
+      </div>
+      <div class="pt-2 px-4" style="height: 100%" ref="datatable" v-once></div>
     </div>
-    <not-found v-if="!reportConfig"/>
+    <not-found v-if="!reportConfig" />
   </div>
 </template>
 <script>
 import DataTable from 'frappe-datatable';
 import frappe from 'frappejs';
 import ReportFilters from 'frappejs/ui/pages/Report/ReportFilters';
+import ReportLinks from 'frappejs/ui/pages/Report/ReportLinks';
+import PageHeader from '@/components/PageHeader';
 import utils from 'frappejs/client/ui/utils';
-import ExportWizard from '../../components/ExportWizard';
 
 export default {
   name: 'Report',
   props: ['reportName', 'reportConfig', 'filters'],
+  data() {
+    return {
+      currentFilters: this.filters,
+      usedToReRender: 0,
+      filterDoc: undefined,
+      links: []
+    };
+  },
   computed: {
-    filtersExists() {
-      return (this.reportConfig.filterFields || []).length;
+    breadcrumbs() {
+      return [
+        {
+          title: 'Reports',
+          route: ''
+        },
+        {
+          title: this.reportConfig.title,
+          route: ''
+        }
+      ];
+    },
+    shouldRenderFields() {
+      return (this.reportConfig.filterFields || []).length && this.filterDoc;
+    },
+    linksExists() {
+      return (this.reportConfig.linkFields || []).length;
     }
   },
+  async created() {
+    this.setLinks();
+    this.filterDoc = await frappe.newCustomDoc(this.reportConfig.filterFields);
+  },
   methods: {
-    async openExportWizard() {
-      this.$modal.show({
-        modalProps: {
-          title: `Export ${this.reportConfig.title}`,
-          noFooter: true
-        },
-        component: ExportWizard,
-        props: await this.getReportDetails()
-      });
-    },
-    async getReportDetails() {
-      let { title, filterFields } = this.reportConfig;
-      let [rows, columns] = await this.getReportData(filterFields || []);
-      let columnData = columns.map(column => {
-        return {
-          id: column.id,
-          content: column.content,
-          checked: true
-        };
-      });
-      return {
-        title: title,
-        rows: rows,
-        columnData: columnData
-      };
-    },
     async getReportData(filters) {
+      this.currentFilters = filters;
       let data = await frappe.call({
         method: this.reportConfig.method,
         args: filters
@@ -88,14 +96,40 @@ export default {
       }
 
       if (this.datatable) {
-        this.datatable.refresh(rows, columns);
+        if (rows.length) {
+          this.datatable.refresh(rows, columns);
+        } else {
+          // remove all rows form datatable
+          this.datatable.wrapper.innerHTML = '';
+          this.datatable = undefined;
+        }
       } else {
-        this.datatable = new DataTable(this.$refs.datatable, {
-          columns: columns,
-          data: rows
-        });
+        if (rows.length) {
+          this.datatable = new DataTable(this.$refs.datatable, {
+            columns: columns,
+            data: rows,
+            treeView: this.reportConfig.treeView || false,
+            cellHeight: 35
+          });
+        }
       }
+      this.setLinks();
       return [rows, columns];
+    },
+    setLinks() {
+      if (this.linksExists) {
+        let links = [];
+        for (let link of this.reportConfig.linkFields) {
+          if (!link.condition || (link.condition && link.condition(this)))
+            links.push({
+              label: link.label,
+              handler: () => {
+                link.action(this);
+              }
+            });
+        }
+        this.links = links;
+      }
     },
     getColumns(data) {
       const columns = this.reportConfig.getColumns(data);
@@ -103,9 +137,20 @@ export default {
     }
   },
   components: {
-    ReportFilters
+    ReportFilters,
+    ReportLinks,
+    PageHeader
   }
 };
 </script>
 <style>
+.datatable {
+  font-size: 12px;
+}
+.dt-scrollable {
+  height: 77vh;
+}
+.report-view {
+  overflow: hidden;
+}
 </style>

@@ -6,10 +6,7 @@ import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
 import postStart from '../server/postStart';
-import {
-  getSettings,
-  saveSettings
-} from '../electron/settings';
+import { getSettings, saveSettings } from '../electron/settings';
 
 // vue imports
 import Vue from 'vue';
@@ -26,35 +23,42 @@ import Toasted from 'vue-toasted';
   frappe.registerModels(coreModels);
   frappe.registerModels(models);
   frappe.fetch = window.fetch.bind();
-  frappe.events.on('connect-database', async (filepath) => {
+  frappe.events.on('connect-database', async filepath => {
     await connectToLocalDatabase(filepath);
 
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    const country = accountingSettings.country;
+    const { completed } = await frappe.getSingle('SetupWizard');
 
-    if (country === "India") {
-      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
-    } else {
-      frappe.models.Party = require('../models/doctype/Party/Party.js')
+    if (!completed) {
+      frappe.events.trigger('show-setup-wizard');
+      return;
     }
-    frappe.events.trigger('show-desk');
 
+    const { country } = await frappe.getSingle('AccountingSettings');
+
+    if (country === 'India') {
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js');
+    } else {
+      frappe.models.Party = require('../models/doctype/Party/Party.js');
+    }
+
+    frappe.events.trigger('show-desk');
   });
 
-  frappe.events.on('DatabaseSelector:file-selected', async (filepath) => {
+  frappe.events.on('DatabaseSelector:file-selected', async filepath => {
     await connectToLocalDatabase(filepath);
 
     localStorage.dbPath = filepath;
 
-    const accountingSettings = await frappe.getSingle('AccountingSettings');
-    if (!accountingSettings.companyName) {
+    const { companyName } = await frappe.getSingle('AccountingSettings');
+    if (!companyName) {
       frappe.events.trigger('show-setup-wizard');
     } else {
       frappe.events.trigger('show-desk');
     }
   });
 
-  frappe.events.on('SetupWizard:setup-complete', async (setupWizardValues) => {
+  frappe.events.on('SetupWizard:setup-complete', async setupWizardValues => {
+    const countryList = require('../fixtures/countryInfo.json');
     const {
       companyName,
       country,
@@ -73,63 +77,120 @@ import Toasted from 'vue-toasted';
       email,
       bankName,
       fiscalYearStart,
-      fiscalYearEnd
+      fiscalYearEnd,
+      numberFormat: countryList[country]['number_format'],
+      symbol: countryList[country]['currency_symbol'],
+      currency: countryList[country]['currency']
     });
 
     await doc.update();
+
+    const systemSettings = await frappe.getSingle('SystemSettings');
+    await systemSettings.set({
+      dateFormat: countryList[country]['date_format'] || 'yyyy-MM-dd'
+    });
+    await systemSettings.update();
+
+    await setupGlobalCurrencies(countryList);
+    await setupAccountsAndDashboard(bankName);
+    await setupRegionalChanges(country);
+
+    await setupWizardValues.set({ completed: 1 });
+    await setupWizardValues.update();
+
+    frappe.events.trigger('show-desk');
+  });
+
+  async function setupGlobalCurrencies(countries) {
+    const promises = [];
+    const queue = [];
+    for (let country of Object.values(countries)) {
+      const {
+        currency,
+        currency_fraction: fraction,
+        currency_fraction_units: fractionUnits,
+        smallest_currency_fraction_value: smallestValue,
+        currency_symbol: symbol,
+        number_format: numberFormat
+      } = country;
+
+      if (currency) {
+        const exists = queue.includes(currency);
+        if (!exists) {
+          const doc = await frappe.newDoc({
+            doctype: 'Currency',
+            name: currency,
+            fraction,
+            fractionUnits,
+            smallestValue,
+            symbol,
+            numberFormat: numberFormat || '#,###.##'
+          });
+          promises.push(doc.insert());
+          queue.push(currency);
+        }
+      }
+    }
+    Promise.all(promises);
+  }
+
+  async function setupAccountsAndDashboard(bankName) {
     await frappe.call({
       method: 'import-coa'
     });
 
-    if (country === "India") {
-      frappe.models.Party = require('../models/doctype/Party/RegionalChanges.js')
-      await frappe.db.migrate()
-      await generateGstTaxes();
+    const accountDoc = await frappe.newDoc({
+      doctype: 'Account'
+    });
+    Object.assign(accountDoc, {
+      name: bankName,
+      rootType: 'Asset',
+      parentAccount: 'Bank Accounts',
+      accountType: 'Bank',
+      isGroup: 0
+    });
+    accountDoc.insert();
+
+    const dashboardSettings = await frappe.getSingle('DashboardSettings');
+    const accounts = await frappe.db.getAll({
+      doctype: 'Account',
+      filters: { parentAccount: ['in', ['', undefined, null]] }
+    });
+
+    const colors = [
+      { name: 'Red', hexvalue: '#d32f2f' },
+      { name: 'Green', hexvalue: '#388e3c' },
+      { name: 'Blue', hexvalue: '#0288d1' },
+      { name: 'Yellow', hexvalue: '#cddc39' }
+    ];
+    colors.forEach(async color => {
+      const c = await frappe.newDoc({ doctype: 'Color' });
+      c.set(color);
+      c.insert();
+    });
+
+    let charts = [];
+    accounts.forEach(account => {
+      charts.push({
+        account: account.name,
+        type: 'Bar',
+        color: colors[Math.floor(Math.random() * 4)].name
+      });
+    });
+
+    await dashboardSettings.set({
+      charts
+    });
+    await dashboardSettings.update();
+  }
+
+  async function setupRegionalChanges(country) {
+    const generateRegionalTaxes = require('../models/doctype/Tax/RegionalChanges');
+    await generateRegionalTaxes(country);
+    if (country === 'India') {
+      frappe.models.Party = require('../models/doctype/Party/RegionalChanges');
+      await frappe.db.migrate();
     }
-    frappe.events.trigger('show-desk');
-  });
-  async function generateGstTaxes() {
-    const gstPercents = [5, 12, 18, 28];
-    const gstTypes = ['Out of State', 'In State'];
-    let newTax = await frappe.getNewDoc('Tax');
-    for (const type of gstTypes) {
-      for (const percent of gstPercents) {
-        switch (type) {
-          case 'Out of State':
-            await newTax.set({
-              name: `${type}-${percent}`,
-              details: [{
-                account: "IGST",
-                rate: percent
-              }]
-            })
-            break;
-          case 'In State':
-            await newTax.set({
-              name: `${type}-${percent}`,
-              details: [{
-                  account: "CGST",
-                  rate: percent / 2
-                },
-                {
-                  account: "SGST",
-                  rate: percent / 2
-                }
-              ]
-            })
-            break;
-        }
-        await newTax.insert();
-      }
-    }
-    await newTax.set({
-      name: `Exempt-0`,
-      details: [{
-        account: "Exempt",
-        rate: 0
-      }]
-    })
-    await newTax.insert();
   }
 
   async function connectToLocalDatabase(filepath) {
@@ -146,7 +207,6 @@ import Toasted from 'vue-toasted';
       console.log(e);
     }
   }
-
 
   window.frappe = frappe;
 
@@ -166,4 +226,4 @@ import Toasted from 'vue-toasted';
     },
     template: '<App/>'
   });
-})()
+})();
