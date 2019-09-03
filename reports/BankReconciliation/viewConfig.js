@@ -42,6 +42,25 @@ module.exports = {
   ],
   linkFields: [
     {
+      label: 'Reconcile',
+      type: 'secondary',
+      condition: report => report.currentFilters.paymentAccount,
+      action: async report => {
+        report.$modal.show({
+          modalProps: {
+            title: `Import Bank Account Statement`,
+            noFooter: true
+          },
+          component: require('../../src/components/ImportWizard').default,
+          props: {
+            importHandler: require('./BankReconciliationImport')
+              .fileImportHandler,
+            report
+          }
+        });
+      }
+    },
+    {
       label: 'Clear Filters',
       type: 'secondary',
       action: async report => {
@@ -72,6 +91,11 @@ module.exports = {
       {
         label: 'Balance',
         fieldtype: 'Currency'
+      },
+      {
+        label: 'Ref/Cheque ID',
+        fieldtype: 'Data',
+        fieldname: 'referenceId'
       },
       {
         label: 'Clearance Date',

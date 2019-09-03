@@ -1,6 +1,6 @@
 <template>
-  <div class="report-view">
-    <div>
+  <div class="report-view" style="height: 100%">
+    <div style="height: 100%">
       <div class="pb-4 d-flex">
         <page-header :breadcrumbs="breadcrumbs" style="flex-grow: 1;" />
         <report-links class="d-flex flex-row-reverse" v-if="linksExists" :links="links"></report-links>
@@ -16,7 +16,7 @@
           :key="usedToReRender"
         ></report-filters>
       </div>
-      <div class="pt-2 px-4" ref="datatable" v-once></div>
+      <div class="pt-2 px-4" style="height: 100%" ref="datatable" v-once></div>
     </div>
     <not-found v-if="!reportConfig" />
   </div>
@@ -113,18 +113,20 @@ export default {
           });
         }
       }
+      this.setLinks();
       return [rows, columns];
     },
     setLinks() {
       if (this.linksExists) {
         let links = [];
         for (let link of this.reportConfig.linkFields) {
-          links.push({
-            label: link.label,
-            handler: () => {
-              link.action(this);
-            }
-          });
+          if (!link.condition || (link.condition && link.condition(this)))
+            links.push({
+              label: link.label,
+              handler: () => {
+                link.action(this);
+              }
+            });
         }
         this.links = links;
       }
