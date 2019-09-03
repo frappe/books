@@ -25,7 +25,16 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
   const { remote, shell } = require('electron');
   const { BrowserWindow } = remote;
   const html = htmlContent || (await getHTML(doctype, name));
-  const filepath = path.join(destination, name + '.pdf');
+  if (!destination) {
+    destination =
+      process.env.NODE_ENV === 'development'
+        ? path.resolve('.')
+        : remote.getGlobal('documentsPath');
+  }
+
+  const filepath = path.resolve(
+    path.join(destination, '/frappe-accounting/' + name + '.pdf')
+  );
 
   const fs = require('fs');
   let printWindow = new BrowserWindow({
@@ -33,6 +42,9 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
     height: 800,
     show: false
   });
+
+  const __static = remote.getGlobal('__static') || __static;
+
   printWindow.loadURL(`file://${path.join(__static, 'print.html')}`);
 
   printWindow.on('closed', () => {
