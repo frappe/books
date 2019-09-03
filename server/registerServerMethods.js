@@ -25,8 +25,7 @@ module.exports = function registerServerMethods() {
         const path = require('path');
         const { getPDFForElectron } = require('frappejs/server/pdf');
         const { getSettings } = require('../electron/settings');
-        const destination = path.resolve('.');
-        getPDFForElectron(doctype, name, destination, html);
+        getPDFForElectron(doctype, name, undefined, html);
       }
     }
   });
