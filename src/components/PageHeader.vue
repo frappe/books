@@ -1,6 +1,6 @@
-<template>
+  <template>
   <div
-    class="page-header px-4 py-2 border-bottom bg-white d-flex align-items-center justify-content-between"
+    class="page-header mx-4 py-2 my-1 bg-white d-flex align-items-center justify-content-between"
   >
     <h5 class="m-0" v-if="title">{{ title }}</h5>
     <div v-if="breadcrumbs">
@@ -16,8 +16,13 @@
         ></feather-icon>
       </span>
     </div>
-    <div class="col-4 p-1">
-      <SearchBar />
+    <div class="d-flex col-4 py-1 px-0 align-items-center justify-content-end">
+      <div v-for="action in actions" :key="action.label" class="mr-2">
+        <f-button primary @click="action.clickHandler">
+          <div class="px-2">{{ action.label }}</div>
+        </f-button>
+      </div>
+      <SearchBar v-if="hasSearchBar" />
     </div>
   </div>
 </template>
@@ -25,7 +30,12 @@
 import SearchBar from './SearchBar';
 
 export default {
-  props: ['title', 'breadcrumbs'],
+  props: {
+    title: String,
+    breadcrumbs: Array,
+    actions: Array,
+    hasSearchBar: { type: Boolean, default: true }
+  },
   components: {
     SearchBar
   },
@@ -45,6 +55,7 @@ export default {
   position: sticky;
   top: 0;
   z-index: 10;
+  // margin: auto 30px;
 }
 .breadCrumbRoute {
   display: inline;
@@ -60,5 +71,15 @@ a {
 .feather-icon {
   position: relative;
   bottom: -2px;
+}
+
+button {
+  border-radius: $border-radius !important;
+}
+.btn-sm {
+  font-size: 1rem;
+}
+.btn-primary {
+  color: $white;
 }
 </style>

@@ -1,13 +1,25 @@
 <template>
   <div class="list-container">
-    <list-row class="text-muted rounded-top bg-light">
+    <list-row class="text-muted rounded-top border-bottom">
+      <list-cell style="max-width: 20px;" class="mx-1 mr-3 text-center">
+        <input type="checkbox" />
+      </list-cell>
       <list-cell
         v-for="column in columns"
         :key="column.label"
         :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right':''"
       >{{ column.label }}</list-cell>
     </list-row>
-    <list-row v-for="doc in data" :key="doc.name" @click.native="openForm(doc.name)">
+    <list-row
+      v-for="doc in data"
+      :key="doc.name"
+      @click.native="openForm(doc.name)"
+      class="border-bottom"
+    >
+      <list-cell style="max-width: 20px;" class="ml-1 mr-3">
+        <div class="rounded-circle bg-light" style="width: 22px; height: 22px;"></div>
+      </list-cell>
+
       <list-cell v-for="column in columns" :key="column.label" class="d-flex align-items-center">
         <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2" />
         <span
@@ -69,6 +81,8 @@ export default {
       await this.updateData();
     },
     openForm(name) {
+      const listName = this.listConfig.listName || this.doctype;
+      // this.$router.push(`/list/${listName}/edit/${this.doctype}/${name}`);
       this.$router.push(`/edit/${this.doctype}/${name}`);
     },
     async updateData(filters) {

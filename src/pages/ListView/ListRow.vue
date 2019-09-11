@@ -1,5 +1,5 @@
 <template>
-  <div class="list-row row no-gutters py-2 px-3">
+  <div class="list-row row no-gutters py-3 pr-3">
     <slot></slot>
   </div>
 </template>
@@ -7,7 +7,6 @@
 @import '../../styles/variables';
 .list-row {
   cursor: pointer;
-  border: 1px solid $border-color;
   background-color: var(--white);
 
   &:hover {

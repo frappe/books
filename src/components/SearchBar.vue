@@ -1,9 +1,9 @@
 <template>
-  <div v-on-outside-click="clearInput">
+  <div v-on-outside-click="clearInput" class="search-bar">
     <div class="input-group">
       <div class="input-group-prepend">
-        <span class="input-group-text pt-1">
-          <feather-icon name="search" style="color: #212529 !important;"></feather-icon>
+        <span class="input-group-text pt-1 pr-0 pl-3">
+          <feather-icon name="search" class="search-icon"></feather-icon>
         </span>
       </div>
       <input
@@ -179,21 +179,28 @@ export default {
 
 <style lang="scss" scoped>
 @import '../styles/variables';
+
 .input-group-text {
-  background-color: var(--white);
-  border-right: none;
+  border: none;
+  color: #82909c !important;
+  background-color: $light !important;
+  border-top-left-radius: $border-radius !important;
+  border-bottom-left-radius: $border-radius !important;
 }
 .seperator {
-  background-color: var(--light);
+  background-color: $light;
 }
 
 input {
-  border-left: none;
   height: 27px;
+  border: none;
+  color: #82909c !important;
+  background-color: $light !important;
+  border-top-right-radius: $border-radius !important;
+  border-bottom-right-radius: $border-radius !important;
 }
 
 input:focus {
-  border: 1px solid #ced4da;
   border-left: none;
   outline: none !important;
   box-shadow: none !important;
@@ -206,6 +213,11 @@ input:focus {
 
 .item-active {
   background-color: var(--light);
+}
+.search-icon {
+  width: 14px;
+  height: 14px;
+  bottom: 0;
 }
 </style>
 

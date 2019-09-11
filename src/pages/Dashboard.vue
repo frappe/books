@@ -1,7 +1,7 @@
 <template>
   <div>
     <PageHeader title="Dashboard" />
-    <div class="row no-gutters mt-3 mx-3">
+    <div class="row no-gutters mt-3 mx-5">
       <DashboardCard v-for="chart in chartData" :key="chart.title" :chartData="chart" />
     </div>
   </div>

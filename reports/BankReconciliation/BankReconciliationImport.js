@@ -40,7 +40,7 @@ export const findMatchingReferences = async (json, report) => {
     return field.toLowerCase().indexOf('balance') > -1 ? true : false;
   });
   const references = json.map(row => {
-    return row[referenceField];
+    return row[referenceField].toString();
   });
   const payments = await frappe.db.getAll({
     doctype: 'Payment',
@@ -54,7 +54,7 @@ export const findMatchingReferences = async (json, report) => {
   if (payments.length) {
     const entries = payments.map(payment => {
       const jsonEntry = json.filter(row => {
-        return row[referenceField] === payment.referenceId;
+        return row[referenceField].toString() === payment.referenceId;
       });
       return Object.assign(payment, jsonEntry[0]);
     });

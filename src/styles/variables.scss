@@ -1,9 +1,14 @@
 @import '~bootstrap/scss/functions';
 @import '~bootstrap/scss/variables';
 
+$light: #f4f4f6;
 $dark: #252529;
 $blue: #1665d8;
 $frappe: #5e64ff;
 $theme-colors: (
-  'primary': #5e64ff
+  'primary': #2896f0,
+  'light': #f4f4f6
 );
+$primary-light: #56a9f3;
+$border-radius: 0.4rem;
+$font-size: 0.8rem;

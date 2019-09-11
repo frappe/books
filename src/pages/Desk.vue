@@ -20,7 +20,7 @@ export default {
   height: 100vh;
   max-height: 100vh;
   width: 100%;
-  padding-left: 208px;
+  padding-left: 194px;
   overflow-x: hidden;
 }
 .sidebar {

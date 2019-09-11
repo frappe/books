@@ -1,8 +1,13 @@
 @import 'variables.scss';
 @import '~bootstrap/scss/bootstrap';
 @import '~frappe-datatable/dist/frappe-datatable.css';
+@import '~inter-ui/inter.css';
 
 html {
-  font-size: 14px;
+  font-size: $font-size !important;
   overflow: hidden;
+}
+
+body {
+  font-family: 'Inter';
 }

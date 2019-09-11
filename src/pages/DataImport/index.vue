@@ -11,7 +11,7 @@
         @change="doctype => showTable(doctype)"
       />
       <f-button secondary v-if="doctype" primary @click="uploadCSV">Upload CSV</f-button>
-      <f-button secondary v-if="doctype" primary @click="downloadCSV">Download CSV Template</f-button>
+      <f-button secondary v-if="doctype" primary @click="downloadCSV">Download Template</f-button>
       <f-button primary @click="importData">Submit</f-button>
 
       <frappe-control
@@ -40,8 +40,7 @@ const { remote } = require('electron');
 export default {
   data() {
     return {
-      doctype: undefined,
-      fileUploaded: false
+      doctype: undefined
     };
   },
   methods: {
@@ -127,7 +126,7 @@ export default {
         }, {});
       });
 
-      data.forEach(async d => {
+      data.forEach(async (d, i) => {
         try {
           await frappe
             .newDoc(
@@ -137,7 +136,15 @@ export default {
             )
             .insert();
         } catch (e) {
+          frappe.call({
+            method: 'show-dialog',
+            args: {
+              title: 'Message',
+              message: `Failed to import ${i + 1} row`
+            }
+          });
           console.log(e);
+          return;
         }
       });
       frappe.call({

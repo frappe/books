@@ -1,5 +1,5 @@
 <template>
-  <div class="page-sidebar bg-dark p-2 text-light d-flex flex-column justify-content-between">
+  <div class="page-sidebar p-2 d-flex flex-column justify-content-between">
     <div>
       <div class="company-name px-3 py-2 my-2">
         <h6 class="m-0" @click="$router.push('/')">{{ companyName }}</h6>
@@ -12,9 +12,9 @@
               @click="toggleGroup(group)"
               style="user-select: none;"
             >
-              <div class="d-flex align-items-center">
+              <div class="group-title d-flex align-items-center">
                 <feather-icon
-                  class="mr-1"
+                  class="mr-2"
                   :name="openGroup === group ? 'chevron-down' : 'chevron-right'"
                 />
                 {{group }}
@@ -25,11 +25,11 @@
                 <div
                   v-for="item in groupItems"
                   style="user-select: none;"
-                  :class="['sidebar-item pl-4 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
+                  :class="['sidebar-item pl-4 ml-2 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
                   @click="routeTo(item.route)"
                   :key="item.label"
                 >
-                  <div class="d-flex align-items-center">{{ item.label }}</div>
+                  <div class="group-item-title d-flex align-items-center">{{ item.label }}</div>
                 </div>
               </div>
             </transition>
@@ -121,22 +121,34 @@ export default {
   cursor: pointer;
 }
 .page-sidebar {
+  background-color: $light;
+  color: $dark;
   height: 100vh;
-  min-width: 208px;
-  max-width: 208px;
+  min-width: 184px;
+  max-width: 184px;
+}
+
+.group-title {
+  font-weight: 600;
+}
+
+.group-item-title {
+  // font-weight: 350;
+  font-size: 0.9rem;
 }
 
 .sidebar-item {
   cursor: pointer;
   border-radius: $border-radius;
 
-  &:hover {
-    color: $gray-300;
-  }
+  // &:hover {
+  //   color: $gray-300;
+  // }
 
   &.active {
-    color: $white;
-    background-color: $frappe;
+    font-weight: 600 !important;
+    color: $primary-light;
+    background-color: $white;
   }
 }
 </style>

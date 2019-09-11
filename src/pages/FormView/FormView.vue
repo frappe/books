@@ -1,7 +1,7 @@
 <template>
   <div class="bg-white">
     <page-header :breadcrumbs="breadcrumbs" />
-    <div class="form-container col-9 col-lg-8 col-xl-7 mx-2 mt-4">
+    <div class="form-container mx-4 mt-4">
       <form-actions
         v-if="shouldRenderForm"
         :doc="doc"

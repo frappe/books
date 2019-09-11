@@ -1,15 +1,14 @@
 <template>
   <div class="col-6">
-    <div class="card mx-3 my-3">
-      <div class="card-body">
-        <div :ref="chartData.title"></div>
-      </div>
+    <div class="border-bottom my-3">
+      <div :ref="chartData.title"></div>
     </div>
   </div>
 </template>
 
 <script>
 import { Chart } from 'frappe-charts';
+
 export default {
   name: 'DashboardCard',
   props: ['chartData'],
