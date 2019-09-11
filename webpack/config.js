@@ -66,7 +66,7 @@ function makeConfig() {
             use: ['vue-style-loader', 'css-loader', 'sass-loader']
           },
           {
-            test: /\.(png|svg|jpg|gif)$/,
+            test: /\.(png|svg|jpg|woff|woff2|gif)$/,
             use: ['file-loader']
           }
         ]
