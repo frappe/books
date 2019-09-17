@@ -358,7 +358,7 @@ module.exports = class BaseDocument extends Observable {
   // helper functions
   getSum(tablefield, childfield) {
     return this[tablefield]
-      .map(d => frappe.parseNumber(d[childfield]) || 0)
+      .map(d => d[childfield] || 0)
       .reduce((a, b) => a + b, 0);
   }
 

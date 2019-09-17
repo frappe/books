@@ -14,38 +14,20 @@ const numberFormats = {
 module.exports = {
   // parse a formatted number string
   // from "4,555,000.34" -> 4555000.34
-  parseNumber(number, format, symbol) {
+  parseNumber(number, format = '#,###.##') {
     if (!number) {
       return 0;
-    }
-    if (!format) {
-      format = frappe.AccountingSettings.numberFormat || '#,###.##';
-    }
-    if (!symbol) {
-      symbol = frappe.AccountingSettings.symbol || '';
     }
     if (typeof number === 'number') {
       return number;
     }
-
-    if (isNaN(parseFloat(number))) {
-      // remove symbol
-      number = number.substr(2);
-    }
     const info = this.getFormatInfo(format);
-
     return parseFloat(this.removeSeparator(number, info.groupSep));
   },
 
-  formatNumber(number, format, symbol, precision = null) {
+  formatNumber(number, format = '#,###.##', precision = null) {
     if (!number) {
       number = 0;
-    }
-    if (!format) {
-      format = frappe.AccountingSettings.numberFormat || '#,###.##';
-    }
-    if (!symbol) {
-      symbol = frappe.AccountingSettings.symbol || '';
     }
     let info = this.getFormatInfo(format);
     if (precision) {
@@ -96,12 +78,7 @@ module.exports = {
     parts[1] = parts[1] && info.fractionSep ? info.fractionSep + parts[1] : '';
 
     // join
-    return (
-      (symbol.length ? `${symbol} ` : '') +
-      (is_negative ? '-' : '') +
-      parts[0] +
-      parts[1]
-    );
+    return (is_negative ? '-' : '') + parts[0] + parts[1];
   },
 
   getFormatInfo(format) {
