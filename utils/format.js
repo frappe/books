@@ -9,15 +9,7 @@ module.exports = {
       field = { fieldtype: field };
     }
     if (field.fieldtype === 'Currency') {
-      if (field.currencyInfo) {
-        value = numberFormat.formatNumber(
-          value,
-          field.currencyInfo.numberFormat,
-          field.currencyInfo.symbol
-        );
-      } else {
-        value = numberFormat.formatNumber(value);
-      }
+      value = numberFormat.formatNumber(value);
     } else if (field.fieldtype === 'Text') {
       // value = markdown.makeHtml(value || '');
     } else if (field.fieldtype === 'Date') {

@@ -6,6 +6,11 @@ export default {
     }
     return this.getWrapperElement(h);
   },
+  data() {
+    return {
+      label: this.docfield.label
+    };
+  },
   props: {
     docfield: Object,
     value: [String, Number, Array, FileList],
@@ -68,23 +73,13 @@ export default {
       ];
     },
     getLabelElement(h) {
-      const hasLabelOptions = Boolean(this.docfield.labelOption);
-      let label = this.docfield.label;
-
-      if (hasLabelOptions) {
-        const replaceableKeys = Object.keys(this.docfield.labelOption);
-        for (let key of replaceableKeys) {
-          label = label.replace(key.toString(), this.docfield.labelOption[key]);
-        }
-      }
-
       return h('label', {
         class: [this.labelClass, 'text-muted'],
         attrs: {
           for: this.id
         },
         domProps: {
-          textContent: label
+          textContent: this.label
         }
       });
     },

@@ -8,9 +8,10 @@
     >
       <div class="col" v-for="(column, j) in section.columns" :key="j">
         <frappe-control
+          ref="frappe-control"
           v-for="(fieldname, k) in column.fields"
           v-if="shouldRenderField(fieldname)"
-          :key="k"
+          :key="getDocField(fieldname).label"
           :docfield="getDocField(fieldname)"
           :value="$data[fieldname]"
           :doc="doc"
@@ -48,10 +49,17 @@ export default {
           this[df.fieldname] = doc[df.fieldname];
         });
       }
+      this.updateLabels();
     });
-    this.setLabelOptions();
   },
   methods: {
+    updateLabels() {
+      this.$refs['frappe-control'].forEach(control => {
+        control.docfield.label = control.docfield.getLabel
+          ? control.docfield.getLabel(this.doc)
+          : control.docfield.label;
+      });
+    },
     getDocField(fieldname) {
       return this.fields.find(df => df.fieldname === fieldname);
     },
@@ -72,13 +80,6 @@ export default {
       }
 
       return true;
-    },
-    setLabelOptions() {
-      this.fields.forEach(field => {
-        if (field.labelOption) {
-          field.labelOption = field.labelOption(this.doc);
-        }
-      });
     },
     updateDoc(fieldname, value) {
       this.doc.set(fieldname, value);
