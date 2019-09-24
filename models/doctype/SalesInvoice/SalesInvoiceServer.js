@@ -8,19 +8,13 @@ module.exports = class SalesInvoiceServer extends SalesInvoice {
 
     if (this.isForeignTransaction()) {
       for (let item of this.items) {
-        const baseItemAmount = frappe.format(
-          frappe.parseNumber(item.amount) * this.exchangeRate,
-          'Currency'
-        );
+        const baseItemAmount = item.amount * this.exchangeRate;
         await entries.credit(item.account, baseItemAmount);
       }
 
       if (this.taxes) {
         for (let tax of this.taxes) {
-          const baseTaxAmount = frappe.format(
-            frappe.parseNumber(tax.amount) * this.exchangeRate,
-            'Currency'
-          );
+          const baseTaxAmount = tax.amount * this.exchangeRate;
           await entries.credit(tax.account, baseTaxAmount);
         }
       }

@@ -54,7 +54,10 @@ module.exports = {
       fieldtype: 'Link',
       target: 'Currency',
       hidden: 1,
-      formula: doc => doc.getFrom('Party', doc.supplier, 'currency')
+      formula: doc => {
+        if (!doc.customer) return frappe.AccountingSettings.currency;
+        return doc.getFrom('Party', doc.customer, 'currency');
+      }
     },
     {
       fieldname: 'exchangeRate',
@@ -72,11 +75,12 @@ module.exports = {
     },
     {
       fieldname: 'baseNetTotal',
-      label: 'Net Total (companyCurrency)',
-      labelOption: doc => {
-        if (doc.currency)
-          return { companyCurrency: frappe.AccountingSettings.currency };
-        return undefined;
+      label: 'Net Total ',
+      getLabel: doc => {
+        if (doc.currency) {
+          return `Net Total (${frappe.AccountingSettings.currency})`;
+        }
+        return 'Net Total';
       },
       fieldtype: 'Currency',
       formula: async doc => await doc.getBaseNetTotal(),
@@ -85,15 +89,17 @@ module.exports = {
     },
     {
       fieldname: 'netTotal',
-      label: 'Net Total (customerCurrency)',
-      labelOption: doc => {
-        if (doc.currency) return { customerCurrency: doc.currency };
-        return undefined;
+      label: 'Net Total',
+      getLabel: doc => {
+        if (doc.currency) {
+          return `Net Total (${doc.currency})`;
+        }
+        return 'Net Total';
       },
       fieldtype: 'Currency',
+      getCurrency: doc => doc.currency,
       hidden: doc => !doc.isForeignTransaction(),
-      formula: async doc =>
-        await doc.formatIntoCustomerCurrency(doc.getSum('items', 'amount')),
+      formula: doc => doc.getSum('items', 'amount'),
       disabled: true,
       readOnly: 1
     },
@@ -110,7 +116,7 @@ module.exports = {
                         <div class='row' v-for='row in value'>
                             <div class='col-6'>{{ row.account }} ({{row.rate}}%)</div>
                             <div class='col-6 text-right'>
-                                {{ row.amount }}
+                                {{ frappe.format(row.amount, 'Currency') }}
                             </div>
                         </div>
                     </div>
@@ -119,11 +125,12 @@ module.exports = {
     },
     {
       fieldname: 'baseGrandTotal',
-      label: 'Grand Total (companyCurrency)',
-      labelOption: doc => {
-        if (doc.currency)
-          return { companyCurrency: frappe.AccountingSettings.currency };
-        return undefined;
+      label: 'Grand Total ',
+      getLabel: doc => {
+        if (doc.currency) {
+          return `Grand Total (${frappe.AccountingSettings.currency})`;
+        }
+        return 'Grand Total';
       },
       fieldtype: 'Currency',
       formula: async doc => await doc.getBaseGrandTotal(),
@@ -132,10 +139,12 @@ module.exports = {
     },
     {
       fieldname: 'grandTotal',
-      label: 'Grand Total (customerCurrency)',
-      labelOption: doc => {
-        if (doc.currency) return { customerCurrency: doc.currency };
-        return undefined;
+      label: 'Grand Total',
+      getLabel: doc => {
+        if (doc.currency) {
+          return `Grand Total (${doc.currency})`;
+        }
+        return 'Grand Total';
       },
       fieldtype: 'Currency',
       hidden: doc => !doc.isForeignTransaction(),

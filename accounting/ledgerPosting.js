@@ -11,14 +11,12 @@ module.exports = class LedgerPosting {
 
   async debit(account, amount, referenceType, referenceName) {
     const entry = this.getEntry(account, referenceType, referenceName);
-    amount = frappe.parseNumber(amount);
     entry.debit += amount;
     await this.setAccountBalanceChange(account, 'debit', amount);
   }
 
   async credit(account, amount, referenceType, referenceName) {
     const entry = this.getEntry(account, referenceType, referenceName);
-    amount = frappe.parseNumber(amount);
     entry.credit += amount;
     await this.setAccountBalanceChange(account, 'credit', amount);
   }

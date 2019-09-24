@@ -9,38 +9,21 @@ module.exports = class SalesInvoice extends BaseDocument {
         for (let item of this.items) {
           if (item.rate && this.exchangeRate) {
             const itemRate = await this.getFrom('Item', item.item, 'rate');
-
-            item.rate = frappe.parseNumber(itemRate) / this.exchangeRate;
+            item.rate = itemRate / this.exchangeRate;
+            item.rate = Math.floor(item.rate * 100) / 100;
             if (item.quantity) {
               item.amount = item.rate * item.quantity;
+              item.amount = Math.floor(item.amount * 100) / 100;
             }
-            item.amount = await this.formatIntoCustomerCurrency(item.amount);
-            item.rate = await this.formatIntoCustomerCurrency(item.rate);
           }
         }
-        this.netTotal = await this.formatIntoCustomerCurrency(this.netTotal);
-        this.grandTotal = await this.formatIntoCustomerCurrency(
-          this.grandTotal
-        );
       }
     }
 
     if (changed === 'customer' || changed === 'supplier') {
+      // needed when customer is changed twice
       this.currency = await this.getFrom('Party', this[changed], 'currency');
       this.exchangeRate = await this.getExchangeRate();
-    }
-  }
-
-  async formatIntoCustomerCurrency(value) {
-    const companyCurrency = frappe.AccountingSettings.currency;
-    if (this.currency.length && this.currency !== companyCurrency) {
-      const { numberFormat, symbol } = await this.getCustomerCurrencyInfo();
-      return frappe.format(value, {
-        fieldtype: 'Currency',
-        currencyInfo: { numberFormat, symbol }
-      });
-    } else {
-      return frappe.format(value, 'Currency');
     }
   }
 
@@ -52,20 +35,6 @@ module.exports = class SalesInvoice extends BaseDocument {
       : 0;
   }
 
-  async getCustomerCurrencyInfo() {
-    if (this.numberFormat || this.symbol) {
-      return { numberFormat: this.numberFormat, symbol: this.symbol };
-    }
-    const { numberFormat, symbol } = await frappe.getDoc(
-      'Currency',
-      this.currency
-    );
-    this.numberFormat = numberFormat;
-    this.symbol = symbol;
-
-    return { numberFormat, symbol };
-  }
-
   async getExchangeRate() {
     const companyCurrency = frappe.AccountingSettings.currency;
     return this.currency === companyCurrency ? 1.0 : undefined;
@@ -73,14 +42,12 @@ module.exports = class SalesInvoice extends BaseDocument {
 
   async getBaseNetTotal() {
     if (this.isForeignTransaction()) {
-      return frappe.format(
-        this.getSum('items', 'amount') * (this.exchangeRate || 0),
-        'Currency'
-      );
+      const netTotal =
+        this.getSum('items', 'amount') * (this.exchangeRate || 0);
+      return Math.floor(netTotal * 100) / 100;
     } else {
-      return await this.formatIntoCustomerCurrency(
-        this.getSum('items', 'amount')
-      );
+      const netTotal = this.getSum('items', 'amount');
+      return Math.floor(netTotal * 100) / 100;
     }
   }
 
@@ -89,11 +56,10 @@ module.exports = class SalesInvoice extends BaseDocument {
       let tax = await this.getTax(row.tax);
       let taxAmount = [];
       for (let d of tax.details || []) {
-        const amt = (frappe.parseNumber(row.amount) * d.rate) / 100;
         taxAmount.push({
           account: d.account,
           rate: d.rate,
-          amount: await this.formatIntoCustomerCurrency(amt)
+          amount: (row.amount * d.rate) / 100
         });
       }
       return JSON.stringify(taxAmount);
@@ -128,12 +94,8 @@ module.exports = class SalesInvoice extends BaseDocument {
           for (let taxDetail of this.taxes) {
             if (taxDetail.account === rowTaxDetail.account) {
               taxDetail.rate = rowTaxDetail.rate;
-              taxDetail.amount =
-                frappe.parseNumber(taxDetail.amount) +
-                frappe.parseNumber(rowTaxDetail.amount);
-              taxDetail.amount = await this.formatIntoCustomerCurrency(
-                taxDetail.amount
-              );
+              taxDetail.amount = taxDetail.amount + rowTaxDetail.amount;
+              taxDetail.amount = taxDetail.amount;
               found = true;
             }
           }
@@ -156,27 +118,27 @@ module.exports = class SalesInvoice extends BaseDocument {
 
   async getGrandTotal() {
     await this.makeTaxSummary();
-    let grandTotal = frappe.parseNumber(this.netTotal);
+    let grandTotal = this.netTotal;
     if (this.taxes) {
       for (let row of this.taxes) {
-        grandTotal += frappe.parseNumber(row.amount);
+        grandTotal += row.amount;
       }
     }
     grandTotal = Math.floor(grandTotal * 100) / 100;
 
-    return await this.formatIntoCustomerCurrency(grandTotal);
+    return grandTotal;
   }
 
   async getBaseGrandTotal() {
     await this.makeTaxSummary();
-    let baseGrandTotal = frappe.parseNumber(this.baseNetTotal);
+    let baseGrandTotal = this.baseNetTotal;
     if (this.taxes) {
       for (let row of this.taxes) {
-        baseGrandTotal += frappe.parseNumber(row.amount) * this.exchangeRate;
+        baseGrandTotal += row.amount * this.exchangeRate;
       }
     }
     baseGrandTotal = Math.floor(baseGrandTotal * 100) / 100;
 
-    return frappe.format(baseGrandTotal, 'Currency');
+    return baseGrandTotal;
   }
 };
