@@ -64,7 +64,11 @@
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.16.1",
     "webpack-dev-server": "^3.1.4",
-    "webpack-hot-middleware": "^2.22.3"
+    "webpack-hot-middleware": "^2.22.3",
+    "csvjson-csv2json": "5.0.6",
+    "postcss-loader": "3.0.0",
+    "tailwindcss": "1.1.1",
+    "autoprefixer": "9.6.1"
   },
   "repository": {
     "type": "git",

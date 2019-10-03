@@ -59,7 +59,16 @@ function makeConfig() {
           },
           {
             test: /\.css$/,
-            use: ['vue-style-loader', 'css-loader']
+            use: ['vue-style-loader', 'css-loader', {
+              loader: 'postcss-loader',
+              options: {
+                ident: 'postcss',
+                plugins: [
+                  require('tailwindcss'),
+                  require('autoprefixer'),
+                ],
+              },
+            }]
           },
           {
             test: /\.scss$/,
