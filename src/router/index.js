@@ -91,4 +91,7 @@ const routes = [
   }
 ];
 
-export default new Router({ routes });
+let router = new Router({ routes });
+router.replace('/list/SalesInvoice');
+
+export default router;

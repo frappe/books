@@ -1,12 +1,13 @@
 <template>
-  <div id="app">
-    <desk v-if="showDesk" />
+  <div id="app" class="h-screen flex flex-col">
+    <Desk class="flex-1" v-if="showDesk" />
     <database-selector v-if="showDatabaseSelector" @file="connectToDBFile" />
     <setup-wizard v-if="showSetupWizard" />
   </div>
 </template>
 
 <script>
+import './styles/index.css';
 import frappe from 'frappejs';
 import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
@@ -52,6 +53,3 @@ export default {
   }
 };
 </script>
-<style lang="scss">
-@import 'styles/index.scss';
-</style>

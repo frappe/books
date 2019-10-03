@@ -1,97 +1,87 @@
 import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
-const path = require('path');
+import DashboardIcon from './components/Icons/Dashboard';
+import SalesIcon from './components/Icons/Sales';
+import PurchasesIcon from './components/Icons/Purchases';
+import ReportsIcon from './components/Icons/Reports';
+import SettingsIcon from './components/Icons/Settings';
 
 const config = {
   getTitle: async () => {
     const { companyName, country } = await frappe.getSingle(
       'AccountingSettings'
     );
-    if (country === 'India') {
-      config.groups[2].items.push(
-        {
-          label: _('GSTR 1'),
-          route: '/report/gstr-1?transferType=B2B'
-        },
-        {
-          label: _('GSTR 2'),
-          route: '/report/gstr-2?transferType=B2B'
-        },
-        {
-          label: _('GSTR 3B'),
-          route: '/list/GSTR3B'
-        }
-      );
-    }
+    // if (country === 'India') {
+    //   config.groups[2].items.push(
+    //     {
+    //       label: _('GSTR 1'),
+    //       route: '/report/gstr-1?transferType=B2B'
+    //     },
+    //     {
+    //       label: _('GSTR 2'),
+    //       route: '/report/gstr-2?transferType=B2B'
+    //     },
+    //     {
+    //       label: _('GSTR 3B'),
+    //       route: '/list/GSTR3B'
+    //     }
+    //   );
+    // }
     return companyName;
-  },
-  getDbName() {
-    if (localStorage.dbPath) {
-      const parts = localStorage.dbPath.split(path.sep);
-      return parts[parts.length - 1];
-    }
-  },
-  getGroups() {
-    return this.groups.map(g => g.title);
-  },
-  getItems(groupTitle) {
-    if (groupTitle)
-      return this.groups.filter(g => g.title === groupTitle)[0].items;
-    else return [];
   },
   groups: [
     {
-      title: _('Masters'),
+      title: _('Dashboard'),
+      route: '/',
+      icon: DashboardIcon
+    },
+    {
+      title: _('Sales'),
+      icon: SalesIcon,
       items: [
         {
-          label: _('Chart Of Accounts'),
-          route: '/chartOfAccounts'
+          label: _('Invoice'),
+          route: '/list/SalesInvoice'
         },
         {
-          label: _('Accounts'),
-          route: '/list/Account'
-        },
-        {
-          label: _('Item'),
-          route: '/list/Item'
-        },
-        {
-          label: _('Customer'),
+          label: _('Customers'),
           route: '/list/Customer'
         },
         {
-          label: _('Supplier'),
-          route: '/list/Supplier'
+          label: _('Items'),
+          route: '/list/Item'
         },
         {
-          label: _('Tax'),
+          label: _('Taxes'),
           route: '/list/Tax'
         }
       ]
     },
     {
-      title: _('Transactions'),
+      title: _('Purchases'),
+      icon: PurchasesIcon,
       items: [
         {
-          label: _('Sales Invoice'),
-          route: '/list/SalesInvoice'
-        },
-        {
-          label: _('Purchase Invoice'),
+          label: _('Bill'),
           route: '/list/PurchaseInvoice'
         },
         {
-          label: _('Journal Entry'),
-          route: '/list/JournalEntry'
+          label: _('Suppliers'),
+          route: '/list/Supplier'
         },
         {
-          label: _('Payment'),
-          route: '/list/Payment'
+          label: _('Items'),
+          route: '/list/Item'
+        },
+        {
+          label: _('Taxes'),
+          route: '/list/Tax'
         }
       ]
     },
     {
       title: _('Reports'),
+      icon: ReportsIcon,
       items: [
         {
           label: _('General Ledger'),
@@ -108,33 +98,12 @@ const config = {
         {
           label: _('Trial Balance'),
           route: '/report/trial-balance'
-        },
-        {
-          label: _('Sales Register'),
-          route: '/report/sales-register'
-        },
-        {
-          label: _('Purchase Register'),
-          route: '/report/purchase-register'
-        },
-        {
-          label: _('Bank Reconciliation'),
-          route: '/report/bank-reconciliation'
         }
       ]
     },
     {
-      title: _('Tools'),
-      items: [
-        {
-          label: _('Data Import'),
-          route: '/data-import'
-        },
-        {
-          label: _('Settings'),
-          route: '/settings'
-        }
-      ]
+      title: _('Settings'),
+      icon: SettingsIcon
     }
   ]
 };

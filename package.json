@@ -61,7 +61,7 @@
     "cross-env": "^5.2.0",
     "file-saver": "^2.0.2",
     "frappe-charts": "^1.2.4",
-    "frappejs": "https://github.com/thefalconx33/frappejs#test",
+    "frappejs": "0.0.10",
     "nodemailer": "^4.7.0",
     "popper.js": "^1.14.4",
     "vue-color": "^2.7.0",

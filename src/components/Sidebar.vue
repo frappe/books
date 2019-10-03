@@ -1,142 +1,91 @@
 <template>
-  <div class="page-sidebar bg-dark p-2 text-light d-flex flex-column justify-content-between">
+  <div
+    class="pt-6 pb-2 px-2 w-64 h-full block window-drag bg-gray-200 flex justify-between flex-col"
+  >
     <div>
-      <div class="company-name px-3 py-2 my-2">
-        <h6 class="m-0" @click="$router.push('/')">{{ companyName }}</h6>
+      <WindowControls class="px-3" />
+      <div class="mt-6 px-3">
+        <h6 class="text-sm font-semibold" @click="$router.push('/')">{{ companyName }}</h6>
       </div>
-      <div>
-        <transition-group name="slide-fade" mode="out-in">
-          <div v-for="group in groups" :key="group">
+      <div class="mt-5">
+        <div
+          class="mt-1 first:mt-0"
+          v-for="group in groups"
+          :key="group.title"
+          @click="onGroupClick(group)"
+        >
+          <div class="px-3 py-2 flex items-center rounded cursor-pointer hover:bg-white">
+            <component :is="group.icon" class="w-5 h-5" :active="isActiveGroup(group) && !group.items" />
             <div
-              :class="['sidebar-item px-1 py-2', activeGroup === group ? 'active' : '']"
-              @click="toggleGroup(group)"
-              style="user-select: none;"
+              class="ml-2 text-sm text-gray-900"
+              :class="isActiveGroup(group) && !group.items && 'text-blue-500'"
             >
-              <div class="d-flex align-items-center">
-                <feather-icon
-                  class="mr-1"
-                  :name="openGroup === group ? 'chevron-down' : 'chevron-right'"
-                />
-                {{group }}
-              </div>
+              {{ group.title }}
             </div>
-            <transition name="slide-fade" mode="out-in">
-              <div v-if="openGroup === group">
-                <div
-                  v-for="item in groupItems"
-                  style="user-select: none;"
-                  :class="['sidebar-item pl-4 py-2 ', isCurrentRoute(item.route) ? 'active' : '']"
-                  @click="routeTo(item.route)"
-                  :key="item.label"
-                >
-                  <div class="d-flex align-items-center">{{ item.label }}</div>
-                </div>
-              </div>
-            </transition>
           </div>
-        </transition-group>
+          <div v-if="group.items && isActiveGroup(group)">
+            <div
+              v-for="item in group.items"
+              :key="item.label"
+              class="mt-1 first:mt-0 text-sm text-gray-800 py-1 pl-10 rounded cursor-pointer hover:bg-white"
+              :class="itemActiveClass(item)"
+              @click="routeTo(item.route)"
+            >{{ item.label }}</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div
-      class="sidebar-item px-3 py-2 d-flex align-items-center"
-      v-if="dbFileName"
-      @click="goToDatabaseSelector"
-    >
-      <feather-icon class="mr-2" name="settings"></feather-icon>
-      <span>{{ dbFileName }}</span>
+    <div>
+      <button
+        class="block bg-white rounded w-full h-8 flex justify-center focus:outline-none focus:shadow-outline"
+      >
+        <AddIcon class="w-3 h-3" />
+      </button>
     </div>
   </div>
 </template>
 <script>
 import sidebarConfig from '../sidebarConfig';
+import WindowControls from './WindowControls';
+import AddIcon from './Icons/Add';
+import { _ } from 'frappejs/utils';
+
 export default {
   data() {
     return {
       companyName: '',
-      dbFileName: '',
       groups: [],
-      groupItems: [],
-      activeGroup: undefined,
-      openGroup: undefined
+      activeGroup: null
     };
+  },
+  components: {
+    WindowControls,
+    AddIcon
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
-    this.dbFileName = await sidebarConfig.getDbName();
-    this.groups = sidebarConfig.getGroups();
-    this.setActive();
+    this.groups = sidebarConfig.groups;
+    this.activeGroup = this.groups.find(g => g.title === _('Sales'));
   },
   methods: {
-    setActive() {
+    itemActiveClass(item) {
       let currentRoute = this.$route.fullPath;
-      // check each group items
-      this.groups.forEach(groupTitle => {
-        // filter items which contains the current route
-        sidebarConfig.getItems(groupTitle).some(item => {
-          // check for substring 'list' 'SalesInvoice' etc.
-          let found = false;
-          currentRoute.split('/').some(str => {
-            if (str.length) {
-              item.route.indexOf(str) > -1 ? (found = true) : (found = false);
-            }
-            if (found) {
-              this.toggleGroup(groupTitle);
-              return found;
-            }
-          });
-          return found;
-        });
-      });
+      return currentRoute === item.route ? 'bg-white text-blue-500' : '';
     },
-    isCurrentRoute(route) {
-      if (this.activeGroup) return false;
-      return this.$route.fullPath === route;
+    isActiveGroup(group) {
+      return this.activeGroup && group.title === this.activeGroup.title;
     },
-    toggleGroup(groupTitle) {
-      this.groupItems =
-        this.activeGroup === groupTitle
-          ? []
-          : sidebarConfig.getItems(groupTitle);
-      this.activeGroup =
-        this.activeGroup === groupTitle ? undefined : groupTitle;
-      this.openGroup = this.activeGroup === groupTitle ? groupTitle : undefined;
+    onGroupClick(group) {
+      if (group.route) {
+        this.routeTo(group.route);
+      }
+      this.activeGroup = group;
     },
     routeTo(route) {
-      this.activeGroup = undefined;
+      this.activeGroup = null;
       this.$router.push(route);
     },
-    goToDatabaseSelector() {
-      localStorage.dbPath = '';
-      window.location.reload();
-    }
   }
 };
 </script>
 
-<style lang="scss">
-@import '../styles/variables.scss';
-@import '../styles/animation.scss';
-
-.company-name {
-  cursor: pointer;
-}
-.page-sidebar {
-  height: 100vh;
-  min-width: 208px;
-  max-width: 208px;
-}
-
-.sidebar-item {
-  cursor: pointer;
-  border-radius: $border-radius;
-
-  &:hover {
-    color: $gray-300;
-  }
-
-  &.active {
-    color: $white;
-    background-color: $frappe;
-  }
-}
-</style>

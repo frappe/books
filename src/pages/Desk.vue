@@ -1,7 +1,7 @@
 <template>
-  <div class="row no-gutters d-flex">
-    <sidebar class="sidebar" />
-    <div class="page-container bg-white">
+  <div class="flex">
+    <Sidebar />
+    <div class="bg-white">
       <router-view :key="$route.fullPath" />
     </div>
   </div>

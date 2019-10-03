@@ -1,0 +1,9 @@
+@tailwind base;
+
+@tailwind components;
+
+@tailwind utilities;
+
+.window-drag {
+  -webkit-app-region: drag;
+}
