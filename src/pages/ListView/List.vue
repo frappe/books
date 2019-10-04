@@ -75,7 +75,8 @@ export default {
       await this.updateData();
     },
     openForm(name) {
-      this.$router.push(`/edit/${this.doctype}/${name}`);
+      this.$router.push(`/list/${this.doctype}/${name}`);
+      // this.$router.push(`/edit/${this.doctype}/${name}`);
     },
     async updateData(filters) {
       if (!filters) filters = this.getFilters();

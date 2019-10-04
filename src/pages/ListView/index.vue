@@ -1,8 +1,13 @@
 <template>
-  <div class="flex flex-col">
-    <PageHeader :title="title" />
-    <div class="flex-1">
-      <List :listConfig="listConfig" :filters="filters" />
+  <div class="flex">
+    <div class="flex flex-col flex-1">
+      <PageHeader :title="title" />
+      <div class="flex-1">
+        <List :listConfig="listConfig" :filters="filters" />
+      </div>
+    </div>
+    <div class="flex">
+      <router-view class="w-64 flex-1" />
     </div>
   </div>
 </template>

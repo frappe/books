@@ -22,3 +22,7 @@
 .window-drag {
   -webkit-app-region: drag;
 }
+
+.grid {
+  display: grid;
+}

@@ -1,5 +1,5 @@
 <template>
-  <div class="list-row border-b" :style="style">
+  <div class="grid border-b" :style="style">
     <slot></slot>
   </div>
 </template>
@@ -21,8 +21,3 @@ export default {
   }
 }
 </script>
-<style>
-.list-row {
-  display: grid;
-}
-</style>
