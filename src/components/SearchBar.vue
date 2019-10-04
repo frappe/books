@@ -1,14 +1,12 @@
 <template>
-  <div v-on-outside-click="clearInput">
-    <div class="input-group">
-      <div class="input-group-prepend">
-        <span class="input-group-text pt-1">
-          <feather-icon name="search" style="color: #212529 !important;"></feather-icon>
-        </span>
+  <div v-on-outside-click="clearInput" class="relative">
+    <div class="rounded-lg relative flex items-center overflow-hidden">
+      <div class="absolute ml-3">
+        <feather-icon class="text-gray-500" name="search"></feather-icon>
       </div>
       <input
         type="search"
-        class="form-control"
+        class="bg-gray-200 text-sm p-2 pl-10 focus:outline-none"
         @click="focus(0)"
         @keydown.down="navigate('down')"
         @keydown.up="navigate('up')"
@@ -19,19 +17,19 @@
         @keydown.enter="searchOrSelect"
       />
     </div>
-    <div v-if="inputValue" class="search-list position-absolute shadow-sm" style="width: 98%">
-      <list-row
+    <div v-if="inputValue" class="absolute bg-white text-sm rounded shadow-md">
+      <div
         v-for="(doc, i) in suggestion"
         :key="i+1"
         :ref="i+1"
         :route="doc.route"
-        :class="{ 'seperator': doc.seperator, 'item-active': isFocused(i+1) && !doc.seperator }"
-        class="d-flex align-items-center"
+        :class="{ 'border-t uppercase text-xs text-gray-600 mt-3 first:mt-0': doc.seperator, 'bg-gray-200': isFocused(i+1) && !doc.seperator }"
+        class="px-3 py-2 rounded-lg"
         @click.native="routeTo(doc.route)"
       >
         <div :class="doc.seperator ? 'small' : ''">{{ doc.name }}</div>
-        <div class="small ml-auto">{{ doc.doctype }}</div>
-      </list-row>
+        <!-- <div class="small ml-auto">{{ doc.doctype }}</div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -51,11 +49,6 @@ export default {
   components: {
     ListRow,
     ListCell
-  },
-  watch: {
-    inputValue() {
-      if (!this.inputValue.length) this.suggestion = [];
-    }
   },
   methods: {
     focus(key) {
@@ -176,36 +169,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-@import '../styles/variables';
-.input-group-text {
-  background-color: var(--white);
-  border-right: none;
-}
-.seperator {
-  background-color: var(--light);
-}
-
-input {
-  border-left: none;
-  height: 27px;
-}
-
-input:focus {
-  border: 1px solid #ced4da;
-  border-left: none;
-  outline: none !important;
-  box-shadow: none !important;
-}
-.search-list {
-  z-index: 2;
-  max-height: 90vh;
-  overflow: auto;
-}
-
-.item-active {
-  background-color: var(--light);
-}
-</style>
-

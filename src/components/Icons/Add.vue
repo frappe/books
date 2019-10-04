@@ -2,7 +2,6 @@
   <svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
     <path
       d="M4 .8v6.4M7.2 4H.8"
-      stroke="#112B42"
       fill="none"
       fill-rule="evenodd"
       stroke-linecap="round"
