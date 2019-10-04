@@ -5,6 +5,7 @@ import ListView from '../pages/ListView';
 import Dashboard from '../pages/Dashboard';
 import FormView from '../pages/FormView/FormView';
 import PrintView from '../pages/PrintView';
+import QuickEditForm from '../pages/QuickEditForm';
 
 import Report from '../pages/Report';
 import reportViewConfig from '../../reports/view';
@@ -35,7 +36,20 @@ const routes = [
         listName,
         filters: route.query
       };
-    }
+    },
+    children: [
+      {
+        path: ':name',
+        component: QuickEditForm,
+        props: route => {
+          const { listName, name } = route.params;
+          return {
+            doctype: listName,
+            name
+          };
+        }
+      }
+    ]
   },
   {
     path: '/edit/:doctype/:name',
@@ -92,6 +106,6 @@ const routes = [
 ];
 
 let router = new Router({ routes });
-router.replace('/list/SalesInvoice');
+router.replace('/list/Item');
 
 export default router;

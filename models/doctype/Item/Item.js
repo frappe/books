@@ -17,14 +17,14 @@ module.exports = {
     },
     {
       fieldname: 'unit',
-      label: 'Unit',
+      label: 'Unit Type',
       fieldtype: 'Select',
       default: 'No',
       options: ['No', 'Kg', 'Gram', 'Hour', 'Day']
     },
     {
       fieldname: 'incomeAccount',
-      label: 'Income Account',
+      label: 'Income',
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
@@ -37,7 +37,7 @@ module.exports = {
     },
     {
       fieldname: 'expenseAccount',
-      label: 'Expense Account',
+      label: 'Expense',
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
@@ -66,6 +66,13 @@ module.exports = {
       label: 'Rate',
       fieldtype: 'Currency'
     }
+  ],
+  quickEditFields: [
+    'unit',
+    'incomeAccount',
+    'expenseAccount',
+    'tax',
+    'description'
   ],
   layout: [
     // section 1
