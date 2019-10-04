@@ -3,9 +3,10 @@ import indicators from 'frappejs/ui/constants/indicators';
 
 export default {
   doctype: 'SalesInvoice',
-  title: _('Sales Invoice'),
+  title: _('Sales Invoices'),
   columns: [
     'customer',
+    'name',
     {
       label: 'Status',
       fieldname: 'status',

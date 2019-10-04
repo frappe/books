@@ -1,10 +1,5 @@
 <template>
-  <div class="col">
+  <div class="text-sm py-4">
     <slot></slot>
   </div>
 </template>
-<script>
-export default {
-  props: ['col']
-}
-</script>

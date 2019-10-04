@@ -1,9 +1,8 @@
 <template>
-  <div class="bg-white">
-    <page-header :title="title" />
-    <div class="px-4 py-3">
-      <list-toolbar :title="title" :filters="filters" @newClick="openNewForm" class="mb-2" />
-      <list :listConfig="listConfig" :filters="filters" />
+  <div class="flex flex-col">
+    <PageHeader :title="title" />
+    <div class="flex-1">
+      <List :listConfig="listConfig" :filters="filters" />
     </div>
   </div>
 </template>
@@ -11,7 +10,6 @@
 import frappe from 'frappejs';
 import Observable from 'frappejs/utils/observable';
 import PageHeader from '@/components/PageHeader';
-import ListToolbar from './ListToolbar';
 import List from './List';
 import listConfigs from './listConfig';
 
@@ -20,7 +18,6 @@ export default {
   props: ['listName', 'filters'],
   components: {
     PageHeader,
-    ListToolbar,
     List
   },
   created() {

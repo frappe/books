@@ -1,6 +1,6 @@
 <template>
   <div
-    class="pt-6 pb-2 px-2 w-64 h-full block window-drag bg-gray-200 flex justify-between flex-col"
+    class="pt-6 pb-2 px-2 h-full block window-drag bg-gray-200 flex justify-between flex-col"
   >
     <div>
       <WindowControls class="px-3" />
@@ -39,7 +39,7 @@
       <button
         class="block bg-white rounded w-full h-8 flex justify-center focus:outline-none focus:shadow-outline"
       >
-        <AddIcon class="w-3 h-3" />
+        <AddIcon class="w-3 h-3 stroke-current text-gray-900" />
       </button>
     </div>
   </div>

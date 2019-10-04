@@ -1,21 +1,28 @@
 <template>
-  <div class="list-row row no-gutters py-2 px-3">
+  <div class="list-row border-b" :style="style">
     <slot></slot>
   </div>
 </template>
-<style lang="scss">
-@import '../../styles/variables';
-.list-row {
-  cursor: pointer;
-  border: 1px solid $border-color;
-  background-color: var(--white);
-
-  &:hover {
-    background-color: var(--white);
+<script>
+export default {
+  name: 'ListRow',
+  props: {
+    columnCount: {
+      type: Number,
+      default: 1
+    }
+  },
+  computed: {
+    style() {
+      return {
+        'grid-template-columns': `repeat(${this.columnCount}, 1fr)`
+      }
+    }
   }
 }
-
-.list-row:not(:first-child) {
-  border-top: none;
+</script>
+<style>
+.list-row {
+  display: grid;
 }
 </style>

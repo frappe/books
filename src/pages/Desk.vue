@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
-    <Sidebar />
-    <div class="bg-white">
+    <Sidebar class="w-56" />
+    <div class="flex-1 overflow-y-hidden">
       <router-view :key="$route.fullPath" />
     </div>
   </div>

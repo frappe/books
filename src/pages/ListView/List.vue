@@ -1,21 +1,27 @@
 <template>
-  <div class="list-container">
-    <list-row class="text-muted rounded-top bg-light">
-      <list-cell
+  <div class="px-8 pb-8 mt-2">
+    <ListRow class="text-gray-700" :columnCount="columns.length">
+      <ListCell
         v-for="column in columns"
         :key="column.label"
         :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right':''"
-      >{{ column.label }}</list-cell>
-    </list-row>
-    <list-row v-for="doc in data" :key="doc.name" @click.native="openForm(doc.name)">
-      <list-cell v-for="column in columns" :key="column.label" class="d-flex align-items-center">
+      >{{ column.label }}</ListCell>
+    </ListRow>
+    <ListRow
+      class="cursor-pointer text-gray-900 hover:text-gray-600"
+      v-for="doc in data"
+      :key="doc.name"
+      @click.native="openForm(doc.name)"
+      :columnCount="columns.length"
+    >
+      <ListCell v-for="column in columns" :key="column.label">
         <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2" />
         <span
           style="width: 100%"
           :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right':''"
         >{{ getColumnValue(column, doc) }}</span>
-      </list-cell>
-    </list-row>
+      </ListCell>
+    </ListRow>
   </div>
 </template>
 <script>
@@ -78,7 +84,8 @@ export default {
       this.data = await frappe.db.getAll({
         doctype: this.doctype,
         fields: ['*'],
-        filters
+        filters,
+        limit: 13
       });
     },
     getFilters() {
