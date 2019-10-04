@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="h-screen flex flex-col">
+  <div id="app" class="h-screen flex flex-col bg-white font-sans">
     <Desk class="flex-1" v-if="showDesk" />
     <database-selector v-if="showDatabaseSelector" @file="connectToDBFile" />
     <setup-wizard v-if="showSetupWizard" />
