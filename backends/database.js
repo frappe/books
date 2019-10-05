@@ -299,6 +299,10 @@ module.exports = class Database extends Observable {
     // await frappe.db.run('delete from SingleValue where parent=?', name)
   }
 
+  async rename(doctype, oldName, newName) {
+    // await frappe.db.run('update doctype set name = ? where name = ?', name)
+  }
+
   prepareChild(parenttype, parent, child, field, idx) {
     if (!child.name) {
       child.name = frappe.getRandomString();

@@ -159,6 +159,11 @@ module.exports = class sqliteDatabase extends Database {
     await frappe.db.run('delete from SingleValue where parent=?', name)
   }
 
+  async rename(doctype, oldName, newName) {
+    await frappe.db.run(`update ${baseDoctype} set name = ? where name = ?`, [newName, oldName]);
+    await frappe.db.commit();
+  }
+
   async setValues(doctype, name, fieldValuePair) {
     const meta = frappe.getMeta(doctype);
     const validFields = this.getKeys(doctype);

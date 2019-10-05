@@ -346,6 +346,13 @@ module.exports = class BaseDocument extends Observable {
     this.update();
   }
 
+  async rename(newName) {
+    await this.trigger('beforeRename');
+    await frappe.db.rename(this.doctype, this.name, newName);
+    this.name = newName;
+    await this.trigger('afterRename');
+  }
+
   // trigger methods on the class if they match
   // with the trigger name
   async trigger(event, params) {
