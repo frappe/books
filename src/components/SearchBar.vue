@@ -1,12 +1,12 @@
 <template>
   <div v-on-outside-click="clearInput" class="relative">
     <div class="rounded-lg relative flex items-center overflow-hidden">
-      <div class="absolute ml-3">
-        <feather-icon class="text-gray-500" name="search"></feather-icon>
+      <div class="absolute flex justify-center w-8">
+        <SearchIcon class="w-3 h-3 stroke-current text-gray-600" />
       </div>
       <input
         type="search"
-        class="bg-gray-200 text-sm p-2 pl-10 focus:outline-none"
+        class="bg-gray-200 text-sm p-1 pl-8 focus:outline-none"
         @click="focus(0)"
         @keydown.down="navigate('down')"
         @keydown.up="navigate('up')"
@@ -37,6 +37,7 @@
 import frappe from 'frappejs';
 import ListRow from '../pages/ListView/ListRow';
 import ListCell from '../pages/ListView/ListCell';
+import SearchIcon from '@/components/Icons/Search';
 
 export default {
   data() {
@@ -48,7 +49,8 @@ export default {
   },
   components: {
     ListRow,
-    ListCell
+    ListCell,
+    SearchIcon
   },
   methods: {
     focus(key) {

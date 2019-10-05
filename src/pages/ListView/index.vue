@@ -1,13 +1,21 @@
 <template>
   <div class="flex">
     <div class="flex flex-col flex-1">
-      <PageHeader :title="title" />
+      <PageHeader>
+        <h1 slot="title" class="text-xl font-bold" v-if="title">{{ title }}</h1>
+        <template slot="actions">
+          <Button type="primary" @click="openNewForm">
+            <Add class="w-3 h-3 stroke-current text-white" />
+          </Button>
+          <SearchBar class="ml-2" />
+        </template>
+      </PageHeader>
       <div class="flex-1">
         <List :listConfig="listConfig" :filters="filters" />
       </div>
     </div>
     <div class="flex">
-      <router-view class="w-64 flex-1" />
+      <router-view class="w-80 flex-1" />
     </div>
   </div>
 </template>
@@ -15,6 +23,9 @@
 import frappe from 'frappejs';
 import Observable from 'frappejs/utils/observable';
 import PageHeader from '@/components/PageHeader';
+import Button from '@/components/Button';
+import Add from '@/components/Icons/Add';
+import SearchBar from '@/components/SearchBar';
 import List from './List';
 import listConfigs from './listConfig';
 
@@ -23,7 +34,10 @@ export default {
   props: ['listName', 'filters'],
   components: {
     PageHeader,
-    List
+    List,
+    Button,
+    Add,
+    SearchBar
   },
   created() {
     frappe.listView = new Observable();
@@ -38,9 +52,9 @@ export default {
       if (this.filters) {
         doc.set(this.filters);
       }
-      this.$router.push(`/edit/${doctype}/${doc.name}`);
+      this.$router.push(`/list/${this.listName}/${doc.name}`);
       doc.on('afterInsert', () => {
-        this.$router.push(`/edit/${doctype}/${doc.name}`);
+        this.$router.push(`/list/${this.listName}/${doc.name}`);
       });
     }
   },
@@ -60,11 +74,12 @@ export default {
       }
     },
     title() {
-      try {
-        return this.listConfig.title(this.filters);
-      } catch (e) {
-        return this.listConfig.title;
+      if (this.listConfig) {
+        return typeof this.listConfig.title === 'function'
+          ? this.listConfig.title(this.filters)
+          : this.listConfig.title;
       }
+      return this.listName;
     }
   }
 };
