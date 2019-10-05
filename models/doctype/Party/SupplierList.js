@@ -1,10 +1,7 @@
 import { _ } from 'frappejs/utils';
 
 export default {
-  doctype: 'Party',
+  doctype: 'Supplier',
   title: _('Supplier'),
-  columns: ['name', 'defaultAccount', 'address'],
-  filters: {
-    supplier: 1
-  }
+  columns: ['name', 'defaultAccount', 'address']
 };

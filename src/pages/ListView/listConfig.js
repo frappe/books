@@ -2,6 +2,7 @@ import SalesInvoice from '../../../models/doctype/SalesInvoice/SalesInvoiceList'
 import PurchaseInvoice from '../../../models/doctype/PurchaseInvoice/PurchaseInvoiceList';
 import Customer from '../../../models/doctype/Party/CustomerList';
 import Supplier from '../../../models/doctype/Party/SupplierList';
+import Party from '../../../models/doctype/Party/PartyList';
 import Item from '../../../models/doctype/Item/ItemList';
 import Payment from '../../../models/doctype/Payment/PaymentList';
 import Tax from '../../../models/doctype/Tax/TaxList';
@@ -14,6 +15,7 @@ export default {
   PurchaseInvoice,
   Customer,
   Supplier,
+  Party,
   Item,
   Payment,
   Tax,

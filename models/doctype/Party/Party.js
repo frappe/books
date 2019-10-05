@@ -51,6 +51,12 @@ module.exports = {
     }
   ],
 
+  quickEditFields: [
+    'address',
+    'defaultAccount',
+    'currency'
+  ],
+
   getFormTitle(doc) {
     if (doc.customer) return 'Customer';
     return 'Supplier';
