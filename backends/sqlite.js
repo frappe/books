@@ -103,9 +103,11 @@ module.exports = class sqliteDatabase extends Database {
   }
 
   getOne(doctype, name, fields = '*') {
+    let meta = frappe.getMeta(doctype);
+    let baseDoctype = meta.getBaseDocType();
     fields = this.prepareFields(fields);
     return new Promise((resolve, reject) => {
-      this.conn.get(`select ${fields} from ${doctype}
+      this.conn.get(`select ${fields} from ${baseDoctype}
                 where name = ?`, name,
         (err, row) => {
           resolve(row || {});
@@ -160,12 +162,15 @@ module.exports = class sqliteDatabase extends Database {
   }
 
   async rename(doctype, oldName, newName) {
+    let meta = frappe.getMeta(doctype);
+    let baseDoctype = meta.getBaseDocType();
     await frappe.db.run(`update ${baseDoctype} set name = ? where name = ?`, [newName, oldName]);
     await frappe.db.commit();
   }
 
   async setValues(doctype, name, fieldValuePair) {
     const meta = frappe.getMeta(doctype);
+    const baseDoctype = meta.getBaseDocType();
     const validFields = this.getKeys(doctype);
     const validFieldnames = validFields.map(df => df.fieldname);
     const fieldsToUpdate = Object.keys(fieldValuePair)
@@ -184,22 +189,27 @@ module.exports = class sqliteDatabase extends Database {
     // additional name for where clause
     values.push(name);
 
-    return await this.run(`update ${doctype}
+    return await this.run(`update ${baseDoctype}
       set ${assigns.join(', ')} where name=?`, values);
   }
 
   getAll({ doctype, fields, filters, start, limit, orderBy = 'modified', groupBy, order = 'desc' } = {}) {
+    let meta = frappe.getMeta(doctype);
+    let baseDoctype = meta.getBaseDocType();
     if (!fields) {
-      fields = frappe.getMeta(doctype).getKeywordFields();
+      fields = meta.getKeywordFields();
     }
     if (typeof fields === 'string') {
       fields = [fields];
+    }
+    if (meta.filters) {
+      Object.assign(filters, meta.filters);
     }
 
     return new Promise((resolve, reject) => {
       let conditions = this.getFilterConditions(filters);
       let query = `select ${fields.join(", ")}
-                from ${doctype}
+                from ${baseDoctype}
                 ${conditions.conditions ? "where" : ""} ${conditions.conditions}
                 ${groupBy ? ("group by " + groupBy.join(', ')) : ""}
                 ${orderBy ? ("order by " + orderBy) : ""} ${orderBy ? (order || "asc") : ""}
