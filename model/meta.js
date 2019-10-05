@@ -5,6 +5,14 @@ const indicatorColor = require('frappejs/ui/constants/indicators');
 
 module.exports = class BaseMeta extends BaseDocument {
   constructor(data) {
+    if (data.basedOn) {
+      let config = frappe.models[data.basedOn];
+      Object.assign(data, config, {
+        name: data.name,
+        label: data.label,
+        filters: data.filters
+      })
+    }
     super(data);
     this.setDefaultIndicators();
     if (this.setupMeta) {
@@ -84,6 +92,10 @@ module.exports = class BaseMeta extends BaseDocument {
       }
     }
     return this._hasFormula;
+  }
+
+  getBaseDocType() {
+    return this.basedOn || this.name;
   }
 
   async set(fieldname, value) {
@@ -194,6 +206,10 @@ module.exports = class BaseMeta extends BaseDocument {
       }
     }
     return this._keywordFields;
+  }
+
+  getQuickEditFields() {
+    return this.quickEditFields || this.getKeywordFields();
   }
 
   validateSelect(field, value) {
