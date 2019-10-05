@@ -1,5 +1,5 @@
 <template>
-  <button class="text-sm px-4 py-2 focus:outline-none rounded-lg" :style="style">
+  <button class="text-sm px-4 py-2 focus:outline-none rounded-lg" :style="style" v-bind="$attrs" v-on="$listeners">
     <slot></slot>
   </button>
 </template>
@@ -15,11 +15,12 @@ export default {
   computed: {
     style() {
       return {
-        'background-image': this.type === 'primary'
-          ? 'linear-gradient(180deg, #4AC3F8 0%, #2490EF 100%)'
-          : 'linear-gradient(180deg, #FFFFFF 0%, #F4F4F6 100%)'
-      }
+        'background-image':
+          this.type === 'primary'
+            ? 'linear-gradient(180deg, #4AC3F8 0%, #2490EF 100%)'
+            : 'linear-gradient(180deg, #FFFFFF 0%, #F4F4F6 100%)'
+      };
     }
   }
-}
+};
 </script>
