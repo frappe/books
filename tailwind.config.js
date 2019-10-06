@@ -1,9 +1,12 @@
 module.exports = {
   theme: {
     fontFamily: {
-      sans: ['Inter var experimental', 'sans-serif']
+      sans: ['Inter var experimental', 'sans-serif'],
     },
     extend: {
+      maxHeight: {
+        '64': '16rem'
+      },
       spacing: {
         '72': '18rem',
         '80': '20rem'

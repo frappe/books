@@ -27,13 +27,14 @@
         :key="df.fieldname"
       >
         <div class="py-3 pl-4 text-gray-600">{{ df.label }}</div>
-        <FormControl
-          class="py-3 pr-4"
-          input-class="focus:shadow-outline-px"
-          :df="df"
-          :value="doc[df.fieldname]"
-          @change="value => valueChange(df, value)"
-        />
+        <div class="py-3 pr-4">
+          <FormControl
+            input-class="focus:shadow-outline-px"
+            :df="df"
+            :value="doc[df.fieldname]"
+            @change="value => valueChange(df, value)"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -47,15 +48,20 @@ import FormControl from '@/components/Controls/FormControl';
 
 export default {
   name: 'QuickEditForm',
-  props: ['doctype', 'name'],
+  props: ['doctype', 'name', 'values'],
   components: {
     Button,
     XIcon,
     FormControl
   },
+  provide() {
+    return {
+      doctype: this.doctype,
+      name: this.name
+    }
+  },
   data() {
     return {
-      title: '',
       meta: null,
       doc: {},
       fields: [],
@@ -74,6 +80,9 @@ export default {
     // setup the title field
     if (this.doc._notInserted) {
       this.doc.set(this.titleDocField.fieldname, '');
+    }
+    if (this.values) {
+      this.doc.set(this.values);
     }
     setTimeout(() => {
       this.$refs.titleControl.focus()
@@ -97,7 +106,6 @@ export default {
     },
     async fetchDoc() {
       this.doc = await frappe.getDoc(this.doctype, this.name);
-      this.title = this.doc[this.meta.titleField];
     },
     async updateDoc() {
       try {
