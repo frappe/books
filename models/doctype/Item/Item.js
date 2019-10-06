@@ -68,6 +68,7 @@ module.exports = {
     }
   ],
   quickEditFields: [
+    'rate',
     'unit',
     'incomeAccount',
     'expenseAccount',

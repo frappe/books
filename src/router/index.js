@@ -34,7 +34,7 @@ const routes = [
       const { listName } = route.params;
       return {
         listName,
-        filters: route.query
+        filters: route.query.filters
       };
     },
     children: [
@@ -43,9 +43,11 @@ const routes = [
         component: QuickEditForm,
         props: route => {
           const { listName, name } = route.params;
+          let values = route.query.values || null;
           return {
             doctype: listName,
-            name
+            name,
+            values
           };
         }
       }

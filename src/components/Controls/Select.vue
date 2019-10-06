@@ -4,7 +4,7 @@
       class="appearance-none bg-white rounded-none focus:outline-none w-full"
       :class="inputClass"
       :value="value"
-      @blur="triggerChange"
+      @blur="e => triggerChange(e.target.value)"
     >
       <option v-for="option in options" :value="option.value">{{ option.label }}</option>
     </select>
@@ -12,14 +12,11 @@
 </template>
 
 <script>
+import Base from './Base';
+
 export default {
   name: 'Select',
-  props: ['df', 'value', 'inputClass'],
-  methods: {
-    triggerChange(e) {
-      this.$emit('change', e.target.value);
-    }
-  },
+  extends: Base,
   computed: {
     options() {
       let options = this.df.options;

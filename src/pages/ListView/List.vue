@@ -4,7 +4,7 @@
       <ListCell
         v-for="column in columns"
         :key="column.label"
-        :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right':''"
+        :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right pr-10' : ''"
       >{{ column.label }}</ListCell>
     </ListRow>
     <ListRow
@@ -14,7 +14,11 @@
       @click.native="openForm(doc.name)"
       :columnCount="columns.length"
     >
-      <ListCell v-for="column in columns" :key="column.label">
+      <ListCell
+        v-for="column in columns"
+        :key="column.label"
+        :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right pr-10' : ''"
+      >
         <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2" />
         <span
           style="width: 100%"
@@ -58,6 +62,9 @@ export default {
   },
   async mounted() {
     await this.setupColumnsAndData();
+    frappe.db.on(`change:${this.listConfig.doctype}`, obj => {
+      this.updateData();
+    });
     frappe.listView.on('filterList', this.updateData.bind(this));
   },
   methods: {
@@ -86,6 +93,7 @@ export default {
         doctype: this.doctype,
         fields: ['*'],
         filters,
+        orderBy: 'creation',
         limit: 13
       });
     },
