@@ -8,7 +8,7 @@ module.exports = class BaseDocument extends Observable {
     this.fetchValuesCache = {};
     this.flags = {};
     this.setup();
-    Object.assign(this, data);
+    this.setValues(data);
 
     // clear fetch-values cache
     frappe.db.on(
@@ -19,6 +19,19 @@ module.exports = class BaseDocument extends Observable {
 
   setup() {
     // add listeners
+  }
+
+  setValues(data) {
+    for (let fieldname in data) {
+      let value = data[fieldname];
+      if (Array.isArray(value)) {
+        for (let row of value) {
+          this.append(fieldname, row);
+        }
+      } else {
+        this[fieldname] = value;
+      }
+    }
   }
 
   get meta() {
@@ -50,7 +63,14 @@ module.exports = class BaseDocument extends Observable {
 
     if (this[fieldname] !== value) {
       this._dirty = true;
-      this[fieldname] = await this.validateField(fieldname, value);
+      if (Array.isArray(value)) {
+        this[fieldname] = [];
+        for (let row of value) {
+          this.append(fieldname, row);
+        }
+      } else {
+        this[fieldname] = await this.validateField(fieldname, value);
+      }
       await this.applyChange(fieldname);
     }
   }
@@ -100,17 +120,29 @@ module.exports = class BaseDocument extends Observable {
     this.keywords = keywords.join(', ');
   }
 
-  append(key, document) {
+  append(key, document = {}) {
     if (!this[key]) {
       this[key] = [];
     }
-    this[key].push(this.initDoc(document));
+    this[key].push(this._initChild(document, key));
   }
 
-  initDoc(data) {
-    if (data.prototype instanceof BaseDocument) {
+  _initChild(data, key) {
+    if (data instanceof BaseDocument) {
       return data;
     } else {
+      data.parent = this.name;
+      data.parenttype = this.doctype;
+      data.parentfield = key;
+
+      if (!data.idx) {
+        data.idx = (this[key] || []).length;
+      }
+
+      if (!data.name) {
+        data.name = frappe.getRandomString();
+      }
+
       return new BaseDocument(data);
     }
   }
