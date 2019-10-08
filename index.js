@@ -97,7 +97,7 @@ module.exports = {
       if (this.methods[method]) {
         return await this.methods[method](args);
       } else {
-        throw `${method} not found`;
+        throw new Error(`${method} not found`);
       }
     }
 
@@ -155,7 +155,7 @@ module.exports = {
     if (!this.metaCache[doctype]) {
       let model = this.models[doctype];
       if (!model) {
-        throw `${doctype} is not a registered doctype`;
+        throw new Error(`${doctype} is not a registered doctype`);
       }
       let metaClass = model.metaClass || this.BaseMeta;
       this.metaCache[doctype] = new metaClass(model);
