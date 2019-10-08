@@ -108,10 +108,10 @@ module.exports = class BaseDocument extends Observable {
   }
 
   initDoc(data) {
-    if (data.prototype instanceof Document) {
+    if (data.prototype instanceof BaseDocument) {
       return data;
     } else {
-      return new Document(data);
+      return new BaseDocument(data);
     }
   }
 
