@@ -12,7 +12,7 @@ const common = require('frappejs/common');
 
 var test_server;
 
-describe.only('REST', () => {
+describe('REST', () => {
     before(async function() {
         test_server = spawn('node', ['tests/test_server.js'], { stdio: 'inherit' });
 

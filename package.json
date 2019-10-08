@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "NODE_ENV=test mocha --timeout 3000 tests",
+    "test-watch": "NODE_ENV=test mocha --timeout 3000 tests --watch --reporter=min",
     "start": "nodemon app.js"
   },
   "dependencies": {

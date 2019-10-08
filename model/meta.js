@@ -11,7 +11,7 @@ module.exports = class BaseMeta extends BaseDocument {
         name: data.name,
         label: data.label,
         filters: data.filters
-      })
+      });
     }
     super(data);
     this.setDefaultIndicators();
@@ -21,6 +21,10 @@ module.exports = class BaseMeta extends BaseDocument {
     if (!this.titleField) {
       this.titleField = 'name';
     }
+  }
+
+  setValues(data) {
+    Object.assign(this, data);
   }
 
   hasField(fieldname) {
