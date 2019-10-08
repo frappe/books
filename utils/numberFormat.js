@@ -85,7 +85,7 @@ module.exports = {
     let format_info = numberFormats[format];
 
     if (!format_info) {
-      throw `Unknown number format "${format}"`;
+      throw new Error(`Unknown number format "${format}"`);
     }
 
     return format_info;
