@@ -1,20 +1,25 @@
 <template>
-  <div class="relative">
+  <div class="relative" v-on-outside-click="() => showDropdown = false">
     <input
       ref="input"
       class="focus:outline-none w-full"
       :class="inputClass"
       type="text"
       :value="linkValue"
+      :placeholder="placeholder"
+      :readonly="df.readOnly"
       @focus="onFocus"
-      @blur="onBlur"
       @input="onInput"
       @keydown.up="highlightItemUp"
       @keydown.down="highlightItemDown"
-      @keydown.esc="$refs.input.blur"
       @keydown.enter="selectHighlightedItem"
+      @keydown.tab="showDropdown = false"
+      @keydown.esc="showDropdown = false"
     />
-    <div class="mt-1 absolute left-0 z-10 bg-white rounded border w-full" v-if="isFocused">
+    <div
+      class="mt-1 absolute left-0 z-10 bg-white rounded border w-full min-w-56"
+      v-if="showDropdown"
+    >
       <div class="p-1 max-h-64 overflow-auto" v-if="suggestions.length">
         <a
           ref="suggestionItems"
@@ -31,9 +36,12 @@
         <a
           class="block px-2 rounded mt-1 first:mt-0 cursor-pointer flex items-center"
           :class="{'bg-gray-200': highlightedIndex === suggestions.length, 'py-1': linkValue, 'py-2': !linkValue}"
+          @mouseenter="highlightedIndex = suggestions.length"
+          @mouseleave="highlightedIndex = -1"
+          @click="openNewDoc"
         >
-          <div>Create</div>
-          <Badge class="ml-2" v-if="isNewValue">{{ linkValue }}</Badge>
+          <div>{{ _('Create') }}</div>
+          <Badge color="blue" class="ml-2" v-if="isNewValue">{{ linkValue }}</Badge>
         </a>
       </div>
     </div>
@@ -54,20 +62,23 @@ export default {
   data() {
     return {
       linkValue: '',
-      isFocused: false,
+      showDropdown: false,
       suggestions: [],
       highlightedIndex: -1
     };
   },
   watch: {
-    value(newValue) {
-      this.linkValue = this.value;
+    value: {
+      immediate: true,
+      handler(newValue) {
+        this.linkValue = this.value;
+      }
     }
   },
   computed: {
     isNewValue() {
       let values = this.suggestions.map(d => d.value);
-      return !values.includes(this.linkValue);
+      return this.linkValue && !values.includes(this.linkValue);
     }
   },
   methods: {
@@ -97,9 +108,7 @@ export default {
     },
     async getFilters(keyword) {
       let doc = await frappe.getDoc(this.doctype, this.name);
-      return this.df.getFilters
-        ? await this.df.getFilters(keyword, doc)
-        : {};
+      return this.df.getFilters ? await this.df.getFilters(keyword, doc) : {};
     },
     selectHighlightedItem() {
       if (![-1, this.suggestions.length].includes(this.highlightedIndex)) {
@@ -116,42 +125,36 @@ export default {
     },
     setSuggestion(suggestion) {
       this.triggerChange(suggestion.value);
-      this.isFocused = false;
+      this.showDropdown = false;
     },
     async openNewDoc() {
       let doctype = this.df.target;
       let doc = await frappe.getNewDoc(doctype);
       let currentPath = this.$route.path;
+      let currentQuery = this.$route.query;
       let filters = await this.getFilters();
       this.$router.push({
-        path: `/list/${doctype}/${doc.name}`,
+        path: currentPath,
         query: {
+          edit: 1,
+          doctype,
+          name: doc.name,
           values: Object.assign({}, filters, {
             name: this.linkValue
           })
         }
       });
       doc.once('afterInsert', () => {
-        this.$router.push({
-          path: currentPath,
-          query: {
-            values: {
-              [this.df.fieldname]: doc.name
-            }
-          }
-        });
+        this.$emit('new-doc', doc);
+        this.$router.go(-1);
       });
     },
     onFocus() {
-      this.isFocused = true;
+      this.showDropdown = true;
       this.updateSuggestions();
     },
-    onBlur() {
-      setTimeout(() => {
-        this.isFocused = false;
-      }, 100);
-    },
     onInput(e) {
+      this.showDropdown = true;
       this.updateSuggestions(e);
     },
     highlightItemUp() {

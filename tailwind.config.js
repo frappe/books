@@ -7,6 +7,9 @@ module.exports = {
       maxHeight: {
         '64': '16rem'
       },
+      minWidth: {
+        '56': '14rem'
+      },
       spacing: {
         '72': '18rem',
         '80': '20rem'

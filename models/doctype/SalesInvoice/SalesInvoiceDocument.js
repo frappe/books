@@ -33,7 +33,7 @@ module.exports = class SalesInvoice extends BaseDocument {
 
   async formatIntoCustomerCurrency(value) {
     const companyCurrency = frappe.AccountingSettings.currency;
-    if (this.currency.length && this.currency !== companyCurrency) {
+    if (this.currency && this.currency.length && this.currency !== companyCurrency) {
       const { numberFormat, symbol } = await this.getCustomerCurrencyInfo();
       return frappe.format(value, {
         fieldtype: 'Currency',

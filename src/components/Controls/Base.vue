@@ -6,6 +6,8 @@
       :class="inputClass"
       :type="inputType"
       :value="value"
+      :placeholder="placeholder"
+      :readonly="df.readOnly"
       @blur="e => triggerChange(e.target.value)"
     />
   </div>
@@ -14,7 +16,7 @@
 <script>
 export default {
   name: 'Base',
-  props: ['df', 'value', 'inputClass'],
+  props: ['df', 'value', 'inputClass', 'placeholder'],
   inject: ['doctype', 'name'],
   computed: {
     inputType() {

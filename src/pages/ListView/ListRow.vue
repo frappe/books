@@ -9,13 +9,24 @@ export default {
   props: {
     columnCount: {
       type: Number,
-      default: 1
+      default: 0
+    },
+    ratio: {
+      type: Array,
+      default: () => []
     }
   },
   computed: {
     style() {
-      return {
-        'grid-template-columns': `repeat(${this.columnCount}, 1fr)`
+      if (this.columnCount) {
+        return {
+          'grid-template-columns': `repeat(${this.columnCount}, 1fr)`
+        }
+      }
+      if (this.ratio.length) {
+        return {
+          'grid-template-columns': this.ratio.map(r => `${r}fr`).join(' ')
+        }
       }
     }
   }

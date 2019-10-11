@@ -1,6 +1,7 @@
 import Data from './Data';
 import Select from './Select';
 import Link from './Link';
+import Date from './Date';
 
 export default {
   name: 'FormControl',
@@ -8,7 +9,8 @@ export default {
     let controls = {
       Data,
       Select,
-      Link
+      Link,
+      Date
     };
     let { df } = this.$attrs;
     return h(controls[df.fieldtype] || Data, {

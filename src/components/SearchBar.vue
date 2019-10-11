@@ -36,7 +36,6 @@
 <script>
 import frappe from 'frappejs';
 import ListRow from '../pages/ListView/ListRow';
-import ListCell from '../pages/ListView/ListCell';
 import SearchIcon from '@/components/Icons/Search';
 
 export default {
@@ -49,7 +48,6 @@ export default {
   },
   components: {
     ListRow,
-    ListCell,
     SearchIcon
   },
   methods: {

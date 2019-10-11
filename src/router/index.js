@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import ListView from '../pages/ListView';
+import ListView from '../pages/ListView/ListView';
 import Dashboard from '../pages/Dashboard';
 import FormView from '../pages/FormView/FormView';
 import PrintView from '../pages/PrintView';
@@ -17,6 +17,8 @@ import Settings from '../pages/Settings/Settings';
 import ReportList from '../pages/ReportList';
 import ChartOfAccounts from '../pages/ChartOfAccounts';
 
+import InvoiceForm from '@/pages/InvoiceForm';
+
 import Tree from 'frappejs/ui/components/Tree';
 
 Vue.use(Router);
@@ -27,31 +29,34 @@ const routes = [
     component: Dashboard
   },
   {
-    path: '/list/:listName',
-    name: 'ListView',
-    component: ListView,
-    props: route => {
-      const { listName } = route.params;
-      return {
-        listName,
-        filters: route.query.filters
-      };
+    path: '/edit/SalesInvoice/:name',
+    name: 'InvoiceForm',
+    components: {
+      default: InvoiceForm,
+      edit: QuickEditForm
     },
-    children: [
-      {
-        path: ':name',
-        component: QuickEditForm,
-        props: route => {
-          const { listName, name } = route.params;
-          let values = route.query.values || null;
-          return {
-            doctype: listName,
-            name,
-            values
-          };
-        }
-      }
-    ]
+    props: {
+      default: true,
+      edit: route => route.query
+    }
+  },
+  {
+    path: '/list/:doctype',
+    name: 'ListView',
+    components: {
+      default: ListView,
+      edit: QuickEditForm
+    },
+    props: {
+      default: route => {
+        const { doctype } = route.params;
+        return {
+          doctype,
+          filters: route.query.filters
+        };
+      },
+      edit: route => route.query
+    }
   },
   {
     path: '/edit/:doctype/:name',
