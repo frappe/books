@@ -107,7 +107,7 @@ module.exports = class LedgerPosting {
           ])
         }
       });
-      throw new Error();
+      throw new Error(`Debit ${debit} must be equal to Credit ${credit}`);
     }
   }
 

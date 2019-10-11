@@ -5,6 +5,13 @@ module.exports = {
   isChild: 1,
   keywordFields: [],
   layout: 'ratio',
+  fieldsInForm: [
+    'item',
+    'tax',
+    'quantity',
+    'rate',
+    'amount'
+  ],
   fields: [
     {
       fieldname: 'item',

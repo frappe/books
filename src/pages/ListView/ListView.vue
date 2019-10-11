@@ -4,7 +4,7 @@
       <PageHeader>
         <h1 slot="title" class="text-xl font-bold" v-if="title">{{ title }}</h1>
         <template slot="actions">
-          <Button type="primary" @click="openNewForm">
+          <Button type="primary" @click="makeNewDoc">
             <Add class="w-3 h-3 stroke-current text-white" />
           </Button>
           <SearchBar class="ml-2" />
@@ -13,9 +13,6 @@
       <div class="flex-1">
         <List :listConfig="listConfig" :filters="filters" />
       </div>
-    </div>
-    <div class="flex">
-      <router-view class="w-80 flex-1" />
     </div>
   </div>
 </template>
@@ -31,7 +28,7 @@ import listConfigs from './listConfig';
 
 export default {
   name: 'ListView',
-  props: ['listName', 'filters'],
+  props: ['doctype', 'filters'],
   components: {
     PageHeader,
     List,
@@ -43,7 +40,7 @@ export default {
     frappe.listView = new Observable();
   },
   methods: {
-    async openNewForm() {
+    async makeNewDoc() {
       const doctype = this.listConfig.doctype;
       const doc = await frappe.getNewDoc(doctype);
       if (this.listConfig.filters) {
@@ -52,22 +49,38 @@ export default {
       if (this.filters) {
         doc.set(this.filters);
       }
-      this.$router.push(`/list/${this.listName}/${doc.name}`);
+      let path = this.getFormPath(doc.name);
+      this.$router.push(path);
       doc.on('afterInsert', () => {
-        this.$router.push(`/list/${this.listName}/${doc.name}`);
+        let path = this.getFormPath(doc.name);
+        this.$router.replace(path);
       });
+    },
+    getFormPath(name) {
+      if (this.listConfig.formRoute) {
+        let path = this.listConfig.formRoute(name);
+        return path;
+      }
+      return {
+        path: `/list/${this.doctype}`,
+        query: {
+          edit: 1,
+          doctype: this.doctype,
+          name
+        }
+      };
     }
   },
   computed: {
     listConfig() {
-      if (listConfigs[this.listName]) {
-        return listConfigs[this.listName];
+      if (listConfigs[this.doctype]) {
+        return listConfigs[this.doctype];
       } else {
         frappe.call({
           method: 'show-dialog',
           args: {
             title: 'Not Found',
-            message: `${this.listName} List not Registered`
+            message: `${this.doctype} List not Registered`
           }
         });
         this.$router.go(-1);
@@ -79,7 +92,7 @@ export default {
           ? this.listConfig.title(this.filters)
           : this.listConfig.title;
       }
-      return this.listName;
+      return this.doctype;
     }
   }
 };

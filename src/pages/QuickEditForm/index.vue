@@ -17,7 +17,7 @@
         :value="doc[titleDocField.fieldname]"
         @change="value => valueChange(titleDocField, value)"
       />
-      <span v-if="showSaved" class="text-xs text-gray-600">{{ _('Saved') }}</span>
+      <span v-if="statusText" class="text-xs text-gray-600">{{ statusText }}</span>
     </div>
     <div class="text-xs">
       <div
@@ -33,6 +33,7 @@
             :df="df"
             :value="doc[df.fieldname]"
             @change="value => valueChange(df, value)"
+            @new-doc="doc => valueChange(df, doc.name)"
           />
         </div>
       </div>
@@ -42,6 +43,7 @@
 
 <script>
 import frappe from 'frappejs';
+import { _ } from 'frappejs';
 import Button from '@/components/Button';
 import XIcon from '@/components/Icons/X';
 import FormControl from '@/components/Controls/FormControl';
@@ -58,7 +60,7 @@ export default {
     return {
       doctype: this.doctype,
       name: this.name
-    }
+    };
   },
   data() {
     return {
@@ -66,36 +68,50 @@ export default {
       doc: {},
       fields: [],
       titleDocField: null,
-      showSaved: false
+      statusText: null
     };
   },
   async mounted() {
-    this.meta = frappe.getMeta(this.doctype);
-    this.fields = this.meta
-      .getQuickEditFields()
-      .map(fieldname => this.meta.getField(fieldname));
-    this.titleDocField = this.meta.getField(this.meta.titleField);
-    await this.fetchDoc();
-
-    // setup the title field
-    if (this.doc._notInserted) {
-      this.doc.set(this.titleDocField.fieldname, '');
-    }
-    if (this.values) {
-      this.doc.set(this.values);
-    }
-    setTimeout(() => {
-      this.$refs.titleControl.focus()
-    }, 300);
+    await this.fetchMetaAndDoc();
   },
   methods: {
+    async fetchMetaAndDoc() {
+      this.meta = frappe.getMeta(this.doctype);
+      this.fields = this.meta
+        .getQuickEditFields()
+        .map(fieldname => this.meta.getField(fieldname));
+      this.titleDocField = this.meta.getField(this.meta.titleField);
+      await this.fetchDoc();
+
+      // setup the title field
+      if (this.doc._notInserted) {
+        this.doc.set(this.titleDocField.fieldname, '');
+      }
+      if (this.values) {
+        this.doc.set(this.values);
+      }
+      setTimeout(() => {
+        this.$refs.titleControl.focus();
+      }, 300);
+    },
     valueChange(df, value) {
       if (!value) return;
       let oldValue = this.doc.get(df.fieldname);
-      if (df.fieldname === 'name' && oldValue !== value && !this.doc._notInserted) {
+      if (
+        df.fieldname === 'name' &&
+        oldValue !== value &&
+        !this.doc._notInserted
+      ) {
         this.doc.rename(value);
         this.doc.once('afterRename', () => {
-          this.$router.push(`/list/${this.doctype}/${this.doc.name}`);
+          this.$router.push({
+            path: `/list/${this.doctype}`,
+            query: {
+              edit: 1,
+              doctype: this.doctype,
+              name: this.name
+            }
+          });
         });
         return;
       }
@@ -108,6 +124,7 @@ export default {
       this.doc = await frappe.getDoc(this.doctype, this.name);
     },
     async updateDoc() {
+      this.statusText = _('Saving...');
       try {
         await this.doc.update();
         this.triggerSaved();
@@ -116,8 +133,8 @@ export default {
       }
     },
     triggerSaved() {
-      this.showSaved = true;
-      setTimeout(() => (this.showSaved = false), 1000);
+      this.statusText = _('Saved');
+      setTimeout(() => (this.statusText = null), 1000);
     },
     insertDoc() {
       this.doc.insert();

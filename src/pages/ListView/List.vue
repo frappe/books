@@ -1,11 +1,12 @@
 <template>
-  <div class="px-8 pb-8 mt-2">
+  <div class="px-8 pb-8 mt-2 text-sm">
     <ListRow class="text-gray-700" :columnCount="columns.length">
-      <ListCell
+      <div
         v-for="column in columns"
         :key="column.label"
+        class="py-4"
         :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right pr-10' : ''"
-      >{{ column.label }}</ListCell>
+      >{{ column.label }}</div>
     </ListRow>
     <ListRow
       class="cursor-pointer text-gray-900 hover:text-gray-600"
@@ -18,13 +19,9 @@
         v-for="column in columns"
         :key="column.label"
         :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right pr-10' : ''"
-      >
-        <indicator v-if="column.getIndicator" :color="column.getIndicator(doc)" class="mr-2" />
-        <span
-          style="width: 100%"
-          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right':''"
-        >{{ getColumnValue(column, doc) }}</span>
-      </ListCell>
+        :doc="doc"
+        :column="column"
+      ></ListCell>
     </ListRow>
   </div>
 </template>
@@ -68,22 +65,23 @@ export default {
     frappe.listView.on('filterList', this.updateData.bind(this));
   },
   methods: {
-    getColumnValue(column, doc) {
-      // Since currency is formatted in customer currency
-      // frappe.format parses it back into company currency
-      if (['Float', 'Currency'].includes(column.fieldtype)) {
-        return column.getValue(doc);
-      } else {
-        return frappe.format(column.getValue(doc), column.fieldtype);
-      }
-    },
     async setupColumnsAndData() {
       this.doctype = this.listConfig.doctype;
       await this.updateData();
     },
     openForm(name) {
-      this.$router.push(`/list/${this.doctype}/${name}`);
-      // this.$router.push(`/edit/${this.doctype}/${name}`);
+      if (this.listConfig.formRoute) {
+        this.$router.push(this.listConfig.formRoute(name));
+        return;
+      }
+      this.$router.push({
+        path: `/list/${this.doctype}`,
+        query: {
+          edit: 1,
+          doctype: this.doctype,
+          name
+        }
+      });
     },
     async updateData(filters) {
       if (!filters) filters = this.getFilters();

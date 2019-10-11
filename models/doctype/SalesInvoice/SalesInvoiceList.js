@@ -1,29 +1,37 @@
 import { _ } from 'frappejs/utils';
-import indicators from 'frappejs/ui/constants/indicators';
+import Badge from '@/components/Badge';
 
 export default {
   doctype: 'SalesInvoice',
   title: _('Sales Invoices'),
+  formRoute: name => `/edit/SalesInvoice/${name}`,
   columns: [
     'customer',
-    'name',
+    {
+      label: 'Invoice No',
+      fieldname: 'name',
+      fieldtype: 'Data',
+      getValue(doc) {
+        return doc.name;
+      }
+    },
     {
       label: 'Status',
       fieldname: 'status',
       fieldtype: 'Select',
       size: 'small',
       options: ['Status..', 'Paid', 'Pending'],
-      getValue(doc) {
+      render(doc) {
+        let status = 'Pending';
+        let color = 'orange';
         if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
-          return 'Paid';
+          status = 'Paid';
+          color = 'green';
         }
-        return 'Pending';
-      },
-      getIndicator(doc) {
-        if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
-          return indicators.GREEN;
-        }
-        return indicators.ORANGE;
+        return {
+          template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
+          components: { Badge }
+        };
       }
     },
     'date',

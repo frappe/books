@@ -1,5 +1,5 @@
 <template>
-  <button class="text-sm px-4 py-2 focus:outline-none rounded-lg" :style="style" v-bind="$attrs" v-on="$listeners">
+  <button class="px-4 py-2 focus:outline-none rounded-lg" :style="style" v-bind="$attrs" v-on="$listeners">
     <slot></slot>
   </button>
 </template>

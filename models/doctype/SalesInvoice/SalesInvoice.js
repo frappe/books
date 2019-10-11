@@ -26,19 +26,8 @@ module.exports = {
       fieldname: 'customer',
       label: 'Customer',
       fieldtype: 'Link',
-      target: 'Party',
-      required: 1,
-      getFilters: query => {
-        if (query)
-          return {
-            keywords: ['like', query],
-            customer: 1
-          };
-
-        return {
-          customer: 1
-        };
-      }
+      target: 'Customer',
+      required: 1
     },
     {
       fieldname: 'account',
