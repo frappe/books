@@ -14,21 +14,24 @@ export default {
     ratio: {
       type: Array,
       default: () => []
-    }
+    },
+    gap: String
   },
   computed: {
     style() {
+      let obj = {};
       if (this.columnCount) {
-        return {
-          'grid-template-columns': `repeat(${this.columnCount}, 1fr)`
-        }
+        obj['grid-template-columns'] = `repeat(${this.columnCount}, 1fr)`;
       }
       if (this.ratio.length) {
-        return {
-          'grid-template-columns': this.ratio.map(r => `${r}fr`).join(' ')
-        }
+        obj['grid-template-columns'] = this.ratio.map(r => `${r}fr`).join(' ');
       }
+      if (this.gap) {
+        obj['grid-gap'] = this.gap;
+      }
+
+      return obj;
     }
   }
-}
+};
 </script>

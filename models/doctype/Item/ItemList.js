@@ -5,7 +5,8 @@ export default {
   title: _('Item'),
   columns: [
     'name',
+    'unit',
+    'tax',
     'rate',
-    'tax'
   ]
 }

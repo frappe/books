@@ -7,7 +7,7 @@ import FormView from '@/pages/FormView/FormView';
 import PrintView from '@/pages/PrintView';
 import QuickEditForm from '@/pages/QuickEditForm';
 
-import Report from '@/pages/Report';
+import Report from '@/pages/Report.vue';
 import reportViewConfig from '../reports/view';
 
 import DataImport from '@/pages/DataImport';
@@ -29,7 +29,7 @@ const routes = [
     component: Dashboard
   },
   {
-    path: '/edit/SalesInvoice/:name',
+    path: '/edit/:doctype/:name',
     name: 'InvoiceForm',
     components: {
       default: InvoiceForm,
@@ -74,14 +74,7 @@ const routes = [
     path: '/report/:reportName',
     name: 'Report',
     component: Report,
-    props: route => {
-      const { reportName } = route.params;
-      return {
-        reportName,
-        reportConfig: reportViewConfig[reportName] || null,
-        filters: route.query
-      };
-    }
+    props: true
   },
   {
     path: '/data-import',
@@ -119,6 +112,6 @@ const routes = [
 ];
 
 let router = new Router({ routes });
-router.replace('/list/Item');
+router.replace('/report/general-ledger');
 
 export default router;

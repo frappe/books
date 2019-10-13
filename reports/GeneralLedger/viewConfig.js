@@ -95,39 +95,48 @@ const viewConfig = {
     return [
       {
         label: 'Date',
-        fieldtype: 'Date'
+        fieldtype: 'Date',
+        fieldname: 'date'
       },
       {
         label: 'Account',
-        fieldtype: 'Link'
+        fieldtype: 'Link',
+        fieldname: 'account'
       },
       {
         label: 'Debit',
-        fieldtype: 'Currency'
+        fieldtype: 'Currency',
+        fieldname: 'debit'
       },
       {
         label: 'Credit',
-        fieldtype: 'Currency'
+        fieldtype: 'Currency',
+        fieldname: 'credit'
       },
       {
         label: 'Balance',
-        fieldtype: 'Currency'
+        fieldtype: 'Currency',
+        fieldname: 'balance'
       },
       {
         label: 'Reference Type',
-        fieldtype: 'Data'
+        fieldtype: 'Data',
+        fieldname: 'referenceType'
       },
       {
         label: 'Reference Name',
-        fieldtype: 'Data'
+        fieldtype: 'Data',
+        fieldname: 'referenceName'
       },
       {
         label: 'Party',
-        fieldtype: 'Link'
+        fieldtype: 'Link',
+        fieldname: 'party'
       },
       {
         label: 'Description',
-        fieldtype: 'Data'
+        fieldtype: 'Data',
+        fieldname: 'description'
       }
     ];
   }
