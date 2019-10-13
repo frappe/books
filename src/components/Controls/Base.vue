@@ -2,11 +2,10 @@
   <div>
     <input
       ref="input"
-      class="focus:outline-none w-full"
-      :class="inputClass"
+      :class="inputClasses"
       :type="inputType"
       :value="value"
-      :placeholder="placeholder"
+      :placeholder="placeholder || df.placeholder"
       :readonly="df.readOnly"
       @blur="e => triggerChange(e.target.value)"
     />
@@ -16,11 +15,21 @@
 <script>
 export default {
   name: 'Base',
-  props: ['df', 'value', 'inputClass', 'placeholder'],
+  props: ['df', 'value', 'inputClass', 'placeholder', 'size'],
   inject: ['doctype', 'name'],
   computed: {
     inputType() {
-      return 'text'
+      return 'text';
+    },
+    inputClasses() {
+      return [
+        this.inputClass,
+        {
+          'px-3 py-2': this.size !== 'small',
+          'px-2 py-1': this.size === 'small'
+        },
+        'focus:outline-none focus:bg-gray-200 rounded-5px w-full text-gray-900'
+      ];
     }
   },
   methods: {
@@ -29,6 +38,9 @@ export default {
     },
     triggerChange(value) {
       this.$emit('change', value);
+    },
+    isNumeric(df) {
+      return ['Int', 'Float', 'Currency'].includes(df.fieldtype);
     }
   }
 };

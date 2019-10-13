@@ -5,7 +5,7 @@
 </template>
 <script>
 export default {
-  name: 'ListRow',
+  name: 'Row',
   props: {
     columnCount: {
       type: Number,

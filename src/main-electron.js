@@ -217,6 +217,10 @@ import Toasted from 'vue-toasted';
     duration: 3000
   });
 
+  Vue.config.errorHandler = (err, vm, info) => {
+    console.error(err, vm, info);
+  };
+
   /* eslint-disable no-new */
   new Vue({
     el: '#app',

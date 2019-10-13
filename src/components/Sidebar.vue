@@ -69,7 +69,7 @@ export default {
   },
   methods: {
     itemActiveClass(item) {
-      let currentRoute = this.$route.fullPath;
+      let currentRoute = this.$route.path;
       return currentRoute === item.route ? 'bg-white text-blue-500' : '';
     },
     isActiveGroup(group) {

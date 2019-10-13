@@ -1,21 +1,21 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import ListView from '../pages/ListView/ListView';
-import Dashboard from '../pages/Dashboard';
-import FormView from '../pages/FormView/FormView';
-import PrintView from '../pages/PrintView';
-import QuickEditForm from '../pages/QuickEditForm';
+import ListView from '@/pages/ListView/ListView';
+import Dashboard from '@/pages/Dashboard';
+import FormView from '@/pages/FormView/FormView';
+import PrintView from '@/pages/PrintView';
+import QuickEditForm from '@/pages/QuickEditForm';
 
-import Report from '../pages/Report';
-import reportViewConfig from '../../reports/view';
+import Report from '@/pages/Report';
+import reportViewConfig from '../reports/view';
 
-import DataImport from '../pages/DataImport';
+import DataImport from '@/pages/DataImport';
 
-import Settings from '../pages/Settings/Settings';
+import Settings from '@/pages/Settings/Settings';
 
-import ReportList from '../pages/ReportList';
-import ChartOfAccounts from '../pages/ChartOfAccounts';
+import ReportList from '@/pages/ReportList';
+import ChartOfAccounts from '@/pages/ChartOfAccounts';
 
 import InvoiceForm from '@/pages/InvoiceForm';
 

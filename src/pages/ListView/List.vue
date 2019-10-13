@@ -1,15 +1,15 @@
 <template>
   <div class="px-8 pb-8 mt-2 text-sm flex flex-col justify-between">
     <div>
-      <ListRow class="text-gray-700" :columnCount="columns.length">
+      <Row class="text-gray-700" :columnCount="columns.length">
         <div
           v-for="column in columns"
           :key="column.label"
-          class="py-4"
+          class="py-4 truncate"
           :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right pr-10' : ''"
         >{{ column.label }}</div>
-      </ListRow>
-      <ListRow
+      </Row>
+      <Row
         class="cursor-pointer text-gray-900 hover:text-gray-600"
         v-for="doc in data"
         :key="doc.name"
@@ -23,7 +23,7 @@
           :doc="doc"
           :column="column"
         ></ListCell>
-      </ListRow>
+      </Row>
     </div>
     <div class="flex items-center justify-center">
       <Button :class="start == 0 && 'text-gray-600'" :disabled="start == 0" @click="prevPage">
@@ -45,7 +45,7 @@
         <span class="text-gray-600">of</span>
         <span class="font-medium">{{ totalCount }}</span>
       </div>
-      <Button :class="start + 10 >= totalCount && 'text-gray-600'" :disabled="start + 10 >= totalCount" @click="nextPage">
+      <Button :class="start + pageLength >= totalCount && 'text-gray-600'" :disabled="start + pageLength >= totalCount" @click="nextPage">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -64,7 +64,7 @@
 </template>
 <script>
 import frappe from 'frappejs';
-import ListRow from './ListRow';
+import Row from '@/components/Row';
 import ListCell from './ListCell';
 import Button from '@/components/Button';
 
@@ -72,7 +72,7 @@ export default {
   name: 'List',
   props: ['listConfig', 'filters'],
   components: {
-    ListRow,
+    Row,
     ListCell,
     Button
   },
@@ -87,7 +87,7 @@ export default {
     return {
       data: [],
       start: 0,
-      pageLength: 10,
+      pageLength: 12,
       totalCount: null
     };
   },
@@ -144,11 +144,11 @@ export default {
       this.totalCount = result[0].count;
     },
     prevPage() {
-      this.start -= 10;
+      this.start -= this.pageLength;
       this.updateData();
     },
     nextPage() {
-      this.start += 10;
+      this.start += this.pageLength;
       this.updateData();
     },
     getFilters() {
