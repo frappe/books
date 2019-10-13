@@ -1,15 +1,16 @@
 <template>
   <div class="px-8 pb-8 mt-2 text-sm flex flex-col justify-between">
     <div>
-      <Row class="text-gray-700" :columnCount="columns.length">
+      <Row class="text-gray-700" :columnCount="columns.length" gap="1rem">
         <div
           v-for="column in columns"
           :key="column.label"
           class="py-4 truncate"
-          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right pr-10' : ''"
+          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
         >{{ column.label }}</div>
       </Row>
       <Row
+        gap="1rem"
         class="cursor-pointer text-gray-900 hover:text-gray-600"
         v-for="doc in data"
         :key="doc.name"
@@ -19,14 +20,19 @@
         <ListCell
           v-for="column in columns"
           :key="column.label"
-          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right pr-10' : ''"
+          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
           :doc="doc"
           :column="column"
         ></ListCell>
       </Row>
     </div>
     <div class="flex items-center justify-center">
-      <Button :icon="true" :class="start == 0 && 'text-gray-600'" :disabled="start == 0" @click="prevPage">
+      <Button
+        :icon="true"
+        :class="start == 0 && 'text-gray-600'"
+        :disabled="start == 0"
+        @click="prevPage"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -45,7 +51,12 @@
         <span class="text-gray-600">of</span>
         <span class="font-medium">{{ totalCount }}</span>
       </div>
-      <Button :icon="true" :class="start + pageLength >= totalCount && 'text-gray-600'" :disabled="start + pageLength >= totalCount" @click="nextPage">
+      <Button
+        :icon="true"
+        :class="start + pageLength >= totalCount && 'text-gray-600'"
+        :disabled="start + pageLength >= totalCount"
+        @click="nextPage"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
