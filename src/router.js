@@ -107,8 +107,14 @@ const routes = [
   {
     path: '/chartOfAccounts',
     name: 'Chart Of Accounts',
-    component: ChartOfAccounts,
-    props: true
+    components: {
+      default: ChartOfAccounts,
+      edit: QuickEditForm
+    },
+    props: {
+      default: true,
+      edit: route => route.query
+    }
   }
 ];
 
