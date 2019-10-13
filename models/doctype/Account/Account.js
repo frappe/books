@@ -82,6 +82,15 @@ module.exports = {
     }
   ],
 
+  quickEditFields: [
+    'name',
+    'rootType',
+    'parentAccount',
+    'accountType',
+    'balance',
+    'isGroup',
+  ],
+
   events: {
     validate: doc => {}
   },

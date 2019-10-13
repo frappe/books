@@ -7,6 +7,7 @@ import Item from '../../../models/doctype/Item/ItemList';
 import Payment from '../../../models/doctype/Payment/PaymentList';
 import Tax from '../../../models/doctype/Tax/TaxList';
 import JournalEntry from '../../../models/doctype/JournalEntry/JournalEntryList';
+import AccountingLedgerEntry from '../../../models/doctype/AccountingLedgerEntry/AccountingLedgerEntryList';
 import Account from '../../../models/doctype/Account/AccountList';
 import GSTR3B from '../../../models/doctype/GSTR3B/GSTR3BList';
 
@@ -21,5 +22,6 @@ export default {
   Tax,
   JournalEntry,
   Account,
-  GSTR3B
+  GSTR3B,
+  AccountingLedgerEntry
 };
