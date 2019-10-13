@@ -1,18 +1,16 @@
 <template>
-  <div class="flex">
-    <div class="flex flex-col flex-1">
-      <PageHeader>
-        <h1 slot="title" class="text-xl font-bold" v-if="title">{{ title }}</h1>
-        <template slot="actions">
-          <Button type="primary" @click="makeNewDoc">
-            <Add class="w-3 h-3 stroke-current text-white" />
-          </Button>
-          <SearchBar class="ml-2" />
-        </template>
-      </PageHeader>
-      <div class="flex-1 flex">
-        <List :listConfig="listConfig" :filters="filters" class="flex-1" />
-      </div>
+  <div class="flex flex-col">
+    <PageHeader>
+      <h1 slot="title" class="text-xl font-bold" v-if="title">{{ title }}</h1>
+      <template slot="actions">
+        <Button :icon="true" type="primary" @click="makeNewDoc">
+          <Add class="w-3 h-3 stroke-current text-white" />
+        </Button>
+        <SearchBar class="ml-2" />
+      </template>
+    </PageHeader>
+    <div class="flex-1 flex">
+      <List :listConfig="listConfig" :filters="filters" class="flex-1" />
     </div>
   </div>
 </template>
@@ -80,7 +78,7 @@ export default {
           title: this.doctype,
           doctype: this.doctype,
           columns: frappe.getMeta(this.doctype).getKeywordFields()
-        }
+        };
       }
     },
     title() {

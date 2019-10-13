@@ -1,6 +1,6 @@
 <template>
   <button
-    class="px-4 py-2 focus:outline-none rounded-6px"
+    class="focus:outline-none rounded-6px"
     :style="style"
     v-bind="$attrs"
     v-on="$listeners"
@@ -15,11 +15,16 @@ export default {
     type: {
       type: String,
       default: 'secondary'
+    },
+    icon: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
     style() {
       return {
+        padding: this.icon ? '9px 15px' : '6px 24px',
         'background-image':
           this.type === 'primary'
             ? 'linear-gradient(180deg, #4AC3F8 0%, #2490EF 100%)'

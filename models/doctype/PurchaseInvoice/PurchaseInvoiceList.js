@@ -4,6 +4,7 @@ import indicators from 'frappejs/ui/constants/indicators';
 export default {
   doctype: 'PurchaseInvoice',
   title: _('Purchase Invoice'),
+  formRoute: name => `/edit/PurchaseInvoice/${name}`,
   columns: [
     'supplier',
     {
