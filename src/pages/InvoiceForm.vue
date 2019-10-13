@@ -3,11 +3,26 @@
     <PageHeader>
       <a class="cursor-pointer font-semibold" slot="title" @click="$router.go(-1)">{{ _('Back') }}</a>
       <template slot="actions">
-        <Button class="text-gray-900 text-xs">Customise</Button>
-        <Button v-if="doc._notInserted || doc._dirty" type="primary" class="text-white text-xs ml-2" @click="onSaveClick">{{ _('Save') }}</Button>
+        <Button class="text-gray-900 text-xs">{{ _('Customise') }}</Button>
+        <Button
+          v-if="doc._notInserted || doc._dirty"
+          type="primary"
+          class="text-white text-xs ml-2"
+          @click="onSaveClick"
+        >{{ _('Save') }}</Button>
+        <Button
+          v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
+          type="primary"
+          class="text-white text-xs ml-2"
+          @click="onSubmitClick"
+        >{{ _('Submit') }}</Button>
       </template>
     </PageHeader>
-    <div class="flex justify-center flex-1 mb-8 mt-6" v-if="meta">
+    <div
+      class="flex justify-center flex-1 mb-8 mt-6"
+      v-if="meta"
+      :class="doc.submitted && 'pointer-events-none'"
+    >
       <div class="border rounded shadow h-full flex flex-col justify-between" style="width: 600px">
         <div>
           <div class="px-6 pt-6">
@@ -53,11 +68,11 @@
               </div>
               <div class="w-1/3">
                 <FormControl
-                  :df="meta.getField('customer')"
-                  :value="doc.customer"
-                  :placeholder="'Customer'"
-                  @change="value => doc.set('customer', value)"
-                  @new-doc="doc => doc.set('customer', doc.name)"
+                  :df="meta.getField(partyField.fieldname)"
+                  :value="doc[partyField.fieldname]"
+                  :placeholder="partyField.label"
+                  @change="value => doc.set(partyField.fieldname, value)"
+                  @new-doc="doc => doc.set(partyField.fieldname, doc.name)"
                   input-class="bg-gray-100 rounded-lg p-2 text-right"
                 />
                 <div
@@ -86,7 +101,9 @@
               <div>{{ tax.account }} ({{ tax.rate }}%)</div>
               <div>{{ tax.amount }}</div>
             </div>
-            <div class="flex pl-2 justify-between py-3 border-t text-green-600 font-semibold text-base">
+            <div
+              class="flex pl-2 justify-between py-3 border-t text-green-600 font-semibold text-base"
+            >
               <div>Grand Total</div>
               <div>{{ doc.grandTotal }}</div>
             </div>
@@ -105,7 +122,7 @@ import AddIcon from '@/components/Icons/Add';
 
 export default {
   name: 'InvoiceForm',
-  props: ['name'],
+  props: ['doctype', 'name'],
   components: {
     PageHeader,
     Button,
@@ -115,7 +132,7 @@ export default {
   },
   provide() {
     return {
-      doctype: 'SalesInvoice',
+      doctype: this.doctype,
       name: this.name
     };
   },
@@ -134,12 +151,19 @@ export default {
     },
     itemTableColumnRatio() {
       return [0.3].concat(this.itemTableFields.map(_ => 1));
-    }
+    },
+    partyField() {
+      let fieldname = {
+        SalesInvoice: 'customer',
+        PurchaseInvoice: 'supplier'
+      }[this.doctype];
+      return this.meta.getField(fieldname);
+    },
   },
   async mounted() {
-    this.meta = frappe.getMeta('SalesInvoice');
-    this.itemsMeta = frappe.getMeta('SalesInvoiceItem');
-    this.doc = await frappe.getDoc('SalesInvoice', this.name);
+    this.meta = frappe.getMeta(this.doctype);
+    this.itemsMeta = frappe.getMeta(`${this.doctype}Item`);
+    this.doc = await frappe.getDoc(this.doctype, this.name);
     window.si = this.doc;
   },
   methods: {
@@ -154,6 +178,9 @@ export default {
       } else {
         this.doc.update();
       }
+    },
+    async onSubmitClick() {
+      await this.doc.submit();
     }
   }
 };

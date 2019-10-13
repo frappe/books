@@ -26,7 +26,7 @@ module.exports = {
       getFilters: (query, doc) => {
         return {
           isGroup: 0,
-          accountType: doc.customer === 1 ? 'Receivable' : 'Payable'
+          accountType: doc.customer ? 'Receivable' : 'Payable'
         };
       }
     },

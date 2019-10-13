@@ -45,7 +45,7 @@ module.exports = class PurchaseInvoiceServer extends PurchaseInvoice {
     await entries.validateEntries();
   }
 
-  async afterSubmit() {
+  async beforeSubmit() {
     const entries = await this.getPosting();
     await entries.post();
     await frappe.db.setValue(

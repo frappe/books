@@ -26,7 +26,7 @@
       </Row>
     </div>
     <div class="flex items-center justify-center">
-      <Button :class="start == 0 && 'text-gray-600'" :disabled="start == 0" @click="prevPage">
+      <Button :icon="true" :class="start == 0 && 'text-gray-600'" :disabled="start == 0" @click="prevPage">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -45,7 +45,7 @@
         <span class="text-gray-600">of</span>
         <span class="font-medium">{{ totalCount }}</span>
       </div>
-      <Button :class="start + pageLength >= totalCount && 'text-gray-600'" :disabled="start + pageLength >= totalCount" @click="nextPage">
+      <Button :icon="true" :class="start + pageLength >= totalCount && 'text-gray-600'" :disabled="start + pageLength >= totalCount" @click="nextPage">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"

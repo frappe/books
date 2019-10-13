@@ -2,7 +2,7 @@
   <div class="flex">
     <Sidebar class="w-56" />
     <div class="flex flex-1 overflow-y-hidden bg-white">
-      <keep-alive exclude="ListView">
+      <keep-alive include="InvoiceForm">
         <router-view class="flex-1" :key="$route.fullPath" />
       </keep-alive>
       <div class="flex" v-if="$route.query.edit && $route.query.doctype && $route.query.name">

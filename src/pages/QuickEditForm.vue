@@ -1,14 +1,14 @@
 <template>
   <div class="border-l h-full">
     <div class="flex justify-end px-4 pt-4">
-      <Button @click="routeToList">
+      <Button :icon="true" @click="routeToList">
         <XIcon class="w-3 h-3 stroke-current text-gray-700" />
       </Button>
-      <Button @click="insertDoc" type="primary" v-if="doc._notInserted" class="ml-2 flex">
+      <Button :icon="true" @click="insertDoc" type="primary" v-if="doc._notInserted" class="ml-2 flex">
         <feather-icon name="check" class="text-white" />
       </Button>
     </div>
-    <div class="px-1 pt-2 pb-4 border-b flex items-center justify-between">
+    <div class="pl-1 pr-4 pt-2 pb-4 border-b flex items-center justify-between">
       <FormControl
         ref="titleControl"
         v-if="titleDocField"
