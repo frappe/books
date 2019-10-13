@@ -8,11 +8,10 @@
         <feather-icon name="check" class="text-white" />
       </Button>
     </div>
-    <div class="px-4 pt-2 pb-4 border-b flex items-center justify-between">
+    <div class="px-1 pt-2 pb-4 border-b flex items-center justify-between">
       <FormControl
         ref="titleControl"
         v-if="titleDocField"
-        input-class="focus:shadow-outline-px"
         :df="titleDocField"
         :value="doc[titleDocField.fieldname]"
         @change="value => valueChange(titleDocField, value)"
@@ -20,23 +19,27 @@
       <span v-if="statusText" class="text-xs text-gray-600">{{ statusText }}</span>
     </div>
     <div class="text-xs">
-      <div
-        class="grid border-b"
-        style="grid-template-columns: 1fr 2fr"
-        v-for="df in fields"
-        :key="df.fieldname"
-      >
-        <div class="py-3 pl-4 text-gray-600">{{ df.label }}</div>
-        <div class="py-3 pr-4">
-          <FormControl
-            input-class="focus:shadow-outline-px"
-            :df="df"
-            :value="doc[df.fieldname]"
-            @change="value => valueChange(df, value)"
-            @new-doc="doc => valueChange(df, doc.name)"
-          />
+      <template v-for="df in fields">
+        <FormControl
+          size="small"
+          v-if="df.fieldtype === 'Table'"
+          :df="df"
+          :value="doc[df.fieldname]"
+          @change="value => valueChange(df, value)"
+        />
+        <div v-else class="grid border-b" style="grid-template-columns: 1fr 2fr">
+          <div class="py-2 pl-4 text-gray-600 flex items-center">{{ df.label }}</div>
+          <div class="py-2 pr-4">
+            <FormControl
+              size="small"
+              :df="df"
+              :value="doc[df.fieldname]"
+              @change="value => valueChange(df, value)"
+              @new-doc="doc => valueChange(df, doc.name)"
+            />
+          </div>
         </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -77,9 +80,7 @@ export default {
   methods: {
     async fetchMetaAndDoc() {
       this.meta = frappe.getMeta(this.doctype);
-      this.fields = this.meta
-        .getQuickEditFields()
-        .map(fieldname => this.meta.getField(fieldname));
+      this.fields = this.meta.getQuickEditFields();
       this.titleDocField = this.meta.getField(this.meta.titleField);
       await this.fetchDoc();
 
@@ -117,6 +118,10 @@ export default {
       }
       this.doc.set(df.fieldname, value);
       if (this.doc._dirty && !this.doc._notInserted) {
+        if (df.fieldtype === 'Table') {
+          console.log(value);
+          return;
+        }
         this.updateDoc();
       }
     },

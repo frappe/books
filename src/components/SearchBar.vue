@@ -1,6 +1,6 @@
 <template>
   <div v-on-outside-click="clearInput" class="relative">
-    <div class="rounded-lg relative flex items-center overflow-hidden">
+    <div class="rounded-6px relative flex items-center overflow-hidden">
       <div class="absolute flex justify-center w-8">
         <SearchIcon class="w-3 h-3 stroke-current text-gray-600" />
       </div>
@@ -35,7 +35,6 @@
 </template>
 <script>
 import frappe from 'frappejs';
-import ListRow from '../pages/ListView/ListRow';
 import SearchIcon from '@/components/Icons/Search';
 
 export default {
@@ -47,7 +46,6 @@ export default {
     };
   },
   components: {
-    ListRow,
     SearchIcon
   },
   methods: {

@@ -7,7 +7,7 @@
         <Button v-if="doc._notInserted || doc._dirty" type="primary" class="text-white text-xs ml-2" @click="onSaveClick">{{ _('Save') }}</Button>
       </template>
     </PageHeader>
-    <div class="flex-1 ml-8 mb-8 mt-6" v-if="meta">
+    <div class="flex justify-center flex-1 mb-8 mt-6" v-if="meta">
       <div class="border rounded shadow h-full flex flex-col justify-between" style="width: 600px">
         <div>
           <div class="px-6 pt-6">
@@ -67,43 +67,13 @@
               </div>
             </div>
           </div>
-          <div class="px-6">
-            <ListRow class="text-sm text-gray-600" :ratio="itemTableColumnRatio">
-              <div class="py-4 ml-2 text-center">
-                No
-              </div>
-              <div
-                class="py-4 ml-5"
-                :class="['Float', 'Currency'].includes(df.fieldtype) ? 'text-right' : ''"
-                v-for="df in itemTableFields"
-                :key="df.fieldname"
-              >{{ df.label }}</div>
-            </ListRow>
-            <ListRow
-              class="text-sm"
-              :ratio="itemTableColumnRatio"
-              v-for="row in doc.items"
-              :key="row.idx"
-            >
-              <div class="py-4 ml-2 text-gray-700 text-center">
-                {{ row.idx + 1 }}
-              </div>
-              <div class="py-4 ml-5" v-for="df in itemTableFields" :key="df.fieldname">
-                <FormControl
-                  :df="df"
-                  :value="row[df.fieldname]"
-                  :input-class="'text-gray-900 ' + (['Float', 'Currency'].includes(df.fieldtype) ? 'text-right' : '')"
-                  @change="value => row.set(df.fieldname, value)"
-                  @new-doc="doc => row.set(df.fieldname, doc.name)"
-                />
-              </div>
-            </ListRow>
-            <ListRow :ratio="itemTableColumnRatio" class="py-4 text-sm text-gray-500 cursor-pointer border-transparent">
-              <div class="ml-2 flex items-center">
-                <AddIcon class="w-4 h-4 text-gray-500 stroke-current" />
-              </div>
-              <div class="ml-5" @click="addNewItem">Add Row</div>
-            </ListRow>
+          <div class="px-6 text-sm">
+            <FormControl
+              :df="meta.getField('items')"
+              :value="doc.items"
+              :showHeader="true"
+              @change="value => doc.set('items', value)"
+            />
           </div>
         </div>
         <div class="px-6 mb-6 flex justify-end text-sm">
@@ -130,7 +100,7 @@
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
-import ListRow from '@/pages/ListView/ListRow';
+import Row from '@/components/Row';
 import AddIcon from '@/components/Icons/Add';
 
 export default {
@@ -140,7 +110,7 @@ export default {
     PageHeader,
     Button,
     FormControl,
-    ListRow,
+    Row,
     AddIcon
   },
   provide() {
@@ -158,7 +128,7 @@ export default {
   },
   computed: {
     itemTableFields() {
-      return this.itemsMeta.fieldsInForm.map(fieldname =>
+      return this.itemsMeta.tableFields.map(fieldname =>
         this.itemsMeta.getField(fieldname)
       );
     },

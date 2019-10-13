@@ -76,14 +76,11 @@ export default {
       if (listConfigs[this.doctype]) {
         return listConfigs[this.doctype];
       } else {
-        frappe.call({
-          method: 'show-dialog',
-          args: {
-            title: 'Not Found',
-            message: `${this.doctype} List not Registered`
-          }
-        });
-        this.$router.go(-1);
+        return {
+          title: this.doctype,
+          doctype: this.doctype,
+          columns: frappe.getMeta(this.doctype).getKeywordFields()
+        }
       }
     },
     title() {

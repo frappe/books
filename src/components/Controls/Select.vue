@@ -1,8 +1,8 @@
 <template>
   <div>
     <select
-      class="appearance-none bg-white rounded-none focus:outline-none w-full"
-      :class="inputClass"
+      class="appearance-none bg-white"
+      :class="inputClasses"
       :value="value"
       @blur="e => triggerChange(e.target.value)"
     >

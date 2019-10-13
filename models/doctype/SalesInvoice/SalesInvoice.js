@@ -106,7 +106,7 @@ module.exports = {
     },
     {
       fieldname: 'baseGrandTotal',
-      label: 'Grand Total (INR)',
+      label: 'Base Grand Total',
       fieldtype: 'Currency',
       formula: async doc => await doc.getBaseGrandTotal(),
       disabled: true,
@@ -114,7 +114,7 @@ module.exports = {
     },
     {
       fieldname: 'grandTotal',
-      label: 'Grand Total (USD)',
+      label: 'Grand Total',
       fieldtype: 'Currency',
       hidden: doc => !doc.isForeignTransaction(),
       formula: async doc => await doc.getGrandTotal(),

@@ -13,7 +13,7 @@ module.exports = {
     {
       fieldname: 'country',
       label: 'Country',
-      fieldtype: 'Autocomplete',
+      fieldtype: 'AutoComplete',
       required: 1,
       getList: () => Object.keys(countryList).sort()
     },
@@ -52,6 +52,7 @@ module.exports = {
       label: 'Fiscal Year Start Date',
       fieldtype: 'Date',
       formula: doc => {
+        if (!doc.country) return;
         let date = countryList[doc.country]['fiscal_year_start'].split('-');
         var currentYear = new Date().getFullYear();
         let currentMonth = date[0] - 1;
@@ -68,6 +69,7 @@ module.exports = {
       label: 'Fiscal Year End Date',
       fieldtype: 'Date',
       formula: doc => {
+        if (!doc.country) return;
         let date = countryList[doc.country]['fiscal_year_end'].split('-');
         var currentYear = new Date().getFullYear() + 1;
         let currentMonth = date[0] - 1;
@@ -83,6 +85,7 @@ module.exports = {
       label: 'Currency',
       fieldtype: 'Data',
       formula: doc => {
+        if (!doc.country) return;
         return countryList[doc.country].currency;
       },
       required: 1
@@ -93,6 +96,15 @@ module.exports = {
       fieldtype: 'Check',
       readonly: 1
     }
+  ],
+  quickEditFields: [
+    'fullname',
+    'email',
+    'companyName',
+    'country',
+    'currency',
+    'fiscalYearStart',
+    'fiscalYearEnd',
   ],
 
   layout: {

@@ -9,7 +9,8 @@ module.exports = {
       fieldname: 'name',
       label: 'Name',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
+      placeholder: 'Full Name'
     },
     {
       fieldname: 'address',
