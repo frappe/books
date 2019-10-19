@@ -135,15 +135,19 @@ module.exports = class BaseDocument extends Observable {
       this[key] = [];
     }
     this[key].push(this._initChild(document, key));
+    this._dirty = true;
+    this.applyChange(key);
   }
 
   _initChild(data, key) {
     if (data instanceof BaseDocument) {
       return data;
     } else {
+      data.doctype = this.meta.getField(key).childtype;
       data.parent = this.name;
       data.parenttype = this.doctype;
       data.parentfield = key;
+      data.parentdoc = this;
 
       if (!data.idx) {
         data.idx = (this[key] || []).length;
@@ -301,10 +305,15 @@ module.exports = class BaseDocument extends Observable {
       }
     }
 
-    // parent
+    // parent or child row
     for (let field of this.meta.getFormulaFields()) {
       if (shouldApplyFormula(field, doc)) {
-        const val = await field.formula(doc);
+        let val;
+        if (this.meta.isChild) {
+          val = await field.formula(doc, this.parentdoc);
+        } else {
+          val = await field.formula(doc);
+        }
         if (val !== false && val !== undefined) {
           doc[field.fieldname] = val;
         }
