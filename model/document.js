@@ -104,10 +104,7 @@ module.exports = class BaseDocument extends Observable {
 
   setDefaults() {
     for (let field of this.meta.fields) {
-      if (
-        this[field.fieldname] === null ||
-        this[field.fieldname] === undefined
-      ) {
+      if (this[field.fieldname] == null) {
         let defaultValue = null;
 
         if (field.fieldtype === 'Table') {
@@ -119,6 +116,10 @@ module.exports = class BaseDocument extends Observable {
 
         this[field.fieldname] = defaultValue;
       }
+    }
+
+    if (this.meta.basedOn && this.meta.filters) {
+      this.setValues(this.meta.filters);
     }
   }
 
