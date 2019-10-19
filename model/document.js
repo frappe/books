@@ -24,12 +24,22 @@ module.exports = class BaseDocument extends Observable {
   setValues(data) {
     for (let fieldname in data) {
       let value = data[fieldname];
-      if (Array.isArray(value)) {
+      if (fieldname.startsWith('_')) {
+        // private property
+        this[fieldname] = value;
+      } else if (Array.isArray(value)) {
         for (let row of value) {
           this.append(fieldname, row);
         }
       } else {
         this[fieldname] = value;
+      }
+    }
+    // set unset fields as null
+    for (let field of this.meta.getValidFields()) {
+      // check for null or undefined
+      if (this[field.fieldname] == null) {
+        this[field.fieldname] = null;
       }
     }
   }
@@ -207,7 +217,7 @@ module.exports = class BaseDocument extends Observable {
 
   syncValues(data) {
     this.clearValues();
-    Object.assign(this, data);
+    this.setValues(data);
     this._dirty = false;
     this.trigger('change', {
       doc: this
