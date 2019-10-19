@@ -74,7 +74,8 @@ module.exports = class sqliteDatabase extends Database {
     columns.push(def);
 
     if (field.fieldtype === 'Link' && field.target) {
-      indexes.push(`FOREIGN KEY (${field.fieldname}) REFERENCES ${field.target} ON UPDATE CASCADE ON DELETE RESTRICT`);
+      let meta = frappe.getMeta(field.target);
+      indexes.push(`FOREIGN KEY (${field.fieldname}) REFERENCES ${meta.getBaseDocType()} ON UPDATE CASCADE ON DELETE RESTRICT`);
     }
   }
 
