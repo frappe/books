@@ -208,7 +208,7 @@ module.exports = class sqliteDatabase extends Database {
       fields = [fields];
     }
     if (meta.filters) {
-      Object.assign(filters, meta.filters);
+      filters = Object.assign({}, filters, meta.filters);
     }
 
     return new Promise((resolve, reject) => {
