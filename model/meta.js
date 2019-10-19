@@ -25,6 +25,16 @@ module.exports = class BaseMeta extends BaseDocument {
 
   setValues(data) {
     Object.assign(this, data);
+    if (!this.fields.find(df => df.fieldname === 'name')) {
+      this.fields = [
+        {
+          label: frappe._('Name'),
+          fieldname: 'name',
+          fieldtype: 'Data',
+          required: 1
+        }
+      ].concat(this.fields);
+    }
   }
 
   hasField(fieldname) {
@@ -213,7 +223,10 @@ module.exports = class BaseMeta extends BaseDocument {
   }
 
   getQuickEditFields() {
-    return this.quickEditFields || this.getKeywordFields();
+    if (this.quickEditFields) {
+      return this.quickEditFields.map(fieldname => this.getField(fieldname));
+    }
+    return this.getFieldsWith({ required: 1 });
   }
 
   validateSelect(field, value) {
