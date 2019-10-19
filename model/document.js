@@ -331,8 +331,13 @@ module.exports = class BaseDocument extends Observable {
     await this.commit();
     await this.trigger('beforeInsert');
 
+    let oldName = this.name;
     const data = await frappe.db.insert(this.doctype, this.getValidDict());
     this.syncValues(data);
+
+    if (oldName !== this.name) {
+      frappe.removeFromCache(this.doctype, oldName);
+    }
 
     await this.trigger('afterInsert');
     await this.trigger('afterSave');

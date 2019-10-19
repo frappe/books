@@ -135,6 +135,14 @@ module.exports = {
     }
   },
 
+  removeFromCache(doctype, name) {
+    try {
+      delete this.docs[doctype][name];
+    } catch(e) {
+      console.warn(`Document ${doctype} ${name} does not exist`);
+    }
+  },
+
   isDirty(doctype, name) {
     return (
       (this.docs &&
