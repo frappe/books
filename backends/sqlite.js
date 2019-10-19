@@ -79,12 +79,16 @@ module.exports = class sqliteDatabase extends Database {
   }
 
   getColumnDefinition(field) {
+    let defaultValue = field.default;
+    if (typeof defaultValue === 'string') {
+      defaultValue = `'${defaultValue}'`
+    }
     let def = [
       field.fieldname,
       this.typeMap[field.fieldtype],
       field.fieldname === 'name' ? 'PRIMARY KEY NOT NULL' : '',
       field.required ? 'NOT NULL' : '',
-      field.default ? `DEFAULT ${field.default}` : ''
+      field.default ? `DEFAULT ${defaultValue}` : ''
     ].join(' ');
 
     return def;
