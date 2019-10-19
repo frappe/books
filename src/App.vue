@@ -3,6 +3,7 @@
     <Desk class="flex-1" v-if="showDesk" />
     <database-selector v-if="showDatabaseSelector" @file="connectToDBFile" />
     <setup-wizard v-if="showSetupWizard" />
+    <Settings v-if="showSettings" />
   </div>
 </template>
 
@@ -12,6 +13,7 @@ import frappe from 'frappejs';
 import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
 import DatabaseSelector from './pages/DatabaseSelector';
+import Settings from '@/pages/Settings.vue';
 import { remote } from 'electron';
 
 export default {
@@ -20,7 +22,8 @@ export default {
     return {
       showDatabaseSelector: false,
       showDesk: false,
-      showSetupWizard: false
+      showSetupWizard: false,
+      showSettings: false
     };
   },
   watch: {
@@ -34,19 +37,27 @@ export default {
         remote.getCurrentWindow().setSize(600, 600);
       }
     },
+    showSettings(newValue) {
+      if (newValue) {
+        remote.getCurrentWindow().setSize(460, 577);
+      }
+    },
     showDesk(newValue) {
       if (newValue) {
         remote.getCurrentWindow().setSize(1200, 907);
       }
-    },
+    }
   },
   components: {
     Desk,
     SetupWizard,
-    DatabaseSelector
+    DatabaseSelector,
+    Settings
   },
   mounted() {
-    if (!localStorage.dbPath) {
+    if (this.$route.path === '/settings') {
+      this.showSettings = true;
+    } else if (!localStorage.dbPath) {
       this.showDatabaseSelector = true;
     } else {
       frappe.events.trigger('connect-database', localStorage.dbPath);

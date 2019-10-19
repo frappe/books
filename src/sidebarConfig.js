@@ -103,7 +103,10 @@ const config = {
     },
     {
       title: _('Settings'),
-      icon: SettingsIcon
+      icon: SettingsIcon,
+      action() {
+        window.open('/index.html#/settings');
+      }
     }
   ]
 };

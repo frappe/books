@@ -15,7 +15,7 @@
         >{{ column.label }}</div>
       </Row>
       <div class="flex-1 overflow-auto">
-        <Row v-for="row in rows" :columnCount="columns.length" gap="1rem">
+        <Row v-for="(row, i) in rows" :columnCount="columns.length" gap="1rem" :key="i">
           <div
             class="text-gray-900 text-sm truncate py-4"
             v-for="column in columns"
