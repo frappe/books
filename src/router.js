@@ -8,11 +8,8 @@ import PrintView from '@/pages/PrintView';
 import QuickEditForm from '@/pages/QuickEditForm';
 
 import Report from '@/pages/Report.vue';
-import reportViewConfig from '../reports/view';
 
 import DataImport from '@/pages/DataImport';
-
-import Settings from '@/pages/Settings/Settings';
 
 import ReportList from '@/pages/ReportList';
 import ChartOfAccounts from '@/pages/ChartOfAccounts';
@@ -81,11 +78,11 @@ const routes = [
     name: 'Data Import',
     component: DataImport
   },
-  {
-    path: '/settings',
-    name: 'Settings',
-    component: Settings
-  },
+  // {
+  //   path: '/settings',
+  //   name: 'Settings',
+  //   component: Settings
+  // },
   {
     path: '/reportList',
     name: 'Report',
@@ -112,6 +109,6 @@ const routes = [
 ];
 
 let router = new Router({ routes });
-router.replace('/report/general-ledger');
+router.replace('/list/Item');
 
 export default router;

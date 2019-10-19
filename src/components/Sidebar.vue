@@ -76,6 +76,9 @@ export default {
       return this.activeGroup && group.title === this.activeGroup.title;
     },
     onGroupClick(group) {
+      if (group.action) {
+        group.action();
+      }
       if (group.route) {
         this.routeTo(group.route);
       }
