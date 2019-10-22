@@ -5,7 +5,7 @@
       :class="inputClasses"
       :type="inputType"
       :value="value"
-      :placeholder="placeholder || df.placeholder"
+      :placeholder="inputPlaceholder"
       :readonly="df.readOnly"
       @blur="e => triggerChange(e.target.value)"
     />
@@ -30,6 +30,9 @@ export default {
         },
         'focus:outline-none focus:bg-gray-200 rounded-5px w-full text-gray-900'
       ];
+    },
+    inputPlaceholder() {
+      return this.placeholder || this.df.placeholder
     }
   },
   methods: {
