@@ -8,6 +8,7 @@ module.exports = {
       fieldname: 'name',
       label: 'Item Name',
       fieldtype: 'Data',
+      placeholder: 'Item Name',
       required: 1
     },
     {
@@ -27,6 +28,7 @@ module.exports = {
       label: 'Income',
       fieldtype: 'Link',
       target: 'Account',
+      placeholder: 'Sales',
       required: 1,
       getFilters: query => {
         return {
@@ -40,6 +42,7 @@ module.exports = {
       label: 'Expense',
       fieldtype: 'Link',
       target: 'Account',
+      placeholder: 'Cost of Goods Sold',
       required: 1,
       getFilters: query => {
         return {
@@ -59,12 +62,14 @@ module.exports = {
       fieldname: 'tax',
       label: 'Tax',
       fieldtype: 'Link',
-      target: 'Tax'
+      target: 'Tax',
+      placeholder: 'GST'
     },
     {
       fieldname: 'rate',
       label: 'Rate',
-      fieldtype: 'Currency'
+      fieldtype: 'Currency',
+      placeholder: '0.00'
     }
   ],
   quickEditFields: [

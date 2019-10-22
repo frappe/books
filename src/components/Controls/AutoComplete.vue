@@ -5,7 +5,7 @@
       :class="inputClasses"
       type="text"
       :value="linkValue"
-      :placeholder="placeholder"
+      :placeholder="inputPlaceholder"
       :readonly="df.readOnly"
       @focus="onFocus"
       @input="onInput"
