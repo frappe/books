@@ -25,6 +25,9 @@ function createWindow() {
    */
 
   mainWindow = new BrowserWindow({
+    vibrancy: 'sidebar',
+    transparent: true,
+    backgroundColor: "#80FFFFFF",
     width: 1200,
     height: 907,
     frame: false,

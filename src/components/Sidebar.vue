@@ -1,6 +1,7 @@
 <template>
   <div
-    class="pt-6 pb-2 px-2 h-full block window-drag bg-gray-200 flex justify-between flex-col"
+    class="pt-6 pb-2 px-2 h-full block window-drag flex justify-between flex-col"
+    style="background-color: rgba(255, 255, 255, 0.2)"
   >
     <div>
       <WindowControls class="px-3" />
