@@ -19,6 +19,10 @@
 
 @tailwind utilities;
 
+html {
+  color: theme('colors.black');
+}
+
 .window-drag {
   -webkit-app-region: drag;
 }
