@@ -119,7 +119,7 @@ describe('Document', () => {
         assert.equal(user.roles[0].parentfield, 'roles');
     });
 
-    it.only('should convert children objects to BaseDocument', async () => {
+    it('should convert children objects to BaseDocument', async () => {
         if (!await frappe.db.exists('Role', 'Test Role 1')) {
             await frappe.insert({doctype: 'Role', name: 'Test Role'});
             await frappe.insert({doctype: 'Role', name: 'Test Role 1'});
