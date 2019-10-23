@@ -4,12 +4,10 @@
       <thead>
         <tr>
           <th scope="col" width="60">
-            <input class="mr-2" type="checkbox" @change="toggleCheckAll">
+            <input class="mr-2" type="checkbox" @change="toggleCheckAll" />
             <span>#</span>
           </th>
-          <th scope="col" v-for="column in columns" :key="column.fieldname">
-            {{ column.label }}
-          </th>
+          <th scope="col" v-for="column in columns" :key="column.fieldname">{{ column.label }}</th>
         </tr>
       </thead>
       <tbody v-if="rows.length">
@@ -20,10 +18,12 @@
               type="checkbox"
               :checked="checkedRows.includes(i)"
               @change="e => onCheck(e, i)"
-            >
+            />
             <span>{{ i + 1 }}</span>
           </th>
-          <td v-for="column in columns" :key="column.fieldname"
+          <td
+            v-for="column in columns"
+            :key="column.fieldname"
             tabindex="1"
             :ref="column.fieldname + i"
             @click="activateFocus(i, column.fieldname)"
@@ -37,7 +37,10 @@
             @keydown.down="focusBelowCell(i, column.fieldname)"
             @keydown.esc="escOnCell(i, column.fieldname)"
           >
-            <div class="table-cell" :class="{'active': isFocused(i, column.fieldname)}">
+            <div
+              class="table-cell"
+              :class="{'active': isFocused(i, column.fieldname),'p-1': isEditing(i, column.fieldname)}"
+            >
               <frappe-control
                 v-if="isEditing(i, column.fieldname)"
                 :docfield="getDocfield(column.fieldname)"
@@ -47,9 +50,11 @@
                 :autofocus="true"
                 @change="onCellChange(i, column.fieldname, $event)"
               />
-              <div class="text-truncate" v-else>
-                {{ row[column.fieldname] || '&nbsp;' }}
-              </div>
+              <div
+                class="text-truncate"
+                :data-fieldtype="column.fieldtype"
+                v-else
+              >{{ row[column.fieldname] || '&nbsp;' }}</div>
             </div>
           </td>
         </tr>
@@ -57,16 +62,14 @@
       <tbody v-else>
         <tr>
           <td :colspan="columns.length + 1" class="text-center">
-            <div class="table-cell">
-              No Data
-            </div>
+            <div class="table-cell">No Data</div>
           </td>
         </tr>
       </tbody>
     </table>
     <div class="table-actions" v-if="!disabled">
       <f-button danger @click="removeCheckedRows" v-if="checkedRows.length">Remove</f-button>
-      <f-button light @click="addRow" v-if="!checkedRows.length">Add Row</f-button>
+      <f-button secondary @click="addRow" v-if="!checkedRows.length">Add Row</f-button>
     </div>
   </div>
 </template>
@@ -96,7 +99,12 @@ export default {
     enterPressOnCell() {
       const { index, fieldname } = this.currentlyFocused;
       if (this.isEditing(index, fieldname)) {
-        this.deactivateEditing();
+        // FIX: enter pressing on a cell with a value throws error.
+        // Problem: input gets undefined on deactivating
+        setTimeout(() => {
+          this.deactivateEditing();
+        }, 300);
+
         this.activateFocus(index, fieldname);
       } else {
         this.activateEditing(index, fieldname);
@@ -104,7 +112,10 @@ export default {
     },
     focusPreviousCell() {
       let { index, fieldname } = this.currentlyFocused;
-      if (this.isFocused(index, fieldname) && !this.isEditing(index, fieldname)) {
+      if (
+        this.isFocused(index, fieldname) &&
+        !this.isEditing(index, fieldname)
+      ) {
         let pos = this._getColumnIndex(fieldname);
         pos -= 1;
         if (pos < 0) {
@@ -120,8 +131,10 @@ export default {
     },
     focusNextCell() {
       let { index, fieldname } = this.currentlyFocused;
-      if (this.isFocused(index, fieldname) && !this.isEditing(index, fieldname)) {
-
+      if (
+        this.isFocused(index, fieldname) &&
+        !this.isEditing(index, fieldname)
+      ) {
         let pos = this._getColumnIndex(fieldname);
         pos += 1;
         if (pos > this.columns.length - 1) {
@@ -204,7 +217,10 @@ export default {
       };
     },
     activateFocus(i, fieldname) {
-      this.deactivateEditing();
+      if (this.isFocused(i, fieldname) && this.isEditing(i, fieldname)) {
+        return;
+      }
+      // this.deactivateEditing();
       const docfield = this.columns.find(c => c.fieldname === fieldname);
       this.currentlyFocused = {
         index: i,
@@ -224,14 +240,13 @@ export default {
         this.currentlyFocused = {};
       }
     },
-    addRow() {
+    async addRow() {
       const rows = this.rows.slice();
-      const newRow = {
-        idx: rows.length
-      };
+      const newRow = { idx: rows.length };
 
       for (let column of this.columns) {
-        newRow[column.fieldname] = null;
+        if (column.defaultValue) newRow[column.fieldname] = column.defaultValue;
+        else newRow[column.fieldname] = null;
       }
 
       rows.push(newRow);
@@ -292,7 +307,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 td {
-  padding: 0;
+  padding: 0rem;
   outline: none;
 }
 
@@ -321,5 +336,10 @@ td {
 
 [data-fieldtype='Link'] .input-group-append {
   display: none;
+}
+
+[data-fieldtype='Currency'],
+[data-fieldtype='Float'] {
+  text-align: right !important;
 }
 </style>

@@ -21,7 +21,9 @@ function makeConfig() {
 
   const whiteListedModules = ['vue'];
   const allDependencies = Object.assign(frappeDependencies, appDependencies);
-  const externals = Object.keys(allDependencies).filter(d => !whiteListedModules.includes(d));
+  const externals = Object.keys(allDependencies).filter(
+    d => !whiteListedModules.includes(d)
+  );
 
   getConfig = function getConfig() {
     const config = {
@@ -31,7 +33,9 @@ function makeConfig() {
       externals: isElectron ? externals : undefined,
       target: isElectron ? 'electron-renderer' : 'web',
       output: {
-        path: isElectron ? resolveAppDir('./dist/electron') : resolveAppDir('./dist'),
+        path: isElectron
+          ? resolveAppDir('./dist/electron')
+          : resolveAppDir('./dist'),
         filename: '[name].js',
         // publicPath: appConfig.dev.assetsPublicPath,
         libraryTarget: isElectron ? 'commonjs2' : undefined
@@ -46,10 +50,8 @@ function makeConfig() {
           {
             test: /\.js$/,
             loader: 'babel-loader',
-            exclude: file => (
-              /node_modules/.test(file) &&
-              !/\.vue\.js/.test(file)
-            )
+            exclude: file =>
+              /node_modules/.test(file) && !/\.vue\.js/.test(file)
           },
           {
             test: /\.node$/,
@@ -57,48 +59,62 @@ function makeConfig() {
           },
           {
             test: /\.css$/,
-            use: [
-              'vue-style-loader',
-              'css-loader'
-            ]
+            use: ['vue-style-loader', 'css-loader', {
+              loader: 'postcss-loader',
+              options: {
+                ident: 'postcss',
+                plugins: [
+                  require('tailwindcss'),
+                  require('autoprefixer'),
+                ],
+              },
+            }]
           },
           {
             test: /\.scss$/,
-            use: [
-              'vue-style-loader',
-              'css-loader',
-              'sass-loader'
-            ]
+            use: ['vue-style-loader', 'css-loader', 'sass-loader']
           },
           {
-            test: /\.(png|svg|jpg|gif)$/,
-            use: [
-              'file-loader'
-            ]
+            test: /\.(png|svg|jpg|woff|woff2|gif)$/,
+            use: ['file-loader']
           }
         ]
       },
       resolve: {
         extensions: ['.js', '.vue', '.json', '.css', '.node'],
         alias: {
-          'vue$': 'vue/dist/vue.esm.js',
-          'deepmerge$': 'deepmerge/dist/umd.js',
+          vue$: 'vue/dist/vue.esm.js',
+          deepmerge$: 'deepmerge/dist/umd.js',
           '@': appConfig.dev.srcDir ? resolveAppDir(appConfig.dev.srcDir) : null
         }
       },
       plugins: [
-        new webpack.DefinePlugin(Object.assign({
-          'process.env': appConfig.dev.env,
-          'process.env.NODE_ENV': isProduction ? '"production"' : '"development"',
-          'process.env.ELECTRON': JSON.stringify(process.env.ELECTRON)
-        }, !isProduction ? {
-          '__static': `"${resolveAppDir(appConfig.staticPath).replace(/\\/g, '\\\\')}"`
-        } : {})),
+        new webpack.DefinePlugin(
+          Object.assign(
+            {
+              'process.env': appConfig.dev.env,
+              'process.env.NODE_ENV': isProduction
+                ? '"production"'
+                : '"development"',
+              'process.env.ELECTRON': JSON.stringify(process.env.ELECTRON)
+            },
+            !isProduction
+              ? {
+                  __static: `"${resolveAppDir(appConfig.staticPath).replace(
+                    /\\/g,
+                    '\\\\'
+                  )}"`
+                }
+              : {}
+          )
+        ),
         new VueLoaderPlugin(),
         new HtmlWebpackPlugin({
           template: resolveAppDir(appConfig.dev.entryHtml),
           nodeModules: !isProduction
-            ? isMonoRepo ? resolveAppDir('../../node_modules') : resolveAppDir('./node_modules')
+            ? isMonoRepo
+              ? resolveAppDir('../../node_modules')
+              : resolveAppDir('./node_modules')
             : false
         }),
         new CaseSensitivePathsWebpackPlugin(),
@@ -106,17 +122,23 @@ function makeConfig() {
         new webpack.HotModuleReplacementPlugin(),
         new FriendlyErrorsWebpackPlugin({
           compilationSuccessInfo: {
-            messages: [`FrappeJS server started at http://${appConfig.dev.devServerHost}:${appConfig.dev.devServerPort}`],
-          },
+            messages: [
+              `FrappeJS server started at http://${
+                appConfig.dev.devServerHost
+              }:${appConfig.dev.devServerPort}`
+            ]
+          }
         }),
         new webpack.ProgressPlugin(),
-        isProduction ? new CopyWebpackPlugin([
-          {
-            from: resolveAppDir(appConfig.staticPath),
-            to: resolveAppDir('./dist/electron/static'),
-            ignore: ['.*']
-          }
-        ]) : null,
+        isProduction
+          ? new CopyWebpackPlugin([
+              {
+                from: resolveAppDir(appConfig.staticPath),
+                to: resolveAppDir('./dist/electron/static'),
+                ignore: ['.*']
+              }
+            ])
+          : null
         // isProduction ? new BabiliWebpackPlugin() : null,
         // isProduction ? new webpack.LoaderOptionsPlugin({ minimize: true }) : null,
       ].filter(Boolean),
@@ -143,10 +165,10 @@ function makeConfig() {
         tls: 'empty',
         child_process: 'empty'
       }
-    }
+    };
 
     return config;
-  }
+  };
 
   getElectronMainConfig = function getElectronMainConfig() {
     return {
@@ -179,16 +201,17 @@ function makeConfig() {
       plugins: [
         new webpack.NoEmitOnErrorsPlugin(),
         // isProduction && new BabiliWebpackPlugin(),
-        isProduction && new webpack.DefinePlugin({
-          'process.env.NODE_ENV': '"production"'
-        })
+        isProduction &&
+          new webpack.DefinePlugin({
+            'process.env.NODE_ENV': '"production"'
+          })
       ].filter(Boolean),
       resolve: {
         extensions: ['.js', '.json', '.node']
       },
       target: 'electron-main'
-    }
-  }
+    };
+  };
 }
 
 makeConfig();

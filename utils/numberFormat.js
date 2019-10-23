@@ -1,15 +1,15 @@
 const numberFormats = {
-  "#,###.##": { fractionSep: ".", groupSep: ",", precision: 2 },
-  "#.###,##": { fractionSep: ",", groupSep: ".", precision: 2 },
-  "# ###.##": { fractionSep: ".", groupSep: " ", precision: 2 },
-  "# ###,##": { fractionSep: ",", groupSep: " ", precision: 2 },
-  "#'###.##": { fractionSep: ".", groupSep: "'", precision: 2 },
-  "#, ###.##": { fractionSep: ".", groupSep: ", ", precision: 2 },
-  "#,##,###.##": { fractionSep: ".", groupSep: ",", precision: 2 },
-  "#,###.###": { fractionSep: ".", groupSep: ",", precision: 3 },
-  "#.###": { fractionSep: "", groupSep: ".", precision: 0 },
-  "#,###": { fractionSep: "", groupSep: ",", precision: 0 },
-}
+  '#,###.##': { fractionSep: '.', groupSep: ',', precision: 2 },
+  '#.###,##': { fractionSep: ',', groupSep: '.', precision: 2 },
+  '# ###.##': { fractionSep: '.', groupSep: ' ', precision: 2 },
+  '# ###,##': { fractionSep: ',', groupSep: ' ', precision: 2 },
+  "#'###.##": { fractionSep: '.', groupSep: "'", precision: 2 },
+  '#, ###.##': { fractionSep: '.', groupSep: ', ', precision: 2 },
+  '#,##,###.##': { fractionSep: '.', groupSep: ',', precision: 2 },
+  '#,###.###': { fractionSep: '.', groupSep: ',', precision: 3 },
+  '#.###': { fractionSep: '', groupSep: '.', precision: 0 },
+  '#,###': { fractionSep: '', groupSep: ',', precision: 0 }
+};
 
 module.exports = {
   // parse a formatted number string
@@ -53,7 +53,8 @@ module.exports = {
 
       for (var i = integer.length; i >= 0; i--) {
         var l = this.removeSeparator(str, info.groupSep).length;
-        if (format == "#,##,###.##" && str.indexOf(",") != -1) { // INR
+        if (format == '#,##,###.##' && str.indexOf(',') != -1) {
+          // INR
           group_position = 2;
           l += 1;
         }
@@ -64,24 +65,27 @@ module.exports = {
           str += info.groupSep;
         }
       }
-      parts[0] = str.split("").reverse().join("");
+      parts[0] = str
+        .split('')
+        .reverse()
+        .join('');
     }
-    if (parts[0] + "" == "") {
-      parts[0] = "0";
+    if (parts[0] + '' == '') {
+      parts[0] = '0';
     }
 
     // join decimal
-    parts[1] = (parts[1] && info.fractionSep) ? (info.fractionSep + parts[1]) : "";
+    parts[1] = parts[1] && info.fractionSep ? info.fractionSep + parts[1] : '';
 
     // join
-    return (is_negative ? "-" : "") + parts[0] + parts[1];
+    return (is_negative ? '-' : '') + parts[0] + parts[1];
   },
 
   getFormatInfo(format) {
     let format_info = numberFormats[format];
 
     if (!format_info) {
-      throw `Unknown number format "${format}"`;
+      throw new Error(`Unknown number format "${format}"`);
     }
 
     return format_info;
@@ -92,13 +96,14 @@ module.exports = {
     var d = parseInt(precision || 0);
     var m = Math.pow(10, d);
     var n = +(d ? Math.abs(num) * m : Math.abs(num)).toFixed(8); // Avoid rounding errors
-    var i = Math.floor(n), f = n - i;
-    var r = ((!precision && f == 0.5) ? ((i % 2 == 0) ? i : i + 1) : Math.round(n));
+    var i = Math.floor(n),
+      f = n - i;
+    var r = !precision && f == 0.5 ? (i % 2 == 0 ? i : i + 1) : Math.round(n);
     r = d ? r / m : r;
     return is_negative ? -r : r;
   },
 
   removeSeparator(text, sep) {
-    return text.replace(new RegExp(sep === "." ? "\\." : sep, "g"), '');
+    return text.replace(new RegExp(sep === '.' ? '\\.' : sep, 'g'), '');
   }
 };
