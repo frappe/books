@@ -19,11 +19,12 @@ module.exports = class Database extends Observable {
     for (let doctype in frappe.models) {
       // check if controller module
       let meta = frappe.getMeta(doctype);
+      let baseDoctype = meta.getBaseDocType();
       if (!meta.isSingle) {
-        if (await this.tableExists(doctype)) {
-          await this.alterTable(doctype);
+        if (await this.tableExists(baseDoctype)) {
+          await this.alterTable(baseDoctype);
         } else {
-          await this.createTable(doctype);
+          await this.createTable(baseDoctype);
         }
       }
     }
@@ -197,20 +198,27 @@ module.exports = class Database extends Observable {
   triggerChange(doctype, name) {
     this.trigger(`change:${doctype}`, { name }, 500);
     this.trigger(`change`, { doctype, name }, 500);
+    // also trigger change for basedOn doctype
+    let meta = frappe.getMeta(doctype);
+    if (meta.basedOn) {
+      this.triggerChange(meta.basedOn, name);
+    }
   }
 
   async insert(doctype, doc) {
     let meta = frappe.getMeta(doctype);
+    let baseDoctype = meta.getBaseDocType();
+    doc = this.applyBaseDocTypeFilters(doctype, doc);
 
     // insert parent
     if (meta.isSingle) {
       await this.updateSingle(meta, doc, doctype);
     } else {
-      await this.insertOne(doctype, doc);
+      await this.insertOne(baseDoctype, doc);
     }
 
     // insert children
-    await this.insertChildren(meta, doc, doctype);
+    await this.insertChildren(meta, doc, baseDoctype);
 
     this.triggerChange(doctype, doc.name);
 
@@ -236,16 +244,18 @@ module.exports = class Database extends Observable {
 
   async update(doctype, doc) {
     let meta = frappe.getMeta(doctype);
+    let baseDoctype = meta.getBaseDocType();
+    doc = this.applyBaseDocTypeFilters(doctype, doc);
 
     // update parent
     if (meta.isSingle) {
       await this.updateSingle(meta, doc, doctype);
     } else {
-      await this.updateOne(doctype, doc);
+      await this.updateOne(baseDoctype, doc);
     }
 
     // insert or update children
-    await this.updateChildren(meta, doc, doctype);
+    await this.updateChildren(meta, doc, baseDoctype);
 
     this.triggerChange(doctype, doc.name);
 
@@ -299,6 +309,10 @@ module.exports = class Database extends Observable {
     // await frappe.db.run('delete from SingleValue where parent=?', name)
   }
 
+  async rename(doctype, oldName, newName) {
+    // await frappe.db.run('update doctype set name = ? where name = ?', name)
+  }
+
   prepareChild(parenttype, parent, child, field, idx) {
     if (!child.name) {
       child.name = frappe.getRandomString();
@@ -339,6 +353,19 @@ module.exports = class Database extends Observable {
     }
   }
 
+  applyBaseDocTypeFilters(doctype, doc) {
+    let meta = frappe.getMeta(doctype);
+    if (meta.filters) {
+      for (let fieldname in meta.filters) {
+        let value = meta.filters[fieldname];
+        if (typeof value !== 'object') {
+          doc[fieldname] = value;
+        }
+      }
+    }
+    return doc;
+  }
+
   async deleteMany(doctype, names) {
     for (const name of names) {
       await this.delete(doctype, name);
@@ -346,7 +373,9 @@ module.exports = class Database extends Observable {
   }
 
   async delete(doctype, name) {
-    await this.deleteOne(doctype, name);
+    let meta = frappe.getMeta(doctype);
+    let baseDoctype = meta.getBaseDocType();
+    await this.deleteOne(baseDoctype, name);
 
     // delete children
     let tableFields = frappe.getMeta(doctype).getTableFields();
@@ -370,12 +399,17 @@ module.exports = class Database extends Observable {
   }
 
   async getValue(doctype, filters, fieldname = 'name') {
+    let meta = frappe.getMeta(doctype);
+    let baseDoctype = meta.getBaseDocType();
     if (typeof filters === 'string') {
       filters = { name: filters };
     }
+    if (meta.filters) {
+      Object.assign(filters, meta.filters);
+    }
 
     let row = await this.getAll({
-      doctype: doctype,
+      doctype: baseDoctype,
       fields: [fieldname],
       filters: filters,
       start: 0,

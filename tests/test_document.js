@@ -1,6 +1,7 @@
 const assert = require('assert');
 const frappe = require('frappejs');
 const helpers = require('./helpers');
+const BaseDocument = require('frappejs/model/document');
 
 describe('Document', () => {
     before(async function() {
@@ -118,6 +119,46 @@ describe('Document', () => {
         assert.equal(user.roles[0].parentfield, 'roles');
     });
 
+    it('should convert children objects to BaseDocument', async () => {
+        if (!await frappe.db.exists('Role', 'Test Role 1')) {
+            await frappe.insert({doctype: 'Role', name: 'Test Role'});
+            await frappe.insert({doctype: 'Role', name: 'Test Role 1'});
+        }
+
+        let user = frappe.newDoc({
+            doctype: 'User',
+            name: frappe.getRandomString(),
+            fullName: 'Test User',
+            password: frappe.getRandomString(),
+            roles: [
+                {
+                    role: 'Test Role'
+                }
+            ]
+        });
+        await user.insert();
+        assert.ok(user.roles[0] instanceof BaseDocument);
+        assert.equal(user.roles[0].parent, user.name);
+        assert.equal(user.roles[0].parenttype, 'User');
+        assert.equal(user.roles[0].parentfield, 'roles');
+        assert.equal(user.roles[0].idx, 0);
+
+        user.append('roles', { role: 'Test Role 1'});
+        assert.equal(user.roles[1].role, 'Test Role 1');
+        assert.ok(user.roles[1] instanceof BaseDocument);
+        assert.equal(user.roles[1].parent, user.name);
+        assert.equal(user.roles[1].parenttype, 'User');
+        assert.equal(user.roles[1].parentfield, 'roles');
+        assert.equal(user.roles[1].idx, 1);
+
+        user.set('roles', [{ role: 'Test Role' }]);
+        assert.equal(user.roles.length, 1);
+        assert.ok(user.roles[0] instanceof BaseDocument);
+        assert.equal(user.roles[0].parent, user.name);
+        assert.equal(user.roles[0].parenttype, 'User');
+        assert.equal(user.roles[0].parentfield, 'roles');
+        assert.equal(user.roles[0].idx, 0);
+    });
 });
 
 function test_doc() {

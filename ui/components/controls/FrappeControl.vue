@@ -6,10 +6,12 @@
     :onlyInput="onlyInput"
     :disabled="isDisabled"
     :autofocus="autofocus"
+    :doc="doc"
     @change="$emit('change', $event)"
   />
 </template>
 <script>
+import frappe from 'frappejs';
 import Base from './Base';
 import Autocomplete from './Autocomplete';
 import Check from './Check';
@@ -77,7 +79,7 @@ export default {
         return this.doc[reference];
       }
     };
-  },
+  }
 };
 </script>
 <style scoped>

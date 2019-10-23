@@ -10,9 +10,9 @@ export default {
   extends: Autocomplete,
   methods: {
     async getList(query) {
-      let filters = this.docfield.getFilters ?
-        this.docfield.getFilters(query) :
-        null;
+      let filters = this.docfield.getFilters
+        ? this.docfield.getFilters(query, this.doc)
+        : null;
 
       if (query) {
         if (!filters) filters = {};
@@ -42,6 +42,7 @@ export default {
         }))
         .concat({
           label: plusIcon + ' New ' + this.getTarget(),
+          filters,
           value: '__newItem'
         });
     },
@@ -138,18 +139,23 @@ export default {
     },
     onItemClick(item) {
       if (item.value === '__newItem') {
-        this.openFormModal();
+        this.openFormModal(item.filters);
       } else {
         this.handleChange(item.value);
       }
     },
-    async openFormModal() {
+    async openFormModal(filters) {
       const input = this.$refs.input;
       const newDoc = await frappe.getNewDoc(this.getTarget());
+      let defaultValues = {};
+      if (filters) {
+        for (let key of Object.keys(filters)) {
+          defaultValues[key] = filters[key];
+        }
+      }
+      defaultValues.name = input.value !== '__newItem' ? input.value : null;
       this.$formModal.open(newDoc, {
-        defaultValues: {
-          name: input.value !== '__newItem' ? input.value : null
-        },
+        defaultValues,
         onClose: () => {
           // if new doc was not created
           // then reset the input value

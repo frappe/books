@@ -1,17 +1,21 @@
 <template>
   <form :class="['frappe-form-layout', { 'was-validated': invalid }]">
-    <div class="form-row" v-if="layoutConfig"
-      v-for="(section, i) in layoutConfig.sections" :key="i"
-      v-show="showSection(i)"
+    <div
+      class="form-row"
+      v-if="layoutConfig && showSection(i)"
+      v-for="(section, i) in layoutConfig.sections"
+      :key="i"
     >
       <div class="col" v-for="(column, j) in section.columns" :key="j">
         <frappe-control
-          v-for="fieldname in column.fields"
+          ref="frappe-control"
+          v-for="(fieldname, k) in column.fields"
           v-if="shouldRenderField(fieldname)"
-          :key="fieldname"
+          :key="getDocField(fieldname).label"
           :docfield="getDocField(fieldname)"
           :value="$data[fieldname]"
           :doc="doc"
+          :autofocus="doc.isNew() && (i === currentSection || i === 0) && j === 0 && k === 0 && !$data[fieldname]"
           @change="value => updateDoc(fieldname, value)"
         />
       </div>
@@ -45,14 +49,27 @@ export default {
           this[df.fieldname] = doc[df.fieldname];
         });
       }
+      this.updateLabels();
     });
   },
   methods: {
+    updateLabels() {
+      this.$refs['frappe-control'].forEach(control => {
+        control.docfield.label = control.docfield.getLabel
+          ? control.docfield.getLabel(this.doc)
+          : control.docfield.label;
+      });
+    },
     getDocField(fieldname) {
       return this.fields.find(df => df.fieldname === fieldname);
     },
     shouldRenderField(fieldname) {
-      const hidden = Boolean(this.getDocField(fieldname).hidden);
+      let hidden;
+      try {
+        hidden = Boolean(this.getDocField(fieldname).hidden(this.doc));
+      } catch (e) {
+        hidden = Boolean(this.getDocField(fieldname).hidden) || false;
+      }
 
       if (hidden) {
         return false;
@@ -84,15 +101,17 @@ export default {
 
       if (!layout) {
         const fields = this.fields.map(df => df.fieldname);
-        layout = [{
-          columns: [{ fields }]
-        }];
+        layout = [
+          {
+            columns: [{ fields }]
+          }
+        ];
       }
 
       if (Array.isArray(layout)) {
         layout = {
           sections: layout
-        }
+        };
       }
       return layout;
     }
