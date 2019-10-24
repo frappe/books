@@ -7,6 +7,7 @@ import PurchasesIcon from './components/Icons/Purchases';
 import ReportsIcon from './components/Icons/Reports';
 import SettingsIcon from './components/Icons/Settings';
 import theme from '@/theme';
+import router from './router';
 
 const config = {
   getTitle: async () => {
@@ -40,6 +41,9 @@ const config = {
     {
       title: _('Sales'),
       icon: SalesIcon,
+      action() {
+        router.push('/list/SalesInvoice')
+      },
       items: [
         {
           label: _('Invoice'),
@@ -62,6 +66,9 @@ const config = {
     {
       title: _('Purchases'),
       icon: PurchasesIcon,
+      action() {
+        router.push('/list/PurchaseInvoice')
+      },
       items: [
         {
           label: _('Bill'),
