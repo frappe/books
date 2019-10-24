@@ -1,6 +1,4 @@
-const countryList = Object.keys(
-  require('../../../fixtures/countryInfo.json')
-).sort();
+const countryList = Object.keys(require('../../../fixtures/countryInfo.json')).sort();
 
 module.exports = {
   name: 'AccountingSettings',
@@ -29,7 +27,7 @@ module.exports = {
     {
       fieldname: 'country',
       label: 'Country',
-      fieldtype: 'Autocomplete',
+      fieldtype: 'AutoComplete',
       required: 1,
       getList: () => countryList
     },
@@ -85,5 +83,14 @@ module.exports = {
       fieldtype: 'Date',
       required: 1
     }
+  ],
+  quickEditFields: [
+    'fullname',
+    'email',
+    'companyName',
+    'country',
+    'currency',
+    'fiscalYearStart',
+    'fiscalYearEnd',
   ]
 };

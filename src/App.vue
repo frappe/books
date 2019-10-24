@@ -55,9 +55,7 @@ export default {
     Settings
   },
   mounted() {
-    if (this.$route.path === '/settings') {
-      this.showSettings = true;
-    } else if (!localStorage.dbPath) {
+    if (!localStorage.dbPath) {
       this.showDatabaseSelector = true;
     } else {
       frappe.events.trigger('connect-database', localStorage.dbPath);
@@ -70,7 +68,11 @@ export default {
     });
 
     frappe.events.on('show-desk', () => {
-      this.showDesk = true;
+      if (this.$route.path === '/settings') {
+        this.showSettings = true;
+      } else {
+        this.showDesk = true;
+      }
       this.showSetupWizard = false;
       this.showDatabaseSelector = false;
     });

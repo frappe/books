@@ -1,32 +1,43 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div class="bg-gray-200 window-drag pb-2">
       <div class="p-2">
         <WindowControls />
       </div>
-      <div class="flex justify-center">
+      <Row :columnCount="5" class="px-6" gap="0.5rem">
         <div
-          v-for="tab in tabs"
+          v-for="(tab, i) in tabs"
           :key="tab.label"
-          class="ml-2 p-2 w-20 h-16 rounded-6px hover:bg-white flex flex-col items-center justify-center cursor-pointer"
+          class="p-2 rounded-6px hover:bg-white flex flex-col items-center justify-center cursor-pointer"
+          :class="i === activeTab && 'bg-white shadow text-blue-500'"
+          @click="activeTab = i"
         >
           <component :is="getIconComponent(tab)" />
           <div class="mt-2 text-xs">{{ tab.label }}</div>
         </div>
-      </div>
+      </Row>
+    </div>
+    <div class="bg-white flex-1 p-6">
+      <component :is="activeTabComponent" />
     </div>
   </div>
 </template>
 <script>
 import { _ } from 'frappejs/utils';
 import WindowControls from '@/components/WindowControls';
+import TabGeneral from './TabGeneral.vue';
+import Row from '@/components/Row';
+
 export default {
   name: 'Settings',
   components: {
-    WindowControls
+    WindowControls,
+    TabGeneral,
+    Row
   },
   data() {
     return {
+      activeTab: 0,
       tabs: [
         {
           label: _('General'),
@@ -35,7 +46,8 @@ export default {
               <path d="M18.94 13.94l4.025 4.024a3.535 3.535 0 11-5 5l-4.518-4.518 3.641-4.499c.304.035.607.053.912.053.318 0 .631-.024.94-.06zM4 0l4 4-1.293 1.293 2.378 2.378-1.522 1.306-2.27-2.27L4 8 0 4l4-4z" fill="#A1ABB4"/>
               <path d="M20.271 6.771l-3.042-3.042L20.437.521A5.97 5.97 0 0018 0a6 6 0 00-5.75 7.708l-10.789 8.73a4.335 4.335 0 00-1.459 3.106 4.335 4.335 0 001.264 3.19 4.325 4.325 0 006.296-.195l8.73-10.789A6 6 0 0024 6c0-.869-.189-1.692-.521-2.438l-3.208 3.209z" fill="#415668"/>
             </g>
-          </svg>`
+          </svg>`,
+          component: TabGeneral
         },
         {
           label: _('Mail'),
@@ -78,6 +90,11 @@ export default {
       return {
         template: tab.icon
       };
+    },
+  },
+  computed: {
+    activeTabComponent() {
+      return this.tabs[this.activeTab].component;
     }
   }
 };

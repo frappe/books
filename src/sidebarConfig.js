@@ -1,10 +1,12 @@
 import frappe from 'frappejs';
+import { remote } from 'electron';
 import { _ } from 'frappejs/utils';
 import DashboardIcon from './components/Icons/Dashboard';
 import SalesIcon from './components/Icons/Sales';
 import PurchasesIcon from './components/Icons/Purchases';
 import ReportsIcon from './components/Icons/Reports';
 import SettingsIcon from './components/Icons/Settings';
+import theme from '@/theme';
 
 const config = {
   getTitle: async () => {
@@ -105,7 +107,18 @@ const config = {
       title: _('Settings'),
       icon: SettingsIcon,
       action() {
-        window.open('/index.html#/settings');
+        let child = new remote.BrowserWindow({
+          parent: remote.getCurrentWindow(),
+          frame: false,
+          width: 460,
+          height: 577,
+          backgroundColor: theme.backgroundColor.gray['200'],
+          webPreferences: {
+            webSecurity: false,
+            nodeIntegration: true
+          }
+        });
+        child.loadURL('http://localhost:8000/#/settings');
       }
     }
   ]
