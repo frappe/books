@@ -14,6 +14,7 @@ module.exports = {
       fieldname: 'country',
       label: 'Country',
       fieldtype: 'AutoComplete',
+      placeholder: 'India',
       required: 1,
       getList: () => Object.keys(countryList).sort()
     },
@@ -22,6 +23,7 @@ module.exports = {
       fieldname: 'fullname',
       label: 'Name',
       fieldtype: 'Data',
+      placeholder: 'John Doe',
       required: 1
     },
 
@@ -29,6 +31,7 @@ module.exports = {
       fieldname: 'email',
       label: 'Email',
       fieldtype: 'Data',
+      placeholder: 'john@doe.com',
       required: 1,
       inputType: 'email'
     },
@@ -36,6 +39,7 @@ module.exports = {
     {
       fieldname: 'companyName',
       label: 'Company Name',
+      placeholder: 'Acme Inc',
       fieldtype: 'Data',
       required: 1
     },
@@ -84,6 +88,7 @@ module.exports = {
       fieldname: 'currency',
       label: 'Currency',
       fieldtype: 'Data',
+      placeholder: 'INR',
       formula: doc => {
         if (!doc.country) return;
         return countryList[doc.country].currency;

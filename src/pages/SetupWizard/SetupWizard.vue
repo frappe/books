@@ -1,5 +1,5 @@
 <template>
-  <div class="py-10">
+  <div class="py-10 flex-1 bg-white">
     <div class="px-12">
       <h1 class="text-2xl font-semibold">{{ _('Setup your organization') }}</h1>
       <p class="text-gray-600">{{ _('These settings can be changed later') }}</p>
