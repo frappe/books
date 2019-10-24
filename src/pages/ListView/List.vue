@@ -1,30 +1,32 @@
 <template>
-  <div class="px-8 pb-8 mt-2 text-sm flex flex-col justify-between">
+  <div class="px-5 pb-8 mt-2 text-sm flex flex-col justify-between">
     <div>
-      <Row class="text-gray-700" :columnCount="columns.length" gap="1rem">
-        <div
-          v-for="column in columns"
-          :key="column.label"
-          class="py-4 truncate"
-          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
-        >{{ column.label }}</div>
-      </Row>
-      <Row
-        gap="1rem"
-        class="cursor-pointer text-gray-900 hover:text-gray-600"
-        v-for="doc in data"
-        :key="doc.name"
-        @click.native="openForm(doc.name)"
-        :columnCount="columns.length"
-      >
-        <ListCell
-          v-for="column in columns"
-          :key="column.label"
-          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
-          :doc="doc"
-          :column="column"
-        ></ListCell>
-      </Row>
+      <div class="px-3">
+        <Row class="text-gray-700" :columnCount="columns.length" gap="1rem">
+          <div
+            v-for="column in columns"
+            :key="column.label"
+            class="py-4 truncate"
+            :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
+          >{{ column.label }}</div>
+        </Row>
+      </div>
+      <div class="px-3 hover:bg-gray-100 rounded" v-for="doc in data" :key="doc.name">
+        <Row
+          gap="1rem"
+          class="cursor-pointer text-gray-900"
+          @click.native="openForm(doc.name)"
+          :columnCount="columns.length"
+        >
+          <ListCell
+            v-for="column in columns"
+            :key="column.label"
+            :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
+            :doc="doc"
+            :column="column"
+          ></ListCell>
+        </Row>
+      </div>
     </div>
     <div class="flex items-center justify-center">
       <Button
