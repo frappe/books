@@ -61,10 +61,13 @@
     "cross-env": "^5.2.0",
     "file-saver": "^2.0.2",
     "frappe-charts": "^1.2.4",
-    "frappejs": "0.0.10",
+    "frappejs": "https://github.com/frappe/frappejs",
     "nodemailer": "^4.7.0",
     "popper.js": "^1.14.4",
     "vue-color": "^2.7.0",
     "vue-toasted": "^1.1.25"
+  },
+  "devDependencies": {
+    "electron-builder": "^21.2.0"
   }
 }

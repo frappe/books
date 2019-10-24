@@ -1,9 +1,9 @@
 <template>
-  <div class="px-12 py-10">
+  <div class="px-12 py-10 flex-1 bg-white">
     <h1 class="text-2xl font-semibold">{{ _('Welcome to Frappe Accounting') }}</h1>
     <p
       class="text-gray-600"
-    >{{ _('Do you need to create a new database or join an existing one?') }}</p>
+    >{{ _('Do you need to create a new database or load an existing one?') }}</p>
     <div class="flex mt-10">
       <div
         @click="newDatabase"
