@@ -9,20 +9,20 @@
         <h6 class="text-sm font-semibold" @click="$router.push('/')">{{ companyName }}</h6>
       </div>
       <div class="mt-5">
-        <div
-          class="mt-1 first:mt-0"
-          v-for="group in groups"
-          :key="group.title"
-          @click="onGroupClick(group)"
-        >
-          <div class="px-3 py-2 flex items-center rounded cursor-pointer hover:bg-white">
-            <component :is="group.icon" class="w-5 h-5" :active="isActiveGroup(group) && !group.items" />
+        <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.title">
+          <div
+            class="px-3 py-2 flex items-center rounded cursor-pointer hover:bg-white"
+            @click="onGroupClick(group)"
+          >
+            <component
+              :is="group.icon"
+              class="w-5 h-5"
+              :active="isActiveGroup(group) && !group.items"
+            />
             <div
               class="ml-2 text-sm text-gray-900"
               :class="isActiveGroup(group) && !group.items && 'text-blue-500'"
-            >
-              {{ group.title }}
-            </div>
+            >{{ group.title }}</div>
           </div>
           <div v-if="group.items && isActiveGroup(group)">
             <div
@@ -86,9 +86,8 @@ export default {
       this.activeGroup = group;
     },
     routeTo(route) {
-      this.activeGroup = null;
       this.$router.push(route);
-    },
+    }
   }
 };
 </script>
