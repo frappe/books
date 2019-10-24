@@ -109,6 +109,5 @@ const routes = [
 ];
 
 let router = new Router({ routes });
-router.replace('/list/Item');
 
 export default router;

@@ -40,7 +40,8 @@ module.exports = {
     }
   },
   variants: {
-    margin: ['responsive', 'first', 'hover', 'focus']
+    margin: ['responsive', 'first', 'hover', 'focus'],
+    backgroundColor: ['responsive', 'first', 'hover', 'focus', 'focus-within'],
   },
   plugins: []
 };
