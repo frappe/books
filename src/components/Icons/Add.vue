@@ -1,7 +1,9 @@
 <template>
-  <svg viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
+  <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
     <path
-      d="M4 .8v6.4M7.2 4H.8"
+      d="M5 1v8m4-4H1"
+      stroke="#FFF"
+      stroke-width="1.5"
       fill="none"
       fill-rule="evenodd"
       stroke-linecap="round"
