@@ -26,13 +26,13 @@
 import { _ } from 'frappejs/utils';
 import WindowControls from '@/components/WindowControls';
 import TabGeneral from './TabGeneral.vue';
+import TabSystem from './TabSystem.vue';
 import Row from '@/components/Row';
 
 export default {
   name: 'Settings',
   components: {
     WindowControls,
-    TabGeneral,
     Row
   },
   data() {
@@ -71,7 +71,8 @@ export default {
           label: _('System'),
           icon: `<svg class="w-6 h-6" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path d="M20.872 13.453c.082-.48.125-.966.128-1.453a9.033 9.033 0 00-.128-1.453l2.1-2.029a1 1 0 00.171-1.218l-1.5-2.6a1.009 1.009 0 00-1.143-.461l-2.8.8a9.017 9.017 0 00-2.527-1.451L14.47.758A1 1 0 0013.5 0h-3a1 1 0 00-.97.758l-.707 2.83A9.017 9.017 0 006.3 5.039l-2.8-.8a1.01 1.01 0 00-1.143.461l-1.5 2.6a1 1 0 00.171 1.219l2.1 2.029c-.082.48-.125.965-.128 1.452.003.487.046.973.128 1.453l-2.1 2.029A1 1 0 00.857 16.7l1.5 2.6a1 1 0 001.142.462l2.8-.8a9.017 9.017 0 002.527 1.451l.707 2.83A1 1 0 0010.5 24h3a1 1 0 00.97-.758l.707-2.83a9.017 9.017 0 002.523-1.451l2.8.8a1 1 0 001.142-.462l1.5-2.6a1 1 0 00-.171-1.219l-2.099-2.027zM12 16a4 4 0 110-8 4 4 0 010 8z" fill="#415668" fill-rule="evenodd"/>
-          </svg>`
+          </svg>`,
+          component: TabSystem
         },
         {
           label: _('Privacy'),

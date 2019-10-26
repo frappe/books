@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const setupMenu = require('./menu');
 
 let mainWindow;
@@ -27,7 +27,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     vibrancy: 'sidebar',
     transparent: true,
-    backgroundColor: "#80FFFFFF",
+    backgroundColor: '#80FFFFFF',
     width: 1200,
     height: 907,
     frame: false,
@@ -47,6 +47,10 @@ function createWindow() {
 
   setupMenu();
 }
+
+ipcMain.on('reload-main-window', () => {
+  mainWindow.reload();
+});
 
 app.on('ready', createWindow);
 

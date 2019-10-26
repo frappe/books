@@ -110,4 +110,8 @@ const routes = [
 
 let router = new Router({ routes });
 
+if (process.env.NODE_ENV === 'development') {
+  window.router = router
+}
+
 export default router;
