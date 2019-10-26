@@ -269,7 +269,7 @@ module.exports = class sqliteDatabase extends Database {
 
   initTypeMap() {
     this.typeMap = {
-      'Autocomplete': 'text'
+      'AutoComplete': 'text'
       , 'Currency': 'real'
       , 'Int': 'integer'
       , 'Float': 'real'
