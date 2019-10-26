@@ -53,9 +53,7 @@
 <script>
 import { _ } from 'frappejs';
 import AddIcon from '@/components/Icons/Add';
-const { remote } = require('electron');
-const { dialog } = remote;
-const currentWindow = remote.getCurrentWindow();
+import { createNewDatabase, loadExistingDatabase } from '@/utils';
 
 export default {
   name: 'DatabaseSelector',
@@ -63,37 +61,13 @@ export default {
     AddIcon
   },
   methods: {
-    newDatabase() {
-      dialog.showSaveDialog(
-        currentWindow,
-        {
-          title: _('Select folder'),
-          defaultPath: 'frappe-accounting.db'
-        },
-        filePath => {
-          if (filePath) {
-            if (!filePath.endsWith('.db')) {
-              filePath = filePath + '.db';
-            }
-            this.$emit('file', filePath);
-          }
-        }
-      );
+    async newDatabase() {
+      let filePath = await createNewDatabase();
+      this.$emit('file', filePath);
     },
-    existingDatabase() {
-      dialog.showOpenDialog(
-        currentWindow,
-        {
-          title: _('Select file'),
-          properties: ['openFile'],
-          filters: [{ name: 'SQLite DB File', extensions: ['db'] }]
-        },
-        files => {
-          if (files && files[0]) {
-            this.$emit('file', files[0]);
-          }
-        }
-      );
+    async existingDatabase() {
+      let filePath = await loadExistingDatabase();
+      this.$emit('file', filePath);
     }
   }
 };

@@ -6,6 +6,7 @@ import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
 import models from '../models';
 import postStart from '../server/postStart';
+import { ipcRenderer } from 'electron';
 import { getSettings, saveSettings } from '../electron/settings';
 
 // vue imports
@@ -55,6 +56,10 @@ import Toasted from 'vue-toasted';
     } else {
       frappe.events.trigger('show-desk');
     }
+  });
+
+  frappe.events.on('reload-main-window', () => {
+    ipcRenderer.send('reload-main-window');
   });
 
   frappe.events.on('SetupWizard:setup-complete', async setupWizardValues => {
