@@ -515,7 +515,7 @@ module.exports = class Database extends Observable {
 
   initTypeMap() {
     this.typeMap = {
-      'Autocomplete': 'text'
+      'AutoComplete': 'text'
       , 'Currency': 'real'
       , 'Int': 'integer'
       , 'Float': 'real'
