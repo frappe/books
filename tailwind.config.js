@@ -10,6 +10,9 @@ module.exports = {
       minWidth: {
         '56': '14rem'
       },
+      maxWidth: {
+        '56': '14rem'
+      },
       spacing: {
         '14': '3.5rem',
         '72': '18rem',
