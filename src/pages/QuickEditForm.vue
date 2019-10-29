@@ -1,10 +1,16 @@
 <template>
   <div class="border-l h-full">
     <div class="flex justify-end px-4 pt-4">
-      <Button :icon="true" @click="routeToList">
+      <Button :icon="true" @click="$router.back()">
         <XIcon class="w-3 h-3 stroke-current text-gray-700" />
       </Button>
-      <Button :icon="true" @click="insertDoc" type="primary" v-if="doc._notInserted" class="ml-2 flex">
+      <Button
+        :icon="true"
+        @click="insertDoc"
+        type="primary"
+        v-if="doc._notInserted"
+        class="ml-2 flex"
+      >
         <feather-icon name="check" class="text-white" />
       </Button>
     </div>
@@ -53,7 +59,7 @@ import FormControl from '@/components/Controls/FormControl';
 
 export default {
   name: 'QuickEditForm',
-  props: ['doctype', 'name', 'values'],
+  props: ['doctype', 'name', 'values', 'hideFields'],
   components: {
     Button,
     XIcon,
@@ -80,20 +86,26 @@ export default {
   methods: {
     async fetchMetaAndDoc() {
       this.meta = frappe.getMeta(this.doctype);
-      this.fields = this.meta.getQuickEditFields();
+      this.fields = this.meta
+        .getQuickEditFields()
+        .filter(df => !(this.hideFields || []).includes(df.fieldname));
       this.titleDocField = this.meta.getField(this.meta.titleField);
       await this.fetchDoc();
 
       // setup the title field
-      if (this.doc._notInserted) {
+      if (
+        this.doc._notInserted &&
+        !this.titleDocField.readOnly &&
+        this.doc[this.titleDocField.fieldname]
+      ) {
         this.doc.set(this.titleDocField.fieldname, '');
+        setTimeout(() => {
+          this.$refs.titleControl.focus();
+        }, 300);
       }
       if (this.values) {
         this.doc.set(this.values);
       }
-      setTimeout(() => {
-        this.$refs.titleControl.focus();
-      }, 300);
     },
     valueChange(df, value) {
       if (!value) return;

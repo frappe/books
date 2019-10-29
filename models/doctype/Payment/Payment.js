@@ -111,6 +111,21 @@ module.exports = {
     }
   ],
 
+  quickEditFields: [
+    'party',
+    'date',
+    'account',
+    'paymentType',
+    'paymentAccount',
+    'paymentMethod',
+    'referenceId',
+    'referenceDate',
+    'clearanceDate',
+    'amount',
+    'writeoff',
+    'for'
+  ],
+
   layout: [
     {
       columns: [

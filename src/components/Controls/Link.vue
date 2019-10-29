@@ -1,16 +1,11 @@
 <script>
 import frappe from 'frappejs';
-import Base from './Base';
 import AutoComplete from './AutoComplete';
 import Badge from '@/components/Badge';
 
 export default {
   name: 'Link',
   extends: AutoComplete,
-  components: {
-    Badge
-  },
-  computed: {},
   methods: {
     async getSuggestions(keyword = '') {
       let doctype = this.df.target;

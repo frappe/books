@@ -4,6 +4,11 @@ module.exports = {
   isSingle: 0,
   isChild: 1,
   keywordFields: [],
+  tableFields: [
+    'referenceType',
+    'referenceName',
+    'amount'
+  ],
   fields: [
     {
       fieldname: 'referenceType',
