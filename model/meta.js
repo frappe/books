@@ -31,7 +31,8 @@ module.exports = class BaseMeta extends BaseDocument {
           label: frappe._('Name'),
           fieldname: 'name',
           fieldtype: 'Data',
-          required: 1
+          required: 1,
+          readOnly: 1
         }
       ].concat(this.fields);
     }
