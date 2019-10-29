@@ -337,6 +337,10 @@ module.exports = class BaseDocument extends Observable {
     }
   }
 
+  async setName() {
+    await naming.setName(this);
+  }
+
   async commit() {
     // re-run triggers
     this.setStandardValues();
@@ -347,7 +351,7 @@ module.exports = class BaseDocument extends Observable {
   }
 
   async insert() {
-    await naming.setName(this);
+    await this.setName();
     await this.commit();
     await this.trigger('beforeInsert');
 

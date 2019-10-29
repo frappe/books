@@ -214,7 +214,7 @@ module.exports = {
   async getNewDoc(doctype) {
     let doc = this.newDoc({ doctype: doctype });
     doc._notInserted = true;
-    doc.name = this.getRandomString();
+    await doc.setName();
     this.addToCache(doc);
     return doc;
   },
