@@ -20,7 +20,6 @@ export default {
       fieldname: 'status',
       fieldtype: 'Select',
       size: 'small',
-      options: ['Status..', 'Paid', 'Pending'],
       render(doc) {
         let status = 'Pending';
         let color = 'orange';

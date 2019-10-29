@@ -50,6 +50,10 @@ const config = {
           route: '/list/SalesInvoice'
         },
         {
+          label: _('Payments'),
+          route: '/list/Payment'
+        },
+        {
           label: _('Customers'),
           route: '/list/Customer'
         },

@@ -14,8 +14,7 @@ module.exports = {
       label: 'Company Name',
       fieldname: 'companyName',
       fieldtype: 'Data',
-      required: 1,
-      disabled: 0
+      required: 1
     },
 
     {
@@ -37,16 +36,6 @@ module.exports = {
       label: 'Country Currency',
       fieldtype: 'Data',
       required: 0
-    },
-
-    {
-      fieldname: 'numberFormat',
-      fieldtype: 'Data'
-    },
-
-    {
-      fieldname: 'symbol',
-      fieldtype: 'Data'
     },
 
     {

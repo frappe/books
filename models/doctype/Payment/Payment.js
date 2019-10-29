@@ -92,10 +92,8 @@ module.exports = {
       label: 'Amount',
       fieldtype: 'Currency',
       required: 1,
-      disabled: true,
-      formula: doc => {
-        return frappe.format(doc.getSum('for', 'amount'), 'Currency');
-      }
+      readOnly: 1,
+      formula: doc => doc.getSum('for', 'amount')
     },
     {
       fieldname: 'writeoff',
