@@ -230,10 +230,11 @@ module.exports = class BaseDocument extends Observable {
   }
 
   clearValues() {
-    for (let field of this.meta.getValidFields()) {
-      if (this[field.fieldname]) {
-        delete this[field.fieldname];
-      }
+    let toClear = ['_dirty', '_notInserted'].concat(
+      this.meta.getValidFields().map(df => df.fieldname)
+    );
+    for (let key of toClear) {
+      delete this[key];
     }
   }
 
