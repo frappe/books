@@ -7,9 +7,8 @@ module.exports = class PaymentServer extends BaseDocument {
     if (changed === 'for') {
       this.amount = 0;
       for (let paymentReference of this.for) {
-        this.amount += frappe.parseNumber(paymentReference.amount);
+        this.amount += paymentReference.amount;
       }
-      this.amount = frappe.format(this.amount, 'Currency');
     }
   }
 
@@ -23,7 +22,7 @@ module.exports = class PaymentServer extends BaseDocument {
   }
 
   async beforeSubmit() {
-    if (this.for.length > 0)
+    if (this.for.length > 0) {
       for (let row of this.for) {
         if (['SalesInvoice', 'PurchaseInvoice'].includes(row.referenceType)) {
           let { outstandingAmount, grandTotal } = await frappe.getDoc(
@@ -33,41 +32,36 @@ module.exports = class PaymentServer extends BaseDocument {
           if (outstandingAmount === null) {
             outstandingAmount = grandTotal;
           }
-          if (
-            0 >= frappe.parseNumber(this.amount) ||
-            frappe.parseNumber(this.amount) >
-              frappe.parseNumber(outstandingAmount)
-          ) {
-            frappe.call({
-              method: 'show-dialog',
-              args: {
-                title: 'Invalid Payment Entry',
-                message: `Payment amount (${
-                  this.amount
-                }) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
-              }
-            });
-            throw new Error();
+          if (this.amount <= 0 || this.amount > outstandingAmount) {
+            // frappe.call({
+            //   method: 'show-dialog',
+            //   args: {
+            //     title: 'Invalid Payment Entry',
+            //     message: `Payment amount (${this.amount}) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
+            //   }
+            // });
+            throw new Error(
+              `Payment amount (${this.amount}) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
+            );
           } else {
             await frappe.db.setValue(
               row.referenceType,
               row.referenceName,
               'outstandingAmount',
-              frappe.parseNumber(outstandingAmount) -
-                frappe.parseNumber(this.amount)
+              outstandingAmount - this.amount
             );
           }
         }
       }
-    else {
-      frappe.call({
-        method: 'show-dialog',
-        args: {
-          title: 'Invalid Payment Entry',
-          message: `No reference for the payment.`
-        }
-      });
-      throw new Error();
+    } else {
+      // frappe.call({
+      //   method: 'show-dialog',
+      //   args: {
+      //     title: 'Invalid Payment Entry',
+      //     message: `No reference for the payment.`
+      //   }
+      // });
+      throw new Error(`No reference for the payment.`);
     }
   }
 

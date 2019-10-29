@@ -73,7 +73,7 @@ module.exports = {
       label: 'Balance',
       fieldtype: 'Currency',
       default: '0',
-      disabled: true
+      readOnly: 1
     },
     {
       fieldname: 'isGroup',

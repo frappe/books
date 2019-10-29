@@ -43,7 +43,7 @@ module.exports = {
       fieldtype: 'Code',
       formula: doc => doc.getJson(),
       required: 1,
-      disabled: 1,
+      readOnly: 1,
       rows: 15
     }
   ],

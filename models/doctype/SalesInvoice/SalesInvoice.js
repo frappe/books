@@ -71,7 +71,6 @@ module.exports = {
       label: 'Net Total (INR)',
       fieldtype: 'Currency',
       formula: async doc => await doc.getBaseNetTotal(),
-      disabled: true,
       readOnly: 1
     },
     {
@@ -79,9 +78,7 @@ module.exports = {
       label: 'Net Total (USD)',
       fieldtype: 'Currency',
       hidden: doc => !doc.isForeignTransaction(),
-      formula: async doc =>
-        await doc.formatIntoCustomerCurrency(doc.getSum('items', 'amount')),
-      disabled: true,
+      formula: doc => doc.getSum('items', 'amount'),
       readOnly: 1
     },
     {
@@ -97,7 +94,7 @@ module.exports = {
                         <div class='row' v-for='row in value'>
                             <div class='col-6'>{{ row.account }} ({{row.rate}}%)</div>
                             <div class='col-6 text-right'>
-                                {{ row.amount }}
+                                {{ frappe.format(row.amount, 'Currency') }}
                             </div>
                         </div>
                     </div>
@@ -109,7 +106,6 @@ module.exports = {
       label: 'Base Grand Total',
       fieldtype: 'Currency',
       formula: async doc => await doc.getBaseGrandTotal(),
-      disabled: true,
       readOnly: 1
     },
     {
@@ -118,7 +114,6 @@ module.exports = {
       fieldtype: 'Currency',
       hidden: doc => !doc.isForeignTransaction(),
       formula: async doc => await doc.getGrandTotal(),
-      disabled: true,
       readOnly: 1
     },
     {
