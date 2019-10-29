@@ -1,4 +1,5 @@
 const frappe = require('frappejs');
+const { getRandomString } = require('frappejs/utils');
 
 module.exports = {
     async setName(doc) {
@@ -30,7 +31,7 @@ module.exports = {
         // assign a random name by default
         // override doc to set a name
         if (!doc.name) {
-            doc.name = frappe.getRandomString();
+            doc.name = getRandomString();
         }
     },
 
