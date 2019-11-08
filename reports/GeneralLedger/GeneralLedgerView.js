@@ -45,12 +45,12 @@ module.exports = class GeneralLedgerView extends ReportPage {
   getColumns() {
     return [
       {
-        label: 'Date',
-        fieldtype: 'Date'
-      },
-      {
         label: 'Account',
         fieldtype: 'Link'
+      },
+      {
+        label: 'Date',
+        fieldtype: 'Date'
       },
       {
         label: 'Debit',
