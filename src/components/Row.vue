@@ -7,6 +7,10 @@
 export default {
   name: 'Row',
   props: {
+    columnWidth: {
+      type: String,
+      default: '1fr'
+    },
     columnCount: {
       type: Number,
       default: 0
@@ -21,7 +25,7 @@ export default {
     style() {
       let obj = {};
       if (this.columnCount) {
-        obj['grid-template-columns'] = `repeat(${this.columnCount}, 1fr)`;
+        obj['grid-template-columns'] = `repeat(${this.columnCount}, ${this.columnWidth})`;
       }
       if (this.ratio.length) {
         obj['grid-template-columns'] = this.ratio.map(r => `${r}fr`).join(' ');

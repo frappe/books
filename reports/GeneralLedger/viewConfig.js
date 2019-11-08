@@ -94,14 +94,14 @@ const viewConfig = {
   getColumns() {
     return [
       {
-        label: 'Date',
-        fieldtype: 'Date',
-        fieldname: 'date'
-      },
-      {
         label: 'Account',
         fieldtype: 'Link',
         fieldname: 'account'
+      },
+      {
+        label: 'Date',
+        fieldtype: 'Date',
+        fieldname: 'date'
       },
       {
         label: 'Debit',

@@ -16,13 +16,7 @@ export default {
   computed: {
     columnValue() {
       let { column, doc } = this;
-      // Since currency is formatted in customer currency
-      // frappe.format parses it back into company currency
-      if (['Float', 'Currency'].includes(column.fieldtype)) {
-        return column.getValue(doc);
-      } else {
-        return frappe.format(column.getValue(doc), column.fieldtype);
-      }
+      return frappe.format(column.getValue(doc), column.fieldtype);
     },
     customRenderer() {
       if (!this.column.render) return;

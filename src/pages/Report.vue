@@ -1,28 +1,36 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col max-w-full">
     <PageHeader>
       <h1 slot="title" class="text-xl font-bold">{{ report.title }}</h1>
       <template slot="actions">
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
-    <div class="flex flex-col flex-1 px-8 mt-4">
-      <Row :columnCount="columns.length" gap="1rem">
-        <div
-          class="text-gray-600 text-sm truncate py-4"
-          v-for="column in columns"
-          :key="column.label"
-        >{{ column.label }}</div>
-      </Row>
-      <div class="flex-1 overflow-auto">
-        <Row v-for="(row, i) in rows" :columnCount="columns.length" gap="1rem" :key="i">
+    <div class="px-8 mt-4">
+      <div class="overflow-auto" :style="{height: 'calc(100vh - 6rem)'}">
+        <Row :columnCount="columns.length" gap="1rem" column-width="minmax(200px, 1fr)">
           <div
-            class="text-gray-900 text-sm truncate py-4"
+            class="text-gray-600 text-sm truncate py-4"
             v-for="column in columns"
             :key="column.label"
-            v-html="row[column.fieldname]"
-          ></div>
+          >{{ column.label }}</div>
         </Row>
+        <div class="flex-1">
+          <Row
+            v-for="(row, i) in rows"
+            :columnCount="columns.length"
+            gap="1rem"
+            :key="i"
+            column-width="minmax(200px, 1fr)"
+          >
+            <div
+              class="text-gray-900 text-sm truncate py-4"
+              v-for="column in columns"
+              :key="column.label"
+              v-html="row[column.fieldname]"
+            ></div>
+          </Row>
+        </div>
       </div>
     </div>
   </div>
