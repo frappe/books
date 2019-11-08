@@ -1,5 +1,5 @@
 import { _ } from 'frappejs/utils';
-import indicators from 'frappejs/ui/constants/indicators';
+import Badge from '@/components/Badge';
 
 export default {
   doctype: 'Payment',
@@ -11,29 +11,25 @@ export default {
       fieldname: 'status',
       fieldtype: 'Select',
       size: 'small',
-      options: ['Status...', 'Reconciled', 'Not Reconciled'],
-      getValue(doc) {
+      render(doc) {
+        let status = 'Not Reconciled';
+        let color = 'orange';
         if (
           doc.submitted === 1 &&
           (doc.clearanceDate !== null || doc.paymentMethod === 'Cash')
         ) {
-          return 'Reconciled';
+          color = 'green';
+          status = 'Reconciled';
         }
-        return 'Not Reconciled';
-      },
-      getIndicator(doc) {
-        if (
-          doc.submitted === 1 &&
-          (doc.clearanceDate !== null || doc.paymentMethod === 'Cash')
-        ) {
-          return indicators.GREEN;
-        }
-        return indicators.ORANGE;
+
+        return {
+          template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
+          components: { Badge }
+        };
       }
     },
     'paymentType',
     'date',
-    'clearanceDate',
     'amount'
   ]
 };
