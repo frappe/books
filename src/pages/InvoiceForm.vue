@@ -208,13 +208,13 @@ export default {
           name: payment.name,
           hideFields: ['party', 'date', 'account', 'paymentType', 'for'],
           values: {
-            party: this.doc.customer,
+            party: this.doc[this.partyField.fieldname],
             account: this.doc.account,
             date: new Date().toISOString().slice(0, 10),
-            paymentType: 'Receive',
+            paymentType: this.doctype === 'SalesInvoice' ? 'Receive' : 'Pay',
             for: [
               {
-                referenceType: 'SalesInvoice',
+                referenceType: this.doctype,
                 referenceName: this.doc.name,
                 amount: this.doc.outstandingAmount
               }
