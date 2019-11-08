@@ -46,7 +46,9 @@ export default {
     },
     async getFilters(keyword) {
       let doc = await frappe.getDoc(this.doctype, this.name);
-      return this.df.getFilters ? await this.df.getFilters(keyword, doc) : {};
+      return this.df.getFilters
+        ? (await this.df.getFilters(keyword, doc)) || {}
+        : {};
     },
     async openNewDoc() {
       let doctype = this.df.target;
