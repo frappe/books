@@ -9,7 +9,7 @@
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
-    <div class="flex-1 flex">
+    <div class="flex-1 flex h-full">
       <List :listConfig="listConfig" :filters="filters" class="flex-1" />
     </div>
   </div>

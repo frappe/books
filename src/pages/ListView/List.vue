@@ -1,16 +1,16 @@
 <template>
-  <div class="px-5 pb-8 mt-2 text-sm flex flex-col justify-between">
-    <div>
-      <div class="px-3">
-        <Row class="text-gray-700" :columnCount="columns.length" gap="1rem">
-          <div
-            v-for="column in columns"
-            :key="column.label"
-            class="py-4 truncate"
-            :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
-          >{{ column.label }}</div>
-        </Row>
-      </div>
+  <div class="px-5 pb-16 mt-2 text-sm flex flex-col overflow-y-hidden">
+    <div class="px-3">
+      <Row class="text-gray-700" :columnCount="columns.length" gap="1rem">
+        <div
+          v-for="column in columns"
+          :key="column.label"
+          class="py-4 truncate"
+          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
+        >{{ column.label }}</div>
+      </Row>
+    </div>
+    <div class="overflow-y-auto">
       <div class="px-3 hover:bg-gray-100 rounded" v-for="doc in data" :key="doc.name">
         <Row
           gap="1rem"
@@ -27,51 +27,6 @@
           ></ListCell>
         </Row>
       </div>
-    </div>
-    <div class="flex items-center justify-center">
-      <Button
-        :icon="true"
-        :class="start == 0 && 'text-gray-600'"
-        :disabled="start == 0"
-        @click="prevPage"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="w-4 h-4 feather feather-chevron-left"
-        >
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </Button>
-      <div class="mx-3">
-        <span class="font-medium">{{ start + data.length }}</span>
-        <span class="text-gray-600">of</span>
-        <span class="font-medium">{{ totalCount }}</span>
-      </div>
-      <Button
-        :icon="true"
-        :class="start + pageLength >= totalCount && 'text-gray-600'"
-        :disabled="start + pageLength >= totalCount"
-        @click="nextPage"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="w-4 h-4 feather feather-chevron-right"
-        >
-          <polyline points="9 18 15 12 9 6" />
-        </svg>
-      </Button>
     </div>
   </div>
 </template>
@@ -98,10 +53,7 @@ export default {
   },
   data() {
     return {
-      data: [],
-      start: 0,
-      pageLength: 12,
-      totalCount: null
+      data: []
     };
   },
   computed: {
@@ -146,23 +98,8 @@ export default {
         doctype: this.doctype,
         fields: ['*'],
         filters,
-        orderBy: 'creation',
-        start: this.start,
-        limit: this.pageLength
+        orderBy: 'creation'
       });
-      let result = await frappe.db.getAll({
-        doctype: this.doctype,
-        fields: ['count(*) as count']
-      });
-      this.totalCount = result[0].count;
-    },
-    prevPage() {
-      this.start -= this.pageLength;
-      this.updateData();
-    },
-    nextPage() {
-      this.start += this.pageLength;
-      this.updateData();
     },
     getFilters() {
       let filters = {};
