@@ -13,6 +13,15 @@
       >
         <feather-icon name="check" class="text-white" />
       </Button>
+      <Button
+        :icon="true"
+        @click="submitDoc"
+        type="primary"
+        v-if="meta && meta.isSubmittable && !doc.submitted && !doc._notInserted"
+        class="ml-2 flex"
+      >
+        <feather-icon name="lock" class="text-white" />
+      </Button>
     </div>
     <div class="pl-1 pr-4 pt-2 pb-4 border-b flex items-center justify-between">
       <FormControl
@@ -155,6 +164,9 @@ export default {
     },
     insertDoc() {
       this.doc.insert();
+    },
+    submitDoc() {
+      this.doc.submit();
     },
     routeToList() {
       this.$router.push(`/list/${this.doctype}`);
