@@ -66,7 +66,19 @@ export default {
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
     this.groups = sidebarConfig.groups;
-    this.activeGroup = this.groups.find(g => g.title === _('Sales'));
+
+    let currentPath = this.$router.currentRoute.fullPath;
+    this.activeGroup = this.groups.find(g => {
+      if (g.items) {
+        let activeItem = g.items.filter(i => i.route === currentPath);
+        if (activeItem.length) {
+          return true;
+        }
+      }
+    });
+    if (!this.activeGroup) {
+      this.activeGroup = this.groups[0];
+    }
   },
   methods: {
     itemActiveClass(item) {
