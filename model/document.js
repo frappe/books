@@ -173,7 +173,11 @@ module.exports = class BaseDocument extends Observable {
   getValidDict() {
     let data = {};
     for (let field of this.meta.getValidFields()) {
-      data[field.fieldname] = this[field.fieldname];
+      let value = this[field.fieldname];
+      if (Array.isArray(value)) {
+        value = value.map(doc => doc.getValidDict ? doc.getValidDict() : doc);
+      }
+      data[field.fieldname] = value;
     }
     return data;
   }
@@ -213,11 +217,29 @@ module.exports = class BaseDocument extends Observable {
       if (this.meta.isSingle) {
         this.setDefaults();
       }
+      await this.loadLinks();
     } else {
-      throw new frappe.errors.NotFound(
+      throw new frappe.errors.NotFoundError(
         `Not Found: ${this.doctype} ${this.name}`
       );
     }
+  }
+
+  async loadLinks() {
+    this._links = {};
+    let inlineLinks = this.meta.fields.filter(df => df.inline);
+    for (let df of inlineLinks) {
+      if (this[df.fieldname]) {
+        this._links[df.fieldname] = await frappe.getDoc(
+          df.target,
+          this[df.fieldname]
+        );
+      }
+    }
+  }
+
+  getLink(fieldname) {
+    return this._links ? this._links[fieldname] : null;
   }
 
   syncValues(data) {
@@ -234,7 +256,7 @@ module.exports = class BaseDocument extends Observable {
       this.meta.getValidFields().map(df => df.fieldname)
     );
     for (let key of toClear) {
-      delete this[key];
+      this[key] = null;
     }
   }
 
@@ -392,6 +414,14 @@ module.exports = class BaseDocument extends Observable {
     return this;
   }
 
+  insertOrUpdate() {
+    if (this._notInserted) {
+      return this.insert();
+    } else {
+      return this.update();
+    }
+  }
+
   async delete() {
     await this.trigger('beforeDelete');
     await frappe.db.delete(this.doctype, this.name);
@@ -427,7 +457,7 @@ module.exports = class BaseDocument extends Observable {
   // helper functions
   getSum(tablefield, childfield) {
     return this[tablefield]
-      .map(d => d[childfield] || 0)
+      .map(d => parseFloat(d[childfield], 10) || 0)
       .reduce((a, b) => a + b, 0);
   }
 
