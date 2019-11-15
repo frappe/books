@@ -237,7 +237,8 @@ module.exports = class sqliteDatabase extends Database {
       this.conn.run(query, params, (err) => {
         if (err) {
           console.error('Error in sql:', query);
-          reject(err);
+          let Error = this.getError(err.errno);
+          reject(new Error());
         } else {
           resolve();
         }
@@ -291,11 +292,17 @@ module.exports = class sqliteDatabase extends Database {
       , 'Read Only': 'text'
       , 'File': 'text'
       , 'Attach': 'text'
-      , 'Attach Image': 'text'
+      , 'AttachImage': 'text'
       , 'Signature': 'text'
       , 'Color': 'text'
       , 'Barcode': 'text'
       , 'Geolocation': 'text'
     }
+  }
+
+  getError(errCode) {
+    return {
+      19: frappe.errors.DuplicateEntryError
+    }[errCode] || Error;
   }
 }
