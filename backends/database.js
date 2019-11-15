@@ -537,7 +537,7 @@ module.exports = class Database extends Observable {
       , 'Read Only': 'text'
       , 'File': 'text'
       , 'Attach': 'text'
-      , 'Attach Image': 'text'
+      , 'AttachImage': 'text'
       , 'Signature': 'text'
       , 'Color': 'text'
       , 'Barcode': 'text'
