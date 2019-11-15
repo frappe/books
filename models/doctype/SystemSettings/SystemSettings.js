@@ -15,9 +15,11 @@ module.exports = {
                 "MM/dd/yyyy",
                 "dd-MM-yyyy",
                 "MM-dd-yyyy",
-                "yyyy-MM-dd"
+                "yyyy-MM-dd",
+                "d MMM, y",
+                "MMM d, y"
             ],
-            default: "yyyy-MM-dd",
+            default: "MMM d, y",
             required: 1
         }
     ]
