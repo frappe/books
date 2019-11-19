@@ -1,44 +1,52 @@
 <template>
   <div>
+    <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+      {{ df.label }}
+    </div>
     <Row :ratio="ratio" class="border-b px-2 text-gray-600">
       <div class="flex items-center pl-2">No</div>
       <div
-        :class="{'px-2 py-3': size === 'small', 'px-3 py-4': size !== 'small', 'text-right': isNumeric(df) }"
+        :class="{
+          'px-2 py-3': size === 'small',
+          'px-3 py-4': size !== 'small',
+          'text-right': isNumeric(df)
+        }"
         v-for="df in tableFields"
         :key="df.fieldname"
-      >{{ df.label }}</div>
+      >
+        {{ df.label }}
+      </div>
     </Row>
-    <Row v-for="row in value" :key="row.name" :ratio="ratio" class="border-b px-2">
-      <div class="flex items-center pl-2 text-gray-600">{{ row.idx + 1 }}</div>
-      <FormControl
-        :size="size"
-        class="py-2"
-        :input-class="{'text-right': isNumeric(df)}"
-        :key="df.fieldname"
-        v-for="df in tableFields"
-        :df="df"
-        :value="row[df.fieldname]"
-        @change="value => row.set(df.fieldname, value)"
-        @new-doc="doc => row.set(df.fieldname, doc.name)"
-      />
-    </Row>
-    <Row :ratio="ratio" class="text-gray-500 cursor-pointer border-transparent px-2">
-      <div class="flex items-center pl-2">
-        <AddIcon class="w-3 h-3 text-gray-500 stroke-current" />
+    <TableRow v-for="row in value" :key="row.name" v-bind="{ row, tableFields, size, ratio, isNumeric }" />
+    <Row
+      :ratio="ratio"
+      class="text-gray-500 cursor-pointer border-transparent px-2"
+      v-if="!isReadOnly"
+    >
+      <div class="flex items-center pl-1">
+        <feather-icon
+          name="plus"
+          class="w-4 h-4 text-gray-500"
+        />
       </div>
       <div
-        :class="{'px-2 py-3': size === 'small', 'px-3 py-4': size !== 'small'}"
+        :class="{
+          'px-2 py-3': size === 'small',
+          'px-3 py-4': size !== 'small'
+        }"
         @click="addRow"
-      >{{ _('Add Row') }}</div>
+      >
+        {{ _('Add Row') }}
+      </div>
     </Row>
   </div>
 </template>
 
 <script>
 import Row from '@/components/Row';
-import AddIcon from '@/components/Icons/Add';
+import Icon from '@/components/Icon';
 import Base from './Base';
-import FormControl from './FormControl';
+import TableRow from './TableRow';
 
 export default {
   name: 'Table',
@@ -50,10 +58,8 @@ export default {
   },
   components: {
     Row,
-    AddIcon
-  },
-  beforeCreate() {
-    this.$options.components.FormControl = FormControl;
+    Icon,
+    TableRow
   },
   methods: {
     focus() {},
