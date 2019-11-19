@@ -30,5 +30,6 @@ module.exports = {
       label: 'Credit',
       fieldtype: 'Currency'
     }
-  ]
+  ],
+  tableFields: ['account', 'debit', 'credit']
 };

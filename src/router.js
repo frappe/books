@@ -15,6 +15,7 @@ import ReportList from '@/pages/ReportList';
 import ChartOfAccounts from '@/pages/ChartOfAccounts';
 
 import InvoiceForm from '@/pages/InvoiceForm';
+import JournalEntryForm from '@/pages/JournalEntryForm';
 
 import Tree from 'frappejs/ui/components/Tree';
 
@@ -24,6 +25,18 @@ const routes = [
   {
     path: '/',
     component: Dashboard
+  },
+  {
+    path: '/edit/JournalEntry/:name',
+    name: 'JournalEntryForm',
+    components: {
+      default: JournalEntryForm,
+      edit: QuickEditForm
+    },
+    props: {
+      default: true,
+      edit: route => route.query
+    }
   },
   {
     path: '/edit/:doctype/:name',
@@ -78,11 +91,6 @@ const routes = [
     name: 'Data Import',
     component: DataImport
   },
-  // {
-  //   path: '/settings',
-  //   name: 'Settings',
-  //   component: Settings
-  // },
   {
     path: '/reportList',
     name: 'Report',
@@ -111,7 +119,7 @@ const routes = [
 let router = new Router({ routes });
 
 if (process.env.NODE_ENV === 'development') {
-  window.router = router
+  window.router = router;
 }
 
 export default router;
