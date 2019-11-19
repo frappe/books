@@ -1,3 +1,5 @@
+const frappe = require('frappejs');
+
 const title = 'Profit and Loss';
 module.exports = {
   title: title,
@@ -10,7 +12,10 @@ module.exports = {
       size: 'small',
       placeholder: 'From Date',
       label: 'From Date',
-      required: 1
+      required: 1,
+      default: async () => {
+        return (await frappe.getSingle('AccountingSettings')).fiscalYearStart;
+      }
     },
     {
       fieldtype: 'Date',
@@ -18,7 +23,10 @@ module.exports = {
       size: 'small',
       placeholder: 'To Date',
       label: 'To Date',
-      required: 1
+      required: 1,
+      default: async () => {
+        return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
+      }
     },
     {
       fieldtype: 'Select',
@@ -30,6 +38,7 @@ module.exports = {
         'Half Yearly',
         'Yearly'
       ],
+      default: 'Monthly',
       label: 'Periodicity',
       fieldname: 'periodicity'
     }

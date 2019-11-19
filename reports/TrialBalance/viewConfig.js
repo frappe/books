@@ -1,3 +1,5 @@
+const frappe = require('frappejs');
+
 const title = 'Trial Balance';
 module.exports = {
   title: title,
@@ -10,7 +12,10 @@ module.exports = {
       label: 'From Date',
       size: 'small',
       placeholder: 'From Date',
-      required: 1
+      required: 1,
+      default: async () => {
+        return (await frappe.getSingle('AccountingSettings')).fiscalYearStart;
+      }
     },
     {
       fieldtype: 'Date',
@@ -18,7 +23,10 @@ module.exports = {
       placeholder: 'To Date',
       fieldname: 'toDate',
       label: 'To Date',
-      required: 1
+      required: 1,
+      default: async () => {
+        return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
+      }
     }
   ],
   linkFields: [

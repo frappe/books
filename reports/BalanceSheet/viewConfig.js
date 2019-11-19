@@ -1,3 +1,5 @@
+const frappe = require('frappejs');
+
 module.exports = {
   title: 'Balance Sheet',
   method: 'balance-sheet',
@@ -8,7 +10,10 @@ module.exports = {
       size: 'small',
       placeholder: 'ToDate',
       label: 'To Date',
-      required: 1
+      required: 1,
+      default: async () => {
+        return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
+      }
     },
     {
       fieldtype: 'Select',
