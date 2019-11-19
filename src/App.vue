@@ -13,7 +13,7 @@ import frappe from 'frappejs';
 import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
 import DatabaseSelector from './pages/DatabaseSelector';
-import Settings from '@/pages/Settings.vue';
+import Settings from '@/pages/Settings/Settings.vue';
 import { remote } from 'electron';
 
 export default {
@@ -68,7 +68,7 @@ export default {
     });
 
     frappe.events.on('show-desk', () => {
-      if (this.$route.path === '/settings') {
+      if (this.$route.path.startsWith('/settings')) {
         this.showSettings = true;
       } else {
         this.showDesk = true;
