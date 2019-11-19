@@ -1,48 +1,25 @@
 import frappe from 'frappejs';
-import { remote } from 'electron';
+import { openSettings } from './pages/Settings/utils';
 import { _ } from 'frappejs/utils';
-import DashboardIcon from './components/Icons/Dashboard';
-import SalesIcon from './components/Icons/Sales';
-import PurchasesIcon from './components/Icons/Purchases';
-import ReportsIcon from './components/Icons/Reports';
-import SettingsIcon from './components/Icons/Settings';
-import theme from '@/theme';
+import Icon from './components/Icon';
 import router from './router';
 
 const config = {
   getTitle: async () => {
-    const { companyName, country } = await frappe.getSingle(
-      'AccountingSettings'
-    );
-    // if (country === 'India') {
-    //   config.groups[2].items.push(
-    //     {
-    //       label: _('GSTR 1'),
-    //       route: '/report/gstr-1?transferType=B2B'
-    //     },
-    //     {
-    //       label: _('GSTR 2'),
-    //       route: '/report/gstr-2?transferType=B2B'
-    //     },
-    //     {
-    //       label: _('GSTR 3B'),
-    //       route: '/list/GSTR3B'
-    //     }
-    //   );
-    // }
+    const { companyName } = await frappe.getSingle('AccountingSettings');
     return companyName;
   },
   groups: [
     {
       title: _('Dashboard'),
       route: '/',
-      icon: DashboardIcon
+      icon: getIcon('dashboard')
     },
     {
       title: _('Sales'),
-      icon: SalesIcon,
+      icon: getIcon('sales'),
       action() {
-        router.push('/list/SalesInvoice')
+        router.push('/list/SalesInvoice');
       },
       items: [
         {
@@ -64,19 +41,27 @@ const config = {
         {
           label: _('Taxes'),
           route: '/list/Tax'
+        },
+        {
+          label: _('Journal Entry'),
+          route: '/list/JournalEntry'
         }
       ]
     },
     {
       title: _('Purchases'),
-      icon: PurchasesIcon,
+      icon: getIcon('purchase'),
       action() {
-        router.push('/list/PurchaseInvoice')
+        router.push('/list/PurchaseInvoice');
       },
       items: [
         {
           label: _('Bill'),
           route: '/list/PurchaseInvoice'
+        },
+        {
+          label: _('Payments'),
+          route: '/list/Payment'
         },
         {
           label: _('Suppliers'),
@@ -89,12 +74,16 @@ const config = {
         {
           label: _('Taxes'),
           route: '/list/Tax'
+        },
+        {
+          label: _('Journal Entry'),
+          route: '/list/JournalEntry'
         }
       ]
     },
     {
       title: _('Reports'),
-      icon: ReportsIcon,
+      icon: getIcon('reports'),
       items: [
         {
           label: _('General Ledger'),
@@ -116,23 +105,26 @@ const config = {
     },
     {
       title: _('Settings'),
-      icon: SettingsIcon,
+      icon: getIcon('settings'),
       action() {
-        let child = new remote.BrowserWindow({
-          parent: remote.getCurrentWindow(),
-          frame: false,
-          width: 460,
-          height: 577,
-          backgroundColor: theme.backgroundColor.gray['200'],
-          webPreferences: {
-            webSecurity: false,
-            nodeIntegration: true
-          }
-        });
-        child.loadURL('http://localhost:8000/#/settings');
+        openSettings();
       }
     }
   ]
 };
+
+function getIcon(name) {
+  return {
+    name,
+    render(h) {
+      return h(Icon, {
+        props: Object.assign({
+          name,
+          size: '18',
+        }, this.$attrs)
+      });
+    }
+  };
+}
 
 export default config;

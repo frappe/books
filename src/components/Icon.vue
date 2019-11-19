@@ -4,6 +4,7 @@
     v-on="$listeners"
     :is="iconComponent"
     :class="iconClasses"
+    :active="active"
   />
 </template>
 
@@ -25,7 +26,7 @@ requireComponent.keys().forEach(fileName => {
 
 export default {
   name: 'Icon',
-  props: ['size', 'name'],
+  props: ['size', 'name', 'active'],
   computed: {
     iconComponent() {
       try {
