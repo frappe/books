@@ -1,6 +1,6 @@
 <template>
   <div class="relative" v-on-outside-click="() => isShown = false">
-    <div>
+    <div class="h-full">
       <slot
         :toggleDropdown="toggleDropdown"
         :highlightItemUp="highlightItemUp"
@@ -10,13 +10,13 @@
     </div>
     <div
       :class="right ? 'right-0' : 'left-0'"
-      class="mt-1 absolute z-10 bg-white rounded-5px border w-full min-w-56"
+      class="mt-1 absolute z-10 bg-white rounded-5px border w-full min-w-40 shadow-md"
       v-if="isShown"
     >
       <div class="p-1 max-h-64 overflow-auto">
         <a
           ref="items"
-          class="block p-2 rounded mt-1 first:mt-0 cursor-pointer whitespace-no-wrap text-sm"
+          class="block p-2 rounded mt-1 first:mt-0 cursor-pointer whitespace-no-wrap"
           v-for="(d, index) in items"
           :key="d.label"
           :class="index === highlightedIndex ? 'bg-gray-100' : ''"
