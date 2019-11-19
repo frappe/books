@@ -12,6 +12,11 @@ module.exports = {
       required: 1
     },
     {
+      fieldname: 'image',
+      label: 'Image',
+      fieldtype: 'AttachImage'
+    },
+    {
       fieldname: 'description',
       label: 'Description',
       fieldtype: 'Text'
