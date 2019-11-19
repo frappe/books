@@ -4,9 +4,9 @@
     style="background-color: rgba(255, 255, 255, 0.6)"
   >
     <div>
-      <WindowControls class="px-3" />
+      <WindowControls class="px-3" :buttons="['close', 'minimize']" />
       <div class="mt-6 px-3">
-        <h6 class="text-sm font-semibold" @click="$router.push('/')">{{ companyName }}</h6>
+        <h6 class="text-base font-semibold" @click="$router.push('/')">{{ companyName }}</h6>
       </div>
       <div class="mt-5">
         <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.title">
@@ -20,7 +20,7 @@
               :active="isActiveGroup(group) && !group.items"
             />
             <div
-              class="ml-2 text-sm text-gray-900"
+              class="ml-2 text-lg text-gray-900"
               :class="isActiveGroup(group) && !group.items && 'text-blue-500'"
             >{{ group.title }}</div>
           </div>
@@ -28,7 +28,7 @@
             <div
               v-for="item in group.items"
               :key="item.label"
-              class="mt-1 first:mt-0 text-sm text-gray-800 py-1 pl-10 rounded cursor-pointer hover:bg-white"
+              class="mt-1 first:mt-0 text-base text-gray-800 py-1 pl-10 rounded cursor-pointer hover:bg-white"
               :class="itemActiveClass(item)"
               @click="routeTo(item.route)"
             >{{ item.label }}</div>
@@ -36,19 +36,11 @@
         </div>
       </div>
     </div>
-    <div>
-      <button
-        class="block bg-white rounded w-full h-8 flex justify-center focus:outline-none focus:shadow-outline"
-      >
-        <AddIcon class="w-3 h-3 stroke-current text-gray-900" />
-      </button>
-    </div>
   </div>
 </template>
 <script>
 import sidebarConfig from '../sidebarConfig';
 import WindowControls from './WindowControls';
-import AddIcon from './Icons/Add';
 import { _ } from 'frappejs/utils';
 
 export default {
@@ -61,7 +53,6 @@ export default {
   },
   components: {
     WindowControls,
-    AddIcon
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();

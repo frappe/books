@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <h1 slot="title" class="text-xl font-bold">{{ _('Chart of Accounts') }}</h1>
+      <h1 slot="title" class="text-2xl font-bold">{{ _('Chart of Accounts') }}</h1>
       <template slot="actions">
         <SearchBar class="ml-2" />
       </template>
