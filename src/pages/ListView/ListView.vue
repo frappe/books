@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <h1 slot="title" class="text-xl font-bold" v-if="title">{{ title }}</h1>
+      <h1 slot="title" class="text-2xl font-bold" v-if="title">{{ title }}</h1>
       <template slot="actions">
         <Button :icon="true" type="primary" @click="makeNewDoc">
-          <Add class="w-3 h-3 stroke-current text-white" />
+          <feather-icon name="plus" class="w-4 h-4 text-white" />
         </Button>
         <SearchBar class="ml-2" />
       </template>
@@ -19,7 +19,6 @@ import frappe from 'frappejs';
 import Observable from 'frappejs/utils/observable';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
-import Add from '@/components/Icons/Add';
 import SearchBar from '@/components/SearchBar';
 import List from './List';
 import listConfigs from './listConfig';
@@ -31,7 +30,6 @@ export default {
     PageHeader,
     List,
     Button,
-    Add,
     SearchBar
   },
   created() {
