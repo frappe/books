@@ -1,29 +1,55 @@
 <template>
   <div class="flex">
-    <div @click="close" class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-700"></div>
-    <div @click="minimize" class="ml-2 w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-700"></div>
-    <div @click="maximize" class="ml-2 w-3 h-3 rounded-full bg-green-500 hover:bg-green-700"></div>
+    <div
+      @click="action('close')"
+      class="w-3 h-3 rounded-full"
+      :class="getColorClasses('close')"
+    ></div>
+    <div
+      @click="action('minimize')"
+      class="ml-2 w-3 h-3 rounded-full"
+      :class="getColorClasses('minimize')"
+    ></div>
+    <div
+      @click="action('maximize')"
+      class="ml-2 w-3 h-3 rounded-full"
+      :class="getColorClasses('maximize')"
+    ></div>
   </div>
 </template>
 
 <script>
-import electron from 'electron'
+import electron from 'electron';
 
 export default {
   name: 'WindowControls',
+  props: {
+    buttons: {
+      type: Array,
+      default: () => ['close', 'minimize', 'maximize']
+    }
+  },
   methods: {
-    close() {
-      let window = electron.remote.getCurrentWindow();
-      window.close();
+    action(name) {
+      if (this.buttons.includes(name)) {
+        this.$emit(name);
+        let window = electron.remote.getCurrentWindow();
+        window[name]();
+      }
     },
-    minimize() {
-      let window = electron.remote.getCurrentWindow();
-      window.minimize();
-    },
-    maximize() {
-      let window = electron.remote.getCurrentWindow();
-      window.maximize();
-    },
+    getColorClasses(name) {
+      let classes = {
+        close: 'bg-red-500 hover:bg-red-700',
+        minimize: 'bg-yellow-500 hover:bg-yellow-700',
+        maximize: 'bg-green-500 hover:bg-green-700'
+      }[name];
+
+      if (this.buttons.includes(name)) {
+        return classes;
+      }
+
+      return 'bg-gray-500';
+    }
   }
-}
+};
 </script>

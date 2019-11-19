@@ -65,6 +65,8 @@ module.exports = {
     EventSettings: require('./doctype/EventSettings/EventSettings'),
 
     Email: require('./doctype/Email/Email'),
-    EmailAccount: require('./doctype/EmailAccount/EmailAccount')
+    EmailAccount: require('./doctype/EmailAccount/EmailAccount'),
+
+    PrintSettings: require('./doctype/PrintSettings/PrintSettings')
   }
 };

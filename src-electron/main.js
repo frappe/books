@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const setupMenu = require('./menu');
+const theme = require('../src/theme');
 
 let mainWindow;
 let winURL;
@@ -47,6 +48,26 @@ function createWindow() {
 
   setupMenu();
 }
+
+function createSettingsWindow(tab = 'General') {
+  let settingsWindow = new BrowserWindow({
+    parent: mainWindow,
+    frame: false,
+    width: 460,
+    height: 577,
+    backgroundColor: theme.backgroundColor.gray['200'],
+    webPreferences: {
+      webSecurity: false,
+      nodeIntegration: true
+    }
+  });
+
+  settingsWindow.loadURL(`${winURL}/#/settings/${tab}`);
+}
+
+ipcMain.on('open-settings-window', tab => {
+  createSettingsWindow(tab);
+});
 
 ipcMain.on('reload-main-window', () => {
   mainWindow.reload();

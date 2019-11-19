@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="bg-blue-500 px-6 py-5 rounded-12px flex justify-between items-center">
+    <!-- <div class="bg-blue-500 px-6 py-5 rounded-12px flex justify-between items-center">
       <div class="flex items-center">
         <div class="bg-white rounded-full w-16 h-16 flex justify-center items-center">
           <svg class="w-6 h-6" viewBox="0 0 24 21" xmlns="http://www.w3.org/2000/svg">
@@ -17,8 +17,8 @@
         </div>
       </div>
       <Button class="text-xs">Edit</Button>
-    </div>
-    <TwoColumnForm class="mt-6" v-if="doc" :doc="doc" :fields="fields" :autosave="true" />
+    </div> -->
+    <TwoColumnForm v-if="doc" :doc="doc" :fields="fields" :autosave="true" />
   </div>
 </template>
 
@@ -45,6 +45,7 @@ export default {
     fields() {
       let meta = frappe.getMeta('AccountingSettings');
       return [
+        'companyName',
         'country',
         'bankName',
         'currency',
