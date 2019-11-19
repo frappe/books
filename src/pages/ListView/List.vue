@@ -1,27 +1,59 @@
 <template>
-  <div class="px-5 pb-16 mt-2 text-sm flex flex-col overflow-y-hidden">
-    <div class="px-3">
-      <Row class="text-gray-700" :columnCount="columns.length" gap="1rem">
+  <div class="px-5 pb-16 mt-2 text-base flex flex-col overflow-y-hidden">
+    <div class="flex px-3">
+      <div class="py-4 mr-3 w-7" v-if="hasImage"></div>
+      <Row
+        class="flex-1 text-gray-700"
+        :columnCount="columns.length"
+        gap="1rem"
+      >
         <div
           v-for="column in columns"
           :key="column.label"
           class="py-4 truncate"
-          :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
-        >{{ column.label }}</div>
+          :class="
+            ['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''
+          "
+        >
+          {{ column.label }}
+        </div>
       </Row>
     </div>
     <div class="overflow-y-auto">
-      <div class="px-3 hover:bg-gray-100 rounded" v-for="doc in data" :key="doc.name">
+      <div
+        class="px-3 flex hover:bg-gray-100 rounded"
+        v-for="(doc, i) in data"
+        :key="doc.name"
+      >
+        <div class="w-7 py-4 mr-3" v-if="hasImage">
+          <div class="w-7 h-7 rounded-full overflow-hidden">
+            <img
+              v-if="doc.image"
+              :src="doc.image"
+              class="w-7 h-7 object-cover"
+            />
+            <div
+              v-else
+              class="bg-gray-500 flex h-full items-center justify-center text-white w-full text-base uppercase"
+            >
+              {{ doc.name[0] }}
+            </div>
+          </div>
+        </div>
         <Row
           gap="1rem"
-          class="cursor-pointer text-gray-900"
+          class="cursor-pointer text-gray-900 flex-1"
           @click.native="openForm(doc.name)"
           :columnCount="columns.length"
         >
           <ListCell
             v-for="column in columns"
             :key="column.label"
-            :class="['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''"
+            :class="
+              ['Float', 'Currency'].includes(column.fieldtype)
+                ? 'text-right'
+                : ''
+            "
             :doc="doc"
             :column="column"
           ></ListCell>
@@ -62,6 +94,9 @@ export default {
     },
     meta() {
       return frappe.getMeta(this.listConfig.doctype);
+    },
+    hasImage() {
+      return this.meta.hasField('image');
     }
   },
   async mounted() {
