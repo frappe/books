@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <h1 slot="title" class="text-xl font-bold">{{ _('Dashboard') }}</h1>
+      <h1 slot="title" class="text-2xl font-bold">{{ _('Dashboard') }}</h1>
       <template slot="actions">
         <SearchBar class="ml-2" />
       </template>
@@ -9,8 +9,24 @@
     <div class="mt-4 px-8">
       <div class="border-t" />
       <div class="mt-6">
-        <div class="font-medium">Cash Flow</div>
-        <div ref="cashflow"></div>
+        <div class="flex items-center justify-between">
+          <div class="font-medium">{{ _('Cash Flow') }}</div>
+          <div class="flex text-base">
+            <div class="flex items-center">
+              <span class="w-3 h-3 rounded inline-block bg-blue-500"></span>
+              <span class="ml-2">{{ _('Inflow') }}</span>
+            </div>
+            <div class="flex items-center ml-6">
+              <span class="w-3 h-3 rounded inline-block bg-gray-500"></span>
+              <span class="ml-2">{{ _('Outflow' )}}</span>
+            </div>
+          </div>
+          <div class="text-sm flex items-center">
+            {{ _('Last 30 Days') }}
+            <feather-icon name="chevron-down" class="ml-1 w-3 h-3" />
+          </div>
+        </div>
+        <div class="chart-wrapper" ref="cashflow"></div>
       </div>
       <div class="my-10 border-t" />
       <div class="flex -mx-4">
@@ -18,11 +34,11 @@
           <div class="font-medium">{{ invoice.title }}</div>
           <div class="mt-6 flex justify-between">
             <div class="text-sm">
-              {{ invoice.paid }}
+              {{ frappe.format(invoice.paid, 'Currency') }}
               <span class="text-gray-600">{{ _('Paid') }}</span>
             </div>
             <div class="text-sm">
-              {{ invoice.unpaid }}
+              {{ frappe.format(invoice.unpaid, 'Currency') }}
               <span class="text-gray-600">{{ _('Unpaid') }}</span>
             </div>
           </div>
@@ -42,11 +58,11 @@
       <div class="my-10 border-t" />
       <div class="flex -mx-4">
         <div class="w-1/2 px-4">
-          <span class="font-medium">Profit and Loss</span>
-          <div ref="profit-and-loss"></div>
+          <span class="font-medium">{{ _('Profit and Loss') }}</span>
+          <div class="chart-wrapper" ref="profit-and-loss"></div>
         </div>
         <div class="w-1/2 px-4">
-          <span class="font-medium">Top Expenses</span>
+          <span class="font-medium">{{ _('Top Expenses') }}</span>
           <div class="flex">
             <div class="w-1/2">
               <div
@@ -58,10 +74,10 @@
                   <div class="w-3 h-3 rounded" :style="`backgroundColor: ${d.color}`"></div>
                   <div class="ml-3">{{ d.name }}</div>
                 </div>
-                <div>{{ d.value }}</div>
+                <div>{{ frappe.format(d.value, 'Currency') }}</div>
               </div>
             </div>
-            <div class="w-1/2" ref="top-expenses"></div>
+            <div class="w-1/2 chart-wrapper" ref="top-expenses"></div>
           </div>
         </div>
       </div>
@@ -161,6 +177,9 @@ export default {
           hideDots: 1,
           heatLine: 1
         },
+        tooltipOptions: {
+          formatTooltipY: value => frappe.format(value, 'Currency')
+        },
         data: {
           labels: income.periodList,
           datasets: [
@@ -196,6 +215,9 @@ export default {
         axisOptions: {
           xAxisMode: 'tick',
           shortenYAxisNumbers: true
+        },
+        tooltipOptions: {
+          formatTooltipY: value => frappe.format(value, 'Currency')
         },
         data: {
           labels: res.columns.map(d => d.replace('2019', '')),
@@ -257,3 +279,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+.chart-wrapper >>> .chart-legend {
+  display: none;
+}
+</style>
