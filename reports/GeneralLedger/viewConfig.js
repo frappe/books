@@ -5,10 +5,16 @@ const viewConfig = {
   filterFields: [
     {
       fieldtype: 'Select',
-      options: ['Select...', 'SalesInvoice', 'Payment', 'PurchaseInvoice'],
+      options: [
+        { label: '', value: '' },
+        { label: 'Sales Invoice', value: 'SalesInvoice' },
+        { label: 'Payment', value: 'Payment' },
+        { label: 'Purchase Invoice', value: 'PurchaseInvoice' }
+      ],
       size: 'small',
       label: 'Reference Type',
-      fieldname: 'referenceType'
+      fieldname: 'referenceType',
+      placeholder: 'Reference Type'
     },
     {
       fieldtype: 'DynamicLink',

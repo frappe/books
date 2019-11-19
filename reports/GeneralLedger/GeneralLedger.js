@@ -2,8 +2,6 @@ const frappe = require('frappejs');
 
 class GeneralLedger {
   async run(params) {
-    if (!Object.keys(params).length) return [];
-
     const filters = {};
     if (params.account) filters.account = params.account;
     if (params.party) filters.party = params.party;
@@ -39,7 +37,7 @@ class GeneralLedger {
 
     glEntries.push({
       date: '',
-      account: '<b>Opening</b>',
+      account: { template: '<b>Opening</b>' },
       party: '',
       debit: 0,
       credit: 0,
@@ -56,7 +54,7 @@ class GeneralLedger {
     }
     glEntries.push({
       date: '',
-      account: '<b>Total</b>',
+      account: { template: '<b>Total</b>' },
       party: '',
       debit: debitTotal,
       credit: creditTotal,
@@ -66,7 +64,7 @@ class GeneralLedger {
     });
     glEntries.push({
       date: '',
-      account: '<b>Closing</b>',
+      account: { template: '<b>Closing</b>' },
       party: '',
       debit: debitTotal,
       credit: creditTotal,
