@@ -13,10 +13,9 @@ module.exports = {
       placeholder: 'Full Name'
     },
     {
-      fieldname: 'address',
-      label: 'Address',
-      fieldtype: 'Link',
-      target: 'Address'
+      fieldname: 'image',
+      label: 'Image',
+      fieldtype: 'AttachImage',
     },
     {
       fieldname: 'defaultAccount',
