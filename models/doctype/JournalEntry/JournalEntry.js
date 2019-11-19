@@ -16,8 +16,8 @@ module.exports = {
       fieldname: 'entryType',
       label: 'Entry Type',
       fieldtype: 'Select',
+      placeholder: 'Entry Type',
       options: [
-        'Select...',
         'Journal Entry',
         'Bank Entry',
         'Cash Entry',
@@ -57,7 +57,8 @@ module.exports = {
     {
       fieldname: 'userRemark',
       label: 'User Remark',
-      fieldtype: 'Text'
+      fieldtype: 'Text',
+      placeholder: 'User Remark'
     }
   ],
   layout: [
