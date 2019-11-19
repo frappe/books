@@ -13,7 +13,8 @@ module.exports = {
     {
       fieldname: 'referenceType',
       label: 'Reference Type',
-      fieldtype: 'Data',
+      fieldtype: 'AutoComplete',
+      options: ['SalesInvoice', 'PurchaseInvoice'],
       required: 1
     },
     {
@@ -27,8 +28,9 @@ module.exports = {
       fieldname: 'amount',
       label: 'Amount',
       fieldtype: 'Currency',
-      formula: (row, doc) =>
-        doc.getFrom(row.referenceType, row.referenceName, 'grandTotal'),
+      formula: (row, doc) => {
+        return doc.getFrom(row.referenceType, row.referenceName, 'outstandingAmount');
+      },
       required: 1
     }
   ]
