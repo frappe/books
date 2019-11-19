@@ -65,7 +65,7 @@ function createSettingsWindow(tab = 'General') {
   settingsWindow.loadURL(`${winURL}/#/settings/${tab}`);
 }
 
-ipcMain.on('open-settings-window', tab => {
+ipcMain.on('open-settings-window', (event, tab) => {
   createSettingsWindow(tab);
 });
 
