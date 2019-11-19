@@ -1,10 +1,8 @@
 <template>
-  <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6 10">
     <path
-      d="M5 1v8m4-4H1"
-      stroke="#FFF"
+      d="M4.75 8.5L1.25 5l3.5-3.5"
       stroke-width="1.5"
-      fill="none"
       fill-rule="evenodd"
       stroke-linecap="round"
       stroke-linejoin="round"
