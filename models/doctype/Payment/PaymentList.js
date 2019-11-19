@@ -3,7 +3,7 @@ import Badge from '@/components/Badge';
 
 export default {
   doctype: 'Payment',
-  title: _('Payment'),
+  title: _('Payments'),
   columns: [
     'party',
     {
