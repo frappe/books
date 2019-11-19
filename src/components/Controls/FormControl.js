@@ -4,6 +4,9 @@ import Link from './Link';
 import Date from './Date';
 import Table from './Table';
 import AutoComplete from './AutoComplete';
+import Check from './Check';
+import AttachImage from './AttachImage';
+import DynamicLink from './DynamicLink';
 
 export default {
   name: 'FormControl',
@@ -14,7 +17,10 @@ export default {
       Link,
       Date,
       Table,
-      AutoComplete
+      AutoComplete,
+      Check,
+      AttachImage,
+      DynamicLink
     };
     let { df } = this.$attrs;
     return h(controls[df.fieldtype] || Data, {
@@ -26,6 +32,9 @@ export default {
   methods: {
     focus() {
       this.$refs.control.focus();
+    },
+    getInput() {
+      return this.$refs.control.$refs.input;
     }
   }
 };
