@@ -1,3 +1,5 @@
+let { _ } = require('frappejs/utils');
+
 module.exports = {
   name: 'Party',
   label: 'Party',
@@ -18,6 +20,16 @@ module.exports = {
       fieldtype: 'AttachImage',
     },
     {
+      fieldname: 'customer',
+      label: 'Customer',
+      fieldtype: 'Check'
+    },
+    {
+      fieldname: 'supplier',
+      label: 'Supplier',
+      fieldtype: 'Check'
+    },
+    {
       fieldname: 'defaultAccount',
       label: 'Default Account',
       fieldtype: 'Link',
@@ -30,32 +42,51 @@ module.exports = {
       }
     },
     {
+      fieldname: 'outstandingAmount',
+      label: 'Outstanding Amount',
+      fieldtype: 'Currency'
+    },
+    {
       fieldname: 'currency',
       label: 'Currency',
       fieldtype: 'Link',
       target: 'Currency',
-      formula: async doc => {
-        const { currency } = await frappe.getSingle('AccountingSettings');
-        return currency;
+      placeholder: 'INR'
+    },
+    {
+      fieldname: 'email',
+      label: 'Email',
+      fieldtype: 'Data',
+      placeholder: 'john@doe.com'
+    },
+    {
+      fieldname: 'phone',
+      label: 'Phone',
+      fieldtype: 'Data',
+      placeholder: 'Phone'
+    },
+    {
+      fieldname: 'address',
+      label: 'Address',
+      fieldtype: 'Link',
+      target: 'Address',
+      placeholder: _('Click to create'),
+      inline: true
+    },
+    {
+      fieldname: 'addressDisplay',
+      label: 'Address Display',
+      fieldtype: 'Text',
+      readOnly: true,
+      formula: doc => {
+        if (doc.address) {
+          return doc.getFrom('Address', doc.address, 'addressDisplay');
+        }
       }
-    },
-    {
-      fieldname: 'customer',
-      label: 'Customer',
-      fieldtype: 'Check'
-    },
-    {
-      fieldname: 'supplier',
-      label: 'Supplier',
-      fieldtype: 'Check'
     }
   ],
 
-  quickEditFields: [
-    'address',
-    'defaultAccount',
-    'currency'
-  ],
+  quickEditFields: ['defaultAccount', 'currency', 'email', 'phone', 'address'],
 
   getFormTitle(doc) {
     if (doc.customer) return 'Customer';
