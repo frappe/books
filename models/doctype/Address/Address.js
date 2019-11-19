@@ -2,37 +2,15 @@ module.exports = {
   name: 'Address',
   doctype: 'DocType',
   isSingle: 0,
-  keywordFields: ['name'],
-  pageSettings: {
-    hideTitle: true
-  },
+  keywordFields: [
+    'addressLine1',
+    'addressLine2',
+    'city',
+    'state',
+    'country',
+    'postalCode'
+  ],
   fields: [
-    {
-      fieldname: 'name',
-      label: 'Address Title',
-      fieldtype: 'Data',
-      defaultValue: 'Work',
-      required: 1
-    },
-    {
-      fieldname: 'addressType',
-      label: 'Address Type',
-      fieldtype: 'Select',
-      options: [
-        'Billing',
-        'Shipping',
-        'Office',
-        'Personal',
-        'Plant',
-        'Postal',
-        'Shop',
-        'Subsidary',
-        'Warehouse',
-        'Current',
-        'Permanent',
-        'Other'
-      ]
-    },
     {
       fieldname: 'addressLine1',
       label: 'Address Line 1',
@@ -82,60 +60,31 @@ module.exports = {
       fieldtype: 'Data'
     },
     {
-      fieldname: 'isPreferredBilling',
-      label: 'Preferred Billing Address',
-      fieldtype: 'Check'
-    },
-    {
-      fieldname: 'isShippingBilling',
-      label: 'Preferred Shipping Address',
-      fieldtype: 'Check'
+      fieldname: 'addressDisplay',
+      fieldtype: 'Text',
+      label: 'Address Display',
+      readOnly: true,
+      formula: doc => {
+        return [
+          doc.addressLine1,
+          doc.addressLine2,
+          doc.city,
+          doc.state,
+          doc.country,
+          doc.postalCode
+        ]
+          .filter(Boolean)
+          .join(', ');
+      }
     }
   ],
-
-  // events: {
-  //     validate: (doc) => {
-
-  //     }
-  // },
-
-  listSettings: {
-    getFields(list) {
-      return ['name', 'addressType'];
-    },
-    getRowHTML(list, data) {
-      return `<div class="col-11">${list.getNameHTML(data)} (${
-        data.addressType
-      })</div>`;
-    }
-  },
-
-  layout: [
-    // section 1
-    {
-      columns: [
-        {
-          fields: [
-            'name',
-            'addressType',
-            'addressLine1',
-            'addressLine2',
-            'city',
-            'country',
-            'state',
-            'postalCode'
-          ]
-        },
-        {
-          fields: [
-            'emailAddress',
-            'phone',
-            'fax',
-            'isPreferredBilling',
-            'isShippingBilling'
-          ]
-        }
-      ]
-    }
-  ]
+  quickEditFields: [
+    'addressLine1',
+    'addressLine2',
+    'city',
+    'state',
+    'country',
+    'postalCode'
+  ],
+  inlineEditDisplayField: 'addressDisplay'
 };
