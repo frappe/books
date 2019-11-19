@@ -1,7 +1,7 @@
 <template>
-  <div class="mt-4 px-8 flex justify-between items-center window-drag">
+  <div class="mt-4 px-8 flex justify-between window-drag">
     <slot name="title" />
-    <div class="flex items-center">
+    <div class="flex items-stretch">
       <slot name="actions" />
     </div>
   </div>

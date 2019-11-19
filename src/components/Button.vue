@@ -1,6 +1,6 @@
 <template>
   <button
-    class="focus:outline-none rounded-6px"
+    class="focus:outline-none rounded-6px shadow-button"
     :style="style"
     v-bind="$attrs"
     v-on="$listeners"
@@ -24,12 +24,11 @@ export default {
   computed: {
     style() {
       return {
-        padding: this.icon ? '9px 15px' : '6px 24px',
+        padding: this.icon ? '6px 12px' : '6px 24px',
         'background-image':
           this.type === 'primary'
             ? 'linear-gradient(180deg, #2C9AF1 0%, #2490EF 100%)'
-            : 'linear-gradient(180deg, #FFFFFF 0%, #F4F4F6 100%)',
-        'box-shadow': '0 0.5px 0 0 rgba(0,0,0,0.08)'
+            : 'linear-gradient(180deg, #FFFFFF 0%, #F4F4F6 100%)'
       };
     }
   }
