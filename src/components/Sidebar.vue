@@ -17,7 +17,7 @@
             <component
               :is="group.icon"
               class="w-5 h-5"
-              :active="isActiveGroup(group) && !group.items"
+              :active="isActiveGroup(group)"
             />
             <div
               class="ml-2 text-lg text-gray-900"
