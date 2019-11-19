@@ -8,7 +8,7 @@ export default {
   extends: AutoComplete,
   methods: {
     async getSuggestions(keyword = '') {
-      let doctype = this.df.target;
+      let doctype = this.getTarget();
       let meta = frappe.getMeta(doctype);
       let filters = await this.getFilters(keyword);
       if (keyword && !filters.keywords) {
@@ -45,10 +45,15 @@ export default {
         });
     },
     async getFilters(keyword) {
-      let doc = await frappe.getDoc(this.doctype, this.name);
-      return this.df.getFilters
-        ? (await this.df.getFilters(keyword, doc)) || {}
-        : {};
+      if (this.doc) {
+        return this.df.getFilters
+          ? (await this.df.getFilters(keyword, this.doc)) || {}
+          : {};
+      }
+      return {};
+    },
+    getTarget() {
+      return this.df.target;
     },
     async openNewDoc() {
       let doctype = this.df.target;

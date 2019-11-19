@@ -1,13 +1,18 @@
 <template>
   <div>
+    <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+      {{ df.label }}
+    </div>
     <input
       ref="input"
       :class="inputClasses"
       :type="inputType"
       :value="value"
       :placeholder="inputPlaceholder"
-      :readonly="df.readOnly"
+      :readonly="isReadOnly"
       @blur="e => triggerChange(e.target.value)"
+      @focus="e => $emit('focus', e)"
+      @input="e => $emit('input', e)"
     />
   </div>
 </template>
@@ -15,8 +20,26 @@
 <script>
 export default {
   name: 'Base',
-  props: ['df', 'value', 'inputClass', 'placeholder', 'size'],
-  inject: ['doctype', 'name'],
+  props: [
+    'df',
+    'value',
+    'inputClass',
+    'placeholder',
+    'size',
+    'showLabel',
+    'readOnly'
+  ],
+  inject: {
+    doctype: {
+      default: null
+    },
+    name: {
+      default: null
+    },
+    doc: {
+      default: null
+    }
+  },
   computed: {
     inputType() {
       return 'text';
@@ -32,7 +55,10 @@ export default {
       ];
     },
     inputPlaceholder() {
-      return this.placeholder || this.df.placeholder
+      return this.placeholder || this.df.placeholder;
+    },
+    isReadOnly() {
+      return this.readOnly || this.df.readOnly;
     }
   },
   methods: {
