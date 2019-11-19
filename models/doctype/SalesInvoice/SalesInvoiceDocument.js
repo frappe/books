@@ -5,7 +5,7 @@ module.exports = class SalesInvoice extends BaseDocument {
   async change({ changed }) {
     if (changed === 'items' || changed === 'exchangeRate') {
       const companyCurrency = frappe.AccountingSettings.currency;
-      if (this.currency.length && this.currency !== companyCurrency) {
+      if (this.currency && this.currency !== companyCurrency) {
         for (let item of this.items) {
           if (item.rate && this.exchangeRate) {
             const itemRate = await this.getFrom('Item', item.item, 'rate');
