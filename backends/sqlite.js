@@ -1,9 +1,10 @@
 const frappe = require('frappejs');
 const sqlite3 = require('sqlite3').verbose();
 const Database = require('./database');
+const errors = require('frappejs/common/errors');
 const debug = false;
 
-module.exports = class sqliteDatabase extends Database {
+class SqliteDatabase extends Database {
   constructor({ dbPath }) {
     super();
     this.dbPath = dbPath;
@@ -237,7 +238,7 @@ module.exports = class sqliteDatabase extends Database {
       this.conn.run(query, params, (err) => {
         if (err) {
           console.error('Error in sql:', query);
-          let Error = this.getError(err.errno);
+          let Error = this.getError(err);
           reject(new Error());
         } else {
           resolve();
@@ -262,7 +263,7 @@ module.exports = class sqliteDatabase extends Database {
     try {
       await this.run('commit');
     } catch (e) {
-      if (e.errno !== 1) {
+      if (e.name !== 'CannotCommitError') {
         throw e;
       }
     }
@@ -300,9 +301,24 @@ module.exports = class sqliteDatabase extends Database {
     }
   }
 
-  getError(errCode) {
+  getError(err) {
+    if (err.message.includes('FOREIGN KEY')) {
+      return frappe.errors.LinkValidationError;
+    }
+    if (err.message.includes('SQLITE_ERROR: cannot commit')) {
+      return SqliteDatabase.CannotCommitError;
+    }
     return {
       19: frappe.errors.DuplicateEntryError
-    }[errCode] || Error;
+    }[err.errno] || Error;
   }
 }
+
+SqliteDatabase.CannotCommitError = class CannotCommitError extends errors.DatabaseError {
+  constructor(message) {
+    super(message);
+    this.name = 'CannotCommitError';
+  }
+}
+
+module.exports = SqliteDatabase;

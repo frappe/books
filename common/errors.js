@@ -37,6 +37,20 @@ class DuplicateEntryError extends ValidationError {
   }
 }
 
+class LinkValidationError extends ValidationError {
+  constructor(message) {
+    super(message);
+    this.name = 'LinkValidationError';
+  }
+}
+
+class DatabaseError extends BaseError {
+  constructor(message) {
+    super(500, message);
+    this.name = 'DatabaseError';
+  }
+}
+
 class ValueError extends ValidationError {}
 class Conflict extends ValidationError {}
 
@@ -56,11 +70,14 @@ function throwError(message, error = 'ValidationError') {
 frappe.throw = throwError;
 
 module.exports = {
+  BaseError,
   ValidationError,
   ValueError,
   Conflict,
   NotFoundError,
   ForbiddenError,
   DuplicateEntryError,
+  LinkValidationError,
+  DatabaseError,
   throw: throwError
 };
