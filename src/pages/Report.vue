@@ -9,8 +9,8 @@
     <div class="mt-6 flex text-base px-8" v-if="report.filterFields">
       <div class="ml-3 first:ml-0 w-32" v-for="df in report.filterFields">
         <FormControl
-          input-class="bg-gray-100"
           size="small"
+          :background="true"
           :df="df"
           :value="filters[df.fieldname]"
           @change="value => onFilterChange(df, value)"
