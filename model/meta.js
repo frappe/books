@@ -28,7 +28,7 @@ module.exports = class BaseMeta extends BaseDocument {
     if (!this.fields.find(df => df.fieldname === 'name') && !this.isSingle) {
       this.fields = [
         {
-          label: frappe._('Name'),
+          label: frappe._('ID'),
           fieldname: 'name',
           fieldtype: 'Data',
           required: 1,
