@@ -14,6 +14,13 @@ module.exports = {
   showTitle: true,
   fields: [
     {
+      label: 'Bill No',
+      fieldname: 'name',
+      fieldtype: 'Data',
+      required: 1,
+      readOnly: 1
+    },
+    {
       fieldname: 'date',
       label: 'Date',
       fieldtype: 'Date',

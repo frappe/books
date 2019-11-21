@@ -7,12 +7,12 @@ export default {
   formRoute: name => `/edit/PurchaseInvoice/${name}`,
   columns: [
     'supplier',
+    'name',
     {
       label: 'Status',
       fieldname: 'status',
       fieldtype: 'Select',
       size: 'small',
-      options: ['Status...', 'Paid', 'Pending'],
       render(doc) {
         let status = 'Pending';
         let color = 'orange';
