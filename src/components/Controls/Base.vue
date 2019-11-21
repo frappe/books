@@ -27,7 +27,8 @@ export default {
     'placeholder',
     'size',
     'showLabel',
-    'readOnly'
+    'readOnly',
+    'background'
   ],
   inject: {
     doctype: {
@@ -49,7 +50,8 @@ export default {
         this.inputClass,
         {
           'px-3 py-2': this.size !== 'small',
-          'px-2 py-1': this.size === 'small'
+          'px-2 py-1': this.size === 'small',
+          'bg-gray-100': this.background
         },
         'focus:outline-none focus:bg-gray-200 rounded-5px w-full text-gray-900'
       ];
