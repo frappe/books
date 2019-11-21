@@ -24,9 +24,18 @@ module.exports = {
         });
       }
     },
-    // {
-    //   label: _('View Invoices'),
-    //   action: console.log
-    // }
+    {
+      label: _('View Invoices'),
+      action: customer => {
+        router.push({
+          path: `/list/SalesInvoice`,
+          query: {
+            filters: {
+              customer: customer.name
+            }
+          }
+        });
+      }
+    }
   ]
 };

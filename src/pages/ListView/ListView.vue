@@ -3,14 +3,24 @@
     <PageHeader>
       <h1 slot="title" class="text-2xl font-bold" v-if="title">{{ title }}</h1>
       <template slot="actions">
-        <Button :icon="true" type="primary" @click="makeNewDoc">
+        <FilterDropdown
+          ref="filterDropdown"
+          @change="applyFilter"
+          :fields="meta.fields"
+        />
+        <Button class="ml-2" :icon="true" type="primary" @click="makeNewDoc">
           <feather-icon name="plus" class="w-4 h-4 text-white" />
         </Button>
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
     <div class="flex-1 flex h-full">
-      <List :listConfig="listConfig" :filters="filters" class="flex-1" />
+      <List
+        ref="list"
+        :listConfig="listConfig"
+        :filters="filters"
+        class="flex-1"
+      />
     </div>
   </div>
 </template>
@@ -22,6 +32,8 @@ import Button from '@/components/Button';
 import SearchBar from '@/components/SearchBar';
 import List from './List';
 import listConfigs from './listConfig';
+import Icon from '@/components/Icon';
+import FilterDropdown from '@/components/FilterDropdown';
 
 export default {
   name: 'ListView',
@@ -30,10 +42,14 @@ export default {
     PageHeader,
     List,
     Button,
-    SearchBar
+    SearchBar,
+    Icon,
+    FilterDropdown
   },
-  created() {
-    frappe.listView = new Observable();
+  mounted() {
+    if (typeof this.filters === 'object') {
+      this.$refs.filterDropdown.setFilter(this.filters);
+    }
   },
   methods: {
     async makeNewDoc() {
@@ -52,6 +68,9 @@ export default {
         this.$router.replace(path);
       });
     },
+    applyFilter(filters) {
+      this.$refs.list.updateData(filters);
+    },
     getFormPath(name) {
       if (this.listConfig.formRoute) {
         let path = this.listConfig.formRoute(name);
@@ -68,6 +87,9 @@ export default {
     }
   },
   computed: {
+    meta() {
+      return frappe.getMeta(this.doctype);
+    },
     listConfig() {
       if (listConfigs[this.doctype]) {
         return listConfigs[this.doctype];
@@ -75,17 +97,12 @@ export default {
         return {
           title: this.doctype,
           doctype: this.doctype,
-          columns: frappe.getMeta(this.doctype).getKeywordFields()
+          columns: this.meta.getKeywordFields()
         };
       }
     },
     title() {
-      if (this.listConfig) {
-        return typeof this.listConfig.title === 'function'
-          ? this.listConfig.title(this.filters)
-          : this.listConfig.title;
-      }
-      return this.doctype;
+      return this.listConfig.title || this.doctype;
     }
   }
 };

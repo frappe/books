@@ -104,7 +104,6 @@ export default {
     frappe.db.on(`change:${this.listConfig.doctype}`, obj => {
       this.updateData();
     });
-    frappe.listView.on('filterList', this.updateData.bind(this));
   },
   methods: {
     async setupColumnsAndData() {
@@ -127,8 +126,6 @@ export default {
     },
     async updateData(filters) {
       if (!filters) filters = this.getFilters();
-      // since passing filters as URL params which is String
-      filters = this.formatFilters(filters);
       this.data = await frappe.db.getAll({
         doctype: this.doctype,
         fields: ['*'],

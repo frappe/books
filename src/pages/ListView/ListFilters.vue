@@ -34,7 +34,6 @@ export default {
   methods: {
     removeFilter(filter) {
       delete this.currentFilters[filter];
-      frappe.listView.trigger('filterList', this.currentFilters);
       this.usedToReRender += 1;
     }
   }
