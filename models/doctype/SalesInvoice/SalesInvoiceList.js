@@ -7,14 +7,7 @@ export default {
   formRoute: name => `/edit/SalesInvoice/${name}`,
   columns: [
     'customer',
-    {
-      label: 'Invoice No',
-      fieldname: 'name',
-      fieldtype: 'Data',
-      getValue(doc) {
-        return doc.name;
-      }
-    },
+    'name',
     {
       label: 'Status',
       fieldname: 'status',
