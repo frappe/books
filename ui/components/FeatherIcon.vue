@@ -32,6 +32,7 @@ export default {
         width: null,
         height: null
       }),
+      on: this.$listeners,
       class: [icon.attrs.class],
       domProps: {
         innerHTML: icon.contents
