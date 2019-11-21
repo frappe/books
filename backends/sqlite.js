@@ -212,25 +212,15 @@ class SqliteDatabase extends Database {
       filters = Object.assign({}, filters, meta.filters);
     }
 
-    return new Promise((resolve, reject) => {
-      let conditions = this.getFilterConditions(filters);
-      let query = `select ${fields.join(", ")}
-                from ${baseDoctype}
-                ${conditions.conditions ? "where" : ""} ${conditions.conditions}
-                ${groupBy ? ("group by " + groupBy.join(', ')) : ""}
-                ${orderBy ? ("order by " + orderBy) : ""} ${orderBy ? (order || "asc") : ""}
-                ${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`;
+    let conditions = this.getFilterConditions(filters);
+    let query = `select ${fields.join(", ")}
+      from ${baseDoctype}
+      ${conditions.conditions ? "where" : ""} ${conditions.conditions}
+      ${groupBy ? ("group by " + groupBy.join(', ')) : ""}
+      ${orderBy ? ("order by " + orderBy) : ""} ${orderBy ? (order || "asc") : ""}
+      ${limit ? ("limit " + limit) : ""} ${start ? ("offset " + start) : ""}`;
 
-      this.conn.all(query, conditions.values,
-        (err, rows) => {
-          if (err) {
-            console.error(err);
-            reject(err);
-          } else {
-            resolve(rows);
-          }
-        });
-    });
+    return this.sql(query, conditions.values);
   }
 
   run(query, params) {
