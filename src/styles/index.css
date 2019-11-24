@@ -30,3 +30,7 @@ html {
 .grid {
   display: grid;
 }
+
+.frappe-chart .chart-legend {
+  display: none;
+}
