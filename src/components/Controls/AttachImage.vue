@@ -7,7 +7,10 @@
     @click="openFileSelector"
   >
     <template v-if="!value">
-      <div v-if="letterPlaceholder" class="bg-gray-500 flex h-full items-center justify-center text-white w-full text-4xl">
+      <div
+        v-if="letterPlaceholder"
+        class="bg-gray-500 flex h-full items-center justify-center text-white w-full text-4xl"
+      >
         {{ letterPlaceholder }}
       </div>
       <svg
@@ -37,6 +40,7 @@
 </template>
 
 <script>
+import frappe from 'frappejs';
 import { remote } from 'electron';
 import Base from './Base';
 
@@ -57,15 +61,30 @@ export default {
           title: frappe._('Select Image'),
           properties: ['openFile'],
           filters: [
-            { name: 'Image', extensions: ['png', 'jpg', 'svg', 'jpeg', 'webp'] }
+            { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] }
           ]
         },
-        files => {
+        async files => {
           if (files && files[0]) {
-            this.triggerChange(`file://${files[0]}`);
+            let dataURL = await this.getDataURL(files[0]);
+            this.triggerChange(dataURL);
           }
         }
       );
+    },
+    getDataURL(filePath) {
+      let fs = require('fs');
+      let path = require('path');
+      let typedArray = fs.readFileSync(filePath);
+      let extension = path.extname(filePath).slice(1);
+      let blob = new Blob([typedArray.buffer], { type: 'image/' + extension });
+      return new Promise(resolve => {
+        let fr = new FileReader();
+        fr.addEventListener('loadend', () => {
+          resolve(fr.result);
+        });
+        fr.readAsDataURL(blob);
+      });
     }
   }
 };
