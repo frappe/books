@@ -1,20 +1,18 @@
 // frappejs imports
 import frappe from 'frappejs';
-import path from 'path';
 import SQLite from 'frappejs/backends/sqlite';
 import common from 'frappejs/common';
 import coreModels from 'frappejs/models';
+import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
+import outsideClickDirective from 'frappejs/ui/plugins/outsideClickDirective';
 import models from '../models';
 import postStart from '../server/postStart';
 import { ipcRenderer } from 'electron';
-import { getSettings, saveSettings } from '../electron/settings';
 
 // vue imports
 import Vue from 'vue';
 import App from './App';
 import router from './router';
-import frappeVue from 'frappejs/ui/plugins/frappeVue';
-import Toasted from 'vue-toasted';
 
 (async () => {
   frappe.isServer = true;
@@ -216,10 +214,19 @@ import Toasted from 'vue-toasted';
   window.frappe = frappe;
 
   Vue.config.productionTip = false;
-  Vue.use(frappeVue);
-  Vue.use(Toasted, {
-    position: 'bottom-right',
-    duration: 3000
+  Vue.component('feather-icon', FeatherIcon);
+  Vue.directive('on-outside-click', outsideClickDirective);
+  Vue.mixin({
+    computed: {
+      frappe() {
+        return frappe;
+      }
+    },
+    methods: {
+      _(...args) {
+        return frappe._(...args);
+      }
+    }
   });
 
   Vue.config.errorHandler = (err, vm, info) => {
