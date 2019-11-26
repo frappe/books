@@ -1,7 +1,9 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <h1 slot="title" class="text-2xl font-bold">{{ _('Chart of Accounts') }}</h1>
+      <h1 slot="title" class="text-2xl font-bold">
+        {{ _('Chart of Accounts') }}
+      </h1>
       <template slot="actions">
         <SearchBar class="ml-2" />
       </template>
@@ -12,14 +14,16 @@
           class="mt-2 px-4 py-2 cursor-pointer hover:bg-gray-200 rounded-6px"
           v-for="account in allAccounts"
           :key="account.name"
-          @click="toggleChildren(account)"
+          @click="onClick(account)"
         >
-          <div class="flex items-center" :class="`pl-${(account.level) * 8}`">
+          <div class="flex items-center" :class="`pl-${account.level * 8}`">
             <component :is="getIconComponent(account)" />
             <div
               class="ml-3"
               :class="[!account.parentAccount && 'font-semibold']"
-            >{{ account.name }}</div>
+            >
+              {{ account.name }}
+            </div>
           </div>
         </div>
       </div>
@@ -43,17 +47,33 @@ export default {
       doctype: 'Account'
     };
   },
-  async mounted() {
-    this.settings = frappe.getMeta(this.doctype).treeSettings;
-    const { currency } = await frappe.getSingle('AccountingSettings');
-    this.root = {
-      label: await this.settings.getRootLabel(),
-      balance: 0,
-      currency
-    };
-    this.accounts = await this.getChildren();
+  mounted() {
+    this.fetchAccounts();
   },
   methods: {
+    async fetchAccounts() {
+      this.settings = frappe.getMeta(this.doctype).treeSettings;
+      const { currency } = await frappe.getSingle('AccountingSettings');
+      this.root = {
+        label: await this.settings.getRootLabel(),
+        balance: 0,
+        currency
+      };
+      this.accounts = await this.getChildren();
+    },
+    onClick(account) {
+      if (account.isGroup === 0) {
+        this.$router.push({
+          query: {
+            edit: 1,
+            doctype: 'Account',
+            name: account.name
+          }
+        });
+      } else {
+        this.toggleChildren(account);
+      }
+    },
     async toggleChildren(account) {
       if (account.children == null) {
         account.children = await this.getChildren(account.name);
