@@ -5,12 +5,13 @@
         _('Top Expenses')
       }}</template>
       <PeriodSelector
+        v-if="hasData"
         slot="action"
         :value="period"
         @change="value => (period = value)"
       />
     </SectionHeader>
-    <div class="flex">
+    <div class="flex relative">
       <div class="w-1/2">
         <div
           class="mt-5 flex justify-between items-center text-sm"
@@ -26,7 +27,11 @@
       </div>
       <div class="w-1/2 relative">
         <div class="chart-wrapper" ref="top-expenses"></div>
-        <div class="absolute text-base text-center font-semibold" style="right: 3.8rem; top: 32%;">
+        <div
+          v-if="hasData"
+          class="absolute text-base text-center font-semibold"
+          style="right: 3.8rem; top: 32%;"
+        >
           <div>
             {{ frappe.format(totalExpense, 'Currency') }}
           </div>
@@ -34,6 +39,11 @@
             {{ _('Total Spending') }}
           </div>
         </div>
+      </div>
+      <div class="absolute inset-0 flex justify-center items-center">
+        <span class="text-base text-gray-600">
+          {{ _('No transactions yet') }}
+        </span>
       </div>
     </div>
   </div>
@@ -53,7 +63,10 @@ export default {
     PeriodSelector,
     SectionHeader
   },
-  data: () => ({ period: 'This Year', expenses: [] }),
+  data: () => ({
+    period: 'This Year',
+    expenses: [{ account: 'Test', total: 0 }]
+  }),
   mounted() {
     this.render();
   },
@@ -63,6 +76,9 @@ export default {
   computed: {
     totalExpense() {
       return this.expenses.reduce((sum, expense) => sum + expense.total, 0);
+    },
+    hasData() {
+      return this.totalExpense > 0;
     }
   },
   methods: {
