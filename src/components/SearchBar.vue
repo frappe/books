@@ -75,8 +75,9 @@ export default {
     makeSearchList() {
       const doctypes = this.getDoctypes();
       const reports = this.getReports();
+      const views = this.getViews();
 
-      let searchList = [].concat(doctypes).concat(reports);
+      let searchList = [...doctypes, ...reports, ...views];
       this.searchList = searchList.map(d => {
         if (d.route) {
           d.action = () => this.routeTo(d.route);
@@ -107,6 +108,15 @@ export default {
           group: 'Reports'
         };
       });
+    },
+    getViews() {
+      return [
+        {
+          label: 'Chart of Accounts',
+          route: '/chartOfAccounts',
+          group: 'List'
+        }
+      ];
     },
     routeTo(route) {
       this.$router.push(route);
