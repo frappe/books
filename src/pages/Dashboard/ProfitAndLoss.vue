@@ -1,14 +1,20 @@
 <template>
-  <div>
+  <div class="flex flex-col h-full">
     <SectionHeader>
       <template slot="title">{{ _('Profit and Loss') }}</template>
       <PeriodSelector
+        v-if="hasData"
         slot="action"
         :value="period"
         @change="value => (period = value)"
       />
     </SectionHeader>
-    <div class="chart-wrapper" ref="profit-and-loss"></div>
+    <div v-if="hasData" class="chart-wrapper" ref="profit-and-loss"></div>
+    <div class="flex-1 w-full h-full flex justify-center items-center" v-else>
+      <span class="text-base text-gray-600">
+        {{ _('No transactions yet') }}
+      </span>
+    </div>
   </div>
 </template>
 <script>
@@ -25,7 +31,7 @@ export default {
     PeriodSelector,
     SectionHeader
   },
-  data: () => ({ period: 'This Year' }),
+  data: () => ({ period: 'This Year', hasData: false }),
   mounted() {
     this.render();
   },
@@ -46,7 +52,13 @@ export default {
       });
 
       let totalRow = res.rows[res.rows.length - 1];
+      this.hasData = res.columns.some(key => totalRow[key] > 0);
+      if (!this.hasData) return;
+      this.$nextTick(() => this.renderChart(res));
+    },
 
+    renderChart(res) {
+      let totalRow = res.rows[res.rows.length - 1];
       const chart = new Chart(this.$refs['profit-and-loss'], {
         title: '',
         animate: false,
