@@ -16,6 +16,10 @@ export default {
       render(doc) {
         let status = 'Pending';
         let color = 'orange';
+        if (!doc.submitted) {
+          status = 'Draft';
+          color = 'gray';
+        }
         if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
           status = 'Paid';
           color = 'green';

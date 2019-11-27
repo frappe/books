@@ -14,14 +14,9 @@
           {{ _('Customise') }}
         </Button>
         <Dropdown
+          v-if="actions && actions.length"
           class="text-xs"
-          :items="[
-            {
-              label: _('Make Payment'),
-              value: 'Make Payment',
-              action: makePayment
-            }
-          ]"
+          :items="actions"
           right
         >
           <template v-slot="{ toggleDropdown }">
@@ -85,7 +80,9 @@
           <div class="mt-8 px-6">
             <div class="flex justify-between">
               <div class="w-1/3">
-                <h1 class="text-2xl font-semibold">Invoice</h1>
+                <h1 class="text-2xl font-semibold">
+                  {{ doc._notInserted ? _('New Invoice') : doc.name }}
+                </h1>
                 <FormControl
                   class="mt-2"
                   input-class="bg-gray-100 rounded-lg px-3 py-2 text-base"
@@ -96,7 +93,7 @@
                   :read-only="doc.submitted"
                 />
                 <FormControl
-                  class="mt-2"
+                  class="mt-2 text-base"
                   input-class="bg-gray-100 rounded-lg px-3 py-2 text-base"
                   :df="meta.getField('account')"
                   :value="doc.account"
@@ -107,12 +104,13 @@
               </div>
               <div class="w-1/3">
                 <FormControl
+                  class="text-base"
                   input-class="bg-gray-100 rounded-lg p-2 text-right text-lg font-semibold"
                   :df="meta.getField(partyField.fieldname)"
                   :value="doc[partyField.fieldname]"
                   :placeholder="partyField.label"
                   @change="value => doc.set(partyField.fieldname, value)"
-                  @new-doc="doc => doc.set(partyField.fieldname, doc.name)"
+                  @new-doc="party => doc.set(partyField.fieldname, party.name)"
                   :read-only="doc.submitted"
                 />
                 <div
@@ -143,7 +141,7 @@
         <div class="px-6 mb-6 flex justify-end text-base">
           <div class="w-64">
             <div class="flex pl-2 justify-between py-3 border-b">
-              <div>Subtotal</div>
+              <div>{{ _('Subtotal') }}</div>
               <div>{{ frappe.format(doc.netTotal, 'Currency') }}</div>
             </div>
             <div
@@ -157,7 +155,7 @@
             <div
               class="flex pl-2 justify-between py-3 border-t text-green-600 font-semibold text-base"
             >
-              <div>Grand Total</div>
+              <div>{{ _('Grand Total') }}</div>
               <div>{{ frappe.format(doc.grandTotal, 'Currency') }}</div>
             </div>
           </div>
@@ -221,6 +219,31 @@ export default {
     },
     showSave() {
       return this.doc && (this.doc._notInserted || this.doc._dirty);
+    },
+    actions() {
+      if (!this.doc) return null;
+      let deleteAction = {
+        component: {
+          template: `<span class="text-red-700">{{ _('Delete') }}</span>`
+        },
+        condition: doc => !doc.isNew() && !doc.submitted,
+        action: () => {
+          this.doc.delete().then(() => {
+            this.routeToList();
+          });
+        }
+      };
+      let actions = [...(this.meta.actions || []), deleteAction]
+        .filter(d => (d.condition ? d.condition(this.doc) : true))
+        .map(d => {
+          return {
+            label: d.label,
+            component: d.component,
+            action: d.action.bind(this, this.doc, this)
+          };
+        });
+
+      return actions;
     }
   },
   async mounted() {
@@ -239,7 +262,8 @@ export default {
       await frappe.getSingle('AccountingSettings')
     ).companyName;
 
-    if (this.$router.currentRoute.query.values) {
+    let query = this.$route.query;
+    if (query.values && query.doctype === this.doctype) {
       this.doc.set(this.$router.currentRoute.query.values);
     }
   },

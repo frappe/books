@@ -124,6 +124,7 @@ export default {
             sum(outstandingAmount) as outstanding
           from ${d.doctype}
           where date >= $fromDate and date <= $toDate
+          and submitted = 1
         `,
           { $fromDate: fromDate, $toDate: toDate }
         );

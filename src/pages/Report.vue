@@ -14,9 +14,6 @@
           :df="df"
           :value="filters[df.fieldname]"
           @change="value => onFilterChange(df, value)"
-          :target="
-            df.fieldtype === 'DynamicLink' ? filters[df.references] : null
-          "
         />
       </div>
     </div>
@@ -74,7 +71,7 @@ import throttle from 'lodash/throttle';
 
 export default {
   name: 'Report',
-  props: ['reportName'],
+  props: ['reportName', 'defaultFilters'],
   components: {
     PageHeader,
     Button,
@@ -85,7 +82,7 @@ export default {
   provide() {
     return {
       doc: this.filters
-    }
+    };
   },
   data() {
     let filters = {};
@@ -145,6 +142,10 @@ export default {
           }
         }
         this.filters[df.fieldname] = defaultValue;
+      }
+
+      if (this.defaultFilters) {
+        Object.assign(this.filters, this.defaultFilters);
       }
     }
   },
