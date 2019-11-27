@@ -38,3 +38,21 @@ export function loadExistingDatabase() {
     );
   });
 }
+
+export function showMessageDialog({ message, description, buttons }) {
+  let buttonLabels = buttons.map(a => a.label);
+  remote.dialog.showMessageBox(
+    remote.getCurrentWindow(),
+    {
+      message,
+      detail: description,
+      buttons: buttonLabels
+    },
+    response => {
+      let button = buttons[response];
+      if (button && button.action) {
+        button.action();
+      }
+    }
+  );
+}
