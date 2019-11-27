@@ -1,5 +1,7 @@
 const frappe = require('frappejs');
 const utils = require('../../../accounting/utils');
+const router = require('@/router').default;
+const InvoiceTemplate = require('./InvoiceTemplate.vue').default;
 
 module.exports = {
   name: 'SalesInvoice',
@@ -112,7 +114,7 @@ module.exports = {
       formula: doc => {
         if (doc.submitted) return;
         return doc.grandTotal;
-    },
+      },
       readOnly: 1
     },
     {
@@ -178,7 +180,7 @@ module.exports = {
               date: new Date().toISOString().slice(0, 10),
               paymentType: 'Receive',
               for: [
-          {
+                {
                   referenceType: doc.doctype,
                   referenceName: doc.name,
                   amount: doc.outstandingAmount
@@ -197,7 +199,14 @@ module.exports = {
         doc.revert();
       }
     },
-    }
+    {
+      label: 'Print',
+      condition: doc => doc.submitted,
+      action(doc) {
+        router.push(`/print/${doc.doctype}/${doc.name}`);
+      }
+    },
     utils.ledgerLink
-  ]
+  ],
+  printTemplate: InvoiceTemplate
 };

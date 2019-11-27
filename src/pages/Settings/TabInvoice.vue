@@ -6,7 +6,6 @@
         :value="doc.logo"
         @change="
           value => {
-            window.console.log(value)
             doc.set('logo', value);
             doc.update();
           }
