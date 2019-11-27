@@ -6,7 +6,7 @@ export default {
   extends: Link,
   created() {
     this.targetWatcher = this.$watch(`doc.${this.df.references}`, function(newTarget, oldTarget) {
-      if (newTarget !== oldTarget) {
+      if (oldTarget && newTarget !== oldTarget) {
         this.triggerChange('');
       }
     });

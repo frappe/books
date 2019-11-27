@@ -7,6 +7,9 @@ import AutoComplete from './AutoComplete';
 import Check from './Check';
 import AttachImage from './AttachImage';
 import DynamicLink from './DynamicLink';
+import Int from './Int';
+import Float from './Float';
+import Currency from './Currency';
 
 export default {
   name: 'FormControl',
@@ -20,7 +23,10 @@ export default {
       AutoComplete,
       Check,
       AttachImage,
-      DynamicLink
+      DynamicLink,
+      Int,
+      Float,
+      Currency
     };
     let { df } = this.$attrs;
     return h(controls[df.fieldtype] || Data, {
