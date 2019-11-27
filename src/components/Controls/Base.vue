@@ -68,7 +68,11 @@ export default {
       this.$refs.input.focus();
     },
     triggerChange(value) {
+      value = this.parse(value);
       this.$emit('change', value);
+    },
+    parse(value) {
+      return value;
     },
     isNumeric(df) {
       return ['Int', 'Float', 'Currency'].includes(df.fieldtype);
