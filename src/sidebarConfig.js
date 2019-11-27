@@ -84,6 +84,9 @@ const config = {
     {
       title: _('Reports'),
       icon: getIcon('reports'),
+      action() {
+        router.push('/report/general-ledger');
+      },
       items: [
         {
           label: _('General Ledger'),
