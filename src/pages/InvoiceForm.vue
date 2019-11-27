@@ -171,6 +171,7 @@ import FormControl from '@/components/Controls/FormControl';
 import Row from '@/components/Row';
 import Dropdown from '@/components/Dropdown';
 import { openSettings } from '@/pages/Settings/utils';
+import { showMessageDialog } from '@/utils';
 
 export default {
   name: 'InvoiceForm',
@@ -190,8 +191,6 @@ export default {
   },
   data() {
     return {
-      meta: null,
-      itemsMeta: null,
       doc: null,
       partyDoc: null,
       printSettings: null,
@@ -199,6 +198,12 @@ export default {
     };
   },
   computed: {
+    meta() {
+      return frappe.getMeta(this.doctype);
+    },
+    itemsMeta() {
+      return frappe.getMeta(`${this.doctype}Item`);
+    },
     itemTableFields() {
       return this.itemsMeta.tableFields.map(fieldname =>
         this.itemsMeta.getField(fieldname)
@@ -228,8 +233,26 @@ export default {
         },
         condition: doc => !doc.isNew() && !doc.submitted,
         action: () => {
-          this.doc.delete().then(() => {
-            this.routeToList();
+          showMessageDialog({
+            message: this._('Are you sure you want to delete {0} "{1}"?', [
+              this.doctype,
+              this.name
+            ]),
+            description: this._('This action is permanent'),
+            buttons: [
+              {
+                label: 'Delete',
+                action: () => {
+                  this.doc.delete().then(() => {
+                    this.routeToList();
+                  });
+                }
+              },
+              {
+                label: 'Cancel',
+                action() {}
+              }
+            ]
           });
         }
       };
@@ -247,10 +270,7 @@ export default {
     }
   },
   async mounted() {
-    this.meta = frappe.getMeta(this.doctype);
-    this.itemsMeta = frappe.getMeta(`${this.doctype}Item`);
     this.doc = await frappe.getDoc(this.doctype, this.name);
-    window.doc = this.doc;
     this.doc.on('change', ({ changed }) => {
       if (changed === this.partyField.fieldname) {
         this.fetchPartyDoc();
