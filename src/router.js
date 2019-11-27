@@ -4,7 +4,7 @@ import Router from 'vue-router';
 import ListView from '@/pages/ListView/ListView';
 import Dashboard from '@/pages/Dashboard/Dashboard';
 import FormView from '@/pages/FormView/FormView';
-import PrintView from '@/pages/PrintView';
+import PrintView from '@/pages/PrintView/PrintView';
 import QuickEditForm from '@/pages/QuickEditForm';
 
 import Report from '@/pages/Report.vue';

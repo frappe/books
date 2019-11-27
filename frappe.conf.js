@@ -1,9 +1,9 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   staticPath: './static',
   distPath: './dist',
   dev: {
-    entryHtml: 'src/index.html',
     entry: {
       app: './src/main.js'
     },
@@ -11,9 +11,9 @@ module.exports = {
     srcDir: './src',
     outputDir: './dist',
     assetsPublicPath: '/',
-    devServerPort: 8000,
+    devServerPort: 8080,
     env: {
-      PORT: process.env.PORT || 8000
+      PORT: process.env.PORT || 8080
     }
   },
   node: {
@@ -23,12 +23,22 @@ module.exports = {
   },
   electron: {
     entry: {
-      app: './src/main-electron.js'
+      app: './src/main-electron.js',
+      print: './src/print.js'
     },
     paths: {
       mainDev: 'src-electron/main.dev.js',
       main: 'src-electron/main.js',
       renderer: 'src/electron.js'
     }
+  },
+  configureWebpack(config) {
+    config.plugins.push(
+      new HtmlWebpackPlugin({
+        chunks: ['print'],
+        filename: 'static/print.html',
+        template: 'src/print.html'
+      })
+    );
   }
-}
+};
