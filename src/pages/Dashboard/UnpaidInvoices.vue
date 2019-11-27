@@ -1,6 +1,6 @@
 <template>
   <div class="flex -mx-4">
-    <div class="w-1/2 px-4" v-for="invoice in invoices" :key="invoice.title">
+    <div class="w-1/2 px-4 flex flex-col justify-between" v-for="invoice in invoices" :key="invoice.title">
       <SectionHeader>
         <template slot="title">{{ invoice.title }}</template>
         <PeriodSelector
@@ -19,44 +19,46 @@
           <feather-icon name="plus" class="w-4 h-4 text-white" />
         </Button>
       </SectionHeader>
-      <div class="mt-6 flex justify-between">
-        <div
-          class="text-sm"
-          :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.hasData }"
-        >
-          {{ frappe.format(invoice.paid, 'Currency') }}
-          <span :class="{ 'text-gray-600': invoice.hasData }">{{
-            _('Paid')
-          }}</span>
+      <div>
+        <div class="mt-6 flex justify-between">
+          <div
+            class="text-sm"
+            :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.hasData }"
+          >
+            {{ frappe.format(invoice.paid, 'Currency') }}
+            <span :class="{ 'text-gray-600': invoice.hasData }">{{
+              _('Paid')
+            }}</span>
+          </div>
+          <div
+            class="text-sm"
+            :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.hasData }"
+          >
+            {{ frappe.format(invoice.unpaid, 'Currency') }}
+            <span :class="{ 'text-gray-600': invoice.hasData }">{{
+              _('Unpaid')
+            }}</span>
+          </div>
         </div>
-        <div
-          class="text-sm"
-          :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.hasData }"
-        >
-          {{ frappe.format(invoice.unpaid, 'Currency') }}
-          <span :class="{ 'text-gray-600': invoice.hasData }">{{
-            _('Unpaid')
-          }}</span>
+        <div class="mt-2 relative">
+          <div
+            class="w-full h-4 rounded"
+            :class="
+              invoice.hasData && invoice.color == 'blue'
+                ? 'bg-blue-200'
+                : 'bg-gray-200'
+            "
+          ></div>
+          <div
+            class="absolute inset-0 h-4 rounded"
+            :class="
+              invoice.hasData && invoice.color == 'blue'
+                ? 'bg-blue-500'
+                : 'bg-gray-500'
+            "
+            :style="`width: ${invoice.barWidth}%`"
+          ></div>
         </div>
-      </div>
-      <div class="mt-2 relative">
-        <div
-          class="w-full h-4 rounded"
-          :class="
-            invoice.hasData && invoice.color == 'blue'
-              ? 'bg-blue-200'
-              : 'bg-gray-200'
-          "
-        ></div>
-        <div
-          class="absolute inset-0 h-4 rounded"
-          :class="
-            invoice.hasData && invoice.color == 'blue'
-              ? 'bg-blue-500'
-              : 'bg-gray-500'
-          "
-          :style="`width: ${invoice.barWidth}%`"
-        ></div>
       </div>
     </div>
   </div>
