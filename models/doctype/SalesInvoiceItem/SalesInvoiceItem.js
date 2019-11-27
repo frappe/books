@@ -5,21 +5,14 @@ module.exports = {
   isChild: 1,
   keywordFields: [],
   layout: 'ratio',
-  tableFields: [
-    'item',
-    'tax',
-    'quantity',
-    'rate',
-    'amount'
-  ],
+  tableFields: ['item', 'tax', 'quantity', 'rate', 'amount'],
   fields: [
     {
       fieldname: 'item',
       label: 'Item',
       fieldtype: 'Link',
       target: 'Item',
-      required: 1,
-      width: 2
+      required: 1
     },
     {
       fieldname: 'description',
@@ -40,6 +33,13 @@ module.exports = {
       fieldtype: 'Currency',
       required: 1,
       formula: (row, doc) => doc.getFrom('Item', row.item, 'rate')
+    },
+    {
+      fieldname: 'baseRate',
+      label: 'Rate (Company Currency)',
+      fieldtype: 'Currency',
+      formula: (row, doc) => row.rate * doc.exchangeRate,
+      readOnly: 1
     },
     {
       fieldname: 'account',
@@ -66,6 +66,13 @@ module.exports = {
       fieldtype: 'Currency',
       readOnly: 1,
       formula: (row, doc) => row.quantity * row.rate
+    },
+    {
+      fieldname: 'baseAmount',
+      label: 'Amount (Company Currency)',
+      fieldtype: 'Currency',
+      readOnly: 1,
+      formula: (row, doc) => row.amount * doc.exchangeRate
     },
     {
       fieldname: 'taxAmount',

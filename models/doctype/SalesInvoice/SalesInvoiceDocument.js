@@ -1,49 +1,33 @@
 const BaseDocument = require('frappejs/model/document');
 const frappe = require('frappejs');
+const { getExchangeRate } = require('../../../accounting/exchangeRate');
 
 module.exports = class SalesInvoice extends BaseDocument {
-  async change({ changed }) {
-    if (changed === 'items' || changed === 'exchangeRate') {
-      const companyCurrency = frappe.AccountingSettings.currency;
-      if (this.currency && this.currency !== companyCurrency) {
-        for (let item of this.items) {
-          if (item.rate && this.exchangeRate) {
-            const itemRate = await this.getFrom('Item', item.item, 'rate');
+  async setup() {
+    this.accountingSettings = await frappe.getSingle('AccountingSettings');
 
-            item.rate = itemRate / this.exchangeRate;
-            if (item.quantity) {
-              item.amount = item.rate * item.quantity;
-            }
-          }
+    this.onChange({
+      async customer() {
+        if (this.customer) {
+          this.currency = await frappe.db.getValue('Party', this.customer, 'currency');
+          this.exchangeRate = await this.getExchangeRate();
         }
+      },
+      async currency() {
+        this.exchangeRate = await this.getExchangeRate();
       }
-    }
-
-    if (changed === 'customer' || changed === 'supplier') {
-      this.currency = await this.getFrom('Party', this[changed], 'currency');
-      this.exchangeRate = await this.getExchangeRate();
-    }
-  }
-
-  isForeignTransaction() {
-    return this.currency
-      ? this.currency !== frappe.AccountingSettings.currency
-        ? 1
-        : 0
-      : 0;
+    });
   }
 
   async getExchangeRate() {
-    const companyCurrency = frappe.AccountingSettings.currency;
-    return this.currency === companyCurrency ? 1.0 : undefined;
-  }
-
-  async getBaseNetTotal() {
-    if (this.isForeignTransaction()) {
-      return this.getSum('items', 'amount') * (this.exchangeRate || 0);
-    } else {
-      return this.getSum('items', 'amount');
+    const companyCurrency = this.accountingSettings.currency;
+    if (this.currency === companyCurrency) {
+      return 1.0;
     }
+    return await getExchangeRate({
+      fromCurrency: this.currency,
+      toCurrency: companyCurrency
+    });
   }
 
   async getRowTax(row) {
@@ -51,10 +35,12 @@ module.exports = class SalesInvoice extends BaseDocument {
       let tax = await this.getTax(row.tax);
       let taxAmount = [];
       for (let d of tax.details || []) {
+        let amount = (row.amount * d.rate) / 100
         taxAmount.push({
           account: d.account,
           rate: d.rate,
-          amount: (row.amount * d.rate) / 100
+          amount,
+          baseAmount: amount * this.exchangeRate,
         });
       }
       return JSON.stringify(taxAmount);
@@ -76,6 +62,7 @@ module.exports = class SalesInvoice extends BaseDocument {
     this.taxes.map(d => {
       d.amount = 0;
       d.rate = 0;
+      d.baseAmount = 0;
     });
 
     // calculate taxes
@@ -90,6 +77,7 @@ module.exports = class SalesInvoice extends BaseDocument {
             if (taxDetail.account === rowTaxDetail.account) {
               taxDetail.rate = rowTaxDetail.rate;
               taxDetail.amount = taxDetail.amount + rowTaxDetail.amount;
+              taxDetail.baseAmount = taxDetail.baseAmount + rowTaxDetail.baseAmount;
               found = true;
             }
           }
@@ -99,7 +87,8 @@ module.exports = class SalesInvoice extends BaseDocument {
             this.taxes.push({
               account: rowTaxDetail.account,
               rate: rowTaxDetail.rate,
-              amount: rowTaxDetail.amount
+              amount: rowTaxDetail.amount,
+              baseAmount: rowTaxDetail.baseAmount
             });
           }
         }
@@ -120,17 +109,5 @@ module.exports = class SalesInvoice extends BaseDocument {
     }
 
     return grandTotal;
-  }
-
-  async getBaseGrandTotal() {
-    await this.makeTaxSummary();
-    let baseGrandTotal = this.baseNetTotal;
-    if (this.taxes) {
-      for (let row of this.taxes) {
-        baseGrandTotal += row.amount * this.exchangeRate;
-      }
-    }
-
-    return baseGrandTotal;
   }
 };

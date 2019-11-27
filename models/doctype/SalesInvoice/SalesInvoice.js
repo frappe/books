@@ -41,11 +41,10 @@ module.exports = {
       label: 'Account',
       fieldtype: 'Link',
       target: 'Account',
+      disableCreation: true,
       formula: doc => doc.getFrom('Party', doc.customer, 'defaultAccount'),
-      getFilters: (query, control) => {
-        if (!query) return { isGroup: 0, accountType: 'Receivable' };
+      getFilters: () => {
         return {
-          keywords: ['like', query],
           isGroup: 0,
           accountType: 'Receivable'
         };
@@ -62,9 +61,7 @@ module.exports = {
     {
       fieldname: 'exchangeRate',
       label: 'Exchange Rate',
-      fieldtype: 'Float',
-      placeholder: '1 USD = [?] INR',
-      hidden: doc => !doc.isForeignTransaction()
+      fieldtype: 'Float'
     },
     {
       fieldname: 'items',
@@ -74,18 +71,17 @@ module.exports = {
       required: true
     },
     {
-      fieldname: 'baseNetTotal',
-      label: 'Net Total (INR)',
+      fieldname: 'netTotal',
+      label: 'Net Total',
       fieldtype: 'Currency',
-      formula: async doc => await doc.getBaseNetTotal(),
+      formula: doc => doc.getSum('items', 'amount'),
       readOnly: 1
     },
     {
-      fieldname: 'netTotal',
-      label: 'Net Total (USD)',
+      fieldname: 'baseNetTotal',
+      label: 'Net Total (Company Currency)',
       fieldtype: 'Currency',
-      hidden: doc => !doc.isForeignTransaction(),
-      formula: doc => doc.getSum('items', 'amount'),
+      formula: doc => doc.netTotal * doc.exchangeRate,
       readOnly: 1
     },
     {
@@ -93,41 +89,31 @@ module.exports = {
       label: 'Taxes',
       fieldtype: 'Table',
       childtype: 'TaxSummary',
-      readOnly: 1,
-      template: (doc, row) => {
-        return `<div class='row'>
-                    <div class='col-6'></div>
-                    <div class='col-6'>
-                        <div class='row' v-for='row in value'>
-                            <div class='col-6'>{{ row.account }} ({{row.rate}}%)</div>
-                            <div class='col-6 text-right'>
-                                {{ frappe.format(row.amount, 'Currency') }}
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-      }
-    },
-    {
-      fieldname: 'baseGrandTotal',
-      label: 'Base Grand Total',
-      fieldtype: 'Currency',
-      formula: async doc => await doc.getBaseGrandTotal(),
       readOnly: 1
     },
     {
       fieldname: 'grandTotal',
       label: 'Grand Total',
       fieldtype: 'Currency',
-      hidden: doc => !doc.isForeignTransaction(),
       formula: async doc => await doc.getGrandTotal(),
+      readOnly: 1
+    },
+    {
+      fieldname: 'baseGrandTotal',
+      label: 'Grand Total (Company Currency)',
+      fieldtype: 'Currency',
+      formula: doc => doc.grandTotal * doc.exchangeRate,
       readOnly: 1
     },
     {
       fieldname: 'outstandingAmount',
       label: 'Outstanding Amount',
       fieldtype: 'Currency',
-      hidden: 1
+      formula: doc => {
+        if (doc.submitted) return;
+        return doc.grandTotal;
+    },
+      readOnly: 1
     },
     {
       fieldname: 'terms',
@@ -171,32 +157,47 @@ module.exports = {
     }
   ],
 
-  links: [
-    utils.ledgerLink,
+  actions: [
     {
       label: 'Make Payment',
-      condition: form =>
-        form.doc.submitted && form.doc.outstandingAmount != 0.0,
-      action: async form => {
-        const payment = await frappe.getNewDoc('Payment');
-        payment.paymentType = 'Receive';
-        payment.party = form.doc.customer;
-        payment.account = form.doc.account;
-        payment.for = [
-          {
-            referenceType: form.doc.doctype,
-            referenceName: form.doc.name,
-            amount: form.doc.outstandingAmount
-          }
-        ];
-        payment.on('afterInsert', async () => {
-          form.$formModal.close();
-          form.$router.push({
-            path: `/edit/Payment/${payment.name}`
-          });
+      condition: doc => doc.submitted && doc.outstandingAmount > 0,
+      action: async function makePayment(doc) {
+        let payment = await frappe.getNewDoc('Payment');
+        payment.once('afterInsert', () => {
+          payment.submit();
         });
-        await form.$formModal.open(payment);
+        this.$router.push({
+          query: {
+            edit: 1,
+            doctype: 'Payment',
+            name: payment.name,
+            hideFields: ['party', 'date', 'account', 'paymentType', 'for'],
+            values: {
+              party: doc.customer,
+              account: doc.account,
+              date: new Date().toISOString().slice(0, 10),
+              paymentType: 'Receive',
+              for: [
+          {
+                  referenceType: doc.doctype,
+                  referenceName: doc.name,
+                  amount: doc.outstandingAmount
+                }
+              ]
+            }
+          }
+        });
       }
+    },
+    {
+      label: 'Revert',
+      condition: doc =>
+        doc.submitted && doc.baseGrandTotal === doc.outstandingAmount,
+      action(doc) {
+        doc.revert();
+      }
+    },
     }
+    utils.ledgerLink
   ]
 };

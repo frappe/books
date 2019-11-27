@@ -6,28 +6,13 @@ module.exports = class SalesInvoiceServer extends SalesInvoice {
     let entries = new LedgerPosting({ reference: this, party: this.customer });
     await entries.debit(this.account, this.baseGrandTotal);
 
-    if (this.isForeignTransaction()) {
-      for (let item of this.items) {
-        const baseItemAmount = item.amount * this.exchangeRate;
-        await entries.credit(item.account, baseItemAmount);
-      }
-
-      if (this.taxes) {
-        for (let tax of this.taxes) {
-          const baseTaxAmount = tax.amount * this.exchangeRate;
-          await entries.credit(tax.account, baseTaxAmount);
-        }
-      }
-      return entries;
-    }
-
     for (let item of this.items) {
-      await entries.credit(item.account, item.amount);
+      await entries.credit(item.account, item.baseAmount);
     }
 
     if (this.taxes) {
       for (let tax of this.taxes) {
-        await entries.credit(tax.account, tax.amount);
+        await entries.credit(tax.account, tax.baseAmount);
       }
     }
     return entries;

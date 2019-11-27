@@ -87,7 +87,6 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import frappe from 'frappejs';
 import { _ } from 'frappejs';
 import Button from '@/components/Button';
@@ -141,21 +140,28 @@ export default {
     },
     actions() {
       if (!this.doc) return null;
-
-      let actions = (this.meta.actions || []).map(d => {
-        d.action = d.action.bind(this, this.doc);
-        return d;
-      });
-      return actions.concat({
+      let deleteAction = {
         component: {
           template: `<span class="text-red-700">{{ _('Delete') }}</span>`
         },
+        condition: doc => !doc.isNew() && !doc.submitted,
         action: () => {
           this.deleteDoc().then(() => {
             this.routeToList();
           });
         }
-      });
+      };
+      let actions = [...(this.meta.actions || []), deleteAction]
+        .filter(d => (d.condition ? d.condition(this.doc) : true))
+        .map(d => {
+          return {
+            label: d.label,
+            component: d.component,
+            action: d.action.bind(this, this.doc)
+          };
+        });
+
+      return actions;
     }
   },
   methods: {
