@@ -73,6 +73,11 @@ module.exports = class BaseDocument extends Observable {
 
     if (this[fieldname] !== value) {
       this._dirty = true;
+      // if child is dirty, parent is dirty too
+      if (this.meta.isChild && this.parentdoc) {
+        this.parentdoc._dirty = true;
+      }
+
       if (Array.isArray(value)) {
         this[fieldname] = [];
         for (let row of value) {
