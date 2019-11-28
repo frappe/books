@@ -229,6 +229,13 @@ module.exports = class BaseDocument extends Observable {
     this._links = {};
     let inlineLinks = this.meta.fields.filter(df => df.inline);
     for (let df of inlineLinks) {
+      await this.loadLink(df.fieldname);
+    }
+  }
+
+  async loadLink(fieldname) {
+    this._links = this._links || {};
+    let df = this.meta.getField(fieldname);
       if (this[df.fieldname]) {
         this._links[df.fieldname] = await frappe.getDoc(
           df.target,
@@ -236,7 +243,6 @@ module.exports = class BaseDocument extends Observable {
         );
       }
     }
-  }
 
   getLink(fieldname) {
     return this._links ? this._links[fieldname] : null;
