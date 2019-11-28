@@ -26,34 +26,40 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
   const { BrowserWindow } = remote;
   const html = htmlContent || (await getHTML(doctype, name));
   if (!destination) {
-    destination =
+    let folder =
       process.env.NODE_ENV === 'development'
         ? path.resolve('.')
         : remote.getGlobal('documentsPath');
+    destination = path.join(folder, `${name}.pdf`);
   }
-
-  const filepath = path.resolve(
-    path.join(destination, '/frappe-accounting/' + name + '.pdf')
-  );
 
   const fs = require('fs');
   let printWindow = new BrowserWindow({
     width: 600,
     height: 800,
-    show: false
+    show: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
 
-  const __static = remote.getGlobal('__static') || __static;
+  let url;
+  if (process.env.NODE_ENV === 'development') {
+    url = `http://localhost:${process.env.PORT}/static/print.html`;
+  } else {
+    url = `file://${__dirname}/static/print.html`;
+  }
 
-  printWindow.loadURL(`file://${path.join(__static, 'print.html')}`);
+  printWindow.loadURL(url);
 
   printWindow.on('closed', () => {
     printWindow = null;
   });
 
   const code = `
-      document.body.innerHTML = \`${html}\`;
-    `;
+    let el = document.querySelector('.printTarget');
+    document.body.innerHTML = \`${html}\`;
+  `;
 
   printWindow.webContents.executeJavaScript(code);
 
@@ -68,9 +74,9 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
         (error, data) => {
           if (error) throw error;
           printWindow.close();
-          fs.writeFile(filepath, data, error => {
+          fs.writeFile(destination, data, error => {
             if (error) throw error;
-            resolve(shell.openItem(filepath));
+            resolve(shell.openItem(destination));
           });
         }
       );
@@ -78,7 +84,6 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
   });
 
   await printPromise;
-  // await makePDF(html, filepath);
 }
 
 function setupExpressRoute() {
