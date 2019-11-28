@@ -167,6 +167,11 @@ function makeConfig() {
       }
     };
 
+    let modifiedConfig = appConfig.configureWebpack(config);
+    if (modifiedConfig) {
+      return modifiedConfig;
+    }
+
     return config;
   };
 
