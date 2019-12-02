@@ -4,15 +4,20 @@ const luxon = require('luxon');
 const frappe = require('frappejs');
 
 module.exports = {
-  format(value, field) {
-    if (typeof field === 'string') {
-      field = { fieldtype: field };
+  format(value, df, doc) {
+    if (!df) {
+      return value;
     }
-    if (field.fieldtype === 'Currency') {
-      value = numberFormat.formatNumber(value);
-    } else if (field.fieldtype === 'Text') {
+
+    if (typeof df === 'string') {
+      df = { fieldtype: df };
+    }
+
+    if (df.fieldtype === 'Currency') {
+      value = formatCurrency(value, df, doc);
+    } else if (df.fieldtype === 'Text') {
       // value = markdown.makeHtml(value || '');
-    } else if (field.fieldtype === 'Date') {
+    } else if (df.fieldtype === 'Date') {
       let dateFormat;
       if (!frappe.SystemSettings) {
         dateFormat = 'yyyy-MM-dd';
@@ -24,7 +29,7 @@ module.exports = {
       if (value === 'Invalid DateTime') {
         value = '';
       }
-    } else if (field.fieldtype === 'Check') {
+    } else if (df.fieldtype === 'Check') {
       typeof parseInt(value) === 'number'
         ? (value = parseInt(value))
         : (value = Boolean(value));
@@ -38,3 +43,21 @@ module.exports = {
     return value;
   }
 };
+
+function formatCurrency(value, df, doc) {
+  let currency = df.currency || '';
+  if (doc && df.getCurrency) {
+    if (doc.meta && doc.meta.isChild) {
+      currency = df.getCurrency(doc, doc.parentdoc);
+    } else {
+      currency = df.getCurrency(doc);
+    }
+  }
+
+  if (!currency) {
+    currency = frappe.AccountingSettings.currency;
+  }
+
+  let currencySymbol = frappe.currencySymbols[currency] || '';
+  return currencySymbol + ' ' + numberFormat.formatNumber(value);
+}
