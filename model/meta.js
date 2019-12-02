@@ -25,6 +25,11 @@ module.exports = class BaseMeta extends BaseDocument {
 
   setValues(data) {
     Object.assign(this, data);
+    this.processFields();
+  }
+
+  processFields() {
+    // add name field
     if (!this.fields.find(df => df.fieldname === 'name') && !this.isSingle) {
       this.fields = [
         {
@@ -36,6 +41,14 @@ module.exports = class BaseMeta extends BaseDocument {
         }
       ].concat(this.fields);
     }
+
+    // attach default precision to Float and Currency
+    this.fields = this.fields.map(df => {
+      if (['Float', 'Currency'].includes(df.fieldtype)) {
+        df.precision = df.precision || frappe.SystemSettings.floatPrecision;
+      }
+      return df;
+    });
   }
 
   hasField(fieldname) {
