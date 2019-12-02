@@ -1,6 +1,7 @@
 const frappe = require('frappejs');
 const Observable = require('frappejs/utils/observable');
 const naming = require('./naming');
+const { round } = require('frappejs/utils/numberFormat');
 
 module.exports = class BaseDocument extends Observable {
   constructor(data) {
@@ -86,26 +87,24 @@ module.exports = class BaseDocument extends Observable {
       } else {
         this[fieldname] = await this.validateField(fieldname, value);
       }
+
+      // always run applyChange from the parentdoc
+      if (this.meta.isChild && this.parentdoc) {
+        await this.parentdoc.applyChange(this.parentfield);
+      } else {
       await this.applyChange(fieldname);
     }
   }
+  }
 
   async applyChange(fieldname) {
-    if (await this.applyFormula()) {
-      // multiple changes
+    await this.applyFormula(fieldname);
+    this.roundFloats();
       await this.trigger('change', {
         doc: this,
-        changed: fieldname
-      });
-    } else {
-      // no other change, trigger control refresh
-      await this.trigger('change', {
-        doc: this,
-        fieldname: fieldname,
         changed: fieldname
       });
     }
-  }
 
   setDefaults() {
     for (let field of this.meta.fields) {
@@ -180,15 +179,10 @@ module.exports = class BaseDocument extends Observable {
     for (let field of this.meta.getValidFields()) {
       let value = this[field.fieldname];
       if (Array.isArray(value)) {
-        value = value.map(doc => doc.getValidDict ? doc.getValidDict() : doc);
+        value = value.map(doc => (doc.getValidDict ? doc.getValidDict() : doc));
       }
       data[field.fieldname] = value;
     }
-    return data;
-  }
-
-  getFullDict() {
-    let data = this.getValidDict();
     return data;
   }
 
@@ -313,12 +307,13 @@ module.exports = class BaseDocument extends Observable {
     }
   }
 
-  async applyFormula() {
+  async applyFormula(fieldname) {
     if (!this.meta.hasFormula()) {
       return false;
     }
 
     let doc = this;
+    let changed = false;
 
     // children
     for (let tablefield of this.meta.getTableFields()) {
@@ -330,9 +325,11 @@ module.exports = class BaseDocument extends Observable {
         for (let row of this[tablefield.fieldname]) {
           for (let field of formulaFields) {
             if (shouldApplyFormula(field, row)) {
-              const val = await field.formula(row, doc);
-              if (val !== false && val !== undefined) {
+              let val = await this.getValueFromFormula(field, row);
+              let previousVal = row[field.fieldname];
+              if (val !== undefined && previousVal !== val) {
                 row[field.fieldname] = val;
+                changed = true;
               }
             }
           }
@@ -343,22 +340,26 @@ module.exports = class BaseDocument extends Observable {
     // parent or child row
     for (let field of this.meta.getFormulaFields()) {
       if (shouldApplyFormula(field, doc)) {
-        let val;
-        if (this.meta.isChild) {
-          val = await field.formula(doc, this.parentdoc);
-        } else {
-          val = await field.formula(doc);
-        }
-        if (val !== false && val !== undefined) {
+        let previousVal = doc[field.fieldname];
+        let val = await this.getValueFromFormula(field, doc);
+        if (val !== undefined && previousVal !== val) {
           doc[field.fieldname] = val;
+          changed = true;
         }
       }
     }
 
-    return true;
+    return changed;
 
     function shouldApplyFormula(field, doc) {
       if (field.readOnly) {
+        return true;
+      }
+      if (
+        fieldname &&
+        field.formulaDependsOn &&
+        field.formulaDependsOn.includes(fieldname)
+      ) {
         return true;
       }
 
@@ -368,6 +369,57 @@ module.exports = class BaseDocument extends Observable {
         }
       }
       return false;
+    }
+  }
+
+  async getValueFromFormula(field, doc) {
+    let value;
+
+    if (doc.meta.isChild) {
+      value = await field.formula(doc, doc.parentdoc);
+    } else {
+      value = await field.formula(doc);
+    }
+
+    if (value === undefined) {
+      return;
+    }
+
+    if (['Float', 'Currency'].includes(field.fieldtype)) {
+      value = round(value, field.precision || 2);
+    }
+
+    if (field.fieldtype === 'Table' && Array.isArray(value)) {
+      value = value.map(row => {
+        let doc = this._initChild(row, field.fieldname);
+        doc.roundFloats();
+        return doc;
+      });
+    }
+
+    return value;
+  }
+
+  roundFloats() {
+    let fields = this.meta
+      .getValidFields()
+      .filter(df => ['Float', 'Currency', 'Table'].includes(df.fieldtype));
+
+    for (let df of fields) {
+      let value = this[df.fieldname];
+      if (value == null) {
+        continue;
+      }
+      // child
+      if (Array.isArray(value)) {
+        value.map(row => row.roundFloats());
+        continue;
+      }
+      // field
+      let roundedValue = round(value, df.precision);
+      if (roundedValue && value !== roundedValue) {
+        this[df.fieldname] = roundedValue;
+      }
     }
   }
 
