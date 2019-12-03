@@ -37,11 +37,9 @@
           <ListCell
             v-for="column in columns"
             :key="column.label"
-            :class="
-              ['Float', 'Currency'].includes(column.fieldtype)
-                ? 'text-right'
-                : ''
-            "
+            :class="{
+              'text-right': ['Float', 'Currency'].includes(column.fieldtype)
+            }"
             :doc="doc"
             :column="column"
           ></ListCell>
