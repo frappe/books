@@ -40,7 +40,7 @@
           </div>
         </div>
       </div>
-      <div v-if="total === 0" class="absolute inset-0 flex justify-center items-center">
+      <div v-if="totalExpense === 0" class="absolute inset-0 flex justify-center items-center">
         <span class="text-base text-gray-600">
           {{ _('No transactions yet') }}
         </span>

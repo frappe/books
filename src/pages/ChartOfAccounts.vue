@@ -34,6 +34,7 @@
 import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
+import { openQuickEdit } from '@/utils';
 
 export default {
   components: {
@@ -63,12 +64,9 @@ export default {
     },
     onClick(account) {
       if (account.isGroup === 0) {
-        this.$router.push({
-          query: {
-            edit: 1,
-            doctype: 'Account',
-            name: account.name
-          }
+        openQuickEdit({
+          doctype: 'Account',
+          name: account.name
         });
       } else {
         this.toggleChildren(account);

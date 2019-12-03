@@ -1,5 +1,6 @@
 const frappe = require('frappejs');
 const utils = require('../../../accounting/utils');
+const { openQuickEdit } = require('@/utils');
 const router = require('@/router').default;
 const InvoiceTemplate = require('./InvoiceTemplate.vue').default;
 
@@ -135,25 +136,22 @@ module.exports = {
         payment.once('afterInsert', () => {
           payment.submit();
         });
-        this.$router.push({
-          query: {
-            edit: 1,
-            doctype: 'Payment',
-            name: payment.name,
-            hideFields: ['party', 'date', 'account', 'paymentType', 'for'],
-            values: {
-              party: doc.customer,
-              account: doc.account,
-              date: new Date().toISOString().slice(0, 10),
-              paymentType: 'Receive',
-              for: [
-                {
-                  referenceType: doc.doctype,
-                  referenceName: doc.name,
-                  amount: doc.outstandingAmount
-                }
-              ]
-            }
+        openQuickEdit({
+          doctype: 'Payment',
+          name: payment.name,
+          hideFields: ['party', 'date', 'account', 'paymentType', 'for'],
+          defaults: {
+            party: doc.customer,
+            account: doc.account,
+            date: new Date().toISOString().slice(0, 10),
+            paymentType: 'Receive',
+            for: [
+              {
+                referenceType: doc.doctype,
+                referenceName: doc.name,
+                amount: doc.outstandingAmount
+              }
+            ]
           }
         });
       }
@@ -174,5 +172,5 @@ module.exports = {
       }
     },
     utils.ledgerLink
-  ],
+  ]
 };

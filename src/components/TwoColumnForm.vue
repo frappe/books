@@ -63,6 +63,7 @@
               "
               @change="value => onChange(df, value)"
               @focus="activateInlineEditing(df)"
+              @new-doc="newdoc => onChange(df, newdoc.name)"
             />
           </div>
         </div>

@@ -187,7 +187,7 @@ import FormControl from '@/components/Controls/FormControl';
 import Row from '@/components/Row';
 import Dropdown from '@/components/Dropdown';
 import { openSettings } from '@/pages/Settings/utils';
-import { deleteDocWithPrompt } from '@/utils';
+import { deleteDocWithPrompt, openQuickEdit } from '@/utils';
 
 export default {
   name: 'InvoiceForm',
@@ -308,33 +308,6 @@ export default {
     },
     async onSubmitClick() {
       await this.doc.submit();
-    },
-    async makePayment() {
-      let payment = await frappe.getNewDoc('Payment');
-      payment.once('afterInsert', () => {
-        payment.submit();
-      });
-      this.$router.push({
-        query: {
-          edit: 1,
-          doctype: 'Payment',
-          name: payment.name,
-          hideFields: ['party', 'date', 'account', 'paymentType', 'for'],
-          values: {
-            party: this.doc[this.partyField.fieldname],
-            account: this.doc.account,
-            date: new Date().toISOString().slice(0, 10),
-            paymentType: this.doctype === 'SalesInvoice' ? 'Receive' : 'Pay',
-            for: [
-              {
-                referenceType: this.doctype,
-                referenceName: this.doc.name,
-                amount: this.doc.outstandingAmount
-              }
-            ]
-          }
-        }
-      });
     },
     async fetchPartyDoc() {
       if (this.doc[this.partyField.fieldname]) {

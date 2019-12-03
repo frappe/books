@@ -35,6 +35,7 @@ module.exports = {
       target: 'Account',
       placeholder: 'Sales',
       required: 1,
+      disableCreation: true,
       getFilters: query => {
         return {
           isGroup: 0,
@@ -49,6 +50,7 @@ module.exports = {
       target: 'Account',
       placeholder: 'Cost of Goods Sold',
       required: 1,
+      disableCreation: true,
       getFilters: query => {
         return {
           isGroup: 0,

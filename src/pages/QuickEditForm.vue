@@ -2,7 +2,7 @@
   <div class="border-l h-full">
     <div class="flex items-center justify-between px-4 pt-4">
       <div class="flex items-center">
-        <Button :icon="true" @click="routeToList">
+        <Button :icon="true" @click="routeToPrevious">
           <feather-icon name="x" class="w-4 h-4" />
         </Button>
         <span v-if="statusText" class="ml-2 text-base text-gray-600">{{
@@ -93,7 +93,7 @@ import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import Dropdown from '@/components/Dropdown';
-import { deleteDocWithPrompt } from '@/utils';
+import { deleteDocWithPrompt, openQuickEdit } from '@/utils';
 
 export default {
   name: 'QuickEditForm',
@@ -199,15 +199,11 @@ export default {
         this.doc = await frappe.getDoc(this.doctype, this.name);
 
         this.doc.once('afterRename', () => {
-          this.$router.push({
-            query: {
-              edit: 1,
-              doctype: this.doctype,
-              name: this.doc.name
-            }
+          openQuickEdit({
+            doctype: this.doctype,
+            name: this.doc.name
           });
         });
-
         this.doc.on('beforeUpdate', () => {
           this.statusText = _('Saving...');
         });
@@ -257,6 +253,9 @@ export default {
     },
     routeToList() {
       this.$router.push(`/list/${this.doctype}`);
+    },
+    routeToPrevious() {
+      this.$router.back();
     },
     setTitleSize() {
       if (this.$refs.titleControl) {
