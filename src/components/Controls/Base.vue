@@ -69,6 +69,9 @@ export default {
     },
     triggerChange(value) {
       value = this.parse(value);
+      if (value === '') {
+        value = null;
+      }
       this.$emit('change', value);
     },
     parse(value) {
