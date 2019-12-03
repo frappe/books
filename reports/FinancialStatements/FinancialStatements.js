@@ -258,7 +258,7 @@ async function getLedgerEntries(fromDate, toDate, accounts) {
 async function getAccounts(rootType) {
   let accounts = await frappe.db.getAll({
     doctype: 'Account',
-    fields: ['name', 'parentAccount'],
+    fields: ['name', 'parentAccount', 'isGroup'],
     filters: {
       rootType
     }

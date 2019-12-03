@@ -45,7 +45,7 @@ module.exports = {
   ],
   getColumns(data) {
     const columns = [
-      { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 340 }
+      { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 }
     ];
 
     if (data && data.columns) {

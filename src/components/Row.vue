@@ -19,6 +19,10 @@ export default {
       type: Array,
       default: () => []
     },
+    gridTemplateColumns: {
+      type: String,
+      default: null
+    },
     gap: String
   },
   computed: {
@@ -29,6 +33,9 @@ export default {
       }
       if (this.ratio.length) {
         obj['grid-template-columns'] = this.ratio.map(r => `${r}fr`).join(' ');
+      }
+      if (this.gridTemplateColumns) {
+        obj['grid-template-columns'] = this.gridTemplateColumns;
       }
       if (this.gap) {
         obj['grid-gap'] = this.gap;

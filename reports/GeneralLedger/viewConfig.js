@@ -114,17 +114,20 @@ const viewConfig = {
       {
         label: 'Debit',
         fieldtype: 'Currency',
-        fieldname: 'debit'
+        fieldname: 'debit',
+        width: 0.5
       },
       {
         label: 'Credit',
         fieldtype: 'Currency',
-        fieldname: 'credit'
+        fieldname: 'credit',
+        width: 0.5
       },
       {
         label: 'Balance',
         fieldtype: 'Currency',
-        fieldname: 'balance'
+        fieldname: 'balance',
+        width: 0.5
       },
       {
         label: 'Reference Type',
