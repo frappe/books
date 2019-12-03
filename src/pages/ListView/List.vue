@@ -43,7 +43,7 @@
         <Row
           gap="1rem"
           class="cursor-pointer text-gray-900 flex-1"
-          @click.native="openForm(doc.name)"
+          @click.native="openForm(doc)"
           :columnCount="columns.length"
         >
           <ListCell
@@ -110,9 +110,9 @@ export default {
       this.doctype = this.listConfig.doctype;
       await this.updateData();
     },
-    openForm(name) {
+    openForm(doc) {
       if (this.listConfig.formRoute) {
-        this.$router.push(this.listConfig.formRoute(name));
+        this.$router.push(this.listConfig.formRoute(doc.name));
         return;
       }
       this.$router.push({
@@ -120,7 +120,7 @@ export default {
         query: {
           edit: 1,
           doctype: this.doctype,
-          name
+          name: doc.name
         }
       });
     },
@@ -139,30 +139,13 @@ export default {
       Object.assign(filters, this.filters);
       return filters;
     },
-    formatFilters(filters) {
-      for (let key in filters) {
-        let value = filters[key];
-        this.meta.fields.forEach(field => {
-          if (field.fieldname === key) {
-            filters[key] = frappe.format(value, field.fieldtype);
-          }
-        });
-      }
-      return filters;
-    },
     prepareColumns() {
       return this.listConfig.columns
         .map(col => {
           if (typeof col === 'string') {
             const field = this.meta.getField(col);
             if (!field) return null;
-            return {
-              label: field.label,
-              fieldtype: field.fieldtype,
-              getValue(doc) {
-                return doc[col];
-              }
-            };
+            return field;
           }
           return col;
         })
