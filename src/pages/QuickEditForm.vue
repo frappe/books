@@ -93,6 +93,7 @@ import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import Dropdown from '@/components/Dropdown';
+import { deleteDocWithPrompt } from '@/utils';
 
 export default {
   name: 'QuickEditForm',
@@ -242,7 +243,7 @@ export default {
       this.doc.submit();
     },
     deleteDoc() {
-      return this.doc.delete().catch(e => {
+      return deleteDocWithPrompt(this.doc).catch(e => {
         if (e.name === 'LinkValidationError') {
           this.errorMessage = _('{0} {1} is linked with existing records.', [
             this.doctype,

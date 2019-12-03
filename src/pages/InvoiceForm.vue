@@ -171,7 +171,7 @@ import FormControl from '@/components/Controls/FormControl';
 import Row from '@/components/Row';
 import Dropdown from '@/components/Dropdown';
 import { openSettings } from '@/pages/Settings/utils';
-import { showMessageDialog } from '@/utils';
+import { deleteDocWithPrompt } from '@/utils';
 
 export default {
   name: 'InvoiceForm',
@@ -233,26 +233,10 @@ export default {
         },
         condition: doc => !doc.isNew() && !doc.submitted,
         action: () => {
-          showMessageDialog({
-            message: this._('Are you sure you want to delete {0} "{1}"?', [
-              this.doctype,
-              this.name
-            ]),
-            description: this._('This action is permanent'),
-            buttons: [
-              {
-                label: 'Delete',
-                action: () => {
-                  this.doc.delete().then(() => {
+          deleteDocWithPrompt(this.doc).then(res => {
+            if (res) {
                     this.routeToList();
-                  });
-                }
-              },
-              {
-                label: 'Cancel',
-                action() {}
               }
-            ]
           });
         }
       };
