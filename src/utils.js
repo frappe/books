@@ -1,4 +1,5 @@
 import frappe from 'frappejs';
+import Avatar from '@/components/Avatar';
 import { _ } from 'frappejs';
 import { remote } from 'electron';
 
@@ -98,4 +99,28 @@ export function deleteDocWithPrompt(doc) {
       ]
     });
   });
+}
+
+export function partyWithAvatar(party) {
+  return {
+    data() {
+      return {
+        imageURL: null,
+        label: null
+      };
+    },
+    components: {
+      Avatar
+    },
+    async mounted() {
+      this.imageURL = await frappe.db.getValue('Party', party, 'image');
+      this.label = party;
+    },
+    template: `
+      <div class="flex items-center" v-if="label">
+        <Avatar class="flex-shrink-0" :imageURL="imageURL" :label="label" size="sm" />
+        <span class="ml-2 truncate">{{ label }}</span>
+      </div>
+    `
+  };
 }

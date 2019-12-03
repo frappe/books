@@ -18,43 +18,51 @@
       </div>
     </div>
     <div class="px-8 mt-4">
-      <div class="overflow-auto" :style="{ height: 'calc(100vh - 8rem)' }">
-        <Row
-          :columnCount="columns.length"
-          gap="1rem"
-          column-width="minmax(200px, 1fr)"
-        >
-          <div
-            class="text-gray-600 text-base truncate py-4"
-            v-for="column in columns"
-            :key="column.label"
-          >
-            {{ column.label }}
-          </div>
-        </Row>
-        <div class="flex-1">
+      <div>
+        <div ref="header" class="overflow-hidden">
           <Row
-            v-for="(row, i) in rows"
             :columnCount="columns.length"
-            gap="1rem"
-            :key="i"
-            column-width="minmax(200px, 1fr)"
+            gap="2rem"
+            :column-width="columnWidth"
           >
             <div
-              class="text-gray-900 text-base truncate py-4"
+              class="text-gray-600 text-base truncate py-4"
+              :class="{
+                'text-right': ['Int', 'Float', 'Currency'].includes(
+                  column.fieldtype
+                )
+              }"
               v-for="column in columns"
               :key="column.label"
             >
-              <component
-                v-if="typeof row[column.fieldname] === 'object'"
-                :is="row[column.fieldname]"
-              />
-              <template v-else>
-                {{ frappe.format(row[column.fieldname], column) }}
-              </template>
+              {{ column.label }}
             </div>
           </Row>
         </div>
+        <WithScroll @scroll="onBodyScroll">
+          <div class="flex-1 overflow-auto" style="height: calc(100vh - 12rem)">
+            <Row
+              v-for="(row, i) in rows"
+              :columnCount="columns.length"
+              gap="2rem"
+              :key="i"
+              :column-width="columnWidth"
+            >
+              <div
+                class="text-gray-900 text-base truncate py-4"
+                :class="{
+                  'text-right': ['Int', 'Float', 'Currency'].includes(
+                    column.fieldtype
+                  )
+                }"
+                v-for="column in columns"
+                :key="column.label"
+              >
+                <component :is="cellComponent(row[column.fieldname], column)" />
+              </div>
+            </Row>
+          </div>
+        </WithScroll>
       </div>
     </div>
   </div>
@@ -65,6 +73,7 @@ import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import SearchBar from '@/components/SearchBar';
 import Row from '@/components/Row';
+import WithScroll from '@/components/WithScroll';
 import FormControl from '@/components/Controls/FormControl';
 import reportViewConfig from '@/../reports/view';
 import throttle from 'lodash/throttle';
@@ -77,7 +86,8 @@ export default {
     Button,
     SearchBar,
     Row,
-    FormControl
+    FormControl,
+    WithScroll
   },
   provide() {
     return {
@@ -102,6 +112,9 @@ export default {
     await this.fetchReportData();
   },
   methods: {
+    onBodyScroll({ scrollLeft }) {
+      this.$refs.header.scrollLeft = scrollLeft;
+    },
     async fetchReportData() {
       let data = await frappe.call({
         method: this.report.method,
@@ -147,11 +160,32 @@ export default {
       if (this.defaultFilters) {
         Object.assign(this.filters, this.defaultFilters);
       }
+    },
+
+    cellComponent(cellValue, column) {
+      if (typeof cellValue === 'object') {
+        // cellValue has a component definition
+        return cellValue;
+      }
+      if (column.component) {
+        // column has a component definition
+        return column.component(cellValue, column);
+      }
+      // default cell component
+      let formattedValue = frappe.format(cellValue, column);
+      return {
+        render(h) {
+          return h('span', formattedValue);
+        }
+      };
     }
   },
   computed: {
     report() {
       return reportViewConfig[this.reportName];
+    },
+    columnWidth() {
+      return 'minmax(7rem, 1fr)';
     }
   }
 };

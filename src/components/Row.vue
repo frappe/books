@@ -1,5 +1,5 @@
 <template>
-  <div class="grid border-b" :style="style">
+  <div class="inline-grid border-b" :style="style">
     <slot></slot>
   </div>
 </template>

@@ -31,6 +31,10 @@ html {
   display: grid;
 }
 
+.inline-grid {
+  display: inline-grid;
+}
+
 .frappe-chart .chart-legend {
   display: none;
 }
