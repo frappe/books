@@ -26,5 +26,28 @@ module.exports = async function postStart() {
   await naming.createNumberSeries('PO-', 'PurchaseOrderSettings');
   await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
+  // fetch singles
+  // these will be available as
+  // frappe.SystemSettings and frappe.AccountingSettings
+  await frappe.getSingle('SystemSettings');
+  await frappe.getSingle('AccountingSettings');
+
+  // cache currency symbols for frappe.format
+  frappe.currencySymbols = await getCurrencySymbols();
+
   registerServerMethods();
 };
+
+function getCurrencySymbols() {
+  return frappe.db
+    .getAll({
+      doctype: 'Currency',
+      fields: ['name', 'symbol']
+    })
+    .then(data => {
+      return data.reduce((obj, currency) => {
+        obj[currency.name] = currency.symbol;
+        return obj;
+      }, {});
+    });
+}

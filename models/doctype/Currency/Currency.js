@@ -4,6 +4,7 @@ module.exports = {
   doctype: 'DocType',
   isSingle: 0,
   keywordFields: ['name', 'symbol'],
+  quickEditFields: ['name', 'symbol'],
   fields: [
     {
       fieldname: 'name',
