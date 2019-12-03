@@ -20,11 +20,7 @@
     <div class="px-8 mt-4">
       <div>
         <div ref="header" class="overflow-hidden">
-          <Row
-            :columnCount="columns.length"
-            gap="2rem"
-            :column-width="columnWidth"
-          >
+          <Row gap="2rem" :grid-template-columns="gridTemplateColumns">
             <div
               class="text-gray-600 text-base truncate py-4"
               :class="{
@@ -42,23 +38,31 @@
         <WithScroll @scroll="onBodyScroll">
           <div class="flex-1 overflow-auto" style="height: calc(100vh - 12rem)">
             <Row
+              v-show="row.isShown"
               v-for="(row, i) in rows"
-              :columnCount="columns.length"
-              gap="2rem"
               :key="i"
-              :column-width="columnWidth"
+              gap="2rem"
+              :grid-template-columns="gridTemplateColumns"
             >
               <div
                 class="text-gray-900 text-base truncate py-4"
-                :class="{
-                  'text-right': ['Int', 'Float', 'Currency'].includes(
-                    column.fieldtype
-                  )
-                }"
+                :class="getCellClasses(row, column)"
                 v-for="column in columns"
                 :key="column.label"
+                @click="toggleChildren(row, i)"
               >
-                <component :is="cellComponent(row[column.fieldname], column)" />
+                <div class="inline-flex">
+                  <feather-icon
+                    v-if="row.isBranch && !row.isLeaf && column === columns[0]"
+                    class="w-4 h-4 mr-2 flex-shrink-0"
+                    :name="row.expanded ? 'chevron-down' : 'chevron-right'"
+                  />
+                  <span class="truncate">
+                    <component
+                      :is="cellComponent(row[column.fieldname], column)"
+                    />
+                  </span>
+                </div>
               </div>
             </Row>
           </div>
@@ -136,7 +140,42 @@ export default {
         rows = [];
       }
 
-      this.rows = rows;
+      this.rows = this.addTreeMeta(rows);
+    },
+
+    addTreeMeta(rows) {
+      return rows.map(row => {
+        if ('indent' in row) {
+          row.isBranch = true;
+          row.expanded = true;
+          row.isLeaf = !row.isGroup;
+        }
+        row.isShown = true;
+        return row;
+      });
+    },
+
+    toggleChildren(row, rowIndex) {
+      if (!row.isBranch) return;
+
+      let flag;
+      if (row.expanded) {
+        row.expanded = false;
+        flag = false;
+      } else {
+        row.expanded = true;
+        flag = true;
+      }
+
+      let _rows = this.rows.slice(rowIndex + 1);
+      for (let _row of _rows) {
+        if (row.isBranch && _row.indent > row.indent) {
+          _row.expanded = flag;
+          _row.isShown = flag;
+          continue;
+        }
+        break;
+      }
     },
 
     onFilterChange(df, value) {
@@ -172,12 +211,30 @@ export default {
         return column.component(cellValue, column);
       }
       // default cell component
-      let formattedValue = frappe.format(cellValue, column);
+      let formattedValue =
+        cellValue != null ? frappe.format(cellValue, column) : '';
       return {
         render(h) {
           return h('span', formattedValue);
         }
       };
+    },
+
+    getCellClasses(row, column) {
+      let padding = ['pl-0', 'pl-6', 'pl-12', 'pl-18', 'pl-20'];
+      let treeCellClasses;
+      if (row.isBranch && column === this.columns[0]) {
+        treeCellClasses = [
+          padding[row.indent],
+          'hover:bg-gray-100 cursor-pointer'
+        ];
+      }
+      return [
+        {
+          'text-right': ['Int', 'Float', 'Currency'].includes(column.fieldtype)
+        },
+        treeCellClasses
+      ];
     }
   },
   computed: {
@@ -186,6 +243,20 @@ export default {
     },
     columnWidth() {
       return 'minmax(7rem, 1fr)';
+    },
+    gridTemplateColumns() {
+      return this.columns
+        .map(col => {
+          let multiplier = col.width;
+          if (!multiplier) {
+            multiplier = 1;
+          }
+          let minWidth = `${7 * multiplier}rem`;
+          let maxWidth = `${1 * multiplier}fr`;
+
+          return `minmax(${minWidth}, ${maxWidth})`;
+        })
+        .join(' ');
     }
   }
 };
