@@ -13,6 +13,14 @@
         <Button class="text-gray-900 text-xs" @click="openInvoiceSettings">
           {{ _('Customise') }}
         </Button>
+        <Button
+          v-if="doc.submitted"
+          class="text-gray-900 text-xs ml-2"
+          :icon="true"
+          @click="$router.push(`/print/${doc.doctype}/${doc.name}`)"
+        >
+          <feather-icon name="printer" class="w-4 h-4" />
+        </Button>
         <Dropdown
           v-if="actions && actions.length"
           class="text-xs"
@@ -142,7 +150,7 @@
           <div class="w-64">
             <div class="flex pl-2 justify-between py-3 border-b">
               <div>{{ _('Subtotal') }}</div>
-              <div>{{ frappe.format(doc.netTotal, 'Currency') }}</div>
+              <div>{{ formattedValue('netTotal') }}</div>
             </div>
             <div
               class="flex pl-2 justify-between py-3"
@@ -150,13 +158,20 @@
               :key="tax.name"
             >
               <div>{{ tax.account }} ({{ tax.rate }}%)</div>
-              <div>{{ frappe.format(tax.amount, 'Currency') }}</div>
+              <div>
+                {{
+                  frappe.format(tax.amount, {
+                    fieldtype: 'Currency',
+                    currency: doc.currency
+                  })
+                }}
+              </div>
             </div>
             <div
               class="flex pl-2 justify-between py-3 border-t text-green-600 font-semibold text-base"
             >
               <div>{{ _('Grand Total') }}</div>
-              <div>{{ frappe.format(doc.grandTotal, 'Currency') }}</div>
+              <div>{{ formattedValue('grandTotal') }}</div>
             </div>
           </div>
         </div>
@@ -165,6 +180,7 @@
   </div>
 </template>
 <script>
+import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
@@ -235,8 +251,8 @@ export default {
         action: () => {
           deleteDocWithPrompt(this.doc).then(res => {
             if (res) {
-                    this.routeToList();
-              }
+              this.routeToList();
+            }
           });
         }
       };
@@ -254,7 +270,15 @@ export default {
     }
   },
   async mounted() {
-    this.doc = await frappe.getDoc(this.doctype, this.name);
+    try {
+      this.doc = await frappe.getDoc(this.doctype, this.name);
+      window.d = this.doc;
+    } catch (error) {
+      if (error instanceof frappe.errors.NotFoundError) {
+        this.routeToList();
+        return;
+      }
+    }
     this.doc.on('change', ({ changed }) => {
       if (changed === this.partyField.fieldname) {
         this.fetchPartyDoc();
@@ -325,6 +349,13 @@ export default {
     },
     routeToList() {
       this.$router.push(`/list/${this.doctype}`);
+    },
+    formattedValue(fieldname, doc) {
+      if (!doc) {
+        doc = this.doc;
+      }
+      let df = doc.meta.getField(fieldname);
+      return frappe.format(doc[fieldname], df, doc);
     }
   }
 };
