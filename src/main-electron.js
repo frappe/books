@@ -203,9 +203,8 @@ import router from './router';
         dbPath: filepath
       });
       await frappe.db.connect();
-      await frappe.db.migrate();
-      frappe.getSingle('SystemSettings');
       await postStart();
+      await frappe.db.migrate();
     } catch (e) {
       console.log(e);
     }
