@@ -18,9 +18,31 @@ module.exports = {
     },
 
     {
-      label: 'Writeoff Account',
+      label: 'Write Off Account',
       fieldname: 'writeOffAccount',
-      fieldtype: 'Account'
+      fieldtype: 'Link',
+      target: 'Account',
+      default: 'Write Off',
+      getFilters() {
+        return {
+          isGroup: 0,
+          rootType: 'Expense'
+        }
+      }
+    },
+
+    {
+      label: 'Round Off Account',
+      fieldname: 'roundOffAccount',
+      fieldtype: 'Link',
+      target: 'Account',
+      default: 'Rounded Off',
+      getFilters() {
+        return {
+          isGroup: 0,
+          rootType: 'Expense'
+        }
+      }
     },
 
     {

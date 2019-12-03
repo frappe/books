@@ -17,6 +17,7 @@ module.exports = {
         router.push({
           path: `/edit/SalesInvoice/${doc.name}`,
           query: {
+            doctype: 'SalesInvoice',
             values: {
               customer: customer.name
             }

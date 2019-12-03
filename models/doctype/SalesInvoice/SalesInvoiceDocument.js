@@ -1,26 +1,14 @@
 const BaseDocument = require('frappejs/model/document');
 const frappe = require('frappejs');
+const { round } = require('frappejs/utils/numberFormat');
 const { getExchangeRate } = require('../../../accounting/exchangeRate');
 
 module.exports = class SalesInvoice extends BaseDocument {
-  async setup() {
-    this.accountingSettings = await frappe.getSingle('AccountingSettings');
-
-    this.onChange({
-      async customer() {
-        if (this.customer) {
-          this.currency = await frappe.db.getValue('Party', this.customer, 'currency');
-          this.exchangeRate = await this.getExchangeRate();
-        }
-      },
-      async currency() {
-        this.exchangeRate = await this.getExchangeRate();
-      }
-    });
-  }
-
   async getExchangeRate() {
-    const companyCurrency = this.accountingSettings.currency;
+    if (!this.currency) return;
+
+    let accountingSettings = await frappe.getSingle('AccountingSettings');
+    const companyCurrency = accountingSettings.currency;
     if (this.currency === companyCurrency) {
       return 1.0;
     }
@@ -30,23 +18,35 @@ module.exports = class SalesInvoice extends BaseDocument {
     });
   }
 
-  async getRowTax(row) {
-    if (row.tax) {
-      let tax = await this.getTax(row.tax);
-      let taxAmount = [];
-      for (let d of tax.details || []) {
-        let amount = (row.amount * d.rate) / 100
-        taxAmount.push({
-          account: d.account,
-          rate: d.rate,
-          amount,
-          baseAmount: amount * this.exchangeRate,
-        });
+  async getTaxSummary() {
+    let taxes = {};
+
+    for (let row of this.items) {
+      if (row.tax) {
+        let tax = await this.getTax(row.tax);
+        for (let d of tax.details) {
+          let amount = (row.amount * d.rate) / 100;
+          taxes[d.account] = taxes[d.account] || {
+            account: d.account,
+            rate: d.rate,
+            amount: 0
+          };
+          // collect amount
+          taxes[d.account].amount += amount;
+        }
       }
-      return JSON.stringify(taxAmount);
-    } else {
-      return '';
     }
+
+    return (
+      Object.keys(taxes)
+        .map(account => {
+          let tax = taxes[account];
+          tax.baseAmount = round(tax.amount * this.exchangeRate, 2);
+          return tax;
+        })
+        // clear rows with 0 amount
+        .filter(tax => tax.amount)
+    );
   }
 
   async getTax(tax) {
@@ -55,52 +55,7 @@ module.exports = class SalesInvoice extends BaseDocument {
     return this._taxes[tax];
   }
 
-  async makeTaxSummary() {
-    if (!this.taxes) this.taxes = [];
-
-    // reset tax amount
-    this.taxes.map(d => {
-      d.amount = 0;
-      d.rate = 0;
-      d.baseAmount = 0;
-    });
-
-    // calculate taxes
-    for (let row of this.items) {
-      if (row.taxAmount) {
-        let taxAmount = JSON.parse(row.taxAmount);
-        for (let rowTaxDetail of taxAmount) {
-          let found = false;
-
-          // check if added in summary
-          for (let taxDetail of this.taxes) {
-            if (taxDetail.account === rowTaxDetail.account) {
-              taxDetail.rate = rowTaxDetail.rate;
-              taxDetail.amount = taxDetail.amount + rowTaxDetail.amount;
-              taxDetail.baseAmount = taxDetail.baseAmount + rowTaxDetail.baseAmount;
-              found = true;
-            }
-          }
-
-          // add new row
-          if (!found) {
-            this.taxes.push({
-              account: rowTaxDetail.account,
-              rate: rowTaxDetail.rate,
-              amount: rowTaxDetail.amount,
-              baseAmount: rowTaxDetail.baseAmount
-            });
-          }
-        }
-      }
-    }
-
-    // clear no taxes
-    this.taxes = this.taxes.filter(d => d.amount);
-  }
-
   async getGrandTotal() {
-    await this.makeTaxSummary();
     let grandTotal = this.netTotal;
     if (this.taxes) {
       for (let row of this.taxes) {
