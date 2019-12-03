@@ -1,5 +1,5 @@
 module.exports = {
-  'general-ledger': require('./GeneralLedger/viewConfig'),
+  'general-ledger': require('./GeneralLedger/viewConfig').default,
   'sales-register': require('./SalesRegister/viewConfig'),
   'purchase-register': require('./PurchaseRegister/viewConfig'),
   'balance-sheet': require('./BalanceSheet/viewConfig'),

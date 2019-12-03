@@ -26,19 +26,7 @@
         :key="doc.name"
       >
         <div class="w-7 py-4 mr-3" v-if="hasImage">
-          <div class="w-7 h-7 rounded-full overflow-hidden">
-            <img
-              v-if="doc.image"
-              :src="doc.image"
-              class="w-7 h-7 object-cover"
-            />
-            <div
-              v-else
-              class="bg-gray-500 flex h-full items-center justify-center text-white w-full text-base uppercase"
-            >
-              {{ doc.name[0] }}
-            </div>
-          </div>
+          <Avatar :imageURL="doc.image" :label="doc.name" />
         </div>
         <Row
           gap="1rem"
@@ -67,6 +55,7 @@ import frappe from 'frappejs';
 import Row from '@/components/Row';
 import ListCell from './ListCell';
 import Button from '@/components/Button';
+import Avatar from '@/components/Avatar';
 
 export default {
   name: 'List',
@@ -74,7 +63,8 @@ export default {
   components: {
     Row,
     ListCell,
-    Button
+    Button,
+    Avatar
   },
   watch: {
     listConfig(oldValue, newValue) {

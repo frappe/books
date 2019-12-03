@@ -1,3 +1,5 @@
+import { partyWithAvatar } from '@/utils';
+
 let title = 'General Ledger';
 
 const viewConfig = {
@@ -137,7 +139,10 @@ const viewConfig = {
       {
         label: 'Party',
         fieldtype: 'Link',
-        fieldname: 'party'
+        fieldname: 'party',
+        component(cellValue) {
+          return partyWithAvatar(cellValue);
+        }
       },
       {
         label: 'Description',
@@ -148,4 +153,4 @@ const viewConfig = {
   }
 };
 
-module.exports = viewConfig;
+export default viewConfig;
