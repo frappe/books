@@ -12,14 +12,14 @@ export default {
       fieldtype: 'Select',
       size: 'small',
       render(doc) {
-        let status = 'Not Reconciled';
-        let color = 'orange';
+        let status = 'Draft';
+        let color = 'gray';
         if (
           doc.submitted === 1 &&
           (doc.clearanceDate !== null || doc.paymentMethod === 'Cash')
         ) {
           color = 'green';
-          status = 'Reconciled';
+          status = 'Submitted';
         }
 
         return {

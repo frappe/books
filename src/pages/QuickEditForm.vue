@@ -10,7 +10,12 @@
         }}</span>
       </div>
       <div class="flex items-stretch">
-        <Dropdown v-if="actions" :items="actions" right class="text-base">
+        <Dropdown
+          v-if="actions && actions.length"
+          :items="actions"
+          right
+          class="text-base"
+        >
           <template v-slot="{ toggleDropdown }">
             <Button
               class="text-gray-900"
@@ -172,15 +177,15 @@ export default {
       await this.fetchDoc();
 
       // setup the title field
-      if (
-        this.doc.isNew() &&
-        !this.titleField.readOnly &&
-        this.doc[this.titleField.fieldname]
-      ) {
-        this.doc.set(this.titleField.fieldname, '');
-        setTimeout(() => {
-          this.$refs.titleControl.focus();
-        }, 300);
+      if (this.doc.isNew() && this.doc[this.titleField.fieldname]) {
+        if (!this.titleField.readOnly) {
+          this.doc.set(this.titleField.fieldname, '');
+          setTimeout(() => {
+            this.$refs.titleControl.focus();
+          }, 300);
+        } else {
+          this.doc.set(this.titleField.fieldname, 'New ' + this.doc.doctype);
+        }
       }
 
       // set default values
@@ -261,7 +266,7 @@ export default {
       if (this.$refs.titleControl) {
         let input = this.$refs.titleControl.getInput();
         let value = input.value;
-        let valueLength = (value || '').length;
+        let valueLength = (value || '').length + 1;
         if (valueLength < 7) {
           valueLength = 7;
         }
