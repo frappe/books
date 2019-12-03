@@ -1,6 +1,6 @@
 <template>
-  <div class="py-4 flex items-center" :class="cellClass">
-    <span v-if="!customRenderer">{{ columnValue }}</span>
+  <div class="py-4 flex items-center truncate" :class="cellClass">
+    <span class="truncate" v-if="!customRenderer">{{ columnValue }}</span>
     <component v-else :is="customRenderer" />
   </div>
 </template>
