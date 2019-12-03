@@ -10,11 +10,9 @@
         <span class="ml-1">{{ _('Back') }}</span>
       </a>
       <template slot="actions">
-        <DropdownWithAction class="text-base" :items="actions" right>
-          <Button class="text-gray-900 text-xs ml-2" :icon="true">
-            <feather-icon name="more-horizontal" class="w-4 h-4" />
-          </Button>
-        </DropdownWithAction>
+        <Button class="text-gray-900 text-xs ml-2" @click="makePDF">
+          {{ _('Save as PDF') }}
+        </Button>
       </template>
     </PageHeader>
     <div class="flex justify-center flex-1 mb-8 mt-6">
@@ -60,16 +58,6 @@ export default {
     },
     printTemplate() {
       return this.meta.printTemplate;
-    },
-    actions() {
-      return [
-        {
-          label: 'Download PDF',
-          action: () => {
-            this.makePDF();
-          }
-        }
-      ];
     }
   },
   methods: {
