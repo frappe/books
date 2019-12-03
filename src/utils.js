@@ -1,4 +1,5 @@
 import frappe from 'frappejs';
+import router from '@/router';
 import Avatar from '@/components/Avatar';
 import { _ } from 'frappejs';
 import { remote } from 'electron';
@@ -123,4 +124,18 @@ export function partyWithAvatar(party) {
       </div>
     `
   };
+}
+
+export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
+  let currentRoute = router.currentRoute;
+  router.push({
+    query: {
+      edit: 1,
+      doctype,
+      name,
+      hideFields,
+      values: defaults,
+      lastRoute: currentRoute
+    }
+  });
 }

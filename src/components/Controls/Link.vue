@@ -2,6 +2,7 @@
 import frappe from 'frappejs';
 import AutoComplete from './AutoComplete';
 import Badge from '@/components/Badge';
+import { openQuickEdit } from '@/utils';
 
 export default {
   name: 'Link',
@@ -79,20 +80,16 @@ export default {
       let currentPath = this.$route.path;
       let currentQuery = this.$route.query;
       let filters = await this.getFilters();
-      this.$router.push({
-        path: currentPath,
-        query: {
-          edit: 1,
-          doctype,
-          name: doc.name,
-          values: Object.assign({}, filters, {
-            name: this.linkValue
-          })
-        }
+      openQuickEdit({
+        doctype,
+        name: doc.name,
+        defaults: Object.assign({}, filters, {
+          name: this.linkValue
+        })
       });
       doc.once('afterInsert', () => {
         this.$emit('new-doc', doc);
-        this.$router.go(-1);
+        this.$router.back();
       });
     }
   }

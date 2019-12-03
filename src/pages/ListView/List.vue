@@ -105,7 +105,8 @@ export default {
         this.$router.push(this.listConfig.formRoute(doc.name));
         return;
       }
-      this.$router.push({
+      let method = this.$route.query.edit ? 'replace' : 'push';
+      this.$router[method]({
         path: `/list/${this.doctype}`,
         query: {
           edit: 1,
