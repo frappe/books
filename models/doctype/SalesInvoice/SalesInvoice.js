@@ -8,15 +8,12 @@ module.exports = {
   label: 'Sales Invoice',
   doctype: 'DocType',
   documentClass: require('./SalesInvoiceDocument'),
-  print: {
-    printFormat: 'Standard Invoice Format'
-  },
+  printTemplate: InvoiceTemplate,
   isSingle: 0,
   isChild: 0,
   isSubmittable: 1,
   keywordFields: ['name', 'customer'],
   settings: 'SalesInvoiceSettings',
-  showTitle: true,
   fields: [
     {
       label: 'Invoice No',
@@ -178,5 +175,4 @@ module.exports = {
     },
     utils.ledgerLink
   ],
-  printTemplate: InvoiceTemplate
 };
