@@ -1,3 +1,4 @@
+import frappe from 'frappejs';
 import { _ } from 'frappejs';
 import { remote } from 'electron';
 
@@ -39,7 +40,7 @@ export function loadExistingDatabase() {
   });
 }
 
-export function showMessageDialog({ message, description, buttons }) {
+export function showMessageDialog({ message, description, buttons = [] }) {
   let buttonLabels = buttons.map(a => a.label);
   remote.dialog.showMessageBox(
     remote.getCurrentWindow(),
@@ -55,4 +56,46 @@ export function showMessageDialog({ message, description, buttons }) {
       }
     }
   );
+}
+
+export function deleteDocWithPrompt(doc) {
+  return new Promise((resolve, reject) => {
+    showMessageDialog({
+      message: _('Are you sure you want to delete {0} "{1}"?', [
+        doc.doctype,
+        doc.name
+      ]),
+      description: _('This action is permanent'),
+      buttons: [
+        {
+          label: _('Delete'),
+          action: () => {
+            doc
+              .delete()
+              .then(() => resolve(true))
+              .catch(e => {
+                let errorMessage;
+                if (e instanceof frappe.errors.LinkValidationError) {
+                  errorMessage = _('{0} {1} is linked with existing records.', [
+                    doc.doctype,
+                    doc.name
+                  ]);
+                } else {
+                  errorMessage = _('An error occurred.');
+                }
+                showMessageDialog({
+                  message: errorMessage
+                });
+              });
+          }
+        },
+        {
+          label: _('Cancel'),
+          action() {
+            resolve(false);
+          }
+        }
+      ]
+    });
+  });
 }
