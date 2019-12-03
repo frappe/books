@@ -49,6 +49,8 @@ export default {
         'country',
         'bankName',
         'currency',
+        'writeOffAccount',
+        'roundOffAccount',
         'fiscalYearStart',
         'fiscalYearEnd'
       ].map(fieldname => meta.getField(fieldname));
