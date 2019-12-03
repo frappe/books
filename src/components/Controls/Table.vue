@@ -20,7 +20,7 @@
     <TableRow v-for="row in value" :key="row.name" v-bind="{ row, tableFields, size, ratio, isNumeric }" />
     <Row
       :ratio="ratio"
-      class="text-gray-500 cursor-pointer border-transparent px-2"
+      class="text-gray-500 cursor-pointer border-transparent px-2 w-full"
       v-if="!isReadOnly"
     >
       <div class="flex items-center pl-1">

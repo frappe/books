@@ -51,7 +51,7 @@
       </div>
       <div class="mt-2 px-6 text-base">
         <div>
-          <Row class="text-gray-600" :ratio="ratio">
+          <Row class="text-gray-600 w-full" :ratio="ratio">
             <div class="py-4">
               {{ _('No') }}
             </div>
@@ -59,7 +59,7 @@
               {{ df.label }}
             </div>
           </Row>
-          <Row class="text-gray-900" v-for="row in doc.items" :key="row.name" :ratio="ratio">
+          <Row class="text-gray-900 w-full" v-for="row in doc.items" :key="row.name" :ratio="ratio">
             <div class="py-4">
               {{ row.idx + 1 }}
             </div>
