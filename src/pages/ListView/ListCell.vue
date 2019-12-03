@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="py-4 flex items-center"
-    :class="['Float', 'Currency'].includes(column.fieldtype) ? 'justify-end':''"
-  >
+  <div class="py-4 flex items-center" :class="cellClass">
     <span v-if="!customRenderer">{{ columnValue }}</span>
     <component v-else :is="customRenderer" />
   </div>
@@ -16,11 +13,17 @@ export default {
   computed: {
     columnValue() {
       let { column, doc } = this;
-      return frappe.format(column.getValue(doc), column.fieldtype);
+      let value = doc[column.fieldname];
+      return frappe.format(value, column, doc);
     },
     customRenderer() {
       if (!this.column.render) return;
       return this.column.render(this.doc);
+    },
+    cellClass() {
+      return ['Int', 'Float', 'Currency'].includes(this.column.fieldtype)
+        ? 'justify-end'
+        : '';
     }
   }
 };
