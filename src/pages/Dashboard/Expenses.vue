@@ -25,7 +25,7 @@
           <div>{{ frappe.format(d.total, 'Currency') }}</div>
         </div>
       </div>
-      <div class="w-1/2 relative">
+      <div class="w-1/2">
         <div class="chart-wrapper" ref="top-expenses"></div>
         <div
           v-if="hasData"
@@ -40,7 +40,7 @@
           </div>
         </div>
       </div>
-      <div class="absolute inset-0 flex justify-center items-center">
+      <div v-if="total === 0" class="absolute inset-0 flex justify-center items-center">
         <span class="text-base text-gray-600">
           {{ _('No transactions yet') }}
         </span>
