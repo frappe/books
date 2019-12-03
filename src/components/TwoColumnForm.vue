@@ -99,7 +99,8 @@ let TwoColumnForm = {
   provide() {
     return {
       doctype: this.doc.doctype,
-      name: this.doc.name
+      name: this.doc.name,
+      doc: this.doc
     };
   },
   components: {
