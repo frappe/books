@@ -22,16 +22,17 @@
         <div ref="header" class="overflow-hidden">
           <Row gap="2rem" :grid-template-columns="gridTemplateColumns">
             <div
-              class="text-gray-600 text-base truncate py-4"
-              :class="{
-                'text-right': ['Int', 'Float', 'Currency'].includes(
-                  column.fieldtype
-                )
-              }"
+              class="text-base truncate py-4"
+              :class="[
+                getColumnAlignClass(column),
+                loading ? 'text-gray-100' : 'text-gray-600'
+              ]"
               v-for="column in columns"
               :key="column.label"
             >
-              {{ column.label }}
+              <span :class="{ 'bg-gray-100': loading }">
+                {{ column.label }}
+              </span>
             </div>
           </Row>
         </div>
@@ -45,7 +46,7 @@
               :grid-template-columns="gridTemplateColumns"
             >
               <div
-                class="text-gray-900 text-base truncate py-4"
+                class="text-base truncate py-4"
                 :class="getCellClasses(row, column)"
                 v-for="column in columns"
                 :key="column.label"
@@ -57,7 +58,7 @@
                     class="w-4 h-4 mr-2 flex-shrink-0"
                     :name="row.expanded ? 'chevron-down' : 'chevron-right'"
                   />
-                  <span class="truncate">
+                  <span class="truncate" :class="{ 'bg-gray-100': loading }">
                     <component
                       :is="cellComponent(row[column.fieldname], column)"
                     />
@@ -105,13 +106,16 @@ export default {
     }
 
     return {
+      loading: true,
       filters,
-      rows: [],
-      columns: []
+      reportData: {
+        rows: [],
+        columns: []
+      }
     };
   },
   async mounted() {
-    this.columns = this.report.getColumns();
+    this.reportData.columns = this.report.getColumns();
     await this.setDefaultFilters();
     await this.fetchReportData();
   },
@@ -133,14 +137,15 @@ export default {
       }
 
       if (data.columns) {
-        this.columns = this.report.getColumns(data);
+        this.reportData.columns = this.report.getColumns(data);
       }
 
       if (!rows) {
         rows = [];
       }
 
-      this.rows = this.addTreeMeta(rows);
+      this.reportData.rows = this.addTreeMeta(rows);
+      this.loading = false;
     },
 
     addTreeMeta(rows) {
@@ -220,6 +225,12 @@ export default {
       };
     },
 
+    getColumnAlignClass(column) {
+      return {
+        'text-right': ['Int', 'Float', 'Currency'].includes(column.fieldtype)
+      };
+    },
+
     getCellClasses(row, column) {
       let padding = ['pl-0', 'pl-6', 'pl-12', 'pl-18', 'pl-20'];
       let treeCellClasses;
@@ -230,14 +241,41 @@ export default {
         ];
       }
       return [
-        {
-          'text-right': ['Int', 'Float', 'Currency'].includes(column.fieldtype)
-        },
-        treeCellClasses
+        this.getColumnAlignClass(column),
+        treeCellClasses,
+        this.loading ? 'text-gray-100' : 'text-gray-900'
       ];
     }
   },
   computed: {
+    columns() {
+      return this.loading
+        ? this.blankStateData.columns
+        : this.reportData.columns;
+    },
+    rows() {
+      return this.loading ? this.blankStateData.rows : this.reportData.rows;
+    },
+    blankStateData() {
+      let columns = Array.from(new Array(6)).map((v, i) => {
+        return {
+          fieldtype: 'Data',
+          fieldname: `Test ${i + 1}`,
+          label: `Test ${i + 1}`
+        };
+      });
+      let rows = Array.from(new Array(14)).map((v, i) => {
+        return columns.reduce((obj, col) => {
+          obj[col.fieldname] = 'Test Data ' + col.fieldname;
+          obj.isShown = true;
+          return obj;
+        }, {});
+      });
+      return {
+        columns,
+        rows
+      };
+    },
     report() {
       return reportViewConfig[this.reportName];
     },
