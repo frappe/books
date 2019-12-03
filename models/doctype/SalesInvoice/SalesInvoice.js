@@ -57,13 +57,15 @@ module.exports = {
       label: 'Customer Currency',
       fieldtype: 'Link',
       target: 'Currency',
-      hidden: 1,
-      formula: doc => doc.getFrom('Party', doc.customer, 'currency')
+      formula: doc => doc.getFrom('Party', doc.customer, 'currency'),
+      formulaDependsOn: ['customer']
     },
     {
       fieldname: 'exchangeRate',
       label: 'Exchange Rate',
-      fieldtype: 'Float'
+      fieldtype: 'Float',
+      formula: doc => doc.getExchangeRate(),
+      readOnly: true
     },
     {
       fieldname: 'items',
@@ -77,7 +79,8 @@ module.exports = {
       label: 'Net Total',
       fieldtype: 'Currency',
       formula: doc => doc.getSum('items', 'amount'),
-      readOnly: 1
+      readOnly: 1,
+      getCurrency: doc => doc.currency
     },
     {
       fieldname: 'baseNetTotal',
@@ -91,14 +94,16 @@ module.exports = {
       label: 'Taxes',
       fieldtype: 'Table',
       childtype: 'TaxSummary',
+      formula: doc => doc.getTaxSummary(),
       readOnly: 1
     },
     {
       fieldname: 'grandTotal',
       label: 'Grand Total',
       fieldtype: 'Currency',
-      formula: async doc => await doc.getGrandTotal(),
-      readOnly: 1
+      formula: doc => doc.getGrandTotal(),
+      readOnly: 1,
+      getCurrency: doc => doc.currency
     },
     {
       fieldname: 'baseGrandTotal',
@@ -113,7 +118,7 @@ module.exports = {
       fieldtype: 'Currency',
       formula: doc => {
         if (doc.submitted) return;
-        return doc.grandTotal;
+        return doc.baseGrandTotal;
       },
       readOnly: 1
     },
@@ -121,41 +126,6 @@ module.exports = {
       fieldname: 'terms',
       label: 'Terms',
       fieldtype: 'Text'
-    }
-  ],
-
-  layout: [
-    // section 1
-    {
-      columns: [
-        { fields: ['customer', 'account'] },
-        { fields: ['date', 'exchangeRate'] }
-      ]
-    },
-
-    // section 2
-    {
-      columns: [{ fields: ['items'] }]
-    },
-
-    // section 3
-    {
-      columns: [
-        {
-          fields: [
-            'baseNetTotal',
-            'netTotal',
-            'taxes',
-            'baseGrandTotal',
-            'grandTotal'
-          ]
-        }
-      ]
-    },
-
-    // section 4
-    {
-      columns: [{ fields: ['terms'] }]
     }
   ],
 

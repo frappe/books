@@ -15,6 +15,7 @@ module.exports = class SalesInvoiceServer extends SalesInvoice {
         await entries.credit(tax.account, tax.baseAmount);
       }
     }
+    entries.makeRoundOffEntry();
     return entries;
   }
 
@@ -29,6 +30,11 @@ module.exports = class SalesInvoiceServer extends SalesInvoice {
       return payments;
     }
     return [];
+  }
+
+  async beforeUpdate() {
+    const entries = await this.getPosting();
+    await entries.validateEntries();
   }
 
   async beforeInsert() {

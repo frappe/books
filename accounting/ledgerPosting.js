@@ -1,4 +1,5 @@
 const frappe = require('frappejs');
+const { round } = require('frappejs/utils/numberFormat');
 
 module.exports = class LedgerPosting {
   constructor({ reference, party, date, description }) {
@@ -78,35 +79,47 @@ module.exports = class LedgerPosting {
     await this.insertEntries();
   }
 
+  makeRoundOffEntry() {
+    let { debit, credit } = this.getTotalDebitAndCredit();
+    let precision = this.getPrecision();
+    let difference = round(debit - credit, precision);
+    let absoluteValue = Math.abs(difference);
+    let allowance = 0.5;
+    if (absoluteValue === 0) {
+      return;
+    }
+
+    let roundOffAccount = this.getRoundOffAccount();
+    if (absoluteValue <= allowance) {
+      if (difference > 0) {
+        this.credit(roundOffAccount, absoluteValue);
+      } else {
+        this.debit(roundOffAccount, absoluteValue);
+      }
+    }
+  }
+
   validateEntries() {
+    let { debit, credit } = this.getTotalDebitAndCredit();
+    if (debit !== credit) {
+      throw new Error(`Debit ${debit} must be equal to Credit ${credit}`);
+    }
+  }
+
+  getTotalDebitAndCredit() {
     let debit = 0;
     let credit = 0;
-    let debitAccounts = [];
-    let creditAccounts = [];
+
     for (let entry of this.entries) {
       debit += entry.debit;
       credit += entry.credit;
-      if (debit) {
-        debitAccounts.push(entry.account);
-      } else {
-        creditAccounts.push(entry.account);
-      }
     }
-    debit = Math.floor(debit * 100) / 100;
-    credit = Math.floor(credit * 100) / 100;
-    if (debit !== credit) {
-      frappe.call({
-        method: 'show-dialog',
-        args: {
-          title: 'Invalid Entry',
-          message: frappe._('Debit {0} must be equal to Credit {1}', [
-            debit,
-            credit
-          ])
-        }
-      });
-      throw new Error(`Debit ${debit} must be equal to Credit ${credit}`);
-    }
+
+    let precision = this.getPrecision();
+    debit = round(debit, precision);
+    credit = round(credit, precision);
+
+    return { debit, credit };
   }
 
   async insertEntries() {
@@ -122,5 +135,13 @@ module.exports = class LedgerPosting {
       entryDoc.balance += entry.balanceChange;
       await entryDoc.update();
     }
+  }
+
+  getPrecision() {
+    return frappe.SystemSettings.floatPrecision;
+  }
+
+  getRoundOffAccount() {
+    return frappe.AccountingSettings.roundOffAccount;
   }
 };
