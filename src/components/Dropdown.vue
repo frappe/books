@@ -147,8 +147,7 @@ export default {
         if (index !== 0) {
           index -= 1;
         }
-        let highlightedElement = this.$refs.items[index];
-        highlightedElement && highlightedElement.scrollIntoView();
+        this.scrollToHighlighted();
       });
     },
     highlightItemDown() {
@@ -158,10 +157,13 @@ export default {
       }
 
       this.$nextTick(() => {
-        let index = this.highlightedIndex;
-        let highlightedElement = this.$refs.items[index];
-        highlightedElement && highlightedElement.scrollIntoView();
+        this.scrollToHighlighted();
       });
+    },
+    scrollToHighlighted() {
+      let highlightedElement = this.$refs.items[this.highlightedIndex];
+      highlightedElement &&
+        highlightedElement.scrollIntoView({ block: 'nearest' });
     }
   }
 };
