@@ -1,7 +1,7 @@
 <template>
   <Row
     :ratio="ratio"
-    class="border-b px-2"
+    class="border-b px-2 w-full"
   >
     <div class="flex items-center pl-2 text-gray-600">{{ row.idx + 1 }}</div>
     <FormControl
