@@ -3,7 +3,7 @@
     <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
       {{ df.label }}
     </div>
-    <Row :ratio="ratio" class="border-b px-2 text-gray-600">
+    <Row :ratio="ratio" class="border-b px-2 text-gray-600 w-full">
       <div class="flex items-center pl-2">No</div>
       <div
         :class="{

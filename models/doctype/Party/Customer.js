@@ -12,6 +12,7 @@ module.exports = {
   actions: [
     {
       label: _('Create Invoice'),
+      condition: doc => !doc.isNew(),
       action: async customer => {
         let doc = await frappe.getNewDoc('SalesInvoice');
         router.push({
@@ -27,6 +28,7 @@ module.exports = {
     },
     {
       label: _('View Invoices'),
+      condition: doc => !doc.isNew(),
       action: customer => {
         router.push({
           path: `/list/SalesInvoice`,
