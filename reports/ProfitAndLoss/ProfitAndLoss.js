@@ -36,14 +36,16 @@ class ProfitAndLoss {
       {
         account: {
           template: '<span>&nbsp;</span>'
-        }
+        },
+        isGroup: 1
       },
       ...expense.accounts,
       expenseTotalRow,
       {
         account: {
           template: '<span>&nbsp;</span>'
-        }
+        },
+        isGroup: 1
       }
     ];
 
