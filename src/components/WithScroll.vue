@@ -1,7 +1,6 @@
 <script>
 export default {
   name: 'WithScroll',
-  props: [],
   mounted() {
     let handler = () => {
       let { scrollLeft, scrollTop } = this.$el;
