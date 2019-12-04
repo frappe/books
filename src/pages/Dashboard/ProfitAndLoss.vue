@@ -52,7 +52,7 @@ export default {
       });
 
       let totalRow = res.rows[res.rows.length - 1];
-      this.hasData = res.columns.some(key => totalRow[key] > 0);
+      this.hasData = res.columns.some(key => totalRow[key] !== 0);
       if (!this.hasData) return;
       this.$nextTick(() => this.renderChart(res));
     },
