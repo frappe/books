@@ -44,6 +44,13 @@ class LinkValidationError extends ValidationError {
   }
 }
 
+class MandatoryError extends ValidationError {
+  constructor(message) {
+    super(message);
+    this.name = 'MandatoryError';
+  }
+}
+
 class DatabaseError extends BaseError {
   constructor(message) {
     super(500, message);
@@ -79,5 +86,6 @@ module.exports = {
   DuplicateEntryError,
   LinkValidationError,
   DatabaseError,
+  MandatoryError,
   throw: throwError
 };

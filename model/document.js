@@ -166,6 +166,26 @@ module.exports = class BaseDocument extends Observable {
     }
   }
 
+  validateInsert() {
+    this.validateMandatory();
+  }
+
+  validateMandatory() {
+    let mandatoryFields = this.meta.fields.filter(df => df.required);
+    let missingMandatoryFields = mandatoryFields.filter(df => {
+      let value = this[df.fieldname];
+      if (df.fieldtype === 'Table') {
+        return !value || value.length === 0;
+      }
+      return value == null || value === '';
+    });
+    if (missingMandatoryFields.length > 0) {
+      let fields = missingMandatoryFields.map(df => `"${df.label}"`).join(', ');
+      let message = frappe._('Value missing for {0}', fields);
+      throw new frappe.errors.MandatoryError(message);
+    }
+  }
+
   async validateField(key, value) {
     let field = this.meta.getField(key);
     if (field && field.fieldtype == 'Select') {
@@ -439,6 +459,7 @@ module.exports = class BaseDocument extends Observable {
   async insert() {
     await this.setName();
     await this.commit();
+    await this.validateInsert();
     await this.trigger('beforeInsert');
 
     let oldName = this.name;
