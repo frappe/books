@@ -1,7 +1,4 @@
-const frappe = require('frappejs');
-const utils = require('../../../accounting/utils');
-const { openQuickEdit } = require('@/utils');
-const router = require('@/router').default;
+const { getActions } = require('../Transaction/Transaction');
 const InvoiceTemplate = require('./InvoiceTemplate.vue').default;
 
 module.exports = {
@@ -127,50 +124,5 @@ module.exports = {
     }
   ],
 
-  actions: [
-    {
-      label: 'Make Payment',
-      condition: doc => doc.submitted && doc.outstandingAmount > 0,
-      action: async function makePayment(doc) {
-        let payment = await frappe.getNewDoc('Payment');
-        payment.once('afterInsert', () => {
-          payment.submit();
-        });
-        openQuickEdit({
-          doctype: 'Payment',
-          name: payment.name,
-          hideFields: ['party', 'date', 'account', 'paymentType', 'for'],
-          defaults: {
-            party: doc.customer,
-            account: doc.account,
-            date: new Date().toISOString().slice(0, 10),
-            paymentType: 'Receive',
-            for: [
-              {
-                referenceType: doc.doctype,
-                referenceName: doc.name,
-                amount: doc.outstandingAmount
-              }
-            ]
-          }
-        });
-      }
-    },
-    {
-      label: 'Revert',
-      condition: doc =>
-        doc.submitted && doc.baseGrandTotal === doc.outstandingAmount,
-      action(doc) {
-        doc.revert();
-      }
-    },
-    {
-      label: 'Print',
-      condition: doc => doc.submitted,
-      action(doc) {
-        router.push(`/print/${doc.doctype}/${doc.name}`);
-      }
-    },
-    utils.ledgerLink
-  ]
+  actions: getActions('SalesInvoice')
 };

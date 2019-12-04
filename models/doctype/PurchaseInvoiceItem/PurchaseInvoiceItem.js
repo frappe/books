@@ -6,21 +6,14 @@ module.exports = {
   isChild: 1,
   keywordFields: [],
   layout: 'ratio',
-  tableFields: [
-    'item',
-    'tax',
-    'quantity',
-    'rate',
-    'amount'
-  ],
+  tableFields: ['item', 'tax', 'quantity', 'rate', 'amount'],
   fields: [
     {
       fieldname: 'item',
       label: 'Item',
       fieldtype: 'Link',
       target: 'Item',
-      required: 1,
-      width: 2
+      required: 1
     },
     {
       fieldname: 'description',
@@ -40,7 +33,18 @@ module.exports = {
       label: 'Rate',
       fieldtype: 'Currency',
       required: 1,
-      formula: (row, doc) => doc.getFrom('Item', row.item, 'rate')
+      formula: async (row, doc) => {
+        let baseRate = await doc.getFrom('Item', row.item, 'rate');
+        return baseRate / doc.exchangeRate;
+      },
+      getCurrency: (row, doc) => doc.currency
+    },
+    {
+      fieldname: 'baseRate',
+      label: 'Rate (Company Currency)',
+      fieldtype: 'Currency',
+      formula: (row, doc) => row.rate * doc.exchangeRate,
+      readOnly: 1
     },
     {
       fieldname: 'account',
@@ -65,15 +69,15 @@ module.exports = {
       label: 'Amount',
       fieldtype: 'Currency',
       readOnly: 1,
-      formula: (row, doc) => row.quantity * row.rate
+      formula: (row, doc) => row.quantity * row.rate,
+      getCurrency: (row, doc) => doc.currency
     },
     {
-      fieldname: 'taxAmount',
-      label: 'Tax Amount',
-      hidden: 1,
+      fieldname: 'baseAmount',
+      label: 'Amount (Company Currency)',
+      fieldtype: 'Currency',
       readOnly: 1,
-      fieldtype: 'Text',
-      formula: (row, doc) => doc.getRowTax(row)
+      formula: (row, doc) => row.amount * doc.exchangeRate
     }
   ]
 };

@@ -163,7 +163,7 @@ export default {
           return {
             label: d.label,
             component: d.component,
-            action: d.action.bind(this, this.doc)
+            action: d.action.bind(this, this.doc, this.$router)
           };
         });
 

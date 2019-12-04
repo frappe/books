@@ -1,4 +1,3 @@
-const SalesInvoiceDocument = require('../SalesInvoice/SalesInvoiceDocument');
-const frappe = require('frappejs');
+const TransactionDocument = require('../Transaction/TransactionDocument');
 
-module.exports = class PurchaseInvoice extends SalesInvoiceDocument {};
+module.exports = class PurchaseInvoice extends TransactionDocument {};

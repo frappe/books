@@ -112,9 +112,9 @@ module.exports = {
   quickEditFields: [
     'party',
     'date',
+    'paymentMethod',
     'account',
     'paymentType',
-    'paymentMethod',
     'paymentAccount',
     'referenceId',
     'referenceDate',
