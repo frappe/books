@@ -1,12 +1,7 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <a
-        class="cursor-pointer font-semibold"
-        slot="title"
-        @click="$router.go(-1)"
-        >{{ _('Back') }}</a
-      >
+      <BackLink slot="title" @click="$router.back()" />
       <template slot="actions">
         <Button
           v-if="doc._notInserted || doc._dirty"
@@ -120,6 +115,7 @@ import FormControl from '@/components/Controls/FormControl';
 import Row from '@/components/Row';
 import Dropdown from '@/components/Dropdown';
 import { openQuickEdit } from '@/utils';
+import BackLink from '@/components/BackLink';
 
 export default {
   name: 'JournalEntryForm',
@@ -129,7 +125,8 @@ export default {
     Button,
     FormControl,
     Row,
-    Dropdown
+    Dropdown,
+    BackLink
   },
   provide() {
     return {

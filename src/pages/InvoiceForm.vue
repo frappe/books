@@ -1,14 +1,7 @@
 <template>
   <div class="flex flex-col" v-if="doc">
     <PageHeader>
-      <a
-        class="cursor-pointer font-semibold flex items-center"
-        slot="title"
-        @click="routeToList"
-      >
-        <feather-icon name="chevron-left" class="w-5 h-5" />
-        <span class="ml-1">{{ _('Back') }}</span>
-      </a>
+      <BackLink slot="title" @click="routeToList" />
       <template slot="actions">
         <Button class="text-gray-900 text-xs" @click="openInvoiceSettings">
           {{ _('Customise') }}
@@ -42,8 +35,9 @@
           type="primary"
           class="text-white text-xs ml-2"
           @click="onSaveClick"
-          >{{ _('Save') }}</Button
         >
+          {{ _('Save') }}
+        </Button>
         <Button
           v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
           type="primary"
@@ -186,6 +180,7 @@ import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import Row from '@/components/Row';
 import Dropdown from '@/components/Dropdown';
+import BackLink from '@/components/BackLink';
 import { openSettings } from '@/pages/Settings/utils';
 import { deleteDocWithPrompt, openQuickEdit } from '@/utils';
 
@@ -197,7 +192,8 @@ export default {
     Button,
     FormControl,
     Row,
-    Dropdown
+    Dropdown,
+    BackLink
   },
   provide() {
     return {
@@ -262,7 +258,7 @@ export default {
           return {
             label: d.label,
             component: d.component,
-            action: d.action.bind(this, this.doc, this)
+            action: d.action.bind(this, this.doc, this.$router)
           };
         });
 
