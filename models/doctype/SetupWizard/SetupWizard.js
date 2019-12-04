@@ -48,6 +48,7 @@ module.exports = {
       fieldname: 'bankName',
       label: 'Bank Name',
       fieldtype: 'Data',
+      placeholder: 'Prime Bank',
       required: 1
     },
 
@@ -106,6 +107,7 @@ module.exports = {
     'fullname',
     'email',
     'companyName',
+    'bankName',
     'country',
     'currency',
     'fiscalYearStart',
