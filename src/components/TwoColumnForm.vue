@@ -13,11 +13,13 @@
         <template v-if="inlineEditField === df && inlineEditDoc">
           <div class="border-b">
             <TwoColumnForm
+              ref="inlineEditForm"
               :doc="inlineEditDoc"
               :fields="inlineEditFields"
               :column-ratio="columnRatio"
               :no-border="true"
               :focus-first-input="true"
+              @error="msg => $emit('error', msg)"
             />
             <div class="flex px-4 pb-2">
               <Button
@@ -42,10 +44,7 @@
           :class="{ 'border-b': !noBorder }"
           :style="style"
         >
-          <div
-            class="py-2 pl-4 flex items-center"
-            :class="validateForm && df.required ? 'text-red-600' : 'text-gray-600'"
-          >
+          <div class="py-2 pl-4 flex items-center text-gray-600">
             {{ df.label }}
           </div>
           <div class="py-2 pr-4" @click="activateInlineEditing(df)">
@@ -72,6 +71,7 @@
   </div>
 </template>
 <script>
+import { _ } from 'frappejs/utils';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
 
@@ -86,8 +86,7 @@ let TwoColumnForm = {
       default: () => [1, 1]
     },
     noBorder: Boolean,
-    focusFirstInput: Boolean,
-    validateForm: Boolean
+    focusFirstInput: Boolean
   },
   data() {
     return {
@@ -140,6 +139,28 @@ let TwoColumnForm = {
         this.doc.update();
       }
     },
+    insertOrUpdate() {
+      return this.doc.insertOrUpdate().catch(this.handleError);
+    },
+    insert() {
+      return this.doc.insert().catch(this.handleError);
+    },
+    submit() {
+      return this.doc.submit().catch(this.handleError);
+    },
+    handleError(e) {
+      let errorMessage = _('An error occurred.');
+      if (e instanceof frappe.errors.DuplicateEntryError) {
+        errorMessage = _('{0} {1} already exists.', [
+          this.doc.doctype,
+          this.doc.name
+        ]);
+      } else {
+        errorMessage = e.message;
+      }
+      this.$emit('error', errorMessage);
+      throw e;
+    },
     async activateInlineEditing(df) {
       if (df.inline) {
         this.inlineEditField = df;
@@ -158,7 +179,7 @@ let TwoColumnForm = {
     },
     async saveInlineEditDoc() {
       if (this.inlineEditDoc) {
-        await this.inlineEditDoc.insertOrUpdate();
+        await this.$refs.inlineEditForm[0].insertOrUpdate();
         await this.doc.loadLinks();
         this.inlineEditField = null;
       }
