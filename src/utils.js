@@ -128,7 +128,14 @@ export function partyWithAvatar(party) {
 
 export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
   let currentRoute = router.currentRoute;
-  router.push({
+  let query = currentRoute.query;
+  let method = 'push';
+  if (query.edit && query.doctype === doctype) {
+    // replace the current route if we are
+    // editing another document of the same doctype
+    method = 'replace';
+  }
+  router[method]({
     query: {
       edit: 1,
       doctype,
