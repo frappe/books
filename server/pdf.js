@@ -47,7 +47,14 @@ async function getPDFForElectron(doctype, name, destination, htmlContent) {
   if (process.env.NODE_ENV === 'development') {
     url = `http://localhost:${process.env.PORT}/static/print.html`;
   } else {
-    url = `file://${__dirname}/static/print.html`;
+    let printPath = path.join(
+      remote.app.getAppPath(),
+      'dist',
+      'electron',
+      'static',
+      'print.html'
+    );
+    url = `file://${printPath}`;
   }
 
   printWindow.loadURL(url);
