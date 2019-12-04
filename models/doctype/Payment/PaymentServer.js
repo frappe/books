@@ -22,46 +22,30 @@ module.exports = class PaymentServer extends BaseDocument {
   }
 
   async beforeSubmit() {
-    if (this.for.length > 0) {
-      for (let row of this.for) {
-        if (['SalesInvoice', 'PurchaseInvoice'].includes(row.referenceType)) {
-          let { outstandingAmount, grandTotal } = await frappe.getDoc(
-            row.referenceType,
-            row.referenceName
-          );
-          if (outstandingAmount === null) {
-            outstandingAmount = grandTotal;
-          }
-          if (this.amount <= 0 || this.amount > outstandingAmount) {
-            // frappe.call({
-            //   method: 'show-dialog',
-            //   args: {
-            //     title: 'Invalid Payment Entry',
-            //     message: `Payment amount (${this.amount}) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
-            //   }
-            // });
-            throw new Error(
-              `Payment amount (${this.amount}) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
-            );
-          } else {
-            await frappe.db.setValue(
-              row.referenceType,
-              row.referenceName,
-              'outstandingAmount',
-              outstandingAmount - this.amount
-            );
-          }
-        }
-      }
-    } else {
-      // frappe.call({
-      //   method: 'show-dialog',
-      //   args: {
-      //     title: 'Invalid Payment Entry',
-      //     message: `No reference for the payment.`
-      //   }
-      // });
+    if (!this.for.length) {
       throw new Error(`No reference for the payment.`);
+    }
+    for (let row of this.for) {
+      if (!['SalesInvoice', 'PurchaseInvoice'].includes(row.referenceType)) {
+        continue;
+      }
+      let referenceDoc = await frappe.getDoc(
+        row.referenceType,
+        row.referenceName
+      );
+      let { outstandingAmount, baseGrandTotal } = referenceDoc;
+      if (outstandingAmount == null) {
+        outstandingAmount = baseGrandTotal;
+      }
+      if (this.amount <= 0 || this.amount > outstandingAmount) {
+        throw new Error(
+          `Payment amount (${this.amount}) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
+        );
+      } else {
+        let newOutstanding = outstandingAmount - this.amount;
+        await referenceDoc.set('outstandingAmount', newOutstanding);
+        await referenceDoc.update();
+      }
     }
   }
 

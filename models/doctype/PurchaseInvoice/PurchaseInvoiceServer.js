@@ -1,66 +1,27 @@
-const frappe = require('frappejs');
+const TransactionServer = require('../Transaction/TransactionServer');
 const PurchaseInvoice = require('./PurchaseInvoiceDocument');
 const LedgerPosting = require('../../../accounting/ledgerPosting');
 
-module.exports = class PurchaseInvoiceServer extends PurchaseInvoice {
+class PurchaseInvoiceServer extends PurchaseInvoice {
   async getPosting() {
     let entries = new LedgerPosting({ reference: this, party: this.supplier });
     await entries.credit(this.account, this.baseGrandTotal);
 
     for (let item of this.items) {
-      const baseItemAmount = item.amount * this.exchangeRate;
-      await entries.debit(item.account, baseItemAmount);
+      await entries.debit(item.account, item.baseAmount);
     }
 
     if (this.taxes) {
       for (let tax of this.taxes) {
-        const baseTaxAmount = tax.amount * this.exchangeRate;
-        await entries.debit(tax.account, baseTaxAmount);
+        await entries.debit(tax.account, tax.baseAmount);
       }
     }
+    entries.makeRoundOffEntry();
     return entries;
   }
+}
 
-  async getPayments() {
-    let payments = await frappe.db.getAll({
-      doctype: 'PaymentFor',
-      fields: ['parent'],
-      filters: { referenceName: this.name },
-      orderBy: 'name'
-    });
-    if (payments.length != 0) {
-      return payments;
-    }
-    return [];
-  }
+// apply common methods from TransactionServer
+Object.assign(PurchaseInvoiceServer.prototype, TransactionServer);
 
-  async beforeInsert() {
-    const entries = await this.getPosting();
-    await entries.validateEntries();
-  }
-
-  async beforeSubmit() {
-    const entries = await this.getPosting();
-    await entries.post();
-    await frappe.db.setValue(
-      'PurchaseInvoice',
-      this.name,
-      'outstandingAmount',
-      this.baseGrandTotal
-    );
-  }
-
-  async afterRevert() {
-    let paymentRefList = await this.getPayments();
-    for (let paymentFor of paymentRefList) {
-      const paymentReference = paymentFor.parent;
-      const payment = await frappe.getDoc('Payment', paymentReference);
-      const paymentEntries = await payment.getPosting();
-      await paymentEntries.postReverse();
-      // To set the payment status as unsubmitted.
-      payment.revert();
-    }
-    const entries = await this.getPosting();
-    await entries.postReverse();
-  }
-};
+module.exports = PurchaseInvoiceServer;

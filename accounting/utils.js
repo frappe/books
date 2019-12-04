@@ -1,10 +1,8 @@
-let router = require('@/router').default;
-
 module.exports = {
   ledgerLink: {
     label: 'Ledger Entries',
     condition: doc => doc.submitted,
-    action: doc => {
+    action: (doc, router) => {
       router.push({
         name: 'Report',
         params: {
