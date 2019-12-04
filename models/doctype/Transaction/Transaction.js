@@ -44,7 +44,7 @@ module.exports = {
           openQuickEdit({
             doctype: 'Payment',
             name: payment.name,
-            // hideFields: ['party', 'date', hideAccountField, 'paymentType', 'for'],
+            hideFields: ['party', 'date', hideAccountField, 'paymentType', 'for'],
             defaults: {
               party,
               [hideAccountField]: doc.account,
