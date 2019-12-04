@@ -54,6 +54,7 @@ import Row from '@/components/Row';
 import ListCell from './ListCell';
 import Button from '@/components/Button';
 import Avatar from '@/components/Avatar';
+import { openQuickEdit } from '@/utils';
 
 export default {
   name: 'List',
@@ -103,14 +104,9 @@ export default {
         this.$router.push(this.listConfig.formRoute(doc.name));
         return;
       }
-      let method = this.$route.query.edit ? 'replace' : 'push';
-      this.$router[method]({
-        path: `/list/${this.doctype}`,
-        query: {
-          edit: 1,
-          doctype: this.doctype,
-          name: doc.name
-        }
+      openQuickEdit({
+        doctype: this.doctype,
+        name: doc.name
       });
     },
     async updateData(filters) {
