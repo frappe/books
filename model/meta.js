@@ -45,7 +45,8 @@ module.exports = class BaseMeta extends BaseDocument {
     // attach default precision to Float and Currency
     this.fields = this.fields.map(df => {
       if (['Float', 'Currency'].includes(df.fieldtype)) {
-        df.precision = df.precision || frappe.SystemSettings.floatPrecision;
+        let defaultPrecision = frappe.SystemSettings ? frappe.SystemSettings.floatPrecision : 2;
+        df.precision = df.precision || defaultPrecision;
       }
       return df;
     });
