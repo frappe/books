@@ -286,5 +286,6 @@ async function getFiscalYear() {
 
 module.exports = {
   getData,
-  getTrialBalance
+  getTrialBalance,
+  getPeriodList
 };

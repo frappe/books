@@ -124,8 +124,8 @@ export default {
         periodicity
       });
 
-      let totalInflow = data.reduce((sum, d) => d.inflow, 0);
-      let totalOutflow = data.reduce((sum, d) => d.outflow, 0);
+      let totalInflow = data.reduce((sum, d) => d.inflow + sum, 0);
+      let totalOutflow = data.reduce((sum, d) => d.outflow + sum, 0);
       this.hasData = !(totalInflow === 0 && totalOutflow === 0);
       if (!this.hasData) return;
 
