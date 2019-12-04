@@ -62,6 +62,7 @@
           size="small"
           class="mb-1"
           :letter-placeholder="
+            // for AttachImage field
             doc[titleField.fieldname] ? doc[titleField.fieldname][0] : null
           "
         />
@@ -76,9 +77,6 @@
         />
       </div>
     </div>
-    <div class="px-4 text-xs text-red-600 py-2" v-if="errorMessage">
-      {{ errorMessage }}
-    </div>
     <TwoColumnForm
       ref="form"
       v-if="doc"
@@ -86,7 +84,7 @@
       :fields="fields"
       :autosave="true"
       :column-ratio="[1.1, 2]"
-      :validate-form="validateForm"
+      @error="showErrorDialog"
     />
   </div>
 </template>
@@ -98,7 +96,7 @@ import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import Dropdown from '@/components/Dropdown';
-import { deleteDocWithPrompt, openQuickEdit } from '@/utils';
+import { deleteDocWithPrompt, openQuickEdit, showMessageDialog } from '@/utils';
 
 export default {
   name: 'QuickEditForm',
@@ -124,16 +122,11 @@ export default {
       doc: null,
       titleField: null,
       imageField: null,
-      statusText: null,
-      validateForm: false,
-      errorMessage: null
+      statusText: null
     };
   },
   async created() {
     await this.fetchMetaAndDoc();
-  },
-  errorCaptured(err, vm, info) {
-    this.errorMessage = err.message;
   },
   computed: {
     meta() {
@@ -196,9 +189,6 @@ export default {
       // set title size
       this.setTitleSize();
     },
-    valueChange(df, value) {
-      this.$refs.form.onChange(df, value);
-    },
     async fetchDoc() {
       try {
         this.doc = await frappe.getDoc(this.doctype, this.name);
@@ -221,40 +211,17 @@ export default {
         this.$router.back();
       }
     },
+    valueChange(df, value) {
+      this.$refs.form.onChange(df, value);
+    },
     insertDoc() {
-      let requiredFields = this.fields.filter(df => df.required);
-      if (requiredFields.some(df => this.doc[df.fieldname] == null)) {
-        this.validateForm = true;
-        return;
-      }
-      this.validateForm = false;
-      this.errorMessage = null;
-      this.doc.insert().catch(e => {
-        if (e.name === 'DuplicateEntryError') {
-          this.errorMessage = _('{0} {1} already exists.', [
-            this.doctype,
-            this.doc.name
-          ]);
-        } else {
-          this.errorMessage = _('An error occurred.');
-        }
-      });
+      this.$refs.form.insert();
     },
     submitDoc() {
-      this.doc.submit();
+      this.$refs.form.submit();
     },
     deleteDoc() {
-      return deleteDocWithPrompt(this.doc).catch(e => {
-        if (e.name === 'LinkValidationError') {
-          this.errorMessage = _('{0} {1} is linked with existing records.', [
-            this.doctype,
-            this.doc.name
-          ]);
-        } else {
-          this.errorMessage = _('An error occurred.');
-        }
-        throw e;
-      });
+      return deleteDocWithPrompt(this.doc);
     },
     routeToList() {
       this.$router.push(`/list/${this.doctype}`);
@@ -272,6 +239,12 @@ export default {
         }
         input.size = valueLength;
       }
+    },
+
+    showErrorDialog(errorMessage) {
+      showMessageDialog({
+        message: errorMessage
+      });
     }
   }
 };

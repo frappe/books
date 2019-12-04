@@ -88,6 +88,7 @@ export function deleteDocWithPrompt(doc) {
                 showMessageDialog({
                   message: errorMessage
                 });
+                throw e;
               });
           }
         },
