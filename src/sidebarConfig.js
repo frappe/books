@@ -27,10 +27,6 @@ const config = {
           route: '/list/SalesInvoice'
         },
         {
-          label: _('Payments'),
-          route: '/list/Payment'
-        },
-        {
           label: _('Customers'),
           route: '/list/Customer'
         },
@@ -58,10 +54,6 @@ const config = {
         {
           label: _('Bill'),
           route: '/list/PurchaseInvoice'
-        },
-        {
-          label: _('Payments'),
-          route: '/list/Payment'
         },
         {
           label: _('Suppliers'),
