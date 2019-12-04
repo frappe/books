@@ -2,8 +2,8 @@
   <div class="flex">
     <Sidebar class="w-56 flex-shrink-0" />
     <div class="flex flex-1 overflow-y-hidden bg-white">
-      <keep-alive include="InvoiceForm">
-        <router-view class="flex-1" :key="$route.fullPath" />
+      <keep-alive>
+        <router-view class="flex-1" :key="$route.path" />
       </keep-alive>
       <div class="flex" v-if="showQuickEdit">
         <keep-alive>
