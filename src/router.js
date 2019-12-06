@@ -3,21 +3,16 @@ import Router from 'vue-router';
 
 import ListView from '@/pages/ListView/ListView';
 import Dashboard from '@/pages/Dashboard/Dashboard';
-import FormView from '@/pages/FormView/FormView';
 import PrintView from '@/pages/PrintView/PrintView';
 import QuickEditForm from '@/pages/QuickEditForm';
 
 import Report from '@/pages/Report.vue';
 
-import DataImport from '@/pages/DataImport';
-
-import ReportList from '@/pages/ReportList';
 import ChartOfAccounts from '@/pages/ChartOfAccounts';
 
 import InvoiceForm from '@/pages/InvoiceForm';
 import JournalEntryForm from '@/pages/JournalEntryForm';
 
-import Tree from 'frappejs/ui/components/Tree';
 
 Vue.use(Router);
 
@@ -69,12 +64,6 @@ const routes = [
     }
   },
   {
-    path: '/edit/:doctype/:name',
-    name: 'FormView',
-    component: FormView,
-    props: true
-  },
-  {
     path: '/print/:doctype/:name',
     name: 'PrintView',
     component: PrintView,
@@ -84,22 +73,6 @@ const routes = [
     path: '/report/:reportName',
     name: 'Report',
     component: Report,
-    props: true
-  },
-  {
-    path: '/data-import',
-    name: 'Data Import',
-    component: DataImport
-  },
-  {
-    path: '/reportList',
-    name: 'Report',
-    component: ReportList
-  },
-  {
-    path: '/tree/:doctype',
-    name: 'Tree',
-    component: Tree,
     props: true
   },
   {
