@@ -1,8 +1,11 @@
 import frappe from 'frappejs';
+import fs from 'fs';
+import path from 'path';
+import { _ } from 'frappejs/utils';
+import { remote, shell } from 'electron';
 import router from '@/router';
 import Avatar from '@/components/Avatar';
-import { _ } from 'frappejs';
-import { remote } from 'electron';
+
 
 export function createNewDatabase() {
   return new Promise(resolve => {
@@ -145,5 +148,65 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
       values: defaults,
       lastRoute: currentRoute
     }
+  });
+}
+
+export function makePDF(html, destination) {
+  const { BrowserWindow } = remote;
+
+  let printWindow = new BrowserWindow({
+    width: 600,
+    height: 800,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+
+  let url;
+  if (process.env.NODE_ENV === 'development') {
+    url = `http://localhost:${process.env.PORT}/static/print.html`;
+  } else {
+    let printPath = path.join(
+      remote.app.getAppPath(),
+      'dist',
+      'electron',
+      'static',
+      'print.html'
+    );
+    url = `file://${printPath}`;
+  }
+
+  printWindow.loadURL(url);
+
+  printWindow.on('closed', () => {
+    printWindow = null;
+  });
+
+  const code = `
+    let el = document.querySelector('.printTarget');
+    document.body.innerHTML = \`${html}\`;
+  `;
+
+  printWindow.webContents.executeJavaScript(code);
+
+  return new Promise(resolve => {
+    printWindow.webContents.on('did-finish-load', () => {
+      printWindow.webContents.printToPDF(
+        {
+          marginsType: 1, // no margin
+          pageSize: 'A4',
+          printBackground: true
+        },
+        (error, data) => {
+          if (error) throw error;
+          printWindow.close();
+          fs.writeFile(destination, data, error => {
+            if (error) throw error;
+            resolve(shell.openItem(destination));
+          });
+        }
+      );
+    });
   });
 }
