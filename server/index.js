@@ -18,7 +18,6 @@ const auth = require('./../auth/auth')();
 const morgan = require('morgan');
 const { addWebpackMiddleware } = require('../webpack/serve');
 const { getAppConfig, resolveAppDir } = require('../webpack/utils');
-const { thumbnailMiddleware } = require('./utils');
 
 frappe.conf = getAppConfig();
 
@@ -42,7 +41,7 @@ module.exports = {
         app.use(bodyParser.urlencoded({ extended: true }));
 
         app.use(express.static(frappe.conf.distPath));
-        app.use('/static', thumbnailMiddleware(resolveAppDir(frappe.conf.staticPath)));
+        app.use('/static', express.static(resolveAppDir(frappe.conf.staticPath)))
 
         app.use(morgan('tiny'));
 
