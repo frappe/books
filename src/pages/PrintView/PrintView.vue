@@ -32,7 +32,7 @@ import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
 import DropdownWithAction from '@/components/DropdownWithAction';
 import Button from '@/components/Button';
-import { getPDFForElectron } from 'frappejs/server/pdf';
+import { makePDF } from '@/utils';
 import { remote } from 'electron';
 
 export default {
@@ -64,7 +64,7 @@ export default {
     async makePDF() {
       let destination = await this.getSavePath();
       let html = this.$refs.printContainer.innerHTML;
-      getPDFForElectron(this.doctype, this.name, destination, html);
+      makePDF(html, destination);
     },
 
     getSavePath() {
