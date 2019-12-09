@@ -1,6 +1,10 @@
 <template>
   <div class="flex -mx-4">
-    <div class="w-1/2 px-4 flex flex-col justify-between" v-for="invoice in invoices" :key="invoice.title">
+    <div
+      class="w-1/2 px-4 flex flex-col justify-between"
+      v-for="invoice in invoices"
+      :key="invoice.title"
+    >
       <SectionHeader>
         <template slot="title">{{ invoice.title }}</template>
         <PeriodSelector
@@ -119,18 +123,14 @@ export default {
           this.$data[d.periodKey]
         );
 
-        let res = await frappe.db.sql(
-          `
-          select
-            sum(baseGrandTotal) as total,
-            sum(outstandingAmount) as outstanding
-          from ${d.doctype}
-          where date >= $fromDate and date <= $toDate
-          and submitted = 1
-        `,
-          { $fromDate: fromDate, $toDate: toDate }
-        );
-        let { total, outstanding } = res[0];
+        let result = await frappe.db
+          .knex(d.doctype)
+          .sum({ total: 'baseGrandTotal' })
+          .sum({ outstanding: 'outstandingAmount' })
+          .whereBetween('date', [fromDate, toDate])
+          .first();
+
+        let { total, outstanding } = result;
         d.total = total;
         d.unpaid = outstanding;
         d.paid = total - outstanding;

@@ -3,18 +3,24 @@ const { DateTime } = require('luxon');
 
 class Cashflow {
   async run({ fromDate, toDate, periodicity }) {
-    let res = await frappe.db.sql(
-      `
-      select sum(debit) as inflow, sum(credit) as outflow, strftime("%m-%Y", date) as "month-year"
-        from AccountingLedgerEntry
-        where account in (
-          select name from Account where accountType in ('Cash', 'Bank') and isGroup = 0
-        )
-        and date >= $fromDate and date <= $toDate
-      group by strftime("%m-%Y", date)
-    `,
-      { $fromDate: fromDate, $toDate: toDate }
-    );
+    let cashAndBankAccounts = frappe.db
+      .knex('Account')
+      .select('name')
+      .where('accountType', 'in', ['Cash', 'Bank'])
+      .andWhere('isGroup', 0);
+    let dateAsMonthYear = frappe.db.knex.raw('strftime("%m-%Y", ??)', 'date');
+    let res = await frappe.db
+      .knex('AccountingLedgerEntry')
+      .sum({
+        inflow: 'debit',
+        outflow: 'credit'
+      })
+      .select({
+        'month-year': dateAsMonthYear
+      })
+      .where('account', 'in', cashAndBankAccounts)
+      .whereBetween('date', [fromDate, toDate])
+      .groupBy(dateAsMonthYear);
 
     let periodList = getPeriodList(fromDate, toDate, periodicity);
 
