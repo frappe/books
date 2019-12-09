@@ -231,7 +231,7 @@ module.exports = class BaseDocument extends Observable {
 
   async load() {
     let data = await frappe.db.get(this.doctype, this.name);
-    if (data.name) {
+    if (data && data.name) {
       this.syncValues(data);
       if (this.meta.isSingle) {
         this.setDefaults();
