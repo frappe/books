@@ -58,6 +58,13 @@ class DatabaseError extends BaseError {
   }
 }
 
+class CannotCommitError extends DatabaseError {
+  constructor(message) {
+    super(message);
+    this.name = 'CannotCommitError';
+  }
+}
+
 class ValueError extends ValidationError {}
 class Conflict extends ValidationError {}
 
@@ -86,6 +93,7 @@ module.exports = {
   DuplicateEntryError,
   LinkValidationError,
   DatabaseError,
+  CannotCommitError,
   MandatoryError,
   throw: throwError
 };
