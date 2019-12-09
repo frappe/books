@@ -7,7 +7,7 @@
     "frappe": "cli.js"
   },
   "scripts": {
-    "test": "NODE_ENV=test mocha --timeout 3000 tests",
+    "test": "NODE_ENV=test mocha --timeout 3000 tests --exit",
     "test-watch": "NODE_ENV=test mocha --timeout 3000 tests --watch --reporter=min",
     "start": "nodemon app.js"
   },
