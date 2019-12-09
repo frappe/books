@@ -40,7 +40,10 @@
           </div>
         </div>
       </div>
-      <div v-if="totalExpense === 0" class="absolute inset-0 flex justify-center items-center">
+      <div
+        v-if="totalExpense === 0"
+        class="absolute inset-0 flex justify-center items-center"
+      >
         <span class="text-base text-gray-600">
           {{ _('No transactions yet') }}
         </span>
@@ -84,20 +87,21 @@ export default {
   methods: {
     async render() {
       let { fromDate, toDate } = await getDatesAndPeriodicity(this.period);
-
-      let topExpenses = await frappe.db.sql(
-        `
-        select sum(debit) - sum(credit) as total, account from AccountingLedgerEntry
-        where account in (
-          select name from Account where rootType = "Expense"
-        )
-        and date >= $fromDate and date <= $toDate
-        group by account
-        order by total desc
-        limit 5
-      `,
-        { $fromDate: fromDate, $toDate: toDate }
-      );
+      let expenseAccounts = frappe.db.knex
+        .select('name')
+        .from('Account')
+        .where('rootType', 'Expense');
+      let topExpenses = await frappe.db.knex
+        .select({
+          total: frappe.db.knex.raw('sum(??) - sum(??)', ['debit', 'credit'])
+        })
+        .select('account')
+        .from('AccountingLedgerEntry')
+        .where('account', 'in', expenseAccounts)
+        .whereBetween('date', [fromDate, toDate])
+        .groupBy('account')
+        .orderBy('total', 'desc')
+        .limit(5);
 
       let shades = [
         { class: 'bg-gray-800', hex: theme.backgroundColor.gray['800'] },
