@@ -50,6 +50,5 @@ async function handlePDFRequest(req, res) {
 
 module.exports = {
   makePDF,
-  setupExpressRoute,
-  getPDFForElectron
+  setupExpressRoute
 };
