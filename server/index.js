@@ -14,7 +14,6 @@ const common = require('frappejs/common');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const { setupExpressRoute: setRouteForPDF } = require('frappejs/server/pdf');
-const auth = require('./../auth/auth')();
 const morgan = require('morgan');
 const { addWebpackMiddleware } = require('../webpack/serve');
 const { getAppConfig, resolveAppDir } = require('../webpack/utils');
@@ -26,7 +25,7 @@ require.extensions['.html'] = function (module, filename) {
 };
 
 module.exports = {
-    async start({backend, connectionParams, models, authConfig=null}) {
+    async start({backend, connectionParams, models}) {
         await this.init();
 
         if (models) {
@@ -47,10 +46,6 @@ module.exports = {
 
         if (connectionParams.enableCORS) {
             app.use(cors());
-        }
-
-        if(authConfig) {
-            this.setupAuthentication(app, authConfig);
         }
 
         // socketio
@@ -80,7 +75,7 @@ module.exports = {
 
     async init() {
         frappe.isServer = true;
-        await frappe.init();
+        frappe.init();
         frappe.registerModels(frappeModels, 'server');
         frappe.registerLibs(common);
 
@@ -92,11 +87,4 @@ module.exports = {
         await frappe.db.connect();
         await frappe.db.migrate();
     },
-
-    setupAuthentication(app, authConfig) {
-        app.post("/api/signup", auth.signup);
-        app.post("/api/login", auth.login);
-        app.use(auth.initialize(authConfig));
-        app.all("/api/resource/*", auth.authenticate());
-    }
 }
