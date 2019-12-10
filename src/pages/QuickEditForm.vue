@@ -84,7 +84,6 @@
       :fields="fields"
       :autosave="true"
       :column-ratio="[1.1, 2]"
-      @error="showErrorDialog"
     />
   </div>
 </template>
@@ -96,7 +95,7 @@ import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import Dropdown from '@/components/Dropdown';
-import { deleteDocWithPrompt, openQuickEdit, showMessageDialog } from '@/utils';
+import { deleteDocWithPrompt, openQuickEdit } from '@/utils';
 
 export default {
   name: 'QuickEditForm',
@@ -239,12 +238,6 @@ export default {
         }
         input.size = valueLength;
       }
-    },
-
-    showErrorDialog(errorMessage) {
-      showMessageDialog({
-        message: errorMessage
-      });
     }
   }
 };

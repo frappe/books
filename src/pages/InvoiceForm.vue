@@ -182,7 +182,7 @@ import Row from '@/components/Row';
 import Dropdown from '@/components/Dropdown';
 import BackLink from '@/components/BackLink';
 import { openSettings } from '@/pages/Settings/utils';
-import { deleteDocWithPrompt, openQuickEdit } from '@/utils';
+import { deleteDocWithPrompt, handleErrorWithDialog } from '@/utils';
 
 export default {
   name: 'InvoiceForm',
@@ -274,6 +274,7 @@ export default {
         this.routeToList();
         return;
       }
+      throw error;
     }
     this.doc.on('change', ({ changed }) => {
       if (changed === this.partyField.fieldname) {
@@ -300,10 +301,13 @@ export default {
         'items',
         this.doc.items.filter(row => row.item)
       );
-      await this.doc.insertOrUpdate();
+      return this.doc.insertOrUpdate().catch(this.handleError);
     },
-    async onSubmitClick() {
-      await this.doc.submit();
+    onSubmitClick() {
+      return this.doc.submit().catch(this.handleError);
+    },
+    handleError(e) {
+      handleErrorWithDialog(e, this.doc);
     },
     async fetchPartyDoc() {
       if (this.doc[this.partyField.fieldname]) {
