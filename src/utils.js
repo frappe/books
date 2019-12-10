@@ -6,7 +6,6 @@ import { remote, shell } from 'electron';
 import router from '@/router';
 import Avatar from '@/components/Avatar';
 
-
 export function createNewDatabase() {
   return new Promise(resolve => {
     remote.dialog.showSaveDialog(
@@ -80,7 +79,7 @@ export function deleteDocWithPrompt(doc) {
               .then(() => resolve(true))
               .catch(e => {
                 let errorMessage;
-                if (e instanceof frappe.errors.LinkValidationError) {
+                if (e.type === frappe.errors.LinkValidationError) {
                   errorMessage = _('{0} {1} is linked with existing records.', [
                     doc.doctype,
                     doc.name
@@ -149,6 +148,19 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
       lastRoute: currentRoute
     }
   });
+}
+
+export function handleErrorWithDialog(e, doc) {
+  let errorMessage = _('An error occurred.');
+  if (e.type === frappe.errors.DuplicateEntryError) {
+    errorMessage = _('{0} {1} already exists.', [doc.doctype, doc.name]);
+  } else {
+    errorMessage = e.message;
+  }
+  showMessageDialog({
+    message: errorMessage
+  });
+  throw e;
 }
 
 export function makePDF(html, destination) {

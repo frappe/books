@@ -74,6 +74,7 @@
 import { _ } from 'frappejs/utils';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
+import { handleErrorWithDialog } from '@/utils';
 
 let TwoColumnForm = {
   name: 'TwoColumnForm',
@@ -149,17 +150,7 @@ let TwoColumnForm = {
       return this.doc.submit().catch(this.handleError);
     },
     handleError(e) {
-      let errorMessage = _('An error occurred.');
-      if (e instanceof frappe.errors.DuplicateEntryError) {
-        errorMessage = _('{0} {1} already exists.', [
-          this.doc.doctype,
-          this.doc.name
-        ]);
-      } else {
-        errorMessage = e.message;
-      }
-      this.$emit('error', errorMessage);
-      throw e;
+      handleErrorWithDialog(e, this.doc);
     },
     async activateInlineEditing(df) {
       if (df.inline) {
