@@ -54,10 +54,10 @@ const routes = [
     },
     props: {
       default: route => {
-        const { doctype } = route.params;
+        const { doctype, filters } = route.params;
         return {
           doctype,
-          filters: route.query.filters
+          filters
         };
       },
       edit: route => route.query

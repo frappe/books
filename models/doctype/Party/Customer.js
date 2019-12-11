@@ -31,8 +31,9 @@ module.exports = {
       condition: doc => !doc.isNew(),
       action: customer => {
         router.push({
-          path: `/list/SalesInvoice`,
-          query: {
+          name: 'ListView',
+          params: {
+            doctype: 'SalesInvoice',
             filters: {
               customer: customer.name
             }
