@@ -19,7 +19,7 @@
           :key="d.name"
         >
           <div class="flex items-center">
-            <div class="w-3 h-3 rounded" :class="d.class"></div>
+            <div class="w-3 h-3 rounded-sm" :class="d.class"></div>
             <div class="ml-3">{{ d.account }}</div>
           </div>
           <div>{{ frappe.format(d.total, 'Currency') }}</div>

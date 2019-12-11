@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-block rounded px-2 py-1 truncate" :class="getColorClass">
+  <div class="inline-block rounded-md px-2 py-1 truncate" :class="getColorClass">
     <slot></slot>
   </div>
 </template>

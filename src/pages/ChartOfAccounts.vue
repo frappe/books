@@ -11,7 +11,7 @@
     <div class="flex-1 flex px-8 mt-4">
       <div class="flex-1" v-if="root">
         <div
-          class="mt-2 px-4 py-2 cursor-pointer hover:bg-gray-200 rounded-6px"
+          class="mt-2 px-4 py-2 cursor-pointer hover:bg-gray-200 rounded-md"
           v-for="account in allAccounts"
           :key="account.name"
           @click="onClick(account)"

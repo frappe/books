@@ -10,7 +10,7 @@
         }"
       >
         <div
-          class="rounded-6px relative flex items-center overflow-hidden h-full"
+          class="rounded-md relative flex items-center overflow-hidden h-full"
         >
           <div class="absolute flex justify-center w-8">
             <feather-icon name="search" class="w-3 h-3 text-gray-800" />

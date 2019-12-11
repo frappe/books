@@ -40,7 +40,7 @@
                   :value="doc.entryType"
                   placeholder="Entry Type"
                   @change="value => doc.set('entryType', value)"
-                  input-class="bg-gray-100 rounded-lg px-3 py-2 text-base"
+                  input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
                 />
                 <FormControl
@@ -49,7 +49,7 @@
                   :value="doc.date"
                   :placeholder="'Date'"
                   @change="value => doc.set('date', value)"
-                  input-class="bg-gray-100 rounded-lg px-3 py-2 text-base"
+                  input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
                 />
               </div>
@@ -59,7 +59,7 @@
                   :value="doc.referenceNumber"
                   :placeholder="'Reference Number'"
                   @change="value => doc.set('referenceNumber', value)"
-                  input-class="bg-gray-100 rounded-lg p-2 text-base"
+                  input-class="bg-gray-100 p-2 text-base"
                   :show-label="true"
                 />
                 <FormControl
@@ -68,7 +68,7 @@
                   :value="doc.date"
                   :placeholder="'Reference Date'"
                   @change="value => doc.set('referenceDate', value)"
-                  input-class="bg-gray-100 rounded-lg px-3 py-2 text-base"
+                  input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
                 />
               </div>

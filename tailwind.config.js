@@ -40,9 +40,11 @@ module.exports = {
         button: '0 0.5px 0 0 rgba(0, 0, 0, 0.08)'
       },
       borderRadius: {
-        '5px': '5px',
-        '6px': '6px',
-        '12px': '12px'
+        sm: '0.25rem', // 4px
+        default: '0.313rem', // 5px
+        md: '0.375rem', // 6px
+        lg: '0.5rem', // 8px
+        xl: '0.75rem' // 12px
       },
       colors: {
         black: '#112B42',
@@ -61,7 +63,7 @@ module.exports = {
     }
   },
   variants: {
-    margin: ['responsive', 'first', 'hover', 'focus'],
+    margin: ['responsive', 'first', 'last', 'hover', 'focus'],
     backgroundColor: ['responsive', 'first', 'hover', 'focus', 'focus-within']
   },
   plugins: []

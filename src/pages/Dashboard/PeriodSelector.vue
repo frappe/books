@@ -9,7 +9,7 @@
       }"
     >
       <div
-        class="text-sm flex hover:bg-gray-100 focus:outline-none focus:bg-gray-100 items-center px-3 py-2 rounded cursor-pointer"
+        class="text-sm flex hover:bg-gray-100 focus:outline-none focus:bg-gray-100 items-center px-3 py-2 rounded-md cursor-pointer"
         @click="toggleDropdown()"
         tabindex="0"
         @keydown.down="highlightItemDown"

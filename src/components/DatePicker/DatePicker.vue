@@ -18,7 +18,7 @@
           </span>
           <span class="flex">
             <div
-              class="w-5 h-5 hover:bg-gray-100 rounded flex-center cursor-pointer"
+              class="w-5 h-5 hover:bg-gray-100 rounded-md flex-center cursor-pointer"
             >
               <feather-icon
                 @click="prevMonth"
@@ -27,7 +27,7 @@
               />
             </div>
             <div
-              class="ml-2 w-5 h-5 hover:bg-gray-100 rounded flex-center cursor-pointer"
+              class="ml-2 w-5 h-5 hover:bg-gray-100 rounded-md flex-center cursor-pointer"
             >
               <feather-icon
                 @click="nextMonth"

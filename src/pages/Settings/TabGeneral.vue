@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <div class="bg-blue-500 px-6 py-5 rounded-12px flex justify-between items-center">
+    <!-- <div class="bg-blue-500 px-6 py-5 rounded-lg flex justify-between items-center">
       <div class="flex items-center">
         <div class="bg-white rounded-full w-16 h-16 flex-center">
           <svg class="w-6 h-6" viewBox="0 0 24 21" xmlns="http://www.w3.org/2000/svg">

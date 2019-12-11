@@ -1,6 +1,6 @@
 <template>
   <button
-    class="focus:outline-none rounded-6px shadow-button"
+    class="focus:outline-none rounded-md shadow-button"
     :style="style"
     v-bind="$attrs"
     v-on="$listeners"

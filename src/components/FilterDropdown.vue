@@ -68,7 +68,7 @@
               </div>
             </div>
             <div
-              class="ml-2 cursor-pointer w-5 h-5 flex-center hover:bg-gray-100 rounded"
+              class="ml-2 cursor-pointer w-5 h-5 flex-center hover:bg-gray-100 rounded-md"
             >
               <feather-icon
                 name="x"
