@@ -121,7 +121,9 @@ export default {
   },
   methods: {
     onBodyScroll({ scrollLeft }) {
-      this.$refs.header.scrollLeft = scrollLeft;
+      this.$nextTick(() => {
+        this.$refs.header.scrollLeft = scrollLeft;
+      });
     },
     async fetchReportData() {
       let data = await frappe.call({
