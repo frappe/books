@@ -53,7 +53,7 @@ export default {
           'px-2 py-1': this.size === 'small',
           'bg-gray-100': this.background
         },
-        'focus:outline-none focus:bg-gray-200 rounded-5px w-full text-gray-900'
+        'focus:outline-none focus:bg-gray-200 rounded w-full text-gray-900'
       ];
     },
     inputPlaceholder() {

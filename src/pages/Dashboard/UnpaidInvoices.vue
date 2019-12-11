@@ -44,9 +44,9 @@
             }}</span>
           </div>
         </div>
-        <div class="mt-2 relative">
+        <div class="mt-2 relative rounded overflow-hidden">
           <div
-            class="w-full h-4 rounded"
+            class="w-full h-4"
             :class="
               invoice.hasData && invoice.color == 'blue'
                 ? 'bg-blue-200'
@@ -54,7 +54,7 @@
             "
           ></div>
           <div
-            class="absolute inset-0 h-4 rounded"
+            class="absolute inset-0 h-4"
             :class="
               invoice.hasData && invoice.color == 'blue'
                 ? 'bg-blue-500'

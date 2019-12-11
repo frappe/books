@@ -10,7 +10,7 @@
     </div>
     <div
       :class="right ? 'right-0' : 'left-0'"
-      class="mt-1 absolute z-10 bg-white rounded-5px border w-full min-w-40 shadow-md"
+      class="mt-1 absolute z-10 bg-white rounded border w-full min-w-40 shadow-md"
       v-if="isShown"
     >
       <div class="p-1 max-h-64 overflow-auto">
@@ -24,7 +24,7 @@
           <a
             v-else
             ref="items"
-            class="block p-2 rounded mt-1 first:mt-0 cursor-pointer truncate"
+            class="block p-2 rounded-md mt-1 first:mt-0 cursor-pointer truncate"
             :class="d.index === highlightedIndex ? 'bg-gray-100' : ''"
             @mouseenter="highlightedIndex = d.index"
             @mouseleave="highlightedIndex = -1"

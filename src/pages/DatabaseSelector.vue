@@ -7,7 +7,7 @@
     <div class="flex mt-10">
       <div
         @click="newDatabase"
-        class="w-1/2 border rounded-12px flex flex-col items-center py-8 px-5 cursor-pointer hover:shadow"
+        class="w-1/2 border rounded-xl flex flex-col items-center py-8 px-5 cursor-pointer hover:shadow"
       >
         <div class="w-14 h-14 rounded-full bg-blue-200 relative flex-center">
           <div class="w-12 h-12 absolute rounded-full bg-blue-500 flex-center">
@@ -21,7 +21,7 @@
       </div>
       <div
         @click="existingDatabase"
-        class="ml-6 w-1/2 border rounded-12px flex flex-col items-center py-8 px-5 cursor-pointer hover:shadow"
+        class="ml-6 w-1/2 border rounded-xl flex flex-col items-center py-8 px-5 cursor-pointer hover:shadow"
       >
         <div class="w-14 h-14 rounded-full bg-green-200 relative flex-center">
           <div class="w-12 h-12 rounded-full bg-green-500 flex-center">

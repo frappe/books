@@ -21,7 +21,7 @@
     </div>
     <div class="overflow-y-auto">
       <div
-        class="px-3 flex hover:bg-gray-100 rounded"
+        class="px-3 flex hover:bg-gray-100 rounded-md"
         v-for="(doc, i) in data"
         :key="doc.name"
       >

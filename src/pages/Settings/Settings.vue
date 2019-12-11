@@ -11,7 +11,7 @@
         <div
           v-for="(tab, i) in tabs"
           :key="tab.label"
-          class="p-2 rounded-6px hover:bg-white flex flex-col items-center justify-center cursor-pointer"
+          class="p-2 rounded-md hover:bg-white flex flex-col items-center justify-center cursor-pointer"
           :class="i === activeTab && 'bg-white shadow text-blue-500'"
           @click="activeTab = i"
         >

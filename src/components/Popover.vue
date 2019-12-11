@@ -7,7 +7,7 @@
       <div
         ref="popover"
         :class="popoverClass"
-        class="mt-1 bg-white rounded-5px border min-w-40 shadow-md"
+        class="mt-1 bg-white rounded border min-w-40 shadow-md"
         v-show="isOpen"
       >
         <slot name="content" :toggleDropdown="toggleDropdown"></slot>
