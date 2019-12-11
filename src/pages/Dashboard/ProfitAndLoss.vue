@@ -10,7 +10,7 @@
       />
     </SectionHeader>
     <div v-if="hasData" class="chart-wrapper" ref="profit-and-loss"></div>
-    <div class="flex-1 w-full h-full flex justify-center items-center" v-else>
+    <div class="flex-1 w-full h-full flex-center" v-else>
       <span class="text-base text-gray-600">
         {{ _('No transactions yet') }}
       </span>

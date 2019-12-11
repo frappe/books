@@ -40,7 +40,7 @@
         <div class="mt-2 text-sm">
           <div class="flex w-full text-gray-600">
             <div
-              class="w-6 h-6 mr-1 last:mr-0 flex items-center justify-center text-center"
+              class="w-6 h-6 mr-1 last:mr-0 flex-center text-center"
               v-for="d in ['S', 'M', 'T', 'W', 'T', 'F', 'S']"
             >
               {{ d }}
@@ -51,7 +51,7 @@
               <div
                 v-for="date in week"
                 :key="toValue(date)"
-                class="w-6 h-6 mr-1 last:mr-0 flex items-center justify-center cursor-pointer rounded-md hover:bg-blue-100 hover:text-blue-500"
+                class="w-6 h-6 mr-1 last:mr-0 flex-center cursor-pointer rounded-md hover:bg-blue-100 hover:text-blue-500"
                 :class="{
                   'text-gray-600': date.getMonth() !== currentMonth - 1,
                   'bg-blue-100 font-semibold text-blue-500':

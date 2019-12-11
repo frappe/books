@@ -24,7 +24,7 @@
           <a
             v-else
             ref="items"
-            class="block p-2 rounded mt-1 first:mt-0 cursor-pointer whitespace-no-wrap"
+            class="block p-2 rounded mt-1 first:mt-0 cursor-pointer truncate"
             :class="d.index === highlightedIndex ? 'bg-gray-100' : ''"
             @mouseenter="highlightedIndex = d.index"
             @mouseleave="highlightedIndex = -1"
