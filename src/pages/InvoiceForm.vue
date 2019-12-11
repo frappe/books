@@ -80,23 +80,24 @@
             </div>
           </div>
           <div class="mt-8 px-6">
-            <div class="flex justify-between">
+            <h1 class="text-2xl font-semibold">
+              {{ doc._notInserted ? _('New Invoice') : doc.name }}
+            </h1>
+            <div class="flex justify-between mt-2">
               <div class="w-1/3">
-                <h1 class="text-2xl font-semibold">
-                  {{ doc._notInserted ? _('New Invoice') : doc.name }}
-                </h1>
                 <FormControl
-                  class="mt-2"
-                  input-class="bg-gray-100 rounded-lg px-3 py-2 text-base"
-                  :df="meta.getField('date')"
-                  :value="doc.date"
-                  :placeholder="'Date'"
-                  @change="value => doc.set('date', value)"
+                  class="text-base"
+                  input-class="bg-gray-100 p-2 text-lg font-semibold"
+                  :df="meta.getField(partyField.fieldname)"
+                  :value="doc[partyField.fieldname]"
+                  :placeholder="partyField.label"
+                  @change="value => doc.set(partyField.fieldname, value)"
+                  @new-doc="party => doc.set(partyField.fieldname, party.name)"
                   :read-only="doc.submitted"
                 />
                 <FormControl
                   class="mt-2 text-base"
-                  input-class="bg-gray-100 rounded-lg px-3 py-2 text-base"
+                  input-class="bg-gray-100 px-3 py-2 text-base"
                   :df="meta.getField('account')"
                   :value="doc.account"
                   :placeholder="'Account'"
@@ -106,27 +107,13 @@
               </div>
               <div class="w-1/3">
                 <FormControl
-                  class="text-base"
-                  input-class="bg-gray-100 rounded-lg p-2 text-right text-lg font-semibold"
-                  :df="meta.getField(partyField.fieldname)"
-                  :value="doc[partyField.fieldname]"
-                  :placeholder="partyField.label"
-                  @change="value => doc.set(partyField.fieldname, value)"
-                  @new-doc="party => doc.set(partyField.fieldname, party.name)"
+                  input-class="bg-gray-100 px-3 py-2 text-base text-right"
+                  :df="meta.getField('date')"
+                  :value="doc.date"
+                  :placeholder="'Date'"
+                  @change="value => doc.set('date', value)"
                   :read-only="doc.submitted"
                 />
-                <div
-                  v-if="partyDoc"
-                  class="mt-1 text-xs text-gray-600 text-right"
-                >
-                  {{ partyDoc.addressDisplay }}
-                </div>
-                <div
-                  v-if="partyDoc && partyDoc.gstin"
-                  class="mt-1 text-xs text-gray-600 text-right"
-                >
-                  GSTIN: {{ partyDoc.gstin }}
-                </div>
               </div>
             </div>
           </div>
@@ -204,7 +191,6 @@ export default {
   data() {
     return {
       doc: null,
-      partyDoc: null,
       printSettings: null,
       companyName: null
     };
@@ -276,12 +262,6 @@ export default {
       }
       throw error;
     }
-    this.doc.on('change', ({ changed }) => {
-      if (changed === this.partyField.fieldname) {
-        this.fetchPartyDoc();
-      }
-    });
-    this.fetchPartyDoc();
     this.printSettings = await frappe.getSingle('PrintSettings');
     this.companyName = (
       await frappe.getSingle('AccountingSettings')
@@ -308,14 +288,6 @@ export default {
     },
     handleError(e) {
       handleErrorWithDialog(e, this.doc);
-    },
-    async fetchPartyDoc() {
-      if (this.doc[this.partyField.fieldname]) {
-        this.partyDoc = await frappe.getDoc(
-          'Party',
-          this.doc[this.partyField.fieldname]
-        );
-      }
     },
     openInvoiceSettings() {
       openSettings('Invoice');
