@@ -120,25 +120,21 @@ export default {
 
       return c;
     },
-    async getChildren(parent = '') {
+    async getChildren(parent = null) {
       const children = await frappe.db.getAll({
         doctype: this.doctype,
         filters: {
           parentAccount: parent
         },
-        fields: [
-          'name',
-          'parentAccount',
-          'isGroup',
-          'balance',
-          'rootType',
-          '0 as expanded'
-        ],
+        fields: ['name', 'parentAccount', 'isGroup', 'balance', 'rootType'],
         orderBy: 'name',
         order: 'asc'
       });
 
-      return children;
+      return children.map(d => {
+        d.expanded = 0;
+        return d;
+      });
     },
     updateBalance(balance) {
       this.root.balance += balance;
