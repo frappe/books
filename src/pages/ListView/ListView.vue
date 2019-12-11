@@ -46,7 +46,7 @@ export default {
     Icon,
     FilterDropdown
   },
-  mounted() {
+  activated() {
     if (typeof this.filters === 'object') {
       this.$refs.filterDropdown.setFilter(this.filters);
     }
