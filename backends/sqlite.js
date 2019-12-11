@@ -16,7 +16,8 @@ class SqliteDatabase extends Database {
           done();
         }
       },
-      useNullAsDefault: true
+      useNullAsDefault: true,
+      asyncStackTraces: process.env.NODE_ENV === 'development'
     };
   }
 

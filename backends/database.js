@@ -160,7 +160,7 @@ module.exports = class Database extends Observable {
   }
 
   async getForeignKeys(doctype, field) {
-    return []
+    return [];
   }
 
   async getTableColumns(doctype) {
@@ -178,6 +178,9 @@ module.exports = class Database extends Observable {
         throw new frappe.errors.ValueError('name is mandatory');
       }
       doc = await this.getOne(doctype, name, fields);
+    }
+    if (!doc) {
+      return;
     }
     await this.loadChildren(doc, meta);
     return doc;
@@ -316,7 +319,9 @@ module.exports = class Database extends Observable {
   updateOne(doctype, doc) {
     let validFields = this.getValidFields(doctype);
     let fieldsToUpdate = Object.keys(doc).filter(f => f !== 'name');
-    let fields = validFields.filter(df => fieldsToUpdate.includes(df.fieldname));
+    let fields = validFields.filter(df =>
+      fieldsToUpdate.includes(df.fieldname)
+    );
     let formattedDoc = this.getFormattedDoc(fields, doc);
 
     return this.knex(doctype)
@@ -361,6 +366,8 @@ module.exports = class Database extends Observable {
       .update({ name: newName })
       .where('name', oldName);
     await frappe.db.commit();
+
+    this.triggerChange(doctype, newName);
   }
 
   prepareChild(parenttype, parent, child, field, idx) {
@@ -574,7 +581,11 @@ module.exports = class Database extends Observable {
 
     filtersArray.map(filter => {
       const [field, operator, comparisonValue] = filter;
-      builder.where(field, operator, comparisonValue);
+      if (operator === '=') {
+        builder.where(field, comparisonValue);
+      } else {
+        builder.where(field, operator, comparisonValue);
+      }
     });
   }
 
