@@ -11,6 +11,7 @@ import { ipcRenderer } from 'electron';
 
 // vue imports
 import Vue from 'vue';
+import PortalVue from 'portal-vue';
 import App from './App';
 import router from './router';
 
@@ -215,6 +216,7 @@ import router from './router';
   Vue.config.productionTip = false;
   Vue.component('feather-icon', FeatherIcon);
   Vue.directive('on-outside-click', outsideClickDirective);
+  Vue.use(PortalVue);
   Vue.mixin({
     computed: {
       frappe() {
