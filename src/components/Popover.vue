@@ -1,43 +1,91 @@
 <template>
-  <div class="relative" v-on-outside-click="() => toggleDropdown(false)">
+  <div ref="reference">
     <div class="h-full">
       <slot name="target" :toggleDropdown="toggleDropdown"></slot>
     </div>
-    <div
-      :class="right ? 'right-0' : 'left-0'"
-      class="mt-1 absolute z-10 bg-white rounded-5px border min-w-40 shadow-md"
-      v-if="isShown"
-    >
-      <slot name="content"></slot>
-    </div>
+    <portal to="popovers">
+      <div
+        ref="popover"
+        :class="popoverClass"
+        class="mt-1 bg-white rounded-5px border min-w-40 shadow-md"
+        v-show="isOpen"
+      >
+        <slot name="content" :toggleDropdown="toggleDropdown"></slot>
+      </div>
+    </portal>
   </div>
 </template>
 
 <script>
+import Popper from 'popper.js';
+
 export default {
   name: 'Popover',
-  props: ['right'],
+  props: {
+    right: Boolean,
+    popoverClass: [String, Object, Array]
+  },
   data() {
     return {
-      isShown: false
+      isOpen: false
     };
   },
-  watch: {
-    isShown(newVal, oldVal) {
-      if (newVal === false) {
-        this.$emit('hide');
+  mounted() {
+    let listener = e => {
+      let $els = [this.$refs.reference, this.$refs.popover];
+      let insideClick = $els.some(
+        $el => $el && (e.target === $el || $el.contains(e.target))
+      );
+      if (insideClick) {
+        return;
       }
-      if (newVal === true) {
-        this.$emit('show');
-      }
-    }
+      this.close();
+    };
+    document.addEventListener('click', listener);
+    this.$once('hook:beforeDestroy', () => {
+      document.removeEventListener('click', listener);
+    });
+  },
+  beforeDestroy() {
+    this.popper.destroy();
   },
   methods: {
-    toggleDropdown(flag, from) {
-      if (flag == null) {
-        flag = !this.isShown;
+    setupPopper() {
+      if (!this.popper) {
+        this.popper = new Popper(this.$refs.reference, this.$refs.popover, {
+          placement: this.right ? 'bottom-end' : 'bottom-start'
+        });
+      } else {
+        this.popper.scheduleUpdate();
       }
-      this.isShown = Boolean(flag);
+    },
+    toggleDropdown(flag) {
+      if (flag == null) {
+        flag = !this.isOpen;
+      }
+      flag = Boolean(flag);
+      if (flag) {
+        this.open();
+      } else {
+        this.close();
+      }
+    },
+    open() {
+      if (this.isOpen) {
+        return;
+      }
+      this.isOpen = true;
+      this.$nextTick(() => {
+        this.setupPopper();
+      });
+      this.$emit('open');
+    },
+    close() {
+      if (!this.isOpen) {
+        return;
+      }
+      this.isOpen = false;
+      this.$emit('close');
     }
   }
 };

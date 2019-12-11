@@ -4,6 +4,7 @@
     <database-selector v-if="showDatabaseSelector" @file="connectToDBFile" />
     <setup-wizard v-if="showSetupWizard" />
     <Settings v-if="showSettings" />
+    <portal-target name="popovers" multiple></portal-target>
   </div>
 </template>
 

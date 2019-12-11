@@ -63,9 +63,10 @@
     "frappe-charts": "^1.2.4",
     "frappejs": "https://github.com/frappe/frappejs",
     "nodemailer": "^4.7.0",
-    "popper.js": "^1.14.4",
     "vue-color": "^2.7.0",
-    "vue-toasted": "^1.1.25"
+    "vue-toasted": "^1.1.25",
+    "portal-vue": "2.1.6",
+    "popper.js": "1.16.0"
   },
   "devDependencies": {
     "electron-builder": "^21.2.0"

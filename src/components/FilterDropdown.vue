@@ -1,5 +1,5 @@
 <template>
-  <Popover :right="true" @hide="emitFilterChange">
+  <Popover @close="emitFilterChange" right>
     <template v-slot:target="{ toggleDropdown }">
       <Button :icon="true" @click="toggleDropdown()">
         <span class="flex items-center">
@@ -19,7 +19,7 @@
       <div class="p-3">
         <template v-if="filters.length">
           <div
-            :key="filter.fieldname + filter.conditions + filter.value"
+            :key="frappe.getRandomString()"
             v-for="(filter, i) in filters"
             class="flex items-center justify-between text-base"
             :class="i !== 0 && 'mt-2'"
