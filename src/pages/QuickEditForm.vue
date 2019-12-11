@@ -52,7 +52,7 @@
         </Button>
       </div>
     </div>
-    <div class="px-4 pt-2 pb-4 flex items-center justify-center" v-if="doc">
+    <div class="px-4 pt-2 pb-4 flex-center" v-if="doc">
       <div class="flex flex-col items-center">
         <FormControl
           v-if="imageField"

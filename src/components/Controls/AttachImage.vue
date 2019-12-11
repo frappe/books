@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative border rounded-full flex justify-center items-center overflow-hidden cursor-pointer"
+    class="relative border rounded-full flex-center overflow-hidden cursor-pointer"
     :class="{ 'w-20 h-20': size !== 'small', 'w-16 h-16': size === 'small' }"
     @mouseover="showEdit = true"
     @mouseleave="showEdit = false"

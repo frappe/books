@@ -35,6 +35,12 @@ html {
   display: inline-grid;
 }
 
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .frappe-chart .chart-legend {
   display: none;
 }
