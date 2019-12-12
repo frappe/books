@@ -167,36 +167,28 @@ export function makePDF(html, destination) {
   const { BrowserWindow } = remote;
 
   let printWindow = new BrowserWindow({
-    width: 600,
-    height: 800,
+    width: 595,
+    height: 842,
     show: false,
     webPreferences: {
       nodeIntegration: true
     }
   });
 
-  let url;
-  if (process.env.NODE_ENV === 'development') {
-    url = `http://localhost:${process.env.PORT}/static/print.html`;
+  let webpackDevServerURL = remote.getGlobal('WEBPACK_DEV_SERVER_URL');
+  if (webpackDevServerURL) {
+    // Load the url of the dev server if in development mode
+    printWindow.loadURL(webpackDevServerURL + 'print');
   } else {
-    let printPath = path.join(
-      remote.app.getAppPath(),
-      'dist',
-      'electron',
-      'static',
-      'print.html'
-    );
-    url = `file://${printPath}`;
+    // Load the index.html when not in development
+    printWindow.loadURL(`app://./print.html`);
   }
-
-  printWindow.loadURL(url);
 
   printWindow.on('closed', () => {
     printWindow = null;
   });
 
   const code = `
-    let el = document.querySelector('.printTarget');
     document.body.innerHTML = \`${html}\`;
   `;
 
