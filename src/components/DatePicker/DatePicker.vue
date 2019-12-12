@@ -6,7 +6,10 @@
           {{ formatValue ? formatValue(value) : value }}
         </span>
         <span class="text-gray-600" v-else>
-          {{ placeholder }}
+          <template v-if="placeholder">
+            {{ placeholder }}
+          </template>
+          <span v-else v-html="'&nbsp;'"></span>
         </span>
       </div>
     </template>
@@ -42,6 +45,7 @@
             <div
               class="w-6 h-6 mr-1 last:mr-0 flex-center text-center"
               v-for="d in ['S', 'M', 'T', 'W', 'T', 'F', 'S']"
+              :key="d"
             >
               {{ d }}
             </div>
@@ -74,14 +78,12 @@
 
 <script>
 import Popover from '../Popover';
-import Row from '../Row';
 
 export default {
   name: 'DatePicker',
   props: ['value', 'placeholder', 'readonly', 'formatValue'],
   components: {
-    Popover,
-    Row
+    Popover
   },
   data() {
     return {

@@ -47,7 +47,7 @@ export default {
     });
   },
   beforeDestroy() {
-    this.popper.destroy();
+    this.popper && this.popper.destroy();
   },
   methods: {
     setupPopper() {

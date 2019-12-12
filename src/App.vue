@@ -10,6 +10,7 @@
 
 <script>
 import './styles/index.css';
+import 'frappe-charts/dist/frappe-charts.min.css';
 import frappe from 'frappejs';
 import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
