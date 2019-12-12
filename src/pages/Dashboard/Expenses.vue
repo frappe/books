@@ -40,10 +40,7 @@
           </div>
         </div>
       </div>
-      <div
-        v-if="totalExpense === 0"
-        class="absolute inset-0 flex-center"
-      >
+      <div v-if="totalExpense === 0" class="absolute inset-0 flex-center">
         <span class="text-base text-gray-600">
           {{ _('No transactions yet') }}
         </span>
@@ -70,7 +67,7 @@ export default {
     period: 'This Year',
     expenses: [{ account: 'Test', total: 0 }]
   }),
-  mounted() {
+  activated() {
     this.render();
   },
   watch: {
@@ -118,7 +115,7 @@ export default {
 
       this.expenses = topExpenses;
 
-      let chart = new Chart(this.$refs['top-expenses'], {
+      new Chart(this.$refs['top-expenses'], {
         type: 'donut',
         hoverRadio: 0.01,
         strokeWidth: 18,
