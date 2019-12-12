@@ -109,7 +109,7 @@ export default {
   watch: {
     period: 'render'
   },
-  mounted() {
+  activated() {
     this.render();
   },
   methods: {

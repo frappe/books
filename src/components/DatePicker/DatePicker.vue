@@ -44,8 +44,8 @@
           <div class="flex w-full text-gray-600">
             <div
               class="w-6 h-6 mr-1 last:mr-0 flex-center text-center"
-              v-for="d in ['S', 'M', 'T', 'W', 'T', 'F', 'S']"
-              :key="d"
+              v-for="(d, i) in ['S', 'M', 'T', 'W', 'T', 'F', 'S']"
+              :key="i"
             >
               {{ d }}
             </div>

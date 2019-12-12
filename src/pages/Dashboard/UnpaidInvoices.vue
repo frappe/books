@@ -113,13 +113,13 @@ export default {
     salesInvoicePeriod: 'calculateInvoiceTotals',
     purchaseInvoicePeriod: 'calculateInvoiceTotals'
   },
-  mounted() {
+  activated() {
     this.calculateInvoiceTotals();
   },
   methods: {
     async calculateInvoiceTotals() {
       let promises = this.invoices.map(async d => {
-        let { fromDate, toDate, periodicity } = await getDatesAndPeriodicity(
+        let { fromDate, toDate } = await getDatesAndPeriodicity(
           this.$data[d.periodKey]
         );
 
@@ -127,6 +127,7 @@ export default {
           .knex(d.doctype)
           .sum({ total: 'baseGrandTotal' })
           .sum({ outstanding: 'outstandingAmount' })
+          .where('submitted', 1)
           .whereBetween('date', [fromDate, toDate])
           .first();
 

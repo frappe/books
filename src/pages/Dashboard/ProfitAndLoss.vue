@@ -32,7 +32,7 @@ export default {
     SectionHeader
   },
   data: () => ({ period: 'This Year', hasData: false }),
-  mounted() {
+  activated() {
     this.render();
   },
   watch: {
