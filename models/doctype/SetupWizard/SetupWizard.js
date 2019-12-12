@@ -55,6 +55,7 @@ module.exports = {
     {
       fieldname: 'fiscalYearStart',
       label: 'Fiscal Year Start Date',
+      placeholder: 'Fiscal Year Start Date',
       fieldtype: 'Date',
       formula: doc => {
         if (!doc.country) return;
@@ -72,6 +73,7 @@ module.exports = {
     {
       fieldname: 'fiscalYearEnd',
       label: 'Fiscal Year End Date',
+      placeholder: 'Fiscal Year End Date',
       fieldtype: 'Date',
       formula: doc => {
         if (!doc.country) return;
@@ -111,7 +113,7 @@ module.exports = {
     'country',
     'currency',
     'fiscalYearStart',
-    'fiscalYearEnd',
+    'fiscalYearEnd'
   ],
 
   layout: {
