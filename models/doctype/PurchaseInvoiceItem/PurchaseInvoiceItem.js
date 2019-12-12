@@ -1,11 +1,8 @@
 module.exports = {
   name: 'PurchaseInvoiceItem',
-  label: 'Purchase Invoice Item',
   doctype: 'DocType',
-  isSingle: 0,
   isChild: 1,
   keywordFields: [],
-  layout: 'ratio',
   tableFields: ['item', 'tax', 'quantity', 'rate', 'amount'],
   fields: [
     {
@@ -26,7 +23,8 @@ module.exports = {
       fieldname: 'quantity',
       label: 'Quantity',
       fieldtype: 'Float',
-      required: 1
+      required: 1,
+      formula: () => 1
     },
     {
       fieldname: 'rate',
@@ -69,7 +67,7 @@ module.exports = {
       label: 'Amount',
       fieldtype: 'Currency',
       readOnly: 1,
-      formula: (row, doc) => row.quantity * row.rate,
+      formula: row => row.quantity * row.rate,
       getCurrency: (row, doc) => doc.currency
     },
     {

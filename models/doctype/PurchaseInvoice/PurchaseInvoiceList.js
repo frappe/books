@@ -3,7 +3,7 @@ import { getStatusColumn } from '../Transaction/Transaction';
 
 export default {
   doctype: 'PurchaseInvoice',
-  title: _('Purchase Invoice'),
+  title: _('Bills'),
   formRoute: name => `/edit/PurchaseInvoice/${name}`,
   columns: [
     'supplier',
