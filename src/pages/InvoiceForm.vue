@@ -81,7 +81,13 @@
           </div>
           <div class="mt-8 px-6">
             <h1 class="text-2xl font-semibold">
-              {{ doc._notInserted ? _('New Invoice') : doc.name }}
+              {{
+                doc._notInserted
+                  ? doc.doctype === 'SalesInvoice'
+                    ? _('New Invoice')
+                    : _('New Bill')
+                  : doc.name
+              }}
             </h1>
             <div class="flex justify-between mt-2">
               <div class="w-1/3">
@@ -165,7 +171,6 @@ import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
-import Row from '@/components/Row';
 import Dropdown from '@/components/Dropdown';
 import BackLink from '@/components/BackLink';
 import { openSettings } from '@/pages/Settings/utils';
@@ -178,7 +183,6 @@ export default {
     PageHeader,
     Button,
     FormControl,
-    Row,
     Dropdown,
     BackLink
   },
@@ -208,7 +212,7 @@ export default {
       );
     },
     itemTableColumnRatio() {
-      return [0.3].concat(this.itemTableFields.map(_ => 1));
+      return [0.3].concat(this.itemTableFields.map(() => 1));
     },
     partyField() {
       let fieldname = {
@@ -230,13 +234,7 @@ export default {
           template: `<span class="text-red-700">{{ _('Delete') }}</span>`
         },
         condition: doc => !doc.isNew() && !doc.submitted,
-        action: () => {
-          deleteDocWithPrompt(this.doc).then(res => {
-            if (res) {
-              this.routeToList();
-            }
-          });
-        }
+        action: this.deleteAction
       };
       let actions = [...(this.meta.actions || []), deleteAction]
         .filter(d => (d.condition ? d.condition(this.doc) : true))
@@ -282,6 +280,13 @@ export default {
         this.doc.items.filter(row => row.item)
       );
       return this.doc.insertOrUpdate().catch(this.handleError);
+    },
+    deleteAction() {
+      return deleteDocWithPrompt(this.doc).then(res => {
+        if (res) {
+          this.routeToList();
+        }
+      });
     },
     onSubmitClick() {
       return this.doc.submit().catch(this.handleError);
