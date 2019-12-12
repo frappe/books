@@ -97,9 +97,9 @@ module.exports = class Database extends Observable {
     }
 
     // link
-    if (field.fieldtype === 'Link' && field.target && column.foreign) {
+    if (field.fieldtype === 'Link' && field.target) {
       let meta = frappe.getMeta(field.target);
-      column
+      table
         .foreign(field.fieldname)
         .references('name')
         .inTable(meta.getBaseDocType())
