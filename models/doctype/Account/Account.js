@@ -1,3 +1,5 @@
+const frappe = require('frappejs');
+
 module.exports = {
   name: 'Account',
   label: 'Account',
@@ -87,24 +89,8 @@ module.exports = {
     'rootType',
     'parentAccount',
     'accountType',
-    'balance',
-    'isGroup',
+    'isGroup'
   ],
-
-  events: {
-    validate: doc => {}
-  },
-
-  listSettings: {
-    getFields(list) {
-      return ['name', 'accountType', 'rootType'];
-    },
-    getRowHTML(list, data) {
-      return `<div class="col-11">${list.getNameHTML(data)} (${
-        data.rootType
-      })</div>`;
-    }
-  },
 
   treeSettings: {
     parentField: 'parentAccount',
