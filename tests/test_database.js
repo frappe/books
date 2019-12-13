@@ -2,7 +2,7 @@ const assert = require('assert');
 const frappe = require('frappejs');
 const helpers = require('./helpers');
 
-describe('Database', () => {
+describe('Database CRUD', () => {
   before(async function() {
     await helpers.initSqlite();
   });
