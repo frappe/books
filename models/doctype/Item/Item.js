@@ -1,3 +1,5 @@
+const frappe = require('frappejs');
+
 module.exports = {
   name: 'Item',
   doctype: 'DocType',
@@ -25,8 +27,8 @@ module.exports = {
       fieldname: 'unit',
       label: 'Unit Type',
       fieldtype: 'Select',
-      default: 'No',
-      options: ['No', 'Kg', 'Gram', 'Hour', 'Day']
+      default: 'Unit',
+      options: ['Unit', 'Kg', 'Gram', 'Hour', 'Day']
     },
     {
       fieldname: 'incomeAccount',
@@ -36,7 +38,7 @@ module.exports = {
       placeholder: 'Sales',
       required: 1,
       disableCreation: true,
-      getFilters: query => {
+      getFilters: () => {
         return {
           isGroup: 0,
           accountType: 'Income Account'
@@ -51,7 +53,7 @@ module.exports = {
       placeholder: 'Cost of Goods Sold',
       required: 1,
       disableCreation: true,
-      getFilters: query => {
+      getFilters: () => {
         return {
           isGroup: 0,
           accountType: [
