@@ -1,0 +1,5 @@
+productName: Frappe Accounting
+appId: io.frappe.accounting
+snap:
+  publish:
+    - github

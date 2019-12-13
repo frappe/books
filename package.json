@@ -1,7 +1,6 @@
 {
   "name": "frappe-accounting",
   "description": "Simple Accounting app for everyone",
-  "productName": "Frappe Accounting",
   "version": "0.0.2",
   "author": {
     "name": "Frappe Technologies Pvt. Ltd.",
