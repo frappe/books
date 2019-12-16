@@ -27,6 +27,10 @@ html {
   -webkit-app-region: drag;
 }
 
+.window-no-drag {
+  -webkit-app-region: no-drag;
+}
+
 .grid {
   display: grid;
 }

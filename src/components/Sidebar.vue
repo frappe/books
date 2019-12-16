@@ -1,12 +1,18 @@
 <template>
   <div
-    class="pt-6 pb-2 px-2 h-full block window-drag flex justify-between flex-col"
-    style="background-color: rgba(255, 255, 255, 0.6)"
+    class="pt-6 pb-2 px-2 h-full block window-drag flex justify-between flex-col bg-gray-100"
+    :style="sidebarBackground"
   >
-    <div>
-      <WindowControls class="px-3" :buttons="['close', 'minimize']" />
-      <div class="mt-6 px-3">
-        <h6 class="text-base font-semibold" @click="$router.push('/')">{{ companyName }}</h6>
+    <div class="window-no-drag">
+      <WindowControls
+        v-if="platform === 'Mac'"
+        class="px-3 mb-6"
+        :buttons="['close', 'minimize']"
+      />
+      <div class="px-3">
+        <h6 class="text-base font-semibold" @click="$router.push('/')">
+          {{ companyName }}
+        </h6>
       </div>
       <div class="mt-5">
         <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.title">
@@ -22,7 +28,9 @@
             <div
               class="ml-2 text-lg text-gray-900"
               :class="isActiveGroup(group) && !group.items && 'text-blue-500'"
-            >{{ group.title }}</div>
+            >
+              {{ group.title }}
+            </div>
           </div>
           <div v-if="group.items && isActiveGroup(group)">
             <div
@@ -31,7 +39,9 @@
               class="mt-1 first:mt-0 text-base text-gray-800 py-1 pl-10 rounded cursor-pointer hover:bg-white"
               :class="itemActiveClass(item)"
               @click="routeTo(item.route)"
-            >{{ item.label }}</div>
+            >
+              {{ item.label }}
+            </div>
           </div>
         </div>
       </div>
@@ -41,7 +51,6 @@
 <script>
 import sidebarConfig from '../sidebarConfig';
 import WindowControls from './WindowControls';
-import { _ } from 'frappejs/utils';
 
 export default {
   data() {
@@ -51,8 +60,17 @@ export default {
       activeGroup: null
     };
   },
+  computed: {
+    sidebarBackground() {
+      return this.platform === 'Mac'
+        ? {
+            'background-color': 'rgba(255, 255, 255, 0.6)'
+          }
+        : null;
+    }
+  },
   components: {
-    WindowControls,
+    WindowControls
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
@@ -94,4 +112,3 @@ export default {
   }
 };
 </script>
-
