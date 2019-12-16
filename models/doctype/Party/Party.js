@@ -1,3 +1,4 @@
+const frappe = require('frappejs');
 let { _ } = require('frappejs/utils');
 
 module.exports = {
@@ -17,7 +18,7 @@ module.exports = {
     {
       fieldname: 'image',
       label: 'Image',
-      fieldtype: 'AttachImage',
+      fieldtype: 'AttachImage'
     },
     {
       fieldname: 'customer',
@@ -39,6 +40,14 @@ module.exports = {
           isGroup: 0,
           accountType: doc.customer ? 'Receivable' : 'Payable'
         };
+      },
+      formula: doc => {
+        if (doc.customer) {
+          return 'Debtors';
+        }
+        if (doc.supplier) {
+          return 'Creditors';
+        }
       }
     },
     {
@@ -51,7 +60,8 @@ module.exports = {
       label: 'Currency',
       fieldtype: 'Link',
       target: 'Currency',
-      placeholder: 'INR'
+      placeholder: 'INR',
+      formula: () => frappe.AccountingSettings.currency
     },
     {
       fieldname: 'email',
@@ -86,7 +96,7 @@ module.exports = {
     }
   ],
 
-  quickEditFields: ['defaultAccount', 'currency', 'email', 'phone', 'address'],
+  quickEditFields: ['email', 'phone', 'address', 'defaultAccount', 'currency'],
 
   getFormTitle(doc) {
     if (doc.customer) return 'Customer';
