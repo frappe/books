@@ -217,6 +217,13 @@ import router from './router';
     computed: {
       frappe() {
         return frappe;
+      },
+      platform() {
+        return {
+          win32: 'Windows',
+          darwin: 'Mac',
+          linux: 'Linux'
+        }[process.platform];
       }
     },
     methods: {

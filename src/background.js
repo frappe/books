@@ -7,6 +7,7 @@ import {
 } from 'vue-cli-plugin-electron-builder/lib';
 import theme from '@/theme';
 const isDevelopment = process.env.NODE_ENV !== 'production';
+const isMac = process.platform === 'darwin';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -22,7 +23,7 @@ function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     vibrancy: 'sidebar',
-    transparent: true,
+    transparent: isMac,
     backgroundColor: '#80FFFFFF',
     width: 1200,
     height: 907,
@@ -30,7 +31,7 @@ function createWindow() {
       nodeIntegration: true
     },
     frame: false,
-    resizable: false
+    resizable: true
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {

@@ -3,11 +3,16 @@
     <div class="bg-gray-200 window-drag pb-2">
       <div class="p-2">
         <WindowControls
+          v-if="platform === 'Mac'"
           @close="frappe.events.trigger('reload-main-window')"
           :buttons="['close']"
         />
       </div>
-      <Row :columnCount="5" class="px-6 border-none w-full" gap="0.5rem">
+      <Row
+        :columnCount="5"
+        class="px-6 border-none w-full window-no-drag"
+        gap="0.5rem"
+      >
         <div
           v-for="(tab, i) in tabs"
           :key="tab.label"
@@ -62,7 +67,7 @@ export default {
           label: _('System'),
           icon: 'system',
           component: TabSystem
-        },
+        }
         // {
         //   label: _('Privacy'),
         //   icon: 'privacy'

@@ -1,5 +1,9 @@
 <template>
-  <div id="app" class="h-screen flex flex-col font-sans">
+  <div id="app" class="h-screen flex flex-col font-sans overflow-hidden">
+    <WindowsTitleBar
+      v-if="platform === 'Windows'"
+      @close="reloadMainWindowOnSettingsClose"
+    />
     <Desk class="flex-1" v-if="showDesk" />
     <database-selector v-if="showDatabaseSelector" @file="connectToDBFile" />
     <setup-wizard v-if="showSetupWizard" />
@@ -16,6 +20,7 @@ import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
 import DatabaseSelector from './pages/DatabaseSelector';
 import Settings from '@/pages/Settings/Settings.vue';
+import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { remote } from 'electron';
 
 export default {
@@ -54,7 +59,8 @@ export default {
     Desk,
     SetupWizard,
     DatabaseSelector,
-    Settings
+    Settings,
+    WindowsTitleBar
   },
   mounted() {
     if (!localStorage.dbPath) {
@@ -82,6 +88,11 @@ export default {
   methods: {
     connectToDBFile(filePath) {
       frappe.events.trigger('DatabaseSelector:file-selected', filePath);
+    },
+    reloadMainWindowOnSettingsClose() {
+      if (this.showSettings) {
+        frappe.events.trigger('reload-main-window');
+      }
     }
   }
 };

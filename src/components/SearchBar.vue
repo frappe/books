@@ -17,7 +17,7 @@
           </div>
           <input
             type="search"
-            class="bg-gray-200 text-sm p-1 pl-8 focus:outline-none h-full w-56"
+            class="bg-gray-200 text-sm pl-8 focus:outline-none h-full w-56"
             placeholder="Search..."
             autocomplete="off"
             spellcheck="false"
@@ -68,7 +68,7 @@ export default {
         this.suggestions = [{ label: 'No results found.' }];
       }
     },
-    clearInput(e) {
+    clearInput() {
       this.inputValue = '';
       this.$emit('change', null);
     },

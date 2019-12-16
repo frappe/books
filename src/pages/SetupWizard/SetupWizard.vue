@@ -6,10 +6,10 @@
         {{ _('These settings can be changed later') }}
       </p>
     </div>
-    <div class="px-8 mt-5">
+    <div class="px-8 mt-5 window-no-drag">
       <TwoColumnForm :fields="fields" :doc="doc" />
     </div>
-    <div class="px-8 flex justify-end mt-5">
+    <div class="px-8 flex justify-end mt-5 window-no-drag">
       <Button @click="submit" type="primary" class="text-white text-sm">
         {{ _('Next') }}
       </Button>
