@@ -20,7 +20,7 @@
           :class="i === activeTab && 'bg-white shadow text-blue-500'"
           @click="activeTab = i"
         >
-          <component :is="getIconComponent(tab)" />
+          <component :is="getIconComponent(tab)" :active="i === activeTab" />
           <div class="mt-2 text-xs">{{ tab.label }}</div>
         </div>
       </Row>
@@ -89,10 +89,13 @@ export default {
         render(h) {
           return h(Icon, {
             class: 'w-6 h-6',
-            props: {
-              name: tab.icon,
-              size: '24'
-            }
+            props: Object.assign(
+              {
+                name: tab.icon,
+                size: '24'
+              },
+              this.$attrs
+            )
           });
         }
       };

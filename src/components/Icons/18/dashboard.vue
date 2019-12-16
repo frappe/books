@@ -14,7 +14,7 @@
   </svg>
 </template>
 <script>
-import Base from './base';
+import Base from '../base';
 export default {
   name: 'IconDashboard',
   extends: Base
