@@ -32,8 +32,11 @@ export default {
   methods: {
     action(name) {
       if (this.buttons.includes(name)) {
-        this.$emit(name);
         let window = electron.remote.getCurrentWindow();
+        if (name === 'maximize' && window.isMaximized()) {
+          name = 'unmaximize';
+        }
+        this.$emit(name);
         window[name]();
       }
     },
