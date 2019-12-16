@@ -4802,7 +4802,7 @@ frappe-charts@^1.3.0:
 
 "frappejs@http://github.com/frappe/frappejs":
   version "0.0.10"
-  resolved "http://github.com/frappe/frappejs#4d616c075f8ed17c2b480bf03f68489f2ac81895"
+  resolved "http://github.com/frappe/frappejs#86c57af94b62d9dac1a366479186a8e72c3381f0"
   dependencies:
     autoprefixer "9.6.1"
     babel-core "^6.26.3"
