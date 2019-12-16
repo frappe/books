@@ -22,8 +22,8 @@ module.exports = {
     config.plugins.push(
       // https://github.com/knex/knex/issues/1446#issuecomment-537715431
       new webpack.ContextReplacementPlugin(
-        /knex\/lib\/dialects/,
-        /sqlite3\/index.js/
+        /knex[/\\]lib[/\\]dialects/,
+        /sqlite3[/\\]index.js/
       )
     );
 
