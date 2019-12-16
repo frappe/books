@@ -30,14 +30,8 @@
         </linearGradient>
       </defs>
       <g fill="none" fill-rule="evenodd">
-        <text
-          font-family="Inter-Medium, Inter"
-          font-size="16"
-          font-weight="400"
-          fill="#112B42"
-          transform="translate(0 -3)"
-        >
-          <tspan x="10" y="16">{{ _('Cashflow') }}</tspan>
+        <text fill="#112B42" class="font-medium">
+          <tspan y="16">{{ _('Cashflow') }}</tspan>
         </text>
         <g fill="#E9E9ED">
           <path d="M371 2h12v12h-12zM391 2h53v12h-53z" />
@@ -133,7 +127,7 @@ export default {
     },
 
     renderChart(periodList, data) {
-      const chart = new Chart(this.$refs['cashflow'], {
+      new Chart(this.$refs['cashflow'], {
         title: '',
         type: 'line',
         animate: false,
