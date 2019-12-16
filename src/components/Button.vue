@@ -2,6 +2,7 @@
   <button
     class="focus:outline-none rounded-md shadow-button"
     :style="style"
+    :class="_class"
     v-bind="$attrs"
     v-on="$listeners"
   >
@@ -19,6 +20,10 @@ export default {
     icon: {
       type: Boolean,
       default: false
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -29,6 +34,11 @@ export default {
           this.type === 'primary'
             ? 'linear-gradient(180deg, #2C9AF1 0%, #2490EF 100%)'
             : 'linear-gradient(180deg, #F9F9FA 0%, #F4F4F6 100%)'
+      };
+    },
+    _class() {
+      return {
+        'opacity-50 cursor-not-allowed pointer-events-none': this.disabled
       };
     }
   }

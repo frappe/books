@@ -64,6 +64,7 @@ import router from './router';
   frappe.events.on('SetupWizard:setup-complete', async setupWizardValues => {
     const countryList = require('../fixtures/countryInfo.json');
     const {
+      companyLogo,
       companyName,
       country,
       name,
@@ -88,6 +89,15 @@ import router from './router';
     });
 
     await doc.update();
+
+    const printSettings = await frappe.getSingle('PrintSettings');
+    printSettings.set({
+      logo: companyLogo,
+      companyName,
+      email,
+      displayLogo: companyLogo ? 1 : 0
+    });
+    await printSettings.update();
 
     const systemSettings = await frappe.getSingle('SystemSettings');
     await systemSettings.set({

@@ -15,9 +15,17 @@
     </div>
     <div class="mt-4 text-sm">
       <Button @click="newDatabase">{{ _('Create New') }}</Button>
-      <Button @click="existingDatabase">{{ _('Browse File') }}</Button>
+      <Button class="ml-2" @click="existingDatabase">{{
+        _('Browse File')
+      }}</Button>
     </div>
-    <TwoColumnForm class="mt-6" v-if="doc" :doc="doc" :fields="fields" :autosave="true" />
+    <TwoColumnForm
+      class="mt-6"
+      v-if="doc"
+      :doc="doc"
+      :fields="fields"
+      :autosave="true"
+    />
   </div>
 </template>
 
@@ -41,10 +49,8 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.getSingle('SystemSettings');
-    this.companyName = (await frappe.getSingle(
-      'AccountingSettings'
-    )).companyName;
+    this.doc = frappe.SystemSettings;
+    this.companyName = frappe.AccountingSettings.companyName;
   },
   methods: {
     async newDatabase() {
@@ -71,4 +77,3 @@ export default {
   }
 };
 </script>
-

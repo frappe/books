@@ -19,7 +19,6 @@ module.exports = {
       },
       minWidth: {
         '40': '10rem',
-        '56': '14rem',
         '56': '14rem'
       },
       maxWidth: {
@@ -47,6 +46,7 @@ module.exports = {
         xl: '0.75rem' // 12px
       },
       colors: {
+        brand: '#2490EF',
         black: '#112B42',
         gray: {
           '100': '#f4f4f6',
