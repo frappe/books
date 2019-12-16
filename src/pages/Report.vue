@@ -7,7 +7,11 @@
       </template>
     </PageHeader>
     <div class="mt-6 flex text-base px-8" v-if="report.filterFields">
-      <div class="ml-3 first:ml-0 w-32" v-for="df in report.filterFields">
+      <div
+        class="ml-3 first:ml-0 w-32"
+        v-for="df in report.filterFields"
+        :key="df.fieldname"
+      >
         <FormControl
           size="small"
           :background="true"
@@ -37,7 +41,7 @@
           </Row>
         </div>
         <WithScroll @scroll="onBodyScroll">
-          <div class="flex-1 overflow-auto" style="height: calc(100vh - 12rem)">
+          <div class="flex-1 overflow-auto report-scroll-container">
             <Row
               v-show="row.isShown"
               v-for="(row, i) in rows"
@@ -81,7 +85,6 @@ import Row from '@/components/Row';
 import WithScroll from '@/components/WithScroll';
 import FormControl from '@/components/Controls/FormControl';
 import reportViewConfig from '@/../reports/view';
-import throttle from 'lodash/throttle';
 
 export default {
   name: 'Report',
@@ -131,7 +134,7 @@ export default {
         args: this.filters
       });
 
-      let rows, columns;
+      let rows;
       if (data.rows) {
         rows = data.rows;
       } else {
@@ -266,7 +269,7 @@ export default {
           label: `Test ${i + 1}`
         };
       });
-      let rows = Array.from(new Array(14)).map((v, i) => {
+      let rows = Array.from(new Array(14)).map(() => {
         return columns.reduce((obj, col) => {
           obj[col.fieldname] = 'Test Data ' + col.fieldname;
           obj.isShown = true;
@@ -301,3 +304,22 @@ export default {
   }
 };
 </script>
+
+<style>
+.report-scroll-container {
+  height: calc(100vh - 12rem);
+}
+.report-scroll-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.report-scroll-container::-webkit-scrollbar-thumb {
+  background-color: theme('colors.gray.200');
+}
+.report-scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: theme('colors.gray.300');
+}
+.report-scroll-container::-webkit-scrollbar-track {
+  background-color: white;
+}
+</style>
