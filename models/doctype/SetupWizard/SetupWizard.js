@@ -11,6 +11,11 @@ module.exports = {
   keywordFields: [],
   fields: [
     {
+      fieldname: 'companyLogo',
+      label: 'Company Logo',
+      fieldtype: 'AttachImage'
+    },
+    {
       fieldname: 'country',
       label: 'Country',
       fieldtype: 'AutoComplete',
@@ -21,7 +26,7 @@ module.exports = {
 
     {
       fieldname: 'fullname',
-      label: 'Name',
+      label: 'Your Name',
       fieldtype: 'Data',
       placeholder: 'John Doe',
       required: 1
@@ -39,7 +44,7 @@ module.exports = {
     {
       fieldname: 'companyName',
       label: 'Company Name',
-      placeholder: 'Acme Inc',
+      placeholder: 'Company Name',
       fieldtype: 'Data',
       required: 1
     },
@@ -107,50 +112,10 @@ module.exports = {
   ],
   quickEditFields: [
     'fullname',
-    'email',
-    'companyName',
     'bankName',
     'country',
     'currency',
     'fiscalYearStart',
     'fiscalYearEnd'
-  ],
-
-  layout: {
-    paginated: true,
-    sections: [
-      {
-        title: 'Select Country',
-        columns: [
-          {
-            fields: ['country']
-          }
-        ]
-      },
-
-      {
-        title: 'Add a Profile',
-        columns: [
-          {
-            fields: ['fullname', 'email']
-          }
-        ]
-      },
-
-      {
-        title: 'Add your Company',
-        columns: [
-          {
-            fields: [
-              'companyName',
-              'bankName',
-              'currency',
-              'fiscalYearStart',
-              'fiscalYearEnd'
-            ]
-          }
-        ]
-      }
-    ].filter(Boolean)
-  }
+  ]
 };

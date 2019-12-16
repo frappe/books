@@ -43,7 +43,7 @@ module.exports = {
       fieldname: 'gstin',
       label: 'GSTIN',
       fieldtype: 'Data',
-      placeholder: '27AAAAA0000A1Z5',
+      placeholder: '27AAAAA0000A1Z5'
     },
     {
       fieldname: 'template',

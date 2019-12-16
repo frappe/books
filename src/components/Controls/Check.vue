@@ -1,8 +1,6 @@
 <template>
   <div>
-    <label
-      class="flex items-center"
-    >
+    <label class="flex items-center">
       <input
         ref="input"
         type="checkbox"
@@ -26,7 +24,7 @@ export default {
   extends: Base,
   computed: {
     inputClasses() {
-      return [this.inputClass];
+      return this.getInputClassesFromProp([]);
     }
   }
 };

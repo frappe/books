@@ -28,7 +28,8 @@ export default {
     'size',
     'showLabel',
     'readOnly',
-    'background'
+    'background',
+    'autofocus'
   ],
   inject: {
     doctype: {
@@ -41,13 +42,17 @@ export default {
       default: null
     }
   },
+  mounted() {
+    if (this.autofocus) {
+      this.focus();
+    }
+  },
   computed: {
     inputType() {
       return 'text';
     },
     inputClasses() {
-      return [
-        this.inputClass,
+      let classes = [
         {
           'px-3 py-2': this.size !== 'small',
           'px-2 py-1': this.size === 'small',
@@ -55,6 +60,8 @@ export default {
         },
         'focus:outline-none focus:bg-gray-200 rounded w-full text-gray-900'
       ];
+
+      return this.getInputClassesFromProp(classes);
     },
     inputPlaceholder() {
       return this.placeholder || this.df.placeholder;
@@ -64,8 +71,20 @@ export default {
     }
   },
   methods: {
+    getInputClassesFromProp(classes) {
+      if (this.inputClass) {
+        if (typeof this.inputClass === 'function') {
+          classes = this.inputClass(classes);
+        } else {
+          classes.push(this.inputClass);
+        }
+      }
+      return classes;
+    },
     focus() {
-      this.$refs.input.focus();
+      if (this.$refs.input && this.$refs.input.focus) {
+        this.$refs.input.focus();
+      }
     },
     triggerChange(value) {
       value = this.parse(value);
