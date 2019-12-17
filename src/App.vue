@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="h-screen flex flex-col font-sans overflow-hidden">
     <WindowsTitleBar
-      v-if="platform === 'Windows'"
+      v-if="['Windows', 'Linux'].includes(platform)"
       @close="reloadMainWindowOnSettingsClose"
     />
     <Desk class="flex-1" v-if="showDesk" />
