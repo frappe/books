@@ -81,6 +81,21 @@ function unique(list, key = it => it) {
     });
 }
 
+function getDuplicates(array) {
+  let duplicates = [];
+  for (let i in array) {
+    let previous = array[i - 1];
+    let current = array[i];
+
+    if (current === previous) {
+      if (!duplicates.includes(current)) {
+        duplicates.push(current);
+      }
+    }
+  }
+  return duplicates;
+}
+
 module.exports = {
     _,
     slug,
@@ -91,4 +106,5 @@ module.exports = {
     asyncHandler,
     range,
     unique,
+    getDuplicates
 }
