@@ -36,6 +36,38 @@ module.exports = class Database extends Observable {
       }
     }
     await this.commit();
+    await this.initializeSingles();
+  }
+
+  async initializeSingles() {
+    let singleDoctypes = frappe
+      .getModels(model => model.isSingle)
+      .map(model => model.name);
+
+    for (let doctype of singleDoctypes) {
+      if (await this.singleExists(doctype)) {
+        continue;
+      }
+      let meta = frappe.getMeta(doctype);
+      if (meta.fields.every(df => df.default == null)) {
+        continue;
+      }
+      let defaultValues = meta.fields.reduce((doc, df) => {
+        if (df.default != null) {
+          doc[df.fieldname] = df.default;
+        }
+        return doc;
+      }, {});
+      await this.updateSingle(doctype, defaultValues);
+    }
+  }
+
+  async singleExists(doctype) {
+    let res = await this.knex('SingleValue')
+      .count('parent as count')
+      .where('parent', doctype)
+      .first();
+    return res.count > 0;
   }
 
   tableExists(table) {
@@ -245,7 +277,7 @@ module.exports = class Database extends Observable {
 
     // insert parent
     if (meta.isSingle) {
-      await this.updateSingle(meta, doc, doctype);
+      await this.updateSingle(doctype, doc);
     } else {
       await this.insertOne(baseDoctype, doc);
     }
@@ -288,7 +320,7 @@ module.exports = class Database extends Observable {
 
     // update parent
     if (meta.isSingle) {
-      await this.updateSingle(meta, doc, doctype);
+      await this.updateSingle(doctype, doc);
     } else {
       await this.updateOne(baseDoctype, doc);
     }
@@ -348,11 +380,12 @@ module.exports = class Database extends Observable {
       .delete();
   }
 
-  async updateSingle(meta, doc, doctype) {
+  async updateSingle(doctype, doc) {
+    let meta = frappe.getMeta(doctype);
     await this.deleteSingleValues(doctype);
     for (let field of meta.getValidFields({ withChildren: false })) {
       let value = doc[field.fieldname];
-      if (value) {
+      if (value != null) {
         let singleValue = frappe.newDoc({
           doctype: 'SingleValue',
           parent: doctype,
