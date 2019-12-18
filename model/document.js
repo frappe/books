@@ -10,12 +10,6 @@ module.exports = class BaseDocument extends Observable {
     this.flags = {};
     this.setup();
     this.setValues(data);
-
-    // clear fetch-values cache
-    frappe.db.on(
-      'change',
-      params => (this.fetchValuesCache[`${params.doctype}:${params.name}`] = {})
-    );
   }
 
   setup() {
@@ -545,15 +539,9 @@ module.exports = class BaseDocument extends Observable {
       .reduce((a, b) => a + b, 0);
   }
 
-  async getFrom(doctype, name, fieldname) {
+  getFrom(doctype, name, fieldname) {
     if (!name) return '';
-    let _values =
-      this.fetchValuesCache[`${doctype}:${name}`] ||
-      (this.fetchValuesCache[`${doctype}:${name}`] = {});
-    if (!_values[fieldname]) {
-      _values[fieldname] = await frappe.db.getValue(doctype, name, fieldname);
-    }
-    return _values[fieldname];
+    return frappe.db.getCachedValue(doctype, name, fieldname);
   }
 
   isNew() {

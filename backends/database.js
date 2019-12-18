@@ -1,5 +1,6 @@
 const frappe = require('frappejs');
 const Observable = require('frappejs/utils/observable');
+const CacheManager = require('frappejs/utils/cacheManager');
 const Knex = require('knex');
 
 module.exports = class Database extends Observable {
@@ -7,6 +8,7 @@ module.exports = class Database extends Observable {
     super();
     this.initTypeMap();
     this.connectionParams = {};
+    this.cache = new CacheManager();
   }
 
   connect() {
@@ -326,7 +328,16 @@ module.exports = class Database extends Observable {
 
     return this.knex(doctype)
       .where('name', doc.name)
-      .update(formattedDoc);
+      .update(formattedDoc)
+      .then(() => {
+        let cacheKey = `${doctype}:${doc.name}`;
+        if (this.cache.hexists(cacheKey)) {
+          for (let fieldname in formattedDoc) {
+            let value = formattedDoc[fieldname];
+            this.cache.hset(cacheKey, fieldname, value);
+          }
+        }
+      });
   }
 
   runDeleteOtherChildren(field, parent, added) {
@@ -364,7 +375,10 @@ module.exports = class Database extends Observable {
     let baseDoctype = meta.getBaseDocType();
     await this.knex(baseDoctype)
       .update({ name: newName })
-      .where('name', oldName);
+      .where('name', oldName)
+      .then(() => {
+        this.clearValueCache(doctype, oldName);
+      });
     await frappe.db.commit();
 
     this.triggerChange(doctype, newName);
@@ -447,7 +461,10 @@ module.exports = class Database extends Observable {
   async deleteOne(doctype, name) {
     return this.knex(doctype)
       .where('name', name)
-      .delete();
+      .delete()
+      .then(() => {
+        this.clearValueCache(doctype, name);
+      });
   }
 
   deleteChildren(parenttype, parent) {
@@ -491,6 +508,14 @@ module.exports = class Database extends Observable {
   async setValues(doctype, name, fieldValuePair) {
     let doc = Object.assign({}, fieldValuePair, { name });
     return this.updateOne(doctype, doc);
+  }
+
+  async getCachedValue(doctype, name, fieldname) {
+    let value = this.cache.hget(`${doctype}:${name}`, fieldname);
+    if (value == null) {
+      value = await this.getValue(doctype, name, fieldname);
+    }
+    return value;
   }
 
   getAll({
@@ -607,6 +632,11 @@ module.exports = class Database extends Observable {
         throw e;
       }
     }
+  }
+
+  clearValueCache(doctype, name) {
+    let cacheKey = `${doctype}:${name}`;
+    this.cache.hclear(cacheKey);
   }
 
   getColumnType(field) {
