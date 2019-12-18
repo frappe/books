@@ -1,5 +1,5 @@
 module.exports = {
-  name: 'Dashboard',
+  name: 'DashboardSettings',
   label: 'Dashboard Settings',
   doctype: 'DocType',
   isSingle: 1,
