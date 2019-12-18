@@ -86,19 +86,19 @@ module.exports = class BaseDocument extends Observable {
       if (this.meta.isChild && this.parentdoc) {
         await this.parentdoc.applyChange(this.parentfield);
       } else {
-      await this.applyChange(fieldname);
+        await this.applyChange(fieldname);
+      }
     }
-  }
   }
 
   async applyChange(fieldname) {
     await this.applyFormula(fieldname);
     this.roundFloats();
-      await this.trigger('change', {
-        doc: this,
-        changed: fieldname
-      });
-    }
+    await this.trigger('change', {
+      doc: this,
+      changed: fieldname
+    });
+  }
 
   setDefaults() {
     for (let field of this.meta.fields) {
@@ -118,6 +118,21 @@ module.exports = class BaseDocument extends Observable {
 
     if (this.meta.basedOn && this.meta.filters) {
       this.setValues(this.meta.filters);
+    }
+  }
+
+  castValues() {
+    for (let field of this.meta.fields) {
+      let value = this[field.fieldname];
+      if (value == null) {
+        continue;
+      }
+      if (['Int', 'Check'].includes(field.fieldtype)) {
+        value = parseInt(value, 10);
+      } else if (['Float', 'Currency'].includes(field.fieldtype)) {
+        value = parseFloat(value);
+      }
+      this[field.fieldname] = value;
     }
   }
 
@@ -229,6 +244,7 @@ module.exports = class BaseDocument extends Observable {
       this.syncValues(data);
       if (this.meta.isSingle) {
         this.setDefaults();
+        this.castValues();
       }
       await this.loadLinks();
     } else {
@@ -249,13 +265,13 @@ module.exports = class BaseDocument extends Observable {
   async loadLink(fieldname) {
     this._links = this._links || {};
     let df = this.meta.getField(fieldname);
-      if (this[df.fieldname]) {
-        this._links[df.fieldname] = await frappe.getDoc(
-          df.target,
-          this[df.fieldname]
-        );
-      }
+    if (this[df.fieldname]) {
+      this._links[df.fieldname] = await frappe.getDoc(
+        df.target,
+        this[df.fieldname]
+      );
     }
+  }
 
   getLink(fieldname) {
     return this._links ? this._links[fieldname] : null;
