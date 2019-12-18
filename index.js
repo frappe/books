@@ -1,4 +1,5 @@
 const Observable = require('./utils/observable');
+const utils = require('./utils');
 
 module.exports = {
   async init() {
@@ -34,40 +35,36 @@ module.exports = {
     common.initLibs(this);
   },
 
-  registerModels(models, type) {
+  registerModels(models) {
     // register models from app/models/index.js
-    const toAdd = Object.assign({}, models.models);
+    for (let doctype in models) {
+      let metaDefinition = models[doctype];
+      if (!metaDefinition.name) {
+        throw new Error(`Name is mandatory for ${doctype}`);
+      }
+      if (metaDefinition.name !== doctype) {
+        throw new Error(
+          `Model name mismatch for ${doctype}: ${metaDefinition.name}`
+        );
+      }
+      let fieldnames = (metaDefinition.fields || []).map(df => df.fieldname).sort();
+      let duplicateFieldnames = utils.getDuplicates(fieldnames);
+      if (duplicateFieldnames.length > 0) {
+        throw new Error(
+          `Duplicate fields in ${doctype}: ${duplicateFieldnames.join(', ')}`
+        );
+      }
 
-    // post process based on type
-    if (models[type]) {
-      models[type](toAdd);
+      this.models[doctype] = metaDefinition;
     }
-
-    Object.assign(this.models, toAdd);
   },
 
-  getDoctypeList(filters) {
-    let doctypeList = [];
-    if (filters && Object.keys(filters).length) {
-      for (let model in this.models) {
-        let doctypeName = model;
-        let doctype = this.models[doctypeName];
-        let matchedFields = 0;
-        for (let key in filters) {
-          let field = key;
-          let value = filters[field];
-
-          if (Boolean(doctype[field]) === Boolean(value)) {
-            matchedFields++;
-          }
-        }
-
-        if (matchedFields === Object.keys(filters).length)
-          doctypeList.push(doctypeName);
-      }
+  getModels(filterFunction) {
+    let models = [];
+    for (let doctype in this.models) {
+      models.push(this.models[doctype]);
     }
-
-    return doctypeList;
+    return filterFunction ? models.filter(filterFunction) : models;
   },
 
   registerView(view, name, module) {
@@ -138,7 +135,7 @@ module.exports = {
   removeFromCache(doctype, name) {
     try {
       delete this.docs[doctype][name];
-    } catch(e) {
+    } catch (e) {
       console.warn(`Document ${doctype} ${name} does not exist`);
     }
   },
