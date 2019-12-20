@@ -3,7 +3,10 @@ const { round } = require('frappejs/utils/numberFormat');
 
 module.exports = class LedgerPosting {
   constructor({ reference, party, date, description }) {
-    Object.assign(this, arguments[0]);
+    this.reference = reference;
+    this.party = party;
+    this.date = date;
+    this.description = description;
     this.entries = [];
     this.entryMap = {};
     // To change balance while entering ledger entries
@@ -102,7 +105,9 @@ module.exports = class LedgerPosting {
   validateEntries() {
     let { debit, credit } = this.getTotalDebitAndCredit();
     if (debit !== credit) {
-      throw new Error(`Debit ${debit} must be equal to Credit ${credit}`);
+      throw new Error(
+        `Total Debit (${debit}) must be equal to Total Credit (${credit})`
+      );
     }
   }
 

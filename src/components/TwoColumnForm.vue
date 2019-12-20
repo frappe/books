@@ -2,6 +2,7 @@
   <div class="text-sm" :class="{ 'border-t': !noBorder }">
     <template v-for="df in fields">
       <FormControl
+        :key="df.fieldname"
         v-if="df.fieldtype === 'Table'"
         ref="controls"
         size="small"
@@ -11,7 +12,7 @@
       />
       <template v-else>
         <template v-if="inlineEditField === df && inlineEditDoc">
-          <div class="border-b">
+          <div class="border-b" :key="df.fieldname">
             <TwoColumnForm
               ref="inlineEditForm"
               :doc="inlineEditDoc"
@@ -39,6 +40,7 @@
           </div>
         </template>
         <div
+          :key="df.fieldname"
           v-else
           class="grid"
           :class="{ 'border-b': !noBorder }"
@@ -71,7 +73,7 @@
   </div>
 </template>
 <script>
-import { _ } from 'frappejs/utils';
+import frappe from 'frappejs';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
 import { handleErrorWithDialog } from '@/utils';
@@ -128,7 +130,6 @@ let TwoColumnForm = {
       // handle rename
       if (this.autosave && df.fieldname === 'name' && !this.doc.isNew()) {
         return this.doc.rename(value);
-        return;
       }
 
       this.doc.set(df.fieldname, value);

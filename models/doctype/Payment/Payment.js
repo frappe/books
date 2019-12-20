@@ -48,6 +48,7 @@ module.exports = {
     {
       fieldname: 'paymentAccount',
       label: 'To Account',
+      placeholder: 'To Account',
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
@@ -59,11 +60,17 @@ module.exports = {
             return { accountType: ['in', ['Bank', 'Cash']], isGroup: 0 };
           }
         }
+      },
+      formula: doc => {
+        if (doc.paymentMethod === 'Cash') {
+          return 'Cash';
+        }
       }
     },
     {
       fieldname: 'paymentMethod',
       label: 'Payment Method',
+      placeholder: 'Payment Method',
       fieldtype: 'Select',
       options: ['', 'Cash', 'Cheque', 'Transfer'],
       required: 1
@@ -71,17 +78,20 @@ module.exports = {
     {
       fieldname: 'referenceId',
       label: 'Ref. / Cheque No.',
+      placeholder: 'Ref. / Cheque No.',
       fieldtype: 'Data',
       required: 1 // TODO: UNIQUE
     },
     {
       fieldname: 'referenceDate',
       label: 'Ref. Date',
+      placeholder: 'Ref. Date',
       fieldtype: 'Date'
     },
     {
       fieldname: 'clearanceDate',
       label: 'Clearance Date',
+      placeholder: 'Clearance Date',
       fieldtype: 'Date',
       hidden: doc => {
         return doc.paymentMethod === 'Cash' ? 1 : 0;
