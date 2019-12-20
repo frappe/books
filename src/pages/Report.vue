@@ -117,7 +117,7 @@ export default {
       }
     };
   },
-  async mounted() {
+  async activated() {
     this.reportData.columns = this.report.getColumns();
     await this.setDefaultFilters();
     await this.fetchReportData();
