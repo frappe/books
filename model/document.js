@@ -79,7 +79,8 @@ module.exports = class BaseDocument extends Observable {
           this.append(fieldname, row);
         }
       } else {
-        this[fieldname] = await this.validateField(fieldname, value);
+        await this.validateField(fieldname, value);
+        this[fieldname] = value;
       }
 
       // always run applyChange from the parentdoc
@@ -197,10 +198,15 @@ module.exports = class BaseDocument extends Observable {
 
   async validateField(key, value) {
     let field = this.meta.getField(key);
-    if (field && field.fieldtype == 'Select') {
-      return this.meta.validateSelect(field, value);
+    if (!field) {
+      throw new frappe.errors.InvalidFieldError(`Invalid field ${key}`);
     }
-    return value;
+    if (field.fieldtype == 'Select') {
+      this.meta.validateSelect(field, value);
+    }
+    if (field.validate) {
+      await field.validate(value, this);
+    }
   }
 
   getValidDict() {
