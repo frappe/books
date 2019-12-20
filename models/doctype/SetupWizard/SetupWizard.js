@@ -1,3 +1,4 @@
+const { DateTime } = require('luxon');
 const countryList = require('../../../fixtures/countryInfo.json');
 
 module.exports = {
@@ -64,13 +65,8 @@ module.exports = {
       fieldtype: 'Date',
       formula: doc => {
         if (!doc.country) return;
-        let date = countryList[doc.country]['fiscal_year_start'].split('-');
-        var currentYear = new Date().getFullYear();
-        let currentMonth = date[0] - 1;
-        let currentDate = date[1];
-        return new Date(currentYear, currentMonth, currentDate)
-          .toISOString()
-          .substr(0, 10);
+        let fyStart = countryList[doc.country].fiscal_year_start;
+        return DateTime.fromFormat(fyStart, 'MM-dd').toISODate();
       },
       required: 1
     },
@@ -82,13 +78,10 @@ module.exports = {
       fieldtype: 'Date',
       formula: doc => {
         if (!doc.country) return;
-        let date = countryList[doc.country]['fiscal_year_end'].split('-');
-        var currentYear = new Date().getFullYear() + 1;
-        let currentMonth = date[0] - 1;
-        let currentDate = date[1];
-        return new Date(currentYear, currentMonth, currentDate)
-          .toISOString()
-          .substr(0, 10);
+        let fyEnd = countryList[doc.country].fiscal_year_end;
+        return DateTime.fromFormat(fyEnd, 'MM-dd')
+          .plus({ year: 1 })
+          .toISODate();
       },
       required: 1
     },
