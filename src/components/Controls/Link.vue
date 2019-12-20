@@ -18,7 +18,9 @@ export default {
       let results = await frappe.db.getAll({
         doctype,
         filters,
-        fields: [...new Set(['name', meta.titleField, ...meta.keywordFields])]
+        fields: [
+          ...new Set(['name', meta.titleField, ...meta.getKeywordFields()])
+        ]
       });
       let createNewOption = this.getCreateNewOption();
       let suggestions = results
@@ -77,8 +79,6 @@ export default {
     async openNewDoc() {
       let doctype = this.df.target;
       let doc = await frappe.getNewDoc(doctype);
-      let currentPath = this.$route.path;
-      let currentQuery = this.$route.query;
       let filters = await this.getFilters();
       openQuickEdit({
         doctype,

@@ -17,24 +17,25 @@
         {{ df.label }}
       </div>
     </Row>
-    <TableRow v-for="row in value" :key="row.name" v-bind="{ row, tableFields, size, ratio, isNumeric }" />
+    <TableRow
+      v-for="row in value"
+      :key="row.name"
+      v-bind="{ row, tableFields, size, ratio, isNumeric }"
+    />
     <Row
       :ratio="ratio"
       class="text-gray-500 cursor-pointer border-transparent px-2 w-full"
       v-if="!isReadOnly"
+      @click.native="addRow"
     >
       <div class="flex items-center pl-1">
-        <feather-icon
-          name="plus"
-          class="w-4 h-4 text-gray-500"
-        />
+        <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
       </div>
       <div
         :class="{
           'px-2 py-3': size === 'small',
           'px-3 py-4': size !== 'small'
         }"
-        @click="addRow"
       >
         {{ _('Add Row') }}
       </div>
@@ -43,8 +44,8 @@
 </template>
 
 <script>
+import frappe from 'frappejs';
 import Row from '@/components/Row';
-import Icon from '@/components/Icon';
 import Base from './Base';
 import TableRow from './TableRow';
 
@@ -58,7 +59,6 @@ export default {
   },
   components: {
     Row,
-    Icon,
     TableRow
   },
   methods: {
@@ -70,7 +70,7 @@ export default {
   },
   computed: {
     ratio() {
-      return [0.3].concat(this.tableFields.map(_ => 1));
+      return [0.3].concat(this.tableFields.map(() => 1));
     },
     tableFields() {
       let meta = frappe.getMeta(this.df.childtype);

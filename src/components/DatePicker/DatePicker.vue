@@ -58,6 +58,7 @@
                 class="w-6 h-6 mr-1 last:mr-0 flex-center cursor-pointer rounded-md hover:bg-blue-100 hover:text-blue-500"
                 :class="{
                   'text-gray-600': date.getMonth() !== currentMonth - 1,
+                  'text-blue-500': toValue(date) === toValue(today),
                   'bg-blue-100 font-semibold text-blue-500':
                     toValue(date) === value
                 }"
@@ -95,6 +96,9 @@ export default {
     this.selectCurrentMonthYear();
   },
   computed: {
+    today() {
+      return this.getDate();
+    },
     datesAsWeeks() {
       let datesAsWeeks = [];
       let dates = this.dates.slice();
