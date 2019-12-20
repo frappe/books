@@ -67,6 +67,7 @@ class CannotCommitError extends DatabaseError {
 
 class ValueError extends ValidationError {}
 class Conflict extends ValidationError {}
+class InvalidFieldError extends ValidationError {}
 
 function throwError(message, error = 'ValidationError') {
   const errorClass = {
@@ -95,5 +96,6 @@ module.exports = {
   DatabaseError,
   CannotCommitError,
   MandatoryError,
+  InvalidFieldError,
   throw: throwError
 };
