@@ -13,7 +13,8 @@
       <div class="mt-5">
         <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.title">
           <div
-            class="px-3 py-2 flex items-center rounded cursor-pointer hover:bg-white"
+            class="px-3 py-2 flex items-center rounded-lg cursor-pointer hover:bg-white"
+            :class="isActiveGroup(group) && !group.items ? 'bg-white' : ''"
             @click="onGroupClick(group)"
           >
             <component
@@ -74,6 +75,9 @@ export default {
 
     let currentPath = this.$router.currentRoute.fullPath;
     this.activeGroup = this.groups.find(g => {
+      if (g.route === currentPath) {
+        return true;
+      }
       if (g.items) {
         let activeItem = g.items.filter(i => i.route === currentPath);
         if (activeItem.length) {
@@ -88,7 +92,9 @@ export default {
   methods: {
     itemActiveClass(item) {
       let currentRoute = this.$route.path;
-      return currentRoute === item.route ? 'bg-white text-blue-500' : '';
+      let routeMatch = currentRoute === item.route;
+      let doctypeMatch = this.$route.params.doctype === item.doctype;
+      return routeMatch || doctypeMatch ? 'bg-white text-blue-500' : '';
     },
     isActiveGroup(group) {
       return this.activeGroup && group.title === this.activeGroup.title;

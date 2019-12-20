@@ -24,23 +24,28 @@ const config = {
       items: [
         {
           label: _('Invoice'),
-          route: '/list/SalesInvoice'
+          route: '/list/SalesInvoice',
+          doctype: 'SalesInvoice'
         },
         {
           label: _('Customers'),
-          route: '/list/Customer'
+          route: '/list/Customer',
+          doctype: 'Customer'
         },
         {
           label: _('Items'),
-          route: '/list/Item'
+          route: '/list/Item',
+          doctype: 'Item'
         },
         {
           label: _('Taxes'),
-          route: '/list/Tax'
+          route: '/list/Tax',
+          doctype: 'Tax'
         },
         {
           label: _('Journal Entry'),
-          route: '/list/JournalEntry'
+          route: '/list/JournalEntry',
+          doctype: 'JournalEntry'
         }
       ]
     },
@@ -53,23 +58,28 @@ const config = {
       items: [
         {
           label: _('Bill'),
-          route: '/list/PurchaseInvoice'
+          route: '/list/PurchaseInvoice',
+          doctype: 'PurchaseInvoice'
         },
         {
           label: _('Suppliers'),
-          route: '/list/Supplier'
+          route: '/list/Supplier',
+          doctype: 'Supplier'
         },
         {
           label: _('Items'),
-          route: '/list/Item'
+          route: '/list/Item',
+          doctype: 'Item'
         },
         {
           label: _('Taxes'),
-          route: '/list/Tax'
+          route: '/list/Tax',
+          doctype: 'Tax'
         },
         {
           label: _('Journal Entry'),
-          route: '/list/JournalEntry'
+          route: '/list/JournalEntry',
+          doctype: 'JournalEntry'
         }
       ]
     },
