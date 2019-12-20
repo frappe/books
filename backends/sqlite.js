@@ -91,17 +91,17 @@ class SqliteDatabase extends Database {
   }
 
   getError(err) {
+    let errorType = frappe.errors.DatabaseError;
     if (err.message.includes('FOREIGN KEY')) {
-      return frappe.errors.LinkValidationError;
+      errorType = frappe.errors.LinkValidationError;
     }
     if (err.message.includes('SQLITE_ERROR: cannot commit')) {
-      return frappe.errors.CannotCommitError;
+      errorType = frappe.errors.CannotCommitError;
     }
-    return (
-      {
-        19: frappe.errors.DuplicateEntryError
-      }[err.errno] || Error
-    );
+    if (err.message.includes('SQLITE_CONSTRAINT: UNIQUE constraint failed:')) {
+      errorType = frappe.errors.DuplicateEntryError;
+    }
+    return errorType;
   }
 }
 
