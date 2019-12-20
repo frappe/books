@@ -187,18 +187,42 @@ module.exports = class BaseDocument extends Observable {
   }
 
   validateMandatory() {
-    let mandatoryFields = this.meta.fields.filter(df => df.required);
-    let missingMandatoryFields = mandatoryFields.filter(df => {
-      let value = this[df.fieldname];
-      if (df.fieldtype === 'Table') {
-        return !value || value.length === 0;
+    let missingMandatory = [getMissingMandatory(this)];
+    let tableFields = this.meta.fields.filter(df => df.fieldtype === 'Table');
+    tableFields.map(df => {
+      let rows = this[df.fieldname];
+      for (let row of rows) {
+        missingMandatory = missingMandatory.concat(getMissingMandatory(row));
       }
-      return value == null || value === '';
     });
-    if (missingMandatoryFields.length > 0) {
-      let fields = missingMandatoryFields.map(df => `"${df.label}"`).join(', ');
+
+    if (missingMandatory.length > 0) {
+      let fields = missingMandatory.join('\n');
       let message = frappe._('Value missing for {0}', fields);
       throw new frappe.errors.MandatoryError(message);
+    }
+
+    function getMissingMandatory(doc) {
+      let mandatoryFields = doc.meta.fields.filter(df => df.required);
+      let message = mandatoryFields
+        .filter(df => {
+          let value = doc[df.fieldname];
+          if (df.fieldtype === 'Table') {
+            return value == null || value.length === 0;
+          }
+          return value == null || value === '';
+        })
+        .map(df => {
+          return `"${df.label}"`;
+        })
+        .join(', ');
+
+      if (doc.meta.isChild) {
+        let parentfield = doc.parentdoc.meta.getField(doc.parentfield);
+        message = `${parentfield.label} Row ${doc.idx + 1}: ${message}`;
+      }
+
+      return message;
     }
   }
 
@@ -250,7 +274,7 @@ module.exports = class BaseDocument extends Observable {
   updateModified() {
     if (frappe.isServer) {
       let now = new Date().toISOString();
-        this.modifiedBy = frappe.session.user;
+      this.modifiedBy = frappe.session.user;
       this.modified = now;
     }
   }
