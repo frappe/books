@@ -224,11 +224,11 @@ module.exports = class BaseDocument extends Observable {
   setStandardValues() {
     // set standard values on server-side only
     if (frappe.isServer) {
-      let now = new Date().toISOString();
-      if (!this.submitted) {
+      if (this.isSubmittable && this.submitted == null) {
         this.submitted = 0;
       }
 
+      let now = new Date().toISOString();
       if (!this.owner) {
         this.owner = frappe.session.user;
       }
@@ -237,9 +237,14 @@ module.exports = class BaseDocument extends Observable {
         this.creation = now;
       }
 
-      if (!this.modifiedBy) {
+      this.updateModified();
+    }
+  }
+
+  updateModified() {
+    if (frappe.isServer) {
+      let now = new Date().toISOString();
         this.modifiedBy = frappe.session.user;
-      }
       this.modified = now;
     }
   }
@@ -465,7 +470,6 @@ module.exports = class BaseDocument extends Observable {
 
   async commit() {
     // re-run triggers
-    this.setStandardValues();
     this.setKeywords();
     this.setChildIdx();
     await this.applyFormula();
@@ -474,6 +478,7 @@ module.exports = class BaseDocument extends Observable {
 
   async insert() {
     await this.setName();
+    this.setStandardValues();
     await this.commit();
     await this.validateInsert();
     await this.trigger('beforeInsert');
@@ -500,6 +505,9 @@ module.exports = class BaseDocument extends Observable {
     // before submit
     if (this.flags.submitAction) await this.trigger('beforeSubmit');
     if (this.flags.revertAction) await this.trigger('beforeRevert');
+
+    // update modifiedBy and modified
+    this.updateModified();
 
     const data = await frappe.db.update(this.doctype, this.getValidDict());
     this.syncValues(data);
