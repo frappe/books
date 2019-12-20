@@ -24,7 +24,7 @@ module.exports = class BaseDocument extends Observable {
         this[fieldname] = value;
       } else if (Array.isArray(value)) {
         for (let row of value) {
-          this.append(fieldname, row);
+          this.push(fieldname, row);
         }
       } else {
         this[fieldname] = value;
@@ -146,12 +146,18 @@ module.exports = class BaseDocument extends Observable {
   }
 
   append(key, document = {}) {
+    // push child row and trigger change
+    this.push(key, document);
+    this._dirty = true;
+    this.applyChange(key);
+  }
+
+  push(key, document = {}) {
+    // push child row without triggering change
     if (!this[key]) {
       this[key] = [];
     }
     this[key].push(this._initChild(document, key));
-    this._dirty = true;
-    this.applyChange(key);
   }
 
   _initChild(data, key) {
