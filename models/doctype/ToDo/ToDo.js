@@ -4,14 +4,8 @@ module.exports = {
   name: 'ToDo',
   label: 'To Do',
   naming: 'autoincrement',
-  pageSettings: {
-    hideTitle: true
-  },
   isSingle: 0,
-  keywordFields: [
-    'subject',
-    'description'
-  ],
+  keywordFields: ['subject', 'description'],
   titleField: 'subject',
   indicators: {
     key: 'status',
@@ -24,6 +18,7 @@ module.exports = {
     {
       fieldname: 'subject',
       label: 'Subject',
+      placeholder: 'Subject',
       fieldtype: 'Data',
       required: 1
     },
@@ -31,10 +26,7 @@ module.exports = {
       fieldname: 'status',
       label: 'Status',
       fieldtype: 'Select',
-      options: [
-        'Open',
-        'Closed'
-      ],
+      options: ['Open', 'Closed'],
       default: 'Open',
       required: 1
     },
@@ -45,22 +37,24 @@ module.exports = {
     }
   ],
 
-  links: [
+  quickEditFields: ['status', 'description'],
+
+  actions: [
     {
       label: 'Close',
-      condition: (form) => form.doc.status !== 'Closed',
-      action: async (form) => {
-        await form.doc.set('status', 'Closed');
-        await form.doc.update();
+      condition: doc => doc.status !== 'Closed',
+      action: async doc => {
+        await doc.set('status', 'Closed');
+        await doc.update();
       }
     },
     {
       label: 'Re-Open',
-      condition: (form) => form.doc.status !== 'Open',
-      action: async (form) => {
-        await form.doc.set('status', 'Open');
-        await form.doc.update();
+      condition: doc => doc.status !== 'Open',
+      action: async doc => {
+        await doc.set('status', 'Open');
+        await doc.update();
       }
     }
   ]
-}
+};
