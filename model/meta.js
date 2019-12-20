@@ -255,11 +255,17 @@ module.exports = class BaseMeta extends BaseDocument {
     let options = field.options;
     if (!options) return;
 
+    let validValues = options;
+
     if (typeof options === 'string') {
       // values given as string
-      options = field.options.split('\n');
+      validValues = options.split('\n');
     }
-    if (!options.includes(value)) {
+    if (typeof options[0] === 'object') {
+      // options as array of {label, value} pairs
+      validValues = options.map(o => o.value);
+    }
+    if (!validValues.includes(value)) {
       throw new frappe.errors.ValueError(
         `${value} must be one of ${options.join(', ')}`
       );
