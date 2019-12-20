@@ -1,6 +1,5 @@
 import frappe from 'frappejs';
 import fs from 'fs';
-import path from 'path';
 import { _ } from 'frappejs/utils';
 import { remote, shell } from 'electron';
 import router from '@/router';
@@ -63,7 +62,7 @@ export function showMessageDialog({ message, description, buttons = [] }) {
 }
 
 export function deleteDocWithPrompt(doc) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     showMessageDialog({
       message: _('Are you sure you want to delete {0} "{1}"?', [
         doc.doctype,
@@ -213,4 +212,33 @@ export function makePDF(html, destination) {
       );
     });
   });
+}
+
+export function getActionsForDocument(doc) {
+  if (!doc) return [];
+
+  let deleteAction = {
+    component: {
+      template: `<span class="text-red-700">{{ _('Delete') }}</span>`
+    },
+    condition: doc => !doc.isNew() && !doc.submitted,
+    action: () =>
+      deleteDocWithPrompt(doc).then(res => {
+        if (res) {
+          router.push(`/list/${doc.doctype}`);
+        }
+      })
+  };
+
+  let actions = [...(doc.meta.actions || []), deleteAction]
+    .filter(d => (d.condition ? d.condition(doc) : true))
+    .map(d => {
+      return {
+        label: d.label,
+        component: d.component,
+        action: d.action.bind(this, doc, router)
+      };
+    });
+
+  return actions;
 }

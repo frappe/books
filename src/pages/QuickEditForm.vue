@@ -10,22 +10,7 @@
         }}</span>
       </div>
       <div class="flex items-stretch">
-        <Dropdown
-          v-if="actions && actions.length"
-          :items="actions"
-          right
-          class="text-base"
-        >
-          <template v-slot="{ toggleDropdown }">
-            <Button
-              class="text-gray-900"
-              :icon="true"
-              @click="toggleDropdown()"
-            >
-              <feather-icon name="more-horizontal" class="w-4 h-4" />
-            </Button>
-          </template>
-        </Dropdown>
+        <DropdownWithActions :actions="actions" />
         <Button
           :icon="true"
           @click="insertDoc"
@@ -94,8 +79,8 @@ import { _ } from 'frappejs';
 import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import TwoColumnForm from '@/components/TwoColumnForm';
-import Dropdown from '@/components/Dropdown';
-import { deleteDocWithPrompt, openQuickEdit } from '@/utils';
+import DropdownWithActions from '@/components/DropdownWithActions';
+import { openQuickEdit, getActionsForDocument } from '@/utils';
 
 export default {
   name: 'QuickEditForm',
@@ -104,7 +89,7 @@ export default {
     Button,
     FormControl,
     TwoColumnForm,
-    Dropdown
+    DropdownWithActions
   },
   provide() {
     let vm = this;
@@ -137,29 +122,7 @@ export default {
         .filter(df => !(this.hideFields || []).includes(df.fieldname));
     },
     actions() {
-      if (!this.doc) return null;
-      let deleteAction = {
-        component: {
-          template: `<span class="text-red-700">{{ _('Delete') }}</span>`
-        },
-        condition: doc => !doc.isNew() && !doc.submitted,
-        action: () => {
-          this.deleteDoc().then(() => {
-            this.routeToList();
-          });
-        }
-      };
-      let actions = [...(this.meta.actions || []), deleteAction]
-        .filter(d => (d.condition ? d.condition(this.doc) : true))
-        .map(d => {
-          return {
-            label: d.label,
-            component: d.component,
-            action: d.action.bind(this, this.doc, this.$router)
-          };
-        });
-
-      return actions;
+      return getActionsForDocument(this.doc);
     }
   },
   methods: {
@@ -218,12 +181,6 @@ export default {
     },
     submitDoc() {
       this.$refs.form.submit();
-    },
-    deleteDoc() {
-      return deleteDocWithPrompt(this.doc);
-    },
-    routeToList() {
-      this.$router.push(`/list/${this.doctype}`);
     },
     routeToPrevious() {
       this.$router.back();

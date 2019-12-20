@@ -2,26 +2,29 @@
   <div class="flex flex-col">
     <PageHeader>
       <BackLink slot="title" @click="$router.back()" />
-      <template slot="actions">
+      <template slot="actions" v-if="doc">
+        <DropdownWithActions class="ml-2" :actions="actions" />
         <Button
           v-if="doc._notInserted || doc._dirty"
           type="primary"
           class="text-white text-xs ml-2"
           @click="onSaveClick"
-          >{{ _('Save') }}</Button
         >
+          {{ _('Save') }}
+        </Button>
         <Button
           v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
           type="primary"
           class="text-white text-xs ml-2"
           @click="onSubmitClick"
-          >{{ _('Submit') }}</Button
         >
+          {{ _('Submit') }}
+        </Button>
       </template>
     </PageHeader>
     <div
+      v-if="doc"
       class="flex justify-center flex-1 mb-8 mt-6"
-      v-if="meta"
       :class="doc.submitted && 'pointer-events-none'"
     >
       <div
@@ -109,13 +112,13 @@
   </div>
 </template>
 <script>
+import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
+import DropdownWithActions from '@/components/DropdownWithActions';
 import FormControl from '@/components/Controls/FormControl';
-import Row from '@/components/Row';
-import Dropdown from '@/components/Dropdown';
-import { openQuickEdit } from '@/utils';
 import BackLink from '@/components/BackLink';
+import { handleErrorWithDialog, getActionsForDocument } from '@/utils';
 
 export default {
   name: 'JournalEntryForm',
@@ -123,9 +126,8 @@ export default {
   components: {
     PageHeader,
     Button,
+    DropdownWithActions,
     FormControl,
-    Row,
-    Dropdown,
     BackLink
   },
   provide() {
@@ -137,14 +139,13 @@ export default {
   data() {
     return {
       doctype: 'JournalEntry',
-      meta: null,
-      itemsMeta: null,
-      doc: {},
-      partyDoc: null,
-      printSettings: null
+      doc: null
     };
   },
   computed: {
+    meta() {
+      return frappe.getMeta(this.doctype);
+    },
     totalDebit() {
       let value = 0;
       if (this.doc.accounts) {
@@ -158,27 +159,32 @@ export default {
         value = this.doc.getSum('accounts', 'credit');
       }
       return frappe.format(value, 'Currency');
+    },
+    actions() {
+      return getActionsForDocument(this.doc);
     }
   },
   async mounted() {
-    this.meta = frappe.getMeta(this.doctype);
-    this.doc = await frappe.getDoc(this.doctype, this.name);
+    try {
+      this.doc = await frappe.getDoc(this.doctype, this.name);
+      window.je = this.doc;
+    } catch (error) {
+      if (error instanceof frappe.errors.NotFoundError) {
+        this.$router.push(`/list/${this.doctype}`);
+        return;
+      }
+      this.handleError(error);
+    }
   },
   methods: {
-    async addNewItem() {
-      this.doc.append('items');
-    },
     async onSaveClick() {
-      return this.doc.insertOrUpdate();
+      return this.doc.insertOrUpdate().catch(this.handleError);
     },
     async onSubmitClick() {
-      await this.doc.submit();
+      await this.doc.submit().catch(this.handleError);
     },
-    async fetchPartyDoc() {
-      this.partyDoc = await frappe.getDoc(
-        'Party',
-        this.doc[this.partyField.fieldname]
-      );
+    handleError(e) {
+      handleErrorWithDialog(e, this.doc);
     }
   }
 };
