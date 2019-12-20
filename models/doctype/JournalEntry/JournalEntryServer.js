@@ -1,4 +1,3 @@
-const frappe = require('frappejs');
 const BaseDocument = require('frappejs/model/document');
 const LedgerPosting = require('../../../accounting/ledgerPosting');
 
@@ -17,7 +16,15 @@ module.exports = class JournalEntryServer extends BaseDocument {
     return entries;
   }
 
-  async afterSubmit() {
+  beforeUpdate() {
+    this.getPosting().validateEntries();
+  }
+
+  beforeInsert() {
+    this.getPosting().validateEntries();
+  }
+
+  async beforeSubmit() {
     await this.getPosting().post();
   }
 

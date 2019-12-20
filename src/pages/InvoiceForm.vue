@@ -14,22 +14,7 @@
         >
           <feather-icon name="printer" class="w-4 h-4" />
         </Button>
-        <Dropdown
-          v-if="actions && actions.length"
-          class="text-xs"
-          :items="actions"
-          right
-        >
-          <template v-slot="{ toggleDropdown }">
-            <Button
-              class="text-gray-900 text-xs ml-2"
-              :icon="true"
-              @click="toggleDropdown()"
-            >
-              <feather-icon name="more-horizontal" class="w-4 h-4" />
-            </Button>
-          </template>
-        </Dropdown>
+        <DropdownWithActions class="ml-2" :actions="actions" />
         <Button
           v-if="showSave"
           type="primary"
@@ -171,10 +156,10 @@ import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
-import Dropdown from '@/components/Dropdown';
+import DropdownWithActions from '@/components/DropdownWithActions';
 import BackLink from '@/components/BackLink';
 import { openSettings } from '@/pages/Settings/utils';
-import { deleteDocWithPrompt, handleErrorWithDialog } from '@/utils';
+import { handleErrorWithDialog, getActionsForDocument } from '@/utils';
 
 export default {
   name: 'InvoiceForm',
@@ -183,7 +168,7 @@ export default {
     PageHeader,
     Button,
     FormControl,
-    Dropdown,
+    DropdownWithActions,
     BackLink
   },
   provide() {
@@ -203,17 +188,6 @@ export default {
     meta() {
       return frappe.getMeta(this.doctype);
     },
-    itemsMeta() {
-      return frappe.getMeta(`${this.doctype}Item`);
-    },
-    itemTableFields() {
-      return this.itemsMeta.tableFields.map(fieldname =>
-        this.itemsMeta.getField(fieldname)
-      );
-    },
-    itemTableColumnRatio() {
-      return [0.3].concat(this.itemTableFields.map(() => 1));
-    },
     partyField() {
       let fieldname = {
         SalesInvoice: 'customer',
@@ -228,25 +202,7 @@ export default {
       return this.doc && (this.doc._notInserted || this.doc._dirty);
     },
     actions() {
-      if (!this.doc) return null;
-      let deleteAction = {
-        component: {
-          template: `<span class="text-red-700">{{ _('Delete') }}</span>`
-        },
-        condition: doc => !doc.isNew() && !doc.submitted,
-        action: this.deleteAction
-      };
-      let actions = [...(this.meta.actions || []), deleteAction]
-        .filter(d => (d.condition ? d.condition(this.doc) : true))
-        .map(d => {
-          return {
-            label: d.label,
-            component: d.component,
-            action: d.action.bind(this, this.doc, this.$router)
-          };
-        });
-
-      return actions;
+      return getActionsForDocument(this.doc);
     }
   },
   async mounted() {
@@ -258,7 +214,7 @@ export default {
         this.routeToList();
         return;
       }
-      throw error;
+      this.handleError(error);
     }
     this.printSettings = await frappe.getSingle('PrintSettings');
     this.companyName = (
@@ -271,22 +227,12 @@ export default {
     }
   },
   methods: {
-    async addNewItem() {
-      this.doc.append('items');
-    },
     async onSaveClick() {
-      await this.doc.set(
-        'items',
-        this.doc.items.filter(row => row.item)
-      );
+      //   await this.doc.set(
+      //     'items',
+      //     this.doc.items.filter(row => row.item)
+      //   );
       return this.doc.insertOrUpdate().catch(this.handleError);
-    },
-    deleteAction() {
-      return deleteDocWithPrompt(this.doc).then(res => {
-        if (res) {
-          this.routeToList();
-        }
-      });
     },
     onSubmitClick() {
       return this.doc.submit().catch(this.handleError);

@@ -1,15 +1,11 @@
-const frappe = require('frappejs');
-const utils = require('../../../accounting/utils');
+const { ledgerLink } = require('../../../accounting/utils');
+const { DateTime } = require('luxon');
 
 module.exports = {
   label: 'Journal Entry',
   name: 'JournalEntry',
   doctype: 'DocType',
-  isSingle: 0,
-  isChild: 0,
   isSubmittable: 1,
-  keywordFields: ['name'],
-  showTitle: true,
   settings: 'JournalEntrySettings',
   fields: [
     {
@@ -35,7 +31,8 @@ module.exports = {
     {
       fieldname: 'date',
       label: 'Date',
-      fieldtype: 'Date'
+      fieldtype: 'Date',
+      default: DateTime.local().toISODate()
     },
     {
       fieldname: 'accounts',
@@ -61,22 +58,14 @@ module.exports = {
       placeholder: 'User Remark'
     }
   ],
-  layout: [
-    // section 1
+  actions: [
     {
-      columns: [{ fields: ['entryType'] }, { fields: ['date'] }]
+      label: 'Revert',
+      condition: doc => doc.submitted,
+      action(doc) {
+        doc.revert();
+      }
     },
-    // section 2
-    {
-      columns: [{ fields: ['accounts'] }]
-    },
-    // section 3
-    {
-      columns: [{ fields: ['referenceNumber'] }, { fields: ['referenceDate'] }]
-    },
-    // section 4
-    {
-      columns: [{ fields: ['userRemark'] }]
-    }
+    ledgerLink
   ]
 };

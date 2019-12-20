@@ -10,8 +10,9 @@ const viewConfig = {
       options: [
         { label: '', value: '' },
         { label: 'Sales Invoice', value: 'SalesInvoice' },
+        { label: 'Purchase Invoice', value: 'PurchaseInvoice' },
         { label: 'Payment', value: 'Payment' },
-        { label: 'Purchase Invoice', value: 'PurchaseInvoice' }
+        { label: 'Journal Entry', value: 'JournalEntry' }
       ],
       size: 'small',
       label: 'Reference Type',
@@ -70,33 +71,7 @@ const viewConfig = {
     {
       label: 'Export',
       type: 'primary',
-      action: async report => {
-        // async function getReportDetails() {
-        //   let [rows, columns] = await report.getReportData(
-        //     report.currentFilters
-        //   );
-        //   let columnData = columns.map(column => {
-        //     return {
-        //       id: column.id,
-        //       content: column.content,
-        //       checked: true
-        //     };
-        //   });
-        //   return {
-        //     title: title,
-        //     rows: rows,
-        //     columnData: columnData
-        //   };
-        // }
-        // report.$modal.show({
-        //   modalProps: {
-        //     title: `Export ${title}`,
-        //     noFooter: true
-        //   },
-        //   component: require('../../src/components/ExportWizard').default,
-        //   props: await getReportDetails()
-        // });
-      }
+      action: () => {}
     }
   ],
   getColumns() {

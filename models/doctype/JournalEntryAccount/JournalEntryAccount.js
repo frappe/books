@@ -1,10 +1,6 @@
 module.exports = {
   name: 'JournalEntryAccount',
-  doctype: 'DocType',
-  isSingle: 0,
   isChild: 1,
-  keywordFields: [],
-  layout: 'ratio',
   fields: [
     {
       fieldname: 'account',
@@ -12,24 +8,34 @@ module.exports = {
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
-      getFilters: (query, control) => {
-        if (query)
-          return {
-            keywords: ['like', query],
-            isGroup: 0
-          };
-      }
+      getFilters: () => ({ isGroup: 0 })
     },
     {
       fieldname: 'debit',
       label: 'Debit',
-      fieldtype: 'Currency'
+      fieldtype: 'Currency',
+      formula: autoDebitCredit('debit')
     },
     {
       fieldname: 'credit',
       label: 'Credit',
-      fieldtype: 'Currency'
+      fieldtype: 'Currency',
+      formula: autoDebitCredit('credit')
     }
   ],
   tableFields: ['account', 'debit', 'credit']
 };
+
+function autoDebitCredit(type = 'debit') {
+  let otherType = type === 'debit' ? 'credit' : 'debit';
+  return (row, doc) => {
+    if (row[type] == 0) return null;
+    if (row[otherType]) return null;
+
+    let totalType = doc.getSum('accounts', type);
+    let totalOtherType = doc.getSum('accounts', otherType);
+    if (totalType < totalOtherType) {
+      return totalOtherType - totalType;
+    }
+  };
+}
