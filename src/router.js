@@ -1,18 +1,18 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import ListView from '@/pages/ListView/ListView';
+// standard views
 import Dashboard from '@/pages/Dashboard/Dashboard';
+import ListView from '@/pages/ListView/ListView';
 import PrintView from '@/pages/PrintView/PrintView';
 import QuickEditForm from '@/pages/QuickEditForm';
-
 import Report from '@/pages/Report.vue';
 
+// custom views
+import GetStarted from '@/pages/GetStarted';
 import ChartOfAccounts from '@/pages/ChartOfAccounts';
-
 import InvoiceForm from '@/pages/InvoiceForm';
 import JournalEntryForm from '@/pages/JournalEntryForm';
-
 
 Vue.use(Router);
 
@@ -22,6 +22,10 @@ const routes = [
     component: Dashboard
   },
   {
+    path: '/get-started',
+    component: GetStarted
+  },
+  {
     path: '/edit/JournalEntry/:name',
     name: 'JournalEntryForm',
     components: {
@@ -29,7 +33,14 @@ const routes = [
       edit: QuickEditForm
     },
     props: {
-      default: true,
+      default: route => {
+        // for sidebar item active state
+        route.params.doctype = 'JournalEntry';
+        return {
+          doctype: 'JournalEntry',
+          name: route.params.name
+        };
+      },
       edit: route => route.query
     }
   },

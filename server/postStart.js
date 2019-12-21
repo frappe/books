@@ -13,8 +13,6 @@ module.exports = async function postStart() {
 
   frappe.metaCache = {};
 
-  frappe.syncDoc(require('../fixtures/invoicePrint'));
-
   // init naming series if missing
   await naming.createNumberSeries('SINV-', 'SalesInvoiceSettings');
   await naming.createNumberSeries('PINV-', 'PurchaseInvoiceSettings');
@@ -27,10 +25,10 @@ module.exports = async function postStart() {
   await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
   // fetch singles
-  // these will be available as
-  // frappe.SystemSettings and frappe.AccountingSettings
+  // so that they are available synchronously
   await frappe.getSingle('SystemSettings');
   await frappe.getSingle('AccountingSettings');
+  await frappe.getSingle('GetStarted');
 
   // cache currency symbols for frappe.format
   frappe.currencySymbols = await getCurrencySymbols();

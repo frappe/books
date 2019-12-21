@@ -16,7 +16,7 @@ requireComponent.keys().forEach(fileName => {
   const componentConfig = requireComponent(fileName);
 
   let match = fileName.match(/\.\/(\d+)\/((\w|-)+).vue/);
-  let [_, size, name] = match || [];
+  let [, size, name] = match || [];
 
   if (name) {
     components[size] = components[size] || {};
@@ -26,7 +26,7 @@ requireComponent.keys().forEach(fileName => {
 
 export default {
   name: 'Icon',
-  props: ['size', 'name', 'active'],
+  props: ['name', 'active', 'size', 'height'],
   computed: {
     iconComponent() {
       try {
@@ -43,6 +43,10 @@ export default {
         '18': 'w-5 h-5',
         '24': 'w-6 h-6'
       }[this.size];
+
+      if (this.height) {
+        sizeClass = `w-${this.height} h-${this.height}`;
+      }
 
       return [sizeClass, 'fill-current'];
     }
