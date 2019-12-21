@@ -2,7 +2,6 @@
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 9">
     <polyline
       fill="none"
-
       stroke-linecap="round"
       stroke-linejoin="round"
       stroke-width="1.5"

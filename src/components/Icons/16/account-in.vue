@@ -3,7 +3,6 @@
     <g
       fill="none"
       fill-rule="evenodd"
-
       stroke-linecap="round"
       stroke-linejoin="round"
       transform="translate(0 1)"

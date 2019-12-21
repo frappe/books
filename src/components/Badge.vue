@@ -1,5 +1,8 @@
 <template>
-  <div class="inline-block rounded-md px-2 py-1 truncate" :class="getColorClass">
+  <div
+    class="inline-block rounded-md px-2 py-1 truncate"
+    :class="getColorClass"
+  >
     <slot></slot>
   </div>
 </template>
@@ -20,7 +23,7 @@ export default {
         yellow: 'bg-yellow-100 text-yellow-600',
         orange: 'bg-orange-100 text-orange-600',
         blue: 'bg-blue-100 text-blue-600',
-        green: 'bg-green-100 text-green-600',
+        green: 'bg-green-100 text-green-600'
       }[this.color];
     }
   }
