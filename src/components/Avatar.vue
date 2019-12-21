@@ -1,6 +1,11 @@
 <template>
   <div class="rounded-full overflow-hidden" :class="sizeClasses">
-    <img v-if="imageURL" :src="imageURL" class="object-cover" :class="sizeClasses" />
+    <img
+      v-if="imageURL"
+      :src="imageURL"
+      class="object-cover"
+      :class="sizeClasses"
+    />
     <div
       v-else
       class="bg-gray-500 flex h-full items-center justify-center text-white w-full text-base uppercase"

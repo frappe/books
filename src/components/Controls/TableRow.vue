@@ -1,8 +1,5 @@
 <template>
-  <Row
-    :ratio="ratio"
-    class="border-b px-2 w-full"
-  >
+  <Row :ratio="ratio" class="border-b px-2 w-full">
     <div class="flex items-center pl-2 text-gray-600">{{ row.idx + 1 }}</div>
     <FormControl
       :size="size"
@@ -35,7 +32,7 @@ export default {
       doctype: this.row.doctype,
       name: this.row.name,
       doc: this.row
-    }
+    };
   }
-}
+};
 </script>

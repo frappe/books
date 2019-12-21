@@ -5,7 +5,8 @@ export default {
   props: ['target'],
   extends: Link,
   created() {
-    this.targetWatcher = this.$watch(`doc.${this.df.references}`, function(newTarget, oldTarget) {
+    let watchKey = `doc.${this.df.references}`;
+    this.targetWatcher = this.$watch(watchKey, function(newTarget, oldTarget) {
       if (oldTarget && newTarget !== oldTarget) {
         this.triggerChange('');
       }
