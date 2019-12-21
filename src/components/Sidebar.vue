@@ -6,11 +6,11 @@
     <div class="window-no-drag">
       <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
       <div class="px-3">
-        <h6 class="text-base font-semibold" @click="$router.push('/')">
+        <h6 class="text-lg font-semibold" @click="$router.push('/')">
           {{ companyName }}
         </h6>
       </div>
-      <div class="mt-5">
+      <div class="mt-3">
         <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.title">
           <div
             class="px-3 py-2 flex items-center rounded-lg cursor-pointer hover:bg-white"

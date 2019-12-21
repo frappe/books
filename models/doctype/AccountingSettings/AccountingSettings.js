@@ -1,4 +1,6 @@
-const countryList = Object.keys(require('../../../fixtures/countryInfo.json')).sort();
+const countryList = Object.keys(
+  require('../../../fixtures/countryInfo.json')
+).sort();
 
 module.exports = {
   name: 'AccountingSettings',
@@ -27,7 +29,7 @@ module.exports = {
         return {
           isGroup: 0,
           rootType: 'Expense'
-        }
+        };
       }
     },
 
@@ -41,7 +43,7 @@ module.exports = {
         return {
           isGroup: 0,
           rootType: 'Expense'
-        }
+        };
       }
     },
 
@@ -55,7 +57,7 @@ module.exports = {
 
     {
       fieldname: 'currency',
-      label: 'Country Currency',
+      label: 'Currency',
       fieldtype: 'Data',
       required: 0
     },
@@ -102,6 +104,6 @@ module.exports = {
     'country',
     'currency',
     'fiscalYearStart',
-    'fiscalYearEnd',
+    'fiscalYearEnd'
   ]
 };

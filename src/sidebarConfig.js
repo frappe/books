@@ -11,6 +11,11 @@ const config = {
   },
   groups: [
     {
+      title: _('Get Started'),
+      route: '/get-started',
+      icon: getIcon('general', '24', '5')
+    },
+    {
       title: _('Dashboard'),
       route: '/',
       icon: getIcon('dashboard')
@@ -118,15 +123,19 @@ const config = {
   ]
 };
 
-function getIcon(name) {
+function getIcon(name, size = '18', height = null) {
   return {
     name,
     render(h) {
       return h(Icon, {
-        props: Object.assign({
-          name,
-          size: '18',
-        }, this.$attrs)
+        props: Object.assign(
+          {
+            name,
+            size,
+            height
+          },
+          this.$attrs
+        )
       });
     }
   };
