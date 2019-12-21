@@ -6,7 +6,7 @@ import Dashboard from '@/pages/Dashboard/Dashboard';
 import ListView from '@/pages/ListView/ListView';
 import PrintView from '@/pages/PrintView/PrintView';
 import QuickEditForm from '@/pages/QuickEditForm';
-import Report from '@/pages/Report.vue';
+import Report from '@/pages/Report';
 
 // custom views
 import GetStarted from '@/pages/GetStarted';
