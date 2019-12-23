@@ -83,8 +83,6 @@ import router from './router';
       bankName,
       fiscalYearStart,
       fiscalYearEnd,
-      numberFormat: countryList[country]['number_format'],
-      symbol: countryList[country]['currency_symbol'],
       currency: countryList[country]['currency']
     });
 
