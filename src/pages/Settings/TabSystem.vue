@@ -13,12 +13,17 @@
         <span class="text-xs text-gray-600">{{ dbPath }}</span>
       </div>
     </div>
-    <div class="mt-4 text-sm">
-      <Button @click="newDatabase">{{ _('Create New') }}</Button>
-      <Button class="ml-2" @click="existingDatabase">{{
-        _('Browse File')
-      }}</Button>
+    <div class="mt-4 flex text-sm">
+      <Button @click="newDatabase">{{ _('New File') }}</Button>
+      <Button class="ml-2" @click="existingDatabase">
+        {{ _('Change File') }}
+      </Button>
     </div>
+    <p class="-ml-3 mt-4 flex items-start text-sm text-gray-600">
+      <feather-icon name="info" class="mr-1 w-4 h-4 inline" />
+      <!-- prettier-ignore -->
+      {{ _('Create a new file to start accounting for a new company, or change file to open accounting for an existing company.') }}
+    </p>
     <TwoColumnForm
       class="mt-6"
       v-if="doc"
