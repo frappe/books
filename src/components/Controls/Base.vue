@@ -67,7 +67,10 @@ export default {
       return this.placeholder || this.df.placeholder;
     },
     isReadOnly() {
-      return this.readOnly || this.df.readOnly;
+      if (this.readOnly != null) {
+        return this.readOnly;
+      }
+      return this.df.readOnly;
     }
   },
   methods: {
