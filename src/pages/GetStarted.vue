@@ -1,13 +1,15 @@
 <template>
-  <div>
+  <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
       <h1 slot="title" class="text-2xl font-bold">
         {{ _('Setup your workspace') }}
       </h1>
     </PageHeader>
-    <div class="px-8 mt-4">
-      <div class="border-t"></div>
-      <div class="mt-6" v-for="section in sections" :key="section.label">
+    <div class="px-8">
+      <div class="mt-4 border-t"></div>
+    </div>
+    <div class="px-8 flex-1 overflow-y-auto">
+      <div class="my-6" v-for="section in sections" :key="section.label">
         <h2 class="font-medium">{{ section.label }}</h2>
         <div class="mt-4 flex -mx-2">
           <div
