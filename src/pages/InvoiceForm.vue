@@ -228,10 +228,10 @@ export default {
   },
   methods: {
     async onSaveClick() {
-      //   await this.doc.set(
-      //     'items',
-      //     this.doc.items.filter(row => row.item)
-      //   );
+      await this.doc.set(
+        'items',
+        this.doc.items.filter(row => row.item)
+      );
       return this.doc.insertOrUpdate().catch(this.handleError);
     },
     onSubmitClick() {
