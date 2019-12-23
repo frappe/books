@@ -53,7 +53,8 @@ module.exports = {
     {
       fieldname: 'outstandingAmount',
       label: 'Outstanding Amount',
-      fieldtype: 'Currency'
+      fieldtype: 'Currency',
+      getCurrency: doc => doc.currency
     },
     {
       fieldname: 'currency',
