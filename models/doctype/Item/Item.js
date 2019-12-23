@@ -31,6 +31,14 @@ module.exports = {
       options: ['Unit', 'Kg', 'Gram', 'Hour', 'Day']
     },
     {
+      fieldname: 'itemType',
+      label: 'Type',
+      placeholder: 'Sales',
+      fieldtype: 'Select',
+      default: 'Product',
+      options: ['Product', 'Service']
+    },
+    {
       fieldname: 'incomeAccount',
       label: 'Income',
       fieldtype: 'Link',
@@ -43,6 +51,15 @@ module.exports = {
           isGroup: 0,
           accountType: 'Income Account'
         };
+      },
+      formulaDependsOn: ['itemType'],
+      formula(doc) {
+        if (doc.itemType === 'Product') {
+          return 'Sales';
+        }
+        if (doc.itemType === 'Service') {
+          return 'Service';
+        }
       }
     },
     {
@@ -56,15 +73,12 @@ module.exports = {
       getFilters: () => {
         return {
           isGroup: 0,
-          accountType: [
-            'in',
-            [
-              'Cost of Goods Sold',
-              'Expense Account',
-              'Stock Received But Not Billed'
-            ]
-          ]
+          accountType: ['in', ['Cost of Goods Sold', 'Expense Account']]
         };
+      },
+      formulaDependsOn: ['itemType'],
+      formula() {
+        return 'Cost of Goods Sold';
       }
     },
     {
@@ -81,14 +95,7 @@ module.exports = {
       placeholder: '0.00'
     }
   ],
-  quickEditFields: [
-    'rate',
-    'unit',
-    'incomeAccount',
-    'expenseAccount',
-    'tax',
-    'description'
-  ],
+  quickEditFields: ['rate', 'unit', 'itemType', 'tax', 'description'],
   layout: [
     // section 1
     {
