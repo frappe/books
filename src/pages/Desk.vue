@@ -1,5 +1,5 @@
 <template>
-  <div class="flex">
+  <div class="flex overflow-hidden">
     <Sidebar class="w-56 flex-shrink-0" />
     <div class="flex flex-1 overflow-y-hidden bg-white">
       <keep-alive>

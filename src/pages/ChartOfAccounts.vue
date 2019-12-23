@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
       <h1 slot="title" class="text-2xl font-bold">
         {{ _('Chart of Accounts') }}
@@ -8,24 +8,91 @@
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
-    <div class="flex-1 flex px-8 mt-4">
+    <div class="flex-1 flex px-8 mt-4 overflow-y-auto">
       <div class="flex-1" v-if="root">
-        <div
-          class="mt-2 px-4 py-2 cursor-pointer hover:bg-gray-200 rounded-md"
-          v-for="account in allAccounts"
-          :key="account.name"
-          @click="onClick(account)"
-        >
-          <div class="flex items-center" :class="`pl-${account.level * 8}`">
-            <component :is="getIconComponent(account)" />
-            <div
-              class="ml-3"
-              :class="[!account.parentAccount && 'font-semibold']"
-            >
-              {{ account.name }}
+        <template v-for="account in allAccounts">
+          <div
+            class="mt-2 px-4 py-2 cursor-pointer hover:bg-gray-100 rounded-md group"
+            :class="[
+              account.level !== 0 ? 'text-base' : 'text-lg',
+              isQuickEditOpen(account) ? 'bg-gray-200' : ''
+            ]"
+            :key="account.name"
+            @click="onClick(account)"
+          >
+            <div class="flex items-center" :class="`pl-${account.level * 8}`">
+              <component :is="getIconComponent(account)" />
+              <div class="flex items-baseline">
+                <div
+                  class="ml-3"
+                  :class="[!account.parentAccount && 'font-semibold']"
+                >
+                  {{ account.name }}
+                </div>
+                <div
+                  v-if="account.isGroup"
+                  class="ml-6 hidden group-hover:block"
+                >
+                  <button
+                    class="text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
+                    @click.stop="addAccount(account, 'addingAccount')"
+                  >
+                    {{ _('Add Account') }}
+                  </button>
+                  <button
+                    class="ml-3 text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
+                    @click.stop="addAccount(account, 'addingGroupAccount')"
+                  >
+                    {{ _('Add Group') }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+          <div
+            v-if="account.addingAccount || account.addingGroupAccount"
+            class="mt-2 px-4 py-2 cursor-pointer hover:bg-gray-100 rounded-md group"
+            :class="[account.level !== 0 ? 'text-base' : 'text-lg']"
+            :key="account.name + '-adding-account'"
+          >
+            <div
+              class="flex items-center"
+              :class="`pl-${(account.level + 1) * 8}`"
+            >
+              <component
+                :is="getIconComponent({ isGroup: account.addingGroupAccount })"
+              />
+              <div class="flex items-baseline">
+                <div class="ml-3">
+                  <input
+                    class="focus:outline-none bg-transparent"
+                    :class="{ 'text-gray-600': insertingAccount }"
+                    :placeholder="_('New Account')"
+                    :ref="account.name"
+                    @keydown.esc="cancelAddingAccount(account)"
+                    @keydown.enter="
+                      e =>
+                        createNewAccount(
+                          e.target.value,
+                          account,
+                          account.addingGroupAccount
+                        )
+                    "
+                    type="text"
+                    :disabled="insertingAccount"
+                  />
+                  <button
+                    v-if="!insertingAccount"
+                    class="ml-4 text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
+                    @click="cancelAddingAccount(account)"
+                  >
+                    {{ _('Cancel') }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>
@@ -34,7 +101,7 @@
 import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
-import { openQuickEdit } from '@/utils';
+import { openQuickEdit, handleErrorWithDialog } from '@/utils';
 
 export default {
   components: {
@@ -45,10 +112,15 @@ export default {
     return {
       root: null,
       accounts: [],
-      doctype: 'Account'
+      doctype: 'Account',
+      insertingAccount: false
     };
   },
   mounted() {
+    this.fetchAccounts();
+  },
+  async activated() {
+    window.coa = this;
     this.fetchAccounts();
   },
   methods: {
@@ -73,11 +145,18 @@ export default {
       }
     },
     async toggleChildren(account) {
-      if (account.children == null) {
+      await this.fetchChildren(account);
+      account.expanded = !account.expanded;
+      if (!account.expanded) {
+        account.addingAccount = 0;
+        account.addingGroupAccount = 0;
+      }
+      this.accounts = this.accounts.slice();
+    },
+    async fetchChildren(account, force = false) {
+      if (account.children == null || force) {
         account.children = await this.getChildren(account.name);
       }
-      account.expanded = !account.expanded;
-      this.accounts = this.accounts.slice();
     },
     getIconComponent(account) {
       let icons = {
@@ -126,18 +205,95 @@ export default {
         filters: {
           parentAccount: parent
         },
-        fields: ['name', 'parentAccount', 'isGroup', 'balance', 'rootType'],
+        fields: [
+          'name',
+          'parentAccount',
+          'isGroup',
+          'balance',
+          'rootType',
+          'accountType'
+        ],
         orderBy: 'name',
         order: 'asc'
       });
 
       return children.map(d => {
         d.expanded = 0;
+        d.addingAccount = 0;
+        d.addingGroupAccount = 0;
         return d;
       });
     },
-    updateBalance(balance) {
-      this.root.balance += balance;
+    async addAccount(parentAccount, key) {
+      if (!parentAccount.expanded) {
+        await this.fetchChildren(parentAccount);
+        parentAccount.expanded = true;
+      }
+      // activate editing of type 'key' and deactivate other type
+      let otherKey =
+        key === 'addingAccount' ? 'addingGroupAccount' : 'addingAccount';
+      parentAccount[key] = 1;
+      parentAccount[otherKey] = 0;
+
+      // to trigger refresh
+      this.accounts = this.accounts.slice();
+      this.$nextTick(() => {
+        let input = this.$refs[parentAccount.name][0];
+        input.focus();
+      });
+    },
+    cancelAddingAccount(parentAccount, key) {
+      let otherKey =
+        key === 'addingAccount' ? 'addingGroupAccount' : 'addingAccount';
+      parentAccount[key] = 0;
+      parentAccount[otherKey] = 0;
+      this.accounts = this.accounts.slice();
+    },
+    async createNewAccount(accountName, parentAccount, isGroup) {
+      // freeze input
+      this.insertingAccount = true;
+
+      accountName = accountName.trim();
+      let account = await frappe.getNewDoc('Account');
+      let { name, rootType, accountType } = parentAccount;
+      await account.set({
+        name: accountName,
+        parentAccount: name,
+        rootType,
+        accountType,
+        isGroup
+      });
+
+      try {
+        await account.insert();
+
+        // turn off editing
+        parentAccount.addingAccount = 0;
+        parentAccount.addingGroupAccount = 0;
+
+        // update accounts
+        await this.fetchChildren(parentAccount, true);
+        this.accounts = this.accounts.slice();
+
+        // open quick edit
+        openQuickEdit({
+          doctype: 'Account',
+          name: account.name
+        });
+        // unfreeze input
+        this.insertingAccount = false;
+      } catch (e) {
+        // unfreeze input
+        this.insertingAccount = false;
+        handleErrorWithDialog(e, account);
+      }
+    },
+    isQuickEditOpen(account) {
+      let { edit, doctype, name } = this.$route.query;
+      if (edit && doctype === 'Account' && name === account.name) {
+        return true;
+      }
+      return false;
     }
   },
   computed: {

@@ -77,19 +77,7 @@ export function deleteDocWithPrompt(doc) {
               .delete()
               .then(() => resolve(true))
               .catch(e => {
-                let errorMessage;
-                if (e.type === frappe.errors.LinkValidationError) {
-                  errorMessage = _('{0} {1} is linked with existing records.', [
-                    doc.doctype,
-                    doc.name
-                  ]);
-                } else {
-                  errorMessage = _('An error occurred.');
-                }
-                showMessageDialog({
-                  message: errorMessage
-                });
-                throw e;
+                handleErrorWithDialog(e, doc);
               });
           }
         },
@@ -150,15 +138,22 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
 }
 
 export function handleErrorWithDialog(e, doc) {
-  let errorMessage = _('An error occurred.');
-  if (e.type === frappe.errors.DuplicateEntryError) {
+  let errorMessage;
+  if (e.type === frappe.errors.LinkValidationError) {
+    errorMessage = _('{0} {1} is linked with existing records.', [
+      doc.doctype,
+      doc.name
+    ]);
+  } else if (e.type === frappe.errors.DuplicateEntryError) {
     errorMessage = _('{0} {1} already exists.', [doc.doctype, doc.name]);
   } else {
-    errorMessage = e.message;
+    errorMessage = _('An error occurred.');
   }
+
   showMessageDialog({
     message: errorMessage
   });
+
   throw e;
 }
 

@@ -64,7 +64,8 @@ module.exports = {
   },
   variants: {
     margin: ['responsive', 'first', 'last', 'hover', 'focus'],
-    backgroundColor: ['responsive', 'first', 'hover', 'focus', 'focus-within']
+    backgroundColor: ['responsive', 'first', 'hover', 'focus', 'focus-within'],
+    display: ['group-hover']
   },
   plugins: []
 };
