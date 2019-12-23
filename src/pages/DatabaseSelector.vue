@@ -4,7 +4,7 @@
       {{ _('Welcome to Frappe Accounting') }}
     </h1>
     <p class="text-gray-600">
-      {{ _('Do you need to create a new database or load an existing one?') }}
+      {{ _('Create a new file or load an existing one from your computer') }}
     </p>
     <div class="flex mt-10 window-no-drag">
       <div
@@ -16,9 +16,9 @@
             <feather-icon name="plus" class="text-white w-5 h-5" />
           </div>
         </div>
-        <div class="mt-5 font-medium">{{ _('New Database') }}</div>
+        <div class="mt-5 font-medium">{{ _('New File') }}</div>
         <div class="mt-2 text-sm text-gray-600 text-center">
-          {{ _('Create a new database file and store it in your computer.') }}
+          {{ _('Create a new file and store it in your computer.') }}
         </div>
       </div>
       <div
@@ -30,12 +30,17 @@
             <feather-icon name="upload" class="w-4 h-4 text-white" />
           </div>
         </div>
-        <div class="mt-5 font-medium">{{ _('Existing Database') }}</div>
+        <div class="mt-5 font-medium">{{ _('Existing File') }}</div>
         <div class="mt-2 text-sm text-gray-600 text-center">
           {{ _('Load an existing .db file from your computer.') }}
         </div>
       </div>
     </div>
+    <p class="mt-4 flex-center text-sm text-gray-600">
+      <feather-icon name="info" class="-ml-8 mr-1 w-4 h-4 inline" />
+      <!-- prettier-ignore -->
+      {{ _('This file will be used as a database to store data like Customers, Invoices and Settings.') }}
+    </p>
   </div>
 </template>
 <script>
