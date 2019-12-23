@@ -87,7 +87,7 @@ const routes = [
     props: true
   },
   {
-    path: '/chartOfAccounts',
+    path: '/chart-of-accounts',
     name: 'Chart Of Accounts',
     components: {
       default: ChartOfAccounts,

@@ -114,11 +114,20 @@ const config = {
       ]
     },
     {
-      title: _('Settings'),
+      title: _('Setup'),
       icon: getIcon('settings'),
-      action() {
-        openSettings();
-      }
+      items: [
+        {
+          label: _('Chart of Accounts'),
+          route: '/chart-of-accounts'
+        },
+        {
+          label: _('Settings'),
+          action() {
+            openSettings();
+          }
+        }
+      ]
     }
   ]
 };

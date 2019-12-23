@@ -35,7 +35,7 @@
               :key="item.label"
               class="mt-1 first:mt-0 text-base text-gray-800 py-1 pl-10 rounded cursor-pointer hover:bg-white"
               :class="itemActiveClass(item)"
-              @click="routeTo(item.route)"
+              @click="onItemClick(item)"
             >
               {{ item.label }}
             </div>
@@ -91,9 +91,9 @@ export default {
   },
   methods: {
     itemActiveClass(item) {
-      let currentRoute = this.$route.path;
+      let { path: currentRoute, params } = this.$route;
       let routeMatch = currentRoute === item.route;
-      let doctypeMatch = this.$route.params.doctype === item.doctype;
+      let doctypeMatch = item.doctype && params.doctype === item.doctype;
       return routeMatch || doctypeMatch ? 'bg-white text-blue-500' : '';
     },
     isActiveGroup(group) {
@@ -107,6 +107,14 @@ export default {
         this.routeTo(group.route);
       }
       this.activeGroup = group;
+    },
+    onItemClick(item) {
+      if (item.action) {
+        item.action();
+      }
+      if (item.route) {
+        this.routeTo(item.route);
+      }
     },
     routeTo(route) {
       this.$router.push(route);
