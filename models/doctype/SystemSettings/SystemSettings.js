@@ -39,11 +39,14 @@ module.exports = {
     },
     {
       fieldname: 'floatPrecision',
-      label: 'Float Precision',
+      label: 'Precision',
       fieldtype: 'Select',
       options: ['2', '3', '4', '5'],
       default: '2',
       required: 1
-    }
+    },
+  ],
+  quickEditFields: [
+    'dateFormat'
   ]
 };
