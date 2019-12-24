@@ -1,5 +1,11 @@
 productName: Frappe Accounting
 appId: io.frappe.accounting
+afterSign: build/notarize.js
 snap:
   publish:
     - github
+mac:
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
