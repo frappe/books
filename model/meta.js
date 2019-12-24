@@ -267,7 +267,7 @@ module.exports = class BaseMeta extends BaseDocument {
     }
     if (!validValues.includes(value)) {
       throw new frappe.errors.ValueError(
-        `${value} must be one of ${options.join(', ')}`
+        `Invalid value "${value}" for "${field.label}". Must be one of ${options.join(', ')}`
       );
     }
     return value;
