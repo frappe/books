@@ -187,14 +187,16 @@ module.exports = class BaseDocument extends Observable {
   }
 
   validateMandatory() {
-    let missingMandatory = [getMissingMandatory(this)];
+    let checkForMandatory = [this];
     let tableFields = this.meta.fields.filter(df => df.fieldtype === 'Table');
     tableFields.map(df => {
       let rows = this[df.fieldname];
-      for (let row of rows) {
-        missingMandatory = missingMandatory.concat(getMissingMandatory(row));
-      }
+      checkForMandatory = [...checkForMandatory, ...rows];
     });
+
+    let missingMandatory = checkForMandatory
+      .map(doc => getMissingMandatory(doc))
+      .filter(Boolean);
 
     if (missingMandatory.length > 0) {
       let fields = missingMandatory.join('\n');
@@ -217,7 +219,7 @@ module.exports = class BaseDocument extends Observable {
         })
         .join(', ');
 
-      if (doc.meta.isChild) {
+      if (message && doc.meta.isChild) {
         let parentfield = doc.parentdoc.meta.getField(doc.parentfield);
         message = `${parentfield.label} Row ${doc.idx + 1}: ${message}`;
       }
