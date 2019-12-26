@@ -459,7 +459,7 @@ module.exports = class BaseDocument extends Observable {
     }
 
     if (['Float', 'Currency'].includes(field.fieldtype)) {
-      value = round(value, field.precision || 2);
+      value = this.round(value, field);
     }
 
     if (field.fieldtype === 'Table' && Array.isArray(value)) {
@@ -489,7 +489,7 @@ module.exports = class BaseDocument extends Observable {
         continue;
       }
       // field
-      let roundedValue = round(value, df.precision);
+      let roundedValue = this.round(value, df);
       if (roundedValue && value !== roundedValue) {
         this[df.fieldname] = roundedValue;
       }
@@ -604,6 +604,16 @@ module.exports = class BaseDocument extends Observable {
   getFrom(doctype, name, fieldname) {
     if (!name) return '';
     return frappe.db.getCachedValue(doctype, name, fieldname);
+  }
+
+  round(value, df = null) {
+    if (typeof df === 'string') {
+      df = this.meta.getField(df);
+    }
+    let systemPrecision = frappe.SystemSettings.floatPrecision;
+    let defaultPrecision = systemPrecision != null ? systemPrecision : 2;
+    let precision = df && df.precision != null ? df.precision : defaultPrecision;
+    return round(value, precision);
   }
 
   isNew() {
