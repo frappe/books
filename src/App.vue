@@ -36,22 +36,30 @@ export default {
   watch: {
     showDatabaseSelector(newValue) {
       if (newValue) {
-        remote.getCurrentWindow().setSize(600, 600);
+        let win = remote.getCurrentWindow();
+        win.setSize(600, 600);
+        win.setResizable(false);
       }
     },
     showSetupWizard(newValue) {
       if (newValue) {
-        remote.getCurrentWindow().setSize(600, 600);
+        let win = remote.getCurrentWindow();
+        win.setSize(600, 600);
+        win.setResizable(false);
       }
     },
     showSettings(newValue) {
       if (newValue) {
-        remote.getCurrentWindow().setSize(460, 577);
+        let win = remote.getCurrentWindow();
+        win.setSize(460, 577);
+        win.setResizable(false);
       }
     },
     showDesk(newValue) {
       if (newValue) {
-        remote.getCurrentWindow().setSize(1200, 907);
+        let win = remote.getCurrentWindow();
+        win.setSize(1200, 907);
+        win.setResizable(true);
       }
     }
   },
