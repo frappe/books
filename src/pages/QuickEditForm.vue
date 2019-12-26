@@ -70,6 +70,7 @@
       :autosave="true"
       :column-ratio="[1.1, 2]"
     />
+    <component v-if="doc && quickEditWidget" :is="quickEditWidget" />
   </div>
 </template>
 
@@ -123,6 +124,12 @@ export default {
     },
     actions() {
       return getActionsForDocument(this.doc);
+    },
+    quickEditWidget() {
+      if (!this.meta.quickEditWidget) {
+        return null;
+      }
+      return this.meta.quickEditWidget(this.doc);
     }
   },
   methods: {

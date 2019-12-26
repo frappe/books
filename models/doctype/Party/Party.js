@@ -4,8 +4,6 @@ let { _ } = require('frappejs/utils');
 module.exports = {
   name: 'Party',
   label: 'Party',
-  doctype: 'DocType',
-  isSingle: 0,
   keywordFields: ['name'],
   fields: [
     {
@@ -53,8 +51,7 @@ module.exports = {
     {
       fieldname: 'outstandingAmount',
       label: 'Outstanding Amount',
-      fieldtype: 'Currency',
-      getCurrency: doc => doc.currency
+      fieldtype: 'Currency'
     },
     {
       fieldname: 'currency',
@@ -97,79 +94,5 @@ module.exports = {
     }
   ],
 
-  quickEditFields: ['email', 'phone', 'address', 'defaultAccount', 'currency'],
-
-  getFormTitle(doc) {
-    if (doc.customer) return 'Customer';
-    return 'Supplier';
-  },
-
-  getListTitle(doc) {
-    if (doc.customer) return 'Customer';
-    return 'Supplier';
-  },
-
-  links: [
-    {
-      label: 'New Sales Invoice',
-      condition: form => form.doc.customer,
-      action: async form => {
-        const invoice = await frappe.getNewDoc('SalesInvoice');
-        invoice.customer = form.doc.name;
-        invoice.account = form.doc.defaultAccount;
-        invoice.on('afterInsert', async () => {
-          form.$formModal.close();
-          form.$router.push({
-            path: `/edit/SalesInvoice/${invoice.name}`
-          });
-        });
-        await form.$formModal.open(invoice);
-      }
-    },
-    {
-      label: 'Sales Invoices',
-      condition: form => form.doc.customer,
-      action: form => {
-        form.$router.push({
-          path: `/list/SalesInvoice?customer=${form.doc.name}`
-        });
-      }
-    },
-    {
-      label: 'New Purchase Invoice',
-      condition: form => form.doc.supplier,
-      action: async form => {
-        const invoice = await frappe.getNewDoc('PurchaseInvoice');
-        invoice.supplier = form.doc.name;
-        invoice.account = form.doc.defaultAccount;
-        invoice.on('afterInsert', async () => {
-          form.$formModal.close();
-          form.$router.push({
-            path: `/edit/PurchaseInvoice/${invoice.name}`
-          });
-        });
-        await form.$formModal.open(invoice);
-      }
-    },
-    {
-      label: 'Purchase Invoices',
-      condition: form => form.doc.supplier,
-      action: form => {
-        form.$router.push({
-          path: `/list/PurchaseInvoice?supplier=${form.doc.name}`
-        });
-      }
-    },
-    {
-      label: 'Delete',
-      condition: form => form.doc.customer,
-      action: async form => {
-        const party = await frappe.getDoc('Party', form.doc.name);
-        await party.delete();
-        form.$router.push({
-          path: `/list/Customer`
-        });
-      }
-    }
-  ]
+  quickEditFields: ['email', 'phone', 'address', 'defaultAccount', 'currency']
 };
