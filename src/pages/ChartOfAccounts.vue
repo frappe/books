@@ -242,11 +242,9 @@ export default {
         input.focus();
       });
     },
-    cancelAddingAccount(parentAccount, key) {
-      let otherKey =
-        key === 'addingAccount' ? 'addingGroupAccount' : 'addingAccount';
-      parentAccount[key] = 0;
-      parentAccount[otherKey] = 0;
+    cancelAddingAccount(parentAccount) {
+      parentAccount.addingAccount = 0;
+      parentAccount.addingGroupAccount = 0;
       this.accounts = this.accounts.slice();
     },
     async createNewAccount(accountName, parentAccount, isGroup) {
@@ -255,16 +253,15 @@ export default {
 
       accountName = accountName.trim();
       let account = await frappe.getNewDoc('Account');
-      let { name, rootType, accountType } = parentAccount;
-      await account.set({
-        name: accountName,
-        parentAccount: name,
-        rootType,
-        accountType,
-        isGroup
-      });
-
       try {
+        let { name, rootType, accountType } = parentAccount;
+        await account.set({
+          name: accountName,
+          parentAccount: name,
+          rootType,
+          accountType,
+          isGroup
+        });
         await account.insert();
 
         // turn off editing
