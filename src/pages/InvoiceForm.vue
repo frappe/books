@@ -159,7 +159,11 @@ import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '@/components/DropdownWithActions';
 import BackLink from '@/components/BackLink';
 import { openSettings } from '@/pages/Settings/utils';
-import { handleErrorWithDialog, getActionsForDocument } from '@/utils';
+import {
+  handleErrorWithDialog,
+  getActionsForDocument,
+  showMessageDialog
+} from '@/utils';
 
 export default {
   name: 'InvoiceForm',
@@ -235,7 +239,25 @@ export default {
       return this.doc.insertOrUpdate().catch(this.handleError);
     },
     onSubmitClick() {
-      return this.doc.submit().catch(this.handleError);
+      let message =
+        this.doctype === 'SalesInvoice'
+          ? this._('Are you sure you want to submit this invoice?')
+          : this._('Are you sure you want to submit this bill?');
+      showMessageDialog({
+        message,
+        buttons: [
+          {
+            label: this._('Submit'),
+            action: () => {
+              this.doc.submit().catch(this.handleError);
+            }
+          },
+          {
+            label: this._('Cancel'),
+            action() {}
+          }
+        ]
+      });
     },
     handleError(e) {
       handleErrorWithDialog(e, this.doc);
