@@ -50,6 +50,12 @@ class GeneralLedger {
       debitTotal += entry.debit;
       creditTotal += entry.credit;
       entry.balance = balance;
+      if (entry.debit === 0) {
+        entry.debit = '';
+      }
+      if (entry.credit === 0) {
+        entry.credit = '';
+      }
       glEntries.push(entry);
     }
     glEntries.push({
