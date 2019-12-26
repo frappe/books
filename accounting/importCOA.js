@@ -1,8 +1,6 @@
 const frappe = require('frappejs');
-const path = require('path');
-const fs = require('fs');
-const countries = require('../../../fixtures/countryInfo.json');
-const standardCOA = require('../../../fixtures/verified/standardCOA.json');
+const countries = require('../fixtures/countryInfo.json');
+const standardCOA = require('../fixtures/verified/standardCOA.json');
 const accountFields = [
   'accountType',
   'rootType',
@@ -59,9 +57,7 @@ async function getCountryCOA() {
   const conCode = countries[doc.country].code;
 
   try {
-    const countryCoa = require('../../../fixtures/verified/' +
-      conCode +
-      '.json');
+    const countryCoa = require('../fixtures/verified/' + conCode + '.json');
     return countryCoa.tree;
   } catch (e) {
     return standardCOA;
