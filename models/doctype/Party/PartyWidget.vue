@@ -1,5 +1,5 @@
 <template>
-  <div class="py-4">
+  <div class="py-4" v-if="pendingInvoices.length">
     <div class="px-4 text-sm text-gray-600 mb-1">
       {{ _('Recent Invoices') }}
     </div>

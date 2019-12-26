@@ -220,9 +220,12 @@ export default {
         // column has a component definition
         return column.component(cellValue, column);
       }
+
       // default cell component
       let formattedValue =
-        cellValue != null ? frappe.format(cellValue, column) : '';
+        cellValue != null && cellValue !== ''
+          ? frappe.format(cellValue, column)
+          : '';
       return {
         render(h) {
           return h('span', formattedValue);
