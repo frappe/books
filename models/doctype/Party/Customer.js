@@ -1,6 +1,7 @@
+const frappe = require('frappejs');
 const { _ } = require('frappejs/utils');
 const router = require('@/router').default;
-const frappe = require('frappejs');
+const PartyWidget = require('./PartyWidget.vue').default;
 
 module.exports = {
   name: 'Customer',
@@ -41,5 +42,12 @@ module.exports = {
         });
       }
     }
-  ]
+  ],
+  quickEditWidget: doc => ({
+    render(h) {
+      return h(PartyWidget, {
+        props: { doc }
+      });
+    }
+  })
 };

@@ -62,7 +62,8 @@ function createSettingsWindow(tab = 'General') {
     backgroundColor: theme.backgroundColor.gray['200'],
     webPreferences: {
       nodeIntegration: true
-    }
+    },
+    resizable: false
   });
 
   settingsWindow.loadURL(`${winURL}#/settings/${tab}`);
