@@ -7,7 +7,7 @@ module.exports = function registerServerMethods() {
   frappe.registerMethod({
     method: 'import-coa',
     async handler() {
-      const importCOA = require('../models/doctype/Account/importCOA');
+      const importCOA = require('../accounting/importCOA');
       await importCOA();
     }
   });
