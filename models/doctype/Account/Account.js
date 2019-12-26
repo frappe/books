@@ -19,14 +19,7 @@ module.exports = {
       fieldname: 'rootType',
       label: 'Root Type',
       fieldtype: 'Select',
-      options: [
-        'Select...',
-        'Asset',
-        'Liability',
-        'Equity',
-        'Income',
-        'Expense'
-      ],
+      options: ['', 'Asset', 'Liability', 'Equity', 'Income', 'Expense'],
       required: 1
     },
     {
@@ -46,7 +39,6 @@ module.exports = {
       fieldname: 'accountType',
       label: 'Account Type',
       fieldtype: 'Select',
-      required: 1,
       options: [
         '',
         'Accumulated Depreciation',
