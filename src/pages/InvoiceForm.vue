@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col" v-if="doc">
     <PageHeader>
-      <BackLink slot="title" @click="routeToList" />
+      <BackLink slot="title" />
       <template slot="actions">
         <Button class="text-gray-900 text-xs" @click="openInvoiceSettings">
           {{ _('Customise') }}

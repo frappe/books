@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <BackLink slot="title" @click="$router.back()" />
+      <BackLink slot="title" />
       <template slot="actions" v-if="doc">
         <DropdownWithActions class="ml-2" :actions="actions" />
         <Button
