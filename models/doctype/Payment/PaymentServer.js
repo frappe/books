@@ -42,9 +42,12 @@ module.exports = class PaymentServer extends BaseDocument {
           `Payment amount (${this.amount}) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
         );
       } else {
+        // update outstanding amounts in invoice and party
         let newOutstanding = outstandingAmount - this.amount;
         await referenceDoc.set('outstandingAmount', newOutstanding);
         await referenceDoc.update();
+        let party = await frappe.getDoc('Party', this.party);
+        await party.updateOutstandingAmount();
       }
     }
   }

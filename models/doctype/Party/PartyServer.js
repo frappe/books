@@ -18,4 +18,19 @@ module.exports = class PartyServer extends BaseDocument {
       this.gstin = '';
     }
   }
+
+  async updateOutstandingAmount() {
+    let isCustomer = this.customer;
+    let doctype = isCustomer ? 'SalesInvoice' : 'PurchaseInvoice';
+    let partyField = isCustomer ? 'customer' : 'supplier';
+    let { totalOutstanding } = await frappe.db.knex
+      .sum({ totalOutstanding: 'outstandingAmount' })
+      .from(doctype)
+      .where('submitted', 1)
+      .andWhere(partyField, this.name)
+      .first();
+
+    await this.set('outstandingAmount', this.round(totalOutstanding));
+    await this.update();
+  }
 };
