@@ -132,7 +132,7 @@ let TwoColumnForm = {
         return this.doc.rename(value);
       }
 
-      this.doc.set(df.fieldname, value);
+      this.doc.set(df.fieldname, value).catch(this.handleError);
 
       if (this.autosave && this.doc._dirty && !this.doc.isNew()) {
         if (df.fieldtype === 'Table') {

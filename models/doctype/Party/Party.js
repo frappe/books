@@ -65,13 +65,19 @@ module.exports = {
       fieldname: 'email',
       label: 'Email',
       fieldtype: 'Data',
-      placeholder: 'john@doe.com'
+      placeholder: 'john@doe.com',
+      validate: {
+        type: 'email'
+      }
     },
     {
       fieldname: 'phone',
       label: 'Phone',
       fieldtype: 'Data',
-      placeholder: 'Phone'
+      placeholder: 'Phone',
+      validate: {
+        type: 'phone'
+      }
     },
     {
       fieldname: 'address',

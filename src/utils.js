@@ -18,7 +18,24 @@ export function createNewDatabase() {
           if (!filePath.endsWith('.db')) {
             filePath = filePath + '.db';
           }
-          resolve(filePath);
+          if (fs.existsSync(filePath)) {
+            showMessageDialog({
+              // prettier-ignore
+              message: _('A file exists with the same name and it will be overwritten. Are you sure you want to continue?'),
+              buttons: [
+                {
+                  label: _('Overwrite'),
+                  action() {
+                    fs.unlinkSync(filePath);
+                    resolve(filePath);
+                  }
+                },
+                { label: _('Cancel'), action() {} }
+              ]
+            });
+          } else {
+            resolve(filePath);
+          }
         }
       }
     );
@@ -138,7 +155,7 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
 }
 
 export function handleErrorWithDialog(e, doc) {
-  let errorMessage;
+  let errorMessage = e.message || _('An error occurred');
   if (e.type === frappe.errors.LinkValidationError) {
     errorMessage = _('{0} {1} is linked with existing records.', [
       doc.doctype,
@@ -146,8 +163,6 @@ export function handleErrorWithDialog(e, doc) {
     ]);
   } else if (e.type === frappe.errors.DuplicateEntryError) {
     errorMessage = _('{0} {1} already exists.', [doc.doctype, doc.name]);
-  } else {
-    errorMessage = _('An error occurred.');
   }
 
   showMessageDialog({

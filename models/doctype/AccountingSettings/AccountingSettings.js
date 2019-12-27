@@ -73,7 +73,10 @@ module.exports = {
       fieldname: 'email',
       label: 'Email',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
+      validate: {
+        type: 'email'
+      }
     },
 
     {
