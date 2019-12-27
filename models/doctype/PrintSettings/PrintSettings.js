@@ -18,7 +18,10 @@ module.exports = {
       fieldname: 'email',
       label: 'Email',
       fieldtype: 'Data',
-      placeholder: 'john@doe.com'
+      placeholder: 'john@doe.com',
+      validate: {
+        type: 'email'
+      }
     },
     {
       fieldname: 'displayLogo',
@@ -29,7 +32,10 @@ module.exports = {
       fieldname: 'phone',
       label: 'Phone',
       fieldtype: 'Data',
-      placeholder: '9888900000'
+      placeholder: '9888900000',
+      validate: {
+        type: 'phone'
+      }
     },
     {
       fieldname: 'address',

@@ -39,7 +39,9 @@ module.exports = {
       fieldtype: 'Data',
       placeholder: 'john@doe.com',
       required: 1,
-      inputType: 'email'
+      validate: {
+        type: 'email'
+      }
     },
 
     {
