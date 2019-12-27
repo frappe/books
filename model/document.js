@@ -184,6 +184,7 @@ module.exports = class BaseDocument extends Observable {
 
   validateInsert() {
     this.validateMandatory();
+    this.validateFields();
   }
 
   validateMandatory() {
@@ -225,6 +226,13 @@ module.exports = class BaseDocument extends Observable {
       }
 
       return message;
+    }
+  }
+
+  async validateFields() {
+    let fields = this.meta.getValidFields();
+    for (let field of fields) {
+      await this.validateField(field.fieldname, this.get(field.fieldname));
     }
   }
 
