@@ -529,7 +529,10 @@ module.exports = class BaseDocument extends Observable {
     return this;
   }
 
-  async update() {
+  async update(...args) {
+    if (args.length) {
+      await this.set(...args);
+    }
     await this.compareWithCurrentDoc();
     await this.commit();
     await this.trigger('beforeUpdate');
@@ -612,7 +615,8 @@ module.exports = class BaseDocument extends Observable {
     }
     let systemPrecision = frappe.SystemSettings.floatPrecision;
     let defaultPrecision = systemPrecision != null ? systemPrecision : 2;
-    let precision = df && df.precision != null ? df.precision : defaultPrecision;
+    let precision =
+      df && df.precision != null ? df.precision : defaultPrecision;
     return round(value, precision);
   }
 
