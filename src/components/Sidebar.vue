@@ -43,9 +43,11 @@
         </div>
       </div>
     </div>
+    <div class="px-5 pb-3 text-sm text-gray-600">v{{ appVersion }}</div>
   </div>
 </template>
 <script>
+import { remote } from 'electron';
 import sidebarConfig from '../sidebarConfig';
 import WindowControls from './WindowControls';
 
@@ -64,6 +66,9 @@ export default {
             'background-color': 'rgba(255, 255, 255, 0.6)'
           }
         : null;
+    },
+    appVersion() {
+      return remote.app.getVersion();
     }
   },
   components: {
