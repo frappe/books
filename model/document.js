@@ -237,8 +237,36 @@ module.exports = class BaseDocument extends Observable {
       this.meta.validateSelect(field, value);
     }
     if (field.validate) {
-      await field.validate(value, this);
+      let validator = null;
+      if (typeof field.validate === 'object') {
+        validator = this.getValidateFunction(field.validate);
+      }
+      if (typeof field.validate === 'function') {
+        validator = field.validate;
+      }
+      if (validator) {
+        await validator(value, this);
+      }
     }
+  }
+
+  getValidateFunction(validator) {
+    let functions = {
+      email(value) {
+        let isValid = /(.+)@(.+){2,}\.(.+){2,}/.test(value);
+        if (!isValid) {
+          throw new frappe.errors.ValidationError(`Invalid email: ${value}`);
+        }
+      },
+      phone(value) {
+        let isValid = /[+]{0,1}[\d ]+/.test(value);
+        if (!isValid) {
+          throw new frappe.errors.ValidationError(`Invalid phone: ${value}`);
+        }
+      }
+    };
+
+    return functions[validator.type];
   }
 
   getValidDict() {
