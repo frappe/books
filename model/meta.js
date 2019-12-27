@@ -254,6 +254,9 @@ module.exports = class BaseMeta extends BaseDocument {
   validateSelect(field, value) {
     let options = field.options;
     if (!options) return;
+    if (!field.required && value == null) {
+      return;
+    }
 
     let validValues = options;
 
