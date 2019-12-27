@@ -1,11 +1,13 @@
 'use strict';
 
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import {
   createProtocol,
   installVueDevtools
 } from 'vue-cli-plugin-electron-builder/lib';
 import theme from '@/theme';
+
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 
@@ -13,6 +15,7 @@ const isMac = process.platform === 'darwin';
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let winURL;
+let checkedForUpdate = false;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -68,6 +71,13 @@ function createSettingsWindow(tab = 'General') {
 
   settingsWindow.loadURL(`${winURL}#/settings/${tab}`);
 }
+
+ipcMain.on('check-for-updates', () => {
+  if (!isDevelopment && !checkedForUpdate) {
+    autoUpdater.checkForUpdatesAndNotify();
+    checkedForUpdate = true;
+  }
+});
 
 ipcMain.on('open-settings-window', (event, tab) => {
   createSettingsWindow(tab);

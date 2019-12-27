@@ -61,6 +61,13 @@ import router from './router';
     ipcRenderer.send('reload-main-window');
   });
 
+  frappe.events.on('check-for-updates', () => {
+    let { autoUpdate } = frappe.AccountingSettings;
+    if (autoUpdate == null || autoUpdate === 1) {
+      ipcRenderer.send('check-for-updates');
+    }
+  });
+
   frappe.events.on('SetupWizard:setup-complete', async setupWizardValues => {
     const countryList = require('../fixtures/countryInfo.json');
     const {
