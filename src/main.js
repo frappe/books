@@ -104,14 +104,8 @@ import router from './router';
     });
     await printSettings.update();
 
-    const systemSettings = await frappe.getSingle('SystemSettings');
-    await systemSettings.set({
-      dateFormat: countryList[country]['date_format'] || 'yyyy-MM-dd'
-    });
-    await systemSettings.update();
-
     await setupGlobalCurrencies(countryList);
-    await setupAccountsAndDashboard(bankName);
+    await setupChartOfAccounts(bankName);
     await setupRegionalChanges(country);
 
     await setupWizardValues.set({ completed: 1 });
@@ -150,10 +144,10 @@ import router from './router';
         }
       }
     }
-    Promise.all(promises);
+    return Promise.all(promises);
   }
 
-  async function setupAccountsAndDashboard(bankName) {
+  async function setupChartOfAccounts(bankName) {
     await frappe.call({
       method: 'import-coa'
     });
@@ -169,38 +163,6 @@ import router from './router';
       isGroup: 0
     });
     accountDoc.insert();
-
-    const dashboardSettings = await frappe.getSingle('DashboardSettings');
-    const accounts = await frappe.db.getAll({
-      doctype: 'Account',
-      filters: { parentAccount: null }
-    });
-
-    const colors = [
-      { name: 'Red', hexvalue: '#d32f2f' },
-      { name: 'Green', hexvalue: '#388e3c' },
-      { name: 'Blue', hexvalue: '#0288d1' },
-      { name: 'Yellow', hexvalue: '#cddc39' }
-    ];
-    colors.forEach(async color => {
-      const c = await frappe.newDoc({ doctype: 'Color' });
-      c.set(color);
-      c.insert();
-    });
-
-    let charts = [];
-    accounts.forEach(account => {
-      charts.push({
-        account: account.name,
-        type: 'Bar',
-        color: colors[Math.floor(Math.random() * 4)].name
-      });
-    });
-
-    await dashboardSettings.set({
-      charts
-    });
-    await dashboardSettings.update();
   }
 
   async function setupRegionalChanges(country) {
