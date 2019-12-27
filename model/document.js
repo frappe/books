@@ -230,7 +230,7 @@ module.exports = class BaseDocument extends Observable {
   }
 
   async validateFields() {
-    let fields = this.meta.getValidFields();
+    let fields = this.meta.fields;
     for (let field of fields) {
       await this.validateField(field.fieldname, this.get(field.fieldname));
     }
