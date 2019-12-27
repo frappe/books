@@ -88,6 +88,7 @@ export default {
         this.showSettings = true;
       } else {
         this.showDesk = true;
+        this.checkForUpdates();
       }
       this.showSetupWizard = false;
       this.showDatabaseSelector = false;
@@ -101,6 +102,9 @@ export default {
       if (this.showSettings) {
         frappe.events.trigger('reload-main-window');
       }
+    },
+    checkForUpdates() {
+      frappe.events.trigger('check-for-updates');
     }
   }
 };

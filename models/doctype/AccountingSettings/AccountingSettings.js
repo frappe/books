@@ -95,6 +95,13 @@ module.exports = {
       label: 'Fiscal Year End Date',
       fieldtype: 'Date',
       required: 1
+    },
+
+    {
+      fieldname: 'autoUpdate',
+      label: 'Auto Update',
+      fieldtype: 'Check',
+      default: 1
     }
   ],
   quickEditFields: [
