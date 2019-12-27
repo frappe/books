@@ -1,7 +1,5 @@
 module.exports = {
   SetupWizard: require('./doctype/SetupWizard/SetupWizard'),
-  DashboardSettings: require('./doctype/DashboardSettings/DashboardSettings'),
-  DashboardChart: require('./doctype/DashboardChart/DashboardChart'),
   Currency: require('./doctype/Currency/Currency'),
   Color: require('./doctype/Color/Color'),
   Account: require('./doctype/Account/Account.js'),
