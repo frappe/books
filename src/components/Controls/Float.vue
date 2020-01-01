@@ -6,7 +6,8 @@ export default {
   extends: Int,
   methods: {
     parse(value) {
-      return parseFloat(value);
+      let parsedValue = parseFloat(value);
+      return isNaN(parsedValue) ? 0 : parsedValue;
     }
   }
 };

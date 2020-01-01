@@ -6,7 +6,8 @@ export default {
   extends: Data,
   methods: {
     parse(value) {
-      return parseInt(value, 10);
+      let parsedValue = parseInt(value, 10);
+      return isNaN(parsedValue) ? 0 : parsedValue;
     }
   }
 };

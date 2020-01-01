@@ -29,7 +29,6 @@
 
 <script>
 import frappe from 'frappejs';
-import { round } from 'frappejs/utils/numberFormat';
 import Float from './Float';
 
 export default {
