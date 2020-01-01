@@ -1,5 +1,5 @@
 const { DateTime } = require('luxon');
-const countryList = require('../../../fixtures/countryInfo.json');
+const countryList = require('~/fixtures/countryInfo.json');
 
 module.exports = {
   name: 'SetupWizard',

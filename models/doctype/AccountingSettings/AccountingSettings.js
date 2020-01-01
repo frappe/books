@@ -1,6 +1,4 @@
-const countryList = Object.keys(
-  require('../../../fixtures/countryInfo.json')
-).sort();
+const countryList = Object.keys(require('~/fixtures/countryInfo.json')).sort();
 
 module.exports = {
   name: 'AccountingSettings',
@@ -98,6 +96,13 @@ module.exports = {
       label: 'Fiscal Year End Date',
       fieldtype: 'Date',
       required: 1
+    },
+
+    {
+      fieldname: 'setupComplete',
+      label: 'Setup Complete',
+      fieldtype: 'Check',
+      default: 0
     },
 
     {

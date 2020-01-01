@@ -1,3 +1,4 @@
+const path = require('path');
 const webpack = require('webpack');
 
 module.exports = {
@@ -16,7 +17,8 @@ module.exports = {
   configureWebpack(config) {
     Object.assign(config.resolve.alias, {
       deepmerge$: 'deepmerge/dist/umd.js',
-      'frappe-charts$': 'frappe-charts/dist/frappe-charts.esm.js'
+      'frappe-charts$': 'frappe-charts/dist/frappe-charts.esm.js',
+      '~': path.resolve('.')
     });
 
     config.plugins.push(

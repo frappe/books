@@ -44,18 +44,26 @@
   </div>
 </template>
 <script>
-import { createNewDatabase, loadExistingDatabase } from '@/utils';
+import {
+  createNewDatabase,
+  loadExistingDatabase,
+  connectToLocalDatabase
+} from '@/utils';
 
 export default {
   name: 'DatabaseSelector',
   methods: {
     async newDatabase() {
       let filePath = await createNewDatabase();
-      this.$emit('file', filePath);
+      this.connectToDatabase(filePath);
     },
     async existingDatabase() {
       let filePath = await loadExistingDatabase();
-      this.$emit('file', filePath);
+      this.connectToDatabase(filePath);
+    },
+    async connectToDatabase(filePath) {
+      await connectToLocalDatabase(filePath);
+      this.$emit('database-connect');
     }
   }
 };

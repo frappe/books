@@ -57,6 +57,7 @@ import frappe from 'frappejs';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
+import setupCompany from './setupCompany';
 import { handleErrorWithDialog, showMessageDialog } from '@/utils';
 
 export default {
@@ -104,10 +105,11 @@ export default {
       }
       try {
         this.loading = true;
-        frappe.events.trigger('SetupWizard:setup-complete', this.doc);
+        await setupCompany(this.doc);
+        this.$emit('setup-complete');
       } catch (e) {
         this.loading = false;
-        console.error(e);
+        handleErrorWithDialog(e, this.doc);
       }
     }
   },
