@@ -2,6 +2,8 @@ import frappe from 'frappejs';
 import fs from 'fs';
 import { _ } from 'frappejs/utils';
 import { remote, shell } from 'electron';
+import SQLite from 'frappejs/backends/sqlite';
+import postStart from '../server/postStart';
 import router from '@/router';
 import Avatar from '@/components/Avatar';
 
@@ -58,6 +60,18 @@ export function loadExistingDatabase() {
       }
     );
   });
+}
+
+export async function connectToLocalDatabase(filepath) {
+  frappe.login('Administrator');
+  frappe.db = new SQLite({
+    dbPath: filepath
+  });
+  await frappe.db.connect();
+  await frappe.db.migrate();
+  await postStart();
+  // cache dbpath in localstorage
+  localStorage.dbPath = filepath;
 }
 
 export function showMessageDialog({ message, description, buttons = [] }) {

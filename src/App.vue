@@ -4,10 +4,16 @@
       v-if="['Windows', 'Linux'].includes(platform)"
       @close="reloadMainWindowOnSettingsClose"
     />
-    <Desk class="flex-1" v-if="showDesk" />
-    <database-selector v-if="showDatabaseSelector" @file="connectToDBFile" />
-    <setup-wizard v-if="showSetupWizard" />
-    <Settings v-if="showSettings" />
+    <Desk class="flex-1" v-if="activeScreen === 'Desk'" />
+    <DatabaseSelector
+      v-if="activeScreen === 'DatabaseSelector'"
+      @database-connect="showSetupWizardOrDesk"
+    />
+    <SetupWizard
+      v-if="activeScreen === 'SetupWizard'"
+      @setup-complete="showSetupWizardOrDesk"
+    />
+    <Settings v-if="activeScreen === 'Settings'" />
     <portal-target name="popovers" multiple></portal-target>
   </div>
 </template>
@@ -22,44 +28,30 @@ import DatabaseSelector from './pages/DatabaseSelector';
 import Settings from '@/pages/Settings/Settings.vue';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { remote } from 'electron';
+import { connectToLocalDatabase } from '@/utils';
 
 export default {
   name: 'App',
   data() {
     return {
-      showDatabaseSelector: false,
-      showDesk: false,
-      showSetupWizard: false,
-      showSettings: false
+      activeScreen: null
     };
   },
   watch: {
-    showDatabaseSelector(newValue) {
-      if (newValue) {
-        let win = remote.getCurrentWindow();
-        win.setSize(600, 600);
-        win.setResizable(false);
-      }
-    },
-    showSetupWizard(newValue) {
-      if (newValue) {
-        let win = remote.getCurrentWindow();
-        win.setSize(600, 600);
-        win.setResizable(false);
-      }
-    },
-    showSettings(newValue) {
-      if (newValue) {
-        let win = remote.getCurrentWindow();
-        win.setSize(460, 577);
-        win.setResizable(false);
-      }
-    },
-    showDesk(newValue) {
-      if (newValue) {
-        let win = remote.getCurrentWindow();
-        win.setSize(1200, 907);
-        win.setResizable(true);
+    activeScreen(value) {
+      if (!value) return;
+      let size = {
+        Desk: [1200, 907],
+        DatabaseSelector: [600, 600],
+        SetupWizard: [600, 600],
+        Settings: [460, 577]
+      }[value];
+      let resizable = value === 'Desk';
+
+      let win = remote.getCurrentWindow();
+      if (size.length) {
+        win.setSize(...size);
+        win.setResizable(resizable);
       }
     }
   },
@@ -70,36 +62,29 @@ export default {
     Settings,
     WindowsTitleBar
   },
-  mounted() {
-    if (!localStorage.dbPath) {
-      this.showDatabaseSelector = true;
+  async mounted() {
+    let dbPath = localStorage.dbPath;
+    if (!dbPath) {
+      this.activeScreen = 'DatabaseSelector';
     } else {
-      frappe.events.trigger('connect-database', localStorage.dbPath);
+      await connectToLocalDatabase(dbPath);
+      this.showSetupWizardOrDesk();
     }
-
-    frappe.events.on('show-setup-wizard', () => {
-      this.showSetupWizard = true;
-      this.showDesk = false;
-      this.showDatabaseSelector = false;
-    });
-
-    frappe.events.on('show-desk', () => {
-      if (this.$route.path.startsWith('/settings')) {
-        this.showSettings = true;
-      } else {
-        this.showDesk = true;
-        this.checkForUpdates();
-      }
-      this.showSetupWizard = false;
-      this.showDatabaseSelector = false;
-    });
   },
   methods: {
-    connectToDBFile(filePath) {
-      frappe.events.trigger('DatabaseSelector:file-selected', filePath);
+    showSetupWizardOrDesk() {
+      const { setupComplete } = frappe.AccountingSettings;
+      if (!setupComplete) {
+        this.activeScreen = 'SetupWizard';
+      } else if (this.$route.path.startsWith('/settings')) {
+        this.activeScreen = 'Settings';
+      } else {
+        this.activeScreen = 'Desk';
+        this.checkForUpdates();
+      }
     },
     reloadMainWindowOnSettingsClose() {
-      if (this.showSettings) {
+      if (this.activeScreen === 'Settings') {
         frappe.events.trigger('reload-main-window');
       }
     },
