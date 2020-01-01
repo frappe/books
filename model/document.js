@@ -244,7 +244,7 @@ module.exports = class BaseDocument extends Observable {
     if (field.fieldtype == 'Select') {
       this.meta.validateSelect(field, value);
     }
-    if (field.validate) {
+    if (field.validate && value != null) {
       let validator = null;
       if (typeof field.validate === 'object') {
         validator = this.getValidateFunction(field.validate);
