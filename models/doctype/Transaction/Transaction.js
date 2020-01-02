@@ -10,7 +10,7 @@ module.exports = {
       fieldname: 'status',
       fieldtype: 'Select',
       render(doc) {
-        let status = 'Pending';
+        let status = 'Unpaid';
         let color = 'orange';
         if (!doc.submitted) {
           status = 'Draft';
@@ -44,7 +44,13 @@ module.exports = {
           openQuickEdit({
             doctype: 'Payment',
             name: payment.name,
-            hideFields: ['party', 'date', hideAccountField, 'paymentType', 'for'],
+            hideFields: [
+              'party',
+              'date',
+              hideAccountField,
+              'paymentType',
+              'for'
+            ],
             defaults: {
               party,
               [hideAccountField]: doc.account,
