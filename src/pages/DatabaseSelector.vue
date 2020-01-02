@@ -1,7 +1,7 @@
 <template>
   <div class="px-12 py-10 flex-1 bg-white window-drag">
     <h1 class="text-2xl font-semibold">
-      {{ _('Welcome to Frappe Accounting') }}
+      {{ _('Welcome to Frappe Books') }}
     </h1>
     <p class="text-gray-600">
       {{ _('Create a new file or load an existing one from your computer') }}

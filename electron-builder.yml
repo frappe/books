@@ -1,5 +1,5 @@
-productName: Frappe Accounting
-appId: io.frappe.accounting
+productName: Frappe Books
+appId: io.frappe.books
 afterSign: build/notarize.js
 snap:
   publish:

@@ -1,26 +1,23 @@
-<div align="center">
-    <h1>
-      Frappe Accounting
-    </h1>
-    <h3>
-      Simple app for personal and small businesses accounting
-    </h3>
-    <h5>
-        it's pronounced - <em>fra-pay</em>
-    </h5>
-</div>
+# Frappe Books
 
-<p align="center">
-    <a href="https://frappe.io/accounting">
-        <img src=".github/preview.gif">
-    </a>
-</p>
+Free Desktop book-keeping software for small-businesses and freelancers.
 
-Frappe Accounting is built on [FrappeJS](https://github.com/frappe/frappejs) Framework a Full-Stack VueJS based meta-data driven web framework. Under the hood it uses Electron bundles.
+<kbd><img src=".github/frappe-books-preview.png" alt="Frappe Books Preview" /></kbd>
 
-### Installation
+# Download
 
-#### Step 0
+Download the latest release for your platform from the [releases
+page](https://github.com/frappe/books/releases).
+
+# Development
+
+Frappe Books is built on [FrappeJS](https://github.com/frappe/frappejs), Vue.js
+and Electron. It is offline by default, and uses a local SQLite file as the
+database.
+
+## Installation
+
+### Pre-requisites
 
 Install build essentials
 
@@ -39,13 +36,13 @@ xcode-select --install
 
 You will also need [Xcode App](https://apps.apple.com/in/app/xcode/id497799835?mt=12) from App Store
 
-#### Step 1
+### Step 1
 
 Install [Node.js](https://nodejs.org/en/) (version 12.6.0)
 
 > Tip: The best way to install and manage Node is to install [nvm](https://github.com/nvm-sh/nvm#usage)
 
-#### Step 2
+### Step 2
 
 Install `yarn` package manager.
 
@@ -53,32 +50,22 @@ Install `yarn` package manager.
 npm install -g yarn
 ```
 
-#### Step 3
+### Step 3
 
 Clone this repo
 
 ```bash
-git clone https://github.com/frappe/accounting.git
+git clone https://github.com/frappe/books.git
 ```
 
-#### Step 4
-
-Install dependencies and launch Accounting
+### Step 4
 
 ```bash
-
-cd accounting
+cd books
 
 # Install dependencies
 yarn
 
 # Start the electron app
-yarn electron
+yarn electron:serve
 ```
-
-### Troubleshooting
-
-- If you are facing node-gyp errors then you may need to:
-  1.  Install Xcode App from App Store.
-  2.  Use node v12.6.0
-  3.  Delete yarn.lock/package-lock.json
