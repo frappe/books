@@ -71,14 +71,7 @@ export default {
       return frappe.getMeta('PrintSettings');
     },
     fields() {
-      return [
-        'email',
-        'phone',
-        'address',
-        'gstin',
-        'template',
-        'font'
-      ].map(fieldname => this.meta.getField(fieldname));
+      return this.meta.getQuickEditFields();
     }
   },
   methods: {
