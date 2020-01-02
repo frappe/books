@@ -1,4 +1,5 @@
 const frappe = require('frappejs');
+const { _ } = require('frappejs/utils');
 
 module.exports = {
   name: 'Item',
@@ -96,82 +97,31 @@ module.exports = {
     }
   ],
   quickEditFields: ['rate', 'unit', 'itemType', 'tax', 'description'],
-  layout: [
-    // section 1
+  actions: [
     {
-      columns: [
-        {
-          fields: ['name', 'unit']
-        },
-        {
-          fields: ['rate']
-        }
-      ]
-    },
-
-    // section 2
-    {
-      columns: [
-        {
-          fields: ['description']
-        }
-      ]
-    },
-
-    // section 3
-    {
-      title: 'Accounting',
-      columns: [
-        {
-          fields: ['incomeAccount', 'expenseAccount']
-        },
-        {
-          fields: ['tax']
-        }
-      ]
-    }
-  ],
-  links: [
-    {
-      label: 'New Sales Invoice',
-      condition: form => !form.doc._notInserted,
-      action: async form => {
+      label: _('New Invoice'),
+      condition: doc => !doc.isNew(),
+      action: async (doc, router) => {
         const invoice = await frappe.getNewDoc('SalesInvoice');
-        invoice.items = [
-          {
-            item: form.doc.name,
-            rate: form.doc.rate,
-            tax: form.doc.tax
-          }
-        ];
-        invoice.on('afterInsert', async () => {
-          form.$formModal.close();
-          form.$router.push({
-            path: `/edit/SalesInvoice/${invoice.name}`
-          });
+        invoice.append('items', {
+          item: doc.name,
+          rate: doc.rate,
+          tax: doc.tax
         });
-        await form.$formModal.open(invoice);
+        router.push(`/edit/SalesInvoice/${invoice.name}`);
       }
     },
     {
-      label: 'New Purchase Invoice',
-      condition: form => !form.doc._notInserted,
-      action: async form => {
+      label: _('New Bill'),
+      condition: doc => !doc.isNew(),
+      action: async (doc, router) => {
         const invoice = await frappe.getNewDoc('PurchaseInvoice');
-        invoice.items = [
-          {
-            item: form.doc.name,
-            rate: form.doc.rate,
-            tax: form.doc.tax
-          }
-        ];
-        invoice.on('afterInsert', async () => {
-          form.$formModal.close();
-          form.$router.push({
-            path: `/edit/PurchaseInvoice/${invoice.name}`
-          });
+        invoice.append('items', {
+          item: doc.name,
+          rate: doc.rate,
+          tax: doc.tax
         });
-        await form.$formModal.open(invoice);
+        router.push(`/edit/PurchaseInvoice/${invoice.name}`);
       }
     }
   ]
