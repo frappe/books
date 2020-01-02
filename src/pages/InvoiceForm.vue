@@ -158,7 +158,7 @@ import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '@/components/DropdownWithActions';
 import BackLink from '@/components/BackLink';
-import { openSettings } from '@/pages/Settings/utils';
+import { openSettings } from '@/utils';
 import {
   handleErrorWithDialog,
   getActionsForDocument,

@@ -1,5 +1,5 @@
 import frappe from 'frappejs';
-import { openSettings } from './pages/Settings/utils';
+import { openSettings } from '@/utils';
 import { _ } from 'frappejs/utils';
 import Icon from './components/Icon';
 import router from './router';

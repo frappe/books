@@ -1,7 +1,7 @@
 import frappe from 'frappejs';
 import fs from 'fs';
 import { _ } from 'frappejs/utils';
-import { remote, shell } from 'electron';
+import { remote, shell, ipcRenderer } from 'electron';
 import SQLite from 'frappejs/backends/sqlite';
 import postStart from '../server/postStart';
 import router from '@/router';
@@ -265,4 +265,8 @@ export function getActionsForDocument(doc) {
     });
 
   return actions;
+}
+
+export function openSettings(tab = 'General') {
+  ipcRenderer.send('open-settings-window', tab);
 }
