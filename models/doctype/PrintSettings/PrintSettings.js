@@ -2,7 +2,6 @@ module.exports = {
   name: 'PrintSettings',
   label: 'Print Settings',
   isSingle: 1,
-  isChild: 0,
   fields: [
     {
       fieldname: 'logo',
@@ -70,5 +69,6 @@ module.exports = {
       options: ['Inter', 'Roboto'],
       default: 'Inter'
     }
-  ]
+  ],
+  quickEditFields: ['email', 'phone', 'address', 'gstin']
 };
