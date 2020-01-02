@@ -37,6 +37,7 @@ export default async function setupCompany(setupWizardValues) {
   await setupChartOfAccounts(bankName);
   await setupRegionalChanges(country);
 
+  await frappe.GetStarted.update({ systemSetup: 1, companySetup: 1 });
   await accountingSettings.update({ setupComplete: 1 });
   frappe.AccountingSettings = accountingSettings;
 }

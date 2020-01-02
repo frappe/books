@@ -19,22 +19,44 @@
           >
             <div
               class="flex flex-col justify-between border rounded-lg p-6 h-full hover:shadow-md cursor-pointer"
-              @mouseenter="() => (item.showActions = true)"
-              @mouseleave="() => (item.showActions = false)"
+              @mouseenter="() => (activeCard = item.key)"
+              @mouseleave="() => (activeCard = null)"
             >
               <div>
                 <component
-                  v-show="!item.showActions"
-                  :is="getIconComponent(item.icon)"
+                  v-show="activeCard !== item.key && !isCompleted(item)"
+                  :is="getIconComponent(item)"
                   class="mb-4"
+                />
+                <Icon
+                  v-show="isCompleted(item)"
+                  name="green-check"
+                  size="24"
+                  class="w-5 h-5 mb-4"
                 />
                 <h3 class="font-medium">{{ item.label }}</h3>
                 <p class="mt-2 text-sm text-gray-800">
                   {{ item.description }}
                 </p>
               </div>
-              <div class="mt-2 flex" v-show="item.showActions">
-                <Button class="leading-tight" type="primary">
+              <div
+                class="mt-2 flex"
+                v-show="activeCard === item.key && !isCompleted(item)"
+              >
+                <Button
+                  class="leading-tight"
+                  type="primary"
+                  v-on="
+                    item.action
+                      ? {
+                          click: () => {
+                            item.action();
+                            activeCard = null;
+                          }
+                        }
+                      : null
+                  "
+                >
                   <span class="text-white text-base">
                     {{ _('Setup') }}
                   </span>
@@ -54,130 +76,238 @@
 </template>
 
 <script>
+import frappe from 'frappejs';
+import { _ } from 'frappejs/utils';
 import PageHeader from '@/components/PageHeader';
 import Icon from '@/components/Icon';
 import Button from '@/components/Button';
+import { openSettings } from '@/utils';
 
 export default {
   name: 'GetStarted',
   components: {
     PageHeader,
-    Button
+    Button,
+    Icon
   },
-  data() {
-    return {
-      sections: [
+  computed: {
+    sections() {
+      /* eslint-disable vue/no-side-effects-in-computed-properties */
+      return [
         {
-          label: 'Organisation',
+          label: _('Organisation'),
 
           items: [
             {
-              label: 'General',
+              key: 'General',
+              label: _('General'),
               icon: 'general',
               description:
                 'Setup your company information, email, country and fiscal year',
-              showActions: false
+              fieldname: 'companySetup'
             },
             {
-              label: 'System',
+              key: 'System',
+              label: _('System'),
               icon: 'general',
               description:
                 'Setup system defaults like date format and currency precision',
-              showActions: false
+              fieldname: 'systemSetup',
+              action() {
+                openSettings('System');
+              }
             },
             {
-              label: 'Invoice',
+              key: 'Invoice',
+              label: _('Invoice'),
               icon: 'invoice',
               description:
-                'Customize your invoices by adding a logo and company address',
-              showActions: false
+                'Customize your invoices by adding a logo and address details',
+              fieldname: 'invoiceSetup',
+              action() {
+                openSettings('Invoice');
+              }
             }
           ]
         },
         {
-          label: 'Accounts',
+          label: _('Accounts'),
 
           items: [
             {
-              label: 'Review Accounts',
+              key: 'Review Accounts',
+              label: _('Review Accounts'),
               icon: 'review-ac',
               description:
                 'Review your chart of accounts, add any account or tax heads as needed',
-              showActions: false
+              action: () => this.$router.push('/chart-of-accounts')
             },
             {
-              label: 'Opening Balances',
+              key: 'Opening Balances',
+              label: _('Opening Balances'),
               icon: 'opening-ac',
               description:
-                'Setup your opening balances before performing any accounting entries',
-              showActions: false
+                'Setup your opening balances before performing any accounting entries'
             },
             {
-              label: 'Add Taxes',
+              key: 'Add Taxes',
+              label: _('Add Taxes'),
               icon: 'percentage',
               description:
                 'Setup your tax templates for your sales or purchase transactions',
-              showActions: false
+              action: () => this.$router.push('/list/Tax')
             }
           ]
         },
         {
-          label: 'Sales',
+          label: _('Sales'),
 
           items: [
             {
-              label: 'Add Items',
+              key: 'Add Sales Items',
+              label: _('Add Items'),
               icon: 'item',
               description:
                 'Add products or services that you sell to your customers',
-              showActions: false
+              action: () => this.$router.push('/list/Item'),
+              fieldname: 'itemCreated'
             },
             {
-              label: 'Add Customers',
+              key: 'Add Customers',
+              label: _('Add Customers'),
               icon: 'customer',
               description: 'Add a few customers to create your first invoice',
-              showActions: false
+              action: () => this.$router.push('/list/Customer'),
+              fieldname: 'customerCreated'
             },
             {
-              label: 'Create Invoice',
+              key: 'Create Invoice',
+              label: _('Create Invoice'),
               icon: 'sales-invoice',
               description:
                 'Create your first invoice and mail it to your customer',
-              showActions: false
+              action: () => this.$router.push('/list/SalesInvoice'),
+              fieldname: 'invoiceCreated'
             }
           ]
         },
         {
-          label: 'Purchase',
+          label: _('Purchase'),
 
           items: [
             {
-              label: 'Add Items',
+              key: 'Add Purchase Items',
+              label: _('Add Items'),
               icon: 'item',
               description:
                 'Add products or services that you buy from your suppliers',
-              showActions: false
+              action: () => this.$router.push('/list/Item'),
+              fieldname: 'itemCreated'
             },
             {
-              label: 'Add Suppliers',
+              key: 'Add Suppliers',
+              label: _('Add Suppliers'),
               icon: 'supplier',
               description: 'Add a few suppliers to create your first bill',
-              showActions: false
+              action: () => this.$router.push('/list/Supplier'),
+              fieldname: 'supplierCreated'
             },
             {
-              label: 'Create Bill',
+              key: 'Create Bill',
+              label: _('Create Bill'),
               icon: 'purchase-invoice',
               description:
                 'Create your first bill and mail it to your supplier',
-              showActions: false
+              action: () => this.$router.push('/list/PurchaseInvoice'),
+              fieldname: 'billCreated'
             }
           ]
         }
-      ]
+      ];
+    }
+  },
+  data() {
+    return {
+      activeCard: null
     };
   },
+  async activated() {
+    frappe.GetStarted = await frappe.getSingle('GetStarted');
+    this.checkForCompletedTasks();
+  },
   methods: {
-    getIconComponent(name) {
+    async checkForCompletedTasks() {
+      let toUpdate = {};
+      if (frappe.GetStarted.onboardingCompleted) {
+        return;
+      }
+
+      let printSettings = await frappe.getSingle('PrintSettings');
+      if (printSettings.logo && printSettings.address) {
+        toUpdate.invoiceSetup = 1;
+      }
+
+      if (!frappe.GetStarted.itemCreated) {
+        let { count } = (
+          await frappe.db.knex('Item').count('name as count')
+        )[0];
+        if (count > 0) {
+          toUpdate.itemCreated = 1;
+        }
+      }
+
+      if (!frappe.GetStarted.invoiceCreated) {
+        let { count } = (
+          await frappe.db.knex('SalesInvoice').count('name as count')
+        )[0];
+        if (count > 0) {
+          toUpdate.invoiceCreated = 1;
+        }
+      }
+
+      if (!frappe.GetStarted.customerCreated) {
+        let { count } = (
+          await frappe.db
+            .knex('Party')
+            .where('customer', 1)
+            .count('name as count')
+        )[0];
+        if (count > 0) {
+          toUpdate.customerCreated = 1;
+        }
+      }
+
+      if (!frappe.GetStarted.billCreated) {
+        let { count } = (
+          await frappe.db.knex('PurchaseInvoice').count('name as count')
+        )[0];
+        if (count > 0) {
+          toUpdate.billCreated = 1;
+        }
+      }
+
+      if (!frappe.GetStarted.supplierCreated) {
+        let { count } = (
+          await frappe.db
+            .knex('Party')
+            .where('supplier', 1)
+            .count('name as count')
+        )[0];
+        if (count > 0) {
+          toUpdate.supplierCreated = 1;
+        }
+      }
+
+      await frappe.GetStarted.update(toUpdate);
+      frappe.GetStarted = await frappe.getSingle('GetStarted');
+    },
+    isCompleted(item) {
+      return frappe.GetStarted.get(item.fieldname) || 0;
+    },
+    getIconComponent(item) {
+      let completed = frappe.GetStarted[item.fieldname] || 0;
+      let name = completed ? 'green-check' : item.icon;
+      let size = completed ? '24' : '18';
       return {
         name,
         render(h) {
@@ -185,7 +315,7 @@ export default {
             props: Object.assign(
               {
                 name,
-                size: '18'
+                size
               },
               this.$attrs
             )
