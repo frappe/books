@@ -1,71 +1,75 @@
 # Frappe Books
 
+[![Build Status](https://travis-ci.com/frappe/accounting.svg?branch=master)](https://travis-ci.com/frappe/accounting)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/frappe/books)](https://github.com/frappe/books/releases)
+![](https://img.shields.io/badge/platform-mac%2C%20windows%2C%20linux-yellowgreen)
+
 Free Desktop book-keeping software for small-businesses and freelancers.
 
 <kbd><img src=".github/frappe-books-preview.png" alt="Frappe Books Preview" /></kbd>
 
-# Download
+## Features
+
+1. Double-entry accounting
+1. Invoicing
+1. Billing
+1. Payments
+1. Journal Entries
+1. Dashboard
+1. Works Offline
+1. Financial Reports
+    - General Ledger
+    - Profit and Loss Statement
+    - Balance Sheet
+    - Trial Balance
+1. Multi-currency Invoicing
+
+## Download
 
 Download the latest release for your platform from the [releases
 page](https://github.com/frappe/books/releases).
 
-# Development
+## Development
 
 Frappe Books is built on [FrappeJS](https://github.com/frappe/frappejs), Vue.js
 and Electron. It is offline by default, and uses a local SQLite file as the
 database.
 
-## Installation
-
 ### Pre-requisites
 
-Install build essentials
+1. Install build essentials
 
-Ubuntu
+    Ubuntu
 
-```bash
-apt-get install build-essential python git
-apt-get install libgconf-2-4
-```
+    ```bash
+    apt-get install build-essential python git
+    apt-get install libgconf-2-4
+    ```
 
-MacOS
+    MacOS
 
-```bash
-xcode-select --install
-```
+    ```bash
+    xcode-select --install
+    ```
 
-You will also need [Xcode App](https://apps.apple.com/in/app/xcode/id497799835?mt=12) from App Store
+    You will also need [Xcode App](https://apps.apple.com/in/app/xcode/id497799835?mt=12) from App Store
 
-### Step 1
+2. Install [Node.js](https://nodejs.org/en/)
+    > Tip: The best way to install and manage Node is to install [nvm](https://github.com/nvm-sh/nvm#usage)
+3. Install `yarn` package manager
+    ```bash
+    npm install -g yarn
+    ```
 
-Install [Node.js](https://nodejs.org/en/) (version 12.6.0)
-
-> Tip: The best way to install and manage Node is to install [nvm](https://github.com/nvm-sh/nvm#usage)
-
-### Step 2
-
-Install `yarn` package manager.
-
-```bash
-npm install -g yarn
-```
-
-### Step 3
-
-Clone this repo
+### Clone and Run
 
 ```bash
+# clone the repository
 git clone https://github.com/frappe/books.git
-```
-
-### Step 4
-
-```bash
+# change directory
 cd books
-
-# Install dependencies
+# install dependencies
 yarn
-
-# Start the electron app
+# start the electron app
 yarn electron:serve
 ```
