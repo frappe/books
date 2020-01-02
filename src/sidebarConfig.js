@@ -43,11 +43,6 @@ const config = {
           doctype: 'Item'
         },
         {
-          label: _('Taxes'),
-          route: '/list/Tax',
-          doctype: 'Tax'
-        },
-        {
           label: _('Journal Entry'),
           route: '/list/JournalEntry',
           doctype: 'JournalEntry'
@@ -75,11 +70,6 @@ const config = {
           label: _('Items'),
           route: '/list/Item',
           doctype: 'Item'
-        },
-        {
-          label: _('Taxes'),
-          route: '/list/Tax',
-          doctype: 'Tax'
         },
         {
           label: _('Journal Entry'),
@@ -120,6 +110,11 @@ const config = {
         {
           label: _('Chart of Accounts'),
           route: '/chart-of-accounts'
+        },
+        {
+          label: _('Taxes'),
+          route: '/list/Tax',
+          doctype: 'Tax'
         },
         {
           label: _('Settings'),
