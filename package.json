@@ -1,6 +1,6 @@
 {
-  "name": "frappe-accounting",
-  "description": "Simple Accounting app for everyone",
+  "name": "frappe-books",
+  "description": "Simple book-keeping app for everyone",
   "version": "0.0.3-beta.6",
   "author": {
     "name": "Frappe Technologies Pvt. Ltd.",

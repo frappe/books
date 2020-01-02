@@ -13,7 +13,7 @@ export function createNewDatabase() {
       remote.getCurrentWindow(),
       {
         title: _('Select folder'),
-        defaultPath: 'frappe-accounting.db'
+        defaultPath: 'frappe-books.db'
       },
       filePath => {
         if (filePath) {
