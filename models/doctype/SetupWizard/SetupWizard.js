@@ -20,7 +20,7 @@ module.exports = {
       fieldname: 'country',
       label: 'Country',
       fieldtype: 'AutoComplete',
-      placeholder: 'India',
+      placeholder: 'Select Country',
       required: 1,
       getList: () => Object.keys(countryList).sort()
     },
