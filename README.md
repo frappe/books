@@ -1,6 +1,6 @@
 # Frappe Books
 
-[![Build Status](https://travis-ci.com/frappe/accounting.svg?branch=master)](https://travis-ci.com/frappe/accounting)
+[![Build Status](https://travis-ci.com/frappe/books.svg?branch=master)](https://travis-ci.com/frappe/books)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/frappe/books)](https://github.com/frappe/books/releases)
 ![](https://img.shields.io/badge/platform-mac%2C%20windows%2C%20linux-yellowgreen)
 
