@@ -68,7 +68,7 @@ module.exports = {
       label: 'Expense',
       fieldtype: 'Link',
       target: 'Account',
-      placeholder: 'Cost of Goods Sold',
+      placeholder: 'Select Account',
       required: 1,
       disableCreation: true,
       getFilters: () => {

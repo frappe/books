@@ -49,6 +49,7 @@ module.exports = {
       fieldname: 'country',
       label: 'Country',
       fieldtype: 'AutoComplete',
+      placeholder: 'Select Country',
       required: 1,
       getList: () => countryList
     },
