@@ -29,6 +29,7 @@ import Settings from '@/pages/Settings/Settings.vue';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { remote } from 'electron';
 import { connectToLocalDatabase } from '@/utils';
+import { getMainWindowSize } from '@/screenSize';
 
 export default {
   name: 'App',
@@ -40,8 +41,9 @@ export default {
   watch: {
     activeScreen(value) {
       if (!value) return;
+      let { width, height } = getMainWindowSize();
       let size = {
-        Desk: [1200, 907],
+        Desk: [width, height],
         DatabaseSelector: [600, 600],
         SetupWizard: [600, 600],
         Settings: [460, 577]
