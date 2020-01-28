@@ -62,7 +62,7 @@ function createWindow() {
 function createSettingsWindow(tab = 'General') {
   let settingsWindow = new BrowserWindow({
     parent: mainWindow,
-    frame: false,
+    frame: isLinux,
     width: 460,
     height: 577,
     backgroundColor: theme.backgroundColor.gray['200'],

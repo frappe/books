@@ -2,11 +2,7 @@
   <div class="flex flex-col flex-1 overflow-hidden">
     <div class="bg-gray-200 window-drag pb-2">
       <div class="p-2">
-        <WindowControls
-          v-if="platform === 'Mac'"
-          @close="frappe.events.trigger('reload-main-window')"
-          :buttons="['close']"
-        />
+        <WindowControls v-if="platform === 'Mac'" :buttons="['close']" />
       </div>
       <Row
         :columnCount="5"
@@ -31,6 +27,8 @@
   </div>
 </template>
 <script>
+import frappe from 'frappejs';
+import { remote } from 'electron';
 import { _ } from 'frappejs/utils';
 import WindowControls from '@/components/WindowControls';
 import TabGeneral from './TabGeneral.vue';
@@ -82,6 +80,11 @@ export default {
     if (index !== -1) {
       this.activeTab = index;
     }
+
+    let currentWindow = remote.getCurrentWindow();
+    currentWindow.on('close', () => {
+      frappe.events.trigger('reload-main-window');
+    });
   },
   methods: {
     getIconComponent(tab) {
