@@ -25,7 +25,15 @@ module.exports = {
         dateFormat = frappe.SystemSettings.dateFormat;
       }
 
-      value = luxon.DateTime.fromISO(value).toFormat(dateFormat);
+      if (typeof value === 'string') {
+        // ISO String
+        value = luxon.DateTime.fromISO(value);
+      } else if (Object.prototype.toString.call(value) === '[object Date]') {
+        // JS Date
+        value = luxon.DateTime.fromJSDate(value);
+      }
+
+      value = value.toFormat(dateFormat);
       if (value === 'Invalid DateTime') {
         value = '';
       }
