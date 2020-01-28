@@ -1,6 +1,7 @@
 import frappe from 'frappejs';
 import fs from 'fs';
 import { _ } from 'frappejs/utils';
+import migrate from './migrate';
 import { remote, shell, ipcRenderer } from 'electron';
 import SQLite from 'frappejs/backends/sqlite';
 import postStart from '../server/postStart';
@@ -69,7 +70,7 @@ export async function connectToLocalDatabase(filepath) {
     dbPath: filepath
   });
   await frappe.db.connect();
-  await frappe.db.migrate();
+  await migrate();
   await postStart();
 
   // set file info in config
