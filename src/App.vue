@@ -28,6 +28,7 @@ import DatabaseSelector from './pages/DatabaseSelector';
 import Settings from '@/pages/Settings/Settings.vue';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { remote } from 'electron';
+import config from '@/config';
 import { connectToLocalDatabase } from '@/utils';
 import { getMainWindowSize } from '@/screenSize';
 
@@ -65,11 +66,11 @@ export default {
     WindowsTitleBar
   },
   async mounted() {
-    let dbPath = localStorage.dbPath;
-    if (!dbPath) {
+    let lastSelectedFilePath = config.get('lastSelectedFilePath', null);
+    if (!lastSelectedFilePath) {
       this.activeScreen = 'DatabaseSelector';
     } else {
-      await connectToLocalDatabase(dbPath);
+      await connectToLocalDatabase(lastSelectedFilePath);
       this.showSetupWizardOrDesk();
     }
   },
