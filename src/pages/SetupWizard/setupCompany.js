@@ -1,5 +1,6 @@
 import frappe from 'frappejs';
 import countryList from '~/fixtures/countryInfo.json';
+import config from '@/config';
 
 export default async function setupCompany(setupWizardValues) {
   const {
@@ -36,6 +37,7 @@ export default async function setupCompany(setupWizardValues) {
   await setupGlobalCurrencies(countryList);
   await setupChartOfAccounts(bankName);
   await setupRegionalChanges(country);
+  updateCompanyNameInConfig();
 
   await frappe.GetStarted.update({ systemSetup: 1, companySetup: 1 });
   await accountingSettings.update({ setupComplete: 1 });
@@ -100,4 +102,15 @@ async function setupRegionalChanges(country) {
     frappe.models.Party = require('~/models/doctype/Party/RegionalChanges');
     await frappe.db.migrate();
   }
+}
+
+function updateCompanyNameInConfig() {
+  let filePath = frappe.db.dbPath;
+  let files = config.get('files', []);
+  files.forEach(file => {
+    if (file.filePath === filePath) {
+      file.companyName = frappe.AccountingSettings.companyName;
+    }
+  });
+  config.set('files', files);
 }
