@@ -41,10 +41,8 @@ describe('Database Migrate', () => {
     let dbPath = '_migrate_test.db';
     server.init();
     let models = {
-      models: {
-        Person,
-        Gender
-      }
+      Person,
+      Gender
     };
     frappe.models = {};
     frappe.registerModels(models);
@@ -62,12 +60,15 @@ describe('Database Migrate', () => {
     // check if tables were created
     assert.deepEqual(['Gender', 'Person'], tables);
 
-    let fields = await frappe.db.sql('PRAGMA table_info(??)', 'Person')
+    let fields = await frappe.db.sql('PRAGMA table_info(??)', 'Person');
     // check if standard fields and model fields were created
     assert.equal(fields.length, 8);
     assert.equal(fields.find(d => d.name === 'age').type, 'integer');
 
-    let foreignKeys = await frappe.db.sql('PRAGMA foreign_key_list(??)', 'Person')
+    let foreignKeys = await frappe.db.sql(
+      'PRAGMA foreign_key_list(??)',
+      'Person'
+    );
     // check for foreign keys
     assert.equal(foreignKeys.length, 1);
     assert.equal(foreignKeys[0].from, 'gender');

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-const deepmerge = require('deepmerge');
+const defaultsDeep = require('lodash/defaultsDeep');
 const logger = require('./logger');
 
 const frappeConf = 'frappe.conf.js';
@@ -30,7 +30,7 @@ function getAppConfig() {
     }
   }
   const appConfig = require(path.resolve(getAppDir(), frappeConf));
-  return deepmerge(defaults, appConfig);
+  return defaultsDeep(defaults, appConfig);
 }
 
 function resolveAppDir(...args) {
