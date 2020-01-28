@@ -1,7 +1,7 @@
 <template>
   <Popover @open="selectCurrentMonthYear">
-    <template v-slot:target="{ toggleDropdown }">
-      <div @click="!readonly ? toggleDropdown() : null">
+    <template v-slot:target="{ togglePopover }">
+      <div @click="!readonly ? togglePopover() : null">
         <span v-if="value">
           {{ formatValue ? formatValue(value) : value }}
         </span>
@@ -13,7 +13,7 @@
         </span>
       </div>
     </template>
-    <template v-slot:content="{ toggleDropdown }">
+    <template v-slot:content="{ togglePopover }">
       <div class="text-left p-3 select-none">
         <div class="flex items-center justify-between">
           <span class="font-medium text-blue-500 text-base">
@@ -64,7 +64,7 @@
                 }"
                 @click="
                   selectDate(date);
-                  toggleDropdown();
+                  togglePopover();
                 "
               >
                 {{ date.getDate() }}

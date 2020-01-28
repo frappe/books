@@ -1,7 +1,7 @@
 <template>
   <Popover @close="emitFilterChange" right>
-    <template v-slot:target="{ toggleDropdown }">
-      <Button :icon="true" @click="toggleDropdown()">
+    <template v-slot:target="{ togglePopover }">
+      <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
           <Icon name="filter" size="12" class="stroke-current text-gray-800" />
           <span class="ml-2 text-base text-black">
@@ -19,7 +19,7 @@
       <div class="p-3">
         <template v-if="filters.length">
           <div
-            :key="frappe.getRandomString()"
+            :key="filter.fieldname + frappe.getRandomString()"
             v-for="(filter, i) in filters"
             class="flex items-center justify-between text-base"
             :class="i !== 0 && 'mt-2'"
