@@ -1,5 +1,8 @@
 <template>
-  <div id="app" class="h-screen flex flex-col font-sans overflow-hidden">
+  <div
+    id="app"
+    class="h-screen flex flex-col font-sans overflow-hidden antialiased"
+  >
     <WindowsTitleBar
       v-if="['Windows', 'Linux'].includes(platform)"
       @close="reloadMainWindowOnSettingsClose"
