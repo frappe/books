@@ -1,7 +1,7 @@
 <template>
   <div ref="reference">
     <div class="h-full">
-      <slot name="target" :toggleDropdown="toggleDropdown"></slot>
+      <slot name="target" :togglePopover="togglePopover"></slot>
     </div>
     <portal to="popovers">
       <div
@@ -10,7 +10,7 @@
         class="mt-1 bg-white rounded border min-w-40 shadow-md"
         v-show="isOpen"
       >
-        <slot name="content" :toggleDropdown="toggleDropdown"></slot>
+        <slot name="content" :togglePopover="togglePopover"></slot>
       </div>
     </portal>
   </div>
@@ -59,7 +59,7 @@ export default {
         this.popper.scheduleUpdate();
       }
     },
-    toggleDropdown(flag) {
+    togglePopover(flag) {
       if (flag == null) {
         flag = !this.isOpen;
       }
