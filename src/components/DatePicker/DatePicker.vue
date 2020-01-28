@@ -5,7 +5,7 @@
         <span v-if="value">
           {{ formatValue ? formatValue(value) : value }}
         </span>
-        <span class="text-gray-600" v-else>
+        <span class="text-gray-400" v-else>
           <template v-if="placeholder">
             {{ placeholder }}
           </template>
