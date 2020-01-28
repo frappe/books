@@ -208,7 +208,7 @@ module.exports = {
     return newDoc;
   },
 
-  async getNewDoc(doctype) {
+  getNewDoc(doctype) {
     let doc = this.newDoc({ doctype: doctype });
     doc._notInserted = true;
     doc.name = frappe.getRandomString();
