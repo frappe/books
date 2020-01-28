@@ -11,5 +11,6 @@ module.exports = {
   ToDo: require('./doctype/ToDo/ToDo.js'),
   User: require('./doctype/User/User.js'),
   UserRole: require('./doctype/UserRole/UserRole.js'),
-  File: require('./doctype/File/File.js')
+  File: require('./doctype/File/File.js'),
+  PatchRun: require('./doctype/PatchRun/PatchRun.js')
 };
