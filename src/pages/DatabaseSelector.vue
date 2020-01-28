@@ -1,5 +1,8 @@
 <template>
-  <div class="py-10 flex-1 bg-white window-drag">
+  <div
+    class="py-10 flex-1 bg-white window-drag"
+    :class="{ 'pointer-events-none': loadingDatabase }"
+  >
     <div class="w-full">
       <div class="px-12">
         <h1 class="text-2xl font-semibold">
@@ -29,7 +32,16 @@
                 <feather-icon name="plus" class="text-white w-5 h-5" />
               </div>
             </div>
-            <div class="mt-5 font-medium">{{ _('New File') }}</div>
+            <div class="mt-5 font-medium">
+              <template
+                v-if="loadingDatabase && fileSelectedFrom === 'New File'"
+              >
+                {{ _('Loading...') }}
+              </template>
+              <template v-else>
+                {{ _('New File') }}
+              </template>
+            </div>
             <div class="mt-2 text-sm text-gray-600 text-center">
               {{ _('Create a new file and store it in your computer.') }}
             </div>
@@ -45,7 +57,16 @@
                 <feather-icon name="upload" class="w-4 h-4 text-white" />
               </div>
             </div>
-            <div class="mt-5 font-medium">{{ _('Existing File') }}</div>
+            <div class="mt-5 font-medium">
+              <template
+                v-if="loadingDatabase && fileSelectedFrom === 'Existing File'"
+              >
+                {{ _('Loading...') }}
+              </template>
+              <template v-else>
+                {{ _('Existing File') }}
+              </template>
+            </div>
             <div class="mt-2 text-sm text-gray-600 text-center">
               {{ _('Load an existing .db file from your computer.') }}
             </div>
@@ -67,11 +88,16 @@
             :class="{ 'border-t': i === 0 }"
             v-for="(file, i) in files"
             :key="file.filePath"
-            @click="connectToDatabase(file.filePath)"
+            @click="selectFile(file)"
           >
             <div class="flex items-baseline">
               <span>
-                {{ file.companyName }}
+                <template v-if="loadingDatabase && fileSelectedFrom === file">
+                  {{ _('Loading...') }}
+                </template>
+                <template v-else>
+                  {{ file.companyName }}
+                </template>
               </span>
             </div>
             <div class="text-gray-700">
@@ -106,6 +132,8 @@ export default {
   name: 'DatabaseSelector',
   data() {
     return {
+      loadingDatabase: false,
+      fileSelectedFrom: null,
       showFiles: false,
       files: []
     };
@@ -116,15 +144,23 @@ export default {
   },
   methods: {
     async newDatabase() {
+      this.fileSelectedFrom = 'New File';
       let filePath = await createNewDatabase();
       this.connectToDatabase(filePath);
     },
     async existingDatabase() {
+      this.fileSelectedFrom = 'Existing File';
       let filePath = await loadExistingDatabase();
       this.connectToDatabase(filePath);
     },
+    async selectFile(file) {
+      this.fileSelectedFrom = file;
+      await this.connectToDatabase(file.filePath);
+    },
     async connectToDatabase(filePath) {
+      this.loadingDatabase = true;
       await connectToLocalDatabase(filePath);
+      this.loadingDatabase = false;
       this.$emit('database-connect');
     },
     getFileLastModified(filePath) {
