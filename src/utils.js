@@ -1,11 +1,13 @@
 import frappe from 'frappejs';
 import fs from 'fs';
 import { _ } from 'frappejs/utils';
+import migrate from './migrate';
 import { remote, shell, ipcRenderer } from 'electron';
 import SQLite from 'frappejs/backends/sqlite';
 import postStart from '../server/postStart';
 import router from '@/router';
 import Avatar from '@/components/Avatar';
+import config from '@/config';
 
 export function createNewDatabase() {
   return new Promise(resolve => {
@@ -68,10 +70,24 @@ export async function connectToLocalDatabase(filepath) {
     dbPath: filepath
   });
   await frappe.db.connect();
-  await frappe.db.migrate();
+  await migrate();
   await postStart();
-  // cache dbpath in localstorage
-  localStorage.dbPath = filepath;
+
+  // set file info in config
+  let files = config.get('files') || [];
+  if (!files.find(file => file.filePath === filepath)) {
+    files = [
+      {
+        companyName: frappe.AccountingSettings.companyName,
+        filePath: filepath
+      },
+      ...files
+    ];
+    config.set('files', files);
+  }
+
+  // set last selected file
+  config.set('lastSelectedFilePath', filepath);
 }
 
 export function showMessageDialog({ message, description, buttons = [] }) {

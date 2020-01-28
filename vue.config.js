@@ -29,6 +29,11 @@ module.exports = {
       )
     );
 
+    config.module.rules.push({
+      test: /\.txt$/i,
+      use: 'raw-loader'
+    });
+
     config.devtool = 'source-map';
   },
   transpileDependencies: ['frappejs']

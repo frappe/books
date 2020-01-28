@@ -7,6 +7,7 @@ import {
   installVueDevtools
 } from 'vue-cli-plugin-electron-builder/lib';
 import theme from '@/theme';
+import { getMainWindowSize } from './screenSize';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
@@ -24,12 +25,13 @@ protocol.registerSchemesAsPrivileged([
 
 function createWindow() {
   // Create the browser window.
+  let { width, height } = getMainWindowSize();
   mainWindow = new BrowserWindow({
     vibrancy: 'sidebar',
     transparent: isMac,
     backgroundColor: '#80FFFFFF',
-    width: 1200,
-    height: 907,
+    width,
+    height,
     webPreferences: {
       nodeIntegration: true
     },

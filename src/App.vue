@@ -1,5 +1,8 @@
 <template>
-  <div id="app" class="h-screen flex flex-col font-sans overflow-hidden">
+  <div
+    id="app"
+    class="h-screen flex flex-col font-sans overflow-hidden antialiased"
+  >
     <WindowsTitleBar
       v-if="['Windows', 'Linux'].includes(platform)"
       @close="reloadMainWindowOnSettingsClose"
@@ -28,7 +31,9 @@ import DatabaseSelector from './pages/DatabaseSelector';
 import Settings from '@/pages/Settings/Settings.vue';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { remote } from 'electron';
+import config from '@/config';
 import { connectToLocalDatabase } from '@/utils';
+import { getMainWindowSize } from '@/screenSize';
 
 export default {
   name: 'App',
@@ -40,8 +45,9 @@ export default {
   watch: {
     activeScreen(value) {
       if (!value) return;
+      let { width, height } = getMainWindowSize();
       let size = {
-        Desk: [1200, 907],
+        Desk: [width, height],
         DatabaseSelector: [600, 600],
         SetupWizard: [600, 600],
         Settings: [460, 577]
@@ -63,11 +69,11 @@ export default {
     WindowsTitleBar
   },
   async mounted() {
-    let dbPath = localStorage.dbPath;
-    if (!dbPath) {
+    let lastSelectedFilePath = config.get('lastSelectedFilePath', null);
+    if (!lastSelectedFilePath) {
       this.activeScreen = 'DatabaseSelector';
     } else {
-      await connectToLocalDatabase(dbPath);
+      await connectToLocalDatabase(lastSelectedFilePath);
       this.showSetupWizardOrDesk();
     }
   },
