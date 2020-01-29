@@ -1,5 +1,5 @@
 <template>
-  <Popover @close="emitFilterChange" right>
+  <Popover @close="emitFilterChange" placement="bottom-end">
     <template v-slot:target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
