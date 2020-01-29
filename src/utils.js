@@ -184,7 +184,7 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
   });
 }
 
-export function handleErrorWithDialog(e, doc) {
+export function getErrorMessage(e, doc) {
   let errorMessage = e.message || _('An error occurred');
   if (e.type === frappe.errors.LinkValidationError) {
     errorMessage = _('{0} {1} is linked with existing records.', [
@@ -194,11 +194,12 @@ export function handleErrorWithDialog(e, doc) {
   } else if (e.type === frappe.errors.DuplicateEntryError) {
     errorMessage = _('{0} {1} already exists.', [doc.doctype, doc.name]);
   }
+  return errorMessage;
+}
 
-  showMessageDialog({
-    message: errorMessage
-  });
-
+export function handleErrorWithDialog(e, doc) {
+  let errorMessage = getErrorMessage(e, doc);
+  showMessageDialog({ message: errorMessage });
   throw e;
 }
 
