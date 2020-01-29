@@ -11,6 +11,7 @@ import { getMainWindowSize } from './screenSize';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
+const isLinux = process.platform === 'linux';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -35,7 +36,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true
     },
-    frame: false,
+    frame: isLinux,
     resizable: true
   });
 
@@ -61,7 +62,7 @@ function createWindow() {
 function createSettingsWindow(tab = 'General') {
   let settingsWindow = new BrowserWindow({
     parent: mainWindow,
-    frame: false,
+    frame: isLinux,
     width: 460,
     height: 577,
     backgroundColor: theme.backgroundColor.gray['200'],

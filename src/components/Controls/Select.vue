@@ -23,7 +23,7 @@
         </option>
       </select>
       <div
-        class="absolute left-0 pl-2 text-gray-600 pointer-events-none"
+        class="absolute left-0 pl-2 text-gray-400 pointer-events-none"
         v-if="!value"
       >
         {{ inputPlaceholder }}
