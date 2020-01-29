@@ -26,16 +26,25 @@
             "
             :autofocus="true"
           />
-          <FormControl
-            :df="meta.getField('email')"
-            :value="doc.email"
-            @change="value => setValue('email', value)"
-            :input-class="
-              classes => [
-                'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1'
-              ]
-            "
-          />
+          <Popover placement="auto" :show="Boolean(emailError)">
+            <template slot="target">
+              <FormControl
+                :df="meta.getField('email')"
+                :value="doc.email"
+                @change="value => setValue('email', value)"
+                :input-class="
+                  classes => [
+                    'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1'
+                  ]
+                "
+              />
+            </template>
+            <template slot="content">
+              <div class="ml-2 py-2 text-sm">
+                {{ emailError }}
+              </div>
+            </template>
+          </Popover>
         </div>
       </div>
       <TwoColumnForm :fields="fields" :doc="doc" />
@@ -58,7 +67,13 @@ import TwoColumnForm from '@/components/TwoColumnForm';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
 import setupCompany from './setupCompany';
-import { handleErrorWithDialog, showMessageDialog } from '@/utils';
+import Popover from '@/components/Popover';
+
+import {
+  getErrorMessage,
+  handleErrorWithDialog,
+  showMessageDialog
+} from '@/utils';
 
 export default {
   name: 'SetupWizard',
@@ -66,7 +81,8 @@ export default {
     return {
       doc: null,
       loading: false,
-      valuesFilled: false
+      valuesFilled: false,
+      emailError: null
     };
   },
   provide() {
@@ -78,7 +94,8 @@ export default {
   components: {
     TwoColumnForm,
     FormControl,
-    Button
+    Button,
+    Popover
   },
   async mounted() {
     this.doc = await frappe.newDoc({ doctype: 'SetupWizard' });
@@ -88,9 +105,13 @@ export default {
   },
   methods: {
     setValue(fieldname, value) {
-      this.doc
-        .set(fieldname, value)
-        .catch(e => handleErrorWithDialog(e, this.doc));
+      this.emailError = null;
+      this.doc.set(fieldname, value).catch(e => {
+        // set error
+        if (fieldname === 'email') {
+          this.emailError = getErrorMessage(e, this.doc);
+        }
+      });
     },
     allValuesFilled() {
       let values = this.meta.quickEditFields.map(
