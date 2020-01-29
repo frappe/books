@@ -46,8 +46,10 @@
           :class="{ 'border-b': !noBorder }"
           :style="style"
         >
-          <div class="py-2 pl-4 flex items-center text-gray-600">
-            {{ df.label }}
+          <div class="py-2 pl-4 flex text-gray-600">
+            <div class="py-1">
+              {{ df.label }}
+            </div>
           </div>
           <div class="py-2 pr-4" @click="activateInlineEditing(df)">
             <FormControl
@@ -66,6 +68,12 @@
               @focus="activateInlineEditing(df)"
               @new-doc="newdoc => onChange(df, newdoc.name)"
             />
+            <div
+              class="text-sm text-red-600 mt-2 pl-2"
+              v-if="errors[df.fieldname]"
+            >
+              {{ errors[df.fieldname] }}
+            </div>
           </div>
         </div>
       </template>
@@ -76,7 +84,7 @@
 import frappe from 'frappejs';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
-import { handleErrorWithDialog } from '@/utils';
+import { getErrorMessage, handleErrorWithDialog } from '@/utils';
 
 let TwoColumnForm = {
   name: 'TwoColumnForm',
@@ -96,7 +104,8 @@ let TwoColumnForm = {
       inlineEditField: null,
       inlineEditDoc: null,
       inlineEditFields: null,
-      inlineEditDisplayField: null
+      inlineEditDisplayField: null,
+      errors: {}
     };
   },
   provide() {
@@ -132,7 +141,13 @@ let TwoColumnForm = {
         return this.doc.rename(value);
       }
 
-      this.doc.set(df.fieldname, value).catch(this.handleError);
+      // reset error messages
+      this.$set(this.errors, df.fieldname, null);
+
+      this.doc.set(df.fieldname, value).catch(e => {
+        // set error message for this field
+        this.$set(this.errors, df.fieldname, getErrorMessage(e, this.doc));
+      });
 
       if (this.autosave && this.doc._dirty && !this.doc.isNew()) {
         if (df.fieldtype === 'Table') {
