@@ -7,9 +7,10 @@
       <div
         ref="popover"
         :class="popoverClass"
-        class="mt-1 bg-white rounded border min-w-40 shadow-md"
+        class="bg-white rounded border min-w-40 shadow-md popover-container relative"
         v-show="isOpen"
       >
+        <div class="popover-arrow" ref="popover-arrow"></div>
         <slot name="content" :togglePopover="togglePopover"></slot>
       </div>
     </portal>
@@ -17,13 +18,30 @@
 </template>
 
 <script>
-import Popper from 'popper.js';
+import { createPopper } from '@popperjs/core';
 
 export default {
   name: 'Popover',
   props: {
+    show: {
+      default: null
+    },
     right: Boolean,
+    placement: {
+      type: String,
+      default: 'bottom-start'
+    },
     popoverClass: [String, Object, Array]
+  },
+  watch: {
+    show(value) {
+      if (value === true) {
+        this.open();
+      }
+      if (value === false) {
+        this.close();
+      }
+    }
   },
   data() {
     return {
@@ -41,10 +59,12 @@ export default {
       }
       this.close();
     };
-    document.addEventListener('click', listener);
-    this.$once('hook:beforeDestroy', () => {
-      document.removeEventListener('click', listener);
-    });
+    if (this.show == null) {
+      document.addEventListener('click', listener);
+      this.$once('hook:beforeDestroy', () => {
+        document.removeEventListener('click', listener);
+      });
+    }
   },
   beforeDestroy() {
     this.popper && this.popper.destroy();
@@ -52,11 +72,25 @@ export default {
   methods: {
     setupPopper() {
       if (!this.popper) {
-        this.popper = new Popper(this.$refs.reference, this.$refs.popover, {
-          placement: this.right ? 'bottom-end' : 'bottom-start'
+        this.popper = createPopper(this.$refs.reference, this.$refs.popover, {
+          placement: this.placement,
+          modifiers: [
+            {
+              name: 'arrow',
+              options: {
+                element: this.$refs['popover-arrow']
+              }
+            },
+            {
+              name: 'offset',
+              options: {
+                offset: [0, 10]
+              }
+            }
+          ]
         });
       } else {
-        this.popper.scheduleUpdate();
+        this.popper.update();
       }
     },
     togglePopover(flag) {
@@ -90,3 +124,36 @@ export default {
   }
 };
 </script>
+<style scoped>
+.popover-arrow,
+.popover-arrow::after {
+  position: absolute;
+  width: theme('spacing.3');
+  height: theme('spacing.3');
+  z-index: -1;
+}
+
+.popover-arrow::after {
+  content: '';
+  background: white;
+  transform: rotate(45deg);
+  border-top: 1px solid theme('borderColor.gray.400');
+  border-left: 1px solid theme('borderColor.gray.400');
+}
+
+.popover-container[data-popper-placement^='top'] > .popover-arrow {
+  bottom: -6px;
+}
+
+.popover-container[data-popper-placement^='bottom'] > .popover-arrow {
+  top: -6px;
+}
+
+.popover-container[data-popper-placement^='left'] > .popover-arrow {
+  right: -6px;
+}
+
+.popover-container[data-popper-placement^='right'] > .popover-arrow {
+  left: -6px;
+}
+</style>
