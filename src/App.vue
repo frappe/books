@@ -4,7 +4,7 @@
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
     <WindowsTitleBar
-      v-if="['Windows', 'Linux'].includes(platform)"
+      v-if="platform === 'Windows'"
       @close="reloadMainWindowOnSettingsClose"
     />
     <Desk class="flex-1" v-if="activeScreen === 'Desk'" />
