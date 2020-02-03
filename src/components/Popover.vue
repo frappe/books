@@ -7,7 +7,7 @@
       <div
         ref="popover"
         :class="popoverClass"
-        class="bg-white rounded border min-w-40 shadow-md popover-container relative"
+        class="bg-white rounded border shadow-md popover-container relative"
         v-show="isOpen"
       >
         <div v-if="!hideArrow" class="popover-arrow" ref="popover-arrow"></div>
@@ -134,8 +134,8 @@ export default {
 .popover-arrow,
 .popover-arrow::after {
   position: absolute;
-  width: theme('spacing.3');
-  height: theme('spacing.3');
+  width: theme('spacing.4');
+  height: theme('spacing.4');
   z-index: -1;
 }
 
@@ -145,21 +145,22 @@ export default {
   transform: rotate(45deg);
   border-top: 1px solid theme('borderColor.gray.400');
   border-left: 1px solid theme('borderColor.gray.400');
+  border-top-left-radius: 6px;
 }
 
 .popover-container[data-popper-placement^='top'] > .popover-arrow {
-  bottom: -6px;
+  bottom: calc(theme('spacing.2') * -1);
 }
 
 .popover-container[data-popper-placement^='bottom'] > .popover-arrow {
-  top: -6px;
+  top: calc(theme('spacing.2') * -1);
 }
 
 .popover-container[data-popper-placement^='left'] > .popover-arrow {
-  right: -6px;
+  right: calc(theme('spacing.2') * -1);
 }
 
 .popover-container[data-popper-placement^='right'] > .popover-arrow {
-  left: -6px;
+  left: calc(theme('spacing.2') * -1);
 }
 </style>
