@@ -28,7 +28,6 @@ export default {
     'size',
     'showLabel',
     'readOnly',
-    'background',
     'autofocus'
   ],
   inject: {
@@ -55,8 +54,7 @@ export default {
       let classes = [
         {
           'px-3 py-2': this.size !== 'small',
-          'px-2 py-1': this.size === 'small',
-          'bg-gray-100': this.background
+          'px-2 py-1': this.size === 'small'
         },
         'focus:outline-none focus:bg-gray-200 rounded w-full text-gray-900 placeholder-gray-400'
       ];

@@ -28,7 +28,7 @@
               <div class="w-24">
                 <FormControl
                   size="small"
-                  :background="true"
+                  input-class="bg-gray-100"
                   :df="{
                     placeholder: 'Field',
                     fieldname: 'fieldname',
@@ -42,7 +42,7 @@
               <div class="ml-2 w-24">
                 <FormControl
                   size="small"
-                  :background="true"
+                  input-class="bg-gray-100"
                   :df="{
                     placeholder: 'Condition',
                     fieldname: 'condition',
@@ -56,7 +56,7 @@
               <div class="ml-2 w-24">
                 <FormControl
                   size="small"
-                  :background="true"
+                  input-class="bg-gray-100"
                   :df="{
                     placeholder: 'Value',
                     fieldname: 'value',
