@@ -10,7 +10,15 @@ module.exports = {
       label: 'Item',
       fieldtype: 'Link',
       target: 'Item',
-      required: 1
+      required: 1,
+      getFilters(_, doc) {
+        let items = doc.parentdoc.items.map(d => d.item).filter(Boolean);
+        if (items.length > 0) {
+          return {
+            name: ['not in', items]
+          };
+        }
+      }
     },
     {
       fieldname: 'description',
