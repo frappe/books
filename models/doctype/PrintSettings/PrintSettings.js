@@ -110,6 +110,8 @@ module.exports = {
     }
   ],
   quickEditFields: [
+    'logo',
+    'displayLogo',
     'template',
     'color',
     'font',

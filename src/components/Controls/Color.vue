@@ -10,12 +10,18 @@
           :class="inputClasses"
           @click="!isReadOnly && togglePopover()"
         >
-          <span v-if="value">
-            {{ selectedColorLabel }}
-          </span>
-          <span class="text-gray-400" v-else>
-            {{ inputPlaceholder }}
-          </span>
+          <div class="flex items-center">
+            <div
+              class="w-3 h-3 rounded mr-1"
+              :style="{ backgroundColor: value }"
+            ></div>
+            <span v-if="value">
+              {{ selectedColorLabel }}
+            </span>
+            <span class="text-gray-400" v-else>
+              {{ inputPlaceholder }}
+            </span>
+          </div>
         </div>
       </template>
       <div class="text-sm py-3 px-2 text-center" slot="content">
