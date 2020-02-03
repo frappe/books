@@ -93,7 +93,14 @@ module.exports = {
       fieldname: 'rate',
       label: 'Rate',
       fieldtype: 'Currency',
-      placeholder: '0.00'
+      placeholder: '0.00',
+      validate(value) {
+        if (!value) {
+          throw new frappe.errors.ValidationError(
+            'Rate must be greater than 0'
+          );
+        }
+      }
     }
   ],
   quickEditFields: ['rate', 'unit', 'itemType', 'tax', 'description'],
