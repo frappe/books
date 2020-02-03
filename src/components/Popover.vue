@@ -10,7 +10,7 @@
         class="bg-white rounded border min-w-40 shadow-md popover-container relative"
         v-show="isOpen"
       >
-        <div class="popover-arrow" ref="popover-arrow"></div>
+        <div v-if="!hideArrow" class="popover-arrow" ref="popover-arrow"></div>
         <slot name="content" :togglePopover="togglePopover"></slot>
       </div>
     </portal>
@@ -23,7 +23,11 @@ import { createPopper } from '@popperjs/core';
 export default {
   name: 'Popover',
   props: {
-    show: {
+    hideArrow: {
+      type: Boolean,
+      default: false
+    },
+    showPopup: {
       default: null
     },
     right: Boolean,
@@ -34,7 +38,7 @@ export default {
     popoverClass: [String, Object, Array]
   },
   watch: {
-    show(value) {
+    showPopup(value) {
       if (value === true) {
         this.open();
       }
@@ -74,20 +78,22 @@ export default {
       if (!this.popper) {
         this.popper = createPopper(this.$refs.reference, this.$refs.popover, {
           placement: this.placement,
-          modifiers: [
-            {
-              name: 'arrow',
-              options: {
-                element: this.$refs['popover-arrow']
-              }
-            },
-            {
-              name: 'offset',
-              options: {
-                offset: [0, 10]
-              }
-            }
-          ]
+          modifiers: !this.hideArrow
+            ? [
+                {
+                  name: 'arrow',
+                  options: {
+                    element: this.$refs['popover-arrow']
+                  }
+                },
+                {
+                  name: 'offset',
+                  options: {
+                    offset: [0, 10]
+                  }
+                }
+              ]
+            : []
         });
       } else {
         this.popper.update();
