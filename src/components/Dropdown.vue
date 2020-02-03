@@ -1,6 +1,14 @@
 <template>
-  <div class="relative" v-on-outside-click="() => (isShown = false)">
-    <div class="h-full">
+  <Popover
+    :show-popup="isShown"
+    :hide-arrow="true"
+    :placement="right ? 'bottom-end' : 'bottom-start'"
+  >
+    <div
+      slot="target"
+      class="h-full"
+      v-on-outside-click="() => (isShown = false)"
+    >
       <slot
         :toggleDropdown="toggleDropdown"
         :highlightItemUp="highlightItemUp"
@@ -8,12 +16,8 @@
         :selectHighlightedItem="selectHighlightedItem"
       ></slot>
     </div>
-    <div
-      :class="right ? 'right-0' : 'left-0'"
-      class="mt-1 absolute z-10 bg-white rounded border w-full min-w-40 shadow-md"
-      v-if="isShown"
-    >
-      <div class="p-1 max-h-64 overflow-auto">
+    <div slot="content" class="z-10 bg-white rounded w-full min-w-40">
+      <div class="p-1 max-h-64 overflow-auto text-sm">
         <div v-for="d in dropdownItems" :key="d.label">
           <div
             v-if="d.isGroup"
@@ -36,10 +40,11 @@
         </div>
       </div>
     </div>
-  </div>
+  </Popover>
 </template>
 
 <script>
+import Popover from './Popover';
 import uniq from 'lodash/uniq';
 
 export default {
@@ -57,6 +62,9 @@ export default {
       type: Boolean,
       default: false
     }
+  },
+  components: {
+    Popover
   },
   data() {
     return {

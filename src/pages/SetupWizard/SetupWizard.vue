@@ -26,7 +26,7 @@
             "
             :autofocus="true"
           />
-          <Popover placement="auto" :show="Boolean(emailError)">
+          <Popover placement="auto" :show-popup="Boolean(emailError)">
             <template slot="target">
               <FormControl
                 :df="meta.getField('email')"
