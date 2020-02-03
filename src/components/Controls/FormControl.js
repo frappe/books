@@ -11,6 +11,7 @@ import Int from './Int';
 import Float from './Float';
 import Currency from './Currency';
 import Text from './Text';
+import Color from './Color';
 
 export default {
   name: 'FormControl',
@@ -29,6 +30,7 @@ export default {
       Float,
       Currency,
       Text,
+      Color
     };
     let { df } = this.$attrs;
     return h(controls[df.fieldtype] || Data, {
