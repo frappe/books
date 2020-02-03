@@ -1,3 +1,8 @@
+const theme = require('@/theme');
+const fontManager = require('font-manager');
+const uniq = require('lodash/uniq');
+let fonts = [];
+
 module.exports = {
   name: 'PrintSettings',
   label: 'Print Settings',
@@ -54,21 +59,63 @@ module.exports = {
       fieldname: 'template',
       label: 'Template',
       fieldtype: 'Select',
-      options: ['Basic', 'Modern'],
-      default: 'Basic'
+      options: ['Default', 'Minimal', 'Business'],
+      default: 'Default'
     },
     {
       fieldname: 'color',
-      label: 'Theme Color',
-      fieldtype: 'Data'
+      label: 'Color',
+      placeholder: 'Select Color',
+      fieldtype: 'Color',
+      colors: [
+        'red',
+        'orange',
+        'yellow',
+        'green',
+        'teal',
+        'blue',
+        'indigo',
+        'purple',
+        'pink'
+      ]
+        .map(color => {
+          let label = color[0].toUpperCase() + color.slice(1);
+          return {
+            label,
+            value: theme.colors[color]['500']
+          };
+        })
+        .concat({
+          label: 'Black',
+          value: theme.colors['black']
+        })
     },
     {
       fieldname: 'font',
       label: 'Font',
-      fieldtype: 'Select',
-      options: ['Inter', 'Roboto'],
+      fieldtype: 'AutoComplete',
+      getList() {
+        return new Promise(resolve => {
+          if (fonts.length > 0) {
+            resolve(fonts);
+          } else {
+            fontManager.getAvailableFonts(_fonts => {
+              fonts = ['Inter'].concat(uniq(_fonts.map(f => f.family)).sort());
+              resolve(fonts);
+            });
+          }
+        });
+      },
       default: 'Inter'
     }
   ],
-  quickEditFields: ['email', 'phone', 'address', 'gstin']
+  quickEditFields: [
+    'template',
+    'color',
+    'font',
+    'email',
+    'phone',
+    'address',
+    'gstin'
+  ]
 };

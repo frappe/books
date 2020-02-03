@@ -1,37 +1,56 @@
 <template>
-  <div class="flex flex-col">
-    <PageHeader>
-      <a
-        class="cursor-pointer font-semibold flex items-center"
-        slot="title"
-        @click="$router.back()"
-      >
-        <feather-icon name="chevron-left" class="w-5 h-5" />
-        <span class="ml-1">{{ _('Back') }}</span>
-      </a>
-      <template slot="actions">
-        <Button class="text-gray-900 text-xs ml-2" @click="makePDF">
-          {{ _('Save as PDF') }}
-        </Button>
-      </template>
-    </PageHeader>
-    <div class="flex justify-center flex-1 mb-8 mt-6">
+  <div class="flex">
+    <div class="flex flex-col flex-1">
+      <PageHeader class="bg-white z-10">
+        <BackLink slot="title" />
+        <template slot="actions">
+          <Button
+            class="text-gray-900 text-xs ml-2"
+            @click="showCustomiser = !showCustomiser"
+          >
+            {{ _('Customise') }}
+          </Button>
+          <Button class="text-gray-900 text-xs ml-2" @click="makePDF">
+            {{ _('Save as PDF') }}
+          </Button>
+        </template>
+      </PageHeader>
       <div
-        v-if="doc"
-        class="border rounded-lg shadow h-full flex flex-col justify-between"
-        style="width: 600px"
-        ref="printContainer"
+        v-if="doc && printSettings"
+        class="flex justify-center flex-1 -mt-32 overflow-auto relative"
       >
-        <component :is="printTemplate" v-bind="{ doc }" />
+        <div
+          class="h-full shadow-lg mb-12 absolute"
+          style="width: 21cm; min-height: 29.7cm; height: max-content; transform: scale(0.755);"
+          ref="printContainer"
+        >
+          <component
+            class="flex-1"
+            :is="printTemplate"
+            v-bind="{ doc, printSettings }"
+          />
+        </div>
       </div>
+    </div>
+    <div class="border-l w-80" v-if="showCustomiser">
+      <div class="mt-4 px-4 flex items-center justify-between">
+        <h2 class="font-semibold">{{ _('Customise') }}</h2>
+        <Button :icon="true" @click="showCustomiser = false">
+          <feather-icon name="x" class="w-4 h-4" />
+        </Button>
+      </div>
+      <TwoColumnForm class="mt-4" :doc="printSettings" :autosave="true" />
     </div>
   </div>
 </template>
 <script>
+import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
 import DropdownWithAction from '@/components/DropdownWithAction';
 import Button from '@/components/Button';
+import BackLink from '@/components/BackLink';
+import TwoColumnForm from '@/components/TwoColumnForm';
 import { makePDF } from '@/utils';
 import { remote } from 'electron';
 
@@ -42,15 +61,20 @@ export default {
     PageHeader,
     SearchBar,
     DropdownWithAction,
-    Button
+    Button,
+    BackLink,
+    TwoColumnForm
   },
   data() {
     return {
-      doc: null
+      doc: null,
+      showCustomiser: false,
+      printSettings: null
     };
   },
   async mounted() {
     this.doc = await frappe.getDoc(this.doctype, this.name);
+    this.printSettings = await frappe.getSingle('PrintSettings');
   },
   computed: {
     meta() {
@@ -66,7 +90,6 @@ export default {
       let html = this.$refs.printContainer.innerHTML;
       makePDF(html, destination);
     },
-
     getSavePath() {
       return new Promise(resolve => {
         remote.dialog.showSaveDialog(
