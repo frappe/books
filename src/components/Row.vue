@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-grid border-b" :style="style">
+  <div class="inline-grid border-b" :style="style" v-on="$listeners">
     <slot></slot>
   </div>
 </template>
