@@ -22,6 +22,7 @@
           class="mt-2"
           :df="meta.getField('displayLogo')"
           :value="doc.displayLogo"
+          :show-label="true"
           @change="
             value => {
               doc.set('displayLogo', value);
@@ -71,7 +72,15 @@ export default {
       return frappe.getMeta('PrintSettings');
     },
     fields() {
-      return this.meta.getQuickEditFields();
+      return [
+        'template',
+        'color',
+        'font',
+        'email',
+        'phone',
+        'address',
+        'gstin'
+      ].map(field => this.meta.getField(field));
     }
   },
   methods: {

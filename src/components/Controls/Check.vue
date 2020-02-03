@@ -10,7 +10,7 @@
         @change="e => triggerChange(+e.target.checked)"
         @focus="e => $emit('focus', e)"
       />
-      <div class="ml-3 text-gray-900 text-sm">
+      <div class="ml-3 text-gray-900 text-sm" v-if="showLabel">
         {{ df.label }}
       </div>
     </label>
