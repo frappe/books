@@ -1,6 +1,6 @@
 <template>
   <div class="text-sm" :class="{ 'border-t': !noBorder }">
-    <template v-for="df in fields">
+    <template v-for="df in formFields">
       <FormControl
         :key="df.fieldname"
         v-if="df.fieldtype === 'Table'"
@@ -193,6 +193,9 @@ let TwoColumnForm = {
     }
   },
   computed: {
+    formFields() {
+      return this.fields || this.doc.meta.getQuickEditFields();
+    },
     style() {
       let templateColumns = (this.columnRatio || [1, 1])
         .map(r => `${r}fr`)
