@@ -10,11 +10,11 @@
     <Desk class="flex-1" v-if="activeScreen === 'Desk'" />
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
-      @database-connect="showSetupWizardOrDesk"
+      @database-connect="showSetupWizardOrDesk(true)"
     />
     <SetupWizard
       v-if="activeScreen === 'SetupWizard'"
-      @setup-complete="showSetupWizardOrDesk"
+      @setup-complete="showSetupWizardOrDesk(true)"
     />
     <Settings v-if="activeScreen === 'Settings'" />
     <portal-target name="popovers" multiple></portal-target>
@@ -78,7 +78,7 @@ export default {
     }
   },
   methods: {
-    showSetupWizardOrDesk() {
+    showSetupWizardOrDesk(resetRoute = false) {
       const { setupComplete } = frappe.AccountingSettings;
       if (!setupComplete) {
         this.activeScreen = 'SetupWizard';
@@ -87,6 +87,9 @@ export default {
       } else {
         this.activeScreen = 'Desk';
         this.checkForUpdates();
+      }
+      if (resetRoute) {
+        this.$router.replace('/');
       }
     },
     reloadMainWindowOnSettingsClose() {
