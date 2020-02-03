@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :items="suggestions">
+  <Dropdown :items="suggestions" :is-loading="isLoading">
     <template
       v-slot="{
         toggleDropdown,
@@ -32,7 +32,6 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
 import Base from './Base';
 import Dropdown from '@/components/Dropdown';
 
@@ -46,6 +45,7 @@ export default {
     return {
       linkValue: '',
       showDropdown: false,
+      isLoading: false,
       suggestions: [],
       highlightedIndex: -1
     };
@@ -66,6 +66,7 @@ export default {
         keyword = e.target.value;
         this.linkValue = keyword;
       }
+      this.isLoading = true;
       let suggestions = await this.getSuggestions(keyword);
       this.suggestions = suggestions.map(d => {
         if (!d.action) {
@@ -73,10 +74,15 @@ export default {
         }
         return d;
       });
+      this.isLoading = false;
     },
     async getSuggestions(keyword = '') {
       keyword = keyword.toLowerCase();
-      let list = this.df.getList ? this.df.getList() : this.df.options || [];
+
+      let list = this.df.getList
+        ? await this.df.getList()
+        : this.df.options || [];
+
       let items = list.map(d => {
         if (typeof d === 'string') {
           return {
