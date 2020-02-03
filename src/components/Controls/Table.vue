@@ -17,11 +17,15 @@
         {{ df.label }}
       </div>
     </Row>
-    <TableRow
-      v-for="row in value"
-      :key="row.name"
-      v-bind="{ row, tableFields, size, ratio, isNumeric }"
-    />
+    <div class="overflow-auto" :style="{ 'max-height': rowContainerHeight }">
+      <TableRow
+        ref="table-row"
+        v-for="row in value"
+        :key="row.name"
+        v-bind="{ row, tableFields, size, ratio, isNumeric }"
+        @remove="removeRow(row)"
+      />
+    </div>
     <Row
       :ratio="ratio"
       class="text-gray-500 cursor-pointer border-transparent px-2 w-full"
@@ -32,12 +36,24 @@
         <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
       </div>
       <div
+        class="flex justify-between"
         :class="{
           'px-2 py-3': size === 'small',
           'px-3 py-4': size !== 'small'
         }"
       >
         {{ _('Add Row') }}
+      </div>
+      <div v-for="i in ratio.slice(3).length" :key="i"></div>
+      <div
+        class="text-right"
+        :class="{
+          'px-2 py-3': size === 'small',
+          'px-3 py-4': size !== 'small'
+        }"
+        v-if="maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow"
+      >
+        {{ value.length }} rows
       </div>
     </Row>
   </div>
@@ -55,17 +71,49 @@ export default {
   props: {
     showHeader: {
       default: true
+    },
+    maxRowsBeforeOverflow: {
+      default: 0
     }
   },
   components: {
     Row,
     TableRow
   },
+  data: () => ({ rowContainerHeight: null }),
+  watch: {
+    value: {
+      immediate: true,
+      handler(rows) {
+        if (!this.maxRowsBeforeOverflow) return;
+        if (this.rowContainerHeight) return;
+        if (rows && rows.length > 0) {
+          this.$nextTick(() => {
+            let rowHeight = this.$refs['table-row'][0].$el.offsetHeight;
+            let containerHeight = rowHeight * this.maxRowsBeforeOverflow;
+            this.rowContainerHeight = `${containerHeight}px`;
+          });
+        }
+      }
+    }
+  },
   methods: {
     focus() {},
     addRow() {
       let rows = this.value || [];
       this.triggerChange([...rows, {}]);
+      this.$nextTick(() => {
+        this.scrollToRow(this.value.length - 1);
+      });
+    },
+    removeRow(row) {
+      let rows = this.value || [];
+      rows = rows.filter(_row => _row !== row);
+      this.triggerChange(rows);
+    },
+    scrollToRow(index) {
+      let row = this.$refs['table-row'][index];
+      row && row.$el.scrollIntoView({ block: 'nearest' });
     }
   },
   computed: {

@@ -113,6 +113,7 @@
               :df="meta.getField('items')"
               :value="doc.items"
               :showHeader="true"
+              :max-rows-before-overflow="4"
               @change="value => doc.set('items', value)"
               :read-only="doc.submitted"
             />
