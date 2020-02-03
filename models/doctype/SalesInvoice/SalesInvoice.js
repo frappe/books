@@ -119,7 +119,7 @@ module.exports = {
     },
     {
       fieldname: 'terms',
-      label: 'Terms',
+      label: 'Notes',
       fieldtype: 'Text'
     }
   ],

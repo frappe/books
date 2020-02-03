@@ -262,7 +262,7 @@ export function getActionsForDocument(doc) {
     component: {
       template: `<span class="text-red-700">{{ _('Delete') }}</span>`
     },
-    condition: doc => !doc.isNew() && !doc.submitted,
+    condition: doc => !doc.isNew() && !doc.submitted && !doc.meta.isSingle,
     action: () =>
       deleteDocWithPrompt(doc).then(res => {
         if (res) {

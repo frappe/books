@@ -1,7 +1,7 @@
 module.exports = {
   theme: {
     fontFamily: {
-      sans: ['Inter var experimental', 'sans-serif']
+      sans: ['Inter', 'sans-serif']
     },
     fontSize: {
       xs: '11px',
@@ -29,6 +29,7 @@ module.exports = {
         '7': '1.75rem',
         '14': '3.5rem',
         '18': '4.5rem',
+        '28': '7rem',
         '72': '18rem',
         '80': '20rem'
       },

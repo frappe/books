@@ -3,16 +3,13 @@
     <PageHeader>
       <BackLink slot="title" />
       <template slot="actions">
-        <Button class="text-gray-900 text-xs" @click="openInvoiceSettings">
-          {{ _('Customise') }}
-        </Button>
         <Button
           v-if="doc.submitted"
           class="text-gray-900 text-xs ml-2"
           :icon="true"
           @click="$router.push(`/print/${doc.doctype}/${doc.name}`)"
         >
-          <feather-icon name="printer" class="w-4 h-4" />
+          Print
         </Button>
         <DropdownWithActions class="ml-2" :actions="actions" />
         <Button
@@ -32,11 +29,7 @@
         >
       </template>
     </PageHeader>
-    <div
-      class="flex justify-center flex-1 mb-8 mt-6"
-      v-if="meta"
-      :class="doc.submitted && 'pointer-events-none'"
-    >
+    <div class="flex justify-center flex-1 mb-8 mt-2" v-if="meta">
       <div
         class="border rounded-lg shadow h-full flex flex-col justify-between"
         style="width: 600px"
