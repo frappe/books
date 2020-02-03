@@ -6,7 +6,7 @@
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
-    <div class="mt-6 flex text-base px-8" v-if="report.filterFields">
+    <div class="mt-2 flex text-base px-8" v-if="report.filterFields">
       <div
         class="ml-3 first:ml-0 w-32"
         v-for="df in report.filterFields"

@@ -1,5 +1,5 @@
 <template>
-  <div class="px-5 pb-16 mt-2 text-base flex flex-col overflow-y-hidden">
+  <div class="px-5 pb-16 text-base flex flex-col overflow-y-hidden">
     <div class="flex px-3">
       <div class="py-4 mr-3 w-7" v-if="hasImage"></div>
       <Row
@@ -22,7 +22,7 @@
     <div class="overflow-y-auto">
       <div
         class="px-3 flex hover:bg-gray-100 rounded-md"
-        v-for="(doc, i) in data"
+        v-for="doc in data"
         :key="doc.name"
       >
         <div class="w-7 py-4 mr-3" v-if="hasImage">
@@ -52,7 +52,6 @@
 import frappe from 'frappejs';
 import Row from '@/components/Row';
 import ListCell from './ListCell';
-import Button from '@/components/Button';
 import Avatar from '@/components/Avatar';
 import { openQuickEdit } from '@/utils';
 
@@ -62,7 +61,6 @@ export default {
   components: {
     Row,
     ListCell,
-    Button,
     Avatar
   },
   watch: {
@@ -90,7 +88,7 @@ export default {
   },
   async mounted() {
     await this.setupColumnsAndData();
-    frappe.db.on(`change:${this.listConfig.doctype}`, obj => {
+    frappe.db.on(`change:${this.listConfig.doctype}`, () => {
       this.updateData();
     });
   },
