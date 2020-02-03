@@ -119,7 +119,21 @@
             />
           </div>
         </div>
-        <div class="px-6 mb-6 flex justify-end text-base">
+        <div
+          class="px-6 mb-6 flex justify-between text-base"
+          v-if="doc.items.length"
+        >
+          <div class="flex-1 mr-10">
+            <FormControl
+              v-if="!doc.submitted || doc.terms"
+              :df="meta.getField('terms')"
+              :value="doc.terms"
+              :show-label="true"
+              input-class="bg-gray-100"
+              @change="value => doc.set('terms', value)"
+              :read-only="doc.submitted"
+            />
+          </div>
           <div class="w-64">
             <div class="flex pl-2 justify-between py-3 border-b">
               <div>{{ _('Subtotal') }}</div>

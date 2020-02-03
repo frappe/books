@@ -10,6 +10,7 @@ import DynamicLink from './DynamicLink';
 import Int from './Int';
 import Float from './Float';
 import Currency from './Currency';
+import Text from './Text';
 
 export default {
   name: 'FormControl',
@@ -26,7 +27,8 @@ export default {
       DynamicLink,
       Int,
       Float,
-      Currency
+      Currency,
+      Text,
     };
     let { df } = this.$attrs;
     return h(controls[df.fieldtype] || Data, {
