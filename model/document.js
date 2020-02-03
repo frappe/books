@@ -75,9 +75,10 @@ module.exports = class BaseDocument extends Observable {
 
       if (Array.isArray(value)) {
         this[fieldname] = [];
-        for (let row of value) {
+        value.forEach((row, i) => {
           this.append(fieldname, row);
-        }
+          row.idx = i;
+        });
       } else {
         await this.validateField(fieldname, value);
         this[fieldname] = value;
