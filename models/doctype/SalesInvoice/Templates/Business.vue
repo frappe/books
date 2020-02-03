@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white border" :style="{ 'font-family': printSettings.font }">
+  <div
+    class="bg-white border h-full"
+    :style="{ 'font-family': printSettings.font }"
+  >
     <div class="bg-gray-100 px-12 py-10">
       <div class="flex items-center">
         <div class="flex items-center rounded h-16">
@@ -70,14 +73,18 @@
       </div>
       <div class="mt-12">
         <div class="flex -mx-3">
-          <div class="flex flex-1 justify-between p-3 bg-gray-100">
-            <div>
+          <div class="flex justify-end flex-1 p-3 bg-gray-100">
+            <div class="text-right">
               <div class="text-gray-800">{{ _('Subtotal') }}</div>
               <div class="text-xl mt-2">
                 {{ frappe.format(doc.netTotal, 'Currency') }}
               </div>
             </div>
-            <div v-for="tax in doc.taxes" :key="tax.name">
+            <div
+              class="ml-8 text-right"
+              v-for="tax in doc.taxes"
+              :key="tax.name"
+            >
               <div class="text-gray-800">
                 {{ tax.account }} ({{ tax.rate }}%)
               </div>
