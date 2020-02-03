@@ -14,7 +14,7 @@
       >
         <FormControl
           size="small"
-          :background="true"
+          input-class="bg-gray-100"
           :df="df"
           :value="filters[df.fieldname]"
           @change="value => onFilterChange(df, value)"
