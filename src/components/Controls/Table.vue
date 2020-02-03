@@ -19,6 +19,7 @@
     </Row>
     <div class="overflow-auto" :style="{ 'max-height': rowContainerHeight }">
       <TableRow
+        :class="{ 'pointer-events-none': isReadOnly }"
         ref="table-row"
         v-for="row in value"
         :key="row.name"

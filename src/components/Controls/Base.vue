@@ -54,7 +54,8 @@ export default {
       let classes = [
         {
           'px-3 py-2': this.size !== 'small',
-          'px-2 py-1': this.size === 'small'
+          'px-2 py-1': this.size === 'small',
+          'pointer-events-none': this.isReadOnly
         },
         'focus:outline-none focus:bg-gray-200 rounded w-full text-gray-900 placeholder-gray-400'
       ];
