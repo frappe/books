@@ -28,7 +28,7 @@ const config = {
       },
       items: [
         {
-          label: _('Invoice'),
+          label: _('Invoices'),
           route: '/list/SalesInvoice',
           doctype: 'SalesInvoice'
         },
@@ -57,7 +57,7 @@ const config = {
       },
       items: [
         {
-          label: _('Bill'),
+          label: _('Bills'),
           route: '/list/PurchaseInvoice',
           doctype: 'PurchaseInvoice'
         },
