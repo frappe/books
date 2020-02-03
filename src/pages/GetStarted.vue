@@ -6,7 +6,7 @@
       </h1>
     </PageHeader>
     <div class="px-8">
-      <div class="mt-4 border-t"></div>
+      <div class="border-t"></div>
     </div>
     <div class="px-8 flex-1 overflow-y-auto">
       <div class="my-6" v-for="section in sections" :key="section.label">

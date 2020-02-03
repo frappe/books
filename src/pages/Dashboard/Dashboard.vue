@@ -6,7 +6,7 @@
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
-    <div class="mt-4 px-8">
+    <div class="px-8">
       <div class="border-t" />
       <Cashflow />
       <div class="my-10 border-t" />

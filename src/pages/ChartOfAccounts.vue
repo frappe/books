@@ -8,7 +8,7 @@
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
-    <div class="flex-1 flex px-8 mt-4 overflow-y-auto">
+    <div class="flex-1 flex px-8 overflow-y-auto">
       <div class="flex-1" v-if="root">
         <template v-for="account in allAccounts">
           <div

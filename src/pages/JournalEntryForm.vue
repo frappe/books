@@ -24,7 +24,7 @@
     </PageHeader>
     <div
       v-if="doc"
-      class="flex justify-center flex-1 mb-8 mt-6"
+      class="flex justify-center flex-1 mb-8 mt-2"
       :class="doc.submitted && 'pointer-events-none'"
     >
       <div
