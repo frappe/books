@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import Default from './Templates/Default';
+import Basic from './Templates/Basic';
 import Minimal from './Templates/Minimal';
 import Business from './Templates/Business';
 
@@ -12,12 +12,16 @@ export default {
   props: ['doc', 'printSettings'],
   computed: {
     printComponent() {
-      let type = this.printSettings.template || 'Default';
-      return {
-        Default,
+      let type = this.printSettings.template;
+      let templates = {
+        Basic,
         Minimal,
         Business
-      }[type];
+      };
+      if (!(type in templates)) {
+        type = 'Basic';
+      }
+      return templates[type];
     }
   }
 };
