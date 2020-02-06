@@ -59,8 +59,8 @@ module.exports = {
       fieldname: 'template',
       label: 'Template',
       fieldtype: 'Select',
-      options: ['Default', 'Minimal', 'Business'],
-      default: 'Default'
+      options: ['Basic', 'Minimal', 'Business'],
+      default: 'Basic'
     },
     {
       fieldname: 'color',

@@ -1,5 +1,8 @@
 <template>
-  <div class="bg-white border" :style="{ 'font-family': printSettings.font }">
+  <div
+    class="bg-white border h-full"
+    :style="{ 'font-family': printSettings.font }"
+  >
     <div class="flex items-center justify-between px-12 py-10 border-b">
       <div class="flex items-center">
         <div class="flex items-center rounded h-16">

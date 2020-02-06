@@ -1,5 +1,5 @@
 <template>
-  <div class="border">
+  <div class="border h-full">
     <div>
       <div class="px-6 pt-6" v-if="printSettings && accountingSettings">
         <div class="flex text-sm text-gray-900 border-b pb-4">
@@ -165,5 +165,3 @@ export default {
   }
 };
 </script>
-
-<style></style>
