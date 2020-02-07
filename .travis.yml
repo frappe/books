@@ -12,6 +12,11 @@ matrix:
       services: docker
       language: generic
 
+addons:
+  apt:
+    packages:
+    - libfontconfig-dev
+
 cache:
   directories:
     - node_modules
