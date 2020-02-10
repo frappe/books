@@ -51,7 +51,13 @@
               {{ df.label }}
             </div>
           </div>
-          <div class="py-2 pr-4" @click="activateInlineEditing(df)">
+          <div
+            class="py-2 pr-4"
+            @click="activateInlineEditing(df)"
+            :class="{
+              'pl-2': df.fieldtype === 'AttachImage'
+            }"
+          >
             <FormControl
               ref="controls"
               size="small"

@@ -40,7 +40,7 @@
               />
             </template>
             <template slot="content">
-              <div class="ml-2 py-2 text-sm">
+              <div class="p-2 text-sm">
                 {{ emailError }}
               </div>
             </template>
