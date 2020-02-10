@@ -1,7 +1,4 @@
 const theme = require('@/theme');
-const fontManager = require('font-manager');
-const uniq = require('lodash/uniq');
-let fonts = [];
 
 module.exports = {
   name: 'PrintSettings',
@@ -94,18 +91,6 @@ module.exports = {
       fieldname: 'font',
       label: 'Font',
       fieldtype: 'AutoComplete',
-      getList() {
-        return new Promise(resolve => {
-          if (fonts.length > 0) {
-            resolve(fonts);
-          } else {
-            fontManager.getAvailableFonts(_fonts => {
-              fonts = ['Inter'].concat(uniq(_fonts.map(f => f.family)).sort());
-              resolve(fonts);
-            });
-          }
-        });
-      },
       default: 'Inter'
     }
   ],
@@ -114,7 +99,6 @@ module.exports = {
     'displayLogo',
     'template',
     'color',
-    'font',
     'email',
     'phone',
     'address',

@@ -22,6 +22,7 @@ module.exports = {
     {
       fieldname: 'description',
       label: 'Description',
+      placeholder: 'Item Description',
       fieldtype: 'Text'
     },
     {
