@@ -435,6 +435,11 @@ module.exports = class BaseDocument extends Observable {
         .getMeta(tablefield.childtype)
         .getFormulaFields();
       if (formulaFields.length) {
+        let value = this[tablefield.fieldname]; 
+        //if this[table.fieldname] doesnt have value, skip it
+        if (value == null || value == undefined)
+          continue; 
+          
         // for each row
         for (let row of this[tablefield.fieldname] || []) {
           for (let field of formulaFields) {
