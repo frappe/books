@@ -46,6 +46,11 @@ module.exports = {
       fieldname: 'billCreated',
       label: 'Bill Created',
       fieldtype: 'Check'
+    },
+    {
+      fieldname: 'chartOfAccountsReviewed',
+      label: 'Chart Of Accounts Reviewed',
+      fieldtype: 'Check'
     }
   ]
 };
