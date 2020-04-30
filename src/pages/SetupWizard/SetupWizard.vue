@@ -1,13 +1,10 @@
 <template>
-  <div class="py-10 flex-1 bg-white window-drag">
+  <div class="flex-1 py-10 bg-white window-drag">
     <div class="px-12">
       <h1 class="text-2xl font-semibold">{{ _('Setup your organization') }}</h1>
-      <p class="text-gray-600">
-        {{ _('These settings can be changed later') }}
-      </p>
     </div>
     <div class="px-8 mt-5 window-no-drag" v-if="doc">
-      <div class="flex items-center border bg-brand rounded-xl px-6 py-5 mb-4">
+      <div class="flex items-center px-6 py-5 mb-4 border bg-brand rounded-xl">
         <FormControl
           :df="meta.getField('companyLogo')"
           :value="doc.companyLogo"
@@ -49,11 +46,11 @@
       </div>
       <TwoColumnForm :fields="fields" :doc="doc" />
     </div>
-    <div class="px-8 flex justify-end mt-5 window-no-drag">
+    <div class="flex justify-end px-8 mt-5 window-no-drag">
       <Button
         @click="submit"
         type="primary"
-        class="text-white text-sm"
+        class="text-sm text-white"
         :disabled="!valuesFilled || loading"
       >
         {{ buttonText }}
