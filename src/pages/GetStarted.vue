@@ -8,17 +8,17 @@
     <div class="px-8">
       <div class="border-t"></div>
     </div>
-    <div class="px-8 flex-1 overflow-y-auto">
+    <div class="flex-1 px-8 overflow-y-auto">
       <div class="my-6" v-for="section in sections" :key="section.label">
         <h2 class="font-medium">{{ section.label }}</h2>
-        <div class="mt-4 flex -mx-2">
+        <div class="flex mt-4 -mx-2">
           <div
             class="w-1/3 px-2"
             v-for="item in section.items"
             :key="item.label"
           >
             <div
-              class="flex flex-col justify-between border rounded-lg p-6 h-full hover:shadow-md cursor-pointer"
+              class="flex flex-col justify-between h-full p-6 border rounded-lg cursor-pointer hover:shadow-md"
               @mouseenter="() => (activeCard = item.key)"
               @mouseleave="() => (activeCard = null)"
             >
@@ -40,10 +40,11 @@
                 </p>
               </div>
               <div
-                class="mt-2 flex"
+                class="flex mt-2"
                 v-show="activeCard === item.key && !isCompleted(item)"
               >
                 <Button
+                  v-if="item.action"
                   class="leading-tight"
                   type="primary"
                   v-on="
@@ -57,11 +58,16 @@
                       : null
                   "
                 >
-                  <span class="text-white text-base">
-                    {{ _('Setup') }}
+                  <span class="text-base text-white">
+                    {{ item.actionLabel || _('Setup') }}
                   </span>
                 </Button>
-                <Button class="ml-4 leading-tight">
+                <Button
+                  v-if="item.documentation"
+                  class="leading-tight"
+                  :class="{ 'ml-4': item.action }"
+                  @click="visitLink(item.documentation)"
+                >
                   <span class="text-base">
                     {{ _('Documentation') }}
                   </span>
@@ -140,14 +146,22 @@ export default {
               icon: 'review-ac',
               description:
                 'Review your chart of accounts, add any account or tax heads as needed',
-              action: () => this.$router.push('/chart-of-accounts')
+              action: () => {
+                this.$router.push('/chart-of-accounts');
+                this.updateChecks({ chartOfAccountsReviewed: 1 });
+              },
+              fieldname: 'chartOfAccountsReviewed',
+              documentation:
+                'https://frappebooks.com/docs/setting-up#1-enter-bank-accounts'
             },
             {
               key: 'Opening Balances',
               label: _('Opening Balances'),
               icon: 'opening-ac',
               description:
-                'Setup your opening balances before performing any accounting entries'
+                'Setup your opening balances before performing any accounting entries',
+              documentation:
+                'https://frappebooks.com/docs/setting-up#5-setup-opening-balances'
             },
             {
               key: 'Add Taxes',
@@ -155,7 +169,9 @@ export default {
               icon: 'percentage',
               description:
                 'Setup your tax templates for your sales or purchase transactions',
-              action: () => this.$router.push('/list/Tax')
+              action: () => this.$router.push('/list/Tax'),
+              documentation:
+                'https://frappebooks.com/docs/setting-up#2-add-taxes'
             }
           ]
         },
@@ -170,7 +186,9 @@ export default {
               description:
                 'Add products or services that you sell to your customers',
               action: () => this.$router.push('/list/Item'),
-              fieldname: 'itemCreated'
+              fieldname: 'itemCreated',
+              documentation:
+                'https://frappebooks.com/docs/setting-up#3-add-items'
             },
             {
               key: 'Add Customers',
@@ -178,7 +196,9 @@ export default {
               icon: 'customer',
               description: 'Add a few customers to create your first invoice',
               action: () => this.$router.push('/list/Customer'),
-              fieldname: 'customerCreated'
+              fieldname: 'customerCreated',
+              documentation:
+                'https://frappebooks.com/docs/setting-up#4-add-customers'
             },
             {
               key: 'Create Invoice',
@@ -187,7 +207,8 @@ export default {
               description:
                 'Create your first invoice and mail it to your customer',
               action: () => this.$router.push('/list/SalesInvoice'),
-              fieldname: 'invoiceCreated'
+              fieldname: 'invoiceCreated',
+              documentation: 'https://frappebooks.com/docs/invoices'
             }
           ]
         },
@@ -219,7 +240,8 @@ export default {
               description:
                 'Create your first bill and mail it to your supplier',
               action: () => this.$router.push('/list/PurchaseInvoice'),
-              fieldname: 'billCreated'
+              fieldname: 'billCreated',
+              documentation: 'https://frappebooks.com/docs/bills'
             }
           ]
         }
@@ -297,9 +319,16 @@ export default {
           toUpdate.supplierCreated = 1;
         }
       }
-
+      await this.updateChecks(toUpdate);
+    },
+    async updateChecks(toUpdate) {
       await frappe.GetStarted.update(toUpdate);
       frappe.GetStarted = await frappe.getSingle('GetStarted');
+    },
+    visitLink(link) {
+      if (link) {
+        require('electron').shell.openExternal(link);
+      }
     },
     isCompleted(item) {
       return frappe.GetStarted.get(item.fieldname) || 0;
