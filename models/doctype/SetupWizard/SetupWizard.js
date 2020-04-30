@@ -69,11 +69,11 @@ module.exports = {
         if (!doc.country) return;
         let today = DateTime.local();
         let fyStart = countryList[doc.country].fiscal_year_start;
-        return DateTime.fromFormat(fyStart, 'MM-dd')
-          .plus({
-            year: [1, 2, 3].includes(today.month) ? -1 : 0
-          })
-          .toISODate();
+        if (fyStart) {
+          return DateTime.fromFormat(fyStart, 'MM-dd')
+            .plus({ year: [1, 2, 3].includes(today.month) ? -1 : 0 })
+            .toISODate();
+        }
       },
       required: 1
     },
@@ -87,9 +87,11 @@ module.exports = {
         if (!doc.country) return;
         let today = DateTime.local();
         let fyEnd = countryList[doc.country].fiscal_year_end;
-        return DateTime.fromFormat(fyEnd, 'MM-dd')
-          .plus({ year: [1, 2, 3].includes(today.month) ? 0 : 1 })
-          .toISODate();
+        if (fyEnd) {
+          return DateTime.fromFormat(fyEnd, 'MM-dd')
+            .plus({ year: [1, 2, 3].includes(today.month) ? 0 : 1 })
+            .toISODate();
+        }
       },
       required: 1
     },
