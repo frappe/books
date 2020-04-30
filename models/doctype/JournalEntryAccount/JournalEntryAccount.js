@@ -5,9 +5,11 @@ module.exports = {
     {
       fieldname: 'account',
       label: 'Account',
+      placeholder: 'Account',
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
+      groupBy: 'rootType',
       getFilters: () => ({ isGroup: 0 })
     },
     {
