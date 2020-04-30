@@ -15,6 +15,7 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps"
   },
+  "test": "test",
   "main": "background.js",
   "dependencies": {
     "@popperjs/core": "^2.0.3",
