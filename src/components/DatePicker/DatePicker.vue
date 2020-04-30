@@ -1,17 +1,14 @@
 <template>
   <Popover @open="selectCurrentMonthYear">
     <template v-slot:target="{ togglePopover }">
-      <div @click="!readonly ? togglePopover() : null">
-        <span v-if="value">
-          {{ formatValue ? formatValue(value) : value }}
-        </span>
-        <span class="text-gray-400" v-else>
-          <template v-if="placeholder">
-            {{ placeholder }}
-          </template>
-          <span v-else v-html="'&nbsp;'"></span>
-        </span>
-      </div>
+      <input
+        type="text"
+        :class="inputClass"
+        :value="value && formatValue ? formatValue(value) : value || ''"
+        :placeholder="placeholder"
+        readonly
+        @focus="!readonly ? togglePopover() : null"
+      />
     </template>
     <template v-slot:content="{ togglePopover }">
       <div class="text-left p-3 select-none">
@@ -82,7 +79,7 @@ import Popover from '../Popover';
 
 export default {
   name: 'DatePicker',
-  props: ['value', 'placeholder', 'readonly', 'formatValue'],
+  props: ['value', 'placeholder', 'readonly', 'formatValue', 'inputClass'],
   components: {
     Popover
   },

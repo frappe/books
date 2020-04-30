@@ -5,7 +5,7 @@
     </div>
     <DatePicker
       ref="input"
-      :class="[inputClasses, 'cursor-text']"
+      :input-class="[inputClasses, 'cursor-text']"
       :value="value"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
