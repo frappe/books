@@ -13,7 +13,7 @@
             fill-rule="evenodd"
           />
         </svg>
-        <div class="ml-4 flex flex-col w-56 truncate">
+        <div class="flex flex-col w-56 ml-4 truncate">
           <span class="font-semibold">{{ companyName }}</span>
           <span class="text-xs text-gray-600">{{ dbPath }}</span>
         </div>
@@ -32,6 +32,7 @@
     />
     <div class="mt-6">
       <FormControl
+        :show-label="true"
         :df="AccountingSettings.meta.getField('autoUpdate')"
         @change="value => AccountingSettings.update('autoUpdate', value)"
         :value="AccountingSettings.autoUpdate"
