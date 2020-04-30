@@ -19,13 +19,22 @@ export default {
         doctype,
         filters,
         fields: [
-          ...new Set(['name', meta.titleField, ...meta.getKeywordFields()])
-        ]
+          ...new Set([
+            'name',
+            meta.titleField,
+            this.df.groupBy,
+            ...meta.getKeywordFields()
+          ])
+        ].filter(Boolean)
       });
       let createNewOption = this.getCreateNewOption();
       let suggestions = results
         .map(r => {
-          return { label: r[meta.titleField], value: r.name };
+          let option = { label: r[meta.titleField], value: r.name };
+          if (this.df.groupBy) {
+            option.group = r[this.df.groupBy];
+          }
+          return option;
         })
         .concat(this.df.disableCreation ? null : createNewOption)
         .filter(Boolean);
