@@ -143,17 +143,26 @@ export default {
   content: '';
   background: white;
   transform: rotate(45deg);
-  border-top: 1px solid theme('borderColor.gray.400');
-  border-left: 1px solid theme('borderColor.gray.400');
-  border-top-left-radius: 6px;
 }
 
 .popover-container[data-popper-placement^='top'] > .popover-arrow {
   bottom: calc(theme('spacing.2') * -1);
 }
 
+.popover-container[data-popper-placement^='top'] > .popover-arrow::after {
+  border-bottom: 1px solid theme('borderColor.gray.400');
+  border-right: 1px solid theme('borderColor.gray.400');
+  border-bottom-right-radius: 6px;
+}
+
 .popover-container[data-popper-placement^='bottom'] > .popover-arrow {
   top: calc(theme('spacing.2') * -1);
+}
+
+.popover-container[data-popper-placement^='bottom'] > .popover-arrow::after {
+  border-top: 1px solid theme('borderColor.gray.400');
+  border-left: 1px solid theme('borderColor.gray.400');
+  border-top-left-radius: 6px;
 }
 
 .popover-container[data-popper-placement^='left'] > .popover-arrow {
