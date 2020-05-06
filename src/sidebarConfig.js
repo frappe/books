@@ -43,6 +43,11 @@ const config = {
           doctype: 'Item'
         },
         {
+          label: _('Payments'),
+          route: '/list/Payment',
+          doctype: 'Payment'
+        },
+        {
           label: _('Journal Entry'),
           route: '/list/JournalEntry',
           doctype: 'JournalEntry'
@@ -70,6 +75,11 @@ const config = {
           label: _('Items'),
           route: '/list/Item',
           doctype: 'Item'
+        },
+        {
+          label: _('Payments'),
+          route: '/list/Payment',
+          doctype: 'Payment'
         },
         {
           label: _('Journal Entry'),
