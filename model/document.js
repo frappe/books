@@ -111,7 +111,11 @@ module.exports = class BaseDocument extends Observable {
           defaultValue = [];
         }
         if (field.default) {
-          defaultValue = field.default;
+          if (typeof field.default === 'function') {
+            defaultValue = field.default(this);
+          } else {
+            defaultValue = field.default;
+          }
         }
 
         this[field.fieldname] = defaultValue;
@@ -432,7 +436,7 @@ module.exports = class BaseDocument extends Observable {
         .getFormulaFields();
       if (formulaFields.length) {
         // for each row
-        for (let row of this[tablefield.fieldname]) {
+        for (let row of this[tablefield.fieldname] || []) {
           for (let field of formulaFields) {
             if (shouldApplyFormula(field, row)) {
               let val = await this.getValueFromFormula(field, row);
