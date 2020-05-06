@@ -6,9 +6,9 @@
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
-    <div class="mt-2 flex text-base px-8" v-if="report.filterFields">
+    <div class="flex px-8 mt-2 text-base" v-if="report.filterFields">
       <div
-        class="ml-3 first:ml-0 w-32"
+        class="w-32 ml-3 first:ml-0"
         v-for="df in report.filterFields"
         :key="df.fieldname"
       >
@@ -26,7 +26,7 @@
         <div ref="header" class="overflow-hidden">
           <Row gap="2rem" :grid-template-columns="gridTemplateColumns">
             <div
-              class="text-base truncate py-4"
+              class="py-4 text-base truncate"
               :class="[
                 getColumnAlignClass(column),
                 loading ? 'text-gray-100' : 'text-gray-600'
@@ -50,7 +50,7 @@
               :grid-template-columns="gridTemplateColumns"
             >
               <div
-                class="text-base truncate py-4"
+                class="py-4 text-base truncate"
                 :class="getCellClasses(row, column)"
                 v-for="column in columns"
                 :key="column.label"
@@ -59,7 +59,7 @@
                 <div class="inline-flex">
                   <feather-icon
                     v-if="row.isBranch && !row.isLeaf && column === columns[0]"
-                    class="w-4 h-4 mr-2 flex-shrink-0"
+                    class="flex-shrink-0 w-4 h-4 mr-2"
                     :name="row.expanded ? 'chevron-down' : 'chevron-right'"
                   />
                   <span class="truncate" :class="{ 'bg-gray-100': loading }">
@@ -298,7 +298,7 @@ export default {
             multiplier = 1;
           }
           let minWidth = `${7 * multiplier}rem`;
-          let maxWidth = `${1 * multiplier}fr`;
+          let maxWidth = `${9 * multiplier}rem`;
 
           return `minmax(${minWidth}, ${maxWidth})`;
         })
