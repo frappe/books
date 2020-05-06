@@ -13,7 +13,7 @@
         <h2 class="font-medium">{{ section.label }}</h2>
         <div class="flex mt-4 -mx-2">
           <div
-            class="w-1/3 px-2"
+            class="flex-shrink-0 w-full px-2 md:w-1/3 sm:w-1/2"
             v-for="item in section.items"
             :key="item.label"
           >
@@ -40,7 +40,7 @@
                 </p>
               </div>
               <div
-                class="flex mt-2"
+                class="flex mt-2 overflow-hidden"
                 v-show="activeCard === item.key && !isCompleted(item)"
               >
                 <Button
