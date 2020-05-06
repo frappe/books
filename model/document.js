@@ -111,7 +111,11 @@ module.exports = class BaseDocument extends Observable {
           defaultValue = [];
         }
         if (field.default) {
-          defaultValue = field.default;
+          if (typeof field.default === 'function') {
+            defaultValue = field.default(this);
+          } else {
+            defaultValue = field.default;
+          }
         }
 
         this[field.fieldname] = defaultValue;
