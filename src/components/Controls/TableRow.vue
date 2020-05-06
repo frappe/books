@@ -1,21 +1,14 @@
 <template>
-  <Row
-    :ratio="ratio"
-    class="border-b px-2 w-full "
-    :class="{ 'bg-brand-100': hovering }"
-    @mouseover="hovering = true"
-    @mouseleave="hovering = false"
-    @click="hovering = false"
-  >
+  <Row :ratio="ratio" class="w-full px-2 border-b hover:bg-brand-100 group">
     <div class="flex items-center pl-2 text-gray-600">
-      <span v-if="hovering">
+      <span class="hidden group-hover:inline-block">
         <feather-icon
           name="x"
           class="w-4 h-4 -ml-1 cursor-pointer"
           @click="$emit('remove')"
         />
       </span>
-      <span v-else>
+      <span class="group-hover:hidden">
         {{ row.idx + 1 }}
       </span>
     </div>
