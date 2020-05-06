@@ -636,7 +636,7 @@ module.exports = class BaseDocument extends Observable {
 
   // helper functions
   getSum(tablefield, childfield) {
-    return this[tablefield]
+    return (this[tablefield] || [])
       .map(d => parseFloat(d[childfield], 10) || 0)
       .reduce((a, b) => a + b, 0);
   }
