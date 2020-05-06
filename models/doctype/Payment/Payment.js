@@ -20,7 +20,7 @@ module.exports = {
       fieldname: 'date',
       label: 'Posting Date',
       fieldtype: 'Date',
-      defaultValue: new Date().toISOString()
+      default: new Date().toISOString()
     },
     {
       fieldname: 'account',
@@ -102,8 +102,7 @@ module.exports = {
       label: 'Amount',
       fieldtype: 'Currency',
       required: 1,
-      readOnly: 1,
-      formula: doc => doc.getSum('for', 'amount')
+      default: doc => doc.getSum('for', 'amount')
     },
     {
       fieldname: 'writeoff',
