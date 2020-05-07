@@ -54,7 +54,7 @@ database.
 
     You will also need [Xcode App](https://apps.apple.com/in/app/xcode/id497799835?mt=12) from App Store
 
-2. Install [Node.js](https://nodejs.org/en/)
+2. Install [Node.js](https://nodejs.org/en/). Make sure you have atleast version 12 installed.
     > Tip: The best way to install and manage Node is to install [nvm](https://github.com/nvm-sh/nvm#usage)
 3. Install `yarn` package manager
     ```bash
