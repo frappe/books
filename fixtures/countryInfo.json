@@ -1467,11 +1467,10 @@
     },
     "Lithuania": {
         "code": "lt",
-        "currency": "LTL",
-        "currency_fraction": "Centas",
+        "currency": "EUR",
+        "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_name": "Lithuanian Litas",
-        "currency_symbol": "Lt",
+        "currency_symbol": "\u20ac",
         "date_format": "yyyy-MM-dd",
         "number_format": "# ###,##",
         "timezones": [
