@@ -66,12 +66,29 @@ database.
 ```bash
 # clone the repository
 git clone https://github.com/frappe/books.git
+
 # change directory
 cd books
+
 # install dependencies
 yarn
+
 # start the electron app
 yarn electron:serve
+```
+
+### Developing with FrappeJS
+
+FrappeBooks is based on [FrappeJS](https://github.com/frappe/frappejs) for managing models and objects. To develop alongside FrappeJS
+
+```bash
+# clone frappejs
+git clone https://github.com/frappe/books.git
+
+# link frappejs
+cd frappejs
+yarn link
+yarn link frappejs
 ```
 
 ## License
