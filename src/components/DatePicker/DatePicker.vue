@@ -204,7 +204,7 @@ export default {
 
     getDate(...args) {
       let d = new Date(...args);
-      return new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+      return d;
     }
   }
 };
