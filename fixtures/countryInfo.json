@@ -677,10 +677,15 @@
     },
     "Cura\u00e7ao": {
         "code": "cw",
+        "currency": "ANG",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
+        "currency_name": "Netherlands Antillean Guilder",
         "currency_symbol": "\u0192",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "timezones": [
+            "America/Curacao"
+        ]
     },
     "Cyprus": {
         "code": "cy",
