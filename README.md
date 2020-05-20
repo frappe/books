@@ -83,7 +83,7 @@ FrappeBooks is based on [FrappeJS](https://github.com/frappe/frappejs) for manag
 
 ```bash
 # clone frappejs
-git clone https://github.com/frappe/books.git
+git clone https://github.com/frappe/frappejs.git
 
 # link frappejs
 cd frappejs
