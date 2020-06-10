@@ -86,7 +86,7 @@ export default {
       return this.df.target;
     },
     async openNewDoc() {
-      let doctype = this.df.target;
+      let doctype = this.getTarget();
       let doc = await frappe.getNewDoc(doctype);
       let filters = await this.getFilters();
       openQuickEdit({
