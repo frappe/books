@@ -34,6 +34,7 @@ import { remote } from 'electron';
 import config from '@/config';
 import { connectToLocalDatabase } from '@/utils';
 import { getMainWindowSize } from '@/screenSize';
+import fs from 'fs';
 
 export default {
   name: 'App',
@@ -70,11 +71,12 @@ export default {
   },
   async mounted() {
     let lastSelectedFilePath = config.get('lastSelectedFilePath', null);
-    if (!lastSelectedFilePath) {
-      this.activeScreen = 'DatabaseSelector';
-    } else {
+    let lastSelectedFileExists = fs.existsSync(lastSelectedFilePath);
+    if (lastSelectedFilePath && lastSelectedFileExists) {
       await connectToLocalDatabase(lastSelectedFilePath);
       this.showSetupWizardOrDesk();
+    } else {
+      this.activeScreen = 'DatabaseSelector';
     }
   },
   methods: {
