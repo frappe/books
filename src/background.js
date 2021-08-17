@@ -3,7 +3,7 @@
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import {
-  createProtocol,
+  createProtocol
   // installVueDevtools
 } from 'vue-cli-plugin-electron-builder/lib';
 import theme from '@/theme';
