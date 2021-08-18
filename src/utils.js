@@ -90,22 +90,21 @@ export async function connectToLocalDatabase(filepath) {
   config.set('lastSelectedFilePath', filepath);
 }
 
-export function showMessageDialog({ message, description, buttons = [] }) {
+export async function showMessageDialog({ message, description, buttons = [] }) {
   let buttonLabels = buttons.map(a => a.label);
-  remote.dialog.showMessageBox(
+  const { response } = await remote.dialog.showMessageBox(
     remote.getCurrentWindow(),
     {
       message,
       detail: description,
       buttons: buttonLabels
-    },
-    response => {
-      let button = buttons[response];
-      if (button && button.action) {
-        button.action();
-      }
     }
   );
+
+  let button = buttons[response];
+  if (button && button.action) {
+    button.action();
+  }
 }
 
 export function deleteDocWithPrompt(doc) {
