@@ -63,9 +63,9 @@ import router from './router';
     console.error(err, vm, info);
   };
 
-  process.on('unhandledRejection', (error) => {
-    console.error(error)
-  })
+  process.on('unhandledRejection', error => {
+    console.error(error);
+  });
 
   /* eslint-disable no-new */
   new Vue({
