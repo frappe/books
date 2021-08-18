@@ -59,7 +59,7 @@ export default {
 
     renderChart(res) {
       let totalRow = res.rows[res.rows.length - 1];
-      const chart = new Chart(this.$refs['profit-and-loss'], {
+      new Chart(this.$refs['profit-and-loss'], {
         title: '',
         animate: false,
         type: 'bar',
