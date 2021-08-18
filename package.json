@@ -38,7 +38,8 @@
     "@vue/cli-service": "^4.1.0",
     "@vue/eslint-config-prettier": "^5.0.0",
     "babel-eslint": "^10.0.3",
-    "electron": "^7.0.0",
+    "electron": "^8.0.0",
+    "electron-devtools-installer": "^3.2.0",
     "electron-notarize": "^0.2.1",
     "electron-updater": "^4.2.0",
     "eslint": "^5.16.0",
@@ -47,7 +48,7 @@
     "lint-staged": "^9.4.3",
     "prettier": "^1.19.1",
     "raw-loader": "^4.0.0",
-    "vue-cli-plugin-electron-builder": "https://github.com/netchampfaris/vue-cli-plugin-electron-builder",
+    "vue-cli-plugin-electron-builder": "^2.0.0",
     "vue-template-compiler": "^2.6.10"
   },
   "gitHooks": {

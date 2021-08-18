@@ -26,13 +26,13 @@
 </template>
 <script>
 import frappe from 'frappejs';
-import Observable from 'frappejs/utils/observable';
+// import Observable from 'frappejs/utils/observable';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import SearchBar from '@/components/SearchBar';
 import List from './List';
 import listConfigs from './listConfig';
-import Icon from '@/components/Icon';
+// import Icon from '@/components/Icon';
 import FilterDropdown from '@/components/FilterDropdown';
 
 export default {
@@ -43,7 +43,7 @@ export default {
     List,
     Button,
     SearchBar,
-    Icon,
+    // Icon,
     FilterDropdown
   },
   activated() {
