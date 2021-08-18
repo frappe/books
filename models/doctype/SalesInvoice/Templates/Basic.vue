@@ -1,7 +1,7 @@
 <template>
   <div class="border h-full">
     <div>
-      <div class="px-6 pt-6" v-if="printSettings && accountingSettings">
+      <div class="px-6 pt-6" v-if="printSettings">
         <div class="flex text-sm text-gray-900 border-b pb-4">
           <div class="w-1/3">
             <div v-if="printSettings.displayLogo">
@@ -11,7 +11,7 @@
               />
             </div>
             <div class="text-xl text-gray-700 font-semibold" v-else>
-              {{ accountingSettings.companyName }}
+              {{ frappe.AccountingSettings.companyName }}
             </div>
           </div>
           <div class="w-1/3">
@@ -19,8 +19,10 @@
             <div class="mt-1">{{ printSettings.phone }}</div>
           </div>
           <div class="w-1/3">
-            <div v-if="address">{{ address.addressDisplay }}</div>
-            <div>GSTIN: {{ gstin }}</div>
+            <div v-if="companyAddress">{{ companyAddress.addressDisplay }}</div>
+            <div v-if="printSettings && printSettings.gstin">
+              GSTIN: {{ printSettings.gstin }}
+            </div>
           </div>
         </div>
       </div>
@@ -34,55 +36,47 @@
               {{ frappe.format(doc.date, 'Date') }}
             </div>
           </div>
-          <div class="w-1/3">
+          <div class="w-1/3" v-if="party">
             <div class="py-1 text-right text-lg font-semibold">
-              {{ doc[partyField.fieldname] }}
-            </div>
-            <div v-if="partyDoc" class="mt-1 text-xs text-gray-600 text-right">
-              {{ partyDoc.addressDisplay }}
+              {{ party.name }}
             </div>
             <div
-              v-if="partyDoc && partyDoc.gstin"
+              v-if="party && party.addressDisplay"
               class="mt-1 text-xs text-gray-600 text-right"
             >
-              GSTIN: {{ partyDoc.gstin }}
+              {{ party.addressDisplay }}
+            </div>
+            <div
+              v-if="party && party.gstin"
+              class="mt-1 text-xs text-gray-600 text-right"
+            >
+              GSTIN: {{ party.gstin }}
             </div>
           </div>
         </div>
       </div>
       <div class="mt-2 px-6 text-base">
         <div>
-          <Row class="text-gray-600 w-full" :ratio="ratio">
-            <div class="py-4">
-              {{ _('No') }}
-            </div>
-            <div
-              class="py-4"
-              v-for="df in itemFields"
-              :key="df.fieldname"
-              :class="textAlign(df)"
-            >
-              {{ df.label }}
-            </div>
-          </Row>
-          <Row
-            class="text-gray-900 w-full"
+          <div class="text-gray-600 w-full flex border-b">
+            <div class="py-4 w-5/12">Item</div>
+            <div class="py-4 text-right w-1/12">Quantity</div>
+            <div class="py-4 text-right w-3/12">Rate</div>
+            <div class="py-4 text-right w-3/12">Amount</div>
+          </div>
+          <div
+            class="flex py-1 text-gray-900 w-full border-b"
             v-for="row in doc.items"
             :key="row.name"
-            :ratio="ratio"
           >
-            <div class="py-4">
-              {{ row.idx + 1 }}
+            <div class="w-5/12 py-4">{{ row.item }}</div>
+            <div class="w-1/12 text-right py-4">
+              {{ format(row, 'quantity') }}
             </div>
-            <div
-              class="py-4"
-              v-for="df in itemFields"
-              :key="df.fieldname"
-              :class="textAlign(df)"
-            >
-              {{ frappe.format(row[df.fieldname], df) }}
+            <div class="w-3/12 text-right py-4">{{ format(row, 'rate') }}</div>
+            <div class="w-3/12 text-right py-4">
+              {{ format(row, 'amount') }}
             </div>
-          </Row>
+          </div>
         </div>
       </div>
     </div>
@@ -112,60 +106,11 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
-import Row from '@/components/Row';
+import Base from './Base';
 
 export default {
   name: 'Default',
-  props: ['doc', 'printSettings'],
-  components: {
-    Row
-  },
-  data() {
-    return {
-      accountingSettings: null
-    };
-  },
-  computed: {
-    meta() {
-      return this.doc && this.doc.meta;
-    },
-    address() {
-      return this.printSettings && this.printSettings.getLink('address');
-    },
-    gstin() {
-      return this.printSettings && this.printSettings.gstin;
-    },
-    partyDoc() {
-      return this.doc.getLink(this.partyField.fieldname);
-    },
-    partyField() {
-      let fieldname = {
-        SalesInvoice: 'customer',
-        PurchaseInvoice: 'supplier'
-      }[this.doc.doctype];
-      return this.meta.getField(fieldname);
-    },
-    itemFields() {
-      let itemsMeta = frappe.getMeta(`${this.doc.doctype}Item`);
-      return ['item', 'quantity', 'rate', 'amount'].map(fieldname =>
-        itemsMeta.getField(fieldname)
-      );
-    },
-    ratio() {
-      return [0.3].concat(this.itemFields.map(() => 1));
-    }
-  },
-  methods: {
-    textAlign(df) {
-      return ['Currency', 'Int', 'Float'].includes(df.fieldtype)
-        ? 'text-right'
-        : '';
-    }
-  },
-  async mounted() {
-    this.accountingSettings = await frappe.getSingle('AccountingSettings');
-    await this.doc.loadLink(this.partyField.fieldname);
-  }
+  extends: Base,
+  props: ['doc', 'printSettings']
 };
 </script>
