@@ -20,6 +20,7 @@
           </div>
           <div class="w-1/3">
             <div v-if="address">{{ address.addressDisplay }}</div>
+            <div>GSTIN: {{ gstin }}</div>
           </div>
         </div>
       </div>
@@ -131,6 +132,9 @@ export default {
     },
     address() {
       return this.printSettings && this.printSettings.getLink('address');
+    },
+    gstin() {
+      return this.printSettings && this.printSettings.gstin;
     },
     partyDoc() {
       return this.doc.getLink(this.partyField.fieldname);
