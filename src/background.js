@@ -2,7 +2,7 @@
 
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import {
   createProtocol
   // installVueDevtools
@@ -35,7 +35,7 @@ function createWindow() {
     width,
     height,
     webPreferences: {
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION 
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
     },
     frame: isLinux,
     resizable: true
@@ -68,7 +68,7 @@ function createSettingsWindow(tab = 'General') {
     height: 577,
     backgroundColor: theme.backgroundColor.gray['200'],
     webPreferences: {
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION 
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
     },
     resizable: false
   });
