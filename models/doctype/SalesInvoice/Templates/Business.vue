@@ -23,7 +23,10 @@
           <div class="text-sm text-gray-800" v-if="companyAddress">
             {{ companyAddress.addressDisplay }}
           </div>
-          <div class="text-sm text-gray-800" v-if="printSettings && printSettings.gstin">
+          <div
+            class="text-sm text-gray-800"
+            v-if="printSettings && printSettings.gstin"
+          >
             GSTIN: {{ printSettings.gstin }}
           </div>
         </div>
@@ -53,9 +56,7 @@
             <div>
               {{ party.addressDisplay }}
             </div>
-            <div v-if="party && party.gstin">
-              GSTIN: {{ party.gstin }}
-            </div>
+            <div v-if="party && party.gstin">GSTIN: {{ party.gstin }}</div>
           </div>
         </div>
       </div>
