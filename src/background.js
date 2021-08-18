@@ -2,6 +2,7 @@
 
 import { app, protocol, BrowserWindow, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import {
   createProtocol
   // installVueDevtools
@@ -34,7 +35,7 @@ function createWindow() {
     width,
     height,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION 
     },
     frame: isLinux,
     resizable: true
@@ -67,7 +68,7 @@ function createSettingsWindow(tab = 'General') {
     height: 577,
     backgroundColor: theme.backgroundColor.gray['200'],
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION 
     },
     resizable: false
   });
@@ -118,11 +119,11 @@ app.on('ready', async () => {
     // Electron will not launch with Devtools extensions installed on Windows 10 with dark mode
     // If you are not using Windows 10 dark mode, you may uncomment these lines
     // In addition, if the linked issue is closed, you can upgrade electron and uncomment these lines
-    // try {
-    //   await installVueDevtools();
-    // } catch (e) {
-    //   console.error('Vue Devtools failed to install:', e.toString());
-    // }
+    try {
+      await installExtension(VUEJS_DEVTOOLS);
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e.toString());
+    }
   }
   createWindow();
 });
