@@ -209,9 +209,9 @@ export function handleErrorWithDialog(e, doc) {
 // NOTE: a hack to find all the css from the current document and inject it to the print version
 // remove this if you are able to fix and get the default css loading on the page
 function injectCSS(contents) {
-  const styles = document.getElementsByTagName('style')
+  const styles = document.getElementsByTagName('style');
 
-  for(let style of styles) {
+  for (let style of styles) {
     contents.insertCSS(style.innerHTML);
   }
 }
@@ -259,14 +259,13 @@ export function makePDF(html, destination) {
   return new Promise(resolve => {
     printWindow.webContents.on('did-finish-load', () => {
       injectCSS(printWindow.webContents);
-      printWindow.webContents.printToPDF(printOptions)
-        .then(data => {
-          printWindow.close();
-          fs.writeFile(destination, data, error => {
-            if (error) throw error;
-            resolve(shell.openItem(destination));
-          });
-        })
+      printWindow.webContents.printToPDF(printOptions).then(data => {
+        printWindow.close();
+        fs.writeFile(destination, data, error => {
+          if (error) throw error;
+          resolve(shell.openItem(destination));
+        });
+      });
     });
   });
 }
