@@ -90,7 +90,11 @@ export async function connectToLocalDatabase(filepath) {
   config.set('lastSelectedFilePath', filepath);
 }
 
-export async function showMessageDialog({ message, description, buttons = [] }) {
+export async function showMessageDialog({
+  message,
+  description,
+  buttons = []
+}) {
   let buttonLabels = buttons.map(a => a.label);
   const { response } = await remote.dialog.showMessageBox(
     remote.getCurrentWindow(),
