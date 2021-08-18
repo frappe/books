@@ -38,7 +38,7 @@
     "@vue/cli-service": "^4.1.0",
     "@vue/eslint-config-prettier": "^5.0.0",
     "babel-eslint": "^10.0.3",
-    "electron": "^6.0.0",
+    "electron": "^7.0.0",
     "electron-notarize": "^0.2.1",
     "electron-updater": "^4.2.0",
     "eslint": "^5.16.0",
