@@ -206,6 +206,16 @@ export function handleErrorWithDialog(e, doc) {
   throw e;
 }
 
+// NOTE: a hack to find all the css from the current document and inject it to the print version
+// remove this if you are able to fix and get the default css loading on the page
+function injectCSS(contents) {
+  const styles = document.getElementsByTagName('style')
+
+  for(let style of styles) {
+    contents.insertCSS(style.innerHTML);
+  }
+}
+
 export function makePDF(html, destination) {
   const { BrowserWindow } = remote;
 
@@ -214,7 +224,8 @@ export function makePDF(html, destination) {
     height: 842,
     show: false,
     webPreferences: {
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      enableRemoteModule: true
     }
   });
 
@@ -237,23 +248,25 @@ export function makePDF(html, destination) {
 
   printWindow.webContents.executeJavaScript(code);
 
+  const printOptions = {
+    marginsType: 1, // no margin
+    pageSize: 'A4',
+    printBackground: true,
+    printBackgrounds: true,
+    printSelectionOnly: false
+  };
+
   return new Promise(resolve => {
     printWindow.webContents.on('did-finish-load', () => {
-      printWindow.webContents.printToPDF(
-        {
-          marginsType: 1, // no margin
-          pageSize: 'A4',
-          printBackground: true
-        },
-        (error, data) => {
-          if (error) throw error;
+      injectCSS(printWindow.webContents);
+      printWindow.webContents.printToPDF(printOptions)
+        .then(data => {
           printWindow.close();
           fs.writeFile(destination, data, error => {
             if (error) throw error;
             resolve(shell.openItem(destination));
           });
-        }
-      );
+        })
     });
   });
 }
