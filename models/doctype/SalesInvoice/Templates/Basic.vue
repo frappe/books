@@ -81,7 +81,17 @@
       </div>
     </div>
     <div class="px-6 mt-2 flex justify-end text-base">
-      <div class="w-64">
+      <div class="w-1/2 bg-pink">
+        <div
+          class="uppercase text-sm tracking-widest font-semibold text-gray-800 mt-2"
+        >
+          Notes
+        </div>
+        <div class="my-4 text-lg whitespace-pre-line">
+          {{ doc.terms }}
+        </div>
+      </div>
+      <div class="w-1/2">
         <div class="flex pl-2 justify-between py-3 border-b">
           <div>{{ _('Subtotal') }}</div>
           <div>{{ frappe.format(doc.netTotal, 'Currency') }}</div>
