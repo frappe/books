@@ -9,41 +9,36 @@ import router from '@/router';
 import Avatar from '@/components/Avatar';
 import config from '@/config';
 
-export function createNewDatabase() {
-  return new Promise(resolve => {
-    remote.dialog.showSaveDialog(
-      remote.getCurrentWindow(),
-      {
-        title: _('Select folder'),
-        defaultPath: 'frappe-books.db'
-      },
-      filePath => {
-        if (filePath) {
-          if (!filePath.endsWith('.db')) {
-            filePath = filePath + '.db';
-          }
-          if (fs.existsSync(filePath)) {
-            showMessageDialog({
-              // prettier-ignore
-              message: _('A file exists with the same name and it will be overwritten. Are you sure you want to continue?'),
-              buttons: [
-                {
-                  label: _('Overwrite'),
-                  action() {
-                    fs.unlinkSync(filePath);
-                    resolve(filePath);
-                  }
-                },
-                { label: _('Cancel'), action() {} }
-              ]
-            });
-          } else {
-            resolve(filePath);
-          }
-        }
-      }
-    );
-  });
+export async function createNewDatabase() {
+  const options = {
+    title: _('Select folder'),
+    defaultPath: 'frappe-books.db'
+  };
+
+  let { filePath } = await remote.dialog.showSaveDialog(options);
+  if (filePath) {
+    if (!filePath.endsWith('.db')) {
+      filePath = filePath + '.db';
+    }
+    if (fs.existsSync(filePath)) {
+      showMessageDialog({
+        // prettier-ignore
+        message: _('A file exists with the same name and it will be overwritten. Are you sure you want to continue?'),
+        buttons: [
+          {
+            label: _('Overwrite'),
+            action() {
+              fs.unlinkSync(filePath);
+              return filePath;
+            }
+          },
+          { label: _('Cancel'), action() {} }
+        ]
+      });
+    } else {
+      return filePath;
+    }
+  }
 }
 
 export function loadExistingDatabase() {
