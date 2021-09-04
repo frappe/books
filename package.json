@@ -22,7 +22,7 @@
     "electron-store": "^5.1.0",
     "frappe-charts": "^1.3.0",
     "frappejs": "https://github.com/frappe/frappejs",
-    "knex": "^0.20.4",
+    "knex": "^0.95.11",
     "lodash": "^4.17.15",
     "luxon": "^1.21.3",
     "portal-vue": "^2.1.6",
