@@ -41,22 +41,18 @@ export async function createNewDatabase() {
   }
 }
 
-export function loadExistingDatabase() {
-  return new Promise(resolve => {
-    remote.dialog.showOpenDialog(
-      remote.getCurrentWindow(),
-      {
-        title: _('Select file'),
-        properties: ['openFile'],
-        filters: [{ name: 'SQLite DB File', extensions: ['db'] }]
-      },
-      files => {
-        if (files && files[0]) {
-          resolve(files[0]);
-        }
-      }
-    );
-  });
+export async function loadExistingDatabase() {
+  const options = {
+    title: _('Select file'),
+    properties: ['openFile'],
+    filters: [{ name: 'SQLite DB File', extensions: ['db'] }]
+  };
+
+  let  { filePaths } = await remote.dialog.showOpenDialog(options);
+  
+  if (filePaths && filePaths[0]) {
+    return filePaths[0]
+  }
 }
 
 export async function connectToLocalDatabase(filepath) {
