@@ -20,7 +20,7 @@
     "@popperjs/core": "^2.0.3",
     "core-js": "^3.4.3",
     "electron-store": "^5.1.0",
-    "frappe-charts": "^1.3.0",
+    "frappe-charts": "1.6.1",
     "frappejs": "https://github.com/ankitsinghaniyaz/frappejs",
     "knex": "^0.95.11",
     "lodash": "^4.17.15",
