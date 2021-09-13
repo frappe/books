@@ -9,7 +9,6 @@
       :class="['resize-none', inputClasses]"
       :value="value"
       :placeholder="inputPlaceholder"
-      :readonly="isReadOnly"
       @blur="e => triggerChange(e.target.value)"
       @focus="e => $emit('focus', e)"
       @input="e => $emit('input', e)"
