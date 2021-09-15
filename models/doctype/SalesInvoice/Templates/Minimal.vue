@@ -42,7 +42,7 @@
         <div
           class="uppercase text-sm font-semibold tracking-widest text-gray-800"
         >
-          To
+          {{ isSalesInvoice ? 'To' : 'From' }}
         </div>
         <div class="mt-4 text-black leading-relaxed text-lg">
           {{ party.name }} <br />
@@ -59,7 +59,7 @@
         <div
           class="uppercase text-sm font-semibold tracking-widest text-gray-800 ml-8"
         >
-          From
+          {{ isSalesInvoice ? 'From' : 'To' }}
         </div>
         <div class="mt-4 ml-8 text-black leading-relaxed text-lg">
           {{ companyAddress.addressDisplay }}
