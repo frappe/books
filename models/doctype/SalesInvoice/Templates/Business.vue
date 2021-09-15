@@ -34,7 +34,7 @@
       <div class="mt-8 text-lg">
         <div class="flex">
           <div class="w-1/3 font-semibold">
-            {{ doc.doctype === 'SalesInvoice' ? 'Invoice' : 'Bill' }}
+            {{ isSalesInvoice ? 'Invoice' : 'Bill' }}
           </div>
           <div class="w-2/3 text-gray-800">
             <div class="font-semibold">
@@ -47,7 +47,7 @@
         </div>
         <div class="mt-4 flex">
           <div class="w-1/3 font-semibold">
-            {{ doc.doctype === 'SalesInvoice' ? 'Customer' : 'Supplier' }}
+            {{ isSalesInvoice ? 'Customer' : 'Supplier' }}
           </div>
           <div class="w-2/3 text-gray-800" v-if="party">
             <div class="font-semibold">
