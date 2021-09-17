@@ -6,17 +6,17 @@
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
-    <div class="px-8">
+    <div class="mx-4">
       <div class="border-t" />
       <Cashflow />
-      <div class="my-10 border-t" />
+      <div class="my-4 mt-0 border-t" />
       <UnpaidInvoices />
-      <div class="my-10 border-t" />
-      <div class="flex -mx-4">
-        <div class="w-1/2 px-4">
+      <div class="my-4 border-t" />
+      <div class="w-96 flex mx-auto">
+        <div class="w-1/2 mx-4">
           <ProfitAndLoss />
         </div>
-        <div class="w-1/2 px-4">
+        <div class="w-1/2 mx-4">
           <Expenses />
         </div>
       </div>
