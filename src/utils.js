@@ -48,10 +48,10 @@ export async function loadExistingDatabase() {
     filters: [{ name: 'SQLite DB File', extensions: ['db'] }]
   };
 
-  let  { filePaths } = await remote.dialog.showOpenDialog(options);
-  
+  let { filePaths } = await remote.dialog.showOpenDialog(options);
+
   if (filePaths && filePaths[0]) {
-    return filePaths[0]
+    return filePaths[0];
   }
 }
 
