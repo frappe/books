@@ -91,6 +91,14 @@ yarn link
 yarn link frappejs
 ```
 
+### FAQ
+
+1. Launching electron and nothing displays
+https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/24#issuecomment-770165389
+```
+sudo chown root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
+```
+
 ## License
 
 [GNU Affero General Public License v3.0](LICENSE)
