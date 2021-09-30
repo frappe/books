@@ -211,7 +211,7 @@ export function makePDF(html, destination) {
     height: 842,
     show: false,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
     }
   });
 
