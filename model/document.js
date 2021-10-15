@@ -86,6 +86,7 @@ module.exports = class BaseDocument extends Observable {
 
       // always run applyChange from the parentdoc
       if (this.meta.isChild && this.parentdoc) {
+        await this.applyChange(fieldname);
         await this.parentdoc.applyChange(this.parentfield);
       } else {
         await this.applyChange(fieldname);
