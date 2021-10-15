@@ -412,6 +412,7 @@ module.exports = class BaseDocument extends Observable {
       }
 
       // set submit action flag
+      this.flags = {}
       if (this.submitted && !currentDoc.submitted) {
         this.flags.submitAction = true;
       }
