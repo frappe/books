@@ -97,7 +97,6 @@ export default {
       };
 
       let { filePath } = await remote.dialog.showSaveDialog(options);
-      console.log(filePath);
       if (filePath) {
         if (!filePath.endsWith('.pdf')) {
           filePath = filePath + '.pdf';
