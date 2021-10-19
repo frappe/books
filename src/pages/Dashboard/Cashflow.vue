@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-6">
+  <div class="w-96 mx-auto mt-4">
     <template v-if="hasData">
       <div class="flex items-center justify-between">
         <div class="font-medium">{{ _('Cashflow') }}</div>
@@ -21,7 +21,7 @@
       v-else
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 889 240"
-      class="w-full h-full"
+      class="w-10/12 h-5/6 ml-4 mr-4 my-2"
     >
       <defs>
         <linearGradient x1="50%" y1="100%" x2="50%" y2=".889%" id="a">

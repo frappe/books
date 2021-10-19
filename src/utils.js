@@ -9,59 +9,50 @@ import router from '@/router';
 import Avatar from '@/components/Avatar';
 import config from '@/config';
 
-export function createNewDatabase() {
-  return new Promise(resolve => {
-    remote.dialog.showSaveDialog(
-      remote.getCurrentWindow(),
-      {
-        title: _('Select folder'),
-        defaultPath: 'frappe-books.db'
-      },
-      filePath => {
-        if (filePath) {
-          if (!filePath.endsWith('.db')) {
-            filePath = filePath + '.db';
-          }
-          if (fs.existsSync(filePath)) {
-            showMessageDialog({
-              // prettier-ignore
-              message: _('A file exists with the same name and it will be overwritten. Are you sure you want to continue?'),
-              buttons: [
-                {
-                  label: _('Overwrite'),
-                  action() {
-                    fs.unlinkSync(filePath);
-                    resolve(filePath);
-                  }
-                },
-                { label: _('Cancel'), action() {} }
-              ]
-            });
-          } else {
-            resolve(filePath);
-          }
-        }
-      }
-    );
-  });
+export async function createNewDatabase() {
+  const options = {
+    title: _('Select folder'),
+    defaultPath: 'frappe-books.db'
+  };
+
+  let { filePath } = await remote.dialog.showSaveDialog(options);
+  if (filePath) {
+    if (!filePath.endsWith('.db')) {
+      filePath = filePath + '.db';
+    }
+    if (fs.existsSync(filePath)) {
+      showMessageDialog({
+        // prettier-ignore
+        message: _('A file exists with the same name and it will be overwritten. Are you sure you want to continue?'),
+        buttons: [
+          {
+            label: _('Overwrite'),
+            action() {
+              fs.unlinkSync(filePath);
+              return filePath;
+            }
+          },
+          { label: _('Cancel'), action() {} }
+        ]
+      });
+    } else {
+      return filePath;
+    }
+  }
 }
 
-export function loadExistingDatabase() {
-  return new Promise(resolve => {
-    remote.dialog.showOpenDialog(
-      remote.getCurrentWindow(),
-      {
-        title: _('Select file'),
-        properties: ['openFile'],
-        filters: [{ name: 'SQLite DB File', extensions: ['db'] }]
-      },
-      files => {
-        if (files && files[0]) {
-          resolve(files[0]);
-        }
-      }
-    );
-  });
+export async function loadExistingDatabase() {
+  const options = {
+    title: _('Select file'),
+    properties: ['openFile'],
+    filters: [{ name: 'SQLite DB File', extensions: ['db'] }]
+  };
+
+  let  { filePaths } = await remote.dialog.showOpenDialog(options);
+  
+  if (filePaths && filePaths[0]) {
+    return filePaths[0]
+  }
 }
 
 export async function connectToLocalDatabase(filepath) {
@@ -90,22 +81,25 @@ export async function connectToLocalDatabase(filepath) {
   config.set('lastSelectedFilePath', filepath);
 }
 
-export function showMessageDialog({ message, description, buttons = [] }) {
+export async function showMessageDialog({
+  message,
+  description,
+  buttons = []
+}) {
   let buttonLabels = buttons.map(a => a.label);
-  remote.dialog.showMessageBox(
+  const { response } = await remote.dialog.showMessageBox(
     remote.getCurrentWindow(),
     {
       message,
       detail: description,
       buttons: buttonLabels
-    },
-    response => {
-      let button = buttons[response];
-      if (button && button.action) {
-        button.action();
-      }
     }
   );
+
+  let button = buttons[response];
+  if (button && button.action) {
+    button.action();
+  }
 }
 
 export function deleteDocWithPrompt(doc) {
@@ -203,6 +197,16 @@ export function handleErrorWithDialog(e, doc) {
   throw e;
 }
 
+// NOTE: a hack to find all the css from the current document and inject it to the print version
+// remove this if you are able to fix and get the default css loading on the page
+function injectCSS(contents) {
+  const styles = document.getElementsByTagName('style');
+
+  for (let style of styles) {
+    contents.insertCSS(style.innerHTML);
+  }
+}
+
 export function makePDF(html, destination) {
   const { BrowserWindow } = remote;
 
@@ -211,7 +215,8 @@ export function makePDF(html, destination) {
     height: 842,
     show: false,
     webPreferences: {
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      enableRemoteModule: true
     }
   });
 
@@ -234,23 +239,24 @@ export function makePDF(html, destination) {
 
   printWindow.webContents.executeJavaScript(code);
 
+  const printOptions = {
+    marginsType: 1, // no margin
+    pageSize: 'A4',
+    printBackground: true,
+    printBackgrounds: true,
+    printSelectionOnly: false
+  };
+
   return new Promise(resolve => {
     printWindow.webContents.on('did-finish-load', () => {
-      printWindow.webContents.printToPDF(
-        {
-          marginsType: 1, // no margin
-          pageSize: 'A4',
-          printBackground: true
-        },
-        (error, data) => {
+      injectCSS(printWindow.webContents);
+      printWindow.webContents.printToPDF(printOptions).then(data => {
+        printWindow.close();
+        fs.writeFile(destination, data, error => {
           if (error) throw error;
-          printWindow.close();
-          fs.writeFile(destination, data, error => {
-            if (error) throw error;
-            resolve(shell.openItem(destination));
-          });
-        }
-      );
+          resolve(shell.openItem(destination));
+        });
+      });
     });
   });
 }

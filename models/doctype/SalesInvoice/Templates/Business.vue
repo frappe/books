@@ -23,12 +23,18 @@
           <div class="text-sm text-gray-800" v-if="companyAddress">
             {{ companyAddress.addressDisplay }}
           </div>
+          <div
+            class="text-sm text-gray-800"
+            v-if="printSettings && printSettings.gstin"
+          >
+            GSTIN: {{ printSettings.gstin }}
+          </div>
         </div>
       </div>
       <div class="mt-8 text-lg">
         <div class="flex">
           <div class="w-1/3 font-semibold">
-            {{ doc.doctype === 'SalesInvoice' ? 'Invoice' : 'Bill' }}
+            {{ isSalesInvoice ? 'Invoice' : 'Bill' }}
           </div>
           <div class="w-2/3 text-gray-800">
             <div class="font-semibold">
@@ -41,7 +47,7 @@
         </div>
         <div class="mt-4 flex">
           <div class="w-1/3 font-semibold">
-            {{ doc.doctype === 'SalesInvoice' ? 'Customer' : 'Supplier' }}
+            {{ isSalesInvoice ? 'Customer' : 'Supplier' }}
           </div>
           <div class="w-2/3 text-gray-800" v-if="party">
             <div class="font-semibold">
@@ -50,6 +56,7 @@
             <div>
               {{ party.addressDisplay }}
             </div>
+            <div v-if="party && party.gstin">GSTIN: {{ party.gstin }}</div>
           </div>
         </div>
       </div>

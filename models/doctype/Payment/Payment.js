@@ -102,7 +102,7 @@ module.exports = {
       label: 'Amount',
       fieldtype: 'Currency',
       required: 1,
-      default: doc => doc.getSum('for', 'amount')
+      formula: doc => doc.getSum('for', 'amount')
     },
     {
       fieldname: 'writeoff',
