@@ -42,21 +42,33 @@
         <div
           class="uppercase text-sm font-semibold tracking-widest text-gray-800"
         >
-          To
+          {{ isSalesInvoice ? 'To' : 'From' }}
         </div>
         <div class="mt-4 text-black leading-relaxed text-lg">
           {{ party.name }} <br />
           {{ party.addressDisplay }}
         </div>
+        <div
+          class="mt-4 text-black leading-relaxed text-lg"
+          v-if="party && party.gstin"
+        >
+          GSTIN: {{ party.gstin }}
+        </div>
       </div>
       <div class="w-1/2" v-if="companyAddress">
         <div
-          class="uppercase text-sm font-semibold tracking-widest text-gray-800"
+          class="uppercase text-sm font-semibold tracking-widest text-gray-800 ml-8"
         >
-          From
+          {{ isSalesInvoice ? 'From' : 'To' }}
         </div>
-        <div class="mt-4 text-black leading-relaxed text-lg">
+        <div class="mt-4 ml-8 text-black leading-relaxed text-lg">
           {{ companyAddress.addressDisplay }}
+        </div>
+        <div
+          class="mt-4 ml-8 text-black leading-relaxed text-lg"
+          v-if="printSettings && printSettings.gstin"
+        >
+          GSTIN: {{ printSettings.gstin }}
         </div>
       </div>
     </div>

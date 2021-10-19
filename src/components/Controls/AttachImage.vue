@@ -54,23 +54,18 @@ export default {
     };
   },
   methods: {
-    openFileSelector() {
-      remote.dialog.showOpenDialog(
-        remote.getCurrentWindow(),
-        {
-          title: frappe._('Select Image'),
-          properties: ['openFile'],
-          filters: [
-            { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] }
-          ]
-        },
-        async files => {
-          if (files && files[0]) {
-            let dataURL = await this.getDataURL(files[0]);
-            this.triggerChange(dataURL);
-          }
-        }
-      );
+    async openFileSelector() {
+      const options = {
+        title: frappe._('Select Image'),
+        properties: ['openFile'],
+        filters: [{ name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] }]
+      };
+
+      const { filePaths } = await remote.dialog.showOpenDialog(options);
+      if (filePaths && filePaths[0]) {
+        let dataURL = await this.getDataURL(filePaths[0]);
+        this.triggerChange(dataURL);
+      }
     },
     getDataURL(filePath) {
       let fs = require('fs');

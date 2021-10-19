@@ -90,24 +90,20 @@ export default {
       let html = this.$refs.printContainer.innerHTML;
       makePDF(html, destination);
     },
-    getSavePath() {
-      return new Promise(resolve => {
-        remote.dialog.showSaveDialog(
-          remote.getCurrentWindow(),
-          {
-            title: this._('Select folder'),
-            defaultPath: `${this.name}.pdf`
-          },
-          filePath => {
-            if (filePath) {
-              if (!filePath.endsWith('.pdf')) {
-                filePath = filePath + '.pdf';
-              }
-              resolve(filePath);
-            }
-          }
-        );
-      });
+    async getSavePath() {
+      const options = {
+        title: this._('Select folder'),
+        defaultPath: `${this.name}.pdf`
+      };
+
+      let { filePath } = await remote.dialog.showSaveDialog(options);
+      if (filePath) {
+        if (!filePath.endsWith('.pdf')) {
+          filePath = filePath + '.pdf';
+        }
+      }
+
+      return filePath;
     }
   }
 };

@@ -22,11 +22,7 @@
         </Button>
       </template>
     </PageHeader>
-    <div
-      v-if="doc"
-      class="flex justify-center flex-1 mb-8 mt-2"
-      :class="doc.submitted && 'pointer-events-none'"
-    >
+    <div v-if="doc" class="flex justify-center flex-1 mb-8 mt-2">
       <div
         class="border rounded-lg shadow h-full flex flex-col justify-between"
         style="width: 600px"
@@ -45,6 +41,8 @@
                   @change="value => doc.set('entryType', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
+                  :read-only="doc.submitted"
+                  :class="doc.submitted && 'pointer-events-none'"
                 />
                 <FormControl
                   class="mt-2"
@@ -54,6 +52,8 @@
                   @change="value => doc.set('date', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
+                  :read-only="doc.submitted"
+                  :class="doc.submitted && 'pointer-events-none'"
                 />
               </div>
               <div class="w-1/3">
@@ -64,6 +64,8 @@
                   @change="value => doc.set('referenceNumber', value)"
                   input-class="bg-gray-100 p-2 text-base"
                   :show-label="true"
+                  :read-only="doc.submitted"
+                  :class="doc.submitted && 'pointer-events-none'"
                 />
                 <FormControl
                   class="mt-2"
@@ -73,6 +75,8 @@
                   @change="value => doc.set('referenceDate', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
+                  :read-only="doc.submitted"
+                  :class="doc.submitted && 'pointer-events-none'"
                 />
               </div>
             </div>
@@ -82,6 +86,7 @@
               :df="meta.getField('accounts')"
               :value="doc.accounts"
               :showHeader="true"
+              :max-rows-before-overflow="4"
               @change="value => doc.set('accounts', value)"
               :read-only="doc.submitted"
             />
@@ -97,6 +102,8 @@
                 :df="meta.getField('userRemark')"
                 :value="doc.userRemark"
                 @change="value => doc.set('userRemark', value)"
+                :class="doc.submitted && 'pointer-events-none'"
+                :read-only="doc.submitted"
               />
             </div>
             <div class="text-right font-semibold text-green-700 px-3">

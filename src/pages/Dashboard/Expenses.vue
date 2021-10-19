@@ -30,7 +30,7 @@
         <div
           v-if="hasData"
           class="absolute text-base text-center font-semibold"
-          style="right: 3.8rem; top: 32%;"
+          style="right: 6rem; top: 32%;"
         >
           <div>
             {{ frappe.format(totalExpense, 'Currency') }}

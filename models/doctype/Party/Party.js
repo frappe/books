@@ -97,8 +97,23 @@ module.exports = {
           return doc.getFrom('Address', doc.address, 'addressDisplay');
         }
       }
+    },
+    {
+      fieldname: 'gstin',
+      label: 'GSTIN No.',
+      fieldtype: 'Data',
+      hidden: form => {
+        return form.gstType === 'Registered Regular' ? 0 : 1;
+      }
     }
   ],
 
-  quickEditFields: ['email', 'phone', 'address', 'defaultAccount', 'currency']
+  quickEditFields: [
+    'email',
+    'phone',
+    'address',
+    'defaultAccount',
+    'currency',
+    'gstin'
+  ]
 };

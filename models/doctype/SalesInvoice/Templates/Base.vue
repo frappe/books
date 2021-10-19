@@ -19,6 +19,9 @@ export default {
   computed: {
     partyField() {
       return this.doc.doctype === 'SalesInvoice' ? 'customer' : 'supplier';
+    },
+    isSalesInvoice() {
+      return this.doc.doctype === 'SalesInvoice';
     }
   }
 };

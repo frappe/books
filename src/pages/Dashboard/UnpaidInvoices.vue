@@ -1,7 +1,7 @@
 <template>
-  <div class="flex -mx-4">
+  <div class="w-96 flex justify-between mx-auto">
     <div
-      class="w-1/2 px-4 flex flex-col justify-between"
+      class="w-5/12 mx-4 flex flex-col justify-between"
       v-for="invoice in invoices"
       :key="invoice.title"
     >
