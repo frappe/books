@@ -99,7 +99,6 @@ module.exports = {
       }
     },
     {
-      //insert at 3rd position
       fieldname: 'gstin',
       label: 'GSTIN No.',
       fieldtype: 'Data',

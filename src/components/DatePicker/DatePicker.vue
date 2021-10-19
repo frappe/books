@@ -200,10 +200,10 @@ export default {
 
     toValue(date) {
       // toISOString is buggy and reduces the day by one
-      // this is because it considers the UTC timestmap
-      // in order to curcumvent that we need to use luxon/moment
-      // but that refactor could take some time, so fixing the time differnece
-      // ass suggested in this answer.
+      // this is because it considers the UTC timestamp
+      // in order to circumvent that we need to use luxon/moment
+      // but that refactor could take some time, so fixing the time difference
+      // as suggested in this answer.
       // https://stackoverflow.com/a/16084846/3541205
       date.setHours(0, -date.getTimezoneOffset(), 0, 0);
       return date.toISOString().slice(0, 10);
