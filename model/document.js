@@ -86,6 +86,7 @@ module.exports = class BaseDocument extends Observable {
 
       // always run applyChange from the parentdoc
       if (this.meta.isChild && this.parentdoc) {
+        await this.applyChange(fieldname);
         await this.parentdoc.applyChange(this.parentfield);
       } else {
         await this.applyChange(fieldname);
@@ -411,6 +412,7 @@ module.exports = class BaseDocument extends Observable {
       }
 
       // set submit action flag
+      this.flags = {}
       if (this.submitted && !currentDoc.submitted) {
         this.flags.submitAction = true;
       }
