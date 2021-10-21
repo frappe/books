@@ -56,6 +56,18 @@ const viewConfig = {
       placeholder: 'To Date',
       label: 'To Date',
       fieldname: 'toDate'
+    },
+    {
+      fieldtype: 'Select',
+      options: [
+        { label: 'Hide Audits', value: '1' },
+        { label: 'Show Audits', value: '' }
+      ],
+      size: 'small',
+      label: 'Audits',
+      placeholder: 'Show Audits',
+      default: 1,
+      fieldname: 'reverted'
     }
   ],
   method: 'general-ledger',
