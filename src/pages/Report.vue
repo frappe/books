@@ -18,6 +18,7 @@
           :df="df"
           :value="filters[df.fieldname]"
           @change="value => onFilterChange(df, value)"
+          :show-label="df.fieldtype === 'Check'"
         />
       </div>
     </div>
