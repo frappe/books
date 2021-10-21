@@ -9,6 +9,7 @@ module.exports = class LedgerPosting {
     this.description = description;
     this.entries = [];
     this.entryMap = {};
+    this.reverted = 0;
     // To change balance while entering ledger entries
     this.accountEntries = [];
   }
@@ -52,6 +53,7 @@ module.exports = class LedgerPosting {
         referenceType: referenceType || this.reference.doctype,
         referenceName: referenceName || this.reference.name,
         description: this.description,
+        reverted: this.reverted,
         debit: 0,
         credit: 0
       };
@@ -70,11 +72,28 @@ module.exports = class LedgerPosting {
 
   async postReverse() {
     this.validateEntries();
+
+    let data = await frappe.db.getAll({
+      doctype: 'AccountingLedgerEntry',
+      fields: ['name'],
+      filters: {
+        referenceName: this.reference.name,
+        reverted: 0
+      }
+    });
+
+    for (let entry of data) {
+      let entryDoc = await frappe.getDoc('AccountingLedgerEntry', entry.name);
+      entryDoc.reverted = 1;
+      await entryDoc.update();
+    }
+
     let temp;
     for (let entry of this.entries) {
       temp = entry.debit;
       entry.debit = entry.credit;
       entry.credit = temp;
+      entry.reverted = 1;
     }
     for (let entry of this.accountEntries) {
       entry.balanceChange = -1 * entry.balanceChange;
