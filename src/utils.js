@@ -207,7 +207,7 @@ function injectCSS(contents) {
   }
 }
 
-export function makePDF(html, destination) {
+export async function makePDF(html, destination) {
   const { BrowserWindow } = remote;
 
   let printWindow = new BrowserWindow({
@@ -246,21 +246,18 @@ export function makePDF(html, destination) {
     printBackgrounds: true,
     printSelectionOnly: false
   };
-
-  return new Promise(resolve => {
-    printWindow.webContents.on('did-finish-load', () => {
-      injectCSS(printWindow.webContents);
-      const sleep = m => new Promise(r => setTimeout(r, m));
-      (async () => {
-        await sleep(3000);
-        printWindow.webContents.printToPDF(printOptions).then(data => {
-          printWindow.close();
-          fs.writeFile(destination, data, error => {
-            if (error) throw error;
-            resolve(shell.openItem(destination));
-          });
-        });
-      })();
+  
+  const sleep = m => new Promise(r => setTimeout(r, m));
+  
+  printWindow.webContents.on('did-finish-load', async () => {
+    injectCSS(printWindow.webContents);
+    await sleep(1000);
+    printWindow.webContents.printToPDF(printOptions).then(data => {
+      printWindow.close();
+      fs.writeFile(destination, data, error => {
+        if (error) throw error;
+        return (shell.openItem(destination));
+      });
     });
   });
 }
