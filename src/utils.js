@@ -48,10 +48,10 @@ export async function loadExistingDatabase() {
     filters: [{ name: 'SQLite DB File', extensions: ['db'] }]
   };
 
-  let  { filePaths } = await remote.dialog.showOpenDialog(options);
-  
+  let { filePaths } = await remote.dialog.showOpenDialog(options);
+
   if (filePaths && filePaths[0]) {
-    return filePaths[0]
+    return filePaths[0];
   }
 }
 
@@ -250,13 +250,17 @@ export function makePDF(html, destination) {
   return new Promise(resolve => {
     printWindow.webContents.on('did-finish-load', () => {
       injectCSS(printWindow.webContents);
-      printWindow.webContents.printToPDF(printOptions).then(data => {
-        printWindow.close();
-        fs.writeFile(destination, data, error => {
-          if (error) throw error;
-          resolve(shell.openItem(destination));
+      const sleep = m => new Promise(r => setTimeout(r, m));
+      (async () => {
+        await sleep(3000);
+        printWindow.webContents.printToPDF(printOptions).then(data => {
+          printWindow.close();
+          fs.writeFile(destination, data, error => {
+            if (error) throw error;
+            resolve(shell.openItem(destination));
+          });
         });
-      });
+      })();
     });
   });
 }
