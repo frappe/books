@@ -19,7 +19,7 @@
         </div>
       </Row>
     </div>
-    <div class="overflow-y-auto">
+    <div class="overflow-y-auto" v-if="data.length !== 0">
       <div
         class="px-3 flex hover:bg-gray-100 rounded-md"
         v-for="doc in data"
@@ -46,6 +46,13 @@
         </Row>
       </div>
     </div>
+    <div v-else class="flex flex-col items-center justify-center my-auto">
+      <img src="@/assets/img/list-empty-state.svg" alt="" class="w-24" />
+      <p class="my-3 text-gray-800">No records found</p>
+      <Button type="primary" class="text-white" @click="$emit('makeNewDoc')">
+        Create a new {{ meta.label || meta.name }}
+      </Button>
+    </div>
   </div>
 </template>
 <script>
@@ -54,6 +61,7 @@ import Row from '@/components/Row';
 import ListCell from './ListCell';
 import Avatar from '@/components/Avatar';
 import { openQuickEdit } from '@/utils';
+import Button from '@/components/Button';
 
 export default {
   name: 'List',
@@ -61,7 +69,8 @@ export default {
   components: {
     Row,
     ListCell,
-    Avatar
+    Avatar,
+    Button
   },
   watch: {
     listConfig(oldValue, newValue) {
