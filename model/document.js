@@ -437,7 +437,7 @@ module.exports = class BaseDocument extends Observable {
         .getMeta(tablefield.childtype)
         .getFormulaFields();
       if (formulaFields.length) {
-        const value = this[tablefield.fieldname]??[];
+        const value = this[tablefield.fieldname] || [];
         for (let row of value) {
           for (let field of formulaFields) {
             if (shouldApplyFormula(field, row)) {
