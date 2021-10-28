@@ -20,6 +20,7 @@
         :listConfig="listConfig"
         :filters="filters"
         class="flex-1"
+        @makeNewDoc="makeNewDoc"
       />
     </div>
   </div>
