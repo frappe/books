@@ -90,7 +90,13 @@ module.exports = {
     {
       fieldname: 'font',
       label: 'Font',
-      fieldtype: 'AutoComplete',
+      fieldtype: 'Select',
+      options: [
+        'Inter',
+        'Times New Roman',
+        'Arial',
+        'Courier'
+      ],
       default: 'Inter'
     }
   ],
@@ -99,6 +105,7 @@ module.exports = {
     'displayLogo',
     'template',
     'color',
+    'font',
     'email',
     'phone',
     'address',
