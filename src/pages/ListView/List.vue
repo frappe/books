@@ -48,7 +48,7 @@
     </div>
     <div v-else class="flex flex-col items-center justify-center my-auto">
       <img src="@/assets/img/list-empty-state.svg" alt="" class="w-24" />
-      <p class="my-3 text-gray-800">No records found</p>
+      <p class="my-3 text-gray-800">No {{ meta.label || meta.name }} found</p>
       <Button type="primary" class="text-white" @click="$emit('makeNewDoc')">
         Create a new {{ meta.label || meta.name }}
       </Button>
