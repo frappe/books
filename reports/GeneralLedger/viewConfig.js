@@ -60,8 +60,8 @@ const viewConfig = {
     {
       fieldtype: 'Select',
       options: [
-        { label: 'Show Audits', value: '' },
-        { label: 'Hide Audits', value: '0' }
+        { label: 'Show Reverted', value: '' },
+        { label: 'Hide Reverted', value: '0' }
       ],
       size: 'small',
       default: '0',
