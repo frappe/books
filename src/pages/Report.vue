@@ -8,7 +8,7 @@
     </PageHeader>
     <div class="flex px-8 mt-2 text-base" v-if="report.filterFields">
       <div
-        class="w-32 ml-3 first:ml-0"
+        class="w-40 ml-2 first:ml-0"
         v-for="df in report.filterFields"
         :key="df.fieldname"
       >
@@ -18,6 +18,7 @@
           :df="df"
           :value="filters[df.fieldname]"
           @change="value => onFilterChange(df, value)"
+          :show-label="df.fieldtype === 'Check'"
         />
       </div>
     </div>

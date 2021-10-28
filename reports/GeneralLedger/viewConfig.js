@@ -56,6 +56,17 @@ const viewConfig = {
       placeholder: 'To Date',
       label: 'To Date',
       fieldname: 'toDate'
+    },
+    {
+      fieldtype: 'Select',
+      options: [
+        { label: 'Show Reverted', value: '' },
+        { label: 'Hide Reverted', value: '0' }
+      ],
+      size: 'small',
+      default: '0',
+      label: 'Reverted',
+      fieldname: 'reverted'
     }
   ],
   method: 'general-ledger',

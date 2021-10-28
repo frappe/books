@@ -15,9 +15,7 @@ module.exports = class PaymentServer extends BaseDocument {
   async getPosting() {
     let entries = new LedgerPosting({ reference: this, party: this.party });
     await entries.debit(this.paymentAccount, this.amount);
-    for (let row of this.for) {
-      await entries.credit(this.account, row.amount);
-    }
+    await entries.credit(this.account, this.amount);
     return entries;
   }
 

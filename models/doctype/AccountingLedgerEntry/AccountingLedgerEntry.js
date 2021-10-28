@@ -60,6 +60,12 @@ module.exports = {
       fieldname: 'balance',
       label: 'Balance',
       fieldtype: 'Currency'
+    },
+    {
+      fieldname: 'reverted',
+      label: 'Reverted',
+      fieldtype: 'Check',
+      default: 0
     }
   ],
   quickEditFields: [
