@@ -7,6 +7,7 @@ class GeneralLedger {
     if (params.party) filters.party = params.party;
     if (params.referenceType) filters.referenceType = params.referenceType;
     if (params.referenceName) filters.referenceName = params.referenceName;
+    if (params.reverted) filters.reverted = params.reverted;
     if (params.toDate || params.fromDate) {
       filters.date = [];
       if (params.toDate) filters.date.push('<=', params.toDate);
@@ -22,7 +23,8 @@ class GeneralLedger {
         'referenceType',
         'referenceName',
         'debit',
-        'credit'
+        'credit',
+        'reverted'
       ],
       filters: filters
     });
