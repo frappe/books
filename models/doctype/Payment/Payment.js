@@ -105,11 +105,13 @@ module.exports = {
       required: 1,
       formula: doc => doc.getSum('for', 'amount'),
       validate(value, doc) {
-        let amount = doc.getSum('for', 'amount');
-        let isValid = amount >= value && value > 0 ? true : false;
+        const amount = doc.getSum('for', 'amount');
+        const isValid = amount >= value && value > 0;
 
         if (!isValid) {
-          throw new frappe.errors.ValidationError(`Invalid amount ${value}`);
+          throw new frappe.errors.ValidationError(
+            `Payment amount ${value} cannot be accepted. Please enter a value between 0 and ${amount}`
+          );
         }
       }
     },
