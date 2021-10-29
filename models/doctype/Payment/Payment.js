@@ -1,3 +1,4 @@
+const frappe = require('frappejs');
 const utils = require('../../../accounting/utils');
 
 module.exports = {
@@ -102,7 +103,15 @@ module.exports = {
       label: 'Amount',
       fieldtype: 'Currency',
       required: 1,
-      formula: doc => doc.getSum('for', 'amount')
+      formula: doc => doc.getSum('for', 'amount'),
+      validate(value, doc) {
+        let amount = doc.getSum('for', 'amount');
+        let isValid = amount >= value && value > 0 ? true : false;
+
+        if (!isValid) {
+          throw new frappe.errors.ValidationError(`Invalid amount ${value}`);
+        }
+      }
     },
     {
       fieldname: 'writeoff',
