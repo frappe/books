@@ -1,3 +1,4 @@
+const frappe = require('frappejs');
 const utils = require('../../../accounting/utils');
 
 module.exports = {
@@ -102,7 +103,17 @@ module.exports = {
       label: 'Amount',
       fieldtype: 'Currency',
       required: 1,
-      formula: doc => doc.getSum('for', 'amount')
+      formula: doc => doc.getSum('for', 'amount'),
+      validate(value, doc) {
+        const amount = doc.getSum('for', 'amount');
+        const isValid = amount >= value && value > 0;
+
+        if (!isValid) {
+          throw new frappe.errors.ValidationError(
+            `Payment amount ${value} cannot be accepted. Please enter a value between 0 and ${amount}`
+          );
+        }
+      }
     },
     {
       fieldname: 'writeoff',
