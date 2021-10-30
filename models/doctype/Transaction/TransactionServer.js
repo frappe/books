@@ -49,7 +49,7 @@ module.exports = {
       const paymentEntries = await payment.getPosting();
       await paymentEntries.postReverse();
       // To set the payment status as unsubmitted.
-      payment.revert();
+      await payment.update();
     }
     const entries = await this.getPosting();
     await entries.postReverse();
