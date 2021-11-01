@@ -119,7 +119,7 @@ module.exports = {
         } else if (value === 0) {
           throw new frappe.errors.ValidationError(
             frappe._(
-              `Payment amount cannot be ${frappe.format(value, 'Currency')}`
+              `Payment amount cannot be ${frappe.format(value, 'Currency')}. Amount has been reset to max viable amount.`
             )
           );
         }
