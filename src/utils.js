@@ -133,6 +133,40 @@ export function deleteDocWithPrompt(doc) {
   });
 }
 
+export function cancelDocWithPrompt(doc) {
+  return new Promise(resolve => {
+    showMessageDialog({
+      message: _('Are you sure you want to cancel {0} "{1}"?', [
+        doc.doctype,
+        doc.name
+      ]),
+      description: _('This action is permanent'),
+      buttons: [
+        {
+          label: _('Yes'),
+          async action() {
+            const entryDoc = await frappe.getDoc(doc.doctype, doc.name);
+            entryDoc.cancelled = 1;
+            await entryDoc.update();
+            entryDoc
+              .revert()
+              .then(() => resolve(true))
+              .catch(e => {
+                handleErrorWithDialog(e, doc);
+              });
+          }
+        },
+        {
+          label: _('No'),
+          action() {
+            resolve(false);
+          }
+        }
+      ]
+    });
+  });
+}
+
 export function partyWithAvatar(party) {
   return {
     data() {
@@ -269,6 +303,7 @@ export function getActionsForDocument(doc) {
     component: {
       template: `<span class="text-red-700">{{ _('Delete') }}</span>`
     },
+    condition: doc => !doc.isNew() && !doc.submitted && !doc.cancelled && !doc.meta.isSingle,
     action: () =>
       deleteDocWithPrompt(doc).then(res => {
         if (res) {
@@ -277,7 +312,21 @@ export function getActionsForDocument(doc) {
       })
   };
 
-  let actions = [...(doc.meta.actions || []), deleteAction]
+  let cancelAction = {
+    component: {
+      template: `<span class="text-red-700">{{ _('Cancel') }}</span>`
+    },
+    condition: doc => doc.submitted && !doc.cancelled,
+    action: () => {
+      cancelDocWithPrompt(doc).then(res => {
+        if (res) {
+          router.push(`/list/${doc.doctype}`);
+        }
+      })
+    }
+  };
+
+  let actions = [...(doc.meta.actions || []), deleteAction, cancelAction]
     .filter(d => (d.condition ? d.condition(doc) : true))
     .map(d => {
       return {

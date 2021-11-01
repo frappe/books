@@ -121,6 +121,12 @@ module.exports = {
       fieldname: 'terms',
       label: 'Notes',
       fieldtype: 'Text'
+    },
+    {
+      fieldname: 'cancelled',
+      label: 'Cancelled',
+      fieldtype: 'Check',
+      default: 0
     }
   ],
 
