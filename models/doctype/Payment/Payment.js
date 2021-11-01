@@ -107,7 +107,7 @@ module.exports = {
       validate(value, doc) {
         const amount = doc.getSum('for', 'amount');
 
-        if (value > amount)) {
+        if (value > amount) {
           throw new frappe.errors.ValidationError(
             frappe._(
               `Payment amount cannot exceed ${frappe.format(
