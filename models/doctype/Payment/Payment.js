@@ -1,3 +1,4 @@
+const frappe = require('frappejs');
 const utils = require('../../../accounting/utils');
 
 module.exports = {
@@ -102,7 +103,27 @@ module.exports = {
       label: 'Amount',
       fieldtype: 'Currency',
       required: 1,
-      formula: doc => doc.getSum('for', 'amount')
+      formula: doc => doc.getSum('for', 'amount'),
+      validate(value, doc) {
+        const amount = doc.getSum('for', 'amount');
+
+        if (value > amount) {
+          throw new frappe.errors.ValidationError(
+            frappe._(
+              `Payment amount cannot exceed ${frappe.format(
+                amount,
+                'Currency'
+              )}. Amount has been reset to max viable amount.`
+            )
+          );
+        } else if (value === 0) {
+          throw new frappe.errors.ValidationError(
+            frappe._(
+              `Payment amount cannot be ${frappe.format(value, 'Currency')}. Amount has been reset to max viable amount.`
+            )
+          );
+        }
+      }
     },
     {
       fieldname: 'writeoff',
