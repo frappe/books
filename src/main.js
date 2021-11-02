@@ -5,13 +5,16 @@ import coreModels from 'frappejs/models';
 import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 import outsideClickDirective from 'frappejs/ui/plugins/outsideClickDirective';
 import models from '../models';
-import { ipcRenderer } from 'electron';
 
 // vue imports
 import Vue from 'vue';
 import PortalVue from 'portal-vue';
 import App from './App';
 import router from './router';
+
+// other imports
+import { ipcRenderer } from 'electron';
+import Store from 'electron-store';
 
 (async () => {
   frappe.isServer = true;
