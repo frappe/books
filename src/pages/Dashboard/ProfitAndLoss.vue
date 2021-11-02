@@ -9,8 +9,8 @@
         @change="value => (period = value)"
       />
     </SectionHeader>
-    <div v-if="hasData" class="chart-wrapper" ref="profit-and-loss"></div>
-    <div class="flex-1 w-full h-full flex-center" v-else>
+    <div v-show="hasData" class="chart-wrapper" ref="profit-and-loss"></div>
+    <div class="flex-1 w-full h-full flex-center my-20" v-if="!hasData">
       <span class="text-base text-gray-600">
         {{ _('No transactions yet') }}
       </span>

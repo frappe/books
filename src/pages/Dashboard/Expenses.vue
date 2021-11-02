@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col h-full">
     <SectionHeader>
       <template slot="title" class="font-medium">{{
         _('Top Expenses')
@@ -11,7 +11,7 @@
         @change="value => (period = value)"
       />
     </SectionHeader>
-    <div class="flex relative">
+    <div class="flex relative" v-show="hasData">
       <div class="w-1/2">
         <div
           class="mt-5 flex justify-between items-center text-sm"
@@ -28,7 +28,6 @@
       <div class="w-1/2">
         <div class="chart-wrapper" ref="top-expenses"></div>
         <div
-          v-if="hasData"
           class="absolute text-base text-center font-semibold"
           style="right: 6rem; top: 32%;"
         >
@@ -40,11 +39,11 @@
           </div>
         </div>
       </div>
-      <div v-if="totalExpense === 0" class="absolute inset-0 flex-center">
-        <span class="text-base text-gray-600">
-          {{ _('No transactions yet') }}
-        </span>
-      </div>
+    </div>
+    <div v-if="totalExpense === 0" class="flex-1 w-full h-full flex-center">
+      <span class="text-base text-gray-600">
+        {{ _('No transactions yet') }}
+      </span>
     </div>
   </div>
 </template>
