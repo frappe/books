@@ -122,7 +122,7 @@ export default {
       }
     },
     routeTo(route) {
-      this.$router.push(route);
+      this.$router.push(route).catch(() => {});
     }
   }
 };
