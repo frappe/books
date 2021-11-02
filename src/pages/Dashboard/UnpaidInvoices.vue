@@ -1,5 +1,5 @@
 <template>
-  <div class="w-96 flex justify-between mx-auto">
+  <div class="flex justify-between mx-auto">
     <div
       class="w-5/12 mx-4 flex flex-col justify-between"
       v-for="invoice in invoices"

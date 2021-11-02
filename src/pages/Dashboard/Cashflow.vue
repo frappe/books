@@ -1,5 +1,5 @@
 <template>
-  <div class="w-96 mx-auto mt-4">
+  <div class="mt-4">
     <template v-if="hasData">
       <div class="flex items-center justify-between">
         <div class="font-medium">{{ _('Cashflow') }}</div>
