@@ -280,9 +280,9 @@ export async function makePDF(html, destination) {
     printBackgrounds: true,
     printSelectionOnly: false
   };
-  
+
   const sleep = m => new Promise(r => setTimeout(r, m));
-  
+
   printWindow.webContents.on('did-finish-load', async () => {
     injectCSS(printWindow.webContents);
     await sleep(1000);
@@ -290,7 +290,7 @@ export async function makePDF(html, destination) {
       printWindow.close();
       fs.writeFile(destination, data, error => {
         if (error) throw error;
-        return (shell.openItem(destination));
+        return shell.openItem(destination);
       });
     });
   });
@@ -303,7 +303,8 @@ export function getActionsForDocument(doc) {
     component: {
       template: `<span class="text-red-700">{{ _('Delete') }}</span>`
     },
-    condition: doc => !doc.isNew() && !doc.submitted && !doc.cancelled && !doc.meta.isSingle,
+    condition: doc =>
+      !doc.isNew() && !doc.submitted && !doc.cancelled && !doc.meta.isSingle,
     action: () =>
       deleteDocWithPrompt(doc).then(res => {
         if (res) {
@@ -316,13 +317,16 @@ export function getActionsForDocument(doc) {
     component: {
       template: `<span class="text-red-700">{{ _('Cancel') }}</span>`
     },
-    condition: doc => doc.submitted && !doc.cancelled,
+    condition: doc =>
+      doc.submitted &&
+      !doc.cancelled &&
+      doc.baseGrandTotal !== doc.outstandingAmount,
     action: () => {
       cancelDocWithPrompt(doc).then(res => {
         if (res) {
           router.push(`/list/${doc.doctype}`);
         }
-      })
+      });
     }
   };
 
