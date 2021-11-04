@@ -38,6 +38,7 @@
 </template>
 <script>
 import frappe from 'frappejs';
+import reports from '../../reports/view';
 import Dropdown from '@/components/Dropdown';
 
 export default {
@@ -72,7 +73,7 @@ export default {
       this.inputValue = '';
       this.$emit('change', null);
     },
-    makeSearchList() {
+    async makeSearchList() {
       const doctypes = this.getDoctypes();
       const reports = this.getReports();
       const views = this.getViews();
@@ -100,7 +101,6 @@ export default {
       });
     },
     getReports() {
-      let reports = require('../../reports/view');
       return Object.values(reports).map(report => {
         return {
           label: report.title,
@@ -108,6 +108,7 @@ export default {
           group: 'Reports'
         };
       });
+
     },
     getViews() {
       return [

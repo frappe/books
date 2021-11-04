@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'GetStarted',
   isSingle: 1,
   fields: [

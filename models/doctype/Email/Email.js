@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
-module.exports = {
+export default {
     "name": "Email",
     "doctype": "DocType",
     "pageSettings": {
@@ -69,4 +69,4 @@ module.exports = {
             "hidden": 1,
         }
     ]
-}
+};

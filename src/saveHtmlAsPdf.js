@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { sleep } from 'frappejs/utils';
 import { shell, BrowserWindow } from 'electron';
 
 const PRINT_OPTIONS = {
@@ -16,15 +17,13 @@ export default async function makePDF(html, savePath) {
     document.body.innerHTML = \`${html}\`;
   `);
 
-  const sleep = (m) => new Promise((r) => setTimeout(r, m));
-  // TODO: Check if event 'paint' works after bumping electron.
   printWindow.webContents.on('did-finish-load', async () => {
-    await sleep(1000); // Required else pdf'll be blank.
+    await sleep(1); // Required else pdf'll be blank.
     printWindow.webContents.printToPDF(PRINT_OPTIONS).then((data) => {
-      printWindow.destroy();
+      // printWindow.destroy();
       fs.writeFile(savePath, data, (error) => {
         if (error) throw error;
-        return shell.openItem(savePath);
+        return shell.openPath(savePath);
       });
     });
   });
@@ -34,8 +33,9 @@ function getInitializedPrintWindow() {
   const printWindow = new BrowserWindow({
     width: 595,
     height: 842,
-    show: false,
+    show: true,
     webPreferences: {
+      contextIsolation: false,
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
   });

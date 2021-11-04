@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'JournalEntrySettings',
   label: 'Journal Entry Setting',
   doctype: 'DocType',

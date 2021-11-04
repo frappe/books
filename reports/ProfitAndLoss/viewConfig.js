@@ -1,7 +1,8 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
 const title = 'Profit and Loss';
-module.exports = {
+
+export default {
   title: title,
   method: 'profit-and-loss',
   treeView: true,

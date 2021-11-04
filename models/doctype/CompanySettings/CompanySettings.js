@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "name": "CompanySettings",
     "label": "Company Settings",
     "naming": "autoincrement",
@@ -24,4 +24,4 @@ module.exports = {
             "target": "Address"
         }
     ]
-}
+};

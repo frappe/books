@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "name": "Contact",
     "doctype": "DocType",
     "isSingle": 0,
@@ -78,4 +78,4 @@ module.exports = {
             ]
         }
     ]
-}
+};

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'Address',
   doctype: 'DocType',
   isSingle: 0,

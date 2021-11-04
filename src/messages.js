@@ -1,6 +1,7 @@
 export const IPC_MESSAGES = {
   OPEN_MENU: 'open-menu',
   OPEN_SETTINGS: 'open-settings',
+  OPEN_EXTERNAL: 'open-external',
   CHECK_FOR_UPDATES: 'check-for-updates',
   RELOAD_MAIN_WINDOW: 'reload-main-window',
   RESIZE_MAIN_WINDOW: 'resize-main-window',

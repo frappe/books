@@ -1,7 +1,7 @@
-const model = require('frappejs/model');
-const PurchaseOrder = require('../PurchaseOrder/PurchaseOrder');
+import model from 'frappejs/model';
+import PurchaseOrder from '../PurchaseOrder/PurchaseOrder';
 
-module.exports = model.extend(PurchaseOrder, {
+export default model.extend(PurchaseOrder, {
     name: "PurchaseReceipt",
     label: "Purchase Receipt",
     settings: "PurchaseReceiptSettings",

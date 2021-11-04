@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'Currency',
   label: 'Currency',
   doctype: 'DocType',

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     name: 'EventSchedule',
     doctype: 'DocType',
     isChild: 1,
@@ -14,4 +14,4 @@ module.exports = {
             fieldtype: 'Data',
         },
     ]
-}
+};

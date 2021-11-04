@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
-const countries = require('../fixtures/countryInfo.json');
-const standardCOA = require('../fixtures/verified/standardCOA.json');
+import frappe from 'frappejs';
+import countries from '../fixtures/countryInfo.json';
+import standardCOA from '../fixtures/verified/standardCOA.json';
 const accountFields = [
   'accountType',
   'rootType',
@@ -57,14 +57,14 @@ async function getCountryCOA() {
   const conCode = countries[doc.country].code;
 
   try {
-    const countryCoa = require('../fixtures/verified/' + conCode + '.json');
+    const countryCoa = await import('../fixtures/verified/' + conCode + '.json');
     return countryCoa.tree;
   } catch (e) {
     return standardCOA;
   }
 }
 
-module.exports = async function importCharts() {
+export default async function importCharts() {
   const chart = await getCountryCOA();
   await importAccounts(chart, '', '', true);
 };

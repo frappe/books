@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
-const { unique } = require('frappejs/utils');
-const { getData } = require('../FinancialStatements/FinancialStatements');
+import frappe from 'frappejs';
+import { unique } from 'frappejs/utils';
+import { getData } from '../FinancialStatements/FinancialStatements';
 
 class BalanceSheet {
     async run({ fromDate, toDate, periodicity }) {
@@ -48,4 +48,4 @@ class BalanceSheet {
     }
 }
 
-module.exports = BalanceSheet;
+export default BalanceSheet;

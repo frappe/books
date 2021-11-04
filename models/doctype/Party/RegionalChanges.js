@@ -1,4 +1,4 @@
-const party = require('./Party');
+import party from './Party';
 
 party.fields.splice(3, 0, {
   //insert at 3rd position
@@ -18,4 +18,4 @@ party.fields.splice(4, 0, {
 party.fields.join();
 const newParty = party;
 
-module.exports = newParty;
+export default newParty;

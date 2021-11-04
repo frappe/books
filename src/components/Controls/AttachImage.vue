@@ -44,6 +44,8 @@ import frappe from 'frappejs';
 import { ipcRenderer } from 'electron';
 import Base from './Base';
 import { IPC_ACTIONS } from '@/messages'
+import fs from 'fs';
+import path from 'path';
 
 export default {
   name: 'AttachImage',
@@ -69,8 +71,6 @@ export default {
       }
     },
     getDataURL(filePath) {
-      let fs = require('fs');
-      let path = require('path');
       let typedArray = fs.readFileSync(filePath);
       let extension = path.extname(filePath).slice(1);
       let blob = new Blob([typedArray.buffer], { type: 'image/' + extension });

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'PaymentFor',
   label: 'Payment For',
   isSingle: 0,

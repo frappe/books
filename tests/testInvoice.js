@@ -1,7 +1,7 @@
-const assert = require('assert');
-const frappe = require('frappejs');
-const helpers = require('frappejs/tests/helpers');
-const models = require('../models');
+import assert from 'assert';
+import frappe from 'frappejs';
+import helpers from 'frappejs/tests/helpers';
+import models from '../models';
 
 async function makeFixtures() {
     if (!(await frappe.db.exists('Party', 'Test Customer'))) {
