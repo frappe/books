@@ -4,18 +4,21 @@ const webpack = require('webpack');
 module.exports = {
   pluginOptions: {
     electronBuilder: {
-      nodeIntegration: true
-    }
+      nodeIntegration: true,
+      chainWebpackRendererProcess: (config) => {
+        config.target('electron-renderer');
+      },
+    },
   },
   pages: {
     index: {
       entry: 'src/main.js',
-      filename: 'index.html'
+      filename: 'index.html',
     },
     print: {
       entry: 'src/print.js',
-      filename: 'print.html'
-    }
+      filename: 'print.html',
+    },
   },
   runtimeCompiler: true,
   lintOnSave: process.env.NODE_ENV !== 'production',
@@ -23,7 +26,7 @@ module.exports = {
     Object.assign(config.resolve.alias, {
       deepmerge$: 'deepmerge/dist/umd.js',
       'frappe-charts$': 'frappe-charts/dist/frappe-charts.esm.js',
-      '~': path.resolve('.')
+      '~': path.resolve('.'),
     });
 
     config.plugins.push(
@@ -36,10 +39,10 @@ module.exports = {
 
     config.module.rules.push({
       test: /\.txt$/i,
-      use: 'raw-loader'
+      use: 'raw-loader',
     });
 
     config.devtool = 'source-map';
   },
-  transpileDependencies: ['frappejs']
+  transpileDependencies: ['frappejs'],
 };

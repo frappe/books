@@ -39,7 +39,7 @@
     "@vue/cli-plugin-router": "^4.5.0",
     "@vue/cli-service": "^4.5.0",
     "autoprefixer": "^9",
-    "electron": "^8.0.0",
+    "electron": "^8.5.5",
     "electron-devtools-installer": "^3.2.0",
     "electron-notarize": "^1.1.1",
     "electron-updater": "^4.3.9",
@@ -53,8 +53,7 @@
     "raw-loader": "^4.0.2",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "vue-cli-plugin-electron-builder": "^2.0.0",
-    "vue-template-compiler": "^2.6.10",
-    "webpack": "^5.61.0"
+    "vue-template-compiler": "^2.6.10"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

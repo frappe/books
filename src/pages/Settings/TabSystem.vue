@@ -51,7 +51,8 @@ import TwoColumnForm from '@/components/TwoColumnForm';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
 import config from '@/config';
-import { remote } from 'electron';
+import { ipcRenderer } from 'electron';
+import { IPC_MESSAGES } from '@/messages';
 
 export default {
   name: 'TabSystem',
@@ -74,7 +75,7 @@ export default {
     changeFile() {
       config.set('lastSelectedFilePath', null);
       frappe.events.trigger('reload-main-window');
-      remote.getCurrentWindow().close();
+      ipcRenderer.send(IPC_MESSAGES.CLOSE_CURRENT_WINDOW);
     }
   },
   computed: {
