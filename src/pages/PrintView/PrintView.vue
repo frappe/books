@@ -21,7 +21,12 @@
       >
         <div
           class="h-full shadow-lg mb-12 absolute"
-          style="width: 21cm; min-height: 29.7cm; height: max-content; transform: scale(0.755);"
+          style="
+            width: 21cm;
+            min-height: 29.7cm;
+            height: max-content;
+            transform: scale(0.755);
+          "
           ref="printContainer"
         >
           <component
@@ -52,7 +57,8 @@ import Button from '@/components/Button';
 import BackLink from '@/components/BackLink';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import { makePDF } from '@/utils';
-import { remote } from 'electron';
+import { ipcRenderer } from 'electron';
+import { IPC_ACTIONS } from '@/messages';
 
 export default {
   name: 'PrintView',
@@ -63,13 +69,13 @@ export default {
     DropdownWithAction,
     Button,
     BackLink,
-    TwoColumnForm
+    TwoColumnForm,
   },
   data() {
     return {
       doc: null,
       showCustomiser: false,
-      printSettings: null
+      printSettings: null,
     };
   },
   async mounted() {
@@ -82,21 +88,27 @@ export default {
     },
     printTemplate() {
       return this.meta.printTemplate;
-    }
+    },
   },
   methods: {
     async makePDF() {
-      let destination = await this.getSavePath();
-      let html = this.$refs.printContainer.innerHTML;
-      makePDF(html, destination);
+      const savePath = await this.getSavePath();
+      if (!savePath) return;
+
+      const html = this.$refs.printContainer.innerHTML;
+      makePDF(html, savePath);
     },
     async getSavePath() {
       const options = {
         title: this._('Select folder'),
-        defaultPath: `${this.name}.pdf`
+        defaultPath: `${this.name}.pdf`,
       };
 
-      let { filePath } = await remote.dialog.showSaveDialog(options);
+      let { filePath } = await ipcRenderer.invoke(
+        IPC_ACTIONS.GET_SAVE_FILEPATH,
+        options
+      );
+
       if (filePath) {
         if (!filePath.endsWith('.pdf')) {
           filePath = filePath + '.pdf';
@@ -104,7 +116,7 @@ export default {
       }
 
       return filePath;
-    }
-  }
+    },
+  },
 };
 </script>

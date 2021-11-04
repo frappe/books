@@ -5024,7 +5024,7 @@ electron@5.0.0:
     electron-download "^4.1.0"
     extract-zip "^1.0.3"
 
-electron@^8.0.0:
+electron@^8.5.5:
   version "8.5.5"
   resolved "https://registry.yarnpkg.com/electron/-/electron-8.5.5.tgz#17b12bd70139c0099f750fc5de0d480bf03acb96"
   integrity sha512-e355H+tRDial0m+X2v+l+0SnaATAPw4sNjv9qmdk/6MJz/glteVJwVJEnxTjPfEELIJSChrBWDBVpjdDvoBF4Q==
@@ -12759,7 +12759,7 @@ webpack@^4.0.0, webpack@^4.16.1, webpack@^4.18.0:
     watchpack "^1.7.4"
     webpack-sources "^1.4.1"
 
-webpack@^5.22.0, webpack@^5.61.0:
+webpack@^5.22.0:
   version "5.61.0"
   resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.61.0.tgz#fa827f0ee9bdfd141dd73c3e891e955ebd52fe7f"
   integrity sha512-fPdTuaYZ/GMGFm4WrPi2KRCqS1vDp773kj9S0iI5Uc//5cszsFEDgHNaX4Rj1vobUiU1dFIV3mA9k1eHeluFpw==
