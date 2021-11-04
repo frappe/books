@@ -1,69 +1,105 @@
-module.exports = {
-  SetupWizard: require('./doctype/SetupWizard/SetupWizard'),
-  Currency: require('./doctype/Currency/Currency'),
-  Color: require('./doctype/Color/Color'),
-  Account: require('./doctype/Account/Account.js'),
-  AccountingSettings: require('./doctype/AccountingSettings/AccountingSettings'),
-  CompanySettings: require('./doctype/CompanySettings/CompanySettings'),
-  AccountingLedgerEntry: require('./doctype/AccountingLedgerEntry/AccountingLedgerEntry.js'),
-  Party: require('./doctype/Party/Party.js'),
-  Customer: require('./doctype/Party/Customer'),
-  Supplier: require('./doctype/Party/Supplier'),
+import SetupWizard from './doctype/SetupWizard/SetupWizard.js';
+import Currency from './doctype/Currency/Currency.js';
+import Color from './doctype/Color/Color.js';
+import Account from './doctype/Account/Account.js';
+import AccountingSettings from './doctype/AccountingSettings/AccountingSettings.js';
+import CompanySettings from './doctype/CompanySettings/CompanySettings.js';
+import AccountingLedgerEntry from './doctype/AccountingLedgerEntry/AccountingLedgerEntry.js';
+import Party from './doctype/Party/Party.js';
+import Customer from './doctype/Party/Customer.js';
+import Supplier from './doctype/Party/Supplier.js';
+import Payment from './doctype/Payment/Payment.js';
+import PaymentFor from './doctype/PaymentFor/PaymentFor.js';
+import PaymentSettings from './doctype/PaymentSettings/PaymentSettings.js';
+import Item from './doctype/Item/Item.js';
+import SalesInvoice from './doctype/SalesInvoice/SalesInvoice.js';
+import SalesInvoiceItem from './doctype/SalesInvoiceItem/SalesInvoiceItem.js';
+import SalesInvoiceSettings from './doctype/SalesInvoiceSettings/SalesInvoiceSettings.js';
+import PurchaseInvoice from './doctype/PurchaseInvoice/PurchaseInvoice.js';
+import PurchaseInvoiceItem from './doctype/PurchaseInvoiceItem/PurchaseInvoiceItem.js';
+import PurchaseInvoiceSettings from './doctype/PurchaseInvoiceSettings/PurchaseInvoiceSettings.js';
+import Tax from './doctype/Tax/Tax.js';
+import TaxDetail from './doctype/TaxDetail/TaxDetail.js';
+import TaxSummary from './doctype/TaxSummary/TaxSummary.js';
+import GSTR3B from './doctype/GSTR3B/GSTR3B.js';
+import Address from './doctype/Address/Address.js';
+import Contact from './doctype/Contact/Contact.js';
+import JournalEntry from './doctype/JournalEntry/JournalEntry.js';
+import JournalEntryAccount from './doctype/JournalEntryAccount/JournalEntryAccount.js';
+import JournalEntrySettings from './doctype/JournalEntrySettings/JournalEntrySettings.js';
+import Quotation from './doctype/Quotation/Quotation.js';
+import QuotationItem from './doctype/QuotationItem/QuotationItem.js';
+import QuotationSettings from './doctype/QuotationSettings/QuotationSettings.js';
+import SalesOrder from './doctype/SalesOrder/SalesOrder.js';
+import SalesOrderItem from './doctype/SalesOrderItem/SalesOrderItem.js';
+import SalesOrderSettings from './doctype/SalesOrderSettings/SalesOrderSettings.js';
+import Fulfillment from './doctype/Fulfillment/Fulfillment.js';
+import FulfillmentItem from './doctype/FulfillmentItem/FulfillmentItem.js';
+import FulfillmentSettings from './doctype/FulfillmentSettings/FulfillmentSettings.js';
+import PurchaseOrder from './doctype/PurchaseOrder/PurchaseOrder.js';
+import PurchaseOrderItem from './doctype/PurchaseOrderItem/PurchaseOrderItem.js';
+import PurchaseOrderSettings from './doctype/PurchaseOrderSettings/PurchaseOrderSettings.js';
+import PurchaseReceipt from './doctype/PurchaseReceipt/PurchaseReceipt.js';
+import PurchaseReceiptItem from './doctype/PurchaseReceiptItem/PurchaseReceiptItem.js';
+import PurchaseReceiptSettings from './doctype/PurchaseReceiptSettings/PurchaseReceiptSettings.js';
+import Event from './doctype/Event/Event.js';
+import EventSchedule from './doctype/EventSchedule/EventSchedule.js';
+import EventSettings from './doctype/EventSettings/EventSettings.js';
+import Email from './doctype/Email/Email.js';
+import EmailAccount from './doctype/EmailAccount/EmailAccount.js';
+import PrintSettings from './doctype/PrintSettings/PrintSettings.js';
+import GetStarted from './doctype/GetStarted/GetStarted.js';
 
-  Payment: require('./doctype/Payment/Payment.js'),
-  PaymentFor: require('./doctype/PaymentFor/PaymentFor.js'),
-  PaymentSettings: require('./doctype/PaymentSettings/PaymentSettings.js'),
-
-  Item: require('./doctype/Item/Item.js'),
-
-  SalesInvoice: require('./doctype/SalesInvoice/SalesInvoice.js'),
-  SalesInvoiceItem: require('./doctype/SalesInvoiceItem/SalesInvoiceItem.js'),
-  SalesInvoiceSettings: require('./doctype/SalesInvoiceSettings/SalesInvoiceSettings.js'),
-
-  PurchaseInvoice: require('./doctype/PurchaseInvoice/PurchaseInvoice.js'),
-  PurchaseInvoiceItem: require('./doctype/PurchaseInvoiceItem/PurchaseInvoiceItem.js'),
-  PurchaseInvoiceSettings: require('./doctype/PurchaseInvoiceSettings/PurchaseInvoiceSettings.js'),
-
-  Tax: require('./doctype/Tax/Tax.js'),
-  TaxDetail: require('./doctype/TaxDetail/TaxDetail.js'),
-  TaxSummary: require('./doctype/TaxSummary/TaxSummary.js'),
-
-  GSTR3B: require('./doctype/GSTR3B/GSTR3B.js'),
-
-  Address: require('./doctype/Address/Address.js'),
-  Contact: require('./doctype/Contact/Contact.js'),
-
-  JournalEntry: require('./doctype/JournalEntry/JournalEntry.js'),
-  JournalEntryAccount: require('./doctype/JournalEntryAccount/JournalEntryAccount.js'),
-  JournalEntrySettings: require('./doctype/JournalEntrySettings/JournalEntrySettings.js'),
-
-  Quotation: require('./doctype/Quotation/Quotation.js'),
-  QuotationItem: require('./doctype/QuotationItem/QuotationItem.js'),
-  QuotationSettings: require('./doctype/QuotationSettings/QuotationSettings.js'),
-
-  SalesOrder: require('./doctype/SalesOrder/SalesOrder.js'),
-  SalesOrderItem: require('./doctype/SalesOrderItem/SalesOrderItem.js'),
-  SalesOrderSettings: require('./doctype/SalesOrderSettings/SalesOrderSettings.js'),
-
-  Fulfillment: require('./doctype/Fulfillment/Fulfillment.js'),
-  FulfillmentItem: require('./doctype/FulfillmentItem/FulfillmentItem.js'),
-  FulfillmentSettings: require('./doctype/FulfillmentSettings/FulfillmentSettings.js'),
-
-  PurchaseOrder: require('./doctype/PurchaseOrder/PurchaseOrder.js'),
-  PurchaseOrderItem: require('./doctype/PurchaseOrderItem/PurchaseOrderItem.js'),
-  PurchaseOrderSettings: require('./doctype/PurchaseOrderSettings/PurchaseOrderSettings.js'),
-
-  PurchaseReceipt: require('./doctype/PurchaseReceipt/PurchaseReceipt.js'),
-  PurchaseReceiptItem: require('./doctype/PurchaseReceiptItem/PurchaseReceiptItem.js'),
-  PurchaseReceiptSettings: require('./doctype/PurchaseReceiptSettings/PurchaseReceiptSettings.js'),
-
-  Event: require('./doctype/Event/Event'),
-  EventSchedule: require('./doctype/EventSchedule/EventSchedule'),
-  EventSettings: require('./doctype/EventSettings/EventSettings'),
-
-  Email: require('./doctype/Email/Email'),
-  EmailAccount: require('./doctype/EmailAccount/EmailAccount'),
-
-  PrintSettings: require('./doctype/PrintSettings/PrintSettings'),
-  GetStarted: require('./doctype/GetStarted/GetStarted')
+export default {
+  SetupWizard,
+  Currency,
+  Color,
+  Account,
+  AccountingSettings,
+  CompanySettings,
+  AccountingLedgerEntry,
+  Party,
+  Customer,
+  Supplier,
+  Payment,
+  PaymentFor,
+  PaymentSettings,
+  Item,
+  SalesInvoice,
+  SalesInvoiceItem,
+  SalesInvoiceSettings,
+  PurchaseInvoice,
+  PurchaseInvoiceItem,
+  PurchaseInvoiceSettings,
+  Tax,
+  TaxDetail,
+  TaxSummary,
+  GSTR3B,
+  Address,
+  Contact,
+  JournalEntry,
+  JournalEntryAccount,
+  JournalEntrySettings,
+  Quotation,
+  QuotationItem,
+  QuotationSettings,
+  SalesOrder,
+  SalesOrderItem,
+  SalesOrderSettings,
+  Fulfillment,
+  FulfillmentItem,
+  FulfillmentSettings,
+  PurchaseOrder,
+  PurchaseOrderItem,
+  PurchaseOrderSettings,
+  PurchaseReceipt,
+  PurchaseReceiptItem,
+  PurchaseReceiptSettings,
+  Event,
+  EventSchedule,
+  EventSettings,
+  Email,
+  EmailAccount,
+  PrintSettings,
+  GetStarted,
 };

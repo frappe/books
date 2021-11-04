@@ -1,3 +1,3 @@
-const SalesInvoiceDocument = require('../SalesInvoice/SalesInvoiceDocument');
+import SalesInvoiceDocument from '../SalesInvoice/SalesInvoiceDocument';
 
-module.exports = class Quotation extends SalesInvoiceDocument {};
+export default class Quotation extends SalesInvoiceDocument {};

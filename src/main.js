@@ -15,7 +15,6 @@ import router from './router';
 // other imports
 import { ipcRenderer } from 'electron';
 import { IPC_MESSAGES } from './messages';
-import Store from 'electron-store';
 
 (async () => {
   frappe.isServer = true;

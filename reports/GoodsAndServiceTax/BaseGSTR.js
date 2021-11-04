@@ -1,4 +1,4 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
 class BaseGSTR {
   async getCompleteReport(gstrType, filters) {
@@ -65,4 +65,4 @@ class BaseGSTR {
   }
 }
 
-module.exports = BaseGSTR;
+export default BaseGSTR;

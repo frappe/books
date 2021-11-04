@@ -7,8 +7,10 @@ import electron, {
   BrowserWindow,
   ipcMain,
   Menu,
+  shell,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import Store from 'electron-store';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 
@@ -30,6 +32,8 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
 
+Store.initRenderer();
+
 /* -----------------------------
  * Main process helper functions
  * -----------------------------*/
@@ -37,7 +41,6 @@ protocol.registerSchemesAsPrivileged([
 function getMainWindowSize() {
   let height;
   if (app.isReady()) {
-    // const screen = require('electron').screen;
     const screen = electron.screen;
     height = screen.getPrimaryDisplay().workAreaSize.height;
     height = height > 907 ? 907 : height;
@@ -57,6 +60,7 @@ function createWindow() {
     width,
     height,
     webPreferences: {
+      contextIsolation: false, // TODO: Switch this off
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
     frame: isLinux,
@@ -96,6 +100,7 @@ function createSettingsWindow(tab = 'General') {
     height: 577,
     backgroundColor: theme.backgroundColor.gray['200'],
     webPreferences: {
+      contextIsolation: false, // TODO: Switch this off
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
     resizable: false,
@@ -122,7 +127,7 @@ ipcMain.on(IPC_MESSAGES.OPEN_SETTINGS, (event, tab) => {
   createSettingsWindow(tab);
 });
 
-ipcMain.on(IPC_MESSAGES.OPEN_SETTINGS, (event) => {
+ipcMain.on(IPC_MESSAGES.OPEN_MENU, (event) => {
   const window = event.sender.getOwnerBrowserWindow();
   const menu = Menu.getApplicationMenu();
   menu.popup({ window });
@@ -145,6 +150,10 @@ ipcMain.on(IPC_MESSAGES.CLOSE_CURRENT_WINDOW, (event) => {
 
 ipcMain.on(IPC_MESSAGES.MINIMIZE_CURRENT_WINDOW, (event) => {
   event.sender.getOwnerBrowserWindow().minimize();
+});
+
+ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (event, link) => {
+  shell.openExternal(link);
 });
 
 /* ----------------------------------

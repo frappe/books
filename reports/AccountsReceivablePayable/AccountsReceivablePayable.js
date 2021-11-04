@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
-module.exports = class AccountsReceivablePayable {
+export default class AccountsReceivablePayable {
   async run(reportType, { date }) {
     const rows = await getReceivablePayable({
       reportType,

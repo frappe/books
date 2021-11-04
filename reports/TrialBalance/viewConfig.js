@@ -1,7 +1,8 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
 const title = 'Trial Balance';
-module.exports = {
+
+export default {
   title: title,
   method: 'trial-balance',
   treeView: true,

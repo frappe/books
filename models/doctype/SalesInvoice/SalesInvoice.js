@@ -1,11 +1,12 @@
-const { getActions } = require('../Transaction/Transaction');
-const InvoiceTemplate = require('./InvoiceTemplate.vue').default;
+import { getActions } from '../Transaction/Transaction';
+import InvoiceTemplate from './InvoiceTemplate.vue';
+import SalesInvoice from './SalesInvoiceDocument';
 
-module.exports = {
+export default {
   name: 'SalesInvoice',
   label: 'Sales Invoice',
   doctype: 'DocType',
-  documentClass: require('./SalesInvoiceDocument'),
+  documentClass: SalesInvoice,
   printTemplate: InvoiceTemplate,
   isSingle: 0,
   isChild: 0,

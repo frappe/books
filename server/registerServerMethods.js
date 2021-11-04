@@ -1,14 +1,14 @@
-const frappe = require('frappejs');
-const registerReportMethods = require('../reports');
+import frappe from 'frappejs';
+import importCharts from '../accounting/importCOA';
+import registerReportMethods from '../reports';
 
-module.exports = function registerServerMethods() {
+export default function registerServerMethods() {
   registerReportMethods();
 
   frappe.registerMethod({
     method: 'import-coa',
     async handler() {
-      const importCOA = require('../accounting/importCOA');
-      await importCOA();
+      await importCharts();
     }
   });
 };

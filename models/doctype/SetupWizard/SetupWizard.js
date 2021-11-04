@@ -1,7 +1,7 @@
-const { DateTime } = require('luxon');
-const countryList = require('~/fixtures/countryInfo.json');
+import { DateTime } from 'luxon';
+import countryList from '~/fixtures/countryInfo.json';
 
-module.exports = {
+export default {
   name: 'SetupWizard',
   label: 'Setup Wizard',
   naming: 'name',

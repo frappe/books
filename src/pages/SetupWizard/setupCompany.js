@@ -96,10 +96,10 @@ async function setupChartOfAccounts(bankName) {
 }
 
 async function setupRegionalChanges(country) {
-  const generateRegionalTaxes = require('~/models/doctype/Tax/RegionalChanges');
+  const generateRegionalTaxes = await import('~/models/doctype/Tax/RegionalChanges');
   await generateRegionalTaxes(country);
   if (country === 'India') {
-    frappe.models.Party = require('~/models/doctype/Party/RegionalChanges');
+    frappe.models.Party = await import('~/models/doctype/Party/RegionalChanges');
     await frappe.db.migrate();
   }
 }

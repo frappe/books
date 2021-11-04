@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'TaxDetail',
   label: 'Tax Detail',
   doctype: 'DocType',

@@ -1,4 +1,4 @@
-const resolveConfig = require('tailwindcss/resolveConfig');
-const tailwindConfig = require('../tailwind.config');
+import resolveConfig from 'tailwindcss/resolveConfig';
+import tailwindConfig from '../tailwind.config';
 
-module.exports = resolveConfig(tailwindConfig).theme;
+export default resolveConfig(tailwindConfig).theme;

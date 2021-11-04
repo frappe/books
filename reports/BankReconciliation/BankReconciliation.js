@@ -1,4 +1,4 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
 class BankReconciliation {
   async run(params) {
@@ -51,4 +51,4 @@ class BankReconciliation {
   }
 }
 
-module.exports = BankReconciliation;
+export default BankReconciliation;

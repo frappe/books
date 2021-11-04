@@ -1,8 +1,8 @@
-const BaseDocument = require('frappejs/model/document');
-const frappe = require('frappejs');
-const LedgerPosting = require('../../../accounting/ledgerPosting');
+import BaseDocument from 'frappejs/model/document';
+import frappe from 'frappejs';
+import LedgerPosting from '../../../accounting/ledgerPosting';
 
-module.exports = class PaymentServer extends BaseDocument {
+export default class PaymentServer extends BaseDocument {
   async change({ changed }) {
     if (changed === 'for') {
       this.amount = 0;
