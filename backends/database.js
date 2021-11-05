@@ -126,7 +126,7 @@ module.exports = class Database extends Observable {
     }
 
     // required
-    if (field.required) {
+    if (field.required && !field.required instanceof Function) {
       column.notNullable();
     }
 
