@@ -45,9 +45,10 @@ export default {
   watch: {
     async activeScreen(value) {
       if (!value) return;
-      const { width, height } = ipcRenderer.invoke(
+      const { width, height } = await ipcRenderer.invoke(
         IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE
       );
+      
       let size = {
         Desk: [width, height],
         DatabaseSelector: [600, 600],
@@ -69,12 +70,15 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
-    let lastSelectedFilePath = config.get('lastSelectedFilePath', null);
-    if (!lastSelectedFilePath) {
-      this.activeScreen = 'DatabaseSelector';
-    } else {
-      await connectToLocalDatabase(lastSelectedFilePath);
+    const lastSelectedFilePath = config.get('lastSelectedFilePath', null);
+    const connectionSuccess = await connectToLocalDatabase(
+      lastSelectedFilePath
+    );
+
+    if (connectionSuccess) {
       this.showSetupWizardOrDesk();
+    } else {
+      this.activeScreen = 'DatabaseSelector';
     }
   },
   methods: {
