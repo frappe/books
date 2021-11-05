@@ -3,7 +3,6 @@
     <SectionHeader>
       <template slot="title">{{ _('Profit and Loss') }}</template>
       <PeriodSelector
-        v-if="hasData"
         slot="action"
         :value="period"
         @change="value => (period = value)"

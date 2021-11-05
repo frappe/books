@@ -5,7 +5,6 @@
         _('Top Expenses')
       }}</template>
       <PeriodSelector
-        v-if="hasData"
         slot="action"
         :value="period"
         @change="value => (period = value)"
