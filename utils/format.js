@@ -1,5 +1,4 @@
 const numberFormat = require('./numberFormat');
-// const markdown = new (require('showdown').Converter)();
 const luxon = require('luxon');
 const frappe = require('frappejs');
 
@@ -15,8 +14,6 @@ module.exports = {
 
     if (df.fieldtype === 'Currency') {
       value = formatCurrency(value, df, doc);
-    } else if (df.fieldtype === 'Text') {
-      // value = markdown.makeHtml(value || '');
     } else if (df.fieldtype === 'Date') {
       let dateFormat;
       if (!frappe.SystemSettings) {

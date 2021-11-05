@@ -4,7 +4,6 @@ const webpack = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CaseSensitivePathsWebpackPlugin = require('case-sensitive-paths-webpack-plugin');
-const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const { getAppConfig, resolveAppDir } = require('./utils');
@@ -76,7 +75,7 @@ function makeConfig() {
           },
           {
             test: /\.(png|svg|jpg|woff|woff2|gif)$/,
-            use: ['file-loader']
+            type: 'asset/resource'
           }
         ]
       },
@@ -120,15 +119,6 @@ function makeConfig() {
         new CaseSensitivePathsWebpackPlugin(),
         new webpack.NamedModulesPlugin(),
         new webpack.HotModuleReplacementPlugin(),
-        new FriendlyErrorsWebpackPlugin({
-          compilationSuccessInfo: {
-            messages: [
-              `FrappeJS server started at http://${
-                appConfig.dev.devServerHost
-              }:${appConfig.dev.devServerPort}`
-            ]
-          }
-        }),
         new webpack.ProgressPlugin(),
         isProduction
           ? new CopyWebpackPlugin([
