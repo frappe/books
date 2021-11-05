@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'TaxSummary',
   doctype: 'DocType',
   isChild: 1,

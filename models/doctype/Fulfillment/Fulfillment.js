@@ -1,7 +1,7 @@
-const model = require('frappejs/model');
-const Quotation = require('../Quotation/Quotation');
+import model from 'frappejs/model';
+import Quotation from '../Quotation/Quotation';
 
-module.exports = model.extend(Quotation, {
+export default model.extend(Quotation, {
     name: "Fulfillment",
     label: "Fulfillment",
     settings: "FulfillmentSettings",

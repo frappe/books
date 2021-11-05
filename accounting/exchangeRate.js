@@ -1,4 +1,4 @@
-let { DateTime } = require('luxon');
+import { DateTime } from 'luxon';
 
 export async function getExchangeRate({ fromCurrency, toCurrency, date }) {
   if (!date) {

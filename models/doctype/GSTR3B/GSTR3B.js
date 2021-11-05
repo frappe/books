@@ -1,10 +1,11 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
+import GSTR3B from './GSTR3BDocument.js'; 
 
-module.exports = {
+export default {
   name: 'GSTR3B',
   label: 'GSTR 3B',
   doctype: 'DocType',
-  documentClass: require('./GSTR3BDocument.js'),
+  documentClass: GSTR3B,
   print: {
     printFormat: 'GSTR3B Print Format'
   },

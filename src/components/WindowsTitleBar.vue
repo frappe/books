@@ -30,23 +30,20 @@
 </template>
 
 <script>
-import electron from 'electron';
-import { openMenu } from '@/menu';
+import { ipcRenderer } from 'electron';
+import { runWindowAction } from '@/utils';
+import { IPC_MESSAGES } from '@/messages';
 
 export default {
   name: 'WindowsTitleBar',
   methods: {
-    action(name) {
-      let window = electron.remote.getCurrentWindow();
-      if (name === 'maximize' && window.isMaximized()) {
-        name = 'unmaximize';
-      }
-      this.$emit(name);
-      window[name]();
+    async action(name) {
+      const actionRan = await runWindowAction(name);
+      this.$emit(actionRan);
     },
     openMenu() {
-      openMenu();
-    }
-  }
+      ipcRenderer.send(IPC_MESSAGES.OPEN_MENU);
+    },
+  },
 };
 </script>

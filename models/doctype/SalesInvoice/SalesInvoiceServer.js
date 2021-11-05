@@ -1,6 +1,6 @@
-const TransactionServer = require('../Transaction/TransactionServer');
-const SalesInvoice = require('./SalesInvoiceDocument');
-const LedgerPosting = require('../../../accounting/ledgerPosting');
+import TransactionServer from '../Transaction/TransactionServer';
+import SalesInvoice from './SalesInvoiceDocument';
+import LedgerPosting from '../../../accounting/ledgerPosting';
 
 class SalesInvoiceServer extends SalesInvoice {
   async getPosting() {
@@ -24,4 +24,4 @@ class SalesInvoiceServer extends SalesInvoice {
 // apply common methods from TransactionServer
 Object.assign(SalesInvoiceServer.prototype, TransactionServer);
 
-module.exports = SalesInvoiceServer;
+export default SalesInvoiceServer;

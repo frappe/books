@@ -1,32 +1,57 @@
 'use strict';
 
-import { app, protocol, BrowserWindow, ipcMain } from 'electron';
+import electron, {
+  app,
+  dialog,
+  protocol,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  shell,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
+import Store from 'electron-store';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
-import {
-  createProtocol
-  // installVueDevtools
-} from 'vue-cli-plugin-electron-builder/lib';
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
+
+import saveHtmlAsPdf from './saveHtmlAsPdf';
+import { IPC_MESSAGES, IPC_ACTIONS } from './messages';
 import theme from '@/theme';
-import { getMainWindowSize } from './screenSize';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
+// Global ref to prevent garbage collection.
 let mainWindow;
 let winURL;
 let checkedForUpdate = false;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true } }
+  { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
 
+Store.initRenderer();
+
+/* -----------------------------
+ * Main process helper functions
+ * -----------------------------*/
+
+function getMainWindowSize() {
+  let height;
+  if (app.isReady()) {
+    const screen = electron.screen;
+    height = screen.getPrimaryDisplay().workAreaSize.height;
+    height = height > 907 ? 907 : height;
+  } else {
+    height = 907;
+  }
+  const width = Math.ceil(1.323 * height);
+  return { height, width };
+}
+
 function createWindow() {
-  // Create the browser window.
   let { width, height } = getMainWindowSize();
   mainWindow = new BrowserWindow({
     vibrancy: 'sidebar',
@@ -35,10 +60,11 @@ function createWindow() {
     width,
     height,
     webPreferences: {
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      contextIsolation: false, // TODO: Switch this off
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
     frame: isLinux,
-    resizable: true
+    resizable: true,
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -58,6 +84,12 @@ function createWindow() {
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.send('store-on-window', {
+      appVersion: app.getVersion(),
+    });
+  });
 }
 
 function createSettingsWindow(tab = 'General') {
@@ -68,49 +100,116 @@ function createSettingsWindow(tab = 'General') {
     height: 577,
     backgroundColor: theme.backgroundColor.gray['200'],
     webPreferences: {
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      contextIsolation: false, // TODO: Switch this off
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
-    resizable: false
+    resizable: false,
   });
 
   settingsWindow.loadURL(`${winURL}#/settings/${tab}`);
+  settingsWindow.on('close', () => {
+    mainWindow.reload();
+  });
 }
 
-ipcMain.on('check-for-updates', () => {
+/* ---------------------------------
+ * Register ipcMain message handlers
+ * ---------------------------------*/
+
+ipcMain.on(IPC_MESSAGES.CHECK_FOR_UPDATES, () => {
   if (!isDevelopment && !checkedForUpdate) {
     autoUpdater.checkForUpdatesAndNotify();
     checkedForUpdate = true;
   }
 });
 
-ipcMain.on('open-settings-window', (event, tab) => {
+ipcMain.on(IPC_MESSAGES.OPEN_SETTINGS, (event, tab) => {
   createSettingsWindow(tab);
 });
 
-ipcMain.on('reload-main-window', () => {
+ipcMain.on(IPC_MESSAGES.OPEN_MENU, (event) => {
+  const window = event.sender.getOwnerBrowserWindow();
+  const menu = Menu.getApplicationMenu();
+  menu.popup({ window });
+});
+
+ipcMain.on(IPC_MESSAGES.RELOAD_MAIN_WINDOW, () => {
   mainWindow.reload();
 });
 
-// Quit when all windows are closed.
+ipcMain.on(IPC_MESSAGES.RESIZE_MAIN_WINDOW, (event, size, resizable) => {
+  const [width, height] = size;
+  if (!width || !height) return;
+  mainWindow.setSize(width, height);
+  mainWindow.setResizable(resizable);
+});
+
+ipcMain.on(IPC_MESSAGES.CLOSE_CURRENT_WINDOW, (event) => {
+  event.sender.getOwnerBrowserWindow().close();
+});
+
+ipcMain.on(IPC_MESSAGES.MINIMIZE_CURRENT_WINDOW, (event) => {
+  event.sender.getOwnerBrowserWindow().minimize();
+});
+
+ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (event, link) => {
+  shell.openExternal(link);
+});
+
+/* ----------------------------------
+ * Register ipcMain function handlers
+ * ----------------------------------*/
+
+ipcMain.handle(IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW, (event) => {
+  const window = event.sender.getOwnerBrowserWindow();
+  const maximizing = !window.isMaximized();
+  if (maximizing) {
+    window.maximize();
+  } else {
+    window.unmaximize();
+  }
+  return maximizing;
+});
+
+ipcMain.handle(IPC_ACTIONS.GET_OPEN_FILEPATH, async (event, options) => {
+  const window = event.sender.getOwnerBrowserWindow();
+  return await dialog.showOpenDialog(window, options);
+});
+
+ipcMain.handle(IPC_ACTIONS.GET_SAVE_FILEPATH, async (event, options) => {
+  const window = event.sender.getOwnerBrowserWindow();
+  return await dialog.showSaveDialog(window, options);
+});
+
+ipcMain.handle(IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE, (event) => {
+  return getMainWindowSize();
+});
+
+ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (event, options) => {
+  const window = event.sender.getOwnerBrowserWindow();
+  return await dialog.showMessageBox(window, options);
+});
+
+ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (event, html, savePath) => {
+  return await saveHtmlAsPdf(html, savePath);
+});
+
+/* ------------------------------
+ * Register app lifecycle methods
+ * ------------------------------*/
+
 app.on('window-all-closed', () => {
-  // On macOS it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
 app.on('activate', () => {
-  // On macOS it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
     createWindow();
   }
 });
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
@@ -128,10 +227,13 @@ app.on('ready', async () => {
   createWindow();
 });
 
-// Exit cleanly on request from parent process in development mode.
+/* ------------------------------
+ * Register node#process messages
+ * ------------------------------*/
+
 if (isDevelopment) {
   if (process.platform === 'win32') {
-    process.on('message', data => {
+    process.on('message', (data) => {
       if (data === 'graceful-exit') {
         app.quit();
       }

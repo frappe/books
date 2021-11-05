@@ -1,15 +1,22 @@
-const frappe = require('frappejs');
-const naming = require('frappejs/model/naming');
-const registerServerMethods = require('./registerServerMethods');
+import frappe from 'frappejs';
+import naming from 'frappejs/model/naming';
+import registerServerMethods from './registerServerMethods';
 
-module.exports = async function postStart() {
+import SalesInvoiceServer from '../models/doctype/SalesInvoice/SalesInvoiceServer.js'
+import PaymentServer from '../models/doctype/Payment/PaymentServer.js'
+import PartyServer from '../models/doctype/Party/PartyServer.js'
+import PurchaseInvoiceServer from '../models/doctype/PurchaseInvoice/PurchaseInvoiceServer.js'
+import JournalEntryServer from '../models/doctype/JournalEntry/JournalEntryServer.js'
+import GSTR3BServer from '../models/doctype/GSTR3B/GSTR3BServer.js'
+
+export default async function postStart() {
   // set server-side modules
-  frappe.models.SalesInvoice.documentClass = require('../models/doctype/SalesInvoice/SalesInvoiceServer.js');
-  frappe.models.Payment.documentClass = require('../models/doctype/Payment/PaymentServer.js');
-  frappe.models.Party.documentClass = require('../models/doctype/Party/PartyServer.js');
-  frappe.models.PurchaseInvoice.documentClass = require('../models/doctype/PurchaseInvoice/PurchaseInvoiceServer.js');
-  frappe.models.JournalEntry.documentClass = require('../models/doctype/JournalEntry/JournalEntryServer.js');
-  frappe.models.GSTR3B.documentClass = require('../models/doctype/GSTR3B/GSTR3BServer.js');
+  frappe.models.SalesInvoice.documentClass = SalesInvoiceServer;
+  frappe.models.Payment.documentClass = PaymentServer;
+  frappe.models.Party.documentClass = PartyServer;
+  frappe.models.PurchaseInvoice.documentClass = PurchaseInvoiceServer;
+  frappe.models.JournalEntry.documentClass = JournalEntryServer;
+  frappe.models.GSTR3B.documentClass = GSTR3BServer;
 
   frappe.metaCache = {};
 

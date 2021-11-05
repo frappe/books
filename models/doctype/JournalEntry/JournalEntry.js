@@ -1,7 +1,7 @@
-const { ledgerLink } = require('../../../accounting/utils');
-const { DateTime } = require('luxon');
+import { ledgerLink } from '../../../accounting/utils';
+import { DateTime } from 'luxon';
 
-module.exports = {
+export default {
   label: 'Journal Entry',
   name: 'JournalEntry',
   doctype: 'DocType',

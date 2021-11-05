@@ -27,8 +27,6 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
-import { remote } from 'electron';
 import { _ } from 'frappejs/utils';
 import WindowControls from '@/components/WindowControls';
 import TabGeneral from './TabGeneral.vue';
@@ -80,11 +78,6 @@ export default {
     if (index !== -1) {
       this.activeTab = index;
     }
-
-    let currentWindow = remote.getCurrentWindow();
-    currentWindow.on('close', () => {
-      frappe.events.trigger('reload-main-window');
-    });
   },
   methods: {
     getIconComponent(tab) {

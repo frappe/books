@@ -1,7 +1,7 @@
-const frappe = require('frappejs');
-const utils = require('../../../accounting/utils');
+import frappe from 'frappejs';
+import utils from '../../../accounting/utils';
 
-module.exports = {
+export default {
   name: 'Payment',
   label: 'Payment',
   isSingle: 0,

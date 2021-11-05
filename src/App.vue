@@ -30,43 +30,43 @@ import SetupWizard from './pages/SetupWizard/SetupWizard';
 import DatabaseSelector from './pages/DatabaseSelector';
 import Settings from '@/pages/Settings/Settings.vue';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
-import { remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import config from '@/config';
 import { connectToLocalDatabase } from '@/utils';
-import { getMainWindowSize } from '@/screenSize';
+import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
 
 export default {
   name: 'App',
   data() {
     return {
-      activeScreen: null
+      activeScreen: null,
     };
   },
   watch: {
-    activeScreen(value) {
+    async activeScreen(value) {
       if (!value) return;
-      let { width, height } = getMainWindowSize();
+      const { width, height } = ipcRenderer.invoke(
+        IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE
+      );
       let size = {
         Desk: [width, height],
         DatabaseSelector: [600, 600],
         SetupWizard: [600, 600],
-        Settings: [460, 577]
+        Settings: [460, 577],
       }[value];
       let resizable = value === 'Desk';
 
-      let win = remote.getCurrentWindow();
-      if (size.length) {
-        win.setSize(...size);
-        win.setResizable(resizable);
+      if (size.length && value != 'Settings') {
+        ipcRenderer.send(IPC_MESSAGES.RESIZE_MAIN_WINDOW, size, resizable);
       }
-    }
+    },
   },
   components: {
     Desk,
     SetupWizard,
     DatabaseSelector,
     Settings,
-    WindowsTitleBar
+    WindowsTitleBar,
   },
   async mounted() {
     let lastSelectedFilePath = config.get('lastSelectedFilePath', null);
@@ -99,7 +99,7 @@ export default {
     },
     checkForUpdates() {
       frappe.events.trigger('check-for-updates');
-    }
-  }
+    },
+  },
 };
 </script>

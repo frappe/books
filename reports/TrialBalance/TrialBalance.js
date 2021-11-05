@@ -1,9 +1,7 @@
-const frappe = require('frappejs');
-const {
-  getTrialBalance
-} = require('../FinancialStatements/FinancialStatements');
+import frappe from 'frappejs';
+import { getTrialBalance } from '../FinancialStatements/FinancialStatements';
 
-module.exports = class TrialBalance {
+export default class TrialBalance {
   async run({ fromDate, toDate }) {
     if (!fromDate && !toDate) {
       return { rows: [] };

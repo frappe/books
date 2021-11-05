@@ -1,4 +1,4 @@
-const BaseGSTR = require('./BaseGSTR');
+import BaseGSTR from './BaseGSTR';
 
 class GSTR1 extends BaseGSTR {
   async run(params) {
@@ -25,4 +25,4 @@ class GSTR1 extends BaseGSTR {
   }
 }
 
-module.exports = GSTR1;
+export default GSTR1;

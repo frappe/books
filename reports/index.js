@@ -1,14 +1,14 @@
-const frappe = require('frappejs');
-const GeneralLedger = require('./GeneralLedger/GeneralLedger');
-const ProfitAndLoss = require('./ProfitAndLoss/ProfitAndLoss');
-const BalanceSheet = require('./BalanceSheet/BalanceSheet');
-const TrialBalance = require('./TrialBalance/TrialBalance');
-const SalesRegister = require('./SalesRegister/SalesRegister');
-const PurchaseRegister = require('./PurchaseRegister/PurchaseRegister');
-const BankReconciliation = require('./BankReconciliation/BankReconciliation');
-const GSTR1 = require('./GoodsAndServiceTax/GSTR1');
-const GSTR2 = require('./GoodsAndServiceTax/GSTR2');
-const AccountsReceivablePayable = require('./AccountsReceivablePayable/AccountsReceivablePayable');
+import frappe from 'frappejs';
+import GeneralLedger from './GeneralLedger/GeneralLedger';
+import ProfitAndLoss from './ProfitAndLoss/ProfitAndLoss';
+import BalanceSheet from './BalanceSheet/BalanceSheet';
+import TrialBalance from './TrialBalance/TrialBalance';
+import SalesRegister from './SalesRegister/SalesRegister';
+import PurchaseRegister from './PurchaseRegister/PurchaseRegister';
+import BankReconciliation from './BankReconciliation/BankReconciliation';
+import GSTR1 from './GoodsAndServiceTax/GSTR1';
+import GSTR2 from './GoodsAndServiceTax/GSTR2';
+import AccountsReceivablePayable from './AccountsReceivablePayable/AccountsReceivablePayable';
 
 // called on server side
 function registerReportMethods() {
@@ -73,4 +73,4 @@ function getReportData(ReportClass) {
   return args => new ReportClass().run(args);
 }
 
-module.exports = registerReportMethods;
+export default registerReportMethods;

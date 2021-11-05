@@ -1,7 +1,7 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 const _ = frappe._.bind(frappe);
 
-module.exports = {
+export default {
     [_("Application of Funds (Assets)")]: {
         [_("Current Assets")]: {
             [_("Accounts Receivable")]: {
@@ -170,4 +170,4 @@ module.exports = {
         },
         "rootType": "Equity"
     }
-}
+};
