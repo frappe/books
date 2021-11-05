@@ -81,7 +81,7 @@ export default {
       label: 'Ref. / Cheque No.',
       placeholder: 'Ref. / Cheque No.',
       fieldtype: 'Data',
-      required: 1 // TODO: UNIQUE
+      required: (doc) => doc.paymentMethod !== 'Cash' // TODO: UNIQUE
     },
     {
       fieldname: 'referenceDate',
@@ -94,9 +94,7 @@ export default {
       label: 'Clearance Date',
       placeholder: 'Clearance Date',
       fieldtype: 'Date',
-      hidden: doc => {
-        return doc.paymentMethod === 'Cash' ? 1 : 0;
-      }
+      hidden: (doc) => doc.paymentMethod === 'Cash'
     },
     {
       fieldname: 'amount',
@@ -105,6 +103,7 @@ export default {
       required: 1,
       formula: doc => doc.getSum('for', 'amount'),
       validate(value, doc) {
+        if(doc.for.length  === 0) return;
         const amount = doc.getSum('for', 'amount');
 
         if (value > amount) {
@@ -135,7 +134,7 @@ export default {
       label: 'Payment For',
       fieldtype: 'Table',
       childtype: 'PaymentFor',
-      required: 1
+      required: 0,
     }
   ],
 
