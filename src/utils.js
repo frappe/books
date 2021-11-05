@@ -36,7 +36,12 @@ export async function createNewDatabase() {
               return filePath;
             },
           },
-          { label: _('Cancel'), action() {} },
+          {
+            label: _('Cancel'),
+            action() {
+              return '';
+            },
+          },
         ],
       });
     } else {
@@ -63,11 +68,19 @@ export async function loadExistingDatabase() {
 }
 
 export async function connectToLocalDatabase(filepath) {
+  if (!filepath) {
+    return false;
+  }
+
   frappe.login('Administrator');
-  frappe.db = new SQLite({
-    dbPath: filepath,
-  });
-  await frappe.db.connect();
+  try {
+    frappe.db = new SQLite({
+      dbPath: filepath,
+    });
+    await frappe.db.connect();
+  } catch (error) {
+    return false;
+  }
   await migrate();
   await postStart();
 
@@ -86,6 +99,7 @@ export async function connectToLocalDatabase(filepath) {
 
   // set last selected file
   config.set('lastSelectedFilePath', filepath);
+  return true;
 }
 
 export async function showMessageDialog({
@@ -188,13 +202,15 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
 
 export function getErrorMessage(e, doc) {
   let errorMessage = e.message || _('An error occurred');
-  if (e.type === frappe.errors.LinkValidationError) {
+  const { doctype, name } = doc;
+  const canElaborate = doctype && name;
+  if (e.type === frappe.errors.LinkValidationError && canElaborate) {
     errorMessage = _('{0} {1} is linked with existing records.', [
-      doc.doctype,
-      doc.name,
+      doctype,
+      name,
     ]);
-  } else if (e.type === frappe.errors.DuplicateEntryError) {
-    errorMessage = _('{0} {1} already exists.', [doc.doctype, doc.name]);
+  } else if (e.type === frappe.errors.DuplicateEntryError && canElaborate) {
+    errorMessage = _('{0} {1} already exists.', [doctype, name]);
   }
   return errorMessage;
 }

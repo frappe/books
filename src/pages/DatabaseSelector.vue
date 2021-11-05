@@ -139,7 +139,7 @@ export default {
     };
   },
   mounted() {
-    this.files = config.get('files', []);
+    this.files = config.get('files', []).filter(({filepath}) => fs.existsSync(filepath));
     this.showFiles = this.files.length > 0;
   },
   methods: {
@@ -159,9 +159,14 @@ export default {
     },
     async connectToDatabase(filePath) {
       this.loadingDatabase = true;
-      await connectToLocalDatabase(filePath);
+      const connectionSuccess = await connectToLocalDatabase(filePath);
       this.loadingDatabase = false;
-      this.$emit('database-connect');
+      
+      if(connectionSuccess) {
+        this.$emit('database-connect');
+      } else {
+        alert(frappe._("Please select an existing database or create a new one."))
+      }
     },
     getFileLastModified(filePath) {
       let stats = fs.statSync(filePath);
