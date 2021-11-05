@@ -115,6 +115,12 @@ module.exports = {
       fieldtype: 'Table',
       childtype: 'PaymentFor',
       required: 1
+    },
+    {
+      fieldname: 'cancelled',
+      label: 'Cancelled',
+      fieldtype: 'Check',
+      default: 0
     }
   ],
 

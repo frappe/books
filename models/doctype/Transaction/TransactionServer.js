@@ -51,7 +51,8 @@ module.exports = {
       // To set the payment status as unsubmitted.
       await frappe.db.update('Payment', {
         name: paymentReference,
-        submitted: 0
+        submitted: 0,
+        cancelled: 1
       });
     }
     const entries = await this.getPosting();
