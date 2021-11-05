@@ -1,5 +1,6 @@
 import frappe from 'frappejs';
 import countryList from '~/fixtures/countryInfo.json';
+import generateTaxes from '../../../models/doctype/Tax/RegionalChanges';
 import config from '@/config';
 
 export default async function setupCompany(setupWizardValues) {
@@ -96,10 +97,9 @@ async function setupChartOfAccounts(bankName) {
 }
 
 async function setupRegionalChanges(country) {
-  const generateRegionalTaxes = await import('~/models/doctype/Tax/RegionalChanges');
-  await generateRegionalTaxes(country);
+  await generateTaxes(country);
   if (country === 'India') {
-    frappe.models.Party = await import('~/models/doctype/Party/RegionalChanges');
+    frappe.models.Party = await import('../../../models/doctype/Party/RegionalChanges');
     await frappe.db.migrate();
   }
 }

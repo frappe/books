@@ -8,17 +8,17 @@
         <FormControl
           :df="meta.getField('companyLogo')"
           :value="doc.companyLogo"
-          @change="value => setValue('companyLogo', value)"
+          @change="(value) => setValue('companyLogo', value)"
         />
         <div class="ml-2">
           <FormControl
             ref="companyField"
             :df="meta.getField('companyName')"
             :value="doc.companyName"
-            @change="value => setValue('companyName', value)"
+            @change="(value) => setValue('companyName', value)"
             :input-class="
-              classes => [
-                'bg-transparent font-semibold text-xl text-white placeholder-blue-200 focus:outline-none focus:bg-blue-600 px-3 rounded py-1'
+              (classes) => [
+                'bg-transparent font-semibold text-xl text-white placeholder-blue-200 focus:outline-none focus:bg-blue-600 px-3 rounded py-1',
               ]
             "
             :autofocus="true"
@@ -28,10 +28,10 @@
               <FormControl
                 :df="meta.getField('email')"
                 :value="doc.email"
-                @change="value => setValue('email', value)"
+                @change="(value) => setValue('email', value)"
                 :input-class="
-                  classes => [
-                    'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1'
+                  (classes) => [
+                    'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1',
                   ]
                 "
               />
@@ -69,7 +69,7 @@ import Popover from '@/components/Popover';
 import {
   getErrorMessage,
   handleErrorWithDialog,
-  showMessageDialog
+  showMessageDialog,
 } from '@/utils';
 
 export default {
@@ -79,20 +79,20 @@ export default {
       doc: null,
       loading: false,
       valuesFilled: false,
-      emailError: null
+      emailError: null,
     };
   },
   provide() {
     return {
       doctype: 'SetupWizard',
-      name: 'SetupWizard'
+      name: 'SetupWizard',
     };
   },
   components: {
     TwoColumnForm,
     FormControl,
     Button,
-    Popover
+    Popover,
   },
   async mounted() {
     this.doc = await frappe.newDoc({ doctype: 'SetupWizard' });
@@ -103,7 +103,7 @@ export default {
   methods: {
     setValue(fieldname, value) {
       this.emailError = null;
-      this.doc.set(fieldname, value).catch(e => {
+      this.doc.set(fieldname, value).catch((e) => {
         // set error
         if (fieldname === 'email') {
           this.emailError = getErrorMessage(e, this.doc);
@@ -112,7 +112,7 @@ export default {
     },
     allValuesFilled() {
       let values = this.meta.quickEditFields.map(
-        fieldname => this.doc[fieldname]
+        (fieldname) => this.doc[fieldname]
       );
       return values.every(Boolean);
     },
@@ -127,9 +127,18 @@ export default {
         this.$emit('setup-complete');
       } catch (e) {
         this.loading = false;
-        handleErrorWithDialog(e, this.doc);
+        console.log(e, this.doc);
+        if (e.type === frappe.errors.DuplicateEntryError) {
+          // TODO: Add option to overwrite file from here.
+          const message = this._(
+            'Records already exist in the db. Please create a new database file and try again.'
+          );
+          showMessageDialog({ message });
+        } else {
+          handleErrorWithDialog(e, this.doc);
+        }
       }
-    }
+    },
   },
   computed: {
     meta() {
@@ -140,7 +149,7 @@ export default {
     },
     buttonText() {
       return this.loading ? this._('Setting Up...') : this._('Next');
-    }
-  }
+    },
+  },
 };
 </script>
