@@ -5,13 +5,16 @@ import coreModels from 'frappejs/models';
 import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 import outsideClickDirective from 'frappejs/ui/plugins/outsideClickDirective';
 import models from '../models';
-import { ipcRenderer } from 'electron';
 
 // vue imports
 import Vue from 'vue';
 import PortalVue from 'portal-vue';
 import App from './App';
 import router from './router';
+
+// other imports
+import { ipcRenderer } from 'electron';
+import { IPC_MESSAGES } from './messages';
 
 (async () => {
   frappe.isServer = true;
@@ -23,17 +26,22 @@ import router from './router';
   frappe.fetch = window.fetch.bind();
 
   frappe.events.on('reload-main-window', () => {
-    ipcRenderer.send('reload-main-window');
+    ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
   });
 
   frappe.events.on('check-for-updates', () => {
     let { autoUpdate } = frappe.AccountingSettings;
     if (autoUpdate == null || autoUpdate === 1) {
-      ipcRenderer.send('check-for-updates');
+      ipcRenderer.send(IPC_MESSAGES.CHECK_FOR_UPDATES);
     }
   });
 
   window.frappe = frappe;
+  window.frappe.store = {};
+
+  ipcRenderer.on('store-on-window', (event, message) => {
+    Object.assign(window.frappe.store, message);
+  });
 
   Vue.config.productionTip = false;
   Vue.component('feather-icon', FeatherIcon);
@@ -48,22 +56,22 @@ import router from './router';
         return {
           win32: 'Windows',
           darwin: 'Mac',
-          linux: 'Linux'
+          linux: 'Linux',
         }[process.platform];
-      }
+      },
     },
     methods: {
       _(...args) {
         return frappe._(...args);
-      }
-    }
+      },
+    },
   });
 
   Vue.config.errorHandler = (err, vm, info) => {
     console.error(err, vm, info);
   };
 
-  process.on('unhandledRejection', error => {
+  process.on('unhandledRejection', (error) => {
     console.error(error);
   });
 
@@ -72,8 +80,8 @@ import router from './router';
     el: '#app',
     router,
     components: {
-      App
+      App,
     },
-    template: '<App/>'
+    template: '<App/>',
   });
 })();

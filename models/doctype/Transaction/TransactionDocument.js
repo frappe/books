@@ -1,9 +1,9 @@
-const BaseDocument = require('frappejs/model/document');
-const frappe = require('frappejs');
-const { round } = require('frappejs/utils/numberFormat');
-const { getExchangeRate } = require('../../../accounting/exchangeRate');
+import BaseDocument from 'frappejs/model/document';
+import frappe from 'frappejs';
+import { round } from 'frappejs/utils/numberFormat';
+import { getExchangeRate } from '../../../accounting/exchangeRate';
 
-module.exports = class TransactionDocument extends BaseDocument {
+export default class TransactionDocument extends BaseDocument {
   async getExchangeRate() {
     if (!this.currency) return;
 

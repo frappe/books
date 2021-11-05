@@ -1,7 +1,7 @@
-const model = require('frappejs/model');
-const SalesInvoiceSettings = require('../SalesInvoiceSettings/SalesInvoiceSettings');
+import model from 'frappejs/model';
+import SalesInvoiceSettings from '../SalesInvoiceSettings/SalesInvoiceSettings';
 
-module.exports = model.extend(SalesInvoiceSettings, {
+export default model.extend(SalesInvoiceSettings, {
     "name": "QuotationSettings",
     "label": "Quotation Settings",
     "fields": [

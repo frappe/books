@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'PurchaseInvoiceSettings',
   label: 'Purchase Invoice Settings',
   doctype: 'DocType',

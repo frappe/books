@@ -1,7 +1,7 @@
-const BaseDocument = require('frappejs/model/document');
-const frappe = require('frappejs');
+import BaseDocument from 'frappejs/model/document';
+import frappe from 'frappejs';
 
-module.exports = class PartyServer extends BaseDocument {
+export default class PartyServer extends BaseDocument {
   beforeInsert() {
     if (this.customer && this.supplier) {
       frappe.call({

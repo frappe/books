@@ -1,7 +1,7 @@
-const { DateTime } = require('luxon');
-const EventDocument = require('./EventDocument');
+import { DateTime } from 'luxon';
+import EventDocument from './EventDocument';
 
-module.exports = {
+export default {
   name: 'Event',
   doctype: 'DocType',
   naming: 'random',

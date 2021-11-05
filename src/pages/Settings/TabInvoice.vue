@@ -5,7 +5,7 @@
         :df="meta.getField('logo')"
         :value="doc.logo"
         @change="
-          value => {
+          (value) => {
             doc.set('logo', value);
             doc.update();
           }
@@ -24,7 +24,7 @@
           :value="doc.displayLogo"
           :show-label="true"
           @change="
-            value => {
+            (value) => {
               doc.set('displayLogo', value);
               doc.update();
             }
@@ -38,27 +38,28 @@
 </template>
 <script>
 import frappe from 'frappejs';
-import { remote } from 'electron';
+import { dialog, ipcRenderer } from 'electron';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import FormControl from '@/components/Controls/FormControl';
+import { IPC_ACTIONS } from '@/messages';
 
 export default {
   name: 'TabInvoice',
   components: {
     TwoColumnForm,
-    FormControl
+    FormControl,
   },
   provide() {
     return {
       doctype: 'PrintSettings',
-      name: 'PrintSettings'
+      name: 'PrintSettings',
     };
   },
   data() {
     return {
       companyName: null,
       doc: null,
-      showEdit: false
+      showEdit: false,
     };
   },
   async mounted() {
@@ -79,27 +80,23 @@ export default {
         'email',
         'phone',
         'address',
-        'gstin'
-      ].map(field => this.meta.getField(field));
-    }
+        'gstin',
+      ].map((field) => this.meta.getField(field));
+    },
   },
   methods: {
-    openFileSelector() {
-      remote.dialog.showOpenDialog(
-        remote.getCurrentWindow(),
-        {
-          title: frappe._('Select Logo'),
-          properties: ['openFile'],
-          filters: [{ name: 'Invoice Logo', extensions: ['png', 'jpg', 'svg'] }]
-        },
-        files => {
-          if (files && files[0]) {
-            this.doc.set('logo', `file://${files[0]}`);
-            this.doc.update();
-          }
-        }
-      );
-    }
-  }
+    async openFileSelector() {
+      const options = {
+        title: frappe._('Select Logo'),
+        properties: ['openFile'],
+        filters: [{ name: 'Invoice Logo', extensions: ['png', 'jpg', 'svg'] }],
+      };
+      const { filePaths } = await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, options);
+      if (filePaths[0] !== undefined) {
+        this.doc.set('logo', `file://${files[0]}`);
+        this.doc.update;
+      }
+    },
+  },
 };
 </script>

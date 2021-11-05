@@ -4,24 +4,28 @@
       <h4 class="pb-2">{{ _('Data Import') }}</h4>
       <frappe-control
         :docfield="{
-            fieldtype: 'Select',
-            fieldname: 'referenceDoctype',
-            options: ['Select...', 'Item', 'Party', 'Account']
-          }"
-        @change="doctype => showTable(doctype)"
+          fieldtype: 'Select',
+          fieldname: 'referenceDoctype',
+          options: ['Select...', 'Item', 'Party', 'Account'],
+        }"
+        @change="(doctype) => showTable(doctype)"
       />
-      <f-button secondary v-if="doctype" primary @click="uploadCSV">Upload CSV</f-button>
-      <f-button secondary v-if="doctype" primary @click="downloadCSV">Download CSV Template</f-button>
+      <f-button secondary v-if="doctype" primary @click="uploadCSV"
+        >Upload CSV</f-button
+      >
+      <f-button secondary v-if="doctype" primary @click="downloadCSV"
+        >Download CSV Template</f-button
+      >
       <f-button primary @click="importData">Submit</f-button>
 
       <frappe-control
         v-if="doctype"
         ref="fileInput"
-        style="position: absolute; display: none;"
+        style="position: absolute; display: none"
         :docfield="{
-            fieldtype: 'File',
-            fieldname: 'CSV File',
-          }"
+          fieldtype: 'File',
+          fieldname: 'CSV File',
+        }"
         @change="uploadCSV"
       />
       <div class="pt-2" ref="datatable" v-once></div>
@@ -35,13 +39,12 @@ import { convertFieldsToDatatableColumns } from 'frappejs/client/ui/utils';
 import { writeFile } from 'frappejs/server/utils';
 import path from 'path';
 import csv2json from 'csvjson-csv2json';
-const { remote } = require('electron');
 
 export default {
   data() {
     return {
       doctype: undefined,
-      fileUploaded: false
+      fileUploaded: false,
     };
   },
   methods: {
@@ -59,7 +62,7 @@ export default {
       this.datatable = new DataTable(this.$refs.datatable, {
         columns,
         data: [[]],
-        pasteFromClipboard: true
+        pasteFromClipboard: true,
       });
     },
     async downloadCSV() {
@@ -72,19 +75,26 @@ export default {
       const documentsPath =
         process.env.NODE_ENV === 'development'
           ? path.resolve('.')
-          : remote.getGlobal('documentsPath');
+          : frappe.store.documentsPath;
 
-      await writeFile(
-        path.resolve(documentsPath + `/frappe-accounting/${this.doctype}.csv`),
-        csvString
-      );
+      let title = frappe._('Message');
+      let message = frappe._('Template saved successfully.');
+
+      if (documentsPath === undefined) {
+        title = frappe._('Error');
+        message = frappe._('Template could not be saved.');
+      } else {
+        await writeFile(
+          path.resolve(
+            documentsPath + `/frappe-accounting/${this.doctype}.csv`
+          ),
+          csvString
+        );
+      }
 
       frappe.call({
         method: 'show-dialog',
-        args: {
-          title: 'Message',
-          message: `Template Saved Successfully`
-        }
+        args: { title, message },
       });
     },
     uploadCSV(file) {
@@ -93,9 +103,9 @@ export default {
         reader.onload = () => {
           const meta = frappe.getMeta(this.doctype);
           let header = reader.result.split('\n')[0];
-          header = header.split(',').map(label => {
+          header = header.split(',').map((label) => {
             let fieldname;
-            meta.fields.some(field => {
+            meta.fields.some((field) => {
               if (field.label === label.trim()) {
                 fieldname = field.fieldname;
                 return true;
@@ -120,19 +130,19 @@ export default {
     importData() {
       const rows = this.datatable.datamanager.getRows();
 
-      const data = rows.map(row => {
+      const data = rows.map((row) => {
         return row.slice(1).reduce((prev, curr) => {
           prev[curr.column.field.fieldname] = curr.content;
           return prev;
         }, {});
       });
 
-      data.forEach(async d => {
+      data.forEach(async (d) => {
         try {
           await frappe
             .newDoc(
               Object.assign(d, {
-                doctype: this.doctype
+                doctype: this.doctype,
               })
             )
             .insert();
@@ -144,10 +154,10 @@ export default {
         method: 'show-dialog',
         args: {
           title: 'Message',
-          message: `Data Imported Successfully`
-        }
+          message: `Data Imported Successfully`,
+        },
       });
-    }
-  }
+    },
+  },
 };
 </script>

@@ -1,3 +1,3 @@
-const TransactionDocument = require('../Transaction/TransactionDocument');
+import TransactionDocument from '../Transaction/TransactionDocument';
 
-module.exports = class SalesInvoice extends TransactionDocument {};
+export default class SalesInvoice extends TransactionDocument {};

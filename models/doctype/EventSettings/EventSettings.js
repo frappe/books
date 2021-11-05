@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "name": "EventSettings",
     "label": "Event Settings",
     "doctype": "DocType",
@@ -12,4 +12,4 @@ module.exports = {
             fieldtype: "Check"
         }
     ]
-}
+};

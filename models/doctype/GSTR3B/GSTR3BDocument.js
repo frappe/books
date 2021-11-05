@@ -1,8 +1,8 @@
-const BaseDocument = require('frappejs/model/document');
-const frappe = require('frappejs');
-const { format } = require('./GSTR3BFormat');
+import BaseDocument from 'frappejs/model/document';
+import frappe from 'frappejs';
+import format from './GSTR3BFormat';
 
-module.exports = class GSTR3B extends BaseDocument {
+export default class GSTR3B extends BaseDocument {
   async getData() {
     const monthIndex = [
       'January',

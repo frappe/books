@@ -1,10 +1,11 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
+import Account from './AccountDocument';
 
-module.exports = {
+export default {
   name: 'Account',
   label: 'Account',
   doctype: 'DocType',
-  documentClass: require('./AccountDocument.js'),
+  documentClass: Account,
   isSingle: 0,
   isTree: 1,
   keywordFields: ['name', 'rootType', 'accountType'],

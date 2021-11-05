@@ -41,8 +41,11 @@
 
 <script>
 import frappe from 'frappejs';
-import { remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import Base from './Base';
+import { IPC_ACTIONS } from '@/messages'
+import fs from 'fs';
+import path from 'path';
 
 export default {
   name: 'AttachImage',
@@ -61,15 +64,13 @@ export default {
         filters: [{ name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] }]
       };
 
-      const { filePaths } = await remote.dialog.showOpenDialog(options);
+      const { filePaths } = await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, options);
       if (filePaths && filePaths[0]) {
         let dataURL = await this.getDataURL(filePaths[0]);
         this.triggerChange(dataURL);
       }
     },
     getDataURL(filePath) {
-      let fs = require('fs');
-      let path = require('path');
       let typedArray = fs.readFileSync(filePath);
       let extension = path.extname(filePath).slice(1);
       let blob = new Blob([typedArray.buffer], { type: 'image/' + extension });

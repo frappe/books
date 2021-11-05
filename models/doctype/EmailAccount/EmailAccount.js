@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
-module.exports = {
+export default {
     "name": "EmailAccount",
     "label": "Email Account",
     "doctype": "DocType",
@@ -56,4 +56,4 @@ module.exports = {
             "default": "465"
         }
     ]
-}
+};

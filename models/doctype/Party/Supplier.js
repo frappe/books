@@ -1,9 +1,9 @@
-const { _ } = require('frappejs/utils');
-const router = require('@/router').default;
-const frappe = require('frappejs');
-const PartyWidget = require('./PartyWidget.vue').default;
+import { _ } from 'frappejs/utils';
+import router from '@/router';
+import frappe from 'frappejs';
+import PartyWidget from './PartyWidget.vue';
 
-module.exports = {
+export default {
   name: 'Supplier',
   label: 'Supplier',
   basedOn: 'Party',

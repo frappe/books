@@ -88,6 +88,8 @@ import PageHeader from '@/components/PageHeader';
 import Icon from '@/components/Icon';
 import Button from '@/components/Button';
 import { openSettings } from '@/utils';
+import { ipcRenderer } from 'electron';
+import { IPC_MESSAGES } from '@/messages';
 
 export default {
   name: 'GetStarted',
@@ -327,7 +329,7 @@ export default {
     },
     visitLink(link) {
       if (link) {
-        require('electron').shell.openExternal(link);
+        ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, link);
       }
     },
     isCompleted(item) {

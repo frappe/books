@@ -1,7 +1,7 @@
-const BaseDocument = require('frappejs/model/document');
-const LedgerPosting = require('../../../accounting/ledgerPosting');
+import BaseDocument from 'frappejs/model/document';
+import LedgerPosting from '../../../accounting/ledgerPosting';
 
-module.exports = class JournalEntryServer extends BaseDocument {
+export default class JournalEntryServer extends BaseDocument {
   getPosting() {
     let entries = new LedgerPosting({ reference: this });
 

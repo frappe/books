@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-const luxon = require('luxon');
+import luxon from 'luxon';
 
 export default {
   props: ['entries', 'afterReconcile'],

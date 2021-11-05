@@ -1,8 +1,8 @@
-const frappe = require('frappejs');
-const { DateTime } = require('luxon');
-const { unique } = require('frappejs/utils');
+import frappe from 'frappejs';
+import { DateTime } from 'luxon';
+import { unique } from 'frappejs/utils';
 
-async function getData({
+export async function getData({
   rootType,
   balanceMustBe = 'Debit',
   fromDate,
@@ -65,7 +65,7 @@ async function getData({
   return { accounts, totalRow, periodList };
 }
 
-async function getTrialBalance({ rootType, fromDate, toDate }) {
+export async function getTrialBalance({ rootType, fromDate, toDate }) {
   let accounts = await getAccounts(rootType);
   let ledgerEntries = await getLedgerEntries(null, toDate, accounts);
 
@@ -134,7 +134,7 @@ async function getTrialBalance({ rootType, fromDate, toDate }) {
   return accounts;
 }
 
-function getPeriodList(fromDate, toDate, periodicity, fiscalYear) {
+export function getPeriodList(fromDate, toDate, periodicity, fiscalYear) {
   if (!fromDate) {
     fromDate = fiscalYear.start;
   }
@@ -284,7 +284,7 @@ async function getFiscalYear() {
   };
 }
 
-module.exports = {
+export default {
   getData,
   getTrialBalance,
   getPeriodList

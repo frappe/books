@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   doctype: "PrintFormat",
   name: "Standard Invoice Format",
   for: "SalesInvoice",
@@ -71,4 +71,4 @@ module.exports = {
         {{ frappe.format(doc.terms, 'Text') }}
     </div>
     `
-}
+};

@@ -1,5 +1,5 @@
-const model = require('frappejs/model');
-const SalesInvoice = require('../SalesInvoice/SalesInvoice');
+import model from 'frappejs/model';
+import SalesInvoice from '../SalesInvoice/SalesInvoice';
 
 const Quotation = model.extend(
   SalesInvoice,
@@ -21,4 +21,4 @@ const Quotation = model.extend(
   }
 );
 
-module.exports = Quotation;
+export default Quotation;

@@ -1,12 +1,12 @@
-
-const server = require('frappejs/server');
-const postStart = require('./postStart');
+import models from '../models';
+import server from 'frappejs/server';
+import postStart from './postStart';
 
 async function start() {
     await server.start({
         backend: 'sqlite',
         connectionParams: { dbPath: 'test.db', enableCORS: true },
-        models: require('../models')
+        models
     })
 
     await postStart();
@@ -14,6 +14,6 @@ async function start() {
 
 start();
 
-module.exports = {
+export default {
     start
-}
+};

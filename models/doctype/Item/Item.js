@@ -1,7 +1,7 @@
-const frappe = require('frappejs');
-const { _ } = require('frappejs/utils');
+import frappe from 'frappejs';
+import { _ } from 'frappejs/utils';
 
-module.exports = {
+export default {
   name: 'Item',
   doctype: 'DocType',
   isSingle: 0,

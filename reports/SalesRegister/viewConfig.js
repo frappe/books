@@ -1,5 +1,6 @@
 const title = 'Sales Register';
-module.exports = {
+
+export default {
   title: title,
   method: 'sales-register',
   filterFields: [

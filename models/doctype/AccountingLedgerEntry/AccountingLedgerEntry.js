@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'AccountingLedgerEntry',
   label: 'Ledger Entry',
   naming: 'autoincrement',

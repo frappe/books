@@ -28,9 +28,7 @@
   </div>
 </template>
 <script>
-import path from 'path';
-const { writeFile } = require('frappejs/server/utils');
-var FileSaver = require('file-saver');
+import FileSaver from 'file-saver'
 
 export default {
   props: ['title', 'rows', 'columnData'],
