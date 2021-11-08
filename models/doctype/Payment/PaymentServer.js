@@ -20,8 +20,8 @@ export default class PaymentServer extends BaseDocument {
   }
 
   async beforeSubmit() {
-    if (!this.for.length) {
-      throw new Error(`No reference for the payment.`);
+    if (!this.for || !this.for.length) {
+      return;
     }
     for (let row of this.for) {
       if (!['SalesInvoice', 'PurchaseInvoice'].includes(row.referenceType)) {
