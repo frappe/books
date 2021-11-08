@@ -8,7 +8,8 @@
         size="small"
         :df="df"
         :value="doc[df.fieldname]"
-        @change="value => onChange(df, value)"
+        :read-only="submitted"
+        @change="(value) => onChange(df, value)"
       />
       <template v-else>
         <template v-if="inlineEditField === df && inlineEditDoc">
@@ -20,7 +21,7 @@
               :column-ratio="columnRatio"
               :no-border="true"
               :focus-first-input="true"
-              @error="msg => $emit('error', msg)"
+              @error="(msg) => $emit('error', msg)"
             />
             <div class="flex px-4 pb-2">
               <Button
@@ -55,7 +56,7 @@
             class="py-2 pr-4"
             @click="activateInlineEditing(df)"
             :class="{
-              'pl-2': df.fieldtype === 'AttachImage'
+              'pl-2': df.fieldtype === 'AttachImage',
             }"
           >
             <FormControl
@@ -71,9 +72,10 @@
                   : doc[df.fieldname]
               "
               :class="{ 'p-2': df.fieldtype === 'Check' }"
-              @change="value => onChange(df, value)"
+              :read-only="submitted"
+              @change="(value) => onChange(df, value)"
               @focus="activateInlineEditing(df)"
-              @new-doc="newdoc => onChange(df, newdoc.name)"
+              @new-doc="(newdoc) => onChange(df, newdoc.name)"
             />
             <div
               class="text-sm text-red-600 mt-2 pl-2"
@@ -101,10 +103,10 @@ let TwoColumnForm = {
     autosave: Boolean,
     columnRatio: {
       type: Array,
-      default: () => [1, 1]
+      default: () => [1, 1],
     },
     noBorder: Boolean,
-    focusFirstInput: Boolean
+    focusFirstInput: Boolean,
   },
   data() {
     return {
@@ -112,20 +114,20 @@ let TwoColumnForm = {
       inlineEditDoc: null,
       inlineEditFields: null,
       inlineEditDisplayField: null,
-      errors: {}
+      errors: {},
     };
   },
   provide() {
     return {
       doctype: this.doc.doctype,
       name: this.doc.name,
-      doc: this.doc
+      doc: this.doc,
     };
   },
   components: {
     FormControl,
     Button,
-    TwoColumnForm: () => TwoColumnForm
+    TwoColumnForm: () => TwoColumnForm,
   },
   mounted() {
     if (this.focusFirstInput) {
@@ -135,8 +137,9 @@ let TwoColumnForm = {
   methods: {
     onChange(df, value) {
       if (value == null) {
-        return;
+        return
       }
+
       let oldValue = this.doc.get(df.fieldname);
 
       if (oldValue === value) {
@@ -151,7 +154,7 @@ let TwoColumnForm = {
       // reset error messages
       this.$set(this.errors, df.fieldname, null);
 
-      this.doc.set(df.fieldname, value).catch(e => {
+      this.doc.set(df.fieldname, value).catch((e) => {
         // set error message for this field
         this.$set(this.errors, df.fieldname, getErrorMessage(e, this.doc));
       });
@@ -197,7 +200,7 @@ let TwoColumnForm = {
         await this.doc.loadLinks();
         this.inlineEditField = null;
       }
-    }
+    },
   },
   computed: {
     formFields() {
@@ -205,13 +208,16 @@ let TwoColumnForm = {
     },
     style() {
       let templateColumns = (this.columnRatio || [1, 1])
-        .map(r => `${r}fr`)
+        .map((r) => `${r}fr`)
         .join(' ');
       return {
-        'grid-template-columns': templateColumns
+        'grid-template-columns': templateColumns,
       };
-    }
-  }
+    },
+    submitted() {
+      return Boolean(this.doc.meta.isSubmittable && this.doc.submitted);
+    },
+  },
 };
 
 export default TwoColumnForm;
