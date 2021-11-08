@@ -99,7 +99,7 @@ module.exports = class BaseDocument extends Observable {
     this.roundFloats();
     await this.trigger('change', {
       doc: this,
-      changed: fieldname
+      changed: fieldname,
     });
   }
 
@@ -194,15 +194,16 @@ module.exports = class BaseDocument extends Observable {
   }
 
   validateMandatory() {
+    const fieldValueMap = this.getFieldValueMap();
     let checkForMandatory = [this];
-    let tableFields = this.meta.fields.filter(df => df.fieldtype === 'Table');
-    tableFields.map(df => {
+    let tableFields = this.meta.fields.filter((df) => df.fieldtype === 'Table');
+    tableFields.map((df) => {
       let rows = this[df.fieldname];
       checkForMandatory = [...checkForMandatory, ...rows];
     });
 
     let missingMandatory = checkForMandatory
-      .map(doc => getMissingMandatory(doc))
+      .map((doc) => getMissingMandatory(doc))
       .filter(Boolean);
 
     if (missingMandatory.length > 0) {
@@ -212,16 +213,21 @@ module.exports = class BaseDocument extends Observable {
     }
 
     function getMissingMandatory(doc) {
-      let mandatoryFields = doc.meta.fields.filter(df => df.required);
+      let mandatoryFields = doc.meta.fields.filter((df) => {
+        if (df.required instanceof Function) {
+          return df.required(fieldValueMap);
+        }
+        return df.required;
+      });
       let message = mandatoryFields
-        .filter(df => {
+        .filter((df) => {
           let value = doc[df.fieldname];
           if (df.fieldtype === 'Table') {
             return value == null || value.length === 0;
           }
           return value == null || value === '';
         })
-        .map(df => {
+        .map((df) => {
           return `"${df.label}"`;
         })
         .join(', ');
@@ -277,7 +283,7 @@ module.exports = class BaseDocument extends Observable {
         if (!isValid) {
           throw new frappe.errors.ValidationError(`Invalid phone: ${value}`);
         }
-      }
+      },
     };
 
     return functions[validator.type];
@@ -288,7 +294,9 @@ module.exports = class BaseDocument extends Observable {
     for (let field of this.meta.getValidFields()) {
       let value = this[field.fieldname];
       if (Array.isArray(value)) {
-        value = value.map(doc => (doc.getValidDict ? doc.getValidDict() : doc));
+        value = value.map((doc) =>
+          doc.getValidDict ? doc.getValidDict() : doc
+        );
       }
       data[field.fieldname] = value;
     }
@@ -341,7 +349,7 @@ module.exports = class BaseDocument extends Observable {
 
   async loadLinks() {
     this._links = {};
-    let inlineLinks = this.meta.fields.filter(df => df.inline);
+    let inlineLinks = this.meta.fields.filter((df) => df.inline);
     for (let df of inlineLinks) {
       await this.loadLink(df.fieldname);
     }
@@ -367,13 +375,13 @@ module.exports = class BaseDocument extends Observable {
     this.setValues(data);
     this._dirty = false;
     this.trigger('change', {
-      doc: this
+      doc: this,
     });
   }
 
   clearValues() {
     let toClear = ['_dirty', '_notInserted'].concat(
-      this.meta.getValidFields().map(df => df.fieldname)
+      this.meta.getValidFields().map((df) => df.fieldname)
     );
     for (let key of toClear) {
       this[key] = null;
@@ -400,7 +408,7 @@ module.exports = class BaseDocument extends Observable {
         throw new frappe.errors.Conflict(
           frappe._('Document {0} {1} has been modified after loading', [
             this.doctype,
-            this.name
+            this.name,
           ])
         );
       }
@@ -412,7 +420,7 @@ module.exports = class BaseDocument extends Observable {
       }
 
       // set submit action flag
-      this.flags = {}
+      this.flags = {};
       if (this.submitted && !currentDoc.submitted) {
         this.flags.submitAction = true;
       }
@@ -506,7 +514,7 @@ module.exports = class BaseDocument extends Observable {
     }
 
     if (field.fieldtype === 'Table' && Array.isArray(value)) {
-      value = value.map(row => {
+      value = value.map((row) => {
         let doc = this._initChild(row, field.fieldname);
         doc.roundFloats();
         return doc;
@@ -519,7 +527,7 @@ module.exports = class BaseDocument extends Observable {
   roundFloats() {
     let fields = this.meta
       .getValidFields()
-      .filter(df => ['Float', 'Currency', 'Table'].includes(df.fieldtype));
+      .filter((df) => ['Float', 'Currency', 'Table'].includes(df.fieldtype));
 
     for (let df of fields) {
       let value = this[df.fieldname];
@@ -528,7 +536,7 @@ module.exports = class BaseDocument extends Observable {
       }
       // child
       if (Array.isArray(value)) {
-        value.map(row => row.roundFloats());
+        value.map((row) => row.roundFloats());
         continue;
       }
       // field
@@ -600,11 +608,11 @@ module.exports = class BaseDocument extends Observable {
     return this;
   }
 
-  insertOrUpdate() {
+  async insertOrUpdate() {
     if (this._notInserted) {
-      return this.insert();
+      return await this.insert();
     } else {
-      return this.update();
+      return await this.update();
     }
   }
 
@@ -614,14 +622,23 @@ module.exports = class BaseDocument extends Observable {
     await this.trigger('afterDelete');
   }
 
+  async submitOrRevert(isSubmit) {
+    const wasSubmitted = this.submitted;
+    this.submitted = isSubmit;
+    try {
+      await this.update();
+    } catch (e) {
+      this.submitted = wasSubmitted;
+      throw e;
+    }
+  }
+
   async submit() {
-    this.submitted = 1;
-    this.update();
+    await this.submitOrRevert(1);
   }
 
   async revert() {
-    this.submitted = 0;
-    this.update();
+    await this.submitOrRevert(0);
   }
 
   async rename(newName) {
@@ -643,7 +660,7 @@ module.exports = class BaseDocument extends Observable {
   // helper functions
   getSum(tablefield, childfield) {
     return (this[tablefield] || [])
-      .map(d => parseFloat(d[childfield], 10) || 0)
+      .map((d) => parseFloat(d[childfield], 10) || 0)
       .reduce((a, b) => a + b, 0);
   }
 
@@ -665,5 +682,23 @@ module.exports = class BaseDocument extends Observable {
 
   isNew() {
     return this._notInserted;
+  }
+
+  getFieldValueMap() {
+    const fieldValueMap = this.meta.fields
+      .map(({ fieldname, fieldtype }) => [fieldname, fieldtype])
+      .reduce((obj, [fieldname, fieldtype]) => {
+        let value = this[fieldname];
+
+        if (fieldtype == 'Table') {
+          value = value.map((childTableDoc) =>
+            childTableDoc.getFieldValueMap()
+          );
+        }
+
+        obj[fieldname] = value;
+        return obj;
+      }, {});
+    return Object.freeze(fieldValueMap);
   }
 };
