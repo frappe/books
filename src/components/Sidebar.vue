@@ -6,7 +6,7 @@
     <div class="window-no-drag">
       <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
       <div class="px-3">
-        <h6 class="text-lg font-semibold" @click="$router.push('/')">
+        <h6 class="text-lg font-semibold" @click="routeTo('/')">
           {{ companyName }}
         </h6>
       </div>
