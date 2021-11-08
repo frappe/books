@@ -122,7 +122,16 @@ export default {
       }
     },
     routeTo(route) {
-      this.$router.push(route).catch(() => {});
+      this.$router.push(route).catch(err => {
+        if (
+          err.name !== 'NavigationDuplicated' &&
+          !err.message.includes(
+            'Avoided redundant navigation to current location'
+          )
+        ) {
+          throw err;
+        }
+      });
     }
   }
 };
