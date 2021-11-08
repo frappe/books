@@ -113,6 +113,12 @@ module.exports = class Database extends Observable {
 
   buildColumnForTable(table, field) {
     let columnType = this.getColumnType(field);
+    if (!columnType) {
+      // In case columnType is "Table"
+      // childTable links are handled using the childTable's "parent" field
+      return;
+    }
+
     let column = table[columnType](field.fieldname);
 
     // primary key
@@ -121,12 +127,12 @@ module.exports = class Database extends Observable {
     }
 
     // default value
-    if (field.default) {
+    if (!!field.default && !(field.default instanceof Function)) {
       column.defaultTo(field.default);
     }
 
     // required
-    if (field.required && !field.required instanceof Function) {
+    if (!!field.required && !(field.required instanceof Function)) {
       column.notNullable();
     }
 
