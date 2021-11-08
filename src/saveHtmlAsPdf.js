@@ -33,7 +33,7 @@ function getInitializedPrintWindow() {
   const printWindow = new BrowserWindow({
     width: 595,
     height: 842,
-    show: true,
+    show: false,
     webPreferences: {
       contextIsolation: false,
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,

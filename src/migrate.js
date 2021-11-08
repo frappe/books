@@ -6,11 +6,11 @@ const requirePatch = require.context('../patches', true, /\w+\.(js)$/);
 export default async function runMigrate() {
   let patchOrder = patchesTxt.split('\n');
   let allPatches = {};
-  requirePatch.keys().forEach(fileName => {
+  requirePatch.keys().forEach((fileName) => {
     if (fileName === './index.js') return;
     let method;
     try {
-      method = requirePatch(fileName);
+      method = requirePatch(fileName).default;
     } catch (error) {
       console.error(error);
       method = null;
