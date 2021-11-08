@@ -205,6 +205,16 @@ export default {
       ],
     },
   ],
+  actions: [
+    {
+      label: 'Revert',
+      condition: (doc) => doc.submitted,
+      action(doc) {
+        doc.revert();
+      },
+    },
+    utils.ledgerLink,
+  ],
 
   links: [utils.ledgerLink],
 };
