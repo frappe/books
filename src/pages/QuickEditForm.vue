@@ -191,8 +191,6 @@ export default {
       this.$refs.form.insert();
     },
     async submitDoc() {
-      console.log(this.meta)
-      console.log(this.doc)
       try {
         await this.$refs.form.submit();
       } catch (e) {
