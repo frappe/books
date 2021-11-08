@@ -26,7 +26,7 @@ export default {
       fieldname: 'date',
       label: 'Date',
       fieldtype: 'Date',
-      default: new Date().toISOString().slice(0, 10)
+      default: () => new Date().toISOString().slice(0, 10)
     },
     {
       fieldname: 'supplier',
