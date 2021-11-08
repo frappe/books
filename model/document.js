@@ -608,11 +608,11 @@ module.exports = class BaseDocument extends Observable {
     return this;
   }
 
-  insertOrUpdate() {
+  async insertOrUpdate() {
     if (this._notInserted) {
-      return this.insert();
+      return await this.insert();
     } else {
-      return this.update();
+      return await this.update();
     }
   }
 
@@ -622,14 +622,23 @@ module.exports = class BaseDocument extends Observable {
     await this.trigger('afterDelete');
   }
 
+  async submitOrRevert(isSubmit) {
+    const wasSubmitted = this.submitted;
+    this.submitted = isSubmit;
+    try {
+      await this.update();
+    } catch (e) {
+      this.submitted = wasSubmitted;
+      throw e;
+    }
+  }
+
   async submit() {
-    this.submitted = 1;
-    this.update();
+    await this.submitOrRevert(1);
   }
 
   async revert() {
-    this.submitted = 0;
-    this.update();
+    await this.submitOrRevert(0);
   }
 
   async rename(newName) {
