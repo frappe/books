@@ -36,9 +36,14 @@ export default class PaymentServer extends BaseDocument {
         outstandingAmount = baseGrandTotal;
       }
       if (this.amount <= 0 || this.amount > outstandingAmount) {
-        throw new Error(
-          `Payment amount (${this.amount}) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
+        let message = frappe._(
+          `Payment amount (${this.amount}) should be less than Outstanding amount (${outstandingAmount}).`
         );
+        if (this.amount <= 0) {
+          const amt = this.amount < 0 ? ` (${this.amount})` : '';
+          message = frappe._(`Payment amount${amt} should be greater than 0.`);
+        }
+        throw new frappe.errors.ValidationError(message);
       } else {
         // update outstanding amounts in invoice and party
         let newOutstanding = outstandingAmount - this.amount;
@@ -61,4 +66,4 @@ export default class PaymentServer extends BaseDocument {
 
     // Maybe revert outstanding amount of invoice too?
   }
-};
+}
