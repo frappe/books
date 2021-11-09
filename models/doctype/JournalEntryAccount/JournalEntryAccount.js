@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'JournalEntryAccount',
   isChild: 1,
   fields: [

@@ -1,8 +1,8 @@
-const frappe = require('frappejs');
-const BaseDocument = require('frappejs/model/document');
+import frappe from 'frappejs';
+import BaseDocument from 'frappejs/model/document';
 
-module.exports = class Event extends BaseDocument {
+export default class Event extends BaseDocument {
     alertEvent() {
         alert(this.title);
     }
-}
+};

@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="pt-6 pb-2 px-2 h-full block window-drag flex justify-between flex-col bg-gray-100"
-    :style="sidebarBackground"
-  >
+  <div class="pt-6 pb-2 px-2 h-full block window-drag flex justify-between flex-col bg-gray-100" >
     <div class="window-no-drag">
       <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
       <div class="px-3">
@@ -47,7 +44,6 @@
   </div>
 </template>
 <script>
-import { remote } from 'electron';
 import sidebarConfig from '../sidebarConfig';
 import WindowControls from './WindowControls';
 
@@ -60,15 +56,8 @@ export default {
     };
   },
   computed: {
-    sidebarBackground() {
-      return this.platform === 'Mac'
-        ? {
-            'background-color': 'rgba(255, 255, 255, 0.6)'
-          }
-        : null;
-    },
     appVersion() {
-      return remote.app.getVersion();
+      return frappe.store.appVersion;
     }
   },
   components: {

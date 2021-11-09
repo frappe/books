@@ -1,6 +1,7 @@
-const utils = require('../../../accounting/utils');
+import frappe from 'frappejs';
+import utils from '../../../accounting/utils';
 
-module.exports = {
+export default {
   name: 'Payment',
   label: 'Payment',
   isSingle: 0,
@@ -14,13 +15,13 @@ module.exports = {
       label: 'Party',
       fieldtype: 'Link',
       target: 'Party',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'date',
       label: 'Posting Date',
       fieldtype: 'Date',
-      default: new Date().toISOString()
+      default: () => new Date().toISOString(),
     },
     {
       fieldname: 'account',
@@ -36,14 +37,14 @@ module.exports = {
             return { accountType: ['in', ['Bank', 'Cash']], isGroup: 0 };
           }
         }
-      }
+      },
     },
     {
       fieldname: 'paymentType',
       label: 'Payment Type',
       fieldtype: 'Select',
       options: ['', 'Receive', 'Pay'],
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'paymentAccount',
@@ -61,11 +62,11 @@ module.exports = {
           }
         }
       },
-      formula: doc => {
+      formula: (doc) => {
         if (doc.paymentMethod === 'Cash') {
           return 'Cash';
         }
-      }
+      },
     },
     {
       fieldname: 'paymentMethod',
@@ -73,48 +74,70 @@ module.exports = {
       placeholder: 'Payment Method',
       fieldtype: 'Select',
       options: ['', 'Cash', 'Cheque', 'Transfer'],
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'referenceId',
       label: 'Ref. / Cheque No.',
       placeholder: 'Ref. / Cheque No.',
       fieldtype: 'Data',
-      required: 1 // TODO: UNIQUE
+      required: (doc) => doc.paymentMethod !== 'Cash', // TODO: UNIQUE
     },
     {
       fieldname: 'referenceDate',
       label: 'Ref. Date',
       placeholder: 'Ref. Date',
-      fieldtype: 'Date'
+      fieldtype: 'Date',
     },
     {
       fieldname: 'clearanceDate',
       label: 'Clearance Date',
       placeholder: 'Clearance Date',
       fieldtype: 'Date',
-      hidden: doc => {
-        return doc.paymentMethod === 'Cash' ? 1 : 0;
-      }
+      hidden: (doc) => doc.paymentMethod === 'Cash',
     },
     {
       fieldname: 'amount',
       label: 'Amount',
       fieldtype: 'Currency',
       required: 1,
-      formula: doc => doc.getSum('for', 'amount')
+      formula: (doc) => doc.getSum('for', 'amount'),
+      validate(value, doc) {
+        if (doc.for.length === 0) return;
+        const amount = doc.getSum('for', 'amount');
+
+        if (value > amount) {
+          throw new frappe.errors.ValidationError(
+            frappe._(
+              `Payment amount cannot exceed ${frappe.format(
+                amount,
+                'Currency'
+              )}. Amount has been reset to max viable amount.`
+            )
+          );
+        } else if (value === 0) {
+          throw new frappe.errors.ValidationError(
+            frappe._(
+              `Payment amount cannot be ${frappe.format(
+                value,
+                'Currency'
+              )}. Amount has been reset to max viable amount.`
+            )
+          );
+        }
+      },
     },
     {
       fieldname: 'writeoff',
       label: 'Write Off / Refund',
-      fieldtype: 'Currency'
+      fieldtype: 'Currency',
     },
     {
       fieldname: 'for',
-      label: 'Payment For',
+      label: 'Payment Reference',
       fieldtype: 'Table',
       childtype: 'PaymentFor',
-      required: 1
+      required: 0
     },
     {
       fieldname: 'cancelled',
@@ -136,58 +159,68 @@ module.exports = {
     'clearanceDate',
     'amount',
     'writeoff',
-    'for'
+    'for',
   ],
 
   layout: [
     {
       columns: [
         {
-          fields: ['party', 'account']
+          fields: ['party', 'account'],
         },
         {
-          fields: ['date', 'paymentAccount']
-        }
-      ]
+          fields: ['date', 'paymentAccount'],
+        },
+      ],
     },
     {
       columns: [
         {
-          fields: ['paymentMethod']
+          fields: ['paymentMethod'],
         },
         {
-          fields: ['paymentType']
+          fields: ['paymentType'],
         },
         {
-          fields: ['referenceId']
-        }
-      ]
+          fields: ['referenceId'],
+        },
+      ],
     },
     {
       columns: [
         {
-          fields: ['referenceDate']
+          fields: ['referenceDate'],
         },
         {
-          fields: ['clearanceDate']
-        }
-      ]
+          fields: ['clearanceDate'],
+        },
+      ],
     },
     {
       columns: [
         {
-          fields: ['for']
-        }
-      ]
+          fields: ['for'],
+        },
+      ],
     },
     {
       columns: [
         {
-          fields: ['amount', 'writeoff']
-        }
-      ]
-    }
+          fields: ['amount', 'writeoff'],
+        },
+      ],
+    },
+  ],
+  actions: [
+    {
+      label: 'Revert',
+      condition: (doc) => doc.submitted,
+      action(doc) {
+        doc.revert();
+      },
+    },
+    utils.ledgerLink,
   ],
 
-  links: [utils.ledgerLink]
+  links: [utils.ledgerLink],
 };

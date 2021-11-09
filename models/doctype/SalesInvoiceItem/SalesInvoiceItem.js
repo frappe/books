@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'SalesInvoiceItem',
   doctype: 'DocType',
   isChild: 1,

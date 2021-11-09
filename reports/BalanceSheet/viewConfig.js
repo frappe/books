@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
-module.exports = {
+export default {
   title: 'Balance Sheet',
   method: 'balance-sheet',
   filterFields: [

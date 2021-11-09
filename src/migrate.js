@@ -1,16 +1,16 @@
-const frappe = require('frappejs');
-const migrate = require('frappejs/model/migrate');
-const patchesTxt = require('../patches/patches.txt').default;
+import frappe from 'frappejs';
+import migrate from 'frappejs/model/migrate';
+import patchesTxt from '../patches/patches.txt';
 const requirePatch = require.context('../patches', true, /\w+\.(js)$/);
 
-module.exports = async function runMigrate() {
+export default async function runMigrate() {
   let patchOrder = patchesTxt.split('\n');
   let allPatches = {};
-  requirePatch.keys().forEach(fileName => {
+  requirePatch.keys().forEach((fileName) => {
     if (fileName === './index.js') return;
     let method;
     try {
-      method = requirePatch(fileName);
+      method = requirePatch(fileName).default;
     } catch (error) {
       console.error(error);
       method = null;

@@ -1,7 +1,7 @@
-const { ledgerLink } = require('../../../accounting/utils');
-const { DateTime } = require('luxon');
+import { ledgerLink } from '../../../accounting/utils';
+import { DateTime } from 'luxon';
 
-module.exports = {
+export default {
   label: 'Journal Entry',
   name: 'JournalEntry',
   doctype: 'DocType',
@@ -24,48 +24,48 @@ module.exports = {
         'Excise Entry',
         'Write Off Entry',
         'Opening Entry',
-        'Depreciation Entry'
+        'Depreciation Entry',
       ],
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'date',
       label: 'Date',
       fieldtype: 'Date',
-      default: DateTime.local().toISODate()
+      default: () => DateTime.local().toISODate(),
     },
     {
       fieldname: 'accounts',
       label: 'Account Entries',
       fieldtype: 'Table',
       childtype: 'JournalEntryAccount',
-      required: true
+      required: true,
     },
     {
       fieldname: 'referenceNumber',
       label: 'Reference Number',
-      fieldtype: 'Data'
+      fieldtype: 'Data',
     },
     {
       fieldname: 'referenceDate',
       label: 'Reference Date',
-      fieldtype: 'Date'
+      fieldtype: 'Date',
     },
     {
       fieldname: 'userRemark',
       label: 'User Remark',
       fieldtype: 'Text',
-      placeholder: 'User Remark'
-    }
+      placeholder: 'User Remark',
+    },
   ],
   actions: [
     {
       label: 'Revert',
-      condition: doc => doc.submitted,
+      condition: (doc) => doc.submitted,
       action(doc) {
         doc.revert();
-      }
+      },
     },
-    ledgerLink
-  ]
+    ledgerLink,
+  ],
 };

@@ -1,6 +1,6 @@
-const theme = require('@/theme');
+import theme from '@/theme';
 
-module.exports = {
+export default {
   name: 'PrintSettings',
   label: 'Print Settings',
   isSingle: 1,

@@ -1,6 +1,7 @@
 const title = 'GSTR 1';
-const baseConfig = require('./BaseViewConfig');
-module.exports = {
+import baseConfig from './BaseViewConfig';
+
+export default {
   title: title,
   method: 'gstr-1',
   filterFields: baseConfig.filterFields,

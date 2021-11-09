@@ -1,6 +1,7 @@
-const countryList = Object.keys(require('~/fixtures/countryInfo.json')).sort();
+import countryInfo from '~/fixtures/countryInfo.json';
 
-module.exports = {
+const countryList = Object.keys(countryInfo).sort();
+export default {
   name: 'AccountingSettings',
   label: 'Accounting Settings',
   naming: 'name', // {random|autoincrement}

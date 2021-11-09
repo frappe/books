@@ -1,8 +1,8 @@
-const BaseDocument = require('frappejs/model/document');
-const frappe = require('frappejs');
-const LedgerPosting = require('../../../accounting/ledgerPosting');
+import BaseDocument from 'frappejs/model/document';
+import frappe from 'frappejs';
+import LedgerPosting from '../../../accounting/ledgerPosting';
 
-module.exports = class PaymentServer extends BaseDocument {
+export default class PaymentServer extends BaseDocument {
   async change({ changed }) {
     if (changed === 'for') {
       this.amount = 0;
@@ -20,8 +20,8 @@ module.exports = class PaymentServer extends BaseDocument {
   }
 
   async beforeSubmit() {
-    if (!this.for.length) {
-      throw new Error(`No reference for the payment.`);
+    if (!this.for || !this.for.length) {
+      return;
     }
     for (let row of this.for) {
       if (!['SalesInvoice', 'PurchaseInvoice'].includes(row.referenceType)) {
@@ -36,9 +36,14 @@ module.exports = class PaymentServer extends BaseDocument {
         outstandingAmount = baseGrandTotal;
       }
       if (this.amount <= 0 || this.amount > outstandingAmount) {
-        throw new Error(
-          `Payment amount (${this.amount}) should be greater than 0 and less than Outstanding amount (${outstandingAmount})`
+        let message = frappe._(
+          `Payment amount (${this.amount}) should be less than Outstanding amount (${outstandingAmount}).`
         );
+        if (this.amount <= 0) {
+          const amt = this.amount < 0 ? ` (${this.amount})` : '';
+          message = frappe._(`Payment amount${amt} should be greater than 0.`);
+        }
+        throw new frappe.errors.ValidationError(message);
       } else {
         // update outstanding amounts in invoice and party
         let newOutstanding = outstandingAmount - this.amount;
@@ -61,4 +66,4 @@ module.exports = class PaymentServer extends BaseDocument {
 
     // Maybe revert outstanding amount of invoice too?
   }
-};
+}

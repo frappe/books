@@ -1,11 +1,12 @@
-const { getActions } = require('../Transaction/Transaction');
-const InvoiceTemplate = require('./InvoiceTemplate.vue').default;
+import { getActions } from '../Transaction/Transaction';
+import InvoiceTemplate from './InvoiceTemplate.vue';
+import SalesInvoice from './SalesInvoiceDocument';
 
-module.exports = {
+export default {
   name: 'SalesInvoice',
   label: 'Sales Invoice',
   doctype: 'DocType',
-  documentClass: require('./SalesInvoiceDocument'),
+  documentClass: SalesInvoice,
   printTemplate: InvoiceTemplate,
   isSingle: 0,
   isChild: 0,
@@ -18,20 +19,20 @@ module.exports = {
       fieldname: 'name',
       fieldtype: 'Data',
       required: 1,
-      readOnly: 1
+      readOnly: 1,
     },
     {
       fieldname: 'date',
       label: 'Date',
       fieldtype: 'Date',
-      default: new Date().toISOString().slice(0, 10)
+      default: () => new Date().toISOString().slice(0, 10),
     },
     {
       fieldname: 'customer',
       label: 'Customer',
       fieldtype: 'Link',
       target: 'Customer',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'account',
@@ -39,83 +40,83 @@ module.exports = {
       fieldtype: 'Link',
       target: 'Account',
       disableCreation: true,
-      formula: doc => doc.getFrom('Party', doc.customer, 'defaultAccount'),
+      formula: (doc) => doc.getFrom('Party', doc.customer, 'defaultAccount'),
       getFilters: () => {
         return {
           isGroup: 0,
-          accountType: 'Receivable'
+          accountType: 'Receivable',
         };
-      }
+      },
     },
     {
       fieldname: 'currency',
       label: 'Customer Currency',
       fieldtype: 'Link',
       target: 'Currency',
-      formula: doc => doc.getFrom('Party', doc.customer, 'currency'),
-      formulaDependsOn: ['customer']
+      formula: (doc) => doc.getFrom('Party', doc.customer, 'currency'),
+      formulaDependsOn: ['customer'],
     },
     {
       fieldname: 'exchangeRate',
       label: 'Exchange Rate',
       fieldtype: 'Float',
-      formula: doc => doc.getExchangeRate(),
-      readOnly: true
+      formula: (doc) => doc.getExchangeRate(),
+      readOnly: true,
     },
     {
       fieldname: 'items',
       label: 'Items',
       fieldtype: 'Table',
       childtype: 'SalesInvoiceItem',
-      required: true
+      required: true,
     },
     {
       fieldname: 'netTotal',
       label: 'Net Total',
       fieldtype: 'Currency',
-      formula: doc => doc.getSum('items', 'amount'),
+      formula: (doc) => doc.getSum('items', 'amount'),
       readOnly: 1,
-      getCurrency: doc => doc.currency
+      getCurrency: (doc) => doc.currency,
     },
     {
       fieldname: 'baseNetTotal',
       label: 'Net Total (Company Currency)',
       fieldtype: 'Currency',
-      formula: doc => doc.netTotal * doc.exchangeRate,
-      readOnly: 1
+      formula: (doc) => doc.netTotal * doc.exchangeRate,
+      readOnly: 1,
     },
     {
       fieldname: 'taxes',
       label: 'Taxes',
       fieldtype: 'Table',
       childtype: 'TaxSummary',
-      formula: doc => doc.getTaxSummary(),
-      readOnly: 1
+      formula: (doc) => doc.getTaxSummary(),
+      readOnly: 1,
     },
     {
       fieldname: 'grandTotal',
       label: 'Grand Total',
       fieldtype: 'Currency',
-      formula: doc => doc.getGrandTotal(),
+      formula: (doc) => doc.getGrandTotal(),
       readOnly: 1,
-      getCurrency: doc => doc.currency
+      getCurrency: (doc) => doc.currency,
     },
     {
       fieldname: 'baseGrandTotal',
       label: 'Grand Total (Company Currency)',
       fieldtype: 'Currency',
-      formula: doc => doc.grandTotal * doc.exchangeRate,
-      readOnly: 1
+      formula: (doc) => doc.grandTotal * doc.exchangeRate,
+      readOnly: 1,
     },
     {
       fieldname: 'outstandingAmount',
       label: 'Outstanding Amount',
       fieldtype: 'Currency',
-      formula: doc => {
+      formula: (doc) => {
         if (doc.submitted) return;
         return doc.baseGrandTotal;
       },
-      readOnly: 1
+      readOnly: 1,
     },
     {
       fieldname: 'terms',
@@ -130,5 +131,5 @@ module.exports = {
     }
   ],
 
-  actions: getActions('SalesInvoice')
+  actions: getActions('SalesInvoice'),
 };

@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
-const { getPeriodList } = require('../FinancialStatements/FinancialStatements');
-const { DateTime } = require('luxon');
+import frappe from 'frappejs';
+import { getPeriodList } from '../FinancialStatements/FinancialStatements';
+import { DateTime } from 'luxon';
 
 class Cashflow {
   async run({ fromDate, toDate, periodicity }) {
@@ -52,4 +52,4 @@ class Cashflow {
   }
 }
 
-module.exports = Cashflow;
+export default Cashflow;

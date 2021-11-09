@@ -1,5 +1,8 @@
 const title = 'Bank Reconciliation';
-module.exports = {
+import ImportWizard from '../../src/components/ImportWizart';
+import BankReconciliationImport from './BankReconciliationImport';
+
+export default {
   title: title,
   method: 'bank-reconciliation',
   filterFields: [
@@ -13,9 +16,9 @@ module.exports = {
       getFilters: () => {
         return {
           accountType: 'Bank',
-          isGroup: 0
+          isGroup: 0,
         };
-      }
+      },
     },
     {
       fieldtype: 'Link',
@@ -23,105 +26,104 @@ module.exports = {
       size: 'small',
       label: 'Party',
       placeholder: 'Party',
-      fieldname: 'party'
+      fieldname: 'party',
     },
     {
       fieldtype: 'Date',
       size: 'small',
       placeholder: 'From Date',
       label: 'From Date',
-      fieldname: 'fromDate'
+      fieldname: 'fromDate',
     },
     {
       fieldtype: 'Date',
       size: 'small',
       placeholder: 'To Date',
       label: 'To Date',
-      fieldname: 'toDate'
-    }
+      fieldname: 'toDate',
+    },
   ],
   linkFields: [
     {
       label: 'Reconcile',
       type: 'secondary',
-      condition: report => report.currentFilters.paymentAccount,
-      action: async report => {
+      condition: (report) => report.currentFilters.paymentAccount,
+      action: async (report) => {
         report.$modal.show({
           modalProps: {
             title: `Import Bank Account Statement`,
-            noFooter: true
+            noFooter: true,
           },
-          component: require('../../src/components/ImportWizard').default,
+          component: ImportWizard,
           props: {
-            importHandler: require('./BankReconciliationImport')
-              .fileImportHandler,
-            report
-          }
+            importHandler: BankReconciliationImport.fileImportHandler,
+            report,
+          },
         });
-      }
+      },
     },
     {
       label: 'Clear Filters',
       type: 'secondary',
-      action: async report => {
+      action: async (report) => {
         await report.getReportData({});
         report.usedToReRender += 1;
-      }
-    }
+      },
+    },
   ],
   getColumns() {
     return [
       {
         label: 'Posting Date',
         fieldtype: 'Date',
-        fieldname: 'date'
+        fieldname: 'date',
       },
       {
         label: 'Payment Account',
-        fieldtype: 'Link'
+        fieldtype: 'Link',
       },
       {
         label: 'Debit',
-        fieldtype: 'Currency'
+        fieldtype: 'Currency',
       },
       {
         label: 'Credit',
-        fieldtype: 'Currency'
+        fieldtype: 'Currency',
       },
       {
         label: 'Balance',
-        fieldtype: 'Currency'
+        fieldtype: 'Currency',
       },
       {
         label: 'Ref/Cheque ID',
         fieldtype: 'Data',
-        fieldname: 'referenceId'
+        fieldname: 'referenceId',
       },
       {
         label: 'Clearance Date',
         fieldtype: 'Date',
-        fieldname: 'clearanceDate'
+        fieldname: 'clearanceDate',
       },
       {
         label: 'Ref. Type',
         fieldtype: 'Data',
-        fieldname: 'referenceType'
+        fieldname: 'referenceType',
       },
       {
         label: 'Ref. Name',
         fieldtype: 'Data',
-        fieldname: 'referenceName'
+        fieldname: 'referenceName',
       },
       {
         label: 'Ref. Date',
         fieldtype: 'Date',
-        fieldname: 'referenceDate'
+        fieldname: 'referenceDate',
       },
 
       {
         label: 'Party',
-        fieldtype: 'Link'
-      }
+        fieldtype: 'Link',
+      },
     ];
-  }
+  },
 };

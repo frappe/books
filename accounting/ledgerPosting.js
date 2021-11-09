@@ -1,7 +1,7 @@
-const frappe = require('frappejs');
-const { round } = require('frappejs/utils/numberFormat');
+import frappe from 'frappejs';
+import { round } from 'frappejs/utils/numberFormat';
 
-module.exports = class LedgerPosting {
+export default class LedgerPosting {
   constructor({ reference, party, date, description }) {
     this.reference = reference;
     this.party = party;

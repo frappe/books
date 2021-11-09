@@ -1,4 +1,4 @@
-module.exports = async function generateTaxes(country) {
+export default async function generateTaxes(country) {
   if (country === 'India') {
     const GSTs = {
       GST: [28, 18, 12, 6, 5, 3, 0.25, 0],

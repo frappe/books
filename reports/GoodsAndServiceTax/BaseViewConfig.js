@@ -1,4 +1,6 @@
-module.exports = {
+import ExportWizard from '../../src/components/ExportWizard';
+
+export default {
   filterFields: [
     {
       fieldtype: 'Select',
@@ -62,7 +64,7 @@ module.exports = {
             title: `Export ${title}`,
             noFooter: true
           },
-          component: require('../../src/components/ExportWizard').default,
+          component: ExportWizard,
           props: await getReportDetails()
         });
       }

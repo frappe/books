@@ -1,4 +1,4 @@
-const format = {
+export default {
   gstin: '',
   ret_period: '',
   inward_sup: {
@@ -384,7 +384,3 @@ function generateHTML(data) {
 
   return template;
 }
-
-module.exports = {
-  format
-};
