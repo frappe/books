@@ -1,11 +1,28 @@
 import frappe from 'frappejs';
-import migrate from 'frappejs/model/migrate';
+import runPatches from 'frappejs/model/runPatches';
 import patchesTxt from '../patches/patches.txt';
 const requirePatch = require.context('../patches', true, /\w+\.(js)$/);
 
 export default async function runMigrate() {
-  let patchOrder = patchesTxt.split('\n');
-  let allPatches = {};
+  if (await canRunPatches()) {
+    const patchOrder = patchesTxt.split('\n');
+    const allPatches = getAllPatches();
+    await runPatches(allPatches, patchOrder);
+  }
+  await frappe.db.migrate();
+}
+
+async function canRunPatches() {
+  return (
+    (await frappe.db
+      .knex('sqlite_master')
+      .where({ type: 'table', name: 'PatchRun' })
+      .select('name').length) > 0
+  );
+}
+
+async function getAllPatches() {
+  const allPatches = {};
   requirePatch.keys().forEach((fileName) => {
     if (fileName === './index.js') return;
     let method;
@@ -20,6 +37,5 @@ export default async function runMigrate() {
       allPatches[fileName] = method;
     }
   });
-  await migrate(allPatches, patchOrder);
-  await frappe.db.migrate();
-};
+  return allPatches;
+}
