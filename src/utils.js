@@ -26,7 +26,10 @@ export async function createNewDatabase() {
   }
 
   if (!filePath.endsWith('.db')) {
-    filePath = filePath + '.db';
+    showMessageDialog({
+      message: "Please select a filename ending with '.db'.",
+    });
+    return '';
   }
 
   if (fs.existsSync(filePath)) {
