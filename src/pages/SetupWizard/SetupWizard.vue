@@ -65,6 +65,10 @@ import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
 import setupCompany from './setupCompany';
 import Popover from '@/components/Popover';
+import config from '@/config';
+import path from 'path';
+import fs from 'fs';
+import { connectToLocalDatabase } from '@/utils';
 
 import {
   getErrorMessage,
@@ -121,22 +125,29 @@ export default {
         showMessageDialog({ message: this._('Please fill all values') });
         return;
       }
+
       try {
         this.loading = true;
         await setupCompany(this.doc);
         this.$emit('setup-complete');
       } catch (e) {
         this.loading = false;
-        console.log(e, this.doc);
         if (e.type === frappe.errors.DuplicateEntryError) {
-          // TODO: Add option to overwrite file from here.
-          const message = this._(
-            'Records already exist in the db. Please create a new database file and try again.'
-          );
-          showMessageDialog({ message });
+          await this.renameDbFileAndRerunSetup();
         } else {
           handleErrorWithDialog(e, this.doc);
         }
+      }
+    },
+    async renameDbFileAndRerunSetup() {
+      const filePath = config.get('lastSelectedFilePath');
+      renameDbFile(filePath);
+      frappe.removeFromCache('AccountingSettings', 'AccountingSettings');
+      delete frappe.AccountingSettings;
+      const connectionSuccess = await connectToLocalDatabase(filePath);
+      if (connectionSuccess) {
+        await setupCompany(this.doc);
+        this.$emit('setup-complete');
       }
     },
   },
@@ -152,4 +163,14 @@ export default {
     },
   },
 };
+
+function renameDbFile(filePath) {
+  const dirname = path.dirname(filePath);
+  const basename = path.basename(filePath);
+  const backupPath = path.join(dirname, `_${basename}`);
+  if (fs.existsSync(backupPath)) {
+    fs.unlinkSync(backupPath);
+  }
+  fs.renameSync(filePath, backupPath);
+}
 </script>

@@ -31,8 +31,6 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
   for (let entry of validEntries) {
     const { outStandingAmount, creditNoteAmount } = getOutstandingAmount(entry);
 
-    console.log(outStandingAmount);
-
     if (outStandingAmount > 0.1 / 10) {
       const row = {
         date: entry.date,
