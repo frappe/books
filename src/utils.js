@@ -16,38 +16,24 @@ export async function createNewDatabase() {
     defaultPath: 'frappe-books.db',
   };
 
-  let { filePath } = await ipcRenderer.invoke(
+  let { canceled, filePath } = await ipcRenderer.invoke(
     IPC_ACTIONS.GET_SAVE_FILEPATH,
     options
   );
-  if (filePath) {
-    if (!filePath.endsWith('.db')) {
-      filePath = filePath + '.db';
-    }
-    if (fs.existsSync(filePath)) {
-      showMessageDialog({
-        // prettier-ignore
-        message: _('A file exists with the same name and it will be overwritten. Are you sure you want to continue?'),
-        buttons: [
-          {
-            label: _('Overwrite'),
-            action() {
-              fs.unlinkSync(filePath);
-              return filePath;
-            },
-          },
-          {
-            label: _('Cancel'),
-            action() {
-              return '';
-            },
-          },
-        ],
-      });
-    } else {
-      return filePath;
-    }
+
+  if (canceled || filePath.length === 0) {
+    return '';
   }
+
+  if (!filePath.endsWith('.db')) {
+    filePath = filePath + '.db';
+  }
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+
+  return filePath;
 }
 
 export async function loadExistingDatabase() {
@@ -67,30 +53,31 @@ export async function loadExistingDatabase() {
   }
 }
 
-export async function connectToLocalDatabase(filepath) {
-  if (!filepath) {
+export async function connectToLocalDatabase(filePath) {
+  if (!filePath) {
     return false;
   }
 
   frappe.login('Administrator');
   try {
     frappe.db = new SQLite({
-      dbPath: filepath,
+      dbPath: filePath,
     });
     await frappe.db.connect();
   } catch (error) {
     return false;
   }
+
   await migrate();
   await postStart();
 
   // set file info in config
   let files = config.get('files') || [];
-  if (!files.find((file) => file.filePath === filepath)) {
+  if (!files.find((file) => file.filePath === filePath)) {
     files = [
       {
         companyName: frappe.AccountingSettings.companyName,
-        filePath: filepath,
+        filePath: filePath,
       },
       ...files,
     ];
@@ -98,7 +85,7 @@ export async function connectToLocalDatabase(filepath) {
   }
 
   // set last selected file
-  config.set('lastSelectedFilePath', filepath);
+  config.set('lastSelectedFilePath', filePath);
   return true;
 }
 

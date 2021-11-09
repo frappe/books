@@ -139,7 +139,7 @@ export default {
     };
   },
   mounted() {
-    this.files = config.get('files', []).filter(({filepath}) => fs.existsSync(filepath));
+    this.files = config.get('files', []).filter(({filePath}) => fs.existsSync(filePath));
     this.showFiles = this.files.length > 0;
   },
   methods: {
@@ -158,6 +158,10 @@ export default {
       await this.connectToDatabase(file.filePath);
     },
     async connectToDatabase(filePath) {
+      if (!filePath) {
+        return;
+      }
+
       this.loadingDatabase = true;
       const connectionSuccess = await connectToLocalDatabase(filePath);
       this.loadingDatabase = false;
