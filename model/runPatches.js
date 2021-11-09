@@ -1,20 +1,20 @@
 const frappe = require('frappejs');
 
-module.exports = async function migrate(allPatches, patchOrder) {
+module.exports = async function runPatches(allPatches, patchOrder) {
   let executedPatchRuns = [];
   try {
     executedPatchRuns = (
       await frappe.db.getAll({ doctype: 'PatchRun', fields: ['name'] })
-    ).map(d => d.name);
+    ).map((d) => d.name);
   } catch (error) {}
 
   let patchRunOrder = patchOrder
-    .map(text => {
+    .map((text) => {
       let [patch] = text.split(' ');
       if (text && patch) {
         return {
           fileName: text,
-          method: allPatches[patch]
+          method: allPatches[patch],
         };
       }
     })

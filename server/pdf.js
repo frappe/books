@@ -5,18 +5,17 @@ const { getTmpDir } = require('frappejs/server/utils');
 const { getHTML } = require('frappejs/common/print');
 const { getRandomString } = require('frappejs/utils');
 
-async function makePDF(html, filepath) {
+async function makePDF(html, filePath) {
   const puppeteer = require('puppeteer-core');
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.setContent(html);
   await page.addStyleTag({
-    url:
-      'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css'
+    url: 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css',
   });
   await page.pdf({
-    path: filepath,
-    format: 'A4'
+    path: filePath,
+    format: 'A4',
   });
   await browser.close();
 }
@@ -31,19 +30,19 @@ async function handlePDFRequest(req, res) {
   const { doctype, name } = args;
   const html = await getHTML(doctype, name);
 
-  const filepath = path.join(
+  const filePath = path.join(
     getTmpDir(),
     `frappe-pdf-${getRandomString()}.pdf`
   );
-  await makePDF(html, filepath);
+  await makePDF(html, filePath);
 
-  const file = fs.createReadStream(filepath);
-  const stat = fs.statSync(filepath);
+  const file = fs.createReadStream(filePath);
+  const stat = fs.statSync(filePath);
   res.setHeader('Content-Length', stat.size);
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader(
     'Content-Disposition',
-    `attachment; filename=${path.basename(filepath)}`
+    `attachment; filename=${path.basename(filePath)}`
   );
   file.pipe(res);
 }
