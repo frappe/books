@@ -64,7 +64,6 @@ export default {
             return ['fullName'];
         },
         getRowHTML(list, data) {
-            console.log(list, data);
             return `<div class="col-11">${list.getNameHTML(data)}</div>`;
         }
     },
