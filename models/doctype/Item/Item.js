@@ -62,10 +62,7 @@ export default {
         }
 
         const accountExists = await frappe.db.exists('Account', accountName);
-        if (!accountExists) {
-          return '';
-        }
-        return accountName;
+        return accountExists ? accountName : '';
       },
     },
     {

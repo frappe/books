@@ -11,22 +11,22 @@ export default {
       label: 'Name',
       fieldtype: 'Data',
       required: 1,
-      placeholder: 'Full Name'
+      placeholder: 'Full Name',
     },
     {
       fieldname: 'image',
       label: 'Image',
-      fieldtype: 'AttachImage'
+      fieldtype: 'AttachImage',
     },
     {
       fieldname: 'customer',
       label: 'Customer',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'supplier',
       label: 'Supplier',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'defaultAccount',
@@ -36,22 +36,23 @@ export default {
       getFilters: (query, doc) => {
         return {
           isGroup: 0,
-          accountType: doc.customer ? 'Receivable' : 'Payable'
+          accountType: doc.customer ? 'Receivable' : 'Payable',
         };
       },
-      formula: doc => {
-        if (doc.customer) {
-          return 'Debtors';
-        }
+      async formula(doc) {
+        let accountName = 'Debtors'; // if Party is a Customer
         if (doc.supplier) {
-          return 'Creditors';
+          accountName = 'Creditors';
         }
-      }
+
+        const accountExists = await frappe.db.exists('Account', accountName);
+        return accountExists ? accountName : '';
+      },
     },
     {
       fieldname: 'outstandingAmount',
       label: 'Outstanding Amount',
-      fieldtype: 'Currency'
+      fieldtype: 'Currency',
     },
     {
       fieldname: 'currency',
@@ -59,7 +60,7 @@ export default {
       fieldtype: 'Link',
       target: 'Currency',
       placeholder: 'INR',
-      formula: () => frappe.AccountingSettings.currency
+      formula: () => frappe.AccountingSettings.currency,
     },
     {
       fieldname: 'email',
@@ -67,8 +68,8 @@ export default {
       fieldtype: 'Data',
       placeholder: 'john@doe.com',
       validate: {
-        type: 'email'
-      }
+        type: 'email',
+      },
     },
     {
       fieldname: 'phone',
@@ -76,8 +77,8 @@ export default {
       fieldtype: 'Data',
       placeholder: 'Phone',
       validate: {
-        type: 'phone'
-      }
+        type: 'phone',
+      },
     },
     {
       fieldname: 'address',
@@ -85,27 +86,27 @@ export default {
       fieldtype: 'Link',
       target: 'Address',
       placeholder: _('Click to create'),
-      inline: true
+      inline: true,
     },
     {
       fieldname: 'addressDisplay',
       label: 'Address Display',
       fieldtype: 'Text',
       readOnly: true,
-      formula: doc => {
+      formula: (doc) => {
         if (doc.address) {
           return doc.getFrom('Address', doc.address, 'addressDisplay');
         }
-      }
+      },
     },
     {
       fieldname: 'gstin',
       label: 'GSTIN No.',
       fieldtype: 'Data',
-      hidden: form => {
+      hidden: (form) => {
         return form.gstType === 'Registered Regular' ? 0 : 1;
-      }
-    }
+      },
+    },
   ],
 
   quickEditFields: [
@@ -114,6 +115,6 @@ export default {
     'address',
     'defaultAccount',
     'currency',
-    'gstin'
-  ]
+    'gstin',
+  ],
 };
