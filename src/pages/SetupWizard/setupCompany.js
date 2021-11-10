@@ -87,7 +87,6 @@ async function setupChartOfAccounts(bankName, country) {
     method: 'import-coa',
   });
   const parentAccount = await getBankAccountParentName(country);
-  console.log('parent account gonna be', parentAccount, ` for ${country} `);
   const docObject = {
     doctype: 'Account',
     name: bankName,
