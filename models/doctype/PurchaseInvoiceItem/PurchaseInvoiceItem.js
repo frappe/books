@@ -40,8 +40,9 @@ export default {
       fieldtype: 'Currency',
       required: 1,
       formula: async (row, doc) => {
-        let baseRate = await doc.getFrom('Item', row.item, 'rate');
-        return baseRate / doc.exchangeRate;
+        const baseRate = (await doc.getFrom('Item', row.item, 'rate')) || 0;
+        const exchangeRate = doc.exchangeRate ?? 1;
+        return baseRate / exchangeRate;
       },
       getCurrency: (row, doc) => doc.currency
     },
