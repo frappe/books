@@ -1,176 +1,176 @@
 {
-    "country_code": "in",
-    "name": "India - Chart of Accounts",
-    "tree": {
-        "Application of Funds (Assets)": {
-            "Current Assets": {
-                "Accounts Receivable": {
-                    "Debtors": {
-                        "is_group": 0,
-                        "account_type": "Receivable"
-                    }
-                },
-                "Bank Accounts": {
-                    "account_type": "Bank",
-                    "is_group": 1
-                },
-                "Cash In Hand": {
-                    "Cash": {
-                        "account_type": "Cash"
-                    },
-                    "account_type": "Cash"
-                },
-                "Loans and Advances (Assets)": {
-                    "is_group": 1
-                },
-                "Securities and Deposits": {
-                    "Earnest Money": {}
-                },
-                "Stock Assets": {
-                    "Stock In Hand": {
-                        "account_type": "Stock"
-                    },
-                    "account_type": "Stock"
-                },
-                "Tax Assets": {
-                    "is_group": 1
-                }
-            },
-            "Fixed Assets": {
-                "Capital Equipments": {
-                    "account_type": "Fixed Asset"
-                },
-                "Electronic Equipments": {
-                    "account_type": "Fixed Asset"
-                },
-                "Furnitures and Fixtures": {
-                    "account_type": "Fixed Asset"
-                },
-                "Office Equipments": {
-                    "account_type": "Fixed Asset"
-                },
-                "Plants and Machineries": {
-                    "account_type": "Fixed Asset"
-                },
-                "Buildings": {
-                    "account_type": "Fixed Asset"
-                },
-                "Accumulated Depreciations": {
-                    "account_type": "Accumulated Depreciation"
-                }
-            },
-            "Investments": {
-                "is_group": 1
-            },
-            "Temporary Accounts": {
-                "Temporary Opening": {
-                    "account_type": "Temporary"
-                }
-            },
-            "root_type": "Asset"
+  "countryCode": "in",
+  "name": "India - Chart of Accounts",
+  "tree": {
+    "Application of Funds (Assets)": {
+      "Current Assets": {
+        "Accounts Receivable": {
+          "Debtors": {
+            "isGroup": 0,
+            "accountType": "Receivable"
+          }
         },
-        "Expenses": {
-            "Direct Expenses": {
-                "Stock Expenses": {
-                    "Cost of Goods Sold": {
-                        "account_type": "Cost of Goods Sold"
-                    },
-                    "Expenses Included In Valuation": {
-                        "account_type": "Expenses Included In Valuation"
-                    },
-                    "Stock Adjustment": {
-                        "account_type": "Stock Adjustment"
-                    }
-                }
-            },
-            "Indirect Expenses": {
-                "Administrative Expenses": {},
-                "Commission on Sales": {},
-                "Depreciation": {
-                    "account_type": "Depreciation"
-                },
-                "Entertainment Expenses": {},
-                "Freight and Forwarding Charges": {
-                    "account_type": "Chargeable"
-                },
-                "Legal Expenses": {},
-                "Marketing Expenses": {},
-                "Miscellaneous Expenses": {},
-                "Office Maintenance Expenses": {},
-                "Office Rent": {},
-                "Postal Expenses": {},
-                "Print and Stationary": {},
-                "Rounded Off": {
-                    "account_type": "Round Off"
-                },
-                "Salary": {},
-                "Sales Expenses": {},
-                "Telephone Expenses": {},
-                "Travel Expenses": {},
-                "Utility Expenses": {},
-                "Write Off": {},
-                "Exchange Gain/Loss": {},
-                "Gain/Loss on Asset Disposal": {}
-            },
-            "root_type": "Expense"
+        "Bank Accounts": {
+          "accountType": "Bank",
+          "isGroup": 1
         },
-        "Income": {
-            "Direct Income": {
-                "Sales": {
-                    "account_type": "Income Account"
-                },
-                "Service": {
-                    "account_type": "Income Account"
-                },
-                "account_type": "Income Account"
-            },
-            "Indirect Income": {
-                "account_type": "Income Account",
-                "is_group": 1
-            },
-            "root_type": "Income"
+        "Cash In Hand": {
+          "Cash": {
+            "accountType": "Cash"
+          },
+          "accountType": "Cash"
         },
-        "Source of Funds (Liabilities)": {
-            "Capital Account": {
-                "Reserves and Surplus": {},
-                "Shareholders Funds": {}
-            },
-            "Current Liabilities": {
-                "Accounts Payable": {
-                    "Creditors": {
-                        "account_type": "Payable"
-                    },
-                    "Payroll Payable": {}
-                },
-                "Stock Liabilities": {
-                    "Stock Received But Not Billed": {
-                        "account_type": "Stock Received But Not Billed"
-                    }
-                },
-                "Duties and Taxes": {
-                    "TDS": {
-                        "account_type": "Tax"
-                    },
-                    "IGST": {
-                        "accountType": "Tax"
-                    },
-                    "CGST": {
-                        "accountType": "Tax"
-                    },
-                    "SGST": {
-                        "accountType": "Tax"
-                    },
-                    "Exempt": {
-                        "accountType": "Tax"
-                    }
-                },
-                "Loans (Liabilities)": {
-                    "Secured Loans": {},
-                    "Unsecured Loans": {},
-                    "Bank Overdraft Account": {}
-                }
-            },
-            "root_type": "Liability"
+        "Loans and Advances (Assets)": {
+          "isGroup": 1
+        },
+        "Securities and Deposits": {
+          "Earnest Money": {}
+        },
+        "Stock Assets": {
+          "Stock In Hand": {
+            "accountType": "Stock"
+          },
+          "accountType": "Stock"
+        },
+        "Tax Assets": {
+          "isGroup": 1
         }
+      },
+      "Fixed Assets": {
+        "Capital Equipments": {
+          "accountType": "Fixed Asset"
+        },
+        "Electronic Equipments": {
+          "accountType": "Fixed Asset"
+        },
+        "Furnitures and Fixtures": {
+          "accountType": "Fixed Asset"
+        },
+        "Office Equipments": {
+          "accountType": "Fixed Asset"
+        },
+        "Plants and Machineries": {
+          "accountType": "Fixed Asset"
+        },
+        "Buildings": {
+          "accountType": "Fixed Asset"
+        },
+        "Accumulated Depreciations": {
+          "accountType": "Accumulated Depreciation"
+        }
+      },
+      "Investments": {
+        "isGroup": 1
+      },
+      "Temporary Accounts": {
+        "Temporary Opening": {
+          "accountType": "Temporary"
+        }
+      },
+      "rootType": "Asset"
+    },
+    "Expenses": {
+      "Direct Expenses": {
+        "Stock Expenses": {
+          "Cost of Goods Sold": {
+            "accountType": "Cost of Goods Sold"
+          },
+          "Expenses Included In Valuation": {
+            "accountType": "Expenses Included In Valuation"
+          },
+          "Stock Adjustment": {
+            "accountType": "Stock Adjustment"
+          }
+        }
+      },
+      "Indirect Expenses": {
+        "Administrative Expenses": {},
+        "Commission on Sales": {},
+        "Depreciation": {
+          "accountType": "Depreciation"
+        },
+        "Entertainment Expenses": {},
+        "Freight and Forwarding Charges": {
+          "accountType": "Chargeable"
+        },
+        "Legal Expenses": {},
+        "Marketing Expenses": {},
+        "Miscellaneous Expenses": {},
+        "Office Maintenance Expenses": {},
+        "Office Rent": {},
+        "Postal Expenses": {},
+        "Print and Stationary": {},
+        "Rounded Off": {
+          "accountType": "Round Off"
+        },
+        "Salary": {},
+        "Sales Expenses": {},
+        "Telephone Expenses": {},
+        "Travel Expenses": {},
+        "Utility Expenses": {},
+        "Write Off": {},
+        "Exchange Gain/Loss": {},
+        "Gain/Loss on Asset Disposal": {}
+      },
+      "rootType": "Expense"
+    },
+    "Income": {
+      "Direct Income": {
+        "Sales": {
+          "accountType": "Income Account"
+        },
+        "Service": {
+          "accountType": "Income Account"
+        },
+        "accountType": "Income Account"
+      },
+      "Indirect Income": {
+        "accountType": "Income Account",
+        "isGroup": 1
+      },
+      "rootType": "Income"
+    },
+    "Source of Funds (Liabilities)": {
+      "Capital Account": {
+        "Reserves and Surplus": {},
+        "Shareholders Funds": {}
+      },
+      "Current Liabilities": {
+        "Accounts Payable": {
+          "Creditors": {
+            "accountType": "Payable"
+          },
+          "Payroll Payable": {}
+        },
+        "Stock Liabilities": {
+          "Stock Received But Not Billed": {
+            "accountType": "Stock Received But Not Billed"
+          }
+        },
+        "Duties and Taxes": {
+          "TDS": {
+            "accountType": "Tax"
+          },
+          "IGST": {
+            "accountType": "Tax"
+          },
+          "CGST": {
+            "accountType": "Tax"
+          },
+          "SGST": {
+            "accountType": "Tax"
+          },
+          "Exempt": {
+            "accountType": "Tax"
+          }
+        },
+        "Loans (Liabilities)": {
+          "Secured Loans": {},
+          "Unsecured Loans": {},
+          "Bank Overdraft Account": {}
+        }
+      },
+      "rootType": "Liability"
     }
+  }
 }

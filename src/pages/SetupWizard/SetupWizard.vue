@@ -133,6 +133,8 @@ export default {
       } catch (e) {
         this.loading = false;
         if (e.type === frappe.errors.DuplicateEntryError) {
+          console.log(e);
+          console.log('retrying');
           await this.renameDbFileAndRerunSetup();
         } else {
           handleErrorWithDialog(e, this.doc);
@@ -142,8 +144,15 @@ export default {
     async renameDbFileAndRerunSetup() {
       const filePath = config.get('lastSelectedFilePath');
       renameDbFile(filePath);
-      frappe.removeFromCache('AccountingSettings', 'AccountingSettings');
-      delete frappe.AccountingSettings;
+
+      // Clear cache to prevent doc changed error.
+      Object.keys(frappe.docs)
+        .filter((d) => frappe.docs[d][d] instanceof frappe.BaseMeta)
+        .forEach((d) => {
+          frappe.removeFromCache(d, d);
+          delete frappe[d];
+        });
+
       const connectionSuccess = await connectToLocalDatabase(filePath);
       if (connectionSuccess) {
         await setupCompany(this.doc);
