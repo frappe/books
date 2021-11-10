@@ -90,40 +90,40 @@ const viewConfig = {
       {
         label: 'Account',
         fieldtype: 'Link',
-        fieldname: 'account'
+        fieldname: 'account',
       },
       {
         label: 'Date',
         fieldtype: 'Date',
-        fieldname: 'date'
+        fieldname: 'date',
       },
       {
         label: 'Debit',
         fieldtype: 'Currency',
         fieldname: 'debit',
-        width: 0.5
+        width: 0.5,
       },
       {
         label: 'Credit',
         fieldtype: 'Currency',
         fieldname: 'credit',
-        width: 0.5
+        width: 0.5,
       },
       {
         label: 'Balance',
         fieldtype: 'Currency',
         fieldname: 'balance',
-        width: 0.5
+        width: 0.5,
       },
       {
         label: 'Reference Type',
         fieldtype: 'Data',
-        fieldname: 'referenceType'
+        fieldname: 'referenceType',
       },
       {
         label: 'Reference Name',
         fieldtype: 'Data',
-        fieldname: 'referenceName'
+        fieldname: 'referenceName',
       },
       {
         label: 'Party',
@@ -131,13 +131,8 @@ const viewConfig = {
         fieldname: 'party',
         component(cellValue) {
           return partyWithAvatar(cellValue);
-        }
+        },
       },
-      {
-        label: 'Description',
-        fieldtype: 'Data',
-        fieldname: 'description'
-      }
     ];
   }
 };
