@@ -1,5 +1,6 @@
 'use strict';
 
+import path from 'path';
 import electron, {
   app,
   dialog,
@@ -21,6 +22,8 @@ import theme from '@/theme';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
+const title = 'Frappe Books';
+const icon = path.resolve('./build/icon.png');
 
 // Global ref to prevent garbage collection.
 let mainWindow;
@@ -59,6 +62,8 @@ function createWindow() {
     backgroundColor: '#80FFFFFF',
     width,
     height,
+    icon,
+    title,
     webPreferences: {
       contextIsolation: false, // TODO: Switch this off
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
@@ -98,9 +103,11 @@ function createSettingsWindow(tab = 'General') {
     frame: isLinux,
     width: 460,
     height: 577,
+    icon,
+    title,
     backgroundColor: theme.backgroundColor.gray['200'],
     webPreferences: {
-      contextIsolation: false, // TODO: Switch this off
+      contextIsolation: false, // TODO: Switch this on
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
     },
     resizable: false,
@@ -187,6 +194,7 @@ ipcMain.handle(IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE, (event) => {
 
 ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (event, options) => {
   const window = event.sender.getOwnerBrowserWindow();
+  Object.assign(options, { icon });
   return await dialog.showMessageBox(window, options);
 });
 
@@ -226,6 +234,10 @@ app.on('ready', async () => {
   }
   createWindow();
 });
+
+if (isMac) {
+  app.dock.setIcon(icon);
+}
 
 /* ------------------------------
  * Register node#process messages
