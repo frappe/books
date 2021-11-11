@@ -101,9 +101,9 @@ async function setupChartOfAccounts(bankName, country) {
 async function setupRegionalChanges(country) {
   await generateTaxes(country);
   if (country === 'India') {
-    frappe.models.Party = await import(
-      '../../../models/doctype/Party/RegionalChanges'
-    );
+    frappe.models.Party = (
+      await import('../../../models/doctype/Party/RegionalChanges')
+    ).default;
     await frappe.db.migrate();
   }
 }

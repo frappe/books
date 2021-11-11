@@ -21,7 +21,17 @@
         <div class="flex">
           <div
             @click="newDatabase"
-            class="w-1/2 border rounded-xl flex flex-col items-center py-8 px-5 cursor-pointer hover:shadow"
+            class="
+              w-1/2
+              border
+              rounded-xl
+              flex flex-col
+              items-center
+              py-8
+              px-5
+              cursor-pointer
+              hover:shadow
+            "
           >
             <div
               class="w-14 h-14 rounded-full bg-blue-200 relative flex-center"
@@ -48,7 +58,18 @@
           </div>
           <div
             @click="existingDatabase"
-            class="ml-6 w-1/2 border rounded-xl flex flex-col items-center py-8 px-5 cursor-pointer hover:shadow"
+            class="
+              ml-6
+              w-1/2
+              border
+              rounded-xl
+              flex flex-col
+              items-center
+              py-8
+              px-5
+              cursor-pointer
+              hover:shadow
+            "
           >
             <div
               class="w-14 h-14 rounded-full bg-green-200 relative flex-center"
@@ -84,7 +105,17 @@
       <div v-if="showFiles">
         <div class="px-12 mt-6">
           <div
-            class="py-2 px-4 text-sm flex justify-between  items-center hover:bg-gray-100 cursor-pointer border-b"
+            class="
+              py-2
+              px-4
+              text-sm
+              flex
+              justify-between
+              items-center
+              hover:bg-gray-100
+              cursor-pointer
+              border-b
+            "
             :class="{ 'border-t': i === 0 }"
             v-for="(file, i) in files"
             :key="file.filePath"
@@ -125,7 +156,7 @@ import { DateTime } from 'luxon';
 import {
   createNewDatabase,
   loadExistingDatabase,
-  connectToLocalDatabase
+  connectToLocalDatabase,
 } from '@/utils';
 
 export default {
@@ -135,14 +166,24 @@ export default {
       loadingDatabase: false,
       fileSelectedFrom: null,
       showFiles: false,
-      files: []
+      files: [],
     };
   },
   mounted() {
-    this.files = config.get('files', []).filter(({filePath}) => fs.existsSync(filePath));
+    this.setFiles();
     this.showFiles = this.files.length > 0;
   },
+  watch: {
+    showFiles() {
+      this.setFiles();
+    },
+  },
   methods: {
+    setFiles() {
+      this.files = config
+        .get('files', [])
+        .filter(({ filePath }) => fs.existsSync(filePath));
+    },
     async newDatabase() {
       this.fileSelectedFrom = 'New File';
       let filePath = await createNewDatabase();
@@ -165,17 +206,19 @@ export default {
       this.loadingDatabase = true;
       const connectionSuccess = await connectToLocalDatabase(filePath);
       this.loadingDatabase = false;
-      
-      if(connectionSuccess) {
+
+      if (connectionSuccess) {
         this.$emit('database-connect');
       } else {
-        alert(frappe._("Please select an existing database or create a new one."))
+        alert(
+          frappe._('Please select an existing database or create a new one.')
+        );
       }
     },
     getFileLastModified(filePath) {
       let stats = fs.statSync(filePath);
       return DateTime.fromJSDate(stats.mtime).toRelative();
-    }
-  }
+    },
+  },
 };
 </script>
