@@ -1,6 +1,6 @@
 import frappe from 'frappejs';
 import utils from '../../../accounting/utils';
-import { openQuickEdit, getStatusAndColor } from '@/utils';
+import { openQuickEdit, getInvoiceStatus, statusColor } from '@/utils';
 import Badge from '@/components/Badge';
 
 export function getStatusColumn() {
@@ -9,7 +9,8 @@ export function getStatusColumn() {
     fieldname: 'status',
     fieldtype: 'Select',
     render(doc) {
-      const { status, color } = getStatusAndColor(doc);
+      const status = getInvoiceStatus(doc);
+      const color = statusColor[status];
       return {
         template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
         components: { Badge },

@@ -3,9 +3,7 @@
     <PageHeader>
       <BackLink slot="title" />
       <template slot="actions">
-        <Badge class="text-xs flex-center px-3 ml-2" :color="color">{{
-          status
-        }}</Badge>
+        <StatusBadge :status="status" />
         <Button
           v-if="doc.submitted"
           class="text-gray-900 text-xs ml-2"
@@ -175,16 +173,17 @@
 </template>
 <script>
 import frappe from 'frappejs';
-import Badge from '@/components/Badge';
+import StatusBadge from '@/components/StatusBadge';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '@/components/DropdownWithActions';
 import BackLink from '@/components/BackLink';
-import { openSettings, getStatusAndColor } from '@/utils';
 import {
+  openSettings,
   handleErrorWithDialog,
   getActionsForDocument,
+  getInvoiceStatus,
   showMessageDialog,
 } from '@/utils';
 
@@ -193,7 +192,7 @@ export default {
   props: ['doctype', 'name'],
   components: {
     PageHeader,
-    Badge,
+    StatusBadge,
     Button,
     FormControl,
     DropdownWithActions,
@@ -255,9 +254,10 @@ export default {
     if (query.values && query.doctype === this.doctype) {
       this.doc.set(this.$router.currentRoute.query.values);
     }
+    this.status = getInvoiceStatus(this.doc);
   },
   updated() {
-    this.setStatus();
+    this.status = getInvoiceStatus(this.doc);
   },
   methods: {
     async onSaveClick() {
@@ -303,11 +303,6 @@ export default {
       }
       let df = doc.meta.getField(fieldname);
       return frappe.format(doc[fieldname], df, doc);
-    },
-    setStatus() {
-      const { status, color } = getStatusAndColor(this.doc);
-      this.status = status;
-      this.color = color;
     },
   },
 };

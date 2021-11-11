@@ -11,6 +11,7 @@
       </div>
       <div class="flex items-stretch">
         <DropdownWithActions :actions="actions" />
+        <StatusBadge :status="status" />
         <Button
           :icon="true"
           @click="insertDoc"
@@ -78,6 +79,7 @@
 import frappe from 'frappejs';
 import { _ } from 'frappejs';
 import Button from '@/components/Button';
+import StatusBadge from '@/components/StatusBadge';
 import FormControl from '@/components/Controls/FormControl';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import DropdownWithActions from '@/components/DropdownWithActions';
@@ -93,6 +95,7 @@ export default {
   components: {
     Button,
     FormControl,
+    StatusBadge,
     TwoColumnForm,
     DropdownWithActions,
   },
@@ -120,6 +123,12 @@ export default {
   computed: {
     meta() {
       return frappe.getMeta(this.doctype);
+    },
+    status() {
+      if (this.doc && this.doc._notInserted) {
+        return "Draft";
+      }
+      return "";
     },
     fields() {
       return this.meta
