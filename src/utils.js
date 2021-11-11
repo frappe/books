@@ -265,3 +265,17 @@ export async function runWindowAction(name) {
   }
   return name;
 }
+
+export function getStatusAndColor(doc) {
+  let status = 'Unpaid';
+  let color = 'orange';
+  if (!doc.submitted) {
+    status = 'Draft';
+    color = 'gray';
+  }
+  if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
+    status = 'Paid';
+    color = 'green';
+  }
+  return { status, color };
+}
