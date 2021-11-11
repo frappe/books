@@ -60,9 +60,9 @@ export async function getCountryCOA() {
   const conCode = countries[doc.country].code;
 
   try {
-    const countryCoa = await import(
-      '../fixtures/verified/' + conCode + '.json'
-    );
+    const countryCoa = (
+      await import('../fixtures/verified/' + conCode + '.json')
+    ).default;
     return countryCoa.tree;
   } catch (e) {
     return standardCOA;
