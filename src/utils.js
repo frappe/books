@@ -317,3 +317,25 @@ export async function runWindowAction(name) {
   }
   return name;
 }
+
+export const statusColor = {
+  Draft: 'gray',
+  Unpaid: 'orange',
+  Paid: 'green',
+  Cacelled: 'red'
+};
+
+export function getInvoiceStatus(doc) {
+  let status = 'Unpaid';
+  if (!doc.submitted) {
+    status = 'Draft';
+  }
+  if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
+    status = 'Paid';
+  }
+  if (doc.cancelled === 1) {
+    color = 'red';
+    status = 'Cancelled';
+  }
+  return status;
+}

@@ -12,25 +12,25 @@ export default {
       label: 'Item Name',
       fieldtype: 'Data',
       placeholder: 'Item Name',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'image',
       label: 'Image',
-      fieldtype: 'AttachImage'
+      fieldtype: 'AttachImage',
     },
     {
       fieldname: 'description',
       label: 'Description',
       placeholder: 'Item Description',
-      fieldtype: 'Text'
+      fieldtype: 'Text',
     },
     {
       fieldname: 'unit',
       label: 'Unit Type',
       fieldtype: 'Select',
       default: 'Unit',
-      options: ['Unit', 'Kg', 'Gram', 'Hour', 'Day']
+      options: ['Unit', 'Kg', 'Gram', 'Hour', 'Day'],
     },
     {
       fieldname: 'itemType',
@@ -38,7 +38,7 @@ export default {
       placeholder: 'Sales',
       fieldtype: 'Select',
       default: 'Product',
-      options: ['Product', 'Service']
+      options: ['Product', 'Service'],
     },
     {
       fieldname: 'incomeAccount',
@@ -51,18 +51,19 @@ export default {
       getFilters: () => {
         return {
           isGroup: 0,
-          accountType: 'Income Account'
+          rootType: 'Income',
         };
       },
       formulaDependsOn: ['itemType'],
-      formula(doc) {
+      async formula(doc) {
+        let accountName = 'Service';
         if (doc.itemType === 'Product') {
-          return 'Sales';
+          accountName = 'Sales';
         }
-        if (doc.itemType === 'Service') {
-          return 'Service';
-        }
-      }
+
+        const accountExists = await frappe.db.exists('Account', accountName);
+        return accountExists ? accountName : '';
+      },
     },
     {
       fieldname: 'expenseAccount',
@@ -75,20 +76,27 @@ export default {
       getFilters: () => {
         return {
           isGroup: 0,
-          accountType: ['in', ['Cost of Goods Sold', 'Expense Account']]
+          rootType: 'Expense',
         };
       },
       formulaDependsOn: ['itemType'],
-      formula() {
-        return 'Cost of Goods Sold';
-      }
+      async formula() {
+        const cogs = await frappe.db
+          .knex('Account')
+          .where({ accountType: 'Cost of Goods Sold' });
+        if (cogs.length === 0) {
+          return '';
+        } else {
+          return cogs[0].name;
+        }
+      },
     },
     {
       fieldname: 'tax',
       label: 'Tax',
       fieldtype: 'Link',
       target: 'Tax',
-      placeholder: 'GST'
+      placeholder: 'GST',
     },
     {
       fieldname: 'rate',
@@ -101,36 +109,44 @@ export default {
             'Rate must be greater than 0'
           );
         }
-      }
-    }
+      },
+    },
   ],
-  quickEditFields: ['rate', 'unit', 'itemType', 'tax', 'description'],
+  quickEditFields: [
+    'rate',
+    'unit',
+    'itemType',
+    'tax',
+    'description',
+    'incomeAccount',
+    'expenseAccount',
+  ],
   actions: [
     {
       label: _('New Invoice'),
-      condition: doc => !doc.isNew(),
+      condition: (doc) => !doc.isNew(),
       action: async (doc, router) => {
         const invoice = await frappe.getNewDoc('SalesInvoice');
         invoice.append('items', {
           item: doc.name,
           rate: doc.rate,
-          tax: doc.tax
+          tax: doc.tax,
         });
         router.push(`/edit/SalesInvoice/${invoice.name}`);
-      }
+      },
     },
     {
       label: _('New Bill'),
-      condition: doc => !doc.isNew(),
+      condition: (doc) => !doc.isNew(),
       action: async (doc, router) => {
         const invoice = await frappe.getNewDoc('PurchaseInvoice');
         invoice.append('items', {
           item: doc.name,
           rate: doc.rate,
-          tax: doc.tax
+          tax: doc.tax,
         });
         router.push(`/edit/PurchaseInvoice/${invoice.name}`);
-      }
-    }
-  ]
+      },
+    },
+  ],
 };

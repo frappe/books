@@ -3,6 +3,7 @@
     <PageHeader>
       <BackLink slot="title" />
       <template slot="actions" v-if="doc">
+        <StatusBadge :status="status" />
         <DropdownWithActions class="ml-2" :actions="actions" />
         <Button
           v-if="doc._notInserted || doc._dirty"
@@ -38,7 +39,7 @@
                   :df="meta.getField('entryType')"
                   :value="doc.entryType"
                   placeholder="Entry Type"
-                  @change="value => doc.set('entryType', value)"
+                  @change="(value) => doc.set('entryType', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
                   :read-only="doc.submitted"
@@ -49,7 +50,7 @@
                   :df="meta.getField('date')"
                   :value="doc.date"
                   :placeholder="'Date'"
-                  @change="value => doc.set('date', value)"
+                  @change="(value) => doc.set('date', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
                   :read-only="doc.submitted"
@@ -61,7 +62,7 @@
                   :df="meta.getField('referenceNumber')"
                   :value="doc.referenceNumber"
                   :placeholder="'Reference Number'"
-                  @change="value => doc.set('referenceNumber', value)"
+                  @change="(value) => doc.set('referenceNumber', value)"
                   input-class="bg-gray-100 p-2 text-base"
                   :show-label="true"
                   :read-only="doc.submitted"
@@ -72,7 +73,7 @@
                   :df="meta.getField('referenceDate')"
                   :value="doc.date"
                   :placeholder="'Reference Date'"
-                  @change="value => doc.set('referenceDate', value)"
+                  @change="(value) => doc.set('referenceDate', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
                   :show-label="true"
                   :read-only="doc.submitted"
@@ -87,7 +88,7 @@
               :value="doc.accounts"
               :showHeader="true"
               :max-rows-before-overflow="4"
-              @change="value => doc.set('accounts', value)"
+              @change="(value) => doc.set('accounts', value)"
               :read-only="doc.submitted"
             />
           </div>
@@ -101,7 +102,7 @@
               <FormControl
                 :df="meta.getField('userRemark')"
                 :value="doc.userRemark"
-                @change="value => doc.set('userRemark', value)"
+                @change="(value) => doc.set('userRemark', value)"
                 :class="doc.submitted && 'pointer-events-none'"
                 :read-only="doc.submitted"
               />
@@ -125,6 +126,7 @@ import Button from '@/components/Button';
 import DropdownWithActions from '@/components/DropdownWithActions';
 import FormControl from '@/components/Controls/FormControl';
 import BackLink from '@/components/BackLink';
+import StatusBadge from '@/components/StatusBadge';
 import { handleErrorWithDialog, getActionsForDocument } from '@/utils';
 
 export default {
@@ -134,24 +136,32 @@ export default {
     PageHeader,
     Button,
     DropdownWithActions,
+    StatusBadge,
     FormControl,
-    BackLink
+    BackLink,
   },
   provide() {
     return {
       doctype: 'JournalEntry',
-      name: this.name
+      name: this.name,
     };
   },
   data() {
     return {
       doctype: 'JournalEntry',
-      doc: null
+      doc: null,
     };
   },
   computed: {
     meta() {
       return frappe.getMeta(this.doctype);
+    },
+    status() {
+      if (this.doc._notInserted || !this.doc.submitted) {
+        return 'Draft';
+      }
+
+      return '';
     },
     totalDebit() {
       let value = 0;
@@ -169,7 +179,7 @@ export default {
     },
     actions() {
       return getActionsForDocument(this.doc);
-    }
+    },
   },
   async mounted() {
     try {
@@ -192,7 +202,7 @@ export default {
     },
     handleError(e) {
       handleErrorWithDialog(e, this.doc);
-    }
-  }
+    },
+  },
 };
 </script>

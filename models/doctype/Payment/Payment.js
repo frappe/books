@@ -74,6 +74,7 @@ export default {
       placeholder: 'Payment Method',
       fieldtype: 'Select',
       options: ['', 'Cash', 'Cheque', 'Transfer'],
+      default: 'Cash',
       required: 1,
     },
     {

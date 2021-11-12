@@ -1,6 +1,7 @@
 import frappe from 'frappejs';
 import countryList from '~/fixtures/countryInfo.json';
 import generateTaxes from '../../../models/doctype/Tax/RegionalChanges';
+import { getCountryCOA } from '../../../accounting/importCOA';
 import config from '@/config';
 
 export default async function setupCompany(setupWizardValues) {
@@ -36,7 +37,7 @@ export default async function setupCompany(setupWizardValues) {
   });
 
   await setupGlobalCurrencies(countryList);
-  await setupChartOfAccounts(bankName);
+  await setupChartOfAccounts(bankName, country);
   await setupRegionalChanges(country);
   updateCompanyNameInConfig();
 
@@ -72,42 +73,37 @@ async function setupGlobalCurrencies(countries) {
       numberFormat: numberFormat || '#,###.##',
     };
 
-    const canCreate = await checkIfExactRecordAbsent(docObject);
-    if (canCreate) {
-      const doc = await frappe.newDoc(docObject);
-      promises.push(doc.insert());
+    const doc = checkAndCreateDoc(docObject);
+    if (doc) {
+      promises.push(doc);
       queue.push(currency);
     }
   }
   return Promise.all(promises);
 }
 
-async function setupChartOfAccounts(bankName) {
+async function setupChartOfAccounts(bankName, country) {
   await frappe.call({
     method: 'import-coa',
   });
-
+  const parentAccount = await getBankAccountParentName(country);
   const docObject = {
     doctype: 'Account',
     name: bankName,
     rootType: 'Asset',
-    parentAccount: 'Bank Accounts',
+    parentAccount,
     accountType: 'Bank',
     isGroup: 0,
   };
-
-  if (await checkIfExactRecordAbsent(docObject)) {
-    const accountDoc = await frappe.newDoc(docObject);
-    accountDoc.insert();
-  }
+  await checkAndCreateDoc(docObject);
 }
 
 async function setupRegionalChanges(country) {
   await generateTaxes(country);
   if (country === 'India') {
-    frappe.models.Party = await import(
-      '../../../models/doctype/Party/RegionalChanges'
-    );
+    frappe.models.Party = (
+      await import('../../../models/doctype/Party/RegionalChanges')
+    ).default;
     await frappe.db.migrate();
   }
 }
@@ -146,4 +142,34 @@ export async function checkIfExactRecordAbsent(docObject) {
   }
 
   return false;
+}
+
+async function checkAndCreateDoc(docObject) {
+  const canCreate = await checkIfExactRecordAbsent(docObject);
+  if (!canCreate) {
+    return;
+  }
+
+  const doc = await frappe.newDoc(docObject);
+  return doc.insert();
+}
+
+async function getBankAccountParentName(country) {
+  const parentBankAccount = await frappe.db
+    .knex('Account')
+    .where({ isGroup: true, accountType: 'Bank' });
+
+  if (parentBankAccount.length === 0) {
+    // This should not happen if the fixtures are correct.
+    return 'Bank Accounts';
+  } else if (parentBankAccount.length > 1) {
+    switch (country) {
+      case 'Indonesia':
+        return 'Bank Rupiah - 1121.000';
+      default:
+        break;
+    }
+  }
+
+  return parentBankAccount[0].name;
 }

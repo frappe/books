@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template slot="title" class="font-medium">{{
+      <template slot="title">{{
         _('Top Expenses')
       }}</template>
       <PeriodSelector
