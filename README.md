@@ -2,7 +2,7 @@
 
 ![Frappe Books logo](.github/logo.png)
 
-# Frappe Books
+---
 
 [![Build Status](https://travis-ci.com/frappe/books.svg?branch=master)](https://travis-ci.com/frappe/books)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/frappe/books)](https://github.com/frappe/books/releases)
