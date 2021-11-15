@@ -322,7 +322,7 @@ export const statusColor = {
   Draft: 'gray',
   Unpaid: 'orange',
   Paid: 'green',
-  Cacelled: 'red'
+  Cancelled: 'red',
 };
 
 export function getInvoiceStatus(doc) {
@@ -334,7 +334,6 @@ export function getInvoiceStatus(doc) {
     status = 'Paid';
   }
   if (doc.cancelled === 1) {
-    color = 'red';
     status = 'Cancelled';
   }
   return status;
