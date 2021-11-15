@@ -69,6 +69,9 @@ export default {
     },
     appVersion() {
       return remote.app.getVersion();
+    },
+    currentRoute() {
+      return this.$route.fullPath;
     }
   },
   components: {
@@ -122,16 +125,9 @@ export default {
       }
     },
     routeTo(route) {
-      this.$router.push(route).catch(err => {
-        if (
-          err.name !== 'NavigationDuplicated' &&
-          !err.message.includes(
-            'Avoided redundant navigation to current location'
-          )
-        ) {
-          throw err;
-        }
-      });
+      if (route !== this.currentRoute) {
+        this.$router.push(route);
+      }
     }
   }
 };
