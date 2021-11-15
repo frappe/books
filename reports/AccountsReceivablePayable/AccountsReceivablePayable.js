@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
-module.exports = class AccountsReceivablePayable {
+export default class AccountsReceivablePayable {
   async run(reportType, { date }) {
     const rows = await getReceivablePayable({
       reportType,
@@ -30,8 +30,6 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
 
   for (let entry of validEntries) {
     const { outStandingAmount, creditNoteAmount } = getOutstandingAmount(entry);
-
-    console.log(outStandingAmount);
 
     if (outStandingAmount > 0.1 / 10) {
       const row = {

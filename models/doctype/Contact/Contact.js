@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "name": "Contact",
     "doctype": "DocType",
     "isSingle": 0,
@@ -64,7 +64,6 @@ module.exports = {
             return ['fullName'];
         },
         getRowHTML(list, data) {
-            console.log(list, data);
             return `<div class="col-11">${list.getNameHTML(data)}</div>`;
         }
     },
@@ -78,4 +77,4 @@ module.exports = {
             ]
         }
     ]
-}
+};

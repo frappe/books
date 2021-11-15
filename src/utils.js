@@ -2,7 +2,8 @@ import frappe from 'frappejs';
 import fs from 'fs';
 import { _ } from 'frappejs/utils';
 import migrate from './migrate';
-import { remote, shell, ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
+import { IPC_MESSAGES, IPC_ACTIONS } from './messages';
 import SQLite from 'frappejs/backends/sqlite';
 import postStart from '../server/postStart';
 import router from '@/router';
@@ -12,88 +13,99 @@ import config from '@/config';
 export async function createNewDatabase() {
   const options = {
     title: _('Select folder'),
-    defaultPath: 'frappe-books.db'
+    defaultPath: 'frappe-books.db',
   };
 
-  let { filePath } = await remote.dialog.showSaveDialog(options);
-  if (filePath) {
-    if (!filePath.endsWith('.db')) {
-      filePath = filePath + '.db';
-    }
-    if (fs.existsSync(filePath)) {
-      showMessageDialog({
-        // prettier-ignore
-        message: _('A file exists with the same name and it will be overwritten. Are you sure you want to continue?'),
-        buttons: [
-          {
-            label: _('Overwrite'),
-            action() {
-              fs.unlinkSync(filePath);
-              return filePath;
-            }
-          },
-          { label: _('Cancel'), action() {} }
-        ]
-      });
-    } else {
-      return filePath;
-    }
+  let { canceled, filePath } = await ipcRenderer.invoke(
+    IPC_ACTIONS.GET_SAVE_FILEPATH,
+    options
+  );
+
+  if (canceled || filePath.length === 0) {
+    return '';
   }
+
+  if (!filePath.endsWith('.db')) {
+    showMessageDialog({
+      message: "Please select a filename ending with '.db'.",
+    });
+    return '';
+  }
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+
+  return filePath;
 }
 
 export async function loadExistingDatabase() {
   const options = {
     title: _('Select file'),
     properties: ['openFile'],
-    filters: [{ name: 'SQLite DB File', extensions: ['db'] }]
+    filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
   };
 
-  let { filePaths } = await remote.dialog.showOpenDialog(options);
+  const { filePaths } = await ipcRenderer.invoke(
+    IPC_ACTIONS.GET_OPEN_FILEPATH,
+    options
+  );
 
   if (filePaths && filePaths[0]) {
     return filePaths[0];
   }
 }
 
-export async function connectToLocalDatabase(filepath) {
+export async function connectToLocalDatabase(filePath) {
+  if (!filePath) {
+    return false;
+  }
+
   frappe.login('Administrator');
-  frappe.db = new SQLite({
-    dbPath: filepath
-  });
-  await frappe.db.connect();
+  try {
+    frappe.db = new SQLite({
+      dbPath: filePath,
+    });
+    await frappe.db.connect();
+  } catch (error) {
+    return false;
+  }
+
   await migrate();
   await postStart();
 
   // set file info in config
   let files = config.get('files') || [];
-  if (!files.find(file => file.filePath === filepath)) {
+  if (!files.find((file) => file.filePath === filePath)) {
     files = [
       {
         companyName: frappe.AccountingSettings.companyName,
-        filePath: filepath
+        filePath: filePath,
       },
-      ...files
+      ...files,
     ];
     config.set('files', files);
   }
 
   // set last selected file
-  config.set('lastSelectedFilePath', filepath);
+  config.set('lastSelectedFilePath', filePath);
+  return true;
 }
 
 export async function showMessageDialog({
   message,
   description,
-  buttons = []
+  buttons = [],
 }) {
-  let buttonLabels = buttons.map(a => a.label);
-  const { response } = await remote.dialog.showMessageBox(
-    remote.getCurrentWindow(),
-    {
-      message,
-      detail: description,
-      buttons: buttonLabels
-    }
+  const options = {
+    message,
+    detail: description,
+    buttons: buttons.map((a) => a.label),
+  };
+
+  const { response } = await ipcRenderer.invoke(
+    IPC_ACTIONS.GET_DIALOG_RESPONSE,
+    options
   );
 
   let button = buttons[response];
@@ -103,11 +115,11 @@ export async function showMessageDialog({
 }
 
 export function deleteDocWithPrompt(doc) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     showMessageDialog({
       message: _('Are you sure you want to delete {0} "{1}"?', [
         doc.doctype,
-        doc.name
+        doc.name,
       ]),
       description: _('This action is permanent'),
       buttons: [
@@ -117,18 +129,18 @@ export function deleteDocWithPrompt(doc) {
             doc
               .delete()
               .then(() => resolve(true))
-              .catch(e => {
+              .catch((e) => {
                 handleErrorWithDialog(e, doc);
               });
-          }
+          },
         },
         {
           label: _('Cancel'),
           action() {
             resolve(false);
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
   });
 }
@@ -138,11 +150,11 @@ export function partyWithAvatar(party) {
     data() {
       return {
         imageURL: null,
-        label: null
+        label: null,
       };
     },
     components: {
-      Avatar
+      Avatar,
     },
     async mounted() {
       this.imageURL = await frappe.db.getValue('Party', party, 'image');
@@ -153,7 +165,7 @@ export function partyWithAvatar(party) {
         <Avatar class="flex-shrink-0" :imageURL="imageURL" :label="label" size="sm" />
         <span class="ml-2 truncate">{{ label }}</span>
       </div>
-    `
+    `,
   };
 }
 
@@ -173,20 +185,22 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
       name,
       hideFields,
       values: defaults,
-      lastRoute: currentRoute
-    }
+      lastRoute: currentRoute,
+    },
   });
 }
 
 export function getErrorMessage(e, doc) {
   let errorMessage = e.message || _('An error occurred');
-  if (e.type === frappe.errors.LinkValidationError) {
+  const { doctype, name } = doc;
+  const canElaborate = doctype && name;
+  if (e.type === frappe.errors.LinkValidationError && canElaborate) {
     errorMessage = _('{0} {1} is linked with existing records.', [
-      doc.doctype,
-      doc.name
+      doctype,
+      name,
     ]);
-  } else if (e.type === frappe.errors.DuplicateEntryError) {
-    errorMessage = _('{0} {1} already exists.', [doc.doctype, doc.name]);
+  } else if (e.type === frappe.errors.DuplicateEntryError && canElaborate) {
+    errorMessage = _('{0} {1} already exists.', [doctype, name]);
   }
   return errorMessage;
 }
@@ -197,69 +211,8 @@ export function handleErrorWithDialog(e, doc) {
   throw e;
 }
 
-// NOTE: a hack to find all the css from the current document and inject it to the print version
-// remove this if you are able to fix and get the default css loading on the page
-function injectCSS(contents) {
-  const styles = document.getElementsByTagName('style');
-
-  for (let style of styles) {
-    contents.insertCSS(style.innerHTML);
-  }
-}
-
-export async function makePDF(html, destination) {
-  const { BrowserWindow } = remote;
-
-  let printWindow = new BrowserWindow({
-    width: 595,
-    height: 842,
-    show: false,
-    webPreferences: {
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
-      enableRemoteModule: true
-    }
-  });
-
-  let webpackDevServerURL = remote.getGlobal('WEBPACK_DEV_SERVER_URL');
-  if (webpackDevServerURL) {
-    // Load the url of the dev server if in development mode
-    printWindow.loadURL(webpackDevServerURL + 'print');
-  } else {
-    // Load the index.html when not in development
-    printWindow.loadURL(`app://./print.html`);
-  }
-
-  printWindow.on('closed', () => {
-    printWindow = null;
-  });
-
-  const code = `
-    document.body.innerHTML = \`${html}\`;
-  `;
-
-  printWindow.webContents.executeJavaScript(code);
-
-  const printOptions = {
-    marginsType: 1, // no margin
-    pageSize: 'A4',
-    printBackground: true,
-    printBackgrounds: true,
-    printSelectionOnly: false
-  };
-  
-  const sleep = m => new Promise(r => setTimeout(r, m));
-  
-  printWindow.webContents.on('did-finish-load', async () => {
-    injectCSS(printWindow.webContents);
-    await sleep(1000);
-    printWindow.webContents.printToPDF(printOptions).then(data => {
-      printWindow.close();
-      fs.writeFile(destination, data, error => {
-        if (error) throw error;
-        return (shell.openItem(destination));
-      });
-    });
-  });
+export async function makePDF(html, savePath) {
+  ipcRenderer.invoke(IPC_ACTIONS.SAVE_HTML_AS_PDF, html, savePath);
 }
 
 export function getActionsForDocument(doc) {
@@ -267,24 +220,24 @@ export function getActionsForDocument(doc) {
 
   let deleteAction = {
     component: {
-      template: `<span class="text-red-700">{{ _('Delete') }}</span>`
+      template: `<span class="text-red-700">{{ _('Delete') }}</span>`,
     },
-    condition: doc => !doc.isNew() && !doc.submitted && !doc.meta.isSingle,
+    condition: (doc) => !doc.isNew() && !doc.submitted && !doc.meta.isSingle,
     action: () =>
-      deleteDocWithPrompt(doc).then(res => {
+      deleteDocWithPrompt(doc).then((res) => {
         if (res) {
           router.push(`/list/${doc.doctype}`);
         }
-      })
+      }),
   };
 
   let actions = [...(doc.meta.actions || []), deleteAction]
-    .filter(d => (d.condition ? d.condition(doc) : true))
-    .map(d => {
+    .filter((d) => (d.condition ? d.condition(doc) : true))
+    .map((d) => {
       return {
         label: d.label,
         component: d.component,
-        action: d.action.bind(this, doc, router)
+        action: d.action.bind(this, doc, router),
       };
     });
 
@@ -292,5 +245,40 @@ export function getActionsForDocument(doc) {
 }
 
 export function openSettings(tab = 'General') {
-  ipcRenderer.send('open-settings-window', tab);
+  ipcRenderer.send(IPC_MESSAGES.OPEN_SETTINGS, tab);
+}
+
+export async function runWindowAction(name) {
+  switch (name) {
+    case 'close':
+      ipcRenderer.send(IPC_MESSAGES.CLOSE_CURRENT_WINDOW);
+      break;
+    case 'minimize':
+      ipcRenderer.send(IPC_MESSAGES.MINIMIZE_CURRENT_WINDOW);
+      break;
+    case 'maximize':
+      const maximizing = await ipcRenderer.invoke(
+        IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW
+      );
+      name = maximizing ? name : 'unmaximize';
+      break;
+  }
+  return name;
+}
+
+export const statusColor = {
+  Draft: 'gray',
+  Unpaid: 'orange',
+  Paid: 'green',
+};
+
+export function getInvoiceStatus(doc) {
+  let status = 'Unpaid';
+  if (!doc.submitted) {
+    status = 'Draft';
+  }
+  if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
+    status = 'Paid';
+  }
+  return status;
 }

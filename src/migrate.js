@@ -1,16 +1,33 @@
-const frappe = require('frappejs');
-const migrate = require('frappejs/model/migrate');
-const patchesTxt = require('../patches/patches.txt').default;
+import frappe from 'frappejs';
+import runPatches from 'frappejs/model/runPatches';
+import patchesTxt from '../patches/patches.txt';
 const requirePatch = require.context('../patches', true, /\w+\.(js)$/);
 
-module.exports = async function runMigrate() {
-  let patchOrder = patchesTxt.split('\n');
-  let allPatches = {};
-  requirePatch.keys().forEach(fileName => {
+export default async function runMigrate() {
+  if (await canRunPatches()) {
+    const patchOrder = patchesTxt.split('\n');
+    const allPatches = getAllPatches();
+    await runPatches(allPatches, patchOrder);
+  }
+  await frappe.db.migrate();
+}
+
+async function canRunPatches() {
+  return (
+    (await frappe.db
+      .knex('sqlite_master')
+      .where({ type: 'table', name: 'PatchRun' })
+      .select('name').length) > 0
+  );
+}
+
+async function getAllPatches() {
+  const allPatches = {};
+  requirePatch.keys().forEach((fileName) => {
     if (fileName === './index.js') return;
     let method;
     try {
-      method = requirePatch(fileName);
+      method = requirePatch(fileName).default;
     } catch (error) {
       console.error(error);
       method = null;
@@ -20,6 +37,5 @@ module.exports = async function runMigrate() {
       allPatches[fileName] = method;
     }
   });
-  await migrate(allPatches, patchOrder);
-  await frappe.db.migrate();
-};
+  return allPatches;
+}

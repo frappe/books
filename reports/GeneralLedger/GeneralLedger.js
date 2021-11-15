@@ -1,4 +1,4 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
 class GeneralLedger {
   async run(params) {
@@ -84,4 +84,4 @@ class GeneralLedger {
   }
 }
 
-module.exports = GeneralLedger;
+export default GeneralLedger;

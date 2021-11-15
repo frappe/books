@@ -8,17 +8,17 @@
         <FormControl
           :df="meta.getField('companyLogo')"
           :value="doc.companyLogo"
-          @change="value => setValue('companyLogo', value)"
+          @change="(value) => setValue('companyLogo', value)"
         />
         <div class="ml-2">
           <FormControl
             ref="companyField"
             :df="meta.getField('companyName')"
             :value="doc.companyName"
-            @change="value => setValue('companyName', value)"
+            @change="(value) => setValue('companyName', value)"
             :input-class="
-              classes => [
-                'bg-transparent font-semibold text-xl text-white placeholder-blue-200 focus:outline-none focus:bg-blue-600 px-3 rounded py-1'
+              (classes) => [
+                'bg-transparent font-semibold text-xl text-white placeholder-blue-200 focus:outline-none focus:bg-blue-600 px-3 rounded py-1',
               ]
             "
             :autofocus="true"
@@ -28,10 +28,10 @@
               <FormControl
                 :df="meta.getField('email')"
                 :value="doc.email"
-                @change="value => setValue('email', value)"
+                @change="(value) => setValue('email', value)"
                 :input-class="
-                  classes => [
-                    'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1'
+                  (classes) => [
+                    'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1',
                   ]
                 "
               />
@@ -65,11 +65,15 @@ import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
 import setupCompany from './setupCompany';
 import Popover from '@/components/Popover';
+import config from '@/config';
+import path from 'path';
+import fs from 'fs';
+import { connectToLocalDatabase } from '@/utils';
 
 import {
   getErrorMessage,
   handleErrorWithDialog,
-  showMessageDialog
+  showMessageDialog,
 } from '@/utils';
 
 export default {
@@ -79,20 +83,20 @@ export default {
       doc: null,
       loading: false,
       valuesFilled: false,
-      emailError: null
+      emailError: null,
     };
   },
   provide() {
     return {
       doctype: 'SetupWizard',
-      name: 'SetupWizard'
+      name: 'SetupWizard',
     };
   },
   components: {
     TwoColumnForm,
     FormControl,
     Button,
-    Popover
+    Popover,
   },
   async mounted() {
     this.doc = await frappe.newDoc({ doctype: 'SetupWizard' });
@@ -103,7 +107,7 @@ export default {
   methods: {
     setValue(fieldname, value) {
       this.emailError = null;
-      this.doc.set(fieldname, value).catch(e => {
+      this.doc.set(fieldname, value).catch((e) => {
         // set error
         if (fieldname === 'email') {
           this.emailError = getErrorMessage(e, this.doc);
@@ -112,7 +116,7 @@ export default {
     },
     allValuesFilled() {
       let values = this.meta.quickEditFields.map(
-        fieldname => this.doc[fieldname]
+        (fieldname) => this.doc[fieldname]
       );
       return values.every(Boolean);
     },
@@ -121,15 +125,40 @@ export default {
         showMessageDialog({ message: this._('Please fill all values') });
         return;
       }
+
       try {
         this.loading = true;
         await setupCompany(this.doc);
         this.$emit('setup-complete');
       } catch (e) {
         this.loading = false;
-        handleErrorWithDialog(e, this.doc);
+        if (e.type === frappe.errors.DuplicateEntryError) {
+          console.log(e);
+          console.log('retrying');
+          await this.renameDbFileAndRerunSetup();
+        } else {
+          handleErrorWithDialog(e, this.doc);
+        }
       }
-    }
+    },
+    async renameDbFileAndRerunSetup() {
+      const filePath = config.get('lastSelectedFilePath');
+      renameDbFile(filePath);
+
+      // Clear cache to prevent doc changed error.
+      Object.keys(frappe.docs)
+        .filter((d) => frappe.docs[d][d] instanceof frappe.BaseMeta)
+        .forEach((d) => {
+          frappe.removeFromCache(d, d);
+          delete frappe[d];
+        });
+
+      const connectionSuccess = await connectToLocalDatabase(filePath);
+      if (connectionSuccess) {
+        await setupCompany(this.doc);
+        this.$emit('setup-complete');
+      }
+    },
   },
   computed: {
     meta() {
@@ -140,7 +169,17 @@ export default {
     },
     buttonText() {
       return this.loading ? this._('Setting Up...') : this._('Next');
-    }
-  }
+    },
+  },
 };
+
+function renameDbFile(filePath) {
+  const dirname = path.dirname(filePath);
+  const basename = path.basename(filePath);
+  const backupPath = path.join(dirname, `_${basename}`);
+  if (fs.existsSync(backupPath)) {
+    fs.unlinkSync(backupPath);
+  }
+  fs.renameSync(filePath, backupPath);
+}
 </script>

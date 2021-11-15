@@ -1,4 +1,4 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
 class SalesRegister {
   async run({ fromDate, toDate, customer }) {
@@ -52,4 +52,4 @@ class SalesRegister {
   }
 }
 
-module.exports = SalesRegister;
+export default SalesRegister;

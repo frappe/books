@@ -1,12 +1,21 @@
-# Frappe Books
+<div align="center" markdown="1">
+
+![Frappe Books logo](.github/logo.png)
+
+---
 
 [![Build Status](https://travis-ci.com/frappe/books.svg?branch=master)](https://travis-ci.com/frappe/books)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/frappe/books)](https://github.com/frappe/books/releases)
 ![](https://img.shields.io/badge/platform-mac%2C%20windows%2C%20linux-yellowgreen)
 
+
+
 Free Desktop book-keeping software for small-businesses and freelancers.
 
 <kbd><img src=".github/frappe-books-preview.png" alt="Frappe Books Preview" /></kbd>
+
+</div>
+
 
 ## Features
 

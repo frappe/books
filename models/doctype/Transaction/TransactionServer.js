@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
+import frappe from 'frappejs';
 
-module.exports = {
+export default {
   async getPayments() {
     let payments = await frappe.db.getAll({
       doctype: 'PaymentFor',

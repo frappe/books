@@ -11,6 +11,7 @@
       </div>
       <div class="flex items-stretch">
         <DropdownWithActions :actions="actions" />
+        <StatusBadge :status="status" />
         <Button
           :icon="true"
           @click="insertDoc"
@@ -26,10 +27,10 @@
           type="primary"
           v-if="
             meta &&
-              meta.isSubmittable &&
-              doc &&
-              !doc.submitted &&
-              !doc._notInserted
+            meta.isSubmittable &&
+            doc &&
+            !doc.submitted &&
+            !doc._notInserted
           "
           class="ml-2 text-white text-xs"
         >
@@ -43,7 +44,7 @@
           v-if="imageField"
           :df="imageField"
           :value="doc[imageField.fieldname]"
-          @change="value => valueChange(imageField, value)"
+          @change="(value) => valueChange(imageField, value)"
           size="small"
           class="mb-1"
           :letter-placeholder="
@@ -57,7 +58,7 @@
           v-if="titleField"
           :df="titleField"
           :value="doc[titleField.fieldname]"
-          @change="value => valueChange(titleField, value)"
+          @change="(value) => valueChange(titleField, value)"
           @input="setTitleSize"
         />
       </div>
@@ -78,10 +79,15 @@
 import frappe from 'frappejs';
 import { _ } from 'frappejs';
 import Button from '@/components/Button';
+import StatusBadge from '@/components/StatusBadge';
 import FormControl from '@/components/Controls/FormControl';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import DropdownWithActions from '@/components/DropdownWithActions';
-import { openQuickEdit, getActionsForDocument } from '@/utils';
+import {
+  openQuickEdit,
+  getActionsForDocument,
+  handleErrorWithDialog,
+} from '@/utils';
 
 export default {
   name: 'QuickEditForm',
@@ -89,8 +95,9 @@ export default {
   components: {
     Button,
     FormControl,
+    StatusBadge,
     TwoColumnForm,
-    DropdownWithActions
+    DropdownWithActions,
   },
   provide() {
     let vm = this;
@@ -99,7 +106,7 @@ export default {
       name: this.name,
       get doc() {
         return vm.doc;
-      }
+      },
     };
   },
   data() {
@@ -107,7 +114,7 @@ export default {
       doc: null,
       titleField: null,
       imageField: null,
-      statusText: null
+      statusText: null,
     };
   },
   async created() {
@@ -117,10 +124,16 @@ export default {
     meta() {
       return frappe.getMeta(this.doctype);
     },
+    status() {
+      if (this.doc && this.doc._notInserted) {
+        return "Draft";
+      }
+      return "";
+    },
     fields() {
       return this.meta
         .getQuickEditFields()
-        .filter(df => !(this.hideFields || []).includes(df.fieldname));
+        .filter((df) => !(this.hideFields || []).includes(df.fieldname));
     },
     actions() {
       return getActionsForDocument(this.doc);
@@ -130,7 +143,7 @@ export default {
         return null;
       }
       return this.meta.quickEditWidget(this.doc);
-    }
+    },
   },
   methods: {
     async fetchMetaAndDoc() {
@@ -165,7 +178,7 @@ export default {
         this.doc.once('afterRename', () => {
           openQuickEdit({
             doctype: this.doctype,
-            name: this.doc.name
+            name: this.doc.name,
           });
         });
         this.doc.on('beforeUpdate', () => {
@@ -186,8 +199,12 @@ export default {
     insertDoc() {
       this.$refs.form.insert();
     },
-    submitDoc() {
-      this.$refs.form.submit();
+    async submitDoc() {
+      try {
+        await this.$refs.form.submit();
+      } catch (e) {
+        this.statusText = null;
+      }
     },
     routeToPrevious() {
       this.$router.back();
@@ -202,7 +219,7 @@ export default {
         }
         input.size = valueLength;
       }
-    }
-  }
+    },
+  },
 };
 </script>

@@ -1,6 +1,6 @@
-const GSTR3B = require('./GSTR3BDocument');
+import GSTR3B from './GSTR3BDocument';
 
-module.exports = class GSTR3BServer extends GSTR3B {
+export default class GSTR3BServer extends GSTR3B {
   async validate() {
     if (this.month.length === 0 || this.year.length != 4) {
       frappe.call({

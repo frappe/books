@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   name: 'Color',
   doctype: 'DocType',
   fields: [

@@ -1,7 +1,7 @@
-const frappe = require('frappejs');
-const BaseDocument = require('frappejs/model/document');
+import frappe from 'frappejs';
+import BaseDocument from 'frappejs/model/document';
 
-module.exports = class Account extends BaseDocument {
+export default class Account extends BaseDocument {
   async validate() {
     if (!this.accountType && this.parentAccount) {
       this.accountType = await frappe.db.getValue(

@@ -3,6 +3,7 @@
     <PageHeader>
       <BackLink slot="title" />
       <template slot="actions">
+        <StatusBadge :status="status" />
         <Button
           v-if="doc.submitted"
           class="text-gray-900 text-xs ml-2"
@@ -75,8 +76,10 @@
                   :df="meta.getField(partyField.fieldname)"
                   :value="doc[partyField.fieldname]"
                   :placeholder="partyField.label"
-                  @change="value => doc.set(partyField.fieldname, value)"
-                  @new-doc="party => doc.set(partyField.fieldname, party.name)"
+                  @change="(value) => doc.set(partyField.fieldname, value)"
+                  @new-doc="
+                    (party) => doc.set(partyField.fieldname, party.name)
+                  "
                   :read-only="doc.submitted"
                 />
                 <FormControl
@@ -85,7 +88,7 @@
                   :df="meta.getField('account')"
                   :value="doc.account"
                   :placeholder="'Account'"
-                  @change="value => doc.set('account', value)"
+                  @change="(value) => doc.set('account', value)"
                   :read-only="doc.submitted"
                 />
               </div>
@@ -95,7 +98,7 @@
                   :df="meta.getField('date')"
                   :value="doc.date"
                   :placeholder="'Date'"
-                  @change="value => doc.set('date', value)"
+                  @change="(value) => doc.set('date', value)"
                   :read-only="doc.submitted"
                 />
               </div>
@@ -107,7 +110,7 @@
               :value="doc.items"
               :showHeader="true"
               :max-rows-before-overflow="4"
-              @change="value => doc.set('items', value)"
+              @change="(value) => doc.set('items', value)"
               :read-only="doc.submitted"
             />
           </div>
@@ -123,7 +126,7 @@
               :value="doc.terms"
               :show-label="true"
               input-class="bg-gray-100"
-              @change="value => doc.set('terms', value)"
+              @change="(value) => doc.set('terms', value)"
               :read-only="doc.submitted"
             />
           </div>
@@ -137,18 +140,27 @@
               v-for="tax in doc.taxes"
               :key="tax.name"
             >
-              <div>{{ tax.account }} ({{ tax.rate }}%)</div>
+              <div>{{ tax.account }}</div>
               <div>
                 {{
                   frappe.format(tax.amount, {
                     fieldtype: 'Currency',
-                    currency: doc.currency
+                    currency: doc.currency,
                   })
                 }}
               </div>
             </div>
             <div
-              class="flex pl-2 justify-between py-3 border-t text-green-600 font-semibold text-base"
+              class="
+                flex
+                pl-2
+                justify-between
+                py-3
+                border-t
+                text-green-600
+                font-semibold
+                text-base
+              "
             >
               <div>{{ _('Grand Total') }}</div>
               <div>{{ formattedValue('grandTotal') }}</div>
@@ -161,16 +173,18 @@
 </template>
 <script>
 import frappe from 'frappejs';
+import StatusBadge from '@/components/StatusBadge';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '@/components/DropdownWithActions';
 import BackLink from '@/components/BackLink';
-import { openSettings } from '@/utils';
 import {
+  openSettings,
   handleErrorWithDialog,
   getActionsForDocument,
-  showMessageDialog
+  getInvoiceStatus,
+  showMessageDialog,
 } from '@/utils';
 
 export default {
@@ -178,22 +192,25 @@ export default {
   props: ['doctype', 'name'],
   components: {
     PageHeader,
+    StatusBadge,
     Button,
     FormControl,
     DropdownWithActions,
-    BackLink
+    BackLink,
   },
   provide() {
     return {
       doctype: this.doctype,
-      name: this.name
+      name: this.name,
     };
   },
   data() {
     return {
       doc: null,
+      status: null,
+      color: null,
       printSettings: null,
-      companyName: null
+      companyName: null,
     };
   },
   computed: {
@@ -203,7 +220,7 @@ export default {
     partyField() {
       let fieldname = {
         SalesInvoice: 'customer',
-        PurchaseInvoice: 'supplier'
+        PurchaseInvoice: 'supplier',
       }[this.doctype];
       return this.meta.getField(fieldname);
     },
@@ -215,7 +232,7 @@ export default {
     },
     actions() {
       return getActionsForDocument(this.doc);
-    }
+    },
   },
   async mounted() {
     try {
@@ -237,12 +254,16 @@ export default {
     if (query.values && query.doctype === this.doctype) {
       this.doc.set(this.$router.currentRoute.query.values);
     }
+    this.status = getInvoiceStatus(this.doc);
+  },
+  updated() {
+    this.status = getInvoiceStatus(this.doc);
   },
   methods: {
     async onSaveClick() {
       await this.doc.set(
         'items',
-        this.doc.items.filter(row => row.item)
+        this.doc.items.filter((row) => row.item)
       );
       return this.doc.insertOrUpdate().catch(this.handleError);
     },
@@ -258,13 +279,13 @@ export default {
             label: this._('Submit'),
             action: () => {
               this.doc.submit().catch(this.handleError);
-            }
+            },
           },
           {
             label: this._('Cancel'),
-            action() {}
-          }
-        ]
+            action() {},
+          },
+        ],
       });
     },
     handleError(e) {
@@ -282,7 +303,7 @@ export default {
       }
       let df = doc.meta.getField(fieldname);
       return frappe.format(doc[fieldname], df, doc);
-    }
-  }
+    },
+  },
 };
 </script>

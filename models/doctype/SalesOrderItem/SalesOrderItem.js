@@ -1,6 +1,6 @@
-const model = require('frappejs/model');
-const QuotationItem = require('../QuotationItem/QuotationItem');
+import model from 'frappejs/model';
+import QuotationItem from '../QuotationItem/QuotationItem';
 
-module.exports = model.extend(QuotationItem, {
+export default model.extend(QuotationItem, {
     name: "SalesOrderItem"
 });
