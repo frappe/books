@@ -54,7 +54,7 @@ export function getActions(doctype) {
       }
     },
     {
-      label: 'Revert',
+      label: 'Cancel',
       condition: doc =>
         doc.submitted && doc.baseGrandTotal === doc.outstandingAmount,
       action(doc) {

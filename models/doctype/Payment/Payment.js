@@ -214,7 +214,7 @@ export default {
   ],
   actions: [
     {
-      label: 'Revert',
+      label: 'Cancel',
       condition: (doc) => doc.submitted,
       action(doc) {
         doc.revert();
