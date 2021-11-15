@@ -634,6 +634,7 @@ module.exports = class BaseDocument extends Observable {
   }
 
   async submit() {
+    this.cancelled = 0;
     await this.submitOrRevert(1);
   }
 
