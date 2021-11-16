@@ -60,7 +60,7 @@ import frappe from 'frappejs';
 import Row from '@/components/Row';
 import ListCell from './ListCell';
 import Avatar from '@/components/Avatar';
-import { openQuickEdit } from '@/utils';
+import { openQuickEdit, routeTo } from '@/utils';
 import Button from '@/components/Button';
 
 export default {
@@ -108,7 +108,7 @@ export default {
     },
     openForm(doc) {
       if (this.listConfig.formRoute) {
-        this.$router.push(this.listConfig.formRoute(doc.name));
+        routeTo(this.listConfig.formRoute(doc.name));
         return;
       }
       openQuickEdit({

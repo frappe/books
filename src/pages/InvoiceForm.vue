@@ -8,7 +8,7 @@
           v-if="doc.submitted"
           class="text-gray-900 text-xs ml-2"
           :icon="true"
-          @click="$router.push(`/print/${doc.doctype}/${doc.name}`)"
+          @click="routeTo(`/print/${doc.doctype}/${doc.name}`)"
         >
           Print
         </Button>
@@ -185,6 +185,7 @@ import {
   getActionsForDocument,
   getInvoiceStatus,
   showMessageDialog,
+  routeTo
 } from '@/utils';
 
 export default {
@@ -240,7 +241,7 @@ export default {
       window.d = this.doc;
     } catch (error) {
       if (error instanceof frappe.errors.NotFoundError) {
-        this.routeToList();
+        routeTo(`/list/${this.doctype}`);
         return;
       }
       this.handleError(error);
@@ -260,6 +261,7 @@ export default {
     this.status = getInvoiceStatus(this.doc);
   },
   methods: {
+    routeTo,
     async onSaveClick() {
       await this.doc.set(
         'items',
@@ -293,9 +295,6 @@ export default {
     },
     openInvoiceSettings() {
       openSettings('Invoice');
-    },
-    routeToList() {
-      this.$router.push(`/list/${this.doctype}`);
     },
     formattedValue(fieldname, doc) {
       if (!doc) {

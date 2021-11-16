@@ -226,7 +226,7 @@ export function getActionsForDocument(doc) {
     action: () =>
       deleteDocWithPrompt(doc).then((res) => {
         if (res) {
-          router.push(`/list/${doc.doctype}`);
+          routeTo(`/list/${doc.doctype}`);
         }
       }),
   };
@@ -281,4 +281,10 @@ export function getInvoiceStatus(doc) {
     status = 'Paid';
   }
   return status;
+}
+
+export function routeTo(route) {
+  if (route !== router.currentRoute.fullPath) {
+    router.push(route);
+  }
 }

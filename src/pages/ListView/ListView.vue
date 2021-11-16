@@ -35,6 +35,7 @@ import List from './List';
 import listConfigs from './listConfig';
 // import Icon from '@/components/Icon';
 import FilterDropdown from '@/components/FilterDropdown';
+import { routeTo } from '@/utils'
 
 export default {
   name: 'ListView',
@@ -63,7 +64,7 @@ export default {
         doc.set(this.filters);
       }
       let path = this.getFormPath(doc.name);
-      this.$router.push(path);
+      routeTo(path);
       doc.on('afterInsert', () => {
         let path = this.getFormPath(doc.name);
         this.$router.replace(path);

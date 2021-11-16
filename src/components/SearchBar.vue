@@ -40,6 +40,7 @@
 import frappe from 'frappejs';
 import reports from '../../reports/view';
 import Dropdown from '@/components/Dropdown';
+import { routeTo } from '@/utils'
 
 export default {
   data() {
@@ -81,7 +82,8 @@ export default {
       let searchList = [...doctypes, ...reports, ...views];
       this.searchList = searchList.map(d => {
         if (d.route) {
-          d.action = () => this.routeTo(d.route);
+          d.action = () => routeTo(d.route);
+          this.inputValue = '';
         }
         return d;
       });
@@ -118,10 +120,6 @@ export default {
           group: 'List'
         }
       ];
-    },
-    routeTo(route) {
-      this.$router.push(route);
-      this.inputValue = '';
     }
   }
 };
