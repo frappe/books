@@ -49,7 +49,11 @@ export default {
       const paymentEntries = await payment.getPosting();
       await paymentEntries.postReverse();
       // To set the payment status as unsubmitted.
-      payment.revert();
+      await frappe.db.update('Payment', {
+        name: paymentReference,
+        submitted: 0,
+        cancelled: 1
+      });
     }
     const entries = await this.getPosting();
     await entries.postReverse();

@@ -13,9 +13,9 @@ export function getStatusColumn() {
       const color = statusColor[status];
       return {
         template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
-        components: { Badge },
+        components: { Badge }
       };
-    },
+    }
   };
 }
 
@@ -23,7 +23,7 @@ export function getActions(doctype) {
   return [
     {
       label: 'Make Payment',
-      condition: (doc) => doc.submitted && doc.outstandingAmount > 0,
+      condition: doc => doc.submitted && doc.outstandingAmount > 0,
       action: async function makePayment(doc) {
         let payment = await frappe.getNewDoc('Payment');
         payment.once('afterInsert', async () => {
@@ -46,29 +46,29 @@ export function getActions(doctype) {
               {
                 referenceType: doc.doctype,
                 referenceName: doc.name,
-                amount: doc.outstandingAmount,
-              },
-            ],
-          },
+                amount: doc.outstandingAmount
+              }
+            ]
+          }
         });
-      },
+      }
     },
     {
-      label: 'Revert',
-      condition: (doc) =>
+      label: 'Cancel',
+      condition: doc =>
         doc.submitted && doc.baseGrandTotal === doc.outstandingAmount,
       action(doc) {
         doc.revert();
-      },
+      }
     },
     {
       label: 'Print',
-      condition: (doc) => doc.submitted,
+      condition: doc => doc.submitted,
       action(doc, router) {
         router.push(`/print/${doc.doctype}/${doc.name}`);
-      },
+      }
     },
-    utils.ledgerLink,
+    utils.ledgerLink
   ];
 }
 

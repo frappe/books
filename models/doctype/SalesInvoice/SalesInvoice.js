@@ -121,8 +121,14 @@ export default {
     {
       fieldname: 'terms',
       label: 'Notes',
-      fieldtype: 'Text',
+      fieldtype: 'Text'
     },
+    {
+      fieldname: 'cancelled',
+      label: 'Cancelled',
+      fieldtype: 'Check',
+      default: 0
+    }
   ],
 
   actions: getActions('SalesInvoice'),
