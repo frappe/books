@@ -66,5 +66,10 @@
   },
   "engines": {
     "node": ">=16.4.0"
+  },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
   }
 }
