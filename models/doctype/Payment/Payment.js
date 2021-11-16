@@ -213,13 +213,6 @@ export default {
     },
   ],
   actions: [
-    {
-      label: 'Cancel',
-      condition: (doc) => doc.submitted,
-      action(doc) {
-        doc.revert();
-      },
-    },
     utils.ledgerLink,
   ],
 
