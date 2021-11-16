@@ -272,8 +272,7 @@ export function getActionsForDocument(doc) {
     },
     condition: doc =>
       doc.submitted &&
-      !doc.cancelled &&
-      doc.baseGrandTotal !== doc.outstandingAmount,
+      !doc.cancelled,
     action: () => {
       cancelDocWithPrompt(doc).then(res => {
         if (res) {
