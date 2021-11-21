@@ -90,6 +90,7 @@ import Button from '@/components/Button';
 import { openSettings } from '@/utils';
 import { ipcRenderer } from 'electron';
 import { IPC_MESSAGES } from '@/messages';
+import { routeTo } from '@/utils';
 
 export default {
   name: 'GetStarted',
@@ -149,7 +150,7 @@ export default {
               description:
                 'Review your chart of accounts, add any account or tax heads as needed',
               action: () => {
-                this.$router.push('/chart-of-accounts');
+                routeTo('/chart-of-accounts');
                 this.updateChecks({ chartOfAccountsReviewed: 1 });
               },
               fieldname: 'chartOfAccountsReviewed',
@@ -171,7 +172,7 @@ export default {
               icon: 'percentage',
               description:
                 'Setup your tax templates for your sales or purchase transactions',
-              action: () => this.$router.push('/list/Tax'),
+              action: () => routeTo('/list/Tax'),
               documentation:
                 'https://frappebooks.com/docs/setting-up#2-add-taxes'
             }
@@ -187,7 +188,7 @@ export default {
               icon: 'item',
               description:
                 'Add products or services that you sell to your customers',
-              action: () => this.$router.push('/list/Item'),
+              action: () => routeTo('/list/Item'),
               fieldname: 'itemCreated',
               documentation:
                 'https://frappebooks.com/docs/setting-up#3-add-items'
@@ -197,7 +198,7 @@ export default {
               label: _('Add Customers'),
               icon: 'customer',
               description: 'Add a few customers to create your first invoice',
-              action: () => this.$router.push('/list/Customer'),
+              action: () => routeTo('/list/Customer'),
               fieldname: 'customerCreated',
               documentation:
                 'https://frappebooks.com/docs/setting-up#4-add-customers'
@@ -208,7 +209,7 @@ export default {
               icon: 'sales-invoice',
               description:
                 'Create your first invoice and mail it to your customer',
-              action: () => this.$router.push('/list/SalesInvoice'),
+              action: () => routeTo('/list/SalesInvoice'),
               fieldname: 'invoiceCreated',
               documentation: 'https://frappebooks.com/docs/invoices'
             }
@@ -224,7 +225,7 @@ export default {
               icon: 'item',
               description:
                 'Add products or services that you buy from your suppliers',
-              action: () => this.$router.push('/list/Item'),
+              action: () => routeTo('/list/Item'),
               fieldname: 'itemCreated'
             },
             {
@@ -232,7 +233,7 @@ export default {
               label: _('Add Suppliers'),
               icon: 'supplier',
               description: 'Add a few suppliers to create your first bill',
-              action: () => this.$router.push('/list/Supplier'),
+              action: () => routeTo('/list/Supplier'),
               fieldname: 'supplierCreated'
             },
             {
@@ -241,7 +242,7 @@ export default {
               icon: 'purchase-invoice',
               description:
                 'Create your first bill and mail it to your supplier',
-              action: () => this.$router.push('/list/PurchaseInvoice'),
+              action: () => routeTo('/list/PurchaseInvoice'),
               fieldname: 'billCreated',
               documentation: 'https://frappebooks.com/docs/bills'
             }

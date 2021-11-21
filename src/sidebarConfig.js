@@ -2,7 +2,6 @@ import frappe from 'frappejs';
 import { openSettings } from '@/utils';
 import { _ } from 'frappejs/utils';
 import Icon from './components/Icon';
-import router from './router';
 
 const config = {
   getTitle: async () => {
@@ -23,9 +22,7 @@ const config = {
     {
       title: _('Sales'),
       icon: getIcon('sales'),
-      action() {
-        router.push('/list/SalesInvoice');
-      },
+      route: '/list/SalesInvoice',
       items: [
         {
           label: _('Invoices'),
@@ -57,9 +54,7 @@ const config = {
     {
       title: _('Purchases'),
       icon: getIcon('purchase'),
-      action() {
-        router.push('/list/PurchaseInvoice');
-      },
+      route: '/list/PurchaseInvoice',
       items: [
         {
           label: _('Bills'),
@@ -91,9 +86,7 @@ const config = {
     {
       title: _('Reports'),
       icon: getIcon('reports'),
-      action() {
-        router.push('/report/general-ledger');
-      },
+      route: '/report/general-ledger',
       items: [
         {
           label: _('General Ledger'),
@@ -116,6 +109,7 @@ const config = {
     {
       title: _('Setup'),
       icon: getIcon('settings'),
+      route: '/chart-of-accounts',
       items: [
         {
           label: _('Chart of Accounts'),
