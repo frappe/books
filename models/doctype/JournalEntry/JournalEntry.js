@@ -57,15 +57,12 @@ export default {
       fieldtype: 'Text',
       placeholder: 'User Remark',
     },
-  ],
-  actions: [
     {
-      label: 'Revert',
-      condition: (doc) => doc.submitted,
-      action(doc) {
-        doc.revert();
-      },
+      fieldname: 'cancelled',
+      label: 'Cancelled',
+      fieldtype: 'Check',
+      default: 0,
     },
-    ledgerLink,
   ],
+  actions: [ledgerLink],
 };

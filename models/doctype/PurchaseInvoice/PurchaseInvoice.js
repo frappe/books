@@ -123,6 +123,12 @@ export default {
       fieldname: 'terms',
       label: 'Terms',
       fieldtype: 'Text'
+    },
+    {
+      fieldname: 'cancelled',
+      label: 'Cancelled',
+      fieldtype: 'Check',
+      default: 0
     }
   ],
 
