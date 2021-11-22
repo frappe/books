@@ -1,10 +1,14 @@
 {
   "name": "frappe-books",
   "description": "Simple book-keeping app for everyone",
-  "version": "0.0.3-beta.13",
+  "homepage": "https://frappebooks.com",
+  "version": "0.0.4-beta.0",
   "author": {
     "name": "Frappe Technologies Pvt. Ltd.",
     "email": "hello@frappe.io"
+  },
+  "repository": {
+    "url": "https://github.com/frappe/books"
   },
   "scripts": {
     "serve": "vue-cli-service serve",
