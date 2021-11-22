@@ -12,6 +12,7 @@ class Cashflow {
     let dateAsMonthYear = frappe.db.knex.raw('strftime("%m-%Y", ??)', 'date');
     let res = await frappe.db
       .knex('AccountingLedgerEntry')
+      .where('reverted', 0)
       .sum({
         inflow: 'debit',
         outflow: 'credit'

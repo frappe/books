@@ -140,6 +140,12 @@ export default {
       childtype: 'PaymentFor',
       required: 0,
     },
+    {
+      fieldname: 'cancelled',
+      label: 'Cancelled',
+      fieldtype: 'Check',
+      default: 0,
+    },
   ],
 
   quickEditFields: [
@@ -206,16 +212,6 @@ export default {
       ],
     },
   ],
-  actions: [
-    {
-      label: 'Revert',
-      condition: (doc) => doc.submitted,
-      action(doc) {
-        doc.revert();
-      },
-    },
-    utils.ledgerLink,
-  ],
-
+  actions: [utils.ledgerLink],
   links: [utils.ledgerLink],
 };
