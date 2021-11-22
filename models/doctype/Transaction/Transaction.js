@@ -54,14 +54,6 @@ export function getActions(doctype) {
       },
     },
     {
-      label: 'Revert',
-      condition: (doc) =>
-        doc.submitted && doc.baseGrandTotal === doc.outstandingAmount,
-      action(doc) {
-        doc.revert();
-      },
-    },
-    {
       label: 'Print',
       condition: (doc) => doc.submitted,
       action(doc, router) {

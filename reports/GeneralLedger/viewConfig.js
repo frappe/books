@@ -60,8 +60,8 @@ const viewConfig = {
     {
       fieldtype: 'Select',
       options: [
-        { label: 'Show Reverted', value: '' },
-        { label: 'Hide Reverted', value: '0' }
+        { label: 'Show Cancelled', value: '' },
+        { label: 'Hide Cancelled', value: '0' }
       ],
       size: 'small',
       default: '0',
