@@ -178,6 +178,7 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
     // editing another document of the same doctype
     method = 'replace';
   }
+  if (query.name === name) return
   router[method]({
     query: {
       edit: 1,
