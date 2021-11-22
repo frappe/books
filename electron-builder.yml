@@ -1,11 +1,43 @@
 productName: Frappe Books
 appId: io.frappe.books
 afterSign: build/notarize.js
+mac:
+  type: distribution
+  category: public.app-category.finance
+  icon: build/icon.icns
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  darkModeSupport: false
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  publish:
+    - github
+  target:
+    - zip
+    - target: dmg
+      argh:
+        - arm64
+        - x64
+win:
+  publisherName: Frappe Technologies Pvt. Ltd.
+  icon: build/icon.ico
+  publish:
+    - github
+  target:
+    - portable
+    - nsis
+nsis:
+  oneClick: false
+  perMachine: true
+  allowToChangeInstallationDirectory: true
+  installerIcon: build/installericon.ico
+  uninstallerIcon: build/uninstallericon.ico
+  publish:
+    - github
+linux:
+  category: Finance
+  publish:
+    - github
 snap:
   publish:
     - github
-mac:
-  hardenedRuntime: true
-  gatekeeperAssess: false
-  entitlements: build/entitlements.mac.plist
-  entitlementsInherit: build/entitlements.mac.plist
