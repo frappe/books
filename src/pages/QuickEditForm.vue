@@ -30,7 +30,8 @@
             meta.isSubmittable &&
             doc &&
             !doc.submitted &&
-            !doc._notInserted
+            !doc._notInserted &&
+            !(doc.cancelled || false)
           "
           class="ml-2 text-white text-xs"
         >
