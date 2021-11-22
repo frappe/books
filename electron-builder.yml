@@ -15,7 +15,7 @@ mac:
   target:
     - zip
     - target: dmg
-      argh:
+      arch:
         - arm64
         - x64
 win:
