@@ -104,6 +104,14 @@ export default {
       required: 1,
       formula: (doc) => doc.getSum('for', 'amount'),
       validate(value, doc) {
+        if (value < 0) {
+          throw new frappe.errors.ValidationError(
+            frappe._(
+              `Payment amount cannot be less than zero. Amount has been reset to max viable amount.`
+            )
+          );
+        }
+
         if (doc.for.length === 0) return;
         const amount = doc.getSum('for', 'amount');
 
