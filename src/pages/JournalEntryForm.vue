@@ -107,10 +107,10 @@
                 :read-only="doc.submitted"
               />
             </div>
-            <div class="text-right font-semibold text-green-700 px-3">
+            <div class="text-right font-semibold text-green-600 px-3">
               {{ totalDebit }}
             </div>
-            <div class="text-right font-semibold text-red-700 px-3">
+            <div class="text-right font-semibold text-red-600 px-3">
               {{ totalCredit }}
             </div>
           </div>

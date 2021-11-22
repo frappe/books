@@ -165,6 +165,22 @@
               <div>{{ _('Grand Total') }}</div>
               <div>{{ formattedValue('grandTotal') }}</div>
             </div>
+            <div
+              v-if="doc.outstandingAmount > 0"
+              class="
+                flex
+                pl-2
+                justify-between
+                py-3
+                border-t
+                text-red-600
+                font-semibold
+                text-base
+              "
+            >
+              <div>{{ _('Outstanding Amount') }}</div>
+              <div>{{ formattedValue('outstandingAmount') }}</div>
+            </div>
           </div>
         </div>
       </div>
