@@ -32,6 +32,7 @@
     "multer": "^1.4.3",
     "node-fetch": "^3.0.0",
     "nunjucks": "^3.2.3",
+    "pesa": "^1.0.1",
     "postcss": "^8.3.11",
     "postcss-loader": "^6.2.0",
     "sass-loader": "^12.3.0",
