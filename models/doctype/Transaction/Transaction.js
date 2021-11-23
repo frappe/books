@@ -1,6 +1,6 @@
 import frappe from 'frappejs';
 import utils from '../../../accounting/utils';
-import { openQuickEdit, getInvoiceStatus, statusColor } from '@/utils';
+import { openQuickEdit, getInvoiceStatus, statusColor, routeTo } from '@/utils';
 import Badge from '@/components/Badge';
 
 export function getStatusColumn() {
@@ -56,8 +56,8 @@ export function getActions(doctype) {
     {
       label: 'Print',
       condition: (doc) => doc.submitted,
-      action(doc, router) {
-        router.push(`/print/${doc.doctype}/${doc.name}`);
+      action(doc) {
+        routeTo(`/print/${doc.doctype}/${doc.name}`);
       },
     },
     utils.ledgerLink,

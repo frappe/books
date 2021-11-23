@@ -127,7 +127,7 @@ import DropdownWithActions from '@/components/DropdownWithActions';
 import FormControl from '@/components/Controls/FormControl';
 import BackLink from '@/components/BackLink';
 import StatusBadge from '@/components/StatusBadge';
-import { handleErrorWithDialog, getActionsForDocument } from '@/utils';
+import { handleErrorWithDialog, getActionsForDocument, routeTo } from '@/utils';
 
 export default {
   name: 'JournalEntryForm',
@@ -187,7 +187,7 @@ export default {
       window.je = this.doc;
     } catch (error) {
       if (error instanceof frappe.errors.NotFoundError) {
-        this.$router.push(`/list/${this.doctype}`);
+        routeTo(`/list/${this.doctype}`);
         return;
       }
       this.handleError(error);

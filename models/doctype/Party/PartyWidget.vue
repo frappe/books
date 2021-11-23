@@ -52,6 +52,7 @@
 <script>
 import frappe from 'frappejs';
 import { getStatusColumn } from '../Transaction/Transaction';
+import { routeTo } from '@/utils';
 
 export default {
   name: 'PartyWidget',
@@ -99,7 +100,7 @@ export default {
       return statusColumn.render(doc);
     },
     routeToForm(doc) {
-      this.$router.push(`/edit/${this.invoiceDoctype}/${doc.name}`);
+      routeTo(`/edit/${this.invoiceDoctype}/${doc.name}`);
     },
     fullyPaid(invoice) {
       return invoice.outstandingAmount == 0;
