@@ -1,13 +1,11 @@
 <div align="center" markdown="1">
 
-![Frappe Books logo](.github/logo.png)
+<img src=".github/logo.png" alt="Frappe Books logo" width="384"/>
 
 ---
 
-[![Build Status](https://travis-ci.com/frappe/books.svg?branch=master)](https://travis-ci.com/frappe/books)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/frappe/books)](https://github.com/frappe/books/releases)
 ![](https://img.shields.io/badge/platform-mac%2C%20windows%2C%20linux-yellowgreen)
-
 
 
 Free Desktop book-keeping software for small-businesses and freelancers.
@@ -63,7 +61,7 @@ database.
 
     You will also need [Xcode App](https://apps.apple.com/in/app/xcode/id497799835?mt=12) from App Store
 
-2. Install [Node.js](https://nodejs.org/en/). Make sure you have atleast version 12 installed.
+2. Install [Node.js](https://nodejs.org/en/). Check the `package.json` file for the node version.
     > Tip: The best way to install and manage Node is to install [nvm](https://github.com/nvm-sh/nvm#usage)
 3. Install `yarn` package manager
     ```bash
@@ -97,6 +95,11 @@ git clone https://github.com/frappe/frappejs.git
 # link frappejs
 cd frappejs
 yarn link
+```
+
+Then in the Frappe books folder.
+
+```bash
 yarn link frappejs
 ```
 
@@ -104,7 +107,7 @@ yarn link frappejs
 
 1. Launching electron and nothing displays
 https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/24#issuecomment-770165389
-```
+```bash
 sudo chown root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
 ```
 

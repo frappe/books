@@ -1,6 +1,6 @@
-import { notarize } from 'electron-notarize';
+const { notarize } = require('electron-notarize');
 
-exports.default = async context => {
+exports.default = async (context) => {
   const { electronPlatformName, appOutDir } = context;
   if (electronPlatformName !== 'darwin') {
     return;
@@ -12,6 +12,6 @@ exports.default = async context => {
     appBundleId: 'io.frappe.books',
     appPath: `${appOutDir}/${appName}.app`,
     appleId: process.env.APPLE_ID,
-    appleIdPassword: process.env.APPLE_APP_PASSWORD
+    appleIdPassword: process.env.APPLE_APP_PASSWORD,
   });
 };
