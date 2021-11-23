@@ -3,7 +3,7 @@
     <div class="window-no-drag">
       <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
       <div class="px-3">
-        <h6 class="text-lg font-semibold" @click="$router.push('/')">
+        <h6 class="text-lg font-semibold" @click="routeTo('/')">
           {{ companyName }}
         </h6>
       </div>
@@ -46,6 +46,7 @@
 <script>
 import sidebarConfig from '../sidebarConfig';
 import WindowControls from './WindowControls';
+import { routeTo } from '@/utils';
 
 export default {
   data() {
@@ -84,6 +85,7 @@ export default {
     }
   },
   methods: {
+    routeTo,
     itemActiveClass(item) {
       let { path: currentRoute, params } = this.$route;
       let routeMatch = currentRoute === item.route;
@@ -98,7 +100,7 @@ export default {
         group.action();
       }
       if (group.route) {
-        this.routeTo(group.route);
+        routeTo(group.route);
       }
       this.activeGroup = group;
     },
@@ -107,11 +109,8 @@ export default {
         item.action();
       }
       if (item.route) {
-        this.routeTo(item.route);
+        routeTo(item.route);
       }
-    },
-    routeTo(route) {
-      this.$router.push(route);
     }
   }
 };

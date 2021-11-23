@@ -212,6 +212,7 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
     // editing another document of the same doctype
     method = 'replace';
   }
+  if (query.name === name) return
   router[method]({
     query: {
       edit: 1,
@@ -260,7 +261,7 @@ export function getActionsForDocument(doc) {
     action: () =>
       deleteDocWithPrompt(doc).then((res) => {
         if (res) {
-          router.push(`/list/${doc.doctype}`);
+          routeTo(`/list/${doc.doctype}`);
         }
       }),
   };
@@ -333,4 +334,10 @@ export function getInvoiceStatus(doc) {
     status = 'Cancelled';
   }
   return status;
+}
+
+export function routeTo(route) {
+  if (route !== router.currentRoute.fullPath) {
+    router.push(route);
+  }
 }
