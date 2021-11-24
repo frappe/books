@@ -1,6 +1,6 @@
 <template>
   <div class="flex overflow-hidden">
-    <Sidebar class="w-56 flex-shrink-0" />
+    <Sidebar class="w-56 flex-shrink-0" @change-db-file="$emit('change-db-file')"/>
     <div class="flex flex-1 overflow-y-hidden bg-white">
       <keep-alive>
         <router-view class="flex-1" :key="$route.path" />

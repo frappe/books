@@ -74,6 +74,7 @@ import {
   getErrorMessage,
   handleErrorWithDialog,
   showMessageDialog,
+  purgeCache,
 } from '@/utils';
 
 export default {
@@ -145,13 +146,7 @@ export default {
       const filePath = config.get('lastSelectedFilePath');
       renameDbFile(filePath);
 
-      // Clear cache to prevent doc changed error.
-      Object.keys(frappe.docs)
-        .filter((d) => frappe.docs[d][d] instanceof frappe.BaseMeta)
-        .forEach((d) => {
-          frappe.removeFromCache(d, d);
-          delete frappe[d];
-        });
+      purgeCache();
 
       const connectionSuccess = await connectToLocalDatabase(filePath);
       if (connectionSuccess) {
