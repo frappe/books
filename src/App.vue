@@ -3,11 +3,12 @@
     id="app"
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
-    <WindowsTitleBar
-      v-if="platform === 'Windows'"
-      @close="reloadMainWindowOnSettingsClose"
+    <WindowsTitleBar v-if="platform === 'Windows'" />
+    <Desk
+      class="flex-1"
+      v-if="activeScreen === 'Desk'"
+      @change-db-file="changeDbFile"
     />
-    <Desk class="flex-1" v-if="activeScreen === 'Desk'" />
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
       @database-connect="showSetupWizardOrDesk(true)"
@@ -16,23 +17,20 @@
       v-if="activeScreen === 'SetupWizard'"
       @setup-complete="showSetupWizardOrDesk(true)"
     />
-    <Settings v-if="activeScreen === 'Settings'" />
     <portal-target name="popovers" multiple></portal-target>
   </div>
 </template>
 
 <script>
 import './styles/index.css';
-// import 'frappe-charts/dist/frappe-charts.min.css';
 import frappe from 'frappejs';
 import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
 import DatabaseSelector from './pages/DatabaseSelector';
-import Settings from '@/pages/Settings/Settings.vue';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { ipcRenderer } from 'electron';
 import config from '@/config';
-import { connectToLocalDatabase } from '@/utils';
+import { connectToLocalDatabase, routeTo, purgeCache } from '@/utils';
 import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
 
 export default {
@@ -48,16 +46,15 @@ export default {
       const { width, height } = await ipcRenderer.invoke(
         IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE
       );
-      
+
       let size = {
         Desk: [width, height],
         DatabaseSelector: [600, 600],
         SetupWizard: [600, 600],
-        Settings: [460, 577],
       }[value];
       let resizable = value === 'Desk';
 
-      if (size.length && value != 'Settings') {
+      if (size.length) {
         ipcRenderer.send(IPC_MESSAGES.RESIZE_MAIN_WINDOW, size, resizable);
       }
     },
@@ -66,7 +63,6 @@ export default {
     Desk,
     SetupWizard,
     DatabaseSelector,
-    Settings,
     WindowsTitleBar,
   },
   async mounted() {
@@ -86,23 +82,21 @@ export default {
       const { setupComplete } = frappe.AccountingSettings;
       if (!setupComplete) {
         this.activeScreen = 'SetupWizard';
-      } else if (this.$route.path.startsWith('/settings')) {
-        this.activeScreen = 'Settings';
       } else {
         this.activeScreen = 'Desk';
         this.checkForUpdates();
       }
       if (resetRoute) {
-        this.$router.replace('/');
-      }
-    },
-    reloadMainWindowOnSettingsClose() {
-      if (this.activeScreen === 'Settings') {
-        frappe.events.trigger('reload-main-window');
+        routeTo('/');
       }
     },
     checkForUpdates() {
       frappe.events.trigger('check-for-updates');
+    },
+    changeDbFile() {
+      config.set('lastSelectedFilePath', null);
+      purgeCache(true);
+      this.activeScreen = 'DatabaseSelector';
     },
   },
 };

@@ -1,5 +1,4 @@
 import frappe from 'frappejs';
-import { openSettings } from '@/utils';
 import { _ } from 'frappejs/utils';
 import Icon from './components/Icon';
 
@@ -12,12 +11,12 @@ const config = {
     {
       title: _('Get Started'),
       route: '/get-started',
-      icon: getIcon('general', '24', '5')
+      icon: getIcon('general', '24', '5'),
     },
     {
       title: _('Dashboard'),
       route: '/',
-      icon: getIcon('dashboard')
+      icon: getIcon('dashboard'),
     },
     {
       title: _('Sales'),
@@ -27,29 +26,29 @@ const config = {
         {
           label: _('Invoices'),
           route: '/list/SalesInvoice',
-          doctype: 'SalesInvoice'
+          doctype: 'SalesInvoice',
         },
         {
           label: _('Customers'),
           route: '/list/Customer',
-          doctype: 'Customer'
+          doctype: 'Customer',
         },
         {
           label: _('Items'),
           route: '/list/Item',
-          doctype: 'Item'
+          doctype: 'Item',
         },
         {
           label: _('Payments'),
           route: '/list/Payment',
-          doctype: 'Payment'
+          doctype: 'Payment',
         },
         {
           label: _('Journal Entry'),
           route: '/list/JournalEntry',
-          doctype: 'JournalEntry'
-        }
-      ]
+          doctype: 'JournalEntry',
+        },
+      ],
     },
     {
       title: _('Purchases'),
@@ -59,29 +58,29 @@ const config = {
         {
           label: _('Bills'),
           route: '/list/PurchaseInvoice',
-          doctype: 'PurchaseInvoice'
+          doctype: 'PurchaseInvoice',
         },
         {
           label: _('Suppliers'),
           route: '/list/Supplier',
-          doctype: 'Supplier'
+          doctype: 'Supplier',
         },
         {
           label: _('Items'),
           route: '/list/Item',
-          doctype: 'Item'
+          doctype: 'Item',
         },
         {
           label: _('Payments'),
           route: '/list/Payment',
-          doctype: 'Payment'
+          doctype: 'Payment',
         },
         {
           label: _('Journal Entry'),
           route: '/list/JournalEntry',
-          doctype: 'JournalEntry'
-        }
-      ]
+          doctype: 'JournalEntry',
+        },
+      ],
     },
     {
       title: _('Reports'),
@@ -90,21 +89,21 @@ const config = {
       items: [
         {
           label: _('General Ledger'),
-          route: '/report/general-ledger'
+          route: '/report/general-ledger',
         },
         {
           label: _('Profit And Loss'),
-          route: '/report/profit-and-loss'
+          route: '/report/profit-and-loss',
         },
         {
           label: _('Balance Sheet'),
-          route: '/report/balance-sheet'
+          route: '/report/balance-sheet',
         },
         {
           label: _('Trial Balance'),
-          route: '/report/trial-balance'
-        }
-      ]
+          route: '/report/trial-balance',
+        },
+      ],
     },
     {
       title: _('Setup'),
@@ -113,22 +112,20 @@ const config = {
       items: [
         {
           label: _('Chart of Accounts'),
-          route: '/chart-of-accounts'
+          route: '/chart-of-accounts',
         },
         {
           label: _('Taxes'),
           route: '/list/Tax',
-          doctype: 'Tax'
+          doctype: 'Tax',
         },
         {
           label: _('Settings'),
-          action() {
-            openSettings();
-          }
-        }
-      ]
-    }
-  ]
+          route: '/settings',
+        },
+      ],
+    },
+  ],
 };
 
 function getIcon(name, size = '18', height = null) {
@@ -140,12 +137,12 @@ function getIcon(name, size = '18', height = null) {
           {
             name,
             size,
-            height
+            height,
           },
           this.$attrs
-        )
+        ),
       });
-    }
+    },
   };
 }
 

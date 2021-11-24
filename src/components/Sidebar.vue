@@ -1,5 +1,18 @@
 <template>
-  <div class="pt-6 pb-2 px-2 h-full block window-drag flex justify-between flex-col bg-gray-100" >
+  <div
+    class="
+      pt-6
+      pb-2
+      px-2
+      h-full
+      block
+      window-drag
+      flex
+      justify-between
+      flex-col
+      bg-gray-100
+    "
+  >
     <div class="window-no-drag">
       <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
       <div class="px-3">
@@ -10,7 +23,15 @@
       <div class="mt-3">
         <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.title">
           <div
-            class="px-3 py-2 flex items-center rounded-lg cursor-pointer hover:bg-white"
+            class="
+              px-3
+              py-2
+              flex
+              items-center
+              rounded-lg
+              cursor-pointer
+              hover:bg-white
+            "
             :class="isActiveGroup(group) && !group.items ? 'bg-white' : ''"
             @click="onGroupClick(group)"
           >
@@ -30,7 +51,16 @@
             <div
               v-for="item in group.items"
               :key="item.label"
-              class="mt-1 first:mt-0 text-base text-gray-800 py-1 pl-10 rounded cursor-pointer hover:bg-white"
+              class="
+                mt-1
+                first:mt-0
+                text-base text-gray-800
+                py-1
+                pl-10
+                rounded
+                cursor-pointer
+                hover:bg-white
+              "
               :class="itemActiveClass(item)"
               @click="onItemClick(item)"
             >
@@ -40,41 +70,56 @@
         </div>
       </div>
     </div>
-    <div class="px-5 pb-3 text-sm text-gray-600">v{{ appVersion }}</div>
+    <div class="px-5">
+      <button
+        class="pb-1 text-sm text-gray-600 hover:text-gray-800 truncate"
+        @click="$emit('change-db-file')"
+      >
+        {{ dbPath }}
+      </button>
+      <p class="pb-3 text-sm text-gray-600">v{{ appVersion }}</p>
+    </div>
   </div>
 </template>
 <script>
 import sidebarConfig from '../sidebarConfig';
+import Button from '@/components/Button';
 import WindowControls from './WindowControls';
 import { routeTo } from '@/utils';
+import path from 'path';
 
 export default {
+  components: [Button],
   data() {
     return {
       companyName: '',
       groups: [],
-      activeGroup: null
+      activeGroup: null,
     };
   },
   computed: {
     appVersion() {
       return frappe.store.appVersion;
-    }
+    },
+    dbPath() {
+      const splits = frappe.db.dbPath.split(path.sep);
+      return path.join(...splits.slice(splits.length - 2));
+    },
   },
   components: {
-    WindowControls
+    WindowControls,
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
     this.groups = sidebarConfig.groups;
 
     let currentPath = this.$router.currentRoute.fullPath;
-    this.activeGroup = this.groups.find(g => {
+    this.activeGroup = this.groups.find((g) => {
       if (g.route === currentPath) {
         return true;
       }
       if (g.items) {
-        let activeItem = g.items.filter(i => i.route === currentPath);
+        let activeItem = g.items.filter((i) => i.route === currentPath);
         if (activeItem.length) {
           return true;
         }
@@ -111,7 +156,7 @@ export default {
       if (item.route) {
         routeTo(item.route);
       }
-    }
-  }
+    },
+  },
 };
 </script>
