@@ -18,7 +18,14 @@
           </span>
           <span class="flex">
             <div
-              class="w-5 h-5 hover:bg-gray-100 rounded-md flex-center cursor-pointer"
+              class="
+                w-5
+                h-5
+                hover:bg-gray-100
+                rounded-md
+                flex-center
+                cursor-pointer
+              "
             >
               <feather-icon
                 @click="prevMonth"
@@ -27,7 +34,15 @@
               />
             </div>
             <div
-              class="ml-2 w-5 h-5 hover:bg-gray-100 rounded-md flex-center cursor-pointer"
+              class="
+                ml-2
+                w-5
+                h-5
+                hover:bg-gray-100
+                rounded-md
+                flex-center
+                cursor-pointer
+              "
             >
               <feather-icon
                 @click="nextMonth"
@@ -52,12 +67,21 @@
               <div
                 v-for="date in week"
                 :key="toValue(date)"
-                class="w-6 h-6 mr-1 last:mr-0 flex-center cursor-pointer rounded-md hover:bg-blue-100 hover:text-blue-500"
+                class="
+                  w-6
+                  h-6
+                  mr-1
+                  last:mr-0
+                  flex-center
+                  cursor-pointer
+                  rounded-md
+                  hover:bg-blue-100 hover:text-blue-500
+                "
                 :class="{
                   'text-gray-600': date.getMonth() !== currentMonth - 1,
                   'text-blue-500': toValue(date) === toValue(today),
                   'bg-blue-100 font-semibold text-blue-500':
-                    toValue(date) === value
+                    toValue(date) === value,
                 }"
                 @click="
                   selectDate(date);
@@ -81,12 +105,12 @@ export default {
   name: 'DatePicker',
   props: ['value', 'placeholder', 'readonly', 'formatValue', 'inputClass'],
   components: {
-    Popover
+    Popover,
   },
   data() {
     return {
       currentYear: null,
-      currentMonth: null
+      currentMonth: null,
     };
   },
   created() {
@@ -122,17 +146,25 @@ export default {
       let daysInMonth = this.getDaysInMonth(monthIndex, year);
       let datesInMonth = this.getDatesAfter(firstDayOfMonth, daysInMonth - 1);
 
-      return [
+      let dates = [
         ...leftPadding,
         firstDayOfMonth,
         ...datesInMonth,
-        ...rightPadding
+        ...rightPadding,
       ];
+      if (dates.length < 42) {
+        const finalPadding = this.getDatesAfter(
+          dates.at(-1),
+          42 - dates.length
+        );
+        dates = dates.concat(...finalPadding)
+      }
+      return dates;
     },
     formatMonth() {
       let date = this.getDate(this.currentYear, this.currentMonth - 1, 1);
       return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-    }
+    },
   },
   methods: {
     selectDate(date) {
@@ -212,7 +244,7 @@ export default {
     getDate(...args) {
       let d = new Date(...args);
       return d;
-    }
-  }
+    },
+  },
 };
 </script>
