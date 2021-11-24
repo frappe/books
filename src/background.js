@@ -1,23 +1,21 @@
 'use strict';
 
-import path from 'path';
 import electron, {
   app,
-  dialog,
-  protocol,
   BrowserWindow,
+  dialog,
   ipcMain,
   Menu,
+  protocol,
   shell,
 } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import Store from 'electron-store';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import Store from 'electron-store';
+import { autoUpdater } from 'electron-updater';
+import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
-
+import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import saveHtmlAsPdf from './saveHtmlAsPdf';
-import { IPC_MESSAGES, IPC_ACTIONS } from './messages';
-import theme from '@/theme';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
@@ -97,28 +95,6 @@ function createWindow() {
   });
 }
 
-function createSettingsWindow(tab = 'General') {
-  let settingsWindow = new BrowserWindow({
-    parent: mainWindow,
-    frame: isLinux,
-    width: 460,
-    height: 577,
-    icon,
-    title,
-    backgroundColor: theme.backgroundColor.gray['200'],
-    webPreferences: {
-      contextIsolation: false, // TODO: Switch this on
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
-    },
-    resizable: false,
-  });
-
-  settingsWindow.loadURL(`${winURL}#/settings/${tab}`);
-  settingsWindow.on('close', () => {
-    mainWindow.reload();
-  });
-}
-
 /* ---------------------------------
  * Register ipcMain message handlers
  * ---------------------------------*/
@@ -128,10 +104,6 @@ ipcMain.on(IPC_MESSAGES.CHECK_FOR_UPDATES, () => {
     autoUpdater.checkForUpdatesAndNotify();
     checkedForUpdate = true;
   }
-});
-
-ipcMain.on(IPC_MESSAGES.OPEN_SETTINGS, (event, tab) => {
-  createSettingsWindow(tab);
 });
 
 ipcMain.on(IPC_MESSAGES.OPEN_MENU, (event) => {

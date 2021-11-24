@@ -38,7 +38,7 @@
 </template>
 <script>
 import frappe from 'frappejs';
-import { dialog, ipcRenderer } from 'electron';
+import { ipcRenderer } from 'electron';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import FormControl from '@/components/Controls/FormControl';
 import { IPC_ACTIONS } from '@/messages';
