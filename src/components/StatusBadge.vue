@@ -4,7 +4,6 @@
   }}</Badge>
 </template>
 <script>
-import frappe from 'frappejs';
 import { statusColor } from '@/utils';
 import Badge from '@/components/Badge';
 

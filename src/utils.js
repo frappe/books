@@ -1,14 +1,14 @@
-import frappe from 'frappejs';
-import fs from 'fs';
-import { _ } from 'frappejs/utils';
-import migrate from './migrate';
-import { ipcRenderer } from 'electron';
-import { IPC_MESSAGES, IPC_ACTIONS } from './messages';
-import SQLite from 'frappejs/backends/sqlite';
-import postStart from '../server/postStart';
-import router from '@/router';
 import Avatar from '@/components/Avatar';
 import config from '@/config';
+import router from '@/router';
+import { ipcRenderer } from 'electron';
+import frappe from 'frappejs';
+import SQLite from 'frappejs/backends/sqlite';
+import { _ } from 'frappejs/utils';
+import fs from 'fs';
+import postStart from '../server/postStart';
+import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
+import migrate from './migrate';
 
 export async function createNewDatabase() {
   const options = {
@@ -212,7 +212,7 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
     // editing another document of the same doctype
     method = 'replace';
   }
-  if (query.name === name) return
+  if (query.name === name) return;
   router[method]({
     query: {
       edit: 1,
@@ -257,7 +257,8 @@ export function getActionsForDocument(doc) {
     component: {
       template: `<span class="text-red-700">{{ _('Delete') }}</span>`,
     },
-    condition: (doc) => !doc.isNew() && !doc.submitted && !doc.meta.isSingle && !doc.cancelled,
+    condition: (doc) =>
+      !doc.isNew() && !doc.submitted && !doc.meta.isSingle && !doc.cancelled,
     action: () =>
       deleteDocWithPrompt(doc).then((res) => {
         if (res) {
@@ -291,10 +292,6 @@ export function getActionsForDocument(doc) {
     });
 
   return actions;
-}
-
-export function openSettings(tab = 'General') {
-  ipcRenderer.send(IPC_MESSAGES.OPEN_SETTINGS, tab);
 }
 
 export async function runWindowAction(name) {
@@ -340,4 +337,17 @@ export function routeTo(route) {
   if (route !== router.currentRoute.fullPath) {
     router.push(route);
   }
+}
+
+export function purgeCache(purgeAll = false) {
+  const filterFunction = purgeAll
+    ? (d) => true
+    : (d) => frappe.docs[d][d] instanceof frappe.BaseMeta;
+
+  Object.keys(frappe.docs)
+    .filter(filterFunction)
+    .forEach((d) => {
+      frappe.removeFromCache(d, d);
+      delete frappe[d];
+    });
 }

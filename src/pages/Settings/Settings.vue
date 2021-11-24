@@ -1,28 +1,48 @@
 <template>
-  <div class="flex flex-col flex-1 overflow-hidden">
-    <div class="bg-gray-200 window-drag pb-2">
-      <div class="p-2">
-        <WindowControls v-if="platform === 'Mac'" :buttons="['close']" />
-      </div>
-      <Row
-        :columnCount="5"
-        class="px-6 border-none w-full window-no-drag"
-        gap="0.5rem"
+  <div class="flex flex-col overflow-hidden">
+    <PageHeader>
+      <h1 slot="title" class="text-2xl font-bold">
+        {{ _('Settings') }}
+      </h1>
+    </PageHeader>
+    <div class="flex justify-center flex-1 mb-8 mt-2">
+      <div
+        class="border rounded-lg shadow h-full flex flex-col justify-between"
+        style="width: 600px"
       >
-        <div
-          v-for="(tab, i) in tabs"
-          :key="tab.label"
-          class="p-2 rounded-md hover:bg-white flex flex-col items-center justify-center cursor-pointer"
-          :class="i === activeTab && 'bg-white shadow text-blue-500'"
-          @click="activeTab = i"
-        >
-          <component :is="getIconComponent(tab)" :active="i === activeTab" />
-          <div class="mt-2 text-xs">{{ tab.label }}</div>
+        <div class="pb-2 mt-8">
+          <Row
+            :columnCount="tabs.length"
+            class="px-6 border-none w-full"
+            gap="0.5rem"
+          >
+            <div
+              v-for="(tab, i) in tabs"
+              :key="tab.label"
+              class="
+                p-2
+                rounded-md
+                hover:bg-white
+                flex flex-col
+                items-center
+                justify-center
+                cursor-pointer
+              "
+              :class="i === activeTab && 'text-blue-500'"
+              @click="activeTab = i"
+            >
+              <component
+                :is="getIconComponent(tab)"
+                :active="i === activeTab"
+              />
+              <div class="mt-2 text-xs">{{ tab.label }}</div>
+            </div>
+          </Row>
         </div>
-      </Row>
-    </div>
-    <div class="bg-white flex-1 p-6 overflow-y-auto">
-      <component :is="activeTabComponent" />
+        <div class="flex-1 p-6 overflow-y-auto">
+          <component :is="activeTabComponent" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -32,49 +52,48 @@ import WindowControls from '@/components/WindowControls';
 import TabGeneral from './TabGeneral.vue';
 import TabSystem from './TabSystem.vue';
 import TabInvoice from './TabInvoice.vue';
+import Button from '@/components/Button';
 import Row from '@/components/Row';
 import Icon from '@/components/Icon';
+import PageHeader from '@/components/PageHeader';
+import StatusBadge from '@/components/StatusBadge';
 
 export default {
   name: 'Settings',
   components: {
+    PageHeader,
     WindowControls,
-    Row
+    StatusBadge,
+    Button,
+    Row,
   },
   data() {
     return {
       activeTab: 0,
+      updated: false,
       tabs: [
-        {
-          label: _('General'),
-          icon: 'general',
-          component: TabGeneral
-        },
-        // {
-        //   label: _('Mail'),
-        //   icon: 'mail'
-        // },
         {
           label: _('Invoice'),
           icon: 'invoice',
-          component: TabInvoice
+          component: TabInvoice,
+        },
+        {
+          label: _('General'),
+          icon: 'general',
+          component: TabGeneral,
         },
         {
           label: _('System'),
           icon: 'system',
-          component: TabSystem
-        }
-        // {
-        //   label: _('Privacy'),
-        //   icon: 'privacy'
-        // }
-      ]
+          component: TabSystem,
+        },
+      ],
     };
   },
   mounted() {
     let path = this.$router.currentRoute.fullPath;
     let tab = path.replace('/settings/', '');
-    let index = this.tabs.findIndex(t => t.label === _(tab));
+    let index = this.tabs.findIndex((t) => t.label === _(tab));
     if (index !== -1) {
       this.activeTab = index;
     }
@@ -88,19 +107,23 @@ export default {
             props: Object.assign(
               {
                 name: tab.icon,
-                size: '24'
+                size: '24',
               },
               this.$attrs
-            )
+            ),
           });
-        }
+        },
       };
-    }
+    },
+
+    onSaveClick() {
+      console.log('save clicked');
+    },
   },
   computed: {
     activeTabComponent() {
       return this.tabs[this.activeTab].component;
-    }
-  }
+    },
+  },
 };
 </script>
