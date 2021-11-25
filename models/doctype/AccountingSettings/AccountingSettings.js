@@ -107,12 +107,6 @@ export default {
       default: 0
     },
 
-    {
-      fieldname: 'autoUpdate',
-      label: 'Auto Update',
-      fieldtype: 'Check',
-      default: 1
-    }
   ],
   quickEditFields: [
     'fullname',
