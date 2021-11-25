@@ -194,7 +194,6 @@ module.exports = class BaseDocument extends Observable {
   }
 
   validateMandatory() {
-    const fieldValueMap = this.getFieldValueMap();
     let checkForMandatory = [this];
     let tableFields = this.meta.fields.filter((df) => df.fieldtype === 'Table');
     tableFields.map((df) => {
@@ -215,7 +214,7 @@ module.exports = class BaseDocument extends Observable {
     function getMissingMandatory(doc) {
       let mandatoryFields = doc.meta.fields.filter((df) => {
         if (df.required instanceof Function) {
-          return df.required(fieldValueMap);
+          return df.required(doc);
         }
         return df.required;
       });
@@ -701,5 +700,12 @@ module.exports = class BaseDocument extends Observable {
         return obj;
       }, {});
     return Object.freeze(fieldValueMap);
+  }
+
+  getFieldMetaMap() {
+    return this.meta.fields.reduce((obj, meta) => {
+      obj[meta.fieldname] = meta;
+      return obj;
+    }, {});
   }
 };
