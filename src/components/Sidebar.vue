@@ -111,7 +111,12 @@ export default {
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
-    this.groups = sidebarConfig.groups;
+    this.groups = sidebarConfig.groups.filter(group=>{
+      if(group.route === '/get-started' && frappe.SystemSettings.hideGetStarted) {
+        return false
+      }
+      return true;
+    });
 
     let currentPath = this.$router.currentRoute.fullPath;
     this.activeGroup = this.groups.find((g) => {
