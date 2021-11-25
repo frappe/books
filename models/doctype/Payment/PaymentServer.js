@@ -1,14 +1,91 @@
-import BaseDocument from 'frappejs/model/document';
 import frappe from 'frappejs';
+import BaseDocument from 'frappejs/model/document';
 import LedgerPosting from '../../../accounting/ledgerPosting';
 
 export default class PaymentServer extends BaseDocument {
   async change({ changed }) {
-    if (changed === 'for') {
-      this.amount = 0;
-      for (let paymentReference of this.for) {
-        this.amount += paymentReference.amount;
+    switch (changed) {
+      case 'for': {
+        this.updateAmountOnReferenceUpdate();
+        await this.updateDetailsOnReferenceUpdate();
       }
+      case 'amount': {
+        this.updateReferenceOnAmountUpdate();
+      }
+    }
+  }
+
+  async updateDetailsOnReferenceUpdate() {
+    const { referenceType, referenceName } = this.for[0];
+    if (
+      this.for?.length !== 1 ||
+      this.party ||
+      this.paymentType ||
+      !referenceName ||
+      !referenceType
+    ) {
+      return;
+    }
+
+    const doctype = referenceType;
+    const doc = await frappe.getDoc(doctype, referenceName);
+
+    let party;
+    let paymentType;
+
+    if (doctype === 'SalesInvoice') {
+      party = doc.customer;
+      paymentType = 'Receive';
+    } else if (doctype === 'PurchaseInvoice') {
+      party = doc.supplier;
+      paymentType = 'Pay';
+    }
+
+    this.party = party;
+    this.paymentType = paymentType;
+  }
+
+  updateAmountOnReferenceUpdate() {
+    this.amount = 0;
+    for (let paymentReference of this.for) {
+      this.amount += paymentReference.amount;
+    }
+  }
+
+  updateReferenceOnAmountUpdate() {
+    if (this.for?.length !== 1) return;
+    this.for[0].amount = this.amount;
+  }
+
+  async validate() {
+    this.validateAccounts();
+    this.validateReferenceAmount();
+  }
+
+  validateAccounts() {
+    if (this.paymentAccount !== this.account || !this.account) return;
+    throw new Error(
+      `To Account and From Account can't be the same: ${this.account}`
+    );
+  }
+
+  validateReferenceAmount() {
+    const referenceAmountTotal = this.for
+      .map(({ amount }) => amount)
+      .reduce((a, b) => a + b);
+
+    if (this.amount + (this.writeoff ?? 0) < referenceAmountTotal) {
+      const writeoff = frappe.format(this.writeoff, 'Currency');
+      const payment = frappe.format(this.amount, 'Currency');
+      const refAmount = frappe.format(referenceAmountTotal, 'Currency');
+      const writeoffString =
+        this.writeoff > 0 ? `and writeoff: ${writeoff} ` : '';
+
+      throw new Error(
+        frappe._(
+          `Amount: ${payment} ${writeoffString}is less than the total amount allocated to references: ${refAmount}`
+        )
+      );
     }
   }
 
@@ -55,15 +132,16 @@ export default class PaymentServer extends BaseDocument {
     }
   }
 
-  async afterSubmit() {
-    const entries = await this.getPosting();
-    await entries.post();
-  }
-
   async afterRevert() {
+    this.updateReferenceOutstandingAmount();
     const entries = await this.getPosting();
     await entries.postReverse();
+  }
 
-    // Maybe revert outstanding amount of invoice too?
+  async updateReferenceOutstandingAmount() {
+    await this.for.forEach(async ({ amount, referenceType, referenceName }) => {
+      const refDoc = await frappe.getDoc(referenceType, referenceName);
+      refDoc.update({ outstandingAmount: refDoc.outstandingAmount + amount });
+    });
   }
 }

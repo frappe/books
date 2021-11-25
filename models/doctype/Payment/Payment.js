@@ -38,6 +38,11 @@ export default {
           }
         }
       },
+      formula: (doc) => {
+        if (doc.paymentMethod === 'Cash' && doc.paymentType === 'Pay') {
+          return 'Cash';
+        }
+      },
     },
     {
       fieldname: 'paymentType',
@@ -63,7 +68,7 @@ export default {
         }
       },
       formula: (doc) => {
-        if (doc.paymentMethod === 'Cash') {
+        if (doc.paymentMethod === 'Cash' && doc.paymentType === 'Receive') {
           return 'Cash';
         }
       },
@@ -107,7 +112,7 @@ export default {
         if (value < 0) {
           throw new frappe.errors.ValidationError(
             frappe._(
-              `Payment amount cannot be less than zero. Amount has been reset to max viable amount.`
+              `Payment amount cannot be less than zero. Amount has been reset.`
             )
           );
         }
@@ -121,7 +126,7 @@ export default {
               `Payment amount cannot exceed ${frappe.format(
                 amount,
                 'Currency'
-              )}. Amount has been reset to max viable amount.`
+              )}. Amount has been reset.`
             )
           );
         } else if (value === 0) {
@@ -130,7 +135,7 @@ export default {
               `Payment amount cannot be ${frappe.format(
                 value,
                 'Currency'
-              )}. Amount has been reset to max viable amount.`
+              )}. Amount has been reset.`
             )
           );
         }
@@ -140,6 +145,7 @@ export default {
       fieldname: 'writeoff',
       label: 'Write Off / Refund',
       fieldtype: 'Currency',
+      default: 0,
     },
     {
       fieldname: 'for',
