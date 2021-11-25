@@ -30,7 +30,7 @@ import { IPC_MESSAGES } from './messages';
   });
 
   frappe.events.on('check-for-updates', () => {
-    let { autoUpdate } = frappe.AccountingSettings;
+    let { autoUpdate } = frappe.SystemSettings;
     if (autoUpdate == null || autoUpdate === 1) {
       ipcRenderer.send(IPC_MESSAGES.CHECK_FOR_UPDATES);
     }
