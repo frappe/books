@@ -4,15 +4,22 @@
       {{ df.label }}
     </div>
     <div
-      class="relative flex items-center justify-end bg-white focus-within:bg-gray-200"
+      class="
+        relative
+        flex
+        items-center
+        justify-end
+        bg-white
+        focus-within:bg-gray-200
+      "
       :class="inputClasses"
     >
       <select
         class="appearance-none bg-transparent focus:outline-none w-full"
         :class="isReadOnly && 'pointer-events-none'"
         :value="value"
-        @change="e => triggerChange(e.target.value)"
-        @focus="e => $emit('focus', e)"
+        @change="(e) => triggerChange(e.target.value)"
+        @focus="(e) => $emit('focus', e)"
       >
         <option
           v-for="option in options"
@@ -52,16 +59,24 @@ import Base from './Base';
 export default {
   name: 'Select',
   extends: Base,
+  methods: {
+    map(v) {
+      if (this.df.map) {
+        return this.df.map[v] ?? v;
+      }
+      return v;
+    },
+  },
   computed: {
     options() {
       let options = this.df.options;
-      return options.map(o => {
+      return options.map((o) => {
         if (typeof o === 'string') {
-          return { label: o, value: o };
+          return { label: this.map(o), value: o };
         }
         return o;
       });
-    }
-  }
+    },
+  },
 };
 </script>
