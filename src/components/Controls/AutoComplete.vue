@@ -125,10 +125,11 @@ export default {
         const suggestion = await this.getSuggestions(value);
 
         if (suggestion.length < 2) {
-          return;
+          this.linkValue = '';
+          this.triggerChange('');
+        } else {
+          this.setSuggestion(suggestion[0]);
         }
-
-        this.setSuggestion(suggestion[0]);
       }
     },
     onInput(e) {
