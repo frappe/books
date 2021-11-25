@@ -5,7 +5,7 @@
         toggleDropdown,
         highlightItemUp,
         highlightItemDown,
-        selectHighlightedItem
+        selectHighlightedItem,
       }"
     >
       <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
@@ -18,8 +18,8 @@
         :value="linkValue"
         :placeholder="inputPlaceholder"
         :readonly="isReadOnly"
-        @focus="e => onFocus(e, toggleDropdown)"
-        @blur="e => onBlur(e.target.value)"
+        @focus="(e) => onFocus(e, toggleDropdown)"
+        @blur="(e) => onBlur(e.target.value)"
         @input="onInput"
         @keydown.up="highlightItemUp"
         @keydown.down="highlightItemDown"
@@ -39,7 +39,7 @@ export default {
   name: 'AutoComplete',
   extends: Base,
   components: {
-    Dropdown
+    Dropdown,
   },
   data() {
     return {
@@ -47,7 +47,7 @@ export default {
       showDropdown: false,
       isLoading: false,
       suggestions: [],
-      highlightedIndex: -1
+      highlightedIndex: -1,
     };
   },
   watch: {
@@ -55,8 +55,8 @@ export default {
       immediate: true,
       handler(newValue) {
         this.linkValue = newValue;
-      }
-    }
+      },
+    },
   },
   computed: {},
   methods: {
@@ -68,7 +68,7 @@ export default {
       }
       this.isLoading = true;
       let suggestions = await this.getSuggestions(keyword);
-      this.suggestions = suggestions.map(d => {
+      this.suggestions = suggestions.map((d) => {
         if (!d.action) {
           d.action = () => this.setSuggestion(d);
         }
@@ -83,11 +83,11 @@ export default {
         ? await this.df.getList()
         : this.df.options || [];
 
-      let items = list.map(d => {
+      let items = list.map((d) => {
         if (typeof d === 'string') {
           return {
             label: d,
-            value: d
+            value: d,
           };
         }
         return d;
@@ -97,7 +97,7 @@ export default {
         return items;
       }
 
-      return items.filter(d => {
+      return items.filter((d) => {
         let key = keyword.toLowerCase();
         return (
           d.label.toLowerCase().includes(key) ||
@@ -116,15 +116,25 @@ export default {
       this.updateSuggestions();
       this.$emit('focus', e);
     },
-    onBlur(value) {
+    async onBlur(value) {
       if (value === '' || value == null) {
         this.triggerChange('');
+      }
+
+      if (value && !this.suggestions.includes(value)) {
+        const suggestion = await this.getSuggestions(value);
+
+        if (suggestion.length < 2) {
+          return;
+        }
+
+        this.setSuggestion(suggestion[0]);
       }
     },
     onInput(e) {
       this.toggleDropdown(true);
       this.updateSuggestions(e);
-    }
-  }
+    },
+  },
 };
 </script>
