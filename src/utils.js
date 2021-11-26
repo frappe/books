@@ -351,3 +351,33 @@ export function purgeCache(purgeAll = false) {
       delete frappe[d];
     });
 }
+
+export function fuzzyMatch(keyword, candidate) {
+  const keywordLetters = [...keyword];
+  const candidateLetters = [...candidate];
+
+  let keywordLetter = keywordLetters.shift();
+  let candidateLetter = candidateLetters.shift();
+
+  let isMatch = true;
+  let distance = 0;
+
+  while (keywordLetter && candidateLetter) {
+    if (keywordLetter.toLowerCase() === candidateLetter.toLowerCase()) {
+      keywordLetter = keywordLetters.shift();
+    } else {
+      distance += 1;
+    }
+
+    candidateLetter = candidateLetters.shift();
+  }
+
+  if (keywordLetter !== undefined) {
+    distance = -1;
+    isMatch = false;
+  } else {
+    distance += candidateLetters.length;
+  }
+
+  return { isMatch, distance };
+}

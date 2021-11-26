@@ -34,6 +34,7 @@
 <script>
 import Base from './Base';
 import Dropdown from '@/components/Dropdown';
+import { fuzzyMatch } from '@/utils';
 
 export default {
   name: 'AutoComplete',
@@ -97,13 +98,11 @@ export default {
         return items;
       }
 
-      return items.filter((d) => {
-        let key = keyword.toLowerCase();
-        return (
-          d.label.toLowerCase().includes(key) ||
-          d.value.toLowerCase().includes(key)
-        );
-      });
+      return items
+        .map((item) => ({ ...fuzzyMatch(keyword, item.value), item }))
+        .filter(({ isMatch }) => isMatch)
+        .sort((a, b) => a.distance - b.distance)
+        .map(({ item }) => item);
     },
     setSuggestion(suggestion) {
       this.linkValue = suggestion.value;
@@ -121,7 +120,10 @@ export default {
         this.triggerChange('');
       }
 
-      if (value && !this.suggestions.includes(value)) {
+      if (
+        value &&
+        !this.suggestions.map(({ value }) => value).includes(value)
+      ) {
         const suggestion = await this.getSuggestions(value);
 
         if (suggestion.length < 2) {
