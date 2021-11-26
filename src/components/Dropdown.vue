@@ -25,17 +25,35 @@
           <div v-for="d in dropdownItems" :key="d.label">
             <div
               v-if="d.isGroup"
-              class="px-2 pt-3 pb-1 text-xs uppercase text-gray-700 font-semibold tracking-wider"
+              class="
+                px-2
+                pt-3
+                pb-1
+                text-xs
+                uppercase
+                text-gray-700
+                font-semibold
+                tracking-wider
+              "
             >
               {{ d.label }}
             </div>
             <a
               v-else
               ref="items"
-              class="block p-2 rounded-md mt-1 first:mt-0 cursor-pointer truncate"
+              class="
+                block
+                p-2
+                rounded-md
+                mt-1
+                first:mt-0
+                cursor-pointer
+                truncate
+              "
               :class="d.index === highlightedIndex ? 'bg-gray-100' : ''"
               @mouseenter="highlightedIndex = d.index"
               @mouseleave="highlightedIndex = -1"
+              @mousedown.prevent
               @click="selectItem(d)"
             >
               <component :is="d.component" v-if="d.component" />
@@ -57,28 +75,28 @@ export default {
   props: {
     items: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     groups: {
       type: Array,
-      default: null
+      default: null,
     },
     right: {
       type: Boolean,
-      default: false
+      default: false,
     },
     isLoading: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   components: {
-    Popover
+    Popover,
   },
   data() {
     return {
       isShown: false,
-      highlightedIndex: -1
+      highlightedIndex: -1,
     };
   },
   computed: {
@@ -88,7 +106,7 @@ export default {
       }
       let groupNames = uniq(
         this.items
-          .map(d => d.group)
+          .map((d) => d.group)
           .filter(Boolean)
           .sort()
       );
@@ -111,7 +129,7 @@ export default {
         let i = 0;
         for (let group of this.sortedGroups) {
           let groupItems = itemsByGroup[group];
-          groupItems = groupItems.map(d => {
+          groupItems = groupItems.map((d) => {
             d.index = i;
             i++;
             return d;
@@ -119,7 +137,7 @@ export default {
           items = items.concat(
             {
               label: group,
-              isGroup: true
+              isGroup: true,
             },
             groupItems
           );
@@ -132,7 +150,7 @@ export default {
         d.index = i;
         return d;
       });
-    }
+    },
   },
   methods: {
     selectItem(d) {
@@ -181,7 +199,7 @@ export default {
       let highlightedElement = this.$refs.items[this.highlightedIndex];
       highlightedElement &&
         highlightedElement.scrollIntoView({ block: 'nearest' });
-    }
-  }
+    },
+  },
 };
 </script>
