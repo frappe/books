@@ -132,6 +132,11 @@ export default class PaymentServer extends BaseDocument {
     }
   }
 
+  async afterSubmit() {
+    const entries = await this.getPosting();
+    await entries.post();
+  }
+
   async afterRevert() {
     this.updateReferenceOutstandingAmount();
     const entries = await this.getPosting();
