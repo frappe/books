@@ -2,7 +2,16 @@ const Observable = require('./utils/observable');
 const utils = require('./utils');
 
 module.exports = {
-  async init() {
+  initializeAndRegister(customModels = {}) {
+    this.init();
+    const common = require('frappejs/common');
+    this.registerLibs(common);
+    const coreModels = require('frappejs/models');
+    this.registerModels(coreModels);
+    this.registerModels(customModels);
+  },
+
+  init() {
     if (this._initialized) return;
     this.initConfig();
     this.initGlobals();
@@ -15,7 +24,7 @@ module.exports = {
     this.config = {
       serverURL: '',
       backend: 'sqlite',
-      port: 8000
+      port: 8000,
     };
   },
 
@@ -47,7 +56,9 @@ module.exports = {
           `Model name mismatch for ${doctype}: ${metaDefinition.name}`
         );
       }
-      let fieldnames = (metaDefinition.fields || []).map(df => df.fieldname).sort();
+      let fieldnames = (metaDefinition.fields || [])
+        .map((df) => df.fieldname)
+        .sort();
       let duplicateFieldnames = utils.getDuplicates(fieldnames);
       if (duplicateFieldnames.length > 0) {
         throw new Error(
@@ -78,7 +89,7 @@ module.exports = {
       // add to router if client-server
       this.app.post(
         `/api/method/${method}`,
-        this.asyncHandler(async function(request, response) {
+        this.asyncHandler(async function (request, response) {
           let data = await handler(request.body);
           if (data === undefined) {
             data = {};
@@ -103,9 +114,9 @@ module.exports = {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(args || {})
+      body: JSON.stringify(args || {}),
     });
     return await response.json();
   },
@@ -126,7 +137,7 @@ module.exports = {
       }
 
       // propogate change to `docs`
-      doc.on('change', params => {
+      doc.on('change', (params) => {
         this.docs.trigger('change', params);
       });
     }
@@ -174,7 +185,7 @@ module.exports = {
     if (!doc) {
       doc = new (this.getDocumentClass(doctype))({
         doctype: doctype,
-        name: name
+        name: name,
       });
       await doc.load();
       this.addToCache(doc);
@@ -196,7 +207,7 @@ module.exports = {
     for (let field of this.getMeta(doc.doctype).getValidFields()) {
       if (['name', 'submitted'].includes(field.fieldname)) continue;
       if (field.fieldtype === 'Table') {
-        newDoc[field.fieldname] = (doc[field.fieldname] || []).map(d => {
+        newDoc[field.fieldname] = (doc[field.fieldname] || []).map((d) => {
           let newd = Object.assign({}, d);
           newd.name = '';
           return newd;
@@ -255,7 +266,7 @@ module.exports = {
   async login(email, password) {
     if (email === 'Administrator') {
       this.session = {
-        user: 'Administrator'
+        user: 'Administrator',
       };
       return;
     }
@@ -264,9 +275,9 @@ module.exports = {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
 
     if (response.status === 200) {
@@ -274,7 +285,7 @@ module.exports = {
 
       this.session = {
         user: email,
-        token: res.token
+        token: res.token,
       };
 
       return res;
@@ -288,9 +299,9 @@ module.exports = {
       method: 'POST',
       headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, fullName, password })
+      body: JSON.stringify({ email, fullName, password }),
     });
 
     if (response.status === 200) {
@@ -310,5 +321,5 @@ module.exports = {
     if (this.server) {
       this.server.close();
     }
-  }
+  },
 };
