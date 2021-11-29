@@ -3417,10 +3417,10 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
-pesa@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/pesa/-/pesa-1.0.1.tgz#8cbcdeb1f6326b4f3322a49236917632c8dd1fb9"
-  integrity sha512-GEwY93Dl3q3Z89H7gIEs+WaPA5TAKFAPpqOxQbdwJ6jXChhIVAQVGjReQ0vgCGfB29x7FPoj6qeijwpd7G/66w==
+pesa@latest:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/pesa/-/pesa-1.0.2.tgz#78410dbbebb92382cb5c4285aa0a781de2dfc769"
+  integrity sha512-ITR9V8bRe1GDbBQq8/SyMBtzXJlDs8ludO2ZBMtCZen6D7oqlJXVBeZQSJQs4FfoHBLKJtdsk/JvsleE5Qqu4g==
 
 pg-connection-string@2.5.0:
   version "2.5.0"
