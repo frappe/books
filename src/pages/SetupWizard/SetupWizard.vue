@@ -68,13 +68,11 @@ import Popover from '@/components/Popover';
 import config from '@/config';
 import path from 'path';
 import fs from 'fs';
-import { connectToLocalDatabase } from '@/utils';
-
+import { purgeCache, connectToLocalDatabase } from '@/initialization';
 import {
   getErrorMessage,
   handleErrorWithDialog,
   showMessageDialog,
-  purgeCache,
 } from '@/utils';
 
 export default {

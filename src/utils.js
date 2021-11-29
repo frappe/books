@@ -1,96 +1,9 @@
 import Avatar from '@/components/Avatar';
-import config from '@/config';
 import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
-import SQLite from 'frappejs/backends/sqlite';
 import { _ } from 'frappejs/utils';
-import fs from 'fs';
-import postStart from '../server/postStart';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
-import migrate from './migrate';
-
-export async function createNewDatabase() {
-  const options = {
-    title: _('Select folder'),
-    defaultPath: 'frappe-books.db',
-  };
-
-  let { canceled, filePath } = await ipcRenderer.invoke(
-    IPC_ACTIONS.GET_SAVE_FILEPATH,
-    options
-  );
-
-  if (canceled || filePath.length === 0) {
-    return '';
-  }
-
-  if (!filePath.endsWith('.db')) {
-    showMessageDialog({
-      message: "Please select a filename ending with '.db'.",
-    });
-    return '';
-  }
-
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
-  }
-
-  return filePath;
-}
-
-export async function loadExistingDatabase() {
-  const options = {
-    title: _('Select file'),
-    properties: ['openFile'],
-    filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
-  };
-
-  const { filePaths } = await ipcRenderer.invoke(
-    IPC_ACTIONS.GET_OPEN_FILEPATH,
-    options
-  );
-
-  if (filePaths && filePaths[0]) {
-    return filePaths[0];
-  }
-}
-
-export async function connectToLocalDatabase(filePath) {
-  if (!filePath) {
-    return false;
-  }
-
-  frappe.login('Administrator');
-  try {
-    frappe.db = new SQLite({
-      dbPath: filePath,
-    });
-    await frappe.db.connect();
-  } catch (error) {
-    return false;
-  }
-
-  await migrate();
-  await postStart();
-
-  // set file info in config
-  let files = config.get('files') || [];
-  if (!files.find((file) => file.filePath === filePath)) {
-    files = [
-      {
-        companyName: frappe.AccountingSettings.companyName,
-        filePath: filePath,
-      },
-      ...files,
-    ];
-    config.set('files', files);
-  }
-
-  // set last selected file
-  config.set('lastSelectedFilePath', filePath);
-  return true;
-}
 
 export async function showMessageDialog({
   message,
@@ -337,19 +250,6 @@ export function routeTo(route) {
   if (route !== router.currentRoute.fullPath) {
     router.push(route);
   }
-}
-
-export function purgeCache(purgeAll = false) {
-  const filterFunction = purgeAll
-    ? (d) => true
-    : (d) => frappe.docs[d][d] instanceof frappe.BaseMeta;
-
-  Object.keys(frappe.docs)
-    .filter(filterFunction)
-    .forEach((d) => {
-      frappe.removeFromCache(d, d);
-      delete frappe[d];
-    });
 }
 
 export function fuzzyMatch(keyword, candidate) {

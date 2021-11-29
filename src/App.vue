@@ -30,8 +30,9 @@ import DatabaseSelector from './pages/DatabaseSelector';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { ipcRenderer } from 'electron';
 import config from '@/config';
-import { connectToLocalDatabase, routeTo, purgeCache } from '@/utils';
+import {  routeTo  } from '@/utils';
 import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
+import { connectToLocalDatabase, purgeCache } from '@/initialization';
 
 export default {
   name: 'App',
