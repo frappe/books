@@ -152,12 +152,10 @@
 import fs from 'fs';
 import config from '@/config';
 import { DateTime } from 'luxon';
+import { ipcRenderer } from 'electron';
+import { IPC_ACTIONS } from '../messages';
 
-import {
-  createNewDatabase,
-  loadExistingDatabase,
-  connectToLocalDatabase,
-} from '@/initialization';
+import { createNewDatabase, connectToLocalDatabase } from '@/initialization';
 
 export default {
   name: 'DatabaseSelector',
@@ -191,7 +189,11 @@ export default {
     },
     async existingDatabase() {
       this.fileSelectedFrom = 'Existing File';
-      let filePath = await loadExistingDatabase();
+      const filePath = (await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, {
+        title: this._('Select file'),
+        properties: ['openFile'],
+        filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
+      }))?.filePaths?.[0];
       this.connectToDatabase(filePath);
     },
     async selectFile(file) {
