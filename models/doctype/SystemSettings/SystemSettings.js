@@ -37,6 +37,7 @@ module.exports = {
       options: dateFormatOptions,
       default: 'MMM d, y',
       required: 1,
+      description: _('Sets the app-wide date display format.'),
     },
     {
       fieldname: 'floatPrecision',
@@ -45,12 +46,25 @@ module.exports = {
       options: ['2', '3', '4', '5'],
       default: '2',
       required: 1,
+      description: _('Sets how many digits are shown after the decimal point.'),
+    },
+    {
+      fieldname: 'internalPrecision',
+      label: 'Internal Precision',
+      fieldtype: 'Int',
+      default: 12,
+      description: _(
+        'Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.'
+      ),
     },
     {
       fieldname: 'hideGetStarted',
       label: 'Hide Get Started',
       fieldtype: 'Check',
       default: 0,
+      description: _(
+        'Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.'
+      ),
     },
     {
       fieldname: 'autoUpdate',
@@ -58,7 +72,7 @@ module.exports = {
       fieldtype: 'Check',
       default: 1,
       description: _(
-        'Automatically check for updates and download them if available. The update will be applied after you restart the app.'
+        'Automatically checks for updates and download them if available. The update will be applied after you restart the app.'
       ),
     },
   ],
