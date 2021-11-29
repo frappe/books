@@ -4,8 +4,8 @@ import { _ } from 'frappejs';
 import SQLite from 'frappejs/backends/sqlite';
 import fs from 'fs';
 import postStart from '../server/postStart';
-import migrate from './migrate';
 import { IPC_ACTIONS } from './messages';
+import migrate from './migrate';
 
 export async function createNewDatabase() {
   const options = {
@@ -34,23 +34,6 @@ export async function createNewDatabase() {
   }
 
   return filePath;
-}
-
-export async function loadExistingDatabase() {
-  const options = {
-    title: _('Select file'),
-    properties: ['openFile'],
-    filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
-  };
-
-  const { filePaths } = await ipcRenderer.invoke(
-    IPC_ACTIONS.GET_OPEN_FILEPATH,
-    options
-  );
-
-  if (filePaths && filePaths[0]) {
-    return filePaths[0];
-  }
 }
 
 export async function connectToLocalDatabase(filePath) {
