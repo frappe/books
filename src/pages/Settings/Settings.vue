@@ -91,9 +91,8 @@ export default {
     };
   },
   mounted() {
-    let path = this.$router.currentRoute.fullPath;
-    let tab = path.replace('/settings/', '');
-    let index = this.tabs.findIndex((t) => t.label === _(tab));
+    const { tab } = this.$route.query;
+    const index = this.tabs.findIndex((t) => t.label === _(tab));
     if (index !== -1) {
       this.activeTab = index;
     }

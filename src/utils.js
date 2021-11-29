@@ -247,8 +247,13 @@ export function getInvoiceStatus(doc) {
 }
 
 export function routeTo(route) {
-  if (route !== router.currentRoute.fullPath) {
-    router.push(route);
+  let routeOptions = route;
+  if (typeof route === 'string') {
+    routeOptions = { path: route };
+  }
+
+  if (routeOptions.path !== router.currentRoute.fullPath) {
+    router.push(routeOptions);
   }
 }
 
@@ -280,4 +285,8 @@ export function fuzzyMatch(keyword, candidate) {
   }
 
   return { isMatch, distance };
+}
+
+export function openSettings(tab) {
+  routeTo({ path: '/settings', query: { tab } });
 }
