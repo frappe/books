@@ -28,7 +28,7 @@
         <div class="chart-wrapper" ref="top-expenses"></div>
         <div
           class="absolute text-base text-center font-semibold"
-          style="right: 6rem; top: 32%;"
+          style="right: 6.5rem; top: 32%;"
         >
           <div>
             {{ frappe.format(totalExpense, 'Currency') }}
