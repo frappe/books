@@ -157,7 +157,7 @@ import {
   createNewDatabase,
   loadExistingDatabase,
   connectToLocalDatabase,
-} from '@/utils';
+} from '@/initialization';
 
 export default {
   name: 'DatabaseSelector',

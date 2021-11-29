@@ -1,28 +1,18 @@
-// frappejs imports
+import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
-import common from 'frappejs/common';
-import coreModels from 'frappejs/models';
 import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 import outsideClickDirective from 'frappejs/ui/plugins/outsideClickDirective';
-import models from '../models';
-
-// vue imports
-import Vue from 'vue';
 import PortalVue from 'portal-vue';
+import Vue from 'vue';
+import models from '../models';
 import App from './App';
-import router from './router';
-
-// other imports
-import { ipcRenderer } from 'electron';
 import { IPC_MESSAGES } from './messages';
+import router from './router';
 
 (async () => {
   frappe.isServer = true;
   frappe.isElectron = true;
-  frappe.init();
-  frappe.registerLibs(common);
-  frappe.registerModels(coreModels);
-  frappe.registerModels(models);
+  frappe.initializeAndRegister(models);
   frappe.fetch = window.fetch.bind();
 
   frappe.events.on('reload-main-window', () => {
