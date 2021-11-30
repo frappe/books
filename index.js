@@ -1,5 +1,6 @@
 const Observable = require('./utils/observable');
 const utils = require('./utils');
+const { getMoneyMaker } = require('pesa');
 
 module.exports = {
   initializeAndRegister(customModels = {}, force = false) {
@@ -9,6 +10,37 @@ module.exports = {
     const coreModels = require('frappejs/models');
     this.registerModels(coreModels);
     this.registerModels(customModels);
+  },
+
+  async initializeMoneyMaker() {
+    // to be called after db initialization
+    const { currency, internalPrecision: precision } = (
+      await frappe.db.getSingleValues(
+        { fieldname: 'currency', parent: 'AccountingSettings' },
+        { fieldname: 'internalPrecision', parent: 'SystemSettings' }
+      )
+    ).reduce((acc, { fieldname, value }) => {
+      acc[fieldname] = value;
+      return acc;
+    }, {});
+
+    if (typeof precision === 'undefined') {
+      precision = this.getMeta('SystemSettings').fields.find(
+        (f) => f.fieldname === 'internalPrecision'
+      )?.default;
+    }
+
+    if (typeof precision === 'undefined') {
+      throw new frappe.errors.NotFoundError(
+        'SystemSettings internalPrecision value is undefined'
+      );
+    }
+
+    if (typeof precision.value === 'string') {
+      precision = parseInt(precision);
+    }
+
+    this.pesa = getMoneyMaker({ currency, precision });
   },
 
   init(force) {

@@ -13,9 +13,10 @@ module.exports = class Database extends Observable {
 
   connect() {
     this.knex = Knex(this.connectionParams);
-    this.knex.on('query-error', error => {
+    this.knex.on('query-error', (error) => {
       error.type = this.getError(error);
     });
+    this.executePostDbConnect();
   }
 
   close() {
@@ -41,15 +42,25 @@ module.exports = class Database extends Observable {
 
   async initializeSingles() {
     let singleDoctypes = frappe
-      .getModels(model => model.isSingle)
-      .map(model => model.name);
+      .getModels((model) => model.isSingle)
+      .map((model) => model.name);
 
     for (let doctype of singleDoctypes) {
       if (await this.singleExists(doctype)) {
+        const singleValues = await this.getSingleFieldsToInsert(doctype);
+        singleValues.forEach(({ fieldname, value }) => {
+          let singleValue = frappe.newDoc({
+            doctype: 'SingleValue',
+            parent: doctype,
+            fieldname,
+            value,
+          });
+          singleValue.insert();
+        });
         continue;
       }
       let meta = frappe.getMeta(doctype);
-      if (meta.fields.every(df => df.default == null)) {
+      if (meta.fields.every((df) => df.default == null)) {
         continue;
       }
       let defaultValues = meta.fields.reduce((doc, df) => {
@@ -70,6 +81,26 @@ module.exports = class Database extends Observable {
     return res.count > 0;
   }
 
+  async getSingleFieldsToInsert(doctype) {
+    const existingFields = (
+      await frappe.db
+        .knex('SingleValue')
+        .where({ parent: doctype })
+        .select('fieldname')
+    ).map(({ fieldname }) => fieldname);
+
+    return frappe
+      .getMeta(doctype)
+      .fields.map(({ fieldname, default: value }) => ({
+        fieldname,
+        value,
+      }))
+      .filter(
+        ({ fieldname, value }) =>
+          !existingFields.includes(fieldname) && value !== undefined
+      );
+  }
+
   tableExists(table) {
     return this.knex.schema.hasTable(table);
   }
@@ -80,7 +111,7 @@ module.exports = class Database extends Observable {
   }
 
   runCreateTableQuery(doctype, fields) {
-    return this.knex.schema.createTable(doctype, table => {
+    return this.knex.schema.createTable(doctype, (table) => {
       for (let field of fields) {
         this.buildColumnForTable(table, field);
       }
@@ -93,7 +124,7 @@ module.exports = class Database extends Observable {
     let newForeignKeys = await this.getNewForeignKeys(doctype);
 
     return this.knex.schema
-      .table(doctype, table => {
+      .table(doctype, (table) => {
         if (diff.added.length) {
           for (let field of diff.added) {
             this.buildColumnForTable(table, field);
@@ -162,7 +193,7 @@ module.exports = class Database extends Observable {
       }
     }
 
-    const validFieldNames = validFields.map(field => field.fieldname);
+    const validFieldNames = validFields.map((field) => field.fieldname);
     for (let column of tableColumns) {
       if (!validFieldNames.includes(column)) {
         diff.removed.push(column);
@@ -235,7 +266,7 @@ module.exports = class Database extends Observable {
         fields: ['*'],
         filters: { parent: doc.name },
         orderBy: 'idx',
-        order: 'asc'
+        order: 'asc',
       });
     }
   }
@@ -246,13 +277,45 @@ module.exports = class Database extends Observable {
       fields: ['fieldname', 'value'],
       filters: { parent: doctype },
       orderBy: 'fieldname',
-      order: 'asc'
+      order: 'asc',
     });
     let doc = {};
     for (let row of values) {
       doc[row.fieldname] = row.value;
     }
     return doc;
+  }
+
+  /**
+   * Get list of values from the singles table.
+   * @param  {...string | Object} fieldnames list of fieldnames to get the values of
+   * @returns {Array<Object>} array of {parent, value, fieldname}.
+   * @example
+   * Database.getSingleValues('internalPrecision');
+   * // returns [{ fieldname: 'internalPrecision', parent: 'SystemSettings', value: '12' }]
+   * @example
+   * Database.getSingleValues({fieldname:'internalPrecision', parent: 'SystemSettings'});
+   * // returns [{ fieldname: 'internalPrecision', parent: 'SystemSettings', value: '12' }]
+   */
+  async getSingleValues(...fieldnames) {
+    fieldnames = fieldnames.map((fieldname) => {
+      if (typeof fieldname === 'string') {
+        return { fieldname };
+      }
+      return fieldname;
+    });
+
+    let builder = frappe.db.knex('SingleValue');
+    builder = builder.where(fieldnames[0]);
+
+    fieldnames.slice(1).forEach(({ fieldname, parent }) => {
+      if (typeof parent === 'undefined') {
+        builder = builder.orWhere({ fieldname });
+      } else {
+        builder = builder.orWhere({ fieldname, parent });
+      }
+    });
+    return await builder.select('fieldname', 'value', 'parent');
   }
 
   getOne(doctype, name, fields = '*') {
@@ -358,8 +421,8 @@ module.exports = class Database extends Observable {
 
   updateOne(doctype, doc) {
     let validFields = this.getValidFields(doctype);
-    let fieldsToUpdate = Object.keys(doc).filter(f => f !== 'name');
-    let fields = validFields.filter(df =>
+    let fieldsToUpdate = Object.keys(doc).filter((f) => f !== 'name');
+    let fields = validFields.filter((df) =>
       fieldsToUpdate.includes(df.fieldname)
     );
     let formattedDoc = this.getFormattedDoc(fields, doc);
@@ -396,7 +459,7 @@ module.exports = class Database extends Observable {
           doctype: 'SingleValue',
           parent: doctype,
           fieldname: field.fieldname,
-          value: value
+          value: value,
         });
         await singleValue.insert();
       }
@@ -404,9 +467,7 @@ module.exports = class Database extends Observable {
   }
 
   deleteSingleValues(name) {
-    return this.knex('SingleValue')
-      .where('parent', name)
-      .delete();
+    return this.knex('SingleValue').where('parent', name).delete();
   }
 
   async rename(doctype, oldName, newName) {
@@ -439,7 +500,7 @@ module.exports = class Database extends Observable {
 
   getFormattedDoc(fields, doc) {
     let formattedDoc = {};
-    fields.map(field => {
+    fields.map((field) => {
       let value = doc[field.fieldname];
       formattedDoc[field.fieldname] = this.getFormattedValue(field, value);
     });
@@ -507,9 +568,7 @@ module.exports = class Database extends Observable {
   }
 
   deleteChildren(parenttype, parent) {
-    return this.knex(parenttype)
-      .where('parent', parent)
-      .delete();
+    return this.knex(parenttype).where('parent', parent).delete();
   }
 
   async exists(doctype, name) {
@@ -533,14 +592,14 @@ module.exports = class Database extends Observable {
       start: 0,
       limit: 1,
       orderBy: 'name',
-      order: 'asc'
+      order: 'asc',
     });
     return row.length ? row[0][fieldname] : null;
   }
 
   async setValue(doctype, name, fieldname, value) {
     return await this.setValues(doctype, name, {
-      [fieldname]: value
+      [fieldname]: value,
     });
   }
 
@@ -565,7 +624,7 @@ module.exports = class Database extends Observable {
     limit,
     groupBy,
     orderBy = 'creation',
-    order = 'desc'
+    order = 'desc',
   } = {}) {
     let meta = frappe.getMeta(doctype);
     let baseDoctype = meta.getBaseDocType();
@@ -643,7 +702,7 @@ module.exports = class Database extends Observable {
       }
     }
 
-    filtersArray.map(filter => {
+    filtersArray.map((filter) => {
       const [field, operator, comparisonValue] = filter;
       if (operator === '=') {
         builder.where(field, comparisonValue);
@@ -688,5 +747,9 @@ module.exports = class Database extends Observable {
 
   initTypeMap() {
     this.typeMap = {};
+  }
+
+  executePostDbConnect() {
+    frappe.initializeMoneyMaker();
   }
 };
