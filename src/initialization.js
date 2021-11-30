@@ -1,7 +1,7 @@
 import config from '@/config';
 import { ipcRenderer } from 'electron';
 import { _ } from 'frappejs';
-import SQLite from 'frappejs/backends/sqlite';
+import SQLiteDatabase from 'frappejs/backends/sqlite';
 import fs from 'fs';
 import postStart from '../server/postStart';
 import { IPC_ACTIONS } from './messages';
@@ -43,11 +43,12 @@ export async function connectToLocalDatabase(filePath) {
 
   frappe.login('Administrator');
   try {
-    frappe.db = new SQLite({
+    frappe.db = new SQLiteDatabase({
       dbPath: filePath,
     });
     await frappe.db.connect();
   } catch (error) {
+    console.error(error);
     return false;
   }
 
