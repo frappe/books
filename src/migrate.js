@@ -1,41 +1,47 @@
 import frappe from 'frappejs';
 import runPatches from 'frappejs/model/runPatches';
-import patchesTxt from '../patches/patches.txt';
-const requirePatch = require.context('../patches', true, /\w+\.(js)$/);
+import patches from '../patches/patches.json';
 
 export default async function runMigrate() {
-  if (await canRunPatches()) {
-    const patchOrder = patchesTxt.split('\n');
-    const allPatches = getAllPatches();
-    await runPatches(allPatches, patchOrder);
+  const canRunPatches = await getCanRunPatches();
+  if (!canRunPatches) {
+    return await frappe.db.migrate();
   }
+
+  const patchList = await fetchPatchList();
+  await runPatches(patchList.filter(({ beforeMigrate }) => beforeMigrate));
   await frappe.db.migrate();
+  await runPatches(patchList.filter(({ beforeMigrate }) => !beforeMigrate));
 }
 
-async function canRunPatches() {
-  return (
-    (await frappe.db
-      .knex('sqlite_master')
-      .where({ type: 'table', name: 'PatchRun' })
-      .select('name').length) > 0
+async function fetchPatchList() {
+  return await Promise.all(
+    patches.map(async ({ version, fileName, beforeMigrate }) => {
+      if (typeof beforeMigrate === 'undefined') {
+        beforeMigrate = true;
+      }
+
+      const patchName = `${version}/${fileName}`;
+      // This import is pseudo dynamic
+      // webpack runs static analysis on the static portion of the import
+      // i.e. '../patches/' this may break on windows due to the path
+      // delimiter used.
+      //
+      // Only way to fix this is probably upgrading the build from
+      // webpack to something else.
+      const patchFunction = (await import('../patches/' + patchName)).default;
+      return { patchName, patchFunction, beforeMigrate };
+    })
   );
 }
 
-async function getAllPatches() {
-  const allPatches = {};
-  requirePatch.keys().forEach((fileName) => {
-    if (fileName === './index.js') return;
-    let method;
-    try {
-      method = requirePatch(fileName).default;
-    } catch (error) {
-      console.error(error);
-      method = null;
-    }
-    fileName = fileName.slice(2, -3);
-    if (fileName && method) {
-      allPatches[fileName] = method;
-    }
-  });
-  return allPatches;
+async function getCanRunPatches() {
+  return (
+    (
+      await frappe.db
+        .knex('sqlite_master')
+        .where({ type: 'table', name: 'PatchRun' })
+        .select('name')
+    ).length > 0
+  );
 }
