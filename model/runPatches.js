@@ -1,40 +1,26 @@
 const frappe = require('frappejs');
 
-module.exports = async function runPatches(allPatches, patchOrder) {
-  let executedPatchRuns = [];
-  try {
-    executedPatchRuns = (
-      await frappe.db.getAll({ doctype: 'PatchRun', fields: ['name'] })
-    ).map((d) => d.name);
-  } catch (error) {}
+module.exports = async function runPatches(patchList) {
+  const patchesAlreadyRun = (
+    await frappe.db.knex('PatchRun').select('name')
+  ).map(({ name }) => name);
 
-  let patchRunOrder = patchOrder
-    .map((text) => {
-      let [patch] = text.split(' ');
-      if (text && patch) {
-        return {
-          fileName: text,
-          method: allPatches[patch],
-        };
-      }
-    })
-    .filter(Boolean);
-
-  for (let patch of patchRunOrder) {
-    if (!executedPatchRuns.includes(patch.fileName)) {
-      await runPatch(patch);
+  for (let patch of patchList) {
+    if (patchesAlreadyRun.includes(patch.patchName)) {
+      continue;
     }
+
+    await runPatch(patch);
   }
 };
 
-async function runPatch(patch) {
+async function runPatch({ patchName, patchFunction }) {
   try {
-    await patch.method();
-    let patchRun = frappe.getNewDoc('PatchRun');
-    patchRun.name = patch.fileName;
+    await patchFunction();
+    const patchRun = frappe.getNewDoc('PatchRun');
+    patchRun.name = patchName;
     await patchRun.insert();
   } catch (error) {
-    console.error(error);
-    console.log('Could not run patch', patch);
+    console.error(`could not run ${patchName}`, error);
   }
 }
