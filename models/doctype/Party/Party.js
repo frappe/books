@@ -4,6 +4,7 @@ import { _ } from 'frappejs/utils';
 export default {
   name: 'Party',
   label: 'Party',
+  regional: 1,
   keywordFields: ['name'],
   fields: [
     {
@@ -99,22 +100,7 @@ export default {
         }
       },
     },
-    {
-      fieldname: 'gstin',
-      label: 'GSTIN No.',
-      fieldtype: 'Data',
-      hidden: (form) => {
-        return form.gstType === 'Registered Regular' ? 0 : 1;
-      },
-    },
   ],
 
-  quickEditFields: [
-    'email',
-    'phone',
-    'address',
-    'defaultAccount',
-    'currency',
-    'gstin',
-  ],
+  quickEditFields: ['email', 'phone', 'address', 'defaultAccount', 'currency'],
 };
