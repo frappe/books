@@ -248,13 +248,15 @@ export function getInvoiceStatus(doc) {
 
 export function routeTo(route) {
   let routeOptions = route;
+  if (typeof route === 'string' && route === router.currentRoute.fullPath) {
+    return;
+  }
+
   if (typeof route === 'string') {
     routeOptions = { path: route };
   }
 
-  if (routeOptions.path !== router.currentRoute.fullPath) {
-    router.push(routeOptions);
-  }
+  router.push(routeOptions);
 }
 
 export function fuzzyMatch(keyword, candidate) {
