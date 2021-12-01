@@ -3,6 +3,8 @@ import { ipcRenderer } from 'electron';
 import { _ } from 'frappejs';
 import SQLiteDatabase from 'frappejs/backends/sqlite';
 import fs from 'fs';
+import models from '../models';
+import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart from '../server/postStart';
 import { IPC_ACTIONS } from './messages';
 import migrate from './migrate';
@@ -36,6 +38,18 @@ export async function createNewDatabase() {
   return filePath;
 }
 
+async function runRegionalModelUpdates() {
+  if (!(await frappe.db.knex.schema.hasTable('SingleValue'))) {
+    return;
+  }
+
+  const { country, setupComplete } = await frappe.db.getSingle(
+    'AccountingSettings'
+  );
+  if (!parseInt(setupComplete)) return;
+  await regionalModelUpdates({ country });
+}
+
 export async function connectToLocalDatabase(filePath) {
   if (!filePath) {
     return false;
@@ -50,6 +64,12 @@ export async function connectToLocalDatabase(filePath) {
   } catch (error) {
     console.error(error);
     return false;
+  }
+
+  try {
+    await runRegionalModelUpdates();
+  } catch (error) {
+    console.error('regional model updates failed', error);
   }
 
   await migrate();
@@ -75,7 +95,7 @@ export async function connectToLocalDatabase(filePath) {
 
 export function purgeCache(purgeAll = false) {
   const filterFunction = purgeAll
-    ? (d) => true
+    ? () => true
     : (d) => frappe.docs[d][d] instanceof frappe.BaseMeta;
 
   Object.keys(frappe.docs)
@@ -84,4 +104,9 @@ export function purgeCache(purgeAll = false) {
       frappe.removeFromCache(d, d);
       delete frappe[d];
     });
+
+  if (purgeAll) {
+    delete frappe.db;
+    frappe.initializeAndRegister(models, true);
+  }
 }
