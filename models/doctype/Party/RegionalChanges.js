@@ -1,21 +1,39 @@
-import party from './Party';
+import { cloneDeep } from 'lodash';
+import PartyOriginal from './Party';
 
-party.fields.splice(3, 0, {
-  //insert at 3rd position
-  fieldname: 'gstin',
-  label: 'GSTIN No.',
-  fieldtype: 'Data',
-  hidden: form => {
-    return form.gstType === 'Registered Regular' ? 0 : 1;
+export default function getAugmentedParty({ country }) {
+  const Party = cloneDeep(PartyOriginal);
+  if (!country) {
+    return Party;
   }
-});
-party.fields.splice(4, 0, {
-  fieldname: 'gstType',
-  label: 'GST Registration Type',
-  fieldtype: 'Select',
-  options: ['Unregistered', 'Registered Regular', 'Consumer']
-});
-party.fields.join();
-const newParty = party;
 
-export default newParty;
+  if (country === 'India') {
+    Party.fields.splice(
+      3,
+      0,
+      {
+        fieldname: 'gstin',
+        label: 'GSTIN No.',
+        fieldtype: 'Data',
+        hidden: (form) => {
+          return form.gstType === 'Registered Regular' ? 0 : 1;
+        },
+      },
+      {
+        fieldname: 'gstType',
+        label: 'GST Registration Type',
+        fieldtype: 'Select',
+        options: ['Unregistered', 'Registered Regular', 'Consumer'],
+      }
+    );
+    Party.quickEditFields.push('gstin');
+  } else {
+    Party.fields.splice(3, 0, {
+      fieldname: 'taxId',
+      label: 'Tax ID',
+      fieldtype: 'Data',
+    });
+    Party.quickEditFields.push('taxId');
+  }
+  return Party;
+}
