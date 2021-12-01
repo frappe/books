@@ -8,16 +8,16 @@ class SqliteDatabase extends Database {
     this.connectionParams = {
       client: 'sqlite3',
       connection: {
-        filename: this.dbPath
+        filename: this.dbPath,
       },
       pool: {
         afterCreate(conn, done) {
           conn.run('PRAGMA foreign_keys=ON');
           done();
-        }
+        },
       },
       useNullAsDefault: true,
-      asyncStackTraces: process.env.NODE_ENV === 'development'
+      asyncStackTraces: process.env.NODE_ENV === 'development',
     };
   }
 
@@ -48,12 +48,12 @@ class SqliteDatabase extends Database {
   }
 
   async getTableColumns(doctype) {
-    return (await this.sql(`PRAGMA table_info(${doctype})`)).map(d => d.name);
+    return (await this.sql(`PRAGMA table_info(${doctype})`)).map((d) => d.name);
   }
 
   async getForeignKeys(doctype) {
     return (await this.sql(`PRAGMA foreign_key_list(${doctype})`)).map(
-      d => d.from
+      (d) => d.from
     );
   }
 
@@ -102,6 +102,17 @@ class SqliteDatabase extends Database {
       errorType = frappe.errors.DuplicateEntryError;
     }
     return errorType;
+  }
+
+  async prestigeTheTable(tableName, tableRows) {
+    // Alter table hacx for sqlite in case of schema change.
+    const tempName = `__${tableName}`;
+    await this.knex.raw('PRAGMA foreign_keys=OFF');
+    await this.createTable(tableName, tempName);
+    await this.knex.batchInsert(tempName, tableRows);
+    await this.knex.schema.dropTable(tableName);
+    await this.knex.schema.renameTable(tempName, tableName);
+    await this.knex.raw('PRAGMA foreign_keys=ON');
   }
 }
 
