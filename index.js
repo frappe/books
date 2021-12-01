@@ -2,8 +2,8 @@ const Observable = require('./utils/observable');
 const utils = require('./utils');
 
 module.exports = {
-  initializeAndRegister(customModels = {}) {
-    this.init();
+  initializeAndRegister(customModels = {}, force = false) {
+    this.init(force);
     const common = require('frappejs/common');
     this.registerLibs(common);
     const coreModels = require('frappejs/models');
@@ -11,8 +11,8 @@ module.exports = {
     this.registerModels(customModels);
   },
 
-  init() {
-    if (this._initialized) return;
+  init(force) {
+    if (this._initialized && !force) return;
     this.initConfig();
     this.initGlobals();
     this.docs = new Observable();
