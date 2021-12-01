@@ -1,8 +1,8 @@
+import config from '@/config';
 import frappe from 'frappejs';
 import countryList from '~/fixtures/countryInfo.json';
-import generateTaxes from '../../../models/doctype/Tax/RegionalChanges';
-import { getCountryCOA } from '../../../accounting/importCOA';
-import config from '@/config';
+import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
+import regionalModelUpdates from '../../../models/regionalModelUpdates';
 
 export default async function setupCompany(setupWizardValues) {
   const {
@@ -100,12 +100,8 @@ async function setupChartOfAccounts(bankName, country) {
 
 async function setupRegionalChanges(country) {
   await generateTaxes(country);
-  if (country === 'India') {
-    frappe.models.Party = (
-      await import('../../../models/doctype/Party/RegionalChanges')
-    ).default;
-    await frappe.db.migrate();
-  }
+  await regionalModelUpdates({ country });
+  await frappe.db.migrate();
 }
 
 function updateCompanyNameInConfig() {
