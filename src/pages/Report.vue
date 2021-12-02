@@ -3,6 +3,15 @@
     <PageHeader>
       <h1 slot="title" class="text-2xl font-bold">{{ report.title }}</h1>
       <template slot="actions">
+        <Button
+          :icon="true"
+          @click="downloadAsJson"
+          type="primary"
+          v-if="isGstReportsPage"
+          class="ml-2 text-white text-xs"
+        >
+          {{ _('Download as JSON') }}
+        </Button>
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
@@ -25,6 +34,7 @@
           :df="df"
           :value="filters[df.fieldname]"
           @change="(value) => onFilterChange(df, value)"
+          :show-label="df.fieldtype === 'Check'"
         />
       </div>
     </div>
@@ -261,6 +271,9 @@ export default {
         this.loading ? 'text-gray-100' : 'text-gray-900',
       ];
     },
+    downloadAsJson() {
+      console.log('download complete');
+    },
   },
   computed: {
     columns() {
@@ -310,6 +323,9 @@ export default {
           return `minmax(${minWidth}, ${maxWidth})`;
         })
         .join(' ');
+    },
+    isGstReportsPage() {
+      return this.report.title.includes('GSTR');
     },
   },
 };
