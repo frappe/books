@@ -153,7 +153,7 @@ export default {
       await this.fetchDoc();
 
       // setup the title field
-      if (this.doc.isNew() && this.doc[this.titleField.fieldname]) {
+      if (this.doc && this.doc.isNew() && this.doc[this.titleField.fieldname]) {
         if (!this.titleField.readOnly) {
           this.doc.set(this.titleField.fieldname, '');
           setTimeout(() => {
