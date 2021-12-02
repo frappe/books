@@ -12,17 +12,28 @@ module.exports = {
     this.registerModels(customModels);
   },
 
-  async initializeMoneyMaker() {
+  async initializeMoneyMaker(currency) {
+    currency ??= 'XXX';
+
     // to be called after db initialization
-    const { currency, internalPrecision: precision } = (
-      await frappe.db.getSingleValues(
-        { fieldname: 'currency', parent: 'AccountingSettings' },
-        { fieldname: 'internalPrecision', parent: 'SystemSettings' }
-      )
-    ).reduce((acc, { fieldname, value }) => {
-      acc[fieldname] = value;
-      return acc;
-    }, {});
+    let values;
+    try {
+      // error thrown if migration hasn't taken place
+      values = await frappe.db.getSingleValues({
+        fieldname: 'internalPrecision',
+        parent: 'SystemSettings',
+      });
+    } catch {
+      values = [];
+    }
+
+    let { internalPrecision: precision } = values.reduce(
+      (acc, { fieldname, value }) => {
+        acc[fieldname] = value;
+        return acc;
+      },
+      {}
+    );
 
     if (typeof precision === 'undefined') {
       precision = this.getMeta('SystemSettings').fields.find(
@@ -31,9 +42,7 @@ module.exports = {
     }
 
     if (typeof precision === 'undefined') {
-      throw new frappe.errors.NotFoundError(
-        'SystemSettings internalPrecision value is undefined'
-      );
+      precision = 11;
     }
 
     if (typeof precision.value === 'string') {
