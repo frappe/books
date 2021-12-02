@@ -3,6 +3,7 @@ import frappe from 'frappejs';
 import countryList from '~/fixtures/countryInfo.json';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
 import regionalModelUpdates from '../../../models/regionalModelUpdates';
+import { callInitializeMoneyMaker } from '../../utils';
 
 export default async function setupCompany(setupWizardValues) {
   const {
@@ -17,6 +18,9 @@ export default async function setupCompany(setupWizardValues) {
   } = setupWizardValues;
 
   const accountingSettings = frappe.AccountingSettings;
+  const currency = countryList[country]['currency'];
+  await callInitializeMoneyMaker(currency);
+
   await accountingSettings.update({
     companyName,
     country,
@@ -25,7 +29,7 @@ export default async function setupCompany(setupWizardValues) {
     bankName,
     fiscalYearStart,
     fiscalYearEnd,
-    currency: countryList[country]['currency'],
+    currency,
   });
 
   const printSettings = await frappe.getSingle('PrintSettings');
