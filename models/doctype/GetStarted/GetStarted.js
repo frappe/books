@@ -5,52 +5,62 @@ export default {
     {
       fieldname: 'onboardingComplete',
       label: 'Onboarding Complete',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'companySetup',
       label: 'Company Setup',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'systemSetup',
       label: 'System Setup',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'invoiceSetup',
       label: 'Invoice Setup',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'itemCreated',
       label: 'Item Created',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'customerCreated',
       label: 'Customer Created',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'supplierCreated',
       label: 'Supplier Created',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'invoiceCreated',
       label: 'Invoice Created',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'billCreated',
       label: 'Bill Created',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'chartOfAccountsReviewed',
       label: 'Chart Of Accounts Reviewed',
-      fieldtype: 'Check'
-    }
-  ]
+      fieldtype: 'Check',
+    },
+    {
+      fieldname: 'openingBalanceChecked',
+      label: 'Opening Balances',
+      fieldtype: 'Check',
+    },
+    {
+      fieldname: 'taxesAdded',
+      label: 'Add Taxes',
+      fieldtype: 'Check',
+    },
+  ],
 };
