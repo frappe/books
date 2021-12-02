@@ -8,7 +8,7 @@
         size="small"
         :df="df"
         :value="doc[df.fieldname]"
-        :read-only="submitted"
+        :read-only="evaluateReadOnly(df)"
         @change="(value) => onChange(df, value)"
       />
       <template v-else>
@@ -72,7 +72,7 @@
                   : doc[df.fieldname]
               "
               :class="{ 'p-2': df.fieldtype === 'Check' }"
-              :read-only="submitted"
+              :read-only="evaluateReadOnly(df)"
               @change="(value) => onChange(df, value)"
               @focus="activateInlineEditing(df)"
               @new-doc="(newdoc) => onChange(df, newdoc.name)"
@@ -135,9 +135,29 @@ let TwoColumnForm = {
     }
   },
   methods: {
+    evaluateBoolean(fieldProp, defaultValue) {
+      const type = typeof fieldProp;
+      switch (type) {
+        case 'undefined':
+          return defaultValue;
+        case 'function':
+          return fieldProp(this.doc);
+        default:
+          return !!fieldProp;
+      }
+    },
+    evaluateReadOnly(df) {
+      if (this.submitted) {
+        return true;
+      }
+      return this.evaluateBoolean(df.readOnly, false);
+    },
+    evaluateHidden(df) {
+      return this.evaluateBoolean(df.hidden, false);
+    },
     onChange(df, value) {
       if (value == null) {
-        return
+        return;
       }
 
       let oldValue = this.doc.get(df.fieldname);
@@ -204,7 +224,9 @@ let TwoColumnForm = {
   },
   computed: {
     formFields() {
-      return this.fields || this.doc.meta.getQuickEditFields();
+      return (this.fields || this.doc.meta.getQuickEditFields()).filter(
+        (df) => !this.evaluateHidden(df)
+      );
     },
     style() {
       let templateColumns = (this.columnRatio || [1, 1])

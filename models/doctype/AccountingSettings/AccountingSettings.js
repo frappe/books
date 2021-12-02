@@ -15,7 +15,7 @@ export default {
       label: 'Company Name',
       fieldname: 'companyName',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
     },
 
     {
@@ -27,9 +27,9 @@ export default {
       getFilters() {
         return {
           isGroup: 0,
-          rootType: 'Expense'
+          rootType: 'Expense',
         };
-      }
+      },
     },
 
     {
@@ -41,9 +41,9 @@ export default {
       getFilters() {
         return {
           isGroup: 0,
-          rootType: 'Expense'
+          rootType: 'Expense',
         };
-      }
+      },
     },
 
     {
@@ -51,22 +51,24 @@ export default {
       label: 'Country',
       fieldtype: 'AutoComplete',
       placeholder: 'Select Country',
+      readOnly: 1,
       required: 1,
-      getList: () => countryList
+      getList: () => countryList,
     },
 
     {
       fieldname: 'currency',
       label: 'Currency',
       fieldtype: 'Data',
-      required: 0
+      readOnly: 1,
+      required: 0,
     },
 
     {
       fieldname: 'fullname',
       label: 'Name',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
     },
 
     {
@@ -75,38 +77,37 @@ export default {
       fieldtype: 'Data',
       required: 1,
       validate: {
-        type: 'email'
-      }
+        type: 'email',
+      },
     },
 
     {
       fieldname: 'bankName',
       label: 'Bank Name',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
     },
 
     {
       fieldname: 'fiscalYearStart',
       label: 'Fiscal Year Start Date',
       fieldtype: 'Date',
-      required: 1
+      required: 1,
     },
 
     {
       fieldname: 'fiscalYearEnd',
       label: 'Fiscal Year End Date',
       fieldtype: 'Date',
-      required: 1
+      required: 1,
     },
 
     {
       fieldname: 'setupComplete',
       label: 'Setup Complete',
       fieldtype: 'Check',
-      default: 0
+      default: 0,
     },
-
   ],
   quickEditFields: [
     'fullname',
@@ -115,6 +116,6 @@ export default {
     'country',
     'currency',
     'fiscalYearStart',
-    'fiscalYearEnd'
-  ]
+    'fiscalYearEnd',
+  ],
 };

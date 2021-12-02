@@ -15,9 +15,7 @@ export default function getAugmentedParty({ country }) {
         fieldname: 'gstin',
         label: 'GSTIN No.',
         fieldtype: 'Data',
-        hidden: (form) => {
-          return form.gstType === 'Registered Regular' ? 0 : 1;
-        },
+        hidden: (doc) => (doc.gstType === 'Registered Regular' ? 0 : 1),
       },
       {
         fieldname: 'gstType',
