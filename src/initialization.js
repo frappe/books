@@ -7,6 +7,7 @@ import postStart from '../server/postStart';
 import { DB_CONN_FAILURE } from './messages';
 import migrate from './migrate';
 import { getSavePath } from './utils';
+import { callInitializeMoneyMaker } from './utils';
 
 export async function createNewDatabase() {
   const { canceled, filePath } = await getSavePath('books', 'db');
@@ -48,6 +49,8 @@ export async function connectToLocalDatabase(filePath) {
     console.error(error);
     return { connectionSuccess: false, reason: DB_CONN_FAILURE.CANT_CONNECT };
   }
+
+  await callInitializeMoneyMaker();
 
   try {
     await runRegionalModelUpdates();

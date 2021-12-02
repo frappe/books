@@ -351,3 +351,39 @@ export function titleCase(phrase) {
     })
     .join(' ');
 }
+
+export async function getIsSetupComplete() {
+  try {
+    const { setupComplete } = await frappe.getSingle('AccountingSettings');
+    return !!setupComplete;
+  } catch {
+    return false;
+  }
+}
+
+export async function getCurrency() {
+  let currency = frappe?.AccoutingSettings?.currency ?? undefined;
+
+  if (!currency) {
+    try {
+      currency = (
+        await frappe.db.getSingleValues({
+          fieldname: 'currency',
+          parent: 'AccountingSettings',
+        })
+      )[0].value;
+    } catch (err) {
+      currency = undefined;
+    }
+  }
+
+  return currency;
+}
+
+export async function callInitializeMoneyMaker(currency) {
+  currency ??= await getCurrency();
+  if (!currency && frappe.pesa) {
+    return;
+  }
+  await frappe.initializeMoneyMaker(currency);
+}
