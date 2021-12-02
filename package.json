@@ -25,6 +25,7 @@
     "core-js": "^3.19.0",
     "csvjson-csv2json": "^5.0.6",
     "electron-store": "^8.0.1",
+    "file-saver": "^2.0.5",
     "frappe-charts": "1.6.1",
     "frappejs": "https://github.com/frappe/frappejs",
     "knex": "^0.95.12",

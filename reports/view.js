@@ -5,8 +5,8 @@ import BalanceSheetViewConfig from './BalanceSheet/viewConfig';
 import ProfitAndLossViewConfig from './ProfitAndLoss/viewConfig';
 import TrialBalanceViewConfig from './TrialBalance/viewConfig';
 // import BankReconciliationViewConfig from './BankReconciliation/viewConfig';
-// import GoodsAndServiceTaxGSTR1View from './GoodsAndServiceTax/GSTR1View';
-// import GoodsAndServiceTaxGSTR2View from './GoodsAndServiceTax/GSTR2View';
+import GoodsAndServiceTaxGSTR1View from './GoodsAndServiceTax/GSTR1View';
+import GoodsAndServiceTaxGSTR2View from './GoodsAndServiceTax/GSTR2View';
 
 export default {
   'general-ledger' : GeneralLedgerViewConfig,
@@ -16,6 +16,6 @@ export default {
   'profit-and-loss' : ProfitAndLossViewConfig,
   'trial-balance' : TrialBalanceViewConfig,
   // 'bank-reconciliation' : BankReconciliationViewConfig,
-  // 'gstr-1' : GoodsAndServiceTaxGSTR1View,
-  // 'gstr-2' : GoodsAndServiceTaxGSTR2View,
+  'gstr-1' : GoodsAndServiceTaxGSTR1View,
+  'gstr-2' : GoodsAndServiceTaxGSTR2View,
 };
