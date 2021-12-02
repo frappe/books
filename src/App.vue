@@ -30,7 +30,7 @@ import DatabaseSelector from './pages/DatabaseSelector';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { ipcRenderer } from 'electron';
 import config from '@/config';
-import {  routeTo  } from '@/utils';
+import { routeTo } from '@/utils';
 import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
 import { connectToLocalDatabase, purgeCache } from '@/initialization';
 
@@ -79,7 +79,7 @@ export default {
     }
   },
   methods: {
-    showSetupWizardOrDesk(resetRoute = false) {
+    async showSetupWizardOrDesk(resetRoute = false) {
       const { setupComplete } = frappe.AccountingSettings;
       if (!setupComplete) {
         this.activeScreen = 'SetupWizard';
@@ -87,8 +87,18 @@ export default {
         this.activeScreen = 'Desk';
         this.checkForUpdates();
       }
-      if (resetRoute) {
+
+      if (!resetRoute) {
+        return;
+      }
+
+      const { onboardingComplete } = await frappe.getSingle('GetStarted');
+      const { hideGetStarted } = await frappe.getSingle('SystemSettings');
+
+      if (hideGetStarted || onboardingComplete) {
         routeTo('/');
+      } else {
+        routeTo('/get-started');
       }
     },
     checkForUpdates() {
