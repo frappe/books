@@ -18,7 +18,16 @@
             :key="item.label"
           >
             <div
-              class="flex flex-col justify-between h-full p-6 border rounded-lg cursor-pointer hover:shadow-md"
+              class="
+                flex flex-col
+                justify-between
+                h-full
+                p-6
+                border
+                rounded-lg
+                cursor-pointer
+                hover:shadow-md
+              "
               @mouseenter="() => (activeCard = item.key)"
               @mouseleave="() => (activeCard = null)"
             >
@@ -47,16 +56,7 @@
                   v-if="item.action"
                   class="leading-tight"
                   type="primary"
-                  v-on="
-                    item.action
-                      ? {
-                          click: () => {
-                            item.action();
-                            activeCard = null;
-                          }
-                        }
-                      : null
-                  "
+                  @click="handleAction(item)"
                 >
                   <span class="text-base text-white">
                     {{ item.actionLabel || _('Setup') }}
@@ -66,7 +66,7 @@
                   v-if="item.documentation"
                   class="leading-tight"
                   :class="{ 'ml-4': item.action }"
-                  @click="visitLink(item.documentation)"
+                  @click="handleDocumentation(item)"
                 >
                   <span class="text-base">
                     {{ _('Documentation') }}
@@ -97,7 +97,7 @@ export default {
   components: {
     PageHeader,
     Button,
-    Icon
+    Icon,
   },
   computed: {
     sections() {
@@ -113,7 +113,10 @@ export default {
               icon: 'general',
               description:
                 'Setup your company information, email, country and fiscal year',
-              fieldname: 'companySetup'
+              fieldname: 'companySetup',
+              action() {
+                openSettings('General');
+              },
             },
             {
               key: 'System',
@@ -124,7 +127,7 @@ export default {
               fieldname: 'systemSetup',
               action() {
                 openSettings('System');
-              }
+              },
             },
             {
               key: 'Invoice',
@@ -135,9 +138,9 @@ export default {
               fieldname: 'invoiceSetup',
               action() {
                 openSettings('Invoice');
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         {
           label: _('Accounts'),
@@ -151,32 +154,33 @@ export default {
                 'Review your chart of accounts, add any account or tax heads as needed',
               action: () => {
                 routeTo('/chart-of-accounts');
-                this.updateChecks({ chartOfAccountsReviewed: 1 });
               },
               fieldname: 'chartOfAccountsReviewed',
               documentation:
-                'https://frappebooks.com/docs/setting-up#1-enter-bank-accounts'
+                'https://frappebooks.com/docs/setting-up#1-enter-bank-accounts',
             },
             {
               key: 'Opening Balances',
               label: _('Opening Balances'),
               icon: 'opening-ac',
+              fieldname: 'openingBalanceChecked',
               description:
                 'Setup your opening balances before performing any accounting entries',
               documentation:
-                'https://frappebooks.com/docs/setting-up#5-setup-opening-balances'
+                'https://frappebooks.com/docs/setting-up#5-setup-opening-balances',
             },
             {
               key: 'Add Taxes',
               label: _('Add Taxes'),
               icon: 'percentage',
+              fieldname: 'taxesAdded',
               description:
                 'Setup your tax templates for your sales or purchase transactions',
               action: () => routeTo('/list/Tax'),
               documentation:
-                'https://frappebooks.com/docs/setting-up#2-add-taxes'
-            }
-          ]
+                'https://frappebooks.com/docs/setting-up#2-add-taxes',
+            },
+          ],
         },
         {
           label: _('Sales'),
@@ -191,7 +195,7 @@ export default {
               action: () => routeTo('/list/Item'),
               fieldname: 'itemCreated',
               documentation:
-                'https://frappebooks.com/docs/setting-up#3-add-items'
+                'https://frappebooks.com/docs/setting-up#3-add-items',
             },
             {
               key: 'Add Customers',
@@ -201,7 +205,7 @@ export default {
               action: () => routeTo('/list/Customer'),
               fieldname: 'customerCreated',
               documentation:
-                'https://frappebooks.com/docs/setting-up#4-add-customers'
+                'https://frappebooks.com/docs/setting-up#4-add-customers',
             },
             {
               key: 'Create Invoice',
@@ -211,9 +215,9 @@ export default {
                 'Create your first invoice and mail it to your customer',
               action: () => routeTo('/list/SalesInvoice'),
               fieldname: 'invoiceCreated',
-              documentation: 'https://frappebooks.com/docs/invoices'
-            }
-          ]
+              documentation: 'https://frappebooks.com/docs/invoices',
+            },
+          ],
         },
         {
           label: _('Purchase'),
@@ -226,7 +230,7 @@ export default {
               description:
                 'Add products or services that you buy from your suppliers',
               action: () => routeTo('/list/Item'),
-              fieldname: 'itemCreated'
+              fieldname: 'itemCreated',
             },
             {
               key: 'Add Suppliers',
@@ -234,7 +238,7 @@ export default {
               icon: 'supplier',
               description: 'Add a few suppliers to create your first bill',
               action: () => routeTo('/list/Supplier'),
-              fieldname: 'supplierCreated'
+              fieldname: 'supplierCreated',
             },
             {
               key: 'Create Bill',
@@ -244,16 +248,16 @@ export default {
                 'Create your first bill and mail it to your supplier',
               action: () => routeTo('/list/PurchaseInvoice'),
               fieldname: 'billCreated',
-              documentation: 'https://frappebooks.com/docs/bills'
-            }
-          ]
-        }
+              documentation: 'https://frappebooks.com/docs/bills',
+            },
+          ],
+        },
       ];
-    }
+    },
   },
   data() {
     return {
-      activeCard: null
+      activeCard: null,
     };
   },
   async activated() {
@@ -261,9 +265,61 @@ export default {
     this.checkForCompletedTasks();
   },
   methods: {
+    async handleDocumentation({ key, documentation }) {
+      if (documentation) {
+        ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, documentation);
+      }
+
+      switch (key) {
+        case 'Opening Balances':
+          await this.updateChecks({ openingBalanceChecked: 1 });
+          break;
+      }
+    },
+    async handleAction({ key, action }) {
+      if (action) {
+        action();
+        this.activeCard = null;
+      }
+
+      switch (key) {
+        case 'General':
+          await this.updateChecks({ companySetup: 1 });
+          break;
+        case 'System':
+          await this.updateChecks({ systemSetup: 1 });
+          break;
+        case 'Review Accounts':
+          await this.updateChecks({ chartOfAccountsReviewed: 1 });
+          break;
+        case 'Add Taxes':
+          await this.updateChecks({ taxesAdded: 1 });
+          break;
+      }
+    },
+    async checkIsOnboardingComplete() {
+      if (frappe.GetStarted.onboardingComplete) {
+        return true;
+      }
+
+      const meta = await frappe.getMeta('GetStarted');
+      const doc = await frappe.getSingle('GetStarted');
+      const onboardingComplete = !!meta.fields
+        .filter(({ fieldname }) => fieldname !== 'onboardingComplete')
+        .map(({ fieldname }) => doc.get(fieldname))
+        .every(Boolean);
+
+      if (onboardingComplete) {
+        await this.updateChecks({ onboardingComplete });
+        const systemSettings = await frappe.getSingle('SystemSettings');
+        await systemSettings.update({ hideGetStarted: 1 });
+      }
+
+      return onboardingComplete;
+    },
     async checkForCompletedTasks() {
       let toUpdate = {};
-      if (frappe.GetStarted.onboardingCompleted) {
+      if (await this.checkIsOnboardingComplete()) {
         return;
       }
 
@@ -328,11 +384,6 @@ export default {
       await frappe.GetStarted.update(toUpdate);
       frappe.GetStarted = await frappe.getSingle('GetStarted');
     },
-    visitLink(link) {
-      if (link) {
-        ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, link);
-      }
-    },
     isCompleted(item) {
       return frappe.GetStarted.get(item.fieldname) || 0;
     },
@@ -347,14 +398,14 @@ export default {
             props: Object.assign(
               {
                 name,
-                size
+                size,
               },
               this.$attrs
-            )
+            ),
           });
-        }
+        },
       };
-    }
-  }
+    },
+  },
 };
 </script>
