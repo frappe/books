@@ -4,7 +4,8 @@ async function setAugmentedModel(model, regionalInfo) {
   const getAugmentedModel = (
     await import('./doctype/' + model + '/RegionalChanges')
   ).default;
-  frappe.models[model] = getAugmentedModel(regionalInfo);
+  const augmentedModel = getAugmentedModel(regionalInfo);
+  frappe.models[model] = augmentedModel;
   frappe.models[model].augmented = 1;
 }
 

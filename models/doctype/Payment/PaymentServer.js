@@ -72,7 +72,7 @@ export default class PaymentServer extends BaseDocument {
   validateReferenceAmount() {
     const referenceAmountTotal = this.for
       .map(({ amount }) => amount)
-      .reduce((a, b) => a + b);
+      .reduce((a, b) => a + b, 0);
 
     if (this.amount + (this.writeoff ?? 0) < referenceAmountTotal) {
       const writeoff = frappe.format(this.writeoff, 'Currency');

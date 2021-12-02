@@ -88,6 +88,7 @@ export default {
       placeholder: 'Ref. / Cheque No.',
       fieldtype: 'Data',
       required: (doc) => doc.paymentMethod !== 'Cash', // TODO: UNIQUE
+      hidden: (doc) => doc.paymentMethod === 'Cash',
     },
     {
       fieldname: 'referenceDate',
