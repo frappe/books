@@ -52,7 +52,7 @@ module.exports = {
       fieldname: 'internalPrecision',
       label: 'Internal Precision',
       fieldtype: 'Int',
-      default: 12,
+      default: 11,
       description: _(
         'Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.'
       ),
