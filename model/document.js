@@ -684,24 +684,6 @@ module.exports = class BaseDocument extends Observable {
     return this._notInserted;
   }
 
-  getFieldValueMap() {
-    const fieldValueMap = this.meta.fields
-      .map(({ fieldname, fieldtype }) => [fieldname, fieldtype])
-      .reduce((obj, [fieldname, fieldtype]) => {
-        let value = this[fieldname];
-
-        if (fieldtype == 'Table') {
-          value = value.map((childTableDoc) =>
-            childTableDoc.getFieldValueMap()
-          );
-        }
-
-        obj[fieldname] = value;
-        return obj;
-      }, {});
-    return Object.freeze(fieldValueMap);
-  }
-
   getFieldMetaMap() {
     return this.meta.fields.reduce((obj, meta) => {
       obj[meta.fieldname] = meta;
