@@ -1,13 +1,11 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template slot="title">{{
-        _('Top Expenses')
-      }}</template>
+      <template slot="title">{{ _('Top Expenses') }}</template>
       <PeriodSelector
         slot="action"
         :value="period"
-        @change="value => (period = value)"
+        @change="(value) => (period = value)"
       />
     </SectionHeader>
     <div class="flex relative" v-show="hasData">
@@ -28,7 +26,7 @@
         <div class="chart-wrapper" ref="top-expenses"></div>
         <div
           class="absolute text-base text-center font-semibold"
-          style="right: 6rem; top: 32%;"
+          style="top: 4rem; left: 75%; transform: translateX(-50%)"
         >
           <div>
             {{ frappe.format(totalExpense, 'Currency') }}
@@ -59,17 +57,17 @@ export default {
   name: 'Expenses',
   components: {
     PeriodSelector,
-    SectionHeader
+    SectionHeader,
   },
   data: () => ({
     period: 'This Year',
-    expenses: [{ account: 'Test', total: 0 }]
+    expenses: [{ account: 'Test', total: 0 }],
   }),
   activated() {
     this.render();
   },
   watch: {
-    period: 'render'
+    period: 'render',
   },
   computed: {
     totalExpense() {
@@ -77,7 +75,7 @@ export default {
     },
     hasData() {
       return this.totalExpense > 0;
-    }
+    },
   },
   methods: {
     async render() {
@@ -88,7 +86,7 @@ export default {
         .where('rootType', 'Expense');
       let topExpenses = await frappe.db.knex
         .select({
-          total: frappe.db.knex.raw('sum(??) - sum(??)', ['debit', 'credit'])
+          total: frappe.db.knex.raw('sum(??) - sum(??)', ['debit', 'credit']),
         })
         .select('account')
         .from('AccountingLedgerEntry')
@@ -103,7 +101,7 @@ export default {
         { class: 'bg-gray-600', hex: theme.backgroundColor.gray['600'] },
         { class: 'bg-gray-400', hex: theme.backgroundColor.gray['400'] },
         { class: 'bg-gray-200', hex: theme.backgroundColor.gray['200'] },
-        { class: 'bg-gray-100', hex: theme.backgroundColor.gray['100'] }
+        { class: 'bg-gray-100', hex: theme.backgroundColor.gray['100'] },
       ];
       topExpenses = topExpenses.map((d, i) => {
         d.class = shades[i].class;
@@ -117,17 +115,23 @@ export default {
         type: 'donut',
         hoverRadio: 0.01,
         strokeWidth: 18,
-        colors: topExpenses.map(d => d.color),
+        colors: topExpenses.map((d) => d.color),
         data: {
-          labels: topExpenses.map(d => d.account),
+          labels: topExpenses.map((d) => d.account),
           datasets: [
             {
-              values: topExpenses.map(d => d.total)
-            }
-          ]
-        }
+              values: topExpenses.map((d) => d.total),
+            },
+          ],
+        },
       });
-    }
-  }
+    },
+  },
 };
 </script>
+
+<style>
+.donut-chart {
+  transform: translate(40px, 20px);
+}
+</style>
