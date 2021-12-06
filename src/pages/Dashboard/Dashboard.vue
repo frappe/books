@@ -12,7 +12,7 @@
       <div class="my-4 mt-0 border-t" />
       <UnpaidInvoices />
       <div class="my-4 border-t" />
-      <div class="flex mx-auto">
+      <div class="flex justify-between mx-auto">
         <div class="w-1/2 mx-4">
           <ProfitAndLoss />
         </div>
