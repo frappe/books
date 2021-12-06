@@ -13,7 +13,7 @@
             <span class="ml-2">{{ _('Outflow') }}</span>
           </div>
         </div>
-        <PeriodSelector :value="period" @change="value => (period = value)" />
+        <PeriodSelector :value="period" @change="(value) => (period = value)" />
       </div>
       <div class="chart-wrapper" ref="cashflow"></div>
     </template>
@@ -97,11 +97,11 @@ import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 export default {
   name: 'Cashflow',
   components: {
-    PeriodSelector
+    PeriodSelector,
   },
   data: () => ({ period: 'This Year', hasData: false }),
   watch: {
-    period: 'render'
+    period: 'render',
   },
   activated() {
     this.render();
@@ -115,7 +115,7 @@ export default {
       let { data, periodList } = await new Cashflow().run({
         fromDate,
         toDate,
-        periodicity
+        periodicity,
       });
 
       let totalInflow = data.reduce((sum, d) => d.inflow + sum, 0);
@@ -134,33 +134,33 @@ export default {
         colors: ['#2490EF', '#B7BFC6'],
         axisOptions: {
           xAxisMode: 'tick',
-          shortenYAxisNumbers: true
+          shortenYAxisNumbers: true,
         },
         lineOptions: {
           regionFill: 1,
           hideDots: 1,
-          heatLine: 1
+          heatLine: 1,
         },
         tooltipOptions: {
-          formatTooltipY: value => frappe.format(value, 'Currency')
+          formatTooltipY: (value) => frappe.format(value, 'Currency'),
         },
         data: {
-          labels: periodList,
+          labels: periodList.map((p) => p.split(' ')[0]),
           datasets: [
             {
               name: 'Inflow',
               chartType: 'line',
-              values: data.map(period => period.inflow)
+              values: data.map((period) => period.inflow),
             },
             {
               name: 'Outflow',
               chartType: 'line',
-              values: data.map(period => period.outflow)
-            }
-          ]
-        }
+              values: data.map((period) => period.outflow),
+            },
+          ],
+        },
       });
-    }
-  }
+    },
+  },
 };
 </script>
