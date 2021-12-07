@@ -1,7 +1,10 @@
 <template>
   <div
-    class="py-10 flex-1 bg-white window-drag"
-    :class="{ 'pointer-events-none': loadingDatabase }"
+    class="py-10 flex-1 bg-white"
+    :class="{
+      'pointer-events-none': loadingDatabase,
+      'window-drag': platform !== 'Windows',
+    }"
   >
     <div class="w-full">
       <div class="px-12">
@@ -189,11 +192,13 @@ export default {
     },
     async existingDatabase() {
       this.fileSelectedFrom = 'Existing File';
-      const filePath = (await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, {
-        title: this._('Select file'),
-        properties: ['openFile'],
-        filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
-      }))?.filePaths?.[0];
+      const filePath = (
+        await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, {
+          title: this._('Select file'),
+          properties: ['openFile'],
+          filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
+        })
+      )?.filePaths?.[0];
       this.connectToDatabase(filePath);
     },
     async selectFile(file) {

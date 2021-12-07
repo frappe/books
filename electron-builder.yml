@@ -29,12 +29,11 @@ nsis:
   publish:
     - github
 linux:
-  icon: build/icon.icns
+  icon: build/icons
   category: Finance
   publish:
     - github
   target:
-    - snap
     - deb
     - AppImage
     - rpm
