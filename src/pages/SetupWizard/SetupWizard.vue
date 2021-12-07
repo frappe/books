@@ -1,5 +1,10 @@
 <template>
-  <div class="flex-1 py-10 bg-white window-drag">
+  <div
+    class="flex-1 py-10 bg-white"
+    :class="{
+      'window-drag': platform !== 'Windows',
+    }"
+  >
     <div class="px-12">
       <h1 class="text-2xl font-semibold">{{ _('Setup your organization') }}</h1>
     </div>

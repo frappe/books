@@ -21,7 +21,9 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 const isLinux = process.platform === 'linux';
 const title = 'Frappe Books';
-const icon = path.resolve('./build/icon.png');
+const icon = isDevelopment
+  ? path.resolve('./build/icon.png')
+  : path.join(__dirname, 'icons', '512x512.png');
 
 // Global ref to prevent garbage collection.
 let mainWindow;
@@ -69,8 +71,14 @@ function createWindow() {
     resizable: true,
   };
 
-  if (isDevelopment) {
+  if (isDevelopment || isLinux) {
     Object.assign(options, { icon });
+  }
+
+  if (isLinux) {
+    Object.assign(options, {
+      icon: path.join(__dirname, '/icons/512x512.png'),
+    });
   }
 
   mainWindow = new BrowserWindow(options);
@@ -171,7 +179,7 @@ ipcMain.handle(IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE, (event) => {
 
 ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (event, options) => {
   const window = event.sender.getOwnerBrowserWindow();
-  if (isDevelopment) {
+  if (isDevelopment || isLinux) {
     Object.assign(options, { icon });
   }
   return await dialog.showMessageBox(window, options);

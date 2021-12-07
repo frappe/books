@@ -6,12 +6,14 @@
       px-2
       h-full
       block
-      window-drag
       flex
       justify-between
       flex-col
       bg-gray-100
     "
+    :class="{
+      'window-drag': platform !== 'Windows',
+    }"
   >
     <div class="window-no-drag">
       <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
@@ -70,7 +72,7 @@
         </div>
       </div>
     </div>
-    <div class="px-5">
+    <div class="px-5 window-no-drag">
       <button
         class="pb-1 text-sm text-gray-600 hover:text-gray-800 truncate"
         @click="$emit('change-db-file')"
@@ -111,9 +113,12 @@ export default {
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
-    this.groups = sidebarConfig.groups.filter(group=>{
-      if(group.route === '/get-started' && frappe.SystemSettings.hideGetStarted) {
-        return false
+    this.groups = sidebarConfig.groups.filter((group) => {
+      if (
+        group.route === '/get-started' &&
+        frappe.SystemSettings.hideGetStarted
+      ) {
+        return false;
       }
       return true;
     });
