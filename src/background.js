@@ -54,13 +54,12 @@ function getMainWindowSize() {
 
 function createWindow() {
   let { width, height } = getMainWindowSize();
-  mainWindow = new BrowserWindow({
+  const options = {
     vibrancy: 'sidebar',
     transparent: isMac,
     backgroundColor: '#80FFFFFF',
     width,
     height,
-    icon,
     title,
     webPreferences: {
       contextIsolation: false, // TODO: Switch this off
@@ -68,7 +67,13 @@ function createWindow() {
     },
     frame: isLinux,
     resizable: true,
-  });
+  };
+
+  if (isDevelopment) {
+    Object.assign(options, { icon });
+  }
+
+  mainWindow = new BrowserWindow(options);
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -166,7 +171,9 @@ ipcMain.handle(IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE, (event) => {
 
 ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (event, options) => {
   const window = event.sender.getOwnerBrowserWindow();
-  Object.assign(options, { icon });
+  if (isDevelopment) {
+    Object.assign(options, { icon });
+  }
   return await dialog.showMessageBox(window, options);
 });
 
@@ -207,7 +214,7 @@ app.on('ready', async () => {
   createWindow();
 });
 
-if (isMac) {
+if (isMac && isDevelopment) {
   app.dock.setIcon(icon);
 }
 
