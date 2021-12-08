@@ -102,6 +102,8 @@ import Row from '@/components/Row';
 import WithScroll from '@/components/WithScroll';
 import FormControl from '@/components/Controls/FormControl';
 import reportViewConfig from '@/../reports/view';
+import { ipcRenderer } from 'electron';
+import { IPC_ACTIONS } from '@/messages';
 
 export default {
   name: 'Report',
@@ -271,8 +273,28 @@ export default {
         this.loading ? 'text-gray-100' : 'text-gray-900',
       ];
     },
-    downloadAsJson() {
+    async downloadAsJson() {
+      const savePath = await this.getSavePath();
       console.log('download complete');
+    },
+    async getSavePath() {
+      const options = {
+        title: this._('Select folder'),
+        defaultPath: `${this.reportName}.json`,
+      };
+
+      let { filePath } = await ipcRenderer.invoke(
+        IPC_ACTIONS.GET_SAVE_FILEPATH,
+        options
+      );
+
+      if (filePath) {
+        if (!filePath.endsWith('.json')) {
+          filePath = filePath + '.json';
+        }
+      }
+
+      return filePath;
     },
   },
   computed: {
