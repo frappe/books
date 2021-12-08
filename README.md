@@ -12,6 +12,7 @@ Free Desktop book-keeping software for small-businesses and freelancers.
 
 <img src=".github/frappe-books-preview.png" alt="Frappe Books Preview" />
 
+</div>
 
 
 ## Features
