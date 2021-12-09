@@ -125,18 +125,28 @@ export default {
     });
 
     this.setActiveGroup();
-    router.afterEach(this.setActiveGroup);
+    router.afterEach(() => {
+      this.setActiveGroup();
+    });
   },
   methods: {
     routeTo,
     setActiveGroup() {
-      let currentPath = this.$router.currentRoute.fullPath;
+      const { fullPath } = this.$router.currentRoute;
       this.activeGroup = this.groups.find((g) => {
-        if (g.route === currentPath) {
+        if (fullPath.startsWith(g.route) && g.route !== '/') {
           return true;
         }
+
+        if (g.route === fullPath) {
+          return true;
+        }
+
         if (g.items) {
-          let activeItem = g.items.filter((i) => i.route === currentPath);
+          let activeItem = g.items.filter(
+            ({ route }) => route === fullPath || fullPath.startsWith(route)
+          );
+
           if (activeItem.length) {
             return true;
           }
