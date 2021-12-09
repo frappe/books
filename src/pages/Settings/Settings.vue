@@ -90,14 +90,17 @@ export default {
       ],
     };
   },
-  mounted() {
-    const { tab } = this.$route.query;
-    const index = this.tabs.findIndex((t) => t.label === _(tab));
-    if (index !== -1) {
-      this.activeTab = index;
-    }
+  activated() {
+    this.setActiveTab();
   },
   methods: {
+    setActiveTab() {
+      const { tab } = this.$route.query;
+      const index = this.tabs.findIndex((t) => t.label === _(tab));
+      if (index !== -1) {
+        this.activeTab = index;
+      }
+    },
     getIconComponent(tab) {
       return {
         render(h) {
@@ -113,10 +116,6 @@ export default {
           });
         },
       };
-    },
-
-    onSaveClick() {
-      console.log('save clicked');
     },
   },
   computed: {

@@ -1,4 +1,4 @@
-t<template>
+<template>
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 18">
     <g fill="none" fill-rule="evenodd" transform="translate(0 .5)">
       <path
