@@ -173,6 +173,10 @@ export async function makePDF(html, savePath) {
   ipcRenderer.invoke(IPC_ACTIONS.SAVE_HTML_AS_PDF, html, savePath);
 }
 
+export async function makeJSON(data, savePath) {
+  ipcRenderer.invoke(IPC_ACTIONS.SAVE_REPORT_AS_JSON, data, savePath);
+}
+
 export function getActionsForDocument(doc) {
   if (!doc) return [];
 

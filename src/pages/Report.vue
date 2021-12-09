@@ -102,6 +102,7 @@ import Row from '@/components/Row';
 import WithScroll from '@/components/WithScroll';
 import FormControl from '@/components/Controls/FormControl';
 import reportViewConfig from '@/../reports/view';
+import { makeJSON } from '@/utils';
 import { ipcRenderer } from 'electron';
 import { IPC_ACTIONS } from '@/messages';
 
@@ -275,6 +276,20 @@ export default {
     },
     async downloadAsJson() {
       const savePath = await this.getSavePath();
+      if (!savePath) return;
+      let jsonData = [];
+      let gstRecord = {};
+      let keys = this.reportData.columns;
+      let rows = this.reportData.rows;
+      rows.forEach((values) => {
+        keys.forEach((key) => {
+          gstRecord[key.fieldname] = values[key.fieldname];
+        });
+        jsonData.push(gstRecord);
+        gstRecord = {};
+      });
+      console.log(jsonData);
+      makeJSON(JSON.stringify(jsonData), savePath);
       console.log('download complete');
     },
     async getSavePath() {

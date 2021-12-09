@@ -16,6 +16,7 @@ import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import saveHtmlAsPdf from './saveHtmlAsPdf';
+import saveReportAsJson from './saveReportAsJson';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
@@ -191,6 +192,10 @@ ipcMain.handle(IPC_ACTIONS.SHOW_ERROR, async (event, { title, content }) => {
 
 ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (event, html, savePath) => {
   return await saveHtmlAsPdf(html, savePath);
+});
+
+ipcMain.handle(IPC_ACTIONS.SAVE_REPORT_AS_JSON, async (event, data, savePath) => {
+  return await saveReportAsJson(data, savePath);
 });
 
 /* ------------------------------

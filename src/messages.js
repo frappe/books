@@ -23,4 +23,5 @@ export const DB_CONN_FAILURE = {
   INVALID_FILE: 'invalid-file',
   CANT_OPEN: 'cant-open',
   CANT_CONNECT: 'cant-connect',
+  SAVE_REPORT_AS_JSON: 'save-report-as-json',
 };
