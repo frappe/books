@@ -133,6 +133,7 @@ export default {
     routeTo,
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute;
+      const fallBackGroup = this.activeGroup;
       this.activeGroup = this.groups.find((g) => {
         if (fullPath.startsWith(g.route) && g.route !== '/') {
           return true;
@@ -154,7 +155,7 @@ export default {
       });
 
       if (!this.activeGroup) {
-        this.activeGroup = this.groups[0];
+        this.activeGroup = fallBackGroup || this.groups[0];
       }
     },
     itemActiveClass(item) {
