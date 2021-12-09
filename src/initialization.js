@@ -76,14 +76,19 @@ export async function connectToLocalDatabase(filePath) {
   await postStart();
 
   // set file info in config
+  const { companyName } = frappe.AccountingSettings;
   let files = config.get('files') || [];
-  if (!files.find((file) => file.filePath === filePath)) {
+  if (
+    !files.find(
+      (file) => file.filePath === filePath && file.companyName === companyName
+    )
+  ) {
     files = [
       {
-        companyName: frappe.AccountingSettings.companyName,
-        filePath: filePath,
+        companyName,
+        filePath,
       },
-      ...files,
+      ...files.filter((file) => file.filePath !== filePath),
     ];
     config.set('files', files);
   }
