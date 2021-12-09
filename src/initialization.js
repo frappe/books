@@ -12,7 +12,7 @@ import migrate from './migrate';
 export async function createNewDatabase() {
   const options = {
     title: _('Select folder'),
-    defaultPath: 'frappe-books.db',
+    defaultPath: 'books.db',
   };
 
   let { canceled, filePath } = await ipcRenderer.invoke(
