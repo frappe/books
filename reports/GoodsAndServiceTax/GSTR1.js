@@ -14,10 +14,10 @@ class GSTR1 extends BaseGSTR {
     const data = await this.getCompleteReport('GSTR-1', filters);
 
     const conditions = {
-      B2B: row => row.gstin,
+      'B2B': row => row.gstin,
       'B2C-Large': row => !row.gstin && !row.inState && row.invAmt >= 250000,
-      'B2C-Small': row =>
-        !row.gstin && (row.inState || (row.inState && row.invAmt < 250000))
+      'B2C-Small': row => !row.gstin && (row.inState || (row.inState && row.invAmt < 250000)),
+      'Nil Rated, Exempted and Non GST supplies': row => row
     };
 
     if (!params.transferType) return data;
