@@ -89,6 +89,7 @@ import Button from '@/components/Button';
 import WindowControls from './WindowControls';
 import { routeTo } from '@/utils';
 import path from 'path';
+import router from '../router';
 
 export default {
   components: [Button],
@@ -123,24 +124,29 @@ export default {
       return true;
     });
 
-    let currentPath = this.$router.currentRoute.fullPath;
-    this.activeGroup = this.groups.find((g) => {
-      if (g.route === currentPath) {
-        return true;
-      }
-      if (g.items) {
-        let activeItem = g.items.filter((i) => i.route === currentPath);
-        if (activeItem.length) {
-          return true;
-        }
-      }
-    });
-    if (!this.activeGroup) {
-      this.activeGroup = this.groups[0];
-    }
+    this.setActiveGroup();
+    router.afterEach(this.setActiveGroup);
   },
   methods: {
     routeTo,
+    setActiveGroup() {
+      let currentPath = this.$router.currentRoute.fullPath;
+      this.activeGroup = this.groups.find((g) => {
+        if (g.route === currentPath) {
+          return true;
+        }
+        if (g.items) {
+          let activeItem = g.items.filter((i) => i.route === currentPath);
+          if (activeItem.length) {
+            return true;
+          }
+        }
+      });
+
+      if (!this.activeGroup) {
+        this.activeGroup = this.groups[0];
+      }
+    },
     itemActiveClass(item) {
       let { path: currentRoute, params } = this.$route;
       let routeMatch = currentRoute === item.route;
@@ -157,7 +163,6 @@ export default {
       if (group.route) {
         routeTo(group.route);
       }
-      this.activeGroup = group;
     },
     onItemClick(item) {
       if (item.action) {
