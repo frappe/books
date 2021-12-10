@@ -27,6 +27,16 @@ export async function showMessageDialog({
   }
 }
 
+export async function showErrorDialog({ title, content }) {
+  // To be used for  show stopper errors
+  title = title ?? 'Error';
+  content =
+    content ??
+    'Something has gone terribly wrong. Please check the console and raise an issue.';
+
+  await ipcRenderer.invoke(IPC_ACTIONS.SHOW_ERROR, { title, content });
+}
+
 export function deleteDocWithPrompt(doc) {
   return new Promise((resolve) => {
     showMessageDialog({

@@ -15,5 +15,12 @@ export const IPC_ACTIONS = {
   GET_SAVE_FILEPATH: 'save-dialog',
   GET_DIALOG_RESPONSE: 'show-message-box',
   GET_PRIMARY_DISPLAY_SIZE: 'get-primary-display-size',
-  SAVE_HTML_AS_PDF: 'save-html-as-pdf'
+  SAVE_HTML_AS_PDF: 'save-html-as-pdf',
+  SHOW_ERROR: 'show-error',
+};
+
+export const DB_CONN_FAILURE = {
+  INVALID_FILE: 'invalid-file',
+  CANT_OPEN: 'cant-open',
+  CANT_CONNECT: 'cant-connect',
 };
