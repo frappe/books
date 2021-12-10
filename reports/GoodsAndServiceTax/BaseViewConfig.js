@@ -43,8 +43,8 @@ export default {
     {
       label: 'Export as JSON',
       type: 'primary',
-      action: async (report, transferType) => {
-        generateGstr1Json(report, transferType);
+      action: async (report, filters) => {
+        generateGstr1Json(report, filters);
       },
     },
   ],
