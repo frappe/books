@@ -4,7 +4,7 @@ import { IPC_ACTIONS } from '@/messages';
 import { ipcRenderer } from 'electron';
 import { DateTime } from 'luxon';
 import { sleep } from 'frappejs/utils';
-import { makeJSON } from '@/utils';
+import { makeJSON, promptWhenGstUnavailable } from '@/utils';
 
 /**
  * GST is a map which gives a final rate for any given gst item
@@ -59,38 +59,37 @@ const IGST = {
   'IGST-28': 28,
 };
 
-
 export async function generateGstr1Json(report, { transferType, toDate }) {
   const printSettings = await frappe.getSingle('PrintSettings');
-  // TODO: if self gstin is not provided throw an error message
-  // telling that that report cannot be exported if company gst details are not configured
-  // avoiding hiding the button because that can feel like a bug
 
-  const savePath = await getSavePath();
-  if (!savePath) return;
+  if (!printSettings.gstin) promptWhenGstUnavailable();
+  else {
+    const savePath = await getSavePath();
+    if (!savePath) return;
 
-  const gstData = {
-    version: 'GST3.0.4',
-    hash: 'hash',
-    // fp is the the MMYYYY for the last month of the report
-    // for example if you are extracting report for 1st July 2020 to 31st September 2020 then
-    // fb = 092020
-    fp: DateTime.fromISO(toDate).toFormat('MMyyyy'),
-    gstin: printSettings.gstin,
-  };
+    const gstData = {
+      version: 'GST3.0.4',
+      hash: 'hash',
+      // fp is the the MMYYYY for the last month of the report
+      // for example if you are extracting report for 1st July 2020 to 31st September 2020 then
+      // fb = 092020
+      fp: DateTime.fromISO(toDate).toFormat('MMyyyy'),
+      gstin: printSettings.gstin,
+    };
 
-  // based condition we need to triggered different methods
-  if (transferType === 'B2B') {
-    gstData.b2b = await getB2bData(report.rows);
-  } else if (transferType === 'B2CL') {
-    gstData.b2cl = await getB2clData(report.rows);
-  } else if (transferType === 'B2CS') {
-    gstData.b2cs = await getB2csData(report.rows);
+    // based condition we need to triggered different methods
+    if (transferType === 'B2B') {
+      gstData.b2b = await getB2bData(report.rows);
+    } else if (transferType === 'B2CL') {
+      gstData.b2cl = await getB2clData(report.rows);
+    } else if (transferType === 'B2CS') {
+      gstData.b2cs = await getB2csData(report.rows);
+    }
+
+    await sleep(1);
+    const jsonData = JSON.stringify(gstData);
+    makeJSON(jsonData, savePath);
   }
-
-  await sleep(1);
-  const jsonData = JSON.stringify(gstData);
-  makeJSON(jsonData, savePath);
 }
 
 async function getB2bData(invoices) {
@@ -105,7 +104,9 @@ async function getB2bData(invoices) {
 
     const invRecord = {
       inum: row.invNo,
-      idt: DateTime.fromFormat(row.invDate, 'yyyy-MM-dd').toFormat('dd-MM-yyyy'),
+      idt: DateTime.fromFormat(row.invDate, 'yyyy-MM-dd').toFormat(
+        'dd-MM-yyyy'
+      ),
       value: row.invAmt,
       pos: row.gstin && row.gstin.substring(0, 2),
       rchrg: row.reverseCharge,
@@ -132,9 +133,8 @@ async function getB2bData(invoices) {
       invRecord.itms.push(itemRecord);
     });
 
-
     const customerRecord = b2b.find((b) => b.ctin === row.gstin);
-    
+
     if (customerRecord) {
       customerRecord.inv.push(invRecord);
     } else {
@@ -154,15 +154,13 @@ async function getB2csData(invoices) {
   return [];
 }
 
-async function getSavePath(name='gstr1') {
+async function getSavePath(name = 'gstr1') {
   const options = {
     title: _('Select folder'),
     defaultPath: `${name}.json`,
   };
 
-  let {
-    filePath
-  } = await ipcRenderer.invoke(
+  let { filePath } = await ipcRenderer.invoke(
     IPC_ACTIONS.GET_SAVE_FILEPATH,
     options
   );
