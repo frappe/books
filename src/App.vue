@@ -30,9 +30,10 @@ import DatabaseSelector from './pages/DatabaseSelector';
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { ipcRenderer } from 'electron';
 import config from '@/config';
-import { routeTo } from '@/utils';
 import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
 import { connectToLocalDatabase, purgeCache } from '@/initialization';
+import { routeTo, showErrorDialog } from './utils';
+import { DB_CONN_FAILURE } from './messages';
 
 export default {
   name: 'App',
@@ -68,15 +69,23 @@ export default {
   },
   async mounted() {
     const lastSelectedFilePath = config.get('lastSelectedFilePath', null);
-    const connectionSuccess = await connectToLocalDatabase(
+    const { connectionSuccess, reason } = await connectToLocalDatabase(
       lastSelectedFilePath
     );
 
     if (connectionSuccess) {
       this.showSetupWizardOrDesk();
-    } else {
-      this.activeScreen = 'DatabaseSelector';
+      return;
     }
+
+    if (lastSelectedFilePath) {
+      await showErrorDialog({
+        title: 'DB Connection Error',
+        content: `reason: ${reason}, filePath: ${lastSelectedFilePath}`,
+      });
+    }
+
+    this.activeScreen = 'DatabaseSelector';
   },
   methods: {
     async showSetupWizardOrDesk(resetRoute = false) {

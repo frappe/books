@@ -6,7 +6,7 @@ import fs from 'fs';
 import models from '../models';
 import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart from '../server/postStart';
-import { IPC_ACTIONS } from './messages';
+import { DB_CONN_FAILURE, IPC_ACTIONS } from './messages';
 import migrate from './migrate';
 
 export async function createNewDatabase() {
@@ -52,7 +52,7 @@ async function runRegionalModelUpdates() {
 
 export async function connectToLocalDatabase(filePath) {
   if (!filePath) {
-    return false;
+    return { connectionSuccess: false, reason: DB_CONN_FAILURE.INVALID_FILE };
   }
 
   frappe.login('Administrator');
@@ -63,7 +63,7 @@ export async function connectToLocalDatabase(filePath) {
     await frappe.db.connect();
   } catch (error) {
     console.error(error);
-    return false;
+    return { connectionSuccess: false, reason: DB_CONN_FAILURE.CANT_CONNECT };
   }
 
   try {
@@ -72,8 +72,17 @@ export async function connectToLocalDatabase(filePath) {
     console.error('regional model updates failed', error);
   }
 
-  await migrate();
-  await postStart();
+  try {
+    await migrate();
+    await postStart();
+  } catch (error) {
+    if (!error.message.includes('SQLITE_CANTOPEN')) {
+      throw error;
+    }
+
+    console.error(error);
+    return { connectionSuccess: false, reason: DB_CONN_FAILURE.CANT_OPEN };
+  }
 
   // set file info in config
   const { companyName } = frappe.AccountingSettings;
@@ -95,7 +104,7 @@ export async function connectToLocalDatabase(filePath) {
 
   // set last selected file
   config.set('lastSelectedFilePath', filePath);
-  return true;
+  return { connectionSuccess: true, reason: '' };
 }
 
 export function purgeCache(purgeAll = false) {
