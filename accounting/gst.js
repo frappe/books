@@ -119,7 +119,7 @@ async function getB2bData(invoices) {
 
     items.forEach((item) => {
       const itemRecord = {
-        num: item.item_code || 1801, // TODO: will be replaced by HSN CODE (item code)
+        num: item.itemCode || 0,
         itm_det: {
           txval: item.baseAmount,
           rt: GST[item.tax],
