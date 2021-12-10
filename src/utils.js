@@ -306,3 +306,20 @@ export function fuzzyMatch(keyword, candidate) {
 export function openSettings(tab) {
   routeTo({ path: '/settings', query: { tab } });
 }
+
+export function promptWhenGstUnavailable() {
+  return new Promise((resolve) => {
+    showMessageDialog({
+      message: _('Export failed!'),
+      description: _('Report cannot be exported if company gst details are not configured'),
+      buttons: [
+        {
+          label: _('Ok'),
+          action() {
+            resolve(true);
+          },
+        },
+      ],
+    });
+  });
+}
