@@ -12,13 +12,13 @@ export default {
       target: 'Item',
       required: 1,
       getFilters(_, doc) {
-        let items = doc.parentdoc.items.map(d => d.item).filter(Boolean);
+        let items = doc.parentdoc.items.map((d) => d.item).filter(Boolean);
         if (items.length > 0) {
           return {
-            name: ['not in', items]
+            name: ['not in', items],
           };
         }
-      }
+      },
     },
     {
       fieldname: 'description',
@@ -26,14 +26,14 @@ export default {
       fieldtype: 'Text',
       formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
       hidden: 1,
-      formulaDependsOn: ['item']
+      formulaDependsOn: ['item'],
     },
     {
       fieldname: 'quantity',
       label: 'Quantity',
       fieldtype: 'Float',
       required: 1,
-      formula: row => row.quantity || 1
+      formula: (row) => row.quantity || 1,
     },
     {
       fieldname: 'rate',
@@ -46,14 +46,14 @@ export default {
         return baseRate / exchangeRate;
       },
       getCurrency: (row, doc) => doc.currency,
-      formulaDependsOn: ['item']
+      formulaDependsOn: ['item'],
     },
     {
       fieldname: 'baseRate',
       label: 'Rate (Company Currency)',
       fieldtype: 'Currency',
       formula: (row, doc) => row.rate * doc.exchangeRate,
-      readOnly: 1
+      readOnly: 1,
     },
     {
       fieldname: 'account',
@@ -62,7 +62,7 @@ export default {
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
-      formula: (row, doc) => doc.getFrom('Item', row.item, 'incomeAccount')
+      formula: (row, doc) => doc.getFrom('Item', row.item, 'incomeAccount'),
     },
     {
       fieldname: 'tax',
@@ -70,22 +70,29 @@ export default {
       fieldtype: 'Link',
       target: 'Tax',
       formula: (row, doc) => doc.getFrom('Item', row.item, 'tax'),
-      formulaDependsOn: ['item']
+      formulaDependsOn: ['item'],
     },
     {
       fieldname: 'amount',
       label: 'Amount',
       fieldtype: 'Currency',
       readOnly: 1,
-      formula: row => row.quantity * row.rate,
-      getCurrency: (row, doc) => doc.currency
+      formula: (row) => row.quantity * row.rate,
+      getCurrency: (row, doc) => doc.currency,
     },
     {
       fieldname: 'baseAmount',
       label: 'Amount (Company Currency)',
       fieldtype: 'Currency',
       readOnly: 1,
-      formula: (row, doc) => row.amount * doc.exchangeRate
-    }
-  ]
+      formula: (row, doc) => row.amount * doc.exchangeRate,
+    },
+    {
+      fieldname: 'itemCode',
+      label: 'Item Code',
+      fieldtype: 'Data',
+      formula: (row, doc) => doc.getFrom('Item', row.item, 'itemCode'),
+      formulaDependsOn: ['item'],
+    },
+  ],
 };
