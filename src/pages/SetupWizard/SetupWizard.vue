@@ -78,6 +78,7 @@ import {
   getErrorMessage,
   handleErrorWithDialog,
   showMessageDialog,
+  showErrorDialog,
 } from '@/utils';
 
 export default {
@@ -151,10 +152,18 @@ export default {
 
       purgeCache();
 
-      const connectionSuccess = await connectToLocalDatabase(filePath);
+      const { connectionSuccess, reason } = await connectToLocalDatabase(
+        filePath
+      );
+
       if (connectionSuccess) {
         await setupCompany(this.doc);
         this.$emit('setup-complete');
+      } else {
+        await showErrorDialog({
+          title: 'DB Connection Error',
+          content: `reason: ${reason}, filePath: ${filePath}`,
+        });
       }
     },
   },

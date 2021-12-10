@@ -185,6 +185,10 @@ ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (event, options) => {
   return await dialog.showMessageBox(window, options);
 });
 
+ipcMain.handle(IPC_ACTIONS.SHOW_ERROR, async (event, { title, content }) => {
+  return await dialog.showErrorBox(title, content);
+});
+
 ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (event, html, savePath) => {
   return await saveHtmlAsPdf(html, savePath);
 });

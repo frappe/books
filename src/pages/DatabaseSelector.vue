@@ -156,9 +156,10 @@ import fs from 'fs';
 import config from '@/config';
 import { DateTime } from 'luxon';
 import { ipcRenderer } from 'electron';
-import { IPC_ACTIONS } from '../messages';
+import { DB_CONN_FAILURE, IPC_ACTIONS } from '../messages';
 
 import { createNewDatabase, connectToLocalDatabase } from '@/initialization';
+import { showErrorDialog } from '../utils';
 
 export default {
   name: 'DatabaseSelector',
@@ -211,15 +212,25 @@ export default {
       }
 
       this.loadingDatabase = true;
-      const connectionSuccess = await connectToLocalDatabase(filePath);
+      const { connectionSuccess, reason } = await connectToLocalDatabase(
+        filePath
+      );
       this.loadingDatabase = false;
+
+      const title = 'DB Connection Error';
 
       if (connectionSuccess) {
         this.$emit('database-connect');
+      } else if (reason === DB_CONN_FAILURE.CANT_OPEN) {
+        await showErrorDialog({
+          title,
+          content: `Can't open database file: ${filePath}, please create a new file.`,
+        });
       } else {
-        alert(
-          frappe._('Please select an existing database or create a new one.')
-        );
+        await showErrorDialog({
+          title,
+          content: `Please select an existing database or create a new one. reason: ${reason}, filePath: ${filePath}`,
+        });
       }
     },
     getFileLastModified(filePath) {
