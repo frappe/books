@@ -4,7 +4,7 @@
       <h1 slot="title" class="text-2xl font-bold">{{ report.title }}</h1>
       <template slot="actions">        
         <Button
-          @click="link.action(reportData, filters.transferType)"
+          @click="link.action(reportData, filters)"
           v-for="link of report.linkFields"
           :key="link.label"
           type="primary"
