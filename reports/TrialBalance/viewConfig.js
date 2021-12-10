@@ -30,16 +30,7 @@ export default {
       }
     }
   ],
-  linkFields: [
-    {
-      label: 'Clear Filters',
-      type: 'secondary',
-      action: async report => {
-        await report.getReportData({});
-        report.usedToReRender += 1;
-      }
-    }
-  ],
+  linkFields: [],
   getColumns(data) {
     const columns = [
       { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },

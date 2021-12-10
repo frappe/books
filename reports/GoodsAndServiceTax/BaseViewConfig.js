@@ -1,4 +1,5 @@
 import ExportWizard from '../../src/components/ExportWizard';
+import { generateGstr1Json } from '../../accounting/gst';
 
 export default {
   filterFields: [
@@ -8,12 +9,12 @@ export default {
       placeholder: 'Transfer Type',
       fieldname: 'transferType',
       options: [
-        '',
         'B2B',
         'B2C-Large',
         'B2C-Small',
         'Nil Rated, Exempted and Non GST supplies',
       ],
+      default: 'B2B',
       size: 'small',
     },
     {
@@ -40,42 +41,10 @@ export default {
   ],
   linkFields: [
     {
-      label: 'Export',
+      label: 'Export as JSON',
       type: 'primary',
-      action: async (report) => {
-        async function getReportDetails() {
-          let [rows, columns] = await report.getReportData(
-            report.currentFilters
-          );
-          let columnData = columns.map((column) => {
-            return {
-              id: column.id,
-              content: column.content,
-              checked: true,
-            };
-          });
-          return {
-            title: title,
-            rows: rows,
-            columnData: columnData,
-          };
-        }
-        report.$modal.show({
-          modalProps: {
-            title: `Export ${title}`,
-            noFooter: true,
-          },
-          component: ExportWizard,
-          props: await getReportDetails(),
-        });
-      },
-    },
-    {
-      label: 'Clear Filters',
-      type: 'secondary',
-      action: async (report) => {
-        await report.getReportData({});
-        report.usedToReRender += 1;
+      action: async (report, transferType) => {
+        generateGstr1Json(report, transferType);
       },
     },
   ],

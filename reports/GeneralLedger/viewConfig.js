@@ -67,21 +67,7 @@ const viewConfig = {
     },
   ],
   method: 'general-ledger',
-  linkFields: [
-    {
-      label: 'Clear Filters',
-      type: 'secondary',
-      action: async (report) => {
-        await report.getReportData({});
-        report.usedToReRender += 1;
-      },
-    },
-    {
-      label: 'Export',
-      type: 'primary',
-      action: () => {},
-    },
-  ],
+  linkFields: [],
   getColumns() {
     return [
       {
