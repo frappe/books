@@ -17,6 +17,7 @@ class GSTR1 extends BaseGSTR {
       'B2B': row => row.gstin,
       'B2C-Large': row => !row.gstin && !row.inState && row.invAmt >= 250000,
       'B2C-Small': row => !row.gstin && (row.inState || (row.inState && row.invAmt < 250000)),
+      // TODO: fix the condition for nil rated
       'Nil Rated, Exempted and Non GST supplies': row => row
     };
 
