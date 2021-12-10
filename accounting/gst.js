@@ -60,7 +60,7 @@ const IGST = {
 };
 
 
-export async function generateGstr1Json(report, transferType) {
+export async function generateGstr1Json(report, { transferType, toDate }) {
   const printSettings = await frappe.getSingle('PrintSettings');
   // TODO: if self gstin is not provided throw an error message
   // telling that that report cannot be exported if company gst details are not configured
@@ -75,8 +75,7 @@ export async function generateGstr1Json(report, transferType) {
     // fp is the the MMYYYY for the last month of the report
     // for example if you are extracting report for 1st July 2020 to 31st September 2020 then
     // fb = 092020
-    // TODO: fix this value to match the last date of range
-    fp: DateTime.local().toFormat('MMyyyy'),
+    fp: DateTime.fromISO(toDate).toFormat('MMyyyy'),
     gstin: printSettings.gstin,
   };
 
