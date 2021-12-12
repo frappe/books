@@ -1,5 +1,6 @@
 import ExportWizard from '../../src/components/ExportWizard';
 import { generateGstr1Json } from '../../accounting/gst';
+import { DateTime } from 'luxon';
 
 export default {
   filterFields: [
@@ -30,6 +31,7 @@ export default {
       size: 'small',
       placeholder: 'From Date',
       fieldname: 'fromDate',
+      default: DateTime.local().minus({ months: 3 }).toISODate(),
     },
     {
       fieldtype: 'Date',
@@ -37,6 +39,7 @@ export default {
       size: 'small',
       placeholder: 'To Date',
       fieldname: 'toDate',
+      default: DateTime.local().toISODate(),
     },
   ],
   linkFields: [
