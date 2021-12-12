@@ -4,7 +4,7 @@ import { IPC_ACTIONS } from '@/messages';
 import { ipcRenderer } from 'electron';
 import { DateTime } from 'luxon';
 import { sleep } from 'frappejs/utils';
-import { makeJSON, promptWhenGstUnavailable } from '@/utils';
+import { makeJSON, showMessageDialog } from '@/utils';
 
 /**
  * GST is a map which gives a final rate for any given gst item
@@ -173,4 +173,23 @@ async function getSavePath(name = 'gstr1') {
   }
 
   return filePath;
+}
+
+export function promptWhenGstUnavailable() {
+  return new Promise((resolve) => {
+    showMessageDialog({
+      message: _('Export failed!'),
+      description: _(
+        'Report cannot be exported if company gst details are not configured'
+      ),
+      buttons: [
+        {
+          label: _('Ok'),
+          action() {
+            resolve(true);
+          },
+        },
+      ],
+    });
+  });
 }
