@@ -90,7 +90,7 @@ export default {
     {
       fieldname: 'itemCode',
       label: 'Item Code',
-      fieldtype: 'Data',
+      fieldtype: 'Int',
       formula: (row, doc) => doc.getFrom('Item', row.item, 'itemCode'),
       formulaDependsOn: ['item'],
     },
