@@ -6,5 +6,5 @@ export default {
   method: 'gstr-2',
   filterFields: baseConfig.filterFields,
   linkFields: baseConfig.linkFields,
-  getColumns: baseConfig.getColumns
+  getColumns: baseConfig.getColumns,
 };
