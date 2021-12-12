@@ -25,6 +25,7 @@ export default function getAugmentedParty({ country }) {
       }
     );
     Party.quickEditFields.push('gstin');
+    Party.quickEditFields.push('gstType');
   } else {
     Party.fields.splice(3, 0, {
       fieldname: 'taxId',
