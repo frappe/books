@@ -16,6 +16,7 @@ export const IPC_ACTIONS = {
   GET_DIALOG_RESPONSE: 'show-message-box',
   GET_PRIMARY_DISPLAY_SIZE: 'get-primary-display-size',
   SAVE_HTML_AS_PDF: 'save-html-as-pdf',
+  SAVE_REPORT_AS_JSON: 'save-report-as-json',
   SHOW_ERROR: 'show-error',
 };
 
@@ -23,5 +24,4 @@ export const DB_CONN_FAILURE = {
   INVALID_FILE: 'invalid-file',
   CANT_OPEN: 'cant-open',
   CANT_CONNECT: 'cant-connect',
-  SAVE_REPORT_AS_JSON: 'save-report-as-json',
 };
