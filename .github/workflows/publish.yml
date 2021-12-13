@@ -94,6 +94,10 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - name: Setup node
         uses: actions/setup-node@v2
