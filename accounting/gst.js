@@ -82,11 +82,11 @@ export async function generateGstr1Json(report, { transferType, toDate }) {
 
   // based condition we need to triggered different methods
   if (transferType === 'B2B') {
-    gstData.b2b = await getB2bData(report.rows);
+    gstData.b2b = await generateB2bData(report.rows);
   } else if (transferType === 'B2CL') {
-    gstData.b2cl = await getB2clData(report.rows);
+    gstData.b2cl = await generateB2clData(report.rows);
   } else if (transferType === 'B2CS') {
-    gstData.b2cs = await getB2csData(report.rows);
+    gstData.b2cs = await generateB2csData(report.rows);
   }
 
   await sleep(1);
@@ -94,7 +94,7 @@ export async function generateGstr1Json(report, { transferType, toDate }) {
   makeJSON(jsonData, savePath);
 }
 
-async function getB2bData(invoices) {
+async function generateB2bData(invoices) {
   const b2b = [];
 
   invoices.forEach(async (row) => {
@@ -149,11 +149,11 @@ async function getB2bData(invoices) {
   return b2b;
 }
 
-async function getB2clData(invoices) {
+async function generateB2clData(invoices) {
   return [];
 }
 
-async function getB2csData(invoices) {
+async function generateB2csData(invoices) {
   return [];
 }
 
