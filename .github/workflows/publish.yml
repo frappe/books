@@ -85,9 +85,6 @@ jobs:
           yarn
           yarn link frappejs
 
-      - name: Install RPM
-        run: apt install rpm
-
       - name: Run build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
