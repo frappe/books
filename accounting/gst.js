@@ -67,7 +67,7 @@ export async function generateGstr1Json(report, { transferType, toDate }) {
     return;
   }
 
-  const savePath = await getSavePath();
+  const savePath = await getSavePath('gstr-1');
   if (!savePath) return;
 
   const gstData = {
@@ -157,7 +157,7 @@ async function generateB2csData(invoices) {
   return [];
 }
 
-async function getSavePath(name = 'gstr1') {
+async function getSavePath(name) {
   const options = {
     title: _('Select folder'),
     defaultPath: `${name}.json`,
