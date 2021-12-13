@@ -52,6 +52,7 @@
           <div v-if="group.items && isActiveGroup(group)">
             <div
               v-for="item in group.items"
+              v-show="item.visible"
               :key="item.label"
               class="
                 mt-1
@@ -114,7 +115,6 @@ export default {
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
-    const { country } = await frappe.getSingle('AccountingSettings');
     this.groups = sidebarConfig.groups.filter((group) => {
       if (
         group.route === '/get-started' &&
@@ -124,16 +124,6 @@ export default {
       }
       return true;
     });
-
-    if (country !== 'India') {
-      this.groups.forEach((group) => {
-        if (group.title === 'Reports') {
-          group.items = group.items.filter(
-            (item) => !item.label.toLowerCase().includes('gst')
-          );
-        }
-      });
-    }
 
     this.setActiveGroup();
     router.afterEach(() => {
