@@ -1,0 +1,57 @@
+name: Build
+
+on:
+  push:
+    branches: [$default-branch]
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  setup_and_build:
+    runs-on: macos-latest
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.4.0'
+
+      - name: Set yarn version
+        run: yarn set version 1.22.17
+
+      - name: Checkout Books
+        uses: actions/checkout@v2
+        with:
+          path: main
+
+      - name: Checkout FrappeJS
+        uses: actions/checkout@v2
+        with:
+          repository: 'frappe/frappejs'
+          path: framework
+
+      - name: Setup FrappeJS
+        run: |
+          cd $GITHUB_WORKSPACE/framework
+          yarn
+          yarn link
+
+      - name: Setup Books
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          yarn
+          yarn link frappejs
+
+      - name: Install RPM
+        run: HOMEBREW_NO_AUTO_UPDATE=1 brew install rpm
+
+      - name: Run build
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+          APPLE_NOTARIZE: 0
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          yarn electron:build -mwl --publish never
