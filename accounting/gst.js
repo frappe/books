@@ -62,34 +62,36 @@ const IGST = {
 export async function generateGstr1Json(report, { transferType, toDate }) {
   const printSettings = await frappe.getSingle('PrintSettings');
 
-  if (!printSettings.gstin) promptWhenGstUnavailable();
-  else {
-    const savePath = await getSavePath();
-    if (!savePath) return;
-
-    const gstData = {
-      version: 'GST3.0.4',
-      hash: 'hash',
-      gstin: printSettings.gstin,
-      // fp is the the MMYYYY for the last month of the report
-      // for example if you are extracting report for 1st July 2020 to 31st September 2020 then
-      // fb = 092020
-      fp: DateTime.fromISO(toDate).toFormat('MMyyyy'),
-    };
-
-    // based condition we need to triggered different methods
-    if (transferType === 'B2B') {
-      gstData.b2b = await getB2bData(report.rows);
-    } else if (transferType === 'B2CL') {
-      gstData.b2cl = await getB2clData(report.rows);
-    } else if (transferType === 'B2CS') {
-      gstData.b2cs = await getB2csData(report.rows);
-    }
-
-    await sleep(1);
-    const jsonData = JSON.stringify(gstData);
-    makeJSON(jsonData, savePath);
+  if (!printSettings.gstin) {
+    promptWhenGstUnavailable();
+    return;
   }
+
+  const savePath = await getSavePath();
+  if (!savePath) return;
+
+  const gstData = {
+    version: 'GST3.0.4',
+    hash: 'hash',
+    gstin: printSettings.gstin,
+    // fp is the the MMYYYY for the last month of the report
+    // for example if you are extracting report for 1st July 2020 to 31st September 2020 then
+    // fb = 092020
+    fp: DateTime.fromISO(toDate).toFormat('MMyyyy'),
+  };
+
+  // based condition we need to triggered different methods
+  if (transferType === 'B2B') {
+    gstData.b2b = await getB2bData(report.rows);
+  } else if (transferType === 'B2CL') {
+    gstData.b2cl = await getB2clData(report.rows);
+  } else if (transferType === 'B2CS') {
+    gstData.b2cs = await getB2csData(report.rows);
+  }
+
+  await sleep(1);
+  const jsonData = JSON.stringify(gstData);
+  makeJSON(jsonData, savePath);
 }
 
 async function getB2bData(invoices) {
