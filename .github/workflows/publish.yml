@@ -1,0 +1,139 @@
+name: Publish
+
+on: workflow_dispatch
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.4.0'
+
+      - name: Change yarn version
+        run: yarn set version 1.22.17
+
+      - name: Checkout Books
+        uses: actions/checkout@v2
+        with:
+          path: main
+
+      - name: Checkout FrappeJS
+        uses: actions/checkout@v2
+        with:
+          repository: 'frappe/frappejs'
+          path: framework
+
+      - name: Setup FrappeJS
+        run: |
+          cd $GITHUB_WORKSPACE/framework
+          yarn
+          yarn link
+
+      - name: Setup Books
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          yarn
+          yarn link frappejs
+
+      - name: Run build
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: true
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          APPLE_NOTARIZE: 1
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          yarn electron:build --mac --publish always
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.4.0'
+
+      - name: Change yarn version
+        run: yarn set version 1.22.17
+
+      - name: Checkout Books
+        uses: actions/checkout@v2
+        with:
+          path: main
+
+      - name: Checkout FrappeJS
+        uses: actions/checkout@v2
+        with:
+          repository: 'frappe/frappejs'
+          path: framework
+
+      - name: Setup FrappeJS
+        run: |
+          cd $GITHUB_WORKSPACE/framework
+          yarn
+          yarn link
+
+      - name: Setup Books
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          yarn
+          yarn link frappejs
+
+      - name: Install RPM
+        run: apt install rpm
+
+      - name: Run build
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          yarn electron:build --linux --publish always
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.4.0'
+
+      - name: Change yarn version
+        run: yarn set version 1.22.17
+
+      - name: Checkout Books
+        uses: actions/checkout@v2
+        with:
+          path: main
+
+      - name: Checkout FrappeJS
+        uses: actions/checkout@v2
+        with:
+          repository: 'frappe/frappejs'
+          path: framework
+
+      - name: Setup FrappeJS
+        run: |
+          cd $GITHUB_WORKSPACE/framework
+          yarn
+          yarn link
+
+      - name: Setup Books
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          yarn
+          yarn link frappejs
+
+      - name: Run build
+        env:
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          yarn electron:build --win --publish always
