@@ -98,18 +98,12 @@ const config = {
         {
           label: _('GSTR1'),
           route: '/report/gstr-1',
-          hidden: async () => {
-            const { country } = await frappe.getSingle('AccountingSettings');
-            return country !== 'India';
-          },
+          hidden: () => frappe.AccountingSettings.country !== 'India',
         },
         {
           label: _('GSTR2'),
           route: '/report/gstr-2',
-          hidden: async () => {
-            const { country } = await frappe.getSingle('AccountingSettings');
-            return country !== 'India';
-          },
+          hidden: () => frappe.AccountingSettings.country !== 'India',
         },
       ],
     },
