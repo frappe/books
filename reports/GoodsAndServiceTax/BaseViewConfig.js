@@ -30,7 +30,7 @@ export default {
       size: 'small',
       placeholder: 'From Date',
       fieldname: 'fromDate',
-      default: DateTime.local().minus({ months: 3 }).toISODate(),
+      default: () => DateTime.local().minus({ months: 3 }).toISODate(),
     },
     {
       fieldtype: 'Date',
@@ -38,7 +38,7 @@ export default {
       size: 'small',
       placeholder: 'To Date',
       fieldname: 'toDate',
-      default: DateTime.local().toISODate(),
+      default: () => DateTime.local().toISODate(),
     },
   ],
   linkFields: [
