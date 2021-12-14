@@ -80,7 +80,6 @@ export default {
         'email',
         'phone',
         'address',
-        'gstin',
       ].map((field) => this.meta.getField(field));
     },
   },
