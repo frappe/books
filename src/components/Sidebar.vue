@@ -52,7 +52,6 @@
           <div v-if="group.items && isActiveGroup(group)">
             <div
               v-for="item in group.items"
-              v-show="item.visible"
               :key="item.label"
               class="
                 mt-1
@@ -115,7 +114,8 @@ export default {
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
-    this.groups = sidebarConfig.groups.filter((group) => {
+    let groups = sidebarConfig.getGroups();
+    groups = groups.filter((group) => {
       if (
         group.route === '/get-started' &&
         frappe.SystemSettings.hideGetStarted
@@ -124,6 +124,28 @@ export default {
       }
       return true;
     });
+
+    // use the hidden property in the routes config to show/hide the elements
+    // filter doens't work with async function so using reduce
+    for (let group of groups) {
+      if (group.items) {
+        group.items = await group.items.reduce(async (acc, item) => {
+          if (item.hidden) {
+            const hidden = await item.hidden();
+            if (hidden) {
+              return acc;
+            } else {
+              return (await acc).concat(item);
+            }
+          }
+
+          return (await acc).concat(item);
+        }, []);
+      }
+    }
+
+
+    this.groups = groups;
 
     this.setActiveGroup();
     router.afterEach(() => {
