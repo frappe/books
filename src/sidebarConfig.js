@@ -7,7 +7,7 @@ const config = {
     const { companyName } = await frappe.getSingle('AccountingSettings');
     return companyName;
   },
-  groups: [
+  getGroups: () => [
     {
       title: _('Get Started'),
       route: '/get-started',
@@ -27,13 +27,11 @@ const config = {
           label: _('Invoices'),
           route: '/list/SalesInvoice',
           doctype: 'SalesInvoice',
-          visible: 1,
         },
         {
           label: _('Customers'),
           route: '/list/Customer',
           doctype: 'Customer',
-          visible: 1,
         },
       ],
     },
@@ -46,13 +44,11 @@ const config = {
           label: _('Bills'),
           route: '/list/PurchaseInvoice',
           doctype: 'PurchaseInvoice',
-          visible: 1,
         },
         {
           label: _('Suppliers'),
           route: '/list/Supplier',
           doctype: 'Supplier',
-          visible: 1,
         },
       ],
     },
@@ -65,19 +61,16 @@ const config = {
           label: _('Items'),
           route: '/list/Item',
           doctype: 'Item',
-          visible: 1,
         },
         {
           label: _('Payments'),
           route: '/list/Payment',
           doctype: 'Payment',
-          visible: 1,
         },
         {
           label: _('Journal Entry'),
           route: '/list/JournalEntry',
           doctype: 'JournalEntry',
-          visible: 1,
         },
       ],
     },
@@ -89,39 +82,33 @@ const config = {
         {
           label: _('General Ledger'),
           route: '/report/general-ledger',
-          visible: 1,
         },
         {
           label: _('Profit And Loss'),
           route: '/report/profit-and-loss',
-          visible: 1,
         },
         {
           label: _('Balance Sheet'),
           route: '/report/balance-sheet',
-          visible: 1,
         },
         {
           label: _('Trial Balance'),
           route: '/report/trial-balance',
-          visible: 1,
         },
         {
           label: _('GSTR1'),
           route: '/report/gstr-1',
-          visible: async () => {
+          hidden: async () => {
             const { country } = await frappe.getSingle('AccountingSettings');
-            if (country === 'India') return 1;
-            return 0;
+            return country !== 'India';
           },
         },
         {
           label: _('GSTR2'),
           route: '/report/gstr-2',
-          visible: async () => {
+          hidden: async () => {
             const { country } = await frappe.getSingle('AccountingSettings');
-            if (country === 'India') return 1;
-            return 0;
+            return country !== 'India';
           },
         },
       ],
@@ -134,18 +121,15 @@ const config = {
         {
           label: _('Chart of Accounts'),
           route: '/chart-of-accounts',
-          visible: 1,
         },
         {
           label: _('Taxes'),
           route: '/list/Tax',
           doctype: 'Tax',
-          visible: 1,
         },
         {
           label: _('Settings'),
           route: '/settings',
-          visible: 1,
         },
       ],
     },
