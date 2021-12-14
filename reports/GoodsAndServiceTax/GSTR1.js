@@ -5,6 +5,7 @@ class GSTR1 extends BaseGSTR {
     if (!Object.keys(params).length) return [];
 
     let filters = {};
+    filters.cancelled = 0;
     if (params.toDate || params.fromDate) {
       filters.date = [];
       if (params.toDate) filters.date.push('<=', params.toDate);
