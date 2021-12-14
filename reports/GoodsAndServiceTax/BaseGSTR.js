@@ -48,7 +48,7 @@ class BaseGSTR {
     row.rate = 0;
     row.inState = true;
     row.reverseCharge = !party.gstin ? 'Y' : 'N';
-    ledgerEntry.taxes && ledgerEntry.taxes.forEach(tax => {
+    ledgerEntry.taxes?.forEach(tax => {
       row.rate += tax.rate;
       const taxAmt = (tax.rate * ledgerEntry.netTotal) / 100;
       if (tax.account === 'IGST') row.igstAmt = taxAmt;
