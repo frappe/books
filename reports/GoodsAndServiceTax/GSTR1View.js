@@ -1,6 +1,5 @@
 const title = 'GSTR 1';
 import baseConfig from './BaseViewConfig';
-import { DateTime } from 'luxon';
 
 export default {
   title: title,
