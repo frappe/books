@@ -108,6 +108,12 @@ export default {
       fieldtype: 'Check',
       default: 0,
     },
+    {
+      fieldname: 'gstin',
+      label: 'GSTIN',
+      fieldtype: 'Data',
+      placeholder: '27AAAAA0000A1Z5'
+    },
   ],
   quickEditFields: [
     'fullname',
@@ -117,5 +123,6 @@ export default {
     'currency',
     'fiscalYearStart',
     'fiscalYearEnd',
+    'gstin',
   ],
 };

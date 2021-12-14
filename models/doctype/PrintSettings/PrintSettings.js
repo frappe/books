@@ -47,12 +47,6 @@ export default {
       inline: true,
     },
     {
-      fieldname: 'gstin',
-      label: 'GSTIN',
-      fieldtype: 'Data',
-      placeholder: '27AAAAA0000A1Z5',
-    },
-    {
       fieldname: 'template',
       label: 'Template',
       placeholder: 'Template',
@@ -106,6 +100,5 @@ export default {
     'email',
     'phone',
     'address',
-    'gstin',
   ],
 };

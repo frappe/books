@@ -23,8 +23,8 @@
           </div>
           <div class="w-1/3">
             <div v-if="companyAddress">{{ companyAddress.addressDisplay }}</div>
-            <div v-if="printSettings && printSettings.gstin">
-              GSTIN: {{ printSettings.gstin }}
+            <div v-if="frappe.AccountingSettings && frappe.AccountingSettings.gstin">
+              GSTIN: {{ frappe.AccountingSettings.gstin }}
             </div>
           </div>
         </div>

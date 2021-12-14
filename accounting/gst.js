@@ -60,9 +60,9 @@ const IGST = {
 };
 
 export async function generateGstr1Json(report, { transferType, toDate }) {
-  const printSettings = await frappe.getSingle('PrintSettings');
+  const { gstin } = frappe.AccountingSettings
 
-  if (!printSettings.gstin) {
+  if (!gstin) {
     promptWhenGstUnavailable();
     return;
   }
@@ -73,7 +73,7 @@ export async function generateGstr1Json(report, { transferType, toDate }) {
   const gstData = {
     version: 'GST3.0.4',
     hash: 'hash',
-    gstin: printSettings.gstin,
+    gstin: gstin,
     // fp is the the MMYYYY for the last month of the report
     // for example if you are extracting report for 1st July 2020 to 31st September 2020 then
     // fb = 092020
