@@ -32,7 +32,8 @@ export default {
         'writeOffAccount',
         'roundOffAccount',
         'fiscalYearStart',
-        'fiscalYearEnd'
+        'fiscalYearEnd',
+        'gstin',
       ].map(fieldname => meta.getField(fieldname));
     }
   }

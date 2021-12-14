@@ -25,9 +25,9 @@
           </div>
           <div
             class="text-sm text-gray-800"
-            v-if="printSettings && printSettings.gstin"
+            v-if="frappe.AccountingSettings && frappe.AccountingSettings.gstin"
           >
-            GSTIN: {{ printSettings.gstin }}
+            GSTIN: {{ frappe.AccountingSettings.gstin }}
           </div>
         </div>
       </div>

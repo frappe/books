@@ -66,9 +66,9 @@
         </div>
         <div
           class="mt-4 ml-8 text-black leading-relaxed text-lg"
-          v-if="printSettings && printSettings.gstin"
+          v-if="frappe.AccountingSettings && frappe.AccountingSettings.gstin"
         >
-          GSTIN: {{ printSettings.gstin }}
+          GSTIN: {{ frappe.AccountingSettings.gstin }}
         </div>
       </div>
     </div>
