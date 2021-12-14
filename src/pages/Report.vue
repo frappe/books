@@ -7,8 +7,8 @@
           @click="link.action(reportData, filters)"
           v-for="link of report.linkFields"
           :key="link.label"
-          type="primary"
-          class="ml-2 text-white text-xs"
+          :type="link.type"
+          class="ml-2 text-xs"
         >
           {{ link.label }}
         </Button>
