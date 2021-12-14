@@ -131,7 +131,8 @@ export default {
       if (group.items) {
         group.items = await group.items.reduce(async (acc, item) => {
           if (item.hidden) {
-            const hidden = await item.hidden();
+            // async methods can also be used in future
+            const hidden = item.hidden();
             if (hidden) {
               return acc;
             } else {
