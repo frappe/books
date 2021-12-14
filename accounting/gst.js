@@ -180,9 +180,9 @@ async function getSavePath(name) {
 export function promptWhenGstUnavailable() {
   return new Promise((resolve) => {
     showMessageDialog({
-      message: _('Export failed!'),
+      message: _('Export failed'),
       description: _(
-        'Report cannot be exported if company gst details are not configured'
+        'Report cannot be exported if company gst details are not configured.'
       ),
       buttons: [
         {
