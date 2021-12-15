@@ -108,6 +108,17 @@ export default {
 
           items: [
             {
+              key: 'Invoice',
+              label: _('Invoice'),
+              icon: 'invoice',
+              description:
+                'Customize your invoices by adding a logo and address details',
+              fieldname: 'invoiceSetup',
+              action() {
+                openSettings('Invoice');
+              },
+            },
+            {
               key: 'General',
               label: _('General'),
               icon: 'general',
@@ -121,23 +132,12 @@ export default {
             {
               key: 'System',
               label: _('System'),
-              icon: 'general',
+              icon: 'system',
               description:
                 'Setup system defaults like date format and currency precision',
               fieldname: 'systemSetup',
               action() {
                 openSettings('System');
-              },
-            },
-            {
-              key: 'Invoice',
-              label: _('Invoice'),
-              icon: 'invoice',
-              description:
-                'Customize your invoices by adding a logo and address details',
-              fieldname: 'invoiceSetup',
-              action() {
-                openSettings('Invoice');
               },
             },
           ],
