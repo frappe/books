@@ -5,6 +5,7 @@ export default {
   name: 'Item',
   doctype: 'DocType',
   isSingle: 0,
+  regional: 1,
   keywordFields: ['name', 'description'],
   fields: [
     {
@@ -112,17 +113,10 @@ export default {
         }
       },
     },
-    {
-      fieldname: 'itemCode',
-      label: 'Item Code',
-      fieldtype: 'Int',
-      placeholder: 'Item Code',
-    },
   ],
   quickEditFields: [
     'rate',
     'unit',
-    'itemCode',
     'itemType',
     'tax',
     'description',
