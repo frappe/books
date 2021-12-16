@@ -9,6 +9,7 @@ export default {
     {
       fieldname: 'referenceType',
       label: 'Reference Type',
+      placeholder: 'Type',
       fieldtype: 'Select',
       options: ['SalesInvoice', 'PurchaseInvoice'],
       map: { SalesInvoice: 'Invoice', PurchaseInvoice: 'Bill' },
@@ -19,6 +20,7 @@ export default {
       label: 'Reference Name',
       fieldtype: 'DynamicLink',
       references: 'referenceType',
+      placeholder: 'Name',
       getFilters() {
         return {
           outstandingAmount: ['>', 0],
@@ -30,6 +32,7 @@ export default {
       fieldname: 'amount',
       label: 'Amount',
       fieldtype: 'Currency',
+      placeholder: '0.00',
       formula: (row, doc) => {
         return doc.getFrom(
           row.referenceType,

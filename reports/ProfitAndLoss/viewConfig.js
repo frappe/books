@@ -16,7 +16,7 @@ export default {
       required: 1,
       default: async () => {
         return (await frappe.getSingle('AccountingSettings')).fiscalYearStart;
-      }
+      },
     },
     {
       fieldtype: 'Date',
@@ -27,39 +27,34 @@ export default {
       required: 1,
       default: async () => {
         return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
-      }
+      },
     },
     {
       fieldtype: 'Select',
       size: 'small',
-      options: [
-        'Select Period...',
-        'Monthly',
-        'Quarterly',
-        'Half Yearly',
-        'Yearly'
-      ],
+      options: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly'],
       default: 'Monthly',
       label: 'Periodicity',
-      fieldname: 'periodicity'
-    }
+      placeholder: 'Select Period...',
+      fieldname: 'periodicity',
+    },
   ],
   getColumns(data) {
     const columns = [
-      { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 }
+      { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
     ];
 
     if (data && data.columns) {
       const currencyColumns = data.columns;
-      const columnDefs = currencyColumns.map(name => ({
+      const columnDefs = currencyColumns.map((name) => ({
         label: name,
         fieldname: name,
-        fieldtype: 'Currency'
+        fieldtype: 'Currency',
       }));
 
       columns.push(...columnDefs);
     }
 
     return columns;
-  }
+  },
 };
