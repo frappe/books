@@ -44,11 +44,19 @@ export default {
   linkFields: [
     {
       label: 'Export as JSON',
-      type: 'primary',
+      type: 'secondary',
       action: async (report, filters) => {
         generateGstr1Json(report, filters);
       },
     },
+    {
+      label: 'Clear Filters',
+      type: 'secondary',
+      action: async report => {
+        await report.getReportData({});
+        report.usedToReRender += 1;
+      }
+    }
   ],
 
   getColumns() {
