@@ -8,16 +8,15 @@ const viewConfig = {
     {
       fieldtype: 'Select',
       options: [
-        { label: '', value: '' },
         { label: 'Sales Invoice', value: 'SalesInvoice' },
         { label: 'Purchase Invoice', value: 'PurchaseInvoice' },
         { label: 'Payment', value: 'Payment' },
-        { label: 'Journal Entry', value: 'JournalEntry' }
+        { label: 'Journal Entry', value: 'JournalEntry' },
       ],
       size: 'small',
       label: 'Reference Type',
       fieldname: 'referenceType',
-      placeholder: 'Reference Type'
+      placeholder: 'Reference Type',
     },
     {
       fieldtype: 'DynamicLink',
@@ -25,7 +24,7 @@ const viewConfig = {
       placeholder: 'Reference Name',
       references: 'referenceType',
       label: 'Reference Name',
-      fieldname: 'referenceName'
+      fieldname: 'referenceName',
     },
     {
       fieldtype: 'Link',
@@ -33,7 +32,7 @@ const viewConfig = {
       size: 'small',
       placeholder: 'Account',
       label: 'Account',
-      fieldname: 'account'
+      fieldname: 'account',
     },
     {
       fieldtype: 'Link',
@@ -41,49 +40,45 @@ const viewConfig = {
       label: 'Party',
       size: 'small',
       placeholder: 'Party',
-      fieldname: 'party'
+      fieldname: 'party',
     },
     {
       fieldtype: 'Date',
       size: 'small',
       placeholder: 'From Date',
       label: 'From Date',
-      fieldname: 'fromDate'
+      fieldname: 'fromDate',
     },
     {
       fieldtype: 'Date',
       size: 'small',
       placeholder: 'To Date',
       label: 'To Date',
-      fieldname: 'toDate'
+      fieldname: 'toDate',
     },
     {
-      fieldtype: 'Select',
-      options: [
-        { label: 'Show Cancelled', value: '' },
-        { label: 'Hide Cancelled', value: '0' }
-      ],
+      fieldtype: 'Check',
       size: 'small',
-      default: '0',
-      label: 'Reverted',
-      fieldname: 'reverted'
-    }
+      default: 0,
+      label: 'Cancelled',
+      fieldname: 'reverted',
+    },
   ],
   method: 'general-ledger',
   linkFields: [
     {
       label: 'Clear Filters',
       type: 'secondary',
-      action: async report => {
+      action: async (report) => {
         await report.getReportData({});
         report.usedToReRender += 1;
-      }
+      },
     },
     {
       label: 'Export',
       type: 'primary',
-      action: () => {}
-    }
+      action: () => {},
+    },
   ],
   getColumns() {
     return [
@@ -91,29 +86,31 @@ const viewConfig = {
         label: 'Account',
         fieldtype: 'Link',
         fieldname: 'account',
+        width: 1.5,
       },
       {
         label: 'Date',
         fieldtype: 'Date',
         fieldname: 'date',
+        width: 0.75,
       },
       {
         label: 'Debit',
         fieldtype: 'Currency',
         fieldname: 'debit',
-        width: 0.5,
+        width: 1.25,
       },
       {
         label: 'Credit',
         fieldtype: 'Currency',
         fieldname: 'credit',
-        width: 0.5,
+        width: 1.25,
       },
       {
         label: 'Balance',
         fieldtype: 'Currency',
         fieldname: 'balance',
-        width: 0.5,
+        width: 1.25,
       },
       {
         label: 'Reference Type',
@@ -134,7 +131,7 @@ const viewConfig = {
         },
       },
     ];
-  }
+  },
 };
 
 export default viewConfig;
