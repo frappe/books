@@ -5,7 +5,8 @@ class GeneralLedger {
     const filters = {};
     if (params.account) filters.account = params.account;
     if (params.party) filters.party = params.party;
-    if (params.referenceType) filters.referenceType = params.referenceType;
+    if (params.referenceType !== 'All')
+      filters.referenceType = params.referenceType;
     if (params.referenceName) filters.referenceName = params.referenceName;
     if (params.toDate || params.fromDate) {
       filters.date = [];

@@ -85,7 +85,7 @@ export default {
   data: () => ({
     invoices: [
       {
-        title: 'Sales Invoices',
+        title: 'Invoices',
         doctype: 'SalesInvoice',
         total: 0,
         unpaid: 0,
@@ -96,7 +96,7 @@ export default {
         barWidth: 40
       },
       {
-        title: 'Purchase Invoices',
+        title: 'Bills',
         doctype: 'PurchaseInvoice',
         total: 0,
         unpaid: 0,

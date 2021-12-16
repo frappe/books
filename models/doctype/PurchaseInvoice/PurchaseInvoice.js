@@ -5,7 +5,7 @@ import PurchaseInvoice from './PurchaseInvoiceDocument';
 export default {
   name: 'PurchaseInvoice',
   doctype: 'DocType',
-  label: 'Purchase Invoice',
+  label: 'Bill',
   documentClass: PurchaseInvoice,
   printTemplate: InvoiceTemplate,
   isSingle: 0,
@@ -20,33 +20,33 @@ export default {
       fieldname: 'name',
       fieldtype: 'Data',
       required: 1,
-      readOnly: 1
+      readOnly: 1,
     },
     {
       fieldname: 'date',
       label: 'Date',
       fieldtype: 'Date',
-      default: () => new Date().toISOString().slice(0, 10)
+      default: () => new Date().toISOString().slice(0, 10),
     },
     {
       fieldname: 'supplier',
       label: 'Supplier',
       fieldtype: 'Link',
       target: 'Supplier',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'account',
       label: 'Account',
       fieldtype: 'Link',
       target: 'Account',
-      formula: doc => doc.getFrom('Party', doc.supplier, 'defaultAccount'),
+      formula: (doc) => doc.getFrom('Party', doc.supplier, 'defaultAccount'),
       getFilters: () => {
         return {
           isGroup: 0,
-          accountType: 'Payable'
+          accountType: 'Payable',
         };
-      }
+      },
     },
     {
       fieldname: 'currency',
@@ -54,83 +54,83 @@ export default {
       fieldtype: 'Link',
       target: 'Currency',
       hidden: 1,
-      formula: doc => doc.getFrom('Party', doc.supplier, 'currency'),
-      formulaDependsOn: ['supplier']
+      formula: (doc) => doc.getFrom('Party', doc.supplier, 'currency'),
+      formulaDependsOn: ['supplier'],
     },
     {
       fieldname: 'exchangeRate',
       label: 'Exchange Rate',
       fieldtype: 'Float',
-      formula: doc => doc.getExchangeRate(),
-      required: true
+      formula: (doc) => doc.getExchangeRate(),
+      required: true,
     },
     {
       fieldname: 'items',
       label: 'Items',
       fieldtype: 'Table',
       childtype: 'PurchaseInvoiceItem',
-      required: true
+      required: true,
     },
     {
       fieldname: 'netTotal',
       label: 'Net Total',
       fieldtype: 'Currency',
-      formula: doc => doc.getSum('items', 'amount'),
+      formula: (doc) => doc.getSum('items', 'amount'),
       readOnly: 1,
-      getCurrency: doc => doc.currency
+      getCurrency: (doc) => doc.currency,
     },
     {
       fieldname: 'baseNetTotal',
       label: 'Net Total (Company Currency)',
       fieldtype: 'Currency',
-      formula: doc => doc.netTotal * doc.exchangeRate,
-      readOnly: 1
+      formula: (doc) => doc.netTotal * doc.exchangeRate,
+      readOnly: 1,
     },
     {
       fieldname: 'taxes',
       label: 'Taxes',
       fieldtype: 'Table',
       childtype: 'TaxSummary',
-      formula: doc => doc.getTaxSummary(),
-      readOnly: 1
+      formula: (doc) => doc.getTaxSummary(),
+      readOnly: 1,
     },
     {
       fieldname: 'grandTotal',
       label: 'Grand Total',
       fieldtype: 'Currency',
-      formula: doc => doc.getGrandTotal(),
+      formula: (doc) => doc.getGrandTotal(),
       readOnly: 1,
-      getCurrency: doc => doc.currency
+      getCurrency: (doc) => doc.currency,
     },
     {
       fieldname: 'baseGrandTotal',
       label: 'Grand Total (Company Currency)',
       fieldtype: 'Currency',
-      formula: doc => doc.grandTotal * doc.exchangeRate,
-      readOnly: 1
+      formula: (doc) => doc.grandTotal * doc.exchangeRate,
+      readOnly: 1,
     },
     {
       fieldname: 'outstandingAmount',
       label: 'Outstanding Amount',
       fieldtype: 'Currency',
-      formula: doc => {
+      formula: (doc) => {
         if (doc.submitted) return;
         return doc.baseGrandTotal;
       },
-      readOnly: 1
+      readOnly: 1,
     },
     {
       fieldname: 'terms',
       label: 'Terms',
-      fieldtype: 'Text'
+      fieldtype: 'Text',
     },
     {
       fieldname: 'cancelled',
       label: 'Cancelled',
       fieldtype: 'Check',
-      default: 0
-    }
+      default: 0,
+    },
   ],
 
-  actions: getActions('PurchaseInvoice')
+  actions: getActions('PurchaseInvoice'),
 };
