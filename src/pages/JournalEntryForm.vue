@@ -123,7 +123,12 @@ import DropdownWithActions from '@/components/DropdownWithActions';
 import FormControl from '@/components/Controls/FormControl';
 import BackLink from '@/components/BackLink';
 import StatusBadge from '@/components/StatusBadge';
-import { handleErrorWithDialog, getActionsForDocument, routeTo } from '@/utils';
+import {
+  handleErrorWithDialog,
+  showMessageDialog,
+  getActionsForDocument,
+  routeTo,
+} from '@/utils';
 
 export default {
   name: 'JournalEntryForm',
@@ -194,7 +199,21 @@ export default {
       return this.doc.insertOrUpdate().catch(this.handleError);
     },
     async onSubmitClick() {
-      await this.doc.submit().catch(this.handleError);
+      showMessageDialog({
+        message: this._('Are you sure you want to submit this Journal Entry?'),
+        buttons: [
+          {
+            label: this._('Yes'),
+            action: () => {
+              this.doc.submit().catch(this.handleError);
+            },
+          },
+          {
+            label: this._('No'),
+            action() {},
+          },
+        ],
+      });
     },
     handleError(e) {
       handleErrorWithDialog(e, this.doc);

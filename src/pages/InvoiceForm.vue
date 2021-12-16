@@ -286,21 +286,21 @@ export default {
       return this.doc.insertOrUpdate().catch(this.handleError);
     },
     onSubmitClick() {
-      let message =
+        let message =
         this.doctype === 'SalesInvoice'
-          ? this._('Are you sure you want to submit this invoice?')
-          : this._('Are you sure you want to submit this bill?');
+          ? this._('Are you sure you want to submit this Invoice?')
+          : this._('Are you sure you want to submit this Bill?');
       showMessageDialog({
         message,
         buttons: [
           {
-            label: this._('Submit'),
+            label: this._('Yes'),
             action: () => {
               this.doc.submit().catch(this.handleError);
             },
           },
           {
-            label: this._('Cancel'),
+            label: this._('No'),
             action() {},
           },
         ],
