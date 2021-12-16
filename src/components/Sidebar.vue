@@ -74,7 +74,7 @@
     </div>
     <div class="px-5 window-no-drag">
       <button
-        class="pb-1 text-sm text-gray-600 hover:text-gray-800 truncate"
+        class="pb-1 text-sm text-gray-600 hover:text-gray-800 w-full whitespace-nowrap overflow-scroll no-scrollbar text-left"
         @click="$emit('change-db-file')"
       >
         {{ dbPath }}
