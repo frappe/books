@@ -41,7 +41,6 @@
                   placeholder="Entry Type"
                   @change="(value) => doc.set('entryType', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
-                  :show-label="true"
                   :read-only="doc.submitted"
                   :class="doc.submitted && 'pointer-events-none'"
                 />
@@ -52,7 +51,6 @@
                   :placeholder="'Date'"
                   @change="(value) => doc.set('date', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
-                  :show-label="true"
                   :read-only="doc.submitted"
                   :class="doc.submitted && 'pointer-events-none'"
                 />
@@ -64,7 +62,6 @@
                   :placeholder="'Reference Number'"
                   @change="(value) => doc.set('referenceNumber', value)"
                   input-class="bg-gray-100 p-2 text-base"
-                  :show-label="true"
                   :read-only="doc.submitted"
                   :class="doc.submitted && 'pointer-events-none'"
                 />
@@ -75,7 +72,6 @@
                   :placeholder="'Reference Date'"
                   @change="(value) => doc.set('referenceDate', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
-                  :show-label="true"
                   :read-only="doc.submitted"
                   :class="doc.submitted && 'pointer-events-none'"
                 />
