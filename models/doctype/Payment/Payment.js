@@ -48,7 +48,8 @@ export default {
       fieldname: 'paymentType',
       label: 'Payment Type',
       fieldtype: 'Select',
-      options: ['', 'Receive', 'Pay'],
+      placeholder: 'Payment Type',
+      options: ['Receive', 'Pay'],
       required: 1,
     },
     {
@@ -78,7 +79,7 @@ export default {
       label: 'Payment Method',
       placeholder: 'Payment Method',
       fieldtype: 'Select',
-      options: ['', 'Cash', 'Cheque', 'Transfer'],
+      options: ['Cash', 'Cheque', 'Transfer'],
       default: 'Cash',
       required: 1,
     },

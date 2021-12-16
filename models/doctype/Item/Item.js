@@ -29,13 +29,14 @@ export default {
       fieldname: 'unit',
       label: 'Unit Type',
       fieldtype: 'Select',
+      placeholder: 'Unit Type',
       default: 'Unit',
       options: ['Unit', 'Kg', 'Gram', 'Hour', 'Day'],
     },
     {
       fieldname: 'itemType',
       label: 'Type',
-      placeholder: 'Sales',
+      placeholder: 'Type',
       fieldtype: 'Select',
       default: 'Product',
       options: ['Product', 'Service'],
@@ -45,7 +46,7 @@ export default {
       label: 'Income',
       fieldtype: 'Link',
       target: 'Account',
-      placeholder: 'Sales',
+      placeholder: 'Income',
       required: 1,
       disableCreation: true,
       getFilters: () => {
@@ -70,7 +71,7 @@ export default {
       label: 'Expense',
       fieldtype: 'Link',
       target: 'Account',
-      placeholder: 'Select Account',
+      placeholder: 'Expense',
       required: 1,
       disableCreation: true,
       getFilters: () => {
@@ -96,7 +97,7 @@ export default {
       label: 'Tax',
       fieldtype: 'Link',
       target: 'Tax',
-      placeholder: 'GST',
+      placeholder: 'Tax',
     },
     {
       fieldname: 'rate',

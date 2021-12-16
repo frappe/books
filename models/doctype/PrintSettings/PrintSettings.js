@@ -8,12 +8,12 @@ export default {
     {
       fieldname: 'logo',
       label: 'Logo',
-      fieldtype: 'AttachImage'
+      fieldtype: 'AttachImage',
     },
     {
       fieldname: 'companyName',
       label: 'Company Name',
-      fieldtype: 'Data'
+      fieldtype: 'Data',
     },
     {
       fieldname: 'email',
@@ -21,13 +21,13 @@ export default {
       fieldtype: 'Data',
       placeholder: 'john@doe.com',
       validate: {
-        type: 'email'
-      }
+        type: 'email',
+      },
     },
     {
       fieldname: 'displayLogo',
       label: 'Display Logo in Invoice',
-      fieldtype: 'Check'
+      fieldtype: 'Check',
     },
     {
       fieldname: 'phone',
@@ -35,8 +35,8 @@ export default {
       fieldtype: 'Data',
       placeholder: '9888900000',
       validate: {
-        type: 'phone'
-      }
+        type: 'phone',
+      },
     },
     {
       fieldname: 'address',
@@ -44,20 +44,21 @@ export default {
       fieldtype: 'Link',
       target: 'Address',
       placeholder: 'Click to create',
-      inline: true
+      inline: true,
     },
     {
       fieldname: 'gstin',
       label: 'GSTIN',
       fieldtype: 'Data',
-      placeholder: '27AAAAA0000A1Z5'
+      placeholder: '27AAAAA0000A1Z5',
     },
     {
       fieldname: 'template',
       label: 'Template',
+      placeholder: 'Template',
       fieldtype: 'Select',
       options: ['Basic', 'Minimal', 'Business'],
-      default: 'Basic'
+      default: 'Basic',
     },
     {
       fieldname: 'color',
@@ -73,32 +74,28 @@ export default {
         'blue',
         'indigo',
         'purple',
-        'pink'
+        'pink',
       ]
-        .map(color => {
+        .map((color) => {
           let label = color[0].toUpperCase() + color.slice(1);
           return {
             label,
-            value: theme.colors[color]['500']
+            value: theme.colors[color]['500'],
           };
         })
         .concat({
           label: 'Black',
-          value: theme.colors['black']
-        })
+          value: theme.colors['black'],
+        }),
     },
     {
       fieldname: 'font',
       label: 'Font',
+      placeholder: 'Font',
       fieldtype: 'Select',
-      options: [
-        'Inter',
-        'Times New Roman',
-        'Arial',
-        'Courier'
-      ],
-      default: 'Inter'
-    }
+      options: ['Inter', 'Times New Roman', 'Arial', 'Courier'],
+      default: 'Inter',
+    },
   ],
   quickEditFields: [
     'logo',
@@ -109,6 +106,6 @@ export default {
     'email',
     'phone',
     'address',
-    'gstin'
-  ]
+    'gstin',
+  ],
 };

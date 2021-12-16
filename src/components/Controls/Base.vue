@@ -63,7 +63,7 @@ export default {
       return this.getInputClassesFromProp(classes);
     },
     inputPlaceholder() {
-      return this.placeholder || this.df.placeholder;
+      return this.placeholder || this.df.placeholder || this.df.label;
     },
     isReadOnly() {
       if (this.readOnly != null) {

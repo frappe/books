@@ -12,23 +12,25 @@ export default {
       fieldtype: 'Link',
       target: 'NumberSeries',
       required: 1,
-      default: 'SINV'
+      default: 'SINV',
     },
     {
       fieldname: 'template',
       label: 'Template',
+      placeholder: 'Template',
       fieldtype: 'Select',
       options: ['Basic I', 'Basic II', 'Modern'],
       required: 1,
-      default: 'Basic I'
+      default: 'Basic I',
     },
     {
       fieldname: 'font',
       label: 'Font',
+      placeholder: 'Font',
       fieldtype: 'Select',
       options: ['Montserrat', 'Open Sans', 'Oxygen', 'Merriweather'],
       required: 1,
-      default: 'Montserrat'
+      default: 'Montserrat',
     },
     {
       fieldname: 'themeColor',
@@ -36,7 +38,7 @@ export default {
       fieldtype: 'Data',
       required: 1,
       default: '#000000',
-      hidden: 1
-    }
-  ]
+      hidden: 1,
+    },
+  ],
 };

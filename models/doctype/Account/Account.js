@@ -14,14 +14,15 @@ export default {
       fieldname: 'name',
       label: 'Account Name',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'rootType',
       label: 'Root Type',
       fieldtype: 'Select',
-      options: ['', 'Asset', 'Liability', 'Equity', 'Income', 'Expense'],
-      required: 1
+      placeholder: 'Root Type',
+      options: ['Asset', 'Liability', 'Equity', 'Income', 'Expense'],
+      required: 1,
     },
     {
       fieldname: 'parentAccount',
@@ -30,18 +31,18 @@ export default {
       target: 'Account',
       getFilters: (query, doc) => {
         const filter = {
-          isGroup: 1
+          isGroup: 1,
         };
         doc.rootType ? (filter.rootType = doc.rootType) : '';
         return filter;
-      }
+      },
     },
     {
       fieldname: 'accountType',
       label: 'Account Type',
+      placeholder: 'Account Type',
       fieldtype: 'Select',
       options: [
-        '',
         'Accumulated Depreciation',
         'Bank',
         'Cash',
@@ -60,21 +61,21 @@ export default {
         'Stock Adjustment',
         'Stock Received But Not Billed',
         'Tax',
-        'Temporary'
-      ]
+        'Temporary',
+      ],
     },
     {
       fieldname: 'balance',
       label: 'Balance',
       fieldtype: 'Currency',
       default: '0',
-      readOnly: 1
+      readOnly: 1,
     },
     {
       fieldname: 'isGroup',
       label: 'Is Group',
-      fieldtype: 'Check'
-    }
+      fieldtype: 'Check',
+    },
   ],
 
   quickEditFields: [
@@ -82,7 +83,7 @@ export default {
     'rootType',
     'parentAccount',
     'accountType',
-    'isGroup'
+    'isGroup',
   ],
 
   treeSettings: {
@@ -90,6 +91,6 @@ export default {
     async getRootLabel() {
       let accountingSettings = await frappe.getSingle('AccountingSettings');
       return accountingSettings.companyName;
-    }
-  }
+    },
+  },
 };

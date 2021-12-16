@@ -10,34 +10,34 @@ export default {
       fieldname: 'name',
       label: 'Currency Name',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'fraction',
       label: 'Fraction',
-      fieldtype: 'Data'
+      fieldtype: 'Data',
     },
     {
       fieldname: 'fractionUnits',
       label: 'Fraction Units',
-      fieldtype: 'Int'
+      fieldtype: 'Int',
     },
     {
       label: 'Smallest Currency Fraction Value',
       fieldname: 'smallestValue',
-      fieldtype: 'Currency'
+      fieldtype: 'Currency',
     },
     {
       label: 'Symbol',
       fieldname: 'symbol',
-      fieldtype: 'Data'
+      fieldtype: 'Data',
     },
     {
       fieldname: 'numberFormat',
       fieldtype: 'Select',
       label: 'Number Format',
+      placeholder: 'Number Format',
       options: [
-        '',
         '#,###.##',
         '#.###,##',
         '# ###.##',
@@ -47,8 +47,8 @@ export default {
         '#,##,###.##',
         '#,###.###',
         '#.###',
-        '#,###'
-      ]
-    }
-  ]
+        '#,###',
+      ],
+    },
+  ],
 };
