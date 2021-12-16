@@ -48,3 +48,7 @@ html {
 .frappe-chart .chart-legend {
   display: none;
 }
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
