@@ -332,8 +332,4 @@ export default {
 .report-scroll-container::-webkit-scrollbar-track {
   background-color: white;
 }
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
 </style>
