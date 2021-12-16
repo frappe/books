@@ -8,19 +8,25 @@
         relative
         flex
         items-center
-        justify-end
+        justify-between
         bg-white
         focus-within:bg-gray-200
       "
       :class="inputClasses"
     >
       <select
-        class="appearance-none bg-transparent focus:outline-none w-full"
-        :class="isReadOnly && 'pointer-events-none'"
+        class="appearance-none bg-transparent focus:outline-none w-11/12"
+        :class="{
+          'pointer-events-none': isReadOnly,
+          'text-gray-400': !value,
+        }"
         :value="value"
         @change="(e) => triggerChange(e.target.value)"
         @focus="(e) => $emit('focus', e)"
       >
+        <option value="" disabled selected>
+          {{ inputPlaceholder }}
+        </option>
         <option
           v-for="option in options"
           :key="option.value"
@@ -29,14 +35,9 @@
           {{ option.label }}
         </option>
       </select>
-      <div
-        class="absolute left-0 pl-2 text-gray-400 pointer-events-none"
-        v-if="!value"
-      >
-        {{ inputPlaceholder }}
-      </div>
       <svg
-        class="w-3 h-3 absolute"
+        class="w-3 h-3"
+        style="background: inherit; z-index: 1; transform: translateX(3px)"
         viewBox="0 0 5 10"
         xmlns="http://www.w3.org/2000/svg"
       >
