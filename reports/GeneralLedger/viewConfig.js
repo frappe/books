@@ -8,8 +8,9 @@ const viewConfig = {
     {
       fieldtype: 'Select',
       options: [
-        { label: 'Sales Invoice', value: 'SalesInvoice' },
-        { label: 'Purchase Invoice', value: 'PurchaseInvoice' },
+        { label: 'All References', value: 'All' },
+        { label: 'Invoices', value: 'SalesInvoice' },
+        { label: 'Bills', value: 'PurchaseInvoice' },
         { label: 'Payment', value: 'Payment' },
         { label: 'Journal Entry', value: 'JournalEntry' },
       ],
@@ -17,6 +18,7 @@ const viewConfig = {
       label: 'Reference Type',
       fieldname: 'referenceType',
       placeholder: 'Reference Type',
+      default: 'All',
     },
     {
       fieldtype: 'DynamicLink',

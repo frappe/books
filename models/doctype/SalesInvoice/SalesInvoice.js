@@ -4,7 +4,7 @@ import SalesInvoice from './SalesInvoiceDocument';
 
 export default {
   name: 'SalesInvoice',
-  label: 'Sales Invoice',
+  label: 'Invoice',
   doctype: 'DocType',
   documentClass: SalesInvoice,
   printTemplate: InvoiceTemplate,
