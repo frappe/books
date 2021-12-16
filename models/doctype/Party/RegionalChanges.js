@@ -1,6 +1,8 @@
 import { cloneDeep } from 'lodash';
 import PartyOriginal from './Party';
 
+const gstTypes = ['Unregistered', 'Registered Regular', 'Consumer'];
+
 export default function getAugmentedParty({ country }) {
   const Party = cloneDeep(PartyOriginal);
   if (!country) {
@@ -19,9 +21,10 @@ export default function getAugmentedParty({ country }) {
       },
       {
         fieldname: 'gstType',
-        label: 'GST Registration Type',
+        label: 'GST Registration',
         fieldtype: 'Select',
-        options: ['Unregistered', 'Registered Regular', 'Consumer'],
+        default: gstTypes[0],
+        options: gstTypes,
       }
     );
     Party.quickEditFields.push('gstin');
