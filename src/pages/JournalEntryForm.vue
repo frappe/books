@@ -71,7 +71,7 @@
                 <FormControl
                   class="mt-2"
                   :df="meta.getField('referenceDate')"
-                  :value="doc.date"
+                  :value="doc.referenceDate"
                   :placeholder="'Reference Date'"
                   @change="(value) => doc.set('referenceDate', value)"
                   input-class="bg-gray-100 px-3 py-2 text-base"
