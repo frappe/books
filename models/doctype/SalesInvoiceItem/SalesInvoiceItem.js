@@ -2,6 +2,7 @@ export default {
   name: 'SalesInvoiceItem',
   doctype: 'DocType',
   isChild: 1,
+  regional: 1,
   keywordFields: [],
   tableFields: ['item', 'tax', 'quantity', 'rate', 'amount'],
   fields: [
@@ -88,10 +89,10 @@ export default {
       formula: (row, doc) => row.amount * doc.exchangeRate,
     },
     {
-      fieldname: 'itemCode',
+      fieldname: 'hsnCode',
       label: 'Item Code',
       fieldtype: 'Int',
-      formula: (row, doc) => doc.getFrom('Item', row.item, 'itemCode'),
+      formula: (row, doc) => doc.getFrom('Item', row.item, 'hsnCode'),
       formulaDependsOn: ['item'],
     },
   ],

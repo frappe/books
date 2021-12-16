@@ -122,7 +122,7 @@ async function generateB2bData(invoices) {
 
     items.forEach((item) => {
       const itemRecord = {
-        num: item.itemCode || 0,
+        num: item.hsnCode || 0,
         itm_det: {
           txval: item.baseAmount,
           rt: GST[item.tax],
