@@ -15,7 +15,7 @@
       </div>
       <svg
         v-else
-        class="w-8 h-8 text-gray-500"
+        class="w-6 h-6 text-gray-300"
         viewBox="0 0 24 21"
         xmlns="http://www.w3.org/2000/svg"
       >
@@ -31,8 +31,7 @@
     </div>
     <div
       v-show="showEdit"
-      class="absolute inset-x-0 bottom-0 text-white text-center text-xs pt-3 pb-1"
-      style="background-image: linear-gradient(-180deg, rgba(0,0,0,0.00) 0%, #a6a6a6 100%);"
+      class="absolute bottom-0 text-gray-500 text-center text-xs pt-3 pb-1"
     >
       {{ _('Edit') }}
     </div>
