@@ -10,7 +10,15 @@ export default {
   methods: {
     async getSuggestions(keyword = '') {
       let doctype = this.getTarget();
-      let meta = frappe.getMeta(doctype);
+      let meta;
+      try {
+        meta = frappe.getMeta(doctype);
+      } catch (err) {
+        if (err.message.includes('not a registered doctype')) {
+          return [];
+        }
+        throw err;
+      }
       let filters = await this.getFilters(keyword);
       if (keyword && !filters.keywords) {
         filters.keywords = ['like', keyword];
@@ -23,13 +31,13 @@ export default {
             'name',
             meta.titleField,
             this.df.groupBy,
-            ...meta.getKeywordFields()
-          ])
-        ].filter(Boolean)
+            ...meta.getKeywordFields(),
+          ]),
+        ].filter(Boolean),
       });
       let createNewOption = this.getCreateNewOption();
       let suggestions = results
-        .map(r => {
+        .map((r) => {
           let option = { label: r[meta.titleField], value: r.name };
           if (this.df.groupBy) {
             option.group = r[this.df.groupBy];
@@ -43,13 +51,12 @@ export default {
         return [
           {
             component: {
-              template: '<span class="text-gray-600">No results found</span>'
+              template: '<span class="text-gray-600">No results found</span>',
             },
-            action: () => {}
-          }
+            action: () => {},
+          },
         ];
       }
-
       return suggestions;
     },
     getCreateNewOption() {
@@ -66,12 +73,12 @@ export default {
           computed: {
             linkValue: () => this.linkValue,
             isNewValue: () => {
-              let values = this.suggestions.map(d => d.value);
+              let values = this.suggestions.map((d) => d.value);
               return this.linkValue && !values.includes(this.linkValue);
-            }
+            },
           },
-          components: { Badge }
-        }
+          components: { Badge },
+        },
       };
     },
     async getFilters(keyword) {
@@ -93,14 +100,14 @@ export default {
         doctype,
         name: doc.name,
         defaults: Object.assign({}, filters, {
-          name: this.linkValue
-        })
+          name: this.linkValue,
+        }),
       });
       doc.once('afterInsert', () => {
         this.$emit('new-doc', doc);
         this.$router.back();
       });
-    }
-  }
+    },
+  },
 };
 </script>

@@ -78,7 +78,6 @@ export default {
       return this.getInputClassesFromProp([]);
     },
     checked() {
-      console.log(this.value);
       return this.value;
     },
   },
