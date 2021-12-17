@@ -205,6 +205,7 @@ export default {
         await this.$refs.form.submit();
       } catch (e) {
         this.statusText = null;
+        console.error(e)
       }
     },
     routeToPrevious() {
