@@ -14,7 +14,7 @@ export default {
     {
       fieldname: 'companyLogo',
       label: 'Company Logo',
-      fieldtype: 'AttachImage'
+      fieldtype: 'AttachImage',
     },
     {
       fieldname: 'country',
@@ -22,7 +22,7 @@ export default {
       fieldtype: 'AutoComplete',
       placeholder: 'Select Country',
       required: 1,
-      getList: () => Object.keys(countryList).sort()
+      getList: () => Object.keys(countryList).sort(),
     },
 
     {
@@ -30,7 +30,7 @@ export default {
       label: 'Your Name',
       fieldtype: 'Data',
       placeholder: 'John Doe',
-      required: 1
+      required: 1,
     },
 
     {
@@ -40,8 +40,8 @@ export default {
       placeholder: 'john@doe.com',
       required: 1,
       validate: {
-        type: 'email'
-      }
+        type: 'email',
+      },
     },
 
     {
@@ -49,7 +49,7 @@ export default {
       label: 'Company Name',
       placeholder: 'Company Name',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
     },
 
     {
@@ -57,7 +57,7 @@ export default {
       label: 'Bank Name',
       fieldtype: 'Data',
       placeholder: 'Prime Bank',
-      required: 1
+      required: 1,
     },
 
     {
@@ -65,7 +65,8 @@ export default {
       label: 'Fiscal Year Start Date',
       placeholder: 'Fiscal Year Start Date',
       fieldtype: 'Date',
-      formula: doc => {
+      formulaDependsOn: ['country'],
+      formula: (doc) => {
         if (!doc.country) return;
         let today = DateTime.local();
         let fyStart = countryList[doc.country].fiscal_year_start;
@@ -75,7 +76,7 @@ export default {
             .toISODate();
         }
       },
-      required: 1
+      required: 1,
     },
 
     {
@@ -83,7 +84,8 @@ export default {
       label: 'Fiscal Year End Date',
       placeholder: 'Fiscal Year End Date',
       fieldtype: 'Date',
-      formula: doc => {
+      formulaDependsOn: ['country'],
+      formula: (doc) => {
         if (!doc.country) return;
         let today = DateTime.local();
         let fyEnd = countryList[doc.country].fiscal_year_end;
@@ -93,25 +95,26 @@ export default {
             .toISODate();
         }
       },
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'currency',
       label: 'Currency',
       fieldtype: 'Data',
-      placeholder: 'INR',
-      formula: doc => {
+      placeholder: 'Currency',
+      formulaDependsOn: ['country'],
+      formula: (doc) => {
         if (!doc.country) return;
         return countryList[doc.country].currency;
       },
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'completed',
       label: 'Completed',
       fieldtype: 'Check',
-      readonly: 1
-    }
+      readonly: 1,
+    },
   ],
   quickEditFields: [
     'fullname',
@@ -119,6 +122,6 @@ export default {
     'country',
     'currency',
     'fiscalYearStart',
-    'fiscalYearEnd'
-  ]
+    'fiscalYearEnd',
+  ],
 };
