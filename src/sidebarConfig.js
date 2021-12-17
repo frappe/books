@@ -33,21 +33,6 @@ const config = {
           route: '/list/Customer',
           doctype: 'Customer',
         },
-        {
-          label: _('Items'),
-          route: '/list/Item',
-          doctype: 'Item',
-        },
-        {
-          label: _('Payments'),
-          route: '/list/Payment',
-          doctype: 'Payment',
-        },
-        {
-          label: _('Journal Entry'),
-          route: '/list/JournalEntry',
-          doctype: 'JournalEntry',
-        },
       ],
     },
     {
@@ -65,6 +50,13 @@ const config = {
           route: '/list/Supplier',
           doctype: 'Supplier',
         },
+      ],
+    },
+    {
+      title: _('Common Entries'),
+      icon: getIcon('common-entries'),
+      route: '/list/Item',
+      items: [
         {
           label: _('Items'),
           route: '/list/Item',
