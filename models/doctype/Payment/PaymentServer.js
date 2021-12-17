@@ -70,6 +70,7 @@ export default class PaymentServer extends BaseDocument {
   }
 
   validateReferenceAmount() {
+    if (!this.for?.length) return;
     const referenceAmountTotal = this.for
       .map(({ amount }) => amount)
       .reduce((a, b) => a + b, 0);
