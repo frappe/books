@@ -2,7 +2,7 @@
   "name": "frappe-books",
   "description": "Simple book-keeping app for everyone",
   "homepage": "https://frappebooks.com",
-  "version": "0.0.4-beta.1",
+  "version": "0.0.4-beta.2",
   "author": {
     "name": "Frappe Technologies Pvt. Ltd.",
     "email": "hello@frappe.io"
