@@ -51,7 +51,8 @@
       </div>
       <TwoColumnForm :fields="fields" :doc="doc" />
     </div>
-    <div class="flex justify-end px-8 mt-5 window-no-drag">
+    <div class="flex justify-between px-8 mt-5 window-no-drag">
+      <Button class="text-sm text-grey-900" @click="$emit('setup-canceled')">Cancel</Button>
       <Button
         @click="submit"
         type="primary"
@@ -175,7 +176,7 @@ export default {
       return this.meta.getQuickEditFields();
     },
     buttonText() {
-      return this.loading ? this._('Setting Up...') : this._('Next');
+      return this.loading ? this._('Setting Up...') : this._('Submit');
     },
   },
 };

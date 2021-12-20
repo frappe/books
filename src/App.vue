@@ -16,6 +16,7 @@
     <SetupWizard
       v-if="activeScreen === 'SetupWizard'"
       @setup-complete="showSetupWizardOrDesk(true)"
+      @setup-canceled="setupCanceled"
     />
     <portal-target name="popovers" multiple></portal-target>
   </div>
@@ -33,7 +34,7 @@ import config from '@/config';
 import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
 import { connectToLocalDatabase, purgeCache } from '@/initialization';
 import { routeTo, showErrorDialog } from './utils';
-import { DB_CONN_FAILURE } from './messages';
+import fs from 'fs/promises';
 
 export default {
   name: 'App',
@@ -117,6 +118,11 @@ export default {
       config.set('lastSelectedFilePath', null);
       purgeCache(true);
       this.activeScreen = 'DatabaseSelector';
+    },
+    async setupCanceled() {
+      const filePath = config.get('lastSelectedFilePath')
+      await fs.unlink(filePath)
+      this.changeDbFile()
     },
   },
 };
