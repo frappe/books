@@ -1,5 +1,5 @@
-import { generateGstr1Json } from '../../accounting/gst';
 import { DateTime } from 'luxon';
+import { generateGstr1Json } from '../../accounting/gst';
 
 export default {
   filterFields: [
@@ -41,22 +41,15 @@ export default {
       default: () => DateTime.local().toISODate(),
     },
   ],
-  linkFields: [
+  actions: [
     {
-      label: 'Export as JSON',
-      type: 'secondary',
+      group: 'Export',
+      label: 'JSON',
+      type: 'primary',
       action: async (report, filters) => {
         generateGstr1Json(report, filters);
       },
     },
-    {
-      label: 'Clear Filters',
-      type: 'secondary',
-      action: async report => {
-        await report.getReportData({});
-        report.usedToReRender += 1;
-      }
-    }
   ],
 
   getColumns() {

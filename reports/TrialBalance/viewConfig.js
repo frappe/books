@@ -16,7 +16,7 @@ export default {
       required: 1,
       default: async () => {
         return (await frappe.getSingle('AccountingSettings')).fiscalYearStart;
-      }
+      },
     },
     {
       fieldtype: 'Date',
@@ -27,46 +27,37 @@ export default {
       required: 1,
       default: async () => {
         return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
-      }
-    }
-  ],
-  linkFields: [
-    {
-      label: 'Clear Filters',
-      type: 'secondary',
-      action: async report => {
-        await report.getReportData({});
-        report.usedToReRender += 1;
-      }
+      },
     },
   ],
+  actions: [],
   getColumns(data) {
     const columns = [
       { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
       {
         label: 'Opening (Dr)',
         fieldtype: 'Currency',
-        fieldname: 'openingDebit'
+        fieldname: 'openingDebit',
       },
       {
         label: 'Opening (Cr)',
         fieldtype: 'Currency',
-        fieldname: 'openingCredit'
+        fieldname: 'openingCredit',
       },
       { label: 'Debit', fieldtype: 'Currency', fieldname: 'debit' },
       { label: 'Credit', fieldtype: 'Currency', fieldname: 'credit' },
       {
         label: 'Closing (Dr)',
         fieldtype: 'Currency',
-        fieldname: 'closingDebit'
+        fieldname: 'closingDebit',
       },
       {
         label: 'Closing (Cr)',
         fieldtype: 'Currency',
-        fieldname: 'closingCredit'
-      }
+        fieldname: 'closingCredit',
+      },
     ];
 
     return columns;
-  }
+  },
 };

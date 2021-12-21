@@ -11,17 +11,17 @@ export default {
       fieldname: 'supplier',
       size: 'small',
       placeholder: 'Supplier Name',
-      getFilters: query => {
+      getFilters: (query) => {
         if (query)
           return {
             keywords: ['like', query],
-            supplier: 1
+            supplier: 1,
           };
 
         return {
-          supplier: 1
+          supplier: 1,
         };
-      }
+      },
     },
     {
       fieldtype: 'Date',
@@ -29,7 +29,7 @@ export default {
       size: 'small',
       placeholder: 'From Date',
       label: 'From Date',
-      required: 1
+      required: 1,
     },
     {
       fieldtype: 'Date',
@@ -37,19 +37,10 @@ export default {
       placeholder: 'To Date',
       fieldname: 'toDate',
       label: 'To Date',
-      required: 1
-    }
+      required: 1,
+    },
   ],
-  linkFields: [
-    {
-      label: 'Clear Filters',
-      type: 'secondary',
-      action: async report => {
-        await report.getReportData({});
-        report.usedToReRender += 1;
-      }
-    }
-  ],
+  actions: [],
   getColumns() {
     return [
       { label: 'PurchaseInvoice', fieldname: 'name' },
@@ -58,7 +49,7 @@ export default {
       { label: 'Payable Account', fieldname: 'account' },
       { label: 'Net Total', fieldname: 'netTotal', fieldtype: 'Currency' },
       { label: 'Total Tax', fieldname: 'totalTax', fieldtype: 'Currency' },
-      { label: 'Grand Total', fieldname: 'grandTotal', fieldtype: 'Currency' }
+      { label: 'Grand Total', fieldname: 'grandTotal', fieldtype: 'Currency' },
     ];
-  }
+  },
 };
