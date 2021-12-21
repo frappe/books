@@ -11,15 +11,14 @@ export default function getAugmentedItem({ country }) {
     const nameFieldIndex = Item.fields.findIndex(i => i.fieldname === 'name');
 
     Item.fields = [
-      ...Item.fields.slice(0, nameFieldIndex+1),
+      ...Item.fields.slice(0, nameFieldIndex + 1),
       {
         fieldname: 'hsnCode',
         label: 'HSN/SAC',
         fieldtype: 'Int',
         placeholder: 'HSN/SAC Code',
-        required: 1
       },
-      ...Item.fields.slice(nameFieldIndex+1, Item.fields.length),
+      ...Item.fields.slice(nameFieldIndex + 1, Item.fields.length),
     ];
 
     Item.quickEditFields.unshift('hsnCode');
