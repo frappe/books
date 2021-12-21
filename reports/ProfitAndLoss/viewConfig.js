@@ -1,4 +1,5 @@
 import frappe from 'frappejs';
+import getCommonExportActions from '../commonExporter';
 
 const title = 'Profit and Loss';
 
@@ -39,6 +40,7 @@ export default {
       fieldname: 'periodicity',
     },
   ],
+  actions: getCommonExportActions('profit-and-loss'),
   getColumns(data) {
     const columns = [
       { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },

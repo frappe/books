@@ -1,4 +1,5 @@
 import frappe from 'frappejs';
+import getCommonExportActions from '../commonExporter';
 
 const title = 'Trial Balance';
 
@@ -30,7 +31,7 @@ export default {
       },
     },
   ],
-  actions: [],
+  actions: getCommonExportActions('trial-balance'),
   getColumns(data) {
     const columns = [
       { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
