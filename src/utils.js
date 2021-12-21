@@ -306,3 +306,19 @@ export function fuzzyMatch(keyword, candidate) {
 export function openSettings(tab) {
   routeTo({ path: '/settings', query: { tab } });
 }
+
+export async function getSavePath(name, extention) {
+  let { canceled, filePath } = await ipcRenderer.invoke(
+    IPC_ACTIONS.GET_SAVE_FILEPATH,
+    {
+      title: _('Select Folder'),
+      defaultPath: `${name}.${extention}`,
+    }
+  );
+
+  if (filePath && !filePath.endsWith(extention)) {
+    filePath = filePath + extention;
+  }
+
+  return { canceled, filePath };
+}

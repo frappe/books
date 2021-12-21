@@ -1,9 +1,8 @@
-import { IPC_ACTIONS } from '@/messages';
 import { makeJSON, showMessageDialog } from '@/utils';
-import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
 import { sleep, _ } from 'frappejs/utils';
 import { DateTime } from 'luxon';
+import { getSavePath } from '../src/utils';
 
 /**
  * GST is a map which gives a final rate for any given gst item
@@ -72,8 +71,9 @@ export async function generateGstr1Json(getReportData) {
     rows,
     filters: { transferType, toDate },
   } = getReportData();
-  const savePath = await getSavePath('gstr-1');
-  if (!savePath) return;
+
+  const { filePath, canceled } = await getSavePath('gstr-1', 'json');
+  if (canceled || !filePath) return;
 
   const gstData = {
     version: 'GST3.0.4',
@@ -96,7 +96,7 @@ export async function generateGstr1Json(getReportData) {
 
   await sleep(1);
   const jsonData = JSON.stringify(gstData);
-  makeJSON(jsonData, savePath);
+  makeJSON(jsonData, filePath);
 }
 
 async function generateB2bData(invoices) {
@@ -160,24 +160,4 @@ async function generateB2clData(invoices) {
 
 async function generateB2csData(invoices) {
   return [];
-}
-
-async function getSavePath(name) {
-  const options = {
-    title: _('Select folder'),
-    defaultPath: `${name}.json`,
-  };
-
-  let { filePath } = await ipcRenderer.invoke(
-    IPC_ACTIONS.GET_SAVE_FILEPATH,
-    options
-  );
-
-  if (filePath) {
-    if (!filePath.endsWith('.json')) {
-      filePath = filePath + '.json';
-    }
-  }
-
-  return filePath;
 }
