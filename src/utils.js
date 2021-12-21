@@ -337,5 +337,3 @@ export function showToast(props) {
     },
   });
 }
-
-window.showToast = showToast;
