@@ -1,4 +1,5 @@
 import { partyWithAvatar } from '@/utils';
+import getCommonExportActions from '../commonExporter';
 
 let title = 'General Ledger';
 
@@ -67,7 +68,7 @@ const viewConfig = {
     },
   ],
   method: 'general-ledger',
-  actions: [],
+  actions: getCommonExportActions('general-ledger'),
   getColumns() {
     return [
       {
