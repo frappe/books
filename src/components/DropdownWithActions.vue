@@ -6,8 +6,15 @@
     right
   >
     <template v-slot="{ toggleDropdown }">
-      <Button class="text-gray-900" :icon="true" @click="toggleDropdown()">
-        <feather-icon name="more-horizontal" class="w-4 h-4" />
+      <Button
+        class="text-gray-900"
+        :type="type"
+        :icon="true"
+        @click="toggleDropdown()"
+      >
+        <slot>
+          <feather-icon name="more-horizontal" class="w-4 h-4" />
+        </slot>
       </Button>
     </template>
   </Dropdown>
@@ -19,10 +26,13 @@ import Button from '@/components/Button';
 
 export default {
   name: 'DropdownWithActions',
-  props: ['actions'],
+  props: {
+    actions: { default: [] },
+    type: { type: String, default: 'secondary' },
+  },
   components: {
     Dropdown,
-    Button
-  }
+    Button,
+  },
 };
 </script>
