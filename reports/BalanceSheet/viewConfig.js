@@ -1,4 +1,5 @@
 import frappe from 'frappejs';
+import getCommonExportActions from '../commonExporter';
 
 export default {
   title: 'Balance Sheet',
@@ -25,6 +26,7 @@ export default {
       default: 'Monthly',
     },
   ],
+  actions: getCommonExportActions('balance-sheet'),
   getColumns(data) {
     const columns = [
       { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
