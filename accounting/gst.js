@@ -1,10 +1,9 @@
-import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
 import { IPC_ACTIONS } from '@/messages';
-import { ipcRenderer } from 'electron';
-import { DateTime } from 'luxon';
-import { sleep } from 'frappejs/utils';
 import { makeJSON, showMessageDialog } from '@/utils';
+import { ipcRenderer } from 'electron';
+import frappe from 'frappejs';
+import { sleep, _ } from 'frappejs/utils';
+import { DateTime } from 'luxon';
 
 /**
  * GST is a map which gives a final rate for any given gst item
@@ -59,14 +58,20 @@ const IGST = {
   'IGST-28': 28,
 };
 
-export async function generateGstr1Json(report, { transferType, toDate }) {
-  const { gstin } = frappe.AccountingSettings
-
+export async function generateGstr1Json(getReportData) {
+  const { gstin } = frappe.AccountingSettings;
   if (!gstin) {
-    promptWhenGstUnavailable();
+    showMessageDialog({
+      message: _('Export Failed'),
+      description: _('Please set GSTIN in General Settings.'),
+    });
     return;
   }
 
+  const {
+    rows,
+    filters: { transferType, toDate },
+  } = getReportData();
   const savePath = await getSavePath('gstr-1');
   if (!savePath) return;
 
@@ -82,11 +87,11 @@ export async function generateGstr1Json(report, { transferType, toDate }) {
 
   // based condition we need to triggered different methods
   if (transferType === 'B2B') {
-    gstData.b2b = await generateB2bData(report.rows);
+    gstData.b2b = await generateB2bData(rows);
   } else if (transferType === 'B2CL') {
-    gstData.b2cl = await generateB2clData(report.rows);
+    gstData.b2cl = await generateB2clData(rows);
   } else if (transferType === 'B2CS') {
-    gstData.b2cs = await generateB2csData(report.rows);
+    gstData.b2cs = await generateB2csData(rows);
   }
 
   await sleep(1);
@@ -175,23 +180,4 @@ async function getSavePath(name) {
   }
 
   return filePath;
-}
-
-export function promptWhenGstUnavailable() {
-  return new Promise((resolve) => {
-    showMessageDialog({
-      message: _('Export failed'),
-      description: _(
-        'Report cannot be exported if company gst details are not configured.'
-      ),
-      buttons: [
-        {
-          label: _('Ok'),
-          action() {
-            resolve(true);
-          },
-        },
-      ],
-    });
-  });
 }
