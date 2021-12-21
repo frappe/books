@@ -88,12 +88,5 @@ export default {
       readOnly: 1,
       formula: (row, doc) => row.amount * doc.exchangeRate,
     },
-    {
-      fieldname: 'hsnCode',
-      label: 'Item Code',
-      fieldtype: 'Int',
-      formula: (row, doc) => doc.getFrom('Item', row.item, 'hsnCode'),
-      formulaDependsOn: ['item'],
-    },
   ],
 };
