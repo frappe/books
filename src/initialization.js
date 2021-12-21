@@ -1,33 +1,16 @@
 import config from '@/config';
-import { ipcRenderer } from 'electron';
-import { _ } from 'frappejs';
 import SQLiteDatabase from 'frappejs/backends/sqlite';
 import fs from 'fs';
 import models from '../models';
 import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart from '../server/postStart';
-import { DB_CONN_FAILURE, IPC_ACTIONS } from './messages';
+import { DB_CONN_FAILURE } from './messages';
 import migrate from './migrate';
+import { getSavePath } from './utils';
 
 export async function createNewDatabase() {
-  const options = {
-    title: _('Select folder'),
-    defaultPath: 'books.db',
-  };
-
-  let { canceled, filePath } = await ipcRenderer.invoke(
-    IPC_ACTIONS.GET_SAVE_FILEPATH,
-    options
-  );
-
+  const { canceled, filePath } = await getSavePath('books', 'db');
   if (canceled || filePath.length === 0) {
-    return '';
-  }
-
-  if (!filePath.endsWith('.db')) {
-    showMessageDialog({
-      message: "Please select a filename ending with '.db'.",
-    });
     return '';
   }
 
