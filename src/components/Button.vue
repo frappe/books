@@ -30,7 +30,7 @@ export default {
     style() {
       return {
         padding: this.icon ? '6px 12px' : '6px 24px',
-        color: this.type === 'primary' ? '#fff' : '#000',
+        color: this.type === 'primary' ? '#fff' : '#112B42',
         'background-image':
           this.type === 'primary'
             ? 'linear-gradient(180deg, #2C9AF1 0%, #2490EF 100%)'
