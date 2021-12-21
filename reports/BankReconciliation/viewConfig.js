@@ -43,7 +43,7 @@ export default {
       fieldname: 'toDate',
     },
   ],
-  linkFields: [
+  actions: [
     {
       label: 'Reconcile',
       type: 'secondary',
@@ -60,14 +60,6 @@ export default {
             report,
           },
         });
-      },
-    },
-    {
-      label: 'Clear Filters',
-      type: 'secondary',
-      action: async (report) => {
-        await report.getReportData({});
-        report.usedToReRender += 1;
       },
     },
   ],

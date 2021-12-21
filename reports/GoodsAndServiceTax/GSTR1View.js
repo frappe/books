@@ -5,6 +5,6 @@ export default {
   title: title,
   method: 'gstr-1',
   filterFields: baseConfig.filterFields,
-  linkFields: baseConfig.linkFields,
+  actions: baseConfig.actions,
   getColumns: baseConfig.getColumns,
 };
