@@ -11,6 +11,7 @@
       items-center
       mb-3
       w-60
+      bg-gray-100
     "
     style="transition: opacity 150ms ease-in"
     :style="{ opacity }"
@@ -19,7 +20,7 @@
     <feather-icon name="alert-circle" class="w-8 h-8 mr-3 text-gray-800" />
     <div>
       <p class="text-base">{{ message }}</p>
-      <button v-if="actionText" @click="action" class="text-sm underline">
+      <button v-if="actionText" @click="action" class="text-sm text-gray-700 hover:text-gray-800">
         {{ actionText }}
       </button>
     </div>
