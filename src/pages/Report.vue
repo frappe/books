@@ -2,16 +2,18 @@
   <div class="flex flex-col max-w-full">
     <PageHeader>
       <h1 slot="title" class="text-2xl font-bold">{{ report.title }}</h1>
-      <template slot="actions">        
-        <Button
-          @click="link.action(reportData, filters)"
-          v-for="link of report.linkFields"
-          :key="link.label"
-          :type="link.type"
+      <template slot="actions">
+        <DropdownWithActions
+          v-for="group of actionGroups"
+          @click="group.action(reportData, filters)"
+          :key="group.label"
+          :type="group.type"
+          :actions="group.actions"
           class="ml-2 text-xs"
         >
-          {{ link.label }}
-        </Button>
+          {{ group.label }}
+        </DropdownWithActions>
+        <DropdownWithActions class="ml-2" :actions="actions" />
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
@@ -25,7 +27,7 @@
         v-for="df in report.filterFields"
         :key="df.fieldname"
       >
-        <div v-if="df.fieldtype === 'Check'" class="text-gray-900 text-sm">
+        <div v-if="df.fieldtype === 'Check'" class="text-sm">
           {{ df.label }}
         </div>
         <FormControl
@@ -34,7 +36,6 @@
           :df="df"
           :value="filters[df.fieldname]"
           @change="(value) => onFilterChange(df, value)"
-          :show-label="df.fieldtype === 'Check'"
         />
       </div>
     </div>
@@ -101,6 +102,7 @@ import SearchBar from '@/components/SearchBar';
 import Row from '@/components/Row';
 import WithScroll from '@/components/WithScroll';
 import FormControl from '@/components/Controls/FormControl';
+import DropdownWithActions from '../components/DropdownWithActions.vue';
 import reportViewConfig from '@/../reports/view';
 
 export default {
@@ -113,6 +115,7 @@ export default {
     Row,
     FormControl,
     WithScroll,
+    DropdownWithActions,
   },
   provide() {
     return {
@@ -210,6 +213,11 @@ export default {
       this.fetchReportData();
     },
 
+    async resetFilters() {
+      await this.setDefaultFilters();
+      await this.fetchReportData();
+    },
+
     async setDefaultFilters() {
       for (let df of this.report.filterFields) {
         let defaultValue = null;
@@ -273,6 +281,29 @@ export default {
     },
   },
   computed: {
+    actions() {
+      return [
+        ...(this.report.actions?.filter((action) => !action.group)??[]),
+        {
+          label: this._('Reset Filters'),
+          action: this.resetFilters,
+        },
+      ];
+    },
+    actionGroups() {
+      const groups =
+        this.report.actions
+          ?.filter((action) => action.group)
+          .reduce((acc, action) => {
+            acc[action.group] ??= { type: action.type, actions: [] };
+            const actionWithoutGroup = Object.assign({}, action);
+            delete actionWithoutGroup.group;
+            acc[action.group].actions.push(actionWithoutGroup);
+            return acc;
+          }, {}) ?? {};
+
+      return Object.keys(groups).map((label) => ({ label, ...groups[label] }));
+    },
     columns() {
       return this.loading
         ? this.blankStateData.columns
