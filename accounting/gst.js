@@ -1,14 +1,10 @@
-import { makeJSON, showMessageDialog } from '@/utils';
+import { showMessageDialog } from '@/utils';
 import frappe from 'frappejs';
-import { sleep, _ } from 'frappejs/utils';
+import { _ } from 'frappejs/utils';
 import { DateTime } from 'luxon';
+import { saveExportData } from '../reports/commonExporter';
 import { getSavePath } from '../src/utils';
 
-/**
- * GST is a map which gives a final rate for any given gst item
- * eg: IGST-18 = 18
- * eg: GST-18 = CGST-9 + SGST-9 = 18
- */
 const GST = {
   'GST-0': 0,
   'GST-0.25': 0.25,
@@ -28,10 +24,6 @@ const GST = {
   'IGST-28': 28,
 };
 
-/**
- * CSGST is a map which return the tax rate component for state or central
- * eg: GST-12 = 6
- */
 const CSGST = {
   'GST-0': 0,
   'GST-0.25': 0.125,
@@ -43,10 +35,6 @@ const CSGST = {
   'GST-28': 14,
 };
 
-/**
- * IGST is a map which return the tax rate for the igst item
- * eg: IGST-18 = 18
- */
 const IGST = {
   'IGST-0.25': 0.25,
   'IGST-3': 3,
@@ -85,7 +73,6 @@ export async function generateGstr1Json(getReportData) {
     fp: DateTime.fromISO(toDate).toFormat('MMyyyy'),
   };
 
-  // based condition we need to triggered different methods
   if (transferType === 'B2B') {
     gstData.b2b = await generateB2bData(rows);
   } else if (transferType === 'B2CL') {
@@ -94,16 +81,14 @@ export async function generateGstr1Json(getReportData) {
     gstData.b2cs = await generateB2csData(rows);
   }
 
-  await sleep(1);
   const jsonData = JSON.stringify(gstData);
-  makeJSON(jsonData, filePath);
+  await saveExportData(jsonData, filePath);
 }
 
 async function generateB2bData(invoices) {
   const b2b = [];
 
   invoices.forEach(async (row) => {
-    // it's must for the customer to have a gstin, if not it should not be here
     const customer = {
       ctin: row.gstin,
       inv: [],

@@ -12,11 +12,11 @@ import electron, {
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
+import fs from 'fs/promises';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import saveHtmlAsPdf from './saveHtmlAsPdf';
-import saveReportAsJson from './saveReportAsJson';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
@@ -149,6 +149,10 @@ ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (event, link) => {
   shell.openExternal(link);
 });
 
+ipcMain.on(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, (event, filePath) => {
+  return shell.showItemInFolder(filePath);
+});
+
 /* ----------------------------------
  * Register ipcMain function handlers
  * ----------------------------------*/
@@ -194,8 +198,8 @@ ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (event, html, savePath) => {
   return await saveHtmlAsPdf(html, savePath);
 });
 
-ipcMain.handle(IPC_ACTIONS.SAVE_REPORT_AS_JSON, async (event, data, savePath) => {
-  return await saveReportAsJson(data, savePath);
+ipcMain.handle(IPC_ACTIONS.SAVE_DATA, async (event, data, savePath) => {
+  return await fs.writeFile(savePath, data);
 });
 
 /* ------------------------------

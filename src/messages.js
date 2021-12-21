@@ -2,6 +2,7 @@ export const IPC_MESSAGES = {
   OPEN_MENU: 'open-menu',
   OPEN_SETTINGS: 'open-settings',
   OPEN_EXTERNAL: 'open-external',
+  SHOW_ITEM_IN_FOLDER: 'show-item-in-folder',
   CHECK_FOR_UPDATES: 'check-for-updates',
   RELOAD_MAIN_WINDOW: 'reload-main-window',
   RESIZE_MAIN_WINDOW: 'resize-main-window',
@@ -16,7 +17,7 @@ export const IPC_ACTIONS = {
   GET_DIALOG_RESPONSE: 'show-message-box',
   GET_PRIMARY_DISPLAY_SIZE: 'get-primary-display-size',
   SAVE_HTML_AS_PDF: 'save-html-as-pdf',
-  SAVE_REPORT_AS_JSON: 'save-report-as-json',
+  SAVE_DATA: 'save-data',
   SHOW_ERROR: 'show-error',
 };
 
