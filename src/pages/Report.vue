@@ -279,11 +279,23 @@ export default {
         this.loading ? 'text-gray-100' : 'text-gray-900',
       ];
     },
+    getReportData() {
+      return { rows: this.rows, columns: this.columns, filters: this.filters };
+    },
+    getCurriedAction(action) {
+      return (...args) => action(this.getReportData, ...args);
+    },
   },
   computed: {
     actions() {
       return [
-        ...(this.report.actions?.filter((action) => !action.group)??[]),
+        ...(this.report.actions
+          ?.filter((action) => !action.group)
+          .map((action) =>
+            Object.assign({}, action, {
+              action: this.getCurriedAction(action.action),
+            })
+          ) ?? []),
         {
           label: this._('Reset Filters'),
           action: this.resetFilters,
@@ -297,6 +309,7 @@ export default {
           .reduce((acc, action) => {
             acc[action.group] ??= { type: action.type, actions: [] };
             const actionWithoutGroup = Object.assign({}, action);
+            actionWithoutGroup.action = this.getCurriedAction(action.action);
             delete actionWithoutGroup.group;
             acc[action.group].actions.push(actionWithoutGroup);
             return acc;
