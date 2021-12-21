@@ -1,8 +1,10 @@
 import Avatar from '@/components/Avatar';
+import Toast from '@/components/Toast';
 import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
+import Vue from 'vue';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 
 export async function showMessageDialog({
@@ -170,11 +172,15 @@ export function handleErrorWithDialog(e, doc) {
 }
 
 export async function makePDF(html, savePath) {
-  ipcRenderer.invoke(IPC_ACTIONS.SAVE_HTML_AS_PDF, html, savePath);
+  await ipcRenderer.invoke(IPC_ACTIONS.SAVE_HTML_AS_PDF, html, savePath);
 }
 
-export async function makeJSON(data, savePath) {
-  ipcRenderer.invoke(IPC_ACTIONS.SAVE_REPORT_AS_JSON, data, savePath);
+export async function saveData(data, savePath) {
+  await ipcRenderer.invoke(IPC_ACTIONS.SAVE_DATA, data, savePath);
+}
+
+export async function showItemInFolder(filePath) {
+  await ipcRenderer.send(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, filePath);
 }
 
 export function getActionsForDocument(doc) {
@@ -322,3 +328,14 @@ export async function getSavePath(name, extention) {
 
   return { canceled, filePath };
 }
+
+export function showToast(props) {
+  new Vue({
+    el: '#toast-target',
+    render(createElement) {
+      return createElement(Toast, { props });
+    },
+  });
+}
+
+window.showToast = showToast;

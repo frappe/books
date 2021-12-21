@@ -19,6 +19,9 @@
       @setup-canceled="setupCanceled"
     />
     <portal-target name="popovers" multiple></portal-target>
+    <div id="toast-container" class="absolute bottom-0 right-0 mr-6 mb-3">
+      <div id="toast-target" />
+    </div>
   </div>
 </template>
 
@@ -120,9 +123,9 @@ export default {
       this.activeScreen = 'DatabaseSelector';
     },
     async setupCanceled() {
-      const filePath = config.get('lastSelectedFilePath')
-      await fs.unlink(filePath)
-      this.changeDbFile()
+      const filePath = config.get('lastSelectedFilePath');
+      await fs.unlink(filePath);
+      this.changeDbFile();
     },
   },
 };

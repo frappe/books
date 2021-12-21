@@ -1,6 +1,10 @@
 import frappe from 'frappejs';
-import fs from 'fs/promises';
-import { getSavePath } from '../src/utils';
+import {
+  getSavePath,
+  saveData,
+  showItemInFolder,
+  showToast,
+} from '../src/utils';
 
 function templateToInnerText(innerHTML) {
   const temp = document.createElement('template');
@@ -37,7 +41,8 @@ async function exportCsv(rows, columns, filePath) {
     labels.join(','),
     ...rows.map((row) => fieldnames.map((f) => csvFormat(row[f])).join(',')),
   ];
-  await fs.writeFile(filePath, csvRows.join('\n'));
+
+  saveExportData(csvRows.join('\n'), filePath);
 }
 
 async function exportJson(rows, columns, filePath, filters, reportName) {
@@ -68,7 +73,7 @@ async function exportJson(rows, columns, filePath, filters, reportName) {
   exportObject.softwareName = 'Frappe Books';
   exportObject.softwareVersion = frappe.store.appVersion;
 
-  await fs.writeFile(filePath, JSON.stringify(exportObject));
+  await saveExportData(JSON.stringify(exportObject), filePath);
 }
 
 async function exportReport(extention, reportName, getReportData) {
@@ -97,4 +102,15 @@ export default function getCommonExportActions(reportName) {
     action: async (getReportData) =>
       await exportReport(ext, reportName, getReportData),
   }));
+}
+
+export async function saveExportData(data, filePath) {
+  await saveData(data, filePath);
+  showToast({
+    message: frappe._('Export Successful'),
+    actionText: frappe._('Open Folder'),
+    action: async () => {
+      await showItemInFolder(filePath);
+    },
+  });
 }
