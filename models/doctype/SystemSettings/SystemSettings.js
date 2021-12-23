@@ -3,6 +3,7 @@ const { _ } = require('frappejs/utils');
 const {
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,
+  DEFAULT_LOCALE,
 } = require('../../../utils/consts');
 
 let dateFormatOptions = (() => {
@@ -42,6 +43,13 @@ module.exports = {
       default: 'MMM d, y',
       required: 1,
       description: _('Sets the app-wide date display format.'),
+    },
+    {
+      fieldname: 'locale',
+      label: 'Locale',
+      fieldtype: 'Data',
+      default: DEFAULT_LOCALE,
+      description: _('Set the local code, this is used for number formatting.'),
     },
     {
       fieldname: 'displayPrecision',
@@ -92,6 +100,7 @@ module.exports = {
   ],
   quickEditFields: [
     'dateFormat',
+    'locale',
     'displayPrecision',
     'hideGetStarted',
     'autoUpdate',
