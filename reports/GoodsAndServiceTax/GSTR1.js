@@ -18,7 +18,7 @@ class GSTR1 extends BaseGSTR {
     const conditions = {
       'B2B': row => row.gstin,
       'B2CL': row => !row.gstin && !row.inState && row.invAmt >= 250000,
-      'B2CS': row => !row.gstin && (row.inState || (row.inState && row.invAmt < 250000)),
+      'B2CS': row => !row.gstin && (row.inState || row.invAmt < 250000),
       'NR': row => (row.rate === 0), // this takes care of both nil rated, exempted goods
     };
 
