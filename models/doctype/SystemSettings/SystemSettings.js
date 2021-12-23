@@ -40,12 +40,21 @@ module.exports = {
       description: _('Sets the app-wide date display format.'),
     },
     {
-      fieldname: 'floatPrecision',
-      label: 'Precision',
-      fieldtype: 'Select',
-      options: ['2', '3', '4', '5'],
-      default: '2',
+      fieldname: 'displayPrecision',
+      label: 'Display Precision',
+      fieldtype: 'Int',
+      default: 2,
       required: 1,
+      minValue: 0,
+      maxValue: 9,
+      validate(value, doc) {
+        if (value >= 0 && value <= 9) {
+          return;
+        }
+        throw new frappe.errors.ValidationError(
+          _('Display Precision should have a value between 0 and 9.')
+        );
+      },
       description: _('Sets how many digits are shown after the decimal point.'),
     },
     {
@@ -78,7 +87,7 @@ module.exports = {
   ],
   quickEditFields: [
     'dateFormat',
-    'floatPrecision',
+    'displayPrecision',
     'hideGetStarted',
     'autoUpdate',
   ],
