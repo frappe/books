@@ -1,5 +1,9 @@
 const { DateTime } = require('luxon');
 const { _ } = require('frappejs/utils');
+const {
+  DEFAULT_DISPLAY_PRECISION,
+  DEFAULT_INTERNAL_PRECISION,
+} = require('../../../utils/consts');
 
 let dateFormatOptions = (() => {
   let formats = [
@@ -43,7 +47,7 @@ module.exports = {
       fieldname: 'displayPrecision',
       label: 'Display Precision',
       fieldtype: 'Int',
-      default: 2,
+      default: DEFAULT_DISPLAY_PRECISION,
       required: 1,
       minValue: 0,
       maxValue: 9,
@@ -61,7 +65,8 @@ module.exports = {
       fieldname: 'internalPrecision',
       label: 'Internal Precision',
       fieldtype: 'Int',
-      default: 11,
+      minValue: 0,
+      default: DEFAULT_INTERNAL_PRECISION,
       description: _(
         'Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.'
       ),
