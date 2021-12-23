@@ -1,69 +1,85 @@
 {
-    "Afghanistan": {
+    "Afghanistan": 
+    {
         "code": "af",
         "currency": "AFN",
         "currency_fraction": "Pul",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u060b",
+        "currency_symbol": "؋",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Kabul"
         ],
         "fiscal_year_start": "12-20",
-        "fiscal_year_end": "12-21"
+        "fiscal_year_end": "12-21",
+        "locale": "ps-AF"
     },
-    "Albania": {
+    "Albania": 
+    {
         "code": "al",
         "currency": "ALL",
-        "currency_fraction": "Qindark\u00eb",
+        "currency_fraction": "Qindarkë",
         "currency_fraction_units": 100,
         "currency_name": "Lek",
         "currency_symbol": "L",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Tirane"
-        ]
+        ],
+        "locale": "sq-AL"
     },
-    "Algeria": {
+    "Algeria": 
+    {
         "code": "dz",
         "currency": "DZD",
         "currency_fraction": "Santeem",
         "currency_fraction_units": 100,
         "currency_name": "Algerian Dinar",
-        "currency_symbol": "\u062f.\u062c",
+        "currency_symbol": "د.ج",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Algiers"
-        ]
+        ],
+        "locale": "ar-DZ"
     },
-    "American Samoa": {
+    "American Samoa": 
+    {
         "code": "as",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "en-AS"
     },
-    "Andorra": {
+    "Andorra": 
+    {
         "code": "ad",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Andorra"
         ]
     },
-    "Angola": {
+    "Angola": 
+    {
         "code": "ao",
         "currency": "KZ",
-        "currency_fraction": "C\u00eantimo",
+        "currency_fraction": "Cêntimo",
         "currency_fraction_units": 100,
         "currency_symbol": "AOA",
         "currency_name": "Kwanza",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Luanda"
         ]
     },
-    "Anguilla": {
+    "Anguilla": 
+    {
         "code": "ai",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
@@ -71,14 +87,17 @@
         "currency_name": "Eastern Carribean Dollar",
         "currency": "XCD",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Anguilla"
         ]
     },
-    "Antarctica": {
+    "Antarctica": 
+    {
         "code": "aq",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Antarctica/Casey",
             "Antarctica/Davis",
             "Antarctica/DumontDUrville",
@@ -91,7 +110,8 @@
             "Antarctica/Vostok"
         ]
     },
-    "Antigua and Barbuda": {
+    "Antigua and Barbuda": 
+    {
         "code": "ag",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
@@ -99,11 +119,13 @@
         "currency_name": "Eastern Carribean Dollar",
         "currency": "XCD",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Antigua"
         ]
     },
-    "Argentina": {
+    "Argentina": 
+    {
         "code": "ar",
         "currency": "ARS",
         "currency_fraction": "Centavo",
@@ -111,7 +133,8 @@
         "currency_name": "Argentine Peso",
         "currency_symbol": "$",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Argentina/Buenos_Aires",
             "America/Argentina/Catamarca",
             "America/Argentina/Cordoba",
@@ -124,21 +147,26 @@
             "America/Argentina/San_Luis",
             "America/Argentina/Tucuman",
             "America/Argentina/Ushuaia"
-        ]
+        ],
+        "locale": "es-AR"
     },
-    "Armenia": {
+    "Armenia": 
+    {
         "code": "am",
         "currency": "AMD",
         "currency_fraction": "Luma",
         "currency_fraction_units": 100,
         "currency_name": "Armenian Dram",
-        "currency_symbol": "\u058f",
+        "currency_symbol": "֏",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Yerevan"
-        ]
+        ],
+        "locale": "hy-AM"
     },
-    "Aruba": {
+    "Aruba": 
+    {
         "code": "aw",
         "currency": "AWG",
         "currency_fraction": "Cent",
@@ -146,11 +174,13 @@
         "currency_name": "Aruban Florin",
         "currency_symbol": "Afl",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Aruba"
         ]
     },
-    "Australia": {
+    "Australia": 
+    {
         "code": "au",
         "currency": "AUD",
         "currency_fraction": "Cent",
@@ -158,7 +188,8 @@
         "currency_name": "Australian Dollar",
         "currency_symbol": "$",
         "number_format": "# ###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Australia/Adelaide",
             "Australia/Brisbane",
             "Australia/Broken_Hill",
@@ -173,65 +204,80 @@
             "Australia/Sydney"
         ],
         "fiscal_year_start": "07-01",
-        "fiscal_year_end": "06-30"
+        "fiscal_year_end": "06-30",
+        "locale": "en-AU"
     },
-    "Austria": {
+    "Austria": 
+    {
         "code": "at",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Vienna"
-        ]
+        ],
+        "locale": "de-AT"
     },
-    "Azerbaijan": {
+    "Azerbaijan": 
+    {
         "code": "az",
-        "currency_fraction": "Q\u0259pik",
+        "currency_fraction": "Qəpik",
         "currency_fraction_units": 100,
         "currency_symbol": "",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Baku"
         ]
     },
-    "Bahamas": {
+    "Bahamas": 
+    {
         "code": "bs",
         "currency": "BSD",
         "currency_name": "Bahamian Dollar",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Nassau"
         ]
     },
-    "Bahrain": {
+    "Bahrain": 
+    {
         "code": "bh",
         "currency": "BHD",
         "currency_fraction": "Fils",
         "currency_fraction_units": 1000,
         "currency_name": "Bahraini Dinar",
-        "currency_symbol": ".\u062f.\u0628",
+        "currency_symbol": ".د.ب",
         "number_format": "#,###.###",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Bahrain"
-        ]
+        ],
+        "locale": "ar-BH"
     },
-    "Bangladesh": {
+    "Bangladesh": 
+    {
         "code": "bd",
         "currency": "BDT",
         "currency_fraction": "Paisa",
         "currency_fraction_units": 100,
         "currency_name": "Taka",
-        "currency_symbol": "\u09f3",
+        "currency_symbol": "৳",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Dhaka"
         ],
         "fiscal_year_start": "07-01",
-        "fiscal_year_end": "06-30"
+        "fiscal_year_end": "06-30",
+        "locale": "bn-BD"
     },
-    "Barbados": {
+    "Barbados": 
+    {
         "code": "bb",
         "currency": "BBD",
         "currency_fraction": "Cent",
@@ -239,32 +285,40 @@
         "currency_name": "Barbados Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Barbados"
         ]
     },
-    "Belarus": {
+    "Belarus": 
+    {
         "code": "by",
         "currency_fraction": "Kapyeyka",
         "currency_fraction_units": 100,
         "currency_symbol": "Br",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Minsk"
-        ]
+        ],
+        "locale": "be-BY"
     },
-    "Belgium": {
+    "Belgium": 
+    {
         "code": "be",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Brussels"
-        ]
+        ],
+        "locale": "en-BE"
     },
-    "Belize": {
+    "Belize": 
+    {
         "code": "bz",
         "currency": "BZD",
         "currency_fraction": "Cent",
@@ -273,11 +327,14 @@
         "currency_symbol": "$",
         "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Belize"
-        ]
+        ],
+        "locale": "en-BZ"
     },
-    "Benin": {
+    "Benin": 
+    {
         "code": "bj",
         "currency": "XOF",
         "currency_name": "West African CFA Franc",
@@ -285,11 +342,14 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Porto-Novo"
-        ]
+        ],
+        "locale": "fr-BJ"
     },
-    "Bermuda": {
+    "Bermuda": 
+    {
         "code": "bm",
         "currency": "BMD",
         "currency_fraction": "Cent",
@@ -297,11 +357,13 @@
         "currency_name": "Bermudian Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Atlantic/Bermuda"
         ]
     },
-    "Bhutan": {
+    "Bhutan": 
+    {
         "code": "bt",
         "currency": "BTN",
         "currency_fraction": "Chetrum",
@@ -309,32 +371,40 @@
         "currency_name": "Ngultrum",
         "currency_symbol": "Nu.",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Thimphu"
         ]
     },
-    "Bolivia, Plurinational State of": {
+    "Bolivia, Plurinational State of": 
+    {
         "code": "bo",
         "currency": "BOB",
         "currency_name": "Boliviano",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "es-BO"
     },
-    "Bonaire, Sint Eustatius and Saba": {
+    "Bonaire, Sint Eustatius and Saba": 
+    {
         "code": "bq",
         "number_format": "#,###.##"
     },
-    "Bosnia and Herzegovina": {
+    "Bosnia and Herzegovina": 
+    {
         "code": "ba",
         "currency": "BAM",
         "currency_fraction": "Fening",
         "currency_fraction_units": 100,
         "currency_symbol": "KM",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Sarajevo"
-        ]
+        ],
+        "locale": "bs-BA"
     },
-    "Botswana": {
+    "Botswana": 
+    {
         "code": "bw",
         "currency": "BWP",
         "currency_fraction": "Thebe",
@@ -342,15 +412,19 @@
         "currency_name": "Pula",
         "currency_symbol": "P",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Gaborone"
-        ]
+        ],
+        "locale": "en-BW"
     },
-    "Bouvet Island": {
+    "Bouvet Island": 
+    {
         "code": "bv",
         "number_format": "#,###.##"
     },
-    "Brazil": {
+    "Brazil": 
+    {
         "code": "br",
         "currency": "BRL",
         "currency_fraction": "Centavo",
@@ -358,7 +432,8 @@
         "currency_symbol": "R$",
         "date_format": "dd/MM/yyyy",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Araguaina",
             "America/Bahia",
             "America/Belem",
@@ -375,40 +450,50 @@
             "America/Rio_Branco",
             "America/Santarem",
             "America/Sao_Paulo"
-        ]
+        ],
+        "locale": "pt-BR"
     },
-    "British Indian Ocean Territory": {
+    "British Indian Ocean Territory": 
+    {
         "code": "io",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Chagos"
         ]
     },
-    "Brunei Darussalam": {
+    "Brunei Darussalam": 
+    {
         "code": "bn",
         "currency": "BND",
         "currency_name": "Brunei Dollar",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Brunei"
-        ]
+        ],
+        "locale": "ms-BN"
     },
-    "Bulgaria": {
+    "Bulgaria": 
+    {
         "code": "bg",
         "currency": "BGN",
         "currency_name": "Bulgarian Lev",
         "currency_fraction": "Stotinka",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u043b\u0432",
+        "currency_symbol": "лв",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Sofia"
-        ]
+        ],
+        "locale": "bg-BG"
     },
-    "Burkina Faso": {
+    "Burkina Faso": 
+    {
         "code": "bf",
         "currency": "XOF",
         "currency_name": "West African CFA Franc",
@@ -416,11 +501,14 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Ouagadougou"
-        ]
+        ],
+        "locale": "fr-BF"
     },
-    "Burundi": {
+    "Burundi": 
+    {
         "code": "bi",
         "currency": "BIF",
         "currency_fraction": "Centime",
@@ -428,23 +516,29 @@
         "currency_name": "Burundi Franc",
         "currency_symbol": "Fr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Bujumbura"
-        ]
+        ],
+        "locale": "fr-BI"
     },
-    "Cambodia": {
+    "Cambodia": 
+    {
         "code": "kh",
         "currency": "KHR",
         "currency_fraction": "Sen",
         "currency_fraction_units": 100,
         "currency_name": "Riel",
-        "currency_symbol": "\u17db",
+        "currency_symbol": "៛",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Phnom_Penh"
-        ]
+        ],
+        "locale": "km-KH"
     },
-    "Cameroon": {
+    "Cameroon": 
+    {
         "code": "cm",
         "currency": "XAF",
         "currency_name": "Central African CFA Franc",
@@ -452,11 +546,14 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Douala"
-        ]
+        ],
+        "locale": "fr-CM"
     },
-    "Canada": {
+    "Canada": 
+    {
         "code": "ca",
         "currency": "CAD",
         "currency_fraction": "Cent",
@@ -465,7 +562,8 @@
         "currency_symbol": "$",
         "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Atikokan",
             "America/Blanc-Sablon",
             "America/Cambridge_Bay",
@@ -496,9 +594,11 @@
             "America/Yellowknife"
         ],
         "fiscal_year_start": "04-01",
-        "fiscal_year_end": "03-31"
+        "fiscal_year_end": "03-31",
+        "locale": "en-CA"
     },
-    "Cape Verde": {
+    "Cape Verde": 
+    {
         "code": "cv",
         "currency": "CVE",
         "currency_fraction": "Centavo",
@@ -506,11 +606,14 @@
         "currency_name": "Cape Verde Escudo",
         "currency_symbol": "Esc or $",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Atlantic/Cape_Verde"
-        ]
+        ],
+        "locale": "kea-CV"
     },
-    "Cayman Islands": {
+    "Cayman Islands": 
+    {
         "code": "ky",
         "currency": "KYD",
         "currency_fraction": "Cent",
@@ -518,11 +621,13 @@
         "currency_name": "Cayman Islands Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Cayman"
         ]
     },
-    "Central African Republic": {
+    "Central African Republic": 
+    {
         "code": "cf",
         "currency": "XAF",
         "currency_fraction": "Centime",
@@ -530,11 +635,14 @@
         "currency_name": "Central African CFA Franc",
         "currency_symbol": "FCFA",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Bangui"
-        ]
+        ],
+        "locale": "fr-CF"
     },
-    "Chad": {
+    "Chad": 
+    {
         "code": "td",
         "currency": "XAF",
         "currency_name": "Central African CFA Franc",
@@ -542,11 +650,14 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Ndjamena"
-        ]
+        ],
+        "locale": "fr-TD"
     },
-    "Chile": {
+    "Chile": 
+    {
         "code": "cl",
         "currency": "CLP",
         "currency_fraction": "Centavo",
@@ -554,43 +665,53 @@
         "currency_name": "Chilean Peso",
         "currency_symbol": "$",
         "number_format": "#.###",
-        "timezones": [
+        "timezones": 
+        [
             "America/Santiago",
             "Pacific/Easter"
-        ]
+        ],
+        "locale": "es-CL"
     },
-    "China": {
+    "China": 
+    {
         "code": "cn",
         "currency": "CNY",
         "currency_name": "Yuan Renminbi",
         "date_format": "yyyy-MM-dd",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Chongqing",
             "Asia/Harbin",
             "Asia/Kashgar",
             "Asia/Shanghai",
             "Asia/Urumqi"
-        ]
+        ],
+        "locale": "ii-CN"
     },
-    "Christmas Island": {
+    "Christmas Island": 
+    {
         "code": "cx",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Christmas"
         ]
     },
-    "Cocos (Keeling) Islands": {
+    "Cocos (Keeling) Islands": 
+    {
         "code": "cc",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Cocos"
         ]
     },
-    "Colombia": {
+    "Colombia": 
+    {
         "code": "co",
         "currency": "COP",
         "currency_fraction": "Centavo",
@@ -598,11 +719,14 @@
         "currency_name": "Colombian Peso",
         "currency_symbol": "$",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Bogota"
-        ]
+        ],
+        "locale": "es-CO"
     },
-    "Comoros": {
+    "Comoros": 
+    {
         "code": "km",
         "currency": "KMF",
         "currency_fraction": "Centime",
@@ -610,48 +734,60 @@
         "currency_name": "Comoro Franc",
         "currency_symbol": "Fr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Comoro"
-        ]
+        ],
+        "locale": "fr-KM"
     },
-    "Congo": {
+    "Congo": 
+    {
         "code": "cg",
         "number_format": "#,###.##",
         "currency": "XAF",
         "currency_name": "Central African CFA Franc",
         "currency_symbol": "FCFA",
         "currency_fraction": "Centime",
-        "currency_fraction_units": 100
+        "currency_fraction_units": 100,
+        "locale": "fr-CG"
     },
-    "Congo, The Democratic Republic of the": {
+    "Congo, The Democratic Republic of the": 
+    {
         "code": "cd",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "fr-CD"
     },
-    "Cook Islands": {
+    "Cook Islands": 
+    {
         "code": "ck",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Rarotonga"
         ]
     },
-    "Costa Rica": {
+    "Costa Rica": 
+    {
         "code": "cr",
         "currency": "CRC",
-        "currency_fraction": "C\u00e9ntimo",
+        "currency_fraction": "Céntimo",
         "currency_fraction_units": 100,
         "currency_name": "Costa Rican Colon",
-        "currency_symbol": "\u20a1",
+        "currency_symbol": "₡",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Costa_Rica"
         ],
         "fiscal_year_start": "10-01",
-        "fiscal_year_end": "09-30"
+        "fiscal_year_end": "09-30",
+        "locale": "es-CR"
     },
-    "Croatia": {
+    "Croatia": 
+    {
         "code": "hr",
         "currency": "HRK",
         "currency_fraction": "Lipa",
@@ -659,11 +795,14 @@
         "currency_name": "Croatian Kuna",
         "currency_symbol": "kn",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Zagreb"
-        ]
+        ],
+        "locale": "hr-HR"
     },
-    "Cuba": {
+    "Cuba": 
+    {
         "code": "cu",
         "currency": "CUP",
         "currency_fraction": "Centavo",
@@ -671,54 +810,66 @@
         "currency_name": "Cuban Peso",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Havana"
         ]
     },
-    "Cura\u00e7ao": {
+    "Curaçao": 
+    {
         "code": "cw",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u0192",
+        "currency_symbol": "ƒ",
         "number_format": "#,###.##"
     },
-    "Cyprus": {
+    "Cyprus": 
+    {
         "code": "cy",
         "currency": "CYP",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_name": "Cyprus Pound",
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Nicosia"
-        ]
+        ],
+        "locale": "el-CY"
     },
-    "Czech Republic": {
+    "Czech Republic": 
+    {
         "code": "cz",
         "currency": "CZK",
-        "currency_fraction": "Hal\u00e9\u0159",
+        "currency_fraction": "Haléř",
         "currency_fraction_units": 100,
         "currency_name": "Czech Koruna",
-        "currency_symbol": "K\u010d",
+        "currency_symbol": "Kč",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Prague"
-        ]
+        ],
+        "locale": "cs-CZ"
     },
-    "Denmark": {
+    "Denmark": 
+    {
         "code": "dk",
         "currency": "DKK",
-        "currency_fraction": "\u00d8re",
+        "currency_fraction": "Øre",
         "currency_fraction_units": 100,
         "currency_name": "Danish Krone",
         "currency_symbol": "kr",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Copenhagen"
-        ]
+        ],
+        "locale": "da-DK"
     },
-    "Djibouti": {
+    "Djibouti": 
+    {
         "code": "dj",
         "currency": "DJF",
         "currency_fraction": "Centime",
@@ -726,11 +877,14 @@
         "currency_name": "Djibouti Franc",
         "currency_symbol": "Fr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Djibouti"
-        ]
+        ],
+        "locale": "fr-DJ"
     },
-    "Dominica": {
+    "Dominica": 
+    {
         "code": "dm",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
@@ -738,11 +892,13 @@
         "currency_name": "Eastern Carribean Dollar",
         "currency": "XCD",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Dominica"
         ]
     },
-    "Dominican Republic": {
+    "Dominican Republic": 
+    {
         "code": "do",
         "currency": "DOP",
         "currency_fraction": "Centavo",
@@ -750,48 +906,60 @@
         "currency_name": "Dominican Peso",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Santo_Domingo"
-        ]
+        ],
+        "locale": "es-DO"
     },
-    "Ecuador": {
+    "Ecuador": 
+    {
         "code": "ec",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Guayaquil",
             "Pacific/Galapagos"
-        ]
+        ],
+        "locale": "es-EC"
     },
-    "Egypt": {
+    "Egypt": 
+    {
         "code": "eg",
         "currency": "EGP",
         "currency_fraction": "Piastre[F]",
         "currency_fraction_units": 100,
         "currency_name": "Egyptian Pound",
-        "currency_symbol": "\u00a3 or \u062c.\u0645",
+        "currency_symbol": "£ or ج.م",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Cairo"
         ],
         "fiscal_year_start": "07-01",
-        "fiscal_year_end": "06-30"
+        "fiscal_year_end": "06-30",
+        "locale": "ar-EG"
     },
-    "El Salvador": {
+    "El Salvador": 
+    {
         "code": "sv",
         "currency": "SVC",
         "currency_fraction": "Centavo",
         "currency_fraction_units": 100,
         "currency_name": "El Salvador Colon",
-        "currency_symbol": "\u20a1",
+        "currency_symbol": "₡",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/El_Salvador"
-        ]
+        ],
+        "locale": "es-SV"
     },
-    "Equatorial Guinea": {
+    "Equatorial Guinea": 
+    {
         "code": "gq",
         "currency": "XAF",
         "currency_name": "Central African CFA Franc",
@@ -799,11 +967,14 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Malabo"
-        ]
+        ],
+        "locale": "fr-GQ"
     },
-    "Eritrea": {
+    "Eritrea": 
+    {
         "code": "er",
         "currency": "ERN",
         "currency_fraction": "Cent",
@@ -811,50 +982,63 @@
         "currency_name": "Nakfa",
         "currency_symbol": "Nfk",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Asmara"
-        ]
+        ],
+        "locale": "ti-ER"
     },
-    "Estonia": {
+    "Estonia": 
+    {
         "code": "ee",
         "currency": "EEK",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_name": "Kroon",
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Tallinn"
-        ]
+        ],
+        "locale": "et-EE"
     },
-    "Ethiopia": {
+    "Ethiopia": 
+    {
         "code": "et",
         "currency_fraction": "Santim",
         "currency_fraction_units": 100,
         "currency_name": "Ethiopian Birr",
         "currency_symbol": "Br",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Addis_Ababa"
-        ]
+        ],
+        "locale": "am-ET"
     },
-    "Falkland Islands (Malvinas)": {
+    "Falkland Islands (Malvinas)": 
+    {
         "code": "fk",
         "currency": "FKP",
         "currency_name": "Falkland Islands Pound",
         "number_format": "#,###.##"
     },
-    "Faroe Islands": {
+    "Faroe Islands": 
+    {
         "code": "fo",
-        "currency_fraction": "\u00d8re",
+        "currency_fraction": "Øre",
         "currency_fraction_units": 100,
         "currency_symbol": "kr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Atlantic/Faroe"
-        ]
+        ],
+        "locale": "fo-FO"
     },
-    "Fiji": {
+    "Fiji": 
+    {
         "code": "fj",
         "currency": "FJD",
         "currency_fraction": "Cent",
@@ -862,57 +1046,70 @@
         "currency_name": "Fiji Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Fiji"
         ]
     },
-    "Finland": {
+    "Finland": 
+    {
         "code": "fi",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Helsinki"
-        ]
+        ],
+        "locale": "fi-FI"
     },
-    "France": {
+    "France": 
+    {
         "code": "fr",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "# ###,##",
         "date_format": "dd/MM/yyyy",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Paris"
-        ]
+        ],
+        "locale": "fr-FR"
     },
-    "French Guiana": {
+    "French Guiana": 
+    {
         "code": "gf",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Cayenne"
         ]
     },
-    "French Polynesia": {
+    "French Polynesia": 
+    {
         "code": "pf",
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "currency_symbol": "Fr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Gambier",
             "Pacific/Marquesas",
             "Pacific/Tahiti"
         ]
     },
-    "French Southern Territories": {
+    "French Southern Territories": 
+    {
         "code": "tf",
         "number_format": "#,###.##"
     },
-    "Gabon": {
+    "Gabon": 
+    {
         "code": "ga",
         "currency": "XAF",
         "currency_name": "Central African CFA Franc",
@@ -920,85 +1117,107 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Libreville"
-        ]
+        ],
+        "locale": "fr-GA"
     },
-    "Gambia": {
+    "Gambia": 
+    {
         "code": "gm",
         "currency": "GMD",
         "currency_name": "Dalasi",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Banjul"
         ]
     },
-    "Georgia": {
+    "Georgia": 
+    {
         "code": "ge",
         "currency_fraction": "Tetri",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u10da",
+        "currency_symbol": "ლ",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Tbilisi"
-        ]
+        ],
+        "locale": "ka-GE"
     },
-    "Germany": {
+    "Germany": 
+    {
         "code": "de",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Berlin"
-        ]
+        ],
+        "locale": "de-DE"
     },
-    "Ghana": {
+    "Ghana": 
+    {
         "code": "gh",
         "currency": "GHS",
         "currency_fraction": "Pesewa",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20b5",
+        "currency_symbol": "₵",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Accra"
-        ]
+        ],
+        "locale": "ak-GH"
     },
-    "Gibraltar": {
+    "Gibraltar": 
+    {
         "code": "gi",
         "currency": "GIP",
         "currency_fraction": "Penny",
         "currency_fraction_units": 100,
         "currency_name": "Gibraltar Pound",
-        "currency_symbol": "\u00a3",
+        "currency_symbol": "£",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Gibraltar"
         ]
     },
-    "Greece": {
+    "Greece": 
+    {
         "code": "gr",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Athens"
-        ]
+        ],
+        "locale": "el-GR"
     },
-    "Greenland": {
+    "Greenland": 
+    {
         "code": "gl",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Danmarkshavn",
             "America/Godthab",
             "America/Scoresbysund",
             "America/Thule"
-        ]
+        ],
+        "locale": "kl-GL"
     },
-    "Grenada": {
+    "Grenada": 
+    {
         "code": "gd",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
@@ -1006,25 +1225,33 @@
         "currency_name": "Eastern Carribean Dollar",
         "currency": "XCD",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Grenada"
         ]
     },
-    "Guadeloupe": {
+    "Guadeloupe": 
+    {
         "code": "gp",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Guadeloupe"
-        ]
+        ],
+        "locale": "fr-GP"
     },
-    "Guam": {
+    "Guam": 
+    {
         "code": "gu",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Guam"
-        ]
+        ],
+        "locale": "en-GU"
     },
-    "Guatemala": {
+    "Guatemala": 
+    {
         "code": "gt",
         "currency": "GTQ",
         "currency_fraction": "Centavo",
@@ -1032,21 +1259,26 @@
         "currency_name": "Quetzal",
         "currency_symbol": "Q",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Guatemala"
-        ]
+        ],
+        "locale": "es-GT"
     },
-    "Guernsey": {
+    "Guernsey": 
+    {
         "code": "gg",
         "currency_fraction": "Penny",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u00a3",
+        "currency_symbol": "£",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/London"
         ]
     },
-    "Guinea": {
+    "Guinea": 
+    {
         "code": "gn",
         "currency": "GNF",
         "currency_fraction": "Centime",
@@ -1054,11 +1286,14 @@
         "currency_name": "Guinea Franc",
         "currency_symbol": "Fr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Conakry"
-        ]
+        ],
+        "locale": "fr-GN"
     },
-    "Guinea-Bissau": {
+    "Guinea-Bissau": 
+    {
         "code": "gw",
         "currency": "XOF",
         "currency_name": "West African CFA Franc",
@@ -1066,11 +1301,14 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Bissau"
-        ]
+        ],
+        "locale": "pt-GW"
     },
-    "Guyana": {
+    "Guyana": 
+    {
         "code": "gy",
         "currency": "GYD",
         "currency_fraction": "Cent",
@@ -1078,11 +1316,13 @@
         "currency_name": "Guyana Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Guyana"
         ]
     },
-    "Haiti": {
+    "Haiti": 
+    {
         "code": "ht",
         "currency": "HTG",
         "currency_fraction": "Centime",
@@ -1090,20 +1330,24 @@
         "currency_name": "Gourde",
         "currency_symbol": "G",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Guatemala",
             "America/Port-au-Prince"
         ]
     },
-    "Heard Island and McDonald Islands": {
+    "Heard Island and McDonald Islands": 
+    {
         "code": "hm",
         "number_format": "#,###.##"
     },
-    "Holy See (Vatican City State)": {
+    "Holy See (Vatican City State)": 
+    {
         "code": "va",
         "number_format": "#,###.##"
     },
-    "Honduras": {
+    "Honduras": 
+    {
         "code": "hn",
         "currency": "HNL",
         "currency_fraction": "Centavo",
@@ -1111,11 +1355,14 @@
         "currency_name": "Lempira",
         "currency_symbol": "L",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Tegucigalpa"
-        ]
+        ],
+        "locale": "es-HN"
     },
-    "Hong Kong": {
+    "Hong Kong": 
+    {
         "code": "hk",
         "currency": "HKD",
         "currency_fraction": "Cent",
@@ -1123,26 +1370,32 @@
         "currency_name": "Hong Kong Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Hong_Kong"
         ],
         "fiscal_year_start": "04-01",
-        "fiscal_year_end": "03-31"
+        "fiscal_year_end": "03-31",
+        "locale": "en-HK"
     },
-    "Hungary": {
+    "Hungary": 
+    {
         "code": "hu",
         "currency": "HUF",
-        "currency_fraction": "Fill\u00e9r",
+        "currency_fraction": "Fillér",
         "currency_fraction_units": 100,
         "currency_name": "Forint",
         "currency_symbol": "Ft",
         "date_format": "yyyy-MM-dd",
         "number_format": "#.###",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Budapest"
-        ]
+        ],
+        "locale": "hu-HU"
     },
-    "Iceland": {
+    "Iceland": 
+    {
         "code": "is",
         "currency": "ISK",
         "currency_fraction": "Eyrir",
@@ -1150,26 +1403,32 @@
         "currency_name": "Iceland Krona",
         "currency_symbol": "kr",
         "number_format": "#.###",
-        "timezones": [
+        "timezones": 
+        [
             "Atlantic/Reykjavik"
-        ]
+        ],
+        "locale": "is-IS"
     },
-    "India": {
+    "India": 
+    {
         "code": "in",
         "currency": "INR",
         "currency_fraction": "Paisa",
         "currency_fraction_units": 100,
         "currency_name": "Indian Rupee",
-        "currency_symbol": "\u20b9",
+        "currency_symbol": "₹",
         "date_format": "dd/MM/yyyy",
         "number_format": "#,##,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Kolkata"
         ],
         "fiscal_year_start": "04-01",
-        "fiscal_year_end": "03-31"
+        "fiscal_year_end": "03-31",
+        "locale": "en-IN"
     },
-    "Indonesia": {
+    "Indonesia": 
+    {
         "code": "id",
         "currency": "IDR",
         "currency_fraction": "Sen",
@@ -1177,85 +1436,105 @@
         "currency_name": "Rupiah",
         "currency_symbol": "Rp",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Jakarta",
             "Asia/Jayapura",
             "Asia/Makassar",
             "Asia/Pontianak"
-        ]
+        ],
+        "locale": "id-ID"
     },
-    "Iran": {
+    "Iran": 
+    {
         "code": "ir",
         "currency": "IRR",
         "currency_name": "Iranian Rial",
-        "currency_symbol": "\ufdfc",
+        "currency_symbol": "﷼",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Tehran"
         ],
         "fiscal_year_start": "06-23",
-        "fiscal_year_end": "06-22"
+        "fiscal_year_end": "06-22",
+        "locale": "fa-IR"
     },
-    "Iraq": {
+    "Iraq": 
+    {
         "code": "iq",
         "currency": "IQD",
         "currency_fraction": "Fils",
         "currency_fraction_units": 1000,
         "currency_name": "Iraqi Dinar",
-        "currency_symbol": "\u0639.\u062f",
+        "currency_symbol": "ع.د",
         "number_format": "#,###.###",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Baghdad"
-        ]
+        ],
+        "locale": "ar-IQ"
     },
-    "Ireland": {
+    "Ireland": 
+    {
         "code": "ie",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Dublin"
-        ]
+        ],
+        "locale": "en-IE"
     },
-    "Isle of Man": {
+    "Isle of Man": 
+    {
         "code": "im",
         "currency_fraction": "Penny",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u00a3",
+        "currency_symbol": "£",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/London"
         ]
     },
-    "Israel": {
+    "Israel": 
+    {
         "code": "il",
         "currency": "ILS",
         "currency_fraction": "Agora",
         "currency_fraction_units": 100,
         "currency_name": "New Israeli Sheqel",
-        "currency_symbol": "\u20aa",
+        "currency_symbol": "₪",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Jerusalem"
-        ]
+        ],
+        "locale": "en-IL"
     },
-    "Italy": {
+    "Italy": 
+    {
         "code": "it",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#.###,##",
         "date_format": "dd/MM/yyyy",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Rome"
         ],
         "fiscal_year_start": "07-01",
-        "fiscal_year_end": "06-30"
+        "fiscal_year_end": "06-30",
+        "locale": "it-IT"
     },
-    "Ivory Coast": {
+    "Ivory Coast": 
+    {
         "code": "ci",
         "currency": "XOF",
         "currency_name": "West African CFA Franc",
@@ -1263,11 +1542,14 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timeszones": [
+        "timeszones": 
+        [
             "Africa/Abidjan"
-        ]
+        ],
+        "locale": "fr-CI"
     },
-    "Jamaica": {
+    "Jamaica": 
+    {
         "code": "jm",
         "currency": "JMD",
         "currency_fraction": "Cent",
@@ -1275,53 +1557,65 @@
         "currency_name": "Jamaican Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Jamaica"
-        ]
+        ],
+        "locale": "en-JM"
     },
-    "Japan": {
+    "Japan": 
+    {
         "code": "jp",
         "currency": "JPY",
         "currency_fraction": "Sen[G]",
         "currency_fraction_units": 100,
         "currency_name": "Yen",
-        "currency_symbol": "\u00a5",
+        "currency_symbol": "¥",
         "number_format": "#,###",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Tokyo"
-        ]
+        ],
+        "locale": "ja-JP"
     },
-    "Jersey": {
+    "Jersey": 
+    {
         "code": "je",
         "currency_fraction": "Penny",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u00a3",
+        "currency_symbol": "£",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/London"
         ]
     },
-    "Jordan": {
+    "Jordan": 
+    {
         "code": "jo",
         "currency": "JOD",
         "currency_fraction": "Piastre[H]",
         "currency_fraction_units": 100,
         "currency_name": "Jordanian Dinar",
-        "currency_symbol": "\u062f.\u0627",
+        "currency_symbol": "د.ا",
         "number_format": "#,###.###",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Amman"
-        ]
+        ],
+        "locale": "ar-JO"
     },
-    "Kazakhstan": {
+    "Kazakhstan": 
+    {
         "code": "kz",
         "currency": "KZT",
-        "currency_fraction": "T\u00ef\u0131n",
+        "currency_fraction": "Tïın",
         "currency_fraction_units": 100,
         "currency_name": "Tenge",
-        "currency_symbol": "\u20b8",
+        "currency_symbol": "₸",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Almaty",
             "Asia/Aqtau",
             "Asia/Aqtobe",
@@ -1329,7 +1623,8 @@
             "Asia/Qyzylorda"
         ]
     },
-    "Kenya": {
+    "Kenya": 
+    {
         "code": "ke",
         "currency": "KES",
         "currency_fraction": "Cent",
@@ -1337,89 +1632,109 @@
         "currency_name": "Kenyan Shilling",
         "currency_symbol": "Sh",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Nairobi"
-        ]
+        ],
+        "locale": "ebu-KE"
     },
-    "Kiribati": {
+    "Kiribati": 
+    {
         "code": "ki",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Enderbury",
             "Pacific/Kiritimati",
             "Pacific/Tarawa"
         ]
     },
-    "Korea, Democratic Peoples Republic of": {
+    "Korea, Democratic Peoples Republic of": 
+    {
         "code": "kp",
         "currency": "KPW",
         "currency_name": "North Korean Won",
         "number_format": "#,###.##"
     },
-    "Korea, Republic of": {
+    "Korea, Republic of": 
+    {
         "code": "kr",
         "currency": "KRW",
         "currency_name": "Won",
-        "number_format": "#,###"
+        "number_format": "#,###",
+        "locale": "ko-KR"
     },
-    "Kuwait": {
+    "Kuwait": 
+    {
         "code": "kw",
         "currency": "KWD",
         "currency_fraction": "Fils",
         "currency_fraction_units": 1000,
         "currency_name": "Kuwaiti Dinar",
-        "currency_symbol": "\u062f.\u0643",
+        "currency_symbol": "د.ك",
         "number_format": "#,###.###",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Kuwait"
-        ]
+        ],
+        "locale": "ar-KW"
     },
-    "Kyrgyzstan": {
+    "Kyrgyzstan": 
+    {
         "code": "kg",
         "currency": "KGS",
         "currency_fraction": "Tyiyn",
         "currency_fraction_units": 100,
         "currency_name": "Som",
-        "currency_symbol": "\u043b\u0432",
+        "currency_symbol": "лв",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Bishkek"
         ]
     },
-    "Lao Peoples Democratic Republic": {
+    "Lao Peoples Democratic Republic": 
+    {
         "code": "la",
         "currency": "LAK",
         "currency_name": "Kip",
         "number_format": "#,###.##"
     },
-    "Latvia": {
+    "Latvia": 
+    {
         "code": "lv",
         "currency": "LVL",
-        "currency_fraction": "Sant\u012bms",
+        "currency_fraction": "Santīms",
         "currency_fraction_units": 100,
         "currency_name": "Latvian Lats",
         "currency_symbol": "Ls",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Riga"
-        ]
+        ],
+        "locale": "lv-LV"
     },
-    "Lebanon": {
+    "Lebanon": 
+    {
         "code": "lb",
         "currency": "LBP",
         "currency_fraction": "Piastre",
         "currency_fraction_units": 100,
         "currency_name": "Lebanese Pound",
-        "currency_symbol": "\u0644.\u0644",
+        "currency_symbol": "ل.ل",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Beirut"
-        ]
+        ],
+        "locale": "ar-LB"
     },
-    "Lesotho": {
+    "Lesotho": 
+    {
         "code": "ls",
         "currency": "LSL",
         "currency_fraction": "Sente",
@@ -1427,11 +1742,13 @@
         "currency_name": "Loti",
         "currency_symbol": "L",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Maseru"
         ]
     },
-    "Liberia": {
+    "Liberia": 
+    {
         "code": "lr",
         "currency": "LRD",
         "currency_fraction": "Cent",
@@ -1439,81 +1756,101 @@
         "currency_name": "Liberian Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Monrovia"
         ]
     },
-    "Libya": {
+    "Libya": 
+    {
         "code": "ly",
         "currency": "LYD",
         "currency_fraction": "Dirham",
         "currency_fraction_units": 1000,
         "currency_name": "Libyan Dinar",
-        "currency_symbol": "\u0644.\u062f",
+        "currency_symbol": "ل.د",
         "number_format": "#,###.###",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Tripoli"
-        ]
+        ],
+        "locale": "ar-LY"
     },
-    "Liechtenstein": {
+    "Liechtenstein": 
+    {
         "code": "li",
         "currency_fraction": "Rappen",
         "currency_fraction_units": 100,
         "currency_symbol": "Fr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Vaduz"
-        ]
+        ],
+        "locale": "de-LI"
     },
-    "Lithuania": {
+    "Lithuania": 
+    {
         "code": "lt",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "date_format": "yyyy-MM-dd",
         "number_format": "# ###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Vilnius"
-        ]
+        ],
+        "locale": "lt-LT"
     },
-    "Luxembourg": {
+    "Luxembourg": 
+    {
         "code": "lu",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Luxembourg"
-        ]
+        ],
+        "locale": "fr-LU"
     },
-    "Macao": {
+    "Macao": 
+    {
         "code": "mo",
         "currency": "MOP",
         "currency_name": "Pataca",
         "number_format": "#,###.##"
     },
-    "Macedonia": {
+    "Macedonia": 
+    {
         "code": "mk",
         "currency": "MKD",
         "currency_fraction": "Deni",
         "currency_fraction_units": 100,
         "currency_name": "Denar",
-        "currency_symbol": "\u0434\u0435\u043d",
-        "number_format": "#,###.##"
+        "currency_symbol": "ден",
+        "number_format": "#,###.##",
+        "locale": "mk-MK"
     },
-    "Madagascar": {
+    "Madagascar": 
+    {
         "code": "mg",
         "currency_fraction": "Iraimbilanja",
         "currency_fraction_units": 5,
         "currency_symbol": "Ar",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Antananarivo"
-        ]
+        ],
+        "locale": "fr-MG"
     },
-    "Malawi": {
+    "Malawi": 
+    {
         "code": "mw",
         "currency": "MWK",
         "currency_fraction": "Tambala",
@@ -1521,11 +1858,13 @@
         "currency_name": "Kwacha",
         "currency_symbol": "MK",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Blantyre"
         ]
     },
-    "Malaysia": {
+    "Malaysia": 
+    {
         "code": "my",
         "currency": "MYR",
         "currency_fraction": "Sen",
@@ -1533,24 +1872,29 @@
         "currency_name": "Malaysian Ringgit",
         "currency_symbol": "RM",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Kuala_Lumpur",
             "Asia/Kuching"
-        ]
+        ],
+        "locale": "ms-MY"
     },
-    "Maldives": {
+    "Maldives": 
+    {
         "code": "mv",
         "currency": "MVR",
         "currency_fraction": "Laari",
         "currency_fraction_units": 100,
         "currency_name": "Rufiyaa",
-        "currency_symbol": ".\u0783",
+        "currency_symbol": ".ރ",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Maldives"
         ]
     },
-    "Mali": {
+    "Mali": 
+    {
         "code": "ml",
         "currency": "XOF",
         "currency_name": "West African CFA Franc",
@@ -1558,41 +1902,53 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Bamako"
-        ]
+        ],
+        "locale": "bm-ML"
     },
-    "Malta": {
+    "Malta": 
+    {
         "code": "mt",
         "currency": "MTL",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_name": "Maltese Lira",
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Malta"
-        ]
+        ],
+        "locale": "en-MT"
     },
-    "Marshall Islands": {
+    "Marshall Islands": 
+    {
         "code": "mh",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Kwajalein",
             "Pacific/Majuro"
-        ]
+        ],
+        "locale": "en-MH"
     },
-    "Martinique": {
+    "Martinique": 
+    {
         "code": "mq",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Martinique"
-        ]
+        ],
+        "locale": "fr-MQ"
     },
-    "Mauritania": {
+    "Mauritania": 
+    {
         "code": "mr",
         "currency": "MRO",
         "currency_fraction": "Khoums",
@@ -1600,30 +1956,37 @@
         "currency_name": "Ouguiya",
         "currency_symbol": "UM",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Nouakchott"
         ]
     },
-    "Mauritius": {
+    "Mauritius": 
+    {
         "code": "mu",
         "currency": "MUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_name": "Mauritius Rupee",
-        "currency_symbol": "\u20a8",
+        "currency_symbol": "₨",
         "number_format": "#,###",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Mauritius"
-        ]
+        ],
+        "locale": "en-MU"
     },
-    "Mayotte": {
+    "Mayotte": 
+    {
         "code": "yt",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Mayotte"
         ]
     },
-    "Mexico": {
+    "Mexico": 
+    {
         "code": "mx",
         "currency": "MXN",
         "currency_fraction": "Centavo",
@@ -1631,7 +1994,8 @@
         "currency_name": "Mexican Peso",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Bahia_Banderas",
             "America/Cancun",
             "America/Chihuahua",
@@ -1644,56 +2008,68 @@
             "America/Ojinaga",
             "America/Santa_Isabel",
             "America/Tijuana"
-        ]
+        ],
+        "locale": "es-MX"
     },
-    "Micronesia, Federated States of": {
+    "Micronesia, Federated States of": 
+    {
         "code": "fm",
         "number_format": "#,###.##"
     },
-    "Moldova, Republic of": {
+    "Moldova, Republic of": 
+    {
         "code": "md",
         "currency": "MDL",
         "currency_name": "Moldovan Leu",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "ro-MD"
     },
-    "Monaco": {
+    "Monaco": 
+    {
         "code": "mc",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Monaco"
-        ]
+        ],
+        "locale": "fr-MC"
     },
-    "Mongolia": {
+    "Mongolia": 
+    {
         "code": "mn",
         "currency": "MNT",
-        "currency_fraction": "M\u00f6ng\u00f6",
+        "currency_fraction": "Möngö",
         "currency_fraction_units": 100,
         "currency_name": "Tugrik",
-        "currency_symbol": "\u20ae",
+        "currency_symbol": "₮",
         "date_format": "yyyy-MM-dd",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Choibalsan",
             "Asia/Hovd",
             "Asia/Ulaanbaatar"
         ]
     },
-    "Montenegro": {
+    "Montenegro": 
+    {
         "code": "me",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Belgrade"
         ]
     },
-    "Montserrat": {
+    "Montserrat": 
+    {
         "code": "ms",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
@@ -1701,44 +2077,55 @@
         "currency_name": "Eastern Carribean Dollar",
         "currency": "XCD",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Montserrat"
         ]
     },
-    "Morocco": {
+    "Morocco": 
+    {
         "code": "ma",
         "currency": "MAD",
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "currency_name": "Moroccan Dirham",
-        "currency_symbol": "\u062f.\u0645.",
+        "currency_symbol": "د.م.",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Casablanca"
-        ]
+        ],
+        "locale": "ar-MA"
     },
-    "Mozambique": {
+    "Mozambique": 
+    {
         "code": "mz",
         "currency_fraction": "Centavo",
         "currency_fraction_units": 100,
         "currency_symbol": "MT",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Maputo"
-        ]
+        ],
+        "locale": "pt-MZ"
     },
-    "Myanmar": {
+    "Myanmar": 
+    {
         "code": "mm",
         "currency": "MMK",
         "currency_name": "Kyat",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Rangoon"
         ],
         "fiscal_year_start": "04-01",
-        "fiscal_year_end": "03-31"
+        "fiscal_year_end": "03-31",
+        "locale": "my-MM"
     },
-    "Namibia": {
+    "Namibia": 
+    {
         "code": "na",
         "currency": "NAD",
         "currency_fraction": "Cent",
@@ -1746,54 +2133,67 @@
         "currency_name": "Namibia Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Windhoek"
-        ]
+        ],
+        "locale": "en-NA"
     },
-    "Nauru": {
+    "Nauru": 
+    {
         "code": "nr",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Nauru"
         ]
     },
-    "Nepal": {
+    "Nepal": 
+    {
         "code": "np",
         "currency": "NPR",
         "currency_fraction": "Paisa",
         "currency_fraction_units": 100,
         "currency_name": "Nepalese Rupee",
-        "currency_symbol": "\u20a8",
+        "currency_symbol": "₨",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Kathmandu"
-        ]
+        ],
+        "locale": "ne-NP"
     },
-    "Netherlands": {
+    "Netherlands": 
+    {
         "code": "nl",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Amsterdam"
-        ]
+        ],
+        "locale": "nl-NL"
     },
-    "New Caledonia": {
+    "New Caledonia": 
+    {
         "code": "nc",
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "currency_symbol": "Fr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Noumea"
         ]
     },
-    "New Zealand": {
+    "New Zealand": 
+    {
         "code": "nz",
         "currency": "NZD",
         "currency_fraction": "Cent",
@@ -1801,14 +2201,17 @@
         "currency_name": "New Zealand Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Auckland",
             "Pacific/Chatham"
         ],
         "fiscal_year_start": "04-01",
-        "fiscal_year_end": "03-31"
+        "fiscal_year_end": "03-31",
+        "locale": "en-NZ"
     },
-    "Nicaragua": {
+    "Nicaragua": 
+    {
         "code": "ni",
         "currency": "NIO",
         "currency_fraction": "Centavo",
@@ -1816,11 +2219,14 @@
         "currency_name": "Cordoba Oro",
         "currency_symbol": "C$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Managua"
-        ]
+        ],
+        "locale": "es-NI"
     },
-    "Niger": {
+    "Niger": 
+    {
         "code": "ne",
         "currency": "XOF",
         "currency_name": "West African CFA Franc",
@@ -1828,110 +2234,138 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Niamey"
-        ]
+        ],
+        "locale": "fr-NE"
     },
-    "Nigeria": {
+    "Nigeria": 
+    {
         "code": "ng",
         "currency": "NGN",
         "currency_fraction": "Kobo",
         "currency_fraction_units": 100,
         "currency_name": "Naira",
-        "currency_symbol": "\u20a6",
+        "currency_symbol": "₦",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Lagos"
-        ]
+        ],
+        "locale": "ig-NG"
     },
-    "Niue": {
+    "Niue": 
+    {
         "code": "nu",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Niue"
         ]
     },
-    "Norfolk Island": {
+    "Norfolk Island": 
+    {
         "code": "nf",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Norfolk"
         ]
     },
-    "Northern Mariana Islands": {
+    "Northern Mariana Islands": 
+    {
         "code": "mp",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Saipan"
-        ]
+        ],
+        "locale": "en-MP"
     },
-    "Norway": {
+    "Norway": 
+    {
         "code": "no",
         "currency": "NOK",
-        "currency_fraction": "\u00d8re",
+        "currency_fraction": "Øre",
         "currency_fraction_units": 100,
         "currency_name": "Norwegian Krone",
         "currency_symbol": "kr",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Oslo"
-        ]
+        ],
+        "locale": "nb-NO"
     },
-    "Oman": {
+    "Oman": 
+    {
         "code": "om",
         "currency": "OMR",
         "currency_fraction": "Baisa",
         "currency_fraction_units": 1000,
         "currency_name": "Rial Omani",
-        "currency_symbol": "\u0631.\u0639.",
+        "currency_symbol": "ر.ع.",
         "number_format": "#,###.###",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Muscat"
-        ]
+        ],
+        "locale": "ar-OM"
     },
-    "Pakistan": {
+    "Pakistan": 
+    {
         "code": "pk",
         "currency": "PKR",
         "currency_fraction": "Paisa",
         "currency_fraction_units": 100,
         "currency_name": "Pakistan Rupee",
-        "currency_symbol": "\u20a8",
+        "currency_symbol": "₨",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Karachi"
         ],
         "fiscal_year_start": "07-01",
-        "fiscal_year_end": "06-30"
+        "fiscal_year_end": "06-30",
+        "locale": "en-PK"
     },
-    "Palau": {
+    "Palau": 
+    {
         "code": "pw",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Palau"
         ]
     },
-    "Palestinian Territory, Occupied": {
+    "Palestinian Territory, Occupied": 
+    {
         "code": "ps",
         "number_format": "#,###.##"
     },
-    "Panama": {
+    "Panama": 
+    {
         "code": "pa",
-        "currency_fraction": "Cent\u00e9simo",
+        "currency_fraction": "Centésimo",
         "currency_fraction_units": 100,
         "currency_symbol": "B/.",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Panama"
-        ]
+        ],
+        "locale": "es-PA"
     },
-    "Papua New Guinea": {
+    "Papua New Guinea": 
+    {
         "code": "pg",
         "currency": "PGK",
         "currency_fraction": "Toea",
@@ -1939,98 +2373,123 @@
         "currency_name": "Kina",
         "currency_symbol": "K",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Port_Moresby"
         ]
     },
-    "Paraguay": {
+    "Paraguay": 
+    {
         "code": "py",
         "currency": "PYG",
-        "currency_fraction": "C\u00e9ntimo",
+        "currency_fraction": "Céntimo",
         "currency_fraction_units": 100,
         "currency_name": "Guarani",
-        "currency_symbol": "\u20b2",
+        "currency_symbol": "₲",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Asuncion"
-        ]
+        ],
+        "locale": "es-PY"
     },
-    "Peru": {
+    "Peru": 
+    {
         "code": "pe",
         "currency": "PEN",
-        "currency_fraction": "C\u00e9ntimo",
+        "currency_fraction": "Céntimo",
         "currency_fraction_units": 100,
         "currency_name": "Nuevo Sol",
         "currency_symbol": "S/.",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Lima"
-        ]
+        ],
+        "locale": "es-PE"
     },
-    "Philippines": {
+    "Philippines": 
+    {
         "code": "ph",
         "currency": "PHP",
         "currency_fraction": "Centavo",
         "currency_fraction_units": 100,
         "currency_name": "Philippine Peso",
-        "currency_symbol": "\u20b1",
+        "currency_symbol": "₱",
         "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Manila"
-        ]
+        ],
+        "locale": "en-PH"
     },
-    "Pitcairn": {
+    "Pitcairn": 
+    {
         "code": "pn",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Pitcairn"
         ]
     },
-    "Poland": {
+    "Poland": 
+    {
         "code": "pl",
         "currency": "PLN",
         "currency_fraction": "Grosz",
         "currency_fraction_units": 100,
-        "currency_symbol": "z\u0142",
+        "currency_symbol": "zł",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Warsaw"
-        ]
+        ],
+        "locale": "pl-PL"
     },
-    "Portugal": {
+    "Portugal": 
+    {
         "code": "pt",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Atlantic/Azores",
             "Atlantic/Madeira",
             "Europe/Lisbon"
-        ]
+        ],
+        "locale": "pt-PT"
     },
-    "Puerto Rico": {
+    "Puerto Rico": 
+    {
         "code": "pr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Puerto_Rico"
-        ]
+        ],
+        "locale": "es-PR"
     },
-    "Qatar": {
+    "Qatar": 
+    {
         "code": "qa",
         "currency": "QAR",
         "currency_fraction": "Dirham",
         "currency_fraction_units": 100,
         "currency_name": "Qatari Rial",
-        "currency_symbol": "\u0631.\u0642",
+        "currency_symbol": "ر.ق",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Qatar"
-        ]
+        ],
+        "locale": "ar-QA"
     },
-    "Romania": {
+    "Romania": 
+    {
         "code": "ro",
         "currency": "RON",
         "currency_fraction": "Bani",
@@ -2038,17 +2497,22 @@
         "currency_name": "Romanian New Leu",
         "currency_symbol": "lei",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Bucharest"
-        ]
+        ],
+        "locale": "ro-RO"
     },
-    "Russian Federation": {
+    "Russian Federation": 
+    {
         "code": "ru",
         "currency": "RUB",
         "currency_name": "Russian Ruble",
-        "number_format": "#.###,##"
+        "number_format": "#.###,##",
+        "locale": "ru-RU"
     },
-    "Rwanda": {
+    "Rwanda": 
+    {
         "code": "rw",
         "currency": "RWF",
         "currency_fraction": "Centime",
@@ -2056,25 +2520,33 @@
         "currency_name": "Rwanda Franc",
         "currency_symbol": "Fr",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Kigali"
-        ]
+        ],
+        "locale": "fr-RW"
     },
-    "R\u00e9union": {
+    "Réunion": 
+    {
         "code": "re",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "fr-RE"
     },
-    "Saint Barth\u00e9lemy": {
+    "Saint Barthélemy": 
+    {
         "code": "bl",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "fr-BL"
     },
-    "Saint Helena, Ascension and Tristan da Cunha": {
+    "Saint Helena, Ascension and Tristan da Cunha": 
+    {
         "code": "sh",
         "currency": "SHP",
         "currency_name": "Saint Helena Pound",
         "number_format": "#,###.##"
     },
-    "Saint Kitts and Nevis": {
+    "Saint Kitts and Nevis": 
+    {
         "code": "kn",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
@@ -2082,11 +2554,13 @@
         "currency_name": "Eastern Carribean Dollar",
         "currency": "XCD",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/St_Kitts"
         ]
     },
-    "Saint Lucia": {
+    "Saint Lucia": 
+    {
         "code": "lc",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
@@ -2094,19 +2568,24 @@
         "currency_name": "Eastern Carribean Dollar",
         "currency": "XCD",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/St_Lucia"
         ]
     },
-    "Saint Martin (French part)": {
+    "Saint Martin (French part)": 
+    {
         "code": "mf",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "fr-MF"
     },
-    "Saint Pierre and Miquelon": {
+    "Saint Pierre and Miquelon": 
+    {
         "code": "pm",
         "number_format": "#,###.##"
     },
-    "Saint Vincent and the Grenadines": {
+    "Saint Vincent and the Grenadines": 
+    {
         "code": "vc",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
@@ -2114,11 +2593,13 @@
         "currency_name": "Eastern Carribean Dollar",
         "currency": "XCD",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/St_Vincent"
         ]
     },
-    "Samoa": {
+    "Samoa": 
+    {
         "code": "ws",
         "currency": "WST",
         "currency_fraction": "Sene",
@@ -2126,40 +2607,48 @@
         "currency_name": "Tala",
         "currency_symbol": "T",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Apia"
         ]
     },
-    "San Marino": {
+    "San Marino": 
+    {
         "code": "sm",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Rome"
         ]
     },
-    "Sao Tome and Principe": {
+    "Sao Tome and Principe": 
+    {
         "code": "st",
         "currency": "STD",
         "currency_name": "Dobra",
         "number_format": "#,###.##"
     },
-    "Saudi Arabia": {
+    "Saudi Arabia": 
+    {
         "code": "sa",
         "currency": "SAR",
         "currency_fraction": "Halala",
         "currency_fraction_units": 100,
         "currency_name": "Saudi Riyal",
-        "currency_symbol": "\u0631.\u0633",
+        "currency_symbol": "ر.س",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Riyadh"
-        ]
+        ],
+        "locale": "ar-SA"
     },
-    "Senegal": {
+    "Senegal": 
+    {
         "code": "sn",
         "currency": "XOF",
         "currency_name": "West African CFA Franc",
@@ -2167,35 +2656,42 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Dakar"
-        ]
+        ],
+        "locale": "fr-SN"
     },
-    "Serbia": {
+    "Serbia": 
+    {
         "code": "rs",
         "currency": "RSD",
         "currency_fraction": "Para",
         "currency_fraction_units": 100,
         "currency_name": "Serbian Dinar",
-        "currency_symbol": "\u0434\u0438\u043d.",
+        "currency_symbol": "дин.",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Belgrade"
         ]
     },
-    "Seychelles": {
+    "Seychelles": 
+    {
         "code": "sc",
         "currency": "SCR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_name": "Seychelles Rupee",
-        "currency_symbol": "\u20a8",
+        "currency_symbol": "₨",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Indian/Mahe"
         ]
     },
-    "Sierra Leone": {
+    "Sierra Leone": 
+    {
         "code": "sl",
         "currency": "SLL",
         "currency_fraction": "Cent",
@@ -2203,11 +2699,13 @@
         "currency_name": "Leone",
         "currency_symbol": "Le",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Freetown"
         ]
     },
-    "Singapore": {
+    "Singapore": 
+    {
         "code": "sg",
         "currency": "SGD",
         "currency_fraction": "Sen",
@@ -2215,39 +2713,49 @@
         "currency_name": "Singapore Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Singapore"
         ],
         "fiscal_year_start": "04-01",
-        "fiscal_year_end": "03-31"
+        "fiscal_year_end": "03-31",
+        "locale": "en-SG"
     },
-    "Sint Maarten (Dutch part)": {
+    "Sint Maarten (Dutch part)": 
+    {
         "code": "sx",
         "number_format": "#,###.##"
     },
-    "Slovakia": {
+    "Slovakia": 
+    {
         "code": "sk",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Bratislava"
-        ]
+        ],
+        "locale": "sk-SK"
     },
-    "Slovenia": {
+    "Slovenia": 
+    {
         "code": "si",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Belgrade"
-        ]
+        ],
+        "locale": "sl-SI"
     },
-    "Solomon Islands": {
+    "Solomon Islands": 
+    {
         "code": "sb",
         "currency": "SBD",
         "currency_fraction": "Cent",
@@ -2255,11 +2763,13 @@
         "currency_name": "Solomon Islands Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Guadalcanal"
         ]
     },
-    "Somalia": {
+    "Somalia": 
+    {
         "code": "so",
         "currency": "SOS",
         "currency_fraction": "Cent",
@@ -2267,11 +2777,14 @@
         "currency_name": "Somali Shilling",
         "currency_symbol": "Sh",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Mogadishu"
-        ]
+        ],
+        "locale": "so-SO"
     },
-    "South Africa": {
+    "South Africa": 
+    {
         "code": "za",
         "currency": "ZAR",
         "currency_fraction": "Cent",
@@ -2280,43 +2793,52 @@
         "currency_symbol": "R",
         "date_format": "yyyy-MM-dd",
         "number_format": "# ###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Johannesburg"
         ],
         "fiscal_year_start": "03-01",
-        "fiscal_year_end": "02-28"
+        "fiscal_year_end": "02-28",
+        "locale": "en-ZA"
     },
-    "South Georgia and the South Sandwich Islands": {
+    "South Georgia and the South Sandwich Islands": 
+    {
         "code": "gs",
         "currency_fraction": "Penny",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u00a3",
+        "currency_symbol": "£",
         "number_format": "#,###.##"
     },
-    "South Sudan": {
+    "South Sudan": 
+    {
         "code": "ss",
         "currency_fraction": "Piastre",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u00a3",
+        "currency_symbol": "£",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Juba"
         ]
     },
-    "Spain": {
+    "Spain": 
+    {
         "code": "es",
         "currency": "EUR",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ac",
+        "currency_symbol": "€",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Ceuta",
             "Atlantic/Canary",
             "Europe/Madrid"
-        ]
+        ],
+        "locale": "eu-ES"
     },
-    "Sri Lanka": {
+    "Sri Lanka": 
+    {
         "code": "lk",
         "currency": "LKR",
         "currency_fraction": "Cent",
@@ -2324,35 +2846,44 @@
         "currency_name": "Sri Lanka Rupee",
         "currency_symbol": "Rs",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Colombo"
-        ]
+        ],
+        "locale": "si-LK"
     },
-    "Sudan": {
+    "Sudan": 
+    {
         "code": "sd",
         "currency_fraction": "Piastre",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u00a3",
+        "currency_symbol": "£",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Khartoum"
-        ]
+        ],
+        "locale": "ar-SD"
     },
-    "Suriname": {
+    "Suriname": 
+    {
         "code": "sr",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Paramaribo"
         ]
     },
-    "Svalbard and Jan Mayen": {
+    "Svalbard and Jan Mayen": 
+    {
         "code": "sj",
         "number_format": "#,###.##"
     },
-    "Swaziland": {
+    "Swaziland": 
+    {
         "code": "sz",
         "currency": "SZL",
         "currency_fraction": "Cent",
@@ -2360,23 +2891,28 @@
         "currency_name": "Lilangeni",
         "currency_symbol": "L",
         "number_format": "#, ###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Mbabane"
         ]
     },
-    "Sweden": {
+    "Sweden": 
+    {
         "code": "se",
         "currency": "SEK",
-        "currency_fraction": "\u00d6re",
+        "currency_fraction": "Öre",
         "currency_fraction_units": 100,
         "currency_name": "Swedish Krona",
         "currency_symbol": "kr",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Stockholm"
-        ]
+        ],
+        "locale": "sv-SE"
     },
-    "Switzerland": {
+    "Switzerland": 
+    {
         "code": "ch",
         "currency": "CHF",
         "currency_fraction": "Rappen[K]",
@@ -2385,57 +2921,71 @@
         "currency_name": "Swiss Franc",
         "currency_symbol": "Fr",
         "number_format": "#'###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Zurich"
-        ]
+        ],
+        "locale": "fr-CH"
     },
-    "Syria": {
+    "Syria": 
+    {
         "code": "sy",
         "currency": "SYP",
         "currency_name": "Syrian Pound",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "ar-SY"
     },
-    "Taiwan": {
+    "Taiwan": 
+    {
         "code": "tw",
         "currency": "TWD",
         "date_format": "yyyy-MM-dd",
         "number_format": "#,###.##"
     },
-    "Tajikistan": {
+    "Tajikistan": 
+    {
         "code": "tj",
         "currency_fraction": "Diram",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u0405\u041c",
+        "currency_symbol": "ЅМ",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Dushanbe"
         ]
     },
-    "Tanzania": {
+    "Tanzania": 
+    {
         "code": "tz",
         "currency": "TZS",
         "currency_name": "Tanzanian Shilling",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "asa-TZ"
     },
-    "Thailand": {
+    "Thailand": 
+    {
         "code": "th",
         "currency": "THB",
         "currency_fraction": "Satang",
         "currency_fraction_units": 100,
         "currency_name": "Baht",
-        "currency_symbol": "\u0e3f",
+        "currency_symbol": "฿",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Bangkok"
         ],
         "fiscal_year_start": "10-01",
-        "fiscal_year_end": "09-30"
+        "fiscal_year_end": "09-30",
+        "locale": "th-TH"
     },
-    "Timor-Leste": {
+    "Timor-Leste": 
+    {
         "code": "tl",
         "number_format": "#,###.##"
     },
-    "Togo": {
+    "Togo": 
+    {
         "code": "tg",
         "currency": "XOF",
         "currency_name": "West African CFA Franc",
@@ -2443,18 +2993,23 @@
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Lome"
-        ]
+        ],
+        "locale": "ee-TG"
     },
-    "Tokelau": {
+    "Tokelau": 
+    {
         "code": "tk",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Fakaofo"
         ]
     },
-    "Tonga": {
+    "Tonga": 
+    {
         "code": "to",
         "currency": "TOP",
         "currency_fraction": "Seniti[L]",
@@ -2462,11 +3017,14 @@
         "currency_name": "Pa'anga",
         "currency_symbol": "T$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Tongatapu"
-        ]
+        ],
+        "locale": "to-TO"
     },
-    "Trinidad and Tobago": {
+    "Trinidad and Tobago": 
+    {
         "code": "tt",
         "currency": "TTD",
         "currency_fraction": "Cent",
@@ -2474,34 +3032,43 @@
         "currency_name": "Trinidad and Tobago Dollar",
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Port_of_Spain"
-        ]
+        ],
+        "locale": "en-TT"
     },
-    "Tunisia": {
+    "Tunisia": 
+    {
         "code": "tn",
         "currency": "TND",
         "currency_fraction": "Millime",
         "currency_fraction_units": 1000,
         "currency_name": "Tunisian Dinar",
-        "currency_symbol": "\u062f.\u062a",
+        "currency_symbol": "د.ت",
         "number_format": "#,###.###",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Tunis"
-        ]
+        ],
+        "locale": "ar-TN"
     },
-    "Turkey": {
+    "Turkey": 
+    {
         "code": "tr",
         "currency": "TRY",
-        "currency_fraction": "Kuru\u015f",
+        "currency_fraction": "Kuruş",
         "currency_fraction_units": 100,
-        "currency_symbol": "\u20ba",
+        "currency_symbol": "₺",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Istanbul"
-        ]
+        ],
+        "locale": "tr-TR"
     },
-    "Turkmenistan": {
+    "Turkmenistan": 
+    {
         "code": "tm",
         "currency": "TMM",
         "currency_fraction": "Tennesi",
@@ -2509,28 +3076,33 @@
         "currency_name": "Manat",
         "currency_symbol": "m",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Ashgabat"
         ]
     },
-    "Turks and Caicos Islands": {
+    "Turks and Caicos Islands": 
+    {
         "code": "tc",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##"
     },
-    "Tuvalu": {
+    "Tuvalu": 
+    {
         "code": "tv",
         "currency_fraction": "Cent",
         "currency_fraction_units": 100,
         "currency_symbol": "$",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Funafuti"
         ]
     },
-    "Uganda": {
+    "Uganda": 
+    {
         "code": "ug",
         "currency": "UGX",
         "currency_fraction": "Cent",
@@ -2538,52 +3110,64 @@
         "currency_name": "Uganda Shilling",
         "currency_symbol": "Sh",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Kampala"
-        ]
+        ],
+        "locale": "cgg-UG"
     },
-    "Ukraine": {
+    "Ukraine": 
+    {
         "code": "ua",
         "currency": "UAH",
         "currency_fraction": "Kopiyka",
         "currency_fraction_units": 100,
         "currency_name": "Ukrainian Hryvnia",
-        "currency_symbol": "\u20b4",
+        "currency_symbol": "₴",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/Kiev",
             "Europe/Simferopol",
             "Europe/Uzhgorod",
             "Europe/Zaporozhye"
-        ]
+        ],
+        "locale": "ru-UA"
     },
-    "United Arab Emirates": {
+    "United Arab Emirates": 
+    {
         "code": "ae",
         "currency": "AED",
         "currency_fraction": "Fils",
         "currency_fraction_units": 100,
         "currency_name": "UAE Dirham",
-        "currency_symbol": "\u062f.\u0625",
+        "currency_symbol": "د.إ",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Dubai"
-        ]
+        ],
+        "locale": "ar-AE"
     },
-    "United Kingdom": {
+    "United Kingdom": 
+    {
         "code": "gb",
         "currency": "GBP",
         "currency_fraction": "Penny",
         "currency_fraction_units": 100,
         "currency_name": "Pound Sterling",
-        "currency_symbol": "\u00a3",
+        "currency_symbol": "£",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Europe/London"
         ],
         "fiscal_year_start": "04-01",
-        "fiscal_year_end": "03-31"
+        "fiscal_year_end": "03-31",
+        "locale": "en-GB"
     },
-    "United States": {
+    "United States": 
+    {
         "code": "us",
         "currency": "USD",
         "currency_fraction": "Cent",
@@ -2593,7 +3177,8 @@
         "currency_symbol": "$",
         "date_format": "MM-dd-yyyy",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Adak",
             "America/Anchorage",
             "America/Boise",
@@ -2624,38 +3209,47 @@
             "America/Sitka",
             "America/Yakutat",
             "Pacific/Honolulu"
-        ]
+        ],
+        "locale": "en-US"
     },
-    "United States Minor Outlying Islands": {
+    "United States Minor Outlying Islands": 
+    {
         "code": "um",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "en-UM"
     },
-    "Uruguay": {
+    "Uruguay": 
+    {
         "code": "uy",
         "currency": "UYU",
-        "currency_fraction": "Cent\u00e9simo",
+        "currency_fraction": "Centésimo",
         "currency_fraction_units": 100,
         "currency_name": "Peso Uruguayo",
         "currency_symbol": "$",
         "number_format": "#.###,##",
-        "timezones": [
+        "timezones": 
+        [
             "America/Montevideo"
-        ]
+        ],
+        "locale": "es-UY"
     },
-    "Uzbekistan": {
+    "Uzbekistan": 
+    {
         "code": "uz",
         "currency": "UZS",
         "currency_fraction": "Tiyin",
         "currency_fraction_units": 100,
         "currency_name": "Uzbekistan Sum",
-        "currency_symbol": "\u043b\u0432",
+        "currency_symbol": "лв",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Samarkand",
             "Asia/Tashkent"
         ]
     },
-    "Vanuatu": {
+    "Vanuatu": 
+    {
         "code": "vu",
         "currency": "VUV",
         "currency_fraction": "None",
@@ -2663,57 +3257,72 @@
         "currency_name": "Vatu",
         "currency_symbol": "Vt",
         "number_format": "#,###",
-        "timezones": [
+        "timezones": 
+        [
             "Pacific/Efate"
         ]
     },
-    "Venezuela, Bolivarian Republic of": {
+    "Venezuela, Bolivarian Republic of": 
+    {
         "code": "ve",
         "number_format": "#.###,##",
         "currency": "VEF",
         "currency_symbol": "Bs.",
         "currency_fraction": "Centimos",
-        "currency_fraction_units": 100
+        "currency_fraction_units": 100,
+        "locale": "es-VE"
     },
-    "Vietnam": {
+    "Vietnam": 
+    {
         "code": "vn",
         "currency": "VND",
         "currency_name": "Dong",
-        "number_format": "#.###"
+        "number_format": "#.###",
+        "locale": "vi-VN"
     },
-    "Virgin Islands, British": {
+    "Virgin Islands, British": 
+    {
         "code": "vg",
         "number_format": "#,###.##"
     },
-    "Virgin Islands, U.S.": {
+    "Virgin Islands, U.S.": 
+    {
         "code": "vi",
-        "number_format": "#,###.##"
+        "number_format": "#,###.##",
+        "locale": "en-VI"
     },
-    "Wallis and Futuna": {
+    "Wallis and Futuna": 
+    {
         "code": "wf",
         "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "currency_symbol": "Fr",
         "number_format": "#,###.##"
     },
-    "Western Sahara": {
+    "Western Sahara": 
+    {
         "code": "eh",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/El_Aaiun"
         ]
     },
-    "Yemen": {
+    "Yemen": 
+    {
         "code": "ye",
         "currency_fraction": "Fils",
         "currency_fraction_units": 100,
-        "currency_symbol": "\ufdfc",
+        "currency_symbol": "﷼",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Asia/Aden"
-        ]
+        ],
+        "locale": "ar-YE"
     },
-    "Zambia": {
+    "Zambia": 
+    {
         "code": "zm",
         "currency": "ZMW",
         "currency_fraction": "Ngwee",
@@ -2721,11 +3330,14 @@
         "currency_name": "Zambian Kwacha",
         "currency_symbol": "ZK",
         "number_format": "#,###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Lusaka"
-        ]
+        ],
+        "locale": "bem-ZM"
     },
-    "Zimbabwe": {
+    "Zimbabwe": 
+    {
         "code": "zw",
         "currency": "ZWD",
         "currency_fraction": "Thebe",
@@ -2733,11 +3345,14 @@
         "currency_name": "Zimbabwe Dollar",
         "currency_symbol": "P",
         "number_format": "# ###.##",
-        "timezones": [
+        "timezones": 
+        [
             "Africa/Harare"
-        ]
+        ],
+        "locale": "en-ZW"
     },
-    "\u00c5land Islands": {
+    "Åland Islands": 
+    {
         "code": "ax",
         "number_format": "#,###.##"
     }
