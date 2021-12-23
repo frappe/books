@@ -1,0 +1,1 @@
+export const DEFAULT_INTERNAL_PRECISION = 11;
