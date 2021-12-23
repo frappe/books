@@ -673,7 +673,7 @@ module.exports = class BaseDocument extends Observable {
     if (typeof df === 'string') {
       df = this.meta.getField(df);
     }
-    let systemPrecision = frappe.SystemSettings.floatPrecision;
+    let systemPrecision = frappe.SystemSettings.internalPrecision;
     let defaultPrecision = systemPrecision != null ? systemPrecision : 2;
     let precision =
       df && df.precision != null ? df.precision : defaultPrecision;
