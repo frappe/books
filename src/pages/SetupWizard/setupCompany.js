@@ -1,5 +1,6 @@
 import config from '@/config';
 import frappe from 'frappejs';
+import { DEFAULT_LOCALE } from 'frappejs/utils/consts';
 import countryList from '~/fixtures/countryInfo.json';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
 import regionalModelUpdates from '../../../models/regionalModelUpdates';
@@ -19,6 +20,7 @@ export default async function setupCompany(setupWizardValues) {
 
   const accountingSettings = frappe.AccountingSettings;
   const currency = countryList[country]['currency'];
+  const locale = countryList[country]['locale'] ?? DEFAULT_LOCALE;
   await callInitializeMoneyMaker(currency);
 
   await accountingSettings.update({
@@ -47,6 +49,8 @@ export default async function setupCompany(setupWizardValues) {
 
   await accountingSettings.update({ setupComplete: 1 });
   frappe.AccountingSettings = accountingSettings;
+
+  (await frappe.getSingle('SystemSettings')).update({ locale });
 }
 
 async function setupGlobalCurrencies(countries) {
