@@ -1,3 +1,5 @@
+const frappe = require('frappejs');
+const { DEFAULT_DISPLAY_PRECISION, DEFAULT_LOCALE } = require('./consts');
 const numberFormats = {
   '#,###.##': { fractionSep: '.', groupSep: ',', precision: 2 },
   '#.###,##': { fractionSep: ',', groupSep: '.', precision: 2 },
@@ -8,7 +10,7 @@ const numberFormats = {
   '#,##,###.##': { fractionSep: '.', groupSep: ',', precision: 2 },
   '#,###.###': { fractionSep: '.', groupSep: ',', precision: 3 },
   '#.###': { fractionSep: '', groupSep: '.', precision: 0 },
-  '#,###': { fractionSep: '', groupSep: ',', precision: 0 }
+  '#,###': { fractionSep: '', groupSep: ',', precision: 0 },
 };
 
 module.exports = {
@@ -65,10 +67,7 @@ module.exports = {
           str += info.groupSep;
         }
       }
-      parts[0] = str
-        .split('')
-        .reverse()
-        .join('');
+      parts[0] = str.split('').reverse().join('');
     }
     if (parts[0] + '' == '') {
       parts[0] = '0';
@@ -105,5 +104,44 @@ module.exports = {
 
   removeSeparator(text, sep) {
     return text.replace(new RegExp(sep === '.' ? '\\.' : sep, 'g'), '');
-  }
+  },
+
+  getDisplayPrecision() {
+    return frappe.SystemSettings.displayPrecision ?? DEFAULT_DISPLAY_PRECISION;
+  },
+
+  getCurrencyFormatter() {
+    if (frappe.currencyFormatter) {
+      return frappe.currencyFormatter;
+    }
+
+    const locale = frappe.SystemSettings.locale ?? DEFAULT_LOCALE;
+    const display = this.getDisplayPrecision();
+
+    return (frappe.currencyFormatter = Intl.NumberFormat(locale, {
+      style: 'decimal',
+      minimumFractionDigits: display,
+    }));
+  },
+
+  formatCurrency(value) {
+    const currencyFormatter = this.getCurrencyFormatter();
+    if (typeof value === 'number') {
+      return currencyFormatter.format(value);
+    }
+
+    if (value.round) {
+      const displayPrecision = this.getDisplayPrecision();
+      return currencyFormatter.format(value.round(displayPrecision));
+    }
+
+    const formattedCurrency = currencyFormatter(value);
+    if (formattedCurrency === 'NaN') {
+      throw Error(
+        `invalide value passed to formatCurrency: '${value}' of type ${typeof value}`
+      );
+    }
+
+    return formattedCurrency;
+  },
 };
