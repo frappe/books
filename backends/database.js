@@ -315,18 +315,54 @@ module.exports = class Database extends Observable {
         builder = builder.orWhere({ fieldname, parent });
       }
     });
-    return await builder.select('fieldname', 'value', 'parent');
+
+    const values = await builder.select('fieldname', 'value', 'parent');
+
+    return values.map((value) => {
+      const fields = frappe.getMeta(value.parent).fields;
+      return this.getDocFormattedDoc(fields, values);
+    });
   }
 
-  getOne(doctype, name, fields = '*') {
+  async getOne(doctype, name, fields = '*') {
     let meta = frappe.getMeta(doctype);
     let baseDoctype = meta.getBaseDocType();
 
-    return this.knex
+    const doc = await this.knex
       .select(fields)
       .from(baseDoctype)
       .where('name', name)
       .first();
+
+    if (!doc) {
+      return doc;
+    }
+
+    return this.getDocFormattedDoc(meta.fields, doc);
+  }
+
+  getDocFormattedDoc(fields, doc) {
+    // format for usage, not going into the db
+    const docFields = Object.keys(doc);
+    const filteredFields = fields.filter(({ fieldname }) =>
+      docFields.includes(fieldname)
+    );
+
+    const formattedValues = filteredFields.reduce((d, field) => {
+      const { fieldname } = field;
+      d[fieldname] = this.getDocFormattedValues(field, doc[fieldname]);
+      return d;
+    }, {});
+
+    return Object.assign(doc, formattedValues);
+  }
+
+  getDocFormattedValues(field, value) {
+    // format for usage, not going into the db
+    if (field.fieldtype === 'Currency') {
+      return frappe.pesa(value);
+    }
+    return value;
   }
 
   triggerChange(doctype, name) {
@@ -499,6 +535,7 @@ module.exports = class Database extends Observable {
   }
 
   getFormattedDoc(fields, doc) {
+    // format for storage, going into the db
     let formattedDoc = {};
     fields.map((field) => {
       let value = doc[field.fieldname];
@@ -508,6 +545,25 @@ module.exports = class Database extends Observable {
   }
 
   getFormattedValue(field, value) {
+    // format for storage, going into the db
+    const type = typeof value;
+    if (field.fieldtype === 'Currency') {
+      let currency = value;
+
+      if (type === 'number' || type === 'string') {
+        currency = frappe.pesa(value);
+      }
+
+      const currencyValue = currency.store;
+      if (typeof currencyValue !== 'string') {
+        throw new Error(
+          `invalid currencyValue '${currencyValue}' of type '${typeof currencyValue}' on converting from '${value}' of type '${type}'`
+        );
+      }
+
+      return currencyValue;
+    }
+
     if (value instanceof Date) {
       if (field.fieldtype === 'Date') {
         // date
@@ -616,7 +672,7 @@ module.exports = class Database extends Observable {
     return value;
   }
 
-  getAll({
+  async getAll({
     doctype,
     fields,
     filters,
@@ -659,7 +715,8 @@ module.exports = class Database extends Observable {
       builder.limit(limit);
     }
 
-    return builder;
+    const docs = await builder;
+    return docs.map((doc) => this.getDocFormattedDoc(meta.fields, doc));
   }
 
   applyFiltersToBuilder(builder, filters) {
