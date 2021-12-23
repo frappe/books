@@ -162,7 +162,7 @@ export default class LedgerPosting {
   }
 
   getPrecision() {
-    return frappe.SystemSettings.floatPrecision;
+    return frappe.SystemSettings.internalPrecision;
   }
 
   getRoundOffAccount() {

@@ -10,14 +10,17 @@
       :value="value"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
-      @blur="e => triggerChange(e.target.value)"
-      @focus="e => $emit('focus', e)"
-      @input="e => $emit('input', e)"
+      :max="df.maxValue"
+      :min="df.minValue"
+      @blur="(e) => triggerChange(e.target.value)"
+      @focus="(e) => $emit('focus', e)"
+      @input="(e) => $emit('input', e)"
     />
   </div>
 </template>
 
 <script>
+import { showMessageDialog } from '../../utils';
 export default {
   name: 'Base',
   props: [
@@ -28,18 +31,18 @@ export default {
     'size',
     'showLabel',
     'readOnly',
-    'autofocus'
+    'autofocus',
   ],
   inject: {
     doctype: {
-      default: null
+      default: null,
     },
     name: {
-      default: null
+      default: null,
     },
     doc: {
-      default: null
-    }
+      default: null,
+    },
   },
   mounted() {
     if (this.autofocus) {
@@ -55,9 +58,9 @@ export default {
         {
           'px-3 py-2': this.size !== 'small',
           'px-2 py-1': this.size === 'small',
-          'pointer-events-none': this.isReadOnly
+          'pointer-events-none': this.isReadOnly,
         },
-        'focus:outline-none focus:bg-gray-200 rounded w-full text-gray-900 placeholder-gray-400'
+        'focus:outline-none focus:bg-gray-200 rounded w-full text-gray-900 placeholder-gray-400',
       ];
 
       return this.getInputClassesFromProp(classes);
@@ -70,7 +73,7 @@ export default {
         return this.readOnly;
       }
       return this.df.readOnly;
-    }
+    },
   },
   methods: {
     getInputClassesFromProp(classes) {
@@ -90,17 +93,41 @@ export default {
     },
     triggerChange(value) {
       value = this.parse(value);
+
+      const isValid = this.validate(value);
+      if (!isValid) {
+        return;
+      }
+
       if (value === '') {
         value = null;
       }
+
       this.$emit('change', value);
+    },
+    validate(value) {
+      if (!(typeof this.df.validate === 'function')) {
+        return;
+      }
+
+      try {
+        this.df.validate(value, this.doc);
+      } catch (error) {
+        showMessageDialog({
+          message: this._('Invalid Value'),
+          description: error.message,
+        });
+        return false;
+      }
+
+      return true;
     },
     parse(value) {
       return value;
     },
     isNumeric(df) {
       return ['Int', 'Float', 'Currency'].includes(df.fieldtype);
-    }
-  }
+    },
+  },
 };
 </script>
