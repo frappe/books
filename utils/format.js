@@ -46,23 +46,28 @@ module.exports = {
       }
     }
     return value;
-  }
+  },
 };
 
+function getCurrency(df, doc) {
+  if (!(doc && df.getCurrency)) {
+    return df.currency || frappe.AccountingSettings.currency || '';
+  }
+
+  if (doc.meta && doc.meta.isChild) {
+    return df.getCurrency(doc, doc.parentdoc);
+  }
+
+  return df.getCurrency(doc);
+}
+
 function formatCurrency(value, df, doc) {
-  let currency = df.currency || '';
-  if (doc && df.getCurrency) {
-    if (doc.meta && doc.meta.isChild) {
-      currency = df.getCurrency(doc, doc.parentdoc);
-    } else {
-      currency = df.getCurrency(doc);
-    }
-  }
+  const currency = getCurrency(df, doc);
+  const valueString = numberFormat.formatCurrency(value);
+  const currencySymbol = frappe.currencySymbols[currency];
 
-  if (!currency) {
-    currency = frappe.AccountingSettings.currency;
+  if (currencySymbol) {
+    return currencySymbol + ' ' + valueString;
   }
-
-  let currencySymbol = frappe.currencySymbols[currency] || '';
-  return currencySymbol + ' ' + numberFormat.formatNumber(value);
+  return valueString;
 }
