@@ -61,7 +61,7 @@ class SqliteDatabase extends Database {
     // prettier-ignore
     this.typeMap = {
       'AutoComplete': 'text',
-      'Currency': 'float',
+      'Currency': 'text',
       'Int': 'integer',
       'Float': 'float',
       'Percent': 'float',
