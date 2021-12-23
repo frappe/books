@@ -1,6 +1,7 @@
 const Observable = require('./utils/observable');
 const utils = require('./utils');
 const { getMoneyMaker } = require('pesa');
+const { DEFAULT_INTERNAL_PRECISION } = require('./utils/consts');
 
 module.exports = {
   initializeAndRegister(customModels = {}, force = false) {
@@ -42,7 +43,7 @@ module.exports = {
     }
 
     if (typeof precision === 'undefined') {
-      precision = 11;
+      precision = DEFAULT_INTERNAL_PRECISION;
     }
 
     if (typeof precision.value === 'string') {

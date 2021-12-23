@@ -2,6 +2,7 @@ const frappe = require('frappejs');
 const Observable = require('frappejs/utils/observable');
 const naming = require('./naming');
 const { round } = require('frappejs/utils/numberFormat');
+const { DEFAULT_INTERNAL_PRECISION } = require('../utils/consts');
 
 module.exports = class BaseDocument extends Observable {
   constructor(data) {
@@ -673,10 +674,8 @@ module.exports = class BaseDocument extends Observable {
     if (typeof df === 'string') {
       df = this.meta.getField(df);
     }
-    let systemPrecision = frappe.SystemSettings.internalPrecision;
-    let defaultPrecision = systemPrecision != null ? systemPrecision : 2;
-    let precision =
-      df && df.precision != null ? df.precision : defaultPrecision;
+    const precision =
+      frappe.SystemSettings.internalPrecision ?? DEFAULT_INTERNAL_PRECISION;
     return round(value, precision);
   }
 
