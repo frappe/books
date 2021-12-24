@@ -107,7 +107,7 @@ export default {
     },
     validate(value) {
       if (!(typeof this.df.validate === 'function')) {
-        return;
+        return true;
       }
 
       try {

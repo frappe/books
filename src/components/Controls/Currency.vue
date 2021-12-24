@@ -13,7 +13,7 @@
       :readonly="isReadOnly"
       @blur="onBlur"
       @focus="onFocus"
-      @input="e => $emit('input', e)"
+      @input="(e) => $emit('input', e)"
     />
     <div
       v-show="!showInput"
@@ -37,13 +37,16 @@ export default {
   data() {
     return {
       showInput: false,
-      currencySymbol: ''
+      currencySymbol: '',
     };
   },
   methods: {
     onFocus(e) {
       this.showInput = true;
       this.$emit('focus', e);
+    },
+    parse(value) {
+      return frappe.pesa(value);
     },
     onBlur(e) {
       this.showInput = false;
@@ -54,12 +57,12 @@ export default {
       this.$nextTick(() => {
         this.focus();
       });
-    }
+    },
   },
   computed: {
     formattedValue() {
       return frappe.format(this.value, this.df, this.doc);
-    }
-  }
+    },
+  },
 };
 </script>
