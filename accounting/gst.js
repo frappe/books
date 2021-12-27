@@ -1,6 +1,6 @@
 import { showMessageDialog } from '@/utils';
 import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import { sleep, _ } from 'frappejs/utils';
 import { DateTime } from 'luxon';
 import { saveExportData } from '../reports/commonExporter';
 import { getSavePath } from '../src/utils';
@@ -120,6 +120,7 @@ export async function generateGstr1Json(getReportData) {
     gstData.b2cs = await generateB2csData(rows);
   }
 
+  await sleep(1);
   const jsonData = JSON.stringify(gstData);
   await saveExportData(jsonData, filePath);
 }
