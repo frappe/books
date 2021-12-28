@@ -125,10 +125,10 @@ export async function generateGstr1Json(getReportData) {
   await saveExportData(jsonData, filePath);
 }
 
-async function generateB2bData(invoices) {
+async function generateB2bData(rows) {
   const b2b = [];
 
-  invoices.forEach(async (row) => {
+  for (let row of rows) {
     const customer = {
       ctin: row.gstin,
       inv: [],
@@ -174,7 +174,7 @@ async function generateB2bData(invoices) {
       customer.inv.push(invRecord);
       b2b.push(customer);
     }
-  });
+  }
 
   return b2b;
 }
