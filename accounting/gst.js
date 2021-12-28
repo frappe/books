@@ -114,9 +114,9 @@ export async function generateGstr1Json(getReportData) {
 
   if (transferType === 'B2B') {
     gstData.b2b = await generateB2bData(rows);
-  } else if (transferType === 'B2C-Large') {
+  } else if (transferType === 'B2CL') {
     gstData.b2cl = await generateB2clData(rows);
-  } else if (transferType === 'B2C-Small') {
+  } else if (transferType === 'B2CS') {
     gstData.b2cs = await generateB2csData(rows);
   }
 
