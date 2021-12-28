@@ -13,15 +13,16 @@ class GSTR2 extends BaseGSTR {
 
     const data = await this.getCompleteReport('GSTR-2', filters);
 
+    // prettier-ignore
     const conditions = {
-      B2B: row => row.gstin,
-      'B2C-Large': row => !row.gstin && !row.inState && row.invAmt >= 250000,
-      'B2C-Small': row =>
+      'B2B': row => row.gstin,
+      'B2CL': row => !row.gstin && !row.inState && row.invAmt >= 250000,
+      'B2CS': row =>
         !row.gstin && (row.inState || (row.inState && row.invAmt < 250000))
     };
 
     if (!params.transferType) return data;
-    return data.filter(row => conditions[params.transferType](row));
+    return data.filter((row) => conditions[params.transferType](row));
   }
 }
 
