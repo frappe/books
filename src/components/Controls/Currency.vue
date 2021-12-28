@@ -8,7 +8,7 @@
       ref="input"
       :class="inputClasses"
       :type="inputType"
-      :value="value"
+      :value="value.round()"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
       @blur="onBlur"
@@ -49,8 +49,13 @@ export default {
       return frappe.pesa(value);
     },
     onBlur(e) {
+      let { value } = e.target;
+      if (value === '') {
+        value = frappe.pesa(0).round();
+      }
+
       this.showInput = false;
-      this.triggerChange(e.target.value);
+      this.triggerChange(value);
     },
     activateInput() {
       this.showInput = true;
