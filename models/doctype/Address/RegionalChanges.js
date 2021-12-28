@@ -16,9 +16,9 @@ export default function getAugmentedAddress({ country }) {
       ...Address.fields.slice(0, cityFieldIndex + 1),
       {
         fieldname: 'state',
-        label: 'State',
+        label: 'State / UT',
         fieldtype: 'Select',
-        placeholder: 'State',
+        placeholder: 'State / UT',
         options: Object.keys(stateCodeMap).map((key) => capitalize(key)),
       },
       ...Address.fields.slice(cityFieldIndex + 1, Address.fields.length),
