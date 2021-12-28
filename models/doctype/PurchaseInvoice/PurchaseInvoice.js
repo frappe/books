@@ -54,7 +54,9 @@ export default {
       fieldtype: 'Link',
       target: 'Currency',
       hidden: 1,
-      formula: (doc) => doc.getFrom('Party', doc.supplier, 'currency'),
+      formula: (doc) =>
+        doc.getFrom('Party', doc.supplier, 'currency') ||
+        frappe.AccountingSettings.currency,
       formulaDependsOn: ['supplier'],
     },
     {
