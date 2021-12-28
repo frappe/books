@@ -31,6 +31,7 @@
           v-for="option in options"
           :key="option.value"
           :value="option.value"
+          class="text-black"
         >
           {{ option.label }}
         </option>
