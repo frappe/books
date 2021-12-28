@@ -181,7 +181,7 @@ async function generateB2bData(rows) {
 async function generateB2clData(invoices) {
   const b2cl = [];
 
-  invoices.forEach(async (invoice) => {
+  for (let invoice of invoices) {
 
     const stateInvoiceRecord = {
       pos: stateCodeMap[invoice.place.toUpperCase()],
@@ -223,8 +223,7 @@ async function generateB2clData(invoices) {
       stateInvoiceRecord.inv.push(invRecord);
       b2cl.push(stateInvoiceRecord);
     }
-
-  })
+  }
 
   return b2cl;
 }
@@ -232,7 +231,7 @@ async function generateB2clData(invoices) {
 async function generateB2csData(invoices) {
   const b2cs = [];
 
-  invoices.forEach(async (invoice) => {
+  for (let invoice of invoices) {
 
     const pos = invoice.place.toUpperCase();
 
@@ -251,7 +250,7 @@ async function generateB2csData(invoices) {
     }
 
     b2cs.push(invRecord);
-  });
+  }
 
   return b2cs;
 }
