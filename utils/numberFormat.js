@@ -131,8 +131,7 @@ module.exports = {
     }
 
     if (value.round) {
-      const displayPrecision = this.getDisplayPrecision();
-      return currencyFormatter.format(value.round(displayPrecision));
+      return currencyFormatter.format(value.round());
     }
 
     const formattedCurrency = currencyFormatter(value);
