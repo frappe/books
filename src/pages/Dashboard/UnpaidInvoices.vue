@@ -11,7 +11,7 @@
           v-if="invoice.hasData"
           slot="action"
           :value="$data[invoice.periodKey]"
-          @change="value => ($data[invoice.periodKey] = value)"
+          @change="(value) => ($data[invoice.periodKey] = value)"
         />
         <Button
           v-else
@@ -73,14 +73,14 @@ import Button from '@/components/Button';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
-import { routeTo } from '@/utils'
+import { routeTo } from '@/utils';
 
 export default {
   name: 'UnpaidInvoices',
   components: {
     PeriodSelector,
     SectionHeader,
-    Button
+    Button,
   },
   data: () => ({
     invoices: [
@@ -93,7 +93,7 @@ export default {
         color: 'blue',
         periodKey: 'salesInvoicePeriod',
         hasData: false,
-        barWidth: 40
+        barWidth: 40,
       },
       {
         title: 'Bills',
@@ -104,22 +104,22 @@ export default {
         color: 'gray',
         periodKey: 'purchaseInvoicePeriod',
         hasData: false,
-        barWidth: 60
-      }
+        barWidth: 60,
+      },
     ],
     salesInvoicePeriod: 'This Year',
-    purchaseInvoicePeriod: 'This Year'
+    purchaseInvoicePeriod: 'This Year',
   }),
   watch: {
     salesInvoicePeriod: 'calculateInvoiceTotals',
-    purchaseInvoicePeriod: 'calculateInvoiceTotals'
+    purchaseInvoicePeriod: 'calculateInvoiceTotals',
   },
   activated() {
     this.calculateInvoiceTotals();
   },
   methods: {
     async calculateInvoiceTotals() {
-      let promises = this.invoices.map(async d => {
+      let promises = this.invoices.map(async (d) => {
         let { fromDate, toDate } = await getDatesAndPeriodicity(
           this.$data[d.periodKey]
         );
@@ -133,11 +133,11 @@ export default {
           .first();
 
         let { total, outstanding } = result;
-        d.total = total;
-        d.unpaid = outstanding;
+        d.total = total ?? 0;
+        d.unpaid = outstanding ?? 0;
         d.paid = total - outstanding;
-        d.hasData = (d.total || 0) !== 0;
-        d.barWidth = (d.paid / d.total) * 100;
+        d.hasData = d.total !== 0;
+        d.barWidth = (d.paid / (d.total || 1)) * 100;
         return d;
       });
 
@@ -146,7 +146,7 @@ export default {
     async newInvoice(invoice) {
       let doc = await frappe.getNewDoc(invoice.doctype);
       routeTo(`/edit/${invoice.doctype}/${doc.name}`);
-    }
-  }
+    },
+  },
 };
 </script>

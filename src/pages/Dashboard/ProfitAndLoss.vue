@@ -5,7 +5,7 @@
       <PeriodSelector
         slot="action"
         :value="period"
-        @change="value => (period = value)"
+        @change="(value) => (period = value)"
       />
     </SectionHeader>
     <div v-show="hasData" class="chart-wrapper" ref="profit-and-loss"></div>
@@ -28,14 +28,14 @@ export default {
   name: 'ProfitAndLoss',
   components: {
     PeriodSelector,
-    SectionHeader
+    SectionHeader,
   },
   data: () => ({ period: 'This Year', hasData: false }),
   activated() {
     this.render();
   },
   watch: {
-    period: 'render'
+    period: 'render',
   },
   methods: {
     async render() {
@@ -47,11 +47,11 @@ export default {
       let res = await pl.run({
         fromDate,
         toDate,
-        periodicity
+        periodicity,
       });
 
       let totalRow = res.rows[res.rows.length - 1];
-      this.hasData = res.columns.some(key => totalRow[key] !== 0);
+      this.hasData = res.columns.some((key) => totalRow[key] !== 0);
       if (!this.hasData) return;
       this.$nextTick(() => this.renderChart(res));
     },
@@ -66,10 +66,10 @@ export default {
         axisOptions: {
           xAxisMode: 'tick',
           shortenYAxisNumbers: true,
-          xIsSeries: true
+          xIsSeries: true,
         },
         tooltipOptions: {
-          formatTooltipY: value => frappe.format(value, 'Currency')
+          formatTooltipY: (value) => frappe.format(value ?? 0, 'Currency'),
         },
         data: {
           labels: res.columns,
@@ -77,12 +77,12 @@ export default {
             {
               name: 'Income',
               chartType: 'bar',
-              values: res.columns.map(key => totalRow[key])
-            }
-          ]
-        }
+              values: res.columns.map((key) => totalRow[key]),
+            },
+          ],
+        },
       });
-    }
-  }
+    },
+  },
 };
 </script>
