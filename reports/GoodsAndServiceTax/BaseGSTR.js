@@ -48,7 +48,7 @@ class BaseGSTR {
     row.invNo = ledgerEntry.name;
     row.invDate = ledgerEntry.date;
     row.rate = 0;
-    row.inState = gstin && gstin.substring(0, 2) === stateCodeMap[row.place];
+    row.inState = gstin && gstin.substring(0, 2) === stateCodeMap[row.place.toUpperCase()];
     row.reverseCharge = !party.gstin ? 'Y' : 'N';
     ledgerEntry.taxes?.forEach(tax => {
       row.rate += tax.rate;
