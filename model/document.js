@@ -668,7 +668,12 @@ module.exports = class BaseDocument extends Observable {
       .map((d) => {
         const value = d[childfield] ?? 0;
         if (!isPesa(value)) {
-          return frappe.pesa(value);
+          try {
+            return frappe.pesa(value);
+          } catch (err) {
+            err.message += ` value: '${value}' of type: ${typeof value}, fieldname: '${tablefield}', childfield: '${childfield}'`;
+            throw err;
+          }
         }
         return value;
       })
