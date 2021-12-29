@@ -29,10 +29,7 @@ export default async function execute() {
     const rows = await frappe.db.knex(name);
     const convertedRows = rows.map((row) => {
       for (let field of fields) {
-        if (row[field] === null) {
-          continue;
-        }
-        row[field] = frappe.pesa(row[field]).store;
+        row[field] = frappe.pesa(row[field] ?? 0).store;
       }
       return row;
     });
