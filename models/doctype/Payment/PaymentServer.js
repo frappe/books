@@ -46,9 +46,9 @@ export default class PaymentServer extends BaseDocument {
   }
 
   updateAmountOnReferenceUpdate() {
-    this.amount = 0;
+    this.amount = frappe.pesa(0);
     for (let paymentReference of this.for) {
-      this.amount += paymentReference.amount;
+      this.amount = this.amount.add(paymentReference.amount);
     }
   }
 
@@ -73,18 +73,19 @@ export default class PaymentServer extends BaseDocument {
     if (!this.for?.length) return;
     const referenceAmountTotal = this.for
       .map(({ amount }) => amount)
-      .reduce((a, b) => a + b, 0);
+      .reduce((a, b) => a.add(b), frappe.pesa(0));
 
-    if (this.amount + (this.writeoff ?? 0) < referenceAmountTotal) {
+    if (this.amount.add(this.writeoff ?? 0).lt(referenceAmountTotal)) {
       const writeoff = frappe.format(this.writeoff, 'Currency');
       const payment = frappe.format(this.amount, 'Currency');
       const refAmount = frappe.format(referenceAmountTotal, 'Currency');
-      const writeoffString =
-        this.writeoff > 0 ? `and writeoff: ${writeoff} ` : '';
+      const writeoffString = this.writeoff.gt(0)
+        ? `and writeoff: ${writeoff} `
+        : '';
 
       throw new Error(
         frappe._(
-          `Amount: ${payment} ${writeoffString}is less than the total amount allocated to references: ${refAmount}`
+          `Amount: ${payment} ${writeoffString}is less than the total amount allocated to references: ${refAmount}.`
         )
       );
     }
@@ -113,18 +114,28 @@ export default class PaymentServer extends BaseDocument {
       if (outstandingAmount == null) {
         outstandingAmount = baseGrandTotal;
       }
-      if (this.amount <= 0 || this.amount > outstandingAmount) {
+      if (this.amount.lte(0) || this.amount.gt(outstandingAmount)) {
         let message = frappe._(
-          `Payment amount (${this.amount}) should be less than Outstanding amount (${outstandingAmount}).`
+          `Payment amount: ${frappe.format(
+            this.amount,
+            'Currency'
+          )} should be less than Outstanding amount: ${frappe.format(
+            outstandingAmount,
+            'Currency'
+          )}.`
         );
-        if (this.amount <= 0) {
-          const amt = this.amount < 0 ? ` (${this.amount})` : '';
+
+        if (this.amount.lte(0)) {
+          const amt = this.amount.lt(0)
+            ? `: ${frappe.format(this.amount, 'Currency')}`
+            : '';
           message = frappe._(`Payment amount${amt} should be greater than 0.`);
         }
+
         throw new frappe.errors.ValidationError(message);
       } else {
         // update outstanding amounts in invoice and party
-        let newOutstanding = outstandingAmount - this.amount;
+        let newOutstanding = outstandingAmount.sub(this.amount);
         await referenceDoc.set('outstandingAmount', newOutstanding);
         await referenceDoc.update();
         let party = await frappe.getDoc('Party', this.party);
@@ -147,7 +158,9 @@ export default class PaymentServer extends BaseDocument {
   async updateReferenceOutstandingAmount() {
     await this.for.forEach(async ({ amount, referenceType, referenceName }) => {
       const refDoc = await frappe.getDoc(referenceType, referenceName);
-      refDoc.update({ outstandingAmount: refDoc.outstandingAmount + amount });
+      refDoc.update({
+        outstandingAmount: refDoc.outstandingAmount.add(amount),
+      });
     });
   }
 }

@@ -109,9 +109,9 @@ export default {
       label: 'Amount',
       fieldtype: 'Currency',
       required: 1,
-      formula: (doc) => doc.getSum('for', 'amount'),
+      formula: (doc) => doc.getSum('for', 'amount', false),
       validate(value, doc) {
-        if (value < 0) {
+        if (value.isNegative()) {
           throw new frappe.errors.ValidationError(
             frappe._(
               `Payment amount cannot be less than zero. Amount has been reset.`
@@ -120,9 +120,9 @@ export default {
         }
 
         if (doc.for.length === 0) return;
-        const amount = doc.getSum('for', 'amount');
+        const amount = doc.getSum('for', 'amount', false);
 
-        if (value > amount) {
+        if (value.gt(amount)) {
           throw new frappe.errors.ValidationError(
             frappe._(
               `Payment amount cannot exceed ${frappe.format(
@@ -131,7 +131,7 @@ export default {
               )}. Amount has been reset.`
             )
           );
-        } else if (value === 0) {
+        } else if (value.isZero()) {
           throw new frappe.errors.ValidationError(
             frappe._(
               `Payment amount cannot be ${frappe.format(
@@ -147,7 +147,6 @@ export default {
       fieldname: 'writeoff',
       label: 'Write Off / Refund',
       fieldtype: 'Currency',
-      default: 0,
     },
     {
       fieldname: 'for',
