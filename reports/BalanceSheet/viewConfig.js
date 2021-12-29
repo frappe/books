@@ -27,7 +27,7 @@ export default {
     },
   ],
   actions: getCommonExportActions('balance-sheet'),
-  getColumns(data) {
+  getColumns({ data }) {
     const columns = [
       { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
     ];
