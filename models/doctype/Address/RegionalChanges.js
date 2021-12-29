@@ -19,12 +19,13 @@ export default function getAugmentedAddress({ country }) {
         options: Object.keys(stateCodeMap).map((key) => capitalize(key)),
       },
     ];
+    
+    Address.quickEditFields = [
+      ...Address.quickEditFields,
+      'pos',
+    ];
   }
 
-  Address.quickEditFields = [
-    ...Address.quickEditFields,
-    'pos',
-  ];
 
   return Address;
 }
