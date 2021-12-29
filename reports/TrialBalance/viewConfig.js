@@ -32,7 +32,7 @@ export default {
     },
   ],
   actions: getCommonExportActions('trial-balance'),
-  getColumns(data) {
+  getColumns() {
     const columns = [
       { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
       {

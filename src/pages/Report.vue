@@ -138,7 +138,7 @@ export default {
     };
   },
   async activated() {
-    this.reportData.columns = this.report.getColumns();
+    this.reportData.columns = this.report.getColumns({ filters: this.filters });
     await this.setDefaultFilters();
     await this.fetchReportData();
   },
@@ -161,9 +161,7 @@ export default {
         rows = data;
       }
 
-      if (data.columns) {
-        this.reportData.columns = this.report.getColumns(data);
-      }
+      this.reportData.columns = this.report.getColumns({ filters: this.filters, data });
 
       if (!rows) {
         rows = [];
