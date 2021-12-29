@@ -63,7 +63,14 @@ function getCurrency(df, doc) {
 
 function formatCurrency(value, df, doc) {
   const currency = getCurrency(df, doc);
-  const valueString = numberFormat.formatCurrency(value);
+  let valueString;
+  try {
+    valueString = numberFormat.formatCurrency(value);
+  } catch (err) {
+    err.message += ` value: '${value}', type: ${typeof value}`;
+    console.error(df);
+    throw err;
+  }
   const currencySymbol = frappe.currencySymbols[currency];
 
   if (currencySymbol) {
