@@ -182,7 +182,6 @@ async function generateB2clData(invoices) {
   const b2cl = [];
 
   for (let invoice of invoices) {
-
     const stateInvoiceRecord = {
       pos: stateCodeMap[invoice.place.toUpperCase()],
       inv: []

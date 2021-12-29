@@ -41,14 +41,14 @@ class BaseGSTR {
     );
     if (party.address) {
       let addressDetails = await frappe.getDoc('Address', party.address);
-      row.place = addressDetails.state || '';
+      row.place = addressDetails.pos || '';
     }
     row.gstin = party.gstin;
     row.partyName = ledgerEntry.customer || ledgerEntry.supplier;
     row.invNo = ledgerEntry.name;
     row.invDate = ledgerEntry.date;
     row.rate = 0;
-    row.inState = gstin.substring(0, 2) === stateCodeMap[row.place];
+    row.inState = gstin && gstin.substring(0, 2) === stateCodeMap[row.place];
     row.reverseCharge = !party.gstin ? 'Y' : 'N';
     ledgerEntry.taxes?.forEach(tax => {
       row.rate += tax.rate;
