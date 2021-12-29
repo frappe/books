@@ -8,44 +8,22 @@ export default function getAugmentedAddress({ country }) {
     return Address;
   }
 
-  const cityFieldIndex = Address.fields.findIndex(
-    (i) => i.fieldname === 'city'
-  );
   if (country === 'India') {
     Address.fields = [
-      ...Address.fields.slice(0, cityFieldIndex + 1),
+      ...Address.fields,
       {
-        fieldname: 'state',
-        label: 'State / UT',
+        fieldname: 'pos',
+        label: 'Place of Supply',
         fieldtype: 'Select',
-        placeholder: 'State / UT',
+        placeholder: 'Place of Supply',
         options: Object.keys(stateCodeMap).map((key) => capitalize(key)),
       },
-      ...Address.fields.slice(cityFieldIndex + 1, Address.fields.length),
-    ];
-    // Setting country as India for customers as default for SMBs in India
-    Address.fields.forEach((field) => {
-      if (field.fieldname === 'country') {
-        field.default = 'India';
-      }
-    });
-  } else {
-    Address.fields = [
-      ...Address.fields.slice(0, cityFieldIndex + 1),
-      {
-        fieldname: 'state',
-        label: 'State',
-        placeholder: 'State',
-        fieldtype: 'Data',
-      },
-      ...Address.fields.slice(cityFieldIndex + 1, Address.fields.length),
     ];
   }
 
   Address.quickEditFields = [
-    ...Address.quickEditFields.slice(0, cityFieldIndex + 1),
-    'state',
-    ...Address.quickEditFields.slice(cityFieldIndex + 1, Address.fields.length),
+    ...Address.quickEditFields,
+    'pos',
   ];
 
   return Address;
