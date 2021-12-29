@@ -55,14 +55,8 @@ export default {
     },
   ],
 
-  getColumns() {
-    return [
-      {
-        label: 'GSTIN No.',
-        fieldname: 'gstin',
-        fieldtype: 'Data',
-        width: 1.5,
-      },
+  getColumns({ filters }) {
+    const columns = [
       {
         label: 'Party',
         fieldtype: 'Data',
@@ -121,5 +115,17 @@ export default {
         fieldtype: 'Currency',
       },
     ];
+
+    const transferType = filters.transferType || 'B2B';
+    if (transferType === 'B2B') {
+      columns.unshift({
+        label: 'GSTIN No.',
+        fieldname: 'gstin',
+        fieldtype: 'Data',
+        width: 1.5,
+      });
+    }
+
+    return columns;
   },
 };
