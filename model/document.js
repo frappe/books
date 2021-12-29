@@ -116,6 +116,10 @@ module.exports = class BaseDocument extends Observable {
           defaultValue = field.default;
         }
 
+        if (field.fieldtype === 'Currency' && !isPesa(defaultValue)) {
+          defaultValue = frappe.pesa(defaultValue);
+        }
+
         this[field.fieldname] = defaultValue;
       }
     }
