@@ -6,9 +6,9 @@ export default class JournalEntryServer extends BaseDocument {
     let entries = new LedgerPosting({ reference: this });
 
     for (let row of this.accounts) {
-      if (row.debit) {
+      if (!row.debit.isZero()) {
         entries.debit(row.account, row.debit);
-      } else if (row.credit) {
+      } else if (!row.credit.isZero()) {
         entries.credit(row.account, row.credit);
       }
     }
@@ -31,4 +31,4 @@ export default class JournalEntryServer extends BaseDocument {
   async afterRevert() {
     await this.getPosting().postReverse();
   }
-};
+}
