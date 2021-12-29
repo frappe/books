@@ -134,10 +134,10 @@ module.exports = {
       return currencyFormatter.format(value.round());
     }
 
-    const formattedCurrency = currencyFormatter(value);
+    const formattedCurrency = currencyFormatter.format(value);
     if (formattedCurrency === 'NaN') {
       throw Error(
-        `invalide value passed to formatCurrency: '${value}' of type ${typeof value}`
+        `invalid value passed to formatCurrency: '${value}' of type ${typeof value}`
       );
     }
 
