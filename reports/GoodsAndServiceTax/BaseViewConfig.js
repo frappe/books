@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon';
-import { generateGstr1Json } from '../../accounting/gst';
 
 const transferTypeMap = {
   B2B: 'B2B',
@@ -44,17 +43,6 @@ export default {
       default: () => DateTime.local().toISODate(),
     },
   ],
-  actions: [
-    {
-      group: 'Export',
-      label: 'JSON',
-      type: 'primary',
-      action: async (report, filters) => {
-        generateGstr1Json(report, filters);
-      },
-    },
-  ],
-
   getColumns({ filters }) {
     const columns = [
       {

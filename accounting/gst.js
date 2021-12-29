@@ -253,3 +253,22 @@ async function generateB2csData(invoices) {
 
   return b2cs;
 }
+
+export async function generateGstr2Csv(getReportData) {
+  const { gstin } = frappe.AccountingSettings;
+  if (!gstin) {
+    showMessageDialog({
+      message: _('Export Failed'),
+      description: _('Please set GSTIN in General Settings.'),
+    });
+    return;
+  }
+
+  const {
+    rows,
+    filters: { transferType, toDate },
+  } = getReportData();
+
+  const { filePath, canceled } = await getSavePath('gstr-2', 'csv');
+  if (canceled || !filePath) return;
+}
