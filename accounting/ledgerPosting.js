@@ -29,13 +29,13 @@ export default class LedgerPosting {
     const debitAccounts = ['Asset', 'Expense'];
     const { rootType } = await frappe.getDoc('Account', accountName);
     if (debitAccounts.indexOf(rootType) === -1) {
-      const change = type == 'credit' ? amount : amount.mul(-1);
+      const change = type == 'credit' ? amount : amount.neg();
       this.accountEntries.push({
         name: accountName,
         balanceChange: change,
       });
     } else {
-      const change = type == 'debit' ? amount : amount.mul(-1);
+      const change = type == 'debit' ? amount : amount.neg();
       this.accountEntries.push({
         name: accountName,
         balanceChange: change,
@@ -95,7 +95,7 @@ export default class LedgerPosting {
       entry.reverted = 1;
     }
     for (let entry of this.accountEntries) {
-      entry.balanceChange = entry.balanceChange.mul(-1);
+      entry.balanceChange = entry.balanceChange.neg();
     }
     await this.insertEntries();
   }
@@ -121,7 +121,7 @@ export default class LedgerPosting {
 
   validateEntries() {
     let { debit, credit } = this.getTotalDebitAndCredit();
-    if (!debit.eq(credit)) {
+    if (debit.neq(credit)) {
       throw new Error(
         `Total Debit: ${frappe.format(
           debit,
