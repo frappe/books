@@ -123,7 +123,10 @@ export default class LedgerPosting {
     let { debit, credit } = this.getTotalDebitAndCredit();
     if (!debit.eq(credit)) {
       throw new Error(
-        `Total Debit (${debit.round()}) must be equal to Total Credit (${credit.round()})`
+        `Total Debit: ${frappe.format(
+          debit,
+          'Currency'
+        )} must be equal to Total Credit: ${frappe.format(credit, 'Currency')}`
       );
     }
   }
