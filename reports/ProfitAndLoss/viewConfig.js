@@ -41,7 +41,7 @@ export default {
     },
   ],
   actions: getCommonExportActions('profit-and-loss'),
-  getColumns(data) {
+  getColumns({ data }) {
     const columns = [
       { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
     ];
