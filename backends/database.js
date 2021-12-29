@@ -163,7 +163,10 @@ module.exports = class Database extends Observable {
     }
 
     // required
-    if (!!field.required && !(field.required instanceof Function)) {
+    if (
+      (!!field.required && !(field.required instanceof Function)) ||
+      field.fieldtype === 'Currency'
+    ) {
       column.notNullable();
     }
 
