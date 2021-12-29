@@ -359,8 +359,15 @@ module.exports = class Database extends Observable {
 
   getDocFormattedValues(field, value) {
     // format for usage, not going into the db
-    if (field.fieldtype === 'Currency') {
-      return frappe.pesa(value);
+    try {
+      if (field.fieldtype === 'Currency') {
+        return frappe.pesa(value);
+      }
+    } catch (err) {
+      err.message += ` value: '${value}' of type: ${typeof value}, fieldname: '${
+        field.fieldname
+      }', label: '${field.label}'`;
+      throw err;
     }
     return value;
   }
