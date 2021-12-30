@@ -1,6 +1,7 @@
-import { cloneDeep, capitalize } from 'lodash';
-import AddressOriginal from './Address';
+import { cloneDeep } from 'lodash';
 import { stateCodeMap } from '../../../accounting/gst';
+import { titleCase } from '../../../src/utils';
+import AddressOriginal from './Address';
 
 export default function getAugmentedAddress({ country }) {
   const Address = cloneDeep(AddressOriginal);
@@ -8,22 +9,21 @@ export default function getAugmentedAddress({ country }) {
     return Address;
   }
 
+  const stateList = Object.keys(stateCodeMap).map(titleCase).sort();
   if (country === 'India') {
     Address.fields = [
       ...Address.fields,
       {
         fieldname: 'pos',
         label: 'Place of Supply',
-        fieldtype: 'Select',
+        fieldtype: 'AutoComplete',
         placeholder: 'Place of Supply',
-        options: Object.keys(stateCodeMap).map((key) => capitalize(key)),
+        formula: (doc) => (stateList.includes(doc.state) ? doc.state : ''),
+        getList: () => stateList,
       },
     ];
-    
-    Address.quickEditFields = [
-      ...Address.quickEditFields,
-      'pos',
-    ];
+
+    Address.quickEditFields = [...Address.quickEditFields, 'pos'];
   }
 
   return Address;
