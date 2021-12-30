@@ -5,6 +5,7 @@ import { DateTime } from 'luxon';
 import { saveExportData } from '../reports/commonExporter';
 import { getSavePath } from '../src/utils';
 
+// prettier-ignore
 export const stateCodeMap = {
   'JAMMU AND KASHMIR': '1',
   'HIMACHAL PRADESH': '2',
@@ -184,7 +185,7 @@ async function generateB2clData(invoices) {
   for (let invoice of invoices) {
     const stateInvoiceRecord = {
       pos: stateCodeMap[invoice.place.toUpperCase()],
-      inv: []
+      inv: [],
     };
 
     const invRecord = {
@@ -194,7 +195,7 @@ async function generateB2clData(invoices) {
       ),
       val: invoice.invAmt,
       itms: [],
-    }
+    };
 
     let items = await frappe.db
       .knex('SalesInvoiceItem')
@@ -231,22 +232,20 @@ async function generateB2csData(invoices) {
   const b2cs = [];
 
   for (let invoice of invoices) {
-
     const pos = invoice.place.toUpperCase();
 
     const invRecord = {
-      "sply_ty": invoice.inState ? "INTRA" : "INTER",
-      "pos": stateCodeMap[pos],
+      sply_ty: invoice.inState ? 'INTRA' : 'INTER',
+      pos: stateCodeMap[pos],
       // "OE" - Abbreviation for errors and omissions excepted.
-      // https://specialties.bayt.com/en/specialties/q/53093/what-is-meant-by-e-amp-oe-on-bill-or-invoice-or-any-document/#:~:text=E%26OE%20on,not%20purposely%20written
-      "typ": "OE",
-      "txval": invoice.taxVal,
-      "rt": invoice.rate,
-      "iamt": !invoice.inState ? (invoice.taxVal * invoice.rate / 100) : 0,
-      "camt": invoice.inState ? invoice.cgstAmt : 0,
-      "samt": invoice.inState ? invoice.sgstAmt : 0,
-      "csamt": 0
-    }
+      typ: 'OE',
+      txval: invoice.taxVal,
+      rt: invoice.rate,
+      iamt: !invoice.inState ? (invoice.taxVal * invoice.rate) / 100 : 0,
+      camt: invoice.inState ? invoice.cgstAmt : 0,
+      samt: invoice.inState ? invoice.sgstAmt : 0,
+      csamt: 0,
+    };
 
     b2cs.push(invRecord);
   }
