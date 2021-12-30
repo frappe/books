@@ -4,6 +4,7 @@ import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
+import lodash from 'lodash';
 import Vue from 'vue';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 
@@ -336,4 +337,17 @@ export function showToast(props) {
       return createElement(Toast, { props });
     },
   });
+}
+
+export function titleCase(phrase) {
+  return phrase
+    .split(' ')
+    .map((word) => {
+      const wordLower = word.toLowerCase();
+      if (['and', 'an', 'a', 'from', 'by', 'on'].includes(wordLower)) {
+        return wordLower;
+      }
+      return lodash.capitalize(wordLower);
+    })
+    .join(' ');
 }

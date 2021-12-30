@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
-import { generateGstr1Json } from '../../accounting/gst';
+import { generateGstr1Json, stateCodeMap } from '../../accounting/gst';
+import { titleCase } from '../../src/utils';
 
 const transferTypeMap = {
   B2B: 'B2B',
@@ -7,6 +8,7 @@ const transferTypeMap = {
   B2CS: 'B2C-Small',
   NR: 'Nil Rated, Exempted and Non GST supplies',
 };
+const stateList = Object.keys(stateCodeMap).map(titleCase).sort();
 
 export default {
   filterFields: [
@@ -21,11 +23,12 @@ export default {
       size: 'small',
     },
     {
-      fieldtype: 'Data',
+      fieldtype: 'AutoComplete',
       label: 'Place',
       size: 'small',
       placeholder: 'Place',
       fieldname: 'place',
+      getList: () => stateList,
     },
     {
       fieldtype: 'Date',
