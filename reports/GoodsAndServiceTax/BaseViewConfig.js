@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
-import { generateGstr1Json } from '../../accounting/gst';
+import { generateGstr1Json, stateCodeMap } from '../../accounting/gst';
+import { titleCase } from '../../src/utils';
 
 const transferTypeMap = {
   B2B: 'B2B',
@@ -7,6 +8,7 @@ const transferTypeMap = {
   B2CS: 'B2C-Small',
   NR: 'Nil Rated, Exempted and Non GST supplies',
 };
+const stateList = Object.keys(stateCodeMap).map(titleCase).sort();
 
 export default {
   filterFields: [
@@ -21,11 +23,12 @@ export default {
       size: 'small',
     },
     {
-      fieldtype: 'Data',
+      fieldtype: 'AutoComplete',
       label: 'Place',
       size: 'small',
       placeholder: 'Place',
       fieldname: 'place',
+      getList: () => stateList,
     },
     {
       fieldtype: 'Date',
@@ -55,14 +58,8 @@ export default {
     },
   ],
 
-  getColumns() {
-    return [
-      {
-        label: 'GSTIN No.',
-        fieldname: 'gstin',
-        fieldtype: 'Data',
-        width: 1.5,
-      },
+  getColumns({ filters }) {
+    const columns = [
       {
         label: 'Party',
         fieldtype: 'Data',
@@ -121,5 +118,17 @@ export default {
         fieldtype: 'Currency',
       },
     ];
+
+    const transferType = filters.transferType || 'B2B';
+    if (transferType === 'B2B') {
+      columns.unshift({
+        label: 'GSTIN No.',
+        fieldname: 'gstin',
+        fieldtype: 'Data',
+        width: 1.5,
+      });
+    }
+
+    return columns;
   },
 };
