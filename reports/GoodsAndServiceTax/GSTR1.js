@@ -8,6 +8,8 @@ class GSTR1 extends BaseGSTR {
     filters.cancelled = 0;
     if (params.toDate || params.fromDate) {
       filters.date = [];
+
+      if (params.place) filters.place = params.place;
       if (params.toDate) filters.date.push('<=', params.toDate);
       if (params.fromDate) filters.date.push('>=', params.fromDate);
     }
