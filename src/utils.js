@@ -362,7 +362,7 @@ export async function getIsSetupComplete() {
 }
 
 export async function getCurrency() {
-  let currency = frappe?.AccoutingSettings?.currency ?? undefined;
+  let currency = frappe?.AccountingSettings?.currency ?? undefined;
 
   if (!currency) {
     try {
@@ -383,6 +383,10 @@ export async function getCurrency() {
 export async function callInitializeMoneyMaker(currency) {
   currency ??= await getCurrency();
   if (!currency && frappe.pesa) {
+    return;
+  }
+
+  if (currency && frappe.pesa().options.currency === currency) {
     return;
   }
   await frappe.initializeMoneyMaker(currency);
