@@ -63,7 +63,6 @@ async function setupGlobalCurrencies(countries) {
       currency_fraction_units: fractionUnits,
       smallest_currency_fraction_value: smallestValue,
       currency_symbol: symbol,
-      number_format: numberFormat,
     } = country;
 
     if (!currency || queue.includes(currency)) {
@@ -77,7 +76,6 @@ async function setupGlobalCurrencies(countries) {
       fractionUnits,
       smallestValue,
       symbol,
-      numberFormat: numberFormat || '#,###.##',
     };
 
     const doc = checkAndCreateDoc(docObject);
