@@ -84,9 +84,10 @@ export default {
         .select('name')
         .from('Account')
         .where('rootType', 'Expense');
+      
       let topExpenses = await frappe.db.knex
         .select({
-          total: frappe.db.knex.raw('sum(??) - sum(??)', ['debit', 'credit']),
+          total: frappe.db.knex.raw('sum(cast(?? as real)) - sum(cast(?? as real))', ['debit', 'credit']),
         })
         .select('account')
         .from('AccountingLedgerEntry')
