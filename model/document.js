@@ -2,7 +2,6 @@ const frappe = require('frappejs');
 const Observable = require('frappejs/utils/observable');
 const naming = require('./naming');
 const { isPesa } = require('../utils/index');
-const { round } = require('frappejs/utils/numberFormat');
 const { DEFAULT_INTERNAL_PRECISION } = require('../utils/consts');
 
 module.exports = class BaseDocument extends Observable {
@@ -696,7 +695,7 @@ module.exports = class BaseDocument extends Observable {
     }
     const precision =
       frappe.SystemSettings.internalPrecision ?? DEFAULT_INTERNAL_PRECISION;
-    return round(value, precision);
+    return frappe.pesa(value).clip(precision).float;
   }
 
   isNew() {
