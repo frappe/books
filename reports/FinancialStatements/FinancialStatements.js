@@ -1,6 +1,6 @@
 import frappe from 'frappejs';
-import { isPesa } from 'frappejs/utils';
 import { DateTime } from 'luxon';
+import { convertPesaValuesToFloat } from '../../src/utils';
 
 export async function getData({
   rootType,
@@ -65,8 +65,8 @@ export async function getData({
     }
   });
 
-  convertToFloat(totalRow);
-  accounts.forEach(convertToFloat);
+  convertPesaValuesToFloat(totalRow);
+  accounts.forEach(convertPesaValuesToFloat);
 
   return { accounts, totalRow, periodList };
 }
@@ -145,7 +145,7 @@ export async function getTrialBalance({ rootType, fromDate, toDate }) {
     }
   }
 
-  accounts.forEach(convertToFloat);
+  accounts.forEach(convertPesaValuesToFloat);
   return accounts;
 }
 
@@ -297,14 +297,6 @@ async function getFiscalYear() {
     start: fiscalYearStart,
     end: fiscalYearEnd,
   };
-}
-
-function convertToFloat(obj) {
-  Object.keys(obj).forEach((key) => {
-    if (!isPesa(obj[key])) return;
-
-    obj[key] = obj[key].float;
-  });
 }
 
 export default {
