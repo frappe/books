@@ -6,8 +6,7 @@ import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart from '../server/postStart';
 import { DB_CONN_FAILURE } from './messages';
 import migrate from './migrate';
-import { getSavePath } from './utils';
-import { callInitializeMoneyMaker } from './utils';
+import { callInitializeMoneyMaker, getSavePath } from './utils';
 
 export async function createNewDatabase() {
   const { canceled, filePath } = await getSavePath('books', 'db');
@@ -50,6 +49,7 @@ export async function connectToLocalDatabase(filePath) {
     return { connectionSuccess: false, reason: DB_CONN_FAILURE.CANT_CONNECT };
   }
 
+  // first init no currency, for migratory needs
   await callInitializeMoneyMaker();
 
   try {
@@ -90,6 +90,9 @@ export async function connectToLocalDatabase(filePath) {
 
   // set last selected file
   config.set('lastSelectedFilePath', filePath);
+
+  // second init with currency, normal usage
+  await callInitializeMoneyMaker();
   return { connectionSuccess: true, reason: '' };
 }
 
