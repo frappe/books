@@ -143,7 +143,7 @@ export default {
           heatLine: 1,
         },
         tooltipOptions: {
-          formatTooltipY: (value) => frappe.format(value, 'Currency'),
+          formatTooltipY: (value) => frappe.format(value ?? 0, 'Currency'),
         },
         data: {
           labels: periodList.map((p) => p.split(' ')[0]),

@@ -1,5 +1,6 @@
 import frappe from 'frappejs';
 import { stateCodeMap } from '../../accounting/gst';
+import { convertPesaValuesToFloat } from '../../src/utils';
 
 class BaseGSTR {
   async getCompleteReport(gstrType, filters) {
@@ -30,6 +31,7 @@ class BaseGSTR {
         });
       }
 
+      tableData.forEach(convertPesaValuesToFloat);
       return tableData;
     } else {
       return [];
@@ -63,7 +65,7 @@ class BaseGSTR {
 
     ledgerEntry.taxes?.forEach((tax) => {
       row.rate += tax.rate;
-      const taxAmt = (tax.rate * ledgerEntry.netTotal) / 100;
+      const taxAmt = ledgerEntry.netTotal.percent(tax.rate);
 
       switch (tax.account) {
         case 'IGST': {

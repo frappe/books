@@ -3,7 +3,7 @@ import Toast from '@/components/Toast';
 import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import { isPesa, _ } from 'frappejs/utils';
 import lodash from 'lodash';
 import Vue from 'vue';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
@@ -386,4 +386,12 @@ export async function callInitializeMoneyMaker(currency) {
     return;
   }
   await frappe.initializeMoneyMaker(currency);
+}
+
+export function convertPesaValuesToFloat(obj) {
+  Object.keys(obj).forEach((key) => {
+    if (!isPesa(obj[key])) return;
+
+    obj[key] = obj[key].float;
+  });
 }
