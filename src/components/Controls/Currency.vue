@@ -50,7 +50,7 @@ export default {
     },
     onBlur(e) {
       let { value } = e.target;
-      if (value === '') {
+      if (value !== 0 && !value) {
         value = frappe.pesa(0).round();
       }
 
