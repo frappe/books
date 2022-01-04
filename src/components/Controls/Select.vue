@@ -5,7 +5,6 @@
     </div>
     <div
       class="
-        relative
         flex
         items-center
         justify-between
@@ -38,7 +37,7 @@
       </select>
       <svg
         class="w-3 h-3"
-        style="background: inherit; z-index: 1; transform: translateX(3px)"
+        style="background: inherit; margin-right: -3px"
         viewBox="0 0 5 10"
         xmlns="http://www.w3.org/2000/svg"
       >
