@@ -258,7 +258,7 @@ export function getInvoiceStatus(doc) {
   if (!doc.submitted) {
     status = 'Draft';
   }
-  if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
+  if (doc.submitted === 1 && doc.outstandingAmount.isZero()) {
     status = 'Paid';
   }
   if (doc.cancelled === 1) {
