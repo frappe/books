@@ -20,10 +20,8 @@ module.exports = {
     currency ??= 'XXX';
 
     // to be called after db initialization
-    let values;
-    try {
-      // error thrown if migration hasn't taken place
-      values = await frappe.db.getSingleValues(
+    const values =
+      (await frappe.db?.getSingleValues(
         {
           fieldname: 'internalPrecision',
           parent: 'SystemSettings',
@@ -32,10 +30,7 @@ module.exports = {
           fieldname: 'displayPrecision',
           parent: 'SystemSettings',
         }
-      );
-    } catch {
-      values = [];
-    }
+      )) ?? [];
 
     let { internalPrecision: precision, displayPrecision: display } =
       values.reduce((acc, { fieldname, value }) => {
@@ -47,7 +42,7 @@ module.exports = {
       precision = DEFAULT_INTERNAL_PRECISION;
     }
 
-    if (typeof precision.value === 'string') {
+    if (typeof precision === 'string') {
       precision = parseInt(precision);
     }
 
