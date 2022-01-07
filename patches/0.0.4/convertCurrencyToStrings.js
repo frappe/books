@@ -31,6 +31,11 @@ export default async function execute() {
       for (let field of fields) {
         row[field] = frappe.pesa(row[field] ?? 0).store;
       }
+
+      if ('numberFormat' in row) {
+        delete row.numberFormat;
+      }
+
       return row;
     });
     await frappe.db.prestigeTheTable(name, convertedRows);
