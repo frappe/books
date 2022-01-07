@@ -126,10 +126,10 @@ export default class PaymentServer extends BaseDocument {
         );
 
         if (this.amount.lte(0)) {
-          const amt = this.amount.lt(0)
-            ? `: ${frappe.format(this.amount, 'Currency')}`
-            : '';
-          message = frappe._(`Payment amount${amt} should be greater than 0.`);
+          const amt = frappe.format(this.amount, 'Currency');
+          message = frappe._(
+            `Payment amount: ${amt} should be greater than 0.`
+          );
         }
 
         throw new frappe.errors.ValidationError(message);
