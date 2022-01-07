@@ -131,3 +131,9 @@ export default {
   },
 };
 </script>
+
+<style>
+input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
+}
+</style>
