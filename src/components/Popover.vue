@@ -3,17 +3,15 @@
     <div class="h-full">
       <slot name="target" :togglePopover="togglePopover"></slot>
     </div>
-    <portal to="popovers">
-      <div
-        ref="popover"
-        :class="popoverClass"
-        class="bg-white rounded border shadow-md popover-container relative"
-        v-show="isOpen"
-      >
-        <div v-if="!hideArrow" class="popover-arrow" ref="popover-arrow"></div>
-        <slot name="content" :togglePopover="togglePopover"></slot>
-      </div>
-    </portal>
+    <div
+      ref="popover"
+      :class="popoverClass"
+      class="bg-white rounded border shadow-md popover-container relative"
+      v-show="isOpen"
+    >
+      <div v-if="!hideArrow" class="popover-arrow" ref="popover-arrow"></div>
+      <slot name="content" :togglePopover="togglePopover"></slot>
+    </div>
   </div>
 </template>
 
@@ -25,17 +23,17 @@ export default {
   props: {
     hideArrow: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showPopup: {
-      default: null
+      default: null,
     },
     right: Boolean,
     placement: {
       type: String,
-      default: 'bottom-start'
+      default: 'bottom-start',
     },
-    popoverClass: [String, Object, Array]
+    popoverClass: [String, Object, Array],
   },
   watch: {
     showPopup(value) {
@@ -45,18 +43,18 @@ export default {
       if (value === false) {
         this.close();
       }
-    }
+    },
   },
   data() {
     return {
-      isOpen: false
+      isOpen: false,
     };
   },
   mounted() {
-    let listener = e => {
+    let listener = (e) => {
       let $els = [this.$refs.reference, this.$refs.popover];
       let insideClick = $els.some(
-        $el => $el && (e.target === $el || $el.contains(e.target))
+        ($el) => $el && (e.target === $el || $el.contains(e.target))
       );
       if (insideClick) {
         return;
@@ -83,17 +81,17 @@ export default {
                 {
                   name: 'arrow',
                   options: {
-                    element: this.$refs['popover-arrow']
-                  }
+                    element: this.$refs['popover-arrow'],
+                  },
                 },
                 {
                   name: 'offset',
                   options: {
-                    offset: [0, 10]
-                  }
-                }
+                    offset: [0, 10],
+                  },
+                },
               ]
-            : []
+            : [],
         });
       } else {
         this.popper.update();
@@ -126,8 +124,8 @@ export default {
       }
       this.isOpen = false;
       this.$emit('close');
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>

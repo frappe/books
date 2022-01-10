@@ -18,7 +18,6 @@
       @setup-complete="showSetupWizardOrDesk(true)"
       @setup-canceled="setupCanceled"
     />
-    <portal-target name="popovers" multiple></portal-target>
     <div id="toast-container" class="absolute bottom-0 right-0 mr-6 mb-3">
       <div id="toast-target" />
     </div>

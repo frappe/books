@@ -2,7 +2,6 @@ import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
 import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
 import outsideClickDirective from 'frappejs/ui/plugins/outsideClickDirective';
-import PortalVue from 'portal-vue';
 import Vue from 'vue';
 import models from '../models';
 import App from './App';
@@ -36,7 +35,6 @@ import router from './router';
   Vue.config.productionTip = false;
   Vue.component('feather-icon', FeatherIcon);
   Vue.directive('on-outside-click', outsideClickDirective);
-  Vue.use(PortalVue);
   Vue.mixin({
     computed: {
       frappe() {
