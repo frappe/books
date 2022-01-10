@@ -113,9 +113,7 @@ export default {
       validate(value, doc) {
         if (value.isNegative()) {
           throw new frappe.errors.ValidationError(
-            frappe._(
-              `Payment amount cannot be less than zero. Amount has been reset.`
-            )
+            frappe._(`Payment amount cannot be less than zero.`)
           );
         }
 
@@ -128,16 +126,13 @@ export default {
               `Payment amount cannot exceed ${frappe.format(
                 amount,
                 'Currency'
-              )}. Amount has been reset.`
+              )}.`
             )
           );
         } else if (value.isZero()) {
           throw new frappe.errors.ValidationError(
             frappe._(
-              `Payment amount cannot be ${frappe.format(
-                value,
-                'Currency'
-              )}. Amount has been reset.`
+              `Payment amount cannot be ${frappe.format(value, 'Currency')}.`
             )
           );
         }
