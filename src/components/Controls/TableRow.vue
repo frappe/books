@@ -20,22 +20,29 @@
       v-for="df in tableFields"
       :df="df"
       :value="row[df.fieldname]"
-      @change="value => row.set(df.fieldname, value)"
-      @new-doc="doc => row.set(df.fieldname, doc.name)"
+      @change="(value) => onChange(df, value)"
+      @new-doc="(doc) => row.set(df.fieldname, doc.name)"
     />
+    <div
+      class="text-sm text-red-600 mb-2 pl-2 col-span-full"
+      v-if="Object.values(errors).length"
+    >
+      {{ getErrorString() }}
+    </div>
   </Row>
 </template>
 <script>
 import FormControl from './FormControl';
+import { getErrorMessage } from '../../utils';
 import Row from '@/components/Row';
 
 export default {
   name: 'TableRow',
   props: ['row', 'tableFields', 'size', 'ratio', 'isNumeric'],
   components: {
-    Row
+    Row,
   },
-  data: () => ({ hovering: false }),
+  data: () => ({ hovering: false, errors: {} }),
   beforeCreate() {
     this.$options.components.FormControl = FormControl;
   },
@@ -43,8 +50,28 @@ export default {
     return {
       doctype: this.row.doctype,
       name: this.row.name,
-      doc: this.row
+      doc: this.row,
     };
-  }
+  },
+  methods: {
+    onChange(df, value) {
+      if (value == null) {
+        return;
+      }
+
+      this.$set(this.errors, df.fieldname, null);
+      const oldValue = this.row.get(df.fieldname);
+      if (oldValue === value) {
+        return;
+      }
+
+      this.row.set(df.fieldname, value).catch((e) => {
+        this.$set(this.errors, df.fieldname, getErrorMessage(e, this.row));
+      });
+    },
+    getErrorString() {
+      return Object.values(this.errors).join(' ');
+    },
+  },
 };
 </script>
