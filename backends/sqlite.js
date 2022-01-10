@@ -107,6 +107,7 @@ class SqliteDatabase extends Database {
   async prestigeTheTable(tableName, tableRows) {
     // Alter table hacx for sqlite in case of schema change.
     const tempName = `__${tableName}`;
+    await this.knex.schema.dropTableIfExists(tempName);
     await this.knex.raw('PRAGMA foreign_keys=OFF');
     await this.createTable(tableName, tempName);
     await this.knex.batchInsert(tempName, tableRows);
