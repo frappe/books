@@ -2,7 +2,7 @@ import { showMessageDialog } from '@/utils';
 import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
 import { DateTime } from 'luxon';
-import { saveExportData } from '../reports/commonExporter';
+import { saveExportData, exportCsv } from '../reports/commonExporter';
 import { getSavePath } from '../src/utils';
 
 // prettier-ignore
@@ -265,9 +265,72 @@ export async function generateGstr2Csv(getReportData) {
 
   const {
     rows,
+    columns,
     filters: { transferType, toDate },
   } = getReportData();
 
   const { filePath, canceled } = await getSavePath('gstr-2', 'csv');
   if (canceled || !filePath) return;
+
+  let gstData;
+  if (transferType === 'B2B') {
+    gstData = await generateB2bCsvGstr2(rows, columns);
+  }
+
+  await exportCsv(gstData.rows, gstData.columns, filePath);
+}
+
+async function generateB2bCsvGstr2(rows, columns) {
+
+  const csvColumns = [
+    {
+      label: 'GSTIN of Supplier',
+      fieldname: 'gstin',
+    },
+    {
+      label: 'Invoice Number',
+      fieldname: 'invNo',
+    },
+    {
+      label: 'Invoice Date',
+      fieldname: 'invDate',
+    },
+    {
+      label: 'Invoice Value',
+      fieldname: 'invAmt',
+    },
+    {
+      label: 'Place of supply',
+      fieldname: 'place',
+    },
+    {
+      label: 'Reverse Charge',
+      fieldname: 'reverseCharge',
+    },
+    {
+      label: 'Rate',
+      fieldname: 'rate',
+    },
+    {
+      label: 'Taxable Value',
+      fieldname: 'taxVal',
+    },
+    {
+      label: 'Intergrated Tax Paid',
+      fieldname: 'igstAmt',
+    },
+    {
+      label: 'Central Tax Paid',
+      fieldname: 'cgstAmt',
+    },
+    {
+      label: 'State/UT Tax Paid',
+      fieldname: 'sgstAmt',
+    },
+  ]
+
+  return {
+    columns: csvColumns,
+    rows: rows,
+  }
 }

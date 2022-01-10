@@ -16,9 +16,6 @@ class GSTR2 extends BaseGSTR {
     // prettier-ignore
     const conditions = {
       'B2B': row => row.gstin,
-      'B2CL': row => !row.gstin && !row.inState && row.invAmt >= 250000,
-      'B2CS': row =>
-        !row.gstin && (row.inState || (row.inState && row.invAmt < 250000))
     };
 
     if (!params.transferType) return data;
