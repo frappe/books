@@ -34,7 +34,7 @@ function csvFormat(value) {
   return value;
 }
 
-async function exportCsv(rows, columns, filePath) {
+export async function exportCsv(rows, columns, filePath) {
   const fieldnames = columns.map(({ fieldname }) => fieldname);
   const labels = columns.map(({ label }) => csvFormat(label));
   const csvRows = [
