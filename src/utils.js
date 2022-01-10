@@ -152,7 +152,7 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
 }
 
 export function getErrorMessage(e, doc) {
-  let errorMessage = e.message || _('An error occurred');
+  let errorMessage = e.message || _('An error occurred.');
   const { doctype, name } = doc;
   const canElaborate = doctype && name;
   if (e.type === frappe.errors.LinkValidationError && canElaborate) {

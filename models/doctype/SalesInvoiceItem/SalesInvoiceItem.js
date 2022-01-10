@@ -35,6 +35,15 @@ export default {
       fieldtype: 'Float',
       required: 1,
       default: 1,
+      validate(value, doc) {
+        if (value >= 0) {
+          return;
+        }
+
+        throw new frappe.errors.ValidationError(
+          frappe._(`Quantity (${value}) cannot be less than zero.`)
+        );
+      },
     },
     {
       fieldname: 'rate',
@@ -48,6 +57,17 @@ export default {
       },
       getCurrency: (row, doc) => doc.currency,
       formulaDependsOn: ['item'],
+      validate(value, doc) {
+        if (value.gte(0)) {
+          return;
+        }
+
+        throw new frappe.errors.ValidationError(
+          frappe._(
+            `Rate (${frappe.format(value, 'Currency')}) cannot be less zero.`
+          )
+        );
+      },
     },
     {
       fieldname: 'baseRate',
