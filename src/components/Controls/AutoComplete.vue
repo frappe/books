@@ -59,6 +59,9 @@ export default {
       },
     },
   },
+  inject: {
+    doc: { default: null },
+  },
   computed: {},
   methods: {
     async updateSuggestions(e) {
@@ -81,7 +84,7 @@ export default {
       keyword = keyword.toLowerCase();
 
       let list = this.df.getList
-        ? await this.df.getList()
+        ? await this.df.getList(this.doc)
         : this.df.options || [];
 
       let items = list.map((d) => {
@@ -118,6 +121,12 @@ export default {
     async onBlur(value) {
       if (value === '' || value == null) {
         this.triggerChange('');
+        return;
+      }
+
+      if (value && this.suggestions.length === 0) {
+        this.triggerChange(value);
+        return;
       }
 
       if (
