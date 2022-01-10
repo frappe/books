@@ -162,6 +162,7 @@ let TwoColumnForm = {
 
       let oldValue = this.doc.get(df.fieldname);
 
+      this.$set(this.errors, df.fieldname, null);
       if (oldValue === value) {
         return;
       }
@@ -170,9 +171,6 @@ let TwoColumnForm = {
       if (this.autosave && df.fieldname === 'name' && !this.doc.isNew()) {
         return this.doc.rename(value);
       }
-
-      // reset error messages
-      this.$set(this.errors, df.fieldname, null);
 
       this.doc.set(df.fieldname, value).catch((e) => {
         // set error message for this field

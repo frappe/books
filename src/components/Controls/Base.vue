@@ -94,33 +94,11 @@ export default {
     triggerChange(value) {
       value = this.parse(value);
 
-      const isValid = this.validate(value);
-      if (!isValid) {
-        return;
-      }
-
       if (value === '') {
         value = null;
       }
 
       this.$emit('change', value);
-    },
-    validate(value) {
-      if (!(typeof this.df.validate === 'function')) {
-        return true;
-      }
-
-      try {
-        this.df.validate(value, this.doc);
-      } catch (error) {
-        showMessageDialog({
-          message: this._('Invalid Value'),
-          description: error.message,
-        });
-        return false;
-      }
-
-      return true;
     },
     parse(value) {
       return value;
