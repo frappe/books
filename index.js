@@ -226,8 +226,8 @@ module.exports = {
     return this.metaCache[doctype];
   },
 
-  async getDoc(doctype, name) {
-    let doc = this.getDocFromCache(doctype, name);
+  async getDoc(doctype, name, options = {skipCacheDocument: false}) {
+    let doc = options.skipCacheDocument ? null : this.getDocFromCache(doctype, name);
     if (!doc) {
       doc = new (this.getDocumentClass(doctype))({
         doctype: doctype,
