@@ -1,5 +1,10 @@
 const Observable = require('./utils/observable');
 const utils = require('./utils');
+const { getMoneyMaker } = require('pesa');
+const {
+  DEFAULT_INTERNAL_PRECISION,
+  DEFAULT_DISPLAY_PRECISION,
+} = require('./utils/consts');
 
 module.exports = {
   initializeAndRegister(customModels = {}, force = false) {
@@ -9,6 +14,47 @@ module.exports = {
     const coreModels = require('frappejs/models');
     this.registerModels(coreModels);
     this.registerModels(customModels);
+  },
+
+  async initializeMoneyMaker(currency) {
+    currency ??= 'XXX';
+
+    // to be called after db initialization
+    const values =
+      (await frappe.db?.getSingleValues(
+        {
+          fieldname: 'internalPrecision',
+          parent: 'SystemSettings',
+        },
+        {
+          fieldname: 'displayPrecision',
+          parent: 'SystemSettings',
+        }
+      )) ?? [];
+
+    let { internalPrecision: precision, displayPrecision: display } =
+      values.reduce((acc, { fieldname, value }) => {
+        acc[fieldname] = value;
+        return acc;
+      }, {});
+
+    if (typeof precision === 'undefined') {
+      precision = DEFAULT_INTERNAL_PRECISION;
+    }
+
+    if (typeof precision === 'string') {
+      precision = parseInt(precision);
+    }
+
+    if (typeof display === 'undefined') {
+      display = DEFAULT_DISPLAY_PRECISION;
+    }
+
+    if (typeof display === 'string') {
+      display = parseInt(display);
+    }
+
+    this.pesa = getMoneyMaker({ currency, precision, display });
   },
 
   init(force) {

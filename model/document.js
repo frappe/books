@@ -1,7 +1,8 @@
 const frappe = require('frappejs');
 const Observable = require('frappejs/utils/observable');
 const naming = require('./naming');
-const { round } = require('frappejs/utils/numberFormat');
+const { isPesa } = require('../utils/index');
+const { DEFAULT_INTERNAL_PRECISION } = require('../utils/consts');
 
 module.exports = class BaseDocument extends Observable {
   constructor(data) {
@@ -106,17 +107,16 @@ module.exports = class BaseDocument extends Observable {
   setDefaults() {
     for (let field of this.meta.fields) {
       if (this[field.fieldname] == null) {
-        let defaultValue = null;
+        let defaultValue = getPreDefaultValues(field.fieldtype);
 
-        if (field.fieldtype === 'Table') {
-          defaultValue = [];
+        if (typeof field.default === 'function') {
+          defaultValue = field.default(this);
+        } else if (field.default !== undefined) {
+          defaultValue = field.default;
         }
-        if (field.default) {
-          if (typeof field.default === 'function') {
-            defaultValue = field.default(this);
-          } else {
-            defaultValue = field.default;
-          }
+
+        if (field.fieldtype === 'Currency' && !isPesa(defaultValue)) {
+          defaultValue = frappe.pesa(defaultValue);
         }
 
         this[field.fieldname] = defaultValue;
@@ -136,8 +136,10 @@ module.exports = class BaseDocument extends Observable {
       }
       if (['Int', 'Check'].includes(field.fieldtype)) {
         value = parseInt(value, 10);
-      } else if (['Float', 'Currency'].includes(field.fieldtype)) {
+      } else if (field.fieldtype === 'Float') {
         value = parseFloat(value);
+      } else if (field.fieldtype === 'Currency' && !isPesa(value)) {
+        value = frappe.pesa(value);
       }
       this[field.fieldname] = value;
     }
@@ -169,23 +171,25 @@ module.exports = class BaseDocument extends Observable {
   _initChild(data, key) {
     if (data instanceof BaseDocument) {
       return data;
-    } else {
-      data.doctype = this.meta.getField(key).childtype;
-      data.parent = this.name;
-      data.parenttype = this.doctype;
-      data.parentfield = key;
-      data.parentdoc = this;
-
-      if (!data.idx) {
-        data.idx = (this[key] || []).length;
-      }
-
-      if (!data.name) {
-        data.name = frappe.getRandomString();
-      }
-
-      return new BaseDocument(data);
     }
+
+    data.doctype = this.meta.getField(key).childtype;
+    data.parent = this.name;
+    data.parenttype = this.doctype;
+    data.parentfield = key;
+    data.parentdoc = this;
+
+    if (!data.idx) {
+      data.idx = (this[key] || []).length;
+    }
+
+    if (!data.name) {
+      data.name = frappe.getRandomString();
+    }
+
+    const childDoc = new BaseDocument(data);
+    childDoc.setDefaults();
+    return childDoc;
   }
 
   validateInsert() {
@@ -508,7 +512,7 @@ module.exports = class BaseDocument extends Observable {
       return;
     }
 
-    if (['Float', 'Currency'].includes(field.fieldtype)) {
+    if ('Float' === field.fieldtype) {
       value = this.round(value, field);
     }
 
@@ -526,7 +530,7 @@ module.exports = class BaseDocument extends Observable {
   roundFloats() {
     let fields = this.meta
       .getValidFields()
-      .filter((df) => ['Float', 'Currency', 'Table'].includes(df.fieldtype));
+      .filter((df) => ['Float', 'Table'].includes(df.fieldtype));
 
     for (let df of fields) {
       let value = this[df.fieldname];
@@ -658,10 +662,26 @@ module.exports = class BaseDocument extends Observable {
   }
 
   // helper functions
-  getSum(tablefield, childfield) {
-    return (this[tablefield] || [])
-      .map((d) => parseFloat(d[childfield], 10) || 0)
-      .reduce((a, b) => a + b, 0);
+  getSum(tablefield, childfield, convertToFloat = true) {
+    const sum = (this[tablefield] || [])
+      .map((d) => {
+        const value = d[childfield] ?? 0;
+        if (!isPesa(value)) {
+          try {
+            return frappe.pesa(value);
+          } catch (err) {
+            err.message += ` value: '${value}' of type: ${typeof value}, fieldname: '${tablefield}', childfield: '${childfield}'`;
+            throw err;
+          }
+        }
+        return value;
+      })
+      .reduce((a, b) => a.add(b), frappe.pesa(0));
+
+    if (convertToFloat) {
+      return sum.float;
+    }
+    return sum;
   }
 
   getFrom(doctype, name, fieldname) {
@@ -673,11 +693,9 @@ module.exports = class BaseDocument extends Observable {
     if (typeof df === 'string') {
       df = this.meta.getField(df);
     }
-    let systemPrecision = frappe.SystemSettings.floatPrecision;
-    let defaultPrecision = systemPrecision != null ? systemPrecision : 2;
-    let precision =
-      df && df.precision != null ? df.precision : defaultPrecision;
-    return round(value, precision);
+    const precision =
+      frappe.SystemSettings.internalPrecision ?? DEFAULT_INTERNAL_PRECISION;
+    return frappe.pesa(value).clip(precision).float;
   }
 
   isNew() {
@@ -691,3 +709,17 @@ module.exports = class BaseDocument extends Observable {
     }, {});
   }
 };
+
+function getPreDefaultValues(fieldtype) {
+  switch (fieldtype) {
+    case 'Table':
+      return [];
+    case 'Currency':
+      return frappe.pesa(0.0);
+    case 'Int':
+    case 'Float':
+      return 0;
+    default:
+      return null;
+  }
+}
