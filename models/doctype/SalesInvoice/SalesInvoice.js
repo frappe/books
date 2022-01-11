@@ -53,13 +53,16 @@ export default {
       label: 'Customer Currency',
       fieldtype: 'Link',
       target: 'Currency',
-      formula: (doc) => doc.getFrom('Party', doc.customer, 'currency'),
+      formula: (doc) =>
+        doc.getFrom('Party', doc.customer, 'currency') ||
+        frappe.AccountingSettings.currency,
       formulaDependsOn: ['customer'],
     },
     {
       fieldname: 'exchangeRate',
       label: 'Exchange Rate',
       fieldtype: 'Float',
+      default: 1,
       formula: (doc) => doc.getExchangeRate(),
       readOnly: true,
     },
@@ -74,7 +77,7 @@ export default {
       fieldname: 'netTotal',
       label: 'Net Total',
       fieldtype: 'Currency',
-      formula: (doc) => doc.getSum('items', 'amount'),
+      formula: (doc) => doc.getSum('items', 'amount', false),
       readOnly: 1,
       getCurrency: (doc) => doc.currency,
     },
@@ -82,7 +85,7 @@ export default {
       fieldname: 'baseNetTotal',
       label: 'Net Total (Company Currency)',
       fieldtype: 'Currency',
-      formula: (doc) => doc.netTotal * doc.exchangeRate,
+      formula: (doc) => doc.netTotal.mul(doc.exchangeRate),
       readOnly: 1,
     },
     {
@@ -105,7 +108,7 @@ export default {
       fieldname: 'baseGrandTotal',
       label: 'Grand Total (Company Currency)',
       fieldtype: 'Currency',
-      formula: (doc) => doc.grandTotal * doc.exchangeRate,
+      formula: (doc) => doc.grandTotal.mul(doc.exchangeRate),
       readOnly: 1,
     },
     {

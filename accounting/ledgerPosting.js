@@ -1,5 +1,4 @@
 import frappe from 'frappejs';
-import { round } from 'frappejs/utils/numberFormat';
 
 export default class LedgerPosting {
   constructor({ reference, party, date, description }) {
@@ -16,13 +15,13 @@ export default class LedgerPosting {
 
   async debit(account, amount, referenceType, referenceName) {
     const entry = this.getEntry(account, referenceType, referenceName);
-    entry.debit += amount;
+    entry.debit = entry.debit.add(amount);
     await this.setAccountBalanceChange(account, 'debit', amount);
   }
 
   async credit(account, amount, referenceType, referenceName) {
     const entry = this.getEntry(account, referenceType, referenceName);
-    entry.credit += amount;
+    entry.credit = entry.credit.add(amount);
     await this.setAccountBalanceChange(account, 'credit', amount);
   }
 
@@ -30,16 +29,16 @@ export default class LedgerPosting {
     const debitAccounts = ['Asset', 'Expense'];
     const { rootType } = await frappe.getDoc('Account', accountName);
     if (debitAccounts.indexOf(rootType) === -1) {
-      const change = type == 'credit' ? amount : -1 * amount;
+      const change = type == 'credit' ? amount : amount.neg();
       this.accountEntries.push({
         name: accountName,
-        balanceChange: change
+        balanceChange: change,
       });
     } else {
-      const change = type == 'debit' ? amount : -1 * amount;
+      const change = type == 'debit' ? amount : amount.neg();
       this.accountEntries.push({
         name: accountName,
-        balanceChange: change
+        balanceChange: change,
       });
     }
   }
@@ -54,8 +53,8 @@ export default class LedgerPosting {
         referenceName: referenceName || this.reference.name,
         description: this.description,
         reverted: this.reverted,
-        debit: 0,
-        credit: 0
+        debit: frappe.pesa(0),
+        credit: frappe.pesa(0),
       };
 
       this.entries.push(entry);
@@ -78,8 +77,8 @@ export default class LedgerPosting {
       fields: ['name'],
       filters: {
         referenceName: this.reference.name,
-        reverted: 0
-      }
+        reverted: 0,
+      },
     });
 
     for (let entry of data) {
@@ -96,24 +95,23 @@ export default class LedgerPosting {
       entry.reverted = 1;
     }
     for (let entry of this.accountEntries) {
-      entry.balanceChange = -1 * entry.balanceChange;
+      entry.balanceChange = entry.balanceChange.neg();
     }
     await this.insertEntries();
   }
 
   makeRoundOffEntry() {
     let { debit, credit } = this.getTotalDebitAndCredit();
-    let precision = this.getPrecision();
-    let difference = round(debit - credit, precision);
-    let absoluteValue = Math.abs(difference);
+    let difference = debit.sub(credit);
+    let absoluteValue = difference.abs();
     let allowance = 0.5;
-    if (absoluteValue === 0) {
+    if (absoluteValue.eq(0)) {
       return;
     }
 
     let roundOffAccount = this.getRoundOffAccount();
-    if (absoluteValue <= allowance) {
-      if (difference > 0) {
+    if (absoluteValue.lte(allowance)) {
+      if (difference.gt(0)) {
         this.credit(roundOffAccount, absoluteValue);
       } else {
         this.debit(roundOffAccount, absoluteValue);
@@ -123,25 +121,24 @@ export default class LedgerPosting {
 
   validateEntries() {
     let { debit, credit } = this.getTotalDebitAndCredit();
-    if (debit !== credit) {
+    if (debit.neq(credit)) {
       throw new Error(
-        `Total Debit (${debit}) must be equal to Total Credit (${credit})`
+        `Total Debit: ${frappe.format(
+          debit,
+          'Currency'
+        )} must be equal to Total Credit: ${frappe.format(credit, 'Currency')}`
       );
     }
   }
 
   getTotalDebitAndCredit() {
-    let debit = 0;
-    let credit = 0;
+    let debit = frappe.pesa(0);
+    let credit = frappe.pesa(0);
 
     for (let entry of this.entries) {
-      debit += entry.debit;
-      credit += entry.credit;
+      debit = debit.add(entry.debit);
+      credit = credit.add(entry.credit);
     }
-
-    let precision = this.getPrecision();
-    debit = round(debit, precision);
-    credit = round(credit, precision);
 
     return { debit, credit };
   }
@@ -149,23 +146,19 @@ export default class LedgerPosting {
   async insertEntries() {
     for (let entry of this.entries) {
       let entryDoc = frappe.newDoc({
-        doctype: 'AccountingLedgerEntry'
+        doctype: 'AccountingLedgerEntry',
       });
       Object.assign(entryDoc, entry);
       await entryDoc.insert();
     }
     for (let entry of this.accountEntries) {
       let entryDoc = await frappe.getDoc('Account', entry.name);
-      entryDoc.balance += entry.balanceChange;
+      entryDoc.balance = entryDoc.balance.add(entry.balanceChange);
       await entryDoc.update();
     }
-  }
-
-  getPrecision() {
-    return frappe.SystemSettings.floatPrecision;
   }
 
   getRoundOffAccount() {
     return frappe.AccountingSettings.roundOffAccount;
   }
-};
+}

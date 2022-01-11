@@ -104,9 +104,8 @@ export default {
       fieldname: 'rate',
       label: 'Rate',
       fieldtype: 'Currency',
-      placeholder: '0.00',
       validate(value) {
-        if (!value) {
+        if (value.lte(0)) {
           throw new frappe.errors.ValidationError(
             'Rate must be greater than 0'
           );

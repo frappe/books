@@ -32,23 +32,5 @@ export default {
       fieldname: 'symbol',
       fieldtype: 'Data',
     },
-    {
-      fieldname: 'numberFormat',
-      fieldtype: 'Select',
-      label: 'Number Format',
-      placeholder: 'Number Format',
-      options: [
-        '#,###.##',
-        '#.###,##',
-        '# ###.##',
-        '# ###,##',
-        "#'###.##",
-        '#, ###.##',
-        '#,##,###.##',
-        '#,###.###',
-        '#.###',
-        '#,###',
-      ],
-    },
   ],
 };

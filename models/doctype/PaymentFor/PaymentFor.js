@@ -1,4 +1,6 @@
+import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
+
 const referenceTypeMap = {
   SalesInvoice: _('Invoice'),
   PurchaseInvoice: _('Bill'),
@@ -38,12 +40,13 @@ export default {
       fieldname: 'amount',
       label: 'Amount',
       fieldtype: 'Currency',
-      placeholder: '0.00',
       formula: (row, doc) => {
-        return doc.getFrom(
-          row.referenceType,
-          row.referenceName,
-          'outstandingAmount'
+        return (
+          doc.getFrom(
+            row.referenceType,
+            row.referenceName,
+            'outstandingAmount'
+          ) || frappe.pesa(0)
         );
       },
       required: 1,

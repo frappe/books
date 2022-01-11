@@ -134,7 +134,7 @@ export default {
               label: _('System'),
               icon: 'system',
               description:
-                'Setup system defaults like date format and currency precision',
+                'Setup system defaults like date format and display precision',
               fieldname: 'systemSetup',
               action() {
                 openSettings('System');

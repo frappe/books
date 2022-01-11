@@ -1,6 +1,6 @@
 import frappe from 'frappejs';
 import { DateTime } from 'luxon';
-import { unique } from 'frappejs/utils';
+import { convertPesaValuesToFloat } from '../../src/utils';
 
 export async function getData({
   rootType,
@@ -8,7 +8,7 @@ export async function getData({
   fromDate,
   toDate,
   periodicity = 'Monthly',
-  accumulateValues = false
+  accumulateValues = false,
 }) {
   let accounts = await getAccounts(rootType);
   let fiscalYear = await getFiscalYear();
@@ -17,19 +17,19 @@ export async function getData({
 
   for (let account of accounts) {
     const entries = ledgerEntries.filter(
-      entry => entry.account === account.name
+      (entry) => entry.account === account.name
     );
 
     for (let entry of entries) {
       let periodKey = getPeriodKey(entry.date, periodicity);
 
       if (!account[periodKey]) {
-        account[periodKey] = 0.0;
+        account[periodKey] = frappe.pesa(0.0);
       }
 
       const multiplier = balanceMustBe === 'Debit' ? 1 : -1;
-      const value = (entry.debit - entry.credit) * multiplier;
-      account[periodKey] += value;
+      const value = entry.debit.sub(entry.credit).mul(multiplier);
+      account[periodKey] = value.add(account[periodKey]);
     }
   }
 
@@ -40,27 +40,33 @@ export async function getData({
 
       for (let account of accounts) {
         if (!account[periodKey]) {
-          account[periodKey] = 0.0;
+          account[periodKey] = frappe.pesa(0.0);
         }
-        account[periodKey] += account[previousPeriodKey] || 0.0;
+
+        account[periodKey] = account[periodKey].add(
+          account[previousPeriodKey] ?? 0
+        );
       }
     });
   }
 
   // calculate totalRow
   let totalRow = {
-    account: `Total ${rootType} (${balanceMustBe})`
+    account: `Total ${rootType} (${balanceMustBe})`,
   };
 
-  periodList.forEach(periodKey => {
+  periodList.forEach((periodKey) => {
     if (!totalRow[periodKey]) {
-      totalRow[periodKey] = 0.0;
+      totalRow[periodKey] = frappe.pesa(0.0);
     }
 
     for (let account of accounts) {
-      totalRow[periodKey] += account[periodKey] || 0.0;
+      totalRow[periodKey] = totalRow[periodKey].add(account[periodKey] ?? 0.0);
     }
   });
+
+  convertPesaValuesToFloat(totalRow);
+  accounts.forEach(convertPesaValuesToFloat);
 
   return { accounts, totalRow, periodList };
 }
@@ -71,42 +77,50 @@ export async function getTrialBalance({ rootType, fromDate, toDate }) {
 
   for (let account of accounts) {
     const accountEntries = ledgerEntries.filter(
-      entry => entry.account === account.name
+      (entry) => entry.account === account.name
     );
     // opening
     const beforePeriodEntries = accountEntries.filter(
-      entry => entry.date < fromDate
+      (entry) => entry.date < fromDate
     );
-    account.opening = beforePeriodEntries.reduce((acc, entry) => {
-      return acc + (entry.debit - entry.credit);
-    }, 0);
+    account.opening = beforePeriodEntries.reduce(
+      (acc, entry) => acc.add(entry.debit).sub(entry.credit),
+      frappe.pesa(0)
+    );
 
-    if (account.opening >= 0) {
+    if (account.opening.gte(0)) {
       account.openingDebit = account.opening;
+      account.openingCredit = frappe.pesa(0);
     } else {
-      account.openingCredit = -account.opening;
+      account.openingCredit = account.opening.neg();
+      account.openingDebit = frappe.pesa(0);
     }
 
     // debit / credit
     const periodEntries = accountEntries.filter(
-      entry => entry.date >= fromDate && entry.date < toDate
+      (entry) => entry.date >= fromDate && entry.date < toDate
     );
-    account.debit = periodEntries.reduce((acc, entry) => acc + entry.debit, 0);
+    account.debit = periodEntries.reduce(
+      (acc, entry) => acc.add(entry.debit),
+      frappe.pesa(0)
+    );
     account.credit = periodEntries.reduce(
-      (acc, entry) => acc + entry.credit,
-      0
+      (acc, entry) => acc.add(entry.credit),
+      frappe.pesa(0)
     );
 
     // closing
-    account.closing = account.opening + account.debit - account.credit;
+    account.closing = account.opening.add(account.debit).sub(account.credit);
 
-    if (account.closing >= 0) {
+    if (account.closing.gte(0)) {
       account.closingDebit = account.closing;
+      account.closingCredit = frappe.pesa(0);
     } else {
-      account.closingCredit = -account.closing;
+      account.closingCredit = account.closing.neg();
+      account.closingDebit = frappe.pesa(0);
     }
 
-    if (account.debit != 0 || account.credit != 0) {
+    if (account.debit.neq(0) || account.credit.neq(0)) {
       setParentEntry(account, account.parentAccount);
     }
   }
@@ -114,13 +128,13 @@ export async function getTrialBalance({ rootType, fromDate, toDate }) {
   function setParentEntry(leafAccount, parentName) {
     for (let acc of accounts) {
       if (acc.name === parentName) {
-        acc.debit += leafAccount.debit;
-        acc.credit += leafAccount.credit;
-        acc.closing = acc.opening + acc.debit - acc.credit;
-        if (acc.closing >= 0) {
+        acc.debit = acc.debit.add(leafAccount.debit);
+        acc.credit = acc.credit.add(leafAccount.credit);
+        acc.closing = acc.opening.add(acc.debit).sub(acc.credit);
+        if (acc.closing.gte(0)) {
           acc.closingDebit = acc.closing;
         } else {
-          acc.closingCredit = -acc.closing;
+          acc.closingCredit = acc.closing.neg();
         }
         if (acc.parentAccount) {
           setParentEntry(leafAccount, acc.parentAccount);
@@ -131,6 +145,7 @@ export async function getTrialBalance({ rootType, fromDate, toDate }) {
     }
   }
 
+  accounts.forEach(convertPesaValuesToFloat);
   return accounts;
 }
 
@@ -143,7 +158,7 @@ export function getPeriodList(fromDate, toDate, periodicity, fiscalYear) {
     Monthly: 1,
     Quarterly: 3,
     'Half Yearly': 6,
-    Yearly: 12
+    Yearly: 12,
   }[periodicity];
 
   let startDate = DateTime.fromISO(fromDate).startOf('month');
@@ -173,13 +188,13 @@ function getPeriodKey(date, periodicity) {
         1: `Jan ${year} - Mar ${year}`,
         2: `Apr ${year} - Jun ${year}`,
         3: `Jun ${year} - Sep ${year}`,
-        4: `Oct ${year} - Dec ${year}`
+        4: `Oct ${year} - Dec ${year}`,
       }[quarter];
     },
     'Half Yearly': () => {
       return {
         1: `Apr ${year} - Sep ${year}`,
-        2: `Oct ${year} - Mar ${year}`
+        2: `Oct ${year} - Mar ${year}`,
       }[[2, 3].includes(quarter) ? 1 : 2];
     },
     Yearly: () => {
@@ -187,7 +202,7 @@ function getPeriodKey(date, periodicity) {
         return `${year} - ${year + 1}`;
       }
       return `${year - 1} - ${year}`;
-    }
+    },
   }[periodicity];
 
   return getKey();
@@ -200,7 +215,7 @@ function setIndentLevel(accounts, parentAccount, level) {
     level = 0;
   }
 
-  accounts.forEach(account => {
+  accounts.forEach((account) => {
     if (
       account.parentAccount === parentAccount &&
       account.indent === undefined
@@ -220,7 +235,7 @@ function sortAccounts(accounts) {
   pushToOut(null);
 
   function pushToOut(parentAccount) {
-    accounts.forEach(account => {
+    accounts.forEach((account) => {
       if (account.parentAccount === parentAccount && !pushed[account.name]) {
         out.push(account);
         pushed[account.name] = 1;
@@ -247,9 +262,9 @@ async function getLedgerEntries(fromDate, toDate, accounts) {
     doctype: 'AccountingLedgerEntry',
     fields: ['account', 'debit', 'credit', 'date'],
     filters: {
-      account: ['in', accounts.map(d => d.name)],
-      date: dateFilter()
-    }
+      account: ['in', accounts.map((d) => d.name)],
+      date: dateFilter(),
+    },
   });
 
   return ledgerEntries;
@@ -260,14 +275,14 @@ async function getAccounts(rootType) {
     doctype: 'Account',
     fields: ['name', 'parentAccount', 'isGroup'],
     filters: {
-      rootType
-    }
+      rootType,
+    },
   });
 
   accounts = setIndentLevel(accounts);
   accounts = sortAccounts(accounts);
 
-  accounts.forEach(account => {
+  accounts.forEach((account) => {
     account.account = account.name;
   });
 
@@ -280,12 +295,12 @@ async function getFiscalYear() {
   );
   return {
     start: fiscalYearStart,
-    end: fiscalYearEnd
+    end: fiscalYearEnd,
   };
 }
 
 export default {
   getData,
   getTrialBalance,
-  getPeriodList
+  getPeriodList,
 };

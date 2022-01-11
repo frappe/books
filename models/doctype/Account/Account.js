@@ -68,7 +68,6 @@ export default {
       fieldname: 'balance',
       label: 'Balance',
       fieldtype: 'Currency',
-      default: '0',
       readOnly: 1,
     },
     {

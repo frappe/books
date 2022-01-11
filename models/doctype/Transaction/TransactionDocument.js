@@ -1,11 +1,10 @@
-import BaseDocument from 'frappejs/model/document';
 import frappe from 'frappejs';
-import { round } from 'frappejs/utils/numberFormat';
+import BaseDocument from 'frappejs/model/document';
 import { getExchangeRate } from '../../../accounting/exchangeRate';
 
 export default class TransactionDocument extends BaseDocument {
   async getExchangeRate() {
-    if (!this.currency) return;
+    if (!this.currency) return 1.0;
 
     let accountingSettings = await frappe.getSingle('AccountingSettings');
     const companyCurrency = accountingSettings.currency;
@@ -14,7 +13,7 @@ export default class TransactionDocument extends BaseDocument {
     }
     return await getExchangeRate({
       fromCurrency: this.currency,
-      toCurrency: companyCurrency
+      toCurrency: companyCurrency,
     });
   }
 
@@ -22,31 +21,30 @@ export default class TransactionDocument extends BaseDocument {
     let taxes = {};
 
     for (let row of this.items) {
-      if (row.tax) {
-        let tax = await this.getTax(row.tax);
-        for (let d of tax.details) {
-          let amount = (row.amount * d.rate) / 100;
-          taxes[d.account] = taxes[d.account] || {
-            account: d.account,
-            rate: d.rate,
-            amount: 0
-          };
-          // collect amount
-          taxes[d.account].amount += amount;
-        }
+      if (!row.tax) {
+        continue;
+      }
+
+      const tax = await this.getTax(row.tax);
+      for (let d of tax.details) {
+        taxes[d.account] = taxes[d.account] || {
+          account: d.account,
+          rate: d.rate,
+          amount: frappe.pesa(0),
+        };
+
+        const amount = row.amount.mul(d.rate).div(100);
+        taxes[d.account].amount = taxes[d.account].amount.add(amount);
       }
     }
 
-    return (
-      Object.keys(taxes)
-        .map(account => {
-          let tax = taxes[account];
-          tax.baseAmount = round(tax.amount * this.exchangeRate, 2);
-          return tax;
-        })
-        // clear rows with 0 amount
-        .filter(tax => tax.amount)
-    );
+    return Object.keys(taxes)
+      .map((account) => {
+        const tax = taxes[account];
+        tax.baseAmount = tax.amount.mul(this.exchangeRate);
+        return tax;
+      })
+      .filter((tax) => !tax.amount.isZero());
   }
 
   async getTax(tax) {
@@ -56,13 +54,8 @@ export default class TransactionDocument extends BaseDocument {
   }
 
   async getGrandTotal() {
-    let grandTotal = this.netTotal;
-    if (this.taxes) {
-      for (let row of this.taxes) {
-        grandTotal += row.amount;
-      }
-    }
-
-    return grandTotal;
+    return (this.taxes || [])
+      .map(({ amount }) => amount)
+      .reduce((a, b) => a.add(b), this.netTotal);
   }
-};
+}
