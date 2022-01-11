@@ -20,7 +20,7 @@ export default {
   },
   async mounted() {
     this.doc = await frappe.getDoc('AccountingSettings', 'AccountingSettings', {
-      skipCacheDocument: true
+      skipDocumentCache: true
     });
   },
   computed: {
