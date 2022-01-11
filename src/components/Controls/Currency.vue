@@ -8,12 +8,12 @@
       ref="input"
       :class="inputClasses"
       :type="inputType"
-      :value="value"
+      :value="value.round()"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
       @blur="onBlur"
       @focus="onFocus"
-      @input="e => $emit('input', e)"
+      @input="(e) => $emit('input', e)"
     />
     <div
       v-show="!showInput"
@@ -37,7 +37,7 @@ export default {
   data() {
     return {
       showInput: false,
-      currencySymbol: ''
+      currencySymbol: '',
     };
   },
   methods: {
@@ -45,21 +45,29 @@ export default {
       this.showInput = true;
       this.$emit('focus', e);
     },
+    parse(value) {
+      return frappe.pesa(value);
+    },
     onBlur(e) {
+      let { value } = e.target;
+      if (value !== 0 && !value) {
+        value = frappe.pesa(0).round();
+      }
+
       this.showInput = false;
-      this.triggerChange(e.target.value);
+      this.triggerChange(value);
     },
     activateInput() {
       this.showInput = true;
       this.$nextTick(() => {
         this.focus();
       });
-    }
+    },
   },
   computed: {
     formattedValue() {
       return frappe.format(this.value, this.df, this.doc);
-    }
-  }
+    },
+  },
 };
 </script>

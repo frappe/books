@@ -1,8 +1,10 @@
 import config from '@/config';
 import frappe from 'frappejs';
+import { DEFAULT_LOCALE } from 'frappejs/utils/consts';
 import countryList from '~/fixtures/countryInfo.json';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
 import regionalModelUpdates from '../../../models/regionalModelUpdates';
+import { callInitializeMoneyMaker } from '../../utils';
 
 export default async function setupCompany(setupWizardValues) {
   const {
@@ -17,6 +19,10 @@ export default async function setupCompany(setupWizardValues) {
   } = setupWizardValues;
 
   const accountingSettings = frappe.AccountingSettings;
+  const currency = countryList[country]['currency'];
+  const locale = countryList[country]['locale'] ?? DEFAULT_LOCALE;
+  await callInitializeMoneyMaker(currency);
+
   await accountingSettings.update({
     companyName,
     country,
@@ -25,7 +31,7 @@ export default async function setupCompany(setupWizardValues) {
     bankName,
     fiscalYearStart,
     fiscalYearEnd,
-    currency: countryList[country]['currency'],
+    currency,
   });
 
   const printSettings = await frappe.getSingle('PrintSettings');
@@ -43,6 +49,8 @@ export default async function setupCompany(setupWizardValues) {
 
   await accountingSettings.update({ setupComplete: 1 });
   frappe.AccountingSettings = accountingSettings;
+
+  (await frappe.getSingle('SystemSettings')).update({ locale });
 }
 
 async function setupGlobalCurrencies(countries) {
@@ -55,7 +63,6 @@ async function setupGlobalCurrencies(countries) {
       currency_fraction_units: fractionUnits,
       smallest_currency_fraction_value: smallestValue,
       currency_symbol: symbol,
-      number_format: numberFormat,
     } = country;
 
     if (!currency || queue.includes(currency)) {
@@ -69,7 +76,6 @@ async function setupGlobalCurrencies(countries) {
       fractionUnits,
       smallestValue,
       symbol,
-      numberFormat: numberFormat || '#,###.##',
     };
 
     const doc = checkAndCreateDoc(docObject);

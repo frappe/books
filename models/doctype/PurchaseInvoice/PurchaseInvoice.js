@@ -1,5 +1,5 @@
-import { getActions } from '../Transaction/Transaction';
 import InvoiceTemplate from '../SalesInvoice/InvoiceTemplate.vue';
+import { getActions } from '../Transaction/Transaction';
 import PurchaseInvoice from './PurchaseInvoiceDocument';
 
 export default {
@@ -54,14 +54,17 @@ export default {
       fieldtype: 'Link',
       target: 'Currency',
       hidden: 1,
-      formula: (doc) => doc.getFrom('Party', doc.supplier, 'currency'),
+      formula: (doc) =>
+        doc.getFrom('Party', doc.supplier, 'currency') ||
+        frappe.AccountingSettings.currency,
       formulaDependsOn: ['supplier'],
     },
     {
       fieldname: 'exchangeRate',
       label: 'Exchange Rate',
       fieldtype: 'Float',
-      formula: (doc) => doc.getExchangeRate(),
+      default: 1,
+      formula: async (doc) => await doc.getExchangeRate(),
       required: true,
     },
     {
@@ -75,7 +78,7 @@ export default {
       fieldname: 'netTotal',
       label: 'Net Total',
       fieldtype: 'Currency',
-      formula: (doc) => doc.getSum('items', 'amount'),
+      formula: (doc) => doc.getSum('items', 'amount', false),
       readOnly: 1,
       getCurrency: (doc) => doc.currency,
     },
@@ -83,7 +86,7 @@ export default {
       fieldname: 'baseNetTotal',
       label: 'Net Total (Company Currency)',
       fieldtype: 'Currency',
-      formula: (doc) => doc.netTotal * doc.exchangeRate,
+      formula: (doc) => doc.netTotal.mul(doc.exchangeRate),
       readOnly: 1,
     },
     {
@@ -106,7 +109,7 @@ export default {
       fieldname: 'baseGrandTotal',
       label: 'Grand Total (Company Currency)',
       fieldtype: 'Currency',
-      formula: (doc) => doc.grandTotal * doc.exchangeRate,
+      formula: (doc) => doc.grandTotal.mul(doc.exchangeRate),
       readOnly: 1,
     },
     {

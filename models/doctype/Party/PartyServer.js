@@ -1,5 +1,5 @@
-import BaseDocument from 'frappejs/model/document';
 import frappe from 'frappejs';
+import BaseDocument from 'frappejs/model/document';
 
 export default class PartyServer extends BaseDocument {
   beforeInsert() {
@@ -8,8 +8,8 @@ export default class PartyServer extends BaseDocument {
         method: 'show-dialog',
         args: {
           title: 'Invalid Entry',
-          message: 'Select a single party type.'
-        }
+          message: 'Select a single party type.',
+        },
       });
       throw new Error();
     }
@@ -23,14 +23,18 @@ export default class PartyServer extends BaseDocument {
     let isCustomer = this.customer;
     let doctype = isCustomer ? 'SalesInvoice' : 'PurchaseInvoice';
     let partyField = isCustomer ? 'customer' : 'supplier';
-    let { totalOutstanding } = await frappe.db.knex
-      .sum({ totalOutstanding: 'outstandingAmount' })
+
+    const outstandingAmounts = await frappe.db.knex
+      .select('outstandingAmount')
       .from(doctype)
       .where('submitted', 1)
-      .andWhere(partyField, this.name)
-      .first();
+      .andWhere(partyField, this.name);
 
-    await this.set('outstandingAmount', this.round(totalOutstanding));
+    const totalOutstanding = outstandingAmounts
+      .map(({ outstandingAmount }) => frappe.pesa(outstandingAmount))
+      .reduce((a, b) => a.add(b), frappe.pesa(0));
+
+    await this.set('outstandingAmount', totalOutstanding);
     await this.update();
   }
-};
+}

@@ -53,6 +53,9 @@ module.exports = {
         lg: '0.5rem', // 8px
         xl: '0.75rem', // 12px
       },
+      gridColumn: {
+        'span-full': '1 / -1',
+      },
       colors: {
         brand: '#2490EF',
         'brand-100': '#f4f9ff',

@@ -29,7 +29,14 @@ class GeneralLedger {
         ],
         filters: filters,
       })
-    ).filter((d) => !d.reverted || (d.reverted && params.reverted));
+    )
+      .filter((d) => !d.reverted || (d.reverted && params.reverted))
+      .map((row) => {
+        row.debit = row.debit.float;
+        row.credit = row.credit.float;
+
+        return row;
+      });
 
     return this.appendOpeningEntry(data);
   }

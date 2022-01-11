@@ -3,7 +3,7 @@ import Toast from '@/components/Toast';
 import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import { isPesa, _ } from 'frappejs/utils';
 import lodash from 'lodash';
 import Vue from 'vue';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
@@ -152,7 +152,7 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
 }
 
 export function getErrorMessage(e, doc) {
-  let errorMessage = e.message || _('An error occurred');
+  let errorMessage = e.message || _('An error occurred.');
   const { doctype, name } = doc;
   const canElaborate = doctype && name;
   if (e.type === frappe.errors.LinkValidationError && canElaborate) {
@@ -258,7 +258,7 @@ export function getInvoiceStatus(doc) {
   if (!doc.submitted) {
     status = 'Draft';
   }
-  if (doc.submitted === 1 && doc.outstandingAmount === 0.0) {
+  if (doc.submitted === 1 && doc.outstandingAmount.isZero()) {
     status = 'Paid';
   }
   if (doc.cancelled === 1) {
@@ -350,4 +350,52 @@ export function titleCase(phrase) {
       return lodash.capitalize(wordLower);
     })
     .join(' ');
+}
+
+export async function getIsSetupComplete() {
+  try {
+    const { setupComplete } = await frappe.getSingle('AccountingSettings');
+    return !!setupComplete;
+  } catch {
+    return false;
+  }
+}
+
+export async function getCurrency() {
+  let currency = frappe?.AccountingSettings?.currency ?? undefined;
+
+  if (!currency) {
+    try {
+      currency = (
+        await frappe.db.getSingleValues({
+          fieldname: 'currency',
+          parent: 'AccountingSettings',
+        })
+      )[0].value;
+    } catch (err) {
+      currency = undefined;
+    }
+  }
+
+  return currency;
+}
+
+export async function callInitializeMoneyMaker(currency) {
+  currency ??= await getCurrency();
+  if (!currency && frappe.pesa) {
+    return;
+  }
+
+  if (currency && frappe.pesa().options.currency === currency) {
+    return;
+  }
+  await frappe.initializeMoneyMaker(currency);
+}
+
+export function convertPesaValuesToFloat(obj) {
+  Object.keys(obj).forEach((key) => {
+    if (!isPesa(obj[key])) return;
+
+    obj[key] = obj[key].float;
+  });
 }

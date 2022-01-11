@@ -34,7 +34,16 @@ export default {
       label: 'Quantity',
       fieldtype: 'Float',
       required: 1,
-      formula: (row) => row.quantity || 1,
+      default: 1,
+      validate(value, doc) {
+        if (value >= 0) {
+          return;
+        }
+
+        throw new frappe.errors.ValidationError(
+          frappe._(`Quantity (${value}) cannot be less than zero.`)
+        );
+      },
     },
     {
       fieldname: 'rate',
@@ -42,18 +51,29 @@ export default {
       fieldtype: 'Currency',
       required: 1,
       formula: async (row, doc) => {
-        const baseRate = (await doc.getFrom('Item', row.item, 'rate')) || 0;
-        const exchangeRate = doc.exchangeRate ?? 1;
-        return baseRate / exchangeRate;
+        const baseRate =
+          (await doc.getFrom('Item', row.item, 'rate')) || frappe.pesa(0);
+        return baseRate.div(doc.exchangeRate);
       },
       getCurrency: (row, doc) => doc.currency,
       formulaDependsOn: ['item'],
+      validate(value, doc) {
+        if (value.gte(0)) {
+          return;
+        }
+
+        throw new frappe.errors.ValidationError(
+          frappe._(
+            `Rate (${frappe.format(value, 'Currency')}) cannot be less zero.`
+          )
+        );
+      },
     },
     {
       fieldname: 'baseRate',
       label: 'Rate (Company Currency)',
       fieldtype: 'Currency',
-      formula: (row, doc) => row.rate * doc.exchangeRate,
+      formula: (row, doc) => row.rate.mul(doc.exchangeRate),
       readOnly: 1,
     },
     {
@@ -78,7 +98,7 @@ export default {
       label: 'Amount',
       fieldtype: 'Currency',
       readOnly: 1,
-      formula: (row) => row.quantity * row.rate,
+      formula: (row) => row.rate.mul(row.quantity),
       getCurrency: (row, doc) => doc.currency,
     },
     {
@@ -86,7 +106,7 @@ export default {
       label: 'Amount (Company Currency)',
       fieldtype: 'Currency',
       readOnly: 1,
-      formula: (row, doc) => row.amount * doc.exchangeRate,
+      formula: (row, doc) => row.amount.mul(doc.exchangeRate),
     },
   ],
 };
