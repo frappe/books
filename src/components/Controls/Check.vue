@@ -35,7 +35,7 @@
           width="14"
           height="14"
           viewBox="0 0 14 14"
-          fill="none"
+          :fill="offColor"
           xmlns="http://www.w3.org/2000/svg"
         >
           <rect
@@ -44,7 +44,7 @@
             width="13"
             height="13"
             rx="3.5"
-            :stroke="color"
+            :stroke="offBorderColor"
           />
         </svg>
 
@@ -71,7 +71,11 @@ export default {
   name: 'Check',
   extends: Base,
   data() {
-    return { color: '#A1ABB4' };
+    return {
+      offBorderColor: 'rgba(17, 43, 66, 0.201322)',
+      offColor: '#FFFFFF',
+      color: '#2490EF'
+    };
   },
   computed: {
     inputClasses() {
