@@ -42,6 +42,7 @@ export default {
   },
   methods: {
     onFocus(e) {
+      e.target.select();
       this.showInput = true;
       this.$emit('focus', e);
     },

@@ -8,6 +8,7 @@
         :placeholder="placeholder"
         readonly
         @focus="!readonly ? togglePopover() : null"
+        @blur="togglePopover(false)"
       />
     </template>
     <template v-slot:content="{ togglePopover }">
@@ -157,7 +158,7 @@ export default {
           dates.at(-1),
           42 - dates.length
         );
-        dates = dates.concat(...finalPadding)
+        dates = dates.concat(...finalPadding);
       }
       return dates;
     },
