@@ -74,7 +74,7 @@ export default {
     return {
       offBorderColor: 'rgba(17, 43, 66, 0.201322)',
       offColor: '#FFFFFF',
-      color: '#2490EF'
+      color: '#A1ABB4'
     };
   },
   computed: {
