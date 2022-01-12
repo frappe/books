@@ -1,7 +1,11 @@
 <template>
   <div ref="reference">
     <div class="h-full">
-      <slot name="target" :togglePopover="togglePopover"></slot>
+      <slot
+        name="target"
+        :togglePopover="togglePopover"
+        :handleBlur="handleBlur"
+      ></slot>
     </div>
     <div
       ref="popover"
@@ -124,6 +128,9 @@ export default {
       }
       this.isOpen = false;
       this.$emit('close');
+    },
+    handleBlur({ relatedTarget }) {
+      relatedTarget && this.close();
     },
   },
 };
