@@ -8,7 +8,6 @@
         :placeholder="placeholder"
         readonly
         @focus="!readonly ? togglePopover() : null"
-        @blur="togglePopover(false)"
       />
     </template>
     <template v-slot:content="{ togglePopover }">
