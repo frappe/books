@@ -1,6 +1,6 @@
 const title = 'GSTR 1';
 import baseConfig from './BaseViewConfig';
-import { generateGstr1Json } from '../../accounting/gst';
+import { generateGstr1Json, generateGstr1Csv } from '../../accounting/gst';
 
 const transferTypeMap = {
   B2B: 'B2B',
@@ -27,6 +27,14 @@ const actions = [
     type: 'primary',
     action: async (report, filters) => {
       generateGstr1Json(report, filters);
+    },
+  },
+  {
+    group: 'Export',
+    label: 'CSV',
+    type: 'primary',
+    action: async (report, filters) => {
+      generateGstr1Csv(report, filters);
     },
   },
 ]
