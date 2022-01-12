@@ -283,6 +283,9 @@ export default {
       }
 
       switch (key) {
+        case 'Invoice':
+          await this.updateChecks({ invoiceSetup: 1 });
+          break;
         case 'General':
           await this.updateChecks({ companySetup: 1 });
           break;
@@ -321,11 +324,6 @@ export default {
       let toUpdate = {};
       if (await this.checkIsOnboardingComplete()) {
         return;
-      }
-
-      let printSettings = await frappe.getSingle('PrintSettings');
-      if (printSettings.logo && printSettings.address) {
-        toUpdate.invoiceSetup = 1;
       }
 
       if (!frappe.GetStarted.itemCreated) {
