@@ -21,8 +21,11 @@
         <div v-if="isLoading" class="p-2 text-gray-600 italic">
           {{ _('Loading...') }}
         </div>
-        <div v-if="!isLoading && dropdownItems.length === 0" class="p-2 text-gray-600 italic">
-          {{ _('Empty') }}
+        <div
+          v-if="!isLoading && dropdownItems.length === 0"
+          class="p-2 text-gray-600 italic"
+        >
+          {{ getEmptyMessage() }}
         </div>
         <template v-else>
           <div v-for="d in dropdownItems" :key="d.label">
@@ -92,6 +95,12 @@ export default {
       type: Boolean,
       default: false,
     },
+    df: {
+      default: null,
+    },
+    doc: {
+      default: null,
+    },
   },
   components: {
     Popover,
@@ -156,6 +165,15 @@ export default {
     },
   },
   methods: {
+    getEmptyMessage() {
+      const { emptyMessage } = this.df ?? {};
+      if (typeof emptyMessage === 'function') {
+        return _(emptyMessage(this.doc));
+      } else if (emptyMessage) {
+        return _(emptyMessage);
+      }
+      return _('Empty');
+    },
     selectItem(d) {
       if (d.action) {
         d.action();

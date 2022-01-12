@@ -1,5 +1,5 @@
 <template>
-  <Dropdown :items="suggestions" :is-loading="isLoading">
+  <Dropdown :items="suggestions" :is-loading="isLoading" :df="df" :doc="doc">
     <template
       v-slot="{
         toggleDropdown,
