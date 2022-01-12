@@ -11,7 +11,6 @@
       items-center
       mb-3
       w-60
-      bg-gray-100
     "
     style="transition: opacity 150ms ease-in"
     :style="{ opacity }"
