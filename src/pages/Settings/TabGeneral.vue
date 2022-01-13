@@ -19,7 +19,9 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.getSingle('AccountingSettings');
+    this.doc = await frappe.getDoc('AccountingSettings', 'AccountingSettings', {
+      skipDocumentCache: true
+    });
   },
   computed: {
     fields() {

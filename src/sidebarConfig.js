@@ -99,6 +99,11 @@ const config = {
           label: _('GSTR1'),
           route: '/report/gstr-1',
           hidden: () => frappe.AccountingSettings.country !== 'India',
+        },
+        {
+          label: _('GSTR2'),
+          route: '/report/gstr-2',
+          hidden: () => frappe.AccountingSettings.country !== 'India',
         }
       ],
     },

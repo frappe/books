@@ -50,6 +50,12 @@ export default {
       label: 'State',
       placeholder: 'State',
       fieldtype: 'AutoComplete',
+      emptyMessage: (doc) => {
+        if (doc.country) {
+          return 'Enter State';
+        }
+        return 'Enter Country to load States';
+      },
       getList: getStates,
     },
     {
