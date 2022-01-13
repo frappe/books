@@ -51,7 +51,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.0.3",
     "lint-staged": "^11.2.6",
-    "postcss": "^7",
+    "postcss": "^8",
     "prettier": "^2.4.1",
     "raw-loader": "^4.0.2",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
