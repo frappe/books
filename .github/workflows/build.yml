@@ -42,7 +42,7 @@ jobs:
       - name: Setup Books
         run: |
           cd $GITHUB_WORKSPACE/main
-          yarn
+          yarn upgrade frappejs
           yarn link frappejs
 
       - name: Install RPM
