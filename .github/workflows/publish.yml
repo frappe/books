@@ -34,7 +34,7 @@ jobs:
       - name: Setup Books
         run: |
           cd $GITHUB_WORKSPACE/main
-          yarn
+          yarn upgrade frappejs
           yarn link frappejs
 
       - name: Run build
@@ -50,6 +50,15 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/main
           yarn electron:build --mac --publish always
+      
+      - name: Tar files
+        run: tar -cvf dist-macOS.tar $GITHUB_WORKSPACE/main/dist_electron
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-macOS
+          path: dist-macOS.tar
 
   build-linux:
     runs-on: ubuntu-latest
@@ -79,7 +88,7 @@ jobs:
       - name: Setup Books
         run: |
           cd $GITHUB_WORKSPACE/main
-          yarn
+          yarn upgrade frappejs
           yarn link frappejs
 
       - name: Run build
@@ -88,6 +97,15 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/main
           yarn electron:build --linux --publish always
+
+      - name: Tar files
+        run: tar -cvf dist-linux.tar $GITHUB_WORKSPACE/main/dist_electron
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-linux
+          path: dist-linux.tar
 
   build-windows:
     runs-on: windows-2022
@@ -121,7 +139,7 @@ jobs:
       - name: Setup Books
         run: |
           cd $GITHUB_WORKSPACE/main
-          yarn
+          yarn upgrade frappejs
           yarn link frappejs
 
       - name: Run build
@@ -132,3 +150,12 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/main
           yarn electron:build --win --publish always
+
+      - name: Tar files
+        run: tar -cvf dist-windows.tar $GITHUB_WORKSPACE/main/dist_electron
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-windows
+          path: dist-windows.tar

@@ -22,12 +22,12 @@
         class="w-40 ml-2 first:ml-0"
         :class="
           df.fieldtype === 'Check' &&
-          'flex justify-between items-center bg-gray-100 px-2 overflow-scroll rounded'
+          'flex justify-between items-center bg-gray-100 px-2 rounded'
         "
         v-for="df in report.filterFields"
         :key="df.fieldname"
       >
-        <div v-if="df.fieldtype === 'Check'" class="text-sm">
+        <div v-if="df.fieldtype === 'Check'" class="text-sm mr-2">
           {{ df.label }}
         </div>
         <FormControl
