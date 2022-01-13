@@ -354,35 +354,5 @@ export async function generateGstr1Csv(getReportData) {
   const { filePath, canceled } = await getSavePath('gstr-1', 'csv');
   if (canceled || !filePath) return;
 
-  let gstData;
-  if (transferType === 'B2B') {
-    gstData = await generateB2bCsvGstr1(rows, columns);
-  } else if (transferType === 'B2CL') {
-    gstData = await generateB2clCsvGstr1(rows);
-  } else if (transferType === 'B2CS') {
-    gstData = await generateB2csCsvGstr1(rows);
-  }
-
-  await exportCsv(gstData.rows, gstData.columns, filePath);
-}
-
-async function generateB2bCsvGstr1(rows, columns) {
-  return {
-    columns: columns || [],
-    rows: rows || [],
-  }
-}
-
-async function generateB2csCsvGstr1(rows, columns) {
-  return {
-    columns: columns || [],
-    rows: rows || [],
-  }
-}
-
-async function generateB2clCsvGstr1(rows, columns) {
-  return {
-    columns: columns || [],
-    rows: rows || [],
-  }
+  await exportCsv(rows, columns, filePath);
 }
