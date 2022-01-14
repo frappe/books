@@ -152,7 +152,10 @@ jobs:
           yarn electron:build --win --publish always
 
       - name: Tar files
-        run: tar -cvf dist-windows.tar $GITHUB_WORKSPACE/main/dist_electron
+        run: |
+          cd $GITHUB_WORKSPACE/main
+          tar -cvf dist-windows.tar dist_electron
+          mv dist-windows.tar ../
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
