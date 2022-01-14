@@ -192,10 +192,13 @@ function getPeriodKey(date, periodicity) {
       }[quarter];
     },
     'Half Yearly': () => {
-      return {
-        1: `Apr ${year} - Sep ${year}`,
-        2: `Oct ${year} - Mar ${year}`,
-      }[[2, 3].includes(quarter) ? 1 : 2];
+      if (month > 3) {
+        return {
+          1: `Apr ${year} - Sep ${year}`,
+          2: `Oct ${year} - Mar ${year + 1}`,
+        }[[2, 3].includes(quarter) ? 1 : 2];
+      }
+      return `Oct ${year - 1} - Mar ${year}`;
     },
     Yearly: () => {
       if (month > 3) {

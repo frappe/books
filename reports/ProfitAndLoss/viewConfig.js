@@ -52,6 +52,7 @@ export default {
         label: name,
         fieldname: name,
         fieldtype: 'Currency',
+        width: 1
       }));
 
       columns.push(...columnDefs);
