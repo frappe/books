@@ -199,7 +199,7 @@ ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (event, html, savePath) => {
 });
 
 ipcMain.handle(IPC_ACTIONS.SAVE_DATA, async (event, data, savePath) => {
-  return await fs.writeFile(savePath, data);
+  return await fs.writeFile(savePath, data, { encoding: 'utf-8' });
 });
 
 /* ------------------------------
