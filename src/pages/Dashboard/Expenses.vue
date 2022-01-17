@@ -12,32 +12,29 @@
       <div class="w-1/2">
         <div
           class="mt-5 flex justify-between items-center text-sm"
-          v-for="d in expenses"
+          v-for="(d, i) in expenses"
           :key="d.name"
         >
-          <div class="flex items-center">
+          <div
+            class="flex items-center"
+            @mouseover="active = i"
+            @mouseleave="active = null"
+          >
             <div class="w-3 h-3 rounded-sm" :class="d.class"></div>
             <div class="ml-3">{{ d.account }}</div>
           </div>
           <div>{{ frappe.format(d.total, 'Currency') }}</div>
         </div>
       </div>
-      <div class="w-1/2">
-        <div class="chart-wrapper" ref="top-expenses"></div>
-        <div
-          class="absolute text-base text-center font-semibold"
-          style="top: 4rem; left: 75%; transform: translateX(-50%)"
-        >
-          <div>
-            {{ frappe.format(totalExpense, 'Currency') }}
-          </div>
-          <div class="text-xs text-gray-600">
-            {{ _('Total Spending') }}
-          </div>
-        </div>
-      </div>
+      <DonutChart
+        class="w-1/2"
+        :external-active="active"
+        :sectors="sectors"
+        :value-formatter="(value) => frappe.format(value, 'Currency')"
+        :total-label="_('Total Spending')"
+      />
     </div>
-    <div v-if="totalExpense === 0" class="flex-1 w-full h-full flex-center">
+    <div v-if="expenses.length === 0" class="flex-1 w-full h-full flex-center">
       <span class="text-base text-gray-600">
         {{ _('No transactions yet') }}
       </span>
@@ -47,24 +44,33 @@
 
 <script>
 import frappe from 'frappejs';
-import { Chart } from 'frappe-charts';
 import theme from '@/theme';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
+import DonutChart from '../../components/Charts/DonutChart.vue';
 
 export default {
   name: 'Expenses',
   components: {
+    DonutChart,
     PeriodSelector,
     SectionHeader,
   },
   data: () => ({
     period: 'This Year',
-    expenses: [{ account: 'Test', total: 0 }],
+    active: null,
+    sectors: [
+      {
+        value: 1,
+        label: frappe._('No Entries'),
+        color: theme.backgroundColor.gray['100'],
+      },
+    ],
+    expenses: [],
   }),
-  activated() {
-    this.render();
+  mounted() {
+    this.setData();
   },
   watch: {
     period: 'render',
@@ -78,16 +84,19 @@ export default {
     },
   },
   methods: {
-    async render() {
-      let { fromDate, toDate } = await getDatesAndPeriodicity(this.period);
-      let expenseAccounts = frappe.db.knex
+    async setData() {
+      const { fromDate, toDate } = await getDatesAndPeriodicity(this.period);
+      const expenseAccounts = frappe.db.knex
         .select('name')
         .from('Account')
         .where('rootType', 'Expense');
-      
+
       let topExpenses = await frappe.db.knex
         .select({
-          total: frappe.db.knex.raw('sum(cast(?? as real)) - sum(cast(?? as real))', ['debit', 'credit']),
+          total: frappe.db.knex.raw(
+            'sum(cast(?? as real)) - sum(cast(?? as real))',
+            ['debit', 'credit']
+          ),
         })
         .select('account')
         .from('AccountingLedgerEntry')
@@ -97,42 +106,27 @@ export default {
         .orderBy('total', 'desc')
         .limit(5);
 
-      let shades = [
+      const shades = [
         { class: 'bg-gray-800', hex: theme.backgroundColor.gray['800'] },
         { class: 'bg-gray-600', hex: theme.backgroundColor.gray['600'] },
         { class: 'bg-gray-400', hex: theme.backgroundColor.gray['400'] },
+        { class: 'bg-gray-300', hex: theme.backgroundColor.gray['300'] },
         { class: 'bg-gray-200', hex: theme.backgroundColor.gray['200'] },
-        { class: 'bg-gray-100', hex: theme.backgroundColor.gray['100'] },
       ];
+
       topExpenses = topExpenses.map((d, i) => {
-        d.class = shades[i].class;
         d.color = shades[i].hex;
+        d.class = shades[i].class;
         return d;
       });
 
       this.expenses = topExpenses;
-
-      new Chart(this.$refs['top-expenses'], {
-        type: 'donut',
-        hoverRadio: 0.01,
-        strokeWidth: 18,
-        colors: topExpenses.map((d) => d.color),
-        data: {
-          labels: topExpenses.map((d) => d.account),
-          datasets: [
-            {
-              values: topExpenses.map((d) => d.total),
-            },
-          ],
-        },
-      });
+      this.sectors = topExpenses.map(({ account, color, total }) => ({
+        color,
+        label: account,
+        value: total,
+      }));
     },
   },
 };
 </script>
-
-<style>
-.donut-chart {
-  transform: translate(40px, 20px);
-}
-</style>
