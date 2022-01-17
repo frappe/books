@@ -139,7 +139,7 @@ async function generateB2bData(rows) {
       idt: DateTime.fromFormat(row.invDate, 'yyyy-MM-dd').toFormat(
         'dd-MM-yyyy'
       ),
-      val: row.invAmt,
+      val: frappe.pesa(row.invAmt).float,
       pos: row.gstin && row.gstin.substring(0, 2),
       rchrg: row.reverseCharge,
       inv_typ: 'R',
@@ -154,12 +154,12 @@ async function generateB2bData(rows) {
       const itemRecord = {
         num: item.hsnCode,
         itm_det: {
-          txval: item.baseAmount,
+          txval: frappe.pesa(item.baseAmount).float,
           rt: GST[item.tax],
           csamt: 0,
-          camt: ((CSGST[item.tax] || 0) * item.baseAmount) / 100,
-          samt: ((CSGST[item.tax] || 0) * item.baseAmount) / 100,
-          iamt: ((IGST[item.tax] || 0) * item.baseAmount) / 100,
+          camt: frappe.pesa(((CSGST[item.tax] || 0) * item.baseAmount) / 100).float,
+          samt: frappe.pesa(((CSGST[item.tax] || 0) * item.baseAmount) / 100).float,
+          iamt: frappe.pesa(((IGST[item.tax] || 0) * item.baseAmount) / 100).float,
         },
       };
 
@@ -193,7 +193,7 @@ async function generateB2clData(invoices) {
       idt: DateTime.fromFormat(invoice.invDate, 'yyyy-MM-dd').toFormat(
         'dd-MM-yyyy'
       ),
-      val: invoice.invAmt,
+      val: frappe.pesa(invoice.invAmt).float,
       itms: [],
     };
 
@@ -205,10 +205,10 @@ async function generateB2clData(invoices) {
       const itemRecord = {
         num: item.hsnCode,
         itm_det: {
-          txval: item.baseAmount,
+          txval: frappe.pesa(item.baseAmount).float,
           rt: GST[item.tax],
           csamt: 0,
-          iamt: ((invoice.rate || 0) * item.baseAmount) / 100,
+          iamt: frappe.pesa(((invoice.rate || 0) * item.baseAmount) / 100).float,
         },
       };
 
@@ -239,11 +239,11 @@ async function generateB2csData(invoices) {
       pos: stateCodeMap[pos],
       // "OE" - Abbreviation for errors and omissions excepted.
       typ: 'OE',
-      txval: invoice.taxVal,
+      txval: frappe.pesa(invoice.taxVal).float,
       rt: invoice.rate,
-      iamt: !invoice.inState ? (invoice.taxVal * invoice.rate) / 100 : 0,
-      camt: invoice.inState ? invoice.cgstAmt : 0,
-      samt: invoice.inState ? invoice.sgstAmt : 0,
+      iamt: frappe.pesa(!invoice.inState ? (invoice.taxVal * invoice.rate) / 100 : 0).float,
+      camt: frappe.pesa(invoice.inState ? invoice.cgstAmt : 0).float,
+      samt: frappe.pesa(invoice.inState ? invoice.sgstAmt : 0).float,
       csamt: 0,
     };
 
