@@ -2,7 +2,7 @@ import { showMessageDialog } from '@/utils';
 import frappe from 'frappejs';
 import { _ } from 'frappejs/utils';
 import { DateTime } from 'luxon';
-import { saveExportData, exportCsv } from '../reports/commonExporter';
+import { exportCsv, saveExportData } from '../reports/commonExporter';
 import { getSavePath } from '../src/utils';
 
 // prettier-ignore
@@ -154,12 +154,21 @@ async function generateB2bData(rows) {
       const itemRecord = {
         num: item.hsnCode,
         itm_det: {
-          txval: item.baseAmount,
+          txval: frappe.pesa(item.baseAmount).float,
           rt: GST[item.tax],
           csamt: 0,
-          camt: ((CSGST[item.tax] || 0) * item.baseAmount) / 100,
-          samt: ((CSGST[item.tax] || 0) * item.baseAmount) / 100,
-          iamt: ((IGST[item.tax] || 0) * item.baseAmount) / 100,
+          camt: frappe
+            .pesa(CSGST[item.tax] || 0)
+            .mul(item.baseAmount)
+            .div(100).float,
+          samt: frappe
+            .pesa(CSGST[item.tax] || 0)
+            .mul(item.baseAmount)
+            .div(100).float,
+          iamt: frappe
+            .pesa(IGST[item.tax] || 0)
+            .mul(item.baseAmount)
+            .div(100).float,
         },
       };
 
@@ -205,10 +214,13 @@ async function generateB2clData(invoices) {
       const itemRecord = {
         num: item.hsnCode,
         itm_det: {
-          txval: item.baseAmount,
+          txval: frappe.pesa(item.baseAmount).float,
           rt: GST[item.tax],
           csamt: 0,
-          iamt: ((invoice.rate || 0) * item.baseAmount) / 100,
+          iamt: frappe
+            .pesa(invoice.rate || 0)
+            .mul(item.baseAmount)
+            .div(100).float,
         },
       };
 
@@ -281,7 +293,6 @@ export async function generateGstr2Csv(getReportData) {
 }
 
 async function generateB2bCsvGstr2(rows, columns) {
-
   const csvColumns = [
     {
       label: 'GSTIN of Supplier',
@@ -327,12 +338,12 @@ async function generateB2bCsvGstr2(rows, columns) {
       label: 'State/UT Tax Paid',
       fieldname: 'sgstAmt',
     },
-  ]
+  ];
 
   return {
     columns: csvColumns || [],
     rows: rows || [],
-  }
+  };
 }
 
 export async function generateGstr1Csv(getReportData) {
