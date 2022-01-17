@@ -319,7 +319,15 @@ module.exports = class Database extends Observable {
       }
     });
 
-    const values = await builder.select('fieldname', 'value', 'parent');
+    let values = [];
+    try {
+      values = await builder.select('fieldname', 'value', 'parent');
+    } catch (error) {
+      if (error.message.includes('no such table')) {
+        return [];
+      }
+      throw error;
+    }
 
     return values.map((value) => {
       const fields = frappe.getMeta(value.parent).fields;
