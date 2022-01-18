@@ -103,21 +103,24 @@ export default {
     }
     const fieldnames = this.fieldsChanged.map(({ fieldname }) => fieldname);
 
-    if (fieldnames.includes('displayPrecision')) {
+    if (
+      fieldnames.includes('displayPrecision') ||
+      fieldnames.includes('hideGetStarted')
+    ) {
       callInitializeMoneyMaker(undefined, true);
-      const { label } =
-        this.fieldsChanged[fieldnames.indexOf('displayPrecision')];
-
+      this.showReloadToast();
+    }
+  },
+  methods: {
+    showReloadToast() {
       showToast({
-        message: _(`${label} change will be visible on reload.`),
+        message: _('Changes will be visible on reload'),
         actionText: frappe._('Reload'),
         action: async () => {
           frappe.events.trigger('reload-main-window');
         },
       });
-    }
-  },
-  methods: {
+    },
     handleChange(df, newValue, oldValue) {
       if (!df) {
         return;
