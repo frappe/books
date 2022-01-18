@@ -1,6 +1,13 @@
 <template>
   <div>
-    <TwoColumnForm v-if="doc" :doc="doc" :fields="fields" :autosave="true" />
+    <TwoColumnForm
+      v-if="doc"
+      :doc="doc"
+      :fields="fields"
+      :autosave="true"
+      :emit-change="true"
+      @change="forwardChangeEvent"
+    />
   </div>
 </template>
 
@@ -26,6 +33,11 @@ export default {
     fields() {
       let meta = frappe.getMeta('SystemSettings');
       return meta.getQuickEditFields();
+    },
+  },
+  methods: {
+    forwardChangeEvent(...args) {
+      this.$emit('change', ...args);
     },
   },
 };
