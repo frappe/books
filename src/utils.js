@@ -412,3 +412,34 @@ export function formatXLabels(label) {
 
   return `${month} ${year}`;
 }
+
+export function stringifyCircular(
+  obj,
+  ignoreCircular = false,
+  convertBaseDocument = false
+) {
+  const cacheKey = [];
+  const cacheValue = [];
+
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value !== 'object' || value === null) {
+      cacheKey.push(key);
+      cacheValue.push(value);
+      return value;
+    }
+
+    if (cacheValue.includes(value)) {
+      const circularKey = cacheKey[cacheValue.indexOf(value)] || '{self}';
+      return ignoreCircular ? undefined : `[Circular:${circularKey}]`;
+    }
+
+    cacheKey.push(key);
+    cacheValue.push(value);
+
+    if (convertBaseDocument && value instanceof frappe.BaseDocument) {
+      return value.getValidDict();
+    }
+
+    return value;
+  });
+}
