@@ -28,10 +28,11 @@
       </div>
       <DonutChart
         class="w-1/2"
-        :external-active="active"
+        :active="active"
         :sectors="sectors"
         :value-formatter="(value) => frappe.format(value, 'Currency')"
         :total-label="_('Total Spending')"
+        @change="(value) => (active = value)"
       />
     </div>
     <div v-if="expenses.length === 0" class="flex-1 w-full h-full flex-center">
@@ -60,13 +61,6 @@ export default {
   data: () => ({
     period: 'This Year',
     active: null,
-    sectors: [
-      {
-        value: 1,
-        label: frappe._('No Entries'),
-        color: theme.backgroundColor.gray['100'],
-      },
-    ],
     expenses: [],
   }),
   mounted() {
@@ -80,7 +74,14 @@ export default {
       return this.expenses.reduce((sum, expense) => sum + expense.total, 0);
     },
     hasData() {
-      return this.totalExpense > 0;
+      return this.expenses.length > 0;
+    },
+    sectors() {
+      return this.expenses.map(({ account, color, total }) => ({
+        color,
+        label: account,
+        value: total,
+      }));
     },
   },
   methods: {
@@ -121,11 +122,6 @@ export default {
       });
 
       this.expenses = topExpenses;
-      this.sectors = topExpenses.map(({ account, color, total }) => ({
-        color,
-        label: account,
-        value: total,
-      }));
     },
   },
 };
