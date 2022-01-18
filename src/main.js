@@ -4,9 +4,11 @@ import Vue from 'vue';
 import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
+import { handleError } from './errorHandling';
 import { IPC_MESSAGES } from './messages';
 import router from './router';
 import { outsideClickDirective } from './ui';
+import { stringifyCircular } from './utils';
 
 (async () => {
   frappe.isServer = true;
@@ -55,11 +57,22 @@ import { outsideClickDirective } from './ui';
   });
 
   Vue.config.errorHandler = (err, vm, info) => {
+    const { fullPath, params } = vm.$route;
+    const data = stringifyCircular(vm.$data, true, true);
+    const props = stringifyCircular(vm.$props, true, true);
+
+    handleError(false, err, {
+      fullPath,
+      params: stringifyCircular(params),
+      data,
+      props,
+      info,
+    });
     console.error(err, vm, info);
   };
 
   process.on('unhandledRejection', (error) => {
-    console.error(error);
+    handleError(true, error);
   });
 
   /* eslint-disable no-new */
