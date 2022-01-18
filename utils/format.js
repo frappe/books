@@ -70,23 +70,23 @@ function formatCurrency(value, currency) {
 }
 
 function formatNumber(value) {
-  const currencyFormatter = getNumberFormatter();
+  const numberFormatter = getNumberFormatter();
   if (typeof value === 'number') {
-    return currencyFormatter.format(value);
+    return numberFormatter.format(value);
   }
 
   if (value.round) {
-    return currencyFormatter.format(value.round());
+    return numberFormatter.format(value.round());
   }
 
-  const formattedCurrency = currencyFormatter.format(value);
-  if (formattedCurrency === 'NaN') {
+  const formattedNumber = numberFormatter.format(value);
+  if (formattedNumber === 'NaN') {
     throw Error(
-      `invalid value passed to formatCurrency: '${value}' of type ${typeof value}`
+      `invalid value passed to formatNumber: '${value}' of type ${typeof value}`
     );
   }
 
-  return formattedCurrency;
+  return formattedNumber;
 }
 
 function getNumberFormatter() {
