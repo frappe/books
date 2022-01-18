@@ -116,10 +116,7 @@ export default {
       return thetas.map((t, i) => [t.i, t.value, starts[i]]);
     },
     hasNonZeroValues() {
-      return (
-        this.thetasAndStarts.length > 0 &&
-        this.thetasAndStarts.some((t) => this.sectors[t[0]].value !== 0)
-      );
+      return this.thetasAndStarts.some((t) => this.sectors[t[0]].value !== 0);
     },
   },
   methods: {
