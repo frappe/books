@@ -81,6 +81,7 @@ module.exports = {
     this.views = {};
     this.flags = {};
     this.methods = {};
+    this.errorLog = [];
     // temp params while calling routes
     this.params = {};
   },
