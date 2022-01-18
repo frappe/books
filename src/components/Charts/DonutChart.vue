@@ -57,12 +57,18 @@
     <div class="relative" style="top: -50%">
       <div class="text-base text-center font-semibold grid justify-center">
         <p class="text-xs text-gray-600 w-32">
-          {{ active !== null ? sectors[active].label : totalLabel }}
+          {{
+            active !== null && sectors.length !== 0
+              ? sectors[active].label
+              : totalLabel
+          }}
         </p>
         <p class="w-32">
           {{
             valueFormatter(
-              active !== null ? sectors[active].value : totalValue,
+              active !== null && sectors.length !== 0
+                ? sectors[active].value
+                : totalValue,
               'Currency'
             )
           }}
