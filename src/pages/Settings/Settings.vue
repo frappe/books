@@ -40,7 +40,7 @@
           </Row>
         </div>
         <div class="flex-1 p-6 overflow-y-auto">
-          <component :is="activeTabComponent" />
+          <component :is="activeTabComponent" @change="handleChange" />
         </div>
       </div>
     </div>
@@ -48,6 +48,7 @@
 </template>
 <script>
 import { _ } from 'frappejs/utils';
+import frappe from 'frappejs';
 import WindowControls from '@/components/WindowControls';
 import TabGeneral from './TabGeneral.vue';
 import TabSystem from './TabSystem.vue';
@@ -57,6 +58,8 @@ import Row from '@/components/Row';
 import Icon from '@/components/Icon';
 import PageHeader from '@/components/PageHeader';
 import StatusBadge from '@/components/StatusBadge';
+import { callInitializeMoneyMaker } from '../../utils';
+import { showToast } from '../../utils';
 
 export default {
   name: 'Settings',
@@ -71,6 +74,7 @@ export default {
     return {
       activeTab: 0,
       updated: false,
+      fieldsChanged: [],
       tabs: [
         {
           label: _('Invoice'),
@@ -93,7 +97,34 @@ export default {
   activated() {
     this.setActiveTab();
   },
+  deactivated() {
+    if (this.fieldsChanged.length === 0) {
+      return;
+    }
+    const fieldnames = this.fieldsChanged.map(({ fieldname }) => fieldname);
+
+    if (fieldnames.includes('displayPrecision')) {
+      callInitializeMoneyMaker(undefined, true);
+      const { label } =
+        this.fieldsChanged[fieldnames.indexOf('displayPrecision')];
+
+      showToast({
+        message: _(`${label} change will be visible on reload.`),
+        actionText: frappe._('Reload'),
+        action: async () => {
+          frappe.events.trigger('reload-main-window');
+        },
+      });
+    }
+  },
   methods: {
+    handleChange(df, newValue, oldValue) {
+      if (!df) {
+        return;
+      }
+
+      this.fieldsChanged.push(df);
+    },
     setActiveTab() {
       const { tab } = this.$route.query;
       const index = this.tabs.findIndex((t) => t.label === _(tab));

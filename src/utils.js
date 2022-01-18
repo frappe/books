@@ -380,13 +380,13 @@ export async function getCurrency() {
   return currency;
 }
 
-export async function callInitializeMoneyMaker(currency) {
+export async function callInitializeMoneyMaker(currency, force = false) {
   currency ??= await getCurrency();
-  if (!currency && frappe.pesa) {
+  if (!force && !currency && frappe.pesa) {
     return;
   }
 
-  if (currency && frappe.pesa().options.currency === currency) {
+  if (!force && currency && frappe.pesa().options.currency === currency) {
     return;
   }
   await frappe.initializeMoneyMaker(currency);
