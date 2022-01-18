@@ -37,7 +37,7 @@
     </div>
     <div v-if="expenses.length === 0" class="flex-1 w-full h-full flex-center">
       <span class="text-base text-gray-600">
-        {{ _('No transactions yet') }}
+        {{ _('No expenses in this period') }}
       </span>
     </div>
   </div>
@@ -63,11 +63,13 @@ export default {
     active: null,
     expenses: [],
   }),
-  mounted() {
-    this.setData();
-  },
   watch: {
-    period: 'render',
+    period(new_, old) {
+      this.setData();
+    },
+  },
+  activated() {
+    this.setData();
   },
   computed: {
     totalExpense() {
