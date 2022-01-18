@@ -8,6 +8,7 @@
           (value) => {
             doc.set('logo', value);
             doc.update();
+            forwardChangeEvent(meta.getField('logo'));
           }
         "
       />
@@ -27,13 +28,21 @@
             (value) => {
               doc.set('displayLogo', value);
               doc.update();
+              forwardChangeEvent(meta.getField('displayLogo'));
             }
           "
           size="small"
         />
       </div>
     </div>
-    <TwoColumnForm class="mt-6" :doc="doc" :fields="fields" :autosave="true" />
+    <TwoColumnForm
+      class="mt-6"
+      :doc="doc"
+      :fields="fields"
+      :autosave="true"
+      :emit-change="true"
+      @change="forwardChangeEvent"
+    />
   </div>
 </template>
 <script>
@@ -73,14 +82,9 @@ export default {
       return frappe.getMeta('PrintSettings');
     },
     fields() {
-      return [
-        'template',
-        'color',
-        'font',
-        'email',
-        'phone',
-        'address',
-      ].map((field) => this.meta.getField(field));
+      return ['template', 'color', 'font', 'email', 'phone', 'address'].map(
+        (field) => this.meta.getField(field)
+      );
     },
   },
   methods: {
@@ -90,11 +94,17 @@ export default {
         properties: ['openFile'],
         filters: [{ name: 'Invoice Logo', extensions: ['png', 'jpg', 'svg'] }],
       };
-      const { filePaths } = await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, options);
+      const { filePaths } = await ipcRenderer.invoke(
+        IPC_ACTIONS.GET_OPEN_FILEPATH,
+        options
+      );
       if (filePaths[0] !== undefined) {
         this.doc.set('logo', `file://${files[0]}`);
         this.doc.update;
       }
+    },
+    forwardChangeEvent(...args) {
+      this.$emit('change', ...args);
     },
   },
 };

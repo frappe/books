@@ -1,6 +1,13 @@
 <template>
   <div>
-    <TwoColumnForm v-if="doc" :doc="doc" :fields="fields" :autosave="true" />
+    <TwoColumnForm
+      v-if="doc"
+      :doc="doc"
+      :fields="fields"
+      :autosave="true"
+      :emit-change="true"
+      @change="forwardChangeEvent"
+    />
   </div>
 </template>
 
@@ -11,16 +18,16 @@ import TwoColumnForm from '@/components/TwoColumnForm';
 export default {
   name: 'TabGeneral',
   components: {
-    TwoColumnForm
+    TwoColumnForm,
   },
   data() {
     return {
-      doc: null
+      doc: null,
     };
   },
   async mounted() {
     this.doc = await frappe.getDoc('AccountingSettings', 'AccountingSettings', {
-      skipDocumentCache: true
+      skipDocumentCache: true,
     });
   },
   computed: {
@@ -36,8 +43,13 @@ export default {
         'fiscalYearStart',
         'fiscalYearEnd',
         'gstin',
-      ].map(fieldname => meta.getField(fieldname));
-    }
-  }
+      ].map((fieldname) => meta.getField(fieldname));
+    },
+  },
+  methods: {
+    forwardChangeEvent(...args) {
+      this.$emit('change', ...args);
+    },
+  },
 };
 </script>
