@@ -105,6 +105,10 @@ let TwoColumnForm = {
       type: Array,
       default: () => [1, 1],
     },
+    emitChange: {
+      type: Boolean,
+      default: false,
+    },
     noBorder: Boolean,
     focusFirstInput: Boolean,
   },
@@ -167,6 +171,10 @@ let TwoColumnForm = {
         return;
       }
 
+      if (this.emitChange && !df.inline) {
+        this.$emit('change', df, value, oldValue);
+      }
+
       // handle rename
       if (this.autosave && df.fieldname === 'name' && !this.doc.isNew()) {
         return this.doc.rename(value);
@@ -197,27 +205,36 @@ let TwoColumnForm = {
       handleErrorWithDialog(e, this.doc);
     },
     async activateInlineEditing(df) {
-      if (df.inline) {
-        this.inlineEditField = df;
-        if (!this.doc[df.fieldname]) {
-          this.inlineEditDoc = await frappe.getNewDoc(df.target);
-          this.inlineEditDoc.once('afterInsert', () => {
-            this.onChange(df, this.inlineEditDoc.name);
-          });
-        } else {
-          this.inlineEditDoc = this.doc.getLink(df.fieldname);
-        }
-        this.inlineEditDisplayField =
-          this.doc.meta.inlineEditDisplayField || 'name';
-        this.inlineEditFields = frappe.getMeta(df.target).getQuickEditFields();
+      if (!df.inline) {
+        return;
       }
+
+      this.inlineEditField = df;
+      if (!this.doc[df.fieldname]) {
+        this.inlineEditDoc = await frappe.getNewDoc(df.target);
+        this.inlineEditDoc.once('afterInsert', () => {
+          this.onChange(df, this.inlineEditDoc.name);
+        });
+      } else {
+        this.inlineEditDoc = this.doc.getLink(df.fieldname);
+      }
+
+      this.inlineEditDisplayField =
+        this.doc.meta.inlineEditDisplayField || 'name';
+      this.inlineEditFields = frappe.getMeta(df.target).getQuickEditFields();
     },
     async saveInlineEditDoc() {
-      if (this.inlineEditDoc) {
-        await this.$refs.inlineEditForm[0].insertOrUpdate();
-        await this.doc.loadLinks();
-        this.inlineEditField = null;
+      if (!this.inlineEditDoc) {
+        return;
       }
+      await this.$refs.inlineEditForm[0].insertOrUpdate();
+      await this.doc.loadLinks();
+
+      if (this.emitChange && df.inline) {
+        this.$emit('change', df.inlineEditField);
+      }
+
+      this.inlineEditField = null;
     },
   },
   computed: {
