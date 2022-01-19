@@ -97,6 +97,15 @@ module.exports = {
         'Automatically checks for updates and download them if available. The update will be applied after you restart the app.'
       ),
     },
+    {
+      fieldname: 'autoReportErrors',
+      label: 'Auto Report Errors',
+      fieldtype: 'Check',
+      default: 0,
+      description: _(
+        'Automatically report all errors. User will still be notified when an error pops up.'
+      ),
+    },
   ],
   quickEditFields: [
     'dateFormat',
@@ -104,5 +113,6 @@ module.exports = {
     'displayPrecision',
     'hideGetStarted',
     'autoUpdate',
+    'autoReportErrors',
   ],
 };
