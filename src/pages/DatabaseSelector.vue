@@ -159,7 +159,7 @@ import { ipcRenderer } from 'electron';
 import { DB_CONN_FAILURE, IPC_ACTIONS } from '../messages';
 
 import { createNewDatabase, connectToLocalDatabase } from '@/initialization';
-import { showErrorDialog } from '../utils';
+import { showErrorDialog } from '../errorHandling';
 
 export default {
   name: 'DatabaseSelector',

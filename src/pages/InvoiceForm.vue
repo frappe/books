@@ -197,12 +197,12 @@ import DropdownWithActions from '@/components/DropdownWithActions';
 import BackLink from '@/components/BackLink';
 import {
   openSettings,
-  handleErrorWithDialog,
   getActionsForDocument,
   getInvoiceStatus,
   showMessageDialog,
-  routeTo
+  routeTo,
 } from '@/utils';
+import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
   name: 'InvoiceForm',
@@ -286,7 +286,7 @@ export default {
       return this.doc.insertOrUpdate().catch(this.handleError);
     },
     onSubmitClick() {
-        let message =
+      let message =
         this.doctype === 'SalesInvoice'
           ? this.t('Are you sure you want to submit this Invoice?')
           : this.t('Are you sure you want to submit this Bill?');

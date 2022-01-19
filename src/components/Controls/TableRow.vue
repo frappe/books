@@ -33,8 +33,8 @@
 </template>
 <script>
 import FormControl from './FormControl';
-import { getErrorMessage } from '../../utils';
 import Row from '@/components/Row';
+import { getErrorMessage } from '../../errorHandling';
 
 export default {
   name: 'TableRow',
