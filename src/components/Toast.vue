@@ -2,7 +2,6 @@
   <div
     class="
       text-gray-900
-      bg-white
       shadow-md
       px-3
       py-2
@@ -12,20 +11,31 @@
       mb-3
       w-60
     "
+    :class="bgColor"
     style="transition: opacity 150ms ease-in"
     :style="{ opacity }"
     v-if="show"
   >
-    <feather-icon name="alert-circle" class="w-8 h-8 mr-3 text-gray-800" />
+    <feather-icon
+      :name="iconName"
+      class="w-8 h-8 mr-3 text-gray-800"
+      :class="iconColor"
+    />
     <div>
       <p class="text-base">{{ message }}</p>
-      <button v-if="actionText" @click="action" class="text-sm text-gray-700 hover:text-gray-800">
+      <button
+        v-if="actionText"
+        @click="action"
+        class="text-sm text-gray-700 hover:text-gray-800"
+      >
         {{ actionText }}
       </button>
     </div>
   </div>
 </template>
 <script>
+import { getBgColorClass, getTextColorClass } from '../colors';
+
 export default {
   data() {
     return { opacity: 0, show: true };
@@ -34,7 +44,34 @@ export default {
     message: String,
     action: Function,
     actionText: String,
+    type: { type: String, default: 'info' },
     duration: { type: Number, default: 5000 },
+  },
+  computed: {
+    iconName() {
+      switch (this.type) {
+        case 'warning':
+          return 'alert-triangle';
+        case 'success':
+          return 'check-circle';
+        default:
+          return 'alert-circle';
+      }
+    },
+    color() {
+      return {
+        info: 'blue',
+        warning: 'orange',
+        error: 'red',
+        success: 'green',
+      }[this.type];
+    },
+    bgColor() {
+      return getBgColorClass(this.color);
+    },
+    iconColor() {
+      return getTextColorClass(this.color);
+    },
   },
   mounted() {
     const mountTarget = document.createElement('div');
