@@ -9,18 +9,15 @@
       flex
       items-center
       mb-3
-      w-60
+      w-80
     "
-    :class="bgColor"
+    :class="bgColor + (action ? ' cursor-pointer' : '')"
     style="transition: opacity 150ms ease-in"
     :style="{ opacity }"
+    @click="action"
     v-if="show"
   >
-    <feather-icon
-      :name="iconName"
-      class="w-8 h-8 mr-3 text-gray-800"
-      :class="iconColor"
-    />
+    <feather-icon :name="iconName" class="w-6 h-6 mr-3" :class="iconColor" />
     <div>
       <p class="text-base">{{ message }}</p>
       <button
