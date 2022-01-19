@@ -181,6 +181,7 @@ export function showExportInFolder(message, filePath) {
   showToast({
     message,
     actionText: frappe._('Open Folder'),
+    type: 'success',
     action: async () => {
       await showItemInFolder(filePath);
     },
@@ -342,7 +343,6 @@ export function showToast(props) {
     },
   });
 }
-window.showToast = showToast;
 
 export function titleCase(phrase) {
   return phrase

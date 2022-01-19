@@ -114,8 +114,9 @@ export default {
   methods: {
     showReloadToast() {
       showToast({
-        message: _('Changes will be visible on reload'),
+        message: _('Changes require reload'),
         actionText: frappe._('Reload'),
+        type: 'info',
         action: async () => {
           frappe.events.trigger('reload-main-window');
         },
