@@ -2,12 +2,17 @@ import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
 import { MandatoryError, ValidationError } from 'frappejs/common/errors';
 import { IPC_ACTIONS } from './messages';
-import { showMessageDialog } from './utils';
+import { showMessageDialog, showToast } from './utils';
 
 function shouldNotStore(error) {
   return [MandatoryError, ValidationError].some(
     (errorClass) => error instanceof errorClass
   );
+}
+
+function reportError(errorLogObj) {
+  // push errorlog to frappebooks.com
+  console.log(errorLogObj);
 }
 
 export function handleError(shouldLog, error, more = {}) {
@@ -24,6 +29,14 @@ export function handleError(shouldLog, error, more = {}) {
   frappe.errorLog.push(errorLogObj);
 
   // Do something cool
+  showToast({
+    message: _(`Error: `) + name,
+    actionText: frappe._('Report Error'),
+    type: 'error',
+    action: () => {
+      reportError(errorLogObj);
+    },
+  });
 }
 
 export function getErrorMessage(e, doc) {
