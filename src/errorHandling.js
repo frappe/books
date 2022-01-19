@@ -15,6 +15,24 @@ function reportError(errorLogObj) {
   console.log(errorLogObj);
 }
 
+function getToastProps(errorLogObj) {
+  const props = {
+    message: _(`Error: `) + errorLogObj.name,
+    type: 'error',
+  };
+
+  if (!frappe.SystemSettings.autoReportErrors) {
+    Object.assign(props, {
+      actionText: frappe._('Report Error'),
+      action: () => {
+        reportError(errorLogObj);
+      },
+    });
+  }
+
+  return props;
+}
+
 export function handleError(shouldLog, error, more = {}) {
   if (shouldLog) {
     console.error(error);
@@ -26,17 +44,13 @@ export function handleError(shouldLog, error, more = {}) {
 
   const { name, stack, message } = error;
   const errorLogObj = { name, stack, message, more };
+
   frappe.errorLog.push(errorLogObj);
 
-  // Do something cool
-  showToast({
-    message: _(`Error: `) + name,
-    actionText: frappe._('Report Error'),
-    type: 'error',
-    action: () => {
-      reportError(errorLogObj);
-    },
-  });
+  showToast(getToastProps(errorLogObj));
+  if (frappe.SystemSettings.autoReportErrors) {
+    reportError(errorLogObj);
+  }
 }
 
 export function getErrorMessage(e, doc) {
