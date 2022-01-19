@@ -35,8 +35,9 @@ import { ipcRenderer } from 'electron';
 import config from '@/config';
 import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
 import { connectToLocalDatabase, purgeCache } from '@/initialization';
-import { routeTo, showErrorDialog } from './utils';
+import { routeTo } from './utils';
 import fs from 'fs/promises';
+import { showErrorDialog } from './errorHandling';
 
 export default {
   name: 'App',

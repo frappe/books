@@ -6,6 +6,7 @@ import frappe from 'frappe';
 import { isPesa, t } from 'frappe/utils';
 import lodash from 'lodash';
 import Vue from 'vue';
+import { handleErrorWithDialog } from './errorHandling';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 
 export async function showMessageDialog({
@@ -28,16 +29,6 @@ export async function showMessageDialog({
   if (button && button.action) {
     button.action();
   }
-}
-
-export async function showErrorDialog({ title, content }) {
-  // To be used for  show stopper errors
-  title = title ?? 'Error';
-  content =
-    content ??
-    'Something has gone terribly wrong. Please check the console and raise an issue.';
-
-  await ipcRenderer.invoke(IPC_ACTIONS.SHOW_ERROR, { title, content });
 }
 
 export function deleteDocWithPrompt(doc) {
@@ -149,27 +140,6 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
       lastRoute: currentRoute,
     },
   });
-}
-
-export function getErrorMessage(e, doc) {
-  let errorMessage = e.message || t('An error occurred.');
-  const { doctype, name } = doc;
-  const canElaborate = doctype && name;
-  if (e.type === frappe.errors.LinkValidationError && canElaborate) {
-    errorMessage = t('{0} {1} is linked with existing records.', [
-      doctype,
-      name,
-    ]);
-  } else if (e.type === frappe.errors.DuplicateEntryError && canElaborate) {
-    errorMessage = t('{0} {1} already exists.', [doctype, name]);
-  }
-  return errorMessage;
-}
-
-export function handleErrorWithDialog(e, doc) {
-  let errorMessage = getErrorMessage(e, doc);
-  showMessageDialog({ message: errorMessage });
-  throw e;
 }
 
 export async function makePDF(html, savePath) {

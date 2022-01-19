@@ -124,11 +124,11 @@ import FormControl from '@/components/Controls/FormControl';
 import BackLink from '@/components/BackLink';
 import StatusBadge from '@/components/StatusBadge';
 import {
-  handleErrorWithDialog,
   showMessageDialog,
   getActionsForDocument,
   routeTo,
 } from '@/utils';
+import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
   name: 'JournalEntryForm',

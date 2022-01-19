@@ -52,7 +52,9 @@
       <TwoColumnForm :fields="fields" :doc="doc" />
     </div>
     <div class="flex justify-between px-8 mt-5 window-no-drag">
-      <Button class="text-sm text-grey-900" @click="$emit('setup-canceled')">Cancel</Button>
+      <Button class="text-sm text-grey-900" @click="$emit('setup-canceled')"
+        >Cancel</Button
+      >
       <Button
         @click="submit"
         type="primary"
@@ -75,12 +77,12 @@ import config from '@/config';
 import path from 'path';
 import fs from 'fs';
 import { purgeCache, connectToLocalDatabase } from '@/initialization';
+import { showMessageDialog } from '@/utils';
 import {
-  getErrorMessage,
   handleErrorWithDialog,
-  showMessageDialog,
+  getErrorMessage,
   showErrorDialog,
-} from '@/utils';
+} from '../../errorHandling';
 
 export default {
   name: 'SetupWizard',

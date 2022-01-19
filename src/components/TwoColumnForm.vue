@@ -93,7 +93,7 @@
 import frappe from 'frappe';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
-import { getErrorMessage, handleErrorWithDialog } from '@/utils';
+import { handleErrorWithDialog, getErrorMessage } from '../errorHandling';
 
 let TwoColumnForm = {
   name: 'TwoColumnForm',

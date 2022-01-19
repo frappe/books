@@ -12,10 +12,18 @@
       <div class="flex-1" v-if="root">
         <template v-for="account in allAccounts">
           <div
-            class="mt-2 px-4 py-2 cursor-pointer hover:bg-gray-100 rounded-md group"
+            class="
+              mt-2
+              px-4
+              py-2
+              cursor-pointer
+              hover:bg-gray-100
+              rounded-md
+              group
+            "
             :class="[
               account.level !== 0 ? 'text-base' : 'text-lg',
-              isQuickEditOpen(account) ? 'bg-gray-200' : ''
+              isQuickEditOpen(account) ? 'bg-gray-200' : '',
             ]"
             :key="account.name"
             @click="onClick(account)"
@@ -34,13 +42,22 @@
                   class="ml-6 hidden group-hover:block"
                 >
                   <button
-                    class="text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
+                    class="
+                      text-xs text-gray-800
+                      hover:text-gray-900
+                      focus:outline-none
+                    "
                     @click.stop="addAccount(account, 'addingAccount')"
                   >
                     {{ t('Add Account') }}
                   </button>
                   <button
-                    class="ml-3 text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
+                    class="
+                      ml-3
+                      text-xs text-gray-800
+                      hover:text-gray-900
+                      focus:outline-none
+                    "
                     @click.stop="addAccount(account, 'addingGroupAccount')"
                   >
                     {{ t('Add Group') }}
@@ -51,7 +68,15 @@
           </div>
           <div
             v-if="account.addingAccount || account.addingGroupAccount"
-            class="mt-2 px-4 py-2 cursor-pointer hover:bg-gray-100 rounded-md group"
+            class="
+              mt-2
+              px-4
+              py-2
+              cursor-pointer
+              hover:bg-gray-100
+              rounded-md
+              group
+            "
             :class="[account.level !== 0 ? 'text-base' : 'text-lg']"
             :key="account.name + '-adding-account'"
           >
@@ -71,7 +96,7 @@
                     :ref="account.name"
                     @keydown.esc="cancelAddingAccount(account)"
                     @keydown.enter="
-                      e =>
+                      (e) =>
                         createNewAccount(
                           e.target.value,
                           account,
@@ -83,7 +108,12 @@
                   />
                   <button
                     v-if="!insertingAccount"
-                    class="ml-4 text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
+                    class="
+                      ml-4
+                      text-xs text-gray-800
+                      hover:text-gray-900
+                      focus:outline-none
+                    "
                     @click="cancelAddingAccount(account)"
                   >
                     {{ t('Cancel') }}
@@ -101,19 +131,20 @@
 import frappe from 'frappe';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
-import { openQuickEdit, handleErrorWithDialog } from '@/utils';
+import { openQuickEdit } from '@/utils';
+import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
   components: {
     PageHeader,
-    SearchBar
+    SearchBar,
   },
   data() {
     return {
       root: null,
       accounts: [],
       doctype: 'Account',
-      insertingAccount: false
+      insertingAccount: false,
     };
   },
   mounted() {
@@ -130,7 +161,7 @@ export default {
       this.root = {
         label: await this.settings.getRootLabel(),
         balance: 0,
-        currency
+        currency,
       };
       this.accounts = await this.getChildren();
     },
@@ -138,7 +169,7 @@ export default {
       if (account.isGroup === 0) {
         openQuickEdit({
           doctype: 'Account',
-          name: account.name
+          name: account.name,
         });
       } else {
         this.toggleChildren(account);
@@ -180,7 +211,7 @@ export default {
               <path d="M7.332 11.36l4.666-3.734 2 1.6V.666A.667.667 0 0013.332 0h-12a.667.667 0 00-.667.667v14.666c0 .369.298.667.667.667h6v-4.64zm-4-7.36H11.3v1.333H3.332V4zm2.666 8H3.332v-1.333h2.666V12zM3.332 8.667V7.333h5.333v1.334H3.332z" fill="#415668"/>
               <path d="M15.332 12l-3.334-2.667L8.665 12v3.333c0 .369.298.667.667.667h2v-2h1.333v2h2a.667.667 0 00.667-.667V12z" fill="#A1ABB4"/>
             </g>
-          </svg>`
+          </svg>`,
       };
 
       let leaf = `<svg class="w-2 h-2" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
@@ -194,7 +225,7 @@ export default {
       let icon = account.isGroup ? folder : leaf;
 
       let c = {
-        template: icons[account.name] || icon
+        template: icons[account.name] || icon,
       };
 
       return c;
@@ -203,7 +234,7 @@ export default {
       const children = await frappe.db.getAll({
         doctype: this.doctype,
         filters: {
-          parentAccount: parent
+          parentAccount: parent,
         },
         fields: [
           'name',
@@ -211,13 +242,13 @@ export default {
           'isGroup',
           'balance',
           'rootType',
-          'accountType'
+          'accountType',
         ],
         orderBy: 'name',
-        order: 'asc'
+        order: 'asc',
       });
 
-      return children.map(d => {
+      return children.map((d) => {
         d.expanded = 0;
         d.addingAccount = 0;
         d.addingGroupAccount = 0;
@@ -260,7 +291,7 @@ export default {
           parentAccount: name,
           rootType,
           accountType,
-          isGroup
+          isGroup,
         });
         await account.insert();
 
@@ -275,7 +306,7 @@ export default {
         // open quick edit
         openQuickEdit({
           doctype: 'Account',
-          name: account.name
+          name: account.name,
         });
         // unfreeze input
         this.insertingAccount = false;
@@ -291,7 +322,7 @@ export default {
         return true;
       }
       return false;
-    }
+    },
   },
   computed: {
     allAccounts() {
@@ -308,7 +339,7 @@ export default {
           }
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>
