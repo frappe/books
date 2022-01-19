@@ -114,7 +114,7 @@ export default {
   methods: {
     showReloadToast() {
       showToast({
-        message: _('Changes require reload'),
+        message: _('Settings changes will be visible on reload'),
         actionText: frappe._('Reload App'),
         type: 'info',
         action: async () => {
