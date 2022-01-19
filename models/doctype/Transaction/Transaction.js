@@ -1,7 +1,8 @@
+import Badge from '@/components/Badge';
+import { getInvoiceStatus, openQuickEdit, routeTo } from '@/utils';
 import frappe from 'frappejs';
 import utils from '../../../accounting/utils';
-import { openQuickEdit, getInvoiceStatus, statusColor, routeTo } from '@/utils';
-import Badge from '@/components/Badge';
+import { statusColor } from '../../../src/colors';
 
 export function getStatusColumn() {
   return {

@@ -4,7 +4,7 @@
   }}</Badge>
 </template>
 <script>
-import { statusColor } from '@/utils';
+import { statusColor } from '../colors';
 import Badge from '@/components/Badge';
 
 export default {
