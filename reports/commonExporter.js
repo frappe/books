@@ -1,10 +1,5 @@
 import frappe from 'frappejs';
-import {
-  getSavePath,
-  saveData,
-  showItemInFolder,
-  showToast,
-} from '../src/utils';
+import { getSavePath, saveData, showExportInFolder } from '../src/utils';
 
 function templateToInnerText(innerHTML) {
   const temp = document.createElement('template');
@@ -106,11 +101,5 @@ export default function getCommonExportActions(reportName) {
 
 export async function saveExportData(data, filePath) {
   await saveData(data, filePath);
-  showToast({
-    message: frappe._('Export Successful'),
-    actionText: frappe._('Open Folder'),
-    action: async () => {
-      await showItemInFolder(filePath);
-    },
-  });
+  showExportInFolder(frappe._('Export Successful'), filePath);
 }

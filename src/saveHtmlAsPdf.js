@@ -1,6 +1,5 @@
-import fs from 'fs';
-import { sleep } from 'frappejs/utils';
-import { shell, BrowserWindow } from 'electron';
+import { BrowserWindow } from 'electron';
+import fs from 'fs/promises';
 
 const PRINT_OPTIONS = {
   marginsType: 1, // no margin
@@ -17,14 +16,16 @@ export default async function makePDF(html, savePath) {
     document.body.innerHTML = \`${html}\`;
   `);
 
-  printWindow.webContents.on('did-finish-load', async () => {
-    await sleep(1); // Required else pdf'll be blank.
-    printWindow.webContents.printToPDF(PRINT_OPTIONS).then((data) => {
-      // printWindow.destroy();
-      fs.writeFile(savePath, data, (error) => {
+  return await new Promise((resolve) => {
+    printWindow.webContents.on('did-finish-load', async () => {
+      await sleep(1); // Required else pdf'll be blank.
+
+      const data = await printWindow.webContents.printToPDF(PRINT_OPTIONS);
+      await fs.writeFile(savePath, data, (error) => {
         if (error) throw error;
-        return shell.openPath(savePath);
       });
+
+      resolve();
     });
   });
 }
