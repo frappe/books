@@ -174,6 +174,17 @@ export function handleErrorWithDialog(e, doc) {
 
 export async function makePDF(html, savePath) {
   await ipcRenderer.invoke(IPC_ACTIONS.SAVE_HTML_AS_PDF, html, savePath);
+  showExportInFolder(frappe._('Save as PDF Successful'), savePath);
+}
+
+export function showExportInFolder(message, filePath) {
+  showToast({
+    message,
+    actionText: frappe._('Open Folder'),
+    action: async () => {
+      await showItemInFolder(filePath);
+    },
+  });
 }
 
 export async function saveData(data, savePath) {
