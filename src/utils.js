@@ -257,13 +257,6 @@ export async function runWindowAction(name) {
   return name;
 }
 
-export const statusColor = {
-  Draft: 'gray',
-  Unpaid: 'orange',
-  Paid: 'green',
-  Cancelled: 'red',
-};
-
 export function getInvoiceStatus(doc) {
   let status = 'Unpaid';
   if (!doc.submitted) {
@@ -349,6 +342,7 @@ export function showToast(props) {
     },
   });
 }
+window.showToast = showToast;
 
 export function titleCase(phrase) {
   return phrase
