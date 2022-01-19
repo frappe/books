@@ -87,7 +87,6 @@ import DropdownWithActions from '@/components/DropdownWithActions';
 import {
   openQuickEdit,
   getActionsForDocument,
-  handleErrorWithDialog,
 } from '@/utils';
 
 export default {
