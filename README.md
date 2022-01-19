@@ -70,6 +70,8 @@ database.
 
 ### Clone and Run
 
+Due to some `yarn.lock` issue this won't run, to run it check [Issue #315](https://github.com/frappe/books/issues/315)
+
 ```bash
 # clone the repository
 git clone https://github.com/frappe/books.git
@@ -87,6 +89,8 @@ yarn electron:serve
 ### Developing with FrappeJS
 
 FrappeBooks is based on [FrappeJS](https://github.com/frappe/frappejs) for managing models and objects. To develop alongside FrappeJS
+
+Due to some `yarn.lock` issue this won't run, to run it check [Issue #315](https://github.com/frappe/books/issues/315)
 
 ```bash
 # clone frappejs
