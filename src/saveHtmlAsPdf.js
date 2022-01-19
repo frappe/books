@@ -1,4 +1,5 @@
 import { BrowserWindow } from 'electron';
+import { sleep } from 'frappejs/utils';
 import fs from 'fs/promises';
 
 const PRINT_OPTIONS = {
