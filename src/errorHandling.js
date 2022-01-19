@@ -22,3 +22,33 @@ export function handleError(shouldLog, error, more = {}) {
 
   // Do something cool
 }
+
+export function getErrorHandled(func) {
+  return async function errorHandled(...args) {
+    try {
+      return await func(...args);
+    } catch (error) {
+      handleError(false, error, {
+        functionName: func.name,
+        functionArgs: args,
+      });
+
+      throw error;
+    }
+  };
+}
+
+export function getErrorHandledSync(func) {
+  return function errorHandledSync(...args) {
+    try {
+      return func(...args);
+    } catch (error) {
+      handleError(false, error, {
+        functionName: func.name,
+        functionArgs: args,
+      });
+
+      throw error;
+    }
+  };
+}

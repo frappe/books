@@ -4,7 +4,7 @@ import Vue from 'vue';
 import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
-import { handleError } from './errorHandling';
+import { getErrorHandled, handleError } from './errorHandling';
 import { IPC_MESSAGES } from './messages';
 import router from './router';
 import { outsideClickDirective } from './ui';
@@ -15,6 +15,9 @@ import { stringifyCircular } from './utils';
   frappe.isElectron = true;
   frappe.initializeAndRegister(models);
   frappe.fetch = window.fetch.bind();
+
+  ipcRenderer.send = getErrorHandled(ipcRenderer.send);
+  ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
 
   frappe.events.on('reload-main-window', () => {
     ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
