@@ -1,4 +1,4 @@
-import { _ } from 'frappetils';
+import { _ } from 'frappe/utils';
 import { getStatusColumn } from '../Transaction/Transaction';
 
 export default {

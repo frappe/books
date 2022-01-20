@@ -6,18 +6,18 @@
 </template>
 
 <script>
-import indicators from 'frappe/ui/constants/indicators';
+import { indicators } from '../colors';
 export default {
   name: 'MessageDialog',
   data() {
     return {
-      indicatorColor: indicators.ORANGE
+      indicatorColor: indicators.ORANGE,
     };
   },
   props: {
     message: {
-      type: String
-    }
-  }
+      type: String,
+    },
+  },
 };
 </script>
