@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 export default {
   async getPayments() {
@@ -6,7 +6,7 @@ export default {
       doctype: 'PaymentFor',
       fields: ['parent'],
       filters: { referenceName: this.name },
-      orderBy: 'name'
+      orderBy: 'name',
     });
     if (payments.length != 0) {
       return payments;
@@ -57,5 +57,5 @@ export default {
     }
     const entries = await this.getPosting();
     await entries.postReverse();
-  }
+  },
 };

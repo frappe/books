@@ -1,4 +1,4 @@
-import BaseDocument from 'frappejs/model/document';
+import BaseDocument from 'frappe/model/document';
 import LedgerPosting from '../../../accounting/ledgerPosting';
 
 export default class JournalEntryServer extends BaseDocument {

@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import { getStatusColumn } from '../Transaction/Transaction';
 import { routeTo } from '@/utils';
 

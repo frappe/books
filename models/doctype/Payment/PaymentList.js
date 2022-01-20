@@ -1,5 +1,5 @@
-import { _ } from 'frappejs/utils';
 import Badge from '@/components/Badge';
+import { _ } from 'frappe/utils';
 
 export default {
   doctype: 'Payment',
@@ -28,12 +28,12 @@ export default {
 
         return {
           template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
-          components: { Badge }
+          components: { Badge },
         };
-      }
+      },
     },
     'paymentType',
     'date',
-    'amount'
-  ]
+    'amount',
+  ],
 };

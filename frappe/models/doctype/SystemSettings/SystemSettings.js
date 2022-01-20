@@ -1,5 +1,5 @@
 const { DateTime } = require('luxon');
-const { _ } = require('frappejs/utils');
+const { _ } = require('frappe/utils');
 const {
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,

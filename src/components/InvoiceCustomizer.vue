@@ -22,7 +22,7 @@
   </div>
 </template>
 <script>
-import FormLayout from 'frappejs/ui/components/Form/FormLayout';
+import FormLayout from 'frappe/ui/components/Form/FormLayout';
 import { Sketch } from 'vue-color';
 
 export default {

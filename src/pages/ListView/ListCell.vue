@@ -5,7 +5,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 export default {
   name: 'ListCell',

@@ -9,9 +9,9 @@ const {
 module.exports = {
   initializeAndRegister(customModels = {}, force = false) {
     this.init(force);
-    const common = require('frappejs/common');
+    const common = require('frappe/common');
     this.registerLibs(common);
-    const coreModels = require('frappejs/models');
+    const coreModels = require('frappe/models');
     this.registerModels(coreModels);
     this.registerModels(customModels);
   },

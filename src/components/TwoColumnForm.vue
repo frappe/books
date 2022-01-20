@@ -90,7 +90,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
 import { getErrorMessage, handleErrorWithDialog } from '@/utils';

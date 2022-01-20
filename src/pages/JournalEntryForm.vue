@@ -116,7 +116,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import DropdownWithActions from '@/components/DropdownWithActions';

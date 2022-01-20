@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import { DateTime } from 'luxon';
 
 export async function getDatesAndPeriodicity(period) {
@@ -10,24 +10,16 @@ export async function getDatesAndPeriodicity(period) {
     fromDate = accountingSettings.fiscalYearStart;
     toDate = accountingSettings.fiscalYearEnd;
   } else if (period === 'This Quarter') {
-    fromDate = DateTime.local()
-      .startOf('quarter')
-      .toISODate();
-    toDate = DateTime.local()
-      .endOf('quarter')
-      .toISODate();
+    fromDate = DateTime.local().startOf('quarter').toISODate();
+    toDate = DateTime.local().endOf('quarter').toISODate();
   } else if (period === 'This Month') {
-    fromDate = DateTime.local()
-      .startOf('month')
-      .toISODate();
-    toDate = DateTime.local()
-      .endOf('month')
-      .toISODate();
+    fromDate = DateTime.local().startOf('month').toISODate();
+    toDate = DateTime.local().endOf('month').toISODate();
   }
 
   return {
     fromDate,
     toDate,
-    periodicity
+    periodicity,
   };
 }

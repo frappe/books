@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
-import frappe from 'frappejs';
-import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
-import outsideClickDirective from 'frappejs/ui/plugins/outsideClickDirective';
+import frappe from 'frappe';
+import FeatherIcon from 'frappe/ui/components/FeatherIcon';
+import outsideClickDirective from 'frappe/ui/plugins/outsideClickDirective';
 import Vue from 'vue';
 import models from '../models';
 import App from './App';

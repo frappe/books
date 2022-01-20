@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
-const Observable = require('frappejs/utils/observable');
-const triggerEvent = name => frappe.events.trigger(`http:${name}`);
+const frappe = require('frappe');
+const Observable = require('frappe/utils/observable');
+const triggerEvent = (name) => frappe.events.trigger(`http:${name}`);
 
 module.exports = class HTTPClient extends Observable {
   constructor({ server, protocol = 'http' }) {
@@ -16,9 +16,7 @@ module.exports = class HTTPClient extends Observable {
     this.initTypeMap();
   }
 
-  connect() {
-
-  }
+  connect() {}
 
   async insert(doctype, doc) {
     doc.doctype = doctype;
@@ -27,7 +25,7 @@ module.exports = class HTTPClient extends Observable {
 
     const responseDoc = await this.fetch(url, {
       method: 'POST',
-      body: JSON.stringify(doc)
+      body: JSON.stringify(doc),
     });
 
     await this.uploadFilesAndUpdateDoc(filesToUpload, doctype, responseDoc);
@@ -40,21 +38,24 @@ module.exports = class HTTPClient extends Observable {
     let url = this.getURL('/api/resource', doctype, name);
     return await this.fetch(url, {
       method: 'GET',
-      headers: this.getHeaders()
-    })
+      headers: this.getHeaders(),
+    });
   }
 
   async getAll({ doctype, fields, filters, start, limit, sortBy, order }) {
     let url = this.getURL('/api/resource', doctype);
 
-    url = url + '?' + frappe.getQueryString({
-      fields: JSON.stringify(fields),
-      filters: JSON.stringify(filters),
-      start: start,
-      limit: limit,
-      sortBy: sortBy,
-      order: order
-    });
+    url =
+      url +
+      '?' +
+      frappe.getQueryString({
+        fields: JSON.stringify(fields),
+        filters: JSON.stringify(filters),
+        start: start,
+        limit: limit,
+        sortBy: sortBy,
+        order: order,
+      });
 
     return await this.fetch(url, {
       method: 'GET',
@@ -68,7 +69,7 @@ module.exports = class HTTPClient extends Observable {
 
     const responseDoc = await this.fetch(url, {
       method: 'PUT',
-      body: JSON.stringify(doc)
+      body: JSON.stringify(doc),
     });
 
     await this.uploadFilesAndUpdateDoc(filesToUpload, doctype, responseDoc);
@@ -89,7 +90,7 @@ module.exports = class HTTPClient extends Observable {
 
     return await this.fetch(url, {
       method: 'DELETE',
-      body: JSON.stringify(names)
+      body: JSON.stringify(names),
     });
   }
 
@@ -100,9 +101,11 @@ module.exports = class HTTPClient extends Observable {
   async getValue(doctype, name, fieldname) {
     let url = this.getURL('/api/resource', doctype, name, fieldname);
 
-    return (await this.fetch(url, {
-      method: 'GET',
-    })).value;
+    return (
+      await this.fetch(url, {
+        method: 'GET',
+      })
+    ).value;
   }
 
   async fetch(url, args) {
@@ -131,13 +134,13 @@ module.exports = class HTTPClient extends Observable {
     const filesToUpload = [];
 
     if (fileFields.length > 0) {
-      fileFields.forEach(df => {
+      fileFields.forEach((df) => {
         const files = doc[df.fieldname] || [];
         if (files.length) {
           filesToUpload.push({
             fieldname: df.fieldname,
-            files: files
-          })
+            files: files,
+          });
         }
         delete doc[df.fieldname];
       });
@@ -150,7 +153,12 @@ module.exports = class HTTPClient extends Observable {
     if (filesToUpload.length > 0) {
       // upload files
       for (const fileToUpload of filesToUpload) {
-        const files = await this.uploadFiles(fileToUpload.files, doctype, doc.name, fileToUpload.fieldname);
+        const files = await this.uploadFiles(
+          fileToUpload.files,
+          doctype,
+          doc.name,
+          fileToUpload.fieldname
+        );
         doc[fileToUpload.fieldname] = files[0].name;
       }
     }
@@ -166,7 +174,7 @@ module.exports = class HTTPClient extends Observable {
 
     let response = await frappe.fetch(url, {
       method: 'POST',
-      body: formData
+      body: formData,
     });
 
     const data = await response.json();
@@ -182,49 +190,46 @@ module.exports = class HTTPClient extends Observable {
 
   getHeaders() {
     const headers = {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     };
     if (frappe.session && frappe.session.token) {
       headers.token = frappe.session.token;
-    };
+    }
     return headers;
   }
 
   initTypeMap() {
     this.typeMap = {
-      'AutoComplete': true
-      , 'Currency': true
-      , 'Int': true
-      , 'Float': true
-      , 'Percent': true
-      , 'Check': true
-      , 'Small Text': true
-      , 'Long Text': true
-      , 'Code': true
-      , 'Text Editor': true
-      , 'Date': true
-      , 'Datetime': true
-      , 'Time': true
-      , 'Text': true
-      , 'Data': true
-      , 'Link': true
-      , 'DynamicLink': true
-      , 'Password': true
-      , 'Select': true
-      , 'Read Only': true
-      , 'File': true
-      , 'Attach': true
-      , 'Attach Image': true
-      , 'Signature': true
-      , 'Color': true
-      , 'Barcode': true
-      , 'Geolocation': true
-    }
+      AutoComplete: true,
+      Currency: true,
+      Int: true,
+      Float: true,
+      Percent: true,
+      Check: true,
+      'Small Text': true,
+      'Long Text': true,
+      Code: true,
+      'Text Editor': true,
+      Date: true,
+      Datetime: true,
+      Time: true,
+      Text: true,
+      Data: true,
+      Link: true,
+      DynamicLink: true,
+      Password: true,
+      Select: true,
+      'Read Only': true,
+      File: true,
+      Attach: true,
+      'Attach Image': true,
+      Signature: true,
+      Color: true,
+      Barcode: true,
+      Geolocation: true,
+    };
   }
 
-  close() {
-
-  }
-
-}
+  close() {}
+};

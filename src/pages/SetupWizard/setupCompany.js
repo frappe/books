@@ -1,6 +1,6 @@
 import config from '@/config';
-import frappe from 'frappejs';
-import { DEFAULT_LOCALE } from 'frappejs/utils/consts';
+import frappe from 'frappe';
+import { DEFAULT_LOCALE } from 'frappe/utils/consts';
 import countryList from '~/fixtures/countryInfo.json';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
 import regionalModelUpdates from '../../../models/regionalModelUpdates';

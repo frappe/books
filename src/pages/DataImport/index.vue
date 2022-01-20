@@ -33,10 +33,10 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import DataTable from 'frappe-datatable';
-import { convertFieldsToDatatableColumns } from 'frappejs/client/ui/utils';
-import { writeFile } from 'frappejs/server/utils';
+import { convertFieldsToDatatableColumns } from 'frappe/client/ui/utils';
+import { writeFile } from 'frappe/server/utils';
 import path from 'path';
 import csv2json from 'csvjson-csv2json';
 

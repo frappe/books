@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import indicators from 'frappejs/ui/constants/indicators';
+import indicators from 'frappe/ui/constants/indicators';
 export default {
   name: 'MessageDialog',
   data() {

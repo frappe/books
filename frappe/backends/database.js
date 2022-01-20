@@ -1,6 +1,6 @@
-const frappe = require('frappejs');
-const Observable = require('frappejs/utils/observable');
-const CacheManager = require('frappejs/utils/cacheManager');
+const frappe = require('frappe');
+const Observable = require('frappe/utils/observable');
+const CacheManager = require('frappe/utils/cacheManager');
 const Knex = require('knex');
 
 module.exports = class Database extends Observable {

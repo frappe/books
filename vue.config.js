@@ -25,6 +25,7 @@ module.exports = {
   configureWebpack(config) {
     Object.assign(config.resolve.alias, {
       deepmerge$: 'deepmerge/dist/umd.js',
+      frappe: path.resolve(__dirname, 'frappe'),
       'frappe-charts$': 'frappe-charts/dist/frappe-charts.esm.js',
       '~': path.resolve('.'),
     });
@@ -44,5 +45,4 @@ module.exports = {
 
     config.devtool = 'source-map';
   },
-  transpileDependencies: ['frappejs'],
 };

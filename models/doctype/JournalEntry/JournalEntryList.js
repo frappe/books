@@ -1,10 +1,10 @@
-import { _ } from 'frappejs/utils';
 import Badge from '@/components/Badge';
+import { _ } from 'frappe/utils';
 
 export default {
   doctype: 'JournalEntry',
   title: _('Journal Entry'),
-  formRoute: name => `/edit/JournalEntry/${name}`,
+  formRoute: (name) => `/edit/JournalEntry/${name}`,
   columns: [
     'date',
     {
@@ -35,10 +35,10 @@ export default {
       fieldname: 'name',
       fieldtype: 'Data',
       getValue(doc) {
-        return doc.name
-      }
+        return doc.name;
+      },
     },
     'entryType',
-    'referenceNumber'
-  ]
+    'referenceNumber',
+  ],
 };

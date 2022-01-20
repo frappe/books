@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 export default class LedgerPosting {
   constructor({ reference, party, date, description }) {

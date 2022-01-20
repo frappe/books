@@ -1,4 +1,4 @@
-import model from 'frappejs/model';
+import model from 'frappe/model';
 import PurchaseInvoice from '../PurchaseInvoice/PurchaseInvoice';
 
 export default model.extend(
@@ -10,11 +10,11 @@ export default model.extend(
     fields: [
       {
         fieldname: 'items',
-        childtype: 'PurchaseOrderItem'
-      }
-    ]
+        childtype: 'PurchaseOrderItem',
+      },
+    ],
   },
   {
-    skipFields: ['account']
+    skipFields: ['account'],
   }
 );

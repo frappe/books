@@ -1,5 +1,5 @@
 const luxon = require('luxon');
-const frappe = require('frappejs');
+const frappe = require('frappe');
 const { DEFAULT_DISPLAY_PRECISION, DEFAULT_LOCALE } = require('./consts');
 
 module.exports = {

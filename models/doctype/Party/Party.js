@@ -1,5 +1,5 @@
-import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import frappe from 'frappe';
+import { _ } from 'frappe/utils';
 
 export default {
   name: 'Party',

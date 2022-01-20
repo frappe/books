@@ -1,4 +1,4 @@
-const frappe = require('frappejs');
+const frappe = require('frappe');
 const Database = require('./database');
 
 class SqliteDatabase extends Database {

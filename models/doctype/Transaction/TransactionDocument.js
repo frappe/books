@@ -1,5 +1,5 @@
-import frappe from 'frappejs';
-import BaseDocument from 'frappejs/model/document';
+import frappe from 'frappe';
+import BaseDocument from 'frappe/model/document';
 import { getExchangeRate } from '../../../accounting/exchangeRate';
 
 export default class TransactionDocument extends BaseDocument {

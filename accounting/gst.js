@@ -1,6 +1,6 @@
 import { showMessageDialog } from '@/utils';
-import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import frappe from 'frappe';
+import { _ } from 'frappe/utils';
 import { DateTime } from 'luxon';
 import { exportCsv, saveExportData } from '../reports/commonExporter';
 import { getSavePath } from '../src/utils';
