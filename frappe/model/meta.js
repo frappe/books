@@ -1,7 +1,7 @@
 const BaseDocument = require('./document');
 const frappe = require('frappe');
 const model = require('./index');
-const indicatorColor = require('frappe/ui/constants/indicators');
+const { indicators: indicatorColor } = require('../../src/colors');
 
 module.exports = class BaseMeta extends BaseDocument {
   constructor(data) {

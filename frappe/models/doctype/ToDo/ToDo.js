@@ -1,4 +1,5 @@
-const { BLUE, GREEN } = require('frappe/ui/constants/indicators');
+const { indicators } = require('../../../../src/colors');
+const { BLUE, GREEN } = indicators;
 
 module.exports = {
   name: 'ToDo',
