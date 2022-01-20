@@ -1,5 +1,5 @@
 const { pesa } = require('pesa');
-const { T } = require('./translation');
+const { T, t } = require('./translation');
 
 Array.prototype.equals = function (array) {
   return (
@@ -55,7 +55,9 @@ function asyncHandler(fn) {
  * @param {Number} n
  */
 function range(n) {
-  return Array.from(Array(4)).map((d, i) => i);
+  return Array(n)
+    .fill()
+    .map((_, i) => i);
 }
 
 function unique(list, key = (it) => it) {
@@ -86,7 +88,8 @@ function isPesa(value) {
 }
 
 module.exports = {
-  _: T,
+  _: t,
+  t,
   T,
   slug,
   getRandomString,

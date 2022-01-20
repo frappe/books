@@ -1,3 +1,5 @@
+import { ValueError } from '../common/errors';
+
 function stringReplace(str, args) {
   if (!Array.isArray(args)) {
     args = [args];
@@ -32,13 +34,23 @@ class TranslationString {
   }
 
   #translate(segment) {
-    if (this.context) {
-      // do something
-    }
+    // TODO: implement translation backend
     return segment;
   }
 
   #stitch() {
+    if (typeof this.args[0] === 'string') {
+      return stringReplace(this.args[0], this.args.slice(1));
+    }
+
+    if (!(this.args[0] instanceof Array)) {
+      throw new ValueError(
+        `invalid args passed to TranslationString ${
+          this.args
+        } of type ${typeof this.args[0]}`
+      );
+    }
+
     const strList = this.args[0];
     const argList = this.args.slice(1);
     return strList
@@ -60,9 +72,9 @@ class TranslationString {
 }
 
 export function T(...args) {
-  if (typeof args[0] === 'string') {
-    return stringReplace(args[0], args.slice(1));
-  }
-
   return new TranslationString(...args);
+}
+
+export function t(...args) {
+  return new TranslationString(...args).s;
 }
