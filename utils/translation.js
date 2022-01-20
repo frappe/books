@@ -59,7 +59,7 @@ class TranslationString {
   }
 }
 
-function T(...args) {
+export function T(...args) {
   if (typeof args[0] === 'string') {
     return stringReplace(args[0], args.slice(1));
   }
