@@ -1,4 +1,3 @@
-import frappe from 'frappejs';
 import { getTrialBalance } from '../FinancialStatements/FinancialStatements';
 
 export default class TrialBalance {
@@ -7,7 +6,7 @@ export default class TrialBalance {
       return { rows: [] };
     }
     const promises = ['Asset', 'Expense', 'Income', 'Liability', 'Equity'].map(
-      rootType => {
+      (rootType) => {
         return getTrialBalance({ rootType, fromDate, toDate });
       }
     );
@@ -17,7 +16,7 @@ export default class TrialBalance {
       return [...acc, ...curr];
     }, []);
 
-    rows = rows.filter(r => r.debit !== 0 || r.credit !== 0);
+    rows = rows.filter((r) => r.debit !== 0 || r.credit !== 0);
     return { rows };
   }
-};
+}

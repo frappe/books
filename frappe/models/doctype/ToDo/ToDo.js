@@ -1,4 +1,4 @@
-const { BLUE, GREEN } = require('frappejs/ui/constants/indicators');
+const { BLUE, GREEN } = require('frappe/ui/constants/indicators');
 
 module.exports = {
   name: 'ToDo',
@@ -11,8 +11,8 @@ module.exports = {
     key: 'status',
     colors: {
       Open: BLUE,
-      Closed: GREEN
-    }
+      Closed: GREEN,
+    },
   },
   fields: [
     {
@@ -20,7 +20,7 @@ module.exports = {
       label: 'Subject',
       placeholder: 'Subject',
       fieldtype: 'Data',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'status',
@@ -28,13 +28,13 @@ module.exports = {
       fieldtype: 'Select',
       options: ['Open', 'Closed'],
       default: 'Open',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'description',
       label: 'Description',
-      fieldtype: 'Text'
-    }
+      fieldtype: 'Text',
+    },
   ],
 
   quickEditFields: ['status', 'description'],
@@ -42,19 +42,19 @@ module.exports = {
   actions: [
     {
       label: 'Close',
-      condition: doc => doc.status !== 'Closed',
-      action: async doc => {
+      condition: (doc) => doc.status !== 'Closed',
+      action: async (doc) => {
         await doc.set('status', 'Closed');
         await doc.update();
-      }
+      },
     },
     {
       label: 'Re-Open',
-      condition: doc => doc.status !== 'Open',
-      action: async doc => {
+      condition: (doc) => doc.status !== 'Open',
+      action: async (doc) => {
         await doc.set('status', 'Open');
         await doc.update();
-      }
-    }
-  ]
+      },
+    },
+  ],
 };

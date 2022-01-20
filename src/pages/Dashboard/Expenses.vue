@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import theme from '@/theme';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';

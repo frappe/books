@@ -17,7 +17,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import { Chart } from 'frappe-charts';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';

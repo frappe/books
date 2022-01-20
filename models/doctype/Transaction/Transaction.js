@@ -1,6 +1,6 @@
 import Badge from '@/components/Badge';
 import { getInvoiceStatus, openQuickEdit, routeTo } from '@/utils';
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import utils from '../../../accounting/utils';
 import { statusColor } from '../../../src/colors';
 

@@ -1,4 +1,4 @@
-const frappe = require('frappejs');
+const frappe = require('frappe');
 
 module.exports = async function runPatches(patchList) {
   const patchesAlreadyRun = (

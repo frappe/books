@@ -1,5 +1,5 @@
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 export default {
   name: 'Base',
   props: ['doc', 'printSettings'],

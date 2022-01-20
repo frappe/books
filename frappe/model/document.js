@@ -1,5 +1,5 @@
-const frappe = require('frappejs');
-const Observable = require('frappejs/utils/observable');
+const frappe = require('frappe');
+const Observable = require('frappe/utils/observable');
 const naming = require('./naming');
 const { isPesa } = require('../utils/index');
 const { DEFAULT_INTERNAL_PRECISION } = require('../utils/consts');

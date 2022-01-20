@@ -82,8 +82,8 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import frappe from 'frappe';
+import { _ } from 'frappe/utils';
 import PageHeader from '@/components/PageHeader';
 import Icon from '@/components/Icon';
 import Button from '@/components/Button';

@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import { DateTime } from 'luxon';
 import { convertPesaValuesToFloat } from '../../src/utils';
 

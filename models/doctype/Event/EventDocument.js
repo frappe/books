@@ -1,8 +1,7 @@
-import frappe from 'frappejs';
-import BaseDocument from 'frappejs/model/document';
+import BaseDocument from 'frappe/model/document';
 
 export default class Event extends BaseDocument {
-    alertEvent() {
-        alert(this.title);
-    }
-};
+  alertEvent() {
+    alert(this.title);
+  }
+}

@@ -1,7 +1,7 @@
-const BaseList = require('frappejs/client/view/list');
+const BaseList = require('frappe/client/view/list');
 
 module.exports = class ToDoList extends BaseList {
-    getFields(list)  {
-        return ['name', 'subject', 'status'];
-    }
-}
+  getFields(list) {
+    return ['name', 'subject', 'status'];
+  }
+};

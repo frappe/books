@@ -1,5 +1,5 @@
-import frappe from 'frappejs';
-import BaseDocument from 'frappejs/model/document';
+import frappe from 'frappe';
+import BaseDocument from 'frappe/model/document';
 
 export default class Account extends BaseDocument {
   async validate() {
@@ -11,4 +11,4 @@ export default class Account extends BaseDocument {
       );
     }
   }
-};
+}

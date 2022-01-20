@@ -37,7 +37,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import reports from '../../reports/view';
 import Dropdown from '@/components/Dropdown';
 import { routeTo } from '@/utils'

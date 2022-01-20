@@ -98,7 +98,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
 import { openQuickEdit, handleErrorWithDialog } from '@/utils';

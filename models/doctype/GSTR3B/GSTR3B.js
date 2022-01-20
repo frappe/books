@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import GSTR3B from './GSTR3BDocument.js';
 
 export default {

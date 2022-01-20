@@ -68,7 +68,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import Button from '@/components/Button';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';

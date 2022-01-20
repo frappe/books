@@ -1,4 +1,4 @@
-import model from 'frappejs/model';
+import model from 'frappe/model';
 import SalesInvoice from '../SalesInvoice/SalesInvoice';
 
 const Quotation = model.extend(
@@ -10,14 +10,14 @@ const Quotation = model.extend(
     fields: [
       {
         fieldname: 'items',
-        childtype: 'QuotationItem'
-      }
+        childtype: 'QuotationItem',
+      },
     ],
-    links: []
+    links: [],
   },
   {
     skipFields: ['account'],
-    overrideProps: ['links']
+    overrideProps: ['links'],
   }
 );
 
