@@ -1,9 +1,9 @@
-import { _ } from 'frappejs/utils';
+import { t } from 'frappejs/utils';
 import Badge from '@/components/Badge';
 
 export default {
   doctype: 'Payment',
-  title: _('Payments'),
+  title: t('Payments'),
   columns: [
     'party',
     {
@@ -28,12 +28,12 @@ export default {
 
         return {
           template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
-          components: { Badge }
+          components: { Badge },
         };
-      }
+      },
     },
     'paymentType',
     'date',
-    'amount'
-  ]
+    'amount',
+  ],
 };

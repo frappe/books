@@ -1,7 +1,6 @@
-import { _ } from 'frappejs/utils';
-
+import { t } from 'frappejs/utils';
 export default {
   doctype: 'Supplier',
-  title: _('Supplier'),
-  columns: ['name', 'phone', 'outstandingAmount']
+  title: t('Supplier'),
+  columns: ['name', 'phone', 'outstandingAmount'],
 };

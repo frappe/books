@@ -2,7 +2,7 @@
   <div class="flex flex-col overflow-hidden">
     <PageHeader>
       <h1 slot="title" class="text-2xl font-bold">
-        {{ _('Settings') }}
+        {{ t('Settings') }}
       </h1>
     </PageHeader>
     <div class="flex justify-center flex-1 mb-8 mt-2">
@@ -47,7 +47,7 @@
   </div>
 </template>
 <script>
-import { _ } from 'frappejs/utils';
+import { t } from 'frappejs';
 import frappe from 'frappejs';
 import WindowControls from '@/components/WindowControls';
 import TabGeneral from './TabGeneral.vue';
@@ -77,17 +77,17 @@ export default {
       fieldsChanged: [],
       tabs: [
         {
-          label: _('Invoice'),
+          label: t`Invoice`,
           icon: 'invoice',
           component: TabInvoice,
         },
         {
-          label: _('General'),
+          label: t`General`,
           icon: 'general',
           component: TabGeneral,
         },
         {
-          label: _('System'),
+          label: t`System`,
           icon: 'system',
           component: TabSystem,
         },
@@ -114,8 +114,8 @@ export default {
   methods: {
     showReloadToast() {
       showToast({
-        message: _('Settings changes will be visible on reload'),
-        actionText: frappe._('Reload App'),
+        message: t`Settings changes will be visible on reload`,
+        actionText: t`Reload App`,
         type: 'info',
         action: async () => {
           frappe.events.trigger('reload-main-window');
@@ -131,7 +131,7 @@ export default {
     },
     setActiveTab() {
       const { tab } = this.$route.query;
-      const index = this.tabs.findIndex((t) => t.label === _(tab || 'Invoice'));
+      const index = this.tabs.findIndex((i) => i.label === t(tab || 'Invoice'));
       if (index !== -1) {
         this.activeTab = index;
       }

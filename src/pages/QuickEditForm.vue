@@ -19,7 +19,7 @@
           v-if="doc && doc._notInserted"
           class="ml-2 text-white text-xs"
         >
-          {{ _('Save') }}
+          {{ t('Save') }}
         </Button>
         <Button
           :icon="true"
@@ -35,7 +35,7 @@
           "
           class="ml-2 text-white text-xs"
         >
-          {{ _('Submit') }}
+          {{ t('Submit') }}
         </Button>
       </div>
     </div>
@@ -78,7 +78,7 @@
 
 <script>
 import frappe from 'frappejs';
-import { _ } from 'frappejs';
+import { t } from 'frappejs';
 import Button from '@/components/Button';
 import StatusBadge from '@/components/StatusBadge';
 import FormControl from '@/components/Controls/FormControl';
@@ -183,7 +183,7 @@ export default {
           });
         });
         this.doc.on('beforeUpdate', () => {
-          this.statusText = _('Saving...');
+          this.statusText = t('Saving...');
         });
         this.doc.on('afterUpdate', () => {
           setTimeout(() => {

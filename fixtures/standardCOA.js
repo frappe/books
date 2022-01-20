@@ -1,173 +1,173 @@
 import frappe from 'frappejs';
-const _ = frappe._.bind(frappe);
+const t = frappe.t.bind(frappe);
 
 export default {
-    [_("Application of Funds (Assets)")]: {
-        [_("Current Assets")]: {
-            [_("Accounts Receivable")]: {
-                [_("Debtors")]: {
-                    "accountType": "Receivable"
-                }
-            },
-            [_("Bank Accounts")]: {
-                "accountType": "Bank",
-                "isGroup": 1
-            },
-            [_("Cash In Hand")]: {
-                [_("Cash")]: {
-                    "accountType": "Cash"
-                },
-                "accountType": "Cash"
-            },
-            [_("Loans and Advances (Assets)")]: {
-                "isGroup": 1
-            },
-            [_("Securities and Deposits")]: {
-                [_("Earnest Money")]: {}
-            },
-            [_("Stock Assets")]: {
-                [_("Stock In Hand")]: {
-                    "accountType": "Stock"
-                },
-                "accountType": "Stock",
-            },
-            [_("Tax Assets")]: {
-                "isGroup": 1
-            }
+  [t('Application of Funds (Assets)')]: {
+    [t('Current Assets')]: {
+      [t('Accounts Receivable')]: {
+        [t('Debtors')]: {
+          accountType: 'Receivable',
         },
-        [_("Fixed Assets")]: {
-            [_("Capital Equipments")]: {
-                "accountType": "Fixed Asset"
-            },
-            [_("Electronic Equipments")]: {
-                "accountType": "Fixed Asset"
-            },
-            [_("Furnitures and Fixtures")]: {
-                "accountType": "Fixed Asset"
-            },
-            [_("Office Equipments")]: {
-                "accountType": "Fixed Asset"
-            },
-            [_("Plants and Machineries")]: {
-                "accountType": "Fixed Asset"
-            },
-            [_("Buildings")]: {
-                "accountType": "Fixed Asset"
-            },
-            [_("Softwares")]: {
-                "accountType": "Fixed Asset"
-            },
-            [_("Accumulated Depreciation")]: {
-                "accountType": "Accumulated Depreciation"
-            }
+      },
+      [t('Bank Accounts')]: {
+        accountType: 'Bank',
+        isGroup: 1,
+      },
+      [t('Cash In Hand')]: {
+        [t('Cash')]: {
+          accountType: 'Cash',
         },
-        [_("Investments")]: {
-            "isGroup": 1
+        accountType: 'Cash',
+      },
+      [t('Loans and Advances (Assets)')]: {
+        isGroup: 1,
+      },
+      [t('Securities and Deposits')]: {
+        [t('Earnest Money')]: {},
+      },
+      [t('Stock Assets')]: {
+        [t('Stock In Hand')]: {
+          accountType: 'Stock',
         },
-        [_("Temporary Accounts")]: {
-            [_("Temporary Opening")]: {
-                "accountType": "Temporary"
-            }
-        },
-        "rootType": "Asset"
+        accountType: 'Stock',
+      },
+      [t('Tax Assets')]: {
+        isGroup: 1,
+      },
     },
-    [_("Expenses")]: {
-        [_("Direct Expenses")]: {
-            [_("Stock Expenses")]: {
-                [_("Cost of Goods Sold")]: {
-                    "accountType": "Cost of Goods Sold"
-                },
-                [_("Expenses Included In Valuation")]: {
-                    "accountType": "Expenses Included In Valuation"
-                },
-                [_("Stock Adjustment")]: {
-                    "accountType": "Stock Adjustment"
-                }
-            },
-        },
-        [_("Indirect Expenses")]: {
-            [_("Administrative Expenses")]: {},
-            [_("Commission on Sales")]: {},
-            [_("Depreciation")]: {
-                "accountType": "Depreciation"
-            },
-            [_("Entertainment Expenses")]: {},
-            [_("Freight and Forwarding Charges")]: {
-                "accountType": "Chargeable"
-            },
-            [_("Legal Expenses")]: {},
-            [_("Marketing Expenses")]: {
-                "accountType": "Chargeable"
-            },
-            [_("Miscellaneous Expenses")]: {
-                "accountType": "Chargeable"
-            },
-            [_("Office Maintenance Expenses")]: {},
-            [_("Office Rent")]: {},
-            [_("Postal Expenses")]: {},
-            [_("Print and Stationery")]: {},
-            [_("Round Off")]: {
-                "accountType": "Round Off"
-            },
-            [_("Salary")]: {},
-            [_("Sales Expenses")]: {},
-            [_("Telephone Expenses")]: {},
-            [_("Travel Expenses")]: {},
-            [_("Utility Expenses")]: {},
-            [_("Write Off")]: {},
-            [_("Exchange Gain/Loss")]: {},
-            [_("Gain/Loss on Asset Disposal")]: {}
-        },
-        "rootType": "Expense"
+    [t('Fixed Assets')]: {
+      [t('Capital Equipments')]: {
+        accountType: 'Fixed Asset',
+      },
+      [t('Electronic Equipments')]: {
+        accountType: 'Fixed Asset',
+      },
+      [t('Furnitures and Fixtures')]: {
+        accountType: 'Fixed Asset',
+      },
+      [t('Office Equipments')]: {
+        accountType: 'Fixed Asset',
+      },
+      [t('Plants and Machineries')]: {
+        accountType: 'Fixed Asset',
+      },
+      [t('Buildings')]: {
+        accountType: 'Fixed Asset',
+      },
+      [t('Softwares')]: {
+        accountType: 'Fixed Asset',
+      },
+      [t('Accumulated Depreciation')]: {
+        accountType: 'Accumulated Depreciation',
+      },
     },
-    [_("Income")]: {
-        [_("Direct Income")]: {
-            [_("Sales")]: {},
-            [_("Service")]: {}
-        },
-        [_("Indirect Income")]: {
-            "isGroup": 1
-        },
-        "rootType": "Income"
+    [t('Investments')]: {
+      isGroup: 1,
     },
-    [_("Source of Funds (Liabilities)")]: {
-        [_("Current Liabilities")]: {
-            [_("Accounts Payable")]: {
-                [_("Creditors")]: {
-                    "accountType": "Payable"
-                },
-                [_("Payroll Payable")]: {},
-            },
-            [_("Stock Liabilities")]: {
-                [_("Stock Received But Not Billed")]: {
-                    "accountType": "Stock Received But Not Billed"
-                },
-            },
-            [_("Duties and Taxes")]: {
-                "accountType": "Tax",
-                "isGroup": 1
-            },
-            [_("Loans (Liabilities)")]: {
-                [_("Secured Loans")]: {},
-                [_("Unsecured Loans")]: {},
-                [_("Bank Overdraft Account")]: {},
-            },
-        },
-        "rootType": "Liability"
+    [t('Temporary Accounts')]: {
+      [t('Temporary Opening')]: {
+        accountType: 'Temporary',
+      },
     },
-    [_("Equity")]: {
-        [_("Capital Stock")]: {
-            "accountType": "Equity"
+    rootType: 'Asset',
+  },
+  [t('Expenses')]: {
+    [t('Direct Expenses')]: {
+      [t('Stock Expenses')]: {
+        [t('Cost of Goods Sold')]: {
+          accountType: 'Cost of Goods Sold',
         },
-        [_("Dividends Paid")]: {
-            "accountType": "Equity"
+        [t('Expenses Included In Valuation')]: {
+          accountType: 'Expenses Included In Valuation',
         },
-        [_("Opening Balance Equity")]: {
-            "accountType": "Equity"
+        [t('Stock Adjustment')]: {
+          accountType: 'Stock Adjustment',
         },
-        [_("Retained Earnings")]: {
-            "accountType": "Equity"
+      },
+    },
+    [t('Indirect Expenses')]: {
+      [t('Administrative Expenses')]: {},
+      [t('Commission on Sales')]: {},
+      [t('Depreciation')]: {
+        accountType: 'Depreciation',
+      },
+      [t('Entertainment Expenses')]: {},
+      [t('Freight and Forwarding Charges')]: {
+        accountType: 'Chargeable',
+      },
+      [t('Legal Expenses')]: {},
+      [t('Marketing Expenses')]: {
+        accountType: 'Chargeable',
+      },
+      [t('Miscellaneous Expenses')]: {
+        accountType: 'Chargeable',
+      },
+      [t('Office Maintenance Expenses')]: {},
+      [t('Office Rent')]: {},
+      [t('Postal Expenses')]: {},
+      [t('Print and Stationery')]: {},
+      [t('Round Off')]: {
+        accountType: 'Round Off',
+      },
+      [t('Salary')]: {},
+      [t('Sales Expenses')]: {},
+      [t('Telephone Expenses')]: {},
+      [t('Travel Expenses')]: {},
+      [t('Utility Expenses')]: {},
+      [t('Write Off')]: {},
+      [t('Exchange Gain/Loss')]: {},
+      [t('Gain/Loss on Asset Disposal')]: {},
+    },
+    rootType: 'Expense',
+  },
+  [t('Income')]: {
+    [t('Direct Income')]: {
+      [t('Sales')]: {},
+      [t('Service')]: {},
+    },
+    [t('Indirect Income')]: {
+      isGroup: 1,
+    },
+    rootType: 'Income',
+  },
+  [t('Source of Funds (Liabilities)')]: {
+    [t('Current Liabilities')]: {
+      [t('Accounts Payable')]: {
+        [t('Creditors')]: {
+          accountType: 'Payable',
         },
-        "rootType": "Equity"
-    }
+        [t('Payroll Payable')]: {},
+      },
+      [t('Stock Liabilities')]: {
+        [t('Stock Received But Not Billed')]: {
+          accountType: 'Stock Received But Not Billed',
+        },
+      },
+      [t('Duties and Taxes')]: {
+        accountType: 'Tax',
+        isGroup: 1,
+      },
+      [t('Loans (Liabilities)')]: {
+        [t('Secured Loans')]: {},
+        [t('Unsecured Loans')]: {},
+        [t('Bank Overdraft Account')]: {},
+      },
+    },
+    rootType: 'Liability',
+  },
+  [t('Equity')]: {
+    [t('Capital Stock')]: {
+      accountType: 'Equity',
+    },
+    [t('Dividends Paid')]: {
+      accountType: 'Equity',
+    },
+    [t('Opening Balance Equity')]: {
+      accountType: 'Equity',
+    },
+    [t('Retained Earnings')]: {
+      accountType: 'Equity',
+    },
+    rootType: 'Equity',
+  },
 };

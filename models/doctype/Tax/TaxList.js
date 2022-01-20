@@ -1,7 +1,7 @@
-import { _ } from 'frappejs/utils';
+import { t } from 'frappejs/utils';
 
 export default {
   doctype: 'Tax',
-  title: _('Taxes'),
-  columns: ['name']
+  title: t('Taxes'),
+  columns: ['name'],
 };

@@ -95,6 +95,7 @@
   </div>
 </template>
 <script>
+import { t } from 'frappejs';
 import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
@@ -161,7 +162,10 @@ export default {
         rows = data;
       }
 
-      this.reportData.columns = this.report.getColumns({ filters: this.filters, data });
+      this.reportData.columns = this.report.getColumns({
+        filters: this.filters,
+        data,
+      });
 
       if (!rows) {
         rows = [];
@@ -295,7 +299,7 @@ export default {
             })
           ) ?? []),
         {
-          label: this._('Reset Filters'),
+          label: t`Reset Filters`,
           action: this.resetFilters,
         },
       ];

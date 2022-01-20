@@ -9,15 +9,15 @@
     <div class="w-full">
       <div class="px-12">
         <h1 class="text-2xl font-semibold">
-          {{ _('Welcome to Frappe Books') }}
+          {{ t('Welcome to Frappe Books') }}
         </h1>
         <p class="text-gray-600 text-base" v-if="!showFiles">
           {{
-            _('Create a new file or select an existing one from your computer')
+            t('Create a new file or select an existing one from your computer')
           }}
         </p>
         <p class="text-gray-600 text-base" v-if="showFiles">
-          {{ _('Select a file to load the company transactions') }}
+          {{ t('Select a file to load the company transactions') }}
         </p>
       </div>
       <div class="px-12 mt-10 window-no-drag" v-if="!showFiles">
@@ -49,14 +49,14 @@
               <template
                 v-if="loadingDatabase && fileSelectedFrom === 'New File'"
               >
-                {{ _('Loading...') }}
+                {{ t('Loading...') }}
               </template>
               <template v-else>
-                {{ _('New File') }}
+                {{ t('New File') }}
               </template>
             </div>
             <div class="mt-2 text-sm text-gray-600 text-center">
-              {{ _('Create a new file and store it in your computer.') }}
+              {{ t('Create a new file and store it in your computer.') }}
             </div>
           </div>
           <div
@@ -85,14 +85,14 @@
               <template
                 v-if="loadingDatabase && fileSelectedFrom === 'Existing File'"
               >
-                {{ _('Loading...') }}
+                {{ t('Loading...') }}
               </template>
               <template v-else>
-                {{ _('Existing File') }}
+                {{ t('Existing File') }}
               </template>
             </div>
             <div class="mt-2 text-sm text-gray-600 text-center">
-              {{ _('Load an existing .db file from your computer.') }}
+              {{ t('Load an existing .db file from your computer.') }}
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@
             <div class="flex items-baseline">
               <span>
                 <template v-if="loadingDatabase && fileSelectedFrom === file">
-                  {{ _('Loading...') }}
+                  {{ t('Loading...') }}
                 </template>
                 <template v-else>
                   {{ file.companyName }}
@@ -154,6 +154,7 @@
 <script>
 import fs from 'fs';
 import config from '@/config';
+import t from 'frappejs';
 import { DateTime } from 'luxon';
 import { ipcRenderer } from 'electron';
 import { DB_CONN_FAILURE, IPC_ACTIONS } from '../messages';
@@ -195,7 +196,7 @@ export default {
       this.fileSelectedFrom = 'Existing File';
       const filePath = (
         await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, {
-          title: this._('Select file'),
+          title: t`Select file`,
           properties: ['openFile'],
           filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
         })
@@ -224,12 +225,12 @@ export default {
       } else if (reason === DB_CONN_FAILURE.CANT_OPEN) {
         await showErrorDialog({
           title,
-          content: `Can't open database file: ${filePath}, please create a new file.`,
+          content: t`Can't open database file: ${filePath}, please create a new file.`,
         });
       } else {
         await showErrorDialog({
           title,
-          content: `Please select an existing database or create a new one. reason: ${reason}, filePath: ${filePath}`,
+          content: t`Please select an existing database or create a new one. reason: ${reason}, filePath: ${filePath}`,
         });
       }
     },

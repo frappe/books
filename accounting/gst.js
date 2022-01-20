@@ -1,6 +1,5 @@
 import { showMessageDialog } from '@/utils';
-import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import frappe, { t } from 'frappejs';
 import { DateTime } from 'luxon';
 import { exportCsv, saveExportData } from '../reports/commonExporter';
 import { getSavePath } from '../src/utils';
@@ -89,8 +88,8 @@ export async function generateGstr1Json(getReportData) {
   const { gstin } = frappe.AccountingSettings;
   if (!gstin) {
     showMessageDialog({
-      message: _('Export Failed'),
-      description: _('Please set GSTIN in General Settings.'),
+      message: t('Export Failed'),
+      description: t('Please set GSTIN in General Settings.'),
     });
     return;
   }
@@ -269,8 +268,8 @@ export async function generateGstr2Csv(getReportData) {
   const { gstin } = frappe.AccountingSettings;
   if (!gstin) {
     showMessageDialog({
-      message: _('Export Failed'),
-      description: _('Please set GSTIN in General Settings.'),
+      message: t('Export Failed'),
+      description: t('Please set GSTIN in General Settings.'),
     });
     return;
   }
@@ -350,8 +349,8 @@ export async function generateGstr1Csv(getReportData) {
   const { gstin } = frappe.AccountingSettings;
   if (!gstin) {
     showMessageDialog({
-      message: _('Export Failed'),
-      description: _('Please set GSTIN in General Settings.'),
+      message: t('Export Failed'),
+      description: t('Please set GSTIN in General Settings.'),
     });
     return;
   }

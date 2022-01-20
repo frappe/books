@@ -1,7 +1,7 @@
-import { _ } from 'frappejs/utils';
+import { t } from 'frappejs';
 
 export default {
   doctype: 'Account',
-  title: _('Account'),
-  columns: ['name', 'parentAccount', 'rootType']
+  title: t('Account'),
+  columns: ['name', 'parentAccount', 'rootType'],
 };

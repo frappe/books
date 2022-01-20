@@ -9,7 +9,7 @@
               {{ filterAppliedMessage }}
             </template>
             <template v-else>
-              {{ _('Filter') }}
+              {{ t('Filter') }}
             </template>
           </span>
         </span>
@@ -33,10 +33,10 @@
                     placeholder: 'Field',
                     fieldname: 'fieldname',
                     fieldtype: 'Select',
-                    options: fieldOptions
+                    options: fieldOptions,
                   }"
                   :value="filter.fieldname"
-                  @change="value => (filter.fieldname = value)"
+                  @change="(value) => (filter.fieldname = value)"
                 />
               </div>
               <div class="ml-2 w-24">
@@ -47,10 +47,10 @@
                     placeholder: 'Condition',
                     fieldname: 'condition',
                     fieldtype: 'Select',
-                    options: conditions
+                    options: conditions,
                   }"
                   :value="filter.condition"
-                  @change="value => (filter.condition = value)"
+                  @change="(value) => (filter.condition = value)"
                 />
               </div>
               <div class="ml-2 w-24">
@@ -60,15 +60,23 @@
                   :df="{
                     placeholder: 'Value',
                     fieldname: 'value',
-                    fieldtype: 'Data'
+                    fieldtype: 'Data',
                   }"
                   :value="filter.value"
-                  @change="value => (filter.value = value)"
+                  @change="(value) => (filter.value = value)"
                 />
               </div>
             </div>
             <div
-              class="ml-2 cursor-pointer w-5 h-5 flex-center hover:bg-gray-100 rounded-md"
+              class="
+                ml-2
+                cursor-pointer
+                w-5
+                h-5
+                flex-center
+                hover:bg-gray-100
+                rounded-md
+              "
             >
               <feather-icon
                 name="x"
@@ -80,16 +88,26 @@
         </template>
         <template v-else>
           <span class="text-base text-gray-600">{{
-            _('No filters selected')
+            t('No filters selected')
           }}</span>
         </template>
       </div>
       <div
-        class="text-base border-t px-3 py-2 flex items-center text-gray-600 cursor-pointer hover:bg-gray-100"
+        class="
+          text-base
+          border-t
+          px-3
+          py-2
+          flex
+          items-center
+          text-gray-600
+          cursor-pointer
+          hover:bg-gray-100
+        "
         @click="addNewFilter"
       >
         <feather-icon name="plus" class="w-4 h-4" />
-        <span class="ml-2">{{ _('Add a filter') }}</span>
+        <span class="ml-2">{{ t('Add a filter') }}</span>
       </div>
     </div>
   </Popover>
@@ -100,6 +118,7 @@ import Popover from './Popover';
 import Button from './Button';
 import Icon from './Icon';
 import FormControl from './Controls/FormControl';
+import { t } from 'frappejs';
 
 let conditions = [
   { label: 'Is', value: '=' },
@@ -109,7 +128,7 @@ let conditions = [
   { label: 'Greater Than', value: '>' },
   { label: 'Less Than', value: '<' },
   { label: 'Is Empty', value: 'is null' },
-  { label: 'Is Not Empty', value: 'is not null' }
+  { label: 'Is Not Empty', value: 'is not null' },
 ];
 
 export default {
@@ -118,12 +137,12 @@ export default {
     Popover,
     Button,
     Icon,
-    FormControl
+    FormControl,
   },
   props: ['fields'],
   data() {
     return {
-      filters: []
+      filters: [],
     };
   },
   created() {
@@ -138,11 +157,11 @@ export default {
       this.filters.push({ fieldname, condition, value });
     },
     removeFilter(filter) {
-      this.filters = this.filters.filter(f => f !== filter);
+      this.filters = this.filters.filter((f) => f !== filter);
     },
     setFilter(filters) {
       this.filters = [];
-      Object.keys(filters).map(fieldname => {
+      Object.keys(filters).map((fieldname) => {
         let parts = filters[fieldname];
         let condition, value;
         if (Array.isArray(parts)) {
@@ -166,24 +185,27 @@ export default {
       }, {});
 
       this.$emit('change', filters);
-    }
+    },
   },
   computed: {
     fieldOptions() {
-      return this.fields.map(df => ({ label: df.label, value: df.fieldname }));
+      return this.fields.map((df) => ({
+        label: df.label,
+        value: df.fieldname,
+      }));
     },
     conditions() {
       return conditions;
     },
     activeFilterCount() {
-      return this.filters.filter(filter => filter.value).length;
+      return this.filters.filter((filter) => filter.value).length;
     },
     filterAppliedMessage() {
       if (this.activeFilterCount === 1) {
-        return this._('1 filter applied');
+        return t`1 filter applied`;
       }
-      return this._('{0} filters applied', [this.activeFilterCount]);
-    }
-  }
+      return t`${this.activeFilterCount} filters applied`;
+    },
+  },
 };
 </script>

@@ -8,10 +8,10 @@
             class="text-gray-900 text-xs ml-2"
             @click="showCustomiser = !showCustomiser"
           >
-            {{ _('Customise') }}
+            {{ t('Customise') }}
           </Button>
           <Button class="text-gray-900 text-xs ml-2" @click="makePDF">
-            {{ _('Save as PDF') }}
+            {{ t('Save as PDF') }}
           </Button>
         </template>
       </PageHeader>
@@ -39,7 +39,7 @@
     </div>
     <div class="border-l w-80" v-if="showCustomiser">
       <div class="mt-4 px-4 flex items-center justify-between">
-        <h2 class="font-semibold">{{ _('Customise') }}</h2>
+        <h2 class="font-semibold">{{ t('Customise') }}</h2>
         <Button :icon="true" @click="showCustomiser = false">
           <feather-icon name="x" class="w-4 h-4" />
         </Button>
@@ -49,6 +49,7 @@
   </div>
 </template>
 <script>
+import { t } from 'frappejs';
 import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
@@ -100,7 +101,7 @@ export default {
     },
     async getSavePath() {
       const options = {
-        title: this._('Select folder'),
+        title: t`Select folder`,
         defaultPath: `${this.name}.pdf`,
       };
 

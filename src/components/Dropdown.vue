@@ -19,7 +19,7 @@
     <div slot="content" class="z-10 bg-white rounded w-full min-w-40">
       <div class="p-1 max-h-64 overflow-auto text-sm">
         <div v-if="isLoading" class="p-2 text-gray-600 italic">
-          {{ _('Loading...') }}
+          {{ t('Loading...') }}
         </div>
         <div
           v-if="!isLoading && dropdownItems.length === 0"
@@ -73,6 +73,7 @@
 </template>
 
 <script>
+import { t } from 'frappejs';
 import Popover from './Popover';
 import uniq from 'lodash/uniq';
 
@@ -168,11 +169,11 @@ export default {
     getEmptyMessage() {
       const { emptyMessage } = this.df ?? {};
       if (typeof emptyMessage === 'function') {
-        return _(emptyMessage(this.doc));
+        return t(emptyMessage(this.doc));
       } else if (emptyMessage) {
-        return _(emptyMessage);
+        return t(emptyMessage);
       }
-      return _('Empty');
+      return t('Empty');
     },
     selectItem(d) {
       if (d.action) {

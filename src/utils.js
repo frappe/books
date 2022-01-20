@@ -3,7 +3,7 @@ import Toast from '@/components/Toast';
 import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappejs';
-import { isPesa, _ } from 'frappejs/utils';
+import { isPesa, t } from 'frappejs/utils';
 import lodash from 'lodash';
 import Vue from 'vue';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
@@ -43,14 +43,14 @@ export async function showErrorDialog({ title, content }) {
 export function deleteDocWithPrompt(doc) {
   return new Promise((resolve) => {
     showMessageDialog({
-      message: _('Are you sure you want to delete {0} "{1}"?', [
+      message: t('Are you sure you want to delete {0} "{1}"?', [
         doc.doctype,
         doc.name,
       ]),
-      description: _('This action is permanent'),
+      description: t('This action is permanent'),
       buttons: [
         {
-          label: _('Delete'),
+          label: t('Delete'),
           action: () => {
             doc
               .delete()
@@ -61,7 +61,7 @@ export function deleteDocWithPrompt(doc) {
           },
         },
         {
-          label: _('Cancel'),
+          label: t('Cancel'),
           action() {
             resolve(false);
           },
@@ -74,14 +74,14 @@ export function deleteDocWithPrompt(doc) {
 export function cancelDocWithPrompt(doc) {
   return new Promise((resolve) => {
     showMessageDialog({
-      message: _('Are you sure you want to cancel {0} "{1}"?', [
+      message: t('Are you sure you want to cancel {0} "{1}"?', [
         doc.doctype,
         doc.name,
       ]),
-      description: _('This action is permanent'),
+      description: t('This action is permanent'),
       buttons: [
         {
-          label: _('Yes'),
+          label: t('Yes'),
           async action() {
             const entryDoc = await frappe.getDoc(doc.doctype, doc.name);
             entryDoc.cancelled = 1;
@@ -95,7 +95,7 @@ export function cancelDocWithPrompt(doc) {
           },
         },
         {
-          label: _('No'),
+          label: t('No'),
           action() {
             resolve(false);
           },
@@ -152,16 +152,16 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
 }
 
 export function getErrorMessage(e, doc) {
-  let errorMessage = e.message || _('An error occurred.');
+  let errorMessage = e.message || t('An error occurred.');
   const { doctype, name } = doc;
   const canElaborate = doctype && name;
   if (e.type === frappe.errors.LinkValidationError && canElaborate) {
-    errorMessage = _('{0} {1} is linked with existing records.', [
+    errorMessage = t('{0} {1} is linked with existing records.', [
       doctype,
       name,
     ]);
   } else if (e.type === frappe.errors.DuplicateEntryError && canElaborate) {
-    errorMessage = _('{0} {1} already exists.', [doctype, name]);
+    errorMessage = t('{0} {1} already exists.', [doctype, name]);
   }
   return errorMessage;
 }
@@ -174,13 +174,13 @@ export function handleErrorWithDialog(e, doc) {
 
 export async function makePDF(html, savePath) {
   await ipcRenderer.invoke(IPC_ACTIONS.SAVE_HTML_AS_PDF, html, savePath);
-  showExportInFolder(frappe._('Save as PDF Successful'), savePath);
+  showExportInFolder(frappe.t('Save as PDF Successful'), savePath);
 }
 
 export function showExportInFolder(message, filePath) {
   showToast({
     message,
-    actionText: frappe._('Open Folder'),
+    actionText: frappe.t('Open Folder'),
     type: 'success',
     action: async () => {
       await showItemInFolder(filePath);
@@ -201,7 +201,7 @@ export function getActionsForDocument(doc) {
 
   let deleteAction = {
     component: {
-      template: `<span class="text-red-700">{{ _('Delete') }}</span>`,
+      template: `<span class="text-red-700">{{ t('Delete') }}</span>`,
     },
     condition: (doc) =>
       !doc.isNew() && !doc.submitted && !doc.meta.isSingle && !doc.cancelled,
@@ -215,7 +215,7 @@ export function getActionsForDocument(doc) {
 
   let cancelAction = {
     component: {
-      template: `<span class="text-red-700">{{ _('Cancel') }}</span>`,
+      template: `<span class="text-red-700">{{ t('Cancel') }}</span>`,
     },
     condition: (doc) => doc.submitted && !doc.cancelled,
     action: () => {
@@ -323,7 +323,7 @@ export async function getSavePath(name, extention) {
   let { canceled, filePath } = await ipcRenderer.invoke(
     IPC_ACTIONS.GET_SAVE_FILEPATH,
     {
-      title: _('Select Folder'),
+      title: t('Select Folder'),
       defaultPath: `${name}.${extention}`,
     }
   );

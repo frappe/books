@@ -66,7 +66,7 @@ export default {
         action: () => this.openNewDoc(),
         component: {
           template: `
-                <div class="flex items-center font-semibold">{{ _('Create') }}
+                <div class="flex items-center font-semibold">{{ t('Create') }}
                   <Badge color="blue" class="ml-2" v-if="isNewValue">{{ linkValue }}</Badge>
                 </div>
             `,

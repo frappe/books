@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template slot="title">{{ _('Profit and Loss') }}</template>
+      <template slot="title">{{ t('Profit and Loss') }}</template>
       <PeriodSelector
         slot="action"
         :value="period"
@@ -11,7 +11,7 @@
     <div v-show="hasData" class="chart-wrapper" ref="profit-and-loss"></div>
     <div class="flex-1 w-full h-full flex-center my-20" v-if="!hasData">
       <span class="text-base text-gray-600">
-        {{ _('No transactions yet') }}
+        {{ t('No transactions yet') }}
       </span>
     </div>
   </div>

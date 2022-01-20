@@ -49,9 +49,8 @@ import router from './router';
       },
     },
     methods: {
-      _(...args) {
-        return frappe._(...args);
-      },
+      t: frappe.t,
+      T: frappe.T,
     },
   });
 

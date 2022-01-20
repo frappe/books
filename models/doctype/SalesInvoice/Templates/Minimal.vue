@@ -103,7 +103,7 @@
       </div>
       <div class="w-1/2 text-lg">
         <div class="flex pl-2 justify-between py-1">
-          <div>{{ _('Subtotal') }}</div>
+          <div>{{ t('Subtotal') }}</div>
           <div>{{ frappe.format(doc.netTotal, 'Currency') }}</div>
         </div>
         <div
@@ -118,7 +118,7 @@
           class="flex pl-2 justify-between py-1 font-semibold"
           :style="{ color: printSettings.color }"
         >
-          <div>{{ _('Grand Total') }}</div>
+          <div>{{ t('Grand Total') }}</div>
           <div>{{ frappe.format(doc.grandTotal, 'Currency') }}</div>
         </div>
       </div>

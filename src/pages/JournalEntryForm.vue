@@ -11,7 +11,7 @@
           class="text-white text-xs ml-2"
           @click="onSaveClick"
         >
-          {{ _('Save') }}
+          {{ t('Save') }}
         </Button>
         <Button
           v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
@@ -19,7 +19,7 @@
           class="text-white text-xs ml-2"
           @click="onSubmitClick"
         >
-          {{ _('Submit') }}
+          {{ t('Submit') }}
         </Button>
       </template>
     </PageHeader>
@@ -31,7 +31,7 @@
         <div>
           <div class="mt-8 px-6">
             <h1 class="text-2xl font-semibold">
-              {{ doc._notInserted ? _('New Journal Entry') : doc.name }}
+              {{ doc._notInserted ? t('New Journal Entry') : doc.name }}
             </h1>
             <div class="flex justify-between mt-2">
               <div class="w-1/3">
@@ -116,6 +116,7 @@
   </div>
 </template>
 <script>
+import { t } from 'frappejs';
 import frappe from 'frappejs';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
@@ -200,16 +201,16 @@ export default {
     },
     async onSubmitClick() {
       showMessageDialog({
-        message: this._('Are you sure you want to submit this Journal Entry?'),
+        message: t`Are you sure you want to submit this Journal Entry?`,
         buttons: [
           {
-            label: this._('Yes'),
+            label: t`Yes`,
             action: () => {
               this.doc.submit().catch(this.handleError);
             },
           },
           {
-            label: this._('No'),
+            label: t`No`,
             action() {},
           },
         ],

@@ -1,9 +1,9 @@
 import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import { t } from 'frappejs/utils';
 
 const referenceTypeMap = {
-  SalesInvoice: _('Invoice'),
-  PurchaseInvoice: _('Bill'),
+  SalesInvoice: t('Invoice'),
+  PurchaseInvoice: t('Bill'),
 };
 
 export default {

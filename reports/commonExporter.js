@@ -101,5 +101,5 @@ export default function getCommonExportActions(reportName) {
 
 export async function saveExportData(data, filePath) {
   await saveData(data, filePath);
-  showExportInFolder(frappe._('Export Successful'), filePath);
+  showExportInFolder(frappe.t('Export Successful'), filePath);
 }

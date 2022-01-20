@@ -1,5 +1,5 @@
 import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import { t } from 'frappejs/utils';
 import Icon from './components/Icon';
 
 const config = {
@@ -9,120 +9,120 @@ const config = {
   },
   getGroups: () => [
     {
-      title: _('Get Started'),
+      title: t('Get Started'),
       route: '/get-started',
       icon: getIcon('general', '24', '5'),
     },
     {
-      title: _('Dashboard'),
+      title: t('Dashboard'),
       route: '/',
       icon: getIcon('dashboard'),
     },
     {
-      title: _('Sales'),
+      title: t('Sales'),
       icon: getIcon('sales'),
       route: '/list/SalesInvoice',
       items: [
         {
-          label: _('Invoices'),
+          label: t('Invoices'),
           route: '/list/SalesInvoice',
           doctype: 'SalesInvoice',
         },
         {
-          label: _('Customers'),
+          label: t('Customers'),
           route: '/list/Customer',
           doctype: 'Customer',
         },
       ],
     },
     {
-      title: _('Purchases'),
+      title: t('Purchases'),
       icon: getIcon('purchase'),
       route: '/list/PurchaseInvoice',
       items: [
         {
-          label: _('Bills'),
+          label: t('Bills'),
           route: '/list/PurchaseInvoice',
           doctype: 'PurchaseInvoice',
         },
         {
-          label: _('Suppliers'),
+          label: t('Suppliers'),
           route: '/list/Supplier',
           doctype: 'Supplier',
         },
       ],
     },
     {
-      title: _('Common Entries'),
+      title: t('Common Entries'),
       icon: getIcon('common-entries'),
       route: '/list/Item',
       items: [
         {
-          label: _('Items'),
+          label: t('Items'),
           route: '/list/Item',
           doctype: 'Item',
         },
         {
-          label: _('Payments'),
+          label: t('Payments'),
           route: '/list/Payment',
           doctype: 'Payment',
         },
         {
-          label: _('Journal Entry'),
+          label: t('Journal Entry'),
           route: '/list/JournalEntry',
           doctype: 'JournalEntry',
         },
       ],
     },
     {
-      title: _('Reports'),
+      title: t('Reports'),
       icon: getIcon('reports'),
       route: '/report/general-ledger',
       items: [
         {
-          label: _('General Ledger'),
+          label: t('General Ledger'),
           route: '/report/general-ledger',
         },
         {
-          label: _('Profit And Loss'),
+          label: t('Profit And Loss'),
           route: '/report/profit-and-loss',
         },
         {
-          label: _('Balance Sheet'),
+          label: t('Balance Sheet'),
           route: '/report/balance-sheet',
         },
         {
-          label: _('Trial Balance'),
+          label: t('Trial Balance'),
           route: '/report/trial-balance',
         },
         {
-          label: _('GSTR1'),
+          label: t('GSTR1'),
           route: '/report/gstr-1',
           hidden: () => frappe.AccountingSettings.country !== 'India',
         },
         {
-          label: _('GSTR2'),
+          label: t('GSTR2'),
           route: '/report/gstr-2',
           hidden: () => frappe.AccountingSettings.country !== 'India',
-        }
+        },
       ],
     },
     {
-      title: _('Setup'),
+      title: t('Setup'),
       icon: getIcon('settings'),
       route: '/chart-of-accounts',
       items: [
         {
-          label: _('Chart of Accounts'),
+          label: t('Chart of Accounts'),
           route: '/chart-of-accounts',
         },
         {
-          label: _('Taxes'),
+          label: t('Taxes'),
           route: '/list/Tax',
           doctype: 'Tax',
         },
         {
-          label: _('Settings'),
+          label: t('Settings'),
           route: '/settings',
         },
       ],

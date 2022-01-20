@@ -19,14 +19,14 @@
           class="text-white text-xs ml-2"
           @click="onSaveClick"
         >
-          {{ _('Save') }}
+          {{ t('Save') }}
         </Button>
         <Button
           v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
           type="primary"
           class="text-white text-xs ml-2"
           @click="onSubmitClick"
-          >{{ _('Submit') }}</Button
+          >{{ t('Submit') }}</Button
         >
       </template>
     </PageHeader>
@@ -63,8 +63,8 @@
               {{
                 doc._notInserted
                   ? doc.doctype === 'SalesInvoice'
-                    ? _('New Invoice')
-                    : _('New Bill')
+                    ? t('New Invoice')
+                    : t('New Bill')
                   : doc.name
               }}
             </h1>
@@ -132,7 +132,7 @@
           </div>
           <div class="w-64">
             <div class="flex pl-2 justify-between py-3 border-b">
-              <div>{{ _('Subtotal') }}</div>
+              <div>{{ t('Subtotal') }}</div>
               <div>{{ formattedValue('netTotal') }}</div>
             </div>
             <div
@@ -162,7 +162,7 @@
                 text-base
               "
             >
-              <div>{{ _('Grand Total') }}</div>
+              <div>{{ t('Grand Total') }}</div>
               <div>{{ formattedValue('grandTotal') }}</div>
             </div>
             <div
@@ -178,7 +178,7 @@
                 text-base
               "
             >
-              <div>{{ _('Outstanding Amount') }}</div>
+              <div>{{ t('Outstanding Amount') }}</div>
               <div>{{ formattedValue('outstandingAmount') }}</div>
             </div>
           </div>
@@ -188,6 +188,7 @@
   </div>
 </template>
 <script>
+import { t } from 'frappejs';
 import frappe from 'frappejs';
 import StatusBadge from '@/components/StatusBadge';
 import PageHeader from '@/components/PageHeader';
@@ -201,7 +202,7 @@ import {
   getActionsForDocument,
   getInvoiceStatus,
   showMessageDialog,
-  routeTo
+  routeTo,
 } from '@/utils';
 
 export default {
@@ -286,21 +287,21 @@ export default {
       return this.doc.insertOrUpdate().catch(this.handleError);
     },
     onSubmitClick() {
-        let message =
+      let message =
         this.doctype === 'SalesInvoice'
-          ? this._('Are you sure you want to submit this Invoice?')
-          : this._('Are you sure you want to submit this Bill?');
+          ? t`Are you sure you want to submit this Invoice?`
+          : t`Are you sure you want to submit this Bill?`;
       showMessageDialog({
         message,
         buttons: [
           {
-            label: this._('Yes'),
+            label: t`Yes`,
             action: () => {
               this.doc.submit().catch(this.handleError);
             },
           },
           {
-            label: this._('No'),
+            label: t`No`,
             action() {},
           },
         ],
