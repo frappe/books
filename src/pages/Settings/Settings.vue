@@ -131,7 +131,7 @@ export default {
     },
     setActiveTab() {
       const { tab } = this.$route.query;
-      const index = this.tabs.findIndex((t) => t.label === _(tab));
+      const index = this.tabs.findIndex((t) => t.label === _(tab || 'Invoice'));
       if (index !== -1) {
         this.activeTab = index;
       }
