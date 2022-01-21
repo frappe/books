@@ -7,6 +7,16 @@ module.exports = {
       nodeIntegration: true,
       chainWebpackRendererProcess: (config) => {
         config.target('electron-renderer');
+        config.resolve.alias.set('frappe', path.resolve(__dirname, './frappe'));
+      },
+      chainWebpackMainProcess: (config) => {
+        config.target('electron-main');
+        config.resolve.alias.set('frappe', path.resolve(__dirname, './frappe'));
+        config.module
+          .rule('js')
+          .test(/\.js$/)
+          .use('babel')
+          .loader('babel-loader');
       },
     },
   },
@@ -24,8 +34,7 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV !== 'production',
   configureWebpack(config) {
     Object.assign(config.resolve.alias, {
-      deepmerge$: 'deepmerge/dist/umd.js',
-      frappe: path.resolve(__dirname, 'frappe'),
+      frappe: path.resolve(__dirname, './frappe'),
       'frappe-charts$': 'frappe-charts/dist/frappe-charts.esm.js',
       '~': path.resolve('.'),
     });
