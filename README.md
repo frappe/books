@@ -38,9 +38,8 @@ page](https://github.com/frappe/books/releases).
 
 ## Development
 
-Frappe Books is built on [FrappeJS](https://github.com/frappe/frappejs), Vue.js
-and Electron. It is offline by default, and uses a local SQLite file as the
-database.
+Frappe Books is built on Vue.js and Electron. It is offline by default, and uses
+a local SQLite file as the database.
 
 ### Pre-requisites
 
@@ -86,26 +85,6 @@ yarn
 yarn electron:serve
 ```
 
-### Developing with FrappeJS
-
-FrappeBooks is based on [FrappeJS](https://github.com/frappe/frappejs) for managing models and objects. To develop alongside FrappeJS
-
-Due to some `yarn.lock` issue this won't run, to run it check [Issue #315](https://github.com/frappe/books/issues/315)
-
-```bash
-# clone frappejs
-git clone https://github.com/frappe/frappejs.git
-
-# link frappejs
-cd frappejs
-yarn link
-```
-
-Then in the Frappe books folder.
-
-```bash
-yarn link frappejs
-```
 
 ### FAQ
 
