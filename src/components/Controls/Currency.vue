@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import Float from './Float';
 
 export default {

@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 export default async function execute() {
   // Since sqlite has no ALTER TABLE to change column meta

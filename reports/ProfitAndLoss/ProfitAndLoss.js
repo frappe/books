@@ -1,5 +1,4 @@
-import frappe from 'frappejs';
-import { unique } from 'frappejs/utils';
+import { unique } from 'frappe/utils';
 import { getData } from '../FinancialStatements/FinancialStatements';
 
 class ProfitAndLoss {
@@ -9,7 +8,7 @@ class ProfitAndLoss {
       balanceMustBe: 'Credit',
       fromDate,
       toDate,
-      periodicity
+      periodicity,
     });
 
     let expense = await getData({
@@ -17,17 +16,17 @@ class ProfitAndLoss {
       balanceMustBe: 'Debit',
       fromDate,
       toDate,
-      periodicity
+      periodicity,
     });
 
     let incomeTotalRow = income.totalRow;
     incomeTotalRow.account = {
-      template: `<span class="font-semibold">${income.totalRow.account}</span>`
+      template: `<span class="font-semibold">${income.totalRow.account}</span>`,
     };
 
     let expenseTotalRow = expense.totalRow;
     expenseTotalRow.account = {
-      template: `<span class="font-semibold">${expense.totalRow.account}</span>`
+      template: `<span class="font-semibold">${expense.totalRow.account}</span>`,
     };
 
     let rows = [
@@ -35,24 +34,24 @@ class ProfitAndLoss {
       incomeTotalRow,
       {
         account: {
-          template: '<span>&nbsp;</span>'
+          template: '<span>&nbsp;</span>',
         },
-        isGroup: 1
+        isGroup: 1,
       },
       ...expense.accounts,
       expenseTotalRow,
       {
         account: {
-          template: '<span>&nbsp;</span>'
+          template: '<span>&nbsp;</span>',
         },
-        isGroup: 1
-      }
+        isGroup: 1,
+      },
     ];
 
-    rows = rows.map(row => {
+    rows = rows.map((row) => {
       if (row.indent === 0) {
         row.account = {
-          template: `<span class="font-semibold">${row.account}</span>`
+          template: `<span class="font-semibold">${row.account}</span>`,
         };
       }
       return row;
@@ -61,14 +60,14 @@ class ProfitAndLoss {
     const columns = unique([...income.periodList, ...expense.periodList]);
 
     let profitRow = {
-      account: 'Total Profit'
+      account: 'Total Profit',
     };
 
     for (let column of columns) {
       profitRow[column] =
         (income.totalRow[column] || 0.0) - (expense.totalRow[column] || 0.0);
 
-      rows.forEach(row => {
+      rows.forEach((row) => {
         if (!row.isGroup) {
           row[column] = row[column] || 0.0;
         }

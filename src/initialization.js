@@ -1,5 +1,5 @@
 import config from '@/config';
-import SQLiteDatabase from 'frappejs/backends/sqlite';
+import SQLiteDatabase from 'frappe/backends/sqlite';
 import fs from 'fs';
 import models from '../models';
 import regionalModelUpdates from '../models/regionalModelUpdates';

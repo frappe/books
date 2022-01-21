@@ -1,16 +1,20 @@
-import model from 'frappejs/model';
+import model from 'frappe/model';
 import PurchaseOrderItem from '../PurchaseOrderItem/PurchaseOrderItem';
 
-export default model.extend(PurchaseOrderItem, {
-    name: "PurchaseReceiptItem",
+export default model.extend(
+  PurchaseOrderItem,
+  {
+    name: 'PurchaseReceiptItem',
     fields: [
-        {
-            "fieldname": "acceptedQuantity",
-            "label": "Accepted Quantity",
-            "fieldtype": "Float",
-            "required": 1
-        }
-    ]
-}, {
-    skipFields: ['expenseAccount']
-});
+      {
+        fieldname: 'acceptedQuantity',
+        label: 'Accepted Quantity',
+        fieldtype: 'Float',
+        required: 1,
+      },
+    ],
+  },
+  {
+    skipFields: ['expenseAccount'],
+  }
+);

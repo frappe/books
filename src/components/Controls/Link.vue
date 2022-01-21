@@ -1,5 +1,5 @@
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import AutoComplete from './AutoComplete';
 import Badge from '@/components/Badge';
 import { openQuickEdit } from '@/utils';

@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import { getSavePath, saveData, showExportInFolder } from '../src/utils';
 
 function templateToInnerText(innerHTML) {

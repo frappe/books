@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import importCharts from '../accounting/importCOA';
 import registerReportMethods from '../reports';
 
@@ -9,6 +9,6 @@ export default function registerServerMethods() {
     method: 'import-coa',
     async handler() {
       await importCharts();
-    }
+    },
   });
-};
+}

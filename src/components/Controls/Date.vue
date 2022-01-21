@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import Base from './Base';
 import DatePicker from '../DatePicker/DatePicker';
 

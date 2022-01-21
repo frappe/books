@@ -24,26 +24,9 @@ jobs:
 
       - name: Checkout Books
         uses: actions/checkout@v2
-        with:
-          path: main
-
-      - name: Checkout FrappeJS
-        uses: actions/checkout@v2
-        with:
-          repository: 'frappe/frappejs'
-          path: framework
-
-      - name: Setup FrappeJS
-        run: |
-          cd $GITHUB_WORKSPACE/framework
-          yarn
-          yarn link
 
       - name: Setup Books
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          yarn upgrade frappejs
-          yarn link frappejs
+        run: yarn
 
       - name: Install RPM
         run: HOMEBREW_NO_AUTO_UPDATE=1 brew install rpm
@@ -52,6 +35,4 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           APPLE_NOTARIZE: 0
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          yarn electron:build -mwl --publish never
+        run: yarn electron:build -mwl --publish never

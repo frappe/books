@@ -26,7 +26,7 @@
 
 <script>
 import './styles/index.css';
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
 import DatabaseSelector from './pages/DatabaseSelector';

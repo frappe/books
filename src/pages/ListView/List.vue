@@ -56,7 +56,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import Row from '@/components/Row';
 import ListCell from './ListCell';
 import Avatar from '@/components/Avatar';

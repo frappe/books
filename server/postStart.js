@@ -1,13 +1,12 @@
-import frappe from 'frappejs';
-import naming from 'frappejs/model/naming';
+import frappe from 'frappe';
+import naming from 'frappe/model/naming';
+import GSTR3BServer from '../models/doctype/GSTR3B/GSTR3BServer.js';
+import JournalEntryServer from '../models/doctype/JournalEntry/JournalEntryServer.js';
+import PartyServer from '../models/doctype/Party/PartyServer.js';
+import PaymentServer from '../models/doctype/Payment/PaymentServer.js';
+import PurchaseInvoiceServer from '../models/doctype/PurchaseInvoice/PurchaseInvoiceServer.js';
+import SalesInvoiceServer from '../models/doctype/SalesInvoice/SalesInvoiceServer.js';
 import registerServerMethods from './registerServerMethods';
-
-import SalesInvoiceServer from '../models/doctype/SalesInvoice/SalesInvoiceServer.js'
-import PaymentServer from '../models/doctype/Payment/PaymentServer.js'
-import PartyServer from '../models/doctype/Party/PartyServer.js'
-import PurchaseInvoiceServer from '../models/doctype/PurchaseInvoice/PurchaseInvoiceServer.js'
-import JournalEntryServer from '../models/doctype/JournalEntry/JournalEntryServer.js'
-import GSTR3BServer from '../models/doctype/GSTR3B/GSTR3BServer.js'
 
 export default async function postStart() {
   // set server-side modules
@@ -41,15 +40,15 @@ export default async function postStart() {
   frappe.currencySymbols = await getCurrencySymbols();
 
   registerServerMethods();
-};
+}
 
 function getCurrencySymbols() {
   return frappe.db
     .getAll({
       doctype: 'Currency',
-      fields: ['name', 'symbol']
+      fields: ['name', 'symbol'],
     })
-    .then(data => {
+    .then((data) => {
       return data.reduce((obj, currency) => {
         obj[currency.name] = currency.symbol;
         return obj;

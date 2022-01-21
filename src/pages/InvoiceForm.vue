@@ -188,7 +188,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import StatusBadge from '@/components/StatusBadge';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';

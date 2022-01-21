@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import getCommonExportActions from '../commonExporter';
 
 export default {

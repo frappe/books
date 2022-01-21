@@ -1,6 +1,6 @@
 import assert from 'assert';
-import frappe from 'frappejs';
-import helpers from 'frappejs/tests/helpers';
+import frappe from 'frappe';
+import helpers from 'frappe/tests/helpers';
 import models from '../models';
 
 async function makeFixtures() {

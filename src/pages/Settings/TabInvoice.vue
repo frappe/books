@@ -46,7 +46,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import { ipcRenderer } from 'electron';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import FormControl from '@/components/Controls/FormControl';

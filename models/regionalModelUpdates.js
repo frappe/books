@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 async function setAugmentedModel(model, regionalInfo) {
   const getAugmentedModel = (

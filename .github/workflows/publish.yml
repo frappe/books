@@ -16,26 +16,9 @@ jobs:
 
       - name: Checkout Books
         uses: actions/checkout@v2
-        with:
-          path: main
-
-      - name: Checkout FrappeJS
-        uses: actions/checkout@v2
-        with:
-          repository: 'frappe/frappejs'
-          path: framework
-
-      - name: Setup FrappeJS
-        run: |
-          cd $GITHUB_WORKSPACE/framework
-          yarn
-          yarn link
 
       - name: Setup Books
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          yarn upgrade frappejs
-          yarn link frappejs
+        run: yarn
 
       - name: Run build
         env:
@@ -47,12 +30,10 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: true
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           APPLE_NOTARIZE: 1
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          yarn electron:build --mac --publish always
+        run: yarn electron:build --mac --publish always
       
       - name: Tar files
-        run: tar -cvf dist-macOS.tar $GITHUB_WORKSPACE/main/dist_electron
+        run: tar -cvf dist-macOS.tar dist_electron
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
@@ -70,36 +51,17 @@ jobs:
 
       - name: Checkout Books
         uses: actions/checkout@v2
-        with:
-          path: main
-
-      - name: Checkout FrappeJS
-        uses: actions/checkout@v2
-        with:
-          repository: 'frappe/frappejs'
-          path: framework
-
-      - name: Setup FrappeJS
-        run: |
-          cd $GITHUB_WORKSPACE/framework
-          yarn
-          yarn link
 
       - name: Setup Books
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          yarn upgrade frappejs
-          yarn link frappejs
+        run: yarn
 
       - name: Run build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          yarn electron:build --linux --publish always
+        run: yarn electron:build --linux --publish always
 
       - name: Tar files
-        run: tar -cvf dist-linux.tar $GITHUB_WORKSPACE/main/dist_electron
+        run: tar -cvf dist-linux.tar dist_electron
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
@@ -121,41 +83,19 @@ jobs:
 
       - name: Checkout Books
         uses: actions/checkout@v2
-        with:
-          path: main
-
-      - name: Checkout FrappeJS
-        uses: actions/checkout@v2
-        with:
-          repository: 'frappe/frappejs'
-          path: framework
-
-      - name: Setup FrappeJS
-        run: |
-          cd $GITHUB_WORKSPACE/framework
-          yarn
-          yarn link
 
       - name: Setup Books
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          yarn upgrade frappejs
-          yarn link frappejs
+        run: yarn
 
       - name: Run build
         env:
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          yarn electron:build --win --publish always
+        run: yarn electron:build --win --publish always
 
       - name: Tar files
-        run: |
-          cd $GITHUB_WORKSPACE/main
-          tar -cvf dist-windows.tar dist_electron
-          mv dist-windows.tar ../
+        run: tar -cvf dist-windows.tar dist_electron
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2

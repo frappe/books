@@ -61,7 +61,7 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import Row from '@/components/Row';
 import Base from './Base';
 import TableRow from './TableRow';
