@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import TwoColumnForm from '@/components/TwoColumnForm';
 
 export default {

@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import getCommonExportActions from '../commonExporter';
 
 const title = 'Profit and Loss';
@@ -52,7 +52,7 @@ export default {
         label: name,
         fieldname: name,
         fieldtype: 'Currency',
-        width: 1
+        width: 1,
       }));
 
       columns.push(...columnDefs);

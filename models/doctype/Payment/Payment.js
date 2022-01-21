@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import utils from '../../../accounting/utils';
 
 export default {

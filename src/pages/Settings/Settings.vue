@@ -47,8 +47,8 @@
   </div>
 </template>
 <script>
-import { _ } from 'frappejs/utils';
-import frappe from 'frappejs';
+import { _ } from 'frappe/utils';
+import frappe from 'frappe';
 import WindowControls from '@/components/WindowControls';
 import TabGeneral from './TabGeneral.vue';
 import TabSystem from './TabSystem.vue';

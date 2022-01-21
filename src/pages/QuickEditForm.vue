@@ -77,8 +77,8 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
-import { _ } from 'frappejs';
+import frappe from 'frappe';
+import { _ } from 'frappe';
 import Button from '@/components/Button';
 import StatusBadge from '@/components/StatusBadge';
 import FormControl from '@/components/Controls/FormControl';

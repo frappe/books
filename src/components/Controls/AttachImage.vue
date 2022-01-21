@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import { ipcRenderer } from 'electron';
 import Base from './Base';
 import { IPC_ACTIONS } from '@/messages'

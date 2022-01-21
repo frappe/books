@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 class PurchaseRegister {
   async run({ fromDate, toDate, supplier }) {
@@ -23,24 +23,24 @@ class PurchaseRegister {
       fields: ['name', 'date', 'supplier', 'account', 'netTotal', 'grandTotal'],
       filters,
       orderBy: 'date',
-      order: 'desc'
+      order: 'desc',
     });
 
-    const billNames = bills.map(d => d.name);
+    const billNames = bills.map((d) => d.name);
 
     const taxes = await frappe.db.getAll({
       doctype: 'TaxSummary',
       fields: ['parent', 'amount'],
       filters: {
         parenttype: 'PurchaseInvoice',
-        parent: ['in', billNames]
+        parent: ['in', billNames],
       },
-      orderBy: 'name'
+      orderBy: 'name',
     });
 
     for (let bill of bills) {
       bill.totalTax = taxes
-        .filter(tax => tax.parent === bill.name)
+        .filter((tax) => tax.parent === bill.name)
         .reduce((acc, tax) => {
           if (tax.amount) {
             acc = acc + tax.amount;

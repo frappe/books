@@ -1,6 +1,6 @@
-import frappe from 'frappejs';
-import { getPeriodList } from '../FinancialStatements/FinancialStatements';
+import frappe from 'frappe';
 import { DateTime } from 'luxon';
+import { getPeriodList } from '../FinancialStatements/FinancialStatements';
 
 class Cashflow {
   async run({ fromDate, toDate, periodicity }) {
@@ -15,10 +15,10 @@ class Cashflow {
       .where('reverted', 0)
       .sum({
         inflow: 'debit',
-        outflow: 'credit'
+        outflow: 'credit',
       })
       .select({
-        'month-year': dateAsMonthYear
+        'month-year': dateAsMonthYear,
       })
       .where('account', 'in', cashAndBankAccounts)
       .whereBetween('date', [fromDate, toDate])
@@ -26,9 +26,9 @@ class Cashflow {
 
     let periodList = getPeriodList(fromDate, toDate, periodicity);
 
-    let data = periodList.map(periodKey => {
+    let data = periodList.map((periodKey) => {
       let monthYear = this.getMonthYear(periodKey, 'MMM yyyy');
-      let cashflowForPeriod = res.find(d => d['month-year'] === monthYear);
+      let cashflowForPeriod = res.find((d) => d['month-year'] === monthYear);
       if (cashflowForPeriod) {
         cashflowForPeriod.periodKey = periodKey;
         return cashflowForPeriod;
@@ -37,13 +37,13 @@ class Cashflow {
         inflow: 0,
         outflow: 0,
         periodKey,
-        'month-year': monthYear
+        'month-year': monthYear,
       };
     });
 
     return {
       data,
-      periodList
+      periodList,
     };
   }
 

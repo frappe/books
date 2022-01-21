@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 class BankReconciliation {
   async run(params) {
@@ -25,9 +25,9 @@ class BankReconciliation {
         'name',
         'referenceDate',
         'referenceId',
-        'clearanceDate'
+        'clearanceDate',
       ],
-      filters: filters
+      filters: filters,
     });
 
     for (var i = 0; i < data.length; i++) {
@@ -37,8 +37,8 @@ class BankReconciliation {
         filters: {
           referenceType: 'Payment',
           account: data[i].paymentAccount,
-          referenceName: data[i].name
-        }
+          referenceName: data[i].name,
+        },
       });
       data[i].credit = ledger[0].credit;
       data[i].debit = ledger[0].debit;

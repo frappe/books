@@ -26,8 +26,8 @@
   </div>
 </template>
 <script>
-import frappe from 'frappejs';
-// import Observable from 'frappejs/utils/observable';
+import frappe from 'frappe';
+// import Observable from 'frappe/utils/observable';
 import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
 import SearchBar from '@/components/SearchBar';

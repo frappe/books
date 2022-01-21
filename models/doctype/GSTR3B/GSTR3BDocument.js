@@ -1,5 +1,5 @@
-import BaseDocument from 'frappejs/model/document';
-import frappe from 'frappejs';
+import frappe from 'frappe';
+import BaseDocument from 'frappe/model/document';
 import format from './GSTR3BFormat';
 
 export default class GSTR3B extends BaseDocument {
@@ -16,7 +16,7 @@ export default class GSTR3B extends BaseDocument {
       'September',
       'October',
       'November',
-      'December'
+      'December',
     ].indexOf(this.month);
     const month = monthIndex + 1 > 9 ? monthIndex + 1 : `0${monthIndex + 1}`;
     const lastDate = new Date(this.year, monthIndex + 1, 0).getDate();
@@ -25,22 +25,22 @@ export default class GSTR3B extends BaseDocument {
         '>=',
         `${this.year}-${month}-01`,
         '<=',
-        `${this.year}-${month}-${lastDate}`
-      ]
+        `${this.year}-${month}-${lastDate}`,
+      ],
     };
     const salesInvoices = frappe.db.getAll({
       doctype: 'SalesInvoice',
       filters,
-      fields: ['*']
+      fields: ['*'],
     });
     const purchaseInvoices = frappe.db.getAll({
       doctype: 'PurchaseInvoice',
       filters,
-      fields: ['*']
+      fields: ['*'],
     });
     const [gstr1Data, gstr2Data] = await Promise.all([
       salesInvoices,
-      purchaseInvoices
+      purchaseInvoices,
     ]);
     let gstr3bData = [[], []];
 
@@ -74,7 +74,7 @@ export default class GSTR3B extends BaseDocument {
     row.rate = 0;
     row.inState = true;
     row.reverseCharge = !party.gstin ? 'Y' : 'N';
-    ledgerEntry.taxes.forEach(tax => {
+    ledgerEntry.taxes.forEach((tax) => {
       row.rate += tax.rate;
       const taxAmt = (tax.rate * ledgerEntry.netTotal) / 100;
       if (tax.account === 'IGST') row.igstAmt = taxAmt;
@@ -113,7 +113,7 @@ export default class GSTR3B extends BaseDocument {
         jsonData['inter_sup']['unreg_details'].push({
           pos: ledgerEntry.place,
           txval: ledgerEntry.taxVal,
-          iAmt: ledgerEntry.igstAmt || 0
+          iAmt: ledgerEntry.igstAmt || 0,
         });
       }
     }
@@ -147,4 +147,4 @@ export default class GSTR3B extends BaseDocument {
       return JSON.stringify(json, undefined, 2);
     }
   }
-};
+}

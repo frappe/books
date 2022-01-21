@@ -1,12 +1,12 @@
 import { ipcRenderer } from 'electron';
-import frappe from 'frappejs';
-import FeatherIcon from 'frappejs/ui/components/FeatherIcon';
-import outsideClickDirective from 'frappejs/ui/plugins/outsideClickDirective';
+import frappe from 'frappe';
 import Vue from 'vue';
 import models from '../models';
 import App from './App';
+import FeatherIcon from './components/FeatherIcon';
 import { IPC_MESSAGES } from './messages';
 import router from './router';
+import { outsideClickDirective } from './ui';
 
 (async () => {
   frappe.isServer = true;

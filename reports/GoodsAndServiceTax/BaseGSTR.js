@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import { stateCodeMap } from '../../accounting/gst';
 import { convertPesaValuesToFloat } from '../../src/utils';
 

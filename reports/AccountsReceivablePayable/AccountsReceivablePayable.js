@@ -1,15 +1,15 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 export default class AccountsReceivablePayable {
   async run(reportType, { date }) {
     const rows = await getReceivablePayable({
       reportType,
-      date
+      date,
     });
 
     return { rows };
   }
-};
+}
 
 async function getReceivablePayable({ reportType = 'Receivable', date }) {
   let entries = [];
@@ -34,7 +34,7 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
     if (outStandingAmount > 0.1 / 10) {
       const row = {
         date: entry.date,
-        party: entry.party
+        party: entry.party,
       };
 
       // due date / bill date
@@ -51,7 +51,7 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
         invoicedAmount,
         paidAmount,
         outStandingAmount,
-        creditNoteAmount
+        creditNoteAmount,
       });
 
       // ageing
@@ -69,13 +69,13 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
       doctype: referenceType,
       fields: ['name', 'date'],
       filters: {
-        submitted: 1
-      }
+        submitted: 1,
+      },
     });
   }
 
   function getValidEntries() {
-    return entries.filter(entry => {
+    return entries.filter((entry) => {
       return (
         entry.date <= date &&
         entry.referenceType === referenceType &&
@@ -111,7 +111,7 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
         entry[reverseDebitOrCredit] -
         paymentAmount -
         creditNoteAmount,
-      creditNoteAmount
+      creditNoteAmount,
     };
   }
 
@@ -121,7 +121,7 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
   }
 
   function getFutureEntries() {
-    return entries.filter(entry => entry.date > date);
+    return entries.filter((entry) => entry.date > date);
   }
 
   function getReturnEntries() {
@@ -139,12 +139,14 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
     }
 
     const partyType = reportType === 'Receivable' ? 'customer' : 'supplier';
-    const partyList = (await frappe.db.getAll({
-      doctype: 'Party',
-      filters: {
-        [partyType]: 1
-      }
-    })).map(d => d.name);
+    const partyList = (
+      await frappe.db.getAll({
+        doctype: 'Party',
+        filters: {
+          [partyType]: 1,
+        },
+      })
+    ).map((d) => d.name);
 
     return await frappe.db.getAll({
       doctype: 'AccountingLedgerEntry',
@@ -156,13 +158,13 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
         'referenceType',
         'referenceName',
         'sum(debit) as debit',
-        'sum(credit) as credit'
+        'sum(credit) as credit',
       ],
       filters: {
-        party: ['in', partyList]
+        party: ['in', partyList],
       },
       groupBy: ['referenceType', 'referenceName', 'party'],
-      orderBy: 'date'
+      orderBy: 'date',
     });
   }
 }

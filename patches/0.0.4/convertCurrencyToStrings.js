@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 function getTablesToConvert() {
   // Do not change loops to map, doesn't work for some reason.

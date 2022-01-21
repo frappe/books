@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 
 export default async function generateTaxes(country) {
   if (country === 'India') {

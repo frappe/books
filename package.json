@@ -25,11 +25,12 @@
     "core-js": "^3.19.0",
     "csvjson-csv2json": "^5.0.6",
     "electron-store": "^8.0.1",
+    "feather-icons": "^4.28.0",
     "frappe-charts": "1.6.1",
-    "frappejs": "frappe/frappejs",
     "knex": "^0.95.12",
     "lodash": "^4.17.21",
     "luxon": "^2.0.2",
+    "pesa": "^1.1.3",
     "sqlite3": "npm:@vscode/sqlite3@^5.0.7",
     "vue": "^2.6.14",
     "vue-router": "^3.5.3"
@@ -42,6 +43,7 @@
     "@vue/cli-plugin-router": "^4.5.0",
     "@vue/cli-service": "^4.5.0",
     "autoprefixer": "^9",
+    "babel-loader": "^8.2.3",
     "electron": "^15.3.0",
     "electron-devtools-installer": "^3.2.0",
     "electron-notarize": "^1.1.1",
@@ -56,7 +58,8 @@
     "raw-loader": "^4.0.2",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "vue-cli-plugin-electron-builder": "^2.0.0",
-    "vue-template-compiler": "^2.6.10"
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^5.66.0"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

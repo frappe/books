@@ -1,5 +1,5 @@
-import frappe from 'frappejs';
-import { _ } from 'frappejs/utils';
+import frappe from 'frappe';
+import { _ } from 'frappe/utils';
 import Icon from './components/Icon';
 
 const config = {
@@ -104,7 +104,7 @@ const config = {
           label: _('GSTR2'),
           route: '/report/gstr-2',
           hidden: () => frappe.AccountingSettings.country !== 'India',
-        }
+        },
       ],
     },
     {

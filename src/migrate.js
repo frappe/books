@@ -1,5 +1,5 @@
-import frappe from 'frappejs';
-import runPatches from 'frappejs/model/runPatches';
+import frappe from 'frappe';
+import runPatches from 'frappe/model/runPatches';
 import patches from '../patches/patches.json';
 
 export default async function runMigrate() {

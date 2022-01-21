@@ -1,4 +1,4 @@
-import frappe from 'frappejs';
+import frappe from 'frappe';
 import countries from '../fixtures/countryInfo.json';
 import standardCOA from '../fixtures/verified/standardCOA.json';
 const accountFields = ['accountType', 'accountNumber', 'rootType', 'isGroup'];
