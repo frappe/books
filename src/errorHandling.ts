@@ -7,14 +7,14 @@ import {
   ValidationError,
 } from 'frappe/common/errors';
 import BaseDocument from 'frappe/model/document';
-import { IPC_ACTIONS } from './messages';
+import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import { showMessageDialog, showToast } from './utils';
 
 interface ErrorLog {
   name: string;
   message: string;
   stack?: string;
-  more?: Object;
+  more?: object;
 }
 
 function shouldNotStore(error: Error) {
@@ -40,6 +40,7 @@ function getToastProps(errorLogObj: ErrorLog) {
       actionText: t`Report Error`,
       action: () => {
         reportError(errorLogObj);
+        createIssue(errorLogObj);
       },
     });
   }
@@ -134,4 +135,35 @@ export function getErrorHandledSync(func: Function) {
       throw error;
     }
   };
+}
+
+function getIssueUrlQuery(errorLogObj: ErrorLog): string {
+  const baseUrl = 'https://github.com/frappe/books/issues/new?labels=bug';
+
+  const body = [
+    '<h2>Description</h2>',
+    'Add some description...',
+    '',
+    '<h2>Error Info</h2>',
+    '',
+    `**Error**: _${errorLogObj.name}: ${errorLogObj.message}_`,
+    '',
+  ];
+
+  if (errorLogObj.stack) {
+    body.push('**Stack**:', '```', errorLogObj.stack, '```', '');
+  }
+
+  const { fullPath } = errorLogObj.more as { fullPath?: string };
+  if (fullPath) {
+    body.push(`**Path**: \`${fullPath}\``);
+  }
+
+  const url = [baseUrl, `body=${body.join('\n')}`].join('&');
+  return encodeURI(url);
+}
+
+function createIssue(errorLogObj: ErrorLog) {
+  const urlQuery = getIssueUrlQuery(errorLogObj);
+  ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, urlQuery);
 }
