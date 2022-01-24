@@ -217,21 +217,20 @@ export default {
       );
       this.loadingDatabase = false;
 
-      const title = 'DB Connection Error';
-
       if (connectionSuccess) {
         this.$emit('database-connect');
-      } else if (reason === DB_CONN_FAILURE.CANT_OPEN) {
-        await showErrorDialog({
-          title,
-          content: `Can't open database file: ${filePath}, please create a new file.`,
-        });
-      } else {
-        await showErrorDialog({
-          title,
-          content: `Please select an existing database or create a new one. reason: ${reason}, filePath: ${filePath}`,
-        });
+        return;
       }
+
+      const title = this.t`DB Connection Error`;
+      let content = this
+        .t`Please select an existing database or create a new one. reason: ${reason}, filePath: ${filePath}`;
+      if (reason === DB_CONN_FAILURE.CANT_OPEN) {
+        content = this
+          .t`Can't open database file: ${filePath}, please create a new file.`;
+      }
+
+      await showErrorDialog(title, content);
     },
     getFileLastModified(filePath) {
       let stats = fs.statSync(filePath);
