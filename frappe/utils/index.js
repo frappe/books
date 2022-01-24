@@ -1,5 +1,4 @@
 const { pesa } = require('pesa');
-const { t } = require('./translation');
 
 Array.prototype.equals = function (array) {
   return (
@@ -88,7 +87,6 @@ function isPesa(value) {
 }
 
 module.exports = {
-  _: t,
   slug,
   getRandomString,
   sleep,

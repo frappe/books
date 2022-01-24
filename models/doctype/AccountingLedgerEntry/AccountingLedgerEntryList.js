@@ -1,7 +1,7 @@
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 
 export default {
   doctype: 'AccountingLedgerEntry',
-  title: _('Accounting Ledger Entries'),
+  title: t('Accounting Ledger Entries'),
   columns: ['account', 'party', 'debit', 'credit', 'balance'],
 };

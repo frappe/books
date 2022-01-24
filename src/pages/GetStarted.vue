@@ -2,7 +2,7 @@
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
       <h1 slot="title" class="text-2xl font-bold">
-        {{ _('Setup your workspace') }}
+        {{ t('Setup your workspace') }}
       </h1>
     </PageHeader>
     <div class="px-8">
@@ -59,7 +59,7 @@
                   @click="handleAction(item)"
                 >
                   <span class="text-base text-white">
-                    {{ item.actionLabel || _('Setup') }}
+                    {{ item.actionLabel || t('Setup') }}
                   </span>
                 </Button>
                 <Button
@@ -69,7 +69,7 @@
                   @click="handleDocumentation(item)"
                 >
                   <span class="text-base">
-                    {{ _('Documentation') }}
+                    {{ t('Documentation') }}
                   </span>
                 </Button>
               </div>
@@ -83,7 +83,7 @@
 
 <script>
 import frappe from 'frappe';
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 import PageHeader from '@/components/PageHeader';
 import Icon from '@/components/Icon';
 import Button from '@/components/Button';
@@ -104,12 +104,12 @@ export default {
       /* eslint-disable vue/no-side-effects-in-computed-properties */
       return [
         {
-          label: _('Organisation'),
+          label: t('Organisation'),
 
           items: [
             {
               key: 'Invoice',
-              label: _('Invoice'),
+              label: t('Invoice'),
               icon: 'invoice',
               description:
                 'Customize your invoices by adding a logo and address details',
@@ -120,7 +120,7 @@ export default {
             },
             {
               key: 'General',
-              label: _('General'),
+              label: t('General'),
               icon: 'general',
               description:
                 'Setup your company information, email, country and fiscal year',
@@ -131,7 +131,7 @@ export default {
             },
             {
               key: 'System',
-              label: _('System'),
+              label: t('System'),
               icon: 'system',
               description:
                 'Setup system defaults like date format and display precision',
@@ -143,12 +143,12 @@ export default {
           ],
         },
         {
-          label: _('Accounts'),
+          label: t('Accounts'),
 
           items: [
             {
               key: 'Review Accounts',
-              label: _('Review Accounts'),
+              label: t('Review Accounts'),
               icon: 'review-ac',
               description:
                 'Review your chart of accounts, add any account or tax heads as needed',
@@ -161,7 +161,7 @@ export default {
             },
             {
               key: 'Opening Balances',
-              label: _('Opening Balances'),
+              label: t('Opening Balances'),
               icon: 'opening-ac',
               fieldname: 'openingBalanceChecked',
               description:
@@ -171,7 +171,7 @@ export default {
             },
             {
               key: 'Add Taxes',
-              label: _('Add Taxes'),
+              label: t('Add Taxes'),
               icon: 'percentage',
               fieldname: 'taxesAdded',
               description:
@@ -183,12 +183,12 @@ export default {
           ],
         },
         {
-          label: _('Sales'),
+          label: t('Sales'),
 
           items: [
             {
               key: 'Add Sales Items',
-              label: _('Add Items'),
+              label: t('Add Items'),
               icon: 'item',
               description:
                 'Add products or services that you sell to your customers',
@@ -199,7 +199,7 @@ export default {
             },
             {
               key: 'Add Customers',
-              label: _('Add Customers'),
+              label: t('Add Customers'),
               icon: 'customer',
               description: 'Add a few customers to create your first invoice',
               action: () => routeTo('/list/Customer'),
@@ -209,7 +209,7 @@ export default {
             },
             {
               key: 'Create Invoice',
-              label: _('Create Invoice'),
+              label: t('Create Invoice'),
               icon: 'sales-invoice',
               description:
                 'Create your first invoice and mail it to your customer',
@@ -220,12 +220,12 @@ export default {
           ],
         },
         {
-          label: _('Purchase'),
+          label: t('Purchase'),
 
           items: [
             {
               key: 'Add Purchase Items',
-              label: _('Add Items'),
+              label: t('Add Items'),
               icon: 'item',
               description:
                 'Add products or services that you buy from your suppliers',
@@ -234,7 +234,7 @@ export default {
             },
             {
               key: 'Add Suppliers',
-              label: _('Add Suppliers'),
+              label: t('Add Suppliers'),
               icon: 'supplier',
               description: 'Add a few suppliers to create your first bill',
               action: () => routeTo('/list/Supplier'),
@@ -242,7 +242,7 @@ export default {
             },
             {
               key: 'Create Bill',
-              label: _('Create Bill'),
+              label: t('Create Bill'),
               icon: 'purchase-invoice',
               description:
                 'Create your first bill and mail it to your supplier',

@@ -1,6 +1,6 @@
 import router from '@/router';
 import frappe from 'frappe';
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 import PartyWidget from './PartyWidget.vue';
 
 export default {
@@ -12,7 +12,7 @@ export default {
   },
   actions: [
     {
-      label: _('Create Invoice'),
+      label: t('Create Invoice'),
       condition: (doc) => !doc.isNew(),
       action: async (customer) => {
         let doc = await frappe.getNewDoc('SalesInvoice');
@@ -28,7 +28,7 @@ export default {
       },
     },
     {
-      label: _('View Invoices'),
+      label: t('View Invoices'),
       condition: (doc) => !doc.isNew(),
       action: (customer) => {
         router.push({

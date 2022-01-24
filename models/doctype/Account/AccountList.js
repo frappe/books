@@ -1,7 +1,7 @@
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 
 export default {
   doctype: 'Account',
-  title: _('Account'),
+  title: t('Account'),
   columns: ['name', 'parentAccount', 'rootType'],
 };
