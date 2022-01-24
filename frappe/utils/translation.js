@@ -34,8 +34,17 @@ class TranslationString {
   }
 
   #translate(segment) {
+    segment = segment.replace(/\s+/g, ' ').trim();
     // TODO: implement translation backend
     return segment;
+  }
+
+  #formatArg(arg) {
+    if (typeof arg === 'undefined') {
+      return ' ';
+    }
+
+    return ` ${arg} `;
   }
 
   #stitch() {
@@ -54,8 +63,9 @@ class TranslationString {
     const strList = this.args[0];
     const argList = this.args.slice(1);
     return strList
-      .map((s, i) => this.#translate(s) + (argList[i] ?? ''))
-      .join('');
+      .map((s, i) => this.#translate(s) + this.#formatArg(argList[i]))
+      .join('')
+      .trim();
   }
 
   toString() {
