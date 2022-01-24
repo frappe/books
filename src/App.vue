@@ -83,10 +83,10 @@ export default {
     }
 
     if (lastSelectedFilePath) {
-      await showErrorDialog({
-        title: 'DB Connection Error',
-        content: `reason: ${reason}, filePath: ${lastSelectedFilePath}`,
-      });
+      const title = this.t`DB Connection Error`;
+      const content = `reason: ${reason}, filePath: ${lastSelectedFilePath}`;
+
+      await showErrorDialog(title, content);
     }
 
     this.activeScreen = 'DatabaseSelector';

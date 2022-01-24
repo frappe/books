@@ -1,26 +1,40 @@
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
-import { MandatoryError, ValidationError } from 'frappe/common/errors';
+import {
+  DuplicateEntryError,
+  LinkValidationError,
+  MandatoryError,
+  ValidationError,
+} from 'frappe/common/errors';
+import BaseDocument from 'frappe/model/document';
 import { IPC_ACTIONS } from './messages';
 import { showMessageDialog, showToast } from './utils';
 
-function shouldNotStore(error) {
+interface ErrorLog {
+  name: string;
+  message: string;
+  stack?: string;
+  more?: Object;
+}
+
+function shouldNotStore(error: Error) {
   return [MandatoryError, ValidationError].some(
     (errorClass) => error instanceof errorClass
   );
 }
 
-function reportError(errorLogObj) {
+function reportError(errorLogObj: ErrorLog) {
   // push errorlog to frappebooks.com
   console.log(errorLogObj);
 }
 
-function getToastProps(errorLogObj) {
+function getToastProps(errorLogObj: ErrorLog) {
   const props = {
     message: t`Error: ` + errorLogObj.name,
     type: 'error',
   };
 
+  // @ts-ignore
   if (!frappe.SystemSettings.autoReportErrors) {
     Object.assign(props, {
       actionText: t`Report Error`,
@@ -33,7 +47,11 @@ function getToastProps(errorLogObj) {
   return props;
 }
 
-export function handleError(shouldLog, error, more = {}) {
+export function handleError(
+  shouldLog: boolean,
+  error: Error,
+  more: object = {}
+) {
   if (shouldLog) {
     console.error(error);
   }
@@ -43,37 +61,42 @@ export function handleError(shouldLog, error, more = {}) {
   }
 
   const { name, stack, message } = error;
-  const errorLogObj = { name, stack, message, more };
+  const errorLogObj: ErrorLog = { name, stack, message, more };
 
+  // @ts-ignore
   frappe.errorLog.push(errorLogObj);
 
   showToast(getToastProps(errorLogObj));
+  // @ts-ignore
   if (frappe.SystemSettings.autoReportErrors) {
     reportError(errorLogObj);
   }
 }
 
-export function getErrorMessage(e, doc) {
+export function getErrorMessage(e: Error, doc?: BaseDocument): string {
   let errorMessage = e.message || t`An error occurred.`;
-  const { doctype, name } = doc;
-  const canElaborate = doctype && name;
-  if (e.type === frappe.errors.LinkValidationError && canElaborate) {
+
+  const { doctype, name }: { doctype?: unknown; name?: unknown } = doc ?? {};
+  const canElaborate = !!(doctype && name);
+
+  if (e instanceof LinkValidationError && canElaborate) {
     errorMessage = t`${doctype} ${name} is linked with existing records.`;
-  } else if (e.type === frappe.errors.DuplicateEntryError && canElaborate) {
+  } else if (e instanceof DuplicateEntryError && canElaborate) {
     errorMessage = t`${doctype} ${name} already exists.`;
   }
+
   return errorMessage;
 }
 
-export function handleErrorWithDialog(error, doc = {}) {
-  let errorMessage = getErrorMessage(error, doc);
+export function handleErrorWithDialog(error: Error, doc?: BaseDocument) {
+  const errorMessage = getErrorMessage(error, doc);
   handleError(false, error, { errorMessage, doc });
 
-  showMessageDialog({ message: errorMessage });
+  showMessageDialog({ message: error.name, description: errorMessage });
   throw error;
 }
 
-export async function showErrorDialog({ title, content }) {
+export async function showErrorDialog(title?: string, content?: string) {
   // To be used for  show stopper errors
   title ??= t`Error`;
   content ??= t`Something has gone terribly wrong. Please check the console and raise an issue.`;
@@ -83,12 +106,12 @@ export async function showErrorDialog({ title, content }) {
 
 // Wrapper Functions
 
-export function getErrorHandled(func) {
-  return async function errorHandled(...args) {
+export function getErrorHandled(func: Function) {
+  return async function errorHandled(...args: unknown[]) {
     try {
       return await func(...args);
     } catch (error) {
-      handleError(false, error, {
+      handleError(false, error as Error, {
         functionName: func.name,
         functionArgs: args,
       });
@@ -98,12 +121,12 @@ export function getErrorHandled(func) {
   };
 }
 
-export function getErrorHandledSync(func) {
-  return function errorHandledSync(...args) {
+export function getErrorHandledSync(func: Function) {
+  return function errorHandledSync(...args: unknown[]) {
     try {
       return func(...args);
     } catch (error) {
-      handleError(false, error, {
+      handleError(false, error as Error, {
         functionName: func.name,
         functionArgs: args,
       });
