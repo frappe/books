@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
-import frappe from 'frappejs';
-import { MandatoryError, ValidationError } from 'frappejs/common/errors';
+import frappe, { t } from 'frappe';
+import { MandatoryError, ValidationError } from 'frappe/common/errors';
 import { IPC_ACTIONS } from './messages';
 import { showMessageDialog, showToast } from './utils';
 
@@ -17,13 +17,13 @@ function reportError(errorLogObj) {
 
 function getToastProps(errorLogObj) {
   const props = {
-    message: _(`Error: `) + errorLogObj.name,
+    message: t`Error: ` + errorLogObj.name,
     type: 'error',
   };
 
   if (!frappe.SystemSettings.autoReportErrors) {
     Object.assign(props, {
-      actionText: frappe._('Report Error'),
+      actionText: t`Report Error`,
       action: () => {
         reportError(errorLogObj);
       },
@@ -54,16 +54,13 @@ export function handleError(shouldLog, error, more = {}) {
 }
 
 export function getErrorMessage(e, doc) {
-  let errorMessage = e.message || _('An error occurred.');
+  let errorMessage = e.message || t`An error occurred.`;
   const { doctype, name } = doc;
   const canElaborate = doctype && name;
   if (e.type === frappe.errors.LinkValidationError && canElaborate) {
-    errorMessage = _('{0} {1} is linked with existing records.', [
-      doctype,
-      name,
-    ]);
+    errorMessage = t`${doctype} ${name} is linked with existing records.`;
   } else if (e.type === frappe.errors.DuplicateEntryError && canElaborate) {
-    errorMessage = _('{0} {1} already exists.', [doctype, name]);
+    errorMessage = t`${doctype} ${name} already exists.`;
   }
   return errorMessage;
 }
@@ -78,10 +75,8 @@ export function handleErrorWithDialog(error, doc = {}) {
 
 export async function showErrorDialog({ title, content }) {
   // To be used for  show stopper errors
-  title ??= frappe._('Error');
-  content ??= frappe._(
-    'Something has gone terribly wrong. Please check the console and raise an issue.'
-  );
+  title ??= t`Error`;
+  content ??= t`Something has gone terribly wrong. Please check the console and raise an issue.`;
 
   await ipcRenderer.invoke(IPC_ACTIONS.SHOW_ERROR, { title, content });
 }
