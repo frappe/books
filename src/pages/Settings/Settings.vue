@@ -115,7 +115,7 @@ export default {
     showReloadToast() {
       showToast({
         message: _('Settings changes will be visible on reload'),
-        actionText: frappe._('Reload App'),
+        actionText: frappe.t('Reload App'),
         type: 'info',
         action: async () => {
           frappe.events.trigger('reload-main-window');

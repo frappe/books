@@ -58,7 +58,7 @@ export default {
   methods: {
     async openFileSelector() {
       const options = {
-        title: frappe._('Select Image'),
+        title: frappe.t('Select Image'),
         properties: ['openFile'],
         filters: [{ name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] }]
       };
