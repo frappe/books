@@ -5,6 +5,8 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       nodeIntegration: true,
+      disableMainProcessTypescript: true,
+      mainProcessTypeChecking: false,
       chainWebpackRendererProcess: (config) => {
         config.target('electron-renderer');
         config.resolve.alias.set('frappe', path.resolve(__dirname, './frappe'));
