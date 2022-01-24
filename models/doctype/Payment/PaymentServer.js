@@ -84,7 +84,7 @@ export default class PaymentServer extends BaseDocument {
         : '';
 
       throw new Error(
-        frappe._(
+        frappe.t(
           `Amount: ${payment} ${writeoffString}is less than the total amount allocated to references: ${refAmount}.`
         )
       );
@@ -115,7 +115,7 @@ export default class PaymentServer extends BaseDocument {
         outstandingAmount = baseGrandTotal;
       }
       if (this.amount.lte(0) || this.amount.gt(outstandingAmount)) {
-        let message = frappe._(
+        let message = frappe.t(
           `Payment amount: ${frappe.format(
             this.amount,
             'Currency'
@@ -127,7 +127,7 @@ export default class PaymentServer extends BaseDocument {
 
         if (this.amount.lte(0)) {
           const amt = frappe.format(this.amount, 'Currency');
-          message = frappe._(
+          message = frappe.t(
             `Payment amount: ${amt} should be greater than 0.`
           );
         }
