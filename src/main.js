@@ -49,9 +49,8 @@ import { outsideClickDirective } from './ui';
       },
     },
     methods: {
-      _(...args) {
-        return frappe._(...args);
-      },
+      t: frappe.t,
+      T: frappe.T,
     },
   });
 

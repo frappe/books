@@ -1,5 +1,5 @@
 import frappe from 'frappe';
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 
 export default {
   name: 'Party',
@@ -86,7 +86,7 @@ export default {
       label: 'Address',
       fieldtype: 'Link',
       target: 'Address',
-      placeholder: _('Click to create'),
+      placeholder: t('Click to create'),
       inline: true,
     },
     {

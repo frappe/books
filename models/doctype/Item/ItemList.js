@@ -1,7 +1,7 @@
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 
 export default {
   doctype: 'Item',
-  title: _('Items'),
+  title: t('Items'),
   columns: ['name', 'unit', 'tax', 'rate'],
 };

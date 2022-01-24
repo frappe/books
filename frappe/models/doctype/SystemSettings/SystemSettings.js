@@ -1,5 +1,5 @@
 const { DateTime } = require('luxon');
-const { _ } = require('frappe/utils');
+const { t } = require('frappe');
 const {
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,
@@ -42,14 +42,14 @@ module.exports = {
       options: dateFormatOptions,
       default: 'MMM d, y',
       required: 1,
-      description: _('Sets the app-wide date display format.'),
+      description: t('Sets the app-wide date display format.'),
     },
     {
       fieldname: 'locale',
       label: 'Locale',
       fieldtype: 'Data',
       default: DEFAULT_LOCALE,
-      description: _('Set the local code, this is used for number formatting.'),
+      description: t('Set the local code, this is used for number formatting.'),
     },
     {
       fieldname: 'displayPrecision',
@@ -64,10 +64,10 @@ module.exports = {
           return;
         }
         throw new frappe.errors.ValidationError(
-          _('Display Precision should have a value between 0 and 9.')
+          t('Display Precision should have a value between 0 and 9.')
         );
       },
-      description: _('Sets how many digits are shown after the decimal point.'),
+      description: t('Sets how many digits are shown after the decimal point.'),
     },
     {
       fieldname: 'internalPrecision',
@@ -75,7 +75,7 @@ module.exports = {
       fieldtype: 'Int',
       minValue: 0,
       default: DEFAULT_INTERNAL_PRECISION,
-      description: _(
+      description: t(
         'Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.'
       ),
     },
@@ -84,7 +84,7 @@ module.exports = {
       label: 'Hide Get Started',
       fieldtype: 'Check',
       default: 0,
-      description: _(
+      description: t(
         'Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.'
       ),
     },
@@ -93,7 +93,7 @@ module.exports = {
       label: 'Auto Update',
       fieldtype: 'Check',
       default: 1,
-      description: _(
+      description: t(
         'Automatically checks for updates and download them if available. The update will be applied after you restart the app.'
       ),
     },
@@ -102,7 +102,7 @@ module.exports = {
       label: 'Auto Report Errors',
       fieldtype: 'Check',
       default: 0,
-      description: _(
+      description: t(
         'Automatically report all errors. User will still be notified when an error pops up.'
       ),
     },

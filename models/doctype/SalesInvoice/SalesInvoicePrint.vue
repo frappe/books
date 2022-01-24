@@ -3,9 +3,9 @@
     <div class="row no-gutters">
       <div v-if="showInvoiceCustomizer" class="col-3 mt-4 mx-auto"></div>
       <div class="col-8 mx-auto text-right mt-4">
-        <f-button primary @click="$emit('send', $refs.printComponent.innerHTML)">{{ _('Send') }}</f-button>
-        <f-button secondary @click="toggleCustomizer">{{ _('Customize') }}</f-button>
-        <f-button secondary @click="$emit('makePDF', $refs.printComponent.innerHTML)">{{ _('PDF') }}</f-button>
+        <f-button primary @click="$emit('send', $refs.printComponent.innerHTML)">{{ t('Send') }}</f-button>
+        <f-button secondary @click="toggleCustomizer">{{ t('Customize') }}</f-button>
+        <f-button secondary @click="$emit('makePDF', $refs.printComponent.innerHTML)">{{ t('PDF') }}</f-button>
       </div>
     </div>
     <div class="row no-gutters">

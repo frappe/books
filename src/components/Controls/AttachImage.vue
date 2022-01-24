@@ -33,7 +33,7 @@
       v-show="showEdit"
       class="absolute bottom-0 text-gray-500 text-center text-xs pt-3 pb-1"
     >
-      {{ _('Edit') }}
+      {{ t('Edit') }}
     </div>
   </div>
 </template>
@@ -58,7 +58,7 @@ export default {
   methods: {
     async openFileSelector() {
       const options = {
-        title: frappe._('Select Image'),
+        title: frappe.t('Select Image'),
         properties: ['openFile'],
         filters: [{ name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] }]
       };

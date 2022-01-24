@@ -1,9 +1,9 @@
 import Badge from '@/components/Badge';
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 
 export default {
   doctype: 'JournalEntry',
-  title: _('Journal Entry'),
+  title: t('Journal Entry'),
   formRoute: (name) => `/edit/JournalEntry/${name}`,
   columns: [
     'date',
