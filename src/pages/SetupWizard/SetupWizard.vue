@@ -163,10 +163,9 @@ export default {
         await setupCompany(this.doc);
         this.$emit('setup-complete');
       } else {
-        await showErrorDialog({
-          title: 'DB Connection Error',
-          content: `reason: ${reason}, filePath: ${filePath}`,
-        });
+        const title = this.t`DB Connection Error`;
+        const content = this.t`reason: ${reason}, filePath: ${filePath}`;
+        await showErrorDialog(title, content);
       }
     },
   },
