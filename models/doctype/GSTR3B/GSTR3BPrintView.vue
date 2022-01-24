@@ -2,7 +2,7 @@
   <div>
     <div class="row no-gutters">
       <div class="col-8 mx-auto text-right mt-4">
-        <f-button primary @click="$emit('makePDF', $refs.printComponent.innerHTML)">{{ _('PDF') }}</f-button>
+        <f-button primary @click="$emit('makePDF', $refs.printComponent.innerHTML)">{{ t('PDF') }}</f-button>
       </div>
     </div>
     <div ref="printComponent" class="col-8 bg-white mt-4 mx-auto border shadow">

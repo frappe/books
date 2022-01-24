@@ -1,7 +1,7 @@
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 
 export default {
   doctype: 'Supplier',
-  title: _('Supplier'),
+  title: t('Supplier'),
   columns: ['name', 'phone', 'outstandingAmount'],
 };

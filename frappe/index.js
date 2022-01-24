@@ -1,4 +1,5 @@
 const Observable = require('./utils/observable');
+const { T, t } = require('./utils/translation');
 const utils = require('./utils');
 const { getMoneyMaker } = require('pesa');
 const {
@@ -227,8 +228,10 @@ module.exports = {
     return this.metaCache[doctype];
   },
 
-  async getDoc(doctype, name, options = {skipDocumentCache: false}) {
-    let doc = options.skipDocumentCache ? null : this.getDocFromCache(doctype, name);
+  async getDoc(doctype, name, options = { skipDocumentCache: false }) {
+    let doc = options.skipDocumentCache
+      ? null
+      : this.getDocFromCache(doctype, name);
     if (!doc) {
       doc = new (this.getDocumentClass(doctype))({
         doctype: doctype,
@@ -369,4 +372,6 @@ module.exports = {
       this.server.close();
     }
   },
+  t,
+  T,
 };

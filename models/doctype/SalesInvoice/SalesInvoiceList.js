@@ -1,9 +1,9 @@
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 import { getStatusColumn } from '../Transaction/Transaction';
 
 export default {
   doctype: 'SalesInvoice',
-  title: _('Invoices'),
+  title: t('Invoices'),
   formRoute: (name) => `/edit/SalesInvoice/${name}`,
   columns: [
     'customer',

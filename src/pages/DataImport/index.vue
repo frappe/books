@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="p-4">
-      <h4 class="pb-2">{{ _('Data Import') }}</h4>
+      <h4 class="pb-2">{{ t('Data Import') }}</h4>
       <frappe-control
         :docfield="{
           fieldtype: 'Select',
@@ -77,12 +77,12 @@ export default {
           ? path.resolve('.')
           : frappe.store.documentsPath;
 
-      let title = frappe._('Message');
-      let message = frappe._('Template saved successfully.');
+      let title = frappe.t('Message');
+      let message = frappe.t('Template saved successfully.');
 
       if (documentsPath === undefined) {
-        title = frappe._('Error');
-        message = frappe._('Template could not be saved.');
+        title = frappe.t('Error');
+        message = frappe.t('Template could not be saved.');
       } else {
         await writeFile(
           path.resolve(

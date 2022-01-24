@@ -41,7 +41,7 @@ export default {
         }
 
         throw new frappe.errors.ValidationError(
-          frappe._(`Quantity (${value}) cannot be less than zero.`)
+          frappe.t(`Quantity (${value}) cannot be less than zero.`)
         );
       },
     },
@@ -63,7 +63,7 @@ export default {
         }
 
         throw new frappe.errors.ValidationError(
-          frappe._(
+          frappe.t(
             `Rate (${frappe.format(value, 'Currency')}) cannot be less zero.`
           )
         );

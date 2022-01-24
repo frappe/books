@@ -28,14 +28,14 @@
                 class="w-1/2 text-gray-900"
                 @click="inlineEditField = null"
               >
-                {{ _('Cancel') }}
+                {{ t('Cancel') }}
               </Button>
               <Button
                 type="primary"
                 class="ml-2 w-1/2 text-white"
                 @click="saveInlineEditDoc"
               >
-                {{ df.inlineSaveText || _('Save') }}
+                {{ df.inlineSaveText || t('Save') }}
               </Button>
             </div>
           </div>

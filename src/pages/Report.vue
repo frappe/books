@@ -295,7 +295,7 @@ export default {
             })
           ) ?? []),
         {
-          label: this._('Reset Filters'),
+          label: this.t('Reset Filters'),
           action: this.resetFilters,
         },
       ];

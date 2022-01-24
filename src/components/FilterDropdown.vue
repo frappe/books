@@ -9,7 +9,7 @@
               {{ filterAppliedMessage }}
             </template>
             <template v-else>
-              {{ _('Filter') }}
+              {{ t('Filter') }}
             </template>
           </span>
         </span>
@@ -80,7 +80,7 @@
         </template>
         <template v-else>
           <span class="text-base text-gray-600">{{
-            _('No filters selected')
+            t('No filters selected')
           }}</span>
         </template>
       </div>
@@ -89,7 +89,7 @@
         @click="addNewFilter"
       >
         <feather-icon name="plus" class="w-4 h-4" />
-        <span class="ml-2">{{ _('Add a filter') }}</span>
+        <span class="ml-2">{{ t('Add a filter') }}</span>
       </div>
     </div>
   </Popover>
@@ -180,9 +180,9 @@ export default {
     },
     filterAppliedMessage() {
       if (this.activeFilterCount === 1) {
-        return this._('1 filter applied');
+        return this.t('1 filter applied');
       }
-      return this._('{0} filters applied', [this.activeFilterCount]);
+      return this.t('{0} filters applied', [this.activeFilterCount]);
     }
   }
 };
