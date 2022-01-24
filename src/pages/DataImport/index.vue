@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="p-4">
-      <h4 class="pb-2">{{ _('Data Import') }}</h4>
+      <h4 class="pb-2">{{ t('Data Import') }}</h4>
       <frappe-control
         :docfield="{
           fieldtype: 'Select',

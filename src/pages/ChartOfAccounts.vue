@@ -2,7 +2,7 @@
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
       <h1 slot="title" class="text-2xl font-bold">
-        {{ _('Chart of Accounts') }}
+        {{ t('Chart of Accounts') }}
       </h1>
       <template slot="actions">
         <SearchBar class="ml-2" />
@@ -37,13 +37,13 @@
                     class="text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
                     @click.stop="addAccount(account, 'addingAccount')"
                   >
-                    {{ _('Add Account') }}
+                    {{ t('Add Account') }}
                   </button>
                   <button
                     class="ml-3 text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
                     @click.stop="addAccount(account, 'addingGroupAccount')"
                   >
-                    {{ _('Add Group') }}
+                    {{ t('Add Group') }}
                   </button>
                 </div>
               </div>
@@ -67,7 +67,7 @@
                   <input
                     class="focus:outline-none bg-transparent"
                     :class="{ 'text-gray-600': insertingAccount }"
-                    :placeholder="_('New Account')"
+                    :placeholder="t('New Account')"
                     :ref="account.name"
                     @keydown.esc="cancelAddingAccount(account)"
                     @keydown.enter="
@@ -86,7 +86,7 @@
                     class="ml-4 text-xs text-gray-800 hover:text-gray-900 focus:outline-none"
                     @click="cancelAddingAccount(account)"
                   >
-                    {{ _('Cancel') }}
+                    {{ t('Cancel') }}
                   </button>
                 </div>
               </div>

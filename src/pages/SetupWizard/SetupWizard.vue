@@ -6,7 +6,7 @@
     }"
   >
     <div class="px-12">
-      <h1 class="text-2xl font-semibold">{{ _('Setup your organization') }}</h1>
+      <h1 class="text-2xl font-semibold">{{ t('Setup your organization') }}</h1>
     </div>
     <div class="px-8 mt-5 window-no-drag" v-if="doc">
       <div class="flex items-center px-6 py-5 mb-4 border bg-brand rounded-xl">
@@ -128,7 +128,7 @@ export default {
     },
     async submit() {
       if (!this.allValuesFilled()) {
-        showMessageDialog({ message: this._('Please fill all values') });
+        showMessageDialog({ message: this.t('Please fill all values') });
         return;
       }
 
@@ -176,7 +176,7 @@ export default {
       return this.meta.getQuickEditFields();
     },
     buttonText() {
-      return this.loading ? this._('Setting Up...') : this._('Submit');
+      return this.loading ? this.t('Setting Up...') : this.t('Submit');
     },
   },
 };

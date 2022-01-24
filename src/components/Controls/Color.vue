@@ -40,7 +40,7 @@
         <div class="mt-3 w-28">
           <input
             type="text"
-            :placeholder="_('Custom Hex')"
+            :placeholder="t('Custom Hex')"
             :class="inputClasses"
             :value="value"
             @change="e => setColorValue(e.target.value)"

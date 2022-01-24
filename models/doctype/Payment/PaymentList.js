@@ -1,9 +1,9 @@
 import Badge from '@/components/Badge';
-import { _ } from 'frappe/utils';
+import { t } from 'frappe';
 
 export default {
   doctype: 'Payment',
-  title: _('Payments'),
+  title: t('Payments'),
   columns: [
     'party',
     {
