@@ -22,7 +22,6 @@
       <p class="text-base">{{ message }}</p>
       <button
         v-if="actionText"
-        @click="action"
         class="text-sm text-gray-700 hover:text-gray-800"
       >
         {{ actionText }}
