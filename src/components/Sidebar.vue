@@ -1,26 +1,37 @@
 <template>
   <div
-    class="
-      pt-6
-      pb-2
-      px-2
-      h-full
-      block
-      flex
-      justify-between
-      flex-col
-      bg-gray-100
-    "
+    class="pt-6 pb-2 px-2 h-full flex justify-between flex-col bg-gray-100"
     :class="{
       'window-drag': platform !== 'Windows',
     }"
   >
     <div class="window-no-drag">
       <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
-      <div class="px-3">
-        <h6 class="text-lg font-semibold" @click="routeTo('/')">
+      <div class="px-3 flex flex-row items-center">
+        <h6
+          class="
+            text-xl
+            font-semibold
+            whitespace-nowrap
+            overflow-scroll
+            no-scrollbar
+          "
+        >
           {{ companyName }}
         </h6>
+        <feather-icon
+          class="
+            w-5
+            h-5
+            ml-1
+            stroke-2
+            cursor-pointer
+            text-gray-600
+            hover:text-gray-800
+          "
+          name="chevron-down"
+          @click="$emit('change-db-file')"
+        />
       </div>
       <div class="mt-3">
         <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.title">
@@ -74,16 +85,17 @@
     </div>
     <div class="px-5 window-no-drag">
       <button
-        class="pb-1 text-sm text-gray-600 hover:text-gray-800 w-full whitespace-nowrap overflow-scroll no-scrollbar text-left"
-        @click="$emit('change-db-file')"
+        class="pb-1 text-sm text-gray-600 hover:text-gray-800 w-full text-left"
+        @click="() => reportIssue()"
       >
-        {{ dbPath }}
+        Report Issue
       </button>
       <p class="pb-3 text-sm text-gray-600">v{{ appVersion }}</p>
     </div>
   </div>
 </template>
 <script>
+import { reportIssue } from '@/errorHandling';
 import sidebarConfig from '../sidebarConfig';
 import Button from '@/components/Button';
 import WindowControls from './WindowControls';
@@ -145,7 +157,6 @@ export default {
       }
     }
 
-
     this.groups = groups;
 
     this.setActiveGroup();
@@ -155,6 +166,7 @@ export default {
   },
   methods: {
     routeTo,
+    reportIssue,
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute;
       const fallBackGroup = this.activeGroup;

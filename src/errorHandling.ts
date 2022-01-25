@@ -40,7 +40,7 @@ function getToastProps(errorLogObj: ErrorLog) {
       actionText: t`Report Error`,
       action: () => {
         reportError(errorLogObj);
-        createIssue(errorLogObj);
+        reportIssue(errorLogObj);
       },
     });
   }
@@ -137,24 +137,25 @@ export function getErrorHandledSync(func: Function) {
   };
 }
 
-function getIssueUrlQuery(errorLogObj: ErrorLog): string {
+function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   const baseUrl = 'https://github.com/frappe/books/issues/new?labels=bug';
 
-  const body = [
-    '<h2>Description</h2>',
-    'Add some description...',
-    '',
-    '<h2>Error Info</h2>',
-    '',
-    `**Error**: _${errorLogObj.name}: ${errorLogObj.message}_`,
-    '',
-  ];
+  const body = ['<h2>Description</h2>', 'Add some description...', ''];
 
-  if (errorLogObj.stack) {
+  if (errorLogObj) {
+    body.push(
+      '<h2>Error Info</h2>',
+      '',
+      `**Error**: _${errorLogObj.name}: ${errorLogObj.message}_`,
+      ''
+    );
+  }
+
+  if (errorLogObj?.stack) {
     body.push('**Stack**:', '```', errorLogObj.stack, '```', '');
   }
 
-  const { fullPath } = errorLogObj.more as { fullPath?: string };
+  const { fullPath } = (errorLogObj?.more as { fullPath?: string }) ?? {};
   if (fullPath) {
     body.push(`**Path**: \`${fullPath}\``);
   }
@@ -163,7 +164,7 @@ function getIssueUrlQuery(errorLogObj: ErrorLog): string {
   return encodeURI(url);
 }
 
-function createIssue(errorLogObj: ErrorLog) {
+export function reportIssue(errorLogObj?: ErrorLog) {
   const urlQuery = getIssueUrlQuery(errorLogObj);
   ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, urlQuery);
 }
