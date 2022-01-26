@@ -6,11 +6,11 @@
         <div class="flex text-base">
           <div class="flex items-center">
             <span class="w-3 h-3 rounded-sm inline-block bg-blue-500"></span>
-            <span class="ml-2">{{ t('Inflow') }}</span>
+            <span class="ml-2 text-gray-900">{{ t('Inflow') }}</span>
           </div>
           <div class="flex items-center ml-6">
             <span class="w-3 h-3 rounded-sm inline-block bg-gray-500"></span>
-            <span class="ml-2">{{ t('Outflow') }}</span>
+            <span class="ml-2 text-gray-900">{{ t('Outflow') }}</span>
           </div>
         </div>
         <PeriodSelector :value="period" @change="(value) => (period = value)" />
