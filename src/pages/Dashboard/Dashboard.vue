@@ -7,8 +7,8 @@
       </template>
     </PageHeader>
     <hr class="border-t mx-4" />
-    <div class="mx-4 overflow-y-scroll">
-      <Cashflow class="mt-6" />
+    <div class="mx-4 overflow-y-hidden">
+      <Cashflow class="mt-5" />
       <hr class="border-t mt-10" />
       <UnpaidInvoices class="mt-10 ml-4 mr-4" />
       <hr class="border-t mt-10" />
