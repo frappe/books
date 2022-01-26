@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-4 -mb-14">
+  <div class="mx-4">
     <template v-if="hasData">
       <div class="flex items-center justify-between">
         <div class="font-medium">{{ t('Cashflow') }}</div>
@@ -15,7 +15,13 @@
         </div>
         <PeriodSelector :value="period" @change="(value) => (period = value)" />
       </div>
-      <div class="chart-wrapper" ref="cashflow"></div>
+      <LineChart
+        class="h-90"
+        :colors="chartData.colors"
+        :points="chartData.points"
+        :y-labels="chartData.yLabels"
+        :format="chartData.format"
+      />
     </template>
     <svg
       v-else
@@ -93,40 +99,64 @@ import { Chart } from 'frappe-charts';
 import PeriodSelector from './PeriodSelector';
 import Cashflow from '../../../reports/Cashflow/Cashflow';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
+import LineChart from '@/components/Charts/LineChart.vue';
 
 export default {
   name: 'Cashflow',
   components: {
     PeriodSelector,
+    LineChart,
   },
-  data: () => ({ period: 'This Year', hasData: false }),
+  data: () => ({
+    period: 'This Year',
+    data: [],
+    periodList: [],
+  }),
   watch: {
-    period: 'render',
+    period: 'setData',
   },
-  activated() {
-    this.render();
+  async activated() {
+    await this.setData();
+    console.log(this.hasData);
+    if (this.hasData) {
+      this.$nextTick(() => this.renderChart());
+    }
+  },
+  computed: {
+    hasData() {
+      let totalInflow = this.data.reduce((sum, d) => d.inflow + sum, 0);
+      let totalOutflow = this.data.reduce((sum, d) => d.outflow + sum, 0);
+      return !(totalInflow === 0 && totalOutflow === 0);
+    },
+    chartData() {
+      const yLabels = this.periodList.map((l) => l.split(' ')[0]);
+      const points = ['inflow', 'outflow'].map((k) =>
+        this.data.map((d) => d[k])
+      );
+      const colors = ['#2490EF', '#B7BFC6'];
+      const format = (value) => frappe.format(value ?? 0, 'Currency');
+
+      return { points, yLabels, colors, format };
+    },
   },
   methods: {
-    async render() {
+    async setData() {
       let { fromDate, toDate, periodicity } = await getDatesAndPeriodicity(
         this.period
       );
 
-      let { data, periodList } = await new Cashflow().run({
+      const { data, periodList } = await new Cashflow().run({
         fromDate,
         toDate,
         periodicity,
       });
 
-      let totalInflow = data.reduce((sum, d) => d.inflow + sum, 0);
-      let totalOutflow = data.reduce((sum, d) => d.outflow + sum, 0);
-      this.hasData = !(totalInflow === 0 && totalOutflow === 0);
-      if (!this.hasData) return;
+      this.data = data;
+      this.periodList = periodList;
 
-      this.$nextTick(() => this.renderChart(periodList, data));
+      console.log(periodList, data);
     },
-
-    renderChart(periodList, data) {
+    renderChart() {
       new Chart(this.$refs['cashflow'], {
         title: '',
         type: 'line',
@@ -146,17 +176,17 @@ export default {
           formatTooltipY: (value) => frappe.format(value ?? 0, 'Currency'),
         },
         data: {
-          labels: periodList.map((p) => p.split(' ')[0]),
+          labels: this.periodList.map((p) => p.split(' ')[0]),
           datasets: [
             {
               name: 'Inflow',
               chartType: 'line',
-              values: data.map((period) => period.inflow),
+              values: this.data.map((period) => period.inflow),
             },
             {
               name: 'Outflow',
               chartType: 'line',
-              values: data.map((period) => period.outflow),
+              values: this.data.map((period) => period.outflow),
             },
           ],
         },
