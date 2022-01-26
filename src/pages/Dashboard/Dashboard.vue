@@ -8,11 +8,11 @@
     </PageHeader>
     <div class="mx-4">
       <div class="border-t" />
-      <Cashflow />
-      <div class="my-4 mt-0 border-t" />
-      <UnpaidInvoices />
-      <div class="my-4 border-t" />
-      <div class="flex justify-between mx-auto">
+      <Cashflow class="mt-6"/>
+      <div class="border-t mt-10" />
+      <UnpaidInvoices class="mt-10"/>
+      <div class="border-t mt-10" />
+      <div class="flex justify-between mx-auto mt-10">
         <div class="w-1/2 mx-4">
           <ProfitAndLoss />
         </div>
