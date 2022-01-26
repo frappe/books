@@ -54,7 +54,13 @@
         />
       </template>
     </svg>
-    <div class="relative" style="top: -50%">
+    <div
+      class="relative"
+      :style="{
+        top: `-50%`,
+        transform: `translate(${textOffsetX}px, ${textOffsetY}px)`,
+      }"
+    >
       <div class="text-base text-center font-semibold grid justify-center">
         <p class="text-xs text-gray-600 w-32">
           {{
@@ -91,14 +97,18 @@ export default {
     thickness: { default: 10, type: Number },
     active: { default: null, type: Number },
     valueFormatter: { default: (v) => v.toString(), Function },
-  },
-  data() {
-    return {
-      cx: 50,
-      cy: 50,
-    };
+    offsetX: { default: 0, type: Number },
+    offsetY: { default: 0, type: Number },
+    textOffsetX: { default: 0, type: Number },
+    textOffsetY: { default: 0, type: Number },
   },
   computed: {
+    cx() {
+      return 50 + this.offsetX;
+    },
+    cy() {
+      return 50 + this.offsetY;
+    },
     totalValue() {
       return this.sectors.map(({ value }) => value).reduce((a, b) => a + b, 0);
     },
