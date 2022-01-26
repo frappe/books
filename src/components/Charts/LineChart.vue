@@ -81,6 +81,7 @@
       <g v-for="(i, j) in num" :key="j + '-gpath'">
         <!-- Gradient Paths -->
         <path
+          stroke-linejoin="round"
           :d="getGradLine(i - 1)"
           :stroke-width="thickness"
           stroke-linecap="round"
@@ -90,6 +91,7 @@
 
         <!-- Lines -->
         <path
+          stroke-linejoin="round"
           :d="getLine(i - 1)"
           :stroke="colors[i - 1] || getRandomColor()"
           :stroke-width="thickness"
@@ -101,12 +103,13 @@
       <!-- Tooltip Reference -->
       <circle
         v-if="xi > -1 && yi > -1"
-        r="6"
+        r="12"
         :cx="cx"
         :cy="cy"
-        fill="white"
-        :stroke-width="thickness"
-        :stroke="colors[yi]"
+        :fill="colors[yi]"
+        style="
+          filter: brightness(115%) drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.25));
+        "
       />
     </svg>
     <Tooltip
@@ -130,7 +133,7 @@ export default {
     colors: { type: Array, default: () => [] },
     xLabels: { type: Array, default: () => [] },
     yLabelDivisions: { type: Number, default: 4 },
-    points: { type: Array, default: () => [[100, 200, 300, 400, 500]] },
+    points: { type: Array, default: () => [[]] },
     drawAxis: { type: Boolean, default: false },
     drawXGrid: { type: Boolean, default: true },
     viewBoxHeight: { type: Number, default: 500 },
@@ -141,7 +144,7 @@ export default {
     yLabelOffset: { type: Number, default: 5 },
     gridColor: { type: String, default: 'rgba(0, 0, 0, 0.2)' },
     axisColor: { type: String, default: 'rgba(0, 0, 0, 0.5)' },
-    thickness: { type: Number, default: 4 },
+    thickness: { type: Number, default: 5 },
     axisThickness: { type: Number, default: 1 },
     gridThickness: { type: Number, default: 0.5 },
     yMin: { type: Number, default: null },
@@ -245,9 +248,9 @@ export default {
       );
     },
     yScalerValue(i) {
-      return this.formatY(
-        (i * (this.max - this.min)) / this.yLabelDivisions + this.min
-      );
+      const max = this.yMax ?? this.max;
+      const min = this.yMin ?? this.min;
+      return this.formatY((i * (max - min)) / this.yLabelDivisions + min);
     },
     getLine(i) {
       const [x, y] = this.xy[0];
