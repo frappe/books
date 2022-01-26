@@ -75,10 +75,9 @@
       </mask>
     </defs>
 
-    <template v-for="(i, j) in num">
+    <g v-for="(i, j) in num" :key="j + '-gpath'">
       <!-- Gradient Paths -->
       <path
-        :key="j + '-gpath'"
         :d="getGradLine(i - 1)"
         :stroke-width="thickness"
         stroke-linecap="round"
@@ -88,14 +87,13 @@
 
       <!-- Lines -->
       <path
-        :key="j + '-lpath'"
         :d="getLine(i - 1)"
         :stroke="colors[i - 1] || getRandomColor()"
         :stroke-width="thickness"
         stroke-linecap="round"
         fill="transparent"
       />
-    </template>
+    </g>
   </svg>
 </template>
 <script>
