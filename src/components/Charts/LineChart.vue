@@ -56,38 +56,46 @@
       </text>
     </template>
 
-    <!-- Gradients -->
+    <!-- Gradient Mask -->
     <defs>
       <linearGradient id="grad" x1="0" y1="0" x2="0" y2="85%">
-        <stop offset="0%" stop-color="rgba(255, 255, 255, 0.4)" />
-        <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+        <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)" />
+        <stop offset="40%" stop-color="rgba(255, 255, 255, 0.1)" />
+        <stop offset="70%" stop-color="rgba(255, 255, 255, 0)" />
       </linearGradient>
-      <mask id="rect-mask">
-        <rect x="0" y="0" width="100%" height="100%" fill="url('#grad')" />
+
+      <mask v-for="(i, j) in num" :key="j + '-mask'" :id="'rect-mask-' + i">
+        <rect
+          x="0"
+          :y="gradY(j)"
+          :height="viewBoxHeight - gradY(j)"
+          width="100%"
+          fill="url('#grad')"
+        />
       </mask>
     </defs>
 
-    <!-- Gradient Paths -->
-    <path
-      v-for="(i, j) in num"
-      :key="j + '-gpath'"
-      :d="getGradLine(i - 1)"
-      :stroke-width="thickness"
-      stroke-linecap="round"
-      :fill="colors[i - 1] || getRandomColor()"
-      mask="url('#rect-mask')"
-    />
+    <template v-for="(i, j) in num">
+      <!-- Gradient Paths -->
+      <path
+        :key="j + '-gpath'"
+        :d="getGradLine(i - 1)"
+        :stroke-width="thickness"
+        stroke-linecap="round"
+        :fill="colors[i - 1] || getRandomColor()"
+        :mask="`url('#rect-mask-${i}')`"
+      />
 
-    <!-- Lines -->
-    <path
-      v-for="(i, j) in num"
-      :key="j + '-line'"
-      :d="getLine(i - 1)"
-      :stroke="colors[i - 1] || getRandomColor()"
-      :stroke-width="thickness"
-      stroke-linecap="round"
-      fill="transparent"
-    />
+      <!-- Lines -->
+      <path
+        :key="j + '-lpath'"
+        :d="getLine(i - 1)"
+        :stroke="colors[i - 1] || getRandomColor()"
+        :stroke-width="thickness"
+        stroke-linecap="round"
+        fill="transparent"
+      />
+    </template>
   </svg>
 </template>
 <script>
@@ -120,6 +128,7 @@ export default {
     fontColor: { type: String, default: '#415668' },
     bottom: { type: Number, default: 0 },
     left: { type: Number, default: 55 },
+    extendGridX: { type: Number, default: -20 },
   },
   computed: {
     fontStyle() {
@@ -176,8 +185,8 @@ export default {
       return this.axisPadding + this.pointsPadding;
     },
     xGrid() {
-      const lo = this.padding + this.left;
-      const ro = this.viewBoxWidth - this.padding;
+      const lo = this.padding + this.left + this.extendGridX;
+      const ro = this.viewBoxWidth - this.padding - this.extendGridX;
 
       const ys = Array(this.xLabelDivisions + 1)
         .fill()
@@ -194,6 +203,9 @@ export default {
   },
   mounted() {},
   methods: {
+    gradY(i) {
+      return Math.min(...this.ys[i]).toFixed();
+    },
     yScalerLocation(i) {
       return (
         ((this.xLabelDivisions - i) *
