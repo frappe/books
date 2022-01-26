@@ -1,5 +1,10 @@
 <template>
-  <div id="tooltip" ref="tooltip">
+  <div
+    id="tooltip"
+    ref="tooltip"
+    style="transition: opacity 100ms ease-in"
+    :style="{ opacity }"
+  >
     <slot></slot>
   </div>
 </template>
@@ -27,10 +32,15 @@ export default {
     placement: { type: String, default: 'auto' },
   },
   data() {
-    return { popper: null, virtualElement: null };
+    return { popper: null, virtualElement: null, opacity: 0 };
   },
   methods: {
     create() {
+      if (this.popper) {
+        this.opacity = 1;
+        return;
+      }
+
       this.$refs.tooltip.setAttribute('data-show', '');
       this.virtualElement = {
         getBoundingClientRect: generateGetBoundingClientRect(),
@@ -43,6 +53,7 @@ export default {
           Object.assign(offset, { options: { offset: [0, this.offset] } }),
         ],
       });
+      this.opacity = 1;
     },
     update({ clientX, clientY }) {
       if (!this.popper || !this.virtualElement) {
@@ -55,8 +66,9 @@ export default {
       this.popper.update();
     },
     destroy() {
+      this.opacity = 0;
       this.$refs.tooltip.removeAttribute('data-show');
-      this.popper.destroy();
+      this.popper?.destroy();
       this.virtualElement = null;
       this.popper = null;
     },
