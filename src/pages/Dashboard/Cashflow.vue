@@ -16,17 +16,19 @@
         <PeriodSelector :value="period" @change="(value) => (period = value)" />
       </div>
       <LineChart
+        v-if="hasData"
         class="h-90"
         :colors="chartData.colors"
         :points="chartData.points"
-        :y-labels="chartData.yLabels"
+        :x-labels="chartData.xLabels"
         :format="chartData.format"
+        :y-max="chartData.yMax"
       />
     </template>
     <svg
       v-else
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 889 300"
+      viewBox="0 0 889 280"
       class="my-4"
     >
       <defs>
@@ -95,7 +97,6 @@
 </template>
 <script>
 import frappe from 'frappe';
-import { Chart } from 'frappe-charts';
 import PeriodSelector from './PeriodSelector';
 import Cashflow from '../../../reports/Cashflow/Cashflow';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
@@ -117,10 +118,6 @@ export default {
   },
   async activated() {
     await this.setData();
-    console.log(this.hasData);
-    if (this.hasData) {
-      this.$nextTick(() => this.renderChart());
-    }
   },
   computed: {
     hasData() {
@@ -129,14 +126,18 @@ export default {
       return !(totalInflow === 0 && totalOutflow === 0);
     },
     chartData() {
-      const yLabels = this.periodList.map((l) => l.split(' ')[0]);
+      const xLabels = this.periodList.map((l) => l.split(' ')[0]);
       const points = ['inflow', 'outflow'].map((k) =>
         this.data.map((d) => d[k])
       );
       const colors = ['#2490EF', '#B7BFC6'];
       const format = (value) => frappe.format(value ?? 0, 'Currency');
 
-      return { points, yLabels, colors, format };
+      const maxVal = Math.max(...points.flat());
+      const texp = 10 ** Math.floor(Math.log10(maxVal));
+      const yMax = Math.ceil(maxVal / texp) * texp;
+
+      return { points, xLabels, colors, format, yMax };
     },
   },
   methods: {
@@ -153,44 +154,6 @@ export default {
 
       this.data = data;
       this.periodList = periodList;
-
-      console.log(periodList, data);
-    },
-    renderChart() {
-      new Chart(this.$refs['cashflow'], {
-        title: '',
-        type: 'line',
-        animate: false,
-        height: 300,
-        colors: ['#2490EF', '#B7BFC6'],
-        axisOptions: {
-          xAxisMode: 'tick',
-          shortenYAxisNumbers: true,
-        },
-        lineOptions: {
-          regionFill: 1,
-          hideDots: 1,
-          heatLine: 1,
-        },
-        tooltipOptions: {
-          formatTooltipY: (value) => frappe.format(value ?? 0, 'Currency'),
-        },
-        data: {
-          labels: this.periodList.map((p) => p.split(' ')[0]),
-          datasets: [
-            {
-              name: 'Inflow',
-              chartType: 'line',
-              values: this.data.map((period) => period.inflow),
-            },
-            {
-              name: 'Outflow',
-              chartType: 'line',
-              values: this.data.map((period) => period.outflow),
-            },
-          ],
-        },
-      });
     },
   },
 };
