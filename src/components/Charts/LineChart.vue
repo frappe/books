@@ -1,109 +1,135 @@
 <template>
-  <svg
-    :viewBox="`0 0 ${viewBoxWidth} ${viewBoxHeight}`"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <!-- x Grid Lines -->
-    <path
-      v-if="drawXGrid"
-      :d="xGrid"
-      :stroke="gridColor"
-      :stroke-width="gridThickness"
-      stroke-linecap="round"
-      fill="transparent"
-    />
-
-    <!-- Axis -->
-    <path
-      v-if="drawAxis"
-      :d="axis"
-      :stroke-width="axisThickness"
-      :stroke="axisColor"
-      fill="transparent"
-    />
-
-    <!-- x Labels -->
-    <template v-if="yLabels.length > 0">
-      <text
-        :style="fontStyle"
-        v-for="(i, j) in count"
-        :key="j + '-xlabels'"
-        :y="
-          viewBoxHeight -
-          axisPadding +
-          yLabelOffset +
-          fontStyle.fontSize / 2 -
-          bottom
-        "
-        :x="xs[i - 1]"
-        text-anchor="middle"
-      >
-        {{ yLabels[i - 1] || '' }}
-      </text>
-    </template>
-
-    <!-- y Labels -->
-    <template v-if="xLabelDivisions > 0">
-      <text
-        :style="fontStyle"
-        v-for="(i, j) in xLabelDivisions + 1"
-        :key="j + '-ylabels'"
-        :y="yScalerLocation(i - 1)"
-        :x="axisPadding - xLabelOffset + left"
-        text-anchor="end"
-      >
-        {{ yScalerValue(i - 1) }}
-      </text>
-    </template>
-
-    <!-- Gradient Mask -->
-    <defs>
-      <linearGradient id="grad" x1="0" y1="0" x2="0" y2="85%">
-        <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)" />
-        <stop offset="40%" stop-color="rgba(255, 255, 255, 0.1)" />
-        <stop offset="70%" stop-color="rgba(255, 255, 255, 0)" />
-      </linearGradient>
-
-      <mask v-for="(i, j) in num" :key="j + '-mask'" :id="'rect-mask-' + i">
-        <rect
-          x="0"
-          :y="gradY(j)"
-          :height="viewBoxHeight - gradY(j)"
-          width="100%"
-          fill="url('#grad')"
-        />
-      </mask>
-    </defs>
-
-    <g v-for="(i, j) in num" :key="j + '-gpath'">
-      <!-- Gradient Paths -->
+  <div>
+    <svg
+      ref="chartSvg"
+      :viewBox="`0 0 ${viewBoxWidth} ${viewBoxHeight}`"
+      xmlns="http://www.w3.org/2000/svg"
+      @mousemove="update"
+    >
+      <!-- x Grid Lines -->
       <path
-        :d="getGradLine(i - 1)"
-        :stroke-width="thickness"
-        stroke-linecap="round"
-        :fill="colors[i - 1] || getRandomColor()"
-        :mask="`url('#rect-mask-${i}')`"
-      />
-
-      <!-- Lines -->
-      <path
-        :d="getLine(i - 1)"
-        :stroke="colors[i - 1] || getRandomColor()"
-        :stroke-width="thickness"
+        v-if="drawXGrid"
+        :d="xGrid"
+        :stroke="gridColor"
+        :stroke-width="gridThickness"
         stroke-linecap="round"
         fill="transparent"
       />
-    </g>
-  </svg>
+
+      <!-- Axis -->
+      <path
+        v-if="drawAxis"
+        :d="axis"
+        :stroke-width="axisThickness"
+        :stroke="axisColor"
+        fill="transparent"
+      />
+
+      <!-- x Labels -->
+      <template v-if="xLabels.length > 0">
+        <text
+          :style="fontStyle"
+          v-for="(i, j) in count"
+          :key="j + '-xlabels'"
+          :y="
+            viewBoxHeight -
+            axisPadding +
+            yLabelOffset +
+            fontStyle.fontSize / 2 -
+            bottom
+          "
+          :x="xs[i - 1]"
+          text-anchor="middle"
+        >
+          {{ xLabels[i - 1] || '' }}
+        </text>
+      </template>
+
+      <!-- y Labels -->
+      <template v-if="yLabelDivisions > 0">
+        <text
+          :style="fontStyle"
+          v-for="(i, j) in yLabelDivisions + 1"
+          :key="j + '-ylabels'"
+          :y="yScalerLocation(i - 1)"
+          :x="axisPadding - xLabelOffset + left"
+          text-anchor="end"
+        >
+          {{ yScalerValue(i - 1) }}
+        </text>
+      </template>
+
+      <!-- Gradient Mask -->
+      <defs>
+        <linearGradient id="grad" x1="0" y1="0" x2="0" y2="85%">
+          <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)" />
+          <stop offset="40%" stop-color="rgba(255, 255, 255, 0.1)" />
+          <stop offset="70%" stop-color="rgba(255, 255, 255, 0)" />
+        </linearGradient>
+
+        <mask v-for="(i, j) in num" :key="j + '-mask'" :id="'rect-mask-' + i">
+          <rect
+            x="0"
+            :y="gradY(j)"
+            :height="viewBoxHeight - gradY(j)"
+            width="100%"
+            fill="url('#grad')"
+          />
+        </mask>
+      </defs>
+
+      <g v-for="(i, j) in num" :key="j + '-gpath'">
+        <!-- Gradient Paths -->
+        <path
+          :d="getGradLine(i - 1)"
+          :stroke-width="thickness"
+          stroke-linecap="round"
+          :fill="colors[i - 1] || getRandomColor()"
+          :mask="`url('#rect-mask-${i}')`"
+        />
+
+        <!-- Lines -->
+        <path
+          :d="getLine(i - 1)"
+          :stroke="colors[i - 1] || getRandomColor()"
+          :stroke-width="thickness"
+          stroke-linecap="round"
+          fill="transparent"
+        />
+      </g>
+
+      <!-- Tooltip Reference -->
+      <circle
+        v-if="xi > -1 && yi > -1"
+        r="6"
+        :cx="cx"
+        :cy="cy"
+        fill="white"
+        :stroke-width="thickness"
+        :stroke="colors[yi]"
+      />
+    </svg>
+    <Tooltip
+      ref="tooltip"
+      :offset="15"
+      placement="top"
+      class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-2"
+      :style="{ borderColor: colors[yi] }"
+    >
+      {{ xi > -1 ? xLabels[xi] : '' }}
+      {{ yi > -1 ? format(points[yi][xi]) : '' }}
+    </Tooltip>
+  </div>
 </template>
 <script>
-import { prefixFormat } from './chartUtils';
+import { euclideanDistance, prefixFormat } from './chartUtils';
+import Tooltip from '../Tooltip.vue';
 
 export default {
   props: {
     colors: { type: Array, default: () => [] },
-    yLabels: { type: Array, default: () => [] },
-    xLabelDivisions: { type: Number, default: 4 },
+    xLabels: { type: Array, default: () => [] },
+    yLabelDivisions: { type: Number, default: 4 },
     points: { type: Array, default: () => [[100, 200, 300, 400, 500]] },
     drawAxis: { type: Boolean, default: false },
     drawXGrid: { type: Boolean, default: true },
@@ -127,8 +153,12 @@ export default {
     bottom: { type: Number, default: 0 },
     left: { type: Number, default: 55 },
     extendGridX: { type: Number, default: -20 },
+    tooltipDispDistThreshold: { type: Number, default: 20 },
   },
   computed: {
+    inverseMatrix() {
+      return this.$refs.chartSvg.getScreenCTM().inverse();
+    },
     fontStyle() {
       return { fontSize: this.fontSize, fill: this.fontColor };
     },
@@ -155,7 +185,6 @@ export default {
     ys() {
       const min = this.yMin ?? this.min;
       const max = this.yMax ?? this.max;
-
       return this.points.map((pp) =>
         pp.map(
           (p) =>
@@ -183,38 +212,41 @@ export default {
       return this.axisPadding + this.pointsPadding;
     },
     xGrid() {
-      const lo = this.padding + this.left + this.extendGridX;
-      const ro = this.viewBoxWidth - this.padding - this.extendGridX;
-
-      const ys = Array(this.xLabelDivisions + 1)
+      const { l, r } = this.xLims;
+      const lo = l + this.extendGridX;
+      const ro = r - this.extendGridX;
+      const ys = Array(this.yLabelDivisions + 1)
         .fill()
         .map((_, i) => this.yScalerLocation(i));
-
       return ys.map((y) => `M ${lo} ${y} H ${ro}`).join(' ');
     },
     yGrid() {
       return [];
     },
+    xLims() {
+      const l = this.padding + this.left;
+      const r = this.viewBoxWidth - this.padding;
+      return { l, r };
+    },
   },
   data() {
-    return {};
+    return { cx: -1, cy: -1, xi: -1, yi: -1 };
   },
-  mounted() {},
   methods: {
     gradY(i) {
       return Math.min(...this.ys[i]).toFixed();
     },
     yScalerLocation(i) {
       return (
-        ((this.xLabelDivisions - i) *
+        ((this.yLabelDivisions - i) *
           (this.viewBoxHeight - this.padding * 2 - this.bottom)) /
-          this.xLabelDivisions +
+          this.yLabelDivisions +
         this.padding
       );
     },
     yScalerValue(i) {
       return this.formatY(
-        (i * (this.max - this.min)) / this.xLabelDivisions + this.min
+        (i * (this.max - this.min)) / this.yLabelDivisions + this.min
       );
     },
     getLine(i) {
@@ -240,6 +272,51 @@ export default {
         .join(',');
       return `rgb(${rgb})`;
     },
+    update(event) {
+      const { x, y } = this.getSvgXY(event);
+      const { xi, yi, cx, cy, d } = this.getPointIndexAndCoords(x, y);
+
+      if (d > this.tooltipDispDistThreshold) {
+        this.xi = -1;
+        this.yi = -1;
+        this.cx = -1;
+        this.cy = -1;
+        this.$refs.tooltip.destroy();
+        return;
+      }
+      this.$refs.tooltip.create();
+
+      this.xi = xi;
+      this.yi = yi;
+      this.cx = cx;
+      this.cy = cy;
+      this.$refs.tooltip.update(event);
+    },
+    getSvgXY({ clientX, clientY }) {
+      // This func is apparently deprecated, will update when removed
+      const point = this.$refs.chartSvg.createSVGPoint();
+      point.x = clientX;
+      point.y = clientY;
+      const { x, y } = point.matrixTransform(this.inverseMatrix);
+      return { x, y };
+    },
+    getPointIndexAndCoords(x, y) {
+      const { l, r } = this.xLims;
+      const xi = Math.round((x - l) / ((r - l) / (this.count - 1)));
+      if (xi < 0 || xi > this.count - 1) {
+        return { d: this.tooltipDispDistThreshold + 1 };
+      }
+      const px = this.xs[xi];
+      const pys = this.ys.map((yarr) => yarr[xi]);
+      const dists = pys.map((py) => euclideanDistance(x, y, px, py));
+      const minDist = Math.min(...dists);
+      const yi = dists
+        .map((j, i) => [j - minDist, i])
+        .filter(([j, _]) => j === 0)
+        .at(-1)[1];
+      return { xi, yi, cx: px, cy: pys[yi], d: minDist };
+    },
   },
+  components: { Tooltip },
 };
 </script>
