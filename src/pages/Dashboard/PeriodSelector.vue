@@ -5,11 +5,23 @@
         toggleDropdown,
         highlightItemUp,
         highlightItemDown,
-        selectHighlightedItem
+        selectHighlightedItem,
       }"
     >
       <div
-        class="text-sm flex hover:bg-gray-100 focus:outline-none focus:bg-gray-100 items-center px-3 py-1 rounded-md leading-relaxed cursor-pointer"
+        class="
+          text-sm
+          flex
+          focus:outline-none
+          text-gray-900
+          hover:text-gray-800
+          focus:text-gray-800
+          items-center
+          py-1
+          rounded-md
+          leading-relaxed
+          cursor-pointer
+        "
         @click="toggleDropdown()"
         tabindex="0"
         @keydown.down="highlightItemDown"
@@ -29,24 +41,24 @@ export default {
   name: 'PeriodSelector',
   props: ['value'],
   components: {
-    Dropdown
+    Dropdown,
   },
   data() {
     let options = ['This Year', 'This Quarter', 'This Month'];
     return {
-      periodOptions: options.map(option => {
+      periodOptions: options.map((option) => {
         return {
           label: option,
-          action: () => this.selectOption(option)
+          action: () => this.selectOption(option),
         };
-      })
+      }),
     };
   },
   methods: {
     selectOption(value) {
       this.$emit('change', value);
       this.$refs.dropdown.toggleDropdown(false);
-    }
-  }
+    },
+  },
 };
 </script>

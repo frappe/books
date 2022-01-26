@@ -1,7 +1,7 @@
 <template>
-  <div class="flex justify-between mx-auto">
+  <div class="flex justify-between gap-10">
     <div
-      class="w-1/2 mx-4 flex flex-col justify-between"
+      class="w-1/2  flex flex-col justify-between"
       v-for="invoice in invoices"
       :key="invoice.title"
     >
@@ -26,11 +26,11 @@
       <div>
         <div class="mt-6 flex justify-between">
           <div
-            class="text-sm"
+            class="text-sm bold"
             :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.hasData }"
           >
             {{ frappe.format(invoice.paid, 'Currency') }}
-            <span :class="{ 'text-gray-600': invoice.hasData }">{{
+            <span :class="{ 'text-gray-900': invoice.hasData }">{{
               t('Paid')
             }}</span>
           </div>
@@ -39,7 +39,7 @@
             :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.hasData }"
           >
             {{ frappe.format(invoice.unpaid, 'Currency') }}
-            <span :class="{ 'text-gray-600': invoice.hasData }">{{
+            <span :class="{ 'text-gray-900': invoice.hasData }">{{
               t('Unpaid')
             }}</span>
           </div>

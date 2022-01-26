@@ -7,18 +7,14 @@
       </template>
     </PageHeader>
     <div class="mx-4">
-      <div class="border-t" />
-      <Cashflow class="mt-6"/>
-      <div class="border-t mt-10" />
-      <UnpaidInvoices class="mt-10"/>
-      <div class="border-t mt-10" />
-      <div class="flex justify-between mx-auto mt-10">
-        <div class="w-1/2 mx-4">
-          <ProfitAndLoss />
-        </div>
-        <div class="w-1/2 mx-4">
-          <Expenses />
-        </div>
+      <hr class="border-t" />
+      <Cashflow class="mt-6" />
+      <hr class="border-t mt-10" />
+      <UnpaidInvoices class="mt-10 ml-4 mr-4" />
+      <hr class="border-t mt-10" />
+      <div class="flex justify-between mx-auto mt-10 ml-4 mr-4 gap-10">
+        <ProfitAndLoss class="w-1/2" />
+        <Expenses class="w-1/2" />
       </div>
     </div>
   </div>
@@ -40,7 +36,7 @@ export default {
     Cashflow,
     UnpaidInvoices,
     ProfitAndLoss,
-    Expenses
-  }
+    Expenses,
+  },
 };
 </script>

@@ -61,15 +61,8 @@
         transform: `translate(${textOffsetX}px, ${textOffsetY}px)`,
       }"
     >
-      <div class="text-base text-center font-semibold grid justify-center">
-        <p class="text-xs text-gray-600 w-32">
-          {{
-            active !== null && sectors.length !== 0
-              ? sectors[active].label
-              : totalLabel
-          }}
-        </p>
-        <p class="w-32">
+      <div class="text-center font-semibold grid justify-center">
+        <p class="w-32 text-xl font-bold">
           {{
             valueFormatter(
               active !== null && sectors.length !== 0
@@ -77,6 +70,13 @@
                 : totalValue,
               'Currency'
             )
+          }}
+        </p>
+        <p class="text-xs text-gray-600 w-32">
+          {{
+            active !== null && sectors.length !== 0
+              ? sectors[active].label
+              : totalLabel
           }}
         </p>
       </div>
