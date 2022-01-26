@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-4 mx-4">
+  <div class="mx-4 -mb-14">
     <template v-if="hasData">
       <div class="flex items-center justify-between">
         <div class="font-medium">{{ t('Cashflow') }}</div>
@@ -20,7 +20,7 @@
     <svg
       v-else
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 889 240"
+      viewBox="0 0 889 300"
       class="my-4"
     >
       <defs>
@@ -131,7 +131,7 @@ export default {
         title: '',
         type: 'line',
         animate: false,
-        height: 240,
+        height: 300,
         colors: ['#2490EF', '#B7BFC6'],
         axisOptions: {
           xAxisMode: 'tick',
