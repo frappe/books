@@ -5,6 +5,7 @@
       <PeriodSelector
         slot="action"
         :value="period"
+        :options="['This Year', 'This Quarter']"
         @change="(value) => (period = value)"
       />
     </SectionHeader>
