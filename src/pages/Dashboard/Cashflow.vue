@@ -101,6 +101,7 @@ import PeriodSelector from './PeriodSelector';
 import Cashflow from '../../../reports/Cashflow/Cashflow';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import LineChart from '@/components/Charts/LineChart.vue';
+import { getYMax } from '@/components/Charts/chartUtils';
 
 export default {
   name: 'Cashflow',
@@ -126,17 +127,13 @@ export default {
       return !(totalInflow === 0 && totalOutflow === 0);
     },
     chartData() {
-      const xLabels = this.periodList.map((l) => l.split(' ')[0]);
+      const xLabels = this.periodList;
       const points = ['inflow', 'outflow'].map((k) =>
         this.data.map((d) => d[k])
       );
       const colors = ['#2490EF', '#B7BFC6'];
       const format = (value) => frappe.format(value ?? 0, 'Currency');
-
-      const maxVal = Math.max(...points.flat());
-      const texp = 10 ** Math.floor(Math.log10(maxVal));
-      const yMax = Math.ceil(maxVal / texp) * texp;
-
+      const yMax = getYMax(points);
       return { points, xLabels, colors, format, yMax };
     },
   },
