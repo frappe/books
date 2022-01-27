@@ -8,8 +8,17 @@
         @change="(value) => (period = value)"
       />
     </SectionHeader>
-    <div v-show="hasData" class="chart-wrapper" ref="profit-and-loss"></div>
-    <div class="flex-1 w-full h-full flex-center my-20" v-if="!hasData">
+    <BarChart
+      v-if="hasData"
+      class="h-200"
+      :colors="chartData.colors"
+      :points="chartData.points"
+      :x-labels="chartData.xLabels"
+      :format="chartData.format"
+      :y-max="chartData.yMax"
+      :y-min="chartData.yMin"
+    />
+    <div class="flex-1 w-full h-full flex-center my-20" v-else>
       <span class="text-base text-gray-600">
         {{ t('No transactions yet') }}
       </span>
@@ -18,27 +27,53 @@
 </template>
 <script>
 import frappe from 'frappe';
-import { Chart } from 'frappe-charts';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 import ProfitAndLoss from '../../../reports/ProfitAndLoss/ProfitAndLoss';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
+import BarChart from '@/components/Charts/BarChart.vue';
+import { getYMax, getYMin } from '@/components/Charts/chartUtils';
 
 export default {
   name: 'ProfitAndLoss',
   components: {
     PeriodSelector,
     SectionHeader,
+    BarChart,
   },
-  data: () => ({ period: 'This Year', hasData: false }),
+  data: () => ({
+    period: 'This Year',
+    data: [],
+    periodList: [],
+  }),
   activated() {
-    this.render();
+    this.setData();
   },
   watch: {
     period: 'render',
   },
+  computed: {
+    chartData() {
+      const points = [this.periodList.map((p) => this.data[p])];
+      const colors = [{ positive: '#2490EF', negative: '#B7BFC6' }];
+      const format = (value) => frappe.format(value ?? 0, 'Currency');
+      const yMax = getYMax(points);
+      const yMin = getYMin(points);
+      return {
+        xLabels: this.periodList.map((p) => p.split(' ')[0]),
+        points,
+        format,
+        colors,
+        yMax,
+        yMin,
+      };
+    },
+    hasData() {
+      return this.periodList.some((key) => this.data[key] !== 0);
+    },
+  },
   methods: {
-    async render() {
+    async setData() {
       let { fromDate, toDate, periodicity } = await getDatesAndPeriodicity(
         this.period
       );
@@ -50,38 +85,8 @@ export default {
         periodicity,
       });
 
-      let totalRow = res.rows[res.rows.length - 1];
-      this.hasData = res.columns.some((key) => totalRow[key] !== 0);
-      if (!this.hasData) return;
-      this.$nextTick(() => this.renderChart(res));
-    },
-
-    renderChart(res) {
-      let totalRow = res.rows[res.rows.length - 1];
-      new Chart(this.$refs['profit-and-loss'], {
-        title: '',
-        animate: false,
-        type: 'bar',
-        colors: ['#2490EF', '#B7BFC6'],
-        axisOptions: {
-          xAxisMode: 'tick',
-          shortenYAxisNumbers: true,
-          xIsSeries: true,
-        },
-        tooltipOptions: {
-          formatTooltipY: (value) => frappe.format(value ?? 0, 'Currency'),
-        },
-        data: {
-          labels: res.columns,
-          datasets: [
-            {
-              name: 'Income',
-              chartType: 'bar',
-              values: res.columns.map((key) => totalRow[key]),
-            },
-          ],
-        },
-      });
+      this.data = res.rows.at(-1);
+      this.periodList = res.columns;
     },
   },
 };
