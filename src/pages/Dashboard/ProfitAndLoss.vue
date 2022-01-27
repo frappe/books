@@ -57,9 +57,6 @@ export default {
   computed: {
     chartData() {
       const points = [this.periodList.map((p) => this.data[p])];
-      console.log(this.period);
-      console.log(this.data, this.periodList);
-      console.log(points);
       const colors = [{ positive: '#2490EF', negative: '#B7BFC6' }];
       const format = (value) => frappe.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
