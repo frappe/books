@@ -13,7 +13,11 @@
             <span class="ml-2 text-gray-900">{{ t('Outflow') }}</span>
           </div>
         </div>
-        <PeriodSelector :value="period" @change="(value) => (period = value)" />
+        <PeriodSelector
+          :value="period"
+          @change="(value) => (period = value)"
+          :options="['This Year', 'This Quarter']"
+        />
       </div>
       <LineChart
         v-if="hasData"
@@ -136,7 +140,7 @@ export default {
       const colors = ['#2490EF', '#B7BFC6'];
       const format = (value) => frappe.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
-      return { points, xLabels, colors, format, yMax, formatX:formatXLabels };
+      return { points, xLabels, colors, format, yMax, formatX: formatXLabels };
     },
   },
   methods: {
