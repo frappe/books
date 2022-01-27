@@ -50,7 +50,7 @@
           :x="xs[i - 1]"
           text-anchor="middle"
         >
-          {{ xLabels[i - 1] || '' }}
+          {{ j % skipXLabel === 0 ? formatX(xLabels[i - 1] || '') : '' }}
         </text>
       </template>
 
@@ -121,7 +121,7 @@
       class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-2"
       :style="{ borderColor: activeColor }"
     >
-      {{ xi > -1 ? xLabels[xi] : '' }}
+      {{ xi > -1 ? xLabels[xi] : '' }} – 
       {{ yi > -1 ? format(points[yi][xi]) : '' }}
     </Tooltip>
   </div>
@@ -132,6 +132,7 @@ import Tooltip from '../Tooltip.vue';
 
 export default {
   props: {
+    skipXLabel: { type: Number, default: 2 },
     colors: { type: Array, default: () => [] },
     xLabels: { type: Array, default: () => [] },
     yLabelDivisions: { type: Number, default: 4 },
@@ -139,27 +140,27 @@ export default {
     drawAxis: { type: Boolean, default: false },
     drawXGrid: { type: Boolean, default: true },
     viewBoxHeight: { type: Number, default: 500 },
-    aspectRatio: { type: Number, default: 1.75 },
+    aspectRatio: { type: Number, default: 2.1 },
     axisPadding: { type: Number, default: 30 },
-    pointsPadding: { type: Number, default: 24 },
-    xLabelOffset: { type: Number, default: 5 },
-    yLabelOffset: { type: Number, default: 5 },
+    pointsPadding: { type: Number, default: 40 },
+    xLabelOffset: { type: Number, default: 20 },
+    yLabelOffset: { type: Number, default: 0 },
     gridColor: { type: String, default: 'rgba(0, 0, 0, 0.2)' },
     zeroLineColor: { type: String, default: 'rgba(0, 0, 0, 0.2)' },
     axisColor: { type: String, default: 'rgba(0, 0, 0, 0.5)' },
-    thickness: { type: Number, default: 5 },
     axisThickness: { type: Number, default: 1 },
     gridThickness: { type: Number, default: 0.5 },
     yMin: { type: Number, default: null },
     yMax: { type: Number, default: null },
     format: { type: Function, default: (n) => n.toFixed(1) },
     formatY: { type: Function, default: prefixFormat },
-    fontSize: { type: Number, default: 18 },
+    formatX: { type: Function, default: (v) => v },
+    fontSize: { type: Number, default: 25 },
     fontColor: { type: String, default: '#415668' },
     bottom: { type: Number, default: 0 },
-    width: { type: Number, default: 30 },
-    left: { type: Number, default: 55 },
-    radius: { type: Number, default: 15 },
+    width: { type: Number, default: 34 },
+    left: { type: Number, default: 65 },
+    radius: { type: Number, default: 17 },
     extendGridX: { type: Number, default: -20 },
     tooltipDispDistThreshold: { type: Number, default: 20 },
     drawZeroLine: { type: Boolean, default: true },
