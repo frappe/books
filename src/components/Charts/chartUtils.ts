@@ -31,6 +31,10 @@ export function euclideanDistance(
 
 export function getYMax(points: Array<Array<number>>): number {
   const maxVal = Math.max(...points.flat());
+  if (maxVal === 0) {
+    return 0;
+  }
+
   const sign = maxVal >= 0 ? 1 : -1;
   const texp = 10 ** Math.floor(Math.log10(Math.abs(maxVal)));
   if (sign === 1) {
@@ -41,6 +45,10 @@ export function getYMax(points: Array<Array<number>>): number {
 
 export function getYMin(points: Array<Array<number>>): number {
   const minVal = Math.min(...points.flat());
+  if (minVal === 0) {
+    return minVal;
+  }
+
   const sign = minVal >= 0 ? 1 : -1;
   const texp = 10 ** Math.floor(Math.log10(Math.abs(minVal)));
   if (sign === 1) {
