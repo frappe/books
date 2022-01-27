@@ -28,3 +28,23 @@ export function euclideanDistance(
   const dsq = Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2);
   return Math.sqrt(dsq);
 }
+
+export function getYMax(points: Array<Array<number>>): number {
+  const maxVal = Math.max(...points.flat());
+  const sign = maxVal >= 0 ? 1 : -1;
+  const texp = 10 ** Math.floor(Math.log10(Math.abs(maxVal)));
+  if (sign === 1) {
+    return Math.ceil(maxVal / texp) * texp;
+  }
+  return Math.floor(maxVal / texp) * texp;
+}
+
+export function getYMin(points: Array<Array<number>>): number {
+  const minVal = Math.min(...points.flat());
+  const sign = minVal >= 0 ? 1 : -1;
+  const texp = 10 ** Math.floor(Math.log10(Math.abs(minVal)));
+  if (sign === 1) {
+    return Math.ceil(minVal / texp) * texp;
+  }
+  return Math.floor(minVal / texp) * texp;
+}
