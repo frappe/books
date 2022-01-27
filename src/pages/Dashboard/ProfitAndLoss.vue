@@ -15,6 +15,7 @@
       :points="chartData.points"
       :x-labels="chartData.xLabels"
       :format="chartData.format"
+      :format-x="chartData.formatX"
       :y-max="chartData.yMax"
       :y-min="chartData.yMin"
     />
@@ -33,6 +34,7 @@ import ProfitAndLoss from '../../../reports/ProfitAndLoss/ProfitAndLoss';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import BarChart from '@/components/Charts/BarChart.vue';
 import { getYMax, getYMin } from '@/components/Charts/chartUtils';
+import { formatXLabels } from '@/utils';
 
 export default {
   name: 'ProfitAndLoss',
@@ -50,22 +52,26 @@ export default {
     this.setData();
   },
   watch: {
-    period: 'render',
+    period: 'setData',
   },
   computed: {
     chartData() {
       const points = [this.periodList.map((p) => this.data[p])];
+      console.log(this.period);
+      console.log(this.data, this.periodList);
+      console.log(points);
       const colors = [{ positive: '#2490EF', negative: '#B7BFC6' }];
       const format = (value) => frappe.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
       const yMin = getYMin(points);
       return {
-        xLabels: this.periodList.map((p) => p.split(' ')[0]),
+        xLabels: this.periodList,
         points,
         format,
         colors,
         yMax,
         yMin,
+        formatX: formatXLabels,
       };
     },
     hasData() {

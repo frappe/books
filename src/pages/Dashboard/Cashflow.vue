@@ -22,6 +22,7 @@
         :points="chartData.points"
         :x-labels="chartData.xLabels"
         :format="chartData.format"
+        :format-x="chartData.formatX"
         :y-max="chartData.yMax"
       />
     </template>
@@ -102,6 +103,7 @@ import Cashflow from '../../../reports/Cashflow/Cashflow';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import LineChart from '@/components/Charts/LineChart.vue';
 import { getYMax } from '@/components/Charts/chartUtils';
+import { formatXLabels } from '@/utils';
 
 export default {
   name: 'Cashflow',
@@ -134,7 +136,7 @@ export default {
       const colors = ['#2490EF', '#B7BFC6'];
       const format = (value) => frappe.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
-      return { points, xLabels, colors, format, yMax };
+      return { points, xLabels, colors, format, yMax, formatX:formatXLabels };
     },
   },
   methods: {

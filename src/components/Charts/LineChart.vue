@@ -41,7 +41,7 @@
           :x="xs[i - 1]"
           text-anchor="middle"
         >
-          {{ xLabels[i - 1] || '' }}
+          {{ formatX(xLabels[i - 1] || '') }}
         </text>
       </template>
 
@@ -119,7 +119,7 @@
       class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-2"
       :style="{ borderColor: colors[yi] }"
     >
-      {{ xi > -1 ? xLabels[xi] : '' }}
+      {{ xi > -1 ? xLabels[xi] : '' }} –
       {{ yi > -1 ? format(points[yi][xi]) : '' }}
     </Tooltip>
   </div>
@@ -140,7 +140,7 @@ export default {
     aspectRatio: { type: Number, default: 3.5 },
     axisPadding: { type: Number, default: 30 },
     pointsPadding: { type: Number, default: 24 },
-    xLabelOffset: { type: Number, default: 5 },
+    xLabelOffset: { type: Number, default: 20 },
     yLabelOffset: { type: Number, default: 5 },
     gridColor: { type: String, default: 'rgba(0, 0, 0, 0.2)' },
     axisColor: { type: String, default: 'rgba(0, 0, 0, 0.5)' },
@@ -151,6 +151,7 @@ export default {
     yMax: { type: Number, default: null },
     format: { type: Function, default: (n) => n.toFixed(1) },
     formatY: { type: Function, default: prefixFormat },
+    formatX: { type: Function, default: (v) => v },
     fontSize: { type: Number, default: 18 },
     fontColor: { type: String, default: '#415668' },
     bottom: { type: Number, default: 0 },

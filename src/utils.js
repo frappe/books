@@ -404,3 +404,11 @@ export function convertPesaValuesToFloat(obj) {
     obj[key] = obj[key].float;
   });
 }
+
+export function formatXLabels(label) {
+  // Format: Mmm YYYY -> Mm YY
+  let [month, year] = label.split(' ');
+  year = year.slice(2);
+
+  return `${month} ${year}`;
+}
