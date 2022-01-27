@@ -39,14 +39,20 @@
 import Dropdown from '@/components/Dropdown';
 export default {
   name: 'PeriodSelector',
-  props: ['value'],
+  props: {
+    value: String,
+    options: {
+      type: Array,
+      default: () => ['This Year', 'This Quarter', 'This Month'],
+    },
+  },
+
   components: {
     Dropdown,
   },
   data() {
-    let options = ['This Year', 'This Quarter', 'This Month'];
     return {
-      periodOptions: options.map((option) => {
+      periodOptions: this.options.map((option) => {
         return {
           label: option,
           action: () => this.selectOption(option),
