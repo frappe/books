@@ -22,7 +22,6 @@
     "csvjson-csv2json": "^5.0.6",
     "electron-store": "^8.0.1",
     "feather-icons": "^4.28.0",
-    "frappe-charts": "1.6.1",
     "knex": "^0.95.12",
     "lodash": "^4.17.21",
     "luxon": "^2.0.2",
