@@ -37,7 +37,6 @@ module.exports = {
   configureWebpack(config) {
     Object.assign(config.resolve.alias, {
       frappe: path.resolve(__dirname, './frappe'),
-      'frappe-charts$': 'frappe-charts/dist/frappe-charts.esm.js',
       '~': path.resolve('.'),
     });
 
