@@ -15,6 +15,7 @@ import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
+import { sendError } from './contactMothership';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import saveHtmlAsPdf from './saveHtmlAsPdf';
 
@@ -200,6 +201,10 @@ ipcMain.handle(IPC_ACTIONS.SAVE_HTML_AS_PDF, async (event, html, savePath) => {
 
 ipcMain.handle(IPC_ACTIONS.SAVE_DATA, async (event, data, savePath) => {
   return await fs.writeFile(savePath, data, { encoding: 'utf-8' });
+});
+
+ipcMain.handle(IPC_ACTIONS.SEND_ERROR, (event, bodyJson) => {
+  sendError(bodyJson);
 });
 
 /* ------------------------------
