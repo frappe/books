@@ -21,7 +21,6 @@
       </div>
       <LineChart
         v-if="hasData"
-        class="h-90"
         :colors="chartData.colors"
         :points="chartData.points"
         :x-labels="chartData.xLabels"
