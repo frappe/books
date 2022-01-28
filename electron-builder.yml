@@ -1,6 +1,12 @@
 productName: Frappe Books
 appId: io.frappe.books
 afterSign: build/notarize.js
+extraResources: [
+  { 
+    from: 'err_log_creds.txt',
+    to: '../creds/err_log_creds.txt',  
+  }
+]
 mac:
   type: distribution
   category: public.app-category.finance
