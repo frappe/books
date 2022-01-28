@@ -11,7 +11,6 @@
     </SectionHeader>
     <BarChart
       v-if="hasData"
-      class="h-200"
       :colors="chartData.colors"
       :points="chartData.points"
       :x-labels="chartData.xLabels"
