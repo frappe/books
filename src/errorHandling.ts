@@ -23,9 +23,18 @@ function shouldNotStore(error: Error) {
   );
 }
 
-function reportError(errorLogObj: ErrorLog) {
-  // push errorlog to frappebooks.com
-  console.log(errorLogObj);
+async function reportError(errorLogObj: ErrorLog) {
+  if (!errorLogObj.stack) {
+    return;
+  }
+
+  const body = {
+    error_name: errorLogObj.name,
+    message: errorLogObj.message,
+    stack: errorLogObj.stack,
+    more: JSON.stringify(errorLogObj.more ?? {}),
+  };
+  ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, JSON.stringify(body));
 }
 
 function getToastProps(errorLogObj: ErrorLog) {

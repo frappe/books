@@ -19,6 +19,7 @@ export const IPC_ACTIONS = {
   SAVE_HTML_AS_PDF: 'save-html-as-pdf',
   SAVE_DATA: 'save-data',
   SHOW_ERROR: 'show-error',
+  SEND_ERROR: 'send-error',
 };
 
 export const DB_CONN_FAILURE = {
