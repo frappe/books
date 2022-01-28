@@ -6,7 +6,18 @@ import path from 'path';
 
 function getUrlAndTokenString() {
   const inProduction = app.isPackaged;
-  const errLogCredsPath = path.join(__dirname, '../err_log_creds.txt');
+  let errLogCredsPath = path.join(
+    process.resourcesPath,
+    '../creds/err_log_creds.txt'
+  );
+  if (!fs.existsSync(errLogCredsPath)) {
+    errLogCredsPath = path.join(__dirname, '../err_log_creds.txt');
+  }
+
+  if (!fs.existsSync(errLogCredsPath)) {
+    !inProduction && console.log(`${errLogCredsPath} doesn't exist, can't log`);
+    return;
+  }
 
   let apiKey, apiSecret, url;
   try {
@@ -16,13 +27,12 @@ function getUrlAndTokenString() {
       .filter((f) => f.length);
   } catch (err) {
     if (!inProduction) {
-      console.log('error logging failed');
+      console.log(`logging error using creds at: ${errLogCredsPath} failed`);
       console.log(err);
     }
     return;
   }
 
-  !inProduction && console.log(apiKey, apiSecret, url);
   return { url: encodeURI(url), tokenString: `token ${apiKey}:${apiSecret}` };
 }
 
