@@ -99,11 +99,11 @@ module.exports = {
     },
     {
       fieldname: 'autoReportErrors',
-      label: 'Auto Report Errors',
+      label: 'Hide & Auto Report Errors',
       fieldtype: 'Check',
       default: 0,
       description: t(
-        'Automatically report all errors. User will still be notified when an error pops up.'
+        'Prevent errors from showing and automatically report all errors.'
       ),
     },
   ],
