@@ -76,10 +76,11 @@ export function handleError(
   // @ts-ignore
   frappe.errorLog.push(errorLogObj);
 
-  showToast(getToastProps(errorLogObj));
   // @ts-ignore
   if (frappe.SystemSettings.autoReportErrors) {
     reportError(errorLogObj);
+  } else {
+    showToast(getToastProps(errorLogObj));
   }
 }
 
