@@ -44,7 +44,7 @@ function getToastProps(errorLogObj: ErrorLog) {
   };
 
   // @ts-ignore
-  if (!frappe.SystemSettings.autoReportErrors) {
+  if (!frappe.SystemSettings?.autoReportErrors) {
     Object.assign(props, {
       actionText: t`Report Error`,
       action: () => {
@@ -77,7 +77,7 @@ export function handleError(
   frappe.errorLog.push(errorLogObj);
 
   // @ts-ignore
-  if (frappe.SystemSettings.autoReportErrors) {
+  if (frappe.SystemSettings?.autoReportErrors) {
     reportError(errorLogObj);
   } else {
     showToast(getToastProps(errorLogObj));
