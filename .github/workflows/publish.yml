@@ -19,6 +19,16 @@ jobs:
 
       - name: Setup Books
         run: yarn
+        
+      - name: Set Error Log Creds
+        env:
+          ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
+          ERR_LOG_URL: ${{ secrets.ERR_LOG_URL }}
+          ERR_LOG_SECRET: ${{ secrets.ERR_LOG_SECRET }}
+        run: |
+          echo $ERR_LOG_KEY > err_log_creds.txt
+          echo $ERR_LOG_SECRET >> err_log_creds.txt
+          echo $ERR_LOG_URL >> err_log_creds.txt
 
       - name: Run build
         env:
@@ -54,6 +64,16 @@ jobs:
 
       - name: Setup Books
         run: yarn
+        
+      - name: Set Error Log Creds
+        env:
+          ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
+          ERR_LOG_URL: ${{ secrets.ERR_LOG_URL }}
+          ERR_LOG_SECRET: ${{ secrets.ERR_LOG_SECRET }}
+        run: |
+          echo $ERR_LOG_KEY > err_log_creds.txt
+          echo $ERR_LOG_SECRET >> err_log_creds.txt
+          echo $ERR_LOG_URL >> err_log_creds.txt
 
       - name: Run build
         env:
@@ -86,6 +106,16 @@ jobs:
 
       - name: Setup Books
         run: yarn
+        
+      - name: Set Error Log Creds
+        env:
+          ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
+          ERR_LOG_URL: ${{ secrets.ERR_LOG_URL }}
+          ERR_LOG_SECRET: ${{ secrets.ERR_LOG_SECRET }}
+        run: |
+          echo $ERR_LOG_KEY > err_log_creds.txt
+          echo $ERR_LOG_SECRET >> err_log_creds.txt
+          echo $ERR_LOG_URL >> err_log_creds.txt
 
       - name: Run build
         env:
