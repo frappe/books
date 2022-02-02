@@ -3,9 +3,9 @@ import SQLiteDatabase from 'frappe/backends/sqlite';
 import fs from 'fs';
 import models from '../models';
 import regionalModelUpdates from '../models/regionalModelUpdates';
-import postStart from '../server/postStart';
+import postStart, { setCurrencySymbols } from '../server/postStart';
 import { DB_CONN_FAILURE } from './messages';
-import migrate from './migrate';
+import runMigrate from './migrate';
 import { callInitializeMoneyMaker, getSavePath } from './utils';
 
 export async function createNewDatabase() {
@@ -59,7 +59,7 @@ export async function connectToLocalDatabase(filePath) {
   }
 
   try {
-    await migrate();
+    await runMigrate();
     await postStart();
   } catch (error) {
     if (!error.message.includes('SQLITE_CANTOPEN')) {
@@ -112,4 +112,8 @@ export function purgeCache(purgeAll = false) {
     delete frappe.db;
     frappe.initializeAndRegister(models, true);
   }
+}
+
+export async function postSetup() {
+  await setCurrencySymbols();
 }

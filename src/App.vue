@@ -15,7 +15,7 @@
     />
     <SetupWizard
       v-if="activeScreen === 'SetupWizard'"
-      @setup-complete="showSetupWizardOrDesk(true)"
+      @setup-complete="setupComplete"
       @setup-canceled="setupCanceled"
     />
     <div id="toast-container" class="absolute bottom-0 right-0 mr-6 mb-3">
@@ -34,7 +34,11 @@ import WindowsTitleBar from '@/components/WindowsTitleBar';
 import { ipcRenderer } from 'electron';
 import config from '@/config';
 import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
-import { connectToLocalDatabase, purgeCache } from '@/initialization';
+import {
+  connectToLocalDatabase,
+  postSetup,
+  purgeCache,
+} from '@/initialization';
 import { routeTo } from './utils';
 import fs from 'fs/promises';
 import { showErrorDialog } from './errorHandling';
@@ -78,7 +82,7 @@ export default {
     );
 
     if (connectionSuccess) {
-      this.showSetupWizardOrDesk();
+      this.showSetupWizardOrDesk(false);
       return;
     }
 
@@ -92,6 +96,10 @@ export default {
     this.activeScreen = 'DatabaseSelector';
   },
   methods: {
+    async setupComplete() {
+      await postSetup();
+      await this.showSetupWizardOrDesk(true);
+    },
     async showSetupWizardOrDesk(resetRoute = false) {
       const { setupComplete } = frappe.AccountingSettings;
       if (!setupComplete) {
