@@ -23,7 +23,7 @@ function shouldNotStore(error: Error) {
   );
 }
 
-async function reportError(errorLogObj: ErrorLog) {
+async function reportError(errorLogObj: ErrorLog, cb?: Function) {
   if (!errorLogObj.stack) {
     return;
   }
@@ -34,10 +34,11 @@ async function reportError(errorLogObj: ErrorLog) {
     stack: errorLogObj.stack,
     more: JSON.stringify(errorLogObj.more ?? {}),
   };
-  ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, JSON.stringify(body));
+  await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, JSON.stringify(body));
+  cb?.();
 }
 
-function getToastProps(errorLogObj: ErrorLog) {
+function getToastProps(errorLogObj: ErrorLog, cb?: Function) {
   const props = {
     message: t`Error: ` + errorLogObj.name,
     type: 'error',
@@ -48,8 +49,8 @@ function getToastProps(errorLogObj: ErrorLog) {
     Object.assign(props, {
       actionText: t`Report Error`,
       action: () => {
-        reportError(errorLogObj);
         reportIssue(errorLogObj);
+        reportError(errorLogObj, cb);
       },
     });
   }
@@ -60,7 +61,8 @@ function getToastProps(errorLogObj: ErrorLog) {
 export function handleError(
   shouldLog: boolean,
   error: Error,
-  more: object = {}
+  more: object = {},
+  cb?: Function
 ) {
   if (shouldLog) {
     console.error(error);
@@ -78,9 +80,9 @@ export function handleError(
 
   // @ts-ignore
   if (frappe.SystemSettings?.autoReportErrors) {
-    reportError(errorLogObj);
+    reportError(errorLogObj, cb);
   } else {
-    showToast(getToastProps(errorLogObj));
+    showToast(getToastProps(errorLogObj, cb));
   }
 }
 
