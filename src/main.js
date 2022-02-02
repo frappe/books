@@ -74,8 +74,17 @@ import { stringifyCircular } from './utils';
     console.error(err, vm, info);
   };
 
+  window.onerror = (message, source, lineno, colno, error) => {
+    error = error ?? new Error('triggered in window.onerror');
+    handleError(true, error, { message, source, lineno, colno });
+  };
+
   process.on('unhandledRejection', (error) => {
     handleError(true, error);
+  });
+
+  process.on('uncaughtException', (error) => {
+    handleError(true, error, () => process.exit(1));
   });
 
   /* eslint-disable no-new */

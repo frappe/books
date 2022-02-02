@@ -67,6 +67,9 @@ function post(bodyJson) {
     }
   );
 
+  req.on('error', (e) => {
+    console.log(`ERROR: ${e.message}`);
+  });
   req.write(bodyJson);
   req.end();
 }
