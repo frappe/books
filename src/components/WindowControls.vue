@@ -20,7 +20,6 @@
 
 <script>
 import { runWindowAction } from '@/utils';
-import { ipcRenderer } from 'electron';
 
 export default {
   name: 'WindowControls',
@@ -32,6 +31,10 @@ export default {
   },
   methods: {
     async action(name) {
+      if (name === 'maximize') {
+        return;
+      }
+
       if (this.buttons.includes(name)) {
         const actionRan = await runWindowAction(name);
         this.$emit(actionRan);
@@ -41,8 +44,9 @@ export default {
       let classes = {
         close: 'bg-red-500 hover:bg-red-700',
         minimize: 'bg-yellow-500 hover:bg-yellow-700',
-        maximize: 'bg-green-500 hover:bg-green-700',
+        maximize: 'bg-gray-500',
       }[name];
+      // maximize: 'bg-green-500 hover:bg-green-700',
 
       if (this.buttons.includes(name)) {
         return classes;

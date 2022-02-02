@@ -62,7 +62,8 @@ export default {
         DatabaseSelector: [600, 600],
         SetupWizard: [600, 600],
       }[value];
-      let resizable = value === 'Desk';
+      // let resizable = value === 'Desk';
+      const resizable = false;
 
       if (size.length) {
         ipcRenderer.send(IPC_MESSAGES.RESIZE_MAIN_WINDOW, size, resizable);

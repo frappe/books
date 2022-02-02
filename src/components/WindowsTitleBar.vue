@@ -14,7 +14,7 @@
         <feather-icon name="minus" class="w-4 h-4" />
       </div>
       <div
-        class="flex-center py-1 px-2 hover:bg-gray-100 cursor-pointer"
+        class="flex-center py-1 px-2 text-gray-500"
         @click="action('maximize')"
       >
         <feather-icon name="square" class="w-3 h-3" />
@@ -38,6 +38,10 @@ export default {
   name: 'WindowsTitleBar',
   methods: {
     async action(name) {
+      if (name === 'maximize') {
+        return;
+      }
+
       const actionRan = await runWindowAction(name);
       this.$emit(actionRan);
     },
