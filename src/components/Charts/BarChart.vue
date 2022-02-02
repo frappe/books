@@ -121,8 +121,14 @@
       class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-2"
       :style="{ borderColor: activeColor }"
     >
-      {{ xi > -1 ? xLabels[xi] : '' }} – 
-      {{ yi > -1 ? format(points[yi][xi]) : '' }}
+      <div class="flex flex-col justify-center items-center">
+        <p>
+          {{ xi > -1 ? xLabels[xi] : '' }}
+        </p>
+        <p class="font-semibold">
+          {{ yi > -1 ? format(points[yi][xi]) : '' }}
+        </p>
+      </div>
     </Tooltip>
   </div>
 </template>

@@ -119,8 +119,14 @@
       class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-2"
       :style="{ borderColor: colors[yi] }"
     >
-      {{ xi > -1 ? xLabels[xi] : '' }} –
-      {{ yi > -1 ? format(points[yi][xi]) : '' }}
+      <div class="flex flex-col justify-center items-center">
+        <p>
+          {{ xi > -1 ? xLabels[xi] : '' }}
+        </p>
+        <p class="font-semibold">
+          {{ yi > -1 ? format(points[yi][xi]) : '' }}
+        </p>
+      </div>
     </Tooltip>
   </div>
 </template>
@@ -160,9 +166,6 @@ export default {
     tooltipDispDistThreshold: { type: Number, default: 20 },
   },
   computed: {
-    inverseMatrix() {
-      return this.$refs.chartSvg.getScreenCTM().inverse();
-    },
     fontStyle() {
       return { fontSize: this.fontSize, fill: this.fontColor };
     },
@@ -301,7 +304,9 @@ export default {
       const point = this.$refs.chartSvg.createSVGPoint();
       point.x = clientX;
       point.y = clientY;
-      const { x, y } = point.matrixTransform(this.inverseMatrix);
+      const { x, y } = point.matrixTransform(
+        this.$refs.chartSvg.getScreenCTM().inverse()
+      );
       return { x, y };
     },
     getPointIndexAndCoords(x, y) {
