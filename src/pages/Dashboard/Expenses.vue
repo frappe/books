@@ -32,7 +32,7 @@
         :sectors="sectors"
         :offset-x="3"
         :thickness="11.5"
-        :text-offset-x="6.5"
+        :text-offset-x="14"
         :value-formatter="(value) => frappe.format(value, 'Currency')"
         :total-label="t('Total Spending')"
         @change="(value) => (active = value)"

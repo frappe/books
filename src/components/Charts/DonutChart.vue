@@ -55,10 +55,10 @@
       </template>
     </svg>
     <div
-      class="relative"
+      class="absolute"
       :style="{
-        top: `-50%`,
-        transform: `translate(${textOffsetX}px, ${textOffsetY}px)`,
+        top: `50%`,
+        transform: `translate(calc(50% - ${textOffsetX}px), calc(${textOffsetY}px - 50%))`,
       }"
     >
       <div class="text-center font-semibold grid justify-center">
