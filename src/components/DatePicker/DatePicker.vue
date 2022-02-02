@@ -94,6 +94,24 @@
             </div>
           </div>
         </div>
+        <div class="w-full flex justify-end mt-2">
+          <div
+            class="
+              text-sm
+              hover:bg-gray-100
+              px-2
+              py-1
+              rounded-md
+              cursor-pointer
+            "
+            @click="
+              selectDate('');
+              togglePopover();
+            "
+          >
+            Clear
+          </div>
+        </div>
       </div>
     </template>
   </Popover>
@@ -232,6 +250,10 @@ export default {
     },
 
     toValue(date) {
+      if (!date) {
+        return '';
+      }
+
       // toISOString is buggy and reduces the day by one
       // this is because it considers the UTC timestamp
       // in order to circumvent that we need to use luxon/moment
