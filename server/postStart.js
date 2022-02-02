@@ -37,13 +37,13 @@ export default async function postStart() {
   await frappe.getSingle('GetStarted');
 
   // cache currency symbols for frappe.format
-  frappe.currencySymbols = await getCurrencySymbols();
+  await setCurrencySymbols();
 
   registerServerMethods();
 }
 
-function getCurrencySymbols() {
-  return frappe.db
+export async function setCurrencySymbols() {
+  frappe.currencySymbols = await frappe.db
     .getAll({
       doctype: 'Currency',
       fields: ['name', 'symbol'],
