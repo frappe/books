@@ -21,6 +21,7 @@
               :column-ratio="columnRatio"
               :no-border="true"
               :focus-first-input="true"
+              :autosave="false"
               @error="(msg) => $emit('error', msg)"
             />
             <div class="flex px-4 pb-2">
@@ -33,7 +34,7 @@
               <Button
                 type="primary"
                 class="ml-2 w-1/2 text-white"
-                @click="saveInlineEditDoc"
+                @click="() => saveInlineEditDoc(df)"
               >
                 {{ df.inlineSaveText || t('Save') }}
               </Button>
@@ -160,7 +161,7 @@ let TwoColumnForm = {
       return this.evaluateBoolean(df.hidden, false);
     },
     onChange(df, value) {
-      if (value == null) {
+      if (value == null || df.inline) {
         return;
       }
 
@@ -171,7 +172,7 @@ let TwoColumnForm = {
         return;
       }
 
-      if (this.emitChange && !df.inline) {
+      if (this.emitChange) {
         this.$emit('change', df, value, oldValue);
       }
 
@@ -223,7 +224,7 @@ let TwoColumnForm = {
         this.doc.meta.inlineEditDisplayField || 'name';
       this.inlineEditFields = frappe.getMeta(df.target).getQuickEditFields();
     },
-    async saveInlineEditDoc() {
+    async saveInlineEditDoc(df) {
       if (!this.inlineEditDoc) {
         return;
       }
