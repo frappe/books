@@ -55,31 +55,30 @@
       </template>
     </svg>
     <div
-      class="absolute"
+      class="text-center w-32 relative"
       :style="{
-        top: `50%`,
-        transform: `translate(calc(50% - ${textOffsetX}px), calc(${textOffsetY}px - 50%))`,
+        top: `calc(-50% + ${textOffsetY}px)`,
+        left: `calc(50% + ${textOffsetX}px)`,
+        transform: 'translateX(-50%)',
       }"
     >
-      <div class="text-center font-semibold grid justify-center">
-        <p class="w-32 text-xl font-bold">
-          {{
-            valueFormatter(
-              active !== null && sectors.length !== 0
-                ? sectors[active].value
-                : totalValue,
-              'Currency'
-            )
-          }}
-        </p>
-        <p class="text-xs text-gray-600 w-32">
-          {{
+      <p class="text-xl font-bold">
+        {{
+          valueFormatter(
             active !== null && sectors.length !== 0
-              ? sectors[active].label
-              : totalLabel
-          }}
-        </p>
-      </div>
+              ? sectors[active].value
+              : totalValue,
+            'Currency'
+          )
+        }}
+      </p>
+      <p class="text-xs text-gray-600 font-semibold">
+        {{
+          active !== null && sectors.length !== 0
+            ? sectors[active].label
+            : totalLabel
+        }}
+      </p>
     </div>
   </div>
 </template>
