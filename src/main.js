@@ -5,10 +5,10 @@ import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
 import { getErrorHandled, handleError } from './errorHandling';
-import { IPC_MESSAGES } from './messages';
+import { IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import router from './router';
 import { outsideClickDirective } from './ui';
-import { stringifyCircular } from './utils';
+import { showToast, stringifyCircular } from './utils';
 
 (async () => {
   frappe.isServer = true;
@@ -23,19 +23,10 @@ import { stringifyCircular } from './utils';
     ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
   });
 
-  frappe.events.on('check-for-updates', () => {
-    let { autoUpdate } = frappe.SystemSettings;
-    if (autoUpdate == null || autoUpdate === 1) {
-      ipcRenderer.send(IPC_MESSAGES.CHECK_FOR_UPDATES);
-    }
-  });
-
   window.frappe = frappe;
   window.frappe.store = {};
 
-  ipcRenderer.on('store-on-window', (event, message) => {
-    Object.assign(window.frappe.store, message);
-  });
+  registerIpcRendererListeners();
 
   Vue.config.productionTip = false;
   Vue.component('feather-icon', FeatherIcon);
@@ -60,17 +51,19 @@ import { stringifyCircular } from './utils';
   });
 
   Vue.config.errorHandler = (err, vm, info) => {
-    const { fullPath, params } = vm.$route;
-    const data = stringifyCircular(vm.$data, true, true);
-    const props = stringifyCircular(vm.$props, true, true);
-
-    handleError(false, err, {
-      fullPath,
-      params: stringifyCircular(params),
-      data,
-      props,
+    const more = {
       info,
-    });
+    };
+
+    if (vm) {
+      const { fullPath, params } = vm.$route;
+      more.fullPath = fullPath;
+      more.params = stringifyCircular(params ?? {});
+      more.data = stringifyCircular(vm.$data ?? {}, true, true);
+      more.props = stringifyCircular(vm.$props ?? {}, true, true);
+    }
+
+    handleError(false, err, more);
     console.error(err, vm, info);
   };
 
@@ -97,3 +90,52 @@ import { stringifyCircular } from './utils';
     template: '<App/>',
   });
 })();
+
+function registerIpcRendererListeners() {
+  ipcRenderer.on(IPC_CHANNELS.STORE_ON_WINDOW, (event, message) => {
+    Object.assign(window.frappe.store, message);
+  });
+
+  ipcRenderer.on(IPC_CHANNELS.CHECKING_FOR_UPDATE, (_) => {
+    showToast({ message: frappe.t`Checking for updates` });
+  });
+
+  ipcRenderer.on(IPC_CHANNELS.UPDATE_AVAILABLE, (_, version) => {
+    const message = version
+      ? frappe.t`Version ${version} available`
+      : frappe.t`New version available`;
+    const action = () => {
+      ipcRenderer.send(IPC_MESSAGES.DOWNLOAD_UPDATE);
+    };
+
+    showToast({
+      message,
+      action,
+      actionText: frappe.t`Download Update`,
+      duration: 10_000,
+      type: 'success',
+    });
+  });
+
+  ipcRenderer.on(IPC_CHANNELS.UPDATE_NOT_AVAILABLE, (_) => {
+    showToast({ message: frappe.t`No updates available` });
+  });
+
+  ipcRenderer.on(IPC_CHANNELS.UPDATE_DOWNLOADED, (_) => {
+    const action = () => {
+      ipcRenderer.send(IPC_MESSAGES.INSTALL_UPDATE);
+    };
+    showToast({
+      message: frappe.t`Update downloaded`,
+      action,
+      actionText: frappe.t`Install Update`,
+      duration: 10_000,
+      type: 'success',
+    });
+  });
+
+  ipcRenderer.on(IPC_CHANNELS.UPDATE_ERROR, (_, error) => {
+    error.name = 'Updation Error';
+    handleError(true, error);
+  });
+}

@@ -39,7 +39,7 @@ import {
   postSetup,
   purgeCache,
 } from '@/initialization';
-import { routeTo } from './utils';
+import { checkForUpdates, routeTo } from './utils';
 import fs from 'fs/promises';
 import { showErrorDialog } from './errorHandling';
 
@@ -106,7 +106,7 @@ export default {
         this.activeScreen = 'SetupWizard';
       } else {
         this.activeScreen = 'Desk';
-        this.checkForUpdates();
+        checkForUpdates(false);
       }
 
       if (!resetRoute) {
@@ -121,9 +121,6 @@ export default {
       } else {
         routeTo('/get-started');
       }
-    },
-    checkForUpdates() {
-      frappe.events.trigger('check-for-updates');
     },
     changeDbFile() {
       config.set('lastSelectedFilePath', null);
