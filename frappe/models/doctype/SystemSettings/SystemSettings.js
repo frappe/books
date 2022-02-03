@@ -89,15 +89,6 @@ module.exports = {
       ),
     },
     {
-      fieldname: 'autoUpdate',
-      label: 'Auto Update',
-      fieldtype: 'Check',
-      default: 1,
-      description: t(
-        'Automatically checks for updates and download them if available. The update will be applied after you restart the app.'
-      ),
-    },
-    {
       fieldname: 'autoReportErrors',
       label: 'Hide & Auto Report Errors',
       fieldtype: 'Check',
@@ -112,7 +103,6 @@ module.exports = {
     'locale',
     'displayPrecision',
     'hideGetStarted',
-    'autoUpdate',
     'autoReportErrors',
   ],
 };

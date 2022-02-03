@@ -16,7 +16,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { sendError } from './contactMothership';
-import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
+import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import saveHtmlAsPdf from './saveHtmlAsPdf';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -36,6 +36,10 @@ let checkedForUpdate = false;
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
+
+if (isDevelopment) {
+  autoUpdater.logger = console;
+}
 
 Store.initRenderer();
 
@@ -104,7 +108,7 @@ function createWindow() {
   });
 
   mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.send('store-on-window', {
+    mainWindow.webContents.send(IPC_CHANNELS.STORE_ON_WINDOW, {
       appVersion: app.getVersion(),
     });
   });
@@ -113,13 +117,6 @@ function createWindow() {
 /* ---------------------------------
  * Register ipcMain message handlers
  * ---------------------------------*/
-
-ipcMain.on(IPC_MESSAGES.CHECK_FOR_UPDATES, () => {
-  if (!isDevelopment && !checkedForUpdate) {
-    autoUpdater.checkForUpdatesAndNotify();
-    checkedForUpdate = true;
-  }
-});
 
 ipcMain.on(IPC_MESSAGES.OPEN_MENU, (event) => {
   const window = event.sender.getOwnerBrowserWindow();
@@ -152,6 +149,14 @@ ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (event, link) => {
 
 ipcMain.on(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, (event, filePath) => {
   return shell.showItemInFolder(filePath);
+});
+
+ipcMain.on(IPC_MESSAGES.DOWNLOAD_UPDATE, (event) => {
+  autoUpdater.downloadUpdate();
+});
+
+ipcMain.on(IPC_MESSAGES.INSTALL_UPDATE, (event) => {
+  autoUpdater.quitAndInstall(true, true);
 });
 
 /* ----------------------------------
@@ -205,6 +210,45 @@ ipcMain.handle(IPC_ACTIONS.SAVE_DATA, async (event, data, savePath) => {
 
 ipcMain.handle(IPC_ACTIONS.SEND_ERROR, (event, bodyJson) => {
   sendError(bodyJson);
+});
+
+ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, (event, force) => {
+  if (!isDevelopment && !checkedForUpdate) {
+    autoUpdater.checkForUpdates();
+    checkedForUpdate = true;
+  } else if (force) {
+    autoUpdater.checkForUpdates();
+  }
+});
+
+/* ------------------------------
+ * Register autoUpdater events lis
+ * ------------------------------*/
+
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = false;
+
+autoUpdater.on('checking-for-update', () => {
+  if (!checkedForUpdate) {
+    return;
+  }
+  mainWindow.webContents.send(IPC_CHANNELS.CHECKING_FOR_UPDATE);
+});
+
+autoUpdater.on('update-available', (info) => {
+  mainWindow.webContents.send(IPC_CHANNELS.UPDATE_AVAILABLE, info.version);
+});
+
+autoUpdater.on('update-not-available', () => {
+  mainWindow.webContents.send(IPC_CHANNELS.UPDATE_NOT_AVAILABLE);
+});
+
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send(IPC_CHANNELS.UPDATE_DOWNLOADED);
+});
+
+autoUpdater.on('error', (error) => {
+  mainWindow.webContents.send(IPC_CHANNELS.UPDATE_ERROR, error);
 });
 
 /* ------------------------------
