@@ -11,7 +11,7 @@
       mb-3
       w-80
     "
-    :class="bgColor + (action ? ' cursor-pointer' : '')"
+    :class="bgColor + (actionText ? ' cursor-pointer' : '')"
     style="transition: opacity 150ms ease-in"
     :style="{ opacity }"
     @click="action"
@@ -37,9 +37,9 @@ export default {
     return { opacity: 0, show: true };
   },
   props: {
-    message: String,
-    action: Function,
-    actionText: String,
+    message: { type: String, required: true },
+    action: { type: Function, default: () => {} },
+    actionText: { type: String, default: '' },
     type: { type: String, default: 'info' },
     duration: { type: Number, default: 5000 },
   },
