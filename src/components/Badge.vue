@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { getColorClass } from '../colors';
+import { getBgTextColorClass } from '../colors';
 
 export default {
   name: 'Badge',
@@ -16,7 +16,7 @@ export default {
   },
   computed: {
     colorClass() {
-      return getColorClass(this.color);
+      return getBgTextColorClass(this.color);
     },
   },
 };

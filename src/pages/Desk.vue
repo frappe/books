@@ -1,6 +1,9 @@
 <template>
   <div class="flex overflow-hidden">
-    <Sidebar class="w-56 flex-shrink-0" @change-db-file="$emit('change-db-file')"/>
+    <Sidebar
+      class="w-48 flex-shrink-0"
+      @change-db-file="$emit('change-db-file')"
+    />
     <div class="flex flex-1 overflow-y-hidden bg-white">
       <keep-alive>
         <router-view class="flex-1" :key="$route.path" />
@@ -14,6 +17,13 @@
           />
         </keep-alive>
       </div>
+      <div
+        id="toast-container"
+        class="absolute bottom-0 flex flex-col items-center mb-3"
+        style="width: calc(100% - 12rem)"
+      >
+        <div id="toast-target" />
+      </div>
     </div>
   </div>
 </template>
@@ -22,7 +32,7 @@ import Sidebar from '../components/Sidebar';
 export default {
   name: 'Desk',
   components: {
-    Sidebar
+    Sidebar,
   },
   computed: {
     showQuickEdit() {
@@ -31,7 +41,7 @@ export default {
         this.$route.query.doctype &&
         this.$route.query.name
       );
-    }
-  }
+    },
+  },
 };
 </script>
