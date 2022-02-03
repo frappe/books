@@ -5,23 +5,20 @@
       shadow-lg
       px-3
       py-2
-      rounded
       flex
       items-center
       mb-3
       w-96
       z-10
       bg-white
-      border-l-4
+      rounded-lg
     "
-    :class="colorClass + (actionText ? ' cursor-pointer' : '')"
     style="transition: opacity 150ms ease-in"
     :style="{ opacity }"
-    @click="action"
     v-if="show"
   >
     <feather-icon :name="iconName" class="w-6 h-6 mr-3" :class="iconColor" />
-    <div>
+    <div @click="actionClicked" :class="actionText ? 'cursor-pointer' : ''">
       <p class="text-base">{{ message }}</p>
       <button
         v-if="actionText"
@@ -30,6 +27,11 @@
         {{ actionText }}
       </button>
     </div>
+    <feather-icon
+      name="x"
+      class="w-4 h-4 ml-auto text-gray-600 cursor-pointer hover:text-gray-800"
+      @click="closeToast"
+    />
   </div>
 </template>
 <script>
@@ -37,7 +39,12 @@ import { getColorClass } from '../colors';
 
 export default {
   data() {
-    return { opacity: 0, show: true };
+    return {
+      opacity: 0,
+      show: true,
+      opacityTimeoutId: -1,
+      cleanupTimeoutId: -1,
+    };
   },
   props: {
     message: { type: String, required: true },
@@ -65,9 +72,6 @@ export default {
         success: 'green',
       }[this.type];
     },
-    colorClass() {
-      return getColorClass(this.color, 'border', 300);
-    },
     iconColor() {
       return getColorClass(this.color, 'text', 400);
     },
@@ -81,18 +85,32 @@ export default {
       this.opacity = 1;
     }, 50);
 
-    setTimeout(() => {
+    this.opacityTimeoutId = setTimeout(() => {
       this.opacity = 0;
     }, this.duration);
 
-    setTimeout(() => {
+    this.cleanupTimeoutId = setTimeout(() => {
       this.show = false;
       this.cleanup();
     }, this.duration + 300);
   },
   methods: {
+    actionClicked() {
+      this.action();
+      this.closeToast();
+    },
+    closeToast() {
+      clearTimeout(this.opacityTimeoutId);
+      clearTimeout(this.cleanupTimeoutId);
+
+      this.opacity = 0;
+      setTimeout(() => {
+        this.show = false;
+        this.cleanup();
+      }, 300);
+    },
     cleanup() {
-      Array.from(this.$el.parentElement.children)
+      Array.from(this.$el.parentElement?.children ?? [])
         .filter((el) => !el.innerHTML)
         .splice(1)
         .forEach((el) => el.remove());
