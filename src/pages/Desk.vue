@@ -20,7 +20,7 @@
       <div
         id="toast-container"
         class="absolute bottom-0 flex flex-col items-center mb-3"
-        style="width: calc(100% - 12rem)"
+        style="width: calc(100% - 11rem)"
       >
         <div id="toast-target" />
       </div>
