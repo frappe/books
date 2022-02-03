@@ -11,7 +11,7 @@
     <div class="flex flex-row justify-end my-4">
       <button
         class="text-gray-900 text-sm hover:bg-gray-100 rounded-md px-4 py-1.5"
-        @click="checkForUpdates"
+        @click="checkForUpdates(true)"
       >
         Check for Updates
       </button>
@@ -45,9 +45,7 @@ export default {
     },
   },
   methods: {
-    checkForUpdates() {
-      checkForUpdates(true);
-    },
+    checkForUpdates,
     forwardChangeEvent(...args) {
       this.$emit('change', ...args);
     },
