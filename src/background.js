@@ -229,6 +229,9 @@ autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = false;
 
 autoUpdater.on('checking-for-update', () => {
+  if (!checkedForUpdate) {
+    return;
+  }
   mainWindow.webContents.send(IPC_CHANNELS.CHECKING_FOR_UPDATE);
 });
 
