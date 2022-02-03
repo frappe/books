@@ -415,8 +415,5 @@ export function stringifyCircular(
 }
 
 export function checkForUpdates(force = false) {
-  let { autoUpdate } = frappe.SystemSettings;
-  if (force || autoUpdate == null || autoUpdate === 1) {
-    ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
-  }
+  ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
 }
