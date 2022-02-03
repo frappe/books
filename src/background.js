@@ -114,13 +114,6 @@ function createWindow() {
  * Register ipcMain message handlers
  * ---------------------------------*/
 
-ipcMain.on(IPC_MESSAGES.CHECK_FOR_UPDATES, () => {
-  if (!isDevelopment && !checkedForUpdate) {
-    autoUpdater.checkForUpdatesAndNotify();
-    checkedForUpdate = true;
-  }
-});
-
 ipcMain.on(IPC_MESSAGES.OPEN_MENU, (event) => {
   const window = event.sender.getOwnerBrowserWindow();
   const menu = Menu.getApplicationMenu();
@@ -205,6 +198,13 @@ ipcMain.handle(IPC_ACTIONS.SAVE_DATA, async (event, data, savePath) => {
 
 ipcMain.handle(IPC_ACTIONS.SEND_ERROR, (event, bodyJson) => {
   sendError(bodyJson);
+});
+
+ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, (event, force) => {
+  if (!isDevelopment && !checkedForUpdate) {
+    autoUpdater.checkForUpdatesAndNotify();
+    checkedForUpdate = true;
+  }
 });
 
 /* ------------------------------

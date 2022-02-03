@@ -2,8 +2,7 @@ import Avatar from '@/components/Avatar';
 import Toast from '@/components/Toast';
 import router from '@/router';
 import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
-import { t } from 'frappe';
+import frappe, { t } from 'frappe';
 import { isPesa } from 'frappe/utils';
 import lodash from 'lodash';
 import Vue from 'vue';
@@ -413,4 +412,11 @@ export function stringifyCircular(
 
     return value;
   });
+}
+
+export function checkForUpdates(force = false) {
+  let { autoUpdate } = frappe.SystemSettings;
+  if (force || autoUpdate == null || autoUpdate === 1) {
+    ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
+  }
 }

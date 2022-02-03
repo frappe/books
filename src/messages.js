@@ -3,7 +3,6 @@ export const IPC_MESSAGES = {
   OPEN_SETTINGS: 'open-settings',
   OPEN_EXTERNAL: 'open-external',
   SHOW_ITEM_IN_FOLDER: 'show-item-in-folder',
-  CHECK_FOR_UPDATES: 'check-for-updates',
   RELOAD_MAIN_WINDOW: 'reload-main-window',
   RESIZE_MAIN_WINDOW: 'resize-main-window',
   CLOSE_CURRENT_WINDOW: 'close-current-window',
@@ -20,6 +19,7 @@ export const IPC_ACTIONS = {
   SAVE_DATA: 'save-data',
   SHOW_ERROR: 'show-error',
   SEND_ERROR: 'send-error',
+  CHECK_FOR_UPDATES: 'check-for-updates',
 };
 
 export const DB_CONN_FAILURE = {
