@@ -27,11 +27,16 @@ const getValidColor = (color) => {
 export function getBgColorClass(color) {
   return `bg-${getValidColor(color)}-100`;
 }
+
+export function getColorClass(color, type, value = 300) {
+  return `${type}-${getValidColor(color)}-${value}`;
+}
+
 export function getTextColorClass(color) {
   return `text-${getValidColor(color)}-600`;
 }
 
-export function getColorClass(color) {
+export function getBgTextColorClass(color) {
   const bg = getBgColorClass(color);
   const text = getTextColorClass(color);
   return [bg, text].join(' ');
