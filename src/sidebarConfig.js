@@ -1,5 +1,4 @@
-import frappe from 'frappe';
-import { t } from 'frappe';
+import frappe, { t } from 'frappe';
 import Icon from './components/Icon';
 
 const config = {
@@ -53,7 +52,7 @@ const config = {
       ],
     },
     {
-      title: t('Common Entries'),
+      title: t('Common'),
       icon: getIcon('common-entries'),
       route: '/list/Item',
       items: [
