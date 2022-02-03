@@ -8,6 +8,8 @@ export const IPC_MESSAGES = {
   RESIZE_MAIN_WINDOW: 'resize-main-window',
   CLOSE_CURRENT_WINDOW: 'close-current-window',
   MINIMIZE_CURRENT_WINDOW: 'minimize-current-window',
+  DOWNLOAD_UPDATE: 'download-update',
+  INSTALL_UPDATE: 'install-update',
 };
 
 // ipcRenderer.invoke(...)
@@ -27,6 +29,11 @@ export const IPC_ACTIONS = {
 // ipcMain.send(...)
 export const IPC_CHANNELS = {
   STORE_ON_WINDOW: 'store-on-window',
+  CHECKING_FOR_UPDATE: 'checking-for-update',
+  UPDATE_AVAILABLE: 'update-available',
+  UPDATE_NOT_AVAILABLE: 'update-not-available',
+  UPDATE_DOWNLOADED: 'update-downloaded',
+  UPDATE_ERROR: 'update-error',
 };
 
 export const DB_CONN_FAILURE = {

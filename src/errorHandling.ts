@@ -58,6 +58,16 @@ function getToastProps(errorLogObj: ErrorLog, cb?: Function) {
   return props;
 }
 
+export function getErrorLogObject(error: Error, more: object = {}): ErrorLog {
+  const { name, stack, message } = error;
+  const errorLogObj = { name, stack, message, more };
+
+  // @ts-ignore
+  frappe.errorLog.push(errorLogObj);
+
+  return errorLogObj;
+}
+
 export function handleError(
   shouldLog: boolean,
   error: Error,
@@ -72,11 +82,7 @@ export function handleError(
     return;
   }
 
-  const { name, stack, message } = error;
-  const errorLogObj: ErrorLog = { name, stack, message, more };
-
-  // @ts-ignore
-  frappe.errorLog.push(errorLogObj);
+  const errorLogObj = getErrorLogObject(error, more);
 
   // @ts-ignore
   if (frappe.SystemSettings?.autoReportErrors) {

@@ -37,6 +37,10 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
 
+if (isDevelopment) {
+  autoUpdater.logger = console;
+}
+
 Store.initRenderer();
 
 /* -----------------------------
@@ -147,6 +151,14 @@ ipcMain.on(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, (event, filePath) => {
   return shell.showItemInFolder(filePath);
 });
 
+ipcMain.on(IPC_MESSAGES.DOWNLOAD_UPDATE, (event) => {
+  autoUpdater.downloadUpdate();
+});
+
+ipcMain.on(IPC_MESSAGES.INSTALL_UPDATE, (event) => {
+  autoUpdater.quitAndInstall(true, true);
+});
+
 /* ----------------------------------
  * Register ipcMain function handlers
  * ----------------------------------*/
@@ -201,10 +213,39 @@ ipcMain.handle(IPC_ACTIONS.SEND_ERROR, (event, bodyJson) => {
 });
 
 ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, (event, force) => {
-  if (force || (!isDevelopment && !checkedForUpdate)) {
-    autoUpdater.checkForUpdatesAndNotify();
+  if (!isDevelopment && !checkedForUpdate) {
+    autoUpdater.checkForUpdates();
     checkedForUpdate = true;
+  } else if (force) {
+    autoUpdater.checkForUpdates();
   }
+});
+
+/* ------------------------------
+ * Register autoUpdater events lis
+ * ------------------------------*/
+
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = false;
+
+autoUpdater.on('checking-for-update', () => {
+  mainWindow.webContents.send(IPC_CHANNELS.CHECKING_FOR_UPDATE);
+});
+
+autoUpdater.on('update-available', (info) => {
+  mainWindow.webContents.send(IPC_CHANNELS.UPDATE_AVAILABLE, info.version);
+});
+
+autoUpdater.on('update-not-available', () => {
+  mainWindow.webContents.send(IPC_CHANNELS.UPDATE_NOT_AVAILABLE);
+});
+
+autoUpdater.on('update-downloaded', () => {
+  mainWindow.webContents.send(IPC_CHANNELS.UPDATE_DOWNLOADED);
+});
+
+autoUpdater.on('error', (error) => {
+  mainWindow.webContents.send(IPC_CHANNELS.UPDATE_ERROR, error);
 });
 
 /* ------------------------------
