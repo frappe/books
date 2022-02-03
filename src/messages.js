@@ -1,3 +1,4 @@
+// ipcRenderer.send(...)
 export const IPC_MESSAGES = {
   OPEN_MENU: 'open-menu',
   OPEN_SETTINGS: 'open-settings',
@@ -9,6 +10,7 @@ export const IPC_MESSAGES = {
   MINIMIZE_CURRENT_WINDOW: 'minimize-current-window',
 };
 
+// ipcRenderer.invoke(...)
 export const IPC_ACTIONS = {
   TOGGLE_MAXIMIZE_CURRENT_WINDOW: 'toggle-maximize-current-window',
   GET_OPEN_FILEPATH: 'open-dialog',
@@ -20,6 +22,11 @@ export const IPC_ACTIONS = {
   SHOW_ERROR: 'show-error',
   SEND_ERROR: 'send-error',
   CHECK_FOR_UPDATES: 'check-for-updates',
+};
+
+// ipcMain.send(...)
+export const IPC_CHANNELS = {
+  STORE_ON_WINDOW: 'store-on-window',
 };
 
 export const DB_CONN_FAILURE = {

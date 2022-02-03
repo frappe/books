@@ -16,7 +16,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { sendError } from './contactMothership';
-import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
+import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import saveHtmlAsPdf from './saveHtmlAsPdf';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -104,7 +104,7 @@ function createWindow() {
   });
 
   mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.send('store-on-window', {
+    mainWindow.webContents.send(IPC_CHANNELS.STORE_ON_WINDOW, {
       appVersion: app.getVersion(),
     });
   });
@@ -201,7 +201,7 @@ ipcMain.handle(IPC_ACTIONS.SEND_ERROR, (event, bodyJson) => {
 });
 
 ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, (event, force) => {
-  if (!isDevelopment && !checkedForUpdate) {
+  if (force || (!isDevelopment && !checkedForUpdate)) {
     autoUpdater.checkForUpdatesAndNotify();
     checkedForUpdate = true;
   }

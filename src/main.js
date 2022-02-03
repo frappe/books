@@ -5,10 +5,20 @@ import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
 import { getErrorHandled, handleError } from './errorHandling';
-import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
+import { IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import router from './router';
 import { outsideClickDirective } from './ui';
 import { stringifyCircular } from './utils';
+
+function registerIpcRendererListeners() {
+  ipcRenderer.on(IPC_CHANNELS.STORE_ON_WINDOW, (event, message) => {
+    Object.assign(window.frappe.store, message);
+  });
+
+  ipcRenderer.on('wc-message', (event, message) => {
+    console.log(message);
+  });
+}
 
 (async () => {
   frappe.isServer = true;
@@ -26,9 +36,7 @@ import { stringifyCircular } from './utils';
   window.frappe = frappe;
   window.frappe.store = {};
 
-  ipcRenderer.on('store-on-window', (event, message) => {
-    Object.assign(window.frappe.store, message);
-  });
+  registerIpcRendererListeners();
 
   Vue.config.productionTip = false;
   Vue.component('feather-icon', FeatherIcon);
