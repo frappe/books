@@ -18,9 +18,6 @@
       @setup-complete="setupComplete"
       @setup-canceled="setupCanceled"
     />
-    <div id="toast-container" class="absolute bottom-0 right-0 mr-6 mb-3">
-      <div id="toast-target" />
-    </div>
   </div>
 </template>
 

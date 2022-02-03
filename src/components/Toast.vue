@@ -2,16 +2,19 @@
   <div
     class="
       text-gray-900
-      shadow-md
+      shadow-lg
       px-3
       py-2
       rounded
       flex
       items-center
       mb-3
-      w-80
+      w-96
+      z-10
+      bg-white
+      border-l-4
     "
-    :class="bgColor + (actionText ? ' cursor-pointer' : '')"
+    :class="colorClass + (actionText ? ' cursor-pointer' : '')"
     style="transition: opacity 150ms ease-in"
     :style="{ opacity }"
     @click="action"
@@ -30,7 +33,7 @@
   </div>
 </template>
 <script>
-import { getBgColorClass, getTextColorClass } from '../colors';
+import { getColorClass } from '../colors';
 
 export default {
   data() {
@@ -62,11 +65,11 @@ export default {
         success: 'green',
       }[this.type];
     },
-    bgColor() {
-      return getBgColorClass(this.color);
+    colorClass() {
+      return getColorClass(this.color, 'border', 300);
     },
     iconColor() {
-      return getTextColorClass(this.color);
+      return getColorClass(this.color, 'text', 400);
     },
   },
   mounted() {
