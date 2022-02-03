@@ -8,12 +8,21 @@
       :emit-change="true"
       @change="forwardChangeEvent"
     />
+    <div class="flex flex-row justify-end my-4">
+      <button
+        class="text-gray-900 text-sm hover:bg-gray-100 rounded-md px-4 py-1.5"
+        @click="checkForUpdates"
+      >
+        Check for Updates
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
 import frappe from 'frappe';
 import TwoColumnForm from '@/components/TwoColumnForm';
+import { checkForUpdates } from '@/utils';
 
 export default {
   name: 'TabSystem',
@@ -36,6 +45,9 @@ export default {
     },
   },
   methods: {
+    checkForUpdates() {
+      checkForUpdates(true);
+    },
     forwardChangeEvent(...args) {
       this.$emit('change', ...args);
     },

@@ -5,7 +5,7 @@ import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
 import { getErrorHandled, handleError } from './errorHandling';
-import { IPC_MESSAGES } from './messages';
+import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import router from './router';
 import { outsideClickDirective } from './ui';
 import { stringifyCircular } from './utils';
@@ -21,13 +21,6 @@ import { stringifyCircular } from './utils';
 
   frappe.events.on('reload-main-window', () => {
     ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
-  });
-
-  frappe.events.on('check-for-updates', () => {
-    let { autoUpdate } = frappe.SystemSettings;
-    if (autoUpdate == null || autoUpdate === 1) {
-      ipcRenderer.send(IPC_MESSAGES.CHECK_FOR_UPDATES);
-    }
   });
 
   window.frappe = frappe;
