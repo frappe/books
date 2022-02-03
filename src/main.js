@@ -112,7 +112,7 @@ function registerIpcRendererListeners() {
       message,
       action,
       actionText: frappe.t`Download Update`,
-      duration: 10_000,
+      duration: 10000,
       type: 'success',
     });
   });
@@ -129,7 +129,7 @@ function registerIpcRendererListeners() {
       message: frappe.t`Update downloaded`,
       action,
       actionText: frappe.t`Install Update`,
-      duration: 10_000,
+      duration: 10000,
       type: 'success',
     });
   });
