@@ -14,6 +14,10 @@ export default class PartyServer extends BaseDocument {
       throw new Error();
     }
 
+    if (!this.customer && !this.supplier) {
+      this.supplier = 1;
+    }
+
     if (this.gstin && ['Unregistered', 'Consumer'].includes(this.gstType)) {
       this.gstin = '';
     }

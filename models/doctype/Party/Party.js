@@ -1,5 +1,4 @@
-import frappe from 'frappe';
-import { t } from 'frappe';
+import frappe, { t } from 'frappe';
 
 export default {
   name: 'Party',
@@ -21,12 +20,12 @@ export default {
     },
     {
       fieldname: 'customer',
-      label: 'Customer',
+      label: 'Is Customer',
       fieldtype: 'Check',
     },
     {
       fieldname: 'supplier',
-      label: 'Supplier',
+      label: 'Is Supplier',
       fieldtype: 'Check',
     },
     {

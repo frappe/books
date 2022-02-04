@@ -120,7 +120,20 @@ export function partyWithAvatar(party) {
   };
 }
 
-export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
+function getShowFields(doctype) {
+  if (doctype === 'Party') {
+    return ['customer'];
+  }
+  return [];
+}
+
+export function openQuickEdit({
+  doctype,
+  name,
+  hideFields,
+  showFields,
+  defaults = {},
+}) {
   let currentRoute = router.currentRoute;
   let query = currentRoute.query;
   let method = 'push';
@@ -135,6 +148,7 @@ export function openQuickEdit({ doctype, name, hideFields, defaults = {} }) {
       edit: 1,
       doctype,
       name,
+      showFields: showFields ?? getShowFields(doctype),
       hideFields,
       values: defaults,
       lastRoute: currentRoute,
