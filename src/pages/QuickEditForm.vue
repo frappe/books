@@ -84,14 +84,11 @@ import StatusBadge from '@/components/StatusBadge';
 import FormControl from '@/components/Controls/FormControl';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import DropdownWithActions from '@/components/DropdownWithActions';
-import {
-  openQuickEdit,
-  getActionsForDocument,
-} from '@/utils';
+import { openQuickEdit, getActionsForDocument } from '@/utils';
 
 export default {
   name: 'QuickEditForm',
-  props: ['doctype', 'name', 'values', 'hideFields'],
+  props: ['doctype', 'name', 'values', 'hideFields', 'showFields'],
   components: {
     Button,
     FormControl,
@@ -126,14 +123,23 @@ export default {
     },
     status() {
       if (this.doc && this.doc._notInserted) {
-        return "Draft";
+        return 'Draft';
       }
-      return "";
+      return '';
     },
     fields() {
-      return this.meta
+      const fields = this.meta
         .getQuickEditFields()
         .filter((df) => !(this.hideFields || []).includes(df.fieldname));
+
+      if (this.showFields) {
+        fields.push(
+          ...this.meta.fields.filter(({ fieldname }) =>
+            this.showFields.includes(fieldname)
+          )
+        );
+      }
+      return fields;
     },
     actions() {
       return getActionsForDocument(this.doc);
@@ -204,7 +210,7 @@ export default {
         await this.$refs.form.submit();
       } catch (e) {
         this.statusText = null;
-        console.error(e)
+        console.error(e);
       }
     },
     routeToPrevious() {
