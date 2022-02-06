@@ -300,13 +300,9 @@ export default {
       this.$refs.tooltip.update(event);
     },
     getSvgXY({ clientX, clientY }) {
-      // This func is apparently deprecated, will update when removed
-      const point = this.$refs.chartSvg.createSVGPoint();
-      point.x = clientX;
-      point.y = clientY;
-      const { x, y } = point.matrixTransform(
-        this.$refs.chartSvg.getScreenCTM().inverse()
-      );
+      const inv = this.$refs.chartSvg.getScreenCTM().inverse();
+      const point = new DOMPoint(clientX, clientY);
+      const { x, y } = point.matrixTransform(inv);
       return { x, y };
     },
     getPointIndexAndCoords(x, y) {
