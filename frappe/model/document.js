@@ -192,9 +192,9 @@ module.exports = class BaseDocument extends Observable {
     return childDoc;
   }
 
-  validateInsert() {
+  async validateInsert() {
     this.validateMandatory();
-    this.validateFields();
+    await this.validateFields();
   }
 
   validateMandatory() {
