@@ -15,16 +15,16 @@ export default {
   props: {
     type: {
       type: String,
-      default: 'secondary'
+      default: 'secondary',
     },
     icon: {
       type: Boolean,
-      default: false
+      default: false,
     },
     disabled: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   computed: {
     style() {
@@ -39,9 +39,14 @@ export default {
     },
     _class() {
       return {
-        'opacity-50 cursor-not-allowed pointer-events-none': this.disabled
+        'opacity-50 cursor-not-allowed pointer-events-none': this.disabled,
       };
-    }
-  }
+    },
+  },
 };
 </script>
+<style scoped>
+button:focus {
+  filter: brightness(0.95);
+}
+</style>
