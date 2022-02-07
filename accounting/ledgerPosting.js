@@ -122,7 +122,7 @@ export default class LedgerPosting {
   validateEntries() {
     let { debit, credit } = this.getTotalDebitAndCredit();
     if (debit.neq(credit)) {
-      throw new Error(
+      throw new frappe.errors.ValidationError(
         `Total Debit: ${frappe.format(
           debit,
           'Currency'

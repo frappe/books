@@ -64,6 +64,7 @@ class TranslationString {
     return strList
       .map((s, i) => this.#translate(s) + this.#formatArg(argList[i]))
       .join('')
+      .replace(/\s+/g, ' ')
       .trim();
   }
 
