@@ -38,7 +38,7 @@
         @change="(value) => (active = value)"
       />
     </div>
-    <div v-if="expenses.length === 0" class="flex-1 w-full h-full flex-center">
+    <div v-if="expenses.length === 0" class="flex-1 w-full h-full flex-center my-20">
       <span class="text-base text-gray-600">
         {{ t('No expenses in this period') }}
       </span>
