@@ -181,6 +181,9 @@ let TwoColumnForm = {
         return this.doc.rename(value);
       }
 
+      this.onChangeCommon(df, value);
+    },
+    onChangeCommon(df, value) {
       this.doc.set(df.fieldname, value).catch((e) => {
         // set error message for this field
         this.$set(this.errors, df.fieldname, getErrorMessage(e, this.doc));
@@ -214,7 +217,7 @@ let TwoColumnForm = {
       if (!this.doc[df.fieldname]) {
         this.inlineEditDoc = await frappe.getNewDoc(df.target);
         this.inlineEditDoc.once('afterInsert', () => {
-          this.onChange(df, this.inlineEditDoc.name);
+          this.onChangeCommon(df, this.inlineEditDoc.name);
         });
       } else {
         this.inlineEditDoc = this.doc.getLink(df.fieldname);
