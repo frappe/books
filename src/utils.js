@@ -59,11 +59,30 @@ export function deleteDocWithPrompt(doc) {
   });
 }
 
-export function cancelDocWithPrompt(doc) {
+export async function cancelDocWithPrompt(doc) {
+  let description = t`This action is permanent`;
+  if (['SalesInvoice', 'PurchaseInvoice'].includes(doc.doctype)) {
+    const query = await frappe.db
+      .knex('PaymentFor')
+      .join('Payment', 'PaymentFor.parent', 'Payment.name')
+      .select('parent')
+      .where('cancelled', 0)
+      .where('referenceName', doc.name);
+    const paymentList = [...new Set(query.map(({ parent }) => parent))];
+
+    if (paymentList.length === 1) {
+      description = t`This action is permanent and will cancel the following payment: ${paymentList[0]}`;
+    } else if (paymentList.length > 1) {
+      description = t`This action is permanent and will cancel the following payments: ${paymentList.join(
+        ', '
+      )}`;
+    }
+  }
+
   return new Promise((resolve) => {
     showMessageDialog({
       message: t`Are you sure you want to cancel ${doc.doctype} ${doc.name}?`,
-      description: t`This action is permanent`,
+      description,
       buttons: [
         {
           label: t('Yes'),
