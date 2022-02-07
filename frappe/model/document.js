@@ -409,16 +409,13 @@ module.exports = class BaseDocument extends Observable {
       // check for conflict
       if (currentDoc && this.modified != currentDoc.modified) {
         throw new frappe.errors.Conflict(
-          frappe.t('Document {0} {1} has been modified after loading', [
-            this.doctype,
-            this.name,
-          ])
+          frappe.t`Document ${this.doctype} ${this.name} has been modified after loading`
         );
       }
 
       if (this.submitted && !this.meta.isSubmittable) {
         throw new frappe.errors.ValidationError(
-          frappe.t('Document type {1} is not submittable', [this.doctype])
+          frappe.t`Document type ${this.doctype} is not submittable`
         );
       }
 

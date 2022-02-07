@@ -34,17 +34,16 @@ class TranslationString {
   }
 
   #translate(segment) {
+    const startSpace = segment.match(/^\s+/)?.[0] ?? '';
+    const endSpace = segment.match(/\s+$/)?.[0] ?? '';
     segment = segment.replace(/\s+/g, ' ').trim();
     // TODO: implement translation backend
-    return segment;
+    // segment = translate(segment)
+    return startSpace + segment + endSpace;
   }
 
   #formatArg(arg) {
-    if (typeof arg === 'undefined') {
-      return ' ';
-    }
-
-    return ` ${arg} `;
+    return arg ?? '';
   }
 
   #stitch() {

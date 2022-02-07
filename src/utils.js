@@ -34,10 +34,7 @@ export async function showMessageDialog({
 export function deleteDocWithPrompt(doc) {
   return new Promise((resolve) => {
     showMessageDialog({
-      message: t('Are you sure you want to delete {0} "{1}"?', [
-        doc.doctype,
-        doc.name,
-      ]),
+      message: t`Are you sure you want to delete ${doc.doctype} "${doc.name}"?`,
       description: t('This action is permanent'),
       buttons: [
         {
@@ -65,11 +62,8 @@ export function deleteDocWithPrompt(doc) {
 export function cancelDocWithPrompt(doc) {
   return new Promise((resolve) => {
     showMessageDialog({
-      message: t('Are you sure you want to cancel {0} "{1}"?', [
-        doc.doctype,
-        doc.name,
-      ]),
-      description: t('This action is permanent'),
+      message: t`Are you sure you want to cancel ${doc.doctype} ${doc.name}?`,
+      description: t`This action is permanent`,
       buttons: [
         {
           label: t('Yes'),
