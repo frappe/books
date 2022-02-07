@@ -1,3 +1,4 @@
+import frappe from 'frappe';
 import { DateTime } from 'luxon';
 
 export async function getExchangeRate({ fromCurrency, toCurrency, date }) {
@@ -5,7 +6,7 @@ export async function getExchangeRate({ fromCurrency, toCurrency, date }) {
     date = DateTime.local().toISODate();
   }
   if (!fromCurrency || !toCurrency) {
-    throw new Error(
+    throw new frappe.errors.NotFoundError(
       'Please provide `fromCurrency` and `toCurrency` to get exchange rate.'
     );
   }

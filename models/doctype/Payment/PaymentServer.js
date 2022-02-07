@@ -64,31 +64,38 @@ export default class PaymentServer extends BaseDocument {
 
   validateAccounts() {
     if (this.paymentAccount !== this.account || !this.account) return;
-    throw new Error(
+    throw new frappe.errors.ValidationError(
       `To Account and From Account can't be the same: ${this.account}`
     );
   }
 
   validateReferenceAmount() {
     if (!this.for?.length) return;
+
     const referenceAmountTotal = this.for
       .map(({ amount }) => amount)
       .reduce((a, b) => a.add(b), frappe.pesa(0));
 
-    if (this.amount.add(this.writeoff ?? 0).lt(referenceAmountTotal)) {
-      const writeoff = frappe.format(this.writeoff, 'Currency');
-      const payment = frappe.format(this.amount, 'Currency');
-      const refAmount = frappe.format(referenceAmountTotal, 'Currency');
-      const writeoffString = this.writeoff.gt(0)
-        ? `and writeoff: ${writeoff} `
-        : '';
+    if (this.amount.add(this.writeoff ?? 0).gte(referenceAmountTotal)) {
+      return;
+    }
 
-      throw new Error(
-        frappe.t(
-          `Amount: ${payment} ${writeoffString}is less than the total amount allocated to references: ${refAmount}.`
-        )
+    const writeoff = frappe.format(this.writeoff, 'Currency');
+    const payment = frappe.format(this.amount, 'Currency');
+    const refAmount = frappe.format(referenceAmountTotal, 'Currency');
+
+    if (this.writeoff.gt(0)) {
+      throw new frappe.errors.ValidationError(
+        frappe.t`Amount: ${payment} and writeoff: ${writeoff} 
+          is less than the total amount allocated to 
+          references: ${refAmount}.`
       );
     }
+
+    throw new frappe.errors.ValidationError(
+      frappe.t`Amount: ${payment} is less than the total
+        amount allocated to references: ${refAmount}.`
+    );
   }
 
   async getPosting() {
