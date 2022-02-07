@@ -73,7 +73,7 @@ module.exports = {
     return prefix + next;
   },
 
-  async createNumberSeries(prefix, setting, start = 1000) {
+  async createNumberSeries(prefix, setting, start = 1001) {
     if (!(await frappe.db.exists('NumberSeries', prefix))) {
       const series = frappe.newDoc({
         doctype: 'NumberSeries',
