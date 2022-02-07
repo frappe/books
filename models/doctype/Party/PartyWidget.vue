@@ -25,16 +25,15 @@
           <div>
             <span
               class="font-medium text-gray-900"
-              v-if="fullyPaid(invoice) || notPaid(invoice)"
             >
               {{
                 frappe.format(
-                  invoice.baseGrandTotal,
+                  amountPaid(invoice),
                   invoiceMeta.getField('baseGrandTotal')
                 )
               }}
             </span>
-            <span class="text-gray-600" v-if="partiallyPaid(invoice)">
+            <span class="text-gray-600" v-if="!fullyPaid(invoice)">
               ({{
                 frappe.format(
                   invoice.baseGrandTotal,
@@ -59,7 +58,7 @@ export default {
   props: ['doc'],
   data() {
     return {
-      pendingInvoices: []
+      pendingInvoices: [],
     };
   },
   computed: {
@@ -69,7 +68,7 @@ export default {
     },
     invoiceMeta() {
       return frappe.getMeta(this.invoiceDoctype);
-    }
+    },
   },
   mounted() {
     this.fetchPendingInvoices();
@@ -86,14 +85,15 @@ export default {
           'date',
           'outstandingAmount',
           'baseGrandTotal',
-          'submitted'
+          'submitted',
         ],
         filters: {
-          [partyField]: this.doc.name
+          [partyField]: this.doc.name,
         },
         limit: 3,
-        orderBy: 'creation'
+        orderBy: 'creation',
       });
+      window.pendingInvoices = this.pendingInvoices;
     },
     getStatusBadge(doc) {
       let statusColumn = getStatusColumn();
@@ -103,17 +103,11 @@ export default {
       routeTo(`/edit/${this.invoiceDoctype}/${doc.name}`);
     },
     fullyPaid(invoice) {
-      return invoice.outstandingAmount == 0;
+      return invoice.outstandingAmount.isZero();
     },
-    partiallyPaid(invoice) {
-      return (
-        invoice.outstandingAmount &&
-        invoice.outstandingAmount !== invoice.baseGrandTotal
-      );
+    amountPaid(invoice) {
+      return invoice.baseGrandTotal.sub(invoice.outstandingAmount);
     },
-    notPaid(invoice) {
-      return invoice.outstandingAmount === invoice.baseGrandTotal;
-    }
-  }
+  },
 };
 </script>
