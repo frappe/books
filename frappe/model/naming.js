@@ -13,7 +13,7 @@ module.exports = {
       if (doc.meta.settings) {
         const numberSeries = (await doc.getSettings()).numberSeries;
         if (numberSeries) {
-          doc.name = await this.getSeriesNext(numberSeries);
+          doc.name = await this.getSeriesNext(numberSeries, doc.doctype);
         }
       }
     }
@@ -58,7 +58,7 @@ module.exports = {
     return lastInserted && lastInserted.length ? lastInserted[0] : null;
   },
 
-  async getSeriesNext(prefix) {
+  async getSeriesNext(prefix, doctype) {
     let series;
     try {
       series = await frappe.getDoc('NumberSeries', prefix);
@@ -69,7 +69,7 @@ module.exports = {
       await this.createNumberSeries(prefix);
       series = await frappe.getDoc('NumberSeries', prefix);
     }
-    let next = await series.next();
+    let next = await series.next(doctype);
     return prefix + next;
   },
 
