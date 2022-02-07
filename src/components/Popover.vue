@@ -10,7 +10,7 @@
     <div
       ref="popover"
       :class="popoverClass"
-      class="bg-white rounded border shadow-md popover-container relative"
+      class="bg-white rounded border shadow-md popover-container relative z-10"
       v-show="isOpen"
     >
       <div v-if="!hideArrow" class="popover-arrow" ref="popover-arrow"></div>
