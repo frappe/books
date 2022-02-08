@@ -143,7 +143,7 @@ export default {
     drawAxis: { type: Boolean, default: false },
     drawXGrid: { type: Boolean, default: true },
     viewBoxHeight: { type: Number, default: 500 },
-    aspectRatio: { type: Number, default: 3.5 },
+    aspectRatio: { type: Number, default: 4 },
     axisPadding: { type: Number, default: 30 },
     pointsPadding: { type: Number, default: 24 },
     xLabelOffset: { type: Number, default: 20 },
