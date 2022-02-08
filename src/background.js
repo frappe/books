@@ -215,7 +215,6 @@ ipcMain.handle(IPC_ACTIONS.SEND_ERROR, (event, bodyJson) => {
 ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, (event, force) => {
   if (!isDevelopment && !checkedForUpdate) {
     autoUpdater.checkForUpdates();
-    checkedForUpdate = true;
   } else if (force) {
     autoUpdater.checkForUpdates();
   }
@@ -236,10 +235,17 @@ autoUpdater.on('checking-for-update', () => {
 });
 
 autoUpdater.on('update-available', (info) => {
+  if (!checkedForUpdate) {
+    checkedForUpdate = true;
+  }
   mainWindow.webContents.send(IPC_CHANNELS.UPDATE_AVAILABLE, info.version);
 });
 
 autoUpdater.on('update-not-available', () => {
+  if (!checkedForUpdate) {
+    checkedForUpdate = true;
+    return;
+  }
   mainWindow.webContents.send(IPC_CHANNELS.UPDATE_NOT_AVAILABLE);
 });
 
@@ -248,6 +254,10 @@ autoUpdater.on('update-downloaded', () => {
 });
 
 autoUpdater.on('error', (error) => {
+  if (!checkedForUpdate) {
+    checkedForUpdate = true;
+    return;
+  }
   mainWindow.webContents.send(IPC_CHANNELS.UPDATE_ERROR, error);
 });
 
