@@ -211,7 +211,7 @@ module.exports = class BaseDocument extends Observable {
 
     if (missingMandatory.length > 0) {
       let fields = missingMandatory.join('\n');
-      let message = frappe.t('Value missing for {0}', fields);
+      let message = frappe.t`Value missing for ${fields}`;
       throw new frappe.errors.MandatoryError(message);
     }
 

@@ -1,6 +1,14 @@
 <template>
   <div
-    class="relative bg-white border rounded-full flex-center overflow-hidden cursor-pointer"
+    class="
+      relative
+      bg-white
+      border
+      rounded-full
+      flex-center
+      overflow-hidden
+      cursor-pointer
+    "
     :class="{ 'w-20 h-20': size !== 'small', 'w-16 h-16': size === 'small' }"
     @mouseover="showEdit = true"
     @mouseleave="showEdit = false"
@@ -9,7 +17,16 @@
     <template v-if="!value">
       <div
         v-if="letterPlaceholder"
-        class="bg-gray-500 flex h-full items-center justify-center text-white w-full text-4xl"
+        class="
+          bg-gray-500
+          flex
+          h-full
+          items-center
+          justify-center
+          text-white
+          w-full
+          text-4xl
+        "
       >
         {{ letterPlaceholder }}
       </div>
@@ -42,7 +59,7 @@
 import frappe from 'frappe';
 import { ipcRenderer } from 'electron';
 import Base from './Base';
-import { IPC_ACTIONS } from '@/messages'
+import { IPC_ACTIONS } from '@/messages';
 import fs from 'fs';
 import path from 'path';
 
@@ -52,18 +69,23 @@ export default {
   props: ['letterPlaceholder'],
   data() {
     return {
-      showEdit: false
+      showEdit: false,
     };
   },
   methods: {
     async openFileSelector() {
       const options = {
-        title: frappe.t('Select Image'),
+        title: frappe.t`Select Image`,
         properties: ['openFile'],
-        filters: [{ name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] }]
+        filters: [
+          { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] },
+        ],
       };
 
-      const { filePaths } = await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, options);
+      const { filePaths } = await ipcRenderer.invoke(
+        IPC_ACTIONS.GET_OPEN_FILEPATH,
+        options
+      );
       if (filePaths && filePaths[0]) {
         let dataURL = await this.getDataURL(filePaths[0]);
         this.triggerChange(dataURL);
@@ -73,14 +95,14 @@ export default {
       let typedArray = fs.readFileSync(filePath);
       let extension = path.extname(filePath).slice(1);
       let blob = new Blob([typedArray.buffer], { type: 'image/' + extension });
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         let fr = new FileReader();
         fr.addEventListener('loadend', () => {
           resolve(fr.result);
         });
         fr.readAsDataURL(blob);
       });
-    }
-  }
+    },
+  },
 };
 </script>

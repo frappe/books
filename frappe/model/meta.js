@@ -33,12 +33,12 @@ module.exports = class BaseMeta extends BaseDocument {
     if (!this.fields.find(df => df.fieldname === 'name') && !this.isSingle) {
       this.fields = [
         {
-          label: frappe.t('ID'),
+          label: frappe.t`ID`,
           fieldname: 'name',
           fieldtype: 'Data',
           required: 1,
-          readOnly: 1
-        }
+          readOnly: 1,
+        },
       ].concat(this.fields);
     }
 
@@ -176,7 +176,7 @@ module.exports = class BaseMeta extends BaseDocument {
         _add({
           fieldtype: 'Check',
           fieldname: 'submitted',
-          label: frappe.t('Submitted')
+          label: frappe.t`Submitted`
         });
       }
 
