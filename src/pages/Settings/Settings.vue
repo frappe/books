@@ -80,17 +80,17 @@ export default {
       fieldsChanged: [],
       tabs: [
         {
-          label: t('Invoice'),
+          label: t`Invoice`,
           icon: 'invoice',
           component: markRaw(TabInvoice),
         },
         {
-          label: t('General'),
+          label: t`General`,
           icon: 'general',
           component: markRaw(TabGeneral),
         },
         {
-          label: t('System'),
+          label: t`System`,
           icon: 'system',
           component: markRaw(TabSystem),
         },

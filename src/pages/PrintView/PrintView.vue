@@ -100,7 +100,7 @@ export default {
     },
     async getSavePath() {
       const options = {
-        title: this.t('Select folder'),
+        title: this.t`Select folder`,
         defaultPath: `${this.name}.pdf`,
       };
 
