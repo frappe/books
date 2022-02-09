@@ -42,14 +42,14 @@ module.exports = {
       options: dateFormatOptions,
       default: 'MMM d, y',
       required: 1,
-      description: t('Sets the app-wide date display format.'),
+      description: t`Sets the app-wide date display format.`,
     },
     {
       fieldname: 'locale',
       label: 'Locale',
       fieldtype: 'Data',
       default: DEFAULT_LOCALE,
-      description: t('Set the local code, this is used for number formatting.'),
+      description: t`Set the local code, this is used for number formatting.`,
     },
     {
       fieldname: 'displayPrecision',
@@ -64,10 +64,10 @@ module.exports = {
           return;
         }
         throw new frappe.errors.ValidationError(
-          t('Display Precision should have a value between 0 and 9.')
+          t`Display Precision should have a value between 0 and 9.`
         );
       },
-      description: t('Sets how many digits are shown after the decimal point.'),
+      description: t`Sets how many digits are shown after the decimal point.`,
     },
     {
       fieldname: 'internalPrecision',
@@ -75,27 +75,21 @@ module.exports = {
       fieldtype: 'Int',
       minValue: 0,
       default: DEFAULT_INTERNAL_PRECISION,
-      description: t(
-        'Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.'
-      ),
+      description: t`Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.`,
     },
     {
       fieldname: 'hideGetStarted',
       label: 'Hide Get Started',
       fieldtype: 'Check',
       default: 0,
-      description: t(
-        'Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.'
-      ),
+      description: t`Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.`,
     },
     {
       fieldname: 'autoReportErrors',
       label: 'Hide & Auto Report Errors',
       fieldtype: 'Check',
       default: 0,
-      description: t(
-        'Prevent errors from showing and automatically report all errors.'
-      ),
+      description: t`Prevent errors from showing and automatically report all errors.`,
     },
   ],
   quickEditFields: [
