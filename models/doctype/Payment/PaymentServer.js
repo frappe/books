@@ -122,21 +122,17 @@ export default class PaymentServer extends BaseDocument {
         outstandingAmount = baseGrandTotal;
       }
       if (this.amount.lte(0) || this.amount.gt(outstandingAmount)) {
-        let message = frappe.t(
-          `Payment amount: ${frappe.format(
-            this.amount,
-            'Currency'
-          )} should be less than Outstanding amount: ${frappe.format(
-            outstandingAmount,
-            'Currency'
-          )}.`
-        );
+        let message = frappe.t`Payment amount: ${frappe.format(
+          this.amount,
+          'Currency'
+        )} should be less than Outstanding amount: ${frappe.format(
+          outstandingAmount,
+          'Currency'
+        )}.`;
 
         if (this.amount.lte(0)) {
           const amt = frappe.format(this.amount, 'Currency');
-          message = frappe.t(
-            `Payment amount: ${amt} should be greater than 0.`
-          );
+          message = frappe.t`Payment amount: ${amt} should be greater than 0.`;
         }
 
         throw new frappe.errors.ValidationError(message);

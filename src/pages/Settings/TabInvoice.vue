@@ -91,7 +91,7 @@ export default {
   methods: {
     async openFileSelector() {
       const options = {
-        title: frappe.t('Select Logo'),
+        title: frappe.t`Select Logo`,
         properties: ['openFile'],
         filters: [{ name: 'Invoice Logo', extensions: ['png', 'jpg', 'svg'] }],
       };

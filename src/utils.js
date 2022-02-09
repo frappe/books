@@ -171,13 +171,13 @@ export function openQuickEdit({
 
 export async function makePDF(html, savePath) {
   await ipcRenderer.invoke(IPC_ACTIONS.SAVE_HTML_AS_PDF, html, savePath);
-  showExportInFolder(frappe.t('Save as PDF Successful'), savePath);
+  showExportInFolder(frappe.t`Save as PDF Successful`, savePath);
 }
 
 export function showExportInFolder(message, filePath) {
   showToast({
     message,
-    actionText: frappe.t('Open Folder'),
+    actionText: frappe.t`Open Folder`,
     type: 'success',
     action: async () => {
       await showItemInFolder(filePath);

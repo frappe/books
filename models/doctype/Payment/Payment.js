@@ -113,7 +113,7 @@ export default {
       validate(value, doc) {
         if (value.isNegative()) {
           throw new frappe.errors.ValidationError(
-            frappe.t(`Payment amount cannot be less than zero.`)
+            frappe.t`Payment amount cannot be less than zero.`
           );
         }
 
@@ -122,18 +122,13 @@ export default {
 
         if (value.gt(amount)) {
           throw new frappe.errors.ValidationError(
-            frappe.t(
-              `Payment amount cannot exceed ${frappe.format(
-                amount,
-                'Currency'
-              )}.`
-            )
+            frappe.t`Payment amount cannot 
+              exceed ${frappe.format(amount, 'Currency')}.`
           );
         } else if (value.isZero()) {
           throw new frappe.errors.ValidationError(
-            frappe.t(
-              `Payment amount cannot be ${frappe.format(value, 'Currency')}.`
-            )
+            frappe.t`Payment amount cannot
+              be ${frappe.format(value, 'Currency')}.`
           );
         }
       },
