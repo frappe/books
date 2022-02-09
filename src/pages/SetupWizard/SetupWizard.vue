@@ -131,7 +131,7 @@ export default {
     },
     async submit() {
       if (!this.allValuesFilled()) {
-        showMessageDialog({ message: this.t('Please fill all values') });
+        showMessageDialog({ message: this.t`Please fill all values` });
         return;
       }
 
@@ -178,7 +178,7 @@ export default {
       return this.meta.getQuickEditFields();
     },
     buttonText() {
-      return this.loading ? this.t('Setting Up...') : this.t('Submit');
+      return this.loading ? this.t`Setting Up...` : this.t`Submit`;
     },
   },
 };
