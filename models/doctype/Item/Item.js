@@ -1,5 +1,4 @@
-import frappe from 'frappe';
-import { t } from 'frappe';
+import frappe, { t } from 'frappe';
 
 export default {
   name: 'Item',
@@ -124,7 +123,7 @@ export default {
   ],
   actions: [
     {
-      label: t('New Invoice'),
+      label: t`New Invoice`,
       condition: (doc) => !doc.isNew(),
       action: async (doc, router) => {
         const invoice = await frappe.getNewDoc('SalesInvoice');
@@ -137,7 +136,7 @@ export default {
       },
     },
     {
-      label: t('New Bill'),
+      label: t`New Bill`,
       condition: (doc) => !doc.isNew(),
       action: async (doc, router) => {
         const invoice = await frappe.getNewDoc('PurchaseInvoice');
