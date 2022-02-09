@@ -29,6 +29,7 @@ class TranslationString {
 
   #stitch() {
     if (!(this.args[0] instanceof Array)) {
+      return this.args.join(' ');
       throw new ValueError(
         `invalid args passed to TranslationString ${
           this.args

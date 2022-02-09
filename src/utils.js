@@ -35,10 +35,10 @@ export function deleteDocWithPrompt(doc) {
   return new Promise((resolve) => {
     showMessageDialog({
       message: t`Are you sure you want to delete ${doc.doctype} "${doc.name}"?`,
-      description: t('This action is permanent'),
+      description: t`This action is permanent`,
       buttons: [
         {
-          label: t('Delete'),
+          label: t`Delete`,
           action: () => {
             doc
               .delete()
@@ -49,7 +49,7 @@ export function deleteDocWithPrompt(doc) {
           },
         },
         {
-          label: t('Cancel'),
+          label: t`Cancel`,
           action() {
             resolve(false);
           },
@@ -85,7 +85,7 @@ export async function cancelDocWithPrompt(doc) {
       description,
       buttons: [
         {
-          label: t('Yes'),
+          label: t`Yes`,
           async action() {
             const entryDoc = await frappe.getDoc(doc.doctype, doc.name);
             entryDoc.cancelled = 1;
@@ -99,7 +99,7 @@ export async function cancelDocWithPrompt(doc) {
           },
         },
         {
-          label: t('No'),
+          label: t`No`,
           action() {
             resolve(false);
           },
@@ -198,7 +198,7 @@ export function getActionsForDocument(doc) {
 
   let deleteAction = {
     component: {
-      template: `<span class="text-red-700">{{ t('Delete') }}</span>`,
+      template: '<span class="text-red-700">{{ t`Delete` }}</span>',
     },
     condition: (doc) =>
       !doc.isNew() && !doc.submitted && !doc.meta.isSingle && !doc.cancelled,
@@ -212,7 +212,7 @@ export function getActionsForDocument(doc) {
 
   let cancelAction = {
     component: {
-      template: `<span class="text-red-700">{{ t('Cancel') }}</span>`,
+      template: '<span class="text-red-700">{{ t`Cancel` }}</span>',
     },
     condition: (doc) => doc.submitted && !doc.cancelled,
     action: () => {
@@ -323,7 +323,7 @@ export async function getSavePath(name, extention) {
   let { canceled, filePath } = await ipcRenderer.invoke(
     IPC_ACTIONS.GET_SAVE_FILEPATH,
     {
-      title: t('Select Folder'),
+      title: t`Select Folder`,
       defaultPath: `${name}.${extention}`,
     }
   );

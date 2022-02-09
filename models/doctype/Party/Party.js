@@ -85,7 +85,7 @@ export default {
       label: 'Address',
       fieldtype: 'Link',
       target: 'Address',
-      placeholder: t('Click to create'),
+      placeholder: t`Click to create`,
       inline: true,
     },
     {

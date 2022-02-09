@@ -7,122 +7,122 @@ const config = {
   },
   getGroups: () => [
     {
-      title: t('Get Started'),
+      title: t`Get Started`,
       route: '/get-started',
       icon: 'general',
       iconSize: '24',
       iconHeight: '5',
     },
     {
-      title: t('Dashboard'),
+      title: t`Dashboard`,
       route: '/',
       icon: 'dashboard',
     },
     {
-      title: t('Sales'),
+      title: t`Sales`,
       icon: 'sales',
       route: '/list/SalesInvoice',
       items: [
         {
-          label: t('Invoices'),
+          label: t`Invoices`,
           route: '/list/SalesInvoice',
           doctype: 'SalesInvoice',
         },
         {
-          label: t('Customers'),
+          label: t`Customers`,
           route: '/list/Customer',
           doctype: 'Customer',
         },
       ],
     },
     {
-      title: t('Purchases'),
+      title: t`Purchases`,
       icon: 'purchase',
       route: '/list/PurchaseInvoice',
       items: [
         {
-          label: t('Bills'),
+          label: t`Bills`,
           route: '/list/PurchaseInvoice',
           doctype: 'PurchaseInvoice',
         },
         {
-          label: t('Suppliers'),
+          label: t`Suppliers`,
           route: '/list/Supplier',
           doctype: 'Supplier',
         },
       ],
     },
     {
-      title: t('Common'),
       icon: 'common-entries',
+      title: t`Common`,
       route: '/list/Item',
       items: [
         {
-          label: t('Items'),
+          label: t`Items`,
           route: '/list/Item',
           doctype: 'Item',
         },
         {
-          label: t('Payments'),
+          label: t`Payments`,
           route: '/list/Payment',
           doctype: 'Payment',
         },
         {
-          label: t('Journal Entry'),
+          label: t`Journal Entry`,
           route: '/list/JournalEntry',
           doctype: 'JournalEntry',
         },
       ],
     },
     {
-      title: t('Reports'),
+      title: t`Reports`,
       icon: 'reports',
       route: '/report/general-ledger',
       items: [
         {
-          label: t('General Ledger'),
+          label: t`General Ledger`,
           route: '/report/general-ledger',
         },
         {
-          label: t('Profit And Loss'),
+          label: t`Profit And Loss`,
           route: '/report/profit-and-loss',
         },
         {
-          label: t('Balance Sheet'),
+          label: t`Balance Sheet`,
           route: '/report/balance-sheet',
         },
         {
-          label: t('Trial Balance'),
+          label: t`Trial Balance`,
           route: '/report/trial-balance',
         },
         {
-          label: t('GSTR1'),
+          label: t`GSTR1`,
           route: '/report/gstr-1',
           hidden: () => frappe.AccountingSettings.country !== 'India',
         },
         {
-          label: t('GSTR2'),
+          label: t`GSTR2`,
           route: '/report/gstr-2',
           hidden: () => frappe.AccountingSettings.country !== 'India',
         },
       ],
     },
     {
-      title: t('Setup'),
+      title: t`Setup`,
       icon: 'settings',
       route: '/chart-of-accounts',
       items: [
         {
-          label: t('Chart of Accounts'),
+          label: t`Chart of Accounts`,
           route: '/chart-of-accounts',
         },
         {
-          label: t('Taxes'),
+          label: t`Taxes`,
           route: '/list/Tax',
           doctype: 'Tax',
         },
         {
-          label: t('Settings'),
+          label: t`Settings`,
           route: '/settings',
         },
       ],

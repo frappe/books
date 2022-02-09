@@ -12,7 +12,7 @@ export default {
   },
   actions: [
     {
-      label: t('Create Bill'),
+      label: t`Create Bill`,
       condition: (doc) => !doc.isNew(),
       action: async (supplier) => {
         let doc = await frappe.getNewDoc('PurchaseInvoice');
@@ -28,7 +28,7 @@ export default {
       },
     },
     {
-      label: t('View Bills'),
+      label: t`View Bills`,
       condition: (doc) => !doc.isNew(),
       action: (supplier) => {
         router.push({

@@ -3,7 +3,7 @@ import { t } from 'frappe';
 
 export default {
   doctype: 'Payment',
-  title: t('Payments'),
+  title: t`Payments`,
   columns: [
     'party',
     {

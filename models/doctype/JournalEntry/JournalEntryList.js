@@ -3,7 +3,7 @@ import { t } from 'frappe';
 
 export default {
   doctype: 'JournalEntry',
-  title: t('Journal Entry'),
+  title: t`Journal Entry`,
   formRoute: (name) => `/edit/JournalEntry/${name}`,
   columns: [
     'date',
