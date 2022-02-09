@@ -168,11 +168,11 @@ export default {
     getEmptyMessage() {
       const { emptyMessage } = this.df ?? {};
       if (typeof emptyMessage === 'function') {
-        return this.t(emptyMessage(this.doc));
+        return emptyMessage(this.doc);
       } else if (emptyMessage) {
-        return this.t(emptyMessage);
+        return emptyMessage;
       }
-      return this.t('Empty');
+      return this.t`Empty`;
     },
     selectItem(d) {
       if (d.action) {

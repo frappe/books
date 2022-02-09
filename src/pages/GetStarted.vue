@@ -107,12 +107,12 @@ export default {
       /* eslint-disable vue/no-side-effects-in-computed-properties */
       return [
         {
-          label: t('Organisation'),
+          label: t`Organisation`,
 
           items: [
             {
               key: 'Invoice',
-              label: t('Invoice'),
+              label: t`Invoice`,
               icon: 'invoice',
               description:
                 'Customize your invoices by adding a logo and address details',
@@ -123,7 +123,7 @@ export default {
             },
             {
               key: 'General',
-              label: t('General'),
+              label: t`General`,
               icon: 'general',
               description:
                 'Setup your company information, email, country and fiscal year',
@@ -134,7 +134,7 @@ export default {
             },
             {
               key: 'System',
-              label: t('System'),
+              label: t`System`,
               icon: 'system',
               description:
                 'Setup system defaults like date format and display precision',
@@ -146,12 +146,12 @@ export default {
           ],
         },
         {
-          label: t('Accounts'),
+          label: t`Accounts`,
 
           items: [
             {
               key: 'Review Accounts',
-              label: t('Review Accounts'),
+              label: t`Review Accounts`,
               icon: 'review-ac',
               description:
                 'Review your chart of accounts, add any account or tax heads as needed',
@@ -164,7 +164,7 @@ export default {
             },
             {
               key: 'Opening Balances',
-              label: t('Opening Balances'),
+              label: t`Opening Balances`,
               icon: 'opening-ac',
               fieldname: 'openingBalanceChecked',
               description:
@@ -174,7 +174,7 @@ export default {
             },
             {
               key: 'Add Taxes',
-              label: t('Add Taxes'),
+              label: t`Add Taxes`,
               icon: 'percentage',
               fieldname: 'taxesAdded',
               description:
@@ -186,12 +186,12 @@ export default {
           ],
         },
         {
-          label: t('Sales'),
+          label: t`Sales`,
 
           items: [
             {
               key: 'Add Sales Items',
-              label: t('Add Items'),
+              label: t`Add Items`,
               icon: 'item',
               description:
                 'Add products or services that you sell to your customers',
@@ -202,7 +202,7 @@ export default {
             },
             {
               key: 'Add Customers',
-              label: t('Add Customers'),
+              label: t`Add Customers`,
               icon: 'customer',
               description: 'Add a few customers to create your first invoice',
               action: () => routeTo('/list/Customer'),
@@ -212,7 +212,7 @@ export default {
             },
             {
               key: 'Create Invoice',
-              label: t('Create Invoice'),
+              label: t`Create Invoice`,
               icon: 'sales-invoice',
               description:
                 'Create your first invoice and mail it to your customer',
@@ -223,12 +223,12 @@ export default {
           ],
         },
         {
-          label: t('Purchase'),
+          label: t`Purchase`,
 
           items: [
             {
               key: 'Add Purchase Items',
-              label: t('Add Items'),
+              label: t`Add Items`,
               icon: 'item',
               description:
                 'Add products or services that you buy from your suppliers',
@@ -237,7 +237,7 @@ export default {
             },
             {
               key: 'Add Suppliers',
-              label: t('Add Suppliers'),
+              label: t`Add Suppliers`,
               icon: 'supplier',
               description: 'Add a few suppliers to create your first bill',
               action: () => routeTo('/list/Supplier'),
@@ -245,7 +245,7 @@ export default {
             },
             {
               key: 'Create Bill',
-              label: t('Create Bill'),
+              label: t`Create Bill`,
               icon: 'purchase-invoice',
               description:
                 'Create your first bill and mail it to your supplier',

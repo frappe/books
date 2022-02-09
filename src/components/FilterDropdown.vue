@@ -204,9 +204,9 @@ export default {
     },
     filterAppliedMessage() {
       if (this.activeFilterCount === 1) {
-        return this.t('1 filter applied');
+        return this.t`1 filter applied`;
       }
-      return this.t('{0} filters applied', [this.activeFilterCount]);
+      return this.t`${this.activeFilterCount} filters applied`;
     },
   },
 };

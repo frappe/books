@@ -196,7 +196,7 @@ export default {
       this.fileSelectedFrom = 'Existing File';
       const filePath = (
         await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, {
-          title: this.t('Select file'),
+          title: this.t`Select file`,
           properties: ['openFile'],
           filters: [{ name: 'SQLite DB File', extensions: ['db'] }],
         })

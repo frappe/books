@@ -196,7 +196,7 @@ export default {
           });
         });
         this.doc.on('beforeUpdate', () => {
-          this.statusText = t('Saving...');
+          this.statusText = t`Saving...`;
         });
         this.doc.on('afterUpdate', () => {
           setTimeout(() => {

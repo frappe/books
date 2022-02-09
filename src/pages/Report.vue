@@ -302,7 +302,7 @@ export default {
             })
           ) ?? []),
         {
-          label: this.t('Reset Filters'),
+          label: this.t`Reset Filters`,
           action: this.resetFilters,
         },
       ];
