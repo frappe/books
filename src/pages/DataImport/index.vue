@@ -77,12 +77,12 @@ export default {
           ? path.resolve('.')
           : frappe.store.documentsPath;
 
-      let title = frappe.t('Message');
-      let message = frappe.t('Template saved successfully.');
+      let title = frappe.t`Message`;
+      let message = frappe.t`Template saved successfully.`;
 
       if (documentsPath === undefined) {
-        title = frappe.t('Error');
-        message = frappe.t('Template could not be saved.');
+        title = frappe.t`Error`;
+        message = frappe.t`Template could not be saved.`;
       } else {
         await writeFile(
           path.resolve(
