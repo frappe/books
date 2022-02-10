@@ -8,7 +8,7 @@ function onDocumentClick(e, el, fn) {
 }
 
 export const outsideClickDirective = {
-  bind(el, binding) {
+  beforeMount(el, binding) {
     el.dataset.outsideClickIndex = instances.length;
 
     const fn = binding.value;
@@ -19,7 +19,7 @@ export const outsideClickDirective = {
     document.addEventListener('click', click);
     instances.push(click);
   },
-  unbind(el) {
+  unmounted(el) {
     const index = el.dataset.outsideClickIndex;
     const handler = instances[index];
     document.addEventListener('click', handler);
