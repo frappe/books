@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
-      <template v-slot:title>
+      <template #title>
         <h1 class="text-2xl font-bold">
           {{ t('Setup your workspace') }}
         </h1>

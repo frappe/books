@@ -1,6 +1,6 @@
 <template>
   <Popover @open="selectCurrentMonthYear">
-    <template v-slot:target="{ togglePopover, handleBlur }">
+    <template #target="{ togglePopover, handleBlur }">
       <input
         type="text"
         :class="inputClass"
@@ -11,7 +11,7 @@
         @blur="handleBlur"
       />
     </template>
-    <template v-slot:content="{ togglePopover }">
+    <template #content="{ togglePopover }">
       <div class="text-left p-3 select-none">
         <div class="flex items-center justify-between">
           <span class="font-medium text-blue-500 text-base">

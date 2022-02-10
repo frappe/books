@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col overflow-hidden">
     <PageHeader>
-      <template v-slot:title>
+      <template #title>
         <h1 class="text-2xl font-bold">
           {{ t('Settings') }}
         </h1>
@@ -62,7 +62,7 @@ import PageHeader from '@/components/PageHeader';
 import StatusBadge from '@/components/StatusBadge';
 import { callInitializeMoneyMaker } from '../../utils';
 import { showToast } from '../../utils';
-import { h } from 'vue';
+import { h, markRaw } from 'vue';
 
 export default {
   name: 'Settings',
@@ -82,17 +82,17 @@ export default {
         {
           label: t('Invoice'),
           icon: 'invoice',
-          component: TabInvoice,
+          component: markRaw(TabInvoice),
         },
         {
           label: t('General'),
           icon: 'general',
-          component: TabGeneral,
+          component: markRaw(TabGeneral),
         },
         {
           label: t('System'),
           icon: 'system',
-          component: TabSystem,
+          component: markRaw(TabSystem),
         },
       ],
     };

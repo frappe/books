@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col max-w-full">
     <PageHeader>
-      <template v-slot:title>
+      <template #title>
         <h1 class="text-2xl font-bold">{{ report.title }}</h1>
       </template>
-      <template v-slot:actions>
+      <template #actions>
         <DropdownWithActions
           v-for="group of actionGroups"
           @click="group.action(reportData, filters)"

@@ -4,7 +4,7 @@
       {{ df.label }}
     </div>
     <Popover placement="bottom-end">
-      <template v-slot:target="{ togglePopover }">
+      <template #target="{ togglePopover }">
         <div
           tabindex="0"
           :class="inputClasses"
@@ -25,7 +25,7 @@
           </div>
         </div>
       </template>
-      <template v-slot:content>
+      <template #content>
         <div class="text-sm py-3 px-2 text-center">
           <div>
             <Row class="border-none" :column-count="5" gap="0.5rem">

@@ -6,8 +6,8 @@
       :key="invoice.title"
     >
       <SectionHeader>
-        <template v-slot:title>{{ invoice.title }}</template>
-        <template v-slot:action>
+        <template #title>{{ invoice.title }}</template>
+        <template #action>
           <PeriodSelector
             v-if="invoice.hasData"
             :value="$data[invoice.periodKey]"

@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <template v-slot:title>
+      <template #title>
         <h1 class="text-2xl font-bold" v-if="title">
           {{ title }}
         </h1>
       </template>
-      <template v-slot:actions>
+      <template #actions>
         <FilterDropdown
           ref="filterDropdown"
           @change="applyFilter"

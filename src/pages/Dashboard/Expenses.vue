@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template v-slot:title>{{ t('Top Expenses') }}</template>
-      <template v-slot:action>
+      <template #title>{{ t('Top Expenses') }}</template>
+      <template #action>
         <PeriodSelector :value="period" @change="(value) => (period = value)" />
       </template>
     </SectionHeader>
