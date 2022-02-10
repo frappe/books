@@ -84,7 +84,7 @@ import { showToast, stringifyCircular } from './utils';
     console.error(err, vm, info);
   };
 
-  app.mount('#app');
+  app.mount('body');
 })();
 
 function registerIpcRendererListeners() {

@@ -17,7 +17,7 @@
     :style="{ opacity }"
     v-if="show"
   >
-    <feather-icon :name="iconName" class="w-6 h-6 mr-3" :class="iconColor" />
+    <FeatherIcon :name="iconName" class="w-6 h-6 mr-3" :class="iconColor" />
     <div @click="actionClicked" :class="actionText ? 'cursor-pointer' : ''">
       <p class="text-base">{{ message }}</p>
       <button
@@ -36,8 +36,12 @@
 </template>
 <script>
 import { getColorClass } from '../colors';
+import FeatherIcon from './FeatherIcon.vue';
 
 export default {
+  components: {
+    FeatherIcon,
+  },
   data() {
     return {
       opacity: 0,
@@ -77,10 +81,6 @@ export default {
     },
   },
   mounted() {
-    const mountTarget = document.createElement('div');
-    mountTarget.id = 'toast-target';
-    this.$el.parentElement.append(mountTarget);
-
     setTimeout(() => {
       this.opacity = 1;
     }, 50);

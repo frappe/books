@@ -1,7 +1,7 @@
 <template>
   <div class="flex overflow-hidden">
     <Sidebar
-      class="w-44 flex-shrink-0"
+      class="w-48 flex-shrink-0"
       @change-db-file="$emit('change-db-file')"
     />
     <div class="flex flex-1 overflow-y-hidden bg-white">
@@ -26,7 +26,7 @@
       <div
         id="toast-container"
         class="absolute bottom-0 flex flex-col items-center mb-3"
-        style="width: calc(100% - 11rem)"
+        style="width: calc(100% - 12rem)"
       >
         <div id="toast-target" />
       </div>

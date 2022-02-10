@@ -5,7 +5,7 @@ import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
 import { isPesa } from 'frappe/utils';
 import lodash from 'lodash';
-import { createApp } from 'vue';
+import { createApp, h } from 'vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 
@@ -335,13 +335,24 @@ export async function getSavePath(name, extention) {
   return { canceled, filePath };
 }
 
+function replaceAndAppendMount(app, replaceId) {
+  const fragment = document.createDocumentFragment();
+  const target = document.getElementById(replaceId);
+  const parent = target.parentElement;
+  const clone = target.cloneNode();
+
+  app.mount(fragment);
+  target.replaceWith(fragment);
+  parent.append(clone);
+}
+
 export function showToast(props) {
-  createApp({
-    el: '#toast-target',
-    render(createElement) {
-      return createElement(Toast, { props });
+  const toast = createApp({
+    render() {
+      return h(Toast, { ...props });
     },
   });
+  replaceAndAppendMount(toast, 'toast-target');
 }
 
 export function titleCase(phrase) {
@@ -443,6 +454,8 @@ export function stringifyCircular(
     return value;
   });
 }
+
+window.showToast = showToast;
 
 export function checkForUpdates(force = false) {
   ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
