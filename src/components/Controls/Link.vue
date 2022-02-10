@@ -3,6 +3,7 @@ import frappe from 'frappe';
 import AutoComplete from './AutoComplete';
 import Badge from '@/components/Badge';
 import { openQuickEdit } from '@/utils';
+import { markRaw } from 'vue';
 
 export default {
   name: 'Link',
@@ -64,7 +65,7 @@ export default {
         label: 'Create',
         value: 'Create',
         action: () => this.openNewDoc(),
-        component: {
+        component: markRaw({
           template: `
                 <div class="flex items-center font-semibold">{{ t('Create') }}
                   <Badge color="blue" class="ml-2" v-if="isNewValue">{{ linkValue }}</Badge>
@@ -78,7 +79,7 @@ export default {
             },
           },
           components: { Badge },
-        },
+        }),
       };
     },
     async getFilters(keyword) {

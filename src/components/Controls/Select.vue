@@ -20,7 +20,7 @@
           'text-gray-400': !value,
         }"
         :value="value"
-        @change="(e) => triggerChange(e.target.value)"
+        @change.stop="(e) => triggerChange(e.target.value)"
         @focus="(e) => $emit('focus', e)"
       >
         <option value="" disabled selected>

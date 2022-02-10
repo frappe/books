@@ -44,7 +44,7 @@
               :placeholder="t('Custom Hex')"
               :class="inputClasses"
               :value="value"
-              @change="(e) => setColorValue(e.target.value)"
+              @change.stop="(e) => setColorValue(e.target.value)"
               class="bg-gray-100"
             />
           </div>
