@@ -4,7 +4,7 @@
     :hide-arrow="true"
     :placement="right ? 'bottom-end' : 'bottom-start'"
   >
-    <template v-slot:target>
+    <template #target>
       <div class="h-full" v-on-outside-click="() => (isShown = false)">
         <slot
           :toggleDropdown="toggleDropdown"
@@ -14,7 +14,7 @@
         ></slot>
       </div>
     </template>
-    <template v-slot:content>
+    <template #content>
       <div class="bg-white rounded w-full min-w-40">
         <div class="p-1 max-h-64 overflow-auto text-sm">
           <div v-if="isLoading" class="p-2 text-gray-600 italic">

@@ -1,4 +1,4 @@
-<template v-slot:title>
+<template #title>
   <a
     class="cursor-pointer font-semibold flex items-center"
     @click="$router.back()"

@@ -1,8 +1,8 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template v-slot:title>{{ t('Profit and Loss') }}</template>
-      <template v-slot:action>
+      <template #title>{{ t('Profit and Loss') }}</template>
+      <template #action>
         <PeriodSelector
           :value="period"
           :options="['This Year', 'This Quarter']"

@@ -1,122 +1,125 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
-      <template v-slot:title>
+      <template #title>
         <h1 class="text-2xl font-bold">
           {{ t('Chart of Accounts') }}
         </h1>
       </template>
-      <template v-slot:actions>
+      <template #actions>
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
     <div class="flex-1 flex px-8 overflow-y-auto">
       <div class="flex-1" v-if="root">
-        <div
-          v-for="account in allAccounts"
-          :key="account.name"
-          class="
-            mt-2
-            px-4
-            py-2
-            cursor-pointer
-            hover:bg-gray-100
-            rounded-md
-            group
-          "
-          :class="[
-            account.level !== 0 ? 'text-base' : 'text-lg',
-            isQuickEditOpen(account) ? 'bg-gray-200' : '',
-          ]"
-          @click="onClick(account)"
-        >
-          <div class="flex items-center" :class="`pl-${account.level * 8}`">
-            <component :is="getIconComponent(account)" />
-            <div class="flex items-baseline">
-              <div
-                class="ml-3"
-                :class="[!account.parentAccount && 'font-semibold']"
-              >
-                {{ account.name }}
-              </div>
-              <div v-if="account.isGroup" class="ml-6 hidden group-hover:block">
-                <button
-                  class="
-                    text-xs text-gray-800
-                    hover:text-gray-900
-                    focus:outline-none
-                  "
-                  @click.stop="addAccount(account, 'addingAccount')"
+        <div v-for="account in allAccounts" :key="account.name">
+          <div
+            class="
+              mt-2
+              px-4
+              py-2
+              cursor-pointer
+              hover:bg-gray-100
+              rounded-md
+              group
+            "
+            :class="[
+              account.level !== 0 ? 'text-base' : 'text-lg',
+              isQuickEditOpen(account) ? 'bg-gray-200' : '',
+            ]"
+            @click="onClick(account)"
+          >
+            <div class="flex items-center" :class="`pl-${account.level * 8}`">
+              <component :is="getIconComponent(account)" />
+              <div class="flex items-baseline">
+                <div
+                  class="ml-3"
+                  :class="[!account.parentAccount && 'font-semibold']"
                 >
-                  {{ t('Add Account') }}
-                </button>
-                <button
-                  class="
-                    ml-3
-                    text-xs text-gray-800
-                    hover:text-gray-900
-                    focus:outline-none
-                  "
-                  @click.stop="addAccount(account, 'addingGroupAccount')"
+                  {{ account.name }}
+                </div>
+                <div
+                  v-if="account.isGroup"
+                  class="ml-6 hidden group-hover:block"
                 >
-                  {{ t('Add Group') }}
-                </button>
+                  <button
+                    class="
+                      text-xs text-gray-800
+                      hover:text-gray-900
+                      focus:outline-none
+                    "
+                    @click.stop="addAccount(account, 'addingAccount')"
+                  >
+                    {{ t('Add Account') }}
+                  </button>
+                  <button
+                    class="
+                      ml-3
+                      text-xs text-gray-800
+                      hover:text-gray-900
+                      focus:outline-none
+                    "
+                    @click.stop="addAccount(account, 'addingGroupAccount')"
+                  >
+                    {{ t('Add Group') }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div
-          v-if="account.addingAccount || account.addingGroupAccount"
-          class="
-            mt-2
-            px-4
-            py-2
-            cursor-pointer
-            hover:bg-gray-100
-            rounded-md
-            group
-          "
-          :class="[account.level !== 0 ? 'text-base' : 'text-lg']"
-          :key="account.name + '-adding-account'"
-        >
           <div
-            class="flex items-center"
-            :class="`pl-${(account.level + 1) * 8}`"
+            v-if="account.addingAccount || account.addingGroupAccount"
+            class="
+              mt-2
+              px-4
+              py-2
+              cursor-pointer
+              hover:bg-gray-100
+              rounded-md
+              group
+            "
+            :class="[account.level !== 0 ? 'text-base' : 'text-lg']"
+            :key="account.name + '-adding-account'"
           >
-            <component
-              :is="getIconComponent({ isGroup: account.addingGroupAccount })"
-            />
-            <div class="flex items-baseline">
-              <div class="ml-3">
-                <input
-                  class="focus:outline-none bg-transparent"
-                  :class="{ 'text-gray-600': insertingAccount }"
-                  :placeholder="t('New Account')"
-                  :ref="account.name"
-                  @keydown.esc="cancelAddingAccount(account)"
-                  @keydown.enter="
-                    (e) =>
-                      createNewAccount(
-                        e.target.value,
-                        account,
-                        account.addingGroupAccount
-                      )
-                  "
-                  type="text"
-                  :disabled="insertingAccount"
-                />
-                <button
-                  v-if="!insertingAccount"
-                  class="
-                    ml-4
-                    text-xs text-gray-800
-                    hover:text-gray-900
-                    focus:outline-none
-                  "
-                  @click="cancelAddingAccount(account)"
-                >
-                  {{ t('Cancel') }}
-                </button>
+            <div
+              class="flex items-center"
+              :class="`pl-${(account.level + 1) * 8}`"
+            >
+              <component
+                :is="getIconComponent({ isGroup: account.addingGroupAccount })"
+              />
+              <div class="flex items-baseline">
+                <div class="ml-3">
+                  <input
+                    class="focus:outline-none bg-transparent"
+                    :class="{ 'text-gray-600': insertingAccount }"
+                    :placeholder="t('New Account')"
+                    :ref="account.name"
+                    @keydown.esc="cancelAddingAccount(account)"
+                    @keydown.enter="
+                      (e) =>
+                        createNewAccount(
+                          e.target.value,
+                          account,
+                          account.addingGroupAccount
+                        )
+                    "
+                    type="text"
+                    :disabled="insertingAccount"
+                  />
+                  <button
+                    v-if="!insertingAccount"
+                    class="
+                      ml-4
+                      text-xs text-gray-800
+                      hover:text-gray-900
+                      focus:outline-none
+                    "
+                    @click="cancelAddingAccount(account)"
+                  >
+                    {{ t('Cancel') }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

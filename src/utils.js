@@ -147,7 +147,7 @@ export function openQuickEdit({
   showFields,
   defaults = {},
 }) {
-  let currentRoute = router.currentRoute;
+  let currentRoute = router.currentRoute.value;
   let query = currentRoute.query;
   let method = 'push';
   if (query.edit && query.doctype === doctype) {
@@ -271,7 +271,10 @@ export function getInvoiceStatus(doc) {
 
 export function routeTo(route) {
   let routeOptions = route;
-  if (typeof route === 'string' && route === router.currentRoute.fullPath) {
+  if (
+    typeof route === 'string' &&
+    route === router.currentRoute.value.fullPath
+  ) {
     return;
   }
 

@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <template v-slot:title>
+      <template #title>
         <BackLink />
       </template>
-      <template v-slot:actions v-if="doc">
+      <template #actions v-if="doc">
         <StatusBadge :status="status" />
         <DropdownWithActions class="ml-2" :actions="actions" />
         <Button

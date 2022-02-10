@@ -1,6 +1,6 @@
 <template>
   <Popover @close="emitFilterChange" placement="bottom-end">
-    <template v-slot:target="{ togglePopover }">
+    <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
           <Icon name="filter" size="12" class="stroke-current text-gray-800" />
@@ -15,7 +15,7 @@
         </span>
       </Button>
     </template>
-    <template v-slot:content>
+    <template #content>
       <div>
         <div class="p-3">
           <template v-if="filters.length">
