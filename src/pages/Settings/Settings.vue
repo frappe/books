@@ -1,9 +1,11 @@
 <template>
   <div class="flex flex-col overflow-hidden">
     <PageHeader>
-      <h1 slot="title" class="text-2xl font-bold">
-        {{ t('Settings') }}
-      </h1>
+      <template v-slot:title>
+        <h1 class="text-2xl font-bold">
+          {{ t('Settings') }}
+        </h1>
+      </template>
     </PageHeader>
     <div class="flex justify-center flex-1 mb-8 mt-2">
       <div
@@ -60,6 +62,7 @@ import PageHeader from '@/components/PageHeader';
 import StatusBadge from '@/components/StatusBadge';
 import { callInitializeMoneyMaker } from '../../utils';
 import { showToast } from '../../utils';
+import { h } from 'vue';
 
 export default {
   name: 'Settings',
@@ -138,10 +141,10 @@ export default {
     },
     getIconComponent(tab) {
       return {
-        render(h) {
+        render() {
           return h(Icon, {
             class: 'w-6 h-6',
-            props: Object.assign(
+            ...Object.assign(
               {
                 name: tab.icon,
                 size: '24',

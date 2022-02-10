@@ -29,7 +29,7 @@
             :autofocus="true"
           />
           <Popover placement="auto" :show-popup="Boolean(emailError)">
-            <template slot="target">
+            <template v-slot:target>
               <FormControl
                 :df="meta.getField('email')"
                 :value="doc.email"
@@ -41,7 +41,7 @@
                 "
               />
             </template>
-            <template slot="content">
+            <template v-slot:content>
               <div class="p-2 text-sm">
                 {{ emailError }}
               </div>

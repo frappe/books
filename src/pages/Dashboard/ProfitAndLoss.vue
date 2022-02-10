@@ -1,13 +1,14 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template slot="title">{{ t('Profit and Loss') }}</template>
-      <PeriodSelector
-        slot="action"
-        :value="period"
-        :options="['This Year', 'This Quarter']"
-        @change="(value) => (period = value)"
-      />
+      <template v-slot:title>{{ t('Profit and Loss') }}</template>
+      <template v-slot:action>
+        <PeriodSelector
+          :value="period"
+          :options="['This Year', 'This Quarter']"
+          @change="(value) => (period = value)"
+        />
+      </template>
     </SectionHeader>
     <BarChart
       v-if="hasData"

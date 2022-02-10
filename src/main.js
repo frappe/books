@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
-import Vue from 'vue';
+import { createApp } from 'vue';
 import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
@@ -26,12 +26,29 @@ import { showToast, stringifyCircular } from './utils';
   window.frappe = frappe;
   window.frappe.store = {};
 
+  window.onerror = (message, source, lineno, colno, error) => {
+    error = error ?? new Error('triggered in window.onerror');
+    handleError(true, error, { message, source, lineno, colno });
+  };
+
+  process.on('unhandledRejection', (error) => {
+    handleError(true, error);
+  });
+
+  process.on('uncaughtException', (error) => {
+    handleError(true, error, () => process.exit(1));
+  });
+
   registerIpcRendererListeners();
 
-  Vue.config.productionTip = false;
-  Vue.component('feather-icon', FeatherIcon);
-  Vue.directive('on-outside-click', outsideClickDirective);
-  Vue.mixin({
+  const app = createApp({
+    template: '<App/>',
+  });
+  app.use(router);
+  app.component('App', App);
+  app.component('feather-icon', FeatherIcon);
+  app.directive('on-outside-click', outsideClickDirective);
+  app.mixin({
     computed: {
       frappe() {
         return frappe;
@@ -50,7 +67,7 @@ import { showToast, stringifyCircular } from './utils';
     },
   });
 
-  Vue.config.errorHandler = (err, vm, info) => {
+  app.config.errorHandler = (err, vm, info) => {
     const more = {
       info,
     };
@@ -67,28 +84,7 @@ import { showToast, stringifyCircular } from './utils';
     console.error(err, vm, info);
   };
 
-  window.onerror = (message, source, lineno, colno, error) => {
-    error = error ?? new Error('triggered in window.onerror');
-    handleError(true, error, { message, source, lineno, colno });
-  };
-
-  process.on('unhandledRejection', (error) => {
-    handleError(true, error);
-  });
-
-  process.on('uncaughtException', (error) => {
-    handleError(true, error, () => process.exit(1));
-  });
-
-  /* eslint-disable no-new */
-  new Vue({
-    el: '#app',
-    router,
-    components: {
-      App,
-    },
-    template: '<App/>',
-  });
+  app.mount('#app');
 })();
 
 function registerIpcRendererListeners() {

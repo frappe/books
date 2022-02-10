@@ -1,12 +1,10 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template slot="title">{{ t('Top Expenses') }}</template>
-      <PeriodSelector
-        slot="action"
-        :value="period"
-        @change="(value) => (period = value)"
-      />
+      <template v-slot:title>{{ t('Top Expenses') }}</template>
+      <template v-slot:action>
+        <PeriodSelector :value="period" @change="(value) => (period = value)" />
+      </template>
     </SectionHeader>
     <div class="flex relative" v-show="hasData">
       <div class="w-1/2">
@@ -38,7 +36,10 @@
         @change="(value) => (active = value)"
       />
     </div>
-    <div v-if="expenses.length === 0" class="flex-1 w-full h-full flex-center my-20">
+    <div
+      v-if="expenses.length === 0"
+      class="flex-1 w-full h-full flex-center my-20"
+    >
       <span class="text-base text-gray-600">
         {{ t('No expenses in this period') }}
       </span>

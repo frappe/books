@@ -1,8 +1,10 @@
 <template>
   <div class="flex flex-col max-w-full">
     <PageHeader>
-      <h1 slot="title" class="text-2xl font-bold">{{ report.title }}</h1>
-      <template slot="actions">
+      <template v-slot:title>
+        <h1 class="text-2xl font-bold">{{ report.title }}</h1>
+      </template>
+      <template v-slot:actions>
         <DropdownWithActions
           v-for="group of actionGroups"
           @click="group.action(reportData, filters)"
@@ -104,6 +106,7 @@ import WithScroll from '@/components/WithScroll';
 import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '../components/DropdownWithActions.vue';
 import reportViewConfig from '@/../reports/view';
+import { h } from 'vue';
 
 export default {
   name: 'Report',
@@ -161,7 +164,10 @@ export default {
         rows = data;
       }
 
-      this.reportData.columns = this.report.getColumns({ filters: this.filters, data });
+      this.reportData.columns = this.report.getColumns({
+        filters: this.filters,
+        data,
+      });
 
       if (!rows) {
         rows = [];
@@ -250,7 +256,7 @@ export default {
           ? frappe.format(cellValue, column)
           : '';
       return {
-        render(h) {
+        render() {
           return h('span', formattedValue);
         },
       };

@@ -1,5 +1,4 @@
 import frappe, { t } from 'frappe';
-import Icon from './components/Icon';
 
 const config = {
   getTitle: async () => {
@@ -10,16 +9,18 @@ const config = {
     {
       title: t('Get Started'),
       route: '/get-started',
-      icon: getIcon('general', '24', '5'),
+      icon: 'general',
+      iconSize: '24',
+      iconHeight: '5',
     },
     {
       title: t('Dashboard'),
       route: '/',
-      icon: getIcon('dashboard'),
+      icon: 'dashboard',
     },
     {
       title: t('Sales'),
-      icon: getIcon('sales'),
+      icon: 'sales',
       route: '/list/SalesInvoice',
       items: [
         {
@@ -36,7 +37,7 @@ const config = {
     },
     {
       title: t('Purchases'),
-      icon: getIcon('purchase'),
+      icon: 'purchase',
       route: '/list/PurchaseInvoice',
       items: [
         {
@@ -53,7 +54,7 @@ const config = {
     },
     {
       title: t('Common'),
-      icon: getIcon('common-entries'),
+      icon: 'common-entries',
       route: '/list/Item',
       items: [
         {
@@ -75,7 +76,7 @@ const config = {
     },
     {
       title: t('Reports'),
-      icon: getIcon('reports'),
+      icon: 'reports',
       route: '/report/general-ledger',
       items: [
         {
@@ -108,7 +109,7 @@ const config = {
     },
     {
       title: t('Setup'),
-      icon: getIcon('settings'),
+      icon: 'settings',
       route: '/chart-of-accounts',
       items: [
         {
@@ -128,23 +129,5 @@ const config = {
     },
   ],
 };
-
-function getIcon(name, size = '18', height = null) {
-  return {
-    name,
-    render(h) {
-      return h(Icon, {
-        props: Object.assign(
-          {
-            name,
-            size,
-            height,
-          },
-          this.$attrs
-        ),
-      });
-    },
-  };
-}
 
 export default config;
