@@ -167,7 +167,7 @@ let TwoColumnForm = {
 
       let oldValue = this.doc.get(df.fieldname);
 
-      this.$set(this.errors, df.fieldname, null);
+      this.errors[df.fieldname] = null;
       if (oldValue === value) {
         return;
       }
@@ -186,7 +186,7 @@ let TwoColumnForm = {
     onChangeCommon(df, value) {
       this.doc.set(df.fieldname, value).catch((e) => {
         // set error message for this field
-        this.$set(this.errors, df.fieldname, getErrorMessage(e, this.doc));
+        this.errors[df.fieldname] = getErrorMessage(e, this.doc);
       });
 
       if (this.autosave && this.doc._dirty && !this.doc.isNew()) {

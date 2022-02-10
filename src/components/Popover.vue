@@ -70,7 +70,7 @@ export default {
       document.addEventListener('click', this.listener);
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.popper && this.popper.destroy();
     if (this.listener) {
       document.removeEventListener('click', this.listener);
