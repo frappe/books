@@ -24,6 +24,7 @@ import { createPopper } from '@popperjs/core';
 
 export default {
   name: 'Popover',
+  emits: ['open', 'close'],
   props: {
     hideArrow: {
       type: Boolean,

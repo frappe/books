@@ -39,6 +39,7 @@ import { getErrorMessage } from '../../errorHandling';
 export default {
   name: 'TableRow',
   props: ['row', 'tableFields', 'size', 'ratio', 'isNumeric'],
+  emits: ['remove'],
   components: {
     Row,
   },

@@ -86,6 +86,7 @@ import {
 
 export default {
   name: 'SetupWizard',
+  emits: ['setup-complete', 'setup-canceled'],
   data() {
     return {
       doc: null,

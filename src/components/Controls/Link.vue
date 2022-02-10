@@ -8,6 +8,7 @@ import { markRaw } from 'vue';
 export default {
   name: 'Link',
   extends: AutoComplete,
+  emits: ['new-doc'],
   methods: {
     async getSuggestions(keyword = '') {
       let doctype = this.getTarget();

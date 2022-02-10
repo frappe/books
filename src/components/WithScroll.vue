@@ -6,6 +6,7 @@
 <script>
 export default {
   name: 'WithScroll',
+  emits: ['scroll'],
   mounted() {
     this.listener = () => {
       let { scrollLeft, scrollTop } = this.$el;

@@ -101,6 +101,7 @@ export default {
     textOffsetX: { default: 0, type: Number },
     textOffsetY: { default: 0, type: Number },
   },
+  emits: ['change'],
   computed: {
     cx() {
       return 50 + this.offsetX;

@@ -6,7 +6,9 @@
           <h4>Customize</h4>
         </div>
         <div class="col-6 text-right">
-          <f-button secondary @click="saveAndClose">{{ t('Save & Close') }}</f-button>
+          <f-button secondary @click="saveAndClose">{{
+            t('Save & Close')
+          }}</f-button>
         </div>
       </div>
       <div class="row">
@@ -14,7 +16,9 @@
           <form-layout :doc="doc" :fields="fields" @updateDoc="saveDoc" />
           <sketch-picker v-model="color" class="shadow-none" />
           <div class="mt-3">
-            <f-button secondary @click="openCompanySettings">{{ t('Company Settings') }}</f-button>
+            <f-button secondary @click="openCompanySettings">{{
+              t('Company Settings')
+            }}</f-button>
           </div>
         </div>
       </div>
@@ -27,15 +31,22 @@ import { Sketch } from 'vue-color';
 
 export default {
   name: 'InvoiceCustomizer',
+  emits: [
+    'changeTemplate',
+    'changeFont',
+    'closeInvoiceCustomizer',
+    'updateTemplateView',
+    'changeColor',
+  ],
   components: {
     FormLayout,
-    'sketch-picker': Sketch
+    'sketch-picker': Sketch,
   },
   data() {
     return {
       doc: null,
       fields: [],
-      color: {}
+      color: {},
     };
   },
   async created() {
@@ -43,7 +54,7 @@ export default {
     this.color.hex = this.doc.themeColor;
     const meta = frappe.getMeta('SalesInvoiceSettings');
     this.fields = meta.fields.filter(
-      field => field.fieldname !== 'numberSeries'
+      (field) => field.fieldname !== 'numberSeries'
     );
   },
   methods: {
@@ -67,16 +78,16 @@ export default {
         this.$emit('updateTemplateView');
       });
       this.$formModal.open(settings);
-    }
+    },
   },
   watch: {
-    color: async function() {
+    color: async function () {
       if (this.doc) {
         if (this.doc.themeColor != this.color.hex) {
           this.$emit('changeColor', this.color.hex);
         }
       }
-    }
-  }
+    },
+  },
 };
 </script>

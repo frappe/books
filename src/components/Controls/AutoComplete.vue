@@ -38,6 +38,7 @@ import { fuzzyMatch } from '@/utils';
 
 export default {
   name: 'AutoComplete',
+  emits: ['focus'],
   extends: Base,
   components: {
     Dropdown,

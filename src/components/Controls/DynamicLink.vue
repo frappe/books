@@ -12,7 +12,7 @@ export default {
       }
     });
   },
-  destroyed() {
+  unmounted() {
     this.targetWatcher();
   },
   methods: {

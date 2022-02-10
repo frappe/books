@@ -29,12 +29,12 @@
 
 <script>
 import frappe from 'frappe';
-import { markRaw } from 'vue';
 import Float from './Float';
 
 export default {
   name: 'Currency',
   extends: Float,
+  emits: ['input', 'focus'],
   data() {
     return {
       showInput: false,

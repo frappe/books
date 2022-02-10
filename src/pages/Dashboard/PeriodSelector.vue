@@ -46,7 +46,7 @@ export default {
       default: () => ['This Year', 'This Quarter', 'This Month'],
     },
   },
-
+  emits: ['change'],
   components: {
     Dropdown,
   },

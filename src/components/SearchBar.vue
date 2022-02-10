@@ -6,7 +6,7 @@
           toggleDropdown,
           highlightItemUp,
           highlightItemDown,
-          selectHighlightedItem
+          selectHighlightedItem,
         }"
       >
         <div
@@ -40,7 +40,7 @@
 import frappe from 'frappe';
 import reports from '../../reports/view';
 import Dropdown from '@/components/Dropdown';
-import { routeTo } from '@/utils'
+import { routeTo } from '@/utils';
 
 export default {
   data() {
@@ -48,12 +48,13 @@ export default {
       inputValue: '',
       searchList: [],
       suggestions: [],
-      $toggleDropdown: null
+      $toggleDropdown: null,
     };
   },
   components: {
-    Dropdown
+    Dropdown,
   },
+  emits: ['change'],
   mounted() {
     this.makeSearchList();
   },
@@ -61,7 +62,7 @@ export default {
     async search() {
       this.$toggleDropdown && this.$toggleDropdown(true);
 
-      this.suggestions = this.searchList.filter(d => {
+      this.suggestions = this.searchList.filter((d) => {
         let key = this.inputValue.toLowerCase();
         return d.label.toLowerCase().includes(key);
       });
@@ -80,7 +81,7 @@ export default {
       const views = this.getViews();
 
       let searchList = [...doctypes, ...reports, ...views];
-      this.searchList = searchList.map(d => {
+      this.searchList = searchList.map((d) => {
         if (d.route) {
           d.action = () => routeTo(d.route);
           this.inputValue = '';
@@ -90,37 +91,36 @@ export default {
     },
     getDoctypes() {
       let doctypes = Object.keys(frappe.models).sort();
-      let doctypeMetas = doctypes.map(doctype => frappe.getMeta(doctype));
-      let searchableDoctypes = doctypeMetas.filter(meta => {
+      let doctypeMetas = doctypes.map((doctype) => frappe.getMeta(doctype));
+      let searchableDoctypes = doctypeMetas.filter((meta) => {
         return !meta.isSingle && !meta.isChild;
       });
-      return searchableDoctypes.map(meta => {
+      return searchableDoctypes.map((meta) => {
         return {
           label: meta.label || meta.name,
           route: `/list/${meta.name}`,
-          group: 'List'
+          group: 'List',
         };
       });
     },
     getReports() {
-      return Object.values(reports).map(report => {
+      return Object.values(reports).map((report) => {
         return {
           label: report.title,
           route: `/report/${report.method}`,
-          group: 'Reports'
+          group: 'Reports',
         };
       });
-
     },
     getViews() {
       return [
         {
           label: 'Chart of Accounts',
           route: '/chartOfAccounts',
-          group: 'List'
-        }
+          group: 'List',
+        },
       ];
-    }
-  }
+    },
+  },
 };
 </script>

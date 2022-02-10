@@ -163,6 +163,7 @@ import { showErrorDialog } from '../errorHandling';
 
 export default {
   name: 'DatabaseSelector',
+  emits: ['database-connect'],
   data() {
     return {
       loadingDatabase: false,

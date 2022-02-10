@@ -98,6 +98,7 @@ import { handleErrorWithDialog, getErrorMessage } from '../errorHandling';
 
 let TwoColumnForm = {
   name: 'TwoColumnForm',
+  emits: ['error', 'change'],
   props: {
     doc: Object,
     fields: Array,

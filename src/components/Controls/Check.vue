@@ -54,7 +54,7 @@
           :class="inputClasses"
           :checked="value"
           :readonly="isReadOnly"
-          @change.stop="(e) => triggerChange(+e.target.checked)"
+          @change="(e) => triggerChange(+e.target.checked)"
           @focus="(e) => $emit('focus', e)"
         />
       </div>
@@ -70,11 +70,12 @@ import Base from './Base';
 export default {
   name: 'Check',
   extends: Base,
+  emits: ['focus'],
   data() {
     return {
       offBorderColor: 'rgba(17, 43, 66, 0.201322)',
       offColor: '#FFFFFF',
-      color: '#A1ABB4'
+      color: '#A1ABB4',
     };
   },
   computed: {
