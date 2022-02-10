@@ -1,8 +1,12 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <h1 slot="title" class="text-2xl font-bold" v-if="title">{{ title }}</h1>
-      <template slot="actions">
+      <template v-slot:title>
+        <h1 class="text-2xl font-bold" v-if="title">
+          {{ title }}
+        </h1>
+      </template>
+      <template v-slot:actions>
         <FilterDropdown
           ref="filterDropdown"
           @change="applyFilter"
@@ -35,7 +39,7 @@ import List from './List';
 import listConfigs from './listConfig';
 // import Icon from '@/components/Icon';
 import FilterDropdown from '@/components/FilterDropdown';
-import { routeTo } from '@/utils'
+import { routeTo } from '@/utils';
 
 export default {
   name: 'ListView',
@@ -46,7 +50,7 @@ export default {
     Button,
     SearchBar,
     // Icon,
-    FilterDropdown
+    FilterDropdown,
   },
   activated() {
     if (typeof this.filters === 'object') {
@@ -83,10 +87,10 @@ export default {
         query: {
           edit: 1,
           doctype: this.doctype,
-          name
-        }
+          name,
+        },
       };
-    }
+    },
   },
   computed: {
     meta() {
@@ -99,13 +103,13 @@ export default {
         return {
           title: this.doctype,
           doctype: this.doctype,
-          columns: this.meta.getKeywordFields()
+          columns: this.meta.getKeywordFields(),
         };
       }
     },
     title() {
       return this.listConfig.title || this.doctype;
-    }
-  }
+    },
+  },
 };
 </script>

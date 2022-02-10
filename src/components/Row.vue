@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-grid border-b" :style="style" v-on="$listeners">
+  <div class="inline-grid border-b" :style="style" v-bind="$attrs">
     <slot></slot>
   </div>
 </template>
@@ -9,21 +9,21 @@ export default {
   props: {
     columnWidth: {
       type: String,
-      default: '1fr'
+      default: '1fr',
     },
     columnCount: {
       type: Number,
-      default: 0
+      default: 0,
     },
     ratio: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     gridTemplateColumns: {
       type: String,
-      default: null
+      default: null,
     },
-    gap: String
+    gap: String,
   },
   computed: {
     style() {
@@ -33,7 +33,9 @@ export default {
         obj['grid-template-columns'] = `repeat(${this.columnCount}, ${this.columnWidth})`;
       }
       if (this.ratio.length) {
-        obj['grid-template-columns'] = this.ratio.map(r => `${r}fr`).join(' ');
+        obj['grid-template-columns'] = this.ratio
+          .map((r) => `${r}fr`)
+          .join(' ');
       }
       if (this.gridTemplateColumns) {
         obj['grid-template-columns'] = this.gridTemplateColumns;
@@ -43,7 +45,7 @@ export default {
       }
 
       return obj;
-    }
-  }
+    },
+  },
 };
 </script>

@@ -29,6 +29,7 @@
 
 <script>
 import frappe from 'frappe';
+import { markRaw } from 'vue';
 import Float from './Float';
 
 export default {

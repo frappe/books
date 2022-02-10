@@ -1,8 +1,10 @@
 <template>
   <div class="flex flex-col" v-if="doc">
     <PageHeader>
-      <BackLink slot="title" />
-      <template slot="actions">
+      <template v-slot:title>
+        <BackLink />
+      </template>
+      <template v-slot:actions>
         <StatusBadge :status="status" />
         <Button
           v-if="doc.submitted"

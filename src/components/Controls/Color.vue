@@ -25,29 +25,31 @@
           </div>
         </div>
       </template>
-      <div class="text-sm py-3 px-2 text-center" slot="content">
-        <div>
-          <Row class="border-none" :column-count="5" gap="0.5rem">
-            <div
-              v-for="color in colors"
-              :key="color.value"
-              class="w-4 h-4 rounded cursor-pointer"
-              :style="{ backgroundColor: color.value }"
-              @click="setColorValue(color.value)"
-            ></div>
-          </Row>
+      <template v-slot:content>
+        <div class="text-sm py-3 px-2 text-center">
+          <div>
+            <Row class="border-none" :column-count="5" gap="0.5rem">
+              <div
+                v-for="color in colors"
+                :key="color.value"
+                class="w-4 h-4 rounded cursor-pointer"
+                :style="{ backgroundColor: color.value }"
+                @click="setColorValue(color.value)"
+              ></div>
+            </Row>
+          </div>
+          <div class="mt-3 w-28">
+            <input
+              type="text"
+              :placeholder="t('Custom Hex')"
+              :class="inputClasses"
+              :value="value"
+              @change="(e) => setColorValue(e.target.value)"
+              class="bg-gray-100"
+            />
+          </div>
         </div>
-        <div class="mt-3 w-28">
-          <input
-            type="text"
-            :placeholder="t('Custom Hex')"
-            :class="inputClasses"
-            :value="value"
-            @change="e => setColorValue(e.target.value)"
-            class="bg-gray-100"
-          />
-        </div>
-      </div>
+      </template>
     </Popover>
   </div>
 </template>
@@ -62,7 +64,7 @@ export default {
   extends: Base,
   components: {
     Popover,
-    Row
+    Row,
   },
   methods: {
     setColorValue(value) {
@@ -72,16 +74,16 @@ export default {
       if (/^#[0-9A-F]{6}$/i.test(value)) {
         this.triggerChange(value);
       }
-    }
+    },
   },
   computed: {
     colors() {
       return this.df.colors;
     },
     selectedColorLabel() {
-      let color = this.colors.find(c => this.value === c.value);
+      let color = this.colors.find((c) => this.value === c.value);
       return color ? color.label : this.value;
-    }
-  }
+    },
+  },
 };
 </script>

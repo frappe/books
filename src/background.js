@@ -9,7 +9,7 @@ import electron, {
   protocol,
   shell,
 } from 'electron';
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
+import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
@@ -279,14 +279,8 @@ app.on('activate', () => {
 
 app.on('ready', async () => {
   if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    // Devtools extensions are broken in Electron 6.0.0 and greater
-    // See https://github.com/nklayman/vue-cli-plugin-electron-builder/issues/378 for more info
-    // Electron will not launch with Devtools extensions installed on Windows 10 with dark mode
-    // If you are not using Windows 10 dark mode, you may uncomment these lines
-    // In addition, if the linked issue is closed, you can upgrade electron and uncomment these lines
     try {
-      await installExtension(VUEJS_DEVTOOLS);
+      await installExtension(VUEJS3_DEVTOOLS);
     } catch (e) {
       console.error('Vue Devtools failed to install:', e.toString());
     }

@@ -2,8 +2,10 @@
   <div class="flex">
     <div class="flex flex-col flex-1">
       <PageHeader class="bg-white z-10">
-        <BackLink slot="title" />
-        <template slot="actions">
+        <template v-slot:title>
+          <BackLink />
+        </template>
+        <template v-slot:actions>
           <Button
             class="text-gray-900 text-xs ml-2"
             @click="showCustomiser = !showCustomiser"

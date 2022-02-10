@@ -5,7 +5,7 @@ import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
 import { isPesa } from 'frappe/utils';
 import lodash from 'lodash';
-import Vue from 'vue';
+import { createApp } from 'vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 
@@ -333,7 +333,7 @@ export async function getSavePath(name, extention) {
 }
 
 export function showToast(props) {
-  new Vue({
+  createApp({
     el: '#toast-target',
     render(createElement) {
       return createElement(Toast, { props });

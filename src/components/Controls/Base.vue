@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import { showMessageDialog } from '../../utils';
 export default {
   name: 'Base',
   props: [

@@ -1,7 +1,6 @@
 <template>
   <component
     v-bind="$attrs"
-    v-on="$listeners"
     :is="iconComponent"
     :class="iconClasses"
     :active="active"
