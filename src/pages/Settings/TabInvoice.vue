@@ -58,6 +58,7 @@ export default {
     TwoColumnForm,
     FormControl,
   },
+  emits: ['change'],
   provide() {
     return {
       doctype: 'PrintSettings',

@@ -107,6 +107,7 @@ import Icon from './Icon.vue';
 
 export default {
   components: [Button],
+  emits: ['change-db-file'],
   data() {
     return {
       companyName: '',

@@ -20,7 +20,7 @@
           'text-gray-400': !value,
         }"
         :value="value"
-        @change.stop="(e) => triggerChange(e.target.value)"
+        @change="(e) => triggerChange(e.target.value)"
         @focus="(e) => $emit('focus', e)"
       >
         <option value="" disabled selected>
@@ -60,6 +60,7 @@ import Base from './Base';
 export default {
   name: 'Select',
   extends: Base,
+  emits: ['focus'],
   methods: {
     map(v) {
       if (this.df.map) {

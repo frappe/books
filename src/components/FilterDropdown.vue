@@ -141,6 +141,7 @@ export default {
     FormControl,
   },
   props: ['fields'],
+  emits: ['change'],
   data() {
     return {
       filters: [],

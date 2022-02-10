@@ -32,6 +32,7 @@ export default {
     'readOnly',
     'autofocus',
   ],
+  emits: ['focus', 'input', 'change'],
   inject: {
     doctype: {
       default: null,

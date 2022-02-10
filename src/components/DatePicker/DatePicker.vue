@@ -123,6 +123,7 @@ import Popover from '../Popover';
 export default {
   name: 'DatePicker',
   props: ['value', 'placeholder', 'readonly', 'formatValue', 'inputClass'],
+  emits: ['change'],
   components: {
     Popover,
   },

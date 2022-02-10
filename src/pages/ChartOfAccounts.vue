@@ -48,7 +48,7 @@
                       hover:text-gray-900
                       focus:outline-none
                     "
-                    @click.stop="addAccount(account, 'addingAccount')"
+                    @click="addAccount(account, 'addingAccount')"
                   >
                     {{ t('Add Account') }}
                   </button>
@@ -59,7 +59,7 @@
                       hover:text-gray-900
                       focus:outline-none
                     "
-                    @click.stop="addAccount(account, 'addingGroupAccount')"
+                    @click="addAccount(account, 'addingGroupAccount')"
                   >
                     {{ t('Add Group') }}
                   </button>

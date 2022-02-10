@@ -2,18 +2,28 @@
   <div>
     <div class="row no-gutters">
       <div class="col-8 mx-auto text-right mt-4">
-        <f-button primary @click="$emit('makePDF', $refs.printComponent.innerHTML)">{{ t('PDF') }}</f-button>
+        <f-button
+          primary
+          @click="$emit('makePDF', $refs.printComponent.innerHTML)"
+          >{{ t('PDF') }}</f-button
+        >
       </div>
     </div>
     <div ref="printComponent" class="col-8 bg-white mt-4 mx-auto border shadow">
-      <div class="print-format" style="padding: 3.5rem; font-size: 8pt !important;">
+      <div
+        class="print-format"
+        style="padding: 3.5rem; font-size: 8pt !important"
+      >
         <div>
           <h3 class="text-center">GSTR3B-Form</h3>
           <h5>GSTIN: &nbsp; {{ jsonData.gstin }}</h5>
           <h5>Period: &nbsp; {{ jsonData.ret_period }}</h5>
         </div>
 
-        <h5>3.1&nbsp;&nbsp;Details of Outward Supplies and inward supplies liable to reverse charge</h5>
+        <h5>
+          3.1&nbsp;&nbsp;Details of Outward Supplies and inward supplies liable
+          to reverse charge
+        </h5>
         <table class="table table-bordered">
           <thead>
             <tr>
@@ -27,7 +37,10 @@
           </thead>
           <tbody>
             <tr>
-              <td>(a) Outward taxable supplies(other than zero rated, nil rated and exempted</td>
+              <td>
+                (a) Outward taxable supplies(other than zero rated, nil rated
+                and exempted
+              </td>
               <td class="right">{{ jsonData.sup_details.osup_det.txval }}</td>
               <td class="right">{{ jsonData.sup_details.osup_det.iamt }}</td>
               <td class="right">{{ jsonData.sup_details.osup_det.camt }}</td>
@@ -44,7 +57,9 @@
             </tr>
             <tr>
               <td>(b) Other outward supplies(Nil rated,Exempted)</td>
-              <td class="right">{{ jsonData.sup_details.osup_nil_exmp.txval }}</td>
+              <td class="right">
+                {{ jsonData.sup_details.osup_nil_exmp.txval }}
+              </td>
               <td class="disabled"></td>
               <td class="disabled"></td>
               <td class="disabled"></td>
@@ -60,7 +75,9 @@
             </tr>
             <tr>
               <td>(e) Non-GST outward supplies</td>
-              <td class="right">{{ jsonData.sup_details.osup_nongst.txval }}</td>
+              <td class="right">
+                {{ jsonData.sup_details.osup_nongst.txval }}
+              </td>
               <td class="disabled"></td>
               <td class="disabled"></td>
               <td class="disabled"></td>
@@ -69,7 +86,11 @@
           </tbody>
         </table>
 
-        <h5>3.2&nbsp;&nbsp;Of the supplies shown in 3.1 (a) above, details of inter-State supplies made to unregisterd persons, composition taxable persons and UIN holders</h5>
+        <h5>
+          3.2&nbsp;&nbsp;Of the supplies shown in 3.1 (a) above, details of
+          inter-State supplies made to unregisterd persons, composition taxable
+          persons and UIN holders
+        </h5>
         <table class="table table-bordered">
           <thead>
             <tr>
@@ -83,17 +104,26 @@
             <tr>
               <td>Supplies made to Unregistered Persons</td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.unreg_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.unreg_details"
+                  :key="i"
+                >
                   <p>{{ row.pos }}</p>
                 </div>
               </td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.unreg_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.unreg_details"
+                  :key="i"
+                >
                   <p>{{ row.txval }}</p>
                 </div>
               </td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.unreg_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.unreg_details"
+                  :key="i"
+                >
                   <p>{{ row.iamt }}</p>
                 </div>
               </td>
@@ -101,17 +131,26 @@
             <tr>
               <td>Suppliies made to Composition Taxable Persons</td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.comp_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.comp_details"
+                  :key="i"
+                >
                   <p>{{ row.pos }}</p>
                 </div>
               </td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.comp_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.comp_details"
+                  :key="i"
+                >
                   <p>{{ row.txval }}</p>
                 </div>
               </td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.comp_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.comp_details"
+                  :key="i"
+                >
                   <p>{{ row.iamt }}</p>
                 </div>
               </td>
@@ -119,17 +158,26 @@
             <tr>
               <td>Supplies made to UIN holders</td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.uin_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.uin_details"
+                  :key="i"
+                >
                   <p>{{ row.pos }}</p>
                 </div>
               </td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.uin_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.uin_details"
+                  :key="i"
+                >
                   <p>{{ row.txval }}</p>
                 </div>
               </td>
               <td class="right">
-                <div v-for="(row, i) in jsonData.inter_sup.uin_details" :key="i">
+                <div
+                  v-for="(row, i) in jsonData.inter_sup.uin_details"
+                  :key="i"
+                >
                   <p>{{ row.iamt }}</p>
                 </div>
               </td>
@@ -173,7 +221,10 @@
               <td class="right">{{ jsonData.itc_elg.itc_avl[1].csamt }}</td>
             </tr>
             <tr>
-              <td>&nbsp; (3) Inward supplies liable to reverse charge (other than 1 & 2 above)</td>
+              <td>
+                &nbsp; (3) Inward supplies liable to reverse charge (other than
+                1 & 2 above)
+              </td>
               <td class="right">{{ jsonData.itc_elg.itc_avl[2].iamt }}</td>
               <td class="right">{{ jsonData.itc_elg.itc_avl[2].camt }}</td>
               <td class="right">{{ jsonData.itc_elg.itc_avl[2].samt }}</td>
@@ -251,7 +302,10 @@
           </tbody>
         </table>
 
-        <h5>5. &nbsp;&nbsp; Values of exempt, nil rated and non-GST inward supplies</h5>
+        <h5>
+          5. &nbsp;&nbsp; Values of exempt, nil rated and non-GST inward
+          supplies
+        </h5>
         <table class="table table-bordered">
           <thead>
             <tr>
@@ -262,14 +316,24 @@
           </thead>
           <tbody>
             <tr>
-              <td>From a supplier under composition scheme, Exempt and Nil rated</td>
-              <td class="right">{{ jsonData.inward_sup.isup_details[0].inter }}</td>
-              <td class="right">{{ jsonData.inward_sup.isup_details[0].intra }}</td>
+              <td>
+                From a supplier under composition scheme, Exempt and Nil rated
+              </td>
+              <td class="right">
+                {{ jsonData.inward_sup.isup_details[0].inter }}
+              </td>
+              <td class="right">
+                {{ jsonData.inward_sup.isup_details[0].intra }}
+              </td>
             </tr>
             <tr>
               <td>Non GST Inward Supplies</td>
-              <td class="right">{{ jsonData.inward_sup.isup_details[1].inter }}</td>
-              <td class="right">{{ jsonData.inward_sup.isup_details[1].intra }}</td>
+              <td class="right">
+                {{ jsonData.inward_sup.isup_details[1].inter }}
+              </td>
+              <td class="right">
+                {{ jsonData.inward_sup.isup_details[1].intra }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -282,11 +346,12 @@
 export default {
   name: 'GSTR3BPrintView',
   props: ['doc'],
+  emits: ['makePDF'],
   computed: {
     jsonData() {
       return JSON.parse(this.doc.jsonData);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -300,4 +365,3 @@ export default {
   text-align: right;
 }
 </style>
-

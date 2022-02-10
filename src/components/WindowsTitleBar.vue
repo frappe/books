@@ -36,6 +36,7 @@ import { IPC_MESSAGES } from '@/messages';
 
 export default {
   name: 'WindowsTitleBar',
+  emits: ['close', 'minimize', 'maximize', 'unmaximize'],
   methods: {
     async action(name) {
       const actionRan = await runWindowAction(name);

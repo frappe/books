@@ -37,6 +37,7 @@
 import Sidebar from '../components/Sidebar';
 export default {
   name: 'Desk',
+  emits: ['change-db-file'],
   components: {
     Sidebar,
   },
