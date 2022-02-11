@@ -1,11 +1,12 @@
 <template>
   <div class="flex flex-col max-w-full">
     <PageHeader>
-      <h1 slot="title" class="text-2xl font-bold">{{ report.title }}</h1>
-      <template slot="actions">
+      <template #title>
+        <h1 class="text-2xl font-bold">{{ report.title }}</h1>
+      </template>
+      <template #actions>
         <DropdownWithActions
           v-for="group of actionGroups"
-          @click="group.action(reportData, filters)"
           :key="group.label"
           :type="group.type"
           :actions="group.actions"
@@ -58,37 +59,39 @@
             </div>
           </Row>
         </div>
-        <WithScroll @scroll="onBodyScroll">
-          <div class="flex-1 overflow-auto report-scroll-container">
-            <Row
-              v-show="row.isShown"
-              v-for="(row, i) in rows"
-              :key="i"
-              gap="2rem"
-              :grid-template-columns="gridTemplateColumns"
+        <WithScroll
+          @scroll="onBodyScroll"
+          class="flex-1 overflow-auto"
+          style="height: calc(100vh - 12rem)"
+        >
+          <Row
+            v-show="row.isShown"
+            v-for="(row, i) in rows"
+            :key="i"
+            gap="2rem"
+            :grid-template-columns="gridTemplateColumns"
+          >
+            <div
+              class="py-4 text-base overflow-scroll no-scrollbar"
+              :class="getCellClasses(row, column)"
+              v-for="column in columns"
+              :key="column.label"
+              @click="toggleChildren(row, i)"
             >
-              <div
-                class="py-4 text-base overflow-scroll no-scrollbar"
-                :class="getCellClasses(row, column)"
-                v-for="column in columns"
-                :key="column.label"
-                @click="toggleChildren(row, i)"
-              >
-                <div class="inline-flex">
-                  <feather-icon
-                    v-if="row.isBranch && !row.isLeaf && column === columns[0]"
-                    class="flex-shrink-0 w-4 h-4 mr-2"
-                    :name="row.expanded ? 'chevron-down' : 'chevron-right'"
+              <div class="inline-flex">
+                <feather-icon
+                  v-if="row.isBranch && !row.isLeaf && column === columns[0]"
+                  class="flex-shrink-0 w-4 h-4 mr-2"
+                  :name="row.expanded ? 'chevron-down' : 'chevron-right'"
+                />
+                <span class="truncate" :class="{ 'bg-gray-100': loading }">
+                  <component
+                    :is="cellComponent(row[column.fieldname], column)"
                   />
-                  <span class="truncate" :class="{ 'bg-gray-100': loading }">
-                    <component
-                      :is="cellComponent(row[column.fieldname], column)"
-                    />
-                  </span>
-                </div>
+                </span>
               </div>
-            </Row>
-          </div>
+            </div>
+          </Row>
         </WithScroll>
       </div>
     </div>
@@ -104,6 +107,7 @@ import WithScroll from '@/components/WithScroll';
 import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '../components/DropdownWithActions.vue';
 import reportViewConfig from '@/../reports/view';
+import { h, markRaw } from 'vue';
 
 export default {
   name: 'Report',
@@ -161,13 +165,16 @@ export default {
         rows = data;
       }
 
-      this.reportData.columns = this.report.getColumns({ filters: this.filters, data });
+      this.reportData.columns = markRaw(this.report.getColumns({
+        filters: this.filters,
+        data,
+      }));
 
       if (!rows) {
         rows = [];
       }
 
-      this.reportData.rows = this.addTreeMeta(rows);
+      this.reportData.rows = markRaw(this.addTreeMeta(rows));
       this.loading = false;
     },
 
@@ -250,7 +257,7 @@ export default {
           ? frappe.format(cellValue, column)
           : '';
       return {
-        render(h) {
+        render() {
           return h('span', formattedValue);
         },
       };
@@ -366,22 +373,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.report-scroll-container {
-  height: calc(100vh - 12rem);
-}
-.report-scroll-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-.report-scroll-container::-webkit-scrollbar-thumb {
-  background-color: theme('colors.gray.200');
-}
-.report-scroll-container::-webkit-scrollbar-thumb:hover {
-  background-color: theme('colors.gray.300');
-}
-.report-scroll-container::-webkit-scrollbar-track {
-  background-color: white;
-}
-</style>

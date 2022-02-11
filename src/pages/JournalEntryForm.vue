@@ -1,8 +1,10 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <BackLink slot="title" />
-      <template slot="actions" v-if="doc">
+      <template #title>
+        <BackLink />
+      </template>
+      <template #actions v-if="doc">
         <StatusBadge :status="status" />
         <DropdownWithActions class="ml-2" :actions="actions" />
         <Button
@@ -123,11 +125,7 @@ import DropdownWithActions from '@/components/DropdownWithActions';
 import FormControl from '@/components/Controls/FormControl';
 import BackLink from '@/components/BackLink';
 import StatusBadge from '@/components/StatusBadge';
-import {
-  showMessageDialog,
-  getActionsForDocument,
-  routeTo,
-} from '@/utils';
+import { showMessageDialog, getActionsForDocument, routeTo } from '@/utils';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {

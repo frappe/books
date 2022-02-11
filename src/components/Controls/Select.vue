@@ -60,6 +60,7 @@ import Base from './Base';
 export default {
   name: 'Select',
   extends: Base,
+  emits: ['focus'],
   methods: {
     map(v) {
       if (this.df.map) {

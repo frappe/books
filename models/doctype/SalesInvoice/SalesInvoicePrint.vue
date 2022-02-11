@@ -3,9 +3,19 @@
     <div class="row no-gutters">
       <div v-if="showInvoiceCustomizer" class="col-3 mt-4 mx-auto"></div>
       <div class="col-8 mx-auto text-right mt-4">
-        <f-button primary @click="$emit('send', $refs.printComponent.innerHTML)">{{ t('Send') }}</f-button>
-        <f-button secondary @click="toggleCustomizer">{{ t('Customize') }}</f-button>
-        <f-button secondary @click="$emit('makePDF', $refs.printComponent.innerHTML)">{{ t('PDF') }}</f-button>
+        <f-button
+          primary
+          @click="$emit('send', $refs.printComponent.innerHTML)"
+          >{{ t('Send') }}</f-button
+        >
+        <f-button secondary @click="toggleCustomizer">{{
+          t('Customize')
+        }}</f-button>
+        <f-button
+          secondary
+          @click="$emit('makePDF', $refs.printComponent.innerHTML)"
+          >{{ t('PDF') }}</f-button
+        >
       </div>
     </div>
     <div class="row no-gutters">
@@ -20,7 +30,10 @@
           @updateTemplateView="updateTemplateView"
         />
       </div>
-      <div class="col-8 bg-white mt-4 mx-auto border shadow" ref="printComponent">
+      <div
+        class="col-8 bg-white mt-4 mx-auto border shadow"
+        ref="printComponent"
+      >
         <component
           :themeColor="themeColor"
           :font="font"
@@ -42,14 +55,15 @@ import InvoiceCustomizer from '@/components/InvoiceCustomizer';
 const invoiceTemplates = {
   'Basic I': InvoiceTemplate1,
   'Basic II': InvoiceTemplate2,
-  Modern: InvoiceTemplate3
+  Modern: InvoiceTemplate3,
 };
 
 export default {
   name: 'InvoicePrint',
   props: ['doc'],
+  emits: ['send', 'makePDF'],
   components: {
-    InvoiceCustomizer
+    InvoiceCustomizer,
   },
   data() {
     return {
@@ -57,7 +71,7 @@ export default {
       themeColor: undefined,
       template: undefined,
       font: undefined,
-      usedForReRender: 0
+      usedForReRender: 0,
     };
   },
   async created() {
@@ -96,7 +110,7 @@ export default {
     },
     updateTemplateView() {
       this.usedForReRender += 1;
-    }
-  }
+    },
+  },
 };
 </script>

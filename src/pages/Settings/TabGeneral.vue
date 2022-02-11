@@ -17,6 +17,7 @@ import TwoColumnForm from '@/components/TwoColumnForm';
 
 export default {
   name: 'TabGeneral',
+  emits: ['change'],
   components: {
     TwoColumnForm,
   },

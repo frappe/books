@@ -2,8 +2,10 @@
   <div class="flex">
     <div class="flex flex-col flex-1">
       <PageHeader class="bg-white z-10">
-        <BackLink slot="title" />
-        <template slot="actions">
+        <template #title>
+          <BackLink />
+        </template>
+        <template #actions>
           <Button
             class="text-gray-900 text-xs ml-2"
             @click="showCustomiser = !showCustomiser"
@@ -52,7 +54,6 @@
 import frappe from 'frappe';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
-import DropdownWithAction from '@/components/DropdownWithAction';
 import Button from '@/components/Button';
 import BackLink from '@/components/BackLink';
 import TwoColumnForm from '@/components/TwoColumnForm';
@@ -66,7 +67,6 @@ export default {
   components: {
     PageHeader,
     SearchBar,
-    DropdownWithAction,
     Button,
     BackLink,
     TwoColumnForm,

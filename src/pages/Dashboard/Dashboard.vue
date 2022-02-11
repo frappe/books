@@ -1,8 +1,10 @@
 <template>
   <div class="flex flex-col">
     <PageHeader>
-      <h1 slot="title" class="text-2xl font-bold">{{ t('Dashboard') }}</h1>
-      <template slot="actions">
+      <template #title>
+        <h1 class="text-2xl font-bold">{{ t('Dashboard') }}</h1>
+      </template>
+      <template #actions>
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>

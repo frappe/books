@@ -29,6 +29,7 @@ export default {
   components: {
     TwoColumnForm,
   },
+  emits: ['change'],
   data() {
     return {
       doc: null,

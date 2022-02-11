@@ -34,6 +34,7 @@ import Float from './Float';
 export default {
   name: 'Currency',
   extends: Float,
+  emits: ['input', 'focus'],
   data() {
     return {
       showInput: false,

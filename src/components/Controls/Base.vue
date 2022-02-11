@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import { showMessageDialog } from '../../utils';
 export default {
   name: 'Base',
   props: [
@@ -33,6 +32,7 @@ export default {
     'readOnly',
     'autofocus',
   ],
+  emits: ['focus', 'input', 'change'],
   inject: {
     doctype: {
       default: null,

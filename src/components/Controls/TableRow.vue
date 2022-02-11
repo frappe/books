@@ -39,6 +39,7 @@ import { getErrorMessage } from '../../errorHandling';
 export default {
   name: 'TableRow',
   props: ['row', 'tableFields', 'size', 'ratio', 'isNumeric'],
+  emits: ['remove'],
   components: {
     Row,
   },
@@ -59,14 +60,14 @@ export default {
         return;
       }
 
-      this.$set(this.errors, df.fieldname, null);
+      this.errors[df.fieldname] = null;
       const oldValue = this.row.get(df.fieldname);
       if (oldValue === value) {
         return;
       }
 
       this.row.set(df.fieldname, value).catch((e) => {
-        this.$set(this.errors, df.fieldname, getErrorMessage(e, this.row));
+        this.errors[df.fieldname] = getErrorMessage(e, this.row);
       });
     },
     getErrorString() {

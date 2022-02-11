@@ -9,9 +9,9 @@
       :class="['resize-none', inputClasses]"
       :value="value"
       :placeholder="inputPlaceholder"
-      @blur="e => triggerChange(e.target.value)"
-      @focus="e => $emit('focus', e)"
-      @input="e => $emit('input', e)"
+      @blur="(e) => triggerChange(e.target.value)"
+      @focus="(e) => $emit('focus', e)"
+      @input="(e) => $emit('input', e)"
     ></textarea>
   </div>
 </template>
@@ -21,6 +21,7 @@ import Base from './Base';
 
 export default {
   name: 'Text',
-  extends: Base
+  extends: Base,
+  emits: ['focus', 'input'],
 };
 </script>

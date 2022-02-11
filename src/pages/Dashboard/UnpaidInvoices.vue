@@ -1,27 +1,27 @@
 <template>
   <div class="flex justify-between gap-10">
     <div
-      class="w-1/2  flex flex-col justify-between"
+      class="w-1/2 flex flex-col justify-between"
       v-for="invoice in invoices"
       :key="invoice.title"
     >
       <SectionHeader>
-        <template slot="title">{{ invoice.title }}</template>
-        <PeriodSelector
-          v-if="invoice.hasData"
-          slot="action"
-          :value="$data[invoice.periodKey]"
-          @change="(value) => ($data[invoice.periodKey] = value)"
-        />
-        <Button
-          v-else
-          slot="action"
-          :icon="true"
-          type="primary"
-          @click="newInvoice(invoice)"
-        >
-          <feather-icon name="plus" class="w-4 h-4 text-white" />
-        </Button>
+        <template #title>{{ invoice.title }}</template>
+        <template #action>
+          <PeriodSelector
+            v-if="invoice.hasData"
+            :value="$data[invoice.periodKey]"
+            @change="(value) => ($data[invoice.periodKey] = value)"
+          />
+          <Button
+            v-else
+            :icon="true"
+            type="primary"
+            @click="newInvoice(invoice)"
+          >
+            <feather-icon name="plus" class="w-4 h-4 text-white" />
+          </Button>
+        </template>
       </SectionHeader>
       <div>
         <div class="mt-6 flex justify-between">

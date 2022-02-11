@@ -10,12 +10,7 @@ import PrintView from '@/pages/PrintView/PrintView';
 import QuickEditForm from '@/pages/QuickEditForm';
 import Report from '@/pages/Report';
 import Settings from '@/pages/Settings/Settings';
-import Vue from 'vue';
-import Router from 'vue-router';
-
-
-
-Vue.use(Router);
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
   {
@@ -107,7 +102,7 @@ const routes = [
   },
 ];
 
-let router = new Router({ routes });
+let router = createRouter({ routes, history: createWebHistory() });
 
 if (process.env.NODE_ENV === 'development') {
   window.router = router;
