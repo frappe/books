@@ -107,7 +107,7 @@ import WithScroll from '@/components/WithScroll';
 import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '../components/DropdownWithActions.vue';
 import reportViewConfig from '@/../reports/view';
-import { h } from 'vue';
+import { h, markRaw } from 'vue';
 
 export default {
   name: 'Report',
@@ -165,16 +165,16 @@ export default {
         rows = data;
       }
 
-      this.reportData.columns = this.report.getColumns({
+      this.reportData.columns = markRaw(this.report.getColumns({
         filters: this.filters,
         data,
-      });
+      }));
 
       if (!rows) {
         rows = [];
       }
 
-      this.reportData.rows = this.addTreeMeta(rows);
+      this.reportData.rows = markRaw(this.addTreeMeta(rows));
       this.loading = false;
     },
 
