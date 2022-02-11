@@ -163,7 +163,7 @@ export function openQuickEdit({
       name,
       showFields: showFields ?? getShowFields(doctype),
       hideFields,
-      values: defaults,
+      valueJSON: stringifyCircular(defaults),
       lastRoute: currentRoute,
     },
   });
