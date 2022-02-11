@@ -5,20 +5,20 @@
       @change-db-file="$emit('change-db-file')"
     />
     <div class="flex flex-1 overflow-y-hidden bg-white">
-      <router-view :key="$route.path" v-slot="{ Component }">
+      <router-view v-slot="{ Component }">
         <keep-alive>
-          <component :is="Component" class="flex-1" />
+          <component :is="Component" class="flex-1" :key="$route.path" />
         </keep-alive>
       </router-view>
 
       <div class="flex" v-if="showQuickEdit">
-        <router-view
-          :key="$route.query.doctype + $route.query.name"
-          name="edit"
-          v-slot="{ Component }"
-        >
+        <router-view name="edit" v-slot="{ Component }">
           <keep-alive>
-            <component :is="Component" class="w-80 flex-1" />
+            <component
+              :is="Component"
+              class="w-80 flex-1"
+              :key="$route.query.doctype + $route.query.name"
+            />
           </keep-alive>
         </router-view>
       </div>
