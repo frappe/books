@@ -22,9 +22,13 @@
             autocomplete="off"
             spellcheck="false"
             v-model="inputValue"
-            @input="search"
+            @input="
+              () => {
+                search();
+                toggleDropdown(true);
+              }
+            "
             ref="input"
-            @focus="$toggleDropdown = toggleDropdown"
             @keydown.up="highlightItemUp"
             @keydown.down="highlightItemDown"
             @keydown.enter="selectHighlightedItem"
@@ -48,7 +52,6 @@ export default {
       inputValue: '',
       searchList: [],
       suggestions: [],
-      $toggleDropdown: null,
     };
   },
   components: {
@@ -60,8 +63,6 @@ export default {
   },
   methods: {
     async search() {
-      this.$toggleDropdown && this.$toggleDropdown(true);
-
       this.suggestions = this.searchList.filter((d) => {
         let key = this.inputValue.toLowerCase();
         return d.label.toLowerCase().includes(key);
@@ -124,3 +125,11 @@ export default {
   },
 };
 </script>
+<style scoped>
+input[type='search']::-webkit-search-decoration,
+input[type='search']::-webkit-search-cancel-button,
+input[type='search']::-webkit-search-results-button,
+input[type='search']::-webkit-search-results-decoration {
+  display: none;
+}
+</style>
