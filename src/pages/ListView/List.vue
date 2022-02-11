@@ -31,7 +31,7 @@
         <Row
           gap="1rem"
           class="cursor-pointer text-gray-900 flex-1"
-          @click.native="openForm(doc)"
+          @click="openForm(doc)"
           :columnCount="columns.length"
         >
           <ListCell

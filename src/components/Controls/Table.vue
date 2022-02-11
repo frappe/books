@@ -9,7 +9,7 @@
         :class="{
           'px-2 py-3': size === 'small',
           'px-3 py-4': size !== 'small',
-          'text-right': isNumeric(df)
+          'text-right': isNumeric(df),
         }"
         v-for="df in tableFields"
         :key="df.fieldname"
@@ -31,7 +31,7 @@
       :ratio="ratio"
       class="text-gray-500 cursor-pointer border-transparent px-2 w-full"
       v-if="!isReadOnly"
-      @click.native="addRow"
+      @click="addRow"
     >
       <div class="flex items-center pl-1">
         <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
@@ -40,7 +40,7 @@
         class="flex justify-between"
         :class="{
           'px-2 py-3': size === 'small',
-          'px-3 py-4': size !== 'small'
+          'px-3 py-4': size !== 'small',
         }"
       >
         {{ t('Add Row') }}
@@ -50,7 +50,7 @@
         class="text-right"
         :class="{
           'px-2 py-3': size === 'small',
-          'px-3 py-4': size !== 'small'
+          'px-3 py-4': size !== 'small',
         }"
         v-if="maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow"
       >
@@ -71,15 +71,15 @@ export default {
   extends: Base,
   props: {
     showHeader: {
-      default: true
+      default: true,
     },
     maxRowsBeforeOverflow: {
-      default: 0
-    }
+      default: 0,
+    },
   },
   components: {
     Row,
-    TableRow
+    TableRow,
   },
   data: () => ({ rowContainerHeight: null }),
   watch: {
@@ -95,8 +95,8 @@ export default {
             this.rowContainerHeight = `${containerHeight}px`;
           });
         }
-      }
-    }
+      },
+    },
   },
   methods: {
     focus() {},
@@ -109,13 +109,13 @@ export default {
     },
     removeRow(row) {
       let rows = this.value || [];
-      rows = rows.filter(_row => _row !== row);
+      rows = rows.filter((_row) => _row !== row);
       this.triggerChange(rows);
     },
     scrollToRow(index) {
       let row = this.$refs['table-row'][index];
       row && row.$el.scrollIntoView({ block: 'nearest' });
-    }
+    },
   },
   computed: {
     ratio() {
@@ -123,8 +123,8 @@ export default {
     },
     tableFields() {
       let meta = frappe.getMeta(this.df.childtype);
-      return meta.tableFields.map(fieldname => meta.getField(fieldname));
-    }
-  }
+      return meta.tableFields.map((fieldname) => meta.getField(fieldname));
+    },
+  },
 };
 </script>
