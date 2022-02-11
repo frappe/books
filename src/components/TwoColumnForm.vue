@@ -12,37 +12,32 @@
         @change="(value) => onChange(df, value)"
       />
       <template v-else>
-        <template v-if="inlineEditField === df && inlineEditDoc">
-          <div class="border-b" :key="df.fieldname">
-            <TwoColumnForm
-              ref="inlineEditForm"
-              :doc="inlineEditDoc"
-              :fields="inlineEditFields"
-              :column-ratio="columnRatio"
-              :no-border="true"
-              :focus-first-input="true"
-              :autosave="false"
-              @error="(msg) => $emit('error', msg)"
-            />
-            <div class="flex px-4 pb-2">
-              <Button
-                class="w-1/2 text-gray-900"
-                @click="inlineEditField = null"
-              >
-                {{ t('Cancel') }}
-              </Button>
-              <Button
-                type="primary"
-                class="ml-2 w-1/2 text-white"
-                @click="() => saveInlineEditDoc(df)"
-              >
-                {{ df.inlineSaveText || t('Save') }}
-              </Button>
-            </div>
+        <div class="border-b" :key="df.fieldname" v-if="renderInline(df)">
+          <TwoColumnForm
+            ref="inlineEditForm"
+            :doc="inlineEditDoc"
+            :fields="inlineEditFields"
+            :column-ratio="columnRatio"
+            :no-border="true"
+            :focus-first-input="true"
+            :autosave="false"
+            @error="(msg) => $emit('error', msg)"
+          />
+          <div class="flex px-4 pb-2">
+            <Button class="w-1/2 text-gray-900" @click="inlineEditField = null">
+              {{ t('Cancel') }}
+            </Button>
+            <Button
+              type="primary"
+              class="ml-2 w-1/2 text-white"
+              @click="() => saveInlineEditDoc(df)"
+            >
+              {{ df.inlineSaveText || t('Save') }}
+            </Button>
           </div>
-        </template>
+        </div>
         <div
-          :key="df.fieldname"
+          :key="df.fieldname + '-else'"
           v-else
           class="grid"
           :class="{ 'border-b': !noBorder }"
@@ -141,6 +136,11 @@ let TwoColumnForm = {
     }
   },
   methods: {
+    renderInline(df) {
+      return (
+        this.inlineEditField?.fieldname === df?.fieldname && this.inlineEditDoc
+      );
+    },
     evaluateBoolean(fieldProp, defaultValue) {
       const type = typeof fieldProp;
       switch (type) {
