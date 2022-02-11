@@ -107,6 +107,10 @@ export default {
     };
   },
   mounted() {
+    if (!this.valueJSON) {
+      return;
+    }
+
     this.values = JSON.parse(this.valueJSON);
   },
   data() {
