@@ -24,6 +24,7 @@ import { createPopper } from '@popperjs/core';
 
 export default {
   name: 'Popover',
+  emits: ['open', 'close'],
   props: {
     hideArrow: {
       type: Boolean,
@@ -55,7 +56,7 @@ export default {
     };
   },
   mounted() {
-    let listener = (e) => {
+    this.listener = (e) => {
       let $els = [this.$refs.reference, this.$refs.popover];
       let insideClick = $els.some(
         ($el) => $el && (e.target === $el || $el.contains(e.target))
@@ -65,15 +66,17 @@ export default {
       }
       this.close();
     };
+
     if (this.show == null) {
-      document.addEventListener('click', listener);
-      this.$once('hook:beforeDestroy', () => {
-        document.removeEventListener('click', listener);
-      });
+      document.addEventListener('click', this.listener);
     }
   },
-  beforeDestroy() {
+  beforeUnmount() {
     this.popper && this.popper.destroy();
+    if (this.listener) {
+      document.removeEventListener('click', this.listener);
+      delete this.listener;
+    }
   },
   methods: {
     setupPopper() {

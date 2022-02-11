@@ -1,6 +1,6 @@
 <template>
   <Popover @close="emitFilterChange" placement="bottom-end">
-    <template v-slot:target="{ togglePopover }">
+    <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
           <Icon name="filter" size="12" class="stroke-current text-gray-800" />
@@ -15,83 +15,103 @@
         </span>
       </Button>
     </template>
-    <div slot="content">
-      <div class="p-3">
-        <template v-if="filters.length">
-          <div
-            :key="filter.fieldname + frappe.getRandomString()"
-            v-for="(filter, i) in filters"
-            class="flex items-center justify-between text-base"
-            :class="i !== 0 && 'mt-2'"
-          >
-            <div class="flex">
-              <div class="w-24">
-                <FormControl
-                  size="small"
-                  input-class="bg-gray-100"
-                  :df="{
-                    placeholder: 'Field',
-                    fieldname: 'fieldname',
-                    fieldtype: 'Select',
-                    options: fieldOptions
-                  }"
-                  :value="filter.fieldname"
-                  @change="value => (filter.fieldname = value)"
-                />
-              </div>
-              <div class="ml-2 w-24">
-                <FormControl
-                  size="small"
-                  input-class="bg-gray-100"
-                  :df="{
-                    placeholder: 'Condition',
-                    fieldname: 'condition',
-                    fieldtype: 'Select',
-                    options: conditions
-                  }"
-                  :value="filter.condition"
-                  @change="value => (filter.condition = value)"
-                />
-              </div>
-              <div class="ml-2 w-24">
-                <FormControl
-                  size="small"
-                  input-class="bg-gray-100"
-                  :df="{
-                    placeholder: 'Value',
-                    fieldname: 'value',
-                    fieldtype: 'Data'
-                  }"
-                  :value="filter.value"
-                  @change="value => (filter.value = value)"
-                />
-              </div>
-            </div>
+    <template #content>
+      <div>
+        <div class="p-3">
+          <template v-if="filters.length">
             <div
-              class="ml-2 cursor-pointer w-5 h-5 flex-center hover:bg-gray-100 rounded-md"
+              :key="filter.fieldname + frappe.getRandomString()"
+              v-for="(filter, i) in filters"
+              class="flex items-center justify-between text-base"
+              :class="i !== 0 && 'mt-2'"
             >
-              <feather-icon
-                name="x"
-                class="w-4 h-4"
-                @click="removeFilter(filter)"
-              />
+              <div class="flex">
+                <div class="w-24">
+                  <FormControl
+                    size="small"
+                    input-class="bg-gray-100"
+                    :df="{
+                      placeholder: 'Field',
+                      fieldname: 'fieldname',
+                      fieldtype: 'Select',
+                      options: fieldOptions,
+                    }"
+                    :value="filter.fieldname"
+                    @change="(value) => (filter.fieldname = value)"
+                  />
+                </div>
+                <div class="ml-2 w-24">
+                  <FormControl
+                    size="small"
+                    input-class="bg-gray-100"
+                    :df="{
+                      placeholder: 'Condition',
+                      fieldname: 'condition',
+                      fieldtype: 'Select',
+                      options: conditions,
+                    }"
+                    :value="filter.condition"
+                    @change="(value) => (filter.condition = value)"
+                  />
+                </div>
+                <div class="ml-2 w-24">
+                  <FormControl
+                    size="small"
+                    input-class="bg-gray-100"
+                    :df="{
+                      placeholder: 'Value',
+                      fieldname: 'value',
+                      fieldtype: 'Data',
+                    }"
+                    :value="filter.value"
+                    @change="(value) => (filter.value = value)"
+                  />
+                </div>
+              </div>
+              <div
+                class="
+                  ml-2
+                  cursor-pointer
+                  w-5
+                  h-5
+                  flex-center
+                  hover:bg-gray-100
+                  rounded-md
+                "
+              >
+                <feather-icon
+                  name="x"
+                  class="w-4 h-4"
+                  @click="removeFilter(filter)"
+                />
+              </div>
             </div>
-          </div>
-        </template>
-        <template v-else>
-          <span class="text-base text-gray-600">{{
-            t('No filters selected')
-          }}</span>
-        </template>
+          </template>
+          <template v-else>
+            <span class="text-base text-gray-600">{{
+              t('No filters selected')
+            }}</span>
+          </template>
+        </div>
+        <div
+          class="
+            text-base
+            border-t
+            px-3
+            py-2
+            flex
+            items-center
+            text-gray-600
+            cursor-pointer
+            hover:bg-gray-100
+          "
+          @click="addNewFilter"
+        >
+          <feather-icon name="plus" class="w-4 h-4" />
+          <span class="ml-2">{{ t('Add a filter') }}</span>
+        </div>
       </div>
-      <div
-        class="text-base border-t px-3 py-2 flex items-center text-gray-600 cursor-pointer hover:bg-gray-100"
-        @click="addNewFilter"
-      >
-        <feather-icon name="plus" class="w-4 h-4" />
-        <span class="ml-2">{{ t('Add a filter') }}</span>
-      </div>
-    </div>
+    </template>
   </Popover>
 </template>
 
@@ -109,7 +129,7 @@ let conditions = [
   { label: 'Greater Than', value: '>' },
   { label: 'Less Than', value: '<' },
   { label: 'Is Empty', value: 'is null' },
-  { label: 'Is Not Empty', value: 'is not null' }
+  { label: 'Is Not Empty', value: 'is not null' },
 ];
 
 export default {
@@ -118,12 +138,13 @@ export default {
     Popover,
     Button,
     Icon,
-    FormControl
+    FormControl,
   },
   props: ['fields'],
+  emits: ['change'],
   data() {
     return {
-      filters: []
+      filters: [],
     };
   },
   created() {
@@ -138,11 +159,11 @@ export default {
       this.filters.push({ fieldname, condition, value });
     },
     removeFilter(filter) {
-      this.filters = this.filters.filter(f => f !== filter);
+      this.filters = this.filters.filter((f) => f !== filter);
     },
     setFilter(filters) {
       this.filters = [];
-      Object.keys(filters).map(fieldname => {
+      Object.keys(filters).map((fieldname) => {
         let parts = filters[fieldname];
         let condition, value;
         if (Array.isArray(parts)) {
@@ -166,24 +187,27 @@ export default {
       }, {});
 
       this.$emit('change', filters);
-    }
+    },
   },
   computed: {
     fieldOptions() {
-      return this.fields.map(df => ({ label: df.label, value: df.fieldname }));
+      return this.fields.map((df) => ({
+        label: df.label,
+        value: df.fieldname,
+      }));
     },
     conditions() {
       return conditions;
     },
     activeFilterCount() {
-      return this.filters.filter(filter => filter.value).length;
+      return this.filters.filter((filter) => filter.value).length;
     },
     filterAppliedMessage() {
       if (this.activeFilterCount === 1) {
         return this.t('1 filter applied');
       }
       return this.t('{0} filters applied', [this.activeFilterCount]);
-    }
-  }
+    },
+  },
 };
 </script>

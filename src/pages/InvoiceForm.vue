@@ -1,8 +1,10 @@
 <template>
   <div class="flex flex-col" v-if="doc">
     <PageHeader>
-      <BackLink slot="title" />
-      <template slot="actions">
+      <template #title>
+        <BackLink />
+      </template>
+      <template #actions>
         <StatusBadge :status="status" />
         <Button
           v-if="doc.submitted"
@@ -269,7 +271,7 @@ export default {
 
     let query = this.$route.query;
     if (query.values && query.doctype === this.doctype) {
-      this.doc.set(this.$router.currentRoute.query.values);
+      this.doc.set(this.$router.currentRoute.value.query.values);
     }
     this.status = getInvoiceStatus(this.doc);
   },

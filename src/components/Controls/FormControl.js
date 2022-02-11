@@ -12,10 +12,11 @@ import Float from './Float';
 import Currency from './Currency';
 import Text from './Text';
 import Color from './Color';
+import { h } from 'vue';
 
 export default {
   name: 'FormControl',
-  render(h) {
+  render() {
     let controls = {
       Data,
       Select,
@@ -30,13 +31,12 @@ export default {
       Float,
       Currency,
       Text,
-      Color
+      Color,
     };
     let { df } = this.$attrs;
     return h(controls[df.fieldtype] || Data, {
-      props: this.$attrs,
-      on: this.$listeners,
-      ref: 'control'
+      ...this.$attrs,
+      ref: 'control',
     });
   },
   methods: {
@@ -45,6 +45,6 @@ export default {
     },
     getInput() {
       return this.$refs.control.$refs.input;
-    }
-  }
+    },
+  },
 };

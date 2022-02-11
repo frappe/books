@@ -6,6 +6,7 @@ const {
   DEFAULT_INTERNAL_PRECISION,
   DEFAULT_DISPLAY_PRECISION,
 } = require('./utils/consts');
+const { markRaw } = require('vue');
 
 module.exports = {
   initializeAndRegister(customModels = {}, force = false) {
@@ -55,7 +56,12 @@ module.exports = {
       display = parseInt(display);
     }
 
-    this.pesa = getMoneyMaker({ currency, precision, display });
+    this.pesa = getMoneyMaker({
+      currency,
+      precision,
+      display,
+      wrapper: markRaw,
+    });
   },
 
   init(force) {

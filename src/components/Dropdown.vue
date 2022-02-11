@@ -4,71 +4,71 @@
     :hide-arrow="true"
     :placement="right ? 'bottom-end' : 'bottom-start'"
   >
-    <div
-      slot="target"
-      class="h-full"
-      v-on-outside-click="() => (isShown = false)"
-    >
-      <slot
-        :toggleDropdown="toggleDropdown"
-        :highlightItemUp="highlightItemUp"
-        :highlightItemDown="highlightItemDown"
-        :selectHighlightedItem="selectHighlightedItem"
-      ></slot>
-    </div>
-    <div slot="content" class="bg-white rounded w-full min-w-40">
-      <div class="p-1 max-h-64 overflow-auto text-sm">
-        <div v-if="isLoading" class="p-2 text-gray-600 italic">
-          {{ t('Loading...') }}
-        </div>
-        <div
-          v-if="!isLoading && dropdownItems.length === 0"
-          class="p-2 text-gray-600 italic"
-        >
-          {{ getEmptyMessage() }}
-        </div>
-        <template v-else>
-          <div v-for="d in dropdownItems" :key="d.label">
-            <div
-              v-if="d.isGroup"
-              class="
-                px-2
-                pt-3
-                pb-1
-                text-xs
-                uppercase
-                text-gray-700
-                font-semibold
-                tracking-wider
-              "
-            >
-              {{ d.label }}
-            </div>
-            <a
-              v-else
-              ref="items"
-              class="
-                block
-                p-2
-                rounded-md
-                mt-1
-                first:mt-0
-                cursor-pointer
-                truncate
-              "
-              :class="d.index === highlightedIndex ? 'bg-gray-100' : ''"
-              @mouseenter="highlightedIndex = d.index"
-              @mouseleave="highlightedIndex = -1"
-              @mousedown.prevent
-              @click="selectItem(d)"
-            >
-              <component :is="d.component" v-if="d.component" />
-              <template v-else>{{ d.label }}</template>
-            </a>
-          </div>
-        </template>
+    <template #target>
+      <div class="h-full" v-on-outside-click="() => (isShown = false)">
+        <slot
+          :toggleDropdown="toggleDropdown"
+          :highlightItemUp="highlightItemUp"
+          :highlightItemDown="highlightItemDown"
+          :selectHighlightedItem="selectHighlightedItem"
+        ></slot>
       </div>
-    </div>
+    </template>
+    <template #content>
+      <div class="bg-white rounded w-full min-w-40">
+        <div class="p-1 max-h-64 overflow-auto text-sm">
+          <div v-if="isLoading" class="p-2 text-gray-600 italic">
+            {{ t('Loading...') }}
+          </div>
+          <div
+            v-if="!isLoading && dropdownItems.length === 0"
+            class="p-2 text-gray-600 italic"
+          >
+            {{ getEmptyMessage() }}
+          </div>
+          <template v-else>
+            <div v-for="d in dropdownItems" :key="d.label">
+              <div
+                v-if="d.isGroup"
+                class="
+                  px-2
+                  pt-3
+                  pb-1
+                  text-xs
+                  uppercase
+                  text-gray-700
+                  font-semibold
+                  tracking-wider
+                "
+              >
+                {{ d.label }}
+              </div>
+              <a
+                v-else
+                ref="items"
+                class="
+                  block
+                  p-2
+                  rounded-md
+                  mt-1
+                  first:mt-0
+                  cursor-pointer
+                  truncate
+                "
+                :class="d.index === highlightedIndex ? 'bg-gray-100' : ''"
+                @mouseenter="highlightedIndex = d.index"
+                @mouseleave="highlightedIndex = -1"
+                @mousedown.prevent
+                @click="selectItem(d)"
+              >
+                <component :is="d.component" v-if="d.component" />
+                <template v-else>{{ d.label }}</template>
+              </a>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
   </Popover>
 </template>
 

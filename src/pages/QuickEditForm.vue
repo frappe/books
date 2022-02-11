@@ -88,7 +88,7 @@ import { openQuickEdit, getActionsForDocument } from '@/utils';
 
 export default {
   name: 'QuickEditForm',
-  props: ['doctype', 'name', 'values', 'hideFields', 'showFields'],
+  props: ['doctype', 'name', 'valueJSON', 'hideFields', 'showFields'],
   components: {
     Button,
     FormControl,
@@ -106,9 +106,17 @@ export default {
       },
     };
   },
+  mounted() {
+    if (!this.valueJSON) {
+      return;
+    }
+
+    this.values = JSON.parse(this.valueJSON);
+  },
   data() {
     return {
       doc: null,
+      values: null,
       titleField: null,
       imageField: null,
       statusText: null,

@@ -1,9 +1,11 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
-      <h1 slot="title" class="text-2xl font-bold">
-        {{ t('Setup your workspace') }}
-      </h1>
+      <template #title>
+        <h1 class="text-2xl font-bold">
+          {{ t('Setup your workspace') }}
+        </h1>
+      </template>
     </PageHeader>
     <div class="px-8">
       <div class="border-t"></div>
@@ -91,6 +93,7 @@ import { openSettings } from '@/utils';
 import { ipcRenderer } from 'electron';
 import { IPC_MESSAGES } from '@/messages';
 import { routeTo } from '@/utils';
+import { h } from 'vue';
 
 export default {
   name: 'GetStarted',
@@ -391,9 +394,9 @@ export default {
       let size = completed ? '24' : '18';
       return {
         name,
-        render(h) {
+        render() {
           return h(Icon, {
-            props: Object.assign(
+            ...Object.assign(
               {
                 name,
                 size,

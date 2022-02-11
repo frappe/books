@@ -1,16 +1,18 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
-      <h1 slot="title" class="text-2xl font-bold">
-        {{ t('Chart of Accounts') }}
-      </h1>
-      <template slot="actions">
+      <template #title>
+        <h1 class="text-2xl font-bold">
+          {{ t('Chart of Accounts') }}
+        </h1>
+      </template>
+      <template #actions>
         <SearchBar class="ml-2" />
       </template>
     </PageHeader>
     <div class="flex-1 flex px-8 overflow-y-auto">
       <div class="flex-1" v-if="root">
-        <template v-for="account in allAccounts">
+        <div v-for="account in allAccounts" :key="account.name">
           <div
             class="
               mt-2
@@ -25,7 +27,6 @@
               account.level !== 0 ? 'text-base' : 'text-lg',
               isQuickEditOpen(account) ? 'bg-gray-200' : '',
             ]"
-            :key="account.name"
             @click="onClick(account)"
           >
             <div class="flex items-center" :class="`pl-${account.level * 8}`">
@@ -47,7 +48,7 @@
                       hover:text-gray-900
                       focus:outline-none
                     "
-                    @click.stop="addAccount(account, 'addingAccount')"
+                    @click="addAccount(account, 'addingAccount')"
                   >
                     {{ t('Add Account') }}
                   </button>
@@ -58,7 +59,7 @@
                       hover:text-gray-900
                       focus:outline-none
                     "
-                    @click.stop="addAccount(account, 'addingGroupAccount')"
+                    @click="addAccount(account, 'addingGroupAccount')"
                   >
                     {{ t('Add Group') }}
                   </button>
@@ -122,7 +123,7 @@
               </div>
             </div>
           </div>
-        </template>
+        </div>
       </div>
     </div>
   </div>

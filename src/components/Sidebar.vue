@@ -48,9 +48,10 @@
             :class="isActiveGroup(group) && !group.items ? 'bg-white' : ''"
             @click="onGroupClick(group)"
           >
-            <component
-              :is="group.icon"
-              class="w-5 h-5"
+            <Icon
+              :name="group.icon"
+              :size="group.iconSize || '18'"
+              :height="group.iconHeight"
               :active="isActiveGroup(group)"
             />
             <div
@@ -102,9 +103,11 @@ import WindowControls from './WindowControls';
 import { routeTo } from '@/utils';
 import path from 'path';
 import router from '../router';
+import Icon from './Icon.vue';
 
 export default {
   components: [Button],
+  emits: ['change-db-file'],
   data() {
     return {
       companyName: '',
@@ -123,6 +126,7 @@ export default {
   },
   components: {
     WindowControls,
+    Icon,
   },
   async mounted() {
     this.companyName = await sidebarConfig.getTitle();
@@ -168,7 +172,7 @@ export default {
     routeTo,
     reportIssue,
     setActiveGroup() {
-      const { fullPath } = this.$router.currentRoute;
+      const { fullPath } = this.$router.currentRoute.value;
       const fallBackGroup = this.activeGroup;
       this.activeGroup = this.groups.find((g) => {
         if (fullPath.startsWith(g.route) && g.route !== '/') {

@@ -20,10 +20,10 @@
 
 <script>
 import { runWindowAction } from '@/utils';
-import { ipcRenderer } from 'electron';
 
 export default {
   name: 'WindowControls',
+  emits: ['close', 'minimize', 'maximize', 'unmaximize'],
   props: {
     buttons: {
       type: Array,

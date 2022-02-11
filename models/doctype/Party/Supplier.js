@@ -1,6 +1,6 @@
 import router from '@/router';
-import frappe from 'frappe';
-import { t } from 'frappe';
+import frappe, { t } from 'frappe';
+import { h } from 'vue';
 import PartyWidget from './PartyWidget.vue';
 
 export default {
@@ -44,9 +44,9 @@ export default {
     },
   ],
   quickEditWidget: (doc) => ({
-    render(h) {
+    render() {
       return h(PartyWidget, {
-        props: { doc },
+        doc,
       });
     },
   }),
