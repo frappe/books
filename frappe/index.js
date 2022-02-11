@@ -56,9 +56,12 @@ module.exports = {
       display = parseInt(display);
     }
 
-    const moneyMaker = getMoneyMaker({ currency, precision, display });
-    // Pesa uses private fields, Vue does deep conversions to Proxy, ∴
-    this.pesa = (...args) => markRaw(moneyMaker(...args));
+    this.pesa = getMoneyMaker({
+      currency,
+      precision,
+      display,
+      wrapper: markRaw,
+    });
   },
 
   init(force) {

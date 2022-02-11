@@ -8564,9 +8564,9 @@ performance-now@^2.1.0:
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
 pesa@^1.1.3:
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/pesa/-/pesa-1.1.3.tgz#cddd43b02a1db55cd6fb7b220257d33a268588a4"
-  integrity sha512-WcgR2zb5h8h+k9JQb+xkLsYkdMuoxqKgqWm5uTcbi3EGNg3r0tfzcvIBpRYLtZ6TtICbyCRZxWi0WXCh5jSw0A==
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/pesa/-/pesa-1.1.6.tgz#a123dc7a31c977bbfb6dbbee14a9913c8385cd0f"
+  integrity sha512-EDs4Tj8QX7hZITkKhfHeVT/9oQRqRPyF3pVet1FqGX94/zkcqreBYb94ojUVrzZmir26+IHaKyCpTB6eqC04uw==
 
 pg-connection-string@2.5.0:
   version "2.5.0"
