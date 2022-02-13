@@ -15,7 +15,7 @@ export async function getExchangeRate({ fromCurrency, toCurrency, date }) {
   if (!exchangeRate) {
     try {
       let res = await fetch(
-        `https://api.vatcomply.com/${date}?base=${fromCurrency}&symbols=${toCurrency}`
+        ` https://api.vatcomply.com/rates?date=${date}&base=${fromCurrency}&symbols=${toCurrency}`
       );
       let data = await res.json();
       exchangeRate = data.rates[toCurrency];
