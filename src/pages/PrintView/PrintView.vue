@@ -10,10 +10,10 @@
             class="text-gray-900 text-xs ml-2"
             @click="showCustomiser = !showCustomiser"
           >
-            {{ t('Customise') }}
+            {{ t`Customise` }}
           </Button>
           <Button class="text-gray-900 text-xs ml-2" @click="makePDF">
-            {{ t('Save as PDF') }}
+            {{ t`Save as PDF` }}
           </Button>
         </template>
       </PageHeader>
@@ -41,7 +41,7 @@
     </div>
     <div class="border-l w-80" v-if="showCustomiser">
       <div class="mt-4 px-4 flex items-center justify-between">
-        <h2 class="font-semibold">{{ t('Customise') }}</h2>
+        <h2 class="font-semibold">{{ t`Customise` }}</h2>
         <Button :icon="true" @click="showCustomiser = false">
           <feather-icon name="x" class="w-4 h-4" />
         </Button>

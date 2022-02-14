@@ -1,7 +1,7 @@
 <template>
   <div class="py-4" v-if="pendingInvoices.length">
     <div class="px-4 text-sm text-gray-600 mb-1">
-      {{ t('Recent Invoices') }}
+      {{ t`Recent Invoices` }}
     </div>
     <div
       class="px-4 py-3 border-b hover:bg-gray-100 cursor-pointer"

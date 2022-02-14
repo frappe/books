@@ -31,7 +31,7 @@
           >
             {{ frappe.format(invoice.paid, 'Currency') }}
             <span :class="{ 'text-gray-900': invoice.hasData }">{{
-              t('Paid')
+              t`Paid`
             }}</span>
           </div>
           <div
@@ -40,7 +40,7 @@
           >
             {{ frappe.format(invoice.unpaid, 'Currency') }}
             <span :class="{ 'text-gray-900': invoice.hasData }">{{
-              t('Unpaid')
+              t`Unpaid`
             }}</span>
           </div>
         </div>

@@ -67,11 +67,10 @@ export default {
         value: 'Create',
         action: () => this.openNewDoc(),
         component: markRaw({
-          template: `
-                <div class="flex items-center font-semibold">{{ t('Create') }}
-                  <Badge color="blue" class="ml-2" v-if="isNewValue">{{ linkValue }}</Badge>
-                </div>
-            `,
+          template:
+            '<div class="flex items-center font-semibold">{{ t`Create` }}' +
+            '<Badge color="blue" class="ml-2" v-if="isNewValue">{{ linkValue }}</Badge>' +
+            '</div>',
           computed: {
             linkValue: () => this.linkValue,
             isNewValue: () => {

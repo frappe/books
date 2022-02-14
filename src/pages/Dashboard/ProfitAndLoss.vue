@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template #title>{{ t('Profit and Loss') }}</template>
+      <template #title>{{ t`Profit and Loss` }}</template>
       <template #action>
         <PeriodSelector
           :value="period"
@@ -22,7 +22,7 @@
     />
     <div class="flex-1 w-full h-full flex-center my-20" v-else>
       <span class="text-base text-gray-600">
-        {{ t('No transactions yet') }}
+        {{ t`No transactions yet` }}
       </span>
     </div>
   </div>

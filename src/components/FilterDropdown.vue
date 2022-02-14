@@ -9,7 +9,7 @@
               {{ filterAppliedMessage }}
             </template>
             <template v-else>
-              {{ t('Filter') }}
+              {{ t`Filter` }}
             </template>
           </span>
         </span>
@@ -89,7 +89,7 @@
           </template>
           <template v-else>
             <span class="text-base text-gray-600">{{
-              t('No filters selected')
+              t`No filters selected`
             }}</span>
           </template>
         </div>
@@ -108,7 +108,7 @@
           @click="addNewFilter"
         >
           <feather-icon name="plus" class="w-4 h-4" />
-          <span class="ml-2">{{ t('Add a filter') }}</span>
+          <span class="ml-2">{{ t`Add a filter` }}</span>
         </div>
       </div>
     </template>
