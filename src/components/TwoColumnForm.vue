@@ -25,14 +25,14 @@
           />
           <div class="flex px-4 pb-2">
             <Button class="w-1/2 text-gray-900" @click="inlineEditField = null">
-              {{ t('Cancel') }}
+              {{ t`Cancel` }}
             </Button>
             <Button
               type="primary"
               class="ml-2 w-1/2 text-white"
               @click="() => saveInlineEditDoc(df)"
             >
-              {{ df.inlineSaveText || t('Save') }}
+              {{ df.inlineSaveText || t`Save` }}
             </Button>
           </div>
         </div>

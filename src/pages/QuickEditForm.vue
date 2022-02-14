@@ -19,7 +19,7 @@
           v-if="doc && doc._notInserted"
           class="ml-2 text-white text-xs"
         >
-          {{ t('Save') }}
+          {{ t`Save` }}
         </Button>
         <Button
           :icon="true"
@@ -35,7 +35,7 @@
           "
           class="ml-2 text-white text-xs"
         >
-          {{ t('Submit') }}
+          {{ t`Submit` }}
         </Button>
       </div>
     </div>

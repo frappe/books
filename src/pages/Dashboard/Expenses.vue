@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full">
     <SectionHeader>
-      <template #title>{{ t('Top Expenses') }}</template>
+      <template #title>{{ t`Top Expenses` }}</template>
       <template #action>
         <PeriodSelector :value="period" @change="(value) => (period = value)" />
       </template>
@@ -32,7 +32,7 @@
         :thickness="11.5"
         :text-offset-x="6.5"
         :value-formatter="(value) => frappe.format(value, 'Currency')"
-        :total-label="t('Total Spending')"
+        :total-label="t`Total Spending`"
         @change="(value) => (active = value)"
       />
     </div>
@@ -41,7 +41,7 @@
       class="flex-1 w-full h-full flex-center my-20"
     >
       <span class="text-base text-gray-600">
-        {{ t('No expenses in this period') }}
+        {{ t`No expenses in this period` }}
       </span>
     </div>
   </div>

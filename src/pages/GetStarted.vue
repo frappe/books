@@ -3,7 +3,7 @@
     <PageHeader>
       <template #title>
         <h1 class="text-2xl font-bold">
-          {{ t('Setup your workspace') }}
+          {{ t`Setup your workspace` }}
         </h1>
       </template>
     </PageHeader>
@@ -61,7 +61,7 @@
                   @click="handleAction(item)"
                 >
                   <span class="text-base text-white">
-                    {{ item.actionLabel || t('Setup') }}
+                    {{ item.actionLabel || t`Setup` }}
                   </span>
                 </Button>
                 <Button
@@ -71,7 +71,7 @@
                   @click="handleDocumentation(item)"
                 >
                   <span class="text-base">
-                    {{ t('Documentation') }}
+                    {{ t`Documentation` }}
                   </span>
                 </Button>
               </div>

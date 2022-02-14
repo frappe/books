@@ -2,15 +2,15 @@
   <div class="mx-4">
     <template v-if="hasData">
       <div class="flex items-center justify-between">
-        <div class="font-medium">{{ t('Cashflow') }}</div>
+        <div class="font-medium">{{ t`Cashflow` }}</div>
         <div class="flex text-base">
           <div class="flex items-center">
             <span class="w-3 h-3 rounded-sm inline-block bg-blue-500"></span>
-            <span class="ml-2 text-gray-900">{{ t('Inflow') }}</span>
+            <span class="ml-2 text-gray-900">{{ t`Inflow` }}</span>
           </div>
           <div class="flex items-center ml-6">
             <span class="w-3 h-3 rounded-sm inline-block bg-gray-500"></span>
-            <span class="ml-2 text-gray-900">{{ t('Outflow') }}</span>
+            <span class="ml-2 text-gray-900">{{ t`Outflow` }}</span>
           </div>
         </div>
         <PeriodSelector
@@ -43,7 +43,7 @@
       </defs>
       <g fill="none" fill-rule="evenodd">
         <text fill="#112B42" class="font-medium">
-          <tspan y="16">{{ t('Cashflow') }}</tspan>
+          <tspan y="16">{{ t`Cashflow` }}</tspan>
         </text>
         <g fill="#E9E9ED">
           <path d="M371 2h12v12h-12zM391 2h53v12h-53z" />

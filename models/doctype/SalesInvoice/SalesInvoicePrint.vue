@@ -6,15 +6,15 @@
         <f-button
           primary
           @click="$emit('send', $refs.printComponent.innerHTML)"
-          >{{ t('Send') }}</f-button
+          >{{ t`Send` }}</f-button
         >
         <f-button secondary @click="toggleCustomizer">{{
-          t('Customize')
+          t`Customize`
         }}</f-button>
         <f-button
           secondary
           @click="$emit('makePDF', $refs.printComponent.innerHTML)"
-          >{{ t('PDF') }}</f-button
+          >{{ t`PDF` }}</f-button
         >
       </div>
     </div>
