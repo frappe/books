@@ -80,16 +80,19 @@ export default {
       fieldsChanged: [],
       tabs: [
         {
+          key: 'Invoice',
           label: t`Invoice`,
           icon: 'invoice',
           component: markRaw(TabInvoice),
         },
         {
+          key: 'General',
           label: t`General`,
           icon: 'general',
           component: markRaw(TabGeneral),
         },
         {
+          key: 'System',
           label: t`System`,
           icon: 'system',
           component: markRaw(TabSystem),
@@ -134,7 +137,7 @@ export default {
     },
     setActiveTab() {
       const { tab } = this.$route.query;
-      const index = this.tabs.findIndex((i) => i.label === t(tab || 'Invoice'));
+      const index = this.tabs.findIndex((i) => i.key === tab || 'Invoice');
       if (index !== -1) {
         this.activeTab = index;
       }
