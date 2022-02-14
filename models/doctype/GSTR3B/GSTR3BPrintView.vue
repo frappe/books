@@ -5,7 +5,7 @@
         <f-button
           primary
           @click="$emit('makePDF', $refs.printComponent.innerHTML)"
-          >{{ t('PDF') }}</f-button
+          >{{ t`PDF` }}</f-button
         >
       </div>
     </div>

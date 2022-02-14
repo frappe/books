@@ -21,14 +21,14 @@
           class="text-white text-xs ml-2"
           @click="onSaveClick"
         >
-          {{ t('Save') }}
+          {{ t`Save` }}
         </Button>
         <Button
           v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
           type="primary"
           class="text-white text-xs ml-2"
           @click="onSubmitClick"
-          >{{ t('Submit') }}</Button
+          >{{ t`Submit` }}</Button
         >
       </template>
     </PageHeader>
@@ -65,8 +65,8 @@
               {{
                 doc._notInserted
                   ? doc.doctype === 'SalesInvoice'
-                    ? t('New Invoice')
-                    : t('New Bill')
+                    ? t`New Invoice`
+                    : t`New Bill`
                   : doc.name
               }}
             </h1>
@@ -134,7 +134,7 @@
           </div>
           <div class="w-64">
             <div class="flex pl-2 justify-between py-3 border-b">
-              <div>{{ t('Subtotal') }}</div>
+              <div>{{ t`Subtotal` }}</div>
               <div>{{ formattedValue('netTotal') }}</div>
             </div>
             <div
@@ -164,7 +164,7 @@
                 text-base
               "
             >
-              <div>{{ t('Grand Total') }}</div>
+              <div>{{ t`Grand Total` }}</div>
               <div>{{ formattedValue('grandTotal') }}</div>
             </div>
             <div
@@ -180,7 +180,7 @@
                 text-base
               "
             >
-              <div>{{ t('Outstanding Amount') }}</div>
+              <div>{{ t`Outstanding Amount` }}</div>
               <div>{{ formattedValue('outstandingAmount') }}</div>
             </div>
           </div>

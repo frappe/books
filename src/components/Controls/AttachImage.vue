@@ -50,7 +50,7 @@
       v-show="showEdit"
       class="absolute bottom-0 text-gray-500 text-center text-xs pt-3 pb-1"
     >
-      {{ t('Edit') }}
+      {{ t`Edit` }}
     </div>
   </div>
 </template>

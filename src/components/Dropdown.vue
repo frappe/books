@@ -18,7 +18,7 @@
       <div class="bg-white rounded w-full min-w-40">
         <div class="p-1 max-h-64 overflow-auto text-sm">
           <div v-if="isLoading" class="p-2 text-gray-600 italic">
-            {{ t('Loading...') }}
+            {{ t`Loading...` }}
           </div>
           <div
             v-if="!isLoading && dropdownItems.length === 0"

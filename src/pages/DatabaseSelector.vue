@@ -9,15 +9,15 @@
     <div class="w-full">
       <div class="px-12">
         <h1 class="text-2xl font-semibold">
-          {{ t('Welcome to Frappe Books') }}
+          {{ t`Welcome to Frappe Books` }}
         </h1>
         <p class="text-gray-600 text-base" v-if="!showFiles">
           {{
-            t('Create a new file or select an existing one from your computer')
+            t`Create a new file or select an existing one from your computer`
           }}
         </p>
         <p class="text-gray-600 text-base" v-if="showFiles">
-          {{ t('Select a file to load the company transactions') }}
+          {{ t`Select a file to load the company transactions` }}
         </p>
       </div>
       <div class="px-12 mt-10 window-no-drag" v-if="!showFiles">
@@ -49,14 +49,14 @@
               <template
                 v-if="loadingDatabase && fileSelectedFrom === 'New File'"
               >
-                {{ t('Loading...') }}
+                {{ t`Loading...` }}
               </template>
               <template v-else>
-                {{ t('New File') }}
+                {{ t`New File` }}
               </template>
             </div>
             <div class="mt-2 text-sm text-gray-600 text-center">
-              {{ t('Create a new file and store it in your computer.') }}
+              {{ t`Create a new file and store it in your computer.` }}
             </div>
           </div>
           <div
@@ -85,14 +85,14 @@
               <template
                 v-if="loadingDatabase && fileSelectedFrom === 'Existing File'"
               >
-                {{ t('Loading...') }}
+                {{ t`Loading...` }}
               </template>
               <template v-else>
-                {{ t('Existing File') }}
+                {{ t`Existing File` }}
               </template>
             </div>
             <div class="mt-2 text-sm text-gray-600 text-center">
-              {{ t('Load an existing .db file from your computer.') }}
+              {{ t`Load an existing .db file from your computer.` }}
             </div>
           </div>
         </div>
@@ -127,7 +127,7 @@
             <div class="flex items-baseline">
               <span>
                 <template v-if="loadingDatabase && fileSelectedFrom === file">
-                  {{ t('Loading...') }}
+                  {{ t`Loading...` }}
                 </template>
                 <template v-else>
                   {{ file.companyName }}

@@ -43,7 +43,7 @@
           'px-3 py-4': size !== 'small',
         }"
       >
-        {{ t('Add Row') }}
+        {{ t`Add Row` }}
       </div>
       <div v-for="i in ratio.slice(3).length" :key="i"></div>
       <div

@@ -13,7 +13,7 @@
           class="text-white text-xs ml-2"
           @click="onSaveClick"
         >
-          {{ t('Save') }}
+          {{ t`Save` }}
         </Button>
         <Button
           v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
@@ -21,7 +21,7 @@
           class="text-white text-xs ml-2"
           @click="onSubmitClick"
         >
-          {{ t('Submit') }}
+          {{ t`Submit` }}
         </Button>
       </template>
     </PageHeader>
@@ -33,7 +33,7 @@
         <div>
           <div class="mt-8 px-6">
             <h1 class="text-2xl font-semibold">
-              {{ doc._notInserted ? t('New Journal Entry') : doc.name }}
+              {{ doc._notInserted ? t`New Journal Entry` : doc.name }}
             </h1>
             <div class="flex justify-between mt-2">
               <div class="w-1/3">

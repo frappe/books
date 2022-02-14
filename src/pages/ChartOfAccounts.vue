@@ -3,7 +3,7 @@
     <PageHeader>
       <template #title>
         <h1 class="text-2xl font-bold">
-          {{ t('Chart of Accounts') }}
+          {{ t`Chart of Accounts` }}
         </h1>
       </template>
       <template #actions>
@@ -50,7 +50,7 @@
                     "
                     @click="addAccount(account, 'addingAccount')"
                   >
-                    {{ t('Add Account') }}
+                    {{ t`Add Account` }}
                   </button>
                   <button
                     class="
@@ -61,7 +61,7 @@
                     "
                     @click="addAccount(account, 'addingGroupAccount')"
                   >
-                    {{ t('Add Group') }}
+                    {{ t`Add Group` }}
                   </button>
                 </div>
               </div>
@@ -93,7 +93,7 @@
                   <input
                     class="focus:outline-none bg-transparent"
                     :class="{ 'text-gray-600': insertingAccount }"
-                    :placeholder="t('New Account')"
+                    :placeholder="t`New Account`"
                     :ref="account.name"
                     @keydown.esc="cancelAddingAccount(account)"
                     @keydown.enter="
@@ -117,7 +117,7 @@
                     "
                     @click="cancelAddingAccount(account)"
                   >
-                    {{ t('Cancel') }}
+                    {{ t`Cancel` }}
                   </button>
                 </div>
               </div>
