@@ -19,7 +19,7 @@
       </PageHeader>
       <div
         v-if="doc && printSettings"
-        class="flex justify-center flex-1 -mt-32 overflow-auto relative"
+        class="flex justify-center flex-1 -mt-36 overflow-auto relative"
       >
         <div
           class="h-full shadow-lg mb-12 absolute"
@@ -27,7 +27,7 @@
             width: 21cm;
             min-height: 29.7cm;
             height: max-content;
-            transform: scale(0.755);
+            transform: scale(0.7);
           "
           ref="printContainer"
         >
