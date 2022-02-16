@@ -1,8 +1,8 @@
-import frappe from 'frappe';
+import frappe, { t } from 'frappe';
 
 export default {
   name: 'EmailAccount',
-  label: 'Email Account',
+  label: t`Email Account`,
   doctype: 'DocType',
   isSingle: true,
   isChild: false,
@@ -10,7 +10,7 @@ export default {
   fields: [
     {
       fieldname: 'email',
-      label: 'Email',
+      label: t`Email`,
       fieldtype: 'Data',
       required: 1,
       formula: async () => {
@@ -20,19 +20,19 @@ export default {
     },
     {
       fieldname: 'password',
-      label: 'Password',
+      label: t`Password`,
       fieldtype: 'Password',
       required: 1,
     },
     {
       fieldname: 'confirmPassword',
-      label: 'Confirm Password',
+      label: t`Confirm Password`,
       fieldtype: 'Password',
       required: 1,
     },
     {
       fieldname: 'smtpHost',
-      label: 'SMTP Host',
+      label: t`SMTP Host`,
       fieldtype: 'Select',
       options: [
         'smtp.gmail.com',
@@ -45,7 +45,7 @@ export default {
     },
     {
       fieldname: 'smtpPort',
-      label: 'SMTP Port',
+      label: t`SMTP Port`,
       fieldtype: 'Select',
       options: ['465', '587'],
       default: '465',

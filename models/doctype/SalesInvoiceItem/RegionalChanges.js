@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 import { cloneDeep } from 'lodash';
 import SalesInvoiceItemOriginal from './SalesInvoiceItem';
 
@@ -12,7 +13,7 @@ export default function getAugmentedSalesInvoiceItem({ country }) {
       ...SalesInvoiceItem.fields,
       {
         fieldname: 'hsnCode',
-        label: 'HSN/SAC',
+        label: t`HSN/SAC`,
         fieldtype: 'Int',
         formula: (row, doc) => doc.getFrom('Item', row.item, 'hsnCode'),
         formulaDependsOn: ['item'],

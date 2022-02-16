@@ -8,7 +8,7 @@ export default {
   columns: [
     'date',
     {
-      label: 'Status',
+      label: t`Status`,
       fieldtype: 'Select',
       size: 'small',
       render(doc) {
@@ -31,7 +31,7 @@ export default {
       },
     },
     {
-      label: 'Entry ID',
+      label: t`Entry ID`,
       fieldname: 'name',
       fieldtype: 'Data',
       getValue(doc) {

@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 export default {
   name: 'TaxSummary',
   doctype: 'DocType',
@@ -5,26 +6,26 @@ export default {
   fields: [
     {
       fieldname: 'account',
-      label: 'Tax Account',
+      label: t`Tax Account`,
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
     },
     {
       fieldname: 'rate',
-      label: 'Rate',
+      label: t`Rate`,
       fieldtype: 'Float',
       required: 1,
     },
     {
       fieldname: 'amount',
-      label: 'Amount',
+      label: t`Amount`,
       fieldtype: 'Currency',
       required: 1,
     },
     {
       fieldname: 'baseAmount',
-      label: 'Amount (Company Currency)',
+      label: t`Amount (Company Currency)`,
       fieldtype: 'Currency',
       formula: (row, doc) => row.amount.mul(doc.exchangeRate),
       readOnly: 1,

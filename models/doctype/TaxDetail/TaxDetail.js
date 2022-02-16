@@ -1,6 +1,7 @@
+import { t } from 'frappe';
 export default {
   name: 'TaxDetail',
-  label: 'Tax Detail',
+  label: t`Tax Detail`,
   doctype: 'DocType',
   isSingle: 0,
   isChild: 1,
@@ -8,21 +9,18 @@ export default {
   fields: [
     {
       fieldname: 'account',
-      label: 'Tax Account',
+      label: t`Tax Account`,
       fieldtype: 'Link',
       target: 'Account',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'rate',
-      label: 'Rate',
+      label: t`Rate`,
       fieldtype: 'Float',
       required: 1,
-      placeholder: '0%'
-    }
+      placeholder: '0%',
+    },
   ],
-  tableFields: [
-    'account',
-    'rate'
-  ]
+  tableFields: ['account', 'rate'],
 };

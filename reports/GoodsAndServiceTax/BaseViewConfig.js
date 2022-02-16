@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 import { DateTime } from 'luxon';
 import { stateCodeMap } from '../../accounting/gst';
 import { titleCase } from '../../src/utils';
@@ -8,7 +9,7 @@ export default {
   filterFields: [
     {
       fieldtype: 'AutoComplete',
-      label: 'Place',
+      label: t`Place`,
       size: 'small',
       placeholder: 'Place',
       fieldname: 'place',
@@ -16,7 +17,7 @@ export default {
     },
     {
       fieldtype: 'Date',
-      label: 'From Date',
+      label: t`From Date`,
       size: 'small',
       placeholder: 'From Date',
       fieldname: 'fromDate',
@@ -24,7 +25,7 @@ export default {
     },
     {
       fieldtype: 'Date',
-      label: 'To Date',
+      label: t`To Date`,
       size: 'small',
       placeholder: 'To Date',
       fieldname: 'toDate',
@@ -34,59 +35,59 @@ export default {
   getColumns({ filters }) {
     const columns = [
       {
-        label: 'Party',
+        label: t`Party`,
         fieldtype: 'Data',
         fieldname: 'partyName',
         width: 1.5,
       },
       {
-        label: 'Invoice No.',
+        label: t`Invoice No.`,
         fieldname: 'invNo',
         fieldtype: 'Data',
       },
       {
-        label: 'Invoice Value',
+        label: t`Invoice Value`,
         fieldname: 'invAmt',
         fieldtype: 'Currency',
       },
       {
-        label: 'Invoice Date',
+        label: t`Invoice Date`,
         fieldname: 'invDate',
         fieldtype: 'Date',
       },
       {
-        label: 'Place of supply',
+        label: t`Place of supply`,
         fieldname: 'place',
         fieldtype: 'Data',
       },
       {
-        label: 'Rate',
+        label: t`Rate`,
         fieldname: 'rate',
         fieldtype: 'Data',
         width: 0.5,
       },
       {
-        label: 'Taxable Value',
+        label: t`Taxable Value`,
         fieldname: 'taxVal',
         fieldtype: 'Currency',
       },
       {
-        label: 'Reverse Chrg.',
+        label: t`Reverse Chrg.`,
         fieldname: 'reverseCharge',
         fieldtype: 'Data',
       },
       {
-        label: 'Intergrated Tax',
+        label: t`Intergrated Tax`,
         fieldname: 'igstAmt',
         fieldtype: 'Currency',
       },
       {
-        label: 'Central Tax',
+        label: t`Central Tax`,
         fieldname: 'cgstAmt',
         fieldtype: 'Currency',
       },
       {
-        label: 'State Tax',
+        label: t`State Tax`,
         fieldname: 'sgstAmt',
         fieldtype: 'Currency',
       },
@@ -95,7 +96,7 @@ export default {
     const transferType = filters.transferType || 'B2B';
     if (transferType === 'B2B') {
       columns.unshift({
-        label: 'GSTIN No.',
+        label: t`GSTIN No.`,
         fieldname: 'gstin',
         fieldtype: 'Data',
         width: 1.5,

@@ -1,6 +1,7 @@
 const title = 'GSTR 2';
-import baseConfig from './BaseViewConfig';
+import { t } from 'frappe';
 import { generateGstr2Csv } from '../../accounting/gst';
+import baseConfig from './BaseViewConfig';
 
 const transferTypeMap = {
   B2B: 'B2B',
@@ -8,7 +9,7 @@ const transferTypeMap = {
 
 const transferType = {
   fieldtype: 'Select',
-  label: 'Transfer Type',
+  label: t`Transfer Type`,
   placeholder: 'Transfer Type',
   fieldname: 'transferType',
   options: Object.keys(transferTypeMap),
@@ -20,13 +21,13 @@ const transferType = {
 const actions = [
   {
     group: 'Export',
-    label: 'CSV',
+    label: t`CSV`,
     type: 'primary',
     action: async (report, filters) => {
       generateGstr2Csv(report, filters);
     },
   },
-]
+];
 
 export default {
   title: title,

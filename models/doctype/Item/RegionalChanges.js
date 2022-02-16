@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 import { cloneDeep } from 'lodash';
 import ItemOriginal from './Item';
 
@@ -8,13 +9,13 @@ export default function getAugmentedItem({ country }) {
   }
 
   if (country === 'India') {
-    const nameFieldIndex = Item.fields.findIndex(i => i.fieldname === 'name');
+    const nameFieldIndex = Item.fields.findIndex((i) => i.fieldname === 'name');
 
     Item.fields = [
       ...Item.fields.slice(0, nameFieldIndex + 1),
       {
         fieldname: 'hsnCode',
-        label: 'HSN/SAC',
+        label: t`HSN/SAC`,
         fieldtype: 'Int',
         placeholder: 'HSN/SAC Code',
       },

@@ -1,9 +1,10 @@
 const { indicators } = require('../../../../src/colors');
 const { BLUE, GREEN } = indicators;
+const { t } = require('frappe');
 
 module.exports = {
   name: 'ToDo',
-  label: 'To Do',
+  label: t`To Do`,
   naming: 'autoincrement',
   isSingle: 0,
   keywordFields: ['subject', 'description'],
@@ -18,14 +19,14 @@ module.exports = {
   fields: [
     {
       fieldname: 'subject',
-      label: 'Subject',
+      label: t`Subject`,
       placeholder: 'Subject',
       fieldtype: 'Data',
       required: 1,
     },
     {
       fieldname: 'status',
-      label: 'Status',
+      label: t`Status`,
       fieldtype: 'Select',
       options: ['Open', 'Closed'],
       default: 'Open',
@@ -33,7 +34,7 @@ module.exports = {
     },
     {
       fieldname: 'description',
-      label: 'Description',
+      label: t`Description`,
       fieldtype: 'Text',
     },
   ],
@@ -42,7 +43,7 @@ module.exports = {
 
   actions: [
     {
-      label: 'Close',
+      label: t`Close`,
       condition: (doc) => doc.status !== 'Closed',
       action: async (doc) => {
         await doc.set('status', 'Closed');
@@ -50,7 +51,7 @@ module.exports = {
       },
     },
     {
-      label: 'Re-Open',
+      label: t`Re-Open`,
       condition: (doc) => doc.status !== 'Open',
       action: async (doc) => {
         await doc.set('status', 'Open');

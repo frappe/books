@@ -45,6 +45,7 @@ import frappe from 'frappe';
 import reports from '../../reports/view';
 import Dropdown from '@/components/Dropdown';
 import { routeTo } from '@/utils';
+import { t } from 'frappe';
 
 export default {
   data() {
@@ -69,7 +70,7 @@ export default {
       });
 
       if (this.suggestions.length === 0) {
-        this.suggestions = [{ label: 'No results found.' }];
+        this.suggestions = [{ label: t`No results found.` }];
       }
     },
     clearInput() {
@@ -116,7 +117,7 @@ export default {
     getViews() {
       return [
         {
-          label: 'Chart of Accounts',
+          label: t`Chart of Accounts`,
           route: '/chartOfAccounts',
           group: 'List',
         },

@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 import model from 'frappe/model';
 import SalesInvoice from '../SalesInvoice/SalesInvoice';
 
@@ -5,7 +6,7 @@ const Quotation = model.extend(
   SalesInvoice,
   {
     name: 'Quotation',
-    label: 'Quotation',
+    label: t`Quotation`,
     settings: 'QuotationSettings',
     fields: [
       {
