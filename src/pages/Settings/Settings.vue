@@ -61,7 +61,7 @@ import Icon from '@/components/Icon';
 import PageHeader from '@/components/PageHeader';
 import StatusBadge from '@/components/StatusBadge';
 import { callInitializeMoneyMaker } from '../../utils';
-import { showToast } from '../../utils';
+import { showToast, setLanguageMap } from '../../utils';
 import { h, markRaw } from 'vue';
 
 export default {
@@ -111,10 +111,18 @@ export default {
 
     if (
       fieldnames.includes('displayPrecision') ||
-      fieldnames.includes('hideGetStarted')
+      fieldnames.includes('hideGetStarted') ||
+      fieldnames.includes('language')
     ) {
-      callInitializeMoneyMaker(undefined, true);
       this.showReloadToast();
+    }
+
+    if (fieldnames.includes('displayPrecision')) {
+      callInitializeMoneyMaker(undefined, true);
+    }
+
+    if (fieldnames.includes('language')) {
+      setLanguageMap();
     }
   },
   methods: {
