@@ -5,7 +5,7 @@ import PartyWidget from './PartyWidget.vue';
 
 export default {
   name: 'Customer',
-  label: 'Customer',
+  label: t`Customer`,
   basedOn: 'Party',
   filters: {
     customer: 1,

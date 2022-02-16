@@ -1,9 +1,10 @@
+import { t } from 'frappe';
 import model from 'frappe/model';
 import QuotationSettings from '../QuotationSettings/QuotationSettings';
 
 export default model.extend(QuotationSettings, {
   name: 'FulfillmentSettings',
-  label: 'Fulfillment Settings',
+  label: t`Fulfillment Settings`,
   fields: [
     {
       fieldname: 'numberSeries',

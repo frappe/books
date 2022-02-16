@@ -1,3 +1,5 @@
+import { t } from 'frappe';
+
 export default {
   name: 'Color',
   doctype: 'DocType',
@@ -5,12 +7,12 @@ export default {
     {
       fieldname: 'name',
       fieldtype: 'Data',
-      label: 'Color'
+      label: t`Color`,
     },
     {
       fieldname: 'hexvalue',
       fieldtype: 'Data',
-      label: 'Hex Value'
-    }
-  ]
+      label: t`Hex Value`,
+    },
+  ],
 };

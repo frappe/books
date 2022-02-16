@@ -1,6 +1,8 @@
+import { t } from 'frappe';
+
 export default {
   name: 'Currency',
-  label: 'Currency',
+  label: t`Currency`,
   doctype: 'DocType',
   isSingle: 0,
   keywordFields: ['name', 'symbol'],
@@ -8,27 +10,27 @@ export default {
   fields: [
     {
       fieldname: 'name',
-      label: 'Currency Name',
+      label: t`Currency Name`,
       fieldtype: 'Data',
       required: 1,
     },
     {
       fieldname: 'fraction',
-      label: 'Fraction',
+      label: t`Fraction`,
       fieldtype: 'Data',
     },
     {
       fieldname: 'fractionUnits',
-      label: 'Fraction Units',
+      label: t`Fraction Units`,
       fieldtype: 'Int',
     },
     {
-      label: 'Smallest Currency Fraction Value',
+      label: t`Smallest Currency Fraction Value`,
       fieldname: 'smallestValue',
       fieldtype: 'Currency',
     },
     {
-      label: 'Symbol',
+      label: t`Symbol`,
       fieldname: 'symbol',
       fieldtype: 'Data',
     },

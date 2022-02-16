@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon';
+import { t } from 'frappe';
 import EventDocument from './EventDocument';
 
 export default {
@@ -10,20 +10,20 @@ export default {
   fields: [
     {
       fieldname: 'title',
-      label: 'Title',
-      fieldtype: 'Data'
+      label: t`Title`,
+      fieldtype: 'Data',
     },
     {
       fieldname: 'date',
-      label: 'Date',
-      fieldtype: 'Date'
+      label: t`Date`,
+      fieldtype: 'Date',
     },
     {
       fieldname: 'schedule',
       fieldtype: 'Table',
       childtype: 'EventSchedule',
-      label: 'Schedule'
-    }
+      label: t`Schedule`,
+    },
   ],
   titleField: 'title',
   keywordFields: [],
@@ -34,6 +34,6 @@ export default {
     },
     getRowHTML(list, data) {
       return `<div class='col-11'>${data.title} on ${data.date}</div>`;
-    }
-  }
+    },
+  },
 };

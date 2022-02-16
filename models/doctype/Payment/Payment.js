@@ -1,9 +1,9 @@
-import frappe from 'frappe';
+import frappe, { t } from 'frappe';
 import utils from '../../../accounting/utils';
 
 export default {
   name: 'Payment',
-  label: 'Payment',
+  label: t`Payment`,
   isSingle: 0,
   isChild: 0,
   isSubmittable: 1,
@@ -12,20 +12,20 @@ export default {
   fields: [
     {
       fieldname: 'party',
-      label: 'Party',
+      label: t`Party`,
       fieldtype: 'Link',
       target: 'Party',
       required: 1,
     },
     {
       fieldname: 'date',
-      label: 'Posting Date',
+      label: t`Posting Date`,
       fieldtype: 'Date',
       default: () => new Date().toISOString(),
     },
     {
       fieldname: 'account',
-      label: 'From Account',
+      label: t`From Account`,
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
@@ -46,7 +46,7 @@ export default {
     },
     {
       fieldname: 'paymentType',
-      label: 'Payment Type',
+      label: t`Payment Type`,
       fieldtype: 'Select',
       placeholder: 'Payment Type',
       options: ['Receive', 'Pay'],
@@ -54,7 +54,7 @@ export default {
     },
     {
       fieldname: 'paymentAccount',
-      label: 'To Account',
+      label: t`To Account`,
       placeholder: 'To Account',
       fieldtype: 'Link',
       target: 'Account',
@@ -76,7 +76,7 @@ export default {
     },
     {
       fieldname: 'paymentMethod',
-      label: 'Payment Method',
+      label: t`Payment Method`,
       placeholder: 'Payment Method',
       fieldtype: 'Select',
       options: ['Cash', 'Cheque', 'Transfer'],
@@ -85,7 +85,7 @@ export default {
     },
     {
       fieldname: 'referenceId',
-      label: 'Ref. / Cheque No.',
+      label: t`Ref. / Cheque No.`,
       placeholder: 'Ref. / Cheque No.',
       fieldtype: 'Data',
       required: (doc) => doc.paymentMethod !== 'Cash', // TODO: UNIQUE
@@ -93,20 +93,20 @@ export default {
     },
     {
       fieldname: 'referenceDate',
-      label: 'Ref. Date',
+      label: t`Ref. Date`,
       placeholder: 'Ref. Date',
       fieldtype: 'Date',
     },
     {
       fieldname: 'clearanceDate',
-      label: 'Clearance Date',
+      label: t`Clearance Date`,
       placeholder: 'Clearance Date',
       fieldtype: 'Date',
       hidden: (doc) => doc.paymentMethod === 'Cash',
     },
     {
       fieldname: 'amount',
-      label: 'Amount',
+      label: t`Amount`,
       fieldtype: 'Currency',
       required: 1,
       formula: (doc) => doc.getSum('for', 'amount', false),
@@ -135,19 +135,19 @@ export default {
     },
     {
       fieldname: 'writeoff',
-      label: 'Write Off / Refund',
+      label: t`Write Off / Refund`,
       fieldtype: 'Currency',
     },
     {
       fieldname: 'for',
-      label: 'Payment Reference',
+      label: t`Payment Reference`,
       fieldtype: 'Table',
       childtype: 'PaymentFor',
       required: 0,
     },
     {
       fieldname: 'cancelled',
-      label: 'Cancelled',
+      label: t`Cancelled`,
       fieldtype: 'Check',
       default: 0,
     },

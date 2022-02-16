@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe, { t } from 'frappe';
 
 export default {
   name: 'Email',
@@ -12,7 +12,7 @@ export default {
   fields: [
     {
       fieldname: 'name',
-      label: 'name',
+      label: t`name`,
       fieldtype: 'Data',
       required: 0,
       hidden: 1,
@@ -20,7 +20,7 @@ export default {
     },
     {
       fieldname: 'fromEmailAddress',
-      label: 'From',
+      label: t`From`,
       fieldtype: 'Data',
       required: 1,
       hidden: 0,
@@ -32,7 +32,7 @@ export default {
     },
     {
       fieldname: 'toEmailAddress',
-      label: 'To',
+      label: t`To`,
       fieldtype: 'Data',
       required: 1,
       hidden: 0,
@@ -40,7 +40,7 @@ export default {
     },
     {
       fieldname: 'date',
-      label: 'Date',
+      label: t`Date`,
       fieldtype: 'Datetime',
       required: 0,
       hidden: 0,
@@ -48,7 +48,7 @@ export default {
     },
     {
       fieldname: 'subject',
-      label: 'Subject',
+      label: t`Subject`,
       fieldtype: 'Data',
       required: 0,
       hidden: 0,
@@ -56,7 +56,7 @@ export default {
     },
     {
       fieldname: 'bodyText',
-      label: 'Body',
+      label: t`Body`,
       fieldtype: 'Text',
       required: 0,
       hidden: 0,
@@ -64,7 +64,7 @@ export default {
     },
     {
       fieldname: 'filePath',
-      label: 'File Path',
+      label: t`File Path`,
       fieldtype: 'Text',
       required: 0,
       hidden: 1,

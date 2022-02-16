@@ -1,65 +1,66 @@
+import { t } from 'frappe';
 export default {
   name: 'GetStarted',
   isSingle: 1,
   fields: [
     {
       fieldname: 'onboardingComplete',
-      label: 'Onboarding Complete',
+      label: t`Onboarding Complete`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'companySetup',
-      label: 'Company Setup',
+      label: t`Company Setup`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'systemSetup',
-      label: 'System Setup',
+      label: t`System Setup`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'invoiceSetup',
-      label: 'Invoice Setup',
+      label: t`Invoice Setup`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'itemCreated',
-      label: 'Item Created',
+      label: t`Item Created`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'customerCreated',
-      label: 'Customer Created',
+      label: t`Customer Created`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'supplierCreated',
-      label: 'Supplier Created',
+      label: t`Supplier Created`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'invoiceCreated',
-      label: 'Invoice Created',
+      label: t`Invoice Created`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'billCreated',
-      label: 'Bill Created',
+      label: t`Bill Created`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'chartOfAccountsReviewed',
-      label: 'Chart Of Accounts Reviewed',
+      label: t`Chart Of Accounts Reviewed`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'openingBalanceChecked',
-      label: 'Opening Balances',
+      label: t`Opening Balances`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'taxesAdded',
-      label: 'Add Taxes',
+      label: t`Add Taxes`,
       fieldtype: 'Check',
     },
   ],

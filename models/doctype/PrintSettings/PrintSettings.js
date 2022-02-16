@@ -1,23 +1,24 @@
 import theme from '@/theme';
+import { t } from 'frappe';
 
 export default {
   name: 'PrintSettings',
-  label: 'Print Settings',
+  label: t`Print Settings`,
   isSingle: 1,
   fields: [
     {
       fieldname: 'logo',
-      label: 'Logo',
+      label: t`Logo`,
       fieldtype: 'AttachImage',
     },
     {
       fieldname: 'companyName',
-      label: 'Company Name',
+      label: t`Company Name`,
       fieldtype: 'Data',
     },
     {
       fieldname: 'email',
-      label: 'Email',
+      label: t`Email`,
       fieldtype: 'Data',
       placeholder: 'john@doe.com',
       validate: {
@@ -26,12 +27,12 @@ export default {
     },
     {
       fieldname: 'displayLogo',
-      label: 'Display Logo in Invoice',
+      label: t`Display Logo in Invoice`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'phone',
-      label: 'Phone',
+      label: t`Phone`,
       fieldtype: 'Data',
       placeholder: '9888900000',
       validate: {
@@ -40,7 +41,7 @@ export default {
     },
     {
       fieldname: 'address',
-      label: 'Address',
+      label: t`Address`,
       fieldtype: 'Link',
       target: 'Address',
       placeholder: 'Click to create',
@@ -48,7 +49,7 @@ export default {
     },
     {
       fieldname: 'template',
-      label: 'Template',
+      label: t`Template`,
       placeholder: 'Template',
       fieldtype: 'Select',
       options: ['Basic', 'Minimal', 'Business'],
@@ -56,7 +57,7 @@ export default {
     },
     {
       fieldname: 'color',
-      label: 'Color',
+      label: t`Color`,
       placeholder: 'Select Color',
       fieldtype: 'Color',
       colors: [
@@ -78,13 +79,13 @@ export default {
           };
         })
         .concat({
-          label: 'Black',
+          label: t`Black`,
           value: theme.colors['black'],
         }),
     },
     {
       fieldname: 'font',
-      label: 'Font',
+      label: t`Font`,
       placeholder: 'Font',
       fieldtype: 'Select',
       options: ['Inter', 'Times New Roman', 'Arial', 'Courier'],

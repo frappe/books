@@ -1,9 +1,10 @@
+import { t } from 'frappe';
 import countryInfo from '~/fixtures/countryInfo.json';
 
 const countryList = Object.keys(countryInfo).sort();
 export default {
   name: 'AccountingSettings',
-  label: 'Accounting Settings',
+  label: t`Accounting Settings`,
   naming: 'name', // {random|autoincrement}
   isSingle: 1,
   isChild: 0,
@@ -12,14 +13,14 @@ export default {
   keywordFields: [],
   fields: [
     {
-      label: 'Company Name',
+      label: t`Company Name`,
       fieldname: 'companyName',
       fieldtype: 'Data',
       required: 1,
     },
 
     {
-      label: 'Write Off Account',
+      label: t`Write Off Account`,
       fieldname: 'writeOffAccount',
       fieldtype: 'Link',
       target: 'Account',
@@ -33,7 +34,7 @@ export default {
     },
 
     {
-      label: 'Round Off Account',
+      label: t`Round Off Account`,
       fieldname: 'roundOffAccount',
       fieldtype: 'Link',
       target: 'Account',
@@ -48,7 +49,7 @@ export default {
 
     {
       fieldname: 'country',
-      label: 'Country',
+      label: t`Country`,
       fieldtype: 'AutoComplete',
       placeholder: 'Select Country',
       readOnly: 1,
@@ -58,7 +59,7 @@ export default {
 
     {
       fieldname: 'currency',
-      label: 'Currency',
+      label: t`Currency`,
       fieldtype: 'Data',
       readOnly: 1,
       required: 0,
@@ -66,14 +67,14 @@ export default {
 
     {
       fieldname: 'fullname',
-      label: 'Name',
+      label: t`Name`,
       fieldtype: 'Data',
       required: 1,
     },
 
     {
       fieldname: 'email',
-      label: 'Email',
+      label: t`Email`,
       fieldtype: 'Data',
       required: 1,
       validate: {
@@ -83,36 +84,36 @@ export default {
 
     {
       fieldname: 'bankName',
-      label: 'Bank Name',
+      label: t`Bank Name`,
       fieldtype: 'Data',
       required: 1,
     },
 
     {
       fieldname: 'fiscalYearStart',
-      label: 'Fiscal Year Start Date',
+      label: t`Fiscal Year Start Date`,
       fieldtype: 'Date',
       required: 1,
     },
 
     {
       fieldname: 'fiscalYearEnd',
-      label: 'Fiscal Year End Date',
+      label: t`Fiscal Year End Date`,
       fieldtype: 'Date',
       required: 1,
     },
 
     {
       fieldname: 'setupComplete',
-      label: 'Setup Complete',
+      label: t`Setup Complete`,
       fieldtype: 'Check',
       default: 0,
     },
     {
       fieldname: 'gstin',
-      label: 'GSTIN',
+      label: t`GSTIN`,
       fieldtype: 'Data',
-      placeholder: '27AAAAA0000A1Z5'
+      placeholder: '27AAAAA0000A1Z5',
     },
   ],
   quickEditFields: [
