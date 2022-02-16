@@ -7,6 +7,8 @@ const {
   DEFAULT_DISPLAY_PRECISION,
 } = require('./utils/consts');
 const { markRaw } = require('vue');
+const { ipcRenderer } = require('electron');
+const { IPC_ACTIONS } = require('@/messages');
 
 module.exports = {
   initializeAndRegister(customModels = {}, force = false) {
@@ -89,6 +91,7 @@ module.exports = {
     this.flags = {};
     this.methods = {};
     this.errorLog = [];
+    this.languages = {};
     // temp params while calling routes
     this.params = {};
   },
