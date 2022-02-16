@@ -22,13 +22,6 @@
           </keep-alive>
         </router-view>
       </div>
-      <div
-        id="toast-container"
-        class="absolute bottom-0 flex flex-col items-center mb-3"
-        style="width: calc(100% - 12rem)"
-      >
-        <div id="toast-target" />
-      </div>
     </div>
   </div>
 </template>
