@@ -4,9 +4,9 @@ import { DEFAULT_LOCALE } from 'frappe/utils/consts';
 import countryList from '~/fixtures/countryInfo.json';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
 import regionalModelUpdates from '../../../models/regionalModelUpdates';
-import { callInitializeMoneyMaker } from '../../utils';
+import { callInitializeMoneyMaker, setLanguageMap } from '../../utils';
 
-export default async function setupCompany(setupWizardValues) {
+export default async function setupCompany(setupWizardValues, language) {
   const {
     companyLogo,
     companyName,
@@ -18,6 +18,7 @@ export default async function setupCompany(setupWizardValues) {
     fiscalYearEnd,
   } = setupWizardValues;
 
+  await setLanguageMap(language);
   const accountingSettings = frappe.AccountingSettings;
   const currency = countryList[country]['currency'];
   const locale = countryList[country]['locale'] ?? DEFAULT_LOCALE;
@@ -45,12 +46,12 @@ export default async function setupCompany(setupWizardValues) {
   await setupGlobalCurrencies(countryList);
   await setupChartOfAccounts(bankName, country);
   await setupRegionalChanges(country);
-  updateCompanyNameInConfig();
+  updateInitializationConfig();
 
   await accountingSettings.update({ setupComplete: 1 });
   frappe.AccountingSettings = accountingSettings;
 
-  (await frappe.getSingle('SystemSettings')).update({ locale });
+  (await frappe.getSingle('SystemSettings')).update({ locale, language });
 }
 
 async function setupGlobalCurrencies(countries) {
@@ -109,7 +110,7 @@ async function setupRegionalChanges(country) {
   await frappe.db.migrate();
 }
 
-function updateCompanyNameInConfig() {
+function updateInitializationConfig(language) {
   let filePath = frappe.db.dbPath;
   let files = config.get('files', []);
   files.forEach((file) => {
