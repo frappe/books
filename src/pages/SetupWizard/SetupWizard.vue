@@ -165,7 +165,7 @@ export default {
         this.$emit('setup-complete');
       } else {
         const title = this.t`DB Connection Error`;
-        const content = this.t`reason: ${reason}, filePath: ${filePath}`;
+        const content = `reason: ${reason}, filePath: ${filePath}`;
         await showErrorDialog(title, content);
       }
     },

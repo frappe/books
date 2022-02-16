@@ -224,8 +224,9 @@ export default {
       }
 
       const title = this.t`DB Connection Error`;
-      let content = this
-        .t`Please select an existing database or create a new one. reason: ${reason}, filePath: ${filePath}`;
+      let content =
+        this.t`Please select an existing database or create a new one.` +
+        ` reason: ${reason}, filePath: ${filePath}`;
       if (reason === DB_CONN_FAILURE.CANT_OPEN) {
         content = this
           .t`Can't open database file: ${filePath}, please create a new file.`;
