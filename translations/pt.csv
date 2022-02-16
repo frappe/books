@@ -35,7 +35,7 @@
 `An error occurred.`,`Ocorreu um erro.`
 `Application of Funds (Assets)`,`Aplicação de Fundos (Activos)`
 `Are you sure you want to cancel ${0} ${1}?`,`Tem a certeza de que quer cancelar ${0} ${1}?`
-`Are you sure you want to delete ${0} "${1}"?`,`Tem a certeza que quer apagar ${0} "${1}"?`
+`Are you sure you want to delete ${0} ${1}?`,`Tem a certeza que quer apagar ${0} ${1}?`
 `Are you sure you want to submit this Bill?`,`Tem a certeza de que quer apresentar esta Proposta de Lei?`
 `Are you sure you want to submit this Invoice?`,`Tem a certeza de que quer apresentar esta factura?`
 `Are you sure you want to submit this Journal Entry?`,`Tem a certeza de que quer submeter esta Entrada no Jornal?`
@@ -304,7 +304,7 @@
 `Place of supply`,`Local de fornecimento`
 `Plants and Machineries`,`Fábricas e maquinarias`
 `Please fill all values`,`Por favor preencha todos os valores`
-`Please select an existing database or create a new one. reason: ${0}, filePath: ${1}`,`Por favor seleccione uma base de dados existente ou crie uma nova. razão: ${0}, filePath: ${1}`
+`Please select an existing database or create a new one.`,`Por favor seleccione uma base de dados existente ou crie uma nova.`
 `Please set GSTIN in General Settings.`,`Por favor, defina GSTIN em Definições Gerais.`
 `Postal Code`,`Código Postal`
 `Postal Expenses`,`Despesas de correio`
@@ -477,4 +477,3 @@
 `Yes`,`Sim`
 `Your Name`,`O seu nome`
 `name`,`nome`
-`reason: ${0}, filePath: ${1}`,`razão: ${0}, filePath: ${1}`
