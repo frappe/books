@@ -1,4 +1,5 @@
 import { partyWithAvatar } from '@/utils';
+import { t } from 'frappe';
 import getCommonExportActions from '../commonExporter';
 
 let title = 'General Ledger';
