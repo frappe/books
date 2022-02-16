@@ -4,11 +4,12 @@ import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
 import { isPesa } from 'frappe/utils';
+import { setLanguageMapOnTranslationString } from 'frappe/utils/translation';
 import lodash from 'lodash';
 import { createApp, h } from 'vue';
 import { handleErrorWithDialog } from './errorHandling';
-import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import { languageCodeMap } from './languageCodeMap';
+import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 
 export async function showMessageDialog({
   message,
@@ -458,15 +459,14 @@ export function stringifyCircular(
 
 export async function checkForUpdates(force = false) {
   ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
-  await setLanguageMap(getLanguageCode());
+  await setLanguageMap();
 }
 
-export async function setLanguageMap(code) {
-  if (code === undefined) {
-    code = getLanguageCode();
-  }
+export async function setLanguageMap(language) {
+  const code = getLanguageCode(language);
 
   if (code === 'en') {
+    setLanguageMapOnTranslationString(undefined);
     return;
   }
 
@@ -480,10 +480,10 @@ export async function setLanguageMap(code) {
     return;
   }
 
-  frappe.languages[code] = languageMap;
+  setLanguageMapOnTranslationString(languageMap);
 }
 
-export function getLanguageCode() {
-  const { language } = frappe.SystemSettings;
+export function getLanguageCode(initLanguage) {
+  const { language } = initLanguage ?? frappe.SystemSettings;
   return languageCodeMap[language || 'English'];
 }

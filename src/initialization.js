@@ -72,6 +72,7 @@ export async function connectToLocalDatabase(filePath) {
 
   // set file info in config
   const { companyName } = frappe.AccountingSettings;
+  await setLanguageMap();
   let files = config.get('files') || [];
   if (
     !files.find(
@@ -90,7 +91,6 @@ export async function connectToLocalDatabase(filePath) {
 
   // set last selected file
   config.set('lastSelectedFilePath', filePath);
-  await setLanguageMap();
 
   // second init with currency, normal usage
   await callInitializeMoneyMaker();
