@@ -1,4 +1,5 @@
 const title = 'Bank Reconciliation';
+import { t } from 'frappe';
 import ImportWizard from '../../src/components/ImportWizart';
 import BankReconciliationImport from './BankReconciliationImport';
 
@@ -11,7 +12,7 @@ export default {
       target: 'Account',
       size: 'small',
       placeholder: 'Payment Account',
-      label: 'Payment Account',
+      label: t`Payment Account`,
       fieldname: 'paymentAccount',
       getFilters: () => {
         return {
@@ -24,7 +25,7 @@ export default {
       fieldtype: 'Link',
       target: 'Party',
       size: 'small',
-      label: 'Party',
+      label: t`Party`,
       placeholder: 'Party',
       fieldname: 'party',
     },
@@ -32,20 +33,20 @@ export default {
       fieldtype: 'Date',
       size: 'small',
       placeholder: 'From Date',
-      label: 'From Date',
+      label: t`From Date`,
       fieldname: 'fromDate',
     },
     {
       fieldtype: 'Date',
       size: 'small',
       placeholder: 'To Date',
-      label: 'To Date',
+      label: t`To Date`,
       fieldname: 'toDate',
     },
   ],
   actions: [
     {
-      label: 'Reconcile',
+      label: t`Reconcile`,
       type: 'secondary',
       condition: (report) => report.currentFilters.paymentAccount,
       action: async (report) => {
@@ -66,54 +67,54 @@ export default {
   getColumns() {
     return [
       {
-        label: 'Posting Date',
+        label: t`Posting Date`,
         fieldtype: 'Date',
         fieldname: 'date',
       },
       {
-        label: 'Payment Account',
+        label: t`Payment Account`,
         fieldtype: 'Link',
       },
       {
-        label: 'Debit',
+        label: t`Debit`,
         fieldtype: 'Currency',
       },
       {
-        label: 'Credit',
+        label: t`Credit`,
         fieldtype: 'Currency',
       },
       {
-        label: 'Balance',
+        label: t`Balance`,
         fieldtype: 'Currency',
       },
       {
-        label: 'Ref/Cheque ID',
+        label: t`Ref/Cheque ID`,
         fieldtype: 'Data',
         fieldname: 'referenceId',
       },
       {
-        label: 'Clearance Date',
+        label: t`Clearance Date`,
         fieldtype: 'Date',
         fieldname: 'clearanceDate',
       },
       {
-        label: 'Ref. Type',
+        label: t`Ref. Type`,
         fieldtype: 'Data',
         fieldname: 'referenceType',
       },
       {
-        label: 'Ref. Name',
+        label: t`Ref. Name`,
         fieldtype: 'Data',
         fieldname: 'referenceName',
       },
       {
-        label: 'Ref. Date',
+        label: t`Ref. Date`,
         fieldtype: 'Date',
         fieldname: 'referenceDate',
       },
 
       {
-        label: 'Party',
+        label: t`Party`,
         fieldtype: 'Link',
       },
     ];

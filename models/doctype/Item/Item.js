@@ -9,25 +9,25 @@ export default {
   fields: [
     {
       fieldname: 'name',
-      label: 'Item Name',
+      label: t`Item Name`,
       fieldtype: 'Data',
       placeholder: 'Item Name',
       required: 1,
     },
     {
       fieldname: 'image',
-      label: 'Image',
+      label: t`Image`,
       fieldtype: 'AttachImage',
     },
     {
       fieldname: 'description',
-      label: 'Description',
+      label: t`Description`,
       placeholder: 'Item Description',
       fieldtype: 'Text',
     },
     {
       fieldname: 'unit',
-      label: 'Unit Type',
+      label: t`Unit Type`,
       fieldtype: 'Select',
       placeholder: 'Unit Type',
       default: 'Unit',
@@ -35,7 +35,7 @@ export default {
     },
     {
       fieldname: 'itemType',
-      label: 'Type',
+      label: t`Type`,
       placeholder: 'Type',
       fieldtype: 'Select',
       default: 'Product',
@@ -43,7 +43,7 @@ export default {
     },
     {
       fieldname: 'incomeAccount',
-      label: 'Income',
+      label: t`Income`,
       fieldtype: 'Link',
       target: 'Account',
       placeholder: 'Income',
@@ -68,7 +68,7 @@ export default {
     },
     {
       fieldname: 'expenseAccount',
-      label: 'Expense',
+      label: t`Expense`,
       fieldtype: 'Link',
       target: 'Account',
       placeholder: 'Expense',
@@ -94,14 +94,14 @@ export default {
     },
     {
       fieldname: 'tax',
-      label: 'Tax',
+      label: t`Tax`,
       fieldtype: 'Link',
       target: 'Tax',
       placeholder: 'Tax',
     },
     {
       fieldname: 'rate',
-      label: 'Rate',
+      label: t`Rate`,
       fieldtype: 'Currency',
       validate(value) {
         if (value.lte(0)) {

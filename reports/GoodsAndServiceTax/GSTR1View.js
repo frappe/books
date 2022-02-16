@@ -1,6 +1,7 @@
 const title = 'GSTR 1';
+import { t } from 'frappe';
+import { generateGstr1Csv, generateGstr1Json } from '../../accounting/gst';
 import baseConfig from './BaseViewConfig';
-import { generateGstr1Json, generateGstr1Csv } from '../../accounting/gst';
 
 const transferTypeMap = {
   B2B: 'B2B',
@@ -11,7 +12,7 @@ const transferTypeMap = {
 
 const transferType = {
   fieldtype: 'Select',
-  label: 'Transfer Type',
+  label: t`Transfer Type`,
   placeholder: 'Transfer Type',
   fieldname: 'transferType',
   options: Object.keys(transferTypeMap),
@@ -23,7 +24,7 @@ const transferType = {
 const actions = [
   {
     group: 'Export',
-    label: 'JSON',
+    label: t`JSON`,
     type: 'primary',
     action: async (report, filters) => {
       generateGstr1Json(report, filters);
@@ -31,13 +32,13 @@ const actions = [
   },
   {
     group: 'Export',
-    label: 'CSV',
+    label: t`CSV`,
     type: 'primary',
     action: async (report, filters) => {
       generateGstr1Csv(report, filters);
     },
   },
-]
+];
 
 export default {
   title: title,

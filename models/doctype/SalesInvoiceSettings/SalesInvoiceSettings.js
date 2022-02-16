@@ -1,6 +1,7 @@
+import { t } from 'frappe';
 export default {
   name: 'SalesInvoiceSettings',
-  label: 'SalesInvoice Settings',
+  label: t`SalesInvoice Settings`,
   doctype: 'DocType',
   isSingle: 1,
   isChild: 0,
@@ -8,7 +9,7 @@ export default {
   fields: [
     {
       fieldname: 'numberSeries',
-      label: 'Number Series',
+      label: t`Number Series`,
       fieldtype: 'Link',
       target: 'NumberSeries',
       required: 1,
@@ -16,7 +17,7 @@ export default {
     },
     {
       fieldname: 'template',
-      label: 'Template',
+      label: t`Template`,
       placeholder: 'Template',
       fieldtype: 'Select',
       options: ['Basic I', 'Basic II', 'Modern'],
@@ -25,7 +26,7 @@ export default {
     },
     {
       fieldname: 'font',
-      label: 'Font',
+      label: t`Font`,
       placeholder: 'Font',
       fieldtype: 'Select',
       options: ['Montserrat', 'Open Sans', 'Oxygen', 'Merriweather'],
@@ -34,7 +35,7 @@ export default {
     },
     {
       fieldname: 'themeColor',
-      label: 'Theme Color',
+      label: t`Theme Color`,
       fieldtype: 'Data',
       required: 1,
       default: '#000000',

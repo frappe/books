@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 import { stateCodeMap } from '../../../accounting/gst';
 import countryList from '../../../fixtures/countryInfo.json';
 import { titleCase } from '../../../src/utils';
@@ -27,27 +28,27 @@ export default {
   fields: [
     {
       fieldname: 'addressLine1',
-      label: 'Address Line 1',
+      label: t`Address Line 1`,
       placeholder: 'Address Line 1',
       fieldtype: 'Data',
       required: 1,
     },
     {
       fieldname: 'addressLine2',
-      label: 'Address Line 2',
+      label: t`Address Line 2`,
       placeholder: 'Address Line 2',
       fieldtype: 'Data',
     },
     {
       fieldname: 'city',
-      label: 'City / Town',
+      label: t`City / Town`,
       placeholder: 'City / Town',
       fieldtype: 'Data',
       required: 1,
     },
     {
       fieldname: 'state',
-      label: 'State',
+      label: t`State`,
       placeholder: 'State',
       fieldtype: 'AutoComplete',
       emptyMessage: (doc) => {
@@ -60,7 +61,7 @@ export default {
     },
     {
       fieldname: 'country',
-      label: 'Country',
+      label: t`Country`,
       placeholder: 'Country',
       fieldtype: 'AutoComplete',
       getList: () => Object.keys(countryList).sort(),
@@ -68,31 +69,31 @@ export default {
     },
     {
       fieldname: 'postalCode',
-      label: 'Postal Code',
+      label: t`Postal Code`,
       placeholder: 'Postal Code',
       fieldtype: 'Data',
     },
     {
       fieldname: 'emailAddress',
-      label: 'Email Address',
+      label: t`Email Address`,
       placeholder: 'Email Address',
       fieldtype: 'Data',
     },
     {
       fieldname: 'phone',
-      label: 'Phone',
+      label: t`Phone`,
       placeholder: 'Phone',
       fieldtype: 'Data',
     },
     {
       fieldname: 'fax',
-      label: 'Fax',
+      label: t`Fax`,
       fieldtype: 'Data',
     },
     {
       fieldname: 'addressDisplay',
       fieldtype: 'Text',
-      label: 'Address Display',
+      label: t`Address Display`,
       readOnly: true,
       formula: (doc) => {
         return [

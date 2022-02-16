@@ -120,16 +120,17 @@ import Popover from './Popover';
 import Button from './Button';
 import Icon from './Icon';
 import FormControl from './Controls/FormControl';
+import { t } from 'frappe';
 
 let conditions = [
-  { label: 'Is', value: '=' },
-  { label: 'Is Not', value: '!=' },
-  { label: 'Contains', value: 'like' },
-  { label: 'Does Not Contain', value: 'not like' },
-  { label: 'Greater Than', value: '>' },
-  { label: 'Less Than', value: '<' },
-  { label: 'Is Empty', value: 'is null' },
-  { label: 'Is Not Empty', value: 'is not null' },
+  { label: t`Is`, value: '=' },
+  { label: t`Is Not`, value: '!=' },
+  { label: t`Contains`, value: 'like' },
+  { label: t`Does Not Contain`, value: 'not like' },
+  { label: t`Greater Than`, value: '>' },
+  { label: t`Less Than`, value: '<' },
+  { label: t`Is Empty`, value: 'is null' },
+  { label: t`Is Not Empty`, value: 'is not null' },
 ];
 
 export default {

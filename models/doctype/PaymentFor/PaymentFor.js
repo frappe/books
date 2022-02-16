@@ -7,7 +7,7 @@ const referenceTypeMap = {
 
 export default {
   name: 'PaymentFor',
-  label: 'Payment For',
+  label: t`Payment For`,
   isSingle: 0,
   isChild: 1,
   keywordFields: [],
@@ -15,7 +15,7 @@ export default {
   fields: [
     {
       fieldname: 'referenceType',
-      label: 'Reference Type',
+      label: t`Reference Type`,
       placeholder: 'Type',
       fieldtype: 'Select',
       options: Object.keys(referenceTypeMap),
@@ -24,7 +24,7 @@ export default {
     },
     {
       fieldname: 'referenceName',
-      label: 'Reference Name',
+      label: t`Reference Name`,
       fieldtype: 'DynamicLink',
       references: 'referenceType',
       placeholder: 'Name',
@@ -37,7 +37,7 @@ export default {
     },
     {
       fieldname: 'amount',
-      label: 'Amount',
+      label: t`Amount`,
       fieldtype: 'Currency',
       formula: (row, doc) => {
         return (

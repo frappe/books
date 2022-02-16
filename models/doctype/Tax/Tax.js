@@ -1,6 +1,7 @@
+import { t } from 'frappe';
 export default {
   name: 'Tax',
-  label: 'Tax',
+  label: t`Tax`,
   doctype: 'DocType',
   isSingle: 0,
   isChild: 0,
@@ -8,17 +9,17 @@ export default {
   fields: [
     {
       fieldname: 'name',
-      label: 'Name',
+      label: t`Name`,
       fieldtype: 'Data',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'details',
-      label: 'Details',
+      label: t`Details`,
       fieldtype: 'Table',
       childtype: 'TaxDetail',
-      required: 1
-    }
+      required: 1,
+    },
   ],
-  quickEditFields: ['details']
+  quickEditFields: ['details'],
 };

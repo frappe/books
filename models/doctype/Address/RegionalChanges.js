@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 import { cloneDeep } from 'lodash';
 import { stateCodeMap } from '../../../accounting/gst';
 import { titleCase } from '../../../src/utils';
@@ -15,7 +16,7 @@ export default function getAugmentedAddress({ country }) {
       ...Address.fields,
       {
         fieldname: 'pos',
-        label: 'Place of Supply',
+        label: t`Place of Supply`,
         fieldtype: 'AutoComplete',
         placeholder: 'Place of Supply',
         formula: (doc) => (stateList.includes(doc.state) ? doc.state : ''),

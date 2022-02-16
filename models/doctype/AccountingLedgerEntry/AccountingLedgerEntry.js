@@ -1,6 +1,8 @@
+import { t } from 'frappe';
+
 export default {
   name: 'AccountingLedgerEntry',
-  label: 'Ledger Entry',
+  label: t`Ledger Entry`,
   naming: 'autoincrement',
   doctype: 'DocType',
   isSingle: 0,
@@ -9,64 +11,64 @@ export default {
   fields: [
     {
       fieldname: 'date',
-      label: 'Date',
-      fieldtype: 'Date'
+      label: t`Date`,
+      fieldtype: 'Date',
     },
     {
       fieldname: 'account',
-      label: 'Account',
+      label: t`Account`,
       fieldtype: 'Link',
       target: 'Account',
-      required: 1
+      required: 1,
     },
     {
       fieldname: 'description',
-      label: 'Description',
-      fieldtype: 'Text'
+      label: t`Description`,
+      fieldtype: 'Text',
     },
     {
       fieldname: 'party',
-      label: 'Party',
+      label: t`Party`,
       fieldtype: 'Link',
-      target: 'Party'
+      target: 'Party',
     },
     {
       fieldname: 'debit',
-      label: 'Debit',
-      fieldtype: 'Currency'
+      label: t`Debit`,
+      fieldtype: 'Currency',
     },
     {
       fieldname: 'credit',
-      label: 'Credit',
-      fieldtype: 'Currency'
+      label: t`Credit`,
+      fieldtype: 'Currency',
     },
     {
       fieldname: 'againstAccount',
-      label: 'Against Account',
-      fieldtype: 'Text'
+      label: t`Against Account`,
+      fieldtype: 'Text',
     },
     {
       fieldname: 'referenceType',
-      label: 'Ref. Type',
-      fieldtype: 'Data'
+      label: t`Ref. Type`,
+      fieldtype: 'Data',
     },
     {
       fieldname: 'referenceName',
-      label: 'Ref. Name',
+      label: t`Ref. Name`,
       fieldtype: 'DynamicLink',
-      references: 'referenceType'
+      references: 'referenceType',
     },
     {
       fieldname: 'balance',
-      label: 'Balance',
-      fieldtype: 'Currency'
+      label: t`Balance`,
+      fieldtype: 'Currency',
     },
     {
       fieldname: 'reverted',
-      label: 'Reverted',
+      label: t`Reverted`,
       fieldtype: 'Check',
-      default: 0
-    }
+      default: 0,
+    },
   ],
   quickEditFields: [
     'date',
@@ -78,6 +80,6 @@ export default {
     'againstAccount',
     'referenceType',
     'referenceName',
-    'balance'
-  ]
+    'balance',
+  ],
 };

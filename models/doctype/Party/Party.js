@@ -2,35 +2,35 @@ import frappe, { t } from 'frappe';
 
 export default {
   name: 'Party',
-  label: 'Party',
+  label: t`Party`,
   regional: 1,
   keywordFields: ['name'],
   fields: [
     {
       fieldname: 'name',
-      label: 'Name',
+      label: t`Name`,
       fieldtype: 'Data',
       required: 1,
       placeholder: 'Full Name',
     },
     {
       fieldname: 'image',
-      label: 'Image',
+      label: t`Image`,
       fieldtype: 'AttachImage',
     },
     {
       fieldname: 'customer',
-      label: 'Is Customer',
+      label: t`Is Customer`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'supplier',
-      label: 'Is Supplier',
+      label: t`Is Supplier`,
       fieldtype: 'Check',
     },
     {
       fieldname: 'defaultAccount',
-      label: 'Default Account',
+      label: t`Default Account`,
       fieldtype: 'Link',
       target: 'Account',
       getFilters: (query, doc) => {
@@ -51,12 +51,12 @@ export default {
     },
     {
       fieldname: 'outstandingAmount',
-      label: 'Outstanding Amount',
+      label: t`Outstanding Amount`,
       fieldtype: 'Currency',
     },
     {
       fieldname: 'currency',
-      label: 'Currency',
+      label: t`Currency`,
       fieldtype: 'Link',
       target: 'Currency',
       placeholder: 'INR',
@@ -64,7 +64,7 @@ export default {
     },
     {
       fieldname: 'email',
-      label: 'Email',
+      label: t`Email`,
       fieldtype: 'Data',
       placeholder: 'john@doe.com',
       validate: {
@@ -73,7 +73,7 @@ export default {
     },
     {
       fieldname: 'phone',
-      label: 'Phone',
+      label: t`Phone`,
       fieldtype: 'Data',
       placeholder: 'Phone',
       validate: {
@@ -82,7 +82,7 @@ export default {
     },
     {
       fieldname: 'address',
-      label: 'Address',
+      label: t`Address`,
       fieldtype: 'Link',
       target: 'Address',
       placeholder: t`Click to create`,
@@ -90,7 +90,7 @@ export default {
     },
     {
       fieldname: 'addressDisplay',
-      label: 'Address Display',
+      label: t`Address Display`,
       fieldtype: 'Text',
       readOnly: true,
       formula: (doc) => {

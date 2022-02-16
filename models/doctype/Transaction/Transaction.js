@@ -1,12 +1,12 @@
 import Badge from '@/components/Badge';
 import { getInvoiceStatus, openQuickEdit, routeTo } from '@/utils';
-import frappe from 'frappe';
+import frappe, { t } from 'frappe';
 import utils from '../../../accounting/utils';
 import { statusColor } from '../../../src/colors';
 
 export function getStatusColumn() {
   return {
-    label: 'Status',
+    label: t`Status`,
     fieldname: 'status',
     fieldtype: 'Select',
     render(doc) {
@@ -23,7 +23,7 @@ export function getStatusColumn() {
 export function getActions(doctype) {
   return [
     {
-      label: 'Make Payment',
+      label: t`Make Payment`,
       condition: (doc) => doc.submitted && doc.outstandingAmount > 0,
       action: async function makePayment(doc) {
         let payment = await frappe.getNewDoc('Payment');
@@ -55,7 +55,7 @@ export function getActions(doctype) {
       },
     },
     {
-      label: 'Print',
+      label: t`Print`,
       condition: (doc) => doc.submitted,
       action(doc) {
         routeTo(`/print/${doc.doctype}/${doc.name}`);

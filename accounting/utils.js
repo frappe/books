@@ -1,5 +1,7 @@
+import { t } from 'frappe';
+
 export const ledgerLink = {
-  label: 'Ledger Entries',
+  label: t`Ledger Entries`,
   condition: (doc) => doc.submitted,
   action: (doc, router) => {
     router.push({

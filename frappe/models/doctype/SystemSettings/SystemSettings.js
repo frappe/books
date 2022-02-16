@@ -29,7 +29,7 @@ let dateFormatOptions = (() => {
 
 module.exports = {
   name: 'SystemSettings',
-  label: 'System Settings',
+  label: t`System Settings`,
   doctype: 'DocType',
   isSingle: 1,
   isChild: 0,
@@ -37,7 +37,7 @@ module.exports = {
   fields: [
     {
       fieldname: 'dateFormat',
-      label: 'Date Format',
+      label: t`Date Format`,
       fieldtype: 'Select',
       options: dateFormatOptions,
       default: 'MMM d, y',
@@ -46,14 +46,14 @@ module.exports = {
     },
     {
       fieldname: 'locale',
-      label: 'Locale',
+      label: t`Locale`,
       fieldtype: 'Data',
       default: DEFAULT_LOCALE,
       description: t`Set the local code, this is used for number formatting.`,
     },
     {
       fieldname: 'displayPrecision',
-      label: 'Display Precision',
+      label: t`Display Precision`,
       fieldtype: 'Int',
       default: DEFAULT_DISPLAY_PRECISION,
       required: 1,
@@ -71,7 +71,7 @@ module.exports = {
     },
     {
       fieldname: 'internalPrecision',
-      label: 'Internal Precision',
+      label: t`Internal Precision`,
       fieldtype: 'Int',
       minValue: 0,
       default: DEFAULT_INTERNAL_PRECISION,
@@ -79,14 +79,14 @@ module.exports = {
     },
     {
       fieldname: 'hideGetStarted',
-      label: 'Hide Get Started',
+      label: t`Hide Get Started`,
       fieldtype: 'Check',
       default: 0,
       description: t`Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.`,
     },
     {
       fieldname: 'autoReportErrors',
-      label: 'Hide & Auto Report Errors',
+      label: t`Hide & Auto Report Errors`,
       fieldtype: 'Check',
       default: 0,
       description: t`Prevent errors from showing and automatically report all errors.`,

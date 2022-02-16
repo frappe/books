@@ -1,10 +1,11 @@
+import { t } from 'frappe';
 import { getActions } from '../Transaction/Transaction';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import SalesInvoice from './SalesInvoiceDocument';
 
 export default {
   name: 'SalesInvoice',
-  label: 'Invoice',
+  label: t`Invoice`,
   doctype: 'DocType',
   documentClass: SalesInvoice,
   printTemplate: InvoiceTemplate,
@@ -15,7 +16,7 @@ export default {
   settings: 'SalesInvoiceSettings',
   fields: [
     {
-      label: 'Invoice No',
+      label: t`Invoice No`,
       fieldname: 'name',
       fieldtype: 'Data',
       required: 1,
@@ -23,20 +24,20 @@ export default {
     },
     {
       fieldname: 'date',
-      label: 'Date',
+      label: t`Date`,
       fieldtype: 'Date',
       default: () => new Date().toISOString().slice(0, 10),
     },
     {
       fieldname: 'customer',
-      label: 'Customer',
+      label: t`Customer`,
       fieldtype: 'Link',
       target: 'Customer',
       required: 1,
     },
     {
       fieldname: 'account',
-      label: 'Account',
+      label: t`Account`,
       fieldtype: 'Link',
       target: 'Account',
       disableCreation: true,
@@ -50,7 +51,7 @@ export default {
     },
     {
       fieldname: 'currency',
-      label: 'Customer Currency',
+      label: t`Customer Currency`,
       fieldtype: 'Link',
       target: 'Currency',
       formula: (doc) =>
@@ -60,7 +61,7 @@ export default {
     },
     {
       fieldname: 'exchangeRate',
-      label: 'Exchange Rate',
+      label: t`Exchange Rate`,
       fieldtype: 'Float',
       default: 1,
       formula: (doc) => doc.getExchangeRate(),
@@ -68,14 +69,14 @@ export default {
     },
     {
       fieldname: 'items',
-      label: 'Items',
+      label: t`Items`,
       fieldtype: 'Table',
       childtype: 'SalesInvoiceItem',
       required: true,
     },
     {
       fieldname: 'netTotal',
-      label: 'Net Total',
+      label: t`Net Total`,
       fieldtype: 'Currency',
       formula: (doc) => doc.getSum('items', 'amount', false),
       readOnly: 1,
@@ -83,14 +84,14 @@ export default {
     },
     {
       fieldname: 'baseNetTotal',
-      label: 'Net Total (Company Currency)',
+      label: t`Net Total (Company Currency)`,
       fieldtype: 'Currency',
       formula: (doc) => doc.netTotal.mul(doc.exchangeRate),
       readOnly: 1,
     },
     {
       fieldname: 'taxes',
-      label: 'Taxes',
+      label: t`Taxes`,
       fieldtype: 'Table',
       childtype: 'TaxSummary',
       formula: (doc) => doc.getTaxSummary(),
@@ -98,7 +99,7 @@ export default {
     },
     {
       fieldname: 'grandTotal',
-      label: 'Grand Total',
+      label: t`Grand Total`,
       fieldtype: 'Currency',
       formula: (doc) => doc.getGrandTotal(),
       readOnly: 1,
@@ -106,14 +107,14 @@ export default {
     },
     {
       fieldname: 'baseGrandTotal',
-      label: 'Grand Total (Company Currency)',
+      label: t`Grand Total (Company Currency)`,
       fieldtype: 'Currency',
       formula: (doc) => doc.grandTotal.mul(doc.exchangeRate),
       readOnly: 1,
     },
     {
       fieldname: 'outstandingAmount',
-      label: 'Outstanding Amount',
+      label: t`Outstanding Amount`,
       fieldtype: 'Currency',
       formula: (doc) => {
         if (doc.submitted) return;
@@ -123,12 +124,12 @@ export default {
     },
     {
       fieldname: 'terms',
-      label: 'Notes',
+      label: t`Notes`,
       fieldtype: 'Text',
     },
     {
       fieldname: 'cancelled',
-      label: 'Cancelled',
+      label: t`Cancelled`,
       fieldtype: 'Check',
       default: 0,
     },

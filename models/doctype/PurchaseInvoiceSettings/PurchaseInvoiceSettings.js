@@ -1,6 +1,7 @@
+import { t } from 'frappe';
 export default {
   name: 'PurchaseInvoiceSettings',
-  label: 'Bills Settings',
+  label: t`Bills Settings`,
   doctype: 'DocType',
   isSingle: 1,
   isChild: 0,
@@ -8,7 +9,7 @@ export default {
   fields: [
     {
       fieldname: 'numberSeries',
-      label: 'Number Series',
+      label: t`Number Series`,
       fieldtype: 'Link',
       target: 'NumberSeries',
       required: 1,

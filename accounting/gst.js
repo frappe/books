@@ -294,47 +294,47 @@ export async function generateGstr2Csv(getReportData) {
 async function generateB2bCsvGstr2(rows, columns) {
   const csvColumns = [
     {
-      label: 'GSTIN of Supplier',
+      label: t`GSTIN of Supplier`,
       fieldname: 'gstin',
     },
     {
-      label: 'Invoice Number',
+      label: t`Invoice Number`,
       fieldname: 'invNo',
     },
     {
-      label: 'Invoice Date',
+      label: t`Invoice Date`,
       fieldname: 'invDate',
     },
     {
-      label: 'Invoice Value',
+      label: t`Invoice Value`,
       fieldname: 'invAmt',
     },
     {
-      label: 'Place of supply',
+      label: t`Place of supply`,
       fieldname: 'place',
     },
     {
-      label: 'Reverse Charge',
+      label: t`Reverse Charge`,
       fieldname: 'reverseCharge',
     },
     {
-      label: 'Rate',
+      label: t`Rate`,
       fieldname: 'rate',
     },
     {
-      label: 'Taxable Value',
+      label: t`Taxable Value`,
       fieldname: 'taxVal',
     },
     {
-      label: 'Intergrated Tax Paid',
+      label: t`Intergrated Tax Paid`,
       fieldname: 'igstAmt',
     },
     {
-      label: 'Central Tax Paid',
+      label: t`Central Tax Paid`,
       fieldname: 'cgstAmt',
     },
     {
-      label: 'State/UT Tax Paid',
+      label: t`State/UT Tax Paid`,
       fieldname: 'sgstAmt',
     },
   ];

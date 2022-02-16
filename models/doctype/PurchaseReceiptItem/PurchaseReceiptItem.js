@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 import model from 'frappe/model';
 import PurchaseOrderItem from '../PurchaseOrderItem/PurchaseOrderItem';
 
@@ -8,7 +9,7 @@ export default model.extend(
     fields: [
       {
         fieldname: 'acceptedQuantity',
-        label: 'Accepted Quantity',
+        label: t`Accepted Quantity`,
         fieldtype: 'Float',
         required: 1,
       },

@@ -4,6 +4,7 @@ import AutoComplete from './AutoComplete';
 import Badge from '@/components/Badge';
 import { openQuickEdit } from '@/utils';
 import { markRaw } from 'vue';
+import { t } from 'frappe';
 
 export default {
   name: 'Link',
@@ -63,7 +64,7 @@ export default {
     },
     getCreateNewOption() {
       return {
-        label: 'Create',
+        label: t`Create`,
         value: 'Create',
         action: () => this.openNewDoc(),
         component: markRaw({

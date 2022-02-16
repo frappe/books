@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe, { t } from 'frappe';
 import getCommonExportActions from '../commonExporter';
 
 const title = 'Profit and Loss';
@@ -13,7 +13,7 @@ export default {
       fieldname: 'fromDate',
       size: 'small',
       placeholder: 'From Date',
-      label: 'From Date',
+      label: t`From Date`,
       required: 1,
       default: async () => {
         return (await frappe.getSingle('AccountingSettings')).fiscalYearStart;
@@ -24,7 +24,7 @@ export default {
       fieldname: 'toDate',
       size: 'small',
       placeholder: 'To Date',
-      label: 'To Date',
+      label: t`To Date`,
       required: 1,
       default: async () => {
         return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
@@ -35,7 +35,7 @@ export default {
       size: 'small',
       options: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly'],
       default: 'Monthly',
-      label: 'Periodicity',
+      label: t`Periodicity`,
       placeholder: 'Select Period...',
       fieldname: 'periodicity',
     },
@@ -43,7 +43,7 @@ export default {
   actions: getCommonExportActions('profit-and-loss'),
   getColumns({ data }) {
     const columns = [
-      { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
+      { label: t`Account`, fieldtype: 'Data', fieldname: 'account', width: 2 },
     ];
 
     if (data && data.columns) {

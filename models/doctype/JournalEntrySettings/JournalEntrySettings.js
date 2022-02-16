@@ -1,6 +1,7 @@
+import { t } from 'frappe';
 export default {
   name: 'JournalEntrySettings',
-  label: 'Journal Entry Setting',
+  label: t`Journal Entry Setting`,
   doctype: 'DocType',
   isSingle: 1,
   isChild: 0,
@@ -8,11 +9,11 @@ export default {
   fields: [
     {
       fieldname: 'numberSeries',
-      label: 'Number Series',
+      label: t`Number Series`,
       fieldtype: 'Link',
       target: 'NumberSeries',
       required: 1,
-      default: 'JV'
-    }
-  ]
+      default: 'JV',
+    },
+  ],
 };

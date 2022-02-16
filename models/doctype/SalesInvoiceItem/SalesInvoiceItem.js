@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 export default {
   name: 'SalesInvoiceItem',
   doctype: 'DocType',
@@ -8,7 +9,7 @@ export default {
   fields: [
     {
       fieldname: 'item',
-      label: 'Item',
+      label: t`Item`,
       fieldtype: 'Link',
       target: 'Item',
       required: 1,
@@ -23,7 +24,7 @@ export default {
     },
     {
       fieldname: 'description',
-      label: 'Description',
+      label: t`Description`,
       fieldtype: 'Text',
       formula: (row, doc) => doc.getFrom('Item', row.item, 'description'),
       hidden: 1,
@@ -31,7 +32,7 @@ export default {
     },
     {
       fieldname: 'quantity',
-      label: 'Quantity',
+      label: t`Quantity`,
       fieldtype: 'Float',
       required: 1,
       default: 1,
@@ -47,7 +48,7 @@ export default {
     },
     {
       fieldname: 'rate',
-      label: 'Rate',
+      label: t`Rate`,
       fieldtype: 'Currency',
       required: 1,
       formula: async (row, doc) => {
@@ -72,14 +73,14 @@ export default {
     },
     {
       fieldname: 'baseRate',
-      label: 'Rate (Company Currency)',
+      label: t`Rate (Company Currency)`,
       fieldtype: 'Currency',
       formula: (row, doc) => row.rate.mul(doc.exchangeRate),
       readOnly: 1,
     },
     {
       fieldname: 'account',
-      label: 'Account',
+      label: t`Account`,
       hidden: 1,
       fieldtype: 'Link',
       target: 'Account',
@@ -88,7 +89,7 @@ export default {
     },
     {
       fieldname: 'tax',
-      label: 'Tax',
+      label: t`Tax`,
       fieldtype: 'Link',
       target: 'Tax',
       formula: (row, doc) => doc.getFrom('Item', row.item, 'tax'),
@@ -96,7 +97,7 @@ export default {
     },
     {
       fieldname: 'amount',
-      label: 'Amount',
+      label: t`Amount`,
       fieldtype: 'Currency',
       readOnly: 1,
       formula: (row) => row.rate.mul(row.quantity),
@@ -104,7 +105,7 @@ export default {
     },
     {
       fieldname: 'baseAmount',
-      label: 'Amount (Company Currency)',
+      label: t`Amount (Company Currency)`,
       fieldtype: 'Currency',
       readOnly: 1,
       formula: (row, doc) => row.amount.mul(doc.exchangeRate),

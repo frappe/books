@@ -1,9 +1,10 @@
+import { t } from 'frappe';
 import { DateTime } from 'luxon';
 import countryList from '~/fixtures/countryInfo.json';
 
 export default {
   name: 'SetupWizard',
-  label: 'Setup Wizard',
+  label: t`Setup Wizard`,
   naming: 'name',
   isSingle: 1,
   isChild: 0,
@@ -13,12 +14,12 @@ export default {
   fields: [
     {
       fieldname: 'companyLogo',
-      label: 'Company Logo',
+      label: t`Company Logo`,
       fieldtype: 'AttachImage',
     },
     {
       fieldname: 'country',
-      label: 'Country',
+      label: t`Country`,
       fieldtype: 'AutoComplete',
       placeholder: 'Select Country',
       required: 1,
@@ -27,7 +28,7 @@ export default {
 
     {
       fieldname: 'fullname',
-      label: 'Your Name',
+      label: t`Your Name`,
       fieldtype: 'Data',
       placeholder: 'John Doe',
       required: 1,
@@ -35,7 +36,7 @@ export default {
 
     {
       fieldname: 'email',
-      label: 'Email',
+      label: t`Email`,
       fieldtype: 'Data',
       placeholder: 'john@doe.com',
       required: 1,
@@ -46,7 +47,7 @@ export default {
 
     {
       fieldname: 'companyName',
-      label: 'Company Name',
+      label: t`Company Name`,
       placeholder: 'Company Name',
       fieldtype: 'Data',
       required: 1,
@@ -54,7 +55,7 @@ export default {
 
     {
       fieldname: 'bankName',
-      label: 'Bank Name',
+      label: t`Bank Name`,
       fieldtype: 'Data',
       placeholder: 'Prime Bank',
       required: 1,
@@ -62,7 +63,7 @@ export default {
 
     {
       fieldname: 'fiscalYearStart',
-      label: 'Fiscal Year Start Date',
+      label: t`Fiscal Year Start Date`,
       placeholder: 'Fiscal Year Start Date',
       fieldtype: 'Date',
       formulaDependsOn: ['country'],
@@ -81,7 +82,7 @@ export default {
 
     {
       fieldname: 'fiscalYearEnd',
-      label: 'Fiscal Year End Date',
+      label: t`Fiscal Year End Date`,
       placeholder: 'Fiscal Year End Date',
       fieldtype: 'Date',
       formulaDependsOn: ['country'],
@@ -99,7 +100,7 @@ export default {
     },
     {
       fieldname: 'currency',
-      label: 'Currency',
+      label: t`Currency`,
       fieldtype: 'Data',
       placeholder: 'Currency',
       formulaDependsOn: ['country'],
@@ -111,7 +112,7 @@ export default {
     },
     {
       fieldname: 'completed',
-      label: 'Completed',
+      label: t`Completed`,
       fieldtype: 'Check',
       readonly: 1,
     },

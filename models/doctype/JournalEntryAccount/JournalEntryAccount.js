@@ -1,10 +1,11 @@
+import { t } from 'frappe';
 export default {
   name: 'JournalEntryAccount',
   isChild: 1,
   fields: [
     {
       fieldname: 'account',
-      label: 'Account',
+      label: t`Account`,
       placeholder: 'Account',
       fieldtype: 'Link',
       target: 'Account',
@@ -14,13 +15,13 @@ export default {
     },
     {
       fieldname: 'debit',
-      label: 'Debit',
+      label: t`Debit`,
       fieldtype: 'Currency',
       formula: autoDebitCredit('debit'),
     },
     {
       fieldname: 'credit',
-      label: 'Credit',
+      label: t`Credit`,
       fieldtype: 'Currency',
       formula: autoDebitCredit('credit'),
     },

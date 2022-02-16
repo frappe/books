@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe, { t } from 'frappe';
 import getCommonExportActions from '../commonExporter';
 
 const title = 'Trial Balance';
@@ -11,7 +11,7 @@ export default {
     {
       fieldtype: 'Date',
       fieldname: 'fromDate',
-      label: 'From Date',
+      label: t`From Date`,
       size: 'small',
       placeholder: 'From Date',
       required: 1,
@@ -24,7 +24,7 @@ export default {
       size: 'small',
       placeholder: 'To Date',
       fieldname: 'toDate',
-      label: 'To Date',
+      label: t`To Date`,
       required: 1,
       default: async () => {
         return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
@@ -34,26 +34,26 @@ export default {
   actions: getCommonExportActions('trial-balance'),
   getColumns() {
     const columns = [
-      { label: 'Account', fieldtype: 'Data', fieldname: 'account', width: 2 },
+      { label: t`Account`, fieldtype: 'Data', fieldname: 'account', width: 2 },
       {
-        label: 'Opening (Dr)',
+        label: t`Opening (Dr)`,
         fieldtype: 'Currency',
         fieldname: 'openingDebit',
       },
       {
-        label: 'Opening (Cr)',
+        label: t`Opening (Cr)`,
         fieldtype: 'Currency',
         fieldname: 'openingCredit',
       },
-      { label: 'Debit', fieldtype: 'Currency', fieldname: 'debit' },
-      { label: 'Credit', fieldtype: 'Currency', fieldname: 'credit' },
+      { label: t`Debit`, fieldtype: 'Currency', fieldname: 'debit' },
+      { label: t`Credit`, fieldtype: 'Currency', fieldname: 'credit' },
       {
-        label: 'Closing (Dr)',
+        label: t`Closing (Dr)`,
         fieldtype: 'Currency',
         fieldname: 'closingDebit',
       },
       {
-        label: 'Closing (Cr)',
+        label: t`Closing (Cr)`,
         fieldtype: 'Currency',
         fieldname: 'closingCredit',
       },

@@ -5,7 +5,7 @@ import PartyWidget from './PartyWidget.vue';
 
 export default {
   name: 'Supplier',
-  label: 'Supplier',
+  label: t`Supplier`,
   basedOn: 'Party',
   filters: {
     supplier: 1,

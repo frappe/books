@@ -1,3 +1,4 @@
+import { t } from 'frappe';
 import model from 'frappe/model';
 import PurchaseInvoice from '../PurchaseInvoice/PurchaseInvoice';
 
@@ -5,7 +6,7 @@ export default model.extend(
   PurchaseInvoice,
   {
     name: 'PurchaseOrder',
-    label: 'Purchase Order',
+    label: t`Purchase Order`,
     settings: 'PurchaseOrderSettings',
     fields: [
       {

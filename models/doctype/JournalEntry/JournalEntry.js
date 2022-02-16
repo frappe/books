@@ -1,8 +1,9 @@
-import { ledgerLink } from '../../../accounting/utils';
+import { t } from 'frappe';
 import { DateTime } from 'luxon';
+import { ledgerLink } from '../../../accounting/utils';
 
 export default {
-  label: 'Journal Entry',
+  label: t`Journal Entry`,
   name: 'JournalEntry',
   doctype: 'DocType',
   isSubmittable: 1,
@@ -10,7 +11,7 @@ export default {
   fields: [
     {
       fieldname: 'entryType',
-      label: 'Entry Type',
+      label: t`Entry Type`,
       fieldtype: 'Select',
       placeholder: 'Entry Type',
       options: [
@@ -30,36 +31,36 @@ export default {
     },
     {
       fieldname: 'date',
-      label: 'Date',
+      label: t`Date`,
       fieldtype: 'Date',
       default: () => DateTime.local().toISODate(),
     },
     {
       fieldname: 'accounts',
-      label: 'Account Entries',
+      label: t`Account Entries`,
       fieldtype: 'Table',
       childtype: 'JournalEntryAccount',
       required: true,
     },
     {
       fieldname: 'referenceNumber',
-      label: 'Reference Number',
+      label: t`Reference Number`,
       fieldtype: 'Data',
     },
     {
       fieldname: 'referenceDate',
-      label: 'Reference Date',
+      label: t`Reference Date`,
       fieldtype: 'Date',
     },
     {
       fieldname: 'userRemark',
-      label: 'User Remark',
+      label: t`User Remark`,
       fieldtype: 'Text',
       placeholder: 'User Remark',
     },
     {
       fieldname: 'cancelled',
-      label: 'Cancelled',
+      label: t`Cancelled`,
       fieldtype: 'Check',
       default: 0,
     },

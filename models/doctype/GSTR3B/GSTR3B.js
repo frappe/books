@@ -1,9 +1,9 @@
-import frappe from 'frappe';
+import frappe, { t } from 'frappe';
 import GSTR3B from './GSTR3BDocument.js';
 
 export default {
   name: 'GSTR3B',
-  label: 'GSTR 3B',
+  label: t`GSTR 3B`,
   doctype: 'DocType',
   documentClass: GSTR3B,
   print: {
@@ -13,13 +13,13 @@ export default {
   fields: [
     {
       fieldname: 'year',
-      label: 'Year',
+      label: t`Year`,
       fieldtype: 'Data',
       required: 1,
     },
     {
       fieldname: 'month',
-      label: 'Month',
+      label: t`Month`,
       placeholder: 'Month',
       fieldtype: 'Select',
       options: [
@@ -40,7 +40,7 @@ export default {
     },
     {
       fieldname: 'jsonData',
-      label: 'JSON Data',
+      label: t`JSON Data`,
       fieldtype: 'Code',
       formula: (doc) => doc.getJson(),
       required: 1,
@@ -55,7 +55,7 @@ export default {
   ],
   links: [
     {
-      label: 'Print PDF',
+      label: t`Print PDF`,
       condition: (form) => !form.doc._notInserted,
       action: async (form) => {
         form.$router.push({
@@ -64,7 +64,7 @@ export default {
       },
     },
     {
-      label: 'Delete',
+      label: t`Delete`,
       condition: (form) => !form.doc._notInserted,
       action: async (form) => {
         const doc = await frappe.getDoc('GSTR3B', form.doc.name);

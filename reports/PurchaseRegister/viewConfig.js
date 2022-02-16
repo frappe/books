@@ -1,4 +1,5 @@
 const title = 'Purchase Register';
+import { t } from 'frappe';
 
 export default {
   title: title,
@@ -7,7 +8,7 @@ export default {
     {
       fieldtype: 'Link',
       target: 'Party',
-      label: 'Supplier Name',
+      label: t`Supplier Name`,
       fieldname: 'supplier',
       size: 'small',
       placeholder: 'Supplier Name',
@@ -28,7 +29,7 @@ export default {
       fieldname: 'fromDate',
       size: 'small',
       placeholder: 'From Date',
-      label: 'From Date',
+      label: t`From Date`,
       required: 1,
     },
     {
@@ -36,20 +37,20 @@ export default {
       size: 'small',
       placeholder: 'To Date',
       fieldname: 'toDate',
-      label: 'To Date',
+      label: t`To Date`,
       required: 1,
     },
   ],
   actions: [],
   getColumns() {
     return [
-      { label: 'PurchaseInvoice', fieldname: 'name' },
-      { label: 'Posting Date', fieldname: 'date' },
-      { label: 'Supplier', fieldname: 'supplier' },
-      { label: 'Payable Account', fieldname: 'account' },
-      { label: 'Net Total', fieldname: 'netTotal', fieldtype: 'Currency' },
-      { label: 'Total Tax', fieldname: 'totalTax', fieldtype: 'Currency' },
-      { label: 'Grand Total', fieldname: 'grandTotal', fieldtype: 'Currency' },
+      { label: t`PurchaseInvoice`, fieldname: 'name' },
+      { label: t`Posting Date`, fieldname: 'date' },
+      { label: t`Supplier`, fieldname: 'supplier' },
+      { label: t`Payable Account`, fieldname: 'account' },
+      { label: t`Net Total`, fieldname: 'netTotal', fieldtype: 'Currency' },
+      { label: t`Total Tax`, fieldname: 'totalTax', fieldtype: 'Currency' },
+      { label: t`Grand Total`, fieldname: 'grandTotal', fieldtype: 'Currency' },
     ];
   },
 };

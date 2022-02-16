@@ -1,9 +1,9 @@
-import frappe from 'frappe';
+import frappe, { t } from 'frappe';
 import Account from './AccountDocument';
 
 export default {
   name: 'Account',
-  label: 'Account',
+  label: t`Account`,
   doctype: 'DocType',
   documentClass: Account,
   isSingle: 0,
@@ -12,13 +12,13 @@ export default {
   fields: [
     {
       fieldname: 'name',
-      label: 'Account Name',
+      label: t`Account Name`,
       fieldtype: 'Data',
       required: 1,
     },
     {
       fieldname: 'rootType',
-      label: 'Root Type',
+      label: t`Root Type`,
       fieldtype: 'Select',
       placeholder: 'Root Type',
       options: ['Asset', 'Liability', 'Equity', 'Income', 'Expense'],
@@ -26,7 +26,7 @@ export default {
     },
     {
       fieldname: 'parentAccount',
-      label: 'Parent Account',
+      label: t`Parent Account`,
       fieldtype: 'Link',
       target: 'Account',
       getFilters: (query, doc) => {
@@ -39,7 +39,7 @@ export default {
     },
     {
       fieldname: 'accountType',
-      label: 'Account Type',
+      label: t`Account Type`,
       placeholder: 'Account Type',
       fieldtype: 'Select',
       options: [
@@ -66,13 +66,13 @@ export default {
     },
     {
       fieldname: 'balance',
-      label: 'Balance',
+      label: t`Balance`,
       fieldtype: 'Currency',
       readOnly: 1,
     },
     {
       fieldname: 'isGroup',
-      label: 'Is Group',
+      label: t`Is Group`,
       fieldtype: 'Check',
     },
   ],
