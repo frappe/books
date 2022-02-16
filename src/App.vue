@@ -110,7 +110,7 @@ export default {
         this.activeScreen = 'SetupWizard';
       } else {
         this.activeScreen = 'Desk';
-        checkForUpdates(false);
+        await checkForUpdates(false);
       }
 
       if (!resetRoute) {

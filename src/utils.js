@@ -8,6 +8,7 @@ import lodash from 'lodash';
 import { createApp, h } from 'vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
+import { languageCodeMap } from './languageCodeMap';
 
 export async function showMessageDialog({
   message,
@@ -455,13 +456,20 @@ export function stringifyCircular(
   });
 }
 
-window.showToast = showToast;
-
-export function checkForUpdates(force = false) {
+export async function checkForUpdates(force = false) {
   ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
+  await setLanguageMap(getLanguageCode());
 }
 
 export async function setLanguageMap(code) {
+  if (code === undefined) {
+    code = getLanguageCode();
+  }
+
+  if (code === 'en') {
+    return;
+  }
+
   const { success, message, languageMap } = await ipcRenderer.invoke(
     IPC_ACTIONS.GET_LANGUAGE_MAP,
     code
@@ -473,4 +481,9 @@ export async function setLanguageMap(code) {
   }
 
   frappe.languages[code] = languageMap;
+}
+
+export function getLanguageCode() {
+  const { language } = frappe.SystemSettings;
+  return languageCodeMap[language || 'English'];
 }

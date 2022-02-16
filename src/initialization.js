@@ -6,7 +6,7 @@ import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart, { setCurrencySymbols } from '../server/postStart';
 import { DB_CONN_FAILURE } from './messages';
 import runMigrate from './migrate';
-import { callInitializeMoneyMaker, getSavePath } from './utils';
+import { callInitializeMoneyMaker, getSavePath, setLanguageMap } from './utils';
 
 export async function createNewDatabase() {
   const { canceled, filePath } = await getSavePath('books', 'db');
@@ -90,6 +90,7 @@ export async function connectToLocalDatabase(filePath) {
 
   // set last selected file
   config.set('lastSelectedFilePath', filePath);
+  await setLanguageMap();
 
   // second init with currency, normal usage
   await callInitializeMoneyMaker();
