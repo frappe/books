@@ -18,6 +18,13 @@
       @setup-complete="setupComplete"
       @setup-canceled="setupCanceled"
     />
+    <div
+      id="toast-container"
+      class="absolute bottom-0 flex flex-col items-end mb-3 pr-6"
+      style="width: 100%"
+    >
+      <div id="toast-target" />
+    </div>
   </div>
 </template>
 
