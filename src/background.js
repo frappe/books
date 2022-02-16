@@ -16,6 +16,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { sendError } from './contactMothership';
+import { getLanguageMap } from './getLanguageMap';
 import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import saveHtmlAsPdf from './saveHtmlAsPdf';
 
@@ -218,6 +219,18 @@ ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, (event, force) => {
   } else if (force) {
     autoUpdater.checkForUpdates();
   }
+});
+
+ipcMain.handle(IPC_ACTIONS.GET_LANGUAGE_MAP, async (event, code) => {
+  let obj = { languageMap: {}, success: true, message: '' };
+  try {
+    obj.languageMap = await getLanguageMap(code, isDevelopment);
+  } catch (err) {
+    obj.success = false;
+    obj.message = err.message;
+  }
+
+  return obj;
 });
 
 /* ------------------------------

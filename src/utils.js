@@ -460,3 +460,17 @@ window.showToast = showToast;
 export function checkForUpdates(force = false) {
   ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
 }
+
+export async function setLanguageMap(code) {
+  const { success, message, languageMap } = await ipcRenderer.invoke(
+    IPC_ACTIONS.GET_LANGUAGE_MAP,
+    code
+  );
+
+  if (!success) {
+    showToast({ type: 'error', message });
+    return;
+  }
+
+  frappe.languages[code] = languageMap;
+}

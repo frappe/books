@@ -9,7 +9,7 @@
 
 const fs = require('fs/promises');
 const path = require('path');
-const fetch = require('node-fetch');
+const fetch = require('node-fetch').default;
 const { splitCsvLine } = require('../scripts/helpers');
 
 async function getLanguageMap(code, isDevelopment = false) {
@@ -19,8 +19,9 @@ async function getLanguageMap(code, isDevelopment = false) {
 
 async function getContents(code, isDevelopment) {
   if (isDevelopment) {
-    const filePath = path.resolve('..', 'translations', `${code}.csv`);
-    return await fs.readFile(filePath);
+    const filePath = path.resolve('translations', `${code}.csv`);
+    const contents = await fs.readFile(filePath, { encoding: 'utf-8' });
+    return ['', contents].join('\n');
   }
 
   let contents = await getContentsIfExists();
@@ -52,7 +53,7 @@ function getMapFromContents(contents) {
     }, {});
 }
 
-await function getContentsIfExists(code) {
+async function getContentsIfExists(code) {
   const filePath = getFilePath(code);
   try {
     return await fs.readFile(filePath, { encoding: 'utf-8' });
@@ -63,7 +64,7 @@ await function getContentsIfExists(code) {
 
     return '';
   }
-};
+}
 
 async function fetchAndStoreFile(code, date) {
   const url = `https://api.github.com/repos/frappe/books/contents/translations/${code}.csv`;
@@ -72,11 +73,15 @@ async function fetchAndStoreFile(code, date) {
     throwTranslationFileNotFound(code);
   }
 
+  if (!date) {
+    date = await getLastUpdated(code);
+  }
+
   const resJson = await res.json();
   let contents = Buffer.from(resJson.content, 'base64').toString();
   contents = [date.toISOString(), contents].join('\n');
 
-  await storeFile(code, content);
+  await storeFile(code, contents);
   return contents;
 }
 
@@ -97,10 +102,9 @@ async function shouldUpdateFile(code, contents) {
 
 async function getLastUpdated(code) {
   const url = `https://api.github.com/repos/frappe/books/commits?path=translations%2F${code}.csv&page=1&per_page=1`;
-  let resJson;
-  resJson = await fetch(url).then((res) => res.json());
+  const resJson = await fetch(url).then((res) => res.json());
 
-  if (res.Json.length === 0) {
+  if (resJson.length === 0) {
     throwTranslationFileNotFound(code);
   }
 
@@ -115,8 +119,10 @@ function throwTranslationFileNotFound(code) {
   throw new Error(`translation file not found for ${code}`);
 }
 
-async function storeFile(contents, code) {
+async function storeFile(code, contents) {
   const filePath = getFilePath(code);
+  const dirname = path.dirname(filePath);
+  await fs.mkdir(dirname, { recursive: true });
   await fs.writeFile(filePath, contents, { encoding: 'utf-8' });
 }
 
