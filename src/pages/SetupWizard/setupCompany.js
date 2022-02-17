@@ -45,7 +45,7 @@ export default async function setupCompany(setupWizardValues) {
   await setupGlobalCurrencies(countryList);
   await setupChartOfAccounts(bankName, country);
   await setupRegionalChanges(country);
-  updateCompanyNameInConfig();
+  updateInitializationConfig();
 
   await accountingSettings.update({ setupComplete: 1 });
   frappe.AccountingSettings = accountingSettings;
@@ -109,7 +109,7 @@ async function setupRegionalChanges(country) {
   await frappe.db.migrate();
 }
 
-function updateCompanyNameInConfig() {
+function updateInitializationConfig(language) {
   let filePath = frappe.db.dbPath;
   let files = config.get('files', []);
   files.forEach((file) => {

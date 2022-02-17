@@ -1,3 +1,9 @@
+import {
+  getIndexFormat,
+  getIndexList,
+  getSnippets,
+  getWhitespaceSanitized,
+} from '../../scripts/helpers';
 import { ValueError } from '../common/errors';
 
 class TranslationString {
@@ -14,17 +20,21 @@ class TranslationString {
     return this;
   }
 
-  #translate(segment) {
-    const startSpace = segment.match(/^\s+/)?.[0] ?? '';
-    const endSpace = segment.match(/\s+$/)?.[0] ?? '';
-    segment = segment.replace(/\s+/g, ' ').trim();
-    // TODO: implement translation backend
-    // segment = translate(segment)
-    return startSpace + segment + endSpace;
-  }
-
   #formatArg(arg) {
     return arg ?? '';
+  }
+
+  #translate() {
+    let indexFormat = getIndexFormat(this.args[0]);
+    indexFormat = getWhitespaceSanitized(indexFormat);
+
+    const translatedIndexFormat =
+      this.languageMap[indexFormat]?.translation ?? indexFormat;
+
+    this.argList = getIndexList(translatedIndexFormat).map(
+      (i) => this.argList[i]
+    );
+    this.strList = getSnippets(translatedIndexFormat);
   }
 
   #stitch() {
@@ -36,10 +46,15 @@ class TranslationString {
       );
     }
 
-    const strList = this.args[0];
-    const argList = this.args.slice(1);
-    return strList
-      .map((s, i) => this.#translate(s) + this.#formatArg(argList[i]))
+    this.strList = this.args[0];
+    this.argList = this.args.slice(1);
+
+    if (this.languageMap) {
+      this.#translate();
+    }
+
+    return this.strList
+      .map((s, i) => s + this.#formatArg(this.argList[i]))
       .join('')
       .replace(/\s+/g, ' ')
       .trim();
@@ -64,4 +79,8 @@ export function T(...args) {
 
 export function t(...args) {
   return new TranslationString(...args).s;
+}
+
+export function setLanguageMapOnTranslationString(languageMap) {
+  TranslationString.prototype.languageMap = languageMap;
 }

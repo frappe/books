@@ -93,8 +93,8 @@ module.exports = {
     },
   ],
   quickEditFields: [
-    'dateFormat',
     'locale',
+    'dateFormat',
     'displayPrecision',
     'hideGetStarted',
     'autoReportErrors',

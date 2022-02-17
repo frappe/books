@@ -4,9 +4,13 @@ import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
 import { isPesa } from 'frappe/utils';
+import { DEFAULT_LANGUAGE } from 'frappe/utils/consts';
+import { setLanguageMapOnTranslationString } from 'frappe/utils/translation';
 import lodash from 'lodash';
 import { createApp, h } from 'vue';
+import config from './config';
 import { handleErrorWithDialog } from './errorHandling';
+import { languageCodeMap } from './languageCodeMap';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 
 export async function showMessageDialog({
@@ -455,8 +459,57 @@ export function stringifyCircular(
   });
 }
 
-window.showToast = showToast;
-
-export function checkForUpdates(force = false) {
+export async function checkForUpdates(force = false) {
   ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
+  await setLanguageMap();
+}
+
+async function fetchAndSetLanguageMap(code) {
+  const { success, message, languageMap } = await ipcRenderer.invoke(
+    IPC_ACTIONS.GET_LANGUAGE_MAP,
+    code
+  );
+
+  if (!success) {
+    showToast({ type: 'error', message });
+  } else {
+    setLanguageMapOnTranslationString(languageMap);
+  }
+
+  return success;
+}
+
+export async function setLanguageMap(initLanguage, dontReload = false) {
+  const oldLanguage = config.get('language');
+  initLanguage ??= oldLanguage;
+  const [code, language, usingDefault] = getLanguageCode(
+    initLanguage,
+    oldLanguage
+  );
+
+  let success = true;
+  if (code === 'en') {
+    setLanguageMapOnTranslationString(undefined);
+  } else {
+    success = await fetchAndSetLanguageMap(code);
+  }
+
+  if (success && !usingDefault) {
+    config.set('language', language);
+  }
+
+  if (!dontReload && success && initLanguage !== oldLanguage) {
+    await ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
+  }
+  return success;
+}
+
+function getLanguageCode(initLanguage, oldLanguage) {
+  let language = initLanguage ?? oldLanguage;
+  let usingDefault = false;
+  if (!language) {
+    language = DEFAULT_LANGUAGE;
+    usingDefault = true;
+  }
+  return [languageCodeMap[language], language, usingDefault];
 }

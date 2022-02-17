@@ -111,10 +111,11 @@ function printHelp() {
         `\tbe removed.\n` +
         `\n` +
         `Parameters:\n` +
-        `\tlanguage_code : An ISO 693-1 code which has 2 characters eg: en\n` +
+        `\tlanguage_code : An ISO 693-1 code or a locale identifier.\n` +
         `\n` +
         `Reference:\n` +
-        `\tISO 693-1 codes: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes`
+        `\tISO 693-1 codes: https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes\n` +
+        `\tLocale identifier: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl#locale_identification_and_negotiation`
     );
   }
   return shouldPrint;
@@ -125,7 +126,7 @@ function getLanguageCode() {
   if (i === -1) {
     return '';
   }
-  return process.argv[i + 1]?.toLowerCase() ?? '';
+  return process.argv[i + 1] ?? '';
 }
 
 function getTranslationFilePath(languageCode) {
@@ -213,14 +214,6 @@ async function run() {
   const languageCode = getLanguageCode();
 
   console.log();
-  if (languageCode.length !== 0 && languageCode.length !== 2) {
-    console.error(
-      `Invalid language code passed: '${languageCode}'.\n` +
-        `Please use an ISO 639-1 language code: ${'https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes'}`
-    );
-    return;
-  }
-
   const fileList = await getFileList(root, ignoreList);
   const contents = await getFileContents(fileList);
   const tMap = await getAllTStringsMap(contents);

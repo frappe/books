@@ -63,6 +63,8 @@ import StatusBadge from '@/components/StatusBadge';
 import { callInitializeMoneyMaker } from '../../utils';
 import { showToast } from '../../utils';
 import { h, markRaw } from 'vue';
+import { ipcRenderer } from 'electron';
+import { IPC_MESSAGES } from '@/messages';
 
 export default {
   name: 'Settings',
@@ -113,8 +115,11 @@ export default {
       fieldnames.includes('displayPrecision') ||
       fieldnames.includes('hideGetStarted')
     ) {
-      callInitializeMoneyMaker(undefined, true);
       this.showReloadToast();
+    }
+
+    if (fieldnames.includes('displayPrecision')) {
+      callInitializeMoneyMaker(undefined, true);
     }
   },
   methods: {
@@ -124,7 +129,7 @@ export default {
         actionText: frappe.t`Reload App`,
         type: 'info',
         action: async () => {
-          frappe.events.trigger('reload-main-window');
+          ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW)
         },
       });
     },

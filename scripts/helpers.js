@@ -33,7 +33,7 @@ function getIndexFormat(inp) {
 
 function getSnippets(string) {
   let start = 0;
-  snippets = [...string.matchAll(/\${[^}]+}/g)].map((m) => {
+  const snippets = [...string.matchAll(/\${[^}]+}/g)].map((m) => {
     let end = m.index;
     let snip = string.slice(start, end);
     start = end + m[0].length;
