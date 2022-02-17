@@ -10,7 +10,13 @@
       </template>
       <template #content>
         <div class="flex flex-col justify-center items-center h-96">
-          <LanguageSelector class="w-40" />
+          <LanguageSelector class="w-40 mt-8" />
+          <p
+            class="text-sm mt-2 hover:underline cursor-pointer text-gray-700"
+            @click="openContributingTranslations"
+          >
+            {{ t`I can't find my language.` }}
+          </p>
         </div>
       </template>
       <template #secondaryButton>
@@ -100,6 +106,8 @@ import {
 } from '../../errorHandling';
 import Slide from './Slide.vue';
 import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
+import { ipcRenderer } from 'electron';
+import { IPC_MESSAGES } from '@/messages';
 
 export default {
   name: 'SetupWizard',
@@ -137,6 +145,12 @@ export default {
     });
   },
   methods: {
+    openContributingTranslations() {
+      ipcRenderer.send(
+        IPC_MESSAGES.OPEN_EXTERNAL,
+        'https://github.com/frappe/books/wiki/Contributing-Translations'
+      );
+    },
     handlePrimary() {
       if (this.index === 0) {
         this.index = 1;
