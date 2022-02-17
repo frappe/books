@@ -479,7 +479,7 @@ async function fetchAndSetLanguageMap(code) {
   return success;
 }
 
-export async function setLanguageMap(initLanguage) {
+export async function setLanguageMap(initLanguage, dontReload = false) {
   const oldLanguage = config.get('language');
   initLanguage ??= oldLanguage;
   const [code, language, usingDefault] = getLanguageCode(
@@ -498,8 +498,8 @@ export async function setLanguageMap(initLanguage) {
     config.set('language', language);
   }
 
-  if (success && initLanguage !== oldLanguage) {
-    ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
+  if (!dontReload && success && initLanguage !== oldLanguage) {
+    await ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
   }
   return success;
 }
