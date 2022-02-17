@@ -61,8 +61,10 @@ import Icon from '@/components/Icon';
 import PageHeader from '@/components/PageHeader';
 import StatusBadge from '@/components/StatusBadge';
 import { callInitializeMoneyMaker } from '../../utils';
-import { showToast, setLanguageMap } from '../../utils';
+import { showToast } from '../../utils';
 import { h, markRaw } from 'vue';
+import { ipcRenderer } from 'electron';
+import { IPC_MESSAGES } from '@/messages';
 
 export default {
   name: 'Settings',
@@ -111,18 +113,13 @@ export default {
 
     if (
       fieldnames.includes('displayPrecision') ||
-      fieldnames.includes('hideGetStarted') ||
-      fieldnames.includes('language')
+      fieldnames.includes('hideGetStarted')
     ) {
       this.showReloadToast();
     }
 
     if (fieldnames.includes('displayPrecision')) {
       callInitializeMoneyMaker(undefined, true);
-    }
-
-    if (fieldnames.includes('language')) {
-      setLanguageMap();
     }
   },
   methods: {
@@ -132,7 +129,7 @@ export default {
         actionText: frappe.t`Reload App`,
         type: 'info',
         action: async () => {
-          frappe.events.trigger('reload-main-window');
+          ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW)
         },
       });
     },

@@ -72,7 +72,6 @@ export async function connectToLocalDatabase(filePath) {
 
   // set file info in config
   const { companyName } = frappe.AccountingSettings;
-  await setLanguageMap();
   let files = config.get('files') || [];
   if (
     !files.find(

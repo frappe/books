@@ -4,9 +4,11 @@ import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
 import { isPesa } from 'frappe/utils';
+import { DEFAULT_LANGUAGE } from 'frappe/utils/consts';
 import { setLanguageMapOnTranslationString } from 'frappe/utils/translation';
 import lodash from 'lodash';
 import { createApp, h } from 'vue';
+import config from './config';
 import { handleErrorWithDialog } from './errorHandling';
 import { languageCodeMap } from './languageCodeMap';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
@@ -462,14 +464,7 @@ export async function checkForUpdates(force = false) {
   await setLanguageMap();
 }
 
-export async function setLanguageMap(language) {
-  const code = getLanguageCode(language);
-
-  if (code === 'en') {
-    setLanguageMapOnTranslationString(undefined);
-    return;
-  }
-
+async function fetchAndSetLanguageMap(code) {
   const { success, message, languageMap } = await ipcRenderer.invoke(
     IPC_ACTIONS.GET_LANGUAGE_MAP,
     code
@@ -477,13 +472,44 @@ export async function setLanguageMap(language) {
 
   if (!success) {
     showToast({ type: 'error', message });
-    return;
+  } else {
+    setLanguageMapOnTranslationString(languageMap);
   }
 
-  setLanguageMapOnTranslationString(languageMap);
+  return success;
 }
 
-export function getLanguageCode(initLanguage) {
-  const { language } = initLanguage ?? frappe.SystemSettings;
-  return languageCodeMap[language || 'English'];
+export async function setLanguageMap(initLanguage) {
+  const oldLanguage = config.get('language');
+  initLanguage ??= oldLanguage;
+  const [code, language, usingDefault] = getLanguageCode(
+    initLanguage,
+    oldLanguage
+  );
+
+  let success = true;
+  if (code === 'en') {
+    setLanguageMapOnTranslationString(undefined);
+  } else {
+    success = await fetchAndSetLanguageMap(code);
+  }
+
+  if (success && !usingDefault) {
+    config.set('language', language);
+  }
+
+  if (success && initLanguage !== oldLanguage) {
+    ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
+  }
+  return success;
+}
+
+function getLanguageCode(initLanguage, oldLanguage) {
+  let language = initLanguage ?? oldLanguage;
+  let usingDefault = false;
+  if (!language) {
+    language = DEFAULT_LANGUAGE;
+    usingDefault = true;
+  }
+  return [languageCodeMap[language], language, usingDefault];
 }
