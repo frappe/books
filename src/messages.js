@@ -23,6 +23,7 @@ export const IPC_ACTIONS = {
   SAVE_DATA: 'save-data',
   SHOW_ERROR: 'show-error',
   SEND_ERROR: 'send-error',
+  GET_LANGUAGE_MAP: 'get-language-map',
   CHECK_FOR_UPDATES: 'check-for-updates',
 };
 

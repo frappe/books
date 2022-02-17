@@ -8,9 +8,10 @@
       :emit-change="true"
       @change="forwardChangeEvent"
     />
-    <div class="flex flex-row justify-end my-4">
+    <div class="flex flex-row justify-between my-4">
+      <LanguageSelector class="text-sm" input-class="px-4 py-1.5"/>
       <button
-        class="text-gray-900 text-sm hover:bg-gray-100 rounded-md px-4 py-1.5"
+        class="text-gray-900 text-sm hover:bg-gray-200 rounded-md px-4 py-1.5"
         @click="checkForUpdates(true)"
       >
         Check for Updates
@@ -23,11 +24,13 @@
 import frappe from 'frappe';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import { checkForUpdates } from '@/utils';
+import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
 
 export default {
   name: 'TabSystem',
   components: {
     TwoColumnForm,
+    LanguageSelector,
   },
   emits: ['change'],
   data() {

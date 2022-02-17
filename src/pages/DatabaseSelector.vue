@@ -149,6 +149,12 @@
         </div>
       </div>
     </div>
+    <div
+      class="w-full flex justify-end absolute px-8"
+      style="top: 100%; transform: translateY(-175%)"
+    >
+      <LanguageSelector class="w-28" input-class="text-base" />
+    </div>
   </div>
 </template>
 <script>
@@ -160,6 +166,7 @@ import { DB_CONN_FAILURE, IPC_ACTIONS } from '../messages';
 
 import { createNewDatabase, connectToLocalDatabase } from '@/initialization';
 import { showErrorDialog } from '../errorHandling';
+import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
 
 export default {
   name: 'DatabaseSelector',
@@ -211,18 +218,15 @@ export default {
       if (!filePath) {
         return;
       }
-
       this.loadingDatabase = true;
       const { connectionSuccess, reason } = await connectToLocalDatabase(
         filePath
       );
       this.loadingDatabase = false;
-
       if (connectionSuccess) {
         this.$emit('database-connect');
         return;
       }
-
       const title = this.t`DB Connection Error`;
       let content =
         this.t`Please select an existing database or create a new one.` +
@@ -231,7 +235,6 @@ export default {
         content = this
           .t`Can't open database file: ${filePath}, please create a new file.`;
       }
-
       await showErrorDialog(title, content);
     },
     getFileLastModified(filePath) {
@@ -239,5 +242,6 @@ export default {
       return DateTime.fromJSDate(stats.mtime).toRelative();
     },
   },
+  components: { LanguageSelector },
 };
 </script>
