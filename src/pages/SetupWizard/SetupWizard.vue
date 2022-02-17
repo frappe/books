@@ -10,7 +10,7 @@
       </template>
       <template #content>
         <div class="flex flex-col justify-center items-center h-96">
-          <LanguageSelector class="w-40 mt-8" />
+          <LanguageSelector class="w-40 mt-8" :dont-reload="true" />
           <p
             class="text-sm mt-2 hover:underline cursor-pointer text-gray-700"
             @click="openContributingTranslations"

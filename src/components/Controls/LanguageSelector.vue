@@ -2,8 +2,8 @@
   <FormControl
     :df="languageDf"
     :value="value"
-    @change="setLanguageMap"
-    :input-class="'focus:outline-none rounded '+inputClass"
+    @change="(v) => setLanguageMap(v, dontReload)"
+    :input-class="'focus:outline-none rounded ' + inputClass"
   />
 </template>
 <script>
@@ -22,6 +22,10 @@ export default {
       type: String,
       default:
         'bg-gray-100 active:bg-gray-200 focus:bg-gray-200 px-3 py-2 text-base',
+    },
+    dontReload: {
+      type: Boolean,
+      default: false,
     },
   },
   components: { FormControl },

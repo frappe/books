@@ -10,11 +10,10 @@ import { IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import router from './router';
 import { outsideClickDirective } from './ui';
 import { setLanguageMap, showToast, stringifyCircular } from './utils';
-
 (async () => {
   const language = config.get('language');
   if (language) {
-    setLanguageMap(language);
+    await setLanguageMap(language);
   }
 
   frappe.isServer = true;
