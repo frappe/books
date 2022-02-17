@@ -14,7 +14,7 @@
       :class="inputClasses"
     >
       <select
-        class="appearance-none bg-transparent focus:outline-none w-11/12"
+        class="appearance-none bg-transparent focus:outline-none w-11/12 cursor-pointer"
         :class="{
           'pointer-events-none': isReadOnly,
           'text-gray-400': !value,

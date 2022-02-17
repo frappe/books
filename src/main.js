@@ -4,24 +4,26 @@ import { createApp } from 'vue';
 import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
+import config from './config';
 import { getErrorHandled, handleError } from './errorHandling';
 import { IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import router from './router';
 import { outsideClickDirective } from './ui';
-import { showToast, stringifyCircular } from './utils';
+import { setLanguageMap, showToast, stringifyCircular } from './utils';
 
 (async () => {
+  const language = config.get('language');
+  if (language) {
+    setLanguageMap(language);
+  }
+
   frappe.isServer = true;
   frappe.isElectron = true;
-  frappe.initializeAndRegister(models);
+  frappe.initializeAndRegister(models, language);
   frappe.fetch = window.fetch.bind();
 
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
-
-  frappe.events.on('reload-main-window', () => {
-    ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
-  });
 
   window.frappe = frappe;
   window.frappe.store = {};

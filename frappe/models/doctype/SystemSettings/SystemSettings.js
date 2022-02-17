@@ -4,9 +4,7 @@ const {
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,
   DEFAULT_LOCALE,
-  DEFAULT_LANGUAGE,
 } = require('../../../utils/consts');
-const { languageCodeMap } = require('@/languageCodeMap');
 
 let dateFormatOptions = (() => {
   let formats = [
@@ -54,14 +52,6 @@ module.exports = {
       description: t`Set the local code, this is used for number formatting.`,
     },
     {
-      fieldname: 'language',
-      label: t`Language`,
-      fieldtype: 'Select',
-      options: Object.keys(languageCodeMap),
-      default: DEFAULT_LANGUAGE,
-      description: t`Set the display language.`,
-    },
-    {
       fieldname: 'displayPrecision',
       label: t`Display Precision`,
       fieldtype: 'Int',
@@ -104,7 +94,6 @@ module.exports = {
   ],
   quickEditFields: [
     'locale',
-    'language',
     'dateFormat',
     'displayPrecision',
     'hideGetStarted',
