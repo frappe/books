@@ -12,6 +12,8 @@ const path = require('path');
 const fetch = require('node-fetch').default;
 const { splitCsvLine } = require('../scripts/helpers');
 
+const VALENTINES_DAY = 1644796800000;
+
 async function getLanguageMap(code, isDevelopment = false) {
   const contents = await getContents(code, isDevelopment);
   return getMapFromContents(contents);
@@ -26,9 +28,13 @@ async function getContents(code, isDevelopment) {
 
   let contents = await getContentsIfExists();
   if (contents.length === 0) {
-    contents = await fetchAndStoreFile(code);
+    contents = (await fetchAndStoreFile(code)) ?? contents;
   } else {
-    contents = await getUpdatedContent(code, contents);
+    contents = (await getUpdatedContent(code, contents)) ?? contents;
+  }
+
+  if (!contents || contents.length === 0) {
+    throwCouldNotFetchFile(code);
   }
 
   return contents;
@@ -67,21 +73,32 @@ async function getContentsIfExists(code) {
 }
 
 async function fetchAndStoreFile(code, date) {
-  const url = `https://api.github.com/repos/frappe/books/contents/translations/${code}.csv`;
-  const res = await fetch(url);
-  if (res.status !== 200) {
-    throwTranslationFileNotFound(code);
+  let res = await fetch(
+    `https://api.github.com/repos/frappe/books/contents/translations/${code}.csv`
+  );
+
+  let contents = undefined;
+  if (res.status === 200) {
+    const resJson = await res.json();
+    contents = Buffer.from(resJson.content, 'base64').toString();
+  } else {
+    res = await fetch(
+      `https://raw.githubusercontent.com/frappe/books/master/translations/${code}.csv`
+    );
   }
 
-  if (!date) {
+  if (!contents && res.status === 200) {
+    contents = await res.text();
+  }
+
+  if (!date && contents) {
     date = await getLastUpdated(code);
   }
 
-  const resJson = await res.json();
-  let contents = Buffer.from(resJson.content, 'base64').toString();
-  contents = [date.toISOString(), contents].join('\n');
-
-  await storeFile(code, contents);
+  if (contents) {
+    contents = [date.toISOString(), contents].join('\n');
+    await storeFile(code, contents);
+  }
   return contents;
 }
 
@@ -97,26 +114,28 @@ async function getUpdatedContent(code, contents) {
 async function shouldUpdateFile(code, contents) {
   const date = await getLastUpdated(code);
   const oldDate = new Date(contents.split('\n')[0]);
-  return [date > oldDate, date];
+  const shouldUpdate = date > oldDate || +oldDate === VALENTINES_DAY;
+
+  return [shouldUpdate, date];
 }
 
 async function getLastUpdated(code) {
   const url = `https://api.github.com/repos/frappe/books/commits?path=translations%2F${code}.csv&page=1&per_page=1`;
   const resJson = await fetch(url).then((res) => res.json());
 
-  if (resJson.length === 0) {
-    throwTranslationFileNotFound(code);
+  try {
+    return new Date(resJson[0].commit.author.date);
+  } catch {
+    return new Date(VALENTINES_DAY);
   }
-
-  return new Date(resJson[0].commit.author.date);
 }
 
 function getFilePath(code) {
   return path.resolve(process.resourcesPath, 'translations', `${code}.csv`);
 }
 
-function throwTranslationFileNotFound(code) {
-  throw new Error(`translation file not found for ${code}`);
+function throwCouldNotFetchFile(code) {
+  throw new Error(`Could not fetch translations for '${code}'.`);
 }
 
 async function storeFile(code, contents) {
