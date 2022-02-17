@@ -8,7 +8,7 @@ const {
 } = require('./helpers');
 
 const translationsFolder = path.resolve(__dirname, '..', 'translations');
-const PATTERN = /(?<!\w)t`((?:[^`]|(?<=\\)`)+)`/g;
+const PATTERN = /(?<!\w)t`([^`]+)`/g;
 
 function shouldIgnore(p, ignoreList) {
   return ignoreList.includes(p.split(path.sep).at(-1));
