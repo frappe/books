@@ -8,7 +8,7 @@
 ![Platforms](https://img.shields.io/badge/platform-mac%2C%20windows%2C%20linux-yellowgreen)
 [![Publish](https://github.com/frappe/books/actions/workflows/publish.yml/badge.svg)](https://github.com/frappe/books/actions/workflows/publish.yml)
 
-Free Desktop book-keeping software for small-businesses and freelancers.
+Free Desktop book-keeping software for small businesses and freelancers.
 
 [frappebooks.com](https://frappebooks.com/)
 
@@ -53,13 +53,13 @@ page](https://frappebooks.com/download).
 
 ## Development
 
-Frappe Books is built on Vue.js and Electron. It is offline by default, and uses
+Frappe Books is built on Vue.js and Electron. It is offline by default and uses
 a local SQLite file as the database.
 
 ### Pre-requisites
 
-To get the dev environment up and running you need to first setup Node.js version
-16.13.1 and npm. For this we suggest using
+To get the dev environment up and running you need to first set up Node.js version
+16.13.1 and npm. For this, we suggest using
 [nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 Next, you will need to install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable).
@@ -101,7 +101,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 - [Telegram Group](https://t.me/frappebooks): Used for discussions regarding features, issues, changes, etc. This group is also be used to make decisions regarding project direction.
 - [Project Board](https://github.com/frappe/books/projects/1): Roadmap that is updated with acceptable latency.
 - [GitHub Discussions](https://github.com/frappe/books/discussions): Used for discussions around a specific topic.
-- [Frappe Books Blog](https://frappebooks.com/tech/): Sporadically updated dev blog regarding the developement of this project.
+- [Frappe Books Blog](https://frappebooks.com/tech/): Sporadically updated dev blog regarding the development of this project.
 
 ## License
 
