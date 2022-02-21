@@ -69,9 +69,10 @@
     "trailingComma": "es5"
   },
   "engines": {
-    "node": ">=16.13.1",
+    "node": ">=16.13.1 <17",
     "yarn": "1.22.17"
   },
+  "engineStrict": true,
   "gitHooks": {
     "pre-commit": "lint-staged"
   },
