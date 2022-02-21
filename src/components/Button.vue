@@ -24,11 +24,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    padding: {
+      type: Boolean,
+      default: true,
+    },
   },
   computed: {
     style() {
       return {
-        padding: this.icon ? '6px 12px' : '6px 24px',
+        ...(this.padding
+          ? { padding: this.icon ? '6px 12px' : '6px 24px' }
+          : {}),
         color: this.type === 'primary' ? '#fff' : '#112B42',
         'background-image':
           this.type === 'primary'

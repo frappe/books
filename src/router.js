@@ -1,6 +1,7 @@
 import ChartOfAccounts from '@/pages/ChartOfAccounts';
 // standard views
 import Dashboard from '@/pages/Dashboard/Dashboard';
+import DataImport from '@/pages/DataImport';
 // custom views
 import GetStarted from '@/pages/GetStarted';
 import InvoiceForm from '@/pages/InvoiceForm';
@@ -93,6 +94,11 @@ const routes = [
       default: true,
       edit: (route) => route.query,
     },
+  },
+  {
+    path: '/data_import',
+    name: 'Data Import',
+    component: DataImport,
   },
   {
     path: '/settings',
