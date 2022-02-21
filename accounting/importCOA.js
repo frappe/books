@@ -1,6 +1,6 @@
 import frappe from 'frappe';
-import countries from '../fixtures/countryInfo.json';
 import standardCOA from '../fixtures/verified/standardCOA.json';
+import { getCOAList } from '../src/utils';
 const accountFields = ['accountType', 'accountNumber', 'rootType', 'isGroup'];
 
 function getAccountName(accountName, accountNumber) {
@@ -55,9 +55,13 @@ function identifyIsGroup(child) {
   return 0;
 }
 
-export async function getCountryCOA() {
-  const doc = await frappe.getDoc('AccountingSettings');
-  const conCode = countries[doc.country].code;
+export async function getCountryCOA(chartOfAccounts) {
+  const coaList = await getCOAList();
+  const coa = coaList.find(({ name }) => name === chartOfAccounts);
+  const conCode = coa.countryCode;
+  if (!conCode) {
+    return standardCOA;
+  }
 
   try {
     const countryCoa = (
@@ -69,7 +73,7 @@ export async function getCountryCOA() {
   }
 }
 
-export default async function importCharts() {
-  const chart = await getCountryCOA();
+export default async function importCharts(chartOfAccounts) {
+  const chart = await getCountryCOA(chartOfAccounts);
   await importAccounts(chart, '', '', true);
 }
