@@ -1,6 +1,7 @@
 import { t } from 'frappe';
 import { DateTime } from 'luxon';
 import countryList from '~/fixtures/countryInfo.json';
+import { getCOAList } from '../../../src/utils';
 
 export default {
   name: 'SetupWizard',
@@ -116,12 +117,37 @@ export default {
       fieldtype: 'Check',
       readonly: 1,
     },
+    {
+      fieldname: 'chartOfAccounts',
+      label: t`Chart of Accounts`,
+      fieldtype: 'AutoComplete',
+      placeholder: t`Select CoA`,
+      formulaDependsOn: ['country'],
+      formula: async (doc) => {
+        if (!doc.country) return;
+
+        const { code } = countryList[doc.country];
+        const coaList = await getCOAList();
+        const coa = coaList.find(({ countryCode }) => countryCode === code);
+
+        if (coa === undefined) {
+          return coaList[0].name;
+        }
+        return coa.name;
+      },
+      getList: async () =>
+        (await getCOAList()).map(({ name, countryCode }) => ({
+          label: name,
+          value: countryCode,
+        })),
+    },
   ],
   quickEditFields: [
     'fullname',
     'bankName',
     'country',
     'currency',
+    'chartOfAccounts',
     'fiscalYearStart',
     'fiscalYearEnd',
   ],

@@ -6,7 +6,6 @@ import frappe, { t } from 'frappe';
 import { isPesa } from 'frappe/utils';
 import { DEFAULT_LANGUAGE } from 'frappe/utils/consts';
 import { setLanguageMapOnTranslationString } from 'frappe/utils/translation';
-import lodash from 'lodash';
 import { createApp, h } from 'vue';
 import config from './config';
 import { handleErrorWithDialog } from './errorHandling';
@@ -367,7 +366,7 @@ export function titleCase(phrase) {
       if (['and', 'an', 'a', 'from', 'by', 'on'].includes(wordLower)) {
         return wordLower;
       }
-      return lodash.capitalize(wordLower);
+      return wordLower[0].toUpperCase() + wordLower.slice(1);
     })
     .join(' ');
 }
@@ -512,4 +511,13 @@ function getLanguageCode(initLanguage, oldLanguage) {
     usingDefault = true;
   }
   return [languageCodeMap[language], language, usingDefault];
+}
+
+export async function getCOAList() {
+  if (!frappe.temp.coaList) {
+    const coaList = await ipcRenderer.invoke(IPC_ACTIONS.GET_COA_LIST);
+    coaList.unshift({ name: t`Standard Chart of Accounts`, countryCode: '' });
+    frappe.temp.coaList = coaList;
+  }
+  return frappe.temp.coaList;
 }
