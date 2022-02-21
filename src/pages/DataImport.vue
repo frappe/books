@@ -37,11 +37,7 @@
               input-class="bg-gray-100 text-gray-900 text-base"
               class="w-1/4"
               :value="importType"
-              @change="
-                (v) => {
-                  importType = v;
-                }
-              "
+              @change="setImportType"
             />
             <p
               class="text-base text-base"
@@ -55,8 +51,13 @@
         <div v-if="importType">
           <hr class="mb-6" />
           <div class="flex flex-row justify-between text-base">
-            <Button class="w-1/4" :padding="false">{{ secondaryLabel }}</Button>
-            <Button class="w-1/4" type="primary" @click="getFile">{{
+            <Button
+              class="w-1/4"
+              :padding="false"
+              @click="handleSecondaryClick"
+              >{{ secondaryLabel }}</Button
+            >
+            <Button class="w-1/4" type="primary" @click="handlePrimaryClick">{{
               primaryLabel
             }}</Button>
           </div>
@@ -68,17 +69,18 @@
 <script>
 import FormControl from '@/components/Controls/FormControl';
 import PageHeader from '@/components/PageHeader.vue';
-import { importable } from '@/dataImport';
+import { importable, Importer } from '@/dataImport';
 import frappe from 'frappe';
 import Button from '@/components/Button.vue';
 import { ipcRenderer } from 'electron';
 import { IPC_ACTIONS } from '@/messages';
-import { showToast } from '@/utils';
+import { getSavePath, saveData, showToast } from '@/utils';
 export default {
   components: { PageHeader, FormControl, Button },
   data() {
     return {
       file: null,
+      importer: null,
       importType: '',
     };
   },
@@ -130,13 +132,42 @@ export default {
   methods: {
     cancel() {
       this.file = null;
+      this.importer = null;
       this.importType = '';
     },
-    handlePrimaryClick() {},
-    handleSecondaryClick() {},
-    saveTemplate() {},
-    getImportData() {},
-    async getFile() {
+    handlePrimaryClick() {
+      if (!this.file) {
+        this.selectFile();
+        return;
+      }
+
+      this.importData();
+    },
+    handleSecondaryClick() {
+      if (!this.file) {
+        this.saveTemplate();
+        return;
+      }
+
+      this.toggleView();
+    },
+    async saveTemplate() {
+      const template = this.importer.template;
+      const templateName = this.importType + ' ' + this.t`Template`;
+      const { cancelled, filePath } = await getSavePath(templateName, 'csv');
+
+      if (cancelled || filePath === '') {
+        return;
+      }
+      await saveData(template, filePath);
+    },
+    importData() {},
+    toggleView() {},
+    setImportType(importType) {
+      this.importType = importType;
+      this.importer = new Importer(this.labelDoctypeMap[this.importType]);
+    },
+    async selectFile() {
       const options = {
         title: this.t`Select File`,
         properties: ['openFile'],
