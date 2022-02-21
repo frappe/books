@@ -49,7 +49,7 @@ module.exports = {
       label: t`Locale`,
       fieldtype: 'Data',
       default: DEFAULT_LOCALE,
-      description: t`Set the local code, this is used for number formatting.`,
+      description: t`Set the local code. This is used for number formatting.`,
     },
     {
       fieldname: 'displayPrecision',

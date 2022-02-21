@@ -54,7 +54,7 @@
 `Body`,`Körper`
 `Buildings`,`Gebäude`
 `CSV`,`CSV`
-`Can't open database file: ${0}, please create a new file.`,`Die Datenbankdatei ${0} kann nicht geöffnet werden. Bitte erstellen Sie eine neue Datei.`
+`Can't open database file: ${0}. Please create a new file.`,`Die Datenbankdatei ${0} kann nicht geöffnet werden. Bitte erstellen Sie eine neue Datei.`
 `Cancel`,`Stornieren`
 `Cancelled`,`Storniert`
 `Capital Equipments`,`Kapitalausstattungen`
@@ -386,7 +386,7 @@
 `Select folder`,`Ordner auswählen`
 `Send`,`Senden`
 `Service`,`Dienst`
-`Set the local code, this is used for number formatting.`,`Legen Sie den lokalen Code fest, der für die Formatierung der Nummern verwendet wird.`
+`Set the local code. This is used for number formatting.`,`Legen Sie den lokalen Code fest, der für die Formatierung der Nummern verwendet wird.`
 `Sets how many digits are shown after the decimal point.`,`Legt fest, wie viele Ziffern nach dem Dezimalpunkt angezeigt werden.`
 `Sets the app-wide date display format.`,`Legt das app-weite Datumsanzeigeformat fest.`
 `Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.`,`Legt die interne Genauigkeit fest, die für monetäre Berechnungen verwendet wird. Ein Wert über 6 sollte für die meisten Währungen ausreichend sein.`
