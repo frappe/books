@@ -135,11 +135,7 @@ export default {
         }
         return coa.name;
       },
-      getList: async () =>
-        (await getCOAList()).map(({ name, countryCode }) => ({
-          label: name,
-          value: countryCode,
-        })),
+      getList: async () => (await getCOAList()).map(({ name }) => name),
     },
   ],
   quickEditFields: [

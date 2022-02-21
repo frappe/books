@@ -5,6 +5,7 @@ import countryList from '~/fixtures/countryInfo.json';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
 import regionalModelUpdates from '../../../models/regionalModelUpdates';
 import { callInitializeMoneyMaker } from '../../utils';
+import importCharts from '../../../accounting/importCOA';
 
 export default async function setupCompany(setupWizardValues) {
   const {
@@ -16,6 +17,7 @@ export default async function setupCompany(setupWizardValues) {
     bankName,
     fiscalYearStart,
     fiscalYearEnd,
+    chartOfAccounts,
   } = setupWizardValues;
 
   const accountingSettings = frappe.AccountingSettings;
@@ -43,7 +45,7 @@ export default async function setupCompany(setupWizardValues) {
   });
 
   await setupGlobalCurrencies(countryList);
-  await setupChartOfAccounts(bankName, country);
+  await setupChartOfAccounts(bankName, country, chartOfAccounts);
   await setupRegionalChanges(country);
   updateInitializationConfig();
 
@@ -87,10 +89,8 @@ async function setupGlobalCurrencies(countries) {
   return Promise.all(promises);
 }
 
-async function setupChartOfAccounts(bankName, country) {
-  await frappe.call({
-    method: 'import-coa',
-  });
+async function setupChartOfAccounts(bankName, country, chartOfAccounts) {
+  await importCharts(chartOfAccounts);
   const parentAccount = await getBankAccountParentName(country);
   const docObject = {
     doctype: 'Account',
