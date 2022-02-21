@@ -26,6 +26,7 @@ export const IPC_ACTIONS = {
   GET_LANGUAGE_MAP: 'get-language-map',
   CHECK_FOR_UPDATES: 'check-for-updates',
   GET_COA_LIST: 'get-coa-list',
+  GET_FILE: 'get-file',
 };
 
 // ipcMain.send(...)

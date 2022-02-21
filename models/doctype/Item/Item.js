@@ -2,6 +2,7 @@ import frappe, { t } from 'frappe';
 
 export default {
   name: 'Item',
+  label: t`Item`,
   doctype: 'DocType',
   isSingle: 0,
   regional: 1,
