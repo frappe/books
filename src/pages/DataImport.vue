@@ -21,7 +21,6 @@
         >
       </template>
     </PageHeader>
-    <!-- <div class="flex justify-center flex-1 mb-8 mt-2"> -->
     <div class="flex px-8 mt-2 text-base w-full flex-col gap-8">
       <!-- Type selector -->
       <div class="flex flex-row justify-start items-center w-full">
@@ -42,16 +41,15 @@
           </span>
           {{ helperText }}{{ fileName ? ',' : '' }}
           <span v-if="fileName" class="font-normal">
-            {{ t`verify imported data and click on` }} </span
-          >{{ ' ' }}<span v-if="fileName">{{ t`Import Data` }}</span
-          >.
+            {{ t`verify the imported data and click on` }} </span
+          >{{ ' ' }}<span v-if="fileName">{{ t`Import Data` }}</span>
         </p>
       </div>
 
       <!-- Label Assigner -->
       <div v-if="fileName">
         <h2 class="text-lg font-semibold">{{ t`Assign Imported Labels` }}</h2>
-        <div class="gap-2 mt-4 grid grid-flow-col overflow-scroll pb-4">
+        <div class="gap-2 mt-4 grid grid-flow-col overflow-x-scroll pb-4">
           <FormControl
             :show-label="true"
             size="small"
@@ -68,10 +66,68 @@
 
       <!-- Data Verifier -->
       <div v-if="fileName">
-        <h2 class="-mt-4 text-lg font-semibold">
+        <h2 class="-mt-4 text-lg font-semibold pb-1">
           {{ t`Verify Imported Data` }}
         </h2>
-        <div></div>
+
+        <div class="overflow-scroll mt-4 pb-4">
+          <!-- Column Name Rows  -->
+          <div
+            class="grid grid-flow-col pb-4 border-b gap-2 sticky top-0 bg-white"
+            style="width: fit-content"
+            v-if="importer.columnLabels.length > 0"
+          >
+            <div class="w-4 h-4" />
+            <p
+              v-for="(c, i) in importer.columnLabels"
+              class="px-2 w-28 font-semibold text-gray-600"
+              :key="'column-' + i"
+            >
+              {{ c }}
+            </p>
+          </div>
+          <div v-else>
+            <p class="text-gray-600">
+              {{ t`No labels have been assigned.` }}
+            </p>
+          </div>
+
+          <!-- Data Rows -->
+          <div
+            v-if="importer.columnLabels.length > 0"
+            style="max-height: 500px"
+          >
+            <div
+              class="grid grid-flow-col mt-4 pb-4 border-b gap-2 items-center"
+              style="width: fit-content"
+              v-for="(r, i) in assignedMatrix"
+              :key="'matrix-row-' + i"
+            >
+              <button
+                class="w-4 h-4 text-gray-600 hover:text-gray-900 cursor-pointer"
+                @click="importer.dropRow(i)"
+              >
+                <FeatherIcon name="x" />
+              </button>
+              <input
+                v-for="(c, j) in r"
+                type="text"
+                class="
+                  w-28
+                  text-gray-900
+                  px-2
+                  py-1
+                  outline-none
+                  rounded
+                  focus:bg-gray-200
+                "
+                @change="(e) => onValueChange(e, i, j)"
+                :key="'matrix-cell-' + i + '-' + j"
+                :value="c"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -86,8 +142,15 @@ import { ipcRenderer } from 'electron';
 import { IPC_ACTIONS } from '@/messages';
 import { getSavePath, saveData, showToast } from '@/utils';
 import DropdownWithActions from '@/components/DropdownWithActions.vue';
+import FeatherIcon from '@/components/FeatherIcon.vue';
 export default {
-  components: { PageHeader, FormControl, Button, DropdownWithActions },
+  components: {
+    PageHeader,
+    FormControl,
+    Button,
+    DropdownWithActions,
+    FeatherIcon,
+  },
   data() {
     return {
       file: null,
@@ -96,6 +159,9 @@ export default {
     };
   },
   computed: {
+    assignedMatrix() {
+      return this.importer.assignedMatrix;
+    },
     actions() {
       const cancelAction = {
         component: {
@@ -107,7 +173,7 @@ export default {
 
       const secondaryAction = {
         component: {
-          template: `<span>${this.secondaryLabel}</span>`,
+          template: '<span>{{ t`Save Template` }}</span>',
         },
         condition: () => true,
         action: this.handleSecondaryClick,
@@ -128,9 +194,6 @@ export default {
         return this.t`Select a file for import`;
       }
       return this.fileName;
-    },
-    secondaryLabel() {
-      return this.file ? this.t`Toggle View` : this.t`Save Template`;
     },
     primaryLabel() {
       return this.file ? this.t`Import Data` : this.t`Select File`;
@@ -174,12 +237,11 @@ export default {
       this.importData();
     },
     handleSecondaryClick() {
-      if (!this.file) {
-        this.saveTemplate();
+      if (!this.importer) {
         return;
       }
 
-      this.toggleView();
+      this.saveTemplate();
     },
     async saveTemplate() {
       const template = this.importer.template;
@@ -209,9 +271,14 @@ export default {
     onAssignedChange(target, value) {
       this.importer.assignedMap[target] = value;
     },
+    onValueChange(event, i, j) {
+      this.importer.updateValue(event.target.value, i, j);
+    },
     importData() {},
-    toggleView() {},
     setImportType(importType) {
+      if (this.importType) {
+        this.cancel();
+      }
       this.importType = importType;
       this.importer = new Importer(this.labelDoctypeMap[this.importType]);
     },
