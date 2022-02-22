@@ -1,5 +1,6 @@
 import { Field, FieldType } from '@/types/model';
 import frappe from 'frappe';
+import { parseCSV } from './csvParser';
 
 export const importable = [
   'SalesInvoice',
@@ -11,25 +12,41 @@ export const importable = [
   'Item',
 ];
 
+type Exclusion = {
+  [key: string]: string[];
+};
+
+type Map = {
+  [key: string]: string;
+};
+
 interface TemplateField {
   label: string;
   fieldname: string;
   required: boolean;
 }
 
-type LabelFieldMap = {
-  [key: string]: string;
+const exclusion: Exclusion = {
+  Item: ['image'],
 };
 
-export function getTemplateFields(doctype: string): TemplateField[] {
+function getTemplateFields(doctype: string): TemplateField[] {
   const fields: TemplateField[] = [];
+  if (!doctype) {
+    return [];
+  }
 
   // @ts-ignore
   const primaryFields: Field[] = frappe.models[doctype].fields;
   const tableTypes: string[] = [];
+  let exclusionFields: string[] = exclusion[doctype] ?? [];
 
   primaryFields.forEach(
     ({ label, fieldtype, childtype, fieldname, required }) => {
+      if (exclusionFields.includes(fieldname)) {
+        return;
+      }
+
       if (fieldtype === FieldType.Table && childtype) {
         tableTypes.push(childtype);
       }
@@ -43,10 +60,15 @@ export function getTemplateFields(doctype: string): TemplateField[] {
   );
 
   tableTypes.forEach((childtype) => {
+    exclusionFields = exclusion[childtype] ?? [];
+
     // @ts-ignore
     const childFields: Field[] = frappe.models[childtype].fields;
     childFields.forEach(({ label, fieldtype, fieldname, required }) => {
-      if (fieldtype === FieldType.Table) {
+      if (
+        exclusionFields.includes(fieldname) ||
+        fieldtype === FieldType.Table
+      ) {
         return;
       }
 
@@ -57,8 +79,8 @@ export function getTemplateFields(doctype: string): TemplateField[] {
   return fields;
 }
 
-function getLabelFieldMap(templateFields: TemplateField[]): LabelFieldMap {
-  const map: LabelFieldMap = {};
+function getLabelFieldMap(templateFields: TemplateField[]): Map {
+  const map: Map = {};
 
   templateFields.reduce((acc, tf) => {
     const key = tf.label as string;
@@ -77,21 +99,72 @@ function getTemplate(templateFields: TemplateField[]): string {
 export class Importer {
   doctype: string;
   templateFields: TemplateField[];
-  _map: LabelFieldMap;
-  _template: string;
+  map: Map;
+  template: string;
+  parsedLabels: string[] = [];
+  assignedMap: Map = {}; // target: import
 
   constructor(doctype: string) {
     this.doctype = doctype;
     this.templateFields = getTemplateFields(doctype);
-    this._map = getLabelFieldMap(this.templateFields);
-    this._template = getTemplate(this.templateFields);
+    this.map = getLabelFieldMap(this.templateFields);
+    this.template = getTemplate(this.templateFields);
+    this.assignedMap = this.assignableLabels.reduce((acc: Map, k) => {
+      acc[k] = '';
+      return acc;
+    }, {});
   }
 
-  get map() {
-    return this._map;
+  get assignableLabels() {
+    return Object.keys(this.map);
   }
 
-  get template() {
-    return this._template;
+  get unassignedLabels() {
+    const assigned = Object.keys(this.assignedMap).map(
+      (k) => this.assignedMap[k]
+    );
+    return this.parsedLabels.filter((l) => !assigned.includes(l));
+  }
+
+  get columnsLabels() {
+    const assigned: string[] = [];
+    const unassigned: string[] = [];
+
+    Object.keys(this.map).forEach((k) => {
+      if (this.map) {
+        assigned.push(k);
+        return;
+      }
+      unassigned.push(k);
+    });
+
+    return [...assigned, ...unassigned];
+  }
+
+  selectFile(text: string): boolean {
+    const csv = parseCSV(text);
+    this.parsedLabels = csv[0];
+    const values = csv.slice(1);
+
+    if (values.some((v) => v.length !== this.parsedLabels.length)) {
+      return false;
+    }
+
+    this._setAssigned();
+    return true;
+  }
+
+  _setAssigned() {
+    const labels = [...this.parsedLabels];
+    labels.forEach((l) => {
+      if (this.assignedMap[l] !== '') {
+        return;
+      }
+
+      this.assignedMap[l] = l;
+    });
   }
 }
+
+// @ts-ignore
+window.pc = parseCSV;
