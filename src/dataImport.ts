@@ -101,7 +101,9 @@ export class Importer {
   templateFields: TemplateField[];
   map: Map;
   template: string;
+  indices: number[] = [];
   parsedLabels: string[] = [];
+  parsedValues: string[][] = [];
   assignedMap: Map = {}; // target: import
 
   constructor(doctype: string) {
@@ -126,19 +128,50 @@ export class Importer {
     return this.parsedLabels.filter((l) => !assigned.includes(l));
   }
 
-  get columnsLabels() {
+  get columnLabels() {
     const assigned: string[] = [];
     const unassigned: string[] = [];
 
-    Object.keys(this.map).forEach((k) => {
-      if (this.map) {
+    this.assignableLabels.forEach((k) => {
+      if (this.assignedMap[k]) {
         assigned.push(k);
         return;
       }
       unassigned.push(k);
     });
 
-    return [...assigned, ...unassigned];
+    return [...assigned];
+  }
+
+  get assignedMatrix() {
+    this.indices = this.columnLabels
+      .map((k) => this.assignedMap[k])
+      .filter(Boolean)
+      .map((k) => this.parsedLabels.indexOf(k));
+
+    const rows = this.parsedValues.length;
+    const cols = this.columnLabels.length;
+
+    const matrix = [];
+    for (let i = 0; i < rows; i++) {
+      const row = [];
+      for (let j = 0; j < cols; j++) {
+        const ix = this.indices[j];
+        const value = this.parsedValues[i][ix] ?? '';
+        row.push(value);
+      }
+      matrix.push(row);
+    }
+
+    return matrix;
+  }
+
+  dropRow(i: number) {
+    this.parsedValues = this.parsedValues.filter((_, ix) => i !== ix);
+  }
+
+  updateValue(value: string, i: number, j: number) {
+    this.parsedValues[i][this.indices[j]] = value ?? '';
   }
 
   selectFile(text: string): boolean {
@@ -150,6 +183,7 @@ export class Importer {
       return false;
     }
 
+    this.parsedValues = values;
     this._setAssigned();
     return true;
   }
