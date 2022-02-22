@@ -105,12 +105,27 @@ class SqliteDatabase extends Database {
   }
 
   async prestigeTheTable(tableName, tableRows) {
+    const max = 200;
+
     // Alter table hacx for sqlite in case of schema change.
     const tempName = `__${tableName}`;
     await this.knex.schema.dropTableIfExists(tempName);
     await this.knex.raw('PRAGMA foreign_keys=OFF');
     await this.createTable(tableName, tempName);
-    await this.knex.batchInsert(tempName, tableRows);
+
+    if (tableRows.length > 200) {
+      const fi = Math.floor(tableRows.length / max);
+      for (let i = 0; i <= fi; i++) {
+        const rowSlice = tableRows.slice(i * max, i + 1 * max);
+        if (rowSlice.length === 0) {
+          break;
+        }
+        await this.knex.batchInsert(tempName, rowSlice);
+      }
+    } else {
+      await this.knex.batchInsert(tempName, tableRows);
+    }
+
     await this.knex.schema.dropTable(tableName);
     await this.knex.schema.renameTable(tempName, tableName);
     await this.knex.raw('PRAGMA foreign_keys=ON');
