@@ -10,10 +10,10 @@
         <DropdownWithActions
           class="ml-2"
           :actions="actions"
-          v-if="canCancel || importType"
+          v-if="(canCancel || importType) && !complete"
         />
         <Button
-          v-if="importType"
+          v-if="importType && !complete"
           type="primary"
           class="text-sm ml-2"
           @click="handlePrimaryClick"
@@ -21,9 +21,12 @@
         >
       </template>
     </PageHeader>
-    <div class="flex px-8 mt-2 text-base w-full flex-col gap-8">
+    <div
+      class="flex px-8 mt-2 text-base w-full flex-col gap-8"
+      v-if="!complete"
+    >
       <!-- Type selector -->
-      <div class="flex flex-row justify-start items-center w-full">
+      <div class="flex flex-row justify-start items-center w-full gap-2">
         <FormControl
           :df="importableDf"
           input-class="bg-gray-100 text-gray-900 text-base"
@@ -32,6 +35,36 @@
           size="small"
           @change="setImportType"
         />
+
+        <div
+          v-if="importType && isSubmittable"
+          class="
+            justify-center
+            items-center
+            gap-2
+            flex
+            justify-between
+            items-center
+            bg-gray-100
+            px-2
+            py-1
+            rounded
+            text-gray-900
+          "
+        >
+          <p>Should Submit</p>
+          <FormControl
+            size="small"
+            input-class="bg-gray-100"
+            :df="{
+              fieldname: 'shouldSubmit',
+              label: this.t`Submit on Import`,
+              fieldtype: 'Check',
+            }"
+            :value="Number(importer.shouldSubmit)"
+            @change="(value) => (importer.shouldSubmit = !!value)"
+          />
+        </div>
         <p
           class="text-base text-base ml-2"
           :class="fileName ? 'text-gray-900 font-semibold' : 'text-gray-700'"
@@ -49,7 +82,9 @@
       <!-- Label Assigner -->
       <div v-if="fileName" class="pb-4">
         <h2 class="text-lg font-semibold">{{ t`Assign Imported Labels` }}</h2>
-        <div class="gap-2 mt-4 grid grid-flow-col overflow-x-scroll">
+        <div
+          class="gap-2 mt-4 grid grid-flow-col overflow-x-scroll no-scrollbar"
+        >
           <div v-for="(f, k) in importer.assignableLabels" :key="f + '-' + k">
             <p class="text-gray-600 text-sm mb-1">
               {{ f }}
@@ -143,6 +178,41 @@
         </div>
       </div>
     </div>
+    <div v-if="complete" class="flex justify-center h-full items-center">
+      <div
+        class="
+          flex flex-col
+          justify-center
+          items-center
+          gap-8
+          rounded-lg
+          shadow-md
+          p-6
+        "
+        style="width: 450px"
+      >
+        <h2 class="text-xl font-semibold mt-4">{{ t`Import Success` }} 🎉</h2>
+        <p class="text-lg text-center">
+          {{ t`Successfully created the following ${names.length} entries:` }}
+        </p>
+        <div class="max-h-96 overflow-y-scroll">
+          <div
+            v-for="(n, i) in names"
+            :key="i"
+            class="grid grid-cols-2 gap-2 border-b pb-2 mb-2 pr-4 text-lg w-60"
+            style="grid-template-columns: 2rem auto"
+          >
+            <p class="text-right">{{ i + 1 }}.</p>
+            <p>
+              {{ n }}
+            </p>
+          </div>
+        </div>
+        <Button type="primary" class="text-sm w-28" @click="showMe">{{
+          t`Show Me`
+        }}</Button>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -166,6 +236,8 @@ export default {
   },
   data() {
     return {
+      complete: false,
+      names: ['Bat', 'Baseball', 'Other Shit'],
       file: null,
       importer: null,
       importType: '',
@@ -186,7 +258,7 @@ export default {
           template: '<span class="text-red-700" >{{ t`Cancel` }}</span>',
         },
         condition: () => true,
-        action: this.cancel,
+        action: this.clear,
       };
 
       const secondaryAction = {
@@ -216,6 +288,13 @@ export default {
     primaryLabel() {
       return this.file ? this.t`Import Data` : this.t`Select File`;
     },
+    isSubmittable() {
+      const doctype = this.importer?.doctype;
+      if (doctype) {
+        return frappe.models[doctype].isSubmittable ?? false;
+      }
+      return false;
+    },
     importableDf() {
       return {
         fieldname: 'importType',
@@ -240,11 +319,21 @@ export default {
       return !!(this.file || this.importType);
     },
   },
+  deactivated() {
+    this.clear();
+  },
   methods: {
-    cancel() {
+    showMe() {
+      this.clear();
+      const doctype = this.importer?.doctype ?? 'Item';
+      this.$router.push(`/list/${doctype}`);
+    },
+    clear() {
       this.file = null;
+      this.names = [];
       this.importer = null;
       this.importType = '';
+      this.complete = false;
     },
     handlePrimaryClick() {
       if (!this.file) {
@@ -292,10 +381,24 @@ export default {
     onValueChange(event, i, j) {
       this.importer.updateValue(event.target.value, i, j);
     },
-    importData() {},
+    async importData() {
+      // TODO: pre import conditions
+      /*
+      if(){}
+      */
+
+      const { success, names } = await this.importer.importData();
+      if (!success || !names.length) {
+        // handle failure
+        return;
+      }
+
+      this.names = names;
+      this.complete = true;
+    },
     setImportType(importType) {
       if (this.importType) {
-        this.cancel();
+        this.clear();
       }
       this.importType = importType;
       this.importer = new Importer(this.labelDoctypeMap[this.importType]);
