@@ -36,35 +36,6 @@
           @change="setImportType"
         />
 
-        <div
-          v-if="importType && isSubmittable"
-          class="
-            justify-center
-            items-center
-            gap-2
-            flex
-            justify-between
-            items-center
-            bg-gray-100
-            px-2
-            py-1
-            rounded
-            text-gray-900
-          "
-        >
-          <p>Should Submit</p>
-          <FormControl
-            size="small"
-            input-class="bg-gray-100"
-            :df="{
-              fieldname: 'shouldSubmit',
-              label: this.t`Submit on Import`,
-              fieldtype: 'Check',
-            }"
-            :value="Number(importer.shouldSubmit)"
-            @change="(value) => (importer.shouldSubmit = !!value)"
-          />
-        </div>
         <p
           class="text-base text-base ml-2"
           :class="fileName ? 'text-gray-900 font-semibold' : 'text-gray-700'"
@@ -77,6 +48,86 @@
             {{ t`verify the imported data and click on` }} </span
           >{{ ' ' }}<span v-if="fileName">{{ t`Import Data` }}</span>
         </p>
+      </div>
+
+      <!-- Settings -->
+      <div v-if="fileName" class="">
+        <h2 class="text-lg font-semibold">{{ t`Importer Settings` }}</h2>
+        <div class="mt-4 flex gap-2">
+          <button
+            class="w-28 bg-gray-100 focus:bg-gray-200 rounded-md"
+            @click="importer.initialize(0, true)"
+          >
+            <span class="text-red-400">
+              {{ t`Reset` }}
+            </span>
+          </button>
+          <div
+            v-if="file && isSubmittable"
+            class="
+              justify-center
+              items-center
+              gap-2
+              flex
+              justify-between
+              items-center
+              bg-gray-100
+              px-2
+              rounded
+              text-gray-900
+              w-40
+            "
+          >
+            <p>{{ frappe.t`Submit on Import` }}</p>
+            <FormControl
+              size="small"
+              input-class="bg-gray-100"
+              :df="{
+                fieldname: 'shouldSubmit',
+                fieldtype: 'Check',
+              }"
+              :value="Number(importer.shouldSubmit)"
+              @change="(value) => (importer.shouldSubmit = !!value)"
+            />
+          </div>
+          <div
+            class="
+              flex flex-row
+              justify-center
+              items-center
+              justify-center
+              items-center
+              gap-2
+              flex
+              justify-between
+              items-center
+              bg-gray-100
+              pl-2
+              rounded
+              text-gray-900
+              w-40
+            "
+          >
+            <p class="text-gray-900">{{ t`Label Index` }}</p>
+            <input
+              type="number"
+              class="
+                bg-gray-100
+                outline-none
+                focus:bg-gray-200
+                px-2
+                py-1
+                rounded-md
+                w-10
+                text-right
+              "
+              min="1"
+              :max="importer.csv.length - 1"
+              :value="labelIndex + 1"
+              @change="setLabelIndex"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Label Assigner -->
@@ -106,7 +157,7 @@
         </div>
         <p
           class="text-red-400 text-sm mt-1 -mb-1 p-0 h-0"
-          v-if="requiredUnassigned"
+          v-if="isRequiredUnassigned"
         >
           {{ t`* required fields` }}
         </p>
@@ -223,7 +274,7 @@ import FeatherIcon from '@/components/FeatherIcon.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { importable, Importer } from '@/dataImport';
 import { IPC_ACTIONS } from '@/messages';
-import { getSavePath, saveData, showToast } from '@/utils';
+import { getSavePath, saveData, showMessageDialog, showToast } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
 export default {
@@ -244,10 +295,16 @@ export default {
     };
   },
   computed: {
+    labelIndex(){
+      return this.importer.labelIndex
+    },
     requiredUnassigned() {
-      return this.importer.assignableLabels
-        .filter((k) => this.importer.requiredMap[k])
-        .some((k) => !this.importer.assignedMap[k]);
+      return this.importer.assignableLabels.filter(
+        (k) => this.importer.requiredMap[k] && !this.importer.assignedMap[k]
+      );
+    },
+    isRequiredUnassigned() {
+      return this.requiredUnassigned.length > 0;
     },
     assignedMatrix() {
       return this.importer.assignedMatrix;
@@ -350,6 +407,10 @@ export default {
 
       this.saveTemplate();
     },
+    setLabelIndex(e) {
+      const labelIndex = (e.target.value ?? 1) - 1;
+      this.importer.initialize(labelIndex);
+    },
     async saveTemplate() {
       const template = this.importer.template;
       const templateName = this.importType + ' ' + this.t`Template`;
@@ -382,10 +443,24 @@ export default {
       this.importer.updateValue(event.target.value, i, j);
     },
     async importData() {
-      // TODO: pre import conditions
-      /*
-      if(){}
-      */
+      if (this.isRequiredUnassigned) {
+        showMessageDialog({
+          message: this.t`Required Fields not Assigned`,
+          description: this
+            .t`Please assign the following fields ${this.requiredUnassigned.join(
+            ', '
+          )}`,
+        });
+        return;
+      }
+
+      if (this.importer.assignedMatrix.length === 0) {
+        showMessageDialog({
+          message: this.t`No Data to Import`,
+          description: this.t`Please select a file with data to import.`,
+        });
+        return;
+      }
 
       const { success, names } = await this.importer.importData();
       if (!success || !names.length) {
