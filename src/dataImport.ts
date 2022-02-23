@@ -175,6 +175,8 @@ export class Importer {
   requiredMap: Map = {};
   labelTemplateFieldMap: LabelTemplateFieldMap = {};
   shouldSubmit: boolean = false;
+  labelIndex: number = -1;
+  csv: string[][] = [];
 
   constructor(doctype: string) {
     this.doctype = doctype;
@@ -272,23 +274,38 @@ export class Importer {
   }
 
   selectFile(text: string): boolean {
-    const csv = parseCSV(text);
-    this.parsedLabels = csv[0];
-    const values = csv.slice(1);
-
-    /*
-    if (values.some((v) => v.length !== this.parsedLabels.length)) {
-      return false;
-    }
-    */
-
-    this.parsedValues = values;
-    this._setAssigned();
+    this.csv = parseCSV(text);
+    this.initialize(0, true);
     return true;
   }
 
-  _setAssigned() {
+  initialize(labelIndex: number, force: boolean) {
+    if (
+      (typeof labelIndex !== 'number' && !labelIndex) ||
+      (labelIndex === this.labelIndex && !force)
+    ) {
+      return;
+    }
+    console.log('initing', labelIndex);
+
+    this.labelIndex = labelIndex;
+    this.parsedLabels = this.csv[labelIndex];
+    const values = this.csv.slice(labelIndex + 1);
+
+    this.parsedValues = values;
+    this.setAssigned();
+  }
+
+  setAssigned() {
     const labels = [...this.parsedLabels];
+
+    for (const k of Object.keys(this.assignedMap)) {
+      const l = this.assignedMap[k] as string;
+      if (!labels.includes(l)) {
+        this.assignedMap[k] = '';
+      }
+    }
+
     labels.forEach((l) => {
       if (this.assignedMap[l] !== '') {
         return;
@@ -343,6 +360,9 @@ export class Importer {
 
       try {
         await doc.insert();
+        if (this.shouldSubmit) {
+          await doc.submit();
+        }
       } catch (err) {
         const message = (err as Error).message;
 
@@ -372,6 +392,3 @@ export class Importer {
     return status;
   }
 }
-
-// @ts-ignore
-window.gtf = getTemplateFields;
