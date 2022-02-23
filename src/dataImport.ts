@@ -17,7 +17,7 @@ type Exclusion = {
 };
 
 type Map = {
-  [key: string]: string;
+  [key: string]: string | boolean;
 };
 
 interface TemplateField {
@@ -105,6 +105,7 @@ export class Importer {
   parsedLabels: string[] = [];
   parsedValues: string[][] = [];
   assignedMap: Map = {}; // target: import
+  requiredMap: Map = {};
 
   constructor(doctype: string) {
     this.doctype = doctype;
@@ -115,10 +116,25 @@ export class Importer {
       acc[k] = '';
       return acc;
     }, {});
+    this.requiredMap = this.templateFields.reduce((acc: Map, k) => {
+      acc[k.label] = k.required;
+      return acc;
+    }, {});
   }
 
   get assignableLabels() {
-    return Object.keys(this.map);
+    const req: string[] = [];
+    const nreq: string[] = [];
+    Object.keys(this.map).forEach((k) => {
+      if (this.requiredMap[k]) {
+        req.push(k);
+        return;
+      }
+
+      nreq.push(k);
+    });
+
+    return [...req, ...nreq];
   }
 
   get unassignedLabels() {
@@ -129,25 +145,30 @@ export class Importer {
   }
 
   get columnLabels() {
-    const assigned: string[] = [];
-    const unassigned: string[] = [];
+    const req: string[] = [];
+    const nreq: string[] = [];
 
     this.assignableLabels.forEach((k) => {
-      if (this.assignedMap[k]) {
-        assigned.push(k);
+      if (!this.assignedMap[k]) {
         return;
       }
-      unassigned.push(k);
+
+      if (this.requiredMap[k]) {
+        req.push(k);
+        return;
+      }
+
+      nreq.push(k);
     });
 
-    return [...assigned];
+    return [...req, ...nreq];
   }
 
   get assignedMatrix() {
     this.indices = this.columnLabels
       .map((k) => this.assignedMap[k])
       .filter(Boolean)
-      .map((k) => this.parsedLabels.indexOf(k));
+      .map((k) => this.parsedLabels.indexOf(k as string));
 
     const rows = this.parsedValues.length;
     const cols = this.columnLabels.length;

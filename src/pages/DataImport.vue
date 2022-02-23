@@ -47,21 +47,34 @@
       </div>
 
       <!-- Label Assigner -->
-      <div v-if="fileName">
+      <div v-if="fileName" class="pb-4">
         <h2 class="text-lg font-semibold">{{ t`Assign Imported Labels` }}</h2>
-        <div class="gap-2 mt-4 grid grid-flow-col overflow-x-scroll pb-4">
-          <FormControl
-            :show-label="true"
-            size="small"
-            class="w-28"
-            input-class="bg-gray-100"
-            v-for="(f, k) in importer.assignableLabels"
-            :df="getAssignerField(f)"
-            :value="importer.assignedMap[f] ?? ''"
-            @change="(v) => onAssignedChange(f, v)"
-            :key="f + '-' + k"
-          />
+        <div class="gap-2 mt-4 grid grid-flow-col overflow-x-scroll">
+          <div v-for="(f, k) in importer.assignableLabels" :key="f + '-' + k">
+            <p class="text-gray-600 text-sm mb-1">
+              {{ f }}
+              <span
+                v-if="importer.requiredMap[f] && !importer.assignedMap[f]"
+                class="text-red-400"
+                >*</span
+              >
+            </p>
+            <FormControl
+              size="small"
+              class="w-28"
+              input-class="bg-gray-100"
+              :df="getAssignerField(f)"
+              :value="importer.assignedMap[f] ?? ''"
+              @change="(v) => onAssignedChange(f, v)"
+            />
+          </div>
         </div>
+        <p
+          class="text-red-400 text-sm mt-1 -mb-1 p-0 h-0"
+          v-if="requiredUnassigned"
+        >
+          {{ t`* required fields` }}
+        </p>
       </div>
 
       <!-- Data Verifier -->
@@ -133,16 +146,16 @@
   </div>
 </template>
 <script>
-import FormControl from '@/components/Controls/FormControl';
-import PageHeader from '@/components/PageHeader.vue';
-import { importable, Importer } from '@/dataImport';
-import frappe from 'frappe';
 import Button from '@/components/Button.vue';
-import { ipcRenderer } from 'electron';
-import { IPC_ACTIONS } from '@/messages';
-import { getSavePath, saveData, showToast } from '@/utils';
+import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '@/components/DropdownWithActions.vue';
 import FeatherIcon from '@/components/FeatherIcon.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import { importable, Importer } from '@/dataImport';
+import { IPC_ACTIONS } from '@/messages';
+import { getSavePath, saveData, showToast } from '@/utils';
+import { ipcRenderer } from 'electron';
+import frappe from 'frappe';
 export default {
   components: {
     PageHeader,
@@ -159,6 +172,11 @@ export default {
     };
   },
   computed: {
+    requiredUnassigned() {
+      return this.importer.assignableLabels
+        .filter((k) => this.importer.requiredMap[k])
+        .some((k) => !this.importer.assignedMap[k]);
+    },
     assignedMatrix() {
       return this.importer.assignedMatrix;
     },
