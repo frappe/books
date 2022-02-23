@@ -17,65 +17,85 @@ type Exclusion = {
 };
 
 type Map = {
-  [key: string]: string | boolean;
+  [key: string]: string | boolean | object;
 };
 
 interface TemplateField {
   label: string;
   fieldname: string;
   required: boolean;
+  doctype: string;
+  options?: string[];
+  fieldtype: FieldType;
 }
 
 const exclusion: Exclusion = {
   Item: ['image'],
+  Supplier: ['address', 'outstandingAmount', 'supplier', 'image', 'customer'],
+  Customer: ['address', 'outstandingAmount', 'supplier', 'image', 'customer'],
 };
+
+function getFilteredDocFields(doctype: string): [TemplateField[], string[]] {
+  const fields: TemplateField[] = [];
+  // @ts-ignore
+  const primaryFields: Field[] = frappe.models[doctype].fields;
+  const tableTypes: string[] = [];
+  const exclusionFields: string[] = exclusion[doctype] ?? [];
+
+  primaryFields.forEach(
+    ({
+      label,
+      fieldtype,
+      childtype,
+      fieldname,
+      readOnly,
+      required,
+      hidden,
+      options,
+    }) => {
+      if (
+        readOnly ||
+        (hidden && typeof hidden === 'number') ||
+        exclusionFields.includes(fieldname)
+      ) {
+        return;
+      }
+
+      if (fieldtype === FieldType.Table && childtype) {
+        tableTypes.push(childtype);
+        return;
+      }
+
+      fields.push({
+        label,
+        fieldname,
+        doctype,
+        options,
+        fieldtype,
+        required: Boolean(required ?? false),
+      });
+    }
+  );
+
+  return [fields, tableTypes];
+}
 
 function getTemplateFields(doctype: string): TemplateField[] {
   const fields: TemplateField[] = [];
   if (!doctype) {
     return [];
   }
-
-  // @ts-ignore
-  const primaryFields: Field[] = frappe.models[doctype].fields;
-  const tableTypes: string[] = [];
-  let exclusionFields: string[] = exclusion[doctype] ?? [];
-
-  primaryFields.forEach(
-    ({ label, fieldtype, childtype, fieldname, required }) => {
-      if (exclusionFields.includes(fieldname)) {
-        return;
-      }
-
-      if (fieldtype === FieldType.Table && childtype) {
-        tableTypes.push(childtype);
-      }
-
-      fields.push({
-        label,
-        fieldname,
-        required: Boolean(required ?? false),
-      });
+  const doctypes: string[] = [doctype];
+  while (doctypes.length > 0) {
+    const dt = doctypes.pop();
+    if (!dt) {
+      break;
     }
-  );
 
-  tableTypes.forEach((childtype) => {
-    exclusionFields = exclusion[childtype] ?? [];
-
-    // @ts-ignore
-    const childFields: Field[] = frappe.models[childtype].fields;
-    childFields.forEach(({ label, fieldtype, fieldname, required }) => {
-      if (
-        exclusionFields.includes(fieldname) ||
-        fieldtype === FieldType.Table
-      ) {
-        return;
-      }
-
-      fields.push({ label, fieldname, required: Boolean(required ?? false) });
-    });
-  });
-
+    const [templateFields, tableTypes] = getFilteredDocFields(dt);
+    fields.push(...templateFields);
+    doctypes.push(...tableTypes);
+  }
   return fields;
 }
 
@@ -106,6 +126,7 @@ export class Importer {
   parsedValues: string[][] = [];
   assignedMap: Map = {}; // target: import
   requiredMap: Map = {};
+  labelFieldMap: Map = {};
 
   constructor(doctype: string) {
     this.doctype = doctype;
@@ -118,6 +139,10 @@ export class Importer {
     }, {});
     this.requiredMap = this.templateFields.reduce((acc: Map, k) => {
       acc[k.label] = k.required;
+      return acc;
+    }, {});
+    this.labelFieldMap = this.templateFields.reduce((acc: Map, k) => {
+      acc[k.label] = k;
       return acc;
     }, {});
   }
@@ -222,4 +247,6 @@ export class Importer {
 }
 
 // @ts-ignore
-window.pc = parseCSV;
+window.im = importable;
+// @ts-ignore
+window.gtf = getTemplateFields;

@@ -23,4 +23,7 @@ export interface Field {
   target?: string;
   default?: unknown;
   required?: number;
+  readOnly?: number;
+  hidden?: number | Function;
+  options?: string[];
 }
