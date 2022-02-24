@@ -2,6 +2,24 @@ const frappe = require('frappe');
 const { getRandomString } = require('frappe/utils');
 
 module.exports = {
+  async isNameAutoSet(doctype) {
+    const doc = frappe.getNewDoc(doctype);
+    if (doc.meta.naming === 'autoincrement') {
+      return true;
+    }
+
+    if (!doc.meta.settings) {
+      return false;
+    }
+
+    const { numberSeries } = await doc.getSettings();
+    if (numberSeries) {
+      return true;
+    }
+
+    return false;
+  },
+
   async setName(doc) {
     if (frappe.isServer) {
       // if is server, always name again if autoincrement or other
