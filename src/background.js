@@ -255,6 +255,34 @@ ipcMain.handle(IPC_ACTIONS.GET_COA_LIST, async () => {
   return coas;
 });
 
+ipcMain.handle(IPC_ACTIONS.GET_FILE, async (event, options) => {
+  const response = {
+    name: '',
+    filePath: '',
+    success: false,
+    data: null,
+    canceled: false,
+  };
+  const window = event.sender.getOwnerBrowserWindow();
+  const { filePaths, canceled } = await dialog.showOpenDialog(window, options);
+
+  response.filePath = filePaths?.[0];
+  response.canceled = canceled;
+
+  if (!response.filePath) {
+    return response;
+  }
+
+  response.success = true;
+  if (canceled) {
+    return response;
+  }
+
+  response.name = path.basename(response.filePath);
+  response.data = await fs.readFile(response.filePath);
+  return response;
+});
+
 /* ------------------------------
  * Register autoUpdater events lis
  * ------------------------------*/
