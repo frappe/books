@@ -54,14 +54,6 @@
       <div v-if="fileName" class="">
         <h2 class="text-lg font-semibold">{{ t`Importer Settings` }}</h2>
         <div class="mt-4 flex gap-2">
-          <button
-            class="w-28 bg-gray-100 focus:bg-gray-200 rounded-md"
-            @click="importer.initialize(0, true)"
-          >
-            <span class="text-red-400">
-              {{ t`Reset` }}
-            </span>
-          </button>
           <div
             v-if="file && isSubmittable"
             class="
@@ -127,6 +119,20 @@
               @change="setLabelIndex"
             />
           </div>
+          <button
+            class="w-28 bg-gray-100 focus:bg-gray-200 rounded-md"
+            v-if="canReset"
+            @click="
+              () => {
+                importer.initialize(0, true);
+                canReset = false;
+              }
+            "
+          >
+            <span class="text-gray-900">
+              {{ t`Reset` }}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -136,7 +142,10 @@
         <div
           class="gap-2 mt-4 grid grid-flow-col overflow-x-scroll no-scrollbar"
         >
-          <div v-for="(f, k) in importer.assignableLabels" :key="f + '-' + k">
+          <div
+            v-for="(f, k) in importer.assignableLabels"
+            :key="'assigner-' + k"
+          >
             <p class="text-gray-600 text-sm mb-1">
               {{ f }}
               <span
@@ -194,7 +203,7 @@
           <!-- Data Rows -->
           <div
             v-if="importer.columnLabels.length > 0"
-            style="max-height: 500px"
+            style="max-height: 400px"
           >
             <div
               class="grid grid-flow-col mt-4 pb-4 border-b gap-2 items-center"
@@ -204,7 +213,12 @@
             >
               <button
                 class="w-4 h-4 text-gray-600 hover:text-gray-900 cursor-pointer"
-                @click="importer.dropRow(i)"
+                @click="
+                  () => {
+                    importer.dropRow(i);
+                    canReset = true;
+                  }
+                "
               >
                 <FeatherIcon name="x" />
               </button>
@@ -220,11 +234,37 @@
                   rounded
                   focus:bg-gray-200
                 "
-                @change="(e) => onValueChange(e, i, j)"
+                @change="
+                  (e) => {
+                    onValueChange(e, i, j);
+                    canReset = true;
+                  }
+                "
                 :key="'matrix-cell-' + i + '-' + j"
                 :value="c"
               />
             </div>
+            <button
+              class="
+                text-gray-600
+                hover:text-gray-900
+                flex flex-row
+                w-full
+                mt-4
+                outline-none
+              "
+              @click="
+                () => {
+                  importer.addRow();
+                  canReset = true;
+                }
+              "
+            >
+              <FeatherIcon name="plus" class="w-4 h-4" />
+              <p class="pl-4">
+                {{ t`Add Row` }}
+              </p>
+            </button>
           </div>
         </div>
       </div>
@@ -249,7 +289,7 @@
         <div class="max-h-96 overflow-y-scroll">
           <div
             v-for="(n, i) in names"
-            :key="i"
+            :key="'name-' + i"
             class="grid grid-cols-2 gap-2 border-b pb-2 mb-2 pr-4 text-lg w-60"
             style="grid-template-columns: 2rem auto"
           >
@@ -274,7 +314,7 @@ import FeatherIcon from '@/components/FeatherIcon.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { importable, Importer } from '@/dataImport';
 import { IPC_ACTIONS } from '@/messages';
-import { getSavePath, saveData, showMessageDialog, showToast } from '@/utils';
+import { getSavePath, saveData, showMessageDialog } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
 export default {
@@ -287,6 +327,7 @@ export default {
   },
   data() {
     return {
+      canReset: false,
       complete: false,
       names: ['Bat', 'Baseball', 'Other Shit'],
       file: null,
@@ -295,8 +336,8 @@ export default {
     };
   },
   computed: {
-    labelIndex(){
-      return this.importer.labelIndex
+    labelIndex() {
+      return this.importer.labelIndex;
     },
     requiredUnassigned() {
       return this.importer.assignableLabels.filter(
@@ -310,13 +351,7 @@ export default {
       return this.importer.assignedMatrix;
     },
     actions() {
-      const cancelAction = {
-        component: {
-          template: '<span class="text-red-700" >{{ t`Cancel` }}</span>',
-        },
-        condition: () => true,
-        action: this.clear,
-      };
+      const actions = [];
 
       const secondaryAction = {
         component: {
@@ -325,7 +360,28 @@ export default {
         condition: () => true,
         action: this.handleSecondaryClick,
       };
-      return [secondaryAction, cancelAction];
+      actions.push(secondaryAction);
+
+      if (this.file) {
+        actions.push({
+          component: {
+            template: '<span>{{ t`Change File` }}</span>',
+          },
+          condition: () => true,
+          action: this.selectFile,
+        });
+      }
+
+      const cancelAction = {
+        component: {
+          template: '<span class="text-red-700" >{{ t`Cancel` }}</span>',
+        },
+        condition: () => true,
+        action: this.clear,
+      };
+      actions.push(cancelAction);
+
+      return actions;
     },
 
     fileName() {
@@ -381,8 +437,8 @@ export default {
   },
   methods: {
     showMe() {
+      const doctype = this.importer.doctype;
       this.clear();
-      const doctype = this.importer?.doctype ?? 'Item';
       this.$router.push(`/list/${doctype}`);
     },
     clear() {
@@ -391,6 +447,7 @@ export default {
       this.importer = null;
       this.importType = '';
       this.complete = false;
+      this.canReset = false;
     },
     handlePrimaryClick() {
       if (!this.file) {
@@ -462,9 +519,12 @@ export default {
         return;
       }
 
-      const { success, names } = await this.importer.importData();
-      if (!success || !names.length) {
-        // handle failure
+      const { success, names, message } = await this.importer.importData();
+      if (!success) {
+        showMessageDialog({
+          message: this.t`Import Failed`,
+          description: message,
+        });
         return;
       }
 
@@ -489,7 +549,7 @@ export default {
         await ipcRenderer.invoke(IPC_ACTIONS.GET_FILE, options);
 
       if (!success && !canceled) {
-        showToast({ message: this.t`File selection failed.`, type: 'error' });
+        showMessageDialog({ message: this.t`File selection failed.` });
       }
 
       if (!success || canceled) {
@@ -499,9 +559,9 @@ export default {
       const text = new TextDecoder().decode(data);
       const isValid = this.importer.selectFile(text);
       if (!isValid) {
-        showToast({
-          message: this.t`Bad import data. Could not select file.`,
-          type: 'error',
+        showMessageDialog({
+          message: this.t`Bad import data.`,
+          description: this.t`Could not select file.`,
         });
         return;
       }
@@ -511,8 +571,6 @@ export default {
         filePath,
         text,
       };
-
-      window.i = this.importer;
     },
   },
 };

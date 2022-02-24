@@ -1,5 +1,6 @@
 import { Field, FieldType } from '@/types/model';
 import frappe from 'frappe';
+import { isNameAutoSet } from 'frappe/model/naming';
 import { parseCSV } from './csvParser';
 
 export const importable = [
@@ -275,7 +276,11 @@ export class Importer {
 
   selectFile(text: string): boolean {
     this.csv = parseCSV(text);
-    this.initialize(0, true);
+    try {
+      this.initialize(0, true);
+    } catch (err) {
+      return false;
+    }
     return true;
   }
 
@@ -286,13 +291,11 @@ export class Importer {
     ) {
       return;
     }
-    console.log('initing', labelIndex);
 
+    const source = this.csv.map((row) => [...row]);
     this.labelIndex = labelIndex;
-    this.parsedLabels = this.csv[labelIndex];
-    const values = this.csv.slice(labelIndex + 1);
-
-    this.parsedValues = values;
+    this.parsedLabels = source[labelIndex];
+    this.parsedValues = source.slice(labelIndex + 1);
     this.setAssigned();
   }
 
@@ -353,10 +356,15 @@ export class Importer {
 
   async importData(): Promise<Status> {
     const status: Status = { success: false, names: [], message: '' };
+    const shouldDeleteName = await isNameAutoSet(this.doctype);
 
     for (const docObj of this.getDocs()) {
+      if (shouldDeleteName) {
+        delete docObj.name;
+      }
+
       const doc = frappe.getNewDoc(this.doctype);
-      await doc.update(docObj);
+      await doc.set(docObj);
 
       try {
         await doc.insert();
@@ -364,13 +372,15 @@ export class Importer {
           await doc.submit();
         }
       } catch (err) {
-        const message = (err as Error).message;
-
         const messages = [
           frappe.t`Could not import ${this.doctype} ${doc.name}.`,
         ];
-        if (message) {
-          messages.push(frappe.t`Error: ${message}.`);
+
+        const message = (err as Error).message;
+        if (message?.includes('UNIQUE constraint failed')) {
+          messages.push(frappe.t`${doc.name} already exists.`);
+        } else if (message) {
+          messages.push(message);
         }
 
         if (status.names.length) {
@@ -390,5 +400,10 @@ export class Importer {
 
     status.success = true;
     return status;
+  }
+
+  addRow() {
+    const emptyRow = Array(this.columnLabels.length).fill('');
+    this.parsedValues.push(emptyRow);
   }
 }
