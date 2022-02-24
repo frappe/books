@@ -122,6 +122,10 @@ const config = {
           doctype: 'Tax',
         },
         {
+          label: t`Data Import`,
+          route: '/data_import',
+        },
+        {
           label: t`Settings`,
           route: '/settings',
         },
