@@ -3,7 +3,7 @@
     @click="openHelpLink"
     class="
       text-gray-900
-      shadow-md
+      border
       px-3
       py-2
       flex
