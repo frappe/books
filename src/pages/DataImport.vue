@@ -144,7 +144,7 @@
         >
           <div
             v-for="(f, k) in importer.assignableLabels"
-            :key="'assigner-' + k"
+            :key="'assigner-' + f + '-' + k"
           >
             <p class="text-gray-600 text-sm mb-1">
               {{ f }}
@@ -304,6 +304,14 @@
         }}</Button>
       </div>
     </div>
+    <div
+      v-if="!importType"
+      class="flex justify-center h-full items-center mb-16"
+    >
+      <HowTo link="https://youtu.be/ukHAgcnVxTQ">
+        {{ t`How to Use Data Import?` }}
+      </HowTo>
+    </div>
   </div>
 </template>
 <script>
@@ -311,6 +319,7 @@ import Button from '@/components/Button.vue';
 import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '@/components/DropdownWithActions.vue';
 import FeatherIcon from '@/components/FeatherIcon.vue';
+import HowTo from '@/components/HowTo.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { importable, Importer } from '@/dataImport';
 import { IPC_ACTIONS } from '@/messages';
@@ -324,6 +333,7 @@ export default {
     Button,
     DropdownWithActions,
     FeatherIcon,
+    HowTo,
   },
   data() {
     return {
