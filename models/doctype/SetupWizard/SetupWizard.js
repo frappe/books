@@ -127,7 +127,7 @@ export default {
         if (!doc.country) return;
 
         const { code } = countryList[doc.country];
-        const coaList = await getCOAList();
+        const coaList = getCOAList();
         const coa = coaList.find(({ countryCode }) => countryCode === code);
 
         if (coa === undefined) {
@@ -135,7 +135,7 @@ export default {
         }
         return coa.name;
       },
-      getList: async () => (await getCOAList()).map(({ name }) => name),
+      getList: () => getCOAList().map(({ name }) => name),
     },
   ],
   quickEditFields: [

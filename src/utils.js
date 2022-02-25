@@ -513,10 +513,25 @@ function getLanguageCode(initLanguage, oldLanguage) {
   return [languageCodeMap[language], language, usingDefault];
 }
 
-export async function getCOAList() {
+export function getCOAList() {
   if (!frappe.temp.coaList) {
-    const coaList = await ipcRenderer.invoke(IPC_ACTIONS.GET_COA_LIST);
-    coaList.unshift({ name: t`Standard Chart of Accounts`, countryCode: '' });
+    const coaList = [
+      { name: t`Standard Chart of Accounts`, countryCode: '' },
+
+      { countryCode: 'ae', name: 'U.A.E - Chart of Accounts' },
+      {
+        countryCode: 'ca',
+        name: 'Canada - Plan comptable pour les provinces francophones',
+      },
+      { countryCode: 'gt', name: 'Guatemala - Cuentas' },
+      { countryCode: 'hu', name: 'Hungary - Chart of Accounts' },
+      { countryCode: 'id', name: 'Indonesia - Chart of Accounts' },
+      { countryCode: 'in', name: 'India - Chart of Accounts' },
+      { countryCode: 'mx', name: 'Mexico - Plan de Cuentas' },
+      { countryCode: 'ni', name: 'Nicaragua - Catalogo de Cuentas' },
+      { countryCode: 'nl', name: 'Netherlands - Grootboekschema' },
+      { countryCode: 'sg', name: 'Singapore - Chart of Accounts' },
+    ];
     frappe.temp.coaList = coaList;
   }
   return frappe.temp.coaList;

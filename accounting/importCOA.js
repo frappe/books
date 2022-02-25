@@ -56,7 +56,7 @@ function identifyIsGroup(child) {
 }
 
 export async function getCountryCOA(chartOfAccounts) {
-  const coaList = await getCOAList();
+  const coaList = getCOAList();
   const coa = coaList.find(({ name }) => name === chartOfAccounts);
   const conCode = coa.countryCode;
   if (!conCode) {
