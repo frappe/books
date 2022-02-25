@@ -350,7 +350,6 @@ export class Importer {
       }
     }
 
-    // return docObjs;
     return Object.keys(docMap).map((k) => docMap[k]);
   }
 
@@ -363,8 +362,15 @@ export class Importer {
         delete docObj.name;
       }
 
-      const doc = frappe.getNewDoc(this.doctype);
+      for (const key in docObj) {
+        if (docObj[key] !== '') {
+          continue;
+        }
 
+        delete docObj[key];
+      }
+
+      const doc = frappe.getNewDoc(this.doctype);
       try {
         await doc.set(docObj);
         await doc.insert();
