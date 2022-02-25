@@ -212,7 +212,7 @@
               :key="'matrix-row-' + i"
             >
               <button
-                class="w-4 h-4 text-gray-600 hover:text-gray-900 cursor-pointer"
+                class="w-4 h-4 text-gray-600 hover:text-gray-900 cursor-pointer outline-none"
                 @click="
                   () => {
                     importer.dropRow(i);
@@ -443,6 +443,10 @@ export default {
     },
   },
   deactivated() {
+    if (!this.complete) {
+      return;
+    }
+    
     this.clear();
   },
   methods: {

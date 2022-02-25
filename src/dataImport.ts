@@ -51,7 +51,7 @@ function formatValue(value: string, fieldtype: FieldType): unknown {
       return new Date(value);
     case FieldType.Currency:
       // @ts-ignore
-      return frappe.pesa(value);
+      return frappe.pesa(value || 0);
     case FieldType.Int:
     case FieldType.Float: {
       const n = parseFloat(value);
@@ -364,9 +364,9 @@ export class Importer {
       }
 
       const doc = frappe.getNewDoc(this.doctype);
-      await doc.set(docObj);
 
       try {
+        await doc.set(docObj);
         await doc.insert();
         if (this.shouldSubmit) {
           await doc.submit();
