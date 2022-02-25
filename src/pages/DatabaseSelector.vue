@@ -233,7 +233,7 @@ export default {
         ` reason: ${reason}, filePath: ${filePath}`;
       if (reason === DB_CONN_FAILURE.CANT_OPEN) {
         content = this
-          .t`Can't open database file: ${filePath}, please create a new file.`;
+          .t`Can't open database file: ${filePath}. Please create a new file.`;
       }
       await showErrorDialog(title, content);
     },

@@ -7,10 +7,10 @@
 `Account Entries`,`Kontoeinträge`
 `Account Name`,`Name des Kontos`
 `Account Type`,`Konto-Typ`
-`Accounting Ledger Entries`,`Buchhaltungsbuchungen`
+`Accounting Ledger Entries`,`Buchungssätze`
 `Accounting Settings`,`Buchhaltungseinstellungen`
 `Accounts`,`Konten`
-`Accounts Payable`,`Kreditorenbuchhaltung`
+`Accounts Payable`,`Kreditoren`
 `Accounts Receivable`,`Debitoren`
 `Accumulated Depreciation`,`Kumulierte Abschreibung`
 `Add Account`,`Konto hinzufügen`
@@ -20,13 +20,13 @@
 `Add Row`,`Zeile hinzufügen`
 `Add Suppliers`,`Lieferanten hinzufügen`
 `Add Taxes`,`Steuern hinzufügen`
-`Add a filter`,`Einen Filter hinzufügen`
+`Add a filter`,`Filter hinzufügen`
 `Address`,`Adresse`
 `Address Display`,`Adressanzeige`
 `Address Line 1`,`Anschrift Zeile 1`
-`Address Line 2`,`Adresse Zeile 2`
+`Address Line 2`,`Anschrift Zeile 2`
 `Administrative Expenses`,`Verwaltungskosten`
-`Against Account`,`Gegen Konto`
+`Against Account`,`Gegenkonto`
 `All References`,`Alle Referenzen`
 `Amount`,`Betrag`
 `Amount (Company Currency)`,`Betrag (Währung des Unternehmens)`
@@ -36,73 +36,73 @@
 `Application of Funds (Assets)`,`Verwendung der Mittel (Aktiva)`
 `Are you sure you want to cancel ${0} ${1}?`,`Sind Sie sicher, dass Sie ${0} ${1} stornieren wollen?`
 `Are you sure you want to delete ${0} ${1}?`,`Sind Sie sicher, dass Sie ${0} ${1} löschen wollen?`
-`Are you sure you want to submit this Bill?`,`Sind Sie sicher, dass Sie diesen Gesetzentwurf einreichen wollen?`
+`Are you sure you want to submit this Bill?`,`Sind Sie sicher, dass Sie diese Rechnung einreichen wollen?`
 `Are you sure you want to submit this Invoice?`,`Sind Sie sicher, dass Sie diese Rechnung einreichen möchten?`
 `Are you sure you want to submit this Journal Entry?`,`Sind Sie sicher, dass Sie diesen Journaleintrag abschicken wollen?`
 `Back`,`Zurück`
-`Balance`,`Bilanz`
+`Balance`,`Kontostand`
 `Balance Sheet`,`Bilanz`
 `Bank Accounts`,`Bankkonten`
-`Bank Name`,`Name der Bank`
-`Bank Overdraft Account`,`Überziehungskonto der Bank`
+`Bank Name`,`Bankname`
+`Bank Overdraft Account`,`Überziehungskonto`
 `Bill`,`Rechnung`
 `Bill Created`,`Rechnung erstellt`
-`Bill No`,`Gesetzentwurf Nein`
+`Bill No`,`Rechnungsnummer`
 `Bills`,`Rechnungen`
 `Bills Settings`,`Einstellungen für Rechnungen`
 `Black`,`Schwarz`
 `Body`,`Körper`
 `Buildings`,`Gebäude`
 `CSV`,`CSV`
-`Can't open database file: ${0}, please create a new file.`,`Die Datenbankdatei kann nicht geöffnet werden: ${0}, bitte erstellen Sie eine neue Datei.`
-`Cancel`,`Abbrechen`
-`Cancelled`,`Abgesagt`
+`Can't open database file: ${0}. Please create a new file.`,`Die Datenbankdatei ${0} kann nicht geöffnet werden. Bitte erstellen Sie eine neue Datei.`
+`Cancel`,`Stornieren`
+`Cancelled`,`Storniert`
 `Capital Equipments`,`Kapitalausstattungen`
 `Capital Stock`,`Grundkapital`
 `Cash`,`Bargeld`
-`Cash In Hand`,`Bargeld in der Hand`
+`Cash In Hand`,`Kassenbestand`
 `Cashflow`,`Cashflow`
 `Central Tax`,`Zentrale Steuer`
 `Central Tax Paid`,`Gezahlte Zentralsteuer`
-`Chart Of Accounts Reviewed`,`Überprüfter Kontenplan`
+`Chart Of Accounts Reviewed`,`Kontenplan überprüft`
 `Chart of Accounts`,`Kontenplan`
-`Checking for updates`,`Prüfung auf Aktualisierungen`
+`Checking for updates`,`Suche nach Updates`
 `City / Town`,`Stadt / Ortschaft`
 `Clearance Date`,`Datum der Freigabe`
 `Click to create`,`Klicken Sie zum Erstellen`
-`Close`,`Schließen Sie`
-`Closing (Cr)`,`Abschluss (Cr)`
-`Closing (Dr)`,`Schließen (Dr)`
+`Close`,`Schließen`
+`Closing (Cr)`,`Abschluss (H)`
+`Closing (Dr)`,`Abschluss (S)`
 `Color`,`Farbe`
-`Commission on Sales`,`Kommission für Verkäufe`
-`Common`,`Gemeinsame`
-`Company Address`,`Adresse des Unternehmens`
-`Company Logo`,`Firmenlogo`
-`Company Name`,`Name des Unternehmens`
+`Commission on Sales`,`Umsatzprovision`
+`Common`,`Allgemein`
+`Company Address`,`Unternehmensadresse`
+`Company Logo`,`Unternehmenslogo`
+`Company Name`,`Firma`
 `Company Settings`,`Unternehmenseinstellungen`
-`Company Setup`,`Unternehmensgründung`
+`Company Setup`,`Unternehmen einrichten`
 `Completed`,`Abgeschlossen`
-`Confirm Password`,`Bestätigen Sie Ihr Passwort`
+`Confirm Password`,`Passwort bestätigen`
 `Contains`,`Enthält`
-`Cost of Goods Sold`,`Kosten der verkauften Waren`
+`Cost of Goods Sold`,`Umsatzkosten`
 `Country`,`Land`
-`Create`,`erstellen.`
+`Create`,`Erstellen.`
 `Create Bill`,`Rechnung erstellen`
 `Create Invoice`,`Rechnung erstellen`
 `Create a new file and store it in your computer.`,`Erstellen Sie eine neue Datei und speichern Sie sie auf Ihrem Computer.`
 `Create a new file or select an existing one from your computer`,`Erstellen Sie eine neue Datei oder wählen Sie eine vorhandene Datei von Ihrem Computer aus`
-`Credit`,`Kredit`
-`Creditors`,`Gläubiger`
+`Credit`,`Haben`
+`Creditors`,`Kreditoren`
 `Currency`,`Währung`
-`Currency Name`,`Währung Name`
-`Current`,`Aktuell`
+`Currency Name`,`Währungsname`
+`Current`,`Kontokorrent`
 `Current Assets`,`Umlaufvermögen`
 `Current Liabilities`,`Kurzfristige Verbindlichkeiten`
 `Custom Hex`,`Benutzerdefiniertes Hex`
 `Customer`,`Kunde`
 `Customer Created`,`Kunde erstellt`
-`Customer Currency`,`Kunde Währung`
-`Customer Name`,`Name des Kunden`
+`Customer Currency`,`Kundenwährung`
+`Customer Name`,`Kundenname`
 `Customers`,`Kunden`
 `Customise`,`Anpassen`
 `Customize`,`Anpassen`
@@ -131,12 +131,12 @@
 `Download Update`,`Update herunterladen`
 `Duties and Taxes`,`Zölle und Steuern`
 `Earnest Money`,`Earnest Money`
-`Edit`,`bearbeiten`
+`Edit`,`Bearbeiten`
 `Electronic Equipments`,`Elektronische Ausrüstungen`
 `Email`,`E-Mail`
 `Email Account`,`E-Mail-Konto`
-`Email Address`,`E-Mail Adresse`
-`Empty`,`Leere`
+`Email Address`,`E-Mail-Adresse`
+`Empty`,`Leer`
 `Enable Notifications`,`Aktivieren von Benachrichtigungen`
 `Entertainment Expenses`,`Ausgaben für Unterhaltung`
 `Entry ID`,`Eintrags-ID`
@@ -164,8 +164,8 @@
 `Fixed Assets`,`Anlagevermögen`
 `Font`,`Schriftart`
 `For`,`Für`
-`Fraction`,`Fraktion`
-`Fraction Units`,`Fraktionseinheiten`
+`Fraction`,`Bruchteil`
+`Fraction Units`,`Maßeinheit Bruchteil`
 `Freight and Forwarding Charges`,`Fracht- und Speditionskosten`
 `From`,`Von`
 `From Account`,`Von Konto`
@@ -208,9 +208,9 @@
 `Investments`,`Investitionen`
 `Invoice`,`Rechnung`
 `Invoice Created`,`Rechnung erstellt`
-`Invoice Date`,`Datum der Rechnung`
-`Invoice No`,`Rechnung Nr.`
-`Invoice No.`,`Rechnungs-Nr.`
+`Invoice Date`,`Rechnungsdatum`
+`Invoice No`,`Rechnungsnummer`
+`Invoice No.`,`Rechnungsnummer`
 `Invoice Number`,`Rechnungsnummer`
 `Invoice Setup`,`Rechnungen einrichten`
 `Invoice Value`,`Rechnungswert`
@@ -229,7 +229,7 @@
 `JSON`,`JSON`
 `JSON Data`,`JSON-Daten`
 `Journal Entry`,`Journaleintrag`
-`Journal Entry Setting`,`Journaleintrag Einstellung`
+`Journal Entry Setting`,`Journaleinstellungen`
 `Ledger Entries`,`Hauptbucheinträge`
 `Ledger Entry`,`Hauptbucheintrag`
 `Legal Expenses`,`Rechtskosten`
@@ -238,7 +238,7 @@
 `Loading...`,`Laden...`
 `Loans (Liabilities)`,`Darlehen (Passiva)`
 `Loans and Advances (Assets)`,`Kredite und Forderungen (Aktiva)`
-`Locale`,`Schauplatz`
+`Locale`,`Gebietsschema`
 `Logo`,`Logo`
 `MIME Type`,`MIME-Typ`
 `Make Payment`,`Zahlung vornehmen`
@@ -269,8 +269,8 @@
 `Office Rent`,`Büromiete`
 `Onboarding Complete`,`Onboarding abgeschlossen`
 `Open Folder`,`Ordner öffnen`
-`Opening (Cr)`,`Eröffnung (Cr)`
-`Opening (Dr)`,`Eröffnung (Dr)`
+`Opening (Cr)`,`Eröffnung (H)`
+`Opening (Dr)`,`Eröffnung (S)`
 `Opening Balance Equity`,`Eröffnungsbilanz Eigenkapital`
 `Opening Balances`,`Eröffnungssalden`
 `Organisation`,`Organisation`
@@ -282,7 +282,7 @@
 `Parent Account`,`Übergeordnetes Konto`
 `Party`,`Party`
 `Password`,`Passwort`
-`Payable Account`,`Verbindliches Konto`
+`Payable Account`,`Verbindlichkeitenkonto`
 `Payment`,`Zahlung`
 `Payment Account`,`Zahlungskonto`
 `Payment For`,`Zahlung für`
@@ -307,7 +307,7 @@
 `Please select an existing database or create a new one.`,`Bitte wählen Sie eine vorhandene Datenbank oder erstellen Sie eine neue.`
 `Please set GSTIN in General Settings.`,`Bitte stellen Sie die GSTIN in den Allgemeinen Einstellungen ein.`
 `Postal Code`,`Postleitzahl`
-`Postal Expenses`,`Postkosten`
+`Postal Expenses`,`Portokosten`
 `Posting Date`,`Buchungsdatum`
 `Prefix`,`Vorsilbe`
 `Prevent errors from showing and automatically report all errors.`,`Verhindern Sie die Anzeige von Fehlern und melden Sie automatisch alle Fehler.`
@@ -318,24 +318,24 @@
 `Print and Stationery`,`Druck und Schreibwaren`
 `Profit And Loss`,`Gewinn und Verlust`
 `Profit and Loss`,`Gewinn und Verlust`
-`Purchase`,`Kaufen Sie`
+`Purchase`,`Einkauf`
 `Purchase Order`,`Bestellung`
 `Purchase Order Settings`,`Bestellungseinstellungen`
 `Purchase Receipt`,`Kaufbeleg`
 `Purchase Receipt Settings`,`Einstellungen für Kaufbelege`
-`PurchaseInvoice`,`PurchaseInvoice`
+`PurchaseInvoice`,`Einkaufsrechnung`
 `Purchases`,`Käufe`
 `Quantity`,`Menge`
 `Quantity (${0}) cannot be less than zero.`,`Die Menge (${0}) kann nicht kleiner als Null sein.`
 `Quotation`,`Angebot`
 `Quotation Settings`,`Angebotseinstellungen`
-`Rate`,`Bewerten Sie`
-`Rate (${0}) cannot be less zero.`,`Die Rate (${0}) kann nicht kleiner als Null sein.`
-`Rate (Company Currency)`,`Kurs (Firmenwährung)`
-`Re-Open`,`Wiedereröffnung`
-`Receivable Account`,`Debitoren-Konto`
+`Rate`,`Preis`
+`Rate (${0}) cannot be less zero.`,`Der Preis (${0}) kann nicht negativ sein.`
+`Rate (Company Currency)`,`Kurs (Unternehmenswährung)`
+`Re-Open`,`Wiedereröffnen`
+`Receivable Account`,`Forderungskonto`
 `Recent Invoices`,`Neueste Rechnungen`
-`Reconcile`,`Abstimmen`
+`Reconcile`,`Abgleichen`
 `Ref. / Cheque No.`,`Ref. / Scheck-Nr.`
 `Ref. Date`,`Ref. Datum`
 `Ref. Name`,`Ref. Name`
@@ -353,28 +353,28 @@
 `Reset Filters`,`Filter zurücksetzen`
 `Retained Earnings`,`Einbehaltene Gewinne`
 `Reverse Charge`,`Reverse Charge`
-`Reverse Chrg.`,`Reverse Chrg.`
+`Reverse Chrg.`,`Reverse Charge`
 `Reverted`,`Rückgängig gemacht`
 `Review Accounts`,`Konten überprüfen`
 `Role`,`Rolle`
 `Roles`,`Rollen`
 `Root Type`,`Wurzel-Typ`
 `Round Off`,`Abrunden`
-`Round Off Account`,`Konto abrunden`
+`Round Off Account`,`Konto für Rundungsdifferenzen`
 `SMTP Host`,`SMTP-Host`
-`SMTP Port`,`SMTP-Anschluss`
+`SMTP Port`,`SMTP-Port`
 `Salary`,`Gehalt`
 `Sales`,`Vertrieb`
-`Sales Expenses`,`Verkaufskosten`
+`Sales Expenses`,`Vertriebskosten`
 `Sales Order`,`Kundenauftrag`
 `Sales Order Settings`,`Einstellungen zum Kundenauftrag`
-`SalesInvoice`,`SalesInvoice`
-`SalesInvoice Settings`,`SalesInvoice Einstellungen`
-`Save`,`Speichern Sie`
+`SalesInvoice`,`Rechnung`
+`SalesInvoice Settings`,`Rechnungseinstellungen`
+`Save`,`Speichern`
 `Save & Close`,`Speichern & Schließen`
 `Save as PDF`,`Als PDF speichern`
-`Save as PDF Successful`,`Als PDF speichern Erfolgreich`
-`Saving...`,`Sparen...`
+`Save as PDF Successful`,`PDF gespeichert`
+`Saving...`,`Speichern...`
 `Schedule`,`Zeitplan`
 `Secured Loans`,`Gesicherte Darlehen`
 `Securities and Deposits`,`Wertpapiere und Einlagen`
@@ -384,9 +384,9 @@
 `Select a file to load the company transactions`,`Wählen Sie eine Datei zum Laden der Unternehmenstransaktionen`
 `Select file`,`Datei auswählen`
 `Select folder`,`Ordner auswählen`
-`Send`,`Senden Sie`
+`Send`,`Senden`
 `Service`,`Dienst`
-`Set the local code, this is used for number formatting.`,`Legen Sie den lokalen Code fest, der für die Formatierung der Nummern verwendet wird.`
+`Set the local code. This is used for number formatting.`,`Legen Sie den lokalen Code fest, der für die Formatierung der Nummern verwendet wird.`
 `Sets how many digits are shown after the decimal point.`,`Legt fest, wie viele Ziffern nach dem Dezimalpunkt angezeigt werden.`
 `Sets the app-wide date display format.`,`Legt das app-weite Datumsanzeigeformat fest.`
 `Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.`,`Legt die interne Genauigkeit fest, die für monetäre Berechnungen verwendet wird. Ein Wert über 6 sollte für die meisten Währungen ausreichend sein.`
@@ -399,7 +399,7 @@
 `Setup your organization`,`Einrichtung Ihrer Organisation`
 `Setup your workspace`,`Einrichten Ihres Arbeitsbereichs`
 `Smallest Currency Fraction Value`,`Kleinster Wert eines Währungsbruchteils`
-`Softwares`,`Softwares`
+`Softwares`,`Software`
 `Something has gone terribly wrong. Please check the console and raise an issue.`,`Etwas ist furchtbar schief gelaufen. Bitte prüfen Sie die Konsole und melden Sie ein Problem.`
 `Source of Funds (Liabilities)`,`Mittelherkunft (Passiva)`
 `Start Time`,`Startzeit`
@@ -408,23 +408,23 @@
 `State/UT Tax Paid`,`Staat/UT Steuer gezahlt`
 `Status`,`Status`
 `Stock Adjustment`,`Bestandsanpassung`
-`Stock Assets`,`Lagerbestände`
+`Stock Assets`,`Lagerbestand`
 `Stock Expenses`,`Ausgaben für Aktien`
-`Stock In Hand`,`Bestand in der Hand`
+`Stock In Hand`,`Vorräte`
 `Stock Liabilities`,`Lagerverbindlichkeiten`
 `Stock Received But Not Billed`,`Erhaltener, aber nicht fakturierter Bestand`
-`Subject`,`Thema`
+`Subject`,`Betreff`
 `Submit`,`Einreichen`
 `Submitted`,`Eingereicht`
 `Subtotal`,`Zwischensumme`
 `Supplier`,`Anbieter`
 `Supplier Created`,`Lieferant erstellt`
-`Supplier Currency`,`Lieferant Währung`
+`Supplier Currency`,`Lieferantenwährung`
 `Supplier Name`,`Name des Lieferanten`
-`Suppliers`,`Anbieter`
+`Suppliers`,`Lieferanten`
 `Symbol`,`Symbol`
 `System`,`System`
-`System Settings`,`System-Einstellungen`
+`System Settings`,`Systemeinstellungen`
 `System Setup`,`System einrichten`
 `Tax`,`Steuer`
 `Tax Account`,`Steuerkonto`
@@ -438,17 +438,17 @@
 `Template could not be saved.`,`Die Vorlage konnte nicht gespeichert werden.`
 `Template saved successfully.`,`Vorlage erfolgreich gespeichert.`
 `Temporary Accounts`,`Vorläufige Konten`
-`Temporary Opening`,`Vorübergehende Öffnung`
+`Temporary Opening`,`Vorübergehende Eröffnung`
 `Terms`,`Bedingungen`
-`Theme Color`,`Thema Farbe`
-`This action is permanent`,`Diese Maßnahme ist dauerhaft`
-`This action is permanent and will cancel the following payment: ${0}`,`Diese Aktion ist dauerhaft und storniert die folgende Zahlung: ${0}`
-`This action is permanent and will cancel the following payments: ${0}`,`Diese Aktion ist dauerhaft und wird die folgenden Zahlungen stornieren: ${0}`
+`Theme Color`,`Design-Farbe`
+`This action is permanent`,`Diese Aktion ist endgültig`
+`This action is permanent and will cancel the following payment: ${0}`,`Diese Aktion ist endgültig und storniert die folgende Zahlung: ${0}`
+`This action is permanent and will cancel the following payments: ${0}`,`Diese Aktion ist endgültig und storniert die folgenden Zahlungn: ${0}`
 `Title`,`Titel`
 `To`,`An`
-`To Account`,`Zum Konto`
-`To Date`,`Bis heute`
-`To Do`,`Zu tun`
+`To Account`,`Zu Konto`
+`To Date`,`Bis Datum`
+`To Do`,`To-Do`
 `Top Expenses`,`Top-Ausgaben`
 `Total Spending`,`Gesamtausgaben`
 `Total Tax`,`Gesamtsteuer`

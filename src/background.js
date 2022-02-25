@@ -233,6 +233,56 @@ ipcMain.handle(IPC_ACTIONS.GET_LANGUAGE_MAP, async (event, code) => {
   return obj;
 });
 
+ipcMain.handle(IPC_ACTIONS.GET_COA_LIST, async () => {
+  const p = path.resolve('./fixtures/verified');
+  const files = await fs.readdir(p);
+  const coas = [];
+
+  for (let file of files) {
+    if (!file.endsWith('.json')) {
+      continue;
+    }
+    const fh = await fs.open(path.join(p, file));
+    const json = await fh.readFile({ encoding: 'utf-8' });
+    const { name, countryCode } = JSON.parse(json);
+    if (name === undefined) {
+      continue;
+    }
+
+    coas.push({ name, countryCode });
+  }
+
+  return coas;
+});
+
+ipcMain.handle(IPC_ACTIONS.GET_FILE, async (event, options) => {
+  const response = {
+    name: '',
+    filePath: '',
+    success: false,
+    data: null,
+    canceled: false,
+  };
+  const window = event.sender.getOwnerBrowserWindow();
+  const { filePaths, canceled } = await dialog.showOpenDialog(window, options);
+
+  response.filePath = filePaths?.[0];
+  response.canceled = canceled;
+
+  if (!response.filePath) {
+    return response;
+  }
+
+  response.success = true;
+  if (canceled) {
+    return response;
+  }
+
+  response.name = path.basename(response.filePath);
+  response.data = await fs.readFile(response.filePath);
+  return response;
+});
+
 /* ------------------------------
  * Register autoUpdater events lis
  * ------------------------------*/

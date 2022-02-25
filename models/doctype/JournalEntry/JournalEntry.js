@@ -63,6 +63,7 @@ export default {
       label: t`Cancelled`,
       fieldtype: 'Check',
       default: 0,
+      readOnly: 1,
     },
   ],
   actions: [ledgerLink],
