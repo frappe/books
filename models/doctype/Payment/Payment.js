@@ -11,6 +11,13 @@ export default {
   settings: 'PaymentSettings',
   fields: [
     {
+      label: t`Payment No`,
+      fieldname: 'name',
+      fieldtype: 'Data',
+      required: 1,
+      readOnly: 1,
+    },
+    {
       fieldname: 'party',
       label: t`Party`,
       fieldtype: 'Link',
