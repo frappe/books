@@ -30,6 +30,13 @@ export default {
       required: 1,
     },
     {
+      label: t`Entry No`,
+      fieldname: 'name',
+      fieldtype: 'Data',
+      required: 1,
+      readOnly: 1,
+    },
+    {
       fieldname: 'date',
       label: t`Date`,
       fieldtype: 'Date',
