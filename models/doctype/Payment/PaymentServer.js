@@ -60,6 +60,7 @@ export default class PaymentServer extends BaseDocument {
   async validate() {
     this.validateAccounts();
     this.validateReferenceAmount();
+    this.validateWriteOff();
   }
 
   validateAccounts() {
@@ -98,11 +99,44 @@ export default class PaymentServer extends BaseDocument {
     );
   }
 
+  validateWriteOff() {
+    if (this.writeoff.isZero()) {
+      return;
+    }
+
+    if (!frappe.AccountingSettings.writeOffAccount) {
+      throw new frappe.errors.ValidationError(
+        frappe.t`Write Off Account not set.
+          Please set Write Off Account in General Settings`
+      );
+    }
+  }
+
   async getPosting() {
     let entries = new LedgerPosting({ reference: this, party: this.party });
-    await entries.debit(this.paymentAccount, this.amount);
-    await entries.credit(this.account, this.amount);
-    return entries;
+
+    await entries.debit(this.paymentAccount, this.amount.sub(this.writeoff));
+    await entries.credit(this.account, this.amount.sub(this.writeoff));
+
+    if (this.writeoff.isZero()) {
+      return [entries];
+    }
+
+    const writeoffEntry = new LedgerPosting({
+      reference: this,
+      party: this.party,
+    });
+    const { writeOffAccount } = frappe.AccountingSettings;
+
+    if (this.paymentType === 'Pay') {
+      await writeoffEntry.debit(this.account, this.writeoff);
+      await writeoffEntry.credit(writeOffAccount, this.writeoff);
+    } else {
+      await writeoffEntry.debit(writeOffAccount, this.writeoff);
+      await writeoffEntry.credit(this.account, this.writeoff);
+    }
+
+    return [entries, writeoffEntry];
   }
 
   async beforeSubmit() {
@@ -148,14 +182,18 @@ export default class PaymentServer extends BaseDocument {
   }
 
   async afterSubmit() {
-    const entries = await this.getPosting();
-    await entries.post();
+    const entryList = await this.getPosting();
+    for (const entry of entryList) {
+      await entry.post();
+    }
   }
 
   async afterRevert() {
     this.updateReferenceOutstandingAmount();
-    const entries = await this.getPosting();
-    await entries.postReverse();
+    const entryList = await this.getPosting();
+    for (const entry of entryList) {
+      await entry.postReverse();
+    }
   }
 
   async updateReferenceOutstandingAmount() {
