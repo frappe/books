@@ -105,10 +105,8 @@ export default {
       label: t`Rate`,
       fieldtype: 'Currency',
       validate(value) {
-        if (value.lte(0)) {
-          throw new frappe.errors.ValidationError(
-            'Rate must be greater than 0'
-          );
+        if (value.isNegative()) {
+          throw new frappe.errors.ValidationError(t`Rate can't be negative.`);
         }
       },
     },
