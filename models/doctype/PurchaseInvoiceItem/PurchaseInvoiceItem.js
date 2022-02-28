@@ -46,6 +46,18 @@ export default {
         return baseRate.div(doc.exchangeRate);
       },
       getCurrency: (row, doc) => doc.currency,
+      validate(value) {
+        if (value.gte(0)) {
+          return;
+        }
+
+        throw new frappe.errors.ValidationError(
+          frappe.t`Rate (${frappe.format(
+            value,
+            'Currency'
+          )}) cannot be less zero.`
+        );
+      },
     },
     {
       fieldname: 'baseRate',
