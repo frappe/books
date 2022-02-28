@@ -324,8 +324,9 @@ export class Importer {
 
     const docMap: ObjectMap = {};
 
-    for (let r = 0; r < this.assignedMatrix.length; r++) {
-      const row = this.assignedMatrix[r];
+    const assignedMatrix = this.assignedMatrix;
+    for (let r = 0; r < assignedMatrix.length; r++) {
+      const row = assignedMatrix[r];
       const cts: ObjectMap = {};
       const name = row[nameIndex];
 
