@@ -85,6 +85,7 @@ export default {
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
+      readOnly: 1,
       formula: (row, doc) => doc.getFrom('Item', row.item, 'incomeAccount'),
     },
     {

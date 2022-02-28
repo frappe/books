@@ -66,7 +66,6 @@ export default {
       fieldtype: 'Float',
       default: 1,
       formula: async (doc) => await doc.getExchangeRate(),
-      required: true,
     },
     {
       fieldname: 'items',
