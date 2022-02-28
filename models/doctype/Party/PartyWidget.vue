@@ -36,8 +36,8 @@
             <span class="text-gray-600" v-if="!fullyPaid(invoice)">
               ({{
                 frappe.format(
-                  invoice.baseGrandTotal,
-                  invoiceMeta.getField('baseGrandTotal')
+                  invoice.outstandingAmount,
+                  invoiceMeta.getField('outstandingAmount')
                 )
               }})
             </span>
@@ -49,9 +49,9 @@
 </template>
 
 <script>
+import { routeTo } from '@/utils';
 import frappe from 'frappe';
 import { getStatusColumn } from '../Transaction/Transaction';
-import { routeTo } from '@/utils';
 
 export default {
   name: 'PartyWidget',
