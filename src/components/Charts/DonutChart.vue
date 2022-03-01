@@ -55,14 +55,14 @@
       </template>
     </svg>
     <div
-      class="text-center w-32 relative"
+      class="text-center w-28 relative"
       :style="{
         top: `calc(-50% + ${textOffsetY}px)`,
         left: `calc(50% + ${textOffsetX}px)`,
         transform: 'translateX(-50%)',
       }"
     >
-      <p class="text-xl font-bold">
+      <p class="text-base font-bold whitespace-nowrap">
         {{
           valueFormatter(
             active !== null && sectors.length !== 0
@@ -72,7 +72,14 @@
           )
         }}
       </p>
-      <p class="text-xs text-gray-600 font-semibold">
+      <p
+        class="
+          text-xs text-gray-600
+          font-semibold
+          whitespace-nowrap
+          overflow-x-scroll
+        "
+      >
         {{
           active !== null && sectors.length !== 0
             ? sectors[active].label
