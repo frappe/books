@@ -306,9 +306,14 @@
             </p>
           </div>
         </div>
-        <Button type="primary" class="text-sm w-28" @click="showMe">{{
-          t`Show Me`
-        }}</Button>
+        <div class="flex w-full justify-between">
+          <Button type="secondary" class="text-sm w-32" @click="clear">{{
+            t`Import More`
+          }}</Button>
+          <Button type="primary" class="text-sm w-32" @click="showMe">{{
+            t`Show Me`
+          }}</Button>
+        </div>
       </div>
     </div>
     <div
@@ -480,6 +485,9 @@ export default {
       this.importType = '';
       this.complete = false;
       this.canReset = false;
+      this.isMakingEntries = false;
+      this.percentLoading = 0;
+      this.messageLoading = '';
     },
     handlePrimaryClick() {
       if (!this.file) {
