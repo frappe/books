@@ -1,3 +1,7 @@
+export type Map = {
+  [key: string]: unknown;
+};
+
 export enum FieldType {
   Data = 'Data',
   Select = 'Select',
@@ -26,4 +30,11 @@ export interface Field {
   readOnly?: number;
   hidden?: number | Function;
   options?: string[];
+}
+
+export interface Doc {
+  name: string;
+  set: (fieldname: Map | string, value?: unknown) => Promise<void>;
+  insert: () => Promise<void>;
+  submit: () => Promise<void>;
 }

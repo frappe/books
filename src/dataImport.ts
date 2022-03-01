@@ -1,4 +1,4 @@
-import { Field, FieldType } from '@/types/model';
+import { Doc, Map, Field, FieldType } from '@/types/model';
 import frappe from 'frappe';
 import { isNameAutoSet } from 'frappe/model/naming';
 import { parseCSV } from './csvParser';
@@ -21,10 +21,6 @@ type Status = {
 
 type Exclusion = {
   [key: string]: string[];
-};
-
-type Map = {
-  [key: string]: unknown;
 };
 
 type ObjectMap = {
@@ -381,38 +377,14 @@ export class Importer {
         delete docObj[key];
       }
 
-      const doc = frappe.getNewDoc(this.doctype);
+      const doc: Doc = frappe.getNewDoc(this.doctype, false);
       try {
-        await doc.set(docObj);
-        await doc.insert();
-        if (this.shouldSubmit) {
-          await doc.submit();
-        }
+        await this.makeEntry(doc, docObj);
         entriesMade += 1;
         setLoadingStatus(true, entriesMade, docObjs.length);
       } catch (err) {
         setLoadingStatus(false, entriesMade, docObjs.length);
-        const messages = [
-          frappe.t`Could not import ${this.doctype} ${doc.name}.`,
-        ];
-
-        const message = (err as Error).message;
-        if (message?.includes('UNIQUE constraint failed')) {
-          messages.push(frappe.t`${doc.name} already exists.`);
-        } else if (message) {
-          messages.push(message);
-        }
-
-        if (status.names.length) {
-          messages.push(
-            frappe.t`The following ${
-              status.names.length
-            } entries were created: ${status.names.join(', ')}`
-          );
-        }
-
-        status.message = messages.join(' ');
-        return status;
+        return this.handleError(doc, err as Error, status);
       }
 
       status.names.push(doc.name);
@@ -426,5 +398,35 @@ export class Importer {
   addRow() {
     const emptyRow = Array(this.columnLabels.length).fill('');
     this.parsedValues.push(emptyRow);
+  }
+
+  async makeEntry(doc: Doc, docObj: Map) {
+    await doc.set(docObj);
+    await doc.insert();
+    if (this.shouldSubmit) {
+      await doc.submit();
+    }
+  }
+
+  handleError(doc: Doc, err: Error, status: Status): Status {
+    const messages = [frappe.t`Could not import ${this.doctype} ${doc.name}.`];
+
+    const message = err.message;
+    if (message?.includes('UNIQUE constraint failed')) {
+      messages.push(frappe.t`${doc.name} already exists.`);
+    } else if (message) {
+      messages.push(message);
+    }
+
+    if (status.names.length) {
+      messages.push(
+        frappe.t`The following ${
+          status.names.length
+        } entries were created: ${status.names.join(', ')}`
+      );
+    }
+
+    status.message = messages.join(' ');
+    return status;
   }
 }
