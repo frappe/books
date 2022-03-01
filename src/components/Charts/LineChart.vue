@@ -131,8 +131,8 @@
   </div>
 </template>
 <script>
-import { euclideanDistance, prefixFormat } from './chartUtils';
 import Tooltip from '../Tooltip.vue';
+import { euclideanDistance, prefixFormat } from './chartUtils';
 
 export default {
   props: {
@@ -190,8 +190,8 @@ export default {
         );
     },
     ys() {
-      const min = this.yMin ?? this.min;
-      const max = this.yMax ?? this.max;
+      const min = this.hMin;
+      const max = this.hMax;
       return this.points.map((pp) =>
         pp.map(
           (p) =>
@@ -235,6 +235,16 @@ export default {
       const r = this.viewBoxWidth - this.padding;
       return { l, r };
     },
+    hMin() {
+      return Math.min(this.yMin ?? this.min, 0);
+    },
+    hMax() {
+      let hMax = Math.max(this.yMax ?? this.max, 0);
+      if (hMax === this.hMin) {
+        return hMax + 1000;
+      }
+      return hMax;
+    },
   },
   data() {
     return { cx: -1, cy: -1, xi: -1, yi: -1 };
@@ -252,8 +262,8 @@ export default {
       );
     },
     yScalerValue(i) {
-      const max = this.yMax ?? this.max;
-      const min = this.yMin ?? this.min;
+      const min = this.hMin;
+      const max = this.hMax;
       return this.formatY((i * (max - min)) / this.yLabelDivisions + min);
     },
     getLine(i) {
