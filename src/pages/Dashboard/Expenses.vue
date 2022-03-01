@@ -21,7 +21,7 @@
             <div class="w-3 h-3 rounded-sm" :class="d.class"></div>
             <div class="ml-3">{{ d.account }}</div>
           </div>
-          <div>{{ frappe.format(d.total, 'Currency') }}</div>
+          <p class="whitespace-nowrap">{{ frappe.format(d.total, 'Currency') }}</p>
         </div>
       </div>
       <DonutChart
@@ -48,12 +48,12 @@
 </template>
 
 <script>
-import frappe from 'frappe';
 import theme from '@/theme';
+import frappe from 'frappe';
+import DonutChart from '../../components/Charts/DonutChart.vue';
+import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
-import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
-import DonutChart from '../../components/Charts/DonutChart.vue';
 
 export default {
   name: 'Expenses',
