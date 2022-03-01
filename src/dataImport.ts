@@ -35,6 +35,12 @@ type LabelTemplateFieldMap = {
   [key: string]: TemplateField;
 };
 
+type LoadingStatusCallback = (
+  isMakingEntries: boolean,
+  entriesMade: number,
+  totalEntries: number
+) => void;
+
 interface TemplateField {
   label: string;
   fieldname: string;
@@ -354,11 +360,15 @@ export class Importer {
     return Object.keys(docMap).map((k) => docMap[k]);
   }
 
-  async importData(): Promise<Status> {
+  async importData(setLoadingStatus: LoadingStatusCallback): Promise<Status> {
     const status: Status = { success: false, names: [], message: '' };
     const shouldDeleteName = await isNameAutoSet(this.doctype);
+    const docObjs = this.getDocs();
 
-    for (const docObj of this.getDocs()) {
+    let entriesMade = 0;
+    setLoadingStatus(true, 0, docObjs.length);
+
+    for (const docObj of docObjs) {
       if (shouldDeleteName) {
         delete docObj.name;
       }
@@ -378,7 +388,10 @@ export class Importer {
         if (this.shouldSubmit) {
           await doc.submit();
         }
+        entriesMade += 1;
+        setLoadingStatus(true, entriesMade, docObjs.length);
       } catch (err) {
+        setLoadingStatus(false, entriesMade, docObjs.length);
         const messages = [
           frappe.t`Could not import ${this.doctype} ${doc.name}.`,
         ];
@@ -405,6 +418,7 @@ export class Importer {
       status.names.push(doc.name);
     }
 
+    setLoadingStatus(false, entriesMade, docObjs.length);
     status.success = true;
     return status;
   }

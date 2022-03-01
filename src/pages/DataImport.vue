@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col overflow-hidden">
+  <div class="flex flex-col overflow-hidden w-full">
     <PageHeader>
       <template #title>
         <h1 class="text-2xl font-bold">
@@ -212,7 +212,14 @@
               :key="'matrix-row-' + i"
             >
               <button
-                class="w-4 h-4 text-gray-600 hover:text-gray-900 cursor-pointer outline-none"
+                class="
+                  w-4
+                  h-4
+                  text-gray-600
+                  hover:text-gray-900
+                  cursor-pointer
+                  outline-none
+                "
                 @click="
                   () => {
                     importer.dropRow(i);
@@ -306,12 +313,18 @@
     </div>
     <div
       v-if="!importType"
-      class="flex justify-center h-full items-center mb-16"
+      class="flex justify-center h-full w-full items-center mb-16"
     >
       <HowTo link="https://youtu.be/ukHAgcnVxTQ">
         {{ t`How to Use Data Import?` }}
       </HowTo>
     </div>
+    <Loading
+      v-if="openLoading"
+      :open="openLoading"
+      :percent="percentLoading"
+      :message="messageLoading"
+    />
   </div>
 </template>
 <script>
@@ -326,6 +339,7 @@ import { IPC_ACTIONS } from '@/messages';
 import { getSavePath, saveData, showMessageDialog } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
+import Loading from '../components/Loading.vue';
 export default {
   components: {
     PageHeader,
@@ -334,6 +348,7 @@ export default {
     DropdownWithActions,
     FeatherIcon,
     HowTo,
+    Loading,
   },
   data() {
     return {
@@ -343,6 +358,9 @@ export default {
       file: null,
       importer: null,
       importType: '',
+      openLoading: false,
+      percentLoading: 0,
+      messageLoading: '',
     };
   },
   computed: {
@@ -446,7 +464,7 @@ export default {
     if (!this.complete) {
       return;
     }
-    
+
     this.clear();
   },
   methods: {
@@ -533,7 +551,9 @@ export default {
         return;
       }
 
-      const { success, names, message } = await this.importer.importData();
+      const { success, names, message } = await this.importer.importData(
+        this.setLoadingStatus
+      );
       if (!success) {
         showMessageDialog({
           message: this.t`Import Failed`,
@@ -551,6 +571,13 @@ export default {
       }
       this.importType = importType;
       this.importer = new Importer(this.labelDoctypeMap[this.importType]);
+    },
+    setLoadingStatus(isMakingEntries, entriesMade, totalEntries) {
+      this.openLoading = isMakingEntries;
+      this.percentLoading = entriesMade / totalEntries;
+      this.messageLoading = isMakingEntries
+        ? `${entriesMade} entries made out of ${totalEntries}...`
+        : '';
     },
     async selectFile() {
       const options = {
