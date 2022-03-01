@@ -29,18 +29,27 @@ export function euclideanDistance(
   return Math.sqrt(dsq);
 }
 
+function getRoundingConst(val: number): number {
+  const pow = Math.max(Math.log10(Math.abs(val)) - 1, 0);
+  return 10 ** Math.floor(pow);
+}
+
+function getVal(minOrMaxVal: number): number {
+  const rc = getRoundingConst(minOrMaxVal);
+  const sign = minOrMaxVal >= 0 ? 1 : -1;
+  if (sign === 1) {
+    return Math.ceil(minOrMaxVal / rc) * rc;
+  }
+  return Math.floor(minOrMaxVal / rc) * rc;
+}
+
 export function getYMax(points: Array<Array<number>>): number {
   const maxVal = Math.max(...points.flat());
   if (maxVal === 0) {
     return 0;
   }
 
-  const sign = maxVal >= 0 ? 1 : -1;
-  const texp = 10 ** Math.floor(Math.log10(Math.abs(maxVal)));
-  if (sign === 1) {
-    return Math.ceil(maxVal / texp) * texp;
-  }
-  return Math.floor(maxVal / texp) * texp;
+  return getVal(maxVal);
 }
 
 export function getYMin(points: Array<Array<number>>): number {
@@ -49,10 +58,5 @@ export function getYMin(points: Array<Array<number>>): number {
     return minVal;
   }
 
-  const sign = minVal >= 0 ? 1 : -1;
-  const texp = 10 ** Math.floor(Math.log10(Math.abs(minVal)));
-  if (sign === 1) {
-    return Math.ceil(minVal / texp) * texp;
-  }
-  return Math.floor(minVal / texp) * texp;
+  return getVal(minVal);
 }
