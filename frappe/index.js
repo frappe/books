@@ -7,8 +7,6 @@ const {
   DEFAULT_DISPLAY_PRECISION,
 } = require('./utils/consts');
 const { markRaw } = require('vue');
-const { ipcRenderer } = require('electron');
-const { IPC_ACTIONS } = require('@/messages');
 
 module.exports = {
   initializeAndRegister(customModels = {}, force = false) {
@@ -278,11 +276,13 @@ module.exports = {
     return newDoc;
   },
 
-  getNewDoc(doctype) {
+  getNewDoc(doctype, cacheDoc = true) {
     let doc = this.newDoc({ doctype: doctype });
     doc._notInserted = true;
     doc.name = frappe.getRandomString();
-    this.addToCache(doc);
+    if (cacheDoc) {
+      this.addToCache(doc);
+    }
     return doc;
   },
 
