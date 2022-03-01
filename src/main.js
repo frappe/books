@@ -103,6 +103,7 @@ function registerIpcRendererListeners() {
       : frappe.t`New version available`;
     const action = () => {
       ipcRenderer.send(IPC_MESSAGES.DOWNLOAD_UPDATE);
+      showToast({ message: frappe.t`Downloading update` });
     };
 
     showToast({
