@@ -320,8 +320,8 @@
       </HowTo>
     </div>
     <Loading
-      v-if="openLoading"
-      :open="openLoading"
+      v-if="isMakingEntries"
+      :open="isMakingEntries"
       :percent="percentLoading"
       :message="messageLoading"
     />
@@ -358,7 +358,7 @@ export default {
       file: null,
       importer: null,
       importType: '',
-      openLoading: false,
+      isMakingEntries: false,
       percentLoading: 0,
       messageLoading: '',
     };
@@ -532,6 +532,10 @@ export default {
       this.importer.updateValue(event.target.value, i, j);
     },
     async importData() {
+      if (this.isMakingEntries || this.complete) {
+        return;
+      }
+
       if (this.isRequiredUnassigned) {
         showMessageDialog({
           message: this.t`Required Fields not Assigned`,
@@ -573,7 +577,7 @@ export default {
       this.importer = new Importer(this.labelDoctypeMap[this.importType]);
     },
     setLoadingStatus(isMakingEntries, entriesMade, totalEntries) {
-      this.openLoading = isMakingEntries;
+      this.isMakingEntries = isMakingEntries;
       this.percentLoading = entriesMade / totalEntries;
       this.messageLoading = isMakingEntries
         ? `${entriesMade} entries made out of ${totalEntries}...`
