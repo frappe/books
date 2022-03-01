@@ -133,8 +133,8 @@
   </div>
 </template>
 <script>
-import { prefixFormat } from './chartUtils';
 import Tooltip from '../Tooltip.vue';
+import { prefixFormat } from './chartUtils';
 
 export default {
   props: {
@@ -172,9 +172,6 @@ export default {
     drawZeroLine: { type: Boolean, default: true },
   },
   computed: {
-    inverseMatrix() {
-      return this.$refs.chartSvg.getScreenCTM().inverse();
-    },
     fontStyle() {
       return { fontSize: this.fontSize, fill: this.fontColor };
     },
@@ -255,6 +252,16 @@ export default {
         ys.map((y, j) => this.getRect(x, y, i, j))
       );
     },
+    hMin() {
+      return Math.min(this.yMin ?? this.min, 0);
+    },
+    hMax() {
+      let hMax = Math.max(this.yMax ?? this.max, 0);
+      if (hMax === this.hMin) {
+        return hMax + 1000;
+      }
+      return hMax;
+    },
   },
   data() {
     return { xi: -1, yi: -1, activeColor: 'rgba(0, 0, 0, 0.2)' };
@@ -264,12 +271,15 @@ export default {
       return Math.min(...this.ys[i]).toFixed();
     },
     getViewBoxY(value) {
-      const min = this.yMin ?? this.min;
-      const max = this.yMax ?? this.max;
+      const min = this.hMin;
+      const max = this.hMax;
+      let percent = 1 - (value - min) / (max - min);
+      if (percent === -Infinity) {
+        percent = 0;
+      }
       return (
         this.padding +
-        (1 - (value - min) / (max - min)) *
-          (this.viewBoxHeight - 2 * this.padding - this.bottom)
+        percent * (this.viewBoxHeight - 2 * this.padding - this.bottom)
       );
     },
     getRect(px, py, i, j) {
@@ -299,8 +309,8 @@ export default {
       );
     },
     yScalerValue(i) {
-      const max = this.yMax ?? this.max;
-      const min = this.yMin ?? this.min;
+      const min = this.hMin;
+      const max = this.hMax;
       return this.formatY((i * (max - min)) / this.yLabelDivisions + min);
     },
     getLine(i) {
