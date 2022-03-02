@@ -37,7 +37,7 @@ export default {
     },
     {
       fieldname: 'amount',
-      label: t`Amount`,
+      label: t`Allocated Amount`,
       fieldtype: 'Currency',
       formula: (row, doc) => {
         return (

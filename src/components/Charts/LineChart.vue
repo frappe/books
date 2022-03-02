@@ -163,7 +163,7 @@ export default {
     bottom: { type: Number, default: 0 },
     left: { type: Number, default: 55 },
     extendGridX: { type: Number, default: -20 },
-    tooltipDispDistThreshold: { type: Number, default: 20 },
+    tooltipDispDistThreshold: { type: Number, default: 40 },
   },
   computed: {
     fontStyle() {
