@@ -62,11 +62,13 @@
         <WithScroll
           @scroll="onBodyScroll"
           class="flex-1 overflow-auto"
-          style="height: calc(100vh - 12rem)"
+          :style="{
+            height: usePagination ? 'calc(100vh - 13rem)' : 'calc(100vh-12rem)',
+          }"
         >
           <Row
             v-show="row.isShown"
-            v-for="(row, i) in rows"
+            v-for="(row, i) in rows.slice(sliceIndex.from, sliceIndex.to)"
             :key="i"
             gap="2rem"
             :grid-template-columns="gridTemplateColumns"
@@ -93,21 +95,60 @@
             </div>
           </Row>
         </WithScroll>
+        <div
+          v-if="usePagination"
+          class="flex w-full justify-center mt-2.5 text-base"
+        >
+          <div class="flex justify-center items-center gap-1 text-gray-800">
+            <feather-icon
+              name="chevron-left"
+              class="text-gray-600 w-4 h-4 cursor-pointer"
+              v-show="pageNo > 1"
+              @click="pageNo -= 1"
+            />
+            <div class="w-4 h-4" v-show="pageNo <= 1" />
+            <div class="flex gap-1 bg-gray-100 rounded pr-2">
+              <input
+                type="number"
+                class="
+                  w-6
+                  text-right
+                  outline-none
+                  bg-transparent
+                  focus:text-gray-900
+                "
+                v-model="pageNo"
+                min="1"
+                max="maxPages"
+              />
+              <p class="text-gray-600">/</p>
+              <p class="w-5">{{ maxPages }}</p>
+            </div>
+            <div class="w-4 h-4" v-show="pageNo >= maxPages" />
+            <feather-icon
+              name="chevron-right"
+              class="text-gray-600 w-4 h-4 cursor-pointer"
+              v-show="pageNo < maxPages"
+              @click="pageNo += 1"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import frappe from 'frappe';
-import PageHeader from '@/components/PageHeader';
-import Button from '@/components/Button';
-import SearchBar from '@/components/SearchBar';
-import Row from '@/components/Row';
-import WithScroll from '@/components/WithScroll';
-import FormControl from '@/components/Controls/FormControl';
-import DropdownWithActions from '../components/DropdownWithActions.vue';
 import reportViewConfig from '@/../reports/view';
+import Button from '@/components/Button';
+import FormControl from '@/components/Controls/FormControl';
+import FeatherIcon from '@/components/FeatherIcon.vue';
+import PageHeader from '@/components/PageHeader';
+import Row from '@/components/Row';
+import SearchBar from '@/components/SearchBar';
+import WithScroll from '@/components/WithScroll';
+import frappe from 'frappe';
 import { h, markRaw } from 'vue';
+import DropdownWithActions from '../components/DropdownWithActions.vue';
 
 export default {
   name: 'Report',
@@ -120,6 +161,7 @@ export default {
     FormControl,
     WithScroll,
     DropdownWithActions,
+    FeatherIcon,
   },
   provide() {
     return {
@@ -135,6 +177,8 @@ export default {
     return {
       loading: true,
       filters,
+      pageNo: 1,
+      pageLen: 25,
       reportData: {
         rows: [],
         columns: [],
@@ -165,10 +209,12 @@ export default {
         rows = data;
       }
 
-      this.reportData.columns = markRaw(this.report.getColumns({
-        filters: this.filters,
-        data,
-      }));
+      this.reportData.columns = markRaw(
+        this.report.getColumns({
+          filters: this.filters,
+          data,
+        })
+      );
 
       if (!rows) {
         rows = [];
@@ -292,6 +338,26 @@ export default {
     },
   },
   computed: {
+    usePagination() {
+      return (
+        this.reportName === 'general-ledger' && this.rows.length > this.pageLen
+      );
+    },
+    sliceIndex() {
+      if (!this.usePagination) {
+        return {
+          from: 0,
+          to: this.rows.length,
+        };
+      }
+      return {
+        from: (this.pageNo - 1) * this.pageLen,
+        to: this.pageNo * this.pageLen,
+      };
+    },
+    maxPages() {
+      return Math.ceil(this.rows.length / this.pageLen);
+    },
     actions() {
       return [
         ...(this.report.actions
