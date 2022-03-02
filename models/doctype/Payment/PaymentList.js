@@ -14,10 +14,7 @@ export default {
       render(doc) {
         let status = 'Draft';
         let color = 'gray';
-        if (
-          doc.submitted === 1 &&
-          (doc.clearanceDate !== null || doc.paymentMethod === 'Cash')
-        ) {
+        if (doc.submitted === 1) {
           color = 'green';
           status = 'Submitted';
         }
