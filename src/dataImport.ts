@@ -1,4 +1,4 @@
-import { Doc, Map, Field, FieldType } from '@/types/model';
+import { Doc, Field, FieldType, Map } from '@/types/model';
 import frappe from 'frappe';
 import { isNameAutoSet } from 'frappe/model/naming';
 import { parseCSV } from './csvParser';
@@ -50,6 +50,9 @@ interface TemplateField {
 function formatValue(value: string, fieldtype: FieldType): unknown {
   switch (fieldtype) {
     case FieldType.Date:
+      if (value === '') {
+        return '';
+      }
       return new Date(value);
     case FieldType.Currency:
       // @ts-ignore
