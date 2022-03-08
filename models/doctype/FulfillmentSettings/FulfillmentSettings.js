@@ -5,10 +5,5 @@ import QuotationSettings from '../QuotationSettings/QuotationSettings';
 export default model.extend(QuotationSettings, {
   name: 'FulfillmentSettings',
   label: t`Fulfillment Settings`,
-  fields: [
-    {
-      fieldname: 'numberSeries',
-      default: 'OF',
-    },
-  ],
+  fields: [],
 });
