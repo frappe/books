@@ -48,7 +48,7 @@
                       hover:text-gray-900
                       focus:outline-none
                     "
-                    @click="addAccount(account, 'addingAccount')"
+                    @click.stop="addAccount(account, 'addingAccount')"
                   >
                     {{ t`Add Account` }}
                   </button>
@@ -59,7 +59,7 @@
                       hover:text-gray-900
                       focus:outline-none
                     "
-                    @click="addAccount(account, 'addingGroupAccount')"
+                    @click.stop="addAccount(account, 'addingGroupAccount')"
                   >
                     {{ t`Add Group` }}
                   </button>
@@ -129,10 +129,11 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
 import { openQuickEdit } from '@/utils';
+import frappe from 'frappe';
+import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
@@ -183,12 +184,100 @@ export default {
         account.addingAccount = 0;
         account.addingGroupAccount = 0;
       }
-      this.accounts = this.accounts.slice();
     },
     async fetchChildren(account, force = false) {
       if (account.children == null || force) {
         account.children = await this.getChildren(account.name);
       }
+    },
+    async getChildren(parent = null) {
+      const children = await frappe.db.getAll({
+        doctype: this.doctype,
+        filters: {
+          parentAccount: parent,
+        },
+        fields: [
+          'name',
+          'parentAccount',
+          'isGroup',
+          'balance',
+          'rootType',
+          'accountType',
+        ],
+        orderBy: 'name',
+        order: 'asc',
+      });
+
+      return children.map((d) => {
+        d.expanded = 0;
+        d.addingAccount = 0;
+        d.addingGroupAccount = 0;
+        return d;
+      });
+    },
+    async addAccount(parentAccount, key) {
+      if (!parentAccount.expanded) {
+        await this.fetchChildren(parentAccount);
+        parentAccount.expanded = true;
+      }
+      // activate editing of type 'key' and deactivate other type
+      let otherKey =
+        key === 'addingAccount' ? 'addingGroupAccount' : 'addingAccount';
+      parentAccount[key] = 1;
+      parentAccount[otherKey] = 0;
+
+      nextTick(() => {
+        let input = this.$refs[parentAccount.name][0];
+        input.focus();
+      });
+    },
+    cancelAddingAccount(parentAccount) {
+      parentAccount.addingAccount = 0;
+      parentAccount.addingGroupAccount = 0;
+    },
+    async createNewAccount(accountName, parentAccount, isGroup) {
+      // freeze input
+      this.insertingAccount = true;
+
+      accountName = accountName.trim();
+      let account = await frappe.getNewDoc('Account');
+      try {
+        let { name, rootType, accountType } = parentAccount;
+        await account.set({
+          name: accountName,
+          parentAccount: name,
+          rootType,
+          accountType,
+          isGroup,
+        });
+        await account.insert();
+
+        // turn off editing
+        parentAccount.addingAccount = 0;
+        parentAccount.addingGroupAccount = 0;
+
+        // update accounts
+        await this.fetchChildren(parentAccount, true);
+
+        // open quick edit
+        openQuickEdit({
+          doctype: 'Account',
+          name: account.name,
+        });
+        // unfreeze input
+        this.insertingAccount = false;
+      } catch (e) {
+        // unfreeze input
+        this.insertingAccount = false;
+        handleErrorWithDialog(e, account);
+      }
+    },
+    isQuickEditOpen(account) {
+      let { edit, doctype, name } = this.$route.query;
+      if (edit && doctype === 'Account' && name === account.name) {
+        return true;
+      }
+      return false;
     },
     getIconComponent(account) {
       let icons = {
@@ -230,99 +319,6 @@ export default {
       };
 
       return c;
-    },
-    async getChildren(parent = null) {
-      const children = await frappe.db.getAll({
-        doctype: this.doctype,
-        filters: {
-          parentAccount: parent,
-        },
-        fields: [
-          'name',
-          'parentAccount',
-          'isGroup',
-          'balance',
-          'rootType',
-          'accountType',
-        ],
-        orderBy: 'name',
-        order: 'asc',
-      });
-
-      return children.map((d) => {
-        d.expanded = 0;
-        d.addingAccount = 0;
-        d.addingGroupAccount = 0;
-        return d;
-      });
-    },
-    async addAccount(parentAccount, key) {
-      if (!parentAccount.expanded) {
-        await this.fetchChildren(parentAccount);
-        parentAccount.expanded = true;
-      }
-      // activate editing of type 'key' and deactivate other type
-      let otherKey =
-        key === 'addingAccount' ? 'addingGroupAccount' : 'addingAccount';
-      parentAccount[key] = 1;
-      parentAccount[otherKey] = 0;
-
-      // to trigger refresh
-      this.accounts = this.accounts.slice();
-      this.$nextTick(() => {
-        let input = this.$refs[parentAccount.name][0];
-        input.focus();
-      });
-    },
-    cancelAddingAccount(parentAccount) {
-      parentAccount.addingAccount = 0;
-      parentAccount.addingGroupAccount = 0;
-      this.accounts = this.accounts.slice();
-    },
-    async createNewAccount(accountName, parentAccount, isGroup) {
-      // freeze input
-      this.insertingAccount = true;
-
-      accountName = accountName.trim();
-      let account = await frappe.getNewDoc('Account');
-      try {
-        let { name, rootType, accountType } = parentAccount;
-        await account.set({
-          name: accountName,
-          parentAccount: name,
-          rootType,
-          accountType,
-          isGroup,
-        });
-        await account.insert();
-
-        // turn off editing
-        parentAccount.addingAccount = 0;
-        parentAccount.addingGroupAccount = 0;
-
-        // update accounts
-        await this.fetchChildren(parentAccount, true);
-        this.accounts = this.accounts.slice();
-
-        // open quick edit
-        openQuickEdit({
-          doctype: 'Account',
-          name: account.name,
-        });
-        // unfreeze input
-        this.insertingAccount = false;
-      } catch (e) {
-        // unfreeze input
-        this.insertingAccount = false;
-        handleErrorWithDialog(e, account);
-      }
-    },
-    isQuickEditOpen(account) {
-      let { edit, doctype, name } = this.$route.query;
-      if (edit && doctype === 'Account' && name === account.name) {
-        return true;
-      }
-      return false;
     },
   },
   computed: {
