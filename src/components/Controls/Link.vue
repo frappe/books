@@ -1,10 +1,9 @@
 <script>
-import frappe from 'frappe';
-import AutoComplete from './AutoComplete';
 import Badge from '@/components/Badge';
 import { openQuickEdit } from '@/utils';
+import frappe, { t } from 'frappe';
 import { markRaw } from 'vue';
-import { t } from 'frappe';
+import AutoComplete from './AutoComplete';
 
 export default {
   name: 'Link',
@@ -84,12 +83,20 @@ export default {
       };
     },
     async getFilters(keyword) {
-      if (this.doc) {
-        return this.df.getFilters
-          ? (await this.df.getFilters(keyword, this.doc)) || {}
-          : {};
+      const { getFilters } = this.df;
+      if (!getFilters) {
+        return {};
       }
-      return {};
+
+      if (this.doc) {
+        return (await getFilters(keyword, this.doc)) ?? {};
+      }
+
+      try {
+        return (await getFilters()) ?? {};
+      } catch {
+        return {};
+      }
     },
     getTarget() {
       return this.df.target;

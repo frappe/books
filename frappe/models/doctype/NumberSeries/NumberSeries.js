@@ -28,6 +28,20 @@ module.exports = {
       required: 1,
     },
     {
+      fieldname: 'start',
+      label: t`Start`,
+      fieldtype: 'Int',
+      default: 1001,
+      required: 1,
+    },
+    {
+      fieldname: 'padZeros',
+      label: t`Pad Zeros`,
+      fieldtype: 'Int',
+      default: 4,
+      required: 1,
+    },
+    {
       fieldname: 'referenceType',
       label: t`Reference Type`,
       fieldtype: 'Select',
@@ -35,13 +49,7 @@ module.exports = {
       map: referenceTypeMap,
       default: '-',
       required: 1,
-    },
-    {
-      fieldname: 'start',
-      label: t`Start`,
-      fieldtype: 'Int',
-      default: 1001,
-      required: 1,
+      readOnly: 1,
     },
     {
       fieldname: 'current',
@@ -51,4 +59,5 @@ module.exports = {
       readOnly: 1,
     },
   ],
+  quickEditFields: ['start', 'padZeros', 'referenceType'],
 };
