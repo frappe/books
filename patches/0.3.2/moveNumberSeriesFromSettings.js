@@ -6,6 +6,10 @@ async function setReferencesOnNumberSeries() {
   const map = invertMap(DEFAULT_NUMBER_SERIES);
   const rows = await frappe.db.knex('NumberSeries');
   for (const row of rows) {
+    if (row.referenceType === map[row.name]) {
+      return;
+    }
+
     row.referenceType = map[row.name];
   }
   await frappe.db.prestigeTheTable('NumberSeries', rows);

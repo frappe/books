@@ -1,3 +1,4 @@
+const { getPaddedName } = require('@/utils');
 const frappe = require('frappe');
 const { getRandomString } = require('frappe/utils');
 
@@ -90,6 +91,7 @@ module.exports = {
 
   async getSeriesNext(prefix, doctype) {
     let series;
+
     try {
       series = await frappe.getDoc('NumberSeries', prefix);
     } catch (e) {
@@ -101,14 +103,7 @@ module.exports = {
       series = await frappe.getDoc('NumberSeries', prefix);
     }
 
-    let next = await series.next(doctype);
-    console.log(next, series.pad, series)
-    const pad = series.padZeros ?? 4;
-
-    const l = next.toString().length;
-    const z = '0'.repeat(Math.max(0, pad - l));
-
-    return prefix + z + next;
+    return await series.next(doctype);
   },
 
   async createNumberSeries(prefix, referenceType, start = 1001) {
