@@ -1,5 +1,6 @@
 import frappe, { t } from 'frappe';
 import utils from '../../../accounting/utils';
+import { DEFAULT_NUMBER_SERIES } from '../../../frappe/utils/consts';
 
 export default {
   name: 'Payment',
@@ -82,6 +83,17 @@ export default {
       },
     },
     {
+      fieldname: 'numberSeries',
+      label: t`Number Series`,
+      fieldtype: 'Link',
+      target: 'NumberSeries',
+      required: 1,
+      getFilters: () => {
+        return { referenceType: 'Payment' };
+      },
+      default: DEFAULT_NUMBER_SERIES['Payment'],
+    },
+    {
       fieldname: 'paymentMethod',
       label: t`Payment Method`,
       placeholder: 'Payment Method',
@@ -162,6 +174,7 @@ export default {
   ],
 
   quickEditFields: [
+    'numberSeries',
     'party',
     'date',
     'paymentMethod',

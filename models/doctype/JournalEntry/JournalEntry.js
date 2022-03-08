@@ -1,6 +1,7 @@
 import { t } from 'frappe';
 import { DateTime } from 'luxon';
 import { ledgerLink } from '../../../accounting/utils';
+import { DEFAULT_NUMBER_SERIES } from '../../../frappe/utils/consts';
 
 export default {
   label: t`Journal Entry`,
@@ -71,6 +72,17 @@ export default {
       fieldtype: 'Check',
       default: 0,
       readOnly: 1,
+    },
+    {
+      fieldname: 'numberSeries',
+      label: t`Number Series`,
+      fieldtype: 'Link',
+      target: 'NumberSeries',
+      required: 1,
+      getFilters: () => {
+        return { referenceType: 'JournalEntry' };
+      },
+      default: DEFAULT_NUMBER_SERIES['JournalEntry'],
     },
   ],
   actions: [ledgerLink],
