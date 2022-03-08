@@ -3,8 +3,8 @@ const BaseDocument = require('frappe/model/document');
 
 module.exports = class NumberSeries extends BaseDocument {
   validate() {
-    if (this.current === null || this.current === undefined) {
-      this.current = 0;
+    if (!this.current) {
+      this.current = this.start;
     }
   }
   async next(doctype) {
