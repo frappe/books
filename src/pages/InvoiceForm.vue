@@ -103,6 +103,14 @@
                   @change="(value) => doc.set('date', value)"
                   :read-only="doc.submitted"
                 />
+                <FormControl
+                  class="mt-2 text-base"
+                  input-class="bg-gray-100 px-3 py-2 text-base text-right"
+                  :df="meta.getField('numberSeries')"
+                  :value="doc.numberSeries"
+                  @change="(value) => doc.set('numberSeries', value)"
+                  :read-only="doc.submitted"
+                />
               </div>
             </div>
           </div>
@@ -190,20 +198,20 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
-import StatusBadge from '@/components/StatusBadge';
-import PageHeader from '@/components/PageHeader';
+import BackLink from '@/components/BackLink';
 import Button from '@/components/Button';
 import FormControl from '@/components/Controls/FormControl';
 import DropdownWithActions from '@/components/DropdownWithActions';
-import BackLink from '@/components/BackLink';
+import PageHeader from '@/components/PageHeader';
+import StatusBadge from '@/components/StatusBadge';
 import {
-  openSettings,
-  getActionsForDocument,
-  getInvoiceStatus,
-  showMessageDialog,
-  routeTo,
+getActionsForDocument,
+getInvoiceStatus,
+openSettings,
+routeTo,
+showMessageDialog
 } from '@/utils';
+import frappe from 'frappe';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {

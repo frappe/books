@@ -1,4 +1,5 @@
 import { t } from 'frappe';
+import { DEFAULT_NUMBER_SERIES } from '../../../frappe/utils/consts';
 import { getActions } from '../Transaction/Transaction';
 import InvoiceTemplate from './InvoiceTemplate.vue';
 import SalesInvoice from './SalesInvoiceDocument';
@@ -133,6 +134,17 @@ export default {
       fieldtype: 'Check',
       default: 0,
       readOnly: 1,
+    },
+    {
+      fieldname: 'numberSeries',
+      label: t`Number Series`,
+      fieldtype: 'Link',
+      target: 'NumberSeries',
+      required: 1,
+      getFilters: () => {
+        return { referenceType: 'SalesInvoice' };
+      },
+      default: DEFAULT_NUMBER_SERIES['SalesInvoice'],
     },
   ],
 

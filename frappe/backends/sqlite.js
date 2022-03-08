@@ -30,8 +30,18 @@ class SqliteDatabase extends Database {
     // create temp table
     await this.createTable(doctype, tempName);
 
-    // copy from old to new table
-    await this.knex(tempName).insert(this.knex.select().from(doctype));
+    try {
+      // copy from old to new table
+      await this.knex(tempName).insert(this.knex.select().from(doctype));
+    } catch (err) {
+
+      await this.sql('ROLLBACK');
+      await this.sql('PRAGMA foreign_keys=ON');
+
+      const rows = await this.knex.select().from(doctype);
+      await this.prestigeTheTable(doctype, rows);
+      return;
+    }
 
     // drop old table
     await this.knex.schema.dropTable(doctype);
@@ -110,6 +120,7 @@ class SqliteDatabase extends Database {
     // Alter table hacx for sqlite in case of schema change.
     const tempName = `__${tableName}`;
     await this.knex.schema.dropTableIfExists(tempName);
+
     await this.knex.raw('PRAGMA foreign_keys=OFF');
     await this.createTable(tableName, tempName);
 

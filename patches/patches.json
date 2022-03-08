@@ -8,5 +8,10 @@
     "version": "0.0.4",
     "fileName": "convertCurrencyToStrings",
     "beforeMigrate": true
+  },
+  {
+    "version": "0.3.2",
+    "fileName": "moveNumberSeriesFromSettings",
+    "beforeMigrate": false
   }
 ]
