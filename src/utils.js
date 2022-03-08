@@ -536,3 +536,14 @@ export function getCOAList() {
   }
   return frappe.temp.coaList;
 }
+
+export function invertMap(map) {
+  const keys = Object.keys(map);
+  const inverted = {};
+  for (const key of keys) {
+    const val = map[key];
+    inverted[val] = key;
+  }
+
+  return inverted;
+}
