@@ -8,14 +8,6 @@ export default {
   keywordFields: [],
   fields: [
     {
-      fieldname: 'numberSeries',
-      label: t`Number Series`,
-      fieldtype: 'Link',
-      target: 'NumberSeries',
-      required: 1,
-      default: 'SINV',
-    },
-    {
       fieldname: 'template',
       label: t`Template`,
       placeholder: 'Template',

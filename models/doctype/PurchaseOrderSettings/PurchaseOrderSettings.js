@@ -5,10 +5,5 @@ import PurchaseInvoiceSettings from '../PurchaseInvoiceSettings/PurchaseInvoiceS
 export default model.extend(PurchaseInvoiceSettings, {
   name: 'PurchaseOrderSettings',
   label: t`Purchase Order Settings`,
-  fields: [
-    {
-      fieldname: 'numberSeries',
-      default: 'PO',
-    },
-  ],
+  fields: [],
 });
