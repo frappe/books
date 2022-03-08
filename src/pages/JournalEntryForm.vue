@@ -35,7 +35,7 @@
             <h1 class="text-2xl font-semibold">
               {{ doc._notInserted ? t`New Journal Entry` : doc.name }}
             </h1>
-            <div class="flex justify-between mt-2">
+            <div class="flex justify-between mt-2 gap-2">
               <div class="w-1/3">
                 <FormControl
                   :df="meta.getField('entryType')"
@@ -78,6 +78,16 @@
                   :class="doc.submitted && 'pointer-events-none'"
                 />
               </div>
+              <div class="w-1/3">
+                <FormControl
+                  :df="meta.getField('numberSeries')"
+                  :value="doc.numberSeries"
+                  @change="(value) => doc.set('numberSeries', value)"
+                  input-class="bg-gray-100 p-2 text-base"
+                  :read-only="doc.submitted"
+                  :class="doc.submitted && 'pointer-events-none'"
+                />
+            </div>
             </div>
           </div>
           <div class="mt-2 px-6 text-base">
@@ -118,14 +128,14 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
-import PageHeader from '@/components/PageHeader';
-import Button from '@/components/Button';
-import DropdownWithActions from '@/components/DropdownWithActions';
-import FormControl from '@/components/Controls/FormControl';
 import BackLink from '@/components/BackLink';
+import Button from '@/components/Button';
+import FormControl from '@/components/Controls/FormControl';
+import DropdownWithActions from '@/components/DropdownWithActions';
+import PageHeader from '@/components/PageHeader';
 import StatusBadge from '@/components/StatusBadge';
-import { showMessageDialog, getActionsForDocument, routeTo } from '@/utils';
+import { getActionsForDocument, routeTo, showMessageDialog } from '@/utils';
+import frappe from 'frappe';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
