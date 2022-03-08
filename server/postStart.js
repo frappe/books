@@ -20,15 +20,15 @@ export default async function postStart() {
   frappe.metaCache = {};
 
   // init naming series if missing
-  await naming.createNumberSeries('SINV-', 'SalesInvoiceSettings');
-  await naming.createNumberSeries('PINV-', 'PurchaseInvoiceSettings');
-  await naming.createNumberSeries('PAY-', 'PaymentSettings');
-  await naming.createNumberSeries('JV-', 'JournalEntrySettings');
-  await naming.createNumberSeries('QTN-', 'QuotationSettings');
-  await naming.createNumberSeries('SO-', 'SalesOrderSettings');
-  await naming.createNumberSeries('OF-', 'FulfillmentSettings');
-  await naming.createNumberSeries('PO-', 'PurchaseOrderSettings');
-  await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
+  await naming.createNumberSeries('SINV-', 'SalesInvoice');
+  await naming.createNumberSeries('PINV-', 'PurchaseInvoice');
+  await naming.createNumberSeries('PAY-', 'Payment');
+  await naming.createNumberSeries('JV-', 'JournalEntry');
+  // await naming.createNumberSeries('QTN-', 'QuotationSettings');
+  // await naming.createNumberSeries('SO-', 'SalesOrderSettings');
+  // await naming.createNumberSeries('OF-', 'FulfillmentSettings');
+  // await naming.createNumberSeries('PO-', 'PurchaseOrderSettings');
+  // await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
   // fetch singles
   // so that they are available synchronously

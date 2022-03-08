@@ -28,11 +28,23 @@ module.exports = {
         return;
       }
 
+      // Current, per doc number series
+      if (doc.numberSeries) {
+        doc.name = await this.getSeriesNext(doc.numberSeries, doc.doctype);
+        return;
+      }
+
+      // if(doc.meta)
+
+      // Legacy, using doc settings for number series
       if (doc.meta.settings) {
         const numberSeries = (await doc.getSettings()).numberSeries;
-        if (numberSeries) {
-          doc.name = await this.getSeriesNext(numberSeries, doc.doctype);
+        if (!numberSeries) {
+          return;
         }
+
+        doc.name = await this.getSeriesNext(numberSeries, doc.doctype);
+        return;
       }
     }
 
@@ -84,27 +96,34 @@ module.exports = {
       if (!e.statusCode || e.statusCode !== 404) {
         throw e;
       }
-      await this.createNumberSeries(prefix);
+
+      await this.createNumberSeries(prefix, doctype);
       series = await frappe.getDoc('NumberSeries', prefix);
     }
+
     let next = await series.next(doctype);
-    return prefix + next;
+    console.log(next, series.pad, series)
+    const pad = series.padZeros ?? 4;
+
+    const l = next.toString().length;
+    const z = '0'.repeat(Math.max(0, pad - l));
+
+    return prefix + z + next;
   },
 
-  async createNumberSeries(prefix, setting, start = 1001) {
-    if (!(await frappe.db.exists('NumberSeries', prefix))) {
-      const series = frappe.newDoc({
-        doctype: 'NumberSeries',
-        name: prefix,
-        current: start,
-      });
-      await series.insert();
-
-      if (setting) {
-        const settingDoc = await frappe.getSingle(setting);
-        settingDoc.numberSeries = series.name;
-        await settingDoc.update();
-      }
+  async createNumberSeries(prefix, referenceType, start = 1001) {
+    const exists = await frappe.db.exists('NumberSeries', prefix);
+    if (exists) {
+      return;
     }
+
+    const series = frappe.newDoc({
+      doctype: 'NumberSeries',
+      name: prefix,
+      start,
+      referenceType,
+    });
+
+    await series.insert();
   },
 };
