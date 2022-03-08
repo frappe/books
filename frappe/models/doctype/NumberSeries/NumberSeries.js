@@ -33,6 +33,7 @@ module.exports = {
       fieldtype: 'Int',
       default: 1001,
       required: 1,
+      minvalue: 0,
     },
     {
       fieldname: 'padZeros',
