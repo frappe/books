@@ -7,6 +7,7 @@ import postStart, { setCurrencySymbols } from '../server/postStart';
 import { DB_CONN_FAILURE } from './messages';
 import runMigrate from './migrate';
 import { getId } from './telemetry/helpers';
+import telemetry from './telemetry/telemetry';
 import { callInitializeMoneyMaker, getSavePath } from './utils';
 
 export async function createNewDatabase() {
@@ -95,6 +96,7 @@ export async function connectToLocalDatabase(filePath) {
 
   // second init with currency, normal usage
   await callInitializeMoneyMaker();
+  telemetry.start();
   return { connectionSuccess: true, reason: '' };
 }
 
