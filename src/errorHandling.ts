@@ -8,6 +8,7 @@ import {
 } from 'frappe/common/errors';
 import BaseDocument from 'frappe/model/document';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
+import telemetry from './telemetry/telemetry';
 import { showMessageDialog, showToast } from './utils';
 
 interface ErrorLog {
@@ -74,6 +75,7 @@ export function handleError(
   more: object = {},
   cb?: Function
 ) {
+  telemetry.error(error.name);
   if (shouldLog) {
     console.error(error);
   }

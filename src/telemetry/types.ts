@@ -27,6 +27,7 @@ export interface Telemetry {
   closeTime: Timestamp;
   timeline?: InteractionEvent[];
   counts?: Count;
+  errors: Record<string, number>;
   locale: Locale;
   version: AppVersion;
 }
