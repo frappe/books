@@ -1,5 +1,6 @@
 import { DoctypeName } from 'models/types';
 
+export type AppVersion = string;
 export type UniqueId = string;
 export type Timestamp = number;
 
@@ -27,14 +28,19 @@ export interface Telemetry {
   timeline?: InteractionEvent[];
   counts?: Count;
   locale: Locale;
+  version: AppVersion;
 }
 
 export enum Verb {
-  Saved = 'saved',
-  Submitted = 'sumbitted',
-  Canceled = 'canceled',
+  Created = 'created',
   Deleted = 'deleted',
   Navigated = 'navigated',
+  Imported = 'imported',
+  Exported = 'exported',
 }
 
-export enum Noun {}
+export enum NounEnum {
+  Route = 'route',
+}
+
+export type Noun = string | NounEnum;

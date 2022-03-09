@@ -383,4 +383,5 @@ module.exports = {
   },
   t,
   T,
+  store: {},
 };
