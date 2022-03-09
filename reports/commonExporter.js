@@ -1,4 +1,6 @@
 import frappe from 'frappe';
+import telemetry from '../src/telemetry/telemetry';
+import { Verb } from '../src/telemetry/types';
 import { getSavePath, saveData, showExportInFolder } from '../src/utils';
 
 function templateToInnerText(innerHTML) {
@@ -80,13 +82,15 @@ async function exportReport(extention, reportName, getReportData) {
   switch (extention) {
     case 'csv':
       await exportCsv(rows, columns, filePath);
-      return;
+      break;
     case 'json':
       await exportJson(rows, columns, filePath, filters, reportName);
-      return;
+      break;
     default:
       return;
   }
+
+  telemetry.log(Verb.Exported, reportName, { extention });
 }
 
 export default function getCommonExportActions(reportName) {
