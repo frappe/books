@@ -5,6 +5,7 @@ import countryList from '~/fixtures/countryInfo.json';
 import importCharts from '../../../accounting/importCOA';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
 import regionalModelUpdates from '../../../models/regionalModelUpdates';
+import { getId } from '../../telemetry/helpers';
 import { callInitializeMoneyMaker } from '../../utils';
 
 export default async function setupCompany(setupWizardValues) {
@@ -116,6 +117,7 @@ function updateInitializationConfig(language) {
   files.forEach((file) => {
     if (file.filePath === filePath) {
       file.companyName = frappe.AccountingSettings.companyName;
+      file.id = getId();
     }
   });
   config.set('files', files);

@@ -6,7 +6,8 @@ import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart, { setCurrencySymbols } from '../server/postStart';
 import { DB_CONN_FAILURE } from './messages';
 import runMigrate from './migrate';
-import { callInitializeMoneyMaker, getSavePath, setLanguageMap } from './utils';
+import { getId } from './telemetry/helpers';
+import { callInitializeMoneyMaker, getSavePath } from './utils';
 
 export async function createNewDatabase() {
   const { canceled, filePath } = await getSavePath('books', 'db');
@@ -81,6 +82,7 @@ export async function connectToLocalDatabase(filePath) {
     files = [
       {
         companyName,
+        id: getId(),
         filePath,
       },
       ...files.filter((file) => file.filePath !== filePath),
