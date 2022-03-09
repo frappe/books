@@ -25,7 +25,6 @@ import { setLanguageMap, showToast, stringifyCircular } from './utils';
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
 
   window.frappe = frappe;
-  window.frappe.store = {};
 
   window.onerror = (message, source, lineno, colno, error) => {
     error = error ?? new Error('triggered in window.onerror');

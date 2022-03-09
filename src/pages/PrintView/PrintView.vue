@@ -51,15 +51,17 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
+import BackLink from '@/components/BackLink';
+import Button from '@/components/Button';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
-import Button from '@/components/Button';
-import BackLink from '@/components/BackLink';
 import TwoColumnForm from '@/components/TwoColumnForm';
+import { IPC_ACTIONS } from '@/messages';
+import telemetry from '@/telemetry/telemetry';
+import { Verb } from '@/telemetry/types';
 import { makePDF } from '@/utils';
 import { ipcRenderer } from 'electron';
-import { IPC_ACTIONS } from '@/messages';
+import frappe from 'frappe';
 
 export default {
   name: 'PrintView',
@@ -96,6 +98,7 @@ export default {
       if (!savePath) return;
 
       const html = this.$refs.printContainer.innerHTML;
+      telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
       makePDF(html, savePath);
     },
     async getSavePath() {
