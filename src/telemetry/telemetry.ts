@@ -1,3 +1,4 @@
+import frappe from 'frappe';
 import { cloneDeep } from 'lodash';
 import { getCounts, getDeviceId, getInstanceId, getLocale } from './helpers';
 import { Noun, Telemetry, Verb } from './types';
@@ -12,6 +13,7 @@ class TelemetryManager {
     this.#telemetryObject.instanceId ||= getInstanceId();
     this.#telemetryObject.openTime ||= new Date().valueOf();
     this.#telemetryObject.timeline ??= [];
+    this.#telemetryObject.errors ??= {};
     this.#started = true;
   }
 
@@ -28,10 +30,21 @@ class TelemetryManager {
     this.#telemetryObject.timeline.push({ time, verb, noun, more });
   }
 
+  error(name: string) {
+    if (this.#telemetryObject.errors === undefined) {
+      this.#telemetryObject.errors = {};
+    }
+
+    this.#telemetryObject.errors[name] ??= 0;
+    this.#telemetryObject.errors[name] += 1;
+  }
+
   async stop() {
     // Will set ids if not set.
     this.start();
 
+    //@ts-ignore
+    this.#telemetryObject.version = frappe.store.appVersion ?? '';
     this.#telemetryObject.counts = await getCounts();
     this.#telemetryObject.closeTime = new Date().valueOf();
   }
