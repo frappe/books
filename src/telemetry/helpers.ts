@@ -14,7 +14,7 @@ export function getId(): string {
 
 export function getLocale(): Locale {
   // @ts-ignore
-  const country: string = frappe.AccountingSettings.country;
+  const country: string = frappe.AccountingSettings?.country ?? '';
   const language: string = config.get('language') as string;
 
   return { country, language };
@@ -76,7 +76,11 @@ export function getInstanceId(): UniqueId {
   const files = config.get(ConfigKeys.Files) as ConfigFile[];
 
   // @ts-ignore
-  const companyName = frappe.AccountingSettings.companyName;
+  const companyName = frappe.AccountingSettings?.companyName;
+  if (companyName === undefined) {
+    return '';
+  }
+
   const file = files.find((f) => f.companyName === companyName);
 
   if (file === undefined) {

@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { getCounts, getDeviceId, getInstanceId, getLocale } from './helpers';
 import { Noun, Telemetry, Verb } from './types';
 
@@ -6,14 +7,11 @@ class TelemetryManager {
   #telemetryObject: Partial<Telemetry> = {};
 
   start() {
-    if (this.#started) {
-      return;
-    }
-    this.#telemetryObject.locale = getLocale();
-    this.#telemetryObject.deviceId = getDeviceId();
-    this.#telemetryObject.instanceId = getInstanceId();
-    this.#telemetryObject.openTime = new Date().valueOf();
-    this.#telemetryObject.timeline = [];
+    this.#telemetryObject.locale ||= getLocale();
+    this.#telemetryObject.deviceId ||= getDeviceId();
+    this.#telemetryObject.instanceId ||= getInstanceId();
+    this.#telemetryObject.openTime ||= new Date().valueOf();
+    this.#telemetryObject.timeline ??= [];
     this.#started = true;
   }
 
@@ -29,10 +27,18 @@ class TelemetryManager {
 
     this.#telemetryObject.timeline.push({ time, verb, noun, more });
   }
+
   async stop() {
+    // Will set ids if not set.
+    this.start();
+
     this.#telemetryObject.counts = await getCounts();
     this.#telemetryObject.closeTime = new Date().valueOf();
   }
+
+  get telemetryObject(): Readonly<Partial<Telemetry>> {
+    return cloneDeep(this.#telemetryObject);
+  }
 }
 
-export const telemetryManager = new TelemetryManager();
+export default new TelemetryManager();
