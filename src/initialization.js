@@ -96,7 +96,9 @@ export async function connectToLocalDatabase(filePath) {
 
   // second init with currency, normal usage
   await callInitializeMoneyMaker();
+
   telemetry.start();
+  await telemetry.setCount();
   return { connectionSuccess: true, reason: '' };
 }
 

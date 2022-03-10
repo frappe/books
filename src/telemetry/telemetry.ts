@@ -9,7 +9,7 @@ class TelemetryManager {
   #telemetryObject: Partial<Telemetry> = {};
 
   start() {
-    this.#telemetryObject.locale ||= getLocale();
+    this.#telemetryObject.locale = getLocale();
     this.#telemetryObject.deviceId ||= getDeviceId();
     this.#telemetryObject.instanceId ||= getInstanceId();
     this.#telemetryObject.openTime ||= new Date().valueOf();
@@ -49,18 +49,28 @@ class TelemetryManager {
     this.#telemetryObject.errors[name] += 1;
   }
 
-  async stop() {
+  async setCount() {
+    this.#telemetryObject.counts = this.getCanLog() ? await getCounts() : {};
+  }
+
+  stop() {
     // Will set ids if not set.
     this.start();
 
     //@ts-ignore
     this.#telemetryObject.version = frappe.store.appVersion ?? '';
-    this.#telemetryObject.counts = this.getCanLog() ? await getCounts() : {};
     this.#telemetryObject.closeTime = new Date().valueOf();
 
+    const telemetryObject = this.#telemetryObject;
+
+    this.#started = false;
+    this.#telemetryObject = {};
+
     if (config.get(ConfigKeys.Telemetry) === TelemetrySetting.dontLogAnything) {
-      return;
+      return '';
     }
+
+    return JSON.stringify(telemetryObject);
   }
 
   get telemetryObject(): Readonly<Partial<Telemetry>> {

@@ -8,6 +8,7 @@ import config from './config';
 import { getErrorHandled, handleError } from './errorHandling';
 import { IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import router from './router';
+import telemetry from './telemetry/telemetry';
 import { outsideClickDirective } from './ui';
 import { setLanguageMap, showToast, stringifyCircular } from './utils';
 (async () => {
@@ -134,5 +135,15 @@ function registerIpcRendererListeners() {
   ipcRenderer.on(IPC_CHANNELS.UPDATE_ERROR, (_, error) => {
     error.name = 'Updation Error';
     handleError(true, error);
+  });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState !== 'hidden') {
+      return;
+    }
+
+    const telemetryData = telemetry.stop();
+    console.log(telemetryData);
+    // navigator.sendBeacon('', telemetryData)
   });
 }
