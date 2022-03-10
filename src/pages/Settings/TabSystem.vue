@@ -9,16 +9,16 @@
       @change="forwardChangeEvent"
     />
     <div class="flex flex-row justify-between items-center w-full">
-      <div class="flex items-center rounded-lg">
+      <div class="flex items-center">
         <FormControl
-          :df="anonymizedTelemetryDf"
-          :showLabel="true"
-          :value="anonymizedTelemetry"
-          @change="setAnonymizedTelemetry"
-          class="border-r pr-4"
+          :df="df"
+          :value="telemetry"
+          @change="setValue"
+          class="text-sm py-0 w-44"
           :label-right="false"
         />
-        <LanguageSelector class="text-sm w-28" input-class="px-4 py-1.5" />
+        <div class="border-r h-6 mx-2" />
+        <LanguageSelector class="text-sm w-44" input-class="py-2" />
       </div>
       <button
         class="
@@ -41,7 +41,7 @@
 import FormControl from '@/components/Controls/FormControl';
 import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from '@/components/TwoColumnForm';
-import config, { ConfigKeys } from '@/config';
+import config, { ConfigKeys, telemetryOptions } from '@/config';
 import { checkForUpdates } from '@/utils';
 import frappe from 'frappe';
 
@@ -56,28 +56,23 @@ export default {
   data() {
     return {
       doc: null,
-      anonymizedTelemetry: 0,
+      telemetry: '',
     };
-  },
-  watch: {
-    anonymizedTelemetry(newValue) {
-      config.set(ConfigKeys.AnonymizedTelemetry, !!newValue);
-    },
   },
   async mounted() {
     this.doc = frappe.SystemSettings;
     this.companyName = frappe.AccountingSettings.companyName;
-    this.anonymizedTelemetry = Number(
-      config.get(ConfigKeys.AnonymizedTelemetry)
-    );
+    this.telemetry = config.get(ConfigKeys.Telemetry);
   },
   computed: {
-    anonymizedTelemetryDf() {
+    df() {
       return {
         fieldname: 'anonymizedTelemetry',
         label: this.t`Anonymized Telemetry`,
-        fieldtype: 'Check',
-        default: 0,
+        fieldtype: 'Select',
+        options: Object.keys(telemetryOptions),
+        map: telemetryOptions,
+        default: 'allow',
         description: this
           .t`Send anonymized usage data and error reports to help improve the product.`,
       };
@@ -89,8 +84,9 @@ export default {
   },
   methods: {
     checkForUpdates,
-    setAnonymizedTelemetry(value) {
-      this.anonymizedTelemetry = value;
+    setValue(value) {
+      this.telemetry = value;
+      config.set(ConfigKeys.Telemetry, value);
     },
     forwardChangeEvent(...args) {
       this.$emit('change', ...args);
