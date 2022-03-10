@@ -84,19 +84,11 @@ module.exports = {
       default: 0,
       description: t`Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.`,
     },
-    {
-      fieldname: 'autoReportErrors',
-      label: t`Hide & Auto Report Errors`,
-      fieldtype: 'Check',
-      default: 0,
-      description: t`Prevent errors from showing and automatically report all errors.`,
-    },
   ],
   quickEditFields: [
     'locale',
     'dateFormat',
     'displayPrecision',
     'hideGetStarted',
-    'autoReportErrors',
   ],
 };

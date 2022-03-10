@@ -8,6 +8,7 @@ export enum ConfigKeys {
   LastSelectedFilePath = 'lastSelectedFilePath',
   Language = 'language',
   DeviceId = 'deviceId',
+  AnonymizedTelemetry = 'anonymizedTelemetry',
 }
 
 export interface ConfigFile {
