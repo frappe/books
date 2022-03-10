@@ -7,7 +7,7 @@ import {
   ValidationError,
 } from 'frappe/common/errors';
 import BaseDocument from 'frappe/model/document';
-import config, { ConfigKeys } from './config';
+import config, { ConfigKeys, telemetryOptions } from './config';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import telemetry from './telemetry/telemetry';
 import { showMessageDialog, showToast } from './utils';
@@ -20,7 +20,8 @@ interface ErrorLog {
 }
 
 function getCanLog(): boolean {
-  return !!config.get(ConfigKeys.AnonymizedTelemetry);
+  const telemetrySetting = config.get(ConfigKeys.Telemetry);
+  return telemetrySetting !== telemetryOptions.dontLogAnything;
 }
 
 function shouldNotStore(error: Error) {
