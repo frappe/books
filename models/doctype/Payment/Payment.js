@@ -2,6 +2,11 @@ import frappe, { t } from 'frappe';
 import utils from '../../../accounting/utils';
 import { DEFAULT_NUMBER_SERIES } from '../../../frappe/utils/consts';
 
+const paymentTypeMap = {
+  Receive: t`Receive`,
+  Pay: t`Pay`,
+};
+
 export default {
   name: 'Payment',
   label: t`Payment`,
@@ -57,7 +62,8 @@ export default {
       label: t`Payment Type`,
       fieldtype: 'Select',
       placeholder: 'Payment Type',
-      options: ['Receive', 'Pay'],
+      options: Object.keys(paymentTypeMap),
+      map: paymentTypeMap,
       required: 1,
     },
     {

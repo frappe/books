@@ -29,6 +29,11 @@ const config = {
           doctype: 'SalesInvoice',
         },
         {
+          label: t`Payments`,
+          route: '/list/Payment/paymentType/Receive',
+          doctype: 'Payment',
+        },
+        {
           label: t`Customers`,
           route: '/list/Customer',
           doctype: 'Customer',
@@ -51,6 +56,11 @@ const config = {
           doctype: 'PurchaseInvoice',
         },
         {
+          label: t`Payments`,
+          route: '/list/Payment/paymentType/Pay',
+          doctype: 'Payment',
+        },
+        {
           label: t`Suppliers`,
           route: '/list/Supplier',
           doctype: 'Supplier',
@@ -65,13 +75,8 @@ const config = {
     {
       icon: 'common-entries',
       title: t`Common`,
-      route: '/list/Payment',
+      route: '/list/JournalEntry',
       items: [
-        {
-          label: t`Payments`,
-          route: '/list/Payment',
-          doctype: 'Payment',
-        },
         {
           label: t`Journal Entry`,
           route: '/list/JournalEntry',
