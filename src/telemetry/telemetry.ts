@@ -1,3 +1,4 @@
+import config, { ConfigKeys } from '@/config';
 import frappe from 'frappe';
 import { cloneDeep } from 'lodash';
 import { getCounts, getDeviceId, getInstanceId, getLocale } from './helpers';
@@ -17,9 +18,17 @@ class TelemetryManager {
     this.#started = true;
   }
 
+  getCanLog() {
+    return !!config.get(ConfigKeys.AnonymizedTelemetry);
+  }
+
   log(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
     if (!this.#started) {
       this.start();
+    }
+
+    if (!this.getCanLog) {
+      return;
     }
 
     const time = new Date().valueOf();
@@ -45,7 +54,7 @@ class TelemetryManager {
 
     //@ts-ignore
     this.#telemetryObject.version = frappe.store.appVersion ?? '';
-    this.#telemetryObject.counts = await getCounts();
+    this.#telemetryObject.counts = this.getCanLog() ? await getCounts() : {};
     this.#telemetryObject.closeTime = new Date().valueOf();
   }
 

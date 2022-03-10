@@ -7,6 +7,7 @@ import {
   ValidationError,
 } from 'frappe/common/errors';
 import BaseDocument from 'frappe/model/document';
+import config, { ConfigKeys } from './config';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import telemetry from './telemetry/telemetry';
 import { showMessageDialog, showToast } from './utils';
@@ -16,6 +17,10 @@ interface ErrorLog {
   message: string;
   stack?: string;
   more?: object;
+}
+
+function getCanLog(): boolean {
+  return !!config.get(ConfigKeys.AnonymizedTelemetry);
 }
 
 function shouldNotStore(error: Error) {
@@ -39,14 +44,14 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
   cb?.();
 }
 
-function getToastProps(errorLogObj: ErrorLog, cb?: Function) {
+function getToastProps(errorLogObj: ErrorLog, canLog: boolean, cb?: Function) {
   const props = {
     message: t`Error: ` + errorLogObj.name,
     type: 'error',
   };
 
   // @ts-ignore
-  if (!frappe.SystemSettings?.autoReportErrors) {
+  if (!canLog) {
     Object.assign(props, {
       actionText: t`Report Error`,
       action: () => {
@@ -87,10 +92,11 @@ export function handleError(
   const errorLogObj = getErrorLogObject(error, more);
 
   // @ts-ignore
-  if (frappe.SystemSettings?.autoReportErrors) {
+  const canLog = getCanLog();
+  if (canLog) {
     reportError(errorLogObj, cb);
   } else {
-    showToast(getToastProps(errorLogObj, cb));
+    showToast(getToastProps(errorLogObj, canLog, cb));
   }
 }
 
