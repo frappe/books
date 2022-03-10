@@ -1,4 +1,4 @@
-import config, { ConfigKeys, telemetryOptions } from '@/config';
+import config, { ConfigKeys, TelemetrySetting } from '@/config';
 import frappe from 'frappe';
 import { cloneDeep } from 'lodash';
 import { getCounts, getDeviceId, getInstanceId, getLocale } from './helpers';
@@ -20,7 +20,7 @@ class TelemetryManager {
 
   getCanLog(): boolean {
     const telemetrySetting = config.get(ConfigKeys.Telemetry) as string;
-    return telemetrySetting === telemetryOptions.allow;
+    return telemetrySetting === TelemetrySetting.allow;
   }
 
   log(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
@@ -58,7 +58,7 @@ class TelemetryManager {
     this.#telemetryObject.counts = this.getCanLog() ? await getCounts() : {};
     this.#telemetryObject.closeTime = new Date().valueOf();
 
-    if (config.get(ConfigKeys.Telemetry) === telemetryOptions.dontLogAnything) {
+    if (config.get(ConfigKeys.Telemetry) === TelemetrySetting.dontLogAnything) {
       return;
     }
   }
