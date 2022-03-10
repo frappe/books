@@ -15,11 +15,16 @@ export default {
       required: 1,
       getFilters(_, doc) {
         let items = doc.parentdoc.items.map((d) => d.item).filter(Boolean);
-        if (items.length > 0) {
-          return {
-            name: ['not in', items],
-          };
+
+        const baseFilter = { for: ['not in', ['purchases']] };
+        if (items.length <= 0) {
+          return baseFilter;
         }
+
+        return {
+          name: ['not in', items],
+          ...baseFilter,
+        };
       },
     },
     {
