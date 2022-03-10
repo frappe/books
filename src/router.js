@@ -54,7 +54,7 @@ const routes = [
     },
   },
   {
-    path: '/list/:doctype',
+    path: '/list/:doctype/:fieldname?/:value?',
     name: 'ListView',
     components: {
       default: ListView,
@@ -62,7 +62,11 @@ const routes = [
     },
     props: {
       default: (route) => {
-        const { doctype, filters } = route.params;
+        let { doctype, filters, fieldname, value } = route.params;
+        if (filters === undefined && fieldname && value) {
+          filters = { [fieldname]: value };
+        }
+
         return {
           doctype,
           filters,

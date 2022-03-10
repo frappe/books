@@ -1,5 +1,11 @@
 import frappe, { t } from 'frappe';
 
+const itemForMap = {
+  purchases: t`Purchases`,
+  sales: t`Sales`,
+  both: t`Both`,
+};
+
 export default {
   name: 'Item',
   label: t`Item`,
@@ -41,6 +47,14 @@ export default {
       fieldtype: 'Select',
       default: 'Product',
       options: ['Product', 'Service'],
+    },
+    {
+      fieldname: 'for',
+      label: t`For`,
+      fieldtype: 'Select',
+      options: Object.keys(itemForMap),
+      map: itemForMap,
+      default: 'both',
     },
     {
       fieldname: 'incomeAccount',
@@ -115,6 +129,7 @@ export default {
     'rate',
     'unit',
     'itemType',
+    'for',
     'tax',
     'description',
     'incomeAccount',
