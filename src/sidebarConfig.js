@@ -33,6 +33,11 @@ const config = {
           route: '/list/Customer',
           doctype: 'Customer',
         },
+        {
+          label: t`Sales Items`,
+          route: '/list/Item/for/sales',
+          doctype: 'Item',
+        },
       ],
     },
     {
@@ -50,18 +55,18 @@ const config = {
           route: '/list/Supplier',
           doctype: 'Supplier',
         },
+        {
+          label: t`Purchase Items`,
+          route: '/list/Item/for/purchases',
+          doctype: 'Item',
+        },
       ],
     },
     {
       icon: 'common-entries',
       title: t`Common`,
-      route: '/list/Item',
+      route: '/list/Payment',
       items: [
-        {
-          label: t`Items`,
-          route: '/list/Item',
-          doctype: 'Item',
-        },
         {
           label: t`Payments`,
           route: '/list/Payment',
@@ -71,6 +76,11 @@ const config = {
           label: t`Journal Entry`,
           route: '/list/JournalEntry',
           doctype: 'JournalEntry',
+        },
+        {
+          label: t`Common Items`,
+          route: '/list/Item/for/both',
+          doctype: 'Item',
         },
       ],
     },
