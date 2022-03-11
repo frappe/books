@@ -116,8 +116,25 @@ const routes = [
 
 let router = createRouter({ routes, history: createWebHistory() });
 
-router.afterEach((to, from, failure) => {
-  const more = { from: from.fullPath, to: to.fullPath };
+function removeDetails(path) {
+  if (!path) {
+    return path;
+  }
+
+  const match = path.match(/edit=1/);
+  if (!match) {
+    return path;
+  }
+
+  return path.slice(0, match.index + 4);
+}
+
+router.afterEach((to, from) => {
+  const more = {
+    from: removeDetails(from.fullPath),
+    to: removeDetails(to.fullPath),
+  };
+
   telemetry.log(Verb.Navigated, NounEnum.Route, more);
 });
 
