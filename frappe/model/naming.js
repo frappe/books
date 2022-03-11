@@ -35,8 +35,6 @@ module.exports = {
         return;
       }
 
-      // if(doc.meta)
-
       // Legacy, using doc settings for number series
       if (doc.meta.settings) {
         const numberSeries = (await doc.getSettings()).numberSeries;
