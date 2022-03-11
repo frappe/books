@@ -549,10 +549,5 @@ export function invertMap(map) {
 }
 
 export function getPaddedName(prefix, next, padZeros) {
-  const padding = padZeros ?? 4;
-
-  const l = next.toString().length;
-  const z = '0'.repeat(Math.max(0, padding - l));
-
-  return prefix + z + next;
+  return prefix + next.toString().padStart(padZeros ?? 4, '0');
 }
