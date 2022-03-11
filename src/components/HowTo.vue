@@ -1,22 +1,11 @@
 <template>
-  <button
-    @click="openHelpLink"
-    class="
-      text-gray-900
-      border
-      px-3
-      py-2
-      flex
-      items-center
-      mb-3
-      z-10
-      bg-white
-      rounded-lg
-      text-base
-    "
-  >
-    <FeatherIcon class="h-6 w-6 mr-3 text-blue-400" name="help-circle" />
+  <button @click="openHelpLink" class="flex items-center z-10">
     <p class="mr-1"><slot></slot></p>
+    <FeatherIcon
+      class="h-5 w-5 ml-3 text-blue-400"
+      name="help-circle"
+      v-if="icon"
+    />
   </button>
 </template>
 <script>
@@ -27,6 +16,10 @@ import FeatherIcon from './FeatherIcon.vue';
 export default {
   props: {
     link: String,
+    icon: {
+      default: true,
+      type: Boolean,
+    },
   },
   methods: {
     openHelpLink() {

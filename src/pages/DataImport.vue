@@ -320,8 +320,11 @@
       v-if="!importType"
       class="flex justify-center h-full w-full items-center mb-16"
     >
-      <HowTo link="https://youtu.be/ukHAgcnVxTQ">
-        {{ t`How to Use Data Import?` }}
+      <HowTo
+        link="https://youtu.be/ukHAgcnVxTQ"
+        class="text-gray-900 rounded-lg text-base border px-3 py-2"
+      >
+        {{ t`How to Use Data Import` }}
       </HowTo>
     </div>
     <Loading
