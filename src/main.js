@@ -4,7 +4,7 @@ import { createApp } from 'vue';
 import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
-import config from './config';
+import config, { ConfigKeys } from './config';
 import { getErrorHandled, handleError } from './errorHandling';
 import { IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import router from './router';
@@ -15,6 +15,10 @@ import { setLanguageMap, showToast, stringifyCircular } from './utils';
   const language = config.get('language');
   if (language) {
     await setLanguageMap(language);
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    window.config = config;
   }
 
   frappe.isServer = true;
@@ -85,8 +89,20 @@ import { setLanguageMap, showToast, stringifyCircular } from './utils';
     console.error(err, vm, info);
   };
 
+  incrementOpenCount();
   app.mount('body');
 })();
+
+function incrementOpenCount() {
+  let openCount = config.get(ConfigKeys.OpenCount);
+  if (typeof openCount !== 'number') {
+    openCount = 1;
+  } else {
+    openCount += 1;
+  }
+
+  config.set(ConfigKeys.OpenCount, openCount);
+}
 
 function registerIpcRendererListeners() {
   ipcRenderer.on(IPC_CHANNELS.STORE_ON_WINDOW, (event, message) => {
@@ -143,7 +159,6 @@ function registerIpcRendererListeners() {
     }
 
     const telemetryData = telemetry.stop();
-    console.log(telemetryData);
-    // navigator.sendBeacon('', telemetryData)
+    navigator.sendBeacon('http://0.0.0.0:6969', telemetryData);
   });
 }

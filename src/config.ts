@@ -10,6 +10,7 @@ export enum ConfigKeys {
   Language = 'language',
   DeviceId = 'deviceId',
   Telemetry = 'telemetry',
+  OpenCount = 'openCount',
 }
 
 export enum TelemetrySetting {
