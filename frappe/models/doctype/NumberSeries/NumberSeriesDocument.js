@@ -14,7 +14,7 @@ module.exports = class NumberSeries extends BaseDocument {
 
     const exists = await this.checkIfCurrentExists(doctype);
     if (!exists) {
-      return this.current;
+      return this.getPaddedName(this.current);
     }
 
     this.current++;
