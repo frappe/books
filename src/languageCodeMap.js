@@ -4,4 +4,5 @@ export const languageCodeMap = {
   French: 'fr',
   German: 'de',
   Portuguese: 'pt',
+  Arabic: 'ar',
 };
