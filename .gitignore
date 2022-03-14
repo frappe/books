@@ -24,4 +24,4 @@ yarn-error.log*
 
 #Electron-builder output
 /dist_electron
-err_log_creds.txt
+log_creds.txt
