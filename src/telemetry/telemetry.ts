@@ -5,6 +5,8 @@ import { getCounts, getDeviceId, getInstanceId, getLocale } from './helpers';
 import { Noun, Telemetry, Verb } from './types';
 
 class TelemetryManager {
+  #url: string = '';
+  #token: string = '';
   #started = false;
   #telemetryObject: Partial<Telemetry> = {};
 
@@ -21,6 +23,11 @@ class TelemetryManager {
   getCanLog(): boolean {
     const telemetrySetting = config.get(ConfigKeys.Telemetry) as string;
     return telemetrySetting === TelemetrySetting.allow;
+  }
+
+  setCreds(url: string, token: string) {
+    this.#url ||= url;
+    this.#token ||= token;
   }
 
   log(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
@@ -70,7 +77,12 @@ class TelemetryManager {
       return '';
     }
 
-    return JSON.stringify(telemetryObject);
+    const data = JSON.stringify({
+      token: this.#token,
+      telemetryData: telemetryObject,
+    });
+
+    return { url: this.#url, data };
   }
 
   get telemetryObject(): Readonly<Partial<Telemetry>> {

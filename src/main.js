@@ -158,7 +158,7 @@ function registerIpcRendererListeners() {
       return;
     }
 
-    const telemetryData = telemetry.stop();
-    navigator.sendBeacon('http://0.0.0.0:6969', telemetryData);
+    const { url, data } = telemetry.stop();
+    navigator.sendBeacon(url, data);
   });
 }
