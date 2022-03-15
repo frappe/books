@@ -158,7 +158,6 @@ function registerIpcRendererListeners() {
       return;
     }
 
-    const { url, data } = telemetry.stop();
-    navigator.sendBeacon(url, data);
+    telemetry.stop();
   });
 }

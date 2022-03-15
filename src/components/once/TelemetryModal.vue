@@ -32,13 +32,7 @@
     <div class="flex flex-row w-full justify-between items-center mt-12">
       <HowTo
         link="https://github.com/frappe/books/wiki/Anonymized-Opt-In-Telemetry"
-        class="
-          text-sm
-          hover:text-gray-900
-          text-gray-800
-          py-1
-          justify-between
-        "
+        class="text-sm hover:text-gray-900 text-gray-800 py-1 justify-between"
         :icon="false"
         >{{ t`Know More` }}</HowTo
       >
@@ -60,11 +54,14 @@ ConfigKeys,
 telemetryOptions,
 TelemetrySetting
 } from '@/config';
+import telemetry from '@/telemetry/telemetry';
+import { NounEnum, Verb } from '@/telemetry/types';
 import Button from '../Button.vue';
 import FormControl from '../Controls/FormControl';
 import FeatherIcon from '../FeatherIcon.vue';
 import HowTo from '../HowTo.vue';
 import Modal from '../Modal.vue';
+
 export default {
   components: { Modal, FormControl, Button, HowTo, FeatherIcon },
   data() {
@@ -106,6 +103,12 @@ export default {
   },
   methods: {
     saveClicked() {
+      if (this.value === TelemetrySetting.dontLogUsage) {
+        telemetry.finalLogAndStop();
+      } else {
+        telemetry.log(Verb.Started, NounEnum.Telemetry)
+      }
+
       config.set(ConfigKeys.Telemetry, this.value);
       this.shouldOpen = false;
     },
