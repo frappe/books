@@ -15,7 +15,7 @@ import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
-import { sendError } from './contactMothership';
+import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
 import { IPC_ACTIONS, IPC_CHANNELS, IPC_MESSAGES } from './messages';
 import saveHtmlAsPdf from './saveHtmlAsPdf';
@@ -259,6 +259,10 @@ ipcMain.handle(IPC_ACTIONS.GET_FILE, async (event, options) => {
   response.name = path.basename(response.filePath);
   response.data = await fs.readFile(response.filePath);
   return response;
+});
+
+ipcMain.handle(IPC_ACTIONS.GET_CREDS, async (event) => {
+  return await getUrlAndTokenString();
 });
 
 /* ------------------------------

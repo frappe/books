@@ -25,27 +25,29 @@
     >
       <div id="toast-target" />
     </div>
+    <TelemetryModal />
   </div>
 </template>
 
 <script>
-import './styles/index.css';
+import WindowsTitleBar from '@/components/WindowsTitleBar';
+import config from '@/config';
+import {
+connectToLocalDatabase,
+postSetup,
+purgeCache
+} from '@/initialization';
+import { IPC_ACTIONS, IPC_MESSAGES } from '@/messages';
+import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
+import fs from 'fs/promises';
+import TelemetryModal from './components/once/TelemetryModal.vue';
+import { showErrorDialog } from './errorHandling';
+import DatabaseSelector from './pages/DatabaseSelector';
 import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
-import DatabaseSelector from './pages/DatabaseSelector';
-import WindowsTitleBar from '@/components/WindowsTitleBar';
-import { ipcRenderer } from 'electron';
-import config from '@/config';
-import { IPC_MESSAGES, IPC_ACTIONS } from '@/messages';
-import {
-  connectToLocalDatabase,
-  postSetup,
-  purgeCache,
-} from '@/initialization';
+import './styles/index.css';
 import { checkForUpdates, routeTo } from './utils';
-import fs from 'fs/promises';
-import { showErrorDialog } from './errorHandling';
 
 export default {
   name: 'App',
@@ -78,6 +80,7 @@ export default {
     SetupWizard,
     DatabaseSelector,
     WindowsTitleBar,
+    TelemetryModal,
   },
   async mounted() {
     const lastSelectedFilePath = config.get('lastSelectedFilePath', null);
