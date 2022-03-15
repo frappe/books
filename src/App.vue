@@ -47,6 +47,7 @@ import DatabaseSelector from './pages/DatabaseSelector';
 import Desk from './pages/Desk';
 import SetupWizard from './pages/SetupWizard/SetupWizard';
 import './styles/index.css';
+import telemetry from './telemetry/telemetry';
 import { checkForUpdates, routeTo } from './utils';
 
 export default {
@@ -131,6 +132,7 @@ export default {
     },
     changeDbFile() {
       config.set('lastSelectedFilePath', null);
+      telemetry.stop()
       purgeCache(true);
       this.activeScreen = 'DatabaseSelector';
     },
