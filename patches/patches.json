@@ -13,5 +13,10 @@
     "version": "0.3.2",
     "fileName": "moveNumberSeriesFromSettings",
     "beforeMigrate": false
+  },
+  {
+    "version": "0.3.2",
+    "fileName": "fixJournalEntryIds",
+    "beforeMigrate": true
   }
 ]
