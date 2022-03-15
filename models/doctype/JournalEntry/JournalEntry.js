@@ -3,6 +3,20 @@ import { DateTime } from 'luxon';
 import { ledgerLink } from '../../../accounting/utils';
 import { DEFAULT_NUMBER_SERIES } from '../../../frappe/utils/consts';
 
+export const journalEntryTypeMap = {
+  'Journal Entry': t`Journal Entry`,
+  'Bank Entry': t`Bank Entry`,
+  'Cash Entry': t`Cash Entry`,
+  'Credit Card Entry': t`Credit Card Entry`,
+  'Debit Note': t`Debit Note`,
+  'Credit Note': t`Credit Note`,
+  'Contra Entry': t`Contra Entry`,
+  'Excise Entry': t`Excise Entry`,
+  'Write Off Entry': t`Write Off Entry`,
+  'Opening Entry': t`Opening Entry`,
+  'Depreciation Entry': t`Depreciation Entry`,
+};
+
 export default {
   label: t`Journal Entry`,
   name: 'JournalEntry',
@@ -15,19 +29,8 @@ export default {
       label: t`Entry Type`,
       fieldtype: 'Select',
       placeholder: 'Entry Type',
-      options: [
-        'Journal Entry',
-        'Bank Entry',
-        'Cash Entry',
-        'Credit Card Entry',
-        'Debit Note',
-        'Credit Note',
-        'Contra Entry',
-        'Excise Entry',
-        'Write Off Entry',
-        'Opening Entry',
-        'Depreciation Entry',
-      ],
+      options: Object.keys(journalEntryTypeMap),
+      map: journalEntryTypeMap,
       required: 1,
     },
     {
