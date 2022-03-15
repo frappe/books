@@ -31,7 +31,7 @@
     <p class="text-base text-gray-800">{{ description }}</p>
     <div class="flex flex-row w-full justify-between items-center mt-12">
       <HowTo
-        link="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        link="https://github.com/frappe/books/wiki/Anonymized-Opt-In-Telemetry"
         class="
           text-sm
           hover:text-gray-900
