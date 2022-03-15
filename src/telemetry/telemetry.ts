@@ -2,7 +2,7 @@ import config, { ConfigKeys, TelemetrySetting } from '@/config';
 import frappe from 'frappe';
 import { cloneDeep } from 'lodash';
 import { getCounts, getDeviceId, getInstanceId, getLocale } from './helpers';
-import { Noun, Telemetry, Verb } from './types';
+import { Noun, NounEnum, Telemetry, Verb } from './types';
 
 class TelemetryManager {
   #url: string = '';
@@ -74,7 +74,7 @@ class TelemetryManager {
     this.#telemetryObject = {};
 
     if (config.get(ConfigKeys.Telemetry) === TelemetrySetting.dontLogAnything) {
-      return '';
+      return;
     }
 
     const data = JSON.stringify({
@@ -82,7 +82,12 @@ class TelemetryManager {
       telemetryData: telemetryObject,
     });
 
-    return { url: this.#url, data };
+    navigator.sendBeacon(this.#url, data);
+  }
+
+  finalLogAndStop() {
+    this.log(Verb.Stopped, NounEnum.Telemetry);
+    this.stop();
   }
 
   get telemetryObject(): Readonly<Partial<Telemetry>> {

@@ -38,10 +38,13 @@ export enum Verb {
   Navigated = 'navigated',
   Imported = 'imported',
   Exported = 'exported',
+  Stopped = 'stopped',
+  Started = 'stopped',
 }
 
 export enum NounEnum {
   Route = 'route',
+  Telemetry = 'telemetry',
 }
 
 export type Noun = string | NounEnum;

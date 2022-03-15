@@ -41,7 +41,12 @@
 import FormControl from '@/components/Controls/FormControl';
 import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from '@/components/TwoColumnForm';
-import config, { ConfigKeys, telemetryOptions } from '@/config';
+import config, {
+ConfigKeys,
+telemetryOptions,
+TelemetrySetting
+} from '@/config';
+import telemetry from '@/telemetry/telemetry';
 import { checkForUpdates } from '@/utils';
 import frappe from 'frappe';
 
@@ -86,6 +91,12 @@ export default {
     checkForUpdates,
     setValue(value) {
       this.telemetry = value;
+      if (value === TelemetrySetting.dontLogAnything) {
+        telemetry.finalLogAndStop();
+      } else {
+        telemetry.log(Verb.Started, NounEnum.Telemetry);
+      }
+
       config.set(ConfigKeys.Telemetry, value);
     },
     forwardChangeEvent(...args) {
