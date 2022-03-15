@@ -3,6 +3,8 @@ const Observable = require('frappe/utils/observable');
 const naming = require('./naming');
 const { isPesa } = require('../utils/index');
 const { DEFAULT_INTERNAL_PRECISION } = require('../utils/consts');
+const { Verb } = require('@/telemetry/types');
+const { default: telemetry } = require('@/telemetry/telemetry');
 
 module.exports = class BaseDocument extends Observable {
   constructor(data) {
@@ -577,6 +579,7 @@ module.exports = class BaseDocument extends Observable {
     await this.trigger('afterInsert');
     await this.trigger('afterSave');
 
+    telemetry.log(Verb.Created, this.doctype);
     return this;
   }
 
@@ -620,6 +623,8 @@ module.exports = class BaseDocument extends Observable {
     await this.trigger('beforeDelete');
     await frappe.db.delete(this.doctype, this.name);
     await this.trigger('afterDelete');
+
+    telemetry.log(Verb.Deleted, this.doctype);
   }
 
   async submitOrRevert(isSubmit) {

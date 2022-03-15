@@ -4,24 +4,25 @@ import http from 'http';
 import https from 'https';
 import path from 'path';
 
-function getUrlAndTokenString() {
+export function getUrlAndTokenString() {
   const inProduction = app.isPackaged;
+  const empty = { url: '', telemetryUrl: '', tokenString: '' };
   let errLogCredsPath = path.join(
     process.resourcesPath,
-    '../creds/err_log_creds.txt'
+    '../creds/log_creds.txt'
   );
   if (!fs.existsSync(errLogCredsPath)) {
-    errLogCredsPath = path.join(__dirname, '../err_log_creds.txt');
+    errLogCredsPath = path.join(__dirname, '../log_creds.txt');
   }
 
   if (!fs.existsSync(errLogCredsPath)) {
     !inProduction && console.log(`${errLogCredsPath} doesn't exist, can't log`);
-    return;
+    return empty;
   }
 
-  let apiKey, apiSecret, url;
+  let apiKey, apiSecret, url, telemetryUrl;
   try {
-    [apiKey, apiSecret, url] = fs
+    [apiKey, apiSecret, url, telemetryUrl] = fs
       .readFileSync(errLogCredsPath, 'utf-8')
       .split('\n')
       .filter((f) => f.length);
@@ -30,10 +31,14 @@ function getUrlAndTokenString() {
       console.log(`logging error using creds at: ${errLogCredsPath} failed`);
       console.log(err);
     }
-    return;
+    return empty;
   }
 
-  return { url: encodeURI(url), tokenString: `token ${apiKey}:${apiSecret}` };
+  return {
+    url: encodeURI(url),
+    telemetryUrl: encodeURI(telemetryUrl),
+    tokenString: `token ${apiKey}:${apiSecret}`,
+  };
 }
 
 function post(bodyJson) {

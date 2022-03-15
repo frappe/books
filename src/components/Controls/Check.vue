@@ -1,6 +1,9 @@
 <template>
   <div>
     <label class="flex items-center">
+      <div class="mr-3 text-gray-900 text-sm" v-if="showLabel && !labelRight">
+        {{ df.label }}
+      </div>
       <div style="width: 14px; height: 14px; overflow: hidden; cursor: pointer">
         <svg
           v-if="checked === 1"
@@ -58,7 +61,7 @@
           @focus="(e) => $emit('focus', e)"
         />
       </div>
-      <div class="ml-3 text-gray-900 text-sm" v-if="showLabel">
+      <div class="ml-3 text-gray-900 text-sm" v-if="showLabel && labelRight">
         {{ df.label }}
       </div>
     </label>
@@ -71,6 +74,12 @@ export default {
   name: 'Check',
   extends: Base,
   emits: ['focus'],
+  props: {
+    labelRight: {
+      default: true,
+      type: Boolean,
+    },
+  },
   data() {
     return {
       offBorderColor: 'rgba(17, 43, 66, 0.201322)',

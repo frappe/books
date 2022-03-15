@@ -12,6 +12,8 @@ import QuickEditForm from '@/pages/QuickEditForm';
 import Report from '@/pages/Report';
 import Settings from '@/pages/Settings/Settings';
 import { createRouter, createWebHistory } from 'vue-router';
+import telemetry from './telemetry/telemetry';
+import { NounEnum, Verb } from './telemetry/types';
 
 const routes = [
   {
@@ -113,6 +115,28 @@ const routes = [
 ];
 
 let router = createRouter({ routes, history: createWebHistory() });
+
+function removeDetails(path) {
+  if (!path) {
+    return path;
+  }
+
+  const match = path.match(/edit=1/);
+  if (!match) {
+    return path;
+  }
+
+  return path.slice(0, match.index + 4);
+}
+
+router.afterEach((to, from) => {
+  const more = {
+    from: removeDetails(from.fullPath),
+    to: removeDetails(to.fullPath),
+  };
+
+  telemetry.log(Verb.Navigated, NounEnum.Route, more);
+});
 
 if (process.env.NODE_ENV === 'development') {
   window.router = router;

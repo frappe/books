@@ -2,6 +2,8 @@ import { Doc, Field, FieldType, Map } from '@/types/model';
 import frappe from 'frappe';
 import { isNameAutoSet } from 'frappe/model/naming';
 import { parseCSV } from './csvParser';
+import telemetry from './telemetry/telemetry';
+import { Noun, Verb } from './telemetry/types';
 
 export const importable = [
   'SalesInvoice',
@@ -387,6 +389,12 @@ export class Importer {
         setLoadingStatus(true, entriesMade, docObjs.length);
       } catch (err) {
         setLoadingStatus(false, entriesMade, docObjs.length);
+
+        telemetry.log(Verb.Imported, this.doctype as Noun, {
+          success: false,
+          count: entriesMade,
+        });
+
         return this.handleError(doc, err as Error, status);
       }
 
@@ -395,6 +403,11 @@ export class Importer {
 
     setLoadingStatus(false, entriesMade, docObjs.length);
     status.success = true;
+
+    telemetry.log(Verb.Imported, this.doctype as Noun, {
+      success: true,
+      count: entriesMade,
+    });
     return status;
   }
 

@@ -1,12 +1,15 @@
 import config from '@/config';
+import { ipcRenderer } from 'electron';
 import SQLiteDatabase from 'frappe/backends/sqlite';
 import fs from 'fs';
 import models from '../models';
 import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart, { setCurrencySymbols } from '../server/postStart';
-import { DB_CONN_FAILURE } from './messages';
+import { DB_CONN_FAILURE, IPC_ACTIONS } from './messages';
 import runMigrate from './migrate';
-import { callInitializeMoneyMaker, getSavePath, setLanguageMap } from './utils';
+import { getId } from './telemetry/helpers';
+import telemetry from './telemetry/telemetry';
+import { callInitializeMoneyMaker, getSavePath } from './utils';
 
 export async function createNewDatabase() {
   const { canceled, filePath } = await getSavePath('books', 'db');
@@ -81,6 +84,7 @@ export async function connectToLocalDatabase(filePath) {
     files = [
       {
         companyName,
+        id: getId(),
         filePath,
       },
       ...files.filter((file) => file.filePath !== filePath),
@@ -93,6 +97,11 @@ export async function connectToLocalDatabase(filePath) {
 
   // second init with currency, normal usage
   await callInitializeMoneyMaker();
+  const creds = await ipcRenderer.invoke(IPC_ACTIONS.GET_CREDS);
+  telemetry.setCreds(creds?.telemetryUrl ?? '', creds?.tokenString ?? '');
+  telemetry.start();
+  await telemetry.setCount();
+
   return { connectionSuccess: true, reason: '' };
 }
 

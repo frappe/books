@@ -89,7 +89,7 @@ There are many ways you can contribute even if you don't code:
 
 1. If you find any issues, no matter how small (even typos), you can [raise an issue](https://github.com/frappe/books/issues/new) to inform us.
 2. You can help us with language support by [contributing translations](https://github.com/frappe/books/wiki/Contributing-Translations).
-3. You report errors by setting **Hide & Auto Report Errors** in _Settings > System_.
+3. If you're a user, you can switch on [anonymized telemetry](https://github.com/frappe/books/wiki/Anonymized-Opt-In-Telemetry).
 4. If you're an ardent user you can tell us what you would like to see.
 5. If you have accounting requirements, you can become an ardent user. 🙂
 6. You can join our [telegram group](https://t.me/frappebooks) and share your thoughts.
