@@ -6,7 +6,7 @@ module.exports = {
     electronBuilder: {
       nodeIntegration: true,
       mainProcessFile: 'main.ts',
-      rendererProcessFile: 'src/renderer.ts',
+      // rendererProcessFile: 'src/renderer.js',
       disableMainProcessTypescript: false,
       mainProcessTypeChecking: true,
       chainWebpackRendererProcess: (config) => {

@@ -2,8 +2,8 @@ import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
 import { createApp } from 'vue';
 import models from '../models';
-import App from './App.vue';
-import FeatherIcon from './components/FeatherIcon.vue';
+import App from './App';
+import FeatherIcon from './components/FeatherIcon';
 import config, { ConfigKeys } from './config';
 import { getErrorHandled, handleError } from './errorHandling';
 import { incrementOpenCount } from './renderer/helpers';
@@ -19,7 +19,6 @@ import { setLanguageMap, stringifyCircular } from './utils';
   }
 
   if (process.env.NODE_ENV === 'development') {
-    // @ts-ignore
     window.config = config;
   }
 
@@ -31,7 +30,6 @@ import { setLanguageMap, stringifyCircular } from './utils';
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
 
-  // @ts-ignore
   window.frappe = frappe;
 
   window.onerror = (message, source, lineno, colno, error) => {
@@ -54,7 +52,7 @@ import { setLanguageMap, stringifyCircular } from './utils';
       frappe() {
         return frappe;
       },
-      platform(): string {
+      platform() {
         switch (process.platform) {
           case 'win32':
             return 'Windows';
@@ -74,7 +72,7 @@ import { setLanguageMap, stringifyCircular } from './utils';
   });
 
   app.config.errorHandler = (err, vm, info) => {
-    const more: Record<string, unknown> = {
+    const more = {
       info,
     };
 
@@ -86,14 +84,14 @@ import { setLanguageMap, stringifyCircular } from './utils';
       more.props = stringifyCircular(vm.$props ?? {}, true, true);
     }
 
-    handleError(false, err as Error, more);
+    handleError(false, err, more);
     console.error(err, vm, info);
   };
 
   incrementOpenCount();
   app.mount('body');
 
-  process.on('unhandledRejection', (error: Error) => {
+  process.on('unhandledRejection', (error) => {
     handleError(true, error);
   });
 
