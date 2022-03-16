@@ -16,7 +16,6 @@
     "postuninstall": "electron-builder install-app-deps",
     "script:translate": "node scripts/generateTranslations.js"
   },
-  "main": "background.js",
   "dependencies": {
     "@popperjs/core": "^2.10.2",
     "core-js": "^3.19.0",
@@ -35,6 +34,7 @@
   "devDependencies": {
     "@babel/core": "^7.16.0",
     "@babel/eslint-parser": "^7.16.0",
+    "@types/electron-devtools-installer": "^2.2.0",
     "@types/lodash": "^4.14.179",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
@@ -69,11 +69,11 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
+  "engineStrict": true,
   "engines": {
     "node": ">=16.13.1 <17",
     "yarn": "1.22.17"
   },
-  "engineStrict": true,
   "gitHooks": {
     "pre-commit": "lint-staged"
   },
