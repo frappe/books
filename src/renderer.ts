@@ -92,4 +92,12 @@ import { setLanguageMap, stringifyCircular } from './utils';
 
   incrementOpenCount();
   app.mount('body');
+
+  process.on('unhandledRejection', (error: Error) => {
+    handleError(true, error);
+  });
+
+  process.on('uncaughtException', (error) => {
+    handleError(true, error, {}, () => process.exit(1));
+  });
 })();
