@@ -1,5 +1,5 @@
-import Avatar from '@/components/Avatar';
-import Toast from '@/components/Toast';
+import Avatar from '@/components/Avatar.vue';
+import Toast from '@/components/Toast.vue';
 import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';

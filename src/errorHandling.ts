@@ -16,7 +16,7 @@ interface ErrorLog {
   name: string;
   message: string;
   stack?: string;
-  more?: object;
+  more?: Record<string, unknown>;
 }
 
 function getCanLog(): boolean {
@@ -71,7 +71,10 @@ function getToastProps(errorLogObj: ErrorLog, canLog: boolean, cb?: Function) {
   return props;
 }
 
-export function getErrorLogObject(error: Error, more: object = {}): ErrorLog {
+export function getErrorLogObject(
+  error: Error,
+  more: Record<string, unknown>
+): ErrorLog {
   const { name, stack, message } = error;
   const errorLogObj = { name, stack, message, more };
 
@@ -84,7 +87,7 @@ export function getErrorLogObject(error: Error, more: object = {}): ErrorLog {
 export function handleError(
   shouldLog: boolean,
   error: Error,
-  more: object = {},
+  more?: Record<string, unknown>,
   cb?: Function
 ) {
   telemetry.error(error.name);
@@ -96,7 +99,7 @@ export function handleError(
     return;
   }
 
-  const errorLogObj = getErrorLogObject(error, more);
+  const errorLogObj = getErrorLogObject(error, more ?? {});
 
   // @ts-ignore
   const canLog = getCanLog();
