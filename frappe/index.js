@@ -9,6 +9,9 @@ const {
 const { markRaw } = require('vue');
 
 module.exports = {
+  isElectron: false,
+  isServer: false,
+
   initializeAndRegister(customModels = {}, force = false) {
     this.init(force);
     const common = require('frappe/common');

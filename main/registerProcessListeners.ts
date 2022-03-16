@@ -1,5 +1,6 @@
 import { app } from 'electron';
 import { Main } from '../main';
+import { handleError } from '../src/errorHandling';
 
 export default function registerProcessListeners(main: Main) {
   if (main.isDevelopment) {
@@ -15,4 +16,12 @@ export default function registerProcessListeners(main: Main) {
       });
     }
   }
+
+  process.on('unhandledRejection', (error: Error) => {
+    handleError(true, error);
+  });
+
+  process.on('uncaughtException', (error) => {
+    handleError(true, error, {}, () => process.exit(1));
+  });
 }
