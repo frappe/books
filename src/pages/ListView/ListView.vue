@@ -30,16 +30,14 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
-// import Observable from 'frappe/utils/observable';
-import PageHeader from '@/components/PageHeader';
 import Button from '@/components/Button';
+import FilterDropdown from '@/components/FilterDropdown';
+import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
+import { routeTo } from '@/utils';
+import frappe from 'frappe';
 import List from './List';
 import listConfigs from './listConfig';
-// import Icon from '@/components/Icon';
-import FilterDropdown from '@/components/FilterDropdown';
-import { routeTo } from '@/utils';
 
 export default {
   name: 'ListView',
@@ -49,7 +47,6 @@ export default {
     List,
     Button,
     SearchBar,
-    // Icon,
     FilterDropdown,
   },
   activated() {
@@ -78,11 +75,7 @@ export default {
       this.$refs.list.updateData(filters);
     },
     getFormPath(name) {
-      if (this.listConfig.formRoute) {
-        let path = this.listConfig.formRoute(name);
-        return path;
-      }
-      return {
+      let path = {
         path: `/list/${this.doctype}`,
         query: {
           edit: 1,
@@ -90,6 +83,18 @@ export default {
           name,
         },
       };
+
+      if (this.listConfig.formRoute) {
+        path = this.listConfig.formRoute(name);
+      }
+
+      // Maintain filter if present
+      const currentPath = this.$router.currentRoute.value.path;
+      if (currentPath.slice(0, path?.path?.length ?? 0) === path.path) {
+        path.path = currentPath;
+      }
+
+      return path;
     },
   },
   computed: {
