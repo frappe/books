@@ -710,6 +710,41 @@ module.exports = class BaseDocument extends Observable {
       return obj;
     }, {});
   }
+
+  async duplicate() {
+    const updateMap = {};
+    const fieldValueMap = this.getValidDict();
+    const keys = this.meta.fields.map((f) => f.fieldname);
+    for (const key of keys) {
+      let value = fieldValueMap[key];
+      if (!value) {
+        continue;
+      }
+
+      if (isPesa(value)) {
+        value = value.copy();
+      }
+
+      if (value instanceof Array) {
+        value.forEach((row) => {
+          delete row.name;
+          delete row.parent;
+        });
+      }
+
+      updateMap[key] = value;
+    }
+
+    if (this.numberSeries) {
+      delete updateMap.name;
+    } else {
+      updateMap.name = updateMap.name + ' CPY';
+    }
+
+    const doc = frappe.getNewDoc(this.doctype, false);
+    await doc.set(updateMap);
+    await doc.insert();
+  }
 };
 
 function getPreDefaultValues(fieldtype) {
