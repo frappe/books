@@ -227,7 +227,40 @@ export function getActionsForDocument(doc) {
     },
   };
 
-  let actions = [...(doc.meta.actions || []), deleteAction, cancelAction]
+  const isSubmittable = !!doc.meta.isSubmittable;
+  const duplicateAction = {
+    label: frappe.t`Duplicate`,
+    condition: (doc) =>
+      ((isSubmittable && doc && doc.submitted) || !isSubmittable) &&
+      !doc._notInserted &&
+      !(doc.cancelled || false),
+    action: () => {
+      showMessageDialog({
+        message: t`Duplicate ${doc.doctype} ${doc.name}?`,
+        buttons: [
+          {
+            label: t`Yes`,
+            async action() {
+              doc.duplicate();
+            },
+          },
+          {
+            label: t`No`,
+            action() {
+              resolve(false);
+            },
+          },
+        ],
+      });
+    },
+  };
+
+  let actions = [
+    ...(doc.meta.actions || []),
+    duplicateAction,
+    deleteAction,
+    cancelAction,
+  ]
     .filter((d) => (d.condition ? d.condition(doc) : true))
     .map((d) => {
       return {
