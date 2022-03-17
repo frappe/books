@@ -111,7 +111,7 @@
           v-for="tax in doc.taxes"
           :key="tax.name"
         >
-          <div>{{ tax.account }} ({{ tax.rate }}%)</div>
+          <div>{{ tax.account }}</div>
           <div>{{ frappe.format(tax.amount, 'Currency') }}</div>
         </div>
         <div
