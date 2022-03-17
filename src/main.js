@@ -25,7 +25,7 @@ import { setLanguageMap, stringifyCircular } from './utils';
   frappe.isServer = true;
   frappe.isElectron = true;
 
-  frappe.initializeAndRegister(models);
+  await frappe.initializeAndRegister(models);
 
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);

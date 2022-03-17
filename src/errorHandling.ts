@@ -6,7 +6,7 @@ import {
   MandatoryError,
   ValidationError,
 } from 'frappe/common/errors';
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 import config, { ConfigKeys, TelemetrySetting } from './config';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import telemetry from './telemetry/telemetry';
@@ -110,7 +110,7 @@ export function handleError(
   }
 }
 
-export function getErrorMessage(e: Error, doc?: BaseDocument): string {
+export function getErrorMessage(e: Error, doc?: Document): string {
   let errorMessage = e.message || t`An error occurred.`;
 
   const { doctype, name }: { doctype?: unknown; name?: unknown } = doc ?? {};
@@ -125,7 +125,7 @@ export function getErrorMessage(e: Error, doc?: BaseDocument): string {
   return errorMessage;
 }
 
-export function handleErrorWithDialog(error: Error, doc?: BaseDocument) {
+export function handleErrorWithDialog(error: Error, doc?: Document) {
   const errorMessage = getErrorMessage(error, doc);
   handleError(false, error, { errorMessage, doc });
 

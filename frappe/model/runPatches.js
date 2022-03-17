@@ -1,6 +1,6 @@
-const frappe = require('frappe');
+import frappe from 'frappe';
 
-module.exports = async function runPatches(patchList) {
+export default async function runPatches(patchList) {
   const patchesAlreadyRun = (
     await frappe.db.knex('PatchRun').select('name')
   ).map(({ name }) => name);
@@ -12,7 +12,7 @@ module.exports = async function runPatches(patchList) {
 
     await runPatch(patch);
   }
-};
+}
 
 async function runPatch({ patchName, patchFunction }) {
   try {

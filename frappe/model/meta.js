@@ -1,16 +1,16 @@
-const BaseDocument = require('./document');
-const frappe = require('frappe');
-const model = require('./index');
-const { indicators: indicatorColor } = require('../../src/colors');
+import frappe from 'frappe';
+import { indicators as indicatorColor } from '../../src/colors';
+import Document from './document';
+import model from './index';
 
-module.exports = class BaseMeta extends BaseDocument {
+export default class BaseMeta extends Document {
   constructor(data) {
     if (data.basedOn) {
       let config = frappe.models[data.basedOn];
       Object.assign(data, config, {
         name: data.name,
         label: data.label,
-        filters: data.filters
+        filters: data.filters,
       });
     }
     super(data);
@@ -30,7 +30,7 @@ module.exports = class BaseMeta extends BaseDocument {
 
   processFields() {
     // add name field
-    if (!this.fields.find(df => df.fieldname === 'name') && !this.isSingle) {
+    if (!this.fields.find((df) => df.fieldname === 'name') && !this.isSingle) {
       this.fields = [
         {
           label: frappe.t`ID`,
@@ -42,7 +42,7 @@ module.exports = class BaseMeta extends BaseDocument {
       ].concat(this.fields);
     }
 
-    this.fields = this.fields.map(df => {
+    this.fields = this.fields.map((df) => {
       // name field is always required
       if (df.fieldname === 'name') {
         df.required = 1;
@@ -75,7 +75,7 @@ module.exports = class BaseMeta extends BaseDocument {
    *   dataFields = meta.getFieldsWith({ fieldtype: 'Data' })
    */
   getFieldsWith(filters) {
-    return this.fields.filter(df => {
+    return this.fields.filter((df) => {
       let match = true;
       for (const key in filters) {
         const value = filters[key];
@@ -93,7 +93,7 @@ module.exports = class BaseMeta extends BaseDocument {
   getTableFields() {
     if (this._tableFields === undefined) {
       this._tableFields = this.fields.filter(
-        field => field.fieldtype === 'Table'
+        (field) => field.fieldtype === 'Table'
       );
     }
     return this._tableFields;
@@ -101,7 +101,7 @@ module.exports = class BaseMeta extends BaseDocument {
 
   getFormulaFields() {
     if (this._formulaFields === undefined) {
-      this._formulaFields = this.fields.filter(field => field.formula);
+      this._formulaFields = this.fields.filter((field) => field.formula);
     }
     return this._formulaFields;
   }
@@ -141,7 +141,7 @@ module.exports = class BaseMeta extends BaseDocument {
       this._validFields = [];
       this._validFieldsWithChildren = [];
 
-      const _add = field => {
+      const _add = (field) => {
         this._validFields.push(field);
         this._validFieldsWithChildren.push(field);
       };
@@ -160,7 +160,7 @@ module.exports = class BaseMeta extends BaseDocument {
         }
       });
 
-      const doctypeFields = this.fields.map(field => field.fieldname);
+      const doctypeFields = this.fields.map((field) => field.fieldname);
 
       // standard fields
       for (let field of model.commonFields) {
@@ -176,7 +176,7 @@ module.exports = class BaseMeta extends BaseDocument {
         _add({
           fieldtype: 'Check',
           fieldname: 'submitted',
-          label: frappe.t`Submitted`
+          label: frappe.t`Submitted`,
         });
       }
 
@@ -241,8 +241,8 @@ module.exports = class BaseMeta extends BaseDocument {
       this._keywordFields = this.keywordFields;
       if (!(this._keywordFields && this._keywordFields.length && this.fields)) {
         this._keywordFields = this.fields
-          .filter(field => field.fieldtype !== 'Table' && field.required)
-          .map(field => field.fieldname);
+          .filter((field) => field.fieldtype !== 'Table' && field.required)
+          .map((field) => field.fieldname);
       }
       if (!(this._keywordFields && this._keywordFields.length)) {
         this._keywordFields = ['name'];
@@ -253,7 +253,7 @@ module.exports = class BaseMeta extends BaseDocument {
 
   getQuickEditFields() {
     if (this.quickEditFields) {
-      return this.quickEditFields.map(fieldname => this.getField(fieldname));
+      return this.quickEditFields.map((fieldname) => this.getField(fieldname));
     }
     return this.getFieldsWith({ required: 1 });
   }
@@ -271,10 +271,12 @@ module.exports = class BaseMeta extends BaseDocument {
       // values given as string
       validValues = options.split('\n');
     }
+
     if (typeof options[0] === 'object') {
       // options as array of {label, value} pairs
-      validValues = options.map(o => o.value);
+      validValues = options.map((o) => o.value);
     }
+
     if (!validValues.includes(value)) {
       throw new frappe.errors.ValueError(
         // prettier-ignore
@@ -287,7 +289,7 @@ module.exports = class BaseMeta extends BaseDocument {
   async trigger(event, params = {}) {
     Object.assign(params, {
       doc: this,
-      name: event
+      name: event,
     });
 
     await super.trigger(event, params);
@@ -300,8 +302,8 @@ module.exports = class BaseMeta extends BaseDocument {
           key: 'submitted',
           colors: {
             0: indicatorColor.GRAY,
-            1: indicatorColor.BLUE
-          }
+            1: indicatorColor.BLUE,
+          },
         };
       }
     }
@@ -323,4 +325,4 @@ module.exports = class BaseMeta extends BaseDocument {
       }
     }
   }
-};
+}

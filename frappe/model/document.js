@@ -1,12 +1,12 @@
-const frappe = require('frappe');
-const Observable = require('frappe/utils/observable');
-const naming = require('./naming');
-const { isPesa } = require('../utils/index');
-const { DEFAULT_INTERNAL_PRECISION } = require('../utils/consts');
-const { Verb } = require('@/telemetry/types');
-const { default: telemetry } = require('@/telemetry/telemetry');
+import telemetry from '@/telemetry/telemetry';
+import { Verb } from '@/telemetry/types';
+import frappe from 'frappe';
+import Observable from 'frappe/utils/observable';
+import { DEFAULT_INTERNAL_PRECISION } from '../utils/consts';
+import { isPesa } from '../utils/index';
+import { setName } from './naming';
 
-module.exports = class BaseDocument extends Observable {
+export default class Document extends Observable {
   constructor(data) {
     super();
     this.fetchValuesCache = {};
@@ -171,7 +171,7 @@ module.exports = class BaseDocument extends Observable {
   }
 
   _initChild(data, key) {
-    if (data instanceof BaseDocument) {
+    if (data instanceof Document) {
       return data;
     }
 
@@ -189,7 +189,7 @@ module.exports = class BaseDocument extends Observable {
       data.name = frappe.getRandomString();
     }
 
-    const childDoc = new BaseDocument(data);
+    const childDoc = new Document(data);
     childDoc.setDefaults();
     return childDoc;
   }
@@ -549,10 +549,6 @@ module.exports = class BaseDocument extends Observable {
     }
   }
 
-  async setName() {
-    await naming.setName(this);
-  }
-
   async commit() {
     // re-run triggers
     this.setKeywords();
@@ -562,7 +558,7 @@ module.exports = class BaseDocument extends Observable {
   }
 
   async insert() {
-    await this.setName();
+    await setName(this);
     this.setStandardValues();
     await this.commit();
     await this.validateInsert();
@@ -745,7 +741,7 @@ module.exports = class BaseDocument extends Observable {
     await doc.set(updateMap);
     await doc.insert();
   }
-};
+}
 
 function getPreDefaultValues(fieldtype) {
   switch (fieldtype) {

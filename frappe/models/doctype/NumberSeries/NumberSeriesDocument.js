@@ -1,8 +1,8 @@
-const { getPaddedName } = require('@/utils');
-const frappe = require('frappe');
-const BaseDocument = require('frappe/model/document');
+import { getPaddedName } from '@/utils';
+import frappe from 'frappe';
+import BaseDocument from 'frappe/model/document';
 
-module.exports = class NumberSeries extends BaseDocument {
+export default class NumberSeries extends BaseDocument {
   validate() {
     if (!this.current) {
       this.current = this.start;
@@ -34,4 +34,4 @@ module.exports = class NumberSeries extends BaseDocument {
   getPaddedName(next) {
     return getPaddedName(this.name, next, this.padZeros);
   }
-};
+}
