@@ -106,7 +106,7 @@ export async function connectToLocalDatabase(filePath) {
   return { connectionSuccess: true, reason: '' };
 }
 
-export function purgeCache(purgeAll = false) {
+export async function purgeCache(purgeAll = false) {
   const filterFunction = purgeAll
     ? () => true
     : (d) => frappe.docs[d][d] instanceof frappe.BaseMeta;
@@ -120,7 +120,7 @@ export function purgeCache(purgeAll = false) {
 
   if (purgeAll) {
     delete frappe.db;
-    frappe.initializeAndRegister(models, true);
+    await frappe.initializeAndRegister(models, true);
   }
 }
 

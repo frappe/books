@@ -1,4 +1,5 @@
-const { t } = require('frappe');
+import { t } from 'frappe';
+import NumberSeries from './NumberSeriesDocument.js';
 
 const referenceTypeMap = {
   SalesInvoice: t`Invoice`,
@@ -13,9 +14,10 @@ const referenceTypeMap = {
   '-': t`None`,
 };
 
-module.exports = {
+export default {
   name: 'NumberSeries',
-  documentClass: require('./NumberSeriesDocument.js'),
+  label: t`Number Series`,
+  documentClass: NumberSeries,
   doctype: 'DocType',
   isSingle: 0,
   isChild: 0,
