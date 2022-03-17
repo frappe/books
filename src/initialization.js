@@ -102,6 +102,11 @@ export async function connectToLocalDatabase(filePath) {
   telemetry.start();
   await telemetry.setCount();
 
+  if (frappe.store.isDevelopment) {
+    // @ts-ignore
+    window.telemetry = telemetry;
+  }
+
   return { connectionSuccess: true, reason: '' };
 }
 
