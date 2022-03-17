@@ -1,9 +1,9 @@
-const frappe = require('frappe');
-const Observable = require('frappe/utils/observable');
-const CacheManager = require('frappe/utils/cacheManager');
-const Knex = require('knex');
+import frappe from 'frappe';
+import Observable from 'frappe/utils/observable';
+import Knex from 'knex';
+import CacheManager from '../utils/cacheManager';
 
-module.exports = class Database extends Observable {
+export default class Database extends Observable {
   constructor() {
     super();
     this.initTypeMap();
@@ -827,4 +827,4 @@ module.exports = class Database extends Observable {
   executePostDbConnect() {
     frappe.initializeMoneyMaker();
   }
-};
+}
