@@ -145,6 +145,7 @@ export class Main {
 
       this.mainWindow.webContents.send(IPC_CHANNELS.STORE_ON_WINDOW, {
         appVersion: app.getVersion(),
+        isDevelopment: this.isDevelopment,
       });
     });
   }
