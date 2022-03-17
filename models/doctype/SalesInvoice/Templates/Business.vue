@@ -93,7 +93,7 @@
               :key="tax.name"
             >
               <div class="text-gray-800">
-                {{ tax.account }} ({{ tax.rate }}%)
+                {{ tax.account }} 
               </div>
               <div class="text-xl mt-2">
                 {{ frappe.format(tax.amount, 'Currency') }}
