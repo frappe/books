@@ -41,6 +41,12 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
     stack: errorLogObj.stack,
     more: JSON.stringify(errorLogObj.more ?? {}),
   };
+
+  if (frappe.store.isDevelopment) {
+    console.log('errorHandling');
+    console.log(body);
+  }
+
   await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, JSON.stringify(body));
   cb?.();
 }

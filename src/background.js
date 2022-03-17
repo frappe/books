@@ -111,6 +111,7 @@ function createWindow() {
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.webContents.send(IPC_CHANNELS.STORE_ON_WINDOW, {
       appVersion: app.getVersion(),
+      isDevelopment,
     });
   });
 }

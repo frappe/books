@@ -383,5 +383,8 @@ module.exports = {
   },
   t,
   T,
-  store: {},
+  store: {
+    isDevelopment: false,
+    appVersion: '',
+  },
 };
