@@ -1,6 +1,8 @@
 import config, { ConfigFile, ConfigKeys } from '@/config';
+import { IPC_ACTIONS } from '@/messages';
+import { ipcRenderer } from 'electron';
 import { DoctypeName } from '../../models/types';
-import { Count, Locale, UniqueId } from './types';
+import { Count, UniqueId } from './types';
 
 export function getId(): string {
   let id: string = '';
@@ -12,12 +14,13 @@ export function getId(): string {
   return id;
 }
 
-export function getLocale(): Locale {
+export function getCountry(): string {
   // @ts-ignore
-  const country: string = frappe.AccountingSettings?.country ?? '';
-  const language: string = config.get('language') as string;
+  return frappe.AccountingSettings?.country ?? '';
+}
 
-  return { country, language };
+export function getLanguage(): string {
+  return config.get('language') as string;
 }
 
 export async function getCounts(): Promise<Count> {
@@ -121,4 +124,11 @@ function setInstanceId(companyName: string, files: ConfigFile[]): UniqueId {
 
   config.set(ConfigKeys.Files, files);
   return id;
+}
+
+export async function getCreds() {
+  const creds = await ipcRenderer.invoke(IPC_ACTIONS.GET_CREDS);
+  const url: string = creds?.telemetryUrl ?? '';
+  const token: string = creds?.tokenString ?? '';
+  return { url, token };
 }
