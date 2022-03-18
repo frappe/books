@@ -53,9 +53,14 @@ export default function registerIpcRendererListeners() {
     error.name = 'Updation Error';
     handleError(true, error);
   });
-
+  
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState !== 'hidden') {
+    const { visibilityState } = document;
+    if (visibilityState === 'visible' && !telemetry.started) {
+      telemetry.start();
+    }
+
+    if (visibilityState !== 'hidden') {
       return;
     }
 
