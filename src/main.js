@@ -154,7 +154,12 @@ function registerIpcRendererListeners() {
   });
 
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState !== 'hidden') {
+    const { visibilityState } = document;
+    if (visibilityState === 'visible' && !telemetry.started) {
+      telemetry.start();
+    }
+
+    if (visibilityState !== 'hidden') {
       return;
     }
 
