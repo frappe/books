@@ -62,9 +62,7 @@
         <WithScroll
           @scroll="onBodyScroll"
           class="flex-1 overflow-auto"
-          :style="{
-            height: usePagination ? 'calc(100vh - 13rem)' : 'calc(100vh-12rem)',
-          }"
+          :style="`height: ${height}`"
         >
           <Row
             v-show="row.isShown"
@@ -342,6 +340,15 @@ export default {
       return (
         this.reportName === 'general-ledger' && this.rows.length > this.pageLen
       );
+    },
+    height() {
+      if (this.usePagination && this.platform === 'Windows') {
+        return 'calc(100vh - 14.5rem)';
+      } else if (this.usePagination) {
+        return 'calc(100vh - 13rem)';
+      }
+      
+      return 'calc(100vh - 12rem)';
     },
     sliceIndex() {
       if (!this.usePagination) {
