@@ -11,11 +11,6 @@ export interface InteractionEvent {
   more?: Record<string, unknown>;
 }
 
-export interface Locale {
-  country: string;
-  language: string;
-}
-
 export type Count = Partial<{
   [key in DoctypeName]: number;
 }>;
@@ -30,7 +25,8 @@ export interface Telemetry {
   timeline?: InteractionEvent[];
   counts?: Count;
   errors: Record<string, number>;
-  locale: Locale;
+  country: string;
+  language: string;
   version: AppVersion;
 }
 

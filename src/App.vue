@@ -84,6 +84,7 @@ export default {
     TelemetryModal,
   },
   async mounted() {
+    telemetry.platform = this.platform;
     const lastSelectedFilePath = config.get('lastSelectedFilePath', null);
     const { connectionSuccess, reason } = await connectToLocalDatabase(
       lastSelectedFilePath
@@ -132,7 +133,7 @@ export default {
     },
     changeDbFile() {
       config.set('lastSelectedFilePath', null);
-      telemetry.stop()
+      telemetry.stop();
       purgeCache(true);
       this.activeScreen = 'DatabaseSelector';
     },
