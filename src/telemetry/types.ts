@@ -19,11 +19,13 @@ export interface Locale {
 export type Count = Partial<{
   [key in DoctypeName]: number;
 }>;
+export type Platform = 'Windows' | 'Mac' | 'Linux';
 
 export interface Telemetry {
   deviceId: UniqueId;
   instanceId: UniqueId;
   openTime: Timestamp;
+  platform?: Platform;
   closeTime: Timestamp;
   timeline?: InteractionEvent[];
   counts?: Count;
