@@ -6,7 +6,7 @@ import {
   MandatoryError,
   ValidationError,
 } from 'frappe/common/errors';
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 import config, { ConfigKeys, TelemetrySetting } from './config';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import telemetry from './telemetry/telemetry';
@@ -16,7 +16,7 @@ interface ErrorLog {
   name: string;
   message: string;
   stack?: string;
-  more?: object;
+  more?: Record<string, unknown>;
 }
 
 function getCanLog(): boolean {
@@ -71,7 +71,10 @@ function getToastProps(errorLogObj: ErrorLog, canLog: boolean, cb?: Function) {
   return props;
 }
 
-export function getErrorLogObject(error: Error, more: object = {}): ErrorLog {
+export function getErrorLogObject(
+  error: Error,
+  more: Record<string, unknown>
+): ErrorLog {
   const { name, stack, message } = error;
   const errorLogObj = { name, stack, message, more };
 
@@ -84,7 +87,7 @@ export function getErrorLogObject(error: Error, more: object = {}): ErrorLog {
 export function handleError(
   shouldLog: boolean,
   error: Error,
-  more: object = {},
+  more?: Record<string, unknown>,
   cb?: Function
 ) {
   telemetry.error(error.name);
@@ -96,7 +99,7 @@ export function handleError(
     return;
   }
 
-  const errorLogObj = getErrorLogObject(error, more);
+  const errorLogObj = getErrorLogObject(error, more ?? {});
 
   // @ts-ignore
   const canLog = getCanLog();
@@ -107,7 +110,7 @@ export function handleError(
   }
 }
 
-export function getErrorMessage(e: Error, doc?: BaseDocument): string {
+export function getErrorMessage(e: Error, doc?: Document): string {
   let errorMessage = e.message || t`An error occurred.`;
 
   const { doctype, name }: { doctype?: unknown; name?: unknown } = doc ?? {};
@@ -122,7 +125,7 @@ export function getErrorMessage(e: Error, doc?: BaseDocument): string {
   return errorMessage;
 }
 
-export function handleErrorWithDialog(error: Error, doc?: BaseDocument) {
+export function handleErrorWithDialog(error: Error, doc?: Document) {
   const errorMessage = getErrorMessage(error, doc);
   handleError(false, error, { errorMessage, doc });
 

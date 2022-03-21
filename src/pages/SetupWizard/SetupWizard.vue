@@ -89,25 +89,23 @@
 </template>
 
 <script>
-import frappe from 'frappe';
-import TwoColumnForm from '@/components/TwoColumnForm';
 import FormControl from '@/components/Controls/FormControl';
-import setupCompany from './setupCompany';
-import Popover from '@/components/Popover';
-import config from '@/config';
-import path from 'path';
-import fs from 'fs';
-import { purgeCache, connectToLocalDatabase } from '@/initialization';
-import { setLanguageMap, showMessageDialog } from '@/utils';
-import {
-  handleErrorWithDialog,
-  getErrorMessage,
-  showErrorDialog,
-} from '../../errorHandling';
-import Slide from './Slide.vue';
 import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
-import { ipcRenderer } from 'electron';
+import Popover from '@/components/Popover';
+import TwoColumnForm from '@/components/TwoColumnForm';
+import config from '@/config';
+import { connectToLocalDatabase, purgeCache } from '@/initialization';
 import { IPC_MESSAGES } from '@/messages';
+import { setLanguageMap, showMessageDialog } from '@/utils';
+import { ipcRenderer } from 'electron';
+import frappe from 'frappe';
+import fs from 'fs';
+import path from 'path';
+import {
+getErrorMessage, handleErrorWithDialog, showErrorDialog
+} from '../../errorHandling';
+import setupCompany from './setupCompany';
+import Slide from './Slide.vue';
 
 export default {
   name: 'SetupWizard',
@@ -209,7 +207,7 @@ export default {
       const filePath = config.get('lastSelectedFilePath');
       renameDbFile(filePath);
 
-      purgeCache();
+      await purgeCache();
 
       const { connectionSuccess, reason } = await connectToLocalDatabase(
         filePath

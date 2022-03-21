@@ -1,15 +1,13 @@
-const utils = require('../utils');
-const format = require('../utils/format');
-const errors = require('./errors');
-const BaseDocument = require('frappe/model/document');
-const BaseMeta = require('frappe/model/meta');
+export default async function initLibs(frappe) {
+  const utils = await import('../utils');
+  const format = await import('../utils/format');
+  const errors = await import('./errors');
+  const BaseMeta = await import('frappe/model/meta');
+  const BaseDocument = await import('frappe/model/document');
 
-module.exports = {
-  initLibs(frappe) {
-    Object.assign(frappe, utils);
-    Object.assign(frappe, format);
-    frappe.errors = errors;
-    frappe.BaseDocument = BaseDocument;
-    frappe.BaseMeta = BaseMeta;
-  },
-};
+  Object.assign(frappe, utils.default);
+  Object.assign(frappe, format.default);
+  frappe.errors = errors.default;
+  frappe.BaseDocument = BaseDocument.default;
+  frappe.BaseMeta = BaseMeta.default;
+}

@@ -1,22 +1,25 @@
-const Observable = require('./utils/observable');
-const { T, t } = require('./utils/translation');
-const utils = require('./utils');
-const { getMoneyMaker } = require('pesa');
-const {
-  DEFAULT_INTERNAL_PRECISION,
+import initLibs from 'frappe/common';
+import { getMoneyMaker } from 'pesa';
+import { markRaw } from 'vue';
+import utils from './utils';
+import {
   DEFAULT_DISPLAY_PRECISION,
-} = require('./utils/consts');
-const { markRaw } = require('vue');
+  DEFAULT_INTERNAL_PRECISION,
+} from './utils/consts';
+import Observable from './utils/observable';
+import { t, T } from './utils/translation';
 
-module.exports = {
-  initializeAndRegister(customModels = {}, force = false) {
+class Frappe {
+  isElectron = false;
+  isServer = false;
+
+  async initializeAndRegister(customModels = {}, force = false) {
     this.init(force);
-    const common = require('frappe/common');
-    this.registerLibs(common);
-    const coreModels = require('frappe/models');
-    this.registerModels(coreModels);
+    await initLibs(this);
+    const coreModels = await import('frappe/models');
+    this.registerModels(coreModels.default);
     this.registerModels(customModels);
-  },
+  }
 
   async initializeMoneyMaker(currency) {
     currency ??= 'XXX';
@@ -62,26 +65,19 @@ module.exports = {
       display,
       wrapper: markRaw,
     });
-  },
+  }
 
   init(force) {
     if (this._initialized && !force) return;
-    this.initConfig();
-    this.initGlobals();
-    this.docs = new Observable();
-    this.events = new Observable();
-    this._initialized = true;
-  },
 
-  initConfig() {
+    // Initialize Config
     this.config = {
       serverURL: '',
       backend: 'sqlite',
       port: 8000,
     };
-  },
 
-  initGlobals() {
+    // Initialize Globals
     this.metaCache = {};
     this.models = {};
     this.forms = {};
@@ -89,15 +85,15 @@ module.exports = {
     this.flags = {};
     this.methods = {};
     this.errorLog = [];
+
     // temp params while calling routes
     this.temp = {};
     this.params = {};
-  },
 
-  registerLibs(common) {
-    // add standard libs and utils to frappe
-    common.initLibs(this);
-  },
+    this.docs = new Observable();
+    this.events = new Observable();
+    this._initialized = true;
+  }
 
   registerModels(models) {
     // register models from app/models/index.js
@@ -123,7 +119,7 @@ module.exports = {
 
       this.models[doctype] = metaDefinition;
     }
-  },
+  }
 
   getModels(filterFunction) {
     let models = [];
@@ -131,12 +127,12 @@ module.exports = {
       models.push(this.models[doctype]);
     }
     return filterFunction ? models.filter(filterFunction) : models;
-  },
+  }
 
   registerView(view, name, module) {
     if (!this.views[view]) this.views[view] = {};
     this.views[view][name] = module;
-  },
+  }
 
   registerMethod({ method, handler }) {
     this.methods[method] = handler;
@@ -153,7 +149,7 @@ module.exports = {
         })
       );
     }
-  },
+  }
 
   async call({ method, args }) {
     if (this.isServer) {
@@ -174,7 +170,7 @@ module.exports = {
       body: JSON.stringify(args || {}),
     });
     return await response.json();
-  },
+  }
 
   addToCache(doc) {
     if (!this.docs) return;
@@ -196,7 +192,7 @@ module.exports = {
         this.docs.trigger('change', params);
       });
     }
-  },
+  }
 
   removeFromCache(doctype, name) {
     try {
@@ -204,7 +200,7 @@ module.exports = {
     } catch (e) {
       console.warn(`Document ${doctype} ${name} does not exist`);
     }
-  },
+  }
 
   isDirty(doctype, name) {
     return (
@@ -214,13 +210,13 @@ module.exports = {
         this.docs[doctype][name]._dirty) ||
       false
     );
-  },
+  }
 
   getDocFromCache(doctype, name) {
     if (this.docs && this.docs[doctype] && this.docs[doctype][name]) {
       return this.docs[doctype][name];
     }
-  },
+  }
 
   getMeta(doctype) {
     if (!this.metaCache[doctype]) {
@@ -228,12 +224,13 @@ module.exports = {
       if (!model) {
         throw new Error(`${doctype} is not a registered doctype`);
       }
+
       let metaClass = model.metaClass || this.BaseMeta;
       this.metaCache[doctype] = new metaClass(model);
     }
 
     return this.metaCache[doctype];
-  },
+  }
 
   async getDoc(doctype, name, options = { skipDocumentCache: false }) {
     let doc = options.skipDocumentCache
@@ -248,16 +245,16 @@ module.exports = {
       this.addToCache(doc);
     }
     return doc;
-  },
+  }
 
   getDocumentClass(doctype) {
     const meta = this.getMeta(doctype);
     return meta.documentClass || this.BaseDocument;
-  },
+  }
 
   async getSingle(doctype) {
     return await this.getDoc(doctype, doctype);
-  },
+  }
 
   async getDuplicate(doc) {
     const newDoc = await this.getNewDoc(doc.doctype);
@@ -274,7 +271,7 @@ module.exports = {
       }
     }
     return newDoc;
-  },
+  }
 
   getNewDoc(doctype, cacheDoc = true) {
     let doc = this.newDoc({ doctype: doctype });
@@ -284,7 +281,7 @@ module.exports = {
       this.addToCache(doc);
     }
     return doc;
-  },
+  }
 
   async newCustomDoc(fields) {
     let doc = new this.BaseDocument({ isCustom: 1, fields });
@@ -292,22 +289,22 @@ module.exports = {
     doc.name = this.getRandomString();
     this.addToCache(doc);
     return doc;
-  },
+  }
 
   createMeta(fields) {
     let meta = new this.BaseMeta({ isCustom: 1, fields });
     return meta;
-  },
+  }
 
   newDoc(data) {
     let doc = new (this.getDocumentClass(data.doctype))(data);
     doc.setDefaults();
     return doc;
-  },
+  }
 
   async insert(data) {
     return await this.newDoc(data).insert();
-  },
+  }
 
   async syncDoc(data) {
     let doc;
@@ -319,7 +316,7 @@ module.exports = {
       doc = this.newDoc(data);
       await doc.insert();
     }
-  },
+  }
 
   // only for client side
   async login(email, password) {
@@ -351,7 +348,7 @@ module.exports = {
     }
 
     return response;
-  },
+  }
 
   async signup(email, fullName, password) {
     let response = await fetch(this.getServerURL() + '/api/signup', {
@@ -368,11 +365,11 @@ module.exports = {
     }
 
     return response;
-  },
+  }
 
   getServerURL() {
     return this.config.serverURL || '';
-  },
+  }
 
   close() {
     this.db.close();
@@ -380,11 +377,15 @@ module.exports = {
     if (this.server) {
       this.server.close();
     }
-  },
-  t,
-  T,
-  store: {
+  }
+
+  store = {
     isDevelopment: false,
     appVersion: '',
-  },
-};
+  };
+  t = t;
+  T = T;
+}
+
+export { T, t };
+export default new Frappe();

@@ -1,8 +1,8 @@
-const luxon = require('luxon');
-const frappe = require('frappe');
-const { DEFAULT_DISPLAY_PRECISION, DEFAULT_LOCALE } = require('./consts');
+import frappe from 'frappe';
+import { DateTime } from 'luxon';
+import { DEFAULT_DISPLAY_PRECISION, DEFAULT_LOCALE } from './consts';
 
-module.exports = {
+export default {
   format(value, df, doc) {
     if (!df) {
       return value;
@@ -25,10 +25,10 @@ module.exports = {
 
       if (typeof value === 'string') {
         // ISO String
-        value = luxon.DateTime.fromISO(value);
+        value = DateTime.fromISO(value);
       } else if (Object.prototype.toString.call(value) === '[object Date]') {
         // JS Date
-        value = luxon.DateTime.fromJSDate(value);
+        value = DateTime.fromJSDate(value);
       }
 
       value = value.toFormat(dateFormat);

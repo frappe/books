@@ -1,5 +1,5 @@
-import Avatar from '@/components/Avatar';
-import Toast from '@/components/Toast';
+import Avatar from '@/components/Avatar.vue';
+import Toast from '@/components/Toast.vue';
 import router from '@/router';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
@@ -159,6 +159,23 @@ export function openQuickEdit({
     method = 'replace';
   }
   if (query.name === name) return;
+
+  if (defaults?.for?.[0] === 'not in') {
+    const purpose = defaults.for?.[1]?.[0];
+    defaults = Object.assign({
+      for:
+        purpose === 'sales'
+          ? 'purchases'
+          : purpose === 'purchases'
+          ? 'sales'
+          : 'both',
+    });
+  }
+
+  if (defaults?.for?.[0] === 'not in' && defaults?.for?.[1] === 'sales') {
+    defaults = Object.assign({ for: 'purchases' });
+  }
+
   router[method]({
     query: {
       edit: 1,

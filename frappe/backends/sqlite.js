@@ -1,7 +1,7 @@
-const frappe = require('frappe');
-const Database = require('./database');
+import frappe from 'frappe';
+import Database from './database';
 
-class SqliteDatabase extends Database {
+export default class SqliteDatabase extends Database {
   constructor({ dbPath }) {
     super();
     this.dbPath = dbPath;
@@ -34,7 +34,6 @@ class SqliteDatabase extends Database {
       // copy from old to new table
       await this.knex(tempName).insert(this.knex.select().from(doctype));
     } catch (err) {
-
       await this.sql('ROLLBACK');
       await this.sql('PRAGMA foreign_keys=ON');
 
@@ -142,5 +141,3 @@ class SqliteDatabase extends Database {
     await this.knex.raw('PRAGMA foreign_keys=ON');
   }
 }
-
-module.exports = SqliteDatabase;
