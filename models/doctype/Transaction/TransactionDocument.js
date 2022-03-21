@@ -1,8 +1,8 @@
 import frappe from 'frappe';
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 import { getExchangeRate } from '../../../accounting/exchangeRate';
 
-export default class TransactionDocument extends BaseDocument {
+export default class TransactionDocument extends Document {
   async getExchangeRate() {
     if (!this.currency) return 1.0;
 

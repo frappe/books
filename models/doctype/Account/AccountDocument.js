@@ -1,7 +1,7 @@
 import frappe from 'frappe';
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 
-export default class Account extends BaseDocument {
+export default class Account extends Document {
   async validate() {
     if (!this.accountType && this.parentAccount) {
       this.accountType = await frappe.db.getValue(

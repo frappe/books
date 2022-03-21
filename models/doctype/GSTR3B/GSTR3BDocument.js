@@ -1,8 +1,8 @@
 import frappe from 'frappe';
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 import format from './GSTR3BFormat';
 
-export default class GSTR3B extends BaseDocument {
+export default class GSTR3B extends Document {
   async getData() {
     const monthIndex = [
       'January',

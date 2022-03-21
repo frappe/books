@@ -1,7 +1,7 @@
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 import LedgerPosting from '../../../accounting/ledgerPosting';
 
-export default class JournalEntryServer extends BaseDocument {
+export default class JournalEntryServer extends Document {
   getPosting() {
     let entries = new LedgerPosting({ reference: this });
 

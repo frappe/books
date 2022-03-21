@@ -1,8 +1,8 @@
 import { getPaddedName } from '@/utils';
 import frappe from 'frappe';
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 
-export default class NumberSeries extends BaseDocument {
+export default class NumberSeries extends Document {
   validate() {
     if (!this.current) {
       this.current = this.start;

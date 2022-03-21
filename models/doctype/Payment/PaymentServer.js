@@ -1,8 +1,8 @@
 import frappe from 'frappe';
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 import LedgerPosting from '../../../accounting/ledgerPosting';
 
-export default class PaymentServer extends BaseDocument {
+export default class PaymentServer extends Document {
   async change({ changed }) {
     switch (changed) {
       case 'for': {
