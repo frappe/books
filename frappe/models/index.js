@@ -1,13 +1,25 @@
-module.exports = {
-  NumberSeries: require('./doctype/NumberSeries/NumberSeries.js'),
-  PrintFormat: require('./doctype/PrintFormat/PrintFormat.js'),
-  Role: require('./doctype/Role/Role.js'),
-  Session: require('./doctype/Session/Session.js'),
-  SingleValue: require('./doctype/SingleValue/SingleValue.js'),
-  SystemSettings: require('./doctype/SystemSettings/SystemSettings.js'),
-  ToDo: require('./doctype/ToDo/ToDo.js'),
-  User: require('./doctype/User/User.js'),
-  UserRole: require('./doctype/UserRole/UserRole.js'),
-  File: require('./doctype/File/File.js'),
-  PatchRun: require('./doctype/PatchRun/PatchRun.js')
+import File from './doctype/File/File.js';
+import NumberSeries from './doctype/NumberSeries/NumberSeries.js';
+import PatchRun from './doctype/PatchRun/PatchRun.js';
+import PrintFormat from './doctype/PrintFormat/PrintFormat.js';
+import Role from './doctype/Role/Role.js';
+import Session from './doctype/Session/Session.js';
+import SingleValue from './doctype/SingleValue/SingleValue.js';
+import SystemSettings from './doctype/SystemSettings/SystemSettings.js';
+import ToDo from './doctype/ToDo/ToDo.js';
+import User from './doctype/User/User.js';
+import UserRole from './doctype/UserRole/UserRole.js';
+
+export default {
+  NumberSeries,
+  PrintFormat,
+  Role,
+  Session,
+  SingleValue,
+  SystemSettings,
+  ToDo,
+  User,
+  UserRole,
+  File,
+  PatchRun,
 };

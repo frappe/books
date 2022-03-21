@@ -33,9 +33,9 @@
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import config from '@/config';
 import {
-connectToLocalDatabase,
-postSetup,
-purgeCache
+  connectToLocalDatabase,
+  postSetup,
+  purgeCache,
 } from '@/initialization';
 import { IPC_ACTIONS, IPC_MESSAGES } from '@/messages';
 import { ipcRenderer } from 'electron';
@@ -131,10 +131,10 @@ export default {
         routeTo('/get-started');
       }
     },
-    changeDbFile() {
+    async changeDbFile() {
       config.set('lastSelectedFilePath', null);
       telemetry.stop();
-      purgeCache(true);
+      await purgeCache(true);
       this.activeScreen = 'DatabaseSelector';
     },
     async setupCanceled() {

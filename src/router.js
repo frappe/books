@@ -1,16 +1,14 @@
-import ChartOfAccounts from '@/pages/ChartOfAccounts';
-// standard views
-import Dashboard from '@/pages/Dashboard/Dashboard';
-import DataImport from '@/pages/DataImport';
-// custom views
-import GetStarted from '@/pages/GetStarted';
-import InvoiceForm from '@/pages/InvoiceForm';
-import JournalEntryForm from '@/pages/JournalEntryForm';
-import ListView from '@/pages/ListView/ListView';
-import PrintView from '@/pages/PrintView/PrintView';
-import QuickEditForm from '@/pages/QuickEditForm';
-import Report from '@/pages/Report';
-import Settings from '@/pages/Settings/Settings';
+import ChartOfAccounts from '@/pages/ChartOfAccounts.vue';
+import Dashboard from '@/pages/Dashboard/Dashboard.vue';
+import DataImport from '@/pages/DataImport.vue';
+import GetStarted from '@/pages/GetStarted.vue';
+import InvoiceForm from '@/pages/InvoiceForm.vue';
+import JournalEntryForm from '@/pages/JournalEntryForm.vue';
+import ListView from '@/pages/ListView/ListView.vue';
+import PrintView from '@/pages/PrintView/PrintView.vue';
+import QuickEditForm from '@/pages/QuickEditForm.vue';
+import Report from '@/pages/Report.vue';
+import Settings from '@/pages/Settings/Settings.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import telemetry from './telemetry/telemetry';
 import { NounEnum, Verb } from './telemetry/types';

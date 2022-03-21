@@ -6,13 +6,14 @@ import App from './App';
 import FeatherIcon from './components/FeatherIcon';
 import config, { ConfigKeys } from './config';
 import { getErrorHandled, handleError } from './errorHandling';
-import { IPC_CHANNELS, IPC_MESSAGES } from './messages';
+import { incrementOpenCount } from './renderer/helpers';
+import registerIpcRendererListeners from './renderer/registerIpcRendererListeners';
 import router from './router';
-import telemetry from './telemetry/telemetry';
 import { outsideClickDirective } from './ui';
-import { setLanguageMap, showToast, stringifyCircular } from './utils';
+import { setLanguageMap, stringifyCircular } from './utils';
+
 (async () => {
-  const language = config.get('language');
+  const language = config.get(ConfigKeys.Language);
   if (language) {
     await setLanguageMap(language);
   }
@@ -23,8 +24,8 @@ import { setLanguageMap, showToast, stringifyCircular } from './utils';
 
   frappe.isServer = true;
   frappe.isElectron = true;
-  frappe.initializeAndRegister(models, language);
-  frappe.fetch = window.fetch.bind();
+
+  await frappe.initializeAndRegister(models);
 
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
@@ -36,19 +37,12 @@ import { setLanguageMap, showToast, stringifyCircular } from './utils';
     handleError(true, error, { message, source, lineno, colno });
   };
 
-  process.on('unhandledRejection', (error) => {
-    handleError(true, error);
-  });
-
-  process.on('uncaughtException', (error) => {
-    handleError(true, error, () => process.exit(1));
-  });
-
   registerIpcRendererListeners();
 
   const app = createApp({
     template: '<App/>',
   });
+
   app.use(router);
   app.component('App', App);
   app.component('feather-icon', FeatherIcon);
@@ -59,11 +53,16 @@ import { setLanguageMap, showToast, stringifyCircular } from './utils';
         return frappe;
       },
       platform() {
-        return {
-          win32: 'Windows',
-          darwin: 'Mac',
-          linux: 'Linux',
-        }[process.platform];
+        switch (process.platform) {
+          case 'win32':
+            return 'Windows';
+          case 'darwin':
+            return 'Mac';
+          case 'linux':
+            return 'Linux';
+          default:
+            return 'Linux';
+        }
       },
     },
     methods: {
@@ -91,78 +90,12 @@ import { setLanguageMap, showToast, stringifyCircular } from './utils';
 
   incrementOpenCount();
   app.mount('body');
-})();
 
-function incrementOpenCount() {
-  let openCount = config.get(ConfigKeys.OpenCount);
-  if (typeof openCount !== 'number') {
-    openCount = 1;
-  } else {
-    openCount += 1;
-  }
-
-  config.set(ConfigKeys.OpenCount, openCount);
-}
-
-function registerIpcRendererListeners() {
-  ipcRenderer.on(IPC_CHANNELS.STORE_ON_WINDOW, (event, message) => {
-    Object.assign(window.frappe.store, message);
-  });
-
-  ipcRenderer.on(IPC_CHANNELS.CHECKING_FOR_UPDATE, (_) => {
-    showToast({ message: frappe.t`Checking for updates` });
-  });
-
-  ipcRenderer.on(IPC_CHANNELS.UPDATE_AVAILABLE, (_, version) => {
-    const message = version
-      ? frappe.t`Version ${version} available`
-      : frappe.t`New version available`;
-    const action = () => {
-      ipcRenderer.send(IPC_MESSAGES.DOWNLOAD_UPDATE);
-      showToast({ message: frappe.t`Downloading update` });
-    };
-
-    showToast({
-      message,
-      action,
-      actionText: frappe.t`Download Update`,
-      duration: 10000,
-      type: 'success',
-    });
-  });
-
-  ipcRenderer.on(IPC_CHANNELS.UPDATE_NOT_AVAILABLE, (_) => {
-    showToast({ message: frappe.t`No updates available` });
-  });
-
-  ipcRenderer.on(IPC_CHANNELS.UPDATE_DOWNLOADED, (_) => {
-    const action = () => {
-      ipcRenderer.send(IPC_MESSAGES.INSTALL_UPDATE);
-    };
-    showToast({
-      message: frappe.t`Update downloaded`,
-      action,
-      actionText: frappe.t`Install Update`,
-      duration: 10000,
-      type: 'success',
-    });
-  });
-
-  ipcRenderer.on(IPC_CHANNELS.UPDATE_ERROR, (_, error) => {
-    error.name = 'Updation Error';
+  process.on('unhandledRejection', (error) => {
     handleError(true, error);
   });
 
-  document.addEventListener('visibilitychange', function () {
-    const { visibilityState } = document;
-    if (visibilityState === 'visible' && !telemetry.started) {
-      telemetry.start();
-    }
-
-    if (visibilityState !== 'hidden') {
-      return;
-    }
-
-    telemetry.stop();
+  process.on('uncaughtException', (error) => {
+    handleError(true, error, {}, () => process.exit(1));
   });
-}
+})();
