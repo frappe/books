@@ -4,7 +4,7 @@ import {
   getSnippets,
   getWhitespaceSanitized,
 } from '../../scripts/helpers';
-import { ValueError } from '../common/errors';
+import { ValueError } from './errors';
 
 class TranslationString {
   constructor(...args) {
