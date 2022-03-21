@@ -1,15 +1,6 @@
-const { pesa } = require('pesa');
+import { pesa } from 'pesa';
 
-Array.prototype.equals = function (array) {
-  return (
-    this.length == array.length &&
-    this.every(function (item, i) {
-      return item == array[i];
-    })
-  );
-};
-
-function slug(str) {
+export function slug(str) {
   return str
     .replace(/(?:^\w|[A-Z]|\b\w)/g, function (letter, index) {
       return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
@@ -17,17 +8,17 @@ function slug(str) {
     .replace(/\s+/g, '');
 }
 
-function getRandomString() {
+export function getRandomString() {
   return Math.random().toString(36).substr(3);
 }
 
-async function sleep(seconds) {
+export async function sleep(seconds) {
   return new Promise((resolve) => {
     setTimeout(resolve, seconds * 1000);
   });
 }
 
-function getQueryString(params) {
+export function getQueryString(params) {
   if (!params) return '';
   let parts = [];
   for (let key in params) {
@@ -40,7 +31,7 @@ function getQueryString(params) {
   return parts.join('&');
 }
 
-function asyncHandler(fn) {
+export function asyncHandler(fn) {
   return (req, res, next) =>
     Promise.resolve(fn(req, res, next)).catch((err) => {
       console.log(err);
@@ -53,13 +44,13 @@ function asyncHandler(fn) {
  * Returns array from 0 to n - 1
  * @param {Number} n
  */
-function range(n) {
+export function range(n) {
   return Array(n)
     .fill()
     .map((_, i) => i);
 }
 
-function unique(list, key = (it) => it) {
+export function unique(list, key = (it) => it) {
   var seen = {};
   return list.filter((item) => {
     var k = key(item);
@@ -67,7 +58,7 @@ function unique(list, key = (it) => it) {
   });
 }
 
-function getDuplicates(array) {
+export function getDuplicates(array) {
   let duplicates = [];
   for (let i in array) {
     let previous = array[i - 1];
@@ -82,18 +73,6 @@ function getDuplicates(array) {
   return duplicates;
 }
 
-function isPesa(value) {
+export function isPesa(value) {
   return value instanceof pesa().constructor;
 }
-
-module.exports = {
-  slug,
-  getRandomString,
-  sleep,
-  getQueryString,
-  asyncHandler,
-  range,
-  unique,
-  getDuplicates,
-  isPesa,
-};
