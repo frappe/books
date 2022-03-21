@@ -1,6 +1,7 @@
 import initLibs from 'frappe/common';
 import { getMoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
+import * as errors from './common/errors';
 import utils from './utils';
 import {
   DEFAULT_DISPLAY_PRECISION,
@@ -10,6 +11,9 @@ import Observable from './utils/observable';
 import { t, T } from './utils/translation';
 
 class Frappe {
+  t = t;
+  T = T;
+  errors = errors;
   isElectron = false;
   isServer = false;
 
@@ -383,8 +387,6 @@ class Frappe {
     isDevelopment: false,
     appVersion: '',
   };
-  t = t;
-  T = T;
 }
 
 export { T, t };
