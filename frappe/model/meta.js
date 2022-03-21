@@ -1,6 +1,6 @@
 import frappe from 'frappe';
 import { validTypes } from 'frappe/backends/helpers';
-import { ValueError } from 'frappe/common/errors';
+import { ValueError } from 'frappe/utils/errors';
 import { indicators as indicatorColor } from '../../src/colors';
 import { t } from '../utils/translation';
 import Document from './document';

@@ -5,7 +5,7 @@ import {
   LinkValidationError,
   MandatoryError,
   ValidationError,
-} from 'frappe/common/errors';
+} from 'frappe/utils/errors';
 import Document from 'frappe/model/document';
 import config, { ConfigKeys, TelemetrySetting } from './config';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';

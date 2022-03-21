@@ -1,6 +1,6 @@
 import { getMoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
-import * as errors from './common/errors';
+import * as errors from './utils/errors';
 import { asyncHandler, getDuplicates, getRandomString } from './utils';
 import {
   DEFAULT_DISPLAY_PRECISION,
