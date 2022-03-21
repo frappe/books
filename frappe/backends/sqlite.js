@@ -1,5 +1,6 @@
 import frappe from 'frappe';
 import Database from './database';
+import { sqliteTypeMap } from './helpers';
 
 export default class SqliteDatabase extends Database {
   constructor({ dbPath }) {
@@ -67,36 +68,7 @@ export default class SqliteDatabase extends Database {
   }
 
   initTypeMap() {
-    // prettier-ignore
-    this.typeMap = {
-      'AutoComplete': 'text',
-      'Currency': 'text',
-      'Int': 'integer',
-      'Float': 'float',
-      'Percent': 'float',
-      'Check': 'integer',
-      'Small Text': 'text',
-      'Long Text': 'text',
-      'Code': 'text',
-      'Text Editor': 'text',
-      'Date': 'text',
-      'Datetime': 'text',
-      'Time': 'text',
-      'Text': 'text',
-      'Data': 'text',
-      'Link': 'text',
-      'DynamicLink': 'text',
-      'Password': 'text',
-      'Select': 'text',
-      'Read Only': 'text',
-      'File': 'text',
-      'Attach': 'text',
-      'AttachImage': 'text',
-      'Signature': 'text',
-      'Color': 'text',
-      'Barcode': 'text',
-      'Geolocation': 'text'
-    };
+    this.typeMap = sqliteTypeMap;
   }
 
   getError(err) {

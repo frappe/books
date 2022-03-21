@@ -108,7 +108,7 @@ export async function connectToLocalDatabase(filePath) {
 export async function purgeCache(purgeAll = false) {
   const filterFunction = purgeAll
     ? () => true
-    : (d) => frappe.docs[d][d] instanceof frappe.BaseMeta;
+    : (d) => frappe.docs[d][d] instanceof frappe.Meta;
 
   Object.keys(frappe.docs)
     .filter(filterFunction)

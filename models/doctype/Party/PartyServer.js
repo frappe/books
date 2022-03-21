@@ -1,7 +1,7 @@
 import frappe from 'frappe';
-import BaseDocument from 'frappe/model/document';
+import Document from 'frappe/model/document';
 
-export default class PartyServer extends BaseDocument {
+export default class PartyServer extends Document {
   beforeInsert() {
     if (this.customer && this.supplier) {
       frappe.call({

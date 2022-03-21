@@ -1,9 +1,12 @@
 import frappe from 'frappe';
+import { validTypes } from 'frappe/backends/helpers';
+import { ValueError } from 'frappe/common/errors';
 import { indicators as indicatorColor } from '../../src/colors';
+import { t } from '../utils/translation';
 import Document from './document';
 import model from './index';
 
-export default class BaseMeta extends Document {
+export default class Meta extends Document {
   constructor(data) {
     if (data.basedOn) {
       let config = frappe.models[data.basedOn];
@@ -33,7 +36,7 @@ export default class BaseMeta extends Document {
     if (!this.fields.find((df) => df.fieldname === 'name') && !this.isSingle) {
       this.fields = [
         {
-          label: frappe.t`ID`,
+          label: t`ID`,
           fieldname: 'name',
           fieldtype: 'Data',
           required: 1,
@@ -149,12 +152,12 @@ export default class BaseMeta extends Document {
       // fields validation
       this.fields.forEach((df, i) => {
         if (!df.fieldname) {
-          throw new frappe.errors.ValidationError(
+          throw new ValidationError(
             `DocType ${this.name}: "fieldname" is required for field at index ${i}`
           );
         }
         if (!df.fieldtype) {
-          throw new frappe.errors.ValidationError(
+          throw new ValidationError(
             `DocType ${this.name}: "fieldtype" is required for field "${df.fieldname}"`
           );
         }
@@ -165,7 +168,7 @@ export default class BaseMeta extends Document {
       // standard fields
       for (let field of model.commonFields) {
         if (
-          frappe.db.typeMap[field.fieldtype] &&
+          validTypes.includes(field.fieldtype) &&
           !doctypeFields.includes(field.fieldname)
         ) {
           _add(field);
@@ -176,7 +179,7 @@ export default class BaseMeta extends Document {
         _add({
           fieldtype: 'Check',
           fieldname: 'submitted',
-          label: frappe.t`Submitted`,
+          label: t`Submitted`,
         });
       }
 
@@ -184,7 +187,7 @@ export default class BaseMeta extends Document {
         // child fields
         for (let field of model.childFields) {
           if (
-            frappe.db.typeMap[field.fieldtype] &&
+            validTypes.includes(field.fieldtype) &&
             !doctypeFields.includes(field.fieldname)
           ) {
             _add(field);
@@ -194,7 +197,7 @@ export default class BaseMeta extends Document {
         // parent fields
         for (let field of model.parentFields) {
           if (
-            frappe.db.typeMap[field.fieldtype] &&
+            validTypes.includes(field.fieldtype) &&
             !doctypeFields.includes(field.fieldname)
           ) {
             _add(field);
@@ -206,7 +209,7 @@ export default class BaseMeta extends Document {
         // tree fields
         for (let field of model.treeFields) {
           if (
-            frappe.db.typeMap[field.fieldtype] &&
+            validTypes.includes(field.fieldtype) &&
             !doctypeFields.includes(field.fieldname)
           ) {
             _add(field);
@@ -216,7 +219,7 @@ export default class BaseMeta extends Document {
 
       // doctype fields
       for (let field of this.fields) {
-        let include = frappe.db.typeMap[field.fieldtype];
+        const include = validTypes.includes(field.fieldtype);
 
         if (include) {
           _add(field);
@@ -278,7 +281,7 @@ export default class BaseMeta extends Document {
     }
 
     if (!validValues.includes(value)) {
-      throw new frappe.errors.ValueError(
+      throw new ValueError(
         // prettier-ignore
         `DocType ${this.name}: Invalid value "${value}" for "${field.label}". Must be one of ${options.join(', ')}`
       );

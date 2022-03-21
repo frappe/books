@@ -1,4 +1,3 @@
-import initLibs from 'frappe/common';
 import { getMoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
 import * as errors from './common/errors';
@@ -23,7 +22,10 @@ class Frappe {
 
   async initializeAndRegister(customModels = {}, force = false) {
     this.init(force);
-    await initLibs(this);
+
+    this.Meta = (await import('frappe/model/meta')).default;
+    this.Document = (await import('frappe/model/document')).default;
+
     const coreModels = await import('frappe/models');
     this.registerModels(coreModels.default);
     this.registerModels(customModels);
@@ -233,7 +235,7 @@ class Frappe {
         throw new Error(`${doctype} is not a registered doctype`);
       }
 
-      let metaClass = model.metaClass || this.BaseMeta;
+      let metaClass = model.metaClass || this.Meta;
       this.metaCache[doctype] = new metaClass(model);
     }
 
@@ -257,7 +259,7 @@ class Frappe {
 
   getDocumentClass(doctype) {
     const meta = this.getMeta(doctype);
-    return meta.documentClass || this.BaseDocument;
+    return meta.documentClass || this.Document;
   }
 
   async getSingle(doctype) {
@@ -292,7 +294,7 @@ class Frappe {
   }
 
   async newCustomDoc(fields) {
-    let doc = new this.BaseDocument({ isCustom: 1, fields });
+    let doc = new this.Document({ isCustom: 1, fields });
     doc._notInserted = true;
     doc.name = this.getRandomString();
     this.addToCache(doc);
@@ -300,7 +302,7 @@ class Frappe {
   }
 
   createMeta(fields) {
-    let meta = new this.BaseMeta({ isCustom: 1, fields });
+    let meta = new this.Meta({ isCustom: 1, fields });
     return meta;
   }
 

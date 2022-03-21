@@ -484,7 +484,7 @@ export function formatXLabels(label) {
 export function stringifyCircular(
   obj,
   ignoreCircular = false,
-  convertBaseDocument = false
+  convertDocument = false
 ) {
   const cacheKey = [];
   const cacheValue = [];
@@ -504,7 +504,7 @@ export function stringifyCircular(
     cacheKey.push(key);
     cacheValue.push(value);
 
-    if (convertBaseDocument && value instanceof frappe.BaseDocument) {
+    if (convertDocument && value instanceof frappe.Document) {
       return value.getValidDict();
     }
 
