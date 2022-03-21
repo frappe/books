@@ -2,17 +2,21 @@ import initLibs from 'frappe/common';
 import { getMoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
 import * as errors from './common/errors';
-import utils from './utils';
+import { asyncHandler, getDuplicates, getRandomString } from './utils';
 import {
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,
 } from './utils/consts';
+import { format } from './utils/format';
 import Observable from './utils/observable';
 import { t, T } from './utils/translation';
 
 class Frappe {
   t = t;
   T = T;
+  format = format;
+  getRandomString = getRandomString;
+
   errors = errors;
   isElectron = false;
   isServer = false;
@@ -114,7 +118,7 @@ class Frappe {
       let fieldnames = (metaDefinition.fields || [])
         .map((df) => df.fieldname)
         .sort();
-      let duplicateFieldnames = utils.getDuplicates(fieldnames);
+      let duplicateFieldnames = getDuplicates(fieldnames);
       if (duplicateFieldnames.length > 0) {
         throw new Error(
           `Duplicate fields in ${doctype}: ${duplicateFieldnames.join(', ')}`
@@ -144,7 +148,7 @@ class Frappe {
       // add to router if client-server
       this.app.post(
         `/api/method/${method}`,
-        this.asyncHandler(async function (request, response) {
+        asyncHandler(async function (request, response) {
           let data = await handler(request.body);
           if (data === undefined) {
             data = {};
