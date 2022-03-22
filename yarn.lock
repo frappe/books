@@ -8573,10 +8573,10 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
-pesa@^1.1.3:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/pesa/-/pesa-1.1.6.tgz#a123dc7a31c977bbfb6dbbee14a9913c8385cd0f"
-  integrity sha512-EDs4Tj8QX7hZITkKhfHeVT/9oQRqRPyF3pVet1FqGX94/zkcqreBYb94ojUVrzZmir26+IHaKyCpTB6eqC04uw==
+pesa@^1.1.11:
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/pesa/-/pesa-1.1.11.tgz#85829e5aa11ea3e44d7c9ea4b500e4d6def6dc5f"
+  integrity sha512-eyl0lpdUIV0dNXVeTMnhBJj6u9GRIYwP+vFdUN+767Fv3PNQHPHAkCQJqDseGfEF75lhe23ZnfbA/uMidlq5/Q==
 
 pg-connection-string@2.5.0:
   version "2.5.0"

@@ -3,7 +3,7 @@ enum EventType {
   OnceListeners = '_onceListeners',
 }
 
-export default class Observable {
+export default class Observable<T> {
   [key: string]: unknown;
   _isHot: Map<string, boolean>;
   _eventQueue: Map<string, unknown[]>;
