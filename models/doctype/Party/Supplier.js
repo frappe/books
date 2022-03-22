@@ -15,7 +15,7 @@ export default {
       label: t`Create Bill`,
       condition: (doc) => !doc.isNew(),
       action: async (supplier) => {
-        let doc = await frappe.getNewDoc('PurchaseInvoice');
+        let doc = await frappe.getEmptyDoc('PurchaseInvoice');
         router.push({
           path: `/edit/PurchaseInvoice/${doc.name}`,
           query: {

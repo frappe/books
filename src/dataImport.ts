@@ -382,7 +382,7 @@ export class Importer {
         delete docObj[key];
       }
 
-      const doc: Doc = frappe.getNewDoc(this.doctype, false);
+      const doc: Doc = frappe.getEmptyDoc(this.doctype, false);
       try {
         await this.makeEntry(doc, docObj);
         entriesMade += 1;

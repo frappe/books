@@ -17,7 +17,7 @@ export default async function runPatches(patchList) {
 async function runPatch({ patchName, patchFunction }) {
   try {
     await patchFunction();
-    const patchRun = frappe.getNewDoc('PatchRun');
+    const patchRun = frappe.getEmptyDoc('PatchRun');
     patchRun.name = patchName;
     await patchRun.insert();
   } catch (error) {

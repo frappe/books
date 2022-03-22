@@ -2,6 +2,7 @@ import frappe from 'frappe';
 import Observable from 'frappe/utils/observable';
 import Knex from 'knex';
 import CacheManager from '../utils/cacheManager';
+import { getRandomString } from '../utils/index';
 
 export default class Database extends Observable {
   constructor() {
@@ -49,7 +50,7 @@ export default class Database extends Observable {
       if (await this.singleExists(doctype)) {
         const singleValues = await this.getSingleFieldsToInsert(doctype);
         singleValues.forEach(({ fieldname, value }) => {
-          let singleValue = frappe.newDoc({
+          let singleValue = frappe.getNewDoc({
             doctype: 'SingleValue',
             parent: doctype,
             fieldname,
@@ -429,7 +430,7 @@ export default class Database extends Observable {
     let fields = this.getValidFields(doctype);
 
     if (!doc.name) {
-      doc.name = frappe.getRandomString();
+      doc.name = getRandomString();
     }
 
     let formattedDoc = this.getFormattedDoc(fields, doc);
@@ -509,7 +510,7 @@ export default class Database extends Observable {
     for (let field of meta.getValidFields({ withChildren: false })) {
       let value = doc[field.fieldname];
       if (value != null) {
-        let singleValue = frappe.newDoc({
+        let singleValue = frappe.getNewDoc({
           doctype: 'SingleValue',
           parent: doctype,
           fieldname: field.fieldname,
@@ -540,7 +541,7 @@ export default class Database extends Observable {
 
   prepareChild(parenttype, parent, child, field, idx) {
     if (!child.name) {
-      child.name = frappe.getRandomString();
+      child.name = getRandomString();
     }
     child.parent = parent;
     child.parenttype = parenttype;

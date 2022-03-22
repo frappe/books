@@ -140,7 +140,7 @@ export default {
       label: t`New Invoice`,
       condition: (doc) => !doc.isNew(),
       action: async (doc, router) => {
-        const invoice = await frappe.getNewDoc('SalesInvoice');
+        const invoice = await frappe.getEmptyDoc('SalesInvoice');
         invoice.append('items', {
           item: doc.name,
           rate: doc.rate,
@@ -153,7 +153,7 @@ export default {
       label: t`New Bill`,
       condition: (doc) => !doc.isNew(),
       action: async (doc, router) => {
-        const invoice = await frappe.getNewDoc('PurchaseInvoice');
+        const invoice = await frappe.getEmptyDoc('PurchaseInvoice');
         invoice.append('items', {
           item: doc.name,
           rate: doc.rate,

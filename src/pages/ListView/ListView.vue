@@ -1,3 +1,11 @@
+import Button from '@/components/Button';
+import FilterDropdown from '@/components/FilterDropdown';
+import PageHeader from '@/components/PageHeader';
+import SearchBar from '@/components/SearchBar';
+import { routeTo } from '@/utils';
+import frappe from 'frappe';
+import List from './List';
+import listConfigs from './listConfig';
 <template>
   <div class="flex flex-col">
     <PageHeader>
@@ -63,7 +71,7 @@ export default {
   methods: {
     async makeNewDoc() {
       const doctype = this.listConfig.doctype;
-      const doc = await frappe.getNewDoc(doctype);
+      const doc = await frappe.getEmptyDoc(doctype);
       if (this.listConfig.filters) {
         doc.set(this.listConfig.filters);
       }

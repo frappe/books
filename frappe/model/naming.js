@@ -2,7 +2,7 @@ import frappe from 'frappe';
 import { getRandomString } from 'frappe/utils';
 
 export async function isNameAutoSet(doctype) {
-  const doc = frappe.getNewDoc(doctype);
+  const doc = frappe.getEmptyDoc(doctype);
   if (doc.meta.naming === 'autoincrement') {
     return true;
   }
@@ -108,7 +108,7 @@ export async function createNumberSeries(prefix, referenceType, start = 1001) {
     return;
   }
 
-  const series = frappe.newDoc({
+  const series = frappe.getNewDoc({
     doctype: 'NumberSeries',
     name: prefix,
     start,

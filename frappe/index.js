@@ -15,7 +15,6 @@ class Frappe {
   t = t;
   T = T;
   format = format;
-  getRandomString = getRandomString;
 
   errors = errors;
   isElectron = false;
@@ -34,6 +33,67 @@ class Frappe {
     const coreModels = await import('frappe/models');
     this.registerModels(coreModels.default);
     this.registerModels(customModels);
+  }
+
+  init(force) {
+    if (this._initialized && !force) return;
+
+    // Initialize Globals
+    this.metaCache = {};
+    this.models = {};
+
+    this.methods = {};
+    this.errorLog = [];
+
+    // temp params while calling routes
+    this.temp = {};
+
+    this.docs = new Observable();
+    this.events = new Observable();
+    this._initialized = true;
+  }
+
+  registerModels(models) {
+    // register models from app/models/index.js
+    for (let doctype in models) {
+      let metaDefinition = models[doctype];
+      if (!metaDefinition.name) {
+        throw new Error(`Name is mandatory for ${doctype}`);
+      }
+      if (metaDefinition.name !== doctype) {
+        throw new Error(
+          `Model name mismatch for ${doctype}: ${metaDefinition.name}`
+        );
+      }
+      let fieldnames = (metaDefinition.fields || [])
+        .map((df) => df.fieldname)
+        .sort();
+      let duplicateFieldnames = getDuplicates(fieldnames);
+      if (duplicateFieldnames.length > 0) {
+        throw new Error(
+          `Duplicate fields in ${doctype}: ${duplicateFieldnames.join(', ')}`
+        );
+      }
+
+      this.models[doctype] = metaDefinition;
+    }
+  }
+
+  registerMethod({ method, handler }) {
+    this.methods[method] = handler;
+    if (this.app) {
+      // add to router if client-server
+      this.app.post(
+        `/api/method/${method}`,
+        asyncHandler(async function (request, response) {
+          let data = await handler(request.body);
+          if (data === undefined) {
+            data = {};
+          }
+          return response.json(data);
+        })
+      );
+    }
   }
 
   async initializeMoneyMaker(currency) {
@@ -82,79 +142,12 @@ class Frappe {
     });
   }
 
-  init(force) {
-    if (this._initialized && !force) return;
-
-    // Initialize Globals
-    this.metaCache = {};
-    this.models = {};
-
-    this.methods = {};
-    this.errorLog = [];
-
-    // temp params while calling routes
-    this.temp = {};
-
-    this.docs = new Observable();
-    this.events = new Observable();
-    this._initialized = true;
-  }
-
-  registerModels(models) {
-    // register models from app/models/index.js
-    for (let doctype in models) {
-      let metaDefinition = models[doctype];
-      if (!metaDefinition.name) {
-        throw new Error(`Name is mandatory for ${doctype}`);
-      }
-      if (metaDefinition.name !== doctype) {
-        throw new Error(
-          `Model name mismatch for ${doctype}: ${metaDefinition.name}`
-        );
-      }
-      let fieldnames = (metaDefinition.fields || [])
-        .map((df) => df.fieldname)
-        .sort();
-      let duplicateFieldnames = getDuplicates(fieldnames);
-      if (duplicateFieldnames.length > 0) {
-        throw new Error(
-          `Duplicate fields in ${doctype}: ${duplicateFieldnames.join(', ')}`
-        );
-      }
-
-      this.models[doctype] = metaDefinition;
-    }
-  }
-
   getModels(filterFunction) {
     let models = [];
     for (let doctype in this.models) {
       models.push(this.models[doctype]);
     }
     return filterFunction ? models.filter(filterFunction) : models;
-  }
-
-  // del
-  registerView(view, name, module) {
-    if (!this.views[view]) this.views[view] = {};
-    this.views[view][name] = module;
-  }
-
-  registerMethod({ method, handler }) {
-    this.methods[method] = handler;
-    if (this.app) {
-      // add to router if client-server
-      this.app.post(
-        `/api/method/${method}`,
-        asyncHandler(async function (request, response) {
-          let data = await handler(request.body);
-          if (data === undefined) {
-            data = {};
-          }
-          return response.json(data);
-        })
-      );
-    }
   }
 
   async call({ method, args }) {
@@ -263,7 +256,7 @@ class Frappe {
   }
 
   async getDuplicate(doc) {
-    const newDoc = await this.getNewDoc(doc.doctype);
+    const newDoc = await this.getEmptyDoc(doc.doctype);
     for (let field of this.getMeta(doc.doctype).getValidFields()) {
       if (['name', 'submitted'].includes(field.fieldname)) continue;
       if (field.fieldtype === 'Table') {
@@ -279,37 +272,26 @@ class Frappe {
     return newDoc;
   }
 
-  getNewDoc(doctype, cacheDoc = true) {
-    let doc = this.newDoc({ doctype: doctype });
+  getEmptyDoc(doctype, cacheDoc = true) {
+    let doc = this.getNewDoc({ doctype: doctype });
     doc._notInserted = true;
-    doc.name = frappe.getRandomString();
+    doc.name = getRandomString();
+
     if (cacheDoc) {
       this.addToCache(doc);
     }
+
     return doc;
   }
 
-  async newCustomDoc(fields) {
-    let doc = new this.Document({ isCustom: 1, fields });
-    doc._notInserted = true;
-    doc.name = this.getRandomString();
-    this.addToCache(doc);
-    return doc;
-  }
-
-  createMeta(fields) {
-    let meta = new this.Meta({ isCustom: 1, fields });
-    return meta;
-  }
-
-  newDoc(data) {
+  getNewDoc(data) {
     let doc = new (this.getDocumentClass(data.doctype))(data);
     doc.setDefaults();
     return doc;
   }
 
-  async insert(data) {
-    return await this.newDoc(data).insert();
+  createMeta(fields) {
+    return new this.Meta({ isCustom: 1, fields });
   }
 
   async syncDoc(data) {
@@ -319,7 +301,7 @@ class Frappe {
       Object.assign(doc, data);
       await doc.update();
     } else {
-      doc = this.newDoc(data);
+      doc = this.getNewDoc(data);
       await doc.insert();
     }
   }

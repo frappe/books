@@ -3,7 +3,7 @@ import { Verb } from '@/telemetry/types';
 import frappe from 'frappe';
 import Observable from 'frappe/utils/observable';
 import { DEFAULT_INTERNAL_PRECISION } from '../utils/consts';
-import { isPesa } from '../utils/index';
+import { getRandomString, isPesa } from '../utils/index';
 import { setName } from './naming';
 
 export default class Document extends Observable {
@@ -190,7 +190,7 @@ export default class Document extends Observable {
     }
 
     if (!data.name) {
-      data.name = frappe.getRandomString();
+      data.name = getRandomString();
     }
 
     const childDoc = new Document(data);
@@ -335,7 +335,7 @@ export default class Document extends Observable {
   updateModified() {
     if (frappe.isServer) {
       let now = new Date().toISOString();
-      this.modifiedBy = frappe.auth.session.user
+      this.modifiedBy = frappe.auth.session.user;
       this.modified = now;
     }
   }
@@ -741,7 +741,7 @@ export default class Document extends Observable {
       updateMap.name = updateMap.name + ' CPY';
     }
 
-    const doc = frappe.getNewDoc(this.doctype, false);
+    const doc = frappe.getEmptyDoc(this.doctype, false);
     await doc.set(updateMap);
     await doc.insert();
   }

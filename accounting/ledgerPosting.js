@@ -145,7 +145,7 @@ export default class LedgerPosting {
 
   async insertEntries() {
     for (let entry of this.entries) {
-      let entryDoc = frappe.newDoc({
+      let entryDoc = frappe.getNewDoc({
         doctype: 'AccountingLedgerEntry',
       });
       Object.assign(entryDoc, entry);
