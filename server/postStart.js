@@ -6,7 +6,6 @@ import PartyServer from '../models/doctype/Party/PartyServer.js';
 import PaymentServer from '../models/doctype/Payment/PaymentServer.js';
 import PurchaseInvoiceServer from '../models/doctype/PurchaseInvoice/PurchaseInvoiceServer.js';
 import SalesInvoiceServer from '../models/doctype/SalesInvoice/SalesInvoiceServer.js';
-import registerServerMethods from './registerServerMethods';
 
 export default async function postStart() {
   // set server-side modules
@@ -38,8 +37,6 @@ export default async function postStart() {
 
   // cache currency symbols for frappe.format
   await setCurrencySymbols();
-
-  registerServerMethods();
 }
 
 export async function setCurrencySymbols() {

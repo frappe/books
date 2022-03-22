@@ -1,4 +1,3 @@
-import frappe from 'frappe';
 import AccountsReceivablePayable from './AccountsReceivablePayable/AccountsReceivablePayable';
 import BalanceSheet from './BalanceSheet/BalanceSheet';
 import BankReconciliation from './BankReconciliation/BankReconciliation';
@@ -10,67 +9,27 @@ import PurchaseRegister from './PurchaseRegister/PurchaseRegister';
 import SalesRegister from './SalesRegister/SalesRegister';
 import TrialBalance from './TrialBalance/TrialBalance';
 
-// called on server side
-function registerReportMethods() {
-  const reports = [
-    {
-      method: 'general-ledger',
-      class: GeneralLedger,
-    },
-    {
-      method: 'profit-and-loss',
-      class: ProfitAndLoss,
-    },
-    {
-      method: 'balance-sheet',
-      class: BalanceSheet,
-    },
-    {
-      method: 'trial-balance',
-      class: TrialBalance,
-    },
-    {
-      method: 'sales-register',
-      class: SalesRegister,
-    },
-    {
-      method: 'purchase-register',
-      class: PurchaseRegister,
-    },
-    {
-      method: 'bank-reconciliation',
-      class: BankReconciliation,
-    },
-    {
-      method: 'gstr-1',
-      class: GSTR1,
-    },
-    {
-      method: 'gstr-2',
-      class: GSTR2,
-    },
-  ];
+export function getReportData(method, filters) {
+  const reports = {
+    'general-ledger': GeneralLedger,
+    'profit-and-loss': ProfitAndLoss,
+    'balance-sheet': BalanceSheet,
+    'trial-balance': TrialBalance,
+    'gstr-1': GSTR1,
+    'gstr-2': GSTR2,
+    'sales-register': SalesRegister,
+    'purchase-register': PurchaseRegister,
+    'bank-reconciliation': BankReconciliation,
+  };
 
-  reports.forEach((report) => {
-    frappe.registerMethod({
-      method: report.method,
-      handler: getReportData(report.class),
-    });
-  });
+  if (method === 'accounts-receivable') {
+    return new AccountsReceivablePayable().run('Receivable', filters);
+  }
 
-  frappe.registerMethod({
-    method: 'accounts-receivable',
-    handler: (args) => new AccountsReceivablePayable().run('Receivable', args),
-  });
+  if (method === 'accounts-payable') {
+    return new AccountsReceivablePayable().run('Payable', filters);
+  }
 
-  frappe.registerMethod({
-    method: 'accounts-payable',
-    handler: (args) => new AccountsReceivablePayable().run('Payable', args),
-  });
+  const ReportClass = reports[method];
+  return new ReportClass().run(filters);
 }
-
-function getReportData(ReportClass) {
-  return (args) => new ReportClass().run(args);
-}
-
-export default registerReportMethods;

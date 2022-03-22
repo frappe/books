@@ -146,6 +146,7 @@ import SearchBar from '@/components/SearchBar';
 import WithScroll from '@/components/WithScroll';
 import frappe from 'frappe';
 import { h, markRaw } from 'vue';
+import { getReportData } from '../../reports/index';
 import DropdownWithActions from '../components/DropdownWithActions.vue';
 
 export default {
@@ -195,10 +196,7 @@ export default {
       });
     },
     async fetchReportData() {
-      let data = await frappe.call({
-        method: this.report.method,
-        args: this.filters,
-      });
+      let data = await getReportData(this.report.method, this.filters)
 
       let rows;
       if (data.rows) {

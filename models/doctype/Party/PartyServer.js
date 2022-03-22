@@ -4,14 +4,7 @@ import Document from 'frappe/model/document';
 export default class PartyServer extends Document {
   beforeInsert() {
     if (this.customer && this.supplier) {
-      frappe.call({
-        method: 'show-dialog',
-        args: {
-          title: 'Invalid Entry',
-          message: 'Select a single party type.',
-        },
-      });
-      throw new Error();
+      throw new Error('Select a single party type.');
     }
 
     if (!this.customer && !this.supplier) {
