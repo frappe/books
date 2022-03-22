@@ -1,3 +1,8 @@
+import Badge from '@/components/Badge';
+import { openQuickEdit } from '@/utils';
+import frappe, { t } from 'frappe';
+import { markRaw } from 'vue';
+import AutoComplete from './AutoComplete';
 <script>
 import Badge from '@/components/Badge';
 import { openQuickEdit } from '@/utils';
@@ -103,7 +108,7 @@ export default {
     },
     async openNewDoc() {
       let doctype = this.df.target;
-      let doc = await frappe.getNewDoc(doctype);
+      let doc = await frappe.getEmptyDoc(doctype);
       let filters = await this.getFilters();
       openQuickEdit({
         doctype,

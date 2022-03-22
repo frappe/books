@@ -1,3 +1,7 @@
+import Button from '@/components/Button';
+import FormControl from '@/components/Controls/FormControl';
+import frappe from 'frappe';
+import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
 <template>
   <div class="text-sm" :class="{ 'border-t': !noBorder }">
     <template v-for="df in formFields">
@@ -220,7 +224,7 @@ let TwoColumnForm = {
 
       this.inlineEditField = df;
       if (!this.doc[df.fieldname]) {
-        this.inlineEditDoc = await frappe.getNewDoc(df.target);
+        this.inlineEditDoc = await frappe.getEmptyDoc(df.target);
         this.inlineEditDoc.once('afterInsert', () => {
           this.onChangeCommon(df, this.inlineEditDoc.name);
         });

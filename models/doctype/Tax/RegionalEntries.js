@@ -8,7 +8,7 @@ export default async function generateTaxes(country) {
       'Exempt-GST': [0],
       'Exempt-IGST': [0],
     };
-    let newTax = await frappe.getNewDoc('Tax');
+    let newTax = await frappe.getEmptyDoc('Tax');
 
     for (const type of Object.keys(GSTs)) {
       for (const percent of GSTs[type]) {

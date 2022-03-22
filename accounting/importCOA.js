@@ -25,7 +25,7 @@ async function importAccounts(children, parentAccount, rootType, rootAccount) {
     const { accountType, accountNumber } = child;
     const accountName = getAccountName(rootName, accountNumber);
     const isGroup = identifyIsGroup(child);
-    const doc = frappe.newDoc({
+    const doc = frappe.getNewDoc({
       doctype: 'Account',
       name: accountName,
       parentAccount,

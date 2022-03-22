@@ -20,7 +20,7 @@
         <div class="p-3">
           <template v-if="filters.length">
             <div
-              :key="filter.fieldname + frappe.getRandomString()"
+              :key="filter.fieldname + getRandomString()"
               v-for="(filter, i) in filters"
               class="flex items-center justify-between text-base"
               :class="i !== 0 && 'mt-2'"
@@ -117,6 +117,7 @@
 
 <script>
 import { t } from 'frappe';
+import { getRandomString } from 'frappe/utils';
 import Button from './Button';
 import FormControl from './Controls/FormControl';
 import Icon from './Icon';
@@ -152,6 +153,9 @@ export default {
     this.addNewFilter();
   },
   methods: {
+    getRandomString() {
+      return getRandomString();
+    },
     addNewFilter() {
       let df = this.fields[0];
       this.addFilter(df.fieldname, 'like', '');

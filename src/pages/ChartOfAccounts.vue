@@ -1,3 +1,9 @@
+import PageHeader from '@/components/PageHeader';
+import SearchBar from '@/components/SearchBar';
+import { openQuickEdit } from '@/utils';
+import frappe from 'frappe';
+import { nextTick } from 'vue';
+import { handleErrorWithDialog } from '../errorHandling';
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader>
@@ -240,7 +246,7 @@ export default {
       this.insertingAccount = true;
 
       accountName = accountName.trim();
-      let account = await frappe.getNewDoc('Account');
+      let account = await frappe.getEmptyDoc('Account');
       try {
         let { name, rootType, accountType } = parentAccount;
         await account.set({

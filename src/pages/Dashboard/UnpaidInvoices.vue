@@ -74,6 +74,7 @@ import frappe, { t } from 'frappe';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
+
 export default {
   name: 'UnpaidInvoices',
   components: {
@@ -143,7 +144,7 @@ export default {
       this.invoices = await Promise.all(promises);
     },
     async newInvoice(invoice) {
-      let doc = await frappe.getNewDoc(invoice.doctype);
+      let doc = await frappe.getEmptyDoc(invoice.doctype);
       routeTo(`/edit/${invoice.doctype}/${doc.name}`);
     },
   },

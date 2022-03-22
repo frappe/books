@@ -33,7 +33,7 @@ export function getActions(doctype) {
       label: t`Make Payment`,
       condition: (doc) => doc.submitted && doc.outstandingAmount > 0,
       action: async function makePayment(doc) {
-        let payment = await frappe.getNewDoc('Payment');
+        let payment = await frappe.getEmptyDoc('Payment');
         payment.once('afterInsert', async () => {
           await payment.submit();
         });
