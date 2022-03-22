@@ -84,12 +84,6 @@ export const findMatchingReferences = async (json, report) => {
       },
     });
   } else {
-    frappe.call({
-      method: 'show-dialog',
-      args: {
-        title: 'Message',
-        message: 'No entries found with matching Ref / Cheque ID',
-      },
-    });
+    //  'No entries found with matching Ref / Cheque ID'
   }
 };
