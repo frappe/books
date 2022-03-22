@@ -39,7 +39,7 @@ export async function connectToLocalDatabase(filePath) {
     return { connectionSuccess: false, reason: DB_CONN_FAILURE.INVALID_FILE };
   }
 
-  frappe.login('Administrator');
+  frappe.auth.login('Administrator');
   try {
     frappe.db = new SQLiteDatabase({
       dbPath: filePath,
