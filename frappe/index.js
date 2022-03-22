@@ -1,11 +1,12 @@
 import { getMoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
-import * as errors from './utils/errors';
+import { Auth } from './core/auth';
 import { asyncHandler, getDuplicates, getRandomString } from './utils';
 import {
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,
 } from './utils/consts';
+import * as errors from './utils/errors';
 import { format } from './utils/format';
 import Observable from './utils/observable';
 import { t, T } from './utils/translation';
@@ -19,6 +20,10 @@ class Frappe {
   errors = errors;
   isElectron = false;
   isServer = false;
+
+  constructor() {
+    this.auth = new Auth();
+  }
 
   async initializeAndRegister(customModels = {}, force = false) {
     this.init(force);
@@ -80,25 +85,15 @@ class Frappe {
   init(force) {
     if (this._initialized && !force) return;
 
-    // Initialize Config
-    this.config = {
-      serverURL: '',
-      backend: 'sqlite',
-      port: 8000,
-    };
-
     // Initialize Globals
     this.metaCache = {};
     this.models = {};
-    this.forms = {};
-    this.views = {};
-    this.flags = {};
+
     this.methods = {};
     this.errorLog = [];
 
     // temp params while calling routes
     this.temp = {};
-    this.params = {};
 
     this.docs = new Observable();
     this.events = new Observable();
@@ -139,6 +134,7 @@ class Frappe {
     return filterFunction ? models.filter(filterFunction) : models;
   }
 
+  // del
   registerView(view, name, module) {
     if (!this.views[view]) this.views[view] = {};
     this.views[view][name] = module;
@@ -328,65 +324,9 @@ class Frappe {
     }
   }
 
-  // only for client side
-  async login(email, password) {
-    if (email === 'Administrator') {
-      this.session = {
-        user: 'Administrator',
-      };
-      return;
-    }
-
-    let response = await fetch(this.getServerURL() + '/api/login', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    if (response.status === 200) {
-      const res = await response.json();
-
-      this.session = {
-        user: email,
-        token: res.token,
-      };
-
-      return res;
-    }
-
-    return response;
-  }
-
-  async signup(email, fullName, password) {
-    let response = await fetch(this.getServerURL() + '/api/signup', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, fullName, password }),
-    });
-
-    if (response.status === 200) {
-      return await response.json();
-    }
-
-    return response;
-  }
-
-  getServerURL() {
-    return this.config.serverURL || '';
-  }
-
   close() {
     this.db.close();
-
-    if (this.server) {
-      this.server.close();
-    }
+    this.auth.logout();
   }
 
   store = {

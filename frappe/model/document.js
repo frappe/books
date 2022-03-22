@@ -321,7 +321,7 @@ export default class Document extends Observable {
 
       let now = new Date().toISOString();
       if (!this.owner) {
-        this.owner = frappe.session.user;
+        this.owner = frappe.auth.session.user;
       }
 
       if (!this.creation) {
@@ -335,7 +335,7 @@ export default class Document extends Observable {
   updateModified() {
     if (frappe.isServer) {
       let now = new Date().toISOString();
-      this.modifiedBy = frappe.session.user;
+      this.modifiedBy = frappe.auth.session.user
       this.modified = now;
     }
   }
