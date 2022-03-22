@@ -1,6 +1,6 @@
 import { getMoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
-import { Auth } from './core/auth';
+import { AuthHandler } from './core/authHandler';
 import { asyncHandler, getDuplicates, getRandomString } from './utils';
 import {
   DEFAULT_DISPLAY_PRECISION,
@@ -11,7 +11,7 @@ import { format } from './utils/format';
 import Observable from './utils/observable';
 import { t, T } from './utils/translation';
 
-class Frappe {
+export class Frappe {
   t = t;
   T = T;
   format = format;
@@ -21,7 +21,7 @@ class Frappe {
   isServer = false;
 
   constructor() {
-    this.auth = new Auth();
+    this.auth = new AuthHandler();
   }
 
   async initializeAndRegister(customModels = {}, force = false) {

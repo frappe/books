@@ -1,18 +1,18 @@
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
+import Document from 'frappe/model/document';
 import {
   DuplicateEntryError,
   LinkValidationError,
   MandatoryError,
   ValidationError,
 } from 'frappe/utils/errors';
-import Document from 'frappe/model/document';
 import config, { ConfigKeys, TelemetrySetting } from './config';
 import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import telemetry from './telemetry/telemetry';
 import { showMessageDialog, showToast } from './utils';
 
-interface ErrorLog {
+export interface ErrorLog {
   name: string;
   message: string;
   stack?: string;

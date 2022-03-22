@@ -1,20 +1,3 @@
-import FormControl from '@/components/Controls/FormControl';
-import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
-import Popover from '@/components/Popover';
-import TwoColumnForm from '@/components/TwoColumnForm';
-import config from '@/config';
-import { connectToLocalDatabase, purgeCache } from '@/initialization';
-import { IPC_MESSAGES } from '@/messages';
-import { setLanguageMap, showMessageDialog } from '@/utils';
-import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
-import fs from 'fs';
-import path from 'path';
-import {
-getErrorMessage, handleErrorWithDialog, showErrorDialog
-} from '../../errorHandling';
-import setupCompany from './setupCompany';
-import Slide from './Slide.vue';
 <template>
   <div>
     <Slide

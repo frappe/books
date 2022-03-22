@@ -30,6 +30,7 @@ export interface Field {
   readOnly?: number;
   hidden?: number | Function;
   options?: string[];
+  description?: string;
 }
 
 export interface Doc {
@@ -37,4 +38,16 @@ export interface Doc {
   set: (fieldname: Map | string, value?: unknown) => Promise<void>;
   insert: () => Promise<void>;
   submit: () => Promise<void>;
+}
+
+export interface Model {
+  label?: string;
+  name: string;
+  doctype?: string;
+  fields: Field[];
+  isSingle?: number; // boolean
+  regional?: number; // boolean
+  augmented?: number; // boolean
+  keywordFields?: string[];
+  quickEditFields?: string[];
 }

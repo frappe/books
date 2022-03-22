@@ -1,3 +1,5 @@
+import { Frappe } from 'frappe/core/frappe';
+
 interface AuthConfig {
   serverURL: string;
   backend: string;
@@ -9,11 +11,13 @@ interface Session {
   token: string;
 }
 
-export class Auth {
+export class AuthHandler {
   #config: AuthConfig;
   #session: Session;
+  frappe: Frappe;
 
-  constructor() {
+  constructor(frappe: Frappe) {
+    this.frappe = frappe;
     this.#config = {
       serverURL: '',
       backend: 'sqlite',
@@ -34,6 +38,7 @@ export class Auth {
     return { ...this.#config };
   }
 
+  init() {}
   async login(email: string, password: string) {
     if (email === 'Administrator') {
       this.#session.user = 'Administrator';
