@@ -28,7 +28,7 @@ import TaxSummary from './app/TaxSummary.json';
 import PatchRun from './core/PatchRun.json';
 import SingleValue from './core/SingleValue.json';
 import SystemSettings from './core/SystemSettings.json';
-import { Schema } from './types';
+import { Schema, SchemaStub } from './types';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -36,7 +36,7 @@ export const coreSchemas: Schema[] = [
   SystemSettings as Schema,
 ];
 
-export const appSchemas: Schema[] = [
+export const appSchemas: Schema[] | SchemaStub[] = [
   SetupWizard as Schema,
   GetStarted as Schema,
 
@@ -52,8 +52,8 @@ export const appSchemas: Schema[] = [
   AccountingLedgerEntry as Schema,
 
   Party as Schema,
-  Supplier as Schema,
-  Customer as Schema,
+  Supplier as SchemaStub,
+  Customer as SchemaStub,
 
   Address as Schema,
   Item as Schema,

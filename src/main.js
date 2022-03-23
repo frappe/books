@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
 import { createApp } from 'vue';
+import { getSchemas } from '../schemas';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
 import config, { ConfigKeys } from './config';
@@ -101,3 +102,5 @@ import { setLanguageMap, stringifyCircular } from './utils';
     handleError(true, error, {}, () => process.exit(1));
   });
 })();
+
+window.gs = getSchemas;

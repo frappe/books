@@ -71,7 +71,7 @@
       "fieldname": "hideGetStarted",
       "label": "Hide Get Started",
       "fieldtype": "Check",
-      "default": 0,
+      "default": false,
       "description": "Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app."
     }
   ],

@@ -12,7 +12,20 @@
       "placeholder": "GST Registration",
       "fieldtype": "Select",
       "default": "Unregistered",
-      "options": ["Unregistered", "Registered Regular", "Consumer"]
+      "options": [
+        {
+          "value": "Unregistered",
+          "label": "Unregistered"
+        },
+        {
+          "value": "Registered Regular",
+          "label": "Registered Regular"
+        },
+        {
+          "value": "Consumer",
+          "label": "Consumer"
+        }
+      ]
     }
   ],
   "quickEditFields": [
