@@ -49,7 +49,7 @@
       "fieldname": "items",
       "label": "Items",
       "fieldtype": "Table",
-      "childtype": "SalesInvoiceItem",
+      "target": "SalesInvoiceItem",
       "required": true
     },
     {

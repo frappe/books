@@ -19,8 +19,8 @@
     {
       "fieldname": "party",
       "label": "Party",
-      "fieldtype": "Link",
-      "target": "Party"
+      "fieldtype": "DynamicLink",
+      "target": ["Customer", "Supplier"]
     },
     {
       "fieldname": "debit",

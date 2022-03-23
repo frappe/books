@@ -54,7 +54,7 @@ export enum FieldTypeEnum {
 export type FieldType = keyof typeof FieldTypeEnum;
 export type RawValue = string | number | boolean;
 
-// prettier-ignore
+// @formatter:off
 export interface BaseField {
   fieldname: string;             // Column name in the db
   fieldtype: FieldType;          // UI Descriptive field types that map to column types
@@ -67,6 +67,7 @@ export interface BaseField {
   placeholder?: string;          // UI Facing config, form field placeholder
   groupBy?: string;              // UI Facing used in dropdowns fields
   computed?: boolean;            // Indicates whether a value is computed, implies readonly
+  meta?: boolean;                // Field is a meta field, i.e. only for the db, not UI
 }
 
 export type SelectOption = { value: string; label: string };
@@ -78,19 +79,19 @@ export interface OptionField extends BaseField {
   options: SelectOption[];
 }
 
-// prettier-ignore
+// @formatter:off
 export interface TargetField extends BaseField {
   fieldtype: FieldTypeEnum.Table | FieldTypeEnum.Link;
   target: string | string[];     // Name of the table or group of tables to fetch values
 }
 
-// prettier-ignore
+// @formatter:off
 export interface DynamicLinkField extends BaseField {
   fieldtype: FieldTypeEnum.DynamicLink;
   references: string;            // Reference to an option field that links to schema
 }
 
-// prettier-ignore
+// @formatter:off
 export interface NumberField extends BaseField {
   fieldtype: FieldTypeEnum.Float | FieldTypeEnum.Int;
   minvalue?: number;             // UI Facing used to restrict lower bound
