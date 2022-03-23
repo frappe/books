@@ -1,0 +1,28 @@
+{
+  "name": "Tax",
+  "label": "Tax",
+  "doctype": "DocType",
+  "isSingle": false,
+  "isChild": false,
+  "keywordFields": [
+    "name"
+  ],
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "details",
+      "label": "Details",
+      "fieldtype": "Table",
+      "childtype": "TaxDetail",
+      "required": true
+    }
+  ],
+  "quickEditFields": [
+    "details"
+  ]
+}

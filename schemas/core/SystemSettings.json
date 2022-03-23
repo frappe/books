@@ -1,0 +1,86 @@
+{
+  "name": "SystemSettings",
+  "label": "System Settings",
+  "doctype": "DocType",
+  "isSingle": true,
+  "isChild": false,
+  "keywordFields": [],
+  "fields": [
+    {
+      "fieldname": "dateFormat",
+      "label": "Date Format",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "label": "23/03/2022",
+          "value": "dd/MM/yyyy"
+        },
+        {
+          "label": "03/23/2022",
+          "value": "MM/dd/yyyy"
+        },
+        {
+          "label": "23-03-2022",
+          "value": "dd-MM-yyyy"
+        },
+        {
+          "label": "03-23-2022",
+          "value": "MM-dd-yyyy"
+        },
+        {
+          "label": "2022-03-23",
+          "value": "yyyy-MM-dd"
+        },
+        {
+          "label": "23 Mar, 2022",
+          "value": "d MMM, y"
+        },
+        {
+          "label": "Mar 23, 2022",
+          "value": "MMM d, y"
+        }
+      ],
+      "default": "MMM d, y",
+      "required": true,
+      "description": "Sets the app-wide date display format."
+    },
+    {
+      "fieldname": "locale",
+      "label": "Locale",
+      "fieldtype": "Data",
+      "default": "en-IN",
+      "description": "Set the local code. This is used for number formatting."
+    },
+    {
+      "fieldname": "displayPrecision",
+      "label": "Display Precision",
+      "fieldtype": "Int",
+      "default": 2,
+      "required": true,
+      "minValue": 0,
+      "maxValue": 9,
+      "description": "Sets how many digits are shown after the decimal point."
+    },
+    {
+      "fieldname": "internalPrecision",
+      "label": "Internal Precision",
+      "fieldtype": "Int",
+      "minValue": 0,
+      "default": 11,
+      "description": "Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies."
+    },
+    {
+      "fieldname": "hideGetStarted",
+      "label": "Hide Get Started",
+      "fieldtype": "Check",
+      "default": 0,
+      "description": "Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app."
+    }
+  ],
+  "quickEditFields": [
+    "locale",
+    "dateFormat",
+    "displayPrecision",
+    "hideGetStarted"
+  ]
+}

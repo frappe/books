@@ -1,0 +1,9 @@
+{
+  "name": "PurchaseInvoiceSettings",
+  "label": "Bills Settings",
+  "doctype": "DocType",
+  "isSingle": true,
+  "isChild": false,
+  "keywordFields": [],
+  "fields": []
+}

@@ -1,0 +1,45 @@
+{
+  "name": "SalesInvoiceSettings",
+  "label": "SalesInvoice Settings",
+  "doctype": "DocType",
+  "isSingle": true,
+  "isChild": false,
+  "keywordFields": [],
+  "fields": [
+    {
+      "fieldname": "template",
+      "label": "Template",
+      "placeholder": "Template",
+      "fieldtype": "Select",
+      "options": [
+        "Basic I",
+        "Basic II",
+        "Modern"
+      ],
+      "required": true,
+      "default": "Basic I"
+    },
+    {
+      "fieldname": "font",
+      "label": "Font",
+      "placeholder": "Font",
+      "fieldtype": "Select",
+      "options": [
+        "Montserrat",
+        "Open Sans",
+        "Oxygen",
+        "Merriweather"
+      ],
+      "required": true,
+      "default": "Montserrat"
+    },
+    {
+      "fieldname": "themeColor",
+      "label": "Theme Color",
+      "fieldtype": "Data",
+      "required": true,
+      "default": "#000000",
+      "hidden": true
+    }
+  ]
+}

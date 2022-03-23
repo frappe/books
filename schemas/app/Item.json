@@ -1,0 +1,134 @@
+{
+  "name": "Item",
+  "label": "Item",
+  "doctype": "DocType",
+  "isSingle": false,
+  "regional": 1,
+  "keywordFields": [
+    "name",
+    "description"
+  ],
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Item Name",
+      "fieldtype": "Data",
+      "placeholder": "Item Name",
+      "required": true
+    },
+    {
+      "fieldname": "hsnCode",
+      "label": "HSN/SAC",
+      "fieldtype": "Int",
+      "placeholder": "HSN/SAC Code"
+    },
+    {
+      "fieldname": "image",
+      "label": "Image",
+      "fieldtype": "AttachImage"
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "placeholder": "Item Description",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldname": "unit",
+      "label": "Unit Type",
+      "fieldtype": "Select",
+      "placeholder": "Unit Type",
+      "default": "Unit",
+      "options": [
+        "Unit",
+        "Kg",
+        "Gram",
+        "Hour",
+        "Day"
+      ]
+    },
+    {
+      "fieldname": "itemType",
+      "label": "Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "default": "Product",
+      "options": [
+        "Product",
+        "Service"
+      ]
+    },
+    {
+      "fieldname": "for",
+      "label": "For",
+      "fieldtype": "Select",
+      "options": [
+        "purchases",
+        "sales",
+        "both"
+      ],
+      "map": {
+        "purchases": "Purchases",
+        "sales": "Sales",
+        "both": "Both"
+      },
+      "default": "both"
+    },
+    {
+      "fieldname": "incomeAccount",
+      "label": "Income",
+      "fieldtype": "Link",
+      "target": "Account",
+      "placeholder": "Income",
+      "required": true,
+      "disableCreation": true,
+      "formulaDependsOn": [
+        "itemType"
+      ]
+    },
+    {
+      "fieldname": "expenseAccount",
+      "label": "Expense",
+      "fieldtype": "Link",
+      "target": "Account",
+      "placeholder": "Expense",
+      "required": true,
+      "disableCreation": true,
+      "formulaDependsOn": [
+        "itemType"
+      ]
+    },
+    {
+      "fieldname": "tax",
+      "label": "Tax",
+      "fieldtype": "Link",
+      "target": "Tax",
+      "placeholder": "Tax"
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Currency"
+    }
+  ],
+  "quickEditFields": [
+    "hsnCode",
+    "rate",
+    "unit",
+    "itemType",
+    "for",
+    "tax",
+    "description",
+    "incomeAccount",
+    "expenseAccount"
+  ],
+  "actions": [
+    {
+      "label": "New Invoice"
+    },
+    {
+      "label": "New Bill"
+    }
+  ],
+  "augmented": 1
+}

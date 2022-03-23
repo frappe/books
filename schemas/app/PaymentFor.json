@@ -1,0 +1,43 @@
+{
+  "name": "PaymentFor",
+  "label": "Payment For",
+  "isSingle": false,
+  "isChild": true,
+  "keywordFields": [],
+  "tableFields": [
+    "referenceType",
+    "referenceName",
+    "amount"
+  ],
+  "fields": [
+    {
+      "fieldname": "referenceType",
+      "label": "Reference Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "options": [
+        "SalesInvoice",
+        "PurchaseInvoice"
+      ],
+      "map": {
+        "SalesInvoice": "Invoice",
+        "PurchaseInvoice": "Bill"
+      },
+      "required": true
+    },
+    {
+      "fieldname": "referenceName",
+      "label": "Reference Name",
+      "fieldtype": "DynamicLink",
+      "references": "referenceType",
+      "placeholder": "Name",
+      "required": true
+    },
+    {
+      "fieldname": "amount",
+      "label": "Allocated Amount",
+      "fieldtype": "Currency",
+      "required": true
+    }
+  ]
+}

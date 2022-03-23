@@ -1,0 +1,87 @@
+{
+  "name": "Contact",
+  "doctype": "DocType",
+  "isSingle": false,
+  "naming": "autoincrement",
+  "pageSettings": {
+    "hideTitle": true
+  },
+  "titleField": "fullName",
+  "keywordFields": [
+    "fullName"
+  ],
+  "fields": [
+    {
+      "fieldname": "fullName",
+      "label": "Full Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "emailAddress",
+      "label": "Email Address",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "userId",
+      "label": "User ID",
+      "fieldtype": "Link",
+      "target": "User",
+      "hidden": true
+    },
+    {
+      "fieldname": "status",
+      "label": "Status",
+      "fieldtype": "Select",
+      "options": [
+        "Passive",
+        "Open",
+        "Replied"
+      ]
+    },
+    {
+      "fieldname": "gender",
+      "label": "Gender",
+      "fieldtype": "Select",
+      "options": [
+        "Male",
+        "Female",
+        "Gender"
+      ]
+    },
+    {
+      "fieldname": "mobileNumber",
+      "label": "Mobile Number",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "phone",
+      "label": "Phone",
+      "fieldtype": "Data"
+    }
+  ],
+  "events": {},
+  "listSettings": {},
+  "layout": [
+    {
+      "columns": [
+        {
+          "fields": [
+            "fullName",
+            "emailAddress",
+            "userId",
+            "status"
+          ]
+        },
+        {
+          "fields": [
+            "postalCode",
+            "gender",
+            "phone",
+            "mobileNumber"
+          ]
+        }
+      ]
+    }
+  ]
+}

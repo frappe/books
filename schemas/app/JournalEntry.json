@@ -1,0 +1,97 @@
+{
+  "label": "Journal Entry",
+  "name": "JournalEntry",
+  "doctype": "DocType",
+  "isSubmittable": true,
+  "settings": "JournalEntrySettings",
+  "fields": [
+    {
+      "fieldname": "entryType",
+      "label": "Entry Type",
+      "fieldtype": "Select",
+      "placeholder": "Entry Type",
+      "options": [
+        "Journal Entry",
+        "Bank Entry",
+        "Cash Entry",
+        "Credit Card Entry",
+        "Debit Note",
+        "Credit Note",
+        "Contra Entry",
+        "Excise Entry",
+        "Write Off Entry",
+        "Opening Entry",
+        "Depreciation Entry"
+      ],
+      "map": {
+        "Journal Entry": "Journal Entry",
+        "Bank Entry": "Bank Entry",
+        "Cash Entry": "Cash Entry",
+        "Credit Card Entry": "Credit Card Entry",
+        "Debit Note": "Debit Note",
+        "Credit Note": "Credit Note",
+        "Contra Entry": "Contra Entry",
+        "Excise Entry": "Excise Entry",
+        "Write Off Entry": "Write Off Entry",
+        "Opening Entry": "Opening Entry",
+        "Depreciation Entry": "Depreciation Entry"
+      },
+      "required": true
+    },
+    {
+      "label": "Entry No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Date"
+    },
+    {
+      "fieldname": "accounts",
+      "label": "Account Entries",
+      "fieldtype": "Table",
+      "childtype": "JournalEntryAccount",
+      "required": true
+    },
+    {
+      "fieldname": "referenceNumber",
+      "label": "Reference Number",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "referenceDate",
+      "label": "Reference Date",
+      "fieldtype": "Date"
+    },
+    {
+      "fieldname": "userRemark",
+      "label": "User Remark",
+      "fieldtype": "Text",
+      "placeholder": "User Remark"
+    },
+    {
+      "fieldname": "cancelled",
+      "label": "Cancelled",
+      "fieldtype": "Check",
+      "default": 0,
+      "readOnly": true
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "required": true,
+      "default": "JV-"
+    }
+  ],
+  "actions": [
+    {
+      "label": "Ledger Entries"
+    }
+  ]
+}

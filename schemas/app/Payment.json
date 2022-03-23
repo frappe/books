@@ -1,0 +1,219 @@
+{
+  "name": "Payment",
+  "label": "Payment",
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "keywordFields": [],
+  "settings": "PaymentSettings",
+  "fields": [
+    {
+      "label": "Payment No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "party",
+      "label": "Party",
+      "fieldtype": "Link",
+      "target": "Party",
+      "required": true
+    },
+    {
+      "fieldname": "date",
+      "label": "Posting Date",
+      "fieldtype": "Date"
+    },
+    {
+      "fieldname": "account",
+      "label": "From Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true
+    },
+    {
+      "fieldname": "paymentType",
+      "label": "Payment Type",
+      "fieldtype": "Select",
+      "placeholder": "Payment Type",
+      "options": [
+        "Receive",
+        "Pay"
+      ],
+      "map": {
+        "Receive": "Receive",
+        "Pay": "Pay"
+      },
+      "required": true
+    },
+    {
+      "fieldname": "paymentAccount",
+      "label": "To Account",
+      "placeholder": "To Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "required": true,
+      "default": "PAY-"
+    },
+    {
+      "fieldname": "paymentMethod",
+      "label": "Payment Method",
+      "placeholder": "Payment Method",
+      "fieldtype": "Select",
+      "options": [
+        "Cash",
+        "Cheque",
+        "Transfer"
+      ],
+      "default": "Cash",
+      "required": true
+    },
+    {
+      "fieldname": "referenceId",
+      "label": "Ref. / Cheque No.",
+      "placeholder": "Ref. / Cheque No.",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "referenceDate",
+      "label": "Ref. Date",
+      "placeholder": "Ref. Date",
+      "fieldtype": "Date"
+    },
+    {
+      "fieldname": "clearanceDate",
+      "label": "Clearance Date",
+      "placeholder": "Clearance Date",
+      "fieldtype": "Date"
+    },
+    {
+      "fieldname": "amount",
+      "label": "Amount",
+      "fieldtype": "Currency",
+      "required": true
+    },
+    {
+      "fieldname": "writeoff",
+      "label": "Write Off / Refund",
+      "fieldtype": "Currency"
+    },
+    {
+      "fieldname": "for",
+      "label": "Payment Reference",
+      "fieldtype": "Table",
+      "childtype": "PaymentFor",
+      "required": false
+    },
+    {
+      "fieldname": "cancelled",
+      "label": "Cancelled",
+      "fieldtype": "Check",
+      "default": 0,
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": [
+    "numberSeries",
+    "party",
+    "date",
+    "paymentMethod",
+    "account",
+    "paymentType",
+    "paymentAccount",
+    "referenceId",
+    "referenceDate",
+    "clearanceDate",
+    "amount",
+    "writeoff",
+    "for"
+  ],
+  "layout": [
+    {
+      "columns": [
+        {
+          "fields": [
+            "party",
+            "account"
+          ]
+        },
+        {
+          "fields": [
+            "date",
+            "paymentAccount"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "fields": [
+            "paymentMethod"
+          ]
+        },
+        {
+          "fields": [
+            "paymentType"
+          ]
+        },
+        {
+          "fields": [
+            "referenceId"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "fields": [
+            "referenceDate"
+          ]
+        },
+        {
+          "fields": [
+            "clearanceDate"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "fields": [
+            "for"
+          ]
+        }
+      ]
+    },
+    {
+      "columns": [
+        {
+          "fields": [
+            "amount",
+            "writeoff"
+          ]
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "label": "Ledger Entries"
+    }
+  ],
+  "links": [
+    {
+      "label": "Ledger Entries"
+    }
+  ]
+}
