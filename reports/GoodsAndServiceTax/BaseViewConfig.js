@@ -3,8 +3,6 @@ import { DateTime } from 'luxon';
 import { stateCodeMap } from '../../accounting/gst';
 import { titleCase } from '../../src/utils';
 
-const stateList = Object.keys(stateCodeMap).map(titleCase).sort();
-
 export default {
   filterFields: [
     {
@@ -13,7 +11,7 @@ export default {
       size: 'small',
       placeholder: t`Place`,
       fieldname: 'place',
-      getList: () => stateList,
+      getList: () => Object.keys(stateCodeMap).map(titleCase).sort(),
     },
     {
       fieldtype: 'Date',
