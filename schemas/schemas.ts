@@ -28,12 +28,24 @@ import TaxSummary from './app/TaxSummary.json';
 import PatchRun from './core/PatchRun.json';
 import SingleValue from './core/SingleValue.json';
 import SystemSettings from './core/SystemSettings.json';
+import base from './meta/base.json';
+import submittable from './meta/submittable.json';
+//asdf
+import child from './meta/child.json';
+import tree from './meta/tree.json';
 import { Schema, SchemaStub } from './types';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
   SingleValue as Schema,
   SystemSettings as Schema,
+];
+
+export const metaSchemas: SchemaStub[] = [
+  base as SchemaStub,
+  child as SchemaStub,
+  submittable as SchemaStub,
+  tree as SchemaStub,
 ];
 
 export const appSchemas: Schema[] | SchemaStub[] = [

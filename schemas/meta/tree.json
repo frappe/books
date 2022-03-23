@@ -1,0 +1,19 @@
+{
+  "name": "tree",
+  "fields": [
+    {
+      "fieldname": "lft",
+      "label": "Left Index",
+      "fieldtype": "Int",
+      "required": true,
+      "meta": true
+    },
+    {
+      "fieldname": "rgt",
+      "label": "Right Index",
+      "fieldtype": "Int",
+      "required": true,
+      "meta": true
+    }
+  ]
+}

@@ -1,14 +1,47 @@
 import { cloneDeep } from 'lodash';
 import { getListFromMap, getMapFromList } from './helpers';
-import regional from './regional';
-import { appSchemas, coreSchemas } from './schemas';
+import regionalSchemas from './regional';
+import { appSchemas, coreSchemas, metaSchemas } from './schemas';
 import { Schema, SchemaMap, SchemaStub, SchemaStubMap } from './types';
 
 export function getSchemas(countryCode: string = '-'): SchemaMap {
   const builtCoreSchemas = getCoreSchemas();
   const builtAppSchemas = getAppSchemas(countryCode);
 
-  return Object.assign({}, builtAppSchemas, builtCoreSchemas);
+  let schemaMap = Object.assign({}, builtAppSchemas, builtCoreSchemas);
+  schemaMap = addMetaFields(schemaMap);
+  return schemaMap;
+}
+
+function addMetaFields(schemaMap: SchemaMap): SchemaMap {
+  const metaSchemaMap = getMapFromList(metaSchemas);
+
+  const base = metaSchemaMap.base;
+  const tree = getCombined(metaSchemaMap.tree, base);
+  const child = metaSchemaMap.child;
+  const submittable = getCombined(metaSchemaMap.submittable, base);
+  const submittableTree = getCombined(tree, metaSchemaMap.submittable);
+
+  for (const name in schemaMap) {
+    const schema = schemaMap[name];
+    if (schema.isSingle) {
+      continue;
+    }
+
+    if (schema.isTree && schema.isSubmittable) {
+      schema.fields = [...schema.fields, ...submittableTree.fields];
+    } else if (schema.isTree) {
+      schema.fields = [...schema.fields, ...tree.fields];
+    } else if (schema.isSubmittable) {
+      schema.fields = [...schema.fields, ...submittable.fields];
+    } else if (schema.isChild) {
+      schema.fields = [...schema.fields, ...child.fields];
+    } else {
+      schema.fields = [...schema.fields, ...base.fields];
+    }
+  }
+
+  return schemaMap;
 }
 
 function getCoreSchemas(): SchemaMap {
@@ -116,10 +149,12 @@ function getRegionalCombinedSchemas(countryCode: string): SchemaStubMap {
 }
 
 function getRegionalSchema(countryCode: string): SchemaStubMap {
-  const regionalSchemas = regional[countryCode] as SchemaStub[] | undefined;
-  if (regionalSchemas === undefined) {
+  const countrySchemas = regionalSchemas[countryCode] as
+    | SchemaStub[]
+    | undefined;
+  if (countrySchemas === undefined) {
     return {};
   }
 
-  return getMapFromList(regionalSchemas);
+  return getMapFromList(countrySchemas);
 }

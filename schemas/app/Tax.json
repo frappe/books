@@ -14,7 +14,7 @@
       "fieldname": "details",
       "label": "Details",
       "fieldtype": "Table",
-      "childtype": "TaxDetail",
+      "target": "TaxDetail",
       "required": true
     }
   ],
