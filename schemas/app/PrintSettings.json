@@ -1,0 +1,131 @@
+{
+  "name": "PrintSettings",
+  "label": "Print Settings",
+  "isSingle": true,
+  "fields": [
+    {
+      "fieldname": "logo",
+      "label": "Logo",
+      "fieldtype": "AttachImage"
+    },
+    {
+      "fieldname": "companyName",
+      "label": "Company Name",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "placeholder": "john@doe.com",
+      "validate": {
+        "type": "email"
+      }
+    },
+    {
+      "fieldname": "displayLogo",
+      "label": "Display Logo in Invoice",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "phone",
+      "label": "Phone",
+      "fieldtype": "Data",
+      "placeholder": "9888900000",
+      "validate": {
+        "type": "phone"
+      }
+    },
+    {
+      "fieldname": "address",
+      "label": "Address",
+      "fieldtype": "Link",
+      "target": "Address",
+      "placeholder": "Click to create",
+      "inline": true
+    },
+    {
+      "fieldname": "template",
+      "label": "Template",
+      "placeholder": "Template",
+      "fieldtype": "Select",
+      "options": [
+        "Basic",
+        "Minimal",
+        "Business"
+      ],
+      "default": "Basic"
+    },
+    {
+      "fieldname": "color",
+      "label": "Color",
+      "placeholder": "Select Color",
+      "fieldtype": "Color",
+      "colors": [
+        {
+          "label": "Red",
+          "value": "#f56565"
+        },
+        {
+          "label": "Orange",
+          "value": "#ed8936"
+        },
+        {
+          "label": "Yellow",
+          "value": "#ecc94b"
+        },
+        {
+          "label": "Green",
+          "value": "#48bb78"
+        },
+        {
+          "label": "Teal",
+          "value": "#38b2ac"
+        },
+        {
+          "label": "Blue",
+          "value": "#33a1ff"
+        },
+        {
+          "label": "Indigo",
+          "value": "#667eea"
+        },
+        {
+          "label": "Purple",
+          "value": "#9f7aea"
+        },
+        {
+          "label": "Pink",
+          "value": "#ed64a6"
+        },
+        {
+          "label": "Black",
+          "value": "#112B42"
+        }
+      ]
+    },
+    {
+      "fieldname": "font",
+      "label": "Font",
+      "placeholder": "Font",
+      "fieldtype": "Select",
+      "options": [
+        "Inter",
+        "Times New Roman",
+        "Arial",
+        "Courier"
+      ],
+      "default": "Inter"
+    }
+  ],
+  "quickEditFields": [
+    "logo",
+    "displayLogo",
+    "template",
+    "color",
+    "font",
+    "email",
+    "phone",
+    "address"
+  ]
+}

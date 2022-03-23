@@ -1,0 +1,102 @@
+{
+  "name": "AccountingSettings",
+  "label": "Accounting Settings",
+  "naming": "name",
+  "isSingle": true,
+  "isChild": false,
+  "isSubmittable": false,
+  "settings": null,
+  "keywordFields": [],
+  "fields": [
+    {
+      "label": "Company Name",
+      "fieldname": "companyName",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "label": "Write Off Account",
+      "fieldname": "writeOffAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "default": "Write Off"
+    },
+    {
+      "label": "Round Off Account",
+      "fieldname": "roundOffAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "default": "Rounded Off"
+    },
+    {
+      "fieldname": "country",
+      "label": "Country",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select Country",
+      "readOnly": true,
+      "required": true
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "required": false
+    },
+    {
+      "fieldname": "fullname",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "required": true,
+      "validate": {
+        "type": "email"
+      }
+    },
+    {
+      "fieldname": "bankName",
+      "label": "Bank Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearStart",
+      "label": "Fiscal Year Start Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearEnd",
+      "label": "Fiscal Year End Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "setupComplete",
+      "label": "Setup Complete",
+      "fieldtype": "Check",
+      "default": 0
+    },
+    {
+      "fieldname": "gstin",
+      "label": "GSTIN",
+      "fieldtype": "Data",
+      "placeholder": "27AAAAA0000A1Z5"
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "currency",
+    "fiscalYearStart",
+    "fiscalYearEnd",
+    "gstin"
+  ]
+}

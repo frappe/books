@@ -1,0 +1,142 @@
+{
+  "name": "PurchaseInvoice",
+  "doctype": "DocType",
+  "label": "Bill",
+  "printTemplate": {
+    "name": "InvoiceTemplate",
+    "props": [
+      "doc",
+      "printSettings"
+    ],
+    "computed": {},
+    "__file": "models/doctype/SalesInvoice/InvoiceTemplate.vue",
+    "__hmrId": "3d0cd49d"
+  },
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "keywordFields": [
+    "name",
+    "supplier"
+  ],
+  "settings": "PurchaseInvoiceSettings",
+  "showTitle": true,
+  "fields": [
+    {
+      "label": "Bill No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Date"
+    },
+    {
+      "fieldname": "supplier",
+      "label": "Supplier",
+      "fieldtype": "Link",
+      "target": "Supplier",
+      "required": true
+    },
+    {
+      "fieldname": "account",
+      "label": "Account",
+      "fieldtype": "Link",
+      "target": "Account"
+    },
+    {
+      "fieldname": "currency",
+      "label": "Supplier Currency",
+      "fieldtype": "Link",
+      "target": "Currency",
+      "hidden": true,
+      "formulaDependsOn": [
+        "supplier"
+      ]
+    },
+    {
+      "fieldname": "exchangeRate",
+      "label": "Exchange Rate",
+      "fieldtype": "Float",
+      "default": 1
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "childtype": "PurchaseInvoiceItem",
+      "required": true
+    },
+    {
+      "fieldname": "netTotal",
+      "label": "Net Total",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "baseNetTotal",
+      "label": "Net Total (Company Currency)",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "taxes",
+      "label": "Taxes",
+      "fieldtype": "Table",
+      "childtype": "TaxSummary",
+      "readOnly": true
+    },
+    {
+      "fieldname": "grandTotal",
+      "label": "Grand Total",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "baseGrandTotal",
+      "label": "Grand Total (Company Currency)",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "outstandingAmount",
+      "label": "Outstanding Amount",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "terms",
+      "label": "Terms",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldname": "cancelled",
+      "label": "Cancelled",
+      "fieldtype": "Check",
+      "default": 0,
+      "readOnly": true
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "required": true,
+      "default": "PINV-"
+    }
+  ],
+  "actions": [
+    {
+      "label": "Make Payment"
+    },
+    {
+      "label": "Print"
+    },
+    {
+      "label": "Ledger Entries"
+    }
+  ]
+}

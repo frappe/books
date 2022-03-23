@@ -1,0 +1,8 @@
+{
+  "name": "PaymentSettings",
+  "label": "Payment Settings",
+  "isSingle": true,
+  "isChild": false,
+  "keywordFields": [],
+  "fields": []
+}

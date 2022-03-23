@@ -1,0 +1,88 @@
+{
+  "name": "Account",
+  "label": "Account",
+  "doctype": "DocType",
+  "isSingle": false,
+  "isTree": true,
+  "keywordFields": [
+    "name",
+    "rootType",
+    "accountType"
+  ],
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Account Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "rootType",
+      "label": "Root Type",
+      "fieldtype": "Select",
+      "placeholder": "Root Type",
+      "options": [
+        "Asset",
+        "Liability",
+        "Equity",
+        "Income",
+        "Expense"
+      ],
+      "required": true
+    },
+    {
+      "fieldname": "parentAccount",
+      "label": "Parent Account",
+      "fieldtype": "Link",
+      "target": "Account"
+    },
+    {
+      "fieldname": "accountType",
+      "label": "Account Type",
+      "placeholder": "Account Type",
+      "fieldtype": "Select",
+      "options": [
+        "Accumulated Depreciation",
+        "Bank",
+        "Cash",
+        "Chargeable",
+        "Cost of Goods Sold",
+        "Depreciation",
+        "Equity",
+        "Expense Account",
+        "Expenses Included In Valuation",
+        "Fixed Asset",
+        "Income Account",
+        "Payable",
+        "Receivable",
+        "Round Off",
+        "Stock",
+        "Stock Adjustment",
+        "Stock Received But Not Billed",
+        "Tax",
+        "Temporary"
+      ]
+    },
+    {
+      "fieldname": "balance",
+      "label": "Balance",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "isGroup",
+      "label": "Is Group",
+      "fieldtype": "Check"
+    }
+  ],
+  "quickEditFields": [
+    "name",
+    "rootType",
+    "parentAccount",
+    "accountType",
+    "isGroup"
+  ],
+  "treeSettings": {
+    "parentField": "parentAccount"
+  }
+}

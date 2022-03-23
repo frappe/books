@@ -1,0 +1,75 @@
+{
+  "name": "NumberSeries",
+  "label": "Number Series",
+  "doctype": "DocType",
+  "isSingle": false,
+  "isChild": false,
+  "keywordFields": [],
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Prefix",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "start",
+      "label": "Start",
+      "fieldtype": "Int",
+      "default": 1001,
+      "required": true,
+      "minvalue": 0
+    },
+    {
+      "fieldname": "padZeros",
+      "label": "Pad Zeros",
+      "fieldtype": "Int",
+      "default": 4,
+      "required": true
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Reference Type",
+      "fieldtype": "Select",
+      "options": [
+        "SalesInvoice",
+        "PurchaseInvoice",
+        "Payment",
+        "JournalEntry",
+        "Quotation",
+        "SalesOrder",
+        "Fulfillment",
+        "PurchaseOrder",
+        "PurchaseReceipt",
+        "-"
+      ],
+      "map": {
+        "SalesInvoice": "Invoice",
+        "PurchaseInvoice": "Bill",
+        "Payment": "Payment",
+        "JournalEntry": "Journal Entry",
+        "Quotation": "Quotation",
+        "SalesOrder": "SalesOrder",
+        "Fulfillment": "Fulfillment",
+        "PurchaseOrder": "PurchaseOrder",
+        "PurchaseReceipt": "PurchaseReceipt",
+        "-": "None"
+      },
+      "default": "-",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "current",
+      "label": "Current",
+      "fieldtype": "Int",
+      "required": true,
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": [
+    "start",
+    "padZeros",
+    "referenceType"
+  ]
+}
