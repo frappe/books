@@ -1,16 +1,7 @@
 {
   "name": "Currency",
   "label": "Currency",
-  "doctype": "DocType",
   "isSingle": false,
-  "keywordFields": [
-    "name",
-    "symbol"
-  ],
-  "quickEditFields": [
-    "name",
-    "symbol"
-  ],
   "fields": [
     {
       "fieldname": "name",
@@ -38,5 +29,7 @@
       "fieldname": "symbol",
       "fieldtype": "Data"
     }
-  ]
+  ],
+  "keywordFields": ["name", "symbol"],
+  "quickEditFields": ["name", "symbol"]
 }

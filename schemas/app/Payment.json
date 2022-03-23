@@ -4,7 +4,6 @@
   "isSingle": false,
   "isChild": false,
   "isSubmittable": true,
-  "keywordFields": [],
   "settings": "PaymentSettings",
   "fields": [
     {
@@ -18,7 +17,7 @@
       "fieldname": "party",
       "label": "Party",
       "fieldtype": "Link",
-      "target": "Party",
+      "target": ["Customer", "Supplier"],
       "required": true
     },
     {
@@ -39,13 +38,15 @@
       "fieldtype": "Select",
       "placeholder": "Payment Type",
       "options": [
-        "Receive",
-        "Pay"
+        {
+          "value": "Receive",
+          "label": "Receive"
+        },
+        {
+          "value": "Pay",
+          "label": "Pay"
+        }
       ],
-      "map": {
-        "Receive": "Receive",
-        "Pay": "Pay"
-      },
       "required": true
     },
     {
@@ -70,9 +71,18 @@
       "placeholder": "Payment Method",
       "fieldtype": "Select",
       "options": [
-        "Cash",
-        "Cheque",
-        "Transfer"
+        {
+          "value": "Cash",
+          "label": "Cash"
+        },
+        {
+          "value": "Cheque",
+          "label": "Cheque"
+        },
+        {
+          "value": "Transfer",
+          "label": "Transfer"
+        }
       ],
       "default": "Cash",
       "required": true
@@ -110,15 +120,8 @@
       "fieldname": "for",
       "label": "Payment Reference",
       "fieldtype": "Table",
-      "childtype": "PaymentFor",
+      "target": "PaymentFor",
       "required": false
-    },
-    {
-      "fieldname": "cancelled",
-      "label": "Cancelled",
-      "fieldtype": "Check",
-      "default": 0,
-      "readOnly": true
     }
   ],
   "quickEditFields": [
@@ -135,85 +138,5 @@
     "amount",
     "writeoff",
     "for"
-  ],
-  "layout": [
-    {
-      "columns": [
-        {
-          "fields": [
-            "party",
-            "account"
-          ]
-        },
-        {
-          "fields": [
-            "date",
-            "paymentAccount"
-          ]
-        }
-      ]
-    },
-    {
-      "columns": [
-        {
-          "fields": [
-            "paymentMethod"
-          ]
-        },
-        {
-          "fields": [
-            "paymentType"
-          ]
-        },
-        {
-          "fields": [
-            "referenceId"
-          ]
-        }
-      ]
-    },
-    {
-      "columns": [
-        {
-          "fields": [
-            "referenceDate"
-          ]
-        },
-        {
-          "fields": [
-            "clearanceDate"
-          ]
-        }
-      ]
-    },
-    {
-      "columns": [
-        {
-          "fields": [
-            "for"
-          ]
-        }
-      ]
-    },
-    {
-      "columns": [
-        {
-          "fields": [
-            "amount",
-            "writeoff"
-          ]
-        }
-      ]
-    }
-  ],
-  "actions": [
-    {
-      "label": "Ledger Entries"
-    }
-  ],
-  "links": [
-    {
-      "label": "Ledger Entries"
-    }
   ]
 }

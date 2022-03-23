@@ -1,9 +1,8 @@
 {
   "name": "SingleValue",
-  "doctype": "DocType",
+  "label": "Single Value",
   "isSingle": false,
   "isChild": false,
-  "keywordFields": [],
   "fields": [
     {
       "fieldname": "parent",
@@ -23,5 +22,6 @@
       "fieldtype": "Data",
       "required": true
     }
-  ]
+  ],
+  "keywordFields": []
 }

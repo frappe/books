@@ -1,5 +1,6 @@
 {
   "name": "JournalEntryAccount",
+  "label": "Journal Entry Account",
   "isChild": true,
   "fields": [
     {
@@ -22,9 +23,5 @@
       "fieldtype": "Currency"
     }
   ],
-  "tableFields": [
-    "account",
-    "debit",
-    "credit"
-  ]
+  "tableFields": ["account", "debit", "credit"]
 }

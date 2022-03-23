@@ -1,10 +1,8 @@
 {
   "name": "SystemSettings",
   "label": "System Settings",
-  "doctype": "DocType",
   "isSingle": true,
   "isChild": false,
-  "keywordFields": [],
   "fields": [
     {
       "fieldname": "dateFormat",
@@ -82,5 +80,6 @@
     "dateFormat",
     "displayPrecision",
     "hideGetStarted"
-  ]
+  ],
+  "keywordFields": []
 }

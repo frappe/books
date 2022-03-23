@@ -1,10 +1,8 @@
 {
   "name": "NumberSeries",
   "label": "Number Series",
-  "doctype": "DocType",
   "isSingle": false,
   "isChild": false,
-  "keywordFields": [],
   "fields": [
     {
       "fieldname": "name",
@@ -32,29 +30,23 @@
       "label": "Reference Type",
       "fieldtype": "Select",
       "options": [
-        "SalesInvoice",
-        "PurchaseInvoice",
-        "Payment",
-        "JournalEntry",
-        "Quotation",
-        "SalesOrder",
-        "Fulfillment",
-        "PurchaseOrder",
-        "PurchaseReceipt",
-        "-"
+        {
+          "value": "SalesInvoice",
+          "label": "Invoice"
+        },
+        {
+          "value": "PurchaseInvoice",
+          "label": "Bill"
+        },
+        {
+          "value": "Payment",
+          "label": "Payment"
+        },
+        {
+          "value": "JournalEntry",
+          "label": "Journal Entry"
+        }
       ],
-      "map": {
-        "SalesInvoice": "Invoice",
-        "PurchaseInvoice": "Bill",
-        "Payment": "Payment",
-        "JournalEntry": "Journal Entry",
-        "Quotation": "Quotation",
-        "SalesOrder": "SalesOrder",
-        "Fulfillment": "Fulfillment",
-        "PurchaseOrder": "PurchaseOrder",
-        "PurchaseReceipt": "PurchaseReceipt",
-        "-": "None"
-      },
       "default": "-",
       "required": true,
       "readOnly": true
@@ -67,9 +59,6 @@
       "readOnly": true
     }
   ],
-  "quickEditFields": [
-    "start",
-    "padZeros",
-    "referenceType"
-  ]
+  "quickEditFields": ["start", "padZeros", "referenceType"],
+  "keywordFields": []
 }

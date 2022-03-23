@@ -1,5 +1,6 @@
 {
   "name": "PatchRun",
+  "label": "Patch Run",
   "fields": [
     {
       "fieldname": "name",

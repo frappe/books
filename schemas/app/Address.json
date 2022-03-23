@@ -1,16 +1,7 @@
 {
   "name": "Address",
-  "doctype": "DocType",
-  "regional": 1,
+  "label": "Address",
   "isSingle": false,
-  "keywordFields": [
-    "addressLine1",
-    "addressLine2",
-    "city",
-    "state",
-    "country",
-    "postalCode"
-  ],
   "fields": [
     {
       "fieldname": "addressLine1",
@@ -36,6 +27,7 @@
       "fieldname": "state",
       "label": "State",
       "placeholder": "State",
+      "options": [],
       "fieldtype": "AutoComplete"
     },
     {
@@ -43,6 +35,7 @@
       "label": "Country",
       "placeholder": "Country",
       "fieldtype": "AutoComplete",
+      "options": [],
       "required": true
     },
     {
@@ -73,12 +66,6 @@
       "fieldtype": "Text",
       "label": "Address Display",
       "readOnly": true
-    },
-    {
-      "fieldname": "pos",
-      "label": "Place of Supply",
-      "fieldtype": "AutoComplete",
-      "placeholder": "Place of Supply"
     }
   ],
   "quickEditFields": [
@@ -87,9 +74,14 @@
     "city",
     "state",
     "country",
-    "postalCode",
-    "pos"
+    "postalCode"
   ],
-  "inlineEditDisplayField": "addressDisplay",
-  "augmented": 1
+  "keywordFields": [
+    "addressLine1",
+    "addressLine2",
+    "city",
+    "state",
+    "country",
+    "postalCode"
+  ]
 }

@@ -1,13 +1,7 @@
 {
   "name": "Item",
   "label": "Item",
-  "doctype": "DocType",
   "isSingle": false,
-  "regional": 1,
-  "keywordFields": [
-    "name",
-    "description"
-  ],
   "fields": [
     {
       "fieldname": "name",
@@ -15,12 +9,6 @@
       "fieldtype": "Data",
       "placeholder": "Item Name",
       "required": true
-    },
-    {
-      "fieldname": "hsnCode",
-      "label": "HSN/SAC",
-      "fieldtype": "Int",
-      "placeholder": "HSN/SAC Code"
     },
     {
       "fieldname": "image",
@@ -40,11 +28,26 @@
       "placeholder": "Unit Type",
       "default": "Unit",
       "options": [
-        "Unit",
-        "Kg",
-        "Gram",
-        "Hour",
-        "Day"
+        {
+          "value": "Unit",
+          "name": "Unit"
+        },
+        {
+          "value": "Kg",
+          "name": "Kg"
+        },
+        {
+          "value": "Gram",
+          "label": "Gram"
+        },
+        {
+          "value": "Hour",
+          "label": "Hour"
+        },
+        {
+          "value": "Day",
+          "label": "Day"
+        }
       ]
     },
     {
@@ -54,8 +57,14 @@
       "fieldtype": "Select",
       "default": "Product",
       "options": [
-        "Product",
-        "Service"
+        {
+          "value": "Product",
+          "label": "Product"
+        },
+        {
+          "value": "Service",
+          "label": "Service"
+        }
       ]
     },
     {
@@ -63,15 +72,19 @@
       "label": "For",
       "fieldtype": "Select",
       "options": [
-        "purchases",
-        "sales",
-        "both"
+        {
+          "value": "purchases",
+          "label": "Purchases"
+        },
+        {
+          "value": "sales",
+          "label": "Sales"
+        },
+        {
+          "value": "both",
+          "label": "Both"
+        }
       ],
-      "map": {
-        "purchases": "Purchases",
-        "sales": "Sales",
-        "both": "Both"
-      },
       "default": "both"
     },
     {
@@ -80,11 +93,7 @@
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Income",
-      "required": true,
-      "disableCreation": true,
-      "formulaDependsOn": [
-        "itemType"
-      ]
+      "required": true
     },
     {
       "fieldname": "expenseAccount",
@@ -92,11 +101,7 @@
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Expense",
-      "required": true,
-      "disableCreation": true,
-      "formulaDependsOn": [
-        "itemType"
-      ]
+      "required": true
     },
     {
       "fieldname": "tax",
@@ -109,10 +114,15 @@
       "fieldname": "rate",
       "label": "Rate",
       "fieldtype": "Currency"
+    },
+    {
+      "fieldname": "hsnCode",
+      "label": "HSN/SAC",
+      "fieldtype": "Int",
+      "placeholder": "HSN/SAC Code"
     }
   ],
   "quickEditFields": [
-    "hsnCode",
     "rate",
     "unit",
     "itemType",
@@ -120,15 +130,8 @@
     "tax",
     "description",
     "incomeAccount",
-    "expenseAccount"
+    "expenseAccount",
+    "hsnCode"
   ],
-  "actions": [
-    {
-      "label": "New Invoice"
-    },
-    {
-      "label": "New Bill"
-    }
-  ],
-  "augmented": 1
+  "keywordFields": ["name", "description"]
 }

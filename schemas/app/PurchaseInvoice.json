@@ -1,25 +1,9 @@
 {
   "name": "PurchaseInvoice",
-  "doctype": "DocType",
-  "label": "Bill",
-  "printTemplate": {
-    "name": "InvoiceTemplate",
-    "props": [
-      "doc",
-      "printSettings"
-    ],
-    "computed": {},
-    "__file": "models/doctype/SalesInvoice/InvoiceTemplate.vue",
-    "__hmrId": "3d0cd49d"
-  },
+  "label": "Purchase Invoice",
   "isSingle": false,
   "isChild": false,
   "isSubmittable": true,
-  "keywordFields": [
-    "name",
-    "supplier"
-  ],
-  "settings": "PurchaseInvoiceSettings",
   "showTitle": true,
   "fields": [
     {
@@ -52,10 +36,7 @@
       "label": "Supplier Currency",
       "fieldtype": "Link",
       "target": "Currency",
-      "hidden": true,
-      "formulaDependsOn": [
-        "supplier"
-      ]
+      "hidden": true
     },
     {
       "fieldname": "exchangeRate",
@@ -67,38 +48,42 @@
       "fieldname": "items",
       "label": "Items",
       "fieldtype": "Table",
-      "childtype": "PurchaseInvoiceItem",
+      "target": "PurchaseInvoiceItem",
       "required": true
     },
     {
       "fieldname": "netTotal",
       "label": "Net Total",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     },
     {
       "fieldname": "baseNetTotal",
       "label": "Net Total (Company Currency)",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     },
     {
       "fieldname": "taxes",
       "label": "Taxes",
       "fieldtype": "Table",
-      "childtype": "TaxSummary",
+      "target": "TaxSummary",
       "readOnly": true
     },
     {
       "fieldname": "grandTotal",
       "label": "Grand Total",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     },
     {
       "fieldname": "baseGrandTotal",
       "label": "Grand Total (Company Currency)",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     },
     {
@@ -113,13 +98,6 @@
       "fieldtype": "Text"
     },
     {
-      "fieldname": "cancelled",
-      "label": "Cancelled",
-      "fieldtype": "Check",
-      "default": 0,
-      "readOnly": true
-    },
-    {
       "fieldname": "numberSeries",
       "label": "Number Series",
       "fieldtype": "Link",
@@ -128,15 +106,5 @@
       "default": "PINV-"
     }
   ],
-  "actions": [
-    {
-      "label": "Make Payment"
-    },
-    {
-      "label": "Print"
-    },
-    {
-      "label": "Ledger Entries"
-    }
-  ]
+  "keywordFields": ["name", "supplier", "numberSeries"]
 }

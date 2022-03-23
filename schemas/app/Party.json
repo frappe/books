@@ -1,10 +1,7 @@
 {
   "name": "Party",
   "label": "Party",
-  "regional": 1,
-  "keywordFields": [
-    "name"
-  ],
+  "isAbstract": true,
   "fields": [
     {
       "fieldname": "name",
@@ -17,33 +14,6 @@
       "fieldname": "image",
       "label": "Image",
       "fieldtype": "AttachImage"
-    },
-    {
-      "fieldname": "customer",
-      "label": "Is Customer",
-      "fieldtype": "Check"
-    },
-    {
-      "fieldname": "gstin",
-      "label": "GSTIN No.",
-      "fieldtype": "Data"
-    },
-    {
-      "fieldname": "gstType",
-      "label": "GST Registration",
-      "placeholder": "GST Registration",
-      "fieldtype": "Select",
-      "default": "Unregistered",
-      "options": [
-        "Unregistered",
-        "Registered Regular",
-        "Consumer"
-      ]
-    },
-    {
-      "fieldname": "supplier",
-      "label": "Is Supplier",
-      "fieldtype": "Check"
     },
     {
       "fieldname": "defaultAccount",
@@ -67,19 +37,13 @@
       "fieldname": "email",
       "label": "Email",
       "fieldtype": "Data",
-      "placeholder": "john@doe.com",
-      "validate": {
-        "type": "email"
-      }
+      "placeholder": "john@doe.com"
     },
     {
       "fieldname": "phone",
       "label": "Phone",
       "fieldtype": "Data",
-      "placeholder": "Phone",
-      "validate": {
-        "type": "phone"
-      }
+      "placeholder": "Phone"
     },
     {
       "fieldname": "address",
@@ -88,12 +52,6 @@
       "target": "Address",
       "placeholder": "Click to create",
       "inline": true
-    },
-    {
-      "fieldname": "addressDisplay",
-      "label": "Address Display",
-      "fieldtype": "Text",
-      "readOnly": true
     }
   ],
   "quickEditFields": [
@@ -101,9 +59,7 @@
     "phone",
     "address",
     "defaultAccount",
-    "currency",
-    "gstType",
-    "gstin"
+    "currency"
   ],
-  "augmented": 1
+  "keywordFields": ["name"]
 }

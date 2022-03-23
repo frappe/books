@@ -3,12 +3,6 @@
   "label": "Payment For",
   "isSingle": false,
   "isChild": true,
-  "keywordFields": [],
-  "tableFields": [
-    "referenceType",
-    "referenceName",
-    "amount"
-  ],
   "fields": [
     {
       "fieldname": "referenceType",
@@ -16,13 +10,15 @@
       "placeholder": "Type",
       "fieldtype": "Select",
       "options": [
-        "SalesInvoice",
-        "PurchaseInvoice"
+        {
+          "value": "SalesInvoice",
+          "label": "Sales Invoice"
+        },
+        {
+          "value": "PurchaseInvoice",
+          "label": "Purchase Invoice"
+        }
       ],
-      "map": {
-        "SalesInvoice": "Invoice",
-        "PurchaseInvoice": "Bill"
-      },
       "required": true
     },
     {

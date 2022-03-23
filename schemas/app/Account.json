@@ -4,11 +4,6 @@
   "doctype": "DocType",
   "isSingle": false,
   "isTree": true,
-  "keywordFields": [
-    "name",
-    "rootType",
-    "accountType"
-  ],
   "fields": [
     {
       "fieldname": "name",
@@ -22,11 +17,26 @@
       "fieldtype": "Select",
       "placeholder": "Root Type",
       "options": [
-        "Asset",
-        "Liability",
-        "Equity",
-        "Income",
-        "Expense"
+        {
+          "value": "Asset",
+          "label": "Asset"
+        },
+        {
+          "value": "Liability",
+          "label": "Liability"
+        },
+        {
+          "value": "Equity",
+          "label": "Equity"
+        },
+        {
+          "value": "Income",
+          "label": "Income"
+        },
+        {
+          "value": "Expense",
+          "label": "Expense"
+        }
       ],
       "required": true
     },
@@ -42,25 +52,82 @@
       "placeholder": "Account Type",
       "fieldtype": "Select",
       "options": [
-        "Accumulated Depreciation",
-        "Bank",
-        "Cash",
-        "Chargeable",
-        "Cost of Goods Sold",
-        "Depreciation",
-        "Equity",
-        "Expense Account",
-        "Expenses Included In Valuation",
-        "Fixed Asset",
-        "Income Account",
-        "Payable",
-        "Receivable",
-        "Round Off",
-        "Stock",
-        "Stock Adjustment",
-        "Stock Received But Not Billed",
-        "Tax",
-        "Temporary"
+        {
+          "value": "Accumulated Depreciation",
+          "label": "Accumulated Depreciation"
+        },
+        {
+          "value": "Bank",
+          "label": "Bank"
+        },
+        {
+          "value": "Cash",
+          "label": "Cash"
+        },
+        {
+          "value": "Chargeable",
+          "label": "Chargeable"
+        },
+        {
+          "value": "Cost of Goods Sold",
+          "label": "Cost of Goods Sold"
+        },
+        {
+          "value": "Depreciation",
+          "label": "Depreciation"
+        },
+        {
+          "value": "Equity",
+          "label": "Equity"
+        },
+        {
+          "value": "Expense Account",
+          "label": "Expense Account"
+        },
+        {
+          "value": "Expenses Included In Valuation",
+          "label": "Expenses Included In Valuation"
+        },
+        {
+          "value": "Fixed Asset",
+          "label": "Fixed Asset"
+        },
+        {
+          "value": "Income Account",
+          "label": "Income Account"
+        },
+        {
+          "value": "Payable",
+          "label": "Payable"
+        },
+        {
+          "value": "Receivable",
+          "label": "Receivable"
+        },
+        {
+          "value": "Round Off",
+          "label": "Round Off"
+        },
+        {
+          "value": "Stock",
+          "label": "Stock"
+        },
+        {
+          "value": "Stock Adjustment",
+          "label": "Stock Adjustment"
+        },
+        {
+          "value": "Stock Received But Not Billed",
+          "label": "Stock Received But Not Billed"
+        },
+        {
+          "value": "Tax",
+          "label": "Tax"
+        },
+        {
+          "value": "Temporary",
+          "label": "Temporary"
+        }
       ]
     },
     {
@@ -82,6 +149,7 @@
     "accountType",
     "isGroup"
   ],
+  "keywordFields": ["name", "rootType", "accountType"],
   "treeSettings": {
     "parentField": "parentAccount"
   }
