@@ -1,15 +1,8 @@
 {
   "name": "PurchaseInvoiceItem",
-  "doctype": "DocType",
+  "label": "Purchase Invoice Item",
   "isChild": true,
-  "keywordFields": [],
-  "tableFields": [
-    "item",
-    "tax",
-    "quantity",
-    "rate",
-    "amount"
-  ],
+  "tableFields": ["item", "tax", "quantity", "rate", "amount"],
   "fields": [
     {
       "fieldname": "item",
@@ -41,6 +34,7 @@
       "fieldname": "baseRate",
       "label": "Rate (Company Currency)",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     },
     {
@@ -61,12 +55,14 @@
       "fieldname": "amount",
       "label": "Amount",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     },
     {
       "fieldname": "baseAmount",
       "label": "Amount (Company Currency)",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     }
   ]

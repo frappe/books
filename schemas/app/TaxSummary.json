@@ -1,6 +1,6 @@
 {
   "name": "TaxSummary",
-  "doctype": "DocType",
+  "label": "Tax Summary",
   "isChild": true,
   "fields": [
     {

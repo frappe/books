@@ -1,10 +1,8 @@
 {
   "name": "SalesInvoiceSettings",
-  "label": "SalesInvoice Settings",
-  "doctype": "DocType",
+  "label": "Sales Invoice Settings",
   "isSingle": true,
   "isChild": false,
-  "keywordFields": [],
   "fields": [
     {
       "fieldname": "template",
@@ -12,9 +10,18 @@
       "placeholder": "Template",
       "fieldtype": "Select",
       "options": [
-        "Basic I",
-        "Basic II",
-        "Modern"
+        {
+          "value": "Basic I",
+          "label": "Basic I"
+        },
+        {
+          "value": "Basic II",
+          "label": "Basic II"
+        },
+        {
+          "value": "Modern",
+          "label": "Modern"
+        }
       ],
       "required": true,
       "default": "Basic I"
@@ -25,10 +32,22 @@
       "placeholder": "Font",
       "fieldtype": "Select",
       "options": [
-        "Montserrat",
-        "Open Sans",
-        "Oxygen",
-        "Merriweather"
+        {
+          "value": "Montserrat",
+          "label": "Montserrat"
+        },
+        {
+          "value": "Open Sans",
+          "label": "Open Sans"
+        },
+        {
+          "value": "Oxygen",
+          "label": "Oxygen"
+        },
+        {
+          "value": "Merriweather",
+          "label": "Merriweather"
+        }
       ],
       "required": true,
       "default": "Montserrat"

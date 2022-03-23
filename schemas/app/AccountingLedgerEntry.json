@@ -1,15 +1,8 @@
 {
   "name": "AccountingLedgerEntry",
   "label": "Ledger Entry",
-  "naming": "autoincrement",
-  "doctype": "DocType",
   "isSingle": false,
   "isChild": false,
-  "keywordFields": [
-    "account",
-    "party",
-    "referenceName"
-  ],
   "fields": [
     {
       "fieldname": "date",
@@ -22,11 +15,6 @@
       "fieldtype": "Link",
       "target": "Account",
       "required": true
-    },
-    {
-      "fieldname": "description",
-      "label": "Description",
-      "fieldtype": "Text"
     },
     {
       "fieldname": "party",
@@ -43,11 +31,6 @@
       "fieldname": "credit",
       "label": "Credit",
       "fieldtype": "Currency"
-    },
-    {
-      "fieldname": "againstAccount",
-      "label": "Against Account",
-      "fieldtype": "Text"
     },
     {
       "fieldname": "referenceType",
@@ -69,19 +52,18 @@
       "fieldname": "reverted",
       "label": "Reverted",
       "fieldtype": "Check",
-      "default": 0
+      "default": false
     }
   ],
   "quickEditFields": [
     "date",
     "account",
-    "description",
     "party",
     "debit",
     "credit",
-    "againstAccount",
     "referenceType",
     "referenceName",
     "balance"
-  ]
+  ],
+  "keywordFields": ["account", "party", "referenceName"]
 }

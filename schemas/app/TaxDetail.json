@@ -1,10 +1,8 @@
 {
   "name": "TaxDetail",
   "label": "Tax Detail",
-  "doctype": "DocType",
   "isSingle": false,
   "isChild": true,
-  "keywordFields": [],
   "fields": [
     {
       "fieldname": "account",
@@ -21,8 +19,5 @@
       "placeholder": "0%"
     }
   ],
-  "tableFields": [
-    "account",
-    "rate"
-  ]
+  "tableFields": ["account", "rate"]
 }

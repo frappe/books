@@ -1,9 +1,0 @@
-{
-  "name": "JournalEntrySettings",
-  "label": "Journal Entry Setting",
-  "doctype": "DocType",
-  "isSingle": true,
-  "isChild": false,
-  "keywordFields": [],
-  "fields": []
-}

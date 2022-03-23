@@ -1,6 +1,6 @@
 {
   "name": "Color",
-  "doctype": "DocType",
+  "label": "Color",
   "fields": [
     {
       "fieldname": "name",
@@ -11,7 +11,8 @@
     {
       "fieldname": "hexvalue",
       "fieldtype": "Data",
-      "label": "Hex Value"
+      "label": "Hex Value",
+      "required": true
     }
   ]
 }

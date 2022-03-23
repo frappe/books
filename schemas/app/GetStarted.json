@@ -1,5 +1,6 @@
 {
   "name": "GetStarted",
+  "label": "Get Started",
   "isSingle": true,
   "fields": [
     {

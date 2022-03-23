@@ -17,10 +17,7 @@
       "fieldname": "email",
       "label": "Email",
       "fieldtype": "Data",
-      "placeholder": "john@doe.com",
-      "validate": {
-        "type": "email"
-      }
+      "placeholder": "john@doe.com"
     },
     {
       "fieldname": "displayLogo",
@@ -31,18 +28,14 @@
       "fieldname": "phone",
       "label": "Phone",
       "fieldtype": "Data",
-      "placeholder": "9888900000",
-      "validate": {
-        "type": "phone"
-      }
+      "placeholder": "9888900000"
     },
     {
       "fieldname": "address",
       "label": "Address",
       "fieldtype": "Link",
       "target": "Address",
-      "placeholder": "Click to create",
-      "inline": true
+      "placeholder": "Click to create"
     },
     {
       "fieldname": "template",
@@ -50,9 +43,18 @@
       "placeholder": "Template",
       "fieldtype": "Select",
       "options": [
-        "Basic",
-        "Minimal",
-        "Business"
+        {
+          "value": "Basic",
+          "label": "Basic"
+        },
+        {
+          "value": "Minimal",
+          "label": "Minimal"
+        },
+        {
+          "value": "Business",
+          "label": "Business"
+        }
       ],
       "default": "Basic"
     },
@@ -61,7 +63,8 @@
       "label": "Color",
       "placeholder": "Select Color",
       "fieldtype": "Color",
-      "colors": [
+      "default": "#112B42",
+      "options": [
         {
           "label": "Red",
           "value": "#f56565"
@@ -110,10 +113,22 @@
       "placeholder": "Font",
       "fieldtype": "Select",
       "options": [
-        "Inter",
-        "Times New Roman",
-        "Arial",
-        "Courier"
+        {
+          "value": "Inter",
+          "label": "Inter"
+        },
+        {
+          "value": "Times New Roman",
+          "label": "Times New Roman"
+        },
+        {
+          "value": "Arial",
+          "label": "Arial"
+        },
+        {
+          "value": "Courier",
+          "label": "Courier"
+        }
       ],
       "default": "Inter"
     }

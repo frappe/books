@@ -1,12 +1,9 @@
 {
   "name": "AccountingSettings",
   "label": "Accounting Settings",
-  "naming": "name",
   "isSingle": true,
   "isChild": false,
   "isSubmittable": false,
-  "settings": null,
-  "keywordFields": [],
   "fields": [
     {
       "label": "Company Name",
@@ -53,10 +50,7 @@
       "fieldname": "email",
       "label": "Email",
       "fieldtype": "Data",
-      "required": true,
-      "validate": {
-        "type": "email"
-      }
+      "required": true
     },
     {
       "fieldname": "bankName",
@@ -80,13 +74,7 @@
       "fieldname": "setupComplete",
       "label": "Setup Complete",
       "fieldtype": "Check",
-      "default": 0
-    },
-    {
-      "fieldname": "gstin",
-      "label": "GSTIN",
-      "fieldtype": "Data",
-      "placeholder": "27AAAAA0000A1Z5"
+      "default": false
     }
   ],
   "quickEditFields": [
@@ -96,7 +84,6 @@
     "country",
     "currency",
     "fiscalYearStart",
-    "fiscalYearEnd",
-    "gstin"
+    "fiscalYearEnd"
   ]
 }

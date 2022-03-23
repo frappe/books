@@ -1,16 +1,7 @@
 {
   "name": "SalesInvoiceItem",
-  "doctype": "DocType",
+  "label": "Sales Invoice Item",
   "isChild": true,
-  "regional": 1,
-  "keywordFields": [],
-  "tableFields": [
-    "item",
-    "tax",
-    "quantity",
-    "rate",
-    "amount"
-  ],
   "fields": [
     {
       "fieldname": "item",
@@ -23,10 +14,7 @@
       "fieldname": "description",
       "label": "Description",
       "fieldtype": "Text",
-      "hidden": true,
-      "formulaDependsOn": [
-        "item"
-      ]
+      "hidden": true
     },
     {
       "fieldname": "quantity",
@@ -39,15 +27,13 @@
       "fieldname": "rate",
       "label": "Rate",
       "fieldtype": "Currency",
-      "required": true,
-      "formulaDependsOn": [
-        "item"
-      ]
+      "required": true
     },
     {
       "fieldname": "baseRate",
       "label": "Rate (Company Currency)",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     },
     {
@@ -63,31 +49,22 @@
       "fieldname": "tax",
       "label": "Tax",
       "fieldtype": "Link",
-      "target": "Tax",
-      "formulaDependsOn": [
-        "item"
-      ]
+      "target": "Tax"
     },
     {
       "fieldname": "amount",
       "label": "Amount",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
     },
     {
       "fieldname": "baseAmount",
       "label": "Amount (Company Currency)",
       "fieldtype": "Currency",
+      "computed": true,
       "readOnly": true
-    },
-    {
-      "fieldname": "hsnCode",
-      "label": "HSN/SAC",
-      "fieldtype": "Int",
-      "formulaDependsOn": [
-        "item"
-      ]
     }
   ],
-  "augmented": 1
+  "tableFields": ["item", "tax", "quantity", "rate", "amount"]
 }
