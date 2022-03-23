@@ -1,15 +1,52 @@
-import frappe from 'frappe';
-import Observable from 'frappe/utils/observable';
-import { knex } from 'knex';
-import CacheManager from '../utils/cacheManager';
-import { getRandomString } from '../utils/index';
+import { knex, Knex } from 'knex';
+import { pesa } from 'pesa';
+import { getRandomString } from '../../frappe/utils';
+import CacheManager from '../../frappe/utils/cacheManager';
+import {
+  CannotCommitError,
+  DatabaseError,
+  DuplicateEntryError,
+  LinkValidationError,
+  ValueError,
+} from '../../frappe/utils/errors';
+import Observable from '../../frappe/utils/observable';
+import { getMeta, getModels, getNewDoc, sqliteTypeMap } from '../common';
+import { GetQueryBuilderOptions, QueryFilter, RawData } from './types';
 
-export default class Database extends Observable {
-  constructor() {
+interface GetAllOptions {
+  doctype?: string;
+  fields?: string[];
+  filters?: Record<string, string>;
+  start?: number;
+  limit?: number;
+  groupBy?: string;
+  orderBy?: string;
+  order?: 'asc' | 'desc';
+}
+
+export default class Database extends Observable<never> {
+  knex: Knex;
+  cache: CacheManager;
+  typeMap = sqliteTypeMap;
+
+  constructor(dbPath: string) {
     super();
-    this.initTypeMap();
-    this.connectionParams = {};
     this.cache = new CacheManager();
+    this.dbPath = dbPath;
+    this.connectionParams = {
+      client: 'sqlite3',
+      connection: {
+        filename: this.dbPath,
+      },
+      pool: {
+        afterCreate(conn, done) {
+          conn.run('PRAGMA foreign_keys=ON');
+          done();
+        },
+      },
+      useNullAsDefault: true,
+      asyncStackTraces: process.env.NODE_ENV === 'development',
+    };
   }
 
   connect() {
@@ -17,18 +54,26 @@ export default class Database extends Observable {
     this.knex.on('query-error', (error) => {
       error.type = this.getError(error);
     });
-    this.executePostDbConnect();
   }
 
   close() {
     //
   }
 
+  /**
+   * TODO: Refactor this
+   *
+   * essentially it's not models that are required by the database
+   * but the schema, all the information that is relevant to building
+   * tables needs to given to this function.
+   */
   async migrate() {
-    for (let doctype in frappe.models) {
+    const models = getModels();
+    for (const doctype in models) {
       // check if controller module
-      let meta = frappe.getMeta(doctype);
-      let baseDoctype = meta.getBaseDocType();
+      const meta = getMeta(doctype);
+      const baseDoctype = meta.getBaseDocType();
+
       if (!meta.isSingle) {
         if (await this.tableExists(baseDoctype)) {
           await this.alterTable(baseDoctype);
@@ -37,20 +82,22 @@ export default class Database extends Observable {
         }
       }
     }
+
     await this.commit();
     await this.initializeSingles();
   }
 
   async initializeSingles() {
-    let singleDoctypes = frappe
-      .getModels((model) => model.isSingle)
-      .map((model) => model.name);
+    const models = getModels();
+    const singleDoctypes = Object.keys(models)
+      .filter((n) => models[n].isSingle)
+      .map((n) => models[n].name);
 
-    for (let doctype of singleDoctypes) {
+    for (const doctype of singleDoctypes) {
       if (await this.singleExists(doctype)) {
         const singleValues = await this.getSingleFieldsToInsert(doctype);
         singleValues.forEach(({ fieldname, value }) => {
-          let singleValue = frappe.getNewDoc({
+          const singleValue = getNewDoc({
             doctype: 'SingleValue',
             parent: doctype,
             fieldname,
@@ -60,11 +107,11 @@ export default class Database extends Observable {
         });
         continue;
       }
-      let meta = frappe.getMeta(doctype);
+      const meta = getMeta(doctype);
       if (meta.fields.every((df) => df.default == null)) {
         continue;
       }
-      let defaultValues = meta.fields.reduce((doc, df) => {
+      const defaultValues = meta.fields.reduce((doc, df) => {
         if (df.default != null) {
           doc[df.fieldname] = df.default;
         }
@@ -74,24 +121,14 @@ export default class Database extends Observable {
     }
   }
 
-  async singleExists(doctype) {
-    let res = await this.knex('SingleValue')
-      .count('parent as count')
-      .where('parent', doctype)
-      .first();
-    return res.count > 0;
-  }
-
   async getSingleFieldsToInsert(doctype) {
     const existingFields = (
-      await frappe.db
-        .knex('SingleValue')
+      await this.knex('SingleValue')
         .where({ parent: doctype })
         .select('fieldname')
     ).map(({ fieldname }) => fieldname);
 
-    return frappe
-      .getMeta(doctype)
+    return getMeta(doctype)
       .fields.map(({ fieldname, default: value }) => ({
         fieldname,
         value,
@@ -102,18 +139,14 @@ export default class Database extends Observable {
       );
   }
 
-  tableExists(table) {
-    return this.knex.schema.hasTable(table);
-  }
-
   async createTable(doctype, tableName = null) {
-    let fields = this.getValidFields(doctype);
+    const fields = this.getValidFields(doctype);
     return await this.runCreateTableQuery(tableName || doctype, fields);
   }
 
   runCreateTableQuery(doctype, fields) {
     return this.knex.schema.createTable(doctype, (table) => {
-      for (let field of fields) {
+      for (const field of fields) {
         this.buildColumnForTable(table, field);
       }
     });
@@ -121,13 +154,13 @@ export default class Database extends Observable {
 
   async alterTable(doctype) {
     // get columns
-    let diff = await this.getColumnDiff(doctype);
-    let newForeignKeys = await this.getNewForeignKeys(doctype);
+    const diff = await this.getColumnDiff(doctype);
+    const newForeignKeys = await this.getNewForeignKeys(doctype);
 
     return this.knex.schema
       .table(doctype, (table) => {
         if (diff.added.length) {
-          for (let field of diff.added) {
+          for (const field of diff.added) {
             this.buildColumnForTable(table, field);
           }
         }
@@ -144,14 +177,14 @@ export default class Database extends Observable {
   }
 
   buildColumnForTable(table, field) {
-    let columnType = this.getColumnType(field);
+    const columnType = this.typeMap[field.fieldtype];
     if (!columnType) {
       // In case columnType is "Table"
       // childTable links are handled using the childTable's "parent" field
       return;
     }
 
-    let column = table[columnType](field.fieldname);
+    const column = table[columnType](field.fieldname);
 
     // primary key
     if (field.fieldname === 'name') {
@@ -173,7 +206,7 @@ export default class Database extends Observable {
 
     // link
     if (field.fieldtype === 'Link' && field.target) {
-      let meta = frappe.getMeta(field.target);
+      const meta = getMeta(field.target);
       table
         .foreign(field.fieldname)
         .references('name')
@@ -188,17 +221,17 @@ export default class Database extends Observable {
     const validFields = this.getValidFields(doctype);
     const diff = { added: [], removed: [] };
 
-    for (let field of validFields) {
+    for (const field of validFields) {
       if (
         !tableColumns.includes(field.fieldname) &&
-        this.getColumnType(field)
+        this.typeMap[field.fieldtype]
       ) {
         diff.added.push(field);
       }
     }
 
     const validFieldNames = validFields.map((field) => field.fieldname);
-    for (let column of tableColumns) {
+    for (const column of tableColumns) {
       if (!validFieldNames.includes(column)) {
         diff.removed.push(column);
       }
@@ -207,17 +240,11 @@ export default class Database extends Observable {
     return diff;
   }
 
-  async removeColumns(doctype, removed) {
-    for (let column of removed) {
-      await this.runRemoveColumnQuery(doctype, column);
-    }
-  }
-
   async getNewForeignKeys(doctype) {
-    let foreignKeys = await this.getForeignKeys(doctype);
-    let newForeignKeys = [];
-    let meta = frappe.getMeta(doctype);
-    for (let field of meta.getValidFields({ withChildren: false })) {
+    const foreignKeys = await this.getForeignKeys(doctype);
+    const newForeignKeys = [];
+    const meta = getMeta(doctype);
+    for (const field of meta.getValidFields({ withChildren: false })) {
       if (
         field.fieldtype === 'Link' &&
         !foreignKeys.includes(field.fieldname)
@@ -228,29 +255,15 @@ export default class Database extends Observable {
     return newForeignKeys;
   }
 
-  async addForeignKeys(doctype, newForeignKeys) {
-    for (let field of newForeignKeys) {
-      this.addForeignKey(doctype, field);
-    }
-  }
-
-  async getForeignKeys(doctype, field) {
-    return [];
-  }
-
-  async getTableColumns(doctype) {
-    return [];
-  }
-
   async get(doctype, name = null, fields = '*') {
-    let meta = frappe.getMeta(doctype);
+    const meta = getMeta(doctype);
     let doc;
     if (meta.isSingle) {
       doc = await this.getSingle(doctype);
       doc.name = doctype;
     } else {
       if (!name) {
-        throw new frappe.errors.ValueError('name is mandatory');
+        throw new ValueError('name is mandatory');
       }
       doc = await this.getOne(doctype, name, fields);
     }
@@ -263,8 +276,8 @@ export default class Database extends Observable {
 
   async loadChildren(doc, meta) {
     // load children
-    let tableFields = meta.getTableFields();
-    for (let field of tableFields) {
+    const tableFields = meta.getTableFields();
+    for (const field of tableFields) {
       doc[field.fieldname] = await this.getAll({
         doctype: field.childtype,
         fields: ['*'],
@@ -276,15 +289,15 @@ export default class Database extends Observable {
   }
 
   async getSingle(doctype) {
-    let values = await this.getAll({
+    const values = await this.getAll({
       doctype: 'SingleValue',
       fields: ['fieldname', 'value'],
       filters: { parent: doctype },
       orderBy: 'fieldname',
       order: 'asc',
     });
-    let doc = {};
-    for (let row of values) {
+    const doc = {};
+    for (const row of values) {
       doc[row.fieldname] = row.value;
     }
     return doc;
@@ -309,7 +322,7 @@ export default class Database extends Observable {
       return fieldname;
     });
 
-    let builder = frappe.db.knex('SingleValue');
+    let builder = this.knex('SingleValue');
     builder = builder.where(fieldnames[0]);
 
     fieldnames.slice(1).forEach(({ fieldname, parent }) => {
@@ -331,14 +344,14 @@ export default class Database extends Observable {
     }
 
     return values.map((value) => {
-      const fields = frappe.getMeta(value.parent).fields;
+      const fields = getMeta(value.parent).fields;
       return this.getDocFormattedDoc(fields, values);
     });
   }
 
   async getOne(doctype, name, fields = '*') {
-    let meta = frappe.getMeta(doctype);
-    let baseDoctype = meta.getBaseDocType();
+    const meta = getMeta(doctype);
+    const baseDoctype = meta.getBaseDocType();
 
     const doc = await this.knex
       .select(fields)
@@ -373,7 +386,7 @@ export default class Database extends Observable {
     // format for usage, not going into the db
     try {
       if (field.fieldtype === 'Currency') {
-        return frappe.pesa(value);
+        return pesa(value);
       }
     } catch (err) {
       err.message += ` value: '${value}' of type: ${typeof value}, fieldname: '${
@@ -388,15 +401,15 @@ export default class Database extends Observable {
     this.trigger(`change:${doctype}`, { name }, 500);
     this.trigger(`change`, { doctype, name }, 500);
     // also trigger change for basedOn doctype
-    let meta = frappe.getMeta(doctype);
+    const meta = getMeta(doctype);
     if (meta.basedOn) {
       this.triggerChange(meta.basedOn, name);
     }
   }
 
   async insert(doctype, doc) {
-    let meta = frappe.getMeta(doctype);
-    let baseDoctype = meta.getBaseDocType();
+    const meta = getMeta(doctype);
+    const baseDoctype = meta.getBaseDocType();
     doc = this.applyBaseDocTypeFilters(doctype, doc);
 
     // insert parent
@@ -415,10 +428,10 @@ export default class Database extends Observable {
   }
 
   async insertChildren(meta, doc, doctype) {
-    let tableFields = meta.getTableFields();
-    for (let field of tableFields) {
+    const tableFields = meta.getTableFields();
+    for (const field of tableFields) {
       let idx = 0;
-      for (let child of doc[field.fieldname] || []) {
+      for (const child of doc[field.fieldname] || []) {
         this.prepareChild(doctype, doc.name, child, field, idx);
         await this.insertOne(field.childtype, child);
         idx++;
@@ -427,19 +440,19 @@ export default class Database extends Observable {
   }
 
   insertOne(doctype, doc) {
-    let fields = this.getValidFields(doctype);
+    const fields = this.getValidFields(doctype);
 
     if (!doc.name) {
       doc.name = getRandomString();
     }
 
-    let formattedDoc = this.getFormattedDoc(fields, doc);
+    const formattedDoc = this.getFormattedDoc(fields, doc);
     return this.knex(doctype).insert(formattedDoc);
   }
 
   async update(doctype, doc) {
-    let meta = frappe.getMeta(doctype);
-    let baseDoctype = meta.getBaseDocType();
+    const meta = getMeta(doctype);
+    const baseDoctype = meta.getBaseDocType();
     doc = this.applyBaseDocTypeFilters(doctype, doc);
 
     // update parent
@@ -458,10 +471,10 @@ export default class Database extends Observable {
   }
 
   async updateChildren(meta, doc, doctype) {
-    let tableFields = meta.getTableFields();
-    for (let field of tableFields) {
-      let added = [];
-      for (let child of doc[field.fieldname] || []) {
+    const tableFields = meta.getTableFields();
+    for (const field of tableFields) {
+      const added = [];
+      for (const child of doc[field.fieldname] || []) {
         this.prepareChild(doctype, doc.name, child, field, added.length);
         if (await this.exists(field.childtype, child.name)) {
           await this.updateOne(field.childtype, child);
@@ -475,21 +488,21 @@ export default class Database extends Observable {
   }
 
   updateOne(doctype, doc) {
-    let validFields = this.getValidFields(doctype);
-    let fieldsToUpdate = Object.keys(doc).filter((f) => f !== 'name');
-    let fields = validFields.filter((df) =>
+    const validFields = this.getValidFields(doctype);
+    const fieldsToUpdate = Object.keys(doc).filter((f) => f !== 'name');
+    const fields = validFields.filter((df) =>
       fieldsToUpdate.includes(df.fieldname)
     );
-    let formattedDoc = this.getFormattedDoc(fields, doc);
+    const formattedDoc = this.getFormattedDoc(fields, doc);
 
     return this.knex(doctype)
       .where('name', doc.name)
       .update(formattedDoc)
       .then(() => {
-        let cacheKey = `${doctype}:${doc.name}`;
+        const cacheKey = `${doctype}:${doc.name}`;
         if (this.cache.hexists(cacheKey)) {
-          for (let fieldname in formattedDoc) {
-            let value = formattedDoc[fieldname];
+          for (const fieldname in formattedDoc) {
+            const value = formattedDoc[fieldname];
             this.cache.hset(cacheKey, fieldname, value);
           }
         }
@@ -505,12 +518,12 @@ export default class Database extends Observable {
   }
 
   async updateSingle(doctype, doc) {
-    let meta = frappe.getMeta(doctype);
+    const meta = getMeta(doctype);
     await this.deleteSingleValues(doctype);
-    for (let field of meta.getValidFields({ withChildren: false })) {
-      let value = doc[field.fieldname];
+    for (const field of meta.getValidFields({ withChildren: false })) {
+      const value = doc[field.fieldname];
       if (value != null) {
-        let singleValue = frappe.getNewDoc({
+        const singleValue = getNewDoc({
           doctype: 'SingleValue',
           parent: doctype,
           fieldname: field.fieldname,
@@ -521,20 +534,16 @@ export default class Database extends Observable {
     }
   }
 
-  deleteSingleValues(name) {
-    return this.knex('SingleValue').where('parent', name).delete();
-  }
-
   async rename(doctype, oldName, newName) {
-    let meta = frappe.getMeta(doctype);
-    let baseDoctype = meta.getBaseDocType();
+    const meta = getMeta(doctype);
+    const baseDoctype = meta.getBaseDocType();
     await this.knex(baseDoctype)
       .update({ name: newName })
       .where('name', oldName)
       .then(() => {
         this.clearValueCache(doctype, oldName);
       });
-    await frappe.db.commit();
+    await this.commit();
 
     this.triggerChange(doctype, newName);
   }
@@ -550,14 +559,14 @@ export default class Database extends Observable {
   }
 
   getValidFields(doctype) {
-    return frappe.getMeta(doctype).getValidFields({ withChildren: false });
+    return getMeta(doctype).getValidFields({ withChildren: false });
   }
 
   getFormattedDoc(fields, doc) {
     // format for storage, going into the db
-    let formattedDoc = {};
+    const formattedDoc = {};
     fields.map((field) => {
-      let value = doc[field.fieldname];
+      const value = doc[field.fieldname];
       formattedDoc[field.fieldname] = this.getFormattedValue(field, value);
     });
     return formattedDoc;
@@ -570,7 +579,7 @@ export default class Database extends Observable {
       let currency = value;
 
       if (type === 'number' || type === 'string') {
-        currency = frappe.pesa(value);
+        currency = pesa(value);
       }
 
       const currencyValue = currency.store;
@@ -601,10 +610,10 @@ export default class Database extends Observable {
   }
 
   applyBaseDocTypeFilters(doctype, doc) {
-    let meta = frappe.getMeta(doctype);
+    const meta = getMeta(doctype);
     if (meta.filters) {
-      for (let fieldname in meta.filters) {
-        let value = meta.filters[fieldname];
+      for (const fieldname in meta.filters) {
+        const value = meta.filters[fieldname];
         if (typeof value !== 'object') {
           doc[fieldname] = value;
         }
@@ -620,13 +629,13 @@ export default class Database extends Observable {
   }
 
   async delete(doctype, name) {
-    let meta = frappe.getMeta(doctype);
-    let baseDoctype = meta.getBaseDocType();
+    const meta = getMeta(doctype);
+    const baseDoctype = meta.getBaseDocType();
     await this.deleteOne(baseDoctype, name);
 
     // delete children
-    let tableFields = frappe.getMeta(doctype).getTableFields();
-    for (let field of tableFields) {
+    const tableFields = getMeta(doctype).getTableFields();
+    for (const field of tableFields) {
       await this.deleteChildren(field.childtype, name);
     }
 
@@ -651,8 +660,8 @@ export default class Database extends Observable {
   }
 
   async getValue(doctype, filters, fieldname = 'name') {
-    let meta = frappe.getMeta(doctype);
-    let baseDoctype = meta.getBaseDocType();
+    const meta = getMeta(doctype);
+    const baseDoctype = meta.getBaseDocType();
     if (typeof filters === 'string') {
       filters = { name: filters };
     }
@@ -660,7 +669,7 @@ export default class Database extends Observable {
       Object.assign(filters, meta.filters);
     }
 
-    let row = await this.getAll({
+    const row = await this.getAll({
       doctype: baseDoctype,
       fields: [fieldname],
       filters: filters,
@@ -678,12 +687,16 @@ export default class Database extends Observable {
     });
   }
 
-  async setValues(doctype, name, fieldValuePair) {
-    let doc = Object.assign({}, fieldValuePair, { name });
+  async setValues(
+    doctype: string,
+    name: string,
+    fieldValuePair: Record<string, unknown>
+  ) {
+    const doc = Object.assign({}, fieldValuePair, { name });
     return this.updateOne(doctype, doc);
   }
 
-  async getCachedValue(doctype, name, fieldname) {
+  async getCachedValue(doctype: string, name: string, fieldname: string) {
     let value = this.cache.hget(`${doctype}:${name}`, fieldname);
     if (value == null) {
       value = await this.getValue(doctype, name, fieldname);
@@ -691,6 +704,7 @@ export default class Database extends Observable {
     return value;
   }
 
+  // TODO: Not in core
   async getAll({
     doctype,
     fields,
@@ -700,9 +714,9 @@ export default class Database extends Observable {
     groupBy,
     orderBy = 'creation',
     order = 'desc',
-  } = {}) {
-    let meta = frappe.getMeta(doctype);
-    let baseDoctype = meta.getBaseDocType();
+  }: GetAllOptions = {}) {
+    const meta = getMeta(doctype);
+    const baseDoctype = meta.getBaseDocType();
     if (!fields) {
       fields = meta.getKeywordFields();
       fields.push('name');
@@ -714,31 +728,186 @@ export default class Database extends Observable {
       filters = Object.assign({}, filters, meta.filters);
     }
 
-    let builder = this.knex.select(fields).from(baseDoctype);
-
-    this.applyFiltersToBuilder(builder, filters);
-
-    if (orderBy) {
-      builder.orderBy(orderBy, order);
-    }
-
-    if (groupBy) {
-      builder.groupBy(groupBy);
-    }
-
-    if (start) {
-      builder.offset(start);
-    }
-
-    if (limit) {
-      builder.limit(limit);
-    }
-
-    const docs = await builder;
+    const docs = await this.getQueryBuilder(doctype, fields, filters, {
+      offset: start,
+      limit,
+      groupBy,
+      orderBy,
+      order,
+    });
     return docs.map((doc) => this.getDocFormattedDoc(meta.fields, doc));
   }
 
-  applyFiltersToBuilder(builder, filters) {
+  clearValueCache(doctype: string, name: string) {
+    const cacheKey = `${doctype}:${name}`;
+    this.cache.hclear(cacheKey);
+  }
+
+  async addForeignKeys(tableName: string, newForeignKeys: string[]) {
+    await this.sql('PRAGMA foreign_keys=OFF');
+    await this.sql('BEGIN TRANSACTION');
+
+    const tempName = 'TEMP' + tableName;
+
+    // create temp table
+    await this.createTable(tableName, tempName);
+
+    try {
+      // copy from old to new table
+      await this.knex(tempName).insert(this.knex.select().from(tableName));
+    } catch (err) {
+      await this.sql('ROLLBACK');
+      await this.sql('PRAGMA foreign_keys=ON');
+
+      const rows = await this.knex.select().from(tableName);
+      await this.prestigeTheTable(tableName, rows);
+      return;
+    }
+
+    // drop old table
+    await this.knex.schema.dropTable(tableName);
+
+    // rename new table
+    await this.knex.schema.renameTable(tempName, tableName);
+
+    await this.sql('COMMIT');
+    await this.sql('PRAGMA foreign_keys=ON');
+  }
+
+  /**
+   *
+   *
+   *
+   *
+   * Everything below this is a leaf node function in this file
+   * and is safe, doesn't reuqire refactors
+   *
+   *
+   *
+   *
+   *
+   */
+
+  async tableExists(tableName: string) {
+    return await this.knex.schema.hasTable(tableName);
+  }
+
+  async singleExists(singleDoctypeName: string) {
+    const res = await this.knex('SingleValue')
+      .count('parent as count')
+      .where('parent', singleDoctypeName)
+      .first();
+    return res.count > 0;
+  }
+
+  async removeColumns(tableName: string, targetColumns: string[]) {
+    // TODO: Implement this for sqlite
+  }
+
+  async deleteSingleValues(singleDoctypeName: string) {
+    return await this.knex('SingleValue')
+      .where('parent', singleDoctypeName)
+      .delete();
+  }
+
+  async sql(query: string, params: Knex.RawBinding[] = []) {
+    return await this.knex.raw(query, params);
+  }
+
+  async commit() {
+    try {
+      await this.sql('commit');
+    } catch (e) {
+      if (e.type !== CannotCommitError) {
+        throw e;
+      }
+    }
+  }
+
+  getError(err: Error) {
+    let errorType = DatabaseError;
+    if (err.message.includes('FOREIGN KEY')) {
+      errorType = LinkValidationError;
+    }
+    if (err.message.includes('SQLITE_ERROR: cannot commit')) {
+      errorType = CannotCommitError;
+    }
+    if (err.message.includes('SQLITE_CONSTRAINT: UNIQUE constraint failed:')) {
+      errorType = DuplicateEntryError;
+    }
+    return errorType;
+  }
+
+  async prestigeTheTable(tableName: string, tableRows: RawData) {
+    const max = 200;
+
+    // Alter table hacx for sqlite in case of schema change.
+    const tempName = `__${tableName}`;
+    await this.knex.schema.dropTableIfExists(tempName);
+
+    await this.knex.raw('PRAGMA foreign_keys=OFF');
+    await this.createTable(tableName, tempName);
+
+    if (tableRows.length > 200) {
+      const fi = Math.floor(tableRows.length / max);
+      for (let i = 0; i <= fi; i++) {
+        const rowSlice = tableRows.slice(i * max, i + 1 * max);
+        if (rowSlice.length === 0) {
+          break;
+        }
+        await this.knex.batchInsert(tempName, rowSlice);
+      }
+    } else {
+      await this.knex.batchInsert(tempName, tableRows);
+    }
+
+    await this.knex.schema.dropTable(tableName);
+    await this.knex.schema.renameTable(tempName, tableName);
+    await this.knex.raw('PRAGMA foreign_keys=ON');
+  }
+
+  async getTableColumns(doctype: string) {
+    const info = await this.sql(`PRAGMA table_info(${doctype})`);
+    return info.map((d) => d.name);
+  }
+
+  async getForeignKeys(doctype: string) {
+    const foreignKeyList = await this.sql(
+      `PRAGMA foreign_key_list(${doctype})`
+    );
+    return foreignKeyList.map((d) => d.from);
+  }
+
+  getQueryBuilder(
+    tableName: string,
+    fields: string[],
+    filters: QueryFilter,
+    options: GetQueryBuilderOptions
+  ) {
+    const builder = this.knex.select(fields).from(tableName);
+
+    this.applyFiltersToBuilder(builder, filters);
+
+    if (options.orderBy) {
+      builder.orderBy(options.orderBy, options.order);
+    }
+
+    if (options.groupBy) {
+      builder.groupBy(options.groupBy);
+    }
+
+    if (options.offset) {
+      builder.offset(options.offset);
+    }
+
+    if (options.limit) {
+      builder.limit(options.limit);
+    }
+
+    return builder;
+  }
+
+  applyFiltersToBuilder(builder: Knex.QueryBuilder, filters: QueryFilter) {
     // {"status": "Open"} => `status = "Open"`
 
     // {"status": "Open", "name": ["like", "apple%"]}
@@ -747,10 +916,10 @@ export default class Database extends Observable {
     // {"date": [">=", "2017-09-09", "<=", "2017-11-01"]}
     // => `date >= 2017-09-09 and date <= 2017-11-01`
 
-    let filtersArray = [];
+    const filtersArray = [];
 
-    for (let field in filters) {
-      let value = filters[field];
+    for (const field in filters) {
+      const value = filters[field];
       let operator = '=';
       let comparisonValue = value;
 
@@ -772,8 +941,8 @@ export default class Database extends Observable {
 
       if (Array.isArray(value) && value.length > 2) {
         // multiple conditions
-        let operator = value[2];
-        let comparisonValue = value[3];
+        const operator = value[2];
+        const comparisonValue = value[3];
         filtersArray.push([field, operator, comparisonValue]);
       }
     }
@@ -786,46 +955,5 @@ export default class Database extends Observable {
         builder.where(field, operator, comparisonValue);
       }
     });
-  }
-
-  run(query, params) {
-    // run query
-    return this.sql(query, params);
-  }
-
-  sql(query, params) {
-    // run sql
-    return this.knex.raw(query, params);
-  }
-
-  async commit() {
-    try {
-      await this.sql('commit');
-    } catch (e) {
-      if (e.type !== frappe.errors.CannotCommitError) {
-        throw e;
-      }
-    }
-  }
-
-  clearValueCache(doctype, name) {
-    let cacheKey = `${doctype}:${name}`;
-    this.cache.hclear(cacheKey);
-  }
-
-  getColumnType(field) {
-    return this.typeMap[field.fieldtype];
-  }
-
-  getError(err) {
-    return frappe.errors.DatabaseError;
-  }
-
-  initTypeMap() {
-    this.typeMap = {};
-  }
-
-  executePostDbConnect() {
-    frappe.initializeMoneyMaker();
   }
 }

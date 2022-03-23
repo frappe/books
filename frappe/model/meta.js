@@ -7,6 +7,9 @@ import Document from './document';
 import model from './index';
 
 export default class Meta extends Document {
+  filters;
+  basedOn;
+
   constructor(data) {
     if (data.basedOn) {
       let config = frappe.models[data.basedOn];
