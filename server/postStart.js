@@ -1,6 +1,5 @@
 import frappe from 'frappe';
 import { createNumberSeries } from 'frappe/model/naming';
-import GSTR3BServer from '../models/doctype/GSTR3B/GSTR3BServer.js';
 import JournalEntryServer from '../models/doctype/JournalEntry/JournalEntryServer.js';
 import PartyServer from '../models/doctype/Party/PartyServer.js';
 import PaymentServer from '../models/doctype/Payment/PaymentServer.js';
@@ -14,7 +13,6 @@ export default async function postStart() {
   frappe.models.Party.documentClass = PartyServer;
   frappe.models.PurchaseInvoice.documentClass = PurchaseInvoiceServer;
   frappe.models.JournalEntry.documentClass = JournalEntryServer;
-  frappe.models.GSTR3B.documentClass = GSTR3BServer;
 
   frappe.metaCache = {};
 
@@ -23,11 +21,6 @@ export default async function postStart() {
   await createNumberSeries('PINV-', 'PurchaseInvoice');
   await createNumberSeries('PAY-', 'Payment');
   await createNumberSeries('JV-', 'JournalEntry');
-  // await naming.createNumberSeries('QTN-', 'QuotationSettings');
-  // await naming.createNumberSeries('SO-', 'SalesOrderSettings');
-  // await naming.createNumberSeries('OF-', 'FulfillmentSettings');
-  // await naming.createNumberSeries('PO-', 'PurchaseOrderSettings');
-  // await naming.createNumberSeries('PREC-', 'PurchaseReceiptSettings');
 
   // fetch singles
   // so that they are available synchronously

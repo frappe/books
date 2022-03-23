@@ -1,15 +1,14 @@
-import SalesInvoice from '../../../models/doctype/SalesInvoice/SalesInvoiceList';
-import PurchaseInvoice from '../../../models/doctype/PurchaseInvoice/PurchaseInvoiceList';
-import Customer from '../../../models/doctype/Party/CustomerList';
-import Supplier from '../../../models/doctype/Party/SupplierList';
-import Party from '../../../models/doctype/Party/PartyList';
-import Item from '../../../models/doctype/Item/ItemList';
-import Payment from '../../../models/doctype/Payment/PaymentList';
-import Tax from '../../../models/doctype/Tax/TaxList';
-import JournalEntry from '../../../models/doctype/JournalEntry/JournalEntryList';
-import AccountingLedgerEntry from '../../../models/doctype/AccountingLedgerEntry/AccountingLedgerEntryList';
 import Account from '../../../models/doctype/Account/AccountList';
-import GSTR3B from '../../../models/doctype/GSTR3B/GSTR3BList';
+import AccountingLedgerEntry from '../../../models/doctype/AccountingLedgerEntry/AccountingLedgerEntryList';
+import Item from '../../../models/doctype/Item/ItemList';
+import JournalEntry from '../../../models/doctype/JournalEntry/JournalEntryList';
+import Customer from '../../../models/doctype/Party/CustomerList';
+import Party from '../../../models/doctype/Party/PartyList';
+import Supplier from '../../../models/doctype/Party/SupplierList';
+import Payment from '../../../models/doctype/Payment/PaymentList';
+import PurchaseInvoice from '../../../models/doctype/PurchaseInvoice/PurchaseInvoiceList';
+import SalesInvoice from '../../../models/doctype/SalesInvoice/SalesInvoiceList';
+import Tax from '../../../models/doctype/Tax/TaxList';
 
 export default {
   SalesInvoice,
@@ -22,6 +21,5 @@ export default {
   Tax,
   JournalEntry,
   Account,
-  GSTR3B,
-  AccountingLedgerEntry
+  AccountingLedgerEntry,
 };

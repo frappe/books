@@ -22,7 +22,6 @@ export enum DoctypeName {
   Tax = 'Tax',
   TaxDetail = 'TaxDetail',
   TaxSummary = 'TaxSummary',
-  GSTR3B = 'GSTR3B',
   Address = 'Address',
   Contact = 'Contact',
   JournalEntry = 'JournalEntry',
