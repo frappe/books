@@ -58,7 +58,7 @@ export class DocHandler {
     }
   }
 
-  getModels(filterFunction: (name: Model) => boolean) {
+  getModels(filterFunction: (name: Model) => boolean): Model[] {
     const models: Model[] = [];
     for (const doctype in this.models) {
       models.push(this.models[doctype]!);

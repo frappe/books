@@ -38,7 +38,7 @@ export default class CacheManager {
     this._hashCache.get(hashName)!.set(key, value);
   }
 
-  hclear(hashName: string, key: string) {
+  hclear(hashName: string, key?: string) {
     if (key) {
       this._hashCache.get(hashName)?.delete(key);
     } else {
