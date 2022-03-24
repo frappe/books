@@ -27,9 +27,7 @@ async function runRegionalModelUpdates() {
     return;
   }
 
-  const { country, setupComplete } = await frappe.db.getSingle(
-    'AccountingSettings'
-  );
+  const { country, setupComplete } = await frappe.db.get('AccountingSettings');
   if (!parseInt(setupComplete)) return;
   await regionalModelUpdates({ country });
 }

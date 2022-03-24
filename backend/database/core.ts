@@ -1,6 +1,5 @@
 import { knex, Knex } from 'knex';
 import { getRandomString } from '../../frappe/utils';
-import CacheManager from '../../frappe/utils/cacheManager';
 import {
   CannotCommitError,
   DatabaseError,
@@ -16,7 +15,7 @@ import {
   SchemaMap,
   TargetField,
 } from '../../schemas/types';
-import { getFieldsByType, sqliteTypeMap } from '../common';
+import { sqliteTypeMap } from '../common';
 import {
   ColumnDiff,
   FieldValueMap,
@@ -25,18 +24,15 @@ import {
   QueryFilter,
 } from './types';
 
-export default class Database {
+export default class DatabaseCore {
   knex: Knex;
-  cache: CacheManager;
   typeMap = sqliteTypeMap;
   dbPath: string;
-  schemaMap: SchemaMap;
+  schemaMap: SchemaMap = {};
   connectionParams: Knex.Config;
 
-  constructor(dbPath: string, schemaMap: SchemaMap) {
-    this.schemaMap = schemaMap;
-    this.cache = new CacheManager();
-    this.dbPath = dbPath;
+  constructor(dbPath?: string) {
+    this.dbPath = dbPath ?? ':memory:';
     this.connectionParams = {
       client: 'sqlite3',
       connection: {
@@ -53,10 +49,14 @@ export default class Database {
     };
   }
 
+  setSchemaMap(schemaMap: SchemaMap) {
+    this.schemaMap = schemaMap;
+  }
+
   connect() {
     this.knex = knex(this.connectionParams);
     this.knex.on('query-error', (error) => {
-      error.type = this.getError(error);
+      error.type = this.#getError(error);
     });
   }
 
@@ -64,11 +64,228 @@ export default class Database {
     this.knex.destroy();
   }
 
-  async tableExists(schemaName: string) {
+  async commit() {
+    try {
+      await this.raw('commit');
+    } catch (err) {
+      if (err.type !== CannotCommitError) {
+        throw err;
+      }
+    }
+  }
+
+  async raw(query: string, params: Knex.RawBinding[] = []) {
+    return await this.knex.raw(query, params);
+  }
+
+  async migrate() {
+    for (const schemaName in this.schemaMap) {
+      const schema = this.schemaMap[schemaName];
+      if (schema.isSingle) {
+        continue;
+      }
+
+      if (await this.#tableExists(schemaName)) {
+        await this.#alterTable(schemaName);
+      } else {
+        await this.#createTable(schemaName);
+      }
+    }
+
+    await this.commit();
+    await this.#initializeSingles();
+  }
+
+  async exists(schemaName: string, name?: string): Promise<boolean> {
+    const schema = this.schemaMap[schemaName];
+    if (schema.isSingle) {
+      return this.#singleExists(schemaName);
+    }
+
+    let row = [];
+    try {
+      const qb = this.knex(schemaName);
+      if (name !== undefined) {
+        qb.where({ name });
+      }
+      row = await qb.limit(1);
+    } catch (err) {
+      if (this.#getError(err as Error) !== NotFoundError) {
+        throw err;
+      }
+    }
+    return row.length > 0;
+  }
+
+  async insert(schemaName: string, fieldValueMap: FieldValueMap) {
+    // insert parent
+    if (this.schemaMap[schemaName].isSingle) {
+      await this.#updateSingleValues(schemaName, fieldValueMap);
+    } else {
+      await this.#insertOne(schemaName, fieldValueMap);
+    }
+
+    // insert children
+    await this.#insertOrUpdateChildren(schemaName, fieldValueMap, false);
+    return fieldValueMap;
+  }
+
+  async get(
+    schemaName: string,
+    name: string = '',
+    fields: string | string[] = '*'
+  ): Promise<FieldValueMap> {
+    const isSingle = this.schemaMap[schemaName].isSingle;
+    if (!isSingle && !name) {
+      throw new ValueError('name is mandatory');
+    }
+
+    /**
+     * If schema is single return all the values
+     * of the single type schema, in this case field
+     * is ignored.
+     */
+    let fieldValueMap: FieldValueMap = {};
+    if (isSingle) {
+      fieldValueMap = await this.#getSingle(schemaName);
+      fieldValueMap.name = schemaName;
+      return fieldValueMap;
+    }
+
+    if (fields !== '*' && typeof fields === 'string') {
+      fields = [fields];
+    }
+
+    /**
+     * Separate table fields and non table fields
+     */
+    const allTableFields = this.#getTableFields(schemaName);
+    const allTableFieldNames = allTableFields.map((f) => f.fieldname);
+
+    let tableFields: TargetField[] = [];
+    let nonTableFieldNames: string[] = [];
+
+    if (Array.isArray(fields)) {
+      tableFields = tableFields.filter((f) => fields.includes(f.fieldname));
+      nonTableFieldNames = fields.filter(
+        (f) => !allTableFieldNames.includes(f)
+      );
+    } else if (fields === '*') {
+      tableFields = allTableFields;
+    }
+
+    /**
+     * If schema is not single then return specific fields
+     * if child fields are selected, all child fields are returned.
+     */
+    if (nonTableFieldNames.length) {
+      fieldValueMap = (await this.#getOne(schemaName, name, fields)) ?? {};
+    }
+
+    if (tableFields.length) {
+      await this.#loadChildren(fieldValueMap, tableFields);
+    }
+    return fieldValueMap;
+  }
+
+  async getAll({
+    schemaName,
+    fields,
+    filters,
+    start,
+    limit,
+    groupBy,
+    orderBy = 'creation',
+    order = 'desc',
+  }: GetAllOptions = {}): Promise<FieldValueMap[]> {
+    const schema = this.schemaMap[schemaName];
+    if (!fields) {
+      fields = ['name', ...(schema.keywordFields ?? [])];
+    }
+
+    if (typeof fields === 'string') {
+      fields = [fields];
+    }
+
+    return (await this.#getQueryBuilder(schemaName, fields, filters, {
+      offset: start,
+      limit,
+      groupBy,
+      orderBy,
+      order,
+    })) as FieldValueMap[];
+  }
+
+  async getSingleValues(
+    ...fieldnames: { fieldname: string; parent?: string }[]
+  ): Promise<{ fieldname: string; parent: string; value: RawValue }[]> {
+    fieldnames = fieldnames.map((fieldname) => {
+      if (typeof fieldname === 'string') {
+        return { fieldname };
+      }
+      return fieldname;
+    });
+
+    let builder = this.knex('SingleValue');
+    builder = builder.where(fieldnames[0]);
+
+    fieldnames.slice(1).forEach(({ fieldname, parent }) => {
+      if (typeof parent === 'undefined') {
+        builder = builder.orWhere({ fieldname });
+      } else {
+        builder = builder.orWhere({ fieldname, parent });
+      }
+    });
+
+    let values: { fieldname: string; parent: string; value: RawValue }[] = [];
+    try {
+      values = await builder.select('fieldname', 'value', 'parent');
+    } catch (err) {
+      if (this.#getError(err as Error) === NotFoundError) {
+        return [];
+      }
+
+      throw err;
+    }
+
+    return values;
+  }
+
+  async rename(schemaName: string, oldName: string, newName: string) {
+    await this.knex(schemaName)
+      .update({ name: newName })
+      .where('name', oldName);
+    await this.commit();
+  }
+
+  async update(schemaName: string, fieldValueMap: FieldValueMap) {
+    // update parent
+    if (this.schemaMap[schemaName].isSingle) {
+      await this.#updateSingleValues(schemaName, fieldValueMap);
+    } else {
+      await this.#updateOne(schemaName, fieldValueMap);
+    }
+
+    // insert or update children
+    await this.#insertOrUpdateChildren(schemaName, fieldValueMap, true);
+  }
+
+  async delete(schemaName: string, name: string) {
+    await this.#deleteOne(schemaName, name);
+
+    // delete children
+    const tableFields = this.#getTableFields(schemaName);
+
+    for (const field of tableFields) {
+      await this.#deleteChildren(field.target, name);
+    }
+  }
+
+  async #tableExists(schemaName: string) {
     return await this.knex.schema.hasTable(schemaName);
   }
 
-  async singleExists(singleSchemaName: string) {
+  async #singleExists(singleSchemaName: string) {
     const res = await this.knex('SingleValue')
       .count('parent as count')
       .where('parent', singleSchemaName)
@@ -76,31 +293,17 @@ export default class Database {
     return res.count > 0;
   }
 
-  async removeColumns(schemaName: string, targetColumns: string[]) {
+  async #removeColumns(schemaName: string, targetColumns: string[]) {
     // TODO: Implement this for sqlite
   }
 
-  async deleteSingleValues(singleSchemaName: string) {
+  async #deleteSingleValues(singleSchemaName: string) {
     return await this.knex('SingleValue')
       .where('parent', singleSchemaName)
       .delete();
   }
 
-  async sql(query: string, params: Knex.RawBinding[] = []) {
-    return await this.knex.raw(query, params);
-  }
-
-  async commit() {
-    try {
-      await this.sql('commit');
-    } catch (e) {
-      if (e.type !== CannotCommitError) {
-        throw e;
-      }
-    }
-  }
-
-  getError(err: Error) {
+  #getError(err: Error) {
     let errorType = DatabaseError;
     if (err.message.includes('SQLITE_ERROR: no such table')) {
       errorType = NotFoundError;
@@ -125,7 +328,7 @@ export default class Database {
     await this.knex.schema.dropTableIfExists(tempName);
 
     await this.knex.raw('PRAGMA foreign_keys=OFF');
-    await this.createTable(schemaName, tempName);
+    await this.#createTable(schemaName, tempName);
 
     if (tableRows.length > 200) {
       const fi = Math.floor(tableRows.length / max);
@@ -145,19 +348,19 @@ export default class Database {
     await this.knex.raw('PRAGMA foreign_keys=ON');
   }
 
-  async getTableColumns(schemaName: string): Promise<string[]> {
-    const info = await this.sql(`PRAGMA table_info(${schemaName})`);
+  async #getTableColumns(schemaName: string): Promise<string[]> {
+    const info = await this.raw(`PRAGMA table_info(${schemaName})`);
     return info.map((d) => d.name);
   }
 
-  async getForeignKeys(schemaName: string): Promise<string[]> {
-    const foreignKeyList = await this.sql(
+  async #getForeignKeys(schemaName: string): Promise<string[]> {
+    const foreignKeyList = await this.raw(
       `PRAGMA foreign_key_list(${schemaName})`
     );
     return foreignKeyList.map((d) => d.from);
   }
 
-  getQueryBuilder(
+  #getQueryBuilder(
     schemaName: string,
     fields: string[],
     filters: QueryFilter,
@@ -165,7 +368,7 @@ export default class Database {
   ): Knex.QueryBuilder {
     const builder = this.knex.select(fields).from(schemaName);
 
-    this.applyFiltersToBuilder(builder, filters);
+    this.#applyFiltersToBuilder(builder, filters);
 
     if (options.orderBy) {
       builder.orderBy(options.orderBy, options.order);
@@ -186,7 +389,7 @@ export default class Database {
     return builder;
   }
 
-  applyFiltersToBuilder(builder: Knex.QueryBuilder, filters: QueryFilter) {
+  #applyFiltersToBuilder(builder: Knex.QueryBuilder, filters: QueryFilter) {
     // {"status": "Open"} => `status = "Open"`
 
     // {"status": "Open", "name": ["like", "apple%"]}
@@ -236,8 +439,8 @@ export default class Database {
     });
   }
 
-  async getColumnDiff(schemaName: string): Promise<ColumnDiff> {
-    const tableColumns = await this.getTableColumns(schemaName);
+  async #getColumnDiff(schemaName: string): Promise<ColumnDiff> {
+    const tableColumns = await this.#getTableColumns(schemaName);
     const validFields = this.schemaMap[schemaName].fields;
     const diff: ColumnDiff = { added: [], removed: [] };
 
@@ -260,8 +463,8 @@ export default class Database {
     return diff;
   }
 
-  async getNewForeignKeys(schemaName): Promise<Field[]> {
-    const foreignKeys = await this.getForeignKeys(schemaName);
+  async #getNewForeignKeys(schemaName): Promise<Field[]> {
+    const foreignKeys = await this.#getForeignKeys(schemaName);
     const newForeignKeys: Field[] = [];
     const schema = this.schemaMap[schemaName];
     for (const field of schema.fields) {
@@ -275,7 +478,7 @@ export default class Database {
     return newForeignKeys;
   }
 
-  buildColumnForTable(table: Knex.AlterTableBuilder, field: Field) {
+  #buildColumnForTable(table: Knex.AlterTableBuilder, field: Field) {
     if (field.fieldtype === FieldTypeEnum.Table) {
       // In case columnType is "Table"
       // childTable links are handled using the childTable's "parent" field
@@ -317,45 +520,45 @@ export default class Database {
     }
   }
 
-  async alterTable(schemaName: string) {
+  async #alterTable(schemaName: string) {
     // get columns
-    const diff: ColumnDiff = await this.getColumnDiff(schemaName);
-    const newForeignKeys: Field[] = await this.getNewForeignKeys(schemaName);
+    const diff: ColumnDiff = await this.#getColumnDiff(schemaName);
+    const newForeignKeys: Field[] = await this.#getNewForeignKeys(schemaName);
 
     return this.knex.schema
       .table(schemaName, (table) => {
         if (diff.added.length) {
           for (const field of diff.added) {
-            this.buildColumnForTable(table, field);
+            this.#buildColumnForTable(table, field);
           }
         }
 
         if (diff.removed.length) {
-          this.removeColumns(schemaName, diff.removed);
+          this.#removeColumns(schemaName, diff.removed);
         }
       })
       .then(() => {
         if (newForeignKeys.length) {
-          return this.addForeignKeys(schemaName, newForeignKeys);
+          return this.#addForeignKeys(schemaName, newForeignKeys);
         }
       });
   }
 
-  async createTable(schemaName: string, tableName?: string) {
+  async #createTable(schemaName: string, tableName?: string) {
     tableName ??= schemaName;
     const fields = this.schemaMap[schemaName].fields;
-    return await this.runCreateTableQuery(tableName, fields);
+    return await this.#runCreateTableQuery(tableName, fields);
   }
 
-  runCreateTableQuery(schemaName: string, fields: Field[]) {
+  #runCreateTableQuery(schemaName: string, fields: Field[]) {
     return this.knex.schema.createTable(schemaName, (table) => {
       for (const field of fields) {
-        this.buildColumnForTable(table, field);
+        this.#buildColumnForTable(table, field);
       }
     });
   }
 
-  async getNonExtantSingleValues(singleSchemaName: string) {
+  async #getNonExtantSingleValues(singleSchemaName: string) {
     const existingFields = (
       await this.knex('SingleValue')
         .where({ parent: singleSchemaName })
@@ -373,41 +576,15 @@ export default class Database {
       );
   }
 
-  async delete(schemaName: string, name: string) {
-    await this.deleteOne(schemaName, name);
-
-    // delete children
-    const tableFields = getFieldsByType(
-      schemaName,
-      this.schemaMap,
-      FieldTypeEnum.Table
-    ) as TargetField[];
-
-    for (const field of tableFields) {
-      await this.deleteChildren(field.target, name);
-    }
+  async #deleteOne(schemaName: string, name: string) {
+    return this.knex(schemaName).where('name', name).delete();
   }
 
-  async deleteMany(schemaName: string, names: string[]) {
-    for (const name of names) {
-      await this.delete(schemaName, name);
-    }
-  }
-
-  async deleteOne(schemaName: string, name: string) {
-    return this.knex(schemaName)
-      .where('name', name)
-      .delete()
-      .then(() => {
-        this.clearValueCache(schemaName, name);
-      });
-  }
-
-  deleteChildren(schemaName: string, parentName: string) {
+  #deleteChildren(schemaName: string, parentName: string) {
     return this.knex(schemaName).where('parent', parentName).delete();
   }
 
-  runDeleteOtherChildren(
+  #runDeleteOtherChildren(
     field: TargetField,
     parentName: string,
     added: string[]
@@ -419,17 +596,7 @@ export default class Database {
       .delete();
   }
 
-  async rename(schemaName: string, oldName: string, newName: string) {
-    await this.knex(schemaName)
-      .update({ name: newName })
-      .where('name', oldName)
-      .then(() => {
-        this.clearValueCache(schemaName, oldName);
-      });
-    await this.commit();
-  }
-
-  prepareChild(
+  #prepareChild(
     parentSchemaName: string,
     parentName: string,
     child: FieldValueMap,
@@ -445,26 +612,21 @@ export default class Database {
     child.idx = idx;
   }
 
-  clearValueCache(schemaName: string, name: string) {
-    const cacheKey = `${schemaName}:${name}`;
-    this.cache.hclear(cacheKey);
-  }
-
-  async addForeignKeys(schemaName: string, newForeignKeys: Field[]) {
-    await this.sql('PRAGMA foreign_keys=OFF');
-    await this.sql('BEGIN TRANSACTION');
+  async #addForeignKeys(schemaName: string, newForeignKeys: Field[]) {
+    await this.raw('PRAGMA foreign_keys=OFF');
+    await this.raw('BEGIN TRANSACTION');
 
     const tempName = 'TEMP' + schemaName;
 
     // create temp table
-    await this.createTable(schemaName, tempName);
+    await this.#createTable(schemaName, tempName);
 
     try {
       // copy from old to new table
       await this.knex(tempName).insert(this.knex.select().from(schemaName));
     } catch (err) {
-      await this.sql('ROLLBACK');
-      await this.sql('PRAGMA foreign_keys=ON');
+      await this.raw('ROLLBACK');
+      await this.raw('PRAGMA foreign_keys=ON');
 
       const rows = await this.knex.select().from(schemaName);
       await this.prestigeTheTable(schemaName, rows);
@@ -477,62 +639,26 @@ export default class Database {
     // rename new table
     await this.knex.schema.renameTable(tempName, schemaName);
 
-    await this.sql('COMMIT');
-    await this.sql('PRAGMA foreign_keys=ON');
+    await this.raw('COMMIT');
+    await this.raw('PRAGMA foreign_keys=ON');
   }
 
-  async getAll({
-    schemaName,
-    fields,
-    filters,
-    start,
-    limit,
-    groupBy,
-    orderBy = 'creation',
-    order = 'desc',
-  }: GetAllOptions = {}): Promise<FieldValueMap[]> {
-    const schema = this.schemaMap[schemaName];
-    if (!fields) {
-      fields = ['name', ...(schema.keywordFields ?? [])];
-    }
-
-    if (typeof fields === 'string') {
-      fields = [fields];
-    }
-
-    return (await this.getQueryBuilder(schemaName, fields, filters, {
-      offset: start,
-      limit,
-      groupBy,
-      orderBy,
-      order,
-    })) as FieldValueMap[];
-  }
-
-  async get(
-    schemaName: string,
-    name: string = '',
-    fields: string | string[] = '*'
+  async #loadChildren(
+    fieldValueMap: FieldValueMap,
+    tableFields: TargetField[]
   ) {
-    const schema = this.schemaMap[schemaName];
-    let fieldValueMap: FieldValueMap;
-    if (schema.isSingle) {
-      fieldValueMap = await this.getSingle(schemaName);
-      fieldValueMap.name = schemaName;
-    } else {
-      if (!name) {
-        throw new ValueError('name is mandatory');
-      }
-      fieldValueMap = await this.getOne(schemaName, name, fields);
+    for (const field of tableFields) {
+      fieldValueMap[field.fieldname] = await this.getAll({
+        schemaName: field.target,
+        fields: ['*'],
+        filters: { parent: fieldValueMap.name as string },
+        orderBy: 'idx',
+        order: 'asc',
+      });
     }
-    if (!fieldValueMap) {
-      return;
-    }
-    await this.loadChildren(fieldValueMap, schemaName);
-    return fieldValueMap;
   }
 
-  async getOne(
+  async #getOne(
     schemaName: string,
     name: string,
     fields: string | string[] = '*'
@@ -545,7 +671,7 @@ export default class Database {
     return fieldValueMap;
   }
 
-  async getSingle(schemaName: string): Promise<FieldValueMap> {
+  async #getSingle(schemaName: string): Promise<FieldValueMap> {
     const values = await this.getAll({
       schemaName: 'SingleValue',
       fields: ['fieldname', 'value'],
@@ -562,39 +688,7 @@ export default class Database {
     return fieldValueMap;
   }
 
-  async loadChildren(fieldValueMap: FieldValueMap, schemaName: string) {
-    // Sets children on a field
-    const tableFields = getFieldsByType(
-      schemaName,
-      this.schemaMap,
-      FieldTypeEnum.Table
-    ) as TargetField[];
-
-    for (const field of tableFields) {
-      fieldValueMap[field.fieldname] = await this.getAll({
-        schemaName: field.target,
-        fields: ['*'],
-        filters: { parent: fieldValueMap.name as string },
-        orderBy: 'idx',
-        order: 'asc',
-      });
-    }
-  }
-
-  async insert(schemaName: string, fieldValueMap: FieldValueMap) {
-    // insert parent
-    if (this.schemaMap[schemaName].isSingle) {
-      await this.updateSingleValues(schemaName, fieldValueMap);
-    } else {
-      await this.insertOne(schemaName, fieldValueMap);
-    }
-
-    // insert children
-    await this.insertOrUpdateChildren(schemaName, fieldValueMap, false);
-    return fieldValueMap;
-  }
-
-  insertOne(schemaName: string, fieldValueMap: FieldValueMap) {
+  #insertOne(schemaName: string, fieldValueMap: FieldValueMap) {
     const fields = this.schemaMap[schemaName].fields;
     if (!fieldValueMap.name) {
       fieldValueMap.name = getRandomString();
@@ -612,12 +706,12 @@ export default class Database {
     return this.knex(schemaName).insert(fieldValueMap);
   }
 
-  async updateSingleValues(
+  async #updateSingleValues(
     singleSchemaName: string,
     fieldValueMap: FieldValueMap
   ) {
     const fields = this.schemaMap[singleSchemaName].fields;
-    await this.deleteSingleValues(singleSchemaName);
+    await this.#deleteSingleValues(singleSchemaName);
 
     for (const field of fields) {
       const value = fieldValueMap[field.fieldname] as RawValue | undefined;
@@ -625,11 +719,11 @@ export default class Database {
         continue;
       }
 
-      await this.updateSingleValue(singleSchemaName, field.fieldname, value);
+      await this.#updateSingleValue(singleSchemaName, field.fieldname, value);
     }
   }
 
-  async updateSingleValue(
+  async #updateSingleValue(
     singleSchemaName: string,
     fieldname: string,
     value: RawValue
@@ -642,32 +736,14 @@ export default class Database {
       .update({ value });
   }
 
-  async migrate() {
-    for (const schemaName in this.schemaMap) {
-      const schema = this.schemaMap[schemaName];
-      if (schema.isSingle) {
-        continue;
-      }
-
-      if (await this.tableExists(schemaName)) {
-        await this.alterTable(schemaName);
-      } else {
-        await this.createTable(schemaName);
-      }
-    }
-
-    await this.commit();
-    await this.initializeSingles();
-  }
-
-  async initializeSingles() {
+  async #initializeSingles() {
     const singleSchemaNames = Object.keys(this.schemaMap).filter(
       (n) => this.schemaMap[n].isSingle
     );
 
     for (const schemaName of singleSchemaNames) {
-      if (await this.singleExists(schemaName)) {
-        await this.updateNonExtantSingleValues(schemaName);
+      if (await this.#singleExists(schemaName)) {
+        await this.#updateNonExtantSingleValues(schemaName);
         continue;
       }
 
@@ -684,59 +760,32 @@ export default class Database {
         return acc;
       }, {});
 
-      await this.updateSingleValues(schemaName, defaultValues);
+      await this.#updateSingleValues(schemaName, defaultValues);
     }
   }
 
-  async updateNonExtantSingleValues(schemaName: string) {
-    const singleValues = await this.getNonExtantSingleValues(schemaName);
+  async #updateNonExtantSingleValues(schemaName: string) {
+    const singleValues = await this.#getNonExtantSingleValues(schemaName);
     for (const sv of singleValues) {
-      await this.updateSingleValue(schemaName, sv.fieldname, sv.value);
+      await this.#updateSingleValue(schemaName, sv.fieldname, sv.value);
     }
   }
 
-  async updateOne(schemaName: string, fieldValueMap: FieldValueMap) {
+  async #updateOne(schemaName: string, fieldValueMap: FieldValueMap) {
     const updateMap = { ...fieldValueMap };
     delete updateMap.name;
 
     return await this.knex(schemaName)
       .where('name', fieldValueMap.name as string)
-      .update(updateMap)
-      .then(() => {
-        const cacheKey = `${schemaName}:${fieldValueMap.name}`;
-        if (!this.cache.hexists(cacheKey)) {
-          return;
-        }
-
-        for (const fieldname in updateMap) {
-          const value = updateMap[fieldname];
-          this.cache.hset(cacheKey, fieldname, value);
-        }
-      });
+      .update(updateMap);
   }
 
-  async update(schemaName: string, fieldValueMap: FieldValueMap) {
-    // update parent
-    if (this.schemaMap[schemaName].isSingle) {
-      await this.updateSingleValues(schemaName, fieldValueMap);
-    } else {
-      await this.updateOne(schemaName, fieldValueMap);
-    }
-
-    // insert or update children
-    await this.insertOrUpdateChildren(schemaName, fieldValueMap, true);
-  }
-
-  async insertOrUpdateChildren(
+  async #insertOrUpdateChildren(
     schemaName: string,
     fieldValueMap: FieldValueMap,
     isUpdate: boolean
   ) {
-    const tableFields = getFieldsByType(
-      schemaName,
-      this.schemaMap,
-      FieldTypeEnum.Table
-    ) as TargetField[];
+    const tableFields = this.#getTableFields(schemaName);
 
     const parentName = fieldValueMap.name as string;
     for (const field of tableFields) {
@@ -745,146 +794,29 @@ export default class Database {
       const tableFieldValue = (fieldValueMap[field.fieldname] ??
         []) as FieldValueMap[];
       for (const child of tableFieldValue) {
-        this.prepareChild(schemaName, parentName, child, field, added.length);
+        this.#prepareChild(schemaName, parentName, child, field, added.length);
 
         if (
           isUpdate &&
           (await this.exists(field.target, child.name as string))
         ) {
-          await this.updateOne(field.target, child);
+          await this.#updateOne(field.target, child);
         } else {
-          await this.insertOne(field.target, child);
+          await this.#insertOne(field.target, child);
         }
 
         added.push(child.name as string);
       }
 
       if (isUpdate) {
-        await this.runDeleteOtherChildren(field, parentName, added);
+        await this.#runDeleteOtherChildren(field, parentName, added);
       }
     }
   }
 
-  async exists(schemaName: string, name?: string): Promise<boolean> {
-    const schema = this.schemaMap[schemaName];
-    if (schema.isSingle) {
-      return this.singleExists(schemaName);
-    }
-
-    let row = [];
-    try {
-      const qb = this.knex(schemaName);
-      if (name !== undefined) {
-        qb.where({ name });
-      }
-      row = await qb.limit(1);
-    } catch (err) {
-      if (this.getError(err as Error) !== NotFoundError) {
-        throw err;
-      }
-    }
-    return row.length > 0;
-  }
-
-  /**
-   * Get list of values from the singles table.
-   * @param  {...string | Object} fieldnames list of fieldnames to get the values of
-   * @returns {Array<Object>} array of {parent, value, fieldname}.
-   * @example
-   * Database.getSingleValues('internalPrecision');
-   * // returns [{ fieldname: 'internalPrecision', parent: 'SystemSettings', value: '12' }]
-   * @example
-   * Database.getSingleValues({fieldname:'internalPrecision', parent: 'SystemSettings'});
-   * // returns [{ fieldname: 'internalPrecision', parent: 'SystemSettings', value: '12' }]
-   */
-  async getSingleValues(
-    ...fieldnames: { fieldname: string; parent?: string }[]
-  ) {
-    fieldnames = fieldnames.map((fieldname) => {
-      if (typeof fieldname === 'string') {
-        return { fieldname };
-      }
-      return fieldname;
-    });
-
-    let builder = this.knex('SingleValue');
-    builder = builder.where(fieldnames[0]);
-
-    fieldnames.slice(1).forEach(({ fieldname, parent }) => {
-      if (typeof parent === 'undefined') {
-        builder = builder.orWhere({ fieldname });
-      } else {
-        builder = builder.orWhere({ fieldname, parent });
-      }
-    });
-
-    let values: { fieldname: string; parent: string; value: RawValue }[] = [];
-    try {
-      values = await builder.select('fieldname', 'value', 'parent');
-    } catch (err) {
-      if (this.getError(err as Error) === NotFoundError) {
-        return [];
-      }
-
-      throw err;
-    }
-
-    return values;
-  }
-
-  async getValue(
-    schemaName: string,
-    filters: string | Record<string, string>,
-    fieldname = 'name'
-  ): Promise<RawValue | undefined> {
-    if (typeof filters === 'string') {
-      filters = { name: filters };
-    }
-
-    const row = await this.getAll({
-      schemaName,
-      fields: [fieldname],
-      filters: filters,
-      start: 0,
-      limit: 1,
-      orderBy: 'name',
-      order: 'asc',
-    });
-
-    if (row.length === 1) {
-      return row[0][fieldname] as RawValue;
-    }
-
-    return undefined;
-  }
-
-  async setValue(
-    schemaName: string,
-    name: string,
-    fieldname: string,
-    value: RawValue
-  ) {
-    return await this.setValues(schemaName, name, {
-      [fieldname]: value,
-    });
-  }
-
-  async setValues(
-    schemaName: string,
-    name: string,
-    fieldValueMap: FieldValueMap
-  ) {
-    return this.updateOne(
-      schemaName,
-      Object.assign({}, fieldValueMap, { name })
-    );
-  }
-
-  async getCachedValue(schemaName: string, name: string, fieldname: string) {
-    let value = this.cache.hget(`${schemaName}:${name}`, fieldname);
-    if (value == null) {
-      value = await this.getValue(schemaName, name, fieldname);
-    }
-    return value;
+  #getTableFields(schemaName: string): TargetField[] {
+    return this.schemaMap[schemaName].fields.filter(
+      (f) => f.fieldtype === FieldTypeEnum.Table
+    ) as TargetField[];
   }
 }

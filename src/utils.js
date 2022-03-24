@@ -124,7 +124,8 @@ export function partyWithAvatar(party) {
       Avatar,
     },
     async mounted() {
-      this.imageURL = await frappe.db.getValue('Party', party, 'image');
+      const p = await frappe.db.get('Party', party);
+      this.imageURL = p.image;
       this.label = party;
     },
     template: `
