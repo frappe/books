@@ -14,11 +14,16 @@
       "readOnly": true
     },
     {
-      "fieldname": "party",
-      "label": "Party",
+      "fieldname": "customer",
+      "label": "Customer",
       "fieldtype": "Link",
-      "target": ["Customer", "Supplier"],
-      "required": true
+      "target": "Customer"
+    },
+    {
+      "fieldname": "supplier",
+      "label": "Supplier",
+      "fieldtype": "Link",
+      "target": "Supplier"
     },
     {
       "fieldname": "date",

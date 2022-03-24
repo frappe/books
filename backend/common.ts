@@ -1,21 +1,4 @@
-import Document from '../frappe/model/document';
-import Meta from '../frappe/model/meta';
-import { Model } from '../src/types/model';
-
-export function getModels(): Record<string, Model> {
-  // TODO: complete this function
-  return {};
-}
-
-export function getMeta(doctype: string): Meta {
-  // TODO: compete this function
-  return new Meta();
-}
-
-export function getNewDoc(data: Record<string, unknown>): Document {
-  // TODO: compete this function
-  return new Document();
-}
+import { Field, FieldTypeEnum, SchemaMap } from '../schemas/types';
 
 export const sqliteTypeMap = {
   AutoComplete: 'text',
@@ -41,3 +24,12 @@ export const sqliteTypeMap = {
 };
 
 export const validTypes = Object.keys(sqliteTypeMap);
+
+export function getFieldsByType(
+  schemaName: string,
+  schemaMap: SchemaMap,
+  type: FieldTypeEnum
+): Field[] {
+  const fields = schemaMap[schemaName].fields ?? [];
+  return fields.filter((f) => f.fieldtype === type);
+}

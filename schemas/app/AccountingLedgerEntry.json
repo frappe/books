@@ -17,10 +17,16 @@
       "required": true
     },
     {
-      "fieldname": "party",
-      "label": "Party",
-      "fieldtype": "DynamicLink",
-      "target": ["Customer", "Supplier"]
+      "fieldname": "customer",
+      "label": "Customer",
+      "fieldtype": "Link",
+      "target": "Customer"
+    },
+    {
+      "fieldname": "supplier",
+      "label": "Supplier",
+      "fieldtype": "Link",
+      "target": "Supplier"
     },
     {
       "fieldname": "debit",
