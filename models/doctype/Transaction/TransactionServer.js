@@ -30,12 +30,10 @@ export default {
     await entries.post();
 
     // update outstanding amounts
-    await frappe.db.setValue(
-      this.doctype,
-      this.name,
-      'outstandingAmount',
-      this.baseGrandTotal
-    );
+    await frappe.db.update(this.doctype, {
+      name: this.name,
+      outstandingAmount: this.baseGrandTotal,
+    });
 
     let party = await frappe.getDoc('Party', this.customer || this.supplier);
     await party.updateOutstandingAmount();

@@ -26,3 +26,12 @@ export type FieldValueMap = Record<
   string,
   RawValue | undefined | FieldValueMap[]
 >;
+
+export interface Patch {
+  name: string;
+  version: string;
+  patch: {
+    execute: (DatabaseManager) => Promise<void>;
+    beforeMigrate?: boolean;
+  };
+}

@@ -73,6 +73,12 @@
       "fieldtype": "Check",
       "default": false,
       "description": "Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app."
+    },
+    {
+      "fieldname": "countryCode",
+      "label": "Country Code",
+      "fieldtype": "Data",
+      "description": "Country code used to initialize regional settings."
     }
   ],
   "quickEditFields": [

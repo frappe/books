@@ -1,5 +1,3 @@
-import { Field, FieldTypeEnum, SchemaMap } from '../schemas/types';
-
 export const sqliteTypeMap = {
   AutoComplete: 'text',
   Currency: 'text',
@@ -24,12 +22,11 @@ export const sqliteTypeMap = {
 };
 
 export const validTypes = Object.keys(sqliteTypeMap);
-
-export function getFieldsByType(
-  schemaName: string,
-  schemaMap: SchemaMap,
-  type: FieldTypeEnum
-): Field[] {
-  const fields = schemaMap[schemaName].fields ?? [];
-  return fields.filter((f) => f.fieldtype === type);
+export function getDefaultMetaFieldValueMap() {
+  return {
+    createdBy: '__SYSTEM__',
+    modifiedBy: '__SYSTEM__',
+    created: new Date().toISOString(),
+    modified: new Date().toISOString(),
+  };
 }
