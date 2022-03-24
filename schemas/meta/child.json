@@ -14,7 +14,7 @@
       "meta": true
     },
     {
-      "fieldname": "parentName",
+      "fieldname": "parentSchemaName",
       "fieldtype": "Data",
       "required": true,
       "meta": true

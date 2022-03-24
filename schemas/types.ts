@@ -79,10 +79,10 @@ export interface OptionField extends BaseField {
   options: SelectOption[];
 }
 
-// @formatter:off
+// prettier-ignore
 export interface TargetField extends BaseField {
   fieldtype: FieldTypeEnum.Table | FieldTypeEnum.Link;
-  target: string | string[];     // Name of the table or group of tables to fetch values
+  target: string;                // Name of the table or group of tables to fetch values
 }
 
 // @formatter:off

@@ -1,5 +1,5 @@
-export type RawType = string | number | boolean;
-export type RawData = Record<string, RawType>[];
+import { Field, RawValue } from '../../schemas/types';
+
 export type QueryFilter = Record<string, string | string[]>;
 
 export interface GetQueryBuilderOptions {
@@ -9,3 +9,20 @@ export interface GetQueryBuilderOptions {
   orderBy: string;
   order: 'desc' | 'asc';
 }
+
+export interface GetAllOptions {
+  schemaName?: string;
+  fields?: string[];
+  filters?: Record<string, string>;
+  start?: number;
+  limit?: number;
+  groupBy?: string;
+  orderBy?: string;
+  order?: 'asc' | 'desc';
+}
+
+export type ColumnDiff = { added: Field[]; removed: string[] };
+export type FieldValueMap = Record<
+  string,
+  RawValue | undefined | FieldValueMap[]
+>;
