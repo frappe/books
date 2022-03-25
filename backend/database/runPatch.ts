@@ -27,5 +27,5 @@ async function runPatch(patch: Patch, dm: DatabaseManager): Promise<boolean> {
 async function makeEntry(patchName: string, dm: DatabaseManager) {
   const defaultFieldValueMap = getDefaultMetaFieldValueMap() as FieldValueMap;
   defaultFieldValueMap.name = patchName;
-  await dm.db.insert('PatchRun', defaultFieldValueMap);
+  await dm.db!.insert('PatchRun', defaultFieldValueMap);
 }

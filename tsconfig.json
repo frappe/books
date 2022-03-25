@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
     "types": ["webpack-env"],
@@ -23,8 +24,8 @@
     "src/**/*.tsx",
     "src/**/*.vue",
 
-    "tests/**/*.ts",
-    "tests/**/*.tsx",
+    "schemas/**/*.ts",
+    "backend/**/*.ts",
 
     "frappe/**/*.ts",
     "models/**/*.ts",

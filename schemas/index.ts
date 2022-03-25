@@ -13,8 +13,8 @@ export function getSchemas(countryCode: string = '-'): SchemaMap {
   return schemaMap;
 }
 
-function addMetaFields(schemaMap: SchemaMap): SchemaMap {
-  const metaSchemaMap = getMapFromList(metaSchemas);
+export function addMetaFields(schemaMap: SchemaMap): SchemaMap {
+  const metaSchemaMap = getMapFromList(metaSchemas, 'name');
 
   const base = metaSchemaMap.base;
   const tree = getCombined(metaSchemaMap.tree, base);
@@ -29,15 +29,15 @@ function addMetaFields(schemaMap: SchemaMap): SchemaMap {
     }
 
     if (schema.isTree && schema.isSubmittable) {
-      schema.fields = [...schema.fields, ...submittableTree.fields];
+      schema.fields = [...schema.fields, ...submittableTree.fields!];
     } else if (schema.isTree) {
-      schema.fields = [...schema.fields, ...tree.fields];
+      schema.fields = [...schema.fields, ...tree.fields!];
     } else if (schema.isSubmittable) {
-      schema.fields = [...schema.fields, ...submittable.fields];
+      schema.fields = [...schema.fields, ...submittable.fields!];
     } else if (schema.isChild) {
-      schema.fields = [...schema.fields, ...child.fields];
+      schema.fields = [...schema.fields, ...child.fields!];
     } else {
-      schema.fields = [...schema.fields, ...base.fields];
+      schema.fields = [...schema.fields, ...base.fields!];
     }
   }
 
@@ -45,18 +45,23 @@ function addMetaFields(schemaMap: SchemaMap): SchemaMap {
 }
 
 function getCoreSchemas(): SchemaMap {
-  const rawSchemaMap = getMapFromList(coreSchemas);
+  const rawSchemaMap = getMapFromList(coreSchemas, 'name');
   const coreSchemaMap = getAbstractCombinedSchemas(rawSchemaMap);
   return cleanSchemas(coreSchemaMap);
 }
 
 function getAppSchemas(countryCode: string): SchemaMap {
-  const combinedSchemas = getRegionalCombinedSchemas(countryCode);
+  const appSchemaMap = getMapFromList(appSchemas, 'name');
+  const regionalSchemaMap = getRegionalSchemaMap(countryCode);
+  const combinedSchemas = getRegionalCombinedSchemas(
+    appSchemaMap,
+    regionalSchemaMap
+  );
   const schemaMap = getAbstractCombinedSchemas(combinedSchemas);
   return cleanSchemas(schemaMap);
 }
 
-function cleanSchemas(schemaMap: SchemaMap): SchemaMap {
+export function cleanSchemas(schemaMap: SchemaMap): SchemaMap {
   for (const name in schemaMap) {
     const schema = schemaMap[name];
     if (schema.isAbstract && !schema.extends) {
@@ -97,13 +102,13 @@ function getCombined(
   return combined;
 }
 
-function getAbstractCombinedSchemas(schemas: SchemaStubMap): SchemaMap {
+export function getAbstractCombinedSchemas(schemas: SchemaStubMap): SchemaMap {
   const abstractSchemaNames: string[] = Object.keys(schemas).filter(
     (n) => schemas[n].isAbstract
   );
 
   const extendingSchemaNames: string[] = Object.keys(schemas).filter((n) =>
-    abstractSchemaNames.includes(schemas[n].extends)
+    abstractSchemaNames.includes(schemas[n].extends ?? '')
   );
 
   const completeSchemas: Schema[] = Object.keys(schemas)
@@ -113,11 +118,11 @@ function getAbstractCombinedSchemas(schemas: SchemaStubMap): SchemaMap {
     )
     .map((n) => schemas[n] as Schema);
 
-  const schemaMap = getMapFromList(completeSchemas) as SchemaMap;
+  const schemaMap = getMapFromList(completeSchemas, 'name') as SchemaMap;
 
   for (const name of extendingSchemaNames) {
     const extendingSchema = schemas[name] as Schema;
-    const abstractSchema = schemas[extendingSchema.extends] as SchemaStub;
+    const abstractSchema = schemas[extendingSchema.extends!] as SchemaStub;
 
     schemaMap[name] = getCombined(extendingSchema, abstractSchema) as Schema;
   }
@@ -129,9 +134,10 @@ function getAbstractCombinedSchemas(schemas: SchemaStubMap): SchemaMap {
   return schemaMap;
 }
 
-function getRegionalCombinedSchemas(countryCode: string): SchemaStubMap {
-  const regionalSchemaMap = getRegionalSchema(countryCode);
-  const appSchemaMap = getMapFromList(appSchemas);
+export function getRegionalCombinedSchemas(
+  appSchemaMap: SchemaStubMap,
+  regionalSchemaMap: SchemaStubMap
+): SchemaStubMap {
   const combined = { ...appSchemaMap };
 
   for (const name in regionalSchemaMap) {
@@ -148,7 +154,7 @@ function getRegionalCombinedSchemas(countryCode: string): SchemaStubMap {
   return combined;
 }
 
-function getRegionalSchema(countryCode: string): SchemaStubMap {
+function getRegionalSchemaMap(countryCode: string): SchemaStubMap {
   const countrySchemas = regionalSchemas[countryCode] as
     | SchemaStub[]
     | undefined;
@@ -156,5 +162,5 @@ function getRegionalSchema(countryCode: string): SchemaStubMap {
     return {};
   }
 
-  return getMapFromList(countrySchemas);
+  return getMapFromList(countrySchemas, 'name');
 }
