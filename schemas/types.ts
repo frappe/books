@@ -107,7 +107,7 @@ export type Field =
 
 export type TreeSettings = { parentField: string };
 
-// prettier-ignore
+// @formattoer:off
 export interface Schema {
   name: string;                  // Table PK
   label: string;                 // Translateable UI facing name
@@ -118,7 +118,8 @@ export interface Schema {
   isSingle?: boolean;            // Fields will be values in SingleValue, i.e. an Entity Attr. Value
   isAbstract?: boolean;          // Not entered into db, used to extend a Subclass schema
   isSubmittable?: boolean;       // For transactional types, values considered only after submit
-  keywordFields?: string[];      // Used for fields that are to be used for search.
+  keywordFields?: string[];      // Used to get fields that are to be used for search.
+  quickEditFields?: string[];    // Used to get fields for the quickEditForm
   treeSettings?: TreeSettings;   // Used to determine root nodes
 }
 
