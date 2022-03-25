@@ -6,7 +6,7 @@ import { runPatches } from './runPatch';
 import { Patch } from './types';
 
 export class DatabaseManager {
-  db: DatabaseCore;
+  db?: DatabaseCore;
   constructor() {}
 
   async createNewDatabase(dbPath: string, countryCode: string) {
@@ -26,6 +26,10 @@ export class DatabaseManager {
   }
 
   async migrate() {
+    if (this.db === undefined) {
+      return;
+    }
+
     const patchesToExecute = await this.#getPatchesToExecute();
     const preMigrationPatches = patchesToExecute.filter(
       (p) => p.patch.beforeMigrate
@@ -40,21 +44,26 @@ export class DatabaseManager {
   }
 
   async #getPatchesToExecute(): Promise<Patch[]> {
-    const query: { name: string }[] = await this.db
-      .knex('PatchRun')
-      .select('name');
+    if (this.db === undefined) {
+      return [];
+    }
+
+    const query: { name: string }[] = await this.db.knex!('PatchRun').select(
+      'name'
+    );
     const executedPatches = query.map((q) => q.name);
     return patches.filter((p) => !executedPatches.includes(p.name));
   }
 
   async #getCountryCode(): Promise<string | undefined> {
-    if (!this.db) {
+    if (this.db === undefined) {
       return undefined;
     }
 
-    const query = await this.db
-      .knex('SingleValue')
-      .where({ fieldname: 'countryCode', parent: 'SystemSettings' });
+    const query = await this.db.knex!('SingleValue').where({
+      fieldname: 'countryCode',
+      parent: 'SystemSettings',
+    });
 
     if (query.length > 0) {
       return query[0].countryCode as string;
@@ -67,7 +76,7 @@ export class DatabaseManager {
     try {
       fs.unlink(dbPath);
     } catch (err) {
-      if (err.code === 'ENOENT') {
+      if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
         return;
       }
 

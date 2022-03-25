@@ -1,15 +1,15 @@
-export function getMapFromList<T>(
+export function getMapFromList<T, K extends keyof T>(
   list: T[],
-  name: string = 'name'
+  name: K
 ): Record<string, T> {
   const acc: Record<string, T> = {};
   for (const t of list) {
-    const key = t[name] as string | undefined;
+    const key = t[name];
     if (key === undefined) {
       continue;
     }
 
-    acc[key] = t;
+    acc[String(key)] = t;
   }
   return acc;
 }
