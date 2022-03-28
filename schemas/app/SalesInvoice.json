@@ -5,7 +5,6 @@
   "isChild": false,
   "isSubmittable": true,
   "keywordFields": ["name", "customer"],
-  "settings": "SalesInvoiceSettings",
   "fields": [
     {
       "label": "Invoice No",

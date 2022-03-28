@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
 import { createApp } from 'vue';
+import { getBuiltTestSchemaMap } from '../backend/database/tests/helpers';
 import { getSchemas } from '../schemas';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
@@ -104,3 +105,4 @@ import { setLanguageMap, stringifyCircular } from './utils';
 })();
 
 window.gs = getSchemas;
+window.gst = getBuiltTestSchemaMap;

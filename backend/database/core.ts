@@ -24,6 +24,17 @@ import {
   QueryFilter
 } from './types';
 
+/**
+ * Db Core Call Sequence
+ *
+ * 1. Init core: `const db = new DatabaseCore(dbPath)`.
+ * 2. Connect db: `db.connect()`. This will allow for raw queries to be executed.
+ * 3. Set schemas: `bb.setSchemaMap(schemaMap)`. This will allow for ORM functions to be executed.
+ * 4. Migrate: `await db.migrate()`. This will create absent tables and update the tables' shape.
+ * 5. ORM function execution: `db.get(...)`, `db.insert(...)`, etc.
+ * 6. Close connection: `await db.close()`.
+ */
+
 export default class DatabaseCore {
   knex?: Knex;
   typeMap = sqliteTypeMap;
@@ -60,23 +71,19 @@ export default class DatabaseCore {
     });
   }
 
-  close() {
-    this.knex!.destroy();
+  async close() {
+    await this.knex!.destroy();
   }
 
   async commit() {
     try {
-      await this.raw('commit');
+      await this.knex!.raw('commit');
     } catch (err) {
       const type = this.#getError(err as Error);
       if (type !== CannotCommitError) {
         throw err;
       }
     }
-  }
-
-  async raw(query: string, params: Knex.RawBinding[] = []) {
-    return await this.knex!.raw(query, params);
   }
 
   async migrate() {
@@ -350,14 +357,14 @@ export default class DatabaseCore {
   }
 
   async #getTableColumns(schemaName: string): Promise<string[]> {
-    const info: FieldValueMap[] = await this.raw(
+    const info: FieldValueMap[] = await this.knex!.raw(
       `PRAGMA table_info(${schemaName})`
     );
     return info.map((d) => d.name as string);
   }
 
   async #getForeignKeys(schemaName: string): Promise<string[]> {
-    const foreignKeyList: FieldValueMap[] = await this.raw(
+    const foreignKeyList: FieldValueMap[] = await this.knex!.raw(
       `PRAGMA foreign_key_list(${schemaName})`
     );
     return foreignKeyList.map((d) => d.from as string);
@@ -506,14 +513,17 @@ export default class DatabaseCore {
     }
 
     // required
-    if (field.required || field.fieldtype === 'Currency') {
+    if (field.required) {
       column.notNullable();
     }
 
     // link
-    if (field.fieldtype === 'Link' && (field as TargetField).target) {
-      const targetschemaName = (field as TargetField).target as string;
-      const schema = this.schemaMap[targetschemaName];
+    if (
+      field.fieldtype === FieldTypeEnum.Link &&
+      (field as TargetField).target
+    ) {
+      const targetSchemaName = (field as TargetField).target as string;
+      const schema = this.schemaMap[targetSchemaName];
       table
         .foreign(field.fieldname)
         .references('name')
@@ -614,8 +624,8 @@ export default class DatabaseCore {
   }
 
   async #addForeignKeys(schemaName: string, newForeignKeys: Field[]) {
-    await this.raw('PRAGMA foreign_keys=OFF');
-    await this.raw('BEGIN TRANSACTION');
+    await this.knex!.raw('PRAGMA foreign_keys=OFF');
+    await this.knex!.raw('BEGIN TRANSACTION');
 
     const tempName = 'TEMP' + schemaName;
 
@@ -626,8 +636,8 @@ export default class DatabaseCore {
       // copy from old to new table
       await this.knex!(tempName).insert(this.knex!.select().from(schemaName));
     } catch (err) {
-      await this.raw('ROLLBACK');
-      await this.raw('PRAGMA foreign_keys=ON');
+      await this.knex!.raw('ROLLBACK');
+      await this.knex!.raw('PRAGMA foreign_keys=ON');
 
       const rows = await this.knex!.select().from(schemaName);
       await this.prestigeTheTable(schemaName, rows);
@@ -640,8 +650,8 @@ export default class DatabaseCore {
     // rename new table
     await this.knex!.schema.renameTable(tempName, schemaName);
 
-    await this.raw('COMMIT');
-    await this.raw('PRAGMA foreign_keys=ON');
+    await this.knex!.raw('COMMIT');
+    await this.knex!.raw('PRAGMA foreign_keys=ON');
   }
 
   async #loadChildren(

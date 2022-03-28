@@ -2,7 +2,15 @@ import { cloneDeep } from 'lodash';
 import { getListFromMap, getMapFromList } from './helpers';
 import regionalSchemas from './regional';
 import { appSchemas, coreSchemas, metaSchemas } from './schemas';
-import { Schema, SchemaMap, SchemaStub, SchemaStubMap } from './types';
+import { Field, Schema, SchemaMap, SchemaStub, SchemaStubMap } from './types';
+
+const NAME_FIELD = {
+  fieldname: 'name',
+  label: `ID`,
+  fieldtype: 'Data',
+  required: true,
+  readOnly: true,
+};
 
 export function getSchemas(countryCode: string = '-'): SchemaMap {
   const builtCoreSchemas = getCoreSchemas();
@@ -41,7 +49,24 @@ export function addMetaFields(schemaMap: SchemaMap): SchemaMap {
     }
   }
 
+  addNameField(schemaMap);
   return schemaMap;
+}
+
+function addNameField(schemaMap: SchemaMap) {
+  for (const name in schemaMap) {
+    const schema = schemaMap[name];
+    if (schema.isSingle) {
+      continue;
+    }
+
+    const pkField = schema.fields.find((f) => f.fieldname === 'name');
+    if (pkField !== undefined) {
+      continue;
+    }
+
+    schema.fields.push(NAME_FIELD as Field);
+  }
 }
 
 function getCoreSchemas(): SchemaMap {

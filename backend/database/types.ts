@@ -46,3 +46,13 @@ export type KnexColumnType =
   | 'datetime'
   | 'time'
   | 'binary';
+
+// Returned by pragma table_info
+export interface SqliteTableInfo {
+  pk: number;
+  cid: number;
+  name: string;
+  type: string;
+  notnull: number; // 0 | 1
+  dflt_value: string | null;
+}

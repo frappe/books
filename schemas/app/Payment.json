@@ -4,7 +4,6 @@
   "isSingle": false,
   "isChild": false,
   "isSubmittable": true,
-  "settings": "PaymentSettings",
   "fields": [
     {
       "label": "Payment No",
