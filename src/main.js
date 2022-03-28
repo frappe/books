@@ -1,7 +1,6 @@
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
 import { createApp } from 'vue';
-import models from '../models';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
 import config, { ConfigKeys } from './config';
@@ -25,6 +24,7 @@ import { setLanguageMap, stringifyCircular } from './utils';
   frappe.isServer = true;
   frappe.isElectron = true;
 
+  const models = (await import('../models')).default;
   await frappe.initializeAndRegister(models);
 
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
