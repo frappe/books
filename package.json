@@ -74,7 +74,7 @@
   "engineStrict": true,
   "engines": {
     "node": ">=16.13.1 <17",
-    "yarn": "1.22.17"
+    "yarn": "1.22.18"
   },
   "gitHooks": {
     "pre-commit": "lint-staged"

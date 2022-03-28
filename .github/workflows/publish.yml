@@ -12,7 +12,7 @@ jobs:
           node-version: '16.13.1'
 
       - name: Change yarn version
-        run: yarn set version 1.22.17
+        run: yarn set version 1.22.18
 
       - name: Checkout Books
         uses: actions/checkout@v2
