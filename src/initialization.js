@@ -1,7 +1,6 @@
 import config from '@/config';
 import SQLiteDatabase from 'frappe/backends/sqlite';
 import fs from 'fs';
-import models from '../models';
 import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart, { setCurrencySymbols } from '../server/postStart';
 import { DB_CONN_FAILURE } from './messages';
@@ -120,6 +119,7 @@ export async function purgeCache(purgeAll = false) {
 
   if (purgeAll) {
     delete frappe.db;
+    const models = (await import('../models')).default;
     await frappe.initializeAndRegister(models, true);
   }
 }
