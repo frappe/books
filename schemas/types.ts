@@ -9,7 +9,6 @@
  * If any field has to have a dynamic value, it should be added to the controller
  * file by the same name.
  *
- *
  * There are a few types of schemas:
  * - _Regional_: Schemas that are in the '../regional' subdirectories
  *      these can be of any of the below types.
@@ -31,6 +30,11 @@
  *
  * Note: if a Regional schema is not present as a non regional variant it's used
  * as it is.
+ * 
+ * ## Additional Notes
+ * 
+ * In all the schemas, the 'name' field/column is the primary key. If it isn't
+ * explicitly added, the schema builder will add it in.
  */
 
 export enum FieldTypeEnum {
@@ -107,9 +111,9 @@ export type Field =
 
 export type TreeSettings = { parentField: string };
 
-// @formattoer:off
+// @formatter:off
 export interface Schema {
-  name: string;                  // Table PK
+  name: string;                  // Table name
   label: string;                 // Translateable UI facing name
   fields: Field[];               // Maps to database columns
   isTree?: boolean;              // Used for nested set, eg for Chart of Accounts
@@ -117,6 +121,7 @@ export interface Schema {
   isChild?: boolean;             // Indicates a child table, i.e table with "parent" FK column
   isSingle?: boolean;            // Fields will be values in SingleValue, i.e. an Entity Attr. Value
   isAbstract?: boolean;          // Not entered into db, used to extend a Subclass schema
+  tableFields?: string[]         // Used for displaying childTableFields
   isSubmittable?: boolean;       // For transactional types, values considered only after submit
   keywordFields?: string[];      // Used to get fields that are to be used for search.
   quickEditFields?: string[];    // Used to get fields for the quickEditForm

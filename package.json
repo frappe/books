@@ -16,7 +16,7 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "script:translate": "node scripts/generateTranslations.js",
-    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha --reporter nyan --require ts-node/register ./**/tests/**/*.spec.ts"
+    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha --reporter nyan --require ts-node/register --require tsconfig-paths/register ./**/tests/**/*.spec.ts"
   },
   "dependencies": {
     "@popperjs/core": "^2.10.2",
@@ -66,6 +66,7 @@
     "raw-loader": "^4.0.2",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat",
     "ts-node": "^10.7.0",
+    "tsconfig-paths": "^3.14.1",
     "tslib": "^2.3.1",
     "typescript": "^4.6.2",
     "vue-cli-plugin-electron-builder": "^2.0.0",

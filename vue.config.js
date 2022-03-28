@@ -40,6 +40,9 @@ module.exports = {
     Object.assign(config.resolve.alias, {
       frappe: path.resolve(__dirname, './frappe'),
       '~': path.resolve('.'),
+      schemas: path.resolve(__dirname, './schemas'),
+      backend: path.resolve(__dirname, './backend'),
+      common: path.resolve(__dirname, './common'),
     });
 
     config.plugins.push(

@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import Account from '../app/Account.json';
 import Customer from '../app/Customer.json';
 import JournalEntry from '../app/JournalEntry.json';
@@ -31,10 +32,10 @@ export function getTestSchemaMap(): {
   } as AppSchemaMap;
   const regionalSchemaMap = { Party: PartyRegional } as RegionalSchemaMap;
 
-  return {
+  return cloneDeep({
     appSchemaMap,
     regionalSchemaMap,
-  };
+  });
 }
 
 export function everyFieldExists(fieldList: string[], schema: Schema): boolean {
