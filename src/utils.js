@@ -391,6 +391,10 @@ export async function getSavePath(name, extention) {
 function replaceAndAppendMount(app, replaceId) {
   const fragment = document.createDocumentFragment();
   const target = document.getElementById(replaceId);
+  if (target === null) {
+    return;
+  }
+
   const parent = target.parentElement;
   const clone = target.cloneNode();
 
