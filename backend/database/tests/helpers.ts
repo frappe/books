@@ -162,3 +162,12 @@ export function getBuiltTestSchemaMap(): SchemaMap {
   const cleanedSchemas = cleanSchemas(abstractCombined);
   return addMetaFields(cleanedSchemas);
 }
+
+export function getBaseMeta() {
+  return {
+    createdBy: 'Administrator',
+    modifiedBy: 'Administrator',
+    created: new Date().toISOString(),
+    modified: new Date().toISOString(),
+  };
+}

@@ -18,7 +18,8 @@
       "@/*": ["src/*"],
       "schemas/*": ["schemas/*"],
       "backend/*": ["backend/*"],
-      "common/*": ["common/*"]
+      "common/*": ["common/*"],
+      "utils/*": ["utils/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
