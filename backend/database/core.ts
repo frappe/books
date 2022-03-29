@@ -1,5 +1,5 @@
 import { knex, Knex } from 'knex';
-import { getRandomString } from '../../frappe/utils';
+import { getRandomString, getValueMapFromList } from 'utils';
 import {
   CannotCommitError,
   DatabaseError,
@@ -15,7 +15,7 @@ import {
   SchemaMap,
   TargetField
 } from '../../schemas/types';
-import { sqliteTypeMap } from '../common';
+import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../common';
 import {
   ColumnDiff,
   FieldValueMap,
@@ -155,9 +155,7 @@ export default class DatabaseCore {
      */
     let fieldValueMap: FieldValueMap = {};
     if (isSingle) {
-      fieldValueMap = await this.#getSingle(schemaName);
-      fieldValueMap.name = schemaName;
-      return fieldValueMap;
+      return await this.#getSingle(schemaName);
     }
 
     if (fields !== '*' && typeof fields === 'string') {
@@ -203,7 +201,7 @@ export default class DatabaseCore {
     start,
     limit,
     groupBy,
-    orderBy = 'creation',
+    orderBy = 'created',
     order = 'desc',
   }: GetAllOptions): Promise<FieldValueMap[]> {
     const schema = this.schemaMap[schemaName];
@@ -225,9 +223,9 @@ export default class DatabaseCore {
   }
 
   async getSingleValues(
-    ...fieldnames: { fieldname: string; parent?: string }[]
+    ...fieldnames: ({ fieldname: string; parent?: string } | string)[]
   ): Promise<{ fieldname: string; parent: string; value: RawValue }[]> {
-    fieldnames = fieldnames.map((fieldname) => {
+    const fieldnameList = fieldnames.map((fieldname) => {
       if (typeof fieldname === 'string') {
         return { fieldname };
       }
@@ -235,9 +233,9 @@ export default class DatabaseCore {
     });
 
     let builder = this.knex!('SingleValue');
-    builder = builder.where(fieldnames[0]);
+    builder = builder.where(fieldnameList[0]);
 
-    fieldnames.slice(1).forEach(({ fieldname, parent }) => {
+    fieldnameList.slice(1).forEach(({ fieldname, parent }) => {
       if (typeof parent === 'undefined') {
         builder = builder.orWhere({ fieldname });
       } else {
@@ -279,6 +277,12 @@ export default class DatabaseCore {
   }
 
   async delete(schemaName: string, name: string) {
+    const schema = this.schemaMap[schemaName];
+    if (schema.isSingle) {
+      await this.#deleteSingle(schemaName, name);
+      return;
+    }
+
     await this.#deleteOne(schemaName, name);
 
     // delete children
@@ -303,12 +307,6 @@ export default class DatabaseCore {
 
   async #removeColumns(schemaName: string, targetColumns: string[]) {
     // TODO: Implement this for sqlite
-  }
-
-  async #deleteSingleValues(singleSchemaName: string) {
-    return await this.knex!('SingleValue')
-      .where('parent', singleSchemaName)
-      .delete();
   }
 
   #getError(err: Error) {
@@ -588,7 +586,13 @@ export default class DatabaseCore {
   }
 
   async #deleteOne(schemaName: string, name: string) {
-    return this.knex!(schemaName).where('name', name).delete();
+    return await this.knex!(schemaName).where('name', name).delete();
+  }
+
+  async #deleteSingle(schemaName: string, fieldname: string) {
+    return await this.knex!('SingleValue')
+      .where({ parent: schemaName, fieldname })
+      .delete();
   }
 
   #deleteChildren(schemaName: string, parentName: string) {
@@ -690,12 +694,7 @@ export default class DatabaseCore {
       order: 'asc',
     });
 
-    const fieldValueMap: FieldValueMap = {};
-    for (const row of values) {
-      fieldValueMap[row.fieldname as string] = row.value as RawValue;
-    }
-
-    return fieldValueMap;
+    return getValueMapFromList(values, 'fieldname', 'value') as FieldValueMap;
   }
 
   #insertOne(schemaName: string, fieldValueMap: FieldValueMap) {
@@ -721,7 +720,6 @@ export default class DatabaseCore {
     fieldValueMap: FieldValueMap
   ) {
     const fields = this.schemaMap[singleSchemaName].fields;
-    await this.#deleteSingleValues(singleSchemaName);
 
     for (const field of fields) {
       const value = fieldValueMap[field.fieldname] as RawValue | undefined;
@@ -738,12 +736,38 @@ export default class DatabaseCore {
     fieldname: string,
     value: RawValue
   ) {
-    return await this.knex!('SingleValue')
+    const names: { name: string }[] = await this.knex!('SingleValue')
+      .select('name')
       .where({
         parent: singleSchemaName,
         fieldname,
-      })
-      .update({ value });
+      });
+    const name = names?.[0]?.name as string | undefined;
+
+    if (name === undefined) {
+      this.#insertSingleValue(singleSchemaName, fieldname, value);
+    } else {
+      return await this.knex!('SingleValue').where({ name }).update({
+        value,
+        modifiedBy: SYSTEM,
+        modified: new Date().toISOString(),
+      });
+    }
+  }
+
+  async #insertSingleValue(
+    singleSchemaName: string,
+    fieldname: string,
+    value: RawValue
+  ) {
+    const updateMap = getDefaultMetaFieldValueMap();
+    const fieldValueMap: FieldValueMap = Object.assign({}, updateMap, {
+      parent: singleSchemaName,
+      fieldname,
+      value,
+      name: getRandomString(),
+    });
+    return await this.knex!('SingleValue').insert(fieldValueMap);
   }
 
   async #initializeSingles() {

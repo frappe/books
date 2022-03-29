@@ -43,6 +43,7 @@ module.exports = {
       schemas: path.resolve(__dirname, './schemas'),
       backend: path.resolve(__dirname, './backend'),
       common: path.resolve(__dirname, './common'),
+      utils: path.resolve(__dirname, './utils'),
     });
 
     config.plugins.push(
