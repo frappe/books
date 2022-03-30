@@ -309,7 +309,7 @@ export async function runWindowAction(name) {
 }
 
 export function getInvoiceStatus(doc) {
-  let status = 'Unpaid';
+  let status = `Unpaid`;
   if (!doc.submitted) {
     status = 'Draft';
   }
@@ -526,6 +526,7 @@ async function fetchAndSetLanguageMap(code) {
   if (!success) {
     showToast({ type: 'error', message });
   } else {
+    window.lm = languageMap;
     setLanguageMapOnTranslationString(languageMap);
   }
 

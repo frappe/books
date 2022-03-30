@@ -6,7 +6,7 @@ export default {
     {
       fieldname: 'account',
       label: t`Account`,
-      placeholder: 'Account',
+      placeholder: t`Account`,
       fieldtype: 'Link',
       target: 'Account',
       required: 1,

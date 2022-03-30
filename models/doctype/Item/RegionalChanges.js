@@ -17,7 +17,7 @@ export default function getAugmentedItem({ country }) {
         fieldname: 'hsnCode',
         label: t`HSN/SAC`,
         fieldtype: 'Int',
-        placeholder: 'HSN/SAC Code',
+        placeholder: t`HSN/SAC Code`,
       },
       ...Item.fields.slice(nameFieldIndex + 1, Item.fields.length),
     ];

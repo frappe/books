@@ -95,7 +95,7 @@ async function exportReport(extention, reportName, getReportData) {
 
 export default function getCommonExportActions(reportName) {
   return ['csv', 'json'].map((ext) => ({
-    group: 'Export',
+    group: frappe.t`Export`,
     label: ext.toUpperCase(),
     type: 'primary',
     action: async (getReportData) =>

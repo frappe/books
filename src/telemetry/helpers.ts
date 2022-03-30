@@ -1,6 +1,7 @@
-import config, { ConfigFile, ConfigKeys } from '@/config';
+import config, { ConfigFile, ConfigKeys, TelemetrySetting } from '@/config';
 import { IPC_ACTIONS } from '@/messages';
 import { ipcRenderer } from 'electron';
+import frappe, { t } from 'frappe';
 import { DoctypeName } from '../../models/types';
 import { Count, UniqueId } from './types';
 
@@ -38,6 +39,10 @@ export async function getCounts(): Promise<Count> {
   ];
 
   const countMap: Count = {};
+  // @ts-ignore
+  if (frappe.db === undefined) {
+    return countMap;
+  }
 
   type CountResponse = { 'count(*)': number }[];
   for (const name of interestingDocs) {
@@ -132,3 +137,9 @@ export async function getCreds() {
   const token: string = creds?.tokenString ?? '';
   return { url, token };
 }
+
+export const getTelemetryOptions = () => ({
+  [TelemetrySetting.allow]: t`Allow Telemetry`,
+  [TelemetrySetting.dontLogUsage]: t`Don't Log Usage`,
+  [TelemetrySetting.dontLogAnything]: t`Don't Log Anything`,
+});

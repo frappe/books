@@ -10,7 +10,7 @@ export default {
     {
       fieldname: 'template',
       label: t`Template`,
-      placeholder: 'Template',
+      placeholder: t`Template`,
       fieldtype: 'Select',
       options: ['Basic I', 'Basic II', 'Modern'],
       required: 1,
@@ -19,7 +19,7 @@ export default {
     {
       fieldname: 'font',
       label: t`Font`,
-      placeholder: 'Font',
+      placeholder: t`Font`,
       fieldtype: 'Select',
       options: ['Montserrat', 'Open Sans', 'Oxygen', 'Merriweather'],
       required: 1,

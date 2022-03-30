@@ -18,7 +18,7 @@ export default {
       fieldname: 'name',
       label: t`Item Name`,
       fieldtype: 'Data',
-      placeholder: 'Item Name',
+      placeholder: t`Item Name`,
       required: 1,
     },
     {
@@ -29,21 +29,21 @@ export default {
     {
       fieldname: 'description',
       label: t`Description`,
-      placeholder: 'Item Description',
+      placeholder: t`Item Description`,
       fieldtype: 'Text',
     },
     {
       fieldname: 'unit',
       label: t`Unit Type`,
       fieldtype: 'Select',
-      placeholder: 'Unit Type',
+      placeholder: t`Unit Type`,
       default: 'Unit',
       options: ['Unit', 'Kg', 'Gram', 'Hour', 'Day'],
     },
     {
       fieldname: 'itemType',
       label: t`Type`,
-      placeholder: 'Type',
+      placeholder: t`Type`,
       fieldtype: 'Select',
       default: 'Product',
       options: ['Product', 'Service'],
@@ -61,7 +61,7 @@ export default {
       label: t`Income`,
       fieldtype: 'Link',
       target: 'Account',
-      placeholder: 'Income',
+      placeholder: t`Income`,
       required: 1,
       disableCreation: true,
       getFilters: () => {
@@ -86,7 +86,7 @@ export default {
       label: t`Expense`,
       fieldtype: 'Link',
       target: 'Account',
-      placeholder: 'Expense',
+      placeholder: t`Expense`,
       required: 1,
       disableCreation: true,
       getFilters: () => {
@@ -112,7 +112,7 @@ export default {
       label: t`Tax`,
       fieldtype: 'Link',
       target: 'Tax',
-      placeholder: 'Tax',
+      placeholder: t`Tax`,
     },
     {
       fieldname: 'rate',

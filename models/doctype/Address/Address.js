@@ -29,27 +29,27 @@ export default {
     {
       fieldname: 'addressLine1',
       label: t`Address Line 1`,
-      placeholder: 'Address Line 1',
+      placeholder: t`Address Line 1`,
       fieldtype: 'Data',
       required: 1,
     },
     {
       fieldname: 'addressLine2',
       label: t`Address Line 2`,
-      placeholder: 'Address Line 2',
+      placeholder: t`Address Line 2`,
       fieldtype: 'Data',
     },
     {
       fieldname: 'city',
       label: t`City / Town`,
-      placeholder: 'City / Town',
+      placeholder: t`City / Town`,
       fieldtype: 'Data',
       required: 1,
     },
     {
       fieldname: 'state',
       label: t`State`,
-      placeholder: 'State',
+      placeholder: t`State`,
       fieldtype: 'AutoComplete',
       emptyMessage: (doc) => {
         if (doc.country) {
@@ -62,7 +62,7 @@ export default {
     {
       fieldname: 'country',
       label: t`Country`,
-      placeholder: 'Country',
+      placeholder: t`Country`,
       fieldtype: 'AutoComplete',
       getList: () => Object.keys(countryList).sort(),
       required: 1,
@@ -70,19 +70,19 @@ export default {
     {
       fieldname: 'postalCode',
       label: t`Postal Code`,
-      placeholder: 'Postal Code',
+      placeholder: t`Postal Code`,
       fieldtype: 'Data',
     },
     {
       fieldname: 'emailAddress',
       label: t`Email Address`,
-      placeholder: 'Email Address',
+      placeholder: t`Email Address`,
       fieldtype: 'Data',
     },
     {
       fieldname: 'phone',
       label: t`Phone`,
-      placeholder: 'Phone',
+      placeholder: t`Phone`,
       fieldtype: 'Data',
     },
     {

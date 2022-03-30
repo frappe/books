@@ -22,7 +22,7 @@ export default {
       fieldname: 'country',
       label: t`Country`,
       fieldtype: 'AutoComplete',
-      placeholder: 'Select Country',
+      placeholder: t`Select Country`,
       required: 1,
       getList: () => Object.keys(countryList).sort(),
     },
@@ -31,7 +31,7 @@ export default {
       fieldname: 'fullname',
       label: t`Your Name`,
       fieldtype: 'Data',
-      placeholder: 'John Doe',
+      placeholder: t`John Doe`,
       required: 1,
     },
 
@@ -39,7 +39,7 @@ export default {
       fieldname: 'email',
       label: t`Email`,
       fieldtype: 'Data',
-      placeholder: 'john@doe.com',
+      placeholder: t`john@doe.com`,
       required: 1,
       validate: {
         type: 'email',
@@ -49,7 +49,7 @@ export default {
     {
       fieldname: 'companyName',
       label: t`Company Name`,
-      placeholder: 'Company Name',
+      placeholder: t`Company Name`,
       fieldtype: 'Data',
       required: 1,
     },
@@ -58,14 +58,14 @@ export default {
       fieldname: 'bankName',
       label: t`Bank Name`,
       fieldtype: 'Data',
-      placeholder: 'Prime Bank',
+      placeholder: t`Prime Bank`,
       required: 1,
     },
 
     {
       fieldname: 'fiscalYearStart',
       label: t`Fiscal Year Start Date`,
-      placeholder: 'Fiscal Year Start Date',
+      placeholder: t`Fiscal Year Start Date`,
       fieldtype: 'Date',
       formulaDependsOn: ['country'],
       formula: (doc) => {
@@ -84,7 +84,7 @@ export default {
     {
       fieldname: 'fiscalYearEnd',
       label: t`Fiscal Year End Date`,
-      placeholder: 'Fiscal Year End Date',
+      placeholder: t`Fiscal Year End Date`,
       fieldtype: 'Date',
       formulaDependsOn: ['country'],
       formula: (doc) => {
@@ -103,7 +103,7 @@ export default {
       fieldname: 'currency',
       label: t`Currency`,
       fieldtype: 'Data',
-      placeholder: 'Currency',
+      placeholder: t`Currency`,
       formulaDependsOn: ['country'],
       formula: (doc) => {
         if (!doc.country) return;

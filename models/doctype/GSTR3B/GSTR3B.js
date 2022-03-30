@@ -20,7 +20,7 @@ export default {
     {
       fieldname: 'month',
       label: t`Month`,
-      placeholder: 'Month',
+      placeholder: t`Month`,
       fieldtype: 'Select',
       options: [
         'January',

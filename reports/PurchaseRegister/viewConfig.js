@@ -11,7 +11,7 @@ export default {
       label: t`Supplier Name`,
       fieldname: 'supplier',
       size: 'small',
-      placeholder: 'Supplier Name',
+      placeholder: t`Supplier Name`,
       getFilters: (query) => {
         if (query)
           return {
@@ -28,14 +28,14 @@ export default {
       fieldtype: 'Date',
       fieldname: 'fromDate',
       size: 'small',
-      placeholder: 'From Date',
+      placeholder: t`From Date`,
       label: t`From Date`,
       required: 1,
     },
     {
       fieldtype: 'Date',
       size: 'small',
-      placeholder: 'To Date',
+      placeholder: t`To Date`,
       fieldname: 'toDate',
       label: t`To Date`,
       required: 1,

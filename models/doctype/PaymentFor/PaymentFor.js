@@ -16,7 +16,7 @@ export default {
     {
       fieldname: 'referenceType',
       label: t`Reference Type`,
-      placeholder: 'Type',
+      placeholder: t`Type`,
       fieldtype: 'Select',
       options: Object.keys(referenceTypeMap),
       map: referenceTypeMap,
@@ -27,7 +27,7 @@ export default {
       label: t`Reference Name`,
       fieldtype: 'DynamicLink',
       references: 'referenceType',
-      placeholder: 'Name',
+      placeholder: t`Name`,
       getFilters() {
         return {
           outstandingAmount: ['>', 0],

@@ -11,7 +11,7 @@ export default {
       label: t`Name`,
       fieldtype: 'Data',
       required: 1,
-      placeholder: 'Full Name',
+      placeholder: t`Full Name`,
     },
     {
       fieldname: 'image',
@@ -59,14 +59,14 @@ export default {
       label: t`Currency`,
       fieldtype: 'Link',
       target: 'Currency',
-      placeholder: 'INR',
+      placeholder: t`INR`,
       formula: () => frappe.AccountingSettings.currency,
     },
     {
       fieldname: 'email',
       label: t`Email`,
       fieldtype: 'Data',
-      placeholder: 'john@doe.com',
+      placeholder: t`john@doe.com`,
       validate: {
         type: 'email',
       },
@@ -75,7 +75,7 @@ export default {
       fieldname: 'phone',
       label: t`Phone`,
       fieldtype: 'Data',
-      placeholder: 'Phone',
+      placeholder: t`Phone`,
       validate: {
         type: 'phone',
       },

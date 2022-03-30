@@ -19,7 +19,7 @@ export default {
       label: t`Rate`,
       fieldtype: 'Float',
       required: 1,
-      placeholder: '0%',
+      placeholder: t`0%`,
     },
   ],
   tableFields: ['account', 'rate'],

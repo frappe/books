@@ -23,7 +23,7 @@ export default function getAugmentedParty({ country }) {
       {
         fieldname: 'gstType',
         label: t`GST Registration`,
-        placeholder: 'GST Registration',
+        placeholder: t`GST Registration`,
         fieldtype: 'Select',
         default: gstTypes[0],
         options: gstTypes,

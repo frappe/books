@@ -68,13 +68,12 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import Button from '@/components/Button';
+import { routeTo } from '@/utils';
+import frappe, { t } from 'frappe';
+import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
-import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
-import { routeTo } from '@/utils';
-
 export default {
   name: 'UnpaidInvoices',
   components: {
@@ -85,7 +84,7 @@ export default {
   data: () => ({
     invoices: [
       {
-        title: 'Invoices',
+        title: t`Invoices`,
         doctype: 'SalesInvoice',
         total: 0,
         unpaid: 0,
@@ -96,7 +95,7 @@ export default {
         barWidth: 40,
       },
       {
-        title: 'Bills',
+        title: t`Bills`,
         doctype: 'PurchaseInvoice',
         total: 0,
         unpaid: 0,

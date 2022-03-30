@@ -31,7 +31,7 @@
                     size="small"
                     input-class="bg-gray-100"
                     :df="{
-                      placeholder: 'Field',
+                      placeholder: t`Field`,
                       fieldname: 'fieldname',
                       fieldtype: 'Select',
                       options: fieldOptions,
@@ -45,7 +45,7 @@
                     size="small"
                     input-class="bg-gray-100"
                     :df="{
-                      placeholder: 'Condition',
+                      placeholder: t`Condition`,
                       fieldname: 'condition',
                       fieldtype: 'Select',
                       options: conditions,
@@ -59,7 +59,7 @@
                     size="small"
                     input-class="bg-gray-100"
                     :df="{
-                      placeholder: 'Value',
+                      placeholder: t`Value`,
                       fieldname: 'value',
                       fieldtype: 'Data',
                     }"
@@ -116,11 +116,11 @@
 </template>
 
 <script>
-import Popover from './Popover';
-import Button from './Button';
-import Icon from './Icon';
-import FormControl from './Controls/FormControl';
 import { t } from 'frappe';
+import Button from './Button';
+import FormControl from './Controls/FormControl';
+import Icon from './Icon';
+import Popover from './Popover';
 
 let conditions = [
   { label: t`Is`, value: '=' },
