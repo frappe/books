@@ -31,7 +31,7 @@
         "
         @click="checkForUpdates(true)"
       >
-        Check for Updates
+        {{ t`Check for Updates` }}
       </button>
     </div>
   </div>
@@ -43,9 +43,9 @@ import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import config, {
 ConfigKeys,
-telemetryOptions,
 TelemetrySetting
 } from '@/config';
+import { getTelemetryOptions } from '@/telemetry/helpers';
 import telemetry from '@/telemetry/telemetry';
 import { checkForUpdates } from '@/utils';
 import frappe from 'frappe';
@@ -71,6 +71,7 @@ export default {
   },
   computed: {
     df() {
+      const telemetryOptions = getTelemetryOptions();
       return {
         fieldname: 'anonymizedTelemetry',
         label: this.t`Anonymized Telemetry`,

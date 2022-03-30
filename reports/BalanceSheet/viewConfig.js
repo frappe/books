@@ -1,15 +1,21 @@
 import frappe, { t } from 'frappe';
 import getCommonExportActions from '../commonExporter';
 
+const periodicityMap = {
+  Monthly: t`Monthly`,
+  Quarterly: t`Quarterly`,
+  'Half Yearly': t`Half Yearly`,
+  Yearly: t`Yearly`,
+};
 export default {
-  title: 'Balance Sheet',
+  title: t`Balance Sheet`,
   method: 'balance-sheet',
   filterFields: [
     {
       fieldtype: 'Date',
       fieldname: 'toDate',
       size: 'small',
-      placeholder: 'ToDate',
+      placeholder: t`To Date`,
       label: t`To Date`,
       required: 1,
       default: async () => {
@@ -18,9 +24,10 @@ export default {
     },
     {
       fieldtype: 'Select',
-      placeholder: 'Select Period',
+      placeholder: t`Select Period`,
       size: 'small',
-      options: ['Monthly', 'Quarterly', 'Half Yearly', 'Yearly'],
+      options: Object.keys(periodicityMap),
+      map: periodicityMap,
       label: t`Periodicity`,
       fieldname: 'periodicity',
       default: 'Monthly',

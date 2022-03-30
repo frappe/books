@@ -18,7 +18,7 @@
           <input
             type="search"
             class="bg-gray-200 text-sm pl-8 focus:outline-none h-full w-56"
-            placeholder="Search..."
+            :placeholder="t`Search...`"
             autocomplete="off"
             spellcheck="false"
             v-model="inputValue"
@@ -41,11 +41,10 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
-import reports from '../../reports/view';
 import Dropdown from '@/components/Dropdown';
 import { routeTo } from '@/utils';
-import { t } from 'frappe';
+import frappe, { t } from 'frappe';
+import reports from '../../reports/view';
 
 export default {
   data() {

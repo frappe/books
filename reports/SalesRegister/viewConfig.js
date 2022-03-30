@@ -10,7 +10,7 @@ export default {
       target: 'Party',
       label: t`Customer Name`,
       size: 'small',
-      placeholder: 'Customer Name',
+      placeholder: t`Customer Name`,
       fieldname: 'customer',
       getFilters: (query) => {
         if (query)
@@ -28,14 +28,14 @@ export default {
       fieldtype: 'Date',
       fieldname: 'fromDate',
       size: 'small',
-      placeholder: 'From Date',
+      placeholder: t`From Date`,
       label: t`From Date`,
       required: 1,
     },
     {
       fieldtype: 'Date',
       size: 'small',
-      placeholder: 'To Date',
+      placeholder: t`To Date`,
       fieldname: 'toDate',
       label: t`To Date`,
       required: 1,

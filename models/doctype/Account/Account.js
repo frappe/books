@@ -20,7 +20,7 @@ export default {
       fieldname: 'rootType',
       label: t`Root Type`,
       fieldtype: 'Select',
-      placeholder: 'Root Type',
+      placeholder: t`Root Type`,
       options: ['Asset', 'Liability', 'Equity', 'Income', 'Expense'],
       required: 1,
     },
@@ -40,7 +40,7 @@ export default {
     {
       fieldname: 'accountType',
       label: t`Account Type`,
-      placeholder: 'Account Type',
+      placeholder: t`Account Type`,
       fieldtype: 'Select',
       options: [
         'Accumulated Depreciation',

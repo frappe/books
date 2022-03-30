@@ -13,7 +13,7 @@ const transferTypeMap = {
 const transferType = {
   fieldtype: 'Select',
   label: t`Transfer Type`,
-  placeholder: 'Transfer Type',
+  placeholder: t`Transfer Type`,
   fieldname: 'transferType',
   options: Object.keys(transferTypeMap),
   map: transferTypeMap,
@@ -23,7 +23,7 @@ const transferType = {
 
 const actions = [
   {
-    group: 'Export',
+    group: t`Export`,
     label: t`JSON`,
     type: 'primary',
     action: async (report, filters) => {
@@ -31,7 +31,7 @@ const actions = [
     },
   },
   {
-    group: 'Export',
+    group: t`Export`,
     label: t`CSV`,
     type: 'primary',
     action: async (report, filters) => {

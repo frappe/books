@@ -101,7 +101,7 @@
           class="text-brand text-sm mt-4 inline-block cursor-pointer"
           @click="showFiles = true"
         >
-          Select from existing files
+          {{ t`Select from existing files` }}
         </a>
       </div>
 
@@ -144,7 +144,7 @@
             class="text-brand text-sm cursor-pointer"
             @click="showFiles = false"
           >
-            Select file manually
+            {{ t`Select file manually` }}
           </a>
         </div>
       </div>
@@ -158,15 +158,14 @@
   </div>
 </template>
 <script>
-import fs from 'fs';
-import config from '@/config';
-import { DateTime } from 'luxon';
-import { ipcRenderer } from 'electron';
-import { DB_CONN_FAILURE, IPC_ACTIONS } from '../messages';
-
-import { createNewDatabase, connectToLocalDatabase } from '@/initialization';
-import { showErrorDialog } from '../errorHandling';
 import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
+import config from '@/config';
+import { connectToLocalDatabase, createNewDatabase } from '@/initialization';
+import { ipcRenderer } from 'electron';
+import fs from 'fs';
+import { DateTime } from 'luxon';
+import { showErrorDialog } from '../errorHandling';
+import { DB_CONN_FAILURE, IPC_ACTIONS } from '../messages';
 
 export default {
   name: 'DatabaseSelector',

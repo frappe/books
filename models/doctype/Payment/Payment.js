@@ -7,6 +7,12 @@ const paymentTypeMap = {
   Pay: t`Pay`,
 };
 
+const paymentMethodMap = {
+  Cash: t`Cash`,
+  Cheque: t`Cheque`,
+  Transfer: t`Transfer`,
+};
+
 export default {
   name: 'Payment',
   label: t`Payment`,
@@ -61,7 +67,7 @@ export default {
       fieldname: 'paymentType',
       label: t`Payment Type`,
       fieldtype: 'Select',
-      placeholder: 'Payment Type',
+      placeholder: t`Payment Type`,
       options: Object.keys(paymentTypeMap),
       map: paymentTypeMap,
       required: 1,
@@ -69,7 +75,7 @@ export default {
     {
       fieldname: 'paymentAccount',
       label: t`To Account`,
-      placeholder: 'To Account',
+      placeholder: t`To Account`,
       fieldtype: 'Link',
       target: 'Account',
       required: 1,
@@ -102,16 +108,17 @@ export default {
     {
       fieldname: 'paymentMethod',
       label: t`Payment Method`,
-      placeholder: 'Payment Method',
+      placeholder: t`Payment Method`,
       fieldtype: 'Select',
-      options: ['Cash', 'Cheque', 'Transfer'],
+      options: Object.keys(paymentMethodMap),
+      map: paymentMethodMap,
       default: 'Cash',
       required: 1,
     },
     {
       fieldname: 'referenceId',
       label: t`Ref. / Cheque No.`,
-      placeholder: 'Ref. / Cheque No.',
+      placeholder: t`Ref. / Cheque No.`,
       fieldtype: 'Data',
       required: (doc) => doc.paymentMethod !== 'Cash', // TODO: UNIQUE
       hidden: (doc) => doc.paymentMethod === 'Cash',
@@ -119,13 +126,13 @@ export default {
     {
       fieldname: 'referenceDate',
       label: t`Ref. Date`,
-      placeholder: 'Ref. Date',
+      placeholder: t`Ref. Date`,
       fieldtype: 'Date',
     },
     {
       fieldname: 'clearanceDate',
       label: t`Clearance Date`,
-      placeholder: 'Clearance Date',
+      placeholder: t`Clearance Date`,
       fieldtype: 'Date',
       hidden: (doc) => doc.paymentMethod === 'Cash',
     },

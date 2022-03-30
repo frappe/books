@@ -2,7 +2,7 @@ import { partyWithAvatar } from '@/utils';
 import { t } from 'frappe';
 import getCommonExportActions from '../commonExporter';
 
-let title = 'General Ledger';
+let title = t`General Ledger`;
 
 const viewConfig = {
   title,
@@ -19,13 +19,13 @@ const viewConfig = {
       size: 'small',
       label: t`Reference Type`,
       fieldname: 'referenceType',
-      placeholder: 'Reference Type',
+      placeholder: t`Reference Type`,
       default: 'All',
     },
     {
       fieldtype: 'DynamicLink',
       size: 'small',
-      placeholder: 'Reference Name',
+      placeholder: t`Reference Name`,
       references: 'referenceType',
       label: t`Reference Name`,
       fieldname: 'referenceName',
@@ -34,7 +34,7 @@ const viewConfig = {
       fieldtype: 'Link',
       target: 'Account',
       size: 'small',
-      placeholder: 'Account',
+      placeholder: t`Account`,
       label: t`Account`,
       fieldname: 'account',
     },
@@ -43,20 +43,20 @@ const viewConfig = {
       target: 'Party',
       label: t`Party`,
       size: 'small',
-      placeholder: 'Party',
+      placeholder: t`Party`,
       fieldname: 'party',
     },
     {
       fieldtype: 'Date',
       size: 'small',
-      placeholder: 'From Date',
+      placeholder: t`From Date`,
       label: t`From Date`,
       fieldname: 'fromDate',
     },
     {
       fieldtype: 'Date',
       size: 'small',
-      placeholder: 'To Date',
+      placeholder: t`To Date`,
       label: t`To Date`,
       fieldname: 'toDate',
     },

@@ -449,7 +449,7 @@ export default {
         fieldname: 'importType',
         label: this.t`Import Type`,
         fieldtype: 'AutoComplete',
-        placeholder: 'Import Type',
+        placeholder: this.t`Import Type`,
         getList: () => importable.map((i) => frappe.models[i].label),
       };
     },

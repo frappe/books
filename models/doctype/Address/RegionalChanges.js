@@ -18,7 +18,7 @@ export default function getAugmentedAddress({ country }) {
         fieldname: 'pos',
         label: t`Place of Supply`,
         fieldtype: 'AutoComplete',
-        placeholder: 'Place of Supply',
+        placeholder: t`Place of Supply`,
         formula: (doc) => (stateList.includes(doc.state) ? doc.state : ''),
         getList: () => stateList,
       },

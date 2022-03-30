@@ -48,20 +48,20 @@
     </div>
     <div v-else class="flex flex-col items-center justify-center my-auto">
       <img src="@/assets/img/list-empty-state.svg" alt="" class="w-24" />
-      <p class="my-3 text-gray-800">No {{ meta.label || meta.name }} found</p>
+      <p class="my-3 text-gray-800">{{ t`No entries found` }}</p>
       <Button type="primary" class="text-white" @click="$emit('makeNewDoc')">
-        Create a new {{ meta.label || meta.name }}
+        {{ t`Make Entry` }}
       </Button>
     </div>
   </div>
 </template>
 <script>
-import frappe from 'frappe';
-import Row from '@/components/Row';
-import ListCell from './ListCell';
 import Avatar from '@/components/Avatar';
-import { openQuickEdit, routeTo } from '@/utils';
 import Button from '@/components/Button';
+import Row from '@/components/Row';
+import { openQuickEdit, routeTo } from '@/utils';
+import frappe from 'frappe';
+import ListCell from './ListCell';
 
 export default {
   name: 'List',

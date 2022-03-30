@@ -20,7 +20,7 @@ export default {
       fieldname: 'email',
       label: t`Email`,
       fieldtype: 'Data',
-      placeholder: 'john@doe.com',
+      placeholder: t`john@doe.com`,
       validate: {
         type: 'email',
       },
@@ -34,7 +34,7 @@ export default {
       fieldname: 'phone',
       label: t`Phone`,
       fieldtype: 'Data',
-      placeholder: '9888900000',
+      placeholder: t`9888900000`,
       validate: {
         type: 'phone',
       },
@@ -44,13 +44,13 @@ export default {
       label: t`Address`,
       fieldtype: 'Link',
       target: 'Address',
-      placeholder: 'Click to create',
+      placeholder: t`Click to create`,
       inline: true,
     },
     {
       fieldname: 'template',
       label: t`Template`,
-      placeholder: 'Template',
+      placeholder: t`Template`,
       fieldtype: 'Select',
       options: ['Basic', 'Minimal', 'Business'],
       default: 'Basic',
@@ -58,7 +58,7 @@ export default {
     {
       fieldname: 'color',
       label: t`Color`,
-      placeholder: 'Select Color',
+      placeholder: t`Select Color`,
       fieldtype: 'Color',
       colors: [
         'red',
@@ -86,7 +86,7 @@ export default {
     {
       fieldname: 'font',
       label: t`Font`,
-      placeholder: 'Font',
+      placeholder: t`Font`,
       fieldtype: 'Select',
       options: ['Inter', 'Times New Roman', 'Arial', 'Courier'],
       default: 'Inter',

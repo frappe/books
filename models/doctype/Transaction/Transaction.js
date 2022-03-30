@@ -5,6 +5,12 @@ import utils from '../../../accounting/utils';
 import { statusColor } from '../../../src/colors';
 
 export function getStatusColumn() {
+  const statusMap = {
+    Unpaid: t`Unpaid`,
+    Paid: t`Paid`,
+    Draft: t`Draft`,
+    Cancelled: t`Cancelled`,
+  };
   return {
     label: t`Status`,
     fieldname: 'status',
@@ -12,8 +18,9 @@ export function getStatusColumn() {
     render(doc) {
       const status = getInvoiceStatus(doc);
       const color = statusColor[status];
+      const label = statusMap[status];
       return {
-        template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
+        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
         components: { Badge },
       };
     },

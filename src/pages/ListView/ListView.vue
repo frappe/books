@@ -37,7 +37,6 @@ import SearchBar from '@/components/SearchBar';
 import { routeTo } from '@/utils';
 import frappe from 'frappe';
 import List from './List';
-import listConfigs from './listConfig';
 
 export default {
   name: 'ListView',
@@ -49,9 +48,16 @@ export default {
     SearchBar,
     FilterDropdown,
   },
-  activated() {
+  data() {
+    return { listConfigs: undefined };
+  },
+  async activated() {
     if (typeof this.filters === 'object') {
       this.$refs.filterDropdown.setFilter(this.filters);
+    }
+
+    if (this.listConfigs === undefined) {
+      this.listConfigs = (await import('./listConfig')).default;
     }
   },
   methods: {
@@ -102,8 +108,8 @@ export default {
       return frappe.getMeta(this.doctype);
     },
     listConfig() {
-      if (listConfigs[this.doctype]) {
-        return listConfigs[this.doctype];
+      if (this?.listConfigs?.[this?.doctype]) {
+        return this.listConfigs[this.doctype];
       } else {
         return {
           title: this.doctype,

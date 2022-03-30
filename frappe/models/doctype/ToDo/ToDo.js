@@ -20,7 +20,7 @@ module.exports = {
     {
       fieldname: 'subject',
       label: t`Subject`,
-      placeholder: 'Subject',
+      placeholder: t`Subject`,
       fieldtype: 'Data',
       required: 1,
     },

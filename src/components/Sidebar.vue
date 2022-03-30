@@ -89,21 +89,21 @@
         class="pb-1 text-sm text-gray-600 hover:text-gray-800 w-full text-left"
         @click="() => reportIssue()"
       >
-        Report Issue
+        {{ t`Report Issue` }}
       </button>
       <p class="pb-3 text-sm text-gray-600">v{{ appVersion }}</p>
     </div>
   </div>
 </template>
 <script>
-import { reportIssue } from '@/errorHandling';
-import sidebarConfig from '../sidebarConfig';
 import Button from '@/components/Button';
-import WindowControls from './WindowControls';
+import { reportIssue } from '@/errorHandling';
 import { routeTo } from '@/utils';
 import path from 'path';
 import router from '../router';
+import sidebarConfig from '../sidebarConfig';
 import Icon from './Icon.vue';
+import WindowControls from './WindowControls';
 
 export default {
   components: [Button],

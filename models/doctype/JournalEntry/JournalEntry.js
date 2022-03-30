@@ -28,7 +28,7 @@ export default {
       fieldname: 'entryType',
       label: t`Entry Type`,
       fieldtype: 'Select',
-      placeholder: 'Entry Type',
+      placeholder: t`Entry Type`,
       options: Object.keys(journalEntryTypeMap),
       map: journalEntryTypeMap,
       required: 1,
@@ -67,7 +67,7 @@ export default {
       fieldname: 'userRemark',
       label: t`User Remark`,
       fieldtype: 'Text',
-      placeholder: 'User Remark',
+      placeholder: t`User Remark`,
     },
     {
       fieldname: 'cancelled',

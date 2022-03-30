@@ -51,7 +51,7 @@ export default {
       fieldname: 'country',
       label: t`Country`,
       fieldtype: 'AutoComplete',
-      placeholder: 'Select Country',
+      placeholder: t`Select Country`,
       readOnly: 1,
       required: 1,
       getList: () => countryList,
@@ -113,7 +113,7 @@ export default {
       fieldname: 'gstin',
       label: t`GSTIN`,
       fieldtype: 'Data',
-      placeholder: '27AAAAA0000A1Z5',
+      placeholder: t`27AAAAA0000A1Z5`,
     },
   ],
   quickEditFields: [

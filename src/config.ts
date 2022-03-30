@@ -19,12 +19,6 @@ export enum TelemetrySetting {
   dontLogAnything = 'dontLogAnything',
 }
 
-export const telemetryOptions = {
-  [TelemetrySetting.allow]: frappe.t`Allow Telemetry`,
-  [TelemetrySetting.dontLogUsage]: frappe.t`Don't Log Usage`,
-  [TelemetrySetting.dontLogAnything]: frappe.t`Don't Log Anything`,
-};
-
 export interface ConfigFile {
   id: string;
   companyName: string;

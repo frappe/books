@@ -1,7 +1,7 @@
 import frappe, { t } from 'frappe';
 import getCommonExportActions from '../commonExporter';
 
-const title = 'Trial Balance';
+const title = t`Trial Balance`;
 
 export default {
   title: title,
@@ -13,7 +13,7 @@ export default {
       fieldname: 'fromDate',
       label: t`From Date`,
       size: 'small',
-      placeholder: 'From Date',
+      placeholder: t`From Date`,
       required: 1,
       default: async () => {
         return (await frappe.getSingle('AccountingSettings')).fiscalYearStart;
@@ -22,7 +22,7 @@ export default {
     {
       fieldtype: 'Date',
       size: 'small',
-      placeholder: 'To Date',
+      placeholder: t`To Date`,
       fieldname: 'toDate',
       label: t`To Date`,
       required: 1,

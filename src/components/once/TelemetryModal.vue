@@ -49,11 +49,8 @@
 </template>
 
 <script>
-import config, {
-ConfigKeys,
-telemetryOptions,
-TelemetrySetting
-} from '@/config';
+import config, { ConfigKeys, TelemetrySetting } from '@/config';
+import { getTelemetryOptions } from '@/telemetry/helpers';
 import telemetry from '@/telemetry/telemetry';
 import { NounEnum, Verb } from '@/telemetry/types';
 import Button from '../Button.vue';
@@ -72,6 +69,7 @@ export default {
   },
   computed: {
     df() {
+      const telemetryOptions = getTelemetryOptions();
       return {
         fieldname: 'anonymizedTelemetry',
         label: this.t`Anonymized Telemetry`,
@@ -106,7 +104,7 @@ export default {
       if (this.value === TelemetrySetting.dontLogUsage) {
         telemetry.finalLogAndStop();
       } else {
-        telemetry.log(Verb.Started, NounEnum.Telemetry)
+        telemetry.log(Verb.Started, NounEnum.Telemetry);
       }
 
       config.set(ConfigKeys.Telemetry, this.value);

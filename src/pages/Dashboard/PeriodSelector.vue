@@ -1,3 +1,11 @@
+<script setup>
+const periodSelectorMap = {
+  'This Year': t`This Year`,
+  'This Quarter': t`This Quarter`,
+  'This Month': t`This Month`,
+};
+</script>
+
 <template>
   <Dropdown ref="dropdown" class="text-sm" :items="periodOptions" right>
     <template
@@ -28,7 +36,7 @@
         @keydown.up="highlightItemUp"
         @keydown.enter="selectHighlightedItem"
       >
-        {{ value }}
+        {{ periodSelectorMap[value] }}
         <feather-icon name="chevron-down" class="ml-1 w-3 h-3" />
       </div>
     </template>
@@ -37,6 +45,8 @@
 
 <script>
 import Dropdown from '@/components/Dropdown';
+import { t } from 'frappe';
+
 export default {
   name: 'PeriodSelector',
   props: {
@@ -54,7 +64,7 @@ export default {
     return {
       periodOptions: this.options.map((option) => {
         return {
-          label: option,
+          label: this.periodSelectorMap[option],
           action: () => this.selectOption(option),
         };
       }),
