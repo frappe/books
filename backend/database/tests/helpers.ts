@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { cloneDeep } from 'lodash';
 import { SchemaMap, SchemaStub, SchemaStubMap } from 'schemas/types';
 import {
@@ -15,7 +16,6 @@ const Customer = {
       fieldname: 'name',
       label: 'Name',
       fieldtype: 'Data',
-      default: 'John Thoe',
       required: true,
     },
     {
@@ -50,13 +50,13 @@ const SalesInvoiceItem = {
     {
       fieldname: 'rate',
       label: 'Rate',
-      fieldtype: 'Currency',
+      fieldtype: 'Float',
       required: true,
     },
     {
       fieldname: 'amount',
       label: 'Amount',
-      fieldtype: 'Currency',
+      fieldtype: 'Float',
       computed: true,
       readOnly: true,
     },
@@ -171,3 +171,38 @@ export function getBaseMeta() {
     modified: new Date().toISOString(),
   };
 }
+
+export async function assertThrows(
+  func: () => Promise<unknown>,
+  message?: string
+) {
+  let threw = true;
+  try {
+    await func();
+    threw = false;
+  } catch {
+  } finally {
+    if (!threw) {
+      throw new assert.AssertionError({
+        message: `Missing expected exception: ${message}`,
+      });
+    }
+  }
+}
+
+export async function assertDoesNotThrow(
+  func: () => Promise<unknown>,
+  message?: string
+) {
+  try {
+    await func();
+  } catch (err) {
+    throw new assert.AssertionError({
+      message: `Missing expected exception: ${message} Error: ${
+        (err as Error).message
+      }`,
+    });
+  }
+}
+
+export type BaseMetaKey = 'created' | 'modified' | 'createdBy' | 'modifiedBy';

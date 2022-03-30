@@ -6,14 +6,14 @@ import {
   DuplicateEntryError,
   LinkValidationError,
   NotFoundError,
-  ValueError
+  ValueError,
 } from '../../frappe/utils/errors';
 import {
   Field,
   FieldTypeEnum,
   RawValue,
   SchemaMap,
-  TargetField
+  TargetField,
 } from '../../schemas/types';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../common';
 import {
@@ -21,11 +21,15 @@ import {
   FieldValueMap,
   GetAllOptions,
   GetQueryBuilderOptions,
-  QueryFilter
+  QueryFilter,
 } from './types';
 
 /**
- * Db Core Call Sequence
+ * # DatabaseCore
+ * This is the ORM, the DatabaseCore interface (function signatures) should be
+ * replicated by the frontend demuxes and all the backend muxes.
+ *
+ * ## Db Core Call Sequence
  *
  * 1. Init core: `const db = new DatabaseCore(dbPath)`.
  * 2. Connect db: `db.connect()`. This will allow for raw queries to be executed.
@@ -33,6 +37,10 @@ import {
  * 4. Migrate: `await db.migrate()`. This will create absent tables and update the tables' shape.
  * 5. ORM function execution: `db.get(...)`, `db.insert(...)`, etc.
  * 6. Close connection: `await db.close()`.
+ *
+ * Note: Meta values: created, modified, createdBy, modifiedBy are set by DatabaseCore
+ * only for schemas that are SingleValue. Else they have to be passed by the caller in
+ * the `fieldValueMap`.
  */
 
 export default class DatabaseCore {
@@ -141,10 +149,10 @@ export default class DatabaseCore {
   async get(
     schemaName: string,
     name: string = '',
-    fields: string | string[] = '*'
+    fields?: string | string[]
   ): Promise<FieldValueMap> {
-    const isSingle = this.schemaMap[schemaName].isSingle;
-    if (!isSingle && !name) {
+    const schema = this.schemaMap[schemaName];
+    if (!schema.isSingle && !name) {
       throw new ValueError('name is mandatory');
     }
 
@@ -154,38 +162,37 @@ export default class DatabaseCore {
      * is ignored.
      */
     let fieldValueMap: FieldValueMap = {};
-    if (isSingle) {
+    if (schema.isSingle) {
       return await this.#getSingle(schemaName);
     }
 
-    if (fields !== '*' && typeof fields === 'string') {
+    if (typeof fields === 'string') {
       fields = [fields];
+    }
+
+    if (fields === undefined) {
+      fields = schema.fields.map((f) => f.fieldname);
     }
 
     /**
      * Separate table fields and non table fields
      */
-    const allTableFields = this.#getTableFields(schemaName);
-    const allTableFieldNames = allTableFields.map((f) => f.fieldname);
-
-    let tableFields: TargetField[] = [];
-    let nonTableFieldNames: string[] = [];
-
-    if (Array.isArray(fields)) {
-      tableFields = tableFields.filter((f) => fields.includes(f.fieldname));
-      nonTableFieldNames = fields.filter(
-        (f) => !allTableFieldNames.includes(f)
-      );
-    } else if (fields === '*') {
-      tableFields = allTableFields;
-    }
+    const allTableFields: TargetField[] = this.#getTableFields(schemaName);
+    const allTableFieldNames: string[] = allTableFields.map((f) => f.fieldname);
+    const tableFields: TargetField[] = allTableFields.filter((f) =>
+      fields!.includes(f.fieldname)
+    );
+    const nonTableFieldNames: string[] = fields.filter(
+      (f) => !allTableFieldNames.includes(f)
+    );
 
     /**
      * If schema is not single then return specific fields
      * if child fields are selected, all child fields are returned.
      */
     if (nonTableFieldNames.length) {
-      fieldValueMap = (await this.#getOne(schemaName, name, fields)) ?? {};
+      fieldValueMap =
+        (await this.#getOne(schemaName, name, nonTableFieldNames)) ?? {};
     }
 
     if (tableFields.length) {
@@ -194,32 +201,34 @@ export default class DatabaseCore {
     return fieldValueMap;
   }
 
-  async getAll({
-    schemaName,
-    fields,
-    filters,
-    start,
-    limit,
-    groupBy,
-    orderBy = 'created',
-    order = 'desc',
-  }: GetAllOptions): Promise<FieldValueMap[]> {
+  async getAll(
+    schemaName: string,
+    options: GetAllOptions = {}
+  ): Promise<FieldValueMap[]> {
     const schema = this.schemaMap[schemaName];
-    if (!fields) {
-      fields = ['name', ...(schema.keywordFields ?? [])];
-    }
-
-    if (typeof fields === 'string') {
-      fields = [fields];
-    }
-
-    return (await this.#getQueryBuilder(schemaName, fields, filters ?? {}, {
-      offset: start,
+    const hasCreated = !!schema.fields.find((f) => f.fieldname === 'created');
+    const {
+      fields = ['name', ...(schema.keywordFields ?? [])],
+      filters,
+      offset,
       limit,
       groupBy,
-      orderBy,
-      order,
-    })) as FieldValueMap[];
+      orderBy = hasCreated ? 'created' : undefined,
+      order = 'desc',
+    } = options;
+
+    return (await this.#getQueryBuilder(
+      schemaName,
+      typeof fields === 'string' ? [fields] : fields,
+      filters ?? {},
+      {
+        offset,
+        limit,
+        groupBy,
+        orderBy,
+        order,
+      }
+    )) as FieldValueMap[];
   }
 
   async getSingleValues(
@@ -258,6 +267,11 @@ export default class DatabaseCore {
   }
 
   async rename(schemaName: string, oldName: string, newName: string) {
+    /**
+     * Rename is expensive mostly won't allow it.
+     * TODO: rename all links
+     * TODO: rename in childtables
+     */
     await this.knex!(schemaName)
       .update({ name: newName })
       .where('name', oldName);
@@ -621,7 +635,7 @@ export default class DatabaseCore {
     if (!child.name) {
       child.name = getRandomString();
     }
-    child.parentName = parentName;
+    child.parent = parentName;
     child.parentSchemaName = parentSchemaName;
     child.parentFieldname = field.fieldname;
     child.idx = idx;
@@ -663,8 +677,7 @@ export default class DatabaseCore {
     tableFields: TargetField[]
   ) {
     for (const field of tableFields) {
-      fieldValueMap[field.fieldname] = await this.getAll({
-        schemaName: field.target,
+      fieldValueMap[field.fieldname] = await this.getAll(field.target, {
         fields: ['*'],
         filters: { parent: fieldValueMap.name as string },
         orderBy: 'idx',
@@ -673,11 +686,7 @@ export default class DatabaseCore {
     }
   }
 
-  async #getOne(
-    schemaName: string,
-    name: string,
-    fields: string | string[] = '*'
-  ) {
+  async #getOne(schemaName: string, name: string, fields: string[]) {
     const fieldValueMap: FieldValueMap = await this.knex!.select(fields)
       .from(schemaName)
       .where('name', name)
@@ -686,8 +695,7 @@ export default class DatabaseCore {
   }
 
   async #getSingle(schemaName: string): Promise<FieldValueMap> {
-    const values = await this.getAll({
-      schemaName: 'SingleValue',
+    const values = await this.getAll('SingleValue', {
       fields: ['fieldname', 'value'],
       filters: { parent: schemaName },
       orderBy: 'fieldname',
@@ -698,21 +706,21 @@ export default class DatabaseCore {
   }
 
   #insertOne(schemaName: string, fieldValueMap: FieldValueMap) {
-    const fields = this.schemaMap[schemaName].fields;
     if (!fieldValueMap.name) {
       fieldValueMap.name = getRandomString();
     }
 
-    const validMap: FieldValueMap = {};
-    for (const { fieldname, fieldtype } of fields) {
-      if (fieldtype === FieldTypeEnum.Table) {
-        continue;
-      }
+    // Non Table Fields
+    const fields = this.schemaMap[schemaName].fields.filter(
+      (f) => f.fieldtype !== FieldTypeEnum.Table
+    );
 
+    const validMap: FieldValueMap = {};
+    for (const { fieldname } of fields) {
       validMap[fieldname] = fieldValueMap[fieldname];
     }
 
-    return this.knex!(schemaName).insert(fieldValueMap);
+    return this.knex!(schemaName).insert(validMap);
   }
 
   async #updateSingleValues(
@@ -808,6 +816,18 @@ export default class DatabaseCore {
   async #updateOne(schemaName: string, fieldValueMap: FieldValueMap) {
     const updateMap = { ...fieldValueMap };
     delete updateMap.name;
+    const schema = this.schemaMap[schemaName];
+    for (const { fieldname, fieldtype } of schema.fields) {
+      if (fieldtype !== FieldTypeEnum.Table) {
+        continue;
+      }
+
+      delete updateMap[fieldname];
+    }
+
+    if (Object.keys(updateMap).length === 0) {
+      return;
+    }
 
     return await this.knex!(schemaName)
       .where('name', fieldValueMap.name as string)

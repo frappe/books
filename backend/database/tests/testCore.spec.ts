@@ -2,13 +2,29 @@ import * as assert from 'assert';
 import 'mocha';
 import { getMapFromList } from 'schemas/helpers';
 import { FieldTypeEnum, RawValue } from 'schemas/types';
-import { getValueMapFromList } from 'utils';
-import { sqliteTypeMap } from '../../common';
+import { getValueMapFromList, sleep } from 'utils';
+import { getDefaultMetaFieldValueMap, sqliteTypeMap } from '../../common';
 import DatabaseCore from '../core';
-import { SqliteTableInfo } from '../types';
-import { getBuiltTestSchemaMap } from './helpers';
+import { FieldValueMap, SqliteTableInfo } from '../types';
+import {
+  assertDoesNotThrow,
+  assertThrows,
+  BaseMetaKey,
+  getBuiltTestSchemaMap,
+} from './helpers';
 
-describe('DatabaseCore: Connect Migrate Close', async function () {
+/**
+ * Note: these tests have a strange structure where multiple tests are
+ * inside a `specify`, this is cause `describe` doesn't support `async` or waiting
+ * on promises.
+ *
+ * Due to this `async` db operations need to be handled in `specify`. And `specify`
+ * can't be nested in the `describe` can, hence the strange structure.
+ *
+ * This also implies that assert calls should have discriptive
+ */
+
+describe('DatabaseCore: Connect Migrate Close', function () {
   const db = new DatabaseCore();
   specify('dbPath', function () {
     assert.strictEqual(db.dbPath, ':memory:');
@@ -98,7 +114,7 @@ describe('DatabaseCore: Migrate and Check Db', function () {
           assert.strictEqual(
             !!column.notnull,
             field.required,
-            `${schemaName}.${column.name}:: notnull check: ${column.notnull}, ${field.required}`
+            `${schemaName}.${column.name}:: iotnull iheck: ${column.notnull}, ${field.required}`
           );
         } else {
           assert.strictEqual(
@@ -189,7 +205,7 @@ describe('DatabaseCore: CRUD', function () {
     localeRow = rows.find((r) => r.fieldname === 'locale');
 
     assert.notStrictEqual(localeEntryName, undefined, 'localeEntryName');
-    assert.strictEqual(rows.length, 2, 'row length');
+    assert.strictEqual(rows.length, 2, 'rows length insert');
     assert.strictEqual(
       localeRow?.name as string,
       localeEntryName,
@@ -215,7 +231,7 @@ describe('DatabaseCore: CRUD', function () {
     localeRow = rows.find((r) => r.fieldname === 'locale');
 
     assert.notStrictEqual(localeEntryName, undefined, 'localeEntryName');
-    assert.strictEqual(rows.length, 2, 'row length');
+    assert.strictEqual(rows.length, 2, 'rows length update');
     assert.strictEqual(
       localeRow?.name as string,
       localeEntryName,
@@ -276,5 +292,303 @@ describe('DatabaseCore: CRUD', function () {
     }
   });
 
-  specify('CRUD simple nondependent schema', async function () {});
+  specify('CRUD nondependent schema', async function () {
+    const schemaName = 'Customer';
+    let rows = await db.knex!(schemaName);
+    assert.strictEqual(rows.length, 0, 'rows length before insertion');
+
+    /**
+     * Insert
+     */
+    const metaValues = getDefaultMetaFieldValueMap();
+    const name = 'John Thoe';
+
+    await assertThrows(
+      async () => await db.insert(schemaName, { name }),
+      'insert() did not throw without meta values'
+    );
+
+    const updateMap = Object.assign({}, metaValues, { name });
+    await db.insert(schemaName, updateMap);
+    rows = await db.knex!(schemaName);
+    let firstRow = rows?.[0];
+    assert.strictEqual(rows.length, 1, `rows length insert ${rows.length}`);
+    assert.strictEqual(
+      firstRow.name,
+      name,
+      `name check ${firstRow.name}, ${name}`
+    );
+    assert.strictEqual(firstRow.email, null, `email check ${firstRow.email}`);
+
+    for (const key in metaValues) {
+      assert.strictEqual(
+        firstRow[key],
+        metaValues[key as BaseMetaKey],
+        `${key} check`
+      );
+    }
+
+    /**
+     * Update
+     */
+    const email = 'john@thoe.com';
+    await sleep(1); // required for modified to change
+    await db.update(schemaName, {
+      name,
+      email,
+      modified: new Date().toISOString(),
+    });
+    rows = await db.knex!(schemaName);
+    firstRow = rows?.[0];
+    assert.strictEqual(rows.length, 1, `rows length update ${rows.length}`);
+    assert.strictEqual(
+      firstRow.name,
+      name,
+      `name check update ${firstRow.name}, ${name}`
+    );
+    assert.strictEqual(
+      firstRow.email,
+      email,
+      `email check update ${firstRow.email}`
+    );
+
+    for (const key in metaValues) {
+      const val = firstRow[key];
+      const expected = metaValues[key as BaseMetaKey];
+      if (key !== 'modified') {
+        assert.strictEqual(val, expected, `${key} check ${val}, ${expected}`);
+      } else {
+        assert.notStrictEqual(
+          val,
+          expected,
+          `${key} check ${val}, ${expected}`
+        );
+      }
+    }
+
+    /**
+     * Delete
+     */
+    await db.delete(schemaName, name);
+    rows = await db.knex!(schemaName);
+    assert.strictEqual(rows.length, 0, `rows length delete ${rows.length}`);
+
+    /**
+     * Get
+     */
+    let fvMap = await db.get(schemaName, name);
+    assert.strictEqual(
+      Object.keys(fvMap).length,
+      0,
+      `key count get ${JSON.stringify(fvMap)}`
+    );
+
+    /**
+     * > 1 entries
+     */
+
+    const cOne = { name: 'John Whoe', ...getDefaultMetaFieldValueMap() };
+    const cTwo = { name: 'Jane Whoe', ...getDefaultMetaFieldValueMap() };
+
+    // Insert
+    await db.insert(schemaName, cOne);
+    assert.strictEqual(
+      (await db.knex!(schemaName)).length,
+      1,
+      `rows length minsert`
+    );
+    await db.insert(schemaName, cTwo);
+    rows = await db.knex!(schemaName);
+    assert.strictEqual(rows.length, 2, `rows length minsert`);
+
+    const cs = [cOne, cTwo];
+    for (const i in cs) {
+      for (const k in cs[i]) {
+        const val = cs[i][k as BaseMetaKey];
+        assert.strictEqual(
+          rows?.[i]?.[k],
+          val,
+          `equality check ${i} ${k} ${val} ${rows?.[i]?.[k]}`
+        );
+      }
+    }
+
+    // Update
+    await db.update(schemaName, { name: cOne.name, email });
+    const cOneEmail = await db.get(schemaName, cOne.name, 'email');
+    assert.strictEqual(
+      cOneEmail.email,
+      email,
+      `mi update check one ${cOneEmail}`
+    );
+    const cTwoEmail = await db.get(schemaName, cTwo.name, 'email');
+    assert.strictEqual(
+      cOneEmail.email,
+      email,
+      `mi update check two ${cTwoEmail}`
+    );
+
+    // Rename
+    const newName = 'Johnny Whoe';
+    await db.rename(schemaName, cOne.name, newName);
+
+    fvMap = await db.get(schemaName, cOne.name);
+    assert.strictEqual(
+      Object.keys(fvMap).length,
+      0,
+      `mi rename check old ${JSON.stringify(fvMap)}`
+    );
+
+    fvMap = await db.get(schemaName, newName);
+    assert.strictEqual(
+      fvMap.email,
+      email,
+      `mi rename check new ${JSON.stringify(fvMap)}`
+    );
+
+    // Delete
+    await db.delete(schemaName, newName);
+    rows = await db.knex!(schemaName);
+    assert.strictEqual(rows.length, 1, `mi delete length ${rows.length}`);
+    assert.strictEqual(
+      rows[0].name,
+      cTwo.name,
+      `mi delete name ${rows[0].name}`
+    );
+  });
+
+  specify('CRUD dependent schema', async function () {
+    const Customer = 'Customer';
+    const SalesInvoice = 'SalesInvoice';
+    const SalesInvoiceItem = 'SalesInvoiceItem';
+
+    const customer: FieldValueMap = {
+      name: 'John Whoe',
+      email: 'john@whoe.com',
+      ...getDefaultMetaFieldValueMap(),
+    };
+
+    const invoice: FieldValueMap = {
+      name: 'SINV-1001',
+      date: '2022-01-21',
+      customer: customer.name,
+      account: 'Debtors',
+      submitted: false,
+      cancelled: false,
+      ...getDefaultMetaFieldValueMap(),
+    };
+
+    await assertThrows(
+      async () => await db.insert(SalesInvoice, invoice),
+      'foreign key constraint fail failed'
+    );
+
+    await assertDoesNotThrow(async () => {
+      await db.insert(Customer, customer);
+      await db.insert(SalesInvoice, invoice);
+    }, 'insertion failed');
+
+    await assertThrows(
+      async () => await db.delete(Customer, customer.name as string),
+      'foreign key constraint fail failed'
+    );
+
+    await assertDoesNotThrow(async () => {
+      await db.delete(SalesInvoice, invoice.name as string);
+      await db.delete(Customer, customer.name as string);
+    }, 'deletion failed');
+
+    await db.insert(Customer, customer);
+    await db.insert(SalesInvoice, invoice);
+
+    let fvMap = await db.get(SalesInvoice, invoice.name as string);
+    for (const key in invoice) {
+      let expected = invoice[key];
+      if (typeof expected === 'boolean') {
+        expected = +expected;
+      }
+
+      assert.strictEqual(
+        fvMap[key],
+        expected,
+        `equality check ${key}: ${fvMap[key]}, ${invoice[key]}`
+      );
+    }
+
+    assert.strictEqual(
+      (fvMap.items as unknown[])?.length,
+      0,
+      'empty items check'
+    );
+
+    const items: FieldValueMap[] = [
+      {
+        item: 'Bottle Caps',
+        quantity: 2,
+        rate: 100,
+        amount: 200,
+      },
+    ];
+
+    await assertThrows(
+      async () => await db.insert(SalesInvoice, { name: invoice.name, items }),
+      'invoice insertion with ct did not fail'
+    );
+    await assertDoesNotThrow(
+      async () => await db.update(SalesInvoice, { name: invoice.name, items }),
+      'ct insertion failed'
+    );
+
+    fvMap = await db.get(SalesInvoice, invoice.name as string);
+    const ct = fvMap.items as FieldValueMap[];
+    assert.strictEqual(ct.length, 1, `ct length ${ct.length}`);
+    assert.strictEqual(ct[0].parent, invoice.name, `ct parent ${ct[0].parent}`);
+    assert.strictEqual(
+      ct[0].parentFieldname,
+      'items',
+      `ct parentFieldname ${ct[0].parentFieldname}`
+    );
+    assert.strictEqual(
+      ct[0].parentSchemaName,
+      SalesInvoice,
+      `ct parentSchemaName ${ct[0].parentSchemaName}`
+    );
+    for (const key in items[0]) {
+      assert.strictEqual(
+        ct[0][key],
+        items[0][key],
+        `ct values ${key}: ${ct[0][key]}, ${items[0][key]}`
+      );
+    }
+
+    items.push({
+      item: 'Mentats',
+      quantity: 4,
+      rate: 200,
+      amount: 800,
+    });
+    await assertDoesNotThrow(
+      async () => await db.update(SalesInvoice, { name: invoice.name, items }),
+      'ct updation failed'
+    );
+
+    let rows = await db.getAll(SalesInvoiceItem, {
+      fields: ['item', 'quantity', 'rate', 'amount'],
+    });
+    assert.strictEqual(rows.length, 2, `ct length update ${rows.length}`);
+
+    for (const i in rows) {
+      for (const key in rows[i]) {
+        assert.strictEqual(
+          rows[i][key],
+          items[i][key],
+          `ct values ${i},${key}: ${rows[i][key]}`
+        );
+      }
+    }
+
+    await db.delete(SalesInvoice, invoice.name as string);
+    rows = await db.getAll(SalesInvoiceItem);
+    assert.strictEqual(rows.length, 0, `ct length delete ${rows.length}`);
+  });
 });

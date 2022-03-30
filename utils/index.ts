@@ -27,3 +27,7 @@ export function getValueMapFromList<T, K extends keyof T, V extends keyof T>(
 export function getRandomString(): string {
   return Math.random().toString(36).slice(2, 8);
 }
+
+export async function sleep(durationMilliseconds: number = 1000) {
+  return new Promise((r) => setTimeout(() => r(null), durationMilliseconds));
+}
