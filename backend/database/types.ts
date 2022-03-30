@@ -12,10 +12,9 @@ export interface GetQueryBuilderOptions {
 }
 
 export interface GetAllOptions {
-  schemaName: string;
   fields?: string[];
   filters?: QueryFilter;
-  start?: number;
+  offset?: number;
   limit?: number;
   groupBy?: string;
   orderBy?: string;
