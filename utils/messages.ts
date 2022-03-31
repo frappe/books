@@ -32,6 +32,7 @@ export enum IPC_ACTIONS {
   DB_CREATE = 'db-create',
   DB_CONNECT = 'db-connect',
   DB_CALL = 'db-call',
+  DB_SCHEMA = 'db-schema',
 }
 
 // ipcMain.send(...)

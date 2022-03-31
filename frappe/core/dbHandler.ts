@@ -1,7 +1,6 @@
 import { DatabaseDemux } from '@/demux/db';
 import { Frappe } from 'frappe/core/frappe';
 import Money from 'pesa/dist/types/src/money';
-import { getSchemas } from 'schemas';
 import { FieldType, FieldTypeEnum, RawValue, SchemaMap } from 'schemas/types';
 import { DatabaseBase, GetAllOptions } from 'utils/db/types';
 import { DocValue, DocValueMap, RawValueMap, SingleValue } from './types';
@@ -9,7 +8,7 @@ import { DocValue, DocValueMap, RawValueMap, SingleValue } from './types';
 export class DatabaseHandler extends DatabaseBase {
   #frappe: Frappe;
   #demux: DatabaseDemux;
-  // #schemaMap: Readonly<SchemaMap>;
+  schemaMap: Readonly<SchemaMap> = {};
 
   constructor(frappe: Frappe) {
     super();
@@ -25,9 +24,8 @@ export class DatabaseHandler extends DatabaseBase {
     await this.#demux.connectToDatabase(dbPath, countryCode);
   }
 
-  init() {
-    // do nothing
-    // this.#schemaMap = getSchemas();
+  async init() {
+    this.schemaMap = (await this.#demux.getSchemaMap()) as Readonly<SchemaMap>;
   }
 
   async insert(
@@ -81,6 +79,9 @@ export class DatabaseHandler extends DatabaseBase {
       'getSingleValues',
       ...fieldnames
     )) as SingleValue<RawValue>;
+
+    // TODO: Complete this
+    throw new Error('Not implemented');
   }
 
   // Update
@@ -114,11 +115,17 @@ export class DatabaseHandler extends DatabaseBase {
   #toDocValueMap(
     schemaName: string,
     rawValueMap: RawValueMap | RawValueMap[]
-  ): DocValueMap | DocValueMap[] {}
+  ): DocValueMap | DocValueMap[] {
+    // TODO: Complete this
+    throw new Error('Not implemented');
+  }
   #toRawValueMap(
     schemaName: string,
     docValueMap: DocValueMap | DocValueMap[]
-  ): RawValueMap | RawValueMap[] {}
+  ): RawValueMap | RawValueMap[] {
+    // TODO: Complete this
+    throw new Error('Not implemented');
+  }
 
   #toDocValue(value: RawValue, fieldtype: FieldType): DocValue {
     switch (fieldtype) {

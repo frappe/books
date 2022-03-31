@@ -14,6 +14,10 @@ export class DatabaseManager {
     return this.db !== undefined && this.db.knex !== undefined;
   }
 
+  getSchemaMap() {
+    return this.db?.schemaMap ?? {};
+  }
+
   async createNewDatabase(dbPath: string, countryCode?: string) {
     await this.#unlinkIfExists(dbPath);
     await this.connectToDatabase(dbPath, countryCode);
