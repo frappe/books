@@ -50,7 +50,7 @@ import frappe from 'frappe';
 import { ipcRenderer } from 'electron';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import FormControl from '@/components/Controls/FormControl';
-import { IPC_ACTIONS } from '@/messages';
+import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
   name: 'TabInvoice',

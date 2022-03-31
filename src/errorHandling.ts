@@ -7,8 +7,8 @@ import {
   MandatoryError,
   ValidationError,
 } from 'frappe/utils/errors';
+import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import config, { ConfigKeys, TelemetrySetting } from './config';
-import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 import telemetry from './telemetry/telemetry';
 import { showMessageDialog, showToast } from './utils';
 

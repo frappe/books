@@ -87,7 +87,7 @@
 import Button from '@/components/Button';
 import Icon from '@/components/Icon';
 import PageHeader from '@/components/PageHeader';
-import { IPC_MESSAGES } from '@/messages';
+import { IPC_MESSAGES } from 'utils/messages';
 import { openSettings, routeTo } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';

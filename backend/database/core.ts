@@ -1,6 +1,4 @@
 import { knex, Knex } from 'knex';
-import { getRandomString, getValueMapFromList } from 'utils';
-import { DatabaseBase, GetAllOptions, QueryFilter } from 'utils/db/types';
 import {
   CannotCommitError,
   DatabaseError,
@@ -16,6 +14,8 @@ import {
   SchemaMap,
   TargetField,
 } from '../../schemas/types';
+import { getRandomString, getValueMapFromList } from '../../utils';
+import { DatabaseBase, GetAllOptions, QueryFilter } from '../../utils/db/types';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../helpers';
 import { ColumnDiff, FieldValueMap, GetQueryBuilderOptions } from './types';
 

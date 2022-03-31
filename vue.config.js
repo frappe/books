@@ -4,6 +4,7 @@ const webpack = require('webpack');
 module.exports = {
   pluginOptions: {
     electronBuilder: {
+      externals: ['knex', 'sqlite3'],
       nodeIntegration: true,
       mainProcessFile: 'main.ts',
       // rendererProcessFile: 'src/renderer.js',

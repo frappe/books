@@ -6,11 +6,11 @@ import frappe, { t } from 'frappe';
 import { isPesa } from 'frappe/utils';
 import { DEFAULT_LANGUAGE } from 'frappe/utils/consts';
 import { setLanguageMapOnTranslationString } from 'frappe/utils/translation';
+import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { createApp, h } from 'vue';
 import config from './config';
 import { handleErrorWithDialog } from './errorHandling';
 import { languageCodeMap } from './languageCodeMap';
-import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
 
 export async function showMessageDialog({
   message,

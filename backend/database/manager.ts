@@ -1,7 +1,7 @@
-import { databaseMethodSet } from 'backend/helpers';
 import fs from 'fs/promises';
 import { DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
+import { databaseMethodSet } from '../helpers';
 import patches from '../patches';
 import DatabaseCore from './core';
 import { runPatches } from './runPatch';
