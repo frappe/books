@@ -8,6 +8,7 @@ import { getUrlAndTokenString, sendError } from '../src/contactMothership';
 import { getLanguageMap } from '../src/getLanguageMap';
 import saveHtmlAsPdf from '../src/saveHtmlAsPdf';
 import { DatabaseMethod } from '../utils/db/types';
+import { DatabaseResponse } from '../utils/ipc/types';
 import { IPC_ACTIONS } from '../utils/messages';
 import { getMainWindowSize } from './helpers';
 
@@ -126,21 +127,48 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.DB_CREATE,
     async (_, dbPath: string, countryCode?: string) => {
-      return databaseManager.createNewDatabase(dbPath, countryCode);
+      const response: DatabaseResponse = { error: '', data: undefined };
+      try {
+        response.data = await databaseManager.createNewDatabase(
+          dbPath,
+          countryCode
+        );
+      } catch (error) {
+        response.error = error.toString();
+      }
+
+      return response;
     }
   );
 
   ipcMain.handle(
     IPC_ACTIONS.DB_CONNECT,
     async (_, dbPath: string, countryCode?: string) => {
-      return databaseManager.createNewDatabase(dbPath, countryCode);
+      const response: DatabaseResponse = { error: '', data: undefined };
+      try {
+        response.data = await databaseManager.createNewDatabase(
+          dbPath,
+          countryCode
+        );
+      } catch (error) {
+        response.error = error.toString();
+      }
+
+      return response;
     }
   );
 
   ipcMain.handle(
     IPC_ACTIONS.DB_CALL,
     async (_, method: DatabaseMethod, ...args: unknown[]) => {
-      return databaseManager.call(method, ...args);
+      const response: DatabaseResponse = { error: '', data: undefined };
+      try {
+        response.data = await databaseManager.call(method, ...args);
+      } catch (error) {
+        response.error = error.toString();
+      }
+
+      return response;
     }
   );
 }

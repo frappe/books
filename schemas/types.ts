@@ -56,9 +56,9 @@ export enum FieldTypeEnum {
 }
 
 export type FieldType = keyof typeof FieldTypeEnum;
-export type RawValue = string | number | boolean;
+export type RawValue = string | number | boolean | null;
 
-// @formatter:off
+// prettier-ignore
 export interface BaseField {
   fieldname: string;             // Column name in the db
   fieldtype: FieldType;          // UI Descriptive field types that map to column types

@@ -12,7 +12,7 @@ import * as errors from '../utils/errors';
 import { format } from '../utils/format';
 import { t, T } from '../utils/translation';
 import { AuthHandler } from './authHandler';
-import { DbHandler } from './dbHandler';
+import { DatabaseHandler } from './dbHandler';
 import { DocHandler } from './docHandler';
 
 export class Frappe {
@@ -28,7 +28,7 @@ export class Frappe {
 
   auth: AuthHandler;
   doc: DocHandler;
-  db: DbHandler;
+  db: DatabaseHandler;
 
   Meta?: typeof Meta;
   Document?: typeof Doc;
@@ -42,7 +42,7 @@ export class Frappe {
   constructor() {
     this.auth = new AuthHandler(this);
     this.doc = new DocHandler(this);
-    this.db = new DbHandler(this);
+    this.db = new DatabaseHandler(this);
     this.pesa = getMoneyMaker({
       currency: 'XXX',
       precision: DEFAULT_INTERNAL_PRECISION,
