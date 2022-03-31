@@ -64,7 +64,7 @@ export class Frappe {
   }
 
   async initializeAndRegister(customModels = {}, force = false) {
-    this.init(force);
+    await this.init(force);
 
     this.Meta = (await import('frappe/model/meta')).default;
     this.Document = (await import('frappe/model/document')).default;
@@ -74,7 +74,7 @@ export class Frappe {
     this.doc.registerModels(customModels);
   }
 
-  init(force: boolean) {
+  async init(force: boolean) {
     if (this._initialized && !force) return;
 
     this.methods = {};
@@ -83,9 +83,9 @@ export class Frappe {
     // temp params while calling routes
     this.temp = {};
 
-    this.doc.init();
-    this.auth.init();
-    this.db.init();
+    await this.doc.init();
+    await this.auth.init();
+    await this.db.init();
     this._initialized = true;
   }
 

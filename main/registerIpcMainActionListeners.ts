@@ -171,4 +171,10 @@ export default function registerIpcMainActionListeners(main: Main) {
       return response;
     }
   );
+
+  ipcMain.handle(IPC_ACTIONS.DB_SCHEMA, async (_) => {
+    const response: DatabaseResponse = { error: '', data: undefined };
+    response.data = await databaseManager.getSchemaMap();
+    return response;
+  });
 }
