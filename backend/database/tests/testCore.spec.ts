@@ -3,7 +3,7 @@ import 'mocha';
 import { getMapFromList } from 'schemas/helpers';
 import { FieldTypeEnum, RawValue } from 'schemas/types';
 import { getValueMapFromList, sleep } from 'utils';
-import { getDefaultMetaFieldValueMap, sqliteTypeMap } from '../../common';
+import { getDefaultMetaFieldValueMap, sqliteTypeMap } from '../../helpers';
 import DatabaseCore from '../core';
 import { FieldValueMap, SqliteTableInfo } from '../types';
 import {

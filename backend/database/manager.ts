@@ -1,4 +1,6 @@
+import { databaseMethodSet } from 'backend/helpers';
 import fs from 'fs/promises';
+import { DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
 import patches from '../patches';
 import DatabaseCore from './core';
@@ -7,11 +9,14 @@ import { Patch } from './types';
 
 export class DatabaseManager {
   db?: DatabaseCore;
-  constructor() {}
 
-  async createNewDatabase(dbPath: string, countryCode: string) {
+  get #isInitialized(): boolean {
+    return this.db !== undefined && this.db.knex !== undefined;
+  }
+
+  async createNewDatabase(dbPath: string, countryCode?: string) {
     await this.#unlinkIfExists(dbPath);
-    this.connectToDatabase(dbPath, countryCode);
+    await this.connectToDatabase(dbPath, countryCode);
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {
@@ -22,12 +27,35 @@ export class DatabaseManager {
     const schemaMap = getSchemas(countryCode);
     this.db.setSchemaMap(schemaMap);
 
-    await this.migrate();
+    await this.#migrate();
   }
 
-  async migrate() {
-    if (this.db === undefined) {
+  async call(method: DatabaseMethod, ...args: unknown[]) {
+    if (!this.#isInitialized) {
       return;
+    }
+
+    if (!databaseMethodSet.has(method)) {
+      return;
+    }
+
+    // @ts-ignore
+    const response = await this.db[method](...args);
+    if (method === 'close') {
+      delete this.db;
+    }
+
+    return response;
+  }
+
+  async #migrate(): Promise<void> {
+    if (!this.#isInitialized) {
+      return;
+    }
+
+    const isFirstRun = await this.#getIsFirstRun();
+    if (isFirstRun) {
+      await this.db!.migrate();
     }
 
     const patchesToExecute = await this.#getPatchesToExecute();
@@ -39,7 +67,7 @@ export class DatabaseManager {
     );
 
     await runPatches(preMigrationPatches, this);
-    await this.db.migrate();
+    await this.db!.migrate();
     await runPatches(postMigrationPatches, this);
   }
 
@@ -60,10 +88,15 @@ export class DatabaseManager {
       return undefined;
     }
 
-    const query = await this.db.knex!('SingleValue').where({
-      fieldname: 'countryCode',
-      parent: 'SystemSettings',
-    });
+    let query: { countryCode: string }[] = [];
+    try {
+      query = await this.db.knex!('SingleValue').where({
+        fieldname: 'countryCode',
+        parent: 'SystemSettings',
+      });
+    } catch {
+      // Database not inialized and no countryCode passed
+    }
 
     if (query.length > 0) {
       return query[0].countryCode as string;
@@ -82,6 +115,17 @@ export class DatabaseManager {
 
       throw err;
     }
+  }
+
+  async #getIsFirstRun(): Promise<boolean> {
+    if (!this.#isInitialized) {
+      return true;
+    }
+
+    const tableList: unknown[] = await this.db!.knex!.raw(
+      "SELECT name FROM sqlite_master WHERE type='table'"
+    );
+    return tableList.length === 0;
   }
 }
 

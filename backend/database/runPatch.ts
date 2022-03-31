@@ -1,4 +1,4 @@
-import { getDefaultMetaFieldValueMap } from '../common';
+import { getDefaultMetaFieldValueMap } from '../helpers';
 import { DatabaseManager } from './manager';
 import { FieldValueMap, Patch } from './types';
 

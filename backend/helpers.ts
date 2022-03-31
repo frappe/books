@@ -1,3 +1,4 @@
+import { DatabaseMethod } from 'utils/db/types';
 import { KnexColumnType } from './database/types';
 
 export const sqliteTypeMap: Record<string, KnexColumnType> = {
@@ -34,3 +35,15 @@ export function getDefaultMetaFieldValueMap() {
     modified: now,
   };
 }
+
+export const databaseMethodSet: Set<DatabaseMethod> = new Set([
+  'insert',
+  'get',
+  'getAll',
+  'getSingleValues',
+  'rename',
+  'update',
+  'delete',
+  'close',
+  'exists',
+]);
