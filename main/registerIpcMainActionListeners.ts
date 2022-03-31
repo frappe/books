@@ -2,11 +2,13 @@ import { app, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
 import path from 'path';
+import databaseManager from '../backend/database/manager';
 import { Main } from '../main';
 import { getUrlAndTokenString, sendError } from '../src/contactMothership';
 import { getLanguageMap } from '../src/getLanguageMap';
-import { IPC_ACTIONS } from '../src/messages';
 import saveHtmlAsPdf from '../src/saveHtmlAsPdf';
+import { DatabaseMethod } from '../utils/db/types';
+import { IPC_ACTIONS } from '../utils/messages';
 import { getMainWindowSize } from './helpers';
 
 export default function registerIpcMainActionListeners(main: Main) {
@@ -116,4 +118,29 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.GET_VERSION, (_) => {
     return app.getVersion();
   });
+
+  /**
+   * Database Related Actions
+   */
+
+  ipcMain.handle(
+    IPC_ACTIONS.DB_CREATE,
+    async (_, dbPath: string, countryCode?: string) => {
+      return databaseManager.createNewDatabase(dbPath, countryCode);
+    }
+  );
+
+  ipcMain.handle(
+    IPC_ACTIONS.DB_CONNECT,
+    async (_, dbPath: string, countryCode?: string) => {
+      return databaseManager.createNewDatabase(dbPath, countryCode);
+    }
+  );
+
+  ipcMain.handle(
+    IPC_ACTIONS.DB_CALL,
+    async (_, method: DatabaseMethod, ...args: unknown[]) => {
+      return databaseManager.call(method, ...args);
+    }
+  );
 }

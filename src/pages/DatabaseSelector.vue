@@ -165,7 +165,7 @@ import { ipcRenderer } from 'electron';
 import fs from 'fs';
 import { DateTime } from 'luxon';
 import { showErrorDialog } from '../errorHandling';
-import { DB_CONN_FAILURE, IPC_ACTIONS } from '../messages';
+import { DB_CONN_FAILURE, IPC_ACTIONS } from '../../utils/messages';
 
 export default {
   name: 'DatabaseSelector',

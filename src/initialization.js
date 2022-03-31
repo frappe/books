@@ -3,7 +3,7 @@ import SQLiteDatabase from 'frappe/backends/sqlite';
 import fs from 'fs';
 import regionalModelUpdates from '../models/regionalModelUpdates';
 import postStart, { setCurrencySymbols } from '../server/postStart';
-import { DB_CONN_FAILURE } from './messages';
+import { DB_CONN_FAILURE } from '../utils/messages';
 import runMigrate from './migrate';
 import { getId } from './telemetry/helpers';
 import telemetry from './telemetry/telemetry';

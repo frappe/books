@@ -56,7 +56,7 @@ import Button from '@/components/Button';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
 import TwoColumnForm from '@/components/TwoColumnForm';
-import { IPC_ACTIONS } from '@/messages';
+import { IPC_ACTIONS } from 'utils/messages';
 import telemetry from '@/telemetry/telemetry';
 import { Verb } from '@/telemetry/types';
 import { makePDF } from '@/utils';

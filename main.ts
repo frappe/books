@@ -16,7 +16,7 @@ import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
-import { IPC_CHANNELS } from './src/messages';
+import { IPC_CHANNELS } from './utils/messages';
 
 export class Main {
   title: string = 'Frappe Books';

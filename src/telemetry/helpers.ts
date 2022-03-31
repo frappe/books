@@ -1,5 +1,5 @@
 import config, { ConfigFile, ConfigKeys, TelemetrySetting } from '@/config';
-import { IPC_ACTIONS } from '@/messages';
+import { IPC_ACTIONS } from 'utils/messages';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
 import { DoctypeName } from '../../models/types';

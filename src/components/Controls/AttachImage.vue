@@ -59,7 +59,7 @@
 import frappe from 'frappe';
 import { ipcRenderer } from 'electron';
 import Base from './Base';
-import { IPC_ACTIONS } from '@/messages';
+import { IPC_ACTIONS } from 'utils/messages';
 import fs from 'fs';
 import path from 'path';
 

@@ -95,7 +95,7 @@ import Popover from '@/components/Popover';
 import TwoColumnForm from '@/components/TwoColumnForm';
 import config from '@/config';
 import { connectToLocalDatabase, purgeCache } from '@/initialization';
-import { IPC_MESSAGES } from '@/messages';
+import { IPC_MESSAGES } from 'utils/messages';
 import { setLanguageMap, showMessageDialog } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';

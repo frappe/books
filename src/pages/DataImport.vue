@@ -343,7 +343,7 @@ import FeatherIcon from '@/components/FeatherIcon.vue';
 import HowTo from '@/components/HowTo.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { importable, Importer } from '@/dataImport';
-import { IPC_ACTIONS } from '@/messages';
+import { IPC_ACTIONS } from 'utils/messages';
 import { getSavePath, saveData, showMessageDialog } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';

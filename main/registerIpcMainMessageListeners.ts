@@ -1,7 +1,7 @@
 import { ipcMain, Menu, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import { Main } from '../main';
-import { IPC_MESSAGES } from '../src/messages';
+import { IPC_MESSAGES } from '../utils/messages';
 
 export default function registerIpcMainMessageListeners(main: Main) {
   ipcMain.on(IPC_MESSAGES.OPEN_MENU, (event) => {

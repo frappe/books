@@ -1,5 +1,5 @@
 import { handleError } from '@/errorHandling';
-import { IPC_CHANNELS, IPC_MESSAGES } from '@/messages';
+import { IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
 import telemetry from '@/telemetry/telemetry';
 import { showToast } from '@/utils';
 import { ipcRenderer } from 'electron';

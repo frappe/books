@@ -66,7 +66,7 @@ import { callInitializeMoneyMaker } from '../../utils';
 import { showToast } from '../../utils';
 import { h, markRaw } from 'vue';
 import { ipcRenderer } from 'electron';
-import { IPC_MESSAGES } from '@/messages';
+import { IPC_MESSAGES } from 'utils/messages';
 
 export default {
   name: 'Settings',

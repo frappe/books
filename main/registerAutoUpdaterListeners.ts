@@ -1,6 +1,6 @@
 import { autoUpdater, UpdateInfo } from 'electron-updater';
 import { Main } from '../main';
-import { IPC_CHANNELS } from '../src/messages';
+import { IPC_CHANNELS } from '../utils/messages';
 
 export default function registerAutoUpdaterListeners(main: Main) {
   autoUpdater.autoDownload = false;
