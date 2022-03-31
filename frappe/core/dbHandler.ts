@@ -1,11 +1,15 @@
 import { DatabaseDemux } from '@/demux/db';
 import { Frappe } from 'frappe/core/frappe';
+import Money from 'pesa/dist/types/src/money';
+import { getSchemas } from 'schemas';
+import { FieldType, FieldTypeEnum, RawValue, SchemaMap } from 'schemas/types';
 import { DatabaseBase, GetAllOptions } from 'utils/db/types';
-import { DocValueMap, RawValueMap } from './types';
+import { DocValue, DocValueMap, RawValueMap, SingleValue } from './types';
 
 export class DatabaseHandler extends DatabaseBase {
   #frappe: Frappe;
   #demux: DatabaseDemux;
+  // #schemaMap: Readonly<SchemaMap>;
 
   constructor(frappe: Frappe) {
     super();
@@ -23,13 +27,14 @@ export class DatabaseHandler extends DatabaseBase {
 
   init() {
     // do nothing
+    // this.#schemaMap = getSchemas();
   }
 
   async insert(
     schemaName: string,
     docValueMap: DocValueMap
   ): Promise<DocValueMap> {
-    let rawValueMap = this.toRawValueMap(
+    let rawValueMap = this.#toRawValueMap(
       schemaName,
       docValueMap
     ) as RawValueMap;
@@ -38,7 +43,7 @@ export class DatabaseHandler extends DatabaseBase {
       schemaName,
       rawValueMap
     )) as RawValueMap;
-    return this.toDocValueMap(schemaName, rawValueMap) as DocValueMap;
+    return this.#toDocValueMap(schemaName, rawValueMap) as DocValueMap;
   }
 
   // Read
@@ -53,7 +58,7 @@ export class DatabaseHandler extends DatabaseBase {
       name,
       fields
     )) as RawValueMap;
-    return this.toDocValueMap(schemaName, rawValueMap) as DocValueMap;
+    return this.#toDocValueMap(schemaName, rawValueMap) as DocValueMap;
   }
 
   async getAll(
@@ -66,13 +71,16 @@ export class DatabaseHandler extends DatabaseBase {
       options
     )) as RawValueMap[];
 
-    return this.toDocValueMap(schemaName, rawValueMap) as DocValueMap[];
+    return this.#toDocValueMap(schemaName, rawValueMap) as DocValueMap[];
   }
 
   async getSingleValues(
     ...fieldnames: ({ fieldname: string; parent?: string } | string)[]
-  ): Promise<{ fieldname: string; parent: string; value: unknown }[]> {
-    await this.#demux.call('getSingleValues', ...fieldnames);
+  ): Promise<SingleValue<DocValue>> {
+    const rawSingleValue = (await this.#demux.call(
+      'getSingleValues',
+      ...fieldnames
+    )) as SingleValue<RawValue>;
   }
 
   // Update
@@ -85,7 +93,7 @@ export class DatabaseHandler extends DatabaseBase {
   }
 
   async update(schemaName: string, docValueMap: DocValueMap): Promise<void> {
-    const rawValueMap = this.toRawValueMap(schemaName, docValueMap);
+    const rawValueMap = this.#toRawValueMap(schemaName, docValueMap);
     await this.#demux.call('update', schemaName, rawValueMap);
   }
 
@@ -103,12 +111,60 @@ export class DatabaseHandler extends DatabaseBase {
     return (await this.#demux.call('exists', schemaName, name)) as boolean;
   }
 
-  toDocValueMap(
+  #toDocValueMap(
     schemaName: string,
     rawValueMap: RawValueMap | RawValueMap[]
   ): DocValueMap | DocValueMap[] {}
-  toRawValueMap(
+  #toRawValueMap(
     schemaName: string,
     docValueMap: DocValueMap | DocValueMap[]
   ): RawValueMap | RawValueMap[] {}
+
+  #toDocValue(value: RawValue, fieldtype: FieldType): DocValue {
+    switch (fieldtype) {
+      case FieldTypeEnum.Currency:
+        return this.#frappe.pesa((value ?? 0) as string | number);
+      case FieldTypeEnum.Date:
+        return new Date(value as string);
+      case FieldTypeEnum.Datetime:
+        return new Date(value as string);
+      case FieldTypeEnum.Int:
+        return +(value as string | number);
+      case FieldTypeEnum.Float:
+        return +(value as string | number);
+      case FieldTypeEnum.Check:
+        return Boolean(value as number);
+      default:
+        return String(value);
+    }
+  }
+
+  #toRawValue(value: DocValue, fieldtype: FieldType): RawValue {
+    switch (fieldtype) {
+      case FieldTypeEnum.Currency:
+        return (value as Money).store;
+      case FieldTypeEnum.Date:
+        return (value as Date).toISOString().split('T')[0];
+      case FieldTypeEnum.Datetime:
+        return (value as Date).toISOString();
+      case FieldTypeEnum.Int: {
+        if (typeof value === 'string') {
+          return parseInt(value);
+        }
+
+        return Math.floor(value as number);
+      }
+      case FieldTypeEnum.Float: {
+        if (typeof value === 'string') {
+          return parseFloat(value);
+        }
+
+        return value as number;
+      }
+      case FieldTypeEnum.Check:
+        return Number(value);
+      default:
+        return String(value);
+    }
+  }
 }

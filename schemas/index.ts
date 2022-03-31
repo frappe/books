@@ -12,13 +12,29 @@ const NAME_FIELD = {
   readOnly: true,
 };
 
-export function getSchemas(countryCode: string = '-'): SchemaMap {
+export function getSchemas(countryCode: string = '-'): Readonly<SchemaMap> {
   const builtCoreSchemas = getCoreSchemas();
   const builtAppSchemas = getAppSchemas(countryCode);
 
   let schemaMap = Object.assign({}, builtAppSchemas, builtCoreSchemas);
   schemaMap = addMetaFields(schemaMap);
+  deepFreeze(schemaMap);
   return schemaMap;
+}
+
+function deepFreeze(schemaMap: SchemaMap) {
+  Object.freeze(schemaMap);
+  for (const schemaName in schemaMap) {
+    Object.freeze(schemaMap[schemaName]);
+    for (const key in schemaMap[schemaName]) {
+      // @ts-ignore
+      Object.freeze(schemaMap[schemaName][key]);
+    }
+
+    for (const field of schemaMap[schemaName].fields ?? []) {
+      Object.freeze(field);
+    }
+  }
 }
 
 export function addMetaFields(schemaMap: SchemaMap): SchemaMap {
