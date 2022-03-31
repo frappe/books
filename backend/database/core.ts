@@ -1,5 +1,6 @@
 import { knex, Knex } from 'knex';
 import { getRandomString, getValueMapFromList } from 'utils';
+import { DatabaseBase, GetAllOptions, QueryFilter } from 'utils/db/types';
 import {
   CannotCommitError,
   DatabaseError,
@@ -15,14 +16,8 @@ import {
   SchemaMap,
   TargetField,
 } from '../../schemas/types';
-import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../common';
-import {
-  ColumnDiff,
-  FieldValueMap,
-  GetAllOptions,
-  GetQueryBuilderOptions,
-  QueryFilter,
-} from './types';
+import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../helpers';
+import { ColumnDiff, FieldValueMap, GetQueryBuilderOptions } from './types';
 
 /**
  * # DatabaseCore
@@ -43,7 +38,7 @@ import {
  * the `fieldValueMap`.
  */
 
-export default class DatabaseCore {
+export default class DatabaseCore extends DatabaseBase {
   knex?: Knex;
   typeMap = sqliteTypeMap;
   dbPath: string;
@@ -51,6 +46,7 @@ export default class DatabaseCore {
   connectionParams: Knex.Config;
 
   constructor(dbPath?: string) {
+    super();
     this.dbPath = dbPath ?? ':memory:';
     this.connectionParams = {
       client: 'sqlite3',
@@ -133,7 +129,10 @@ export default class DatabaseCore {
     return row.length > 0;
   }
 
-  async insert(schemaName: string, fieldValueMap: FieldValueMap) {
+  async insert(
+    schemaName: string,
+    fieldValueMap: FieldValueMap
+  ): Promise<FieldValueMap> {
     // insert parent
     if (this.schemaMap[schemaName].isSingle) {
       await this.#updateSingleValues(schemaName, fieldValueMap);

@@ -1,24 +1,12 @@
 import { Field, RawValue } from '../../schemas/types';
 import { DatabaseManager } from './manager';
 
-export type QueryFilter = Record<string, string | string[]>;
-
 export interface GetQueryBuilderOptions {
   offset?: number;
   limit?: number;
   groupBy?: string;
   orderBy?: string;
   order?: 'desc' | 'asc';
-}
-
-export interface GetAllOptions {
-  fields?: string[];
-  filters?: QueryFilter;
-  offset?: number;
-  limit?: number;
-  groupBy?: string;
-  orderBy?: string;
-  order?: 'asc' | 'desc';
 }
 
 export type ColumnDiff = { added: Field[]; removed: string[] };
