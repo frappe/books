@@ -42,6 +42,7 @@ export enum FieldTypeEnum {
   Select = 'Select',
   Link = 'Link',
   Date = 'Date',
+  Datetime = 'Datetime',
   Table = 'Table',
   AutoComplete = 'AutoComplete',
   Check = 'Check',
