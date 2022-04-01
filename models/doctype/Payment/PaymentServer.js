@@ -199,9 +199,10 @@ export default class PaymentServer extends Document {
   async updateReferenceOutstandingAmount() {
     await this.for.forEach(async ({ amount, referenceType, referenceName }) => {
       const refDoc = await frappe.getDoc(referenceType, referenceName);
-      refDoc.update({
+      refDoc.setMultiple({
         outstandingAmount: refDoc.outstandingAmount.add(amount),
       });
+      refDoc.update();
     });
   }
 }

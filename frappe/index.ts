@@ -1,19 +1,17 @@
 import { ErrorLog } from '@/errorHandling';
-import { Model } from '@/types/model';
-import Doc from 'frappe/model/document';
-import Meta from 'frappe/model/meta';
+import Doc from 'frappe/model/doc';
 import { getMoneyMaker, MoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
+import { AuthHandler } from './core/authHandler';
+import { DatabaseHandler } from './core/dbHandler';
+import { DocHandler } from './core/docHandler';
 import {
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,
-} from '../utils/consts';
-import * as errors from '../utils/errors';
-import { format } from '../utils/format';
-import { t, T } from '../utils/translation';
-import { AuthHandler } from './authHandler';
-import { DatabaseHandler } from './dbHandler';
-import { DocHandler } from './docHandler';
+} from './utils/consts';
+import * as errors from './utils/errors';
+import { format } from './utils/format';
+import { t, T } from './utils/translation';
 
 export class Frappe {
   t = t;
@@ -30,8 +28,7 @@ export class Frappe {
   doc: DocHandler;
   db: DatabaseHandler;
 
-  Meta?: typeof Meta;
-  Document?: typeof Doc;
+  Doc?: typeof Doc;
 
   _initialized: boolean = false;
 
@@ -66,8 +63,7 @@ export class Frappe {
   async initializeAndRegister(customModels = {}, force = false) {
     await this.init(force);
 
-    this.Meta = (await import('frappe/model/meta')).default;
-    this.Document = (await import('frappe/model/document')).default;
+    this.Doc = (await import('frappe/model/doc')).default;
 
     const coreModels = await import('frappe/models');
     this.doc.registerModels(coreModels.default as Record<string, Model>);

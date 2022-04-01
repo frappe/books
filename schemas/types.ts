@@ -59,7 +59,6 @@ export enum FieldTypeEnum {
 export type FieldType = keyof typeof FieldTypeEnum;
 export type RawValue = string | number | boolean | null;
 
-// prettier-ignore
 export interface BaseField {
   fieldname: string;             // Column name in the db
   fieldtype: FieldType;          // UI Descriptive field types that map to column types
@@ -73,6 +72,7 @@ export interface BaseField {
   groupBy?: string;              // UI Facing used in dropdowns fields
   computed?: boolean;            // Indicates whether a value is computed, implies readonly
   meta?: boolean;                // Field is a meta field, i.e. only for the db, not UI
+  inline?: boolean;              // UI Facing config, whether to display doc inline.
 }
 
 export type SelectOption = { value: string; label: string };
@@ -84,19 +84,16 @@ export interface OptionField extends BaseField {
   options: SelectOption[];
 }
 
-// prettier-ignore
 export interface TargetField extends BaseField {
   fieldtype: FieldTypeEnum.Table | FieldTypeEnum.Link;
   target: string;                // Name of the table or group of tables to fetch values
 }
 
-// @formatter:off
 export interface DynamicLinkField extends BaseField {
   fieldtype: FieldTypeEnum.DynamicLink;
   references: string;            // Reference to an option field that links to schema
 }
 
-// @formatter:off
 export interface NumberField extends BaseField {
   fieldtype: FieldTypeEnum.Float | FieldTypeEnum.Int;
   minvalue?: number;             // UI Facing used to restrict lower bound
@@ -112,7 +109,6 @@ export type Field =
 
 export type TreeSettings = { parentField: string };
 
-// @formatter:off
 export interface Schema {
   name: string;                  // Table name
   label: string;                 // Translateable UI facing name

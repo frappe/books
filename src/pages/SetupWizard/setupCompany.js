@@ -27,7 +27,7 @@ export default async function setupCompany(setupWizardValues) {
   const locale = countryList[country]['locale'] ?? DEFAULT_LOCALE;
   await callInitializeMoneyMaker(currency);
 
-  await accountingSettings.update({
+  const accountingSettingsUpdateMap = {
     companyName,
     country,
     fullname: name,
@@ -36,25 +36,34 @@ export default async function setupCompany(setupWizardValues) {
     fiscalYearStart,
     fiscalYearEnd,
     currency,
-  });
+  };
+
+  await accountingSettings.setMultiple(accountingSettingsUpdateMap);
+  await accountingSettings.update();
 
   const printSettings = await frappe.getSingle('PrintSettings');
-  printSettings.update({
+  const printSettingsUpdateMap = {
     logo: companyLogo,
     companyName,
     email,
-    displayLogo: companyLogo ? 1 : 0,
-  });
+    displayLogo: companyLogo ? true : false,
+  };
+
+  await printSettings.setMultiple(printSettingsUpdateMap);
+  await printSettings.update();
 
   await setupGlobalCurrencies(countryList);
   await setupChartOfAccounts(bankName, country, chartOfAccounts);
   await setupRegionalChanges(country);
   updateInitializationConfig();
 
-  await accountingSettings.update({ setupComplete: 1 });
+  await accountingSettings.setMultiple({ setupComplete: true });
+  await accountingSettings.update();
   frappe.AccountingSettings = accountingSettings;
 
-  (await frappe.getSingle('SystemSettings')).update({ locale });
+  const systemSettings = await frappe.getSingle('SystemSettings');
+  systemSettings.setMultiple({ locale });
+  systemSettings.update();
 }
 
 async function setupGlobalCurrencies(countries) {

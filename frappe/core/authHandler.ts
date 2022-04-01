@@ -1,4 +1,4 @@
-import { Frappe } from 'frappe/core/frappe';
+import { Frappe } from 'frappe';
 
 interface AuthConfig {
   serverURL: string;
