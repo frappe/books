@@ -99,7 +99,7 @@ jobs:
           path: dist-linux.tar
 
   build-windows:
-    runs-on: windows-2022
+    runs-on: windows-2019
     defaults:
       run:
         shell: bash
@@ -114,9 +114,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup Books
-        run: |
-          yarn set version 1.22.18
-          yarn
+        run: yarn
 
       - name: Set Error Log Creds
         env:
@@ -135,9 +133,7 @@ jobs:
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          yarn set version 1.22.18
-          yarn electron:build --win --publish always
+        run: yarn electron:build --win --publish always
 
       - name: Tar files
         run: tar -cvf dist-windows.tar dist_electron
