@@ -5,4 +5,5 @@ export const languageCodeMap = {
   German: 'de',
   Portuguese: 'pt',
   Arabic: 'ar',
+  Catalan: 'ca-ES',
 };

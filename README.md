@@ -26,7 +26,8 @@ Free Desktop book-keeping software for small businesses and freelancers.
 3. [Development](#development)
 4. [Contributions and Community](#contributions-and-community)
 5. [Links](#links)
-6. [License](#license)
+6. [Translation Contributors](#translation-contributors)
+7. [License](#license)
 
 </details>
 
@@ -102,6 +103,16 @@ If you want to contribute code then you can fork this repo, make changes and rai
 - [Project Board](https://github.com/frappe/books/projects/1): Roadmap that is updated with acceptable latency.
 - [GitHub Discussions](https://github.com/frappe/books/discussions): Used for discussions around a specific topic.
 - [Frappe Books Blog](https://frappebooks.com/tech/): Sporadically updated dev blog regarding the development of this project.
+
+## Translation Contributors
+
+| Language | Contributors |
+|----|---|
+| French | [DeepL](https://www.deepl.com/) |
+| German | [DeepL](https://www.deepl.com/), [barredterra](https://github.com/barredterra) |
+| Portuguese | [DeepL](https://www.deepl.com/) |
+| Arabic | [taha2002](https://github.com/taha2002) |
+| Catalan | Dídac E. Jiménez |
 
 ## License
 
