@@ -5,6 +5,7 @@ import App from './App';
 import FeatherIcon from './components/FeatherIcon';
 import config, { ConfigKeys } from './config';
 import { getErrorHandled, handleError } from './errorHandling';
+import { IPC_ACTIONS } from './messages';
 import { incrementOpenCount } from './renderer/helpers';
 import registerIpcRendererListeners from './renderer/registerIpcRendererListeners';
 import router from './router';
@@ -88,6 +89,7 @@ import { setLanguageMap, stringifyCircular } from './utils';
     console.error(err, vm, info);
   };
 
+  frappe.store.appVersion = await ipcRenderer.invoke(IPC_ACTIONS.GET_VERSION);
   incrementOpenCount();
   app.mount('body');
 
