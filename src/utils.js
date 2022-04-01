@@ -526,7 +526,6 @@ async function fetchAndSetLanguageMap(code) {
   if (!success) {
     showToast({ type: 'error', message });
   } else {
-    window.lm = languageMap;
     setLanguageMapOnTranslationString(languageMap);
   }
 
@@ -561,11 +560,13 @@ export async function setLanguageMap(initLanguage, dontReload = false) {
 function getLanguageCode(initLanguage, oldLanguage) {
   let language = initLanguage ?? oldLanguage;
   let usingDefault = false;
+
   if (!language) {
     language = DEFAULT_LANGUAGE;
     usingDefault = true;
   }
-  return [languageCodeMap[language], language, usingDefault];
+  const code = languageCodeMap[language] ?? 'en';
+  return [code, language, usingDefault];
 }
 
 export function getCOAList() {
