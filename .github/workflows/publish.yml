@@ -11,15 +11,14 @@ jobs:
         with:
           node-version: '16.13.1'
 
-      - name: Change yarn version
-        run: yarn set version 1.22.18
-
       - name: Checkout Books
         uses: actions/checkout@v2
 
       - name: Setup Books
-        run: yarn
-        
+        run: |
+          yarn set version 1.22.18
+          yarn
+
       - name: Set Error Log Creds
         env:
           ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
@@ -42,8 +41,10 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: true
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           APPLE_NOTARIZE: 1
-        run: yarn electron:build --mac --publish always
-      
+        run: |
+          yarn set version 1.22.18
+          yarn electron:build --mac --publish always
+
       - name: Tar files
         run: tar -cvf dist-macOS.tar dist_electron
 
@@ -61,15 +62,14 @@ jobs:
         with:
           node-version: '16.13.1'
 
-      - name: Change yarn version
-        run: yarn set version 1.22.18
-
       - name: Checkout Books
         uses: actions/checkout@v2
 
       - name: Setup Books
-        run: yarn
-        
+        run: |
+          yarn set version 1.22.18
+          yarn
+
       - name: Set Error Log Creds
         env:
           ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
@@ -85,7 +85,9 @@ jobs:
       - name: Run build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: yarn electron:build --linux --publish always
+        run: |
+          yarn set version 1.22.18
+          yarn electron:build --linux --publish always
 
       - name: Tar files
         run: tar -cvf dist-linux.tar dist_electron
@@ -108,15 +110,14 @@ jobs:
         with:
           node-version: '16.13.1'
 
-      - name: Change yarn version
-        run: yarn set version 1.22.18
-
       - name: Checkout Books
         uses: actions/checkout@v2
 
       - name: Setup Books
-        run: yarn
-        
+        run: |
+          yarn set version 1.22.18
+          yarn
+
       - name: Set Error Log Creds
         env:
           ERR_LOG_KEY: ${{ secrets.ERR_LOG_KEY }}
@@ -134,7 +135,9 @@ jobs:
           WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: yarn electron:build --win --publish always
+        run: |
+          yarn set version 1.22.18
+          yarn electron:build --win --publish always
 
       - name: Tar files
         run: tar -cvf dist-windows.tar dist_electron
