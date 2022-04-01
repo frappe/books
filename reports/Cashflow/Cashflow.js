@@ -1,6 +1,6 @@
 import frappe from 'frappe';
 import { DateTime } from 'luxon';
-import { getPeriodList } from '../FinancialStatements/FinancialStatements';
+import { getPeriodList, getFiscalYear } from '../FinancialStatements/FinancialStatements';
 
 class Cashflow {
   async run({ fromDate, toDate, periodicity }) {
@@ -24,7 +24,8 @@ class Cashflow {
       .whereBetween('date', [fromDate, toDate])
       .groupBy(dateAsMonthYear);
 
-    let periodList = getPeriodList(fromDate, toDate, periodicity);
+    let fiscalYear = await getFiscalYear();
+    let periodList = getPeriodList(fromDate, toDate, periodicity, fiscalYear);
 
     let data = periodList.map((periodKey) => {
       let monthYear = this.getMonthYear(periodKey, 'MMM yyyy');
