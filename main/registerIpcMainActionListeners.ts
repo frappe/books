@@ -1,4 +1,4 @@
-import { dialog, ipcMain } from 'electron';
+import { app, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
 import path from 'path';
@@ -111,5 +111,9 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(IPC_ACTIONS.GET_CREDS, async (event) => {
     return await getUrlAndTokenString();
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_VERSION, (_) => {
+    return app.getVersion();
   });
 }

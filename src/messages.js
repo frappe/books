@@ -27,6 +27,7 @@ export const IPC_ACTIONS = {
   CHECK_FOR_UPDATES: 'check-for-updates',
   GET_FILE: 'get-file',
   GET_CREDS: 'get-creds',
+  GET_VERSION: 'get-version',
 };
 
 // ipcMain.send(...)

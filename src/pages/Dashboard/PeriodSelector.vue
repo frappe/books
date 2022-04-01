@@ -1,11 +1,3 @@
-<script setup>
-const periodSelectorMap = {
-  'This Year': t`This Year`,
-  'This Quarter': t`This Quarter`,
-  'This Month': t`This Month`,
-};
-</script>
-
 <template>
   <Dropdown ref="dropdown" class="text-sm" :items="periodOptions" right>
     <template
@@ -36,7 +28,7 @@ const periodSelectorMap = {
         @keydown.up="highlightItemUp"
         @keydown.enter="selectHighlightedItem"
       >
-        {{ periodSelectorMap[value] }}
+        {{ periodSelectorMap?.[value] ?? value }}
         <feather-icon name="chevron-down" class="ml-1 w-3 h-3" />
       </div>
     </template>
@@ -60,18 +52,29 @@ export default {
   components: {
     Dropdown,
   },
+  mounted() {
+    this.periodSelectorMap = {
+      'This Year': t`This Year`,
+      'This Quarter': t`This Quarter`,
+      'This Month': t`This Month`,
+    };
+
+    this.periodOptions = this.options.map((option) => {
+      return {
+        label: this.periodSelectorMap[option] ?? option,
+        action: () => this.selectOption(option),
+      };
+    });
+  },
   data() {
     return {
-      periodOptions: this.options.map((option) => {
-        return {
-          label: this.periodSelectorMap[option],
-          action: () => this.selectOption(option),
-        };
-      }),
+      periodSelectorMap: {},
+      periodOptions: [],
     };
   },
   methods: {
     selectOption(value) {
+      console.log(value);
       this.$emit('change', value);
       this.$refs.dropdown.toggleDropdown(false);
     },
