@@ -1,5 +1,5 @@
 import { DatabaseDemux } from '@/demux/db';
-import { Frappe } from 'frappe/core/frappe';
+import { Frappe } from 'frappe';
 import Money from 'pesa/dist/types/src/money';
 import { FieldType, FieldTypeEnum, RawValue, SchemaMap } from 'schemas/types';
 import { DatabaseBase, GetAllOptions } from 'utils/db/types';

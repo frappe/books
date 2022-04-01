@@ -1,9 +1,10 @@
 import { Field, Model } from '@/types/model';
-import Doc from 'frappe/model/document';
+import Doc from 'frappe/model/doc';
 import Meta from 'frappe/model/meta';
 import { getDuplicates, getRandomString } from 'frappe/utils';
 import Observable from 'frappe/utils/observable';
-import { Frappe } from './frappe';
+import { Frappe } from '..';
+import { DocValue } from './types';
 
 type DocMap = Record<string, Doc | undefined>;
 type MetaMap = Record<string, Meta | undefined>;
@@ -109,8 +110,8 @@ export class DocHandler {
     }
   }
 
-  getDocFromCache(doctype: string, name: string): Doc | undefined {
-    const doc = (this.docs?.[doctype] as DocMap)?.[name];
+  getDocFromCache(schemaName: string, name: string): Doc | undefined {
+    const doc = (this.docs?.[schemaName] as DocMap)?.[name];
     return doc;
   }
 
@@ -251,4 +252,10 @@ export class DocHandler {
       await doc.insert();
     }
   }
+
+  getCachedValue(
+    schemaName: string,
+    name: string,
+    fieldname: string
+  ): DocValue {}
 }

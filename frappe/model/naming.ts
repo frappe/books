@@ -1,8 +1,8 @@
 import frappe from 'frappe';
 import { getRandomString } from 'frappe/utils';
 
-export async function isNameAutoSet(doctype) {
-  const doc = frappe.getEmptyDoc(doctype);
+export async function isNameAutoSet(schemaName: string) {
+  const doc = frappe.doc.getEmptyDoc(schemaName);
   if (doc.meta.naming === 'autoincrement') {
     return true;
   }

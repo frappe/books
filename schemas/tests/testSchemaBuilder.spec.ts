@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import { cloneDeep, isEqual } from 'lodash';
 import { describe } from 'mocha';
-import { getMapFromList } from '../helpers';
+import { getMapFromList } from 'utils';
 import {
   addMetaFields,
   cleanSchemas,

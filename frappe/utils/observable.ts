@@ -4,7 +4,7 @@ enum EventType {
 }
 
 export default class Observable<T> {
-  [key: string]: unknown;
+  [key: string]: unknown | T;
   _isHot: Map<string, boolean>;
   _eventQueue: Map<string, unknown[]>;
   _map: Map<string, unknown>;
@@ -25,8 +25,8 @@ export default class Observable<T> {
    * @param key
    * @returns
    */
-  get(key: string): unknown {
-    return this[key];
+  get(key: string): T {
+    return this[key] as T;
   }
 
   /**
@@ -35,7 +35,7 @@ export default class Observable<T> {
    * @param key
    * @param value
    */
-  set(key: string, value: unknown) {
+  set(key: string, value: T) {
     this[key] = value;
     this.trigger('change', {
       doc: this,

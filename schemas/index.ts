@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash';
-import { getListFromMap, getMapFromList } from './helpers';
+import { getListFromMap, getMapFromList } from 'utils';
 import regionalSchemas from './regional';
 import { appSchemas, coreSchemas, metaSchemas } from './schemas';
 import { Field, Schema, SchemaMap, SchemaStub, SchemaStubMap } from './types';
