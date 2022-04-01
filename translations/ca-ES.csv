@@ -22,19 +22,19 @@
 `Add Row`,`Afegir columna`
 `Add Suppliers`,`Afegir proveïdor`
 `Add Taxes`,`Afegir taxes`
-`Add a few customers to create your first invoice`
-`Add a few suppliers to create your first bill`
+`Add a few customers to create your first invoice`,`Afegeix alguns clients per a crear la teva primera factura`
+`Add a few suppliers to create your first bill`,`Afegeix alguns proveïdors per a crear la teva primera factura`
 `Add a filter`,`Afegir un filtre`
-`Add products or services that you buy from your suppliers`
-`Add products or services that you sell to your customers`
+`Add products or services that you buy from your suppliers`,`Afegeix productes o serveis que compris a proveïdors`
+`Add products or services that you sell to your customers`,`Afegeix productes o serveis que venguis a clients`
 `Address`,`Direcció`
 `Address Display`,`Mostrar direcció`
 `Address Line 1`,`Direcció línea 1`
 `Address Line 2`,`Direcció línea 2`
 `Administrative Expenses`,`Despeses administratives`
-`Against Account`,`Against Account`
+`Against Account`,`Compte de despeses`
 `All References`,`Totes les referències`
-`Allocated Amount`,`Allocated Amount`
+`Allocated Amount`,`Import assignat`
 `Allow Telemetry`,`Permetre telemetria`
 `Amount`,`Quantitat`
 `Amount (Company Currency)`,`Quantitat (Moneda de la empresa)`
@@ -67,7 +67,7 @@
 `Both`,`Ambdós`
 `Buildings`,`Buildings`
 `CSV`,`CSV`
-`Can't open database file: ${0}. Please create a new file.`,`No es pot obrir l’fitxer de la base de dades: ${0}. Crea un fitxer nou, siusplau.`
+`Can't open database file: ${0}. Please create a new file.`,`No es pot obrir l’fitxer de la base de dades: ${0}. Crea un fitxer nou si us plau.`
 `Cancel`,`Cancel·la`
 `Cancelled`,`Cancel·lat`
 `Capital Equipments`,`Capital Equipments`
@@ -81,9 +81,9 @@
 `Change File`,`Canviar fitxer`
 `Chart Of Accounts Reviewed`,`Diagrama de comptes revisat`
 `Chart of Accounts`,`Diagrama de comptes`
-`Check for Updates`
+`Check for Updates`,`Comprova si hi ha actualitzacions`
 `Checking for updates`,`S'estan comprovant les actualitzacions`
-`Cheque`
+`Cheque`,`Xec`
 `City / Town`,`Ciutat`
 `Clearance Date`,`Data de neteja`
 `Click to create`,`Fes clic per crear`
@@ -112,8 +112,8 @@
 `Create Invoice`,`Crear alabarà`
 `Create a new file and store it in your computer.`,`Crea un fitxer nou i emmagatzema'l a l'ordinador.`
 `Create a new file or select an existing one from your computer`,`Crea un fitxer nou o selecciona un existent des del teu ordinador`
-`Create your first bill and mail it to your supplier`
-`Create your first invoice and mail it to your customer`
+`Create your first bill and mail it to your supplier`,`Crea la primera factura i envia-la al proveïdor`
+`Create your first invoice and mail it to your customer`,`Crea la teva primera factura i envia-la al client`
 `Credit`,`Crèdit`
 `Credit Card Entry`,`Entrada de targeta de crèdit`
 `Credit Note`,`Nota de crèdit`
@@ -131,8 +131,8 @@
 `Customers`,`Clients`
 `Customise`,`Personalitzar`
 `Customize`,`Personalitzar`
-`Customize your invoices by adding a logo and address details`
-`DB Connection Error`,`Error de connexión a la base de dades`
+`Customize your invoices by adding a logo and address details`,`Personalitza les teves factures afegint-hi un logotip i l'adreça`
+`DB Connection Error`,`Error de connexió a la base de dades`
 `Dashboard`,`Tauler`
 `Data Import`,`Importar dades`
 `Date`,`Data`
@@ -148,7 +148,7 @@
 `Details`,`Detalls`
 `Direct Expenses`,`Despeses directes`
 `Direct Income`,`Ingressos directes`
-`Disables telemetry. No data will be collected, you are completely invisble to us.`
+`Disables telemetry. No data will be collected,you are completely invisble to us.`
 `Display Logo in Invoice`,`Mostra el logotip a la factura`
 `Display Precision`,`Precisió de la pantalla`
 `Display Precision should have a value between 0 and 9.`,`Precisión de la pantalla ha de tenir un valor entre 0 i 9.`
@@ -161,7 +161,7 @@
 `Don't Log Usage`,`No registrar l'ús`
 `Download Update`,`Descarregar actualització`
 `Downloading update`,`Descarregant actualització`
-`Draft`
+`Draft`,`Esborrany`
 `Duplicate`,`Duplicar`
 `Duplicate ${0} ${1}?`,`Duplicar ${0} ${1}?`
 `Duties and Taxes`,`Deures i taxes`
@@ -190,7 +190,7 @@
 `Expense`,`Despesa`
 `Expenses`,`Despeses`
 `Expenses Included In Valuation`,`Despeses incloses en el valor`
-`Export`
+`Export`,`Exportar`
 `Export Failed`,`Ha fallat l'exportació`
 `Export Successful`,`Exportació correcta`
 `Fax`,`Fax`
@@ -207,7 +207,7 @@
 `For`,`For`
 `Fraction`,`Fracció`
 `Fraction Units`,`Unitats de fracció`
-`Frappe Books uses opt-in telemetry. This is the only way for us to know if we have any consistent users. It will be really helpful if you switch it on, but we won't force you. 🙂`
+`Frappe Books uses opt-in telemetry. This is the only way for us to know if we have any consistent users. It will be really helpful if you switch it on,`Frappe Books no utilitza telemetria per defecte. Aquesta és l'única manera de saber si els nostres usuaris fan servir l'aplicació regularment. Ens serà de gran ajuda si l'actives.
 `Freight and Forwarding Charges`,`Càrregues de transport i reenviaments`
 `From`,`Des de`
 `From Account`,`Compte d'arribada`
@@ -233,8 +233,8 @@
 `Grand Total (Company Currency)`,`Total (Divisa de l'empresa)`
 `Greater Than`,`Més gran que`
 `HSN/SAC`,`HSN/SAC`
-`Half Yearly`
-`Hello there! 👋`
+`Half Yearly`,`Mitja anual`
+`Hello there! 👋`,`Hola! 👋`
 `Hex Value`,`Valor hexadecimal`
 `Hide Get Started`,`Amaga l'introducció`
 `Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.`,`Amaga la secció d'introducció de la barra lateral. El canvi serà efectiu quan reiniciis o refresquis l'aplicació.`
@@ -300,7 +300,7 @@
 `Miscellaneous Expenses`,`Despeses diverses`
 `Mobile Number`,`Número de mòbil`
 `Month`,`Mes`
-`Monthly`
+`Monthly`,`Mensual`
 `Name`,`Nom`
 `Net Total`,`Net Total`
 `Net Total (Company Currency)`,`Net Total (Divisa de la companyia)`
@@ -370,7 +370,7 @@
 `Please select a file with data to import.`,`Selecciona un fitxer amb les dades a importar.`
 `Please select an existing database or create a new one.`,`Selecciona una base de dades existent o crea una de nova.`
 `Please select an option:`,`Selecciona una opció:`
-`Please set GSTIN in General Settings.`
+`Please set GSTIN in General Settings.`,`Extableix GSTIN a Ajustaments Generals.`
 `Postal Code`,`Codi postal`
 `Postal Expenses`,`Expenses d'enviament`
 `Posting Date`,`Data d'enviament`
@@ -394,7 +394,7 @@
 `Purchases`,`Compres`
 `Quantity`,`Quantitats`
 `Quantity (${0}) cannot be less than zero.`,`La quantitat (${0}) no pot ser inferior a zero.`
-`Quarterly`
+`Quarterly`,`Trimestral`
 `Quotation`,`Pressupost`
 `Quotation Settings`,`Ajustaments del pressupost`
 `Rate`,`Tarifa`
@@ -419,7 +419,7 @@
 `Reference Type`,`Tipus de Referencia`
 `Reload App`,`Torna a carregar l'aplicació`
 `Report Error`,`Informar de l'error`
-`Report Issue`
+`Report Issue`,`Informar del problema`
 `Reports`,`Informes`
 `Required Fields not Assigned`,`Camps obligatoris no assignats`
 `Reset`,`Reinicia`
@@ -429,7 +429,7 @@
 `Reverse Chrg.`,`Pagament revertit.`
 `Reverted`,`Revertit`
 `Review Accounts`,`Revisar comptes`
-`Review your chart of accounts, add any account or tax heads as needed`
+`Review your chart of accounts, add any account or tax heads as needed`,`Revisa el teu gràfic de comptes, afegeix un compte o taxa nous segons sigui necessari`
 `Role`,`Rol`
 `Roles`,`Rols`
 `Root Type`,`Tipus d'arrel`
@@ -443,9 +443,9 @@
 `Sales Items`,`Artícles venuts`
 `Sales Order`,`Ordres de venda`
 `Sales Order Settings`,`Ajustaments d'ordres de venda`
-`SalesInvoice`
-`SalesInvoice Settings`
-`SalesOrder`
+`SalesInvoice`,
+`SalesInvoice Settings`,
+`SalesOrder`,
 `Save`,`Guardar`
 `Save & Close`,`Guardar i tancar`
 `Save Option`,`Opcions de guardat`
@@ -454,7 +454,7 @@
 `Save as PDF Successful`,`Guardat com a PDF correctament`
 `Saving...`,`Guardant...`
 `Schedule`,`Programar`
-`Search...`
+`Search...`,`Search...`
 `Secured Loans`,`Préstecs `
 `Securities and Deposits`,`Valors i dipòsits`
 `Select CoA`,`Selecciona CoA`
@@ -462,8 +462,8 @@
 `Select Folder`,`Selecciona una carpeta`
 `Select Image`,`Selecciona una imatge`
 `Select Logo`,`Selecciona un logotip`
-`Select Period`
-`Select Period...`
+`Select Period`,`Seleccionar període`
+`Select Period...`,`Seleccionar període...`
 `Select a file for import`,`Selecciona un fitxer per importar`
 `Select a file to load the company transactions`,`Selecciona un fitxer per carregar les transaccions de l'empresa`
 `Select file`,`Selecciona un fitxer`
@@ -486,11 +486,11 @@
 `Setup`,`Configuració`
 `Setup Complete`,`Configuració completa`
 `Setup Wizard`,`Asistent de configuració`
-`Setup system defaults like date format and display precision`
-`Setup your company information, email, country and fiscal year`
-`Setup your opening balances before performing any accounting entries`
-`Setup your organization`,`Configura la teva organització`
-`Setup your tax templates for your sales or purchase transactions`
+`Setup system defaults like date format and display precision`,`Configura els valors predeterminats del sistema com la data, el format i la visualització`
+`Setup your company information, email, country and fiscal year`,`Configura la informació de la teva empresa, adreça electrònica, país i l'any fiscal`
+`Setup your opening balances before performing any accounting entries`,`Configureu els saldos d'obertura abans de realitzar qualsevol entrada comptable`
+`Setup your organization`,`Configura la teva empresa`
+`Setup your tax templates for your sales or purchase transactions`,`Configura les plantilles de taxes per a les vendes o compres`
 `Setup your workspace`,`Configura el teu espai de treball`
 `Show Me`,`Mostra'm`
 `Smallest Currency Fraction Value`,`Valor de fracció de la divisa més petit`
@@ -539,9 +539,9 @@
 `Terms`,`Termes`
 `The following ${0} entries were created: ${1}`,`S'han creat les següents entrades ${0}: ${1}`
 `Theme Color`,`Color del tema`
-`This Month`
-`This Quarter`
-`This Year`
+`This Month`,`Aquest mes`
+`This Quarter`,`Aquest trimestre`
+`This Year`,`Aquest any`
 `This action is permanent`,`Aquesta acció és permanent`
 `This action is permanent and will cancel the following payment: ${0}`,`Aquesta acció és permanent i cancel·larà el següent pagament: ${0}`
 `This action is permanent and will cancel the following payments: ${0}`,`Aquesta acció és permanent i cancel·larà el següent pagament: ${0}`
@@ -553,7 +553,7 @@
 `Top Expenses`,`Despeses més quantioses`
 `Total Spending`,`Despeses totals`
 `Total Tax`,`Taxes totals`
-`Transfer`
+`Transfer`,`Transfereix`
 `Transfer Type`,`Tipus de transferència`
 `Travel Expenses`,`Despeses de viatge`
 `Trial Balance`,`Saldo de prova`
@@ -579,7 +579,7 @@
 `Write Off Account not set. Please set Write Off Account in General Settings`,`El compte de sinistres i reemborsaments no s'ha configurat. Confura'l a Ajustaments Generals`
 `Write Off Entry`,`Entrada de sinistre o reemborsament`
 `Year`,`Any`
-`Yearly`
+`Yearly`,`Anual`
 `Yes`,`Sí`
 `Your Name`,`El teu nom`
 `name`,`Nom`
