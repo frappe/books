@@ -8,9 +8,9 @@ function unwrapDq(item: string): string {
   return item;
 }
 
-function splitCsvBlock(text: string): string[] {
-  if (!text.endsWith('\r\n')) {
-    text += '\r\n';
+function splitCsvBlock(text: string, splitter: string = '\r\n'): string[] {
+  if (!text.endsWith(splitter)) {
+    text += splitter;
   }
   const lines = [];
   let line = '';
@@ -26,10 +26,15 @@ function splitCsvBlock(text: string): string[] {
       inDq = !inDq;
     }
 
-    if (!inDq && c === '\r' && text[i + 1] === '\n') {
+    const isEnd = [...splitter]
+      .slice(1)
+      .map((s, j) => text[i + j + 1] === s)
+      .every(Boolean);
+
+    if (!inDq && c === splitter[0] && isEnd) {
       lines.push(line);
       line = '';
-      i = i + 1;
+      i = i + splitter.length - 1;
       continue;
     }
 
@@ -75,6 +80,9 @@ function splitCsvLine(line: string): string[] {
 
 export function parseCSV(text: string): string[][] {
   //  Works on RFC 4180
-  const rows = splitCsvBlock(text);
+  let rows = splitCsvBlock(text);
+  if (rows.length === 1) {
+    rows = splitCsvBlock(text, '\n');
+  }
   return rows.map(splitCsvLine);
 }
