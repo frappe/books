@@ -69,6 +69,10 @@ export default class Document extends Observable {
       return;
     }
 
+    if (fieldname === 'numberSeries' && !this._notInserted) {
+      return;
+    }
+
     if (this[fieldname] !== value) {
       this._dirty = true;
       // if child is dirty, parent is dirty too

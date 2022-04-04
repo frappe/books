@@ -86,10 +86,10 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
-import FormControl from '@/components/Controls/FormControl';
 import Button from '@/components/Button';
-import { handleErrorWithDialog, getErrorMessage } from '../errorHandling';
+import FormControl from '@/components/Controls/FormControl';
+import frappe from 'frappe';
+import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
 
 let TwoColumnForm = {
   name: 'TwoColumnForm',
@@ -153,6 +153,10 @@ let TwoColumnForm = {
       }
     },
     evaluateReadOnly(df) {
+      if (df.fieldname === 'numberSeries' && !this.doc._notInserted) {
+        return true;
+      }
+
       if (this.submitted) {
         return true;
       }

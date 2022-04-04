@@ -84,7 +84,7 @@
                   :value="doc.numberSeries"
                   @change="(value) => doc.set('numberSeries', value)"
                   input-class="bg-gray-100 p-2 text-base"
-                  :read-only="doc.submitted"
+                  :read-only="!doc._notInserted || doc.submitted"
                   :class="doc.submitted && 'pointer-events-none'"
                 />
             </div>
