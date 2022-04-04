@@ -109,7 +109,7 @@
                   :df="meta.getField('numberSeries')"
                   :value="doc.numberSeries"
                   @change="(value) => doc.set('numberSeries', value)"
-                  :read-only="doc.submitted"
+                  :read-only="!doc._notInserted || doc.submitted"
                 />
               </div>
             </div>
@@ -205,11 +205,11 @@ import DropdownWithActions from '@/components/DropdownWithActions';
 import PageHeader from '@/components/PageHeader';
 import StatusBadge from '@/components/StatusBadge';
 import {
-getActionsForDocument,
-getInvoiceStatus,
-openSettings,
-routeTo,
-showMessageDialog
+  getActionsForDocument,
+  getInvoiceStatus,
+  openSettings,
+  routeTo,
+  showMessageDialog,
 } from '@/utils';
 import frappe from 'frappe';
 import { handleErrorWithDialog } from '../errorHandling';
