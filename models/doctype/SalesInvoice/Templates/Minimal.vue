@@ -57,7 +57,14 @@
       </div>
       <div class="w-1/2" v-if="companyAddress">
         <div
-          class="uppercase text-sm font-semibold tracking-widest text-gray-800 ml-8"
+          class="
+            uppercase
+            text-sm
+            font-semibold
+            tracking-widest
+            text-gray-800
+            ml-8
+          "
         >
           {{ isSalesInvoice ? 'From' : 'To' }}
         </div>
@@ -74,7 +81,15 @@
     </div>
     <div class="px-12 py-10 border-b">
       <div
-        class="mb-4 flex uppercase text-sm tracking-widest font-semibold text-gray-800"
+        class="
+          mb-4
+          flex
+          uppercase
+          text-sm
+          tracking-widest
+          font-semibold
+          text-gray-800
+        "
       >
         <div class="w-4/12">Item</div>
         <div class="w-2/12 text-right">Quantity</div>
@@ -89,17 +104,15 @@
       </div>
     </div>
     <div class="flex px-12 py-10">
-      <div class="w-1/2">
-        <template v-if="doc.terms">
-          <div
-            class="uppercase text-sm tracking-widest font-semibold text-gray-800"
-          >
-            Notes
-          </div>
-          <div class="mt-4 text-lg whitespace-pre-line">
-            {{ doc.terms }}
-          </div>
-        </template>
+      <div class="w-1/2" v-if="doc.terms">
+        <div
+          class="uppercase text-sm tracking-widest font-semibold text-gray-800"
+        >
+          Notes
+        </div>
+        <div class="mt-4 text-lg whitespace-pre-line">
+          {{ doc.terms }}
+        </div>
       </div>
       <div class="w-1/2 text-lg">
         <div class="flex pl-2 justify-between py-1">
@@ -131,6 +144,6 @@ import Base from './Base';
 
 export default {
   name: 'Minimal',
-  extends: Base
+  extends: Base,
 };
 </script>

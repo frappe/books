@@ -113,16 +113,14 @@
           </div>
         </div>
         <div class="mt-12" v-if="doc.terms">
-          <template>
             <div
-              class="uppercase text-sm tracking-widest font-semibold text-gray-800"
+              class="text-lg font-semibold"
             >
               Notes
             </div>
             <div class="mt-4 text-lg whitespace-pre-line">
               {{ doc.terms }}
             </div>
-          </template>
         </div>
       </div>
     </div>

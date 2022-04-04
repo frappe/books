@@ -86,7 +86,7 @@
     <div class="px-6 mt-2 flex justify-end text-base">
       <div class="w-1/2 bg-pink">
         <div
-          class="uppercase text-sm tracking-widest font-semibold text-gray-800 mt-2"
+          class="text-sm tracking-widest text-gray-600 mt-2"
         >
           Notes
         </div>
