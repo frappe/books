@@ -21,7 +21,7 @@ export async function getData({
     );
 
     for (let entry of entries) {
-      let periodKey = getPeriodKey(entry.date, periodicity);
+      let periodKey = getPeriodKey(entry.date, periodicity, fiscalYear);
 
       if (!account[periodKey]) {
         account[periodKey] = frappe.pesa(0.0);
@@ -167,44 +167,47 @@ export function getPeriodList(fromDate, toDate, periodicity, fiscalYear) {
   let out = [];
 
   while (curDate <= endDate) {
-    out.push(getPeriodKey(curDate, periodicity));
+    out.push(getPeriodKey(curDate, periodicity, fiscalYear));
     curDate = curDate.plus({ months: monthsToAdd });
   }
 
   return out;
 }
 
-function getPeriodKey(date, periodicity) {
+function getPeriodKey(date, periodicity, fiscalYear) {
   let key;
+  let { start, end, quarters, isSplit } = fiscalYear;
   let dateObj = DateTime.fromISO(date);
-  let year = dateObj.year;
-  let quarter = dateObj.quarter;
-  let month = dateObj.month;
+  let { month, quarter, year } = dateObj;
+  let fisacalStart = DateTime.fromISO(start);
+  let fisacalEnd = DateTime.fromISO(end);
 
   let getKey = {
     Monthly: () => `${dateObj.monthShort} ${year}`,
     Quarterly: () => {
+      const key = month < fisacalStart.month ? `${year-1} - ${year}` : `${year} - ${year+1}`;
+      let strYear = isSplit ? key : `${year}`;
       return {
-        1: `Jan ${year} - Mar ${year}`,
-        2: `Apr ${year} - Jun ${year}`,
-        3: `Jun ${year} - Sep ${year}`,
-        4: `Oct ${year} - Dec ${year}`,
-      }[quarter];
+        1: `Q1 ${strYear}`,
+        2: `Q2 ${strYear}`,
+        3: `Q3 ${strYear}`,
+        4: `Q4 ${strYear}`,
+      }[quarters[month-1]];
     },
     'Half Yearly': () => {
-      if (month > 3) {
-        return {
-          1: `Apr ${year} - Sep ${year}`,
-          2: `Oct ${year} - Mar ${year + 1}`,
-        }[[2, 3].includes(quarter) ? 1 : 2];
-      }
-      return `Oct ${year - 1} - Mar ${year}`;
+      const key = month < fisacalStart.month ? `${year-1} - ${year}` : `${year} - ${year+1}`;
+      let strYear = isSplit ? key : `${year}`;
+      return  { 
+        1: `1st Half ${strYear}`,
+        2: `1st Half ${strYear}`,
+        3: `2nd Half ${strYear}`,
+        4: `2nd Half ${strYear}`,
+      }[quarters[month-1]];
     },
     Yearly: () => {
-      if (month > 3) {
-        return `${year} - ${year + 1}`;
-      }
-      return `${year - 1} - ${year}`;
+      const key = month < fisacalStart.month ? `${year-1} - ${year}` : `${year} - ${year+1}`;
+      let strYear = isSplit ? key : `${year}`;
+      return `FY ${strYear}`;
     },
   }[periodicity];
 
@@ -292,13 +295,26 @@ async function getAccounts(rootType) {
   return accounts;
 }
 
-async function getFiscalYear() {
+export async function getFiscalYear() {
   let { fiscalYearStart, fiscalYearEnd } = await frappe.getSingle(
     'AccountingSettings'
   );
+
+  //right now quaters received from luxon lib is fixed to Jan as starting quarter
+  //moving the financial quarters, according to of start of fiscal year month
+  let quarters = [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4];
+  let start = DateTime.fromISO(fiscalYearStart);
+  quarters.unshift(...quarters.splice(13-start.month, 11));
+
+  //check if fiscal year ends in next year  
+  let end = DateTime.fromISO(fiscalYearEnd);
+  let isFiscalSplit = start.year - end.year ;
+
   return {
     start: fiscalYearStart,
     end: fiscalYearEnd,
+    quarters: quarters,
+    isSplit: isFiscalSplit,
   };
 }
 
