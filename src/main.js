@@ -22,7 +22,6 @@ import { setLanguageMap, stringifyCircular } from './utils';
     window.config = config;
   }
 
-  frappe.isServer = true;
   frappe.isElectron = true;
 
   const models = (await import('../models')).default;

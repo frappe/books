@@ -29,7 +29,6 @@ export class Frappe {
 
   errors = errors;
   isElectron = false;
-  isServer = false;
 
   pesa: MoneyMaker;
 
