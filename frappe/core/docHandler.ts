@@ -1,25 +1,15 @@
-import { Field, Model } from '@/types/model';
 import Doc from 'frappe/model/doc';
-import Meta from 'frappe/model/meta';
-import { getDuplicates, getRandomString } from 'frappe/utils';
+import { DocMap, ModelMap } from 'frappe/model/types';
+import { getRandomString } from 'frappe/utils';
 import Observable from 'frappe/utils/observable';
 import { Frappe } from '..';
-import { DocValue } from './types';
-
-type DocMap = Record<string, Doc | undefined>;
-type MetaMap = Record<string, Meta | undefined>;
-interface DocData {
-  doctype: string;
-  name?: string;
-  [key: string]: unknown;
-}
+import { DocValue, DocValueMap } from './types';
 
 export class DocHandler {
   frappe: Frappe;
   singles: DocMap = {};
-  metaCache: MetaMap = {};
-  docs?: Observable<Doc>;
-  models: Record<string, Model | undefined> = {};
+  docs: Observable<DocMap> = new Observable();
+  models: ModelMap = {};
 
   constructor(frappe: Frappe) {
     this.frappe = frappe;
@@ -27,44 +17,13 @@ export class DocHandler {
 
   init() {
     this.models = {};
-    this.metaCache = {};
     this.docs = new Observable();
   }
 
-  registerModels(models: Record<string, Model>) {
-    for (const doctype in models) {
-      const metaDefinition = models[doctype];
-      if (!metaDefinition.name) {
-        throw new Error(`Name is mandatory for ${doctype}`);
-      }
-
-      if (metaDefinition.name !== doctype) {
-        throw new Error(
-          `Model name mismatch for ${doctype}: ${metaDefinition.name}`
-        );
-      }
-
-      const fieldnames = (metaDefinition.fields || [])
-        .map((df) => df.fieldname)
-        .sort();
-
-      const duplicateFieldnames = getDuplicates(fieldnames);
-      if (duplicateFieldnames.length > 0) {
-        throw new Error(
-          `Duplicate fields in ${doctype}: ${duplicateFieldnames.join(', ')}`
-        );
-      }
-
-      this.models[doctype] = metaDefinition;
+  registerModels(models: ModelMap) {
+    for (const schemaName in models) {
+      this.models[schemaName] = models[schemaName];
     }
-  }
-
-  getModels(filterFunction: (name: Model) => boolean): Model[] {
-    const models: Model[] = [];
-    for (const doctype in this.models) {
-      models.push(this.models[doctype]!);
-    }
-    return filterFunction ? models.filter(filterFunction) : models;
   }
 
   /**
@@ -72,79 +31,66 @@ export class DocHandler {
    */
 
   addToCache(doc: Doc) {
-    if (!this.docs) return;
-
-    // add to `docs` cache
-    const name = doc.name as string | undefined;
-    const doctype = doc.doctype as string | undefined;
-
-    if (!doctype || !name) {
+    if (!this.docs) {
       return;
     }
 
-    if (!this.docs[doctype]) {
-      this.docs[doctype] = {};
+    // add to `docs` cache
+    const name = doc.name;
+    const schemaName = doc.schemaName;
+
+    if (!name) {
+      return;
     }
 
-    (this.docs[doctype] as DocMap)[name] = doc;
+    if (!this.docs[schemaName]) {
+      this.docs[schemaName] = {};
+    }
+
+    (this.docs[schemaName] as DocMap)[name] = doc;
 
     // singles available as first level objects too
-    if (doctype === doc.name) {
+    if (schemaName === doc.name) {
       this.singles[name] = doc;
     }
 
-    // propogate change to `docs`
+    // propagate change to `docs`
     doc.on('change', (params: unknown) => {
       this.docs!.trigger('change', params);
     });
   }
 
-  removeFromCache(doctype: string, name: string) {
-    const docMap = this.docs?.[doctype] as DocMap | undefined;
-    const doc = docMap?.[name];
+  removeFromCache(schemaName: string, name: string) {
+    const docMap = this.docs[schemaName] as DocMap | undefined;
+    delete docMap?.[name];
+  }
 
-    if (doc) {
-      delete docMap[name];
-    } else {
-      console.warn(`Document ${doctype} ${name} does not exist`);
+  getFromCache(schemaName: string, name: string): Doc | undefined {
+    const docMap = this.docs[schemaName] as DocMap | undefined;
+    return docMap?.[name];
+  }
+
+  getCachedValue(
+    schemaName: string,
+    name: string,
+    fieldname: string
+  ): DocValue | Doc[] | undefined {
+    const docMap = this.docs[schemaName] as DocMap;
+    const doc = docMap[name];
+    if (doc === undefined) {
+      return;
     }
+
+    return doc.get(fieldname);
   }
 
-  getDocFromCache(schemaName: string, name: string): Doc | undefined {
+  isDirty(schemaName: string, name: string): boolean {
     const doc = (this.docs?.[schemaName] as DocMap)?.[name];
-    return doc;
-  }
-
-  isDirty(doctype: string, name: string) {
-    const doc = (this.docs?.[doctype] as DocMap)?.[name];
     if (doc === undefined) {
       return false;
     }
 
-    return !!doc._dirty;
-  }
-
-  /**
-   * Meta Operations
-   */
-
-  getMeta(doctype: string): Meta {
-    const meta = this.metaCache[doctype];
-    if (meta) {
-      return meta;
-    }
-
-    const model = this.models?.[doctype];
-    if (!model) {
-      throw new Error(`${doctype} is not a registered doctype`);
-    }
-
-    this.metaCache[doctype] = new this.frappe.Meta!(model);
-    return this.metaCache[doctype]!;
-  }
-
-  createMeta(fields: Field[]) {
-    return new this.frappe.Meta!({ isCustom: 1, fields });
+    return doc.dirty;
   }
 
   /**
@@ -152,73 +98,47 @@ export class DocHandler {
    */
 
   async getDoc(
-    doctype: string,
+    schemaName: string,
     name: string,
     options = { skipDocumentCache: false }
   ) {
-    let doc = null;
+    let doc: Doc | undefined;
     if (!options?.skipDocumentCache) {
-      doc = this.getDocFromCache(doctype, name);
+      doc = this.getFromCache(schemaName, name);
     }
 
     if (doc) {
       return doc;
     }
 
-    const DocClass = this.getDocumentClass(doctype);
-    doc = new DocClass({
-      doctype: doctype,
-      name: name,
-    });
-
+    doc = this.getNewDoc(schemaName, { name });
     await doc.load();
     this.addToCache(doc);
 
     return doc;
   }
 
-  getDocumentClass(doctype: string): typeof Doc {
-    const meta = this.getMeta(doctype);
-    let documentClass = this.frappe.Document!;
-    if (meta && meta.documentClass) {
-      documentClass = meta.documentClass as typeof Doc;
+  getModel(schemaName: string): typeof Doc {
+    const Model = this.models[schemaName];
+    if (Model === undefined) {
+      return Doc;
     }
 
-    return documentClass;
+    return Model;
   }
 
-  async getSingle(doctype: string) {
-    return await this.getDoc(doctype, doctype);
+  async getSingle(schemaName: string) {
+    return await this.getDoc(schemaName, schemaName);
   }
 
-  async getDuplicate(doc: Doc) {
-    const doctype = doc.doctype as string;
-    const newDoc = await this.getEmptyDoc(doctype);
-    const meta = this.getMeta(doctype);
-
-    const fields = meta.getValidFields() as Field[];
-
-    for (const field of fields) {
-      if (['name', 'submitted'].includes(field.fieldname)) {
-        continue;
-      }
-
-      newDoc[field.fieldname] = doc[field.fieldname];
-      if (field.fieldtype === 'Table') {
-        const value = (doc[field.fieldname] as DocData[]) || [];
-        newDoc[field.fieldname] = value.map((d) => {
-          const childData = Object.assign({}, d);
-          childData.name = '';
-          return childData;
-        });
-      }
-    }
+  async getDuplicate(doc: Doc): Promise<Doc> {
+    const newDoc = await doc.duplicate(false);
+    delete newDoc.name;
     return newDoc;
   }
 
-  getEmptyDoc(doctype: string, cacheDoc: boolean = true): Doc {
-    const doc = this.getNewDoc({ doctype });
-    doc._notInserted = true;
+  getEmptyDoc(schemaName: string, cacheDoc: boolean = true): Doc {
+    const doc = this.getNewDoc(schemaName);
     doc.name = getRandomString();
 
     if (cacheDoc) {
@@ -228,34 +148,33 @@ export class DocHandler {
     return doc;
   }
 
-  getNewDoc(data: DocData): Doc {
-    const DocClass = this.getDocumentClass(data.doctype);
-    const doc = new DocClass(data);
+  getNewDoc(schemaName: string, data: DocValueMap = {}): Doc {
+    const Model = this.getModel(schemaName);
+    const schema = this.frappe.schemaMap[schemaName];
+    if (schema === undefined) {
+      throw new Error(`Schema not found for ${schemaName}`);
+    }
+
+    const doc = new Model(schema, data);
     doc.setDefaults();
     return doc;
   }
 
-  async syncDoc(data: DocData) {
-    let doc;
-    const { doctype, name } = data;
-    if (!doctype || !name) {
+  async syncDoc(schemaName: string, data: DocValueMap) {
+    const name = data.name as string | undefined;
+    if (name === undefined) {
       return;
     }
 
-    const docExists = await this.frappe.db.exists(doctype, name);
-    if (docExists) {
-      doc = await this.getDoc(doctype, name);
-      Object.assign(doc, data);
-      await doc.update();
-    } else {
-      doc = this.getNewDoc(data);
-      await doc.insert();
+    const docExists = await this.frappe.db.exists(schemaName, name);
+    if (!docExists) {
+      const doc = this.getNewDoc(schemaName, data);
+      await doc.insert;
+      return;
     }
-  }
 
-  getCachedValue(
-    schemaName: string,
-    name: string,
-    fieldname: string
-  ): DocValue {}
+    const doc = await this.getDoc(schemaName, name);
+    await doc.setMultiple(data);
+    await doc.update();
+  }
 }

@@ -1,10 +1,11 @@
 import { ErrorLog } from '@/errorHandling';
-import Doc from 'frappe/model/doc';
 import { getMoneyMaker, MoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
 import { AuthHandler } from './core/authHandler';
 import { DatabaseHandler } from './core/dbHandler';
 import { DocHandler } from './core/docHandler';
+import { ModelMap } from './model/types';
+import coreModels from './models';
 import {
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,
@@ -12,6 +13,14 @@ import {
 import * as errors from './utils/errors';
 import { format } from './utils/format';
 import { t, T } from './utils/translation';
+
+/**
+ * Terminology
+ * - Schema: object that defines shape of the data in the database
+ * - Model: the controller class that extends the Doc class or the Doc
+ *    class itself.
+ * - Doc: instance of a Model, i.e. what has the data.
+ */
 
 export class Frappe {
   t = t;
@@ -28,8 +37,6 @@ export class Frappe {
   doc: DocHandler;
   db: DatabaseHandler;
 
-  Doc?: typeof Doc;
-
   _initialized: boolean = false;
 
   errorLog?: ErrorLog[];
@@ -38,8 +45,9 @@ export class Frappe {
 
   constructor() {
     this.auth = new AuthHandler(this);
-    this.doc = new DocHandler(this);
     this.db = new DatabaseHandler(this);
+    this.doc = new DocHandler(this);
+
     this.pesa = getMoneyMaker({
       currency: 'XXX',
       precision: DEFAULT_INTERNAL_PRECISION,
@@ -60,13 +68,17 @@ export class Frappe {
     return this.doc.models;
   }
 
-  async initializeAndRegister(customModels = {}, force = false) {
+  get schemaMap() {
+    return this.db.schemaMap;
+  }
+
+  async initializeAndRegister(
+    customModels: ModelMap = {},
+    force: boolean = false
+  ) {
     await this.init(force);
 
-    this.Doc = (await import('frappe/model/doc')).default;
-
-    const coreModels = await import('frappe/models');
-    this.doc.registerModels(coreModels.default as Record<string, Model>);
+    this.doc.registerModels(coreModels as ModelMap);
     this.doc.registerModels(customModels);
   }
 

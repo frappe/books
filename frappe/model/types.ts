@@ -27,5 +27,7 @@ export type DependsOnMap = Record<string, string[]>
 
 /**
  * Should add this for hidden too
-
  */
+
+export type ModelMap = Record< string, typeof Doc | undefined>
+export type DocMap = Record<string, Doc | undefined>;

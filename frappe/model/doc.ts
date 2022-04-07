@@ -78,6 +78,10 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     ) as TargetField[];
   }
 
+  get dirty() {
+    return this._dirty;
+  }
+
   _setInitialValues(data: DocValueMap) {
     for (const fieldname in data) {
       const value = data[fieldname];
@@ -222,7 +226,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     }
 
     const childSchemaName = this.fieldMap[fieldname] as TargetField;
-    const schema = frappe.db.schemaMap[childSchemaName.target];
+    const schema = frappe.db.schemaMap[childSchemaName.target] as Schema;
     const childDoc = new Doc(schema, data as DocValueMap);
     childDoc.setDefaults();
     return childDoc;
@@ -417,13 +421,13 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       (this.modified as Date) !== (currentDoc.modified as Date)
     ) {
       throw new Conflict(
-        frappe.t`Document ${this.doctype} ${this.name} has been modified after loading`
+        frappe.t`Document ${this.schemaName} ${this.name} has been modified after loading`
       );
     }
 
     if (this.submitted && !this.schema.isSubmittable) {
       throw new ValidationError(
-        frappe.t`Document type ${this.doctype} is not submittable`
+        frappe.t`Document type ${this.schemaName} is not submittable`
       );
     }
 
@@ -651,7 +655,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     return frappe.doc.getCachedValue(schemaName, name, fieldname);
   }
 
-  async duplicate() {
+  async duplicate(shouldInsert: boolean = true): Promise<Doc> {
     const updateMap: DocValueMap = {};
     const docValueMap = this.getValidDict();
     const fieldnames = this.schema.fields.map((f) => f.fieldname);
@@ -680,7 +684,12 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
     const doc = frappe.doc.getEmptyDoc(this.schemaName, false);
     await doc.setMultiple(updateMap);
-    await doc.insert();
+
+    if (shouldInsert) {
+      await doc.insert();
+    }
+
+    return doc;
   }
 
   formulas: FormulaMap = {};

@@ -86,7 +86,7 @@ describe('Schema Builder', function () {
   );
   describe('Abstract Combined Schemas', function () {
     specify('Meta Properties', function () {
-      assert.strictEqual(abstractCombined.Customer.extends, undefined);
+      assert.strictEqual(abstractCombined.Customer!.extends, undefined);
     });
 
     specify('Abstract Schema Existance', function () {
@@ -94,11 +94,11 @@ describe('Schema Builder', function () {
     });
 
     specify('Field Counts', function () {
-      assert.strictEqual(abstractCombined.Customer.fields?.length, 10);
+      assert.strictEqual(abstractCombined.Customer!.fields?.length, 10);
     });
 
     specify('Quick Edit Field Counts', function () {
-      assert.strictEqual(abstractCombined.Customer.quickEditFields?.length, 7);
+      assert.strictEqual(abstractCombined.Customer!.quickEditFields?.length, 7);
     });
 
     specify('Schema Equality with App Schemas', function () {
@@ -127,7 +127,7 @@ describe('Schema Builder', function () {
       assert.strictEqual(
         everyFieldExists(
           regionalSchemaMap.Party.quickEditFields ?? [],
-          abstractCombined.Customer
+          abstractCombined.Customer!
         ),
         true
       );
@@ -152,14 +152,14 @@ describe('Schema Builder', function () {
   describe('Final Schemas', function () {
     specify('Schema Field Existance', function () {
       assert.strictEqual(
-        everyFieldExists(baseFieldNames, finalSchemas.Customer),
+        everyFieldExists(baseFieldNames, finalSchemas.Customer!),
         true
       );
 
       assert.strictEqual(
         someFieldExists(
           subtract(allFieldNames, baseFieldNames),
-          finalSchemas.Customer
+          finalSchemas.Customer!
         ),
         false
       );
@@ -167,7 +167,7 @@ describe('Schema Builder', function () {
       assert.strictEqual(
         everyFieldExists(
           [...baseFieldNames, ...submittableFieldNames],
-          finalSchemas.JournalEntry
+          finalSchemas.JournalEntry!
         ),
         true
       );
@@ -175,20 +175,20 @@ describe('Schema Builder', function () {
       assert.strictEqual(
         someFieldExists(
           subtract(allFieldNames, baseFieldNames, submittableFieldNames),
-          finalSchemas.JournalEntry
+          finalSchemas.JournalEntry!
         ),
         false
       );
 
       assert.strictEqual(
-        everyFieldExists(childFieldNames, finalSchemas.JournalEntryAccount),
+        everyFieldExists(childFieldNames, finalSchemas.JournalEntryAccount!),
         true
       );
 
       assert.strictEqual(
         someFieldExists(
           subtract(allFieldNames, childFieldNames),
-          finalSchemas.JournalEntryAccount
+          finalSchemas.JournalEntryAccount!
         ),
         false
       );
@@ -196,7 +196,7 @@ describe('Schema Builder', function () {
       assert.strictEqual(
         everyFieldExists(
           [...treeFieldNames, ...baseFieldNames],
-          finalSchemas.Account
+          finalSchemas.Account!
         ),
         true
       );
@@ -204,7 +204,7 @@ describe('Schema Builder', function () {
       assert.strictEqual(
         someFieldExists(
           subtract(allFieldNames, treeFieldNames, baseFieldNames),
-          finalSchemas.Account
+          finalSchemas.Account!
         ),
         false
       );
