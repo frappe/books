@@ -128,5 +128,5 @@ export interface Schema {
 export interface SchemaStub extends Partial<Schema> {
   name: string;
 }
-export type SchemaMap = Record<string, Schema>;
+export type SchemaMap = Record<string, Schema | undefined>;
 export type SchemaStubMap = Record<string, SchemaStub>;

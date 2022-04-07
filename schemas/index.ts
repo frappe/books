@@ -31,7 +31,7 @@ function deepFreeze(schemaMap: SchemaMap) {
       Object.freeze(schemaMap[schemaName][key]);
     }
 
-    for (const field of schemaMap[schemaName].fields ?? []) {
+    for (const field of schemaMap[schemaName]?.fields ?? []) {
       Object.freeze(field);
     }
   }
@@ -47,7 +47,7 @@ export function addMetaFields(schemaMap: SchemaMap): SchemaMap {
   const submittableTree = getCombined(tree, metaSchemaMap.submittable);
 
   for (const name in schemaMap) {
-    const schema = schemaMap[name];
+    const schema = schemaMap[name] as Schema;
     if (schema.isSingle) {
       continue;
     }
@@ -71,7 +71,7 @@ export function addMetaFields(schemaMap: SchemaMap): SchemaMap {
 
 function addNameField(schemaMap: SchemaMap) {
   for (const name in schemaMap) {
-    const schema = schemaMap[name];
+    const schema = schemaMap[name] as Schema;
     if (schema.isSingle) {
       continue;
     }
@@ -104,7 +104,7 @@ function getAppSchemas(countryCode: string): SchemaMap {
 
 export function cleanSchemas(schemaMap: SchemaMap): SchemaMap {
   for (const name in schemaMap) {
-    const schema = schemaMap[name];
+    const schema = schemaMap[name] as Schema;
     if (schema.isAbstract && !schema.extends) {
       delete schemaMap[name];
       continue;

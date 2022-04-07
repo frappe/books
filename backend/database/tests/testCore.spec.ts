@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import 'mocha';
-import { FieldTypeEnum, RawValue } from 'schemas/types';
+import { FieldTypeEnum, RawValue, Schema } from 'schemas/types';
 import { getMapFromList, getValueMapFromList, sleep } from 'utils';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap } from '../../helpers';
 import DatabaseCore from '../core';
@@ -72,7 +72,7 @@ describe('DatabaseCore: Migrate and Check Db', function () {
   specify('Post Migrate TableInfo', async function () {
     await db.migrate();
     for (const schemaName in schemaMap) {
-      const schema = schemaMap[schemaName];
+      const schema = schemaMap[schemaName] as Schema;
       const fieldMap = getMapFromList(schema.fields, 'fieldname');
       const columns: SqliteTableInfo[] = await db.knex!.raw(
         'pragma table_info(??)',
@@ -176,7 +176,7 @@ describe('DatabaseCore: CRUD', function () {
       'select * from SingleValue'
     );
     const defaultMap = getValueMapFromList(
-      schemaMap.SystemSettings.fields,
+      (schemaMap.SystemSettings as Schema).fields,
       'fieldname',
       'default'
     );
