@@ -2,18 +2,29 @@ import { DatabaseDemux } from '@/demux/db';
 import { Frappe } from 'frappe';
 import Money from 'pesa/dist/types/src/money';
 import { FieldType, FieldTypeEnum, RawValue, SchemaMap } from 'schemas/types';
-import { DatabaseBase, GetAllOptions } from 'utils/db/types';
-import { DocValue, DocValueMap, RawValueMap, SingleValue } from './types';
+import { DatabaseBase, DatabaseDemuxBase, GetAllOptions } from 'utils/db/types';
+import {
+  DatabaseDemuxConstructor,
+  DocValue,
+  DocValueMap,
+  RawValueMap,
+  SingleValue,
+} from './types';
 
 export class DatabaseHandler extends DatabaseBase {
   #frappe: Frappe;
-  #demux: DatabaseDemux;
+  #demux: DatabaseDemuxBase;
   schemaMap: Readonly<SchemaMap> = {};
 
-  constructor(frappe: Frappe) {
+  constructor(frappe: Frappe, Demux?: DatabaseDemuxConstructor) {
     super();
     this.#frappe = frappe;
-    this.#demux = new DatabaseDemux(frappe.isElectron);
+
+    if (Demux !== undefined) {
+      this.#demux = new Demux(frappe.isElectron);
+    } else {
+      this.#demux = new DatabaseDemux(frappe.isElectron);
+    }
   }
 
   async createNewDatabase(dbPath: string, countryCode?: string) {

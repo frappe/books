@@ -6,6 +6,8 @@
  * match on both ends.
  */
 
+import { SchemaMap } from "schemas/types";
+
 type UnknownMap = Record<string, unknown>;
 export abstract class DatabaseBase {
   // Create
@@ -61,3 +63,21 @@ export interface GetAllOptions {
 }
 
 export type QueryFilter = Record<string, string | string[]>;
+
+
+/**
+ * DatabaseDemuxBase is an abstract class that ensures that the function signatures
+ * match between the DatabaseManager and the DatabaseDemux.
+ * 
+ * This allows testing the frontend code while directly plugging in the DatabaseManager
+ * and bypassing all the API and IPC calls.
+ */
+export abstract class DatabaseDemuxBase {
+  abstract getSchemaMap(): Promise<SchemaMap> | SchemaMap
+
+  abstract createNewDatabase(dbPath: string, countryCode?: string): Promise<void> 
+
+  abstract connectToDatabase(dbPath: string, countryCode?: string): Promise<void> 
+
+  abstract call(method: DatabaseMethod, ...args: unknown[]): Promise<unknown> 
+}

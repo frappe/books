@@ -1,12 +1,13 @@
 import { ipcRenderer } from 'electron';
 import { SchemaMap } from 'schemas/types';
-import { DatabaseMethod } from 'utils/db/types';
+import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { IPC_ACTIONS } from 'utils/messages';
 import { DatabaseResponse } from '../../utils/ipc/types';
 
-export class DatabaseDemux {
+export class DatabaseDemux extends DatabaseDemuxBase {
   #isElectron: boolean = false;
   constructor(isElectron: boolean) {
+    super();
     this.#isElectron = isElectron;
   }
 
