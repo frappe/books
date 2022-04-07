@@ -4,6 +4,7 @@ import { markRaw } from 'vue';
 import { AuthHandler } from './core/authHandler';
 import { DatabaseHandler } from './core/dbHandler';
 import { DocHandler } from './core/docHandler';
+import { DatabaseDemuxConstructor } from './core/types';
 import { ModelMap } from './model/types';
 import coreModels from './models';
 import {
@@ -42,9 +43,13 @@ export class Frappe {
   methods?: Record<string, Function>;
   temp?: Record<string, unknown>;
 
-  constructor() {
+  constructor(DatabaseDemux?: DatabaseDemuxConstructor) {
+    /**
+     * `DatabaseManager` can be passed as the `DatabaseDemux` for
+     * testing this class without API or IPC calls.
+     */
     this.auth = new AuthHandler(this);
-    this.db = new DatabaseHandler(this);
+    this.db = new DatabaseHandler(this, DatabaseDemux);
     this.doc = new DocHandler(this);
 
     this.pesa = getMoneyMaker({
@@ -81,7 +86,7 @@ export class Frappe {
     this.doc.registerModels(customModels);
   }
 
-  async init(force: boolean) {
+  async init(force?: boolean) {
     if (this._initialized && !force) return;
 
     this.methods = {};

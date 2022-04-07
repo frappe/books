@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import { DatabaseMethod } from 'utils/db/types';
+import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
 import { databaseMethodSet } from '../helpers';
 import patches from '../patches';
@@ -7,7 +7,7 @@ import DatabaseCore from './core';
 import { runPatches } from './runPatch';
 import { Patch } from './types';
 
-export class DatabaseManager {
+export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
 
   get #isInitialized(): boolean {
