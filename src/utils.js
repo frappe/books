@@ -90,7 +90,7 @@ export async function cancelDocWithPrompt(doc) {
         {
           label: t`Yes`,
           async action() {
-            const entryDoc = await frappe.getDoc(doc.doctype, doc.name);
+            const entryDoc = await frappe.doc.getDoc(doc.doctype, doc.name);
             entryDoc.cancelled = 1;
             await entryDoc.update();
             entryDoc

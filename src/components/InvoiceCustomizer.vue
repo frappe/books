@@ -50,7 +50,7 @@ export default {
     };
   },
   async created() {
-    this.doc = await frappe.getDoc('SalesInvoiceSettings');
+    this.doc = await frappe.doc.getDoc('SalesInvoiceSettings');
     this.color.hex = this.doc.themeColor;
     const meta = frappe.getMeta('SalesInvoiceSettings');
     this.fields = meta.fields.filter(

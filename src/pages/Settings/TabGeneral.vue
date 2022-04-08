@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import frappe from 'frappe';
 import TwoColumnForm from '@/components/TwoColumnForm';
+import frappe from 'frappe';
 
 export default {
   name: 'TabGeneral',
@@ -27,7 +27,7 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.getDoc('AccountingSettings', 'AccountingSettings', {
+    this.doc = await frappe.doc.getDoc('AccountingSettings', 'AccountingSettings', {
       skipDocumentCache: true,
     });
   },

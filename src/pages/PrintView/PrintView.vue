@@ -56,12 +56,12 @@ import Button from '@/components/Button';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
 import TwoColumnForm from '@/components/TwoColumnForm';
-import { IPC_ACTIONS } from 'utils/messages';
 import telemetry from '@/telemetry/telemetry';
 import { Verb } from '@/telemetry/types';
 import { makePDF } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
+import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
   name: 'PrintView',
@@ -81,7 +81,7 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.getDoc(this.doctype, this.name);
+    this.doc = await frappe.doc.getDoc(this.doctype, this.name);
     this.printSettings = await frappe.getSingle('PrintSettings');
   },
   computed: {

@@ -163,7 +163,7 @@ async function checkAndCreateDoc(docObject) {
     return;
   }
 
-  const doc = await frappe.getNewDoc(docObject);
+  const doc = await frappe.doc.getNewDoc(docObject.doctype, docObject);
   return doc.insert();
 }
 

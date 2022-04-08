@@ -84,15 +84,15 @@ export default {
       await this.getFont();
     },
     async getTemplate() {
-      let invoiceSettings = await frappe.getDoc('SalesInvoiceSettings');
+      let invoiceSettings = await frappe.doc.getDoc('SalesInvoiceSettings');
       this.template = invoiceTemplates[invoiceSettings.template];
     },
     async getColor() {
-      let invoiceSettings = await frappe.getDoc('SalesInvoiceSettings');
+      let invoiceSettings = await frappe.doc.getDoc('SalesInvoiceSettings');
       this.themeColor = invoiceSettings.themeColor;
     },
     async getFont() {
-      let invoiceSettings = await frappe.getDoc('SalesInvoiceSettings');
+      let invoiceSettings = await frappe.doc.getDoc('SalesInvoiceSettings');
       this.font = invoiceSettings.font;
     },
     async toggleCustomizer() {

@@ -1,17 +1,24 @@
 import frappe from 'frappe';
+import NumberSeries from 'frappe/models/NumberSeries';
 import { getRandomString } from 'frappe/utils';
+import { BaseError } from 'frappe/utils/errors';
+import { Field, Schema } from 'schemas/types';
+import Doc from './doc';
 
-export async function isNameAutoSet(schemaName: string) {
-  const doc = frappe.doc.getEmptyDoc(schemaName);
-  if (doc.meta.naming === 'autoincrement') {
+export function getNumberSeries(schema: Schema): Field | undefined {
+  const numberSeries = schema.fields.find(
+    (f) => f.fieldname === 'numberSeries'
+  );
+  return numberSeries;
+}
+
+export function isNameAutoSet(schemaName: string): boolean {
+  const schema = frappe.schemaMap[schemaName]!;
+  if (schema.naming === 'autoincrement') {
     return true;
   }
 
-  if (!doc.meta.settings) {
-    return false;
-  }
-
-  const { numberSeries } = await doc.getSettings();
+  const numberSeries = getNumberSeries(schema);
   if (numberSeries) {
     return true;
   }
@@ -19,30 +26,18 @@ export async function isNameAutoSet(schemaName: string) {
   return false;
 }
 
-export async function setName(doc) {
-  if (frappe.isServer) {
-    // if is server, always name again if autoincrement or other
-    if (doc.meta.naming === 'autoincrement') {
-      doc.name = await getNextId(doc.doctype);
-      return;
-    }
+export async function setName(doc: Doc) {
+  // if is server, always name again if autoincrement or other
+  if (doc.schema.naming === 'autoincrement') {
+    doc.name = await getNextId(doc.schemaName);
+    return;
+  }
 
-    // Current, per doc number series
-    if (doc.numberSeries) {
-      doc.name = await getSeriesNext(doc.numberSeries, doc.doctype);
-      return;
-    }
-
-    // Legacy, using doc settings for number series
-    if (doc.meta.settings) {
-      const numberSeries = (await doc.getSettings()).numberSeries;
-      if (!numberSeries) {
-        return;
-      }
-
-      doc.name = await getSeriesNext(numberSeries, doc.doctype);
-      return;
-    }
+  // Current, per doc number series
+  const numberSeries = doc.numberSeries as string | undefined;
+  if (numberSeries !== undefined) {
+    doc.name = await getSeriesNext(numberSeries, doc.schemaName);
+    return;
   }
 
   if (doc.name) {
@@ -50,8 +45,8 @@ export async function setName(doc) {
   }
 
   // name === doctype for Single
-  if (doc.meta.isSingle) {
-    doc.name = doc.meta.name;
+  if (doc.schema.isSingle) {
+    doc.name = doc.schema.name;
     return;
   }
 
@@ -62,54 +57,57 @@ export async function setName(doc) {
   }
 }
 
-export async function getNextId(doctype) {
+export async function getNextId(schemaName: string) {
   // get the last inserted row
-  let lastInserted = await getLastInserted(doctype);
+  const lastInserted = await getLastInserted(schemaName);
   let name = 1;
   if (lastInserted) {
-    let lastNumber = parseInt(lastInserted.name);
+    let lastNumber = parseInt(lastInserted.name as string);
     if (isNaN(lastNumber)) lastNumber = 0;
     name = lastNumber + 1;
   }
   return (name + '').padStart(9, '0');
 }
 
-export async function getLastInserted(doctype) {
-  const lastInserted = await frappe.db.getAll({
-    doctype: doctype,
+export async function getLastInserted(schemaName: string) {
+  const lastInserted = await frappe.db.getAll(schemaName, {
     fields: ['name'],
     limit: 1,
-    order_by: 'creation',
+    orderBy: 'creation',
     order: 'desc',
   });
   return lastInserted && lastInserted.length ? lastInserted[0] : null;
 }
 
-export async function getSeriesNext(prefix, doctype) {
-  let series;
+export async function getSeriesNext(prefix: string, schemaName: string) {
+  let series: NumberSeries;
 
   try {
-    series = await frappe.getDoc('NumberSeries', prefix);
+    series = (await frappe.doc.getDoc('NumberSeries', prefix)) as NumberSeries;
   } catch (e) {
-    if (!e.statusCode || e.statusCode !== 404) {
+    const { statusCode } = e as BaseError;
+    if (!statusCode || statusCode !== 404) {
       throw e;
     }
 
-    await createNumberSeries(prefix, doctype);
-    series = await frappe.getDoc('NumberSeries', prefix);
+    await createNumberSeries(prefix, schemaName);
+    series = (await frappe.doc.getDoc('NumberSeries', prefix)) as NumberSeries;
   }
 
-  return await series.next(doctype);
+  return await series.next(schemaName);
 }
 
-export async function createNumberSeries(prefix, referenceType, start = 1001) {
+export async function createNumberSeries(
+  prefix: string,
+  referenceType: string,
+  start = 1001
+) {
   const exists = await frappe.db.exists('NumberSeries', prefix);
   if (exists) {
     return;
   }
 
-  const series = frappe.getNewDoc({
-    doctype: 'NumberSeries',
+  const series = frappe.doc.getNewDoc('NumberSeries', {
     name: prefix,
     start,
     referenceType,

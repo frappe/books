@@ -1,7 +1,7 @@
 import config, { ConfigFile, ConfigKeys, TelemetrySetting } from '@/config';
-import { IPC_ACTIONS } from 'utils/messages';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
+import { IPC_ACTIONS } from 'utils/messages';
 import { DoctypeName } from '../../models/types';
 import { Count, UniqueId } from './types';
 
@@ -34,6 +34,7 @@ export async function getCounts(): Promise<Count> {
     DoctypeName.PurchaseInvoiceItem,
     DoctypeName.JournalEntry,
     DoctypeName.JournalEntryAccount,
+    DoctypeName.Party,
     DoctypeName.Account,
     DoctypeName.Tax,
   ];
@@ -46,26 +47,9 @@ export async function getCounts(): Promise<Count> {
 
   type CountResponse = { 'count(*)': number }[];
   for (const name of interestingDocs) {
-    // @ts-ignore
-    const queryResponse: CountResponse = await frappe.db.knex(name).count();
-    const count: number = queryResponse[0]['count(*)'];
+    const count: number = (await frappe.db.getAll(name)).length;
     countMap[name] = count;
   }
-
-  // @ts-ignore
-  const supplierCount: CountResponse = await frappe.db
-    .knex('Party')
-    .count()
-    .where({ supplier: 1 });
-
-  // @ts-ignore
-  const customerCount: CountResponse = await frappe.db
-    .knex('Party')
-    .count()
-    .where({ customer: 1 });
-
-  countMap[DoctypeName.Customer] = customerCount[0]['count(*)'];
-  countMap[DoctypeName.Supplier] = supplierCount[0]['count(*)'];
 
   return countMap;
 }

@@ -27,7 +27,7 @@ export default class LedgerPosting {
 
   async setAccountBalanceChange(accountName, type, amount) {
     const debitAccounts = ['Asset', 'Expense'];
-    const { rootType } = await frappe.getDoc('Account', accountName);
+    const { rootType } = await frappe.doc.getDoc('Account', accountName);
     if (debitAccounts.indexOf(rootType) === -1) {
       const change = type == 'credit' ? amount : amount.neg();
       this.accountEntries.push({
@@ -82,7 +82,10 @@ export default class LedgerPosting {
     });
 
     for (let entry of data) {
-      let entryDoc = await frappe.getDoc('AccountingLedgerEntry', entry.name);
+      let entryDoc = await frappe.doc.getDoc(
+        'AccountingLedgerEntry',
+        entry.name
+      );
       entryDoc.reverted = 1;
       await entryDoc.update();
     }
@@ -145,14 +148,12 @@ export default class LedgerPosting {
 
   async insertEntries() {
     for (let entry of this.entries) {
-      let entryDoc = frappe.getNewDoc({
-        doctype: 'AccountingLedgerEntry',
-      });
+      let entryDoc = frappe.doc.getNewDoc('AccountingLedgerEntry');
       Object.assign(entryDoc, entry);
       await entryDoc.insert();
     }
     for (let entry of this.accountEntries) {
-      let entryDoc = await frappe.getDoc('Account', entry.name);
+      let entryDoc = await frappe.doc.getDoc('Account', entry.name);
       entryDoc.balance = entryDoc.balance.add(entry.balanceChange);
       await entryDoc.update();
     }

@@ -1,6 +1,8 @@
-import { Doc, Field, FieldType, Map } from '@/types/model';
 import frappe from 'frappe';
+import { DocValueMap } from 'frappe/core/types';
+import Doc from 'frappe/model/doc';
 import { isNameAutoSet } from 'frappe/model/naming';
+import { FieldType, FieldTypeEnum } from 'schemas/types';
 import { parseCSV } from './csvParser';
 import telemetry from './telemetry/telemetry';
 import { Noun, Verb } from './telemetry/types';
@@ -25,9 +27,8 @@ type Exclusion = {
   [key: string]: string[];
 };
 
-type ObjectMap = {
-  [key: string]: Map;
-};
+type Map = Record<string, unknown>;
+type ObjectMap = Record<string, Map>;
 
 type LabelTemplateFieldMap = {
   [key: string]: TemplateField;
@@ -51,16 +52,16 @@ interface TemplateField {
 
 function formatValue(value: string, fieldtype: FieldType): unknown {
   switch (fieldtype) {
-    case FieldType.Date:
+    case FieldTypeEnum.Date:
       if (value === '') {
         return '';
       }
       return new Date(value);
-    case FieldType.Currency:
+    case FieldTypeEnum.Currency:
       // @ts-ignore
       return frappe.pesa(value || 0);
-    case FieldType.Int:
-    case FieldType.Float: {
+    case FieldTypeEnum.Int:
+    case FieldTypeEnum.Float: {
       const n = parseFloat(value);
       if (!Number.isNaN(n)) {
         return n;
@@ -115,7 +116,7 @@ function getFilteredDocFields(
         return;
       }
 
-      if (fieldtype === FieldType.Table && childtype) {
+      if (fieldtype === FieldTypeEnum.Table && childtype) {
         tableTypes.push([childtype, fieldname]);
         return;
       }
@@ -363,7 +364,7 @@ export class Importer {
 
   async importData(setLoadingStatus: LoadingStatusCallback): Promise<Status> {
     const status: Status = { success: false, names: [], message: '' };
-    const shouldDeleteName = await isNameAutoSet(this.doctype);
+    const shouldDeleteName = isNameAutoSet(this.doctype);
     const docObjs = this.getDocs();
 
     let entriesMade = 0;
@@ -382,7 +383,7 @@ export class Importer {
         delete docObj[key];
       }
 
-      const doc: Doc = frappe.getEmptyDoc(this.doctype, false);
+      const doc: Doc = frappe.doc.getEmptyDoc(this.doctype, false);
       try {
         await this.makeEntry(doc, docObj);
         entriesMade += 1;
@@ -398,7 +399,7 @@ export class Importer {
         return this.handleError(doc, err as Error, status);
       }
 
-      status.names.push(doc.name);
+      status.names.push(doc.name!);
     }
 
     setLoadingStatus(false, entriesMade, docObjs.length);
@@ -417,7 +418,7 @@ export class Importer {
   }
 
   async makeEntry(doc: Doc, docObj: Map) {
-    await doc.set(docObj);
+    await doc.setMultiple(docObj as DocValueMap);
     await doc.insert();
     if (this.shouldSubmit) {
       await doc.submit();
