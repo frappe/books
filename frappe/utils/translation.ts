@@ -1,3 +1,4 @@
+import { LanguageMap } from 'utils/types';
 import {
   getIndexFormat,
   getIndexList,
@@ -7,7 +8,13 @@ import {
 import { ValueError } from './errors';
 
 class TranslationString {
-  constructor(...args) {
+  args: TemplateStringsArray;
+  argList?: string[];
+  strList?: string[];
+  context?: string;
+  languageMap?: LanguageMap;
+
+  constructor(...args: TemplateStringsArray) {
     this.args = args;
   }
 
@@ -15,12 +22,12 @@ class TranslationString {
     return this.toString();
   }
 
-  ctx(context) {
+  ctx(context?: string) {
     this.context = context;
     return this;
   }
 
-  #formatArg(arg) {
+  #formatArg(arg: string) {
     return arg ?? '';
   }
 
@@ -29,16 +36,16 @@ class TranslationString {
     indexFormat = getWhitespaceSanitized(indexFormat);
 
     const translatedIndexFormat =
-      this.languageMap[indexFormat]?.translation ?? indexFormat;
+      this.languageMap![indexFormat]?.translation ?? indexFormat;
 
     this.argList = getIndexList(translatedIndexFormat).map(
-      (i) => this.argList[i]
+      (i) => this.argList![i]
     );
     this.strList = getSnippets(translatedIndexFormat);
   }
 
   #stitch() {
-    if (!(this.args[0] instanceof Array)) {
+    if (!((this.args[0] as any) instanceof Array)) {
       throw new ValueError(
         `invalid args passed to TranslationString ${
           this.args
@@ -46,15 +53,14 @@ class TranslationString {
       );
     }
 
-    this.strList = this.args[0];
+    this.strList = this.args[0] as any as string[];
     this.argList = this.args.slice(1);
 
     if (this.languageMap) {
       this.#translate();
     }
 
-    return this.strList
-      .map((s, i) => s + this.#formatArg(this.argList[i]))
+    return this.strList!.map((s, i) => s + this.#formatArg(this.argList![i]))
       .join('')
       .replace(/\s+/g, ' ')
       .trim();
@@ -73,14 +79,16 @@ class TranslationString {
   }
 }
 
-export function T(...args) {
+export function T(...args: TemplateStringsArray): TranslationString {
+  // @ts-ignore
   return new TranslationString(...args);
 }
 
-export function t(...args) {
+export function t(...args: TemplateStringsArray): string {
+  // @ts-ignore
   return new TranslationString(...args).s;
 }
 
-export function setLanguageMapOnTranslationString(languageMap) {
+export function setLanguageMapOnTranslationString(languageMap: LanguageMap) {
   TranslationString.prototype.languageMap = languageMap;
 }

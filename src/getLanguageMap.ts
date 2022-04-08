@@ -11,16 +11,14 @@ const fs = require('fs/promises');
 const path = require('path');
 const fetch = require('node-fetch').default;
 const { splitCsvLine } = require('../scripts/helpers');
+import { LanguageMap } from '../utils/types';
 
 const VALENTINES_DAY = 1644796800000;
-
-type Translation = { translation: string; context?: string };
-type TranslationMap = Record<string, Translation>;
 
 export async function getLanguageMap(
   code: string,
   isDevelopment: boolean = false
-): Promise<TranslationMap> {
+): Promise<LanguageMap> {
   const contents = await getContents(code, isDevelopment);
   return getMapFromContents(contents);
 }
@@ -46,7 +44,7 @@ async function getContents(code: string, isDevelopment: boolean) {
   return contents;
 }
 
-function getMapFromContents(contents: string): TranslationMap {
+function getMapFromContents(contents: string): LanguageMap {
   const lines: string[] = contents.split('\n').slice(1);
   return lines
     .map((l) => splitCsvLine(l) as string[])
@@ -62,7 +60,7 @@ function getMapFromContents(contents: string): TranslationMap {
       }
 
       return acc;
-    }, {} as TranslationMap);
+    }, {} as LanguageMap);
 }
 
 async function getContentsIfExists(code: string): Promise<string> {

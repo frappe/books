@@ -39,6 +39,7 @@
     "@types/assert": "^1.5.6",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/lodash": "^4.14.179",
+    "@types/luxon": "^2.3.1",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.23",
     "@typescript-eslint/eslint-plugin": "^4.15.1",

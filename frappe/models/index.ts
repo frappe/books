@@ -1,4 +1,4 @@
-import NumberSeries from './NumberSeries.js';
+import NumberSeries from './NumberSeries';
 import SystemSettings from './SystemSettings';
 
 export default {
