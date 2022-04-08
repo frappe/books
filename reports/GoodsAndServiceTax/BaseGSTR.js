@@ -39,18 +39,21 @@ class BaseGSTR {
   }
 
   async getRow(ledgerEntry) {
-    ledgerEntry = await frappe.getDoc(ledgerEntry.doctype, ledgerEntry.name);
+    ledgerEntry = await frappe.doc.getDoc(
+      ledgerEntry.doctype,
+      ledgerEntry.name
+    );
 
     const row = {};
     const { gstin } = frappe.AccountingSettings;
 
-    let party = await frappe.getDoc(
+    let party = await frappe.doc.getDoc(
       'Party',
       ledgerEntry.customer || ledgerEntry.supplier
     );
 
     if (party.address) {
-      let addressDetails = await frappe.getDoc('Address', party.address);
+      let addressDetails = await frappe.doc.getDoc('Address', party.address);
       row.place = addressDetails.pos || '';
     }
 

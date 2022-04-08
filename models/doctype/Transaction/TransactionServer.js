@@ -35,7 +35,10 @@ export default {
       outstandingAmount: this.baseGrandTotal,
     });
 
-    let party = await frappe.getDoc('Party', this.customer || this.supplier);
+    let party = await frappe.doc.getDoc(
+      'Party',
+      this.customer || this.supplier
+    );
     await party.updateOutstandingAmount();
   },
 
@@ -43,7 +46,7 @@ export default {
     let paymentRefList = await this.getPayments();
     for (let paymentFor of paymentRefList) {
       const paymentReference = paymentFor.parent;
-      const payment = await frappe.getDoc('Payment', paymentReference);
+      const payment = await frappe.doc.getDoc('Payment', paymentReference);
       const paymentEntries = await payment.getPosting();
       await paymentEntries.postReverse();
       // To set the payment status as unsubmitted.

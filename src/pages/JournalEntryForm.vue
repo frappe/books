@@ -192,7 +192,7 @@ export default {
   },
   async mounted() {
     try {
-      this.doc = await frappe.getDoc(this.doctype, this.name);
+      this.doc = await frappe.doc.getDoc(this.doctype, this.name);
       window.je = this.doc;
     } catch (error) {
       if (error instanceof frappe.errors.NotFoundError) {

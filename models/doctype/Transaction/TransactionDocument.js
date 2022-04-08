@@ -49,7 +49,8 @@ export default class TransactionDocument extends Document {
 
   async getTax(tax) {
     if (!this._taxes) this._taxes = {};
-    if (!this._taxes[tax]) this._taxes[tax] = await frappe.getDoc('Tax', tax);
+    if (!this._taxes[tax])
+      this._taxes[tax] = await frappe.doc.getDoc('Tax', tax);
     return this._taxes[tax];
   }
 

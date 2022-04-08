@@ -28,7 +28,7 @@ export default class PaymentServer extends Document {
     }
 
     const doctype = referenceType;
-    const doc = await frappe.getDoc(doctype, referenceName);
+    const doc = await frappe.doc.getDoc(doctype, referenceName);
 
     let party;
     let paymentType;
@@ -147,7 +147,7 @@ export default class PaymentServer extends Document {
       if (!['SalesInvoice', 'PurchaseInvoice'].includes(row.referenceType)) {
         continue;
       }
-      let referenceDoc = await frappe.getDoc(
+      let referenceDoc = await frappe.doc.getDoc(
         row.referenceType,
         row.referenceName
       );
@@ -175,7 +175,7 @@ export default class PaymentServer extends Document {
         let newOutstanding = outstandingAmount.sub(this.amount);
         await referenceDoc.set('outstandingAmount', newOutstanding);
         await referenceDoc.update();
-        let party = await frappe.getDoc('Party', this.party);
+        let party = await frappe.doc.getDoc('Party', this.party);
         await party.updateOutstandingAmount();
       }
     }
@@ -198,7 +198,7 @@ export default class PaymentServer extends Document {
 
   async updateReferenceOutstandingAmount() {
     await this.for.forEach(async ({ amount, referenceType, referenceName }) => {
-      const refDoc = await frappe.getDoc(referenceType, referenceName);
+      const refDoc = await frappe.doc.getDoc(referenceType, referenceName);
       refDoc.setMultiple({
         outstandingAmount: refDoc.outstandingAmount.add(amount),
       });

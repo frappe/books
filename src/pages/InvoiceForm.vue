@@ -205,11 +205,11 @@ import DropdownWithActions from '@/components/DropdownWithActions';
 import PageHeader from '@/components/PageHeader';
 import StatusBadge from '@/components/StatusBadge';
 import {
-  getActionsForDocument,
-  getInvoiceStatus,
-  openSettings,
-  routeTo,
-  showMessageDialog,
+getActionsForDocument,
+getInvoiceStatus,
+openSettings,
+routeTo,
+showMessageDialog
 } from '@/utils';
 import frappe from 'frappe';
 import { handleErrorWithDialog } from '../errorHandling';
@@ -263,7 +263,7 @@ export default {
   },
   async mounted() {
     try {
-      this.doc = await frappe.getDoc(this.doctype, this.name);
+      this.doc = await frappe.doc.getDoc(this.doctype, this.name);
       window.d = this.doc;
     } catch (error) {
       if (error instanceof frappe.errors.NotFoundError) {

@@ -3,6 +3,7 @@
   "label": "Ledger Entry",
   "isSingle": false,
   "isChild": false,
+  "naming": "autoincrement",
   "fields": [
     {
       "fieldname": "date",

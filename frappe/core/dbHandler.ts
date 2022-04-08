@@ -72,7 +72,7 @@ export class DatabaseHandler extends DatabaseBase {
 
   async getAll(
     schemaName: string,
-    options: GetAllOptions
+    options: GetAllOptions = {}
   ): Promise<DocValueMap[]> {
     const rawValueMap = (await this.#demux.call(
       'getAll',

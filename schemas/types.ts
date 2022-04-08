@@ -108,6 +108,7 @@ export type Field =
   | NumberField;
 
 export type TreeSettings = { parentField: string };
+export type Naming = 'autoincrement' | 'random' | 'numberSeries'
 
 export interface Schema {
   name: string;                  // Table name
@@ -123,6 +124,7 @@ export interface Schema {
   keywordFields?: string[];      // Used to get fields that are to be used for search.
   quickEditFields?: string[];    // Used to get fields for the quickEditForm
   treeSettings?: TreeSettings;   // Used to determine root nodes
+  naming?: Naming;               // Used for assigning name, default is 'random' else 'numberSeries' if present
 }
 
 export interface SchemaStub extends Partial<Schema> {

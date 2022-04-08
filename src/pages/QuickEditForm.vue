@@ -186,7 +186,7 @@ export default {
     },
     async fetchDoc() {
       try {
-        this.doc = await frappe.getDoc(this.doctype, this.name);
+        this.doc = await frappe.doc.getDoc(this.doctype, this.name);
 
         this.doc.once('afterRename', () => {
           openQuickEdit({
