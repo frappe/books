@@ -1,6 +1,7 @@
 {
   "name": "Party",
   "label": "Party",
+  "isAbstract": true,
   "fields": [
     {
       "fieldname": "name",
@@ -13,27 +14,6 @@
       "fieldname": "image",
       "label": "Image",
       "fieldtype": "AttachImage"
-    },
-    {
-      "fieldname": "role",
-      "label": "Role",
-      "fieldtype": "Select",
-      "default": "Both",
-      "options": [
-        {
-          "value": "Both",
-          "label": "Both"
-        },
-        {
-          "value": "Supplier",
-          "label": "Supplier"
-        },
-        {
-          "value": "Customer",
-          "label": "Customer"
-        }
-      ],
-      "required": true
     },
     {
       "fieldname": "defaultAccount",
@@ -76,7 +56,6 @@
   ],
   "quickEditFields": [
     "email",
-    "role",
     "phone",
     "address",
     "defaultAccount",
