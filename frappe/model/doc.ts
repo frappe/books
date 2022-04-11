@@ -29,8 +29,12 @@ import { setName } from './naming';
 import {
   DefaultMap,
   DependsOnMap,
+  FiltersMap,
   FormulaMap,
+  ListsMap,
+  ListViewSettings,
   RequiredMap,
+  TreeViewSettings,
   ValidationMap,
 } from './types';
 import { validateSelect } from './validationFunction';
@@ -697,4 +701,9 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   validations: ValidationMap = {};
   required: RequiredMap = {};
   dependsOn: DependsOnMap = {};
+
+  static lists: ListsMap = {};
+  static filters: FiltersMap = {};
+  static listSettings: ListViewSettings = {};
+  static treeSettings?: TreeViewSettings;
 }
