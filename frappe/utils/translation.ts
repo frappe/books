@@ -7,14 +7,17 @@ import {
 } from '../../scripts/helpers';
 import { ValueError } from './errors';
 
+type TranslationArgs = boolean | number | string;
+type TranslationLiteral = TemplateStringsArray | TranslationArgs;
+
 class TranslationString {
-  args: TemplateStringsArray;
-  argList?: string[];
+  args: TranslationLiteral[];
+  argList?: TranslationArgs[];
   strList?: string[];
   context?: string;
   languageMap?: LanguageMap;
 
-  constructor(...args: TemplateStringsArray) {
+  constructor(...args: TranslationLiteral[]) {
     this.args = args;
   }
 
@@ -27,7 +30,7 @@ class TranslationString {
     return this;
   }
 
-  #formatArg(arg: string) {
+  #formatArg(arg: string | number | boolean) {
     return arg ?? '';
   }
 
@@ -54,7 +57,7 @@ class TranslationString {
     }
 
     this.strList = this.args[0] as any as string[];
-    this.argList = this.args.slice(1);
+    this.argList = this.args.slice(1) as TranslationArgs[];
 
     if (this.languageMap) {
       this.#translate();
@@ -79,13 +82,11 @@ class TranslationString {
   }
 }
 
-export function T(...args: TemplateStringsArray): TranslationString {
-  // @ts-ignore
+export function T(...args: string[]): TranslationString {
   return new TranslationString(...args);
 }
 
-export function t(...args: TemplateStringsArray): string {
-  // @ts-ignore
+export function t(...args: TranslationLiteral[]): string {
   return new TranslationString(...args).s;
 }
 
