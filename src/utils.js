@@ -614,7 +614,3 @@ export function invertMap(map) {
 
   return inverted;
 }
-
-export function getPaddedName(prefix, next, padZeros) {
-  return prefix + next.toString().padStart(padZeros ?? 4, '0');
-}

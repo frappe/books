@@ -10,7 +10,7 @@ import Item from './app/Item.json';
 import JournalEntry from './app/JournalEntry.json';
 import JournalEntryAccount from './app/JournalEntryAccount.json';
 import NumberSeries from './app/NumberSeries.json';
-import Party from './tests/Party.json';
+import Party from './app/Party.json';
 import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
 import PrintSettings from './app/PrintSettings.json';

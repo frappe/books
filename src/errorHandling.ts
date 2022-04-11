@@ -1,23 +1,17 @@
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
-import Document from 'frappe/model/document';
+import Doc from 'frappe/model/doc';
 import {
   DuplicateEntryError,
   LinkValidationError,
   MandatoryError,
   ValidationError,
 } from 'frappe/utils/errors';
+import { ErrorLog } from 'frappe/utils/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import config, { ConfigKeys, TelemetrySetting } from './config';
 import telemetry from './telemetry/telemetry';
 import { showMessageDialog, showToast } from './utils';
-
-export interface ErrorLog {
-  name: string;
-  message: string;
-  stack?: string;
-  more?: Record<string, unknown>;
-}
 
 function getCanLog(): boolean {
   const telemetrySetting = config.get(ConfigKeys.Telemetry);
@@ -110,22 +104,23 @@ export function handleError(
   }
 }
 
-export function getErrorMessage(e: Error, doc?: Document): string {
+export function getErrorMessage(e: Error, doc?: Doc): string {
   let errorMessage = e.message || t`An error occurred.`;
 
-  const { doctype, name }: { doctype?: unknown; name?: unknown } = doc ?? {};
-  const canElaborate = !!(doctype && name);
+  const { schemaName, name }: { schemaName?: string; name?: string } =
+    doc ?? {};
+  const canElaborate = !!(schemaName && name);
 
   if (e instanceof LinkValidationError && canElaborate) {
-    errorMessage = t`${doctype} ${name} is linked with existing records.`;
+    errorMessage = t`${schemaName} ${name} is linked with existing records.`;
   } else if (e instanceof DuplicateEntryError && canElaborate) {
-    errorMessage = t`${doctype} ${name} already exists.`;
+    errorMessage = t`${schemaName} ${name} already exists.`;
   }
 
   return errorMessage;
 }
 
-export function handleErrorWithDialog(error: Error, doc?: Document) {
+export function handleErrorWithDialog(error: Error, doc?: Doc) {
   const errorMessage = getErrorMessage(error, doc);
   handleError(false, error, { errorMessage, doc });
 

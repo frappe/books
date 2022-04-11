@@ -1,4 +1,3 @@
-import { ErrorLog } from '@/errorHandling';
 import { getMoneyMaker, MoneyMaker } from 'pesa';
 import { markRaw } from 'vue';
 import { AuthHandler } from './core/authHandler';
@@ -14,6 +13,7 @@ import {
 import * as errors from './utils/errors';
 import { format } from './utils/format';
 import { t, T } from './utils/translation';
+import { ErrorLog } from './utils/types';
 
 /**
  * Terminology
