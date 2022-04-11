@@ -19,10 +19,10 @@
       "fieldtype": "Date"
     },
     {
-      "fieldname": "supplier",
-      "label": "Supplier",
+      "fieldname": "party",
+      "label": "Party",
       "fieldtype": "Link",
-      "target": "Supplier",
+      "target": "Party",
       "required": true
     },
     {
@@ -106,5 +106,5 @@
       "default": "PINV-"
     }
   ],
-  "keywordFields": ["name", "supplier", "numberSeries"]
+  "keywordFields": ["name", "party", "numberSeries"]
 }
