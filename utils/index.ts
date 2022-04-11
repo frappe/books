@@ -55,3 +55,16 @@ export function getListFromMap<T>(map: Record<string, T>): T[] {
 export function getIsNullOrUndef(value: unknown): boolean {
   return value === null || value === undefined;
 }
+
+export function titleCase(phrase: string): string {
+  return phrase
+    .split(' ')
+    .map((word) => {
+      const wordLower = word.toLowerCase();
+      if (['and', 'an', 'a', 'from', 'by', 'on'].includes(wordLower)) {
+        return wordLower;
+      }
+      return wordLower[0].toUpperCase() + wordLower.slice(1);
+    })
+    .join(' ');
+}

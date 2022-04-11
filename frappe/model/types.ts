@@ -1,6 +1,7 @@
 import { DocValue } from 'frappe/core/types';
 import { FieldType } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
+import { Router } from 'vue-router';
 import Doc from './doc';
 
 /**
@@ -39,8 +40,17 @@ export type DocMap = Record<string, Doc | undefined>;
 export type FilterFunction = (doc: Doc) => QueryFilter;
 export type FiltersMap = Record<string, FilterFunction>;
 
-export type ListFunction = () => string[];
+export type EmptyMessageFunction = (doc: Doc) => string;
+export type EmptyMessageMap = Record<string, EmptyMessageFunction>;
+
+export type ListFunction = (doc?: Doc) => string[];
 export type ListsMap = Record<string, ListFunction>;
+
+export interface Action {
+  label: string;
+  condition: (doc: Doc) => boolean;
+  action: (doc: Doc, router: Router) => Promise<void>;
+}
 
 export interface ColumnConfig {
   label: string;

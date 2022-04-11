@@ -423,19 +423,6 @@ export function showToast(props) {
   replaceAndAppendMount(toast, 'toast-target');
 }
 
-export function titleCase(phrase) {
-  return phrase
-    .split(' ')
-    .map((word) => {
-      const wordLower = word.toLowerCase();
-      if (['and', 'an', 'a', 'from', 'by', 'on'].includes(wordLower)) {
-        return wordLower;
-      }
-      return wordLower[0].toUpperCase() + wordLower.slice(1);
-    })
-    .join(' ');
-}
-
 export async function getIsSetupComplete() {
   try {
     const { setupComplete } = await frappe.getSingle('AccountingSettings');
