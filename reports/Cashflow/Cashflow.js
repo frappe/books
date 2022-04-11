@@ -1,29 +1,13 @@
 import frappe from 'frappe';
 import { DateTime } from 'luxon';
-import { getPeriodList, getFiscalYear } from '../FinancialStatements/FinancialStatements';
+import {
+  getFiscalYear,
+  getPeriodList,
+} from '../FinancialStatements/FinancialStatements';
 
 class Cashflow {
   async run({ fromDate, toDate, periodicity }) {
-    let cashAndBankAccounts = frappe.db
-      .knex('Account')
-      .select('name')
-      .where('accountType', 'in', ['Cash', 'Bank'])
-      .andWhere('isGroup', 0);
-    let dateAsMonthYear = frappe.db.knex.raw('strftime("%m-%Y", ??)', 'date');
-    let res = await frappe.db
-      .knex('AccountingLedgerEntry')
-      .where('reverted', 0)
-      .sum({
-        inflow: 'debit',
-        outflow: 'credit',
-      })
-      .select({
-        'month-year': dateAsMonthYear,
-      })
-      .where('account', 'in', cashAndBankAccounts)
-      .whereBetween('date', [fromDate, toDate])
-      .groupBy(dateAsMonthYear);
-
+    const res = await frappe.db.getCashflow(fromDate, toDate);
     let fiscalYear = await getFiscalYear();
     let periodList = getPeriodList(fromDate, toDate, periodicity, fiscalYear);
 

@@ -1,4 +1,5 @@
 import { Field, RawValue } from '../../schemas/types';
+import DatabaseCore from './core';
 import { DatabaseManager } from './manager';
 
 export interface GetQueryBuilderOptions {
@@ -43,3 +44,5 @@ export interface SqliteTableInfo {
   notnull: number; // 0 | 1
   dflt_value: string | null;
 }
+
+export type BespokeFunction = (db:DatabaseCore, ...args: unknown[]) => Promise<unknown>

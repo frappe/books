@@ -11,6 +11,10 @@ import {
   SingleValue,
 } from './types';
 
+type TopExpenses = { account: string; total: number }[];
+type TotalOutstanding = { total: number; outstanding: number };
+type Cashflow = { inflow: number; outflow: number; 'month-year': string }[];
+
 export class DatabaseHandler extends DatabaseBase {
   #frappe: Frappe;
   #demux: DatabaseDemuxBase;
@@ -74,13 +78,34 @@ export class DatabaseHandler extends DatabaseBase {
     schemaName: string,
     options: GetAllOptions = {}
   ): Promise<DocValueMap[]> {
-    const rawValueMap = (await this.#demux.call(
+    const rawValueMap = await this.#getAll(schemaName, options);
+    return this.#toDocValueMap(schemaName, rawValueMap) as DocValueMap[];
+  }
+
+  async getAllRaw(
+    schemaName: string,
+    options: GetAllOptions = {}
+  ): Promise<DocValueMap[]> {
+    return await this.#getAll(schemaName, options);
+  }
+
+  async count(
+    schemaName: string,
+    options: GetAllOptions = {}
+  ): Promise<number> {
+    const rawValueMap = await this.#getAll(schemaName, options);
+    return rawValueMap.length;
+  }
+
+  async #getAll(
+    schemaName: string,
+    options: GetAllOptions = {}
+  ): Promise<RawValueMap[]> {
+    return (await this.#demux.call(
       'getAll',
       schemaName,
       options
     )) as RawValueMap[];
-
-    return this.#toDocValueMap(schemaName, rawValueMap) as DocValueMap[];
   }
 
   async getSingleValues(
@@ -121,6 +146,43 @@ export class DatabaseHandler extends DatabaseBase {
 
   async exists(schemaName: string, name?: string): Promise<boolean> {
     return (await this.#demux.call('exists', schemaName, name)) as boolean;
+  }
+
+  /**
+   * Bespoke function
+   *
+   * These are functions to run custom queries that are too complex for
+   * DatabaseCore and require use of knex or raw queries.
+   *
+   * The query logic for these is in backend/database/bespoke.ts
+   */
+  async getTopExpenses(fromDate: string, toDate: string): Promise<TopExpenses> {
+    return (await this.#demux.callBespoke(
+      'getTopExpenses',
+      fromDate,
+      toDate
+    )) as TopExpenses;
+  }
+
+  async getTotalOutstanding(
+    schemaName: string,
+    fromDate: string,
+    toDate: string
+  ): Promise<TotalOutstanding> {
+    return (await this.#demux.callBespoke(
+      'getTotalOutstanding',
+      schemaName,
+      fromDate,
+      toDate
+    )) as TotalOutstanding;
+  }
+
+  async getCashflow(fromDate: string, toDate: string): Promise<Cashflow> {
+    return (await this.#demux.callBespoke(
+      'getCashflow',
+      fromDate,
+      toDate
+    )) as Cashflow;
   }
 
   #toDocValueMap(

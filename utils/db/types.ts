@@ -80,4 +80,6 @@ export abstract class DatabaseDemuxBase {
   abstract connectToDatabase(dbPath: string, countryCode?: string): Promise<void> 
 
   abstract call(method: DatabaseMethod, ...args: unknown[]): Promise<unknown> 
+  
+  abstract callBespoke(method: string, ...args: unknown[]): Promise<unknown>
 }

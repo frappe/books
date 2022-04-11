@@ -78,4 +78,20 @@ export class DatabaseDemux extends DatabaseDemuxBase {
 
     return response.data;
   }
+
+  async callBespoke(method: string, ...args: unknown[]): Promise<unknown> {
+    let response: DatabaseResponse;
+    if (this.#isElectron) {
+      response = await ipcRenderer.invoke(IPC_ACTIONS.DB_BESPOKE, method, ...args);
+    } else {
+      // TODO: API Call
+      response = { error: '', data: undefined };
+    }
+
+    if (response.error) {
+      throw new Error(response.error);
+    }
+
+    return response.data;
+  }
 }

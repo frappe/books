@@ -19,13 +19,13 @@ export default class PartyServer extends Document {
   async updateOutstandingAmount() {
     let isCustomer = this.customer;
     let doctype = isCustomer ? 'SalesInvoice' : 'PurchaseInvoice';
-    let partyField = isCustomer ? 'customer' : 'supplier';
 
-    const outstandingAmounts = await frappe.db.knex
-      .select('outstandingAmount')
-      .from(doctype)
-      .where('submitted', 1)
-      .andWhere(partyField, this.name);
+    const outstandingAmounts = (
+      await frappe.db.getAllRaw(doctype, {
+        fields: ['outstandingAmount', 'party'],
+        filters: { submitted: true },
+      })
+    ).filter(({ party }) => party === this.name);
 
     const totalOutstanding = outstandingAmounts
       .map(({ outstandingAmount }) => frappe.pesa(outstandingAmount))
