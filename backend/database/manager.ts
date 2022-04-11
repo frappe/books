@@ -3,9 +3,10 @@ import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
 import { databaseMethodSet } from '../helpers';
 import patches from '../patches';
+import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
 import { runPatches } from './runPatch';
-import { Patch } from './types';
+import { BespokeFunction, Patch } from './types';
 
 export class DatabaseManager extends DatabaseDemuxBase {
   db?: DatabaseCore;
@@ -50,6 +51,20 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }
 
     return response;
+  }
+
+  async callBespoke(method: string, ...args: unknown[]): Promise<unknown> {
+    if (!this.#isInitialized) {
+      return;
+    }
+
+    if (!BespokeQueries.hasOwnProperty(method)) {
+      return;
+    }
+
+    // @ts-ignore
+    const queryFunction: BespokeFunction = BespokeQueries[method];
+    return await queryFunction(this.db!, ...args);
   }
 
   async #migrate(): Promise<void> {

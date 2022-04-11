@@ -172,6 +172,20 @@ export default function registerIpcMainActionListeners(main: Main) {
     }
   );
 
+  ipcMain.handle(
+    IPC_ACTIONS.DB_BESPOKE,
+    async (_, method: string, ...args: unknown[]) => {
+      const response: DatabaseResponse = { error: '', data: undefined };
+      try {
+        response.data = await databaseManager.callBespoke(method, ...args);
+      } catch (error) {
+        response.error = error.toString();
+      }
+
+      return response;
+    }
+  );
+
   ipcMain.handle(IPC_ACTIONS.DB_SCHEMA, async (_) => {
     const response: DatabaseResponse = { error: '', data: undefined };
     response.data = await databaseManager.getSchemaMap();

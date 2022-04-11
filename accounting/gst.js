@@ -145,9 +145,10 @@ async function generateB2bData(rows) {
       itms: [],
     };
 
-    let items = await frappe.db
-      .knex('SalesInvoiceItem')
-      .where('parent', invRecord.inum);
+    const items = await frappe.db.getAllRaw('SalesInvoiceItem', {
+      fields: ['*'],
+      filters: { parent: invRecord.inum },
+    });
 
     items.forEach((item) => {
       const itemRecord = {
@@ -205,9 +206,10 @@ async function generateB2clData(invoices) {
       itms: [],
     };
 
-    let items = await frappe.db
-      .knex('SalesInvoiceItem')
-      .where('parent', invRecord.inum);
+    const items = await frappe.db.getAllRaw('SalesInvoiceItem', {
+      fields: ['*'],
+      filters: { parent: invRecord.inum },
+    });
 
     items.forEach((item) => {
       const itemRecord = {

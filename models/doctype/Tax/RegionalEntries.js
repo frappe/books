@@ -15,8 +15,7 @@ export default async function generateTaxes(country) {
         const name = `${type}-${percent}`;
 
         // Not cross checking cause hardcoded values.
-        await frappe.db.knex('Tax').where({ name }).del();
-        await frappe.db.knex('TaxDetail').where({ parent: name }).del();
+        await frappe.db.delete('Tax', name);
 
         const details = getTaxDetails(type, percent);
         await newTax.set({ name, details });

@@ -136,7 +136,10 @@ export async function checkIfExactRecordAbsent(docObject) {
   const { doctype, name } = docObject;
   const newDocObject = Object.assign({}, docObject);
   delete newDocObject.doctype;
-  const rows = await frappe.db.knex(doctype).where({ name });
+  const rows = await frappe.db.getAllRaw(doctype, {
+    fields: ['*'],
+    filters: { name },
+  });
 
   if (rows.length === 0) {
     return true;
@@ -150,7 +153,7 @@ export async function checkIfExactRecordAbsent(docObject) {
   });
 
   if (!matchList.every(Boolean)) {
-    await frappe.db.knex(doctype).where({ name }).del();
+    await frappe.db.delete(doctype, name);
     return true;
   }
 
@@ -168,9 +171,10 @@ async function checkAndCreateDoc(docObject) {
 }
 
 async function getBankAccountParentName(country) {
-  const parentBankAccount = await frappe.db
-    .knex('Account')
-    .where({ isGroup: true, accountType: 'Bank' });
+  const parentBankAccount = await frappe.db.getAllRaw('Account', {
+    fields: ['*'],
+    filters: { isGroup: true, accountType: 'Bank' },
+  });
 
   if (parentBankAccount.length === 0) {
     // This should not happen if the fixtures are correct.

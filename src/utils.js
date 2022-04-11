@@ -65,12 +65,22 @@ export function deleteDocWithPrompt(doc) {
 export async function cancelDocWithPrompt(doc) {
   let description = t`This action is permanent`;
   if (['SalesInvoice', 'PurchaseInvoice'].includes(doc.doctype)) {
-    const query = await frappe.db
-      .knex('PaymentFor')
-      .join('Payment', 'PaymentFor.parent', 'Payment.name')
-      .select('parent')
-      .where('cancelled', 0)
-      .where('referenceName', doc.name);
+    const payments = (
+      await frappe.db.getAll('Payment', {
+        fields: ['name'],
+        filters: { cancelled: false },
+      })
+    ).map(({ name }) => name);
+
+    const query = (
+      await frappe.db.getAll('PaymentFor', {
+        fields: ['parent'],
+        filters: {
+          referenceName: doc.name,
+        },
+      })
+    ).filter(({ parent }) => payments.includes(parent));
+
     const paymentList = [...new Set(query.map(({ parent }) => parent))];
 
     if (paymentList.length === 1) {

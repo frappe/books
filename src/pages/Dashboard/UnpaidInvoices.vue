@@ -1,7 +1,3 @@
-import Button from '@/components/Button'; import { routeTo } from '@/utils';
-import frappe from 'frappe'; import { getDatesAndPeriodicity } from
-'./getDatesAndPeriodicity'; import PeriodSelector from './PeriodSelector';
-import SectionHeader from './SectionHeader';
 <template>
   <div class="flex justify-between gap-10">
     <div
@@ -128,13 +124,11 @@ export default {
           this.$data[d.periodKey]
         );
 
-        let result = await frappe.db
-          .knex(d.doctype)
-          .sum({ total: 'baseGrandTotal' })
-          .sum({ outstanding: 'outstandingAmount' })
-          .where('submitted', 1)
-          .whereBetween('date', [fromDate, toDate])
-          .first();
+        let result = await frappe.db.getTotalOutstanding(
+          d.doctype,
+          fromDate,
+          toDate
+        );
 
         let { total, outstanding } = result;
         d.total = total ?? 0;

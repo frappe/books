@@ -319,51 +319,39 @@ export default {
       }
 
       if (!frappe.GetStarted.itemCreated) {
-        let { count } = (
-          await frappe.db.knex('Item').count('name as count')
-        )[0];
+        const count = await frappe.db.count('Item');
         if (count > 0) {
           toUpdate.itemCreated = 1;
         }
       }
 
       if (!frappe.GetStarted.invoiceCreated) {
-        let { count } = (
-          await frappe.db.knex('SalesInvoice').count('name as count')
-        )[0];
+        const count = await frappe.db.count('SalesInvoice');
         if (count > 0) {
           toUpdate.invoiceCreated = 1;
         }
       }
 
       if (!frappe.GetStarted.customerCreated) {
-        let { count } = (
-          await frappe.db
-            .knex('Party')
-            .where('customer', 1)
-            .count('name as count')
-        )[0];
+        const count = frappe.db.count('Party', {
+          filters: { role: 'Customer' },
+        });
         if (count > 0) {
           toUpdate.customerCreated = 1;
         }
       }
 
       if (!frappe.GetStarted.billCreated) {
-        let { count } = (
-          await frappe.db.knex('PurchaseInvoice').count('name as count')
-        )[0];
+        const count = await frappe.db.count('SalesInvoice');
         if (count > 0) {
           toUpdate.billCreated = 1;
         }
       }
 
       if (!frappe.GetStarted.supplierCreated) {
-        let { count } = (
-          await frappe.db
-            .knex('Party')
-            .where('supplier', 1)
-            .count('name as count')
-        )[0];
+        const count = frappe.db.count('Party', {
+          filters: { role: 'Supplier' },
+        });
         if (count > 0) {
           toUpdate.supplierCreated = 1;
         }

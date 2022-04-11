@@ -21,7 +21,9 @@
             <div class="w-3 h-3 rounded-sm" :class="d.class"></div>
             <div class="ml-3">{{ d.account }}</div>
           </div>
-          <p class="whitespace-nowrap">{{ frappe.format(d.total, 'Currency') }}</p>
+          <p class="whitespace-nowrap">
+            {{ frappe.format(d.total, 'Currency') }}
+          </p>
         </div>
       </div>
       <DonutChart
@@ -93,26 +95,7 @@ export default {
   methods: {
     async setData() {
       const { fromDate, toDate } = await getDatesAndPeriodicity(this.period);
-      const expenseAccounts = frappe.db.knex
-        .select('name')
-        .from('Account')
-        .where('rootType', 'Expense');
-
-      let topExpenses = await frappe.db.knex
-        .select({
-          total: frappe.db.knex.raw(
-            'sum(cast(?? as real)) - sum(cast(?? as real))',
-            ['debit', 'credit']
-          ),
-        })
-        .select('account')
-        .from('AccountingLedgerEntry')
-        .where('account', 'in', expenseAccounts)
-        .whereBetween('date', [fromDate, toDate])
-        .groupBy('account')
-        .orderBy('total', 'desc')
-        .limit(5);
-
+      let topExpenses = await frappe.db.getTopExpenses(fromDate, toDate);
       const shades = [
         { class: 'bg-gray-800', hex: theme.backgroundColor.gray['800'] },
         { class: 'bg-gray-600', hex: theme.backgroundColor.gray['600'] },

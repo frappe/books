@@ -97,9 +97,11 @@ export default {
       },
       formulaDependsOn: ['itemType'],
       async formula() {
-        const cogs = await frappe.db
-          .knex('Account')
-          .where({ accountType: 'Cost of Goods Sold' });
+        const cogs = await frappe.db.getAllRaw('Account', {
+          filters: {
+            accountType: 'Cost of Goods Sold',
+          },
+        });
         if (cogs.length === 0) {
           return '';
         } else {
