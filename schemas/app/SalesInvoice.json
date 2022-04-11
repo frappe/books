@@ -4,7 +4,7 @@
   "isSingle": false,
   "isChild": false,
   "isSubmittable": true,
-  "keywordFields": ["name", "customer"],
+  "keywordFields": ["name", "party"],
   "fields": [
     {
       "label": "Invoice No",
@@ -19,10 +19,10 @@
       "fieldtype": "Date"
     },
     {
-      "fieldname": "customer",
-      "label": "Customer",
+      "fieldname": "party",
+      "label": "Party",
       "fieldtype": "Link",
-      "target": "Customer",
+      "target": "Party",
       "required": true
     },
     {
