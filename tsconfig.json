@@ -18,6 +18,7 @@
       "@/*": ["src/*"],
       "schemas/*": ["schemas/*"],
       "backend/*": ["backend/*"],
+      "regional/*": ["regional/*"],
       "utils/*": ["utils/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]

@@ -27,8 +27,10 @@ import {
 } from './helpers';
 import { setName } from './naming';
 import {
+  Action,
   DefaultMap,
   DependsOnMap,
+  EmptyMessageMap,
   FiltersMap,
   FormulaMap,
   ListsMap,
@@ -504,7 +506,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async getValueFromFormula(field: Field, doc: Doc) {
-    let value: Doc[] | DocValue;
+    let value: Doc[] | DocValue | undefined;
 
     const formula = doc.formulas[field.fieldtype];
     if (formula === undefined) {
@@ -704,6 +706,9 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
   static lists: ListsMap = {};
   static filters: FiltersMap = {};
+  static emptyMessages: EmptyMessageMap = {};
   static listSettings: ListViewSettings = {};
   static treeSettings?: TreeViewSettings;
+
+  static actions: Action[] = [];
 }

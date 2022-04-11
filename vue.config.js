@@ -44,6 +44,7 @@ module.exports = {
       schemas: path.resolve(__dirname, './schemas'),
       backend: path.resolve(__dirname, './backend'),
       utils: path.resolve(__dirname, './utils'),
+      regional: path.resolve(__dirname, './regional'),
     });
 
     config.plugins.push(

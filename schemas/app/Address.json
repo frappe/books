@@ -83,5 +83,6 @@
     "state",
     "country",
     "postalCode"
-  ]
+  ],
+  "inlineEditDisplayField": "addressDisplay"
 }

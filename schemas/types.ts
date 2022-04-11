@@ -124,6 +124,7 @@ export interface Schema {
   keywordFields?: string[];      // Used to get fields that are to be used for search.
   quickEditFields?: string[];    // Used to get fields for the quickEditForm
   treeSettings?: TreeSettings;   // Used to determine root nodes
+  inlineEditDisplayField?:string,// Display field if inline editable
   naming?: Naming;               // Used for assigning name, default is 'random' else 'numberSeries' if present
 }
 
