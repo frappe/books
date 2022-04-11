@@ -1,5 +1,5 @@
-import { DatabaseDemux } from '@/demux/db';
 import { Frappe } from 'frappe';
+import { DatabaseDemux } from 'frappe/demux/db';
 import Money from 'pesa/dist/types/src/money';
 import { FieldType, FieldTypeEnum, RawValue, SchemaMap } from 'schemas/types';
 import { DatabaseBase, DatabaseDemuxBase, GetAllOptions } from 'utils/db/types';
@@ -11,6 +11,7 @@ import {
   SingleValue,
 } from './types';
 
+// Return types of Bespoke Queries
 type TopExpenses = { account: string; total: number }[];
 type TotalOutstanding = { total: number; outstanding: number };
 type Cashflow = { inflow: number; outflow: number; 'month-year': string }[];

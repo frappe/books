@@ -1,6 +1,9 @@
-import { getPaddedName } from '@/utils';
 import frappe from 'frappe';
 import Doc from 'frappe/model/doc';
+
+function getPaddedName(prefix: string, next: number, padZeros: number): string {
+  return prefix + next.toString().padStart(padZeros ?? 4, '0');
+}
 
 export default class NumberSeries extends Doc {
   validate() {
@@ -33,6 +36,6 @@ export default class NumberSeries extends Doc {
   }
 
   getPaddedName(next: number): string {
-    return getPaddedName(this.name, next, this.padZeros);
+    return getPaddedName(this.name as string, next, this.padZeros as number);
   }
 }

@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron';
 import { SchemaMap } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
+import { DatabaseResponse } from 'utils/ipc/types';
 import { IPC_ACTIONS } from 'utils/messages';
-import { DatabaseResponse } from '../../utils/ipc/types';
 
 export class DatabaseDemux extends DatabaseDemuxBase {
   #isElectron: boolean = false;
@@ -82,7 +82,11 @@ export class DatabaseDemux extends DatabaseDemuxBase {
   async callBespoke(method: string, ...args: unknown[]): Promise<unknown> {
     let response: DatabaseResponse;
     if (this.#isElectron) {
-      response = await ipcRenderer.invoke(IPC_ACTIONS.DB_BESPOKE, method, ...args);
+      response = await ipcRenderer.invoke(
+        IPC_ACTIONS.DB_BESPOKE,
+        method,
+        ...args
+      );
     } else {
       // TODO: API Call
       response = { error: '', data: undefined };
