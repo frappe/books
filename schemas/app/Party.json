@@ -72,15 +72,13 @@
       "target": "Address",
       "placeholder": "Click to create",
       "inline": true
+    },
+    {
+      "fieldname": "taxId",
+      "label": "Tax ID",
+      "fieldtype": "Data"
     }
   ],
-  "quickEditFields": [
-    "email",
-    "role",
-    "phone",
-    "address",
-    "defaultAccount",
-    "currency"
-  ],
+  "quickEditFields": ["email", "role", "phone", "address", "defaultAccount", "currency", "taxId"],
   "keywordFields": ["name"]
 }

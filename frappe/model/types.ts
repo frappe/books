@@ -20,12 +20,13 @@ export type Formula = () => Promise<DocValue | undefined>;
 export type Default = () => DocValue;
 export type Validation = (value: DocValue) => Promise<void>;
 export type Required = () => boolean;
+export type Hidden = () => boolean;
 
 export type FormulaMap = Record<string, Formula | undefined>;
 export type DefaultMap = Record<string, Default | undefined>;
 export type ValidationMap = Record<string, Validation | undefined>;
 export type RequiredMap = Record<string, Required | undefined>;
-
+export type HiddenMap = Record<string, Hidden>;
 export type DependsOnMap = Record<string, string[]>;
 
 /**
@@ -55,6 +56,7 @@ export interface Action {
 export interface ColumnConfig {
   label: string;
   fieldtype: FieldType;
+  fieldname?: string;
   size?: string;
   render?: (doc: Doc) => { template: string };
   getValue?: (doc: Doc) => string;
