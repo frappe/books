@@ -1,21 +1,36 @@
 import { LedgerPosting } from 'accounting/ledgerPosting';
 import frappe from 'frappe';
+import { DocValue } from 'frappe/core/types';
 import Doc from 'frappe/model/doc';
+import { DefaultMap, FiltersMap, FormulaMap } from 'frappe/model/types';
 import Money from 'pesa/dist/types/src/money';
 import { getExchangeRate } from '../../../accounting/exchangeRate';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
+import { TaxSummary } from '../TaxSummary/TaxSummary';
 
-export abstract class Transaction extends Doc {
+export abstract class Invoice extends Doc {
   _taxes: Record<string, Tax> = {};
+  taxes?: TaxSummary[];
 
-  abstract getPosting(): LedgerPosting;
+  party?: string;
+  account?: string;
+  currency?: string;
+  netTotal?: Money;
+  baseGrandTotal?: Money;
+  exchangeRate?: number;
+
+  abstract getPosting(): Promise<LedgerPosting>;
+
+  get isSales() {
+    return this.schemaName === 'SalesInvoice';
+  }
 
   async getPayments() {
     const payments = await frappe.db.getAll('PaymentFor', {
       fields: ['parent'],
-      filters: { referenceName: this.name as string },
+      filters: { referenceName: this.name! },
       orderBy: 'name',
     });
 
@@ -43,13 +58,10 @@ export abstract class Transaction extends Doc {
     // update outstanding amounts
     await frappe.db.update(this.schemaName, {
       name: this.name as string,
-      outstandingAmount: this.baseGrandTotal as Money,
+      outstandingAmount: this.baseGrandTotal!,
     });
 
-    const party = (await frappe.doc.getDoc(
-      'Party',
-      this.party as string
-    )) as Party;
+    const party = (await frappe.doc.getDoc('Party', this.party!)) as Party;
     await party.updateOutstandingAmount();
   }
 
@@ -87,7 +99,7 @@ export abstract class Transaction extends Doc {
       return 1.0;
     }
     return await getExchangeRate({
-      fromCurrency: this.currency as string,
+      fromCurrency: this.currency!,
       toCurrency: companyCurrency as string,
     });
   }
@@ -95,7 +107,13 @@ export abstract class Transaction extends Doc {
   async getTaxSummary() {
     const taxes: Record<
       string,
-      { account: string; rate: number; amount: Money; baseAmount?: Money }
+      {
+        account: string;
+        rate: number;
+        amount: Money;
+        baseAmount: Money;
+        [key: string]: DocValue;
+      }
     > = {};
 
     for (const row of this.items as Doc[]) {
@@ -112,6 +130,7 @@ export abstract class Transaction extends Doc {
           account,
           rate,
           amount: frappe.pesa(0),
+          baseAmount: frappe.pesa(0),
         };
 
         const amount = (row.amount as Money).mul(rate).div(100);
@@ -122,7 +141,7 @@ export abstract class Transaction extends Doc {
     return Object.keys(taxes)
       .map((account) => {
         const tax = taxes[account];
-        tax.baseAmount = tax.amount.mul(this.exchangeRate as number);
+        tax.baseAmount = tax.amount.mul(this.exchangeRate!);
         return tax;
       })
       .filter((tax) => !tax.amount.isZero());
@@ -139,6 +158,40 @@ export abstract class Transaction extends Doc {
   async getGrandTotal() {
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
-      .reduce((a, b) => a.add(b), this.netTotal as Money);
+      .reduce((a, b) => a.add(b), this.netTotal!);
   }
+
+  formulas: FormulaMap = {
+    account: async () =>
+      this.getFrom('Party', this.party!, 'defaultAccount') as string,
+    currency: async () =>
+      (this.getFrom('Party', this.party!, 'currency') as string) ||
+      (frappe.singles.AccountingSettings!.currency as string),
+    exchangeRate: async () => await this.getExchangeRate(),
+    netTotal: async () => this.getSum('items', 'amount', false),
+    baseNetTotal: async () => this.netTotal!.mul(this.exchangeRate!),
+    taxes: async () => await this.getTaxSummary(),
+    grandTotal: async () => await this.getGrandTotal(),
+    baseGrandTotal: async () =>
+      (this.grandTotal as Money).mul(this.exchangeRate!),
+    outstandingAmount: async () => {
+      if (this.submitted) {
+        return;
+      }
+
+      return this.baseGrandTotal!;
+    },
+  };
+
+  defaults: DefaultMap = {
+    date: () => new Date().toISOString().slice(0, 10),
+  };
+
+  static filters: FiltersMap = {
+    account: (doc: Doc) => ({
+      isGroup: false,
+      accountType: doc.isSales ? 'Receivable' : 'Payable',
+    }),
+    numberSeries: (doc: Doc) => ({ referenceType: doc.schemaName }),
+  };
 }

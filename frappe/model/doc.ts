@@ -33,6 +33,7 @@ import {
   EmptyMessageMap,
   FiltersMap,
   FormulaMap,
+  FormulaReturn,
   HiddenMap,
   ListsMap,
   ListViewSettings,
@@ -507,7 +508,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async getValueFromFormula(field: Field, doc: Doc) {
-    let value: Doc[] | DocValue | undefined;
+    let value: FormulaReturn;
 
     const formula = doc.formulas[field.fieldtype];
     if (formula === undefined) {
@@ -515,7 +516,6 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     }
 
     value = await formula();
-
     if (Array.isArray(value) && field.fieldtype === FieldTypeEnum.Table) {
       value = value.map((row) => this._initChild(row, field.fieldname));
     }

@@ -7,7 +7,7 @@ import {
 } from 'frappe/model/types';
 import { QueryFilter } from 'utils/db/types';
 
-export default class Account extends Doc {
+export class Account extends Doc {
   async beforeInsert() {
     if (this.accountType || !this.parentAccount) {
       return;
