@@ -50,3 +50,5 @@ export enum DoctypeName {
   PrintSettings = 'PrintSettings',
   GetStarted = 'GetStarted',
 }
+
+export type InvoiceStatus = 'Draft' | 'Unpaid' | 'Cancelled' | 'Paid';
