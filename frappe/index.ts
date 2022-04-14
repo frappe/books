@@ -72,6 +72,10 @@ export class Frappe {
     return this.doc.models;
   }
 
+  get singles() {
+    return this.doc.singles;
+  }
+
   get schemaMap() {
     return this.db.schemaMap;
   }
