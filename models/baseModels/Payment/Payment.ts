@@ -20,6 +20,8 @@ import { Party } from '../Party/Party';
 import { PaymentMethod, PaymentType } from './types';
 
 export class Payment extends Doc {
+  party?: string;
+
   async change({ changed }: { changed: string }) {
     switch (changed) {
       case 'for': {
@@ -59,7 +61,7 @@ export class Payment extends Doc {
       paymentType = 'Pay';
     }
 
-    this.party = party;
+    this.party = party as string;
     this.paymentType = paymentType;
   }
 
@@ -152,7 +154,7 @@ export class Payment extends Doc {
     const writeoff = this.writeoff as Money;
     const entries = new LedgerPosting({
       reference: this,
-      party: this.party as string,
+      party: this.party!,
     });
 
     await entries.debit(paymentAccount as string, amount.sub(writeoff));
@@ -164,7 +166,7 @@ export class Payment extends Doc {
 
     const writeoffEntry = new LedgerPosting({
       reference: this,
-      party: this.party as string,
+      party: this.party!,
     });
     const writeOffAccount = frappe.singles.AccountingSettings!
       .writeOffAccount as string;
@@ -227,10 +229,7 @@ export class Payment extends Doc {
         const newOutstanding = outstandingAmount.sub(amount);
         await referenceDoc.set('outstandingAmount', newOutstanding);
         await referenceDoc.update();
-        const party = (await frappe.doc.getDoc(
-          'Party',
-          this.party as string
-        )) as Party;
+        const party = (await frappe.doc.getDoc('Party', this.party!)) as Party;
 
         await party.updateOutstandingAmount();
       }

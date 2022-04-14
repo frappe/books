@@ -1,7 +1,7 @@
 import { openQuickEdit } from '@/utils';
 import frappe from 'frappe';
 import Doc from 'frappe/model/doc';
-import { Action } from 'frappe/model/types';
+import { Action, ColumnConfig } from 'frappe/model/types';
 import Money from 'pesa/dist/types/src/money';
 import { Router } from 'vue-router';
 import { InvoiceStatus } from './types';
@@ -26,12 +26,12 @@ export function getLedgerLinkAction(): Action {
   };
 }
 
-export function getTransactionActions(schemaName: string) {
+export function getTransactionActions(schemaName: string): Action[] {
   return [
     {
       label: frappe.t`Make Payment`,
       condition: (doc: Doc) =>
-        doc.submitted && (doc.outstandingAmount as Money).gt(0),
+        (doc.submitted as boolean) && (doc.outstandingAmount as Money).gt(0),
       action: async function makePayment(doc: Doc) {
         const payment = await frappe.doc.getEmptyDoc('Payment');
         payment.once('afterInsert', async () => {
@@ -64,8 +64,8 @@ export function getTransactionActions(schemaName: string) {
     },
     {
       label: frappe.t`Print`,
-      condition: (doc: Doc) => doc.submitted,
-      action(doc: Doc, router: Router) {
+      condition: (doc: Doc) => doc.submitted as boolean,
+      action: async (doc: Doc, router: Router) => {
         router.push({ path: `/print/${doc.doctype}/${doc.name}` });
       },
     },
@@ -73,7 +73,7 @@ export function getTransactionActions(schemaName: string) {
   ];
 }
 
-export function getTransactionStatusColumn() {
+export function getTransactionStatusColumn(): ColumnConfig {
   const statusMap = {
     Unpaid: frappe.t`Unpaid`,
     Paid: frappe.t`Paid`,

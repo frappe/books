@@ -64,6 +64,12 @@
       "fieldtype": "Currency",
       "computed": true,
       "readOnly": true
+    },
+    {
+      "fieldname": "hsnCode",
+      "label": "HSN/SAC",
+      "fieldtype": "Int",
+      "placeholder": "HSN/SAC Code"
     }
   ],
   "tableFields": ["item", "tax", "quantity", "rate", "amount"]

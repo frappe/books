@@ -1,4 +1,4 @@
-import { DocValue } from 'frappe/core/types';
+import { DocValue, DocValueMap } from 'frappe/core/types';
 import { FieldType } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 import { Router } from 'vue-router';
@@ -16,7 +16,8 @@ import Doc from './doc';
  * - `Validation`: Async function that throw an error if the value is invalid.
  * - `Required`: Regular function used to decide if a value is mandatory (there are !notnul in the db).
  */
-export type Formula = () => Promise<DocValue | undefined>;
+export type FormulaReturn = DocValue | DocValueMap[] | undefined | Doc[];
+export type Formula = () => Promise<FormulaReturn> | FormulaReturn;
 export type Default = () => DocValue;
 export type Validation = (value: DocValue) => Promise<void>;
 export type Required = () => boolean;
