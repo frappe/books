@@ -1,6 +1,8 @@
 import frappe from 'frappe';
 
-export default async function generateTaxes(country) {
+export type TaxType = 'GST' | 'IGST' | 'Exempt-GST' | 'Exempt-IGST';
+
+export default async function generateTaxes(country: string) {
   if (country === 'India') {
     const GSTs = {
       GST: [28, 18, 12, 6, 5, 3, 0.25, 0],
@@ -8,16 +10,16 @@ export default async function generateTaxes(country) {
       'Exempt-GST': [0],
       'Exempt-IGST': [0],
     };
-    let newTax = await frappe.getEmptyDoc('Tax');
+    const newTax = await frappe.doc.getEmptyDoc('Tax');
 
     for (const type of Object.keys(GSTs)) {
-      for (const percent of GSTs[type]) {
+      for (const percent of GSTs[type as TaxType]) {
         const name = `${type}-${percent}`;
 
         // Not cross checking cause hardcoded values.
         await frappe.db.delete('Tax', name);
 
-        const details = getTaxDetails(type, percent);
+        const details = getTaxDetails(type as TaxType, percent);
         await newTax.set({ name, details });
         await newTax.insert();
       }
@@ -25,7 +27,7 @@ export default async function generateTaxes(country) {
   }
 }
 
-function getTaxDetails(type, percent) {
+function getTaxDetails(type: TaxType, percent: number) {
   if (type === 'GST') {
     return [
       {

@@ -1,25 +1,45 @@
 import frappe from 'frappe';
 import { DateTime } from 'luxon';
 
-export async function getExchangeRate({ fromCurrency, toCurrency, date }) {
+export async function getExchangeRate({
+  fromCurrency,
+  toCurrency,
+  date,
+}: {
+  fromCurrency: string;
+  toCurrency: string;
+  date?: string;
+}) {
   if (!date) {
     date = DateTime.local().toISODate();
   }
+
   if (!fromCurrency || !toCurrency) {
     throw new frappe.errors.NotFoundError(
       'Please provide `fromCurrency` and `toCurrency` to get exchange rate.'
     );
   }
-  let cacheKey = `currencyExchangeRate:${date}:${fromCurrency}:${toCurrency}`;
-  let exchangeRate = parseFloat(localStorage.getItem(cacheKey));
+
+  const cacheKey = `currencyExchangeRate:${date}:${fromCurrency}:${toCurrency}`;
+
+  let exchangeRate = 0;
+  if (localStorage) {
+    exchangeRate = parseFloat(
+      localStorage.getItem(cacheKey as string) as string
+    );
+  }
+
   if (!exchangeRate) {
     try {
-      let res = await fetch(
+      const res = await fetch(
         ` https://api.vatcomply.com/rates?date=${date}&base=${fromCurrency}&symbols=${toCurrency}`
       );
-      let data = await res.json();
+      const data = await res.json();
       exchangeRate = data.rates[toCurrency];
-      localStorage.setItem(cacheKey, exchangeRate);
+
+      if (localStorage) {
+        localStorage.setItem(cacheKey, String(exchangeRate));
+      }
     } catch (error) {
       console.error(error);
       throw new Error(
@@ -27,5 +47,6 @@ export async function getExchangeRate({ fromCurrency, toCurrency, date }) {
       );
     }
   }
+
   return exchangeRate;
 }
