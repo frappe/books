@@ -64,7 +64,7 @@ export interface GetAllOptions {
 
 export type QueryFilter = Record<
   string,
-  boolean | string | (string | number)[]
+  boolean | string | (string | number | (string | number)[])[]
 >;
 
 /**

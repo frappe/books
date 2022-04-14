@@ -424,19 +424,22 @@ export default class DatabaseCore extends DatabaseBase {
 
     for (const field in filters) {
       const value = filters[field];
-      let operator = '=';
-      let comparisonValue = value;
+      let operator: string | number = '=';
+      let comparisonValue = value as string | number | (string | number)[];
 
       if (Array.isArray(value)) {
-        operator = value[0];
-        comparisonValue = value[1];
+        operator = value[0] as string;
+        comparisonValue = value[1] as string | number | (string | number)[];
         operator = operator.toLowerCase();
 
         if (operator === 'includes') {
           operator = 'like';
         }
 
-        if (operator === 'like' && !comparisonValue.includes('%')) {
+        if (
+          operator === 'like' &&
+          !(comparisonValue as (string | number)[]).includes('%')
+        ) {
           comparisonValue = `%${comparisonValue}%`;
         }
       }
@@ -452,11 +455,14 @@ export default class DatabaseCore extends DatabaseBase {
     }
 
     filtersArray.map((filter) => {
-      const [field, operator, comparisonValue] = filter;
+      const field = filter[0] as string;
+      const operator = filter[1];
+      const comparisonValue = filter[2];
+
       if (operator === '=') {
-        builder.where(field as string, comparisonValue);
+        builder.where(field, comparisonValue);
       } else {
-        builder.where(field as string, operator as string, comparisonValue);
+        builder.where(field, operator as string, comparisonValue as string);
       }
     });
   }

@@ -9,7 +9,7 @@ import {
 import { PartyRole } from './types';
 
 export class Party extends Doc {
-  async updateOutstandingAmounts() {
+  async updateOutstandingAmount() {
     const role = this.role as PartyRole;
     switch (role) {
       case 'Customer':
@@ -72,7 +72,10 @@ export class Party extends Doc {
     defaultAccount: (doc: Doc) => {
       const role = doc.role as PartyRole;
       if (role === 'Both') {
-        return { isGroup: false, accountType: ['Payable', 'Receivable'] };
+        return {
+          isGroup: false,
+          accountType: ['in', ['Payable', 'Receivable']],
+        };
       }
 
       return {
