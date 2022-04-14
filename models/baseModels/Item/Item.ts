@@ -63,7 +63,7 @@ export class Item extends Doc {
     },
   };
 
-  actions: Action[] = [
+  static actions: Action[] = [
     {
       label: frappe.t`New Invoice`,
       condition: (doc) => !doc.isNew,

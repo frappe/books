@@ -33,6 +33,7 @@ import {
   EmptyMessageMap,
   FiltersMap,
   FormulaMap,
+  HiddenMap,
   ListsMap,
   ListViewSettings,
   RequiredMap,
@@ -702,6 +703,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   defaults: DefaultMap = {};
   validations: ValidationMap = {};
   required: RequiredMap = {};
+  hidden: HiddenMap = {};
   dependsOn: DependsOnMap = {};
 
   static lists: ListsMap = {};

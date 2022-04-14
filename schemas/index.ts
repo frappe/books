@@ -18,7 +18,36 @@ export function getSchemas(countryCode: string = '-'): Readonly<SchemaMap> {
 
   let schemaMap = Object.assign({}, builtAppSchemas, builtCoreSchemas);
   schemaMap = addMetaFields(schemaMap);
+  schemaMap = removeFields(schemaMap);
+
   deepFreeze(schemaMap);
+  return schemaMap;
+}
+
+function removeFields(schemaMap: SchemaMap): SchemaMap {
+  for (const schemaName in schemaMap) {
+    const schema = schemaMap[schemaName]!;
+    if (schema.removeFields === undefined) {
+      continue;
+    }
+
+    for (const fieldname of schema.removeFields) {
+      schema.fields = schema.fields.filter((f) => f.fieldname !== fieldname);
+      schema.tableFields = schema.tableFields?.filter((fn) => fn !== fieldname);
+      schema.quickEditFields = schema.quickEditFields?.filter(
+        (fn) => fn !== fieldname
+      );
+      schema.keywordFields = schema.keywordFields?.filter(
+        (fn) => fn !== fieldname
+      );
+      if (schema.inlineEditDisplayField === fieldname) {
+        delete schema.inlineEditDisplayField;
+      }
+    }
+
+    delete schema.removeFields;
+  }
+
   return schemaMap;
 }
 

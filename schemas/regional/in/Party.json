@@ -36,5 +36,6 @@
     "currency",
     "gstType",
     "gstin"
-  ]
+  ],
+  "removeFields": ["taxId"]
 }
