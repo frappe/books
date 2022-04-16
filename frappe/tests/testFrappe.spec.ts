@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import 'mocha';
-import { DatabaseManager } from '../backend/database/manager';
-import { Frappe } from '../frappe';
+import { DatabaseManager } from '../../backend/database/manager';
+import { Frappe } from '..';
 
 describe('Frappe', function () {
   const frappe = new Frappe(DatabaseManager);
