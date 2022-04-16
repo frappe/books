@@ -25,10 +25,11 @@ export class DatabaseManager extends DatabaseDemuxBase {
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {
+    countryCode ??= await DatabaseCore.getCountryCode(dbPath);
+
     this.db = new DatabaseCore(dbPath);
     this.db.connect();
 
-    countryCode ??= await this.#getCountryCode();
     const schemaMap = getSchemas(countryCode);
     this.db.setSchemaMap(schemaMap);
 
@@ -100,28 +101,6 @@ export class DatabaseManager extends DatabaseDemuxBase {
     );
     const executedPatches = query.map((q) => q.name);
     return patches.filter((p) => !executedPatches.includes(p.name));
-  }
-
-  async #getCountryCode(): Promise<string | undefined> {
-    if (this.db === undefined) {
-      return undefined;
-    }
-
-    let query: { countryCode: string }[] = [];
-    try {
-      query = await this.db.knex!('SingleValue').where({
-        fieldname: 'countryCode',
-        parent: 'SystemSettings',
-      });
-    } catch {
-      // Database not inialized and no countryCode passed
-    }
-
-    if (query.length > 0) {
-      return query[0].countryCode as string;
-    }
-
-    return undefined;
   }
 
   async #unlinkIfExists(dbPath: string) {
