@@ -29,7 +29,7 @@ import { ColumnDiff, FieldValueMap, GetQueryBuilderOptions } from './types';
  *
  * 1. Init core: `const db = new DatabaseCore(dbPath)`.
  * 2. Connect db: `db.connect()`. This will allow for raw queries to be executed.
- * 3. Set schemas: `bb.setSchemaMap(schemaMap)`. This will allow for ORM functions to be executed.
+ * 3. Set schemas: `db.setSchemaMap(schemaMap)`. This will allow for ORM functions to be executed.
  * 4. Migrate: `await db.migrate()`. This will create absent tables and update the tables' shape.
  * 5. ORM function execution: `db.get(...)`, `db.insert(...)`, etc.
  * 6. Close connection: `await db.close()`.
@@ -63,6 +63,29 @@ export default class DatabaseCore extends DatabaseBase {
       useNullAsDefault: true,
       asyncStackTraces: process.env.NODE_ENV === 'development',
     };
+  }
+
+  static async getCountryCode(dbPath: string): Promise<string> {
+    let countryCode = 'in';
+    const db = new DatabaseCore(dbPath);
+    db.connect();
+
+    let query: { countryCode: string }[] = [];
+    try {
+      query = await db.knex!('SingleValue').where({
+        fieldname: 'countryCode',
+        parent: 'SystemSettings',
+      });
+    } catch {
+      // Database not inialized and no countryCode passed
+    }
+
+    if (query.length > 0) {
+      countryCode = query[0].countryCode as string;
+    }
+
+    await db.close();
+    return countryCode;
   }
 
   setSchemaMap(schemaMap: SchemaMap) {
