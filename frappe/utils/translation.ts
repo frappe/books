@@ -4,7 +4,7 @@ import {
   getIndexList,
   getSnippets,
   getWhitespaceSanitized,
-} from '../../scripts/helpers';
+} from '../../utils/translationHelpers';
 import { ValueError } from './errors';
 
 type TranslationArgs = boolean | number | string;
@@ -35,7 +35,7 @@ class TranslationString {
   }
 
   #translate() {
-    let indexFormat = getIndexFormat(this.args[0]);
+    let indexFormat = getIndexFormat(this.args[0] as string);
     indexFormat = getWhitespaceSanitized(indexFormat);
 
     const translatedIndexFormat =
