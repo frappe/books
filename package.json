@@ -15,7 +15,7 @@
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
-    "script:translate": "node scripts/generateTranslations.js",
+    "script:translate": "ts-node -O '{\"module\":\"commonjs\"}' scripts/generateTranslations.ts",
     "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha --reporter nyan --require ts-node/register --require tsconfig-paths/register ./**/tests/**/*.spec.ts"
   },
   "dependencies": {

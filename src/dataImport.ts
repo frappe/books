@@ -3,7 +3,7 @@ import { DocValueMap } from 'frappe/core/types';
 import Doc from 'frappe/model/doc';
 import { isNameAutoSet } from 'frappe/model/naming';
 import { FieldType, FieldTypeEnum } from 'schemas/types';
-import { parseCSV } from './csvParser';
+import { parseCSV } from '../utils/csvParser';
 import telemetry from './telemetry/telemetry';
 import { Noun, Verb } from './telemetry/types';
 
@@ -426,11 +426,11 @@ export class Importer {
   }
 
   handleError(doc: Doc, err: Error, status: Status): Status {
-    const messages = [frappe.t`Could not import ${this.doctype} ${doc.name}.`];
+    const messages = [frappe.t`Could not import ${this.doctype} ${doc.name!}.`];
 
     const message = err.message;
     if (message?.includes('UNIQUE constraint failed')) {
-      messages.push(frappe.t`${doc.name} already exists.`);
+      messages.push(frappe.t`${doc.name!} already exists.`);
     } else if (message) {
       messages.push(message);
     }

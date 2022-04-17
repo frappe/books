@@ -1,9 +1,11 @@
-function getIndexFormat(inp) {
+export function getIndexFormat(inp: string | string[]) {
   // converts:
   // ['This is an ', ,' interpolated ',' string.'] and
   // 'This is an ${variableA} interpolated ${variableB} string.'
   // to 'This is an ${0} interpolated ${1} string.'
-  let string, snippets;
+  let string: string | undefined = undefined;
+  let snippets: string[] | undefined = undefined;
+
   if (typeof inp === 'string') {
     string = inp;
   } else if (inp instanceof Array) {
@@ -13,7 +15,7 @@ function getIndexFormat(inp) {
   }
 
   if (snippets === undefined) {
-    snippets = getSnippets(string);
+    snippets = getSnippets(string as string);
   }
 
   if (snippets.length === 1) {
@@ -22,41 +24,45 @@ function getIndexFormat(inp) {
 
   let str = '';
   snippets.forEach((s, i) => {
-    if (i === snippets.length - 1) {
+    if (i === snippets!.length - 1) {
       str += s;
       return;
     }
     str += s + '${' + i + '}';
   });
+
   return str;
 }
 
-function getSnippets(string) {
+export function getSnippets(str: string) {
   let start = 0;
-  const snippets = [...string.matchAll(/\${[^}]+}/g)].map((m) => {
-    let end = m.index;
-    let snip = string.slice(start, end);
+  const snippets = [...str.matchAll(/\${[^}]+}/g)].map((m) => {
+    const end = m.index;
+    if (end === undefined) {
+      return '';
+    }
+    const snip = str.slice(start, end);
     start = end + m[0].length;
     return snip;
   });
 
-  snippets.push(string.slice(start));
+  snippets.push(str.slice(start));
   return snippets;
 }
 
-function getWhitespaceSanitized(s) {
-  return s.replace(/\s+/g, ' ').trim();
+export function getWhitespaceSanitized(str: string) {
+  return str.replace(/\s+/g, ' ').trim();
 }
 
-function getIndexList(s) {
-  return [...s.matchAll(/\${([^}]+)}/g)].map(([_, i]) => parseInt(i));
+export function getIndexList(str: string) {
+  return [...str.matchAll(/\${([^}]+)}/g)].map(([_, i]) => parseInt(i));
 }
 
-function wrap(s) {
-  return '`' + s + '`';
+export function wrap(str: string) {
+  return '`' + str + '`';
 }
 
-function splitCsvLine(line) {
+export function splitCsvLine(line: string) {
   let t = true;
   const chars = [...line];
   const indices = chars
@@ -82,12 +88,3 @@ function splitCsvLine(line) {
   splits.push(line.slice(s).trim());
   return splits.filter((s) => s !== ',' && s !== '');
 }
-
-module.exports = {
-  getIndexFormat,
-  getWhitespaceSanitized,
-  getSnippets,
-  getIndexList,
-  wrap,
-  splitCsvLine,
-};

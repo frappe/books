@@ -1,25 +1,29 @@
-const fs = require('fs/promises');
-const path = require('path');
-const {
+import fs from 'fs/promises';
+import path from 'path';
+import {
   getIndexFormat,
   getWhitespaceSanitized,
-  wrap,
   splitCsvLine,
-} = require('./helpers');
+  wrap,
+} from '../utils/translationHelpers';
 
 const translationsFolder = path.resolve(__dirname, '..', 'translations');
 const PATTERN = /(?<!\w)t`([^`]+)`/g;
 
-function shouldIgnore(p, ignoreList) {
-  return ignoreList.includes(p.split(path.sep).at(-1));
+function shouldIgnore(p: string, ignoreList: string[]): boolean {
+  const name = p.split(path.sep).at(-1) ?? '';
+  return ignoreList.includes(name);
 }
 
-async function getFileList(root, ignoreList) {
-  const contents = await fs.readdir(root);
-  const files = [];
-  const promises = [];
+async function getFileList(
+  root: string,
+  ignoreList: string[]
+): Promise<string[]> {
+  const contents: string[] = await fs.readdir(root);
+  const files: string[] = [];
+  const promises: Promise<void>[] = [];
 
-  for (let c of contents) {
+  for (const c of contents) {
     const absPath = path.resolve(root, c);
     const isDir = (await fs.stat(absPath)).isDirectory();
 
@@ -37,12 +41,12 @@ async function getFileList(root, ignoreList) {
   return files;
 }
 
-async function getFileContents(fileList) {
-  const contents = [];
-  const promises = [];
-  for (let file of fileList) {
-    const pr = fs.readFile(file, { encoding: 'utf-8' }).then((c) => {
-      contents.push([file, c]);
+async function getFileContents(fileList: string[]): Promise<Content[]> {
+  const contents: Content[] = [];
+  const promises: Promise<void>[] = [];
+  for (const fileName of fileList) {
+    const pr = fs.readFile(fileName, { encoding: 'utf-8' }).then((content) => {
+      contents.push({ fileName, content });
     });
     promises.push(pr);
   }
@@ -50,16 +54,18 @@ async function getFileContents(fileList) {
   return contents;
 }
 
-async function getAllTStringsMap(contents) {
-  const strings = new Map();
-  const promises = [];
+async function getAllTStringsMap(
+  contents: Content[]
+): Promise<Map<string, string[]>> {
+  const strings: Map<string, string[]> = new Map();
+  const promises: Promise<void>[] = [];
 
-  contents.forEach(([f, c]) => {
-    const pr = getTStrings(c).then((ts) => {
+  contents.forEach(({ fileName, content }) => {
+    const pr = getTStrings(content).then((ts) => {
       if (ts.length === 0) {
         return;
       }
-      strings.set(f, ts);
+      strings.set(fileName, ts);
     });
     promises.push(pr);
   });
@@ -68,24 +74,24 @@ async function getAllTStringsMap(contents) {
   return strings;
 }
 
-function getTStrings(content) {
+function getTStrings(content: string): Promise<string[]> {
   return new Promise((resolve) => {
     const tStrings = tStringFinder(content);
     resolve(tStrings);
   });
 }
 
-function tStringFinder(content) {
+function tStringFinder(content: string): string[] {
   return [...content.matchAll(PATTERN)].map(([_, t]) => {
     t = getIndexFormat(t);
     return getWhitespaceSanitized(t);
   });
 }
 
-function mapToTStringArray(tMap) {
-  const tSet = new Set();
-  for (let k of tMap.keys()) {
-    tMap.get(k).forEach((s) => tSet.add(s));
+function mapToTStringArray(tMap: Map<string, string[]>): string[] {
+  const tSet: Set<string> = new Set();
+  for (const k of tMap.keys()) {
+    tMap.get(k)!.forEach((s) => tSet.add(s));
   }
   const tArray = [...tSet];
   return tArray.sort();
@@ -129,14 +135,14 @@ function getLanguageCode() {
   return process.argv[i + 1] ?? '';
 }
 
-function getTranslationFilePath(languageCode) {
+function getTranslationFilePath(languageCode: string) {
   return path.resolve(translationsFolder, `${languageCode}.csv`);
 }
 
-async function regenerateTranslation(tArray, path) {
+async function regenerateTranslation(tArray: string[], path: string) {
   // Removes old strings, adds new strings
   const contents = await fs.readFile(path, { encoding: 'utf-8' });
-  const map = new Map();
+  const map: Map<string, string[]> = new Map();
 
   // Populate map
   contents
@@ -162,9 +168,9 @@ async function regenerateTranslation(tArray, path) {
   console.log(`\tregenerated: ${path}`);
 }
 
-async function regenerateTranslations(languageCode, tArray) {
+async function regenerateTranslations(languageCode: string, tArray: string[]) {
   // regenerate one file
-  if (languageCode) {
+  if (languageCode.length === 0) {
     const path = getTranslationFilePath(languageCode);
     regenerateTranslation(tArray, path);
     return;
@@ -180,7 +186,7 @@ async function regenerateTranslations(languageCode, tArray) {
   );
 }
 
-async function writeTranslations(languageCode, tArray) {
+async function writeTranslations(languageCode: string, tArray: string[]) {
   const path = getTranslationFilePath(languageCode);
   try {
     const stat = await fs.stat(path);
@@ -194,7 +200,7 @@ async function writeTranslations(languageCode, tArray) {
     );
     regenerateTranslations(languageCode, tArray);
   } catch (err) {
-    if (err.errno !== -2) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
       throw err;
     }
 
@@ -203,6 +209,8 @@ async function writeTranslations(languageCode, tArray) {
     console.log(`Generated translation file for '${languageCode}': ${path}`);
   }
 }
+
+type Content = { fileName: string; content: string };
 
 async function run() {
   if (printHelp()) {
@@ -214,15 +222,15 @@ async function run() {
   const languageCode = getLanguageCode();
 
   console.log();
-  const fileList = await getFileList(root, ignoreList);
-  const contents = await getFileContents(fileList);
-  const tMap = await getAllTStringsMap(contents);
-  const tArray = mapToTStringArray(tMap);
+  const fileList: string[] = await getFileList(root, ignoreList);
+  const contents: Content[] = await getFileContents(fileList);
+  const tMap: Map<string, string[]> = await getAllTStringsMap(contents);
+  const tArray: string[] = mapToTStringArray(tMap);
 
   try {
     await fs.stat(translationsFolder);
   } catch (err) {
-    if (err.errno !== -2) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
       throw err;
     }
 
