@@ -19,9 +19,10 @@ export class DatabaseManager extends DatabaseDemuxBase {
     return this.db?.schemaMap ?? {};
   }
 
-  async createNewDatabase(dbPath: string, countryCode?: string) {
+  async createNewDatabase(dbPath: string, countryCode: string) {
     await this.#unlinkIfExists(dbPath);
     await this.connectToDatabase(dbPath, countryCode);
+    return countryCode;
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {
@@ -34,6 +35,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
     this.db.setSchemaMap(schemaMap);
 
     await this.#migrate();
+    return countryCode;
   }
 
   async call(method: DatabaseMethod, ...args: unknown[]) {

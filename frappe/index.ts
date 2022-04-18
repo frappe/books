@@ -5,8 +5,8 @@ import { DatabaseHandler } from './core/dbHandler';
 import { DocHandler } from './core/docHandler';
 import { DatabaseDemuxConstructor } from './core/types';
 import { ModelMap } from './model/types';
-import coreModels from './models';
 import {
+  DEFAULT_CURRENCY,
   DEFAULT_DISPLAY_PRECISION,
   DEFAULT_INTERNAL_PRECISION,
 } from './utils/consts';
@@ -15,13 +15,6 @@ import { format } from './utils/format';
 import { t, T } from './utils/translation';
 import { ErrorLog } from './utils/types';
 
-/**
- * Terminology
- * - Schema: object that defines shape of the data in the database
- * - Model: the controller class that extends the Doc class or the Doc
- *    class itself.
- * - Doc: instance of a Model, i.e. what has the data.
- */
 
 export class Frappe {
   t = t;
@@ -81,18 +74,20 @@ export class Frappe {
   }
 
   async initializeAndRegister(
-    customModels: ModelMap = {},
+    models: ModelMap = {},
+    regionalModels: ModelMap = {},
     force: boolean = false
   ) {
-    await this.init(force);
-
-    this.doc.registerModels(coreModels as ModelMap);
-    this.doc.registerModels(customModels);
-  }
-
-  async init(force?: boolean) {
     if (this._initialized && !force) return;
 
+    await this.#initializeModules();
+    await this.#initializeMoneyMaker();
+
+    this.doc.registerModels(models, regionalModels);
+    this._initialized = true;
+  }
+
+  async #initializeModules() {
     this.methods = {};
     this.errorLog = [];
 
@@ -102,11 +97,9 @@ export class Frappe {
     await this.doc.init();
     await this.auth.init();
     await this.db.init();
-    this._initialized = true;
   }
 
-  async initializeMoneyMaker(currency: string = 'XXX') {
-    // to be called after db initialization
+  async #initializeMoneyMaker() {
     const values =
       (await this.db?.getSingleValues(
         {
@@ -116,6 +109,10 @@ export class Frappe {
         {
           fieldname: 'displayPrecision',
           parent: 'SystemSettings',
+        },
+        {
+          fieldname: 'currency',
+          parent: 'SystemSettings',
         }
       )) ?? [];
 
@@ -124,18 +121,11 @@ export class Frappe {
       return acc;
     }, {} as Record<string, string | number | undefined>);
 
-    let precision: string | number =
-      acc.internalPrecision ?? DEFAULT_INTERNAL_PRECISION;
-    let display: string | number =
-      acc.displayPrecision ?? DEFAULT_DISPLAY_PRECISION;
-
-    if (typeof precision === 'string') {
-      precision = parseInt(precision);
-    }
-
-    if (typeof display === 'string') {
-      display = parseInt(display);
-    }
+    const precision: number =
+      (acc.internalPrecision as number) ?? DEFAULT_INTERNAL_PRECISION;
+    const display: number =
+      (acc.displayPrecision as number) ?? DEFAULT_DISPLAY_PRECISION;
+    const currency: string = (acc.currency as string) ?? DEFAULT_CURRENCY;
 
     this.pesa = getMoneyMaker({
       currency,

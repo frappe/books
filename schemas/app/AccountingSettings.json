@@ -34,13 +34,6 @@
       "required": true
     },
     {
-      "fieldname": "currency",
-      "label": "Currency",
-      "fieldtype": "Data",
-      "readOnly": true,
-      "required": false
-    },
-    {
       "fieldname": "fullname",
       "label": "Name",
       "fieldtype": "Data",
@@ -82,7 +75,6 @@
     "email",
     "companyName",
     "country",
-    "currency",
     "fiscalYearStart",
     "fiscalYearEnd"
   ]

@@ -126,7 +126,7 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(
     IPC_ACTIONS.DB_CREATE,
-    async (_, dbPath: string, countryCode?: string) => {
+    async (_, dbPath: string, countryCode: string) => {
       const response: DatabaseResponse = { error: '', data: undefined };
       try {
         response.data = await databaseManager.createNewDatabase(
@@ -146,7 +146,7 @@ export default function registerIpcMainActionListeners(main: Main) {
     async (_, dbPath: string, countryCode?: string) => {
       const response: DatabaseResponse = { error: '', data: undefined };
       try {
-        response.data = await databaseManager.createNewDatabase(
+        response.data = await databaseManager.connectToDatabase(
           dbPath,
           countryCode
         );

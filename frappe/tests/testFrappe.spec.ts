@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import 'mocha';
-import { DatabaseManager } from '../../backend/database/manager';
 import { Frappe } from '..';
+import { DatabaseManager } from '../../backend/database/manager';
 
 describe('Frappe', function () {
   const frappe = new Frappe(DatabaseManager);
@@ -12,15 +12,15 @@ describe('Frappe', function () {
       0,
       'zero schemas one'
     );
-    await frappe.init();
+    await frappe.initializeAndRegister();
     assert.strictEqual(
       Object.keys(frappe.schemaMap).length,
       0,
       'zero schemas two'
     );
 
-    await frappe.db.createNewDatabase(':memory:');
-    await frappe.initializeAndRegister({}, true);
+    await frappe.db.createNewDatabase(':memory:', 'in');
+    await frappe.initializeAndRegister({}, {}, true);
     assert.strictEqual(
       Object.keys(frappe.schemaMap).length > 0,
       true,

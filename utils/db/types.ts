@@ -79,13 +79,13 @@ export abstract class DatabaseDemuxBase {
 
   abstract createNewDatabase(
     dbPath: string,
-    countryCode?: string
-  ): Promise<void>;
+    countryCode: string
+  ): Promise<string>;
 
   abstract connectToDatabase(
     dbPath: string,
     countryCode?: string
-  ): Promise<void>;
+  ): Promise<string>;
 
   abstract call(method: DatabaseMethod, ...args: unknown[]): Promise<unknown>;
 

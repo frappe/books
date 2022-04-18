@@ -1,5 +1,6 @@
 import Doc from 'frappe/model/doc';
 import { DocMap, ModelMap } from 'frappe/model/types';
+import { coreModels } from 'frappe/models';
 import { getRandomString } from 'frappe/utils';
 import Observable from 'frappe/utils/observable';
 import { Frappe } from '..';
@@ -20,9 +21,17 @@ export class DocHandler {
     this.docs = new Observable();
   }
 
-  registerModels(models: ModelMap) {
-    for (const schemaName in models) {
-      this.models[schemaName] = models[schemaName];
+  registerModels(models: ModelMap, regionalModels: ModelMap = {}) {
+    for (const schemaName in this.frappe.db.schemaMap) {
+      if (coreModels[schemaName] !== undefined) {
+        this.models[schemaName] = coreModels[schemaName];
+      } else if (regionalModels[schemaName] !== undefined) {
+        this.models[schemaName] = regionalModels[schemaName];
+      } else if (models[schemaName] !== undefined) {
+        this.models[schemaName] = models[schemaName];
+      } else {
+        this.models[schemaName] = Doc;
+      }
     }
   }
 

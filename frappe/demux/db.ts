@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'electron';
+import { DEFAULT_COUNTRY_CODE } from 'frappe/utils/consts';
 import { SchemaMap } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { DatabaseResponse } from 'utils/ipc/types';
@@ -27,7 +28,10 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     return response.data as SchemaMap;
   }
 
-  async createNewDatabase(dbPath: string, countryCode?: string): Promise<void> {
+  async createNewDatabase(
+    dbPath: string,
+    countryCode?: string
+  ): Promise<string> {
     let response: DatabaseResponse;
     if (this.#isElectron) {
       response = await ipcRenderer.invoke(
@@ -43,9 +47,14 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     if (response.error) {
       throw new Error(response.error);
     }
+
+    return (response.data ?? DEFAULT_COUNTRY_CODE) as string;
   }
 
-  async connectToDatabase(dbPath: string, countryCode?: string): Promise<void> {
+  async connectToDatabase(
+    dbPath: string,
+    countryCode?: string
+  ): Promise<string> {
     let response: DatabaseResponse;
     if (this.#isElectron) {
       response = await ipcRenderer.invoke(
@@ -61,6 +70,8 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     if (response.error) {
       throw new Error(response.error);
     }
+
+    return (response.data ?? DEFAULT_COUNTRY_CODE) as string;
   }
 
   async call(method: DatabaseMethod, ...args: unknown[]): Promise<unknown> {
