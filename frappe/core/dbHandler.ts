@@ -36,12 +36,16 @@ export class DatabaseHandler extends DatabaseBase {
     }
   }
 
-  async createNewDatabase(dbPath: string, countryCode?: string) {
-    await this.#demux.createNewDatabase(dbPath, countryCode);
+  async createNewDatabase(dbPath: string, countryCode: string) {
+    countryCode = await this.#demux.createNewDatabase(dbPath, countryCode);
+    await this.init();
+    return countryCode;
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {
-    await this.#demux.connectToDatabase(dbPath, countryCode);
+    countryCode = await this.#demux.connectToDatabase(dbPath, countryCode);
+    await this.init();
+    return countryCode;
   }
 
   async init() {

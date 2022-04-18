@@ -79,11 +79,19 @@
       "label": "Country Code",
       "fieldtype": "Data",
       "description": "Country code used to initialize regional settings."
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "required": false
     }
   ],
   "quickEditFields": [
     "locale",
     "dateFormat",
+    "currency",
     "displayPrecision",
     "hideGetStarted"
   ],
