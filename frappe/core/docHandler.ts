@@ -1,5 +1,5 @@
 import Doc from 'frappe/model/doc';
-import { DocMap, ModelMap } from 'frappe/model/types';
+import { DocMap, ModelMap, SinglesMap } from 'frappe/model/types';
 import { coreModels } from 'frappe/models';
 import { getRandomString } from 'frappe/utils';
 import Observable from 'frappe/utils/observable';
@@ -8,7 +8,7 @@ import { DocValue, DocValueMap } from './types';
 
 export class DocHandler {
   frappe: Frappe;
-  singles: DocMap = {};
+  singles: SinglesMap = {};
   docs: Observable<DocMap> = new Observable();
   models: ModelMap = {};
 

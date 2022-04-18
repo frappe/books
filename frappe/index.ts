@@ -15,7 +15,6 @@ import { format } from './utils/format';
 import { t, T } from './utils/translation';
 import { ErrorLog } from './utils/types';
 
-
 export class Frappe {
   t = t;
   T = T;
@@ -35,6 +34,9 @@ export class Frappe {
   errorLog?: ErrorLog[];
   methods?: Record<string, Function>;
   temp?: Record<string, unknown>;
+
+  currencyFormatter?: Intl.NumberFormat;
+  currencySymbols: Record<string, string | undefined> = {};
 
   constructor(DatabaseDemux?: DatabaseDemuxConstructor) {
     /**
@@ -84,6 +86,7 @@ export class Frappe {
     await this.#initializeMoneyMaker();
 
     this.doc.registerModels(models, regionalModels);
+    await this.doc.getSingle('SystemSettings');
     this._initialized = true;
   }
 

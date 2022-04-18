@@ -1,4 +1,5 @@
 import { DocValue, DocValueMap } from 'frappe/core/types';
+import SystemSettings from 'frappe/models/SystemSettings';
 import { FieldType } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 import { Router } from 'vue-router';
@@ -22,11 +23,13 @@ export type Default = () => DocValue;
 export type Validation = (value: DocValue) => Promise<void>;
 export type Required = () => boolean;
 export type Hidden = () => boolean;
+export type GetCurrency = () => string;
 
 export type FormulaMap = Record<string, Formula | undefined>;
 export type DefaultMap = Record<string, Default | undefined>;
 export type ValidationMap = Record<string, Validation | undefined>;
 export type RequiredMap = Record<string, Required | undefined>;
+export type CurrenciesMap = Record<string, GetCurrency>;
 export type HiddenMap = Record<string, Hidden>;
 export type DependsOnMap = Record<string, string[]>;
 
@@ -36,6 +39,11 @@ export type DependsOnMap = Record<string, string[]>;
 
 export type ModelMap = Record<string, typeof Doc | undefined>;
 export type DocMap = Record<string, Doc | undefined>;
+
+export interface SinglesMap {
+  SystemSettings?: SystemSettings
+  [key: string]: Doc | undefined
+}
 
 // Static Config properties
 
