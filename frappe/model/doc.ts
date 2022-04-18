@@ -28,6 +28,7 @@ import {
 import { setName } from './naming';
 import {
   Action,
+  CurrenciesMap,
   DefaultMap,
   DependsOnMap,
   EmptyMessageMap,
@@ -705,6 +706,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   required: RequiredMap = {};
   hidden: HiddenMap = {};
   dependsOn: DependsOnMap = {};
+  getCurrencies: CurrenciesMap = {};
 
   static lists: ListsMap = {};
   static filters: FiltersMap = {};
