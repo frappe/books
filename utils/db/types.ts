@@ -3,7 +3,7 @@
  * backend process and the the frontend db class (dbHandler.ts).
  *
  * DatabaseBase is an abstract class so that the function signatures
- * match on both ends.
+ * match on both ends i.e. DatabaseCore and DatabaseHandler.
  */
 
 import { SchemaMap } from 'schemas/types';
