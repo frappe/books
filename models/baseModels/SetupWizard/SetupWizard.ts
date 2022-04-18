@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { t } from 'frappe';
 import Doc from 'frappe/model/doc';
 import { FormulaMap, ListsMap } from 'frappe/model/types';
 import { DateTime } from 'luxon';
@@ -6,7 +6,7 @@ import countryInfo from '../../../fixtures/countryInfo.json';
 
 export function getCOAList() {
   return [
-    { name: frappe.t`Standard Chart of Accounts`, countryCode: '' },
+    { name: t`Standard Chart of Accounts`, countryCode: '' },
 
     { countryCode: 'ae', name: 'U.A.E - Chart of Accounts' },
     {

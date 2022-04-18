@@ -1,6 +1,7 @@
-import frappe from 'frappe';
 import { createNumberSeries } from 'frappe/model/naming';
+import { DEFAULT_SERIES_START } from 'frappe/utils/consts';
 import { getValueMapFromList } from 'utils';
+import { fyo } from './initFyo';
 
 export default async function postStart() {
   await createDefaultNumberSeries();
@@ -9,23 +10,28 @@ export default async function postStart() {
 }
 
 async function createDefaultNumberSeries() {
-  await createNumberSeries('SINV-', 'SalesInvoice');
-  await createNumberSeries('PINV-', 'PurchaseInvoice');
-  await createNumberSeries('PAY-', 'Payment');
-  await createNumberSeries('JV-', 'JournalEntry');
+  await createNumberSeries('SINV-', 'SalesInvoice', DEFAULT_SERIES_START, fyo);
+  await createNumberSeries(
+    'PINV-',
+    'PurchaseInvoice',
+    DEFAULT_SERIES_START,
+    fyo
+  );
+  await createNumberSeries('PAY-', 'Payment', DEFAULT_SERIES_START, fyo);
+  await createNumberSeries('JV-', 'JournalEntry', DEFAULT_SERIES_START, fyo);
 }
 
 async function setSingles() {
-  await frappe.doc.getSingle('AccountingSettings');
-  await frappe.doc.getSingle('GetStarted');
+  await fyo.doc.getSingle('AccountingSettings');
+  await fyo.doc.getSingle('GetStarted');
 }
 
 async function setCurrencySymbols() {
-  const currencies = (await frappe.db.getAll('Currency', {
+  const currencies = (await fyo.db.getAll('Currency', {
     fields: ['name', 'symbol'],
   })) as { name: string; symbol: string }[];
 
-  frappe.currencySymbols = getValueMapFromList(
+  fyo.currencySymbols = getValueMapFromList(
     currencies,
     'name',
     'symbol'

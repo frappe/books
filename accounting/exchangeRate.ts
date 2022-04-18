@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { NotFoundError } from 'frappe/utils/errors';
 import { DateTime } from 'luxon';
 
 export async function getExchangeRate({
@@ -15,7 +15,7 @@ export async function getExchangeRate({
   }
 
   if (!fromCurrency || !toCurrency) {
-    throw new frappe.errors.NotFoundError(
+    throw new NotFoundError(
       'Please provide `fromCurrency` and `toCurrency` to get exchange rate.'
     );
   }

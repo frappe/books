@@ -44,6 +44,6 @@
 
     "scripts/**/*.ts",
     "utils/csvParser.ts"
-  ],
+, "utils/config.ts"  ],
   "exclude": ["node_modules"]
 }

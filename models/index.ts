@@ -1,3 +1,4 @@
+import { ModelMap } from 'frappe/model/types';
 import { Account } from './baseModels/Account/Account';
 import { AccountingLedgerEntry } from './baseModels/AccountingLedgerEntry/AccountingLedgerEntry';
 import { AccountingSettings } from './baseModels/AccountingSettings/AccountingSettings';
@@ -34,9 +35,11 @@ export default {
   SetupWizard,
   Tax,
   TaxSummary,
-};
+} as ModelMap;
 
-export async function getRegionalModels(countryCode: string) {
+export async function getRegionalModels(
+  countryCode: string
+): Promise<ModelMap> {
   if (countryCode !== 'in') {
     return {};
   }

@@ -36,6 +36,9 @@ directly use the the `Frappe` class and will be run using `mocha` on `node`.
 Importing frontend code will break all the tests. This also implies that one
 should be wary about transitive dependencies.
 
+It should also not import the `frappe` object (singleton) from `src`, where ever
+frappe is required in models it should be passed to it.
+
 _Note: Frontend specific code can be imported but they should be done so, only
 using dynamic imports i.e. `await import('...')`._
 

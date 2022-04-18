@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
 import { DocValue } from 'frappe/core/types';
 import Doc from 'frappe/model/doc';
 import { DateTime } from 'luxon';
@@ -14,8 +14,9 @@ import {
 
 export function format(
   value: DocValue,
-  df?: string | Field,
-  doc?: Doc
+  df: string | Field | null,
+  doc: Doc | null,
+  frappe: Frappe
 ): string {
   if (!df) {
     return String(value);
@@ -24,11 +25,11 @@ export function format(
   const field: Field = getField(df);
 
   if (field.fieldtype === FieldTypeEnum.Currency) {
-    return formatCurrency(value, field, doc);
+    return formatCurrency(value, field, doc, frappe);
   }
 
   if (field.fieldtype === FieldTypeEnum.Date) {
-    return formatDate(value);
+    return formatDate(value, frappe);
   }
 
   if (field.fieldtype === FieldTypeEnum.Check) {
@@ -42,7 +43,7 @@ export function format(
   return String(value);
 }
 
-function formatDate(value: DocValue): string {
+function formatDate(value: DocValue, frappe: Frappe): string {
   const dateFormat =
     (frappe.singles.SystemSettings?.dateFormat as string) ??
     DEFAULT_DATE_FORMAT;
@@ -64,12 +65,17 @@ function formatDate(value: DocValue): string {
   return formattedDate;
 }
 
-function formatCurrency(value: DocValue, field: Field, doc?: Doc): string {
-  const currency = getCurrency(field, doc);
+function formatCurrency(
+  value: DocValue,
+  field: Field,
+  doc: Doc | null,
+  frappe: Frappe
+): string {
+  const currency = getCurrency(field, doc, frappe);
 
   let valueString;
   try {
-    valueString = formatNumber(value);
+    valueString = formatNumber(value, frappe);
   } catch (err) {
     (err as Error).message += ` value: '${value}', type: ${typeof value}`;
     throw err;
@@ -83,8 +89,8 @@ function formatCurrency(value: DocValue, field: Field, doc?: Doc): string {
   return valueString;
 }
 
-function formatNumber(value: DocValue): string {
-  const numberFormatter = getNumberFormatter();
+function formatNumber(value: DocValue, frappe: Frappe): string {
+  const numberFormatter = getNumberFormatter(frappe);
   if (typeof value === 'number') {
     return numberFormatter.format(value);
   }
@@ -106,7 +112,7 @@ function formatNumber(value: DocValue): string {
   return formattedNumber;
 }
 
-function getNumberFormatter() {
+function getNumberFormatter(frappe: Frappe) {
   if (frappe.currencyFormatter) {
     return frappe.currencyFormatter;
   }
@@ -123,7 +129,7 @@ function getNumberFormatter() {
   }));
 }
 
-function getCurrency(field: Field, doc?: Doc): string {
+function getCurrency(field: Field, doc: Doc | null, frappe: Frappe): string {
   if (doc && doc.getCurrencies[field.fieldname]) {
     return doc.getCurrencies[field.fieldname]();
   }

@@ -4,8 +4,8 @@ import Doc from 'frappe/model/doc';
 import { isNameAutoSet } from 'frappe/model/naming';
 import { FieldType, FieldTypeEnum } from 'schemas/types';
 import { parseCSV } from '../utils/csvParser';
-import telemetry from './telemetry/telemetry';
-import { Noun, Verb } from './telemetry/types';
+import telemetry from '../frappe/telemetry/telemetry';
+import { Noun, Verb } from '../frappe/telemetry/types';
 
 export const importable = [
   'SalesInvoice',

@@ -1,3 +1,4 @@
+import { Frappe } from 'frappe';
 import { DocValue, DocValueMap } from 'frappe/core/types';
 import SystemSettings from 'frappe/models/SystemSettings';
 import { FieldType } from 'schemas/types';
@@ -41,8 +42,8 @@ export type ModelMap = Record<string, typeof Doc | undefined>;
 export type DocMap = Record<string, Doc | undefined>;
 
 export interface SinglesMap {
-  SystemSettings?: SystemSettings
-  [key: string]: Doc | undefined
+  SystemSettings?: SystemSettings;
+  [key: string]: Doc | undefined;
 }
 
 // Static Config properties
@@ -50,7 +51,7 @@ export interface SinglesMap {
 export type FilterFunction = (doc: Doc) => QueryFilter;
 export type FiltersMap = Record<string, FilterFunction>;
 
-export type EmptyMessageFunction = (doc: Doc) => string;
+export type EmptyMessageFunction = (doc: Doc, frappe: Frappe) => string;
 export type EmptyMessageMap = Record<string, EmptyMessageFunction>;
 
 export type ListFunction = (doc?: Doc) => string[];

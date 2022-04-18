@@ -1,4 +1,5 @@
 import { LedgerPosting } from 'accounting/ledgerPosting';
+import { Frappe } from 'frappe';
 import { Action, ListViewSettings } from 'frappe/model/types';
 import {
   getTransactionActions,
@@ -11,10 +12,13 @@ export class SalesInvoice extends Invoice {
   items?: SalesInvoiceItem[];
 
   async getPosting() {
-    const entries: LedgerPosting = new LedgerPosting({
-      reference: this,
-      party: this.party,
-    });
+    const entries: LedgerPosting = new LedgerPosting(
+      {
+        reference: this,
+        party: this.party,
+      },
+      this.frappe
+    );
     await entries.debit(this.account!, this.baseGrandTotal!);
 
     for (const item of this.items!) {
@@ -30,17 +34,21 @@ export class SalesInvoice extends Invoice {
     return entries;
   }
 
-  static actions: Action[] = getTransactionActions('SalesInvoice');
+  static getActions(frappe: Frappe): Action[] {
+    return getTransactionActions('SalesInvoice', frappe);
+  }
 
-  static listSettings: ListViewSettings = {
-    formRoute: (name) => `/edit/SalesInvoice/${name}`,
-    columns: [
-      'party',
-      'name',
-      getTransactionStatusColumn(),
-      'date',
-      'grandTotal',
-      'outstandingAmount',
-    ],
-  };
+  static getListViewSettings(frappe: Frappe): ListViewSettings {
+    return {
+      formRoute: (name) => `/edit/SalesInvoice/${name}`,
+      columns: [
+        'party',
+        'name',
+        getTransactionStatusColumn(frappe),
+        'date',
+        'grandTotal',
+        'outstandingAmount',
+      ],
+    };
+  }
 }

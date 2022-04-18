@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
 import Doc from 'frappe/model/doc';
 import {
   FiltersMap,
@@ -6,36 +6,45 @@ import {
   TreeViewSettings,
 } from 'frappe/model/types';
 import { QueryFilter } from 'utils/db/types';
+import { AccountRootType, AccountType } from './types';
 
 export class Account extends Doc {
+  rootType?: AccountRootType;
+  accountType?: AccountType;
+  parentAccount?: string;
+
   async beforeInsert() {
     if (this.accountType || !this.parentAccount) {
       return;
     }
 
-    const account = await frappe.db.get(
+    const account = await this.frappe.db.get(
       'Account',
       this.parentAccount as string
     );
-    this.accountType = account.accountType as string;
+    this.accountType = account.accountType as AccountType;
   }
 
-  static listSettings: ListViewSettings = {
-    columns: ['name', 'parentAccount', 'rootType'],
-  };
+  static getListViewSettings(): ListViewSettings {
+    return {
+      columns: ['name', 'parentAccount', 'rootType'],
+    };
+  }
 
-  static treeSettings: TreeViewSettings = {
-    parentField: 'parentAccount',
-    async getRootLabel(): Promise<string> {
-      const accountingSettings = await frappe.doc.getSingle(
-        'AccountingSettings'
-      );
-      return accountingSettings.companyName as string;
-    },
-  };
+  static getTreeSettings(frappe: Frappe): void | TreeViewSettings {
+    return {
+      parentField: 'parentAccount',
+      async getRootLabel(): Promise<string> {
+        const accountingSettings = await frappe.doc.getSingle(
+          'AccountingSettings'
+        );
+        return accountingSettings.companyName as string;
+      },
+    };
+  }
 
   static filters: FiltersMap = {
-    parentAccount: (doc: Doc) => {
+    parentAccount: (doc: Account) => {
       const filter: QueryFilter = {
         isGroup: true,
       };

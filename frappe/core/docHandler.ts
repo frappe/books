@@ -164,7 +164,7 @@ export class DocHandler {
       throw new Error(`Schema not found for ${schemaName}`);
     }
 
-    const doc = new Model(schema, data);
+    const doc = new Model(schema, data, this.frappe);
     doc.setDefaults();
     return doc;
   }

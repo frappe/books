@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
 import Doc from 'frappe/model/doc';
 import {
   Action,
@@ -29,15 +29,17 @@ export class Party extends Doc {
     schemaName: 'SalesInvoice' | 'PurchaseInvoice'
   ) {
     const outstandingAmounts = (
-      await frappe.db.getAllRaw(schemaName, {
+      await this.frappe.db.getAllRaw(schemaName, {
         fields: ['outstandingAmount', 'party'],
         filters: { submitted: true },
       })
     ).filter(({ party }) => party === this.name);
 
     const totalOutstanding = outstandingAmounts
-      .map(({ outstandingAmount }) => frappe.pesa(outstandingAmount as number))
-      .reduce((a, b) => a.add(b), frappe.pesa(0));
+      .map(({ outstandingAmount }) =>
+        this.frappe.pesa(outstandingAmount as number)
+      )
+      .reduce((a, b) => a.add(b), this.frappe.pesa(0));
 
     await this.set('outstandingAmount', totalOutstanding);
     await this.update();
@@ -55,10 +57,11 @@ export class Party extends Doc {
         accountName = 'Creditors';
       }
 
-      const accountExists = await frappe.db.exists('Account', accountName);
+      const accountExists = await this.frappe.db.exists('Account', accountName);
       return accountExists ? accountName : '';
     },
-    currency: async () => frappe.singles.AccountingSettings!.currency as string,
+    currency: async () =>
+      this.frappe.singles.AccountingSettings!.currency as string,
     addressDisplay: async () => {
       const address = this.address as string | undefined;
       if (address) {
@@ -85,80 +88,84 @@ export class Party extends Doc {
     },
   };
 
-  static listSettings: ListViewSettings = {
-    columns: ['name', 'phone', 'outstandingAmount'],
-  };
+  static getListViewSettings(): ListViewSettings {
+    return {
+      columns: ['name', 'phone', 'outstandingAmount'],
+    };
+  }
 
-  static actions: Action[] = [
-    {
-      label: frappe.t`Create Bill`,
-      condition: (doc: Doc) =>
-        !doc.isNew && (doc.role as PartyRole) !== 'Customer',
-      action: async (partyDoc, router) => {
-        const doc = await frappe.doc.getEmptyDoc('PurchaseInvoice');
-        router.push({
-          path: `/edit/PurchaseInvoice/${doc.name}`,
-          query: {
-            doctype: 'PurchaseInvoice',
-            values: {
-              // @ts-ignore
-              party: partyDoc.name!,
+  static getActions(frappe: Frappe): Action[] {
+    return [
+      {
+        label: frappe.t`Create Bill`,
+        condition: (doc: Doc) =>
+          !doc.isNew && (doc.role as PartyRole) !== 'Customer',
+        action: async (partyDoc, router) => {
+          const doc = await frappe.doc.getEmptyDoc('PurchaseInvoice');
+          router.push({
+            path: `/edit/PurchaseInvoice/${doc.name}`,
+            query: {
+              doctype: 'PurchaseInvoice',
+              values: {
+                // @ts-ignore
+                party: partyDoc.name!,
+              },
             },
-          },
-        });
+          });
+        },
       },
-    },
-    {
-      label: frappe.t`View Bills`,
-      condition: (doc: Doc) =>
-        !doc.isNew && (doc.role as PartyRole) !== 'Customer',
-      action: async (partyDoc, router) => {
-        router.push({
-          name: 'ListView',
-          params: {
-            doctype: 'PurchaseInvoice',
-            filters: {
-              // @ts-ignore
-              party: partyDoc.name!,
+      {
+        label: frappe.t`View Bills`,
+        condition: (doc: Doc) =>
+          !doc.isNew && (doc.role as PartyRole) !== 'Customer',
+        action: async (partyDoc, router) => {
+          router.push({
+            name: 'ListView',
+            params: {
+              doctype: 'PurchaseInvoice',
+              filters: {
+                // @ts-ignore
+                party: partyDoc.name!,
+              },
             },
-          },
-        });
+          });
+        },
       },
-    },
-    {
-      label: frappe.t`Create Invoice`,
-      condition: (doc: Doc) =>
-        !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
-      action: async (partyDoc, router) => {
-        const doc = await frappe.doc.getEmptyDoc('SalesInvoice');
-        router.push({
-          path: `/edit/SalesInvoice/${doc.name}`,
-          query: {
-            doctype: 'SalesInvoice',
-            values: {
-              // @ts-ignore
-              party: partyDoc.name!,
+      {
+        label: frappe.t`Create Invoice`,
+        condition: (doc: Doc) =>
+          !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
+        action: async (partyDoc, router) => {
+          const doc = await frappe.doc.getEmptyDoc('SalesInvoice');
+          router.push({
+            path: `/edit/SalesInvoice/${doc.name}`,
+            query: {
+              doctype: 'SalesInvoice',
+              values: {
+                // @ts-ignore
+                party: partyDoc.name!,
+              },
             },
-          },
-        });
+          });
+        },
       },
-    },
-    {
-      label: frappe.t`View Invoices`,
-      condition: (doc: Doc) =>
-        !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
-      action: async (partyDoc, router) => {
-        router.push({
-          name: 'ListView',
-          params: {
-            doctype: 'SalesInvoice',
-            filters: {
-              // @ts-ignore
-              party: partyDoc.name!,
+      {
+        label: frappe.t`View Invoices`,
+        condition: (doc: Doc) =>
+          !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
+        action: async (partyDoc, router) => {
+          router.push({
+            name: 'ListView',
+            params: {
+              doctype: 'SalesInvoice',
+              filters: {
+                // @ts-ignore
+                party: partyDoc.name!,
+              },
             },
-          },
-        });
+          });
+        },
       },
-    },
-  ];
+    ];
+  }
 }

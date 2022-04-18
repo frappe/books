@@ -1,4 +1,7 @@
 import { Frappe } from 'frappe';
+import { AuthDemux } from 'frappe/demux/auth';
+import { AuthDemuxBase, TelemetryCreds } from 'utils/auth/types';
+import { AuthDemuxConstructor } from './types';
 
 interface AuthConfig {
   serverURL: string;
@@ -15,8 +18,9 @@ export class AuthHandler {
   #config: AuthConfig;
   #session: Session;
   frappe: Frappe;
+  #demux: AuthDemuxBase;
 
-  constructor(frappe: Frappe) {
+  constructor(frappe: Frappe, Demux?: AuthDemuxConstructor) {
     this.frappe = frappe;
     this.#config = {
       serverURL: '',
@@ -28,6 +32,12 @@ export class AuthHandler {
       user: '',
       token: '',
     };
+
+    if (Demux !== undefined) {
+      this.#demux = new Demux(frappe.isElectron);
+    } else {
+      this.#demux = new AuthDemux(frappe.isElectron);
+    }
   }
 
   get session(): Readonly<Session> {
@@ -89,5 +99,9 @@ export class AuthHandler {
 
   #getServerURL() {
     return this.#config.serverURL || '';
+  }
+
+  async getTelemetryCreds(): Promise<TelemetryCreds> {
+    return await this.#demux.getTelemetryCreds();
   }
 }

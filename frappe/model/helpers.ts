@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
 import { DocValue } from 'frappe/core/types';
 import { isPesa } from 'frappe/utils';
 import { isEqual } from 'lodash';
@@ -26,7 +26,10 @@ export function areDocValuesEqual(
   return isEqual(dvOne, dvTwo);
 }
 
-export function getPreDefaultValues(fieldtype: FieldType): DocValue | Doc[] {
+export function getPreDefaultValues(
+  fieldtype: FieldType,
+  frappe: Frappe
+): DocValue | Doc[] {
   switch (fieldtype) {
     case FieldTypeEnum.Table:
       return [] as Doc[];

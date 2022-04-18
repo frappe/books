@@ -1,6 +1,6 @@
-import telemetry from '@/telemetry/telemetry';
-import { Verb } from '@/telemetry/types';
+import { Frappe } from 'frappe';
 import { DocValue, DocValueMap } from 'frappe/core/types';
+import { Verb } from 'frappe/telemetry/types';
 import {
   Conflict,
   MandatoryError,
@@ -17,7 +17,6 @@ import {
   TargetField,
 } from 'schemas/types';
 import { getIsNullOrUndef, getMapFromList } from 'utils';
-import frappe from '..';
 import { getRandomString, isPesa } from '../utils/index';
 import {
   areDocValuesEqual,
@@ -47,6 +46,7 @@ import { validateSelect } from './validationFunction';
 export default class Doc extends Observable<DocValue | Doc[]> {
   name?: string;
   schema: Readonly<Schema>;
+  frappe: Frappe;
   fieldMap: Record<string, Field>;
 
   /**
@@ -66,11 +66,16 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     revertAction: false,
   };
 
-  constructor(schema: Schema, data: DocValueMap) {
+  constructor(schema: Schema, data: DocValueMap, frappe: Frappe) {
     super();
+    this.frappe = frappe;
     this.schema = schema;
     this._setInitialValues(data);
     this.fieldMap = getMapFromList(schema.fields, 'fieldname');
+
+    if (this.schema.isSingle) {
+      this.name = this.schemaName;
+    }
   }
 
   get schemaName(): string {
@@ -183,7 +188,10 @@ export default class Doc extends Observable<DocValue | Doc[]> {
         continue;
       }
 
-      let defaultValue: DocValue | Doc[] = getPreDefaultValues(field.fieldtype);
+      let defaultValue: DocValue | Doc[] = getPreDefaultValues(
+        field.fieldtype,
+        this.frappe
+      );
       const defaultFunction = this.defaults[field.fieldname];
 
       if (defaultFunction !== undefined) {
@@ -193,7 +201,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       }
 
       if (field.fieldtype === 'Currency' && !isPesa(defaultValue)) {
-        defaultValue = frappe.pesa!(defaultValue as string | number);
+        defaultValue = this.frappe.pesa!(defaultValue as string | number);
       }
 
       this[field.fieldname] = defaultValue;
@@ -235,8 +243,8 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     }
 
     const childSchemaName = this.fieldMap[fieldname] as TargetField;
-    const schema = frappe.db.schemaMap[childSchemaName.target] as Schema;
-    const childDoc = new Doc(schema, data as DocValueMap);
+    const schema = this.frappe.db.schemaMap[childSchemaName.target] as Schema;
+    const childDoc = new Doc(schema, data as DocValueMap, this.frappe);
     childDoc.setDefaults();
     return childDoc;
   }
@@ -263,7 +271,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
     if (missingMandatoryMessage.length > 0) {
       const fields = missingMandatoryMessage.join('\n');
-      const message = frappe.t`Value missing for ${fields}`;
+      const message = this.frappe.t`Value missing for ${fields}`;
       throw new MandatoryError(message);
     }
   }
@@ -322,7 +330,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     }
 
     if (!this.createdBy) {
-      this.createdBy = frappe.auth.session.user;
+      this.createdBy = this.frappe.auth.session.user;
     }
 
     if (!this.created) {
@@ -333,7 +341,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   }
 
   updateModified() {
-    this.modifiedBy = frappe.auth.session.user;
+    this.modifiedBy = this.frappe.auth.session.user;
     this.modified = new Date();
   }
 
@@ -342,7 +350,11 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       return;
     }
 
-    const data = await frappe.db.get(this.schemaName, this.name);
+    const data = await this.frappe.db.get(this.schemaName, this.name);
+    if (this.schema.isSingle && !data?.name) {
+      data.name = this.name!;
+    }
+
     if (data && data.name) {
       this.syncValues(data);
       if (this.schema.isSingle) {
@@ -375,7 +387,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       return;
     }
 
-    this._links[fieldname] = await frappe.doc.getDoc(
+    this._links[fieldname] = await this.frappe.doc.getDoc(
       field.target,
       value as string
     );
@@ -422,7 +434,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       return;
     }
 
-    const currentDoc = await frappe.db.get(this.schemaName, this.name);
+    const currentDoc = await this.frappe.db.get(this.schemaName, this.name);
 
     // check for conflict
     if (
@@ -430,13 +442,14 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       (this.modified as Date) !== (currentDoc.modified as Date)
     ) {
       throw new Conflict(
-        frappe.t`Document ${this.schemaName} ${this.name} has been modified after loading`
+        this.frappe
+          .t`Document ${this.schemaName} ${this.name} has been modified after loading`
       );
     }
 
     if (this.submitted && !this.schema.isSubmittable) {
       throw new ValidationError(
-        frappe.t`Document type ${this.schemaName} is not submittable`
+        this.frappe.t`Document type ${this.schemaName} is not submittable`
       );
     }
 
@@ -532,24 +545,27 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async insert() {
-    await setName(this);
+    await setName(this, this.frappe);
     this.setBaseMetaValues();
     await this.commit();
     await this.validateInsert();
     await this.trigger('beforeInsert', null);
 
     const oldName = this.name!;
-    const data = await frappe.db.insert(this.schemaName, this.getValidDict());
+    const data = await this.frappe.db.insert(
+      this.schemaName,
+      this.getValidDict()
+    );
     this.syncValues(data);
 
     if (oldName !== this.name) {
-      frappe.doc.removeFromCache(this.schemaName, oldName);
+      this.frappe.doc.removeFromCache(this.schemaName, oldName);
     }
 
     await this.trigger('afterInsert', null);
     await this.trigger('afterSave', null);
 
-    telemetry.log(Verb.Created, this.schemaName);
+    this.frappe.telemetry.log(Verb.Created, this.schemaName);
     return this;
   }
 
@@ -566,7 +582,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     this.updateModified();
 
     const data = this.getValidDict();
-    await frappe.db.update(this.schemaName, data);
+    await this.frappe.db.update(this.schemaName, data);
     this.syncValues(data);
 
     await this.trigger('afterUpdate');
@@ -589,10 +605,10 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
   async delete() {
     await this.trigger('beforeDelete');
-    await frappe.db.delete(this.schemaName, this.name!);
+    await this.frappe.db.delete(this.schemaName, this.name!);
     await this.trigger('afterDelete');
 
-    telemetry.log(Verb.Deleted, this.schemaName);
+    this.frappe.telemetry.log(Verb.Deleted, this.schemaName);
   }
 
   async submitOrRevert(isSubmit: boolean) {
@@ -617,7 +633,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
   async rename(newName: string) {
     await this.trigger('beforeRename');
-    await frappe.db.rename(this.schemaName, this.name!, newName);
+    await this.frappe.db.rename(this.schemaName, this.name!, newName);
     this.name = newName;
     await this.trigger('afterRename');
   }
@@ -637,7 +653,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
         const value = d.get(childfield) ?? 0;
         if (!isPesa(value)) {
           try {
-            return frappe.pesa(value as string | number);
+            return this.frappe.pesa(value as string | number);
           } catch (err) {
             (
               err as Error
@@ -647,7 +663,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
         }
         return value as Money;
       })
-      .reduce((a, b) => a.add(b), frappe.pesa(0));
+      .reduce((a, b) => a.add(b), this.frappe.pesa(0));
 
     if (convertToFloat) {
       return sum.float;
@@ -660,7 +676,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       return '';
     }
 
-    return frappe.doc.getCachedValue(schemaName, name, fieldname);
+    return this.frappe.doc.getCachedValue(schemaName, name, fieldname);
   }
 
   async duplicate(shouldInsert: boolean = true): Promise<Doc> {
@@ -690,7 +706,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       updateMap.name = updateMap.name + ' CPY';
     }
 
-    const doc = frappe.doc.getEmptyDoc(this.schemaName, false);
+    const doc = this.frappe.doc.getEmptyDoc(this.schemaName, false);
     await doc.setMultiple(updateMap);
 
     if (shouldInsert) {
@@ -699,6 +715,16 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
     return doc;
   }
+
+  async beforeInsert() {}
+  async afterInsert() {}
+  async beforeUpdate() {}
+  async afterUpdate() {}
+  async afterSave() {}
+  async beforeDelete() {}
+  async afterDelete() {}
+  async beforeRevert() {}
+  async afterRevert() {}
 
   formulas: FormulaMap = {};
   defaults: DefaultMap = {};
@@ -711,8 +737,14 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   static lists: ListsMap = {};
   static filters: FiltersMap = {};
   static emptyMessages: EmptyMessageMap = {};
-  static listSettings: ListViewSettings = {};
-  static treeSettings?: TreeViewSettings;
 
-  static actions: Action[] = [];
+  static getListViewSettings(frappe: Frappe): ListViewSettings {
+    return {};
+  }
+
+  static getTreeSettings(frappe: Frappe): TreeViewSettings | void {}
+
+  static getActions(frappe: Frappe): Action[] {
+    return [];
+  }
 }

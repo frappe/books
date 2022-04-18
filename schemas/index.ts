@@ -67,7 +67,7 @@ function deepFreeze(schemaMap: SchemaMap) {
 }
 
 export function addMetaFields(schemaMap: SchemaMap): SchemaMap {
-  const metaSchemaMap = getMapFromList(metaSchemas, 'name');
+  const metaSchemaMap = getMapFromList(cloneDeep(metaSchemas), 'name');
 
   const base = metaSchemaMap.base;
   const tree = getCombined(metaSchemaMap.tree, base);
@@ -115,13 +115,13 @@ function addNameField(schemaMap: SchemaMap) {
 }
 
 function getCoreSchemas(): SchemaMap {
-  const rawSchemaMap = getMapFromList(coreSchemas, 'name');
+  const rawSchemaMap = getMapFromList(cloneDeep(coreSchemas), 'name');
   const coreSchemaMap = getAbstractCombinedSchemas(rawSchemaMap);
   return cleanSchemas(coreSchemaMap);
 }
 
 function getAppSchemas(countryCode: string): SchemaMap {
-  const appSchemaMap = getMapFromList(appSchemas, 'name');
+  const appSchemaMap = getMapFromList(cloneDeep(appSchemas), 'name');
   const regionalSchemaMap = getRegionalSchemaMap(countryCode);
   const combinedSchemas = getRegionalCombinedSchemas(
     appSchemaMap,
@@ -225,7 +225,7 @@ export function getRegionalCombinedSchemas(
 }
 
 function getRegionalSchemaMap(countryCode: string): SchemaStubMap {
-  const countrySchemas = regionalSchemas[countryCode] as
+  const countrySchemas = cloneDeep(regionalSchemas[countryCode]) as
     | SchemaStub[]
     | undefined;
   if (countrySchemas === undefined) {
