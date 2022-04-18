@@ -1,8 +1,9 @@
 import { Frappe } from 'frappe';
 import { DatabaseDemux } from 'frappe/demux/db';
-import Money from 'pesa/dist/types/src/money';
-import { FieldType, FieldTypeEnum, RawValue, SchemaMap } from 'schemas/types';
+import { Field, RawValue, SchemaMap } from 'schemas/types';
+import { getMapFromList } from 'utils';
 import { DatabaseBase, DatabaseDemuxBase, GetAllOptions } from 'utils/db/types';
+import { Converter } from './converter';
 import {
   DatabaseDemuxConstructor,
   DocValue,
@@ -18,12 +19,15 @@ type Cashflow = { inflow: number; outflow: number; 'month-year': string }[];
 
 export class DatabaseHandler extends DatabaseBase {
   #frappe: Frappe;
+  converter: Converter;
   #demux: DatabaseDemuxBase;
   schemaMap: Readonly<SchemaMap> = {};
+  fieldValueMap: Record<string, Record<string, Field>> = {};
 
   constructor(frappe: Frappe, Demux?: DatabaseDemuxConstructor) {
     super();
     this.#frappe = frappe;
+    this.converter = new Converter(this);
 
     if (Demux !== undefined) {
       this.#demux = new Demux(frappe.isElectron);
@@ -42,13 +46,18 @@ export class DatabaseHandler extends DatabaseBase {
 
   async init() {
     this.schemaMap = (await this.#demux.getSchemaMap()) as Readonly<SchemaMap>;
+
+    for (const schemaName in this.schemaMap) {
+      const fields = this.schemaMap[schemaName]!.fields!;
+      this.fieldValueMap[schemaName] = getMapFromList(fields, 'fieldname');
+    }
   }
 
   async insert(
     schemaName: string,
     docValueMap: DocValueMap
   ): Promise<DocValueMap> {
-    let rawValueMap = this.#toRawValueMap(
+    let rawValueMap = this.converter.toRawValueMap(
       schemaName,
       docValueMap
     ) as RawValueMap;
@@ -57,7 +66,7 @@ export class DatabaseHandler extends DatabaseBase {
       schemaName,
       rawValueMap
     )) as RawValueMap;
-    return this.#toDocValueMap(schemaName, rawValueMap) as DocValueMap;
+    return this.converter.toDocValueMap(schemaName, rawValueMap) as DocValueMap;
   }
 
   // Read
@@ -72,7 +81,7 @@ export class DatabaseHandler extends DatabaseBase {
       name,
       fields
     )) as RawValueMap;
-    return this.#toDocValueMap(schemaName, rawValueMap) as DocValueMap;
+    return this.converter.toDocValueMap(schemaName, rawValueMap) as DocValueMap;
   }
 
   async getAll(
@@ -80,7 +89,10 @@ export class DatabaseHandler extends DatabaseBase {
     options: GetAllOptions = {}
   ): Promise<DocValueMap[]> {
     const rawValueMap = await this.#getAll(schemaName, options);
-    return this.#toDocValueMap(schemaName, rawValueMap) as DocValueMap[];
+    return this.converter.toDocValueMap(
+      schemaName,
+      rawValueMap
+    ) as DocValueMap[];
   }
 
   async getAllRaw(
@@ -88,25 +100,6 @@ export class DatabaseHandler extends DatabaseBase {
     options: GetAllOptions = {}
   ): Promise<DocValueMap[]> {
     return await this.#getAll(schemaName, options);
-  }
-
-  async count(
-    schemaName: string,
-    options: GetAllOptions = {}
-  ): Promise<number> {
-    const rawValueMap = await this.#getAll(schemaName, options);
-    return rawValueMap.length;
-  }
-
-  async #getAll(
-    schemaName: string,
-    options: GetAllOptions = {}
-  ): Promise<RawValueMap[]> {
-    return (await this.#demux.call(
-      'getAll',
-      schemaName,
-      options
-    )) as RawValueMap[];
   }
 
   async getSingleValues(
@@ -117,8 +110,27 @@ export class DatabaseHandler extends DatabaseBase {
       ...fieldnames
     )) as SingleValue<RawValue>;
 
-    // TODO: Complete this
-    throw new Error('Not implemented');
+    const docSingleValue: SingleValue<DocValue> = [];
+    for (const sv of rawSingleValue) {
+      const fieldtype = this.fieldValueMap[sv.parent][sv.fieldname].fieldtype;
+      const value = Converter.toDocValue(sv.value, fieldtype);
+
+      docSingleValue.push({
+        value,
+        parent: sv.parent,
+        fieldname: sv.fieldname,
+      });
+    }
+
+    return docSingleValue;
+  }
+
+  async count(
+    schemaName: string,
+    options: GetAllOptions = {}
+  ): Promise<number> {
+    const rawValueMap = await this.#getAll(schemaName, options);
+    return rawValueMap.length;
   }
 
   // Update
@@ -131,7 +143,7 @@ export class DatabaseHandler extends DatabaseBase {
   }
 
   async update(schemaName: string, docValueMap: DocValueMap): Promise<void> {
-    const rawValueMap = this.#toRawValueMap(schemaName, docValueMap);
+    const rawValueMap = this.converter.toRawValueMap(schemaName, docValueMap);
     await this.#demux.call('update', schemaName, rawValueMap);
   }
 
@@ -153,7 +165,8 @@ export class DatabaseHandler extends DatabaseBase {
    * Bespoke function
    *
    * These are functions to run custom queries that are too complex for
-   * DatabaseCore and require use of knex or raw queries.
+   * DatabaseCore and require use of knex or raw queries. The output
+   * of these is not converted to DocValue and is used as is (RawValue).
    *
    * The query logic for these is in backend/database/bespoke.ts
    */
@@ -186,66 +199,17 @@ export class DatabaseHandler extends DatabaseBase {
     )) as Cashflow;
   }
 
-  #toDocValueMap(
+  /**
+   * Internal methods
+   */
+  async #getAll(
     schemaName: string,
-    rawValueMap: RawValueMap | RawValueMap[]
-  ): DocValueMap | DocValueMap[] {
-    // TODO: Complete this
-    throw new Error('Not implemented');
-  }
-  #toRawValueMap(
-    schemaName: string,
-    docValueMap: DocValueMap | DocValueMap[]
-  ): RawValueMap | RawValueMap[] {
-    // TODO: Complete this
-    throw new Error('Not implemented');
-  }
-
-  #toDocValue(value: RawValue, fieldtype: FieldType): DocValue {
-    switch (fieldtype) {
-      case FieldTypeEnum.Currency:
-        return this.#frappe.pesa((value ?? 0) as string | number);
-      case FieldTypeEnum.Date:
-        return new Date(value as string);
-      case FieldTypeEnum.Datetime:
-        return new Date(value as string);
-      case FieldTypeEnum.Int:
-        return +(value as string | number);
-      case FieldTypeEnum.Float:
-        return +(value as string | number);
-      case FieldTypeEnum.Check:
-        return Boolean(value as number);
-      default:
-        return String(value);
-    }
-  }
-
-  #toRawValue(value: DocValue, fieldtype: FieldType): RawValue {
-    switch (fieldtype) {
-      case FieldTypeEnum.Currency:
-        return (value as Money).store;
-      case FieldTypeEnum.Date:
-        return (value as Date).toISOString().split('T')[0];
-      case FieldTypeEnum.Datetime:
-        return (value as Date).toISOString();
-      case FieldTypeEnum.Int: {
-        if (typeof value === 'string') {
-          return parseInt(value);
-        }
-
-        return Math.floor(value as number);
-      }
-      case FieldTypeEnum.Float: {
-        if (typeof value === 'string') {
-          return parseFloat(value);
-        }
-
-        return value as number;
-      }
-      case FieldTypeEnum.Check:
-        return Number(value);
-      default:
-        return String(value);
-    }
+    options: GetAllOptions = {}
+  ): Promise<RawValueMap[]> {
+    return (await this.#demux.call(
+      'getAll',
+      schemaName,
+      options
+    )) as RawValueMap[];
   }
 }
