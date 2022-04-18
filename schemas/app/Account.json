@@ -149,8 +149,5 @@
     "accountType",
     "isGroup"
   ],
-  "keywordFields": ["name", "rootType", "accountType"],
-  "treeSettings": {
-    "parentField": "parentAccount"
-  }
+  "keywordFields": ["name", "rootType", "accountType"]
 }

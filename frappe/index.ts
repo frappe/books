@@ -1,10 +1,14 @@
 import { getMoneyMaker, MoneyMaker } from 'pesa';
+import { Field } from 'schemas/types';
 import { markRaw } from 'vue';
 import { AuthHandler } from './core/authHandler';
 import { DatabaseHandler } from './core/dbHandler';
 import { DocHandler } from './core/docHandler';
-import { DatabaseDemuxConstructor } from './core/types';
+import { DocValue, FyoConfig } from './core/types';
+import { Config } from './demux/config';
+import Doc from './model/doc';
 import { ModelMap } from './model/types';
+import { TelemetryManager } from './telemetry/telemetry';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_DISPLAY_PRECISION,
@@ -18,10 +22,9 @@ import { ErrorLog } from './utils/types';
 export class Frappe {
   t = t;
   T = T;
-  format = format;
 
   errors = errors;
-  isElectron = false;
+  isElectron: boolean;
 
   pesa: MoneyMaker;
 
@@ -38,21 +41,27 @@ export class Frappe {
   currencyFormatter?: Intl.NumberFormat;
   currencySymbols: Record<string, string | undefined> = {};
 
-  constructor(DatabaseDemux?: DatabaseDemuxConstructor) {
-    /**
-     * `DatabaseManager` can be passed as the `DatabaseDemux` for
-     * testing this class without API or IPC calls.
-     */
-    this.auth = new AuthHandler(this);
-    this.db = new DatabaseHandler(this, DatabaseDemux);
+  isTest: boolean;
+  telemetry: TelemetryManager;
+  config: Config;
+
+  constructor(conf: FyoConfig = {}) {
+    this.isTest = conf.isTest ?? false;
+    this.isElectron = conf.isElectron ?? true;
+
+    this.auth = new AuthHandler(this, conf.AuthDemux);
+    this.db = new DatabaseHandler(this, conf.DatabaseDemux);
     this.doc = new DocHandler(this);
 
     this.pesa = getMoneyMaker({
-      currency: 'XXX',
+      currency: DEFAULT_CURRENCY,
       precision: DEFAULT_INTERNAL_PRECISION,
       display: DEFAULT_DISPLAY_PRECISION,
       wrapper: markRaw,
     });
+
+    this.telemetry = new TelemetryManager(this);
+    this.config = new Config(this.isElectron);
   }
 
   get initialized() {
@@ -73,6 +82,19 @@ export class Frappe {
 
   get schemaMap() {
     return this.db.schemaMap;
+  }
+
+  format(value: DocValue, field: string | Field, doc?: Doc) {
+    return format(value, field, doc ?? null, this);
+  }
+
+  async setIsElectron() {
+    try {
+      const { ipcRenderer } = await import('electron');
+      this.isElectron = Boolean(ipcRenderer);
+    } catch {
+      this.isElectron = false;
+    }
   }
 
   async initializeAndRegister(
@@ -138,9 +160,9 @@ export class Frappe {
     });
   }
 
-  close() {
-    this.db.close();
-    this.auth.logout();
+  async close() {
+    await this.db.close();
+    await this.auth.logout();
   }
 
   store = {
@@ -150,4 +172,3 @@ export class Frappe {
 }
 
 export { T, t };
-export default new Frappe();

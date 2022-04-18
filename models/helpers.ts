@@ -1,12 +1,11 @@
-import { openQuickEdit } from '@/utils';
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
 import Doc from 'frappe/model/doc';
 import { Action, ColumnConfig } from 'frappe/model/types';
 import Money from 'pesa/dist/types/src/money';
 import { Router } from 'vue-router';
 import { InvoiceStatus } from './types';
 
-export function getLedgerLinkAction(): Action {
+export function getLedgerLinkAction(frappe: Frappe): Action {
   return {
     label: frappe.t`Ledger Entries`,
     condition: (doc: Doc) => !!doc.submitted,
@@ -26,7 +25,10 @@ export function getLedgerLinkAction(): Action {
   };
 }
 
-export function getTransactionActions(schemaName: string): Action[] {
+export function getTransactionActions(
+  schemaName: string,
+  frappe: Frappe
+): Action[] {
   return [
     {
       label: frappe.t`Make Payment`,
@@ -42,6 +44,7 @@ export function getTransactionActions(schemaName: string): Action[] {
         const paymentType = isSales ? 'Receive' : 'Pay';
         const hideAccountField = isSales ? 'account' : 'paymentAccount';
 
+        const { openQuickEdit } = await import('../src/utils');
         await openQuickEdit({
           schemaName: 'Payment',
           name: payment.name as string,
@@ -69,11 +72,11 @@ export function getTransactionActions(schemaName: string): Action[] {
         router.push({ path: `/print/${doc.doctype}/${doc.name}` });
       },
     },
-    getLedgerLinkAction(),
+    getLedgerLinkAction(frappe),
   ];
 }
 
-export function getTransactionStatusColumn(): ColumnConfig {
+export function getTransactionStatusColumn(frappe: Frappe): ColumnConfig {
   const statusMap = {
     Unpaid: frappe.t`Unpaid`,
     Paid: frappe.t`Paid`,

@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
 import Doc from 'frappe/model/doc';
 import Money from 'pesa/dist/types/src/money';
 import { FieldType, FieldTypeEnum, RawValue } from 'schemas/types';
@@ -22,9 +22,11 @@ import { DocValue, DocValueMap, RawValueMap } from './types';
 
 export class Converter {
   db: DatabaseHandler;
+  frappe: Frappe;
 
-  constructor(db: DatabaseHandler) {
+  constructor(db: DatabaseHandler, frappe: Frappe) {
     this.db = db;
+    this.frappe = frappe;
   }
 
   toDocValueMap(
@@ -49,7 +51,11 @@ export class Converter {
     }
   }
 
-  static toDocValue(value: RawValue, fieldtype: FieldType): DocValue {
+  static toDocValue(
+    value: RawValue,
+    fieldtype: FieldType,
+    frappe: Frappe
+  ): DocValue {
     switch (fieldtype) {
       case FieldTypeEnum.Currency:
         return frappe.pesa((value ?? 0) as string | number);
@@ -112,7 +118,8 @@ export class Converter {
       } else {
         docValueMap[fieldname] = Converter.toDocValue(
           rawValue,
-          field.fieldtype
+          field.fieldtype,
+          this.frappe
         );
       }
     }

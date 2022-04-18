@@ -18,7 +18,12 @@ import {
 import { getRandomString, getValueMapFromList } from '../../utils';
 import { DatabaseBase, GetAllOptions, QueryFilter } from '../../utils/db/types';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../helpers';
-import { ColumnDiff, FieldValueMap, GetQueryBuilderOptions } from './types';
+import {
+  ColumnDiff,
+  FieldValueMap,
+  GetQueryBuilderOptions,
+  SingleValue,
+} from './types';
 
 /**
  * # DatabaseCore
@@ -256,7 +261,7 @@ export default class DatabaseCore extends DatabaseBase {
 
   async getSingleValues(
     ...fieldnames: ({ fieldname: string; parent?: string } | string)[]
-  ): Promise<{ fieldname: string; parent: string; value: RawValue }[]> {
+  ): Promise<SingleValue<RawValue>> {
     const fieldnameList = fieldnames.map((fieldname) => {
       if (typeof fieldname === 'string') {
         return { fieldname };

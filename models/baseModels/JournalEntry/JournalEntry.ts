@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
 import Doc from 'frappe/model/doc';
 import {
   Action,
@@ -15,7 +15,7 @@ export class JournalEntry extends Doc {
   accounts: Doc[] = [];
 
   getPosting() {
-    const entries = new LedgerPosting({ reference: this });
+    const entries = new LedgerPosting({ reference: this }, this.frappe);
 
     for (const row of this.accounts) {
       const debit = row.debit as Money;
@@ -32,11 +32,11 @@ export class JournalEntry extends Doc {
     return entries;
   }
 
-  beforeUpdate() {
+  async beforeUpdate() {
     this.getPosting().validateEntries();
   }
 
-  beforeInsert() {
+  async beforeInsert() {
     this.getPosting().validateEntries();
   }
 
@@ -56,44 +56,48 @@ export class JournalEntry extends Doc {
     numberSeries: () => ({ referenceType: 'JournalEntry' }),
   };
 
-  static actions: Action[] = [getLedgerLinkAction()];
+  static getActions(frappe: Frappe): Action[] {
+    return [getLedgerLinkAction(frappe)];
+  }
 
-  static listSettings: ListViewSettings = {
-    formRoute: (name) => `/edit/JournalEntry/${name}`,
-    columns: [
-      'date',
-      {
-        label: frappe.t`Status`,
-        fieldtype: 'Select',
-        size: 'small',
-        render(doc) {
-          let status = 'Draft';
-          let color = 'gray';
-          if (doc.submitted) {
-            color = 'green';
-            status = 'Submitted';
-          }
+  static getListViewSettings(frappe: Frappe): ListViewSettings {
+    return {
+      formRoute: (name) => `/edit/JournalEntry/${name}`,
+      columns: [
+        'date',
+        {
+          label: frappe.t`Status`,
+          fieldtype: 'Select',
+          size: 'small',
+          render(doc) {
+            let status = 'Draft';
+            let color = 'gray';
+            if (doc.submitted) {
+              color = 'green';
+              status = 'Submitted';
+            }
 
-          if (doc.cancelled) {
-            color = 'red';
-            status = 'Cancelled';
-          }
+            if (doc.cancelled) {
+              color = 'red';
+              status = 'Cancelled';
+            }
 
-          return {
-            template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
-          };
+            return {
+              template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
+            };
+          },
         },
-      },
-      {
-        label: frappe.t`Entry ID`,
-        fieldtype: 'Data',
-        fieldname: 'name',
-        getValue(doc) {
-          return doc.name as string;
+        {
+          label: frappe.t`Entry ID`,
+          fieldtype: 'Data',
+          fieldname: 'name',
+          getValue(doc) {
+            return doc.name as string;
+          },
         },
-      },
-      'entryType',
-      'referenceNumber',
-    ],
-  };
+        'entryType',
+        'referenceNumber',
+      ],
+    };
+  }
 }

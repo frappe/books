@@ -1,4 +1,3 @@
-import frappe from 'frappe';
 import Doc from 'frappe/model/doc';
 import { EmptyMessageMap, FormulaMap, ListsMap } from 'frappe/model/types';
 import { stateCodeMap } from 'regional/in';
@@ -37,7 +36,7 @@ export class Address extends Doc {
   };
 
   static emptyMessages: EmptyMessageMap = {
-    state: (doc: Doc) => {
+    state: (doc: Doc, frappe) => {
       if (doc.country) {
         return frappe.t`Enter State`;
       }

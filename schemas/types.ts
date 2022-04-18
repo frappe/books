@@ -68,7 +68,6 @@ export type Field =
   | DynamicLinkField
   | NumberField;
 
-export type TreeSettings = { parentField: string };
 export type Naming = 'autoincrement' | 'random' | 'numberSeries'
 
 export interface Schema {
@@ -84,7 +83,6 @@ export interface Schema {
   isSubmittable?: boolean;       // For transactional types, values considered only after submit
   keywordFields?: string[];      // Used to get fields that are to be used for search.
   quickEditFields?: string[];    // Used to get fields for the quickEditForm
-  treeSettings?: TreeSettings;   // Used to determine root nodes
   inlineEditDisplayField?:string;// Display field if inline editable
   naming?: Naming;               // Used for assigning name, default is 'random' else 'numberSeries' if present
   removeFields?: string[];       // Used by the builder to remove fields.

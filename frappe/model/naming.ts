@@ -1,6 +1,7 @@
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
 import NumberSeries from 'frappe/models/NumberSeries';
 import { getRandomString } from 'frappe/utils';
+import { DEFAULT_SERIES_START } from 'frappe/utils/consts';
 import { BaseError } from 'frappe/utils/errors';
 import { Field, Schema } from 'schemas/types';
 import Doc from './doc';
@@ -12,7 +13,7 @@ export function getNumberSeries(schema: Schema): Field | undefined {
   return numberSeries;
 }
 
-export function isNameAutoSet(schemaName: string): boolean {
+export function isNameAutoSet(schemaName: string, frappe: Frappe): boolean {
   const schema = frappe.schemaMap[schemaName]!;
   if (schema.naming === 'autoincrement') {
     return true;
@@ -26,17 +27,17 @@ export function isNameAutoSet(schemaName: string): boolean {
   return false;
 }
 
-export async function setName(doc: Doc) {
+export async function setName(doc: Doc, frappe: Frappe) {
   // if is server, always name again if autoincrement or other
   if (doc.schema.naming === 'autoincrement') {
-    doc.name = await getNextId(doc.schemaName);
+    doc.name = await getNextId(doc.schemaName, frappe);
     return;
   }
 
   // Current, per doc number series
   const numberSeries = doc.numberSeries as string | undefined;
   if (numberSeries !== undefined) {
-    doc.name = await getSeriesNext(numberSeries, doc.schemaName);
+    doc.name = await getSeriesNext(numberSeries, doc.schemaName, frappe);
     return;
   }
 
@@ -57,9 +58,9 @@ export async function setName(doc: Doc) {
   }
 }
 
-export async function getNextId(schemaName: string) {
+export async function getNextId(schemaName: string, frappe: Frappe) {
   // get the last inserted row
-  const lastInserted = await getLastInserted(schemaName);
+  const lastInserted = await getLastInserted(schemaName, frappe);
   let name = 1;
   if (lastInserted) {
     let lastNumber = parseInt(lastInserted.name as string);
@@ -69,7 +70,7 @@ export async function getNextId(schemaName: string) {
   return (name + '').padStart(9, '0');
 }
 
-export async function getLastInserted(schemaName: string) {
+export async function getLastInserted(schemaName: string, frappe: Frappe) {
   const lastInserted = await frappe.db.getAll(schemaName, {
     fields: ['name'],
     limit: 1,
@@ -79,7 +80,11 @@ export async function getLastInserted(schemaName: string) {
   return lastInserted && lastInserted.length ? lastInserted[0] : null;
 }
 
-export async function getSeriesNext(prefix: string, schemaName: string) {
+export async function getSeriesNext(
+  prefix: string,
+  schemaName: string,
+  frappe: Frappe
+) {
   let series: NumberSeries;
 
   try {
@@ -90,7 +95,7 @@ export async function getSeriesNext(prefix: string, schemaName: string) {
       throw e;
     }
 
-    await createNumberSeries(prefix, schemaName);
+    await createNumberSeries(prefix, schemaName, DEFAULT_SERIES_START, frappe);
     series = (await frappe.doc.getDoc('NumberSeries', prefix)) as NumberSeries;
   }
 
@@ -100,7 +105,8 @@ export async function getSeriesNext(prefix: string, schemaName: string) {
 export async function createNumberSeries(
   prefix: string,
   referenceType: string,
-  start = 1001
+  start: number,
+  frappe: Frappe
 ) {
   const exists = await frappe.db.exists('NumberSeries', prefix);
   if (exists) {

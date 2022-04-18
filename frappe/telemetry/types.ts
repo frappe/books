@@ -1,5 +1,3 @@
-import { DoctypeName } from 'models/types';
-
 export type AppVersion = string;
 export type UniqueId = string;
 export type Timestamp = number;
@@ -11,9 +9,7 @@ export interface InteractionEvent {
   more?: Record<string, unknown>;
 }
 
-export type Count = Partial<{
-  [key in DoctypeName]: number;
-}>;
+export type Count = Record<string, number>;
 export type Platform = 'Windows' | 'Mac' | 'Linux';
 
 export interface Telemetry {
@@ -46,3 +42,9 @@ export enum NounEnum {
 }
 
 export type Noun = string | NounEnum;
+
+export enum TelemetrySetting {
+  allow = 'allow',
+  dontLogUsage = 'dontLogUsage',
+  dontLogAnything = 'dontLogAnything',
+}

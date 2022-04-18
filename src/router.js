@@ -10,8 +10,8 @@ import QuickEditForm from '@/pages/QuickEditForm.vue';
 import Report from '@/pages/Report.vue';
 import Settings from '@/pages/Settings/Settings.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import telemetry from './telemetry/telemetry';
-import { NounEnum, Verb } from './telemetry/types';
+import telemetry from '../frappe/telemetry/telemetry';
+import { NounEnum, Verb } from '../frappe/telemetry/types';
 
 const routes = [
   {

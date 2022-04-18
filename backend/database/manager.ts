@@ -21,8 +21,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
   async createNewDatabase(dbPath: string, countryCode: string) {
     await this.#unlinkIfExists(dbPath);
-    await this.connectToDatabase(dbPath, countryCode);
-    return countryCode;
+    return await this.connectToDatabase(dbPath, countryCode);
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {

@@ -9,9 +9,9 @@ import {
 } from 'frappe/utils/errors';
 import { ErrorLog } from 'frappe/utils/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
-import config, { ConfigKeys, TelemetrySetting } from './config';
-import telemetry from './telemetry/telemetry';
-import { showMessageDialog, showToast } from './utils';
+import telemetry from '../frappe/telemetry/telemetry';
+import config, { ConfigKeys, TelemetrySetting } from '../utils/config';
+import { showMessageDialog, showToast } from './utils.js';
 
 function getCanLog(): boolean {
   const telemetrySetting = config.get(ConfigKeys.Telemetry);

@@ -5,14 +5,4 @@ export const DEFAULT_LOCALE = 'en-IN';
 export const DEFAULT_COUNTRY_CODE = 'in';
 export const DEFAULT_CURRENCY = 'INR';
 export const DEFAULT_LANGUAGE = 'English';
-export const DEFAULT_NUMBER_SERIES = {
-  SalesInvoice: 'SINV-',
-  PurchaseInvoice: 'PINV-',
-  Payment: 'PAY-',
-  JournalEntry: 'JV-',
-  Quotation: 'QTN-',
-  SalesOrder: 'SO-',
-  Fulfillment: 'OF-',
-  PurchaseOrder: 'PO-',
-  PurchaseReceipt: 'PREC-',
-};
+export const DEFAULT_SERIES_START = 1001;

@@ -5,7 +5,7 @@ removed into a separate repo, but as of now it's in gestation.
 
 The reason for maintaining a framework is to allow for varied backends.
 Currently Books runs on the electron renderer process and all db stuff happens
-on the electron main process which has access to node libs. As the development
+on the electron main process which has access to nodelibs. As the development
 of `Fyo` progresses it will allow for a browser frontend and a node server
 backend.
 
@@ -70,6 +70,9 @@ other things.
 - Get models and `regionalModels` using `countryCode` from `models/index.ts/getRegionalModels`.
 - Call `fyo.initializeAndRegister` with the all models.
 
+_Note: since **SystemSettings** are initialized on `fyo.initializeAndRegister`
+db needs to be set first else an error will be thrown_
+
 ## Testing
 
 For testing the `fyo` class, `mocha` is used (`node` side). So for this the
@@ -77,12 +80,15 @@ demux classes are directly replaced by `node` side managers such as
 `DatabaseManager`.
 
 For this to work the class signatures of the demux class and the manager have to
-be the same.
+be the same which is maintained by abstract demux classes.
+
+`DatabaseManager` is used as the `DatabaseDemux` for testing without API or IPC
+calls. For `AuthDemux` the `DummyAuthDemux` class is used.
 
 ## Translations
 
 All translations take place during runtime, for translations to work, a
-`LanguageMap` (for def check `utils/types.ts`) has to be set. 
+`LanguageMap` (for def check `utils/types.ts`) has to be set.
 
 This can be done using `fyo/utils/translation.ts/setLanguageMapOnTranslationString`.
 

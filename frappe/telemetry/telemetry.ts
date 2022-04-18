@@ -1,15 +1,21 @@
-import config, { ConfigKeys, TelemetrySetting } from '@/config';
-import frappe from 'frappe';
+import { Frappe } from 'frappe';
+import { ConfigKeys } from 'frappe/core/types';
 import { cloneDeep } from 'lodash';
 import {
   getCountry,
   getCounts,
-  getCreds,
   getDeviceId,
   getInstanceId,
   getLanguage,
 } from './helpers';
-import { Noun, NounEnum, Platform, Telemetry, Verb } from './types';
+import {
+  Noun,
+  NounEnum,
+  Platform,
+  Telemetry,
+  TelemetrySetting,
+  Verb,
+} from './types';
 
 /**
  * # Telemetry
@@ -44,14 +50,24 @@ import { Noun, NounEnum, Platform, Telemetry, Verb } from './types';
  * telemetry and not app usage.
  */
 
-class TelemetryManager {
+export class TelemetryManager {
   #url: string = '';
   #token: string = '';
   #started = false;
   #telemetryObject: Partial<Telemetry> = {};
+  #interestingDocs: string[] = [];
+  frappe: Frappe;
+
+  constructor(frappe: Frappe) {
+    this.frappe = frappe;
+  }
 
   set platform(value: Platform) {
     this.#telemetryObject.platform ||= value;
+  }
+
+  set interestingDocs(schemaNames: string[]) {
+    this.#interestingDocs = schemaNames;
   }
 
   get hasCreds() {
@@ -68,9 +84,9 @@ class TelemetryManager {
 
   async start() {
     this.#telemetryObject.country ||= getCountry();
-    this.#telemetryObject.language ??= getLanguage();
-    this.#telemetryObject.deviceId ||= getDeviceId();
-    this.#telemetryObject.instanceId ||= getInstanceId();
+    this.#telemetryObject.language ??= getLanguage(this.frappe);
+    this.#telemetryObject.deviceId ||= getDeviceId(this.frappe);
+    this.#telemetryObject.instanceId ||= getInstanceId(this.frappe);
     this.#telemetryObject.openTime ||= new Date().valueOf();
     this.#telemetryObject.timeline ??= [];
     this.#telemetryObject.errors ??= {};
@@ -120,7 +136,10 @@ class TelemetryManager {
 
     this.#clear();
 
-    if (config.get(ConfigKeys.Telemetry) === TelemetrySetting.dontLogAnything) {
+    if (
+      this.frappe.config.get(ConfigKeys.Telemetry) ===
+      TelemetrySetting.dontLogAnything
+    ) {
       return;
     }
     navigator.sendBeacon(this.#url, data);
@@ -141,7 +160,10 @@ class TelemetryManager {
       return;
     }
 
-    this.#telemetryObject.counts = await getCounts();
+    this.#telemetryObject.counts = await getCounts(
+      this.#interestingDocs,
+      this.frappe
+    );
   }
 
   async #setCreds() {
@@ -149,13 +171,15 @@ class TelemetryManager {
       return;
     }
 
-    const { url, token } = await getCreds();
+    const { url, token } = await this.frappe.auth.getTelemetryCreds();
     this.#url = url;
     this.#token = token;
   }
 
   #getCanLog(): boolean {
-    const telemetrySetting = config.get(ConfigKeys.Telemetry) as string;
+    const telemetrySetting = this.frappe.config.get(
+      ConfigKeys.Telemetry
+    ) as string;
     return telemetrySetting === TelemetrySetting.allow;
   }
 
@@ -170,5 +194,3 @@ class TelemetryManager {
     delete this.#telemetryObject.country;
   }
 }
-
-export default new TelemetryManager();
