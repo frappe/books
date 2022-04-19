@@ -1,9 +1,9 @@
-import { LedgerPosting } from 'accounting/ledgerPosting';
 import { DocValue } from 'fyo/core/types';
 import Doc from 'fyo/model/doc';
 import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
+import { getExchangeRate } from 'models/helpers';
+import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
 import Money from 'pesa/dist/types/src/money';
-import { getExchangeRate } from '../../../accounting/exchangeRate';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
