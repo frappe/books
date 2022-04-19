@@ -9,7 +9,7 @@ import {
 import { DateTime } from 'luxon';
 import { getLedgerLinkAction } from 'models/helpers';
 import Money from 'pesa/dist/types/src/money';
-import { LedgerPosting } from '../../../accounting/ledgerPosting';
+import { LedgerPosting } from '../../ledgerPosting/ledgerPosting';
 
 export class JournalEntry extends Doc {
   accounts: Doc[] = [];

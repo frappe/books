@@ -1,4 +1,4 @@
-import { LedgerPosting } from 'accounting/ledgerPosting';
+import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
 import { Fyo } from 'fyo';
 import { Action, ListViewSettings } from 'fyo/model/types';
 import {
