@@ -5,8 +5,8 @@ the models. **Models** here, refers to the classes that handle the data, its
 validation and updation and a bunch of other stuff.
 
 Each model directly or indirectly extends the `Doc` class from
-`frappe/model/doc.ts` so for more info check that file and the associated types
-in `frappe/model/types.ts`.
+`fyo/model/doc.ts` so for more info check that file and the associated types
+in `fyo/model/types.ts`.
 
 A model class can used even if the class body has no content, for example
 `PurchaseInvoiceItem`. Else the model used will default to using `Doc`. The
@@ -31,13 +31,13 @@ constructor. Check `schemas/README.md` for info on this.
 
 When adding stuff to `models/**` make sure that it isn't importing any Vue code
 or other frontend specific code globally. This is cause model file tests will
-directly use the the `Frappe` class and will be run using `mocha` on `node`.
+directly use the the `Fyo` class and will be run using `mocha` on `node`.
 
 Importing frontend code will break all the tests. This also implies that one
 should be wary about transitive dependencies.
 
-It should also not import the `frappe` object (singleton) from `src`, where ever
-frappe is required in models it should be passed to it.
+It should also not import the `Fyo` object (singleton) from `src`, where ever
+`fyo` is required in models it should be passed to it.
 
 _Note: Frontend specific code can be imported but they should be done so, only
 using dynamic imports i.e. `await import('...')`._

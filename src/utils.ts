@@ -1,4 +1,4 @@
-import Doc from 'frappe/model/doc';
+import Doc from 'fyo/model/doc';
 
 export interface QuickEditOptions {
   schemaName: string;

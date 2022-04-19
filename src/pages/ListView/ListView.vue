@@ -1,11 +1,3 @@
-import Button from '@/components/Button';
-import FilterDropdown from '@/components/FilterDropdown';
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
-import { routeTo } from '@/utils';
-import frappe from 'frappe';
-import List from './List';
-import listConfigs from './listConfig';
 <template>
   <div class="flex flex-col">
     <PageHeader>
@@ -43,7 +35,7 @@ import FilterDropdown from '@/components/FilterDropdown';
 import PageHeader from '@/components/PageHeader';
 import SearchBar from '@/components/SearchBar';
 import { routeTo } from '@/utils';
-import frappe from 'frappe';
+import frappe from 'fyo';
 import List from './List';
 
 export default {

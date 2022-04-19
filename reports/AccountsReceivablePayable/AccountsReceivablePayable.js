@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe from 'fyo';
 
 export default class AccountsReceivablePayable {
   async run(reportType, { date }) {

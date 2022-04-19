@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe from 'fyo';
 
 class SalesRegister {
   async run({ fromDate, toDate, customer }) {

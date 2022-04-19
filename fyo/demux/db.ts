@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { DEFAULT_COUNTRY_CODE } from 'frappe/utils/consts';
+import { DEFAULT_COUNTRY_CODE } from 'fyo/utils/consts';
 import { SchemaMap } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { DatabaseResponse } from 'utils/ipc/types';

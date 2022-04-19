@@ -1,6 +1,6 @@
 import config from '@/config';
-import frappe from 'frappe';
-import { DEFAULT_LOCALE } from 'frappe/utils/consts';
+import frappe from 'fyo';
+import { DEFAULT_LOCALE } from 'fyo/utils/consts';
 import countryList from '~/fixtures/countryInfo.json';
 import importCharts from '../../../accounting/importCOA';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';

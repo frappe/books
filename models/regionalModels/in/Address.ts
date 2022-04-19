@@ -1,4 +1,4 @@
-import { FormulaMap, ListsMap } from 'frappe/model/types';
+import { FormulaMap, ListsMap } from 'fyo/model/types';
 import { Address as BaseAddress } from 'models/baseModels/Address/Address';
 import { stateCodeMap } from 'regional/in';
 import { titleCase } from 'utils';

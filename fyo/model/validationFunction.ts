@@ -1,5 +1,5 @@
-import { ValidationError, ValueError } from 'frappe/utils/errors';
-import { t } from 'frappe/utils/translation';
+import { ValidationError, ValueError } from 'fyo/utils/errors';
+import { t } from 'fyo/utils/translation';
 import { OptionField } from 'schemas/types';
 
 export function email(value: string) {

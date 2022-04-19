@@ -1,4 +1,4 @@
-import Doc from 'frappe/model/doc';
+import Doc from 'fyo/model/doc';
 import Money from 'pesa/dist/types/src/money';
 
 export interface LedgerPostingOptions {

@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe from 'fyo';
 
 class GeneralLedger {
   async run(params) {

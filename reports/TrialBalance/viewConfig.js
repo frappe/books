@@ -1,4 +1,4 @@
-import frappe, { t } from 'frappe';
+import frappe, { t } from 'fyo';
 import getCommonExportActions from '../commonExporter';
 
 const title = t`Trial Balance`;

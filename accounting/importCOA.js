@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe from 'fyo';
 import standardCOA from '../fixtures/verified/standardCOA.json';
 import { getCOAList } from '../src/utils';
 const accountFields = ['accountType', 'accountNumber', 'rootType', 'isGroup'];

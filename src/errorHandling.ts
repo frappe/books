@@ -1,13 +1,13 @@
 import { ipcRenderer } from 'electron';
-import frappe, { t } from 'frappe';
-import Doc from 'frappe/model/doc';
+import frappe, { t } from 'fyo';
+import Doc from 'fyo/model/doc';
 import {
   DuplicateEntryError,
   LinkValidationError,
   MandatoryError,
   ValidationError,
-} from 'frappe/utils/errors';
-import { ErrorLog } from 'frappe/utils/types';
+} from 'fyo/utils/errors';
+import { ErrorLog } from 'fyo/utils/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import telemetry from '../frappe/telemetry/telemetry';
 import config, { ConfigKeys, TelemetrySetting } from '../utils/config';

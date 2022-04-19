@@ -51,22 +51,20 @@
   </div>
 </template>
 <script>
-import { t } from 'frappe';
-import frappe from 'frappe';
-import WindowControls from '@/components/WindowControls';
-import TabGeneral from './TabGeneral.vue';
-import TabSystem from './TabSystem.vue';
-import TabInvoice from './TabInvoice.vue';
 import Button from '@/components/Button';
-import Row from '@/components/Row';
 import Icon from '@/components/Icon';
 import PageHeader from '@/components/PageHeader';
+import Row from '@/components/Row';
 import StatusBadge from '@/components/StatusBadge';
-import { callInitializeMoneyMaker } from '../../utils';
-import { showToast } from '../../utils';
-import { h, markRaw } from 'vue';
+import WindowControls from '@/components/WindowControls';
 import { ipcRenderer } from 'electron';
+import frappe, { t } from 'fyo';
 import { IPC_MESSAGES } from 'utils/messages';
+import { h, markRaw } from 'vue';
+import { callInitializeMoneyMaker, showToast } from '../../utils';
+import TabGeneral from './TabGeneral.vue';
+import TabInvoice from './TabInvoice.vue';
+import TabSystem from './TabSystem.vue';
 
 export default {
   name: 'Settings',

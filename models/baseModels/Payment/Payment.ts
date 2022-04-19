@@ -1,7 +1,7 @@
 import { LedgerPosting } from 'accounting/ledgerPosting';
-import { Frappe } from 'frappe';
-import { DocValue } from 'frappe/core/types';
-import Doc from 'frappe/model/doc';
+import { Fyo } from 'fyo';
+import { DocValue } from 'fyo/core/types';
+import Doc from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,
@@ -11,8 +11,8 @@ import {
   ListViewSettings,
   RequiredMap,
   ValidationMap,
-} from 'frappe/model/types';
-import { ValidationError } from 'frappe/utils/errors';
+} from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
 import { getLedgerLinkAction } from 'models/helpers';
 import Money from 'pesa/dist/types/src/money';
 import { getIsNullOrUndef } from 'utils';
@@ -50,10 +50,7 @@ export class Payment extends Doc {
     }
 
     const schemaName = referenceType as string;
-    const doc = await this.frappe.doc.getDoc(
-      schemaName,
-      referenceName as string
-    );
+    const doc = await this.fyo.doc.getDoc(schemaName, referenceName as string);
 
     let party;
     let paymentType: PaymentType;
@@ -71,7 +68,7 @@ export class Payment extends Doc {
   }
 
   updateAmountOnReferenceUpdate() {
-    this.amount = this.frappe.pesa(0);
+    this.amount = this.fyo.pesa(0);
     for (const paymentReference of this.for as Doc[]) {
       this.amount = (this.amount as Money).add(
         paymentReference.amount as Money
@@ -98,7 +95,7 @@ export class Payment extends Doc {
     if (this.paymentAccount !== this.account || !this.account) {
       return;
     }
-    throw new this.frappe.errors.ValidationError(
+    throw new this.fyo.errors.ValidationError(
       `To Account and From Account can't be the same: ${this.account}`
     );
   }
@@ -111,7 +108,7 @@ export class Payment extends Doc {
 
     const referenceAmountTotal = forReferences
       .map(({ amount }) => amount as Money)
-      .reduce((a, b) => a.add(b), this.frappe.pesa(0));
+      .reduce((a, b) => a.add(b), this.fyo.pesa(0));
 
     if (
       (this.amount as Money)
@@ -121,20 +118,20 @@ export class Payment extends Doc {
       return;
     }
 
-    const writeoff = this.frappe.format(this.writeoff!, 'Currency');
-    const payment = this.frappe.format(this.amount!, 'Currency');
-    const refAmount = this.frappe.format(referenceAmountTotal, 'Currency');
+    const writeoff = this.fyo.format(this.writeoff!, 'Currency');
+    const payment = this.fyo.format(this.amount!, 'Currency');
+    const refAmount = this.fyo.format(referenceAmountTotal, 'Currency');
 
     if ((this.writeoff as Money).gt(0)) {
       throw new ValidationError(
-        this.frappe.t`Amount: ${payment} and writeoff: ${writeoff} 
+        this.fyo.t`Amount: ${payment} and writeoff: ${writeoff} 
           is less than the total amount allocated to 
           references: ${refAmount}.`
       );
     }
 
     throw new ValidationError(
-      this.frappe.t`Amount: ${payment} is less than the total
+      this.fyo.t`Amount: ${payment} is less than the total
         amount allocated to references: ${refAmount}.`
     );
   }
@@ -144,9 +141,9 @@ export class Payment extends Doc {
       return;
     }
 
-    if (!this.frappe.singles.AccountingSettings!.writeOffAccount) {
+    if (!this.fyo.singles.AccountingSettings!.writeOffAccount) {
       throw new ValidationError(
-        this.frappe.t`Write Off Account not set.
+        this.fyo.t`Write Off Account not set.
           Please set Write Off Account in General Settings`
       );
     }
@@ -162,7 +159,7 @@ export class Payment extends Doc {
         reference: this,
         party: this.party!,
       },
-      this.frappe
+      this.fyo
     );
 
     await entries.debit(paymentAccount as string, amount.sub(writeoff));
@@ -177,9 +174,9 @@ export class Payment extends Doc {
         reference: this,
         party: this.party!,
       },
-      this.frappe
+      this.fyo
     );
-    const writeOffAccount = this.frappe.singles.AccountingSettings!
+    const writeOffAccount = this.fyo.singles.AccountingSettings!
       .writeOffAccount as string;
 
     if (this.paymentType === 'Pay') {
@@ -207,7 +204,7 @@ export class Payment extends Doc {
       ) {
         continue;
       }
-      const referenceDoc = await this.frappe.doc.getDoc(
+      const referenceDoc = await this.fyo.doc.getDoc(
         row.referenceType as string,
         row.referenceName as string
       );
@@ -221,17 +218,17 @@ export class Payment extends Doc {
       }
 
       if (amount.lte(0) || amount.gt(outstandingAmount)) {
-        let message = this.frappe.t`Payment amount: ${this.frappe.format(
+        let message = this.fyo.t`Payment amount: ${this.fyo.format(
           this.amount!,
           'Currency'
-        )} should be less than Outstanding amount: ${this.frappe.format(
+        )} should be less than Outstanding amount: ${this.fyo.format(
           outstandingAmount,
           'Currency'
         )}.`;
 
         if (amount.lte(0)) {
-          const amt = this.frappe.format(this.amount!, 'Currency');
-          message = this.frappe
+          const amt = this.fyo.format(this.amount!, 'Currency');
+          message = this.fyo
             .t`Payment amount: ${amt} should be greater than 0.`;
         }
 
@@ -241,7 +238,7 @@ export class Payment extends Doc {
         const newOutstanding = outstandingAmount.sub(amount);
         await referenceDoc.set('outstandingAmount', newOutstanding);
         await referenceDoc.update();
-        const party = (await this.frappe.doc.getDoc(
+        const party = (await this.fyo.doc.getDoc(
           'Party',
           this.party!
         )) as Party;
@@ -269,7 +266,7 @@ export class Payment extends Doc {
   async updateReferenceOutstandingAmount() {
     await (this.for as Doc[]).forEach(
       async ({ amount, referenceType, referenceName }) => {
-        const refDoc = await this.frappe.doc.getDoc(
+        const refDoc = await this.fyo.doc.getDoc(
           referenceType as string,
           referenceName as string
         );
@@ -304,7 +301,7 @@ export class Payment extends Doc {
     amount: async (value: DocValue) => {
       if ((value as Money).isNegative()) {
         throw new ValidationError(
-          this.frappe.t`Payment amount cannot be less than zero.`
+          this.fyo.t`Payment amount cannot be less than zero.`
         );
       }
 
@@ -313,13 +310,13 @@ export class Payment extends Doc {
 
       if ((value as Money).gt(amount)) {
         throw new ValidationError(
-          this.frappe.t`Payment amount cannot 
-              exceed ${this.frappe.format(amount, 'Currency')}.`
+          this.fyo.t`Payment amount cannot 
+              exceed ${this.fyo.format(amount, 'Currency')}.`
         );
       } else if ((value as Money).isZero()) {
         throw new ValidationError(
-          this.frappe.t`Payment amount cannot
-              be ${this.frappe.format(value, 'Currency')}.`
+          this.fyo.t`Payment amount cannot
+              be ${this.fyo.format(value, 'Currency')}.`
         );
       }
     },
@@ -368,16 +365,16 @@ export class Payment extends Doc {
     },
   };
 
-  static getActions(frappe: Frappe): Action[] {
-    return [getLedgerLinkAction(frappe)];
+  static getActions(fyo: Fyo): Action[] {
+    return [getLedgerLinkAction(fyo)];
   }
 
-  static getListViewSettings(frappe: Frappe): ListViewSettings {
+  static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
       columns: [
         'party',
         {
-          label: frappe.t`Status`,
+          label: fyo.t`Status`,
           fieldname: 'status',
           fieldtype: 'Select',
           size: 'small',

@@ -1,6 +1,6 @@
-import { t } from 'frappe';
-import Doc from 'frappe/model/doc';
-import { FormulaMap, ListsMap } from 'frappe/model/types';
+import { t } from 'fyo';
+import Doc from 'fyo/model/doc';
+import { FormulaMap, ListsMap } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import countryInfo from '../../../fixtures/countryInfo.json';
 

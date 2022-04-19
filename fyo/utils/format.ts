@@ -1,6 +1,6 @@
-import { Frappe } from 'frappe';
-import { DocValue } from 'frappe/core/types';
-import Doc from 'frappe/model/doc';
+import { Fyo } from 'fyo';
+import { DocValue } from 'fyo/core/types';
+import Doc from 'fyo/model/doc';
 import { DateTime } from 'luxon';
 import Money from 'pesa/dist/types/src/money';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
@@ -16,7 +16,7 @@ export function format(
   value: DocValue,
   df: string | Field | null,
   doc: Doc | null,
-  frappe: Frappe
+  fyo: Fyo
 ): string {
   if (!df) {
     return String(value);
@@ -25,11 +25,11 @@ export function format(
   const field: Field = getField(df);
 
   if (field.fieldtype === FieldTypeEnum.Currency) {
-    return formatCurrency(value, field, doc, frappe);
+    return formatCurrency(value, field, doc, fyo);
   }
 
   if (field.fieldtype === FieldTypeEnum.Date) {
-    return formatDate(value, frappe);
+    return formatDate(value, fyo);
   }
 
   if (field.fieldtype === FieldTypeEnum.Check) {
@@ -43,10 +43,9 @@ export function format(
   return String(value);
 }
 
-function formatDate(value: DocValue, frappe: Frappe): string {
+function formatDate(value: DocValue, fyo: Fyo): string {
   const dateFormat =
-    (frappe.singles.SystemSettings?.dateFormat as string) ??
-    DEFAULT_DATE_FORMAT;
+    (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
 
   let dateValue: DateTime;
   if (typeof value === 'string') {
@@ -69,19 +68,19 @@ function formatCurrency(
   value: DocValue,
   field: Field,
   doc: Doc | null,
-  frappe: Frappe
+  fyo: Fyo
 ): string {
-  const currency = getCurrency(field, doc, frappe);
+  const currency = getCurrency(field, doc, fyo);
 
   let valueString;
   try {
-    valueString = formatNumber(value, frappe);
+    valueString = formatNumber(value, fyo);
   } catch (err) {
     (err as Error).message += ` value: '${value}', type: ${typeof value}`;
     throw err;
   }
 
-  const currencySymbol = frappe.currencySymbols[currency];
+  const currencySymbol = fyo.currencySymbols[currency];
   if (currencySymbol !== undefined) {
     return currencySymbol + ' ' + valueString;
   }
@@ -89,8 +88,8 @@ function formatCurrency(
   return valueString;
 }
 
-function formatNumber(value: DocValue, frappe: Frappe): string {
-  const numberFormatter = getNumberFormatter(frappe);
+function formatNumber(value: DocValue, fyo: Fyo): string {
+  const numberFormatter = getNumberFormatter(fyo);
   if (typeof value === 'number') {
     return numberFormatter.format(value);
   }
@@ -112,24 +111,24 @@ function formatNumber(value: DocValue, frappe: Frappe): string {
   return formattedNumber;
 }
 
-function getNumberFormatter(frappe: Frappe) {
-  if (frappe.currencyFormatter) {
-    return frappe.currencyFormatter;
+function getNumberFormatter(fyo: Fyo) {
+  if (fyo.currencyFormatter) {
+    return fyo.currencyFormatter;
   }
 
   const locale =
-    (frappe.singles.SystemSettings?.locale as string) ?? DEFAULT_LOCALE;
+    (fyo.singles.SystemSettings?.locale as string) ?? DEFAULT_LOCALE;
   const display =
-    (frappe.singles.SystemSettings?.displayPrecision as number) ??
+    (fyo.singles.SystemSettings?.displayPrecision as number) ??
     DEFAULT_DISPLAY_PRECISION;
 
-  return (frappe.currencyFormatter = Intl.NumberFormat(locale, {
+  return (fyo.currencyFormatter = Intl.NumberFormat(locale, {
     style: 'decimal',
     minimumFractionDigits: display,
   }));
 }
 
-function getCurrency(field: Field, doc: Doc | null, frappe: Frappe): string {
+function getCurrency(field: Field, doc: Doc | null, fyo: Fyo): string {
   if (doc && doc.getCurrencies[field.fieldname]) {
     return doc.getCurrencies[field.fieldname]();
   }
@@ -138,9 +137,7 @@ function getCurrency(field: Field, doc: Doc | null, frappe: Frappe): string {
     return doc.parentdoc.getCurrencies[field.fieldname]();
   }
 
-  return (
-    (frappe.singles.SystemSettings?.currency as string) ?? DEFAULT_CURRENCY
-  );
+  return (fyo.singles.SystemSettings?.currency as string) ?? DEFAULT_CURRENCY;
 }
 
 function getField(df: string | Field): Field {

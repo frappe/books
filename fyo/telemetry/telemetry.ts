@@ -1,5 +1,5 @@
-import { Frappe } from 'frappe';
-import { ConfigKeys } from 'frappe/core/types';
+import { Fyo } from 'fyo';
+import { ConfigKeys } from 'fyo/core/types';
 import { cloneDeep } from 'lodash';
 import {
   getCountry,
@@ -56,10 +56,10 @@ export class TelemetryManager {
   #started = false;
   #telemetryObject: Partial<Telemetry> = {};
   #interestingDocs: string[] = [];
-  frappe: Frappe;
+  fyo: Fyo;
 
-  constructor(frappe: Frappe) {
-    this.frappe = frappe;
+  constructor(fyo: Fyo) {
+    this.fyo = fyo;
   }
 
   set platform(value: Platform) {
@@ -83,10 +83,10 @@ export class TelemetryManager {
   }
 
   async start() {
-    this.#telemetryObject.country ||= getCountry();
-    this.#telemetryObject.language ??= getLanguage(this.frappe);
-    this.#telemetryObject.deviceId ||= getDeviceId(this.frappe);
-    this.#telemetryObject.instanceId ||= getInstanceId(this.frappe);
+    this.#telemetryObject.country ||= getCountry(this.fyo);
+    this.#telemetryObject.language ??= getLanguage(this.fyo);
+    this.#telemetryObject.deviceId ||= getDeviceId(this.fyo);
+    this.#telemetryObject.instanceId ||= getInstanceId(this.fyo);
     this.#telemetryObject.openTime ||= new Date().valueOf();
     this.#telemetryObject.timeline ??= [];
     this.#telemetryObject.errors ??= {};
@@ -125,8 +125,7 @@ export class TelemetryManager {
   stop() {
     this.#started = false;
 
-    //@ts-ignore
-    this.#telemetryObject.version = frappe.store.appVersion ?? '';
+    this.#telemetryObject.version = this.fyo.store.appVersion ?? '';
     this.#telemetryObject.closeTime = new Date().valueOf();
 
     const data = JSON.stringify({
@@ -137,7 +136,7 @@ export class TelemetryManager {
     this.#clear();
 
     if (
-      this.frappe.config.get(ConfigKeys.Telemetry) ===
+      this.fyo.config.get(ConfigKeys.Telemetry) ===
       TelemetrySetting.dontLogAnything
     ) {
       return;
@@ -162,7 +161,7 @@ export class TelemetryManager {
 
     this.#telemetryObject.counts = await getCounts(
       this.#interestingDocs,
-      this.frappe
+      this.fyo
     );
   }
 
@@ -171,13 +170,13 @@ export class TelemetryManager {
       return;
     }
 
-    const { url, token } = await this.frappe.auth.getTelemetryCreds();
+    const { url, token } = await this.fyo.auth.getTelemetryCreds();
     this.#url = url;
     this.#token = token;
   }
 
   #getCanLog(): boolean {
-    const telemetrySetting = this.frappe.config.get(
+    const telemetrySetting = this.fyo.config.get(
       ConfigKeys.Telemetry
     ) as string;
     return telemetrySetting === TelemetrySetting.allow;

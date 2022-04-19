@@ -1,4 +1,4 @@
-import { t } from 'frappe';
+import { t } from 'fyo';
 
 export default {
   [t`Application of Funds (Assets)`]: {

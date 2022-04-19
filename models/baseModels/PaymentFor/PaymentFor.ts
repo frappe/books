@@ -1,5 +1,5 @@
-import Doc from 'frappe/model/doc';
-import { FiltersMap, FormulaMap } from 'frappe/model/types';
+import Doc from 'fyo/model/doc';
+import { FiltersMap, FormulaMap } from 'fyo/model/types';
 import Money from 'pesa/dist/types/src/money';
 
 export class PaymentFor extends Doc {
@@ -15,7 +15,7 @@ export class PaymentFor extends Doc {
         return outstandingAmount;
       }
 
-      return this.frappe.pesa(0);
+      return this.fyo.pesa(0);
     },
   };
 

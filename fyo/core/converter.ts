@@ -1,5 +1,5 @@
-import { Frappe } from 'frappe';
-import Doc from 'frappe/model/doc';
+import { Fyo } from 'fyo';
+import Doc from 'fyo/model/doc';
 import Money from 'pesa/dist/types/src/money';
 import { FieldType, FieldTypeEnum, RawValue } from 'schemas/types';
 import { DatabaseHandler } from './dbHandler';
@@ -22,11 +22,11 @@ import { DocValue, DocValueMap, RawValueMap } from './types';
 
 export class Converter {
   db: DatabaseHandler;
-  frappe: Frappe;
+  fyo: Fyo;
 
-  constructor(db: DatabaseHandler, frappe: Frappe) {
+  constructor(db: DatabaseHandler, fyo: Fyo) {
     this.db = db;
-    this.frappe = frappe;
+    this.fyo = fyo;
   }
 
   toDocValueMap(
@@ -54,11 +54,11 @@ export class Converter {
   static toDocValue(
     value: RawValue,
     fieldtype: FieldType,
-    frappe: Frappe
+    fyo: Fyo
   ): DocValue {
     switch (fieldtype) {
       case FieldTypeEnum.Currency:
-        return frappe.pesa((value ?? 0) as string | number);
+        return fyo.pesa((value ?? 0) as string | number);
       case FieldTypeEnum.Date:
         return new Date(value as string);
       case FieldTypeEnum.Datetime:
@@ -119,7 +119,7 @@ export class Converter {
         docValueMap[fieldname] = Converter.toDocValue(
           rawValue,
           field.fieldtype,
-          this.frappe
+          this.fyo
         );
       }
     }

@@ -1,4 +1,4 @@
-import { ModelMap } from 'frappe/model/types';
+import { ModelMap } from 'fyo/model/types';
 import { Account } from './baseModels/Account/Account';
 import { AccountingLedgerEntry } from './baseModels/AccountingLedgerEntry/AccountingLedgerEntry';
 import { AccountingSettings } from './baseModels/AccountingSettings/AccountingSettings';

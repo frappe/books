@@ -1,5 +1,5 @@
 import { showMessageDialog } from '@/utils';
-import frappe, { t } from 'frappe';
+import frappe, { t } from 'fyo';
 import { DateTime } from 'luxon';
 import { stateCodeMap } from '../regional/in';
 import { exportCsv, saveExportData } from '../reports/commonExporter';

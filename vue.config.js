@@ -12,11 +12,11 @@ module.exports = {
       mainProcessTypeChecking: true,
       chainWebpackRendererProcess: (config) => {
         config.target('electron-renderer');
-        config.resolve.alias.set('frappe', path.resolve(__dirname, './frappe'));
+        config.resolve.alias.set('fyo', path.resolve(__dirname, './fyo'));
       },
       chainWebpackMainProcess: (config) => {
         config.target('electron-main');
-        config.resolve.alias.set('frappe', path.resolve(__dirname, './frappe'));
+        config.resolve.alias.set('fyo', path.resolve(__dirname, './fyo'));
         config.module
           .rule('js')
           .test(/\.js$/)
@@ -39,7 +39,7 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV !== 'production',
   configureWebpack(config) {
     Object.assign(config.resolve.alias, {
-      frappe: path.resolve(__dirname, './frappe'),
+      fyo: path.resolve(__dirname, './fyo'),
       '~': path.resolve('.'),
       schemas: path.resolve(__dirname, './schemas'),
       backend: path.resolve(__dirname, './backend'),

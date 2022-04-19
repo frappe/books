@@ -1,4 +1,4 @@
-import { t } from 'frappe';
+import { t } from 'fyo';
 import { DateTime } from 'luxon';
 import { stateCodeMap } from '../../accounting/gst';
 import { titleCase } from '../../src/utils';

@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe from 'fyo';
 import { DateTime } from 'luxon';
 import { convertPesaValuesToFloat } from '../../src/utils';
 
@@ -185,27 +185,36 @@ function getPeriodKey(date, periodicity, fiscalYear) {
   let getKey = {
     Monthly: () => `${dateObj.monthShort} ${year}`,
     Quarterly: () => {
-      const key = month < fisacalStart.month ? `${year-1} - ${year}` : `${year} - ${year+1}`;
+      const key =
+        month < fisacalStart.month
+          ? `${year - 1} - ${year}`
+          : `${year} - ${year + 1}`;
       let strYear = isSplit ? key : `${year}`;
       return {
         1: `Q1 ${strYear}`,
         2: `Q2 ${strYear}`,
         3: `Q3 ${strYear}`,
         4: `Q4 ${strYear}`,
-      }[quarters[month-1]];
+      }[quarters[month - 1]];
     },
     'Half Yearly': () => {
-      const key = month < fisacalStart.month ? `${year-1} - ${year}` : `${year} - ${year+1}`;
+      const key =
+        month < fisacalStart.month
+          ? `${year - 1} - ${year}`
+          : `${year} - ${year + 1}`;
       let strYear = isSplit ? key : `${year}`;
-      return  { 
+      return {
         1: `1st Half ${strYear}`,
         2: `1st Half ${strYear}`,
         3: `2nd Half ${strYear}`,
         4: `2nd Half ${strYear}`,
-      }[quarters[month-1]];
+      }[quarters[month - 1]];
     },
     Yearly: () => {
-      const key = month < fisacalStart.month ? `${year-1} - ${year}` : `${year} - ${year+1}`;
+      const key =
+        month < fisacalStart.month
+          ? `${year - 1} - ${year}`
+          : `${year} - ${year + 1}`;
       let strYear = isSplit ? key : `${year}`;
       return `FY ${strYear}`;
     },
@@ -304,11 +313,11 @@ export async function getFiscalYear() {
   //moving the financial quarters, according to of start of fiscal year month
   let quarters = [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4];
   let start = DateTime.fromISO(fiscalYearStart);
-  quarters.unshift(...quarters.splice(13-start.month, 11));
+  quarters.unshift(...quarters.splice(13 - start.month, 11));
 
-  //check if fiscal year ends in next year  
+  //check if fiscal year ends in next year
   let end = DateTime.fromISO(fiscalYearEnd);
-  let isFiscalSplit = start.year - end.year ;
+  let isFiscalSplit = start.year - end.year;
 
   return {
     start: fiscalYearStart,

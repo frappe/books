@@ -1,6 +1,6 @@
-import { Frappe } from 'frappe';
-import Doc from 'frappe/model/doc';
-import { ValidationError } from 'frappe/utils/errors';
+import { Fyo } from 'fyo';
+import Doc from 'fyo/model/doc';
+import { ValidationError } from 'fyo/utils/errors';
 import Money from 'pesa/dist/types/src/money';
 import {
   AccountEntry,
@@ -19,11 +19,11 @@ export class LedgerPosting {
   reverted: boolean;
   accountEntries: AccountEntry[];
 
-  frappe: Frappe;
+  fyo: Fyo;
 
   constructor(
     { reference, party, date, description }: LedgerPostingOptions,
-    frappe: Frappe
+    fyo: Fyo
   ) {
     this.reference = reference;
     this.party = party;
@@ -35,7 +35,7 @@ export class LedgerPosting {
     // To change balance while entering ledger entries
     this.accountEntries = [];
 
-    this.frappe = frappe;
+    this.fyo = fyo;
   }
 
   async debit(
@@ -66,7 +66,7 @@ export class LedgerPosting {
     amount: Money
   ) {
     const debitAccounts = ['Asset', 'Expense'];
-    const accountDoc = await this.frappe.doc.getDoc('Account', accountName);
+    const accountDoc = await this.fyo.doc.getDoc('Account', accountName);
     const rootType = accountDoc.rootType as string;
 
     if (debitAccounts.indexOf(rootType) === -1) {
@@ -94,8 +94,8 @@ export class LedgerPosting {
         referenceName: referenceName ?? this.reference.name!,
         description: this.description,
         reverted: this.reverted,
-        debit: this.frappe.pesa(0),
-        credit: this.frappe.pesa(0),
+        debit: this.fyo.pesa(0),
+        credit: this.fyo.pesa(0),
       };
 
       this.entries.push(entry);
@@ -113,7 +113,7 @@ export class LedgerPosting {
   async postReverse() {
     this.validateEntries();
 
-    const data = await this.frappe.db.getAll('AccountingLedgerEntry', {
+    const data = await this.fyo.db.getAll('AccountingLedgerEntry', {
       fields: ['name'],
       filters: {
         referenceName: this.reference.name!,
@@ -122,7 +122,7 @@ export class LedgerPosting {
     });
 
     for (const entry of data) {
-      const entryDoc = await this.frappe.doc.getDoc(
+      const entryDoc = await this.fyo.doc.getDoc(
         'AccountingLedgerEntry',
         entry.name as string
       );
@@ -166,10 +166,10 @@ export class LedgerPosting {
     const { debit, credit } = this.getTotalDebitAndCredit();
     if (debit.neq(credit)) {
       throw new ValidationError(
-        `Total Debit: ${this.frappe.format(
+        `Total Debit: ${this.fyo.format(
           debit,
           'Currency'
-        )} must be equal to Total Credit: ${this.frappe.format(
+        )} must be equal to Total Credit: ${this.fyo.format(
           credit,
           'Currency'
         )}`
@@ -178,8 +178,8 @@ export class LedgerPosting {
   }
 
   getTotalDebitAndCredit() {
-    let debit = this.frappe.pesa(0);
-    let credit = this.frappe.pesa(0);
+    let debit = this.fyo.pesa(0);
+    let credit = this.fyo.pesa(0);
 
     for (const entry of this.entries) {
       debit = debit.add(entry.debit);
@@ -191,12 +191,12 @@ export class LedgerPosting {
 
   async insertEntries() {
     for (const entry of this.entries) {
-      const entryDoc = this.frappe.doc.getNewDoc('AccountingLedgerEntry');
+      const entryDoc = this.fyo.doc.getNewDoc('AccountingLedgerEntry');
       Object.assign(entryDoc, entry);
       await entryDoc.insert();
     }
     for (const entry of this.accountEntries) {
-      const entryDoc = await this.frappe.doc.getDoc('Account', entry.name);
+      const entryDoc = await this.fyo.doc.getDoc('Account', entry.name);
       const balance = entryDoc.get('balance') as Money;
       entryDoc.balance = balance.add(entry.balanceChange);
       await entryDoc.update();
@@ -204,6 +204,6 @@ export class LedgerPosting {
   }
 
   getRoundOffAccount() {
-    return this.frappe.singles.AccountingSettings!.roundOffAccount as string;
+    return this.fyo.singles.AccountingSettings!.roundOffAccount as string;
   }
 }

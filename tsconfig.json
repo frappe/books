@@ -34,7 +34,7 @@
     "schemas/**/*.ts",
     "backend/**/*.ts",
 
-    "frappe/**/*.ts",
+    "fyo/**/*.ts",
     "models/**/*.ts",
     "patches/**/*.ts",
     "patches/**/*.js",

@@ -1,5 +1,6 @@
-import Doc from 'frappe/model/doc';
-import { EmptyMessageMap, FormulaMap, ListsMap } from 'frappe/model/types';
+import { Fyo } from 'fyo';
+import Doc from 'fyo/model/doc';
+import { EmptyMessageMap, FormulaMap, ListsMap } from 'fyo/model/types';
 import { stateCodeMap } from 'regional/in';
 import { titleCase } from 'utils';
 import countryInfo from '../../../fixtures/countryInfo.json';
@@ -36,12 +37,12 @@ export class Address extends Doc {
   };
 
   static emptyMessages: EmptyMessageMap = {
-    state: (doc: Doc, frappe) => {
+    state: (doc: Doc, fyo: Fyo) => {
       if (doc.country) {
-        return frappe.t`Enter State`;
+        return fyo.t`Enter State`;
       }
 
-      return frappe.t`Enter Country to load States`;
+      return fyo.t`Enter Country to load States`;
     },
   };
 }

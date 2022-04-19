@@ -1,5 +1,5 @@
-import Doc from 'frappe/model/doc';
-import { FiltersMap, FormulaMap } from 'frappe/model/types';
+import Doc from 'fyo/model/doc';
+import { FiltersMap, FormulaMap } from 'fyo/model/types';
 import Money from 'pesa/dist/types/src/money';
 
 export class JournalEntryAccount extends Doc {
@@ -8,7 +8,7 @@ export class JournalEntryAccount extends Doc {
 
     const otherTypeValue = this.get(otherType) as Money;
     if (!otherTypeValue.isZero()) {
-      return this.frappe.pesa(0);
+      return this.fyo.pesa(0);
     }
 
     const totalType = this.parentdoc!.getSum('accounts', type, false) as Money;

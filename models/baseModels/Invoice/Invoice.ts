@@ -1,7 +1,7 @@
 import { LedgerPosting } from 'accounting/ledgerPosting';
-import { DocValue } from 'frappe/core/types';
-import Doc from 'frappe/model/doc';
-import { DefaultMap, FiltersMap, FormulaMap } from 'frappe/model/types';
+import { DocValue } from 'fyo/core/types';
+import Doc from 'fyo/model/doc';
+import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
 import Money from 'pesa/dist/types/src/money';
 import { getExchangeRate } from '../../../accounting/exchangeRate';
 import { Party } from '../Party/Party';
@@ -27,7 +27,7 @@ export abstract class Invoice extends Doc {
   }
 
   async getPayments() {
-    const payments = await this.frappe.db.getAll('PaymentFor', {
+    const payments = await this.fyo.db.getAll('PaymentFor', {
       fields: ['parent'],
       filters: { referenceName: this.name! },
       orderBy: 'name',
@@ -55,12 +55,12 @@ export abstract class Invoice extends Doc {
     await entries.post();
 
     // update outstanding amounts
-    await this.frappe.db.update(this.schemaName, {
+    await this.fyo.db.update(this.schemaName, {
       name: this.name as string,
       outstandingAmount: this.baseGrandTotal!,
     });
 
-    const party = (await this.frappe.doc.getDoc('Party', this.party!)) as Party;
+    const party = (await this.fyo.doc.getDoc('Party', this.party!)) as Party;
     await party.updateOutstandingAmount();
   }
 
@@ -68,7 +68,7 @@ export abstract class Invoice extends Doc {
     const paymentRefList = await this.getPayments();
     for (const paymentFor of paymentRefList) {
       const paymentReference = paymentFor.parent;
-      const payment = (await this.frappe.doc.getDoc(
+      const payment = (await this.fyo.doc.getDoc(
         'Payment',
         paymentReference as string
       )) as Payment;
@@ -79,7 +79,7 @@ export abstract class Invoice extends Doc {
       }
 
       // To set the payment status as unsubmitted.
-      await this.frappe.db.update('Payment', {
+      await this.fyo.db.update('Payment', {
         name: paymentReference,
         submitted: false,
         cancelled: true,
@@ -92,7 +92,7 @@ export abstract class Invoice extends Doc {
   async getExchangeRate() {
     if (!this.currency) return 1.0;
 
-    const accountingSettings = await this.frappe.doc.getSingle(
+    const accountingSettings = await this.fyo.doc.getSingle(
       'AccountingSettings'
     );
     const companyCurrency = accountingSettings.currency;
@@ -130,8 +130,8 @@ export abstract class Invoice extends Doc {
         taxes[account] = taxes[account] || {
           account,
           rate,
-          amount: this.frappe.pesa(0),
-          baseAmount: this.frappe.pesa(0),
+          amount: this.fyo.pesa(0),
+          baseAmount: this.fyo.pesa(0),
         };
 
         const amount = (row.amount as Money).mul(rate).div(100);
@@ -150,7 +150,7 @@ export abstract class Invoice extends Doc {
 
   async getTax(tax: string) {
     if (!this._taxes![tax]) {
-      this._taxes[tax] = await this.frappe.doc.getDoc('Tax', tax);
+      this._taxes[tax] = await this.fyo.doc.getDoc('Tax', tax);
     }
 
     return this._taxes[tax];
@@ -167,7 +167,7 @@ export abstract class Invoice extends Doc {
       this.getFrom('Party', this.party!, 'defaultAccount') as string,
     currency: async () =>
       (this.getFrom('Party', this.party!, 'currency') as string) ||
-      (this.frappe.singles.AccountingSettings!.currency as string),
+      (this.fyo.singles.AccountingSettings!.currency as string),
     exchangeRate: async () => await this.getExchangeRate(),
     netTotal: async () => this.getSum('items', 'amount', false),
     baseNetTotal: async () => this.netTotal!.mul(this.exchangeRate!),

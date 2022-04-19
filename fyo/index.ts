@@ -19,7 +19,7 @@ import { format } from './utils/format';
 import { t, T } from './utils/translation';
 import { ErrorLog } from './utils/types';
 
-export class Frappe {
+export class Fyo {
   t = t;
   T = T;
 

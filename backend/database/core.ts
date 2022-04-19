@@ -1,4 +1,3 @@
-import { knex, Knex } from 'knex';
 import {
   CannotCommitError,
   DatabaseError,
@@ -6,7 +5,8 @@ import {
   LinkValidationError,
   NotFoundError,
   ValueError,
-} from '../../frappe/utils/errors';
+} from 'fyo/utils/errors';
+import { knex, Knex } from 'knex';
 import {
   Field,
   FieldTypeEnum,

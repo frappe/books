@@ -97,8 +97,8 @@ import config from '@/config';
 import { connectToLocalDatabase, purgeCache } from '@/initialization';
 import { setLanguageMap, showMessageDialog } from '@/utils';
 import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
 import fs from 'fs';
+import frappe from 'fyo';
 import path from 'path';
 import { IPC_MESSAGES } from 'utils/messages';
 import {

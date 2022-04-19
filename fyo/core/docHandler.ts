@@ -1,19 +1,19 @@
-import Doc from 'frappe/model/doc';
-import { DocMap, ModelMap, SinglesMap } from 'frappe/model/types';
-import { coreModels } from 'frappe/models';
-import { getRandomString } from 'frappe/utils';
-import Observable from 'frappe/utils/observable';
-import { Frappe } from '..';
+import Doc from 'fyo/model/doc';
+import { DocMap, ModelMap, SinglesMap } from 'fyo/model/types';
+import { coreModels } from 'fyo/models';
+import { getRandomString } from 'fyo/utils';
+import Observable from 'fyo/utils/observable';
+import { Fyo } from '..';
 import { DocValue, DocValueMap } from './types';
 
 export class DocHandler {
-  frappe: Frappe;
+  fyo: Fyo;
   singles: SinglesMap = {};
   docs: Observable<DocMap> = new Observable();
   models: ModelMap = {};
 
-  constructor(frappe: Frappe) {
-    this.frappe = frappe;
+  constructor(fyo: Fyo) {
+    this.fyo = fyo;
   }
 
   init() {
@@ -22,7 +22,7 @@ export class DocHandler {
   }
 
   registerModels(models: ModelMap, regionalModels: ModelMap = {}) {
-    for (const schemaName in this.frappe.db.schemaMap) {
+    for (const schemaName in this.fyo.db.schemaMap) {
       if (coreModels[schemaName] !== undefined) {
         this.models[schemaName] = coreModels[schemaName];
       } else if (regionalModels[schemaName] !== undefined) {
@@ -159,12 +159,12 @@ export class DocHandler {
 
   getNewDoc(schemaName: string, data: DocValueMap = {}): Doc {
     const Model = this.getModel(schemaName);
-    const schema = this.frappe.schemaMap[schemaName];
+    const schema = this.fyo.schemaMap[schemaName];
     if (schema === undefined) {
       throw new Error(`Schema not found for ${schemaName}`);
     }
 
-    const doc = new Model(schema, data, this.frappe);
+    const doc = new Model(schema, data, this.fyo);
     doc.setDefaults();
     return doc;
   }
@@ -175,7 +175,7 @@ export class DocHandler {
       return;
     }
 
-    const docExists = await this.frappe.db.exists(schemaName, name);
+    const docExists = await this.fyo.db.exists(schemaName, name);
     if (!docExists) {
       const doc = this.getNewDoc(schemaName, data);
       await doc.insert;

@@ -1,5 +1,5 @@
-import Doc from 'frappe/model/doc';
-import { FiltersMap, ListsMap } from 'frappe/model/types';
+import Doc from 'fyo/model/doc';
+import { FiltersMap, ListsMap } from 'fyo/model/types';
 import countryInfo from '../../../fixtures/countryInfo.json';
 
 export class AccountingSettings extends Doc {

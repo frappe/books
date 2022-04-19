@@ -1,11 +1,11 @@
-import { Frappe } from 'frappe';
-import Doc from 'frappe/model/doc';
+import { Fyo } from 'fyo';
+import Doc from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,
   FiltersMap,
   ListViewSettings,
-} from 'frappe/model/types';
+} from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { getLedgerLinkAction } from 'models/helpers';
 import Money from 'pesa/dist/types/src/money';
@@ -15,7 +15,7 @@ export class JournalEntry extends Doc {
   accounts: Doc[] = [];
 
   getPosting() {
-    const entries = new LedgerPosting({ reference: this }, this.frappe);
+    const entries = new LedgerPosting({ reference: this }, this.fyo);
 
     for (const row of this.accounts) {
       const debit = row.debit as Money;
@@ -56,17 +56,17 @@ export class JournalEntry extends Doc {
     numberSeries: () => ({ referenceType: 'JournalEntry' }),
   };
 
-  static getActions(frappe: Frappe): Action[] {
-    return [getLedgerLinkAction(frappe)];
+  static getActions(fyo: Fyo): Action[] {
+    return [getLedgerLinkAction(fyo)];
   }
 
-  static getListViewSettings(frappe: Frappe): ListViewSettings {
+  static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
       formRoute: (name) => `/edit/JournalEntry/${name}`,
       columns: [
         'date',
         {
-          label: frappe.t`Status`,
+          label: fyo.t`Status`,
           fieldtype: 'Select',
           size: 'small',
           render(doc) {
@@ -88,7 +88,7 @@ export class JournalEntry extends Doc {
           },
         },
         {
-          label: frappe.t`Entry ID`,
+          label: fyo.t`Entry ID`,
           fieldtype: 'Data',
           fieldname: 'name',
           getValue(doc) {

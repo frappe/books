@@ -1,4 +1,4 @@
-import Doc from 'frappe/model/doc';
+import Doc from 'fyo/model/doc';
 
 function getPaddedName(prefix: string, next: number, padZeros: number): string {
   return prefix + next.toString().padStart(padZeros ?? 4, '0');
@@ -31,7 +31,7 @@ export default class NumberSeries extends Doc {
     }
 
     const name = this.getPaddedName(this.current as number);
-    return await this.frappe.db.exists(schemaName, name);
+    return await this.fyo.db.exists(schemaName, name);
   }
 
   getPaddedName(next: number): string {

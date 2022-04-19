@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe from 'fyo';
 import { DateTime } from 'luxon';
 import {
   getFiscalYear,
