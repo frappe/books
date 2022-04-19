@@ -1,6 +1,6 @@
 import { SingleValue } from 'backend/database/types';
-import { Frappe } from 'frappe';
-import { DatabaseDemux } from 'frappe/demux/db';
+import { Fyo } from 'fyo';
+import { DatabaseDemux } from 'fyo/demux/db';
 import { Field, RawValue, SchemaMap } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import { DatabaseBase, DatabaseDemuxBase, GetAllOptions } from 'utils/db/types';
@@ -18,21 +18,21 @@ type TotalOutstanding = { total: number; outstanding: number };
 type Cashflow = { inflow: number; outflow: number; 'month-year': string }[];
 
 export class DatabaseHandler extends DatabaseBase {
-  #frappe: Frappe;
+  #fyo: Fyo;
   converter: Converter;
   #demux: DatabaseDemuxBase;
   schemaMap: Readonly<SchemaMap> = {};
   fieldValueMap: Record<string, Record<string, Field>> = {};
 
-  constructor(frappe: Frappe, Demux?: DatabaseDemuxConstructor) {
+  constructor(fyo: Fyo, Demux?: DatabaseDemuxConstructor) {
     super();
-    this.#frappe = frappe;
-    this.converter = new Converter(this, this.#frappe);
+    this.#fyo = fyo;
+    this.converter = new Converter(this, this.#fyo);
 
     if (Demux !== undefined) {
-      this.#demux = new Demux(frappe.isElectron);
+      this.#demux = new Demux(fyo.isElectron);
     } else {
-      this.#demux = new DatabaseDemux(frappe.isElectron);
+      this.#demux = new DatabaseDemux(fyo.isElectron);
     }
   }
 
@@ -117,7 +117,7 @@ export class DatabaseHandler extends DatabaseBase {
     const docSingleValue: SingleValue<DocValue> = [];
     for (const sv of rawSingleValue) {
       const fieldtype = this.fieldValueMap[sv.parent][sv.fieldname].fieldtype;
-      const value = Converter.toDocValue(sv.value, fieldtype, this.#frappe);
+      const value = Converter.toDocValue(sv.value, fieldtype, this.#fyo);
 
       docSingleValue.push({
         value,

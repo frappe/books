@@ -1,4 +1,4 @@
-import { t } from 'frappe';
+import { t } from 'fyo';
 
 export const ledgerLink = {
   label: t`Ledger Entries`,

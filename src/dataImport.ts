@@ -1,11 +1,11 @@
-import frappe from 'frappe';
-import { DocValueMap } from 'frappe/core/types';
-import Doc from 'frappe/model/doc';
-import { isNameAutoSet } from 'frappe/model/naming';
+import frappe from 'fyo';
+import { DocValueMap } from 'fyo/core/types';
+import Doc from 'fyo/model/doc';
+import { isNameAutoSet } from 'fyo/model/naming';
 import { FieldType, FieldTypeEnum } from 'schemas/types';
-import { parseCSV } from '../utils/csvParser';
 import telemetry from '../frappe/telemetry/telemetry';
 import { Noun, Verb } from '../frappe/telemetry/types';
+import { parseCSV } from '../utils/csvParser';
 
 export const importable = [
   'SalesInvoice',

@@ -1,6 +1,6 @@
-import { Frappe } from 'frappe';
-import { DocValue, DocValueMap } from 'frappe/core/types';
-import SystemSettings from 'frappe/models/SystemSettings';
+import { Fyo } from 'fyo';
+import { DocValue, DocValueMap } from 'fyo/core/types';
+import SystemSettings from 'fyo/models/SystemSettings';
 import { FieldType } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 import { Router } from 'vue-router';
@@ -51,7 +51,7 @@ export interface SinglesMap {
 export type FilterFunction = (doc: Doc) => QueryFilter;
 export type FiltersMap = Record<string, FilterFunction>;
 
-export type EmptyMessageFunction = (doc: Doc, frappe: Frappe) => string;
+export type EmptyMessageFunction = (doc: Doc, fyo: Fyo) => string;
 export type EmptyMessageMap = Record<string, EmptyMessageFunction>;
 
 export type ListFunction = (doc?: Doc) => string[];

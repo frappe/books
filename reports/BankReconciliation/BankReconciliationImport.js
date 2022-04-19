@@ -1,5 +1,5 @@
 import csv2json from 'csvjson-csv2json';
-import frappe from 'frappe';
+import frappe from 'fyo';
 import ReconciliationValidation from '../../src/components/ReconciliationValidation';
 
 export const fileImportHandler = (file, report) => {

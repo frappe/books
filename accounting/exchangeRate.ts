@@ -1,4 +1,4 @@
-import { NotFoundError } from 'frappe/utils/errors';
+import { NotFoundError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
 
 export async function getExchangeRate({

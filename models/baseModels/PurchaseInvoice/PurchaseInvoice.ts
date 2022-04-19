@@ -1,6 +1,6 @@
 import { LedgerPosting } from 'accounting/ledgerPosting';
-import { Frappe } from 'frappe';
-import { Action, ListViewSettings } from 'frappe/model/types';
+import { Fyo } from 'fyo';
+import { Action, ListViewSettings } from 'fyo/model/types';
 import {
   getTransactionActions,
   getTransactionStatusColumn,
@@ -17,7 +17,7 @@ export class PurchaseInvoice extends Invoice {
         reference: this,
         party: this.party,
       },
-      this.frappe
+      this.fyo
     );
 
     await entries.credit(this.account!, this.baseGrandTotal!);
@@ -36,17 +36,17 @@ export class PurchaseInvoice extends Invoice {
     return entries;
   }
 
-  static getActions(frappe: Frappe): Action[] {
-    return getTransactionActions('PurchaseInvoice', frappe);
+  static getActions(fyo: Fyo): Action[] {
+    return getTransactionActions('PurchaseInvoice', fyo);
   }
 
-  static getListViewSettings(frappe: Frappe): ListViewSettings {
+  static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
       formRoute: (name) => `/edit/PurchaseInvoice/${name}`,
       columns: [
         'party',
         'name',
-        getTransactionStatusColumn(frappe),
+        getTransactionStatusColumn(fyo),
         'date',
         'grandTotal',
         'outstandingAmount',

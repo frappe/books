@@ -1,5 +1,5 @@
-import { Frappe } from 'frappe';
-import { AuthDemux } from 'frappe/demux/auth';
+import { Fyo } from 'fyo';
+import { AuthDemux } from 'fyo/demux/auth';
 import { AuthDemuxBase, TelemetryCreds } from 'utils/auth/types';
 import { AuthDemuxConstructor } from './types';
 
@@ -17,11 +17,11 @@ interface Session {
 export class AuthHandler {
   #config: AuthConfig;
   #session: Session;
-  frappe: Frappe;
+  fyo: Fyo;
   #demux: AuthDemuxBase;
 
-  constructor(frappe: Frappe, Demux?: AuthDemuxConstructor) {
-    this.frappe = frappe;
+  constructor(fyo: Fyo, Demux?: AuthDemuxConstructor) {
+    this.fyo = fyo;
     this.#config = {
       serverURL: '',
       backend: 'sqlite',
@@ -34,9 +34,9 @@ export class AuthHandler {
     };
 
     if (Demux !== undefined) {
-      this.#demux = new Demux(frappe.isElectron);
+      this.#demux = new Demux(fyo.isElectron);
     } else {
-      this.#demux = new AuthDemux(frappe.isElectron);
+      this.#demux = new AuthDemux(fyo.isElectron);
     }
   }
 

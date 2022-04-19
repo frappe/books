@@ -1,13 +1,13 @@
-import { Frappe } from 'frappe';
-import Doc from 'frappe/model/doc';
-import { Action, ColumnConfig } from 'frappe/model/types';
+import { Fyo } from 'fyo';
+import Doc from 'fyo/model/doc';
+import { Action, ColumnConfig } from 'fyo/model/types';
 import Money from 'pesa/dist/types/src/money';
 import { Router } from 'vue-router';
 import { InvoiceStatus } from './types';
 
-export function getLedgerLinkAction(frappe: Frappe): Action {
+export function getLedgerLinkAction(fyo: Fyo): Action {
   return {
-    label: frappe.t`Ledger Entries`,
+    label: fyo.t`Ledger Entries`,
     condition: (doc: Doc) => !!doc.submitted,
     action: async (doc: Doc, router: Router) => {
       router.push({
@@ -27,15 +27,15 @@ export function getLedgerLinkAction(frappe: Frappe): Action {
 
 export function getTransactionActions(
   schemaName: string,
-  frappe: Frappe
+  fyo: Fyo
 ): Action[] {
   return [
     {
-      label: frappe.t`Make Payment`,
+      label: fyo.t`Make Payment`,
       condition: (doc: Doc) =>
         (doc.submitted as boolean) && (doc.outstandingAmount as Money).gt(0),
       action: async function makePayment(doc: Doc) {
-        const payment = await frappe.doc.getEmptyDoc('Payment');
+        const payment = await fyo.doc.getEmptyDoc('Payment');
         payment.once('afterInsert', async () => {
           await payment.submit();
         });
@@ -66,26 +66,26 @@ export function getTransactionActions(
       },
     },
     {
-      label: frappe.t`Print`,
+      label: fyo.t`Print`,
       condition: (doc: Doc) => doc.submitted as boolean,
       action: async (doc: Doc, router: Router) => {
         router.push({ path: `/print/${doc.doctype}/${doc.name}` });
       },
     },
-    getLedgerLinkAction(frappe),
+    getLedgerLinkAction(fyo),
   ];
 }
 
-export function getTransactionStatusColumn(frappe: Frappe): ColumnConfig {
+export function getTransactionStatusColumn(fyo: Fyo): ColumnConfig {
   const statusMap = {
-    Unpaid: frappe.t`Unpaid`,
-    Paid: frappe.t`Paid`,
-    Draft: frappe.t`Draft`,
-    Cancelled: frappe.t`Cancelled`,
+    Unpaid: fyo.t`Unpaid`,
+    Paid: fyo.t`Paid`,
+    Draft: fyo.t`Draft`,
+    Cancelled: fyo.t`Cancelled`,
   };
 
   return {
-    label: frappe.t`Status`,
+    label: fyo.t`Status`,
     fieldname: 'status',
     fieldtype: 'Select',
     render(doc: Doc) {

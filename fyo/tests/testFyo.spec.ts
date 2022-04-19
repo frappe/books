@@ -2,12 +2,12 @@ import * as assert from 'assert';
 import 'mocha';
 import models, { getRegionalModels } from 'models';
 import { getSchemas } from 'schemas';
-import { Frappe } from '..';
+import { Fyo } from '..';
 import { DatabaseManager } from '../../backend/database/manager';
 import { DummyAuthDemux } from './helpers';
 
-describe('Frappe', function () {
-  const frappe = new Frappe({
+describe('Fyo Init', function () {
+  const fyo = new Fyo({
     DatabaseDemux: DatabaseManager,
     AuthDemux: DummyAuthDemux,
     isTest: true,
@@ -16,49 +16,49 @@ describe('Frappe', function () {
 
   specify('Init', async function () {
     assert.strictEqual(
-      Object.keys(frappe.schemaMap).length,
+      Object.keys(fyo.schemaMap).length,
       0,
       'zero schemas one'
     );
 
     assert.strictEqual(
-      Object.keys(frappe.schemaMap).length,
+      Object.keys(fyo.schemaMap).length,
       0,
       'zero schemas two'
     );
 
-    await frappe.db.createNewDatabase(':memory:', 'in');
-    await frappe.initializeAndRegister({}, {});
+    await fyo.db.createNewDatabase(':memory:', 'in');
+    await fyo.initializeAndRegister({}, {});
     assert.strictEqual(
-      Object.keys(frappe.schemaMap).length > 0,
+      Object.keys(fyo.schemaMap).length > 0,
       true,
       'non zero schemas'
     );
-    await frappe.db.close();
+    await fyo.db.close();
   });
 });
 
-describe('Frappe', function () {
+describe('Fyo Docs', function () {
   const countryCode = 'in';
-  let frappe: Frappe;
+  let fyo: Fyo;
   const schemas = getSchemas(countryCode);
   this.beforeEach(async function () {
-    frappe = new Frappe({
+    fyo = new Fyo({
       DatabaseDemux: DatabaseManager,
       isTest: true,
       isElectron: false,
     });
 
     const regionalModels = await getRegionalModels(countryCode);
-    await frappe.db.createNewDatabase(':memory:', countryCode);
-    await frappe.initializeAndRegister(models, regionalModels);
+    await fyo.db.createNewDatabase(':memory:', countryCode);
+    await fyo.initializeAndRegister(models, regionalModels);
   });
 
   this.afterEach(async function () {
-    await frappe.close();
+    await fyo.close();
   });
 
   specify('temp', async function () {
-    frappe.db.schemaMap;
+    fyo.db.schemaMap;
   });
 });

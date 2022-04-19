@@ -1,5 +1,5 @@
 const title = 'Sales Register';
-import { t } from 'frappe';
+import { t } from 'fyo';
 
 export default {
   title: title,

@@ -1,4 +1,4 @@
-import { ModelMap } from 'frappe/model/types';
+import { ModelMap } from 'fyo/model/types';
 import NumberSeries from './NumberSeries';
 import SystemSettings from './SystemSettings';
 

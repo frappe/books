@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import { fyo } from '@/initFyo';
 
 export type TaxType = 'GST' | 'IGST' | 'Exempt-GST' | 'Exempt-IGST';
 
@@ -10,14 +10,14 @@ export default async function generateTaxes(country: string) {
       'Exempt-GST': [0],
       'Exempt-IGST': [0],
     };
-    const newTax = await frappe.doc.getEmptyDoc('Tax');
+    const newTax = await fyo.doc.getEmptyDoc('Tax');
 
     for (const type of Object.keys(GSTs)) {
       for (const percent of GSTs[type as TaxType]) {
         const name = `${type}-${percent}`;
 
         // Not cross checking cause hardcoded values.
-        await frappe.db.delete('Tax', name);
+        await fyo.db.delete('Tax', name);
 
         const details = getTaxDetails(type as TaxType, percent);
         await newTax.set({ name, details });

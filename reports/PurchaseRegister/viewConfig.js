@@ -1,5 +1,5 @@
 const title = 'Purchase Register';
-import { t } from 'frappe';
+import { t } from 'fyo';
 
 export default {
   title: title,

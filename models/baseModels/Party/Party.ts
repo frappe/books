@@ -1,11 +1,11 @@
-import { Frappe } from 'frappe';
-import Doc from 'frappe/model/doc';
+import { Fyo } from 'fyo';
+import Doc from 'fyo/model/doc';
 import {
   Action,
   FiltersMap,
   FormulaMap,
   ListViewSettings,
-} from 'frappe/model/types';
+} from 'fyo/model/types';
 import { PartyRole } from './types';
 
 export class Party extends Doc {
@@ -29,7 +29,7 @@ export class Party extends Doc {
     schemaName: 'SalesInvoice' | 'PurchaseInvoice'
   ) {
     const outstandingAmounts = (
-      await this.frappe.db.getAllRaw(schemaName, {
+      await this.fyo.db.getAllRaw(schemaName, {
         fields: ['outstandingAmount', 'party'],
         filters: { submitted: true },
       })
@@ -37,9 +37,9 @@ export class Party extends Doc {
 
     const totalOutstanding = outstandingAmounts
       .map(({ outstandingAmount }) =>
-        this.frappe.pesa(outstandingAmount as number)
+        this.fyo.pesa(outstandingAmount as number)
       )
-      .reduce((a, b) => a.add(b), this.frappe.pesa(0));
+      .reduce((a, b) => a.add(b), this.fyo.pesa(0));
 
     await this.set('outstandingAmount', totalOutstanding);
     await this.update();
@@ -57,11 +57,11 @@ export class Party extends Doc {
         accountName = 'Creditors';
       }
 
-      const accountExists = await this.frappe.db.exists('Account', accountName);
+      const accountExists = await this.fyo.db.exists('Account', accountName);
       return accountExists ? accountName : '';
     },
     currency: async () =>
-      this.frappe.singles.AccountingSettings!.currency as string,
+      this.fyo.singles.AccountingSettings!.currency as string,
     addressDisplay: async () => {
       const address = this.address as string | undefined;
       if (address) {
@@ -94,14 +94,14 @@ export class Party extends Doc {
     };
   }
 
-  static getActions(frappe: Frappe): Action[] {
+  static getActions(fyo: Fyo): Action[] {
     return [
       {
-        label: frappe.t`Create Bill`,
+        label: fyo.t`Create Bill`,
         condition: (doc: Doc) =>
           !doc.isNew && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
-          const doc = await frappe.doc.getEmptyDoc('PurchaseInvoice');
+          const doc = await fyo.doc.getEmptyDoc('PurchaseInvoice');
           router.push({
             path: `/edit/PurchaseInvoice/${doc.name}`,
             query: {
@@ -115,7 +115,7 @@ export class Party extends Doc {
         },
       },
       {
-        label: frappe.t`View Bills`,
+        label: fyo.t`View Bills`,
         condition: (doc: Doc) =>
           !doc.isNew && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
@@ -132,11 +132,11 @@ export class Party extends Doc {
         },
       },
       {
-        label: frappe.t`Create Invoice`,
+        label: fyo.t`Create Invoice`,
         condition: (doc: Doc) =>
           !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
-          const doc = await frappe.doc.getEmptyDoc('SalesInvoice');
+          const doc = await fyo.doc.getEmptyDoc('SalesInvoice');
           router.push({
             path: `/edit/SalesInvoice/${doc.name}`,
             query: {
@@ -150,7 +150,7 @@ export class Party extends Doc {
         },
       },
       {
-        label: frappe.t`View Invoices`,
+        label: fyo.t`View Invoices`,
         condition: (doc: Doc) =>
           !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {

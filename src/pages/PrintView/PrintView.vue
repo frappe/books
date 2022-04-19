@@ -60,7 +60,7 @@ import telemetry from '@/telemetry/telemetry';
 import { Verb } from '@/telemetry/types';
 import { makePDF } from '@/utils';
 import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
+import frappe from 'fyo';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {

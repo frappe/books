@@ -1,8 +1,8 @@
-import { DocValue } from 'frappe/core/types';
-import Doc from 'frappe/model/doc';
-import { ValidationMap } from 'frappe/model/types';
-import { ValidationError } from 'frappe/utils/errors';
-import { t } from 'frappe/utils/translation';
+import { DocValue } from 'fyo/core/types';
+import Doc from 'fyo/model/doc';
+import { ValidationMap } from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
+import { t } from 'fyo/utils/translation';
 
 export default class SystemSettings extends Doc {
   validations: ValidationMap = {

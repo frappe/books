@@ -1,12 +1,12 @@
-import { DocValue } from 'frappe/core/types';
-import Doc from 'frappe/model/doc';
+import { DocValue } from 'fyo/core/types';
+import Doc from 'fyo/model/doc';
 import {
   DependsOnMap,
   FiltersMap,
   FormulaMap,
   ValidationMap,
-} from 'frappe/model/types';
-import { ValidationError } from 'frappe/utils/errors';
+} from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
 import Money from 'pesa/dist/types/src/money';
 import { Invoice } from '../Invoice/Invoice';
 
@@ -32,7 +32,7 @@ export abstract class InvoiceItem extends Doc {
         'Item',
         this.item as string,
         'rate'
-      )) || this.frappe.pesa(0)) as Money;
+      )) || this.fyo.pesa(0)) as Money;
 
       return baseRate.div(this.exchangeRate!);
     },
@@ -74,7 +74,7 @@ export abstract class InvoiceItem extends Doc {
       }
 
       throw new ValidationError(
-        this.frappe.t`Rate (${this.frappe.format(
+        this.fyo.t`Rate (${this.fyo.format(
           value,
           'Currency'
         )}) cannot be less zero.`

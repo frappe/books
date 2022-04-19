@@ -1,6 +1,6 @@
-import { Frappe } from 'frappe';
-import { DocValue } from 'frappe/core/types';
-import Doc from 'frappe/model/doc';
+import { Fyo } from 'fyo';
+import { DocValue } from 'fyo/core/types';
+import Doc from 'fyo/model/doc';
 import {
   Action,
   DependsOnMap,
@@ -8,8 +8,8 @@ import {
   FormulaMap,
   ListViewSettings,
   ValidationMap,
-} from 'frappe/model/types';
-import { ValidationError } from 'frappe/utils/errors';
+} from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
 import Money from 'pesa/dist/types/src/money';
 
 export class Item extends Doc {
@@ -20,11 +20,11 @@ export class Item extends Doc {
         accountName = 'Sales';
       }
 
-      const accountExists = await this.frappe.db.exists('Account', accountName);
+      const accountExists = await this.fyo.db.exists('Account', accountName);
       return accountExists ? accountName : '';
     },
     expenseAccount: async () => {
-      const cogs = await this.frappe.db.getAllRaw('Account', {
+      const cogs = await this.fyo.db.getAllRaw('Account', {
         filters: {
           accountType: 'Cost of Goods Sold',
         },
@@ -57,18 +57,18 @@ export class Item extends Doc {
   validations: ValidationMap = {
     rate: async (value: DocValue) => {
       if ((value as Money).isNegative()) {
-        throw new ValidationError(this.frappe.t`Rate can't be negative.`);
+        throw new ValidationError(this.fyo.t`Rate can't be negative.`);
       }
     },
   };
 
-  static getActions(frappe: Frappe): Action[] {
+  static getActions(fyo: Fyo): Action[] {
     return [
       {
-        label: frappe.t`New Invoice`,
+        label: fyo.t`New Invoice`,
         condition: (doc) => !doc.isNew,
         action: async (doc, router) => {
-          const invoice = await frappe.doc.getEmptyDoc('SalesInvoice');
+          const invoice = await fyo.doc.getEmptyDoc('SalesInvoice');
           invoice.append('items', {
             item: doc.name as string,
             rate: doc.rate as Money,
@@ -78,10 +78,10 @@ export class Item extends Doc {
         },
       },
       {
-        label: frappe.t`New Bill`,
+        label: fyo.t`New Bill`,
         condition: (doc) => !doc.isNew,
         action: async (doc, router) => {
-          const invoice = await frappe.doc.getEmptyDoc('PurchaseInvoice');
+          const invoice = await fyo.doc.getEmptyDoc('PurchaseInvoice');
           invoice.append('items', {
             item: doc.name as string,
             rate: doc.rate as Money,

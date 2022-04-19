@@ -1,6 +1,6 @@
-import { Frappe } from 'frappe';
-import { DocValue } from 'frappe/core/types';
-import { isPesa } from 'frappe/utils';
+import { Fyo } from 'fyo';
+import { DocValue } from 'fyo/core/types';
+import { isPesa } from 'fyo/utils';
 import { isEqual } from 'lodash';
 import Money from 'pesa/dist/types/src/money';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
@@ -28,13 +28,13 @@ export function areDocValuesEqual(
 
 export function getPreDefaultValues(
   fieldtype: FieldType,
-  frappe: Frappe
+  fyo: Fyo
 ): DocValue | Doc[] {
   switch (fieldtype) {
     case FieldTypeEnum.Table:
       return [] as Doc[];
     case FieldTypeEnum.Currency:
-      return frappe.pesa!(0.0);
+      return fyo.pesa!(0.0);
     case FieldTypeEnum.Int:
     case FieldTypeEnum.Float:
       return 0;

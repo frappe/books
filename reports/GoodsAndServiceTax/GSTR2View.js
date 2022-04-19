@@ -1,5 +1,5 @@
 const title = 'GSTR 2';
-import { t } from 'frappe';
+import { t } from 'fyo';
 import { generateGstr2Csv } from '../../accounting/gst';
 import baseConfig from './BaseViewConfig';
 

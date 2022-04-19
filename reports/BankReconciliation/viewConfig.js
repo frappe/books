@@ -1,5 +1,5 @@
 const title = 'Bank Reconciliation';
-import { t } from 'frappe';
+import { t } from 'fyo';
 import ImportWizard from '../../src/components/ImportWizart';
 import BankReconciliationImport from './BankReconciliationImport';
 

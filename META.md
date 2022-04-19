@@ -18,7 +18,7 @@ requires resources from the _server_ side, it does so by making use of
 `ipcRenderer.send` or `ipcRenderer.invoke` i.e. if the front end is being run on
 electron.
 
-The `ipcRenderer` calls are done only in `frappe/demux/*.ts` files. I.e. these
+The `ipcRenderer` calls are done only in `fyo/demux/*.ts` files. I.e. these
 are the only files on the _client_ side that are aware of the platform the
 _client_ is being run on i.e. `electron` or Browser. So all platform specific
 calls should go through these _demux_ files.
@@ -53,7 +53,7 @@ individual ones, check the `README.md` in those subdirectories:
 | `src`          | _client_   | Code that mainly deals with the view layer (all `.vue` are stored here)                                                    |
 | `reports`      | _client_   | Collection of logic code and view layer config files for displaying reports.                                               |
 | `models`       | _client\*_ | Collection of `Model.ts` files that manage the data and some business logic on the client side.                            |
-| `frappe`       | _client\*_ | Code for the underlying library that manages the client side                                                               |
+| `fyo`          | _client\*_ | Code for the underlying library that manages the client side                                                               |
 | `utils`        | _agnostic_ | Collection of code used by either sides.                                                                                   |
 
 #### _client\*_

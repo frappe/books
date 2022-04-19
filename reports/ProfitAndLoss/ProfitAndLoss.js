@@ -1,4 +1,4 @@
-import { unique } from 'frappe/utils';
+import { unique } from 'fyo/utils';
 import { getData } from '../FinancialStatements/FinancialStatements';
 
 class ProfitAndLoss {

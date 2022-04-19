@@ -13,7 +13,7 @@
 
 <script>
 import TwoColumnForm from '@/components/TwoColumnForm';
-import frappe from 'frappe';
+import frappe from 'fyo';
 
 export default {
   name: 'TabGeneral',

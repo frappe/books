@@ -33,14 +33,14 @@
 import WindowsTitleBar from '@/components/WindowsTitleBar';
 import config from '@/config';
 import {
-  connectToLocalDatabase,
-  postSetup,
-  purgeCache,
+connectToLocalDatabase,
+postSetup,
+purgeCache
 } from '@/initialization';
-import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
 import fs from 'fs/promises';
+import frappe from 'fyo';
+import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import TelemetryModal from './components/once/TelemetryModal.vue';
 import { showErrorDialog } from './errorHandling';
 import DatabaseSelector from './pages/DatabaseSelector';

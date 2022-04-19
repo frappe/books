@@ -48,7 +48,7 @@ TelemetrySetting
 import { getTelemetryOptions } from '@/telemetry/helpers';
 import telemetry from '@/telemetry/telemetry';
 import { checkForUpdates } from '@/utils';
-import frappe from 'frappe';
+import frappe from 'fyo';
 
 export default {
   name: 'TabSystem',

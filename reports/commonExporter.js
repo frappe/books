@@ -1,4 +1,4 @@
-import frappe from 'frappe';
+import frappe from 'fyo';
 import telemetry from '../src/telemetry/telemetry';
 import { Verb } from '../src/telemetry/types';
 import { getSavePath, saveData, showExportInFolder } from '../src/utils';

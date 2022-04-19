@@ -1,10 +1,10 @@
-import { Frappe } from 'frappe';
-import Doc from 'frappe/model/doc';
+import { Fyo } from 'fyo';
+import Doc from 'fyo/model/doc';
 import {
   FiltersMap,
   ListViewSettings,
   TreeViewSettings,
-} from 'frappe/model/types';
+} from 'fyo/model/types';
 import { QueryFilter } from 'utils/db/types';
 import { AccountRootType, AccountType } from './types';
 
@@ -18,7 +18,7 @@ export class Account extends Doc {
       return;
     }
 
-    const account = await this.frappe.db.get(
+    const account = await this.fyo.db.get(
       'Account',
       this.parentAccount as string
     );
@@ -31,11 +31,11 @@ export class Account extends Doc {
     };
   }
 
-  static getTreeSettings(frappe: Frappe): void | TreeViewSettings {
+  static getTreeSettings(fyo: Fyo): void | TreeViewSettings {
     return {
       parentField: 'parentAccount',
       async getRootLabel(): Promise<string> {
-        const accountingSettings = await frappe.doc.getSingle(
+        const accountingSettings = await fyo.doc.getSingle(
           'AccountingSettings'
         );
         return accountingSettings.companyName as string;
