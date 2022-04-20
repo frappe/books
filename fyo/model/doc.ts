@@ -676,6 +676,14 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     return this.fyo.doc.getCachedValue(schemaName, name, fieldname);
   }
 
+  async setAndUpdate(
+    fieldname: string | DocValueMap,
+    value?: DocValue | Doc[]
+  ) {
+    await this.set(fieldname, value);
+    return await this.update();
+  }
+
   async duplicate(shouldInsert: boolean = true): Promise<Doc> {
     const updateMap: DocValueMap = {};
     const docValueMap = this.getValidDict();

@@ -14,11 +14,11 @@
         "Bank ": {
           "Bank Other Currency": {
             "accountNumber": "1122.000",
-            "isGroup": 1
+            "isGroup": true
           },
           "Bank Rupiah": {
             "accountNumber": "1121.000",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountNumber": "1120.000",
           "accountType": "Bank"
@@ -70,7 +70,7 @@
           "Persediaan Barang": {
             "accountNumber": "1141.000",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Uang Muka Pembelian": {
             "Uang Muka Pembelian": {
@@ -122,7 +122,7 @@
           "Investasi": {
             "Deposito": {
               "accountNumber": "1231.003",
-              "isGroup": 1
+              "isGroup": true
             },
             "Investai Saham": {
               "Investasi Saham": {

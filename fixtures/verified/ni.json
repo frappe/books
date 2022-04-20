@@ -57,7 +57,7 @@
           },
           "Otros Equivalentes a Efectivo": {
             "accountType": "Cash",
-            "isGroup": 1
+            "isGroup": true
           }
         },
         "Impuestos Acreditables": {
@@ -91,41 +91,41 @@
           },
           "Todos los Almacenes": {
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountType": "Stock"
         },
         "Otras Cuentas por Cobrar": {
           "accountType": "Receivable",
-          "isGroup": 1
+          "isGroup": true
         }
       },
       "Activo no Corriente": {
         "Activo por Impuestos Diferidos": {
-          "isGroup": 1
+          "isGroup": true
         },
         "Activos Intangibles": {
           "Amortizacion de Activos Intangibles": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Concesiones": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Derechos de Autor": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Deterioro de Valor de Activos Intangibles": {},
           "Gastos de investigacion": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Licencias": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Marcas Registradas": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Patentes": {
-            "isGroup": 1
+            "isGroup": true
           }
         },
         "Amortizables": {
@@ -138,7 +138,7 @@
             "accountType": "Expenses Included In Valuation"
           },
           "Mejoras en Bienes Arrendados": {
-            "isGroup": 1
+            "isGroup": true
           }
         },
         "Bienes en Arrendamiento Financiero": {
@@ -147,28 +147,28 @@
         },
         "Cuentas por Cobrar a Largo Plazo": {
           "Creditos a Largo Plazo": {
-            "isGroup": 1
+            "isGroup": true
           }
         },
         "Inversiones Permanentes": {
           "Inversiones Permanentes 1": {
             "accountType": "Fixed Asset",
-            "isGroup": 1
+            "isGroup": true
           },
           "Negocios Conjuntos": {
             "accountType": "Fixed Asset",
-            "isGroup": 1
+            "isGroup": true
           }
         },
         "Inversiones a Largo Plazo": {
           "Depositos Bancarios a Plazo": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Intereses percibidos por adelantado": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Titulos y Acciones": {
-            "isGroup": 1
+            "isGroup": true
           }
         },
         "Propiedad Planta y Equipo": {
@@ -203,7 +203,7 @@
         }
       },
       "Donaciones": {
-        "isGroup": 1
+        "isGroup": true
       },
       "Ganancias Acumuladas": {
         "Reservas": {
@@ -319,7 +319,7 @@
     },
     "Pasivo": {
       "Obligaciones por Arrendamiento Financiero a Largo Plazo": {
-        "isGroup": 1
+        "isGroup": true
       },
       "Pasivo Corriente": {
         "Anticipos de Clientes": {},
@@ -345,11 +345,11 @@
         },
         "Gastos por Pagar": {
           "Prestaciones Sociales": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Salarios por Pagar": {},
           "Servicios Basicos 1": {
-            "isGroup": 1
+            "isGroup": true
           }
         },
         "Impuestos por Pagar": {
@@ -372,17 +372,17 @@
           }
         },
         "Otras Cuentas por Pagar": {
-          "isGroup": 1
+          "isGroup": true
         },
         "Pasivos Financieros a Corto Plazo": {
           "Otras Deudas Bancarias": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Prestamos por Pagar a Corto Plazo": {
-            "isGroup": 1
+            "isGroup": true
           },
           "Sobregiros Bancarios": {
-            "isGroup": 1
+            "isGroup": true
           }
         },
         "Provisiones por Pagar": {
@@ -473,20 +473,20 @@
       },
       "Pasivo No Corriente": {
         "Cuentas por Pagar a Largo Plaso": {
-          "isGroup": 1
+          "isGroup": true
         },
         "Otras Cuentas por Pagar a Largo Plazo": {
-          "isGroup": 1
+          "isGroup": true
         },
         "Otros Pasivos Financieros a Largo Plaso": {
-          "isGroup": 1
+          "isGroup": true
         },
         "Prestamos a Largo Plazo": {
-          "isGroup": 1
+          "isGroup": true
         }
       },
       "Pasivo por Impuestos Diferidos": {
-        "isGroup": 1
+        "isGroup": true
       },
       "rootType": "Liability"
     }

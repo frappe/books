@@ -79,7 +79,7 @@ function addNewFile(
 ): UniqueId {
   const newFile: ConfigFile = {
     companyName,
-    filePath: fyo.config.get(ConfigKeys.LastSelectedFilePath, '') as string,
+    dbPath: fyo.config.get(ConfigKeys.LastSelectedFilePath, '') as string,
     id: getId(),
   };
 

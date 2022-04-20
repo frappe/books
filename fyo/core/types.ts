@@ -34,7 +34,7 @@ export enum ConfigKeys {
 export interface ConfigFile {
   id: string;
   companyName: string;
-  filePath: string;
+  dbPath: string;
 }
 
 export interface FyoConfig {

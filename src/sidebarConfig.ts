@@ -1,8 +1,9 @@
-import frappe, { t } from 'frappe';
+import { t } from 'fyo';
+import { fyo } from './initFyo';
 
 const config = {
   getTitle: async () => {
-    const { companyName } = await frappe.getSingle('AccountingSettings');
+    const { companyName } = await fyo.doc.getSingle('AccountingSettings');
     return companyName;
   },
   getGroups: () => [
@@ -113,12 +114,12 @@ const config = {
         {
           label: t`GSTR1`,
           route: '/report/gstr-1',
-          hidden: () => frappe.AccountingSettings.country !== 'India',
+          hidden: () => fyo.singles.AccountingSettings!.country !== 'India',
         },
         {
           label: t`GSTR2`,
           route: '/report/gstr-2',
-          hidden: () => frappe.AccountingSettings.country !== 'India',
+          hidden: () => fyo.singles.AccountingSettings!.country !== 'India',
         },
       ],
     },

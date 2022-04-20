@@ -60,3 +60,12 @@ export function getYMin(points: Array<Array<number>>): number {
 
   return getVal(minVal);
 }
+
+export function formatXLabels(label: string) {
+  // Format: Mmm YYYY -> Mm YY
+  const splits = label.split(' ');
+  const month = splits[0];
+  const year = splits[1].slice(2);
+
+  return `${month} ${year}`;
+}

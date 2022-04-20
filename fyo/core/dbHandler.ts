@@ -21,6 +21,7 @@ export class DatabaseHandler extends DatabaseBase {
   #fyo: Fyo;
   converter: Converter;
   #demux: DatabaseDemuxBase;
+  dbPath?: string;
   schemaMap: Readonly<SchemaMap> = {};
   fieldValueMap: Record<string, Record<string, Field>> = {};
 
@@ -39,12 +40,14 @@ export class DatabaseHandler extends DatabaseBase {
   async createNewDatabase(dbPath: string, countryCode: string) {
     countryCode = await this.#demux.createNewDatabase(dbPath, countryCode);
     await this.init();
+    this.dbPath = dbPath;
     return countryCode;
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {
     countryCode = await this.#demux.connectToDatabase(dbPath, countryCode);
     await this.init();
+    this.dbPath = dbPath;
     return countryCode;
   }
 

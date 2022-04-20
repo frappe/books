@@ -10,10 +10,10 @@ import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { fyo } from './initFyo';
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: Dashboard,
@@ -62,9 +62,12 @@ const routes = [
     },
     props: {
       default: (route) => {
-        let { doctype, filters, fieldname, value } = route.params;
+        const { doctype, fieldname, value } = route.params;
+        let { filters } = route.params;
+
         if (filters === undefined && fieldname && value) {
-          filters = { [fieldname]: value };
+          // @ts-ignore
+          filters = { [fieldname as string]: value };
         }
 
         return {
@@ -114,7 +117,7 @@ const routes = [
 
 const router = createRouter({ routes, history: createWebHistory() });
 
-function removeDetails(path) {
+function removeDetails(path: string) {
   if (!path) {
     return path;
   }
@@ -124,7 +127,7 @@ function removeDetails(path) {
     return path;
   }
 
-  return path.slice(0, match.index + 4);
+  return path.slice(0, match.index! + 4);
 }
 
 router.afterEach((to, from) => {
@@ -135,9 +138,5 @@ router.afterEach((to, from) => {
 
   fyo.telemetry.log(Verb.Navigated, NounEnum.Route, more);
 });
-
-if (process.env.NODE_ENV === 'development') {
-  window.router = router;
-}
 
 export default router;

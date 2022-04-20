@@ -1,10 +1,12 @@
-import frappe from 'frappe';
 import { DateTime } from 'luxon';
+import { fyo } from 'src/initFyo';
 
-export async function getDatesAndPeriodicity(period) {
+export async function getDatesAndPeriodicity(
+  period: 'This Year' | 'This Quarter' | 'This Month'
+) {
   let fromDate, toDate;
-  let periodicity = 'Monthly';
-  let accountingSettings = await frappe.getSingle('AccountingSettings');
+  const periodicity = 'Monthly';
+  const accountingSettings = await fyo.doc.getSingle('AccountingSettings');
 
   if (period === 'This Year') {
     fromDate = accountingSettings.fiscalYearStart;

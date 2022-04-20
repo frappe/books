@@ -386,7 +386,7 @@
         },
         "Duties and Taxes": {
           "accountType": "Tax",
-          "isGroup": 1
+          "isGroup": true
         },
         "Reservations & Credit Notes": {
           "Credit Notes": {

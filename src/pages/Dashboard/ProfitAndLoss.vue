@@ -30,8 +30,7 @@
 <script>
 import frappe from 'frappe';
 import BarChart from 'src/components/Charts/BarChart.vue';
-import { getYMax, getYMin } from 'src/components/Charts/chartUtils';
-import { formatXLabels } from 'src/utils';
+import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
 import ProfitAndLoss from '../../../reports/ProfitAndLoss/ProfitAndLoss';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
