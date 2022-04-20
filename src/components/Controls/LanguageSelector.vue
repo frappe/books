@@ -7,10 +7,10 @@
   />
 </template>
 <script>
-import config from '@/config';
-import { languageCodeMap } from '@/languageCodeMap';
-import { setLanguageMap } from '@/utils';
 import { DEFAULT_LANGUAGE } from 'frappe/utils/consts';
+import config from 'src/config';
+import { languageCodeMap } from 'src/languageCodeMap';
+import { setLanguageMap } from 'src/utils';
 import FormControl from './FormControl';
 
 export default {

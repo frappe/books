@@ -1,5 +1,5 @@
-import { createNumberSeries } from 'frappe/model/naming';
-import { DEFAULT_SERIES_START } from 'frappe/utils/consts';
+import { createNumberSeries } from 'fyo/model/naming';
+import { DEFAULT_SERIES_START } from 'fyo/utils/consts';
 import { getValueMapFromList } from 'utils';
 import { fyo } from './initFyo';
 

@@ -1,6 +1,6 @@
-import { showMessageDialog } from '@/utils';
 import frappe, { t } from 'fyo';
 import { DateTime } from 'luxon';
+import { showMessageDialog } from 'src/utils';
 import { stateCodeMap } from '../regional/in';
 import { exportCsv, saveExportData } from '../reports/commonExporter';
 import { getSavePath } from '../src/utils';
@@ -50,7 +50,7 @@ export async function generateGstr1Json(getReportData) {
   if (!gstin) {
     showMessageDialog({
       message: t`Export Failed`,
-      description: t`Please set GSTIN in General Settings.`,
+      detail: t`Please set GSTIN in General Settings.`,
     });
     return;
   }
@@ -232,7 +232,7 @@ export async function generateGstr2Csv(getReportData) {
   if (!gstin) {
     showMessageDialog({
       message: t`Export Failed`,
-      description: t`Please set GSTIN in General Settings.`,
+      detail: t`Please set GSTIN in General Settings.`,
     });
     return;
   }
@@ -313,7 +313,7 @@ export async function generateGstr1Csv(getReportData) {
   if (!gstin) {
     showMessageDialog({
       message: t`Export Failed`,
-      description: t`Please set GSTIN in General Settings.`,
+      detail: t`Please set GSTIN in General Settings.`,
     });
     return;
   }

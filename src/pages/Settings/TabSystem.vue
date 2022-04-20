@@ -38,17 +38,17 @@
 </template>
 
 <script>
-import FormControl from '@/components/Controls/FormControl';
-import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
-import TwoColumnForm from '@/components/TwoColumnForm';
+import frappe from 'fyo';
+import FormControl from 'src/components/Controls/FormControl';
+import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
+import TwoColumnForm from 'src/components/TwoColumnForm';
 import config, {
 ConfigKeys,
 TelemetrySetting
-} from '@/config';
-import { getTelemetryOptions } from '@/telemetry/helpers';
-import telemetry from '@/telemetry/telemetry';
-import { checkForUpdates } from '@/utils';
-import frappe from 'fyo';
+} from 'src/config';
+import { getTelemetryOptions } from 'src/telemetry/helpers';
+import telemetry from 'src/telemetry/telemetry';
+import { checkForUpdates } from 'src/utils';
 
 export default {
   name: 'TabSystem',

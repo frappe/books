@@ -1,10 +1,10 @@
 import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
 import { createApp } from 'vue';
 import App from './App';
 import FeatherIcon from './components/FeatherIcon';
 import config, { ConfigKeys } from './config';
 import { getErrorHandled, handleError } from './errorHandling';
+import { fyo } from './initFyo';
 import { IPC_ACTIONS } from './messages';
 import { incrementOpenCount } from './renderer/helpers';
 import registerIpcRendererListeners from './renderer/registerIpcRendererListeners';
@@ -13,7 +13,7 @@ import { outsideClickDirective } from './ui';
 import { setLanguageMap, stringifyCircular } from './utils';
 
 (async () => {
-  const language = config.get(ConfigKeys.Language);
+  const language = fyo.config.get(ConfigKeys.Language);
   if (language) {
     await setLanguageMap(language);
   }
@@ -22,15 +22,15 @@ import { setLanguageMap, stringifyCircular } from './utils';
     window.config = config;
   }
 
-  frappe.isElectron = true;
+  fyo.isElectron = true;
 
   const models = (await import('../models')).default;
-  await frappe.initializeAndRegister(models);
+  await fyo.initializeAndRegister(models);
 
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
 
-  window.frappe = frappe;
+  window.frappe = fyo;
 
   window.onerror = (message, source, lineno, colno, error) => {
     error = error ?? new Error('triggered in window.onerror');
@@ -50,7 +50,7 @@ import { setLanguageMap, stringifyCircular } from './utils';
   app.mixin({
     computed: {
       frappe() {
-        return frappe;
+        return fyo;
       },
       platform() {
         switch (process.platform) {
@@ -66,8 +66,8 @@ import { setLanguageMap, stringifyCircular } from './utils';
       },
     },
     methods: {
-      t: frappe.t,
-      T: frappe.T,
+      t: fyo.t,
+      T: fyo.T,
     },
   });
 
@@ -88,7 +88,7 @@ import { setLanguageMap, stringifyCircular } from './utils';
     console.error(err, vm, info);
   };
 
-  frappe.store.appVersion = await ipcRenderer.invoke(IPC_ACTIONS.GET_VERSION);
+  fyo.store.appVersion = await ipcRenderer.invoke(IPC_ACTIONS.GET_VERSION);
   incrementOpenCount();
   app.mount('body');
 
@@ -100,4 +100,3 @@ import { setLanguageMap, stringifyCircular } from './utils';
     handleError(true, error, {}, () => process.exit(1));
   });
 })();
-

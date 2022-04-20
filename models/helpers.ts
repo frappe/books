@@ -43,7 +43,7 @@ export function getTransactionActions(schemaName: string, fyo: Fyo): Action[] {
         const paymentType = isSales ? 'Receive' : 'Pay';
         const hideAccountField = isSales ? 'account' : 'paymentAccount';
 
-        const { openQuickEdit } = await import('../src/utils');
+        const { openQuickEdit } = await import('src/utils/ui');
         await openQuickEdit({
           schemaName: 'Payment',
           name: payment.name as string,

@@ -77,13 +77,13 @@
 </template>
 
 <script>
-import Button from '@/components/Button';
-import FormControl from '@/components/Controls/FormControl';
-import DropdownWithActions from '@/components/DropdownWithActions';
-import StatusBadge from '@/components/StatusBadge';
-import TwoColumnForm from '@/components/TwoColumnForm';
-import { getActionsForDocument, openQuickEdit } from '@/utils';
 import frappe, { t } from 'frappe';
+import Button from 'src/components/Button';
+import FormControl from 'src/components/Controls/FormControl';
+import DropdownWithActions from 'src/components/DropdownWithActions';
+import StatusBadge from 'src/components/StatusBadge';
+import TwoColumnForm from 'src/components/TwoColumnForm';
+import { getActionsForDocument, openQuickEdit } from 'src/utils';
 
 export default {
   name: 'QuickEditForm',

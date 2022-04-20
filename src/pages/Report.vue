@@ -136,15 +136,15 @@
   </div>
 </template>
 <script>
-import reportViewConfig from '@/../reports/view';
-import Button from '@/components/Button';
-import FormControl from '@/components/Controls/FormControl';
-import FeatherIcon from '@/components/FeatherIcon.vue';
-import PageHeader from '@/components/PageHeader';
-import Row from '@/components/Row';
-import SearchBar from '@/components/SearchBar';
-import WithScroll from '@/components/WithScroll';
 import frappe from 'frappe';
+import reportViewConfig from 'src/../reports/view';
+import Button from 'src/components/Button';
+import FormControl from 'src/components/Controls/FormControl';
+import FeatherIcon from 'src/components/FeatherIcon.vue';
+import PageHeader from 'src/components/PageHeader';
+import Row from 'src/components/Row';
+import SearchBar from 'src/components/SearchBar';
+import WithScroll from 'src/components/WithScroll';
 import { h, markRaw } from 'vue';
 import { getReportData } from '../../reports/index';
 import DropdownWithActions from '../components/DropdownWithActions.vue';

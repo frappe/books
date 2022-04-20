@@ -1,12 +1,12 @@
-import Badge from '@/components/Badge';
-import { openQuickEdit } from '@/utils';
+import Badge from 'src/components/Badge';
+import { openQuickEdit } from 'src/utils';
 import frappe, { t } from 'frappe';
 import { markRaw } from 'vue';
 import AutoComplete from './AutoComplete';
 <script>
-import Badge from '@/components/Badge';
-import { openQuickEdit } from '@/utils';
 import frappe, { t } from 'frappe';
+import Badge from 'src/components/Badge';
+import { openQuickEdit } from 'src/utils';
 import { markRaw } from 'vue';
 import AutoComplete from './AutoComplete';
 

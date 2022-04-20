@@ -1,17 +1,17 @@
-import ChartOfAccounts from '@/pages/ChartOfAccounts.vue';
-import Dashboard from '@/pages/Dashboard/Dashboard.vue';
-import DataImport from '@/pages/DataImport.vue';
-import GetStarted from '@/pages/GetStarted.vue';
-import InvoiceForm from '@/pages/InvoiceForm.vue';
-import JournalEntryForm from '@/pages/JournalEntryForm.vue';
-import ListView from '@/pages/ListView/ListView.vue';
-import PrintView from '@/pages/PrintView/PrintView.vue';
-import QuickEditForm from '@/pages/QuickEditForm.vue';
-import Report from '@/pages/Report.vue';
-import Settings from '@/pages/Settings/Settings.vue';
+import { NounEnum, Verb } from 'fyo/telemetry/types';
+import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
+import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
+import DataImport from 'src/pages/DataImport.vue';
+import GetStarted from 'src/pages/GetStarted.vue';
+import InvoiceForm from 'src/pages/InvoiceForm.vue';
+import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
+import ListView from 'src/pages/ListView/ListView.vue';
+import PrintView from 'src/pages/PrintView/PrintView.vue';
+import QuickEditForm from 'src/pages/QuickEditForm.vue';
+import Report from 'src/pages/Report.vue';
+import Settings from 'src/pages/Settings/Settings.vue';
 import { createRouter, createWebHistory } from 'vue-router';
-import telemetry from '../frappe/telemetry/telemetry';
-import { NounEnum, Verb } from '../frappe/telemetry/types';
+import { fyo } from './initFyo';
 
 const routes = [
   {
@@ -112,7 +112,7 @@ const routes = [
   },
 ];
 
-let router = createRouter({ routes, history: createWebHistory() });
+const router = createRouter({ routes, history: createWebHistory() });
 
 function removeDetails(path) {
   if (!path) {
@@ -133,7 +133,7 @@ router.afterEach((to, from) => {
     to: removeDetails(to.fullPath),
   };
 
-  telemetry.log(Verb.Navigated, NounEnum.Route, more);
+  fyo.telemetry.log(Verb.Navigated, NounEnum.Route, more);
 });
 
 if (process.env.NODE_ENV === 'development') {

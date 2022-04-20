@@ -1,7 +1,7 @@
-import config from '@/config';
+import countryList from 'fixtures/countryInfo.json';
 import frappe from 'fyo';
 import { DEFAULT_LOCALE } from 'fyo/utils/consts';
-import countryList from '~/fixtures/countryInfo.json';
+import config from 'src/config';
 import importCharts from '../../../accounting/importCOA';
 import generateTaxes from '../../../models/doctype/Tax/RegionalEntries';
 import regionalModelUpdates from '../../../models/regionalModelUpdates';

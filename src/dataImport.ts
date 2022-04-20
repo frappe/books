@@ -1,11 +1,11 @@
-import frappe from 'fyo';
+import { t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import Doc from 'fyo/model/doc';
 import { isNameAutoSet } from 'fyo/model/naming';
+import { Noun, Verb } from 'fyo/telemetry/types';
 import { FieldType, FieldTypeEnum } from 'schemas/types';
-import telemetry from '../frappe/telemetry/telemetry';
-import { Noun, Verb } from '../frappe/telemetry/types';
 import { parseCSV } from '../utils/csvParser';
+import { fyo } from './initFyo';
 
 export const importable = [
   'SalesInvoice',
@@ -364,7 +364,7 @@ export class Importer {
 
   async importData(setLoadingStatus: LoadingStatusCallback): Promise<Status> {
     const status: Status = { success: false, names: [], message: '' };
-    const shouldDeleteName = isNameAutoSet(this.doctype);
+    const shouldDeleteName = isNameAutoSet(this.doctype, fyo);
     const docObjs = this.getDocs();
 
     let entriesMade = 0;
@@ -383,7 +383,7 @@ export class Importer {
         delete docObj[key];
       }
 
-      const doc: Doc = frappe.doc.getEmptyDoc(this.doctype, false);
+      const doc: Doc = fyo.doc.getEmptyDoc(this.doctype, false);
       try {
         await this.makeEntry(doc, docObj);
         entriesMade += 1;
@@ -391,7 +391,7 @@ export class Importer {
       } catch (err) {
         setLoadingStatus(false, entriesMade, docObjs.length);
 
-        telemetry.log(Verb.Imported, this.doctype as Noun, {
+        fyo.telemetry.log(Verb.Imported, this.doctype as Noun, {
           success: false,
           count: entriesMade,
         });
@@ -405,7 +405,7 @@ export class Importer {
     setLoadingStatus(false, entriesMade, docObjs.length);
     status.success = true;
 
-    telemetry.log(Verb.Imported, this.doctype as Noun, {
+    fyo.telemetry.log(Verb.Imported, this.doctype as Noun, {
       success: true,
       count: entriesMade,
     });
@@ -426,18 +426,18 @@ export class Importer {
   }
 
   handleError(doc: Doc, err: Error, status: Status): Status {
-    const messages = [frappe.t`Could not import ${this.doctype} ${doc.name!}.`];
+    const messages = [t`Could not import ${this.doctype} ${doc.name!}.`];
 
     const message = err.message;
     if (message?.includes('UNIQUE constraint failed')) {
-      messages.push(frappe.t`${doc.name!} already exists.`);
+      messages.push(t`${doc.name!} already exists.`);
     } else if (message) {
       messages.push(message);
     }
 
     if (status.names.length) {
       messages.push(
-        frappe.t`The following ${
+        t`The following ${
           status.names.length
         } entries were created: ${status.names.join(', ')}`
       );

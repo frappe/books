@@ -1,4 +1,4 @@
-import { fyo } from '@/initFyo';
+import { fyo } from 'src/initFyo';
 
 export type TaxType = 'GST' | 'IGST' | 'Exempt-GST' | 'Exempt-IGST';
 

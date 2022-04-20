@@ -59,8 +59,11 @@ export type ListsMap = Record<string, ListFunction>;
 
 export interface Action {
   label: string;
-  condition: (doc: Doc) => boolean;
-  action: (doc: Doc, router: Router) => Promise<void>;
+  action: (doc: Doc, router: Router) => Promise<void> | void;
+  condition?: (doc: Doc) => boolean;
+  component?: {
+    template?: string;
+  };
 }
 
 export interface ColumnConfig {

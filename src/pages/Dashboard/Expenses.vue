@@ -50,8 +50,8 @@
 </template>
 
 <script>
-import theme from '@/theme';
 import frappe from 'frappe';
+import theme from 'src/theme';
 import DonutChart from '../../components/Charts/DonutChart.vue';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';

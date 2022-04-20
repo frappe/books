@@ -336,17 +336,17 @@
   </div>
 </template>
 <script>
-import Button from '@/components/Button.vue';
-import FormControl from '@/components/Controls/FormControl';
-import DropdownWithActions from '@/components/DropdownWithActions.vue';
-import FeatherIcon from '@/components/FeatherIcon.vue';
-import HowTo from '@/components/HowTo.vue';
-import PageHeader from '@/components/PageHeader.vue';
-import { importable, Importer } from '@/dataImport';
-import { IPC_ACTIONS } from 'utils/messages';
-import { getSavePath, saveData, showMessageDialog } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe from 'frappe';
+import Button from 'src/components/Button.vue';
+import FormControl from 'src/components/Controls/FormControl';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
+import FeatherIcon from 'src/components/FeatherIcon.vue';
+import HowTo from 'src/components/HowTo.vue';
+import PageHeader from 'src/components/PageHeader.vue';
+import { importable, Importer } from 'src/dataImport';
+import { getSavePath, saveData, showMessageDialog } from 'src/utils';
+import { IPC_ACTIONS } from 'utils/messages';
 import Loading from '../components/Loading.vue';
 export default {
   components: {
@@ -550,7 +550,7 @@ export default {
       if (this.isRequiredUnassigned) {
         showMessageDialog({
           message: this.t`Required Fields not Assigned`,
-          description: this
+          detail: this
             .t`Please assign the following fields ${this.requiredUnassigned.join(
             ', '
           )}`,
@@ -561,7 +561,7 @@ export default {
       if (this.importer.assignedMatrix.length === 0) {
         showMessageDialog({
           message: this.t`No Data to Import`,
-          description: this.t`Please select a file with data to import.`,
+          detail: this.t`Please select a file with data to import.`,
         });
         return;
       }
@@ -572,7 +572,7 @@ export default {
       if (!success) {
         showMessageDialog({
           message: this.t`Import Failed`,
-          description: message,
+          detail: message,
         });
         return;
       }
@@ -617,7 +617,7 @@ export default {
       if (!isValid) {
         showMessageDialog({
           message: this.t`Bad import data.`,
-          description: this.t`Could not select file.`,
+          detail: this.t`Could not select file.`,
         });
         return;
       }

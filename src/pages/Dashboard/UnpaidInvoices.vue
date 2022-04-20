@@ -68,9 +68,9 @@
   </div>
 </template>
 <script>
-import Button from '@/components/Button';
-import { routeTo } from '@/utils';
 import frappe, { t } from 'frappe';
+import Button from 'src/components/Button';
+import { routeTo } from 'src/utils';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';

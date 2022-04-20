@@ -51,14 +51,14 @@
   </div>
 </template>
 <script>
-import Button from '@/components/Button';
-import Icon from '@/components/Icon';
-import PageHeader from '@/components/PageHeader';
-import Row from '@/components/Row';
-import StatusBadge from '@/components/StatusBadge';
-import WindowControls from '@/components/WindowControls';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'fyo';
+import Button from 'src/components/Button';
+import Icon from 'src/components/Icon';
+import PageHeader from 'src/components/PageHeader';
+import Row from 'src/components/Row';
+import StatusBadge from 'src/components/StatusBadge';
+import WindowControls from 'src/components/WindowControls';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h, markRaw } from 'vue';
 import { callInitializeMoneyMaker, showToast } from '../../utils';

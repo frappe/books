@@ -1,6 +1,6 @@
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
-import { openQuickEdit } from '@/utils';
+import PageHeader from 'src/components/PageHeader';
+import SearchBar from 'src/components/SearchBar';
+import { openQuickEdit } from 'src/utils';
 import frappe from 'frappe';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
@@ -135,10 +135,10 @@ import { handleErrorWithDialog } from '../errorHandling';
   </div>
 </template>
 <script>
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
-import { openQuickEdit } from '@/utils';
 import frappe from 'frappe';
+import PageHeader from 'src/components/PageHeader';
+import SearchBar from 'src/components/SearchBar';
+import { openQuickEdit } from 'src/utils';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 

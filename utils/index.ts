@@ -68,3 +68,14 @@ export function titleCase(phrase: string): string {
     })
     .join(' ');
 }
+
+export function invertMap(map: Record<string, string>): Record<string, string> {
+  const keys = Object.keys(map);
+  const inverted: Record<string, string> = {};
+  for (const key of keys) {
+    const val = map[key];
+    inverted[val] = key;
+  }
+
+  return inverted;
+}

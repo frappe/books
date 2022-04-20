@@ -90,6 +90,8 @@ export function t(...args: TranslationLiteral[]): string {
   return new TranslationString(...args).s;
 }
 
-export function setLanguageMapOnTranslationString(languageMap: LanguageMap) {
+export function setLanguageMapOnTranslationString(
+  languageMap: LanguageMap | undefined
+) {
   TranslationString.prototype.languageMap = languageMap;
 }

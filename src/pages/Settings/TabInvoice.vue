@@ -46,10 +46,10 @@
   </div>
 </template>
 <script>
-import FormControl from '@/components/Controls/FormControl';
-import TwoColumnForm from '@/components/TwoColumnForm';
 import { ipcRenderer } from 'electron';
 import frappe from 'fyo';
+import FormControl from 'src/components/Controls/FormControl';
+import TwoColumnForm from 'src/components/TwoColumnForm';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {

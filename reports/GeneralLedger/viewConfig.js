@@ -1,6 +1,32 @@
-import { partyWithAvatar } from '@/utils';
 import { t } from 'fyo';
+import Avatar from 'src/components/Avatar.vue';
+import { fyo } from 'src/initFyo';
 import getCommonExportActions from '../commonExporter';
+
+export function getPartyWithAvatar(partyName) {
+  return {
+    data() {
+      return {
+        imageURL: null,
+        label: null,
+      };
+    },
+    components: {
+      Avatar,
+    },
+    async mounted() {
+      const p = await fyo.db.get('Party', partyName);
+      this.imageURL = p.image;
+      this.label = partyName;
+    },
+    template: `
+      <div class="flex items-center" v-if="label">
+        <Avatar class="flex-shrink-0" :imageURL="imageURL" :label="label" size="sm" />
+        <span class="ml-2 truncate">{{ label }}</span>
+      </div>
+    `,
+  };
+}
 
 let title = t`General Ledger`;
 
@@ -117,7 +143,7 @@ const viewConfig = {
         fieldtype: 'Link',
         fieldname: 'party',
         component(cellValue) {
-          return partyWithAvatar(cellValue);
+          return getPartyWithAvatar(cellValue);
         },
       },
     ];

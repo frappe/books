@@ -47,10 +47,10 @@
   </div>
 </template>
 <script>
-import InvoiceTemplate1 from '@/../models/doctype/SalesInvoice/Templates/InvoiceTemplate1';
-import InvoiceTemplate2 from '@/../models/doctype/SalesInvoice/Templates/InvoiceTemplate2';
-import InvoiceTemplate3 from '@/../models/doctype/SalesInvoice/Templates/InvoiceTemplate3';
-import InvoiceCustomizer from '@/components/InvoiceCustomizer';
+import InvoiceTemplate1 from 'src/../models/doctype/SalesInvoice/Templates/InvoiceTemplate1';
+import InvoiceTemplate2 from 'src/../models/doctype/SalesInvoice/Templates/InvoiceTemplate2';
+import InvoiceTemplate3 from 'src/../models/doctype/SalesInvoice/Templates/InvoiceTemplate3';
+import InvoiceCustomizer from 'src/components/InvoiceCustomizer';
 
 const invoiceTemplates = {
   'Basic I': InvoiceTemplate1,

@@ -56,11 +56,11 @@
   </div>
 </template>
 <script>
-import Avatar from '@/components/Avatar';
-import Button from '@/components/Button';
-import Row from '@/components/Row';
-import { openQuickEdit, routeTo } from '@/utils';
 import frappe from 'frappe';
+import Avatar from 'src/components/Avatar';
+import Button from 'src/components/Button';
+import Row from 'src/components/Row';
+import { openQuickEdit, routeTo } from 'src/utils';
 import ListCell from './ListCell';
 
 export default {

@@ -32,9 +32,9 @@
   </Row>
 </template>
 <script>
-import FormControl from './FormControl';
-import Row from '@/components/Row';
+import Row from 'src/components/Row';
 import { getErrorMessage } from '../../errorHandling';
+import FormControl from './FormControl';
 
 export default {
   name: 'TableRow',

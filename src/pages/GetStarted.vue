@@ -84,12 +84,12 @@
 </template>
 
 <script>
-import Button from '@/components/Button';
-import Icon from '@/components/Icon';
-import PageHeader from '@/components/PageHeader';
-import { openSettings, routeTo } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe, { t } from 'frappe';
+import Button from 'src/components/Button';
+import Icon from 'src/components/Icon';
+import PageHeader from 'src/components/PageHeader';
+import { openSettings, routeTo } from 'src/utils';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h } from 'vue';
 
