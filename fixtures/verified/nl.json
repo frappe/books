@@ -3,7 +3,7 @@
   "name": "Netherlands - Grootboekschema",
   "tree": {
     "FABRIKAGEREKENINGEN": {
-      "isGroup": 1,
+      "isGroup": true,
       "rootType": "Expense"
     },
     "FINANCIELE REKENINGEN, KORTLOPENDE VORDERINGEN EN SCHULDEN": {
@@ -106,7 +106,7 @@
       "rootType": "Asset"
     },
     "INDIRECTE KOSTEN": {
-      "isGroup": 1,
+      "isGroup": true,
       "rootType": "Expense"
     },
     "KOSTENREKENINGEN": {

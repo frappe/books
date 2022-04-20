@@ -101,9 +101,8 @@
 </template>
 <script>
 import frappe from 'frappe';
-import { getYMax } from 'src/components/Charts/chartUtils';
 import LineChart from 'src/components/Charts/LineChart.vue';
-import { formatXLabels } from 'src/utils';
+import { formatXLabels, getYMax } from 'src/utils/chart';
 import Cashflow from '../../../reports/Cashflow/Cashflow';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';

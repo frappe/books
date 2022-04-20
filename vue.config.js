@@ -27,11 +27,11 @@ module.exports = {
   },
   pages: {
     index: {
-      entry: 'src/main.js',
+      entry: 'src/renderer.ts',
       filename: 'index.html',
     },
     print: {
-      entry: 'src/print.js',
+      entry: 'src/print.ts',
       filename: 'print.html',
     },
   },

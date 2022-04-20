@@ -1,55 +1,45 @@
 import { ipcRenderer } from 'electron';
-import { createApp } from 'vue';
-import App from './App';
-import FeatherIcon from './components/FeatherIcon';
-import config, { ConfigKeys } from './config';
+import { ConfigKeys } from 'fyo/core/types';
+import { IPC_ACTIONS } from 'utils/messages';
+import { App as VueApp, createApp } from 'vue';
+import App from './App.vue';
+import Badge from './components/Badge.vue';
+import FeatherIcon from './components/FeatherIcon.vue';
 import { getErrorHandled, handleError } from './errorHandling';
 import { fyo } from './initFyo';
-import { IPC_ACTIONS } from './messages';
-import { incrementOpenCount } from './renderer/helpers';
+import { incrementOpenCount, outsideClickDirective } from './renderer/helpers';
 import registerIpcRendererListeners from './renderer/registerIpcRendererListeners';
 import router from './router';
-import { outsideClickDirective } from './ui';
-import { setLanguageMap, stringifyCircular } from './utils';
+import { stringifyCircular } from './utils';
+import { setLanguageMap } from './utils/language';
 
 (async () => {
-  const language = fyo.config.get(ConfigKeys.Language);
+  const language = fyo.config.get(ConfigKeys.Language) as string;
   if (language) {
     await setLanguageMap(language);
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    window.config = config;
-  }
-
-  fyo.isElectron = true;
-
-  const models = (await import('../models')).default;
-  await fyo.initializeAndRegister(models);
+  setOnWindow();
 
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
 
-  window.frappe = fyo;
-
-  window.onerror = (message, source, lineno, colno, error) => {
-    error = error ?? new Error('triggered in window.onerror');
-    handleError(true, error, { message, source, lineno, colno });
-  };
-
   registerIpcRendererListeners();
 
   const app = createApp({
-    template: '<App/>',
+    template: '<h1>Hellow, World</h1>',
   });
+  setErrorHandlers(app);
 
   app.use(router);
   app.component('App', App);
   app.component('feather-icon', FeatherIcon);
+  app.component('Badge', Badge);
+
   app.directive('on-outside-click', outsideClickDirective);
   app.mixin({
     computed: {
-      frappe() {
+      fyo() {
         return fyo;
       },
       platform() {
@@ -71,8 +61,20 @@ import { setLanguageMap, stringifyCircular } from './utils';
     },
   });
 
+  fyo.store.appVersion = await ipcRenderer.invoke(IPC_ACTIONS.GET_VERSION);
+
+  incrementOpenCount();
+  app.mount('body');
+})();
+
+function setErrorHandlers(app: VueApp) {
+  window.onerror = (message, source, lineno, colno, error) => {
+    error = error ?? new Error('triggered in window.onerror');
+    handleError(true, error, { message, source, lineno, colno });
+  };
+
   app.config.errorHandler = (err, vm, info) => {
-    const more = {
+    const more: Record<string, unknown> = {
       info,
     };
 
@@ -84,19 +86,26 @@ import { setLanguageMap, stringifyCircular } from './utils';
       more.props = stringifyCircular(vm.$props ?? {}, true, true);
     }
 
-    handleError(false, err, more);
+    handleError(false, err as Error, more);
     console.error(err, vm, info);
   };
 
-  fyo.store.appVersion = await ipcRenderer.invoke(IPC_ACTIONS.GET_VERSION);
-  incrementOpenCount();
-  app.mount('body');
-
   process.on('unhandledRejection', (error) => {
-    handleError(true, error);
+    handleError(true, error as Error);
   });
 
   process.on('uncaughtException', (error) => {
     handleError(true, error, {}, () => process.exit(1));
   });
-})();
+}
+
+function setOnWindow() {
+  if (process.env.NODE_ENV === 'development') {
+    // @ts-ignore
+    window.config = config;
+    // @ts-ignore
+    window.router = router;
+    // @ts-ignore
+    window.fyo = fyo;
+  }
+}

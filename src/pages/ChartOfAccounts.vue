@@ -1,9 +1,3 @@
-import PageHeader from 'src/components/PageHeader';
-import SearchBar from 'src/components/SearchBar';
-import { openQuickEdit } from 'src/utils';
-import frappe from 'frappe';
-import { nextTick } from 'vue';
-import { handleErrorWithDialog } from '../errorHandling';
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader>

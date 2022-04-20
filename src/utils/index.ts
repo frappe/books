@@ -67,15 +67,6 @@ export function fuzzyMatch(keyword: string, candidate: string) {
   return { isMatch, distance };
 }
 
-export function formatXLabels(label: string) {
-  // Format: Mmm YYYY -> Mm YY
-  const splits = label.split(' ');
-  const month = splits[0];
-  const year = splits[1].slice(2);
-
-  return `${month} ${year}`;
-}
-
 export function convertPesaValuesToFloat(obj: Record<string, unknown>) {
   Object.keys(obj).forEach((key) => {
     const value = obj[key];
@@ -85,13 +76,4 @@ export function convertPesaValuesToFloat(obj: Record<string, unknown>) {
 
     obj[key] = (value as Money).float;
   });
-}
-
-export async function getIsSetupComplete() {
-  try {
-    const { setupComplete } = await fyo.doc.getSingle('AccountingSettings');
-    return !!setupComplete;
-  } catch {
-    return false;
-  }
 }

@@ -25,3 +25,19 @@ export type AccountRootType =
   | 'Equity'
   | 'Income'
   | 'Expense';
+
+export interface COARootAccount {
+  rootType: AccountRootType;
+  [key: string]: COAChildAccount | AccountRootType;
+}
+
+export interface COAChildAccount {
+  accountType?: AccountType;
+  accountNumber?: string;
+  isGroup?: boolean;
+  [key: string]: COAChildAccount | boolean | AccountType | string | undefined;
+}
+
+export interface COATree {
+  [key: string]: COARootAccount;
+}
