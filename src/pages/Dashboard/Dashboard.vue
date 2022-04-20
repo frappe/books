@@ -23,12 +23,12 @@
 </template>
 
 <script>
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
+import PageHeader from 'src/components/PageHeader';
+import SearchBar from 'src/components/SearchBar';
 import Cashflow from './Cashflow';
-import UnpaidInvoices from './UnpaidInvoices';
-import ProfitAndLoss from './ProfitAndLoss';
 import Expenses from './Expenses';
+import ProfitAndLoss from './ProfitAndLoss';
+import UnpaidInvoices from './UnpaidInvoices';
 
 export default {
   name: 'Dashboard',

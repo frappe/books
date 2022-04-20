@@ -89,17 +89,17 @@
 </template>
 
 <script>
-import FormControl from '@/components/Controls/FormControl';
-import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
-import Popover from '@/components/Popover';
-import TwoColumnForm from '@/components/TwoColumnForm';
-import config from '@/config';
-import { connectToLocalDatabase, purgeCache } from '@/initialization';
-import { setLanguageMap, showMessageDialog } from '@/utils';
 import { ipcRenderer } from 'electron';
 import fs from 'fs';
 import frappe from 'fyo';
 import path from 'path';
+import FormControl from 'src/components/Controls/FormControl';
+import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
+import Popover from 'src/components/Popover';
+import TwoColumnForm from 'src/components/TwoColumnForm';
+import config from 'src/config';
+import { connectToLocalDatabase, purgeCache } from 'src/initialization';
+import { setLanguageMap, showMessageDialog } from 'src/utils';
 import { IPC_MESSAGES } from 'utils/messages';
 import {
 getErrorMessage,

@@ -49,8 +49,8 @@
 </template>
 
 <script>
-import { routeTo } from '@/utils';
 import frappe from 'frappe';
+import { routeTo } from 'src/utils';
 import { getStatusColumn } from '../Transaction/Transaction';
 
 export default {

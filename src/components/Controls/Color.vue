@@ -55,9 +55,9 @@
 </template>
 
 <script>
+import Popover from 'src/components/Popover';
+import Row from 'src/components/Row';
 import Base from './Base';
-import Row from '@/components/Row';
-import Popover from '@/components/Popover';
 
 export default {
   name: 'Color',

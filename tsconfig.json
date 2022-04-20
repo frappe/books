@@ -15,10 +15,11 @@
     "baseUrl": ".",
     "types": ["webpack-env"],
     "paths": {
-      "@/*": ["src/*"],
+      "src/*": ["src/*"],
       "schemas/*": ["schemas/*"],
       "backend/*": ["backend/*"],
       "regional/*": ["regional/*"],
+      "fixtures/*": ["fixtures/*"],
       "utils/*": ["utils/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
@@ -43,7 +44,8 @@
     "accounting/**/*.ts",
 
     "scripts/**/*.ts",
-    "utils/csvParser.ts"
-, "utils/config.ts"  ],
+    "utils/csvParser.ts",
+    "utils/config.ts"
+  ],
   "exclude": ["node_modules"]
 }

@@ -96,10 +96,10 @@
   </div>
 </template>
 <script>
-import Button from '@/components/Button';
-import { reportIssue } from '@/errorHandling';
-import { routeTo } from '@/utils';
 import path from 'path';
+import Button from 'src/components/Button';
+import { reportIssue } from 'src/errorHandling';
+import { routeTo } from 'src/utils';
 import router from '../router';
 import sidebarConfig from '../sidebarConfig';
 import Icon from './Icon.vue';

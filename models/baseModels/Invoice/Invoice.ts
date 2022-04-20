@@ -18,7 +18,11 @@ export abstract class Invoice extends Doc {
   currency?: string;
   netTotal?: Money;
   baseGrandTotal?: Money;
+  outstandingAmount?: Money;
   exchangeRate?: number;
+
+  submitted?: boolean;
+  cancelled?: boolean;
 
   abstract getPosting(): Promise<LedgerPosting>;
 

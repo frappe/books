@@ -158,14 +158,14 @@
   </div>
 </template>
 <script>
-import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
-import config from '@/config';
-import { connectToLocalDatabase, createNewDatabase } from '@/initialization';
 import { ipcRenderer } from 'electron';
 import fs from 'fs';
 import { DateTime } from 'luxon';
-import { showErrorDialog } from '../errorHandling';
+import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
+import config from 'src/config';
+import { connectToLocalDatabase, createNewDatabase } from 'src/initialization';
 import { DB_CONN_FAILURE, IPC_ACTIONS } from '../../utils/messages';
+import { showErrorDialog } from '../errorHandling';
 
 export default {
   name: 'DatabaseSelector',

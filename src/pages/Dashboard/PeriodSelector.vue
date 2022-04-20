@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import Dropdown from '@/components/Dropdown';
 import { t } from 'frappe';
+import Dropdown from 'src/components/Dropdown';
 
 export default {
   name: 'PeriodSelector',

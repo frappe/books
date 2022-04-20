@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import Button from '@/components/Button.vue';
+import Button from 'src/components/Button.vue';
 
 export default {
   emits: ['primary-clicked', 'secondary-clicked'],

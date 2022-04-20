@@ -1,6 +1,8 @@
 import { ipcRenderer } from 'electron';
-import frappe, { t } from 'fyo';
+import { t } from 'fyo';
+import { ConfigKeys } from 'fyo/core/types';
 import Doc from 'fyo/model/doc';
+import { TelemetrySetting } from 'fyo/telemetry/types';
 import {
   DuplicateEntryError,
   LinkValidationError,
@@ -9,12 +11,12 @@ import {
 } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
-import telemetry from '../frappe/telemetry/telemetry';
-import config, { ConfigKeys, TelemetrySetting } from '../utils/config';
-import { showMessageDialog, showToast } from './utils.js';
+import { fyo } from './initFyo';
+import { ToastOptions } from './utils/types';
+import { showMessageDialog, showToast } from './utils/ui';
 
 function getCanLog(): boolean {
-  const telemetrySetting = config.get(ConfigKeys.Telemetry);
+  const telemetrySetting = fyo.config.get(ConfigKeys.Telemetry);
   return telemetrySetting !== TelemetrySetting.dontLogAnything;
 }
 
@@ -36,7 +38,7 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
     more: JSON.stringify(errorLogObj.more ?? {}),
   };
 
-  if (frappe.store.isDevelopment) {
+  if (fyo.store.isDevelopment) {
     console.log('errorHandling');
     console.log(body);
   }
@@ -46,7 +48,7 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
 }
 
 function getToastProps(errorLogObj: ErrorLog, canLog: boolean, cb?: Function) {
-  const props = {
+  const props: ToastOptions = {
     message: t`Error: ` + errorLogObj.name,
     type: 'error',
   };
@@ -73,7 +75,7 @@ export function getErrorLogObject(
   const errorLogObj = { name, stack, message, more };
 
   // @ts-ignore
-  frappe.errorLog.push(errorLogObj);
+  fyo.errorLog.push(errorLogObj);
 
   return errorLogObj;
 }
@@ -84,7 +86,7 @@ export function handleError(
   more?: Record<string, unknown>,
   cb?: Function
 ) {
-  telemetry.error(error.name);
+  fyo.telemetry.error(error.name);
   if (shouldLog) {
     console.error(error);
   }
@@ -124,7 +126,7 @@ export function handleErrorWithDialog(error: Error, doc?: Doc) {
   const errorMessage = getErrorMessage(error, doc);
   handleError(false, error, { errorMessage, doc });
 
-  showMessageDialog({ message: error.name, description: errorMessage });
+  showMessageDialog({ message: error.name, detail: errorMessage });
   throw error;
 }
 

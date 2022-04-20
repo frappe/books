@@ -101,12 +101,12 @@
 </template>
 <script>
 import frappe from 'frappe';
-import PeriodSelector from './PeriodSelector';
+import { getYMax } from 'src/components/Charts/chartUtils';
+import LineChart from 'src/components/Charts/LineChart.vue';
+import { formatXLabels } from 'src/utils';
 import Cashflow from '../../../reports/Cashflow/Cashflow';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
-import LineChart from '@/components/Charts/LineChart.vue';
-import { getYMax } from '@/components/Charts/chartUtils';
-import { formatXLabels } from '@/utils';
+import PeriodSelector from './PeriodSelector';
 
 export default {
   name: 'Cashflow',

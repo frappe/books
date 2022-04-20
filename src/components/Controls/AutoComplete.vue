@@ -32,9 +32,9 @@
 </template>
 
 <script>
+import Dropdown from 'src/components/Dropdown';
+import { fuzzyMatch } from 'src/utils';
 import Base from './Base';
-import Dropdown from '@/components/Dropdown';
-import { fuzzyMatch } from '@/utils';
 
 export default {
   name: 'AutoComplete',

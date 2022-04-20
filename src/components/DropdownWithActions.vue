@@ -21,8 +21,8 @@
 </template>
 
 <script>
-import Dropdown from '@/components/Dropdown';
-import Button from '@/components/Button';
+import Button from 'src/components/Button';
+import Dropdown from 'src/components/Dropdown';
 
 export default {
   name: 'DropdownWithActions',

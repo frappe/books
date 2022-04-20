@@ -41,9 +41,9 @@
   </div>
 </template>
 <script>
-import Dropdown from '@/components/Dropdown';
-import { routeTo } from '@/utils';
 import frappe, { t } from 'frappe';
+import Dropdown from 'src/components/Dropdown';
+import { routeTo } from 'src/utils';
 import reports from '../../reports/view';
 
 export default {

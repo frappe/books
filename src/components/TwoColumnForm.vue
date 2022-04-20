@@ -1,5 +1,5 @@
-import Button from '@/components/Button';
-import FormControl from '@/components/Controls/FormControl';
+import Button from 'src/components/Button';
+import FormControl from 'src/components/Controls/FormControl';
 import frappe from 'frappe';
 import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
 <template>
@@ -90,9 +90,9 @@ import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
   </div>
 </template>
 <script>
-import Button from '@/components/Button';
-import FormControl from '@/components/Controls/FormControl';
 import frappe from 'frappe';
+import Button from 'src/components/Button';
+import FormControl from 'src/components/Controls/FormControl';
 import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
 
 let TwoColumnForm = {

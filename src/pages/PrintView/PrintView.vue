@@ -51,16 +51,16 @@
   </div>
 </template>
 <script>
-import BackLink from '@/components/BackLink';
-import Button from '@/components/Button';
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
-import TwoColumnForm from '@/components/TwoColumnForm';
-import telemetry from '@/telemetry/telemetry';
-import { Verb } from '@/telemetry/types';
-import { makePDF } from '@/utils';
 import { ipcRenderer } from 'electron';
 import frappe from 'fyo';
+import BackLink from 'src/components/BackLink';
+import Button from 'src/components/Button';
+import PageHeader from 'src/components/PageHeader';
+import SearchBar from 'src/components/SearchBar';
+import TwoColumnForm from 'src/components/TwoColumnForm';
+import telemetry from 'src/telemetry/telemetry';
+import { Verb } from 'src/telemetry/types';
+import { makePDF } from 'src/utils';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {

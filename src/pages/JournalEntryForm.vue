@@ -128,14 +128,14 @@
   </div>
 </template>
 <script>
-import BackLink from '@/components/BackLink';
-import Button from '@/components/Button';
-import FormControl from '@/components/Controls/FormControl';
-import DropdownWithActions from '@/components/DropdownWithActions';
-import PageHeader from '@/components/PageHeader';
-import StatusBadge from '@/components/StatusBadge';
-import { getActionsForDocument, routeTo, showMessageDialog } from '@/utils';
 import frappe from 'frappe';
+import BackLink from 'src/components/BackLink';
+import Button from 'src/components/Button';
+import FormControl from 'src/components/Controls/FormControl';
+import DropdownWithActions from 'src/components/DropdownWithActions';
+import PageHeader from 'src/components/PageHeader';
+import StatusBadge from 'src/components/StatusBadge';
+import { getActionsForDocument, routeTo, showMessageDialog } from 'src/utils';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {

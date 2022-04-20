@@ -29,13 +29,13 @@
 </template>
 <script>
 import frappe from 'frappe';
-import PeriodSelector from './PeriodSelector';
-import SectionHeader from './SectionHeader';
+import BarChart from 'src/components/Charts/BarChart.vue';
+import { getYMax, getYMin } from 'src/components/Charts/chartUtils';
+import { formatXLabels } from 'src/utils';
 import ProfitAndLoss from '../../../reports/ProfitAndLoss/ProfitAndLoss';
 import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
-import BarChart from '@/components/Charts/BarChart.vue';
-import { getYMax, getYMin } from '@/components/Charts/chartUtils';
-import { formatXLabels } from '@/utils';
+import PeriodSelector from './PeriodSelector';
+import SectionHeader from './SectionHeader';
 
 export default {
   name: 'ProfitAndLoss',

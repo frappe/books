@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import TwoColumnForm from '@/components/TwoColumnForm';
 import frappe from 'fyo';
+import TwoColumnForm from 'src/components/TwoColumnForm';
 
 export default {
   name: 'TabGeneral',

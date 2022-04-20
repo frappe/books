@@ -40,11 +40,12 @@ module.exports = {
   configureWebpack(config) {
     Object.assign(config.resolve.alias, {
       fyo: path.resolve(__dirname, './fyo'),
-      '~': path.resolve('.'),
+      src: path.resolve(__dirname, './src'),
       schemas: path.resolve(__dirname, './schemas'),
       backend: path.resolve(__dirname, './backend'),
       utils: path.resolve(__dirname, './utils'),
       regional: path.resolve(__dirname, './regional'),
+      fixtures: path.resolve(__dirname, './fixtures'),
     });
 
     config.plugins.push(

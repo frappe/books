@@ -1,5 +1,5 @@
-import { fyo } from '@/initFyo';
 import { ConfigKeys } from 'fyo/core/types';
+import { fyo } from 'src/initFyo';
 
 export function incrementOpenCount() {
   let openCount = fyo.config.get(ConfigKeys.OpenCount);

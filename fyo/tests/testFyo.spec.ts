@@ -41,7 +41,7 @@ describe('Fyo Init', function () {
 describe('Fyo Docs', function () {
   const countryCode = 'in';
   let fyo: Fyo;
-  const schemas = getSchemas(countryCode);
+  const schemaMap = getSchemas(countryCode);
   this.beforeEach(async function () {
     fyo = new Fyo({
       DatabaseDemux: DatabaseManager,
@@ -58,7 +58,14 @@ describe('Fyo Docs', function () {
     await fyo.close();
   });
 
-  specify('temp', async function () {
-    fyo.db.schemaMap;
+  specify('getEmptyDoc', async function () {
+    for (const schemaName in schemaMap) {
+      const schema = schemaMap[schemaName];
+      if (schema?.isSingle) {
+        continue;
+      }
+
+      const doc = fyo.doc.getEmptyDoc(schemaName);
+    }
   });
 });

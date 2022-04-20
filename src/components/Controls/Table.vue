@@ -62,7 +62,7 @@
 
 <script>
 import frappe from 'frappe';
-import Row from '@/components/Row';
+import Row from 'src/components/Row';
 import Base from './Base';
 import TableRow from './TableRow';
 

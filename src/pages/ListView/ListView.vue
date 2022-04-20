@@ -30,12 +30,12 @@
   </div>
 </template>
 <script>
-import Button from '@/components/Button';
-import FilterDropdown from '@/components/FilterDropdown';
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
-import { routeTo } from '@/utils';
 import frappe from 'fyo';
+import Button from 'src/components/Button';
+import FilterDropdown from 'src/components/FilterDropdown';
+import PageHeader from 'src/components/PageHeader';
+import SearchBar from 'src/components/SearchBar';
+import { routeTo } from 'src/utils';
 import List from './List';
 
 export default {

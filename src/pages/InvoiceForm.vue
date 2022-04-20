@@ -198,20 +198,20 @@
   </div>
 </template>
 <script>
-import BackLink from '@/components/BackLink';
-import Button from '@/components/Button';
-import FormControl from '@/components/Controls/FormControl';
-import DropdownWithActions from '@/components/DropdownWithActions';
-import PageHeader from '@/components/PageHeader';
-import StatusBadge from '@/components/StatusBadge';
+import frappe from 'frappe';
+import { getInvoiceStatus } from 'models/helpers';
+import BackLink from 'src/components/BackLink';
+import Button from 'src/components/Button';
+import FormControl from 'src/components/Controls/FormControl';
+import DropdownWithActions from 'src/components/DropdownWithActions';
+import PageHeader from 'src/components/PageHeader';
+import StatusBadge from 'src/components/StatusBadge';
 import {
 getActionsForDocument,
-getInvoiceStatus,
 openSettings,
 routeTo,
 showMessageDialog
-} from '@/utils';
-import frappe from 'frappe';
+} from 'src/utils';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {

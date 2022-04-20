@@ -1,7 +1,7 @@
-import { handleError } from '@/errorHandling';
-import { fyo } from '@/initFyo';
-import { showToast } from '@/utils';
 import { ipcRenderer } from 'electron';
+import { handleError } from 'src/errorHandling';
+import { fyo } from 'src/initFyo';
+import { showToast } from 'src/utils/ui';
 import { IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
 
 export default function registerIpcRendererListeners() {

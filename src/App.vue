@@ -30,16 +30,16 @@
 </template>
 
 <script>
-import WindowsTitleBar from '@/components/WindowsTitleBar';
-import config from '@/config';
+import { ipcRenderer } from 'electron';
+import fs from 'fs/promises';
+import frappe from 'fyo';
+import WindowsTitleBar from 'src/components/WindowsTitleBar';
+import config from 'src/config';
 import {
 connectToLocalDatabase,
 postSetup,
 purgeCache
-} from '@/initialization';
-import { ipcRenderer } from 'electron';
-import fs from 'fs/promises';
-import frappe from 'fyo';
+} from 'src/initialization';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import TelemetryModal from './components/once/TelemetryModal.vue';
 import { showErrorDialog } from './errorHandling';

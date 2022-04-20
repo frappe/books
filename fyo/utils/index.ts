@@ -1,3 +1,6 @@
+import { Fyo } from 'fyo';
+import Doc from 'fyo/model/doc';
+import { Action } from 'fyo/model/types';
 import { pesa } from 'pesa';
 
 export function slug(str: string) {
@@ -49,4 +52,13 @@ export function getDuplicates(array: unknown[]) {
 
 export function isPesa(value: unknown): boolean {
   return value instanceof pesa().constructor;
+}
+
+export function getActions(doc: Doc, fyo: Fyo): Action[] {
+  const Model = fyo.models[doc.schemaName];
+  if (Model === undefined) {
+    return [];
+  }
+
+  return Model.getActions(fyo);
 }

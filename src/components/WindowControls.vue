@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { runWindowAction } from '@/utils';
+import { runWindowAction } from 'src/utils';
 
 export default {
   name: 'WindowControls',

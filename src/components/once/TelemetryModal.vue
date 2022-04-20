@@ -49,10 +49,10 @@
 </template>
 
 <script>
-import config, { ConfigKeys, TelemetrySetting } from '@/config';
-import { getTelemetryOptions } from '@/telemetry/helpers';
-import telemetry from '@/telemetry/telemetry';
-import { NounEnum, Verb } from '@/telemetry/types';
+import config, { ConfigKeys, TelemetrySetting } from 'src/config';
+import { getTelemetryOptions } from 'src/telemetry/helpers';
+import telemetry from 'src/telemetry/telemetry';
+import { NounEnum, Verb } from 'src/telemetry/types';
 import Button from '../Button.vue';
 import FormControl from '../Controls/FormControl';
 import FeatherIcon from '../FeatherIcon.vue';
