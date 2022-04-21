@@ -10,7 +10,6 @@ import saveHtmlAsPdf from '../src/saveHtmlAsPdf';
 import { DatabaseMethod } from '../utils/db/types';
 import { DatabaseResponse } from '../utils/ipc/types';
 import { IPC_ACTIONS } from '../utils/messages';
-import { getMainWindowSize } from './helpers';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW, (event) => {
@@ -29,10 +28,6 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(IPC_ACTIONS.GET_SAVE_FILEPATH, async (event, options) => {
     return await dialog.showSaveDialog(main.mainWindow!, options);
-  });
-
-  ipcMain.handle(IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE, (event) => {
-    return getMainWindowSize();
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (event, options) => {
