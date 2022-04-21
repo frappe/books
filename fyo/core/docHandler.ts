@@ -1,8 +1,8 @@
 import Doc from 'fyo/model/doc';
 import { DocMap, ModelMap, SinglesMap } from 'fyo/model/types';
 import { coreModels } from 'fyo/models';
-import { getRandomString } from 'fyo/utils';
 import Observable from 'fyo/utils/observable';
+import { getRandomString } from 'utils';
 import { Fyo } from '..';
 import { DocValue, DocValueMap } from './types';
 

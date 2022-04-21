@@ -102,8 +102,6 @@ function setErrorHandlers(app: VueApp) {
 function setOnWindow() {
   if (process.env.NODE_ENV === 'development') {
     // @ts-ignore
-    window.config = config;
-    // @ts-ignore
     window.router = router;
     // @ts-ignore
     window.fyo = fyo;

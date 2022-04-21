@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import models, { getRegionalModels } from 'models';
+import { getRegionalModels, models } from 'models';
 
 export const fyo = new Fyo({ isTest: false, isElectron: true });
 

@@ -1,4 +1,4 @@
-import frappe from 'fyo';
+import { fyo } from 'src/initFyo';
 
 class SalesRegister {
   async run({ fromDate, toDate, customer }) {
@@ -17,7 +17,7 @@ class SalesRegister {
       filters.date = ['<=', toDate];
     }
 
-    const invoices = await frappe.db.getAll({
+    const invoices = await fyo.db.getAll({
       doctype: 'SalesInvoice',
       fields: ['name', 'date', 'customer', 'account', 'netTotal', 'grandTotal'],
       filters: filters,
@@ -27,7 +27,7 @@ class SalesRegister {
 
     const invoiceNames = invoices.map((d) => d.name);
 
-    const taxes = await frappe.db.getAll({
+    const taxes = await fyo.db.getAll({
       doctype: 'TaxSummary',
       fields: ['parent', 'amount'],
       filters: {

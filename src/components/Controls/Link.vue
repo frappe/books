@@ -1,11 +1,7 @@
-import Badge from 'src/components/Badge';
-import { openQuickEdit } from 'src/utils';
-import frappe, { t } from 'frappe';
-import { markRaw } from 'vue';
-import AutoComplete from './AutoComplete';
 <script>
-import frappe, { t } from 'frappe';
+import { t } from 'fyo';
 import Badge from 'src/components/Badge';
+import { fyo } from 'src/initFyo';
 import { openQuickEdit } from 'src/utils';
 import { markRaw } from 'vue';
 import AutoComplete from './AutoComplete';
@@ -19,7 +15,7 @@ export default {
       let doctype = this.getTarget();
       let meta;
       try {
-        meta = frappe.getMeta(doctype);
+        meta = fyo.getMeta(doctype);
       } catch (err) {
         if (err.message.includes('not a registered doctype')) {
           return [];
@@ -30,7 +26,7 @@ export default {
       if (keyword && !filters.keywords) {
         filters.keywords = ['like', keyword];
       }
-      let results = await frappe.db.getAll({
+      let results = await fyo.db.getAll({
         doctype,
         filters,
         fields: [
@@ -108,7 +104,7 @@ export default {
     },
     async openNewDoc() {
       let doctype = this.df.target;
-      let doc = await frappe.getEmptyDoc(doctype);
+      let doc = await fyo.getEmptyDoc(doctype);
       let filters = await this.getFilters();
       openQuickEdit({
         doctype,

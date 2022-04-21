@@ -136,18 +136,18 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
-import reportViewConfig from 'src/../reports/view';
+import { getReportData } from 'reports/index';
+import reportViewConfig from 'reports/view';
 import Button from 'src/components/Button';
 import FormControl from 'src/components/Controls/FormControl';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import PageHeader from 'src/components/PageHeader';
 import Row from 'src/components/Row';
 import SearchBar from 'src/components/SearchBar';
 import WithScroll from 'src/components/WithScroll';
+import { fyo } from 'src/initFyo';
 import { h, markRaw } from 'vue';
-import { getReportData } from '../../reports/index';
-import DropdownWithActions from '../components/DropdownWithActions.vue';
 
 export default {
   name: 'Report',
@@ -296,7 +296,7 @@ export default {
       // default cell component
       let formattedValue =
         cellValue != null && cellValue !== ''
-          ? frappe.format(cellValue, column)
+          ? fyo.format(cellValue, column)
           : '';
       return {
         render() {

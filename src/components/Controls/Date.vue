@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import frappe from 'frappe';
+import { fyo } from 'src/initFyo';
 import Base from './Base';
 import DatePicker from '../DatePicker/DatePicker';
 
@@ -33,7 +33,7 @@ export default {
   },
   methods: {
     formatValue(value) {
-      return frappe.format(value, this.df);
+      return fyo.format(value, this.df);
     }
   }
 };

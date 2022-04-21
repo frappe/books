@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron';
-import { sleep } from 'frappe/utils';
 import fs from 'fs/promises';
+import { sleep } from 'utils';
 
 const PRINT_OPTIONS = {
   marginsType: 1, // no margin

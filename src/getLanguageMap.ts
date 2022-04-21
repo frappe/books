@@ -10,8 +10,9 @@
 const fs = require('fs/promises');
 const path = require('path');
 const fetch = require('node-fetch').default;
-const { splitCsvLine } = require('../scripts/helpers');
-import { LanguageMap } from '../utils/types';
+
+import { splitCsvLine } from 'utils/translationHelpers';
+import { LanguageMap } from 'utils/types';
 
 const VALENTINES_DAY = 1644796800000;
 

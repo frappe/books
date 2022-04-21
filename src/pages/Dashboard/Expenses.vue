@@ -22,7 +22,7 @@
             <div class="ml-3">{{ d.account }}</div>
           </div>
           <p class="whitespace-nowrap">
-            {{ frappe.format(d.total, 'Currency') }}
+            {{ fyo.format(d.total, 'Currency') }}
           </p>
         </div>
       </div>
@@ -33,7 +33,7 @@
         :offset-x="3"
         :thickness="11.5"
         :text-offset-x="6.5"
-        :value-formatter="(value) => frappe.format(value, 'Currency')"
+        :value-formatter="(value) => fyo.format(value, 'Currency')"
         :total-label="t`Total Spending`"
         @change="(value) => (active = value)"
       />
@@ -50,10 +50,10 @@
 </template>
 
 <script>
-import frappe from 'frappe';
+import { fyo } from 'src/initFyo';
 import theme from 'src/theme';
+import { getDatesAndPeriodicity } from 'src/utils/misc';
 import DonutChart from '../../components/Charts/DonutChart.vue';
-import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 
@@ -95,7 +95,7 @@ export default {
   methods: {
     async setData() {
       const { fromDate, toDate } = await getDatesAndPeriodicity(this.period);
-      let topExpenses = await frappe.db.getTopExpenses(fromDate, toDate);
+      let topExpenses = await fyo.db.getTopExpenses(fromDate, toDate);
       const shades = [
         { class: 'bg-gray-800', hex: theme.backgroundColor.gray['800'] },
         { class: 'bg-gray-600', hex: theme.backgroundColor.gray['600'] },

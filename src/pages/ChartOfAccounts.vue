@@ -129,9 +129,9 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import PageHeader from 'src/components/PageHeader';
 import SearchBar from 'src/components/SearchBar';
+import { fyo } from 'src/initFyo';
 import { openQuickEdit } from 'src/utils';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
@@ -158,8 +158,8 @@ export default {
   },
   methods: {
     async fetchAccounts() {
-      this.settings = frappe.getMeta(this.doctype).treeSettings;
-      const { currency } = await frappe.getSingle('AccountingSettings');
+      this.settings = fyo.getMeta(this.doctype).treeSettings;
+      const { currency } = await fyo.getSingle('AccountingSettings');
       this.root = {
         label: await this.settings.getRootLabel(),
         balance: 0,
@@ -191,7 +191,7 @@ export default {
       }
     },
     async getChildren(parent = null) {
-      const children = await frappe.db.getAll({
+      const children = await fyo.db.getAll({
         doctype: this.doctype,
         filters: {
           parentAccount: parent,
@@ -240,7 +240,7 @@ export default {
       this.insertingAccount = true;
 
       accountName = accountName.trim();
-      let account = await frappe.getEmptyDoc('Account');
+      let account = await fyo.getEmptyDoc('Account');
       try {
         let { name, rootType, accountType } = parentAccount;
         await account.set({

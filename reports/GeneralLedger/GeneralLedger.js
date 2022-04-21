@@ -1,4 +1,4 @@
-import frappe from 'fyo';
+import { fyo } from 'src/initFyo';
 
 class GeneralLedger {
   async run(params) {
@@ -15,7 +15,7 @@ class GeneralLedger {
     }
 
     let data = (
-      await frappe.db.getAll({
+      await fyo.db.getAll({
         doctype: 'AccountingLedgerEntry',
         fields: [
           'date',
@@ -40,6 +40,7 @@ class GeneralLedger {
 
     return this.appendOpeningEntry(data);
   }
+
   appendOpeningEntry(data) {
     let glEntries = [];
     let balance = 0,

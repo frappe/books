@@ -70,7 +70,7 @@
               w-40
             "
           >
-            <p>{{ frappe.t`Submit on Import` }}</p>
+            <p>{{ t`Submit on Import` }}</p>
             <FormControl
               size="small"
               input-class="bg-gray-100"
@@ -337,7 +337,6 @@
 </template>
 <script>
 import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
@@ -345,6 +344,7 @@ import FeatherIcon from 'src/components/FeatherIcon.vue';
 import HowTo from 'src/components/HowTo.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { importable, Importer } from 'src/dataImport';
+import { fyo } from 'src/initFyo';
 import { getSavePath, saveData, showMessageDialog } from 'src/utils';
 import { IPC_ACTIONS } from 'utils/messages';
 import Loading from '../components/Loading.vue';
@@ -440,7 +440,7 @@ export default {
     isSubmittable() {
       const doctype = this.importer?.doctype;
       if (doctype) {
-        return frappe.models[doctype].isSubmittable ?? false;
+        return fyo.models[doctype].isSubmittable ?? false;
       }
       return false;
     },
@@ -450,14 +450,14 @@ export default {
         label: this.t`Import Type`,
         fieldtype: 'AutoComplete',
         placeholder: this.t`Import Type`,
-        getList: () => importable.map((i) => frappe.models[i].label),
+        getList: () => importable.map((i) => fyo.models[i].label),
       };
     },
     labelDoctypeMap() {
       return importable
         .map((i) => ({
           name: i,
-          label: frappe.models[i].label,
+          label: fyo.models[i].label,
         }))
         .reduce((acc, { name, label }) => {
           acc[label] = name;
@@ -585,7 +585,7 @@ export default {
         this.clear();
       }
       this.importType = importType;
-      this.importer = new Importer(this.labelDoctypeMap[this.importType]);
+      this.importer = new Importer(this.labelDoctypeMap[this.importType], fyo);
     },
     setLoadingStatus(isMakingEntries, entriesMade, totalEntries) {
       this.isMakingEntries = isMakingEntries;

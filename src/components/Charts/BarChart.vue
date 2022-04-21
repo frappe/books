@@ -134,7 +134,7 @@
 </template>
 <script>
 import Tooltip from '../Tooltip.vue';
-import { prefixFormat } from './chartUtils';
+import { prefixFormat } from 'src/utils/chart';
 
 export default {
   props: {

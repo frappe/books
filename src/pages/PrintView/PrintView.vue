@@ -52,14 +52,12 @@
 </template>
 <script>
 import { ipcRenderer } from 'electron';
-import frappe from 'fyo';
+import { Verb } from 'fyo/telemetry/types';
 import BackLink from 'src/components/BackLink';
 import Button from 'src/components/Button';
 import PageHeader from 'src/components/PageHeader';
 import SearchBar from 'src/components/SearchBar';
 import TwoColumnForm from 'src/components/TwoColumnForm';
-import telemetry from 'src/telemetry/telemetry';
-import { Verb } from 'src/telemetry/types';
 import { makePDF } from 'src/utils';
 import { IPC_ACTIONS } from 'utils/messages';
 
@@ -81,12 +79,12 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.doc.getDoc(this.doctype, this.name);
-    this.printSettings = await frappe.getSingle('PrintSettings');
+    this.doc = await fyo.doc.getDoc(this.doctype, this.name);
+    this.printSettings = await fyo.getSingle('PrintSettings');
   },
   computed: {
     meta() {
-      return frappe.getMeta(this.doctype);
+      return fyo.getMeta(this.doctype);
     },
     printTemplate() {
       return this.meta.printTemplate;
@@ -98,7 +96,7 @@ export default {
       if (!savePath) return;
 
       const html = this.$refs.printContainer.innerHTML;
-      telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
+      fyo.telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
       makePDF(html, savePath);
     },
     async getSavePath() {

@@ -246,7 +246,7 @@ export function getActionsForDocument(doc?: Doc): Action[] {
   if (!doc) return [];
 
   const actions: Action[] = [
-    ...getActions(doc, fyo),
+    ...getActions(doc),
     getDuplicateAction(doc),
     getDeleteAction(doc),
     getCancelAction(doc),

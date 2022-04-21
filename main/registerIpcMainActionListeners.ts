@@ -134,7 +134,7 @@ export default function registerIpcMainActionListeners(main: Main) {
           countryCode
         );
       } catch (error) {
-        response.error = error.toString();
+        response.error = (error as Error).toString();
       }
 
       return response;
@@ -151,7 +151,7 @@ export default function registerIpcMainActionListeners(main: Main) {
           countryCode
         );
       } catch (error) {
-        response.error = error.toString();
+        response.error = (error as Error).toString();
       }
 
       return response;
@@ -165,7 +165,7 @@ export default function registerIpcMainActionListeners(main: Main) {
       try {
         response.data = await databaseManager.call(method, ...args);
       } catch (error) {
-        response.error = error.toString();
+        response.error = (error as Error).toString();
       }
 
       return response;
@@ -179,7 +179,7 @@ export default function registerIpcMainActionListeners(main: Main) {
       try {
         response.data = await databaseManager.callBespoke(method, ...args);
       } catch (error) {
-        response.error = error.toString();
+        response.error = (error as Error).toString();
       }
 
       return response;

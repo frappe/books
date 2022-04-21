@@ -12,15 +12,18 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "sourceMap": true,
-    "baseUrl": ".",
     "types": ["webpack-env"],
+    "baseUrl": ".",
     "paths": {
       "src/*": ["src/*"],
       "schemas/*": ["schemas/*"],
+      "main/*": ["main/*"],
       "backend/*": ["backend/*"],
       "regional/*": ["regional/*"],
       "fixtures/*": ["fixtures/*"],
-      "utils/*": ["utils/*"]
+      "reports/*": ["reports/*"],
+      "models/*": ["models/*"],
+      "utils/*": ["utils/*"],
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
@@ -29,23 +32,20 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
     "src/**/*.vue",
-
     "schemas/**/*.ts",
     "backend/**/*.ts",
-
     "fyo/**/*.ts",
     "models/**/*.ts",
     "patches/**/*.ts",
     "patches/**/*.js",
     "reports/**/*.ts",
     "accounting/**/*.ts",
-    "accounting/**/*.ts",
-
     "scripts/**/*.ts",
-    "utils/csvParser.ts",
-    "utils/config.ts"
+    "main/**/*.ts",
+    "regional/**/*.ts",
+    "reports/**/*.ts",
+    "utils/**/*.ts",
   ],
   "exclude": ["node_modules"]
 }

@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { t } from 'frappe';
+import { t } from 'fyo';
 import Dropdown from 'src/components/Dropdown';
 
 export default {

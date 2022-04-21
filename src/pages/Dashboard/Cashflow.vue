@@ -100,11 +100,11 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import LineChart from 'src/components/Charts/LineChart.vue';
+import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax } from 'src/utils/chart';
+import { getDatesAndPeriodicity } from 'src/utils/misc';
 import Cashflow from '../../../reports/Cashflow/Cashflow';
-import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
 
 export default {
@@ -136,7 +136,7 @@ export default {
         this.data.map((d) => d[k])
       );
       const colors = ['#2490EF', '#B7BFC6'];
-      const format = (value) => frappe.format(value ?? 0, 'Currency');
+      const format = (value) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
       return { points, xLabels, colors, format, yMax, formatX: formatXLabels };
     },
@@ -147,7 +147,7 @@ export default {
         this.period
       );
 
-      const { data, periodList } = await new Cashflow().run({
+      const { data, periodList } = await new Cashflow(this.fyo).run({
         fromDate,
         toDate,
         periodicity,

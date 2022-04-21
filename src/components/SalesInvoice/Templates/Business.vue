@@ -18,16 +18,16 @@
             class="font-semibold text-xl"
             :style="{ color: printSettings.color }"
           >
-            {{ frappe.AccountingSettings.companyName }}
+            {{ fyo.singles.AccountingSettings.companyName }}
           </div>
           <div class="text-sm text-gray-800" v-if="companyAddress">
             {{ companyAddress.addressDisplay }}
           </div>
           <div
             class="text-sm text-gray-800"
-            v-if="frappe.AccountingSettings && frappe.AccountingSettings.gstin"
+            v-if="fyo.singles.AccountingSettings && fyo.singles.AccountingSettings.gstin"
           >
-            GSTIN: {{ frappe.AccountingSettings.gstin }}
+            GSTIN: {{ fyo.singles.AccountingSettings.gstin }}
           </div>
         </div>
       </div>
@@ -41,7 +41,7 @@
               {{ doc.name }}
             </div>
             <div>
-              {{ frappe.format(doc.date, 'Date') }}
+              {{ fyo.format(doc.date, 'Date') }}
             </div>
           </div>
         </div>
@@ -84,7 +84,7 @@
             <div class="text-right">
               <div class="text-gray-800">{{ t`Subtotal` }}</div>
               <div class="text-xl mt-2">
-                {{ frappe.format(doc.netTotal, 'Currency') }}
+                {{ fyo.format(doc.netTotal, 'Currency') }}
               </div>
             </div>
             <div
@@ -96,7 +96,7 @@
                 {{ tax.account }} 
               </div>
               <div class="text-xl mt-2">
-                {{ frappe.format(tax.amount, 'Currency') }}
+                {{ fyo.format(tax.amount, 'Currency') }}
               </div>
             </div>
           </div>
@@ -107,7 +107,7 @@
             <div>
               <div>{{ t`Grand Total` }}</div>
               <div class="text-2xl mt-2 font-semibold">
-                {{ frappe.format(doc.grandTotal, 'Currency') }}
+                {{ fyo.format(doc.grandTotal, 'Currency') }}
               </div>
             </div>
           </div>

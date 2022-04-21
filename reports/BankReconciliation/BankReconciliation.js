@@ -1,4 +1,4 @@
-import frappe from 'fyo';
+import { fyo } from 'src/initFyo'
 
 class BankReconciliation {
   async run(params) {
@@ -15,7 +15,7 @@ class BankReconciliation {
 
     filters.paymentMethod = ['in', ['Cheque', 'Transfer']];
 
-    let data = await frappe.db.getAll({
+    let data = await fyo.db.getAll({
       doctype: 'Payment',
       fields: [
         'date',
@@ -31,7 +31,7 @@ class BankReconciliation {
     });
 
     for (var i = 0; i < data.length; i++) {
-      let ledger = await frappe.db.getAll({
+      let ledger = await fyo.db.getAll({
         doctype: 'AccountingLedgerEntry',
         fields: ['date', 'referenceType', 'referenceName', 'debit', 'credit'],
         filters: {

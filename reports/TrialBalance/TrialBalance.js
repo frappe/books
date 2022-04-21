@@ -1,4 +1,4 @@
-import { getTrialBalance } from '../FinancialStatements/FinancialStatements';
+import { getTrialBalance } from '../helpers/financialStatements';
 
 export default class TrialBalance {
   async run({ fromDate, toDate }) {

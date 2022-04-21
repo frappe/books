@@ -56,12 +56,12 @@
 </template>
 
 <script>
-import frappe from 'frappe';
 import { ipcRenderer } from 'electron';
-import Base from './Base';
-import { IPC_ACTIONS } from 'utils/messages';
 import fs from 'fs';
 import path from 'path';
+import { fyo } from 'src/initFyo';
+import { IPC_ACTIONS } from 'utils/messages';
+import Base from './Base';
 
 export default {
   name: 'AttachImage',
@@ -75,7 +75,7 @@ export default {
   methods: {
     async openFileSelector() {
       const options = {
-        title: frappe.t`Select Image`,
+        title: fyo.t`Select Image`,
         properties: ['openFile'],
         filters: [
           { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] },

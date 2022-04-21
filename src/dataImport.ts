@@ -1,11 +1,17 @@
-import { t } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import Doc from 'fyo/model/doc';
 import { isNameAutoSet } from 'fyo/model/naming';
 import { Noun, Verb } from 'fyo/telemetry/types';
-import { FieldType, FieldTypeEnum } from 'schemas/types';
+import {
+  Field,
+  FieldType,
+  FieldTypeEnum,
+  OptionField,
+  SelectOption,
+  TargetField,
+} from 'schemas/types';
 import { parseCSV } from '../utils/csvParser';
-import { fyo } from './initFyo';
 
 export const importable = [
   'SalesInvoice',
@@ -44,8 +50,8 @@ interface TemplateField {
   label: string;
   fieldname: string;
   required: boolean;
-  doctype: string;
-  options?: string[];
+  schemaName: string;
+  options?: SelectOption[];
   fieldtype: FieldType;
   parentField: string;
 }
@@ -59,7 +65,7 @@ function formatValue(value: string, fieldtype: FieldType): unknown {
       return new Date(value);
     case FieldTypeEnum.Currency:
       // @ts-ignore
-      return frappe.pesa(value || 0);
+      return this.fyo.pesa(value || 0);
     case FieldTypeEnum.Int:
     case FieldTypeEnum.Float: {
       const n = parseFloat(value);
@@ -80,77 +86,75 @@ const exclusion: Exclusion = {
 };
 
 function getFilteredDocFields(
-  df: string | string[]
+  df: string | string[],
+  fyo: Fyo
 ): [TemplateField[], string[][]] {
-  let doctype = df[0];
+  let schemaName = df[0];
   let parentField = df[1] ?? '';
 
   if (typeof df === 'string') {
-    doctype = df;
+    schemaName = df;
     parentField = '';
   }
 
   // @ts-ignore
-  const primaryFields: Field[] = frappe.models[doctype].fields;
+  const primaryFields: Field[] = fyo.schemaMap[schemaName]?.fields ?? [];
   const fields: TemplateField[] = [];
   const tableTypes: string[][] = [];
-  const exclusionFields: string[] = exclusion[doctype] ?? [];
+  const exclusionFields: string[] = exclusion[schemaName] ?? [];
 
-  primaryFields.forEach(
-    ({
-      label,
-      fieldtype,
-      childtype,
-      fieldname,
-      readOnly,
-      required,
-      hidden,
-      options,
-    }) => {
-      if (
-        !(fieldname === 'name' && !parentField) &&
-        (readOnly ||
-          (hidden && typeof hidden === 'number') ||
-          exclusionFields.includes(fieldname))
-      ) {
-        return;
-      }
+  primaryFields.forEach((field) => {
+    const { label, fieldtype, fieldname, readOnly, required, hidden } = field;
 
-      if (fieldtype === FieldTypeEnum.Table && childtype) {
-        tableTypes.push([childtype, fieldname]);
-        return;
-      }
-
-      fields.push({
-        label,
-        fieldname,
-        doctype,
-        options,
-        fieldtype,
-        parentField,
-        required: Boolean(required ?? false),
-      });
+    if (
+      !(fieldname === 'name' && !parentField) &&
+      (readOnly ||
+        (hidden && typeof hidden === 'number') ||
+        exclusionFields.includes(fieldname))
+    ) {
+      return;
     }
-  );
+
+    if (fieldtype === FieldTypeEnum.Table && (field as TargetField).target) {
+      tableTypes.push([(field as TargetField).target, fieldname]);
+      return;
+    }
+
+    let options: SelectOption[] = [];
+    if ((field as OptionField).options !== undefined) {
+      options = (field as OptionField).options;
+    }
+
+    fields.push({
+      label,
+      fieldname,
+      schemaName: schemaName,
+      options,
+      fieldtype,
+      parentField,
+      required: Boolean(required ?? false),
+    });
+  });
 
   return [fields, tableTypes];
 }
 
-function getTemplateFields(doctype: string): TemplateField[] {
+function getTemplateFields(schemaName: string, fyo: Fyo): TemplateField[] {
   const fields: TemplateField[] = [];
-  if (!doctype) {
+  if (!schemaName) {
     return [];
   }
-  const doctypes: string[][] = [[doctype]];
-  while (doctypes.length > 0) {
-    const dt = doctypes.pop();
+
+  const schemaNames: string[][] = [[schemaName]];
+  while (schemaNames.length > 0) {
+    const dt = schemaNames.pop();
     if (!dt) {
       break;
     }
 
-    const [templateFields, tableTypes] = getFilteredDocFields(dt);
+    const [templateFields, tableTypes] = getFilteredDocFields(dt, fyo);
     fields.push(...templateFields);
-    doctypes.push(...tableTypes);
+    schemaNames.push(...tableTypes);
   }
   return fields;
 }
@@ -173,7 +177,7 @@ function getTemplate(templateFields: TemplateField[]): string {
 }
 
 export class Importer {
-  doctype: string;
+  schemaName: string;
   templateFields: TemplateField[];
   map: Map;
   template: string;
@@ -186,10 +190,12 @@ export class Importer {
   shouldSubmit: boolean = false;
   labelIndex: number = -1;
   csv: string[][] = [];
+  fyo: Fyo;
 
-  constructor(doctype: string) {
-    this.doctype = doctype;
-    this.templateFields = getTemplateFields(doctype);
+  constructor(schemaName: string, fyo: Fyo) {
+    this.schemaName = schemaName;
+    this.fyo = fyo;
+    this.templateFields = getTemplateFields(schemaName, this.fyo);
     this.map = getLabelFieldMap(this.templateFields);
     this.template = getTemplate(this.templateFields);
     this.assignedMap = this.assignableLabels.reduce((acc: Map, k) => {
@@ -364,7 +370,7 @@ export class Importer {
 
   async importData(setLoadingStatus: LoadingStatusCallback): Promise<Status> {
     const status: Status = { success: false, names: [], message: '' };
-    const shouldDeleteName = isNameAutoSet(this.doctype, fyo);
+    const shouldDeleteName = isNameAutoSet(this.schemaName, this.fyo);
     const docObjs = this.getDocs();
 
     let entriesMade = 0;
@@ -383,7 +389,7 @@ export class Importer {
         delete docObj[key];
       }
 
-      const doc: Doc = fyo.doc.getEmptyDoc(this.doctype, false);
+      const doc: Doc = this.fyo.doc.getEmptyDoc(this.schemaName, false);
       try {
         await this.makeEntry(doc, docObj);
         entriesMade += 1;
@@ -391,7 +397,7 @@ export class Importer {
       } catch (err) {
         setLoadingStatus(false, entriesMade, docObjs.length);
 
-        fyo.telemetry.log(Verb.Imported, this.doctype as Noun, {
+        this.fyo.telemetry.log(Verb.Imported, this.schemaName as Noun, {
           success: false,
           count: entriesMade,
         });
@@ -405,7 +411,7 @@ export class Importer {
     setLoadingStatus(false, entriesMade, docObjs.length);
     status.success = true;
 
-    fyo.telemetry.log(Verb.Imported, this.doctype as Noun, {
+    this.fyo.telemetry.log(Verb.Imported, this.schemaName as Noun, {
       success: true,
       count: entriesMade,
     });
@@ -426,7 +432,7 @@ export class Importer {
   }
 
   handleError(doc: Doc, err: Error, status: Status): Status {
-    const messages = [t`Could not import ${this.doctype} ${doc.name!}.`];
+    const messages = [t`Could not import ${this.schemaName} ${doc.name!}.`];
 
     const message = err.message;
     if (message?.includes('UNIQUE constraint failed')) {

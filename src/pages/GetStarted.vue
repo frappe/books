@@ -85,10 +85,11 @@
 
 <script>
 import { ipcRenderer } from 'electron';
-import frappe, { t } from 'frappe';
+import { t } from 'fyo';
 import Button from 'src/components/Button';
 import Icon from 'src/components/Icon';
 import PageHeader from 'src/components/PageHeader';
+import { fyo } from 'src/initFyo';
 import { openSettings, routeTo } from 'src/utils';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h } from 'vue';
@@ -252,7 +253,7 @@ export default {
     };
   },
   async activated() {
-    frappe.GetStarted = await frappe.getSingle('GetStarted');
+    fyo.GetStarted = await fyo.getSingle('GetStarted');
     this.checkForCompletedTasks();
   },
   methods: {
@@ -292,12 +293,12 @@ export default {
       }
     },
     async checkIsOnboardingComplete() {
-      if (frappe.GetStarted.onboardingComplete) {
+      if (fyo.GetStarted.onboardingComplete) {
         return true;
       }
 
-      const meta = await frappe.getMeta('GetStarted');
-      const doc = await frappe.getSingle('GetStarted');
+      const meta = await fyo.getMeta('GetStarted');
+      const doc = await fyo.getSingle('GetStarted');
       const onboardingComplete = !!meta.fields
         .filter(({ fieldname }) => fieldname !== 'onboardingComplete')
         .map(({ fieldname }) => doc.get(fieldname))
@@ -305,7 +306,7 @@ export default {
 
       if (onboardingComplete) {
         await this.updateChecks({ onboardingComplete });
-        const systemSettings = await frappe.getSingle('SystemSettings');
+        const systemSettings = await fyo.getSingle('SystemSettings');
         await systemSettings.set({ hideGetStarted: 1 });
         await systemSettings.update();
       }
@@ -318,22 +319,22 @@ export default {
         return;
       }
 
-      if (!frappe.GetStarted.itemCreated) {
-        const count = await frappe.db.count('Item');
+      if (!fyo.GetStarted.itemCreated) {
+        const count = await fyo.db.count('Item');
         if (count > 0) {
           toUpdate.itemCreated = 1;
         }
       }
 
-      if (!frappe.GetStarted.invoiceCreated) {
-        const count = await frappe.db.count('SalesInvoice');
+      if (!fyo.GetStarted.invoiceCreated) {
+        const count = await fyo.db.count('SalesInvoice');
         if (count > 0) {
           toUpdate.invoiceCreated = 1;
         }
       }
 
-      if (!frappe.GetStarted.customerCreated) {
-        const count = frappe.db.count('Party', {
+      if (!fyo.GetStarted.customerCreated) {
+        const count = fyo.db.count('Party', {
           filters: { role: 'Customer' },
         });
         if (count > 0) {
@@ -341,15 +342,15 @@ export default {
         }
       }
 
-      if (!frappe.GetStarted.billCreated) {
-        const count = await frappe.db.count('SalesInvoice');
+      if (!fyo.GetStarted.billCreated) {
+        const count = await fyo.db.count('SalesInvoice');
         if (count > 0) {
           toUpdate.billCreated = 1;
         }
       }
 
-      if (!frappe.GetStarted.supplierCreated) {
-        const count = frappe.db.count('Party', {
+      if (!fyo.GetStarted.supplierCreated) {
+        const count = fyo.db.count('Party', {
           filters: { role: 'Supplier' },
         });
         if (count > 0) {
@@ -359,15 +360,15 @@ export default {
       await this.updateChecks(toUpdate);
     },
     async updateChecks(toUpdate) {
-      await frappe.GetStarted.setMultiple(toUpdate);
-      await frappe.GetStarted.update();
-      frappe.GetStarted = await frappe.getSingle('GetStarted');
+      await fyo.GetStarted.setMultiple(toUpdate);
+      await fyo.GetStarted.update();
+      fyo.GetStarted = await fyo.getSingle('GetStarted');
     },
     isCompleted(item) {
-      return frappe.GetStarted.get(item.fieldname) || 0;
+      return fyo.GetStarted.get(item.fieldname) || 0;
     },
     getIconComponent(item) {
-      let completed = frappe.GetStarted[item.fieldname] || 0;
+      let completed = fyo.GetStarted[item.fieldname] || 0;
       let name = completed ? 'green-check' : item.icon;
       let size = completed ? '24' : '18';
       return {

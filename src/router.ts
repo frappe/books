@@ -1,15 +1,15 @@
 import { NounEnum, Verb } from 'fyo/telemetry/types';
-import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
-import DataImport from 'src/pages/DataImport.vue';
-import GetStarted from 'src/pages/GetStarted.vue';
-import InvoiceForm from 'src/pages/InvoiceForm.vue';
-import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
-import ListView from 'src/pages/ListView/ListView.vue';
-import PrintView from 'src/pages/PrintView/PrintView.vue';
-import QuickEditForm from 'src/pages/QuickEditForm.vue';
-import Report from 'src/pages/Report.vue';
-import Settings from 'src/pages/Settings/Settings.vue';
+// import GetStarted from 'src/pages/GetStarted.vue';
+// import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
+// import DataImport from 'src/pages/DataImport.vue';
+// import InvoiceForm from 'src/pages/InvoiceForm.vue';
+// import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
+// import ListView from 'src/pages/ListView/ListView.vue';
+// import PrintView from 'src/pages/PrintView/PrintView.vue';
+// import QuickEditForm from 'src/pages/QuickEditForm.vue';
+// import Report from 'src/pages/Report.vue';
+// import Settings from 'src/pages/Settings/Settings.vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { fyo } from './initFyo';
 
@@ -18,6 +18,7 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: Dashboard,
   },
+  /*
   {
     path: '/get-started',
     component: GetStarted,
@@ -113,6 +114,7 @@ const routes: RouteRecordRaw[] = [
     component: Settings,
     props: true,
   },
+*/
 ];
 
 const router = createRouter({ routes, history: createWebHistory() });

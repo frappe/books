@@ -4,7 +4,14 @@ import { RawValue } from 'schemas/types';
 import { AuthDemuxBase } from 'utils/auth/types';
 import { DatabaseDemuxBase } from 'utils/db/types';
 
-export type DocValue = string | number | boolean | Date | Money | null;
+export type DocValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | Money
+  | null
+  | undefined;
 export type DocValueMap = Record<string, DocValue | Doc[] | DocValueMap[]>;
 export type RawValueMap = Record<string, RawValue | RawValueMap[]>;
 

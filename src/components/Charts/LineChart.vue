@@ -131,8 +131,8 @@
   </div>
 </template>
 <script>
+import { euclideanDistance, prefixFormat } from 'src/utils/chart';
 import Tooltip from '../Tooltip.vue';
-import { euclideanDistance, prefixFormat } from './chartUtils';
 
 export default {
   props: {

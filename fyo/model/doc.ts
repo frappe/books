@@ -16,8 +16,8 @@ import {
   Schema,
   TargetField,
 } from 'schemas/types';
-import { getIsNullOrUndef, getMapFromList } from 'utils';
-import { getRandomString, isPesa } from '../utils/index';
+import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
+import { isPesa } from '../utils/index';
 import {
   areDocValuesEqual,
   getMissingMandatoryMessage,

@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import frappe from 'frappe';
+import { fyo } from 'src/initFyo';
 import Float from './Float';
 
 export default {
@@ -48,12 +48,12 @@ export default {
       this.$emit('focus', e);
     },
     parse(value) {
-      return frappe.pesa(value);
+      return fyo.pesa(value);
     },
     onBlur(e) {
       let { value } = e.target;
       if (value !== 0 && !value) {
-        value = frappe.pesa(0).round();
+        value = fyo.pesa(0).round();
       }
 
       this.showInput = false;
@@ -68,7 +68,7 @@ export default {
   },
   computed: {
     formattedValue() {
-      return frappe.format(this.value, this.df, this.doc);
+      return fyo.format(this.value, this.df, this.doc);
     },
   },
 };

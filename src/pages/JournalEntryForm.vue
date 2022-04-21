@@ -87,7 +87,7 @@
                   :read-only="!doc._notInserted || doc.submitted"
                   :class="doc.submitted && 'pointer-events-none'"
                 />
-            </div>
+              </div>
             </div>
           </div>
           <div class="mt-2 px-6 text-base">
@@ -128,13 +128,13 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import BackLink from 'src/components/BackLink';
 import Button from 'src/components/Button';
 import FormControl from 'src/components/Controls/FormControl';
 import DropdownWithActions from 'src/components/DropdownWithActions';
 import PageHeader from 'src/components/PageHeader';
 import StatusBadge from 'src/components/StatusBadge';
+import { fyo } from 'src/initFyo';
 import { getActionsForDocument, routeTo, showMessageDialog } from 'src/utils';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -163,7 +163,7 @@ export default {
   },
   computed: {
     meta() {
-      return frappe.getMeta(this.doctype);
+      return fyo.getMeta(this.doctype);
     },
     status() {
       if (this.doc._notInserted || !this.doc.submitted) {
@@ -177,14 +177,14 @@ export default {
       if (this.doc.accounts) {
         value = this.doc.getSum('accounts', 'debit');
       }
-      return frappe.format(value, 'Currency');
+      return fyo.format(value, 'Currency');
     },
     totalCredit() {
       let value = 0;
       if (this.doc.accounts) {
         value = this.doc.getSum('accounts', 'credit');
       }
-      return frappe.format(value, 'Currency');
+      return fyo.format(value, 'Currency');
     },
     actions() {
       return getActionsForDocument(this.doc);
@@ -192,10 +192,10 @@ export default {
   },
   async mounted() {
     try {
-      this.doc = await frappe.doc.getDoc(this.doctype, this.name);
+      this.doc = await fyo.doc.getDoc(this.doctype, this.name);
       window.je = this.doc;
     } catch (error) {
-      if (error instanceof frappe.errors.NotFoundError) {
+      if (error instanceof fyo.errors.NotFoundError) {
         routeTo(`/list/${this.doctype}`);
         return;
       }

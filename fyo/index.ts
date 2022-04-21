@@ -165,6 +165,11 @@ export class Fyo {
     await this.auth.logout();
   }
 
+  getField(schemaName: string, fieldname: string) {
+    const schema = this.schemaMap[schemaName];
+    return schema?.fields.find((f) => f.fieldname === fieldname);
+  }
+
   store = {
     isDevelopment: false,
     appVersion: '',

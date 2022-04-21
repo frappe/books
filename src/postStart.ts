@@ -3,7 +3,7 @@ import { DEFAULT_SERIES_START } from 'fyo/utils/consts';
 import { getValueMapFromList } from 'utils';
 import { fyo } from './initFyo';
 
-export default async function postStart() {
+export async function postStart() {
   await createDefaultNumberSeries();
   await setSingles();
   await setCurrencySymbols();

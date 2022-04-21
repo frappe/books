@@ -38,16 +38,13 @@
 </template>
 
 <script>
-import frappe from 'fyo';
+import { ConfigKeys } from 'fyo/core/types';
+import { getTelemetryOptions } from 'fyo/telemetry/helpers';
+import { TelemetrySetting } from 'fyo/telemetry/types';
 import FormControl from 'src/components/Controls/FormControl';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm';
-import config, {
-ConfigKeys,
-TelemetrySetting
-} from 'src/config';
-import { getTelemetryOptions } from 'src/telemetry/helpers';
-import telemetry from 'src/telemetry/telemetry';
+import { fyo } from 'src/initFyo';
 import { checkForUpdates } from 'src/utils';
 
 export default {
@@ -65,9 +62,9 @@ export default {
     };
   },
   async mounted() {
-    this.doc = frappe.SystemSettings;
-    this.companyName = frappe.AccountingSettings.companyName;
-    this.telemetry = config.get(ConfigKeys.Telemetry);
+    this.doc = fyo.singles.SystemSettings;
+    this.companyName = fyo.singles.AccountingSettings.companyName;
+    this.telemetry = fyo.config.get(ConfigKeys.Telemetry);
   },
   computed: {
     df() {
@@ -84,7 +81,7 @@ export default {
       };
     },
     fields() {
-      let meta = frappe.getMeta('SystemSettings');
+      let meta = fyo.getMeta('SystemSettings');
       return meta.getQuickEditFields();
     },
   },
@@ -93,12 +90,12 @@ export default {
     setValue(value) {
       this.telemetry = value;
       if (value === TelemetrySetting.dontLogAnything) {
-        telemetry.finalLogAndStop();
+        fyo.telemetry.finalLogAndStop();
       } else {
-        telemetry.log(Verb.Started, NounEnum.Telemetry);
+        fyo.telemetry.log(Verb.Started, NounEnum.Telemetry);
       }
 
-      config.set(ConfigKeys.Telemetry, value);
+      fyo.config.set(ConfigKeys.Telemetry, value);
     },
     forwardChangeEvent(...args) {
       this.$emit('change', ...args);
