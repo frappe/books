@@ -17,7 +17,7 @@ import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
 
-export default {
+export const models = {
   Account,
   AccountingLedgerEntry,
   AccountingSettings,

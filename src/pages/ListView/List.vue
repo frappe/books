@@ -56,11 +56,11 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import Avatar from 'src/components/Avatar';
 import Button from 'src/components/Button';
 import Row from 'src/components/Row';
-import { openQuickEdit, routeTo } from 'src/utils';
+import { fyo } from 'src/initFyo';
+import { openQuickEdit, routeTo } from 'src/utils/ui';
 import ListCell from './ListCell';
 
 export default {
@@ -90,7 +90,7 @@ export default {
       return this.prepareColumns();
     },
     meta() {
-      return frappe.getMeta(this.listConfig.doctype);
+      return fyo.getMeta(this.listConfig.doctype);
     },
     hasImage() {
       return this.meta.hasField('image');
@@ -98,7 +98,7 @@ export default {
   },
   async mounted() {
     await this.setupColumnsAndData();
-    frappe.db.on(`change:${this.listConfig.doctype}`, () => {
+    fyo.db.on(`change:${this.listConfig.doctype}`, () => {
       this.updateData();
     });
   },
@@ -119,7 +119,7 @@ export default {
     },
     async updateData(filters) {
       if (!filters) filters = this.getFilters();
-      this.data = await frappe.db.getAll({
+      this.data = await fyo.db.getAll({
         doctype: this.doctype,
         fields: ['*'],
         filters,

@@ -32,6 +32,4 @@ export default {
     return svg;
   },
 };
-
-// https://github.com/frappe/frappejs/commits/master/ui/components/FeatherIcon.vue
 </script>

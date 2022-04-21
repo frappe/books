@@ -1,5 +1,6 @@
-import frappe, { t } from 'fyo';
+import { t } from 'fyo';
 import getCommonExportActions from '../commonExporter';
+import { fyo } from 'src/initFyo';
 
 const periodicityMap = {
   Monthly: t`Monthly`,
@@ -19,7 +20,7 @@ export default {
       label: t`To Date`,
       required: 1,
       default: async () => {
-        return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
+        return (await fyo.doc.getSingle('AccountingSettings')).fiscalYearEnd;
       },
     },
     {

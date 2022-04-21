@@ -116,8 +116,8 @@
 </template>
 
 <script>
-import { t } from 'frappe';
-import { getRandomString } from 'frappe/utils';
+import { t } from 'fyo';
+import { getRandomString } from 'utils';
 import Button from './Button';
 import FormControl from './Controls/FormControl';
 import Icon from './Icon';
@@ -153,9 +153,7 @@ export default {
     this.addNewFilter();
   },
   methods: {
-    getRandomString() {
-      return getRandomString();
-    },
+    getRandomString,
     addNewFilter() {
       let df = this.fields[0];
       this.addFilter(df.fieldname, 'like', '');

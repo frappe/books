@@ -1,5 +1,5 @@
 import csv2json from 'csvjson-csv2json';
-import frappe from 'fyo';
+import { fyo } from 'src/initFyo';
 import ReconciliationValidation from '../../src/components/ReconciliationValidation';
 
 export const fileImportHandler = (file, report) => {
@@ -42,7 +42,7 @@ export const findMatchingReferences = async (json, report) => {
   const references = json.map((row) => {
     return row[referenceField];
   });
-  const payments = await frappe.db.getAll({
+  const payments = await fyo.db.getAll({
     doctype: 'Payment',
     fields: ['*'],
     filters: {
@@ -60,11 +60,11 @@ export const findMatchingReferences = async (json, report) => {
     });
     const normalizedEntries = entries.map((entry) => {
       return {
-        'Posting Date': frappe.format(entry.date, 'Date'),
+        'Posting Date': fyo.format(entry.date, 'Date'),
         'Payment Entry': entry.name,
         'Ref/Cheq. ID': entry[referenceField],
         'Cr/Dr':
-          frappe.parseNumber(entry[debitField]) > 0
+          fyo.parseNumber(entry[debitField]) > 0
             ? entry[debitField] + ' Dr.'
             : entry[creditField] + ' Cr.',
         'Clearance Date': entry[clearanceDateField],

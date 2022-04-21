@@ -162,10 +162,8 @@ import { ipcRenderer } from 'electron';
 import fs from 'fs';
 import { DateTime } from 'luxon';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
-import config from 'src/config';
-import { connectToLocalDatabase, createNewDatabase } from 'src/initialization';
-import { DB_CONN_FAILURE, IPC_ACTIONS } from '../../utils/messages';
-import { showErrorDialog } from '../errorHandling';
+import { fyo } from 'src/initFyo';
+import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
   name: 'DatabaseSelector',
@@ -189,14 +187,17 @@ export default {
   },
   methods: {
     setFiles() {
-      this.files = config
+      this.files = fyo.config
         .get('files', [])
         .filter(({ filePath }) => fs.existsSync(filePath));
     },
     async newDatabase() {
+      /*
+        TODO: Refactor this
       this.fileSelectedFrom = 'New File';
       let filePath = await createNewDatabase();
       this.connectToDatabase(filePath);
+      */
     },
     async existingDatabase() {
       this.fileSelectedFrom = 'Existing File';
@@ -214,6 +215,8 @@ export default {
       await this.connectToDatabase(file.filePath);
     },
     async connectToDatabase(filePath) {
+      /*
+        TODO: Refactor this
       if (!filePath) {
         return;
       }
@@ -235,6 +238,7 @@ export default {
           .t`Can't open database file: ${filePath}. Please create a new file.`;
       }
       await showErrorDialog(title, content);
+      */
     },
     getFileLastModified(filePath) {
       let stats = fs.statSync(filePath);

@@ -1,5 +1,5 @@
 <script>
-import frappe from 'frappe';
+import { fyo } from 'src/initFyo';
 export default {
   name: 'Base',
   props: ['doc', 'printSettings'],
@@ -7,7 +7,7 @@ export default {
   methods: {
     format(row, fieldname) {
       let value = row.get(fieldname);
-      return frappe.format(value, row.meta.getField(fieldname));
+      return fyo.format(value, row.meta.getField(fieldname));
     }
   },
   async mounted() {

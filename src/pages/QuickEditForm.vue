@@ -77,12 +77,13 @@
 </template>
 
 <script>
-import frappe, { t } from 'frappe';
+import { t } from 'fyo';
 import Button from 'src/components/Button';
 import FormControl from 'src/components/Controls/FormControl';
 import DropdownWithActions from 'src/components/DropdownWithActions';
 import StatusBadge from 'src/components/StatusBadge';
 import TwoColumnForm from 'src/components/TwoColumnForm';
+import { fyo } from 'src/initFyo';
 import { getActionsForDocument, openQuickEdit } from 'src/utils';
 
 export default {
@@ -126,7 +127,7 @@ export default {
   },
   computed: {
     meta() {
-      return frappe.getMeta(this.doctype);
+      return fyo.getMeta(this.doctype);
     },
     status() {
       if (this.doc && this.doc._notInserted) {
@@ -186,7 +187,7 @@ export default {
     },
     async fetchDoc() {
       try {
-        this.doc = await frappe.doc.getDoc(this.doctype, this.name);
+        this.doc = await fyo.doc.getDoc(this.doctype, this.name);
 
         this.doc.once('afterRename', () => {
           openQuickEdit({

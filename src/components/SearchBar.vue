@@ -41,10 +41,12 @@
   </div>
 </template>
 <script>
-import frappe, { t } from 'frappe';
+import { t } from 'fyo';
+import reports from 'reports/view';
 import Dropdown from 'src/components/Dropdown';
+import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils';
-import reports from '../../reports/view';
+
 
 export default {
   data() {
@@ -91,8 +93,8 @@ export default {
       });
     },
     getDoctypes() {
-      let doctypes = Object.keys(frappe.models).sort();
-      let doctypeMetas = doctypes.map((doctype) => frappe.getMeta(doctype));
+      let doctypes = Object.keys(fyo.models).sort();
+      let doctypeMetas = doctypes.map((doctype) => fyo.getMeta(doctype));
       let searchableDoctypes = doctypeMetas.filter((meta) => {
         return !meta.isSingle && !meta.isChild;
       });

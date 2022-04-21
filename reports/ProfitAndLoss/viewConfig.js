@@ -1,4 +1,5 @@
-import frappe, { t } from 'fyo';
+import { t } from 'fyo';
+import { fyo } from 'src/initFyo';
 import getCommonExportActions from '../commonExporter';
 
 const title = t`Profit and Loss`;
@@ -22,7 +23,7 @@ export default {
       label: t`From Date`,
       required: 1,
       default: async () => {
-        return (await frappe.getSingle('AccountingSettings')).fiscalYearStart;
+        return (await fyo.getSingle('AccountingSettings')).fiscalYearStart;
       },
     },
     {
@@ -33,7 +34,7 @@ export default {
       label: t`To Date`,
       required: 1,
       default: async () => {
-        return (await frappe.getSingle('AccountingSettings')).fiscalYearEnd;
+        return (await fyo.getSingle('AccountingSettings')).fiscalYearEnd;
       },
     },
     {

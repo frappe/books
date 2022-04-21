@@ -30,11 +30,11 @@
   </div>
 </template>
 <script>
-import frappe from 'fyo';
 import Button from 'src/components/Button';
 import FilterDropdown from 'src/components/FilterDropdown';
 import PageHeader from 'src/components/PageHeader';
 import SearchBar from 'src/components/SearchBar';
+import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils';
 import List from './List';
 
@@ -63,7 +63,7 @@ export default {
   methods: {
     async makeNewDoc() {
       const doctype = this.listConfig.doctype;
-      const doc = await frappe.getEmptyDoc(doctype);
+      const doc = await fyo.doc.getEmptyDoc(doctype);
       if (this.listConfig.filters) {
         doc.set(this.listConfig.filters);
       }
@@ -104,9 +104,6 @@ export default {
     },
   },
   computed: {
-    meta() {
-      return frappe.getMeta(this.doctype);
-    },
     listConfig() {
       if (this?.listConfigs?.[this?.doctype]) {
         return this.listConfigs[this.doctype];
@@ -114,7 +111,7 @@ export default {
         return {
           title: this.doctype,
           doctype: this.doctype,
-          columns: this.meta.getKeywordFields(),
+          columns: fyo.schemaMap[this.doctype].keywordFields ?? ['name'],
         };
       }
     },

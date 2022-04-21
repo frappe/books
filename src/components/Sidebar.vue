@@ -99,6 +99,7 @@
 import path from 'path';
 import Button from 'src/components/Button';
 import { reportIssue } from 'src/errorHandling';
+import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils';
 import router from '../router';
 import sidebarConfig from '../sidebarConfig';
@@ -117,10 +118,10 @@ export default {
   },
   computed: {
     appVersion() {
-      return frappe.store.appVersion;
+      return fyo.store.appVersion;
     },
     dbPath() {
-      const splits = frappe.db.dbPath.split(path.sep);
+      const splits = fyo.db.dbPath.split(path.sep);
       return path.join(...splits.slice(splits.length - 2));
     },
   },
@@ -134,7 +135,7 @@ export default {
     groups = groups.filter((group) => {
       if (
         group.route === '/get-started' &&
-        frappe.SystemSettings.hideGetStarted
+        fyo.singles.SystemSettings.hideGetStarted
       ) {
         return false;
       }

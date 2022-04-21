@@ -13,10 +13,12 @@ module.exports = {
       chainWebpackRendererProcess: (config) => {
         config.target('electron-renderer');
         config.resolve.alias.set('fyo', path.resolve(__dirname, './fyo'));
+        config.resolve.alias.set('utils', path.resolve(__dirname, './utils'));
       },
       chainWebpackMainProcess: (config) => {
         config.target('electron-main');
         config.resolve.alias.set('fyo', path.resolve(__dirname, './fyo'));
+        config.resolve.alias.set('utils', path.resolve(__dirname, './utils'));
         config.module
           .rule('js')
           .test(/\.js$/)
@@ -43,8 +45,10 @@ module.exports = {
       src: path.resolve(__dirname, './src'),
       schemas: path.resolve(__dirname, './schemas'),
       backend: path.resolve(__dirname, './backend'),
+      models: path.resolve(__dirname, './models'),
       utils: path.resolve(__dirname, './utils'),
       regional: path.resolve(__dirname, './regional'),
+      reports: path.resolve(__dirname, './reports'),
       fixtures: path.resolve(__dirname, './fixtures'),
     });
 

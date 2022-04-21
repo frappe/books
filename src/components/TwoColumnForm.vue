@@ -1,7 +1,3 @@
-import Button from 'src/components/Button';
-import FormControl from 'src/components/Controls/FormControl';
-import frappe from 'frappe';
-import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
 <template>
   <div class="text-sm" :class="{ 'border-t': !noBorder }">
     <template v-for="df in formFields">
@@ -90,9 +86,9 @@ import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import Button from 'src/components/Button';
 import FormControl from 'src/components/Controls/FormControl';
+import { fyo } from 'src/initFyo';
 import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
 
 let TwoColumnForm = {
@@ -224,7 +220,7 @@ let TwoColumnForm = {
 
       this.inlineEditField = df;
       if (!this.doc[df.fieldname]) {
-        this.inlineEditDoc = await frappe.getEmptyDoc(df.target);
+        this.inlineEditDoc = await fyo.doc.getEmptyDoc(df.target);
         this.inlineEditDoc.once('afterInsert', () => {
           this.onChangeCommon(df, this.inlineEditDoc.name);
         });
@@ -234,7 +230,7 @@ let TwoColumnForm = {
 
       this.inlineEditDisplayField =
         this.doc.meta.inlineEditDisplayField || 'name';
-      this.inlineEditFields = frappe.getMeta(df.target).getQuickEditFields();
+      this.inlineEditFields = fyo.getMeta(df.target).getQuickEditFields();
     },
     async saveInlineEditDoc(df) {
       if (!this.inlineEditDoc) {

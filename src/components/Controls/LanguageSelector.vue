@@ -7,10 +7,10 @@
   />
 </template>
 <script>
-import { DEFAULT_LANGUAGE } from 'frappe/utils/consts';
-import config from 'src/config';
-import { languageCodeMap } from 'src/languageCodeMap';
+import { DEFAULT_LANGUAGE } from 'fyo/utils/consts';
+import { fyo } from 'src/initFyo';
 import { setLanguageMap } from 'src/utils';
+import { languageCodeMap } from 'src/utils/language';
 import FormControl from './FormControl';
 
 export default {
@@ -31,16 +31,15 @@ export default {
   components: { FormControl },
   computed: {
     value() {
-      return config.get('language') ?? DEFAULT_LANGUAGE;
+      return fyo.config.get('language') ?? DEFAULT_LANGUAGE;
     },
     languageDf() {
-      languageCodeMap;
       return {
         fieldname: 'language',
         label: this.t`Language`,
         fieldtype: 'Select',
         options: Object.keys(languageCodeMap),
-        default: config.get('language') ?? DEFAULT_LANGUAGE,
+        default: fyo.config.get('language') ?? DEFAULT_LANGUAGE,
         description: this.t`Set the display language.`,
       };
     },

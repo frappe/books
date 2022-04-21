@@ -29,7 +29,7 @@
             class="text-sm bold"
             :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.hasData }"
           >
-            {{ frappe.format(invoice.paid, 'Currency') }}
+            {{ fyo.format(invoice.paid, 'Currency') }}
             <span :class="{ 'text-gray-900': invoice.hasData }">{{
               t`Paid`
             }}</span>
@@ -38,7 +38,7 @@
             class="text-sm"
             :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.hasData }"
           >
-            {{ frappe.format(invoice.unpaid, 'Currency') }}
+            {{ fyo.format(invoice.unpaid, 'Currency') }}
             <span :class="{ 'text-gray-900': invoice.hasData }">{{
               t`Unpaid`
             }}</span>
@@ -68,10 +68,11 @@
   </div>
 </template>
 <script>
-import frappe, { t } from 'frappe';
+import { t } from 'fyo';
 import Button from 'src/components/Button';
+import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils';
-import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
+import { getDatesAndPeriodicity } from 'src/utils/misc';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 
@@ -124,7 +125,7 @@ export default {
           this.$data[d.periodKey]
         );
 
-        let result = await frappe.db.getTotalOutstanding(
+        let result = await fyo.db.getTotalOutstanding(
           d.doctype,
           fromDate,
           toDate
@@ -142,7 +143,7 @@ export default {
       this.invoices = await Promise.all(promises);
     },
     async newInvoice(invoice) {
-      let doc = await frappe.getEmptyDoc(invoice.doctype);
+      let doc = await fyo.doc.getEmptyDoc(invoice.doctype);
       routeTo(`/edit/${invoice.doctype}/${doc.name}`);
     },
   },

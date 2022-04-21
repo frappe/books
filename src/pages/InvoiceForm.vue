@@ -153,7 +153,7 @@
               <div>{{ tax.account }}</div>
               <div>
                 {{
-                  frappe.format(tax.amount, {
+                  fyo.format(tax.amount, {
                     fieldtype: 'Currency',
                     currency: doc.currency,
                   })
@@ -198,7 +198,6 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import { getInvoiceStatus } from 'models/helpers';
 import BackLink from 'src/components/BackLink';
 import Button from 'src/components/Button';
@@ -206,6 +205,7 @@ import FormControl from 'src/components/Controls/FormControl';
 import DropdownWithActions from 'src/components/DropdownWithActions';
 import PageHeader from 'src/components/PageHeader';
 import StatusBadge from 'src/components/StatusBadge';
+import { fyo } from 'src/initFyo';
 import {
 getActionsForDocument,
 openSettings,
@@ -242,7 +242,7 @@ export default {
   },
   computed: {
     meta() {
-      return frappe.getMeta(this.doctype);
+      return fyo.getMeta(this.doctype);
     },
     partyField() {
       let fieldname = {
@@ -263,18 +263,18 @@ export default {
   },
   async mounted() {
     try {
-      this.doc = await frappe.doc.getDoc(this.doctype, this.name);
+      this.doc = await fyo.doc.getDoc(this.doctype, this.name);
       window.d = this.doc;
     } catch (error) {
-      if (error instanceof frappe.errors.NotFoundError) {
+      if (error instanceof fyo.errors.NotFoundError) {
         routeTo(`/list/${this.doctype}`);
         return;
       }
       this.handleError(error);
     }
-    this.printSettings = await frappe.getSingle('PrintSettings');
+    this.printSettings = await fyo.getSingle('PrintSettings');
     this.companyName = (
-      await frappe.getSingle('AccountingSettings')
+      await fyo.getSingle('AccountingSettings')
     ).companyName;
 
     let query = this.$route.query;
@@ -327,7 +327,7 @@ export default {
         doc = this.doc;
       }
       let df = doc.meta.getField(fieldname);
-      return frappe.format(doc[fieldname], df, doc);
+      return fyo.format(doc[fieldname], df, doc);
     },
   },
 };

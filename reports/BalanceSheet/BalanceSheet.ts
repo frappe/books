@@ -1,9 +1,13 @@
+import { Fyo } from 'fyo';
 import { unique } from 'fyo/utils';
-import { getData } from '../FinancialStatements/FinancialStatements';
+import { FinancialStatements } from 'reports/FinancialStatements/financialStatements';
+import { FinancialStatementOptions } from 'reports/types';
 
 class BalanceSheet {
-  async run({ fromDate, toDate, periodicity }) {
-    let asset = await getData({
+  async run(options: FinancialStatementOptions, fyo: Fyo) {
+    const { fromDate, toDate, periodicity } = options;
+    const fs = new FinancialStatements(fyo);
+    const asset = await fs.getData({
       rootType: 'Asset',
       balanceMustBe: 'Debit',
       fromDate,
@@ -12,7 +16,7 @@ class BalanceSheet {
       accumulateValues: true,
     });
 
-    let liability = await getData({
+    const liability = await fs.getData({
       rootType: 'Liability',
       balanceMustBe: 'Credit',
       fromDate,
@@ -21,7 +25,7 @@ class BalanceSheet {
       accumulateValues: true,
     });
 
-    let equity = await getData({
+    const equity = await fs.getData({
       rootType: 'Equity',
       balanceMustBe: 'Credit',
       fromDate,

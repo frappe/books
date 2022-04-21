@@ -1,4 +1,4 @@
-import frappe from 'fyo';
+import { fyo } from 'src/initFyo';
 
 class PurchaseRegister {
   async run({ fromDate, toDate, supplier }) {
@@ -18,7 +18,7 @@ class PurchaseRegister {
     }
     filters.submitted = 1;
 
-    const bills = await frappe.db.getAll({
+    const bills = await fyo.db.getAll({
       doctype: 'PurchaseInvoice',
       fields: ['name', 'date', 'supplier', 'account', 'netTotal', 'grandTotal'],
       filters,
@@ -28,7 +28,7 @@ class PurchaseRegister {
 
     const billNames = bills.map((d) => d.name);
 
-    const taxes = await frappe.db.getAll({
+    const taxes = await fyo.db.getAll({
       doctype: 'TaxSummary',
       fields: ['parent', 'amount'],
       filters: {

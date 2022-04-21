@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import 'mocha';
-import models, { getRegionalModels } from 'models';
+import { getRegionalModels, models } from 'models';
 import { getSchemas } from 'schemas';
 import { Fyo } from '..';
 import { DatabaseManager } from '../../backend/database/manager';

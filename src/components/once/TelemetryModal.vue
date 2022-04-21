@@ -49,10 +49,10 @@
 </template>
 
 <script>
-import config, { ConfigKeys, TelemetrySetting } from 'src/config';
-import { getTelemetryOptions } from 'src/telemetry/helpers';
-import telemetry from 'src/telemetry/telemetry';
-import { NounEnum, Verb } from 'src/telemetry/types';
+import { ConfigKeys } from 'fyo/core/types';
+import { getTelemetryOptions } from 'fyo/telemetry/helpers';
+import { TelemetrySetting } from 'fyo/telemetry/types';
+import { fyo } from 'src/initFyo';
 import Button from '../Button.vue';
 import FormControl from '../Controls/FormControl';
 import FeatherIcon from '../FeatherIcon.vue';
@@ -119,12 +119,12 @@ export default {
     },
 
     setOpen(telemetry) {
-      const openCount = config.get(ConfigKeys.OpenCount);
+      const openCount = fyo.config.get(ConfigKeys.OpenCount);
       this.shouldOpen = !this.getIsSet(telemetry) && openCount >= 4;
     },
   },
   mounted() {
-    const telemetry = config.get(ConfigKeys.Telemetry);
+    const telemetry = fyo.config.get(ConfigKeys.Telemetry);
     this.setOpen(telemetry);
     this.value = telemetry;
   },

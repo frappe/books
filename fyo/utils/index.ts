@@ -1,4 +1,3 @@
-import { Fyo } from 'fyo';
 import Doc from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { pesa } from 'pesa';
@@ -11,23 +10,13 @@ export function slug(str: string) {
     .replace(/\s+/g, '');
 }
 
-export function getRandomString() {
-  return Math.random().toString(36).substr(3);
-}
-
-export async function sleep(seconds: number) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, seconds * 1000);
-  });
-}
-
 export function range(n: number) {
   return Array(n)
     .fill(null)
     .map((_, i) => i);
 }
 
-export function unique(list: unknown[], key = (it: unknown) => String(it)) {
+export function unique<T>(list: T[], key = (it: T) => String(it)) {
   const seen: Record<string, boolean> = {};
   return list.filter((item) => {
     const k = key(item);
@@ -54,11 +43,11 @@ export function isPesa(value: unknown): boolean {
   return value instanceof pesa().constructor;
 }
 
-export function getActions(doc: Doc, fyo: Fyo): Action[] {
-  const Model = fyo.models[doc.schemaName];
+export function getActions(doc: Doc): Action[] {
+  const Model = doc.fyo.models[doc.schemaName];
   if (Model === undefined) {
     return [];
   }
 
-  return Model.getActions(fyo);
+  return Model.getActions(doc.fyo);
 }

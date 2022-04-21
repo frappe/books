@@ -1,4 +1,4 @@
-import frappe from 'fyo';
+import { fyo } from 'src/initFyo';
 import { stateCodeMap } from '../../accounting/gst';
 import { convertPesaValuesToFloat } from '../../src/utils';
 
@@ -7,7 +7,7 @@ class BaseGSTR {
     if (['GSTR-1', 'GSTR-2'].includes(gstrType)) {
       const place = filters.place;
       delete filters.place;
-      let entries = await frappe.db.getAll({
+      let entries = await fyo.db.getAll({
         doctype: gstrType === 'GSTR-1' ? 'SalesInvoice' : 'PurchaseInvoice',
         filters,
       });
@@ -39,21 +39,18 @@ class BaseGSTR {
   }
 
   async getRow(ledgerEntry) {
-    ledgerEntry = await frappe.doc.getDoc(
-      ledgerEntry.doctype,
-      ledgerEntry.name
-    );
+    ledgerEntry = await fyo.doc.getDoc(ledgerEntry.doctype, ledgerEntry.name);
 
     const row = {};
-    const { gstin } = frappe.AccountingSettings;
+    const { gstin } = fyo.AccountingSettings;
 
-    let party = await frappe.doc.getDoc(
+    let party = await fyo.doc.getDoc(
       'Party',
       ledgerEntry.customer || ledgerEntry.supplier
     );
 
     if (party.address) {
-      let addressDetails = await frappe.doc.getDoc('Address', party.address);
+      let addressDetails = await fyo.doc.getDoc('Address', party.address);
       row.place = addressDetails.pos || '';
     }
 

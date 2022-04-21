@@ -28,11 +28,11 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
+import { fyo } from 'src/initFyo';
 import BarChart from 'src/components/Charts/BarChart.vue';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
+import { getDatesAndPeriodicity } from 'src/utils/misc';
 import ProfitAndLoss from '../../../reports/ProfitAndLoss/ProfitAndLoss';
-import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 
@@ -58,7 +58,7 @@ export default {
     chartData() {
       const points = [this.periodList.map((p) => this.data[p])];
       const colors = [{ positive: '#2490EF', negative: '#B7BFC6' }];
-      const format = (value) => frappe.format(value ?? 0, 'Currency');
+      const format = (value) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
       const yMin = getYMin(points);
       return {
@@ -81,7 +81,7 @@ export default {
         this.period
       );
 
-      let pl = new ProfitAndLoss();
+      let pl = new ProfitAndLoss(this.fyo);
       let res = await pl.run({
         fromDate,
         toDate,

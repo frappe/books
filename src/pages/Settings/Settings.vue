@@ -1,6 +1,4 @@
 <template>
-  
-  
   <div class="flex flex-col overflow-hidden">
     <PageHeader>
       <template #title>
@@ -52,16 +50,16 @@
 </template>
 <script>
 import { ipcRenderer } from 'electron';
-import frappe, { t } from 'fyo';
+import { t } from 'fyo';
 import Button from 'src/components/Button';
 import Icon from 'src/components/Icon';
 import PageHeader from 'src/components/PageHeader';
 import Row from 'src/components/Row';
 import StatusBadge from 'src/components/StatusBadge';
 import WindowControls from 'src/components/WindowControls';
+import { showToast } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h, markRaw } from 'vue';
-import { callInitializeMoneyMaker, showToast } from '../../utils';
 import TabGeneral from './TabGeneral.vue';
 import TabInvoice from './TabInvoice.vue';
 import TabSystem from './TabSystem.vue';
@@ -113,23 +111,20 @@ export default {
 
     if (
       fieldnames.includes('displayPrecision') ||
-      fieldnames.includes('hideGetStarted')
+      fieldnames.includes('hideGetStarted') ||
+      fieldnames.includes('displayPrecision')
     ) {
       this.showReloadToast();
-    }
-
-    if (fieldnames.includes('displayPrecision')) {
-      callInitializeMoneyMaker(undefined, true);
     }
   },
   methods: {
     showReloadToast() {
       showToast({
         message: t`Settings changes will be visible on reload`,
-        actionText: frappe.t`Reload App`,
+        actionText: t`Reload App`,
         type: 'info',
         action: async () => {
-          ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW)
+          ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
         },
       });
     },

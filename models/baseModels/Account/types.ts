@@ -26,6 +26,7 @@ export type AccountRootType =
   | 'Income'
   | 'Expense';
 
+
 export interface COARootAccount {
   rootType: AccountRootType;
   [key: string]: COAChildAccount | AccountRootType;

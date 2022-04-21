@@ -20,14 +20,14 @@
         </div>
         <div class="flex justify-between">
           <span>
-            {{ frappe.format(invoice.date, invoiceMeta.getField('date')) }}
+            {{ fyo.format(invoice.date, invoiceMeta.getField('date')) }}
           </span>
           <div>
             <span
               class="font-medium text-gray-900"
             >
               {{
-                frappe.format(
+                fyo.format(
                   amountPaid(invoice),
                   invoiceMeta.getField('baseGrandTotal')
                 )
@@ -35,7 +35,7 @@
             </span>
             <span class="text-gray-600" v-if="!fullyPaid(invoice)">
               ({{
-                frappe.format(
+                fyo.format(
                   invoice.outstandingAmount,
                   invoiceMeta.getField('outstandingAmount')
                 )
@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import frappe from 'frappe';
+import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils';
 import { getStatusColumn } from '../Transaction/Transaction';
 
@@ -67,7 +67,7 @@ export default {
       return isCustomer ? 'SalesInvoice' : 'PurchaseInvoice';
     },
     invoiceMeta() {
-      return frappe.getMeta(this.invoiceDoctype);
+      return fyo.getMeta(this.invoiceDoctype);
     },
   },
   mounted() {
@@ -78,7 +78,7 @@ export default {
       let isCustomer = this.doc.doctype === 'Customer';
       let doctype = this.invoiceDoctype;
       let partyField = isCustomer ? 'customer' : 'supplier';
-      this.pendingInvoices = await frappe.db.getAll({
+      this.pendingInvoices = await fyo.db.getAll({
         doctype,
         fields: [
           'name',

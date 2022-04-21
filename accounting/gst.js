@@ -1,5 +1,6 @@
-import frappe, { t } from 'fyo';
+import { t } from 'fyo';
 import { DateTime } from 'luxon';
+import { fyo } from 'src/initFyo';
 import { showMessageDialog } from 'src/utils';
 import { stateCodeMap } from '../regional/in';
 import { exportCsv, saveExportData } from '../reports/commonExporter';
@@ -46,7 +47,7 @@ const IGST = {
 };
 
 export async function generateGstr1Json(getReportData) {
-  const { gstin } = frappe.AccountingSettings;
+  const { gstin } = fyo.AccountingSettings;
   if (!gstin) {
     showMessageDialog({
       message: t`Export Failed`,
@@ -106,7 +107,7 @@ async function generateB2bData(rows) {
       itms: [],
     };
 
-    const items = await frappe.db.getAllRaw('SalesInvoiceItem', {
+    const items = await fyo.db.getAllRaw('SalesInvoiceItem', {
       fields: ['*'],
       filters: { parent: invRecord.inum },
     });
@@ -115,18 +116,18 @@ async function generateB2bData(rows) {
       const itemRecord = {
         num: item.hsnCode,
         itm_det: {
-          txval: frappe.pesa(item.baseAmount).float,
+          txval: fyo.pesa(item.baseAmount).float,
           rt: GST[item.tax],
           csamt: 0,
-          camt: frappe
+          camt: fyo
             .pesa(CSGST[item.tax] || 0)
             .mul(item.baseAmount)
             .div(100).float,
-          samt: frappe
+          samt: fyo
             .pesa(CSGST[item.tax] || 0)
             .mul(item.baseAmount)
             .div(100).float,
-          iamt: frappe
+          iamt: fyo
             .pesa(IGST[item.tax] || 0)
             .mul(item.baseAmount)
             .div(100).float,
@@ -167,7 +168,7 @@ async function generateB2clData(invoices) {
       itms: [],
     };
 
-    const items = await frappe.db.getAllRaw('SalesInvoiceItem', {
+    const items = await fyo.db.getAllRaw('SalesInvoiceItem', {
       fields: ['*'],
       filters: { parent: invRecord.inum },
     });
@@ -176,10 +177,10 @@ async function generateB2clData(invoices) {
       const itemRecord = {
         num: item.hsnCode,
         itm_det: {
-          txval: frappe.pesa(item.baseAmount).float,
+          txval: fyo.pesa(item.baseAmount).float,
           rt: GST[item.tax],
           csamt: 0,
-          iamt: frappe
+          iamt: fyo
             .pesa(invoice.rate || 0)
             .mul(item.baseAmount)
             .div(100).float,
@@ -228,7 +229,7 @@ async function generateB2csData(invoices) {
 }
 
 export async function generateGstr2Csv(getReportData) {
-  const { gstin } = frappe.AccountingSettings;
+  const { gstin } = fyo.AccountingSettings;
   if (!gstin) {
     showMessageDialog({
       message: t`Export Failed`,
@@ -309,7 +310,7 @@ async function generateB2bCsvGstr2(rows, columns) {
 }
 
 export async function generateGstr1Csv(getReportData) {
-  const { gstin } = frappe.AccountingSettings;
+  const { gstin } = fyo.AccountingSettings;
   if (!gstin) {
     showMessageDialog({
       message: t`Export Failed`,

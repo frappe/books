@@ -2,13 +2,13 @@
   <div v-if="doc">
     <div class="flex items-center">
       <FormControl
-        :df="meta.getField('logo')"
+        :df="getField('logo')"
         :value="doc.logo"
         @change="
           (value) => {
             doc.set('logo', value);
             doc.update();
-            forwardChangeEvent(meta.getField('logo'));
+            forwardChangeEvent(getField('logo'));
           }
         "
       />
@@ -21,14 +21,14 @@
         </span>
         <FormControl
           class="mt-2"
-          :df="meta.getField('displayLogo')"
+          :df="getField('displayLogo')"
           :value="doc.displayLogo"
           :show-label="true"
           @change="
             (value) => {
               doc.set('displayLogo', value);
               doc.update();
-              forwardChangeEvent(meta.getField('displayLogo'));
+              forwardChangeEvent(getField('displayLogo'));
             }
           "
           size="small"
@@ -47,9 +47,9 @@
 </template>
 <script>
 import { ipcRenderer } from 'electron';
-import frappe from 'fyo';
 import FormControl from 'src/components/Controls/FormControl';
 import TwoColumnForm from 'src/components/TwoColumnForm';
+import { fyo } from 'src/initFyo';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
@@ -73,25 +73,25 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.getSingle('PrintSettings');
+    this.doc = await fyo.doc.getSingle('PrintSettings');
     this.companyName = (
-      await frappe.getSingle('AccountingSettings')
+      await fyo.doc.getSingle('AccountingSettings')
     ).companyName;
   },
   computed: {
-    meta() {
-      return frappe.getMeta('PrintSettings');
-    },
     fields() {
       return ['template', 'color', 'font', 'email', 'phone', 'address'].map(
-        (field) => this.meta.getField(field)
+        (field) => this.getField(field)
       );
     },
   },
   methods: {
+    getField(fieldname) {
+      return fyo.getField('PrintSettings', fieldname);
+    },
     async openFileSelector() {
       const options = {
-        title: frappe.t`Select Logo`,
+        title: t`Select Logo`,
         properties: ['openFile'],
         filters: [{ name: 'Invoice Logo', extensions: ['png', 'jpg', 'svg'] }],
       };

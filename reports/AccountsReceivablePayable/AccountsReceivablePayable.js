@@ -1,4 +1,4 @@
-import frappe from 'fyo';
+import fyo from 'fyo';
 
 export default class AccountsReceivablePayable {
   async run(reportType, { date }) {
@@ -65,7 +65,7 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
   // helpers
 
   async function getVouchers() {
-    return await frappe.db.getAll({
+    return await fyo.db.getAll({
       doctype: referenceType,
       fields: ['name', 'date'],
       filters: {
@@ -140,7 +140,7 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
 
     const partyType = reportType === 'Receivable' ? 'customer' : 'supplier';
     const partyList = (
-      await frappe.db.getAll({
+      await fyo.db.getAll({
         doctype: 'Party',
         filters: {
           [partyType]: 1,
@@ -148,7 +148,7 @@ async function getReceivablePayable({ reportType = 'Receivable', date }) {
       })
     ).map((d) => d.name);
 
-    return await frappe.db.getAll({
+    return await fyo.db.getAll({
       doctype: 'AccountingLedgerEntry',
       fields: [
         'name',

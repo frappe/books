@@ -91,14 +91,14 @@
 <script>
 import { ipcRenderer } from 'electron';
 import fs from 'fs';
-import frappe from 'fyo';
 import path from 'path';
 import FormControl from 'src/components/Controls/FormControl';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import Popover from 'src/components/Popover';
 import TwoColumnForm from 'src/components/TwoColumnForm';
-import config from 'src/config';
+import { fyo } from 'src/initFyo';
 import { connectToLocalDatabase, purgeCache } from 'src/initialization';
+import { setupInstance } from 'src/setup/setupInstance';
 import { setLanguageMap, showMessageDialog } from 'src/utils';
 import { IPC_MESSAGES } from 'utils/messages';
 import {
@@ -106,7 +106,6 @@ getErrorMessage,
 handleErrorWithDialog,
 showErrorDialog
 } from '../../errorHandling';
-import setupCompany from './setupCompany';
 import Slide from './Slide.vue';
 
 export default {
@@ -135,11 +134,11 @@ export default {
     LanguageSelector,
   },
   async mounted() {
-    if (config.get('language') !== undefined) {
+    if (fyo.config.get('language') !== undefined) {
       this.index = 1;
     }
 
-    this.doc = await frappe.doc.getNewDoc('SetupWizard');
+    this.doc = await fyo.doc.getNewDoc('SetupWizard');
     this.doc.on('change', () => {
       this.valuesFilled = this.allValuesFilled();
     });
@@ -192,11 +191,11 @@ export default {
 
       try {
         this.loading = true;
-        await setupCompany(this.doc);
+        await setupInstance(this.doc);
         this.$emit('setup-complete');
       } catch (e) {
         this.loading = false;
-        if (e.type === frappe.errors.DuplicateEntryError) {
+        if (e.type === fyo.errors.DuplicateEntryError) {
           console.log(e);
           console.log('retrying');
           await this.renameDbFileAndRerunSetup();
@@ -206,7 +205,7 @@ export default {
       }
     },
     async renameDbFileAndRerunSetup() {
-      const filePath = config.get('lastSelectedFilePath');
+      const filePath = fyo.config.get('lastSelectedFilePath');
       renameDbFile(filePath);
 
       await purgeCache();
@@ -216,7 +215,7 @@ export default {
       );
 
       if (connectionSuccess) {
-        await setupCompany(this.doc);
+        await setupInstance(this.doc);
         this.$emit('setup-complete');
       } else {
         const title = this.t`DB Connection Error`;
@@ -227,7 +226,7 @@ export default {
   },
   computed: {
     meta() {
-      return frappe.getMeta('SetupWizard');
+      return fyo.getMeta('SetupWizard');
     },
     fields() {
       return this.meta.getQuickEditFields();

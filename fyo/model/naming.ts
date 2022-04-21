@@ -1,9 +1,9 @@
 import { Fyo } from 'fyo';
 import NumberSeries from 'fyo/models/NumberSeries';
-import { getRandomString } from 'fyo/utils';
 import { DEFAULT_SERIES_START } from 'fyo/utils/consts';
 import { BaseError } from 'fyo/utils/errors';
 import { Field, Schema } from 'schemas/types';
+import { getRandomString } from 'utils';
 import Doc from './doc';
 
 export function getNumberSeries(schema: Schema): Field | undefined {
