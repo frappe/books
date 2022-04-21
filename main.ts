@@ -10,13 +10,15 @@ import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
-import { getMainWindowSize } from './main/helpers';
 import registerAppLifecycleListeners from './main/registerAppLifecycleListeners';
 import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
 import { IPC_CHANNELS } from './utils/messages';
+
+const WIDTH = 1200;
+const HEIGHT = 907;
 
 export class Main {
   title: string = 'Frappe Books';
@@ -69,13 +71,12 @@ export class Main {
   }
 
   getOptions(): BrowserWindowConstructorOptions {
-    const { width, height } = getMainWindowSize();
     const options: BrowserWindowConstructorOptions = {
       vibrancy: 'sidebar',
       transparent: this.isMac,
       backgroundColor: '#80FFFFFF',
-      width,
-      height,
+      width: WIDTH,
+      height: HEIGHT,
       title: this.title,
       webPreferences: {
         contextIsolation: false, // TODO: Switch this off

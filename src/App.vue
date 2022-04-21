@@ -30,9 +30,7 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron';
 import fs from 'fs/promises';
-import { IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector';
 // import Desk from './pages/Desk';
@@ -46,25 +44,6 @@ export default {
     return {
       activeScreen: null,
     };
-  },
-  watch: {
-    async activeScreen(value) {
-      if (!value) return;
-      const { width, height } = await ipcRenderer.invoke(
-        IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE
-      );
-
-      let size = {
-        Desk: [width, height],
-        DatabaseSelector: [600, 600],
-        SetupWizard: [600, 600],
-      }[value];
-      let resizable = value === 'Desk';
-
-      if (size.length) {
-        ipcRenderer.send(IPC_MESSAGES.RESIZE_MAIN_WINDOW, size, resizable);
-      }
-    },
   },
   components: {
     // Desk,

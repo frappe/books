@@ -21,13 +21,6 @@ export default function registerIpcMainMessageListeners(main: Main) {
     main.mainWindow!.reload();
   });
 
-  ipcMain.on(IPC_MESSAGES.RESIZE_MAIN_WINDOW, (event, size, resizable) => {
-    const [width, height] = size;
-    if (!width || !height) return;
-    main.mainWindow!.setSize(width, height);
-    main.mainWindow!.setResizable(resizable);
-  });
-
   ipcMain.on(IPC_MESSAGES.CLOSE_CURRENT_WINDOW, (event) => {
     main.mainWindow!.close();
   });

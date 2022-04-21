@@ -27,7 +27,7 @@ import { setLanguageMap } from './utils/language';
   registerIpcRendererListeners();
 
   const app = createApp({
-    template: '<h1>Hellow, World</h1>',
+    template: '<App/>',
   });
   setErrorHandlers(app);
 
