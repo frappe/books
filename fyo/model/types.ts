@@ -31,9 +31,9 @@ export type FormulaMap = Record<string, Formula | undefined>;
 export type DefaultMap = Record<string, Default | undefined>;
 export type ValidationMap = Record<string, Validation | undefined>;
 export type RequiredMap = Record<string, Required | undefined>;
-export type CurrenciesMap = Record<string, GetCurrency>;
-export type HiddenMap = Record<string, Hidden>;
-export type ReadOnlyMap = Record<string, ReadOnly>;
+export type CurrenciesMap = Record<string, GetCurrency | undefined>;
+export type HiddenMap = Record<string, Hidden | undefined>;
+export type ReadOnlyMap = Record<string, ReadOnly | undefined>;
 export type DependsOnMap = Record<string, string[]>;
 
 /**
@@ -57,7 +57,7 @@ export type EmptyMessageFunction = (doc: Doc, fyo: Fyo) => string;
 export type EmptyMessageMap = Record<string, EmptyMessageFunction>;
 
 export type ListFunction = (doc?: Doc) => string[];
-export type ListsMap = Record<string, ListFunction>;
+export type ListsMap = Record<string, ListFunction | undefined>;
 
 export interface Action {
   label: string;

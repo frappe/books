@@ -133,15 +133,6 @@ export class DocHandler {
     return doc;
   }
 
-  getModel(schemaName: string): typeof Doc {
-    const Model = this.models[schemaName];
-    if (Model === undefined) {
-      return Doc;
-    }
-
-    return Model;
-  }
-
   async getSingle(schemaName: string) {
     return await this.getDoc(schemaName, schemaName);
   }
@@ -169,13 +160,17 @@ export class DocHandler {
     schema?: Schema,
     Model?: typeof Doc
   ): Doc {
-    Model ??= this.getModel(schemaName);
+    if (!this.models[schemaName] && Model) {
+      this.models[schemaName] = Model;
+    }
+
+    Model ??= this.models[schemaName];
     schema ??= this.fyo.schemaMap[schemaName];
     if (schema === undefined) {
       throw new Error(`Schema not found for ${schemaName}`);
     }
 
-    const doc = new Model(schema, data, this.fyo);
+    const doc = new Model!(schema, data, this.fyo);
     doc.setDefaults();
     return doc;
   }

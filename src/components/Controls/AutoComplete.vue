@@ -32,9 +32,10 @@
 </template>
 
 <script>
-import Dropdown from 'src/components/Dropdown';
+import Dropdown from 'src/components/Dropdown.vue';
 import { fuzzyMatch } from 'src/utils';
-import Base from './Base';
+import { getOptionList } from 'src/utils/doc';
+import Base from './Base.vue';
 
 export default {
   name: 'AutoComplete',
@@ -83,26 +84,13 @@ export default {
     },
     async getSuggestions(keyword = '') {
       keyword = keyword.toLowerCase();
-
-      let list = this.df.getList
-        ? await this.df.getList(this.doc)
-        : this.df.options || [];
-
-      let items = list.map((d) => {
-        if (typeof d === 'string') {
-          return {
-            label: d,
-            value: d,
-          };
-        }
-        return d;
-      });
+      const options = getOptionList(this.df, this.doc);
 
       if (!keyword) {
-        return items;
+        return options;
       }
 
-      return items
+      return options
         .map((item) => ({ ...fuzzyMatch(keyword, item.value), item }))
         .filter(({ isMatch }) => isMatch)
         .sort((a, b) => a.distance - b.distance)
