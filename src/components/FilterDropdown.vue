@@ -119,7 +119,7 @@
 import { t } from 'fyo';
 import { getRandomString } from 'utils';
 import Button from './Button';
-import FormControl from './Controls/FormControl';
+import FormControl from './Controls/FormControl.vue';
 import Icon from './Icon';
 import Popover from './Popover';
 

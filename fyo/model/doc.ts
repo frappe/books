@@ -37,6 +37,7 @@ import {
   HiddenMap,
   ListsMap,
   ListViewSettings,
+  ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
   ValidationMap,
@@ -94,6 +95,11 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
   get dirty() {
     return this._dirty;
+  }
+
+  get quickEditFields() {
+    const fieldnames = this.schema.quickEditFields ?? ['name'];
+    return fieldnames.map((f) => this.fieldMap[f]);
   }
 
   _setInitialValues(data: DocValueMap) {
@@ -393,8 +399,13 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     );
   }
 
-  getLink(fieldname: string) {
-    return this._links ? this._links[fieldname] : null;
+  getLink(fieldname: string): Doc | null {
+    const link = this._links?.[fieldname];
+    if (link === undefined) {
+      return null;
+    }
+
+    return link;
   }
 
   syncValues(data: DocValueMap) {
@@ -736,6 +747,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
   validations: ValidationMap = {};
   required: RequiredMap = {};
   hidden: HiddenMap = {};
+  readOnly: ReadOnlyMap = {};
   dependsOn: DependsOnMap = {};
   getCurrencies: CurrenciesMap = {};
 

@@ -1,3 +1,4 @@
+import { Fyo } from 'fyo';
 import Doc from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { pesa } from 'pesa';
@@ -50,4 +51,25 @@ export function getActions(doc: Doc): Action[] {
   }
 
   return Model.getActions(doc.fyo);
+}
+
+export async function getSingleValue(
+  fieldname: string,
+  parent: string,
+  fyo: Fyo
+) {
+  if (!fyo.db.isConnected) {
+    return undefined;
+  }
+
+  const res = await fyo.db.getSingleValues({ fieldname, parent });
+  const singleValue = res.find(
+    (f) => f.fieldname === fieldname && f.parent === parent
+  );
+
+  if (singleValue === undefined) {
+    return undefined;
+  }
+
+  return singleValue.value;
 }

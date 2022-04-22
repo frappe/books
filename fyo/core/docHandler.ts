@@ -2,6 +2,7 @@ import Doc from 'fyo/model/doc';
 import { DocMap, ModelMap, SinglesMap } from 'fyo/model/types';
 import { coreModels } from 'fyo/models';
 import Observable from 'fyo/utils/observable';
+import { Schema } from 'schemas/types';
 import { getRandomString } from 'utils';
 import { Fyo } from '..';
 import { DocValue, DocValueMap } from './types';
@@ -18,7 +19,12 @@ export class DocHandler {
 
   init() {
     this.models = {};
+    this.singles = {};
     this.docs = new Observable();
+  }
+
+  purgeCache() {
+    this.init();
   }
 
   registerModels(models: ModelMap, regionalModels: ModelMap = {}) {
@@ -157,9 +163,14 @@ export class DocHandler {
     return doc;
   }
 
-  getNewDoc(schemaName: string, data: DocValueMap = {}): Doc {
-    const Model = this.getModel(schemaName);
-    const schema = this.fyo.schemaMap[schemaName];
+  getNewDoc(
+    schemaName: string,
+    data: DocValueMap = {},
+    schema?: Schema,
+    Model?: typeof Doc
+  ): Doc {
+    Model ??= this.getModel(schemaName);
+    schema ??= this.fyo.schemaMap[schemaName];
     if (schema === undefined) {
       throw new Error(`Schema not found for ${schemaName}`);
     }

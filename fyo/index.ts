@@ -34,8 +34,7 @@ export class Fyo {
 
   _initialized: boolean = false;
 
-  errorLog?: ErrorLog[];
-  methods?: Record<string, Function>;
+  errorLog: ErrorLog[] = [];
   temp?: Record<string, unknown>;
 
   currencyFormatter?: Intl.NumberFormat;
@@ -113,9 +112,6 @@ export class Fyo {
   }
 
   async #initializeModules() {
-    this.methods = {};
-    this.errorLog = [];
-
     // temp params while calling routes
     this.temp = {};
 
@@ -168,6 +164,25 @@ export class Fyo {
   getField(schemaName: string, fieldname: string) {
     const schema = this.schemaMap[schemaName];
     return schema?.fields.find((f) => f.fieldname === fieldname);
+  }
+
+  purgeCache() {
+    this.pesa = getMoneyMaker({
+      currency: DEFAULT_CURRENCY,
+      precision: DEFAULT_INTERNAL_PRECISION,
+      display: DEFAULT_DISPLAY_PRECISION,
+      wrapper: markRaw,
+    });
+
+    this._initialized = false;
+    this.temp = {};
+    this.currencyFormatter = undefined;
+    this.currencySymbols = {};
+    this.errorLog = [];
+    this.temp = {};
+    this.db.purgeCache();
+    this.auth.purgeCache();
+    this.doc.purgeCache();
   }
 
   store = {

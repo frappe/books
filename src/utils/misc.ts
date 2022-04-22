@@ -1,4 +1,9 @@
+import { getSingleValue } from 'fyo/utils';
 import { DateTime } from 'luxon';
+import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
+import { ModelNameEnum } from 'models/types';
+import SetupWizardSchema from 'schemas/app/SetupWizard.json';
+import { Schema } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 
 export async function getDatesAndPeriodicity(
@@ -24,4 +29,25 @@ export async function getDatesAndPeriodicity(
     toDate,
     periodicity,
   };
+}
+
+export async function getSetupWizardDoc() {
+  /**
+   * This is used cause when setup wizard is running
+   * the database isn't yet initialized.
+   */
+  return await fyo.doc.getNewDoc(
+    'SetupWizard',
+    {},
+    SetupWizardSchema as Schema,
+    SetupWizard
+  );
+}
+
+export async function getSetupComplete(): Promise<boolean> {
+  return !!(await getSingleValue(
+    'setupComplete',
+    ModelNameEnum.AccountingSettings,
+    fyo
+  ));
 }

@@ -37,6 +37,10 @@ export class DatabaseHandler extends DatabaseBase {
     }
   }
 
+  get isConnected() {
+    return !!this.dbPath;
+  }
+
   async createNewDatabase(dbPath: string, countryCode: string) {
     countryCode = await this.#demux.createNewDatabase(dbPath, countryCode);
     await this.init();
@@ -58,6 +62,12 @@ export class DatabaseHandler extends DatabaseBase {
       const fields = this.schemaMap[schemaName]!.fields!;
       this.fieldValueMap[schemaName] = getMapFromList(fields, 'fieldname');
     }
+  }
+
+  purgeCache() {
+    this.dbPath = undefined;
+    this.schemaMap = {};
+    this.fieldValueMap = {};
   }
 
   async insert(
@@ -162,6 +172,7 @@ export class DatabaseHandler extends DatabaseBase {
   // Other
   async close(): Promise<void> {
     await this.#demux.call('close');
+    this.purgeCache();
   }
 
   async exists(schemaName: string, name?: string): Promise<boolean> {

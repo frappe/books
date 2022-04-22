@@ -1,9 +1,10 @@
 <template>
   <div class="text-sm" :class="{ 'border-t': !noBorder }">
     <template v-for="df in formFields">
+      <!-- Table Field Form (Eg: PaymentFor) -->
       <FormControl
-        :key="df.fieldname"
         v-if="df.fieldtype === 'Table'"
+        :key="`${df.fieldname}-table`"
         ref="controls"
         size="small"
         :df="df"
@@ -11,91 +12,93 @@
         :read-only="evaluateReadOnly(df)"
         @change="(value) => onChange(df, value)"
       />
-      <template v-else>
-        <div class="border-b" :key="df.fieldname" v-if="renderInline(df)">
-          <TwoColumnForm
-            ref="inlineEditForm"
-            :doc="inlineEditDoc"
-            :fields="inlineEditFields"
-            :column-ratio="columnRatio"
-            :no-border="true"
-            :focus-first-input="true"
-            :autosave="false"
-            @error="(msg) => $emit('error', msg)"
-          />
-          <div class="flex px-4 pb-2">
-            <Button class="w-1/2 text-gray-900" @click="inlineEditField = null">
-              {{ t`Cancel` }}
-            </Button>
-            <Button
-              type="primary"
-              class="ml-2 w-1/2 text-white"
-              @click="() => saveInlineEditDoc(df)"
-            >
-              {{ df.inlineSaveText || t`Save` }}
-            </Button>
-          </div>
-        </div>
-        <div
-          :key="df.fieldname + '-else'"
-          v-else
-          class="grid"
-          :class="{ 'border-b': !noBorder }"
-          :style="style"
-        >
-          <div class="py-2 pl-4 flex text-gray-600">
-            <div class="py-1">
-              {{ df.label }}
-            </div>
-          </div>
-          <div
-            class="py-2 pr-4"
-            @click="activateInlineEditing(df)"
-            :class="{
-              'pl-2': df.fieldtype === 'AttachImage',
-            }"
+
+      <!-- Inline Field Form (Eg: Address) -->
+      <div
+        v-else-if="renderInline(df)"
+        class="border-b"
+        :key="`${df.fieldname}-inline`"
+      >
+        <TwoColumnForm
+          ref="inlineEditForm"
+          :doc="inlineEditDoc"
+          :fields="inlineEditFields"
+          :column-ratio="columnRatio"
+          :no-border="true"
+          :focus-first-input="true"
+          :autosave="false"
+          @error="(msg) => $emit('error', msg)"
+        />
+        <div class="flex px-4 pb-2">
+          <Button class="w-1/2 text-gray-900" @click="inlineEditField = null">
+            {{ t`Cancel` }}
+          </Button>
+          <Button
+            type="primary"
+            class="ml-2 w-1/2 text-white"
+            @click="() => saveInlineEditDoc(df)"
           >
-            <FormControl
-              ref="controls"
-              size="small"
-              :df="df"
-              :value="
-                df.inline && doc.getLink(df.fieldname)
-                  ? doc.getLink(df.fieldname)[
-                      doc.getLink(df.fieldname).meta.inlineEditDisplayField ||
-                        'name'
-                    ]
-                  : doc[df.fieldname]
-              "
-              :class="{ 'p-2': df.fieldtype === 'Check' }"
-              :read-only="evaluateReadOnly(df)"
-              @change="(value) => onChange(df, value)"
-              @focus="activateInlineEditing(df)"
-              @new-doc="(newdoc) => onChange(df, newdoc.name)"
-            />
-            <div
-              class="text-sm text-red-600 mt-2 pl-2"
-              v-if="errors[df.fieldname]"
-            >
-              {{ errors[df.fieldname] }}
-            </div>
+            {{ df.inlineSaveText || t`Save` }}
+          </Button>
+        </div>
+      </div>
+
+      <!-- Regular Field Form -->
+      <div
+        v-else
+        class="grid"
+        :class="{ 'border-b': !noBorder }"
+        :key="`${df.fieldname}-regular`"
+        :style="style"
+      >
+        <div class="py-2 pl-4 flex text-gray-600">
+          <div class="py-1">
+            {{ df.label }}
           </div>
         </div>
-      </template>
+
+        <div
+          class="py-2 pr-4"
+          @click="activateInlineEditing(df)"
+          :class="{
+            'pl-2': df.fieldtype === 'AttachImage',
+          }"
+        >
+          <FormControl
+            ref="controls"
+            size="small"
+            :df="df"
+            :value="getRegularValue(df)"
+            :class="{ 'p-2': df.fieldtype === 'Check' }"
+            :read-only="evaluateReadOnly(df)"
+            @change="(value) => onChange(df, value)"
+            @focus="activateInlineEditing(df)"
+            @new-doc="(newdoc) => onChange(df, newdoc.name)"
+          />
+          <div
+            class="text-sm text-red-600 mt-2 pl-2"
+            v-if="errors[df.fieldname]"
+          >
+            {{ errors[df.fieldname] }}
+          </div>
+        </div>
+      </div>
     </template>
   </div>
 </template>
 <script>
-import Button from 'src/components/Button';
-import FormControl from 'src/components/Controls/FormControl';
+import Doc from 'fyo/model/doc';
+import Button from 'src/components/Button.vue';
+import FormControl from 'src/components/Controls/FormControl.vue';
+import { getErrorMessage, handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
-import { getErrorMessage, handleErrorWithDialog } from '../errorHandling';
+import { evaluateHidden, evaluateReadOnly } from 'src/utils/doc';
 
-let TwoColumnForm = {
+export default {
   name: 'TwoColumnForm',
   emits: ['error', 'change'],
   props: {
-    doc: Object,
+    doc: Doc,
     fields: Array,
     autosave: Boolean,
     columnRatio: {
@@ -120,7 +123,7 @@ let TwoColumnForm = {
   },
   provide() {
     return {
-      doctype: this.doc.doctype,
+      schemaName: this.doc.schemaName,
       name: this.doc.name,
       doc: this.doc,
     };
@@ -134,23 +137,26 @@ let TwoColumnForm = {
     if (this.focusFirstInput) {
       this.$refs['controls'][0].focus();
     }
+    window.tcf = this;
   },
   methods: {
+    getRegularValue(df) {
+      if (!df.inline) {
+        return this.doc[df.fieldname];
+      }
+
+      const link = this.doc.getLink(df.fieldname);
+      if (!link) {
+        return this.doc[df.fieldname];
+      }
+
+      const fieldname = link.schema.inlineEditDisplayField ?? 'name';
+      return link[fieldname];
+    },
     renderInline(df) {
       return (
         this.inlineEditField?.fieldname === df?.fieldname && this.inlineEditDoc
       );
-    },
-    evaluateBoolean(fieldProp, defaultValue) {
-      const type = typeof fieldProp;
-      switch (type) {
-        case 'undefined':
-          return defaultValue;
-        case 'function':
-          return fieldProp(this.doc);
-        default:
-          return !!fieldProp;
-      }
     },
     evaluateReadOnly(df) {
       if (df.fieldname === 'numberSeries' && !this.doc._notInserted) {
@@ -160,10 +166,8 @@ let TwoColumnForm = {
       if (this.submitted) {
         return true;
       }
-      return this.evaluateBoolean(df.readOnly, false);
-    },
-    evaluateHidden(df) {
-      return this.evaluateBoolean(df.hidden, false);
+
+      return evaluateReadOnly(df, this.doc);
     },
     onChange(df, value) {
       if (value == null || df.inline) {
@@ -229,8 +233,8 @@ let TwoColumnForm = {
       }
 
       this.inlineEditDisplayField =
-        this.doc.meta.inlineEditDisplayField || 'name';
-      this.inlineEditFields = fyo.getMeta(df.target).getQuickEditFields();
+        this.doc.schema.inlineEditDisplayField ?? 'name';
+      this.inlineEditFields = fyo.schemaMap[df.target].quickEditFields ?? [];
     },
     async saveInlineEditDoc(df) {
       if (!this.inlineEditDoc) {
@@ -248,8 +252,8 @@ let TwoColumnForm = {
   },
   computed: {
     formFields() {
-      return (this.fields || this.doc.meta.getQuickEditFields()).filter(
-        (df) => !this.evaluateHidden(df)
+      return (this.fields || this.doc.quickEditFields).filter(
+        (field) => !evaluateHidden(field, this.doc)
       );
     },
     style() {
@@ -261,10 +265,8 @@ let TwoColumnForm = {
       };
     },
     submitted() {
-      return Boolean(this.doc.meta.isSubmittable && this.doc.submitted);
+      return Boolean(this.doc.schema.isSubmittable && this.doc.submitted);
     },
   },
 };
-
-export default TwoColumnForm;
 </script>

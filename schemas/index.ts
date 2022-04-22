@@ -40,6 +40,7 @@ function removeFields(schemaMap: SchemaMap): SchemaMap {
       schema.keywordFields = schema.keywordFields?.filter(
         (fn) => fn !== fieldname
       );
+
       if (schema.inlineEditDisplayField === fieldname) {
         delete schema.inlineEditDisplayField;
       }

@@ -1,16 +1,17 @@
+import { DocValue } from 'fyo/core/types';
 import { ValidationError, ValueError } from 'fyo/utils/errors';
 import { t } from 'fyo/utils/translation';
 import { OptionField } from 'schemas/types';
 
-export function email(value: string) {
-  const isValid = /(.+)@(.+){2,}\.(.+){2,}/.test(value);
+export function validateEmail(value: DocValue) {
+  const isValid = /(.+)@(.+){2,}\.(.+){2,}/.test(value as string);
   if (!isValid) {
     throw new ValidationError(`Invalid email: ${value}`);
   }
 }
 
-export function phone(value: string) {
-  const isValid = /[+]{0,1}[\d ]+/.test(value);
+export function validatePhoneNumber(value: DocValue) {
+  const isValid = /[+]{0,1}[\d ]+/.test(value as string);
   if (!isValid) {
     throw new ValidationError(`Invalid phone: ${value}`);
   }

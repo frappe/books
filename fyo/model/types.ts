@@ -21,9 +21,10 @@ import Doc from './doc';
 export type FormulaReturn = DocValue | DocValueMap[] | undefined | Doc[];
 export type Formula = () => Promise<FormulaReturn> | FormulaReturn;
 export type Default = () => DocValue;
-export type Validation = (value: DocValue) => Promise<void>;
+export type Validation = (value: DocValue) => Promise<void> | void;
 export type Required = () => boolean;
 export type Hidden = () => boolean;
+export type ReadOnly = () => boolean;
 export type GetCurrency = () => string;
 
 export type FormulaMap = Record<string, Formula | undefined>;
@@ -32,6 +33,7 @@ export type ValidationMap = Record<string, Validation | undefined>;
 export type RequiredMap = Record<string, Required | undefined>;
 export type CurrenciesMap = Record<string, GetCurrency>;
 export type HiddenMap = Record<string, Hidden>;
+export type ReadOnlyMap = Record<string, ReadOnly>;
 export type DependsOnMap = Record<string, string[]>;
 
 /**

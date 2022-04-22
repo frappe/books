@@ -3,7 +3,8 @@
     id="app"
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
-    <!-- <WindowsTitleBar v-if="platform === 'Windows'" />
+    <WindowsTitleBar v-if="platform === 'Windows'" />
+    <!--
     <Desk
       class="flex-1"
       v-if="activeScreen === 'Desk'"
@@ -11,9 +12,9 @@
     />-->
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
-      @database-connect="showSetupWizardOrDesk(true)"
+      @file-selected="fileSelected"
     />
-    <!--<SetupWizard
+    <SetupWizard
       v-if="activeScreen === 'SetupWizard'"
       @setup-complete="setupComplete"
       @setup-canceled="setupCanceled"
@@ -25,18 +26,20 @@
     >
       <div id="toast-target" />
     </div>
+    <!-- TODO: check this and uncomment
     <TelemetryModal />-->
   </div>
 </template>
 
 <script>
 import fs from 'fs/promises';
-import { fyo } from './initFyo';
-import DatabaseSelector from './pages/DatabaseSelector';
-// import Desk from './pages/Desk';
-// import SetupWizard from './pages/SetupWizard/SetupWizard';
+import WindowsTitleBar from './components/WindowsTitleBar.vue';
+import { fyo, initializeInstance } from './initFyo';
+import DatabaseSelector from './pages/DatabaseSelector.vue';
+import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
 import './styles/index.css';
-import { checkForUpdates, routeTo } from './utils';
+import { checkForUpdates } from './utils/ipcCalls';
+import { routeTo } from './utils/ui';
 
 export default {
   name: 'App',
@@ -47,9 +50,9 @@ export default {
   },
   components: {
     // Desk,
-    // SetupWizard,
+    SetupWizard,
     DatabaseSelector,
-    // WindowsTitleBar,
+    WindowsTitleBar,
     // TelemetryModal,
   },
   async mounted() {
@@ -73,29 +76,45 @@ export default {
     }
     */
 
-    this.activeScreen = 'DatabaseSelector';
+    // this.activeScreen = 'DatabaseSelector';
+    this.activeScreen = 'SetupWizard';
   },
   methods: {
     async setupComplete() {
       // TODO: Complete this
       // await postSetup();
-      await this.showSetupWizardOrDesk(true);
+      // await this.showSetupWizardOrDesk(true);
     },
-    async showSetupWizardOrDesk(resetRoute = false) {
-      const { setupComplete } = fyo.singles.AccountingSettings;
-      if (!setupComplete) {
+    async fileSelected(filePath, isNew) {
+      console.log('from App.vue', filePath, isNew);
+      if (isNew) {
         this.activeScreen = 'SetupWizard';
-      } else {
-        this.activeScreen = 'Desk';
-        await checkForUpdates(false);
+        return;
       }
 
+      await this.showSetupWizardOrDesk(filePath);
+    },
+    async showSetupWizardOrDesk(filePath, resetRoute = false) {
+      const countryCode = await fyo.db.connectToDatabase(filePath);
+      const setupComplete = await getSetupComplete();
+
+      if (!setupComplete) {
+        this.activeScreen = 'SetupWizard';
+        return;
+      }
+
+      await initializeInstance(filePath, false, countryCode);
+      this.activeScreen = 'Desk';
+      await checkForUpdates(false);
       if (!resetRoute) {
         return;
       }
 
-      const { onboardingComplete } = await fyo.getSingle('GetStarted');
-      const { hideGetStarted } = await fyo.getSingle('SystemSettings');
+      await this.setDeskRoute();
+    },
+    async setDeskRoute() {
+      const { onboardingComplete } = await fyo.doc.getSingle('GetStarted');
+      const { hideGetStarted } = await fyo.doc.getSingle('SystemSettings');
 
       if (hideGetStarted || onboardingComplete) {
         routeTo('/');
@@ -105,14 +124,15 @@ export default {
     },
     async changeDbFile() {
       fyo.config.set('lastSelectedFilePath', null);
-      telemetry.stop();
-      // TODO: purgeCache(true)
-      // await purgeCache(true);
+      fyo.telemetry.stop();
+      fyo.purgeCache();
       this.activeScreen = 'DatabaseSelector';
     },
     async setupCanceled() {
       const filePath = fyo.config.get('lastSelectedFilePath');
-      await fs.unlink(filePath);
+      if (filePath) {
+        await fs.unlink(filePath);
+      }
       this.changeDbFile();
     },
   },

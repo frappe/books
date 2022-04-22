@@ -1,13 +1,16 @@
 <template>
   <div
-    class="py-10 flex-1 bg-white"
+    class="py-10 flex-1 bg-white flex justify-center items-center"
     :class="{
       'pointer-events-none': loadingDatabase,
       'window-drag': platform !== 'Windows',
     }"
   >
-    <div class="w-full">
-      <div class="px-12">
+    <div
+      class="w-full w-600 shadow rounded-lg border relative"
+      style="height: 700px"
+    >
+      <div class="px-6 py-8">
         <h1 class="text-2xl font-semibold">
           {{ t`Welcome to Frappe Books` }}
         </h1>
@@ -20,7 +23,7 @@
           {{ t`Select a file to load the company transactions` }}
         </p>
       </div>
-      <div class="px-12 mt-10 window-no-drag" v-if="!showFiles">
+      <div class="px-12 mt-6 window-no-drag" v-if="!showFiles">
         <div class="flex">
           <div
             @click="newDatabase"
@@ -135,7 +138,7 @@
               </span>
             </div>
             <div class="text-gray-700">
-              {{ getFileLastModified(file.filePath) }}
+              {{ file.modified }}
             </div>
           </div>
         </div>
@@ -148,26 +151,28 @@
           </a>
         </div>
       </div>
-    </div>
-    <div
-      class="w-full flex justify-end absolute px-8"
-      style="top: 100%; transform: translateY(-175%)"
-    >
-      <LanguageSelector class="w-28" input-class="text-base" />
+      <div
+        class="w-full flex justify-end absolute px-6 py-6"
+        style="top: 100%; transform: translateY(-100%)"
+      >
+        <LanguageSelector class="w-40" />
+      </div>
     </div>
   </div>
 </template>
 <script>
 import { ipcRenderer } from 'electron';
 import fs from 'fs';
+import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import { fyo } from 'src/initFyo';
+import { getSavePath } from 'src/utils/ipcCalls';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
   name: 'DatabaseSelector',
-  emits: ['database-connect'],
+  emits: ['file-selected'],
   data() {
     return {
       loadingDatabase: false,
@@ -187,17 +192,23 @@ export default {
   },
   methods: {
     setFiles() {
-      this.files = fyo.config
-        .get('files', [])
-        .filter(({ filePath }) => fs.existsSync(filePath));
+      this.files = cloneDeep(fyo.config.get('files', [])).filter(
+        ({ filePath }) => fs.existsSync(filePath)
+      );
+
+      for (const file of this.files) {
+        const stats = fs.statSync(file.filePath);
+        file.modified = DateTime.fromJSDate(stats.mtime).toRelative();
+      }
     },
     async newDatabase() {
-      /*
-        TODO: Refactor this
       this.fileSelectedFrom = 'New File';
-      let filePath = await createNewDatabase();
-      this.connectToDatabase(filePath);
-      */
+      const { filePath, canceled } = await getSavePath('books', 'db');
+      if (canceled || !filePath) {
+        return;
+      }
+
+      this.connectToDatabase(filePath, true);
     },
     async existingDatabase() {
       this.fileSelectedFrom = 'Existing File';
@@ -214,35 +225,17 @@ export default {
       this.fileSelectedFrom = file;
       await this.connectToDatabase(file.filePath);
     },
-    async connectToDatabase(filePath) {
-      /*
-        TODO: Refactor this
+    async connectToDatabase(filePath, isNew) {
       if (!filePath) {
         return;
       }
-      this.loadingDatabase = true;
-      const { connectionSuccess, reason } = await connectToLocalDatabase(
-        filePath
-      );
-      this.loadingDatabase = false;
-      if (connectionSuccess) {
-        this.$emit('database-connect');
+
+      if (isNew) {
+        this.$emit('file-selected', filePath, isNew);
         return;
       }
-      const title = this.t`DB Connection Error`;
-      let content =
-        this.t`Please select an existing database or create a new one.` +
-        ` reason: ${reason}, filePath: ${filePath}`;
-      if (reason === DB_CONN_FAILURE.CANT_OPEN) {
-        content = this
-          .t`Can't open database file: ${filePath}. Please create a new file.`;
-      }
-      await showErrorDialog(title, content);
-      */
-    },
-    getFileLastModified(filePath) {
-      let stats = fs.statSync(filePath);
-      return DateTime.fromJSDate(stats.mtime).toRelative();
+
+      this.$emit('file-selected', filePath, !!isNew);
     },
   },
   components: { LanguageSelector },
