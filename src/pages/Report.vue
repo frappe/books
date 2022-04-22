@@ -139,7 +139,7 @@
 import { getReportData } from 'reports/index';
 import reportViewConfig from 'reports/view';
 import Button from 'src/components/Button';
-import FormControl from 'src/components/Controls/FormControl';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import PageHeader from 'src/components/PageHeader';

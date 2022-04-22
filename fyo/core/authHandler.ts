@@ -97,6 +97,8 @@ export class AuthHandler {
     // TODO: Implement this with auth flow
   }
 
+  purgeCache() {}
+
   #getServerURL() {
     return this.#config.serverURL || '';
   }

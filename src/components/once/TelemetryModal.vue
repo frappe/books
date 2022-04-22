@@ -54,7 +54,7 @@ import { getTelemetryOptions } from 'fyo/telemetry/helpers';
 import { TelemetrySetting } from 'fyo/telemetry/types';
 import { fyo } from 'src/initFyo';
 import Button from '../Button.vue';
-import FormControl from '../Controls/FormControl';
+import FormControl from '../Controls/FormControl.vue';
 import FeatherIcon from '../FeatherIcon.vue';
 import HowTo from '../HowTo.vue';
 import Modal from '../Modal.vue';

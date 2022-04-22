@@ -338,7 +338,7 @@
 <script>
 import { ipcRenderer } from 'electron';
 import Button from 'src/components/Button.vue';
-import FormControl from 'src/components/Controls/FormControl';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import HowTo from 'src/components/HowTo.vue';

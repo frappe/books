@@ -79,7 +79,7 @@
 <script>
 import { t } from 'fyo';
 import Button from 'src/components/Button';
-import FormControl from 'src/components/Controls/FormControl';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions';
 import StatusBadge from 'src/components/StatusBadge';
 import TwoColumnForm from 'src/components/TwoColumnForm';

@@ -1,6 +1,7 @@
 import { t } from 'fyo';
 import Doc from 'fyo/model/doc';
-import { FormulaMap, ListsMap } from 'fyo/model/types';
+import { FormulaMap, ListsMap, ValidationMap } from 'fyo/model/types';
+import { validateEmail } from 'fyo/model/validationFunction';
 import { DateTime } from 'luxon';
 import countryInfo from '../../../fixtures/countryInfo.json';
 
@@ -86,6 +87,10 @@ export class SetupWizard extends Doc {
       }
       return coa.name;
     },
+  };
+
+  validations: ValidationMap = {
+    email: validateEmail,
   };
 
   static lists: ListsMap = {

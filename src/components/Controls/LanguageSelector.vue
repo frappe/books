@@ -9,9 +9,8 @@
 <script>
 import { DEFAULT_LANGUAGE } from 'fyo/utils/consts';
 import { fyo } from 'src/initFyo';
-import { setLanguageMap } from 'src/utils';
-import { languageCodeMap } from 'src/utils/language';
-import FormControl from './FormControl';
+import { languageCodeMap, setLanguageMap } from 'src/utils/language';
+import FormControl from './FormControl.vue';
 
 export default {
   methods: {
@@ -37,7 +36,7 @@ export default {
       return {
         fieldname: 'language',
         label: this.t`Language`,
-        fieldtype: 'Select',
+        fieldtype: 'AutoComplete',
         options: Object.keys(languageCodeMap),
         default: fyo.config.get('language') ?? DEFAULT_LANGUAGE,
         description: this.t`Set the display language.`,

@@ -47,7 +47,7 @@
 </template>
 <script>
 import { ipcRenderer } from 'electron';
-import FormControl from 'src/components/Controls/FormControl';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm';
 import { fyo } from 'src/initFyo';
 import { IPC_ACTIONS } from 'utils/messages';

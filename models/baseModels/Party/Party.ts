@@ -5,7 +5,12 @@ import {
   FiltersMap,
   FormulaMap,
   ListViewSettings,
+  ValidationMap,
 } from 'fyo/model/types';
+import {
+  validateEmail,
+  validatePhoneNumber,
+} from 'fyo/model/validationFunction';
 import { PartyRole } from './types';
 
 export class Party extends Doc {
@@ -69,6 +74,11 @@ export class Party extends Doc {
       }
       return '';
     },
+  };
+
+  validations: ValidationMap = {
+    email: validateEmail,
+    phone: validatePhoneNumber,
   };
 
   static filters: FiltersMap = {

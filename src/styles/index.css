@@ -52,3 +52,7 @@ html {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.w-600 {
+  width: 600px;
+}

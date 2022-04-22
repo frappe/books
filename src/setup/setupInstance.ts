@@ -1,8 +1,13 @@
 import countryInfo from 'fixtures/countryInfo.json';
 import { ConfigFile, DocValueMap } from 'fyo/core/types';
 import Doc from 'fyo/model/doc';
+import { createNumberSeries } from 'fyo/model/naming';
 import { getId } from 'fyo/telemetry/helpers';
-import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from 'fyo/utils/consts';
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_LOCALE,
+  DEFAULT_SERIES_START,
+} from 'fyo/utils/consts';
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
 import { fyo } from 'src/initFyo';
 import { createRegionalRecords } from 'src/regional';
@@ -21,6 +26,7 @@ export default async function setupInstance(
   await createCurrencyRecords();
   await createAccountRecords(bankName, country, chartOfAccounts);
   await createRegionalRecords(country);
+  await createDefaultNumberSeries();
 
   await completeSetup(companyName);
 }
@@ -214,4 +220,16 @@ async function getBankAccountParentName(country: string) {
   }
 
   return parentBankAccount[0].name;
+}
+
+async function createDefaultNumberSeries() {
+  await createNumberSeries('SINV-', 'SalesInvoice', DEFAULT_SERIES_START, fyo);
+  await createNumberSeries(
+    'PINV-',
+    'PurchaseInvoice',
+    DEFAULT_SERIES_START,
+    fyo
+  );
+  await createNumberSeries('PAY-', 'Payment', DEFAULT_SERIES_START, fyo);
+  await createNumberSeries('JV-', 'JournalEntry', DEFAULT_SERIES_START, fyo);
 }

@@ -1,18 +1,19 @@
-import Data from './Data';
-import Select from './Select';
-import Link from './Link';
-import Date from './Date';
-import Table from './Table';
+<script>
+import { h } from 'vue';
+import AttachImage from './AttachImage';
 import AutoComplete from './AutoComplete';
 import Check from './Check';
-import AttachImage from './AttachImage';
-import DynamicLink from './DynamicLink';
-import Int from './Int';
-import Float from './Float';
-import Currency from './Currency';
-import Text from './Text';
 import Color from './Color';
-import { h } from 'vue';
+import Currency from './Currency';
+import Data from './Data';
+import Date from './Date';
+import DynamicLink from './DynamicLink';
+import Float from './Float';
+import Int from './Int';
+import Link from './Link';
+import Select from './Select';
+import Table from './Table';
+import Text from './Text';
 
 export default {
   name: 'FormControl',
@@ -48,3 +49,4 @@ export default {
     },
   },
 };
+</script>

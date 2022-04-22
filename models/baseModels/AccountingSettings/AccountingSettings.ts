@@ -1,5 +1,6 @@
 import Doc from 'fyo/model/doc';
-import { FiltersMap, ListsMap } from 'fyo/model/types';
+import { FiltersMap, ListsMap, ValidationMap } from 'fyo/model/types';
+import { validateEmail } from 'fyo/model/validationFunction';
 import countryInfo from '../../../fixtures/countryInfo.json';
 
 export class AccountingSettings extends Doc {
@@ -12,6 +13,10 @@ export class AccountingSettings extends Doc {
       isGroup: false,
       rootType: 'Expense',
     }),
+  };
+
+  validations: ValidationMap = {
+    email: validateEmail,
   };
 
   static lists: ListsMap = {

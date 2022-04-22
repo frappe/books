@@ -130,7 +130,7 @@
 <script>
 import BackLink from 'src/components/BackLink';
 import Button from 'src/components/Button';
-import FormControl from 'src/components/Controls/FormControl';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions';
 import PageHeader from 'src/components/PageHeader';
 import StatusBadge from 'src/components/StatusBadge';

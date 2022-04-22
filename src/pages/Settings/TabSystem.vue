@@ -41,7 +41,7 @@
 import { ConfigKeys } from 'fyo/core/types';
 import { getTelemetryOptions } from 'fyo/telemetry/helpers';
 import { TelemetrySetting } from 'fyo/telemetry/types';
-import FormControl from 'src/components/Controls/FormControl';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm';
 import { fyo } from 'src/initFyo';
