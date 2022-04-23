@@ -1,4 +1,3 @@
-import countryInfo from 'fixtures/countryInfo.json';
 import { ConfigFile, DocValueMap } from 'fyo/core/types';
 import Doc from 'fyo/model/doc';
 import { createNumberSeries } from 'fyo/model/naming';
@@ -9,16 +8,21 @@ import {
   DEFAULT_SERIES_START,
 } from 'fyo/utils/consts';
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
-import { fyo } from 'src/initFyo';
+import { fyo, initializeInstance } from 'src/initFyo';
 import { createRegionalRecords } from 'src/regional';
+import { getCountryCodeFromCountry, getCountryInfo } from 'utils/misc';
+import { CountryInfo } from 'utils/types';
 import { createCOA } from './createCOA';
-import { CountrySettings, SetupWizardOptions } from './types';
+import { SetupWizardOptions } from './types';
 
 export default async function setupInstance(
+  dbPath: string,
   setupWizardOptions: SetupWizardOptions
 ) {
   const { companyName, country, bankName, chartOfAccounts } =
     setupWizardOptions;
+
+  await initializeDatabase(dbPath, country);
   await updateSystemSettings(setupWizardOptions);
   await updateAccountingSettings(setupWizardOptions);
   await updatePrintSettings(setupWizardOptions);
@@ -31,10 +35,15 @@ export default async function setupInstance(
   await completeSetup(companyName);
 }
 
+async function initializeDatabase(dbPath: string, country: string) {
+  const countryCode = getCountryCodeFromCountry(country);
+  await initializeInstance(dbPath, true, countryCode);
+}
+
 async function updateAccountingSettings({
   companyName,
   country,
-  name,
+  fullname,
   email,
   bankName,
   fiscalYearStart,
@@ -46,7 +55,7 @@ async function updateAccountingSettings({
   await accountingSettings.setAndUpdate({
     companyName,
     country,
-    fullname: name,
+    fullname,
     email,
     bankName,
     fiscalYearStart,
@@ -73,8 +82,8 @@ async function updateSystemSettings({
   country,
   currency: companyCurrency,
 }: SetupWizardOptions) {
-  // @ts-ignore
-  const countryOptions = countryInfo[country] as CountrySettings;
+  const countryInfo = getCountryInfo();
+  const countryOptions = countryInfo[country] as CountryInfo;
   const currency =
     companyCurrency ?? countryOptions.currency ?? DEFAULT_CURRENCY;
   const locale = countryOptions.locale ?? DEFAULT_LOCALE;
@@ -88,10 +97,7 @@ async function updateSystemSettings({
 async function createCurrencyRecords() {
   const promises: Promise<Doc | undefined>[] = [];
   const queue: string[] = [];
-  const countrySettings: CountrySettings[] = Object.values(
-    // @ts-ignore
-    countryInfo as Record<string, CountrySettings>
-  );
+  const countrySettings = Object.values(getCountryInfo()) as CountryInfo[];
 
   for (const country of countrySettings) {
     const {

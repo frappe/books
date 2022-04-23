@@ -22,19 +22,19 @@
 <script>
 export default {
   name: 'Base',
-  props: [
-    'df',
-    'value',
-    'inputClass',
-    'placeholder',
-    'size',
-    'showLabel',
-    'readOnly',
-    'autofocus',
-  ],
+  props: {
+    df: Object,
+    value: [String, Number, Boolean, Object],
+    inputClass: [Function, String],
+    placeholder: String,
+    size: String,
+    showLabel: Boolean,
+    readOnly: Boolean,
+    autofocus: Boolean,
+  },
   emits: ['focus', 'input', 'change'],
   inject: {
-    doctype: {
+    schemaName: {
       default: null,
     },
     name: {

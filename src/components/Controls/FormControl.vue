@@ -1,19 +1,19 @@
 <script>
 import { h } from 'vue';
-import AttachImage from './AttachImage';
-import AutoComplete from './AutoComplete';
-import Check from './Check';
-import Color from './Color';
-import Currency from './Currency';
-import Data from './Data';
-import Date from './Date';
-import DynamicLink from './DynamicLink';
-import Float from './Float';
-import Int from './Int';
-import Link from './Link';
-import Select from './Select';
-import Table from './Table';
-import Text from './Text';
+import AttachImage from './AttachImage.vue';
+import AutoComplete from './AutoComplete.vue';
+import Check from './Check.vue';
+import Color from './Color.vue';
+import Currency from './Currency.vue';
+import Data from './Data.vue';
+import Date from './Date.vue';
+import DynamicLink from './DynamicLink.vue';
+import Float from './Float.vue';
+import Int from './Int.vue';
+import Link from './Link.vue';
+import Select from './Select.vue';
+import Table from './Table.vue';
+import Text from './Text.vue';
 
 export default {
   name: 'FormControl',

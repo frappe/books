@@ -45,7 +45,7 @@ import { t } from 'fyo';
 import reports from 'reports/view';
 import Dropdown from 'src/components/Dropdown';
 import { fyo } from 'src/initFyo';
-import { routeTo } from 'src/utils';
+import { routeTo } from 'src/utils/ui';
 
 
 export default {

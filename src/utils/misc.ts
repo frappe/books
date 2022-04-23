@@ -1,3 +1,4 @@
+import { ConfigKeys } from 'fyo/core/types';
 import { getSingleValue } from 'fyo/utils';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
@@ -50,4 +51,32 @@ export async function getSetupComplete(): Promise<boolean> {
     ModelNameEnum.AccountingSettings,
     fyo
   ));
+}
+
+export function incrementOpenCount() {
+  let openCount = fyo.config.get(ConfigKeys.OpenCount);
+  if (typeof openCount !== 'number') {
+    openCount = 1;
+  } else {
+    openCount += 1;
+  }
+
+  fyo.config.set(ConfigKeys.OpenCount, openCount);
+}
+
+export async function startTelemetry() {
+  fyo.telemetry.interestingDocs = [
+    ModelNameEnum.Payment,
+    ModelNameEnum.PaymentFor,
+    ModelNameEnum.SalesInvoice,
+    ModelNameEnum.SalesInvoiceItem,
+    ModelNameEnum.PurchaseInvoice,
+    ModelNameEnum.PurchaseInvoiceItem,
+    ModelNameEnum.JournalEntry,
+    ModelNameEnum.JournalEntryAccount,
+    ModelNameEnum.Party,
+    ModelNameEnum.Account,
+    ModelNameEnum.Tax,
+  ];
+  await fyo.telemetry.start();
 }

@@ -2,7 +2,7 @@
 import { t } from 'fyo';
 import Badge from 'src/components/Badge';
 import { fyo } from 'src/initFyo';
-import { openQuickEdit } from 'src/utils';
+import { openQuickEdit } from 'src/utils/ui';
 import { markRaw } from 'vue';
 import AutoComplete from './AutoComplete';
 

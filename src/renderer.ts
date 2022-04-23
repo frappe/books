@@ -7,7 +7,7 @@ import Badge from './components/Badge.vue';
 import FeatherIcon from './components/FeatherIcon.vue';
 import { getErrorHandled, handleError } from './errorHandling';
 import { fyo } from './initFyo';
-import { incrementOpenCount, outsideClickDirective } from './renderer/helpers';
+import { outsideClickDirective } from './renderer/helpers';
 import registerIpcRendererListeners from './renderer/registerIpcRendererListeners';
 import router from './router';
 import { stringifyCircular } from './utils';
@@ -33,7 +33,7 @@ import { setLanguageMap } from './utils/language';
 
   app.use(router);
   app.component('App', App);
-  app.component('feather-icon', FeatherIcon);
+  app.component('FeatherIcon', FeatherIcon);
   app.component('Badge', Badge);
 
   app.directive('on-outside-click', outsideClickDirective);
@@ -62,8 +62,6 @@ import { setLanguageMap } from './utils/language';
   });
 
   fyo.store.appVersion = await ipcRenderer.invoke(IPC_ACTIONS.GET_VERSION);
-
-  incrementOpenCount();
   app.mount('body');
 })();
 

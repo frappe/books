@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { handleError } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
+import { startTelemetry } from 'src/utils/misc';
 import { showToast } from 'src/utils/ui';
 import { IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
 
@@ -56,7 +57,7 @@ export default function registerIpcRendererListeners() {
   document.addEventListener('visibilitychange', function () {
     const { visibilityState } = document;
     if (visibilityState === 'visible' && !fyo.telemetry.started) {
-      fyo.telemetry.start();
+      startTelemetry();
     }
 
     if (visibilityState !== 'hidden') {

@@ -88,7 +88,7 @@ function getMandatory(doc: Doc): Field[] {
 }
 
 export function shouldApplyFormula(field: Field, doc: Doc, fieldname?: string) {
-  if (!doc.formulas[field.fieldtype]) {
+  if (!doc.formulas[field.fieldname]) {
     return false;
   }
 

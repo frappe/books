@@ -3,6 +3,7 @@
     <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
       {{ df.label }}
     </div>
+
     <DatePicker
       ref="input"
       :input-class="[inputClasses, 'cursor-text']"
@@ -10,31 +11,31 @@
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
       :format-value="formatValue"
-      @change="value => triggerChange(value)"
+      @change="(value) => triggerChange(value)"
     />
   </div>
 </template>
 
 <script>
 import { fyo } from 'src/initFyo';
-import Base from './Base';
 import DatePicker from '../DatePicker/DatePicker';
+import Base from './Base';
 
 export default {
   name: 'Date',
   extends: Base,
   components: {
-    DatePicker
+    DatePicker,
   },
   computed: {
     inputType() {
       return 'date';
-    }
+    },
   },
   methods: {
     formatValue(value) {
       return fyo.format(value, this.df);
-    }
-  }
+    },
+  },
 };
 </script>

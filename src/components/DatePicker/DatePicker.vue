@@ -109,7 +109,7 @@
               togglePopover();
             "
           >
-            Clear
+            {{ t`Clear` }}
           </div>
         </div>
       </div>
