@@ -3,7 +3,7 @@ import Doc from 'fyo/model/doc';
 import { EmptyMessageMap, FormulaMap, ListsMap } from 'fyo/model/types';
 import { stateCodeMap } from 'regional/in';
 import { titleCase } from 'utils';
-import countryInfo from '../../../fixtures/countryInfo.json';
+import { getCountryInfo } from 'utils/misc';
 
 export class Address extends Doc {
   formulas: FormulaMap = {
@@ -32,7 +32,7 @@ export class Address extends Doc {
       }
     },
     country() {
-      return Object.keys(countryInfo).sort();
+      return Object.keys(getCountryInfo()).sort();
     },
   };
 

@@ -73,8 +73,8 @@
 </template>
 
 <script>
-import Popover from './Popover';
 import uniq from 'lodash/uniq';
+import Popover from './Popover.vue';
 
 export default {
   name: 'Dropdown',

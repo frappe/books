@@ -129,8 +129,8 @@ export class DatabaseHandler extends DatabaseBase {
 
     const docSingleValue: SingleValue<DocValue> = [];
     for (const sv of rawSingleValue) {
-      const fieldtype = this.fieldValueMap[sv.parent][sv.fieldname].fieldtype;
-      const value = Converter.toDocValue(sv.value, fieldtype, this.#fyo);
+      const field = this.fieldValueMap[sv.parent][sv.fieldname];
+      const value = Converter.toDocValue(sv.value, field, this.#fyo);
 
       docSingleValue.push({
         value,

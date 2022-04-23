@@ -31,7 +31,7 @@
 
 <script>
 import { ipcRenderer } from 'electron';
-import { runWindowAction } from 'src/utils';
+import { runWindowAction } from 'src/utils/ipcCalls';
 import { IPC_MESSAGES } from 'utils/messages';
 
 export default {

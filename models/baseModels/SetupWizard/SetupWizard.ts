@@ -1,9 +1,14 @@
 import { t } from 'fyo';
 import Doc from 'fyo/model/doc';
-import { FormulaMap, ListsMap, ValidationMap } from 'fyo/model/types';
+import {
+  DependsOnMap,
+  FormulaMap,
+  ListsMap,
+  ValidationMap,
+} from 'fyo/model/types';
 import { validateEmail } from 'fyo/model/validationFunction';
 import { DateTime } from 'luxon';
-import countryInfo from '../../../fixtures/countryInfo.json';
+import { getCountryInfo } from 'utils/misc';
 
 export function getCOAList() {
   return [
@@ -26,14 +31,21 @@ export function getCOAList() {
 }
 
 export class SetupWizard extends Doc {
+  dependsOn: DependsOnMap = {
+    fiscalYearStart: ['country'],
+    fiscalYearEnd: ['country'],
+    currency: ['country'],
+    chartOfAccounts: ['country'],
+  };
+
   formulas: FormulaMap = {
     fiscalYearStart: async () => {
       if (!this.country) return;
 
       const today = DateTime.local();
 
-      // @ts-ignore
-      const fyStart = countryInfo[this.country].fiscal_year_start as
+      const countryInfo = getCountryInfo();
+      const fyStart = countryInfo[this.country as string]?.fiscal_year_start as
         | string
         | undefined;
 
@@ -50,8 +62,8 @@ export class SetupWizard extends Doc {
 
       const today = DateTime.local();
 
-      // @ts-ignore
-      const fyEnd = countryInfo[this.country].fiscal_year_end as
+      const countryInfo = getCountryInfo();
+      const fyEnd = countryInfo[this.country as string]?.fiscal_year_end as
         | string
         | undefined;
       if (fyEnd) {
@@ -64,8 +76,8 @@ export class SetupWizard extends Doc {
       if (!this.country) {
         return;
       }
-      // @ts-ignore
-      return countryInfo[this.country].currency;
+      const countryInfo = getCountryInfo();
+      return countryInfo[this.country as string]?.currency;
     },
     chartOfAccounts: async () => {
       const country = this.get('country') as string | undefined;
@@ -73,7 +85,7 @@ export class SetupWizard extends Doc {
         return;
       }
 
-      // @ts-ignore
+      const countryInfo = getCountryInfo();
       const code = (countryInfo[country] as undefined | { code: string })?.code;
       if (code === undefined) {
         return;
@@ -94,7 +106,7 @@ export class SetupWizard extends Doc {
   };
 
   static lists: ListsMap = {
-    country: () => Object.keys(countryInfo),
+    country: () => Object.keys(getCountryInfo()),
     chartOfAccounts: () => getCOAList().map(({ name }) => name),
   };
 }

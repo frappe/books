@@ -36,6 +36,7 @@
 </template>
 <script>
 import { getColorClass } from 'src/utils/colors';
+import FeatherIcon from './FeatherIcon.vue';
 
 export default {
   components: {

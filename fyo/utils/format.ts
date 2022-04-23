@@ -129,12 +129,14 @@ function getNumberFormatter(fyo: Fyo) {
 }
 
 function getCurrency(field: Field, doc: Doc | null, fyo: Fyo): string {
-  if (doc && doc.getCurrencies[field.fieldname]) {
-    return doc.getCurrencies[field.fieldname]();
+  let getCurrency = doc?.getCurrencies[field.fieldname];
+  if (getCurrency !== undefined) {
+    return getCurrency();
   }
 
-  if (doc && doc.parentdoc?.getCurrencies[field.fieldname]) {
-    return doc.parentdoc.getCurrencies[field.fieldname]();
+  getCurrency = doc?.parentdoc?.getCurrencies[field.fieldname];
+  if (getCurrency !== undefined) {
+    return getCurrency();
   }
 
   return (fyo.singles.SystemSettings?.currency as string) ?? DEFAULT_CURRENCY;

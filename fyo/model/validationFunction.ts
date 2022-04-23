@@ -23,7 +23,7 @@ export function validateSelect(field: OptionField, value: string) {
     return;
   }
 
-  if (!field.required && (value === null || value === undefined)) {
+  if (!field.required && !value) {
     return;
   }
 

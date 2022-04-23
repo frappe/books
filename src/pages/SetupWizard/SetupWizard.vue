@@ -1,5 +1,8 @@
 <template>
-  <div>
+  <div
+    class="py-10 flex-1 bg-white flex justify-center items-center window-drag"
+  >
+    <!-- 0: Language Selection Slide -->
     <Slide
       @primary-clicked="handlePrimary"
       @secondary-clicked="handleSecondary"
@@ -26,6 +29,8 @@
         {{ t`Next` }}
       </template>
     </Slide>
+
+    <!-- 1: Setup Wizard Slide -->
     <Slide
       :primary-disabled="!valuesFilled || loading"
       @primary-clicked="handlePrimary"
@@ -35,51 +40,48 @@
       <template #title>
         {{ t`Setup your organization` }}
       </template>
+
       <template #content>
         <div v-if="doc">
-          <div
-            class="flex items-center px-6 py-5 mb-4 border bg-brand rounded-xl"
-          >
+          <div class="flex items-center px-6 py-5 mb-8 bg-brand rounded-xl">
             <FormControl
-              :df="meta.getField('companyLogo')"
+              :df="getField('companyLogo')"
               :value="doc.companyLogo"
               @change="(value) => setValue('companyLogo', value)"
             />
             <div class="ml-2">
               <FormControl
                 ref="companyField"
-                :df="meta.getField('companyName')"
+                :df="getField('companyName')"
                 :value="doc.companyName"
                 @change="(value) => setValue('companyName', value)"
                 :input-class="
-                  (classes) => [
+                  () => [
                     'bg-transparent font-semibold text-xl text-white placeholder-blue-200 focus:outline-none focus:bg-blue-600 px-3 rounded py-1',
                   ]
                 "
                 :autofocus="true"
               />
-              <Popover placement="auto" :show-popup="Boolean(emailError)">
-                <template #target>
-                  <FormControl
-                    :df="meta.getField('email')"
-                    :value="doc.email"
-                    @change="(value) => setValue('email', value)"
-                    :input-class="
-                      (classes) => [
-                        'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1',
-                      ]
-                    "
-                  />
-                </template>
-                <template #content>
-                  <div class="p-2 text-sm">
-                    {{ emailError }}
-                  </div>
-                </template>
-              </Popover>
+              <FormControl
+                :df="getField('email')"
+                :value="doc.email"
+                @change="(value) => setValue('email', value)"
+                :input-class="
+                  () => [
+                    'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1',
+                  ]
+                "
+              />
             </div>
           </div>
-          <TwoColumnForm :fields="fields" :doc="doc" />
+          <p
+            class="px-3 -mt-6 text-sm absolute text-red-400 w-full"
+            v-if="emailError"
+          >
+            {{ emailError }}
+          </p>
+
+          <TwoColumnForm :doc="doc" />
         </div>
       </template>
       <template #secondaryButton>{{ t`Back` }}</template>
@@ -90,22 +92,14 @@
 
 <script>
 import { ipcRenderer } from 'electron';
-import fs from 'fs';
-import path from 'path';
-import FormControl from 'src/components/Controls/FormControl';
+import FormControl from 'src/components/Controls/FormControl.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
-import Popover from 'src/components/Popover';
 import TwoColumnForm from 'src/components/TwoColumnForm';
+import { getErrorMessage } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
-import { connectToLocalDatabase, purgeCache } from 'src/initialization';
-import { setupInstance } from 'src/setup/setupInstance';
-import { setLanguageMap, showMessageDialog } from 'src/utils';
+import { getSetupWizardDoc } from 'src/utils/misc';
+import { showMessageDialog } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
-import {
-getErrorMessage,
-handleErrorWithDialog,
-showErrorDialog
-} from '../../errorHandling';
 import Slide from './Slide.vue';
 
 export default {
@@ -122,14 +116,13 @@ export default {
   },
   provide() {
     return {
-      doctype: 'SetupWizard',
+      schemaName: 'SetupWizard',
       name: 'SetupWizard',
     };
   },
   components: {
     TwoColumnForm,
     FormControl,
-    Popover,
     Slide,
     LanguageSelector,
   },
@@ -138,12 +131,15 @@ export default {
       this.index = 1;
     }
 
-    this.doc = await fyo.doc.getNewDoc('SetupWizard');
+    this.doc = await getSetupWizardDoc();
     this.doc.on('change', () => {
       this.valuesFilled = this.allValuesFilled();
     });
   },
   methods: {
+    getField(fieldname) {
+      return this.doc.schema?.fields.find((f) => f.fieldname === fieldname);
+    },
     openContributingTranslations() {
       ipcRenderer.send(
         IPC_MESSAGES.OPEN_EXTERNAL,
@@ -164,10 +160,6 @@ export default {
         this.$emit('setup-canceled');
       }
     },
-    async selectLanguage(value) {
-      const success = await setLanguageMap(value);
-      this.setValue('language', value);
-    },
     setValue(fieldname, value) {
       this.emailError = null;
       this.doc.set(fieldname, value).catch((e) => {
@@ -178,7 +170,7 @@ export default {
       });
     },
     allValuesFilled() {
-      let values = this.meta.quickEditFields.map(
+      const values = this.doc.schema.quickEditFields.map(
         (fieldname) => this.doc[fieldname]
       );
       return values.every(Boolean);
@@ -189,61 +181,18 @@ export default {
         return;
       }
 
-      try {
-        this.loading = true;
-        await setupInstance(this.doc);
-        this.$emit('setup-complete');
-      } catch (e) {
-        this.loading = false;
-        if (e.type === fyo.errors.DuplicateEntryError) {
-          console.log(e);
-          console.log('retrying');
-          await this.renameDbFileAndRerunSetup();
-        } else {
-          handleErrorWithDialog(e, this.doc);
-        }
-      }
-    },
-    async renameDbFileAndRerunSetup() {
-      const filePath = fyo.config.get('lastSelectedFilePath');
-      renameDbFile(filePath);
-
-      await purgeCache();
-
-      const { connectionSuccess, reason } = await connectToLocalDatabase(
-        filePath
-      );
-
-      if (connectionSuccess) {
-        await setupInstance(this.doc);
-        this.$emit('setup-complete');
-      } else {
-        const title = this.t`DB Connection Error`;
-        const content = `reason: ${reason}, filePath: ${filePath}`;
-        await showErrorDialog(title, content);
-      }
+      this.loading = true;
+      this.$emit('setup-complete', this.doc.getValidDict());
     },
   },
   computed: {
-    meta() {
-      return fyo.getMeta('SetupWizard');
-    },
-    fields() {
-      return this.meta.getQuickEditFields();
-    },
     buttonText() {
-      return this.loading ? this.t`Setting Up...` : this.t`Submit`;
+      if (this.loading) {
+        return this.t`Submit`;
+      }
+
+      return this.t`Setting Up...`;
     },
   },
 };
-
-function renameDbFile(filePath) {
-  const dirname = path.dirname(filePath);
-  const basename = path.basename(filePath);
-  const backupPath = path.join(dirname, `_${basename}`);
-  if (fs.existsSync(backupPath)) {
-    fs.unlinkSync(backupPath);
-  }
-  fs.renameSync(filePath, backupPath);
-}
 </script>

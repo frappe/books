@@ -1,7 +1,11 @@
 import { Fyo } from 'fyo';
 import Doc from 'fyo/model/doc';
+import { isPesa } from 'fyo/utils';
+import { ValueError } from 'fyo/utils/errors';
+import { DateTime } from 'luxon';
 import Money from 'pesa/dist/types/src/money';
-import { FieldType, FieldTypeEnum, RawValue } from 'schemas/types';
+import { Field, FieldTypeEnum, RawValue } from 'schemas/types';
+import { getIsNullOrUndef } from 'utils';
 import { DatabaseHandler } from './dbHandler';
 import { DocValue, DocValueMap, RawValueMap } from './types';
 
@@ -51,55 +55,41 @@ export class Converter {
     }
   }
 
-  static toDocValue(
-    value: RawValue,
-    fieldtype: FieldType,
-    fyo: Fyo
-  ): DocValue {
-    switch (fieldtype) {
+  static toDocValue(value: RawValue, field: Field, fyo: Fyo): DocValue {
+    switch (field.fieldtype) {
       case FieldTypeEnum.Currency:
-        return fyo.pesa((value ?? 0) as string | number);
+        return toDocCurrency(value, field, fyo);
       case FieldTypeEnum.Date:
-        return new Date(value as string);
+        return toDocDate(value, field);
       case FieldTypeEnum.Datetime:
-        return new Date(value as string);
+        return toDocDate(value, field);
       case FieldTypeEnum.Int:
-        return +(value as string | number);
+        return toDocInt(value, field);
       case FieldTypeEnum.Float:
-        return +(value as string | number);
+        return toDocFloat(value, field);
       case FieldTypeEnum.Check:
-        return Boolean(value as number);
+        return toDocCheck(value, field);
       default:
         return String(value);
     }
   }
 
-  static toRawValue(value: DocValue, fieldtype: FieldType): RawValue {
-    switch (fieldtype) {
+  static toRawValue(value: DocValue, field: Field, fyo: Fyo): RawValue {
+    switch (field.fieldtype) {
       case FieldTypeEnum.Currency:
-        return (value as Money).store;
+        return toRawCurrency(value, fyo, field);
       case FieldTypeEnum.Date:
-        return (value as Date).toISOString().split('T')[0];
+        return toRawDate(value, field);
       case FieldTypeEnum.Datetime:
-        return (value as Date).toISOString();
-      case FieldTypeEnum.Int: {
-        if (typeof value === 'string') {
-          return parseInt(value);
-        }
-
-        return Math.floor(value as number);
-      }
-      case FieldTypeEnum.Float: {
-        if (typeof value === 'string') {
-          return parseFloat(value);
-        }
-
-        return value as number;
-      }
+        return toRawDateTime(value, field);
+      case FieldTypeEnum.Int:
+        return toRawInt(value, field);
+      case FieldTypeEnum.Float:
+        return toRawFloat(value, field);
       case FieldTypeEnum.Check:
-        return Number(value);
+        return toRawCheck(value, field);
       default:
-        return String(value);
+        return toRawString(value, field);
     }
   }
 
@@ -118,7 +108,7 @@ export class Converter {
       } else {
         docValueMap[fieldname] = Converter.toDocValue(
           rawValue,
-          field.fieldtype,
+          field,
           this.fyo
         );
       }
@@ -146,11 +136,190 @@ export class Converter {
       } else {
         rawValueMap[fieldname] = Converter.toRawValue(
           docValue,
-          field.fieldtype
+          field,
+          this.fyo
         );
       }
     }
 
     return rawValueMap;
   }
+}
+
+function toDocDate(value: RawValue, field: Field) {
+  if (typeof value !== 'number' && typeof value !== 'string') {
+    throwError(value, field, 'doc');
+  }
+
+  const date = new Date(value);
+  if (date.toString() === 'Invalid Date') {
+    throwError(value, field, 'doc');
+  }
+
+  return date;
+}
+
+function toDocCurrency(value: RawValue, field: Field, fyo: Fyo) {
+  if (typeof value === 'string') {
+    return fyo.pesa(value);
+  }
+
+  if (typeof value === 'number') {
+    return fyo.pesa(value);
+  }
+
+  if (typeof value === 'boolean') {
+    return fyo.pesa(Number(value));
+  }
+
+  throwError(value, field, 'doc');
+}
+
+function toDocInt(value: RawValue, field: Field): number {
+  if (typeof value === 'string') {
+    value = parseInt(value);
+  }
+
+  return toDocFloat(value, field);
+}
+
+function toDocFloat(value: RawValue, field: Field): number {
+  if (typeof value === 'boolean') {
+    return Number(value);
+  }
+
+  if (typeof value === 'string') {
+    value = parseFloat(value);
+  }
+
+  if (typeof value === 'number' && !Number.isNaN(value)) {
+    return value;
+  }
+
+  throwError(value, field, 'doc');
+}
+
+function toDocCheck(value: RawValue, field: Field): boolean {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    return value === '1';
+  }
+
+  if (typeof value === 'number') {
+    return Boolean(value);
+  }
+
+  throwError(value, field, 'doc');
+}
+
+function toRawCurrency(value: DocValue, fyo: Fyo, field: Field): string {
+  if (isPesa(value)) {
+    return (value as Money).store;
+  }
+
+  if (getIsNullOrUndef(value)) {
+    return fyo.pesa(0).store;
+  }
+
+  if (typeof value === 'number') {
+    return fyo.pesa(value).store;
+  }
+
+  if (typeof value === 'string') {
+    return fyo.pesa(value).store;
+  }
+
+  throwError(value, field, 'raw');
+}
+
+function toRawInt(value: DocValue, field: Field): number {
+  if (typeof value === 'string') {
+    return parseInt(value);
+  }
+
+  if (getIsNullOrUndef(value)) {
+    return 0;
+  }
+
+  if (typeof value === 'number') {
+    return Math.floor(value as number);
+  }
+
+  throwError(value, field, 'raw');
+}
+
+function toRawFloat(value: DocValue, field: Field): number {
+  if (typeof value === 'string') {
+    return parseFloat(value);
+  }
+
+  if (getIsNullOrUndef(value)) {
+    return 0;
+  }
+
+  if (typeof value === 'number') {
+    return value;
+  }
+
+  throwError(value, field, 'raw');
+}
+
+function toRawDate(value: DocValue, field: Field): string {
+  const dateTime = toRawDateTime(value, field);
+  return dateTime.split('T')[0];
+}
+
+function toRawDateTime(value: DocValue, field: Field): string {
+  if (getIsNullOrUndef(value)) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (value instanceof Date) {
+    return (value as Date).toISOString();
+  }
+
+  if (value instanceof DateTime) {
+    return (value as DateTime).toISO();
+  }
+
+  throwError(value, field, 'raw');
+}
+
+function toRawCheck(value: DocValue, field: Field): number {
+  if (typeof value === 'number') {
+    value = Boolean(value);
+  }
+
+  if (typeof value === 'boolean') {
+    return Number(value);
+  }
+
+  throwError(value, field, 'raw');
+}
+
+function toRawString(value: DocValue, field: Field): string {
+  if (getIsNullOrUndef(value)) {
+    return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  throwError(value, field, 'raw');
+}
+
+function throwError<T>(value: T, field: Field, type: 'raw' | 'doc'): never {
+  throw new ValueError(
+    `invalid ${type} conversion '${value}' of type ${typeof value} found, field: ${JSON.stringify(
+      field
+    )}`
+  );
 }

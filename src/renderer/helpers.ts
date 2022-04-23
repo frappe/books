@@ -1,5 +1,3 @@
-import { ConfigKeys } from 'fyo/core/types';
-import { fyo } from 'src/initFyo';
 import { Directive } from 'vue';
 
 const instances: OutsideClickCallback[] = [];
@@ -34,15 +32,4 @@ function onDocumentClick(e: Event, el: HTMLElement, fn: OutsideClickCallback) {
   if (el !== target && !el.contains(target as Node)) {
     fn(e);
   }
-}
-
-export function incrementOpenCount() {
-  let openCount = fyo.config.get(ConfigKeys.OpenCount);
-  if (typeof openCount !== 'number') {
-    openCount = 1;
-  } else {
-    openCount += 1;
-  }
-
-  fyo.config.set(ConfigKeys.OpenCount, openCount);
 }

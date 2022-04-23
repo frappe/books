@@ -170,17 +170,16 @@ export default {
       return evaluateReadOnly(df, this.doc);
     },
     onChange(df, value) {
-      if (value == null || df.inline) {
+      if (df.inline) {
         return;
       }
 
       let oldValue = this.doc.get(df.fieldname);
-
-      this.errors[df.fieldname] = null;
       if (oldValue === value) {
         return;
       }
 
+      this.errors[df.fieldname] = null;
       if (this.emitChange) {
         this.$emit('change', df, value, oldValue);
       }
