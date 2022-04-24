@@ -17,3 +17,8 @@ All of them are triggered from `src/App.vue`.
 1. Connect to db.
 2. Check if _Setup Wizard_ has been completed, if not, jump to **New Instance**
 3. Call `initFyo/initializeInstance` with `dbPath` and `countryCode`
+
+## Global Fyo
+
+Global fyo is exported from `initFyo.ts`. Only code that isn't going to be unit
+tested should use this.

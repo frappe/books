@@ -14,7 +14,7 @@
         <StatusBadge :status="status" />
         <Button
           :icon="true"
-          @click="insertDoc"
+          @click="sync"
           type="primary"
           v-if="doc && doc._notInserted"
           class="ml-2 text-white text-xs"
@@ -210,8 +210,8 @@ export default {
     valueChange(df, value) {
       this.$refs.form.onChange(df, value);
     },
-    insertDoc() {
-      this.$refs.form.insert();
+    sync() {
+      this.$refs.form.sync();
     },
     async submitDoc() {
       try {

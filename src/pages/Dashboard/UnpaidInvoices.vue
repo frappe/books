@@ -143,7 +143,7 @@ export default {
       this.invoices = await Promise.all(promises);
     },
     async newInvoice(invoice) {
-      let doc = await fyo.doc.getEmptyDoc(invoice.doctype);
+      let doc = await fyo.doc.getNewDoc(invoice.doctype);
       routeTo(`/edit/${invoice.doctype}/${doc.name}`);
     },
   },

@@ -1,30 +1,26 @@
-import { fyo } from 'src/initFyo';
+import { Fyo } from 'fyo';
 
 export type TaxType = 'GST' | 'IGST' | 'Exempt-GST' | 'Exempt-IGST';
 
-export async function createIndianRecords() {
-  await generateTaxes();
+export async function createIndianRecords(fyo: Fyo) {
+  await createTaxes(fyo);
 }
 
-async function generateTaxes() {
+async function createTaxes(fyo: Fyo) {
   const GSTs = {
     GST: [28, 18, 12, 6, 5, 3, 0.25, 0],
     IGST: [28, 18, 12, 6, 5, 3, 0.25, 0],
     'Exempt-GST': [0],
     'Exempt-IGST': [0],
   };
-  const newTax = await fyo.doc.getEmptyDoc('Tax');
 
   for (const type of Object.keys(GSTs)) {
     for (const percent of GSTs[type as TaxType]) {
       const name = `${type}-${percent}`;
-
-      // Not cross checking cause hardcoded values.
-      await fyo.db.delete('Tax', name);
-
       const details = getTaxDetails(type as TaxType, percent);
-      await newTax.set({ name, details });
-      await newTax.insert();
+
+      const newTax = fyo.doc.getNewDoc('Tax', { name, details });
+      await newTax.sync();
     }
   }
 }
@@ -41,12 +37,12 @@ function getTaxDetails(type: TaxType, percent: number) {
         rate: percent / 2,
       },
     ];
-  } else {
-    return [
-      {
-        account: type.toString().split('-')[0],
-        rate: percent,
-      },
-    ];
   }
+
+  return [
+    {
+      account: type.toString().split('-')[0],
+      rate: percent,
+    },
+  ];
 }

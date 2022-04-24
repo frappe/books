@@ -1,5 +1,5 @@
 import { t } from 'fyo';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import {
   DependsOnMap,
   FormulaMap,
@@ -7,8 +7,7 @@ import {
   ValidationMap,
 } from 'fyo/model/types';
 import { validateEmail } from 'fyo/model/validationFunction';
-import { DateTime } from 'luxon';
-import { getCountryInfo } from 'utils/misc';
+import { getCountryInfo, getFiscalYear } from 'utils/misc';
 
 export function getCOAList() {
   return [
@@ -42,35 +41,19 @@ export class SetupWizard extends Doc {
     fiscalYearStart: async () => {
       if (!this.country) return;
 
-      const today = DateTime.local();
-
       const countryInfo = getCountryInfo();
-      const fyStart = countryInfo[this.country as string]?.fiscal_year_start as
-        | string
-        | undefined;
-
-      if (fyStart) {
-        return DateTime.fromFormat(fyStart, 'MM-dd')
-          .plus({ year: [1, 2, 3].includes(today.month) ? -1 : 0 })
-          .toISODate();
-      }
+      const fyStart =
+        countryInfo[this.country as string]?.fiscal_year_start ?? '';
+      return getFiscalYear(fyStart, true);
     },
     fiscalYearEnd: async () => {
       if (!this.country) {
         return;
       }
 
-      const today = DateTime.local();
-
       const countryInfo = getCountryInfo();
-      const fyEnd = countryInfo[this.country as string]?.fiscal_year_end as
-        | string
-        | undefined;
-      if (fyEnd) {
-        return DateTime.fromFormat(fyEnd, 'MM-dd')
-          .plus({ year: [1, 2, 3].includes(today.month) ? 0 : 1 })
-          .toISODate();
-      }
+      const fyEnd = countryInfo[this.country as string]?.fiscal_year_end ?? '';
+      return getFiscalYear(fyEnd, false);
     },
     currency: async () => {
       if (!this.country) {

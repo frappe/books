@@ -1,5 +1,6 @@
 import { Fyo } from 'fyo';
 import { getRegionalModels, models } from 'models';
+import { ModelNameEnum } from 'models/types';
 import { getValueMapFromList } from 'utils';
 
 export const fyo = new Fyo({ isTest: false, isElectron: true });
@@ -15,7 +16,8 @@ async function closeDbIfConnected() {
 export async function initializeInstance(
   dbPath: string,
   isNew: boolean,
-  countryCode: string
+  countryCode: string,
+  fyo: Fyo
 ) {
   if (isNew) {
     await closeDbIfConnected();
@@ -27,17 +29,17 @@ export async function initializeInstance(
   const regionalModels = await getRegionalModels(countryCode);
   await fyo.initializeAndRegister(models, regionalModels);
 
-  await setSingles();
-  await setCurrencySymbols();
+  await setSingles(fyo);
+  await setCurrencySymbols(fyo);
 }
 
-async function setSingles() {
-  await fyo.doc.getSingle('AccountingSettings');
-  await fyo.doc.getSingle('GetStarted');
+async function setSingles(fyo: Fyo) {
+  await fyo.doc.getSingle(ModelNameEnum.AccountingSettings);
+  await fyo.doc.getSingle(ModelNameEnum.GetStarted);
 }
 
-async function setCurrencySymbols() {
-  const currencies = (await fyo.db.getAll('Currency', {
+async function setCurrencySymbols(fyo: Fyo) {
+  const currencies = (await fyo.db.getAll(ModelNameEnum.Currency, {
     fields: ['name', 'symbol'],
   })) as { name: string; symbol: string }[];
 

@@ -46,6 +46,7 @@
     "regional/**/*.ts",
     "reports/**/*.ts",
     "utils/**/*.ts",
+    "tests/**/*.ts",
   ],
   "exclude": ["node_modules"]
 }

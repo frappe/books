@@ -204,7 +204,7 @@ export default {
   },
   methods: {
     async onSaveClick() {
-      return this.doc.insertOrUpdate().catch(this.handleError);
+      return this.doc.sync().catch(this.handleError);
     },
     async onSubmitClick() {
       showMessageDialog({

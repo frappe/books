@@ -1,4 +1,4 @@
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { Field, OptionField, SelectOption } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 

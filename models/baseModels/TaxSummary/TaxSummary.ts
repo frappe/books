@@ -1,4 +1,4 @@
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { FormulaMap } from 'fyo/model/types';
 import Money from 'pesa/dist/types/src/money';
 

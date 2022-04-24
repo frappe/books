@@ -1,14 +1,14 @@
 import config from 'utils/config';
 
 export class Config {
-  #isElectron: boolean;
+  #useElectronConfig: boolean;
   fallback: Map<string, unknown> = new Map();
   constructor(isElectron: boolean) {
-    this.#isElectron = isElectron;
+    this.#useElectronConfig = isElectron;
   }
 
   get store(): Record<string, unknown> {
-    if (this.#isElectron) {
+    if (this.#useElectronConfig) {
       return config.store;
     } else {
       const store: Record<string, unknown> = {};
@@ -22,7 +22,7 @@ export class Config {
   }
 
   get(key: string, defaultValue?: unknown): unknown {
-    if (this.#isElectron) {
+    if (this.#useElectronConfig) {
       return config.get(key, defaultValue);
     } else {
       return this.fallback.get(key) ?? defaultValue;
@@ -30,7 +30,7 @@ export class Config {
   }
 
   set(key: string, value: unknown) {
-    if (this.#isElectron) {
+    if (this.#useElectronConfig) {
       config.set(key, value);
     } else {
       this.fallback.set(key, value);
@@ -38,7 +38,7 @@ export class Config {
   }
 
   delete(key: string) {
-    if (this.#isElectron) {
+    if (this.#useElectronConfig) {
       config.delete(key);
     } else {
       this.fallback.delete(key);
@@ -46,7 +46,7 @@ export class Config {
   }
 
   clear() {
-    if (this.#isElectron) {
+    if (this.#useElectronConfig) {
       config.clear();
     } else {
       this.fallback.clear();

@@ -74,7 +74,6 @@ export default {
   },
   methods: {
     selectOption(value) {
-      console.log(value);
       this.$emit('change', value);
       this.$refs.dropdown.toggleDropdown(false);
     },

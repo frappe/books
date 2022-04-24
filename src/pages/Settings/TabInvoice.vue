@@ -7,7 +7,7 @@
         @change="
           (value) => {
             doc.set('logo', value);
-            doc.update();
+            doc.sync();
             forwardChangeEvent(getField('logo'));
           }
         "
@@ -27,7 +27,7 @@
           @change="
             (value) => {
               doc.set('displayLogo', value);
-              doc.update();
+              doc.sync();
               forwardChangeEvent(getField('displayLogo'));
             }
           "

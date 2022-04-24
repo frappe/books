@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,

@@ -1,5 +1,6 @@
+import { Fyo } from 'fyo';
 import { ConfigFile, DocValueMap } from 'fyo/core/types';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { createNumberSeries } from 'fyo/model/naming';
 import { getId } from 'fyo/telemetry/helpers';
 import {
@@ -8,51 +9,55 @@ import {
   DEFAULT_SERIES_START,
 } from 'fyo/utils/consts';
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
-import { fyo, initializeInstance } from 'src/initFyo';
+import { initializeInstance } from 'src/initFyo';
 import { createRegionalRecords } from 'src/regional';
 import { getCountryCodeFromCountry, getCountryInfo } from 'utils/misc';
 import { CountryInfo } from 'utils/types';
-import { createCOA } from './createCOA';
+import { CreateCOA } from './createCOA';
 import { SetupWizardOptions } from './types';
 
 export default async function setupInstance(
   dbPath: string,
-  setupWizardOptions: SetupWizardOptions
+  setupWizardOptions: SetupWizardOptions,
+  fyo: Fyo
 ) {
   const { companyName, country, bankName, chartOfAccounts } =
     setupWizardOptions;
 
-  await initializeDatabase(dbPath, country);
-  await updateSystemSettings(setupWizardOptions);
-  await updateAccountingSettings(setupWizardOptions);
-  await updatePrintSettings(setupWizardOptions);
+  await initializeDatabase(dbPath, country, fyo);
+  await updateSystemSettings(setupWizardOptions, fyo);
+  await updateAccountingSettings(setupWizardOptions, fyo);
+  await updatePrintSettings(setupWizardOptions, fyo);
 
-  await createCurrencyRecords();
-  await createAccountRecords(bankName, country, chartOfAccounts);
-  await createRegionalRecords(country);
-  await createDefaultNumberSeries();
+  await createCurrencyRecords(fyo);
+  await createAccountRecords(bankName, country, chartOfAccounts, fyo);
+  await createRegionalRecords(country, fyo);
+  await createDefaultNumberSeries(fyo);
 
-  await completeSetup(companyName);
+  await completeSetup(companyName, fyo);
 }
 
-async function initializeDatabase(dbPath: string, country: string) {
+async function initializeDatabase(dbPath: string, country: string, fyo: Fyo) {
   const countryCode = getCountryCodeFromCountry(country);
-  await initializeInstance(dbPath, true, countryCode);
+  await initializeInstance(dbPath, true, countryCode, fyo);
 }
 
-async function updateAccountingSettings({
-  companyName,
-  country,
-  fullname,
-  email,
-  bankName,
-  fiscalYearStart,
-  fiscalYearEnd,
-}: SetupWizardOptions) {
+async function updateAccountingSettings(
+  {
+    companyName,
+    country,
+    fullname,
+    email,
+    bankName,
+    fiscalYearStart,
+    fiscalYearEnd,
+  }: SetupWizardOptions,
+  fyo: Fyo
+) {
   const accountingSettings = (await fyo.doc.getSingle(
     'AccountingSettings'
   )) as AccountingSettings;
-  await accountingSettings.setAndUpdate({
+  await accountingSettings.setAndSync({
     companyName,
     country,
     fullname,
@@ -64,13 +69,12 @@ async function updateAccountingSettings({
   return accountingSettings;
 }
 
-async function updatePrintSettings({
-  companyLogo,
-  companyName,
-  email,
-}: SetupWizardOptions) {
+async function updatePrintSettings(
+  { companyLogo, companyName, email }: SetupWizardOptions,
+  fyo: Fyo
+) {
   const printSettings = await fyo.doc.getSingle('PrintSettings');
-  await printSettings.setAndUpdate({
+  await printSettings.setAndSync({
     logo: companyLogo,
     companyName,
     email,
@@ -78,23 +82,23 @@ async function updatePrintSettings({
   });
 }
 
-async function updateSystemSettings({
-  country,
-  currency: companyCurrency,
-}: SetupWizardOptions) {
+async function updateSystemSettings(
+  { country, currency: companyCurrency }: SetupWizardOptions,
+  fyo: Fyo
+) {
   const countryInfo = getCountryInfo();
   const countryOptions = countryInfo[country] as CountryInfo;
   const currency =
     companyCurrency ?? countryOptions.currency ?? DEFAULT_CURRENCY;
   const locale = countryOptions.locale ?? DEFAULT_LOCALE;
   const systemSettings = await fyo.doc.getSingle('SystemSettings');
-  systemSettings.setAndUpdate({
+  systemSettings.setAndSync({
     locale,
     currency,
   });
 }
 
-async function createCurrencyRecords() {
+async function createCurrencyRecords(fyo: Fyo) {
   const promises: Promise<Doc | undefined>[] = [];
   const queue: string[] = [];
   const countrySettings = Object.values(getCountryInfo()) as CountryInfo[];
@@ -120,7 +124,7 @@ async function createCurrencyRecords() {
       symbol: currency_symbol ?? '',
     };
 
-    const doc = checkAndCreateDoc('Currency', docObject);
+    const doc = checkAndCreateDoc('Currency', docObject, fyo);
     if (doc) {
       promises.push(doc);
       queue.push(currency);
@@ -132,10 +136,12 @@ async function createCurrencyRecords() {
 async function createAccountRecords(
   bankName: string,
   country: string,
-  chartOfAccounts: string
+  chartOfAccounts: string,
+  fyo: Fyo
 ) {
-  await createCOA(chartOfAccounts);
-  const parentAccount = await getBankAccountParentName(country);
+  const createCOA = new CreateCOA(chartOfAccounts, fyo);
+  await createCOA.run();
+  const parentAccount = await getBankAccountParentName(country, fyo);
   const docObject = {
     name: bankName,
     rootType: 'Asset',
@@ -143,16 +149,16 @@ async function createAccountRecords(
     accountType: 'Bank',
     isGroup: false,
   };
-  await checkAndCreateDoc('Account', docObject);
+  await checkAndCreateDoc('Account', docObject, fyo);
 }
 
-async function completeSetup(companyName: string) {
-  updateInitializationConfig(companyName);
+async function completeSetup(companyName: string, fyo: Fyo) {
+  updateInitializationConfig(companyName, fyo);
   await fyo.singles.AccountingSettings!.set('setupComplete', true);
-  await fyo.singles.AccountingSettings!.update();
+  await fyo.singles.AccountingSettings!.sync();
 }
 
-function updateInitializationConfig(companyName: string) {
+function updateInitializationConfig(companyName: string, fyo: Fyo) {
   const dbPath = fyo.db.dbPath;
   const files = fyo.config.get('files', []) as ConfigFile[];
 
@@ -166,19 +172,24 @@ function updateInitializationConfig(companyName: string) {
   fyo.config.set('files', files);
 }
 
-async function checkAndCreateDoc(schemaName: string, docObject: DocValueMap) {
-  const canCreate = await checkIfExactRecordAbsent(schemaName, docObject);
+async function checkAndCreateDoc(
+  schemaName: string,
+  docObject: DocValueMap,
+  fyo: Fyo
+) {
+  const canCreate = await checkIfExactRecordAbsent(schemaName, docObject, fyo);
   if (!canCreate) {
     return;
   }
 
   const doc = await fyo.doc.getNewDoc(schemaName, docObject);
-  return doc.insert();
+  return doc.sync();
 }
 
 async function checkIfExactRecordAbsent(
   schemaName: string,
-  docMap: DocValueMap
+  docMap: DocValueMap,
+  fyo: Fyo
 ) {
   const name = docMap.name as string;
   const newDocObject = Object.assign({}, docMap);
@@ -207,7 +218,7 @@ async function checkIfExactRecordAbsent(
   return false;
 }
 
-async function getBankAccountParentName(country: string) {
+async function getBankAccountParentName(country: string, fyo: Fyo) {
   const parentBankAccount = await fyo.db.getAllRaw('Account', {
     fields: ['*'],
     filters: { isGroup: true, accountType: 'Bank' },
@@ -228,7 +239,7 @@ async function getBankAccountParentName(country: string) {
   return parentBankAccount[0].name;
 }
 
-async function createDefaultNumberSeries() {
+async function createDefaultNumberSeries(fyo: Fyo) {
   await createNumberSeries('SINV-', 'SalesInvoice', DEFAULT_SERIES_START, fyo);
   await createNumberSeries(
     'PINV-',

@@ -4,7 +4,7 @@ import { DEFAULT_SERIES_START } from 'fyo/utils/consts';
 import { BaseError } from 'fyo/utils/errors';
 import { Field, Schema } from 'schemas/types';
 import { getRandomString } from 'utils';
-import Doc from './doc';
+import { Doc } from './doc';
 
 export function getNumberSeries(schema: Schema): Field | undefined {
   const numberSeries = schema.fields.find(
@@ -119,5 +119,5 @@ export async function createNumberSeries(
     referenceType,
   });
 
-  await series.insert();
+  await series.sync();
 }

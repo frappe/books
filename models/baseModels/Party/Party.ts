@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import {
   Action,
   FiltersMap,
@@ -47,7 +47,7 @@ export class Party extends Doc {
       .reduce((a, b) => a.add(b), this.fyo.pesa(0));
 
     await this.set('outstandingAmount', totalOutstanding);
-    await this.update();
+    await this.sync();
   }
 
   formulas: FormulaMap = {
@@ -111,7 +111,7 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.isNew && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
-          const doc = await fyo.doc.getEmptyDoc('PurchaseInvoice');
+          const doc = await fyo.doc.getNewDoc('PurchaseInvoice');
           router.push({
             path: `/edit/PurchaseInvoice/${doc.name}`,
             query: {
@@ -146,7 +146,7 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
-          const doc = await fyo.doc.getEmptyDoc('SalesInvoice');
+          const doc = await fyo.doc.getNewDoc('SalesInvoice');
           router.push({
             path: `/edit/SalesInvoice/${doc.name}`,
             query: {

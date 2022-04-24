@@ -87,7 +87,7 @@
   </div>
 </template>
 <script>
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import { getErrorMessage, handleErrorWithDialog } from 'src/errorHandling';
@@ -201,14 +201,11 @@ export default {
         if (df.fieldtype === 'Table') {
           return;
         }
-        this.doc.update();
+        this.doc.sync();
       }
     },
-    insertOrUpdate() {
-      return this.doc.insertOrUpdate().catch(this.handleError);
-    },
-    insert() {
-      return this.doc.insert().catch(this.handleError);
+    sync() {
+      return this.doc.sync().catch(this.handleError);
     },
     submit() {
       return this.doc.submit().catch(this.handleError);
@@ -223,7 +220,7 @@ export default {
 
       this.inlineEditField = df;
       if (!this.doc[df.fieldname]) {
-        this.inlineEditDoc = await fyo.doc.getEmptyDoc(df.target);
+        this.inlineEditDoc = await fyo.doc.getNewDoc(df.target);
         this.inlineEditDoc.once('afterInsert', () => {
           this.onChangeCommon(df, this.inlineEditDoc.name);
         });
@@ -239,7 +236,7 @@ export default {
       if (!this.inlineEditDoc) {
         return;
       }
-      await this.$refs.inlineEditForm[0].insertOrUpdate();
+      await this.$refs.inlineEditForm[0].sync();
       await this.doc.loadLinks();
 
       if (this.emitChange && df.inline) {
