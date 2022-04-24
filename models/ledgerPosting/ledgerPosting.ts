@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { ValidationError } from 'fyo/utils/errors';
 import Money from 'pesa/dist/types/src/money';
 import {
@@ -127,7 +127,7 @@ export class LedgerPosting {
         entry.name as string
       );
       entryDoc.reverted = true;
-      await entryDoc.update();
+      await entryDoc.sync();
     }
 
     let temp;
@@ -193,13 +193,13 @@ export class LedgerPosting {
     for (const entry of this.entries) {
       const entryDoc = this.fyo.doc.getNewDoc('AccountingLedgerEntry');
       Object.assign(entryDoc, entry);
-      await entryDoc.insert();
+      await entryDoc.sync();
     }
     for (const entry of this.accountEntries) {
       const entryDoc = await this.fyo.doc.getDoc('Account', entry.name);
       const balance = entryDoc.get('balance') as Money;
       entryDoc.balance = balance.add(entry.balanceChange);
-      await entryDoc.update();
+      await entryDoc.sync();
     }
   }
 

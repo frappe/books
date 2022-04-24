@@ -1,6 +1,6 @@
 import { Fyo } from 'fyo';
 import { DocValue } from 'fyo/core/types';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import {
   Action,
   DependsOnMap,
@@ -68,8 +68,8 @@ export class Item extends Doc {
         label: fyo.t`New Invoice`,
         condition: (doc) => !doc.isNew,
         action: async (doc, router) => {
-          const invoice = await fyo.doc.getEmptyDoc('SalesInvoice');
-          invoice.append('items', {
+          const invoice = await fyo.doc.getNewDoc('SalesInvoice');
+          await invoice.append('items', {
             item: doc.name as string,
             rate: doc.rate as Money,
             tax: doc.tax as string,
@@ -81,8 +81,8 @@ export class Item extends Doc {
         label: fyo.t`New Bill`,
         condition: (doc) => !doc.isNew,
         action: async (doc, router) => {
-          const invoice = await fyo.doc.getEmptyDoc('PurchaseInvoice');
-          invoice.append('items', {
+          const invoice = await fyo.doc.getNewDoc('PurchaseInvoice');
+          await invoice.append('items', {
             item: doc.name as string,
             rate: doc.rate as Money,
             tax: doc.tax as string,

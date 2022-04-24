@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { TelemetrySetting } from 'fyo/telemetry/types';
 import {
   DuplicateEntryError,

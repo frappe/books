@@ -58,14 +58,14 @@ describe('Fyo Docs', function () {
     await fyo.close();
   });
 
-  specify('getEmptyDoc', async function () {
+  specify('getNewDoc', async function () {
     for (const schemaName in schemaMap) {
       const schema = schemaMap[schemaName];
       if (schema?.isSingle) {
         continue;
       }
 
-      const doc = fyo.doc.getEmptyDoc(schemaName);
+      const doc = fyo.doc.getNewDoc(schemaName);
     }
   });
 });

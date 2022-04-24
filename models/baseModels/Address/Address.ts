@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { EmptyMessageMap, FormulaMap, ListsMap } from 'fyo/model/types';
 import { stateCodeMap } from 'regional/in';
 import { titleCase } from 'utils';

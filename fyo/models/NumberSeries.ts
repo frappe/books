@@ -1,4 +1,4 @@
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 
 function getPaddedName(prefix: string, next: number, padZeros: number): string {
   return prefix + next.toString().padStart(padZeros ?? 4, '0');
@@ -21,7 +21,7 @@ export default class NumberSeries extends Doc {
     }
 
     this.current = (this.current as number) + 1;
-    await this.update();
+    await this.sync();
     return this.getPaddedName(this.current as number);
   }
 

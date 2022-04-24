@@ -40,6 +40,7 @@ export async function getSetupWizardDoc() {
   return await fyo.doc.getNewDoc(
     'SetupWizard',
     {},
+    false,
     SetupWizardSchema as Schema,
     SetupWizard
   );

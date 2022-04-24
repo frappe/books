@@ -101,7 +101,7 @@ export default {
     },
     async setupComplete(setupWizardOptions) {
       const filePath = fyo.config.get(ConfigKeys.LastSelectedFilePath);
-      await setupInstance(filePath, setupWizardOptions);
+      await setupInstance(filePath, setupWizardOptions, fyo);
       await this.setDesk();
     },
     async showSetupWizardOrDesk(filePath) {
@@ -113,7 +113,7 @@ export default {
         return;
       }
 
-      await initializeInstance(filePath, false, countryCode);
+      await initializeInstance(filePath, false, countryCode, fyo);
       await this.setDesk();
     },
     async setDeskRoute() {

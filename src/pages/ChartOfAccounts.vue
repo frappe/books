@@ -240,7 +240,7 @@ export default {
       this.insertingAccount = true;
 
       accountName = accountName.trim();
-      let account = await fyo.getEmptyDoc('Account');
+      let account = await fyo.doc.getNewDoc('Account');
       try {
         let { name, rootType, accountType } = parentAccount;
         await account.set({
@@ -250,7 +250,7 @@ export default {
           accountType,
           isGroup,
         });
-        await account.insert();
+        await account.sync();
 
         // turn off editing
         parentAccount.addingAccount = 0;

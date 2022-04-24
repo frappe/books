@@ -78,7 +78,7 @@ export default {
             'dd/MM/yyyy'
           ).toISO();
         payment.set({ clearanceDate });
-        await payment.update();
+        await payment.sync();
       }
       this.close();
       await this.afterReconcile();

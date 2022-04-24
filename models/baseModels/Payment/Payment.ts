@@ -1,7 +1,6 @@
-import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
 import { Fyo } from 'fyo';
 import { DocValue } from 'fyo/core/types';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,
@@ -14,6 +13,7 @@ import {
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { getLedgerLinkAction } from 'models/helpers';
+import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
 import Money from 'pesa/dist/types/src/money';
 import { getIsNullOrUndef } from 'utils';
 import { Party } from '../Party/Party';
@@ -237,7 +237,7 @@ export class Payment extends Doc {
         // update outstanding amounts in invoice and party
         const newOutstanding = outstandingAmount.sub(amount);
         await referenceDoc.set('outstandingAmount', newOutstanding);
-        await referenceDoc.update();
+        await referenceDoc.sync();
         const party = (await this.fyo.doc.getDoc(
           'Party',
           this.party!
@@ -276,7 +276,7 @@ export class Payment extends Doc {
             amount as Money
           ),
         });
-        refDoc.update();
+        refDoc.sync();
       }
     );
   }

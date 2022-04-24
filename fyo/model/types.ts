@@ -4,7 +4,7 @@ import SystemSettings from 'fyo/models/SystemSettings';
 import { FieldType } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 import { Router } from 'vue-router';
-import Doc from './doc';
+import { Doc } from './doc';
 
 /**
  * The functions below are used for dynamic evaluation

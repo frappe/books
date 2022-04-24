@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { Action, ColumnConfig } from 'fyo/model/types';
 import { NotFoundError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
@@ -34,7 +34,7 @@ export function getTransactionActions(schemaName: string, fyo: Fyo): Action[] {
       condition: (doc: Doc) =>
         (doc.submitted as boolean) && (doc.outstandingAmount as Money).gt(0),
       action: async function makePayment(doc: Doc) {
-        const payment = await fyo.doc.getEmptyDoc('Payment');
+        const payment = await fyo.doc.getNewDoc('Payment');
         payment.once('afterInsert', async () => {
           await payment.submit();
         });

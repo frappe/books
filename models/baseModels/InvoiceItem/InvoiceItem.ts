@@ -1,5 +1,5 @@
 import { DocValue } from 'fyo/core/types';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import {
   DependsOnMap,
   FiltersMap,

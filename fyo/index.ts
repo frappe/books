@@ -6,7 +6,7 @@ import { DatabaseHandler } from './core/dbHandler';
 import { DocHandler } from './core/docHandler';
 import { DocValue, FyoConfig } from './core/types';
 import { Config } from './demux/config';
-import Doc from './model/doc';
+import { Doc } from './model/doc';
 import { ModelMap } from './model/types';
 import { TelemetryManager } from './telemetry/telemetry';
 import {
@@ -60,7 +60,7 @@ export class Fyo {
     });
 
     this.telemetry = new TelemetryManager(this);
-    this.config = new Config(this.isElectron);
+    this.config = new Config(this.isElectron && !this.isTest);
   }
 
   get initialized() {

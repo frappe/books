@@ -4,7 +4,7 @@
  */
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
 import { handleErrorWithDialog } from 'src/errorHandling';
@@ -222,7 +222,7 @@ export async function cancelDocWithPrompt(doc: Doc) {
           async action() {
             const entryDoc = await fyo.doc.getDoc(doc.schemaName, doc.name!);
             entryDoc.cancelled = 1;
-            await entryDoc.update();
+            await entryDoc.sync();
             entryDoc
               .revert()
               .then(() => resolve(true))

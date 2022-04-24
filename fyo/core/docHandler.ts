@@ -1,4 +1,4 @@
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { DocMap, ModelMap, SinglesMap } from 'fyo/model/types';
 import { coreModels } from 'fyo/models';
 import Observable from 'fyo/utils/observable';
@@ -143,20 +143,10 @@ export class DocHandler {
     return newDoc;
   }
 
-  getEmptyDoc(schemaName: string, cacheDoc: boolean = true): Doc {
-    const doc = this.getNewDoc(schemaName);
-    doc.name = getRandomString();
-
-    if (cacheDoc) {
-      this.addToCache(doc);
-    }
-
-    return doc;
-  }
-
   getNewDoc(
     schemaName: string,
     data: DocValueMap = {},
+    cacheDoc: boolean = true,
     schema?: Schema,
     Model?: typeof Doc
   ): Doc {
@@ -166,12 +156,17 @@ export class DocHandler {
 
     Model ??= this.models[schemaName];
     schema ??= this.fyo.schemaMap[schemaName];
+
     if (schema === undefined) {
       throw new Error(`Schema not found for ${schemaName}`);
     }
 
     const doc = new Model!(schema, data, this.fyo);
-    doc.setDefaults();
+    doc.name ??= getRandomString();
+    if (cacheDoc) {
+      this.addToCache(doc);
+    }
+
     return doc;
   }
 
@@ -184,12 +179,12 @@ export class DocHandler {
     const docExists = await this.fyo.db.exists(schemaName, name);
     if (!docExists) {
       const doc = this.getNewDoc(schemaName, data);
-      await doc.insert;
+      await doc.sync();
       return;
     }
 
     const doc = await this.getDoc(schemaName, name);
     await doc.setMultiple(data);
-    await doc.update();
+    await doc.sync();
   }
 }

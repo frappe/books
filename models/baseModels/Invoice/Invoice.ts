@@ -1,5 +1,5 @@
 import { DocValue } from 'fyo/core/types';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
 import { getExchangeRate } from 'models/helpers';
 import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';

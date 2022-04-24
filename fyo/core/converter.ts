@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { ValueError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
@@ -267,14 +267,18 @@ function toRawFloat(value: DocValue, field: Field): number {
   throwError(value, field, 'raw');
 }
 
-function toRawDate(value: DocValue, field: Field): string {
+function toRawDate(value: DocValue, field: Field): string | null {
   const dateTime = toRawDateTime(value, field);
+  if (dateTime === null) {
+    return null;
+  }
+
   return dateTime.split('T')[0];
 }
 
-function toRawDateTime(value: DocValue, field: Field): string {
-  if (getIsNullOrUndef(value)) {
-    return '';
+function toRawDateTime(value: DocValue, field: Field): string | null {
+  if (value === null) {
+    return null;
   }
 
   if (typeof value === 'string') {
@@ -304,9 +308,9 @@ function toRawCheck(value: DocValue, field: Field): number {
   throwError(value, field, 'raw');
 }
 
-function toRawString(value: DocValue, field: Field): string {
-  if (getIsNullOrUndef(value)) {
-    return '';
+function toRawString(value: DocValue, field: Field): string | null {
+  if (value === null) {
+    return null;
   }
 
   if (typeof value === 'string') {

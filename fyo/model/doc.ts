@@ -45,7 +45,7 @@ import {
 } from './types';
 import { validateSelect } from './validationFunction';
 
-export default class Doc extends Observable<DocValue | Doc[]> {
+export class Doc extends Observable<DocValue | Doc[]> {
   name?: string;
   schema: Readonly<Schema>;
   fyo: Fyo;
@@ -72,12 +72,14 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     super();
     this.fyo = fyo;
     this.schema = schema;
-    this._setInitialValues(data);
     this.fieldMap = getMapFromList(schema.fields, 'fieldname');
 
     if (this.schema.isSingle) {
       this.name = this.schemaName;
     }
+
+    this._setDefaults();
+    this._setValuesWithoutChecks(data);
   }
 
   get schemaName(): string {
@@ -103,23 +105,17 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     return fieldnames.map((f) => this.fieldMap[f]);
   }
 
-  _setInitialValues(data: DocValueMap) {
-    for (const fieldname in data) {
-      const value = data[fieldname];
+  _setValuesWithoutChecks(data: DocValueMap) {
+    for (const field of this.schema.fields) {
+      const fieldname = field.fieldname;
+      const value = data[field.fieldname];
 
       if (Array.isArray(value)) {
         for (const row of value) {
           this.push(fieldname, row);
         }
       } else {
-        this[fieldname] = value;
-      }
-    }
-
-    // set unset fields as null
-    for (const field of this.schema.fields) {
-      if (this[field.fieldname] === undefined) {
-        this[field.fieldname] = null;
+        this[fieldname] = value ?? null;
       }
     }
   }
@@ -198,7 +194,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     });
   }
 
-  setDefaults() {
+  _setDefaults() {
     for (const field of this.schema.fields) {
       if (!getIsNullOrUndef(this[field.fieldname])) {
         continue;
@@ -224,21 +220,21 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     }
   }
 
-  append(fieldname: string, docValueMap: Doc | DocValueMap = {}) {
+  async append(fieldname: string, docValueMap: Doc | DocValueMap = {}) {
     // push child row and trigger change
     this.push(fieldname, docValueMap);
     this._dirty = true;
-    this._applyChange(fieldname);
+    await this._applyChange(fieldname);
   }
 
   push(fieldname: string, docValueMap: Doc | DocValueMap = {}) {
     // push child row without triggering change
     this[fieldname] ??= [];
-    const childDoc = this._initChild(docValueMap, fieldname);
+    const childDoc = this._getChildDoc(docValueMap, fieldname);
     (this[fieldname] as Doc[]).push(childDoc);
   }
 
-  _initChild(docValueMap: Doc | DocValueMap, fieldname: string): Doc {
+  _getChildDoc(docValueMap: Doc | DocValueMap, fieldname: string): Doc {
     if (docValueMap instanceof Doc) {
       return docValueMap;
     }
@@ -258,14 +254,13 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       data.name = getRandomString();
     }
 
-    const childSchemaName = this.fieldMap[fieldname] as TargetField;
-    const schema = this.fyo.db.schemaMap[childSchemaName.target] as Schema;
+    const targetField = this.fieldMap[fieldname] as TargetField;
+    const schema = this.fyo.db.schemaMap[targetField.target] as Schema;
     const childDoc = new Doc(schema, data as DocValueMap, this.fyo);
-    childDoc.setDefaults();
     return childDoc;
   }
 
-  async validateInsert() {
+  async _validateInsert() {
     this._validateMandatory();
     await this._validateFields();
   }
@@ -373,10 +368,6 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
     if (data && data.name) {
       this.syncValues(data);
-      if (this.schema.isSingle) {
-        this.setDefaults();
-      }
-
       await this.loadLinks();
     } else {
       throw new NotFoundError(`Not Found: ${this.schemaName} ${this.name}`);
@@ -420,7 +411,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
   syncValues(data: DocValueMap) {
     this.clearValues();
-    this._setInitialValues(data);
+    this._setValuesWithoutChecks(data);
     this._dirty = false;
     this.trigger('change', {
       doc: this,
@@ -436,7 +427,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     this._notInserted = true;
   }
 
-  setChildIdx() {
+  _setChildIdx() {
     const childFields = this.schema.fields.filter(
       (f) => f.fieldtype === FieldTypeEnum.Table
     ) as TargetField[];
@@ -450,7 +441,7 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     }
   }
 
-  async compareWithCurrentDoc() {
+  async _compareWithCurrentDoc() {
     if (this.isNew || !this.name) {
       return;
     }
@@ -556,24 +547,24 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       return;
     }
     if (Array.isArray(value) && field.fieldtype === FieldTypeEnum.Table) {
-      value = value.map((row) => this._initChild(row, field.fieldname));
+      value = value.map((row) => this._getChildDoc(row, field.fieldname));
     }
 
     return value;
   }
 
-  async commit() {
+  async _commit() {
     // re-run triggers
-    this.setChildIdx();
+    this._setChildIdx();
     await this._applyFormula();
     await this.trigger('validate', null);
   }
 
-  async insert() {
+  async _insert() {
     await setName(this, this.fyo);
     this._setBaseMetaValues();
-    await this.commit();
-    await this.validateInsert();
+    await this._commit();
+    await this._validateInsert();
     await this.trigger('beforeInsert', null);
 
     const oldName = this.name!;
@@ -591,9 +582,9 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     return this;
   }
 
-  async update() {
-    await this.compareWithCurrentDoc();
-    await this.commit();
+  async _update() {
+    await this._compareWithCurrentDoc();
+    await this._commit();
     await this.trigger('beforeUpdate');
 
     // before submit
@@ -617,11 +608,11 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     return this;
   }
 
-  async insertOrUpdate() {
+  async sync() {
     if (this._notInserted) {
-      return await this.insert();
+      return await this._insert();
     } else {
-      return await this.update();
+      return await this._update();
     }
   }
 
@@ -633,11 +624,11 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     this.fyo.telemetry.log(Verb.Deleted, this.schemaName);
   }
 
-  async submitOrRevert(isSubmit: boolean) {
+  async _submitOrRevert(isSubmit: boolean) {
     const wasSubmitted = this.submitted;
     this.submitted = isSubmit;
     try {
-      await this.update();
+      await this.sync();
     } catch (e) {
       this.submitted = wasSubmitted;
       throw e;
@@ -646,11 +637,11 @@ export default class Doc extends Observable<DocValue | Doc[]> {
 
   async submit() {
     this.cancelled = false;
-    await this.submitOrRevert(true);
+    await this._submitOrRevert(true);
   }
 
   async revert() {
-    await this.submitOrRevert(false);
+    await this._submitOrRevert(false);
   }
 
   async rename(newName: string) {
@@ -701,15 +692,12 @@ export default class Doc extends Observable<DocValue | Doc[]> {
     return this.fyo.doc.getCachedValue(schemaName, name, fieldname);
   }
 
-  async setAndUpdate(
-    fieldname: string | DocValueMap,
-    value?: DocValue | Doc[]
-  ) {
+  async setAndSync(fieldname: string | DocValueMap, value?: DocValue | Doc[]) {
     await this.set(fieldname, value);
-    return await this.update();
+    return await this.sync();
   }
 
-  async duplicate(shouldInsert: boolean = true): Promise<Doc> {
+  async duplicate(shouldSync: boolean = true): Promise<Doc> {
     const updateMap: DocValueMap = {};
     const docValueMap = this.getValidDict();
     const fieldnames = this.schema.fields.map((f) => f.fieldname);
@@ -736,11 +724,11 @@ export default class Doc extends Observable<DocValue | Doc[]> {
       updateMap.name = updateMap.name + ' CPY';
     }
 
-    const doc = this.fyo.doc.getEmptyDoc(this.schemaName, false);
+    const doc = this.fyo.doc.getNewDoc(this.schemaName, {}, false);
     await doc.setMultiple(updateMap);
 
-    if (shouldInsert) {
-      await doc.insert();
+    if (shouldSync) {
+      await doc.sync();
     }
 
     return doc;

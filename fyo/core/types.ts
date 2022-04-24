@@ -1,4 +1,4 @@
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import Money from 'pesa/dist/types/src/money';
 import { RawValue } from 'schemas/types';
 import { AuthDemuxBase } from 'utils/auth/types';

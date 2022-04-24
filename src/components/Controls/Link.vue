@@ -104,7 +104,7 @@ export default {
     },
     async openNewDoc() {
       let doctype = this.df.target;
-      let doc = await fyo.getEmptyDoc(doctype);
+      let doc = await fyo.doc.getNewDoc(doctype);
       let filters = await this.getFilters();
       openQuickEdit({
         doctype,

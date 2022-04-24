@@ -63,7 +63,7 @@ export default {
   methods: {
     async makeNewDoc() {
       const doctype = this.listConfig.doctype;
-      const doc = await fyo.doc.getEmptyDoc(doctype);
+      const doc = await fyo.doc.getNewDoc(doctype);
       if (this.listConfig.filters) {
         doc.set(this.listConfig.filters);
       }

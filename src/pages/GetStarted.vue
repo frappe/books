@@ -308,7 +308,7 @@ export default {
         await this.updateChecks({ onboardingComplete });
         const systemSettings = await fyo.getSingle('SystemSettings');
         await systemSettings.set({ hideGetStarted: 1 });
-        await systemSettings.update();
+        await systemSettings.sync();
       }
 
       return onboardingComplete;
@@ -361,7 +361,7 @@ export default {
     },
     async updateChecks(toUpdate) {
       await fyo.GetStarted.setMultiple(toUpdate);
-      await fyo.GetStarted.update();
+      await fyo.GetStarted.sync();
       fyo.GetStarted = await fyo.getSingle('GetStarted');
     },
     isCompleted(item) {

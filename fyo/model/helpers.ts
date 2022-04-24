@@ -5,7 +5,7 @@ import { isEqual } from 'lodash';
 import Money from 'pesa/dist/types/src/money';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
-import Doc from './doc';
+import { Doc } from './doc';
 
 export function areDocValuesEqual(
   dvOne: DocValue | Doc[],

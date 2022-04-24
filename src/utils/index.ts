@@ -1,10 +1,9 @@
 /**
  * General purpose utils used by the frontend.
  */
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import Money from 'pesa/dist/types/src/money';
-import { fyo } from 'src/initFyo';
 
 export function stringifyCircular(
   obj: unknown,

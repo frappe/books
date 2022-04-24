@@ -1,6 +1,6 @@
 import { Fyo } from 'fyo';
 import { DocValue } from 'fyo/core/types';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { DateTime } from 'luxon';
 import Money from 'pesa/dist/types/src/money';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';

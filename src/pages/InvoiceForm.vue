@@ -293,7 +293,7 @@ export default {
         'items',
         this.doc.items.filter((row) => row.item)
       );
-      return this.doc.insertOrUpdate().catch(this.handleError);
+      return this.doc.sync().catch(this.handleError);
     },
     onSubmitClick() {
       let message =

@@ -1,6 +1,6 @@
 import { Fyo, t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
-import Doc from 'fyo/model/doc';
+import { Doc } from 'fyo/model/doc';
 import { isNameAutoSet } from 'fyo/model/naming';
 import { Noun, Verb } from 'fyo/telemetry/types';
 import {
@@ -389,7 +389,7 @@ export class Importer {
         delete docObj[key];
       }
 
-      const doc: Doc = this.fyo.doc.getEmptyDoc(this.schemaName, false);
+      const doc: Doc = this.fyo.doc.getNewDoc(this.schemaName, {}, false);
       try {
         await this.makeEntry(doc, docObj);
         entriesMade += 1;
@@ -425,7 +425,7 @@ export class Importer {
 
   async makeEntry(doc: Doc, docObj: Map) {
     await doc.setMultiple(docObj as DocValueMap);
-    await doc.insert();
+    await doc.sync();
     if (this.shouldSubmit) {
       await doc.submit();
     }
