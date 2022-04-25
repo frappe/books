@@ -27,3 +27,23 @@ export interface QuickEditOptions {
   showFields?: string[];
   defaults?: Record<string, unknown>;
 }
+
+export type SidebarConfig = SidebarRoot[];
+export interface SidebarRoot {
+  label: string;
+  name: string;
+  route: string;
+  icon: string;
+  iconSize?: string;
+  iconHeight?: string;
+  hidden?: () => boolean;
+  items?: SidebarItem[];
+}
+
+export interface SidebarItem {
+  label: string;
+  name: string;
+  route: string;
+  doctype?: string;
+  hidden?: () => boolean;
+}

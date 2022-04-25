@@ -19,7 +19,8 @@
 </template>
 
 <script>
-import { runWindowAction } from 'src/utils';
+import { runWindowAction } from "src/utils/ipcCalls";
+
 
 export default {
   name: 'WindowControls',
@@ -32,10 +33,12 @@ export default {
   },
   methods: {
     async action(name) {
-      if (this.buttons.includes(name)) {
-        const actionRan = await runWindowAction(name);
-        this.$emit(actionRan);
+      if (!this.buttons.includes(name)) {
+        return;
       }
+
+      const actionRan = await runWindowAction(name);
+      this.$emit(actionRan);
     },
     getColorClasses(name) {
       let classes = {

@@ -4,18 +4,11 @@
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
     <WindowsTitleBar v-if="platform === 'Windows'" />
-    <!--
     <Desk
       class="flex-1"
       v-if="activeScreen === 'Desk'"
       @change-db-file="changeDbFile"
-    />-->
-    <div
-      v-if="activeScreen === 'Desk'"
-      class="h-screen w-screen flex justify-center items-center bg-white"
-    >
-      <h1>Desk</h1>
-    </div>
+    />
 
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
@@ -48,6 +41,7 @@ import TelemetryModal from './components/once/TelemetryModal.vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { fyo, initializeInstance } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector.vue';
+import Desk from './pages/Desk.vue';
 import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
 import setupInstance from './setup/setupInstance';
 import './styles/index.css';
@@ -62,7 +56,7 @@ export default {
     };
   },
   components: {
-    // Desk,
+    Desk,
     SetupWizard,
     DatabaseSelector,
     WindowsTitleBar,

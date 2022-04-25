@@ -7,7 +7,8 @@
   >
     <div class="window-no-drag">
       <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
-      <div class="px-3 flex flex-row items-center">
+      <!-- Company name and DB Switcher -->
+      <div class="px-3 flex flex-row items-center justify-between mb-6">
         <h6
           class="
             text-xl
@@ -15,6 +16,7 @@
             whitespace-nowrap
             overflow-scroll
             no-scrollbar
+            w-32
           "
         >
           {{ companyName }}
@@ -33,57 +35,61 @@
           @click="$emit('change-db-file')"
         />
       </div>
-      <div class="mt-3">
-        <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.title">
+
+      <!-- Sidebar Items -->
+      <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.label">
+        <div
+          class="
+            px-3
+            py-2
+            flex
+            items-center
+            rounded-lg
+            cursor-pointer
+            hover:bg-white
+          "
+          :class="isActiveGroup(group) && !group.items ? 'bg-white' : ''"
+          @click="onGroupClick(group)"
+        >
+          <Icon
+            :name="group.icon"
+            :size="group.iconSize || '18'"
+            :height="group.iconHeight"
+            :active="isActiveGroup(group)"
+          />
           <div
+            class="ml-2 text-lg text-gray-900"
+            :class="isActiveGroup(group) && !group.items && 'text-blue-500'"
+          >
+            {{ group.label }}
+          </div>
+        </div>
+
+        <!-- Expanded Group -->
+        <div v-if="group.items && isActiveGroup(group)">
+          <div
+            v-for="item in group.items"
+            :key="item.label"
             class="
-              px-3
-              py-2
-              flex
-              items-center
-              rounded-lg
+              mt-1
+              first:mt-0
+              text-base text-gray-800
+              py-1
+              pl-10
+              rounded
               cursor-pointer
               hover:bg-white
             "
-            :class="isActiveGroup(group) && !group.items ? 'bg-white' : ''"
-            @click="onGroupClick(group)"
+            :class="itemActiveClass(item)"
+            @click="onItemClick(item)"
           >
-            <Icon
-              :name="group.icon"
-              :size="group.iconSize || '18'"
-              :height="group.iconHeight"
-              :active="isActiveGroup(group)"
-            />
-            <div
-              class="ml-2 text-lg text-gray-900"
-              :class="isActiveGroup(group) && !group.items && 'text-blue-500'"
-            >
-              {{ group.title }}
-            </div>
-          </div>
-          <div v-if="group.items && isActiveGroup(group)">
-            <div
-              v-for="item in group.items"
-              :key="item.label"
-              class="
-                mt-1
-                first:mt-0
-                text-base text-gray-800
-                py-1
-                pl-10
-                rounded
-                cursor-pointer
-                hover:bg-white
-              "
-              :class="itemActiveClass(item)"
-              @click="onItemClick(item)"
-            >
-              {{ item.label }}
-            </div>
+            {{ item.label }}
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Report Issue and App Version -->
     <div class="px-5 window-no-drag">
       <button
         class="pb-1 text-sm text-gray-600 hover:text-gray-800 w-full text-left"
@@ -97,14 +103,14 @@
 </template>
 <script>
 import path from 'path';
-import Button from 'src/components/Button';
+import Button from 'src/components/Button.vue';
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
-import { routeTo } from 'src/utils';
+import { getSidebarConfig } from 'src/utils/sidebarConfig';
+import { routeTo } from 'src/utils/ui';
 import router from '../router';
-import sidebarConfig from '../sidebarConfig';
 import Icon from './Icon.vue';
-import WindowControls from './WindowControls';
+import WindowControls from './WindowControls.vue';
 
 export default {
   components: [Button],
@@ -130,39 +136,9 @@ export default {
     Icon,
   },
   async mounted() {
-    this.companyName = await sidebarConfig.getTitle();
-    let groups = sidebarConfig.getGroups();
-    groups = groups.filter((group) => {
-      if (
-        group.route === '/get-started' &&
-        fyo.singles.SystemSettings.hideGetStarted
-      ) {
-        return false;
-      }
-      return true;
-    });
-
-    // use the hidden property in the routes config to show/hide the elements
-    // filter doens't work with async function so using reduce
-    for (let group of groups) {
-      if (group.items) {
-        group.items = await group.items.reduce(async (acc, item) => {
-          if (item.hidden) {
-            // async methods can also be used in future
-            const hidden = item.hidden();
-            if (hidden) {
-              return acc;
-            } else {
-              return (await acc).concat(item);
-            }
-          }
-
-          return (await acc).concat(item);
-        }, []);
-      }
-    }
-
-    this.groups = groups;
+    const { companyName } = await fyo.doc.getSingle('AccountingSettings');
+    this.companyName = companyName;
+    this.groups = getSidebarConfig();
 
     this.setActiveGroup();
     router.afterEach(() => {
@@ -206,7 +182,7 @@ export default {
       return routeMatch || doctypeMatch ? 'bg-white text-blue-500' : '';
     },
     isActiveGroup(group) {
-      return this.activeGroup && group.title === this.activeGroup.title;
+      return this.activeGroup && group.label === this.activeGroup.label;
     },
     onGroupClick(group) {
       if (group.action) {
