@@ -67,16 +67,17 @@
       "required": true
     },
     {
+      "fieldname": "chartOfAccounts",
+      "label": "Chart of Accounts",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select CoA",
+      "required": true
+    },
+    {
       "fieldname": "completed",
       "label": "Completed",
       "fieldtype": "Check",
       "readOnly": true
-    },
-    {
-      "fieldname": "chartOfAccounts",
-      "label": "Chart of Accounts",
-      "fieldtype": "AutoComplete",
-      "placeholder": "Select CoA"
     }
   ],
   "quickEditFields": [

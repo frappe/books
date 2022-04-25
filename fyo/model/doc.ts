@@ -102,7 +102,16 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   get quickEditFields() {
-    const fieldnames = this.schema.quickEditFields ?? ['name'];
+    let fieldnames = this.schema.quickEditFields;
+
+    if (fieldnames === undefined) {
+      fieldnames = [];
+    }
+
+    if (fieldnames.length === 0 && this.fieldMap['name']) {
+      fieldnames = ['name'];
+    }
+
     return fieldnames.map((f) => this.fieldMap[f]);
   }
 
