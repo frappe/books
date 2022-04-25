@@ -99,7 +99,7 @@ export default {
   emits: ['error', 'change'],
   props: {
     doc: Doc,
-    fields: Array,
+    fields: { type: Array, default: () => [] },
     autosave: Boolean,
     columnRatio: {
       type: Array,
@@ -137,7 +137,10 @@ export default {
     if (this.focusFirstInput) {
       this.$refs['controls'][0].focus();
     }
-    window.tcf = this;
+
+    if (fyo.store.isDevelopment) {
+      window.tcf = this;
+    }
   },
   methods: {
     getRegularValue(df) {
@@ -248,8 +251,18 @@ export default {
   },
   computed: {
     formFields() {
-      return (this.fields || this.doc.quickEditFields).filter(
-        (field) => !evaluateHidden(field, this.doc)
+      let fieldList = this.fields;
+
+      if (fieldList.length === 0) {
+        fieldList = this.doc.quickEditFields;
+      }
+
+      if (fieldList.length === 0) {
+        fieldList = this.doc.schema.fields.filter((f) => f.required);
+      }
+
+      return fieldList.filter(
+        (field) => field && !evaluateHidden(field, this.doc)
       );
     },
     style() {

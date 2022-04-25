@@ -57,7 +57,7 @@
                 @change="(value) => setValue('companyName', value)"
                 :input-class="
                   () => [
-                    'bg-transparent font-semibold text-xl text-white placeholder-blue-200 focus:outline-none focus:bg-blue-600 px-3 rounded py-1',
+                    'bg-transparent font-semibold text-xl text-white placeholder-blue-400 focus:outline-none focus:bg-blue-600 px-3 rounded py-1',
                   ]
                 "
                 :autofocus="true"
@@ -68,7 +68,7 @@
                 @change="(value) => setValue('email', value)"
                 :input-class="
                   () => [
-                    'text-base bg-transparent text-white placeholder-blue-200 focus:bg-blue-600 focus:outline-none rounded px-3 py-1',
+                    'text-base bg-transparent text-white placeholder-blue-400 focus:bg-blue-600 focus:outline-none rounded px-3 py-1',
                   ]
                 "
               />
@@ -163,16 +163,15 @@ export default {
     setValue(fieldname, value) {
       this.emailError = null;
       this.doc.set(fieldname, value).catch((e) => {
-        // set error
         if (fieldname === 'email') {
           this.emailError = getErrorMessage(e, this.doc);
         }
       });
     },
     allValuesFilled() {
-      const values = this.doc.schema.quickEditFields.map(
-        (fieldname) => this.doc[fieldname]
-      );
+      const values = this.doc.schema.fields
+        .filter((f) => f.required)
+        .map((f) => this.doc[f.fieldname]);
       return values.every(Boolean);
     },
     async submit() {
