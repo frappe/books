@@ -8,7 +8,6 @@ export default {
   props: {
     name: {
       type: String,
-      // default: 'middle-finger',
       required: true,
       validator: (value) => validIcons.includes(value),
     },
