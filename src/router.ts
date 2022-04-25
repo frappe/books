@@ -1,6 +1,6 @@
 import { NounEnum, Verb } from 'fyo/telemetry/types';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
-// import GetStarted from 'src/pages/GetStarted.vue';
+import GetStarted from 'src/pages/GetStarted.vue';
 // import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 // import DataImport from 'src/pages/DataImport.vue';
 // import InvoiceForm from 'src/pages/InvoiceForm.vue';
@@ -18,11 +18,11 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     component: Dashboard,
   },
-  /*
   {
     path: '/get-started',
     component: GetStarted,
   },
+  /*
   {
     path: '/edit/JournalEntry/:name',
     name: 'JournalEntryForm',

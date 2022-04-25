@@ -85,12 +85,11 @@
 
 <script>
 import { ipcRenderer } from 'electron';
-import { t } from 'fyo';
 import Button from 'src/components/Button';
 import Icon from 'src/components/Icon';
 import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
-import { openSettings, routeTo } from 'src/utils';
+import { getGetStartedConfig } from 'src/utils/getStartedConfig';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h } from 'vue';
 
@@ -101,159 +100,17 @@ export default {
     Button,
     Icon,
   },
-  computed: {
-    sections() {
-      /* eslint-disable vue/no-side-effects-in-computed-properties */
-      return [
-        {
-          label: t`Organisation`,
-
-          items: [
-            {
-              key: 'Invoice',
-              label: t`Invoice`,
-              icon: 'invoice',
-              description: t`Customize your invoices by adding a logo and address details`,
-              fieldname: 'invoiceSetup',
-              action() {
-                openSettings('Invoice');
-              },
-            },
-            {
-              key: 'General',
-              label: t`General`,
-              icon: 'general',
-              description: t`Setup your company information, email, country and fiscal year`,
-              fieldname: 'companySetup',
-              action() {
-                openSettings('General');
-              },
-            },
-            {
-              key: 'System',
-              label: t`System`,
-              icon: 'system',
-              description: t`Setup system defaults like date format and display precision`,
-              fieldname: 'systemSetup',
-              action() {
-                openSettings('System');
-              },
-            },
-          ],
-        },
-        {
-          label: t`Accounts`,
-
-          items: [
-            {
-              key: 'Review Accounts',
-              label: t`Review Accounts`,
-              icon: 'review-ac',
-              description: t`Review your chart of accounts, add any account or tax heads as needed`,
-              action: () => {
-                routeTo('/chart-of-accounts');
-              },
-              fieldname: 'chartOfAccountsReviewed',
-              documentation:
-                'https://frappebooks.com/docs/setting-up#1-enter-bank-accounts',
-            },
-            {
-              key: 'Opening Balances',
-              label: t`Opening Balances`,
-              icon: 'opening-ac',
-              fieldname: 'openingBalanceChecked',
-              description: t`Setup your opening balances before performing any accounting entries`,
-              documentation:
-                'https://frappebooks.com/docs/setting-up#5-setup-opening-balances',
-            },
-            {
-              key: 'Add Taxes',
-              label: t`Add Taxes`,
-              icon: 'percentage',
-              fieldname: 'taxesAdded',
-              description: t`Setup your tax templates for your sales or purchase transactions`,
-              action: () => routeTo('/list/Tax'),
-              documentation:
-                'https://frappebooks.com/docs/setting-up#2-add-taxes',
-            },
-          ],
-        },
-        {
-          label: t`Sales`,
-
-          items: [
-            {
-              key: 'Add Sales Items',
-              label: t`Add Items`,
-              icon: 'item',
-              description: t`Add products or services that you sell to your customers`,
-              action: () => routeTo('/list/Item'),
-              fieldname: 'itemCreated',
-              documentation:
-                'https://frappebooks.com/docs/setting-up#3-add-items',
-            },
-            {
-              key: 'Add Customers',
-              label: t`Add Customers`,
-              icon: 'customer',
-              description: t`Add a few customers to create your first invoice`,
-              action: () => routeTo('/list/Customer'),
-              fieldname: 'customerCreated',
-              documentation:
-                'https://frappebooks.com/docs/setting-up#4-add-customers',
-            },
-            {
-              key: 'Create Invoice',
-              label: t`Create Invoice`,
-              icon: 'sales-invoice',
-              description: t`Create your first invoice and mail it to your customer`,
-              action: () => routeTo('/list/SalesInvoice'),
-              fieldname: 'invoiceCreated',
-              documentation: 'https://frappebooks.com/docs/invoices',
-            },
-          ],
-        },
-        {
-          label: t`Purchase`,
-
-          items: [
-            {
-              key: 'Add Purchase Items',
-              label: t`Add Items`,
-              icon: 'item',
-              description: t`Add products or services that you buy from your suppliers`,
-              action: () => routeTo('/list/Item'),
-              fieldname: 'itemCreated',
-            },
-            {
-              key: 'Add Suppliers',
-              label: t`Add Suppliers`,
-              icon: 'supplier',
-              description: t`Add a few suppliers to create your first bill`,
-              action: () => routeTo('/list/Supplier'),
-              fieldname: 'supplierCreated',
-            },
-            {
-              key: 'Create Bill',
-              label: t`Create Bill`,
-              icon: 'purchase-invoice',
-              description: t`Create your first bill and mail it to your supplier`,
-              action: () => routeTo('/list/PurchaseInvoice'),
-              fieldname: 'billCreated',
-              documentation: 'https://frappebooks.com/docs/bills',
-            },
-          ],
-        },
-      ];
-    },
-  },
   data() {
     return {
       activeCard: null,
+      sections: [],
     };
   },
+  mounted() {
+    this.sections = getGetStartedConfig();
+  },
   async activated() {
-    fyo.GetStarted = await fyo.getSingle('GetStarted');
+    await fyo.doc.getSingle('GetStarted');
     this.checkForCompletedTasks();
   },
   methods: {
@@ -293,20 +150,19 @@ export default {
       }
     },
     async checkIsOnboardingComplete() {
-      if (fyo.GetStarted.onboardingComplete) {
+      if (fyo.singles.GetStarted.onboardingComplete) {
         return true;
       }
 
-      const meta = await fyo.getMeta('GetStarted');
-      const doc = await fyo.getSingle('GetStarted');
-      const onboardingComplete = !!meta.fields
+      const doc = await fyo.doc.getSingle('GetStarted');
+      const onboardingComplete = fyo.schemaMap.GetStarted.fields
         .filter(({ fieldname }) => fieldname !== 'onboardingComplete')
         .map(({ fieldname }) => doc.get(fieldname))
         .every(Boolean);
 
       if (onboardingComplete) {
         await this.updateChecks({ onboardingComplete });
-        const systemSettings = await fyo.getSingle('SystemSettings');
+        const systemSettings = await fyo.doc.getSingle('SystemSettings');
         await systemSettings.set({ hideGetStarted: 1 });
         await systemSettings.sync();
       }
@@ -319,21 +175,21 @@ export default {
         return;
       }
 
-      if (!fyo.GetStarted.itemCreated) {
+      if (!fyo.singles.GetStarted.itemCreated) {
         const count = await fyo.db.count('Item');
         if (count > 0) {
           toUpdate.itemCreated = 1;
         }
       }
 
-      if (!fyo.GetStarted.invoiceCreated) {
+      if (!fyo.singles.GetStarted.invoiceCreated) {
         const count = await fyo.db.count('SalesInvoice');
         if (count > 0) {
           toUpdate.invoiceCreated = 1;
         }
       }
 
-      if (!fyo.GetStarted.customerCreated) {
+      if (!fyo.singles.GetStarted.customerCreated) {
         const count = fyo.db.count('Party', {
           filters: { role: 'Customer' },
         });
@@ -342,14 +198,14 @@ export default {
         }
       }
 
-      if (!fyo.GetStarted.billCreated) {
+      if (!fyo.singles.GetStarted.billCreated) {
         const count = await fyo.db.count('SalesInvoice');
         if (count > 0) {
           toUpdate.billCreated = 1;
         }
       }
 
-      if (!fyo.GetStarted.supplierCreated) {
+      if (!fyo.singles.GetStarted.supplierCreated) {
         const count = fyo.db.count('Party', {
           filters: { role: 'Supplier' },
         });
@@ -360,15 +216,15 @@ export default {
       await this.updateChecks(toUpdate);
     },
     async updateChecks(toUpdate) {
-      await fyo.GetStarted.setMultiple(toUpdate);
-      await fyo.GetStarted.sync();
-      fyo.GetStarted = await fyo.getSingle('GetStarted');
+      await fyo.singles.GetStarted.setMultiple(toUpdate);
+      await fyo.singles.GetStarted.sync();
+      fyo.singles.GetStarted = await fyo.doc.getSingle('GetStarted');
     },
     isCompleted(item) {
-      return fyo.GetStarted.get(item.fieldname) || 0;
+      return fyo.singles.GetStarted.get(item.fieldname) || 0;
     },
     getIconComponent(item) {
-      let completed = fyo.GetStarted[item.fieldname] || 0;
+      let completed = fyo.singles.GetStarted[item.fieldname] || 0;
       let name = completed ? 'green-check' : item.icon;
       let size = completed ? '24' : '18';
       return {
