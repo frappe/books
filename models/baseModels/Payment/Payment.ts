@@ -281,7 +281,7 @@ export class Payment extends Doc {
     );
   }
 
-  defaults: DefaultMap = { date: () => new Date().toISOString() };
+  static defaults: DefaultMap = { date: () => new Date().toISOString() };
 
   formulas: FormulaMap = {
     account: async () => {

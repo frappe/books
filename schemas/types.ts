@@ -14,7 +14,6 @@ export enum FieldTypeEnum {
   Currency = 'Currency',
   Text = 'Text',
   Color = 'Color',
-  Code = 'Code',
 }
 
 export type FieldType = keyof typeof FieldTypeEnum;

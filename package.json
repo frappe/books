@@ -16,7 +16,7 @@
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "script:translate": "ts-node -O '{\"module\":\"commonjs\"}' scripts/generateTranslations.ts",
-    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha --reporter nyan --require ts-node/register --require tsconfig-paths/register ./**/tests/**/*.spec.ts"
+    "test": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' mocha --reporter nyan --require ts-node/register --require tsconfig-paths/register ./**/tests/**/*.spec.ts --exit"
   },
   "dependencies": {
     "@popperjs/core": "^2.10.2",
@@ -52,6 +52,7 @@
     "@vue/eslint-config-typescript": "^7.0.0",
     "autoprefixer": "^9",
     "babel-loader": "^8.2.3",
+    "dotenv": "^16.0.0",
     "electron": "^15.3.5",
     "electron-devtools-installer": "^3.2.0",
     "electron-notarize": "^1.1.1",

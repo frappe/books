@@ -6,7 +6,7 @@
   "isSubmittable": false,
   "fields": [
     {
-      "fieldname": "companyLogo",
+      "fieldname": "logo",
       "label": "Company Logo",
       "fieldtype": "AttachImage"
     },

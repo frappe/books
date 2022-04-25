@@ -4,7 +4,7 @@ import { isPesa } from 'fyo/utils';
 import { ValueError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
 import Money from 'pesa/dist/types/src/money';
-import { Field, FieldTypeEnum, RawValue } from 'schemas/types';
+import { Field, FieldTypeEnum, RawValue, TargetField } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import { DatabaseHandler } from './dbHandler';
 import { DocValue, DocValueMap, RawValueMap } from './types';
@@ -70,7 +70,7 @@ export class Converter {
       case FieldTypeEnum.Check:
         return toDocCheck(value, field);
       default:
-        return String(value);
+        return toDocString(value, field);
     }
   }
 
@@ -102,8 +102,9 @@ export class Converter {
       const rawValue = rawValueMap[fieldname];
 
       if (Array.isArray(rawValue)) {
+        const parentSchemaName = (field as TargetField).target;
         docValueMap[fieldname] = rawValue.map((rv) =>
-          this.#toDocValueMap(schemaName, rv)
+          this.#toDocValueMap(parentSchemaName, rv)
         );
       } else {
         docValueMap[fieldname] = Converter.toDocValue(
@@ -126,12 +127,14 @@ export class Converter {
       const docValue = docValueMap[fieldname];
 
       if (Array.isArray(docValue)) {
+        const parentSchemaName = (field as TargetField).target;
+
         rawValueMap[fieldname] = docValue.map((value) => {
           if (value instanceof Doc) {
-            return this.#toRawValueMap(schemaName, value.getValidDict());
+            return this.#toRawValueMap(parentSchemaName, value.getValidDict());
           }
 
-          return this.#toRawValueMap(schemaName, value as DocValueMap);
+          return this.#toRawValueMap(parentSchemaName, value as DocValueMap);
         });
       } else {
         rawValueMap[fieldname] = Converter.toRawValue(
@@ -144,6 +147,18 @@ export class Converter {
 
     return rawValueMap;
   }
+}
+
+function toDocString(value: RawValue, field: Field) {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (value === null) {
+    return value;
+  }
+
+  throwError(value, field, 'doc');
 }
 
 function toDocDate(value: RawValue, field: Field) {
