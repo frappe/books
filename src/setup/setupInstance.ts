@@ -70,15 +70,15 @@ async function updateAccountingSettings(
 }
 
 async function updatePrintSettings(
-  { companyLogo, companyName, email }: SetupWizardOptions,
+  { logo, companyName, email }: SetupWizardOptions,
   fyo: Fyo
 ) {
   const printSettings = await fyo.doc.getSingle('PrintSettings');
   await printSettings.setAndSync({
-    logo: companyLogo,
+    logo,
     companyName,
     email,
-    displayLogo: companyLogo ? true : false,
+    displayLogo: logo ? true : false,
   });
 }
 
@@ -91,10 +91,13 @@ async function updateSystemSettings(
   const currency =
     companyCurrency ?? countryOptions.currency ?? DEFAULT_CURRENCY;
   const locale = countryOptions.locale ?? DEFAULT_LOCALE;
+  const countryCode = getCountryCodeFromCountry(country);
   const systemSettings = await fyo.doc.getSingle('SystemSettings');
+
   systemSettings.setAndSync({
     locale,
     currency,
+    countryCode,
   });
 }
 
@@ -154,8 +157,7 @@ async function createAccountRecords(
 
 async function completeSetup(companyName: string, fyo: Fyo) {
   updateInitializationConfig(companyName, fyo);
-  await fyo.singles.AccountingSettings!.set('setupComplete', true);
-  await fyo.singles.AccountingSettings!.sync();
+  await fyo.singles.AccountingSettings!.setAndSync('setupComplete', true);
 }
 
 function updateInitializationConfig(companyName: string, fyo: Fyo) {

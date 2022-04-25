@@ -3,7 +3,7 @@ import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Verb } from 'fyo/telemetry/types';
 import { DEFAULT_USER } from 'fyo/utils/consts';
 import {
-  Conflict,
+  ConflictError,
   MandatoryError,
   NotFoundError,
   ValidationError,
@@ -57,7 +57,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
    */
   idx?: number;
   parentdoc?: Doc;
-  parentfield?: string;
+  parentFieldname?: string;
+  parentSchemaName?: string;
 
   _links?: Record<string, Doc>;
   _dirty: boolean = true;
@@ -115,7 +116,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
           this.push(fieldname, row);
         }
       } else {
-        this[fieldname] = value ?? null;
+        this[fieldname] = value ?? this[fieldname] ?? null;
       }
     }
   }
@@ -153,7 +154,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     // always run applyChange from the parentdoc
     if (this.schema.isChild && this.parentdoc) {
       await this._applyChange(fieldname);
-      await this.parentdoc._applyChange(this.parentfield as string);
+      await this.parentdoc._applyChange(this.parentFieldname as string);
     } else {
       await this._applyChange(fieldname);
     }
@@ -196,23 +197,20 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   _setDefaults() {
     for (const field of this.schema.fields) {
-      if (!getIsNullOrUndef(this[field.fieldname])) {
-        continue;
-      }
-
       let defaultValue: DocValue | Doc[] = getPreDefaultValues(
         field.fieldtype,
         this.fyo
       );
-      const defaultFunction = this.defaults[field.fieldname];
 
+      const defaultFunction =
+        this.fyo.models[this.schemaName]?.defaults?.[field.fieldname];
       if (defaultFunction !== undefined) {
         defaultValue = defaultFunction();
       } else if (field.default !== undefined) {
         defaultValue = field.default;
       }
 
-      if (field.fieldtype === 'Currency' && !isPesa(defaultValue)) {
+      if (field.fieldtype === FieldTypeEnum.Currency && !isPesa(defaultValue)) {
         defaultValue = this.fyo.pesa!(defaultValue as string | number);
       }
 
@@ -242,8 +240,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
     const data: Record<string, unknown> = Object.assign({}, docValueMap);
 
     data.parent = this.name;
-    data.parenttype = this.schemaName;
-    data.parentfield = fieldname;
+    data.parentSchemaName = this.schemaName;
+    data.parentFieldname = fieldname;
     data.parentdoc = this;
 
     if (!data.idx) {
@@ -329,6 +327,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
         value = (value as Money).copy();
       }
 
+      if (value === null && this.schema.isSingle) {
+        continue;
+      }
+
       data[field.fieldname] = value;
     }
     return data;
@@ -348,10 +350,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
       this.created = new Date();
     }
 
-    this._updateModified();
+    this._updateModifiedMetaValues();
   }
 
-  _updateModified() {
+  _updateModifiedMetaValues() {
     this.modifiedBy = this.fyo.auth.session.user || DEFAULT_USER;
     this.modified = new Date();
   }
@@ -442,20 +444,19 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _compareWithCurrentDoc() {
-    if (this.isNew || !this.name) {
+    if (this.isNew || !this.name || this.schema.isSingle) {
       return;
     }
 
-    const currentDoc = await this.fyo.db.get(this.schemaName, this.name);
+    const dbValues = await this.fyo.db.get(this.schemaName, this.name);
+    const docModified = this.modified as Date;
+    const dbModified = dbValues.modified as Date;
 
-    // check for conflict
-    if (
-      currentDoc &&
-      (this.modified as Date) !== (currentDoc.modified as Date)
-    ) {
-      throw new Conflict(
+    if (dbValues && docModified !== dbModified) {
+      throw new ConflictError(
         this.fyo
-          .t`Document ${this.schemaName} ${this.name} has been modified after loading`
+          .t`Document ${this.schemaName} ${this.name} has been modified after loading` +
+          `${docModified?.toISOString()}, ${dbModified?.toISOString()}`
       );
     }
 
@@ -466,11 +467,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     // set submit action flag
-    if (this.submitted && !currentDoc.submitted) {
+    if (this.submitted && !dbValues.submitted) {
       this.flags.submitAction = true;
     }
 
-    if (currentDoc.submitted && !this.submitted) {
+    if (dbValues.submitted && !this.submitted) {
       this.flags.revertAction = true;
     }
   }
@@ -568,15 +569,16 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await this.trigger('beforeInsert', null);
 
     const oldName = this.name!;
-    const data = await this.fyo.db.insert(this.schemaName, this.getValidDict());
+    const validDict = this.getValidDict();
+    const data = await this.fyo.db.insert(this.schemaName, validDict);
     this.syncValues(data);
+    this._notInserted = false;
 
     if (oldName !== this.name) {
       this.fyo.doc.removeFromCache(this.schemaName, oldName);
     }
 
     await this.trigger('afterInsert', null);
-    await this.trigger('afterSave', null);
 
     this.fyo.telemetry.log(Verb.Created, this.schemaName);
     return this;
@@ -592,14 +594,13 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (this.flags.revertAction) await this.trigger('beforeRevert');
 
     // update modifiedBy and modified
-    this._updateModified();
+    this._updateModifiedMetaValues();
 
     const data = this.getValidDict();
     await this.fyo.db.update(this.schemaName, data);
     this.syncValues(data);
 
     await this.trigger('afterUpdate');
-    await this.trigger('afterSave');
 
     // after submit
     if (this.flags.submitAction) await this.trigger('afterSubmit');
@@ -609,11 +610,15 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async sync() {
+    await this.trigger('beforeSync');
+    let doc;
     if (this._notInserted) {
-      return await this._insert();
+      doc = await this._insert();
     } else {
-      return await this._update();
+      doc = await this._update();
     }
+    await this.trigger('afterSync');
+    return doc;
   }
 
   async delete() {
@@ -738,14 +743,14 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async afterInsert() {}
   async beforeUpdate() {}
   async afterUpdate() {}
-  async afterSave() {}
+  async beforeSync() {}
+  async afterSync() {}
   async beforeDelete() {}
   async afterDelete() {}
   async beforeRevert() {}
   async afterRevert() {}
 
   formulas: FormulaMap = {};
-  defaults: DefaultMap = {};
   validations: ValidationMap = {};
   required: RequiredMap = {};
   hidden: HiddenMap = {};
@@ -755,6 +760,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   static lists: ListsMap = {};
   static filters: FiltersMap = {};
+  static defaults: DefaultMap = {};
   static emptyMessages: EmptyMessageMap = {};
 
   static getListViewSettings(fyo: Fyo): ListViewSettings {

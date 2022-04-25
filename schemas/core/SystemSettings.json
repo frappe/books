@@ -78,6 +78,7 @@
       "fieldname": "countryCode",
       "label": "Country Code",
       "fieldtype": "Data",
+      "default": "in",
       "description": "Country code used to initialize regional settings."
     },
     {

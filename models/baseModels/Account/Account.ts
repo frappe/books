@@ -1,6 +1,7 @@
 import { Fyo } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import {
+  DefaultMap,
   FiltersMap,
   ListViewSettings,
   TreeViewSettings,
@@ -12,6 +13,16 @@ export class Account extends Doc {
   rootType?: AccountRootType;
   accountType?: AccountType;
   parentAccount?: string;
+
+  static defaults: DefaultMap = {
+    /**
+     * NestedSet indices are actually not used
+     * this needs updation as they may be required
+     * later on.
+     */
+    lft: () => 0,
+    rgt: () => 0,
+  };
 
   async beforeInsert() {
     if (this.accountType || !this.parentAccount) {

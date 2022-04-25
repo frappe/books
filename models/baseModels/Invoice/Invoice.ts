@@ -188,7 +188,7 @@ export abstract class Invoice extends Doc {
     },
   };
 
-  defaults: DefaultMap = {
+  static defaults: DefaultMap = {
     date: () => new Date().toISOString().slice(0, 10),
   };
 

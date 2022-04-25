@@ -198,9 +198,9 @@ export async function assertDoesNotThrow(
     await func();
   } catch (err) {
     throw new assert.AssertionError({
-      message: `Missing expected exception: ${message} Error: ${
+      message: `Got unwanted exception: ${message}\nError: ${
         (err as Error).message
-      }`,
+      }\n${(err as Error).stack}`,
     });
   }
 }

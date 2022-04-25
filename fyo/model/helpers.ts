@@ -56,11 +56,11 @@ export function getMissingMandatoryMessage(doc: Doc) {
 
       return isNullOrUndef || value === '';
     })
-    .map((f) => f.label)
+    .map((f) => f.label ?? f.fieldname)
     .join(', ');
 
-  if (message && doc.schema.isChild && doc.parentdoc && doc.parentfield) {
-    const parentfield = doc.parentdoc.fieldMap[doc.parentfield];
+  if (message && doc.schema.isChild && doc.parentdoc && doc.parentFieldname) {
+    const parentfield = doc.parentdoc.fieldMap[doc.parentFieldname];
     return `${parentfield.label} Row ${(doc.idx ?? 0) + 1}: ${message}`;
   }
 
@@ -75,11 +75,7 @@ function getMandatory(doc: Doc): Field[] {
     }
 
     const requiredFunction = doc.required[field.fieldname];
-    if (typeof requiredFunction !== 'function') {
-      continue;
-    }
-
-    if (requiredFunction()) {
+    if (requiredFunction?.()) {
       mandatoryFields.push(field);
     }
   }

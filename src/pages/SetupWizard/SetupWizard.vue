@@ -45,9 +45,9 @@
         <div v-if="doc">
           <div class="flex items-center px-6 py-5 mb-8 bg-brand rounded-xl">
             <FormControl
-              :df="getField('companyLogo')"
-              :value="doc.companyLogo"
-              @change="(value) => setValue('companyLogo', value)"
+              :df="getField('logo')"
+              :value="doc.logo"
+              @change="(value) => setValue('logo', value)"
             />
             <div class="ml-2">
               <FormControl

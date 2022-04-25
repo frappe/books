@@ -67,5 +67,5 @@ export class CannotCommitError extends DatabaseError {
 }
 
 export class ValueError extends ValidationError {}
-export class Conflict extends ValidationError {}
+export class ConflictError extends ValidationError {}
 export class InvalidFieldError extends ValidationError {}

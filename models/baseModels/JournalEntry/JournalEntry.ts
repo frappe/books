@@ -48,7 +48,7 @@ export class JournalEntry extends Doc {
     await this.getPosting().postReverse();
   }
 
-  defaults: DefaultMap = {
+  static defaults: DefaultMap = {
     date: () => DateTime.local().toISODate(),
   };
 
