@@ -19,8 +19,17 @@ export function getSchemas(countryCode: string = '-'): Readonly<SchemaMap> {
   let schemaMap = Object.assign({}, builtAppSchemas, builtCoreSchemas);
   schemaMap = addMetaFields(schemaMap);
   schemaMap = removeFields(schemaMap);
+  schemaMap = setSchemaNameOnFields(schemaMap);
 
   deepFreeze(schemaMap);
+  return schemaMap;
+}
+
+export function setSchemaNameOnFields(schemaMap: SchemaMap): SchemaMap {
+  for (const schemaName in schemaMap) {
+    const schema = schemaMap[schemaName]!;
+    schema.fields = schema.fields.map((f) => ({ ...f, schemaName }));
+  }
   return schemaMap;
 }
 
@@ -96,7 +105,14 @@ export function addMetaFields(schemaMap: SchemaMap): SchemaMap {
   }
 
   addNameField(schemaMap);
+  addTitleField(schemaMap);
   return schemaMap;
+}
+
+function addTitleField(schemaMap: SchemaMap) {
+  for (const schemaName in schemaMap) {
+    schemaMap[schemaName]!.titleField ??= 'name';
+  }
 }
 
 function addNameField(schemaMap: SchemaMap) {

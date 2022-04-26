@@ -166,7 +166,7 @@ export default {
       await this.fetchDoc();
 
       // setup the title field
-      if (this.doc && this.doc.isNew() && this.doc[this.titleField.fieldname]) {
+      if (this.doc && this.doc.notInserted && this.doc[this.titleField.fieldname]) {
         if (!this.titleField.readOnly) {
           this.doc.set(this.titleField.fieldname, '');
           setTimeout(() => {
@@ -195,10 +195,10 @@ export default {
             name: this.doc.name,
           });
         });
-        this.doc.on('beforeUpdate', () => {
+        this.doc.on('beforeSync', () => {
           this.statusText = t`Saving...`;
         });
-        this.doc.on('afterUpdate', () => {
+        this.doc.on('afterSync', () => {
           setTimeout(() => {
             this.statusText = null;
           }, 500);

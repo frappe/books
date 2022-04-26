@@ -33,7 +33,6 @@
       "fieldname": "baseRate",
       "label": "Rate (Company Currency)",
       "fieldtype": "Currency",
-      "computed": true,
       "readOnly": true
     },
     {
@@ -54,14 +53,12 @@
       "fieldname": "amount",
       "label": "Amount",
       "fieldtype": "Currency",
-      "computed": true,
       "readOnly": true
     },
     {
       "fieldname": "baseAmount",
       "label": "Amount (Company Currency)",
       "fieldtype": "Currency",
-      "computed": true,
       "readOnly": true
     },
     {

@@ -32,9 +32,9 @@
   </Row>
 </template>
 <script>
-import Row from 'src/components/Row';
-import { getErrorMessage } from '../../errorHandling';
-import FormControl from './FormControl';
+import Row from 'src/components/Row.vue';
+import { getErrorMessage } from 'src/utils';
+import FormControl from './FormControl.vue';
 
 export default {
   name: 'TableRow',
@@ -42,6 +42,7 @@ export default {
   emits: ['remove'],
   components: {
     Row,
+    FormControl,
   },
   data: () => ({ hovering: false, errors: {} }),
   beforeCreate() {

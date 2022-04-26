@@ -75,7 +75,7 @@ export default class DatabaseCore extends DatabaseBase {
     const db = new DatabaseCore(dbPath);
     db.connect();
 
-    let query: { countryCode: string }[] = [];
+    let query: { value: string }[] = [];
     try {
       query = await db.knex!('SingleValue').where({
         fieldname: 'countryCode',
@@ -86,7 +86,7 @@ export default class DatabaseCore extends DatabaseBase {
     }
 
     if (query.length > 0) {
-      countryCode = query[0].countryCode as string;
+      countryCode = query[0].value as string;
     }
 
     await db.close();

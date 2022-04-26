@@ -1,6 +1,11 @@
-import { Fyo } from 'fyo';
+import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import { EmptyMessageMap, FormulaMap, ListsMap } from 'fyo/model/types';
+import {
+  DependsOnMap,
+  EmptyMessageMap,
+  FormulaMap,
+  ListsMap,
+} from 'fyo/model/types';
 import { stateCodeMap } from 'regional/in';
 import { titleCase } from 'utils';
 import { getCountryInfo } from 'utils/misc';
@@ -21,6 +26,17 @@ export class Address extends Doc {
     },
   };
 
+  dependsOn: DependsOnMap = {
+    addressDisplay: [
+      'addressLine1',
+      'addressLine2',
+      'city',
+      'state',
+      'country',
+      'postalCode',
+    ],
+  };
+
   static lists: ListsMap = {
     state(doc?: Doc) {
       const country = doc?.country as string | undefined;
@@ -37,12 +53,12 @@ export class Address extends Doc {
   };
 
   static emptyMessages: EmptyMessageMap = {
-    state: (doc: Doc, fyo: Fyo) => {
+    state: (doc: Doc) => {
       if (doc.country) {
-        return fyo.t`Enter State`;
+        return t`Enter State`;
       }
 
-      return fyo.t`Enter Country to load States`;
+      return t`Enter Country to load States`;
     },
   };
 }

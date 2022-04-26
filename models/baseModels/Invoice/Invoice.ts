@@ -43,12 +43,7 @@ export abstract class Invoice extends Doc {
     return [];
   }
 
-  async beforeUpdate() {
-    const entries = await this.getPosting();
-    await entries.validateEntries();
-  }
-
-  async beforeInsert() {
+  async beforeSync() {
     const entries = await this.getPosting();
     await entries.validateEntries();
   }

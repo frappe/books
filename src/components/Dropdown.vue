@@ -74,6 +74,7 @@
 
 <script>
 import uniq from 'lodash/uniq';
+import { fyo } from 'src/initFyo';
 import Popover from './Popover.vue';
 
 export default {
@@ -166,13 +167,20 @@ export default {
   },
   methods: {
     getEmptyMessage() {
-      const { emptyMessage } = this.df ?? {};
-      if (typeof emptyMessage === 'function') {
-        return emptyMessage(this.doc);
-      } else if (emptyMessage) {
-        return emptyMessage;
+      if (this.df === null) {
+        return this.t`Empty`;
       }
-      return this.t`Empty`;
+
+      const { schemaName, fieldname } = this.df;
+      const emptyMessage = fyo.models[schemaName]?.emptyMessages[fieldname]?.(
+        this.doc
+      );
+
+      if (emptyMessage === undefined || emptyMessage.length === 0) {
+        return this.t`Empty`;
+      }
+
+      return emptyMessage;
     },
     selectItem(d) {
       if (d.action) {

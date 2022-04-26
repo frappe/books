@@ -83,9 +83,9 @@ export default {
       this.isLoading = false;
     },
     async getSuggestions(keyword = '') {
-      keyword = keyword.toLowerCase();
       const options = getOptionList(this.df, this.doc);
 
+      keyword = keyword.toLowerCase();
       if (!keyword) {
         return options;
       }

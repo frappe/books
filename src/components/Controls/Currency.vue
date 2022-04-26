@@ -29,7 +29,7 @@
 
 <script>
 import { fyo } from 'src/initFyo';
-import Float from './Float';
+import Float from './Float.vue';
 
 export default {
   name: 'Currency',

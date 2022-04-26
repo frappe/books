@@ -6,8 +6,7 @@
         :value="doc.logo"
         @change="
           (value) => {
-            doc.set('logo', value);
-            doc.sync();
+            doc.setAndSync('logo', value);
             forwardChangeEvent(getField('logo'));
           }
         "
@@ -26,8 +25,7 @@
           :show-label="true"
           @change="
             (value) => {
-              doc.set('displayLogo', value);
-              doc.sync();
+              doc.setAndSync('displayLogo', value);
               forwardChangeEvent(getField('displayLogo'));
             }
           "
@@ -47,10 +45,10 @@
 </template>
 <script>
 import { ipcRenderer } from 'electron';
-import FormControl from 'src/components/Controls/FormControl.vue';
-import TwoColumnForm from 'src/components/TwoColumnForm';
+import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { IPC_ACTIONS } from 'utils/messages';
+import FormControl from '../../components/Controls/FormControl.vue';
 
 export default {
   name: 'TabInvoice',

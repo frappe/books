@@ -24,7 +24,7 @@ export class Account extends Doc {
     rgt: () => 0,
   };
 
-  async beforeInsert() {
+  async beforeSync() {
     if (this.accountType || !this.parentAccount) {
       return;
     }

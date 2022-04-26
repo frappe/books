@@ -1,4 +1,3 @@
-import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import SystemSettings from 'fyo/models/SystemSettings';
 import { FieldType } from 'schemas/types';
@@ -50,10 +49,10 @@ export interface SinglesMap {
 
 // Static Config properties
 
-export type FilterFunction = (doc: Doc) => QueryFilter;
+export type FilterFunction = (doc: Doc) => QueryFilter | Promise<QueryFilter>;
 export type FiltersMap = Record<string, FilterFunction>;
 
-export type EmptyMessageFunction = (doc: Doc, fyo: Fyo) => string;
+export type EmptyMessageFunction = (doc: Doc) => string;
 export type EmptyMessageMap = Record<string, EmptyMessageFunction>;
 
 export type ListFunction = (doc?: Doc) => string[];

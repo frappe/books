@@ -1,5 +1,5 @@
 <script>
-import Int from './Int';
+import Int from './Int.vue';
 
 export default {
   name: 'Float',
@@ -11,7 +11,7 @@ export default {
   },
   methods: {
     parse(value) {
-      let parsedValue = parseFloat(value);
+      const parsedValue = parseFloat(value);
       return isNaN(parsedValue) ? 0 : parsedValue;
     },
   },

@@ -3,15 +3,11 @@ import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { TelemetrySetting } from 'fyo/telemetry/types';
-import {
-  DuplicateEntryError,
-  LinkValidationError,
-  MandatoryError,
-  ValidationError,
-} from 'fyo/utils/errors';
+import { MandatoryError, ValidationError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
+import { getErrorMessage } from './utils';
 import { ToastOptions } from './utils/types';
 import { showMessageDialog, showToast } from './utils/ui';
 
@@ -104,22 +100,6 @@ export function handleError(
   } else {
     showToast(getToastProps(errorLogObj, canLog, cb));
   }
-}
-
-export function getErrorMessage(e: Error, doc?: Doc): string {
-  let errorMessage = e.message || t`An error occurred.`;
-
-  const { schemaName, name }: { schemaName?: string; name?: string } =
-    doc ?? {};
-  const canElaborate = !!(schemaName && name);
-
-  if (e instanceof LinkValidationError && canElaborate) {
-    errorMessage = t`${schemaName} ${name} is linked with existing records.`;
-  } else if (e instanceof DuplicateEntryError && canElaborate) {
-    errorMessage = t`${schemaName} ${name} already exists.`;
-  }
-
-  return errorMessage;
 }
 
 export function handleErrorWithDialog(error: Error, doc?: Doc) {
