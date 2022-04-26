@@ -9,9 +9,6 @@ import { statusColor } from 'src/utils/colors';
 export default {
   name: 'StatusBadge',
   props: ['status'],
-  components: {
-    Badge,
-  },
   computed: {
     color() {
       return statusColor[this.status];

@@ -6,7 +6,7 @@
       </div>
       <div style="width: 14px; height: 14px; overflow: hidden; cursor: pointer">
         <svg
-          v-if="checked === 1"
+          v-if="checked"
           width="14"
           height="14"
           viewBox="0 0 14 14"
@@ -57,7 +57,7 @@
           :class="inputClasses"
           :checked="value"
           :readonly="isReadOnly"
-          @change="(e) => triggerChange(+e.target.checked)"
+          @change="(e) => triggerChange(e.target.checked)"
           @focus="(e) => $emit('focus', e)"
         />
       </div>

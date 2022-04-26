@@ -9,7 +9,7 @@ import GetStarted from 'src/pages/GetStarted.vue';
 // import PrintView from 'src/pages/PrintView/PrintView.vue';
 // import QuickEditForm from 'src/pages/QuickEditForm.vue';
 // import Report from 'src/pages/Report.vue';
-// import Settings from 'src/pages/Settings/Settings.vue';
+import Settings from 'src/pages/Settings/Settings.vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import { fyo } from './initFyo';
 
@@ -108,13 +108,13 @@ const routes: RouteRecordRaw[] = [
     name: 'Data Import',
     component: DataImport,
   },
+*/
   {
     path: '/settings',
     name: 'Settings',
     component: Settings,
     props: true,
   },
-*/
 ];
 
 const router = createRouter({ routes, history: createWebHistory() });

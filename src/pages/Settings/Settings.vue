@@ -51,16 +51,15 @@
 <script>
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
-import Button from 'src/components/Button';
-import Icon from 'src/components/Icon';
-import PageHeader from 'src/components/PageHeader';
-import Row from 'src/components/Row';
-import StatusBadge from 'src/components/StatusBadge';
-import WindowControls from 'src/components/WindowControls';
+import Button from 'src/components/Button.vue';
+import Icon from 'src/components/Icon.vue';
+import PageHeader from 'src/components/PageHeader.vue';
+import Row from 'src/components/Row.vue';
+import StatusBadge from 'src/components/StatusBadge.vue';
+import WindowControls from 'src/components/WindowControls.vue';
 import { showToast } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h, markRaw } from 'vue';
-import TabGeneral from './TabGeneral.vue';
 import TabInvoice from './TabInvoice.vue';
 import TabSystem from './TabSystem.vue';
 
@@ -89,13 +88,15 @@ export default {
           key: 'General',
           label: t`General`,
           icon: 'general',
-          component: markRaw(TabGeneral),
+          // component: markRaw(TabGeneral),
+          component: {template: `<h1>General</h1>`}
         },
         {
           key: 'System',
           label: t`System`,
           icon: 'system',
           component: markRaw(TabSystem),
+          component: {template: `<h1>System</h1>`}
         },
       ],
     };

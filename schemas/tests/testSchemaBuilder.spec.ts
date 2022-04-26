@@ -7,6 +7,7 @@ import {
   cleanSchemas,
   getAbstractCombinedSchemas,
   getRegionalCombinedSchemas,
+  setSchemaNameOnFields,
 } from '../index';
 import { metaSchemas } from '../schemas';
 import {
@@ -134,7 +135,9 @@ describe('Schema Builder', function () {
     });
   });
 
-  const finalSchemas = addMetaFields(cloneDeep(abstractCombined));
+  let almostFinalSchemas = cloneDeep(abstractCombined);
+  almostFinalSchemas = addMetaFields(almostFinalSchemas);
+  const finalSchemas = setSchemaNameOnFields(almostFinalSchemas);
   const metaSchemaMap = getMapFromList(metaSchemas, 'name');
   const baseFieldNames = metaSchemaMap.base.fields!.map((f) => f.fieldname);
   const childFieldNames = metaSchemaMap.child.fields!.map((f) => f.fieldname);
@@ -150,6 +153,14 @@ describe('Schema Builder', function () {
   ];
 
   describe('Final Schemas', function () {
+    specify('Schema Name Existsance', function () {
+      for (const schemaName in finalSchemas) {
+        for (const field of finalSchemas[schemaName]?.fields!) {
+          assert.strictEqual(field.schemaName, schemaName);
+        }
+      }
+    });
+
     specify('Schema Field Existance', function () {
       assert.strictEqual(
         everyFieldExists(baseFieldNames, finalSchemas.Customer!),

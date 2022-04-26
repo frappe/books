@@ -32,11 +32,7 @@ export class JournalEntry extends Doc {
     return entries;
   }
 
-  async beforeUpdate() {
-    this.getPosting().validateEntries();
-  }
-
-  async beforeInsert() {
+  async beforeSync() {
     this.getPosting().validateEntries();
   }
 

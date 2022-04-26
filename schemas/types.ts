@@ -23,6 +23,7 @@ export interface BaseField {
   fieldname: string;             // Column name in the db
   fieldtype: FieldType;          // UI Descriptive field types that map to column types
   label: string;                 // Translateable UI facing name
+  schemaName?: string;           // Convenient access to schemaName incase just the field is passed
   required?: boolean;            // Implies Not Null
   hidden?: boolean;              // UI Facing config, whether field is shown in a form
   readOnly?: boolean;            // UI Facing config, whether field is editable
@@ -30,7 +31,6 @@ export interface BaseField {
   default?: RawValue;            // Default value of a field, should match the db type
   placeholder?: string;          // UI Facing config, form field placeholder
   groupBy?: string;              // UI Facing used in dropdowns fields
-  computed?: boolean;            // Indicates whether a value is computed, implies readonly
   meta?: boolean;                // Field is a meta field, i.e. only for the db, not UI
   inline?: boolean;              // UI Facing config, whether to display doc inline.
 }
@@ -84,6 +84,7 @@ export interface Schema {
   quickEditFields?: string[];    // Used to get fields for the quickEditForm
   inlineEditDisplayField?:string;// Display field if inline editable
   naming?: Naming;               // Used for assigning name, default is 'random' else 'numberSeries' if present
+  titleField?: string;           // Main display field
   removeFields?: string[];       // Used by the builder to remove fields.
 }
 

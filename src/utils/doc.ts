@@ -43,7 +43,8 @@ export function getOptionList(field: Field, doc: Doc): SelectOption[] {
 }
 
 function _getOptionList(field: Field, doc: Doc) {
-  if ((field as OptionField).options) {
+  const options = (field as OptionField).options;
+  if (options && options.length > 0) {
     return (field as OptionField).options;
   }
 

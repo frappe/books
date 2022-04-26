@@ -22,23 +22,23 @@
         <TwoColumnForm
           ref="inlineEditForm"
           :doc="inlineEditDoc"
-          :fields="inlineEditFields"
+          :fields="getInlineEditFields(df)"
           :column-ratio="columnRatio"
           :no-border="true"
           :focus-first-input="true"
           :autosave="false"
           @error="(msg) => $emit('error', msg)"
         />
-        <div class="flex px-4 pb-2">
-          <Button class="w-1/2 text-gray-900" @click="inlineEditField = null">
+        <div class="flex px-4 pb-2 gap-2">
+          <Button class="w-1/2 text-gray-900" @click="stopInlineEditing">
             {{ t`Cancel` }}
           </Button>
           <Button
             type="primary"
-            class="ml-2 w-1/2 text-white"
-            @click="() => saveInlineEditDoc(df)"
+            class="w-1/2 text-white"
+            @click="saveInlineEditDoc"
           >
-            {{ df.inlineSaveText || t`Save` }}
+            {{ t`Save` }}
           </Button>
         </div>
       </div>
@@ -90,8 +90,9 @@
 import { Doc } from 'fyo/model/doc';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
-import { getErrorMessage, handleErrorWithDialog } from 'src/errorHandling';
+import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
+import { getErrorMessage } from 'src/utils';
 import { evaluateHidden, evaluateReadOnly } from 'src/utils/doc';
 
 export default {
@@ -114,10 +115,8 @@ export default {
   },
   data() {
     return {
-      inlineEditField: null,
       inlineEditDoc: null,
-      inlineEditFields: null,
-      inlineEditDisplayField: null,
+      inlineEditField: null,
       errors: {},
     };
   },
@@ -162,7 +161,7 @@ export default {
       );
     },
     evaluateReadOnly(df) {
-      if (df.fieldname === 'numberSeries' && !this.doc._notInserted) {
+      if (df.fieldname === 'numberSeries' && !this.doc.notInserted) {
         return true;
       }
 
@@ -177,7 +176,7 @@ export default {
         return;
       }
 
-      let oldValue = this.doc.get(df.fieldname);
+      const oldValue = this.doc.get(df.fieldname);
       if (oldValue === value) {
         return;
       }
@@ -188,7 +187,7 @@ export default {
       }
 
       // handle rename
-      if (this.autosave && df.fieldname === 'name' && !this.doc.isNew()) {
+      if (this.autosave && df.fieldname === 'name' && !this.doc.notInserted) {
         return this.doc.rename(value);
       }
 
@@ -200,21 +199,19 @@ export default {
         this.errors[df.fieldname] = getErrorMessage(e, this.doc);
       });
 
-      if (this.autosave && this.doc._dirty && !this.doc.isNew()) {
+      if (this.autosave && this.doc.dirty) {
         if (df.fieldtype === 'Table') {
           return;
         }
+
         this.doc.sync();
       }
     },
     sync() {
-      return this.doc.sync().catch(this.handleError);
+      return this.doc.sync().catch((e) => handleErrorWithDialog(e, this.doc));
     },
     submit() {
-      return this.doc.submit().catch(this.handleError);
-    },
-    handleError(e) {
-      handleErrorWithDialog(e, this.doc);
+      return this.doc.submit().catch((e) => handleErrorWithDialog(e, this.doc));
     },
     async activateInlineEditing(df) {
       if (!df.inline) {
@@ -224,28 +221,39 @@ export default {
       this.inlineEditField = df;
       if (!this.doc[df.fieldname]) {
         this.inlineEditDoc = await fyo.doc.getNewDoc(df.target);
-        this.inlineEditDoc.once('afterInsert', () => {
+        this.inlineEditDoc.once('afterSync', () => {
           this.onChangeCommon(df, this.inlineEditDoc.name);
         });
       } else {
         this.inlineEditDoc = this.doc.getLink(df.fieldname);
       }
-
-      this.inlineEditDisplayField =
-        this.doc.schema.inlineEditDisplayField ?? 'name';
-      this.inlineEditFields = fyo.schemaMap[df.target].quickEditFields ?? [];
     },
-    async saveInlineEditDoc(df) {
+    getInlineEditFields(df) {
+      const inlineEditFieldNames =
+        fyo.schemaMap[df.target].quickEditFields ?? [];
+      return inlineEditFieldNames.map((fieldname) =>
+        fyo.getField(df.target, fieldname)
+      );
+    },
+    async saveInlineEditDoc() {
       if (!this.inlineEditDoc) {
         return;
       }
+
       await this.$refs.inlineEditForm[0].sync();
       await this.doc.loadLinks();
 
-      if (this.emitChange && df.inline) {
-        this.$emit('change', df.inlineEditField);
+      if (this.emitChange) {
+        this.$emit('change', this.inlineEditField);
       }
 
+      await this.stopInlineEditing();
+    },
+    async stopInlineEditing() {
+      if (this.inlineEditDoc?.dirty) {
+        await this.inlineEditDoc.load()
+      }
+      this.inlineEditDoc = null;
       this.inlineEditField = null;
     },
   },

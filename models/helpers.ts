@@ -35,7 +35,7 @@ export function getTransactionActions(schemaName: string, fyo: Fyo): Action[] {
         (doc.submitted as boolean) && (doc.outstandingAmount as Money).gt(0),
       action: async function makePayment(doc: Doc) {
         const payment = await fyo.doc.getNewDoc('Payment');
-        payment.once('afterInsert', async () => {
+        payment.once('afterSync', async () => {
           await payment.submit();
         });
         const isSales = schemaName === 'SalesInvoice';

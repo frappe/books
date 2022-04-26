@@ -18,6 +18,7 @@ import {
   TargetField,
 } from 'schemas/types';
 import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
+import { markRaw } from 'vue';
 import { isPesa } from '../utils/index';
 import {
   areDocValuesEqual,
@@ -71,7 +72,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super();
-    this.fyo = fyo;
+    this.fyo = markRaw(fyo);
     this.schema = schema;
     this.fieldMap = getMapFromList(schema.fields, 'fieldname');
 
@@ -87,7 +88,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return this.schema.name;
   }
 
-  get isNew(): boolean {
+  get notInserted(): boolean {
     return this._notInserted;
   }
 
@@ -176,7 +177,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   _canSet(fieldname: string, value?: DocValue | Doc[]): boolean {
-    if (fieldname === 'numberSeries' && !this._notInserted) {
+    if (fieldname === 'numberSeries' && !this.notInserted) {
       return false;
     }
 
@@ -378,11 +379,13 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     if (data && data.name) {
-      this.syncValues(data);
+      this._syncValues(data);
       await this.loadLinks();
     } else {
       throw new NotFoundError(`Not Found: ${this.schemaName} ${this.name}`);
     }
+
+    this._notInserted = false;
   }
 
   async loadLinks() {
@@ -420,8 +423,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return link;
   }
 
-  syncValues(data: DocValueMap) {
-    this.clearValues();
+  _syncValues(data: DocValueMap) {
+    this._clearValues();
     this._setValuesWithoutChecks(data);
     this._dirty = false;
     this.trigger('change', {
@@ -429,7 +432,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     });
   }
 
-  clearValues() {
+  _clearValues() {
     for (const { fieldname } of this.schema.fields) {
       this[fieldname] = null;
     }
@@ -453,19 +456,19 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _compareWithCurrentDoc() {
-    if (this.isNew || !this.name || this.schema.isSingle) {
+    if (this.notInserted || !this.name || this.schema.isSingle) {
       return;
     }
 
     const dbValues = await this.fyo.db.get(this.schemaName, this.name);
-    const docModified = this.modified as Date;
-    const dbModified = dbValues.modified as Date;
+    const docModified = (this.modified as Date)?.toISOString();
+    const dbModified = (dbValues.modified as Date)?.toISOString();
 
     if (dbValues && docModified !== dbModified) {
       throw new ConflictError(
         this.fyo
           .t`Document ${this.schemaName} ${this.name} has been modified after loading` +
-          `${docModified?.toISOString()}, ${dbModified?.toISOString()}`
+          ` ${dbModified}, ${docModified}`
       );
     }
 
@@ -575,20 +578,15 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this._setBaseMetaValues();
     await this._commit();
     await this._validateInsert();
-    await this.trigger('beforeInsert', null);
 
     const oldName = this.name!;
     const validDict = this.getValidDict();
     const data = await this.fyo.db.insert(this.schemaName, validDict);
-    this.syncValues(data);
-    this._notInserted = false;
+    this._syncValues(data);
 
     if (oldName !== this.name) {
       this.fyo.doc.removeFromCache(this.schemaName, oldName);
     }
-
-    await this.trigger('afterInsert', null);
-
     this.fyo.telemetry.log(Verb.Created, this.schemaName);
     return this;
   }
@@ -596,7 +594,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async _update() {
     await this._compareWithCurrentDoc();
     await this._commit();
-    await this.trigger('beforeUpdate');
 
     // before submit
     if (this.flags.submitAction) await this.trigger('beforeSubmit');
@@ -607,9 +604,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     const data = this.getValidDict();
     await this.fyo.db.update(this.schemaName, data);
-    this.syncValues(data);
-
-    await this.trigger('afterUpdate');
+    this._syncValues(data);
 
     // after submit
     if (this.flags.submitAction) await this.trigger('afterSubmit');
@@ -621,11 +616,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async sync() {
     await this.trigger('beforeSync');
     let doc;
-    if (this._notInserted) {
+    if (this.notInserted) {
       doc = await this._insert();
     } else {
       doc = await this._update();
     }
+    this._notInserted = false;
     await this.trigger('afterSync');
     return doc;
   }
@@ -748,14 +744,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return doc;
   }
 
-  async beforeInsert() {}
-  async afterInsert() {}
-  async beforeUpdate() {}
-  async afterUpdate() {}
   async beforeSync() {}
   async afterSync() {}
   async beforeDelete() {}
   async afterDelete() {}
+  async beforeSubmit() {}
+  async afterSubmit() {}
   async beforeRevert() {}
   async afterRevert() {}
 

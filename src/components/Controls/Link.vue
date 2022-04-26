@@ -1,10 +1,9 @@
 <script>
 import { t } from 'fyo';
-import Badge from 'src/components/Badge';
+import Badge from 'src/components/Badge.vue';
 import { fyo } from 'src/initFyo';
-import { openQuickEdit } from 'src/utils/ui';
 import { markRaw } from 'vue';
-import AutoComplete from './AutoComplete';
+import AutoComplete from './AutoComplete.vue';
 
 export default {
   name: 'Link',
@@ -12,54 +11,51 @@ export default {
   emits: ['new-doc'],
   methods: {
     async getSuggestions(keyword = '') {
-      let doctype = this.getTarget();
-      let meta;
-      try {
-        meta = fyo.getMeta(doctype);
-      } catch (err) {
-        if (err.message.includes('not a registered doctype')) {
-          return [];
-        }
-        throw err;
-      }
-      let filters = await this.getFilters(keyword);
+      const schemaName = this.df.target;
+      const schema = fyo.schemaMap[schemaName];
+      const filters = await this.getFilters(keyword);
+
       if (keyword && !filters.keywords) {
         filters.keywords = ['like', keyword];
       }
-      let results = await fyo.db.getAll({
-        doctype,
+
+      const fields = [
+        ...new Set([
+          'name',
+          schema.titleField,
+          this.df.groupBy,
+          ...schema.keywordFields,
+        ]),
+      ].filter(Boolean);
+
+      const results = await fyo.db.getAll(schemaName, {
         filters,
-        fields: [
-          ...new Set([
-            'name',
-            meta.titleField,
-            this.df.groupBy,
-            ...meta.getKeywordFields(),
-          ]),
-        ].filter(Boolean),
+        fields,
       });
-      let createNewOption = this.getCreateNewOption();
-      let suggestions = results
+
+      const suggestions = results
         .map((r) => {
-          let option = { label: r[meta.titleField], value: r.name };
+          const option = { label: r[schema.titleField], value: r.name };
           if (this.df.groupBy) {
             option.group = r[this.df.groupBy];
           }
           return option;
         })
-        .concat(this.df.disableCreation ? null : createNewOption)
+        .concat(this.getCreateNewOption())
         .filter(Boolean);
 
       if (suggestions.length === 0) {
         return [
           {
-            component: {
-              template: '<span class="text-gray-600">No results found</span>',
-            },
+            component: markRaw({
+              template:
+                '<span class="text-gray-600">{{ t`No results found` }}</span>',
+            }),
             action: () => {},
           },
         ];
       }
+
       return suggestions;
     },
     getCreateNewOption() {
@@ -83,14 +79,35 @@ export default {
         }),
       };
     },
-    async getFilters(keyword) {
-      const { getFilters } = this.df;
-      if (!getFilters) {
+    async openNewDoc() {
+      const schemaName = this.df.target;
+      const doc = await fyo.doc.getNewDoc(schemaName);
+      const filters = await this.getFilters();
+      const { openQuickEdit } = await import('src/utils/ui');
+
+      openQuickEdit({
+        schemaName,
+        name: doc.name,
+        defaults: Object.assign({}, filters, {
+          name: this.linkValue,
+        }),
+      });
+
+      doc.once('afterSync', () => {
+        this.$emit('new-doc', doc);
+        this.$router.back();
+      });
+    },
+    async getFilters() {
+      const { schemaName, fieldname } = this.df;
+      const getFilters = fyo.models[schemaName].filters[fieldname];
+
+      if (getFilters === undefined) {
         return {};
       }
 
       if (this.doc) {
-        return (await getFilters(keyword, this.doc)) ?? {};
+        return (await getFilters(this.doc)) ?? {};
       }
 
       try {
@@ -98,25 +115,6 @@ export default {
       } catch {
         return {};
       }
-    },
-    getTarget() {
-      return this.df.target;
-    },
-    async openNewDoc() {
-      let doctype = this.df.target;
-      let doc = await fyo.doc.getNewDoc(doctype);
-      let filters = await this.getFilters();
-      openQuickEdit({
-        doctype,
-        name: doc.name,
-        defaults: Object.assign({}, filters, {
-          name: this.linkValue,
-        }),
-      });
-      doc.once('afterInsert', () => {
-        this.$emit('new-doc', doc);
-        this.$router.back();
-      });
     },
   },
 };

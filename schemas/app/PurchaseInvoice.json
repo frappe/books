@@ -55,14 +55,12 @@
       "fieldname": "netTotal",
       "label": "Net Total",
       "fieldtype": "Currency",
-      "computed": true,
       "readOnly": true
     },
     {
       "fieldname": "baseNetTotal",
       "label": "Net Total (Company Currency)",
       "fieldtype": "Currency",
-      "computed": true,
       "readOnly": true
     },
     {
@@ -76,14 +74,12 @@
       "fieldname": "grandTotal",
       "label": "Grand Total",
       "fieldtype": "Currency",
-      "computed": true,
       "readOnly": true
     },
     {
       "fieldname": "baseGrandTotal",
       "label": "Grand Total (Company Currency)",
       "fieldtype": "Currency",
-      "computed": true,
       "readOnly": true
     },
     {

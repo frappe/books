@@ -61,10 +61,10 @@
 </template>
 
 <script>
-import Row from 'src/components/Row';
+import Row from 'src/components/Row.vue';
 import { fyo } from 'src/initFyo';
-import Base from './Base';
-import TableRow from './TableRow';
+import Base from './Base.vue';
+import TableRow from './TableRow.vue';
 
 export default {
   name: 'Table',
@@ -122,8 +122,8 @@ export default {
       return [0.3].concat(this.tableFields.map(() => 1));
     },
     tableFields() {
-      let meta = fyo.getMeta(this.df.childtype);
-      return meta.tableFields.map((fieldname) => meta.getField(fieldname));
+      const fields = fyo.schemaMap[this.df.target].tableFields ?? [];
+      return fields.map((fieldname) => fyo.getField(this.df.target, fieldname));
     },
   },
 };

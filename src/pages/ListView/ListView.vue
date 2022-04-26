@@ -72,7 +72,7 @@ export default {
       }
       let path = this.getFormPath(doc.name);
       routeTo(path);
-      doc.on('afterInsert', () => {
+      doc.on('afterSync', () => {
         let path = this.getFormPath(doc.name);
         this.$router.replace(path);
       });

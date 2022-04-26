@@ -78,10 +78,10 @@ export default {
   },
   computed: {
     colors() {
-      return this.df.colors;
+      return this.df.options;
     },
     selectedColorLabel() {
-      let color = this.colors.find((c) => this.value === c.value);
+      const color = this.colors.find((c) => this.value === c.value);
       return color ? color.label : this.value;
     },
   },

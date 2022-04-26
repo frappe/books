@@ -109,7 +109,7 @@ export class Party extends Doc {
       {
         label: fyo.t`Create Bill`,
         condition: (doc: Doc) =>
-          !doc.isNew && (doc.role as PartyRole) !== 'Customer',
+          !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
           const doc = await fyo.doc.getNewDoc('PurchaseInvoice');
           router.push({
@@ -127,7 +127,7 @@ export class Party extends Doc {
       {
         label: fyo.t`View Bills`,
         condition: (doc: Doc) =>
-          !doc.isNew && (doc.role as PartyRole) !== 'Customer',
+          !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
           router.push({
             name: 'ListView',
@@ -144,7 +144,7 @@ export class Party extends Doc {
       {
         label: fyo.t`Create Invoice`,
         condition: (doc: Doc) =>
-          !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
+          !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
           const doc = await fyo.doc.getNewDoc('SalesInvoice');
           router.push({
@@ -162,7 +162,7 @@ export class Party extends Doc {
       {
         label: fyo.t`View Invoices`,
         condition: (doc: Doc) =>
-          !doc.isNew && (doc.role as PartyRole) !== 'Supplier',
+          !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
           router.push({
             name: 'ListView',

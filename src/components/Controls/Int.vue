@@ -1,5 +1,5 @@
 <script>
-import Data from './Data';
+import Data from "./Data.vue";
 
 export default {
   name: 'Int',
@@ -11,7 +11,7 @@ export default {
   },
   methods: {
     parse(value) {
-      let parsedValue = parseInt(value, 10);
+      const parsedValue = parseInt(value, 10);
       return isNaN(parsedValue) ? 0 : parsedValue;
     },
   },

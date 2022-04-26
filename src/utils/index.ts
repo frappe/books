@@ -1,8 +1,10 @@
 /**
  * General purpose utils used by the frontend.
  */
+import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
+import { DuplicateEntryError, LinkValidationError } from 'fyo/utils/errors';
 import Money from 'pesa/dist/types/src/money';
 
 export function stringifyCircular(
@@ -75,4 +77,20 @@ export function convertPesaValuesToFloat(obj: Record<string, unknown>) {
 
     obj[key] = (value as Money).float;
   });
+}
+
+export function getErrorMessage(e: Error, doc?: Doc): string {
+  let errorMessage = e.message || t`An error occurred.`;
+
+  const { schemaName, name }: { schemaName?: string; name?: string } =
+    doc ?? {};
+  const canElaborate = !!(schemaName && name);
+
+  if (e instanceof LinkValidationError && canElaborate) {
+    errorMessage = t`${schemaName} ${name} is linked with existing records.`;
+  } else if (e instanceof DuplicateEntryError && canElaborate) {
+    errorMessage = t`${schemaName} ${name} already exists.`;
+  }
+
+  return errorMessage;
 }

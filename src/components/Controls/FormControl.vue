@@ -15,27 +15,30 @@ import Select from './Select.vue';
 import Table from './Table.vue';
 import Text from './Text.vue';
 
+const components = {
+  AttachImage,
+  Data,
+  Check,
+  Color,
+  Select,
+  Link,
+  Date,
+  Table,
+  AutoComplete,
+  DynamicLink,
+  Int,
+  Float,
+  Currency,
+  Text,
+};
+
 export default {
   name: 'FormControl',
   render() {
-    let controls = {
-      Data,
-      Select,
-      Link,
-      Date,
-      Table,
-      AutoComplete,
-      Check,
-      AttachImage,
-      DynamicLink,
-      Int,
-      Float,
-      Currency,
-      Text,
-      Color,
-    };
-    let { df } = this.$attrs;
-    return h(controls[df.fieldtype] || Data, {
+    const fieldtype = this.$attrs.df.fieldtype;
+    const component = components[fieldtype] ?? Data;
+
+    return h(component, {
       ...this.$attrs,
       ref: 'control',
     });

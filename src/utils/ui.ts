@@ -28,8 +28,6 @@ export async function openQuickEdit({
   showFields,
   defaults = {},
 }: QuickEditOptions) {
-  const router = (await import('src/router')).default;
-
   const currentRoute = router.currentRoute.value;
   const query = currentRoute.query;
   let method: 'push' | 'replace' = 'push';
@@ -287,7 +285,10 @@ function getDeleteAction(doc: Doc): Action {
       template: '<span class="text-red-700">{{ t`Delete` }}</span>',
     },
     condition: (doc: Doc) =>
-      !doc.isNew && !doc.submitted && !doc.schema.isSingle && !doc.cancelled,
+      !doc.notInserted &&
+      !doc.submitted &&
+      !doc.schema.isSingle &&
+      !doc.cancelled,
     action: () =>
       deleteDocWithPrompt(doc).then((res) => {
         if (res) {
