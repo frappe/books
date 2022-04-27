@@ -74,7 +74,7 @@ export async function getLastInserted(schemaName: string, fyo: Fyo) {
   const lastInserted = await fyo.db.getAll(schemaName, {
     fields: ['name'],
     limit: 1,
-    orderBy: 'creation',
+    orderBy: 'created',
     order: 'desc',
   });
   return lastInserted && lastInserted.length ? lastInserted[0] : null;

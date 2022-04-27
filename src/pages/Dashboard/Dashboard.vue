@@ -1,14 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">{{ t`Dashboard` }}</h1>
-      </template>
-      <template #actions>
-        <SearchBar class="ml-2" />
-      </template>
-    </PageHeader>
-    <hr class="border-t mx-4" />
+    <PageHeader :title="t`Dashboard`" />
     <div class="mx-4 overflow-y-scroll no-scrollbar">
       <Cashflow class="mt-5" />
       <hr class="border-t mt-10" />
@@ -24,7 +16,6 @@
 
 <script>
 import PageHeader from 'src/components/PageHeader';
-import SearchBar from 'src/components/SearchBar';
 import Cashflow from './Cashflow';
 import Expenses from './Expenses';
 import ProfitAndLoss from './ProfitAndLoss';
@@ -34,7 +25,6 @@ export default {
   name: 'Dashboard',
   components: {
     PageHeader,
-    SearchBar,
     Cashflow,
     UnpaidInvoices,
     ProfitAndLoss,

@@ -5,9 +5,9 @@ import GetStarted from 'src/pages/GetStarted.vue';
 // import DataImport from 'src/pages/DataImport.vue';
 // import InvoiceForm from 'src/pages/InvoiceForm.vue';
 // import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
-// import ListView from 'src/pages/ListView/ListView.vue';
+import ListView from 'src/pages/ListView/ListView.vue';
 // import PrintView from 'src/pages/PrintView/PrintView.vue';
-// import QuickEditForm from 'src/pages/QuickEditForm.vue';
+import QuickEditForm from 'src/pages/QuickEditForm.vue';
 // import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
@@ -54,8 +54,9 @@ const routes: RouteRecordRaw[] = [
       edit: (route) => route.query,
     },
   },
+  */
   {
-    path: '/list/:doctype/:fieldname?/:value?',
+    path: '/list/:schemaName/:fieldname?/:value?',
     name: 'ListView',
     components: {
       default: ListView,
@@ -63,7 +64,7 @@ const routes: RouteRecordRaw[] = [
     },
     props: {
       default: (route) => {
-        const { doctype, fieldname, value } = route.params;
+        const { schemaName, fieldname, value } = route.params;
         let { filters } = route.params;
 
         if (filters === undefined && fieldname && value) {
@@ -72,13 +73,14 @@ const routes: RouteRecordRaw[] = [
         }
 
         return {
-          doctype,
+          schemaName,
           filters,
         };
       },
       edit: (route) => route.query,
     },
   },
+  /*
   {
     path: '/print/:doctype/:name',
     name: 'PrintView',
@@ -108,8 +110,7 @@ const routes: RouteRecordRaw[] = [
     name: 'Data Import',
     component: DataImport,
   },
-*/
-  {
+*/ {
     path: '/settings',
     name: 'Settings',
     component: Settings,

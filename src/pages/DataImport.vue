@@ -1,11 +1,6 @@
 <template>
   <div class="flex flex-col overflow-hidden w-full">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">
-          {{ t`Data Import` }}
-        </h1>
-      </template>
+    <PageHeader :title="t`Data Import`">
       <template #actions>
         <DropdownWithActions
           class="ml-2"
@@ -37,7 +32,7 @@
         />
 
         <p
-          class="text-base text-base ml-2"
+          class="text-base ml-2"
           :class="fileName ? 'text-gray-900 font-semibold' : 'text-gray-700'"
         >
           <span v-if="fileName" class="font-normal"
@@ -57,8 +52,6 @@
           <div
             v-if="file && isSubmittable"
             class="
-              justify-center
-              items-center
               gap-2
               flex
               justify-between
@@ -87,12 +80,7 @@
               flex flex-row
               justify-center
               items-center
-              justify-center
-              items-center
               gap-2
-              flex
-              justify-between
-              items-center
               bg-gray-100
               pl-2
               rounded

@@ -1,10 +1,7 @@
 <template>
   <div class="flex">
     <div class="flex flex-col flex-1">
-      <PageHeader class="bg-white z-10">
-        <template #title>
-          <BackLink />
-        </template>
+      <PageHeader :backLink="true" class="bg-white z-10">
         <template #actions>
           <Button
             class="text-gray-900 text-xs ml-2"
@@ -53,7 +50,6 @@
 <script>
 import { ipcRenderer } from 'electron';
 import { Verb } from 'fyo/telemetry/types';
-import BackLink from 'src/components/BackLink';
 import Button from 'src/components/Button';
 import PageHeader from 'src/components/PageHeader';
 import SearchBar from 'src/components/SearchBar';
@@ -68,7 +64,6 @@ export default {
     PageHeader,
     SearchBar,
     Button,
-    BackLink,
     TwoColumnForm,
   },
   data() {

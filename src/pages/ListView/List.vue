@@ -1,7 +1,10 @@
 <template>
-  <div class="px-5 pb-16 text-base flex flex-col overflow-y-hidden">
-    <div class="flex px-3">
-      <div class="py-4 mr-3 w-7" v-if="hasImage"></div>
+  <div class="mx-4 pb-16 text-base flex flex-col overflow-y-hidden">
+    <!-- Title Row -->
+    <div class="flex">
+      <div class="py-4 mr-3 w-7 border-b" v-if="hasImage">
+        <p class="text-gray-700">Img</p>
+      </div>
       <Row
         class="flex-1 text-gray-700"
         :columnCount="columns.length"
@@ -19,6 +22,8 @@
         </div>
       </Row>
     </div>
+
+    <!-- Data Rows -->
     <div class="overflow-y-auto" v-if="data.length !== 0">
       <div
         class="px-3 flex hover:bg-gray-100 rounded-md"
@@ -46,6 +51,8 @@
         </Row>
       </div>
     </div>
+
+    <!-- Empty State -->
     <div v-else class="flex flex-col items-center justify-center my-auto">
       <img src="@/assets/img/list-empty-state.svg" alt="" class="w-24" />
       <p class="my-3 text-gray-800">{{ t`No entries found` }}</p>
@@ -65,7 +72,7 @@ import ListCell from './ListCell';
 
 export default {
   name: 'List',
-  props: ['listConfig', 'filters'],
+  props: { listConfig: Object, filters: Object, schemaName: String },
   emits: ['makeNewDoc'],
   components: {
     Row,
@@ -74,10 +81,12 @@ export default {
     Button,
   },
   watch: {
-    listConfig(oldValue, newValue) {
-      if (oldValue.doctype !== newValue.doctype) {
-        this.setupColumnsAndData();
+    schemaName(oldValue, newValue) {
+      if (oldValue === newValue) {
+        return;
       }
+
+      this.updateData();
     },
   },
   data() {
@@ -87,62 +96,45 @@ export default {
   },
   computed: {
     columns() {
-      return this.prepareColumns();
-    },
-    meta() {
-      return fyo.getMeta(this.listConfig.doctype);
+      const columns = this.listConfig?.columns ?? [];
+      return columns
+        .map((fieldname) => fyo.getField(this.schemaName, fieldname))
+        .filter(Boolean);
     },
     hasImage() {
-      return this.meta.hasField('image');
+      return !!fyo.getField(this.schemaName, 'image');
     },
   },
   async mounted() {
-    await this.setupColumnsAndData();
-    fyo.db.on(`change:${this.listConfig.doctype}`, () => {
+    await this.updateData();
+    /*
+    TODO: need to set callback incase that schema has data changes
+    fyo.db.on(`change:${this.schemaName}`, () => {
       this.updateData();
     });
+    */
   },
   methods: {
-    async setupColumnsAndData() {
-      this.doctype = this.listConfig.doctype;
-      await this.updateData();
-    },
     openForm(doc) {
       if (this.listConfig.formRoute) {
         routeTo(this.listConfig.formRoute(doc.name));
         return;
       }
       openQuickEdit({
-        doctype: this.doctype,
+        schemaName: this.schemaName,
         name: doc.name,
       });
     },
     async updateData(filters) {
-      if (!filters) filters = this.getFilters();
-      this.data = await fyo.db.getAll({
-        doctype: this.doctype,
+      if (!filters) {
+        filters = { ...this.filters };
+      }
+
+      this.data = await fyo.db.getAll(this.schemaName, {
         fields: ['*'],
         filters,
-        orderBy: 'creation',
+        orderBy: 'created',
       });
-    },
-    getFilters() {
-      let filters = {};
-      Object.assign(filters, this.listConfig.filters || {});
-      Object.assign(filters, this.filters);
-      return filters;
-    },
-    prepareColumns() {
-      return this.listConfig.columns
-        .map((col) => {
-          if (typeof col === 'string') {
-            const field = this.meta.getField(col);
-            if (!field) return null;
-            return field;
-          }
-          return col;
-        })
-        .filter(Boolean);
     },
   },
 };

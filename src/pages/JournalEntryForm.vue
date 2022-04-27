@@ -1,9 +1,6 @@
 <template>
   <div class="flex flex-col">
-    <PageHeader>
-      <template #title>
-        <BackLink />
-      </template>
+    <PageHeader :backLink="true">
       <template #actions v-if="doc">
         <StatusBadge :status="status" />
         <DropdownWithActions class="ml-2" :actions="actions" />
@@ -128,7 +125,6 @@
   </div>
 </template>
 <script>
-import BackLink from 'src/components/BackLink';
 import Button from 'src/components/Button';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions';
@@ -147,7 +143,6 @@ export default {
     DropdownWithActions,
     StatusBadge,
     FormControl,
-    BackLink,
   },
   provide() {
     return {

@@ -1,12 +1,6 @@
 <template>
   <div class="flex flex-col overflow-hidden">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">
-          {{ t`Settings` }}
-        </h1>
-      </template>
-    </PageHeader>
+    <PageHeader :title="t`Settings`" />
     <div class="flex justify-center flex-1 mb-8 mt-2">
       <div
         class="border rounded-lg shadow h-full flex flex-col justify-between"

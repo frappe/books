@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
@@ -374,7 +374,7 @@ export class Payment extends Doc {
       columns: [
         'party',
         {
-          label: fyo.t`Status`,
+          label: t`Status`,
           fieldname: 'status',
           fieldtype: 'Select',
           size: 'small',
