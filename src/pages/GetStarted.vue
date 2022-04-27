@@ -1,17 +1,8 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">
-          {{ t`Setup your workspace` }}
-        </h1>
-      </template>
-    </PageHeader>
-    <div class="px-8">
-      <div class="border-t"></div>
-    </div>
-    <div class="flex-1 px-8 overflow-y-auto">
-      <div class="my-6" v-for="section in sections" :key="section.label">
+    <PageHeader :title="t`Setup Your Workspace`" />
+    <div class="flex-1 mx-4 overflow-y-auto">
+      <div class="my-4" v-for="section in sections" :key="section.label">
         <h2 class="font-medium">{{ section.label }}</h2>
         <div class="flex mt-4 -mx-2">
           <div

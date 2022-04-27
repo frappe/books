@@ -1,9 +1,6 @@
 <template>
   <div class="flex flex-col max-w-full">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">{{ report.title }}</h1>
-      </template>
+    <PageHeader :title="report.title">
       <template #actions>
         <DropdownWithActions
           v-for="group of actionGroups"
@@ -15,7 +12,6 @@
           {{ group.label }}
         </DropdownWithActions>
         <DropdownWithActions class="ml-2" :actions="actions" />
-        <SearchBar class="ml-2" />
       </template>
     </PageHeader>
     <div class="flex px-8 mt-2 text-base" v-if="report.filterFields">
@@ -144,7 +140,6 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import PageHeader from 'src/components/PageHeader';
 import Row from 'src/components/Row';
-import SearchBar from 'src/components/SearchBar';
 import WithScroll from 'src/components/WithScroll';
 import { fyo } from 'src/initFyo';
 import { h, markRaw } from 'vue';
@@ -155,7 +150,6 @@ export default {
   components: {
     PageHeader,
     Button,
-    SearchBar,
     Row,
     FormControl,
     WithScroll,
@@ -196,7 +190,7 @@ export default {
       });
     },
     async fetchReportData() {
-      let data = await getReportData(this.report.method, this.filters)
+      let data = await getReportData(this.report.method, this.filters);
 
       let rows;
       if (data.rows) {
@@ -345,7 +339,7 @@ export default {
       } else if (this.usePagination) {
         return 'calc(100vh - 13rem)';
       }
-      
+
       return 'calc(100vh - 12rem)';
     },
     sliceIndex() {

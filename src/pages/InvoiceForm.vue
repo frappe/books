@@ -1,9 +1,6 @@
 <template>
   <div class="flex flex-col" v-if="doc">
-    <PageHeader>
-      <template #title>
-        <BackLink />
-      </template>
+    <PageHeader :backLink="true">
       <template #actions>
         <StatusBadge :status="status" />
         <Button
@@ -199,7 +196,6 @@
 </template>
 <script>
 import { getInvoiceStatus } from 'models/helpers';
-import BackLink from 'src/components/BackLink';
 import Button from 'src/components/Button';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions';
@@ -223,7 +219,6 @@ export default {
     Button,
     FormControl,
     DropdownWithActions,
-    BackLink,
   },
   provide() {
     return {
@@ -273,9 +268,7 @@ export default {
       this.handleError(error);
     }
     this.printSettings = await fyo.getSingle('PrintSettings');
-    this.companyName = (
-      await fyo.getSingle('AccountingSettings')
-    ).companyName;
+    this.companyName = (await fyo.getSingle('AccountingSettings')).companyName;
 
     let query = this.$route.query;
     if (query.values && query.doctype === this.doctype) {

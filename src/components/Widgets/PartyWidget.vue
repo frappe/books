@@ -91,7 +91,7 @@ export default {
           [partyField]: this.doc.name,
         },
         limit: 3,
-        orderBy: 'creation',
+        orderBy: 'created',
       });
       window.pendingInvoices = this.pendingInvoices;
     },

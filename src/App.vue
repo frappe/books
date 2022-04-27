@@ -117,8 +117,7 @@ export default {
       if (hideGetStarted || onboardingComplete) {
         routeTo('/');
       } else {
-        // routeTo('/get-started');
-        routeTo('/settings');
+        routeTo('/get-started');
       }
     },
     async changeDbFile() {

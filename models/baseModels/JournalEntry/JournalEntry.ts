@@ -1,10 +1,10 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import {
   Action,
   DefaultMap,
   FiltersMap,
-  ListViewSettings,
+  ListViewSettings
 } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { getLedgerLinkAction } from 'models/helpers';
@@ -56,13 +56,13 @@ export class JournalEntry extends Doc {
     return [getLedgerLinkAction(fyo)];
   }
 
-  static getListViewSettings(fyo: Fyo): ListViewSettings {
+  static getListViewSettings(): ListViewSettings {
     return {
       formRoute: (name) => `/edit/JournalEntry/${name}`,
       columns: [
         'date',
         {
-          label: fyo.t`Status`,
+          label: t`Status`,
           fieldtype: 'Select',
           size: 'small',
           render(doc) {
@@ -84,7 +84,7 @@ export class JournalEntry extends Doc {
           },
         },
         {
-          label: fyo.t`Entry ID`,
+          label: t`Entry ID`,
           fieldtype: 'Data',
           fieldname: 'name',
           getValue(doc) {

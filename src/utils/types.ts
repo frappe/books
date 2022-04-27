@@ -44,6 +44,6 @@ export interface SidebarItem {
   label: string;
   name: string;
   route: string;
-  doctype?: string;
+  schemaName?: string;
   hidden?: () => boolean;
 }

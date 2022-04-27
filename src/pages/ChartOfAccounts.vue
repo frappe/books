@@ -1,15 +1,6 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">
-          {{ t`Chart of Accounts` }}
-        </h1>
-      </template>
-      <template #actions>
-        <SearchBar class="ml-2" />
-      </template>
-    </PageHeader>
+    <PageHeader :title="t`Chart of Accounts`" />
     <div class="flex-1 flex px-8 overflow-y-auto">
       <div class="flex-1" v-if="root">
         <div v-for="account in allAccounts" :key="account.name">
@@ -130,7 +121,6 @@
 </template>
 <script>
 import PageHeader from 'src/components/PageHeader';
-import SearchBar from 'src/components/SearchBar';
 import { fyo } from 'src/initFyo';
 import { openQuickEdit } from 'src/utils';
 import { nextTick } from 'vue';
@@ -139,7 +129,6 @@ import { handleErrorWithDialog } from '../errorHandling';
 export default {
   components: {
     PageHeader,
-    SearchBar,
   },
   data() {
     return {
