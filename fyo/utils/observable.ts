@@ -44,6 +44,26 @@ export default class Observable<T> {
   }
 
   /**
+   * Checks if any `listener` or the given `listener` has been registered
+   * for the passed `event`.
+   *
+   * @param event : name of the event for which the listener is checked
+   * @param listener : specific listener that is checked for
+   */
+  hasListener(event: string, listener?: Function) {
+    const listeners = this[EventType.Listeners].get(event) ?? [];
+    const onceListeners = this[EventType.OnceListeners].get(event) ?? [];
+
+    if (listener === undefined) {
+      return [...listeners, ...onceListeners].length > 0;
+    }
+
+    let has = listeners.includes(listener);
+    has ||= onceListeners.includes(listener);
+    return has;
+  }
+
+  /**
    * Sets a `listener` that executes every time `event` is triggered
    *
    * @param event : name of the event for which the listener is set
@@ -91,7 +111,7 @@ export default class Observable<T> {
    * @param throttle : wait time before triggering the event.
    */
 
-  async trigger(event: string, params: unknown, throttle: number = 0) {
+  async trigger(event: string, params?: unknown, throttle: number = 0) {
     let isHot = false;
     if (throttle > 0) {
       isHot = this._throttled(event, params, throttle);
