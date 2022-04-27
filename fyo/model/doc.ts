@@ -263,7 +263,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     const targetField = this.fieldMap[fieldname] as TargetField;
-    const schema = this.fyo.db.schemaMap[targetField.target] as Schema;
+    const schema = this.fyo.schemaMap[targetField.target] as Schema;
     const childDoc = new Doc(schema, data as DocValueMap, this.fyo);
     return childDoc;
   }
@@ -390,6 +390,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     this._notInserted = false;
+    this.fyo.doc.observer.trigger(`load:${this.schemaName}`, this.name);
   }
 
   async loadLinks() {
@@ -627,6 +628,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
     this._notInserted = false;
     await this.trigger('afterSync');
+    this.fyo.doc.observer.trigger(`sync:${this.schemaName}`, this.name);
     return doc;
   }
 
@@ -636,6 +638,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await this.trigger('afterDelete');
 
     this.fyo.telemetry.log(Verb.Deleted, this.schemaName);
+    this.fyo.doc.observer.trigger(`delete:${this.schemaName}`, this.name);
   }
 
   async _submitOrRevert(isSubmit: boolean) {
@@ -652,10 +655,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async submit() {
     this.cancelled = false;
     await this._submitOrRevert(true);
+    this.fyo.doc.observer.trigger(`submit:${this.schemaName}`, this.name);
   }
 
   async revert() {
     await this._submitOrRevert(false);
+    this.fyo.doc.observer.trigger(`revert:${this.schemaName}`, this.name);
   }
 
   async rename(newName: string) {
@@ -663,6 +668,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await this.fyo.db.rename(this.schemaName, this.name!, newName);
     this.name = newName;
     await this.trigger('afterRename');
+    this.fyo.doc.observer.trigger(`rename:${this.schemaName}`, this.name);
   }
 
   async trigger(event: string, params?: unknown) {

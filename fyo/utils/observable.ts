@@ -170,7 +170,12 @@ export default class Observable<T> {
 
   _addListener(type: EventType, event: string, listener: Function) {
     this._initLiseners(type, event);
-    this[type].get(event)!.push(listener);
+    const list = this[type].get(event)!;
+    if (list.includes(listener)) {
+      return;
+    }
+
+    list.push(listener);
   }
 
   _initLiseners(type: EventType, event: string) {

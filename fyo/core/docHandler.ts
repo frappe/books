@@ -9,9 +9,10 @@ import { DocValue, DocValueMap } from './types';
 
 export class DocHandler {
   fyo: Fyo;
+  models: ModelMap = {};
   singles: SinglesMap = {};
   docs: Observable<DocMap> = new Observable();
-  models: ModelMap = {};
+  observer: Observable<never> = new Observable();
 
   constructor(fyo: Fyo) {
     this.fyo = fyo;
@@ -21,6 +22,7 @@ export class DocHandler {
     this.models = {};
     this.singles = {};
     this.docs = new Observable();
+    this.observer = new Observable();
   }
 
   purgeCache() {

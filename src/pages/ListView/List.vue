@@ -107,14 +107,23 @@ export default {
   },
   async mounted() {
     await this.updateData();
-    /*
-    TODO: need to set callback incase that schema has data changes
-    fyo.db.on(`change:${this.schemaName}`, () => {
-      this.updateData();
-    });
-    */
+    this.setUpdateListeners();
   },
   methods: {
+    setUpdateListeners() {
+      const listener = () => {
+        this.updateData();
+      };
+
+      if (fyo.schemaMap[this.schemaName].isSubmittable) {
+        fyo.doc.observer.on(`submit:${this.schemaName}`, listener);
+        fyo.doc.observer.on(`revert:${this.schemaName}`, listener);
+      }
+
+      fyo.doc.observer.on(`sync:${this.schemaName}`, listener);
+      fyo.doc.observer.on(`delete:${this.schemaName}`, listener);
+      fyo.doc.observer.on(`rename:${this.schemaName}`, listener);
+    },
     openForm(doc) {
       if (this.listConfig.formRoute) {
         routeTo(this.listConfig.formRoute(doc.name));
