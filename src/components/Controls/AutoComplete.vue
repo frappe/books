@@ -11,30 +11,57 @@
       <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
         {{ df.label }}
       </div>
-      <input
-        ref="input"
-        :class="inputClasses"
-        type="text"
-        :value="linkValue"
-        :placeholder="inputPlaceholder"
-        :readonly="isReadOnly"
-        @focus="(e) => onFocus(e, toggleDropdown)"
-        @blur="(e) => onBlur(e.target.value)"
-        @input="onInput"
-        @keydown.up="highlightItemUp"
-        @keydown.down="highlightItemDown"
-        @keydown.enter="selectHighlightedItem"
-        @keydown.tab="toggleDropdown(false)"
-        @keydown.esc="toggleDropdown(false)"
-      />
+      <div
+        class="
+          flex
+          items-center
+          justify-between
+          bg-white
+          focus-within:bg-gray-200
+          pr-2
+          rounded
+        "
+      >
+        <input
+          ref="input"
+          :class="inputClasses"
+          type="text"
+          :value="linkValue"
+          :placeholder="inputPlaceholder"
+          :readonly="isReadOnly"
+          @focus="(e) => onFocus(e, toggleDropdown)"
+          @blur="(e) => onBlur(e.target.value)"
+          @input="onInput"
+          @keydown.up="highlightItemUp"
+          @keydown.down="highlightItemDown"
+          @keydown.enter="selectHighlightedItem"
+          @keydown.tab="toggleDropdown(false)"
+          @keydown.esc="toggleDropdown(false)"
+        />
+        <svg
+          class="w-3 h-3"
+          style="background: inherit; margin-right: -3px"
+          viewBox="0 0 5 10"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
+            stroke="#404040"
+            fill="none"
+            fill-rule="evenodd"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
     </template>
   </Dropdown>
 </template>
 
 <script>
+import { getOptionList } from 'fyo/utils';
 import Dropdown from 'src/components/Dropdown.vue';
 import { fuzzyMatch } from 'src/utils';
-import { getOptionList } from 'src/utils/doc';
 import Base from './Base.vue';
 
 export default {
@@ -57,47 +84,81 @@ export default {
     value: {
       immediate: true,
       handler(newValue) {
-        this.linkValue = newValue;
+        this.linkValue = this.getLabel(newValue);
       },
     },
   },
   inject: {
     doc: { default: null },
   },
-  computed: {},
+  mounted() {
+    this.linkValue = this.getLabel(this.linkValue || this.value);
+  },
+  computed: {
+    options() {
+      if (!this.df) {
+        return [];
+      }
+
+      return getOptionList(this.df, this.doc);
+    },
+  },
   methods: {
-    async updateSuggestions(e) {
-      let keyword;
-      if (e) {
-        keyword = e.target.value;
+    getLabel(value) {
+      const oldValue = this.linkValue;
+      let option = this.options.find((o) => o.value === value);
+      if (option === undefined) {
+        option = this.options.find((o) => o.label === value);
+      }
+
+      return option?.label ?? oldValue;
+    },
+    getValue(label) {
+      let option = this.options.find((o) => o.label === label);
+      if (option === undefined) {
+        option = this.options.find((o) => o.value === label);
+      }
+
+      return option?.value ?? label;
+    },
+    async updateSuggestions(keyword) {
+      if (typeof keyword === 'string') {
         this.linkValue = keyword;
       }
+
       this.isLoading = true;
-      let suggestions = await this.getSuggestions(keyword);
-      this.suggestions = suggestions.map((d) => {
-        if (!d.action) {
-          d.action = () => this.setSuggestion(d);
-        }
-        return d;
-      });
+      const suggestions = await this.getSuggestions(keyword);
+      this.suggestions = this.setSetSuggestionAction(suggestions);
       this.isLoading = false;
     },
-    async getSuggestions(keyword = '') {
-      const options = getOptionList(this.df, this.doc);
 
-      keyword = keyword.toLowerCase();
-      if (!keyword) {
-        return options;
+    setSetSuggestionAction(suggestions) {
+      for (const option of suggestions) {
+        if (option.action) {
+          continue;
+        }
+
+        option.action = () => {
+          this.setSuggestion(option);
+        };
       }
 
-      return options
-        .map((item) => ({ ...fuzzyMatch(keyword, item.value), item }))
+      return suggestions;
+    },
+    async getSuggestions(keyword = '') {
+      keyword = keyword.toLowerCase();
+      if (!keyword) {
+        return this.options;
+      }
+
+      return this.options
+        .map((item) => ({ ...fuzzyMatch(keyword, item.label), item }))
         .filter(({ isMatch }) => isMatch)
         .sort((a, b) => a.distance - b.distance)
         .map(({ item }) => item);
     },
     setSuggestion(suggestion) {
-      this.linkValue = suggestion.value;
+      this.linkValue = suggestion.label;
       this.triggerChange(suggestion.value);
       this.toggleDropdown(false);
     },
@@ -107,34 +168,28 @@ export default {
       this.updateSuggestions();
       this.$emit('focus', e);
     },
-    async onBlur(value) {
-      if (value === '' || value == null) {
+    async onBlur(label) {
+      if (!label) {
         this.triggerChange('');
         return;
       }
 
-      if (value && this.suggestions.length === 0) {
-        this.triggerChange(value);
+      if (label && this.suggestions.length === 0) {
+        this.triggerChange(label);
         return;
       }
 
       if (
-        value &&
-        !this.suggestions.map(({ value }) => value).includes(value)
+        label &&
+        !this.suggestions.map(({ label }) => label).includes(label)
       ) {
-        const suggestion = await this.getSuggestions(value);
-
-        if (suggestion.length < 2) {
-          this.linkValue = '';
-          this.triggerChange('');
-        } else {
-          this.setSuggestion(suggestion[0]);
-        }
+        const suggestions = await this.getSuggestions(label);
+        this.setSuggestion(suggestions[0]);
       }
     },
     onInput(e) {
       this.toggleDropdown(true);
-      this.updateSuggestions(e);
+      this.updateSuggestions(e.target.value);
     },
   },
 };

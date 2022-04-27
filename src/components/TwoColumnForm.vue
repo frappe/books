@@ -177,11 +177,11 @@ export default {
       }
 
       const oldValue = this.doc.get(df.fieldname);
+      this.errors[df.fieldname] = null;
       if (oldValue === value) {
         return;
       }
 
-      this.errors[df.fieldname] = null;
       if (this.emitChange) {
         this.$emit('change', df, value, oldValue);
       }
@@ -251,7 +251,7 @@ export default {
     },
     async stopInlineEditing() {
       if (this.inlineEditDoc?.dirty) {
-        await this.inlineEditDoc.load()
+        await this.inlineEditDoc.load();
       }
       this.inlineEditDoc = null;
       this.inlineEditField = null;

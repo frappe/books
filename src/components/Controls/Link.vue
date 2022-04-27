@@ -9,6 +9,11 @@ export default {
   name: 'Link',
   extends: AutoComplete,
   emits: ['new-doc'],
+  mounted() {
+    if (this.value) {
+      this.linkValue = this.value;
+    }
+  },
   methods: {
     async getSuggestions(keyword = '') {
       const schemaName = this.df.target;

@@ -1,8 +1,10 @@
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { ValidationMap } from 'fyo/model/types';
+import { ListsMap, ValidationMap } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { t } from 'fyo/utils/translation';
+import { SelectOption } from 'schemas/types';
+import { getCountryInfo } from 'utils/misc';
 
 export default class SystemSettings extends Doc {
   validations: ValidationMap = {
@@ -14,6 +16,28 @@ export default class SystemSettings extends Doc {
       throw new ValidationError(
         t`Display Precision should have a value between 0 and 9.`
       );
+    },
+  };
+
+  static lists: ListsMap = {
+    locale() {
+      const countryInfo = getCountryInfo();
+      return Object.keys(countryInfo)
+        .filter((c) => !!countryInfo[c]?.locale)
+        .map(
+          (c) =>
+            ({
+              value: countryInfo[c]?.locale,
+              label: `${c} (${countryInfo[c]?.locale})`,
+            } as SelectOption)
+        );
+    },
+    currency() {
+      const countryInfo = getCountryInfo();
+      const currencies = Object.values(countryInfo)
+        .map((ci) => ci?.currency as string)
+        .filter(Boolean);
+      return [...new Set(currencies)];
     },
   };
 }

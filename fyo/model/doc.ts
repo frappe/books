@@ -44,7 +44,7 @@ import {
   TreeViewSettings,
   ValidationMap,
 } from './types';
-import { validateSelect } from './validationFunction';
+import { validateOptions, validateRequired } from './validationFunction';
 
 export class Doc extends Observable<DocValue | Doc[]> {
   name?: string;
@@ -308,11 +308,15 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _validateField(field: Field, value: DocValue) {
-    if (field.fieldtype == 'Select') {
-      validateSelect(field as OptionField, value as string);
+    if (
+      field.fieldtype === FieldTypeEnum.Select ||
+      field.fieldtype === FieldTypeEnum.AutoComplete
+    ) {
+      validateOptions(field as OptionField, value as string, this);
     }
 
-    if (value === null || value === undefined) {
+    validateRequired(field, value, this);
+    if (getIsNullOrUndef(value)) {
       return;
     }
 

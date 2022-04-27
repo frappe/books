@@ -2,7 +2,7 @@
   <FormControl
     :df="languageDf"
     :value="value"
-    @change="(v) => setLanguageMap(v, dontReload)"
+    @change="onChange"
     :input-class="'focus:outline-none rounded ' + inputClass"
   />
 </template>
@@ -28,6 +28,15 @@ export default {
     },
   },
   components: { FormControl },
+  methods: {
+    onChange(value) {
+      if (languageCodeMap[value] === undefined) {
+        return;
+      }
+
+      setLanguageMap(value, this.dontReload);
+    },
+  },
   computed: {
     value() {
       return fyo.config.get('language') ?? DEFAULT_LANGUAGE;

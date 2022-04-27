@@ -40,12 +40,14 @@
 <script>
 import { ConfigKeys } from 'fyo/core/types';
 import { getTelemetryOptions } from 'fyo/telemetry/helpers';
-import { TelemetrySetting } from 'fyo/telemetry/types';
+import { NounEnum, TelemetrySetting, Verb } from 'fyo/telemetry/types';
+import { ModelNameEnum } from 'models/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm';
 import { fyo } from 'src/initFyo';
-import { checkForUpdates } from 'src/utils';
+import { checkForUpdates } from 'src/utils/ipcCalls';
+import { getCountryInfo } from 'utils/misc';
 
 export default {
   name: 'TabSystem',
@@ -65,6 +67,7 @@ export default {
     this.doc = fyo.singles.SystemSettings;
     this.companyName = fyo.singles.AccountingSettings.companyName;
     this.telemetry = fyo.config.get(ConfigKeys.Telemetry);
+    window.gci = getCountryInfo
   },
   computed: {
     df() {
@@ -81,8 +84,9 @@ export default {
       };
     },
     fields() {
-      let meta = fyo.getMeta('SystemSettings');
-      return meta.getQuickEditFields();
+      return fyo.schemaMap.SystemSettings.quickEditFields.map((f) =>
+        fyo.getField(ModelNameEnum.SystemSettings, f)
+      );
     },
   },
   methods: {

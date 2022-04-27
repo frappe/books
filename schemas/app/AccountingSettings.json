@@ -9,6 +9,7 @@
       "label": "Company Name",
       "fieldname": "companyName",
       "fieldtype": "Data",
+      "readOnly": true,
       "required": true
     },
     {
@@ -49,6 +50,7 @@
       "fieldname": "bankName",
       "label": "Bank Name",
       "fieldtype": "Data",
+      "readOnly": true,
       "required": true
     },
     {
