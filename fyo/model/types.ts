@@ -1,6 +1,6 @@
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import SystemSettings from 'fyo/models/SystemSettings';
-import { FieldType } from 'schemas/types';
+import { FieldType, SelectOption } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 import { Router } from 'vue-router';
 import { Doc } from './doc';
@@ -55,7 +55,7 @@ export type FiltersMap = Record<string, FilterFunction>;
 export type EmptyMessageFunction = (doc: Doc) => string;
 export type EmptyMessageMap = Record<string, EmptyMessageFunction>;
 
-export type ListFunction = (doc?: Doc) => string[];
+export type ListFunction = (doc?: Doc) => string[] | SelectOption[];
 export type ListsMap = Record<string, ListFunction | undefined>;
 
 export interface Action {

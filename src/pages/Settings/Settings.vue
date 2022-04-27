@@ -60,6 +60,7 @@ import WindowControls from 'src/components/WindowControls.vue';
 import { showToast } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h, markRaw } from 'vue';
+import TabGeneral from './TabGeneral.vue';
 import TabInvoice from './TabInvoice.vue';
 import TabSystem from './TabSystem.vue';
 
@@ -88,15 +89,13 @@ export default {
           key: 'General',
           label: t`General`,
           icon: 'general',
-          // component: markRaw(TabGeneral),
-          component: {template: `<h1>General</h1>`}
+          component: markRaw(TabGeneral),
         },
         {
           key: 'System',
           label: t`System`,
           icon: 'system',
           component: markRaw(TabSystem),
-          component: {template: `<h1>System</h1>`}
         },
       ],
     };

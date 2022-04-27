@@ -1,6 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import { Field, OptionField, SelectOption } from 'schemas/types';
-import { fyo } from 'src/initFyo';
+import { Field } from 'schemas/types';
 
 export function evaluateReadOnly(field: Field, doc: Doc) {
   if (field.readOnly !== undefined) {
@@ -26,37 +25,4 @@ export function evaluateHidden(field: Field, doc: Doc) {
   }
 
   return false;
-}
-
-export function getOptionList(field: Field, doc: Doc): SelectOption[] {
-  const list = _getOptionList(field, doc);
-  return list.map((option) => {
-    if (typeof option === 'string') {
-      return {
-        label: option,
-        value: option,
-      };
-    }
-
-    return option;
-  });
-}
-
-function _getOptionList(field: Field, doc: Doc) {
-  const options = (field as OptionField).options;
-  if (options && options.length > 0) {
-    return (field as OptionField).options;
-  }
-
-  const Model = fyo.models[doc.schemaName];
-  if (Model === undefined) {
-    return [];
-  }
-
-  const getList = Model.lists[field.fieldname];
-  if (getList === undefined) {
-    return [];
-  }
-
-  return getList(doc);
 }

@@ -42,6 +42,7 @@ export interface OptionField extends BaseField {
     | FieldTypeEnum.AutoComplete
     | FieldTypeEnum.Color;
   options: SelectOption[];
+  allowCustom?: boolean;
 }
 
 export interface TargetField extends BaseField {

@@ -7,7 +7,7 @@
     {
       "fieldname": "dateFormat",
       "label": "Date Format",
-      "fieldtype": "Select",
+      "fieldtype": "AutoComplete",
       "options": [
         {
           "label": "23/03/2022",
@@ -40,13 +40,15 @@
       ],
       "default": "MMM d, y",
       "required": true,
+      "allowCustom": true,
       "description": "Sets the app-wide date display format."
     },
     {
       "fieldname": "locale",
       "label": "Locale",
-      "fieldtype": "Data",
+      "fieldtype": "AutoComplete",
       "default": "en-IN",
+      "required": true,
       "description": "Set the local code. This is used for number formatting."
     },
     {
@@ -84,9 +86,8 @@
     {
       "fieldname": "currency",
       "label": "Currency",
-      "fieldtype": "Data",
-      "readOnly": true,
-      "required": false
+      "fieldtype": "AutoComplete",
+      "required": true
     }
   ],
   "quickEditFields": [
