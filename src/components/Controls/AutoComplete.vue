@@ -39,6 +39,7 @@
           @keydown.esc="toggleDropdown(false)"
         />
         <svg
+          v-if="!isReadOnly"
           class="w-3 h-3"
           style="background: inherit; margin-right: -3px"
           viewBox="0 0 5 10"

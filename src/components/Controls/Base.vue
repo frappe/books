@@ -60,7 +60,8 @@ export default {
           'px-2 py-1': this.size === 'small',
           'pointer-events-none': this.isReadOnly,
         },
-        'focus:outline-none focus:bg-gray-200 rounded w-full text-gray-900 placeholder-gray-400',
+        'focus:outline-none focus:bg-gray-200 rounded w-full placeholder-gray-400',
+        this.isReadOnly ? 'text-gray-800' : 'text-gray-900',
       ];
 
       return this.getInputClassesFromProp(classes);
