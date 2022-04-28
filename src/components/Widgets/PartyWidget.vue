@@ -51,7 +51,7 @@
 <script>
 import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils';
-import { getStatusColumn } from '../Transaction/Transaction';
+// import { getStatusColumn } from '../Transaction/Transaction';
 
 export default {
   name: 'PartyWidget',
@@ -96,8 +96,9 @@ export default {
       window.pendingInvoices = this.pendingInvoices;
     },
     getStatusBadge(doc) {
-      let statusColumn = getStatusColumn();
-      return statusColumn.render(doc);
+      // let statusColumn = getStatusColumn();
+      // return statusColumn.render(doc);
+      return {}
     },
     routeToForm(doc) {
       routeTo(`/edit/${this.invoiceDoctype}/${doc.name}`);

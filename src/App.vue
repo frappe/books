@@ -33,9 +33,9 @@
 <script>
 import { ConfigKeys } from 'fyo/core/types';
 import {
-getSetupComplete,
-incrementOpenCount,
-startTelemetry
+  getSetupComplete,
+  incrementOpenCount,
+  startTelemetry,
 } from 'src/utils/misc';
 import TelemetryModal from './components/once/TelemetryModal.vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';

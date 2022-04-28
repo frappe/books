@@ -16,7 +16,7 @@
           :icon="true"
           @click="sync"
           type="primary"
-          v-if="doc && doc._notInserted"
+          v-if="doc && doc.notInserted"
           class="ml-2 text-white text-xs"
         >
           {{ t`Save` }}
@@ -26,11 +26,10 @@
           @click="submitDoc"
           type="primary"
           v-if="
-            meta &&
-            meta.isSubmittable &&
+            schema?.isSubmittable &&
             doc &&
             !doc.submitted &&
-            !doc._notInserted &&
+            !doc.notInserted &&
             !(doc.cancelled || false)
           "
           class="ml-2 text-white text-xs"
@@ -78,17 +77,24 @@
 
 <script>
 import { t } from 'fyo';
-import Button from 'src/components/Button';
+import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
-import DropdownWithActions from 'src/components/DropdownWithActions';
-import StatusBadge from 'src/components/StatusBadge';
-import TwoColumnForm from 'src/components/TwoColumnForm';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
+import StatusBadge from 'src/components/StatusBadge.vue';
+import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
-import { getActionsForDocument, openQuickEdit } from 'src/utils';
+import { getQuickEditWidget } from 'src/utils/quickEditWidgets';
+import { getActionsForDocument, openQuickEdit } from 'src/utils/ui';
 
 export default {
   name: 'QuickEditForm',
-  props: ['doctype', 'name', 'valueJSON', 'hideFields', 'showFields'],
+  props: {
+    name: String,
+    schemaName: String,
+    defaults: String,
+    hideFields: { type: Array, default: () => [] },
+    showFields: { type: Array, default: () => [] },
+  },
   components: {
     Button,
     FormControl,
@@ -99,7 +105,7 @@ export default {
   provide() {
     let vm = this;
     return {
-      doctype: this.doctype,
+      schemaName: this.schemaName,
       name: this.name,
       get doc() {
         return vm.doc;
@@ -107,11 +113,13 @@ export default {
     };
   },
   mounted() {
-    if (!this.valueJSON) {
-      return;
+    if (this.defaults) {
+      this.values = JSON.parse(this.defaults);
     }
 
-    this.values = JSON.parse(this.valueJSON);
+    if (fyo.store.isDevelopment) {
+      window.qef = this;
+    }
   },
   data() {
     return {
@@ -123,59 +131,64 @@ export default {
     };
   },
   async created() {
-    await this.fetchMetaAndDoc();
+    await this.fetchFieldsAndDoc();
   },
   computed: {
-    meta() {
-      return fyo.getMeta(this.doctype);
+    schema() {
+      return fyo.schemaMap[this.schemaName] ?? null;
     },
     status() {
-      if (this.doc && this.doc._notInserted) {
+      if (this.doc && this.doc.notInserted) {
         return 'Draft';
       }
+
       return '';
     },
     fields() {
-      const fields = this.meta
-        .getQuickEditFields()
-        .filter((df) => !(this.hideFields || []).includes(df.fieldname));
+      if (!this.schema) {
+        return [];
+      }
 
-      if (this.showFields) {
-        fields.push(
-          ...this.meta.fields.filter(({ fieldname }) =>
-            this.showFields.includes(fieldname)
-          )
+      const fieldnames = (this.schema.quickEditFields ?? ['name']).filter(
+        (f) => !this.hideFields.includes(f)
+      );
+
+      if (this.showFields?.length) {
+        fieldnames.push(
+          ...this.schema.fields
+            .map((f) => f.fieldname)
+            .filter((f) => this.showFields.includes(f))
         );
       }
-      return fields;
+
+      return fieldnames.map((f) => fyo.getField(this.schemaName, f));
     },
     actions() {
       return getActionsForDocument(this.doc);
     },
     quickEditWidget() {
-      if (!this.meta.quickEditWidget) {
+      const widget = getQuickEditWidget(this.schemaName);
+      if (widget === null) {
         return null;
       }
-      return this.meta.quickEditWidget(this.doc);
+
+      return widget(this.doc);
     },
   },
   methods: {
-    async fetchMetaAndDoc() {
-      this.titleField = this.meta.getField(this.meta.titleField);
-      this.imageField = this.meta.getField('image');
+    async fetchFieldsAndDoc() {
+      if (!this.schema) {
+        return;
+      }
+
+      const titleField = this.schema.titleField;
+      this.titleField = fyo.getField(this.schemaName, titleField);
+      this.imageField = fyo.getField(this.schemaName, 'image');
+
       await this.fetchDoc();
 
       // setup the title field
-      if (this.doc && this.doc.notInserted && this.doc[this.titleField.fieldname]) {
-        if (!this.titleField.readOnly) {
-          this.doc.set(this.titleField.fieldname, '');
-          setTimeout(() => {
-            this.$refs.titleControl.focus();
-          }, 300);
-        } else {
-          this.doc.set(this.titleField.fieldname, 'New ' + this.doc.doctype);
-        }
-      }
+      this.setTitleField();
 
       // set default values
       if (this.values) {
@@ -185,13 +198,30 @@ export default {
       // set title size
       this.setTitleSize();
     },
+    setTitleField() {
+      const { fieldname, readOnly } = this.titleField;
+      if (!this.doc?.notInserted || !this.doc[fieldname]) {
+        return;
+      }
+
+      if (readOnly) {
+        this.doc.set(fieldname, t`New ${this.schema.label}`);
+        return;
+      }
+
+      this.doc.set(fieldname, '');
+
+      setTimeout(() => {
+        this.$refs.titleControl.focus();
+      }, 300);
+    },
     async fetchDoc() {
       try {
-        this.doc = await fyo.doc.getDoc(this.doctype, this.name);
+        this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
 
         this.doc.once('afterRename', () => {
           openQuickEdit({
-            doctype: this.doctype,
+            schemaName: this.schemaName,
             name: this.doc.name,
           });
         });
@@ -225,15 +255,19 @@ export default {
       this.$router.back();
     },
     setTitleSize() {
-      if (this.$refs.titleControl) {
-        let input = this.$refs.titleControl.getInput();
-        let value = input.value;
-        let valueLength = (value || '').length + 1;
-        if (valueLength < 7) {
-          valueLength = 7;
-        }
-        input.size = valueLength;
+      if (!this.$refs.titleControl) {
+        return;
       }
+
+      const input = this.$refs.titleControl.getInput();
+      const value = input.value;
+      let valueLength = (value || '').length + 1;
+
+      if (valueLength < 7) {
+        valueLength = 7;
+      }
+
+      input.size = valueLength;
     },
   },
 };

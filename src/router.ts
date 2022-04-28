@@ -1,7 +1,7 @@
 import { NounEnum, Verb } from 'fyo/telemetry/types';
+import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
-// import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 // import DataImport from 'src/pages/DataImport.vue';
 // import InvoiceForm from 'src/pages/InvoiceForm.vue';
 // import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
@@ -77,7 +77,9 @@ const routes: RouteRecordRaw[] = [
           filters,
         };
       },
-      edit: (route) => route.query,
+      edit: (route) => {
+        return route.query;
+      },
     },
   },
   /*
@@ -93,6 +95,7 @@ const routes: RouteRecordRaw[] = [
     component: Report,
     props: true,
   },
+  */
   {
     path: '/chart-of-accounts',
     name: 'Chart Of Accounts',
@@ -105,6 +108,7 @@ const routes: RouteRecordRaw[] = [
       edit: (route) => route.query,
     },
   },
+  /*
   {
     path: '/data_import',
     name: 'Data Import',
