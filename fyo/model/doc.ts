@@ -177,11 +177,13 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async setMultiple(docValueMap: DocValueMap): Promise<boolean> {
     let hasSet = false;
     for (const fieldname in docValueMap) {
-      hasSet ||= await this.set(
+      const isSet = await this.set(
         fieldname,
         docValueMap[fieldname] as DocValue | Doc[]
       );
+      hasSet ||= isSet;
     }
+
     return hasSet;
   }
 

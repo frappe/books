@@ -348,7 +348,9 @@ export default class DatabaseCore extends DatabaseBase {
   }
 
   async #removeColumns(schemaName: string, targetColumns: string[]) {
-    const fields = this.schemaMap[schemaName]?.fields.map((f) => f.fieldname);
+    const fields = this.schemaMap[schemaName]?.fields
+      .filter((f) => f.fieldtype !== FieldTypeEnum.Table)
+      .map((f) => f.fieldname);
     const tableRows = await this.getAll(schemaName, { fields });
     this.prestigeTheTable(schemaName, tableRows);
   }

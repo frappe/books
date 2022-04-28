@@ -142,12 +142,6 @@
       "fieldtype": "Check"
     }
   ],
-  "quickEditFields": [
-    "name",
-    "rootType",
-    "parentAccount",
-    "accountType",
-    "isGroup"
-  ],
+  "quickEditFields": ["name", "rootType", "parentAccount", "accountType"],
   "keywordFields": ["name", "rootType", "accountType"]
 }

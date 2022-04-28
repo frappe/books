@@ -4,12 +4,13 @@
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
     <WindowsTitleBar v-if="platform === 'Windows'" />
+    
+    <!-- Main Contents -->
     <Desk
       class="flex-1"
       v-if="activeScreen === 'Desk'"
       @change-db-file="changeDbFile"
     />
-
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
       @file-selected="fileSelected"
@@ -19,6 +20,8 @@
       @setup-complete="setupComplete"
       @setup-canceled="changeDbFile"
     />
+    
+    <!-- Render target for toasts -->
     <div
       id="toast-container"
       class="absolute bottom-0 flex flex-col items-end mb-3 pr-6"
@@ -26,6 +29,8 @@
     >
       <div id="toast-target" />
     </div>
+    
+    <!-- Prompt to Set Telemetry -->
     <TelemetryModal />
   </div>
 </template>
@@ -33,9 +38,9 @@
 <script>
 import { ConfigKeys } from 'fyo/core/types';
 import {
-  getSetupComplete,
-  incrementOpenCount,
-  startTelemetry,
+getSetupComplete,
+incrementOpenCount,
+startTelemetry
 } from 'src/utils/misc';
 import TelemetryModal from './components/once/TelemetryModal.vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';

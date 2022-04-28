@@ -57,7 +57,11 @@ describe('setupInstance', function () {
         dbValue = dbValue.toISOString().split('T')[0];
       }
 
-      assert.strictEqual(dbValue as string, optionsValue, `${field} mismatch`);
+      assert.strictEqual(
+        dbValue as string,
+        optionsValue,
+        `${field} mismatch (${dbValue},${optionsValue})`
+      );
     }
   });
 
