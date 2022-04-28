@@ -3,8 +3,10 @@
     <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
       {{ df.label }}
     </div>
+
+    <!-- Title Row -->
     <Row :ratio="ratio" class="border-b px-2 text-gray-600 w-full">
-      <div class="flex items-center pl-2">No</div>
+      <div class="flex items-center pl-2">#</div>
       <div
         :class="{
           'px-2 py-3': size === 'small',
@@ -17,6 +19,8 @@
         {{ df.label }}
       </div>
     </Row>
+
+    <!-- Data Rows -->
     <div class="overflow-auto" :style="{ 'max-height': rowContainerHeight }">
       <TableRow
         :class="{ 'pointer-events-none': isReadOnly }"
@@ -27,6 +31,8 @@
         @remove="removeRow(row)"
       />
     </div>
+
+    <!-- Add Row and Row Count -->
     <Row
       :ratio="ratio"
       class="text-gray-500 cursor-pointer border-transparent px-2 w-full"
@@ -54,7 +60,7 @@
         }"
         v-if="maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow"
       >
-        {{ value.length }} rows
+        {{ t`${value.length} rows` }}
       </div>
     </Row>
   </div>
@@ -71,9 +77,11 @@ export default {
   extends: Base,
   props: {
     showHeader: {
+      type: Boolean,
       default: true,
     },
     maxRowsBeforeOverflow: {
+      type: Number,
       default: 0,
     },
   },
@@ -81,6 +89,7 @@ export default {
     Row,
     TableRow,
   },
+  inject: ['doc'],
   data: () => ({ rowContainerHeight: null }),
   watch: {
     value: {
@@ -101,19 +110,28 @@ export default {
   methods: {
     focus() {},
     addRow() {
-      let rows = this.value || [];
-      this.triggerChange([...rows, {}]);
-      this.$nextTick(() => {
-        this.scrollToRow(this.value.length - 1);
+      this.doc.append(this.df.fieldname, {}).then((s) => {
+        if (!s) {
+          return;
+        }
+
+        this.$nextTick(() => {
+          this.scrollToRow(this.value.length - 1);
+        });
+        this.triggerChange(this.value);
       });
     },
     removeRow(row) {
-      let rows = this.value || [];
-      rows = rows.filter((_row) => _row !== row);
-      this.triggerChange(rows);
+      this.doc.remove(this.df.fieldname, row.idx).then((s) => {
+        if (!s) {
+          return;
+        }
+
+        this.triggerChange(this.value);
+      });
     },
     scrollToRow(index) {
-      let row = this.$refs['table-row'][index];
+      const row = this.$refs['table-row'][index];
       row && row.$el.scrollIntoView({ block: 'nearest' });
     },
   },

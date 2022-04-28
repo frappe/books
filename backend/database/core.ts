@@ -348,7 +348,9 @@ export default class DatabaseCore extends DatabaseBase {
   }
 
   async #removeColumns(schemaName: string, targetColumns: string[]) {
-    // TODO: Implement this for sqlite
+    const fields = this.schemaMap[schemaName]?.fields.map((f) => f.fieldname);
+    const tableRows = await this.getAll(schemaName, { fields });
+    this.prestigeTheTable(schemaName, tableRows);
   }
 
   #getError(err: Error) {

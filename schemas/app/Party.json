@@ -79,6 +79,13 @@
       "fieldtype": "Data"
     }
   ],
-  "quickEditFields": ["email", "role", "phone", "address", "defaultAccount", "currency", "taxId"],
+  "quickEditFields": [
+    "email",
+    "phone",
+    "address",
+    "defaultAccount",
+    "currency",
+    "taxId"
+  ],
   "keywordFields": ["name"]
 }

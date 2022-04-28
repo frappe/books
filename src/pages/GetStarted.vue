@@ -112,7 +112,7 @@ export default {
 
       switch (key) {
         case 'Opening Balances':
-          await this.updateChecks({ openingBalanceChecked: 1 });
+          await this.updateChecks({ openingBalanceChecked: true });
           break;
       }
     },
@@ -124,19 +124,19 @@ export default {
 
       switch (key) {
         case 'Invoice':
-          await this.updateChecks({ invoiceSetup: 1 });
+          await this.updateChecks({ invoiceSetup: true });
           break;
         case 'General':
-          await this.updateChecks({ companySetup: 1 });
+          await this.updateChecks({ companySetup: true });
           break;
         case 'System':
-          await this.updateChecks({ systemSetup: 1 });
+          await this.updateChecks({ systemSetup: true });
           break;
         case 'Review Accounts':
-          await this.updateChecks({ chartOfAccountsReviewed: 1 });
+          await this.updateChecks({ chartOfAccountsReviewed: true });
           break;
         case 'Add Taxes':
-          await this.updateChecks({ taxesAdded: 1 });
+          await this.updateChecks({ taxesAdded: true });
           break;
       }
     },
@@ -154,7 +154,7 @@ export default {
       if (onboardingComplete) {
         await this.updateChecks({ onboardingComplete });
         const systemSettings = await fyo.doc.getSingle('SystemSettings');
-        await systemSettings.set({ hideGetStarted: 1 });
+        await systemSettings.set('hideGetStarted', true);
         await systemSettings.sync();
       }
 
@@ -207,9 +207,8 @@ export default {
       await this.updateChecks(toUpdate);
     },
     async updateChecks(toUpdate) {
-      await fyo.singles.GetStarted.setMultiple(toUpdate);
-      await fyo.singles.GetStarted.sync();
-      fyo.singles.GetStarted = await fyo.doc.getSingle('GetStarted');
+      await fyo.singles.GetStarted.setAndSync(toUpdate);
+      await fyo.doc.getSingle('GetStarted');
     },
     isCompleted(item) {
       return fyo.singles.GetStarted.get(item.fieldname) || 0;

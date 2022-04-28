@@ -67,7 +67,7 @@ export class Party extends Doc {
     },
     currency: async () =>
       this.fyo.singles.AccountingSettings!.currency as string,
-    addressDisplay: async () => {
+    address: async () => {
       const address = this.address as string | undefined;
       if (address) {
         return this.getFrom('Address', address, 'addressDisplay') as string;

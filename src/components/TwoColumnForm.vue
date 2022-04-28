@@ -117,6 +117,7 @@ export default {
     return {
       inlineEditDoc: null,
       inlineEditField: null,
+      formFields: [],
       errors: {},
     };
   },
@@ -133,8 +134,9 @@ export default {
     TwoColumnForm: () => TwoColumnForm,
   },
   mounted() {
+    this.setFormFields();
     if (this.focusFirstInput) {
-      this.$refs['controls'][0].focus();
+      this.$refs['controls']?.[0].focus();
     }
 
     if (fyo.store.isDevelopment) {
@@ -176,28 +178,34 @@ export default {
         return;
       }
 
-      const oldValue = this.doc.get(df.fieldname);
-      this.errors[df.fieldname] = null;
-      if (oldValue === value) {
-        return;
-      }
-
-      if (this.emitChange) {
-        this.$emit('change', df, value, oldValue);
-      }
-
       // handle rename
       if (this.autosave && df.fieldname === 'name' && !this.doc.notInserted) {
         return this.doc.rename(value);
       }
 
-      this.onChangeCommon(df, value);
+      const oldValue = this.doc.get(df.fieldname);
+      this.errors[df.fieldname] = null;
+      this.onChangeCommon(df, value, oldValue);
     },
-    onChangeCommon(df, value) {
-      this.doc.set(df.fieldname, value).catch((e) => {
-        // set error message for this field
-        this.errors[df.fieldname] = getErrorMessage(e, this.doc);
-      });
+    onChangeCommon(df, value, oldValue) {
+      this.doc
+        .set(df.fieldname, value)
+        .catch((e) => {
+          this.errors[df.fieldname] = getErrorMessage(e, this.doc);
+        })
+        .then((success) => {
+          if (!success) {
+            return;
+          }
+
+          this.handlePostSet(df, value, oldValue);
+        });
+    },
+    handlePostSet(df, value, oldValue) {
+      this.setFormFields();
+      if (this.emitChange) {
+        this.$emit('change', df, value, oldValue);
+      }
 
       if (this.autosave && this.doc.dirty) {
         if (df.fieldtype === 'Table') {
@@ -250,15 +258,14 @@ export default {
       await this.stopInlineEditing();
     },
     async stopInlineEditing() {
-      if (this.inlineEditDoc?.dirty) {
+      if (this.inlineEditDoc?.dirty && !this.inlineEditDoc?.notInserted) {
         await this.inlineEditDoc.load();
       }
+
       this.inlineEditDoc = null;
       this.inlineEditField = null;
     },
-  },
-  computed: {
-    formFields() {
+    setFormFields() {
       let fieldList = this.fields;
 
       if (fieldList.length === 0) {
@@ -269,10 +276,12 @@ export default {
         fieldList = this.doc.schema.fields.filter((f) => f.required);
       }
 
-      return fieldList.filter(
+      this.formFields = fieldList.filter(
         (field) => field && !evaluateHidden(field, this.doc)
       );
     },
+  },
+  computed: {
     style() {
       let templateColumns = (this.columnRatio || [1, 1])
         .map((r) => `${r}fr`)

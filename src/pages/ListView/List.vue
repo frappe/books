@@ -2,9 +2,7 @@
   <div class="mx-4 pb-16 text-base flex flex-col overflow-y-hidden">
     <!-- Title Row -->
     <div class="flex">
-      <div class="py-4 mr-3 w-7 border-b" v-if="hasImage">
-        <p class="text-gray-700">Img</p>
-      </div>
+      <div class="py-4 mr-3 w-7" v-if="hasImage" />
       <Row
         class="flex-1 text-gray-700"
         :columnCount="columns.length"
@@ -25,11 +23,7 @@
 
     <!-- Data Rows -->
     <div class="overflow-y-auto" v-if="data.length !== 0">
-      <div
-        class="px-3 flex hover:bg-gray-100 rounded-md"
-        v-for="doc in data"
-        :key="doc.name"
-      >
+      <div class="flex hover:bg-gray-100" v-for="doc in data" :key="doc.name">
         <div class="w-7 py-4 mr-3" v-if="hasImage">
           <Avatar :imageURL="doc.image" :label="doc.name" />
         </div>

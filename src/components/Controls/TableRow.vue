@@ -1,5 +1,6 @@
 <template>
   <Row :ratio="ratio" class="w-full px-2 border-b hover:bg-brand-100 group">
+    <!-- Index or Remove button -->
     <div class="flex items-center pl-2 text-gray-600">
       <span class="hidden group-hover:inline-block">
         <feather-icon
@@ -12,6 +13,8 @@
         {{ row.idx + 1 }}
       </span>
     </div>
+
+    <!-- Data Input Form Control -->
     <FormControl
       :size="size"
       class="py-2"
@@ -23,6 +26,8 @@
       @change="(value) => onChange(df, value)"
       @new-doc="(doc) => row.set(df.fieldname, doc.name)"
     />
+
+    <!-- Error Display -->
     <div
       class="text-sm text-red-600 mb-2 pl-2 col-span-full"
       v-if="Object.values(errors).length"
@@ -32,13 +37,20 @@
   </Row>
 </template>
 <script>
+import { Doc } from 'fyo/model/doc';
 import Row from 'src/components/Row.vue';
 import { getErrorMessage } from 'src/utils';
 import FormControl from './FormControl.vue';
 
 export default {
   name: 'TableRow',
-  props: ['row', 'tableFields', 'size', 'ratio', 'isNumeric'],
+  props: {
+    row: Doc,
+    tableFields: Array,
+    size: String,
+    ratio: Array,
+    isNumeric: Function,
+  },
   emits: ['remove'],
   components: {
     Row,
@@ -50,7 +62,7 @@ export default {
   },
   provide() {
     return {
-      doctype: this.row.doctype,
+      schemaName: this.row.schemaName,
       name: this.row.name,
       doc: this.row,
     };
@@ -62,11 +74,6 @@ export default {
       }
 
       this.errors[df.fieldname] = null;
-      const oldValue = this.row.get(df.fieldname);
-      if (oldValue === value) {
-        return;
-      }
-
       this.row.set(df.fieldname, value).catch((e) => {
         this.errors[df.fieldname] = getErrorMessage(e, this.row);
       });

@@ -1,6 +1,8 @@
 <template>
   <div class="border-l h-full">
+    <!-- Quick edit Tool bar -->
     <div class="flex items-center justify-between px-4 pt-4">
+      <!-- Close Button and Status Text -->
       <div class="flex items-center">
         <Button :icon="true" @click="routeToPrevious">
           <feather-icon name="x" class="w-4 h-4" />
@@ -9,6 +11,8 @@
           statusText
         }}</span>
       </div>
+
+      <!-- Actions, Badge and Status Change Buttons -->
       <div class="flex items-stretch">
         <DropdownWithActions :actions="actions" />
         <StatusBadge :status="status" />
@@ -16,7 +20,7 @@
           :icon="true"
           @click="sync"
           type="primary"
-          v-if="doc && doc.notInserted"
+          v-if="doc?.dirty || doc?.notInserted"
           class="ml-2 text-white text-xs"
         >
           {{ t`Save` }}
@@ -27,10 +31,9 @@
           type="primary"
           v-if="
             schema?.isSubmittable &&
-            doc &&
-            !doc.submitted &&
-            !doc.notInserted &&
-            !(doc.cancelled || false)
+            !doc?.submitted &&
+            !doc?.notInserted &&
+            !(doc?.cancelled || false)
           "
           class="ml-2 text-white text-xs"
         >
@@ -38,6 +41,8 @@
         </Button>
       </div>
     </div>
+
+    <!-- Name and image -->
     <div class="px-4 pt-2 pb-4 flex-center" v-if="doc">
       <div class="flex flex-col items-center">
         <FormControl
@@ -63,15 +68,19 @@
         />
       </div>
     </div>
+
+    <!-- Rest of the form -->
     <TwoColumnForm
       ref="form"
       v-if="doc"
       :doc="doc"
       :fields="fields"
-      :autosave="true"
+      :autosave="false"
       :column-ratio="[1.1, 2]"
     />
-    <component v-if="doc && quickEditWidget" :is="quickEditWidget" />
+
+    <!-- QuickEdit Widgets -->
+    <component v-if="quickEditWidget" :is="quickEditWidget" />
   </div>
 </template>
 
@@ -167,6 +176,10 @@ export default {
       return getActionsForDocument(this.doc);
     },
     quickEditWidget() {
+      if (this.doc?.notInserted ?? true) {
+        return null;
+      }
+
       const widget = getQuickEditWidget(this.schemaName);
       if (widget === null) {
         return null;
@@ -212,7 +225,7 @@ export default {
       this.doc.set(fieldname, '');
 
       setTimeout(() => {
-        this.$refs.titleControl.focus();
+        this.$refs.titleControl?.focus();
       }, 300);
     },
     async fetchDoc() {
@@ -225,9 +238,11 @@ export default {
             name: this.doc.name,
           });
         });
+
         this.doc.on('beforeSync', () => {
           this.statusText = t`Saving...`;
         });
+
         this.doc.on('afterSync', () => {
           setTimeout(() => {
             this.statusText = null;
@@ -252,6 +267,9 @@ export default {
       }
     },
     routeToPrevious() {
+      if (this.doc.dirty && !this.doc.notInserted) {
+        this.doc.load();
+      }
       this.$router.back();
     },
     setTitleSize() {
@@ -261,13 +279,8 @@ export default {
 
       const input = this.$refs.titleControl.getInput();
       const value = input.value;
-      let valueLength = (value || '').length + 1;
-
-      if (valueLength < 7) {
-        valueLength = 7;
-      }
-
-      input.size = valueLength;
+      const valueLength = (value || '').length + 1;
+      input.size = Math.max(valueLength, 15);
     },
   },
 };

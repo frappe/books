@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { Action, ColumnConfig } from 'fyo/model/types';
 import { NotFoundError } from 'fyo/utils/errors';
@@ -75,16 +75,16 @@ export function getTransactionActions(schemaName: string, fyo: Fyo): Action[] {
   ];
 }
 
-export function getTransactionStatusColumn(fyo: Fyo): ColumnConfig {
+export function getTransactionStatusColumn(): ColumnConfig {
   const statusMap = {
-    Unpaid: fyo.t`Unpaid`,
-    Paid: fyo.t`Paid`,
-    Draft: fyo.t`Draft`,
-    Cancelled: fyo.t`Cancelled`,
+    Unpaid: t`Unpaid`,
+    Paid: t`Paid`,
+    Draft: t`Draft`,
+    Cancelled: t`Cancelled`,
   };
 
   return {
-    label: fyo.t`Status`,
+    label: t`Status`,
     fieldname: 'status',
     fieldtype: 'Select',
     render(doc: Doc) {

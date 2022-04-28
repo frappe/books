@@ -88,6 +88,8 @@ export class Converter {
         return toRawFloat(value, field);
       case FieldTypeEnum.Check:
         return toRawCheck(value, field);
+      case FieldTypeEnum.Link:
+        return toRawLink(value, field);
       default:
         return toRawString(value, field);
     }
@@ -325,6 +327,18 @@ function toRawCheck(value: DocValue, field: Field): number {
 
 function toRawString(value: DocValue, field: Field): string | null {
   if (value === null) {
+    return null;
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  throwError(value, field, 'raw');
+}
+
+function toRawLink(value: DocValue, field: Field): string | null {
+  if (value === null || !(value as string)?.length) {
     return null;
   }
 

@@ -129,7 +129,7 @@ function getNumberFormatter(fyo: Fyo) {
 }
 
 function getCurrency(field: Field, doc: Doc | null, fyo: Fyo): string {
-  let getCurrency = doc?.getCurrencies[field.fieldname];
+  let getCurrency = doc?.getCurrencies?.[field.fieldname];
   if (getCurrency !== undefined) {
     return getCurrency();
   }
