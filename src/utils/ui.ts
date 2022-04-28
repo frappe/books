@@ -24,20 +24,21 @@ import {
 export async function openQuickEdit({
   schemaName,
   name,
-  hideFields,
-  showFields,
+  hideFields = [],
+  showFields = [],
   defaults = {},
 }: QuickEditOptions) {
   const currentRoute = router.currentRoute.value;
   const query = currentRoute.query;
   let method: 'push' | 'replace' = 'push';
 
-  if (query.edit && query.doctype === schemaName) {
-    // replace the current route if we are
-    // editing another document of the same doctype
+  if (query.edit && query.schemaName === schemaName) {
     method = 'replace';
   }
-  if (query.name === name) return;
+
+  if (query.name === name) {
+    return;
+  }
 
   const forWhat = (defaults?.for ?? []) as string[];
   if (forWhat[0] === 'not in') {
@@ -60,22 +61,16 @@ export async function openQuickEdit({
   router[method]({
     query: {
       edit: 1,
-      doctype: schemaName,
+      schemaName,
       name,
-      showFields: showFields ?? getShowFields(schemaName),
+      showFields,
       hideFields,
-      valueJSON: stringifyCircular(defaults),
-      // @ts-ignore
+      defaults: stringifyCircular(defaults),
+      /*
       lastRoute: currentRoute,
+      */
     },
   });
-}
-
-function getShowFields(schemaName: string) {
-  if (schemaName === 'Party') {
-    return ['customer'];
-  }
-  return [];
 }
 
 export async function showMessageDialog({

@@ -120,9 +120,10 @@
   </div>
 </template>
 <script>
+import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
-import { openQuickEdit } from 'src/utils';
+import { openQuickEdit } from 'src/utils/ui';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -134,7 +135,7 @@ export default {
     return {
       root: null,
       accounts: [],
-      doctype: 'Account',
+      schemaName: 'Account',
       insertingAccount: false,
     };
   },
@@ -147,8 +148,8 @@ export default {
   },
   methods: {
     async fetchAccounts() {
-      this.settings = fyo.getMeta(this.doctype).treeSettings;
-      const { currency } = await fyo.getSingle('AccountingSettings');
+      this.settings = fyo.models[ModelNameEnum.Account].getTreeSettings(fyo);
+      const { currency } = await fyo.doc.getSingle('AccountingSettings');
       this.root = {
         label: await this.settings.getRootLabel(),
         balance: 0,
@@ -159,7 +160,7 @@ export default {
     onClick(account) {
       if (account.isGroup === 0) {
         openQuickEdit({
-          doctype: 'Account',
+          schemaName: ModelNameEnum.Account,
           name: account.name,
         });
       } else {
@@ -180,8 +181,7 @@ export default {
       }
     },
     async getChildren(parent = null) {
-      const children = await fyo.db.getAll({
-        doctype: this.doctype,
+      const children = await fyo.db.getAll(ModelNameEnum.Account, {
         filters: {
           parentAccount: parent,
         },

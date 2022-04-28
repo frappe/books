@@ -25,7 +25,7 @@ export default {
   props: {
     df: Object,
     value: [String, Number, Boolean, Object],
-    inputClass: [Function, String],
+    inputClass: [Function, String, Object],
     placeholder: String,
     size: String,
     showLabel: Boolean,

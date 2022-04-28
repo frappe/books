@@ -29,6 +29,7 @@ import Button from 'src/components/Button';
 import FilterDropdown from 'src/components/FilterDropdown';
 import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
+import { routeTo } from 'src/utils/ui';
 import List from './List';
 
 export default {

@@ -106,7 +106,7 @@ export const statusColor = {
 };
 
 export function getInvoiceStatus(doc: Doc) {
-  let status = `Unpaid`;
+  let status = 'Unpaid';
   if (!doc.submitted) {
     status = 'Draft';
   }

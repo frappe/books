@@ -17,7 +17,7 @@
             <component
               :is="Component"
               class="w-80 flex-1"
-              :key="$route.query.doctype + $route.query.name"
+              :key="$route.query.schemaName + $route.query.name"
             />
           </keep-alive>
         </router-view>
@@ -37,7 +37,7 @@ export default {
     showQuickEdit() {
       return (
         this.$route.query.edit &&
-        this.$route.query.doctype &&
+        this.$route.query.schemaName &&
         this.$route.query.name
       );
     },
