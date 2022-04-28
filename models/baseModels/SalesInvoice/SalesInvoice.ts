@@ -1,6 +1,6 @@
-import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
 import { Fyo } from 'fyo';
 import { Action, ListViewSettings } from 'fyo/model/types';
+import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
 import {
   getTransactionActions,
   getTransactionStatusColumn,
@@ -38,13 +38,13 @@ export class SalesInvoice extends Invoice {
     return getTransactionActions('SalesInvoice', fyo);
   }
 
-  static getListViewSettings(fyo: Fyo): ListViewSettings {
+  static getListViewSettings(): ListViewSettings {
     return {
       formRoute: (name) => `/edit/SalesInvoice/${name}`,
       columns: [
         'party',
         'name',
-        getTransactionStatusColumn(fyo),
+        getTransactionStatusColumn(),
         'date',
         'grandTotal',
         'outstandingAmount',

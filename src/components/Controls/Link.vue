@@ -21,7 +21,7 @@ export default {
       const filters = await this.getFilters(keyword);
 
       if (keyword && !filters.keywords) {
-        filters.keywords = ['like', keyword];
+        filters[schema.titleField] = ['like', keyword];
       }
 
       const fields = [

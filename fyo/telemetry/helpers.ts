@@ -52,7 +52,7 @@ export function getDeviceId(fyo: Fyo): UniqueId {
 }
 
 export function getInstanceId(fyo: Fyo): UniqueId {
-  const files = fyo.config.get(ConfigKeys.Files) as ConfigFile[];
+  const files = (fyo.config.get(ConfigKeys.Files) ?? []) as ConfigFile[];
 
   const companyName = fyo.singles.AccountingSettings?.companyName as string;
   if (companyName === undefined) {

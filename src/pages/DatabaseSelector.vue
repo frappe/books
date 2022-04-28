@@ -10,147 +10,121 @@
       class="w-full w-600 shadow rounded-lg border relative"
       style="height: 700px"
     >
-      <div class="px-6 py-8">
-        <h1 class="text-2xl font-semibold">
+      <!-- Welcome to Frappe Books -->
+      <div class="px-6 py-10">
+        <h1 class="text-2xl font-semibold select-none">
           {{ t`Welcome to Frappe Books` }}
         </h1>
-        <p class="text-gray-600 text-base" v-if="!showFiles">
+        <p class="text-gray-600 text-base select-none">
           {{
             t`Create a new file or select an existing one from your computer`
           }}
         </p>
-        <p class="text-gray-600 text-base" v-if="showFiles">
-          {{ t`Select a file to load the company transactions` }}
-        </p>
-      </div>
-      <div class="px-12 mt-6 window-no-drag" v-if="!showFiles">
-        <div class="flex">
-          <div
-            @click="newDatabase"
-            class="
-              w-1/2
-              border
-              rounded-xl
-              flex flex-col
-              items-center
-              py-8
-              px-5
-              cursor-pointer
-              hover:shadow
-            "
-          >
-            <div
-              class="w-14 h-14 rounded-full bg-blue-200 relative flex-center"
-            >
-              <div
-                class="w-12 h-12 absolute rounded-full bg-blue-500 flex-center"
-              >
-                <feather-icon name="plus" class="text-white w-5 h-5" />
-              </div>
-            </div>
-            <div class="mt-5 font-medium">
-              <template
-                v-if="loadingDatabase && fileSelectedFrom === 'New File'"
-              >
-                {{ t`Loading...` }}
-              </template>
-              <template v-else>
-                {{ t`New File` }}
-              </template>
-            </div>
-            <div class="mt-2 text-sm text-gray-600 text-center">
-              {{ t`Create a new file and store it in your computer.` }}
-            </div>
-          </div>
-          <div
-            @click="existingDatabase"
-            class="
-              ml-6
-              w-1/2
-              border
-              rounded-xl
-              flex flex-col
-              items-center
-              py-8
-              px-5
-              cursor-pointer
-              hover:shadow
-            "
-          >
-            <div
-              class="w-14 h-14 rounded-full bg-green-200 relative flex-center"
-            >
-              <div class="w-12 h-12 rounded-full bg-green-500 flex-center">
-                <feather-icon name="upload" class="w-4 h-4 text-white" />
-              </div>
-            </div>
-            <div class="mt-5 font-medium">
-              <template
-                v-if="loadingDatabase && fileSelectedFrom === 'Existing File'"
-              >
-                {{ t`Loading...` }}
-              </template>
-              <template v-else>
-                {{ t`Existing File` }}
-              </template>
-            </div>
-            <div class="mt-2 text-sm text-gray-600 text-center">
-              {{ t`Load an existing .db file from your computer.` }}
-            </div>
-          </div>
-        </div>
-        <a
-          v-if="files.length > 0"
-          class="text-brand text-sm mt-4 inline-block cursor-pointer"
-          @click="showFiles = true"
-        >
-          {{ t`Select from existing files` }}
-        </a>
       </div>
 
-      <div v-if="showFiles">
-        <div class="px-12 mt-6">
-          <div
-            class="
-              py-2
-              px-4
-              text-sm
-              flex
-              justify-between
-              items-center
-              hover:bg-gray-100
-              cursor-pointer
-              border-b
-            "
-            :class="{ 'border-t': i === 0 }"
-            v-for="(file, i) in files"
-            :key="file.filePath"
-            @click="selectFile(file)"
-          >
-            <div class="flex items-baseline">
-              <span>
-                <template v-if="loadingDatabase && fileSelectedFrom === file">
-                  {{ t`Loading...` }}
-                </template>
-                <template v-else>
-                  {{ file.companyName }}
-                </template>
-              </span>
-            </div>
-            <div class="text-gray-700">
-              {{ file.modified }}
-            </div>
-          </div>
+      <hr />
+
+      <!-- New File (Blue Icon) -->
+      <div
+        @click="newDatabase"
+        class="
+          px-6
+          h-18
+          flex flex-row
+          items-center
+          cursor-pointer
+          gap-4
+          p-2
+          hover:bg-gray-100
+        "
+      >
+        <div class="w-8 h-8 rounded-full bg-blue-500 relative flex-center">
+          <feather-icon name="plus" class="text-white w-5 h-5" />
         </div>
-        <div class="px-12 mt-4">
-          <a
-            class="text-brand text-sm cursor-pointer"
-            @click="showFiles = false"
-          >
-            {{ t`Select file manually` }}
-          </a>
+
+        <div>
+          <p class="font-medium">
+            {{ t`New File` }}
+          </p>
+          <p class="text-sm text-gray-600">
+            {{ t`Create a new file and store it in your computer.` }}
+          </p>
         </div>
       </div>
+
+      <!-- Existing File (Green Icon) -->
+      <div
+        @click="existingDatabase"
+        class="
+          px-6
+          h-18
+          flex flex-row
+          items-center
+          cursor-pointer
+          gap-4
+          p-2
+          hover:bg-gray-100
+        "
+      >
+        <div class="w-8 h-8 rounded-full bg-green-500 relative flex-center">
+          <feather-icon name="upload" class="w-4 h-4 text-white" />
+        </div>
+        <div>
+          <p class="font-medium">
+            {{ t`Existing File` }}
+          </p>
+          <p class="text-sm text-gray-600">
+            {{ t`Load an existing .db file from your computer.` }}
+          </p>
+        </div>
+      </div>
+      <hr />
+
+      <!-- File List -->
+      <div class="overflow-scroll" style="max-height: 340px">
+        <div
+          class="
+            h-18
+            px-6
+            flex
+            gap-4
+            items-center
+            hover:bg-gray-100
+            cursor-pointer
+          "
+          v-for="(file, i) in files"
+          :key="file.dbPath"
+          @click="selectFile(file)"
+        >
+          <div
+            class="
+              w-8
+              h-8
+              rounded-full
+              flex
+              justify-center
+              items-center
+              bg-gray-200
+              text-gray-500
+              font-semibold
+              text-base
+            "
+          >
+            {{ i + 1 }}
+          </div>
+          <div>
+            <p class="font-medium">
+              {{ file.companyName }}
+            </p>
+            <p class="text-sm text-gray-600">
+              {{ file.modified }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <hr v-if="files?.length" />
+
+      <!-- Language Selector -->
       <div
         class="w-full flex justify-end absolute px-6 py-6"
         style="top: 100%; transform: translateY(-100%)"
@@ -177,27 +151,20 @@ export default {
     return {
       loadingDatabase: false,
       fileSelectedFrom: null,
-      showFiles: false,
       files: [],
     };
   },
   mounted() {
     this.setFiles();
-    this.showFiles = this.files.length > 0;
-  },
-  watch: {
-    showFiles() {
-      this.setFiles();
-    },
+    window.ds = this;
   },
   methods: {
     setFiles() {
-      this.files = cloneDeep(fyo.config.get('files', [])).filter(
-        ({ filePath }) => fs.existsSync(filePath)
-      );
+      const files = cloneDeep(fyo.config.get('files', []));
+      this.files = files.filter(({ dbPath }) => fs.existsSync(dbPath));
 
       for (const file of this.files) {
-        const stats = fs.statSync(file.filePath);
+        const stats = fs.statSync(file.dbPath);
         file.modified = DateTime.fromJSDate(stats.mtime).toRelative();
       }
     },
@@ -223,7 +190,7 @@ export default {
     },
     async selectFile(file) {
       this.fileSelectedFrom = file;
-      await this.connectToDatabase(file.filePath);
+      await this.connectToDatabase(file.dbPath);
     },
     async connectToDatabase(filePath, isNew) {
       if (!filePath) {

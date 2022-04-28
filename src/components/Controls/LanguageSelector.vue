@@ -20,7 +20,7 @@ export default {
     inputClass: {
       type: String,
       default:
-        'bg-gray-100 active:bg-gray-200 focus:bg-gray-200 px-3 py-2 text-base',
+        'px-3 py-2 text-base',
     },
     dontReload: {
       type: Boolean,

@@ -6,7 +6,7 @@ import {
   ConflictError,
   MandatoryError,
   NotFoundError,
-  ValidationError,
+  ValidationError
 } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
 import Money from 'pesa/dist/types/src/money';
@@ -15,7 +15,7 @@ import {
   FieldTypeEnum,
   OptionField,
   Schema,
-  TargetField,
+  TargetField
 } from 'schemas/types';
 import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
 import { markRaw } from 'vue';
@@ -24,7 +24,7 @@ import {
   areDocValuesEqual,
   getMissingMandatoryMessage,
   getPreDefaultValues,
-  shouldApplyFormula,
+  shouldApplyFormula
 } from './helpers';
 import { setName } from './naming';
 import {
@@ -42,7 +42,7 @@ import {
   ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
-  ValidationMap,
+  ValidationMap
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
 
@@ -139,14 +139,16 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   // set value and trigger change
-  async set(fieldname: string | DocValueMap, value?: DocValue | Doc[]) {
+  async set(
+    fieldname: string | DocValueMap,
+    value?: DocValue | Doc[]
+  ): Promise<boolean> {
     if (typeof fieldname === 'object') {
-      await this.setMultiple(fieldname as DocValueMap);
-      return;
+      return await this.setMultiple(fieldname as DocValueMap);
     }
 
     if (!this._canSet(fieldname, value)) {
-      return;
+      return false;
     }
 
     this._setDirty(true);
@@ -168,12 +170,19 @@ export class Doc extends Observable<DocValue | Doc[]> {
     } else {
       await this._applyChange(fieldname);
     }
+
+    return true;
   }
 
-  async setMultiple(docValueMap: DocValueMap) {
+  async setMultiple(docValueMap: DocValueMap): Promise<boolean> {
+    let hasSet = false;
     for (const fieldname in docValueMap) {
-      await this.set(fieldname, docValueMap[fieldname] as DocValue | Doc[]);
+      hasSet ||= await this.set(
+        fieldname,
+        docValueMap[fieldname] as DocValue | Doc[]
+      );
     }
+    return hasSet;
   }
 
   _canSet(fieldname: string, value?: DocValue | Doc[]): boolean {
@@ -197,12 +206,14 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return !areDocValuesEqual(currentValue as DocValue, value as DocValue);
   }
 
-  async _applyChange(fieldname: string) {
+  async _applyChange(fieldname: string): Promise<boolean> {
     await this._applyFormula(fieldname);
     await this.trigger('change', {
       doc: this,
       changed: fieldname,
     });
+
+    return true;
   }
 
   _setDefaults() {
@@ -232,13 +243,29 @@ export class Doc extends Observable<DocValue | Doc[]> {
     // push child row and trigger change
     this.push(fieldname, docValueMap);
     this._dirty = true;
-    await this._applyChange(fieldname);
+    return await this._applyChange(fieldname);
+  }
+
+  async remove(fieldname: string, idx: number) {
+    let rows = this[fieldname] as Doc[] | undefined;
+    if (!Array.isArray(rows)) {
+      return;
+    }
+
+    this._setDirty(true);
+    rows = rows.filter((row, i) => row.idx !== idx || i !== idx)!;
+    rows.forEach((row, i) => {
+      row.idx = i;
+    });
+    this[fieldname] = rows;
+    return await this._applyChange(fieldname);
   }
 
   push(fieldname: string, docValueMap: Doc | DocValueMap = {}) {
     // push child row without triggering change
     this[fieldname] ??= [];
     const childDoc = this._getChildDoc(docValueMap, fieldname);
+    childDoc.parentdoc = this;
     (this[fieldname] as Doc[]).push(childDoc);
   }
 
@@ -389,6 +416,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       throw new NotFoundError(`Not Found: ${this.schemaName} ${this.name}`);
     }
 
+    this._setDirty(false);
     this._notInserted = false;
     this.fyo.doc.observer.trigger(`load:${this.schemaName}`, this.name);
   }
@@ -744,9 +772,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       updateMap.name = updateMap.name + ' CPY';
     }
 
-    const doc = this.fyo.doc.getNewDoc(this.schemaName, {}, false);
-    await doc.setMultiple(updateMap);
-
+    const doc = this.fyo.doc.getNewDoc(this.schemaName, updateMap, false);
     if (shouldSync) {
       await doc.sync();
     }
