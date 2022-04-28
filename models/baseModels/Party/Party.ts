@@ -107,7 +107,7 @@ export class Party extends Doc {
   static getActions(fyo: Fyo): Action[] {
     return [
       {
-        label: fyo.t`Create Bill`,
+        label: fyo.t`Create Purchase`,
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
@@ -125,7 +125,7 @@ export class Party extends Doc {
         },
       },
       {
-        label: fyo.t`View Bills`,
+        label: fyo.t`View Purchases`,
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
@@ -142,7 +142,7 @@ export class Party extends Doc {
         },
       },
       {
-        label: fyo.t`Create Invoice`,
+        label: fyo.t`Create Sale`,
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
@@ -160,7 +160,7 @@ export class Party extends Doc {
         },
       },
       {
-        label: fyo.t`View Invoices`,
+        label: fyo.t`View Sales`,
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {

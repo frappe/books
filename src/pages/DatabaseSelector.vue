@@ -6,6 +6,7 @@
       'window-drag': platform !== 'Windows',
     }"
   >
+    <WindowControls v-if="platform === 'Mac'" class="absolute top-6 left-5" />
     <div
       class="w-full w-600 shadow rounded-lg border relative"
       style="height: 700px"
@@ -140,6 +141,7 @@ import fs from 'fs';
 import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
+import WindowControls from 'src/components/WindowControls.vue';
 import { fyo } from 'src/initFyo';
 import { getSavePath } from 'src/utils/ipcCalls';
 import { IPC_ACTIONS } from 'utils/messages';
@@ -205,6 +207,6 @@ export default {
       this.$emit('file-selected', filePath, !!isNew);
     },
   },
-  components: { LanguageSelector },
+  components: { LanguageSelector, WindowControls },
 };
 </script>

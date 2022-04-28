@@ -143,8 +143,10 @@ export default {
     this.fetchAccounts();
   },
   async activated() {
-    window.coa = this;
     this.fetchAccounts();
+    if (fyo.store.isDevelopment) {
+      window.coa = this;
+    }
   },
   methods: {
     async fetchAccounts() {
@@ -158,7 +160,7 @@ export default {
       this.accounts = await this.getChildren();
     },
     onClick(account) {
-      if (account.isGroup === 0) {
+      if (!account.isGroup) {
         openQuickEdit({
           schemaName: ModelNameEnum.Account,
           name: account.name,
