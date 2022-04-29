@@ -4,13 +4,7 @@
       {{ df.label }}
     </div>
     <div
-      class="
-        flex
-        items-center
-        justify-between
-        bg-white
-        focus-within:bg-gray-200
-      "
+      class="flex items-center justify-between focus-within:bg-gray-200"
       :class="inputClasses"
     >
       <select

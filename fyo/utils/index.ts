@@ -3,6 +3,7 @@ import { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { pesa } from 'pesa';
 import { Field, OptionField, SelectOption } from 'schemas/types';
+import { getIsNullOrUndef } from 'utils';
 
 export function slug(str: string) {
   return str
@@ -77,7 +78,7 @@ export async function getSingleValue(
 
 export function getOptionList(
   field: Field,
-  doc: Doc | undefined
+  doc: Doc | undefined | null
 ): SelectOption[] {
   const list = getRawOptionList(field, doc);
   return list.map((option) => {
@@ -92,17 +93,17 @@ export function getOptionList(
   });
 }
 
-function getRawOptionList(field: Field, doc: Doc | undefined) {
+function getRawOptionList(field: Field, doc: Doc | undefined | null) {
   const options = (field as OptionField).options;
   if (options && options.length > 0) {
     return (field as OptionField).options;
   }
 
-  if (doc === undefined) {
+  if (getIsNullOrUndef(doc)) {
     return [];
   }
 
-  const Model = doc.fyo.models[doc.schemaName];
+  const Model = doc!.fyo.models[doc!.schemaName];
   if (Model === undefined) {
     return [];
   }
@@ -112,5 +113,5 @@ function getRawOptionList(field: Field, doc: Doc | undefined) {
     return [];
   }
 
-  return getList(doc);
+  return getList(doc!);
 }

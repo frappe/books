@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
@@ -106,13 +107,19 @@ export default {
     DropdownWithActions,
   },
   provide() {
-    let vm = this;
     return {
       schemaName: this.schemaName,
       name: this.name,
-      get doc() {
-        return vm.doc;
-      },
+      doc: computed(() => this.doc),
+    };
+  },
+  data() {
+    return {
+      doc: null,
+      values: null,
+      titleField: null,
+      imageField: null,
+      statusText: null,
     };
   },
   mounted() {
@@ -123,15 +130,6 @@ export default {
     if (fyo.store.isDevelopment) {
       window.qef = this;
     }
-  },
-  data() {
-    return {
-      doc: null,
-      values: null,
-      titleField: null,
-      imageField: null,
-      statusText: null,
-    };
   },
   async created() {
     await this.fetchFieldsAndDoc();

@@ -16,7 +16,6 @@
           flex
           items-center
           justify-between
-          bg-white
           focus-within:bg-gray-200
           pr-2
           rounded

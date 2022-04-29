@@ -89,9 +89,11 @@ export default {
     Row,
     TableRow,
   },
-  inject: ['doc'],
-  mounted(){
-    window.tab = this
+  inject: {
+    doc: { default: null },
+  },
+  mounted() {
+    window.tab = this;
   },
   data: () => ({ rowContainerHeight: null }),
   watch: {

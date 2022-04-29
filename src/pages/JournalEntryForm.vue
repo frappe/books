@@ -1,27 +1,30 @@
 <template>
   <div class="flex flex-col">
+    <!-- Page Header (Title, Buttons, etc) -->
     <PageHeader :backLink="true">
       <template #actions v-if="doc">
         <StatusBadge :status="status" />
         <DropdownWithActions class="ml-2" :actions="actions" />
         <Button
-          v-if="doc._notInserted || doc._dirty"
+          v-if="doc.notInserted || doc.dirty"
           type="primary"
           class="text-white text-xs ml-2"
-          @click="onSaveClick"
+          @click="sync"
         >
           {{ t`Save` }}
         </Button>
         <Button
-          v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
+          v-else-if="!doc.dirty && !doc.notInserted && !doc.submitted"
           type="primary"
           class="text-white text-xs ml-2"
-          @click="onSubmitClick"
+          @click="submit"
         >
           {{ t`Submit` }}
         </Button>
       </template>
     </PageHeader>
+
+    <!-- Journal Entry Form -->
     <div v-if="doc" class="flex justify-center flex-1 mb-8 mt-2">
       <div
         class="border rounded-lg shadow h-full flex flex-col justify-between"
@@ -30,12 +33,14 @@
         <div>
           <div class="mt-8 px-6">
             <h1 class="text-2xl font-semibold">
-              {{ doc._notInserted ? t`New Journal Entry` : doc.name }}
+              {{ doc.notInserted ? t`New Journal Entry` : doc.name }}
             </h1>
+
+            <!-- First Column of Fields -->
             <div class="flex justify-between mt-2 gap-2">
               <div class="w-1/3">
                 <FormControl
-                  :df="meta.getField('entryType')"
+                  :df="getField('entryType')"
                   :value="doc.entryType"
                   placeholder="Entry Type"
                   @change="(value) => doc.set('entryType', value)"
@@ -45,7 +50,7 @@
                 />
                 <FormControl
                   class="mt-2"
-                  :df="meta.getField('date')"
+                  :df="getField('date')"
                   :value="doc.date"
                   :placeholder="'Date'"
                   @change="(value) => doc.set('date', value)"
@@ -54,9 +59,11 @@
                   :class="doc.submitted && 'pointer-events-none'"
                 />
               </div>
+
+              <!-- Second Column of Fields -->
               <div class="w-1/3">
                 <FormControl
-                  :df="meta.getField('referenceNumber')"
+                  :df="getField('referenceNumber')"
                   :value="doc.referenceNumber"
                   :placeholder="'Reference Number'"
                   @change="(value) => doc.set('referenceNumber', value)"
@@ -66,7 +73,7 @@
                 />
                 <FormControl
                   class="mt-2"
-                  :df="meta.getField('referenceDate')"
+                  :df="getField('referenceDate')"
                   :value="doc.referenceDate"
                   :placeholder="'Reference Date'"
                   @change="(value) => doc.set('referenceDate', value)"
@@ -75,43 +82,52 @@
                   :class="doc.submitted && 'pointer-events-none'"
                 />
               </div>
+
+              <!-- Third Column of Fields -->
               <div class="w-1/3">
                 <FormControl
-                  :df="meta.getField('numberSeries')"
+                  :df="getField('numberSeries')"
                   :value="doc.numberSeries"
                   @change="(value) => doc.set('numberSeries', value)"
-                  input-class="bg-gray-100 p-2 text-base"
-                  :read-only="!doc._notInserted || doc.submitted"
+                  class="bg-gray-100 rounded"
+                  input-class="p-2 text-base bg-transparent"
+                  :read-only="!doc.notInserted || doc.submitted"
                   :class="doc.submitted && 'pointer-events-none'"
                 />
               </div>
             </div>
           </div>
-          <div class="mt-2 px-6 text-base">
-            <FormControl
-              :df="meta.getField('accounts')"
-              :value="doc.accounts"
-              :showHeader="true"
-              :max-rows-before-overflow="4"
-              @change="(value) => doc.set('accounts', value)"
-              :read-only="doc.submitted"
-            />
-          </div>
+
+          <!-- Account Entries Table -->
+          <FormControl
+            class="mt-2 px-6 text-base"
+            :df="getField('accounts')"
+            :value="doc.accounts"
+            :showHeader="true"
+            :max-rows-before-overflow="4"
+            @change="(value) => doc.set('accounts', value)"
+            :read-only="doc.submitted"
+          />
         </div>
+
+        <!-- Footer -->
         <div class="px-6 mb-6">
           <div
             class="grid items-center border-t pt-3 pr-2"
             style="grid-template-columns: 1.3fr 1fr 1fr"
           >
+            <!-- User Remark -->
             <div class="text-sm">
               <FormControl
-                :df="meta.getField('userRemark')"
+                :df="getField('userRemark')"
                 :value="doc.userRemark"
                 @change="(value) => doc.set('userRemark', value)"
                 :class="doc.submitted && 'pointer-events-none'"
                 :read-only="doc.submitted"
               />
             </div>
+
+            <!-- Debit and Credit -->
             <div class="text-right font-semibold text-green-600 px-3">
               {{ totalDebit }}
             </div>
@@ -125,13 +141,19 @@
   </div>
 </template>
 <script>
+import { computed } from '@vue/reactivity';
+import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions';
 import PageHeader from 'src/components/PageHeader';
 import StatusBadge from 'src/components/StatusBadge';
 import { fyo } from 'src/initFyo';
-import { getActionsForDocument, routeTo, showMessageDialog } from 'src/utils';
+import {
+getActionsForDocument,
+routeTo,
+showMessageDialog
+} from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
@@ -146,22 +168,36 @@ export default {
   },
   provide() {
     return {
-      doctype: 'JournalEntry',
+      schemaName: this.schemaName,
       name: this.name,
+      doc: computed(() => this.doc),
     };
   },
   data() {
     return {
-      doctype: 'JournalEntry',
+      schemaName: ModelNameEnum.JournalEntry,
       doc: null,
     };
   },
+  async mounted() {
+    try {
+      this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
+    } catch (error) {
+      if (error instanceof fyo.errors.NotFoundError) {
+        routeTo(`/list/${this.schemaName}`);
+        return;
+      }
+
+      this.handleError(error);
+    }
+
+    if (fyo.store.isDevelopment) {
+      window.je = this;
+    }
+  },
   computed: {
-    meta() {
-      return fyo.getMeta(this.doctype);
-    },
     status() {
-      if (this.doc._notInserted || !this.doc.submitted) {
+      if (this.doc.notInserted || !this.doc.submitted) {
         return 'Draft';
       }
 
@@ -185,23 +221,14 @@ export default {
       return getActionsForDocument(this.doc);
     },
   },
-  async mounted() {
-    try {
-      this.doc = await fyo.doc.getDoc(this.doctype, this.name);
-      window.je = this.doc;
-    } catch (error) {
-      if (error instanceof fyo.errors.NotFoundError) {
-        routeTo(`/list/${this.doctype}`);
-        return;
-      }
-      this.handleError(error);
-    }
-  },
   methods: {
-    async onSaveClick() {
+    getField(fieldname) {
+      return fyo.getField(ModelNameEnum.JournalEntry, fieldname);
+    },
+    async sync() {
       return this.doc.sync().catch(this.handleError);
     },
-    async onSubmitClick() {
+    async submit() {
       showMessageDialog({
         message: this.t`Are you sure you want to submit this Journal Entry?`,
         buttons: [
