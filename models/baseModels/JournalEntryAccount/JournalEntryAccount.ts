@@ -24,8 +24,14 @@ export class JournalEntryAccount extends Doc {
   }
 
   formulas: FormulaMap = {
-    debit: async () => this.getAutoDebitCredit('debit'),
-    credit: async () => this.getAutoDebitCredit('credit'),
+    debit: {
+      formula: async () => this.getAutoDebitCredit('debit'),
+      dependsOn: ['credit'],
+    },
+    credit: {
+      formula: async () => this.getAutoDebitCredit('credit'),
+      dependsOn: ['debit'],
+    },
   };
 
   static filters: FiltersMap = {

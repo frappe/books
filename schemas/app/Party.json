@@ -1,6 +1,7 @@
 {
   "name": "Party",
   "label": "Party",
+  "naming": "manual",
   "fields": [
     {
       "fieldname": "name",
@@ -33,6 +34,7 @@
           "label": "Customer"
         }
       ],
+      "readOnly": true,
       "required": true
     },
     {
@@ -85,6 +87,7 @@
     "address",
     "defaultAccount",
     "currency",
+    "role",
     "taxId"
   ],
   "keywordFields": ["name"]

@@ -38,7 +38,8 @@ export class Payment extends Doc {
 
   async updateDetailsOnReferenceUpdate() {
     const forReferences = (this.for ?? []) as Doc[];
-    const { referenceType, referenceName } = forReferences[0];
+
+    const { referenceType, referenceName } = forReferences[0] ?? {};
     if (
       forReferences.length !== 1 ||
       this.party ||
@@ -284,17 +285,26 @@ export class Payment extends Doc {
   static defaults: DefaultMap = { date: () => new Date().toISOString() };
 
   formulas: FormulaMap = {
-    account: async () => {
-      if (this.paymentMethod === 'Cash' && this.paymentType === 'Pay') {
-        return 'Cash';
-      }
+    account: {
+      formula: async () => {
+        if (this.paymentMethod === 'Cash' && this.paymentType === 'Pay') {
+          return 'Cash';
+        }
+      },
+      dependsOn: ['paymentMethod', 'paymentType'],
     },
-    paymentAccount: async () => {
-      if (this.paymentMethod === 'Cash' && this.paymentType === 'Receive') {
-        return 'Cash';
-      }
+    paymentAccount: {
+      formula: async () => {
+        if (this.paymentMethod === 'Cash' && this.paymentType === 'Receive') {
+          return 'Cash';
+        }
+      },
+      dependsOn: ['paymentMethod', 'paymentType'],
     },
-    amount: async () => this.getSum('for', 'amount', false),
+    amount: {
+      formula: async () => this.getSum('for', 'amount', false),
+      dependsOn: ['for'],
+    },
   };
 
   validations: ValidationMap = {

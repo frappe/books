@@ -51,28 +51,35 @@ export class Party extends Doc {
   }
 
   formulas: FormulaMap = {
-    defaultAccount: async () => {
-      const role = this.role as PartyRole;
-      if (role === 'Both') {
-        return '';
-      }
+    defaultAccount: {
+      formula: async () => {
+        const role = this.role as PartyRole;
+        if (role === 'Both') {
+          return '';
+        }
 
-      let accountName = 'Debtors';
-      if (role === 'Supplier') {
-        accountName = 'Creditors';
-      }
+        let accountName = 'Debtors';
+        if (role === 'Supplier') {
+          accountName = 'Creditors';
+        }
 
-      const accountExists = await this.fyo.db.exists('Account', accountName);
-      return accountExists ? accountName : '';
+        const accountExists = await this.fyo.db.exists('Account', accountName);
+        return accountExists ? accountName : '';
+      },
+      dependsOn: ['role'],
     },
-    currency: async () =>
-      this.fyo.singles.AccountingSettings!.currency as string,
-    address: async () => {
-      const address = this.address as string | undefined;
-      if (address) {
-        return this.getFrom('Address', address, 'addressDisplay') as string;
-      }
-      return '';
+    currency: {
+      formula: async () =>
+        this.fyo.singles.AccountingSettings!.currency as string,
+    },
+    address: {
+      formula: async () => {
+        const address = this.address as string | undefined;
+        if (address) {
+          return this.getFrom('Address', address, 'addressDisplay') as string;
+        }
+        return '';
+      },
     },
   };
 

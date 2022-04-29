@@ -12,16 +12,14 @@
         </Button>
       </template>
     </PageHeader>
-    <div class="flex-1 flex h-full">
-      <List
-        ref="list"
-        :schemaName="schemaName"
-        :listConfig="listConfig"
-        :filters="filters"
-        class="flex-1"
-        @makeNewDoc="makeNewDoc"
-      />
-    </div>
+    <List
+      ref="list"
+      :schemaName="schemaName"
+      :listConfig="listConfig"
+      :filters="filters"
+      class="flex-1 flex h-full"
+      @makeNewDoc="makeNewDoc"
+    />
   </div>
 </template>
 <script>

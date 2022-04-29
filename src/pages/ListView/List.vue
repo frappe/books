@@ -13,7 +13,9 @@
           :key="column.label"
           class="py-4 truncate"
           :class="
-            ['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''
+            ['Int', 'Float', 'Currency'].includes(column.fieldtype)
+              ? 'text-right'
+              : ''
           "
         >
           {{ column.label }}
@@ -88,9 +90,16 @@ export default {
       data: [],
     };
   },
+  mounted() {},
   computed: {
     columns() {
-      const columns = this.listConfig?.columns ?? [];
+      let columns = this.listConfig?.columns ?? [];
+
+      if (columns.length === 0) {
+        columns = fyo.schemaMap[this.schemaName].quickEditFields ?? [];
+        columns = [...new Set(['name', ...columns])];
+      }
+
       return columns
         .map((fieldname) => fyo.getField(this.schemaName, fieldname))
         .filter(Boolean);
@@ -123,6 +132,7 @@ export default {
         routeTo(this.listConfig.formRoute(doc.name));
         return;
       }
+
       openQuickEdit({
         schemaName: this.schemaName,
         name: doc.name,

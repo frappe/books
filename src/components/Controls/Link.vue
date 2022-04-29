@@ -13,6 +13,18 @@ export default {
     if (this.value) {
       this.linkValue = this.value;
     }
+
+    if (this.df.fieldname === 'incomeAccount') {
+      window.l = this;
+    }
+  },
+  watch: {
+    value: {
+      immediate: true,
+      handler(newValue) {
+        this.linkValue = newValue;
+      },
+    },
   },
   methods: {
     async getSuggestions(keyword = '') {

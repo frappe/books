@@ -139,9 +139,6 @@ export default {
       insertingAccount: false,
     };
   },
-  mounted() {
-    this.fetchAccounts();
-  },
   async activated() {
     this.fetchAccounts();
     if (fyo.store.isDevelopment) {

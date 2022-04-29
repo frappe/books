@@ -1,40 +1,34 @@
 import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import {
-  DependsOnMap,
-  EmptyMessageMap,
-  FormulaMap,
-  ListsMap,
-} from 'fyo/model/types';
+import { EmptyMessageMap, FormulaMap, ListsMap } from 'fyo/model/types';
 import { stateCodeMap } from 'regional/in';
 import { titleCase } from 'utils';
 import { getCountryInfo } from 'utils/misc';
 
 export class Address extends Doc {
   formulas: FormulaMap = {
-    addressDisplay: async () => {
-      return [
-        this.addressLine1,
-        this.addressLine2,
-        this.city,
-        this.state,
-        this.country,
-        this.postalCode,
-      ]
-        .filter(Boolean)
-        .join(', ');
+    addressDisplay: {
+      formula: async () => {
+        return [
+          this.addressLine1,
+          this.addressLine2,
+          this.city,
+          this.state,
+          this.country,
+          this.postalCode,
+        ]
+          .filter(Boolean)
+          .join(', ');
+      },
+      dependsOn: [
+        'addressLine1',
+        'addressLine2',
+        'city',
+        'state',
+        'country',
+        'postalCode',
+      ],
     },
-  };
-
-  dependsOn: DependsOnMap = {
-    addressDisplay: [
-      'addressLine1',
-      'addressLine2',
-      'city',
-      'state',
-      'country',
-      'postalCode',
-    ],
   };
 
   static lists: ListsMap = {
