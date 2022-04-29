@@ -4,7 +4,7 @@ import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
 // import DataImport from 'src/pages/DataImport.vue';
 // import InvoiceForm from 'src/pages/InvoiceForm.vue';
-// import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
+import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
 // import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
@@ -22,7 +22,6 @@ const routes: RouteRecordRaw[] = [
     path: '/get-started',
     component: GetStarted,
   },
-  /*
   {
     path: '/edit/JournalEntry/:name',
     name: 'JournalEntryForm',
@@ -33,7 +32,7 @@ const routes: RouteRecordRaw[] = [
     props: {
       default: (route) => {
         // for sidebar item active state
-        route.params.doctype = 'JournalEntry';
+        route.params.schemaName = 'JournalEntry';
         return {
           doctype: 'JournalEntry',
           name: route.params.name,
@@ -42,6 +41,7 @@ const routes: RouteRecordRaw[] = [
       edit: (route) => route.query,
     },
   },
+  /*
   {
     path: '/edit/:doctype/:name',
     name: 'InvoiceForm',
