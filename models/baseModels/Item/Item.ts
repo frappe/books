@@ -3,7 +3,6 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
   Action,
-  DependsOnMap,
   FiltersMap,
   FormulaMap,
   ListViewSettings,
@@ -11,47 +10,49 @@ import {
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import Money from 'pesa/dist/types/src/money';
+import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
 export class Item extends Doc {
   formulas: FormulaMap = {
-    incomeAccount: async () => {
-      let accountName = 'Service';
-      if (this.itemType === 'Product') {
-        accountName = 'Sales';
-      }
+    incomeAccount: {
+      formula: async () => {
+        let accountName = 'Service';
+        if (this.itemType === 'Product') {
+          accountName = 'Sales';
+        }
 
-      const accountExists = await this.fyo.db.exists('Account', accountName);
-      return accountExists ? accountName : '';
+        const accountExists = await this.fyo.db.exists('Account', accountName);
+        return accountExists ? accountName : '';
+      },
+      dependsOn: ['itemType'],
     },
-    expenseAccount: async () => {
-      const cogs = await this.fyo.db.getAllRaw('Account', {
-        filters: {
-          accountType: 'Cost of Goods Sold',
-        },
-      });
+    expenseAccount: {
+      formula: async () => {
+        const cogs = await this.fyo.db.getAllRaw('Account', {
+          filters: {
+            accountType: AccountTypeEnum['Cost of Goods Sold'],
+          },
+        });
 
-      if (cogs.length === 0) {
-        return '';
-      } else {
-        return cogs[0].name as string;
-      }
+        if (cogs.length === 0) {
+          return '';
+        } else {
+          return cogs[0].name as string;
+        }
+      },
+      dependsOn: ['itemType'],
     },
   };
 
   static filters: FiltersMap = {
     incomeAccount: () => ({
       isGroup: false,
-      rootType: 'Income',
+      rootType: AccountRootTypeEnum.Income,
     }),
     expenseAccount: () => ({
       isGroup: false,
-      rootType: 'Expense',
+      rootType: AccountRootTypeEnum.Expense,
     }),
-  };
-
-  dependsOn: DependsOnMap = {
-    incomeAccount: ['itemType'],
-    expenseAccount: ['itemType'],
   };
 
   validations: ValidationMap = {

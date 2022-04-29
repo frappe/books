@@ -92,7 +92,15 @@ export function shouldApplyFormula(field: Field, doc: Doc, fieldname?: string) {
     return true;
   }
 
-  const dependsOn = doc.dependsOn[field.fieldname] ?? [];
+  const { dependsOn } = doc.formulas[field.fieldname] ?? {};
+  if (dependsOn === undefined) {
+    return true;
+  }
+
+  if (dependsOn.length === 0) {
+    return false;
+  }
+
   if (fieldname && dependsOn.includes(fieldname)) {
     return true;
   }

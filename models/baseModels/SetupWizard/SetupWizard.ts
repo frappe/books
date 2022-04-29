@@ -1,11 +1,6 @@
 import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import {
-  DependsOnMap,
-  FormulaMap,
-  ListsMap,
-  ValidationMap,
-} from 'fyo/model/types';
+import { FormulaMap, ListsMap, ValidationMap } from 'fyo/model/types';
 import { validateEmail } from 'fyo/model/validationFunction';
 import { getCountryInfo, getFiscalYear } from 'utils/misc';
 
@@ -30,57 +25,64 @@ export function getCOAList() {
 }
 
 export class SetupWizard extends Doc {
-  dependsOn: DependsOnMap = {
-    fiscalYearStart: ['country'],
-    fiscalYearEnd: ['country'],
-    currency: ['country'],
-    chartOfAccounts: ['country'],
-  };
-
   formulas: FormulaMap = {
-    fiscalYearStart: async () => {
-      if (!this.country) return;
+    fiscalYearStart: {
+      formula: async () => {
+        if (!this.country) return;
 
-      const countryInfo = getCountryInfo();
-      const fyStart =
-        countryInfo[this.country as string]?.fiscal_year_start ?? '';
-      return getFiscalYear(fyStart, true);
+        const countryInfo = getCountryInfo();
+        const fyStart =
+          countryInfo[this.country as string]?.fiscal_year_start ?? '';
+        return getFiscalYear(fyStart, true);
+      },
+      dependsOn: ['country'],
     },
-    fiscalYearEnd: async () => {
-      if (!this.country) {
-        return;
-      }
+    fiscalYearEnd: {
+      formula: async () => {
+        if (!this.country) {
+          return;
+        }
 
-      const countryInfo = getCountryInfo();
-      const fyEnd = countryInfo[this.country as string]?.fiscal_year_end ?? '';
-      return getFiscalYear(fyEnd, false);
+        const countryInfo = getCountryInfo();
+        const fyEnd =
+          countryInfo[this.country as string]?.fiscal_year_end ?? '';
+        return getFiscalYear(fyEnd, false);
+      },
+      dependsOn: ['country'],
     },
-    currency: async () => {
-      if (!this.country) {
-        return;
-      }
-      const countryInfo = getCountryInfo();
-      return countryInfo[this.country as string]?.currency;
+    currency: {
+      formula: async () => {
+        if (!this.country) {
+          return;
+        }
+        const countryInfo = getCountryInfo();
+        return countryInfo[this.country as string]?.currency;
+      },
+      dependsOn: ['country'],
     },
-    chartOfAccounts: async () => {
-      const country = this.get('country') as string | undefined;
-      if (country === undefined) {
-        return;
-      }
+    chartOfAccounts: {
+      formula: async () => {
+        const country = this.get('country') as string | undefined;
+        if (country === undefined) {
+          return;
+        }
 
-      const countryInfo = getCountryInfo();
-      const code = (countryInfo[country] as undefined | { code: string })?.code;
-      if (code === undefined) {
-        return;
-      }
+        const countryInfo = getCountryInfo();
+        const code = (countryInfo[country] as undefined | { code: string })
+          ?.code;
+        if (code === undefined) {
+          return;
+        }
 
-      const coaList = getCOAList();
-      const coa = coaList.find(({ countryCode }) => countryCode === code);
+        const coaList = getCOAList();
+        const coa = coaList.find(({ countryCode }) => countryCode === code);
 
-      if (coa === undefined) {
-        return coaList[0].name;
-      }
-      return coa.name;
+        if (coa === undefined) {
+          return coaList[0].name;
+        }
+        return coa.name;
+      },
+      dependsOn: ['country'],
     },
   };
 

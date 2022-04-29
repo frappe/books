@@ -68,7 +68,7 @@ export type Field =
   | DynamicLinkField
   | NumberField;
 
-export type Naming = 'autoincrement' | 'random' | 'numberSeries'
+export type Naming = 'autoincrement' | 'random' | 'numberSeries' | 'manual';
 
 export interface Schema {
   name: string;                  // Table name

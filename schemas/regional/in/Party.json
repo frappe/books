@@ -34,6 +34,7 @@
     "address",
     "defaultAccount",
     "currency",
+    "role",
     "gstType",
     "gstin"
   ],

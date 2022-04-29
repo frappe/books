@@ -125,7 +125,7 @@ export function openSettings(tab: SettingsTab) {
   routeTo({ path: '/settings', query: { tab } });
 }
 
-export function routeTo(route: string | RouteLocationRaw) {
+export async function routeTo(route: string | RouteLocationRaw) {
   let routeOptions = route;
   if (
     typeof route === 'string' &&
@@ -138,7 +138,7 @@ export function routeTo(route: string | RouteLocationRaw) {
     routeOptions = { path: route };
   }
 
-  router.push(routeOptions);
+  await router.push(routeOptions);
 }
 
 export function deleteDocWithPrompt(doc: Doc) {
@@ -292,6 +292,7 @@ function getDeleteAction(doc: Doc): Action {
       }),
   };
 }
+
 function getDuplicateAction(doc: Doc): Action {
   const isSubmittable = !!doc.schema.isSubmittable;
   return {

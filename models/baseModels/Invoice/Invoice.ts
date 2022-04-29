@@ -162,24 +162,35 @@ export abstract class Invoice extends Doc {
   }
 
   formulas: FormulaMap = {
-    account: async () =>
-      this.getFrom('Party', this.party!, 'defaultAccount') as string,
-    currency: async () =>
-      (this.getFrom('Party', this.party!, 'currency') as string) ||
-      (this.fyo.singles.AccountingSettings!.currency as string),
-    exchangeRate: async () => await this.getExchangeRate(),
-    netTotal: async () => this.getSum('items', 'amount', false),
-    baseNetTotal: async () => this.netTotal!.mul(this.exchangeRate!),
-    taxes: async () => await this.getTaxSummary(),
-    grandTotal: async () => await this.getGrandTotal(),
-    baseGrandTotal: async () =>
-      (this.grandTotal as Money).mul(this.exchangeRate!),
-    outstandingAmount: async () => {
-      if (this.submitted) {
-        return;
-      }
+    account: {
+      formula: async () =>
+        this.getFrom('Party', this.party!, 'defaultAccount') as string,
+      dependsOn: ['party'],
+    },
+    currency: {
+      formula: async () =>
+        (this.getFrom('Party', this.party!, 'currency') as string) ||
+        (this.fyo.singles.AccountingSettings!.currency as string),
+      dependsOn: ['party'],
+    },
+    exchangeRate: { formula: async () => await this.getExchangeRate() },
+    netTotal: { formula: async () => this.getSum('items', 'amount', false) },
+    baseNetTotal: {
+      formula: async () => this.netTotal!.mul(this.exchangeRate!),
+    },
+    taxes: { formula: async () => await this.getTaxSummary() },
+    grandTotal: { formula: async () => await this.getGrandTotal() },
+    baseGrandTotal: {
+      formula: async () => (this.grandTotal as Money).mul(this.exchangeRate!),
+    },
+    outstandingAmount: {
+      formula: async () => {
+        if (this.submitted) {
+          return;
+        }
 
-      return this.baseGrandTotal!;
+        return this.baseGrandTotal!;
+      },
     },
   };
 

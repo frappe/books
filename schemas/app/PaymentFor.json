@@ -6,7 +6,7 @@
   "fields": [
     {
       "fieldname": "referenceType",
-      "label": "Reference Type",
+      "label": "Type",
       "placeholder": "Type",
       "fieldtype": "Select",
       "options": [
@@ -23,7 +23,7 @@
     },
     {
       "fieldname": "referenceName",
-      "label": "Reference Name",
+      "label": "Name",
       "fieldtype": "DynamicLink",
       "references": "referenceType",
       "placeholder": "Name",
@@ -31,9 +31,10 @@
     },
     {
       "fieldname": "amount",
-      "label": "Allocated Amount",
+      "label": "Amount",
       "fieldtype": "Currency",
       "required": true
     }
-  ]
+  ],
+  "tableFields": ["referenceType", "referenceName", "amount"]
 }

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="tableFields?.length">
     <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
       {{ df.label }}
     </div>
@@ -90,6 +90,9 @@ export default {
     TableRow,
   },
   inject: ['doc'],
+  mounted(){
+    window.tab = this
+  },
   data: () => ({ rowContainerHeight: null }),
   watch: {
     value: {

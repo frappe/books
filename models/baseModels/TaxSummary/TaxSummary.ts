@@ -9,10 +9,13 @@ export class TaxSummary extends Doc {
   baseAmount?: Money;
 
   formulas: FormulaMap = {
-    baseAmount: async () => {
-      const amount = this.amount as Money;
-      const exchangeRate = (this.parentdoc?.exchangeRate ?? 1) as number;
-      return amount.mul(exchangeRate);
+    baseAmount: {
+      formula: async () => {
+        const amount = this.amount as Money;
+        const exchangeRate = (this.parentdoc?.exchangeRate ?? 1) as number;
+        return amount.mul(exchangeRate);
+      },
+      dependsOn: ['amount'],
     },
   };
 }

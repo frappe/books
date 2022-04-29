@@ -1,3 +1,6 @@
+<script setup>
+const keys = useKeys();
+</script>
 <template>
   <div v-on-outside-click="clearInput" class="relative">
     <Dropdown :items="suggestions" class="text-sm h-full">
@@ -13,21 +16,30 @@
           class="rounded-md relative flex items-center overflow-hidden h-full"
         >
           <div class="absolute flex justify-center w-8">
-            <feather-icon name="search" class="w-3 h-3 text-gray-700" />
+            <feather-icon name="search" class="w-3 h-3 text-gray-800" />
           </div>
           <input
             type="search"
-            class="bg-gray-200 text-sm pl-8 focus:outline-none h-full w-56 placeholder-gray-700"
+            class="
+              bg-gray-100
+              text-sm
+              pl-7
+              focus:outline-none
+              h-full
+              w-56
+              placeholder-gray-800
+            "
             :placeholder="t`Search...`"
             autocomplete="off"
             spellcheck="false"
             v-model="inputValue"
-            @input="
+            @focus="
               () => {
                 search();
                 toggleDropdown(true);
               }
             "
+            @input="search"
             ref="input"
             @keydown.up="highlightItemUp"
             @keydown.down="highlightItemDown"
@@ -35,6 +47,12 @@
             @keydown.tab="toggleDropdown(false)"
             @keydown.esc="toggleDropdown(false)"
           />
+          <div
+            v-if="!inputValue"
+            class="absolute justify-center right-1.5 text-gray-500 px-1.5"
+          >
+            {{ platform === 'Mac' ? '⌘ K' : 'Ctrl K' }}
+          </div>
         </div>
       </template>
     </Dropdown>
@@ -42,10 +60,11 @@
 </template>
 <script>
 import { t } from 'fyo';
-import reports from 'reports/view';
 import Dropdown from 'src/components/Dropdown';
-import { fyo } from 'src/initFyo';
+import { getSearchList } from 'src/utils/search';
 import { routeTo } from 'src/utils/ui';
+import { useKeys } from 'src/utils/vueUtils';
+import { watch } from 'vue';
 
 export default {
   data() {
@@ -61,6 +80,19 @@ export default {
   emits: ['change'],
   mounted() {
     this.makeSearchList();
+    watch(this.keys, (keys) => {
+      if (
+        keys.size === 2 &&
+        keys.has('KeyK') &&
+        (keys.has('MetaLeft') || keys.has('ControlLeft'))
+      ) {
+        this.$refs.input.focus();
+      }
+
+      if (keys.size === 1 && keys.has('Escape')) {
+        this.$refs.input.blur();
+      }
+    });
   },
   methods: {
     async search() {
@@ -78,55 +110,16 @@ export default {
       this.$emit('change', null);
     },
     async makeSearchList() {
-      const schemas = this.getSearchableSchemas();
-      const reports = this.getReports();
-      const views = this.getViews();
-
-      let searchList = [...schemas, ...reports, ...views];
+      const searchList = getSearchList();
       this.searchList = searchList.map((d) => {
-        if (d.route) {
-          d.action = () => routeTo(d.route);
-          this.inputValue = '';
+        if (d.route && !d.action) {
+          d.action = () => {
+            routeTo(d.route);
+            this.inputValue = '';
+          };
         }
         return d;
       });
-    },
-    getSearchableSchemas() {
-      return Object.values(fyo.schemaMap)
-        .filter((s) => !s.isChild && !s.isSingle)
-        .map((s) => ({
-          label: s.label,
-          route: `/list/${s.name}`,
-          group: 'List',
-        }));
-    },
-    getReports() {
-      return Object.values(reports).map((report) => {
-        return {
-          label: report.title,
-          route: `/report/${report.method}`,
-          group: 'Reports',
-        };
-      });
-    },
-    getViews() {
-      return [
-        {
-          label: t`Chart of Accounts`,
-          route: '/chartOfAccounts',
-          group: 'Setup',
-        },
-        {
-          label: t`Data Import`,
-          route: '/data_import',
-          group: 'Setup',
-        },
-        {
-          label: t`Settings`,
-          route: '/settings',
-          group: 'Setup',
-        },
-      ];
     },
   },
 };

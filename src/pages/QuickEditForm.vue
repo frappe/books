@@ -1,5 +1,5 @@
 <template>
-  <div class="border-l h-full">
+  <div class="border-l h-full overflow-auto">
     <!-- Quick edit Tool bar -->
     <div class="flex items-center justify-between px-4 pt-4">
       <!-- Close Button and Status Text -->
@@ -27,7 +27,7 @@
         </Button>
         <Button
           :icon="true"
-          @click="submitDoc"
+          @click="submit"
           type="primary"
           v-if="
             schema?.isSubmittable &&
@@ -43,30 +43,24 @@
     </div>
 
     <!-- Name and image -->
-    <div class="px-4 pt-2 pb-4 flex-center" v-if="doc">
-      <div class="flex flex-col items-center">
-        <FormControl
-          v-if="imageField"
-          :df="imageField"
-          :value="doc[imageField.fieldname]"
-          @change="(value) => valueChange(imageField, value)"
-          size="small"
-          class="mb-1"
-          :letter-placeholder="
-            // for AttachImage field
-            doc[titleField.fieldname] ? doc[titleField.fieldname][0] : null
-          "
-        />
-        <FormControl
-          input-class="text-center"
-          ref="titleControl"
-          v-if="titleField"
-          :df="titleField"
-          :value="doc[titleField.fieldname]"
-          @change="(value) => valueChange(titleField, value)"
-          @input="setTitleSize"
-        />
-      </div>
+    <div class="p-4 gap-2 flex-center flex flex-col items-center" v-if="doc">
+      <FormControl
+        v-if="imageField"
+        :df="imageField"
+        :value="doc[imageField.fieldname]"
+        @change="(value) => valueChange(imageField, value)"
+        size="small"
+        :letter-placeholder="doc[titleField.fieldname]?.[0] ?? null"
+      />
+      <FormControl
+        input-class="text-center"
+        ref="titleControl"
+        v-if="titleField"
+        :df="titleField"
+        :value="doc[titleField.fieldname]"
+        @change="(value) => valueChange(titleField, value)"
+        @input="setTitleSize"
+      />
     </div>
 
     <!-- Rest of the form -->
@@ -229,41 +223,56 @@ export default {
       }, 300);
     },
     async fetchDoc() {
-      try {
-        this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
-
-        this.doc.once('afterRename', () => {
-          openQuickEdit({
-            schemaName: this.schemaName,
-            name: this.doc.name,
-          });
-        });
-
-        this.doc.on('beforeSync', () => {
-          this.statusText = t`Saving...`;
-        });
-
-        this.doc.on('afterSync', () => {
-          setTimeout(() => {
-            this.statusText = null;
-          }, 500);
-        });
-      } catch (e) {
+      if (!this.schemaName) {
         this.$router.back();
       }
+
+      if (this.name) {
+        try {
+          this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
+        } catch (e) {
+          this.$router.back();
+        }
+      } else {
+        this.doc = fyo.doc.getNewDoc(this.schemaName);
+      }
+
+      if (this.doc === null) {
+        return;
+      }
+
+      this.doc.once('afterRename', () => {
+        openQuickEdit({
+          schemaName: this.schemaName,
+          name: this.doc.name,
+        });
+      });
     },
     valueChange(df, value) {
       this.$refs.form.onChange(df, value);
     },
-    sync() {
-      this.$refs.form.sync();
+    async sync() {
+      this.statusText = t`Saving`;
+      try {
+        await this.$refs.form.sync();
+        setTimeout(() => {
+          this.statusText = null;
+        }, 300);
+      } catch (err) {
+        this.statusText = null;
+        console.error(err);
+      }
     },
-    async submitDoc() {
+    async submit() {
+      this.statusText = t`Submitting`;
       try {
         await this.$refs.form.submit();
-      } catch (e) {
+        setTimeout(() => {
+          this.statusText = null;
+        }, 300);
+      } catch (err) {
         this.statusText = null;
-        console.error(e);
+        console.error(err);
       }
     },
     routeToPrevious() {

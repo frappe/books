@@ -31,7 +31,6 @@ import {
   Action,
   CurrenciesMap,
   DefaultMap,
-  DependsOnMap,
   EmptyMessageMap,
   FiltersMap,
   FormulaMap,
@@ -42,7 +41,7 @@ import {
   ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
-  ValidationMap
+  ValidationMap,
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
 
@@ -583,7 +582,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _getValueFromFormula(field: Field, doc: Doc) {
-    const formula = doc.formulas[field.fieldname];
+    const { formula } = doc.formulas[field.fieldname] ?? {};
     if (formula === undefined) {
       return;
     }
@@ -594,6 +593,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     } catch {
       return;
     }
+
     if (Array.isArray(value) && field.fieldtype === FieldTypeEnum.Table) {
       value = value.map((row) => this._getChildDoc(row, field.fieldname));
     }
@@ -796,7 +796,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
   required: RequiredMap = {};
   hidden: HiddenMap = {};
   readOnly: ReadOnlyMap = {};
-  dependsOn: DependsOnMap = {};
   getCurrencies: CurrenciesMap = {};
 
   static lists: ListsMap = {};

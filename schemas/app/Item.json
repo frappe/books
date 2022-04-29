@@ -2,6 +2,7 @@
   "name": "Item",
   "label": "Item",
   "isSingle": false,
+  "naming": "manual",
   "fields": [
     {
       "fieldname": "name",
@@ -30,11 +31,11 @@
       "options": [
         {
           "value": "Unit",
-          "name": "Unit"
+          "label": "Unit"
         },
         {
           "value": "Kg",
-          "name": "Kg"
+          "label": "Kg"
         },
         {
           "value": "Gram",

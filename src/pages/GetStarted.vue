@@ -15,7 +15,7 @@
                 flex flex-col
                 justify-between
                 h-full
-                p-6
+                p-4
                 border
                 rounded-lg
                 cursor-pointer

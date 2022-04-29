@@ -1,11 +1,6 @@
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import {
-  DependsOnMap,
-  FiltersMap,
-  FormulaMap,
-  ValidationMap,
-} from 'fyo/model/types';
+import { FiltersMap, FormulaMap, ValidationMap } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import Money from 'pesa/dist/types/src/money';
 import { Invoice } from '../Invoice/Invoice';
@@ -21,50 +16,74 @@ export abstract class InvoiceItem extends Doc {
   }
 
   formulas: FormulaMap = {
-    description: () =>
-      this.parentdoc!.getFrom(
-        'Item',
-        this.item as string,
-        'description'
-      ) as string,
-    rate: async () => {
-      const baseRate = ((await this.parentdoc!.getFrom(
-        'Item',
-        this.item as string,
-        'rate'
-      )) || this.fyo.pesa(0)) as Money;
-
-      return baseRate.div(this.exchangeRate!);
+    description: {
+      formula: () =>
+        this.parentdoc!.getFrom(
+          'Item',
+          this.item as string,
+          'description'
+        ) as string,
+      dependsOn: ['item'],
     },
-    baseRate: () =>
-      (this.rate as Money).mul(this.parentdoc!.exchangeRate as number),
-    account: () => {
-      let accountType = 'expenseAccount';
-      if (this.isSales) {
-        accountType = 'incomeAccount';
-      }
-      return this.parentdoc!.getFrom('Item', this.item as string, accountType);
-    },
-    tax: () => {
-      if (this.tax) {
-        return this.tax as string;
-      }
+    rate: {
+      formula: async () => {
+        const baseRate = ((await this.parentdoc!.getFrom(
+          'Item',
+          this.item as string,
+          'rate'
+        )) || this.fyo.pesa(0)) as Money;
 
-      return this.parentdoc!.getFrom(
-        'Item',
-        this.item as string,
-        'tax'
-      ) as string;
+        return baseRate.div(this.exchangeRate!);
+      },
+      dependsOn: ['item'],
     },
-    amount: () => (this.rate as Money).mul(this.quantity as number),
-    baseAmount: () =>
-      (this.amount as Money).mul(this.parentdoc!.exchangeRate as number),
-    hsnCode: () =>
-      this.parentdoc!.getFrom('Item', this.item as string, 'hsnCode'),
-  };
+    baseRate: {
+      formula: () =>
+        (this.rate as Money).mul(this.parentdoc!.exchangeRate as number),
+      dependsOn: ['item', 'rate'],
+    },
+    account: {
+      formula: () => {
+        let accountType = 'expenseAccount';
+        if (this.isSales) {
+          accountType = 'incomeAccount';
+        }
+        return this.parentdoc!.getFrom(
+          'Item',
+          this.item as string,
+          accountType
+        );
+      },
+      dependsOn: ['item'],
+    },
+    tax: {
+      formula: () => {
+        if (this.tax) {
+          return this.tax as string;
+        }
 
-  dependsOn: DependsOnMap = {
-    hsnCode: ['item'],
+        return this.parentdoc!.getFrom(
+          'Item',
+          this.item as string,
+          'tax'
+        ) as string;
+      },
+      dependsOn: ['item'],
+    },
+    amount: {
+      formula: () => (this.rate as Money).mul(this.quantity as number),
+      dependsOn: ['item', 'rate', 'quantity'],
+    },
+    baseAmount: {
+      formula: () =>
+        (this.amount as Money).mul(this.parentdoc!.exchangeRate as number),
+      dependsOn: ['item', 'amount', 'rate', 'quantity'],
+    },
+    hsnCode: {
+      formula: () =>
+        this.parentdoc!.getFrom('Item', this.item as string, 'hsnCode'),
+      dependsOn: ['item'],
+    },
   };
 
   validations: ValidationMap = {

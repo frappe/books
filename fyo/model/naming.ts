@@ -28,7 +28,10 @@ export function isNameAutoSet(schemaName: string, fyo: Fyo): boolean {
 }
 
 export async function setName(doc: Doc, fyo: Fyo) {
-  // if is server, always name again if autoincrement or other
+  if (doc.schema.naming === 'manual') {
+    return;
+  }
+
   if (doc.schema.naming === 'autoincrement') {
     doc.name = await getNextId(doc.schemaName, fyo);
     return;

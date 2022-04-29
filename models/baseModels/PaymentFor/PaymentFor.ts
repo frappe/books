@@ -4,18 +4,25 @@ import Money from 'pesa/dist/types/src/money';
 
 export class PaymentFor extends Doc {
   formulas: FormulaMap = {
-    amount: async () => {
-      const outstandingAmount = this.parentdoc!.getFrom(
-        this.referenceType as string,
-        this.referenceName as string,
-        'outstandingAmount'
-      ) as Money;
+    amount: {
+      formula: async () => {
+        if (!this.referenceName) {
+          return this.fyo.pesa(0);
+        }
 
-      if (outstandingAmount) {
-        return outstandingAmount;
-      }
+        const outstandingAmount = this.parentdoc!.getFrom(
+          this.referenceType as string,
+          this.referenceName as string,
+          'outstandingAmount'
+        ) as Money;
 
-      return this.fyo.pesa(0);
+        if (outstandingAmount) {
+          return outstandingAmount;
+        }
+
+        return this.fyo.pesa(0);
+      },
+      dependsOn: ['referenceName'],
     },
   };
 

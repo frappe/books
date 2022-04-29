@@ -19,6 +19,7 @@ import { Doc } from './doc';
  */
 export type FormulaReturn = DocValue | DocValueMap[] | undefined | Doc[];
 export type Formula = () => Promise<FormulaReturn> | FormulaReturn;
+export type FormulaConfig = { dependsOn?: string[]; formula: Formula };
 export type Default = () => DocValue;
 export type Validation = (value: DocValue) => Promise<void> | void;
 export type Required = () => boolean;
@@ -26,14 +27,13 @@ export type Hidden = () => boolean;
 export type ReadOnly = () => boolean;
 export type GetCurrency = () => string;
 
-export type FormulaMap = Record<string, Formula | undefined>;
+export type FormulaMap = Record<string, FormulaConfig | undefined>;
 export type DefaultMap = Record<string, Default | undefined>;
 export type ValidationMap = Record<string, Validation | undefined>;
 export type RequiredMap = Record<string, Required | undefined>;
 export type CurrenciesMap = Record<string, GetCurrency | undefined>;
 export type HiddenMap = Record<string, Hidden | undefined>;
 export type ReadOnlyMap = Record<string, ReadOnly | undefined>;
-export type DependsOnMap = Record<string, string[]>;
 
 /**
  * Should add this for hidden too

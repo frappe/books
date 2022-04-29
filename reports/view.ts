@@ -18,4 +18,9 @@
 //   'gstr-2': GoodsAndServiceTaxGSTR2View,
 // };
 
-export default {};
+interface ReportView {
+  title: string;
+  method: string;
+}
+
+export default {} as Record<string, ReportView>;
