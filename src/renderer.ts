@@ -36,7 +36,6 @@ import { setLanguageMap } from './utils/language';
   app.component('App', App);
   app.component('FeatherIcon', FeatherIcon);
   app.component('Badge', Badge);
-
   app.directive('on-outside-click', outsideClickDirective);
   app.mixin({
     computed: {

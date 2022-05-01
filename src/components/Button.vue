@@ -1,6 +1,6 @@
 <template>
   <button
-    class="focus:outline-none rounded-md shadow-button flex-center"
+    class="focus:outline-none rounded-md shadow-button flex-center h-8"
     :style="style"
     :class="_class"
     v-bind="$attrs"

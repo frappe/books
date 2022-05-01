@@ -18,9 +18,18 @@ export const statusColor = {
 };
 
 const getValidColor = (color: string) => {
-  const isValid = ['gray', 'orange', 'green', 'red', 'yellow', 'blue'].includes(
-    color
-  );
+  const isValid = [
+    'gray',
+    'orange',
+    'green',
+    'red',
+    'yellow',
+    'blue',
+    'indigo',
+    'pink',
+    'purple',
+    'teal',
+  ].includes(color);
   return isValid ? color : 'gray';
 };
 

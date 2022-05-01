@@ -108,7 +108,7 @@ const routes: RouteRecordRaw[] = [
   },
   /*
   {
-    path: '/data_import',
+    path: '/data-import',
     name: 'Data Import',
     component: DataImport,
   },
