@@ -55,7 +55,7 @@ export function getTransactionActions(schemaName: string, fyo: Fyo): Action[] {
             paymentType,
             for: [
               {
-                referenceType: doc.doctype,
+                referenceType: doc.schemaName,
                 referenceName: doc.name,
                 amount: doc.outstandingAmount,
               },
@@ -68,7 +68,7 @@ export function getTransactionActions(schemaName: string, fyo: Fyo): Action[] {
       label: fyo.t`Print`,
       condition: (doc: Doc) => doc.submitted as boolean,
       action: async (doc: Doc, router: Router) => {
-        router.push({ path: `/print/${doc.doctype}/${doc.name}` });
+        router.push({ path: `/print/${doc.schemaName}/${doc.name}` });
       },
     },
     getLedgerLinkAction(fyo),

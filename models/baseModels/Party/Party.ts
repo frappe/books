@@ -122,7 +122,7 @@ export class Party extends Doc {
           router.push({
             path: `/edit/PurchaseInvoice/${doc.name}`,
             query: {
-              doctype: 'PurchaseInvoice',
+              schemaName: 'PurchaseInvoice',
               values: {
                 // @ts-ignore
                 party: partyDoc.name!,
@@ -139,7 +139,7 @@ export class Party extends Doc {
           router.push({
             name: 'ListView',
             params: {
-              doctype: 'PurchaseInvoice',
+              schemaName: 'PurchaseInvoice',
               filters: {
                 // @ts-ignore
                 party: partyDoc.name!,
@@ -157,7 +157,7 @@ export class Party extends Doc {
           router.push({
             path: `/edit/SalesInvoice/${doc.name}`,
             query: {
-              doctype: 'SalesInvoice',
+              schemaName: 'SalesInvoice',
               values: {
                 // @ts-ignore
                 party: partyDoc.name!,
@@ -174,7 +174,7 @@ export class Party extends Doc {
           router.push({
             name: 'ListView',
             params: {
-              doctype: 'SalesInvoice',
+              schemaName: 'SalesInvoice',
               filters: {
                 // @ts-ignore
                 party: partyDoc.name!,

@@ -7,7 +7,7 @@
           v-if="doc.submitted"
           class="text-gray-900 text-xs ml-2"
           :icon="true"
-          @click="routeTo(`/print/${doc.doctype}/${doc.name}`)"
+          @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
         >
           Print
         </Button>
@@ -21,7 +21,7 @@
           {{ t`Save` }}
         </Button>
         <Button
-          v-if="!doc._dirty && !doc._notInserted && !doc.submitted"
+          v-if="!doc.dirty && !doc.notInserted && !doc.submitted"
           type="primary"
           class="text-white text-xs ml-2"
           @click="onSubmitClick"
@@ -29,7 +29,7 @@
         >
       </template>
     </PageHeader>
-    <div class="flex justify-center flex-1 mb-8 mt-2" v-if="meta">
+    <div class="flex justify-center flex-1 mb-8 mt-2" v-if="doc">
       <div
         class="border rounded-lg shadow h-full flex flex-col justify-between"
         style="width: 600px"
@@ -60,31 +60,29 @@
           <div class="mt-8 px-6">
             <h1 class="text-2xl font-semibold">
               {{
-                doc._notInserted
-                  ? doc.doctype === 'SalesInvoice'
-                    ? t`New Invoice`
-                    : t`New Bill`
+                doc.notInserted
+                  ? doc.schemaName === 'SalesInvoice'
+                    ? t`New Sales Invoice`
+                    : t`New Purchase Invoice`
                   : doc.name
               }}
             </h1>
             <div class="flex justify-between mt-2">
               <div class="w-1/3">
                 <FormControl
-                  class="text-base"
-                  input-class="bg-gray-100 p-2 text-lg font-semibold"
-                  :df="meta.getField(partyField.fieldname)"
-                  :value="doc[partyField.fieldname]"
-                  :placeholder="partyField.label"
-                  @change="(value) => doc.set(partyField.fieldname, value)"
-                  @new-doc="
-                    (party) => doc.set(partyField.fieldname, party.name)
-                  "
+                  class="bg-gray-100 rounded text-base"
+                  input-class="p-2 text-lg font-semibold bg-transparent"
+                  :df="getField('party')"
+                  :value="doc.party"
+                  :placeholder="getField('party').label"
+                  @change="(value) => doc.set('party', value)"
+                  @new-doc="(party) => doc.set('party', party.name)"
                   :read-only="doc.submitted"
                 />
                 <FormControl
-                  class="mt-2 text-base"
-                  input-class="bg-gray-100 px-3 py-2 text-base"
-                  :df="meta.getField('account')"
+                  class="mt-2 text-base bg-gray-100 rounded"
+                  input-class="px-3 py-2 text-base bg-transparent"
+                  :df="getField('account')"
                   :value="doc.account"
                   :placeholder="'Account'"
                   @change="(value) => doc.set('account', value)"
@@ -94,26 +92,26 @@
               <div class="w-1/3">
                 <FormControl
                   input-class="bg-gray-100 px-3 py-2 text-base text-right"
-                  :df="meta.getField('date')"
+                  :df="getField('date')"
                   :value="doc.date"
                   :placeholder="'Date'"
                   @change="(value) => doc.set('date', value)"
                   :read-only="doc.submitted"
                 />
                 <FormControl
-                  class="mt-2 text-base"
-                  input-class="bg-gray-100 px-3 py-2 text-base text-right"
-                  :df="meta.getField('numberSeries')"
+                  class="mt-2 text-base bg-gray-100 rounded"
+                  input-class="bg-transparent px-3 py-2 text-base text-right"
+                  :df="getField('numberSeries')"
                   :value="doc.numberSeries"
                   @change="(value) => doc.set('numberSeries', value)"
-                  :read-only="!doc._notInserted || doc.submitted"
+                  :read-only="!doc.notInserted || doc.submitted"
                 />
               </div>
             </div>
           </div>
           <div class="px-6 text-base">
             <FormControl
-              :df="meta.getField('items')"
+              :df="getField('items')"
               :value="doc.items"
               :showHeader="true"
               :max-rows-before-overflow="4"
@@ -129,7 +127,7 @@
           <div class="flex-1 mr-10">
             <FormControl
               v-if="!doc.submitted || doc.terms"
-              :df="meta.getField('terms')"
+              :df="getField('terms')"
               :value="doc.terms"
               :show-label="true"
               input-class="bg-gray-100"
@@ -195,24 +193,26 @@
   </div>
 </template>
 <script>
+import { computed } from '@vue/reactivity';
 import { getInvoiceStatus } from 'models/helpers';
-import Button from 'src/components/Button';
+import { ModelNameEnum } from 'models/types';
+import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
-import DropdownWithActions from 'src/components/DropdownWithActions';
-import PageHeader from 'src/components/PageHeader';
-import StatusBadge from 'src/components/StatusBadge';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
+import PageHeader from 'src/components/PageHeader.vue';
+import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import {
-getActionsForDocument,
-openSettings,
-routeTo,
-showMessageDialog
-} from 'src/utils';
+  getActionsForDocument,
+  openSettings,
+  routeTo,
+  showMessageDialog,
+} from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
   name: 'InvoiceForm',
-  props: ['doctype', 'name'],
+  props: { schemaName: String, name: String },
   components: {
     PageHeader,
     StatusBadge,
@@ -222,8 +222,9 @@ export default {
   },
   provide() {
     return {
-      doctype: this.doctype,
+      schemaName: this.schemaName,
       name: this.name,
+      doc: computed(() => this.doc),
     };
   },
   data() {
@@ -236,21 +237,11 @@ export default {
     };
   },
   computed: {
-    meta() {
-      return fyo.getMeta(this.doctype);
-    },
-    partyField() {
-      let fieldname = {
-        SalesInvoice: 'customer',
-        PurchaseInvoice: 'supplier',
-      }[this.doctype];
-      return this.meta.getField(fieldname);
-    },
     address() {
       return this.printSettings && this.printSettings.getLink('address');
     },
     showSave() {
-      return this.doc && (this.doc._notInserted || this.doc._dirty);
+      return this.doc && (this.doc.notInserted || this.doc.dirty);
     },
     actions() {
       return getActionsForDocument(this.doc);
@@ -258,29 +249,37 @@ export default {
   },
   async mounted() {
     try {
-      this.doc = await fyo.doc.getDoc(this.doctype, this.name);
-      window.d = this.doc;
+      this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
     } catch (error) {
       if (error instanceof fyo.errors.NotFoundError) {
-        routeTo(`/list/${this.doctype}`);
+        routeTo(`/list/${this.schemaName}`);
         return;
       }
       this.handleError(error);
     }
-    this.printSettings = await fyo.getSingle('PrintSettings');
-    this.companyName = (await fyo.getSingle('AccountingSettings')).companyName;
+    this.printSettings = await fyo.doc.getSingle('PrintSettings');
+    this.companyName = (
+      await fyo.doc.getSingle('AccountingSettings')
+    ).companyName;
 
     let query = this.$route.query;
-    if (query.values && query.doctype === this.doctype) {
+    if (query.values && query.schemaName === this.schemaName) {
       this.doc.set(this.$router.currentRoute.value.query.values);
     }
     this.status = getInvoiceStatus(this.doc);
+
+    if (fyo.store.isDevelopment) {
+      window.inv = this;
+    }
   },
   updated() {
     this.status = getInvoiceStatus(this.doc);
   },
   methods: {
     routeTo,
+    getField(fieldname) {
+      return fyo.getField(this.schemaName, fieldname);
+    },
     async onSaveClick() {
       await this.doc.set(
         'items',
@@ -290,9 +289,9 @@ export default {
     },
     onSubmitClick() {
       let message =
-        this.doctype === 'SalesInvoice'
-          ? this.t`Are you sure you want to submit this Invoice?`
-          : this.t`Are you sure you want to submit this Bill?`;
+        this.schemaName === ModelNameEnum.SalesInvoice
+          ? this.t`Are you sure you want to submit this Sales Invoice?`
+          : this.t`Are you sure you want to submit this Purchase Invoice?`;
       showMessageDialog({
         message,
         buttons: [
@@ -319,7 +318,8 @@ export default {
       if (!doc) {
         doc = this.doc;
       }
-      let df = doc.meta.getField(fieldname);
+
+      const df = this.getField(fieldname);
       return fyo.format(doc[fieldname], df, doc);
     },
   },

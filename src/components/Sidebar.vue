@@ -178,8 +178,8 @@ export default {
     itemActiveClass(item) {
       let { path: currentRoute, params } = this.$route;
       let routeMatch = currentRoute === item.route;
-      let doctypeMatch = item.doctype && params.doctype === item.doctype;
-      return routeMatch || doctypeMatch ? 'bg-white text-blue-500' : '';
+      let schemaNameMatch = item.schemaName && params.schemaName === item.schemaName;
+      return routeMatch || schemaNameMatch ? 'bg-white text-blue-500' : '';
     },
     isActiveGroup(group) {
       return this.activeGroup && group.label === this.activeGroup.label;

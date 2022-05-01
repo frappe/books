@@ -59,7 +59,7 @@ import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
   name: 'PrintView',
-  props: ['doctype', 'name'],
+  props: { schemaName: String, name: String },
   components: {
     PageHeader,
     SearchBar,
@@ -74,12 +74,12 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await fyo.doc.getDoc(this.doctype, this.name);
+    this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
     this.printSettings = await fyo.getSingle('PrintSettings');
   },
   computed: {
     meta() {
-      return fyo.getMeta(this.doctype);
+      return fyo.getMeta(this.schemaName);
     },
     printTemplate() {
       return this.meta.printTemplate;

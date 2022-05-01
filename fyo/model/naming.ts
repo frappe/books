@@ -48,9 +48,9 @@ export async function setName(doc: Doc, fyo: Fyo) {
     return;
   }
 
-  // name === doctype for Single
+  // name === schemaName for Single
   if (doc.schema.isSingle) {
-    doc.name = doc.schema.name;
+    doc.name = doc.schemaName;
     return;
   }
 

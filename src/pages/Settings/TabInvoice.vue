@@ -59,7 +59,7 @@ export default {
   emits: ['change'],
   provide() {
     return {
-      doctype: 'PrintSettings',
+      schemaName: 'PrintSettings',
       name: 'PrintSettings',
     };
   },
