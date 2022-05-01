@@ -21,6 +21,7 @@
 
 <script>
 import { createPopper } from '@popperjs/core';
+import { nextTick } from 'vue';
 
 export default {
   name: 'Popover',
@@ -120,7 +121,7 @@ export default {
         return;
       }
       this.isOpen = true;
-      this.$nextTick(() => {
+      nextTick(() => {
         this.setupPopper();
       });
       this.$emit('open');

@@ -4,9 +4,9 @@
       {{ title }}
     </h1>
     <BackLink v-if="backLink" />
-    <div class="flex items-stretch window-no-drag">
-      <slot name="actions" />
-      <SearchBar v-show="!hideSearch" class="ml-2" />
+    <div class="flex items-stretch window-no-drag gap-2">
+      <slot />
+      <SearchBar v-show="!hideSearch" />
     </div>
   </div>
 </template>

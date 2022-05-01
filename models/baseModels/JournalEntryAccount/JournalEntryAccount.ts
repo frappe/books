@@ -4,8 +4,12 @@ import Money from 'pesa/dist/types/src/money';
 
 export class JournalEntryAccount extends Doc {
   getAutoDebitCredit(type: 'debit' | 'credit') {
-    const otherType = type === 'debit' ? 'credit' : 'debit';
+    const currentValue = this.get(type) as Money;
+    if (!currentValue.isZero()) {
+      return;
+    }
 
+    const otherType = type === 'debit' ? 'credit' : 'debit';
     const otherTypeValue = this.get(otherType) as Money;
     if (!otherTypeValue.isZero()) {
       return this.fyo.pesa(0);
@@ -26,11 +30,9 @@ export class JournalEntryAccount extends Doc {
   formulas: FormulaMap = {
     debit: {
       formula: async () => this.getAutoDebitCredit('debit'),
-      dependsOn: ['credit'],
     },
     credit: {
       formula: async () => this.getAutoDebitCredit('credit'),
-      dependsOn: ['debit'],
     },
   };
 

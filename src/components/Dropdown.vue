@@ -75,6 +75,7 @@
 <script>
 import uniq from 'lodash/uniq';
 import { fyo } from 'src/initFyo';
+import { nextTick } from 'vue';
 import Popover from './Popover.vue';
 
 export default {
@@ -206,7 +207,7 @@ export default {
       if (this.highlightedIndex < 0) {
         this.highlightedIndex = 0;
       }
-      this.$nextTick(() => {
+      nextTick(() => {
         let index = this.highlightedIndex;
         if (index !== 0) {
           index -= 1;
@@ -220,7 +221,7 @@ export default {
         this.highlightedIndex = this.items.length;
       }
 
-      this.$nextTick(() => {
+      nextTick(() => {
         this.scrollToHighlighted();
       });
     },
