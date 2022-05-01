@@ -1,20 +1,17 @@
 <template>
   <div class="flex flex-col overflow-hidden w-full">
     <PageHeader :title="t`Data Import`">
-      <template #actions>
-        <DropdownWithActions
-          class="ml-2"
-          :actions="actions"
-          v-if="(canCancel || importType) && !complete"
-        />
-        <Button
-          v-if="importType && !complete"
-          type="primary"
-          class="text-sm ml-2"
-          @click="handlePrimaryClick"
-          >{{ primaryLabel }}</Button
-        >
-      </template>
+      <DropdownWithActions
+        :actions="actions"
+        v-if="(canCancel || importType) && !complete"
+      />
+      <Button
+        v-if="importType && !complete"
+        type="primary"
+        class="text-sm"
+        @click="handlePrimaryClick"
+        >{{ primaryLabel }}</Button
+      >
     </PageHeader>
     <div
       class="flex px-8 mt-2 text-base w-full flex-col gap-8"
@@ -573,7 +570,10 @@ export default {
         this.clear();
       }
       this.importType = importType;
-      this.importer = new Importer(this.labelSchemaNameMap[this.importType], fyo);
+      this.importer = new Importer(
+        this.labelSchemaNameMap[this.importType],
+        fyo
+      );
     },
     setLoadingStatus(isMakingEntries, entriesMade, totalEntries) {
       this.isMakingEntries = isMakingEntries;

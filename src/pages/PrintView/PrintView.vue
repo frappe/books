@@ -2,17 +2,15 @@
   <div class="flex">
     <div class="flex flex-col flex-1">
       <PageHeader :backLink="true" class="bg-white z-10">
-        <template #actions>
-          <Button
-            class="text-gray-900 text-xs ml-2"
-            @click="showCustomiser = !showCustomiser"
-          >
-            {{ t`Customise` }}
-          </Button>
-          <Button class="text-gray-900 text-xs ml-2" @click="makePDF">
-            {{ t`Save as PDF` }}
-          </Button>
-        </template>
+        <Button
+          class="text-gray-900 text-xs"
+          @click="showCustomiser = !showCustomiser"
+        >
+          {{ t`Customise` }}
+        </Button>
+        <Button class="text-gray-900 text-xs" @click="makePDF">
+          {{ t`Save as PDF` }}
+        </Button>
       </PageHeader>
       <div
         v-if="doc && printSettings"

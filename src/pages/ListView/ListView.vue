@@ -1,16 +1,14 @@
 <template>
   <div class="flex flex-col">
     <PageHeader :title="title">
-      <template #actions>
-        <FilterDropdown
-          ref="filterDropdown"
-          @change="applyFilter"
-          :fields="fields"
-        />
-        <Button class="ml-2" :icon="true" type="primary" @click="makeNewDoc">
-          <feather-icon name="plus" class="w-4 h-4 text-white" />
-        </Button>
-      </template>
+      <FilterDropdown
+        ref="filterDropdown"
+        @change="applyFilter"
+        :fields="fields"
+      />
+      <Button :icon="true" type="primary" @click="makeNewDoc">
+        <feather-icon name="plus" class="w-4 h-4 text-white" />
+      </Button>
     </PageHeader>
     <List
       ref="list"

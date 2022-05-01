@@ -108,3 +108,9 @@ export function shouldApplyFormula(field: Field, doc: Doc, fieldname?: string) {
   const value = doc.get(field.fieldname);
   return getIsNullOrUndef(value);
 }
+
+export function setChildDocIdx(childDocs: Doc[]) {
+  for (const idx in childDocs) {
+    childDocs[idx].idx = +idx;
+  }
+}

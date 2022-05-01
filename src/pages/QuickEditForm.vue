@@ -197,7 +197,7 @@ export default {
 
       // set default values
       if (this.values) {
-        this.doc.set(this.values);
+        this.doc?.set(this.values);
       }
 
       // set title size
@@ -205,7 +205,7 @@ export default {
     },
     setTitleField() {
       const { fieldname, readOnly } = this.titleField;
-      if (!this.doc?.notInserted || !this.doc[fieldname]) {
+      if (!this.doc?.notInserted || !this?.doc[fieldname]) {
         return;
       }
 

@@ -29,6 +29,7 @@
 
 <script>
 import { fyo } from 'src/initFyo';
+import { nextTick } from 'vue';
 import Float from './Float.vue';
 
 export default {
@@ -61,7 +62,7 @@ export default {
     },
     activateInput() {
       this.showInput = true;
-      this.$nextTick(() => {
+      nextTick(() => {
         this.focus();
       });
     },

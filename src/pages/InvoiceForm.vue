@@ -1,63 +1,73 @@
 <template>
   <div class="flex flex-col" v-if="doc">
+    <!-- Page Header (Title, Buttons, etc) -->
     <PageHeader :backLink="true">
-      <template #actions>
-        <StatusBadge :status="status" />
-        <Button
-          v-if="doc.submitted"
-          class="text-gray-900 text-xs ml-2"
-          :icon="true"
-          @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
-        >
-          Print
-        </Button>
-        <DropdownWithActions class="ml-2" :actions="actions" />
-        <Button
-          v-if="showSave"
-          type="primary"
-          class="text-white text-xs ml-2"
-          @click="onSaveClick"
-        >
-          {{ t`Save` }}
-        </Button>
-        <Button
-          v-if="!doc.dirty && !doc.notInserted && !doc.submitted"
-          type="primary"
-          class="text-white text-xs ml-2"
-          @click="onSubmitClick"
-          >{{ t`Submit` }}</Button
-        >
-      </template>
+      <StatusBadge :status="status" />
+      <Button
+        v-if="doc?.submitted"
+        class="text-gray-900 text-xs"
+        :icon="true"
+        @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
+      >
+        {{ t`Print` }}
+      </Button>
+      <DropdownWithActions :actions="actions" />
+      <Button
+        v-if="showSave"
+        type="primary"
+        class="text-white text-xs"
+        @click="onSaveClick"
+      >
+        {{ t`Save` }}
+      </Button>
+      <Button
+        v-if="!doc.dirty && !doc.notInserted && !doc?.submitted"
+        type="primary"
+        class="text-white text-xs"
+        @click="onSubmitClick"
+        >{{ t`Submit` }}</Button
+      >
     </PageHeader>
+
+    <!-- Invoice Form -->
     <div class="flex justify-center flex-1 mb-8 mt-2" v-if="doc">
       <div
-        class="border rounded-lg shadow h-full flex flex-col justify-between"
-        style="width: 600px"
+        class="
+          border
+          rounded-lg
+          shadow
+          h-full
+          flex flex-col
+          justify-between
+          w-600
+        "
       >
         <div>
-          <div class="px-6 pt-6" v-if="printSettings">
-            <div class="flex text-sm text-gray-900 border-b pb-4">
-              <div class="w-1/3">
-                <div v-if="printSettings.displayLogo">
-                  <img
-                    class="h-12 max-w-32 object-contain"
-                    :src="printSettings.logo"
-                  />
-                </div>
-                <div class="text-xl text-gray-700 font-semibold" v-else>
-                  {{ companyName }}
-                </div>
+          <!-- Print Settings Info (Logo, Address, Etc)  -->
+          <div class="flex text-sm text-gray-900 p-6" v-if="printSettings">
+            <div class="w-1/3">
+              <div v-if="printSettings.displayLogo">
+                <img
+                  class="h-12 max-w-32 object-contain"
+                  :src="printSettings.logo"
+                />
               </div>
-              <div class="w-1/3">
-                <div>{{ printSettings.email }}</div>
-                <div class="mt-1">{{ printSettings.phone }}</div>
-              </div>
-              <div class="w-1/3">
-                <div v-if="address">{{ address.addressDisplay }}</div>
+              <div class="text-xl text-gray-700 font-semibold" v-else>
+                {{ companyName }}
               </div>
             </div>
+            <div class="w-1/3">
+              <div>{{ printSettings.email }}</div>
+              <div class="mt-1">{{ printSettings.phone }}</div>
+            </div>
+            <div class="w-1/3">
+              <div v-if="address">{{ address.addressDisplay }}</div>
+            </div>
           </div>
-          <div class="mt-8 px-6">
+          <hr />
+
+          <!-- Invoice Form Data Entry -->
+          <div class="m-6 flex flex-col gap-2">
             <h1 class="text-2xl font-semibold">
               {{
                 doc.notInserted
@@ -67,124 +77,139 @@
                   : doc.name
               }}
             </h1>
-            <div class="flex justify-between mt-2">
-              <div class="w-1/3">
-                <FormControl
-                  class="bg-gray-100 rounded text-base"
-                  input-class="p-2 text-lg font-semibold bg-transparent"
-                  :df="getField('party')"
-                  :value="doc.party"
-                  :placeholder="getField('party').label"
-                  @change="(value) => doc.set('party', value)"
-                  @new-doc="(party) => doc.set('party', party.name)"
-                  :read-only="doc.submitted"
-                />
-                <FormControl
-                  class="mt-2 text-base bg-gray-100 rounded"
-                  input-class="px-3 py-2 text-base bg-transparent"
-                  :df="getField('account')"
-                  :value="doc.account"
-                  :placeholder="'Account'"
-                  @change="(value) => doc.set('account', value)"
-                  :read-only="doc.submitted"
-                />
-              </div>
-              <div class="w-1/3">
-                <FormControl
-                  input-class="bg-gray-100 px-3 py-2 text-base text-right"
-                  :df="getField('date')"
-                  :value="doc.date"
-                  :placeholder="'Date'"
-                  @change="(value) => doc.set('date', value)"
-                  :read-only="doc.submitted"
-                />
-                <FormControl
-                  class="mt-2 text-base bg-gray-100 rounded"
-                  input-class="bg-transparent px-3 py-2 text-base text-right"
-                  :df="getField('numberSeries')"
-                  :value="doc.numberSeries"
-                  @change="(value) => doc.set('numberSeries', value)"
-                  :read-only="!doc.notInserted || doc.submitted"
-                />
-              </div>
+
+            <!-- First Row of Fields -->
+            <div class="flex flex-row justify-between gap-2">
+              <FormControl
+                class="bg-gray-100 rounded text-base w-1/3"
+                input-class="text-lg font-semibold bg-transparent"
+                :df="getField('party')"
+                :value="doc.party"
+                :placeholder="getField('party').label"
+                @change="(value) => doc.set('party', value)"
+                @new-doc="(party) => doc.set('party', party.name)"
+                :read-only="doc?.submitted"
+              />
+              <div class="w-1/3" />
+              <FormControl
+                class="w-1/3"
+                input-class="bg-gray-100 px-3 py-2 text-base text-right"
+                :df="getField('date')"
+                :value="doc.date"
+                :placeholder="'Date'"
+                @change="(value) => doc.set('date', value)"
+                :read-only="doc?.submitted"
+              />
+            </div>
+
+            <!-- Second Row of Fields -->
+            <div class="flex flex-row justify-between gap-2">
+              <FormControl
+                class="text-base bg-gray-100 rounded w-1/3"
+                input-class="px-3 py-2 text-base bg-transparent"
+                :df="getField('account')"
+                :value="doc.account"
+                :placeholder="'Account'"
+                @change="(value) => doc.set('account', value)"
+                :read-only="doc?.submitted"
+              />
+              <div class="w-1/3" />
+              <FormControl
+                class="text-base bg-gray-100 rounded w-1/3"
+                input-class="bg-transparent px-3 py-2 text-base text-right"
+                :df="getField('numberSeries')"
+                :value="doc.numberSeries"
+                @change="(value) => doc.set('numberSeries', value)"
+                :read-only="!doc.notInserted || doc?.submitted"
+              />
             </div>
           </div>
-          <div class="px-6 text-base">
-            <FormControl
-              :df="getField('items')"
-              :value="doc.items"
-              :showHeader="true"
-              :max-rows-before-overflow="4"
-              @change="(value) => doc.set('items', value)"
-              :read-only="doc.submitted"
-            />
-          </div>
+          <hr />
+
+          <!-- Invoice Items Table -->
+          <Table
+            class="px-6 text-base mt-4"
+            :df="getField('items')"
+            :value="doc.items"
+            :showHeader="true"
+            :max-rows-before-overflow="4"
+            @change="(value) => doc.set('items', value)"
+            :read-only="doc?.submitted"
+          />
         </div>
-        <div
-          class="px-6 mb-6 flex justify-between text-base"
-          v-if="doc.items?.length ?? 0"
-        >
-          <div class="flex-1 mr-10">
+
+        <!-- Invoice Form Footer -->
+
+        <div v-if="doc.items?.length ?? 0">
+          <hr />
+          <div class="flex justify-between text-base m-6 gap-12">
+            <!-- Form Terms-->
             <FormControl
-              v-if="!doc.submitted || doc.terms"
+              class="w-1/2 self-end"
+              v-if="!doc?.submitted || doc.terms"
               :df="getField('terms')"
               :value="doc.terms"
-              :show-label="true"
               input-class="bg-gray-100"
               @change="(value) => doc.set('terms', value)"
-              :read-only="doc.submitted"
+              :read-only="doc?.submitted"
             />
-          </div>
-          <div class="w-64">
-            <div class="flex pl-2 justify-between py-3 border-b">
-              <div>{{ t`Subtotal` }}</div>
-              <div>{{ formattedValue('netTotal') }}</div>
-            </div>
-            <div
-              class="flex pl-2 justify-between py-3"
-              v-for="tax in doc.taxes"
-              :key="tax.name"
-            >
-              <div>{{ tax.account }}</div>
-              <div>
-                {{
-                  fyo.format(tax.amount, {
-                    fieldtype: 'Currency',
-                    currency: doc.currency,
-                  })
-                }}
+
+            <!-- Totals -->
+            <div class="w-1/2 gap-2 flex flex-col self-end">
+              <!-- Subtotal -->
+              <div class="flex justify-between">
+                <div>{{ t`Subtotal` }}</div>
+                <div>{{ formattedValue('netTotal') }}</div>
               </div>
-            </div>
-            <div
-              class="
-                flex
-                pl-2
-                justify-between
-                py-3
-                border-t
-                text-green-600
-                font-semibold
-                text-base
-              "
-            >
-              <div>{{ t`Grand Total` }}</div>
-              <div>{{ formattedValue('grandTotal') }}</div>
-            </div>
-            <div
-              v-if="doc.outstandingAmount > 0"
-              class="
-                flex
-                pl-2
-                justify-between
-                py-3
-                border-t
-                text-red-600
-                font-semibold
-                text-base
-              "
-            >
-              <div>{{ t`Outstanding Amount` }}</div>
-              <div>{{ formattedValue('outstandingAmount') }}</div>
+              <hr />
+
+              <!-- Taxes -->
+              <div
+                class="flex justify-between"
+                v-for="tax in doc.taxes"
+                :key="tax.name"
+              >
+                <div>{{ tax.account }}</div>
+                <div>
+                  {{
+                    fyo.format(tax.amount, {
+                      fieldtype: 'Currency',
+                      currency: doc.currency,
+                    })
+                  }}
+                </div>
+              </div>
+              <hr v-if="doc.taxes?.length" />
+
+              <!-- Grand Total -->
+              <div
+                class="
+                  flex
+                  justify-between
+                  text-green-600
+                  font-semibold
+                  text-base
+                "
+              >
+                <div>{{ t`Grand Total` }}</div>
+                <div>{{ formattedValue('grandTotal') }}</div>
+              </div>
+
+              <!-- Outstanding Amount -->
+              <hr v-if="doc.outstandingAmount > 0" />
+              <div
+                v-if="doc.outstandingAmount > 0"
+                class="
+                  flex
+                  justify-between
+                  text-red-600
+                  font-semibold
+                  text-base
+                "
+              >
+                <div>{{ t`Outstanding Amount` }}</div>
+                <div>{{ formattedValue('outstandingAmount') }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -198,15 +223,16 @@ import { getInvoiceStatus } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import Table from 'src/components/Controls/Table.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import {
-  getActionsForDocument,
-  openSettings,
-  routeTo,
-  showMessageDialog,
+getActionsForDocument,
+openSettings,
+routeTo,
+showMessageDialog
 } from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -219,7 +245,8 @@ export default {
     Button,
     FormControl,
     DropdownWithActions,
-  },
+    Table
+},
   provide() {
     return {
       schemaName: this.schemaName,

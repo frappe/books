@@ -24,7 +24,8 @@ import {
   areDocValuesEqual,
   getMissingMandatoryMessage,
   getPreDefaultValues,
-  shouldApplyFormula
+  setChildDocIdx,
+  shouldApplyFormula,
 } from './helpers';
 import { setName } from './naming';
 import {
@@ -239,60 +240,53 @@ export class Doc extends Observable<DocValue | Doc[]> {
       this[field.fieldname] = defaultValue;
     }
   }
+  async remove(fieldname: string, idx: number) {
+    const childDocs = ((this[fieldname] ?? []) as Doc[]).filter(
+      (row, i) => row.idx !== idx || i !== idx
+    );
 
-  async append(fieldname: string, docValueMap: Doc | DocValueMap = {}) {
-    // push child row and trigger change
-    this.push(fieldname, docValueMap);
-    this._dirty = true;
+    setChildDocIdx(childDocs);
+    this[fieldname] = childDocs;
+    this._setDirty(true);
     return await this._applyChange(fieldname);
   }
 
-  async remove(fieldname: string, idx: number) {
-    let rows = this[fieldname] as Doc[] | undefined;
-    if (!Array.isArray(rows)) {
-      return;
-    }
-
+  async append(fieldname: string, docValueMap: DocValueMap = {}) {
+    this.push(fieldname, docValueMap);
     this._setDirty(true);
-    rows = rows.filter((row, i) => row.idx !== idx || i !== idx)!;
-    rows.forEach((row, i) => {
-      row.idx = i;
-    });
-    this[fieldname] = rows;
     return await this._applyChange(fieldname);
   }
 
   push(fieldname: string, docValueMap: Doc | DocValueMap = {}) {
-    // push child row without triggering change
-    this[fieldname] ??= [];
-    const childDoc = this._getChildDoc(docValueMap, fieldname);
-    childDoc.parentdoc = this;
-    (this[fieldname] as Doc[]).push(childDoc);
+    const childDocs = [
+      (this[fieldname] ?? []) as Doc[],
+      this._getChildDoc(docValueMap, fieldname),
+    ].flat();
+
+    setChildDocIdx(childDocs);
+    this[fieldname] = childDocs;
   }
 
   _getChildDoc(docValueMap: Doc | DocValueMap, fieldname: string): Doc {
+    docValueMap.name ??= getRandomString();
+
+    // Child Meta Fields
+    docValueMap.parent ??= this.name;
+    docValueMap.parentSchemaName ??= this.schemaName;
+    docValueMap.parentFieldname ??= fieldname;
+
     if (docValueMap instanceof Doc) {
+      docValueMap.parentdoc ??= this;
       return docValueMap;
     }
 
-    const data: Record<string, unknown> = Object.assign({}, docValueMap);
-
-    data.parent = this.name;
-    data.parentSchemaName = this.schemaName;
-    data.parentFieldname = fieldname;
-    data.parentdoc = this;
-
-    if (!data.idx) {
-      data.idx = ((this[fieldname] as Doc[]) || []).length;
-    }
-
-    if (!data.name) {
-      data.name = getRandomString();
-    }
-
-    const targetField = this.fieldMap[fieldname] as TargetField;
-    const schema = this.fyo.schemaMap[targetField.target] as Schema;
-    const childDoc = new Doc(schema, data as DocValueMap, this.fyo);
+    const childSchemaName = (this.fieldMap[fieldname] as TargetField).target;
+    const childDoc = this.fyo.doc.getNewDoc(
+      childSchemaName,
+      docValueMap,
+      false
+    );
+    childDoc.parentdoc = this;
     return childDoc;
   }
 
@@ -522,7 +516,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
   }
 
-  async _applyFormula(fieldname?: string) {
+  async _applyFormula(fieldname?: string): Promise<boolean> {
     const doc = this;
     let changed = false;
 
@@ -532,15 +526,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     // children
     for (const row of childDocs) {
-      const formulaFields = Object.keys(this.formulas).map(
-        (fn) => this.fieldMap[fn]
-      );
-
-      changed ||= await this._applyFormulaForFields(
-        formulaFields,
-        row,
-        fieldname
-      );
+      changed ||= (await row?._applyFormula()) ?? false;
     }
 
     // parent or child row

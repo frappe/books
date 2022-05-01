@@ -21,7 +21,7 @@
     </Row>
 
     <!-- Data Rows -->
-    <div class="overflow-auto" :style="{ 'max-height': rowContainerHeight }">
+    <div class="overflow-auto" :style="{ 'max-height': maxHeight }">
       <TableRow
         :class="{ 'pointer-events-none': isReadOnly }"
         ref="table-row"
@@ -69,6 +69,7 @@
 <script>
 import Row from 'src/components/Row.vue';
 import { fyo } from 'src/initFyo';
+import { nextTick } from 'vue';
 import Base from './Base.vue';
 import TableRow from './TableRow.vue';
 
@@ -76,13 +77,14 @@ export default {
   name: 'Table',
   extends: Base,
   props: {
+    value: { type: Array, default: () => [] },
     showHeader: {
       type: Boolean,
       default: true,
     },
     maxRowsBeforeOverflow: {
       type: Number,
-      default: 0,
+      default: 3,
     },
   },
   components: {
@@ -92,25 +94,18 @@ export default {
   inject: {
     doc: { default: null },
   },
-  mounted() {
-    window.tab = this;
-  },
-  data: () => ({ rowContainerHeight: null }),
   watch: {
-    value: {
-      immediate: true,
-      handler(rows) {
-        if (!this.maxRowsBeforeOverflow) return;
-        if (this.rowContainerHeight) return;
-        if (rows && rows.length > 0) {
-          this.$nextTick(() => {
-            let rowHeight = this.$refs['table-row'][0].$el.offsetHeight;
-            let containerHeight = rowHeight * this.maxRowsBeforeOverflow;
-            this.rowContainerHeight = `${containerHeight}px`;
-          });
-        }
-      },
+    value() {
+      this.setMaxHeight();
     },
+  },
+  data() {
+    return { maxHeight: '' };
+  },
+  mounted() {
+    if (fyo.store.isDevelopment) {
+      window.tab = this;
+    }
   },
   methods: {
     focus() {},
@@ -120,7 +115,7 @@ export default {
           return;
         }
 
-        this.$nextTick(() => {
+        nextTick(() => {
           this.scrollToRow(this.value.length - 1);
         });
         this.triggerChange(this.value);
@@ -138,6 +133,24 @@ export default {
     scrollToRow(index) {
       const row = this.$refs['table-row'][index];
       row && row.$el.scrollIntoView({ block: 'nearest' });
+    },
+    setMaxHeight() {
+      if (this.maxRowsBeforeOverflow === 0) {
+        return (this.maxHeight = '');
+      }
+
+      const size = this?.value?.length ?? 0;
+      if (size === 0) {
+        return (this.maxHeight = '');
+      }
+
+      const rowHeight = this.$refs?.['table-row']?.[0].$el.offsetHeight;
+      if (rowHeight === undefined) {
+        return (this.maxHeight = '');
+      }
+
+      const maxHeight = rowHeight * Math.min(this.maxRowsBeforeOverflow, size);
+      return (this.maxHeight = `${maxHeight}px`);
     },
   },
   computed: {

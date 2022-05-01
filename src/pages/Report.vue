@@ -1,18 +1,16 @@
 <template>
   <div class="flex flex-col max-w-full">
     <PageHeader :title="report.title">
-      <template #actions>
-        <DropdownWithActions
-          v-for="group of actionGroups"
-          :key="group.label"
-          :type="group.type"
-          :actions="group.actions"
-          class="ml-2 text-xs"
-        >
-          {{ group.label }}
-        </DropdownWithActions>
-        <DropdownWithActions class="ml-2" :actions="actions" />
-      </template>
+      <DropdownWithActions
+        v-for="group of actionGroups"
+        :key="group.label"
+        :type="group.type"
+        :actions="group.actions"
+        class="text-xs"
+      >
+        {{ group.label }}
+      </DropdownWithActions>
+      <DropdownWithActions :actions="actions" />
     </PageHeader>
     <div class="flex px-8 mt-2 text-base" v-if="report.filterFields">
       <div
@@ -142,7 +140,7 @@ import PageHeader from 'src/components/PageHeader';
 import Row from 'src/components/Row';
 import WithScroll from 'src/components/WithScroll';
 import { fyo } from 'src/initFyo';
-import { h, markRaw } from 'vue';
+import { h, markRaw, nextTick } from 'vue';
 
 export default {
   name: 'Report',
@@ -185,7 +183,7 @@ export default {
   },
   methods: {
     onBodyScroll({ scrollLeft }) {
-      this.$nextTick(() => {
+      nextTick(() => {
         this.$refs.header.scrollLeft = scrollLeft;
       });
     },

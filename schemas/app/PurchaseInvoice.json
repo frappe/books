@@ -91,6 +91,7 @@
     {
       "fieldname": "terms",
       "label": "Terms",
+      "placeholder": "Add invoice terms",
       "fieldtype": "Text"
     },
     {
