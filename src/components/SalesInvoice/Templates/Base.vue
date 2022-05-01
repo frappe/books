@@ -11,17 +11,14 @@ export default {
     }
   },
   async mounted() {
-    await this.doc.loadLink(this.partyField);
-    this.party = this.doc.getLink(this.partyField);
+    await this.doc.loadLink('party');
+    this.party = this.doc.getLink('party');
     await this.printSettings.loadLink('address');
     this.companyAddress = this.printSettings.getLink('address');
   },
   computed: {
-    partyField() {
-      return this.doc.doctype === 'SalesInvoice' ? 'customer' : 'supplier';
-    },
     isSalesInvoice() {
-      return this.doc.doctype === 'SalesInvoice';
+      return this.doc.schemaName === 'SalesInvoice';
     }
   }
 };

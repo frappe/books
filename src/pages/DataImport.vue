@@ -426,9 +426,9 @@ export default {
       return this.file ? this.t`Import Data` : this.t`Select File`;
     },
     isSubmittable() {
-      const doctype = this.importer?.doctype;
-      if (doctype) {
-        return fyo.models[doctype].isSubmittable ?? false;
+      const schemaName = this.importer?.schemaName;
+      if (schemaName) {
+        return fyo.schemaMap[schemaName].isSubmittable ?? false;
       }
       return false;
     },
@@ -441,7 +441,7 @@ export default {
         getList: () => importable.map((i) => fyo.models[i].label),
       };
     },
-    labelDoctypeMap() {
+    labelSchemaNameMap() {
       return importable
         .map((i) => ({
           name: i,
@@ -465,9 +465,9 @@ export default {
   },
   methods: {
     showMe() {
-      const doctype = this.importer.doctype;
+      const schemaName = this.importer.schemaName;
       this.clear();
-      this.$router.push(`/list/${doctype}`);
+      this.$router.push(`/list/${schemaName}`);
     },
     clear() {
       this.file = null;
@@ -573,7 +573,7 @@ export default {
         this.clear();
       }
       this.importType = importType;
-      this.importer = new Importer(this.labelDoctypeMap[this.importType], fyo);
+      this.importer = new Importer(this.labelSchemaNameMap[this.importType], fyo);
     },
     setLoadingStatus(isMakingEntries, entriesMade, totalEntries) {
       this.isMakingEntries = isMakingEntries;

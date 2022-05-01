@@ -30,7 +30,7 @@
     <!-- Error Display -->
     <div
       class="text-sm text-red-600 mb-2 pl-2 col-span-full"
-      v-if="Object.values(errors).length"
+      v-if="Object.values(errors).filter(Boolean).length"
     >
       {{ getErrorString() }}
     </div>
@@ -79,7 +79,7 @@ export default {
       });
     },
     getErrorString() {
-      return Object.values(this.errors).join(' ');
+      return Object.values(this.errors).filter(Boolean).join(' ');
     },
   },
 };

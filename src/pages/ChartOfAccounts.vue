@@ -249,7 +249,7 @@ export default {
 
         // open quick edit
         openQuickEdit({
-          doctype: 'Account',
+          schemaName: 'Account',
           name: account.name,
         });
         // unfreeze input
@@ -261,8 +261,8 @@ export default {
       }
     },
     isQuickEditOpen(account) {
-      let { edit, doctype, name } = this.$route.query;
-      if (edit && doctype === 'Account' && name === account.name) {
+      let { edit, schemaName, name } = this.$route.query;
+      if (edit && schemaName === 'Account' && name === account.name) {
         return true;
       }
       return false;

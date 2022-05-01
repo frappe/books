@@ -224,7 +224,7 @@ export default class DatabaseCore extends DatabaseBase {
     }
 
     if (tableFields.length) {
-      await this.#loadChildren(fieldValueMap, tableFields);
+      await this.#loadChildren(name, fieldValueMap, tableFields);
     }
     return fieldValueMap;
   }
@@ -711,13 +711,14 @@ export default class DatabaseCore extends DatabaseBase {
   }
 
   async #loadChildren(
+    parentName: string,
     fieldValueMap: FieldValueMap,
     tableFields: TargetField[]
   ) {
     for (const field of tableFields) {
       fieldValueMap[field.fieldname] = await this.getAll(field.target, {
         fields: ['*'],
-        filters: { parent: fieldValueMap.name as string },
+        filters: { parent: parentName },
         orderBy: 'idx',
         order: 'asc',
       });

@@ -3,7 +3,7 @@ import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
 // import DataImport from 'src/pages/DataImport.vue';
-// import InvoiceForm from 'src/pages/InvoiceForm.vue';
+import InvoiceForm from 'src/pages/InvoiceForm.vue';
 import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
 // import PrintView from 'src/pages/PrintView/PrintView.vue';
@@ -34,16 +34,15 @@ const routes: RouteRecordRaw[] = [
         // for sidebar item active state
         route.params.schemaName = 'JournalEntry';
         return {
-          doctype: 'JournalEntry',
+          schemaName: 'JournalEntry',
           name: route.params.name,
         };
       },
       edit: (route) => route.query,
     },
   },
-  /*
   {
-    path: '/edit/:doctype/:name',
+    path: '/edit/:schemaName/:name',
     name: 'InvoiceForm',
     components: {
       default: InvoiceForm,
@@ -54,7 +53,6 @@ const routes: RouteRecordRaw[] = [
       edit: (route) => route.query,
     },
   },
-  */
   {
     path: '/list/:schemaName/:fieldname?/:value?',
     name: 'ListView',
@@ -84,7 +82,7 @@ const routes: RouteRecordRaw[] = [
   },
   /*
   {
-    path: '/print/:doctype/:name',
+    path: '/print/:schemaName/:name',
     name: 'PrintView',
     component: PrintView,
     props: true,

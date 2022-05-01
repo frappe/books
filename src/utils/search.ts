@@ -19,7 +19,7 @@ interface SearchItem {
   action?: () => void;
 }
 
-async function openNewDoc(schemaName: string) {
+async function openQuickEditDoc(schemaName: string) {
   await routeTo(`/list/${schemaName}`);
   const doc = await fyo.doc.getNewDoc(schemaName);
   const { openQuickEdit } = await import('src/utils/ui');
@@ -30,27 +30,55 @@ async function openNewDoc(schemaName: string) {
   });
 }
 
+async function openFormEditDoc(schemaName: string) {
+  const doc = fyo.doc.getNewDoc(schemaName);
+  const name = doc.name;
+
+  routeTo(`/edit/${schemaName}/${name}`);
+}
+
 function getCreateList(): SearchItem[] {
   return [
     {
       label: t`Create Item`,
       group: 'Create',
       action() {
-        openNewDoc(ModelNameEnum.Item);
+        openQuickEditDoc(ModelNameEnum.Item);
       },
     },
     {
       label: t`Create Party`,
       group: 'Create',
       action() {
-        openNewDoc(ModelNameEnum.Party);
+        openQuickEditDoc(ModelNameEnum.Party);
       },
     },
     {
       label: t`Create Payment`,
       group: 'Create',
       action() {
-        openNewDoc(ModelNameEnum.Payment);
+        openQuickEditDoc(ModelNameEnum.Payment);
+      },
+    },
+    {
+      label: t`Create Sales Invoice`,
+      group: 'Create',
+      action() {
+        openFormEditDoc(ModelNameEnum.SalesInvoice);
+      },
+    },
+    {
+      label: t`Create Purchase Invoice`,
+      group: 'Create',
+      action() {
+        openFormEditDoc(ModelNameEnum.PurchaseInvoice);
+      },
+    },
+    {
+      label: t`Create Journal Entry`,
+      group: 'Create',
+      action() {
+        openFormEditDoc(ModelNameEnum.JournalEntry);
       },
     },
   ];

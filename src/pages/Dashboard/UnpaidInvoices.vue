@@ -87,7 +87,7 @@ export default {
     invoices: [
       {
         title: t`Sales Invoices`,
-        doctype: 'SalesInvoice',
+        schemaName: 'SalesInvoice',
         total: 0,
         unpaid: 0,
         paid: 0,
@@ -98,7 +98,7 @@ export default {
       },
       {
         title: t`Purchase Invoices`,
-        doctype: 'PurchaseInvoice',
+        schemaName: 'PurchaseInvoice',
         total: 0,
         unpaid: 0,
         paid: 0,
@@ -126,7 +126,7 @@ export default {
         );
 
         let result = await fyo.db.getTotalOutstanding(
-          d.doctype,
+          d.schemaName,
           fromDate,
           toDate
         );
@@ -143,8 +143,8 @@ export default {
       this.invoices = await Promise.all(promises);
     },
     async newInvoice(invoice) {
-      let doc = await fyo.doc.getNewDoc(invoice.doctype);
-      routeTo(`/edit/${invoice.doctype}/${doc.name}`);
+      let doc = await fyo.doc.getNewDoc(invoice.schemaName);
+      routeTo(`/edit/${invoice.schemaName}/${doc.name}`);
     },
   },
 };
