@@ -4,11 +4,13 @@ import reports from 'reports/view';
 import { fyo } from 'src/initFyo';
 import { routeTo } from './ui';
 
+export const searchGroups = ['Docs', 'List', 'Create', 'Report', 'Page'];
 enum SearchGroupEnum {
   'List' = 'List',
   'Report' = 'Report',
   'Create' = 'Create',
-  'Setup' = 'Setup',
+  'Page' = 'Page',
+  'Docs' = 'Docs',
 }
 
 type SearchGroup = keyof typeof SearchGroupEnum;
@@ -38,50 +40,37 @@ async function openFormEditDoc(schemaName: string) {
 }
 
 function getCreateList(): SearchItem[] {
-  return [
-    {
-      label: t`Create Item`,
-      group: 'Create',
-      action() {
-        openQuickEditDoc(ModelNameEnum.Item);
-      },
-    },
-    {
-      label: t`Create Party`,
-      group: 'Create',
-      action() {
-        openQuickEditDoc(ModelNameEnum.Party);
-      },
-    },
-    {
-      label: t`Create Payment`,
-      group: 'Create',
-      action() {
-        openQuickEditDoc(ModelNameEnum.Payment);
-      },
-    },
-    {
-      label: t`Create Sales Invoice`,
-      group: 'Create',
-      action() {
-        openFormEditDoc(ModelNameEnum.SalesInvoice);
-      },
-    },
-    {
-      label: t`Create Purchase Invoice`,
-      group: 'Create',
-      action() {
-        openFormEditDoc(ModelNameEnum.PurchaseInvoice);
-      },
-    },
-    {
-      label: t`Create Journal Entry`,
-      group: 'Create',
-      action() {
-        openFormEditDoc(ModelNameEnum.JournalEntry);
-      },
-    },
-  ];
+  const quickEditCreateList = [
+    ModelNameEnum.Item,
+    ModelNameEnum.Party,
+    ModelNameEnum.Payment,
+  ].map(
+    (schemaName) =>
+      ({
+        label: fyo.schemaMap[schemaName]?.label,
+        group: 'Create',
+        action() {
+          openQuickEditDoc(schemaName);
+        },
+      } as SearchItem)
+  );
+
+  const formEditCreateList = [
+    ModelNameEnum.SalesInvoice,
+    ModelNameEnum.PurchaseInvoice,
+    ModelNameEnum.JournalEntry,
+  ].map(
+    (schemaName) =>
+      ({
+        label: fyo.schemaMap[schemaName]?.label,
+        group: 'Create',
+        action() {
+          openFormEditDoc(schemaName);
+        },
+      } as SearchItem)
+  );
+
+  return [quickEditCreateList, formEditCreateList].flat();
 }
 
 function getReportList(): SearchItem[] {
@@ -117,35 +106,33 @@ function getListViewList(): SearchItem[] {
 function getSetupList(): SearchItem[] {
   return [
     {
+      label: t`Dashboard`,
+      route: '/',
+      group: 'Page',
+    },
+    {
       label: t`Chart of Accounts`,
-      route: '/chartOfAccounts',
-      group: 'Setup',
+      route: '/chart-of-accounts',
+      group: 'Page',
     },
     {
       label: t`Data Import`,
-      route: '/data_import',
-      group: 'Setup',
+      route: '/data-import',
+      group: 'Page',
     },
     {
       label: t`Settings`,
       route: '/settings',
-      group: 'Setup',
+      group: 'Page',
     },
   ];
 }
 
 export function getSearchList() {
-  const group: Record<SearchGroup, string> = {
-    Create: t`Create`,
-    List: t`List`,
-    Report: t`Report`,
-    Setup: t`Setup`,
-  };
-
-  return [getListViewList(), getCreateList(), getReportList(), getSetupList()]
-    .flat()
-    .map((si) => ({
-      ...si,
-      group: group[si.group],
-    }));
+  return [
+    getListViewList(),
+    getCreateList(),
+    getReportList(),
+    getSetupList(),
+  ].flat();
 }

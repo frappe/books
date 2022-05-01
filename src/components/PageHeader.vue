@@ -6,7 +6,7 @@
     <BackLink v-if="backLink" />
     <div class="flex items-stretch window-no-drag gap-2">
       <slot />
-      <SearchBar v-show="!hideSearch" />
+      <SearchBar v-if="!hideSearch"/>
     </div>
   </div>
 </template>

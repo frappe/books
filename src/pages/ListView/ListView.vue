@@ -6,7 +6,13 @@
         @change="applyFilter"
         :fields="fields"
       />
-      <Button :icon="true" type="primary" @click="makeNewDoc">
+      <Button
+        :icon="true"
+        type="primary"
+        @click="makeNewDoc"
+        :padding="false"
+        class="px-3"
+      >
         <feather-icon name="plus" class="w-4 h-4 text-white" />
       </Button>
     </PageHeader>
@@ -21,9 +27,9 @@
   </div>
 </template>
 <script>
-import Button from 'src/components/Button';
-import FilterDropdown from 'src/components/FilterDropdown';
-import PageHeader from 'src/components/PageHeader';
+import Button from 'src/components/Button.vue';
+import FilterDropdown from 'src/components/FilterDropdown.vue';
+import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { routeTo } from 'src/utils/ui';
 import List from './List';
