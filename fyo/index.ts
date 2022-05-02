@@ -1,5 +1,6 @@
 import { getMoneyMaker, MoneyMaker } from 'pesa';
 import { Field } from 'schemas/types';
+import { getIsNullOrUndef } from 'utils';
 import { markRaw } from 'vue';
 import { AuthHandler } from './core/authHandler';
 import { DatabaseHandler } from './core/dbHandler';
@@ -164,6 +165,30 @@ export class Fyo {
   getField(schemaName: string, fieldname: string) {
     const schema = this.schemaMap[schemaName];
     return schema?.fields.find((f) => f.fieldname === fieldname);
+  }
+
+  async getValue(
+    schemaName: string,
+    name: string,
+    fieldname?: string
+  ): Promise<DocValue | Doc[]> {
+    if (fieldname === undefined && this.schemaMap[schemaName]?.isSingle) {
+      fieldname = name;
+      name = schemaName;
+    }
+
+    if (getIsNullOrUndef(name) || getIsNullOrUndef(fieldname)) {
+      return undefined;
+    }
+
+    let doc: Doc;
+    try {
+      doc = await this.doc.getDoc(schemaName, name);
+    } catch (err) {
+      return undefined;
+    }
+
+    return doc.get(fieldname!);
   }
 
   purgeCache() {

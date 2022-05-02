@@ -351,6 +351,26 @@ describe('DatabaseCore: CRUD', function () {
       `email check update ${firstRow.email}`
     );
 
+    const phone = '8149133530';
+    await sleep(1);
+    await db.update(schemaName, {
+      name,
+      phone,
+      modified: new Date().toISOString(),
+    });
+    rows = await db.knex!(schemaName);
+    firstRow = rows?.[0];
+    assert.strictEqual(
+      firstRow.email,
+      email,
+      `email check update ${firstRow.email}`
+    );
+    assert.strictEqual(
+      firstRow.phone,
+      phone,
+      `email check update ${firstRow.phone}`
+    );
+
     for (const key in metaValues) {
       const val = firstRow[key];
       const expected = metaValues[key as BaseMetaKey];
@@ -585,6 +605,17 @@ describe('DatabaseCore: CRUD', function () {
         );
       }
     }
+
+    invoice.date = '2022-04-01';
+    invoice.modified = new Date().toISOString();
+    await db.update('SalesInvoice', {
+      name: invoice.name,
+      date: invoice.date,
+      modified: invoice.modified,
+    });
+
+    rows = await db.knex!(SalesInvoiceItem);
+    assert.strictEqual(rows.length, 2, `postupdate ct empty ${rows.length}`);
 
     await db.delete(SalesInvoice, invoice.name as string);
     rows = await db.getAll(SalesInvoiceItem);

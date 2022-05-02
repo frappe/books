@@ -69,14 +69,17 @@ export class Party extends Doc {
       dependsOn: ['role'],
     },
     currency: {
-      formula: async () =>
-        this.fyo.singles.AccountingSettings!.currency as string,
+      formula: async () => this.fyo.singles.SystemSettings!.currency as string,
     },
     address: {
       formula: async () => {
         const address = this.address as string | undefined;
         if (address) {
-          return this.getFrom('Address', address, 'addressDisplay') as string;
+          return (await this.fyo.getValue(
+            'Address',
+            address,
+            'addressDisplay'
+          )) as string;
         }
         return '';
       },

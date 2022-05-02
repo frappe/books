@@ -24,6 +24,12 @@ const Customer = {
       fieldtype: 'Data',
       placeholder: 'john@thoe.com',
     },
+    {
+      fieldname: 'phone',
+      label: 'Phone',
+      fieldtype: 'Data',
+      placeholder: '9999999999',
+    },
   ],
   quickEditFields: ['email'],
   keywordFields: ['name'],

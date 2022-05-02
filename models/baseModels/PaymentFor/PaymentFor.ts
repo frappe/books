@@ -10,11 +10,11 @@ export class PaymentFor extends Doc {
           return this.fyo.pesa(0);
         }
 
-        const outstandingAmount = this.parentdoc!.getFrom(
+        const outstandingAmount = (await this.fyo.getValue(
           this.referenceType as string,
           this.referenceName as string,
           'outstandingAmount'
-        ) as Money;
+        )) as Money;
 
         if (outstandingAmount) {
           return outstandingAmount;

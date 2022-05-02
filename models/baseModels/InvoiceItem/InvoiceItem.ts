@@ -17,23 +17,23 @@ export abstract class InvoiceItem extends Doc {
 
   formulas: FormulaMap = {
     description: {
-      formula: () =>
-        this.parentdoc!.getFrom(
+      formula: async () =>
+        (await this.fyo.getValue(
           'Item',
           this.item as string,
           'description'
-        ) as string,
+        )) as string,
       dependsOn: ['item'],
     },
     rate: {
       formula: async () => {
-        const baseRate = ((await this.parentdoc!.getFrom(
+        const rate = (await this.fyo.getValue(
           'Item',
           this.item as string,
           'rate'
-        )) || this.fyo.pesa(0)) as Money;
+        )) as undefined | Money;
 
-        return baseRate.div(this.exchangeRate!);
+        return rate ?? this.fyo.pesa(0);
       },
       dependsOn: ['item'],
     },
@@ -48,25 +48,17 @@ export abstract class InvoiceItem extends Doc {
         if (this.isSales) {
           accountType = 'incomeAccount';
         }
-        return this.parentdoc!.getFrom(
-          'Item',
-          this.item as string,
-          accountType
-        );
+        return this.fyo.getValue('Item', this.item as string, accountType);
       },
       dependsOn: ['item'],
     },
     tax: {
-      formula: () => {
-        if (this.tax) {
-          return this.tax as string;
-        }
-
-        return this.parentdoc!.getFrom(
+      formula: async () => {
+        return (await this.fyo.getValue(
           'Item',
           this.item as string,
           'tax'
-        ) as string;
+        )) as string;
       },
       dependsOn: ['item'],
     },
@@ -80,8 +72,8 @@ export abstract class InvoiceItem extends Doc {
       dependsOn: ['item', 'amount', 'rate', 'quantity'],
     },
     hsnCode: {
-      formula: () =>
-        this.parentdoc!.getFrom('Item', this.item as string, 'hsnCode'),
+      formula: async () =>
+        await this.fyo.getValue('Item', this.item as string, 'hsnCode'),
       dependsOn: ['item'],
     },
   };

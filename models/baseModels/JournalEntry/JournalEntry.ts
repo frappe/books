@@ -40,7 +40,7 @@ export class JournalEntry extends Doc {
     await this.getPosting().post();
   }
 
-  async afterRevert() {
+  async afterCancel() {
     await this.getPosting().postReverse();
   }
 

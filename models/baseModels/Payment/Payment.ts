@@ -256,7 +256,7 @@ export class Payment extends Doc {
     }
   }
 
-  async afterRevert() {
+  async afterCancel() {
     this.updateReferenceOutstandingAmount();
     const entryList = await this.getPosting();
     for (const entry of entryList) {
@@ -391,11 +391,11 @@ export class Payment extends Doc {
           render(doc) {
             let status = 'Draft';
             let color = 'gray';
-            if (doc.submitted === 1) {
+            if (doc.submitted) {
               color = 'green';
               status = 'Submitted';
             }
-            if (doc.cancelled === 1) {
+            if (doc.cancelled) {
               color = 'red';
               status = 'Cancelled';
             }

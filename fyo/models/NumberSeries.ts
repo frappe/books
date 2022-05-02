@@ -5,15 +5,17 @@ function getPaddedName(prefix: string, next: number, padZeros: number): string {
 }
 
 export default class NumberSeries extends Doc {
-  validate() {
-    const current = this.get('current') as number | null;
-    if (current) {
-      this.current = this.get('start');
+  setCurrent() {
+    let current = this.get('current') as number | null;
+    if (!current) {
+      current = this.get('start') as number;
     }
+
+    this.current = current;
   }
 
   async next(schemaName: string) {
-    this.validate();
+    this.setCurrent();
 
     const exists = await this.checkIfCurrentExists(schemaName);
     if (!exists) {

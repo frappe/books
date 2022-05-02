@@ -214,14 +214,10 @@ export async function cancelDocWithPrompt(doc: Doc) {
           label: t`Yes`,
           async action() {
             const entryDoc = await fyo.doc.getDoc(doc.schemaName, doc.name!);
-            entryDoc.cancelled = 1;
-            await entryDoc.sync();
             entryDoc
-              .revert()
+              .cancel()
               .then(() => resolve(true))
-              .catch((e) => {
-                handleErrorWithDialog(e, doc);
-              });
+              .catch((e) => handleErrorWithDialog(e, doc));
           },
         },
         {
@@ -262,7 +258,7 @@ function getCancelAction(doc: Doc): Action {
     component: {
       template: '<span class="text-red-700">{{ t`Cancel` }}</span>',
     },
-    condition: (doc: Doc) => !!(doc.submitted && !doc.cancelled),
+    condition: (doc: Doc) => !doc.cancelled,
     action: () => {
       cancelDocWithPrompt(doc).then((res) => {
         if (res) {

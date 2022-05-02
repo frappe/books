@@ -144,7 +144,7 @@ export default {
         return (this.maxHeight = '');
       }
 
-      const rowHeight = this.$refs?.['table-row']?.[0].$el.offsetHeight;
+      const rowHeight = this.$refs?.['table-row']?.[0]?.$el.offsetHeight;
       if (rowHeight === undefined) {
         return (this.maxHeight = '');
       }

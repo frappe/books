@@ -460,9 +460,8 @@ export default class DatabaseCore extends DatabaseBase {
       let comparisonValue = value as string | number | (string | number)[];
 
       if (Array.isArray(value)) {
-        operator = value[0] as string;
+        operator = (value[0] as string).toLowerCase();
         comparisonValue = value[1] as string | number | (string | number)[];
-        operator = operator.toLowerCase();
 
         if (operator === 'includes') {
           operator = 'like';
@@ -671,12 +670,12 @@ export default class DatabaseCore extends DatabaseBase {
     idx: number
   ) {
     if (!child.name) {
-      child.name = getRandomString();
+      child.name ??= getRandomString();
     }
     child.parent = parentName;
     child.parentSchemaName = parentSchemaName;
     child.parentFieldname = field.fieldname;
-    child.idx = idx;
+    child.idx ??= idx;
   }
 
   async #addForeignKeys(schemaName: string, newForeignKeys: Field[]) {
@@ -878,14 +877,19 @@ export default class DatabaseCore extends DatabaseBase {
     fieldValueMap: FieldValueMap,
     isUpdate: boolean
   ) {
+    const parentName = fieldValueMap.name as string;
     const tableFields = this.#getTableFields(schemaName);
 
-    const parentName = fieldValueMap.name as string;
     for (const field of tableFields) {
       const added: string[] = [];
 
-      const tableFieldValue = (fieldValueMap[field.fieldname] ??
-        []) as FieldValueMap[];
+      const tableFieldValue = fieldValueMap[field.fieldname] as
+        | FieldValueMap[]
+        | undefined;
+      if (tableFieldValue === undefined) {
+        continue;
+      }
+
       for (const child of tableFieldValue) {
         this.#prepareChild(schemaName, parentName, child, field, added.length);
 
