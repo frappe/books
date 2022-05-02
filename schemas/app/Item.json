@@ -86,6 +86,7 @@
           "label": "Both"
         }
       ],
+      "readOnly": true,
       "default": "both"
     },
     {

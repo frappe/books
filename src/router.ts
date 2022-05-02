@@ -6,7 +6,7 @@ import GetStarted from 'src/pages/GetStarted.vue';
 import InvoiceForm from 'src/pages/InvoiceForm.vue';
 import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
-// import PrintView from 'src/pages/PrintView/PrintView.vue';
+import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
 // import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
@@ -54,7 +54,7 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/list/:schemaName/:fieldname?/:value?',
+    path: '/list/:schemaName/:fieldname?/:value?/:pageTitle?',
     name: 'ListView',
     components: {
       default: ListView,
@@ -62,7 +62,7 @@ const routes: RouteRecordRaw[] = [
     },
     props: {
       default: (route) => {
-        const { schemaName, fieldname, value } = route.params;
+        const { schemaName, fieldname, value, pageTitle } = route.params;
         let { filters } = route.params;
 
         if (filters === undefined && fieldname && value) {
@@ -73,6 +73,7 @@ const routes: RouteRecordRaw[] = [
         return {
           schemaName,
           filters,
+          pageTitle: pageTitle ?? '',
         };
       },
       edit: (route) => {
@@ -80,13 +81,13 @@ const routes: RouteRecordRaw[] = [
       },
     },
   },
-  /*
   {
     path: '/print/:schemaName/:name',
     name: 'PrintView',
     component: PrintView,
     props: true,
   },
+  /*
   {
     path: '/report/:reportName',
     name: 'Report',

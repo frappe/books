@@ -3,6 +3,7 @@
     v-if="actions && actions.length"
     class="text-xs"
     :items="actions"
+    :doc="doc"
     right
   >
     <template v-slot="{ toggleDropdown }">
@@ -30,6 +31,7 @@ export default {
     actions: { default: [] },
     type: { type: String, default: 'secondary' },
   },
+  inject: ['doc'],
   components: {
     Dropdown,
     Button,
