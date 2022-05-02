@@ -18,7 +18,7 @@ import registerProcessListeners from './main/registerProcessListeners';
 import { IPC_CHANNELS } from './utils/messages';
 
 const WIDTH = 1200;
-const HEIGHT = 907;
+const HEIGHT = 900;
 
 export class Main {
   title: string = 'Frappe Books';

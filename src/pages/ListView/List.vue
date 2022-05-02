@@ -101,7 +101,13 @@ export default {
       }
 
       return columns
-        .map((fieldname) => fyo.getField(this.schemaName, fieldname))
+        .map((fieldname) => {
+          if (typeof fieldname === 'object') {
+            return fieldname;
+          }
+
+          return fyo.getField(this.schemaName, fieldname);
+        })
         .filter(Boolean);
     },
     hasImage() {

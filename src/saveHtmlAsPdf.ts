@@ -10,7 +10,10 @@ const PRINT_OPTIONS = {
   printSelectionOnly: false,
 };
 
-export default async function makePDF(html, savePath) {
+export default async function saveHtmlAsPdf(
+  html: string,
+  savePath: string
+): Promise<void> {
   const printWindow = getInitializedPrintWindow();
 
   printWindow.webContents.executeJavaScript(`
@@ -22,9 +25,7 @@ export default async function makePDF(html, savePath) {
       await sleep(1); // Required else pdf'll be blank.
 
       const data = await printWindow.webContents.printToPDF(PRINT_OPTIONS);
-      await fs.writeFile(savePath, data, (error) => {
-        if (error) throw error;
-      });
+      await fs.writeFile(savePath, data);
 
       resolve();
     });
@@ -38,15 +39,17 @@ function getInitializedPrintWindow() {
     show: false,
     webPreferences: {
       contextIsolation: false,
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      nodeIntegration: false,
     },
   });
-  printWindow.loadURL(getPrintWindowUrl());
+  const printWindowUrl = getPrintWindowUrl();
+  printWindow.loadURL(printWindowUrl);
   return printWindow;
 }
 
 function getPrintWindowUrl() {
-  let url = global.WEBPACK_DEV_SERVER_URL;
+  // @ts-ignore
+  let url = global.WEBPACK_DEV_SERVER_URL as string | undefined;
   if (url) {
     url = url + 'print';
   } else {

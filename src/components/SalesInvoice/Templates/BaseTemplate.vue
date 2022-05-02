@@ -2,13 +2,13 @@
 import { fyo } from 'src/initFyo';
 export default {
   name: 'Base',
-  props: ['doc', 'printSettings'],
+  props: { doc: Object, printSettings: Object },
   data: () => ({ party: null, companyAddress: null }),
   methods: {
     format(row, fieldname) {
-      let value = row.get(fieldname);
-      return fyo.format(value, row.meta.getField(fieldname));
-    }
+      const value = row.get(fieldname);
+      return fyo.format(value, fyo.getField(row.schemaName, fieldname));
+    },
   },
   async mounted() {
     await this.doc.loadLink('party');
@@ -19,7 +19,7 @@ export default {
   computed: {
     isSalesInvoice() {
       return this.doc.schemaName === 'SalesInvoice';
-    }
-  }
+    },
+  },
 };
 </script>

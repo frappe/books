@@ -23,7 +23,12 @@
           </div>
           <div class="w-1/3">
             <div v-if="companyAddress">{{ companyAddress.addressDisplay }}</div>
-            <div v-if="fyo.singles.AccountingSettings && fyo.singles.AccountingSettings.gstin">
+            <div
+              v-if="
+                fyo.singles.AccountingSettings &&
+                fyo.singles.AccountingSettings.gstin
+              "
+            >
               GSTIN: {{ fyo.singles.AccountingSettings.gstin }}
             </div>
           </div>
@@ -85,11 +90,7 @@
     </div>
     <div class="px-6 mt-2 flex justify-end text-base">
       <div class="w-1/2 bg-pink">
-        <div
-          class="text-sm tracking-widest text-gray-600 mt-2"
-        >
-          Notes
-        </div>
+        <div class="text-sm tracking-widest text-gray-600 mt-2">Notes</div>
         <div class="my-4 text-lg whitespace-pre-line">
           {{ doc.terms }}
         </div>
@@ -108,7 +109,16 @@
           <div>{{ fyo.format(tax.amount, 'Currency') }}</div>
         </div>
         <div
-          class="flex pl-2 justify-between py-3 border-t text-green-600 font-semibold text-base"
+          class="
+            flex
+            pl-2
+            justify-between
+            py-3
+            border-t
+            text-green-600
+            font-semibold
+            text-base
+          "
         >
           <div>{{ t`Grand Total` }}</div>
           <div>{{ fyo.format(doc.grandTotal, 'Currency') }}</div>
@@ -119,11 +129,11 @@
 </template>
 
 <script>
-import Base from './Base';
+import Base from './BaseTemplate.vue';
 
 export default {
   name: 'Default',
   extends: Base,
-  props: ['doc', 'printSettings']
+  props: ['doc', 'printSettings'],
 };
 </script>
