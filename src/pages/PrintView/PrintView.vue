@@ -12,6 +12,8 @@
           {{ t`Save as PDF` }}
         </Button>
       </PageHeader>
+
+      <!-- Printview Preview -->
       <div
         v-if="doc && printSettings"
         class="flex justify-center flex-1 -mt-36 overflow-auto relative"
@@ -34,6 +36,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Printview Customizer -->
     <div class="border-l w-80" v-if="showCustomiser">
       <div class="mt-4 px-4 flex items-center justify-between">
         <h2 class="font-semibold">{{ t`Customise` }}</h2>
@@ -52,7 +56,7 @@ import Button from 'src/components/Button.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import InvoiceTemplate from 'src/components/SalesInvoice/InvoiceTemplate.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
-import { makePDF } from 'src/utils';
+import { makePDF } from 'src/utils/ipcCalls';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
@@ -76,7 +80,7 @@ export default {
   },
   computed: {
     printTemplate() {
-      return InvoiceTemplate
+      return InvoiceTemplate;
     },
   },
   methods: {
@@ -86,7 +90,7 @@ export default {
 
       const html = this.$refs.printContainer.innerHTML;
       fyo.telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
-      makePDF(html, savePath);
+      await makePDF(html, savePath);
     },
     async getSavePath() {
       const options = {

@@ -128,7 +128,7 @@
 </template>
 
 <script>
-import Base from './Base';
+import Base from './BaseTemplate.vue';
 
 export default {
   name: 'Business',

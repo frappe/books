@@ -110,7 +110,7 @@ export class Party extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: ['name', 'phone', 'outstandingAmount'],
+      columns: ['name', 'email', 'phone', 'outstandingAmount'],
     };
   }
 
