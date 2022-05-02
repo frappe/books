@@ -1,10 +1,8 @@
 import { Fyo } from 'fyo';
 import { Action, ListViewSettings } from 'fyo/model/types';
 import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
-import {
-  getTransactionActions,
-  getTransactionStatusColumn,
-} from '../../helpers';
+import { ModelNameEnum } from 'models/types';
+import { getInvoiceActions, getTransactionStatusColumn } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
 import { PurchaseInvoiceItem } from '../PurchaseInvoiceItem/PurchaseInvoiceItem';
 
@@ -37,7 +35,7 @@ export class PurchaseInvoice extends Invoice {
   }
 
   static getActions(fyo: Fyo): Action[] {
-    return getTransactionActions('PurchaseInvoice', fyo);
+    return getInvoiceActions(ModelNameEnum.PurchaseInvoice, fyo);
   }
 
   static getListViewSettings(): ListViewSettings {
