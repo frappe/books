@@ -6,7 +6,7 @@
         <StatusBadge :status="status" />
         <DropdownWithActions :actions="actions" />
         <Button
-          v-if="doc.notInserted || doc.dirty"
+          v-if="doc?.notInserted || doc?.dirty"
           type="primary"
           class="text-white text-xs"
           @click="sync"
@@ -120,6 +120,7 @@
           <div class="flex justify-between text-base m-6 gap-12">
             <!-- User Remark -->
             <FormControl
+              v-if="!doc.submitted || doc.userRemark"
               class="w-1/2 self-end"
               input-class="bg-gray-100"
               :df="getField('userRemark')"
@@ -130,7 +131,9 @@
             />
 
             <!-- Debit and Credit -->
-            <div class="w-1/2 gap-2 flex flex-col self-end font-semibold">
+            <div
+              class="w-1/2 gap-2 flex flex-col self-end font-semibold ml-auto"
+            >
               <div class="flex justify-between text-green-600">
                 <div>{{ t`Total Debit` }}</div>
                 <div>{{ totalDebit }}</div>
@@ -158,9 +161,9 @@ import PageHeader from 'src/components/PageHeader';
 import StatusBadge from 'src/components/StatusBadge';
 import { fyo } from 'src/initFyo';
 import {
-getActionsForDocument,
-routeTo,
-showMessageDialog
+  getActionsForDocument,
+  routeTo,
+  showMessageDialog,
 } from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -173,8 +176,8 @@ export default {
     DropdownWithActions,
     StatusBadge,
     FormControl,
-    Table
-},
+    Table,
+  },
   provide() {
     return {
       schemaName: this.schemaName,

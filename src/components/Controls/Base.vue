@@ -4,6 +4,7 @@
       {{ df.label }}
     </div>
     <input
+      spellcheck="false"
       ref="input"
       :class="inputClasses"
       :type="inputType"

@@ -87,20 +87,6 @@ export class DocHandler {
     return docMap?.[name];
   }
 
-  getCachedValue(
-    schemaName: string,
-    name: string,
-    fieldname: string
-  ): DocValue | Doc[] | undefined {
-    const docMap = this.docs[schemaName] as DocMap;
-    const doc = docMap[name];
-    if (doc === undefined) {
-      return;
-    }
-
-    return doc.get(fieldname);
-  }
-
   isDirty(schemaName: string, name: string): boolean {
     const doc = (this.docs?.[schemaName] as DocMap)?.[name];
     if (doc === undefined) {

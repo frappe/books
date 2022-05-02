@@ -13,18 +13,18 @@
       </Button>
       <DropdownWithActions :actions="actions" />
       <Button
-        v-if="showSave"
+        v-if="doc?.notInserted || doc?.dirty"
         type="primary"
         class="text-white text-xs"
-        @click="onSaveClick"
+        @click="sync"
       >
         {{ t`Save` }}
       </Button>
       <Button
-        v-if="!doc.dirty && !doc.notInserted && !doc?.submitted"
+        v-if="!doc?.dirty && !doc?.notInserted && !doc?.submitted"
         type="primary"
         class="text-white text-xs"
-        @click="onSubmitClick"
+        @click="submit"
         >{{ t`Submit` }}</Button
       >
     </PageHeader>
@@ -155,7 +155,7 @@
             />
 
             <!-- Totals -->
-            <div class="w-1/2 gap-2 flex flex-col self-end">
+            <div class="w-1/2 gap-2 flex flex-col self-end ml-auto">
               <!-- Subtotal -->
               <div class="flex justify-between">
                 <div>{{ t`Subtotal` }}</div>
@@ -267,9 +267,6 @@ export default {
     address() {
       return this.printSettings && this.printSettings.getLink('address');
     },
-    showSave() {
-      return this.doc && (this.doc.notInserted || this.doc.dirty);
-    },
     actions() {
       return getActionsForDocument(this.doc);
     },
@@ -307,15 +304,11 @@ export default {
     getField(fieldname) {
       return fyo.getField(this.schemaName, fieldname);
     },
-    async onSaveClick() {
-      await this.doc.set(
-        'items',
-        this.doc.items.filter((row) => row.item)
-      );
+    async sync() {
       return this.doc.sync().catch(this.handleError);
     },
-    onSubmitClick() {
-      let message =
+    submit() {
+      const message =
         this.schemaName === ModelNameEnum.SalesInvoice
           ? this.t`Are you sure you want to submit this Sales Invoice?`
           : this.t`Are you sure you want to submit this Purchase Invoice?`;

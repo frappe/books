@@ -31,14 +31,14 @@ describe('Schema Builder', function () {
       assert.strictEqual(appSchemaMap.Account.fields?.length, 6);
       assert.strictEqual(appSchemaMap.JournalEntry.fields?.length, 8);
       assert.strictEqual(appSchemaMap.JournalEntryAccount.fields?.length, 3);
-      assert.strictEqual(appSchemaMap.Party.fields?.length, 8);
+      assert.strictEqual(appSchemaMap.Party.fields?.length, 9);
       assert.strictEqual(appSchemaMap.Customer.fields?.length, undefined);
       assert.strictEqual(regionalSchemaMap.Party.fields?.length, 2);
     });
 
     specify('Quick Edit Field Counts', function () {
       assert.strictEqual(appSchemaMap.Party.quickEditFields?.length, 5);
-      assert.strictEqual(regionalSchemaMap.Party.quickEditFields?.length, 7);
+      assert.strictEqual(regionalSchemaMap.Party.quickEditFields?.length, 8);
     });
   });
 
@@ -48,11 +48,11 @@ describe('Schema Builder', function () {
   );
   describe('Regional Combined Schemas', function () {
     specify('Field Counts', function () {
-      assert.strictEqual(regionalCombined.Party.fields?.length, 10);
+      assert.strictEqual(regionalCombined.Party.fields?.length, 11);
     });
 
     specify('Quick Edit Field Counts', function () {
-      assert.strictEqual(regionalSchemaMap.Party.quickEditFields?.length, 7);
+      assert.strictEqual(regionalSchemaMap.Party.quickEditFields?.length, 8);
     });
 
     specify('Schema Equality with App Schemas', function () {
@@ -95,11 +95,11 @@ describe('Schema Builder', function () {
     });
 
     specify('Field Counts', function () {
-      assert.strictEqual(abstractCombined.Customer!.fields?.length, 10);
+      assert.strictEqual(abstractCombined.Customer!.fields?.length, 11);
     });
 
     specify('Quick Edit Field Counts', function () {
-      assert.strictEqual(abstractCombined.Customer!.quickEditFields?.length, 7);
+      assert.strictEqual(abstractCombined.Customer!.quickEditFields?.length, 8);
     });
 
     specify('Schema Equality with App Schemas', function () {

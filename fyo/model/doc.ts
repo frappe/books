@@ -2,12 +2,7 @@ import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Verb } from 'fyo/telemetry/types';
 import { DEFAULT_USER } from 'fyo/utils/consts';
-import {
-  ConflictError,
-  MandatoryError,
-  NotFoundError,
-  ValidationError
-} from 'fyo/utils/errors';
+import { ConflictError, MandatoryError, NotFoundError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
 import Money from 'pesa/dist/types/src/money';
 import {
@@ -25,7 +20,7 @@ import {
   getMissingMandatoryMessage,
   getPreDefaultValues,
   setChildDocIdx,
-  shouldApplyFormula,
+  shouldApplyFormula
 } from './helpers';
 import { setName } from './naming';
 import {
@@ -42,7 +37,7 @@ import {
   ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
-  ValidationMap,
+  ValidationMap
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
 
@@ -64,11 +59,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
   _links?: Record<string, Doc>;
   _dirty: boolean = true;
   _notInserted: boolean = true;
-
-  flags = {
-    submitAction: false,
-    revertAction: false,
-  };
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super();
@@ -469,21 +459,18 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this._notInserted = true;
   }
 
-  _setChildIdx() {
+  _setChildDocsIdx() {
     const childFields = this.schema.fields.filter(
       (f) => f.fieldtype === FieldTypeEnum.Table
     ) as TargetField[];
 
     for (const field of childFields) {
       const childDocs = (this.get(field.fieldname) as Doc[]) ?? [];
-
-      for (let i = 0; i < childDocs.length; i++) {
-        childDocs[i].idx = i;
-      }
+      setChildDocIdx(childDocs);
     }
   }
 
-  async _compareWithCurrentDoc() {
+  async _validateDbNotModified() {
     if (this.notInserted || !this.name || this.schema.isSingle) {
       return;
     }
@@ -498,21 +485,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
           .t`Document ${this.schemaName} ${this.name} has been modified after loading` +
           ` ${dbModified}, ${docModified}`
       );
-    }
-
-    if (this.submitted && !this.schema.isSubmittable) {
-      throw new ValidationError(
-        this.fyo.t`Document type ${this.schemaName} is not submittable`
-      );
-    }
-
-    // set submit action flag
-    if (this.submitted && !dbValues.submitted) {
-      this.flags.submitAction = true;
-    }
-
-    if (dbValues.submitted && !this.submitted) {
-      this.flags.revertAction = true;
     }
   }
 
@@ -587,17 +559,16 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return value;
   }
 
-  async _commit() {
-    // re-run triggers
-    this._setChildIdx();
+  async _preSync() {
+    this._setChildDocsIdx();
     await this._applyFormula();
-    await this.trigger('validate', null);
+    await this.trigger('validate');
   }
 
   async _insert() {
     await setName(this, this.fyo);
     this._setBaseMetaValues();
-    await this._commit();
+    await this._preSync();
     await this._validateInsert();
 
     const oldName = this.name!;
@@ -613,23 +584,13 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _update() {
-    await this._compareWithCurrentDoc();
-    await this._commit();
-
-    // before submit
-    if (this.flags.submitAction) await this.trigger('beforeSubmit');
-    if (this.flags.revertAction) await this.trigger('beforeRevert');
-
-    // update modifiedBy and modified
+    await this._validateDbNotModified();
+    await this._preSync();
     this._updateModifiedMetaValues();
 
     const data = this.getValidDict();
     await this.fyo.db.update(this.schemaName, data);
     this._syncValues(data);
-
-    // after submit
-    if (this.flags.submitAction) await this.trigger('afterSubmit');
-    if (this.flags.revertAction) await this.trigger('afterRevert');
 
     return this;
   }
@@ -657,29 +618,35 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this.fyo.doc.observer.trigger(`delete:${this.schemaName}`, this.name);
   }
 
-  async _submitOrRevert(isSubmit: boolean) {
-    const wasSubmitted = this.submitted;
-    this.submitted = isSubmit;
-    try {
-      await this.sync();
-    } catch (e) {
-      this.submitted = wasSubmitted;
-      throw e;
-    }
-  }
-
   async submit() {
-    this.cancelled = false;
-    await this._submitOrRevert(true);
+    if (!this.schema.isSubmittable || this.cancelled) {
+      return;
+    }
+
+    await this.trigger('beforeSubmit');
+    await this.setAndSync('submitted', true);
+    await this.trigger('afterSubmit');
+
     this.fyo.doc.observer.trigger(`submit:${this.schemaName}`, this.name);
   }
 
-  async revert() {
-    await this._submitOrRevert(false);
-    this.fyo.doc.observer.trigger(`revert:${this.schemaName}`, this.name);
+  async cancel() {
+    if (!this.schema.isSubmittable || !this.submitted) {
+      return;
+    }
+
+    await this.trigger('beforeCancel');
+    await this.setAndSync('cancelled', true);
+    await this.trigger('afterCancel');
+
+    this.fyo.doc.observer.trigger(`cancel:${this.schemaName}`, this.name);
   }
 
   async rename(newName: string) {
+    if (this.submitted) {
+      return;
+    }
+
     await this.trigger('beforeRename');
     await this.fyo.db.rename(this.schemaName, this.name!, newName);
     this.name = newName;
@@ -718,14 +685,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
       return sum.float;
     }
     return sum;
-  }
-
-  getFrom(schemaName: string, name: string, fieldname: string) {
-    if (name === undefined || fieldname === undefined) {
-      return '';
-    }
-
-    return this.fyo.doc.getCachedValue(schemaName, name, fieldname);
   }
 
   async setAndSync(fieldname: string | DocValueMap, value?: DocValue | Doc[]) {
@@ -774,8 +733,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async afterDelete() {}
   async beforeSubmit() {}
   async afterSubmit() {}
-  async beforeRevert() {}
-  async afterRevert() {}
+  async beforeCancel() {}
+  async afterCancel() {}
 
   formulas: FormulaMap = {};
   validations: ValidationMap = {};

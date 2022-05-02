@@ -130,7 +130,7 @@ function getReportList(): SearchItem[] {
 }
 
 function getListViewList(): SearchItem[] {
-  const standardLists = [
+  let schemaNames = [
     ModelNameEnum.Account,
     ModelNameEnum.Party,
     ModelNameEnum.Payment,
@@ -138,7 +138,12 @@ function getListViewList(): SearchItem[] {
     ModelNameEnum.PurchaseInvoice,
     ModelNameEnum.SalesInvoice,
     ModelNameEnum.Tax,
-  ]
+  ];
+
+  if (fyo.store.isDevelopment) {
+    schemaNames = Object.keys(fyo.schemaMap) as ModelNameEnum[];
+  }
+  const standardLists = schemaNames
     .map((s) => fyo.schemaMap[s])
     .filter((s) => s && !s.isChild && !s.isSingle)
     .map(

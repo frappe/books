@@ -23,6 +23,7 @@
       >
         <input
           ref="input"
+          spellcheck="false"
           :class="inputClasses"
           type="text"
           :value="linkValue"

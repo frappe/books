@@ -48,10 +48,10 @@
 <script>
 import { ipcRenderer } from 'electron';
 import { Verb } from 'fyo/telemetry/types';
-import Button from 'src/components/Button';
-import PageHeader from 'src/components/PageHeader';
-import SearchBar from 'src/components/SearchBar';
-import TwoColumnForm from 'src/components/TwoColumnForm';
+import Button from 'src/components/Button.vue';
+import PageHeader from 'src/components/PageHeader.vue';
+import InvoiceTemplate from 'src/components/SalesInvoice/InvoiceTemplate.vue';
+import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { makePDF } from 'src/utils';
 import { IPC_ACTIONS } from 'utils/messages';
 
@@ -60,7 +60,6 @@ export default {
   props: { schemaName: String, name: String },
   components: {
     PageHeader,
-    SearchBar,
     Button,
     TwoColumnForm,
   },
@@ -73,14 +72,11 @@ export default {
   },
   async mounted() {
     this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
-    this.printSettings = await fyo.getSingle('PrintSettings');
+    this.printSettings = await fyo.doc.getSingle('PrintSettings');
   },
   computed: {
-    meta() {
-      return fyo.getMeta(this.schemaName);
-    },
     printTemplate() {
-      return this.meta.printTemplate;
+      return InvoiceTemplate
     },
   },
   methods: {

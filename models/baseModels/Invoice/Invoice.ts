@@ -3,7 +3,9 @@ import { Doc } from 'fyo/model/doc';
 import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
 import { getExchangeRate } from 'models/helpers';
 import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
+import { ModelNameEnum } from 'models/types';
 import Money from 'pesa/dist/types/src/money';
+import { getIsNullOrUndef } from 'utils';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
@@ -63,7 +65,7 @@ export abstract class Invoice extends Doc {
     await party.updateOutstandingAmount();
   }
 
-  async afterRevert() {
+  async afterCancel() {
     const paymentRefList = await this.getPayments();
     for (const paymentFor of paymentRefList) {
       const paymentReference = paymentFor.parent;
@@ -89,18 +91,20 @@ export abstract class Invoice extends Doc {
   }
 
   async getExchangeRate() {
-    if (!this.currency) return 1.0;
+    if (!this.currency) {
+      return 1.0;
+    }
 
-    const accountingSettings = await this.fyo.doc.getSingle(
-      'AccountingSettings'
+    const currency = await this.fyo.getValue(
+      ModelNameEnum.SystemSettings,
+      'currency'
     );
-    const companyCurrency = accountingSettings.currency;
-    if (this.currency === companyCurrency) {
+    if (this.currency === currency) {
       return 1.0;
     }
     return await getExchangeRate({
       fromCurrency: this.currency!,
-      toCurrency: companyCurrency as string,
+      toCurrency: currency as string,
     });
   }
 
@@ -163,14 +167,28 @@ export abstract class Invoice extends Doc {
 
   formulas: FormulaMap = {
     account: {
-      formula: async () =>
-        this.getFrom('Party', this.party!, 'defaultAccount') as string,
+      formula: async () => {
+        return (await this.fyo.getValue(
+          'Party',
+          this.party!,
+          'defaultAccount'
+        )) as string;
+      },
       dependsOn: ['party'],
     },
     currency: {
-      formula: async () =>
-        (this.getFrom('Party', this.party!, 'currency') as string) ||
-        (this.fyo.singles.AccountingSettings!.currency as string),
+      formula: async () => {
+        const currency = (await this.fyo.getValue(
+          'Party',
+          this.party!,
+          'currency'
+        )) as string;
+
+        if (!getIsNullOrUndef(currency)) {
+          return currency;
+        }
+        return this.fyo.singles.SystemSettings!.currency as string;
+      },
       dependsOn: ['party'],
     },
     exchangeRate: { formula: async () => await this.getExchangeRate() },
@@ -199,6 +217,9 @@ export abstract class Invoice extends Doc {
   };
 
   static filters: FiltersMap = {
+    party: (doc: Doc) => ({
+      role: ['in', [doc.isSales ? 'Customer' : 'Supplier', 'Both']],
+    }),
     account: (doc: Doc) => ({
       isGroup: false,
       accountType: doc.isSales ? 'Receivable' : 'Payable',

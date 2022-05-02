@@ -1,45 +1,51 @@
 <template>
   <div class="py-4" v-if="pendingInvoices.length">
-    <div class="px-4 text-sm text-gray-600 mb-1">
+    <div class="px-4 text-sm text-gray-600">
       {{ t`Recent Invoices` }}
     </div>
+
+    <!-- Invoice List -->
     <div
-      class="px-4 py-3 border-b hover:bg-gray-100 cursor-pointer"
+      class="px-4 py-3 border-b hover:bg-gray-100 cursor-pointer text-base"
       v-for="invoice in pendingInvoices"
       :key="invoice.name"
       @click="routeToForm(invoice)"
     >
-      <div class="text-base">
-        <div class="flex justify-between items-center mb-1">
-          <span class="font-medium">
-            {{ invoice.name }}
+      <!-- Invoice Name & Status -->
+      <div class="flex justify-between items-center mb-1">
+        <span class="font-medium">
+          {{ invoice.name }}
+        </span>
+        <span>
+          <component :is="getStatusBadge(invoice)" />
+        </span>
+      </div>
+
+      <!-- Invoice Date & Amount -->
+      <div class="flex justify-between">
+        <span>
+          {{ fyo.format(invoice.date, getInvoiceField(invoice, 'date')) }}
+        </span>
+        <div>
+          <!-- Paid Amount -->
+          <span class="font-medium text-gray-900">
+            {{
+              fyo.format(
+                amountPaid(invoice),
+                getInvoiceField(invoice, 'baseGrandTotal')
+              )
+            }}
           </span>
-          <span>
-            <component :is="getStatusBadge(invoice)" />
+
+          <!-- Outstanding Amount -->
+          <span class="text-gray-600" v-if="!fullyPaid(invoice)">
+            ({{
+              fyo.format(
+                invoice.outstandingAmount,
+                getInvoiceField(invoice, 'outstandingAmount')
+              )
+            }})
           </span>
-        </div>
-        <div class="flex justify-between">
-          <span>
-            {{ fyo.format(invoice.date, getInvoiceField(invoice, 'date')) }}
-          </span>
-          <div>
-            <span class="font-medium text-gray-900">
-              {{
-                fyo.format(
-                  amountPaid(invoice),
-                  getInvoiceField(invoice, 'baseGrandTotal')
-                )
-              }}
-            </span>
-            <span class="text-gray-600" v-if="!fullyPaid(invoice)">
-              ({{
-                fyo.format(
-                  invoice.outstandingAmount,
-                  getInvoiceField(invoice, 'outstandingAmount')
-                )
-              }})
-            </span>
-          </div>
         </div>
       </div>
     </div>
@@ -52,7 +58,7 @@ import { PartyRoleEnum } from 'models/baseModels/Party/types';
 import { getTransactionStatusColumn } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { fyo } from 'src/initFyo';
-import { routeTo } from 'src/utils';
+import { routeTo } from 'src/utils/ui';
 
 export default {
   name: 'PartyWidget',
