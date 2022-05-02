@@ -1,125 +1,133 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader :title="t`Chart of Accounts`" />
-    <div class="flex-1 flex px-8 overflow-y-auto">
-      <div class="flex-1" v-if="root">
-        <div v-for="account in allAccounts" :key="account.name">
-          <div
-            class="
-              mt-2
-              px-4
-              py-2
-              cursor-pointer
-              hover:bg-gray-100
-              rounded-md
-              group
-            "
-            :class="[
-              account.level !== 0 ? 'text-base' : 'text-lg',
-              isQuickEditOpen(account) ? 'bg-gray-200' : '',
-            ]"
-            @click="onClick(account)"
-          >
-            <div class="flex items-center" :class="`pl-${account.level * 8}`">
-              <component :is="getIconComponent(account)" />
-              <div class="flex items-baseline">
-                <div
-                  class="ml-3"
-                  :class="[!account.parentAccount && 'font-semibold']"
-                >
-                  {{ account.name }}
-                </div>
-                <div
-                  v-if="account.isGroup"
-                  class="ml-6 hidden group-hover:block"
-                >
-                  <button
-                    class="
-                      text-xs text-gray-800
-                      hover:text-gray-900
-                      focus:outline-none
-                    "
-                    @click.stop="addAccount(account, 'addingAccount')"
-                  >
-                    {{ t`Add Account` }}
-                  </button>
-                  <button
-                    class="
-                      ml-3
-                      text-xs text-gray-800
-                      hover:text-gray-900
-                      focus:outline-none
-                    "
-                    @click.stop="addAccount(account, 'addingGroupAccount')"
-                  >
-                    {{ t`Add Group` }}
-                  </button>
-                </div>
-              </div>
+
+    <!-- Chart of Accounts -->
+    <div class="flex-1 flex flex-col px-8 overflow-y-auto" v-if="root">
+      <!-- Chart of Accounts Indented List -->
+      <template v-for="account in allAccounts" :key="account.name">
+        <!-- Account List Item -->
+        <div
+          class="
+            mt-2
+            px-4
+            py-2
+            cursor-pointer
+            hover:bg-gray-100
+            rounded-md
+            group
+            flex
+            items-center
+          "
+          :class="[
+            account.level !== 0 ? 'text-base' : 'text-lg',
+            isQuickEditOpen(account) ? 'bg-gray-200' : '',
+            `pl-${account.level * 8}`,
+          ]"
+          @click="onClick(account)"
+        >
+          <component :is="getIconComponent(account)" />
+          <div class="flex items-baseline">
+            <div
+              class="ml-3"
+              :class="[!account.parentAccount && 'font-semibold']"
+            >
+              {{ account.name }}
+            </div>
+
+            <!-- Add Account Buttons on Group Hover -->
+            <div v-if="account.isGroup" class="ml-6 hidden group-hover:block">
+              <button
+                class="
+                  text-xs text-gray-800
+                  hover:text-gray-900
+                  focus:outline-none
+                "
+                @click.stop="addAccount(account, 'addingAccount')"
+              >
+                {{ t`Add Account` }}
+              </button>
+              <button
+                class="
+                  ml-3
+                  text-xs text-gray-800
+                  hover:text-gray-900
+                  focus:outline-none
+                "
+                @click.stop="addAccount(account, 'addingGroupAccount')"
+              >
+                {{ t`Add Group` }}
+              </button>
             </div>
           </div>
-          <div
-            v-if="account.addingAccount || account.addingGroupAccount"
-            class="
-              mt-2
-              px-4
-              py-2
-              cursor-pointer
-              hover:bg-gray-100
-              rounded-md
-              group
-            "
-            :class="[account.level !== 0 ? 'text-base' : 'text-lg']"
-            :key="account.name + '-adding-account'"
-          >
-            <div
-              class="flex items-center"
-              :class="`pl-${(account.level + 1) * 8}`"
+
+          <!-- Account Balance String -->
+          <p class="ml-auto text-base text-gray-800" v-if="!account.isGroup">
+            {{ getBalanceString(account) }}
+          </p>
+        </div>
+
+        <!-- Add Account/Group -->
+        <div
+          v-if="account.addingAccount || account.addingGroupAccount"
+          class="
+            mt-2
+            px-4
+            py-2
+            cursor-pointer
+            hover:bg-gray-100
+            rounded-md
+            group
+            flex
+            items-center
+          "
+          :class="`${account.level !== 0 ? 'text-base' : 'text-lg'} pl-${
+            (account.level + 1) * 8
+          }`"
+          :key="account.name + '-adding-account'"
+        >
+          <component
+            :is="getIconComponent({ isGroup: account.addingGroupAccount })"
+          />
+          <div class="flex items-baseline ml-3">
+            <input
+              class="focus:outline-none bg-transparent"
+              :class="{ 'text-gray-600': insertingAccount }"
+              :placeholder="t`New Account`"
+              :ref="account.name"
+              @keydown.esc="cancelAddingAccount(account)"
+              @keydown.enter="
+                (e) =>
+                  createNewAccount(
+                    e.target.value,
+                    account,
+                    account.addingGroupAccount
+                  )
+              "
+              type="text"
+              :disabled="insertingAccount"
+            />
+            <button
+              v-if="!insertingAccount"
+              class="
+                ml-4
+                text-xs text-gray-800
+                hover:text-gray-900
+                focus:outline-none
+              "
+              @click="cancelAddingAccount(account)"
             >
-              <component
-                :is="getIconComponent({ isGroup: account.addingGroupAccount })"
-              />
-              <div class="flex items-baseline">
-                <div class="ml-3">
-                  <input
-                    class="focus:outline-none bg-transparent"
-                    :class="{ 'text-gray-600': insertingAccount }"
-                    :placeholder="t`New Account`"
-                    :ref="account.name"
-                    @keydown.esc="cancelAddingAccount(account)"
-                    @keydown.enter="
-                      (e) =>
-                        createNewAccount(
-                          e.target.value,
-                          account,
-                          account.addingGroupAccount
-                        )
-                    "
-                    type="text"
-                    :disabled="insertingAccount"
-                  />
-                  <button
-                    v-if="!insertingAccount"
-                    class="
-                      ml-4
-                      text-xs text-gray-800
-                      hover:text-gray-900
-                      focus:outline-none
-                    "
-                    @click="cancelAddingAccount(account)"
-                  >
-                    {{ t`Cancel` }}
-                  </button>
-                </div>
-              </div>
-            </div>
+              {{ t`Cancel` }}
+            </button>
           </div>
         </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
 <script>
+import { t } from 'fyo';
+import { AccountRootTypeEnum } from 'models/baseModels/Account/types';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
@@ -146,6 +154,26 @@ export default {
     }
   },
   methods: {
+    isCredit(rootType) {
+      switch (rootType) {
+        case AccountRootTypeEnum.Asset:
+          return false;
+        case AccountRootTypeEnum.Liability:
+          return true;
+        case AccountRootTypeEnum.Equity:
+          return true;
+        case AccountRootTypeEnum.Expense:
+          return false;
+        case AccountRootTypeEnum.Income:
+          return true;
+        default:
+          return true;
+      }
+    },
+    getBalanceString(account) {
+      const suffix = this.isCredit(account.rootType) ? t`Cr.` : t`Dr.`;
+      return `${fyo.format(account.balance, 'Currency')} ${suffix}`;
+    },
     async fetchAccounts() {
       this.settings = fyo.models[ModelNameEnum.Account].getTreeSettings(fyo);
       const { currency } = await fyo.doc.getSingle('AccountingSettings');

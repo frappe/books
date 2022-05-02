@@ -152,11 +152,11 @@ export class Converter {
 }
 
 function toDocString(value: RawValue, field: Field) {
-  if (typeof value === 'string') {
-    return value;
+  if (value === null) {
+    return null;
   }
 
-  if (value === null) {
+  if (typeof value === 'string') {
     return value;
   }
 
@@ -164,6 +164,10 @@ function toDocString(value: RawValue, field: Field) {
 }
 
 function toDocDate(value: RawValue, field: Field) {
+  if (value === null) {
+    return null;
+  }
+
   if (typeof value !== 'number' && typeof value !== 'string') {
     throwError(value, field, 'doc');
   }
@@ -189,6 +193,10 @@ function toDocCurrency(value: RawValue, field: Field, fyo: Fyo) {
     return fyo.pesa(Number(value));
   }
 
+  if (value === null) {
+    return fyo.pesa(0);
+  }
+
   throwError(value, field, 'doc');
 }
 
@@ -207,6 +215,10 @@ function toDocFloat(value: RawValue, field: Field): number {
 
   if (typeof value === 'string') {
     value = parseFloat(value);
+  }
+
+  if (value === null) {
+    value = 0;
   }
 
   if (typeof value === 'number' && !Number.isNaN(value)) {

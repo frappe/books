@@ -5,7 +5,7 @@ import { NotFoundError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
 import Money from 'pesa/dist/types/src/money';
 import { Router } from 'vue-router';
-import { InvoiceStatus } from './types';
+import { InvoiceStatus, ModelNameEnum } from './types';
 
 export function getLedgerLinkAction(fyo: Fyo): Action {
   return {
@@ -27,7 +27,10 @@ export function getLedgerLinkAction(fyo: Fyo): Action {
   };
 }
 
-export function getTransactionActions(schemaName: string, fyo: Fyo): Action[] {
+export function getInvoiceActions(
+  schemaName: ModelNameEnum.PurchaseInvoice | ModelNameEnum.SalesInvoice,
+  fyo: Fyo
+): Action[] {
   return [
     {
       label: fyo.t`Make Payment`,
@@ -62,13 +65,6 @@ export function getTransactionActions(schemaName: string, fyo: Fyo): Action[] {
             ],
           },
         });
-      },
-    },
-    {
-      label: fyo.t`Print`,
-      condition: (doc: Doc) => doc.submitted as boolean,
-      action: async (doc: Doc, router: Router) => {
-        router.push({ path: `/print/${doc.schemaName}/${doc.name}` });
       },
     },
     getLedgerLinkAction(fyo),

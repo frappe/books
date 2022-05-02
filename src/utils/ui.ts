@@ -258,7 +258,7 @@ function getCancelAction(doc: Doc): Action {
     component: {
       template: '<span class="text-red-700">{{ t`Cancel` }}</span>',
     },
-    condition: (doc: Doc) => !doc.cancelled,
+    condition: (doc: Doc) => !!doc.submitted && !doc.cancelled,
     action: () => {
       cancelDocWithPrompt(doc).then((res) => {
         if (res) {
@@ -276,10 +276,7 @@ function getDeleteAction(doc: Doc): Action {
       template: '<span class="text-red-700">{{ t`Delete` }}</span>',
     },
     condition: (doc: Doc) =>
-      !doc.notInserted &&
-      !doc.submitted &&
-      !doc.schema.isSingle &&
-      !doc.cancelled,
+      !doc.notInserted && !doc.submitted && !doc.schema.isSingle,
     action: () =>
       deleteDocWithPrompt(doc).then((res) => {
         if (res) {
@@ -296,7 +293,7 @@ function getDuplicateAction(doc: Doc): Action {
     condition: (doc: Doc) =>
       !!(
         ((isSubmittable && doc && doc.submitted) || !isSubmittable) &&
-        !doc._notInserted &&
+        !doc.notInserted &&
         !(doc.cancelled || false)
       ),
     action: () => {
