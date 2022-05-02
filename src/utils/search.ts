@@ -70,7 +70,53 @@ function getCreateList(): SearchItem[] {
       } as SearchItem)
   );
 
-  return [quickEditCreateList, formEditCreateList].flat();
+  const filteredCreateList = [
+    {
+      label: t`Customers`,
+      schemaName: ModelNameEnum.Party,
+      filter: { role: 'Customer' },
+    },
+    {
+      label: t`Suppliers`,
+      schemaName: ModelNameEnum.Party,
+      filter: { role: 'Supplier' },
+    },
+    {
+      label: t`Sales Items`,
+      schemaName: ModelNameEnum.Item,
+      filter: { for: 'sales' },
+    },
+    {
+      label: t`Purchase Items`,
+      schemaName: ModelNameEnum.Item,
+      filter: { for: 'purchases' },
+    },
+    {
+      label: t`Common Items`,
+      schemaName: ModelNameEnum.Item,
+      filter: { for: 'both' },
+    },
+  ].map(({ label, filter, schemaName }) => {
+    const fk = Object.keys(filter)[0] as 'for' | 'role';
+    const ep = `${fk}/${filter[fk]}`;
+
+    const route = `/list/${schemaName}/${ep}/${label}`;
+    return {
+      label,
+      group: 'Create',
+      async action() {
+        await routeTo(route);
+        const doc = await fyo.doc.getNewDoc(schemaName, filter);
+        const { openQuickEdit } = await import('src/utils/ui');
+        await openQuickEdit({
+          schemaName,
+          name: doc.name as string,
+        });
+      },
+    } as SearchItem;
+  });
+
+  return [quickEditCreateList, formEditCreateList, filteredCreateList].flat();
 }
 
 function getReportList(): SearchItem[] {
@@ -84,10 +130,9 @@ function getReportList(): SearchItem[] {
 }
 
 function getListViewList(): SearchItem[] {
-  return [
+  const standardLists = [
     ModelNameEnum.Account,
     ModelNameEnum.Party,
-    ModelNameEnum.Item,
     ModelNameEnum.Payment,
     ModelNameEnum.JournalEntry,
     ModelNameEnum.PurchaseInvoice,
@@ -96,11 +141,33 @@ function getListViewList(): SearchItem[] {
   ]
     .map((s) => fyo.schemaMap[s])
     .filter((s) => s && !s.isChild && !s.isSingle)
-    .map((s) => ({
-      label: s!.label,
-      route: `/list/${s!.name}`,
-      group: 'List',
-    }));
+    .map(
+      (s) =>
+        ({
+          label: s!.label,
+          route: `/list/${s!.name}`,
+          group: 'List',
+        } as SearchItem)
+    );
+
+  const filteredLists = [
+    { label: t`Customers`, route: `/list/Party/role/Customer/${t`Customers`}` },
+    { label: t`Suppliers`, route: `/list/Party/role/Supplier/${t`Suppliers`}` },
+    {
+      label: t`Sales Items`,
+      route: `/list/Item/for/sales/${t`Sales Items`}`,
+    },
+    {
+      label: t`Purchase Items`,
+      route: `/list/Item/for/purchases/${t`Purchase Items`}`,
+    },
+    {
+      label: t`Common Items`,
+      route: `/list/Item/for/both/${t`Common Items`}`,
+    },
+  ].map((i) => ({ ...i, group: 'List' } as SearchItem));
+
+  return [standardLists, filteredLists].flat();
 }
 
 function getSetupList(): SearchItem[] {

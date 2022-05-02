@@ -36,7 +36,11 @@ import List from './List';
 
 export default {
   name: 'ListView',
-  props: ['schemaName', 'filters'],
+  props: {
+    schemaName: String,
+    filters: Object,
+    pageTitle: { type: String, default: '' },
+  },
   components: {
     PageHeader,
     List,
@@ -92,7 +96,7 @@ export default {
   },
   computed: {
     title() {
-      return fyo.schemaMap[this.schemaName].label;
+      return this.pageTitle || fyo.schemaMap[this.schemaName].label;
     },
     fields() {
       return fyo.schemaMap[this.schemaName].fields;

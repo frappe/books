@@ -118,7 +118,10 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
-          const doc = await fyo.doc.getNewDoc('PurchaseInvoice');
+          const doc = await fyo.doc.getNewDoc('PurchaseInvoice', {
+            party: partyDoc.name,
+            account: partyDoc.defaultAccount as string,
+          });
           router.push({
             path: `/edit/PurchaseInvoice/${doc.name}`,
             query: {
@@ -136,16 +139,7 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
-          router.push({
-            name: 'ListView',
-            params: {
-              schemaName: 'PurchaseInvoice',
-              filters: {
-                // @ts-ignore
-                party: partyDoc.name!,
-              },
-            },
-          });
+          router.push(`/list/PurchaseInvoice/party/${partyDoc.name}`);
         },
       },
       {
@@ -153,7 +147,10 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
-          const doc = await fyo.doc.getNewDoc('SalesInvoice');
+          const doc = await fyo.doc.getNewDoc('SalesInvoice', {
+            party: partyDoc.name,
+            account: partyDoc.defaultAccount as string,
+          });
           router.push({
             path: `/edit/SalesInvoice/${doc.name}`,
             query: {
@@ -171,16 +168,7 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
-          router.push({
-            name: 'ListView',
-            params: {
-              schemaName: 'SalesInvoice',
-              filters: {
-                // @ts-ignore
-                party: partyDoc.name!,
-              },
-            },
-          });
+          router.push(`/list/SalesInvoice/party/${partyDoc.name}`);
         },
       },
     ];

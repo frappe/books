@@ -184,9 +184,15 @@ export default {
       return emptyMessage;
     },
     selectItem(d) {
-      if (d.action) {
-        d.action();
+      if (!d.action) {
+        return;
       }
+
+      if (this.doc) {
+        return d.action(this.doc, this.$router);
+      }
+      
+      d.action()
     },
     toggleDropdown(flag) {
       if (flag == null) {

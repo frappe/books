@@ -188,6 +188,7 @@ export default {
       if (group.action) {
         group.action();
       }
+
       if (group.route) {
         routeTo(group.route);
       }

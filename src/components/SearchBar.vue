@@ -18,6 +18,7 @@ const keys = useKeys();
         w-48
         px-3
         items-center
+        hover:bg-gray-200
       "
     >
       <feather-icon name="search" class="w-4 h-4" />
@@ -73,7 +74,7 @@ const keys = useKeys();
           class="flex flex-row w-full justify-between px-3 items-center"
           style="height: 48px"
         >
-          <p class="">
+          <p class="text-gray-900">
             {{ si.label }}
           </p>
           <div

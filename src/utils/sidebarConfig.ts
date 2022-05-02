@@ -63,13 +63,13 @@ function getCompleteSidebar(): SidebarConfig {
         {
           label: t`Customers`,
           name: 'customers',
-          route: '/list/Party/role/Customer',
+          route: `/list/Party/role/Customer/${t`Customers`}`,
           schemaName: 'Party',
         },
         {
           label: t`Sales Items`,
           name: 'sales-items',
-          route: '/list/Item/for/sales',
+          route: `/list/Item/for/sales/${t`Sales Items`}`,
           schemaName: 'Item',
         },
       ],
@@ -95,13 +95,13 @@ function getCompleteSidebar(): SidebarConfig {
         {
           label: t`Suppliers`,
           name: 'suppliers',
-          route: '/list/Party/role/Supplier',
+          route: `/list/Party/role/Supplier/${t`Suppliers`}`,
           schemaName: 'Party',
         },
         {
           label: t`Purchase Items`,
           name: 'purchase-items',
-          route: '/list/Item/for/purchases',
+          route: `/list/Item/for/purchases/${t`Purchase Items`}`,
           schemaName: 'Item',
         },
       ],
@@ -121,7 +121,7 @@ function getCompleteSidebar(): SidebarConfig {
         {
           label: t`Common Items`,
           name: 'common-items',
-          route: '/list/Item/for/both',
+          route: `/list/Item/for/both/${t`Common Items`}`,
           schemaName: 'Item',
         },
         {
