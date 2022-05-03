@@ -24,7 +24,7 @@ const keys = useKeys();
       <feather-icon name="search" class="w-4 h-4" />
       <p>{{ t`Search` }}</p>
       <div v-if="!inputValue" class="text-gray-500 ml-auto">
-        {{ platform === 'Mac' ? '⌘ K' : 'Ctrl K' }}
+        {{ modKey('k') }}
       </div>
     </button>
   </div>
@@ -78,7 +78,7 @@ const keys = useKeys();
             {{ si.label }}
           </p>
           <div
-            class="text-base px-2 py-1 rounded-lg flex items-center"
+            class="text-base px-2 py-1 rounded-xl flex items-center"
             :class="groupColorClassMap[si.group]"
           >
             {{ groupLabelMap[si.group] }}
@@ -90,25 +90,30 @@ const keys = useKeys();
 
     <!-- Footer -->
     <hr />
-    <div class="m-2 flex justify-between items-center">
+    <div class="m-1 flex justify-between items-center flex-col gap-2 text-sm select-none">
       <!-- Group Filters -->
       <div class="flex flex-row gap-2">
         <button
-          v-for="g in searchGroups"
+          v-for="(g, i) in searchGroups"
           :key="g"
-          class="text-base border px-2 py-0.5 rounded-lg"
+          class="border px-1 py-0.5 rounded-lg"
           :class="getGroupFilterButtonClass(g)"
           @click="groupFilters[g] = !groupFilters[g]"
         >
-          {{ groupLabelMap[g] }}
+          {{ groupLabelMap[g]
+          }}<span
+            class="ml-2 whitespace-nowrap brightness-50 tracking-tighter"
+            :class="`text-${groupColorMap[g]}-500`"
+            >{{ modKey(String(i + 1)) }}</span
+          >
         </button>
       </div>
 
       <!-- Keybindings Help -->
-      <div class="flex text-base gap-3 justify-center text-gray-700">
+      <div class="flex text-sm gap-8 text-gray-500">
         <p>↑↓ {{ t`Navigate` }}</p>
         <p>↩ {{ t`Select` }}</p>
-        <p><span class="text-sm tracking-tighter">esc</span> {{ t`Close` }}</p>
+        <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
       </div>
     </div>
   </Modal>
@@ -165,6 +170,8 @@ export default {
       if (!getIsNullOrUndef(input) && document.activeElement !== input) {
         input.focus();
       }
+
+      this.setFilter(keys);
     });
     this.openModal = false;
   },
@@ -172,6 +179,37 @@ export default {
     this.openModal = false;
   },
   methods: {
+    setFilter(keys) {
+      if (!keys.has('MetaLeft') && !keys.has('ControlLeft')) {
+        return;
+      }
+
+      if (!keys.size === 2) {
+        return;
+      }
+
+      const matches = [...keys].join(',').match(/Digit(\d+)/);
+      if (!matches) {
+        return;
+      }
+
+      const digit = matches[1];
+      const index = parseInt(digit) - 1;
+      const group = searchGroups[index];
+      if (!group || this.groupFilters[group] === undefined) {
+        return;
+      }
+
+      this.groupFilters[group] = !this.groupFilters[group];
+    },
+    modKey(key) {
+      key = key.toUpperCase();
+      if (this.platform === 'Mac') {
+        return `⌘ ${key}`;
+      }
+
+      return `Ctrl ${key}`;
+    },
     open() {
       this.openModal = true;
       nextTick(() => {
