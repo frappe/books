@@ -1,7 +1,6 @@
 {
   "name": "Account",
   "label": "Account",
-  "doctype": "DocType",
   "isSingle": false,
   "isTree": true,
   "fields": [
