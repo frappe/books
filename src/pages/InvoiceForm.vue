@@ -11,7 +11,7 @@
       >
         {{ t`Print` }}
       </Button>
-      <DropdownWithActions :actions="actions" />
+      <DropdownWithActions :actions="actions()" />
       <Button
         v-if="doc?.notInserted || doc?.dirty"
         type="primary"
@@ -245,8 +245,8 @@ export default {
     Button,
     FormControl,
     DropdownWithActions,
-    Table
-},
+    Table,
+  },
   provide() {
     return {
       schemaName: this.schemaName,
@@ -266,9 +266,6 @@ export default {
   computed: {
     address() {
       return this.printSettings && this.printSettings.getLink('address');
-    },
-    actions() {
-      return getActionsForDocument(this.doc);
     },
   },
   async mounted() {
@@ -301,6 +298,9 @@ export default {
   },
   methods: {
     routeTo,
+    actions() {
+      return getActionsForDocument(this.doc);
+    },
     getField(fieldname) {
       return fyo.getField(this.schemaName, fieldname);
     },
@@ -310,8 +310,8 @@ export default {
     submit() {
       const message =
         this.schemaName === ModelNameEnum.SalesInvoice
-          ? this.t`Are you sure you want to submit this Sales Invoice?`
-          : this.t`Are you sure you want to submit this Purchase Invoice?`;
+          ? this.t`Submit Sales Invoice?`
+          : this.t`Submit Purchase Invoice?`;
       showMessageDialog({
         message,
         buttons: [

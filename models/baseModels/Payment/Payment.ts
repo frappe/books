@@ -3,6 +3,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
   Action,
+  ChangeArg,
   DefaultMap,
   FiltersMap,
   FormulaMap,
@@ -13,26 +14,29 @@ import {
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { getLedgerLinkAction } from 'models/helpers';
-import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
+import { LedgerPosting } from 'models/Transactional/LedgerPosting';
+import { Transactional } from 'models/Transactional/Transactional';
+import { ModelNameEnum } from 'models/types';
 import Money from 'pesa/dist/types/src/money';
-import { getIsNullOrUndef } from 'utils';
+import { Invoice } from '../Invoice/Invoice';
 import { Party } from '../Party/Party';
+import { PaymentFor } from '../PaymentFor/PaymentFor';
 import { PaymentMethod, PaymentType } from './types';
 
-export class Payment extends Doc {
+export class Payment extends Transactional {
   party?: string;
   amount?: Money;
   writeoff?: Money;
+  paymentType?: PaymentType;
 
-  async change({ changed }: { changed: string }) {
-    switch (changed) {
-      case 'for': {
-        this.updateAmountOnReferenceUpdate();
-        await this.updateDetailsOnReferenceUpdate();
-      }
-      case 'amount': {
-        this.updateReferenceOnAmountUpdate();
-      }
+  async change({ changed }: ChangeArg) {
+    if (changed === 'for') {
+      this.updateAmountOnReferenceUpdate();
+      await this.updateDetailsOnReferenceUpdate();
+    }
+
+    if (changed === 'amount') {
+      this.updateReferenceOnAmountUpdate();
     }
   }
 
@@ -51,20 +55,19 @@ export class Payment extends Doc {
     }
 
     const schemaName = referenceType as string;
-    const doc = await this.fyo.doc.getDoc(schemaName, referenceName as string);
+    const doc = (await this.fyo.doc.getDoc(
+      schemaName,
+      referenceName as string
+    )) as Invoice;
 
-    let party;
     let paymentType: PaymentType;
-
-    if (schemaName === 'SalesInvoice') {
-      party = doc.customer;
+    if (doc.isSales) {
       paymentType = 'Receive';
     } else {
-      party = doc.supplier;
       paymentType = 'Pay';
     }
 
-    this.party = party as string;
+    this.party = doc.party as string;
     this.paymentType = paymentType;
   }
 
@@ -87,21 +90,26 @@ export class Payment extends Doc {
   }
 
   async validate() {
+    await super.validate();
     this.validateAccounts();
-    this.validateReferenceAmount();
-    this.validateWriteOff();
+    this.validateTotalReferenceAmount();
+    this.validateWriteOffAccount();
+    await this.validateReferences();
   }
 
   validateAccounts() {
     if (this.paymentAccount !== this.account || !this.account) {
       return;
     }
+
     throw new this.fyo.errors.ValidationError(
-      `To Account and From Account can't be the same: ${this.account}`
+      t`To Account and From Account can't be the same: ${
+        this.account as string
+      }`
     );
   }
 
-  validateReferenceAmount() {
+  validateTotalReferenceAmount() {
     const forReferences = (this.for ?? []) as Doc[];
     if (forReferences.length === 0) {
       return;
@@ -137,7 +145,7 @@ export class Payment extends Doc {
     );
   }
 
-  validateWriteOff() {
+  validateWriteOffAccount() {
     if ((this.writeoff as Money).isZero()) {
       return;
     }
@@ -155,131 +163,134 @@ export class Payment extends Doc {
     const paymentAccount = this.paymentAccount as string;
     const amount = this.amount as Money;
     const writeoff = this.writeoff as Money;
-    const entries = new LedgerPosting(
-      {
-        reference: this,
-        party: this.party!,
-      },
-      this.fyo
-    );
+    const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
 
-    await entries.debit(paymentAccount as string, amount.sub(writeoff));
-    await entries.credit(account as string, amount.sub(writeoff));
+    await posting.debit(paymentAccount as string, amount.sub(writeoff));
+    await posting.credit(account as string, amount.sub(writeoff));
 
+    this.applyWriteOffPosting(posting);
+    return posting;
+  }
+
+  async applyWriteOffPosting(posting: LedgerPosting) {
+    const writeoff = this.writeoff as Money;
     if (writeoff.isZero()) {
-      return [entries];
+      return posting;
     }
 
-    const writeoffEntry = new LedgerPosting(
-      {
-        reference: this,
-        party: this.party!,
-      },
-      this.fyo
-    );
+    const account = this.account as string;
     const writeOffAccount = this.fyo.singles.AccountingSettings!
       .writeOffAccount as string;
 
     if (this.paymentType === 'Pay') {
-      await writeoffEntry.debit(account, writeoff);
-      await writeoffEntry.credit(writeOffAccount, writeoff);
+      await posting.credit(account, writeoff);
+      await posting.debit(writeOffAccount, writeoff);
     } else {
-      await writeoffEntry.debit(writeOffAccount, writeoff);
-      await writeoffEntry.credit(account, writeoff);
+      await posting.debit(account, writeoff);
+      await posting.credit(writeOffAccount, writeoff);
     }
-
-    return [entries, writeoffEntry];
   }
 
-  async beforeSubmit() {
-    const forReferences = (this.for ?? []) as Doc[];
+  async validateReferences() {
+    const forReferences = (this.for ?? []) as PaymentFor[];
     if (forReferences.length === 0) {
       return;
     }
 
     for (const row of forReferences) {
-      if (
-        !['SalesInvoice', 'PurchaseInvoice'].includes(
-          row.referenceType as string
-        )
-      ) {
-        continue;
-      }
-      const referenceDoc = await this.fyo.doc.getDoc(
-        row.referenceType as string,
-        row.referenceName as string
-      );
-
-      let outstandingAmount = referenceDoc.outstandingAmount as Money;
-      const baseGrandTotal = referenceDoc.baseGrandTotal as Money;
-      const amount = this.amount as Money;
-
-      if (getIsNullOrUndef(outstandingAmount)) {
-        outstandingAmount = baseGrandTotal;
-      }
-
-      if (amount.lte(0) || amount.gt(outstandingAmount)) {
-        let message = this.fyo.t`Payment amount: ${this.fyo.format(
-          this.amount!,
-          'Currency'
-        )} should be less than Outstanding amount: ${this.fyo.format(
-          outstandingAmount,
-          'Currency'
-        )}.`;
-
-        if (amount.lte(0)) {
-          const amt = this.fyo.format(this.amount!, 'Currency');
-          message = this.fyo
-            .t`Payment amount: ${amt} should be greater than 0.`;
-        }
-
-        throw new ValidationError(message);
-      } else {
-        // update outstanding amounts in invoice and party
-        const newOutstanding = outstandingAmount.sub(amount);
-        await referenceDoc.set('outstandingAmount', newOutstanding);
-        await referenceDoc.sync();
-        const party = (await this.fyo.doc.getDoc(
-          'Party',
-          this.party!
-        )) as Party;
-
-        await party.updateOutstandingAmount();
-      }
+      this.validateReferenceType(row);
+      await this.validateReferenceOutstanding(row);
     }
   }
 
-  async afterSubmit() {
-    const entryList = await this.getPosting();
-    for (const entry of entryList) {
-      await entry.post();
+  validateReferenceType(row: PaymentFor) {
+    const referenceType = row.referenceType;
+    if (
+      ![ModelNameEnum.SalesInvoice, ModelNameEnum.PurchaseInvoice].includes(
+        referenceType!
+      )
+    ) {
+      throw new ValidationError(t`Please select a valid reference type.`);
+    }
+  }
+
+  async validateReferenceOutstanding(row: PaymentFor) {
+    const referenceDoc = await this.fyo.doc.getDoc(
+      row.referenceType as string,
+      row.referenceName as string
+    );
+
+    const outstandingAmount = referenceDoc.outstandingAmount as Money;
+    const amount = this.amount as Money;
+
+    if (amount.gt(0) && amount.lte(outstandingAmount)) {
+      return;
+    }
+
+    let message = this.fyo.t`Payment amount: ${this.fyo.format(
+      this.amount!,
+      'Currency'
+    )} should be less than Outstanding amount: ${this.fyo.format(
+      outstandingAmount,
+      'Currency'
+    )}.`;
+
+    if (amount.lte(0)) {
+      const amt = this.fyo.format(this.amount!, 'Currency');
+      message = this.fyo.t`Payment amount: ${amt} should be greater than 0.`;
+    }
+
+    throw new ValidationError(message);
+  }
+
+  async beforeSubmit() {
+    await this.updateReferenceDocOutstanding();
+    await this.updatePartyOutstanding();
+  }
+
+  async updateReferenceDocOutstanding() {
+    for (const row of (this.for ?? []) as PaymentFor[]) {
+      const referenceDoc = await this.fyo.doc.getDoc(
+        row.referenceType!,
+        row.referenceName!
+      );
+
+      const previousOutstandingAmount = referenceDoc.outstandingAmount as Money;
+      const outstandingAmount = previousOutstandingAmount.sub(this.amount!);
+      await referenceDoc.setAndSync({ outstandingAmount });
     }
   }
 
   async afterCancel() {
-    this.updateReferenceOutstandingAmount();
-    const entryList = await this.getPosting();
-    for (const entry of entryList) {
-      await entry.postReverse();
+    await super.afterCancel();
+    this.revertOutstandingAmount();
+  }
+
+  async revertOutstandingAmount() {
+    await this._revertReferenceOutstanding();
+    await this.updatePartyOutstanding();
+  }
+
+  async _revertReferenceOutstanding() {
+    for (const ref of this.for as PaymentFor[]) {
+      const refDoc = await this.fyo.doc.getDoc(
+        ref.referenceType!,
+        ref.referenceName!
+      );
+
+      const outstandingAmount = (refDoc.outstandingAmount as Money).add(
+        ref.amount!
+      );
+      await refDoc.setAndSync({ outstandingAmount });
     }
   }
 
-  async updateReferenceOutstandingAmount() {
-    await (this.for as Doc[]).forEach(
-      async ({ amount, referenceType, referenceName }) => {
-        const refDoc = await this.fyo.doc.getDoc(
-          referenceType as string,
-          referenceName as string
-        );
-
-        refDoc.setMultiple({
-          outstandingAmount: (refDoc.outstandingAmount as Money).add(
-            amount as Money
-          ),
-        });
-        refDoc.sync();
-      }
-    );
+  async updatePartyOutstanding() {
+    const partyDoc = (await this.fyo.doc.getDoc(
+      ModelNameEnum.Party,
+      this.party!
+    )) as Party;
+    await partyDoc.updateOutstandingAmount();
   }
 
   static defaults: DefaultMap = { date: () => new Date().toISOString() };
@@ -334,11 +345,12 @@ export class Payment extends Doc {
 
   required: RequiredMap = {
     referenceId: () => this.paymentMethod !== 'Cash',
-    clearanceDate: () => this.paymentMethod === 'Cash',
+    clearanceDate: () => this.paymentMethod !== 'Cash',
   };
 
   hidden: HiddenMap = {
-    referenceId: () => this.paymentMethod !== 'Cash',
+    referenceId: () => this.paymentMethod === 'Cash',
+    clearanceDate: () => this.paymentMethod === 'Cash',
   };
 
   static filters: FiltersMap = {

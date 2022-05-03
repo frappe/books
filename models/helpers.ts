@@ -7,26 +7,6 @@ import Money from 'pesa/dist/types/src/money';
 import { Router } from 'vue-router';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
-export function getLedgerLinkAction(fyo: Fyo): Action {
-  return {
-    label: fyo.t`Ledger Entries`,
-    condition: (doc: Doc) => !!doc.submitted,
-    action: async (doc: Doc, router: Router) => {
-      router.push({
-        name: 'Report',
-        params: {
-          reportName: 'general-ledger',
-          defaultFilters: {
-            // @ts-ignore
-            referenceType: doc.schemaName,
-            referenceName: doc.name,
-          },
-        },
-      });
-    },
-  };
-}
-
 export function getInvoiceActions(
   schemaName: ModelNameEnum.PurchaseInvoice | ModelNameEnum.SalesInvoice,
   fyo: Fyo
@@ -35,14 +15,15 @@ export function getInvoiceActions(
     {
       label: fyo.t`Make Payment`,
       condition: (doc: Doc) =>
-        (doc.submitted as boolean) && (doc.outstandingAmount as Money).gt(0),
+        doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
       action: async function makePayment(doc: Doc) {
         const payment = await fyo.doc.getNewDoc('Payment');
         payment.once('afterSync', async () => {
           await payment.submit();
         });
+
         const isSales = schemaName === 'SalesInvoice';
-        const party = isSales ? doc.customer : doc.supplier;
+        const party = doc.party as string;
         const paymentType = isSales ? 'Receive' : 'Pay';
         const hideAccountField = isSales ? 'account' : 'paymentAccount';
 
@@ -69,6 +50,26 @@ export function getInvoiceActions(
     },
     getLedgerLinkAction(fyo),
   ];
+}
+
+export function getLedgerLinkAction(fyo: Fyo): Action {
+  return {
+    label: fyo.t`Ledger Entries`,
+    condition: (doc: Doc) => doc.isSubmitted,
+    action: async (doc: Doc, router: Router) => {
+      router.push({
+        name: 'Report',
+        params: {
+          reportName: 'general-ledger',
+          defaultFilters: {
+            // @ts-ignore
+            referenceType: doc.schemaName,
+            referenceName: doc.name,
+          },
+        },
+      });
+    },
+  };
 }
 
 export function getTransactionStatusColumn(): ColumnConfig {

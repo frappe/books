@@ -57,7 +57,7 @@
           :class="inputClasses"
           :checked="value"
           :readonly="isReadOnly"
-          @change="(e) => triggerChange(e.target.checked)"
+          @change="(e) => !isReadOnly && triggerChange(e.target.checked)"
           @focus="(e) => $emit('focus', e)"
         />
       </div>

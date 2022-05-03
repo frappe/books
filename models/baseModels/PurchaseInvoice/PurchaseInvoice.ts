@@ -1,6 +1,6 @@
 import { Fyo } from 'fyo';
 import { Action, ListViewSettings } from 'fyo/model/types';
-import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
+import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { getInvoiceActions, getTransactionStatusColumn } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
@@ -10,28 +10,22 @@ export class PurchaseInvoice extends Invoice {
   items?: PurchaseInvoiceItem[];
 
   async getPosting() {
-    const entries: LedgerPosting = new LedgerPosting(
-      {
-        reference: this,
-        party: this.party,
-      },
-      this.fyo
-    );
+    const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
 
-    await entries.credit(this.account!, this.baseGrandTotal!);
+    await posting.credit(this.account!, this.baseGrandTotal!);
 
     for (const item of this.items!) {
-      await entries.debit(item.account!, item.baseAmount!);
+      await posting.debit(item.account!, item.baseAmount!);
     }
 
     if (this.taxes) {
       for (const tax of this.taxes) {
-        await entries.debit(tax.account!, tax.baseAmount!);
+        await posting.debit(tax.account!, tax.baseAmount!);
       }
     }
 
-    entries.makeRoundOffEntry();
-    return entries;
+    await posting.makeRoundOffEntry();
+    return posting;
   }
 
   static getActions(fyo: Fyo): Action[] {
