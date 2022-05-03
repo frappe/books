@@ -5,13 +5,13 @@ import Observable from 'fyo/utils/observable';
 import { Schema } from 'schemas/types';
 import { getRandomString } from 'utils';
 import { Fyo } from '..';
-import { DocValue, DocValueMap } from './types';
+import { DocValueMap } from './types';
 
 export class DocHandler {
   fyo: Fyo;
   models: ModelMap = {};
   singles: SinglesMap = {};
-  docs: Observable<DocMap> = new Observable();
+  docs: Observable<DocMap | undefined> = new Observable();
   observer: Observable<never> = new Observable();
 
   constructor(fyo: Fyo) {
@@ -44,59 +44,6 @@ export class DocHandler {
   }
 
   /**
-   * Cache operations
-   */
-
-  addToCache(doc: Doc) {
-    if (!this.docs) {
-      return;
-    }
-
-    // add to `docs` cache
-    const name = doc.name;
-    const schemaName = doc.schemaName;
-
-    if (!name) {
-      return;
-    }
-
-    if (!this.docs[schemaName]) {
-      this.docs[schemaName] = {};
-    }
-
-    (this.docs[schemaName] as DocMap)[name] = doc;
-
-    // singles available as first level objects too
-    if (schemaName === doc.name) {
-      this.singles[name] = doc;
-    }
-
-    // propagate change to `docs`
-    doc.on('change', (params: unknown) => {
-      this.docs!.trigger('change', params);
-    });
-  }
-
-  removeFromCache(schemaName: string, name: string) {
-    const docMap = this.docs[schemaName] as DocMap | undefined;
-    delete docMap?.[name];
-  }
-
-  getFromCache(schemaName: string, name: string): Doc | undefined {
-    const docMap = this.docs[schemaName] as DocMap | undefined;
-    return docMap?.[name];
-  }
-
-  isDirty(schemaName: string, name: string): boolean {
-    const doc = (this.docs?.[schemaName] as DocMap)?.[name];
-    if (doc === undefined) {
-      return false;
-    }
-
-    return doc.dirty;
-  }
-
-  /**
    * Doc Operations
    */
 
@@ -107,7 +54,7 @@ export class DocHandler {
   ) {
     let doc: Doc | undefined;
     if (!options?.skipDocumentCache) {
-      doc = this.getFromCache(schemaName, name);
+      doc = this.#getFromCache(schemaName, name);
     }
 
     if (doc) {
@@ -116,19 +63,13 @@ export class DocHandler {
 
     doc = this.getNewDoc(schemaName, { name });
     await doc.load();
-    this.addToCache(doc);
+    this.#addToCache(doc);
 
     return doc;
   }
 
   async getSingle(schemaName: string) {
     return await this.getDoc(schemaName, schemaName);
-  }
-
-  async getDuplicate(doc: Doc): Promise<Doc> {
-    const newDoc = await doc.duplicate(false);
-    delete newDoc.name;
-    return newDoc;
   }
 
   getNewDoc(
@@ -152,27 +93,66 @@ export class DocHandler {
     const doc = new Model!(schema, data, this.fyo);
     doc.name ??= getRandomString();
     if (cacheDoc) {
-      this.addToCache(doc);
+      this.#addToCache(doc);
     }
 
     return doc;
   }
 
-  async syncDoc(schemaName: string, data: DocValueMap) {
-    const name = data.name as string | undefined;
-    if (name === undefined) {
+  /**
+   * Cache operations
+   */
+
+  #addToCache(doc: Doc) {
+    if (!doc.name) {
       return;
     }
 
-    const docExists = await this.fyo.db.exists(schemaName, name);
-    if (!docExists) {
-      const doc = this.getNewDoc(schemaName, data);
-      await doc.sync();
-      return;
+    const name = doc.name;
+    const schemaName = doc.schemaName;
+
+    if (!this.docs[schemaName]) {
+      this.docs.set(schemaName, {});
     }
 
-    const doc = await this.getDoc(schemaName, name);
-    await doc.setMultiple(data);
-    await doc.sync();
+    this.docs.get(schemaName)![name] = doc;
+
+    // singles available as first level objects too
+    if (schemaName === doc.name) {
+      this.singles[name] = doc;
+    }
+
+    // propagate change to `docs`
+    doc.on('change', (params: unknown) => {
+      this.docs!.trigger('change', params);
+    });
+
+    doc.on('afterRename', (names: { oldName: string }) => {
+      this.#removeFromCache(doc.schemaName, names.oldName);
+      this.#addToCache(doc);
+    });
+
+    doc.on('afterSync', () => {
+      if (doc.name === name) {
+        return;
+      }
+
+      this.#removeFromCache(doc.schemaName, name);
+      this.#addToCache(doc);
+    });
+
+    doc.once('afterDelete', () => {
+      this.#removeFromCache(doc.schemaName, doc.name!);
+    });
+  }
+
+  #removeFromCache(schemaName: string, name: string) {
+    const docMap = this.docs.get(schemaName);
+    delete docMap?.[name];
+  }
+
+  #getFromCache(schemaName: string, name: string): Doc | undefined {
+    const docMap = this.docs.get(schemaName);
+    return docMap?.[name];
   }
 }

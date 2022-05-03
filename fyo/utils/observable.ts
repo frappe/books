@@ -39,7 +39,7 @@ export default class Observable<T> {
     this[key] = value;
     this.trigger('change', {
       doc: this,
-      fieldname: key,
+      changed: key,
     });
   }
 

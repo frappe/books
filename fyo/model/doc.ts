@@ -10,7 +10,7 @@ import {
   FieldTypeEnum,
   OptionField,
   Schema,
-  TargetField
+  TargetField,
 } from 'schemas/types';
 import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
 import { markRaw } from 'vue';
@@ -20,7 +20,7 @@ import {
   getMissingMandatoryMessage,
   getPreDefaultValues,
   setChildDocIdx,
-  shouldApplyFormula
+  shouldApplyFormula,
 } from './helpers';
 import { setName } from './naming';
 import {
@@ -582,14 +582,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this._setBaseMetaValues();
     await this._preSync();
 
-    const oldName = this.name!;
     const validDict = this.getValidDict();
     const data = await this.fyo.db.insert(this.schemaName, validDict);
     this._syncValues(data);
 
-    if (oldName !== this.name) {
-      this.fyo.doc.removeFromCache(this.schemaName, oldName);
-    }
     this.fyo.telemetry.log(Verb.Created, this.schemaName);
     return this;
   }
@@ -662,10 +658,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
       return;
     }
 
-    await this.trigger('beforeRename');
+    const oldName = this.name;
+    await this.trigger('beforeRename', { oldName, newName });
     await this.fyo.db.rename(this.schemaName, this.name!, newName);
     this.name = newName;
-    await this.trigger('afterRename');
+    await this.trigger('afterRename', { oldName, newName });
     this.fyo.doc.observer.trigger(`rename:${this.schemaName}`, this.name);
   }
 
