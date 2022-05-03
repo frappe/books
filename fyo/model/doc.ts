@@ -291,7 +291,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return childDoc;
   }
 
-  async _validateInsert() {
+  async _validateSync() {
     this._validateMandatory();
     await this._validateFields();
   }
@@ -573,6 +573,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   async _preSync() {
     this._setChildDocsIdx();
     await this._applyFormula();
+    await this._validateSync();
     await this.trigger('validate');
   }
 
@@ -580,7 +581,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await setName(this, this.fyo);
     this._setBaseMetaValues();
     await this._preSync();
-    await this._validateInsert();
 
     const oldName = this.name!;
     const validDict = this.getValidDict();
@@ -596,8 +596,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   async _update() {
     await this._validateDbNotModified();
-    await this._preSync();
     this._updateModifiedMetaValues();
+    await this._preSync();
 
     const data = this.getValidDict();
     await this.fyo.db.update(this.schemaName, data);

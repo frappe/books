@@ -16,12 +16,14 @@
       "fieldname": "party",
       "label": "Party",
       "fieldtype": "Link",
-      "target": "Party"
+      "target": "Party",
+      "required": true
     },
     {
       "fieldname": "date",
       "label": "Posting Date",
-      "fieldtype": "Date"
+      "fieldtype": "Date",
+      "required": true
     },
     {
       "fieldname": "account",

@@ -16,7 +16,8 @@
     {
       "fieldname": "date",
       "label": "Date",
-      "fieldtype": "Date"
+      "fieldtype": "Date",
+      "required": true
     },
     {
       "fieldname": "party",
@@ -29,7 +30,8 @@
       "fieldname": "account",
       "label": "Account",
       "fieldtype": "Link",
-      "target": "Account"
+      "target": "Account",
+      "required": true
     },
     {
       "fieldname": "currency",

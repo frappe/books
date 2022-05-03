@@ -3,7 +3,7 @@ import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { TelemetrySetting } from 'fyo/telemetry/types';
-import { MandatoryError, ValidationError } from 'fyo/utils/errors';
+import { BaseError, MandatoryError, ValidationError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
@@ -106,7 +106,8 @@ export function handleErrorWithDialog(error: Error, doc?: Doc) {
   const errorMessage = getErrorMessage(error, doc);
   handleError(false, error, { errorMessage, doc });
 
-  showMessageDialog({ message: error.name, detail: errorMessage });
+  const name = (error as BaseError).label ?? error.name;
+  showMessageDialog({ message: name, detail: errorMessage });
   throw error;
 }
 
