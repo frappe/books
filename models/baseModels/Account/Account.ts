@@ -7,12 +7,24 @@ import {
   TreeViewSettings,
 } from 'fyo/model/types';
 import { QueryFilter } from 'utils/db/types';
-import { AccountRootType, AccountType } from './types';
+import { AccountRootType, AccountRootTypeEnum, AccountType } from './types';
 
 export class Account extends Doc {
   rootType?: AccountRootType;
   accountType?: AccountType;
   parentAccount?: string;
+
+  get isDebit() {
+    const debitAccounts = [
+      AccountRootTypeEnum.Asset,
+      AccountRootTypeEnum.Expense,
+    ] as AccountRootType[];
+    return debitAccounts.includes(this.rootType!);
+  }
+
+  get isCredit() {
+    return !this.isDebit;
+  }
 
   static defaults: DefaultMap = {
     /**
@@ -55,7 +67,7 @@ export class Account extends Doc {
   }
 
   static filters: FiltersMap = {
-    parentAccount: (doc: Account) => {
+    parentAccount: (doc: Doc) => {
       const filter: QueryFilter = {
         isGroup: true,
       };

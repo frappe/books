@@ -2,7 +2,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
 import { getExchangeRate } from 'models/helpers';
-import { LedgerPosting } from 'models/ledgerPosting/ledgerPosting';
+import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import Money from 'pesa/dist/types/src/money';
 import { getIsNullOrUndef } from 'utils';
@@ -11,7 +11,7 @@ import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
 import { TaxSummary } from '../TaxSummary/TaxSummary';
 
-export abstract class Invoice extends Doc {
+export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
 
@@ -26,34 +26,12 @@ export abstract class Invoice extends Doc {
   submitted?: boolean;
   cancelled?: boolean;
 
-  abstract getPosting(): Promise<LedgerPosting>;
-
   get isSales() {
     return this.schemaName === 'SalesInvoice';
   }
 
-  async getPayments() {
-    const payments = await this.fyo.db.getAll('PaymentFor', {
-      fields: ['parent'],
-      filters: { referenceName: this.name! },
-      orderBy: 'name',
-    });
-
-    if (payments.length != 0) {
-      return payments;
-    }
-    return [];
-  }
-
-  async beforeSync() {
-    const entries = await this.getPosting();
-    await entries.validateEntries();
-  }
-
   async afterSubmit() {
-    // post ledger entries
-    const entries = await this.getPosting();
-    await entries.post();
+    await super.afterSubmit();
 
     // update outstanding amounts
     await this.fyo.db.update(this.schemaName, {
@@ -65,29 +43,48 @@ export abstract class Invoice extends Doc {
     await party.updateOutstandingAmount();
   }
 
-  async afterCancel() {
-    const paymentRefList = await this.getPayments();
-    for (const paymentFor of paymentRefList) {
-      const paymentReference = paymentFor.parent;
-      const payment = (await this.fyo.doc.getDoc(
+  async beforeCancel() {
+    await super.beforeCancel();
+    const paymentIds = await this.getPaymentIds();
+    for (const paymentId of paymentIds) {
+      const paymentDoc = (await this.fyo.doc.getDoc(
         'Payment',
-        paymentReference as string
+        paymentId
       )) as Payment;
-
-      const paymentEntries = await payment.getPosting();
-      for (const entry of paymentEntries) {
-        await entry.postReverse();
-      }
-
-      // To set the payment status as unsubmitted.
-      await this.fyo.db.update('Payment', {
-        name: paymentReference,
-        submitted: false,
-        cancelled: true,
-      });
+      await paymentDoc.cancel();
     }
-    const entries = await this.getPosting();
-    await entries.postReverse();
+  }
+
+  async afterCancel() {
+    await super.afterCancel();
+    const partyDoc = (await this.fyo.doc.getDoc(
+      ModelNameEnum.Party,
+      this.party!
+    )) as Party;
+
+    await partyDoc.updateOutstandingAmount();
+  }
+
+  async afterDelete() {
+    await super.afterDelete();
+    const paymentIds = await this.getPaymentIds();
+    for (const name of paymentIds) {
+      await this.fyo.db.delete(ModelNameEnum.AccountingLedgerEntry, name);
+    }
+  }
+
+  async getPaymentIds() {
+    const payments = (await this.fyo.db.getAll('PaymentFor', {
+      fields: ['parent'],
+      filters: { referenceType: this.schemaName, referenceName: this.name! },
+      orderBy: 'name',
+    })) as { parent: string }[];
+
+    if (payments.length != 0) {
+      return [...new Set(payments.map(({ parent }) => parent))];
+    }
+
+    return [];
   }
 
   async getExchangeRate() {

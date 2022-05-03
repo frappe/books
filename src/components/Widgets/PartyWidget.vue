@@ -101,6 +101,7 @@ export default {
           ],
           filters: {
             party: this.doc.name,
+            cancelled: false,
           },
           limit: 3,
           orderBy: 'created',

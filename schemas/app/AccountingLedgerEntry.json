@@ -1,6 +1,6 @@
 {
   "name": "AccountingLedgerEntry",
-  "label": "Ledger Entry",
+  "label": "Accounting Ledger Entry",
   "isSingle": false,
   "isChild": false,
   "naming": "autoincrement",
@@ -8,52 +8,68 @@
     {
       "fieldname": "date",
       "label": "Date",
-      "fieldtype": "Date"
+      "fieldtype": "Date",
+      "readOnly": true
     },
     {
       "fieldname": "account",
       "label": "Account",
       "fieldtype": "Link",
       "target": "Account",
-      "required": true
+      "required": true,
+      "readOnly": true
     },
     {
       "fieldname": "party",
       "label": "Party",
       "fieldtype": "Link",
-      "target": "Party"
+      "target": "Party",
+      "readOnly": true
     },
     {
       "fieldname": "debit",
       "label": "Debit",
-      "fieldtype": "Currency"
+      "fieldtype": "Currency",
+      "readOnly": true
     },
     {
       "fieldname": "credit",
       "label": "Credit",
-      "fieldtype": "Currency"
+      "fieldtype": "Currency",
+      "readOnly": true
     },
     {
       "fieldname": "referenceType",
       "label": "Ref. Type",
-      "fieldtype": "Data"
+      "fieldtype": "Data",
+      "readOnly": true
     },
     {
       "fieldname": "referenceName",
       "label": "Ref. Name",
       "fieldtype": "DynamicLink",
-      "references": "referenceType"
+      "references": "referenceType",
+      "readOnly": true
     },
     {
       "fieldname": "balance",
       "label": "Balance",
-      "fieldtype": "Currency"
+      "fieldtype": "Currency",
+      "readOnly": true
     },
     {
       "fieldname": "reverted",
       "label": "Reverted",
       "fieldtype": "Check",
-      "default": false
+      "default": false,
+      "readOnly": true
+    },
+    {
+      "fieldname": "reverts",
+      "label": "Reverts",
+      "fieldtype": "Link",
+      "target": "AccountingLedgerEntry",
+      "readOnly": true
     }
   ],
   "quickEditFields": [
@@ -64,7 +80,9 @@
     "credit",
     "referenceType",
     "referenceName",
-    "balance"
+    "balance",
+    "reverted",
+    "reverts"
   ],
   "keywordFields": ["account", "party", "referenceName"]
 }

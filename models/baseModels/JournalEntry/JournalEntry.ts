@@ -8,14 +8,15 @@ import {
 } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { getLedgerLinkAction } from 'models/helpers';
+import { Transactional } from 'models/Transactional/Transactional';
 import Money from 'pesa/dist/types/src/money';
-import { LedgerPosting } from '../../ledgerPosting/ledgerPosting';
+import { LedgerPosting } from '../../Transactional/LedgerPosting';
 
-export class JournalEntry extends Doc {
+export class JournalEntry extends Transactional {
   accounts: Doc[] = [];
 
-  getPosting() {
-    const entries = new LedgerPosting({ reference: this }, this.fyo);
+  async getPosting() {
+    const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
 
     for (const row of this.accounts) {
       const debit = row.debit as Money;
@@ -23,25 +24,13 @@ export class JournalEntry extends Doc {
       const account = row.account as string;
 
       if (!debit.isZero()) {
-        entries.debit(account, debit);
+        await posting.debit(account, debit);
       } else if (!credit.isZero()) {
-        entries.credit(account, credit);
+        await posting.credit(account, credit);
       }
     }
 
-    return entries;
-  }
-
-  async beforeSync() {
-    this.getPosting().validateEntries();
-  }
-
-  async beforeSubmit() {
-    await this.getPosting().post();
-  }
-
-  async afterCancel() {
-    await this.getPosting().postReverse();
+    return posting;
   }
 
   static defaults: DefaultMap = {

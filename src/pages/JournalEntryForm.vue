@@ -161,9 +161,9 @@ import PageHeader from 'src/components/PageHeader';
 import StatusBadge from 'src/components/StatusBadge';
 import { fyo } from 'src/initFyo';
 import {
-  getActionsForDocument,
-  routeTo,
-  showMessageDialog,
+getActionsForDocument,
+routeTo,
+showMessageDialog
 } from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -242,7 +242,7 @@ export default {
     },
     async submit() {
       showMessageDialog({
-        message: this.t`Are you sure you want to submit this Journal Entry?`,
+        message: this.t`Submit Journal Entry?`,
         buttons: [
           {
             label: this.t`Yes`,

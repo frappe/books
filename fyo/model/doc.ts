@@ -25,6 +25,7 @@ import {
 import { setName } from './naming';
 import {
   Action,
+  ChangeArg,
   CurrenciesMap,
   DefaultMap,
   EmptyMessageMap,
@@ -37,7 +38,7 @@ import {
   ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
-  ValidationMap
+  ValidationMap,
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
 
@@ -106,6 +107,14 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return fieldnames.map((f) => this.fieldMap[f]);
   }
 
+  get isSubmitted() {
+    return !!this.submitted && !this.cancelled;
+  }
+
+  get isCancelled() {
+    return !!this.submitted && !!this.cancelled;
+  }
+
   _setValuesWithoutChecks(data: DocValueMap) {
     for (const field of this.schema.fields) {
       const fieldname = field.fieldname;
@@ -131,7 +140,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   // set value and trigger change
   async set(
     fieldname: string | DocValueMap,
-    value?: DocValue | Doc[]
+    value?: DocValue | Doc[] | DocValueMap[]
   ): Promise<boolean> {
     if (typeof fieldname === 'object') {
       return await this.setMultiple(fieldname as DocValueMap);
@@ -143,10 +152,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     this._setDirty(true);
     if (Array.isArray(value)) {
-      this[fieldname] = value.map((row, i) => {
-        row.idx = i;
-        return row;
-      });
+      for (const row of value) {
+        this.push(fieldname, row);
+      }
     } else {
       const field = this.fieldMap[fieldname];
       await this._validateField(field, value);
@@ -177,7 +185,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return hasSet;
   }
 
-  _canSet(fieldname: string, value?: DocValue | Doc[]): boolean {
+  _canSet(
+    fieldname: string,
+    value?: DocValue | Doc[] | DocValueMap[]
+  ): boolean {
     if (fieldname === 'numberSeries' && !this.notInserted) {
       return false;
     }
@@ -610,6 +621,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async delete() {
+    if (this.schema.isSubmittable && !this.isCancelled) {
+      return;
+    }
+
     await this.trigger('beforeDelete');
     await this.fyo.db.delete(this.schemaName, this.name!);
     await this.trigger('afterDelete');
@@ -619,7 +634,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async submit() {
-    if (!this.schema.isSubmittable || this.cancelled) {
+    if (!this.schema.isSubmittable || this.submitted || this.cancelled) {
       return;
     }
 
@@ -631,7 +646,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async cancel() {
-    if (!this.schema.isSubmittable || !this.submitted) {
+    if (!this.schema.isSubmittable || !this.submitted || this.cancelled) {
       return;
     }
 
@@ -727,14 +742,24 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return doc;
   }
 
+  /**
+   * Lifecycle Methods
+   *
+   * Abstractish methods that are called using `this.trigger`.
+   * These are to be overridden if required when subclassing.
+   */
+  async change(ch: ChangeArg) {}
+  async validate() {}
   async beforeSync() {}
   async afterSync() {}
-  async beforeDelete() {}
-  async afterDelete() {}
   async beforeSubmit() {}
   async afterSubmit() {}
+  async beforeRename() {}
+  async afterRename() {}
   async beforeCancel() {}
   async afterCancel() {}
+  async beforeDelete() {}
+  async afterDelete() {}
 
   formulas: FormulaMap = {};
   validations: ValidationMap = {};

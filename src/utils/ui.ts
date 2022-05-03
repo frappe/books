@@ -66,9 +66,6 @@ export async function openQuickEdit({
       showFields,
       hideFields,
       defaults: stringifyCircular(defaults),
-      /*
-      lastRoute: currentRoute,
-      */
     },
   });
 }
@@ -142,12 +139,16 @@ export async function routeTo(route: string | RouteLocationRaw) {
 }
 
 export function deleteDocWithPrompt(doc: Doc) {
+  const schemaLabel = fyo.schemaMap[doc.schemaName]!.label;
+  let detail = t`This action is permanent.`;
+  if (doc.isTransactional) {
+    detail = t`This action is permanent and will delete all ledger entries.`;
+  }
+
   return new Promise((resolve) => {
     showMessageDialog({
-      message: t`Are you sure you want to delete ${
-        doc.schemaName
-      } ${doc.name!}?`,
-      detail: t`This action is permanent`,
+      message: t`Delete ${schemaLabel} ${doc.name!}?`,
+      detail,
       buttons: [
         {
           label: t`Delete`,
@@ -204,10 +205,9 @@ export async function cancelDocWithPrompt(doc: Doc) {
   }
 
   return new Promise((resolve) => {
+    const schemaLabel = fyo.schemaMap[doc.schemaName]!.label;
     showMessageDialog({
-      message: t`Are you sure you want to cancel ${
-        doc.schemaName
-      } ${doc.name!}?`,
+      message: t`Cancel ${schemaLabel} ${doc.name!}?`,
       detail,
       buttons: [
         {
@@ -276,7 +276,8 @@ function getDeleteAction(doc: Doc): Action {
       template: '<span class="text-red-700">{{ t`Delete` }}</span>',
     },
     condition: (doc: Doc) =>
-      !doc.notInserted && !doc.submitted && !doc.schema.isSingle,
+      (!doc.notInserted && !doc.schema.isSubmittable && !doc.schema.isSingle) ||
+      doc.isCancelled,
     action: () =>
       deleteDocWithPrompt(doc).then((res) => {
         if (res) {

@@ -27,8 +27,15 @@ export default {
     },
   },
   methods: {
+    getTargetSchemaName() {
+      return this.df.target;
+    },
     async getSuggestions(keyword = '') {
-      const schemaName = this.df.target;
+      const schemaName = this.getTargetSchemaName();
+      if (!schemaName) {
+        return [];
+      }
+
       const schema = fyo.schemaMap[schemaName];
       const filters = await this.getFilters(keyword);
 

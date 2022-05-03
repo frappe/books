@@ -15,39 +15,55 @@ import { PartyRole } from './types';
 
 export class Party extends Doc {
   async updateOutstandingAmount() {
+    /**
+     * If Role === "Both" then outstanding Amount
+     * will be the amount to be paid to the party.
+     */
+
     const role = this.role as PartyRole;
-    switch (role) {
-      case 'Customer':
-        await this._updateOutstandingAmount('SalesInvoice');
-        break;
-      case 'Supplier':
-        await this._updateOutstandingAmount('PurchaseInvoice');
-        break;
-      case 'Both':
-        await this._updateOutstandingAmount('SalesInvoice');
-        await this._updateOutstandingAmount('PurchaseInvoice');
-        break;
+    let outstandingAmount = this.fyo.pesa(0);
+
+    if (role === 'Customer' || role === 'Both') {
+      const outstandingReceive = await this._getTotalOutstandingAmount(
+        'SalesInvoice'
+      );
+      outstandingAmount = outstandingAmount.add(outstandingReceive);
     }
+
+    if (role === 'Supplier') {
+      const outstandingPay = await this._getTotalOutstandingAmount(
+        'PurchaseInvoice'
+      );
+      outstandingAmount = outstandingAmount.add(outstandingPay);
+    }
+
+    if (role === 'Both') {
+      const outstandingPay = await this._getTotalOutstandingAmount(
+        'PurchaseInvoice'
+      );
+      outstandingAmount = outstandingAmount.sub(outstandingPay);
+    }
+
+    await this.setAndSync({ outstandingAmount });
   }
 
-  async _updateOutstandingAmount(
+  async _getTotalOutstandingAmount(
     schemaName: 'SalesInvoice' | 'PurchaseInvoice'
   ) {
-    const outstandingAmounts = (
-      await this.fyo.db.getAllRaw(schemaName, {
-        fields: ['outstandingAmount', 'party'],
-        filters: { submitted: true },
-      })
-    ).filter(({ party }) => party === this.name);
+    const outstandingAmounts = await this.fyo.db.getAllRaw(schemaName, {
+      fields: ['outstandingAmount'],
+      filters: {
+        submitted: true,
+        cancelled: false,
+        party: this.name as string,
+      },
+    });
 
-    const totalOutstanding = outstandingAmounts
+    return outstandingAmounts
       .map(({ outstandingAmount }) =>
         this.fyo.pesa(outstandingAmount as number)
       )
       .reduce((a, b) => a.add(b), this.fyo.pesa(0));
-
-    await this.set('outstandingAmount', totalOutstanding);
-    await this.sync();
   }
 
   formulas: FormulaMap = {

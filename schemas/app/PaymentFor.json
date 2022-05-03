@@ -12,11 +12,11 @@
       "options": [
         {
           "value": "SalesInvoice",
-          "label": "Sales Invoice"
+          "label": "Sales"
         },
         {
           "value": "PurchaseInvoice",
-          "label": "Purchase Invoice"
+          "label": "Purchase"
         }
       ],
       "required": true
