@@ -4,7 +4,6 @@
   "isSingle": false,
   "isChild": false,
   "isSubmittable": true,
-  "keywordFields": ["name", "party"],
   "fields": [
     {
       "label": "Invoice No",
@@ -93,6 +92,7 @@
     {
       "fieldname": "terms",
       "label": "Notes",
+      "placeholder": "Add invoice terms",
       "fieldtype": "Text"
     },
     {
@@ -103,5 +103,6 @@
       "required": true,
       "default": "SINV-"
     }
-  ]
+  ],
+  "keywordFields": ["name", "party"]
 }

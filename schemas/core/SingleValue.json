@@ -22,6 +22,5 @@
       "fieldtype": "Data",
       "required": true
     }
-  ],
-  "keywordFields": []
+  ]
 }

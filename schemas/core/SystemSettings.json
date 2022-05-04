@@ -90,12 +90,5 @@
       "required": true
     }
   ],
-  "quickEditFields": [
-    "locale",
-    "dateFormat",
-    "currency",
-    "displayPrecision",
-    "hideGetStarted"
-  ],
-  "keywordFields": []
+  "quickEditFields": ["locale", "dateFormat", "currency", "displayPrecision", "hideGetStarted"]
 }

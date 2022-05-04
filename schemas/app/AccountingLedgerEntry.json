@@ -83,6 +83,5 @@
     "balance",
     "reverted",
     "reverts"
-  ],
-  "keywordFields": ["account", "party", "referenceName"]
+  ]
 }

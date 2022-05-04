@@ -59,6 +59,5 @@
       "readOnly": true
     }
   ],
-  "quickEditFields": ["referenceType", "start", "padZeros"],
-  "keywordFields": []
+  "quickEditFields": ["referenceType", "start", "padZeros"]
 }

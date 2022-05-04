@@ -135,5 +135,5 @@
     "expenseAccount",
     "hsnCode"
   ],
-  "keywordFields": ["name", "description"]
+  "keywordFields": ["name", "itemType", "for"]
 }

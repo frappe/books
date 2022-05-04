@@ -90,5 +90,5 @@
     "role",
     "taxId"
   ],
-  "keywordFields": ["name"]
+  "keywordFields": ["name", "email", "role"]
 }

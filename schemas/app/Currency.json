@@ -30,6 +30,5 @@
       "fieldtype": "Data"
     }
   ],
-  "keywordFields": ["name", "symbol"],
   "quickEditFields": ["name", "symbol"]
 }

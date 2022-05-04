@@ -76,13 +76,5 @@
     "country",
     "postalCode"
   ],
-  "keywordFields": [
-    "addressLine1",
-    "addressLine2",
-    "city",
-    "state",
-    "country",
-    "postalCode"
-  ],
   "inlineEditDisplayField": "addressDisplay"
 }

@@ -68,5 +68,6 @@
       "placeholder": "HSN/SAC Code"
     }
   ],
-  "tableFields": ["item", "tax", "quantity", "rate", "amount"]
+  "tableFields": ["item", "tax", "quantity", "rate", "amount"],
+  "keywordFields": ["item", "tax"]
 }
