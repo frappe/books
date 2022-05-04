@@ -183,16 +183,16 @@ export default {
 
       return emptyMessage;
     },
-    selectItem(d) {
+    async selectItem(d) {
       if (!d.action) {
         return;
       }
 
       if (this.doc) {
-        return d.action(this.doc, this.$router);
+        return await d.action(this.doc, this.$router);
       }
-      
-      d.action()
+
+      await d.action();
     },
     toggleDropdown(flag) {
       if (flag == null) {
@@ -201,11 +201,11 @@ export default {
         this.isShown = Boolean(flag);
       }
     },
-    selectHighlightedItem() {
+    async selectHighlightedItem() {
       if (![-1, this.items.length].includes(this.highlightedIndex)) {
         // valid selection
         let item = this.items[this.highlightedIndex];
-        this.selectItem(item);
+        await this.selectItem(item);
       }
     },
     highlightItemUp() {

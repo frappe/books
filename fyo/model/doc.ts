@@ -374,7 +374,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   _setBaseMetaValues() {
-    if (this.schema.isSubmittable && typeof this.submitted !== 'boolean') {
+    if (this.schema.isSubmittable) {
       this.submitted = false;
       this.cancelled = false;
     }
@@ -602,7 +602,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return this;
   }
 
-  async sync() {
+  async sync(): Promise<Doc> {
     await this.trigger('beforeSync');
     let doc;
     if (this.notInserted) {
@@ -744,6 +744,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
    *
    * Abstractish methods that are called using `this.trigger`.
    * These are to be overridden if required when subclassing.
+   *
+   * Refrain from running methods that call `this.sync`
+   * in the `beforeLifecycle` methods.
+   *
+   * This may cause the lifecycle function to execute incorrectly.
    */
   async change(ch: ChangeArg) {}
   async validate() {}

@@ -120,7 +120,7 @@ export default {
   },
   methods: {
     setUpdateListeners() {
-      const listener = () => {
+      const listener = (name) => {
         this.updateData();
       };
 
@@ -130,7 +130,7 @@ export default {
       }
 
       fyo.doc.observer.on(`sync:${this.schemaName}`, listener);
-      fyo.doc.observer.on(`delete:${this.schemaName}`, listener);
+      fyo.db.observer.on(`delete:${this.schemaName}`, listener);
       fyo.doc.observer.on(`rename:${this.schemaName}`, listener);
     },
     openForm(doc) {

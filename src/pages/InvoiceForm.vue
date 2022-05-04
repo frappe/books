@@ -276,7 +276,7 @@ export default {
         routeTo(`/list/${this.schemaName}`);
         return;
       }
-      this.handleError(error);
+      await this.handleError(error);
     }
     this.printSettings = await fyo.doc.getSingle('PrintSettings');
     this.companyName = (
@@ -305,20 +305,29 @@ export default {
       return fyo.getField(this.schemaName, fieldname);
     },
     async sync() {
-      return this.doc.sync().catch(this.handleError);
+      try {
+        await this.doc.sync();
+      } catch (err) {
+        await this.handleError(err);
+      }
     },
-    submit() {
+    async submit() {
       const message =
         this.schemaName === ModelNameEnum.SalesInvoice
           ? this.t`Submit Sales Invoice?`
           : this.t`Submit Purchase Invoice?`;
-      showMessageDialog({
+      const ref = this
+      await showMessageDialog({
         message,
         buttons: [
           {
             label: this.t`Yes`,
-            action: () => {
-              this.doc.submit().catch(this.handleError);
+            async action() {
+              try {
+                await ref.doc.submit();
+              } catch (err) {
+                await ref.handleError(err);
+              }
             },
           },
           {
@@ -328,8 +337,8 @@ export default {
         ],
       });
     },
-    handleError(e) {
-      handleErrorWithDialog(e, this.doc);
+    async handleError(e) {
+      await handleErrorWithDialog(e, this.doc);
     },
     openInvoiceSettings() {
       openSettings('Invoice');

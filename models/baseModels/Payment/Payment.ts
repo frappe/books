@@ -91,6 +91,10 @@ export class Payment extends Transactional {
 
   async validate() {
     await super.validate();
+    if (this.submitted) {
+      return;
+    }
+
     this.validateAccounts();
     this.validateTotalReferenceAmount();
     this.validateWriteOffAccount();
@@ -243,7 +247,8 @@ export class Payment extends Transactional {
     throw new ValidationError(message);
   }
 
-  async beforeSubmit() {
+  async afterSubmit() {
+    await super.afterSubmit();
     await this.updateReferenceDocOutstanding();
     await this.updatePartyOutstanding();
   }
@@ -281,6 +286,7 @@ export class Payment extends Transactional {
       const outstandingAmount = (refDoc.outstandingAmount as Money).add(
         ref.amount!
       );
+
       await refDoc.setAndSync({ outstandingAmount });
     }
   }

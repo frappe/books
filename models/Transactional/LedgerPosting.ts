@@ -117,7 +117,8 @@ export class LedgerPosting {
         reverted: this.reverted,
         debit: this.fyo.pesa(0),
         credit: this.fyo.pesa(0),
-      }
+      },
+      false
     ) as AccountingLedgerEntry;
 
     this.entries.push(ledgerEntry);

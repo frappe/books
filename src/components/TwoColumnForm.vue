@@ -10,7 +10,7 @@
         :df="df"
         :value="doc[df.fieldname]"
         :read-only="evaluateReadOnly(df)"
-        @change="(value) => onChange(df, value)"
+        @change="async (value) => await onChange(df, value)"
       />
 
       <!-- Inline Field Form (Eg: Address) -->
@@ -71,9 +71,9 @@
             :value="getRegularValue(df)"
             :class="{ 'p-2': df.fieldtype === 'Check' }"
             :read-only="evaluateReadOnly(df)"
-            @change="(value) => onChange(df, value)"
+            @change="async (value) => await onChange(df, value)"
             @focus="activateInlineEditing(df)"
-            @new-doc="(newdoc) => onChange(df, newdoc.name)"
+            @new-doc="async (newdoc) => await onChange(df, newdoc.name)"
           />
           <div
             class="text-sm text-red-600 mt-2 pl-2"
@@ -173,7 +173,7 @@ export default {
 
       return evaluateReadOnly(df, this.doc);
     },
-    onChange(df, value) {
+    async onChange(df, value) {
       if (df.inline) {
         return;
       }
@@ -185,23 +185,23 @@ export default {
 
       const oldValue = this.doc.get(df.fieldname);
       this.errors[df.fieldname] = null;
-      this.onChangeCommon(df, value, oldValue);
+      await this.onChangeCommon(df, value, oldValue);
     },
-    onChangeCommon(df, value, oldValue) {
-      this.doc
-        .set(df.fieldname, value)
-        .catch((e) => {
-          this.errors[df.fieldname] = getErrorMessage(e, this.doc);
-        })
-        .then((success) => {
-          if (!success) {
-            return;
-          }
+    async onChangeCommon(df, value, oldValue) {
+      let isSet = false;
+      try {
+        isSet = this.doc.set(df.fieldname, value);
+      } catch (err) {
+        this.errors[df.fieldname] = getErrorMessage(err, this.doc);
+      }
 
-          this.handlePostSet(df, value, oldValue);
-        });
+      if (!isSet) {
+        return;
+      }
+
+      await this.handlePostSet(df, value, oldValue);
     },
-    handlePostSet(df, value, oldValue) {
+    async handlePostSet(df, value, oldValue) {
       this.setFormFields();
       if (this.emitChange) {
         this.$emit('change', df, value, oldValue);
@@ -212,14 +212,22 @@ export default {
           return;
         }
 
-        this.doc.sync();
+        await this.doc.sync();
       }
     },
-    sync() {
-      return this.doc.sync().catch((e) => handleErrorWithDialog(e, this.doc));
+    async sync() {
+      try {
+        await this.doc.sync();
+      } catch (err) {
+        await handleErrorWithDialog(err, this.doc);
+      }
     },
-    submit() {
-      return this.doc.submit().catch((e) => handleErrorWithDialog(e, this.doc));
+    async submit() {
+      try {
+        await this.doc.submit();
+      } catch (err) {
+        await handleErrorWithDialog(err, this.doc);
+      }
     },
     async activateInlineEditing(df) {
       if (!df.inline) {
@@ -229,8 +237,8 @@ export default {
       this.inlineEditField = df;
       if (!this.doc[df.fieldname]) {
         this.inlineEditDoc = await fyo.doc.getNewDoc(df.target);
-        this.inlineEditDoc.once('afterSync', () => {
-          this.onChangeCommon(df, this.inlineEditDoc.name);
+        this.inlineEditDoc.once('afterSync', async () => {
+          await this.onChangeCommon(df, this.inlineEditDoc.name);
         });
       } else {
         this.inlineEditDoc = this.doc.getLink(df.fieldname);

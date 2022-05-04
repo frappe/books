@@ -25,7 +25,7 @@ located in `model`, all classes exported from `books/models` extend this.
 
 ### Terminology
 
-- **Schema**: object that defines shape of the data in the database
+- **Schema**: object that defines shape of the data in the database.
 - **Model**: the controller class that extends the `Doc` class or the `Doc`
   class itself (if a controller doesn't exist).
 - **Doc**: instance of a Model, i.e. what has the data.
@@ -95,3 +95,16 @@ This can be done using `fyo/utils/translation.ts/setLanguageMapOnTranslationStri
 Since translations are runtime, if the code is evaluated before the language map
 is loaded, translations won't work. To prevent this, don't maintain translation
 strings globally.
+
+## Observers
+
+The doc and db handlers have observers (instances of `Observable`) as
+properties, these can be accessed using
+- `fyo.db.observer`
+- `fyo.doc.observer`
+
+The purpose of the observer is to trigger registered callbacks when some `doc`
+operation or `db` operation takes place.
+
+These are schema level observers i.e. they are registered like so:
+`method:schemaName`. The callbacks receive args passed to the functions.

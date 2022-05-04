@@ -1,6 +1,6 @@
 export interface MessageDialogButton {
   label: string;
-  action: () => void;
+  action: () => Promise<unknown> | unknown;
 }
 
 export interface MessageDialogOptions {

@@ -533,33 +533,30 @@ export default {
       }
 
       if (this.isRequiredUnassigned) {
-        showMessageDialog({
+        return await showMessageDialog({
           message: this.t`Required Fields not Assigned`,
           detail: this
             .t`Please assign the following fields ${this.requiredUnassigned.join(
             ', '
           )}`,
         });
-        return;
       }
 
       if (this.importer.assignedMatrix.length === 0) {
-        showMessageDialog({
+        return await showMessageDialog({
           message: this.t`No Data to Import`,
           detail: this.t`Please select a file with data to import.`,
         });
-        return;
       }
 
       const { success, names, message } = await this.importer.importData(
         this.setLoadingStatus
       );
       if (!success) {
-        showMessageDialog({
+        return await showMessageDialog({
           message: this.t`Import Failed`,
           detail: message,
         });
-        return;
       }
 
       this.names = names;
@@ -593,7 +590,9 @@ export default {
         await ipcRenderer.invoke(IPC_ACTIONS.GET_FILE, options);
 
       if (!success && !canceled) {
-        showMessageDialog({ message: this.t`File selection failed.` });
+        return await showMessageDialog({
+          message: this.t`File selection failed.`,
+        });
       }
 
       if (!success || canceled) {
@@ -603,11 +602,10 @@ export default {
       const text = new TextDecoder().decode(data);
       const isValid = this.importer.selectFile(text);
       if (!isValid) {
-        showMessageDialog({
+        return await showMessageDialog({
           message: this.t`Bad import data.`,
           detail: this.t`Could not select file.`,
         });
-        return;
       }
 
       this.file = {

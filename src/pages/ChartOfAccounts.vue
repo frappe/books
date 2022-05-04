@@ -276,7 +276,7 @@ export default {
         await this.fetchChildren(parentAccount, true);
 
         // open quick edit
-        openQuickEdit({
+        await openQuickEdit({
           schemaName: 'Account',
           name: account.name,
         });
@@ -285,7 +285,7 @@ export default {
       } catch (e) {
         // unfreeze input
         this.insertingAccount = false;
-        handleErrorWithDialog(e, account);
+        await handleErrorWithDialog(e, account);
       }
     },
     isQuickEditOpen(account) {

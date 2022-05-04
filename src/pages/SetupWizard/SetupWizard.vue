@@ -180,8 +180,9 @@ export default {
     },
     async submit() {
       if (!this.allValuesFilled()) {
-        showMessageDialog({ message: this.t`Please fill all values` });
-        return;
+        return await showMessageDialog({
+          message: this.t`Please fill all values`,
+        });
       }
 
       this.loading = true;

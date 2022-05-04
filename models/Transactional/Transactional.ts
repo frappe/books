@@ -20,25 +20,32 @@ import { LedgerPosting } from './LedgerPosting';
  */
 
 export abstract class Transactional extends Doc {
-  isTransactional = true;
+  get isTransactional() {
+    return true;
+  }
+
   abstract getPosting(): Promise<LedgerPosting>;
 
   async validate() {
+    super.validate();
     const posting = await this.getPosting();
     posting.validate();
   }
 
   async afterSubmit(): Promise<void> {
+    super.afterSubmit();
     const posting = await this.getPosting();
     await posting.post();
   }
 
   async afterCancel(): Promise<void> {
+    super.afterCancel();
     const posting = await this.getPosting();
     await posting.postReverse();
   }
 
   async afterDelete(): Promise<void> {
+    super.afterDelete();
     const ledgerEntryIds = (await this.fyo.db.getAll(
       ModelNameEnum.AccountingLedgerEntry,
       {
@@ -51,7 +58,11 @@ export abstract class Transactional extends Doc {
     )) as { name: string }[];
 
     for (const { name } of ledgerEntryIds) {
-      await this.fyo.db.delete(ModelNameEnum.AccountingLedgerEntry, name);
+      const ledgerEntryDoc = await this.fyo.doc.getDoc(
+        ModelNameEnum.AccountingLedgerEntry,
+        name
+      );
+      await ledgerEntryDoc.delete();
     }
   }
 }

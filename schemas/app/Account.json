@@ -37,13 +37,14 @@
           "label": "Expense"
         }
       ],
-      "required": true
+      "readOnly": true
     },
     {
       "fieldname": "parentAccount",
       "label": "Parent Account",
       "fieldtype": "Link",
-      "target": "Account"
+      "target": "Account",
+      "readOnly": true
     },
     {
       "fieldname": "accountType",
@@ -138,9 +139,17 @@
     {
       "fieldname": "isGroup",
       "label": "Is Group",
-      "fieldtype": "Check"
+      "fieldtype": "Check",
+      "readOnly": true
     }
   ],
-  "quickEditFields": ["name", "rootType", "parentAccount", "accountType"],
+  "quickEditFields": [
+    "name",
+    "rootType",
+    "parentAccount",
+    "accountType",
+    "isGroup",
+    "balance"
+  ],
   "keywordFields": ["name", "rootType", "accountType"]
 }
