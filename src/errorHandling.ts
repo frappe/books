@@ -102,12 +102,12 @@ export function handleError(
   }
 }
 
-export function handleErrorWithDialog(error: Error, doc?: Doc) {
+export async function handleErrorWithDialog(error: Error, doc?: Doc) {
   const errorMessage = getErrorMessage(error, doc);
   handleError(false, error, { errorMessage, doc });
 
   const name = (error as BaseError).label ?? error.name;
-  showMessageDialog({ message: name, detail: errorMessage });
+  await showMessageDialog({ message: name, detail: errorMessage });
   throw error;
 }
 

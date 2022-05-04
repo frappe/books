@@ -87,9 +87,11 @@ export async function showMessageDialog({
   )) as { response: number };
 
   const button = buttons[response];
-  if (button && button.action) {
-    button.action();
+  if (!button?.action) {
+    return null;
   }
+
+  return await button.action();
 }
 
 export async function showToast(options: ToastOptions) {
@@ -138,37 +140,36 @@ export async function routeTo(route: string | RouteLocationRaw) {
   await router.push(routeOptions);
 }
 
-export function deleteDocWithPrompt(doc: Doc) {
+export async function deleteDocWithPrompt(doc: Doc) {
   const schemaLabel = fyo.schemaMap[doc.schemaName]!.label;
   let detail = t`This action is permanent.`;
   if (doc.isTransactional) {
-    detail = t`This action is permanent and will delete all ledger entries.`;
+    detail = t`This action is permanent and will delete associated ledger entries.`;
   }
 
-  return new Promise((resolve) => {
-    showMessageDialog({
-      message: t`Delete ${schemaLabel} ${doc.name!}?`,
-      detail,
-      buttons: [
-        {
-          label: t`Delete`,
-          action: () => {
-            doc
-              .delete()
-              .then(() => resolve(true))
-              .catch((e: Error) => {
-                handleErrorWithDialog(e, doc);
-              });
-          },
+  return await showMessageDialog({
+    message: t`Delete ${schemaLabel} ${doc.name!}?`,
+    detail,
+    buttons: [
+      {
+        label: t`Delete`,
+        async action() {
+          try {
+            await doc.delete();
+            return true;
+          } catch (err) {
+            handleErrorWithDialog(err as Error, doc);
+            return false;
+          }
         },
-        {
-          label: t`Cancel`,
-          action() {
-            resolve(false);
-          },
+      },
+      {
+        label: t`Cancel`,
+        action() {
+          return false;
         },
-      ],
-    });
+      },
+    ],
   });
 }
 
@@ -204,30 +205,30 @@ export async function cancelDocWithPrompt(doc: Doc) {
     }
   }
 
-  return new Promise((resolve) => {
-    const schemaLabel = fyo.schemaMap[doc.schemaName]!.label;
-    showMessageDialog({
-      message: t`Cancel ${schemaLabel} ${doc.name!}?`,
-      detail,
-      buttons: [
-        {
-          label: t`Yes`,
-          async action() {
-            const entryDoc = await fyo.doc.getDoc(doc.schemaName, doc.name!);
-            entryDoc
-              .cancel()
-              .then(() => resolve(true))
-              .catch((e) => handleErrorWithDialog(e, doc));
-          },
+  const schemaLabel = fyo.schemaMap[doc.schemaName]!.label;
+  return await showMessageDialog({
+    message: t`Cancel ${schemaLabel} ${doc.name!}?`,
+    detail,
+    buttons: [
+      {
+        label: t`Yes`,
+        async action() {
+          try {
+            await doc.cancel();
+            return true;
+          } catch (err) {
+            handleErrorWithDialog(err as Error, doc);
+            return false;
+          }
         },
-        {
-          label: t`No`,
-          action() {
-            resolve(false);
-          },
+      },
+      {
+        label: t`No`,
+        action() {
+          return false;
         },
-      ],
-    });
+      },
+    ],
   });
 }
 
@@ -258,13 +259,13 @@ function getCancelAction(doc: Doc): Action {
     component: {
       template: '<span class="text-red-700">{{ t`Cancel` }}</span>',
     },
-    condition: (doc: Doc) => !!doc.submitted && !doc.cancelled,
-    action: () => {
-      cancelDocWithPrompt(doc).then((res) => {
-        if (res) {
-          router.push(`/list/${doc.schemaName}`);
-        }
-      });
+    condition: (doc: Doc) => doc.isSubmitted,
+    async action() {
+      const res = await cancelDocWithPrompt(doc);
+
+      if (res) {
+        router.push(`/list/${doc.schemaName}`);
+      }
     },
   };
 }
@@ -278,12 +279,12 @@ function getDeleteAction(doc: Doc): Action {
     condition: (doc: Doc) =>
       (!doc.notInserted && !doc.schema.isSubmittable && !doc.schema.isSingle) ||
       doc.isCancelled,
-    action: () =>
-      deleteDocWithPrompt(doc).then((res) => {
-        if (res) {
-          routeTo(`/list/${doc.schemaName}`);
-        }
-      }),
+    async action() {
+      const res = await deleteDocWithPrompt(doc);
+      if (res) {
+        routeTo(`/list/${doc.schemaName}`);
+      }
+    },
   };
 }
 
@@ -297,20 +298,26 @@ function getDuplicateAction(doc: Doc): Action {
         !doc.notInserted &&
         !(doc.cancelled || false)
       ),
-    action: () => {
-      showMessageDialog({
+    async action() {
+      await showMessageDialog({
         message: t`Duplicate ${doc.schemaName} ${doc.name!}?`,
         buttons: [
           {
             label: t`Yes`,
             async action() {
-              doc.duplicate();
+              try {
+                doc.duplicate();
+                return true;
+              } catch (err) {
+                handleErrorWithDialog(err as Error, doc);
+                return false;
+              }
             },
           },
           {
             label: t`No`,
             action() {
-              // no-op
+              return false;
             },
           },
         ],

@@ -41,7 +41,15 @@ export class AccountingLedgerEntry extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      columns: ['account', 'party', 'debit', 'credit', 'balance'],
+      columns: [
+        'account',
+        'party',
+        'debit',
+        'credit',
+        'balance',
+        'referenceName',
+        'reverted',
+      ],
     };
   }
 }

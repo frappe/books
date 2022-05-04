@@ -200,7 +200,7 @@ export default {
         return;
       }
 
-      this.handleError(error);
+      await this.handleError(error);
     }
 
     if (fyo.store.isDevelopment) {
@@ -238,16 +238,25 @@ export default {
       return fyo.getField(ModelNameEnum.JournalEntry, fieldname);
     },
     async sync() {
-      return this.doc.sync().catch(this.handleError);
+      try {
+        await this.doc.sync();
+      } catch (err) {
+        this.handleError(err);
+      }
     },
     async submit() {
-      showMessageDialog({
+      const ref = this;
+      await showMessageDialog({
         message: this.t`Submit Journal Entry?`,
         buttons: [
           {
             label: this.t`Yes`,
-            action: () => {
-              this.doc.submit().catch(this.handleError);
+            async action() {
+              try {
+                await ref.doc.submit();
+              } catch (err) {
+                await ref.handleError(err);
+              }
             },
           },
           {
@@ -257,8 +266,8 @@ export default {
         ],
       });
     },
-    handleError(e) {
-      handleErrorWithDialog(e, this.doc);
+    async handleError(e) {
+      await handleErrorWithDialog(e, this.doc);
     },
   },
 };

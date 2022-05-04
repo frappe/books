@@ -1,6 +1,7 @@
 import { SingleValue } from 'backend/database/types';
 import { Fyo } from 'fyo';
 import { DatabaseDemux } from 'fyo/demux/db';
+import Observable from 'fyo/utils/observable';
 import { Field, RawValue, SchemaMap } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import { DatabaseBase, DatabaseDemuxBase, GetAllOptions } from 'utils/db/types';
@@ -23,6 +24,7 @@ export class DatabaseHandler extends DatabaseBase {
   #demux: DatabaseDemuxBase;
   dbPath?: string;
   schemaMap: Readonly<SchemaMap> = {};
+  observer: Observable<never> = new Observable();
   fieldValueMap: Record<string, Record<string, Field>> = {};
 
   constructor(fyo: Fyo, Demux?: DatabaseDemuxConstructor) {
@@ -62,6 +64,7 @@ export class DatabaseHandler extends DatabaseBase {
       const fields = this.schemaMap[schemaName]!.fields!;
       this.fieldValueMap[schemaName] = getMapFromList(fields, 'fieldname');
     }
+    this.observer = new Observable();
   }
 
   purgeCache() {
@@ -83,6 +86,7 @@ export class DatabaseHandler extends DatabaseBase {
       schemaName,
       rawValueMap
     )) as RawValueMap;
+    this.observer.trigger(`insert:${schemaName}`, docValueMap);
     return this.converter.toDocValueMap(schemaName, rawValueMap) as DocValueMap;
   }
 
@@ -98,6 +102,7 @@ export class DatabaseHandler extends DatabaseBase {
       name,
       fields
     )) as RawValueMap;
+    this.observer.trigger(`get:${schemaName}`, { name, fields });
     return this.converter.toDocValueMap(schemaName, rawValueMap) as DocValueMap;
   }
 
@@ -106,6 +111,7 @@ export class DatabaseHandler extends DatabaseBase {
     options: GetAllOptions = {}
   ): Promise<DocValueMap[]> {
     const rawValueMap = await this.#getAll(schemaName, options);
+    this.observer.trigger(`getAll:${schemaName}`, options);
     return this.converter.toDocValueMap(
       schemaName,
       rawValueMap
@@ -116,7 +122,9 @@ export class DatabaseHandler extends DatabaseBase {
     schemaName: string,
     options: GetAllOptions = {}
   ): Promise<DocValueMap[]> {
-    return await this.#getAll(schemaName, options);
+    const all = await this.#getAll(schemaName, options);
+    this.observer.trigger(`getAllRaw:${schemaName}`, options);
+    return all;
   }
 
   async getSingleValues(
@@ -139,6 +147,7 @@ export class DatabaseHandler extends DatabaseBase {
       });
     }
 
+    this.observer.trigger(`getSingleValues`, fieldnames);
     return docSingleValue;
   }
 
@@ -147,7 +156,9 @@ export class DatabaseHandler extends DatabaseBase {
     options: GetAllOptions = {}
   ): Promise<number> {
     const rawValueMap = await this.#getAll(schemaName, options);
-    return rawValueMap.length;
+    const count = rawValueMap.length;
+    this.observer.trigger(`count:${schemaName}`, options);
+    return count;
   }
 
   // Update
@@ -157,26 +168,35 @@ export class DatabaseHandler extends DatabaseBase {
     newName: string
   ): Promise<void> {
     await this.#demux.call('rename', schemaName, oldName, newName);
+    this.observer.trigger(`rename:${schemaName}`, { oldName, newName });
   }
 
   async update(schemaName: string, docValueMap: DocValueMap): Promise<void> {
     const rawValueMap = this.converter.toRawValueMap(schemaName, docValueMap);
     await this.#demux.call('update', schemaName, rawValueMap);
+    this.observer.trigger(`update:${schemaName}`, docValueMap);
   }
 
   // Delete
   async delete(schemaName: string, name: string): Promise<void> {
     await this.#demux.call('delete', schemaName, name);
+    this.observer.trigger(`delete:${schemaName}`, name);
   }
 
   // Other
+  async exists(schemaName: string, name?: string): Promise<boolean> {
+    const doesExist = (await this.#demux.call(
+      'exists',
+      schemaName,
+      name
+    )) as boolean;
+    this.observer.trigger(`exists:${schemaName}`, name);
+    return doesExist;
+  }
+
   async close(): Promise<void> {
     await this.#demux.call('close');
     this.purgeCache();
-  }
-
-  async exists(schemaName: string, name?: string): Promise<boolean> {
-    return (await this.#demux.call('exists', schemaName, name)) as boolean;
   }
 
   /**

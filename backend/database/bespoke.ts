@@ -41,6 +41,7 @@ export class BespokeQueries {
       .sum({ total: 'baseGrandTotal' })
       .sum({ outstanding: 'outstandingAmount' })
       .where('submitted', true)
+      .where('cancelled', false)
       .whereBetween('date', [fromDate, toDate])
       .first();
   }

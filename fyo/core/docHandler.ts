@@ -1,6 +1,7 @@
 import { Doc } from 'fyo/model/doc';
 import { DocMap, ModelMap, SinglesMap } from 'fyo/model/types';
 import { coreModels } from 'fyo/models';
+import { NotFoundError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
 import { Schema } from 'schemas/types';
 import { getRandomString } from 'utils';
@@ -87,7 +88,7 @@ export class DocHandler {
     schema ??= this.fyo.schemaMap[schemaName];
 
     if (schema === undefined) {
-      throw new Error(`Schema not found for ${schemaName}`);
+      throw new NotFoundError(`Schema not found for ${schemaName}`);
     }
 
     const doc = new Model!(schema, data, this.fyo);
@@ -113,6 +114,7 @@ export class DocHandler {
 
     if (!this.docs[schemaName]) {
       this.docs.set(schemaName, {});
+      this.#setCacheUpdationListeners(schemaName);
     }
 
     this.docs.get(schemaName)![name] = doc;
@@ -127,11 +129,6 @@ export class DocHandler {
       this.docs!.trigger('change', params);
     });
 
-    doc.on('afterRename', (names: { oldName: string }) => {
-      this.#removeFromCache(doc.schemaName, names.oldName);
-      this.#addToCache(doc);
-    });
-
     doc.on('afterSync', () => {
       if (doc.name === name) {
         return;
@@ -140,10 +137,25 @@ export class DocHandler {
       this.#removeFromCache(doc.schemaName, name);
       this.#addToCache(doc);
     });
+  }
 
-    doc.once('afterDelete', () => {
-      this.#removeFromCache(doc.schemaName, doc.name!);
+  #setCacheUpdationListeners(schemaName: string) {
+    this.fyo.db.observer.on(`delete:${schemaName}`, (name: string) => {
+      this.#removeFromCache(schemaName, name);
     });
+
+    this.fyo.db.observer.on(
+      `rename:${schemaName}`,
+      (names: { oldName: string; newName: string }) => {
+        const doc = this.#getFromCache(schemaName, names.oldName);
+        if (doc === undefined) {
+          return;
+        }
+
+        this.#removeFromCache(schemaName, names.oldName);
+        this.#addToCache(doc);
+      }
+    );
   }
 
   #removeFromCache(schemaName: string, name: string) {

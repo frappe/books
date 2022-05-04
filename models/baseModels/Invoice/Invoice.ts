@@ -43,8 +43,13 @@ export abstract class Invoice extends Transactional {
     await party.updateOutstandingAmount();
   }
 
-  async beforeCancel() {
-    await super.beforeCancel();
+  async afterCancel() {
+    await super.afterCancel();
+    await this._cancelPayments();
+    await this._updatePartyOutStanding();
+  }
+
+  async _cancelPayments() {
     const paymentIds = await this.getPaymentIds();
     for (const paymentId of paymentIds) {
       const paymentDoc = (await this.fyo.doc.getDoc(
@@ -55,8 +60,7 @@ export abstract class Invoice extends Transactional {
     }
   }
 
-  async afterCancel() {
-    await super.afterCancel();
+  async _updatePartyOutStanding() {
     const partyDoc = (await this.fyo.doc.getDoc(
       ModelNameEnum.Party,
       this.party!
@@ -69,7 +73,8 @@ export abstract class Invoice extends Transactional {
     await super.afterDelete();
     const paymentIds = await this.getPaymentIds();
     for (const name of paymentIds) {
-      await this.fyo.db.delete(ModelNameEnum.AccountingLedgerEntry, name);
+      const paymentDoc = await this.fyo.doc.getDoc(ModelNameEnum.Payment, name);
+      await paymentDoc.delete();
     }
   }
 
