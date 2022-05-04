@@ -90,7 +90,7 @@
       "fieldname": "userRemark",
       "label": "User Remark",
       "fieldtype": "Text",
-      "placeholder": "User Remark"
+      "placeholder": "Add a remark"
     },
     {
       "fieldname": "numberSeries",
@@ -100,5 +100,6 @@
       "required": true,
       "default": "JV-"
     }
-  ]
+  ],
+  "keywordFields": ["name", "entryType"]
 }

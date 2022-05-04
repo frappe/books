@@ -143,13 +143,5 @@
       "readOnly": true
     }
   ],
-  "quickEditFields": [
-    "name",
-    "rootType",
-    "parentAccount",
-    "accountType",
-    "isGroup",
-    "balance"
-  ],
-  "keywordFields": ["name", "rootType", "accountType"]
+  "quickEditFields": ["name", "rootType", "parentAccount", "accountType", "isGroup", "balance"]
 }

@@ -48,7 +48,6 @@ export default {
           'name',
           schema.titleField,
           this.df.groupBy,
-          ...schema.keywordFields,
         ]),
       ].filter(Boolean);
 

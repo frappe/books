@@ -36,5 +36,6 @@
       "required": true
     }
   ],
-  "tableFields": ["referenceType", "referenceName", "amount"]
+  "tableFields": ["referenceType", "referenceName", "amount"],
+  "keywordFields": ["referenceName", "referenceType"]
 }

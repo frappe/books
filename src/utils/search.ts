@@ -1,7 +1,10 @@
 import { t } from 'fyo';
+import { DocValueMap } from 'fyo/core/types';
 import { ModelNameEnum } from 'models/types';
 import reports from 'reports/view';
+import { OptionField } from 'schemas/types';
 import { fyo } from 'src/initFyo';
+import { GetAllOptions } from 'utils/db/types';
 import { routeTo } from './ui';
 
 export const searchGroups = ['Docs', 'List', 'Create', 'Report', 'Page'];
@@ -208,3 +211,161 @@ export function getSearchList() {
     getSetupList(),
   ].flat();
 }
+
+interface Searchable {
+  schemaName: string;
+  fields: string[];
+  meta: string[];
+  isChild: boolean;
+  isSubmittable: boolean;
+}
+
+interface Keyword {
+  values: string[];
+  meta: Record<string, string | boolean | undefined>;
+  priority: number;
+}
+
+interface Keywords {
+  searchable: Searchable;
+  keywords: Keyword[];
+}
+
+class Search {
+  keywords: Record<string, Keywords>;
+  priorityMap: Record<string, number> = {
+    [ModelNameEnum.SalesInvoice]: 125,
+    [ModelNameEnum.PurchaseInvoice]: 100,
+    [ModelNameEnum.Payment]: 75,
+    [ModelNameEnum.Item]: 50,
+    [ModelNameEnum.Party]: 50,
+    [ModelNameEnum.JournalEntry]: 50,
+  };
+
+  constructor() {
+    this.keywords = {};
+  }
+
+  getSearchList() {
+    const keywords = Object.values(this.keywords);
+    return keywords.map((kw) => kw.keywords).flat();
+  }
+
+  async fetchKeywords() {
+    const searchables = this.#getSearchables();
+    for (const searchable of searchables) {
+      const options: GetAllOptions = {
+        fields: [searchable.fields, searchable.meta].flat(),
+        order: 'desc',
+      };
+
+      if (!searchable.isChild) {
+        options.orderBy = 'modified';
+      }
+
+      const maps = await fyo.db.getAllRaw(searchable.schemaName, options);
+      this.addToSearchable(maps, searchable);
+    }
+
+    this.#setPriority();
+  }
+
+  #getSearchables(): Searchable[] {
+    const searchable: Searchable[] = [];
+    for (const schemaName of Object.keys(fyo.schemaMap)) {
+      const schema = fyo.schemaMap[schemaName];
+      if (!schema?.keywordFields?.length) {
+        continue;
+      }
+
+      const fields = [...schema.keywordFields];
+      const meta = [];
+      if (schema.isChild) {
+        meta.push('parent', 'parentSchemaName');
+      }
+
+      if (schema.isSubmittable) {
+        meta.push('submitted', 'cancelled');
+      }
+
+      searchable.push({
+        schemaName,
+        fields,
+        meta,
+        isChild: !!schema.isChild,
+        isSubmittable: !!schema.isSubmittable,
+      });
+    }
+
+    return searchable;
+  }
+
+  #setPriority() {
+    for (const schemaName in this.keywords) {
+      const kw = this.keywords[schemaName];
+      const basePriority = this.priorityMap[schemaName] ?? 0;
+
+      for (const k of kw.keywords) {
+        k.priority += basePriority;
+
+        if (k.meta.submitted) {
+          k.priority += 25;
+        }
+
+        if (k.meta.cancelled) {
+          k.priority -= 200;
+        }
+
+        if (kw.searchable.isChild) {
+          k.priority -= 150;
+        }
+      }
+    }
+  }
+
+  addToSearchable(maps: DocValueMap[], searchable: Searchable) {
+    if (!maps.length) {
+      return;
+    }
+
+    this.keywords[searchable.schemaName] ??= { searchable, keywords: [] };
+
+    for (const map of maps) {
+      const keyword: Keyword = { values: [], meta: {}, priority: 0 };
+      this.#setKeywords(map, searchable, keyword);
+      this.#setMeta(map, searchable, keyword);
+      this.keywords[searchable.schemaName]!.keywords.push(keyword);
+    }
+  }
+
+  #setKeywords(map: DocValueMap, searchable: Searchable, keyword: Keyword) {
+    // Set individual field values
+    for (const fn of searchable.fields) {
+      let value = map[fn] as string | undefined;
+      const field = fyo.getField(searchable.schemaName, fn);
+      const { options } = field as OptionField;
+      if (options) {
+        value = options.find((o) => o.value === value)?.label ?? value;
+      }
+
+      keyword.values.push(value ?? '');
+    }
+  }
+
+  #setMeta(map: DocValueMap, searchable: Searchable, keyword: Keyword) {
+    // Set the meta map
+    for (const fn of searchable.meta) {
+      const meta = map[fn];
+      if (typeof meta === 'number') {
+        keyword.meta[fn] = Boolean(meta);
+      } else if (typeof meta === 'string') {
+        keyword.meta[fn] = meta;
+      }
+    }
+
+    keyword.meta.schemaName = searchable.schemaName;
+  }
+}
+
+//@ts-ignore
+window.sc = new Search();

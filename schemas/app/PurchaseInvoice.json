@@ -105,5 +105,5 @@
       "default": "PINV-"
     }
   ],
-  "keywordFields": ["name", "party", "numberSeries"]
+  "keywordFields": ["name", "party"]
 }

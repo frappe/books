@@ -108,7 +108,7 @@ function getListConfig(schemaName) {
   const listConfig = fyo.models[schemaName]?.getListViewSettings?.(fyo);
   if (listConfig?.columns === undefined) {
     return {
-      columns: fyo.schemaMap[schemaName].keywordFields ?? ['name'],
+      columns: ['name'],
     };
   }
   return listConfig;

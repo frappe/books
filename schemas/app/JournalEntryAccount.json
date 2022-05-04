@@ -23,5 +23,6 @@
       "fieldtype": "Currency"
     }
   ],
-  "tableFields": ["account", "debit", "credit"]
+  "tableFields": ["account", "debit", "credit"],
+  "keywordFields": ["account"]
 }

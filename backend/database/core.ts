@@ -243,8 +243,9 @@ export default class DatabaseCore extends DatabaseBase {
     }
 
     const hasCreated = !!schema.fields.find((f) => f.fieldname === 'created');
+
     const {
-      fields = ['name', ...(schema.keywordFields ?? [])],
+      fields = ['name'],
       filters,
       offset,
       limit,
