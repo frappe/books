@@ -11,9 +11,11 @@ import {
   validateEmail,
   validatePhoneNumber,
 } from 'fyo/model/validationFunction';
+import Money from 'pesa/dist/types/src/money';
 import { PartyRole } from './types';
 
 export class Party extends Doc {
+  outstandingAmount?: Money;
   async updateOutstandingAmount() {
     /**
      * If Role === "Both" then outstanding Amount

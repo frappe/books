@@ -7,6 +7,7 @@ import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
+import { ModelNameEnum } from 'models/types';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import router from 'src/router';
@@ -288,15 +289,28 @@ function getDeleteAction(doc: Doc): Action {
   };
 }
 
+async function openEdit(doc: Doc) {
+  const isFormEdit = [
+    ModelNameEnum.SalesInvoice,
+    ModelNameEnum.PurchaseInvoice,
+    ModelNameEnum.JournalEntry,
+  ].includes(doc.schemaName as ModelNameEnum);
+
+  if (isFormEdit) {
+    return await routeTo(`/edit/${doc.schemaName}/${doc.name!}`);
+  }
+
+  await openQuickEdit({ schemaName: doc.schemaName, name: doc.name! });
+}
+
 function getDuplicateAction(doc: Doc): Action {
   const isSubmittable = !!doc.schema.isSubmittable;
   return {
     label: t`Duplicate`,
     condition: (doc: Doc) =>
       !!(
-        ((isSubmittable && doc && doc.submitted) || !isSubmittable) &&
-        !doc.notInserted &&
-        !(doc.cancelled || false)
+        ((isSubmittable && doc.submitted) || !isSubmittable) &&
+        !doc.notInserted
       ),
     async action() {
       await showMessageDialog({
@@ -306,7 +320,8 @@ function getDuplicateAction(doc: Doc): Action {
             label: t`Yes`,
             async action() {
               try {
-                doc.duplicate();
+                const dupe = await doc.duplicate();
+                await openEdit(dupe);
                 return true;
               } catch (err) {
                 handleErrorWithDialog(err as Error, doc);

@@ -73,7 +73,7 @@ export class Payment extends Transactional {
 
   updateAmountOnReferenceUpdate() {
     this.amount = this.fyo.pesa(0);
-    for (const paymentReference of this.for as Doc[]) {
+    for (const paymentReference of (this.for ?? []) as Doc[]) {
       this.amount = (this.amount as Money).add(
         paymentReference.amount as Money
       );
@@ -163,16 +163,28 @@ export class Payment extends Transactional {
   }
 
   async getPosting() {
-    const account = this.account as string;
-    const paymentAccount = this.paymentAccount as string;
-    const amount = this.amount as Money;
-    const writeoff = this.writeoff as Money;
+    /**
+     * account        : From Account
+     * paymentAccount : To Account
+     *
+     * if Receive
+     * -        account : Debtors, etc
+     * - paymentAccount : Cash, Bank, etc
+     *
+     * if Pay
+     * -        account : Cash, Bank, etc
+     * - paymentAccount : Creditors, etc
+     */
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
 
-    await posting.debit(paymentAccount as string, amount.sub(writeoff));
-    await posting.credit(account as string, amount.sub(writeoff));
+    const paymentAccount = this.paymentAccount as string;
+    const account = this.account as string;
+    const amount = this.amount as Money;
 
-    this.applyWriteOffPosting(posting);
+    await posting.debit(paymentAccount as string, amount);
+    await posting.credit(account as string, amount);
+
+    await this.applyWriteOffPosting(posting);
     return posting;
   }
 
@@ -183,11 +195,12 @@ export class Payment extends Transactional {
     }
 
     const account = this.account as string;
+    const paymentAccount = this.paymentAccount as string;
     const writeOffAccount = this.fyo.singles.AccountingSettings!
       .writeOffAccount as string;
 
     if (this.paymentType === 'Pay') {
-      await posting.credit(account, writeoff);
+      await posting.credit(paymentAccount, writeoff);
       await posting.debit(writeOffAccount, writeoff);
     } else {
       await posting.debit(account, writeoff);
@@ -277,7 +290,7 @@ export class Payment extends Transactional {
   }
 
   async _revertReferenceOutstanding() {
-    for (const ref of this.for as PaymentFor[]) {
+    for (const ref of (this.for ?? []) as PaymentFor[]) {
       const refDoc = await this.fyo.doc.getDoc(
         ref.referenceType!,
         ref.referenceName!
@@ -318,6 +331,32 @@ export class Payment extends Transactional {
       },
       dependsOn: ['paymentMethod', 'paymentType'],
     },
+    paymentType: {
+      formula: async () => {
+        if (!this.party) {
+          return;
+        }
+        const partyDoc = await this.fyo.doc.getDoc(
+          ModelNameEnum.Party,
+          this.party
+        );
+        if (partyDoc.role === 'Supplier') {
+          return 'Pay';
+        } else if (partyDoc.role === 'Customer') {
+          return 'Receive';
+        }
+
+        const outstanding = partyDoc.outstandingAmount as Money;
+        if (outstanding?.isZero() ?? true) {
+          return '';
+        }
+
+        if (outstanding?.isPositive()) {
+          return 'Receive';
+        }
+        return 'Pay';
+      },
+    },
     amount: {
       formula: async () => this.getSum('for', 'amount', false),
       dependsOn: ['for'],
@@ -332,7 +371,10 @@ export class Payment extends Transactional {
         );
       }
 
-      if ((this.for as Doc[]).length === 0) return;
+      if (((this.for ?? []) as Doc[]).length === 0) {
+        return;
+      }
+
       const amount = this.getSum('for', 'amount', false);
 
       if ((value as Money).gt(amount)) {

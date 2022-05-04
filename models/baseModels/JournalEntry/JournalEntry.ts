@@ -13,12 +13,12 @@ import Money from 'pesa/dist/types/src/money';
 import { LedgerPosting } from '../../Transactional/LedgerPosting';
 
 export class JournalEntry extends Transactional {
-  accounts: Doc[] = [];
+  accounts?: Doc[];
 
   async getPosting() {
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
 
-    for (const row of this.accounts) {
+    for (const row of this.accounts ?? []) {
       const debit = row.debit as Money;
       const credit = row.credit as Money;
       const account = row.account as string;

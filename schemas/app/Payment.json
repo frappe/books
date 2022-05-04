@@ -113,7 +113,7 @@
     },
     {
       "fieldname": "writeoff",
-      "label": "Write Off / Refund",
+      "label": "Write Off",
       "fieldtype": "Currency"
     },
     {
