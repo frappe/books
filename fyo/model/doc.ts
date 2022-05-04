@@ -127,6 +127,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
       } else {
         this[fieldname] = value ?? this[fieldname] ?? null;
       }
+
+      if (field.fieldtype === FieldTypeEnum.Table && !this[fieldname]) {
+        this[fieldname] = [];
+      }
     }
   }
 
@@ -269,6 +273,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   _getChildDoc(docValueMap: Doc | DocValueMap, fieldname: string): Doc {
+    if (!this.name) {
+      this.name = getRandomString();
+    }
+
     docValueMap.name ??= getRandomString();
 
     // Child Meta Fields
@@ -304,6 +312,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     for (const field of tableFields) {
       const childDocs = this.get(field.fieldname) as Doc[];
+      if (!childDocs) {
+        continue;
+      }
+
       checkForMandatory.push(...childDocs);
     }
 
@@ -351,13 +363,18 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await validator(value);
   }
 
-  getValidDict(): DocValueMap {
+  getValidDict(filterMeta: boolean = false): DocValueMap {
+    let fields = this.schema.fields;
+    if (filterMeta) {
+      fields = this.schema.fields.filter((f) => !f.meta);
+    }
+
     const data: DocValueMap = {};
-    for (const field of this.schema.fields) {
+    for (const field of fields) {
       let value = this[field.fieldname] as DocValue | DocValueMap[];
 
       if (Array.isArray(value)) {
-        value = value.map((doc) => (doc as Doc).getValidDict());
+        value = value.map((doc) => (doc as Doc).getValidDict(filterMeta));
       }
 
       if (isPesa(value)) {
@@ -704,25 +721,17 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return await this.sync();
   }
 
-  async duplicate(shouldSync: boolean = true): Promise<Doc> {
-    const updateMap: DocValueMap = {};
-    const docValueMap = this.getValidDict();
-    const fieldnames = this.schema.fields.map((f) => f.fieldname);
-
-    for (const fn of fieldnames) {
-      const value = docValueMap[fn];
-      if (getIsNullOrUndef(value)) {
+  duplicate(): Doc {
+    const updateMap = this.getValidDict(true);
+    for (const field in updateMap) {
+      const value = updateMap[field];
+      if (!Array.isArray(value)) {
         continue;
       }
 
-      if (Array.isArray(value)) {
-        value.forEach((row) => {
-          delete row.name;
-          delete row.parent;
-        });
+      for (const row of value) {
+        delete row.name;
       }
-
-      updateMap[fn] = value;
     }
 
     if (this.numberSeries) {
@@ -731,12 +740,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       updateMap.name = updateMap.name + ' CPY';
     }
 
-    const doc = this.fyo.doc.getNewDoc(this.schemaName, updateMap, false);
-    if (shouldSync) {
-      await doc.sync();
-    }
-
-    return doc;
+    return this.fyo.doc.getNewDoc(this.schemaName, updateMap);
   }
 
   /**

@@ -26,7 +26,8 @@ export class LedgerPosting {
   fyo: Fyo;
   refDoc: Transactional;
   entries: AccountingLedgerEntry[];
-  entryMap: Record<string, AccountingLedgerEntry>;
+  creditMap: Record<string, AccountingLedgerEntry>;
+  debitMap: Record<string, AccountingLedgerEntry>;
   reverted: boolean;
   accountBalanceChanges: AccountBalanceChange[];
 
@@ -34,19 +35,20 @@ export class LedgerPosting {
     this.fyo = fyo;
     this.refDoc = refDoc;
     this.entries = [];
-    this.entryMap = {};
+    this.creditMap = {};
+    this.debitMap = {};
     this.reverted = false;
     this.accountBalanceChanges = [];
   }
 
   async debit(account: string, amount: Money) {
-    const ledgerEntry = this._getLedgerEntry(account);
+    const ledgerEntry = this._getLedgerEntry(account, 'debit');
     await ledgerEntry.set('debit', ledgerEntry.debit!.add(amount));
     await this._updateAccountBalanceChange(account, 'debit', amount);
   }
 
   async credit(account: string, amount: Money) {
-    const ledgerEntry = this._getLedgerEntry(account);
+    const ledgerEntry = this._getLedgerEntry(account, 'credit');
     await ledgerEntry.set('credit', ledgerEntry.credit!.add(amount));
     await this._updateAccountBalanceChange(account, 'credit', amount);
   }
@@ -101,9 +103,17 @@ export class LedgerPosting {
     });
   }
 
-  _getLedgerEntry(account: string): AccountingLedgerEntry {
-    if (this.entryMap[account]) {
-      return this.entryMap[account];
+  _getLedgerEntry(
+    account: string,
+    type: TransactionType
+  ): AccountingLedgerEntry {
+    let map = this.creditMap;
+    if (type === 'debit') {
+      map = this.debitMap;
+    }
+
+    if (map[account]) {
+      return map[account];
     }
 
     const ledgerEntry = this.fyo.doc.getNewDoc(
@@ -122,9 +132,9 @@ export class LedgerPosting {
     ) as AccountingLedgerEntry;
 
     this.entries.push(ledgerEntry);
-    this.entryMap[account] = ledgerEntry;
+    map[account] = ledgerEntry;
 
-    return this.entryMap[account];
+    return map[account];
   }
 
   _validateIsEqual() {

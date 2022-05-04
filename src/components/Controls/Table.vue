@@ -21,7 +21,11 @@
     </Row>
 
     <!-- Data Rows -->
-    <div class="overflow-auto" :style="{ 'max-height': maxHeight }">
+    <div
+      class="overflow-auto"
+      :style="{ 'max-height': maxHeight }"
+      v-if="value"
+    >
       <TableRow
         :class="{ 'pointer-events-none': isReadOnly }"
         ref="table-row"
@@ -58,7 +62,9 @@
           'px-2 py-3': size === 'small',
           'px-3 py-4': size !== 'small',
         }"
-        v-if="maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow"
+        v-if="
+          value && maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow
+        "
       >
         {{ t`${value.length} rows` }}
       </div>

@@ -15,7 +15,11 @@ import {
   SchemaMap,
   TargetField,
 } from '../../schemas/types';
-import { getRandomString, getValueMapFromList } from '../../utils';
+import {
+  getIsNullOrUndef,
+  getRandomString,
+  getValueMapFromList,
+} from '../../utils';
 import { DatabaseBase, GetAllOptions, QueryFilter } from '../../utils/db/types';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../helpers';
 import {
@@ -889,12 +893,13 @@ export default class DatabaseCore extends DatabaseBase {
 
       const tableFieldValue = fieldValueMap[field.fieldname] as
         | FieldValueMap[]
-        | undefined;
-      if (tableFieldValue === undefined) {
+        | undefined
+        | null;
+      if (getIsNullOrUndef(tableFieldValue)) {
         continue;
       }
 
-      for (const child of tableFieldValue) {
+      for (const child of tableFieldValue!) {
         this.#prepareChild(schemaName, parentName, child, field, added.length);
 
         if (
