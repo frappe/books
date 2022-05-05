@@ -1,5 +1,4 @@
 /**
- * Functions in utils/*.ts can be used by the frontend or the backends
  * And so should not contain and platforma specific imports.
  */
 export function getValueMapFromList<T, K extends keyof T, V extends keyof T>(
@@ -45,6 +44,32 @@ export function getMapFromList<T, K extends keyof T>(
 
     acc[String(key)] = t;
   }
+  return acc;
+}
+
+export function getDefaultMapFromList<T, K extends keyof T, D>(
+  list: T[] | string[],
+  defaultValue: D,
+  name?: K
+): Record<string, D> {
+  const acc: Record<string, D> = {};
+  if (typeof list[0] === 'string') {
+    for (const l of list as string[]) {
+      acc[l] = defaultValue;
+    }
+
+    return acc;
+  }
+
+  if (!name) {
+    return {};
+  }
+
+  for (const l of list as T[]) {
+    const key = String(l[name]);
+    acc[key] = defaultValue;
+  }
+
   return acc;
 }
 

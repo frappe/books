@@ -87,17 +87,17 @@ function getCreateList(): SearchItem[] {
     {
       label: t`Sales Items`,
       schemaName: ModelNameEnum.Item,
-      filter: { for: 'sales' },
+      filter: { for: 'Sales' },
     },
     {
       label: t`Purchase Items`,
       schemaName: ModelNameEnum.Item,
-      filter: { for: 'purchases' },
+      filter: { for: 'Purchases' },
     },
     {
       label: t`Common Items`,
       schemaName: ModelNameEnum.Item,
-      filter: { for: 'both' },
+      filter: { for: 'Both' },
     },
   ].map(({ label, filter, schemaName }) => {
     const fk = Object.keys(filter)[0] as 'for' | 'role';
@@ -163,15 +163,15 @@ function getListViewList(): SearchItem[] {
     { label: t`Suppliers`, route: `/list/Party/role/Supplier/${t`Suppliers`}` },
     {
       label: t`Sales Items`,
-      route: `/list/Item/for/sales/${t`Sales Items`}`,
+      route: `/list/Item/for/Sales/${t`Sales Items`}`,
     },
     {
       label: t`Purchase Items`,
-      route: `/list/Item/for/purchases/${t`Purchase Items`}`,
+      route: `/list/Item/for/Purchases/${t`Purchase Items`}`,
     },
     {
       label: t`Common Items`,
-      route: `/list/Item/for/both/${t`Common Items`}`,
+      route: `/list/Item/for/Both/${t`Common Items`}`,
     },
   ].map((i) => ({ ...i, group: 'List' } as SearchItem));
 

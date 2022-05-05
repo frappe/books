@@ -69,7 +69,7 @@ function getCompleteSidebar(): SidebarConfig {
         {
           label: t`Sales Items`,
           name: 'sales-items',
-          route: `/list/Item/for/sales/${t`Sales Items`}`,
+          route: `/list/Item/for/Sales/${t`Sales Items`}`,
           schemaName: 'Item',
         },
       ],
@@ -101,7 +101,7 @@ function getCompleteSidebar(): SidebarConfig {
         {
           label: t`Purchase Items`,
           name: 'purchase-items',
-          route: `/list/Item/for/purchases/${t`Purchase Items`}`,
+          route: `/list/Item/for/Purchases/${t`Purchase Items`}`,
           schemaName: 'Item',
         },
       ],
@@ -119,19 +119,20 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'JournalEntry',
         },
         {
-          label: t`Common Items`,
-          name: 'common-items',
-          route: `/list/Item/for/both/${t`Common Items`}`,
-          schemaName: 'Item',
-        },
-        {
           label: t`Party`,
           name: 'party',
           route: '/list/Party/role/Both',
           schemaName: 'Party',
         },
+        {
+          label: t`Common Items`,
+          name: 'common-items',
+          route: `/list/Item/for/Both/${t`Common Items`}`,
+          schemaName: 'Item',
+        },
       ],
     },
+    /*
     {
       label: t`Reports`,
       name: t`reports`,
@@ -172,6 +173,7 @@ function getCompleteSidebar(): SidebarConfig {
         },
       ],
     },
+    */
     {
       label: t`Setup`,
       name: t`setup`,
@@ -192,7 +194,7 @@ function getCompleteSidebar(): SidebarConfig {
         {
           label: t`Data Import`,
           name: 'data-import',
-          route: '/data_import',
+          route: '/data-import',
         },
         {
           label: t`Settings`,

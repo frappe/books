@@ -98,9 +98,9 @@ export abstract class InvoiceItem extends Doc {
       const itemList = doc.parentdoc!.items as Doc[];
       const items = itemList.map((d) => d.item as string).filter(Boolean);
 
-      let itemNotFor = 'sales';
+      let itemNotFor = 'Sales';
       if (doc.isSales) {
-        itemNotFor = 'purchases';
+        itemNotFor = 'Purchases';
       }
 
       const baseFilter = { for: ['not in', [itemNotFor]] };

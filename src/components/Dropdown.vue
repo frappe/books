@@ -206,6 +206,8 @@ export default {
         // valid selection
         let item = this.items[this.highlightedIndex];
         await this.selectItem(item);
+      } else if (this.items.length === 1) {
+        await this.selectItem(this.items[0])
       }
     },
     highlightItemUp() {

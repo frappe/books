@@ -74,20 +74,21 @@
       "fieldtype": "Select",
       "options": [
         {
-          "value": "purchases",
+          "value": "Purchases",
           "label": "Purchases"
         },
         {
-          "value": "sales",
+          "value": "Sales",
           "label": "Sales"
         },
         {
-          "value": "both",
+          "value": "Both",
           "label": "Both"
         }
       ],
       "readOnly": true,
-      "default": "both"
+      "required": true,
+      "default": "Both"
     },
     {
       "fieldname": "incomeAccount",
