@@ -49,8 +49,11 @@ export function fuzzyMatch(keyword: string, candidate: string) {
   let distance = 0;
 
   while (keywordLetter && candidateLetter) {
-    if (keywordLetter.toLowerCase() === candidateLetter.toLowerCase()) {
+    if (keywordLetter === candidateLetter) {
       keywordLetter = keywordLetters.shift();
+    } else if (keywordLetter.toLowerCase() === candidateLetter.toLowerCase()) {
+      keywordLetter = keywordLetters.shift();
+      distance += 0.5;
     } else {
       distance += 1;
     }
