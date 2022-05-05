@@ -1,11 +1,16 @@
-function unwrapDq(item: string): string {
-  const s = item.at(0);
-  const e = item.at(-1);
-  if (s === '"' && e === '"') {
-    return item.slice(1, -1);
+export function parseCSV(text: string): string[][] {
+  //  Works on RFC 4180 csv
+  let rows = splitCsvBlock(text);
+  if (rows.length === 1) {
+    rows = splitCsvBlock(text, '\n');
   }
+  return rows.map(splitCsvLine);
+}
 
-  return item;
+export function generateCSV(matrix: unknown[][]): string {
+  // Generates RFC 4180 csv
+  const formattedRows = getFormattedRows(matrix);
+  return formattedRows.join('\r\n');
 }
 
 function splitCsvBlock(text: string, splitter: string = '\r\n'): string[] {
@@ -78,11 +83,65 @@ function splitCsvLine(line: string): string[] {
   return items;
 }
 
-export function parseCSV(text: string): string[][] {
-  //  Works on RFC 4180
-  let rows = splitCsvBlock(text);
-  if (rows.length === 1) {
-    rows = splitCsvBlock(text, '\n');
+function unwrapDq(item: string): string {
+  const s = item.at(0);
+  const e = item.at(-1);
+  if (s === '"' && e === '"') {
+    return item.slice(1, -1);
   }
-  return rows.map(splitCsvLine);
+
+  return item;
+}
+
+function getFormattedRows(matrix: unknown[][]): string[] {
+  const formattedMatrix: string[] = [];
+  for (const row of matrix) {
+    const formattedRow: string[] = [];
+    for (const item of row) {
+      const formattedItem = getFormattedItem(item);
+      formattedRow.push(formattedItem);
+    }
+    formattedMatrix.push(formattedRow.join(','));
+  }
+
+  return formattedMatrix;
+}
+
+function getFormattedItem(item: unknown): string {
+  if (typeof item === 'string') {
+    return formatStringToCSV(item);
+  }
+
+  if (item === null || item === undefined) {
+    return '';
+  }
+
+  if (typeof item === 'object') {
+    return item.toString();
+  }
+
+  return String(item);
+}
+
+function formatStringToCSV(item: string): string {
+  let shouldDq = false;
+  if (item.match(/^".*"$/)) {
+    shouldDq = true;
+    item = item.slice(1, -1);
+  }
+
+  if (item.match(/"/)) {
+    shouldDq = true;
+    item = item.replaceAll('"', '""');
+  }
+
+  if (item.match(/,|\s/)) {
+    shouldDq = true;
+  }
+
+  if (shouldDq) {
+    return '"' + item + '"';
+  }
+
+  return item;
 }
