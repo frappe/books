@@ -2,6 +2,7 @@
 import { t } from 'fyo';
 import Badge from 'src/components/Badge.vue';
 import { fyo } from 'src/initFyo';
+import { fuzzyMatch } from 'src/utils';
 import { markRaw } from 'vue';
 import AutoComplete from './AutoComplete.vue';
 
@@ -9,6 +10,9 @@ export default {
   name: 'Link',
   extends: AutoComplete,
   emits: ['new-doc'],
+  data() {
+    return { results: [] };
+  },
   mounted() {
     if (this.value) {
       this.linkValue = this.value;
@@ -30,25 +34,21 @@ export default {
     getTargetSchemaName() {
       return this.df.target;
     },
-    async getSuggestions(keyword = '') {
+    async getOptions() {
       const schemaName = this.getTargetSchemaName();
       if (!schemaName) {
         return [];
       }
 
-      const schema = fyo.schemaMap[schemaName];
-      const filters = await this.getFilters(keyword);
-
-      if (keyword && !filters.keywords) {
-        filters[schema.titleField] = ['like', keyword];
+      if (this.results?.length) {
+        return this.results;
       }
 
+      const schema = fyo.schemaMap[schemaName];
+      const filters = await this.getFilters();
+
       const fields = [
-        ...new Set([
-          'name',
-          schema.titleField,
-          this.df.groupBy,
-        ]),
+        ...new Set(['name', schema.titleField, this.df.groupBy]),
       ].filter(Boolean);
 
       const results = await fyo.db.getAll(schemaName, {
@@ -56,7 +56,7 @@ export default {
         fields,
       });
 
-      const suggestions = results
+      return (this.results = results
         .map((r) => {
           const option = { label: r[schema.titleField], value: r.name };
           if (this.df.groupBy) {
@@ -64,10 +64,21 @@ export default {
           }
           return option;
         })
-        .concat(this.getCreateNewOption())
-        .filter(Boolean);
+        .filter(Boolean));
+    },
+    async getSuggestions(keyword = '') {
+      let options = await this.getOptions();
 
-      if (suggestions.length === 0) {
+      if (keyword) {
+        options = options
+          .map((item) => ({ ...fuzzyMatch(keyword, item.label), item }))
+          .filter(({ isMatch }) => isMatch)
+          .sort((a, b) => a.distance - b.distance)
+          .map(({ item }) => item);
+      }
+
+      options = options.concat(this.getCreateNewOption());
+      if (options.length === 0) {
         return [
           {
             component: markRaw({
@@ -79,7 +90,7 @@ export default {
         ];
       }
 
-      return suggestions;
+      return options;
     },
     getCreateNewOption() {
       return {
