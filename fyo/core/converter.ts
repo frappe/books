@@ -164,7 +164,7 @@ function toDocString(value: RawValue, field: Field) {
 }
 
 function toDocDate(value: RawValue, field: Field) {
-  if (value === null) {
+  if (value === null || value === '') {
     return null;
   }
 
@@ -181,6 +181,10 @@ function toDocDate(value: RawValue, field: Field) {
 }
 
 function toDocCurrency(value: RawValue, field: Field, fyo: Fyo) {
+  if (value === '') {
+    return fyo.pesa(0);
+  }
+
   if (typeof value === 'string') {
     return fyo.pesa(value);
   }
@@ -201,6 +205,10 @@ function toDocCurrency(value: RawValue, field: Field, fyo: Fyo) {
 }
 
 function toDocInt(value: RawValue, field: Field): number {
+  if (value === '') {
+    return 0;
+  }
+
   if (typeof value === 'string') {
     value = parseInt(value);
   }
@@ -209,6 +217,10 @@ function toDocInt(value: RawValue, field: Field): number {
 }
 
 function toDocFloat(value: RawValue, field: Field): number {
+  if (value === '') {
+    return 0;
+  }
+
   if (typeof value === 'boolean') {
     return Number(value);
   }

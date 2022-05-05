@@ -1,8 +1,8 @@
 import { NounEnum, Verb } from 'fyo/telemetry/types';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
+import DataImport from 'src/pages/DataImport.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
-// import DataImport from 'src/pages/DataImport.vue';
 import InvoiceForm from 'src/pages/InvoiceForm.vue';
 import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
@@ -107,13 +107,12 @@ const routes: RouteRecordRaw[] = [
       edit: (route) => route.query,
     },
   },
-  /*
   {
     path: '/data-import',
     name: 'Data Import',
     component: DataImport,
   },
-*/ {
+  {
     path: '/settings',
     name: 'Settings',
     component: Settings,

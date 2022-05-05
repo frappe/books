@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-col overflow-hidden w-full">
+    <!-- Header -->
     <PageHeader :title="t`Data Import`">
       <DropdownWithActions
         :actions="actions"
@@ -13,6 +14,7 @@
         >{{ primaryLabel }}</Button
       >
     </PageHeader>
+
     <div
       class="flex px-8 mt-2 text-base w-full flex-col gap-8"
       v-if="!complete"
@@ -21,8 +23,8 @@
       <div class="flex flex-row justify-start items-center w-full gap-2">
         <FormControl
           :df="importableDf"
-          input-class="bg-gray-100 text-gray-900 text-base"
-          class="w-40"
+          input-class="bg-transparent text-gray-900 text-base"
+          class="w-40 bg-gray-100 rounded"
           :value="importType"
           size="small"
           @change="setImportType"
@@ -330,9 +332,11 @@ import HowTo from 'src/components/HowTo.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { importable, Importer } from 'src/dataImport';
 import { fyo } from 'src/initFyo';
-import { getSavePath, saveData, showMessageDialog } from 'src/utils';
+import { getSavePath, saveData } from 'src/utils/ipcCalls';
+import { showMessageDialog } from 'src/utils/ui';
 import { IPC_ACTIONS } from 'utils/messages';
 import Loading from '../components/Loading.vue';
+
 export default {
   components: {
     PageHeader,
@@ -355,6 +359,11 @@ export default {
       percentLoading: 0,
       messageLoading: '',
     };
+  },
+  mounted() {
+    if (fyo.store.isDevelopment) {
+      window.di = this;
+    }
   },
   computed: {
     labelIndex() {
@@ -435,14 +444,14 @@ export default {
         label: this.t`Import Type`,
         fieldtype: 'AutoComplete',
         placeholder: this.t`Import Type`,
-        getList: () => importable.map((i) => fyo.models[i].label),
+        options: Object.keys(this.labelSchemaNameMap)
       };
     },
     labelSchemaNameMap() {
       return importable
         .map((i) => ({
           name: i,
-          label: fyo.models[i].label,
+          label: fyo.schemaMap[i].label,
         }))
         .reduce((acc, { name, label }) => {
           acc[label] = name;

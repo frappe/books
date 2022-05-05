@@ -2,24 +2,24 @@ import { Fyo } from 'fyo';
 import NumberSeries from 'fyo/models/NumberSeries';
 import { DEFAULT_SERIES_START } from 'fyo/utils/consts';
 import { BaseError } from 'fyo/utils/errors';
-import { Field, Schema } from 'schemas/types';
 import { getRandomString } from 'utils';
 import { Doc } from './doc';
 
-export function getNumberSeries(schema: Schema): Field | undefined {
-  const numberSeries = schema.fields.find(
-    (f) => f.fieldname === 'numberSeries'
-  );
-  return numberSeries;
-}
-
 export function isNameAutoSet(schemaName: string, fyo: Fyo): boolean {
   const schema = fyo.schemaMap[schemaName]!;
+  if (schema.naming === 'manual') {
+    return false;
+  }
+
   if (schema.naming === 'autoincrement') {
     return true;
   }
 
-  const numberSeries = getNumberSeries(schema);
+  if (schema.naming === 'random') {
+    return true;
+  }
+
+  const numberSeries = fyo.getField(schema.name, 'numberSeries');
   if (numberSeries) {
     return true;
   }

@@ -47,16 +47,16 @@ export async function openQuickEdit({
 
     defaults = Object.assign({
       for:
-        purpose === 'sales'
-          ? 'purchases'
-          : purpose === 'purchases'
-          ? 'sales'
-          : 'both',
+        purpose === 'Sales'
+          ? 'Purchases'
+          : purpose === 'Purchases'
+          ? 'Sales'
+          : 'Both',
     });
   }
 
-  if (forWhat[0] === 'not in' && forWhat[1] === 'sales') {
-    defaults = Object.assign({ for: 'purchases' });
+  if (forWhat[0] === 'not in' && forWhat[1] === 'Sales') {
+    defaults = Object.assign({ for: 'Purchases' });
   }
 
   router[method]({

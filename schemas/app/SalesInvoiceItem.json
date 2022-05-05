@@ -66,7 +66,8 @@
       "fieldname": "hsnCode",
       "label": "HSN/SAC",
       "fieldtype": "Int",
-      "placeholder": "HSN/SAC Code"
+      "placeholder": "HSN/SAC Code",
+      "hidden": true
     }
   ],
   "tableFields": ["item", "tax", "quantity", "rate", "amount"],

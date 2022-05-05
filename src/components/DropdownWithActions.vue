@@ -31,7 +31,9 @@ export default {
     actions: { default: [] },
     type: { type: String, default: 'secondary' },
   },
-  inject: ['doc'],
+  inject: {
+    doc: { default: null },
+  },
   components: {
     Dropdown,
     Button,
