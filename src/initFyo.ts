@@ -31,6 +31,7 @@ export async function initializeInstance(
 
   await setSingles(fyo);
   await setCreds(fyo);
+  await setVersion(fyo);
   await setCurrencySymbols(fyo);
 }
 
@@ -46,6 +47,21 @@ async function setCreds(fyo: Fyo) {
   )) as string | undefined;
   const user = fyo.auth.user;
   fyo.auth.user = email ?? user;
+}
+
+async function setVersion(fyo: Fyo) {
+  const version = (await fyo.getValue(
+    ModelNameEnum.SystemSettings,
+    'version'
+  )) as string | undefined;
+
+  const { appVersion } = fyo.store;
+  if (version !== appVersion) {
+    const systemSettings = await fyo.doc.getSingle(
+      ModelNameEnum.SystemSettings
+    );
+    await systemSettings?.setAndSync('version', appVersion);
+  }
 }
 
 async function setCurrencySymbols(fyo: Fyo) {
