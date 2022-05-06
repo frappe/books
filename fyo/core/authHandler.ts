@@ -40,6 +40,14 @@ export class AuthHandler {
     }
   }
 
+  set user(value: string) {
+    this.#session.user = value;
+  }
+
+  get user(): string {
+    return this.#session.user;
+  }
+
   get session(): Readonly<Session> {
     return { ...this.#session };
   }
