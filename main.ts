@@ -17,9 +17,6 @@ import registerIpcMainMessageListeners from './main/registerIpcMainMessageListen
 import registerProcessListeners from './main/registerProcessListeners';
 import { IPC_CHANNELS } from './utils/messages';
 
-const WIDTH = 1200;
-const HEIGHT = 900;
-
 export class Main {
   title: string = 'Frappe Books';
   icon: string;
@@ -28,6 +25,9 @@ export class Main {
   isWebpackUrl: boolean = false;
   checkedForUpdate = false;
   mainWindow: BrowserWindow | null = null;
+
+  WIDTH = 1200;
+  HEIGHT = 900;
 
   constructor() {
     this.icon = this.isDevelopment
@@ -75,8 +75,8 @@ export class Main {
       vibrancy: 'sidebar',
       transparent: this.isMac,
       backgroundColor: '#80FFFFFF',
-      width: WIDTH,
-      height: HEIGHT,
+      width: this.WIDTH,
+      height: this.HEIGHT,
       title: this.title,
       webPreferences: {
         contextIsolation: false, // TODO: Switch this off

@@ -35,11 +35,13 @@ export async function runWindowAction(name: WindowAction) {
       ipcRenderer.send(IPC_MESSAGES.MINIMIZE_CURRENT_WINDOW);
       break;
     case 'maximize':
-      const maximizing = await ipcRenderer.invoke(
+      const maximized = await ipcRenderer.invoke(
         IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW
       );
-      name = maximizing ? name : 'unmaximize';
+      name = maximized ? 'unmaximize' : name;
       break;
+    default:
+      throw new Error(`invalid window action ${name}`);
   }
   return name;
 }

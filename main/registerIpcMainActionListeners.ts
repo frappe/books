@@ -13,13 +13,14 @@ import { IPC_ACTIONS } from '../utils/messages';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW, (event) => {
-    const maximizing = main.mainWindow!.isMaximized();
-    if (maximizing) {
-      main.mainWindow!.maximize();
+    const maximized = main.mainWindow!.isFullScreen();
+    if (maximized) {
+      main.mainWindow?.setFullScreen(false);
+      main.mainWindow?.setSize(main.WIDTH, main.HEIGHT, true);
     } else {
-      main.mainWindow!.unmaximize();
+      main.mainWindow?.setFullScreen(true);
     }
-    return maximizing;
+    return maximized;
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_OPEN_FILEPATH, async (event, options) => {
