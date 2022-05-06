@@ -52,12 +52,6 @@
       "readOnly": true
     },
     {
-      "fieldname": "balance",
-      "label": "Balance",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
       "fieldname": "reverted",
       "label": "Reverted",
       "fieldtype": "Check",
@@ -80,7 +74,6 @@
     "credit",
     "referenceType",
     "referenceName",
-    "balance",
     "reverted",
     "reverts"
   ]
