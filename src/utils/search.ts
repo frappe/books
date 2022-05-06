@@ -166,12 +166,20 @@ function getListViewList(): SearchItem[] {
       route: `/list/Item/for/Sales/${t`Sales Items`}`,
     },
     {
+      label: t`Sales Payments`,
+      route: `/list/Payment/paymentType/Receive/${t`Sales Payments`}`,
+    },
+    {
       label: t`Purchase Items`,
       route: `/list/Item/for/Purchases/${t`Purchase Items`}`,
     },
     {
       label: t`Common Items`,
       route: `/list/Item/for/Both/${t`Common Items`}`,
+    },
+    {
+      label: t`Purchase Payments`,
+      route: `/list/Payment/paymentType/Pay/${t`Purchase Payments`}`,
     },
   ].map((i) => ({ ...i, group: 'List' } as SearchItem));
 

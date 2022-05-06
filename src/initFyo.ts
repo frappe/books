@@ -30,12 +30,22 @@ export async function initializeInstance(
   await fyo.initializeAndRegister(models, regionalModels);
 
   await setSingles(fyo);
+  await setCreds(fyo);
   await setCurrencySymbols(fyo);
 }
 
 async function setSingles(fyo: Fyo) {
   await fyo.doc.getSingle(ModelNameEnum.AccountingSettings);
   await fyo.doc.getSingle(ModelNameEnum.GetStarted);
+}
+
+async function setCreds(fyo: Fyo) {
+  const email = (await fyo.getValue(
+    ModelNameEnum.AccountingSettings,
+    'email'
+  )) as string | undefined;
+  const user = fyo.auth.user;
+  fyo.auth.user = email ?? user;
 }
 
 async function setCurrencySymbols(fyo: Fyo) {

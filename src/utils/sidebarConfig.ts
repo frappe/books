@@ -55,7 +55,7 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'SalesInvoice',
         },
         {
-          label: t`Payments`,
+          label: t`Sales Payments`,
           name: 'payments',
           route: '/list/Payment/paymentType/Receive',
           schemaName: 'Payment',
@@ -87,7 +87,7 @@ function getCompleteSidebar(): SidebarConfig {
           schemaName: 'PurchaseInvoice',
         },
         {
-          label: t`Payments`,
+          label: t`Purchase Payments`,
           name: 'payments',
           route: '/list/Payment/paymentType/Pay',
           schemaName: 'Payment',
