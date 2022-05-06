@@ -19,8 +19,7 @@
 </template>
 
 <script>
-import { runWindowAction } from "src/utils/ipcCalls";
-
+import { runWindowAction } from 'src/utils/ipcCalls';
 
 export default {
   name: 'WindowControls',
@@ -31,6 +30,11 @@ export default {
       default: () => ['close', 'minimize', 'maximize'],
     },
   },
+  data() {
+    return {
+      fullscreen: false,
+    };
+  },
   methods: {
     async action(name) {
       if (!this.buttons.includes(name)) {
@@ -38,12 +42,26 @@ export default {
       }
 
       const actionRan = await runWindowAction(name);
+
+      this.setFullscreen(actionRan);
       this.$emit(actionRan);
     },
+    setFullscreen(actionRan) {
+      if (actionRan === 'maximize') {
+        this.fullscreen = true;
+      } else if (actionRan === 'unmaximize') {
+        this.fullscreen = false;
+      }
+    },
     getColorClasses(name) {
+      let minimize = 'bg-yellow-500 hover:bg-yellow-700';
+      if (this.fullscreen) {
+        minimize = 'bg-gray-500';
+      }
+
       let classes = {
         close: 'bg-red-500 hover:bg-red-700',
-        minimize: 'bg-yellow-500 hover:bg-yellow-700',
+        minimize,
         maximize: 'bg-green-500 hover:bg-green-700',
       }[name];
 

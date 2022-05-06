@@ -1,5 +1,4 @@
 import { app } from 'electron';
-// @ts-ignore
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import { Main } from '../main';
 

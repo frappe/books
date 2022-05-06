@@ -71,8 +71,8 @@
 import { t } from 'fyo';
 import Button from 'src/components/Button';
 import { fyo } from 'src/initFyo';
-import { routeTo } from 'src/utils';
 import { getDatesAndPeriodicity } from 'src/utils/misc';
+import { routeTo } from 'src/utils/ui';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 
