@@ -88,7 +88,19 @@
       "label": "Currency",
       "fieldtype": "AutoComplete",
       "required": true
+    },
+    {
+      "fieldname": "version",
+      "label": "Version",
+      "fieldtype": "Data",
+      "readOnly": true
     }
   ],
-  "quickEditFields": ["locale", "dateFormat", "currency", "displayPrecision", "hideGetStarted"]
+  "quickEditFields": [
+    "locale",
+    "dateFormat",
+    "currency",
+    "displayPrecision",
+    "hideGetStarted"
+  ]
 }
