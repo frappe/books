@@ -164,6 +164,10 @@ function toDocString(value: RawValue, field: Field) {
 }
 
 function toDocDate(value: RawValue, field: Field) {
+  if ((value as any) instanceof Date) {
+    return value;
+  }
+
   if (value === null || value === '') {
     return null;
   }
@@ -181,6 +185,10 @@ function toDocDate(value: RawValue, field: Field) {
 }
 
 function toDocCurrency(value: RawValue, field: Field, fyo: Fyo) {
+  if (isPesa(value)) {
+    return value;
+  }
+
   if (value === '') {
     return fyo.pesa(0);
   }

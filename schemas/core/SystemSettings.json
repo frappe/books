@@ -87,6 +87,7 @@
       "fieldname": "currency",
       "label": "Currency",
       "fieldtype": "AutoComplete",
+      "default": "INR",
       "required": true
     },
     {

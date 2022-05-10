@@ -49,6 +49,7 @@ module.exports = {
       utils: path.resolve(__dirname, './utils'),
       regional: path.resolve(__dirname, './regional'),
       reports: path.resolve(__dirname, './reports'),
+      dummy: path.resolve(__dirname, './dummy'),
       fixtures: path.resolve(__dirname, './fixtures'),
     });
 

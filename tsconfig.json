@@ -23,7 +23,8 @@
       "fixtures/*": ["fixtures/*"],
       "reports/*": ["reports/*"],
       "models/*": ["models/*"],
-      "utils/*": ["utils/*"]
+      "utils/*": ["utils/*"],
+      "dummy/*": ["dummy/*"]
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
@@ -46,7 +47,8 @@
     "regional/**/*.ts",
     "reports/**/*.ts",
     "utils/**/*.ts",
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "dummy/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
