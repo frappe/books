@@ -55,6 +55,7 @@ individual ones, check the `README.md` in those subdirectories:
 | `models`       | _client\*_ | Collection of `Model.ts` files that manage the data and some business logic on the client side.                            |
 | `fyo`          | _client\*_ | Code for the underlying library that manages the client side                                                               |
 | `utils`        | _agnostic_ | Collection of code used by either sides.                                                                                   |
+| `dummy`        | _agnostic_ | Code used to generate dummy data for testing or demo purposes                                                              |
 
 #### _client\*_
 

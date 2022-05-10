@@ -17,7 +17,7 @@ export function getTestSetupWizardOptions(): SetupWizardOptions {
   };
 }
 
-export function getTestDbPath() {
+export function getTestDbPath(dbPath?: string) {
   config();
-  return process.env.TEST_DB_PATH ?? ':memory:';
+  return dbPath ?? process.env.TEST_DB_PATH ?? ':memory:';
 }

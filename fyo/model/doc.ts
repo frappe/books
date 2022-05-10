@@ -1,4 +1,5 @@
 import { Fyo } from 'fyo';
+import { Converter } from 'fyo/core/converter';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Verb } from 'fyo/telemetry/types';
 import { DEFAULT_USER } from 'fyo/utils/consts';
@@ -9,6 +10,7 @@ import {
   Field,
   FieldTypeEnum,
   OptionField,
+  RawValue,
   Schema,
   TargetField,
 } from 'schemas/types';
@@ -124,8 +126,14 @@ export class Doc extends Observable<DocValue | Doc[]> {
         for (const row of value) {
           this.push(fieldname, row);
         }
+      } else if (value !== undefined) {
+        this[fieldname] = Converter.toDocValue(
+          value as RawValue,
+          field,
+          this.fyo
+        );
       } else {
-        this[fieldname] = value ?? this[fieldname] ?? null;
+        this[fieldname] = this[fieldname] ?? null;
       }
 
       if (field.fieldtype === FieldTypeEnum.Table && !this[fieldname]) {
