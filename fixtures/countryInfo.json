@@ -61,16 +61,13 @@
     },
     "Angola": 
     {
-        "code": "ao",
-        "currency": "KZ",
-        "currency_fraction": "Cêntimo",
-        "currency_fraction_units": 100,
-        "currency_symbol": "AOA",
-        "currency_name": "Kwanza",
-        "timezones": 
-        [
-            "Africa/Luanda"
-        ]
+      "code": "ao",
+      "currency": "AOA",
+      "currency_fraction": "Cêntimo",
+      "currency_fraction_units": 100,
+      "currency_symbol": "Kz",
+      "currency_name": "Kwanza",
+      "timezones": ["Africa/Luanda"]
     },
     "Anguilla": 
     {
