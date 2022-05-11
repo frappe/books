@@ -62,7 +62,7 @@ export function getInstanceId(fyo: Fyo): UniqueId {
   const file = files.find((f) => f.companyName === companyName);
 
   if (file === undefined) {
-    return addNewFile(companyName, files, fyo);
+    return addNewFile(companyName, fyo, files);
   }
 
   if (file.id === undefined) {
@@ -72,14 +72,18 @@ export function getInstanceId(fyo: Fyo): UniqueId {
   return file.id;
 }
 
-function addNewFile(
+export function addNewFile(
   companyName: string,
-  files: ConfigFile[],
-  fyo: Fyo
+  fyo: Fyo,
+  files?: ConfigFile[],
+  dbPath?: string
 ): UniqueId {
+  files ??= fyo.config.get(ConfigKeys.Files, []) as ConfigFile[];
+  dbPath ??= fyo.config.get(ConfigKeys.LastSelectedFilePath, '') as string;
+
   const newFile: ConfigFile = {
     companyName,
-    dbPath: fyo.config.get(ConfigKeys.LastSelectedFilePath, '') as string,
+    dbPath,
     id: getId(),
   };
 

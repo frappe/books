@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { range, sample } from 'lodash';
 import { DateTime } from 'luxon';
@@ -11,6 +11,7 @@ import setupInstance from 'src/setup/setupInstance';
 import { getMapFromList } from 'utils';
 import { getFiscalYear } from 'utils/misc';
 import {
+  flow,
   getFlowConstant,
   getRandomDates,
   purchaseItemPartyMap,
@@ -18,7 +19,7 @@ import {
 import items from './items.json';
 import parties from './parties.json';
 
-type Notifier = (stage: string, count: number, total: number) => void;
+type Notifier = (stage: string, percent: number) => void;
 
 export async function setupDummyInstance(
   dbPath: string,
@@ -27,28 +28,26 @@ export async function setupDummyInstance(
   baseCount: number = 1000,
   notifier?: Notifier
 ) {
-  notifier?.(fyo.t`Setting Up Instance`, 0, 0);
-  await setupInstance(
-    dbPath,
-    {
-      logo: null,
-      companyName: "Flo's Clothes",
-      country: 'India',
-      fullname: 'Lin Florentine',
-      email: 'lin@flosclothes.com',
-      bankName: 'Supreme Bank',
-      currency: 'INR',
-      fiscalYearStart: getFiscalYear('04-01', true),
-      fiscalYearEnd: getFiscalYear('04-01', false),
-      chartOfAccounts: 'India - Chart of Accounts',
-    },
-    fyo
-  );
+  notifier?.(fyo.t`Setting Up Instance`, -1);
+  const options = {
+    logo: null,
+    companyName: "Flo's Clothes",
+    country: 'India',
+    fullname: 'Lin Florentine',
+    email: 'lin@flosclothes.com',
+    bankName: 'Supreme Bank',
+    currency: 'INR',
+    fiscalYearStart: getFiscalYear('04-01', true),
+    fiscalYearEnd: getFiscalYear('04-01', false),
+    chartOfAccounts: 'India - Chart of Accounts',
+  };
+  await setupInstance(dbPath, options, fyo);
 
   years = Math.floor(years);
-  notifier?.(fyo.t`Creating Items and Parties`, 0, 0);
+  notifier?.(fyo.t`Creating Items and Parties`, -1);
   await generateStaticEntries(fyo);
   await generateDynamicEntries(fyo, years, baseCount, notifier);
+  return options.companyName;
 }
 
 /**
@@ -61,29 +60,22 @@ async function generateDynamicEntries(
   baseCount: number,
   notifier?: Notifier
 ) {
-  notifier?.(fyo.t`Getting Sales Invoices`, 0, 0);
-  const salesInvoices = await getSalesInvoices(fyo, years, baseCount);
+  const salesInvoices = await getSalesInvoices(fyo, years, baseCount, notifier);
 
-  notifier?.(fyo.t`Getting Purchase Invoices`, 0, 0);
+  notifier?.(fyo.t`Creating Purchase Invoices`, -1);
   const purchaseInvoices = await getPurchaseInvoices(fyo, years, salesInvoices);
 
-  notifier?.(fyo.t`Getting Journal Entries`, 0, 0);
+  notifier?.(fyo.t`Creating Journal Entries`, -1);
   const journalEntries = await getJournalEntries(fyo, salesInvoices);
-  await syncAndSubmit(journalEntries, (count: number, total: number) =>
-    notifier?.(fyo.t`Syncing Journal Entries`, count, total)
-  );
+  await syncAndSubmit(journalEntries, notifier);
 
   const invoices = ([salesInvoices, purchaseInvoices].flat() as Invoice[]).sort(
     (a, b) => +(a.date as Date) - +(b.date as Date)
   );
-  await syncAndSubmit(invoices, (count: number, total: number) =>
-    notifier?.(fyo.t`Syncing Invoices`, count, total)
-  );
+  await syncAndSubmit(invoices, notifier);
 
   const payments = await getPayments(fyo, invoices);
-  await syncAndSubmit(payments, (count: number, total: number) =>
-    notifier?.(fyo.t`Syncing Payments`, count, total)
-  );
+  await syncAndSubmit(payments, notifier);
 }
 
 async function getJournalEntries(fyo: Fyo, salesInvoices: SalesInvoice[]) {
@@ -178,7 +170,12 @@ async function getPayments(fyo: Fyo, invoices: Invoice[]) {
   return payments;
 }
 
-async function getSalesInvoices(fyo: Fyo, years: number, baseCount: number) {
+async function getSalesInvoices(
+  fyo: Fyo,
+  years: number,
+  baseCount: number,
+  notifier?: Notifier
+) {
   const invoices: SalesInvoice[] = [];
   const salesItems = items.filter((i) => i.for !== 'Purchases');
   const customers = parties.filter((i) => i.role !== 'Supplier');
@@ -187,65 +184,73 @@ async function getSalesInvoices(fyo: Fyo, years: number, baseCount: number) {
    * Get certain number of entries for each month of the count
    * of years.
    */
+  let dates: Date[] = [];
   for (const months of range(0, years * 12)) {
     const flow = getFlowConstant(months);
     const count = Math.ceil(flow * baseCount * (Math.random() * 0.25 + 0.75));
-    const dates = getRandomDates(count, months);
+    dates = dates.concat(getRandomDates(count, months));
+  }
 
-    /**
-     * For each date create a Sales Invoice.
-     */
+  /**
+   * For each date create a Sales Invoice.
+   */
 
-    for (const date of dates) {
-      const customer = sample(customers);
+  for (const d in dates) {
+    const date = dates[d];
 
-      const doc = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
-        date,
-      }) as SalesInvoice;
+    notifier?.(
+      `Creating Sales Invoices, ${d} out of ${dates.length}`,
+      parseInt(d) / dates.length
+    );
+    const customer = sample(customers);
 
-      await doc.set('party', customer!.name);
-      if (!doc.account) {
-        doc.account = 'Debtors';
-      }
-      /**
-       * Add `numItems` number of items to the invoice.
-       */
-      const numItems = Math.ceil(Math.random() * 5);
-      for (let i = 0; i < numItems; i++) {
-        const item = sample(salesItems);
-        if ((doc.items ?? []).find((i) => i.item === item)) {
-          continue;
-        }
+    const doc = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
+      date,
+    }) as SalesInvoice;
 
-        let quantity = 1;
-
-        /**
-         * Increase quantity depending on the rate.
-         */
-        if (item!.rate < 100 && Math.random() < 0.4) {
-          quantity = Math.ceil(Math.random() * 10);
-        } else if (item!.rate < 1000 && Math.random() < 0.2) {
-          quantity = Math.ceil(Math.random() * 4);
-        } else if (Math.random() < 0.01) {
-          quantity = Math.ceil(Math.random() * 3);
-        }
-
-        const rate = fyo.pesa(item!.rate * flow + 1).clip(0);
-        await doc.append('items', {});
-        await doc.items!.at(-1)!.set({
-          item: item!.name,
-          rate,
-          quantity,
-          account: item!.incomeAccount,
-          amount: rate.mul(quantity),
-          tax: item!.tax,
-          description: item!.description,
-          hsnCode: item!.hsnCode,
-        });
-      }
-
-      invoices.push(doc);
+    await doc.set('party', customer!.name);
+    if (!doc.account) {
+      doc.account = 'Debtors';
     }
+    /**
+     * Add `numItems` number of items to the invoice.
+     */
+    const numItems = Math.ceil(Math.random() * 5);
+    for (let i = 0; i < numItems; i++) {
+      const item = sample(salesItems);
+      if ((doc.items ?? []).find((i) => i.item === item)) {
+        continue;
+      }
+
+      let quantity = 1;
+
+      /**
+       * Increase quantity depending on the rate.
+       */
+      if (item!.rate < 100 && Math.random() < 0.4) {
+        quantity = Math.ceil(Math.random() * 10);
+      } else if (item!.rate < 1000 && Math.random() < 0.2) {
+        quantity = Math.ceil(Math.random() * 4);
+      } else if (Math.random() < 0.01) {
+        quantity = Math.ceil(Math.random() * 3);
+      }
+
+      const fc = flow[date.getMonth()];
+      const rate = fyo.pesa(item!.rate * (fc + 1)).clip(0);
+      await doc.append('items', {});
+      await doc.items!.at(-1)!.set({
+        item: item!.name,
+        rate,
+        quantity,
+        account: item!.incomeAccount,
+        amount: rate.mul(quantity),
+        tax: item!.tax,
+        description: item!.description,
+        hsnCode: item!.hsnCode,
+      });
+    }
+
+    invoices.push(doc);
   }
 
   return invoices;
@@ -442,14 +447,21 @@ async function generateParties(fyo: Fyo) {
   }
 }
 
-async function syncAndSubmit(
-  docs: Doc[],
-  notifier: (count: number, total: number) => void
-) {
+async function syncAndSubmit(docs: Doc[], notifier?: Notifier) {
+  const nameMap: Record<string, string> = {
+    [ModelNameEnum.PurchaseInvoice]: t`Invoices`,
+    [ModelNameEnum.SalesInvoice]: t`Invoices`,
+    [ModelNameEnum.Payment]: t`Payments`,
+    [ModelNameEnum.JournalEntry]: t`Journal Entries`,
+  };
+
   const total = docs.length;
   for (const i in docs) {
-    notifier(parseInt(i) + 1, total);
     const doc = docs[i];
+    notifier?.(
+      `Syncing ${nameMap[doc.schemaName]}, ${i} out of ${total}`,
+      parseInt(i) / total
+    );
     await doc.sync();
     await doc.submit();
   }

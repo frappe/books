@@ -28,16 +28,8 @@
       <!-- New File (Blue Icon) -->
       <div
         @click="newDatabase"
-        class="
-          px-6
-          h-18
-          flex flex-row
-          items-center
-          cursor-pointer
-          gap-4
-          p-2
-          hover:bg-gray-100
-        "
+        class="px-6 h-18 flex flex-row items-center gap-4 p-2"
+        :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
       >
         <div class="w-8 h-8 rounded-full bg-blue-500 relative flex-center">
           <feather-icon name="plus" class="text-white w-5 h-5" />
@@ -56,16 +48,8 @@
       <!-- Existing File (Green Icon) -->
       <div
         @click="existingDatabase"
-        class="
-          px-6
-          h-18
-          flex flex-row
-          items-center
-          cursor-pointer
-          gap-4
-          p-2
-          hover:bg-gray-100
-        "
+        class="px-6 h-18 flex flex-row items-center gap-4 p-2"
+        :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
       >
         <div class="w-8 h-8 rounded-full bg-green-500 relative flex-center">
           <feather-icon name="upload" class="w-4 h-4 text-white" />
@@ -84,15 +68,8 @@
       <!-- File List -->
       <div class="overflow-scroll" style="max-height: 340px">
         <div
-          class="
-            h-18
-            px-6
-            flex
-            gap-4
-            items-center
-            hover:bg-gray-100
-            cursor-pointer
-          "
+          class="h-18 px-6 flex gap-4 items-center"
+          :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
           v-for="(file, i) in files"
           :key="file.dbPath"
           @click="selectFile(file)"
@@ -127,20 +104,43 @@
 
       <!-- Language Selector -->
       <div
-        class="w-full flex justify-end absolute px-6 py-6"
+        class="w-full flex justify-between items-center absolute px-6 py-6"
         style="top: 100%; transform: translateY(-100%)"
       >
-        <LanguageSelector class="w-40" />
+        <Button
+          class="text-sm w-40"
+          @click="createDemo"
+          :disabled="creatingDemo"
+          >{{ creatingDemo ? t`Please Wait` : t`Create Demo` }}</Button
+        >
+
+        <LanguageSelector
+          v-show="!creatingDemo"
+          class="w-40 bg-gray-100 rounded-md"
+          input-class="text-sm bg-transparent"
+        />
       </div>
     </div>
+    <Loading
+      v-if="creatingDemo"
+      :open="creatingDemo"
+      :full-width="true"
+      :percent="creationPercent"
+      :message="creationMessage"
+    />
   </div>
 </template>
 <script>
+import { setupDummyInstance } from 'dummy';
 import { ipcRenderer } from 'electron';
 import fs from 'fs';
+import { ConfigKeys } from 'fyo/core/types';
+import { addNewFile } from 'fyo/telemetry/helpers';
 import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
+import Button from 'src/components/Button.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
+import Loading from 'src/components/Loading.vue';
 import WindowControls from 'src/components/WindowControls.vue';
 import { fyo } from 'src/initFyo';
 import { getSavePath } from 'src/utils/ipcCalls';
@@ -151,16 +151,51 @@ export default {
   emits: ['file-selected'],
   data() {
     return {
+      creationMessage: '',
+      creationPercent: 0,
+      creatingDemo: false,
       loadingDatabase: false,
-      fileSelectedFrom: null,
       files: [],
     };
   },
   mounted() {
     this.setFiles();
-    window.ds = this;
+
+    if (fyo.store.isDevelopment) {
+      window.ds = this;
+    }
   },
   methods: {
+    async createDemo() {
+      const { filePath, canceled } = await getSavePath('demo', 'db');
+      if (canceled || !filePath) {
+        return;
+      }
+
+      this.creatingDemo = true;
+
+      const companyName = await setupDummyInstance(
+        filePath,
+        fyo,
+        1,
+        1000,
+        (message, percent) => {
+          this.creationMessage = message;
+          this.creationPercent = percent;
+        }
+      );
+
+      addNewFile(
+        companyName,
+        fyo,
+        fyo.config.get(ConfigKeys.Files, []),
+        filePath
+      );
+      fyo.purgeCache();
+      this.setFiles();
+
+      this.creatingDemo = false;
+    },
     setFiles() {
       const files = cloneDeep(fyo.config.get('files', []));
       this.files = files.filter(({ dbPath }) => fs.existsSync(dbPath));
@@ -171,7 +206,10 @@ export default {
       }
     },
     async newDatabase() {
-      this.fileSelectedFrom = 'New File';
+      if (this.creatingDemo) {
+        return;
+      }
+
       const { filePath, canceled } = await getSavePath('books', 'db');
       if (canceled || !filePath) {
         return;
@@ -180,7 +218,10 @@ export default {
       this.connectToDatabase(filePath, true);
     },
     async existingDatabase() {
-      this.fileSelectedFrom = 'Existing File';
+      if (this.creatingDemo) {
+        return;
+      }
+
       const filePath = (
         await ipcRenderer.invoke(IPC_ACTIONS.GET_OPEN_FILEPATH, {
           title: this.t`Select file`,
@@ -191,7 +232,10 @@ export default {
       this.connectToDatabase(filePath);
     },
     async selectFile(file) {
-      this.fileSelectedFrom = file;
+      if (this.creatingDemo) {
+        return;
+      }
+
       await this.connectToDatabase(file.dbPath);
     },
     async connectToDatabase(filePath, isNew) {
@@ -207,6 +251,6 @@ export default {
       this.$emit('file-selected', filePath, !!isNew);
     },
   },
-  components: { LanguageSelector, WindowControls },
+  components: { LanguageSelector, WindowControls, Button, Loading },
 };
 </script>
