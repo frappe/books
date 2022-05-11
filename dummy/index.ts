@@ -1,10 +1,33 @@
 import { Fyo } from 'fyo';
+import { Doc } from 'fyo/model/doc';
+import { range, sample } from 'lodash';
+import { DateTime } from 'luxon';
+import { Invoice } from 'models/baseModels/Invoice/Invoice';
+import { Payment } from 'models/baseModels/Payment/Payment';
+import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoice';
+import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
+import { ModelNameEnum } from 'models/types';
 import setupInstance from 'src/setup/setupInstance';
+import { getMapFromList } from 'utils';
 import { getFiscalYear } from 'utils/misc';
+import {
+  getFlowConstant,
+  getRandomDates,
+  purchaseItemPartyMap,
+} from './helpers';
 import items from './items.json';
 import parties from './parties.json';
 
-export async function setupDummyInstance(dbPath: string, fyo: Fyo) {
+type Notifier = (stage: string, count: number, total: number) => void;
+
+export async function setupDummyInstance(
+  dbPath: string,
+  fyo: Fyo,
+  years: number = 1,
+  baseCount: number = 1000,
+  notifier?: Notifier
+) {
+  notifier?.(fyo.t`Setting Up Instance`, 0, 0);
   await setupInstance(
     dbPath,
     {
@@ -22,10 +45,385 @@ export async function setupDummyInstance(dbPath: string, fyo: Fyo) {
     fyo
   );
 
-  await generateEntries(fyo);
+  years = Math.floor(years);
+  notifier?.(fyo.t`Creating Items and Parties`, 0, 0);
+  await generateStaticEntries(fyo);
+  await generateDynamicEntries(fyo, years, baseCount, notifier);
 }
 
-async function generateEntries(fyo: Fyo) {
+/**
+ *  warning: long functions ahead!
+ */
+
+async function generateDynamicEntries(
+  fyo: Fyo,
+  years: number,
+  baseCount: number,
+  notifier?: Notifier
+) {
+  notifier?.(fyo.t`Getting Sales Invoices`, 0, 0);
+  const salesInvoices = await getSalesInvoices(fyo, years, baseCount);
+
+  notifier?.(fyo.t`Getting Purchase Invoices`, 0, 0);
+  const purchaseInvoices = await getPurchaseInvoices(fyo, years, salesInvoices);
+
+  notifier?.(fyo.t`Getting Journal Entries`, 0, 0);
+  const journalEntries = await getJournalEntries(fyo, salesInvoices);
+  await syncAndSubmit(journalEntries, (count: number, total: number) =>
+    notifier?.(fyo.t`Syncing Journal Entries`, count, total)
+  );
+
+  const invoices = ([salesInvoices, purchaseInvoices].flat() as Invoice[]).sort(
+    (a, b) => +(a.date as Date) - +(b.date as Date)
+  );
+  await syncAndSubmit(invoices, (count: number, total: number) =>
+    notifier?.(fyo.t`Syncing Invoices`, count, total)
+  );
+
+  const payments = await getPayments(fyo, invoices);
+  await syncAndSubmit(payments, (count: number, total: number) =>
+    notifier?.(fyo.t`Syncing Payments`, count, total)
+  );
+}
+
+async function getJournalEntries(fyo: Fyo, salesInvoices: SalesInvoice[]) {
+  const entries = [];
+  const amount = salesInvoices
+    .map((i) => i.items!)
+    .flat()
+    .reduce((a, b) => a.add(b.amount!), fyo.pesa(0))
+    .percent(75)
+    .clip(0);
+  const lastInv = salesInvoices.sort((a, b) => +a.date! - +b.date!).at(-1)!
+    .date!;
+  const date = DateTime.fromJSDate(lastInv).minus({ months: 6 }).toJSDate();
+
+  // Bank Entry
+  let doc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {
+    date,
+    entryType: 'Bank Entry',
+  });
+  await doc.append('accounts', {
+    account: 'Supreme Bank',
+    debit: amount,
+    credit: fyo.pesa(0),
+  });
+
+  await doc.append('accounts', {
+    account: 'Secured Loans',
+    credit: amount,
+    debit: fyo.pesa(0),
+  });
+  entries.push(doc);
+
+  // Cash Entry
+  doc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {
+    date,
+    entryType: 'Cash Entry',
+  });
+  await doc.append('accounts', {
+    account: 'Cash',
+    debit: amount.percent(30),
+    credit: fyo.pesa(0),
+  });
+
+  await doc.append('accounts', {
+    account: 'Supreme Bank',
+    credit: amount.percent(30),
+    debit: fyo.pesa(0),
+  });
+  entries.push(doc);
+
+  return entries;
+}
+
+async function getPayments(fyo: Fyo, invoices: Invoice[]) {
+  const payments = [];
+  for (const invoice of invoices) {
+    // Defaulters
+    if (invoice.isSales && Math.random() < 0.007) {
+      continue;
+    }
+
+    const doc = fyo.doc.getNewDoc(ModelNameEnum.Payment) as Payment;
+    doc.party = invoice.party as string;
+    doc.paymentType = invoice.isSales ? 'Receive' : 'Pay';
+    doc.paymentMethod = 'Cash';
+    doc.date = DateTime.fromJSDate(invoice.date as Date)
+      .plus({ hours: 1 })
+      .toJSDate();
+    if (doc.paymentType === 'Receive') {
+      doc.account = 'Debtors';
+      doc.paymentAccount = 'Cash';
+    } else {
+      doc.account = 'Cash';
+      doc.paymentAccount = 'Creditors';
+    }
+    doc.amount = invoice.outstandingAmount;
+
+    // Discount
+    if (invoice.isSales && Math.random() < 0.05) {
+      await doc.set('writeOff', invoice.outstandingAmount?.percent(15));
+    }
+
+    doc.push('for', {
+      referenceType: invoice.schemaName,
+      referenceName: invoice.name,
+      amount: invoice.outstandingAmount,
+    });
+
+    payments.push(doc);
+  }
+
+  return payments;
+}
+
+async function getSalesInvoices(fyo: Fyo, years: number, baseCount: number) {
+  const invoices: SalesInvoice[] = [];
+  const salesItems = items.filter((i) => i.for !== 'Purchases');
+  const customers = parties.filter((i) => i.role !== 'Supplier');
+
+  /**
+   * Get certain number of entries for each month of the count
+   * of years.
+   */
+  for (const months of range(0, years * 12)) {
+    const flow = getFlowConstant(months);
+    const count = Math.ceil(flow * baseCount * (Math.random() * 0.25 + 0.75));
+    const dates = getRandomDates(count, months);
+
+    /**
+     * For each date create a Sales Invoice.
+     */
+
+    for (const date of dates) {
+      const customer = sample(customers);
+
+      const doc = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
+        date,
+      }) as SalesInvoice;
+
+      await doc.set('party', customer!.name);
+      if (!doc.account) {
+        doc.account = 'Debtors';
+      }
+      /**
+       * Add `numItems` number of items to the invoice.
+       */
+      const numItems = Math.ceil(Math.random() * 5);
+      for (let i = 0; i < numItems; i++) {
+        const item = sample(salesItems);
+        if ((doc.items ?? []).find((i) => i.item === item)) {
+          continue;
+        }
+
+        let quantity = 1;
+
+        /**
+         * Increase quantity depending on the rate.
+         */
+        if (item!.rate < 100 && Math.random() < 0.4) {
+          quantity = Math.ceil(Math.random() * 10);
+        } else if (item!.rate < 1000 && Math.random() < 0.2) {
+          quantity = Math.ceil(Math.random() * 4);
+        } else if (Math.random() < 0.01) {
+          quantity = Math.ceil(Math.random() * 3);
+        }
+
+        const rate = fyo.pesa(item!.rate * flow + 1).clip(0);
+        await doc.append('items', {});
+        await doc.items!.at(-1)!.set({
+          item: item!.name,
+          rate,
+          quantity,
+          account: item!.incomeAccount,
+          amount: rate.mul(quantity),
+          tax: item!.tax,
+          description: item!.description,
+          hsnCode: item!.hsnCode,
+        });
+      }
+
+      invoices.push(doc);
+    }
+  }
+
+  return invoices;
+}
+
+async function getPurchaseInvoices(
+  fyo: Fyo,
+  years: number,
+  salesInvoices: SalesInvoice[]
+): Promise<PurchaseInvoice[]> {
+  return [
+    await getSalesPurchaseInvoices(fyo, salesInvoices),
+    await getNonSalesPurchaseInvoices(fyo, years),
+  ].flat();
+}
+
+async function getSalesPurchaseInvoices(
+  fyo: Fyo,
+  salesInvoices: SalesInvoice[]
+): Promise<PurchaseInvoice[]> {
+  const invoices = [] as PurchaseInvoice[];
+  /**
+   * Group all sales invoices by their YYYY-MM.
+   */
+  const dateGrouped = salesInvoices
+    .map((si) => {
+      const date = DateTime.fromJSDate(si.date as Date);
+      const key = `${date.year}-${String(date.month).padStart(2, '0')}`;
+      return { key, si };
+    })
+    .reduce((acc, item) => {
+      acc[item.key] ??= [];
+      acc[item.key].push(item.si);
+      return acc;
+    }, {} as Record<string, SalesInvoice[]>);
+
+  /**
+   * Sort the YYYY-MM keys in ascending order.
+   */
+  const dates = Object.keys(dateGrouped)
+    .map((k) => ({ key: k, date: new Date(k) }))
+    .sort((a, b) => +a.date - +b.date);
+  const purchaseQty: Record<string, number> = {};
+
+  /**
+   * For each date create a set of Purchase Invoices.
+   */
+  for (const { key, date } of dates) {
+    /**
+     * Group items by name to get the total quantity used in a month.
+     */
+    const itemGrouped = dateGrouped[key].reduce((acc, si) => {
+      for (const item of si.items!) {
+        if (item.item === 'Dry-Cleaning') {
+          continue;
+        }
+
+        acc[item.item as string] ??= 0;
+        acc[item.item as string] += item.quantity as number;
+      }
+
+      return acc;
+    }, {} as Record<string, number>);
+
+    /**
+     * Set order quantity for the first of the month.
+     */
+    Object.keys(itemGrouped).forEach((name) => {
+      const quantity = itemGrouped[name];
+      purchaseQty[name] ??= 0;
+      let prevQty = purchaseQty[name];
+
+      if (prevQty <= quantity) {
+        prevQty = quantity - prevQty;
+      }
+
+      purchaseQty[name] = Math.ceil(prevQty / 10) * 10;
+    });
+
+    const supplierGrouped = Object.keys(itemGrouped).reduce((acc, item) => {
+      const supplier = purchaseItemPartyMap[item];
+      acc[supplier] ??= [];
+      acc[supplier].push(item);
+
+      return acc;
+    }, {} as Record<string, string[]>);
+
+    /**
+     * For each supplier create a Purchase Invoice
+     */
+    for (const supplier in supplierGrouped) {
+      const doc = fyo.doc.getNewDoc(ModelNameEnum.PurchaseInvoice, {
+        date,
+      }) as PurchaseInvoice;
+
+      await doc.set('party', supplier);
+      if (!doc.account) {
+        doc.account = 'Creditors';
+      }
+
+      /**
+       * For each item create a row
+       */
+      for (const item of supplierGrouped[supplier]) {
+        await doc.append('items', {});
+        const quantity = purchaseQty[item];
+        doc.items!.at(-1)!.set({ item, quantity });
+      }
+
+      invoices.push(doc);
+    }
+  }
+
+  return invoices;
+}
+
+async function getNonSalesPurchaseInvoices(
+  fyo: Fyo,
+  years: number
+): Promise<PurchaseInvoice[]> {
+  const purchaseItems = items.filter((i) => i.for !== 'Sales');
+  const itemMap = getMapFromList(purchaseItems, 'name');
+  const periodic: Record<string, number> = {
+    'Marketing - Video': 2,
+    'Social Ads': 1,
+    Electricity: 1,
+    'Office Cleaning': 1,
+    'Office Rent': 1,
+  };
+  const invoices: SalesInvoice[] = [];
+
+  for (const months of range(0, years * 12)) {
+    /**
+     * All purchases on the first of the month.
+     */
+    const temp = DateTime.now().minus({ months });
+    const date = DateTime.local(temp.year, temp.month, 1).toJSDate();
+
+    for (const name in periodic) {
+      if (months % periodic[name] !== 0) {
+        continue;
+      }
+
+      const doc = fyo.doc.getNewDoc(ModelNameEnum.PurchaseInvoice, {
+        date,
+      }) as PurchaseInvoice;
+
+      const party = purchaseItemPartyMap[name];
+      await doc.set('party', party);
+      if (!doc.account) {
+        doc.account = 'Creditors';
+      }
+      await doc.append('items', {});
+      const row = doc.items!.at(-1)!;
+      const item = itemMap[name];
+
+      let quantity = 1;
+      let rate = item.rate;
+      if (name === 'Social Ads') {
+        quantity = Math.ceil(Math.random() * 200);
+      } else if (name !== 'Office Rent') {
+        rate = rate * (Math.random() * 0.4 + 0.8);
+      }
+
+      await row.set({
+        item: item.name,
+        quantity,
+        rate: fyo.pesa(rate).clip(0),
+      });
+
+      invoices.push(doc);
+    }
+  }
+
+  return invoices;
+}
+
+async function generateStaticEntries(fyo: Fyo) {
   await generateItems(fyo);
   await generateParties(fyo);
 }
@@ -41,5 +439,18 @@ async function generateParties(fyo: Fyo) {
   for (const party of parties) {
     const doc = fyo.doc.getNewDoc('Party', party, false);
     await doc.sync();
+  }
+}
+
+async function syncAndSubmit(
+  docs: Doc[],
+  notifier: (count: number, total: number) => void
+) {
+  const total = docs.length;
+  for (const i in docs) {
+    notifier(parseInt(i) + 1, total);
+    const doc = docs[i];
+    await doc.sync();
+    await doc.submit();
   }
 }

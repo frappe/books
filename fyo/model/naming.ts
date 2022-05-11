@@ -33,54 +33,33 @@ export async function setName(doc: Doc, fyo: Fyo) {
   }
 
   if (doc.schema.naming === 'autoincrement') {
-    doc.name = await getNextId(doc.schemaName, fyo);
-    return;
+    return (doc.name = await getNextId(doc.schemaName, fyo));
   }
 
-  // Current, per doc number series
-  const numberSeries = doc.numberSeries as string | undefined;
-  if (numberSeries !== undefined) {
-    doc.name = await getSeriesNext(numberSeries, doc.schemaName, fyo);
-    return;
-  }
-
-  if (doc.name) {
-    return;
+  if (doc.numberSeries !== undefined) {
+    return (doc.name = await getSeriesNext(
+      doc.numberSeries as string,
+      doc.schemaName,
+      fyo
+    ));
   }
 
   // name === schemaName for Single
   if (doc.schema.isSingle) {
-    doc.name = doc.schemaName;
-    return;
+    return (doc.name = doc.schemaName);
   }
 
-  // assign a random name by default
-  // override doc to set a name
+  // Assign a random name by default
   if (!doc.name) {
     doc.name = getRandomString();
   }
+
+  return doc.name;
 }
 
-export async function getNextId(schemaName: string, fyo: Fyo) {
-  // get the last inserted row
-  const lastInserted = await getLastInserted(schemaName, fyo);
-  let name = 1;
-  if (lastInserted) {
-    let lastNumber = parseInt(lastInserted.name as string);
-    if (isNaN(lastNumber)) lastNumber = 0;
-    name = lastNumber + 1;
-  }
-  return (name + '').padStart(9, '0');
-}
-
-export async function getLastInserted(schemaName: string, fyo: Fyo) {
-  const lastInserted = await fyo.db.getAll(schemaName, {
-    fields: ['name'],
-    limit: 1,
-    orderBy: 'created',
-    order: 'desc',
-  });
-  return lastInserted && lastInserted.length ? lastInserted[0] : null;
+export async function getNextId(schemaName: string, fyo: Fyo): Promise<string> {
+  const lastInserted = await fyo.db.getLastInserted(schemaName);
+  return String(lastInserted + 1).padStart(9, '0');
 }
 
 export async function getSeriesNext(

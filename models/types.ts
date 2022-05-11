@@ -29,3 +29,5 @@ export enum ModelNameEnum {
   SingleValue = 'SingleValue',
   SystemSettings = 'SystemSettings',
 }
+
+export type ModelName = keyof typeof ModelNameEnum

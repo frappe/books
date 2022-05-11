@@ -17,7 +17,7 @@ export function getInvoiceActions(
       condition: (doc: Doc) =>
         doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
       action: async function makePayment(doc: Doc) {
-        const payment = await fyo.doc.getNewDoc('Payment');
+        const payment = fyo.doc.getNewDoc('Payment');
         payment.once('afterSync', async () => {
           await payment.submit();
         });

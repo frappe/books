@@ -4,6 +4,22 @@ import { BespokeFunction } from './types';
 export class BespokeQueries {
   [key: string]: BespokeFunction;
 
+  static async getLastInserted(
+    db: DatabaseCore,
+    schemaName: string
+  ): Promise<number> {
+    const lastInserted = (await db.knex!.raw(
+      'select cast(name as int) as num from ?? order by num desc limit 1',
+      [schemaName]
+    )) as { num: number }[];
+
+    const num = lastInserted?.[0]?.num;
+    if (num === undefined) {
+      return 0;
+    }
+    return num;
+  }
+
   static async getTopExpenses(
     db: DatabaseCore,
     fromDate: string,

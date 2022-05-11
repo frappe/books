@@ -1,12 +1,14 @@
+import * as assert from 'assert';
 import { DatabaseManager } from 'backend/database/manager';
 import { assertDoesNotThrow } from 'backend/database/tests/helpers';
+import { purchaseItemPartyMap } from 'dummy/helpers';
 import { Fyo } from 'fyo';
 import { DummyAuthDemux } from 'fyo/tests/helpers';
 import 'mocha';
 import { getTestDbPath } from 'tests/helpers';
 import { setupDummyInstance } from '..';
 
-describe('dummy', function () {
+describe.skip('dummy', function () {
   const dbPath = getTestDbPath();
 
   let fyo: Fyo;
@@ -28,5 +30,20 @@ describe('dummy', function () {
     await assertDoesNotThrow(async () => {
       await setupDummyInstance(dbPath, fyo);
     }, 'setup instance failed');
-  });
+
+    for (const item in purchaseItemPartyMap) {
+      assert.strictEqual(
+        await fyo.db.exists('Item', item),
+        true,
+        `not found ${item}`
+      );
+
+      const party = purchaseItemPartyMap[item];
+      assert.strictEqual(
+        await fyo.db.exists('Party', party),
+        true,
+        `not found ${party}`
+      );
+    }
+  }).timeout(120_000);
 });
