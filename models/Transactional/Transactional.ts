@@ -20,6 +20,8 @@ import { LedgerPosting } from './LedgerPosting';
  */
 
 export abstract class Transactional extends Doc {
+  date?: Date;
+
   get isTransactional() {
     return true;
   }
@@ -27,25 +29,25 @@ export abstract class Transactional extends Doc {
   abstract getPosting(): Promise<LedgerPosting>;
 
   async validate() {
-    super.validate();
+    await super.validate();
     const posting = await this.getPosting();
     posting.validate();
   }
 
   async afterSubmit(): Promise<void> {
-    super.afterSubmit();
+    await super.afterSubmit();
     const posting = await this.getPosting();
     await posting.post();
   }
 
   async afterCancel(): Promise<void> {
-    super.afterCancel();
+    await super.afterCancel();
     const posting = await this.getPosting();
     await posting.postReverse();
   }
 
   async afterDelete(): Promise<void> {
-    super.afterDelete();
+    await super.afterDelete();
     const ledgerEntryIds = (await this.fyo.db.getAll(
       ModelNameEnum.AccountingLedgerEntry,
       {

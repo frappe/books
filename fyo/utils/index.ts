@@ -13,12 +13,6 @@ export function slug(str: string) {
     .replace(/\s+/g, '');
 }
 
-export function range(n: number) {
-  return Array(n)
-    .fill(null)
-    .map((_, i) => i);
-}
-
 export function unique<T>(list: T[], key = (it: T) => String(it)) {
   const seen: Record<string, boolean> = {};
   return list.filter((item) => {

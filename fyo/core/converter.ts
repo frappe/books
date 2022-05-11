@@ -156,6 +156,10 @@ function toDocString(value: RawValue, field: Field) {
     return null;
   }
 
+  if (value === undefined) {
+    return null;
+  }
+
   if (typeof value === 'string') {
     return value;
   }
@@ -359,6 +363,10 @@ function toRawCheck(value: DocValue, field: Field): number {
 
 function toRawString(value: DocValue, field: Field): string | null {
   if (value === null) {
+    return null;
+  }
+
+  if (value === undefined) {
     return null;
   }
 

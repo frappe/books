@@ -63,6 +63,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   _dirty: boolean = true;
   _notInserted: boolean = true;
 
+  _syncing = false;
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super();
     this.fyo = markRaw(fyo);
@@ -115,6 +116,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   get isCancelled() {
     return !!this.submitted && !!this.cancelled;
+  }
+
+  get syncing() {
+    return this._syncing;
   }
 
   _setValuesWithoutChecks(data: DocValueMap) {
@@ -628,6 +633,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async sync(): Promise<Doc> {
+    this._syncing = true;
     await this.trigger('beforeSync');
     let doc;
     if (this.notInserted) {
@@ -638,6 +644,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this._notInserted = false;
     await this.trigger('afterSync');
     this.fyo.doc.observer.trigger(`sync:${this.schemaName}`, this.name);
+    this._syncing = false;
     return doc;
   }
 

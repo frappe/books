@@ -7,6 +7,7 @@ import { Invoice } from '../Invoice/Invoice';
 
 export abstract class InvoiceItem extends Doc {
   account?: string;
+  amount?: Money;
   baseAmount?: Money;
   exchangeRate?: number;
   parentdoc?: Invoice;

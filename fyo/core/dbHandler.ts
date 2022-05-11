@@ -1,6 +1,7 @@
 import { SingleValue } from 'backend/database/types';
 import { Fyo } from 'fyo';
 import { DatabaseDemux } from 'fyo/demux/db';
+import { ValueError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
 import { Field, RawValue, SchemaMap } from 'schemas/types';
 import { getMapFromList } from 'utils';
@@ -208,6 +209,20 @@ export class DatabaseHandler extends DatabaseBase {
    *
    * The query logic for these is in backend/database/bespoke.ts
    */
+
+  async getLastInserted(schemaName: string): Promise<number> {
+    if (this.schemaMap[schemaName]?.naming !== 'autoincrement') {
+      throw new ValueError(
+        `invalid schema, ${schemaName} does not have autoincrement naming`
+      );
+    }
+
+    return (await this.#demux.callBespoke(
+      'getLastInserted',
+      schemaName
+    )) as number;
+  }
+
   async getTopExpenses(fromDate: string, toDate: string): Promise<TopExpenses> {
     return (await this.#demux.callBespoke(
       'getTopExpenses',
