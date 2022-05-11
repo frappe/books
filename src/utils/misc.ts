@@ -68,16 +68,11 @@ export function incrementOpenCount() {
 export async function startTelemetry() {
   fyo.telemetry.interestingDocs = [
     ModelNameEnum.Payment,
-    ModelNameEnum.PaymentFor,
     ModelNameEnum.SalesInvoice,
-    ModelNameEnum.SalesInvoiceItem,
     ModelNameEnum.PurchaseInvoice,
-    ModelNameEnum.PurchaseInvoiceItem,
     ModelNameEnum.JournalEntry,
-    ModelNameEnum.JournalEntryAccount,
     ModelNameEnum.Party,
-    ModelNameEnum.Account,
-    ModelNameEnum.Tax,
+    ModelNameEnum.Item,
   ];
   await fyo.telemetry.start();
 }
