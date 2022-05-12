@@ -134,7 +134,7 @@ export default {
     },
     async getFilters() {
       const { schemaName, fieldname } = this.df;
-      const getFilters = fyo.models[schemaName].filters[fieldname];
+      const getFilters = fyo.models[schemaName]?.filters?.[fieldname];
 
       if (getFilters === undefined) {
         return {};

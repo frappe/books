@@ -104,3 +104,22 @@ export function invertMap(map: Record<string, string>): Record<string, string> {
 
   return inverted;
 }
+
+export function time<K, T>(func: (...args: K[]) => T, ...args: K[]): T {
+  const name = func.name;
+  console.time(name);
+  const stuff = func(...args);
+  console.timeEnd(name);
+  return stuff;
+}
+
+export async function timeAsync<K, T>(
+  func: (...args: K[]) => Promise<T>,
+  ...args: K[]
+): Promise<T> {
+  const name = func.name;
+  console.time(name);
+  const stuff = await func(...args);
+  console.timeEnd(name);
+  return stuff;
+}

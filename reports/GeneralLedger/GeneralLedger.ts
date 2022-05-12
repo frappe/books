@@ -22,6 +22,7 @@ interface RawLedgerEntry {
 }
 
 interface LedgerEntry {
+  index?: string;
   name: number;
   account: string;
   date: Date | null;
@@ -49,8 +50,8 @@ export class GeneralLedger extends Report {
     super(fyo);
 
     if (!this.toField) {
-      this.toField = DateTime.now().toISODate();
-      this.fromField = DateTime.now().minus({ years: 1 }).toISODate();
+      this.toDate = DateTime.now().toISODate();
+      this.fromDate = DateTime.now().minus({ years: 1 }).toISODate();
     }
   }
 
@@ -60,13 +61,14 @@ export class GeneralLedger extends Report {
     }
 
     const map = this._getGroupedMap();
+    this._setIndexOnEntries(map);
     const { totalDebit, totalCredit } = this._getTotalsAndSetBalance(map);
     const consolidated = this._consolidateEntries(map);
 
     /**
      * Push a blank row if last row isn't blank
      */
-    if (consolidated.at(-1)!.name !== -3) {
+    if (consolidated.at(-1)?.name !== -3) {
       this._pushBlankEntry(consolidated);
     }
 
@@ -90,42 +92,52 @@ export class GeneralLedger extends Report {
     this.reportData = this._convertEntriesToReportData(consolidated);
   }
 
+  _setIndexOnEntries(map: GroupedMap) {
+    let i = 1;
+    for (const key of map.keys()) {
+      for (const entry of map.get(key)!) {
+        entry.index = String(i);
+        i = i + 1;
+      }
+    }
+  }
+
   _convertEntriesToReportData(entries: LedgerEntry[]): ReportData {
     const reportData = [];
-    const fieldnames = this.columns.map((f) => f.fieldname);
     for (const entry of entries) {
-      const row = this._getRowFromEntry(entry, fieldnames);
+      const row = this._getRowFromEntry(entry, this.columns);
       reportData.push(row);
     }
 
     return reportData;
   }
 
-  _getRowFromEntry(entry: LedgerEntry, fieldnames: string[]) {
+  _getRowFromEntry(entry: LedgerEntry, columns: ColumnField[]) {
     if (entry.name === -3) {
-      return Array(fieldnames.length).fill({ value: '' });
+      return Array(columns.length).fill({ value: '' });
     }
 
     const row = [];
-    for (const n of fieldnames) {
-      let value = entry[n as keyof LedgerEntry];
+    for (const col of columns) {
+      const align = col.align ?? 'left';
+      const width = col.width ?? 1;
+      const fieldname = col.fieldname;
+
+      let value = entry[fieldname as keyof LedgerEntry];
       if (value === null || value === undefined) {
-        row.push({ value: '' });
-        continue;
+        value = '';
       }
 
-      let align = 'left';
       if (value instanceof Date) {
         value = this.fyo.format(value, FieldTypeEnum.Date);
       }
 
-      if (typeof value === 'number') {
-        align = 'right';
+      if (typeof value === 'number' && fieldname !== 'index') {
         value = this.fyo.format(value, FieldTypeEnum.Currency);
       }
 
-      if (typeof value === 'boolean' && n === 'reverted' && value) {
-        value = t`Reverted`;
+      if (typeof value === 'boolean' && fieldname === 'reverted') {
+        value = value ? t`Reverted` : '';
       }
 
       row.push({
@@ -133,6 +145,7 @@ export class GeneralLedger extends Report {
         bold: entry.name === -2,
         value,
         align,
+        width,
       });
     }
 
@@ -266,7 +279,7 @@ export class GeneralLedger extends Report {
       'reverts',
     ];
 
-    const filters = this._getQueryFilters();
+    const filters = {} ?? this._getQueryFilters();
     const entries = (await this.fyo.db.getAllRaw(
       ModelNameEnum.AccountingLedgerEntry,
       {
@@ -338,16 +351,16 @@ export class GeneralLedger extends Report {
           { label: t`Journal Entries`, value: 'JournalEntry' },
         ],
 
-        label: t`Reference Type`,
+        label: t`Ref Type`,
         fieldname: 'referenceType',
-        placeholder: t`Reference Type`,
+        placeholder: t`Ref Type`,
         default: 'All',
       },
       {
         fieldtype: 'DynamicLink',
-        placeholder: t`Reference Name`,
+        label: t`Ref Name`,
         references: 'referenceType',
-        label: t`Reference Name`,
+        placeholder: t`Ref Name`,
         fieldname: 'referenceName',
       },
       {
@@ -377,19 +390,7 @@ export class GeneralLedger extends Report {
         fieldname: 'toDate',
       },
       {
-        fieldtype: 'Check',
-        default: false,
-        label: t`Cancelled`,
-        fieldname: 'reverted',
-      },
-      {
-        fieldtype: 'Check',
-        default: false,
-        label: t`Ascending`,
-        fieldname: 'ascending',
-      },
-      {
-        fieldtype: 'Check',
+        fieldtype: 'Select',
         default: 'none',
         label: t`Group By`,
         fieldname: 'groupBy',
@@ -400,11 +401,30 @@ export class GeneralLedger extends Report {
           { label: t`Reference`, value: 'referenceName' },
         ],
       },
+      {
+        fieldtype: 'Check',
+        default: false,
+        label: t`Include Cancelled`,
+        fieldname: 'reverted',
+      },
+      {
+        fieldtype: 'Check',
+        default: false,
+        label: t`Ascending Order`,
+        fieldname: 'ascending',
+      },
     ] as Field[];
   }
 
   getColumns(): ColumnField[] {
     let columns = [
+      {
+        label: t`#`,
+        fieldtype: 'Int',
+        fieldname: 'index',
+        align: 'right',
+        width: 0.5,
+      },
       {
         label: t`Account`,
         fieldtype: 'Link',
@@ -415,40 +435,42 @@ export class GeneralLedger extends Report {
         label: t`Date`,
         fieldtype: 'Date',
         fieldname: 'date',
-        width: 0.75,
       },
       {
         label: t`Debit`,
         fieldtype: 'Currency',
         fieldname: 'debit',
+        align: 'right',
         width: 1.25,
       },
       {
         label: t`Credit`,
         fieldtype: 'Currency',
         fieldname: 'credit',
+        align: 'right',
         width: 1.25,
       },
       {
         label: t`Balance`,
         fieldtype: 'Currency',
         fieldname: 'balance',
+        align: 'right',
         width: 1.25,
-      },
-      {
-        label: t`Reference Type`,
-        fieldtype: 'Data',
-        fieldname: 'referenceType',
-      },
-      {
-        label: t`Reference Name`,
-        fieldtype: 'Data',
-        fieldname: 'referenceName',
       },
       {
         label: t`Party`,
         fieldtype: 'Link',
         fieldname: 'party',
+      },
+      {
+        label: t`Ref Name`,
+        fieldtype: 'Data',
+        fieldname: 'referenceName',
+      },
+      {
+        label: t`Ref Type`,
+        fieldtype: 'Data',
+        fieldname: 'referenceType',
       },
       {
         label: t`Reverted`,
@@ -467,4 +489,12 @@ export class GeneralLedger extends Report {
   getActions(): Action[] {
     return [];
   }
+
+  /**
+   * TODO: Order by date and then the number
+   * TODO: Something is wrong with dummy data, there are entries from 2022 Dec
+   * TODO: Add pagination
+   * TODO: Always visible scrollbar
+   * TODO: Extract out list view report to a different component
+   */
 }

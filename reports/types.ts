@@ -7,12 +7,14 @@ export interface ReportCell {
   bold?: boolean;
   italics?: boolean;
   align?: 'left' | 'right' | 'center';
+  width?: number;
   value: string;
 }
 
 export type ReportRow = ReportCell[];
 export type ReportData = ReportRow[];
 export interface ColumnField extends BaseField {
+  align?: 'left' | 'right' | 'center';
   width?: number;
 }
 
