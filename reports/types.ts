@@ -1,14 +1,19 @@
 import { AccountRootType } from 'models/baseModels/Account/types';
+import { BaseField } from 'schemas/types';
 
 export type ExportExtension = 'csv' | 'json';
 
-export interface ReportData {
-  rows: unknown[];
-  columns: unknown[];
+export interface ReportCell {
+  bold?: boolean;
+  italics?: boolean;
+  align?: 'left' | 'right' | 'center';
+  value: string;
 }
 
-export abstract class Report {
-  abstract run(filters: Record<string, unknown>): ReportData;
+export type ReportRow = ReportCell[];
+export type ReportData = ReportRow[];
+export interface ColumnField extends BaseField {
+  width?: number;
 }
 
 export type BalanceType = 'Credit' | 'Debit';

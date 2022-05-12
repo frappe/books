@@ -51,7 +51,7 @@ individual ones, check the `README.md` in those subdirectories:
 | `build`        | _server_   | Build specific files not used unless building the project                                                                  |
 | `translations` | _server_   | Collection of csv files containing translations                                                                            |
 | `src`          | _client_   | Code that mainly deals with the view layer (all `.vue` are stored here)                                                    |
-| `reports`      | _client_   | Collection of logic code and view layer config files for displaying reports.                                               |
+| `reports`      | _client\*_ | Collection of logic code and view layer config files for displaying reports.                                               |
 | `models`       | _client\*_ | Collection of `Model.ts` files that manage the data and some business logic on the client side.                            |
 | `fyo`          | _client\*_ | Code for the underlying library that manages the client side                                                               |
 | `utils`        | _agnostic_ | Collection of code used by either sides.                                                                                   |
