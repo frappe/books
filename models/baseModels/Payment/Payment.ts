@@ -442,7 +442,7 @@ export class Payment extends Transactional {
   static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
       columns: [
-        'party',
+        'name',
         {
           label: t`Status`,
           fieldname: 'status',
@@ -465,7 +465,7 @@ export class Payment extends Transactional {
             };
           },
         },
-        'paymentType',
+        'party',
         'date',
         'amount',
       ],
