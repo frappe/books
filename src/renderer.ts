@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import { ConfigKeys } from 'fyo/core/types';
-import { DateTime } from 'luxon';
+import { GeneralLedger } from 'reports';
 import { IPC_ACTIONS } from 'utils/messages';
 import { App as VueApp, createApp } from 'vue';
 import App from './App.vue';
@@ -108,4 +108,4 @@ function setOnWindow() {
 }
 
 // @ts-ignore
-window.DateTime = DateTime;
+window.GL = GeneralLedger;

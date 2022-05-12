@@ -122,7 +122,7 @@ export class DatabaseHandler extends DatabaseBase {
   async getAllRaw(
     schemaName: string,
     options: GetAllOptions = {}
-  ): Promise<DocValueMap[]> {
+  ): Promise<RawValueMap[]> {
     const all = await this.#getAll(schemaName, options);
     this.observer.trigger(`getAllRaw:${schemaName}`, options);
     return all;
