@@ -1,2 +1,2 @@
 import { GeneralLedger } from './GeneralLedger/GeneralLedger';
-export { GeneralLedger };
+export const reports = { GeneralLedger };

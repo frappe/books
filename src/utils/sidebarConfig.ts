@@ -132,18 +132,18 @@ function getCompleteSidebar(): SidebarConfig {
         },
       ],
     },
-    /*
     {
       label: t`Reports`,
       name: t`reports`,
       icon: 'reports',
-      route: '/report/general-ledger',
+      route: '/report/GeneralLedger',
       items: [
         {
           label: t`General Ledger`,
           name: 'general-ledger',
-          route: '/report/general-ledger',
+          route: '/report/GeneralLedger',
         },
+        /*
         {
           label: t`Profit And Loss`,
           name: 'profit-and-loss',
@@ -171,9 +171,9 @@ function getCompleteSidebar(): SidebarConfig {
           route: '/report/gstr-2',
           hidden: () => fyo.singles.AccountingSettings!.country !== 'India',
         },
+        */
       ],
     },
-    */
     {
       label: t`Setup`,
       name: t`setup`,
