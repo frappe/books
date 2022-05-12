@@ -35,9 +35,9 @@ export class SalesInvoice extends Invoice {
     return {
       formRoute: (name) => `/edit/SalesInvoice/${name}`,
       columns: [
-        'party',
         'name',
         getTransactionStatusColumn(),
+        'party',
         'date',
         'grandTotal',
         'outstandingAmount',

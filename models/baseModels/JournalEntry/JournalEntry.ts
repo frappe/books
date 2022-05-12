@@ -49,7 +49,7 @@ export class JournalEntry extends Transactional {
     return {
       formRoute: (name) => `/edit/JournalEntry/${name}`,
       columns: [
-        'date',
+        'name',
         {
           label: t`Status`,
           fieldtype: 'Select',
@@ -72,14 +72,7 @@ export class JournalEntry extends Transactional {
             };
           },
         },
-        {
-          label: t`Entry ID`,
-          fieldtype: 'Data',
-          fieldname: 'name',
-          getValue(doc) {
-            return doc.name as string;
-          },
-        },
+        'date',
         'entryType',
         'referenceNumber',
       ],
