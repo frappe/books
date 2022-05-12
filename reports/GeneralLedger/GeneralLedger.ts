@@ -1,9 +1,7 @@
 import { Fyo, t } from 'fyo';
 import { Action } from 'fyo/model/types';
-import { isPesa } from 'fyo/utils';
 import { DateTime } from 'luxon';
 import { ModelNameEnum } from 'models/types';
-import Money from 'pesa/dist/types/src/money';
 import { Report } from 'reports/Report';
 import { ColumnField, ReportData } from 'reports/types';
 import { Field, FieldTypeEnum, RawValue } from 'schemas/types';
@@ -27,9 +25,9 @@ interface LedgerEntry {
   name: number;
   account: string;
   date: Date | null;
-  debit: Money | null;
-  credit: Money | null;
-  balance: Money | null;
+  debit: number | null;
+  credit: number | null;
+  balance: number | null;
   referenceType: string;
   referenceName: string;
   party: string;
@@ -58,22 +56,12 @@ export class GeneralLedger extends Report {
 
   async setReportData(filter?: string) {
     if (filter !== 'grouped' || this._rawData.length === 0) {
-      console.time('_setRawData');
       await this._setRawData();
-      console.timeEnd('_setRawData');
     }
 
-    console.time('_getGroupedMap');
     const map = this._getGroupedMap();
-    console.timeEnd('_getGroupedMap');
-
-    console.time('_getTotalsAndSetBalance');
     const { totalDebit, totalCredit } = this._getTotalsAndSetBalance(map);
-    console.timeEnd('_getTotalsAndSetBalance');
-
-    console.time('_consolidateEntries');
     const consolidated = this._consolidateEntries(map);
-    console.timeEnd('_consolidateEntries');
 
     /**
      * Push a blank row if last row isn't blank
@@ -91,7 +79,7 @@ export class GeneralLedger extends Report {
       date: null,
       debit: totalDebit,
       credit: totalCredit,
-      balance: totalDebit.sub(totalCredit),
+      balance: totalDebit - totalCredit,
       referenceType: '',
       referenceName: '',
       party: '',
@@ -99,9 +87,7 @@ export class GeneralLedger extends Report {
       reverts: '',
     });
 
-    console.time('_convertEntriesToReportData');
     this.reportData = this._convertEntriesToReportData(consolidated);
-    console.timeEnd('_convertEntriesToReportData');
   }
 
   _convertEntriesToReportData(entries: LedgerEntry[]): ReportData {
@@ -133,7 +119,7 @@ export class GeneralLedger extends Report {
         value = this.fyo.format(value, FieldTypeEnum.Date);
       }
 
-      if (isPesa(value)) {
+      if (typeof value === 'number') {
         align = 'right';
         value = this.fyo.format(value, FieldTypeEnum.Currency);
       }
@@ -186,20 +172,20 @@ export class GeneralLedger extends Report {
   }
 
   _getTotalsAndSetBalance(map: GroupedMap) {
-    let totalDebit = this.fyo.pesa(0);
-    let totalCredit = this.fyo.pesa(0);
+    let totalDebit = 0;
+    let totalCredit = 0;
 
     for (const key of map.keys()) {
-      let balance = this.fyo.pesa(0);
-      let debit = this.fyo.pesa(0);
-      let credit = this.fyo.pesa(0);
+      let balance = 0;
+      let debit = 0;
+      let credit = 0;
 
       for (const entry of map.get(key)!) {
-        debit = debit.add(entry.debit!);
-        credit = credit.add(entry.credit!);
+        debit += entry.debit!;
+        credit += entry.credit!;
 
-        const diff = entry.debit!.sub(entry.credit!);
-        balance = balance.add(diff);
+        const diff = entry.debit! - entry.credit!;
+        balance += diff;
         entry.balance = balance;
       }
 
@@ -213,7 +199,7 @@ export class GeneralLedger extends Report {
           date: null,
           debit,
           credit,
-          balance: debit.sub(credit),
+          balance: debit - credit,
           referenceType: '',
           referenceName: '',
           party: '',
@@ -225,8 +211,8 @@ export class GeneralLedger extends Report {
       /**
        * Total debit and credit for the final row
        */
-      totalDebit = totalDebit.add(debit);
-      totalCredit = totalCredit.add(credit);
+      totalDebit += debit;
+      totalCredit += credit;
     }
 
     return { totalDebit, totalCredit };
@@ -280,7 +266,7 @@ export class GeneralLedger extends Report {
       'reverts',
     ];
 
-    const filters = this._getFilters();
+    const filters = this._getQueryFilters();
     const entries = (await this.fyo.db.getAllRaw(
       ModelNameEnum.AccountingLedgerEntry,
       {
@@ -294,9 +280,9 @@ export class GeneralLedger extends Report {
         name: parseInt(entry.name),
         account: entry.account,
         date: new Date(entry.date),
-        debit: this.fyo.pesa(entry.debit),
-        credit: this.fyo.pesa(entry.credit),
-        balance: this.fyo.pesa(0),
+        debit: parseFloat(entry.debit),
+        credit: parseFloat(entry.credit),
+        balance: 0,
         referenceType: entry.referenceType,
         referenceName: entry.referenceName,
         party: entry.party,
@@ -306,7 +292,7 @@ export class GeneralLedger extends Report {
     });
   }
 
-  _getFilters(): QueryFilter {
+  _getQueryFilters(): QueryFilter {
     const filters: QueryFilter = {};
     const stringFilters = ['account', 'party', 'referenceName'];
 
