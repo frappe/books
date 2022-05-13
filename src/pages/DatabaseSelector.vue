@@ -98,6 +98,21 @@
               {{ file.modified }}
             </p>
           </div>
+          <button
+            class="
+              ml-auto
+              p-2
+              hover:bg-red-200
+              rounded-full
+              w-8
+              h-8
+              text-gray-600
+              hover:text-red-400
+            "
+            @click.stop="() => deleteDb(i)"
+          >
+            <feather-icon name="x" class="w-4 h-4" />
+          </button>
         </div>
       </div>
       <hr v-if="files?.length" />
@@ -134,16 +149,19 @@
 import { setupDummyInstance } from 'dummy';
 import { ipcRenderer } from 'electron';
 import fs from 'fs';
+import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { addNewFile } from 'fyo/telemetry/helpers';
 import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
 import Button from 'src/components/Button.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
+import FeatherIcon from 'src/components/FeatherIcon.vue';
 import Loading from 'src/components/Loading.vue';
 import WindowControls from 'src/components/WindowControls.vue';
 import { fyo } from 'src/initFyo';
-import { getSavePath } from 'src/utils/ipcCalls';
+import { deleteDb, getSavePath } from 'src/utils/ipcCalls';
+import { showMessageDialog } from 'src/utils/ui';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
@@ -166,6 +184,28 @@ export default {
     }
   },
   methods: {
+    async deleteDb(i) {
+      const file = this.files[i];
+      const vm = this;
+
+      await showMessageDialog({
+        message: t`Delete ${file.companyName}?`,
+        detail: t`Database file: ${file.dbPath}`,
+        buttons: [
+          {
+            label: this.t`Yes`,
+            async action() {
+              await deleteDb(file.dbPath);
+              vm.setFiles();
+            },
+          },
+          {
+            label: this.t`No`,
+            action() {},
+          },
+        ],
+      });
+    },
     async createDemo() {
       const { filePath, canceled } = await getSavePath('demo', 'db');
       if (canceled || !filePath) {
@@ -251,6 +291,12 @@ export default {
       this.$emit('file-selected', filePath, !!isNew);
     },
   },
-  components: { LanguageSelector, WindowControls, Button, Loading },
+  components: {
+    LanguageSelector,
+    WindowControls,
+    Button,
+    Loading,
+    FeatherIcon,
+  },
 };
 </script>

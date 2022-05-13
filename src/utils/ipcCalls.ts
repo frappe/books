@@ -9,8 +9,12 @@ import { WindowAction } from './types';
 import { showToast } from './ui';
 
 export async function checkForUpdates(force = false) {
-  ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
+  await ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
   await setLanguageMap();
+}
+
+export async function deleteDb(filePath: string) {
+  await ipcRenderer.invoke(IPC_ACTIONS.DELETE_FILE, filePath);
 }
 
 export async function saveData(data: string, savePath: string) {
