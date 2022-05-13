@@ -25,15 +25,12 @@
     <hr />
 
     <!-- Data Rows -->
-    <div class="overflow-y-auto" v-if="data.length !== 0">
-      <div
-        v-for="(doc, i) in data.slice((pageNo - 1) * count, pageNo * count)"
-        :key="doc.name"
-      >
+    <div class="overflow-y-auto" v-if="dataSlice.length !== 0">
+      <div v-for="(doc, i) in dataSlice" :key="doc.name">
         <!-- Row Content -->
         <div class="flex hover:bg-gray-100 items-center">
           <p class="w-8 text-right mr-4 text-gray-900">
-            {{ i + 1 + (pageNo - 1) * count }}
+            {{ i + pageStart + 1 }}
           </p>
           <Row
             gap="1rem"
@@ -52,81 +49,14 @@
             ></ListCell>
           </Row>
         </div>
-        <hr v-if="i !== count - 1" />
+        <hr v-if="i !== dataSlice.length - 1" />
       </div>
     </div>
 
     <!-- Pagination Footer -->
-    <hr v-if="data.length > 20" />
-    <div
-      v-if="data.length > 20"
-      class="my-3 grid grid-cols-3 text-gray-800 text-sm select-none"
-    >
-      <!-- Length Display -->
-      <div class="justify-self-start">
-        {{
-          `${(pageNo - 1) * count + 1} - ${Math.min(
-            pageNo * count,
-            data.length
-          )}`
-        }}
-      </div>
-
-      <!-- Pagination Selector -->
-      <div class="flex gap-1 items-center justify-self-center">
-        <feather-icon
-          name="chevron-left"
-          class="w-4 h-4"
-          :class="
-            pageNo > 1 ? 'text-gray-600 cursor-pointer' : 'text-transparent'
-          "
-          @click="pageNo = Math.max(1, pageNo - 1)"
-        />
-        <div class="flex gap-1 bg-gray-100 rounded">
-          <input
-            type="number"
-            class="
-              w-6
-              text-right
-              outline-none
-              bg-transparent
-              focus:text-gray-900
-            "
-            :value="pageNo"
-            @change="setPageNo"
-            @input="setPageNo"
-            min="1"
-            :max="maxPages"
-          />
-          <p class="text-gray-600">/</p>
-          <p class="w-5">
-            {{ maxPages }}
-          </p>
-        </div>
-        <feather-icon
-          name="chevron-right"
-          class="w-4 h-4"
-          :class="
-            pageNo < maxPages
-              ? 'text-gray-600 cursor-pointer'
-              : 'text-transparent'
-          "
-          @click="pageNo = Math.min(maxPages, pageNo + 1)"
-        />
-      </div>
-
-      <!-- Count Selector -->
-      <div class="border rounded flex justify-self-end">
-        <button
-          v-for="c in allowedCounts"
-          :key="c + '-count'"
-          @click="setCount(c)"
-          class="w-9"
-          :class="count === c ? 'bg-gray-200' : ''"
-        >
-          {{ c }}
-        </button>
-      </div>
+    <div class="mt-auto">
+      <hr />
+      <Paginator :item-count="data.length" @index-change="setPageIndices" />
     </div>
 
     <!-- Empty State -->
@@ -144,12 +74,14 @@
 </template>
 <script>
 import Button from 'src/components/Button';
+import Paginator from 'src/components/Paginator.vue';
 import Row from 'src/components/Row';
 import { fyo } from 'src/initFyo';
 import { openQuickEdit, routeTo } from 'src/utils/ui';
+import { defineComponent } from 'vue';
 import ListCell from './ListCell';
 
-export default {
+export default defineComponent({
   name: 'List',
   props: { listConfig: Object, filters: Object, schemaName: String },
   emits: ['makeNewDoc'],
@@ -157,6 +89,7 @@ export default {
     Row,
     ListCell,
     Button,
+    Paginator,
   },
   watch: {
     schemaName(oldValue, newValue) {
@@ -169,15 +102,17 @@ export default {
   },
   data() {
     return {
-      pageNo: 1,
-      count: 20,
-      allowedCounts: [20, 100, 500],
       data: [],
+      pageStart: 0,
+      pageEnd: 0,
     };
   },
   computed: {
-    maxPages() {
-      return Math.ceil(this.data.length / this.count);
+    dataSlice() {
+      return this.data.slice(this.pageStart, this.pageEnd);
+    },
+    count() {
+      return this.pageEnd - this.pageStart + 1;
     },
     columns() {
       let columns = this.listConfig?.columns ?? [];
@@ -203,19 +138,12 @@ export default {
     this.setUpdateListeners();
   },
   methods: {
-    setPageNo({ target: { value } }) {
-      value = parseInt(value);
-      if (isNaN(value)) {
-        return;
-      }
-      this.pageNo = Math.min(Math.max(1, value), this.maxPages);
-    },
-    setCount(count) {
-      this.pageNo = 1;
-      this.count = count;
+    setPageIndices({ start, end }) {
+      this.pageStart = start;
+      this.pageEnd = end;
     },
     setUpdateListeners() {
-      const listener = (name) => {
+      const listener = () => {
         this.updateData();
       };
 
@@ -251,5 +179,5 @@ export default {
       });
     },
   },
-};
+});
 </script>
