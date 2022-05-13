@@ -116,6 +116,10 @@ export default function registerIpcMainActionListeners(main: Main) {
     return app.getVersion();
   });
 
+  ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath) => {
+    await fs.unlink(filePath);
+  });
+
   /**
    * Database Related Actions
    */
