@@ -1,9 +1,9 @@
 <template>
-  <div class="flex flex-col overflow-y-hidden">
+  <div class="flex flex-col h-full">
     <PageHeader :title="t`Chart of Accounts`" />
 
     <!-- Chart of Accounts -->
-    <div class="flex-1 flex flex-col px-8 overflow-y-auto" v-if="root">
+    <div class="flex-1 flex flex-col mx-4 overflow-y-auto mb-4" v-if="root">
       <!-- Chart of Accounts Indented List -->
       <template v-for="account in allAccounts" :key="account.name">
         <!-- Account List Item -->

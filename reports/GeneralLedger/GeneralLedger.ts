@@ -279,7 +279,7 @@ export class GeneralLedger extends Report {
       'reverts',
     ];
 
-    const filters = {} ?? this._getQueryFilters();
+    const filters = this._getQueryFilters();
     const entries = (await this.fyo.db.getAllRaw(
       ModelNameEnum.AccountingLedgerEntry,
       {
@@ -493,8 +493,6 @@ export class GeneralLedger extends Report {
   /**
    * TODO: Order by date and then the number
    * TODO: Something is wrong with dummy data, there are entries from 2022 Dec
-   * TODO: Add pagination
    * TODO: Always visible scrollbar
-   * TODO: Extract out list view report to a different component
    */
 }
