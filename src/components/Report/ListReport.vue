@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="overflow-hidden flex flex-col h-full">
     <!-- Report Outer Container -->
-    <div class="overflow-x-scroll">
+    <div class="overflow-x-scroll overflow-y-hidden">
+      <!-- Title Row -->
       <div class="inline-block">
-        <!-- Title Row -->
         <div
           class="flex items-center border-b"
           :style="{ height: `${hconst}px` }"
@@ -24,39 +24,43 @@
             {{ col.label }}
           </p>
         </div>
+      </div>
 
-        <!-- Report Rows Container -->
-        <div class="overflow-y-scroll">
-          <!-- :style="{ height: `${hconst * maxRows + 5}px` }" -->
-          <!-- Report Rows -->
+      <!-- Report Rows Container -->
+      <div
+        class="overflow-y-scroll inline-block"
+        style="height: calc(100% - 49px)"
+      >
+        <!-- Report Rows -->
+        <div
+          v-for="(row, r) in report.reportData.slice(pageStart, pageEnd)"
+          :key="r + '-row'"
+          class="flex items-center"
+          :style="{ height: `${hconst}px` }"
+          :class="r !== pageEnd - 1 ? 'border-b' : ''"
+        >
+          <!-- Report Cell -->
           <div
-            v-for="(row, r) in report.reportData.slice(pageStart, pageEnd)"
-            :key="r + '-row'"
-            class="border-b flex items-center"
-            :style="{ height: `${hconst}px` }"
+            v-for="(cell, c) in row"
+            :key="`${c}-${r}-cell`"
+            :style="getCellStyle(cell, c)"
+            class="
+              text-gray-900 text-base
+              px-3
+              flex-shrink-0
+              overflow-x-scroll
+              whitespace-nowrap
+            "
           >
-            <!-- Report Cell -->
-            <div
-              v-for="(cell, c) in row"
-              :key="`${c}-${r}-cell`"
-              :style="getCellStyle(cell, c)"
-              class="
-                text-gray-900 text-base
-                px-3
-                flex-shrink-0
-                overflow-x-scroll
-                whitespace-nowrap
-              "
-            >
-              {{ cell.value }}
-            </div>
+            {{ cell.value }}
           </div>
         </div>
+        <!-- </div> -->
       </div>
     </div>
 
     <!-- Pagination Footer -->
-    <div class="mt-auto">
+    <div class="mt-auto flex-shrink-0">
       <hr />
       <Paginator
         :item-count="report?.reportData?.length ?? 0"
@@ -78,15 +82,9 @@ export default defineComponent({
     return {
       wconst: 8,
       hconst: 48,
-      loading: false,
       pageStart: 0,
       pageEnd: 0,
     };
-  },
-  computed: {
-    maxRows() {
-      return 18 - Math.ceil(this.report.filters.length / 5);
-    },
   },
   methods: {
     setPageIndices({ start, end }) {

@@ -56,3 +56,11 @@ html {
 .w-600 {
   width: 600px;
 }
+
+.w-sidebar {
+  width: 12rem;
+}
+
+.w-desk {
+  width: calc(100vw - 12rem);
+}

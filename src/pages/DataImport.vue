@@ -16,7 +16,7 @@
     </PageHeader>
 
     <div
-      class="flex px-8 mt-2 text-base w-full flex-col gap-8"
+      class="flex px-4 mt-2 text-base w-full flex-col gap-8"
       v-if="!complete"
     >
       <!-- Type selector -->
@@ -444,7 +444,7 @@ export default {
         label: this.t`Import Type`,
         fieldtype: 'AutoComplete',
         placeholder: this.t`Import Type`,
-        options: Object.keys(this.labelSchemaNameMap)
+        options: Object.keys(this.labelSchemaNameMap),
       };
     },
     labelSchemaNameMap() {
