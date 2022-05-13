@@ -1,41 +1,39 @@
 <template>
   <div class="overflow-hidden flex flex-col h-full">
     <!-- Report Outer Container -->
-    <div class="overflow-x-scroll overflow-y-hidden">
-      <!-- Title Row -->
-      <div class="inline-block">
+    <div class="overflow-hidden">
+      <!--Title Row -->
+      <div
+        class="w-full overflow-x-hidden flex items-center border-b"
+        ref="titlerow"
+        :style="{ height: `${hconst}px`, paddingRight: '8px' }"
+      >
         <div
-          class="flex items-center border-b"
-          :style="{ height: `${hconst}px` }"
-          ref="titleRow"
+          v-for="(col, c) in report.columns"
+          :key="c + '-col'"
+          :style="getCellStyle(col, c)"
+          class="
+            text-gray-600 text-base
+            px-3
+            flex-shrink-0
+            overflow-x-scroll
+            whitespace-nowrap
+          "
         >
-          <p
-            v-for="(col, c) in report.columns"
-            :key="c + '-col'"
-            :style="getCellStyle(col, c)"
-            class="
-              text-gray-600 text-base
-              px-3
-              flex-shrink-0
-              overflow-x-scroll
-              whitespace-nowrap
-            "
-          >
-            {{ col.label }}
-          </p>
+          {{ col.label }}
         </div>
       </div>
 
-      <!-- Report Rows Container -->
-      <div
-        class="overflow-y-scroll inline-block"
+      <WithScroll
+        class="overflow-auto w-full"
         style="height: calc(100% - 49px)"
+        @scroll="scroll"
       >
         <!-- Report Rows -->
         <div
           v-for="(row, r) in report.reportData.slice(pageStart, pageEnd)"
           :key="r + '-row'"
-          class="flex items-center"
+          class="flex items-center w-max"
           :style="{ height: `${hconst}px` }"
           :class="r !== pageEnd - 1 ? 'border-b' : ''"
         >
@@ -55,8 +53,8 @@
             {{ cell.value }}
           </div>
         </div>
-        <!-- </div> -->
-      </div>
+      </WithScroll>
+      <!-- Report Rows Container -->
     </div>
 
     <!-- Pagination Footer -->
@@ -73,6 +71,7 @@
 import { Report } from 'reports/Report';
 import { defineComponent } from 'vue';
 import Paginator from '../Paginator.vue';
+import WithScroll from '../WithScroll.vue';
 
 export default defineComponent({
   props: {
@@ -87,6 +86,9 @@ export default defineComponent({
     };
   },
   methods: {
+    scroll({ scrollLeft }) {
+      this.$refs.titlerow.scrollLeft = scrollLeft;
+    },
     setPageIndices({ start, end }) {
       this.pageStart = start;
       this.pageEnd = end;
@@ -112,6 +114,6 @@ export default defineComponent({
       return styles;
     },
   },
-  components: { Paginator },
+  components: { Paginator, WithScroll },
 });
 </script>

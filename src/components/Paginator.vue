@@ -20,7 +20,7 @@
       <div class="flex gap-1 bg-gray-100 rounded">
         <input
           type="number"
-          class="w-6 text-right outline-none bg-transparent focus:text-gray-900"
+          class="w-7 text-right outline-none bg-transparent focus:text-gray-900"
           :value="pageNo"
           @change="(e) => setPageNo(e.target.value)"
           @input="(e) => setPageNo(e.target.value)"
@@ -28,7 +28,7 @@
           :max="maxPages"
         />
         <p class="text-gray-600">/</p>
-        <p class="w-5">
+        <p class="w-7">
           {{ maxPages }}
         </p>
       </div>
@@ -46,7 +46,7 @@
 
     <!-- Count Selector -->
     <div
-      class="border rounded flex justify-self-end"
+      class="border border-gray-100 rounded flex justify-self-end"
       v-if="filteredCounts.length"
     >
       <template v-for="c in filteredCounts" :key="c + '-count'">
@@ -55,7 +55,7 @@
           class="w-9"
           :class="
             count === c || (count === itemCount && c === -1)
-              ? 'bg-gray-200'
+              ? 'bg-gray-100'
               : ''
           "
         >
