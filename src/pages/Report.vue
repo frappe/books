@@ -37,6 +37,7 @@
   </div>
 </template>
 <script>
+import { computed } from '@vue/reactivity';
 import { reports } from 'reports';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import PageHeader from 'src/components/PageHeader.vue';
@@ -52,6 +53,11 @@ export default defineComponent({
     return {
       loading: false,
       report: null,
+    };
+  },
+  provide() {
+    return {
+      report: computed(() => this.report),
     };
   },
   components: { PageHeader, FormControl, ListReport },

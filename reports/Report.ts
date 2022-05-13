@@ -42,7 +42,7 @@ export abstract class Report extends Observable<RawValue> {
 
   async set(key: string, value: RawValue) {
     const field = this.filters.find((f) => f.fieldname === key);
-    if (field === undefined || value === undefined) {
+    if (field === undefined) {
       return;
     }
 
@@ -51,7 +51,12 @@ export abstract class Report extends Observable<RawValue> {
       return;
     }
 
-    this[key] = value;
+    if (getIsNullOrUndef(value)) {
+      delete this[key];
+    } else {
+      this[key] = value;
+    }
+
     this.columns = this.getColumns();
     await this.setReportData(key);
   }
