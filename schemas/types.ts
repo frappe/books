@@ -42,6 +42,7 @@ export interface OptionField extends BaseField {
     | FieldTypeEnum.AutoComplete
     | FieldTypeEnum.Color;
   options: SelectOption[];
+  emptyMessage?: string;
   allowCustom?: boolean;
 }
 
@@ -52,6 +53,7 @@ export interface TargetField extends BaseField {
 
 export interface DynamicLinkField extends BaseField {
   fieldtype: FieldTypeEnum.DynamicLink;
+  emptyMessage?: string;
   references: string;            // Reference to an option field that links to schema
 }
 

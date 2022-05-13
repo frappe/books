@@ -172,6 +172,10 @@ export default {
         return this.t`Empty`;
       }
 
+      if (this.df.emptyMessage) {
+        return this.df.emptyMessage;
+      }
+
       const { schemaName, fieldname } = this.df;
       const emptyMessage = fyo.models[schemaName]?.emptyMessages[fieldname]?.(
         this.doc
@@ -207,7 +211,7 @@ export default {
         let item = this.items[this.highlightedIndex];
         await this.selectItem(item);
       } else if (this.items.length === 1) {
-        await this.selectItem(this.items[0])
+        await this.selectItem(this.items[0]);
       }
     },
     highlightItemUp() {

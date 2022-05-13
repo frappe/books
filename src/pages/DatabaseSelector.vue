@@ -152,7 +152,6 @@ import fs from 'fs';
 import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { addNewFile } from 'fyo/telemetry/helpers';
-import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
 import Button from 'src/components/Button.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
@@ -237,8 +236,7 @@ export default {
       this.creatingDemo = false;
     },
     setFiles() {
-      const files = cloneDeep(fyo.config.get('files', []));
-      this.files = files.filter(({ dbPath }) => fs.existsSync(dbPath));
+      this.files = setAndGetCleanedConfigFiles();
 
       for (const file of this.files) {
         const stats = fs.statSync(file.dbPath);
@@ -299,4 +297,24 @@ export default {
     FeatherIcon,
   },
 };
+
+function setAndGetCleanedConfigFiles() {
+  const files = fyo.config
+    .get('files', [])
+    .filter(({ dbPath }) => fs.existsSync(dbPath));
+
+  const deduper = [];
+  const deduped = files.filter(({ companyName, dbPath }) => {
+    const key = `${companyName}-${dbPath}`;
+    if (deduper.includes(key)) {
+      return false;
+    }
+
+    deduper.push(key);
+    return true;
+  });
+
+  fyo.config.set(ConfigKeys.Files, deduped);
+  return deduped;
+}
 </script>

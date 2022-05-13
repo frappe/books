@@ -1,8 +1,10 @@
 <script>
+import { fyo } from 'src/initFyo';
 import Link from './Link.vue';
 export default {
   name: 'DynamicLink',
   props: ['target'],
+  inject: ['report'],
   extends: Link,
   created() {
     const watchKey = `doc.${this.df.references}`;
@@ -17,11 +19,25 @@ export default {
   },
   methods: {
     getTargetSchemaName() {
-      if (!this.doc || !this.df.references) {
+      const references = this.df.references;
+      if (!references) {
         return null;
       }
 
-      return this.doc[this.df.references];
+      let schemaName = this.doc?.[references];
+      if (!schemaName) {
+        schemaName = this.report?.[references];
+      }
+
+      if (!schemaName) {
+        return null;
+      }
+
+      if (!fyo.schemaMap[schemaName]) {
+        return null;
+      }
+
+      return schemaName;
     },
   },
 };

@@ -3,7 +3,7 @@ import { Action } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { ModelNameEnum } from 'models/types';
 import { Report } from 'reports/Report';
-import { ColumnField, ReportData } from 'reports/types';
+import { ColumnField, ReportData, ReportRow } from 'reports/types';
 import { Field, FieldTypeEnum, RawValue } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 
@@ -56,11 +56,13 @@ export class GeneralLedger extends Report {
   }
 
   async setReportData(filter?: string) {
+    let sort = true;
     if (filter !== 'grouped' || this._rawData.length === 0) {
       await this._setRawData();
+      sort = false;
     }
 
-    const map = this._getGroupedMap();
+    const map = this._getGroupedMap(sort);
     this._setIndexOnEntries(map);
     const { totalDebit, totalCredit } = this._getTotalsAndSetBalance(map);
     const consolidated = this._consolidateEntries(map);
@@ -112,12 +114,15 @@ export class GeneralLedger extends Report {
     return reportData;
   }
 
-  _getRowFromEntry(entry: LedgerEntry, columns: ColumnField[]) {
+  _getRowFromEntry(entry: LedgerEntry, columns: ColumnField[]): ReportRow {
     if (entry.name === -3) {
-      return Array(columns.length).fill({ value: '' });
+      return columns.map((c) => ({
+        value: '',
+        width: c.width ?? 1,
+      })) as ReportRow;
     }
 
-    const row = [];
+    const row: ReportRow = [];
     for (const col of columns) {
       const align = col.align ?? 'left';
       const width = col.width ?? 1;
@@ -138,6 +143,8 @@ export class GeneralLedger extends Report {
 
       if (typeof value === 'boolean' && fieldname === 'reverted') {
         value = value ? t`Reverted` : '';
+      } else {
+        value = String(value);
       }
 
       row.push({
@@ -231,7 +238,7 @@ export class GeneralLedger extends Report {
     return { totalDebit, totalCredit };
   }
 
-  _getGroupedMap(): GroupedMap {
+  _getGroupedMap(sort: boolean): GroupedMap {
     let groupBy: keyof LedgerEntry = 'referenceName';
     if (this.groupBy !== 'none') {
       groupBy = this.groupBy;
@@ -240,13 +247,15 @@ export class GeneralLedger extends Report {
     /**
      * Sort rows by ascending or descending
      */
-    this._rawData.sort((a, b) => {
-      if (this.ascending) {
-        return a.name - b.name;
-      }
+    if (sort) {
+      this._rawData.sort((a, b) => {
+        if (this.ascending) {
+          return +a.date! - +b.date!;
+        }
 
-      return b.name - a.name;
-    });
+        return +b.date! - +a.date!;
+      });
+    }
 
     /**
      * Map remembers the order of insertion
@@ -285,6 +294,8 @@ export class GeneralLedger extends Report {
       {
         fields,
         filters,
+        orderBy: 'date',
+        order: this.ascending ? 'asc' : 'desc',
       }
     )) as RawLedgerEntry[];
 
@@ -309,7 +320,7 @@ export class GeneralLedger extends Report {
     const filters: QueryFilter = {};
     const stringFilters = ['account', 'party', 'referenceName'];
 
-    for (const sf in stringFilters) {
+    for (const sf of stringFilters) {
       const value = this[sf];
       if (value === undefined) {
         continue;
@@ -361,6 +372,7 @@ export class GeneralLedger extends Report {
         label: t`Ref Name`,
         references: 'referenceType',
         placeholder: t`Ref Name`,
+        emptyMessage: t`Change Ref Type`,
         fieldname: 'referenceName',
       },
       {
@@ -489,10 +501,4 @@ export class GeneralLedger extends Report {
   getActions(): Action[] {
     return [];
   }
-
-  /**
-   * TODO: Order by date and then the number
-   * TODO: Something is wrong with dummy data, there are entries from 2022 Dec
-   * TODO: Always visible scrollbar
-   */
 }

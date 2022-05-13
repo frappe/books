@@ -77,8 +77,11 @@ export default {
           .map(({ item }) => item);
       }
 
-      options = options.concat(this.getCreateNewOption());
-      if (options.length === 0) {
+      if (this.doc) {
+        options = options.concat(this.getCreateNewOption());
+      }
+
+      if (options.length === 0 && !this.df.emptyMessage) {
         return [
           {
             component: markRaw({

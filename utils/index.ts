@@ -24,7 +24,9 @@ export function getValueMapFromList<T, K extends keyof T, V extends keyof T>(
 }
 
 export function getRandomString(): string {
-  return Math.random().toString(36).slice(2, 8);
+  const randomNumber = Math.random().toString(36).slice(2, 8);
+  const currentTime = Date.now().toString(36);
+  return `${randomNumber}-${currentTime}`;
 }
 
 export async function sleep(durationMilliseconds: number = 1000) {

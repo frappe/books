@@ -170,6 +170,17 @@ async function getPayments(fyo: Fyo, invoices: Invoice[]) {
   return payments;
 }
 
+function getSalesInvoiceDates(years: number, baseCount: number): Date[] {
+  const dates: Date[] = [];
+  for (const months of range(0, years * 12)) {
+    const flow = getFlowConstant(months);
+    const count = Math.ceil(flow * baseCount * (Math.random() * 0.25 + 0.75));
+    dates.push(...getRandomDates(count, months));
+  }
+
+  return dates;
+}
+
 async function getSalesInvoices(
   fyo: Fyo,
   years: number,
@@ -184,12 +195,7 @@ async function getSalesInvoices(
    * Get certain number of entries for each month of the count
    * of years.
    */
-  let dates: Date[] = [];
-  for (const months of range(0, years * 12)) {
-    const flow = getFlowConstant(months);
-    const count = Math.ceil(flow * baseCount * (Math.random() * 0.25 + 0.75));
-    dates = dates.concat(getRandomDates(count, months));
-  }
+  const dates = getSalesInvoiceDates(years, baseCount);
 
   /**
    * For each date create a Sales Invoice.

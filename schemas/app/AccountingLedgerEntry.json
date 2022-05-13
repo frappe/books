@@ -8,7 +8,7 @@
     {
       "fieldname": "date",
       "label": "Date",
-      "fieldtype": "Date",
+      "fieldtype": "Datetime",
       "readOnly": true
     },
     {
