@@ -4,7 +4,9 @@ import Link from './Link.vue';
 export default {
   name: 'DynamicLink',
   props: ['target'],
-  inject: ['report'],
+  inject: {
+    report: { default: null },
+  },
   extends: Link,
   created() {
     const watchKey = `doc.${this.df.references}`;

@@ -20,11 +20,12 @@
     <div v-if="report" class="mx-4 grid grid-cols-5 gap-2">
       <FormControl
         v-for="field in report.filters"
+        size="small"
         :show-label="field.fieldtype === 'Check'"
         :key="field.fieldname + '-filter'"
         class="bg-gray-100 rounded"
-        :class="field.fieldtype === 'Check' ? 'flex pl-3' : ''"
-        input-class="bg-transparent px-3 py-2 text-base"
+        :class="field.fieldtype === 'Check' ? 'flex pl-2' : ''"
+        input-class="bg-transparent text-sm"
         :df="field"
         :value="report.get(field.fieldname)"
         :read-only="loading"
@@ -85,6 +86,8 @@ export default defineComponent({
       if (!this.report.reportData.length) {
         await this.report.setReportData();
       }
+
+      await this.report.setDefaultFilters();
     },
   },
 });

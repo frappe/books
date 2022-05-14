@@ -1,44 +1,18 @@
 import { Fyo, t } from 'fyo';
 import { Action } from 'fyo/model/types';
 import { DateTime } from 'luxon';
-import { ModelNameEnum } from 'models/types';
-import { Report } from 'reports/Report';
-import { ColumnField, ReportData, ReportRow } from 'reports/types';
-import { Field, FieldTypeEnum, RawValue } from 'schemas/types';
+import { LedgerReport } from 'reports/LedgerReport';
+import {
+  ColumnField,
+  GroupedMap,
+  LedgerEntry,
+  ReportData,
+  ReportRow,
+} from 'reports/types';
+import { Field, FieldTypeEnum } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 
-interface RawLedgerEntry {
-  name: string;
-  account: string;
-  date: string;
-  debit: string;
-  credit: string;
-  referenceType: string;
-  referenceName: string;
-  party: string;
-  reverted: number;
-  reverts: string;
-  [key: string]: RawValue;
-}
-
-interface LedgerEntry {
-  index?: string;
-  name: number;
-  account: string;
-  date: Date | null;
-  debit: number | null;
-  credit: number | null;
-  balance: number | null;
-  referenceType: string;
-  referenceName: string;
-  party: string;
-  reverted: boolean;
-  reverts: string;
-}
-
-type GroupedMap = Map<string, LedgerEntry[]>;
-
-export class GeneralLedger extends Report {
+export class GeneralLedger extends LedgerReport {
   static title = t`General Ledger`;
   static reportName = 'general-ledger';
 
@@ -48,8 +22,10 @@ export class GeneralLedger extends Report {
 
   constructor(fyo: Fyo) {
     super(fyo);
+  }
 
-    if (!this.toField) {
+  async setDefaultFilters() {
+    if (!this.toDate) {
       this.toDate = DateTime.now().toISODate();
       this.fromDate = DateTime.now().minus({ years: 1 }).toISODate();
     }
@@ -238,85 +214,7 @@ export class GeneralLedger extends Report {
     return { totalDebit, totalCredit };
   }
 
-  _getGroupedMap(sort: boolean): GroupedMap {
-    let groupBy: keyof LedgerEntry = 'referenceName';
-    if (this.groupBy !== 'none') {
-      groupBy = this.groupBy;
-    }
-
-    /**
-     * Sort rows by ascending or descending
-     */
-    if (sort) {
-      this._rawData.sort((a, b) => {
-        if (this.ascending) {
-          return +a.date! - +b.date!;
-        }
-
-        return +b.date! - +a.date!;
-      });
-    }
-
-    /**
-     * Map remembers the order of insertion
-     * ∴ presorting maintains grouping order
-     */
-    const map: GroupedMap = new Map();
-    for (const entry of this._rawData) {
-      const groupingKey = entry[groupBy];
-      if (!map.has(groupingKey)) {
-        map.set(groupingKey, []);
-      }
-
-      map.get(groupingKey)!.push(entry);
-    }
-
-    return map;
-  }
-
-  async _setRawData() {
-    const fields = [
-      'name',
-      'account',
-      'date',
-      'debit',
-      'credit',
-      'referenceType',
-      'referenceName',
-      'party',
-      'reverted',
-      'reverts',
-    ];
-
-    const filters = this._getQueryFilters();
-    const entries = (await this.fyo.db.getAllRaw(
-      ModelNameEnum.AccountingLedgerEntry,
-      {
-        fields,
-        filters,
-        orderBy: 'date',
-        order: this.ascending ? 'asc' : 'desc',
-      }
-    )) as RawLedgerEntry[];
-
-    this._rawData = entries.map((entry) => {
-      return {
-        name: parseInt(entry.name),
-        account: entry.account,
-        date: new Date(entry.date),
-        debit: parseFloat(entry.debit),
-        credit: parseFloat(entry.credit),
-        balance: 0,
-        referenceType: entry.referenceType,
-        referenceName: entry.referenceName,
-        party: entry.party,
-        reverted: Boolean(entry.reverted),
-        reverts: entry.reverts,
-      } as LedgerEntry;
-    });
-  }
-
-  _getQueryFilters(): QueryFilter {
+  async _getQueryFilters(): Promise<QueryFilter> {
     const filters: QueryFilter = {};
     const stringFilters = ['account', 'party', 'referenceName'];
 

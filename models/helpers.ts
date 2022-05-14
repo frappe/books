@@ -5,6 +5,10 @@ import { NotFoundError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
 import Money from 'pesa/dist/types/src/money';
 import { Router } from 'vue-router';
+import {
+  AccountRootType,
+  AccountRootTypeEnum,
+} from './baseModels/Account/types';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
 export function getInvoiceActions(
@@ -168,4 +172,21 @@ export async function getExchangeRate({
   }
 
   return exchangeRate;
+}
+
+export function isCredit(rootType: AccountRootType) {
+  switch (rootType) {
+    case AccountRootTypeEnum.Asset:
+      return false;
+    case AccountRootTypeEnum.Liability:
+      return true;
+    case AccountRootTypeEnum.Equity:
+      return true;
+    case AccountRootTypeEnum.Expense:
+      return false;
+    case AccountRootTypeEnum.Income:
+      return true;
+    default:
+      return true;
+  }
 }

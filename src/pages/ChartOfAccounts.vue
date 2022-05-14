@@ -127,7 +127,7 @@
 </template>
 <script>
 import { t } from 'fyo';
-import { AccountRootTypeEnum } from 'models/baseModels/Account/types';
+import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
@@ -154,24 +154,8 @@ export default {
     }
   },
   methods: {
-    isCredit(rootType) {
-      switch (rootType) {
-        case AccountRootTypeEnum.Asset:
-          return false;
-        case AccountRootTypeEnum.Liability:
-          return true;
-        case AccountRootTypeEnum.Equity:
-          return true;
-        case AccountRootTypeEnum.Expense:
-          return false;
-        case AccountRootTypeEnum.Income:
-          return true;
-        default:
-          return true;
-      }
-    },
     getBalanceString(account) {
-      const suffix = this.isCredit(account.rootType) ? t`Cr.` : t`Dr.`;
+      const suffix = isCredit(account.rootType) ? t`Cr.` : t`Dr.`;
       return `${fyo.format(account.balance, 'Currency')} ${suffix}`;
     },
     async fetchAccounts() {

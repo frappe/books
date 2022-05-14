@@ -14,9 +14,6 @@ export abstract class Report extends Observable<RawValue> {
   filters: Field[];
   reportData: ReportData;
 
-  abstract getActions(): Action[];
-  abstract getFilters(): Field[];
-
   constructor(fyo: Fyo) {
     super();
     this.fyo = fyo;
@@ -57,7 +54,9 @@ export abstract class Report extends Observable<RawValue> {
       this[key] = value;
     }
 
+    this.filters = this.getFilters();
     this.columns = this.getColumns();
+    await this.setDefaultFilters();
     await this.setReportData(key);
   }
 
@@ -72,6 +71,13 @@ export abstract class Report extends Observable<RawValue> {
     }
   }
 
+  /**
+   * Should first check if filter value is set
+   * and update only if it is not set.
+   */
+  async setDefaultFilters() {}
+  abstract getActions(): Action[];
+  abstract getFilters(): Field[];
   abstract getColumns(): ColumnField[];
   abstract setReportData(filter?: string): Promise<void>;
 }
