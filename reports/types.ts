@@ -1,5 +1,5 @@
 import { AccountRootType } from 'models/baseModels/Account/types';
-import { BaseField } from 'schemas/types';
+import { BaseField, RawValue } from 'schemas/types';
 
 export type ExportExtension = 'csv' | 'json';
 
@@ -28,3 +28,34 @@ export interface FinancialStatementOptions {
   periodicity?: Periodicity;
   accumulateValues?: boolean;
 }
+
+export interface RawLedgerEntry {
+  name: string;
+  account: string;
+  date: string;
+  debit: string;
+  credit: string;
+  referenceType: string;
+  referenceName: string;
+  party: string;
+  reverted: number;
+  reverts: string;
+  [key: string]: RawValue;
+}
+
+export interface LedgerEntry {
+  index?: string;
+  name: number;
+  account: string;
+  date: Date | null;
+  debit: number | null;
+  credit: number | null;
+  balance: number | null;
+  referenceType: string;
+  referenceName: string;
+  party: string;
+  reverted: boolean;
+  reverts: string;
+}
+
+export type GroupedMap = Map<string, LedgerEntry[]>;
