@@ -10,17 +10,25 @@ export abstract class Report extends Observable<RawValue> {
   static reportName: string;
 
   fyo: Fyo;
-  columns: ColumnField[];
-  filters: Field[];
+  columns: ColumnField[] = [];
+  filters: Field[] = [];
   reportData: ReportData;
 
   constructor(fyo: Fyo) {
     super();
     this.fyo = fyo;
     this.reportData = [];
-    this.filters = this.getFilters();
-    this.columns = this.getColumns();
-    this.initializeFilters();
+  }
+
+  async initialize() {
+    /**
+     * Not in constructor cause possibly async.
+     */
+
+    await this.setDefaultFilters();
+    this.filters = await this.getFilters();
+    this.columns = await this.getColumns();
+    await this.setReportData();
   }
 
   get filterMap() {
@@ -54,21 +62,10 @@ export abstract class Report extends Observable<RawValue> {
       this[key] = value;
     }
 
-    this.filters = this.getFilters();
-    this.columns = this.getColumns();
+    this.filters = await this.getFilters();
+    this.columns = await this.getColumns();
     await this.setDefaultFilters();
     await this.setReportData(key);
-  }
-
-  initializeFilters() {
-    for (const field of this.filters) {
-      if (!field.default) {
-        this[field.fieldname] = undefined;
-        continue;
-      }
-
-      this[field.fieldname] = field.default;
-    }
   }
 
   /**
@@ -77,7 +74,7 @@ export abstract class Report extends Observable<RawValue> {
    */
   async setDefaultFilters() {}
   abstract getActions(): Action[];
-  abstract getFilters(): Field[];
-  abstract getColumns(): ColumnField[];
+  abstract getFilters(): Field[] | Promise<Field[]>;
+  abstract getColumns(): ColumnField[] | Promise<ColumnField[]>;
   abstract setReportData(filter?: string): Promise<void>;
 }

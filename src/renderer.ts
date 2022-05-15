@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { ConfigKeys } from 'fyo/core/types';
 import { DateTime } from 'luxon';
+import { ProfitAndLoss } from 'reports/ProfitAndLoss/ProfitAndLoss';
 import { IPC_ACTIONS } from 'utils/messages';
 import { App as VueApp, createApp } from 'vue';
 import App from './App.vue';
@@ -106,5 +107,7 @@ function setOnWindow() {
     window.fyo = fyo;
     // @ts-ignore
     window.DateTime = DateTime;
+    // @ts-ignore
+    window.pnl = new ProfitAndLoss(fyo);
   }
 }

@@ -1,2 +1,4 @@
 import { GeneralLedger } from './GeneralLedger/GeneralLedger';
-export const reports = { GeneralLedger };
+import { ProfitAndLoss } from './ProfitAndLoss/ProfitAndLoss';
+
+export const reports = { GeneralLedger, ProfitAndLoss };

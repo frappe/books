@@ -143,12 +143,12 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'general-ledger',
           route: '/report/GeneralLedger',
         },
-        /*
         {
           label: t`Profit And Loss`,
           name: 'profit-and-loss',
-          route: '/report/profit-and-loss',
+          route: '/report/ProfitAndLoss',
         },
+        /*
         {
           label: t`Balance Sheet`,
           name: 'balance-sheet',

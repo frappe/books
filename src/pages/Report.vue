@@ -39,6 +39,7 @@
 </template>
 <script>
 import { computed } from '@vue/reactivity';
+import { t } from 'fyo';
 import { reports } from 'reports';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import PageHeader from 'src/components/PageHeader.vue';
@@ -62,9 +63,6 @@ export default defineComponent({
     };
   },
   components: { PageHeader, FormControl, ListReport },
-  async mounted() {
-    await this.setReportData();
-  },
   async activated() {
     await this.setReportData();
     if (fyo.store.isDevelopment) {
@@ -79,15 +77,15 @@ export default defineComponent({
   methods: {
     async setReportData() {
       const Report = reports[this.reportName];
+
       if (this.report === null) {
         this.report = new Report(fyo);
+        await this.report.initialize();
       }
 
       if (!this.report.reportData.length) {
         await this.report.setReportData();
       }
-
-      await this.report.setDefaultFilters();
     },
   },
 });

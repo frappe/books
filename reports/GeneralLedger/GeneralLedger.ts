@@ -1,6 +1,7 @@
 import { Fyo, t } from 'fyo';
 import { Action } from 'fyo/model/types';
 import { DateTime } from 'luxon';
+import { ModelNameEnum } from 'models/types';
 import { LedgerReport } from 'reports/LedgerReport';
 import {
   ColumnField,
@@ -12,12 +13,21 @@ import {
 import { Field, FieldTypeEnum } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 
+type ReferenceType =
+  | ModelNameEnum.SalesInvoice
+  | ModelNameEnum.PurchaseInvoice
+  | ModelNameEnum.Payment
+  | ModelNameEnum.JournalEntry
+  | 'All';
+
 export class GeneralLedger extends LedgerReport {
   static title = t`General Ledger`;
   static reportName = 'general-ledger';
 
-  ascending!: boolean;
-  groupBy!: 'none' | 'party' | 'account' | 'referenceName';
+  ascending: boolean = false;
+  reverted: boolean = false;
+  referenceType: ReferenceType = 'All';
+  groupBy: 'none' | 'party' | 'account' | 'referenceName' = 'none';
   _rawData: LedgerEntry[] = [];
 
   constructor(fyo: Fyo) {
@@ -263,7 +273,6 @@ export class GeneralLedger extends LedgerReport {
         label: t`Ref Type`,
         fieldname: 'referenceType',
         placeholder: t`Ref Type`,
-        default: 'All',
       },
       {
         fieldtype: 'DynamicLink',
@@ -301,7 +310,6 @@ export class GeneralLedger extends LedgerReport {
       },
       {
         fieldtype: 'Select',
-        default: 'none',
         label: t`Group By`,
         fieldname: 'groupBy',
         options: [
@@ -313,13 +321,11 @@ export class GeneralLedger extends LedgerReport {
       },
       {
         fieldtype: 'Check',
-        default: false,
         label: t`Include Cancelled`,
         fieldname: 'reverted',
       },
       {
         fieldtype: 'Check',
-        default: false,
         label: t`Ascending Order`,
         fieldname: 'ascending',
       },
