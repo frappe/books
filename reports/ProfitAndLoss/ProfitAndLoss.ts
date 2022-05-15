@@ -1,7 +1,11 @@
-import { Fyo, t } from 'fyo';
+import { t } from 'fyo';
 import { Action } from 'fyo/model/types';
+import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
-import { AccountRootType } from 'models/baseModels/Account/types';
+import {
+  AccountRootType,
+  AccountRootTypeEnum,
+} from 'models/baseModels/Account/types';
 import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { LedgerReport } from 'reports/LedgerReport';
@@ -20,7 +24,25 @@ type DateRange = { fromDate: DateTime; toDate: DateTime };
 type ValueMap = Map<DateRange, number>;
 type AccountNameValueMapMap = Map<string, ValueMap>;
 type BasedOn = 'Fiscal Year' | 'Date Range';
-type Account = { name: string; rootType: AccountRootType; isGroup: boolean };
+
+interface Account {
+  name: string;
+  rootType: AccountRootType;
+  isGroup: boolean;
+  parentAccount: string | null;
+}
+
+interface AccountTreeNode extends Account {
+  children?: AccountTreeNode[];
+  valueMap?: ValueMap;
+  prune?: boolean;
+}
+type AccountTree = Record<string, AccountTreeNode>;
+
+const PNL_ROOT_TYPES: AccountRootType[] = [
+  AccountRootTypeEnum.Income,
+  AccountRootTypeEnum.Expense,
+];
 
 export class ProfitAndLoss extends LedgerReport {
   static title = t`Profit And Loss`;
@@ -32,25 +54,21 @@ export class ProfitAndLoss extends LedgerReport {
   toYear?: number;
   singleColumn: boolean = false;
   periodicity: Periodicity = 'Monthly';
-  basedOn: BasedOn = 'Fiscal Year';
+  basedOn: BasedOn = 'Date Range';
 
   _rawData: LedgerEntry[] = [];
 
   accountMap?: Record<string, Account>;
 
-  constructor(fyo: Fyo) {
-    super(fyo);
-  }
-
   async setDefaultFilters(): Promise<void> {
     if (this.basedOn === 'Date Range' && !this.toDate) {
       this.toDate = DateTime.now().toISODate();
-      this.count = 1;
+      this.count = 3;
     }
 
     if (this.basedOn === 'Fiscal Year' && !this.toYear) {
-      this.toYear = DateTime.now().year;
-      this.fromYear = this.toYear - 1;
+      this.fromYear = DateTime.now().year;
+      this.toYear = this.fromYear + 1;
     }
   }
 
@@ -66,10 +84,28 @@ export class ProfitAndLoss extends LedgerReport {
 
     const map = this._getGroupedMap(sort, 'account');
     const rangeGroupedMap = await this._getGroupedByDateRanges(map);
+    const accountTree = await this._getAccountTree(rangeGroupedMap);
+
+    for (const name of Object.keys(accountTree)) {
+      const { rootType } = accountTree[name];
+      if (PNL_ROOT_TYPES.includes(rootType)) {
+        continue;
+      }
+
+      delete accountTree[name];
+    }
     /**
-     * TODO: Get account tree  from accountMap
      * TODO: Create Grid from rangeGroupedMap and tree
      */
+  }
+
+  async temp() {
+    await this.setDefaultFilters();
+    await this._setRawData();
+    const map = this._getGroupedMap(false, 'account');
+    const rangeGroupedMap = await this._getGroupedByDateRanges(map);
+    const accountTree = await this._getAccountTree(rangeGroupedMap);
+    return accountTree;
   }
 
   async _getGroupedByDateRanges(
@@ -83,7 +119,7 @@ export class ProfitAndLoss extends LedgerReport {
       const valueMap: ValueMap = new Map();
       for (const entry of map.get(account)!) {
         const key = this._getRangeMapKey(entry, dateRanges);
-        if (valueMap === null) {
+        if (key === null) {
           continue;
         }
 
@@ -103,6 +139,18 @@ export class ProfitAndLoss extends LedgerReport {
     return accountValueMap;
   }
 
+  async _getAccountTree(rangeGroupedMap: AccountNameValueMapMap) {
+    const accountTree = cloneDeep(await this._getAccountMap()) as AccountTree;
+
+    setPruneFlagOnAccountTreeNodes(accountTree);
+    setValueMapOnAccountTreeNodes(accountTree, rangeGroupedMap);
+    setChildrenOnAccountTreeNodes(accountTree);
+    deleteNonRootAccountTreeNodes(accountTree);
+    pruneAccountTree(accountTree);
+
+    return accountTree;
+  }
+
   async _getAccountMap() {
     if (this.accountMap) {
       return this.accountMap;
@@ -110,12 +158,13 @@ export class ProfitAndLoss extends LedgerReport {
 
     const accountList: Account[] = (
       await this.fyo.db.getAllRaw('Account', {
-        fields: ['name', 'rootType', 'isGroup'],
+        fields: ['name', 'rootType', 'isGroup', 'parentAccount'],
       })
     ).map((rv) => ({
       name: rv.name as string,
       rootType: rv.rootType as AccountRootType,
       isGroup: Boolean(rv.isGroup),
+      parentAccount: rv.parentAccount as string | null,
     }));
 
     this.accountMap = getMapFromList(accountList, 'name');
@@ -126,12 +175,15 @@ export class ProfitAndLoss extends LedgerReport {
     entry: LedgerEntry,
     dateRanges: DateRange[]
   ): DateRange | null {
-    const entryDate = +DateTime.fromISO(
+    const entryDate = DateTime.fromISO(
       entry.date!.toISOString().split('T')[0]
-    );
+    ).toMillis();
 
     for (const dr of dateRanges) {
-      if (entryDate <= +dr.toDate && entryDate > +dr.fromDate) {
+      const toDate = dr.toDate.toMillis();
+      const fromDate = dr.fromDate.toMillis();
+
+      if (entryDate <= toDate && entryDate > fromDate) {
         return dr;
       }
     }
@@ -231,7 +283,7 @@ export class ProfitAndLoss extends LedgerReport {
           { label: t`Fiscal Year`, value: 'Fiscal Year' },
           { label: t`Date Range`, value: 'Date Range' },
         ],
-        default: 'Fiscal Year',
+        default: 'Date Range',
         label: t`Based On`,
         fieldname: 'basedOn',
       },
@@ -332,3 +384,112 @@ const monthsMap: Record<Periodicity, number> = {
   'Half Yearly': 6,
   Yearly: 12,
 };
+
+function setPruneFlagOnAccountTreeNodes(accountTree: AccountTree) {
+  for (const account of Object.values(accountTree)) {
+    account.prune = true;
+  }
+}
+
+function setValueMapOnAccountTreeNodes(
+  accountTree: AccountTree,
+  rangeGroupedMap: AccountNameValueMapMap
+) {
+  for (const name of rangeGroupedMap.keys()) {
+    const valueMap = rangeGroupedMap.get(name)!;
+    accountTree[name].valueMap = valueMap;
+    accountTree[name].prune = false;
+
+    /**
+     * Set the update the parent account values recursively
+     * also prevent pruning of the parent accounts.
+     */
+    let parentAccountName: string | null = accountTree[name].parentAccount;
+    let parentValueMap = valueMap;
+
+    while (parentAccountName !== null) {
+      const update = updateParentAccountWithChildValues(
+        accountTree,
+        parentAccountName,
+        parentValueMap
+      );
+
+      parentAccountName = update.parentAccountName;
+      parentValueMap = update.parentValueMap;
+    }
+  }
+}
+
+function updateParentAccountWithChildValues(
+  accountTree: AccountTree,
+  parentAccountName: string,
+  parentValueMap: ValueMap
+): {
+  parentAccountName: string | null;
+  parentValueMap: ValueMap;
+} {
+  const parentAccount = accountTree[parentAccountName];
+  parentAccount.prune = false;
+  parentAccount.valueMap ??= new Map();
+
+  for (const key of parentValueMap.keys()) {
+    const value = parentAccount.valueMap!.get(key) ?? 0;
+    parentAccount.valueMap!.set(key, value + parentValueMap.get(key)!);
+  }
+
+  return {
+    parentAccountName: parentAccount.parentAccount,
+    parentValueMap: parentAccount.valueMap!,
+  };
+}
+
+function setChildrenOnAccountTreeNodes(accountTree: AccountTree) {
+  const parentNodes: Set<string> = new Set();
+
+  for (const name of Object.keys(accountTree)) {
+    const ac = accountTree[name];
+    if (!ac.parentAccount) {
+      continue;
+    }
+
+    accountTree[ac.parentAccount].children ??= [];
+    accountTree[ac.parentAccount].children!.push(ac!);
+
+    parentNodes.add(ac.parentAccount);
+  }
+}
+
+function deleteNonRootAccountTreeNodes(accountTree: AccountTree) {
+  for (const name of Object.keys(accountTree)) {
+    const ac = accountTree[name];
+    if (!ac.parentAccount) {
+      continue;
+    }
+
+    delete accountTree[name];
+  }
+}
+
+function pruneAccountTree(accountTree: AccountTree) {
+  for (const root of Object.keys(accountTree)) {
+    if (accountTree[root].prune) {
+      delete accountTree[root];
+    }
+  }
+
+  for (const root of Object.keys(accountTree)) {
+    accountTree[root].children = getPrunedChildren(accountTree[root].children!);
+  }
+}
+
+function getPrunedChildren(children: AccountTreeNode[]): AccountTreeNode[] {
+  return children.filter((child) => {
+    if (child.children) {
+      child.children = getPrunedChildren(child.children);
+    }
+
+    return !child.prune;
+  });
+}
+
+function convertAccountTreeToAccountList() {}
