@@ -4,7 +4,7 @@ import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
 import {
   AccountRootType,
-  AccountRootTypeEnum,
+  AccountRootTypeEnum
 } from 'models/baseModels/Account/types';
 import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
@@ -14,6 +14,9 @@ import {
   GroupedMap,
   LedgerEntry,
   Periodicity,
+  ReportCell,
+  ReportData,
+  ReportRow
 } from 'reports/types';
 import { Field } from 'schemas/types';
 import { fyo } from 'src/initFyo';
@@ -32,24 +35,33 @@ interface Account {
   parentAccount: string | null;
 }
 
+type AccountTree = Record<string, AccountTreeNode>;
 interface AccountTreeNode extends Account {
   children?: AccountTreeNode[];
   valueMap?: ValueMap;
   prune?: boolean;
 }
-type AccountTree = Record<string, AccountTreeNode>;
+
+type AccountList = AccountListNode[];
+interface AccountListNode extends Account {
+  valueMap?: ValueMap;
+  level?: number;
+}
 
 const PNL_ROOT_TYPES: AccountRootType[] = [
   AccountRootTypeEnum.Income,
   AccountRootTypeEnum.Expense,
 ];
 
+const ACC_NAME_WIDTH = 1.5;
+const ACC_BAL_WIDTH = 1;
+
 export class ProfitAndLoss extends LedgerReport {
   static title = t`Profit And Loss`;
   static reportName = 'profit-and-loss';
 
   toDate?: string;
-  count?: number;
+  count: number = 3;
   fromYear?: number;
   toYear?: number;
   singleColumn: boolean = false;
@@ -63,7 +75,6 @@ export class ProfitAndLoss extends LedgerReport {
   async setDefaultFilters(): Promise<void> {
     if (this.basedOn === 'Date Range' && !this.toDate) {
       this.toDate = DateTime.now().toISODate();
-      this.count = 3;
     }
 
     if (this.basedOn === 'Fiscal Year' && !this.toYear) {
@@ -73,16 +84,8 @@ export class ProfitAndLoss extends LedgerReport {
   }
 
   async setReportData(filter?: string) {
-    let sort = true;
-    if (
-      this._rawData.length === 0 &&
-      !['periodicity', 'singleColumn'].includes(filter!)
-    ) {
-      await this._setRawData();
-      sort = false;
-    }
-
-    const map = this._getGroupedMap(sort, 'account');
+    await this._setRawData();
+    const map = this._getGroupedMap(true, 'account');
     const rangeGroupedMap = await this._getGroupedByDateRanges(map);
     const accountTree = await this._getAccountTree(rangeGroupedMap);
 
@@ -94,18 +97,28 @@ export class ProfitAndLoss extends LedgerReport {
 
       delete accountTree[name];
     }
-    /**
-     * TODO: Create Grid from rangeGroupedMap and tree
-     */
+
+    const accountList = convertAccountTreeToAccountList(accountTree);
+    this.reportData = this.getReportDataFromAccountList(accountList);
   }
 
-  async temp() {
-    await this.setDefaultFilters();
-    await this._setRawData();
-    const map = this._getGroupedMap(false, 'account');
-    const rangeGroupedMap = await this._getGroupedByDateRanges(map);
-    const accountTree = await this._getAccountTree(rangeGroupedMap);
-    return accountTree;
+  getReportDataFromAccountList(accountList: AccountList): ReportData {
+    const dateKeys = [...accountList[0].valueMap!.keys()].sort(
+      (a, b) => b.toDate.toMillis() - a.toDate.toMillis()
+    );
+
+    return accountList.map((al) => {
+      const nameCell = { value: al.name, align: 'left', width: ACC_NAME_WIDTH };
+      const balanceCells = dateKeys.map(
+        (k) =>
+          ({
+            value: this.fyo.format(al.valueMap?.get(k)!, 'Currency'),
+            align: 'right',
+            width: ACC_BAL_WIDTH,
+          } as ReportCell)
+      );
+      return [nameCell, balanceCells].flat() as ReportRow;
+    });
   }
 
   async _getGroupedByDateRanges(
@@ -256,7 +269,7 @@ export class ProfitAndLoss extends LedgerReport {
     return filters;
   }
 
-  getFilters() {
+  getFilters(): Field[] {
     const periodNameMap: Record<Periodicity, string> = {
       Monthly: t`Months`,
       Quarterly: t`Quarters`,
@@ -268,36 +281,45 @@ export class ProfitAndLoss extends LedgerReport {
       {
         fieldtype: 'Select',
         options: [
+          { label: t`Fiscal Year`, value: 'Fiscal Year' },
+          { label: t`Date Range`, value: 'Date Range' },
+        ],
+        label: t`Based On`,
+        fieldname: 'basedOn',
+      },
+      {
+        fieldtype: 'Select',
+        options: [
           { label: t`Monthly`, value: 'Monthly' },
           { label: t`Quarterly`, value: 'Quarterly' },
           { label: t`Half Yearly`, value: 'Half Yearly' },
           { label: t`Yearly`, value: 'Yearly' },
         ],
-        default: 'Monthly',
         label: t`Periodicity`,
         fieldname: 'periodicity',
       },
+      ,
+    ] as Field[];
+
+    let dateFilters = [
       {
-        fieldtype: 'Select',
-        options: [
-          { label: t`Fiscal Year`, value: 'Fiscal Year' },
-          { label: t`Date Range`, value: 'Date Range' },
-        ],
-        default: 'Date Range',
-        label: t`Based On`,
-        fieldname: 'basedOn',
+        fieldtype: 'Date',
+        fieldname: 'fromYear',
+        placeholder: t`From Date`,
+        label: t`From Date`,
+        required: true,
       },
       {
-        fieldtype: 'Check',
-        default: false,
-        label: t`Single Column`,
-        fieldname: 'singleColumn',
+        fieldtype: 'Date',
+        fieldname: 'toYear',
+        placeholder: t`To Year`,
+        label: t`To Year`,
+        required: true,
       },
     ] as Field[];
 
     if (this.basedOn === 'Date Range') {
-      return [
-        ...filters,
+      dateFilters = [
         {
           fieldtype: 'Date',
           fieldname: 'toDate',
@@ -308,6 +330,7 @@ export class ProfitAndLoss extends LedgerReport {
         {
           fieldtype: 'Int',
           fieldname: 'count',
+          minvalue: 1,
           placeholder: t`Number of ${periodNameMap[this.periodicity]}`,
           label: t`Number of ${periodNameMap[this.periodicity]}`,
           required: true,
@@ -315,32 +338,43 @@ export class ProfitAndLoss extends LedgerReport {
       ] as Field[];
     }
 
-    const thisYear = DateTime.local().year;
     return [
-      ...filters,
+      filters,
+      dateFilters,
       {
-        fieldtype: 'Date',
-        fieldname: 'fromYear',
-        placeholder: t`From Date`,
-        label: t`From Date`,
-        default: thisYear - 1,
-        required: true,
-      },
-      {
-        fieldtype: 'Date',
-        fieldname: 'toYear',
-        placeholder: t`To Year`,
-        label: t`To Year`,
-        default: thisYear,
-        required: true,
-      },
-    ] as Field[];
+        fieldtype: 'Check',
+        label: t`Single Column`,
+        fieldname: 'singleColumn',
+      } as Field,
+    ].flat();
   }
 
-  getColumns(): ColumnField[] {
-    const columns = [] as ColumnField[];
+  async getColumns(): Promise<ColumnField[]> {
+    const columns = [
+      {
+        label: t`Account`,
+        fieldtype: 'Link',
+        fieldname: 'account',
+        align: 'left',
+        width: ACC_NAME_WIDTH,
+      },
+    ] as ColumnField[];
 
-    return columns;
+    const dateRanges = await this._getDateRanges();
+    const dateColumns = dateRanges
+      .sort((a, b) => b.toDate.toMillis() - a.toDate.toMillis())
+      .map(
+        (d) =>
+          ({
+            label: this.fyo.format(d.toDate.toJSDate(), 'Date'),
+            fieldtype: 'Data',
+            fieldname: 'toDate',
+            align: 'right',
+            width: ACC_BAL_WIDTH,
+          } as ColumnField)
+      );
+
+    return [columns, dateColumns].flat();
   }
 
   getActions(): Action[] {
@@ -492,4 +526,36 @@ function getPrunedChildren(children: AccountTreeNode[]): AccountTreeNode[] {
   });
 }
 
-function convertAccountTreeToAccountList() {}
+function convertAccountTreeToAccountList(
+  accountTree: AccountTree
+): AccountList {
+  const accountList: AccountList = [];
+
+  for (const rootNode of Object.values(accountTree)) {
+    pushToAccountList(rootNode, accountList, 0);
+  }
+
+  return accountList;
+}
+
+function pushToAccountList(
+  accountTreeNode: AccountTreeNode,
+  accountList: AccountList,
+  level: number
+) {
+  accountList.push({
+    name: accountTreeNode.name,
+    rootType: accountTreeNode.rootType,
+    isGroup: accountTreeNode.isGroup,
+    parentAccount: accountTreeNode.parentAccount,
+    valueMap: accountTreeNode.valueMap,
+    level,
+  });
+
+  const children = accountTreeNode.children ?? [];
+  const childLevel = level + 1;
+
+  for (const childNode of children) {
+    pushToAccountList(childNode, accountList, childLevel);
+  }
+}
