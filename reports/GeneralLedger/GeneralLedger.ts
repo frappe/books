@@ -23,6 +23,7 @@ type ReferenceType =
 export class GeneralLedger extends LedgerReport {
   static title = t`General Ledger`;
   static reportName = 'general-ledger';
+  usePagination: boolean = true;
 
   ascending: boolean = false;
   reverted: boolean = false;
@@ -102,19 +103,23 @@ export class GeneralLedger extends LedgerReport {
 
   _getRowFromEntry(entry: LedgerEntry, columns: ColumnField[]): ReportRow {
     if (entry.name === -3) {
-      return columns.map((c) => ({
-        value: '',
-        width: c.width ?? 1,
-      })) as ReportRow;
+      return {
+        cells: columns.map((c) => ({
+          rawValue: '',
+          value: '',
+          width: c.width ?? 1,
+        })),
+      };
     }
 
-    const row: ReportRow = [];
+    const row: ReportRow = { cells: [] };
     for (const col of columns) {
       const align = col.align ?? 'left';
       const width = col.width ?? 1;
       const fieldname = col.fieldname;
 
       let value = entry[fieldname as keyof LedgerEntry];
+      const rawValue = value;
       if (value === null || value === undefined) {
         value = '';
       }
@@ -133,10 +138,11 @@ export class GeneralLedger extends LedgerReport {
         value = String(value);
       }
 
-      row.push({
+      row.cells.push({
         italics: entry.name === -1,
         bold: entry.name === -2,
         value,
+        rawValue,
         align,
         width,
       });

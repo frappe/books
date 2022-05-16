@@ -9,9 +9,18 @@ export interface ReportCell {
   align?: 'left' | 'right' | 'center';
   width?: number;
   value: string;
+  rawValue: RawValue | undefined | Date;
+  indent?: number;
+  color?: 'red' | 'green';
 }
 
-export type ReportRow = ReportCell[];
+export interface ReportRow {
+  cells: ReportCell[];
+  level?: number;
+  isGroup?: boolean;
+  folded?: boolean;
+  foldedBelow?: boolean;
+}
 export type ReportData = ReportRow[];
 export interface ColumnField extends BaseField {
   align?: 'left' | 'right' | 'center';
