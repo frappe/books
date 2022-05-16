@@ -63,9 +63,9 @@ export abstract class Report extends Observable<RawValue> {
       this[key] = value;
     }
 
+    await this.setDefaultFilters();
     this.filters = await this.getFilters();
     this.columns = await this.getColumns();
-    await this.setDefaultFilters();
     await this.setReportData(key);
   }
 

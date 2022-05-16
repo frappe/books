@@ -57,15 +57,15 @@
       "fieldtype": "Int",
       "default": 2,
       "required": true,
-      "minValue": 0,
-      "maxValue": 9,
+      "minvalue": 0,
+      "maxvalue": 9,
       "description": "Sets how many digits are shown after the decimal point."
     },
     {
       "fieldname": "internalPrecision",
       "label": "Internal Precision",
       "fieldtype": "Int",
-      "minValue": 0,
+      "minvalue": 0,
       "default": 11,
       "description": "Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies."
     },
