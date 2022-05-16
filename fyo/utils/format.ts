@@ -91,7 +91,7 @@ function formatCurrency(
 function formatNumber(value: DocValue, fyo: Fyo): string {
   const numberFormatter = getNumberFormatter(fyo);
   if (typeof value === 'number') {
-    return numberFormatter.format(value);
+    value = fyo.pesa(value.toFixed(20));
   }
 
   if ((value as Money).round) {
