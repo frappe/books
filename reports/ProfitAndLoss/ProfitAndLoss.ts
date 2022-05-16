@@ -26,7 +26,7 @@ import { QueryFilter } from 'utils/db/types';
 type DateRange = { fromDate: DateTime; toDate: DateTime };
 type ValueMap = Map<DateRange, number>;
 type AccountNameValueMapMap = Map<string, ValueMap>;
-type BasedOn = 'Fiscal Year' | 'Date Range';
+type BasedOn = 'Fiscal Year' | 'Until Date';
 
 interface Account {
   name: string;
@@ -74,14 +74,20 @@ export class ProfitAndLoss extends LedgerReport {
   singleColumn: boolean = false;
   hideGroupBalance: boolean = false;
   periodicity: Periodicity = 'Monthly';
-  basedOn: BasedOn = 'Date Range';
+  basedOn: BasedOn = 'Until Date';
 
   _rawData: LedgerEntry[] = [];
+  _dateRanges?: DateRange[];
 
   accountMap?: Record<string, Account>;
 
+  async initialize(): Promise<void> {
+    await super.initialize();
+    await this._setDateRanges();
+  }
+
   async setDefaultFilters(): Promise<void> {
-    if (this.basedOn === 'Date Range' && !this.toDate) {
+    if (this.basedOn === 'Until Date' && !this.toDate) {
       this.toDate = DateTime.now().toISODate();
     }
 
@@ -89,6 +95,12 @@ export class ProfitAndLoss extends LedgerReport {
       this.fromYear = DateTime.now().year;
       this.toYear = this.fromYear + 1;
     }
+
+    await this._setDateRanges();
+  }
+
+  async _setDateRanges() {
+    this._dateRanges = await this._getDateRanges();
   }
 
   async setReportData(filter?: string) {
@@ -147,8 +159,8 @@ export class ProfitAndLoss extends LedgerReport {
 
     const totalValueMap = new Map();
     for (const key of totalIncome.valueMap!.keys()) {
-      const income = totalIncome.valueMap!.get(key)!;
-      const expense = totalExpense.valueMap!.get(key)!;
+      const income = totalIncome.valueMap!.get(key) ?? 0;
+      const expense = totalExpense.valueMap!.get(key) ?? 0;
       totalValueMap.set(key, income - expense);
     }
 
@@ -158,20 +170,10 @@ export class ProfitAndLoss extends LedgerReport {
       level: 0,
     } as AccountListNode;
 
-    const dateKeys = this.getSortedDateKeys(totalValueMap);
-    const totalIncomeRow = this.getRowFromAccountListNode(
-      totalIncome,
-      dateKeys
-    );
-    const totalExpenseRow = this.getRowFromAccountListNode(
-      totalExpense,
-      dateKeys
-    );
+    const totalIncomeRow = this.getRowFromAccountListNode(totalIncome);
+    const totalExpenseRow = this.getRowFromAccountListNode(totalExpense);
 
-    const totalProfitRow = this.getRowFromAccountListNode(
-      totalProfit,
-      dateKeys
-    );
+    const totalProfitRow = this.getRowFromAccountListNode(totalProfit);
     totalProfitRow.cells.forEach((c) => {
       c.bold = true;
       if (typeof c.rawValue !== 'number') {
@@ -219,29 +221,9 @@ export class ProfitAndLoss extends LedgerReport {
     name: string
   ): Promise<AccountListNode> {
     const leafNodes = getListOfLeafNodes(accountTree) as AccountTreeNode[];
-    let keys: DateRange[] | undefined = undefined;
-
-    /**
-     * Keys need to be from the nodes cause they are ref keys.
-     */
-    for (const node of leafNodes) {
-      const drs = [...(node?.valueMap?.keys() ?? [])];
-      if (!drs || !drs.length) {
-        continue;
-      }
-
-      keys = drs;
-      if (keys && keys.length) {
-        break;
-      }
-    }
-
-    if (!keys || !keys.length) {
-      keys = await this._getDateRanges();
-    }
 
     const totalMap = leafNodes.reduce((acc, node) => {
-      for (const key of keys!) {
+      for (const key of this._dateRanges!) {
         const bal = acc.get(key) ?? 0;
         const val = node.valueMap?.get(key) ?? 0;
         acc.set(key, bal + val);
@@ -254,20 +236,12 @@ export class ProfitAndLoss extends LedgerReport {
   }
 
   getPnlRowsFromAccountList(accountList: AccountList): ReportData {
-    const dateKeys = this.getSortedDateKeys(accountList[0].valueMap!);
-
     return accountList.map((al) => {
-      return this.getRowFromAccountListNode(al, dateKeys);
+      return this.getRowFromAccountListNode(al);
     });
   }
 
-  getSortedDateKeys(valueMap: ValueMap) {
-    return [...valueMap.keys()].sort(
-      (a, b) => b.toDate.toMillis() - a.toDate.toMillis()
-    );
-  }
-
-  getRowFromAccountListNode(al: AccountListNode, dateKeys: DateRange[]) {
+  getRowFromAccountListNode(al: AccountListNode) {
     const nameCell = {
       value: al.name,
       rawValue: al.name,
@@ -278,7 +252,7 @@ export class ProfitAndLoss extends LedgerReport {
       indent: al.level ?? 0,
     } as ReportCell;
 
-    const balanceCells = dateKeys.map((k) => {
+    const balanceCells = this._dateRanges!.map((k) => {
       const rawValue = al.valueMap?.get(k) ?? 0;
       let value = this.fyo.format(rawValue, 'Currency');
       if (this.hideGroupBalance && al.isGroup) {
@@ -302,19 +276,20 @@ export class ProfitAndLoss extends LedgerReport {
     } as ReportRow;
   }
 
-  // async getTotalProfitNode()
-
   async _getGroupedByDateRanges(
     map: GroupedMap
   ): Promise<AccountNameValueMapMap> {
-    const dateRanges = await this._getDateRanges();
     const accountValueMap: AccountNameValueMapMap = new Map();
     const accountMap = await this._getAccountMap();
 
     for (const account of map.keys()) {
       const valueMap: ValueMap = new Map();
+
+      /**
+       * Set Balance for every DateRange key
+       */
       for (const entry of map.get(account)!) {
-        const key = this._getRangeMapKey(entry, dateRanges);
+        const key = this._getRangeMapKey(entry);
         if (key === null) {
           continue;
         }
@@ -367,15 +342,12 @@ export class ProfitAndLoss extends LedgerReport {
     return this.accountMap;
   }
 
-  _getRangeMapKey(
-    entry: LedgerEntry,
-    dateRanges: DateRange[]
-  ): DateRange | null {
+  _getRangeMapKey(entry: LedgerEntry): DateRange | null {
     const entryDate = DateTime.fromISO(
       entry.date!.toISOString().split('T')[0]
     ).toMillis();
 
-    for (const dr of dateRanges) {
+    for (const dr of this._dateRanges!) {
       const toDate = dr.toDate.toMillis();
       const fromDate = dr.fromDate.toMillis();
 
@@ -419,14 +391,14 @@ export class ProfitAndLoss extends LedgerReport {
       });
     }
 
-    return dateRanges;
+    return dateRanges.sort((b, a) => b.toDate.toMillis() - a.toDate.toMillis());
   }
 
   async _getFromAndToDates() {
     let toDate: string;
     let fromDate: string;
 
-    if (this.basedOn === 'Date Range') {
+    if (this.basedOn === 'Until Date') {
       toDate = this.toDate!;
       const months = monthsMap[this.periodicity] * Math.max(this.count ?? 1, 1);
       fromDate = DateTime.fromISO(toDate).minus({ months }).toISODate();
@@ -465,7 +437,7 @@ export class ProfitAndLoss extends LedgerReport {
         fieldtype: 'Select',
         options: [
           { label: t`Fiscal Year`, value: 'Fiscal Year' },
-          { label: t`Date Range`, value: 'Date Range' },
+          { label: t`Until Date`, value: 'Until Date' },
         ],
         label: t`Based On`,
         fieldname: 'basedOn',
@@ -486,22 +458,24 @@ export class ProfitAndLoss extends LedgerReport {
 
     let dateFilters = [
       {
-        fieldtype: 'Date',
-        fieldname: 'fromYear',
-        placeholder: t`From Date`,
-        label: t`From Date`,
-        required: true,
-      },
-      {
-        fieldtype: 'Date',
+        fieldtype: 'Int',
         fieldname: 'toYear',
         placeholder: t`To Year`,
         label: t`To Year`,
+        minvalue: 2000,
+        required: true,
+      },
+      {
+        fieldtype: 'Int',
+        fieldname: 'fromYear',
+        placeholder: t`From Year`,
+        label: t`From Year`,
+        minvalue: 2000,
         required: true,
       },
     ] as Field[];
 
-    if (this.basedOn === 'Date Range') {
+    if (this.basedOn === 'Until Date') {
       dateFilters = [
         {
           fieldtype: 'Date',
@@ -537,7 +511,7 @@ export class ProfitAndLoss extends LedgerReport {
     ].flat();
   }
 
-  async getColumns(): Promise<ColumnField[]> {
+  getColumns(): ColumnField[] {
     const columns = [
       {
         label: t`Account`,
@@ -548,19 +522,18 @@ export class ProfitAndLoss extends LedgerReport {
       },
     ] as ColumnField[];
 
-    const dateRanges = await this._getDateRanges();
-    const dateColumns = dateRanges
-      .sort((a, b) => b.toDate.toMillis() - a.toDate.toMillis())
-      .map(
-        (d) =>
-          ({
-            label: this.fyo.format(d.toDate.toJSDate(), 'Date'),
-            fieldtype: 'Data',
-            fieldname: 'toDate',
-            align: 'right',
-            width: ACC_BAL_WIDTH,
-          } as ColumnField)
-      );
+    const dateColumns = this._dateRanges!.sort(
+      (a, b) => b.toDate.toMillis() - a.toDate.toMillis()
+    ).map(
+      (d) =>
+        ({
+          label: this.fyo.format(d.toDate.toJSDate(), 'Date'),
+          fieldtype: 'Data',
+          fieldname: 'toDate',
+          align: 'right',
+          width: ACC_BAL_WIDTH,
+        } as ColumnField)
+    );
 
     return [columns, dateColumns].flat();
   }
@@ -590,12 +563,13 @@ async function getFiscalEndpoints(toYear: number, fromYear: number) {
   const fromDate = [
     fromYear,
     fys.toISOString().split('T')[0].split('-').slice(1),
-  ].join('-');
+  ]
+    .flat()
+    .join('-');
 
-  const toDate = [
-    toYear,
-    fye.toISOString().split('T')[0].split('-').slice(1),
-  ].join('-');
+  const toDate = [toYear, fye.toISOString().split('T')[0].split('-').slice(1)]
+    .flat()
+    .join('-');
 
   return { fromDate, toDate };
 }
@@ -710,6 +684,10 @@ function convertAccountTreeToAccountList(
   const accountList: AccountList = [];
 
   for (const rootNode of Object.values(accountTree)) {
+    if (!rootNode) {
+      continue;
+    }
+
     pushToAccountList(rootNode, accountList, 0);
   }
 
@@ -741,6 +719,10 @@ function pushToAccountList(
 function getListOfLeafNodes(tree: Tree): TreeNode[] {
   const nonGroupChildren: TreeNode[] = [];
   for (const node of Object.values(tree)) {
+    if (!node) {
+      continue;
+    }
+
     const groupChildren = node.children ?? [];
 
     while (groupChildren.length) {
