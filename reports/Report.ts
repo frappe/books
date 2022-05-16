@@ -13,6 +13,7 @@ export abstract class Report extends Observable<RawValue> {
   columns: ColumnField[] = [];
   filters: Field[] = [];
   reportData: ReportData;
+  usePagination: boolean = false;
 
   constructor(fyo: Fyo) {
     super();

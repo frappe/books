@@ -35,6 +35,13 @@ interface Account {
   parentAccount: string | null;
 }
 
+interface TreeNode {
+  name: string;
+  children?: TreeNode[];
+}
+
+type Tree = Record<string, TreeNode>;
+
 type AccountTree = Record<string, AccountTreeNode>;
 interface AccountTreeNode extends Account {
   children?: AccountTreeNode[];
@@ -53,7 +60,7 @@ const PNL_ROOT_TYPES: AccountRootType[] = [
   AccountRootTypeEnum.Expense,
 ];
 
-const ACC_NAME_WIDTH = 1.5;
+const ACC_NAME_WIDTH = 2;
 const ACC_BAL_WIDTH = 1;
 
 export class ProfitAndLoss extends LedgerReport {
@@ -65,6 +72,7 @@ export class ProfitAndLoss extends LedgerReport {
   fromYear?: number;
   toYear?: number;
   singleColumn: boolean = false;
+  hideGroupBalance: boolean = false;
   periodicity: Periodicity = 'Monthly';
   basedOn: BasedOn = 'Date Range';
 
@@ -98,28 +106,203 @@ export class ProfitAndLoss extends LedgerReport {
       delete accountTree[name];
     }
 
-    const accountList = convertAccountTreeToAccountList(accountTree);
-    this.reportData = this.getReportDataFromAccountList(accountList);
+    const rootNodeList = Object.values(accountTree);
+    const incomeTree = {
+      [AccountRootTypeEnum.Income]: rootNodeList.find(
+        (n) => n.rootType === AccountRootTypeEnum.Income
+      )!,
+    };
+    const expenseTree = {
+      [AccountRootTypeEnum.Expense]: rootNodeList.find(
+        (n) => n.rootType === AccountRootTypeEnum.Expense
+      )!,
+    };
+
+    const incomeList = convertAccountTreeToAccountList(incomeTree);
+    const expenseList = convertAccountTreeToAccountList(expenseTree);
+    const incomeRows = this.getPnlRowsFromAccountList(incomeList);
+    const expenseRows = this.getPnlRowsFromAccountList(expenseList);
+    this.reportData = await this.getReportDataFromRows(
+      incomeRows,
+      expenseRows,
+      incomeTree,
+      expenseTree
+    );
   }
 
-  getReportDataFromAccountList(accountList: AccountList): ReportData {
-    const dateKeys = [...accountList[0].valueMap!.keys()].sort(
-      (a, b) => b.toDate.toMillis() - a.toDate.toMillis()
+  async getReportDataFromRows(
+    incomeRows: ReportData,
+    expenseRows: ReportData,
+    incomeTree: AccountTree,
+    expenseTree: AccountTree
+  ): Promise<ReportData> {
+    const totalIncome = await this.getTotalNode(
+      incomeTree,
+      t`Total Income (Credit)`
+    );
+    const totalExpense = await this.getTotalNode(
+      expenseTree,
+      t`Total Expense (Debit)`
     );
 
-    return accountList.map((al) => {
-      const nameCell = { value: al.name, align: 'left', width: ACC_NAME_WIDTH };
-      const balanceCells = dateKeys.map(
-        (k) =>
+    const totalValueMap = new Map();
+    for (const key of totalIncome.valueMap!.keys()) {
+      const income = totalIncome.valueMap!.get(key)!;
+      const expense = totalExpense.valueMap!.get(key)!;
+      totalValueMap.set(key, income - expense);
+    }
+
+    const totalProfit = {
+      name: t`Total Profit`,
+      valueMap: totalValueMap,
+      level: 0,
+    } as AccountListNode;
+
+    const dateKeys = this.getSortedDateKeys(totalValueMap);
+    const totalIncomeRow = this.getRowFromAccountListNode(
+      totalIncome,
+      dateKeys
+    );
+    const totalExpenseRow = this.getRowFromAccountListNode(
+      totalExpense,
+      dateKeys
+    );
+
+    const totalProfitRow = this.getRowFromAccountListNode(
+      totalProfit,
+      dateKeys
+    );
+    totalProfitRow.cells.forEach((c) => {
+      c.bold = true;
+      if (typeof c.rawValue !== 'number') {
+        return;
+      }
+
+      if (c.rawValue > 0) {
+        c.color = 'green';
+      } else if (c.rawValue < 0) {
+        c.color = 'red';
+      }
+    });
+
+    const emptyRow = await this.getEmptyRow();
+
+    return [
+      incomeRows,
+      totalIncomeRow,
+      emptyRow,
+      expenseRows,
+      totalExpenseRow,
+      emptyRow,
+      emptyRow,
+      totalProfitRow,
+    ].flat() as ReportData;
+  }
+
+  async getEmptyRow(): Promise<ReportRow> {
+    const columns = await this.getColumns();
+    return {
+      cells: columns.map(
+        (c) =>
           ({
-            value: this.fyo.format(al.valueMap?.get(k)!, 'Currency'),
-            align: 'right',
-            width: ACC_BAL_WIDTH,
+            value: '',
+            rawValue: '',
+            width: c.width,
+            align: 'left',
           } as ReportCell)
-      );
-      return [nameCell, balanceCells].flat() as ReportRow;
+      ),
+    };
+  }
+
+  async getTotalNode(
+    accountTree: AccountTree,
+    name: string
+  ): Promise<AccountListNode> {
+    const leafNodes = getListOfLeafNodes(accountTree) as AccountTreeNode[];
+    let keys: DateRange[] | undefined = undefined;
+
+    /**
+     * Keys need to be from the nodes cause they are ref keys.
+     */
+    for (const node of leafNodes) {
+      const drs = [...(node?.valueMap?.keys() ?? [])];
+      if (!drs || !drs.length) {
+        continue;
+      }
+
+      keys = drs;
+      if (keys && keys.length) {
+        break;
+      }
+    }
+
+    if (!keys || !keys.length) {
+      keys = await this._getDateRanges();
+    }
+
+    const totalMap = leafNodes.reduce((acc, node) => {
+      for (const key of keys!) {
+        const bal = acc.get(key) ?? 0;
+        const val = node.valueMap?.get(key) ?? 0;
+        acc.set(key, bal + val);
+      }
+
+      return acc;
+    }, new Map() as ValueMap);
+
+    return { name, valueMap: totalMap, level: 0 } as AccountListNode;
+  }
+
+  getPnlRowsFromAccountList(accountList: AccountList): ReportData {
+    const dateKeys = this.getSortedDateKeys(accountList[0].valueMap!);
+
+    return accountList.map((al) => {
+      return this.getRowFromAccountListNode(al, dateKeys);
     });
   }
+
+  getSortedDateKeys(valueMap: ValueMap) {
+    return [...valueMap.keys()].sort(
+      (a, b) => b.toDate.toMillis() - a.toDate.toMillis()
+    );
+  }
+
+  getRowFromAccountListNode(al: AccountListNode, dateKeys: DateRange[]) {
+    const nameCell = {
+      value: al.name,
+      rawValue: al.name,
+      align: 'left',
+      width: ACC_NAME_WIDTH,
+      bold: !al.level,
+      italics: al.isGroup,
+      indent: al.level ?? 0,
+    } as ReportCell;
+
+    const balanceCells = dateKeys.map((k) => {
+      const rawValue = al.valueMap?.get(k) ?? 0;
+      let value = this.fyo.format(rawValue, 'Currency');
+      if (this.hideGroupBalance && al.isGroup) {
+        value = '';
+      }
+
+      return {
+        rawValue,
+        value,
+        align: 'right',
+        width: ACC_BAL_WIDTH,
+      } as ReportCell;
+    });
+
+    return {
+      cells: [nameCell, balanceCells].flat(),
+      level: al.level,
+      isGroup: !!al.isGroup,
+      folded: false,
+      foldedBelow: false,
+    } as ReportRow;
+  }
+
+  // async getTotalProfitNode()
 
   async _getGroupedByDateRanges(
     map: GroupedMap
@@ -346,6 +529,11 @@ export class ProfitAndLoss extends LedgerReport {
         label: t`Single Column`,
         fieldname: 'singleColumn',
       } as Field,
+      {
+        fieldtype: 'Check',
+        label: t`Hide Group Balance`,
+        fieldname: 'hideGroupBalance',
+      } as Field,
     ].flat();
   }
 
@@ -439,17 +627,13 @@ function setValueMapOnAccountTreeNodes(
      * also prevent pruning of the parent accounts.
      */
     let parentAccountName: string | null = accountTree[name].parentAccount;
-    let parentValueMap = valueMap;
 
     while (parentAccountName !== null) {
-      const update = updateParentAccountWithChildValues(
+      parentAccountName = updateParentAccountWithChildValues(
         accountTree,
         parentAccountName,
-        parentValueMap
+        valueMap
       );
-
-      parentAccountName = update.parentAccountName;
-      parentValueMap = update.parentValueMap;
     }
   }
 }
@@ -457,24 +641,18 @@ function setValueMapOnAccountTreeNodes(
 function updateParentAccountWithChildValues(
   accountTree: AccountTree,
   parentAccountName: string,
-  parentValueMap: ValueMap
-): {
-  parentAccountName: string | null;
-  parentValueMap: ValueMap;
-} {
+  valueMap: ValueMap
+): string {
   const parentAccount = accountTree[parentAccountName];
   parentAccount.prune = false;
   parentAccount.valueMap ??= new Map();
 
-  for (const key of parentValueMap.keys()) {
+  for (const key of valueMap.keys()) {
     const value = parentAccount.valueMap!.get(key) ?? 0;
-    parentAccount.valueMap!.set(key, value + parentValueMap.get(key)!);
+    parentAccount.valueMap!.set(key, value + valueMap.get(key)!);
   }
 
-  return {
-    parentAccountName: parentAccount.parentAccount,
-    parentValueMap: parentAccount.valueMap!,
-  };
+  return parentAccount.parentAccount!;
 }
 
 function setChildrenOnAccountTreeNodes(accountTree: AccountTree) {
@@ -558,4 +736,23 @@ function pushToAccountList(
   for (const childNode of children) {
     pushToAccountList(childNode, accountList, childLevel);
   }
+}
+
+function getListOfLeafNodes(tree: Tree): TreeNode[] {
+  const nonGroupChildren: TreeNode[] = [];
+  for (const node of Object.values(tree)) {
+    const groupChildren = node.children ?? [];
+
+    while (groupChildren.length) {
+      const child = groupChildren.shift()!;
+      if (!child?.children?.length) {
+        nonGroupChildren.push(child);
+        continue;
+      }
+
+      groupChildren.unshift(...(child.children ?? []));
+    }
+  }
+
+  return nonGroupChildren;
 }

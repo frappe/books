@@ -30,41 +30,47 @@
         @scroll="scroll"
       >
         <!-- Report Rows -->
-        <div
-          v-for="(row, r) in report.reportData.slice(pageStart, pageEnd)"
-          :key="r + '-row'"
-          class="flex items-center w-max"
-          :style="{ height: `${hconst}px` }"
-          :class="r !== pageEnd - 1 ? 'border-b' : ''"
-        >
-          <!-- Report Cell -->
+        <template v-for="(row, r) in dataSlice" :key="r + '-row'">
           <div
-            v-for="(cell, c) in row"
-            :key="`${c}-${r}-cell`"
-            :style="getCellStyle(cell, c)"
-            class="
-              text-gray-900 text-base
-              px-3
-              flex-shrink-0
-              overflow-x-scroll
-              whitespace-nowrap
-            "
+            v-if="!row.folded"
+            class="flex items-center w-max"
+            :style="{ height: `${hconst}px` }"
+            :class="[
+              r !== pageEnd - 1 ? 'border-b' : '',
+              row.isGroup ? 'hover:bg-gray-100 cursor-pointer' : '',
+            ]"
+            @click="() => onRowClick(row, r)"
           >
-            {{ cell.value }}
+            <!-- Report Cell -->
+            <div
+              v-for="(cell, c) in row.cells"
+              :key="`${c}-${r}-cell`"
+              :style="getCellStyle(cell, c)"
+              class="
+                text-gray-900 text-base
+                px-3
+                flex-shrink-0
+                overflow-x-scroll
+                whitespace-nowrap
+              "
+            >
+              {{ cell.value }}
+            </div>
           </div>
-        </div>
+        </template>
       </WithScroll>
       <!-- Report Rows Container -->
     </div>
 
     <!-- Pagination Footer -->
-    <div class="mt-auto flex-shrink-0">
+    <div class="mt-auto flex-shrink-0" v-if="report.usePagination">
       <hr />
       <Paginator
         :item-count="report?.reportData?.length ?? 0"
         @index-change="setPageIndices"
       />
     </div>
+    <div v-else class="h-4" />
   </div>
 </template>
 <script>
@@ -85,6 +91,15 @@ export default defineComponent({
       pageEnd: 0,
     };
   },
+  computed: {
+    dataSlice() {
+      if (this.report?.usePagination) {
+        return this.report.reportData.slice(this.pageStart, this.pageEnd);
+      }
+
+      return this.report.reportData;
+    },
+  },
   methods: {
     scroll({ scrollLeft }) {
       this.$refs.titlerow.scrollLeft = scrollLeft;
@@ -93,24 +108,55 @@ export default defineComponent({
       this.pageStart = start;
       this.pageEnd = end;
     },
+    onRowClick(clickedRow, r) {
+      if (!clickedRow.isGroup) {
+        return;
+      }
+
+      r += 1;
+      clickedRow.foldedBelow = !clickedRow.foldedBelow;
+      const folded = clickedRow.foldedBelow;
+      let row = this.dataSlice[r];
+
+      while (row && row.level > clickedRow.level) {
+        row.folded = folded;
+        r += 1;
+        row = this.dataSlice[r];
+      }
+    },
     getCellStyle(cell, i) {
       const styles = {};
       const width = cell.width ?? 1;
       const align = cell.align ?? 'left';
       styles['width'] = `${width * this.wconst}rem`;
       styles['text-align'] = align;
+
       if (cell.bold) {
         styles['font-weight'] = 'bold';
       }
+
       if (cell.italics) {
         styles['font-style'] = 'italic';
       }
+
       if (i === 0) {
         styles['padding-left'] = '0px';
       }
+
       if (i === this.report.columns.length - 1) {
         styles['padding-right'] = '0px';
       }
+
+      if (cell.indent) {
+        styles['padding-left'] = `${cell.indent * 2}rem`;
+      }
+
+      if (cell.color === 'red') {
+        styles['color'] = '#e53e3e';
+      } else if (cell.color === 'green') {
+        styles['color'] = '#38a169';
+      }
+
       return styles;
     },
   },
