@@ -32,7 +32,7 @@ import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
 
 export const ACC_NAME_WIDTH = 2;
-export const ACC_BAL_WIDTH = 1;
+export const ACC_BAL_WIDTH = 1.25;
 
 export abstract class AccountReport extends LedgerReport {
   toDate?: string;
