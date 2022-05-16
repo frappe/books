@@ -26,7 +26,7 @@
       />
 
       <!-- x Labels -->
-      <template v-if="xLabels.length > 0">
+      <template v-if="drawLabels && xLabels.length > 0">
         <text
           :style="fontStyle"
           v-for="(i, j) in count"
@@ -46,7 +46,7 @@
       </template>
 
       <!-- y Labels -->
-      <template v-if="yLabelDivisions > 0">
+      <template v-if="drawLabels && yLabelDivisions > 0">
         <text
           :style="fontStyle"
           v-for="(i, j) in yLabelDivisions + 1"
@@ -113,6 +113,7 @@
       />
     </svg>
     <Tooltip
+      v-if="showTooltip"
       ref="tooltip"
       :offset="15"
       placement="top"
@@ -142,6 +143,7 @@ export default {
     points: { type: Array, default: () => [[]] },
     drawAxis: { type: Boolean, default: false },
     drawXGrid: { type: Boolean, default: true },
+    drawLabels: { type: Boolean, default: true },
     viewBoxHeight: { type: Number, default: 500 },
     aspectRatio: { type: Number, default: 4 },
     axisPadding: { type: Number, default: 30 },
@@ -164,6 +166,7 @@ export default {
     left: { type: Number, default: 55 },
     extendGridX: { type: Number, default: -20 },
     tooltipDispDistThreshold: { type: Number, default: 40 },
+    showTooltip: { type: Boolean, default: true },
   },
   computed: {
     fontStyle() {
@@ -290,6 +293,10 @@ export default {
       return `rgb(${rgb})`;
     },
     update(event) {
+      if (!this.showTooltip) {
+        return;
+      }
+
       const { x, y } = this.getSvgXY(event);
       const { xi, yi, cx, cy, d } = this.getPointIndexAndCoords(x, y);
 

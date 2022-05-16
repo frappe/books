@@ -1,3 +1,5 @@
+import { DateTime } from 'luxon';
+
 export function prefixFormat(value: number): string {
   /*
   1,000000,000,000,000,000 = 1 P (Pentillion)
@@ -43,7 +45,7 @@ function getVal(minOrMaxVal: number): number {
   return Math.floor(minOrMaxVal / rc) * rc;
 }
 
-export function getYMax(points: Array<Array<number>>): number {
+export function getYMax(points: number[][]): number {
   const maxVal = Math.max(...points.flat());
   if (maxVal === 0) {
     return 0;
@@ -52,7 +54,7 @@ export function getYMax(points: Array<Array<number>>): number {
   return getVal(maxVal);
 }
 
-export function getYMin(points: Array<Array<number>>): number {
+export function getYMin(points: number[][]): number {
   const minVal = Math.min(...points.flat());
   if (minVal === 0) {
     return minVal;
@@ -62,10 +64,5 @@ export function getYMin(points: Array<Array<number>>): number {
 }
 
 export function formatXLabels(label: string) {
-  // Format: Mmm YYYY -> Mm YY
-  const splits = label.split(' ');
-  const month = splits[0];
-  const year = splits[1].slice(2);
-
-  return `${month} ${year}`;
+  return DateTime.fromISO(label).toFormat('MMM yy');
 }
