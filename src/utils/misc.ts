@@ -3,14 +3,13 @@ import { getSingleValue } from 'fyo/utils';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
 import { ModelNameEnum } from 'models/types';
-import { Periodicity } from 'reports/types';
 import SetupWizardSchema from 'schemas/app/SetupWizard.json';
 import { Schema } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 
 export function getDatesAndPeriodicity(
   period: 'This Year' | 'This Quarter' | 'This Month'
-): { fromDate: string; toDate: string; periodicity: Periodicity } {
+): { fromDate: string; toDate: string } {
   const toDate: DateTime = DateTime.now();
   let fromDate: DateTime;
 
@@ -27,7 +26,6 @@ export function getDatesAndPeriodicity(
   return {
     fromDate: fromDate.toISO(),
     toDate: toDate.toISO(),
-    periodicity: 'Monthly',
   };
 }
 
