@@ -3,32 +3,31 @@ import { getSingleValue } from 'fyo/utils';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
 import { ModelNameEnum } from 'models/types';
+import { Periodicity } from 'reports/types';
 import SetupWizardSchema from 'schemas/app/SetupWizard.json';
 import { Schema } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 
-export async function getDatesAndPeriodicity(
+export function getDatesAndPeriodicity(
   period: 'This Year' | 'This Quarter' | 'This Month'
-) {
-  let fromDate, toDate;
-  const periodicity = 'Monthly';
-  const accountingSettings = await fyo.doc.getSingle('AccountingSettings');
+): { fromDate: string; toDate: string; periodicity: Periodicity } {
+  const toDate: DateTime = DateTime.now();
+  let fromDate: DateTime;
 
   if (period === 'This Year') {
-    fromDate = accountingSettings.fiscalYearStart;
-    toDate = accountingSettings.fiscalYearEnd;
+    fromDate = toDate.minus({ months: 12 });
   } else if (period === 'This Quarter') {
-    fromDate = DateTime.local().startOf('quarter').toISODate();
-    toDate = DateTime.local().endOf('quarter').toISODate();
+    fromDate = toDate.minus({ months: 3 });
   } else if (period === 'This Month') {
-    fromDate = DateTime.local().startOf('month').toISODate();
-    toDate = DateTime.local().endOf('month').toISODate();
+    fromDate = toDate.minus({ months: 1 });
+  } else {
+    fromDate = toDate.minus({ days: 1 });
   }
 
   return {
-    fromDate,
-    toDate,
-    periodicity,
+    fromDate: fromDate.toISO(),
+    toDate: toDate.toISO(),
+    periodicity: 'Monthly',
   };
 }
 
