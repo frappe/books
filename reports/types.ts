@@ -72,7 +72,7 @@ export interface LedgerEntry {
 export type GroupedMap = Map<string, LedgerEntry[]>;
 
 export type DateRange = { fromDate: DateTime; toDate: DateTime };
-export type ValueMap = Map<DateRange, number>;
+export type ValueMap = Map<DateRange, Record<string, number>>;
 
 export interface Account {
   name: string;
@@ -97,7 +97,6 @@ export interface AccountListNode extends Account {
 export type AccountNameValueMapMap = Map<string, ValueMap>;
 export type BasedOn = 'Fiscal Year' | 'Until Date';
 
-
 export interface TreeNode {
   name: string;
   children?: TreeNode[];
@@ -105,4 +104,8 @@ export interface TreeNode {
 
 export type Tree = Record<string, TreeNode>;
 
-
+export type RootTypeRow = {
+  rootType: AccountRootType;
+  rootNode: AccountTreeNode;
+  rows: ReportData;
+};

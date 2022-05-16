@@ -31,8 +31,8 @@ import { fyo } from 'src/initFyo';
 import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
 
-const ACC_NAME_WIDTH = 2;
-const ACC_BAL_WIDTH = 1;
+export const ACC_NAME_WIDTH = 2;
+export const ACC_BAL_WIDTH = 1;
 
 export abstract class AccountReport extends LedgerReport {
   toDate?: string;
@@ -40,7 +40,7 @@ export abstract class AccountReport extends LedgerReport {
   fromYear?: number;
   toYear?: number;
   consolidateColumns: boolean = false;
-  hideGroupBalance: boolean = false;
+  hideGroupAmounts: boolean = false;
   periodicity: Periodicity = 'Monthly';
   basedOn: BasedOn = 'Until Date';
 
@@ -48,12 +48,6 @@ export abstract class AccountReport extends LedgerReport {
   _dateRanges?: DateRange[];
 
   accountMap?: Record<string, Account>;
-  abstract get rootTypes(): AccountRootType[];
-
-  async initialize(): Promise<void> {
-    await super.initialize();
-    await this._setDateRanges();
-  }
 
   async setDefaultFilters(): Promise<void> {
     if (this.basedOn === 'Until Date' && !this.toDate) {
@@ -105,9 +99,9 @@ export abstract class AccountReport extends LedgerReport {
 
     const totalMap = leafNodes.reduce((acc, node) => {
       for (const key of this._dateRanges!) {
-        const bal = acc.get(key) ?? 0;
-        const val = node.valueMap?.get(key) ?? 0;
-        acc.set(key, bal + val);
+        const bal = acc.get(key)?.balance ?? 0;
+        const val = node.valueMap?.get(key)?.balance ?? 0;
+        acc.set(key, { balance: bal + val });
       }
 
       return acc;
@@ -134,9 +128,9 @@ export abstract class AccountReport extends LedgerReport {
     } as ReportCell;
 
     const balanceCells = this._dateRanges!.map((k) => {
-      const rawValue = al.valueMap?.get(k) ?? 0;
+      const rawValue = al.valueMap?.get(k)?.balance ?? 0;
       let value = this.fyo.format(rawValue, 'Currency');
-      if (this.hideGroupBalance && al.isGroup) {
+      if (this.hideGroupAmounts && al.isGroup) {
         value = '';
       }
 
@@ -175,14 +169,14 @@ export abstract class AccountReport extends LedgerReport {
           continue;
         }
 
-        const totalBalance = valueMap.get(key!) ?? 0;
+        const totalBalance = valueMap.get(key!)?.balance ?? 0;
         const balance = (entry.debit ?? 0) - (entry.credit ?? 0);
         const rootType = accountMap[entry.account].rootType;
 
         if (isCredit(rootType)) {
-          valueMap.set(key!, totalBalance - balance);
+          valueMap.set(key!, { balance: totalBalance - balance });
         } else {
-          valueMap.set(key!, totalBalance + balance);
+          valueMap.set(key!, { balance: totalBalance + balance });
         }
       }
       accountValueMap.set(account, valueMap);
@@ -232,7 +226,7 @@ export abstract class AccountReport extends LedgerReport {
       const toDate = dr.toDate.toMillis();
       const fromDate = dr.fromDate.toMillis();
 
-      if (entryDate <= toDate && entryDate > fromDate) {
+      if (fromDate < entryDate && entryDate <= toDate) {
         return dr;
       }
     }
@@ -386,8 +380,8 @@ export abstract class AccountReport extends LedgerReport {
       } as Field,
       {
         fieldtype: 'Check',
-        label: t`Hide Group Balance`,
-        fieldname: 'hideGroupBalance',
+        label: t`Hide Group Amounts`,
+        fieldname: 'hideGroupAmounts',
       } as Field,
     ].flat();
   }
@@ -426,7 +420,7 @@ export abstract class AccountReport extends LedgerReport {
   metaFilters: string[] = ['basedOn'];
 }
 
-async function getFiscalEndpoints(toYear: number, fromYear: number) {
+export async function getFiscalEndpoints(toYear: number, fromYear: number) {
   const fys = (await fyo.getValue(
     ModelNameEnum.AccountingSettings,
     'fiscalYearStart'
@@ -503,8 +497,14 @@ function updateParentAccountWithChildValues(
   parentAccount.valueMap ??= new Map();
 
   for (const key of valueMap.keys()) {
-    const value = parentAccount.valueMap!.get(key) ?? 0;
-    parentAccount.valueMap!.set(key, value + valueMap.get(key)!);
+    const value = parentAccount.valueMap!.get(key);
+    const childValue = valueMap.get(key);
+    const map: Record<string, number> = {};
+
+    for (const key of Object.keys(childValue!)) {
+      map[key] = (value?.[key] ?? 0) + (childValue?.[key] ?? 0);
+    }
+    parentAccount.valueMap!.set(key, map);
   }
 
   return parentAccount.parentAccount!;

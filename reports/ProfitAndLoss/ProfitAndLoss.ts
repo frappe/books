@@ -7,7 +7,12 @@ import {
   AccountReport,
   convertAccountRootNodeToAccountList,
 } from 'reports/AccountReport';
-import { AccountListNode, AccountTreeNode, ReportData } from 'reports/types';
+import {
+  AccountListNode,
+  AccountTreeNode,
+  ReportData,
+  ValueMap,
+} from 'reports/types';
 
 export class ProfitAndLoss extends AccountReport {
   static title = t`Profit And Loss`;
@@ -18,7 +23,7 @@ export class ProfitAndLoss extends AccountReport {
   }
 
   async setReportData(filter?: string) {
-    if (filter !== 'hideGroupBalance') {
+    if (filter !== 'hideGroupAmounts') {
       await this._setRawData();
     }
 
@@ -78,11 +83,11 @@ export class ProfitAndLoss extends AccountReport {
       t`Total Expense (Debit)`
     );
 
-    const totalValueMap = new Map();
+    const totalValueMap: ValueMap = new Map();
     for (const key of totalIncome.valueMap!.keys()) {
-      const income = totalIncome.valueMap!.get(key) ?? 0;
-      const expense = totalExpense.valueMap!.get(key) ?? 0;
-      totalValueMap.set(key, income - expense);
+      const income = totalIncome.valueMap!.get(key)?.balance ?? 0;
+      const expense = totalExpense.valueMap!.get(key)?.balance ?? 0;
+      totalValueMap.set(key, { balance: income - expense });
     }
 
     const totalProfit = {
@@ -116,7 +121,6 @@ export class ProfitAndLoss extends AccountReport {
       emptyRow,
       expenseRows,
       totalExpenseRow,
-      emptyRow,
       emptyRow,
       totalProfitRow,
     ].flat() as ReportData;
