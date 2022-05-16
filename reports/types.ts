@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { AccountRootType } from 'models/baseModels/Account/types';
 import { BaseField, RawValue } from 'schemas/types';
 
@@ -18,6 +19,7 @@ export interface ReportRow {
   cells: ReportCell[];
   level?: number;
   isGroup?: boolean;
+  isEmpty?: boolean;
   folded?: boolean;
   foldedBelow?: boolean;
 }
@@ -68,3 +70,39 @@ export interface LedgerEntry {
 }
 
 export type GroupedMap = Map<string, LedgerEntry[]>;
+
+export type DateRange = { fromDate: DateTime; toDate: DateTime };
+export type ValueMap = Map<DateRange, number>;
+
+export interface Account {
+  name: string;
+  rootType: AccountRootType;
+  isGroup: boolean;
+  parentAccount: string | null;
+}
+
+export type AccountTree = Record<string, AccountTreeNode>;
+export interface AccountTreeNode extends Account {
+  children?: AccountTreeNode[];
+  valueMap?: ValueMap;
+  prune?: boolean;
+}
+
+export type AccountList = AccountListNode[];
+export interface AccountListNode extends Account {
+  valueMap?: ValueMap;
+  level?: number;
+}
+
+export type AccountNameValueMapMap = Map<string, ValueMap>;
+export type BasedOn = 'Fiscal Year' | 'Until Date';
+
+
+export interface TreeNode {
+  name: string;
+  children?: TreeNode[];
+}
+
+export type Tree = Record<string, TreeNode>;
+
+

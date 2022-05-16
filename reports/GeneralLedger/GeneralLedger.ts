@@ -104,6 +104,7 @@ export class GeneralLedger extends LedgerReport {
   _getRowFromEntry(entry: LedgerEntry, columns: ColumnField[]): ReportRow {
     if (entry.name === -3) {
       return {
+        isEmpty: true,
         cells: columns.map((c) => ({
           rawValue: '',
           value: '',

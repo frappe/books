@@ -148,12 +148,12 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'profit-and-loss',
           route: '/report/ProfitAndLoss',
         },
-        /*
         {
           label: t`Balance Sheet`,
           name: 'balance-sheet',
-          route: '/report/balance-sheet',
+          route: '/report/BalanceSheet',
         },
+        /*
         {
           label: t`Trial Balance`,
           name: 'trial-balance',

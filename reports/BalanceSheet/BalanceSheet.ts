@@ -1,59 +1,106 @@
-import { Fyo } from 'fyo';
-import { unique } from 'fyo/utils';
-import { FinancialStatements } from 'reports/FinancialStatements/financialStatements';
-import { FinancialStatementOptions } from 'reports/types';
+import { t } from 'fyo';
+import {
+  AccountRootType,
+  AccountRootTypeEnum,
+} from 'models/baseModels/Account/types';
+import {
+  AccountReport,
+  convertAccountRootNodeToAccountList,
+} from 'reports/AccountReport';
+import { AccountTreeNode, ReportData } from 'reports/types';
+import { getMapFromList } from 'utils';
 
-class BalanceSheet {
-  async run(options: FinancialStatementOptions, fyo: Fyo) {
-    const { fromDate, toDate, periodicity } = options;
-    const fs = new FinancialStatements(fyo);
-    const asset = await fs.getData({
-      rootType: 'Asset',
-      balanceMustBe: 'Debit',
-      fromDate,
-      toDate,
-      periodicity,
-      accumulateValues: true,
-    });
+type RootTypeRow = {
+  rootType: AccountRootType;
+  rootNode: AccountTreeNode;
+  rows: ReportData;
+};
 
-    const liability = await fs.getData({
-      rootType: 'Liability',
-      balanceMustBe: 'Credit',
-      fromDate,
-      toDate,
-      periodicity,
-      accumulateValues: true,
-    });
+export class BalanceSheet extends AccountReport {
+  static title = t`Balance Sheet`;
+  static reportName = 'balance-sheet';
 
-    const equity = await fs.getData({
-      rootType: 'Equity',
-      balanceMustBe: 'Credit',
-      fromDate,
-      toDate,
-      periodicity,
-      accumulateValues: true,
-    });
+  get rootTypes(): AccountRootType[] {
+    return [
+      AccountRootTypeEnum.Asset,
+      AccountRootTypeEnum.Liability,
+      AccountRootTypeEnum.Equity,
+    ];
+  }
 
-    const rows = [
-      ...asset.accounts,
-      asset.totalRow,
-      [],
-      ...liability.accounts,
-      liability.totalRow,
-      [],
-      ...equity.accounts,
-      equity.totalRow,
-      [],
+  async setReportData(filter?: string) {
+    if (filter !== 'hideGroupBalance') {
+      await this._setRawData();
+    }
+
+    const map = this._getGroupedMap(true, 'account');
+    const rangeGroupedMap = await this._getGroupedByDateRanges(map);
+    const accountTree = await this._getAccountTree(rangeGroupedMap);
+
+    for (const name of Object.keys(accountTree)) {
+      const { rootType } = accountTree[name];
+      if (this.rootTypes.includes(rootType)) {
+        continue;
+      }
+
+      delete accountTree[name];
+    }
+
+    const rootTypeRows: RootTypeRow[] = this.rootTypes
+      .map((rootType) => {
+        const rootNode = this.getRootNode(rootType, accountTree)!;
+        const rootList = convertAccountRootNodeToAccountList(rootNode);
+        return {
+          rootType,
+          rootNode,
+          rows: this.getReportRowsFromAccountList(rootList),
+        };
+      })
+      .filter((row) => !!row.rootNode);
+
+    this.reportData = await this.getReportDataFromRows(
+      getMapFromList(rootTypeRows, 'rootType')
+    );
+  }
+
+  async getReportDataFromRows(
+    rootTypeRows: Record<AccountRootType, RootTypeRow | undefined>
+  ): Promise<ReportData> {
+    const typeNameList = [
+      {
+        rootType: AccountRootTypeEnum.Asset,
+        totalName: t`Total Asset (Debit)`,
+      },
+      {
+        rootType: AccountRootTypeEnum.Liability,
+        totalName: t`Total Liability (Credit)`,
+      },
+      {
+        rootType: AccountRootTypeEnum.Equity,
+        totalName: t`Total Equity (Credit)`,
+      },
     ];
 
-    const columns = unique([
-      ...asset.periodList,
-      ...liability.periodList,
-      ...equity.periodList,
-    ]);
+    const reportData: ReportData = [];
+    const emptyRow = this.getEmptyRow();
+    for (const { rootType, totalName } of typeNameList) {
+      const row = rootTypeRows[rootType];
+      if (!row) {
+        continue;
+      }
 
-    return { rows, columns };
+      const totalNode = await this.getTotalNode(row.rootNode, totalName);
+      const totalRow = this.getRowFromAccountListNode(totalNode);
+
+      reportData.push(...row.rows);
+      reportData.push(totalRow);
+      reportData.push(emptyRow);
+    }
+
+    if (reportData.at(-1)?.isEmpty) {
+      reportData.pop();
+    }
+
+    return reportData;
   }
 }
-
-export default BalanceSheet;
