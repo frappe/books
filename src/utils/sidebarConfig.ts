@@ -153,12 +153,12 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'balance-sheet',
           route: '/report/BalanceSheet',
         },
-        /*
         {
           label: t`Trial Balance`,
           name: 'trial-balance',
-          route: '/report/trial-balance',
+          route: '/report/TrialBalance',
         },
+        /*
         {
           label: t`GSTR1`,
           name: 'gstr1',

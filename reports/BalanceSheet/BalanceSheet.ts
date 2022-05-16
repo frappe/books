@@ -7,14 +7,8 @@ import {
   AccountReport,
   convertAccountRootNodeToAccountList,
 } from 'reports/AccountReport';
-import { AccountTreeNode, ReportData } from 'reports/types';
+import { ReportData, RootTypeRow } from 'reports/types';
 import { getMapFromList } from 'utils';
-
-type RootTypeRow = {
-  rootType: AccountRootType;
-  rootNode: AccountTreeNode;
-  rows: ReportData;
-};
 
 export class BalanceSheet extends AccountReport {
   static title = t`Balance Sheet`;
@@ -29,7 +23,7 @@ export class BalanceSheet extends AccountReport {
   }
 
   async setReportData(filter?: string) {
-    if (filter !== 'hideGroupBalance') {
+    if (filter !== 'hideGroupAmounts') {
       await this._setRawData();
     }
 
