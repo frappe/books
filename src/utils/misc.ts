@@ -7,9 +7,9 @@ import SetupWizardSchema from 'schemas/app/SetupWizard.json';
 import { Schema } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 
-export function getDatesAndPeriodicity(
+export function getDatesAndPeriodList(
   period: 'This Year' | 'This Quarter' | 'This Month'
-): { fromDate: string; toDate: string } {
+): { periodList: DateTime[]; fromDate: string; toDate: string } {
   const toDate: DateTime = DateTime.now();
   let fromDate: DateTime;
 
@@ -23,7 +23,22 @@ export function getDatesAndPeriodicity(
     fromDate = toDate.minus({ days: 1 });
   }
 
+  /**
+   * periodList: Monthly decrements before toDate until fromDate
+   */
+  const periodList: DateTime[] = [toDate];
+  while (true) {
+    const nextDate = periodList.at(0)!.minus({ months: 1 });
+    if (nextDate.toMillis() < fromDate.toMillis()) {
+      break;
+    }
+
+    periodList.unshift(nextDate);
+  }
+  periodList.shift();
+
   return {
+    periodList,
     fromDate: fromDate.toISO(),
     toDate: toDate.toISO(),
   };

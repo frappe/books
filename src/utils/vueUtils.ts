@@ -29,3 +29,21 @@ export function useKeys(callback?: (keys: Set<string>) => void) {
 
   return keys;
 }
+
+export function useMouseLocation() {
+  const loc = ref({ clientX: 0, clientY: 0 });
+
+  const mousemoveListener = (e: MouseEvent) => {
+    loc.value.clientX = e.clientX;
+    loc.value.clientY = e.clientY;
+  };
+
+  onMounted(() => {
+    window.addEventListener('mousemove', mousemoveListener);
+  });
+  onUnmounted(() => {
+    window.removeEventListener('mousemove', mousemoveListener);
+  });
+
+  return loc;
+}

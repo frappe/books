@@ -122,7 +122,7 @@
     >
       <div class="flex flex-col justify-center items-center">
         <p>
-          {{ xi > -1 ? xLabels[xi] : '' }}
+          {{ xi > -1 ? formatX(xLabels[xi]) : '' }}
         </p>
         <p class="font-semibold">
           {{ yi > -1 ? format(points[yi][xi]) : '' }}

@@ -84,8 +84,8 @@ export function getGetStartedConfig() {
           label: t`Add Items`,
           icon: 'item',
           description: t`Add products or services that you sell to your customers`,
-          action: () => routeTo('/list/Item'),
-          fieldname: 'itemCreated',
+          action: () => routeTo(`/list/Item/for/Sales/${t`Sales Items`}`),
+          fieldname: 'salesItemCreated',
           documentation: 'https://frappebooks.com/docs/setting-up#3-add-items',
         },
         {
@@ -93,7 +93,7 @@ export function getGetStartedConfig() {
           label: t`Add Customers`,
           icon: 'customer',
           description: t`Add a few customers to create your first invoice`,
-          action: () => routeTo('/list/Customer'),
+          action: () => routeTo(`/list/Party/role/Customer/${t`Customers`}`),
           fieldname: 'customerCreated',
           documentation:
             'https://frappebooks.com/docs/setting-up#4-add-customers',
@@ -118,15 +118,16 @@ export function getGetStartedConfig() {
           label: t`Add Items`,
           icon: 'item',
           description: t`Add products or services that you buy from your suppliers`,
-          action: () => routeTo('/list/Item'),
-          fieldname: 'itemCreated',
+          action: () =>
+            routeTo(`/list/Item/for/Purchases/${t`Purchase Items`}`),
+          fieldname: 'purchaseItemCreated',
         },
         {
           key: 'Add Suppliers',
           label: t`Add Suppliers`,
           icon: 'supplier',
           description: t`Add a few suppliers to create your first bill`,
-          action: () => routeTo('/list/Supplier'),
+          action: () => routeTo(`/list/Party/role/Supplier/${t`Suppliers`}`),
           fieldname: 'supplierCreated',
         },
         {
