@@ -80,7 +80,7 @@ export default {
         colors = ['#E9EBED', '#B7BFC6'];
       }
 
-      const xLabels = data.map((cf) => cf['month-year']);
+      const xLabels = data.map((cf) => cf['yearmonth']);
       const points = ['inflow', 'outflow'].map((k) => data.map((d) => d[k]));
 
       const format = (value) => fyo.format(value ?? 0, 'Currency');
@@ -94,8 +94,8 @@ export default {
         this.period
       );
 
-      const data = await fyo.db.getCashflow(fromDate, toDate);
-      const dataMap = getMapFromList(data, 'month-year');
+      const data = await fyo.db.getCashflow(fromDate.toISO(), toDate.toISO());
+      const dataMap = getMapFromList(data, 'yearmonth');
       this.data = periodList.map((p) => {
         const key = p.toFormat('yyyy-MM');
         const item = dataMap[key];
@@ -106,7 +106,7 @@ export default {
         return {
           inflow: 0,
           outflow: 0,
-          'month-year': key,
+          yearmonth: key,
         };
       });
     },
@@ -129,22 +129,22 @@ const dummyData = [
   {
     inflow: 100,
     outflow: 250,
-    'month-year': '2021-05',
+    yearmonth: '2021-05',
   },
   {
     inflow: 350,
     outflow: 100,
-    'month-year': '2021-06',
+    yearmonth: '2021-06',
   },
   {
     inflow: 50,
     outflow: 300,
-    'month-year': '2021-07',
+    yearmonth: '2021-07',
   },
   {
     inflow: 320,
     outflow: 100,
-    'month-year': '2021-08',
+    yearmonth: '2021-08',
   },
 ];
 </script>

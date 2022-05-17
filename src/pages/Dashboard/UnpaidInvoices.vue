@@ -80,7 +80,9 @@
     </div>
     <MouseFollower
       v-if="invoices[0].hasData || invoices[1].hasData"
+      :offset="15"
       :show="idx >= 0"
+      placement="top"
       class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-2"
       :style="{ borderColor: colors[idx] }"
     >
@@ -169,14 +171,14 @@ export default {
 
         const { total, outstanding } = await fyo.db.getTotalOutstanding(
           invoice.schemaName,
-          fromDate,
-          toDate
+          fromDate.toISO(),
+          toDate.toISO()
         );
 
         const { countTotal, countOutstanding } = await this.getCounts(
           invoice.schemaName,
-          DateTime.fromISO(fromDate),
-          DateTime.fromISO(toDate)
+          fromDate,
+          toDate
         );
 
         invoice.total = total ?? 0;

@@ -75,10 +75,50 @@ export class BespokeQueries {
         outflow: 'credit',
       })
       .select({
-        'month-year': dateAsMonthYear,
+        yearmonth: dateAsMonthYear,
       })
       .where('account', 'in', cashAndBankAccounts)
       .whereBetween('date', [fromDate, toDate])
       .groupBy(dateAsMonthYear);
+  }
+
+  static async getIncomeAndExpenses(
+    db: DatabaseCore,
+    fromDate: string,
+    toDate: string
+  ) {
+    const income = await db.knex!.raw(
+      `
+      select sum(credit - debit) as balance, strftime('%Y-%m', date) as yearmonth
+      from AccountingLedgerEntry
+      where
+        reverted = false and
+        date between date(?) and date(?) and
+        account in (
+          select name
+          from Account
+          where rootType = 'Income'
+        )
+      group by yearmonth`,
+      [fromDate, toDate]
+    );
+
+    const expense = await db.knex!.raw(
+      `
+      select sum(debit - credit) as balance, strftime('%Y-%m', date) as yearmonth
+      from AccountingLedgerEntry
+      where
+        reverted = false and
+        date between date(?) and date(?) and
+        account in (
+          select name
+          from Account
+          where rootType = 'Expense'
+        )
+      group by yearmonth`,
+      [fromDate, toDate]
+    );
+
+    return { income, expense };
   }
 }

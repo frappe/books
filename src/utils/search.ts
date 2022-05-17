@@ -1,7 +1,6 @@
 import { t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
 import { ModelNameEnum } from 'models/types';
-import reports from 'reports/view';
 import { OptionField } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { GetAllOptions } from 'utils/db/types';
@@ -123,13 +122,15 @@ function getCreateList(): SearchItem[] {
 }
 
 function getReportList(): SearchItem[] {
-  return Object.values(reports).map((report) => {
+  /*return Object.values(reports).map((report) => {
     return {
       label: report.title,
       route: `/report/${report.method}`,
       group: 'Report',
     };
   });
+  */
+  return [];
 }
 
 function getListViewList(): SearchItem[] {
