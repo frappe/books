@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between gap-10">
+  <div class="flex justify-between gap-8">
     <div
       class="flex-col justify-between flex-1"
       v-for="(invoice, i) in invoices"
@@ -152,8 +152,8 @@ export default {
         barWidth: 60,
       },
     ],
-    salesInvoicePeriod: 'This Month',
-    purchaseInvoicePeriod: 'This Month',
+    salesInvoicePeriod: 'This Year',
+    purchaseInvoicePeriod: 'This Year',
   }),
   watch: {
     salesInvoicePeriod: 'calculateInvoiceTotals',
