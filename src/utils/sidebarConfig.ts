@@ -158,20 +158,18 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'trial-balance',
           route: '/report/TrialBalance',
         },
-        /*
         {
           label: t`GSTR1`,
           name: 'gstr1',
-          route: '/report/gstr-1',
+          route: '/report/GSTR1',
           hidden: () => fyo.singles.AccountingSettings!.country !== 'India',
         },
         {
           label: t`GSTR2`,
           name: 'gstr2',
-          route: '/report/gstr-2',
+          route: '/report/GSTR2',
           hidden: () => fyo.singles.AccountingSettings!.country !== 'India',
         },
-        */
       ],
     },
     {

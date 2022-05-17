@@ -75,6 +75,7 @@
 </template>
 <script>
 import { Report } from 'reports/Report';
+import { FieldTypeEnum } from 'schemas/types';
 import { defineComponent } from 'vue';
 import Paginator from '../Paginator.vue';
 import WithScroll from '../WithScroll.vue';
@@ -141,6 +142,17 @@ export default defineComponent({
 
       if (i === 0) {
         styles['padding-left'] = '0px';
+      }
+
+      if (
+        !cell.align &&
+        [
+          FieldTypeEnum.Currency,
+          FieldTypeEnum.Int,
+          FieldTypeEnum.Float,
+        ].includes(cell.fieldtype)
+      ) {
+        styles['text-align'] = 'right';
       }
 
       if (i === this.report.columns.length - 1) {

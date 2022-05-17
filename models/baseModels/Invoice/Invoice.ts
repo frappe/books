@@ -19,6 +19,7 @@ export abstract class Invoice extends Transactional {
   account?: string;
   currency?: string;
   netTotal?: Money;
+  grandTotal?: Money;
   baseGrandTotal?: Money;
   outstandingAmount?: Money;
   exchangeRate?: number;
