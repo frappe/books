@@ -22,9 +22,7 @@ export const purchaseItemPartyMap: Record<string, string> = Object.keys(
   return acc;
 }, {} as Record<string, string>);
 
-export const flow = [
-  0.15, 0.1, 0.25, 0.1, 0.01, 0.01, 0.01, 0.05, 0, 0.15, 0.2, 0.4,
-];
+export const flow = [0.25, 0.2, 0.35, 0.2, 0.1, 0.01, 0.01, 0.15, 0, 0.25, 0.3, 0.5];
 export function getFlowConstant(months: number) {
   // Jan to December
 

@@ -1,7 +1,6 @@
 import { FormulaMap, ListsMap } from 'fyo/model/types';
 import { Address as BaseAddress } from 'models/baseModels/Address/Address';
-import { stateCodeMap } from 'regional/in';
-import { titleCase } from 'utils';
+import { codeStateMap } from 'regional/in';
 
 export class Address extends BaseAddress {
   formulas: FormulaMap = {
@@ -30,7 +29,7 @@ export class Address extends BaseAddress {
 
     pos: {
       formula: async () => {
-        const stateList = Object.keys(stateCodeMap).map(titleCase).sort();
+        const stateList = Object.values(codeStateMap).sort();
         const state = this.state as string;
         if (stateList.includes(state)) {
           return state;
@@ -44,7 +43,7 @@ export class Address extends BaseAddress {
   static lists: ListsMap = {
     ...BaseAddress.lists,
     pos: () => {
-      return Object.keys(stateCodeMap).map(titleCase).sort();
+      return Object.values(codeStateMap).sort();
     },
   };
 }

@@ -6,6 +6,7 @@ import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { DuplicateEntryError, LinkValidationError } from 'fyo/utils/errors';
 import Money from 'pesa/dist/types/src/money';
+import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
 
 export function stringifyCircular(
   obj: unknown,
@@ -96,4 +97,18 @@ export function getErrorMessage(e: Error, doc?: Doc): string {
   }
 
   return errorMessage;
+}
+
+export function isNumeric(fieldtype: Field | FieldType): boolean {
+  if (typeof fieldtype !== 'string') {
+    fieldtype = fieldtype?.fieldtype;
+  }
+
+  const numericTypes: FieldType[] = [
+    FieldTypeEnum.Int,
+    FieldTypeEnum.Float,
+    FieldTypeEnum.Currency,
+  ];
+
+  return numericTypes.includes(fieldtype);
 }

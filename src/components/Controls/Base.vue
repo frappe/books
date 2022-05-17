@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { isNumeric } from 'src/utils';
+
 export default {
   name: 'Base',
   props: {
@@ -105,9 +107,7 @@ export default {
     parse(value) {
       return value;
     },
-    isNumeric(df) {
-      return ['Int', 'Float', 'Currency'].includes(df.fieldtype);
-    },
+    isNumeric,
   },
 };
 </script>
