@@ -17,7 +17,9 @@ import {
 // Return types of Bespoke Queries
 type TopExpenses = { account: string; total: number }[];
 type TotalOutstanding = { total: number; outstanding: number };
-type Cashflow = { inflow: number; outflow: number; 'month-year': string }[];
+type Cashflow = { inflow: number; outflow: number; yearmonth: string }[];
+type Balance = { balance: number; yearmonth: string }[];
+type IncomeExpense = { income: Balance; expense: Balance };
 
 export class DatabaseHandler extends DatabaseBase {
   #fyo: Fyo;
@@ -250,6 +252,17 @@ export class DatabaseHandler extends DatabaseBase {
       fromDate,
       toDate
     )) as Cashflow;
+  }
+
+  async getIncomeAndExpenses(
+    fromDate: string,
+    toDate: string
+  ): Promise<IncomeExpense> {
+    return (await this.#demux.callBespoke(
+      'getIncomeAndExpenses',
+      fromDate,
+      toDate
+    )) as IncomeExpense;
   }
 
   /**
