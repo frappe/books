@@ -32,13 +32,11 @@ export class BespokeQueries {
 
     const topExpenses = await db
       .knex!.select({
-        total: db.knex!.raw('sum(cast(?? as real)) - sum(cast(?? as real))', [
-          'debit',
-          'credit',
-        ]),
+        total: db.knex!.raw('sum(cast(debit as real) - cast(credit as real))'),
       })
       .select('account')
       .from('AccountingLedgerEntry')
+      .where('reverted', false)
       .where('account', 'in', expenseAccounts)
       .whereBetween('date', [fromDate, toDate])
       .groupBy('account')
@@ -89,7 +87,7 @@ export class BespokeQueries {
   ) {
     const income = await db.knex!.raw(
       `
-      select sum(credit - debit) as balance, strftime('%Y-%m', date) as yearmonth
+      select sum(cast(credit as real) - cast(debit as real)) as balance, strftime('%Y-%m', date) as yearmonth
       from AccountingLedgerEntry
       where
         reverted = false and
@@ -105,7 +103,7 @@ export class BespokeQueries {
 
     const expense = await db.knex!.raw(
       `
-      select sum(debit - credit) as balance, strftime('%Y-%m', date) as yearmonth
+      select sum(cast(debit as real) - cast(credit as real)) as balance, strftime('%Y-%m', date) as yearmonth
       from AccountingLedgerEntry
       where
         reverted = false and

@@ -7,9 +7,11 @@
       </template>
     </SectionHeader>
     <div class="flex relative" v-show="hasData">
-      <div class="w-1/2">
+      <!-- Chart Legend -->
+      <div class="w-1/2 flex flex-col gap-5 mt-8">
+        <!-- Ledgend Item -->
         <div
-          class="mt-5 flex justify-between items-center text-sm"
+          class="flex justify-between items-center text-sm"
           v-for="(d, i) in expenses"
           :key="d.name"
         >
@@ -18,8 +20,12 @@
             @mouseover="active = i"
             @mouseleave="active = null"
           >
-            <div class="w-3 h-3 rounded-sm" :class="d.class"></div>
-            <div class="ml-3">{{ d.account }}</div>
+            <div class="w-3 h-3 rounded-sm flex-shrink-0" :class="d.class" />
+            <p
+              class="ml-2 w-24 overflow-x-scroll whitespace-nowrap no-scrollbar"
+            >
+              {{ d.account }}
+            </p>
           </div>
           <p class="whitespace-nowrap">
             {{ fyo.format(d.total, 'Currency') }}
@@ -38,6 +44,8 @@
         @change="(value) => (active = value)"
       />
     </div>
+
+    <!-- Empty Message -->
     <div
       v-if="expenses.length === 0"
       class="flex-1 w-full h-full flex-center my-20"
@@ -52,7 +60,7 @@
 <script>
 import { fyo } from 'src/initFyo';
 import theme from 'src/theme';
-import { getDatesAndPeriodicity } from 'src/utils/misc';
+import { getDatesAndPeriodList } from 'src/utils/misc';
 import DonutChart from '../../components/Charts/DonutChart.vue';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
@@ -94,8 +102,12 @@ export default {
   },
   methods: {
     async setData() {
-      const { fromDate, toDate } = await getDatesAndPeriodicity(this.period);
-      let topExpenses = await fyo.db.getTopExpenses(fromDate, toDate);
+      const { fromDate, toDate } = await getDatesAndPeriodList(this.period);
+      let topExpenses = await fyo.db.getTopExpenses(
+        fromDate.toISO(),
+        toDate.toISO()
+      );
+
       const shades = [
         { class: 'bg-gray-800', hex: theme.backgroundColor.gray['800'] },
         { class: 'bg-gray-600', hex: theme.backgroundColor.gray['600'] },
