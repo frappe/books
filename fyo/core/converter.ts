@@ -56,6 +56,10 @@ export class Converter {
   }
 
   static toDocValue(value: RawValue, field: Field, fyo: Fyo): DocValue {
+    if (!field?.fieldtype) {
+      console.log(value, field);
+      console.trace();
+    }
     switch (field.fieldtype) {
       case FieldTypeEnum.Currency:
         return toDocCurrency(value, field, fyo);
@@ -102,6 +106,9 @@ export class Converter {
     for (const fieldname in rawValueMap) {
       const field = fieldValueMap[fieldname];
       const rawValue = rawValueMap[fieldname];
+      if (!field) {
+        continue;
+      }
 
       if (Array.isArray(rawValue)) {
         const parentSchemaName = (field as TargetField).target;

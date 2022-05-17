@@ -166,43 +166,40 @@ export default {
         return;
       }
 
-      if (!fyo.singles.GetStarted.itemCreated) {
-        const count = await fyo.db.count('Item');
-        if (count > 0) {
-          toUpdate.itemCreated = 1;
-        }
+      if (!fyo.singles.GetStarted.salesItemCreated) {
+        const count = await fyo.db.count('Item', { filters: { for: 'Sales' } });
+        toUpdate.salesItemCreated = count > 0;
+      }
+
+      if (!fyo.singles.GetStarted.purchaseItemCreated) {
+        const count = await fyo.db.count('Item', {
+          filters: { for: 'Purchases' },
+        });
+        toUpdate.purchaseItemCreated = count > 0;
       }
 
       if (!fyo.singles.GetStarted.invoiceCreated) {
         const count = await fyo.db.count('SalesInvoice');
-        if (count > 0) {
-          toUpdate.invoiceCreated = 1;
-        }
+        toUpdate.invoiceCreated = count > 0;
       }
 
       if (!fyo.singles.GetStarted.customerCreated) {
-        const count = fyo.db.count('Party', {
+        const count = await fyo.db.count('Party', {
           filters: { role: 'Customer' },
         });
-        if (count > 0) {
-          toUpdate.customerCreated = 1;
-        }
+        toUpdate.customerCreated = count > 0;
       }
 
       if (!fyo.singles.GetStarted.billCreated) {
         const count = await fyo.db.count('SalesInvoice');
-        if (count > 0) {
-          toUpdate.billCreated = 1;
-        }
+        toUpdate.billCreated = count > 0;
       }
 
       if (!fyo.singles.GetStarted.supplierCreated) {
-        const count = fyo.db.count('Party', {
+        const count = await fyo.db.count('Party', {
           filters: { role: 'Supplier' },
         });
-        if (count > 0) {
-          toUpdate.supplierCreated = 1;
-        }
+        toUpdate.supplierCreated = count > 0;
       }
       await this.updateChecks(toUpdate);
     },
@@ -211,10 +208,10 @@ export default {
       await fyo.doc.getSingle('GetStarted');
     },
     isCompleted(item) {
-      return fyo.singles.GetStarted.get(item.fieldname) || 0;
+      return fyo.singles.GetStarted.get(item.fieldname) || false;
     },
     getIconComponent(item) {
-      let completed = fyo.singles.GetStarted[item.fieldname] || 0;
+      let completed = fyo.singles.GetStarted[item.fieldname] || false;
       let name = completed ? 'green-check' : item.icon;
       let size = completed ? '24' : '18';
       return {

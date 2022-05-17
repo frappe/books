@@ -24,8 +24,13 @@
       "fieldtype": "Check"
     },
     {
-      "fieldname": "itemCreated",
-      "label": "Item Created",
+      "fieldname": "salesItemCreated",
+      "label": "Purchase Item Created",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "purchaseItemCreated",
+      "label": "Sales Item Created",
       "fieldtype": "Check"
     },
     {

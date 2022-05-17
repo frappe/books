@@ -46,7 +46,8 @@ import { ModelNameEnum } from 'models/types';
 import LineChart from 'src/components/Charts/LineChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax } from 'src/utils/chart';
-import { getDatesAndPeriodicity } from 'src/utils/misc';
+import { getDatesAndPeriodList } from 'src/utils/misc';
+import { getMapFromList } from 'utils/';
 import PeriodSelector from './PeriodSelector';
 
 export default {
@@ -89,8 +90,25 @@ export default {
   },
   methods: {
     async setData() {
-      const { fromDate, toDate } = await getDatesAndPeriodicity(this.period);
-      this.data = await fyo.db.getCashflow(fromDate, toDate);
+      const { periodList, fromDate, toDate } = await getDatesAndPeriodList(
+        this.period
+      );
+
+      const data = await fyo.db.getCashflow(fromDate, toDate);
+      const dataMap = getMapFromList(data, 'month-year');
+      this.data = periodList.map((p) => {
+        const key = p.toFormat('yyyy-MM');
+        const item = dataMap[key];
+        if (item) {
+          return item;
+        }
+
+        return {
+          inflow: 0,
+          outflow: 0,
+          'month-year': key,
+        };
+      });
     },
     async setHasData() {
       const accounts = await fyo.db.getAllRaw('Account', {
