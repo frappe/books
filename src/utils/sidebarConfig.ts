@@ -1,6 +1,6 @@
 import { t } from 'fyo';
 import { fyo } from '../initFyo';
-import { SidebarConfig } from './types';
+import { SidebarConfig, SidebarRoot } from './types';
 
 export function getSidebarConfig(): SidebarConfig {
   const sideBar = getCompleteSidebar();
@@ -23,6 +23,34 @@ export function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
 
     return true;
   });
+}
+
+function getRegionalSidebar(): SidebarRoot[] {
+  const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
+  if (!hasGstin) {
+    return [];
+  }
+
+  return [
+    {
+      label: 'GST',
+      name: 'gst',
+      icon: 'gst',
+      route: '/report/GSTR1',
+      items: [
+        {
+          label: t`GSTR1`,
+          name: 'gstr1',
+          route: '/report/GSTR1',
+        },
+        {
+          label: t`GSTR2`,
+          name: 'gstr2',
+          route: '/report/GSTR2',
+        },
+      ],
+    },
+  ];
 }
 
 function getCompleteSidebar(): SidebarConfig {
@@ -158,20 +186,9 @@ function getCompleteSidebar(): SidebarConfig {
           name: 'trial-balance',
           route: '/report/TrialBalance',
         },
-        {
-          label: t`GSTR1`,
-          name: 'gstr1',
-          route: '/report/GSTR1',
-          hidden: () => fyo.singles.AccountingSettings!.country !== 'India',
-        },
-        {
-          label: t`GSTR2`,
-          name: 'gstr2',
-          route: '/report/GSTR2',
-          hidden: () => fyo.singles.AccountingSettings!.country !== 'India',
-        },
       ],
     },
+    ...getRegionalSidebar(),
     {
       label: t`Setup`,
       name: t`setup`,
