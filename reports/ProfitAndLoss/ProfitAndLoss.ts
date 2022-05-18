@@ -17,12 +17,14 @@ import {
 export class ProfitAndLoss extends AccountReport {
   static title = t`Profit And Loss`;
   static reportName = 'profit-and-loss';
+  loading: boolean = false;
 
   get rootTypes(): AccountRootType[] {
     return [AccountRootTypeEnum.Income, AccountRootTypeEnum.Expense];
   }
 
   async setReportData(filter?: string) {
+    this.loading = true;
     if (filter !== 'hideGroupAmounts') {
       await this._setRawData();
     }
@@ -66,6 +68,7 @@ export class ProfitAndLoss extends AccountReport {
       incomeRoot,
       expenseRoot
     );
+    this.loading = false;
   }
 
   async getReportDataFromRows(

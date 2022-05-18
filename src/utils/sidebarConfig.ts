@@ -7,7 +7,7 @@ export function getSidebarConfig(): SidebarConfig {
   return getFilteredSidebar(sideBar);
 }
 
-export function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
+function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
   return sideBar.filter((root) => {
     root.items = root.items?.filter((item) => {
       if (item.hidden !== undefined) {

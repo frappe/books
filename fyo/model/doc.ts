@@ -86,6 +86,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return this._notInserted;
   }
 
+  get inserted(): boolean {
+    return !this._notInserted;
+  }
+
   get tableFields(): TargetField[] {
     return this.schema.fields.filter(
       (f) => f.fieldtype === FieldTypeEnum.Table

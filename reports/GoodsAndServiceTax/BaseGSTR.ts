@@ -19,6 +19,7 @@ export abstract class BaseGSTR extends Report {
   transferType?: TransferType;
   usePagination: boolean = true;
   gstrRows?: GSTRRow[];
+  loading: boolean = false;
 
   abstract gstrType: GSTRType;
 
@@ -46,10 +47,12 @@ export abstract class BaseGSTR extends Report {
   }
 
   async setReportData(): Promise<void> {
+    this.loading = true;
     const gstrRows = await this.getGstrRows();
     const filteredRows = this.filterGstrRows(gstrRows);
     this.gstrRows = filteredRows;
     this.reportData = this.getReportDataFromGSTRRows(filteredRows);
+    this.loading = false;
   }
 
   getReportDataFromGSTRRows(gstrRows: GSTRRow[]): ReportData {

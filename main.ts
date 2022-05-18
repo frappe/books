@@ -84,7 +84,7 @@ export class Main {
           .ELECTRON_NODE_INTEGRATION as unknown as boolean,
       },
       frame: this.isLinux,
-      resizable: true,
+      resizable: false,
     };
     if (this.isDevelopment || this.isLinux) {
       Object.assign(options, { icon: this.icon });
@@ -137,6 +137,10 @@ export class Main {
 
     this.mainWindow.on('closed', () => {
       this.mainWindow = null;
+    });
+
+    this.mainWindow.on('will-resize', (e) => {
+      e.preventDefault();
     });
 
     this.mainWindow.webContents.on('did-finish-load', () => {

@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-hidden flex flex-col h-full">
     <!-- Report Outer Container -->
-    <div class="overflow-hidden">
+    <div class="overflow-hidden" v-if="dataSlice.length">
       <!--Title Row -->
       <div
         class="w-full overflow-x-hidden flex items-center border-b"
@@ -61,6 +61,9 @@
       </WithScroll>
       <!-- Report Rows Container -->
     </div>
+    <p v-else class="w-full text-center mt-20 text-gray-800 text-base">
+      {{ report.loading ? t`Loading Report...` : t`No Values to be Displayed` }}
+    </p>
 
     <!-- Pagination Footer -->
     <div class="mt-auto flex-shrink-0" v-if="report.usePagination">

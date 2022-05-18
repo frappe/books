@@ -54,7 +54,7 @@
     </div>
 
     <!-- Pagination Footer -->
-    <div class="mt-auto">
+    <div class="mt-auto" v-if="data?.length">
       <hr />
       <Paginator :item-count="data.length" @index-change="setPageIndices" />
     </div>
