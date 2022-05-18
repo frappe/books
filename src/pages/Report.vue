@@ -1,19 +1,15 @@
 <template>
   <div class="flex flex-col w-full h-full">
     <PageHeader :title="title">
-      <!-- 
       <DropdownWithActions
-        v-for="group of actionGroups"
+        v-for="group of groupedActions"
         :key="group.label"
         :type="group.type"
         :actions="group.actions"
         class="text-xs"
       >
-        {{ group.label }}
+        {{ group.group }}
       </DropdownWithActions>
-      <DropdownWithActions :actions="actions" />
-
-     -->
     </PageHeader>
 
     <!-- Filters -->
@@ -42,6 +38,7 @@ import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
 import { reports } from 'reports';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import ListReport from 'src/components/Report/ListReport.vue';
 import { fyo } from 'src/initFyo';
@@ -49,7 +46,7 @@ import { defineComponent } from 'vue';
 
 export default defineComponent({
   props: {
-    reportName: String,
+    reportClassName: String,
   },
   data() {
     return {
@@ -62,7 +59,7 @@ export default defineComponent({
       report: computed(() => this.report),
     };
   },
-  components: { PageHeader, FormControl, ListReport },
+  components: { PageHeader, FormControl, ListReport, DropdownWithActions },
   async activated() {
     await this.setReportData();
     if (fyo.store.isDevelopment) {
@@ -71,12 +68,32 @@ export default defineComponent({
   },
   computed: {
     title() {
-      return reports[this.reportName]?.title ?? t`Report`;
+      return reports[this.reportClassName]?.title ?? t`Report`;
+    },
+    groupedActions() {
+      const actions = this.report?.getActions() ?? [];
+      const actionsMap = actions.reduce((acc, ac) => {
+        if (!ac.group) {
+          ac.group = 'none';
+        }
+
+        acc[ac.group] ??= {
+          group: ac.group,
+          label: ac.label ?? '',
+          type: ac.type,
+          actions: [],
+        };
+
+        acc[ac.group].actions.push(ac);
+        return acc;
+      }, {});
+
+      return Object.values(actionsMap);
     },
   },
   methods: {
     async setReportData() {
-      const Report = reports[this.reportName];
+      const Report = reports[this.reportClassName];
 
       if (this.report === null) {
         this.report = new Report(fyo);

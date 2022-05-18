@@ -1,8 +1,10 @@
 import { t } from 'fyo';
+import { Action } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 import { Report } from 'reports/Report';
 import { GroupedMap, LedgerEntry, RawLedgerEntry } from 'reports/types';
 import { QueryFilter } from 'utils/db/types';
+import getCommonExportActions from './commonExporter';
 
 type GroupByKey = 'account' | 'party' | 'referenceName';
 
@@ -95,4 +97,8 @@ export abstract class LedgerReport extends Report {
   }
 
   abstract _getQueryFilters(): Promise<QueryFilter>;
+
+  getActions(): Action[] {
+    return getCommonExportActions(this);
+  }
 }

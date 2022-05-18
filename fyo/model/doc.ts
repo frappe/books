@@ -168,6 +168,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     this._setDirty(true);
+    if (typeof value === 'string') {
+      value = value.trim();
+    }
+
     if (Array.isArray(value)) {
       for (const row of value) {
         this.push(fieldname, row);

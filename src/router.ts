@@ -88,7 +88,7 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
   {
-    path: '/report/:reportName',
+    path: '/report/:reportClassName',
     name: 'Report',
     component: Report,
     props: true,

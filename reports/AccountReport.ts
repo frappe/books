@@ -1,5 +1,4 @@
 import { t } from 'fyo';
-import { Action } from 'fyo/model/types';
 import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
 import { AccountRootType } from 'models/baseModels/Account/types';
@@ -411,10 +410,6 @@ export abstract class AccountReport extends LedgerReport {
     );
 
     return [columns, dateColumns].flat();
-  }
-
-  getActions(): Action[] {
-    return [];
   }
 
   metaFilters: string[] = ['basedOn'];

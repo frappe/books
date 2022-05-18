@@ -1,5 +1,4 @@
 import { t } from 'fyo';
-import { Action } from 'fyo/model/types';
 import { ValueError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
 import {
@@ -283,9 +282,5 @@ export class TrialBalance extends AccountReport {
         width: ACC_BAL_WIDTH,
       },
     ] as ColumnField[];
-  }
-
-  getActions(): Action[] {
-    return [];
   }
 }
