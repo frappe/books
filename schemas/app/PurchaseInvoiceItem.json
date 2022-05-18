@@ -8,6 +8,7 @@
       "label": "Item",
       "fieldtype": "Link",
       "target": "Item",
+      "create": true,
       "required": true
     },
     {
@@ -40,6 +41,7 @@
       "label": "Account",
       "fieldtype": "Link",
       "target": "Account",
+      "create": true,
       "required": true,
       "readOnly": true
     },
@@ -47,6 +49,7 @@
       "fieldname": "tax",
       "label": "Tax",
       "fieldtype": "Link",
+      "create": true,
       "target": "Tax"
     },
     {

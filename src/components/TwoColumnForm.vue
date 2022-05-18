@@ -36,7 +36,7 @@
           <Button
             type="primary"
             class="w-1/2 text-white"
-            @click="saveInlineEditDoc"
+            @click="saveInlineEditDoc(df)"
           >
             {{ t`Save` }}
           </Button>
@@ -237,9 +237,6 @@ export default {
       this.inlineEditField = df;
       if (!this.doc[df.fieldname]) {
         this.inlineEditDoc = await fyo.doc.getNewDoc(df.target);
-        this.inlineEditDoc.once('afterSync', async () => {
-          await this.onChangeCommon(df, this.inlineEditDoc.name);
-        });
       } else {
         this.inlineEditDoc = this.doc.getLink(df.fieldname);
       }
@@ -251,12 +248,13 @@ export default {
         fyo.getField(df.target, fieldname)
       );
     },
-    async saveInlineEditDoc() {
+    async saveInlineEditDoc(df) {
       if (!this.inlineEditDoc) {
         return;
       }
 
-      await this.$refs.inlineEditForm[0].sync();
+      await this.inlineEditDoc.sync();
+      await this.onChangeCommon(df, this.inlineEditDoc.name);
       await this.doc.loadLinks();
 
       if (this.emitChange) {

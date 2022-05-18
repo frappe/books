@@ -229,4 +229,10 @@ export abstract class Invoice extends Transactional {
     }),
     numberSeries: (doc: Doc) => ({ referenceType: doc.schemaName }),
   };
+
+  static createFilters: FiltersMap = {
+    party: (doc: Doc) => ({
+      role: doc.isSales ? 'Customer' : 'Supplier',
+    }),
+  };
 }
