@@ -16,11 +16,12 @@
 
     <!-- Data Input Form Control -->
     <FormControl
+      v-for="df in tableFields"
       :size="size"
       class="py-2"
+      :read-only="readOnly"
       :input-class="{ 'text-right': isNumeric(df), 'bg-transparent': true }"
       :key="df.fieldname"
-      v-for="df in tableFields"
       :df="df"
       :value="row[df.fieldname]"
       @change="(value) => onChange(df, value)"
@@ -50,6 +51,7 @@ export default {
     size: String,
     ratio: Array,
     isNumeric: Function,
+    readOnly: Boolean,
   },
   emits: ['remove'],
   components: {

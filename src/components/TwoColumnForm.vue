@@ -297,7 +297,7 @@ export default {
       };
     },
     submitted() {
-      return Boolean(this.doc.schema.isSubmittable && this.doc.submitted);
+      return this.doc.isSubmitted;
     },
   },
 };
