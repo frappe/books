@@ -21,6 +21,16 @@ export abstract class Report extends Observable<RawValue> {
     this.reportData = [];
   }
 
+  get title() {
+    // @ts-ignore
+    return this.constructor.title;
+  }
+
+  get reportName() {
+    // @ts-ignore
+    return this.constructor.reportName;
+  }
+
   async initialize() {
     /**
      * Not in constructor cause possibly async.

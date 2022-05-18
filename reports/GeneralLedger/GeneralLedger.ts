@@ -1,5 +1,4 @@
 import { Fyo, t } from 'fyo';
-import { Action } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { ModelNameEnum } from 'models/types';
 import { LedgerReport } from 'reports/LedgerReport';
@@ -407,9 +406,5 @@ export class GeneralLedger extends LedgerReport {
     }
 
     return columns;
-  }
-
-  getActions(): Action[] {
-    return [];
   }
 }
