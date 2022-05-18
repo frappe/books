@@ -23,6 +23,7 @@
       "label": "Party",
       "fieldtype": "Link",
       "target": "Party",
+      "create": true,
       "required": true
     },
     {
@@ -30,6 +31,7 @@
       "label": "Account",
       "fieldtype": "Link",
       "target": "Account",
+      "create": true,
       "required": true
     },
     {
@@ -100,6 +102,7 @@
       "label": "Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
+      "create": true,
       "required": true,
       "default": "SINV-"
     }

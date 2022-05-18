@@ -41,6 +41,7 @@
       "fieldname": "defaultAccount",
       "label": "Default Account",
       "fieldtype": "Link",
+      "create": true,
       "target": "Account"
     },
     {

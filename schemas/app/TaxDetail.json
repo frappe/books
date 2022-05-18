@@ -9,6 +9,7 @@
       "label": "Tax Account",
       "fieldtype": "Link",
       "target": "Account",
+      "create": true,
       "required": true
     },
     {

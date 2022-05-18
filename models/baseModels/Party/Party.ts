@@ -89,19 +89,6 @@ export class Party extends Doc {
     currency: {
       formula: async () => this.fyo.singles.SystemSettings!.currency as string,
     },
-    address: {
-      formula: async () => {
-        const address = this.address as string | undefined;
-        if (address) {
-          return (await this.fyo.getValue(
-            'Address',
-            address,
-            'addressDisplay'
-          )) as string;
-        }
-        return '';
-      },
-    },
   };
 
   validations: ValidationMap = {

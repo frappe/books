@@ -115,4 +115,9 @@ export abstract class InvoiceItem extends Doc {
       };
     },
   };
+  static createFilters: FiltersMap = {
+    item: (doc: Doc) => {
+      return { for: doc.isSales ? 'Sales' : 'Purchases' };
+    },
+  };
 }

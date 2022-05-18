@@ -77,7 +77,7 @@ export default {
           .map(({ item }) => item);
       }
 
-      if (this.doc) {
+      if (this.doc && this.df.create) {
         options = options.concat(this.getCreateNewOption());
       }
 
@@ -119,7 +119,9 @@ export default {
     async openNewDoc() {
       const schemaName = this.df.target;
       const doc = await fyo.doc.getNewDoc(schemaName);
-      const filters = await this.getFilters();
+
+      const filters = await this.getCreateFilters();
+
       const { openQuickEdit } = await import('src/utils/ui');
 
       openQuickEdit({
@@ -134,6 +136,17 @@ export default {
         this.$emit('new-doc', doc);
         this.$router.back();
       });
+    },
+    async getCreateFilters() {
+      const { schemaName, fieldname } = this.df;
+      const getFilters = fyo.models[schemaName]?.createFilters?.[fieldname];
+      const filters = await getFilters?.(this.doc);
+
+      if (filters === undefined) {
+        return await this.getFilters();
+      }
+
+      return filters;
     },
     async getFilters() {
       const { schemaName, fieldname } = this.df;

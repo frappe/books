@@ -799,6 +799,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   static lists: ListsMap = {};
   static filters: FiltersMap = {};
+  static createFilters: FiltersMap = {}; // Used by the *Create* dropdown option
   static defaults: DefaultMap = {};
   static emptyMessages: EmptyMessageMap = {};
 

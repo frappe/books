@@ -49,6 +49,7 @@ export interface OptionField extends BaseField {
 export interface TargetField extends BaseField {
   fieldtype: FieldTypeEnum.Table | FieldTypeEnum.Link;
   target: string;                // Name of the table or group of tables to fetch values
+  create?: boolean;              // Whether to show Create in the dropdown
 }
 
 export interface DynamicLinkField extends BaseField {
