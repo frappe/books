@@ -1,8 +1,7 @@
-
 export enum TransferTypeEnum {
   'B2B' = 'B2B',
-'B2CL' = 'B2C',
-  'B2CS' = 'B2C',
+  'B2CL' = 'B2CL',
+  'B2CS' = 'B2CS',
   'NR' = 'NR',
 }
 

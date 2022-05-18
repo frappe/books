@@ -1,4 +1,5 @@
 import { t } from 'fyo';
+import { Action } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { Party } from 'models/regionalModels/in/Party';
@@ -8,6 +9,7 @@ import { Report } from 'reports/Report';
 import { ColumnField, ReportData, ReportRow } from 'reports/types';
 import { Field, OptionField } from 'schemas/types';
 import { isNumeric } from 'src/utils';
+import getGSTRExportActions from './gstExporter';
 import { GSTRRow, GSTRType, TransferType, TransferTypeEnum } from './types';
 
 export abstract class BaseGSTR extends Report {
@@ -16,6 +18,7 @@ export abstract class BaseGSTR extends Report {
   fromDate?: string;
   transferType?: TransferType;
   usePagination: boolean = true;
+  gstrRows?: GSTRRow[];
 
   abstract gstrType: GSTRType;
 
@@ -45,6 +48,7 @@ export abstract class BaseGSTR extends Report {
   async setReportData(): Promise<void> {
     const gstrRows = await this.getGstrRows();
     const filteredRows = this.filterGstrRows(gstrRows);
+    this.gstrRows = filteredRows;
     this.reportData = this.getReportDataFromGSTRRows(filteredRows);
   }
 
@@ -336,5 +340,9 @@ export abstract class BaseGSTR extends Report {
     }
 
     return columns;
+  }
+
+  getActions(): Action[] {
+    return getGSTRExportActions(this);
   }
 }

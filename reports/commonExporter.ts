@@ -5,9 +5,7 @@ import { getSavePath, saveData, showExportInFolder } from 'src/utils/ipcCalls';
 import { getIsNullOrUndef } from 'utils';
 import { generateCSV } from 'utils/csvParser';
 import { Report } from './Report';
-import { ReportCell } from './types';
-
-type ExportExtention = 'csv' | 'json';
+import { ExportExtention, ReportCell } from './types';
 
 interface JSONExport {
   columns: { fieldname: string; label: string }[];
@@ -42,21 +40,23 @@ async function exportReport(extention: ExportExtention, report: Report) {
     return;
   }
 
-  switch (extention) {
-    case 'csv':
-      await exportCsv(report, filePath);
-      break;
-    case 'json':
-      await exportJson(report, filePath);
-      break;
-    default:
-      return;
+  let data = '';
+
+  if (extention === 'csv') {
+    data = getCsvData(report);
+  } else if (extention === 'json') {
+    data = getJsonData(report);
   }
 
+  if (!data.length) {
+    return;
+  }
+
+  await saveExportData(data, filePath, report.fyo);
   report.fyo.telemetry.log(Verb.Exported, report.reportName, { extention });
 }
 
-async function exportJson(report: Report, filePath: string) {
+function getJsonData(report: Report): string {
   const exportObject: JSONExport = {
     columns: [],
     rows: [],
@@ -117,13 +117,12 @@ async function exportJson(report: Report, filePath: string) {
   exportObject.softwareName = 'Frappe Books';
   exportObject.softwareVersion = report.fyo.store.appVersion;
 
-  await saveExportData(JSON.stringify(exportObject), filePath, report.fyo);
+  return JSON.stringify(exportObject);
 }
 
-export async function exportCsv(report: Report, filePath: string) {
+export function getCsvData(report: Report): string {
   const csvMatrix = convertReportToCSVMatrix(report);
-  const csvString = generateCSV(csvMatrix);
-  saveExportData(csvString, filePath, report.fyo);
+  return generateCSV(csvMatrix);
 }
 
 function convertReportToCSVMatrix(report: Report): unknown[][] {
