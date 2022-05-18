@@ -179,7 +179,7 @@ export default {
       }
 
       // handle rename
-      if (this.autosave && df.fieldname === 'name' && !this.doc.notInserted) {
+      if (this.autosave && df.fieldname === 'name' && this.doc.inserted) {
         return this.doc.rename(value);
       }
 
@@ -190,7 +190,7 @@ export default {
     async onChangeCommon(df, value, oldValue) {
       let isSet = false;
       try {
-        isSet = this.doc.set(df.fieldname, value);
+        isSet = await this.doc.set(df.fieldname, value);
       } catch (err) {
         this.errors[df.fieldname] = getErrorMessage(err, this.doc);
       }

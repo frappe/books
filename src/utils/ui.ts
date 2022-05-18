@@ -283,7 +283,7 @@ function getDeleteAction(doc: Doc): Action {
     async action() {
       const res = await deleteDocWithPrompt(doc);
       if (res) {
-        routeTo(`/list/${doc.schemaName}`);
+        router.back();
       }
     },
   };

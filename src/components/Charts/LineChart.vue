@@ -160,7 +160,7 @@ export default {
     format: { type: Function, default: (n) => n.toFixed(1) },
     formatY: { type: Function, default: prefixFormat },
     formatX: { type: Function, default: (v) => v },
-    fontSize: { type: Number, default: 18 },
+    fontSize: { type: Number, default: 20 },
     fontColor: { type: String, default: '#415668' },
     bottom: { type: Number, default: 0 },
     left: { type: Number, default: 55 },

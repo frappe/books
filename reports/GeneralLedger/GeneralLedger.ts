@@ -23,6 +23,7 @@ export class GeneralLedger extends LedgerReport {
   static title = t`General Ledger`;
   static reportName = 'general-ledger';
   usePagination: boolean = true;
+  loading: boolean = false;
 
   ascending: boolean = false;
   reverted: boolean = false;
@@ -42,6 +43,7 @@ export class GeneralLedger extends LedgerReport {
   }
 
   async setReportData(filter?: string) {
+    this.loading = true;
     let sort = true;
     if (filter !== 'grouped' || this._rawData.length === 0) {
       await this._setRawData();
@@ -78,6 +80,7 @@ export class GeneralLedger extends LedgerReport {
     });
 
     this.reportData = this._convertEntriesToReportData(consolidated);
+    this.loading = false;
   }
 
   _setIndexOnEntries(map: GroupedMap) {

@@ -36,6 +36,7 @@ export class TrialBalance extends AccountReport {
   fromDate?: string;
   toDate?: string;
   hideGroupAmounts: boolean = false;
+  loading: boolean = false;
 
   _rawData: LedgerEntry[] = [];
   _dateRanges?: DateRange[];
@@ -53,6 +54,7 @@ export class TrialBalance extends AccountReport {
   }
 
   async setReportData(filter?: string) {
+    this.loading = true;
     if (filter !== 'hideGroupAmounts') {
       await this._setRawData();
     }
@@ -74,6 +76,7 @@ export class TrialBalance extends AccountReport {
       .filter((row) => !!row.rootNode);
 
     this.reportData = await this.getReportDataFromRows(rootTypeRows);
+    this.loading = false;
   }
 
   async getReportDataFromRows(

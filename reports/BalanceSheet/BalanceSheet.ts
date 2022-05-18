@@ -13,6 +13,7 @@ import { getMapFromList } from 'utils';
 export class BalanceSheet extends AccountReport {
   static title = t`Balance Sheet`;
   static reportName = 'balance-sheet';
+  loading: boolean = false;
 
   get rootTypes(): AccountRootType[] {
     return [
@@ -23,6 +24,7 @@ export class BalanceSheet extends AccountReport {
   }
 
   async setReportData(filter?: string) {
+    this.loading = true;
     if (filter !== 'hideGroupAmounts') {
       await this._setRawData();
     }
@@ -55,6 +57,7 @@ export class BalanceSheet extends AccountReport {
     this.reportData = await this.getReportDataFromRows(
       getMapFromList(rootTypeRows, 'rootType')
     );
+    this.loading = false;
   }
 
   async getReportDataFromRows(

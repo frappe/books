@@ -58,6 +58,7 @@
         v-if="titleField"
         :df="titleField"
         :value="doc[titleField.fieldname]"
+        :read-only="doc.inserted"
         @change="(value) => valueChange(titleField, value)"
         @input="setTitleSize"
       />
