@@ -1,9 +1,17 @@
+/**
+ * Properties of a schema which are to be translated,
+ * irrespective of nesting.
+ */
 export const schemaTranslateables = ['label', 'description', 'placeholder'];
+
 export function getIndexFormat(inp: string | string[]) {
-  // converts:
-  // ['This is an ', ,' interpolated ',' string.'] and
-  // 'This is an ${variableA} interpolated ${variableB} string.'
-  // to 'This is an ${0} interpolated ${1} string.'
+  /**
+   * converts:
+   * ['This is an ', ,' interpolated ',' string.'] and
+   * 'This is an ${variableA} interpolated ${variableB} string.'
+   * to 'This is an ${0} interpolated ${1} string.'
+   */
+
   let string: string | undefined = undefined;
   let snippets: string[] | undefined = undefined;
 

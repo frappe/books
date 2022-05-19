@@ -57,8 +57,6 @@
 
 <script>
 import { ipcRenderer } from 'electron';
-import fs from 'fs';
-import path from 'path';
 import { fyo } from 'src/initFyo';
 import { IPC_ACTIONS } from 'utils/messages';
 import Base from './Base';
@@ -82,24 +80,28 @@ export default {
         ],
       };
 
-      const { filePaths } = await ipcRenderer.invoke(
-        IPC_ACTIONS.GET_OPEN_FILEPATH,
+      const { name, success, data } = await ipcRenderer.invoke(
+        IPC_ACTIONS.GET_FILE,
         options
       );
-      if (filePaths && filePaths[0]) {
-        let dataURL = await this.getDataURL(filePaths[0]);
-        this.triggerChange(dataURL);
+
+      if (!success) {
+        return;
       }
+
+      const dataURL = await this.getDataURL(name, data);
+      this.triggerChange(dataURL);
     },
-    getDataURL(filePath) {
-      let typedArray = fs.readFileSync(filePath);
-      let extension = path.extname(filePath).slice(1);
-      let blob = new Blob([typedArray.buffer], { type: 'image/' + extension });
+    getDataURL(name, data) {
+      const extension = name.split('.').at(-1);
+      const blob = new Blob([data], { type: 'image/' + extension });
+
       return new Promise((resolve) => {
-        let fr = new FileReader();
+        const fr = new FileReader();
         fr.addEventListener('loadend', () => {
           resolve(fr.result);
         });
+
         fr.readAsDataURL(blob);
       });
     },

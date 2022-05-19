@@ -95,7 +95,7 @@
               {{ file.companyName }}
             </p>
             <p class="text-sm text-gray-600">
-              {{ file.modified }}
+              {{ formatDate(file.modified) }}
             </p>
           </div>
           <button
@@ -148,7 +148,6 @@
 <script>
 import { setupDummyInstance } from 'dummy';
 import { ipcRenderer } from 'electron';
-import fs from 'fs';
 import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { addNewFile } from 'fyo/telemetry/helpers';
@@ -175,14 +174,17 @@ export default {
       files: [],
     };
   },
-  mounted() {
-    this.setFiles();
+  async mounted() {
+    await this.setFiles();
 
     if (fyo.store.isDevelopment) {
       window.ds = this;
     }
   },
   methods: {
+    formatDate(isoDate) {
+      return DateTime.fromISO(isoDate).toRelative();
+    },
     async deleteDb(i) {
       const file = this.files[i];
       const vm = this;
@@ -195,7 +197,7 @@ export default {
             label: this.t`Yes`,
             async action() {
               await deleteDb(file.dbPath);
-              vm.setFiles();
+              await vm.setFiles();
             },
           },
           {
@@ -230,18 +232,14 @@ export default {
         fyo.config.get(ConfigKeys.Files, []),
         filePath
       );
+
       fyo.purgeCache();
-      this.setFiles();
+      await this.setFiles();
 
       this.creatingDemo = false;
     },
-    setFiles() {
-      this.files = setAndGetCleanedConfigFiles();
-
-      for (const file of this.files) {
-        const stats = fs.statSync(file.dbPath);
-        file.modified = DateTime.fromJSDate(stats.mtime).toRelative();
-      }
+    async setFiles() {
+      this.files = await ipcRenderer.invoke(IPC_ACTIONS.GET_DB_LIST);
     },
     async newDatabase() {
       if (this.creatingDemo) {
@@ -297,24 +295,4 @@ export default {
     FeatherIcon,
   },
 };
-
-function setAndGetCleanedConfigFiles() {
-  const files = fyo.config
-    .get('files', [])
-    .filter(({ dbPath }) => fs.existsSync(dbPath));
-
-  const deduper = [];
-  const deduped = files.filter(({ companyName, dbPath }) => {
-    const key = `${companyName}-${dbPath}`;
-    if (deduper.includes(key)) {
-      return false;
-    }
-
-    deduper.push(key);
-    return true;
-  });
-
-  fyo.config.set(ConfigKeys.Files, deduped);
-  return deduped;
-}
 </script>
