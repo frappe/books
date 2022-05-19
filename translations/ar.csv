@@ -1,534 +1,652 @@
-`${0} ${1} already exists.`,`${0} ${1} موجودة من قبل.`
-`${0} ${1} is linked with existing records.`,`${0} ${1} مرطبت بسجل موجود.`
-`${0} already exists.`,`${0} موجود بالفعل.`
-`${0} filters applied`,`${0} تم تطبيق الفيلتر`
-`* required fields`,`* الحقول المطلوبة`
-`1 filter applied`,`تم تطبيق فلتر واحد`
-`Accepted Quantity`,`الكمية المقبولة`
-`Account`,`الحساب`
-`Account Entries`,`إدخالات الحساب`
-`Account Name`,`اسم الحساب`
-`Account Type`,`نوع الحساب`
-`Accounting Ledger Entries`,`إدخالات دفتر الأستاذ`
-`Accounting Settings`,`إعدادات المحاسبة`
-`Accounts`,`الحسابات`
-`Accounts Payable`,`الحسابات الدائنة`
-`Accounts Receivable`,`حسابات القبض`
-`Accumulated Depreciation`,`الاستهلاك المتراكم`
-`Add Account`,`إضافة حساب`
-`Add Customers`,`إضافة العملاء`
-`Add Group`,`إضافة مجموعة`
-`Add Items`,`إضافة عناصر`
-`Add Row`,`إضافة صف`
-`Add Suppliers`,`إضافة الموردين`
-`Add Taxes`,`إضافة ضرائب`
-`Add a filter`,`إضافة تصفية`
-`Address`,`العنوان`
-`Address Display`,`عرض العنوان`
-`Address Line 1`,`سطر العنوان 1`
-`Address Line 2`,`سطر العنوان 2`
-`Administrative Expenses`,`مصاريف إدارية`
-`Against Account`,`ضد الحساب`
-`All References`,`كل المراجع`
-`Allocated Amount`,`المبلغ المخصص`
-`Amount`,`المبلغ`
-`Amount (Company Currency)`,`المبلغ (عملة الشركة)`
-`Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.`,`المبلغ: ${0} والشطب: $ {1} أقل من إجمالي المبلغ المخصص للمراجع: $ {2} .`
-`Amount: ${0} is less than the total amount allocated to references: ${1}.`,`المبلغ: ${0} أقل من إجمالي المبلغ المخصص للمراجع: $ {1} `
-`An error occurred.`,`حدث خطأ`
-`Application of Funds (Assets)`,`تطبيق الأموال (الأصول)`
-`Are you sure you want to cancel ${0} ${1}?`,`هل أنت متأكد أنك تريد إلغاء ${0} $ {1}؟ `
-`Are you sure you want to delete ${0} ${1}?`,`هل أنت متأكد أنك تريد حذف ${0} $ {1}؟ `
-`Are you sure you want to submit this Bill?`,`هل أنت متأكد أنك تريد تقديم مشروع القانون هذا؟`
-`Are you sure you want to submit this Invoice?`,`هل أنت متأكد أنك تريد إرسال هذه الفاتورة؟`
-`Are you sure you want to submit this Journal Entry?`,`هل أنت متأكد أنك تريد إرسال إدخال دفتر اليومية هذا؟`
-`Assign Imported Labels`,`تعيين التسميات المستوردة`
-`Back`,`رجوع`
-`Bad import data.`,`بيانات استيراد تالفة`
-`Balance`,`التوازن`
-`Balance Sheet`,`الميزانية`
-`Bank Accounts`,`حسابات بنكية`
-`Bank Name`,`اسم البنك`
-`Bank Overdraft Account`,`حساب مصرفي السحب على المكشوف`
-`Bill`,`الفاتورة`
-`Bill Created`,`الفاتورة أنشأت`
-`Bill No`,`رقم الفاتورة `
-`Bills`,`الفواتير`
-`Bills Settings`,`إعدادات الفواتير`
-`Black`,`أسود`
-`Body`,`الجسم`
-`Both`,`كلاهما`
-`Buildings`,`المباني`
-`CSV`
-`Can't open database file: ${0}. Please create a new file.`,`لا يمكن فتح ملف قاعدة البيانات: ${0}. الرجاء إنشاء ملف جديد`
-`Cancel`,`إلغاء`
-`Cancelled`,`ملغاة`
-`Capital Equipments`,`معدات رأس المال`
-`Capital Stock`,`رأس المال`
-`Cash`,`نقد`
-`Cash In Hand`,`نقدا في اليد`
-`Cashflow`,`التدفق النقدي`
-`Central Tax`,`الضرائب المركزية`
-`Central Tax Paid`,`الضرائب المركزية المدفوعة`
-`Change File`,`تغيير الملف`
-`Chart Of Accounts Reviewed`,`مراجعة مخطط الحسابات`
-`Chart of Accounts`,`مخطط الحسابات`
-`Checking for updates`,`التحقق من وجود تحديثات`
-`City / Town`,`المدينة / البلدة`
-`Clearance Date`,`تاريخ التخليص`
-`Click to create`,`انقر للإنشاء`
-`Close`,`إغلاق`
-`Closing (Cr)`,`(Cr) إغلاق`
-`Closing (Dr)`,`(Dr) إغلاق`
-`Color`,`اللون`
-`Commission on Sales`,`عمولة على المبيعات`
-`Common`,`عام`
-`Common Items`,`العناصر المشتركة`
-`Company Address`,`عنوان الشركة`
-`Company Logo`,`شعار الشركة`
-`Company Name`,`اسم الشركة`
-`Company Settings`,`إعدادات الشركة`
-`Company Setup`,`إعداد الشركة`
-`Completed`,`مكتمل`
-`Confirm Password`,`تأكيد كلمة المرور`
-`Contains`,`يحتوي`
-`Cost of Goods Sold`,`تكلفة البضائع المباعة`
-`Could not import ${0} ${1}.`,`تعذر استيراد ${0} $ {1} .`
-`Could not select file.`,`تعذر تحديد الملف.`
-`Country`,`البلد`
-`Create`,`إنشاء`
-`Create Bill`,`إنشاء فاتورة`
-`Create Invoice`,`إنشاء فاتورة`
-`Create a new file and store it in your computer.`,`إنشاء ملف جديد وتخزينه في جهاز الكمبيوتر الخاص بك.`
-`Create a new file or select an existing one from your computer`,`أنشئ ملفًا جديدًا أو حدد ملفًا موجودًا من جهاز الكمبيوتر الخاص بك`
-`Credit`,`الائتمان`
-`Creditors`,`الدائنون`
-`Currency`,`العملة`
-`Currency Name`,`اسم العملة`
-`Current`,`الحالي`
-`Current Assets`,`الأصول الحالية`
-`Current Liabilities`,`الخصوم المتداولة`
-`Custom Hex`
-`Customer`,`الزبون`
-`Customer Created`,`خلق العميل`
-`Customer Currency`,`عملة العميل`
-`Customer Name`,`اسم الزبون`
-`Customers`,`العملاء`
-`Customise`,`تخصيص`
-`Customize`,`تخصيص`
-`DB Connection Error`,`خطأ اتصال قاعدة البيانات`
-`Dashboard`,`لوحة القيادة`
-`Data Import`,`استيراد البيانات`
-`Date`,`التاريخ`
-`Date Format`,`تنسيق التاريخ`
-`Debit`,`مدين`
-`Debtors`,`المدينون`
-`Default Account`,`الحساب الافتراضي`
-`Delete`,`حذف`
-`Depreciation`,`إهلاك`
-`Description`,`الوصف`
-`Details`,`التفاصيل`
-`Direct Expenses`,`المصاريف المباشرة`
-`Direct Income`,`الدخل المباشر`
-`Display Logo in Invoice`,`عرض الشعار في الفاتورة`
-`Display Precision`,`دقة العرض`
-`Display Precision should have a value between 0 and 9.`,`دقة العرض يجب أن تكون لها قيمة بين 0 و 9.`
-`Dividends Paid`,`توزيعات أرباح مدفوعة`
-`Document ${0} ${1} has been modified after loading`,`المستند ${0} ${1} تم تعديل المستند بعد تحميله`
-`Document type ${0} is not submittable`,`نوع المستند ${0} غير قابل للإرسال`
-`Documentation`,`التوثيق`
-`Does Not Contain`,`لا يحتوي`
-`Download Update`,`تنزيل التحديث`
-`Downloading update`,`جارٍ تنزيل التحديث`
-`Duties and Taxes`,`الرسوم والضرائب`
-`Earnest Money`,`كسب المال`
-`Edit`,`تحرير`
-`Electronic Equipments`,`معدات إلكترونية`
-`Email`,`البريد الإلكتروني`
-`Email Account`,`حساب بريد إلكتروني`
-`Email Address`,`عنوان البريد الإلكتروني`
-`Empty`,`فارغ`
-`Enable Notifications`,`تمكين الإخطارات`
-`Entertainment Expenses`,`مصاريف ترفيه`
-`Entry ID`,`معرف الإدخال`
-`Entry No`,`رقم الإدخال`
-`Entry Type`,`نوع الإدخال`
-`Equity`,`حقوق الملكية`
-`Error`,`خطأ`
-`Error:`,`خطأ:`
-`Event Settings`,`إعدادات الحدث`
-`Exchange Gain/Loss`,`مكاسب / خسارة الصرف`
-`Exchange Rate`,`سعر الصرف`
-`Existing File`,`ملف موجود`
-`Expense`,`المصاريف`
-`Expenses`,`المصروفات`
-`Expenses Included In Valuation`,`المصروفات المدرجة في التقييم`
-`Export Failed`,`فشل التصدير`
-`Export Successful`,`تم التصدير بنجاح`
-`Fax`,`فاكس`
-`Fieldname`,`اسم المجال`
-`File Name`,`اسم الملف`
-`File Path`,`مسار الملف`
-`File Size`,`حجم الملف`
-`File selection failed.`,`فشل اختيار الملف`
-`Filter`, التصفية`
-`Fiscal Year End Date`,`تاريخ نهاية السنة المالية`
-`Fiscal Year Start Date`,`تاريخ بدء السنة المالية`
-`Fixed Assets`,`الأصول الثابتة`
-`Font`,`الخط`
-`For`,`من أجل`
-`Fraction`,`كسر`
-`Fraction Units`,`وحدات الكسر`
-`Freight and Forwarding Charges`,`مصاريف الشحن`
-`From`,`من`
-`From Account`,`من الحساب`
-`From Date`,`من تاريخ`
-`Fulfillment`,`الاستيفاء`
-`Fulfillment Settings`,`إعدادات الاستيفاء`
-`Full Name`,`الاسم الكامل`
-`Furnitures and Fixtures`,`الأثاث والتجهيزات`
-`GST Registration`,`التسجيل في ضريبة السلع والخدمات`
-`GSTIN`
-`GSTIN No.`
-`GSTIN of Supplier`
-`GSTR 3B`
-`GSTR 3B Report`
-`GSTR1`
-`GSTR2`
-`Gain/Loss on Asset Disposal`,`الربح / الخسارة من التصرف في الأصول`
-`Gender`,`الجنس`
-`General`,`عام`
-`General Ledger`
-`Get Started`,`ابدأ`
-`Grand Total`,`المجموع الكلي`
-`Grand Total (Company Currency)`,`المجموع الكلي (عملة الشركة)`
-`Greater Than`,`أكبر من`
-`HSN/SAC`
-`Hex Value`
-`Hide & Auto Report Errors`,`إخفاء & الإبلاغ التلقائي عن الأخطاء`
-`Hide Get Started`,`إخفاء قائمة البدء`
-`Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.`,`يخفي قسم البدء من الشريط الجانبي. سيكون التغيير مرئيًا عند إعادة التشغيل أو تحديث التطبيق`
-`How to Use Data Import?`,`كيفية استخدام استيراد البيانات؟`
-`I can't find my language.`,`لا أجد لغتي`
-`ID`,`المعرف`
-`Image`,`صورة`
-`Import Data`,`استيراد البيانات`
-`Import Failed`,`فشل الاستيراد`
-`Import More`,`استيراد المزيد`
-`Import Success`,`نجاح الاستيراد`
-`Import Type`,`نوع الاستيراد`
-`Importer Settings`,`إعدادات المستورد`
-`Income`,`الدخل`
-`Indirect Expenses`,`مصاريف غير مباشرة`
-`Indirect Income`,`الدخل غير المباشر`
-`Inflow`,`التدفق`
-`Install Update`,`تثبيت التحديث`
-`Intergrated Tax`,`ضريبة متكاملة`
-`Intergrated Tax Paid`,`ضريبة متكاملة مدفوعة`
-`Internal Precision`,`الدقة الداخلية`
-`Investments`,`استثمارات`
-`Invoice`,`الفاتورة`
-`Invoice Created`,`الفاتورة المُنشأة`
-`Invoice Date`,`تاريخ الفاتورة`
-`Invoice No`,`رقم الفاتورة`
-`Invoice No.`,`رقم الفاتورة`
-`Invoice Number`,`رقم الفاتورة`
-`Invoice Setup`,`إعداد الفاتورة`
-`Invoice Value`,`قيمة الفاتورة`
-`Invoices`,`الفواتير`
-`Is`,`هو`
-`Is Customer`,`هو العميل`
-`Is Empty`,`فارغ`
-`Is Group`,`هي المجموعة`
-`Is Not`,`ليس`
-`Is Not Empty`,`ليس فارغ`
-`Is Supplier`,`مورد`
-`Item`,`العنصر`
-`Item Created`,`تم إنشاء العنصر`
-`Item Name`,`اسم العنصر`
-`Items`,`العناصر`
-`JSON`
-`JSON Data`,`بيانات JSON`
-`Journal Entry`,`إدخال دفتر اليومية`
-`Journal Entry Setting`,`إعداد إدخال دفتر اليومية`
-`Label Index`,`فهرس التسمية`
-`Language`,`اللغة`
-`Ledger Entries`,`إدخالات دفتر الأستاذ`
-`Ledger Entry`,`إدخال دفتر الأستاذ`
-`Legal Expenses`,`المصاريف القانونية`
-`Less Than`,`أقل من`
-`Load an existing .db file from your computer.`,`تحميل ملف .db موجود من جهاز الكمبيوتر الخاص بك.`
-`Loading...`,`تحميل ...`
-`Loans (Liabilities)`,`قروض (خصوم)`
-`Loans and Advances (Assets)`,`القروض والسلف (الأصول)`
-`Locale`,`اللغة`
-`Logo`,`الشعار`
-`MIME Type`,`نوع MIME`
-`Make Payment`,`إجراء الدفع`
-`Marketing Expenses`,`مصاريف التسويق`
-`Miscellaneous Expenses`,`مصاريف متنوعة`
-`Mobile Number`,`رقم الجوال`
-`Month`,`الشهر`
-`Name`,`الاسم`
-`Net Total`,`الإجمالي الصافي`
-`Net Total (Company Currency)`,`صافي الإجمالي (عملة الشركة)`
-`New Account`,`حساب جديد`
-`New Bill`,`فاتورة جديدة`
-`New File`,`ملف جديد`
-`New Invoice`,`فاتورة جديدة`
-`New Journal Entry`,`إدخال جديد في دفتر اليومية`
-`New version available`,`إصدار جديد متاح`
-`Next`,`التالي`
-`No`,`لا`
-`No Data to Import`,`لا توجد بيانات للاستيراد`
-`No expenses in this period`,`لا توجد نفقات في هذه الفترة`
-`No filters selected`,`لم يتم تحديد عوامل تصفية`
-`No labels have been assigned.`,`لم يتم تعيين أي تسميات.`
-`No results found.`,`لم يتم العثور على نتائج`
-`No transactions yet`,`لا توجد معاملات حتى الآن`
-`No updates available`,`لا توجد تحديثات متاحة`
-`None`,`لا شيء`
-`Notes`,`ملاحظات`
-`Number Series`,`سلسلة الأرقام`
-`Office Equipments`,`معدات مكتبية`
-`Office Maintenance Expenses`,`مصاريف صيانة المكاتب`
-`Office Rent`,`إيجار مكتب`
-`Onboarding Complete`,`اكتمال الإعداد`
-`Open Folder`,`فتح مجلد`
-`Opening (Cr)`,`(Cr) الافتتاح`
-`Opening (Dr)`,`(Dr) افتتاح`
-`Opening Balance Equity`,`الرصيد الافتتاحي حقوق الملكية`
-`Opening Balances`,`أرصدة الافتتاح`
-`Organisation`,`التنظيم`
-`Outflow`,`التدفق`
-`Outstanding Amount`,`المبلغ المستحق`
-`PDF`
-`Pad Zeros`
-`Paid`,`مدفوع`
-`Parent`,`الوالد`
-`Parent Account`,`الحساب الوالد`
-`Party`,`حفلة`
-`Password`,`كلمة المرور`
-`Pay`,`دفع`
-`Payable Account`,`حساب الدفع`
-`Payment`,`الدفع`
-`Payment Account`,`حساب الدفع`
-`Payment For`,`الدفع مقابل`
-`Payment Method`,`طريقة الدفع`
-`Payment No`,`رقم الدفع`
-`Payment Reference`,`مرجع الدفع`
-`Payment Settings`,`إعدادات الدفع`
-`Payment Type`,`نوع الدفع`
-`Payment amount cannot be ${0}.`,`لا يمكن أن يكون مبلغ الدفعة ${0}`
-`Payment amount cannot be less than zero.`,`مبلغ الدفعة لا يمكن أن يكون أقل من الصفر.`
-`Payment amount cannot exceed ${0}.`,`مبلغ الدفعة لا يمكن أن يتجاوز ${0} .`
-`Payment amount: ${0} should be greater than 0.`,`مبلغ الدفعة: ${0} يجب أن يكون أكبر من 0.`
-`Payment amount: ${0} should be less than Outstanding amount: ${1}.`,`مبلغ الدفعة: ${0} يجب أن يكون أقل من المبلغ المستحق: ${1}`
-`Payments`,`المدفوعات`
-`Payroll Payable`,`الرواتب المستحقة الدفع`
-`Periodicity`,`الدورية`
-`Phone`,`الهاتف`
-`Place`,`مكان`
-`Place of Supply`,`مكان التوريد`
-`Place of supply`,`مكان التوريد`
-`Plants and Machineries`,`المصانع والآليات`
-`Please assign the following fields ${0}`,`الرجاء تخصيص الحقول التالية ${0} `
-`Please fill all values`,`الرجاء ملء جميع القيم`
-`Please select a file with data to import.`,`الرجاء تحديد ملف به بيانات للاستيراد.`
-`Please select an existing database or create a new one.`,`الرجاء تحديد قاعدة بيانات موجودة أو إنشاء قاعدة جديدة.`
-`Please set GSTIN in General Settings.`,`الرجاء تعيين رقم GSTIN في الإعدادات العامة.`
-`Postal Code`,`الرمز البريدي`
-`Postal Expenses`,`المصاريف البريدية`
-`Posting Date`,`تاريخ النشر`
-`Prefix`,`بادئة`
-`Prevent errors from showing and automatically report all errors.`,`منع ظهور الأخطاء والإبلاغ عن جميع الأخطاء تلقائيًا.`
-`Print`,`طباعة`
-`Print Format`,`تنسيق الطباعة`
-`Print PDF`,`طباعة PDF`
-`Print Settings`,`إعدادات الطباعة`
-`Print and Stationery`,`طباعة و المكتبة`
-`Profit And Loss`,`الربح والخسارة`
-`Profit and Loss`,`الربح والخسارة`
-`Purchase`,`شراء`
-`Purchase Items`,`شراء العناصر`
-`Purchase Order`,`طلب الشراء`
-`Purchase Order Settings`,`إعدادات طلب الشراء`
-`Purchase Receipt`,`إيصال الشراء`
-`Purchase Receipt Settings`,`إعدادات إيصال الشراء`
-`PurchaseInvoice`,`فاتورة الشراء`
-`PurchaseOrder`,`طلب الشراء`
-`PurchaseReceipt`,`استلام الشراء`
-`Purchases`,`المشتريات`
-`Quantity`,`الكمية`
-`Quantity (${0}) cannot be less than zero.`,`لا يمكن أن تكون الكمية (${0}) أقل من صفر.`
-`Quotation`,`الاقتباس`
-`Quotation Settings`,`إعدادات الاقتباس`
-`Rate`,`معدل`
-`Rate (${0}) cannot be less zero.`,`لا يمكن أن يكون `السعر (${0}) أقل من صفر.`
-`Rate (Company Currency)`,`السعر (عملة الشركة)`
-`Rate can't be negative.`,`لا يمكن أن يكون المعدل سالبًا`
-`Re-Open`,`إعادة فتح`
-`Receivable Account`,`حساب المدين`
-`Receive`,`تلقي`
-`Recent Invoices`,`الفواتير الحديثة`
-`Reconcile`,`التوفيق`
-`Ref. / Cheque No.`,`المرجع. / رقم الشيك`
-`Ref. Date`,`المرجع. التاريخ`
-`Ref. Name`,`المرجع. الاسم`
-`Ref. Type`,`المرجع. النوع`
-`Ref/Cheque ID`,`المرجع / التحقق من المعرف`
-`Reference Date`,`تاريخ المرجع`
-`Reference DocType`,`نوع المستند المرجعي`
-`Reference Field`,`حقل مرجعي`
-`Reference Name`,`اسم المرجع`
-`Reference Number`,`الرقم المرجعي`
-`Reference Type`,`نوع المرجع`
-`Reload App`,`إعادة تحميل التطبيق`
-`Report Error`,`الإبلاغ عن خطأ`
-`Reports`,`التقارير`
-`Required Fields not Assigned`,`الحقول المطلوبة غير معيَّنة`
-`Reset`,`إعادة`
-`Reset Filters`,`إعادة تعيين التصفية`
-`Retained Earnings`,`الأرباح المحتجزة`
-`Reverse Charge`,`الشحن العكسي`
-`Reverse Chrg.`,``الشحن العكسي`
-`Reverted`,`تم إرجاعه`
-`Review Accounts`,`مراجعة الحسابات`
-`Role`,`الدور`
-`Roles`,`الأدوار`
-`Root Type`,`نوع الجذر`
-`Round Off`,`جولة خارج`
-`Round Off Account`,`تقريب الحساب`
-`SMTP Host`,`مضيف SMTP`
-`SMTP Port`,`منفذ SMTP`
-`Salary`,`الراتب`
-`Sales`,`المبيعات`
-`Sales Expenses`,`مصاريف المبيعات`
-`Sales Items`,`عناصر المبيعات`
-`Sales Order`,`طلب المبيعات`
-`Sales Order Settings`,`إعدادات أوامر المبيعات`
-`SalesInvoice`,`فاتورة المبيعات`
-`SalesInvoice Settings`,`إعدادات فاتورة المبيعات`
-`SalesOrder`,`طلب المبيعات`
-`Save`,`حفظ`
-`Save & Close`,`حفظ وإغلاق`
-`Save Template`,`حفظ النموذج`
-`Save as PDF`,`حفظ كملف PDF`
-`Save as PDF Successful`,`PDF حفظ كملف ناجح`
-`Saving`,`حفظ`
-`Schedule`,`الجدول`
-`Secured Loans`,`قروض مضمونة`
-`Securities and Deposits`,`الأوراق المالية والودائع`
-`Select CoA`,`حدد شهادة توثيق البرامج`
-`Select File`,`تحديد ملف`
-`Select Folder`,`تحديد مجلد`
-`Select Image`,`حدد صورة`
-`Select Logo`,`اختر الشعار`
-`Select a file for import`,`حدد ملفًا للاستيراد`
-`Select a file to load the company transactions`,`حدد ملفاً لتحميل معاملات الشركة`
-`Select file`,`تحديد ملف`
-`Select folder`,`تحديد مجلد`
-`Select your language`,`اختر لغتك`
-`Selected file`,`الملف المحدد`
-`Send`,`إرسال`
-`Service`,`الخدمة`
-`Set an Import Type`,`تعيين نوع الاستيراد`
-`Set the display language.`,`ضبط لغة العرض.`
-`Set the local code. This is used for number formatting.`,`اضبط الكود المحلي. يستخدم هذا لتنسيق الأرقام`
-`Sets how many digits are shown after the decimal point.`,`تعيين عدد الأرقام التي تظهر بعد العلامة العشرية.`
-`Sets the app-wide date display format.`,`يضبط تنسيق عرض التاريخ على مستوى التطبيق.`
-`Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.`,`يضبط الدقة الداخلية المستخدمة في الحسابات النقدية. يجب أن يكون الرقم الأعلى من 6 كافيًا لمعظم العملات`
-`Setting Up...`,`الإعداد ...`
-`Settings`,`الإعدادات`
-`Settings changes will be visible on reload`,`ستكون تغييرات الإعدادات مرئية عند إعادة التحميل`
-`Setup`,`الإعداد`
-`Setup Complete`,`اكتمل الإعداد`
-`Setup Wizard`,`معالج الإعداد`
-`Setup your organization`,`إعداد منظمتك`
-`Setup Your Workspace`,`إعداد مساحة العمل الخاصة بك`
-`Show Me`,`أرني`
-`Smallest Currency Fraction Value`,`أصغر قيمة لكسر العملة`
-`Softwares`,`البرامج`
-`Something has gone terribly wrong. Please check the console and raise an issue.`,`لقد حدث خطأ ما بشكل رهيب. يرجى التحقق من وحدة التحكم وإثارة المشكلة`
-`Source of Funds (Liabilities)`,`مصدر الأموال (الخصوم)`
-`Standard Chart of Accounts`,`المخطط القياسي للحسابات`
-`Start`,`ابدأ`
-`Start Time`,`وقت البدء`
-`State`,`الدولة`
-`State Tax`,`ضريبة الولاية`
-`State/UT Tax Paid`,`الولاية / ضريبة UT المدفوعة`
-`Status`,`الحالة`
-`Stock Adjustment`,`تسوية المخزون`
-`Stock Assets`,`أصول المخزون`
-`Stock Expenses`,`مصاريف المخزون`
-`Stock In Hand`,`المخزون في متناول اليد`
-`Stock Liabilities`,`مطلوبات المخزون`
-`Stock Received But Not Billed`,`تم استلام المخزون ولكن لم يتم إصدار فاتورة به`
-`Subject`,`الموضوع`
-`Submit`,`إرسال`
-`Submit on Import`,`إرسال عند الاستيراد`
-`Submitted`,`مقدم`
-`Subtotal`,`المجموع الفرعي`
-`Successfully created the following ${0} entries:`,`تم بنجاح إنشاء إدخالات ${0} التالية:`
-`Supplier`,`المورد`
-`Supplier Created`,`إنشاء المورد`
-`Supplier Currency`,`عملة المورد`
-`Supplier Name`,`اسم المورد`
-`Suppliers`,`الموردون`
-`Symbol`,`الرمز`
-`System`,`النظام`
-`System Settings`,`إعدادات النظام`
-`System Setup`,`إعداد النظام`
-`Tax`,`الضريبة`
-`Tax Account`,`حساب الضرائب`
-`Tax Assets`,`الأصول الضريبية`
-`Tax Detail`,`التفاصيل الضريبية`
-`Tax ID`,`المعرّف الضريبي`
-`Taxable Value`,`القيمة الخاضعة للضريبة`
-`Taxes`,`الضرائب`
-`Telephone Expenses`,`مصاريف الهاتف`
-`Template`,`قالب`
-`Temporary Accounts`,`حسابات مؤقتة`
-`Temporary Opening`,`الافتتاح المؤقت`
-`Terms`,`الشروط`
-`The following ${0} entries were created: ${1}`,`تم إنشاء إدخالات ${0} التالية: $ {1}`
-`Theme Color`,`لون الموضوع`
-`This action is permanent`,`هذا العمل دائم`
-`This action is permanent and will cancel the following payment: ${0}`,`هذا الإجراء نهائي وسيؤدي إلى إلغاء الدفعة التالية: ${0}`
-`This action is permanent and will cancel the following payments: ${0}`,`هذا الإجراء نهائي وسيؤدي إلى إلغاء الدفعات التالية: ${0} `
-`Title`,`العنوان`
-`To`,`إلى`
-`To Account`,`الحساب`
-`To Date`,`حتى الآن`
-`To Do`
-`Top Expenses`,`أهم المصروفات`
-`Total Spending`,`إجمالي الإنفاق`
-`Total Tax`,`إجمالي الضرائب`
-`Transfer Type`,`نوع التحويل`
-`Travel Expenses`,`مصاريف السفر`
-`Trial Balance`,`ميزان المراجعة`
-`Type`,`النوع`
-`Unit Type`,`نوع الوحدة`
-`Unpaid`,`غير مدفوعة الأجر`
-`Unsecured Loans`,`قروض غير مضمونة`
-`Update downloaded`,`تم تنزيل التحديث`
-`User ID`,`معرف المستخدم`
-`User Remark`,`ملاحظة المستخدم`
-`Username`,`اسم المستخدم`
-`Utility Expenses`,`نفقات المرافق`
-`Value`,`القيمة`
-`Value missing for ${0}`,`القيمة مفقودة لـ ${0}`
-`Verify Imported Data`,`التحقق من البيانات المستوردة`
-`Version ${0} available`,`الإصدار ${0} متاح`
-`View Bills`,`عرض الفواتير`
-`View Invoices`,`عرض الفواتير`
-`Welcome to Frappe Books`,`مرحبًا بكم في Frappe Books`
-`Write Off`,`شطب`
-`Write Off / Refund`,`شطب / استرداد`
-`Write Off Account`,`شطب الحساب`
-`Write Off Account not set. Please set Write Off Account in General Settings`,`شطب الحساب لم يتم تعيينه. يرجى تعيين حساب الشطب في الإعدادات العامة`
-`Year`,`السنة`
-`Yes`,`نعم`
-`Your Name`,`اسمك`
-`name`,`الاسم`
-`verify the imported data and click on`,`تحقق من البيانات المستوردة وانقر فوق`
+"${0} ${1} already exists.","${0} ${1} موجودة من قبل.",
+"${0} ${1} has been modified after loading",,
+"${0} ${1} is linked with existing records.","${0} ${1} مرطبت بسجل موجود.",
+"${0} already exists.","${0} موجود بالفعل.",
+"${0} filters applied","${0} تم تطبيق الفيلتر",
+"${0} rows",,
+"* required fields","* الحقول المطلوبة",
+0%,,
+03-23-2022,,
+03/23/2022,,
+"1 filter applied","تم تطبيق فلتر واحد",
+2022-03-23,,
+"23 Mar, 2022",,
+23-03-2022,,
+23/03/2022,,
+9888900000,,
+Account,الحساب,
+"Account Entries","إدخالات الحساب",
+"Account Name","اسم الحساب",
+"Account Type","نوع الحساب",
+"Accounting Ledger Entry",,
+"Accounting Settings","إعدادات المحاسبة",
+Accounts,الحسابات,
+"Accounts Payable","الحسابات الدائنة",
+"Accounts Receivable","حسابات القبض",
+"Accumulated Depreciation","الاستهلاك المتراكم",
+"Add Account","إضافة حساب",
+"Add Customers","إضافة العملاء",
+"Add Group","إضافة مجموعة",
+"Add Items","إضافة عناصر",
+"Add Row","إضافة صف",
+"Add Suppliers","إضافة الموردين",
+"Add Taxes","إضافة ضرائب",
+"Add a few customers to create your first invoice",,
+"Add a few suppliers to create your first bill",,
+"Add a filter","إضافة تصفية",
+"Add a remark",,
+"Add invoice terms",,
+"Add products or services that you buy from your suppliers",,
+"Add products or services that you sell to your customers",,
+Address,العنوان,
+"Address Display","عرض العنوان",
+"Address Line 1","سطر العنوان 1",
+"Address Line 2","سطر العنوان 2",
+"Administrative Expenses","مصاريف إدارية",
+All,,
+"Allow Telemetry",,
+Amount,المبلغ,
+"Amount (Company Currency)","المبلغ (عملة الشركة)",
+"Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.","المبلغ: ${0} والشطب: $ {1} أقل من إجمالي المبلغ المخصص للمراجع: $ {2} .",
+"Amount: ${0} is less than the total amount allocated to references: ${1}.","المبلغ: ${0} أقل من إجمالي المبلغ المخصص للمراجع: $ {1} ",
+"An error occurred.","حدث خطأ",
+"Anonymized Telemetry",,
+"Application of Funds (Assets)","تطبيق الأموال (الأصول)",
+Arial,,
+"Ascending Order",,
+Asset,,
+"Assign Imported Labels","تعيين التسميات المستوردة",
+Back,رجوع,
+"Bad import data.","بيانات استيراد تالفة",
+Balance,التوازن,
+"Balance Sheet",الميزانية,
+Bank,,
+"Bank Accounts","حسابات بنكية",
+"Bank Entry",,
+"Bank Name","اسم البنك",
+"Bank Overdraft Account","حساب مصرفي السحب على المكشوف",
+"Base Error",,
+"Based On",,
+Basic,,
+"Basic I",,
+"Basic II",,
+Bill,الفاتورة,
+"Bill Created","الفاتورة أنشأت",
+"Bill No","رقم الفاتورة ",
+Black,أسود,
+Blue,,
+Both,كلاهما,
+Buildings,المباني,
+Business,,
+Cancel,إلغاء,
+"Cancel ${0} ${1}?",,
+Cancelled,ملغاة,
+"Cannot Commit Error",,
+"Capital Equipments","معدات رأس المال",
+"Capital Stock","رأس المال",
+Cash,نقد,
+"Cash Entry",,
+"Cash In Hand","نقدا في اليد",
+Cashflow,"التدفق النقدي",
+"Central Tax","الضرائب المركزية",
+"Change File","تغيير الملف",
+"Change Ref Type",,
+Chargeable,,
+"Chart Of Accounts Reviewed","مراجعة مخطط الحسابات",
+"Chart of Accounts","مخطط الحسابات",
+"Check for Updates",,
+"Checking for updates","التحقق من وجود تحديثات",
+Cheque,,
+"City / Town","المدينة / البلدة",
+Clear,,
+"Clearance Date","تاريخ التخليص",
+"Click to create","انقر للإنشاء",
+Close,إغلاق,
+Closing,,
+"Closing (Cr)","(Cr) إغلاق",
+"Closing (Dr)","(Dr) إغلاق",
+Color,اللون,
+"Commission on Sales","عمولة على المبيعات",
+Common,عام,
+"Common Items","العناصر المشتركة",
+"Company Address","عنوان الشركة",
+"Company Logo","شعار الشركة",
+"Company Name","اسم الشركة",
+"Company Settings","إعدادات الشركة",
+"Company Setup","إعداد الشركة",
+Completed,مكتمل,
+Condition,,
+"Consolidate Columns",,
+Contains,يحتوي,
+"Contra Entry",,
+"Cost of Goods Sold","تكلفة البضائع المباعة",
+"Could not import ${0} ${1}.","تعذر استيراد ${0} $ {1} .",
+"Could not select file.","تعذر تحديد الملف.",
+Country,البلد,
+"Country Code",,
+"Country code used to initialize regional settings.",,
+Courier,,
+Cr.,,
+Create,إنشاء,
+"Create Bill","إنشاء فاتورة",
+"Create Demo",,
+"Create Invoice","إنشاء فاتورة",
+"Create Purchase",,
+"Create Sale",,
+"Create a new file and store it in your computer.","إنشاء ملف جديد وتخزينه في جهاز الكمبيوتر الخاص بك.",
+"Create a new file or select an existing one from your computer","أنشئ ملفًا جديدًا أو حدد ملفًا موجودًا من جهاز الكمبيوتر الخاص بك",
+"Create your first bill and mail it to your supplier",,
+"Create your first invoice and mail it to your customer",,
+Created,,
+"Created By",,
+"Creating Items and Parties",,
+"Creating Journal Entries",,
+"Creating Purchase Invoices",,
+Credit,الائتمان,
+"Credit Card Entry",,
+"Credit Note",,
+Creditors,الدائنون,
+Currency,العملة,
+"Currency Name","اسم العملة",
+Current,الحالي,
+"Current Assets","الأصول الحالية",
+"Current Liabilities","الخصوم المتداولة",
+"Custom Hex",,
+Customer,الزبون,
+"Customer Created","خلق العميل",
+"Customer Currency","عملة العميل",
+Customers,العملاء,
+Customise,تخصيص,
+"Customize your invoices by adding a logo and address details",,
+Dashboard,"لوحة القيادة",
+"Data Import","استيراد البيانات",
+"Database Error",,
+"Database file: ${0}",,
+Date,التاريخ,
+"Date Format","تنسيق التاريخ",
+Day,,
+Debit,مدين,
+"Debit Note",,
+Debtors,المدينون,
+"Default Account","الحساب الافتراضي",
+Delete,حذف,
+"Delete ${0} ${1}?",,
+"Delete ${0}?",,
+Depreciation,إهلاك,
+"Depreciation Entry",,
+Description,الوصف,
+Details,التفاصيل,
+"Direct Expenses","المصاريف المباشرة",
+"Direct Income","الدخل المباشر",
+"Disables telemetry. No data will be collected, you are completely invisble to us.",,
+"Display Logo in Invoice","عرض الشعار في الفاتورة",
+"Display Precision","دقة العرض",
+"Display Precision should have a value between 0 and 9.","دقة العرض يجب أن تكون لها قيمة بين 0 و 9.",
+"Dividends Paid","توزيعات أرباح مدفوعة",
+Docs,,
+Documentation,التوثيق,
+"Does Not Contain","لا يحتوي",
+"Don't Log Anything",,
+"Don't Log Usage",,
+"Download Update","تنزيل التحديث",
+"Downloading update","جارٍ تنزيل التحديث",
+Dr.,,
+Draft,,
+Duplicate,,
+"Duplicate ${0} ${1}?",,
+"Duplicate Entry Error",,
+"Duties and Taxes","الرسوم والضرائب",
+"Earnest Money","كسب المال",
+Edit,تحرير,
+"Electronic Equipments","معدات إلكترونية",
+Email,"البريد الإلكتروني",
+"Email Address","عنوان البريد الإلكتروني",
+Empty,فارغ,
+"Enables telemetry. Does not include usage patterns.",,
+"Enables telemetry. Includes usage patterns.",,
+"Enter Country to load States",,
+"Enter State",,
+"Entertainment Expenses","مصاريف ترفيه",
+"Entry No","رقم الإدخال",
+"Entry Type","نوع الإدخال",
+Equity,"حقوق الملكية",
+Error,خطأ,
+Error:,خطأ:,
+"Exchange Gain/Loss","مكاسب / خسارة الصرف",
+"Exchange Rate","سعر الصرف",
+"Excise Entry",,
+"Existing File","ملف موجود",
+Expense,المصاريف,
+"Expense Account",,
+Expenses,المصروفات,
+"Expenses Included In Valuation","المصروفات المدرجة في التقييم",
+Export,,
+"Export Successful","تم التصدير بنجاح",
+Fax,فاكس,
+Field,,
+Fieldname,"اسم المجال",
+"File selection failed.","فشل اختيار الملف",
+Filter," التصفية`",
+"Fiscal Year",,
+"Fiscal Year End Date","تاريخ نهاية السنة المالية",
+"Fiscal Year Start Date","تاريخ بدء السنة المالية",
+"Fixed Asset",,
+"Fixed Assets","الأصول الثابتة",
+Font,الخط,
+For,"من أجل",
+"Forbidden Error",,
+Fraction,كسر,
+"Fraction Units","وحدات الكسر",
+"Frappe Books uses opt-in telemetry. This is the only way for us to know if we have any consistent users. It will be really helpful if you switch it on, but we won't force you. 🙂",,
+"Freight and Forwarding Charges","مصاريف الشحن",
+"From Account","من الحساب",
+"From Date","من تاريخ",
+"From Year",,
+"Full Name","الاسم الكامل",
+"Furnitures and Fixtures","الأثاث والتجهيزات",
+"GSTIN No.",,
+GSTR1,,
+GSTR2,,
+"Gain/Loss on Asset Disposal","الربح / الخسارة من التصرف في الأصول",
+General,عام,
+"General Ledger",,
+"Get Started",ابدأ,
+Gram,,
+"Grand Total","المجموع الكلي",
+"Grand Total (Company Currency)","المجموع الكلي (عملة الشركة)",
+"Greater Than","أكبر من",
+Green,,
+"Group By",,
+HSN/SAC,,
+"HSN/SAC Code",,
+"Half Yearly",,
+"Half Years",,
+"Hello there! 👋",,
+"Hex Value",,
+"Hide Get Started","إخفاء قائمة البدء",
+"Hide Group Amounts",,
+"Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.","يخفي قسم البدء من الشريط الجانبي. سيكون التغيير مرئيًا عند إعادة التشغيل أو تحديث التطبيق",
+Hour,,
+"How to Use Data Import",,
+"I can't find my language.","لا أجد لغتي",
+INR,,
+Image,صورة,
+"Import Data","استيراد البيانات",
+"Import Failed","فشل الاستيراد",
+"Import More","استيراد المزيد",
+"Import Success","نجاح الاستيراد",
+"Import Type","نوع الاستيراد",
+"Importer Settings","إعدادات المستورد",
+"Include Cancelled",,
+Income,الدخل,
+"Income Account",,
+Indigo,,
+"Indirect Expenses","مصاريف غير مباشرة",
+"Indirect Income","الدخل غير المباشر",
+Inflow,التدفق,
+"Install Update","تثبيت التحديث",
+Inter,,
+"Intergrated Tax","ضريبة متكاملة",
+"Internal Precision","الدقة الداخلية",
+"Invalid value ${0} for ${1}",,
+Investments,استثمارات,
+Invoice,الفاتورة,
+"Invoice Created","الفاتورة المُنشأة",
+"Invoice Date","تاريخ الفاتورة",
+"Invoice No","رقم الفاتورة",
+"Invoice No.","رقم الفاتورة",
+"Invoice Setup","إعداد الفاتورة",
+"Invoice Value","قيمة الفاتورة",
+Invoices,الفواتير,
+Is,هو,
+"Is Empty",فارغ,
+"Is Group","هي المجموعة",
+"Is Not",ليس,
+"Is Not Empty","ليس فارغ",
+Item,العنصر,
+"Item Description",,
+"Item Name","اسم العنصر",
+Items,العناصر,
+"John Doe",,
+"Journal Entries",,
+"Journal Entry","إدخال دفتر اليومية",
+"Journal Entry Account",,
+Kg,,
+"Know More",,
+"Label Index","فهرس التسمية",
+Language,اللغة,
+"Ledger Entries","إدخالات دفتر الأستاذ",
+"Left Index",,
+"Legal Expenses","المصاريف القانونية",
+"Less Than","أقل من",
+Liability,,
+"Link Validation Error",,
+List,,
+"Load an existing .db file from your computer.","تحميل ملف .db موجود من جهاز الكمبيوتر الخاص بك.",
+"Loading Report...",,
+Loading...,"تحميل ...",
+"Loans (Liabilities)","قروض (خصوم)",
+"Loans and Advances (Assets)","القروض والسلف (الأصول)",
+Locale,اللغة,
+Logo,الشعار,
+"Make Entry",,
+"Make Payment","إجراء الدفع",
+"Mandatory Error",,
+"Mar 23, 2022",,
+"Marketing Expenses","مصاريف التسويق",
+Merriweather,,
+Meter,,
+Minimal,,
+"Miscellaneous Expenses","مصاريف متنوعة",
+Modern,,
+Modified,,
+"Modified By",,
+Monthly,,
+Months,,
+Montserrat,,
+Name,الاسم,
+Navigate,,
+"Net Total","الإجمالي الصافي",
+"Net Total (Company Currency)","صافي الإجمالي (عملة الشركة)",
+"New ${0}",,
+"New Account","حساب جديد",
+"New File","ملف جديد",
+"New Journal Entry","إدخال جديد في دفتر اليومية",
+"New Purchase",,
+"New Purchase Invoice",,
+"New Sale",,
+"New Sales Invoice",,
+"New version available","إصدار جديد متاح",
+Next,التالي,
+No,لا,
+"No Data to Import","لا توجد بيانات للاستيراد",
+"No Values to be Displayed",,
+"No entries found",,
+"No expenses in this period","لا توجد نفقات في هذه الفترة",
+"No filters selected","لم يتم تحديد عوامل تصفية",
+"No labels have been assigned.","لم يتم تعيين أي تسميات.",
+"No results found",,
+"No transactions yet","لا توجد معاملات حتى الآن",
+"No updates available","لا توجد تحديثات متاحة",
+None,"لا شيء",
+"Not Found Error",,
+Notes,ملاحظات,
+"Number Series","سلسلة الأرقام",
+"Number of ${0}",,
+"Office Equipments","معدات مكتبية",
+"Office Maintenance Expenses","مصاريف صيانة المكاتب",
+"Office Rent","إيجار مكتب",
+"Onboarding Complete","اكتمال الإعداد",
+"Open Folder","فتح مجلد",
+"Open Sans",,
+"Opening (Cr)","(Cr) الافتتاح",
+"Opening (Dr)","(Dr) افتتاح",
+"Opening Balance Equity","الرصيد الافتتاحي حقوق الملكية",
+"Opening Balances","أرصدة الافتتاح",
+"Opening Entry",,
+Orange,,
+Organisation,التنظيم,
+Outflow,التدفق,
+"Outstanding Amount","المبلغ المستحق",
+Oxygen,,
+"Pad Zeros",,
+Page,,
+Paid,مدفوع,
+Parent,الوالد,
+"Parent Account","الحساب الوالد",
+Party,حفلة,
+"Patch Run",,
+Pay,دفع,
+Payable,,
+Payment,الدفع,
+"Payment For","الدفع مقابل",
+"Payment Method","طريقة الدفع",
+"Payment No","رقم الدفع",
+"Payment Reference","مرجع الدفع",
+"Payment Type","نوع الدفع",
+"Payment amount cannot be ${0}.","لا يمكن أن يكون مبلغ الدفعة ${0}",
+"Payment amount cannot be less than zero.","مبلغ الدفعة لا يمكن أن يكون أقل من الصفر.",
+"Payment amount cannot exceed ${0}.","مبلغ الدفعة لا يمكن أن يتجاوز ${0} .",
+"Payment amount: ${0} should be greater than 0.","مبلغ الدفعة: ${0} يجب أن يكون أكبر من 0.",
+"Payment amount: ${0} should be less than Outstanding amount: ${1}.","مبلغ الدفعة: ${0} يجب أن يكون أقل من المبلغ المستحق: ${1}",
+Payments,المدفوعات,
+"Payroll Payable","الرواتب المستحقة الدفع",
+Periodicity,الدورية,
+Phone,الهاتف,
+Pink,,
+Place,مكان,
+"Place of supply","مكان التوريد",
+"Plants and Machineries","المصانع والآليات",
+"Please Wait",,
+"Please assign the following fields ${0}","الرجاء تخصيص الحقول التالية ${0} ",
+"Please fill all values","الرجاء ملء جميع القيم",
+"Please select a file with data to import.","الرجاء تحديد ملف به بيانات للاستيراد.",
+"Please select a valid reference type.",,
+"Please select an option:",,
+"Postal Code","الرمز البريدي",
+"Postal Expenses","المصاريف البريدية",
+"Posting Date","تاريخ النشر",
+Prefix,بادئة,
+"Prime Bank",,
+Print,طباعة,
+"Print Settings","إعدادات الطباعة",
+"Print and Stationery","طباعة و المكتبة",
+Product,,
+"Profit And Loss","الربح والخسارة",
+"Profit and Loss","الربح والخسارة",
+Purchase,شراء,
+"Purchase Invoice",,
+"Purchase Invoice Item",,
+"Purchase Invoices",,
+"Purchase Item Created",,
+"Purchase Items","شراء العناصر",
+"Purchase Payments",,
+Purchases,المشتريات,
+Purple,,
+Quantity,الكمية,
+Quarterly,,
+Quarters,,
+Rate,معدل,
+"Rate (${0}) cannot be less zero.","لا يمكن أن يكون `السعر (${0}) أقل من صفر.",
+"Rate (Company Currency)","السعر (عملة الشركة)",
+"Rate can't be negative.","لا يمكن أن يكون المعدل سالبًا",
+Receivable,,
+Receive,تلقي,
+"Recent Invoices","الفواتير الحديثة",
+Red,,
+"Ref Name",,
+"Ref Type",,
+"Ref. / Cheque No.","المرجع. / رقم الشيك",
+"Ref. Date","المرجع. التاريخ",
+"Ref. Name","المرجع. الاسم",
+"Ref. Type","المرجع. النوع",
+Reference,,
+"Reference Date","تاريخ المرجع",
+"Reference Number","الرقم المرجعي",
+"Reference Type","نوع المرجع",
+"Reload App","إعادة تحميل التطبيق",
+Report,,
+"Report Error","الإبلاغ عن خطأ",
+"Report Issue",,
+Reports,التقارير,
+"Required Fields not Assigned","الحقول المطلوبة غير معيَّنة",
+Reset,إعادة,
+"Retained Earnings","الأرباح المحتجزة",
+"Reverse Chrg.","`الشحن العكسي",
+Reverted,"تم إرجاعه",
+Reverts,,
+"Review Accounts","مراجعة الحسابات",
+"Review your chart of accounts, add any account or tax heads as needed",,
+"Right Index",,
+Role,الدور,
+"Root Type","نوع الجذر",
+"Round Off","جولة خارج",
+"Round Off Account","تقريب الحساب",
+Salary,الراتب,
+Sales,المبيعات,
+"Sales Expenses","مصاريف المبيعات",
+"Sales Invoice",,
+"Sales Invoice Item",,
+"Sales Invoice Settings",,
+"Sales Invoices",,
+"Sales Invoie",,
+"Sales Item Created",,
+"Sales Items","عناصر المبيعات",
+"Sales Payments",,
+Save,حفظ,
+"Save Option",,
+"Save Template","حفظ النموذج",
+"Save as PDF","حفظ كملف PDF",
+"Save as PDF Successful","PDF حفظ كملف ناجح",
+Saving,حفظ,
+Search,,
+"Secured Loans","قروض مضمونة",
+"Securities and Deposits","الأوراق المالية والودائع",
+Select,,
+"Select CoA","حدد شهادة توثيق البرامج",
+"Select Color",,
+"Select Country",,
+"Select File","تحديد ملف",
+"Select Folder","تحديد مجلد",
+"Select Image","حدد صورة",
+"Select Logo","اختر الشعار",
+"Select a file for import","حدد ملفًا للاستيراد",
+"Select file","تحديد ملف",
+"Select folder","تحديد مجلد",
+"Select your language","اختر لغتك",
+"Selected file","الملف المحدد",
+"Send anonymized usage data and error reports to help improve the product.",,
+Service,الخدمة,
+"Set Anonymized Telemetry",,
+"Set an Import Type","تعيين نوع الاستيراد",
+"Set the display language.","ضبط لغة العرض.",
+"Set the local code. This is used for number formatting.","اضبط الكود المحلي. يستخدم هذا لتنسيق الأرقام",
+"Sets how many digits are shown after the decimal point.","تعيين عدد الأرقام التي تظهر بعد العلامة العشرية.",
+"Sets the app-wide date display format.","يضبط تنسيق عرض التاريخ على مستوى التطبيق.",
+"Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.","يضبط الدقة الداخلية المستخدمة في الحسابات النقدية. يجب أن يكون الرقم الأعلى من 6 كافيًا لمعظم العملات",
+"Setting Up Instance",,
+"Setting Up...","الإعداد ...",
+Settings,الإعدادات,
+"Settings changes will be visible on reload","ستكون تغييرات الإعدادات مرئية عند إعادة التحميل",
+Setup,الإعداد,
+"Setup Complete","اكتمل الإعداد",
+"Setup Wizard","معالج الإعداد",
+"Setup Your Workspace","إعداد مساحة العمل الخاصة بك",
+"Setup system defaults like date format and display precision",,
+"Setup your company information, email, country and fiscal year",,
+"Setup your opening balances before performing any accounting entries",,
+"Setup your organization","إعداد منظمتك",
+"Setup your tax templates for your sales or purchase transactions",,
+"Show Me",أرني,
+"Single Value",,
+"Smallest Currency Fraction Value","أصغر قيمة لكسر العملة",
+Softwares,البرامج,
+"Something has gone terribly wrong. Please check the console and raise an issue.","لقد حدث خطأ ما بشكل رهيب. يرجى التحقق من وحدة التحكم وإثارة المشكلة",
+"Source of Funds (Liabilities)","مصدر الأموال (الخصوم)",
+"Standard Chart of Accounts","المخطط القياسي للحسابات",
+Start,ابدأ,
+State,الدولة,
+"State Tax","ضريبة الولاية",
+Status,الحالة,
+Stock,,
+"Stock Adjustment","تسوية المخزون",
+"Stock Assets","أصول المخزون",
+"Stock Expenses","مصاريف المخزون",
+"Stock In Hand","المخزون في متناول اليد",
+"Stock Liabilities","مطلوبات المخزون",
+"Stock Received But Not Billed","تم استلام المخزون ولكن لم يتم إصدار فاتورة به",
+Submit,إرسال,
+"Submit Journal Entry?",,
+"Submit Purchase Invoice?",,
+"Submit Sales Invoice?",,
+"Submit on Import","إرسال عند الاستيراد",
+Submitted,مقدم,
+Submitting,,
+Subtotal,"المجموع الفرعي",
+"Successfully created the following ${0} entries:","تم بنجاح إنشاء إدخالات ${0} التالية:",
+Supplier,المورد,
+"Supplier Created","إنشاء المورد",
+"Supplier Currency","عملة المورد",
+Suppliers,الموردون,
+Symbol,الرمز,
+System,النظام,
+"System Settings","إعدادات النظام",
+"System Setup","إعداد النظام",
+Tax,الضريبة,
+"Tax Account","حساب الضرائب",
+"Tax Assets","الأصول الضريبية",
+"Tax Detail","التفاصيل الضريبية",
+"Tax ID","المعرّف الضريبي",
+"Tax Summary",,
+"Taxable Value","القيمة الخاضعة للضريبة",
+Taxes,الضرائب,
+Teal,,
+"Telephone Expenses","مصاريف الهاتف",
+Template,قالب,
+Temporary,,
+"Temporary Accounts","حسابات مؤقتة",
+"Temporary Opening","الافتتاح المؤقت",
+Terms,الشروط,
+"The following ${0} entries were created: ${1}","تم إنشاء إدخالات ${0} التالية: $ {1}",
+"Theme Color","لون الموضوع",
+"This Month",,
+"This Quarter",,
+"This Year",,
+"This action is permanent","هذا العمل دائم",
+"This action is permanent and will cancel the following payment: ${0}","هذا الإجراء نهائي وسيؤدي إلى إلغاء الدفعة التالية: ${0}",
+"This action is permanent and will cancel the following payments: ${0}","هذا الإجراء نهائي وسيؤدي إلى إلغاء الدفعات التالية: ${0} ",
+"This action is permanent and will delete associated ledger entries.",,
+"This action is permanent.",,
+"Times New Roman",,
+"To Account",الحساب,
+"To Account and From Account can't be the same: ${0}",,
+"To Date","حتى الآن",
+"To Year",,
+"Top Expenses","أهم المصروفات",
+Total,,
+"Total Asset (Debit)",,
+"Total Credit",,
+"Total Debit",,
+"Total Debit: ${0} must be equal to Total Credit: ${1}",,
+"Total Equity (Credit)",,
+"Total Expense (Debit)",,
+"Total Income (Credit)",,
+"Total Liability (Credit)",,
+"Total Profit",,
+"Total Spending","إجمالي الإنفاق",
+Transfer,,
+"Transfer Type","نوع التحويل",
+"Travel Expenses","مصاريف السفر",
+"Trial Balance","ميزان المراجعة",
+Type,النوع,
+"Type to search...",,
+Unit,,
+"Unit Type","نوع الوحدة",
+Unpaid,"غير مدفوعة الأجر",
+"Unsecured Loans","قروض غير مضمونة",
+"Until Date",,
+"Update downloaded","تم تنزيل التحديث",
+"User Remark","ملاحظة المستخدم",
+"Utility Expenses","نفقات المرافق",
+"Validation Error",,
+Value,القيمة,
+"Value missing for ${0}","القيمة مفقودة لـ ${0}",
+"Verify Imported Data","التحقق من البيانات المستوردة",
+Version,,
+"Version ${0} available","الإصدار ${0} متاح",
+"View Purchases",,
+"View Sales",,
+"Welcome to Frappe Books","مرحبًا بكم في Frappe Books",
+"Write Off",شطب,
+"Write Off Account","شطب الحساب",
+"Write Off Account not set. Please set Write Off Account in General Settings","شطب الحساب لم يتم تعيينه. يرجى تعيين حساب الشطب في الإعدادات العامة",
+"Write Off Entry",,
+Yearly,,
+Years,,
+Yellow,,
+Yes,نعم,
+"Your Name",اسمك,
+john@doe.com,,
+reports,,
+setup,,
+"verify the imported data and click on","تحقق من البيانات المستوردة وانقر فوق",
