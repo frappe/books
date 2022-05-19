@@ -14,7 +14,7 @@
 import { constants } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
-import { splitCsvLine } from 'utils/translationHelpers';
+import { parseCSV } from 'utils/csvParser';
 import { LanguageMap } from 'utils/types';
 
 const fetch = require('node-fetch').default;
@@ -23,26 +23,32 @@ const VALENTINES_DAY = 1644796800000;
 
 export async function getLanguageMap(code: string): Promise<LanguageMap> {
   const contents = await getContents(code);
-  return getMapFromContents(contents);
+  return getMapFromCsv(contents);
 }
 
-function getMapFromContents(contents: string): LanguageMap {
-  const lines: string[] = contents.split('\n').slice(1);
-  return lines
-    .map((l) => splitCsvLine(l) as string[])
-    .filter((l) => l.length >= 2)
-    .reduce((acc, l) => {
-      const key = l[0].slice(1, -1);
-      const translation = l[1].slice(1, -1);
-      acc[key] = { translation };
+function getMapFromCsv(csv: string): LanguageMap {
+  const matrix = parseCSV(csv);
+  const languageMap: LanguageMap = {};
 
-      const context = l.slice(2)[0];
-      if (context?.length) {
-        acc[key].context = context;
-      }
+  for (const row of matrix) {
+    /**
+     * Ignore lines that have no translations
+     */
+    if (!row[0] || !row[1]) {
+      continue;
+    }
 
-      return acc;
-    }, {} as LanguageMap);
+    const source = row[0];
+    const translation = row[1];
+    const context = row[3];
+
+    languageMap[source] = { translation };
+    if (context?.length) {
+      languageMap[source].context = context;
+    }
+  }
+
+  return languageMap;
 }
 
 async function getContents(code: string) {

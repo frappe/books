@@ -57,34 +57,3 @@ export function getWhitespaceSanitized(str: string) {
 export function getIndexList(str: string) {
   return [...str.matchAll(/\${([^}]+)}/g)].map(([_, i]) => parseInt(i));
 }
-
-export function wrap(str: string) {
-  return '`' + str + '`';
-}
-
-export function splitCsvLine(line: string) {
-  let t = true;
-  const chars = [...line];
-  const indices = chars
-    .map((c, i) => {
-      if (c === '`') {
-        t = !t;
-      }
-
-      if (c === ',' && t) {
-        return i;
-      }
-
-      return -1;
-    })
-    .filter((i) => i !== -1);
-
-  let s = 0;
-  const splits = indices.map((i) => {
-    const split = line.slice(s, i);
-    s = i + 1;
-    return split.trim();
-  });
-  splits.push(line.slice(s).trim());
-  return splits.filter((s) => s !== ',' && s !== '');
-}
