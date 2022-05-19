@@ -520,7 +520,7 @@ Service,Serviço,
 "Set Anonymized Telemetry",,
 "Set an Import Type",,
 "Set the display language.",,
-"Set the local code. This is used for number formatting.","`Definir o código local"," este é utilizado para a formatação de números.`"
+"Set the local code. This is used for number formatting.","Definir o código local"," este é utilizado para a formatação de números."
 "Sets how many digits are shown after the decimal point.","Define quantos dígitos são mostrados após a vírgula decimal.",
 "Sets the app-wide date display format.","Define o formato de exibição da data em toda a aplicação.",
 "Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.","Define a precisão interna utilizada para os cálculos monetários. Acima de 6 deve ser suficiente para a maioria das moedas.",
@@ -541,7 +541,7 @@ Setup,Configuração,
 "Single Value",,
 "Smallest Currency Fraction Value","Menor valor de fracção da moeda",
 Softwares,"Aplicações informáticas",
-"Something has gone terribly wrong. Please check the console and raise an issue.","`Algo correu terrivelmente mal. Por favor"," verifique a consola e levante um problema.`"
+"Something has gone terribly wrong. Please check the console and raise an issue.","Algo correu terrivelmente mal. Por favor, verifique a consola e levante um problema."
 "Source of Funds (Liabilities)","Fonte de Fundos (Passivo)",
 "Standard Chart of Accounts",,
 Start,,
