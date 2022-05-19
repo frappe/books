@@ -56,6 +56,7 @@ import Button from 'src/components/Button.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import InvoiceTemplate from 'src/components/SalesInvoice/InvoiceTemplate.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
+import { fyo } from 'src/initFyo';
 import { makePDF } from 'src/utils/ipcCalls';
 import { IPC_ACTIONS } from 'utils/messages';
 
@@ -77,6 +78,10 @@ export default {
   async mounted() {
     this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
     this.printSettings = await fyo.doc.getSingle('PrintSettings');
+
+    if (fyo.store.isDevelopment) {
+      window.pv = this;
+    }
   },
   computed: {
     printTemplate() {
@@ -84,13 +89,33 @@ export default {
     },
   },
   methods: {
+    constructPrintDocument() {
+      const html = document.createElement('html');
+      const head = document.createElement('head');
+      const body = document.createElement('body');
+      const style = document.getElementsByTagName('style');
+      const styleTags = Array.from(style)
+        .map((s) => s.outerHTML)
+        .join('\n');
+
+      head.innerHTML = [
+        '<meta charset="UTF-8">',
+        '<title>Print Window</title>',
+        styleTags,
+      ].join('\n');
+
+      body.innerHTML = this.$refs.printContainer.innerHTML;
+      html.append(head, body);
+      return html.outerHTML;
+    },
     async makePDF() {
       const savePath = await this.getSavePath();
       if (!savePath) return;
 
-      const html = this.$refs.printContainer.innerHTML;
-      fyo.telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
+
+      const html = this.constructPrintDocument()
       await makePDF(html, savePath);
+      fyo.telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
     },
     async getSavePath() {
       const options = {
