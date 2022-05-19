@@ -9,6 +9,10 @@ import { DatabaseResponse } from '../utils/ipc/types';
 import { IPC_ACTIONS } from '../utils/messages';
 import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
+import {
+  getConfigFilesWithModified,
+  setAndGetCleanedConfigFiles,
+} from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 
 export default function registerIpcMainActionListeners(main: Main) {
@@ -118,6 +122,11 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath) => {
     await fs.unlink(filePath);
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_DB_LIST, async (_) => {
+    const files = await setAndGetCleanedConfigFiles();
+    return await getConfigFilesWithModified(files);
   });
 
   /**

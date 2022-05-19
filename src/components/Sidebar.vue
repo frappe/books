@@ -102,7 +102,6 @@
   </div>
 </template>
 <script>
-import path from 'path';
 import Button from 'src/components/Button.vue';
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
@@ -125,10 +124,6 @@ export default {
   computed: {
     appVersion() {
       return fyo.store.appVersion;
-    },
-    dbPath() {
-      const splits = fyo.db.dbPath.split(path.sep);
-      return path.join(...splits.slice(splits.length - 2));
     },
   },
   components: {
@@ -178,7 +173,8 @@ export default {
     itemActiveClass(item) {
       let { path: currentRoute, params } = this.$route;
       let routeMatch = currentRoute === item.route;
-      let schemaNameMatch = item.schemaName && params.schemaName === item.schemaName;
+      let schemaNameMatch =
+        item.schemaName && params.schemaName === item.schemaName;
       return routeMatch || schemaNameMatch ? 'bg-white text-blue-500' : '';
     },
     isActiveGroup(group) {
