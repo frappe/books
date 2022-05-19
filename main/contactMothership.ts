@@ -41,7 +41,7 @@ export function getUrlAndTokenString() {
   };
 }
 
-function post(bodyJson) {
+function post(bodyJson: string) {
   const inProduction = app.isPackaged;
   const { url, tokenString } = getUrlAndTokenString();
   const isHttps = url.split(':')[0].toLowerCase() === 'https';
@@ -79,7 +79,7 @@ function post(bodyJson) {
   req.end();
 }
 
-export function sendError(bodyJson) {
+export function sendError(bodyJson: string) {
   post(bodyJson);
 }
 

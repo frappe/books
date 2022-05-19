@@ -1,4 +1,8 @@
 /**
+ * Language files are packaged into the binary, if
+ * newer files are available (if internet available)
+ * then those will replace the current file.
+ *
  * Language files are fetched from the frappe/books repo
  * the language files before storage have a ISO timestamp
  * prepended to the file.
@@ -7,42 +11,19 @@
  * takes place only if a new update has been pushed.
  */
 
-const fs = require('fs/promises');
-const path = require('path');
-const fetch = require('node-fetch').default;
-
+import { constants } from 'fs';
+import fs from 'fs/promises';
+import path from 'path';
 import { splitCsvLine } from 'utils/translationHelpers';
 import { LanguageMap } from 'utils/types';
 
+const fetch = require('node-fetch').default;
+
 const VALENTINES_DAY = 1644796800000;
 
-export async function getLanguageMap(
-  code: string,
-  isDevelopment: boolean = false
-): Promise<LanguageMap> {
-  const contents = await getContents(code, isDevelopment);
+export async function getLanguageMap(code: string): Promise<LanguageMap> {
+  const contents = await getContents(code);
   return getMapFromContents(contents);
-}
-
-async function getContents(code: string, isDevelopment: boolean) {
-  if (isDevelopment) {
-    const filePath = path.resolve('translations', `${code}.csv`);
-    const contents = await fs.readFile(filePath, { encoding: 'utf-8' });
-    return ['', contents].join('\n');
-  }
-
-  let contents = await getContentsIfExists(code);
-  if (contents.length === 0) {
-    contents = (await fetchAndStoreFile(code)) ?? contents;
-  } else {
-    contents = (await getUpdatedContent(code, contents)) ?? contents;
-  }
-
-  if (!contents || contents.length === 0) {
-    throwCouldNotFetchFile(code);
-  }
-
-  return contents;
 }
 
 function getMapFromContents(contents: string): LanguageMap {
@@ -64,17 +45,28 @@ function getMapFromContents(contents: string): LanguageMap {
     }, {} as LanguageMap);
 }
 
-async function getContentsIfExists(code: string): Promise<string> {
-  const filePath = getFilePath(code);
-  try {
-    return await fs.readFile(filePath, { encoding: 'utf-8' });
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
-      throw err;
-    }
+async function getContents(code: string) {
+  let contents = await getContentsIfExists(code);
+  if (contents.length === 0) {
+    contents = (await fetchAndStoreFile(code)) || contents;
+  } else {
+    contents = (await getUpdatedContent(code, contents)) || contents;
+  }
 
+  if (!contents || contents.length === 0) {
+    throwCouldNotFetchFile(code);
+  }
+
+  return contents;
+}
+
+async function getContentsIfExists(code: string): Promise<string> {
+  const filePath = await getTranslationFilePath(code);
+  if (!filePath) {
     return '';
   }
+
+  return await fs.readFile(filePath, { encoding: 'utf-8' });
 }
 
 async function fetchAndStoreFile(code: string, date?: Date) {
@@ -135,8 +127,28 @@ async function getLastUpdated(code: string): Promise<Date> {
   }
 }
 
-function getFilePath(code: string) {
-  return path.resolve(process.resourcesPath, 'translations', `${code}.csv`);
+async function getTranslationFilePath(code: string) {
+  let filePath = path.join(
+    process.resourcesPath,
+    `../translations/${code}.csv`
+  );
+
+  try {
+    await fs.access(filePath, constants.R_OK);
+  } catch {
+    /**
+     * This will be used for in Development mode
+     */
+    filePath = path.join(__dirname, `../translations/${code}.csv`);
+  }
+
+  try {
+    await fs.access(filePath, constants.R_OK);
+  } catch {
+    return '';
+  }
+
+  return filePath;
 }
 
 function throwCouldNotFetchFile(code: string) {
@@ -144,7 +156,11 @@ function throwCouldNotFetchFile(code: string) {
 }
 
 async function storeFile(code: string, contents: string) {
-  const filePath = getFilePath(code);
+  const filePath = await getTranslationFilePath(code);
+  if (!filePath) {
+    return;
+  }
+
   const dirname = path.dirname(filePath);
   await fs.mkdir(dirname, { recursive: true });
   await fs.writeFile(filePath, contents, { encoding: 'utf-8' });
