@@ -344,7 +344,7 @@ export class GeneralLedger extends LedgerReport {
   getColumns(): ColumnField[] {
     let columns = [
       {
-        label: t`#`,
+        label: '#',
         fieldtype: 'Int',
         fieldname: 'index',
         align: 'right',

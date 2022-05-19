@@ -49,11 +49,8 @@ function splitCsvBlock(text: string, splitter: string = '\r\n'): string[] {
   return lines;
 }
 
-function splitCsvLine(line: string): string[] {
-  if (line.at(-1) !== ',') {
-    // if conforming to spec, it should not end with ','
-    line += ',';
-  }
+export function splitCsvLine(line: string): string[] {
+  line += ',';
 
   const items = [];
   let item = '';
