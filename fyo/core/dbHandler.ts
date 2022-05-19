@@ -3,9 +3,12 @@ import { Fyo } from 'fyo';
 import { DatabaseDemux } from 'fyo/demux/db';
 import { ValueError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
+import { translateSchema } from 'fyo/utils/translation';
 import { Field, RawValue, SchemaMap } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import { DatabaseBase, DatabaseDemuxBase, GetAllOptions } from 'utils/db/types';
+import { schemaTranslateables } from 'utils/translationHelpers';
+import { LanguageMap } from 'utils/types';
 import { Converter } from './converter';
 import {
   DatabaseDemuxConstructor,
@@ -26,7 +29,7 @@ export class DatabaseHandler extends DatabaseBase {
   converter: Converter;
   #demux: DatabaseDemuxBase;
   dbPath?: string;
-  schemaMap: Readonly<SchemaMap> = {};
+  #schemaMap: SchemaMap = {};
   observer: Observable<never> = new Observable();
   fieldValueMap: Record<string, Record<string, Field>> = {};
 
@@ -40,6 +43,10 @@ export class DatabaseHandler extends DatabaseBase {
     } else {
       this.#demux = new DatabaseDemux(fyo.isElectron);
     }
+  }
+
+  get schemaMap(): Readonly<SchemaMap> {
+    return this.#schemaMap;
   }
 
   get isConnected() {
@@ -61,7 +68,7 @@ export class DatabaseHandler extends DatabaseBase {
   }
 
   async init() {
-    this.schemaMap = (await this.#demux.getSchemaMap()) as Readonly<SchemaMap>;
+    this.#schemaMap = (await this.#demux.getSchemaMap()) as SchemaMap;
 
     for (const schemaName in this.schemaMap) {
       const fields = this.schemaMap[schemaName]!.fields!;
@@ -70,9 +77,17 @@ export class DatabaseHandler extends DatabaseBase {
     this.observer = new Observable();
   }
 
+  async translateSchemaMap(languageMap?: LanguageMap) {
+    if (languageMap) {
+      translateSchema(this.#schemaMap, languageMap, schemaTranslateables);
+    } else {
+      this.#schemaMap = (await this.#demux.getSchemaMap()) as SchemaMap;
+    }
+  }
+
   purgeCache() {
     this.dbPath = undefined;
-    this.schemaMap = {};
+    this.#schemaMap = {};
     this.fieldValueMap = {};
   }
 

@@ -1,16 +1,17 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { UnknownMap } from 'utils/types';
 import { generateCSV, parseCSV } from '../utils/csvParser';
 import {
   getIndexFormat,
   getWhitespaceSanitized,
+  schemaTranslateables,
 } from '../utils/translationHelpers';
 
 const translationsFolder = path.resolve(__dirname, '..', 'translations');
 const PATTERN = /(?<!\w)t`([^`]+)`/g;
 
 type Content = { fileName: string; content: string };
-type UnknownMap = Record<string, unknown>;
 
 function shouldIgnore(p: string, ignoreList: string[]): boolean {
   const name = p.split(path.sep).at(-1) ?? '';
@@ -229,11 +230,7 @@ async function getTStringsFromJsonFileList(
       .then((content) => {
         const schema = JSON.parse(content) as Record<string, unknown>;
         const tStrings: string[] = [];
-        pushTStringsFromSchema(schema, tStrings, [
-          'label',
-          'description',
-          'placeholder',
-        ]);
+        pushTStringsFromSchema(schema, tStrings, schemaTranslateables);
         return tStrings;
       })
       .then((ts) => {
@@ -250,11 +247,11 @@ async function getTStringsFromJsonFileList(
 function pushTStringsFromSchema(
   map: UnknownMap | UnknownMap[],
   array: string[],
-  translateable: string[]
+  translateables: string[]
 ) {
   if (Array.isArray(map)) {
     for (const item of map) {
-      pushTStringsFromSchema(item, array, translateable);
+      pushTStringsFromSchema(item, array, translateables);
     }
     return;
   }
@@ -265,7 +262,7 @@ function pushTStringsFromSchema(
 
   for (const key of Object.keys(map)) {
     const value = map[key];
-    if (translateable.includes(key) && typeof value === 'string') {
+    if (translateables.includes(key) && typeof value === 'string') {
       array.push(value);
     }
 
@@ -276,7 +273,7 @@ function pushTStringsFromSchema(
     pushTStringsFromSchema(
       value as UnknownMap | UnknownMap[],
       array,
-      translateable
+      translateables
     );
   }
 }
