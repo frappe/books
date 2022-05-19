@@ -1,479 +1,652 @@
-`${0} ${1} already exists.`,`${0} ${1} existe déjà.`
-`${0} ${1} is linked with existing records.`,`${0} ${1} est lié à des enregistrements existants.`
-`${0} filters applied`,`${0} filtres appliqués`
-`1 filter applied`,`1 filtre appliqué`
-`Accepted Quantity`,`Quantité acceptée`
-`Account`,`Compte`
-`Account Entries`,`Entrées de compte`
-`Account Name`,`Nom du compte`
-`Account Type`,`Type de compte`
-`Accounting Ledger Entries`,`Écritures du grand livre comptable`
-`Accounting Settings`,`Paramètres de comptabilité`
-`Accounts`,`Comptes`
-`Accounts Payable`,`Comptes créditeurs`
-`Accounts Receivable`,`Comptes débiteurs`
-`Accumulated Depreciation`,`Amortissement cumulé`
-`Add Account`,`Ajouter un compte`
-`Add Customers`,`Ajouter des clients`
-`Add Group`,`Ajouter un groupe`
-`Add Items`,`Ajouter des éléments`
-`Add Row`,`Ajouter une rangée`
-`Add Suppliers`,`Ajouter des fournisseurs`
-`Add Taxes`,`Ajouter des taxes`
-`Add a filter`,`Ajouter un filtre`
-`Address`,`Adresse`
-`Address Display`,`Affichage de l'adresse`
-`Address Line 1`,`Ligne d'adresse 1`
-`Address Line 2`,`Ligne d'adresse 2`
-`Administrative Expenses`,`Dépenses administratives`
-`Against Account`,`Contre compte`
-`All References`,`Toutes les références`
-`Amount`,`Montant`
-`Amount (Company Currency)`,`Montant (devise de la société)`
-`Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.`,`Le montant : ${0} et write-off : ${1} est inférieur au montant total alloué aux références : ${2}.`
-`Amount: ${0} is less than the total amount allocated to references: ${1}.`,`Montant : ${0} est inférieur au montant total alloué aux références : ${1}.`
-`An error occurred.`,`Une erreur s'est produite.`
-`Application of Funds (Assets)`,`Application des fonds (actifs)`
-`Are you sure you want to cancel ${0} ${1}?`,`Vous êtes sûr de vouloir annuler ${0} ${1} ?`
-`Are you sure you want to delete ${0} ${1}?`,`Etes-vous sûr de vouloir supprimer ${0} ${1} ?`
-`Are you sure you want to submit this Bill?`,`Êtes-vous sûr de vouloir soumettre ce projet de loi ?`
-`Are you sure you want to submit this Invoice?`,`Êtes-vous sûr de vouloir soumettre cette facture ?`
-`Are you sure you want to submit this Journal Entry?`,`Êtes-vous sûr de vouloir soumettre cette entrée de journal ?`
-`Back`,`Dos`
-`Balance`,`Balance`
-`Balance Sheet`,`Bilan`
-`Bank Accounts`,`Comptes bancaires`
-`Bank Name`,`Nom de la banque`
-`Bank Overdraft Account`,`Compte de découvert bancaire`
-`Bill`,`Bill`
-`Bill Created`,`Projet de loi créé`
-`Bill No`,`Bill No`
-`Bills`,`Factures`
-`Bills Settings`,`Paramètres des factures`
-`Black`,`Noir`
-`Body`,`Corps`
-`Buildings`,`Bâtiments`
-`CSV`,`CSV`
-`Can't open database file: ${0}. Please create a new file.`,`Impossible d'ouvrir le fichier de la base de données : ${0}, veuillez créer un nouveau fichier.`
-`Cancel`,`Annuler`
-`Cancelled`,`Annulé`
-`Capital Equipments`,`Biens d'équipement`
-`Capital Stock`,`Capital social`
-`Cash`,`Espèces`
-`Cash In Hand`,`Liquidités en main`
-`Cashflow`,`Cashflow`
-`Central Tax`,`Impôt central`
-`Central Tax Paid`,`Impôt central payé`
-`Chart Of Accounts Reviewed`,`Révision du plan comptable`
-`Chart of Accounts`,`Plan comptable`
-`Checking for updates`,`Vérification des mises à jour`
-`City / Town`,`Ville / Village`
-`Clearance Date`,`Date d'autorisation`
-`Click to create`,`Cliquez pour créer`
-`Close`,`Fermer`
-`Closing (Cr)`,`Fermeture (Cr)`
-`Closing (Dr)`,`Fermeture (Dr)`
-`Color`,`Couleur`
-`Commission on Sales`,`Commission sur les ventes`
-`Common`,`Common`
-`Company Address`,`Adresse de la société`
-`Company Logo`,`Logo de l'entreprise`
-`Company Name`,`Nom de la société`
-`Company Settings`,`Paramètres de l'entreprise`
-`Company Setup`,`Création d'entreprise`
-`Completed`,`Complété`
-`Confirm Password`,`Confirmer le mot de passe`
-`Contains`,`Contient`
-`Cost of Goods Sold`,`Coût des marchandises vendues`
-`Country`,`Pays`
-`Create`,`Créer`
-`Create Bill`,`Créer une facture`
-`Create Invoice`,`Créer une facture`
-`Create a new file and store it in your computer.`,`Créez un nouveau fichier et stockez-le sur votre ordinateur.`
-`Create a new file or select an existing one from your computer`,`Créez un nouveau fichier ou sélectionnez un fichier existant sur votre ordinateur.`
-`Credit`,`Crédit`
-`Creditors`,`Créanciers`
-`Currency`,`Monnaie`
-`Currency Name`,`Nom de la monnaie`
-`Current`,`Actuel`
-`Current Assets`,`Actifs courants`
-`Current Liabilities`,`Passifs courants`
-`Custom Hex`,`Hexagone personnalisé`
-`Customer`,`Client`
-`Customer Created`,`Client créé`
-`Customer Currency`,`Monnaie du client`
-`Customer Name`,`Nom du client`
-`Customers`,`Clients`
-`Customise`,`Personnalisez`
-`Customize`,`Personnalisez`
-`DB Connection Error`,`Erreur de connexion à la base de données`
-`Dashboard`,`Tableau de bord`
-`Data Import`,`Importation de données`
-`Date`,`Date`
-`Date Format`,`Format de la date`
-`Debit`,`Débit`
-`Debtors`,`Débiteurs`
-`Default Account`,`Compte par défaut`
-`Delete`,`Supprimer`
-`Depreciation`,`Amortissement`
-`Description`,`Description`
-`Details`,`Détails`
-`Direct Expenses`,`Dépenses directes`
-`Direct Income`,`Revenu direct`
-`Display Logo in Invoice`,`Affichage du logo sur la facture`
-`Display Precision`,`Précision de l'affichage`
-`Display Precision should have a value between 0 and 9.`,`La précision de l'affichage doit avoir une valeur comprise entre 0 et 9.`
-`Dividends Paid`,`Dividendes versés`
-`Document ${0} ${1} has been modified after loading`,`Le document ${0} ${1} a été modifié après le chargement`
-`Document type ${0} is not submittable`,`Le type de document ${0} ne peut pas être soumis`
-`Documentation`,`Documentation`
-`Does Not Contain`,`Ne contient pas`
-`Download Update`,`Télécharger la mise à jour`
-`Duties and Taxes`,`Droits et taxes`
-`Earnest Money`,`Argent de garantie`
-`Edit`,`Modifier`
-`Electronic Equipments`,`Équipements électroniques`
-`Email`,`Courriel :`
-`Email Account`,`Compte de messagerie`
-`Email Address`,`Adresse électronique`
-`Empty`,`Vide`
-`Enable Notifications`,`Activer les notifications`
-`Entertainment Expenses`,`Dépenses de divertissement`
-`Entry ID`,`ID d'entrée`
-`Entry Type`,`Type d'entrée`
-`Equity`,`Actions`
-`Error`,`Erreur`
-`Error:`,`Erreur :`
-`Event Settings`,`Paramètres des événements`
-`Exchange Gain/Loss`,`Gain/perte de change`
-`Exchange Rate`,`Taux de change`
-`Existing File`,`Fichier existant`
-`Expense`,`Dépenses`
-`Expenses`,`Dépenses`
-`Expenses Included In Valuation`,`Dépenses incluses dans l'évaluation`
-`Export Failed`,`Échec de l'exportation`
-`Export Successful`,`Exportation réussie`
-`Fax`,`Fax`
-`Fieldname`,`Nom du champ`
-`File Name`,`Nom du fichier`
-`File Path`,`Chemin du fichier`
-`File Size`,`Taille du fichier`
-`Filter`,`Filtre`
-`Fiscal Year End Date`,`Date de fin d'exercice`
-`Fiscal Year Start Date`,`Date de début de l'exercice financier`
-`Fixed Assets`,`Actifs fixes`
-`Font`,`Police`
-`For`,`Pour`
-`Fraction`,`Fraction`
-`Fraction Units`,`Unités de fractionnement`
-`Freight and Forwarding Charges`,`Frais de fret et d'expédition`
-`From`,`De`
-`From Account`,`Du compte`
-`From Date`,`De la date`
-`Fulfillment`,`Remplissage`
-`Fulfillment Settings`,`Paramètres d'exécution`
-`Full Name`,`Nom complet`
-`Furnitures and Fixtures`,`Meubles et installations`
-`GST Registration`,`Inscription à la GST`
-`GSTIN`,`GSTIN`
-`GSTIN No.`,`N° GSTIN`
-`GSTIN of Supplier`,`GSTIN du fournisseur`
-`GSTR 3B`,`GSTR 3B`
-`GSTR 3B Report`,`Rapport GSTR 3B`
-`GSTR1`,`GSTR1`
-`GSTR2`,`GSTR2`
-`Gain/Loss on Asset Disposal`,`Gain/perte sur la cession d'actifs`
-`Gender`,`Genre`
-`General`,`Général`
-`General Ledger`,`Grand livre général`
-`Get Started`,`Commencez`
-`Grand Total`,`Total général`
-`Grand Total (Company Currency)`,`Total général (devise de la société)`
-`Greater Than`,`Plus grand que`
-`HSN/SAC`,`HSN/SAC`
-`Hex Value`,`Valeur hexagonale`
-`Hide & Auto Report Errors`,`Cacher et signaler automatiquement les erreurs`
-`Hide Get Started`,`Cacher Commencer`
-`Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.`,`Masque la section "Get Started" de la barre latérale. Le changement sera visible au redémarrage ou à l'actualisation de l'application.`
-`ID`,`ID`
-`Image`,`Image`
-`Income`,`Revenu`
-`Indirect Expenses`,`Dépenses indirectes`
-`Indirect Income`,`Revenu indirect`
-`Inflow`,`Arrivée d'eau`
-`Install Update`,`Installer la mise à jour`
-`Intergrated Tax`,`Taxe intégrée`
-`Intergrated Tax Paid`,`Taxe intégrée payée`
-`Internal Precision`,`Précision interne`
-`Investments`,`Investissements`
-`Invoice`,`Facture`
-`Invoice Created`,`Facture créée`
-`Invoice Date`,`Date de la facture`
-`Invoice No`,`N° de facture`
-`Invoice No.`,`N° de facture`
-`Invoice Number`,`Numéro de facture`
-`Invoice Setup`,`Configuration de la facture`
-`Invoice Value`,`Valeur de la facture`
-`Invoices`,`Factures`
-`Is`,`Est`
-`Is Customer`,`Est client`
-`Is Empty`,`Est vide`
-`Is Group`,`Est Groupe`
-`Is Not`,`N'est pas`
-`Is Not Empty`,`N'est pas vide`
-`Is Supplier`,`Est fournisseur`
-`Item`,`Article`
-`Item Created`,`Article créé`
-`Item Name`,`Nom de l'article`
-`Items`,`Articles`
-`JSON`,`JSON`
-`JSON Data`,`Données JSON`
-`Journal Entry`,`Entrée du journal`
-`Journal Entry Setting`,`Paramétrage de l'écriture du journal`
-`Ledger Entries`,`Écritures de grand livre`
-`Ledger Entry`,`Entrée du grand livre`
-`Legal Expenses`,`Frais juridiques`
-`Less Than`,`Moins de`
-`Load an existing .db file from your computer.`,`Chargez un fichier .db existant sur votre ordinateur.`
-`Loading...`,`Chargement...`
-`Loans (Liabilities)`,`Prêts (Passifs)`
-`Loans and Advances (Assets)`,`Prêts et avances (actifs)`
-`Locale`,`Locale`
-`Logo`,`Logo`
-`MIME Type`,`Type MIME`
-`Make Payment`,`Effectuer le paiement`
-`Marketing Expenses`,`Dépenses de marketing`
-`Message`,`Message`
-`Miscellaneous Expenses`,`Dépenses diverses`
-`Mobile Number`,`Numéro de téléphone mobile`
-`Month`,`Mois`
-`Name`,`Nom`
-`Net Total`,`Net Total`
-`Net Total (Company Currency)`,`Total net (devise de la société)`
-`New Account`,`Nouveau compte`
-`New Bill`,`Nouveau projet de loi`
-`New File`,`Nouveau dossier`
-`New Invoice`,`Nouvelle facture`
-`New Journal Entry`,`Nouvelle entrée dans le journal`
-`New version available`,`Nouvelle version disponible`
-`No`,`Non`
-`No expenses in this period`,`Aucune dépense dans cette période`
-`No filters selected`,`Aucun filtre sélectionné`
-`No results found.`,`Aucun résultat trouvé.`
-`No transactions yet`,`Aucune transaction pour le moment`
-`No updates available`,`Aucune mise à jour disponible`
-`Notes`,`Notes`
-`Number Series`,`Série de numéros`
-`Office Equipments`,`Equipements de bureau`
-`Office Maintenance Expenses`,`Frais d'entretien du bureau`
-`Office Rent`,`Location de bureaux`
-`Onboarding Complete`,`Embarquement terminé`
-`Open Folder`,`Ouvrir le dossier`
-`Opening (Cr)`,`Ouverture (Cr)`
-`Opening (Dr)`,`Ouverture (Dr)`
-`Opening Balance Equity`,`Solde d'ouverture Fonds propres`
-`Opening Balances`,`Soldes d'ouverture`
-`Organisation`,`Organisation`
-`Outflow`,`Débit sortant`
-`Outstanding Amount`,`Montant en souffrance`
-`PDF`,`PDF`
-`Paid`,`Payé`
-`Parent`,`Parent`
-`Parent Account`,`Compte parent`
-`Party`,`Fête`
-`Password`,`Mot de passe`
-`Payable Account`,`Compte à payer`
-`Payment`,`Paiement`
-`Payment Account`,`Compte de paiement`
-`Payment For`,`Paiement pour`
-`Payment Method`,`Mode de paiement`
-`Payment Reference`,`Référence de paiement`
-`Payment Settings`,`Paramètres de paiement`
-`Payment Type`,`Type de paiement`
-`Payment amount cannot be ${0}.`,`Le montant du paiement ne peut pas être ${0}.`
-`Payment amount cannot be less than zero.`,`Le montant du paiement ne peut être inférieur à zéro.`
-`Payment amount cannot exceed ${0}.`,`Le montant du paiement ne peut pas dépasser ${0}.`
-`Payment amount: ${0} should be greater than 0.`,`Le montant du paiement : ${0} doit être supérieur à 0.`
-`Payment amount: ${0} should be less than Outstanding amount: ${1}.`,`Montant du paiement : ${0} doit être inférieur au montant de l'encours : ${1}.`
-`Payments`,`Paiements`
-`Payroll Payable`,`Paie à payer`
-`Periodicity`,`Périodicité`
-`Phone`,`Téléphone`
-`Place`,`Lieu`
-`Place of Supply`,`Lieu d'approvisionnement`
-`Place of supply`,`Lieu d'approvisionnement`
-`Plants and Machineries`,`Usines et machineries`
-`Please fill all values`,`Veuillez remplir toutes les valeurs`
-`Please select an existing database or create a new one.`,`Veuillez sélectionner une base de données existante ou en créer une nouvelle.`
-`Please set GSTIN in General Settings.`,`Veuillez définir le GSTIN dans les paramètres généraux.`
-`Postal Code`,`Code postal`
-`Postal Expenses`,`Dépenses postales`
-`Posting Date`,`Date d'affichage`
-`Prefix`,`Préfixe`
-`Prevent errors from showing and automatically report all errors.`,`Empêcher les erreurs de s'afficher et signaler automatiquement toutes les erreurs.`
-`Print`,`Imprimer`
-`Print Format`,`Format d'impression`
-`Print PDF`,`Imprimer le PDF`
-`Print Settings`,`Paramètres d'impression`
-`Print and Stationery`,`Impression et papeterie`
-`Profit And Loss`,`Profits et pertes`
-`Profit and Loss`,`Profits et pertes`
-`Purchase`,`Achat`
-`Purchase Order`,`Bon de commande`
-`Purchase Order Settings`,`Paramètres de la commande d'achat`
-`Purchase Receipt`,`Reçu d'achat`
-`Purchase Receipt Settings`,`Paramètres des reçus d'achat`
-`PurchaseInvoice`,`AchatFacture`
-`Purchases`,`Achats`
-`Quantity`,`Quantité`
-`Quantity (${0}) cannot be less than zero.`,`La quantité (${0}) ne peut être inférieure à zéro.`
-`Quotation`,`Devis`
-`Quotation Settings`,`Paramètres de cotation`
-`Rate`,`Taux`
-`Rate (${0}) cannot be less zero.`,`Le taux (${0}) ne peut être inférieur à zéro.`
-`Rate (Company Currency)`,`Taux (devise de l'entreprise)`
-`Re-Open`,`Ré-ouvrir`
-`Receivable Account`,`Compte à recevoir`
-`Recent Invoices`,`Factures récentes`
-`Reconcile`,`Réconcilier`
-`Ref. / Cheque No.`,`Réf. / N° de chèque`
-`Ref. Date`,`Réf. Date`
-`Ref. Name`,`Réf. Nom`
-`Ref. Type`,`Réf. Type`
-`Ref/Cheque ID`,`Réf/Cheque ID`
-`Reference Date`,`Date de référence`
-`Reference DocType`,`Référence DocType`
-`Reference Field`,`Champ de référence`
-`Reference Name`,`Nom de référence`
-`Reference Number`,`Numéro de référence`
-`Reference Type`,`Type de référence`
-`Reload App`,`Recharge de l'application`
-`Report Error`,`Rapport d'erreur`
-`Reports`,`Rapports`
-`Reset Filters`,`Réinitialiser les filtres`
-`Retained Earnings`,`Bénéfices non distribués`
-`Reverse Charge`,`Reverse Charge`
-`Reverse Chrg.`,`Chrg. inversé`
-`Reverted`,`Rétabli`
-`Review Accounts`,`Comptes de révision`
-`Role`,`Rôle`
-`Roles`,`Rôles`
-`Root Type`,`Type de racine`
-`Round Off`,`Round Off`
-`Round Off Account`,`Compte d'arrondi`
-`SMTP Host`,`Hôte SMTP`
-`SMTP Port`,`Port SMTP`
-`Salary`,`Salaire`
-`Sales`,`Ventes`
-`Sales Expenses`,`Frais de vente`
-`Sales Order`,`Commande de vente`
-`Sales Order Settings`,`Paramètres de la commande client`
-`SalesInvoice`,`Facture de vente`
-`SalesInvoice Settings`,`Paramètres de la facture de vente`
-`Save`,`Sauvez`
-`Save & Close`,`Enregistrer et fermer`
-`Save as PDF`,`Enregistrer en PDF`
-`Save as PDF Successful`,`Enregistrer en PDF avec succès`
-`Saving`,`Sauver`
-`Schedule`,`Programme`
-`Secured Loans`,`Prêts garantis`
-`Securities and Deposits`,`Titres et dépôts`
-`Select Folder`,`Sélectionner le dossier`
-`Select Image`,`Sélectionner l'image`
-`Select Logo`,`Sélectionnez le logo`
-`Select a file to load the company transactions`,`Sélectionnez un fichier pour charger les transactions de l'entreprise`
-`Select file`,`Sélectionnez le fichier`
-`Select folder`,`Sélectionner le dossier`
-`Send`,`Envoyer`
-`Service`,`Service`
-`Set the local code. This is used for number formatting.`,`Définissez le code local, il est utilisé pour le formatage des numéros.`
-`Sets how many digits are shown after the decimal point.`,`Définit le nombre de chiffres affichés après le point décimal.`
-`Sets the app-wide date display format.`,`Définit le format d'affichage de la date pour l'ensemble de l'application.`
-`Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.`,`Définit la précision interne utilisée pour les calculs monétaires. Une précision supérieure à 6 devrait être suffisante pour la plupart des monnaies.`
-`Setting Up...`,`Mise en place...`
-`Settings`,`Paramètres`
-`Settings changes will be visible on reload`,`Les changements de paramètres seront visibles lors du rechargement`
-`Setup`,`Configuration`
-`Setup Complete`,`Configuration terminée`
-`Setup Wizard`,`Assistant de configuration`
-`Setup your organization`,`Configurer votre organisation`
-`Setup Your Workspace`,`Configurez votre espace de travail`
-`Smallest Currency Fraction Value`,`Valeur de la plus petite fraction de la monnaie`
-`Softwares`,`Logiciels`
-`Something has gone terribly wrong. Please check the console and raise an issue.`,`Quelque chose s'est terriblement mal passé. Veuillez vérifier la console et soulever un problème.`
-`Source of Funds (Liabilities)`,`Source des fonds (passif)`
-`Start Time`,`Heure de début`
-`State`,`État`
-`State Tax`,`Taxe d'État`
-`State/UT Tax Paid`,`Impôt payé par l'État/UT`
-`Status`,`Statut`
-`Stock Adjustment`,`Ajustement des stocks`
-`Stock Assets`,`Actifs en stock`
-`Stock Expenses`,`Frais d'actions`
-`Stock In Hand`,`Stock en main`
-`Stock Liabilities`,`Passif d'actions`
-`Stock Received But Not Billed`,`Stock reçu mais non facturé`
-`Subject`,`Sujet`
-`Submit`,`Soumettre`
-`Submitted`,`Soumis`
-`Subtotal`,`Sous-total`
-`Supplier`,`Fournisseur`
-`Supplier Created`,`Fournisseur créé`
-`Supplier Currency`,`Devise du fournisseur`
-`Supplier Name`,`Nom du fournisseur`
-`Suppliers`,`Fournisseurs`
-`Symbol`,`Symbole`
-`System`,`Système`
-`System Settings`,`Paramètres du système`
-`System Setup`,`Configuration du système`
-`Tax`,`Taxe`
-`Tax Account`,`Compte de taxes`
-`Tax Assets`,`Actifs fiscaux`
-`Tax Detail`,`Détail des taxes`
-`Tax ID`,`Numéro d'identification fiscale`
-`Taxable Value`,`Valeur imposable`
-`Taxes`,`Taxes`
-`Telephone Expenses`,`Frais de téléphone`
-`Template`,`Modèle`
-`Template could not be saved.`,`Le modèle n'a pas pu être sauvegardé.`
-`Template saved successfully.`,`Le modèle a été sauvegardé avec succès.`
-`Temporary Accounts`,`Comptes temporaires`
-`Temporary Opening`,`Ouverture temporaire`
-`Terms`,`Conditions`
-`Theme Color`,`Couleur du thème`
-`This action is permanent`,`Cette action est permanente`
-`This action is permanent and will cancel the following payment: ${0}`,`Cette action est permanente et annulera le paiement suivant : ${0}`
-`This action is permanent and will cancel the following payments: ${0}`,`Cette action est permanente et annulera les paiements suivants : ${0}`
-`Title`,`Titre`
-`To`,`A`
-`To Account`,`Au compte`
-`To Date`,`À ce jour`
-`To Do`,`A faire`
-`Top Expenses`,`Dépenses supérieures`
-`Total Spending`,`Dépenses totales`
-`Total Tax`,`Total des taxes`
-`Transfer Type`,`Type de transfert`
-`Travel Expenses`,`Frais de voyage`
-`Trial Balance`,`Balance de vérification`
-`Type`,`Type`
-`Unit Type`,`Type d'unité`
-`Unpaid`,`Impayé`
-`Unsecured Loans`,`Prêts non garantis`
-`Update downloaded`,`Mise à jour téléchargée`
-`User ID`,`ID utilisateur`
-`User Remark`,`Remarque de l'utilisateur`
-`Username`,`Nom d'utilisateur :`
-`Utility Expenses`,`Dépenses de services publics`
-`Value`,`Valeur`
-`Value missing for ${0}`,`Valeur manquante pour ${0}`
-`Version ${0} available`,`Version ${0} disponible`
-`View Bills`,`Voir les factures`
-`View Invoices`,`Afficher les factures`
-`Welcome to Frappe Books`,`Bienvenue chez Frappe Books`
-`Write Off`,`Radiation`
-`Write Off / Refund`,`Radiation / Remboursement`
-`Write Off Account`,`Compte de radiation`
-`Year`,`Année`
-`Yes`,`Oui`
-`Your Name`,`Votre nom`
-`name`,`nom`
+"${0} ${1} already exists.","${0} ${1} existe déjà.",
+"${0} ${1} has been modified after loading",,
+"${0} ${1} is linked with existing records.","${0} ${1} est lié à des enregistrements existants.",
+"${0} already exists.",,
+"${0} filters applied","${0} filtres appliqués",
+"${0} rows",,
+"* required fields",,
+0%,,
+03-23-2022,,
+03/23/2022,,
+"1 filter applied","1 filtre appliqué",
+2022-03-23,,
+"23 Mar, 2022",,
+23-03-2022,,
+23/03/2022,,
+9888900000,,
+Account,Compte,
+"Account Entries","Entrées de compte",
+"Account Name","Nom du compte",
+"Account Type","Type de compte",
+"Accounting Ledger Entry",,
+"Accounting Settings","Paramètres de comptabilité",
+Accounts,Comptes,
+"Accounts Payable","Comptes créditeurs",
+"Accounts Receivable","Comptes débiteurs",
+"Accumulated Depreciation","Amortissement cumulé",
+"Add Account","Ajouter un compte",
+"Add Customers","Ajouter des clients",
+"Add Group","Ajouter un groupe",
+"Add Items","Ajouter des éléments",
+"Add Row","Ajouter une rangée",
+"Add Suppliers","Ajouter des fournisseurs",
+"Add Taxes","Ajouter des taxes",
+"Add a few customers to create your first invoice",,
+"Add a few suppliers to create your first bill",,
+"Add a filter","Ajouter un filtre",
+"Add a remark",,
+"Add invoice terms",,
+"Add products or services that you buy from your suppliers",,
+"Add products or services that you sell to your customers",,
+Address,Adresse,
+"Address Display","Affichage de l'adresse",
+"Address Line 1","Ligne d'adresse 1",
+"Address Line 2","Ligne d'adresse 2",
+"Administrative Expenses","Dépenses administratives",
+All,,
+"Allow Telemetry",,
+Amount,Montant,
+"Amount (Company Currency)","Montant (devise de la société)",
+"Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.","Le montant : ${0} et write-off : ${1} est inférieur au montant total alloué aux références : ${2}.",
+"Amount: ${0} is less than the total amount allocated to references: ${1}.","Montant : ${0} est inférieur au montant total alloué aux références : ${1}.",
+"An error occurred.","Une erreur s'est produite.",
+"Anonymized Telemetry",,
+"Application of Funds (Assets)","Application des fonds (actifs)",
+Arial,,
+"Ascending Order",,
+Asset,,
+"Assign Imported Labels",,
+Back,Dos,
+"Bad import data.",,
+Balance,Balance,
+"Balance Sheet",Bilan,
+Bank,,
+"Bank Accounts","Comptes bancaires",
+"Bank Entry",,
+"Bank Name","Nom de la banque",
+"Bank Overdraft Account","Compte de découvert bancaire",
+"Base Error",,
+"Based On",,
+Basic,,
+"Basic I",,
+"Basic II",,
+Bill,Bill,
+"Bill Created","Projet de loi créé",
+"Bill No","Bill No",
+Black,Noir,
+Blue,,
+Both,,
+Buildings,Bâtiments,
+Business,,
+Cancel,Annuler,
+"Cancel ${0} ${1}?",,
+Cancelled,Annulé,
+"Cannot Commit Error",,
+"Capital Equipments","Biens d'équipement",
+"Capital Stock","Capital social",
+Cash,Espèces,
+"Cash Entry",,
+"Cash In Hand","Liquidités en main",
+Cashflow,Cashflow,
+"Central Tax","Impôt central",
+"Change File",,
+"Change Ref Type",,
+Chargeable,,
+"Chart Of Accounts Reviewed","Révision du plan comptable",
+"Chart of Accounts","Plan comptable",
+"Check for Updates",,
+"Checking for updates","Vérification des mises à jour",
+Cheque,,
+"City / Town","Ville / Village",
+Clear,,
+"Clearance Date","Date d'autorisation",
+"Click to create","Cliquez pour créer",
+Close,Fermer,
+Closing,,
+"Closing (Cr)","Fermeture (Cr)",
+"Closing (Dr)","Fermeture (Dr)",
+Color,Couleur,
+"Commission on Sales","Commission sur les ventes",
+Common,Common,
+"Common Items",,
+"Company Address","Adresse de la société",
+"Company Logo","Logo de l'entreprise",
+"Company Name","Nom de la société",
+"Company Settings","Paramètres de l'entreprise",
+"Company Setup","Création d'entreprise",
+Completed,Complété,
+Condition,,
+"Consolidate Columns",,
+Contains,Contient,
+"Contra Entry",,
+"Cost of Goods Sold","Coût des marchandises vendues",
+"Could not import ${0} ${1}.",,
+"Could not select file.",,
+Country,Pays,
+"Country Code",,
+"Country code used to initialize regional settings.",,
+Courier,,
+Cr.,,
+Create,Créer,
+"Create Bill","Créer une facture",
+"Create Demo",,
+"Create Invoice","Créer une facture",
+"Create Purchase",,
+"Create Sale",,
+"Create a new file and store it in your computer.","Créez un nouveau fichier et stockez-le sur votre ordinateur.",
+"Create a new file or select an existing one from your computer","Créez un nouveau fichier ou sélectionnez un fichier existant sur votre ordinateur.",
+"Create your first bill and mail it to your supplier",,
+"Create your first invoice and mail it to your customer",,
+Created,,
+"Created By",,
+"Creating Items and Parties",,
+"Creating Journal Entries",,
+"Creating Purchase Invoices",,
+Credit,Crédit,
+"Credit Card Entry",,
+"Credit Note",,
+Creditors,Créanciers,
+Currency,Monnaie,
+"Currency Name","Nom de la monnaie",
+Current,Actuel,
+"Current Assets","Actifs courants",
+"Current Liabilities","Passifs courants",
+"Custom Hex","Hexagone personnalisé",
+Customer,Client,
+"Customer Created","Client créé",
+"Customer Currency","Monnaie du client",
+Customers,Clients,
+Customise,Personnalisez,
+"Customize your invoices by adding a logo and address details",,
+Dashboard,"Tableau de bord",
+"Data Import","Importation de données",
+"Database Error",,
+"Database file: ${0}",,
+Date,Date,
+"Date Format","Format de la date",
+Day,,
+Debit,Débit,
+"Debit Note",,
+Debtors,Débiteurs,
+"Default Account","Compte par défaut",
+Delete,Supprimer,
+"Delete ${0} ${1}?",,
+"Delete ${0}?",,
+Depreciation,Amortissement,
+"Depreciation Entry",,
+Description,Description,
+Details,Détails,
+"Direct Expenses","Dépenses directes",
+"Direct Income","Revenu direct",
+"Disables telemetry. No data will be collected, you are completely invisble to us.",,
+"Display Logo in Invoice","Affichage du logo sur la facture",
+"Display Precision","Précision de l'affichage",
+"Display Precision should have a value between 0 and 9.","La précision de l'affichage doit avoir une valeur comprise entre 0 et 9.",
+"Dividends Paid","Dividendes versés",
+Docs,,
+Documentation,Documentation,
+"Does Not Contain","Ne contient pas",
+"Don't Log Anything",,
+"Don't Log Usage",,
+"Download Update","Télécharger la mise à jour",
+"Downloading update",,
+Dr.,,
+Draft,,
+Duplicate,,
+"Duplicate ${0} ${1}?",,
+"Duplicate Entry Error",,
+"Duties and Taxes","Droits et taxes",
+"Earnest Money","Argent de garantie",
+Edit,Modifier,
+"Electronic Equipments","Équipements électroniques",
+Email,"Courriel :",
+"Email Address","Adresse électronique",
+Empty,Vide,
+"Enables telemetry. Does not include usage patterns.",,
+"Enables telemetry. Includes usage patterns.",,
+"Enter Country to load States",,
+"Enter State",,
+"Entertainment Expenses","Dépenses de divertissement",
+"Entry No",,
+"Entry Type","Type d'entrée",
+Equity,Actions,
+Error,Erreur,
+Error:,"Erreur :",
+"Exchange Gain/Loss","Gain/perte de change",
+"Exchange Rate","Taux de change",
+"Excise Entry",,
+"Existing File","Fichier existant",
+Expense,Dépenses,
+"Expense Account",,
+Expenses,Dépenses,
+"Expenses Included In Valuation","Dépenses incluses dans l'évaluation",
+Export,,
+"Export Successful","Exportation réussie",
+Fax,Fax,
+Field,,
+Fieldname,"Nom du champ",
+"File selection failed.",,
+Filter,Filtre,
+"Fiscal Year",,
+"Fiscal Year End Date","Date de fin d'exercice",
+"Fiscal Year Start Date","Date de début de l'exercice financier",
+"Fixed Asset",,
+"Fixed Assets","Actifs fixes",
+Font,Police,
+For,Pour,
+"Forbidden Error",,
+Fraction,Fraction,
+"Fraction Units","Unités de fractionnement",
+"Frappe Books uses opt-in telemetry. This is the only way for us to know if we have any consistent users. It will be really helpful if you switch it on, but we won't force you. 🙂",,
+"Freight and Forwarding Charges","Frais de fret et d'expédition",
+"From Account","Du compte",
+"From Date","De la date",
+"From Year",,
+"Full Name","Nom complet",
+"Furnitures and Fixtures","Meubles et installations",
+"GSTIN No.","N° GSTIN",
+GSTR1,GSTR1,
+GSTR2,GSTR2,
+"Gain/Loss on Asset Disposal","Gain/perte sur la cession d'actifs",
+General,Général,
+"General Ledger","Grand livre général",
+"Get Started",Commencez,
+Gram,,
+"Grand Total","Total général",
+"Grand Total (Company Currency)","Total général (devise de la société)",
+"Greater Than","Plus grand que",
+Green,,
+"Group By",,
+HSN/SAC,HSN/SAC,
+"HSN/SAC Code",,
+"Half Yearly",,
+"Half Years",,
+"Hello there! 👋",,
+"Hex Value","Valeur hexagonale",
+"Hide Get Started","Cacher Commencer",
+"Hide Group Amounts",,
+"Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.","Masque la section ""Get Started"" de la barre latérale. Le changement sera visible au redémarrage ou à l'actualisation de l'application.",
+Hour,,
+"How to Use Data Import",,
+"I can't find my language.",,
+INR,,
+Image,Image,
+"Import Data",,
+"Import Failed",,
+"Import More",,
+"Import Success",,
+"Import Type",,
+"Importer Settings",,
+"Include Cancelled",,
+Income,Revenu,
+"Income Account",,
+Indigo,,
+"Indirect Expenses","Dépenses indirectes",
+"Indirect Income","Revenu indirect",
+Inflow,"Arrivée d'eau",
+"Install Update","Installer la mise à jour",
+Inter,,
+"Intergrated Tax","Taxe intégrée",
+"Internal Precision","Précision interne",
+"Invalid value ${0} for ${1}",,
+Investments,Investissements,
+Invoice,Facture,
+"Invoice Created","Facture créée",
+"Invoice Date","Date de la facture",
+"Invoice No","N° de facture",
+"Invoice No.","N° de facture",
+"Invoice Setup","Configuration de la facture",
+"Invoice Value","Valeur de la facture",
+Invoices,Factures,
+Is,Est,
+"Is Empty","Est vide",
+"Is Group","Est Groupe",
+"Is Not","N'est pas",
+"Is Not Empty","N'est pas vide",
+Item,Article,
+"Item Description",,
+"Item Name","Nom de l'article",
+Items,Articles,
+"John Doe",,
+"Journal Entries",,
+"Journal Entry","Entrée du journal",
+"Journal Entry Account",,
+Kg,,
+"Know More",,
+"Label Index",,
+Language,,
+"Ledger Entries","Écritures de grand livre",
+"Left Index",,
+"Legal Expenses","Frais juridiques",
+"Less Than","Moins de",
+Liability,,
+"Link Validation Error",,
+List,,
+"Load an existing .db file from your computer.","Chargez un fichier .db existant sur votre ordinateur.",
+"Loading Report...",,
+Loading...,Chargement...,
+"Loans (Liabilities)","Prêts (Passifs)",
+"Loans and Advances (Assets)","Prêts et avances (actifs)",
+Locale,Locale,
+Logo,Logo,
+"Make Entry",,
+"Make Payment","Effectuer le paiement",
+"Mandatory Error",,
+"Mar 23, 2022",,
+"Marketing Expenses","Dépenses de marketing",
+Merriweather,,
+Meter,,
+Minimal,,
+"Miscellaneous Expenses","Dépenses diverses",
+Modern,,
+Modified,,
+"Modified By",,
+Monthly,,
+Months,,
+Montserrat,,
+Name,Nom,
+Navigate,,
+"Net Total","Net Total",
+"Net Total (Company Currency)","Total net (devise de la société)",
+"New ${0}",,
+"New Account","Nouveau compte",
+"New File","Nouveau dossier",
+"New Journal Entry","Nouvelle entrée dans le journal",
+"New Purchase",,
+"New Purchase Invoice",,
+"New Sale",,
+"New Sales Invoice",,
+"New version available","Nouvelle version disponible",
+Next,,
+No,Non,
+"No Data to Import",,
+"No Values to be Displayed",,
+"No entries found",,
+"No expenses in this period","Aucune dépense dans cette période",
+"No filters selected","Aucun filtre sélectionné",
+"No labels have been assigned.",,
+"No results found",,
+"No transactions yet","Aucune transaction pour le moment",
+"No updates available","Aucune mise à jour disponible",
+None,,
+"Not Found Error",,
+Notes,Notes,
+"Number Series","Série de numéros",
+"Number of ${0}",,
+"Office Equipments","Equipements de bureau",
+"Office Maintenance Expenses","Frais d'entretien du bureau",
+"Office Rent","Location de bureaux",
+"Onboarding Complete","Embarquement terminé",
+"Open Folder","Ouvrir le dossier",
+"Open Sans",,
+"Opening (Cr)","Ouverture (Cr)",
+"Opening (Dr)","Ouverture (Dr)",
+"Opening Balance Equity","Solde d'ouverture Fonds propres",
+"Opening Balances","Soldes d'ouverture",
+"Opening Entry",,
+Orange,,
+Organisation,Organisation,
+Outflow,"Débit sortant",
+"Outstanding Amount","Montant en souffrance",
+Oxygen,,
+"Pad Zeros",,
+Page,,
+Paid,Payé,
+Parent,Parent,
+"Parent Account","Compte parent",
+Party,Fête,
+"Patch Run",,
+Pay,,
+Payable,,
+Payment,Paiement,
+"Payment For","Paiement pour",
+"Payment Method","Mode de paiement",
+"Payment No",,
+"Payment Reference","Référence de paiement",
+"Payment Type","Type de paiement",
+"Payment amount cannot be ${0}.","Le montant du paiement ne peut pas être ${0}.",
+"Payment amount cannot be less than zero.","Le montant du paiement ne peut être inférieur à zéro.",
+"Payment amount cannot exceed ${0}.","Le montant du paiement ne peut pas dépasser ${0}.",
+"Payment amount: ${0} should be greater than 0.","Le montant du paiement : ${0} doit être supérieur à 0.",
+"Payment amount: ${0} should be less than Outstanding amount: ${1}.","Montant du paiement : ${0} doit être inférieur au montant de l'encours : ${1}.",
+Payments,Paiements,
+"Payroll Payable","Paie à payer",
+Periodicity,Périodicité,
+Phone,Téléphone,
+Pink,,
+Place,Lieu,
+"Place of supply","Lieu d'approvisionnement",
+"Plants and Machineries","Usines et machineries",
+"Please Wait",,
+"Please assign the following fields ${0}",,
+"Please fill all values","Veuillez remplir toutes les valeurs",
+"Please select a file with data to import.",,
+"Please select a valid reference type.",,
+"Please select an option:",,
+"Postal Code","Code postal",
+"Postal Expenses","Dépenses postales",
+"Posting Date","Date d'affichage",
+Prefix,Préfixe,
+"Prime Bank",,
+Print,Imprimer,
+"Print Settings","Paramètres d'impression",
+"Print and Stationery","Impression et papeterie",
+Product,,
+"Profit And Loss","Profits et pertes",
+"Profit and Loss","Profits et pertes",
+Purchase,Achat,
+"Purchase Invoice",,
+"Purchase Invoice Item",,
+"Purchase Invoices",,
+"Purchase Item Created",,
+"Purchase Items",,
+"Purchase Payments",,
+Purchases,Achats,
+Purple,,
+Quantity,Quantité,
+Quarterly,,
+Quarters,,
+Rate,Taux,
+"Rate (${0}) cannot be less zero.","Le taux (${0}) ne peut être inférieur à zéro.",
+"Rate (Company Currency)","Taux (devise de l'entreprise)",
+"Rate can't be negative.",,
+Receivable,,
+Receive,,
+"Recent Invoices","Factures récentes",
+Red,,
+"Ref Name",,
+"Ref Type",,
+"Ref. / Cheque No.","Réf. / N° de chèque",
+"Ref. Date","Réf. Date",
+"Ref. Name","Réf. Nom",
+"Ref. Type","Réf. Type",
+Reference,,
+"Reference Date","Date de référence",
+"Reference Number","Numéro de référence",
+"Reference Type","Type de référence",
+"Reload App","Recharge de l'application",
+Report,,
+"Report Error","Rapport d'erreur",
+"Report Issue",,
+Reports,Rapports,
+"Required Fields not Assigned",,
+Reset,,
+"Retained Earnings","Bénéfices non distribués",
+"Reverse Chrg.","Chrg. inversé",
+Reverted,Rétabli,
+Reverts,,
+"Review Accounts","Comptes de révision",
+"Review your chart of accounts, add any account or tax heads as needed",,
+"Right Index",,
+Role,Rôle,
+"Root Type","Type de racine",
+"Round Off","Round Off",
+"Round Off Account","Compte d'arrondi",
+Salary,Salaire,
+Sales,Ventes,
+"Sales Expenses","Frais de vente",
+"Sales Invoice",,
+"Sales Invoice Item",,
+"Sales Invoice Settings",,
+"Sales Invoices",,
+"Sales Invoie",,
+"Sales Item Created",,
+"Sales Items",,
+"Sales Payments",,
+Save,Sauvez,
+"Save Option",,
+"Save Template",,
+"Save as PDF","Enregistrer en PDF",
+"Save as PDF Successful","Enregistrer en PDF avec succès",
+Saving,Sauver,
+Search,,
+"Secured Loans","Prêts garantis",
+"Securities and Deposits","Titres et dépôts",
+Select,,
+"Select CoA",,
+"Select Color",,
+"Select Country",,
+"Select File",,
+"Select Folder","Sélectionner le dossier",
+"Select Image","Sélectionner l'image",
+"Select Logo","Sélectionnez le logo",
+"Select a file for import",,
+"Select file","Sélectionnez le fichier",
+"Select folder","Sélectionner le dossier",
+"Select your language",,
+"Selected file",,
+"Send anonymized usage data and error reports to help improve the product.",,
+Service,Service,
+"Set Anonymized Telemetry",,
+"Set an Import Type",,
+"Set the display language.",,
+"Set the local code. This is used for number formatting.","`Définissez le code local"," il est utilisé pour le formatage des numéros.`"
+"Sets how many digits are shown after the decimal point.","Définit le nombre de chiffres affichés après le point décimal.",
+"Sets the app-wide date display format.","Définit le format d'affichage de la date pour l'ensemble de l'application.",
+"Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.","Définit la précision interne utilisée pour les calculs monétaires. Une précision supérieure à 6 devrait être suffisante pour la plupart des monnaies.",
+"Setting Up Instance",,
+"Setting Up...","Mise en place...",
+Settings,Paramètres,
+"Settings changes will be visible on reload","Les changements de paramètres seront visibles lors du rechargement",
+Setup,Configuration,
+"Setup Complete","Configuration terminée",
+"Setup Wizard","Assistant de configuration",
+"Setup Your Workspace","Configurez votre espace de travail",
+"Setup system defaults like date format and display precision",,
+"Setup your company information, email, country and fiscal year",,
+"Setup your opening balances before performing any accounting entries",,
+"Setup your organization","Configurer votre organisation",
+"Setup your tax templates for your sales or purchase transactions",,
+"Show Me",,
+"Single Value",,
+"Smallest Currency Fraction Value","Valeur de la plus petite fraction de la monnaie",
+Softwares,Logiciels,
+"Something has gone terribly wrong. Please check the console and raise an issue.","Quelque chose s'est terriblement mal passé. Veuillez vérifier la console et soulever un problème.",
+"Source of Funds (Liabilities)","Source des fonds (passif)",
+"Standard Chart of Accounts",,
+Start,,
+State,État,
+"State Tax","Taxe d'État",
+Status,Statut,
+Stock,,
+"Stock Adjustment","Ajustement des stocks",
+"Stock Assets","Actifs en stock",
+"Stock Expenses","Frais d'actions",
+"Stock In Hand","Stock en main",
+"Stock Liabilities","Passif d'actions",
+"Stock Received But Not Billed","Stock reçu mais non facturé",
+Submit,Soumettre,
+"Submit Journal Entry?",,
+"Submit Purchase Invoice?",,
+"Submit Sales Invoice?",,
+"Submit on Import",,
+Submitted,Soumis,
+Submitting,,
+Subtotal,Sous-total,
+"Successfully created the following ${0} entries:",,
+Supplier,Fournisseur,
+"Supplier Created","Fournisseur créé",
+"Supplier Currency","Devise du fournisseur",
+Suppliers,Fournisseurs,
+Symbol,Symbole,
+System,Système,
+"System Settings","Paramètres du système",
+"System Setup","Configuration du système",
+Tax,Taxe,
+"Tax Account","Compte de taxes",
+"Tax Assets","Actifs fiscaux",
+"Tax Detail","Détail des taxes",
+"Tax ID","Numéro d'identification fiscale",
+"Tax Summary",,
+"Taxable Value","Valeur imposable",
+Taxes,Taxes,
+Teal,,
+"Telephone Expenses","Frais de téléphone",
+Template,Modèle,
+Temporary,,
+"Temporary Accounts","Comptes temporaires",
+"Temporary Opening","Ouverture temporaire",
+Terms,Conditions,
+"The following ${0} entries were created: ${1}",,
+"Theme Color","Couleur du thème",
+"This Month",,
+"This Quarter",,
+"This Year",,
+"This action is permanent","Cette action est permanente",
+"This action is permanent and will cancel the following payment: ${0}","Cette action est permanente et annulera le paiement suivant : ${0}",
+"This action is permanent and will cancel the following payments: ${0}","Cette action est permanente et annulera les paiements suivants : ${0}",
+"This action is permanent and will delete associated ledger entries.",,
+"This action is permanent.",,
+"Times New Roman",,
+"To Account","Au compte",
+"To Account and From Account can't be the same: ${0}",,
+"To Date","À ce jour",
+"To Year",,
+"Top Expenses","Dépenses supérieures",
+Total,,
+"Total Asset (Debit)",,
+"Total Credit",,
+"Total Debit",,
+"Total Debit: ${0} must be equal to Total Credit: ${1}",,
+"Total Equity (Credit)",,
+"Total Expense (Debit)",,
+"Total Income (Credit)",,
+"Total Liability (Credit)",,
+"Total Profit",,
+"Total Spending","Dépenses totales",
+Transfer,,
+"Transfer Type","Type de transfert",
+"Travel Expenses","Frais de voyage",
+"Trial Balance","Balance de vérification",
+Type,Type,
+"Type to search...",,
+Unit,,
+"Unit Type","Type d'unité",
+Unpaid,Impayé,
+"Unsecured Loans","Prêts non garantis",
+"Until Date",,
+"Update downloaded","Mise à jour téléchargée",
+"User Remark","Remarque de l'utilisateur",
+"Utility Expenses","Dépenses de services publics",
+"Validation Error",,
+Value,Valeur,
+"Value missing for ${0}","Valeur manquante pour ${0}",
+"Verify Imported Data",,
+Version,,
+"Version ${0} available","Version ${0} disponible",
+"View Purchases",,
+"View Sales",,
+"Welcome to Frappe Books","Bienvenue chez Frappe Books",
+"Write Off",Radiation,
+"Write Off Account","Compte de radiation",
+"Write Off Account not set. Please set Write Off Account in General Settings",,
+"Write Off Entry",,
+Yearly,,
+Years,,
+Yellow,,
+Yes,Oui,
+"Your Name","Votre nom",
+john@doe.com,,
+reports,,
+setup,,
+"verify the imported data and click on",,

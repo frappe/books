@@ -1,586 +1,652 @@
-`${0} ${1} already exists.`,`${0} ${1} ja existeix.`
-`${0} ${1} is linked with existing records.`,`${0} ${1} té relació amb un registre que ja existeix.`
-`${0} already exists.`,`${0} ja existeix.`
-`${0} filters applied`,`${0} filtres aplicats`
-`* required fields`,`* camps necessaris`
-`1 filter applied`,`1 filtre aplicat`
-`Accepted Quantity`,`Quantitat acceptada`
-`Account`,`Compte`
-`Account Entries`,`Moviments del compte`
-`Account Name`,`Nom del compte`
-`Account Type`,`Tipus de compte`
-`Accounting Ledger Entries`,`Accounting Ledger Entries`
-`Accounting Settings`,`Ajustaments de comptabilitat`
-`Accounts`,`Accounts`
-`Accounts Payable`,`Comptes per pagaments`
-`Accounts Receivable`,`Comptes d’entrada`
-`Accumulated Depreciation`,`Accumulated Depreciation`
-`Add Account`,`Afegir compte`
-`Add Customers`,`Afegir clients`
-`Add Group`,`Afegir grup`
-`Add Items`,`Afegir ítems`
-`Add Row`,`Afegir columna`
-`Add Suppliers`,`Afegir proveïdor`
-`Add Taxes`,`Afegir taxes`
-`Add a few customers to create your first invoice`,`Afegeix alguns clients per a crear la teva primera factura`
-`Add a few suppliers to create your first bill`,`Afegeix alguns proveïdors per a crear la teva primera factura`
-`Add a filter`,`Afegir un filtre`
-`Add products or services that you buy from your suppliers`,`Afegeix productes o serveis que compris a proveïdors`
-`Add products or services that you sell to your customers`,`Afegeix productes o serveis que venguis a clients`
-`Address`,`Direcció`
-`Address Display`,`Mostrar direcció`
-`Address Line 1`,`Direcció línea 1`
-`Address Line 2`,`Direcció línea 2`
-`Administrative Expenses`,`Despeses administratives`
-`Against Account`,`Compte de despeses`
-`All References`,`Totes les referències`
-`Allocated Amount`,`Import assignat`
-`Allow Telemetry`,`Permetre telemetria`
-`Amount`,`Quantitat`
-`Amount (Company Currency)`,`Quantitat (Moneda de la empresa)`
-`Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.`,`Quantitat: ${0} i quantitat cancel·lada: ${1} és menor que la quantitat total que figura a les referències: ${2}.`
-`Amount: ${0} is less than the total amount allocated to references: ${1}.`,`Quantitat: ${0} és menor que la quantitat total que figura a les referències: ${1}.`
-`An error occurred.`,`Hi ha hagut un error.`
-`Anonymized Telemetry`,`Telemetria anònima`
-`Application of Funds (Assets)`,`Aplicació de fons (Actius)`
-`Are you sure you want to cancel ${0} ${1}?`,`Estàs segur que vols cancel·lar ${0} ${1}?`
-`Are you sure you want to delete ${0} ${1}?`,`Estàs segur que vols eliminar ${0} ${1}?`
-`Are you sure you want to submit this Bill?`,`Estàs segur que vols enviar la factura?`
-`Are you sure you want to submit this Invoice?`,`Estàs segur que vols albarà?`
-`Are you sure you want to submit this Journal Entry?`,`Estàs segur que vols enviar aquesta entrada de diari?`
-`Assign Imported Labels`,`Asignar etiquetes importades`
-`Back`,`Enrere`
-`Bad import data.`,`Dades importades amb errors.`
-`Balance`,`Balanç`
-`Balance Sheet`,`Full de balanç`
-`Bank Accounts`,`Comptes bancaris`
-`Bank Entry`,`Entrada bancària`
-`Bank Name`,`Nom del banc`
-`Bank Overdraft Account`,`Compte bancari d’exedents`
-`Bill`,`Factura`
-`Bill Created`,`Factura creada`
-`Bill No`,`Factura No`
-`Bills`,`Factures`
-`Bills Settings`,`Configuració de factures`
-`Black`,`Negre`
-`Body`,`Cos`
-`Both`,`Ambdós`
-`Buildings`,`Buildings`
-`CSV`,`CSV`
-`Can't open database file: ${0}. Please create a new file.`,`No es pot obrir l’fitxer de la base de dades: ${0}. Crea un fitxer nou si us plau.`
-`Cancel`,`Cancel·la`
-`Cancelled`,`Cancel·lat`
-`Capital Equipments`,`Capital Equipments`
-`Capital Stock`,`Capital Stock`
-`Cash`,`Efectiu`
-`Cash Entry`,`Entrades d'efectiu`
-`Cash In Hand`,`Efectiu disponible`
-`Cashflow`,`Flux`
-`Central Tax`,`Tributacions`
-`Central Tax Paid`,`Tributacions pagades`
-`Change File`,`Canviar fitxer`
-`Chart Of Accounts Reviewed`,`Diagrama de comptes revisat`
-`Chart of Accounts`,`Diagrama de comptes`
-`Check for Updates`,`Comprova si hi ha actualitzacions`
-`Checking for updates`,`S'estan comprovant les actualitzacions`
-`Cheque`,`Xec`
-`City / Town`,`Ciutat`
-`Clearance Date`,`Data de neteja`
-`Click to create`,`Fes clic per crear`
-`Close`,`Tancar`
-`Closing (Cr)`,`Tancant (Cr)`
-`Closing (Dr)`,`Tancant (Dr)`
-`Color`,`Color`
-`Commission on Sales`,`Comisions de venda`
-`Common`,`Comuns`
-`Common Items`,`Elements comuns`
-`Company Address`,`Adreça de l'empresa`
-`Company Logo`,`Logotip de l'empresa`
-`Company Name`,`Nom de l'empresa`
-`Company Settings`,`Paràmetres de l'empresa`
-`Company Setup`,`Configuració de l'empresa`
-`Completed`,`Completat`
-`Confirm Password`,`Confirma la contrassenya`
-`Contains`,`Conté`
-`Contra Entry`,`Entrades en contra`
-`Cost of Goods Sold`,`Cost dels béns venuts`
-`Could not import ${0} ${1}.`,`No s'ha pogut importar ${0} ${1}.`
-`Could not select file.`,`No s'ha pogut seleccionar l'fitxer.`
-`Country`,`País`
-`Create`,`Crear`
-`Create Bill`,`Crear factura`
-`Create Invoice`,`Crear alabarà`
-`Create a new file and store it in your computer.`,`Crea un fitxer nou i emmagatzema'l a l'ordinador.`
-`Create a new file or select an existing one from your computer`,`Crea un fitxer nou o selecciona un existent des del teu ordinador`
-`Create your first bill and mail it to your supplier`,`Crea la primera factura i envia-la al proveïdor`
-`Create your first invoice and mail it to your customer`,`Crea la teva primera factura i envia-la al client`
-`Credit`,`Crèdit`
-`Credit Card Entry`,`Entrada de targeta de crèdit`
-`Credit Note`,`Nota de crèdit`
-`Creditors`,`Creditors`
-`Currency`,`Divisa`
-`Currency Name`,`Nom de la divisa`
-`Current`,`Actual`
-`Current Assets`,`Actius actuals`
-`Current Liabilities`,`Obligacions actuals
-`Custom Hex`,`Hexadecimal personalitzat`
-`Customer`,`Customer`
-`Customer Created`,`Client creat`
-`Customer Currency`,`Divisa del client`
-`Customer Name`,`Nom del client`
-`Customers`,`Clients`
-`Customise`,`Personalitzar`
-`Customize`,`Personalitzar`
-`Customize your invoices by adding a logo and address details`,`Personalitza les teves factures afegint-hi un logotip i l'adreça`
-`DB Connection Error`,`Error de connexió a la base de dades`
-`Dashboard`,`Tauler`
-`Data Import`,`Importar dades`
-`Date`,`Data`
-`Date Format`,`Format de la data`
-`Debit`,`Dèbit`
-`Debit Note`,`Nota de dèbil`
-`Debtors`,`Deutors`
-`Default Account`,`Compte per defecte`
-`Delete`,`Eliminar`
-`Depreciation`,`Depreciació`
-`Depreciation Entry`,`Entrada de depreciació`
-`Description`,`Descripció`
-`Details`,`Detalls`
-`Direct Expenses`,`Despeses directes`
-`Direct Income`,`Ingressos directes`
-`Disables telemetry. No data will be collected,you are completely invisble to us.`
-`Display Logo in Invoice`,`Mostra el logotip a la factura`
-`Display Precision`,`Precisió de la pantalla`
-`Display Precision should have a value between 0 and 9.`,`Precisión de la pantalla ha de tenir un valor entre 0 i 9.`
-`Dividends Paid`,`Divindends pagats`
-`Document ${0} ${1} has been modified after loading`,`El document ${0} ${1} s'ha modificat després de carregar`
-`Document type ${0} is not submittable`,`El tipus de document ${0} no és presentable`
-`Documentation`,`Documentació`
-`Does Not Contain`,`No conté`
-`Don't Log Anything`,`No registrar`
-`Don't Log Usage`,`No registrar l'ús`
-`Download Update`,`Descarregar actualització`
-`Downloading update`,`Descarregant actualització`
-`Draft`,`Esborrany`
-`Duplicate`,`Duplicar`
-`Duplicate ${0} ${1}?`,`Duplicar ${0} ${1}?`
-`Duties and Taxes`,`Deures i taxes`
-`Earnest Money`,`Paga i senyal`
-`Edit`,`Editar`
-`Electronic Equipments`,`Equips electrònics`
-`Email`,`Correu electrònic`
-`Email Account`,`Adreça de correu electrònic`
-`Email Address`,`Correu electrònic`
-`Empty`,`Buit`
-`Enable Notifications`,`Habilita les notificacions`
-`Enables telemetry. Does not include usage patterns.`,`Habilita la telemetria. No inclou patrons d'ús.`
-`Enables telemetry. Includes usage patterns.`,`Habilita la telemetria. Inclou els patrons d'ús.`
-`Entertainment Expenses`,`Despeses d'entreteniment`
-`Entry ID`,`Identificació de l'entrada`
-`Entry No`,`Número de l'entrada`
-`Entry Type`,`Tipus d'entrada`
-`Equity`,`Capital`
-`Error`,`Error`
-`Error:`,`Error:`
-`Event Settings`,`Paràmetres d'esdeveniments`
-`Exchange Gain/Loss`,`Canvi de guanys/pèrdues`
-`Exchange Rate`,`Taxa d'intercanvi`
-`Excise Entry`,`Entrada d'impostos especials`
-`Existing File`,`fitxer existent`
-`Expense`,`Despesa`
-`Expenses`,`Despeses`
-`Expenses Included In Valuation`,`Despeses incloses en el valor`
-`Export`,`Exportar`
-`Export Failed`,`Ha fallat l'exportació`
-`Export Successful`,`Exportació correcta`
-`Fax`,`Fax`
-`Fieldname`,`Nom`
-`File Name`,`Nom de l'fitxer`
-`File Path`,`Direcció de l'fitxer`
-`File Size`,`Tamany de l'fitxer`
-`File selection failed.`,`La selecció de l'fitxer ha fallat .`
-`Filter`,`Filtre`
-`Fiscal Year End Date`,`Data de finalització de l'any fiscal`
-`Fiscal Year Start Date`,`Data d'inici de l'any fiscal`
-`Fixed Assets`,`Actius fixes`
-`Font`,`Font`
-`For`,`For`
-`Fraction`,`Fracció`
-`Fraction Units`,`Unitats de fracció`
-`Frappe Books uses opt-in telemetry. This is the only way for us to know if we have any consistent users. It will be really helpful if you switch it on,`Frappe Books no utilitza telemetria per defecte. Aquesta és l'única manera de saber si els nostres usuaris fan servir l'aplicació regularment. Ens serà de gran ajuda si l'actives.
-`Freight and Forwarding Charges`,`Càrregues de transport i reenviaments`
-`From`,`Des de`
-`From Account`,`Compte d'arribada`
-`From Date`,`Des de`
-`Fulfillment`,`Emplenament`
-`Fulfillment Settings`,`Paràmetres d'emplenament`
-`Full Name`,`Nom complet`
-`Furnitures and Fixtures`,`Mobiliari i reparacions`
-`GST Registration`,`Registre GST`
-`GSTIN`,`GSTIN`
-`GSTIN No.`,`GSTIN No.`
-`GSTIN of Supplier`,`GSTIN del proveïdor`
-`GSTR 3B`,`GSTR 3B`
-`GSTR 3B Report`,`Informe GSTR 3B`
-`GSTR1`,`GSTR1`
-`GSTR2`,`GSTR2`
-`Gain/Loss on Asset Disposal`,`Guanys/pèrdues dels actius disposats`
-`Gender`,`Gènere`
-`General`,`General`
-`General Ledger`,`Llibre de comptabilidad general`
-`Get Started`,`Introducció`
-`Grand Total`,`Total`
-`Grand Total (Company Currency)`,`Total (Divisa de l'empresa)`
-`Greater Than`,`Més gran que`
-`HSN/SAC`,`HSN/SAC`
-`Half Yearly`,`Mitja anual`
-`Hello there! 👋`,`Hola! 👋`
-`Hex Value`,`Valor hexadecimal`
-`Hide Get Started`,`Amaga l'introducció`
-`Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.`,`Amaga la secció d'introducció de la barra lateral. El canvi serà efectiu quan reiniciis o refresquis l'aplicació.`
-`How to Use Data Import`,`Com usar la importació de dades`
-`I can't find my language.`,`No trobo la meva llengua.`
-`ID`,`Identificació`
-`Image`,`Imatge`
-`Import Data`,`Importar dades`
-`Import Failed`,`L'importació ha fallat`
-`Import More`,`Importar-ne més`
-`Import Success`,`L'importació ha sigut un èxit`
-`Import Type`,`Tipus d'importació`
-`Importer Settings`,`Configuració de l'importació`
-`Income`,`Ingressos`
-`Indirect Expenses`,`Despeses indirectes`
-`Indirect Income`,`Ingressos indirectes`
-`Inflow`,`Entrades`
-`Install Update`,`Instal·lar actualització`
-`Intergrated Tax`,`Taxes integrades`
-`Intergrated Tax Paid`,`Taxes integrades pagades`
-`Internal Precision`,`Precisió interna`
-`Investments`,`Inversions`
-`Invoice`,`Factura`
-`Invoice Created`,`Factura creada`
-`Invoice Date`,`Data de factura`
-`Invoice No`,`Factura No`
-`Invoice No.`,`Factura No.`
-`Invoice Number`,`Número de factura`
-`Invoice Setup`,`Configuració de la factura`
-`Invoice Value`,`Preu de la factura`
-`Invoices`,`Factures`
-`Is`,`És`
-`Is Customer`,`És client`
-`Is Empty`,`És buit`
-`Is Group`,`És un grup`
-`Is Not`,`No és`
-`Is Not Empty`,`No és buit`
-`Is Supplier`,`És proveïdor`
-`Item`,`Elements`
-`Item Created`,`Elements creats`
-`Item Name`,`Nom de l'element`
-`Items`,`Elements`
-`JSON`,`JSON`
-`JSON Data`,`Dades JSON`
-`Journal Entry`,`Entrada del diari`
-`Journal Entry Setting`,`Configuració de l'entrada del diari`
-`Know More`,`Saber-ne més`
-`Label Index`,`Índex d'etiquetes`
-`Language`,`Idiom`
-`Ledger Entries`,`Entrades del llibre de comptabilitat`
-`Ledger Entry`,`Entrada del llibre de comptabilitat`
-`Legal Expenses`,`Despeses al llibre de comptabilitat`
-`Less Than`,`Menor que`
-`Load an existing .db file from your computer.`,`Carrega un fitxer .db existent des del teu ordinador.`
-`Loading...`,`Loading...`
-`Loans (Liabilities)`,`Préstecs (Càrregues)`
-`Loans and Advances (Assets)`,`Préstecs i avançaments (Actius)`
-`Locale`,`Local`
-`Logo`,`Logotip`
-`MIME Type`,`Tipus MIME`
-`Make Payment`,`Fer pagaments`
-`Marketing Expenses`,`Despeses de màrqueting`
-`Miscellaneous Expenses`,`Despeses diverses`
-`Mobile Number`,`Número de mòbil`
-`Month`,`Mes`
-`Monthly`,`Mensual`
-`Name`,`Nom`
-`Net Total`,`Net Total`
-`Net Total (Company Currency)`,`Net Total (Divisa de la companyia)`
-`New Account`,`Compte nou`
-`New Bill`,`Nova factura`
-`New File`,`Nou fitxer`
-`New Invoice`,`Nou albarà`
-`New Journal Entry`,`Nova entrada de diari`
-`New version available`,`Nova versió disponible`
-`Next`,`Següent`
-`No`,`No`
-`No Data to Import`,`No hi ha dades a importar`
-`No expenses in this period`,`No hi ha despeses en aquest periode`
-`No filters selected`,`No s'han seleccionat filtres`
-`No labels have been assigned.`,`No s'han assignat etiquetes`
-`No results found.`,`No s'han trobat resultats.`
-`No transactions yet`,`Encara no hi ha transaccions`
-`No updates available`,`No hi ha cap actualització disponible`
-`None`,`Cap`
-`Notes`,`Notes`
-`Number Series`,`Sèries numèriques`
-`Office Equipments`,`Equipament d'officina`
-`Office Maintenance Expenses`,`Manteniment de material d'oficina`
-`Office Rent`,`Lloguer d'oficina`
-`Onboarding Complete`,`Incorporació completa`
-`Open Folder`,`Obrir carpeta`
-`Opening (Cr)`,`Obrint (Cr)`
-`Opening (Dr)`,`Obrint (Dr)`
-`Opening Balance Equity`,`Equitat de saldo d'obertura`
-`Opening Balances`,`Saldo d'obertura`
-`Opening Entry`,`Obertura d'entrada`
-`Organisation`,`Organització`
-`Outflow`,`Despeses`
-`Outstanding Amount`,`Import excepcional`
-`PDF`,`PDF`
-`Pad Zeros`,`Convertir números en text`
-`Paid`,`Pagat`
-`Parent`,`Principal`
-`Parent Account`,`Compte principal`
-`Party`,`Grup`
-`Password`,`Contrassenya`
-`Pay`,`Pagar`
-`Payable Account`,`Compte pagable`
-`Payment`,`Pagament`
-`Payment Account`,`Compte de pagament`
-`Payment For`,`Pagament per`
-`Payment Method`,`Mètode de pagament`
-`Payment No`,`Pagament Número`
-`Payment Reference`,`Referència de pagament`
-`Payment Settings`,`Ajustaments de pagament`
-`Payment Type`,`Tipus de pagament`
-`Payment amount cannot be ${0}.`,`La quantitat a pagar no pot ser ${0}.`
-`Payment amount cannot be less than zero.`,`La quantitat a pagar no pot ser zero.`
-`Payment amount cannot exceed ${0}.`,`La quantitat a pagar no pot ser superior a ${0}.`
-`Payment amount: ${0} should be greater than 0.`,`Quantitat a pagar: ${0} ha de ser superior a 0.`
-`Payment amount: ${0} should be less than Outstanding amount: ${1}.`,`Quantitat a pagar: ${0} ha de ser menor que l'import exepcional: ${1}.`
-`Payments`,`Pagaments`
-`Payroll Payable`,`Nòmina pagable`
-`Periodicity`,`Periodicitat`
-`Phone`,`Telèfon`
-`Place`,`Lloc`
-`Place of Supply`,`Lloc de subministrament`
-`Place of supply`,`Lloc de subministrament`
-`Plants and Machineries`,`Plantes i màquines`
-`Please assign the following fields ${0}`,`Assigneu els camps següents ${0}`
-`Please fill all values`,`Empleneu tots els valors`
-`Please select a file with data to import.`,`Selecciona un fitxer amb les dades a importar.`
-`Please select an existing database or create a new one.`,`Selecciona una base de dades existent o crea una de nova.`
-`Please select an option:`,`Selecciona una opció:`
-`Please set GSTIN in General Settings.`,`Extableix GSTIN a Ajustaments Generals.`
-`Postal Code`,`Codi postal`
-`Postal Expenses`,`Expenses d'enviament`
-`Posting Date`,`Data d'enviament`
-`Prefix`,`Prefix`
-`Print`,`Imprimir`
-`Print Format`,`Format d'impressió`
-`Print PDF`,`Imprimeix PDF`
-`Print Settings`,`Ajustaments d'impressió`
-`Print and Stationery`,`Print and Stationery`
-`Profit And Loss`,`Guanys i pèrdues`
-`Profit and Loss`,`Guanys i pèrdues`
-`Purchase`,`Compres`
-`Purchase Items`,`Comprar artícles`
-`Purchase Order`,`Ordres de compra`
-`Purchase Order Settings`,`Ajustaments d'ordres de compra`
-`Purchase Receipt`,`Rebuts`
-`Purchase Receipt Settings`,`Ajustaments dels rebuts`
-`PurchaseInvoice`,`Factures de compra`
-`PurchaseOrder`,`Ordres de compra`
-`PurchaseReceipt`,`Rebut de compra`
-`Purchases`,`Compres`
-`Quantity`,`Quantitats`
-`Quantity (${0}) cannot be less than zero.`,`La quantitat (${0}) no pot ser inferior a zero.`
-`Quarterly`,`Trimestral`
-`Quotation`,`Pressupost`
-`Quotation Settings`,`Ajustaments del pressupost`
-`Rate`,`Tarifa`
-`Rate (${0}) cannot be less zero.`,`La tarifa (${0}) no pot ser inferior a zero.`
-`Rate (Company Currency)`,`Tarifa (Divisa de la companyia)`
-`Rate can't be negative.`,`La tarifa no pot ser negativa.`
-`Re-Open`,`Reobrir`
-`Receivable Account`,`Compte per a cobraments`
-`Receive`,`Rebre`
-`Recent Invoices`,`Factures recents`
-`Reconcile`,`Reconciliar`
-`Ref. / Cheque No.`,`Ref. / Xec número.`
-`Ref. Date`,`Data Ref.`
-`Ref. Name`,`Nom Ref.`
-`Ref. Type`,`Tipus Ref.`
-`Ref/Cheque ID`,`Identificador Ref/Xec`
-`Reference Date`,`Data de la Referencia`
-`Reference DocType`,`Referencia DocType`
-`Reference Field`,`Camp de Referencia`
-`Reference Name`,`Nom de Referencia`
-`Reference Number`,`Número de Referencia`
-`Reference Type`,`Tipus de Referencia`
-`Reload App`,`Torna a carregar l'aplicació`
-`Report Error`,`Informar de l'error`
-`Report Issue`,`Informar del problema`
-`Reports`,`Informes`
-`Required Fields not Assigned`,`Camps obligatoris no assignats`
-`Reset`,`Reinicia`
-`Reset Filters`,`Reinicia els filtres`
-`Retained Earnings`,`Guanys retinguts`
-`Reverse Charge`,`Pagament revertit`
-`Reverse Chrg.`,`Pagament revertit.`
-`Reverted`,`Revertit`
-`Review Accounts`,`Revisar comptes`
-`Review your chart of accounts, add any account or tax heads as needed`,`Revisa el teu gràfic de comptes, afegeix un compte o taxa nous segons sigui necessari`
-`Role`,`Rol`
-`Roles`,`Rols`
-`Root Type`,`Tipus d'arrel`
-`Round Off`,`Arrodoniment desactivat`
-`Round Off Account`,`Round Off Account`
-`SMTP Host`,`SMTP Host`
-`SMTP Port`,`SMTP Port`
-`Salary`,`Salari`
-`Sales`,`Vendes`
-`Sales Expenses`,`Vendes`
-`Sales Items`,`Artícles venuts`
-`Sales Order`,`Ordres de venda`
-`Sales Order Settings`,`Ajustaments d'ordres de venda`
-`SalesInvoice`,
-`SalesInvoice Settings`,
-`SalesOrder`,
-`Save`,`Guardar`
-`Save & Close`,`Guardar i tancar`
-`Save Option`,`Opcions de guardat`
-`Save Template`,`Guardar plantilla`
-`Save as PDF`,`Guardar com a PDF`
-`Save as PDF Successful`,`Guardat com a PDF correctament`
-`Saving`,`Guardant`
-`Schedule`,`Programar`
-`Search...`,`Search...`
-`Secured Loans`,`Préstecs `
-`Securities and Deposits`,`Valors i dipòsits`
-`Select CoA`,`Selecciona CoA`
-`Select File`,`Selecciona un fitxer`
-`Select Folder`,`Selecciona una carpeta`
-`Select Image`,`Selecciona una imatge`
-`Select Logo`,`Selecciona un logotip`
-`Select Period`,`Seleccionar període`
-`Select Period...`,`Seleccionar període...`
-`Select a file for import`,`Selecciona un fitxer per importar`
-`Select a file to load the company transactions`,`Selecciona un fitxer per carregar les transaccions de l'empresa`
-`Select file`,`Selecciona un fitxer`
-`Select folder`,`Selecciona una carpeta`
-`Select your language`,`Selecciona la teva llengua`
-`Selected file`,`Fitxer seleccionat`
-`Send`,`Enviat`
-`Send anonymized usage data and error reports to help improve the product.`,`Envia dades d'ús anònims i informes d'error per ajudar a millorar el producte.`
-`Service`,`Servei`
-`Set Anonymized Telemetry`,`Estableix la telemetria anònima`
-`Set an Import Type`,`Estableix un tipus d'importació`
-`Set the display language.`,`Estableix l'idioma de visualització.`
-`Set the local code. This is used for number formatting.`,`Estableix el codi local. Això s'utilitza per formatar nombres.`
-`Sets how many digits are shown after the decimal point.`,`Estableix quants dígits es mostraran després del punt decimal.`
-`Sets the app-wide date display format.`,`Estableix el format de visualització de data per a tota l'aplicació.`
-`Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.`,`Estableix la precisió interna utilitzada per als càlculs monetaris. Per sobre de 6 hauria de ser suficient per a la majoria de les monedes.`
-`Setting Up...`,`Configurant...`
-`Settings`,`Configuració`
-`Settings changes will be visible on reload`,`Els canvis de configuració seran visibles en tornar a carregar`
-`Setup`,`Configuració`
-`Setup Complete`,`Configuració completa`
-`Setup Wizard`,`Asistent de configuració`
-`Setup system defaults like date format and display precision`,`Configura els valors predeterminats del sistema com la data, el format i la visualització`
-`Setup your company information, email, country and fiscal year`,`Configura la informació de la teva empresa, adreça electrònica, país i l'any fiscal`
-`Setup your opening balances before performing any accounting entries`,`Configureu els saldos d'obertura abans de realitzar qualsevol entrada comptable`
-`Setup your organization`,`Configura la teva empresa`
-`Setup your tax templates for your sales or purchase transactions`,`Configura les plantilles de taxes per a les vendes o compres`
-`Setup Your Workspace`,`Configura el teu espai de treball`
-`Show Me`,`Mostra'm`
-`Smallest Currency Fraction Value`,`Valor de fracció de la divisa més petit`
-`Softwares`,`Programari`
-`Something has gone terribly wrong. Please check the console and raise an issue.`,`Alguna cosa ha anat molt malament. Comprova la consola i envia un error.`
-`Source of Funds (Liabilities)`,`Font dels fons (Càrregues)`
-`Standard Chart of Accounts`,`Diagrama de comptes estàndard`
-`Start`,`Inici`
-`Start Time`,`Hora d'inici`
-`State`,`Estat`
-`State Tax`,`Taxes estatals`
-`State/UT Tax Paid`,`Taxes estatals pagades`
-`Status`,`Estat`
-`Stock Adjustment`,`Ajust de l'estoc`
-`Stock Assets`,`Estoc d'actius`
-`Stock Expenses`,`Despeses d'estoc`
-`Stock In Hand`,`Estoc disponible`
-`Stock Liabilities`,`Càrregues d'estoc`
-`Stock Received But Not Billed`,`Estoc rebut però no cobrat`
-`Subject`,`Subjecte`
-`Submit`,`Envia`
-`Submit on Import`,`Envia en importar`
-`Submitted`,`Enviat`
-`Subtotal`,`Subtotal`
-`Successfully created the following ${0} entries:`,`S'han creat correctament les següents ${0} entrades:`
-`Supplier`,`Proveïdor`
-`Supplier Created`,`Proveïdor creat`
-`Supplier Currency`,`Divisa del proveïdor`
-`Supplier Name`,`Nom del proveïdor`
-`Suppliers`,`Proveïdors`
-`Symbol`,`Símbol`
-`System`,`Sistema`
-`System Settings`,`Paràmetres del sistema`
-`System Setup`,`Ajustaments del sistema`
-`Tax`,`Taxes`
-`Tax Account`,`Compte de taxes`
-`Tax Assets`,`Taxes d'actius`
-`Tax Detail`,`Detall de taxes`
-`Tax ID`,`Identificador de taxes`
-`Taxable Value`,`Valor taxable`
-`Taxes`,`Taxes`
-`Telephone Expenses`,`Despeses de telefonia`
-`Template`,`Plantilla`
-`Temporary Accounts`,`Comptes temporals`
-`Temporary Opening`,`Obertura temporal`
-`Terms`,`Termes`
-`The following ${0} entries were created: ${1}`,`S'han creat les següents entrades ${0}: ${1}`
-`Theme Color`,`Color del tema`
-`This Month`,`Aquest mes`
-`This Quarter`,`Aquest trimestre`
-`This Year`,`Aquest any`
-`This action is permanent`,`Aquesta acció és permanent`
-`This action is permanent and will cancel the following payment: ${0}`,`Aquesta acció és permanent i cancel·larà el següent pagament: ${0}`
-`This action is permanent and will cancel the following payments: ${0}`,`Aquesta acció és permanent i cancel·larà el següent pagament: ${0}`
-`Title`,`Títol`
-`To`,`A`
-`To Account`,`Al compte`
-`To Date`,`A data`
-`To Do`,`Per fer`
-`Top Expenses`,`Despeses més quantioses`
-`Total Spending`,`Despeses totals`
-`Total Tax`,`Taxes totals`
-`Transfer`,`Transfereix`
-`Transfer Type`,`Tipus de transferència`
-`Travel Expenses`,`Despeses de viatge`
-`Trial Balance`,`Saldo de prova`
-`Type`,`Tipus`
-`Unit Type`,`Tipus d'unitat`
-`Unpaid`,`Per pagar`
-`Unsecured Loans`,`Préstecs sense col·lateral`
-`Update downloaded`,`Actualització descarregada`
-`User ID`,`Identificació d'usuari`
-`User Remark`,`Marca d'usuari`
-`Username`,`Nom d'usuari`
-`Utility Expenses`,`Despeses de serveis`
-`Value`,`Valor`
-`Value missing for ${0}`,`Falta el valor de ${0}`
-`Verify Imported Data`,`Verifica les dades importades`
-`Version ${0} available`,`La versió ${0} ja està disponible`
-`View Bills`,`Veure factures`
-`View Invoices`,`Veure albarans`
-`Welcome to Frappe Books`,`Benvingut a Frappe Books`
-`Write Off`,`Sinistre`
-`Write Off / Refund`,`Sinistre / Reemborsament`
-`Write Off Account`,`Compte de sinistres i reemborsaments`
-`Write Off Account not set. Please set Write Off Account in General Settings`,`El compte de sinistres i reemborsaments no s'ha configurat. Confura'l a Ajustaments Generals`
-`Write Off Entry`,`Entrada de sinistre o reemborsament`
-`Year`,`Any`
-`Yearly`,`Anual`
-`Yes`,`Sí`
-`Your Name`,`El teu nom`
-`name`,`Nom`
-`verify the imported data and click on`,`Verifica les dades importades i fes clic a`
+"${0} ${1} already exists.","${0} ${1} ja existeix.",
+"${0} ${1} has been modified after loading",,
+"${0} ${1} is linked with existing records.","${0} ${1} té relació amb un registre que ja existeix.",
+"${0} already exists.","${0} ja existeix.",
+"${0} filters applied","${0} filtres aplicats",
+"${0} rows",,
+"* required fields","* camps necessaris",
+0%,,
+03-23-2022,,
+03/23/2022,,
+"1 filter applied","1 filtre aplicat",
+2022-03-23,,
+"23 Mar, 2022",,
+23-03-2022,,
+23/03/2022,,
+9888900000,,
+Account,Compte,
+"Account Entries","Moviments del compte",
+"Account Name","Nom del compte",
+"Account Type","Tipus de compte",
+"Accounting Ledger Entry",,
+"Accounting Settings","Ajustaments de comptabilitat",
+Accounts,Accounts,
+"Accounts Payable","Comptes per pagaments",
+"Accounts Receivable","Comptes d’entrada",
+"Accumulated Depreciation","Accumulated Depreciation",
+"Add Account","Afegir compte",
+"Add Customers","Afegir clients",
+"Add Group","Afegir grup",
+"Add Items","Afegir ítems",
+"Add Row","Afegir columna",
+"Add Suppliers","Afegir proveïdor",
+"Add Taxes","Afegir taxes",
+"Add a few customers to create your first invoice","Afegeix alguns clients per a crear la teva primera factura",
+"Add a few suppliers to create your first bill","Afegeix alguns proveïdors per a crear la teva primera factura",
+"Add a filter","Afegir un filtre",
+"Add a remark",,
+"Add invoice terms",,
+"Add products or services that you buy from your suppliers","Afegeix productes o serveis que compris a proveïdors",
+"Add products or services that you sell to your customers","Afegeix productes o serveis que venguis a clients",
+Address,Direcció,
+"Address Display","Mostrar direcció",
+"Address Line 1","Direcció línea 1",
+"Address Line 2","Direcció línea 2",
+"Administrative Expenses","Despeses administratives",
+All,,
+"Allow Telemetry","Permetre telemetria",
+Amount,Quantitat,
+"Amount (Company Currency)","Quantitat (Moneda de la empresa)",
+"Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.","Quantitat: ${0} i quantitat cancel·lada: ${1} és menor que la quantitat total que figura a les referències: ${2}.",
+"Amount: ${0} is less than the total amount allocated to references: ${1}.","Quantitat: ${0} és menor que la quantitat total que figura a les referències: ${1}.",
+"An error occurred.","Hi ha hagut un error.",
+"Anonymized Telemetry","Telemetria anònima",
+"Application of Funds (Assets)","Aplicació de fons (Actius)",
+Arial,,
+"Ascending Order",,
+Asset,,
+"Assign Imported Labels","Asignar etiquetes importades",
+Back,Enrere,
+"Bad import data.","Dades importades amb errors.",
+Balance,Balanç,
+"Balance Sheet","Full de balanç",
+Bank,,
+"Bank Accounts","Comptes bancaris",
+"Bank Entry","Entrada bancària",
+"Bank Name","Nom del banc",
+"Bank Overdraft Account","Compte bancari d’exedents",
+"Base Error",,
+"Based On",,
+Basic,,
+"Basic I",,
+"Basic II",,
+Bill,Factura,
+"Bill Created","Factura creada",
+"Bill No","Factura No",
+Black,Negre,
+Blue,,
+Both,Ambdós,
+Buildings,Buildings,
+Business,,
+Cancel,Cancel·la,
+"Cancel ${0} ${1}?",,
+Cancelled,Cancel·lat,
+"Cannot Commit Error",,
+"Capital Equipments","Capital Equipments",
+"Capital Stock","Capital Stock",
+Cash,Efectiu,
+"Cash Entry","Entrades d'efectiu",
+"Cash In Hand","Efectiu disponible",
+Cashflow,Flux,
+"Central Tax",Tributacions,
+"Change File","Canviar fitxer",
+"Change Ref Type",,
+Chargeable,,
+"Chart Of Accounts Reviewed","Diagrama de comptes revisat",
+"Chart of Accounts","Diagrama de comptes",
+"Check for Updates","Comprova si hi ha actualitzacions",
+"Checking for updates","S'estan comprovant les actualitzacions",
+Cheque,Xec,
+"City / Town",Ciutat,
+Clear,,
+"Clearance Date","Data de neteja",
+"Click to create","Fes clic per crear",
+Close,Tancar,
+Closing,,
+"Closing (Cr)","Tancant (Cr)",
+"Closing (Dr)","Tancant (Dr)",
+Color,Color,
+"Commission on Sales","Comisions de venda",
+Common,Comuns,
+"Common Items","Elements comuns",
+"Company Address","Adreça de l'empresa",
+"Company Logo","Logotip de l'empresa",
+"Company Name","Nom de l'empresa",
+"Company Settings","Paràmetres de l'empresa",
+"Company Setup","Configuració de l'empresa",
+Completed,Completat,
+Condition,,
+"Consolidate Columns",,
+Contains,Conté,
+"Contra Entry","Entrades en contra",
+"Cost of Goods Sold","Cost dels béns venuts",
+"Could not import ${0} ${1}.","No s'ha pogut importar ${0} ${1}.",
+"Could not select file.","No s'ha pogut seleccionar l'fitxer.",
+Country,País,
+"Country Code",,
+"Country code used to initialize regional settings.",,
+Courier,,
+Cr.,,
+Create,Crear,
+"Create Bill","Crear factura",
+"Create Demo",,
+"Create Invoice","Crear alabarà",
+"Create Purchase",,
+"Create Sale",,
+"Create a new file and store it in your computer.","Crea un fitxer nou i emmagatzema'l a l'ordinador.",
+"Create a new file or select an existing one from your computer","Crea un fitxer nou o selecciona un existent des del teu ordinador",
+"Create your first bill and mail it to your supplier","Crea la primera factura i envia-la al proveïdor",
+"Create your first invoice and mail it to your customer","Crea la teva primera factura i envia-la al client",
+Created,,
+"Created By",,
+"Creating Items and Parties",,
+"Creating Journal Entries",,
+"Creating Purchase Invoices",,
+Credit,Crèdit,
+"Credit Card Entry","Entrada de targeta de crèdit",
+"Credit Note","Nota de crèdit",
+Creditors,Creditors,
+Currency,Divisa,
+"Currency Name","Nom de la divisa",
+Current,Actual,
+"Current Assets","Actius actuals",
+"Current Liabilities","`Obligacions actuals",
+"Custom Hex","Hexadecimal personalitzat",
+Customer,Customer,
+"Customer Created","Client creat",
+"Customer Currency","Divisa del client",
+Customers,Clients,
+Customise,Personalitzar,
+"Customize your invoices by adding a logo and address details","Personalitza les teves factures afegint-hi un logotip i l'adreça",
+Dashboard,Tauler,
+"Data Import","Importar dades",
+"Database Error",,
+"Database file: ${0}",,
+Date,Data,
+"Date Format","Format de la data",
+Day,,
+Debit,Dèbit,
+"Debit Note","Nota de dèbil",
+Debtors,Deutors,
+"Default Account","Compte per defecte",
+Delete,Eliminar,
+"Delete ${0} ${1}?",,
+"Delete ${0}?",,
+Depreciation,Depreciació,
+"Depreciation Entry","Entrada de depreciació",
+Description,Descripció,
+Details,Detalls,
+"Direct Expenses","Despeses directes",
+"Direct Income","Ingressos directes",
+"Disables telemetry. No data will be collected, you are completely invisble to us.",,
+"Display Logo in Invoice","Mostra el logotip a la factura",
+"Display Precision","Precisió de la pantalla",
+"Display Precision should have a value between 0 and 9.","Precisión de la pantalla ha de tenir un valor entre 0 i 9.",
+"Dividends Paid","Divindends pagats",
+Docs,,
+Documentation,Documentació,
+"Does Not Contain","No conté",
+"Don't Log Anything","No registrar",
+"Don't Log Usage","No registrar l'ús",
+"Download Update","Descarregar actualització",
+"Downloading update","Descarregant actualització",
+Dr.,,
+Draft,Esborrany,
+Duplicate,Duplicar,
+"Duplicate ${0} ${1}?","Duplicar ${0} ${1}?",
+"Duplicate Entry Error",,
+"Duties and Taxes","Deures i taxes",
+"Earnest Money","Paga i senyal",
+Edit,Editar,
+"Electronic Equipments","Equips electrònics",
+Email,"Correu electrònic",
+"Email Address","Correu electrònic",
+Empty,Buit,
+"Enables telemetry. Does not include usage patterns.","Habilita la telemetria. No inclou patrons d'ús.",
+"Enables telemetry. Includes usage patterns.","Habilita la telemetria. Inclou els patrons d'ús.",
+"Enter Country to load States",,
+"Enter State",,
+"Entertainment Expenses","Despeses d'entreteniment",
+"Entry No","Número de l'entrada",
+"Entry Type","Tipus d'entrada",
+Equity,Capital,
+Error,Error,
+Error:,Error:,
+"Exchange Gain/Loss","Canvi de guanys/pèrdues",
+"Exchange Rate","Taxa d'intercanvi",
+"Excise Entry","Entrada d'impostos especials",
+"Existing File","fitxer existent",
+Expense,Despesa,
+"Expense Account",,
+Expenses,Despeses,
+"Expenses Included In Valuation","Despeses incloses en el valor",
+Export,Exportar,
+"Export Successful","Exportació correcta",
+Fax,Fax,
+Field,,
+Fieldname,Nom,
+"File selection failed.","La selecció de l'fitxer ha fallat .",
+Filter,Filtre,
+"Fiscal Year",,
+"Fiscal Year End Date","Data de finalització de l'any fiscal",
+"Fiscal Year Start Date","Data d'inici de l'any fiscal",
+"Fixed Asset",,
+"Fixed Assets","Actius fixes",
+Font,Font,
+For,For,
+"Forbidden Error",,
+Fraction,Fracció,
+"Fraction Units","Unitats de fracció",
+"Frappe Books uses opt-in telemetry. This is the only way for us to know if we have any consistent users. It will be really helpful if you switch it on, but we won't force you. 🙂",,
+"Freight and Forwarding Charges","Càrregues de transport i reenviaments",
+"From Account","Compte d'arribada",
+"From Date","Des de",
+"From Year",,
+"Full Name","Nom complet",
+"Furnitures and Fixtures","Mobiliari i reparacions",
+"GSTIN No.","GSTIN No.",
+GSTR1,GSTR1,
+GSTR2,GSTR2,
+"Gain/Loss on Asset Disposal","Guanys/pèrdues dels actius disposats",
+General,General,
+"General Ledger","Llibre de comptabilidad general",
+"Get Started",Introducció,
+Gram,,
+"Grand Total",Total,
+"Grand Total (Company Currency)","Total (Divisa de l'empresa)",
+"Greater Than","Més gran que",
+Green,,
+"Group By",,
+HSN/SAC,HSN/SAC,
+"HSN/SAC Code",,
+"Half Yearly","Mitja anual",
+"Half Years",,
+"Hello there! 👋","Hola! 👋",
+"Hex Value","Valor hexadecimal",
+"Hide Get Started","Amaga l'introducció",
+"Hide Group Amounts",,
+"Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.","Amaga la secció d'introducció de la barra lateral. El canvi serà efectiu quan reiniciis o refresquis l'aplicació.",
+Hour,,
+"How to Use Data Import","Com usar la importació de dades",
+"I can't find my language.","No trobo la meva llengua.",
+INR,,
+Image,Imatge,
+"Import Data","Importar dades",
+"Import Failed","L'importació ha fallat",
+"Import More","Importar-ne més",
+"Import Success","L'importació ha sigut un èxit",
+"Import Type","Tipus d'importació",
+"Importer Settings","Configuració de l'importació",
+"Include Cancelled",,
+Income,Ingressos,
+"Income Account",,
+Indigo,,
+"Indirect Expenses","Despeses indirectes",
+"Indirect Income","Ingressos indirectes",
+Inflow,Entrades,
+"Install Update","Instal·lar actualització",
+Inter,,
+"Intergrated Tax","Taxes integrades",
+"Internal Precision","Precisió interna",
+"Invalid value ${0} for ${1}",,
+Investments,Inversions,
+Invoice,Factura,
+"Invoice Created","Factura creada",
+"Invoice Date","Data de factura",
+"Invoice No","Factura No",
+"Invoice No.","Factura No.",
+"Invoice Setup","Configuració de la factura",
+"Invoice Value","Preu de la factura",
+Invoices,Factures,
+Is,És,
+"Is Empty","És buit",
+"Is Group","És un grup",
+"Is Not","No és",
+"Is Not Empty","No és buit",
+Item,Elements,
+"Item Description",,
+"Item Name","Nom de l'element",
+Items,Elements,
+"John Doe",,
+"Journal Entries",,
+"Journal Entry","Entrada del diari",
+"Journal Entry Account",,
+Kg,,
+"Know More","Saber-ne més",
+"Label Index","Índex d'etiquetes",
+Language,Idiom,
+"Ledger Entries","Entrades del llibre de comptabilitat",
+"Left Index",,
+"Legal Expenses","Despeses al llibre de comptabilitat",
+"Less Than","Menor que",
+Liability,,
+"Link Validation Error",,
+List,,
+"Load an existing .db file from your computer.","Carrega un fitxer .db existent des del teu ordinador.",
+"Loading Report...",,
+Loading...,Loading...,
+"Loans (Liabilities)","Préstecs (Càrregues)",
+"Loans and Advances (Assets)","Préstecs i avançaments (Actius)",
+Locale,Local,
+Logo,Logotip,
+"Make Entry",,
+"Make Payment","Fer pagaments",
+"Mandatory Error",,
+"Mar 23, 2022",,
+"Marketing Expenses","Despeses de màrqueting",
+Merriweather,,
+Meter,,
+Minimal,,
+"Miscellaneous Expenses","Despeses diverses",
+Modern,,
+Modified,,
+"Modified By",,
+Monthly,Mensual,
+Months,,
+Montserrat,,
+Name,Nom,
+Navigate,,
+"Net Total","Net Total",
+"Net Total (Company Currency)","Net Total (Divisa de la companyia)",
+"New ${0}",,
+"New Account","Compte nou",
+"New File","Nou fitxer",
+"New Journal Entry","Nova entrada de diari",
+"New Purchase",,
+"New Purchase Invoice",,
+"New Sale",,
+"New Sales Invoice",,
+"New version available","Nova versió disponible",
+Next,Següent,
+No,No,
+"No Data to Import","No hi ha dades a importar",
+"No Values to be Displayed",,
+"No entries found",,
+"No expenses in this period","No hi ha despeses en aquest periode",
+"No filters selected","No s'han seleccionat filtres",
+"No labels have been assigned.","No s'han assignat etiquetes",
+"No results found",,
+"No transactions yet","Encara no hi ha transaccions",
+"No updates available","No hi ha cap actualització disponible",
+None,Cap,
+"Not Found Error",,
+Notes,Notes,
+"Number Series","Sèries numèriques",
+"Number of ${0}",,
+"Office Equipments","Equipament d'officina",
+"Office Maintenance Expenses","Manteniment de material d'oficina",
+"Office Rent","Lloguer d'oficina",
+"Onboarding Complete","Incorporació completa",
+"Open Folder","Obrir carpeta",
+"Open Sans",,
+"Opening (Cr)","Obrint (Cr)",
+"Opening (Dr)","Obrint (Dr)",
+"Opening Balance Equity","Equitat de saldo d'obertura",
+"Opening Balances","Saldo d'obertura",
+"Opening Entry","Obertura d'entrada",
+Orange,,
+Organisation,Organització,
+Outflow,Despeses,
+"Outstanding Amount","Import excepcional",
+Oxygen,,
+"Pad Zeros","Convertir números en text",
+Page,,
+Paid,Pagat,
+Parent,Principal,
+"Parent Account","Compte principal",
+Party,Grup,
+"Patch Run",,
+Pay,Pagar,
+Payable,,
+Payment,Pagament,
+"Payment For","Pagament per",
+"Payment Method","Mètode de pagament",
+"Payment No","Pagament Número",
+"Payment Reference","Referència de pagament",
+"Payment Type","Tipus de pagament",
+"Payment amount cannot be ${0}.","La quantitat a pagar no pot ser ${0}.",
+"Payment amount cannot be less than zero.","La quantitat a pagar no pot ser zero.",
+"Payment amount cannot exceed ${0}.","La quantitat a pagar no pot ser superior a ${0}.",
+"Payment amount: ${0} should be greater than 0.","Quantitat a pagar: ${0} ha de ser superior a 0.",
+"Payment amount: ${0} should be less than Outstanding amount: ${1}.","Quantitat a pagar: ${0} ha de ser menor que l'import exepcional: ${1}.",
+Payments,Pagaments,
+"Payroll Payable","Nòmina pagable",
+Periodicity,Periodicitat,
+Phone,Telèfon,
+Pink,,
+Place,Lloc,
+"Place of supply","Lloc de subministrament",
+"Plants and Machineries","Plantes i màquines",
+"Please Wait",,
+"Please assign the following fields ${0}","Assigneu els camps següents ${0}",
+"Please fill all values","Empleneu tots els valors",
+"Please select a file with data to import.","Selecciona un fitxer amb les dades a importar.",
+"Please select a valid reference type.",,
+"Please select an option:","Selecciona una opció:",
+"Postal Code","Codi postal",
+"Postal Expenses","Expenses d'enviament",
+"Posting Date","Data d'enviament",
+Prefix,Prefix,
+"Prime Bank",,
+Print,Imprimir,
+"Print Settings","Ajustaments d'impressió",
+"Print and Stationery","Print and Stationery",
+Product,,
+"Profit And Loss","Guanys i pèrdues",
+"Profit and Loss","Guanys i pèrdues",
+Purchase,Compres,
+"Purchase Invoice",,
+"Purchase Invoice Item",,
+"Purchase Invoices",,
+"Purchase Item Created",,
+"Purchase Items","Comprar artícles",
+"Purchase Payments",,
+Purchases,Compres,
+Purple,,
+Quantity,Quantitats,
+Quarterly,Trimestral,
+Quarters,,
+Rate,Tarifa,
+"Rate (${0}) cannot be less zero.","La tarifa (${0}) no pot ser inferior a zero.",
+"Rate (Company Currency)","Tarifa (Divisa de la companyia)",
+"Rate can't be negative.","La tarifa no pot ser negativa.",
+Receivable,,
+Receive,Rebre,
+"Recent Invoices","Factures recents",
+Red,,
+"Ref Name",,
+"Ref Type",,
+"Ref. / Cheque No.","Ref. / Xec número.",
+"Ref. Date","Data Ref.",
+"Ref. Name","Nom Ref.",
+"Ref. Type","Tipus Ref.",
+Reference,,
+"Reference Date","Data de la Referencia",
+"Reference Number","Número de Referencia",
+"Reference Type","Tipus de Referencia",
+"Reload App","Torna a carregar l'aplicació",
+Report,,
+"Report Error","Informar de l'error",
+"Report Issue","Informar del problema",
+Reports,Informes,
+"Required Fields not Assigned","Camps obligatoris no assignats",
+Reset,Reinicia,
+"Retained Earnings","Guanys retinguts",
+"Reverse Chrg.","Pagament revertit.",
+Reverted,Revertit,
+Reverts,,
+"Review Accounts","Revisar comptes",
+"Review your chart of accounts, add any account or tax heads as needed",,
+"Right Index",,
+Role,Rol,
+"Root Type","Tipus d'arrel",
+"Round Off","Arrodoniment desactivat",
+"Round Off Account","Round Off Account",
+Salary,Salari,
+Sales,Vendes,
+"Sales Expenses",Vendes,
+"Sales Invoice",,
+"Sales Invoice Item",,
+"Sales Invoice Settings",,
+"Sales Invoices",,
+"Sales Invoie",,
+"Sales Item Created",,
+"Sales Items","Artícles venuts",
+"Sales Payments",,
+Save,Guardar,
+"Save Option","Opcions de guardat",
+"Save Template","Guardar plantilla",
+"Save as PDF","Guardar com a PDF",
+"Save as PDF Successful","Guardat com a PDF correctament",
+Saving,Guardant,
+Search,,
+"Secured Loans","Préstecs ",
+"Securities and Deposits","Valors i dipòsits",
+Select,,
+"Select CoA","Selecciona CoA",
+"Select Color",,
+"Select Country",,
+"Select File","Selecciona un fitxer",
+"Select Folder","Selecciona una carpeta",
+"Select Image","Selecciona una imatge",
+"Select Logo","Selecciona un logotip",
+"Select a file for import","Selecciona un fitxer per importar",
+"Select file","Selecciona un fitxer",
+"Select folder","Selecciona una carpeta",
+"Select your language","Selecciona la teva llengua",
+"Selected file","Fitxer seleccionat",
+"Send anonymized usage data and error reports to help improve the product.","Envia dades d'ús anònims i informes d'error per ajudar a millorar el producte.",
+Service,Servei,
+"Set Anonymized Telemetry","Estableix la telemetria anònima",
+"Set an Import Type","Estableix un tipus d'importació",
+"Set the display language.","Estableix l'idioma de visualització.",
+"Set the local code. This is used for number formatting.","Estableix el codi local. Això s'utilitza per formatar nombres.",
+"Sets how many digits are shown after the decimal point.","Estableix quants dígits es mostraran després del punt decimal.",
+"Sets the app-wide date display format.","Estableix el format de visualització de data per a tota l'aplicació.",
+"Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.","Estableix la precisió interna utilitzada per als càlculs monetaris. Per sobre de 6 hauria de ser suficient per a la majoria de les monedes.",
+"Setting Up Instance",,
+"Setting Up...",Configurant...,
+Settings,Configuració,
+"Settings changes will be visible on reload","Els canvis de configuració seran visibles en tornar a carregar",
+Setup,Configuració,
+"Setup Complete","Configuració completa",
+"Setup Wizard","Asistent de configuració",
+"Setup Your Workspace","Configura el teu espai de treball",
+"Setup system defaults like date format and display precision","`Configura els valors predeterminats del sistema com la data"," el format i la visualització`"
+"Setup your company information, email, country and fiscal year",,
+"Setup your opening balances before performing any accounting entries","Configureu els saldos d'obertura abans de realitzar qualsevol entrada comptable",
+"Setup your organization","Configura la teva empresa",
+"Setup your tax templates for your sales or purchase transactions","Configura les plantilles de taxes per a les vendes o compres",
+"Show Me",Mostra'm,
+"Single Value",,
+"Smallest Currency Fraction Value","Valor de fracció de la divisa més petit",
+Softwares,Programari,
+"Something has gone terribly wrong. Please check the console and raise an issue.","Alguna cosa ha anat molt malament. Comprova la consola i envia un error.",
+"Source of Funds (Liabilities)","Font dels fons (Càrregues)",
+"Standard Chart of Accounts","Diagrama de comptes estàndard",
+Start,Inici,
+State,Estat,
+"State Tax","Taxes estatals",
+Status,Estat,
+Stock,,
+"Stock Adjustment","Ajust de l'estoc",
+"Stock Assets","Estoc d'actius",
+"Stock Expenses","Despeses d'estoc",
+"Stock In Hand","Estoc disponible",
+"Stock Liabilities","Càrregues d'estoc",
+"Stock Received But Not Billed","Estoc rebut però no cobrat",
+Submit,Envia,
+"Submit Journal Entry?",,
+"Submit Purchase Invoice?",,
+"Submit Sales Invoice?",,
+"Submit on Import","Envia en importar",
+Submitted,Enviat,
+Submitting,,
+Subtotal,Subtotal,
+"Successfully created the following ${0} entries:","S'han creat correctament les següents ${0} entrades:",
+Supplier,Proveïdor,
+"Supplier Created","Proveïdor creat",
+"Supplier Currency","Divisa del proveïdor",
+Suppliers,Proveïdors,
+Symbol,Símbol,
+System,Sistema,
+"System Settings","Paràmetres del sistema",
+"System Setup","Ajustaments del sistema",
+Tax,Taxes,
+"Tax Account","Compte de taxes",
+"Tax Assets","Taxes d'actius",
+"Tax Detail","Detall de taxes",
+"Tax ID","Identificador de taxes",
+"Tax Summary",,
+"Taxable Value","Valor taxable",
+Taxes,Taxes,
+Teal,,
+"Telephone Expenses","Despeses de telefonia",
+Template,Plantilla,
+Temporary,,
+"Temporary Accounts","Comptes temporals",
+"Temporary Opening","Obertura temporal",
+Terms,Termes,
+"The following ${0} entries were created: ${1}","S'han creat les següents entrades ${0}: ${1}",
+"Theme Color","Color del tema",
+"This Month","Aquest mes",
+"This Quarter","Aquest trimestre",
+"This Year","Aquest any",
+"This action is permanent","Aquesta acció és permanent",
+"This action is permanent and will cancel the following payment: ${0}","Aquesta acció és permanent i cancel·larà el següent pagament: ${0}",
+"This action is permanent and will cancel the following payments: ${0}","Aquesta acció és permanent i cancel·larà el següent pagament: ${0}",
+"This action is permanent and will delete associated ledger entries.",,
+"This action is permanent.",,
+"Times New Roman",,
+"To Account","Al compte",
+"To Account and From Account can't be the same: ${0}",,
+"To Date","A data",
+"To Year",,
+"Top Expenses","Despeses més quantioses",
+Total,,
+"Total Asset (Debit)",,
+"Total Credit",,
+"Total Debit",,
+"Total Debit: ${0} must be equal to Total Credit: ${1}",,
+"Total Equity (Credit)",,
+"Total Expense (Debit)",,
+"Total Income (Credit)",,
+"Total Liability (Credit)",,
+"Total Profit",,
+"Total Spending","Despeses totals",
+Transfer,Transfereix,
+"Transfer Type","Tipus de transferència",
+"Travel Expenses","Despeses de viatge",
+"Trial Balance","Saldo de prova",
+Type,Tipus,
+"Type to search...",,
+Unit,,
+"Unit Type","Tipus d'unitat",
+Unpaid,"Per pagar",
+"Unsecured Loans","Préstecs sense col·lateral",
+"Until Date",,
+"Update downloaded","Actualització descarregada",
+"User Remark","Marca d'usuari",
+"Utility Expenses","Despeses de serveis",
+"Validation Error",,
+Value,Valor,
+"Value missing for ${0}","Falta el valor de ${0}",
+"Verify Imported Data","Verifica les dades importades",
+Version,,
+"Version ${0} available","La versió ${0} ja està disponible",
+"View Purchases",,
+"View Sales",,
+"Welcome to Frappe Books","Benvingut a Frappe Books",
+"Write Off",Sinistre,
+"Write Off Account","Compte de sinistres i reemborsaments",
+"Write Off Account not set. Please set Write Off Account in General Settings","El compte de sinistres i reemborsaments no s'ha configurat. Confura'l a Ajustaments Generals",
+"Write Off Entry","Entrada de sinistre o reemborsament",
+Yearly,Anual,
+Years,,
+Yellow,,
+Yes,Sí,
+"Your Name","El teu nom",
+john@doe.com,,
+reports,,
+setup,,
+"verify the imported data and click on","Verifica les dades importades i fes clic a",
