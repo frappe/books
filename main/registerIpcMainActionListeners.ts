@@ -4,12 +4,12 @@ import fs from 'fs/promises';
 import path from 'path';
 import databaseManager from '../backend/database/manager';
 import { Main } from '../main';
-import saveHtmlAsPdf from '../src/saveHtmlAsPdf';
 import { DatabaseMethod } from '../utils/db/types';
 import { DatabaseResponse } from '../utils/ipc/types';
 import { IPC_ACTIONS } from '../utils/messages';
 import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
+import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW, (event) => {
@@ -46,7 +46,7 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.SAVE_HTML_AS_PDF,
     async (event, html, savePath) => {
-      return await saveHtmlAsPdf(html, savePath);
+      return await saveHtmlAsPdf(html, savePath, app);
     }
   );
 

@@ -115,23 +115,19 @@
       "fieldtype": "Select",
       "options": [
         {
-          "value": "Inter",
-          "label": "Inter"
+          "value": "Arial",
+          "label": "Arial"
         },
         {
           "value": "Times New Roman",
           "label": "Times New Roman"
         },
         {
-          "value": "Arial",
-          "label": "Arial"
-        },
-        {
           "value": "Courier",
           "label": "Courier"
         }
       ],
-      "default": "Inter"
+      "default": "Arial"
     }
   ],
   "quickEditFields": [

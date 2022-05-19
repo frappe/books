@@ -32,10 +32,6 @@ module.exports = {
       entry: 'src/renderer.ts',
       filename: 'index.html',
     },
-    print: {
-      entry: 'src/print.ts',
-      filename: 'print.html',
-    },
   },
   runtimeCompiler: true,
   lintOnSave: process.env.NODE_ENV !== 'production',

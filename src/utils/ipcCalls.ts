@@ -26,8 +26,17 @@ export async function showItemInFolder(filePath: string) {
 }
 
 export async function makePDF(html: string, savePath: string) {
-  await ipcRenderer.invoke(IPC_ACTIONS.SAVE_HTML_AS_PDF, html, savePath);
-  showExportInFolder(t`Save as PDF Successful`, savePath);
+  const success = await ipcRenderer.invoke(
+    IPC_ACTIONS.SAVE_HTML_AS_PDF,
+    html,
+    savePath
+  );
+
+  if (success) {
+    showExportInFolder(t`Save as PDF Successful`, savePath);
+  } else {
+    showToast({ message: t`Export Failed`, type: 'error' });
+  }
 }
 
 export async function runWindowAction(name: WindowAction) {
