@@ -520,7 +520,7 @@ Service,Service,
 "Set Anonymized Telemetry",,
 "Set an Import Type",,
 "Set the display language.",,
-"Set the local code. This is used for number formatting.","`Définissez le code local"," il est utilisé pour le formatage des numéros.`"
+"Set the local code. This is used for number formatting.","Définissez le code local, il est utilisé pour le formatage des numéros."
 "Sets how many digits are shown after the decimal point.","Définit le nombre de chiffres affichés après le point décimal.",
 "Sets the app-wide date display format.","Définit le format d'affichage de la date pour l'ensemble de l'application.",
 "Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.","Définit la précision interne utilisée pour les calculs monétaires. Une précision supérieure à 6 devrait être suffisante pour la plupart des monnaies.",

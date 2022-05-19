@@ -47,8 +47,8 @@ All,,
 "Allow Telemetry",,
 Amount,Betrag,
 "Amount (Company Currency)","Betrag (Währung des Unternehmens)",
-"Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.","`Der Betrag: ${0} und Abschreibung: ${1} ist kleiner als der Gesamtbetrag"," der den Referenzen zugeordnet ist: ${2}.`"
-"Amount: ${0} is less than the total amount allocated to references: ${1}.","`Betrag: ${0} ist kleiner als der Gesamtbetrag"," der den Referenzen zugewiesen wurde: ${1}.`"
+"Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.","Der Betrag: ${0} und Abschreibung: ${1} ist kleiner als der Gesamtbetrag, der den Referenzen zugeordnet ist: ${2}."
+"Amount: ${0} is less than the total amount allocated to references: ${1}.","Betrag: ${0} ist kleiner als der Gesamtbetrag, der den Referenzen zugewiesen wurde: ${1}."
 "An error occurred.","Es ist ein Fehler aufgetreten.",
 "Anonymized Telemetry",,
 "Application of Funds (Assets)","Verwendung der Mittel (Aktiva)",
@@ -520,10 +520,10 @@ Service,Dienst,
 "Set Anonymized Telemetry",,
 "Set an Import Type",,
 "Set the display language.",,
-"Set the local code. This is used for number formatting.","`Legen Sie den lokalen Code fest"," der für die Formatierung der Nummern verwendet wird.`"
-"Sets how many digits are shown after the decimal point.","`Legt fest"," wie viele Ziffern nach dem Dezimalpunkt angezeigt werden.`"
+"Set the local code. This is used for number formatting.","Legen Sie den lokalen Code fest, der für die Formatierung der Nummern verwendet wird."
+"Sets how many digits are shown after the decimal point.","Legt fest, wie viele Ziffern nach dem Dezimalpunkt angezeigt werden."
 "Sets the app-wide date display format.","Legt das app-weite Datumsanzeigeformat fest.",
-"Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.","`Legt die interne Genauigkeit fest"," die für monetäre Berechnungen verwendet wird. Ein Wert über 6 sollte für die meisten Währungen ausreichend sein.`"
+"Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.","Legt die interne Genauigkeit fest, die für monetäre Berechnungen verwendet wird. Ein Wert über 6 sollte für die meisten Währungen ausreichend sein."
 "Setting Up Instance",,
 "Setting Up...",Einrichten...,
 Settings,Einstellungen,
@@ -554,7 +554,7 @@ Stock,,
 "Stock Expenses","Ausgaben für Aktien",
 "Stock In Hand",Vorräte,
 "Stock Liabilities",Lagerverbindlichkeiten,
-"Stock Received But Not Billed",`Erhaltener," aber nicht fakturierter Bestand`"
+"Stock Received But Not Billed","Erhaltener, aber nicht fakturierter Bestand"
 Submit,Einreichen,
 "Submit Journal Entry?",,
 "Submit Purchase Invoice?",,
