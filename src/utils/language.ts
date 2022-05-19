@@ -65,6 +65,7 @@ async function fetchAndSetLanguageMap(code: string) {
     showToast({ type: 'error', message });
   } else {
     setLanguageMapOnTranslationString(languageMap);
+    fyo.db.translateSchemaMap(languageMap);
   }
 
   return success;

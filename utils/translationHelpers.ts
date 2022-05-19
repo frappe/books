@@ -1,3 +1,4 @@
+export const schemaTranslateables = ['label', 'description', 'placeholder'];
 export function getIndexFormat(inp: string | string[]) {
   // converts:
   // ['This is an ', ,' interpolated ',' string.'] and

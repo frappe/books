@@ -1,4 +1,4 @@
-import { LanguageMap } from 'utils/types';
+import { LanguageMap, UnknownMap } from 'utils/types';
 import {
   getIndexFormat,
   getIndexList,
@@ -94,4 +94,42 @@ export function setLanguageMapOnTranslationString(
   languageMap: LanguageMap | undefined
 ) {
   TranslationString.prototype.languageMap = languageMap;
+}
+
+export function translateSchema(
+  map: UnknownMap | UnknownMap[],
+  languageMap: LanguageMap,
+  translateables: string[]
+) {
+  if (Array.isArray(map)) {
+    for (const item of map) {
+      translateSchema(item, languageMap, translateables);
+    }
+    return;
+  }
+
+  if (typeof map !== 'object') {
+    return;
+  }
+
+  for (const key of Object.keys(map)) {
+    const value = map[key];
+    if (
+      typeof value === 'string' &&
+      translateables.includes(key) &&
+      languageMap[value]?.translation
+    ) {
+      map[key] = languageMap[value].translation;
+    }
+
+    if (typeof value !== 'object') {
+      continue;
+    }
+
+    translateSchema(
+      value as UnknownMap | UnknownMap[],
+      languageMap,
+      translateables
+    );
+  }
 }
