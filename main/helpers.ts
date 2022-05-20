@@ -2,6 +2,7 @@ import { constants } from 'fs';
 import fs from 'fs/promises';
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
 import config from 'utils/config';
+import { DatabaseResponse } from 'utils/ipc/types';
 
 interface ConfigFilesWithModified extends ConfigFile {
   modified: string;
@@ -43,4 +44,20 @@ export async function getConfigFilesWithModified(files: ConfigFile[]) {
   }
 
   return filesWithModified;
+}
+
+export async function getErrorHandledReponse(func: () => Promise<unknown>) {
+  const response: DatabaseResponse = {};
+
+  try {
+    response.data = await func();
+  } catch (err) {
+    response.error = {
+      name: (err as Error).name,
+      message: (err as Error).message,
+      stack: (err as Error).stack,
+    };
+  }
+
+  return response;
 }
