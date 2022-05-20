@@ -17,8 +17,7 @@ export class DatabaseDemux extends DatabaseDemuxBase {
 
     if (response.error?.name) {
       const { name, message, stack } = response.error;
-      const dberror = new DatabaseError(message);
-      dberror.name = name;
+      const dberror = new DatabaseError(`${name}\n${message}`);
       dberror.stack = stack;
 
       throw dberror;

@@ -261,7 +261,7 @@ function toDocCheck(value: RawValue, field: Field): boolean {
   }
 
   if (typeof value === 'string') {
-    return value === '1';
+    return !!parseFloat(value);
   }
 
   if (typeof value === 'number') {

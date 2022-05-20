@@ -35,8 +35,8 @@ describe('DatabaseCore: Connect Migrate Close', function () {
     assert.strictEqual(schemaMap, db.schemaMap);
   });
 
-  specify('connect', function () {
-    assert.doesNotThrow(() => db.connect());
+  specify('connect', async function () {
+    await assertDoesNotThrow(async () => await db.connect());
     assert.notStrictEqual(db.knex, undefined);
   });
 
@@ -54,7 +54,7 @@ describe('DatabaseCore: Migrate and Check Db', function () {
 
   this.beforeEach(async function () {
     db = new DatabaseCore();
-    db.connect();
+    await db.connect();
     db.setSchemaMap(schemaMap);
   });
 
@@ -147,7 +147,7 @@ describe('DatabaseCore: CRUD', function () {
 
   this.beforeEach(async function () {
     db = new DatabaseCore();
-    db.connect();
+    await db.connect();
     db.setSchemaMap(schemaMap);
     await db.migrate();
   });
