@@ -53,7 +53,7 @@
     "autoprefixer": "^9",
     "babel-loader": "^8.2.3",
     "dotenv": "^16.0.0",
-    "electron": "^15.3.5",
+    "electron": "^18.0.0",
     "electron-builder": "^23.0.3",
     "electron-devtools-installer": "^3.2.0",
     "electron-notarize": "^1.1.1",
