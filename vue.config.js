@@ -7,7 +7,6 @@ module.exports = {
       externals: ['knex', 'sqlite3'],
       nodeIntegration: true,
       mainProcessFile: 'main.ts',
-      // rendererProcessFile: 'src/renderer.js',
       disableMainProcessTypescript: false,
       mainProcessTypeChecking: true,
       chainWebpackRendererProcess: (config) => {
