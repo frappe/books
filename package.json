@@ -23,7 +23,6 @@
     "@popperjs/core": "^2.10.2",
     "better-sqlite3": "^7.5.3",
     "core-js": "^3.19.0",
-    "csvjson-csv2json": "^5.0.6",
     "electron-store": "^8.0.1",
     "feather-icons": "^4.28.0",
     "knex": "^2.0.0",
