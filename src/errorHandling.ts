@@ -3,7 +3,7 @@ import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { TelemetrySetting } from 'fyo/telemetry/types';
-import { BaseError, MandatoryError, ValidationError } from 'fyo/utils/errors';
+import { MandatoryError, ValidationError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
@@ -45,7 +45,7 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
 
 function getToastProps(errorLogObj: ErrorLog, canLog: boolean, cb?: Function) {
   const props: ToastOptions = {
-    message: t`Error: ` + errorLogObj.name,
+    message: errorLogObj.name ?? t`Error`,
     type: 'error',
   };
 
@@ -93,7 +93,6 @@ export function handleError(
 
   const errorLogObj = getErrorLogObject(error, more ?? {});
 
-  // @ts-ignore
   const canLog = getCanLog();
   if (canLog) {
     reportError(errorLogObj, cb);
@@ -106,7 +105,7 @@ export async function handleErrorWithDialog(error: Error, doc?: Doc) {
   const errorMessage = getErrorMessage(error, doc);
   handleError(false, error, { errorMessage, doc });
 
-  const name = (error as BaseError).label ?? error.name;
+  const name = error.name ?? t`Error`;
   await showMessageDialog({ message: name, detail: errorMessage });
   throw error;
 }

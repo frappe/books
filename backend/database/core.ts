@@ -59,15 +59,9 @@ export default class DatabaseCore extends DatabaseBase {
     super();
     this.dbPath = dbPath ?? ':memory:';
     this.connectionParams = {
-      client: 'sqlite3',
+      client: 'better-sqlite3',
       connection: {
         filename: this.dbPath,
-      },
-      pool: {
-        afterCreate(conn: { run: (query: string) => void }, done: () => void) {
-          conn.run('PRAGMA foreign_keys=ON');
-          done();
-        },
       },
       useNullAsDefault: true,
       asyncStackTraces: process.env.NODE_ENV === 'development',
@@ -77,7 +71,7 @@ export default class DatabaseCore extends DatabaseBase {
   static async getCountryCode(dbPath: string): Promise<string> {
     let countryCode = 'in';
     const db = new DatabaseCore(dbPath);
-    db.connect();
+    await db.connect();
 
     let query: { value: string }[] = [];
     try {
@@ -101,11 +95,12 @@ export default class DatabaseCore extends DatabaseBase {
     this.schemaMap = schemaMap;
   }
 
-  connect() {
+  async connect() {
     this.knex = knex(this.connectionParams);
     this.knex.on('query-error', (error) => {
       error.type = this.#getError(error);
     });
+    await this.knex.raw('PRAGMA foreign_keys=ON');
   }
 
   async close() {
@@ -113,8 +108,13 @@ export default class DatabaseCore extends DatabaseBase {
   }
 
   async commit() {
+    /**
+     * this auto commits, commit is not required
+     * will later wrap the outermost functions in
+     * transactions.
+     */
     try {
-      await this.knex!.raw('commit');
+      // await this.knex!.raw('commit');
     } catch (err) {
       const type = this.#getError(err as Error);
       if (type !== CannotCommitError) {

@@ -65,7 +65,7 @@ export class BespokeQueries {
       .select('name')
       .where('accountType', 'in', ['Cash', 'Bank'])
       .andWhere('isGroup', false);
-    const dateAsMonthYear = db.knex!.raw('strftime("%Y-%m", ??)', 'date');
+    const dateAsMonthYear = db.knex!.raw(`strftime('%Y-%m', ??)`, 'date');
     return await db.knex!('AccountingLedgerEntry')
       .where('reverted', false)
       .sum({

@@ -29,7 +29,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
     countryCode ??= await DatabaseCore.getCountryCode(dbPath);
 
     this.db = new DatabaseCore(dbPath);
-    this.db.connect();
+    await this.db.connect();
 
     const schemaMap = getSchemas(countryCode);
     this.db.setSchemaMap(schemaMap);
