@@ -78,6 +78,14 @@ export class CannotCommitError extends DatabaseError {
   }
 }
 
+export class NotImplemented extends BaseError {
+  constructor() {
+    super(501, '');
+    this.label = t`Not Implemented`;
+    this.name = 'NotImplemented';
+  }
+}
+
 export class ValueError extends ValidationError {}
 export class ConflictError extends ValidationError {}
 export class InvalidFieldError extends ValidationError {}

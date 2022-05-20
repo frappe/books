@@ -1,5 +1,5 @@
 import { ipcRenderer } from 'electron';
-import { DEFAULT_COUNTRY_CODE } from 'fyo/utils/consts';
+import { DatabaseError, NotImplemented } from 'fyo/utils/errors';
 import { SchemaMap } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { DatabaseResponse } from 'utils/ipc/types';
@@ -12,101 +12,86 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     this.#isElectron = isElectron;
   }
 
+  async #handleDBCall(func: () => Promise<DatabaseResponse>): Promise<unknown> {
+    const response = await func();
+
+    if (response.error?.name) {
+      const { name, message, stack } = response.error;
+      const dberror = new DatabaseError(message);
+      dberror.name = name;
+      dberror.stack = stack;
+
+      throw dberror;
+    }
+
+    return response.data;
+  }
+
   async getSchemaMap(): Promise<SchemaMap> {
-    let response: DatabaseResponse;
     if (this.#isElectron) {
-      response = await ipcRenderer.invoke(IPC_ACTIONS.DB_SCHEMA);
-    } else {
-      // TODO: API Call
-      response = { error: '', data: undefined };
+      return (await this.#handleDBCall(async function dbFunc() {
+        return await ipcRenderer.invoke(IPC_ACTIONS.DB_SCHEMA);
+      })) as SchemaMap;
     }
 
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    return response.data as SchemaMap;
+    throw new NotImplemented();
   }
 
   async createNewDatabase(
     dbPath: string,
     countryCode?: string
   ): Promise<string> {
-    let response: DatabaseResponse;
     if (this.#isElectron) {
-      response = await ipcRenderer.invoke(
-        IPC_ACTIONS.DB_CREATE,
-        dbPath,
-        countryCode
-      );
-    } else {
-      // TODO: API Call
-      response = { error: '', data: undefined };
+      return (await this.#handleDBCall(async function dbFunc() {
+        return await ipcRenderer.invoke(
+          IPC_ACTIONS.DB_CREATE,
+          dbPath,
+          countryCode
+        );
+      })) as string;
     }
 
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    return (response.data ?? DEFAULT_COUNTRY_CODE) as string;
+    throw new NotImplemented();
   }
 
   async connectToDatabase(
     dbPath: string,
     countryCode?: string
   ): Promise<string> {
-    let response: DatabaseResponse;
     if (this.#isElectron) {
-      response = await ipcRenderer.invoke(
-        IPC_ACTIONS.DB_CONNECT,
-        dbPath,
-        countryCode
-      );
-    } else {
-      // TODO: API Call
-      response = { error: '', data: undefined };
+      return (await this.#handleDBCall(async function dbFunc() {
+        return await ipcRenderer.invoke(
+          IPC_ACTIONS.DB_CONNECT,
+          dbPath,
+          countryCode
+        );
+      })) as string;
     }
 
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    return (response.data ?? DEFAULT_COUNTRY_CODE) as string;
+    throw new NotImplemented();
   }
 
   async call(method: DatabaseMethod, ...args: unknown[]): Promise<unknown> {
-    let response: DatabaseResponse;
     if (this.#isElectron) {
-      response = await ipcRenderer.invoke(IPC_ACTIONS.DB_CALL, method, ...args);
-    } else {
-      // TODO: API Call
-      response = { error: '', data: undefined };
+      return (await this.#handleDBCall(async function dbFunc() {
+        return await ipcRenderer.invoke(IPC_ACTIONS.DB_CALL, method, ...args);
+      })) as unknown;
     }
 
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    return response.data;
+    throw new NotImplemented();
   }
 
   async callBespoke(method: string, ...args: unknown[]): Promise<unknown> {
-    let response: DatabaseResponse;
     if (this.#isElectron) {
-      response = await ipcRenderer.invoke(
-        IPC_ACTIONS.DB_BESPOKE,
-        method,
-        ...args
-      );
-    } else {
-      // TODO: API Call
-      response = { error: '', data: undefined };
+      return (await this.#handleDBCall(async function dbFunc() {
+        return await ipcRenderer.invoke(
+          IPC_ACTIONS.DB_BESPOKE,
+          method,
+          ...args
+        );
+      })) as unknown;
     }
 
-    if (response.error) {
-      throw new Error(response.error);
-    }
-
-    return response.data;
+    throw new NotImplemented();
   }
 }

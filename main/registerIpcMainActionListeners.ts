@@ -5,12 +5,12 @@ import path from 'path';
 import databaseManager from '../backend/database/manager';
 import { Main } from '../main';
 import { DatabaseMethod } from '../utils/db/types';
-import { DatabaseResponse } from '../utils/ipc/types';
 import { IPC_ACTIONS } from '../utils/messages';
 import { getUrlAndTokenString, sendError } from './contactMothership';
 import { getLanguageMap } from './getLanguageMap';
 import {
   getConfigFilesWithModified,
+  getErrorHandledReponse,
   setAndGetCleanedConfigFiles,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
@@ -136,68 +136,42 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.DB_CREATE,
     async (_, dbPath: string, countryCode: string) => {
-      const response: DatabaseResponse = { error: '', data: undefined };
-      try {
-        response.data = await databaseManager.createNewDatabase(
-          dbPath,
-          countryCode
-        );
-      } catch (error) {
-        response.error = (error as Error).toString();
-      }
-
-      return response;
+      return await getErrorHandledReponse(async function dbFunc() {
+        return await databaseManager.createNewDatabase(dbPath, countryCode);
+      });
     }
   );
 
   ipcMain.handle(
     IPC_ACTIONS.DB_CONNECT,
     async (_, dbPath: string, countryCode?: string) => {
-      const response: DatabaseResponse = { error: '', data: undefined };
-      try {
-        response.data = await databaseManager.connectToDatabase(
-          dbPath,
-          countryCode
-        );
-      } catch (error) {
-        response.error = (error as Error).toString();
-      }
-
-      return response;
+      return await getErrorHandledReponse(async function dbFunc() {
+        return await databaseManager.connectToDatabase(dbPath, countryCode);
+      });
     }
   );
 
   ipcMain.handle(
     IPC_ACTIONS.DB_CALL,
     async (_, method: DatabaseMethod, ...args: unknown[]) => {
-      const response: DatabaseResponse = { error: '', data: undefined };
-      try {
-        response.data = await databaseManager.call(method, ...args);
-      } catch (error) {
-        response.error = (error as Error).toString();
-      }
-
-      return response;
+      return await getErrorHandledReponse(async function dbFunc() {
+        return await databaseManager.call(method, ...args);
+      });
     }
   );
 
   ipcMain.handle(
     IPC_ACTIONS.DB_BESPOKE,
     async (_, method: string, ...args: unknown[]) => {
-      const response: DatabaseResponse = { error: '', data: undefined };
-      try {
-        response.data = await databaseManager.callBespoke(method, ...args);
-      } catch (error) {
-        response.error = (error as Error).toString();
-      }
-
-      return response;
+      return await getErrorHandledReponse(async function dbFunc() {
+        return await databaseManager.callBespoke(method, ...args);
+      });
     }
   );
 
   ipcMain.handle(IPC_ACTIONS.DB_SCHEMA, async (_) => {
-    const response: DatabaseResponse = { error: '', data: undefined };
-    response.data = await databaseManager.getSchemaMap();
-    return response;
+    return await getErrorHandledReponse(async function dbFunc() {
+      return await databaseManager.getSchemaMap();
+    });
   });
 }
