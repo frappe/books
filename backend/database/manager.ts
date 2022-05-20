@@ -1,3 +1,4 @@
+import { constants } from 'fs';
 import fs from 'fs/promises';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
@@ -105,14 +106,13 @@ export class DatabaseManager extends DatabaseDemuxBase {
   }
 
   async #unlinkIfExists(dbPath: string) {
-    try {
-      fs.unlink(dbPath);
-    } catch (err) {
-      if ((err as NodeJS.ErrnoException).code === 'ENOENT') {
-        return;
-      }
+    const exists = await fs
+      .access(dbPath, constants.W_OK)
+      .then(() => true)
+      .catch(() => false);
 
-      throw err;
+    if (exists) {
+      fs.unlink(dbPath);
     }
   }
 
