@@ -72,20 +72,21 @@ export class Main {
 
   getOptions(): BrowserWindowConstructorOptions {
     const options: BrowserWindowConstructorOptions = {
-      vibrancy: 'sidebar',
-      transparent: this.isMac,
-      backgroundColor: '#80FFFFFF',
       width: this.WIDTH,
       height: this.HEIGHT,
+      minWidth: this.WIDTH,
+      minHeight: this.HEIGHT,
       title: this.title,
+      titleBarStyle: 'hidden',
+      trafficLightPosition: { x: 16, y: 16 },
       webPreferences: {
         contextIsolation: false, // TODO: Switch this off
-        nodeIntegration: process.env
-          .ELECTRON_NODE_INTEGRATION as unknown as boolean,
+        nodeIntegration: true,
       },
       frame: this.isLinux,
-      resizable: false,
+      resizable: true,
     };
+
     if (this.isDevelopment || this.isLinux) {
       Object.assign(options, { icon: this.icon });
     }
@@ -137,10 +138,6 @@ export class Main {
 
     this.mainWindow.on('closed', () => {
       this.mainWindow = null;
-    });
-
-    this.mainWindow.on('will-resize', (e) => {
-      e.preventDefault();
     });
 
     this.mainWindow.webContents.on('did-finish-load', () => {

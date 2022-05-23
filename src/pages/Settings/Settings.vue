@@ -50,7 +50,6 @@ import Icon from 'src/components/Icon.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import Row from 'src/components/Row.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
-import WindowControls from 'src/components/WindowControls.vue';
 import { showToast } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h, markRaw } from 'vue';
@@ -62,7 +61,6 @@ export default {
   name: 'Settings',
   components: {
     PageHeader,
-    WindowControls,
     StatusBadge,
     Button,
     Row,

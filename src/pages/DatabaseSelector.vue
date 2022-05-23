@@ -6,7 +6,6 @@
       'window-drag': platform !== 'Windows',
     }"
   >
-    <WindowControls v-if="platform === 'Mac'" class="absolute top-6 left-5" />
     <div
       class="w-full w-600 shadow rounded-lg border relative"
       style="height: 700px"
@@ -173,7 +172,6 @@ import { DateTime } from 'luxon';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import Loading from 'src/components/Loading.vue';
-import WindowControls from 'src/components/WindowControls.vue';
 import { fyo } from 'src/initFyo';
 import { deleteDb, getSavePath } from 'src/utils/ipcCalls';
 import { showMessageDialog } from 'src/utils/ui';
@@ -308,7 +306,6 @@ export default {
   },
   components: {
     LanguageSelector,
-    WindowControls,
     Loading,
     FeatherIcon,
   },
