@@ -1,53 +1,38 @@
 import { Fyo } from 'fyo';
-import { ConfigKeys } from 'fyo/core/types';
 import { cloneDeep } from 'lodash';
+import { DateTime } from 'luxon';
 import {
   getCountry,
-  getCounts,
   getDeviceId,
   getInstanceId,
   getLanguage,
+  getVersion,
 } from './helpers';
-import {
-  Noun,
-  NounEnum,
-  Platform,
-  Telemetry,
-  TelemetrySetting,
-  Verb,
-} from './types';
+import { Noun, Platform, Telemetry, Verb } from './types';
 
 /**
  * # Telemetry
+ * Used to check if people are using Books or not. All logging
+ * happens using navigator.sendBeacon
  *
  * ## `start`
- * Used to initialize state. It should be called before interaction.
+ * Used to initialize state. It should be called before any logging and after an
+ * instance has loaded.
  * It is called on three events:
- * 1. On db initialization which happens everytime a db is loaded or changed.
+ * 1. When Desk is opened, i.e. when the usage starts, this also sends a started
+ *    log.
  * 2. On visibility change if not started, eg: when user minimizeds Books and
  *      then comes back later.
- * 3. When `log` is called if not initialized.
+ * 3. When `log` is called, but telemetry wasn't initialized.
  *
  * ## `log`
- * Used to make entries in the `timeline` which happens only if telmetry
- * is set to 'Allow Telemetry`
- *
- * ## `error`
- * Called in errorHandling.ts and maintains a count of errors that were
- * thrown during usage.
+ * Used to log activity.
  *
  * ## `stop`
  * This is to be called when a session is being stopped. It's called on two events
  * 1. When the db is being changed.
  * 2. When the visiblity has changed which happens when either the app is being shut or
  *      the app is hidden.
- *
- * This function can't be async as it's called when visibility changes to 'hidden'
- * at which point async doesn't seem to work and hence count is captured on `start()`
- *
- * ## `finalLogAndStop`
- * Called when telemetry is set to "Don't Log Anything" so as to indicate cessation of
- * telemetry and not app usage.
  */
 
 export class TelemetryManager {
@@ -55,7 +40,6 @@ export class TelemetryManager {
   #token: string = '';
   #started = false;
   #telemetryObject: Partial<Telemetry> = {};
-  #interestingDocs: string[] = [];
   fyo: Fyo;
 
   constructor(fyo: Fyo) {
@@ -64,10 +48,6 @@ export class TelemetryManager {
 
   set platform(value: Platform) {
     this.#telemetryObject.platform ||= value;
-  }
-
-  set interestingDocs(schemaNames: string[]) {
-    this.#interestingDocs = schemaNames;
   }
 
   get hasCreds() {
@@ -82,87 +62,55 @@ export class TelemetryManager {
     return cloneDeep(this.#telemetryObject);
   }
 
-  async start() {
+  async start(openCount?: number) {
     this.#telemetryObject.country ||= getCountry(this.fyo);
     this.#telemetryObject.language ??= getLanguage(this.fyo);
-    this.#telemetryObject.deviceId ||= getDeviceId(this.fyo);
-    this.#telemetryObject.instanceId ||= getInstanceId(this.fyo);
-    this.#telemetryObject.openTime ||= new Date().valueOf();
-    this.#telemetryObject.timeline ??= [];
-    this.#telemetryObject.errors ??= {};
-    this.#telemetryObject.counts ??= {};
+    this.#telemetryObject.device ||= getDeviceId(this.fyo);
+    this.#telemetryObject.instance ||= getInstanceId(this.fyo);
+    this.#telemetryObject.version ||= await getVersion(this.fyo);
+
     this.#started = true;
+    await this.#setCreds();
 
-    await this.#postStart();
-  }
-
-  async log(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
-    if (!this.#started) {
-      await this.start();
+    if (typeof openCount === 'number') {
+      this.#telemetryObject.openCount = openCount;
+      this.log(Verb.Started, 'telemetry');
+    } else {
+      this.log(Verb.Resumed, 'telemetry');
     }
-
-    if (!this.#getCanLog()) {
-      return;
-    }
-
-    const time = new Date().valueOf();
-    if (this.#telemetryObject.timeline === undefined) {
-      this.#telemetryObject.timeline = [];
-    }
-
-    this.#telemetryObject.timeline.push({ time, verb, noun, more });
-  }
-
-  error(name: string) {
-    if (this.#telemetryObject.errors === undefined) {
-      this.#telemetryObject.errors = {};
-    }
-
-    this.#telemetryObject.errors[name] ??= 0;
-    this.#telemetryObject.errors[name] += 1;
   }
 
   stop() {
+    if (!this.started) {
+      return;
+    }
+
+    this.log(Verb.Stopped, 'telemetry');
     this.#started = false;
+    this.#clear();
+  }
 
-    this.#telemetryObject.version = this.fyo.store.appVersion ?? '';
-    this.#telemetryObject.closeTime = new Date().valueOf();
+  log(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
+    if (!this.#started) {
+      this.start().then(() => this.#sendBeacon(verb, noun, more));
+      return;
+    }
 
+    this.#sendBeacon(verb, noun, more);
+  }
+
+  #sendBeacon(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
+    if (!this.hasCreds) {
+      return;
+    }
+
+    const telemetryData: Telemetry = this.#getTelemtryData(verb, noun, more);
     const data = JSON.stringify({
       token: this.#token,
-      telemetryData: this.#telemetryObject,
+      telemetryData,
     });
 
-    this.#clear();
-
-    if (
-      this.fyo.config.get(ConfigKeys.Telemetry) ===
-      TelemetrySetting.dontLogAnything
-    ) {
-      return;
-    }
     navigator.sendBeacon(this.#url, data);
-  }
-
-  finalLogAndStop() {
-    this.log(Verb.Stopped, NounEnum.Telemetry);
-    this.stop();
-  }
-
-  async #postStart() {
-    await this.#setCount();
-    await this.#setCreds();
-  }
-
-  async #setCount() {
-    if (!this.#getCanLog()) {
-      return;
-    }
-
-    this.#telemetryObject.counts = await getCounts(
-      this.#interestingDocs,
-      this.fyo
-    );
   }
 
   async #setCreds() {
@@ -175,21 +123,31 @@ export class TelemetryManager {
     this.#token = token;
   }
 
-  #getCanLog(): boolean {
-    const telemetrySetting = this.fyo.config.get(
-      ConfigKeys.Telemetry
-    ) as string;
-    return telemetrySetting === TelemetrySetting.allow;
+  #getTelemtryData(
+    verb: Verb,
+    noun: Noun,
+    more?: Record<string, unknown>
+  ): Telemetry {
+    return {
+      country: this.#telemetryObject.country!,
+      language: this.#telemetryObject.language!,
+      device: this.#telemetryObject.device!,
+      instance: this.#telemetryObject.instance!,
+      version: this.#telemetryObject.version!,
+      openCount: this.#telemetryObject.openCount!,
+      timestamp: DateTime.now().toMillis().toString(),
+      verb,
+      noun,
+      more,
+    };
   }
 
   #clear() {
-    // Delete only what varies
-    delete this.#telemetryObject.openTime;
-    delete this.#telemetryObject.closeTime;
-    delete this.#telemetryObject.errors;
-    delete this.#telemetryObject.counts;
-    delete this.#telemetryObject.timeline;
-    delete this.#telemetryObject.instanceId;
     delete this.#telemetryObject.country;
+    delete this.#telemetryObject.language;
+    delete this.#telemetryObject.device;
+    delete this.#telemetryObject.instance;
+    delete this.#telemetryObject.version;
+    delete this.#telemetryObject.openCount;
   }
 }

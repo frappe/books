@@ -2,15 +2,16 @@ import { Fyo } from 'fyo';
 import { ConfigFile, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { createNumberSeries } from 'fyo/model/naming';
-import { getId } from 'fyo/telemetry/helpers';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
   DEFAULT_SERIES_START,
 } from 'fyo/utils/consts';
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
+import { ModelNameEnum } from 'models/types';
 import { initializeInstance } from 'src/initFyo';
 import { createRegionalRecords } from 'src/regional';
+import { getRandomString } from 'utils';
 import { getCountryCodeFromCountry, getCountryInfo } from 'utils/misc';
 import { CountryInfo } from 'utils/types';
 import { CreateCOA } from './createCOA';
@@ -93,10 +94,12 @@ async function updateSystemSettings(
   const locale = countryOptions.locale ?? DEFAULT_LOCALE;
   const countryCode = getCountryCodeFromCountry(country);
   const systemSettings = await fyo.doc.getSingle('SystemSettings');
+  const instanceId = getRandomString();
 
   systemSettings.setAndSync({
     locale,
     currency,
+    instanceId,
     countryCode,
   });
 }
@@ -156,18 +159,22 @@ async function createAccountRecords(
 }
 
 async function completeSetup(companyName: string, fyo: Fyo) {
-  updateInitializationConfig(companyName, fyo);
+  await updateInitializationConfig(companyName, fyo);
   await fyo.singles.AccountingSettings!.setAndSync('setupComplete', true);
 }
 
-function updateInitializationConfig(companyName: string, fyo: Fyo) {
+async function updateInitializationConfig(companyName: string, fyo: Fyo) {
+  const instanceId = (await fyo.getValue(
+    ModelNameEnum.SystemSettings,
+    'instanceId'
+  )) as string;
   const dbPath = fyo.db.dbPath;
   const files = fyo.config.get('files', []) as ConfigFile[];
 
   files.forEach((file) => {
     if (file.dbPath === dbPath) {
       file.companyName = companyName;
-      file.id = getId();
+      file.id = instanceId;
     }
   });
 

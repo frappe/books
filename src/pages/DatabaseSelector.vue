@@ -119,21 +119,38 @@
 
       <!-- Language Selector -->
       <div
-        class="w-full flex justify-between items-center absolute px-6 py-6"
+        class="
+          w-full
+          flex
+          justify-between
+          items-center
+          absolute
+          px-6
+          py-6
+          text-gray-900
+        "
         style="top: 100%; transform: translateY(-100%)"
       >
-        <Button
-          class="text-sm w-40"
-          @click="createDemo"
-          :disabled="creatingDemo"
-          >{{ creatingDemo ? t`Please Wait` : t`Create Demo` }}</Button
-        >
-
         <LanguageSelector
           v-show="!creatingDemo"
-          class="w-40 bg-gray-100 rounded-md"
-          input-class="text-sm bg-transparent"
+          class="text-sm w-40 bg-gray-100 rounded-md"
+          input-class="py-1.5 bg-transparent"
         />
+        <button
+          class="
+            text-sm
+            bg-gray-100
+            hover:bg-gray-200
+            rounded-md
+            px-4
+            py-1.5
+            w-40
+          "
+          @click="createDemo"
+          :disabled="creatingDemo"
+        >
+          {{ creatingDemo ? t`Please Wait` : t`Create Demo` }}
+        </button>
       </div>
     </div>
     <Loading
@@ -153,7 +170,6 @@ import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { addNewFile } from 'fyo/telemetry/helpers';
 import { DateTime } from 'luxon';
-import Button from 'src/components/Button.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import Loading from 'src/components/Loading.vue';
@@ -217,7 +233,7 @@ export default {
       this.creatingDemo = true;
       const baseCount = fyo.store.isDevelopment ? 1000 : 150;
 
-      const companyName = await setupDummyInstance(
+      const { companyName, instanceId } = await setupDummyInstance(
         filePath,
         fyo,
         1,
@@ -230,9 +246,10 @@ export default {
 
       addNewFile(
         companyName,
-        fyo,
-        fyo.config.get(ConfigKeys.Files, []),
-        filePath
+        filePath,
+        instanceId,
+        fyo.config.get(ConfigKeys.Files),
+        fyo
       );
 
       fyo.purgeCache();
@@ -292,7 +309,6 @@ export default {
   components: {
     LanguageSelector,
     WindowControls,
-    Button,
     Loading,
     FeatherIcon,
   },

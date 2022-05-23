@@ -95,6 +95,12 @@
       "label": "Version",
       "fieldtype": "Data",
       "readOnly": true
+    },
+    {
+      "fieldname": "instanceId",
+      "label": "Instance Id",
+      "fieldtype": "Data",
+      "readOnly": true
     }
   ],
   "quickEditFields": [

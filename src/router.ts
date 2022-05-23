@@ -1,4 +1,3 @@
-import { NounEnum, Verb } from 'fyo/telemetry/types';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
 import DataImport from 'src/pages/DataImport.vue';
@@ -11,7 +10,6 @@ import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import { fyo } from './initFyo';
 
 const routes: RouteRecordRaw[] = [
   {
@@ -119,27 +117,5 @@ const routes: RouteRecordRaw[] = [
 ];
 
 const router = createRouter({ routes, history: createWebHistory() });
-
-function removeDetails(path: string) {
-  if (!path) {
-    return path;
-  }
-
-  const match = path.match(/edit=1/);
-  if (!match) {
-    return path;
-  }
-
-  return path.slice(0, match.index! + 4);
-}
-
-router.afterEach((to, from) => {
-  const more = {
-    from: removeDetails(from.fullPath),
-    to: removeDetails(to.fullPath),
-  };
-
-  fyo.telemetry.log(Verb.Navigated, NounEnum.Route, more);
-});
 
 export default router;

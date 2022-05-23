@@ -29,20 +29,12 @@
     >
       <div id="toast-target" />
     </div>
-
-    <!-- Prompt to Set Telemetry -->
-    <TelemetryModal />
   </div>
 </template>
 
 <script>
 import { ConfigKeys } from 'fyo/core/types';
-import {
-getSetupComplete,
-incrementOpenCount,
-startTelemetry
-} from 'src/utils/misc';
-import TelemetryModal from './components/once/TelemetryModal.vue';
+import { getSetupComplete, incrementOpenCount } from 'src/utils/misc';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { fyo, initializeInstance } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector.vue';
@@ -65,7 +57,6 @@ export default {
     SetupWizard,
     DatabaseSelector,
     WindowsTitleBar,
-    TelemetryModal,
   },
   async mounted() {
     fyo.telemetry.platform = this.platform;
@@ -86,8 +77,8 @@ export default {
     async setDesk(filePath) {
       this.activeScreen = 'Desk';
       await this.setDeskRoute();
-      await incrementOpenCount(filePath);
-      await startTelemetry();
+      const openCount = await incrementOpenCount(filePath);
+      await fyo.telemetry.start(openCount);
       await checkForUpdates(false);
     },
     async fileSelected(filePath, isNew) {

@@ -81,7 +81,6 @@ function setErrorHandlers(app: VueApp) {
       const { fullPath, params } = vm.$route;
       more.fullPath = fullPath;
       more.params = stringifyCircular(params ?? {});
-      more.data = stringifyCircular(vm.$data ?? {}, true, true);
       more.props = stringifyCircular(vm.$props ?? {}, true, true);
     }
 

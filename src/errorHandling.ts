@@ -1,9 +1,11 @@
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
-import { ConfigKeys } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { TelemetrySetting } from 'fyo/telemetry/types';
-import { MandatoryError, ValidationError } from 'fyo/utils/errors';
+import {
+  MandatoryError,
+  NotFoundError,
+  ValidationError,
+} from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
@@ -11,13 +13,8 @@ import { getErrorMessage } from './utils';
 import { ToastOptions } from './utils/types';
 import { showMessageDialog, showToast } from './utils/ui';
 
-function getCanLog(): boolean {
-  const telemetrySetting = fyo.config.get(ConfigKeys.Telemetry);
-  return telemetrySetting !== TelemetrySetting.dontLogAnything;
-}
-
 function shouldNotStore(error: Error) {
-  return [MandatoryError, ValidationError].some(
+  return [MandatoryError, ValidationError, NotFoundError].some(
     (errorClass) => error instanceof errorClass
   );
 }
@@ -43,22 +40,13 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
   cb?.();
 }
 
-function getToastProps(errorLogObj: ErrorLog, canLog: boolean, cb?: Function) {
+function getToastProps(errorLogObj: ErrorLog, cb?: Function) {
   const props: ToastOptions = {
     message: errorLogObj.name ?? t`Error`,
     type: 'error',
+    actionText: t`Report Error`,
+    action: () => reportIssue(errorLogObj),
   };
-
-  // @ts-ignore
-  if (!canLog) {
-    Object.assign(props, {
-      actionText: t`Report Error`,
-      action: () => {
-        reportIssue(errorLogObj);
-        reportError(errorLogObj, cb);
-      },
-    });
-  }
 
   return props;
 }
@@ -76,13 +64,12 @@ export function getErrorLogObject(
   return errorLogObj;
 }
 
-export function handleError(
+export async function handleError(
   shouldLog: boolean,
   error: Error,
   more?: Record<string, unknown>,
   cb?: Function
 ) {
-  fyo.telemetry.error(error.name);
   if (shouldLog) {
     console.error(error);
   }
@@ -93,17 +80,14 @@ export function handleError(
 
   const errorLogObj = getErrorLogObject(error, more ?? {});
 
-  const canLog = getCanLog();
-  if (canLog) {
-    reportError(errorLogObj, cb);
-  } else {
-    showToast(getToastProps(errorLogObj, canLog, cb));
-  }
+  await reportError(errorLogObj, cb);
+  const toastProps = getToastProps(errorLogObj, cb);
+  await showToast(toastProps);
 }
 
 export async function handleErrorWithDialog(error: Error, doc?: Doc) {
   const errorMessage = getErrorMessage(error, doc);
-  handleError(false, error, { errorMessage, doc });
+  await handleError(false, error, { errorMessage, doc });
 
   const name = error.name ?? t`Error`;
   await showMessageDialog({ message: name, detail: errorMessage });
@@ -125,7 +109,7 @@ export function getErrorHandled(func: Function) {
     try {
       return await func(...args);
     } catch (error) {
-      handleError(false, error as Error, {
+      await handleError(false, error as Error, {
         functionName: func.name,
         functionArgs: args,
       });
@@ -143,9 +127,9 @@ export function getErrorHandledSync(func: Function) {
       handleError(false, error as Error, {
         functionName: func.name,
         functionArgs: args,
+      }).then(() => {
+        throw error;
       });
-
-      throw error;
     }
   };
 }

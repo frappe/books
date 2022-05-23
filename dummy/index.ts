@@ -48,7 +48,12 @@ export async function setupDummyInstance(
   notifier?.(fyo.t`Creating Items and Parties`, -1);
   await generateStaticEntries(fyo);
   await generateDynamicEntries(fyo, years, baseCount, notifier);
-  return options.companyName;
+
+  const instanceId = (await fyo.getValue(
+    ModelNameEnum.SystemSettings,
+    'instanceId'
+  )) as string;
+  return { companyName: options.companyName, instanceId };
 }
 
 /**

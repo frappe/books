@@ -71,6 +71,8 @@ export async function incrementOpenCount(dbPath: string) {
     ModelNameEnum.AccountingSettings,
     'companyName'
   )) as string;
+  
+  let openCount = 0;
   const files = fyo.config.get(ConfigKeys.Files) as ConfigFile[];
   for (const file of files) {
     if (file.companyName !== companyName || file.dbPath !== dbPath) {
@@ -79,20 +81,10 @@ export async function incrementOpenCount(dbPath: string) {
 
     file.openCount ??= 0;
     file.openCount += 1;
+    openCount = file.openCount;
     break;
   }
 
   fyo.config.set(ConfigKeys.Files, files);
-}
-
-export async function startTelemetry() {
-  fyo.telemetry.interestingDocs = [
-    ModelNameEnum.Payment,
-    ModelNameEnum.SalesInvoice,
-    ModelNameEnum.PurchaseInvoice,
-    ModelNameEnum.JournalEntry,
-    ModelNameEnum.Party,
-    ModelNameEnum.Item,
-  ];
-  await fyo.telemetry.start();
+  return openCount;
 }
