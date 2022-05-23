@@ -25,11 +25,17 @@ export function getDeviceId(fyo: Fyo): UniqueId {
   return deviceId;
 }
 
-export function getInstanceId(fyo: Fyo): UniqueId {
-  const files = (fyo.config.get(ConfigKeys.Files) ?? []) as ConfigFile[];
-  const instanceId = fyo.singles.SystemSettings!.instanceId as string;
+export async function getInstanceId(fyo: Fyo): Promise<UniqueId> {
+  const instanceId = (await fyo.getValue(
+    ModelNameEnum.SystemSettings,
+    'instanceId'
+  )) as string;
+  const companyName = (await fyo.getValue(
+    ModelNameEnum.AccountingSettings,
+    'companyName'
+  )) as string;
   const dbPath = fyo.db.dbPath!;
-  const companyName = fyo.singles.AccountingSettings!.companyName as string;
+  const files = (fyo.config.get(ConfigKeys.Files) ?? []) as ConfigFile[];
 
   let file = files.find((f) => f.id === instanceId);
 
