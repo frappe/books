@@ -4,12 +4,12 @@
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
     <WindowsTitleBar v-if="platform === 'Windows'" />
-    
+
     <!-- Main Contents -->
     <Desk
       class="flex-1"
       v-if="activeScreen === 'Desk'"
-      @change-db-file="changeDbFile"
+      @change-db-file="showDbSelector"
     />
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
@@ -18,9 +18,9 @@
     <SetupWizard
       v-if="activeScreen === 'SetupWizard'"
       @setup-complete="setupComplete"
-      @setup-canceled="changeDbFile"
+      @setup-canceled="showDbSelector"
     />
-    
+
     <!-- Render target for toasts -->
     <div
       id="toast-container"
@@ -29,7 +29,7 @@
     >
       <div id="toast-target" />
     </div>
-    
+
     <!-- Prompt to Set Telemetry -->
     <TelemetryModal />
   </div>
@@ -83,12 +83,12 @@ export default {
     this.activeScreen = 'DatabaseSelector';
   },
   methods: {
-    async setDesk() {
+    async setDesk(filePath) {
       this.activeScreen = 'Desk';
-      incrementOpenCount();
+      await this.setDeskRoute();
+      await incrementOpenCount(filePath);
       await startTelemetry();
       await checkForUpdates(false);
-      await this.setDeskRoute();
     },
     async fileSelected(filePath, isNew) {
       fyo.config.set(ConfigKeys.LastSelectedFilePath, filePath);
@@ -101,7 +101,7 @@ export default {
     async setupComplete(setupWizardOptions) {
       const filePath = fyo.config.get(ConfigKeys.LastSelectedFilePath);
       await setupInstance(filePath, setupWizardOptions, fyo);
-      await this.setDesk();
+      await this.setDesk(filePath);
     },
     async showSetupWizardOrDesk(filePath) {
       const countryCode = await fyo.db.connectToDatabase(filePath);
@@ -113,7 +113,7 @@ export default {
       }
 
       await initializeInstance(filePath, false, countryCode, fyo);
-      await this.setDesk();
+      await this.setDesk(filePath);
     },
     async setDeskRoute() {
       const { onboardingComplete } = await fyo.doc.getSingle('GetStarted');
@@ -125,7 +125,7 @@ export default {
         routeTo('/get-started');
       }
     },
-    async changeDbFile() {
+    async showDbSelector() {
       fyo.config.set('lastSelectedFilePath', null);
       fyo.telemetry.stop();
       fyo.purgeCache();

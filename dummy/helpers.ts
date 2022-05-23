@@ -22,10 +22,22 @@ export const purchaseItemPartyMap: Record<string, string> = Object.keys(
   return acc;
 }, {} as Record<string, string>);
 
-export const flow = [0.25, 0.2, 0.35, 0.2, 0.1, 0.01, 0.01, 0.15, 0, 0.25, 0.3, 0.5];
+export const flow = [
+  0.35, // Jan
+  0.25, // Feb
+  0.15, // Mar
+  0.15, // Apr
+  0.25, // May
+  0.05, // Jun
+  0.05, // Jul
+  0.15, // Aug
+  0.25, // Sep
+  0.35, // Oct
+  0.45, // Nov
+  0.55, // Dec
+];
 export function getFlowConstant(months: number) {
   // Jan to December
-
   const d = DateTime.now().minus({ months });
   return flow[d.month - 1];
 }

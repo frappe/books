@@ -139,6 +139,7 @@
     <Loading
       v-if="creatingDemo"
       :open="creatingDemo"
+      :show-x="false"
       :full-width="true"
       :percent="creationPercent"
       :message="creationMessage"
@@ -214,12 +215,13 @@ export default {
       }
 
       this.creatingDemo = true;
+      const baseCount = fyo.store.isDevelopment ? 1000 : 150;
 
       const companyName = await setupDummyInstance(
         filePath,
         fyo,
         1,
-        1000,
+        baseCount,
         (message, percent) => {
           this.creationMessage = message;
           this.creationPercent = percent;

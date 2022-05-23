@@ -40,6 +40,7 @@
 
         <!-- Close Icon -->
         <feather-icon
+          v-if="showX"
           name="x"
           class="
             w-4
@@ -62,6 +63,7 @@ export default {
     percent: { type: Number, default: 0.5 },
     message: { type: String, default: '' },
     fullWidth: { type: Boolean, default: false },
+    showX: { type: Boolean, default: true },
   },
   data() {
     return {

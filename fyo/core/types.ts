@@ -35,13 +35,13 @@ export enum ConfigKeys {
   Language = 'language',
   DeviceId = 'deviceId',
   Telemetry = 'telemetry',
-  OpenCount = 'openCount',
 }
 
 export interface ConfigFile {
   id: string;
   companyName: string;
   dbPath: string;
+  openCount: number;
 }
 
 export interface FyoConfig {
