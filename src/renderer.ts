@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron';
 import { ConfigKeys } from 'fyo/core/types';
+import { groupBy } from 'lodash';
 import { DateTime } from 'luxon';
 import { IPC_ACTIONS } from 'utils/messages';
 import { App as VueApp, createApp } from 'vue';
@@ -105,5 +106,7 @@ function setOnWindow() {
     window.fyo = fyo;
     // @ts-ignore
     window.DateTime = DateTime;
+    // @ts-ignore
+    window.groupBy = groupBy;
   }
 }
