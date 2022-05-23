@@ -65,8 +65,8 @@ export class TelemetryManager {
   async start(openCount?: number) {
     this.#telemetryObject.country ||= getCountry(this.fyo);
     this.#telemetryObject.language ??= getLanguage(this.fyo);
-    this.#telemetryObject.device ||= getDeviceId(this.fyo);
-    this.#telemetryObject.instance ||= getInstanceId(this.fyo);
+    this.#telemetryObject.deviceId ||= getDeviceId(this.fyo);
+    this.#telemetryObject.instanceId ||= await getInstanceId(this.fyo);
     this.#telemetryObject.version ||= await getVersion(this.fyo);
 
     this.#started = true;
@@ -91,7 +91,7 @@ export class TelemetryManager {
   }
 
   log(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
-    if (!this.#started) {
+    if (!this.#started && this.fyo.db.isConnected) {
       this.start().then(() => this.#sendBeacon(verb, noun, more));
       return;
     }
@@ -131,8 +131,8 @@ export class TelemetryManager {
     return {
       country: this.#telemetryObject.country!,
       language: this.#telemetryObject.language!,
-      device: this.#telemetryObject.device!,
-      instance: this.#telemetryObject.instance!,
+      deviceId: this.#telemetryObject.deviceId!,
+      instanceId: this.#telemetryObject.instanceId!,
       version: this.#telemetryObject.version!,
       openCount: this.#telemetryObject.openCount!,
       timestamp: DateTime.now().toMillis().toString(),
@@ -145,8 +145,8 @@ export class TelemetryManager {
   #clear() {
     delete this.#telemetryObject.country;
     delete this.#telemetryObject.language;
-    delete this.#telemetryObject.device;
-    delete this.#telemetryObject.instance;
+    delete this.#telemetryObject.deviceId;
+    delete this.#telemetryObject.instanceId;
     delete this.#telemetryObject.version;
     delete this.#telemetryObject.openCount;
   }

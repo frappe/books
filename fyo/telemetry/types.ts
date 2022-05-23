@@ -19,8 +19,8 @@ export enum Verb {
 export type Noun = string;
 
 export interface Telemetry {
-  device: UniqueId;
-  instance: UniqueId;
+  deviceId: UniqueId;
+  instanceId: UniqueId;
   platform?: Platform;
   country: string;
   language: string;
