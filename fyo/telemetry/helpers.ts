@@ -85,6 +85,7 @@ export function addNewFile(
     companyName,
     dbPath,
     id: getId(),
+    openCount: 0,
   };
 
   files.push(newFile);

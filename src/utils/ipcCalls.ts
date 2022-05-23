@@ -80,7 +80,7 @@ export async function getSavePath(name: string, extention: string) {
   let filePath = response.filePath;
 
   if (filePath && !filePath.endsWith(extention)) {
-    filePath = filePath + extention;
+    filePath = `${filePath}.${extention}`;
   }
 
   return { canceled, filePath };

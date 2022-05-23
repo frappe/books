@@ -119,7 +119,10 @@ export default {
     },
 
     setOpen(telemetry) {
-      const openCount = fyo.config.get(ConfigKeys.OpenCount);
+      const openCount = fyo.config
+        .get(ConfigKeys.Files)
+        .map((f) => f.openCount)
+        .reduce((a, b) => (a ?? 0) + (b ?? 0));
       this.shouldOpen = !this.getIsSet(telemetry) && openCount >= 4;
     },
   },

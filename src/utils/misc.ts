@@ -1,4 +1,4 @@
-import { ConfigKeys } from 'fyo/core/types';
+import { ConfigFile, ConfigKeys } from 'fyo/core/types';
 import { getSingleValue } from 'fyo/utils';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
@@ -66,15 +66,23 @@ export async function getSetupComplete(): Promise<boolean> {
   ));
 }
 
-export function incrementOpenCount() {
-  let openCount = fyo.config.get(ConfigKeys.OpenCount);
-  if (typeof openCount !== 'number') {
-    openCount = 1;
-  } else {
-    openCount += 1;
+export async function incrementOpenCount(dbPath: string) {
+  const companyName = (await fyo.getValue(
+    ModelNameEnum.AccountingSettings,
+    'companyName'
+  )) as string;
+  const files = fyo.config.get(ConfigKeys.Files) as ConfigFile[];
+  for (const file of files) {
+    if (file.companyName !== companyName || file.dbPath !== dbPath) {
+      continue;
+    }
+
+    file.openCount ??= 0;
+    file.openCount += 1;
+    break;
   }
 
-  fyo.config.set(ConfigKeys.OpenCount, openCount);
+  fyo.config.set(ConfigKeys.Files, files);
 }
 
 export async function startTelemetry() {

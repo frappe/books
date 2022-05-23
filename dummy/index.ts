@@ -28,6 +28,7 @@ export async function setupDummyInstance(
   baseCount: number = 1000,
   notifier?: Notifier
 ) {
+  fyo.purgeCache();
   notifier?.(fyo.t`Setting Up Instance`, -1);
   const options = {
     logo: null,
@@ -245,7 +246,10 @@ async function getSalesInvoices(
         quantity = Math.ceil(Math.random() * 3);
       }
 
-      const fc = flow[date.getMonth()];
+      let fc = flow[date.getMonth()];
+      if (baseCount < 500) {
+        fc += 1;
+      }
       const rate = fyo.pesa(item!.rate * (fc + 1)).clip(0);
       await doc.append('items', {});
       await doc.items!.at(-1)!.set({
