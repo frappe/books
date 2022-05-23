@@ -1,9 +1,12 @@
 import { t } from 'fyo';
 import { DocValueMap } from 'fyo/core/types';
+import { Dictionary, groupBy } from 'lodash';
 import { ModelNameEnum } from 'models/types';
+import { reports } from 'reports';
 import { OptionField } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { GetAllOptions } from 'utils/db/types';
+import { fuzzyMatch } from '.';
 import { routeTo } from './ui';
 
 export const searchGroups = ['Docs', 'List', 'Create', 'Report', 'Page'];
@@ -21,6 +24,11 @@ interface SearchItem {
   group: SearchGroup;
   route?: string;
   action?: () => void;
+}
+
+interface DocSearchItem extends SearchItem {
+  schemaLabel: string;
+  more: string[];
 }
 
 async function openQuickEditDoc(schemaName: string) {
@@ -122,15 +130,23 @@ function getCreateList(): SearchItem[] {
 }
 
 function getReportList(): SearchItem[] {
-  /*return Object.values(reports).map((report) => {
-    return {
-      label: report.title,
-      route: `/report/${report.method}`,
-      group: 'Report',
-    };
-  });
-  */
-  return [];
+  const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
+  return Object.keys(reports)
+    .filter((r) => {
+      const report = reports[r];
+      if (report.title.startsWith('GST') && !hasGstin) {
+        return false;
+      }
+      return true;
+    })
+    .map((r) => {
+      const report = reports[r];
+      return {
+        label: report.title,
+        route: `/report/${r}`,
+        group: 'Report',
+      };
+    });
 }
 
 function getListViewList(): SearchItem[] {
@@ -251,13 +267,62 @@ class Search {
     [ModelNameEnum.JournalEntry]: 50,
   };
 
+  #groupedKeywords?: Dictionary<Keyword[]>;
+
   constructor() {
     this.keywords = {};
   }
 
-  getSearchList() {
+  get groupedKeywords() {
+    if (!this.#groupedKeywords || !Object.keys(this.#groupedKeywords!).length) {
+      this.#groupedKeywords = this.getGroupedKeywords();
+    }
+
+    return this.#groupedKeywords!;
+  }
+
+  search(keyword: string /*, array: DocSearchItem[]*/): DocSearchItem[] {
+    const array: DocSearchItem[] = [];
+    if (!keyword) {
+      return [];
+    }
+
+    const groupedKeywords = this.groupedKeywords;
+    const keys = Object.keys(groupedKeywords).sort(
+      (a, b) => parseFloat(b) - parseFloat(a)
+    );
+
+    for (const key of keys) {
+      for (const kw of groupedKeywords[key]) {
+        let isMatch = false;
+        for (const word of kw.values) {
+          isMatch ||= fuzzyMatch(keyword, word).isMatch;
+          if (isMatch) {
+            break;
+          }
+        }
+
+        if (!isMatch) {
+          continue;
+        }
+
+        array.push({
+          label: kw.values[0],
+          schemaLabel: fyo.schemaMap[kw.meta.schemaName as string]?.label!,
+          more: kw.values.slice(1),
+          group: 'Docs',
+          action: () => {
+            console.log('selected', kw);
+          },
+        });
+      }
+    }
+    return array;
+  }
+
+  getGroupedKeywords() {
     const keywords = Object.values(this.keywords);
-    return keywords.map((kw) => kw.keywords).flat();
+    return groupBy(keywords.map((kw) => kw.keywords).flat(), 'priority');
   }
 
   async fetchKeywords() {
@@ -273,7 +338,7 @@ class Search {
       }
 
       const maps = await fyo.db.getAllRaw(searchable.schemaName, options);
-      this.addToSearchable(maps, searchable);
+      this.#addToSearchable(maps, searchable);
     }
 
     this.#setPriority();
@@ -332,7 +397,7 @@ class Search {
     }
   }
 
-  addToSearchable(maps: DocValueMap[], searchable: Searchable) {
+  #addToSearchable(maps: DocValueMap[], searchable: Searchable) {
     if (!maps.length) {
       return;
     }
@@ -376,5 +441,9 @@ class Search {
   }
 }
 
-//@ts-ignore
-window.sc = new Search();
+export const docSearch = new Search();
+
+if (fyo.store.isDevelopment) {
+  //@ts-ignore
+  window.search = docSearch;
+}

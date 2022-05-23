@@ -90,30 +90,49 @@ const keys = useKeys();
 
     <!-- Footer -->
     <hr />
-    <div class="m-1 flex justify-between items-center flex-col gap-2 text-sm select-none">
+    <div class="m-1 flex justify-between flex-col gap-2 text-sm select-none">
       <!-- Group Filters -->
-      <div class="flex flex-row gap-2">
-        <button
-          v-for="(g, i) in searchGroups"
-          :key="g"
-          class="border px-1 py-0.5 rounded-lg"
-          :class="getGroupFilterButtonClass(g)"
-          @click="groupFilters[g] = !groupFilters[g]"
-        >
-          {{ groupLabelMap[g]
-          }}<span
-            class="ml-2 whitespace-nowrap brightness-50 tracking-tighter"
-            :class="`text-${groupColorMap[g]}-500`"
-            >{{ modKey(String(i + 1)) }}</span
+      <div class="flex justify-between">
+        <div class="flex gap-2">
+          <button
+            v-for="(g, i) in searchGroups"
+            :key="g"
+            class="border px-1 py-0.5 rounded-lg"
+            :class="getGroupFilterButtonClass(g)"
+            @click="groupFilters[g] = !groupFilters[g]"
           >
+            {{ groupLabelMap[g]
+            }}<span
+              class="ml-2 whitespace-nowrap brightness-50 tracking-tighter"
+              :class="`text-${groupColorMap[g]}-500`"
+              >{{ modKey(String(i + 1)) }}</span
+            >
+          </button>
+        </div>
+        <button
+          class="
+            bg-gray-100
+            hover:bg-gray-200
+            px-2
+            py-0.5
+            rounded
+            text-gray-800
+          "
+        >
+          {{ t`More Filters` }}
         </button>
       </div>
 
       <!-- Keybindings Help -->
-      <div class="flex text-sm gap-8 text-gray-500">
-        <p>↑↓ {{ t`Navigate` }}</p>
-        <p>↩ {{ t`Select` }}</p>
-        <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
+      <div class="flex text-sm text-gray-500 justify-between">
+        <div class="flex gap-4">
+          <p>↑↓ {{ t`Navigate` }}</p>
+          <p>↩ {{ t`Select` }}</p>
+          <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
+        </div>
+        <p v-if="suggestions.length">
+          {{ t`${suggestions.length} out of ${totalLength} shown` }}
+        </p>
       </div>
     </div>
   </Modal>
@@ -122,7 +141,7 @@ const keys = useKeys();
 import { t } from 'fyo';
 import { fuzzyMatch } from 'src/utils';
 import { getBgTextColorClass } from 'src/utils/colors';
-import { getSearchList, searchGroups } from 'src/utils/search';
+import { docSearch, getSearchList, searchGroups } from 'src/utils/search';
 import { routeTo } from 'src/utils/ui';
 import { useKeys } from 'src/utils/vueUtils';
 import { getIsNullOrUndef } from 'utils/';
@@ -137,6 +156,8 @@ export default {
       openModal: false,
       inputValue: '',
       searchList: [],
+      docSearch: null,
+      totalLength: 0,
       groupFilters: {
         List: true,
         Report: true,
@@ -147,7 +168,10 @@ export default {
     };
   },
   components: { Modal },
-  mounted() {
+  async mounted() {
+    this.docSearch = docSearch;
+    await this.docSearch.fetchKeywords();
+
     this.makeSearchList();
     watch(this.keys, (keys) => {
       if (
@@ -297,7 +321,7 @@ export default {
         this.searchGroups.filter((g) => this.groupFilters[g])
       );
 
-      return this.searchList
+      const nonDocs = this.searchList
         .filter((si) => filters.has(si.group))
         .map((si) => ({
           ...fuzzyMatch(this.inputValue, `${si.label} ${si.group}`),
@@ -306,6 +330,15 @@ export default {
         .filter(({ isMatch }) => isMatch)
         .sort((a, b) => a.distance - b.distance)
         .map(({ si }) => si);
+
+      let docs = [];
+      if (this.groupFilters.Docs && this.inputValue) {
+        docs = this.docSearch.search(this.inputValue);
+      }
+
+      const all = [docs, nonDocs].flat();
+      this.totalLength = all.length;
+      return all.slice(0, 50);
     },
   },
 };
