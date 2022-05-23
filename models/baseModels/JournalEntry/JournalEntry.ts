@@ -4,12 +4,12 @@ import {
   Action,
   DefaultMap,
   FiltersMap,
-  ListViewSettings
+  ListViewSettings,
 } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { getLedgerLinkAction } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { LedgerPosting } from '../../Transactional/LedgerPosting';
 
 export class JournalEntry extends Transactional {

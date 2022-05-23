@@ -5,7 +5,7 @@ import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { DuplicateEntryError, LinkValidationError } from 'fyo/utils/errors';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
 
 export function stringifyCircular(

@@ -4,7 +4,7 @@ import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
 import { getExchangeRate } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { getIsNullOrUndef } from 'utils';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';

@@ -9,7 +9,7 @@ import {
   ValidationMap,
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
 export class Item extends Doc {

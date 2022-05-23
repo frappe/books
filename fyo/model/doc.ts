@@ -5,7 +5,7 @@ import { Verb } from 'fyo/telemetry/types';
 import { DEFAULT_USER } from 'fyo/utils/consts';
 import { ConflictError, MandatoryError, NotFoundError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import {
   Field,
   FieldTypeEnum,

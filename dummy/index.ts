@@ -164,6 +164,10 @@ async function getPayments(fyo: Fyo, invoices: Invoice[]) {
       amount: invoice.outstandingAmount,
     });
 
+    if (doc.amount!.isZero()) {
+      continue;
+    }
+
     payments.push(doc);
   }
 

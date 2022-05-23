@@ -3,7 +3,7 @@ import { ValidationError } from 'fyo/utils/errors';
 import { Account } from 'models/baseModels/Account/Account';
 import { AccountingLedgerEntry } from 'models/baseModels/AccountingLedgerEntry/AccountingLedgerEntry';
 import { ModelNameEnum } from 'models/types';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { Transactional } from './Transactional';
 import { AccountBalanceChange, TransactionType } from './types';
 

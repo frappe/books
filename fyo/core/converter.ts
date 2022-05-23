@@ -3,7 +3,7 @@ import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
 import { ValueError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { Field, FieldTypeEnum, RawValue, TargetField } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import { DatabaseHandler } from './dbHandler';

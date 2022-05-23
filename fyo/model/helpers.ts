@@ -2,7 +2,7 @@ import { Fyo } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { isPesa } from 'fyo/utils';
 import { isEqual } from 'lodash';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import { Doc } from './doc';

@@ -2,7 +2,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, FormulaMap, ValidationMap } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { Invoice } from '../Invoice/Invoice';
 
 export abstract class InvoiceItem extends Doc {
