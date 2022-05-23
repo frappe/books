@@ -13,6 +13,7 @@ export const languageCodeMap: Record<string, string> = {
   Portuguese: 'pt',
   Arabic: 'ar',
   Catalan: 'ca-ES',
+  Spanish: 'es',
   Dutch: 'nl',
 };
 

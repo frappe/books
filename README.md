@@ -114,6 +114,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Arabic     | [taha2002](https://github.com/taha2002)                                        |
 | Catalan    | Dídac E. Jiménez                                                               |
 | Dutch      | [FastAct](https://github.com/FastAct)                                          |
+| Spanish    | [talmax1124](https://github.com/talmax1124)                                    |
 
 ## License
 
