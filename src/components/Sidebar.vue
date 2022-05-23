@@ -1,14 +1,13 @@
 <template>
   <div
-    class="pt-6 pb-2 px-2 h-full flex justify-between flex-col bg-gray-100"
+    class="p-2 h-full flex justify-between flex-col bg-gray-100"
     :class="{
       'window-drag': platform !== 'Windows',
     }"
   >
     <div class="window-no-drag">
-      <WindowControls v-if="platform === 'Mac'" class="px-3 mb-6" />
       <!-- Company name and DB Switcher -->
-      <div class="px-3 flex flex-row items-center justify-between mb-6">
+      <div class="px-2 flex flex-row items-center justify-between mb-6 mt-12">
         <h6
           class="
             text-xl
@@ -40,11 +39,11 @@
       <div class="mt-1 first:mt-0" v-for="group in groups" :key="group.label">
         <div
           class="
-            px-3
+            px-2
             py-2
             flex
             items-center
-            rounded-lg
+            rounded-md
             cursor-pointer
             hover:bg-white
           "
@@ -109,7 +108,6 @@ import { getSidebarConfig } from 'src/utils/sidebarConfig';
 import { routeTo } from 'src/utils/ui';
 import router from '../router';
 import Icon from './Icon.vue';
-import WindowControls from './WindowControls.vue';
 
 export default {
   components: [Button],
@@ -127,7 +125,6 @@ export default {
     },
   },
   components: {
-    WindowControls,
     Icon,
   },
   async mounted() {

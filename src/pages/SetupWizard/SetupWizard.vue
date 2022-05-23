@@ -2,7 +2,6 @@
   <div
     class="py-10 flex-1 bg-white flex justify-center items-center window-drag"
   >
-    <WindowControls v-if="platform === 'Mac'" class="absolute top-6 left-5" />
 
     <!-- 0: Language Selection Slide -->
     <Slide
@@ -97,7 +96,6 @@ import { ipcRenderer } from 'electron';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm';
-import WindowControls from 'src/components/WindowControls.vue';
 import { fyo } from 'src/initFyo';
 import { getErrorMessage } from 'src/utils';
 import { getSetupWizardDoc } from 'src/utils/misc';
@@ -128,7 +126,6 @@ export default {
     FormControl,
     Slide,
     LanguageSelector,
-    WindowControls,
   },
   async mounted() {
     if (fyo.config.get('language') !== undefined) {
