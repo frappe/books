@@ -104,7 +104,7 @@ describe('DatabaseCore: Migrate and Check Db', function () {
         );
 
         assert.strictEqual(
-          column.type,
+          column.type.toLowerCase(),
           dbColType,
           `${schemaName}.${column.name}:: type check: ${column.type}, ${dbColType}`
         );

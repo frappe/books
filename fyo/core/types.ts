@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { RawValue } from 'schemas/types';
 import { AuthDemuxBase } from 'utils/auth/types';
 import { DatabaseDemuxBase } from 'utils/db/types';

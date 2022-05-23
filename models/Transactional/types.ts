@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 
 export interface LedgerPostingOptions {
   reference: Doc;

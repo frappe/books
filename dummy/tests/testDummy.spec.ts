@@ -8,7 +8,7 @@ import 'mocha';
 import { getTestDbPath } from 'tests/helpers';
 import { setupDummyInstance } from '..';
 
-describe.skip('dummy', function () {
+describe('dummy', function () {
   const dbPath = getTestDbPath();
 
   let fyo: Fyo;
@@ -28,7 +28,7 @@ describe.skip('dummy', function () {
 
   specify('setupDummyInstance', async function () {
     await assertDoesNotThrow(async () => {
-      await setupDummyInstance(dbPath, fyo);
+      await setupDummyInstance(dbPath, fyo, 1, 25);
     }, 'setup instance failed');
 
     for (const item in purchaseItemPartyMap) {

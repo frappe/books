@@ -3,7 +3,7 @@ import { Doc } from 'fyo/model/doc';
 import { Action, ColumnConfig } from 'fyo/model/types';
 import { NotFoundError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { Router } from 'vue-router';
 import {
   AccountRootType,

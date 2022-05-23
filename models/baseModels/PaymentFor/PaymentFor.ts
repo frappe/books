@@ -1,7 +1,7 @@
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, FormulaMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { PartyRoleEnum } from '../Party/types';
 import { Payment } from '../Payment/Payment';
 

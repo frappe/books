@@ -1,6 +1,6 @@
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, FormulaMap } from 'fyo/model/types';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 
 export class JournalEntryAccount extends Doc {
   getAutoDebitCredit(type: 'debit' | 'credit') {

@@ -2,7 +2,7 @@ import { Fyo } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { DateTime } from 'luxon';
-import Money from 'pesa/dist/types/src/money';
+import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import {
