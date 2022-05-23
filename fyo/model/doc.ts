@@ -678,6 +678,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await this.setAndSync('submitted', true);
     await this.trigger('afterSubmit');
 
+    this.fyo.telemetry.log(Verb.Submitted, this.schemaName);
     this.fyo.doc.observer.trigger(`submit:${this.schemaName}`, this.name);
   }
 
@@ -690,6 +691,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await this.setAndSync('cancelled', true);
     await this.trigger('afterCancel');
 
+    this.fyo.telemetry.log(Verb.Cancelled, this.schemaName);
     this.fyo.doc.observer.trigger(`cancel:${this.schemaName}`, this.name);
   }
 

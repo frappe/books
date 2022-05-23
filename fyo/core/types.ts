@@ -34,7 +34,6 @@ export enum ConfigKeys {
   LastSelectedFilePath = 'lastSelectedFilePath',
   Language = 'language',
   DeviceId = 'deviceId',
-  Telemetry = 'telemetry',
 }
 
 export interface ConfigFile {

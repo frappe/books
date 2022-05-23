@@ -1,7 +1,7 @@
 import { Fyo } from 'fyo';
 import { getRegionalModels, models } from 'models';
 import { ModelNameEnum } from 'models/types';
-import { getValueMapFromList } from 'utils';
+import { getRandomString, getValueMapFromList } from 'utils';
 
 export const fyo = new Fyo({ isTest: false, isElectron: true });
 
@@ -32,6 +32,7 @@ export async function initializeInstance(
   await setSingles(fyo);
   await setCreds(fyo);
   await setVersion(fyo);
+  await setInstanceId(fyo);
   await setCurrencySymbols(fyo);
 }
 
@@ -61,6 +62,13 @@ async function setVersion(fyo: Fyo) {
       ModelNameEnum.SystemSettings
     );
     await systemSettings?.setAndSync('version', appVersion);
+  }
+}
+
+async function setInstanceId(fyo: Fyo) {
+  const systemSettings = await fyo.doc.getSingle(ModelNameEnum.SystemSettings);
+  if (!systemSettings.instanceId) {
+    await systemSettings.setAndSync('instanceId', getRandomString());
   }
 }
 
