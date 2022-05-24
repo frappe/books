@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron';
 import { ConfigKeys } from 'fyo/core/types';
-import { groupBy } from 'lodash';
 import { DateTime } from 'luxon';
 import { IPC_ACTIONS } from 'utils/messages';
+import { Version } from 'utils/version';
 import { App as VueApp, createApp } from 'vue';
 import App from './App.vue';
 import Badge from './components/Badge.vue';
@@ -107,6 +107,6 @@ function setOnWindow() {
     // @ts-ignore
     window.DateTime = DateTime;
     // @ts-ignore
-    window.groupBy = groupBy;
+    window.Version = Version;
   }
 }

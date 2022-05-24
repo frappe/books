@@ -416,6 +416,20 @@ export default class DatabaseCore extends DatabaseBase {
     return info.map((d) => d.name as string);
   }
 
+  async truncate(tableNames?: string[]) {
+    if (tableNames === undefined) {
+      const q = (await this.knex!.raw(`
+        select name from sqlite_schema
+        where type='table'
+        and name not like 'sqlite_%'`)) as { name: string }[];
+      tableNames = q.map((i) => i.name);
+    }
+
+    for (const name of tableNames) {
+      await this.knex!(name).del();
+    }
+  }
+
   async #getForeignKeys(schemaName: string): Promise<string[]> {
     const foreignKeyList: FieldValueMap[] = await this.knex!.raw(
       `PRAGMA foreign_key_list(${schemaName})`

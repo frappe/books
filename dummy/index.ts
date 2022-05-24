@@ -97,10 +97,14 @@ async function getJournalEntries(fyo: Fyo, salesInvoices: SalesInvoice[]) {
   const date = DateTime.fromJSDate(lastInv).minus({ months: 6 }).toJSDate();
 
   // Bank Entry
-  let doc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {
-    date,
-    entryType: 'Bank Entry',
-  });
+  let doc = fyo.doc.getNewDoc(
+    ModelNameEnum.JournalEntry,
+    {
+      date,
+      entryType: 'Bank Entry',
+    },
+    false
+  );
   await doc.append('accounts', {
     account: 'Supreme Bank',
     debit: amount,
@@ -115,10 +119,14 @@ async function getJournalEntries(fyo: Fyo, salesInvoices: SalesInvoice[]) {
   entries.push(doc);
 
   // Cash Entry
-  doc = fyo.doc.getNewDoc(ModelNameEnum.JournalEntry, {
-    date,
-    entryType: 'Cash Entry',
-  });
+  doc = fyo.doc.getNewDoc(
+    ModelNameEnum.JournalEntry,
+    {
+      date,
+      entryType: 'Cash Entry',
+    },
+    false
+  );
   await doc.append('accounts', {
     account: 'Cash',
     debit: amount.percent(30),
@@ -143,7 +151,7 @@ async function getPayments(fyo: Fyo, invoices: Invoice[]) {
       continue;
     }
 
-    const doc = fyo.doc.getNewDoc(ModelNameEnum.Payment) as Payment;
+    const doc = fyo.doc.getNewDoc(ModelNameEnum.Payment, {}, false) as Payment;
     doc.party = invoice.party as string;
     doc.paymentType = invoice.isSales ? 'Receive' : 'Pay';
     doc.paymentMethod = 'Cash';
@@ -220,9 +228,13 @@ async function getSalesInvoices(
     );
     const customer = sample(customers);
 
-    const doc = fyo.doc.getNewDoc(ModelNameEnum.SalesInvoice, {
-      date,
-    }) as SalesInvoice;
+    const doc = fyo.doc.getNewDoc(
+      ModelNameEnum.SalesInvoice,
+      {
+        date,
+      },
+      false
+    ) as SalesInvoice;
 
     await doc.set('party', customer!.name);
     if (!doc.account) {
@@ -361,9 +373,13 @@ async function getSalesPurchaseInvoices(
      * For each supplier create a Purchase Invoice
      */
     for (const supplier in supplierGrouped) {
-      const doc = fyo.doc.getNewDoc(ModelNameEnum.PurchaseInvoice, {
-        date,
-      }) as PurchaseInvoice;
+      const doc = fyo.doc.getNewDoc(
+        ModelNameEnum.PurchaseInvoice,
+        {
+          date,
+        },
+        false
+      ) as PurchaseInvoice;
 
       await doc.set('party', supplier);
       if (!doc.account) {
@@ -413,9 +429,13 @@ async function getNonSalesPurchaseInvoices(
         continue;
       }
 
-      const doc = fyo.doc.getNewDoc(ModelNameEnum.PurchaseInvoice, {
-        date,
-      }) as PurchaseInvoice;
+      const doc = fyo.doc.getNewDoc(
+        ModelNameEnum.PurchaseInvoice,
+        {
+          date,
+        },
+        false
+      ) as PurchaseInvoice;
 
       const party = purchaseItemPartyMap[name];
       await doc.set('party', party);

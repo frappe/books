@@ -1,6 +1,5 @@
 import { constants } from 'fs';
 import fs from 'fs/promises';
-import os from 'os';
 import path from 'path';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
@@ -53,26 +52,28 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }
 
     /**
-     * This needs to be replaced with transactions
+     * This needs to be supplimented with transactions
      * TODO: Add transactions in core.ts
      */
     const dbPath = this.db!.dbPath;
     const copyPath = await this.#makeTempCopy();
+
     try {
       await this.#runPatchesAndMigrate();
     } catch (err) {
+      console.error(err);
       await this.db!.close();
       await fs.copyFile(copyPath, dbPath);
-      await this._connect(dbPath);
-
       throw err;
+    } finally {
+      await fs.unlink(copyPath);
     }
-
-    await fs.unlink(copyPath);
   }
 
   async #runPatchesAndMigrate() {
     const patchesToExecute = await this.#getPatchesToExecute();
+
+    patchesToExecute.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
     const preMigrationPatches = patchesToExecute.filter(
       (p) => p.patch.beforeMigrate
     );
@@ -153,7 +154,8 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
   async #makeTempCopy() {
     const src = this.db!.dbPath;
-    const dest = path.join(os.tmpdir(), 'temp.db');
+    const dir = path.parse(src).dir;
+    const dest = path.join(dir, '__premigratory_temp.db');
     await fs.copyFile(src, dest);
     return dest;
   }
