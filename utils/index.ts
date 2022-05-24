@@ -125,3 +125,31 @@ export async function timeAsync<K, T>(
   console.timeEnd(name);
   return stuff;
 }
+
+export function changeKeys<T>(
+  source: Record<string, T>,
+  keyMap: Record<string, string | undefined>
+) {
+  const dest: Record<string, T> = {};
+  for (const key of Object.keys(source)) {
+    const newKey = keyMap[key] ?? key;
+    dest[newKey] = source[key];
+  }
+
+  return dest;
+}
+
+export function deleteKeys<T>(
+  source: Record<string, T>,
+  keysToDelete: string[]
+) {
+  const dest: Record<string, T> = {};
+  for (const key of Object.keys(source)) {
+    if (keysToDelete.includes(key)) {
+      continue;
+    }
+    dest[key] = source[key];
+  }
+
+  return dest;
+}

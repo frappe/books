@@ -1,5 +1,7 @@
 import { constants } from 'fs';
 import fs from 'fs/promises';
+import os from 'os';
+import path from 'path';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
 import { databaseMethodSet } from '../helpers';
@@ -26,16 +28,73 @@ export class DatabaseManager extends DatabaseDemuxBase {
   }
 
   async connectToDatabase(dbPath: string, countryCode?: string) {
-    countryCode ??= await DatabaseCore.getCountryCode(dbPath);
-
-    this.db = new DatabaseCore(dbPath);
-    await this.db.connect();
-
-    const schemaMap = getSchemas(countryCode);
-    this.db.setSchemaMap(schemaMap);
-
+    countryCode = await this._connect(dbPath, countryCode);
     await this.#migrate();
     return countryCode;
+  }
+
+  async _connect(dbPath: string, countryCode?: string) {
+    countryCode ??= await DatabaseCore.getCountryCode(dbPath);
+    this.db = new DatabaseCore(dbPath);
+    await this.db.connect();
+    const schemaMap = getSchemas(countryCode);
+    this.db.setSchemaMap(schemaMap);
+    return countryCode;
+  }
+
+  async #migrate(): Promise<void> {
+    if (!this.#isInitialized) {
+      return;
+    }
+
+    const isFirstRun = await this.#getIsFirstRun();
+    if (isFirstRun) {
+      await this.db!.migrate();
+    }
+
+    /**
+     * This needs to be replaced with transactions
+     * TODO: Add transactions in core.ts
+     */
+    const dbPath = this.db!.dbPath;
+    const copyPath = await this.#makeTempCopy();
+    try {
+      await this.#runPatchesAndMigrate();
+    } catch (err) {
+      await this.db!.close();
+      await fs.copyFile(copyPath, dbPath);
+      await this._connect(dbPath);
+
+      throw err;
+    }
+
+    await fs.unlink(copyPath);
+  }
+
+  async #runPatchesAndMigrate() {
+    const patchesToExecute = await this.#getPatchesToExecute();
+    const preMigrationPatches = patchesToExecute.filter(
+      (p) => p.patch.beforeMigrate
+    );
+    const postMigrationPatches = patchesToExecute.filter(
+      (p) => !p.patch.beforeMigrate
+    );
+
+    await runPatches(preMigrationPatches, this);
+    await this.db!.migrate();
+    await runPatches(postMigrationPatches, this);
+  }
+
+  async #getPatchesToExecute(): Promise<Patch[]> {
+    if (this.db === undefined) {
+      return [];
+    }
+
+    const query: { name: string }[] = await this.db.knex!('PatchRun').select(
+      'name'
+    );
+    const executedPatches = query.map((q) => q.name);
+    return patches.filter((p) => !executedPatches.includes(p.name));
   }
 
   async call(method: DatabaseMethod, ...args: unknown[]) {
@@ -70,41 +129,6 @@ export class DatabaseManager extends DatabaseDemuxBase {
     return await queryFunction(this.db!, ...args);
   }
 
-  async #migrate(): Promise<void> {
-    if (!this.#isInitialized) {
-      return;
-    }
-
-    const isFirstRun = await this.#getIsFirstRun();
-    if (isFirstRun) {
-      await this.db!.migrate();
-    }
-
-    const patchesToExecute = await this.#getPatchesToExecute();
-    const preMigrationPatches = patchesToExecute.filter(
-      (p) => p.patch.beforeMigrate
-    );
-    const postMigrationPatches = patchesToExecute.filter(
-      (p) => !p.patch.beforeMigrate
-    );
-
-    await runPatches(preMigrationPatches, this);
-    await this.db!.migrate();
-    await runPatches(postMigrationPatches, this);
-  }
-
-  async #getPatchesToExecute(): Promise<Patch[]> {
-    if (this.db === undefined) {
-      return [];
-    }
-
-    const query: { name: string }[] = await this.db.knex!('PatchRun').select(
-      'name'
-    );
-    const executedPatches = query.map((q) => q.name);
-    return patches.filter((p) => !executedPatches.includes(p.name));
-  }
-
   async #unlinkIfExists(dbPath: string) {
     const exists = await fs
       .access(dbPath, constants.W_OK)
@@ -125,6 +149,13 @@ export class DatabaseManager extends DatabaseDemuxBase {
       "SELECT name FROM sqlite_master WHERE type='table'"
     );
     return tableList.length === 0;
+  }
+
+  async #makeTempCopy() {
+    const src = this.db!.dbPath;
+    const dest = path.join(os.tmpdir(), 'temp.db');
+    await fs.copyFile(src, dest);
+    return dest;
   }
 }
 
