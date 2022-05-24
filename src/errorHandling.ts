@@ -7,10 +7,12 @@ import {
   ValidationError,
 } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
+import { truncate } from 'lodash';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
+import router from './router';
 import { getErrorMessage } from './utils';
-import { ToastOptions } from './utils/types';
+import { MessageDialogOptions, ToastOptions } from './utils/types';
 import { showMessageDialog, showToast } from './utils/ui';
 
 function shouldNotStore(error: Error) {
@@ -32,7 +34,6 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
   };
 
   if (fyo.store.isDevelopment) {
-    console.log('errorHandling');
     console.log(body);
   }
 
@@ -85,12 +86,39 @@ export async function handleError(
   await showToast(toastProps);
 }
 
-export async function handleErrorWithDialog(error: Error, doc?: Doc) {
+export async function handleErrorWithDialog(
+  error: Error,
+  doc?: Doc,
+  reportError?: false,
+  dontThrow?: false
+) {
   const errorMessage = getErrorMessage(error, doc);
   await handleError(false, error, { errorMessage, doc });
 
   const name = error.name ?? t`Error`;
-  await showMessageDialog({ message: name, detail: errorMessage });
+  const options: MessageDialogOptions = { message: name, detail: errorMessage };
+
+  if (reportError) {
+    options.detail = truncate(options.detail, { length: 128 });
+    options.buttons = [
+      {
+        label: t`Report`,
+        action() {
+          reportIssue(getErrorLogObject(error, { errorMessage }));
+        },
+      },
+      { label: t`OK`, action() {} },
+    ];
+  }
+
+  await showMessageDialog(options);
+  if (dontThrow) {
+    if (fyo.store.isDevelopment) {
+      console.error(error);
+    }
+    return;
+  }
+
   throw error;
 }
 
@@ -156,6 +184,9 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   if (fullPath) {
     body.push(`**Path**: \`${fullPath}\``);
   }
+
+  body.push(`**Version**: ${fyo.store.appVersion}`);
+  body.push(`**Route**: ${router.currentRoute.value.fullPath}`);
 
   const url = [baseUrl, `body=${body.join('\n')}`].join('&');
   return encodeURI(url);
