@@ -15,3 +15,11 @@ export interface CountryInfo {
   fiscal_year_end: string;
   locale: string;
 }
+
+
+export interface VersionParts {
+  major: number;
+  minor: number;
+  patch: number;
+  beta?: number;
+};
