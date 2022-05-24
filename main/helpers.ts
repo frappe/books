@@ -18,6 +18,10 @@ export async function setAndGetCleanedConfigFiles() {
       .then(() => true)
       .catch(() => false);
 
+    if (!file.companyName) {
+      continue;
+    }
+
     const key = `${file.companyName}-${file.dbPath}`;
     if (!exists || cleanedFileMap.has(key)) {
       continue;

@@ -4,5 +4,10 @@ import updateSchemas from './updateSchemas';
 
 export default [
   { name: 'testPatch', version: '0.5.0-beta.0', patch: testPatch },
-  { name: 'updateSchemas', version: '0.5.0-beta.0', patch: updateSchemas },
+  {
+    name: 'updateSchemas',
+    version: '0.5.0-beta.0',
+    patch: updateSchemas,
+    priority: 100,
+  },
 ] as Patch[];

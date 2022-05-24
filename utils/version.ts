@@ -7,11 +7,19 @@ export class Version {
    */
 
   static gte(a: string, b: string) {
-    return compare(a, b, (c) => c < 0);
+    let valid = false;
+    return compare(a, b, (c) => {
+      if (c === 0) {
+        return false;
+      }
+
+      valid ||= c > 0;
+      return !valid;
+    });
   }
 
   static lte(a: string, b: string) {
-    return compare(a, b, (c) => c > 0);
+    return !Version.gt(a, b);
   }
 
   static eq(a: string, b: string) {

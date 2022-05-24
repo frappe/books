@@ -1,4 +1,4 @@
-import countryInfo from 'fixtures/countryInfo.json';
+import countryInfo from '../fixtures/countryInfo.json';
 import { DateTime } from 'luxon';
 import { CountryInfoMap } from './types';
 

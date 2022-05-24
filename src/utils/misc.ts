@@ -1,5 +1,4 @@
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
-import { getSingleValue } from 'fyo/utils';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
 import { ModelNameEnum } from 'models/types';
@@ -58,20 +57,12 @@ export async function getSetupWizardDoc() {
   );
 }
 
-export async function getSetupComplete(): Promise<boolean> {
-  return !!(await getSingleValue(
-    'setupComplete',
-    ModelNameEnum.AccountingSettings,
-    fyo
-  ));
-}
-
 export async function incrementOpenCount(dbPath: string) {
   const companyName = (await fyo.getValue(
     ModelNameEnum.AccountingSettings,
     'companyName'
   )) as string;
-  
+
   let openCount = 0;
   const files = fyo.config.get(ConfigKeys.Files) as ConfigFile[];
   for (const file of files) {

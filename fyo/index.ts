@@ -182,13 +182,24 @@ export class Fyo {
     }
 
     let doc: Doc;
+    let value: DocValue | Doc[];
     try {
       doc = await this.doc.getDoc(schemaName, name);
+      value = doc.get(fieldname!);
     } catch (err) {
-      return undefined;
+      value = undefined;
     }
 
-    return doc.get(fieldname!);
+    if (value === undefined && schemaName === name) {
+      const sv = await this.db.getSingleValues({
+        fieldname: fieldname!,
+        parent: schemaName,
+      });
+
+      return sv?.[0]?.value;
+    }
+
+    return value;
   }
 
   purgeCache() {

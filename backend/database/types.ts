@@ -23,6 +23,7 @@ export interface Patch {
     execute: (dm: DatabaseManager) => Promise<void>;
     beforeMigrate?: boolean;
   };
+  priority?: number;
 }
 
 export type KnexColumnType =
@@ -45,7 +46,10 @@ export interface SqliteTableInfo {
   dflt_value: string | null;
 }
 
-export type BespokeFunction = (db:DatabaseCore, ...args: unknown[]) => Promise<unknown>
+export type BespokeFunction = (
+  db: DatabaseCore,
+  ...args: unknown[]
+) => Promise<unknown>;
 export type SingleValue<T> = {
   fieldname: string;
   parent: string;

@@ -180,13 +180,8 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
     body.push('**Stack**:', '```', errorLogObj.stack, '```', '');
   }
 
-  const { fullPath } = (errorLogObj?.more as { fullPath?: string }) ?? {};
-  if (fullPath) {
-    body.push(`**Path**: \`${fullPath}\``);
-  }
-
-  body.push(`**Version**: ${fyo.store.appVersion}`);
-  body.push(`**Route**: ${router.currentRoute.value.fullPath}`);
+  body.push(`**Version**: \`${fyo.store.appVersion}\``);
+  body.push(`**Path**: \`${router.currentRoute.value.fullPath}\``);
 
   const url = [baseUrl, `body=${body.join('\n')}`].join('&');
   return encodeURI(url);
