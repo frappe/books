@@ -34,8 +34,10 @@
 
 <script>
 import { ConfigKeys } from 'fyo/core/types';
-import { getSetupComplete, incrementOpenCount } from 'src/utils/misc';
+import { ModelNameEnum } from 'models/types';
+import { incrementOpenCount } from 'src/utils/misc';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
+import { handleErrorWithDialog } from './errorHandling';
 import { fyo, initializeInstance } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector.vue';
 import Desk from './pages/Desk.vue';
@@ -66,12 +68,16 @@ export default {
       null
     );
 
-    if (lastSelectedFilePath) {
-      await this.fileSelected(lastSelectedFilePath, false);
-      return;
+    if (!lastSelectedFilePath) {
+      return (this.activeScreen = 'DatabaseSelector');
     }
 
-    this.activeScreen = 'DatabaseSelector';
+    try {
+      await this.fileSelected(lastSelectedFilePath, false);
+    } catch (err) {
+      await handleErrorWithDialog(err, undefined, true, true);
+      this.activeScreen = 'DatabaseSelector';
+    }
   },
   methods: {
     async setDesk(filePath) {
@@ -96,7 +102,10 @@ export default {
     },
     async showSetupWizardOrDesk(filePath) {
       const countryCode = await fyo.db.connectToDatabase(filePath);
-      const setupComplete = await getSetupComplete();
+      const setupComplete = await fyo.getValue(
+        ModelNameEnum.AccountingSettings,
+        'setupComplete'
+      );
 
       if (!setupComplete) {
         this.activeScreen = 'SetupWizard';

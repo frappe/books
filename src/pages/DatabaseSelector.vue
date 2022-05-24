@@ -167,7 +167,7 @@ import { setupDummyInstance } from 'dummy';
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
-import { addNewFile } from 'fyo/telemetry/helpers';
+import { addNewConfigFile } from 'fyo/telemetry/helpers';
 import { DateTime } from 'luxon';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
@@ -242,7 +242,7 @@ export default {
         }
       );
 
-      addNewFile(
+      addNewConfigFile(
         companyName,
         filePath,
         instanceId,
