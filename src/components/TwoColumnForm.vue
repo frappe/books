@@ -46,8 +46,11 @@
       <!-- Regular Field Form -->
       <div
         v-else
-        class="grid"
-        :class="{ 'border-b': !noBorder }"
+        class="grid items-center"
+        :class="{
+          'border-b': !noBorder,
+          'h-12': !['AttachImage', 'Text'].includes(df.fieldtype),
+        }"
         :key="`${df.fieldname}-regular`"
         :style="style"
       >

@@ -9,11 +9,11 @@
       @change="forwardChangeEvent"
     />
     <div
-      class="flex flex-row justify-between items-center w-full text-gray-900"
+      class="flex flex-row justify-between items-center w-full text-gray-900 p-6"
     >
       <LanguageSelector
         class="text-sm w-40 bg-gray-100 rounded-md"
-        input-class="py-1.5 bg-transparent"
+        input-class="bg-transparent"
       />
       <button
         class="
@@ -22,7 +22,7 @@
           hover:bg-gray-200
           rounded-md
           px-4
-          py-1.5
+          h-8
           w-40
         "
         @click="checkForUpdates(true)"

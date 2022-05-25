@@ -10,11 +10,9 @@
         <div
           class="
             mt-2
-            px-4
             py-2
             cursor-pointer
             hover:bg-gray-100
-            rounded-md
             group
             flex
             items-center
@@ -26,7 +24,7 @@
           ]"
           @click="onClick(account)"
         >
-          <component :is="getIconComponent(account)" />
+          <component :is="getIconComponent(account)" class="ml-2" />
           <div class="flex items-baseline">
             <div
               class="ml-3"

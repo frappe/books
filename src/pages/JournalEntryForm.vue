@@ -25,124 +25,116 @@
     </PageHeader>
 
     <!-- Journal Entry Form -->
-    <div v-if="doc" class="flex justify-center flex-1 mb-8 mt-2">
-      <div
-        class="
-          border
-          rounded-lg
-          shadow
-          h-full
-          flex flex-col
-          justify-between
-          w-600
-        "
-      >
-        <div>
-          <div class="m-6 flex flex-col gap-2">
-            <h1 class="text-2xl font-semibold">
-              {{ doc.notInserted ? t`New Journal Entry` : doc.name }}
-            </h1>
-
-            <!-- First Column of Fields -->
-            <div class="flex flex-row justify-between gap-2">
-              <FormControl
-                class="w-1/3"
-                :df="getField('entryType')"
-                :value="doc.entryType"
-                placeholder="Entry Type"
-                @change="(value) => doc.set('entryType', value)"
-                input-class="bg-gray-100 px-3 py-2 text-base"
-                :read-only="doc.submitted"
-                :class="doc.submitted && 'pointer-events-none'"
-              />
-              <FormControl
-                class="w-1/3"
-                :df="getField('referenceNumber')"
-                :value="doc.referenceNumber"
-                :placeholder="'Reference Number'"
-                @change="(value) => doc.set('referenceNumber', value)"
-                input-class="bg-gray-100 p-2 text-base"
-                :read-only="doc.submitted"
-                :class="doc.submitted && 'pointer-events-none'"
-              />
-              <FormControl
-                :df="getField('numberSeries')"
-                :value="doc.numberSeries"
-                @change="(value) => doc.set('numberSeries', value)"
-                class="bg-gray-100 rounded w-1/3"
-                input-class="p-2 text-base bg-transparent"
-                :read-only="!doc.notInserted || doc.submitted"
-                :class="doc.submitted && 'pointer-events-none'"
-              />
-            </div>
-
-            <!-- Second Row of Fields -->
-            <div class="flex flex-row justify-between gap-2">
-              <FormControl
-                class="w-1/3"
-                :df="getField('date')"
-                :value="doc.date"
-                :placeholder="'Date'"
-                @change="(value) => doc.set('date', value)"
-                input-class="bg-gray-100 px-3 py-2 text-base"
-                :read-only="doc.submitted"
-                :class="doc.submitted && 'pointer-events-none'"
-              />
-              <div class="w-1/3" />
-              <FormControl
-                class="w-1/3"
-                :df="getField('referenceDate')"
-                :value="doc.referenceDate"
-                :placeholder="'Reference Date'"
-                @change="(value) => doc.set('referenceDate', value)"
-                input-class="bg-gray-100 px-3 py-2 text-base"
-                :read-only="doc.submitted"
-                :class="doc.submitted && 'pointer-events-none'"
-              />
-            </div>
-          </div>
-          <hr />
-
-          <!-- Account Entries Table -->
-          <Table
-            class="mt-2 px-6 text-base"
-            :df="getField('accounts')"
-            :value="doc.accounts"
-            :showHeader="true"
-            :max-rows-before-overflow="6"
+    <div
+      class="
+        self-center
+        border
+        rounded-lg
+        shadow
+        flex flex-col
+        mt-2
+        w-form
+        h-form
+      "
+      v-if="doc"
+    >
+      <div class="p-4 text-2xl font-semibold flex justify-between">
+        <h1>
+          {{ doc.notInserted ? t`New Entry` : doc.name }}
+        </h1>
+        <p class="text-gray-600">
+          {{ t`Journal Entry` }}
+        </p>
+      </div>
+      <hr />
+      <div>
+        <div class="m-4 grid grid-cols-3 gap-y-4 gap-x-4">
+          <!-- First Column of Fields -->
+          <FormControl
+            :df="getField('numberSeries')"
+            :value="doc.numberSeries"
+            @change="(value) => doc.set('numberSeries', value)"
+            class="bg-gray-100 rounded"
+            input-class="p-2 text-base bg-transparent"
+            :read-only="!doc.notInserted || doc.submitted"
+            :class="doc.submitted && 'pointer-events-none'"
+          />
+          <FormControl
+            :df="getField('date')"
+            :value="doc.date"
+            :placeholder="'Date'"
+            @change="(value) => doc.set('date', value)"
+            input-class="bg-gray-100 px-3 py-2 text-base"
             :read-only="doc.submitted"
+            :class="doc.submitted && 'pointer-events-none'"
+          />
+          <FormControl
+            :df="getField('entryType')"
+            :value="doc.entryType"
+            placeholder="Entry Type"
+            @change="(value) => doc.set('entryType', value)"
+            input-class="bg-gray-100 px-3 py-2 text-base"
+            :read-only="doc.submitted"
+            :class="doc.submitted && 'pointer-events-none'"
+          />
+          <FormControl
+            :df="getField('referenceNumber')"
+            :value="doc.referenceNumber"
+            :placeholder="'Reference Number'"
+            @change="(value) => doc.set('referenceNumber', value)"
+            input-class="bg-gray-100 p-2 text-base"
+            :read-only="doc.submitted"
+            :class="doc.submitted && 'pointer-events-none'"
+          />
+          <FormControl
+            :df="getField('referenceDate')"
+            :value="doc.referenceDate"
+            :placeholder="'Reference Date'"
+            @change="(value) => doc.set('referenceDate', value)"
+            input-class="bg-gray-100 px-3 py-2 text-base"
+            :read-only="doc.submitted"
+            :class="doc.submitted && 'pointer-events-none'"
           />
         </div>
+        <hr />
 
-        <!-- Footer -->
-        <div v-if="doc.accounts?.length ?? 0">
-          <hr />
-          <div class="flex justify-between text-base m-6 gap-12">
-            <!-- User Remark -->
-            <FormControl
-              v-if="!doc.submitted || doc.userRemark"
-              class="w-1/2 self-end"
-              input-class="bg-gray-100"
-              :df="getField('userRemark')"
-              :value="doc.userRemark"
-              @change="(value) => doc.set('userRemark', value)"
-              :class="doc.submitted && 'pointer-events-none'"
-              :read-only="doc.submitted"
-            />
+        <!-- Account Entries Table -->
+        <Table
+          class="text-base"
+          :df="getField('accounts')"
+          :value="doc.accounts"
+          :showHeader="true"
+          :max-rows-before-overflow="6"
+          :read-only="doc.submitted"
+        />
+      </div>
 
-            <!-- Debit and Credit -->
-            <div
-              class="w-1/2 gap-2 flex flex-col self-end font-semibold ml-auto"
-            >
-              <div class="flex justify-between text-green-600">
-                <div>{{ t`Total Debit` }}</div>
-                <div>{{ totalDebit }}</div>
-              </div>
-              <hr />
-              <div class="flex justify-between text-red-600">
-                <div>{{ t`Total Credit` }}</div>
-                <div>{{ totalCredit }}</div>
-              </div>
+      <!-- Footer -->
+      <div v-if="doc.accounts?.length ?? 0" class="mt-auto">
+        <hr />
+        <div class="flex justify-between text-base m-6 gap-12">
+          <!-- User Remark -->
+          <FormControl
+            v-if="!doc.submitted || doc.userRemark"
+            class="w-1/2 self-end"
+            input-class="bg-gray-100"
+            :df="getField('userRemark')"
+            :value="doc.userRemark"
+            @change="(value) => doc.set('userRemark', value)"
+            :class="doc.submitted && 'pointer-events-none'"
+            :read-only="doc.submitted"
+          />
+
+          <!-- Debit and Credit -->
+          <div class="w-1/2 gap-2 flex flex-col self-end font-semibold ml-auto">
+            <div class="flex justify-between text-green-600">
+              <div>{{ t`Total Debit` }}</div>
+              <div>{{ totalDebit }}</div>
+            </div>
+            <hr />
+            <div class="flex justify-between text-red-600">
+              <div>{{ t`Total Credit` }}</div>
+              <div>{{ totalCredit }}</div>
             </div>
           </div>
         </div>

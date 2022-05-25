@@ -2,7 +2,6 @@
   <div
     class="py-10 flex-1 bg-white flex justify-center items-center window-drag"
   >
-
     <!-- 0: Language Selection Slide -->
     <Slide
       @primary-clicked="handlePrimary"
@@ -44,22 +43,23 @@
 
       <template #content>
         <div v-if="doc">
-          <div class="flex items-center px-6 py-5 mb-8 bg-brand rounded-xl">
+          <!-- Image Section -->
+          <div class="flex items-center p-4 gap-4">
             <FormControl
               :df="getField('logo')"
               :value="doc.logo"
               @change="(value) => setValue('logo', value)"
             />
-            <div class="ml-2">
+            <div>
               <FormControl
                 ref="companyField"
                 :df="getField('companyName')"
                 :value="doc.companyName"
                 @change="(value) => setValue('companyName', value)"
-                :input-class="
-                  () => [
-                    'bg-transparent font-semibold text-xl text-white placeholder-blue-400 focus:outline-none focus:bg-blue-600 px-3 rounded py-1',
-                  ]
+                input-class="
+                  bg-transparent
+                  font-semibold
+                  text-xl
                 "
                 :autofocus="true"
               />
@@ -67,16 +67,17 @@
                 :df="getField('email')"
                 :value="doc.email"
                 @change="(value) => setValue('email', value)"
-                :input-class="
-                  () => [
-                    'text-base bg-transparent text-white placeholder-blue-400 focus:bg-blue-600 focus:outline-none rounded px-3 py-1',
-                  ]
+                input-class="
+                  text-base
+                  bg-transparent
                 "
               />
             </div>
           </div>
+
           <p
-            class="px-3 -mt-6 text-sm absolute text-red-400 w-full"
+            class="-mt-6 text-sm absolute text-red-400 w-full"
+            style="left: 7.75rem"
             v-if="emailError"
           >
             {{ emailError }}
@@ -95,7 +96,7 @@
 import { ipcRenderer } from 'electron';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
-import TwoColumnForm from 'src/components/TwoColumnForm';
+import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { getErrorMessage } from 'src/utils';
 import { getSetupWizardDoc } from 'src/utils/misc';

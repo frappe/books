@@ -1,43 +1,43 @@
 <template>
   <div class="flex flex-col overflow-hidden">
     <PageHeader :title="t`Settings`" />
-    <div class="flex justify-center flex-1 mb-8 mt-2">
-      <div
-        class="border rounded-lg shadow h-full flex flex-col justify-between"
-        style="width: 600px"
-      >
-        <div class="pb-2 mt-8">
-          <Row
-            :columnCount="tabs.length"
-            class="px-6 border-none w-full"
-            gap="0.5rem"
-          >
-            <div
-              v-for="(tab, i) in tabs"
-              :key="tab.label"
-              class="
-                p-2
-                rounded-md
-                hover:bg-white
-                flex flex-col
-                items-center
-                justify-center
-                cursor-pointer
-              "
-              :class="i === activeTab && 'text-blue-500'"
-              @click="activeTab = i"
-            >
-              <component
-                :is="getIconComponent(tab)"
-                :active="i === activeTab"
-              />
-              <div class="mt-2 text-xs">{{ tab.label }}</div>
-            </div>
-          </Row>
+    <div
+      class="
+        border
+        rounded-lg
+        shadow
+        h-full
+        flex flex-col
+        justify-between
+        self-center
+        mt-2
+        w-form
+        h-form
+      "
+    >
+      <!-- Icon Tab Bar -->
+      <div class="flex justify-around mb-4 mt-6">
+        <div
+          v-for="(tab, i) in tabs"
+          :key="tab.label"
+          class="
+            p-2
+            rounded-md
+            hover:bg-white
+            flex flex-col
+            items-center
+            justify-center
+            cursor-pointer
+          "
+          :class="i === activeTab && 'text-blue-500'"
+          @click="activeTab = i"
+        >
+          <component :is="getIconComponent(tab)" :active="i === activeTab" />
+          <div class="mt-2 text-xs">{{ tab.label }}</div>
         </div>
-        <div class="flex-1 p-6 overflow-y-auto">
-          <component :is="activeTabComponent" @change="handleChange" />
-        </div>
+      </div>
+      <div class="flex-1 overflow-y-scroll">
+        <component :is="activeTabComponent" @change="handleChange" />
       </div>
     </div>
   </div>

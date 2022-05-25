@@ -1,6 +1,7 @@
 <template>
-  <div v-if="doc">
-    <div class="flex items-center">
+  <div v-if="doc" class="pb-4">
+    <hr />
+    <div class="flex items-center gap-4 p-4">
       <FormControl
         :df="getField('logo')"
         :value="doc.logo"
@@ -11,30 +12,18 @@
           }
         "
       />
-      <div class="ml-6 flex flex-col">
-        <span class="font-semibold">
+      <div class="flex flex-col">
+        <span
+          class="bg-transparent font-semibold text-xl text-gray-900 px-3 py-2"
+        >
           {{ companyName }}
         </span>
-        <span class="text-lg text-gray-700">
+        <span class="text-lg text-gray-800 px-3 py-2">
           {{ doc.email }}
         </span>
-        <FormControl
-          class="mt-2"
-          :df="getField('displayLogo')"
-          :value="doc.displayLogo"
-          :show-label="true"
-          @change="
-            (value) => {
-              doc.setAndSync('displayLogo', value);
-              forwardChangeEvent(getField('displayLogo'));
-            }
-          "
-          size="small"
-        />
       </div>
     </div>
     <TwoColumnForm
-      class="mt-6"
       :doc="doc"
       :fields="fields"
       :autosave="true"
@@ -78,9 +67,13 @@ export default {
   },
   computed: {
     fields() {
-      return ['template', 'color', 'font', 'email', 'phone', 'address'].map(
-        (field) => this.getField(field)
-      );
+      const fields = ['template', 'color', 'font', 'email', 'phone', 'address'];
+
+      if (this.doc.logo) {
+        fields.unshift('displayLogo');
+      }
+
+      return fields.map((field) => this.getField(field));
     },
   },
   methods: {

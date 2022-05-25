@@ -156,7 +156,6 @@ export class TrialBalance extends AccountReport {
       align: 'left',
       width: ACC_NAME_WIDTH,
       bold: !al.level,
-      italics: al.isGroup,
       indent: al.level ?? 0,
     } as ReportCell;
 
