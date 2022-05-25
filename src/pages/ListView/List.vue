@@ -9,14 +9,13 @@
         gap="1rem"
       >
         <div
-          v-for="column in columns"
+          v-for="(column, i) in columns"
           :key="column.label"
-          class="py-4 truncate"
-          :class="
-            ['Int', 'Float', 'Currency'].includes(column.fieldtype)
-              ? 'text-right'
-              : ''
-          "
+          class="py-4 overflow-x-scroll whitespace-nowrap"
+          :class="{
+            'text-right': isNumeric(column.fieldtype),
+            'pr-4': i === columns.length - 1,
+          }"
         >
           {{ column.label }}
         </div>
@@ -39,14 +38,15 @@
             :columnCount="columns.length"
           >
             <ListCell
-              v-for="column in columns"
+              v-for="(column, c) in columns"
               :key="column.label"
               :class="{
-                'text-right': ['Float', 'Currency'].includes(column.fieldtype),
+                'text-right': isNumeric(column.fieldtype),
+                'pr-4': c === columns.length - 1,
               }"
               :doc="doc"
               :column="column"
-            ></ListCell>
+            />
           </Row>
         </div>
         <hr v-if="i !== dataSlice.length - 1" />
@@ -77,6 +77,7 @@ import Button from 'src/components/Button';
 import Paginator from 'src/components/Paginator.vue';
 import Row from 'src/components/Row';
 import { fyo } from 'src/initFyo';
+import { isNumeric } from 'src/utils';
 import { openQuickEdit, routeTo } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import ListCell from './ListCell';
@@ -138,6 +139,7 @@ export default defineComponent({
     this.setUpdateListeners();
   },
   methods: {
+    isNumeric,
     setPageIndices({ start, end }) {
       this.pageStart = start;
       this.pageEnd = end;

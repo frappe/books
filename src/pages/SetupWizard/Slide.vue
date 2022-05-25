@@ -1,18 +1,27 @@
 <template>
-  <div class="w-600 shadow rounded-lg border relative" style="height: 700px">
-    <div class="px-6 py-8">
-      <h1 class="text-2xl font-semibold"><slot name="title"></slot></h1>
+  <div class="w-form shadow rounded-lg border relative" style="height: 700px">
+    <!-- Slide Title -->
+    <div class="px-6 py-10">
+      <h1 class="text-2xl font-semibold select-none">
+        <slot name="title"></slot>
+      </h1>
     </div>
+    <hr />
 
-    <div class="px-6 window-no-drag">
+    <!-- Slide Content -->
+    <div class="window-no-drag">
       <slot name="content"></slot>
     </div>
 
+    <!-- Slide Buttons -->
     <div
-      class="flex justify-between px-6 pb-6 window-no-drag absolute w-600"
+      class="flex justify-between px-6 pb-6 window-no-drag absolute w-form"
       style="top: 100%; transform: translateY(-100%)"
     >
-      <Button class="text-sm text-grey-900 w-28" @click="$emit('secondary-clicked')">
+      <Button
+        class="text-sm text-grey-900 w-28"
+        @click="$emit('secondary-clicked')"
+      >
         <slot name="secondaryButton"></slot>
       </Button>
       <Button

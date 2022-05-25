@@ -9,7 +9,7 @@
       overflow-hidden
       cursor-pointer
     "
-    :class="{ 'w-20 h-20': size !== 'small', 'w-16 h-16': size === 'small' }"
+    :class="{ 'w-20 h-20': size !== 'small', 'w-12 h-12': size === 'small' }"
     @mouseover="showEdit = true"
     @mouseleave="showEdit = false"
     @click="openFileSelector"

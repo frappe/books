@@ -76,7 +76,7 @@ export default {
       await this.fileSelected(lastSelectedFilePath, false);
     } catch (err) {
       await handleErrorWithDialog(err, undefined, true, true);
-      this.activeScreen = 'DatabaseSelector';
+      await this.showDbSelector()
     }
   },
   methods: {

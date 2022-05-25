@@ -7,7 +7,7 @@
     }"
   >
     <div
-      class="w-full w-600 shadow rounded-lg border relative"
+      class="w-full w-form shadow rounded-lg border relative"
       style="height: 700px"
     >
       <!-- Welcome to Frappe Books -->
@@ -132,7 +132,7 @@
       >
         <LanguageSelector
           v-show="!creatingDemo"
-          class="text-sm w-40 bg-gray-100 rounded-md"
+          class="text-sm w-28 bg-gray-100 rounded-md"
           input-class="py-1.5 bg-transparent"
         />
         <button
@@ -143,7 +143,8 @@
             rounded-md
             px-4
             py-1.5
-            w-40
+            w-28
+            h-8
           "
           @click="createDemo"
           :disabled="creatingDemo"

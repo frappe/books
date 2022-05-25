@@ -53,8 +53,12 @@ html {
   display: none;
 }
 
-.w-600 {
+.w-form {
   width: 600px;
+}
+
+.h-form {
+  height: 800px;
 }
 
 .w-sidebar {

@@ -14,7 +14,7 @@
     style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(4px)"
     v-if="openModal"
   >
-    <div class="bg-white rounded-lg shadow-2xl w-600" v-bind="$attrs">
+    <div class="bg-white rounded-lg shadow-2xl w-form" v-bind="$attrs">
       <slot></slot>
     </div>
   </div>
