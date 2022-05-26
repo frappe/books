@@ -30,7 +30,7 @@
           class="font-semibold text-xl"
           :style="{ color: printSettings.color }"
         >
-          {{ doc.schemaName === 'SalesInvoice' ? t`Sales Invoie` : t`Purchase Invoice` }}
+          {{ doc.schemaName === 'SalesInvoice' ? t`Sales Invoice` : t`Purchase Invoice` }}
         </div>
         <div>
           {{ doc.name }}
