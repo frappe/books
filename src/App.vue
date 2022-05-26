@@ -116,8 +116,8 @@ export default {
       await this.setDesk(filePath);
     },
     async setDeskRoute() {
-      const { onboardingComplete } = await fyo.doc.getSingle('GetStarted');
-      const { hideGetStarted } = await fyo.doc.getSingle('SystemSettings');
+      const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
+      const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
 
       if (hideGetStarted || onboardingComplete) {
         routeTo('/');

@@ -17,6 +17,7 @@ import {
   purchaseItemPartyMap,
 } from './helpers';
 import items from './items.json';
+import logo from './logo';
 import parties from './parties.json';
 
 type Notifier = (stage: string, percent: number) => void;
@@ -48,12 +49,41 @@ export async function setupDummyInstance(
   notifier?.(fyo.t`Creating Items and Parties`, -1);
   await generateStaticEntries(fyo);
   await generateDynamicEntries(fyo, years, baseCount, notifier);
+  await setOtherSettings(fyo);
 
   const instanceId = (await fyo.getValue(
     ModelNameEnum.SystemSettings,
     'instanceId'
   )) as string;
   return { companyName: options.companyName, instanceId };
+}
+
+async function setOtherSettings(fyo: Fyo) {
+  const doc = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
+  const address = fyo.doc.getNewDoc(ModelNameEnum.Address);
+  await address.setAndSync({
+    addressLine1: '1st Column, Fitzgerald Bridge',
+    city: 'Pune',
+    state: 'Maharashtra',
+    pos: 'Maharashtra',
+    postalCode: '411001',
+    country: 'India',
+  });
+
+  await doc.setAndSync({
+    color: '#F687B3',
+    template: 'Business',
+    displayLogo: true,
+    phone: '+91 8983-000418',
+    logo,
+    address: address.name,
+  });
+
+  const acc = await fyo.doc.getDoc(ModelNameEnum.AccountingSettings);
+  await acc.setAndSync({
+    gstin: '27LIN180000A1Z5',
+  });
+  console.log(acc.gstin, await fyo.db.getSingleValues('gstin'));
 }
 
 /**

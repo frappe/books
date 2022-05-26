@@ -244,9 +244,9 @@ export default {
       }
       await this.handleError(error);
     }
-    this.printSettings = await fyo.doc.getSingle('PrintSettings');
+    this.printSettings = await fyo.doc.getDoc('PrintSettings');
     this.companyName = (
-      await fyo.doc.getSingle('AccountingSettings')
+      await fyo.doc.getDoc('AccountingSettings')
     ).companyName;
 
     let query = this.$route.query;
