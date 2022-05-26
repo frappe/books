@@ -9,7 +9,7 @@
       overflow-hidden
       cursor-pointer
     "
-    :class="{ 'w-20 h-20': size !== 'small', 'w-16 h-16': size === 'small' }"
+    :class="{ 'w-20 h-20': size !== 'small', 'w-12 h-12': size === 'small' }"
     @mouseover="showEdit = true"
     @mouseleave="showEdit = false"
     @click="openFileSelector"
@@ -56,12 +56,10 @@
 </template>
 
 <script>
-import frappe from 'frappe';
 import { ipcRenderer } from 'electron';
+import { fyo } from 'src/initFyo';
+import { IPC_ACTIONS } from 'utils/messages';
 import Base from './Base';
-import { IPC_ACTIONS } from '@/messages';
-import fs from 'fs';
-import path from 'path';
 
 export default {
   name: 'AttachImage',
@@ -75,31 +73,35 @@ export default {
   methods: {
     async openFileSelector() {
       const options = {
-        title: frappe.t`Select Image`,
+        title: fyo.t`Select Image`,
         properties: ['openFile'],
         filters: [
           { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] },
         ],
       };
 
-      const { filePaths } = await ipcRenderer.invoke(
-        IPC_ACTIONS.GET_OPEN_FILEPATH,
+      const { name, success, data } = await ipcRenderer.invoke(
+        IPC_ACTIONS.GET_FILE,
         options
       );
-      if (filePaths && filePaths[0]) {
-        let dataURL = await this.getDataURL(filePaths[0]);
-        this.triggerChange(dataURL);
+
+      if (!success) {
+        return;
       }
+
+      const dataURL = await this.getDataURL(name, data);
+      this.triggerChange(dataURL);
     },
-    getDataURL(filePath) {
-      let typedArray = fs.readFileSync(filePath);
-      let extension = path.extname(filePath).slice(1);
-      let blob = new Blob([typedArray.buffer], { type: 'image/' + extension });
+    getDataURL(name, data) {
+      const extension = name.split('.').at(-1);
+      const blob = new Blob([data], { type: 'image/' + extension });
+
       return new Promise((resolve) => {
-        let fr = new FileReader();
+        const fr = new FileReader();
         fr.addEventListener('loadend', () => {
           resolve(fr.result);
         });
+
         fr.readAsDataURL(blob);
       });
     },

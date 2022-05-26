@@ -26,7 +26,7 @@
       />
 
       <!-- x Labels -->
-      <template v-if="xLabels.length > 0">
+      <template v-if="drawLabels && xLabels.length > 0">
         <text
           :style="fontStyle"
           v-for="(i, j) in count"
@@ -46,7 +46,7 @@
       </template>
 
       <!-- y Labels -->
-      <template v-if="yLabelDivisions > 0">
+      <template v-if="drawLabels && yLabelDivisions > 0">
         <text
           :style="fontStyle"
           v-for="(i, j) in yLabelDivisions + 1"
@@ -113,6 +113,7 @@
       />
     </svg>
     <Tooltip
+      v-if="showTooltip"
       ref="tooltip"
       :offset="15"
       placement="top"
@@ -121,7 +122,7 @@
     >
       <div class="flex flex-col justify-center items-center">
         <p>
-          {{ xi > -1 ? xLabels[xi] : '' }}
+          {{ xi > -1 ? formatX(xLabels[xi]) : '' }}
         </p>
         <p class="font-semibold">
           {{ yi > -1 ? format(points[yi][xi]) : '' }}
@@ -131,8 +132,8 @@
   </div>
 </template>
 <script>
+import { euclideanDistance, prefixFormat } from 'src/utils/chart';
 import Tooltip from '../Tooltip.vue';
-import { euclideanDistance, prefixFormat } from './chartUtils';
 
 export default {
   props: {
@@ -142,6 +143,7 @@ export default {
     points: { type: Array, default: () => [[]] },
     drawAxis: { type: Boolean, default: false },
     drawXGrid: { type: Boolean, default: true },
+    drawLabels: { type: Boolean, default: true },
     viewBoxHeight: { type: Number, default: 500 },
     aspectRatio: { type: Number, default: 4 },
     axisPadding: { type: Number, default: 30 },
@@ -158,12 +160,13 @@ export default {
     format: { type: Function, default: (n) => n.toFixed(1) },
     formatY: { type: Function, default: prefixFormat },
     formatX: { type: Function, default: (v) => v },
-    fontSize: { type: Number, default: 18 },
+    fontSize: { type: Number, default: 20 },
     fontColor: { type: String, default: '#415668' },
     bottom: { type: Number, default: 0 },
     left: { type: Number, default: 55 },
     extendGridX: { type: Number, default: -20 },
     tooltipDispDistThreshold: { type: Number, default: 40 },
+    showTooltip: { type: Boolean, default: true },
   },
   computed: {
     fontStyle() {
@@ -290,6 +293,10 @@ export default {
       return `rgb(${rgb})`;
     },
     update(event) {
+      if (!this.showTooltip) {
+        return;
+      }
+
       const { x, y } = this.getSvgXY(event);
       const { xi, yi, cx, cy, d } = this.getPointIndexAndCoords(x, y);
 

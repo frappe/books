@@ -1,0 +1,34 @@
+{
+  "name": "Currency",
+  "label": "Currency",
+  "isSingle": false,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Currency Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "fraction",
+      "label": "Fraction",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "fractionUnits",
+      "label": "Fraction Units",
+      "fieldtype": "Int"
+    },
+    {
+      "label": "Smallest Currency Fraction Value",
+      "fieldname": "smallestValue",
+      "fieldtype": "Currency"
+    },
+    {
+      "label": "Symbol",
+      "fieldname": "symbol",
+      "fieldtype": "Data"
+    }
+  ],
+  "quickEditFields": ["name", "symbol"]
+}

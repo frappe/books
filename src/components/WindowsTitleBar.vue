@@ -31,8 +31,8 @@
 
 <script>
 import { ipcRenderer } from 'electron';
-import { runWindowAction } from '@/utils';
-import { IPC_MESSAGES } from '@/messages';
+import { runWindowAction } from 'src/utils/ipcCalls';
+import { IPC_MESSAGES } from 'utils/messages';
 
 export default {
   name: 'WindowsTitleBar',

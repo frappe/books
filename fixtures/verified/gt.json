@@ -9,12 +9,12 @@
             "Animales": {
               "accountNumber": "1.5.2.1",
               "accountType": "Stock",
-              "isGroup": 1
+              "isGroup": true
             },
             "Plantas": {
               "accountNumber": "1.5.2.2",
               "accountType": "Stock",
-              "isGroup": 1
+              "isGroup": true
             },
             "accountNumber": "1.5.2",
             "accountType": "Stock"
@@ -22,7 +22,7 @@
           "Activos Biol\u00f3gicos al Costo": {
             "accountNumber": "1.5.1",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountNumber": "1.5",
           "accountType": "Stock"
@@ -32,7 +32,7 @@
             "Cr\u00e9dito Fiscal (IVA Por Cobrar)": {
               "accountNumber": "1.1.2.1",
               "accountType": "Chargeable",
-              "isGroup": 1
+              "isGroup": true
             },
             "accountNumber": "1.1.2",
             "accountType": "Chargeable"
@@ -47,22 +47,22 @@
           "Activos Adicionales y Otros": {
             "accountNumber": "1.6.6",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Cobrables Relacionados con Impuestos": {
             "accountNumber": "1.6.2",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Contratos de Construccion": {
             "accountNumber": "1.6.4",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Costos de Montaje": {
             "accountNumber": "1.6.5",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Pagos Anticipados y Otros Activos Circulantes": {
             "Seguro Pagado Anticipadamente": {
@@ -75,7 +75,7 @@
           "Proveedores de Servicio": {
             "accountNumber": "1.6.3",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountNumber": "1.6",
           "accountType": "Chargeable"
@@ -84,32 +84,32 @@
           "Activos Financieros Clasificados por Designaci\u00f3n": {
             "accountNumber": "1.4.6",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Activos Financieros Derivados": {
             "accountNumber": "1.4.3",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Inversion o Participaci\u00f3n Accionaria en Empresas Afiliadas": {
             "accountNumber": "1.4.1",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Inversiones Burs\u00e1tiles e Instrumentos Financieros": {
             "accountNumber": "1.4.2",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Otros Activos Financieros": {
             "accountNumber": "1.4.4",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Provisi\u00f3n por Riesgo de Cr\u00e9dito (agregado) (Contra-activo)": {
             "accountNumber": "1.4.5",
             "accountType": "Round Off",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountNumber": "1.4",
           "accountType": "Chargeable"
@@ -117,13 +117,13 @@
         "Activos Intangibles": {
           "accountNumber": "1.3",
           "accountType": "Chargeable",
-          "isGroup": 1
+          "isGroup": true
         },
         "Caja y Equivalentes": {
           "Caja": {
             "accountNumber": "1.9.1",
             "accountType": "Cash",
-            "isGroup": 1
+            "isGroup": true
           },
           "Equivalentes de Efectivo (Bancos)": {
             "Bancos Internacionales": {
@@ -146,7 +146,7 @@
               "Banco Industrial": {
                 "accountNumber": "1.9.2.1.1",
                 "accountType": "Bank",
-                "isGroup": 1
+                "isGroup": true
               },
               "Banco Internacional": {
                 "accountNumber": "1.9.2.1.6",
@@ -189,12 +189,12 @@
           "Inversiones a Corto Plazo": {
             "accountNumber": "1.9.3",
             "accountType": "Bank",
-            "isGroup": 1
+            "isGroup": true
           },
           "Otros Equivalentes de Caja y Bancos": {
             "accountNumber": "1.9.4",
             "accountType": "Cash",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountNumber": "1.9",
           "accountType": "Bank"
@@ -203,12 +203,12 @@
           "Activos bajo Contrato": {
             "accountNumber": "1.8.2",
             "accountType": "Receivable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Ajustes": {
             "accountNumber": "1.8.4",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "Otras Cuentas por Cobrar": {
             "Cuentas Por Cobrar Compa\u00f1\u00edas Afiliadas": {
@@ -241,7 +241,7 @@
           "Ventas al Cr\u00e9dito": {
             "accountNumber": "1.8.1",
             "accountType": "Receivable",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountNumber": "1.8",
           "accountType": "Receivable"
@@ -253,38 +253,38 @@
           "Art\u00edculos de Inventario Adicionales": {
             "accountNumber": "1.7.8",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Combustibles": {
             "accountNumber": "1.7.5",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Inventarios Pignorados Como Garant\u00eda de Pasivo": {
             "accountNumber": "1.7.10",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Inventarios a Valor Razonable Menos Costos de Venta": {
             "accountNumber": "1.7.11",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Materia Prima": {
             "accountNumber": "1.7.1",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Mercader\u00eda (Mercanc\u00edas)": {
             "accountNumber": "1.7.2",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Otros Inventarios": {
             "Merma o Ajuste de Inventario": {
               "accountNumber": "1.7.9.1",
               "accountType": "Stock Adjustment",
-              "isGroup": 1
+              "isGroup": true
             },
             "accountNumber": "1.7.9",
             "accountType": "Stock"
@@ -292,13 +292,13 @@
           "Producto Terminado": {
             "accountNumber": "1.7.7",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Repuestos": {
             "Respuestos en Transito": {
               "accountNumber": "1.7.4.0",
               "accountType": "Stock",
-              "isGroup": 1
+              "isGroup": true
             },
             "accountNumber": "1.7.4",
             "accountType": "Stock"
@@ -306,12 +306,12 @@
           "Suministros de Producci\u00f3n y Consumibles": {
             "accountNumber": "1.7.3",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "Trabajo en Progeso": {
             "accountNumber": "1.7.6",
             "accountType": "Stock",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountNumber": "1.7",
           "accountType": "Stock"
@@ -324,7 +324,7 @@
           "Inversion Inmobiliaria Construida": {
             "accountNumber": "1.2.2",
             "accountType": "Chargeable",
-            "isGroup": 1
+            "isGroup": true
           },
           "accountNumber": "1.2",
           "accountType": "Chargeable"

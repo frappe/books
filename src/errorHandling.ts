@@ -1,31 +1,22 @@
 import { ipcRenderer } from 'electron';
-import frappe, { t } from 'frappe';
+import { t } from 'fyo';
+import { Doc } from 'fyo/model/doc';
 import {
-  DuplicateEntryError,
-  LinkValidationError,
   MandatoryError,
+  NotFoundError,
   ValidationError,
-} from 'frappe/common/errors';
-import Document from 'frappe/model/document';
-import config, { ConfigKeys, TelemetrySetting } from './config';
-import { IPC_ACTIONS, IPC_MESSAGES } from './messages';
-import telemetry from './telemetry/telemetry';
-import { showMessageDialog, showToast } from './utils';
-
-interface ErrorLog {
-  name: string;
-  message: string;
-  stack?: string;
-  more?: Record<string, unknown>;
-}
-
-function getCanLog(): boolean {
-  const telemetrySetting = config.get(ConfigKeys.Telemetry);
-  return telemetrySetting !== TelemetrySetting.dontLogAnything;
-}
+} from 'fyo/utils/errors';
+import { ErrorLog } from 'fyo/utils/types';
+import { truncate } from 'lodash';
+import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
+import { fyo } from './initFyo';
+import router from './router';
+import { getErrorMessage } from './utils';
+import { MessageDialogOptions, ToastOptions } from './utils/types';
+import { showMessageDialog, showToast } from './utils/ui';
 
 function shouldNotStore(error: Error) {
-  return [MandatoryError, ValidationError].some(
+  return [MandatoryError, ValidationError, NotFoundError].some(
     (errorClass) => error instanceof errorClass
   );
 }
@@ -42,8 +33,7 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
     more: JSON.stringify(errorLogObj.more ?? {}),
   };
 
-  if (frappe.store.isDevelopment) {
-    console.log('errorHandling');
+  if (fyo.store.isDevelopment) {
     console.log(body);
   }
 
@@ -51,22 +41,13 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
   cb?.();
 }
 
-function getToastProps(errorLogObj: ErrorLog, canLog: boolean, cb?: Function) {
-  const props = {
-    message: t`Error: ` + errorLogObj.name,
+function getToastProps(errorLogObj: ErrorLog, cb?: Function) {
+  const props: ToastOptions = {
+    message: errorLogObj.name ?? t`Error`,
     type: 'error',
+    actionText: t`Report Error`,
+    action: () => reportIssue(errorLogObj),
   };
-
-  // @ts-ignore
-  if (!canLog) {
-    Object.assign(props, {
-      actionText: t`Report Error`,
-      action: () => {
-        reportIssue(errorLogObj);
-        reportError(errorLogObj, cb);
-      },
-    });
-  }
 
   return props;
 }
@@ -79,18 +60,17 @@ export function getErrorLogObject(
   const errorLogObj = { name, stack, message, more };
 
   // @ts-ignore
-  frappe.errorLog.push(errorLogObj);
+  fyo.errorLog.push(errorLogObj);
 
   return errorLogObj;
 }
 
-export function handleError(
+export async function handleError(
   shouldLog: boolean,
   error: Error,
   more?: Record<string, unknown>,
   cb?: Function
 ) {
-  telemetry.error(error.name);
   if (shouldLog) {
     console.error(error);
   }
@@ -101,35 +81,44 @@ export function handleError(
 
   const errorLogObj = getErrorLogObject(error, more ?? {});
 
-  // @ts-ignore
-  const canLog = getCanLog();
-  if (canLog) {
-    reportError(errorLogObj, cb);
-  } else {
-    showToast(getToastProps(errorLogObj, canLog, cb));
-  }
+  await reportError(errorLogObj, cb);
+  const toastProps = getToastProps(errorLogObj, cb);
+  await showToast(toastProps);
 }
 
-export function getErrorMessage(e: Error, doc?: Document): string {
-  let errorMessage = e.message || t`An error occurred.`;
-
-  const { doctype, name }: { doctype?: unknown; name?: unknown } = doc ?? {};
-  const canElaborate = !!(doctype && name);
-
-  if (e instanceof LinkValidationError && canElaborate) {
-    errorMessage = t`${doctype} ${name} is linked with existing records.`;
-  } else if (e instanceof DuplicateEntryError && canElaborate) {
-    errorMessage = t`${doctype} ${name} already exists.`;
-  }
-
-  return errorMessage;
-}
-
-export function handleErrorWithDialog(error: Error, doc?: Document) {
+export async function handleErrorWithDialog(
+  error: Error,
+  doc?: Doc,
+  reportError?: false,
+  dontThrow?: false
+) {
   const errorMessage = getErrorMessage(error, doc);
-  handleError(false, error, { errorMessage, doc });
+  await handleError(false, error, { errorMessage, doc });
 
-  showMessageDialog({ message: error.name, description: errorMessage });
+  const name = error.name ?? t`Error`;
+  const options: MessageDialogOptions = { message: name, detail: errorMessage };
+
+  if (reportError) {
+    options.detail = truncate(options.detail, { length: 128 });
+    options.buttons = [
+      {
+        label: t`Report`,
+        action() {
+          reportIssue(getErrorLogObject(error, { errorMessage }));
+        },
+      },
+      { label: t`OK`, action() {} },
+    ];
+  }
+
+  await showMessageDialog(options);
+  if (dontThrow) {
+    if (fyo.store.isDevelopment) {
+      console.error(error);
+    }
+    return;
+  }
+
   throw error;
 }
 
@@ -148,7 +137,7 @@ export function getErrorHandled(func: Function) {
     try {
       return await func(...args);
     } catch (error) {
-      handleError(false, error as Error, {
+      await handleError(false, error as Error, {
         functionName: func.name,
         functionArgs: args,
       });
@@ -166,9 +155,9 @@ export function getErrorHandledSync(func: Function) {
       handleError(false, error as Error, {
         functionName: func.name,
         functionArgs: args,
+      }).then(() => {
+        throw error;
       });
-
-      throw error;
     }
   };
 }
@@ -191,10 +180,8 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
     body.push('**Stack**:', '```', errorLogObj.stack, '```', '');
   }
 
-  const { fullPath } = (errorLogObj?.more as { fullPath?: string }) ?? {};
-  if (fullPath) {
-    body.push(`**Path**: \`${fullPath}\``);
-  }
+  body.push(`**Version**: \`${fyo.store.appVersion}\``);
+  body.push(`**Path**: \`${router.currentRoute.value.fullPath}\``);
 
   const url = [baseUrl, `body=${body.join('\n')}`].join('&');
   return encodeURI(url);

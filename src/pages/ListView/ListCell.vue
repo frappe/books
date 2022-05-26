@@ -5,7 +5,7 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
+import { fyo } from 'src/initFyo';
 
 export default {
   name: 'ListCell',
@@ -14,7 +14,7 @@ export default {
     columnValue() {
       let { column, doc } = this;
       let value = doc[column.fieldname];
-      return frappe.format(value, column, doc);
+      return fyo.format(value, column, doc);
     },
     customRenderer() {
       if (!this.column.render) return;
@@ -24,7 +24,7 @@ export default {
       return ['Int', 'Float', 'Currency'].includes(this.column.fieldtype)
         ? 'justify-end'
         : '';
-    }
-  }
+    },
+  },
 };
 </script>

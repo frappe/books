@@ -6,13 +6,13 @@
       "Current Assets": {
         "Accounts Receivable": {
           "Debtors": {
-            "isGroup": 0,
+            "isGroup": false,
             "accountType": "Receivable"
           }
         },
         "Bank Accounts": {
           "accountType": "Bank",
-          "isGroup": 1
+          "isGroup": true
         },
         "Cash In Hand": {
           "Cash": {
@@ -21,7 +21,7 @@
           "accountType": "Cash"
         },
         "Loans and Advances (Assets)": {
-          "isGroup": 1
+          "isGroup": true
         },
         "Securities and Deposits": {
           "Earnest Money": {}
@@ -33,7 +33,7 @@
           "accountType": "Stock"
         },
         "Tax Assets": {
-          "isGroup": 1
+          "isGroup": true
         }
       },
       "Fixed Assets": {
@@ -60,7 +60,7 @@
         }
       },
       "Investments": {
-        "isGroup": 1
+        "isGroup": true
       },
       "Temporary Accounts": {
         "Temporary Opening": {
@@ -126,7 +126,7 @@
       },
       "Indirect Income": {
         "accountType": "Income Account",
-        "isGroup": 1
+        "isGroup": true
       },
       "rootType": "Income"
     },

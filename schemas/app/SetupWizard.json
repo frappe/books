@@ -1,0 +1,92 @@
+{
+  "name": "SetupWizard",
+  "label": "Setup Wizard",
+  "isSingle": true,
+  "isChild": false,
+  "isSubmittable": false,
+  "fields": [
+    {
+      "fieldname": "logo",
+      "label": "Company Logo",
+      "fieldtype": "AttachImage"
+    },
+    {
+      "fieldname": "country",
+      "label": "Country",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select Country",
+      "required": true
+    },
+    {
+      "fieldname": "fullname",
+      "label": "Your Name",
+      "fieldtype": "Data",
+      "placeholder": "John Doe",
+      "required": true
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "placeholder": "john@doe.com",
+      "required": true
+    },
+    {
+      "fieldname": "companyName",
+      "label": "Company Name",
+      "placeholder": "Company Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "bankName",
+      "label": "Bank Name",
+      "fieldtype": "Data",
+      "placeholder": "Prime Bank",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearStart",
+      "label": "Fiscal Year Start Date",
+      "placeholder": "Fiscal Year Start Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearEnd",
+      "label": "Fiscal Year End Date",
+      "placeholder": "Fiscal Year End Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "Data",
+      "placeholder": "Currency",
+      "required": true
+    },
+    {
+      "fieldname": "chartOfAccounts",
+      "label": "Chart of Accounts",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select CoA",
+      "required": true
+    },
+    {
+      "fieldname": "completed",
+      "label": "Completed",
+      "fieldtype": "Check",
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "bankName",
+    "country",
+    "currency",
+    "chartOfAccounts",
+    "fiscalYearStart",
+    "fiscalYearEnd"
+  ]
+}

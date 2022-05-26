@@ -1,0 +1,24 @@
+{
+  "name": "TaxDetail",
+  "label": "Tax Detail",
+  "isSingle": false,
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "account",
+      "label": "Tax Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Float",
+      "required": true,
+      "placeholder": "0%"
+    }
+  ],
+  "tableFields": ["account", "rate"]
+}

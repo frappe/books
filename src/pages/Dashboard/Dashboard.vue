@@ -1,42 +1,33 @@
 <template>
   <div class="flex flex-col">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">{{ t`Dashboard` }}</h1>
-      </template>
-      <template #actions>
-        <SearchBar class="ml-2" />
-      </template>
-    </PageHeader>
-    <hr class="border-t mx-4" />
-    <div class="mx-4 overflow-y-scroll no-scrollbar">
-      <Cashflow class="mt-5" />
-      <hr class="border-t mt-10" />
-      <UnpaidInvoices class="mt-10 ml-4 mr-4" />
-      <hr class="border-t mt-10" />
-      <div class="flex justify-between mx-auto mt-10 ml-4 mr-4 gap-10">
-        <ProfitAndLoss class="w-1/2" />
-        <Expenses class="w-1/2" />
+    <PageHeader :title="t`Dashboard`" />
+
+    <div class="mx-4 overflow-y-scroll no-scrollbar flex flex-col gap-8">
+      <Cashflow class="" />
+      <hr />
+      <UnpaidInvoices />
+      <hr />
+      <div class="flex gap-8">
+        <ProfitAndLoss class="w-full" />
+        <Expenses class="w-full" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
+import PageHeader from 'src/components/PageHeader';
 import Cashflow from './Cashflow';
-import UnpaidInvoices from './UnpaidInvoices';
-import ProfitAndLoss from './ProfitAndLoss';
 import Expenses from './Expenses';
+import ProfitAndLoss from './ProfitAndLoss';
+import UnpaidInvoices from './UnpaidInvoices';
 
 export default {
   name: 'Dashboard',
   components: {
     PageHeader,
-    SearchBar,
-    Cashflow,
     UnpaidInvoices,
+    Cashflow,
     ProfitAndLoss,
     Expenses,
   },

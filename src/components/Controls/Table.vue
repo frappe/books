@@ -1,10 +1,12 @@
 <template>
-  <div>
+  <div v-if="tableFields?.length">
     <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
       {{ df.label }}
     </div>
+
+    <!-- Title Row -->
     <Row :ratio="ratio" class="border-b px-2 text-gray-600 w-full">
-      <div class="flex items-center pl-2">No</div>
+      <div class="flex items-center pl-2">#</div>
       <div
         :class="{
           'px-2 py-3': size === 'small',
@@ -17,16 +19,25 @@
         {{ df.label }}
       </div>
     </Row>
-    <div class="overflow-auto" :style="{ 'max-height': rowContainerHeight }">
+
+    <!-- Data Rows -->
+    <div
+      class="overflow-auto"
+      :style="{ 'max-height': maxHeight }"
+      v-if="value"
+    >
       <TableRow
+        v-for="row in value"
         :class="{ 'pointer-events-none': isReadOnly }"
         ref="table-row"
-        v-for="row in value"
         :key="row.name"
         v-bind="{ row, tableFields, size, ratio, isNumeric }"
+        :read-only="isReadOnly"
         @remove="removeRow(row)"
       />
     </div>
+
+    <!-- Add Row and Row Count -->
     <Row
       :ratio="ratio"
       class="text-gray-500 cursor-pointer border-transparent px-2 w-full"
@@ -52,69 +63,101 @@
           'px-2 py-3': size === 'small',
           'px-3 py-4': size !== 'small',
         }"
-        v-if="maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow"
+        v-if="
+          value && maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow
+        "
       >
-        {{ value.length }} rows
+        {{ t`${value.length} rows` }}
       </div>
     </Row>
   </div>
 </template>
 
 <script>
-import frappe from 'frappe';
-import Row from '@/components/Row';
-import Base from './Base';
-import TableRow from './TableRow';
+import Row from 'src/components/Row.vue';
+import { fyo } from 'src/initFyo';
+import { nextTick } from 'vue';
+import Base from './Base.vue';
+import TableRow from './TableRow.vue';
 
 export default {
   name: 'Table',
   extends: Base,
   props: {
+    value: { type: Array, default: () => [] },
     showHeader: {
+      type: Boolean,
       default: true,
     },
     maxRowsBeforeOverflow: {
-      default: 0,
+      type: Number,
+      default: 3,
     },
   },
   components: {
     Row,
     TableRow,
   },
-  data: () => ({ rowContainerHeight: null }),
+  inject: {
+    doc: { default: null },
+  },
   watch: {
-    value: {
-      immediate: true,
-      handler(rows) {
-        if (!this.maxRowsBeforeOverflow) return;
-        if (this.rowContainerHeight) return;
-        if (rows && rows.length > 0) {
-          this.$nextTick(() => {
-            let rowHeight = this.$refs['table-row'][0].$el.offsetHeight;
-            let containerHeight = rowHeight * this.maxRowsBeforeOverflow;
-            this.rowContainerHeight = `${containerHeight}px`;
-          });
-        }
-      },
+    value() {
+      this.setMaxHeight();
     },
+  },
+  data() {
+    return { maxHeight: '' };
+  },
+  mounted() {
+    if (fyo.store.isDevelopment) {
+      window.tab = this;
+    }
   },
   methods: {
     focus() {},
     addRow() {
-      let rows = this.value || [];
-      this.triggerChange([...rows, {}]);
-      this.$nextTick(() => {
-        this.scrollToRow(this.value.length - 1);
+      this.doc.append(this.df.fieldname, {}).then((s) => {
+        if (!s) {
+          return;
+        }
+
+        nextTick(() => {
+          this.scrollToRow(this.value.length - 1);
+        });
+        this.triggerChange(this.value);
       });
     },
     removeRow(row) {
-      let rows = this.value || [];
-      rows = rows.filter((_row) => _row !== row);
-      this.triggerChange(rows);
+      this.doc.remove(this.df.fieldname, row.idx).then((s) => {
+        if (!s) {
+          return;
+        }
+
+        this.triggerChange(this.value);
+      });
     },
     scrollToRow(index) {
-      let row = this.$refs['table-row'][index];
+      const row = this.$refs['table-row'][index];
       row && row.$el.scrollIntoView({ block: 'nearest' });
+    },
+    setMaxHeight() {
+      if (this.maxRowsBeforeOverflow === 0) {
+        return (this.maxHeight = '');
+      }
+
+      const size = this?.value?.length ?? 0;
+      if (size === 0) {
+        return (this.maxHeight = '');
+      }
+
+      const rowHeight = this.$refs?.['table-row']?.[0]?.$el.offsetHeight;
+      if (rowHeight === undefined) {
+        return (this.maxHeight = '');
+      }
+
+      const maxHeight = rowHeight * Math.min(this.maxRowsBeforeOverflow, size);
+      return (this.maxHeight = `${maxHeight}px`);
     },
   },
   computed: {
@@ -122,8 +165,8 @@ export default {
       return [0.3].concat(this.tableFields.map(() => 1));
     },
     tableFields() {
-      let meta = frappe.getMeta(this.df.childtype);
-      return meta.tableFields.map((fieldname) => meta.getField(fieldname));
+      const fields = fyo.schemaMap[this.df.target].tableFields ?? [];
+      return fields.map((fieldname) => fyo.getField(this.df.target, fieldname));
     },
   },
 };

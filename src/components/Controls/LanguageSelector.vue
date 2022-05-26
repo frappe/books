@@ -2,16 +2,15 @@
   <FormControl
     :df="languageDf"
     :value="value"
-    @change="(v) => setLanguageMap(v, dontReload)"
+    @change="onChange"
     :input-class="'focus:outline-none rounded ' + inputClass"
   />
 </template>
 <script>
-import config from '@/config';
-import { languageCodeMap } from '@/languageCodeMap';
-import { setLanguageMap } from '@/utils';
-import { DEFAULT_LANGUAGE } from 'frappe/utils/consts';
-import FormControl from './FormControl';
+import { DEFAULT_LANGUAGE } from 'fyo/utils/consts';
+import { fyo } from 'src/initFyo';
+import { languageCodeMap, setLanguageMap } from 'src/utils/language';
+import FormControl from './FormControl.vue';
 
 export default {
   methods: {
@@ -21,7 +20,7 @@ export default {
     inputClass: {
       type: String,
       default:
-        'bg-gray-100 active:bg-gray-200 focus:bg-gray-200 px-3 py-2 text-base',
+        'px-3 py-2 text-base',
     },
     dontReload: {
       type: Boolean,
@@ -29,18 +28,26 @@ export default {
     },
   },
   components: { FormControl },
+  methods: {
+    onChange(value) {
+      if (languageCodeMap[value] === undefined) {
+        return;
+      }
+
+      setLanguageMap(value, this.dontReload);
+    },
+  },
   computed: {
     value() {
-      return config.get('language') ?? DEFAULT_LANGUAGE;
+      return fyo.config.get('language') ?? DEFAULT_LANGUAGE;
     },
     languageDf() {
-      languageCodeMap;
       return {
         fieldname: 'language',
         label: this.t`Language`,
-        fieldtype: 'Select',
+        fieldtype: 'AutoComplete',
         options: Object.keys(languageCodeMap),
-        default: config.get('language') ?? DEFAULT_LANGUAGE,
+        default: fyo.config.get('language') ?? DEFAULT_LANGUAGE,
         description: this.t`Set the display language.`,
       };
     },

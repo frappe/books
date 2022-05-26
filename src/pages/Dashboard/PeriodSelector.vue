@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import Dropdown from '@/components/Dropdown';
-import { t } from 'frappe';
+import { t } from 'fyo';
+import Dropdown from 'src/components/Dropdown';
 
 export default {
   name: 'PeriodSelector',
@@ -74,7 +74,6 @@ export default {
   },
   methods: {
     selectOption(value) {
-      console.log(value);
       this.$emit('change', value);
       this.$refs.dropdown.toggleDropdown(false);
     },

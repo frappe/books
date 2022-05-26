@@ -1,12 +1,16 @@
 <script>
-import Link from './Link';
+import { fyo } from 'src/initFyo';
+import Link from './Link.vue';
 export default {
   name: 'DynamicLink',
   props: ['target'],
+  inject: {
+    report: { default: null },
+  },
   extends: Link,
   created() {
-    let watchKey = `doc.${this.df.references}`;
-    this.targetWatcher = this.$watch(watchKey, function(newTarget, oldTarget) {
+    const watchKey = `doc.${this.df.references}`;
+    this.targetWatcher = this.$watch(watchKey, function (newTarget, oldTarget) {
       if (oldTarget && newTarget !== oldTarget) {
         this.triggerChange('');
       }
@@ -16,12 +20,27 @@ export default {
     this.targetWatcher();
   },
   methods: {
-    getTarget() {
-      if (!this.doc) {
-        throw new Error('You must provide `doc` for DynamicLink to work.');
+    getTargetSchemaName() {
+      const references = this.df.references;
+      if (!references) {
+        return null;
       }
-      return this.doc[this.df.references];
-    }
-  }
+
+      let schemaName = this.doc?.[references];
+      if (!schemaName) {
+        schemaName = this.report?.[references];
+      }
+
+      if (!schemaName) {
+        return null;
+      }
+
+      if (!fyo.schemaMap[schemaName]) {
+        return null;
+      }
+
+      return schemaName;
+    },
+  },
 };
 </script>

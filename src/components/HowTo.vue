@@ -9,7 +9,7 @@
   </button>
 </template>
 <script>
-import { IPC_MESSAGES } from '@/messages';
+import { IPC_MESSAGES } from 'utils/messages';
 import { ipcRenderer } from 'electron';
 import FeatherIcon from './FeatherIcon.vue';
 

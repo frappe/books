@@ -1,9 +1,10 @@
 <template>
   <div
     class="absolute bottom-0 flex justify-end pb-6 pr-6"
-    style="width: calc(100% - 12rem)"
+    :style="{ width: fullWidth ? '100%' : 'calc(100% - 12rem)' }"
     v-if="open && !close"
   >
+    <!-- Loading Continer -->
     <div
       class="
         text-gray-900
@@ -16,17 +17,30 @@
         bg-white
         rounded-lg
       "
-      v-if="true"
     >
-      <p class="text-base text-gray-600 pb-2" v-if="message.length">{{ message }}</p>
+      <!-- Message -->
+      <p class="text-base text-gray-600 pb-2" v-if="message?.length">
+        {{ message }}
+      </p>
+
+      <!-- Loading Bar Container -->
       <div class="w-full flex flex-row items-center">
-        <div class="w-full bg-gray-200 h-3 mr-2 rounded">
+        <!-- Loading Bar BG -->
+        <div
+          class="w-full h-3 mr-2 rounded"
+          :class="percent >= 0 ? 'bg-gray-200' : 'bg-gray-300'"
+        >
+          <!-- Loading Bar -->
           <div
+            v-if="percent >= 0"
             class="h-3 rounded bg-blue-400"
             :style="{ width: `${percent * 100}%` }"
           ></div>
         </div>
+
+        <!-- Close Icon -->
         <feather-icon
+          v-if="showX"
           name="x"
           class="
             w-4
@@ -48,11 +62,16 @@ export default {
     open: { type: Boolean, default: false },
     percent: { type: Number, default: 0.5 },
     message: { type: String, default: '' },
+    fullWidth: { type: Boolean, default: false },
+    showX: { type: Boolean, default: true },
   },
   data() {
     return {
       close: false,
     };
+  },
+  mounted() {
+    window.l = this;
   },
   methods: {
     closeToast() {

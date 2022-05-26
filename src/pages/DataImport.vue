@@ -1,43 +1,37 @@
 <template>
   <div class="flex flex-col overflow-hidden w-full">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">
-          {{ t`Data Import` }}
-        </h1>
-      </template>
-      <template #actions>
-        <DropdownWithActions
-          class="ml-2"
-          :actions="actions"
-          v-if="(canCancel || importType) && !complete"
-        />
-        <Button
-          v-if="importType && !complete"
-          type="primary"
-          class="text-sm ml-2"
-          @click="handlePrimaryClick"
-          >{{ primaryLabel }}</Button
-        >
-      </template>
+    <!-- Header -->
+    <PageHeader :title="t`Data Import`">
+      <DropdownWithActions
+        :actions="actions"
+        v-if="(canCancel || importType) && !complete"
+      />
+      <Button
+        v-if="importType && !complete"
+        type="primary"
+        class="text-sm"
+        @click="handlePrimaryClick"
+        >{{ primaryLabel }}</Button
+      >
     </PageHeader>
+
     <div
-      class="flex px-8 mt-2 text-base w-full flex-col gap-8"
+      class="flex px-4 mt-2 text-base w-full flex-col gap-8"
       v-if="!complete"
     >
       <!-- Type selector -->
       <div class="flex flex-row justify-start items-center w-full gap-2">
         <FormControl
           :df="importableDf"
-          input-class="bg-gray-100 text-gray-900 text-base"
-          class="w-40"
+          input-class="bg-transparent text-gray-900 text-base"
+          class="w-40 bg-gray-100 rounded"
           :value="importType"
           size="small"
           @change="setImportType"
         />
 
         <p
-          class="text-base text-base ml-2"
+          class="text-base ml-2"
           :class="fileName ? 'text-gray-900 font-semibold' : 'text-gray-700'"
         >
           <span v-if="fileName" class="font-normal"
@@ -57,8 +51,6 @@
           <div
             v-if="file && isSubmittable"
             class="
-              justify-center
-              items-center
               gap-2
               flex
               justify-between
@@ -70,7 +62,7 @@
               w-40
             "
           >
-            <p>{{ frappe.t`Submit on Import` }}</p>
+            <p>{{ t`Submit on Import` }}</p>
             <FormControl
               size="small"
               input-class="bg-gray-100"
@@ -87,12 +79,7 @@
               flex flex-row
               justify-center
               items-center
-              justify-center
-              items-center
               gap-2
-              flex
-              justify-between
-              items-center
               bg-gray-100
               pl-2
               rounded
@@ -336,18 +323,20 @@
   </div>
 </template>
 <script>
-import Button from '@/components/Button.vue';
-import FormControl from '@/components/Controls/FormControl';
-import DropdownWithActions from '@/components/DropdownWithActions.vue';
-import FeatherIcon from '@/components/FeatherIcon.vue';
-import HowTo from '@/components/HowTo.vue';
-import PageHeader from '@/components/PageHeader.vue';
-import { importable, Importer } from '@/dataImport';
-import { IPC_ACTIONS } from '@/messages';
-import { getSavePath, saveData, showMessageDialog } from '@/utils';
 import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
+import Button from 'src/components/Button.vue';
+import FormControl from 'src/components/Controls/FormControl.vue';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
+import FeatherIcon from 'src/components/FeatherIcon.vue';
+import HowTo from 'src/components/HowTo.vue';
+import PageHeader from 'src/components/PageHeader.vue';
+import { importable, Importer } from 'src/dataImport';
+import { fyo } from 'src/initFyo';
+import { getSavePath, saveData } from 'src/utils/ipcCalls';
+import { showMessageDialog } from 'src/utils/ui';
+import { IPC_ACTIONS } from 'utils/messages';
 import Loading from '../components/Loading.vue';
+
 export default {
   components: {
     PageHeader,
@@ -370,6 +359,11 @@ export default {
       percentLoading: 0,
       messageLoading: '',
     };
+  },
+  mounted() {
+    if (fyo.store.isDevelopment) {
+      window.di = this;
+    }
   },
   computed: {
     labelIndex() {
@@ -438,9 +432,9 @@ export default {
       return this.file ? this.t`Import Data` : this.t`Select File`;
     },
     isSubmittable() {
-      const doctype = this.importer?.doctype;
-      if (doctype) {
-        return frappe.models[doctype].isSubmittable ?? false;
+      const schemaName = this.importer?.schemaName;
+      if (schemaName) {
+        return fyo.schemaMap[schemaName].isSubmittable ?? false;
       }
       return false;
     },
@@ -450,14 +444,14 @@ export default {
         label: this.t`Import Type`,
         fieldtype: 'AutoComplete',
         placeholder: this.t`Import Type`,
-        getList: () => importable.map((i) => frappe.models[i].label),
+        options: Object.keys(this.labelSchemaNameMap),
       };
     },
-    labelDoctypeMap() {
+    labelSchemaNameMap() {
       return importable
         .map((i) => ({
           name: i,
-          label: frappe.models[i].label,
+          label: fyo.schemaMap[i].label,
         }))
         .reduce((acc, { name, label }) => {
           acc[label] = name;
@@ -477,9 +471,9 @@ export default {
   },
   methods: {
     showMe() {
-      const doctype = this.importer.doctype;
+      const schemaName = this.importer.schemaName;
       this.clear();
-      this.$router.push(`/list/${doctype}`);
+      this.$router.push(`/list/${schemaName}`);
     },
     clear() {
       this.file = null;
@@ -548,33 +542,30 @@ export default {
       }
 
       if (this.isRequiredUnassigned) {
-        showMessageDialog({
+        return await showMessageDialog({
           message: this.t`Required Fields not Assigned`,
-          description: this
+          detail: this
             .t`Please assign the following fields ${this.requiredUnassigned.join(
             ', '
           )}`,
         });
-        return;
       }
 
       if (this.importer.assignedMatrix.length === 0) {
-        showMessageDialog({
+        return await showMessageDialog({
           message: this.t`No Data to Import`,
-          description: this.t`Please select a file with data to import.`,
+          detail: this.t`Please select a file with data to import.`,
         });
-        return;
       }
 
       const { success, names, message } = await this.importer.importData(
         this.setLoadingStatus
       );
       if (!success) {
-        showMessageDialog({
+        return await showMessageDialog({
           message: this.t`Import Failed`,
-          description: message,
+          detail: message,
         });
-        return;
       }
 
       this.names = names;
@@ -585,7 +576,10 @@ export default {
         this.clear();
       }
       this.importType = importType;
-      this.importer = new Importer(this.labelDoctypeMap[this.importType]);
+      this.importer = new Importer(
+        this.labelSchemaNameMap[this.importType],
+        fyo
+      );
     },
     setLoadingStatus(isMakingEntries, entriesMade, totalEntries) {
       this.isMakingEntries = isMakingEntries;
@@ -605,7 +599,9 @@ export default {
         await ipcRenderer.invoke(IPC_ACTIONS.GET_FILE, options);
 
       if (!success && !canceled) {
-        showMessageDialog({ message: this.t`File selection failed.` });
+        return await showMessageDialog({
+          message: this.t`File selection failed.`,
+        });
       }
 
       if (!success || canceled) {
@@ -615,11 +611,10 @@ export default {
       const text = new TextDecoder().decode(data);
       const isValid = this.importer.selectFile(text);
       if (!isValid) {
-        showMessageDialog({
+        return await showMessageDialog({
           message: this.t`Bad import data.`,
-          description: this.t`Could not select file.`,
+          detail: this.t`Could not select file.`,
         });
-        return;
       }
 
       this.file = {

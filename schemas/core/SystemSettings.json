@@ -1,0 +1,113 @@
+{
+  "name": "SystemSettings",
+  "label": "System Settings",
+  "isSingle": true,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "dateFormat",
+      "label": "Date Format",
+      "fieldtype": "AutoComplete",
+      "options": [
+        {
+          "label": "23/03/2022",
+          "value": "dd/MM/yyyy"
+        },
+        {
+          "label": "03/23/2022",
+          "value": "MM/dd/yyyy"
+        },
+        {
+          "label": "23-03-2022",
+          "value": "dd-MM-yyyy"
+        },
+        {
+          "label": "03-23-2022",
+          "value": "MM-dd-yyyy"
+        },
+        {
+          "label": "2022-03-23",
+          "value": "yyyy-MM-dd"
+        },
+        {
+          "label": "23 Mar, 2022",
+          "value": "d MMM, y"
+        },
+        {
+          "label": "Mar 23, 2022",
+          "value": "MMM d, y"
+        }
+      ],
+      "default": "MMM d, y",
+      "required": true,
+      "allowCustom": true,
+      "description": "Sets the app-wide date display format."
+    },
+    {
+      "fieldname": "locale",
+      "label": "Locale",
+      "fieldtype": "AutoComplete",
+      "default": "en-IN",
+      "required": true,
+      "description": "Set the local code. This is used for number formatting."
+    },
+    {
+      "fieldname": "displayPrecision",
+      "label": "Display Precision",
+      "fieldtype": "Int",
+      "default": 2,
+      "required": true,
+      "minvalue": 0,
+      "maxvalue": 9,
+      "description": "Sets how many digits are shown after the decimal point."
+    },
+    {
+      "fieldname": "internalPrecision",
+      "label": "Internal Precision",
+      "fieldtype": "Int",
+      "minvalue": 0,
+      "default": 11,
+      "description": "Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies."
+    },
+    {
+      "fieldname": "hideGetStarted",
+      "label": "Hide Get Started",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app."
+    },
+    {
+      "fieldname": "countryCode",
+      "label": "Country Code",
+      "fieldtype": "Data",
+      "default": "in",
+      "description": "Country code used to initialize regional settings."
+    },
+    {
+      "fieldname": "currency",
+      "label": "Currency",
+      "fieldtype": "AutoComplete",
+      "default": "INR",
+      "required": true
+    },
+    {
+      "fieldname": "version",
+      "label": "Version",
+      "fieldtype": "Data",
+      "readOnly": true
+    },
+    {
+      "fieldname": "instanceId",
+      "label": "Instance Id",
+      "fieldtype": "Data",
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": [
+    "locale",
+    "dateFormat",
+    "currency",
+    "displayPrecision",
+    "hideGetStarted"
+  ]
+}

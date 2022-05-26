@@ -1,22 +1,19 @@
 <template>
   <div class="flex">
     <div class="flex flex-col flex-1">
-      <PageHeader class="bg-white z-10">
-        <template #title>
-          <BackLink />
-        </template>
-        <template #actions>
-          <Button
-            class="text-gray-900 text-xs ml-2"
-            @click="showCustomiser = !showCustomiser"
-          >
-            {{ t`Customise` }}
-          </Button>
-          <Button class="text-gray-900 text-xs ml-2" @click="makePDF">
-            {{ t`Save as PDF` }}
-          </Button>
-        </template>
+      <PageHeader :backLink="true" class="bg-white z-10">
+        <Button
+          class="text-gray-900 text-xs"
+          @click="showCustomiser = !showCustomiser"
+        >
+          {{ t`Customise` }}
+        </Button>
+        <Button class="text-gray-900 text-xs" @click="makePDF">
+          {{ t`Save as PDF` }}
+        </Button>
       </PageHeader>
+
+      <!-- Printview Preview -->
       <div
         v-if="doc && printSettings"
         class="flex justify-center flex-1 -mt-36 overflow-auto relative"
@@ -39,6 +36,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Printview Customizer -->
     <div class="border-l w-80" v-if="showCustomiser">
       <div class="mt-4 px-4 flex items-center justify-between">
         <h2 class="font-semibold">{{ t`Customise` }}</h2>
@@ -51,26 +50,22 @@
   </div>
 </template>
 <script>
-import BackLink from '@/components/BackLink';
-import Button from '@/components/Button';
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
-import TwoColumnForm from '@/components/TwoColumnForm';
-import { IPC_ACTIONS } from '@/messages';
-import telemetry from '@/telemetry/telemetry';
-import { Verb } from '@/telemetry/types';
-import { makePDF } from '@/utils';
 import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
+import { Verb } from 'fyo/telemetry/types';
+import Button from 'src/components/Button.vue';
+import PageHeader from 'src/components/PageHeader.vue';
+import InvoiceTemplate from 'src/components/SalesInvoice/InvoiceTemplate.vue';
+import TwoColumnForm from 'src/components/TwoColumnForm.vue';
+import { fyo } from 'src/initFyo';
+import { makePDF } from 'src/utils/ipcCalls';
+import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
   name: 'PrintView',
-  props: ['doctype', 'name'],
+  props: { schemaName: String, name: String },
   components: {
     PageHeader,
-    SearchBar,
     Button,
-    BackLink,
     TwoColumnForm,
   },
   data() {
@@ -81,25 +76,46 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.getDoc(this.doctype, this.name);
-    this.printSettings = await frappe.getSingle('PrintSettings');
+    this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
+    this.printSettings = await fyo.doc.getDoc('PrintSettings');
+
+    if (fyo.store.isDevelopment) {
+      window.pv = this;
+    }
   },
   computed: {
-    meta() {
-      return frappe.getMeta(this.doctype);
-    },
     printTemplate() {
-      return this.meta.printTemplate;
+      return InvoiceTemplate;
     },
   },
   methods: {
+    constructPrintDocument() {
+      const html = document.createElement('html');
+      const head = document.createElement('head');
+      const body = document.createElement('body');
+      const style = document.getElementsByTagName('style');
+      const styleTags = Array.from(style)
+        .map((s) => s.outerHTML)
+        .join('\n');
+
+      head.innerHTML = [
+        '<meta charset="UTF-8">',
+        '<title>Print Window</title>',
+        styleTags,
+      ].join('\n');
+
+      body.innerHTML = this.$refs.printContainer.innerHTML;
+      html.append(head, body);
+      return html.outerHTML;
+    },
     async makePDF() {
       const savePath = await this.getSavePath();
       if (!savePath) return;
 
-      const html = this.$refs.printContainer.innerHTML;
-      telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
-      makePDF(html, savePath);
+
+      const html = this.constructPrintDocument()
+      await makePDF(html, savePath);
+      fyo.telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
     },
     async getSavePath() {
       const options = {

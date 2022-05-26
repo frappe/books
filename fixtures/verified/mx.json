@@ -110,7 +110,7 @@
         },
         "INVENTARIOS": {
           "accountType": "Stock",
-          "isGroup": 1
+          "isGroup": true
         }
       },
       "ACTIVO LARGO PLAZO": {

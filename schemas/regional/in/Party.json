@@ -1,0 +1,42 @@
+{
+  "name": "Party",
+  "fields": [
+    {
+      "fieldname": "gstin",
+      "label": "GSTIN No.",
+      "fieldtype": "Data"
+    },
+    {
+      "fieldname": "gstType",
+      "label": "GST Registration",
+      "placeholder": "GST Registration",
+      "fieldtype": "Select",
+      "default": "Unregistered",
+      "options": [
+        {
+          "value": "Unregistered",
+          "label": "Unregistered"
+        },
+        {
+          "value": "Registered Regular",
+          "label": "Registered Regular"
+        },
+        {
+          "value": "Consumer",
+          "label": "Consumer"
+        }
+      ]
+    }
+  ],
+  "quickEditFields": [
+    "email",
+    "phone",
+    "address",
+    "defaultAccount",
+    "currency",
+    "role",
+    "gstType",
+    "gstin"
+  ],
+  "removeFields": ["taxId"]
+}

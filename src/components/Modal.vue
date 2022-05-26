@@ -1,14 +1,20 @@
 <template>
   <div
-    class="absolute w-screen h-screen z-20 flex justify-center items-center"
-    style="background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(6px)"
+    class="
+      fixed
+      top-0
+      left-0
+      w-screen
+      h-screen
+      z-20
+      flex
+      justify-center
+      items-center
+    "
+    style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(4px)"
     v-if="openModal"
   >
-    <div
-      class="bg-white rounded-lg shadow-2xl"
-      v-bind="$attrs"
-      style="width: 600px"
-    >
+    <div class="bg-white rounded-lg shadow-2xl w-form" v-bind="$attrs">
       <slot></slot>
     </div>
   </div>

@@ -1,0 +1,83 @@
+{
+  "name": "AccountingSettings",
+  "label": "Accounting Settings",
+  "isSingle": true,
+  "isChild": false,
+  "isSubmittable": false,
+  "fields": [
+    {
+      "label": "Company Name",
+      "fieldname": "companyName",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "required": true
+    },
+    {
+      "label": "Write Off Account",
+      "fieldname": "writeOffAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "default": "Write Off"
+    },
+    {
+      "label": "Round Off Account",
+      "fieldname": "roundOffAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "default": "Rounded Off"
+    },
+    {
+      "fieldname": "country",
+      "label": "Country",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select Country",
+      "readOnly": true,
+      "required": true
+    },
+    {
+      "fieldname": "fullname",
+      "label": "Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "email",
+      "label": "Email",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "bankName",
+      "label": "Bank Name",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearStart",
+      "label": "Fiscal Year Start Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearEnd",
+      "label": "Fiscal Year End Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "setupComplete",
+      "label": "Setup Complete",
+      "fieldtype": "Check",
+      "default": false
+    }
+  ],
+  "quickEditFields": [
+    "fullname",
+    "email",
+    "companyName",
+    "country",
+    "fiscalYearStart",
+    "fiscalYearEnd"
+  ]
+}

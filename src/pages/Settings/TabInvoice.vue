@@ -1,42 +1,29 @@
 <template>
-  <div v-if="doc">
-    <div class="flex items-center">
+  <div v-if="doc" class="pb-4">
+    <hr />
+    <div class="flex items-center gap-4 p-4">
       <FormControl
-        :df="meta.getField('logo')"
+        :df="getField('logo')"
         :value="doc.logo"
         @change="
           (value) => {
-            doc.set('logo', value);
-            doc.update();
-            forwardChangeEvent(meta.getField('logo'));
+            doc.setAndSync('logo', value);
+            forwardChangeEvent(getField('logo'));
           }
         "
       />
-      <div class="ml-6 flex flex-col">
-        <span class="font-semibold">
+      <div class="flex flex-col">
+        <span
+          class="bg-transparent font-semibold text-xl text-gray-900 px-3 py-2"
+        >
           {{ companyName }}
         </span>
-        <span class="text-lg text-gray-700">
+        <span class="text-lg text-gray-800 px-3 py-2">
           {{ doc.email }}
         </span>
-        <FormControl
-          class="mt-2"
-          :df="meta.getField('displayLogo')"
-          :value="doc.displayLogo"
-          :show-label="true"
-          @change="
-            (value) => {
-              doc.set('displayLogo', value);
-              doc.update();
-              forwardChangeEvent(meta.getField('displayLogo'));
-            }
-          "
-          size="small"
-        />
       </div>
     </div>
     <TwoColumnForm
-      class="mt-6"
       :doc="doc"
       :fields="fields"
       :autosave="true"
@@ -46,11 +33,11 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
 import { ipcRenderer } from 'electron';
-import TwoColumnForm from '@/components/TwoColumnForm';
-import FormControl from '@/components/Controls/FormControl';
-import { IPC_ACTIONS } from '@/messages';
+import TwoColumnForm from 'src/components/TwoColumnForm.vue';
+import { fyo } from 'src/initFyo';
+import { IPC_ACTIONS } from 'utils/messages';
+import FormControl from '../../components/Controls/FormControl.vue';
 
 export default {
   name: 'TabInvoice',
@@ -61,7 +48,7 @@ export default {
   emits: ['change'],
   provide() {
     return {
-      doctype: 'PrintSettings',
+      schemaName: 'PrintSettings',
       name: 'PrintSettings',
     };
   },
@@ -73,25 +60,29 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.getSingle('PrintSettings');
+    this.doc = await fyo.doc.getDoc('PrintSettings');
     this.companyName = (
-      await frappe.getSingle('AccountingSettings')
+      await fyo.doc.getDoc('AccountingSettings')
     ).companyName;
   },
   computed: {
-    meta() {
-      return frappe.getMeta('PrintSettings');
-    },
     fields() {
-      return ['template', 'color', 'font', 'email', 'phone', 'address'].map(
-        (field) => this.meta.getField(field)
-      );
+      const fields = ['template', 'color', 'font', 'email', 'phone', 'address'];
+
+      if (this.doc.logo) {
+        fields.unshift('displayLogo');
+      }
+
+      return fields.map((field) => this.getField(field));
     },
   },
   methods: {
+    getField(fieldname) {
+      return fyo.getField('PrintSettings', fieldname);
+    },
     async openFileSelector() {
       const options = {
-        title: frappe.t`Select Logo`,
+        title: t`Select Logo`,
         properties: ['openFile'],
         filters: [{ name: 'Invoice Logo', extensions: ['png', 'jpg', 'svg'] }],
       };

@@ -29,16 +29,16 @@
           },
           "123. \u00c9p\u00fcletek, \u00e9p\u00fcletr\u00e9szek, tulajdoni h\u00e1nyadok ": {
             "accountType": "Fixed Asset",
-            "isGroup": 1
+            "isGroup": true
           },
           "124. Egy\u00e9b ingatlanok": {
-            "isGroup": 1
+            "isGroup": true
           },
           "125. \u00dczemk\u00f6r\u00f6n k\u00edv\u00fcli ingatlanok, \u00e9p\u00fcletek ": {
-            "isGroup": 1
+            "isGroup": true
           },
           "126. Ingatlanokhoz kapcsol\u00f3d\u00f3 vagyoni \u00e9rt\u00e9k\u0171 jogok": {
-            "isGroup": 1
+            "isGroup": true
           },
           "127. Ingatlanok \u00e9rt\u00e9khelyesb\u00edt\u00e9se": {},
           "129. Kis \u00e9rt\u00e9k\u0171 ingatlanok": {}
@@ -148,7 +148,7 @@
         "239. Befejezetlen termel\u00e9s \u00e9s f\u00e9lk\u00e9sz term\u00e9kek \u00e9rt\u00e9kveszt\u00e9se \u00e9s annak vissza\u00edr\u00e1sa": {}
       },
       "24. N\u00d6VEND\u00c9K-, H\u00cdZ\u00d3- \u00c9S EGY\u00c9B \u00c1LLATOK": {
-        "isGroup": 1
+        "isGroup": true
       },
       "25. K\u00c9SZTERM\u00c9KEK": {
         "251-257. K\u00e9szterm\u00e9kek": {},
@@ -158,23 +158,23 @@
       "26-28. \u00c1RUK ": {
         "261. Kereskedelmi \u00e1ruk": {
           "accountType": "Stock",
-          "isGroup": 0
+          "isGroup": false
         },
         "262. Idegen helyen t\u00e1rolt, bizom\u00e1nyba \u00e1tadott \u00e1ruk": {
           "accountType": "Stock",
-          "isGroup": 0
+          "isGroup": false
         },
         "263. T\u00e1rgyi eszk\u00f6z\u00f6k k\u00f6z\u00fcl \u00e1tsorolt \u00e1ruk": {
           "accountType": "Stock",
-          "isGroup": 0
+          "isGroup": false
         },
         "264. Bels\u0151 (egys\u00e9gek, tev\u00e9kenys\u00e9gek k\u00f6z\u00f6tti) \u00e1tad\u00e1s-\u00e1tv\u00e9tel \u00fctk\u00f6z\u0151sz\u00e1mla": {
           "accountType": "Stock",
-          "isGroup": 0
+          "isGroup": false
         },
         "269. Kereskedelmi \u00e1ruk \u00e9rt\u00e9kveszt\u00e9se \u00e9s annak vissza\u00edr\u00e1sa": {
           "accountType": "Stock",
-          "isGroup": 0
+          "isGroup": false
         },
         "accountType": "Stock"
       },
@@ -183,7 +183,7 @@
         "279. K\u00f6zvet\u00edtett szolg\u00e1ltat\u00e1sok \u00e9rt\u00e9kveszt\u00e9se \u00e9s annak vissza\u00edr\u00e1sa": {}
       },
       "28. BET\u00c9TD\u00cdJAS G\u00d6NGY\u00d6LEGEK": {
-        "isGroup": 1
+        "isGroup": true
       },
       "rootType": "Asset"
     },
@@ -205,13 +205,13 @@
         "319. K\u00fclf\u00f6ldi k\u00f6vetel\u00e9sek \u00e9rt\u00e9kveszt\u00e9se \u00e9s annak vissza\u00edr\u00e1sa": {}
       },
       "32. K\u00d6VETEL\u00c9SEK KAPCSOLT V\u00c1LLALKOZ\u00c1SSAL SZEMBEN": {
-        "isGroup": 1
+        "isGroup": true
       },
       "33. K\u00d6VETEL\u00c9SEK EGY\u00c9B R\u00c9SZESED\u00c9SI VISZONYBAN L\u00c9V\u00d5 V\u00c1LLALKOZ\u00c1SSAL SZEMBEN ": {
-        "isGroup": 1
+        "isGroup": true
       },
       "34. V\u00c1LT\u00d3K\u00d6VETEL\u00c9SEK": {
-        "isGroup": 1
+        "isGroup": true
       },
       "35. ADOTT EL\u00d5LEGEK": {
         "351. Immateri\u00e1lis javakra adott el\u0151legek": {},
@@ -227,17 +227,17 @@
           "3613. Egy\u00e9b elsz\u00e1mol\u00e1sok a munkav\u00e1llal\u00f3kkal": {}
         },
         "362. K\u00f6lts\u00e9gvet\u00e9ssel szembeni k\u00f6vetel\u00e9sek": {
-          "isGroup": 1
+          "isGroup": true
         },
         "363. R\u00f6vid lej\u00e1ratra k\u00f6lcs\u00f6nadott p\u00e9nzeszk\u00f6z\u00f6k": {
-          "isGroup": 1
+          "isGroup": true
         },
         "364. R\u00e9szesed\u00e9sekkel, \u00e9rt\u00e9kpap\u00edrokkal kapcsolatos k\u00f6vetel\u00e9sek": {
           "3641. R\u00f6vid lej\u00e1rat\u00fa k\u00f6lcs\u00f6n\u00f6k": {},
           "3642. Tart\u00f3san adott k\u00f6lcs\u00f6n\u00f6kb\u0151l \u00e1tsorolt k\u00f6vetel\u00e9sek": {}
         },
         "365. V\u00e1s\u00e1rolt \u00e9s kapott k\u00f6vetel\u00e9sek ": {
-          "isGroup": 1
+          "isGroup": true
         },
         "366. R\u00e9szesed\u00e9sekkel, \u00e9rt\u00e9kpap\u00edrokkal kapcsolatos k\u00f6vetel\u00e9sek": {},
         "367. Hat\u00e1rid\u0151s, opci\u00f3s \u00e9s swap \u00fcgyletekkel kapcsolatos k\u00f6vetel\u00e9sek": {},
@@ -285,7 +285,7 @@
         "383. Csekkek": {},
         "384. Elsz\u00e1mol\u00e1si bet\u00e9tsz\u00e1mla ": {
           "accountType": "Bank",
-          "isGroup": 1
+          "isGroup": true
         },
         "385. Elk\u00fcl\u00f6n\u00edtett bet\u00e9tsz\u00e1ml\u00e1k ": {
           "3851. Kamatoz\u00f3 bet\u00e9tsz\u00e1ml\u00e1k": {},
@@ -373,7 +373,7 @@
             "4452. Egy\u00e9b hossz\u00fa lej\u00e1rat\u00fa hitelek deviz\u00e1ban": {}
           },
           "446. Tart\u00f3s k\u00f6telezetts\u00e9gek kapcsolt v\u00e1llalkoz\u00e1ssal szemben ": {
-            "isGroup": 1
+            "isGroup": true
           },
           "447. Tart\u00f3s k\u00f6telezetts\u00e9gek egy\u00e9b r\u00e9szesed\u00e9si viszonyban l\u00e9v\u0151 v\u00e1llalkoz\u00e1ssal szemben": {},
           "448. P\u00e9nz\u00fcgyi l\u00edzing miatti k\u00f6telezetts\u00e9gek ": {},
@@ -449,7 +449,7 @@
               "463-9. C\u00e9gaut\u00f3ad\u00f3 ": {}
             },
             "464. G\u00e9pj\u00e1rm\u0171 ad\u00f3 (c\u00e9gaut\u00f3ad\u00f3) elsz\u00e1mol\u00e1sa": {
-              "isGroup": 1
+              "isGroup": true
             },
             "465. V\u00e1m- \u00e9s p\u00e9nz\u00fcgy\u0151rs\u00e9g elsz\u00e1mol\u00e1si sz\u00e1mla ": {
               "4651. V\u00e1mk\u00f6lts\u00e9gek \u00e9s egy\u00e9b v\u00e1mterhek elsz\u00e1mol\u00e1si sz\u00e1mla": {},
@@ -619,7 +619,7 @@
         "589. Aktiv\u00e1lt saj\u00e1t teljes\u00edtm\u00e9nyek \u00e1tvezet\u00e9si sz\u00e1mla": {}
       },
       "59. K\u00d6LTS\u00c9GNEM \u00c1TVEZET\u00c9SI SZ\u00c1MLA": {
-        "isGroup": 1
+        "isGroup": true
       },
       "rootType": "Expense"
     },
@@ -647,7 +647,7 @@
       "rootType": "Expense"
     },
     "7. SZ\u00c1MLAOSZT\u00c1LY TEV\u00c9KENYS\u00c9GEKK\u00d6LTS\u00c9GEI": {
-      "isGroup": 1,
+      "isGroup": true,
       "rootType": "Expense"
     },
     "8. SZ\u00c1MLAOSZT\u00c1LY \u00c9RT\u00c9KES\u00cdT\u00c9S ELSZ\u00c1MOLT \u00d6NK\u00d6LTS\u00c9GE \u00c9S R\u00c1FORD\u00cdT\u00c1SOK": {
@@ -812,7 +812,7 @@
           "9684. R\u00e9szesed\u00e9sek \u00e9rt\u00e9kveszt\u00e9s\u00e9nek vissza\u00edr\u00e1sa": {}
         },
         "969. K\u00fcl\u00f6nf\u00e9le egy\u00e9b bev\u00e9telek": {
-          "isGroup": 1
+          "isGroup": true
         }
       },
       "97. P\u00c9NZ\u00dcGYI M\u0170VELETEK BEV\u00c9TELEI": {

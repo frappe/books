@@ -4,17 +4,17 @@
       {{ df.label }}
     </div>
     <div
-      class="
-        flex
-        items-center
-        justify-between
-        bg-white
-        focus-within:bg-gray-200
-      "
+      class="flex items-center justify-between focus-within:bg-gray-200"
       :class="inputClasses"
     >
       <select
-        class="appearance-none bg-transparent focus:outline-none w-11/12 cursor-pointer"
+        class="
+          appearance-none
+          bg-transparent
+          focus:outline-none
+          w-11/12
+          cursor-pointer
+        "
         :class="{
           'pointer-events-none': isReadOnly,
           'text-gray-400': !value,
@@ -36,6 +36,7 @@
         </option>
       </select>
       <svg
+        v-if="!isReadOnly"
         class="w-3 h-3"
         style="background: inherit; margin-right: -3px"
         viewBox="0 0 5 10"

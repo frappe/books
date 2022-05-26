@@ -1,0 +1,111 @@
+{
+  "name": "SalesInvoice",
+  "label": "Sales Invoice",
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "fields": [
+    {
+      "label": "Invoice No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "party",
+      "label": "Party",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "account",
+      "label": "Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "currency",
+      "label": "Customer Currency",
+      "fieldtype": "Link",
+      "target": "Currency"
+    },
+    {
+      "fieldname": "exchangeRate",
+      "label": "Exchange Rate",
+      "fieldtype": "Float",
+      "default": 1,
+      "readOnly": true
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "SalesInvoiceItem",
+      "required": true
+    },
+    {
+      "fieldname": "netTotal",
+      "label": "Net Total",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "baseNetTotal",
+      "label": "Net Total (Company Currency)",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "taxes",
+      "label": "Taxes",
+      "fieldtype": "Table",
+      "target": "TaxSummary",
+      "readOnly": true
+    },
+    {
+      "fieldname": "grandTotal",
+      "label": "Grand Total",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "baseGrandTotal",
+      "label": "Grand Total (Company Currency)",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "outstandingAmount",
+      "label": "Outstanding Amount",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add invoice terms",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "SINV-"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

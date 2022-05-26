@@ -1,0 +1,32 @@
+{
+  "name": "TaxSummary",
+  "label": "Tax Summary",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "account",
+      "label": "Tax Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Float",
+      "required": true
+    },
+    {
+      "fieldname": "amount",
+      "label": "Amount",
+      "fieldtype": "Currency",
+      "required": true
+    },
+    {
+      "fieldname": "baseAmount",
+      "label": "Amount (Company Currency)",
+      "fieldtype": "Currency",
+      "readOnly": true
+    }
+  ]
+}

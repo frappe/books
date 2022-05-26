@@ -11,7 +11,7 @@
         },
         "Banque": {
           "accountType": "Bank",
-          "isGroup": 1
+          "isGroup": true
         },
         "Comptes \u00e0 recevoir": {
           "Comptes clients": {
@@ -20,7 +20,7 @@
           "Provision pour cr\u00e9ances douteuses": {}
         },
         "Encaisse": {
-          "isGroup": 1
+          "isGroup": true
         },
         "Frais pay\u00e9s d\u2019avance": {
           "Assurances pay\u00e9s d'avance": {},
@@ -29,7 +29,7 @@
         },
         "Petite caisse": {
           "accountType": "Cash",
-          "isGroup": 1
+          "isGroup": true
         },
         "Stocks": {
           "Mati\u00e8res premi\u00e8res": {},
@@ -175,7 +175,7 @@
           "Loyer - b\u00e2timent": {},
           "Loyer - entrep\u00f4t": {},
           "Op\u00e9rations indirectes de la main-d\u2019\u0153uvre directe": {
-            "isGroup": 1
+            "isGroup": true
           },
           "R\u00e9parations et entretien - b\u00e2timent": {},
           "R\u00e9parations et entretien - machinerie et \u00e9quipement": {},

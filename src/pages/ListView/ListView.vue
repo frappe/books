@@ -1,79 +1,70 @@
 <template>
   <div class="flex flex-col">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold" v-if="title">
-          {{ title }}
-        </h1>
-      </template>
-      <template #actions>
-        <FilterDropdown
-          ref="filterDropdown"
-          @change="applyFilter"
-          :fields="meta.fields"
-        />
-        <Button class="ml-2" :icon="true" type="primary" @click="makeNewDoc">
-          <feather-icon name="plus" class="w-4 h-4 text-white" />
-        </Button>
-        <SearchBar class="ml-2" />
-      </template>
-    </PageHeader>
-    <div class="flex-1 flex h-full">
-      <List
-        ref="list"
-        :listConfig="listConfig"
-        :filters="filters"
-        class="flex-1"
-        @makeNewDoc="makeNewDoc"
+    <PageHeader :title="title">
+      <FilterDropdown
+        ref="filterDropdown"
+        @change="applyFilter"
+        :fields="fields"
       />
-    </div>
+      <Button
+        :icon="true"
+        type="primary"
+        @click="makeNewDoc"
+        :padding="false"
+        class="px-3"
+      >
+        <feather-icon name="plus" class="w-4 h-4 text-white" />
+      </Button>
+    </PageHeader>
+    <List
+      ref="list"
+      :schemaName="schemaName"
+      :listConfig="listConfig"
+      :filters="filters"
+      class="flex-1 flex h-full"
+      @makeNewDoc="makeNewDoc"
+    />
   </div>
 </template>
 <script>
-import Button from '@/components/Button';
-import FilterDropdown from '@/components/FilterDropdown';
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
-import { routeTo } from '@/utils';
-import frappe from 'frappe';
+import Button from 'src/components/Button.vue';
+import FilterDropdown from 'src/components/FilterDropdown.vue';
+import PageHeader from 'src/components/PageHeader.vue';
+import { fyo } from 'src/initFyo';
+import { routeTo } from 'src/utils/ui';
 import List from './List';
 
 export default {
   name: 'ListView',
-  props: ['doctype', 'filters'],
+  props: {
+    schemaName: String,
+    filters: Object,
+    pageTitle: { type: String, default: '' },
+  },
   components: {
     PageHeader,
     List,
     Button,
-    SearchBar,
     FilterDropdown,
   },
   data() {
-    return { listConfigs: undefined };
+    return { listConfig: undefined };
   },
   async activated() {
     if (typeof this.filters === 'object') {
       this.$refs.filterDropdown.setFilter(this.filters);
     }
 
-    if (this.listConfigs === undefined) {
-      this.listConfigs = (await import('./listConfig')).default;
-    }
+    this.listConfig = getListConfig(this.schemaName);
   },
   methods: {
     async makeNewDoc() {
-      const doctype = this.listConfig.doctype;
-      const doc = await frappe.getNewDoc(doctype);
-      if (this.listConfig.filters) {
-        doc.set(this.listConfig.filters);
-      }
-      if (this.filters) {
-        doc.set(this.filters);
-      }
-      let path = this.getFormPath(doc.name);
+      const doc = await fyo.doc.getNewDoc(this.schemaName, this.filters ?? {});
+      const path = this.getFormPath(doc.name);
+
       routeTo(path);
-      doc.on('afterInsert', () => {
-        let path = this.getFormPath(doc.name);
+      doc.on('afterSync', () => {
+        const path = this.getFormPath(doc.name);
         this.$router.replace(path);
       });
     },
@@ -82,10 +73,10 @@ export default {
     },
     getFormPath(name) {
       let path = {
-        path: `/list/${this.doctype}`,
+        path: `/list/${this.schemaName}`,
         query: {
           edit: 1,
-          doctype: this.doctype,
+          schemaName: this.schemaName,
           name,
         },
       };
@@ -104,23 +95,22 @@ export default {
     },
   },
   computed: {
-    meta() {
-      return frappe.getMeta(this.doctype);
-    },
-    listConfig() {
-      if (this?.listConfigs?.[this?.doctype]) {
-        return this.listConfigs[this.doctype];
-      } else {
-        return {
-          title: this.doctype,
-          doctype: this.doctype,
-          columns: this.meta.getKeywordFields(),
-        };
-      }
-    },
     title() {
-      return this.listConfig.title || this.doctype;
+      return this.pageTitle || fyo.schemaMap[this.schemaName].label;
+    },
+    fields() {
+      return fyo.schemaMap[this.schemaName].fields;
     },
   },
 };
+
+function getListConfig(schemaName) {
+  const listConfig = fyo.models[schemaName]?.getListViewSettings?.(fyo);
+  if (listConfig?.columns === undefined) {
+    return {
+      columns: ['name'],
+    };
+  }
+  return listConfig;
+}
 </script>

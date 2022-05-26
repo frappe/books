@@ -7,21 +7,23 @@
       </template>
     </SectionHeader>
     <div class="flex relative" v-show="hasData">
-      <div class="w-1/2">
+      <!-- Chart Legend -->
+      <div class="w-1/2 flex flex-col gap-5 mt-8">
+        <!-- Ledgend Item -->
         <div
-          class="mt-5 flex justify-between items-center text-sm"
+          class="flex items-center text-sm"
           v-for="(d, i) in expenses"
           :key="d.name"
+          @mouseover="active = i"
+          @mouseleave="active = null"
         >
-          <div
-            class="flex items-center"
-            @mouseover="active = i"
-            @mouseleave="active = null"
-          >
-            <div class="w-3 h-3 rounded-sm" :class="d.class"></div>
-            <div class="ml-3">{{ d.account }}</div>
-          </div>
-          <p class="whitespace-nowrap">{{ frappe.format(d.total, 'Currency') }}</p>
+          <div class="w-3 h-3 rounded-sm flex-shrink-0" :class="d.class" />
+          <p class="ml-2 overflow-x-scroll whitespace-nowrap no-scrollbar w-28">
+            {{ d.account }} 
+          </p>
+          <p class="whitespace-nowrap flex-shrink-0 ml-auto">
+            {{ fyo.format(d?.total ?? 0, 'Currency') }}
+          </p>
         </div>
       </div>
       <DonutChart
@@ -31,11 +33,13 @@
         :offset-x="3"
         :thickness="11.5"
         :text-offset-x="6.5"
-        :value-formatter="(value) => frappe.format(value, 'Currency')"
+        :value-formatter="(value) => fyo.format(value, 'Currency')"
         :total-label="t`Total Spending`"
         @change="(value) => (active = value)"
       />
     </div>
+
+    <!-- Empty Message -->
     <div
       v-if="expenses.length === 0"
       class="flex-1 w-full h-full flex-center my-20"
@@ -48,10 +52,10 @@
 </template>
 
 <script>
-import theme from '@/theme';
-import frappe from 'frappe';
+import { fyo } from 'src/initFyo';
+import theme from 'src/theme';
+import { getDatesAndPeriodList } from 'src/utils/misc';
 import DonutChart from '../../components/Charts/DonutChart.vue';
-import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 
@@ -92,26 +96,11 @@ export default {
   },
   methods: {
     async setData() {
-      const { fromDate, toDate } = await getDatesAndPeriodicity(this.period);
-      const expenseAccounts = frappe.db.knex
-        .select('name')
-        .from('Account')
-        .where('rootType', 'Expense');
-
-      let topExpenses = await frappe.db.knex
-        .select({
-          total: frappe.db.knex.raw(
-            'sum(cast(?? as real)) - sum(cast(?? as real))',
-            ['debit', 'credit']
-          ),
-        })
-        .select('account')
-        .from('AccountingLedgerEntry')
-        .where('account', 'in', expenseAccounts)
-        .whereBetween('date', [fromDate, toDate])
-        .groupBy('account')
-        .orderBy('total', 'desc')
-        .limit(5);
+      const { fromDate, toDate } = await getDatesAndPeriodList(this.period);
+      let topExpenses = await fyo.db.getTopExpenses(
+        fromDate.toISO(),
+        toDate.toISO()
+      );
 
       const shades = [
         { class: 'bg-gray-800', hex: theme.backgroundColor.gray['800'] },
@@ -121,11 +110,13 @@ export default {
         { class: 'bg-gray-200', hex: theme.backgroundColor.gray['200'] },
       ];
 
-      topExpenses = topExpenses.map((d, i) => {
-        d.color = shades[i].hex;
-        d.class = shades[i].class;
-        return d;
-      });
+      topExpenses = topExpenses
+        .filter((e) => e.total > 0)
+        .map((d, i) => {
+          d.color = shades[i].hex;
+          d.class = shades[i].class;
+          return d;
+        });
 
       this.expenses = topExpenses;
     },

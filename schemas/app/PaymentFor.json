@@ -1,0 +1,41 @@
+{
+  "name": "PaymentFor",
+  "label": "Payment For",
+  "isSingle": false,
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "referenceType",
+      "label": "Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "SalesInvoice",
+          "label": "Sales"
+        },
+        {
+          "value": "PurchaseInvoice",
+          "label": "Purchase"
+        }
+      ],
+      "required": true
+    },
+    {
+      "fieldname": "referenceName",
+      "label": "Name",
+      "fieldtype": "DynamicLink",
+      "references": "referenceType",
+      "placeholder": "Name",
+      "required": true
+    },
+    {
+      "fieldname": "amount",
+      "label": "Amount",
+      "fieldtype": "Currency",
+      "required": true
+    }
+  ],
+  "tableFields": ["referenceType", "referenceName", "amount"],
+  "keywordFields": ["referenceName", "referenceType"]
+}

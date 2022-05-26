@@ -8,26 +8,22 @@
       :emit-change="true"
       @change="forwardChangeEvent"
     />
-    <div class="flex flex-row justify-between items-center w-full">
-      <div class="flex items-center">
-        <FormControl
-          :df="df"
-          :value="telemetry"
-          @change="setValue"
-          class="text-sm py-0 w-44"
-          :label-right="false"
-        />
-        <div class="border-r h-6 mx-2" />
-        <LanguageSelector class="text-sm w-44" input-class="py-2" />
-      </div>
+    <div
+      class="flex flex-row justify-between items-center w-full text-gray-900 p-6"
+    >
+      <LanguageSelector
+        class="text-sm w-40 bg-gray-100 rounded-md"
+        input-class="bg-transparent"
+      />
       <button
         class="
-          text-gray-900 text-sm
+          text-sm
           bg-gray-100
           hover:bg-gray-200
           rounded-md
           px-4
-          py-1.5
+          h-8
+          w-40
         "
         @click="checkForUpdates(true)"
       >
@@ -38,22 +34,17 @@
 </template>
 
 <script>
-import FormControl from '@/components/Controls/FormControl';
-import LanguageSelector from '@/components/Controls/LanguageSelector.vue';
-import TwoColumnForm from '@/components/TwoColumnForm';
-import config, {
-ConfigKeys,
-TelemetrySetting
-} from '@/config';
-import { getTelemetryOptions } from '@/telemetry/helpers';
-import telemetry from '@/telemetry/telemetry';
-import { checkForUpdates } from '@/utils';
-import frappe from 'frappe';
+import { ConfigKeys } from 'fyo/core/types';
+import { ModelNameEnum } from 'models/types';
+import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
+import TwoColumnForm from 'src/components/TwoColumnForm';
+import { fyo } from 'src/initFyo';
+import { checkForUpdates } from 'src/utils/ipcCalls';
+import { getCountryInfo } from 'utils/misc';
 
 export default {
   name: 'TabSystem',
   components: {
-    FormControl,
     TwoColumnForm,
     LanguageSelector,
   },
@@ -65,41 +56,20 @@ export default {
     };
   },
   async mounted() {
-    this.doc = frappe.SystemSettings;
-    this.companyName = frappe.AccountingSettings.companyName;
-    this.telemetry = config.get(ConfigKeys.Telemetry);
+    this.doc = fyo.singles.SystemSettings;
+    this.companyName = fyo.singles.AccountingSettings.companyName;
+    this.telemetry = fyo.config.get(ConfigKeys.Telemetry);
+    window.gci = getCountryInfo;
   },
   computed: {
-    df() {
-      const telemetryOptions = getTelemetryOptions();
-      return {
-        fieldname: 'anonymizedTelemetry',
-        label: this.t`Anonymized Telemetry`,
-        fieldtype: 'Select',
-        options: Object.keys(telemetryOptions),
-        map: telemetryOptions,
-        default: 'allow',
-        description: this
-          .t`Send anonymized usage data and error reports to help improve the product.`,
-      };
-    },
     fields() {
-      let meta = frappe.getMeta('SystemSettings');
-      return meta.getQuickEditFields();
+      return fyo.schemaMap.SystemSettings.quickEditFields.map((f) =>
+        fyo.getField(ModelNameEnum.SystemSettings, f)
+      );
     },
   },
   methods: {
     checkForUpdates,
-    setValue(value) {
-      this.telemetry = value;
-      if (value === TelemetrySetting.dontLogAnything) {
-        telemetry.finalLogAndStop();
-      } else {
-        telemetry.log(Verb.Started, NounEnum.Telemetry);
-      }
-
-      config.set(ConfigKeys.Telemetry, value);
-    },
     forwardChangeEvent(...args) {
       this.$emit('change', ...args);
     },

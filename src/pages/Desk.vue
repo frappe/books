@@ -1,7 +1,7 @@
 <template>
   <div class="flex overflow-hidden">
     <Sidebar
-      class="w-48 flex-shrink-0"
+      class="w-sidebar flex-shrink-0"
       @change-db-file="$emit('change-db-file')"
     />
     <div class="flex flex-1 overflow-y-hidden bg-white">
@@ -17,7 +17,7 @@
             <component
               :is="Component"
               class="w-80 flex-1"
-              :key="$route.query.doctype + $route.query.name"
+              :key="$route.query.schemaName + $route.query.name"
             />
           </keep-alive>
         </router-view>
@@ -37,7 +37,7 @@ export default {
     showQuickEdit() {
       return (
         this.$route.query.edit &&
-        this.$route.query.doctype &&
+        this.$route.query.schemaName &&
         this.$route.query.name
       );
     },

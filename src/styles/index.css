@@ -52,3 +52,19 @@ html {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+.w-form {
+  width: 600px;
+}
+
+.h-form {
+  height: 800px;
+}
+
+.w-sidebar {
+  width: 12rem;
+}
+
+.w-desk {
+  width: calc(100vw - 12rem);
+}
