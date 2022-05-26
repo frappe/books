@@ -4,7 +4,7 @@ const webpack = require('webpack');
 module.exports = {
   pluginOptions: {
     electronBuilder: {
-      externals: ['knex', 'sqlite3'],
+      externals: ['knex', 'better-sqlite3'],
       nodeIntegration: true,
       mainProcessFile: 'main.ts',
       disableMainProcessTypescript: false,
@@ -32,6 +32,7 @@ module.exports = {
       filename: 'index.html',
     },
   },
+  parallel: false,
   runtimeCompiler: true,
   lintOnSave: process.env.NODE_ENV !== 'production',
   configureWebpack(config) {
@@ -47,14 +48,6 @@ module.exports = {
       dummy: path.resolve(__dirname, './dummy'),
       fixtures: path.resolve(__dirname, './fixtures'),
     });
-
-    config.plugins.push(
-      // https://github.com/knex/knex/issues/1446#issuecomment-537715431
-      new webpack.ContextReplacementPlugin(
-        /knex[/\\]lib[/\\]dialects/,
-        /sqlite3[/\\]index.js/
-      )
-    );
 
     config.module.rules.push({
       test: /\.txt$/i,

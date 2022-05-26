@@ -18,17 +18,19 @@ allows for a single source of truth and a common interface to access different
 modules such as `db`, `doc` an `auth`.
 
 **Localization**: Since Books' functionality changes depending on region,
-regional information is required in the initialization process.
+regional information (`countryCode`) is required in the initialization process.
 
-**Doc**: This is `fyo`'s abstraction for an ORM, the associated files are
-located in `model`, all classes exported from `books/models` extend this.
+**`Doc`**: This is `fyo`'s abstraction for an ORM, the associated files are
+located in `model/doc.ts`, all classes exported from `books/models` extend this.
 
 ### Terminology
 
 - **Schema**: object that defines shape of the data in the database.
-- **Model**: the controller class that extends the `Doc` class or the `Doc`
-  class itself (if a controller doesn't exist).
-- **Doc**: instance of a Model, i.e. what has the data.
+- **Model**: the controller class that extends the `Doc` class, or the `Doc`
+  class itself (if a specific controller doesn't exist).
+- **doc** (not `Doc`): instance of a Model, i.e. what has the data.
+    
+If you are confused, I understand.
 
 ## Initialization
 
@@ -94,7 +96,7 @@ This can be done using `fyo/utils/translation.ts/setLanguageMapOnTranslationStri
 
 Since translations are runtime, if the code is evaluated before the language map
 is loaded, translations won't work. To prevent this, don't maintain translation
-strings globally.
+strings globally since this will be evaluated before the map is loaded.
 
 ## Observers
 

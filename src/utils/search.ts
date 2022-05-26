@@ -267,18 +267,18 @@ class Search {
     [ModelNameEnum.JournalEntry]: 50,
   };
 
-  #groupedKeywords?: Dictionary<Keyword[]>;
+  _groupedKeywords?: Dictionary<Keyword[]>;
 
   constructor() {
     this.keywords = {};
   }
 
   get groupedKeywords() {
-    if (!this.#groupedKeywords || !Object.keys(this.#groupedKeywords!).length) {
-      this.#groupedKeywords = this.getGroupedKeywords();
+    if (!this._groupedKeywords || !Object.keys(this._groupedKeywords!).length) {
+      this._groupedKeywords = this.getGroupedKeywords();
     }
 
-    return this.#groupedKeywords!;
+    return this._groupedKeywords!;
   }
 
   search(keyword: string /*, array: DocSearchItem[]*/): DocSearchItem[] {
@@ -326,7 +326,7 @@ class Search {
   }
 
   async fetchKeywords() {
-    const searchables = this.#getSearchables();
+    const searchables = this._getSearchables();
     for (const searchable of searchables) {
       const options: GetAllOptions = {
         fields: [searchable.fields, searchable.meta].flat(),
@@ -338,13 +338,13 @@ class Search {
       }
 
       const maps = await fyo.db.getAllRaw(searchable.schemaName, options);
-      this.#addToSearchable(maps, searchable);
+      this._addToSearchable(maps, searchable);
     }
 
-    this.#setPriority();
+    this._setPriority();
   }
 
-  #getSearchables(): Searchable[] {
+  _getSearchables(): Searchable[] {
     const searchable: Searchable[] = [];
     for (const schemaName of Object.keys(fyo.schemaMap)) {
       const schema = fyo.schemaMap[schemaName];
@@ -374,7 +374,7 @@ class Search {
     return searchable;
   }
 
-  #setPriority() {
+  _setPriority() {
     for (const schemaName in this.keywords) {
       const kw = this.keywords[schemaName];
       const basePriority = this.priorityMap[schemaName] ?? 0;
@@ -397,7 +397,7 @@ class Search {
     }
   }
 
-  #addToSearchable(maps: DocValueMap[], searchable: Searchable) {
+  _addToSearchable(maps: DocValueMap[], searchable: Searchable) {
     if (!maps.length) {
       return;
     }
@@ -406,13 +406,13 @@ class Search {
 
     for (const map of maps) {
       const keyword: Keyword = { values: [], meta: {}, priority: 0 };
-      this.#setKeywords(map, searchable, keyword);
-      this.#setMeta(map, searchable, keyword);
+      this._setKeywords(map, searchable, keyword);
+      this._setMeta(map, searchable, keyword);
       this.keywords[searchable.schemaName]!.keywords.push(keyword);
     }
   }
 
-  #setKeywords(map: DocValueMap, searchable: Searchable, keyword: Keyword) {
+  _setKeywords(map: DocValueMap, searchable: Searchable, keyword: Keyword) {
     // Set individual field values
     for (const fn of searchable.fields) {
       let value = map[fn] as string | undefined;
@@ -426,7 +426,7 @@ class Search {
     }
   }
 
-  #setMeta(map: DocValueMap, searchable: Searchable, keyword: Keyword) {
+  _setMeta(map: DocValueMap, searchable: Searchable, keyword: Keyword) {
     // Set the meta map
     for (const fn of searchable.meta) {
       const meta = map[fn];
