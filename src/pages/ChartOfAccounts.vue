@@ -158,7 +158,7 @@ export default {
     },
     async fetchAccounts() {
       this.settings = fyo.models[ModelNameEnum.Account].getTreeSettings(fyo);
-      const { currency } = await fyo.doc.getSingle('AccountingSettings');
+      const { currency } = await fyo.doc.getDoc('AccountingSettings');
       this.root = {
         label: await this.settings.getRootLabel(),
         balance: 0,

@@ -55,7 +55,7 @@ async function updateAccountingSettings(
   }: SetupWizardOptions,
   fyo: Fyo
 ) {
-  const accountingSettings = (await fyo.doc.getSingle(
+  const accountingSettings = (await fyo.doc.getDoc(
     'AccountingSettings'
   )) as AccountingSettings;
   await accountingSettings.setAndSync({
@@ -74,7 +74,7 @@ async function updatePrintSettings(
   { logo, companyName, email }: SetupWizardOptions,
   fyo: Fyo
 ) {
-  const printSettings = await fyo.doc.getSingle('PrintSettings');
+  const printSettings = await fyo.doc.getDoc('PrintSettings');
   await printSettings.setAndSync({
     logo,
     companyName,
@@ -93,7 +93,7 @@ async function updateSystemSettings(
     companyCurrency ?? countryOptions.currency ?? DEFAULT_CURRENCY;
   const locale = countryOptions.locale ?? DEFAULT_LOCALE;
   const countryCode = getCountryCodeFromCountry(country);
-  const systemSettings = await fyo.doc.getSingle('SystemSettings');
+  const systemSettings = await fyo.doc.getDoc('SystemSettings');
   const instanceId = getRandomString();
 
   systemSettings.setAndSync({

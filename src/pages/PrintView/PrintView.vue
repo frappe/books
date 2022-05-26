@@ -77,7 +77,7 @@ export default {
   },
   async mounted() {
     this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
-    this.printSettings = await fyo.doc.getSingle('PrintSettings');
+    this.printSettings = await fyo.doc.getDoc('PrintSettings');
 
     if (fyo.store.isDevelopment) {
       window.pv = this;

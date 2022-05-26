@@ -60,9 +60,9 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await fyo.doc.getSingle('PrintSettings');
+    this.doc = await fyo.doc.getDoc('PrintSettings');
     this.companyName = (
-      await fyo.doc.getSingle('AccountingSettings')
+      await fyo.doc.getDoc('AccountingSettings')
     ).companyName;
   },
   computed: {

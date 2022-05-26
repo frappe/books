@@ -37,8 +37,8 @@ export async function initializeInstance(
 }
 
 async function setSingles(fyo: Fyo) {
-  await fyo.doc.getSingle(ModelNameEnum.AccountingSettings);
-  await fyo.doc.getSingle(ModelNameEnum.GetStarted);
+  await fyo.doc.getDoc(ModelNameEnum.AccountingSettings);
+  await fyo.doc.getDoc(ModelNameEnum.GetStarted);
 }
 
 async function setCreds(fyo: Fyo) {
@@ -58,15 +58,13 @@ async function setVersion(fyo: Fyo) {
 
   const { appVersion } = fyo.store;
   if (version !== appVersion) {
-    const systemSettings = await fyo.doc.getSingle(
-      ModelNameEnum.SystemSettings
-    );
+    const systemSettings = await fyo.doc.getDoc(ModelNameEnum.SystemSettings);
     await systemSettings?.setAndSync('version', appVersion);
   }
 }
 
 async function setInstanceId(fyo: Fyo) {
-  const systemSettings = await fyo.doc.getSingle(ModelNameEnum.SystemSettings);
+  const systemSettings = await fyo.doc.getDoc(ModelNameEnum.SystemSettings);
   if (!systemSettings.instanceId) {
     await systemSettings.setAndSync('instanceId', getRandomString());
   }

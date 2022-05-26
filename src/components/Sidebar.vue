@@ -128,7 +128,7 @@ export default {
     Icon,
   },
   async mounted() {
-    const { companyName } = await fyo.doc.getSingle('AccountingSettings');
+    const { companyName } = await fyo.doc.getDoc('AccountingSettings');
     this.companyName = companyName;
     this.groups = getSidebarConfig();
 

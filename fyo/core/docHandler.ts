@@ -1,7 +1,7 @@
 import { Doc } from 'fyo/model/doc';
 import { DocMap, ModelMap, SinglesMap } from 'fyo/model/types';
 import { coreModels } from 'fyo/models';
-import { NotFoundError } from 'fyo/utils/errors';
+import { NotFoundError, ValueError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
 import { Schema } from 'schemas/types';
 import { getRandomString } from 'utils';
@@ -50,9 +50,17 @@ export class DocHandler {
 
   async getDoc(
     schemaName: string,
-    name: string,
+    name?: string,
     options = { skipDocumentCache: false }
   ) {
+    if (name === undefined) {
+      name = schemaName;
+    }
+
+    if (name === schemaName && !this.fyo.schemaMap[schemaName]?.isSingle) {
+      throw new ValueError(`${schemaName} is not a Single Schema`);
+    }
+
     let doc: Doc | undefined;
     if (!options?.skipDocumentCache) {
       doc = this.#getFromCache(schemaName, name);
@@ -67,10 +75,6 @@ export class DocHandler {
     this.#addToCache(doc);
 
     return doc;
-  }
-
-  async getSingle(schemaName: string) {
-    return await this.getDoc(schemaName, schemaName);
   }
 
   getNewDoc(

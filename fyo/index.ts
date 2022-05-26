@@ -108,7 +108,7 @@ export class Fyo {
     await this.#initializeMoneyMaker();
 
     this.doc.registerModels(models, regionalModels);
-    await this.doc.getSingle('SystemSettings');
+    await this.doc.getDoc('SystemSettings');
     this._initialized = true;
   }
 
