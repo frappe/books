@@ -1,6 +1,3 @@
-<script setup>
-const keys = useKeys();
-</script>
 <template>
   <div>
     <!-- Search Bar Button -->
@@ -149,6 +146,10 @@ import { nextTick, watch } from 'vue';
 import Modal from './Modal.vue';
 
 export default {
+  setup() {
+    const keys = useKeys();
+    return { keys };
+  },
   data() {
     return {
       idx: 0,
@@ -332,11 +333,14 @@ export default {
         .map(({ si }) => si);
 
       let docs = [];
+      /*
       if (this.groupFilters.Docs && this.inputValue) {
         docs = this.docSearch.search(this.inputValue);
       }
+      */
 
       const all = [docs, nonDocs].flat();
+      // eslint-disable-next-line
       this.totalLength = all.length;
       return all.slice(0, 50);
     },

@@ -21,4 +21,4 @@ All of them are triggered from `src/App.vue`.
 ## Global Fyo
 
 Global fyo is exported from `initFyo.ts`. Only code that isn't going to be unit
-tested should use this.
+tested using `mocha` should use this, i.e. code in `src`
