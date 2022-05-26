@@ -1,0 +1,5 @@
+{
+  "name": "Customer",
+  "label": "Customer",
+  "extends": "Party"
+}

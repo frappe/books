@@ -55,9 +55,9 @@
 </template>
 
 <script>
+import Popover from 'src/components/Popover';
+import Row from 'src/components/Row';
 import Base from './Base';
-import Row from '@/components/Row';
-import Popover from '@/components/Popover';
 
 export default {
   name: 'Color',
@@ -78,10 +78,10 @@ export default {
   },
   computed: {
     colors() {
-      return this.df.colors;
+      return this.df.options;
     },
     selectedColorLabel() {
-      let color = this.colors.find((c) => this.value === c.value);
+      const color = this.colors.find((c) => this.value === c.value);
       return color ? color.label : this.value;
     },
   },

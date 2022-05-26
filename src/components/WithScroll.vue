@@ -22,19 +22,17 @@ export default {
   },
 };
 </script>
+
 <style>
-.scroll-container {
-  height: calc(100vh - 12rem);
-}
 .scroll-container::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 .scroll-container::-webkit-scrollbar-thumb {
-  background-color: theme('colors.gray.200');
+  background-color: theme('colors.gray.100');
 }
 .scroll-container::-webkit-scrollbar-thumb:hover {
-  background-color: theme('colors.gray.300');
+  background-color: theme('colors.gray.200');
 }
 .scroll-container::-webkit-scrollbar-track {
   background-color: white;

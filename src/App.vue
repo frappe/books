@@ -4,20 +4,24 @@
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
     <WindowsTitleBar v-if="platform === 'Windows'" />
+
+    <!-- Main Contents -->
     <Desk
       class="flex-1"
       v-if="activeScreen === 'Desk'"
-      @change-db-file="changeDbFile"
+      @change-db-file="showDbSelector"
     />
     <DatabaseSelector
       v-if="activeScreen === 'DatabaseSelector'"
-      @database-connect="showSetupWizardOrDesk(true)"
+      @file-selected="fileSelected"
     />
     <SetupWizard
       v-if="activeScreen === 'SetupWizard'"
       @setup-complete="setupComplete"
-      @setup-canceled="setupCanceled"
+      @setup-canceled="showDbSelector"
     />
+
+    <!-- Render target for toasts -->
     <div
       id="toast-container"
       class="absolute bottom-0 flex flex-col items-end mb-3 pr-6"
@@ -25,30 +29,23 @@
     >
       <div id="toast-target" />
     </div>
-    <TelemetryModal />
   </div>
 </template>
 
 <script>
-import WindowsTitleBar from '@/components/WindowsTitleBar';
-import config from '@/config';
-import {
-  connectToLocalDatabase,
-  postSetup,
-  purgeCache,
-} from '@/initialization';
-import { IPC_ACTIONS, IPC_MESSAGES } from '@/messages';
-import { ipcRenderer } from 'electron';
-import frappe from 'frappe';
-import fs from 'fs/promises';
-import TelemetryModal from './components/once/TelemetryModal.vue';
-import { showErrorDialog } from './errorHandling';
-import DatabaseSelector from './pages/DatabaseSelector';
-import Desk from './pages/Desk';
-import SetupWizard from './pages/SetupWizard/SetupWizard';
+import { ConfigKeys } from 'fyo/core/types';
+import { ModelNameEnum } from 'models/types';
+import { incrementOpenCount } from 'src/utils/misc';
+import WindowsTitleBar from './components/WindowsTitleBar.vue';
+import { handleErrorWithDialog } from './errorHandling';
+import { fyo, initializeInstance } from './initFyo';
+import DatabaseSelector from './pages/DatabaseSelector.vue';
+import Desk from './pages/Desk.vue';
+import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
+import setupInstance from './setup/setupInstance';
 import './styles/index.css';
-import telemetry from './telemetry/telemetry';
-import { checkForUpdates, routeTo } from './utils';
+import { checkForUpdates } from './utils/ipcCalls';
+import { routeTo } from './utils/ui';
 
 export default {
   name: 'App',
@@ -57,73 +54,70 @@ export default {
       activeScreen: null,
     };
   },
-  watch: {
-    async activeScreen(value) {
-      if (!value) return;
-      const { width, height } = await ipcRenderer.invoke(
-        IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE
-      );
-
-      let size = {
-        Desk: [width, height],
-        DatabaseSelector: [600, 600],
-        SetupWizard: [600, 600],
-      }[value];
-      let resizable = value === 'Desk';
-
-      if (size.length) {
-        ipcRenderer.send(IPC_MESSAGES.RESIZE_MAIN_WINDOW, size, resizable);
-      }
-    },
-  },
   components: {
     Desk,
     SetupWizard,
     DatabaseSelector,
     WindowsTitleBar,
-    TelemetryModal,
   },
   async mounted() {
-    telemetry.platform = this.platform;
-    const lastSelectedFilePath = config.get('lastSelectedFilePath', null);
-    const { connectionSuccess, reason } = await connectToLocalDatabase(
-      lastSelectedFilePath
+    fyo.telemetry.platform = this.platform;
+
+    const lastSelectedFilePath = fyo.config.get(
+      ConfigKeys.LastSelectedFilePath,
+      null
     );
 
-    if (connectionSuccess) {
-      this.showSetupWizardOrDesk(false);
-      return;
+    if (!lastSelectedFilePath) {
+      return (this.activeScreen = 'DatabaseSelector');
     }
 
-    if (lastSelectedFilePath) {
-      const title = this.t`DB Connection Error`;
-      const content = `reason: ${reason}, filePath: ${lastSelectedFilePath}`;
-
-      await showErrorDialog(title, content);
+    try {
+      await this.fileSelected(lastSelectedFilePath, false);
+    } catch (err) {
+      await handleErrorWithDialog(err, undefined, true, true);
+      await this.showDbSelector()
     }
-
-    this.activeScreen = 'DatabaseSelector';
   },
   methods: {
-    async setupComplete() {
-      await postSetup();
-      await this.showSetupWizardOrDesk(true);
+    async setDesk(filePath) {
+      this.activeScreen = 'Desk';
+      await this.setDeskRoute();
+      const openCount = await incrementOpenCount(filePath);
+      await fyo.telemetry.start(openCount);
+      await checkForUpdates(false);
     },
-    async showSetupWizardOrDesk(resetRoute = false) {
-      const { setupComplete } = frappe.AccountingSettings;
+    async fileSelected(filePath, isNew) {
+      fyo.config.set(ConfigKeys.LastSelectedFilePath, filePath);
+      if (isNew) {
+        this.activeScreen = 'SetupWizard';
+        return;
+      }
+      await this.showSetupWizardOrDesk(filePath);
+    },
+    async setupComplete(setupWizardOptions) {
+      const filePath = fyo.config.get(ConfigKeys.LastSelectedFilePath);
+      await setupInstance(filePath, setupWizardOptions, fyo);
+      await this.setDesk(filePath);
+    },
+    async showSetupWizardOrDesk(filePath) {
+      const countryCode = await fyo.db.connectToDatabase(filePath);
+      const setupComplete = await fyo.getValue(
+        ModelNameEnum.AccountingSettings,
+        'setupComplete'
+      );
+
       if (!setupComplete) {
         this.activeScreen = 'SetupWizard';
-      } else {
-        this.activeScreen = 'Desk';
-        await checkForUpdates(false);
-      }
-
-      if (!resetRoute) {
         return;
       }
 
-      const { onboardingComplete } = await frappe.getSingle('GetStarted');
-      const { hideGetStarted } = await frappe.getSingle('SystemSettings');
+      await initializeInstance(filePath, false, countryCode, fyo);
+      await this.setDesk(filePath);
+    },
+    async setDeskRoute() {
+      const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
+      const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
 
       if (hideGetStarted || onboardingComplete) {
         routeTo('/');
@@ -131,16 +125,11 @@ export default {
         routeTo('/get-started');
       }
     },
-    async changeDbFile() {
-      config.set('lastSelectedFilePath', null);
-      telemetry.stop();
-      await purgeCache(true);
+    async showDbSelector() {
+      fyo.config.set('lastSelectedFilePath', null);
+      fyo.telemetry.stop();
+      fyo.purgeCache();
       this.activeScreen = 'DatabaseSelector';
-    },
-    async setupCanceled() {
-      const filePath = config.get('lastSelectedFilePath');
-      await fs.unlink(filePath);
-      this.changeDbFile();
     },
   },
 };

@@ -123,7 +123,7 @@
     >
       <div class="flex flex-col justify-center items-center">
         <p>
-          {{ xi > -1 ? xLabels[xi] : '' }}
+          {{ xi > -1 ? formatX(xLabels[xi]) : '' }}
         </p>
         <p class="font-semibold">
           {{ yi > -1 ? format(points[yi][xi]) : '' }}
@@ -133,8 +133,8 @@
   </div>
 </template>
 <script>
+import { prefixFormat } from 'src/utils/chart';
 import Tooltip from '../Tooltip.vue';
-import { prefixFormat } from './chartUtils';
 
 export default {
   props: {
@@ -161,10 +161,10 @@ export default {
     format: { type: Function, default: (n) => n.toFixed(1) },
     formatY: { type: Function, default: prefixFormat },
     formatX: { type: Function, default: (v) => v },
-    fontSize: { type: Number, default: 25 },
+    fontSize: { type: Number, default: 22 },
     fontColor: { type: String, default: '#415668' },
     bottom: { type: Number, default: 0 },
-    width: { type: Number, default: 34 },
+    width: { type: Number, default: 28 },
     left: { type: Number, default: 65 },
     radius: { type: Number, default: 17 },
     extendGridX: { type: Number, default: -20 },

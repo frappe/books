@@ -1,17 +1,8 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">
-          {{ t`Setup your workspace` }}
-        </h1>
-      </template>
-    </PageHeader>
-    <div class="px-8">
-      <div class="border-t"></div>
-    </div>
-    <div class="flex-1 px-8 overflow-y-auto">
-      <div class="my-6" v-for="section in sections" :key="section.label">
+    <PageHeader :title="t`Setup Your Workspace`" />
+    <div class="flex-1 mx-4 overflow-y-auto">
+      <div class="my-4" v-for="section in sections" :key="section.label">
         <h2 class="font-medium">{{ section.label }}</h2>
         <div class="flex mt-4 -mx-2">
           <div
@@ -24,7 +15,7 @@
                 flex flex-col
                 justify-between
                 h-full
-                p-6
+                p-4
                 border
                 rounded-lg
                 cursor-pointer
@@ -84,13 +75,13 @@
 </template>
 
 <script>
-import Button from '@/components/Button';
-import Icon from '@/components/Icon';
-import PageHeader from '@/components/PageHeader';
-import { IPC_MESSAGES } from '@/messages';
-import { openSettings, routeTo } from '@/utils';
 import { ipcRenderer } from 'electron';
-import frappe, { t } from 'frappe';
+import Button from 'src/components/Button';
+import Icon from 'src/components/Icon';
+import PageHeader from 'src/components/PageHeader';
+import { fyo } from 'src/initFyo';
+import { getGetStartedConfig } from 'src/utils/getStartedConfig';
+import { IPC_MESSAGES } from 'utils/messages';
 import { h } from 'vue';
 
 export default {
@@ -100,169 +91,17 @@ export default {
     Button,
     Icon,
   },
-  computed: {
-    sections() {
-      /* eslint-disable vue/no-side-effects-in-computed-properties */
-      return [
-        {
-          label: t`Organisation`,
-
-          items: [
-            {
-              key: 'Invoice',
-              label: t`Invoice`,
-              icon: 'invoice',
-              description:
-                t`Customize your invoices by adding a logo and address details`,
-              fieldname: 'invoiceSetup',
-              action() {
-                openSettings('Invoice');
-              },
-            },
-            {
-              key: 'General',
-              label: t`General`,
-              icon: 'general',
-              description:
-                t`Setup your company information, email, country and fiscal year`,
-              fieldname: 'companySetup',
-              action() {
-                openSettings('General');
-              },
-            },
-            {
-              key: 'System',
-              label: t`System`,
-              icon: 'system',
-              description:
-                t`Setup system defaults like date format and display precision`,
-              fieldname: 'systemSetup',
-              action() {
-                openSettings('System');
-              },
-            },
-          ],
-        },
-        {
-          label: t`Accounts`,
-
-          items: [
-            {
-              key: 'Review Accounts',
-              label: t`Review Accounts`,
-              icon: 'review-ac',
-              description:
-                t`Review your chart of accounts, add any account or tax heads as needed`,
-              action: () => {
-                routeTo('/chart-of-accounts');
-              },
-              fieldname: 'chartOfAccountsReviewed',
-              documentation:
-                'https://frappebooks.com/docs/setting-up#1-enter-bank-accounts',
-            },
-            {
-              key: 'Opening Balances',
-              label: t`Opening Balances`,
-              icon: 'opening-ac',
-              fieldname: 'openingBalanceChecked',
-              description:
-                t`Setup your opening balances before performing any accounting entries`,
-              documentation:
-                'https://frappebooks.com/docs/setting-up#5-setup-opening-balances',
-            },
-            {
-              key: 'Add Taxes',
-              label: t`Add Taxes`,
-              icon: 'percentage',
-              fieldname: 'taxesAdded',
-              description:
-                t`Setup your tax templates for your sales or purchase transactions`,
-              action: () => routeTo('/list/Tax'),
-              documentation:
-                'https://frappebooks.com/docs/setting-up#2-add-taxes',
-            },
-          ],
-        },
-        {
-          label: t`Sales`,
-
-          items: [
-            {
-              key: 'Add Sales Items',
-              label: t`Add Items`,
-              icon: 'item',
-              description:
-                t`Add products or services that you sell to your customers`,
-              action: () => routeTo('/list/Item'),
-              fieldname: 'itemCreated',
-              documentation:
-                'https://frappebooks.com/docs/setting-up#3-add-items',
-            },
-            {
-              key: 'Add Customers',
-              label: t`Add Customers`,
-              icon: 'customer',
-              description: t`Add a few customers to create your first invoice`,
-              action: () => routeTo('/list/Customer'),
-              fieldname: 'customerCreated',
-              documentation:
-                'https://frappebooks.com/docs/setting-up#4-add-customers',
-            },
-            {
-              key: 'Create Invoice',
-              label: t`Create Invoice`,
-              icon: 'sales-invoice',
-              description:
-                t`Create your first invoice and mail it to your customer`,
-              action: () => routeTo('/list/SalesInvoice'),
-              fieldname: 'invoiceCreated',
-              documentation: 'https://frappebooks.com/docs/invoices',
-            },
-          ],
-        },
-        {
-          label: t`Purchase`,
-
-          items: [
-            {
-              key: 'Add Purchase Items',
-              label: t`Add Items`,
-              icon: 'item',
-              description:
-                t`Add products or services that you buy from your suppliers`,
-              action: () => routeTo('/list/Item'),
-              fieldname: 'itemCreated',
-            },
-            {
-              key: 'Add Suppliers',
-              label: t`Add Suppliers`,
-              icon: 'supplier',
-              description: t`Add a few suppliers to create your first bill`,
-              action: () => routeTo('/list/Supplier'),
-              fieldname: 'supplierCreated',
-            },
-            {
-              key: 'Create Bill',
-              label: t`Create Bill`,
-              icon: 'purchase-invoice',
-              description:
-                t`Create your first bill and mail it to your supplier`,
-              action: () => routeTo('/list/PurchaseInvoice'),
-              fieldname: 'billCreated',
-              documentation: 'https://frappebooks.com/docs/bills',
-            },
-          ],
-        },
-      ];
-    },
-  },
   data() {
     return {
       activeCard: null,
+      sections: [],
     };
   },
+  mounted() {
+    this.sections = getGetStartedConfig();
+  },
   async activated() {
-    frappe.GetStarted = await frappe.getSingle('GetStarted');
+    await fyo.doc.getDoc('GetStarted');
     this.checkForCompletedTasks();
   },
   methods: {
@@ -273,7 +112,7 @@ export default {
 
       switch (key) {
         case 'Opening Balances':
-          await this.updateChecks({ openingBalanceChecked: 1 });
+          await this.updateChecks({ openingBalanceChecked: true });
           break;
       }
     },
@@ -285,38 +124,38 @@ export default {
 
       switch (key) {
         case 'Invoice':
-          await this.updateChecks({ invoiceSetup: 1 });
+          await this.updateChecks({ invoiceSetup: true });
           break;
         case 'General':
-          await this.updateChecks({ companySetup: 1 });
+          await this.updateChecks({ companySetup: true });
           break;
         case 'System':
-          await this.updateChecks({ systemSetup: 1 });
+          await this.updateChecks({ systemSetup: true });
           break;
         case 'Review Accounts':
-          await this.updateChecks({ chartOfAccountsReviewed: 1 });
+          await this.updateChecks({ chartOfAccountsReviewed: true });
           break;
         case 'Add Taxes':
-          await this.updateChecks({ taxesAdded: 1 });
+          await this.updateChecks({ taxesAdded: true });
           break;
       }
     },
     async checkIsOnboardingComplete() {
-      if (frappe.GetStarted.onboardingComplete) {
+      if (fyo.singles.GetStarted.onboardingComplete) {
         return true;
       }
 
-      const meta = await frappe.getMeta('GetStarted');
-      const doc = await frappe.getSingle('GetStarted');
-      const onboardingComplete = !!meta.fields
+      const doc = await fyo.doc.getDoc('GetStarted');
+      const onboardingComplete = fyo.schemaMap.GetStarted.fields
         .filter(({ fieldname }) => fieldname !== 'onboardingComplete')
         .map(({ fieldname }) => doc.get(fieldname))
         .every(Boolean);
 
       if (onboardingComplete) {
         await this.updateChecks({ onboardingComplete });
-        const systemSettings = await frappe.getSingle('SystemSettings');
-        await systemSettings.update({ hideGetStarted: 1 });
+        const systemSettings = await fyo.doc.getDoc('SystemSettings');
+        await systemSettings.set('hideGetStarted', true);
+        await systemSettings.sync();
       }
 
       return onboardingComplete;
@@ -327,67 +166,52 @@ export default {
         return;
       }
 
-      if (!frappe.GetStarted.itemCreated) {
-        let { count } = (
-          await frappe.db.knex('Item').count('name as count')
-        )[0];
-        if (count > 0) {
-          toUpdate.itemCreated = 1;
-        }
+      if (!fyo.singles.GetStarted.salesItemCreated) {
+        const count = await fyo.db.count('Item', { filters: { for: 'Sales' } });
+        toUpdate.salesItemCreated = count > 0;
       }
 
-      if (!frappe.GetStarted.invoiceCreated) {
-        let { count } = (
-          await frappe.db.knex('SalesInvoice').count('name as count')
-        )[0];
-        if (count > 0) {
-          toUpdate.invoiceCreated = 1;
-        }
+      if (!fyo.singles.GetStarted.purchaseItemCreated) {
+        const count = await fyo.db.count('Item', {
+          filters: { for: 'Purchases' },
+        });
+        toUpdate.purchaseItemCreated = count > 0;
       }
 
-      if (!frappe.GetStarted.customerCreated) {
-        let { count } = (
-          await frappe.db
-            .knex('Party')
-            .where('customer', 1)
-            .count('name as count')
-        )[0];
-        if (count > 0) {
-          toUpdate.customerCreated = 1;
-        }
+      if (!fyo.singles.GetStarted.invoiceCreated) {
+        const count = await fyo.db.count('SalesInvoice');
+        toUpdate.invoiceCreated = count > 0;
       }
 
-      if (!frappe.GetStarted.billCreated) {
-        let { count } = (
-          await frappe.db.knex('PurchaseInvoice').count('name as count')
-        )[0];
-        if (count > 0) {
-          toUpdate.billCreated = 1;
-        }
+      if (!fyo.singles.GetStarted.customerCreated) {
+        const count = await fyo.db.count('Party', {
+          filters: { role: 'Customer' },
+        });
+        toUpdate.customerCreated = count > 0;
       }
 
-      if (!frappe.GetStarted.supplierCreated) {
-        let { count } = (
-          await frappe.db
-            .knex('Party')
-            .where('supplier', 1)
-            .count('name as count')
-        )[0];
-        if (count > 0) {
-          toUpdate.supplierCreated = 1;
-        }
+      if (!fyo.singles.GetStarted.billCreated) {
+        const count = await fyo.db.count('SalesInvoice');
+        toUpdate.billCreated = count > 0;
+      }
+
+      if (!fyo.singles.GetStarted.supplierCreated) {
+        const count = await fyo.db.count('Party', {
+          filters: { role: 'Supplier' },
+        });
+        toUpdate.supplierCreated = count > 0;
       }
       await this.updateChecks(toUpdate);
     },
     async updateChecks(toUpdate) {
-      await frappe.GetStarted.update(toUpdate);
-      frappe.GetStarted = await frappe.getSingle('GetStarted');
+      await fyo.singles.GetStarted.setAndSync(toUpdate);
+      await fyo.doc.getDoc('GetStarted');
     },
     isCompleted(item) {
-      return frappe.GetStarted.get(item.fieldname) || 0;
+      return fyo.singles.GetStarted.get(item.fieldname) || false;
     },
     getIconComponent(item) {
-      let completed = frappe.GetStarted[item.fieldname] || 0;
+      let completed = fyo.singles.GetStarted[item.fieldname] || false;
       let name = completed ? 'green-check' : item.icon;
       let size = completed ? '24' : '18';
       return {

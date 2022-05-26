@@ -3,6 +3,7 @@
     v-if="actions && actions.length"
     class="text-xs"
     :items="actions"
+    :doc="doc"
     right
   >
     <template v-slot="{ toggleDropdown }">
@@ -21,14 +22,17 @@
 </template>
 
 <script>
-import Dropdown from '@/components/Dropdown';
-import Button from '@/components/Button';
+import Button from 'src/components/Button';
+import Dropdown from 'src/components/Dropdown';
 
 export default {
   name: 'DropdownWithActions',
   props: {
     actions: { default: [] },
     type: { type: String, default: 'secondary' },
+  },
+  inject: {
+    doc: { default: null },
   },
   components: {
     Dropdown,

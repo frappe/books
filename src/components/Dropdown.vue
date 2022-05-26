@@ -73,8 +73,10 @@
 </template>
 
 <script>
-import Popover from './Popover';
 import uniq from 'lodash/uniq';
+import { fyo } from 'src/initFyo';
+import { nextTick } from 'vue';
+import Popover from './Popover.vue';
 
 export default {
   name: 'Dropdown',
@@ -166,18 +168,35 @@ export default {
   },
   methods: {
     getEmptyMessage() {
-      const { emptyMessage } = this.df ?? {};
-      if (typeof emptyMessage === 'function') {
-        return emptyMessage(this.doc);
-      } else if (emptyMessage) {
-        return emptyMessage;
+      if (this.df === null) {
+        return this.t`Empty`;
       }
-      return this.t`Empty`;
+
+      if (this.df.emptyMessage) {
+        return this.df.emptyMessage;
+      }
+
+      const { schemaName, fieldname } = this.df;
+      const emptyMessage = fyo.models[schemaName]?.emptyMessages[fieldname]?.(
+        this.doc
+      );
+
+      if (emptyMessage === undefined || emptyMessage.length === 0) {
+        return this.t`Empty`;
+      }
+
+      return emptyMessage;
     },
-    selectItem(d) {
-      if (d.action) {
-        d.action();
+    async selectItem(d) {
+      if (!d.action) {
+        return;
       }
+
+      if (this.doc) {
+        return await d.action(this.doc, this.$router);
+      }
+
+      await d.action();
     },
     toggleDropdown(flag) {
       if (flag == null) {
@@ -186,11 +205,13 @@ export default {
         this.isShown = Boolean(flag);
       }
     },
-    selectHighlightedItem() {
+    async selectHighlightedItem() {
       if (![-1, this.items.length].includes(this.highlightedIndex)) {
         // valid selection
         let item = this.items[this.highlightedIndex];
-        this.selectItem(item);
+        await this.selectItem(item);
+      } else if (this.items.length === 1) {
+        await this.selectItem(this.items[0]);
       }
     },
     highlightItemUp() {
@@ -198,7 +219,7 @@ export default {
       if (this.highlightedIndex < 0) {
         this.highlightedIndex = 0;
       }
-      this.$nextTick(() => {
+      nextTick(() => {
         let index = this.highlightedIndex;
         if (index !== 0) {
           index -= 1;
@@ -212,7 +233,7 @@ export default {
         this.highlightedIndex = this.items.length;
       }
 
-      this.$nextTick(() => {
+      nextTick(() => {
         this.scrollToHighlighted();
       });
     },

@@ -8,7 +8,6 @@ export default {
   props: {
     name: {
       type: String,
-      // default: 'middle-finger',
       required: true,
       validator: (value) => validIcons.includes(value),
     },
@@ -32,6 +31,4 @@ export default {
     return svg;
   },
 };
-
-// https://github.com/frappe/frappejs/commits/master/ui/components/FeatherIcon.vue
 </script>

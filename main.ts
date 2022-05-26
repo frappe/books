@@ -10,13 +10,12 @@ import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
-import { getMainWindowSize } from './main/helpers';
 import registerAppLifecycleListeners from './main/registerAppLifecycleListeners';
 import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
-import { IPC_CHANNELS } from './src/messages';
+import { IPC_CHANNELS } from './utils/messages';
 
 export class Main {
   title: string = 'Frappe Books';
@@ -26,6 +25,9 @@ export class Main {
   isWebpackUrl: boolean = false;
   checkedForUpdate = false;
   mainWindow: BrowserWindow | null = null;
+
+  WIDTH = 1200;
+  HEIGHT = 900;
 
   constructor() {
     this.icon = this.isDevelopment
@@ -69,22 +71,22 @@ export class Main {
   }
 
   getOptions(): BrowserWindowConstructorOptions {
-    const { width, height } = getMainWindowSize();
     const options: BrowserWindowConstructorOptions = {
-      vibrancy: 'sidebar',
-      transparent: this.isMac,
-      backgroundColor: '#80FFFFFF',
-      width,
-      height,
+      width: this.WIDTH,
+      height: this.HEIGHT,
+      minWidth: this.WIDTH,
+      minHeight: this.HEIGHT,
       title: this.title,
+      titleBarStyle: 'hidden',
+      trafficLightPosition: { x: 16, y: 16 },
       webPreferences: {
         contextIsolation: false, // TODO: Switch this off
-        nodeIntegration: process.env
-          .ELECTRON_NODE_INTEGRATION as unknown as boolean,
+        nodeIntegration: true,
       },
       frame: this.isLinux,
       resizable: true,
     };
+
     if (this.isDevelopment || this.isLinux) {
       Object.assign(options, { icon: this.icon });
     }

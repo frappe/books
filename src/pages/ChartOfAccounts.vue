@@ -1,165 +1,164 @@
 <template>
-  <div class="flex flex-col overflow-y-hidden">
-    <PageHeader>
-      <template #title>
-        <h1 class="text-2xl font-bold">
-          {{ t`Chart of Accounts` }}
-        </h1>
-      </template>
-      <template #actions>
-        <SearchBar class="ml-2" />
-      </template>
-    </PageHeader>
-    <div class="flex-1 flex px-8 overflow-y-auto">
-      <div class="flex-1" v-if="root">
-        <div v-for="account in allAccounts" :key="account.name">
-          <div
-            class="
-              mt-2
-              px-4
-              py-2
-              cursor-pointer
-              hover:bg-gray-100
-              rounded-md
-              group
-            "
-            :class="[
-              account.level !== 0 ? 'text-base' : 'text-lg',
-              isQuickEditOpen(account) ? 'bg-gray-200' : '',
-            ]"
-            @click="onClick(account)"
-          >
-            <div class="flex items-center" :class="`pl-${account.level * 8}`">
-              <component :is="getIconComponent(account)" />
-              <div class="flex items-baseline">
-                <div
-                  class="ml-3"
-                  :class="[!account.parentAccount && 'font-semibold']"
-                >
-                  {{ account.name }}
-                </div>
-                <div
-                  v-if="account.isGroup"
-                  class="ml-6 hidden group-hover:block"
-                >
-                  <button
-                    class="
-                      text-xs text-gray-800
-                      hover:text-gray-900
-                      focus:outline-none
-                    "
-                    @click.stop="addAccount(account, 'addingAccount')"
-                  >
-                    {{ t`Add Account` }}
-                  </button>
-                  <button
-                    class="
-                      ml-3
-                      text-xs text-gray-800
-                      hover:text-gray-900
-                      focus:outline-none
-                    "
-                    @click.stop="addAccount(account, 'addingGroupAccount')"
-                  >
-                    {{ t`Add Group` }}
-                  </button>
-                </div>
-              </div>
+  <div class="flex flex-col h-full">
+    <PageHeader :title="t`Chart of Accounts`" />
+
+    <!-- Chart of Accounts -->
+    <div class="flex-1 flex flex-col mx-4 overflow-y-auto mb-4" v-if="root">
+      <!-- Chart of Accounts Indented List -->
+      <template v-for="account in allAccounts" :key="account.name">
+        <!-- Account List Item -->
+        <div
+          class="
+            mt-2
+            py-2
+            cursor-pointer
+            hover:bg-gray-100
+            group
+            flex
+            items-center
+          "
+          :class="[
+            account.level !== 0 ? 'text-base' : 'text-lg',
+            isQuickEditOpen(account) ? 'bg-gray-200' : '',
+            `pl-${account.level * 8}`,
+          ]"
+          @click="onClick(account)"
+        >
+          <component :is="getIconComponent(account)" class="ml-2" />
+          <div class="flex items-baseline">
+            <div
+              class="ml-3"
+              :class="[!account.parentAccount && 'font-semibold']"
+            >
+              {{ account.name }}
+            </div>
+
+            <!-- Add Account Buttons on Group Hover -->
+            <div v-if="account.isGroup" class="ml-6 hidden group-hover:block">
+              <button
+                class="
+                  text-xs text-gray-800
+                  hover:text-gray-900
+                  focus:outline-none
+                "
+                @click.stop="addAccount(account, 'addingAccount')"
+              >
+                {{ t`Add Account` }}
+              </button>
+              <button
+                class="
+                  ml-3
+                  text-xs text-gray-800
+                  hover:text-gray-900
+                  focus:outline-none
+                "
+                @click.stop="addAccount(account, 'addingGroupAccount')"
+              >
+                {{ t`Add Group` }}
+              </button>
             </div>
           </div>
-          <div
-            v-if="account.addingAccount || account.addingGroupAccount"
-            class="
-              mt-2
-              px-4
-              py-2
-              cursor-pointer
-              hover:bg-gray-100
-              rounded-md
-              group
-            "
-            :class="[account.level !== 0 ? 'text-base' : 'text-lg']"
-            :key="account.name + '-adding-account'"
-          >
-            <div
-              class="flex items-center"
-              :class="`pl-${(account.level + 1) * 8}`"
+
+          <!-- Account Balance String -->
+          <p class="ml-auto text-base text-gray-800" v-if="!account.isGroup">
+            {{ getBalanceString(account) }}
+          </p>
+        </div>
+
+        <!-- Add Account/Group -->
+        <div
+          v-if="account.addingAccount || account.addingGroupAccount"
+          class="
+            mt-2
+            px-4
+            py-2
+            cursor-pointer
+            hover:bg-gray-100
+            rounded-md
+            group
+            flex
+            items-center
+          "
+          :class="`${account.level !== 0 ? 'text-base' : 'text-lg'} pl-${
+            (account.level + 1) * 8
+          }`"
+          :key="account.name + '-adding-account'"
+        >
+          <component
+            :is="getIconComponent({ isGroup: account.addingGroupAccount })"
+          />
+          <div class="flex items-baseline ml-3">
+            <input
+              class="focus:outline-none bg-transparent"
+              :class="{ 'text-gray-600': insertingAccount }"
+              :placeholder="t`New Account`"
+              :ref="account.name"
+              @keydown.esc="cancelAddingAccount(account)"
+              @keydown.enter="
+                (e) =>
+                  createNewAccount(
+                    e.target.value,
+                    account,
+                    account.addingGroupAccount
+                  )
+              "
+              type="text"
+              :disabled="insertingAccount"
+            />
+            <button
+              v-if="!insertingAccount"
+              class="
+                ml-4
+                text-xs text-gray-800
+                hover:text-gray-900
+                focus:outline-none
+              "
+              @click="cancelAddingAccount(account)"
             >
-              <component
-                :is="getIconComponent({ isGroup: account.addingGroupAccount })"
-              />
-              <div class="flex items-baseline">
-                <div class="ml-3">
-                  <input
-                    class="focus:outline-none bg-transparent"
-                    :class="{ 'text-gray-600': insertingAccount }"
-                    :placeholder="t`New Account`"
-                    :ref="account.name"
-                    @keydown.esc="cancelAddingAccount(account)"
-                    @keydown.enter="
-                      (e) =>
-                        createNewAccount(
-                          e.target.value,
-                          account,
-                          account.addingGroupAccount
-                        )
-                    "
-                    type="text"
-                    :disabled="insertingAccount"
-                  />
-                  <button
-                    v-if="!insertingAccount"
-                    class="
-                      ml-4
-                      text-xs text-gray-800
-                      hover:text-gray-900
-                      focus:outline-none
-                    "
-                    @click="cancelAddingAccount(account)"
-                  >
-                    {{ t`Cancel` }}
-                  </button>
-                </div>
-              </div>
-            </div>
+              {{ t`Cancel` }}
+            </button>
           </div>
         </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
 <script>
-import PageHeader from '@/components/PageHeader';
-import SearchBar from '@/components/SearchBar';
-import { openQuickEdit } from '@/utils';
-import frappe from 'frappe';
+import { t } from 'fyo';
+import { isCredit } from 'models/helpers';
+import { ModelNameEnum } from 'models/types';
+import PageHeader from 'src/components/PageHeader';
+import { fyo } from 'src/initFyo';
+import { openQuickEdit } from 'src/utils/ui';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
   components: {
     PageHeader,
-    SearchBar,
   },
   data() {
     return {
       root: null,
       accounts: [],
-      doctype: 'Account',
+      schemaName: 'Account',
       insertingAccount: false,
     };
   },
-  mounted() {
-    this.fetchAccounts();
-  },
   async activated() {
-    window.coa = this;
     this.fetchAccounts();
+    if (fyo.store.isDevelopment) {
+      window.coa = this;
+    }
   },
   methods: {
+    getBalanceString(account) {
+      const suffix = isCredit(account.rootType) ? t`Cr.` : t`Dr.`;
+      return `${fyo.format(account.balance, 'Currency')} ${suffix}`;
+    },
     async fetchAccounts() {
-      this.settings = frappe.getMeta(this.doctype).treeSettings;
-      const { currency } = await frappe.getSingle('AccountingSettings');
+      this.settings = fyo.models[ModelNameEnum.Account].getTreeSettings(fyo);
+      const { currency } = await fyo.doc.getDoc('AccountingSettings');
       this.root = {
         label: await this.settings.getRootLabel(),
         balance: 0,
@@ -168,9 +167,9 @@ export default {
       this.accounts = await this.getChildren();
     },
     onClick(account) {
-      if (account.isGroup === 0) {
+      if (!account.isGroup) {
         openQuickEdit({
-          doctype: 'Account',
+          schemaName: ModelNameEnum.Account,
           name: account.name,
         });
       } else {
@@ -191,8 +190,7 @@ export default {
       }
     },
     async getChildren(parent = null) {
-      const children = await frappe.db.getAll({
-        doctype: this.doctype,
+      const children = await fyo.db.getAll(ModelNameEnum.Account, {
         filters: {
           parentAccount: parent,
         },
@@ -240,7 +238,7 @@ export default {
       this.insertingAccount = true;
 
       accountName = accountName.trim();
-      let account = await frappe.getNewDoc('Account');
+      let account = await fyo.doc.getNewDoc('Account');
       try {
         let { name, rootType, accountType } = parentAccount;
         await account.set({
@@ -250,7 +248,7 @@ export default {
           accountType,
           isGroup,
         });
-        await account.insert();
+        await account.sync();
 
         // turn off editing
         parentAccount.addingAccount = 0;
@@ -260,8 +258,8 @@ export default {
         await this.fetchChildren(parentAccount, true);
 
         // open quick edit
-        openQuickEdit({
-          doctype: 'Account',
+        await openQuickEdit({
+          schemaName: 'Account',
           name: account.name,
         });
         // unfreeze input
@@ -269,12 +267,12 @@ export default {
       } catch (e) {
         // unfreeze input
         this.insertingAccount = false;
-        handleErrorWithDialog(e, account);
+        await handleErrorWithDialog(e, account);
       }
     },
     isQuickEditOpen(account) {
-      let { edit, doctype, name } = this.$route.query;
-      if (edit && doctype === 'Account' && name === account.name) {
+      let { edit, schemaName, name } = this.$route.query;
+      if (edit && schemaName === 'Account' && name === account.name) {
         return true;
       }
       return false;

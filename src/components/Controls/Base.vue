@@ -4,14 +4,15 @@
       {{ df.label }}
     </div>
     <input
+      spellcheck="false"
       ref="input"
       :class="inputClasses"
       :type="inputType"
       :value="value"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
-      :max="df.maxValue"
-      :min="df.minValue"
+      :max="df.maxvalue"
+      :min="df.minvalue"
       @blur="(e) => triggerChange(e.target.value)"
       @focus="(e) => $emit('focus', e)"
       @input="(e) => $emit('input', e)"
@@ -20,21 +21,23 @@
 </template>
 
 <script>
+import { isNumeric } from 'src/utils';
+
 export default {
   name: 'Base',
-  props: [
-    'df',
-    'value',
-    'inputClass',
-    'placeholder',
-    'size',
-    'showLabel',
-    'readOnly',
-    'autofocus',
-  ],
+  props: {
+    df: Object,
+    value: [String, Number, Boolean, Object],
+    inputClass: [Function, String, Object],
+    placeholder: String,
+    size: String,
+    showLabel: Boolean,
+    readOnly: Boolean,
+    autofocus: Boolean,
+  },
   emits: ['focus', 'input', 'change'],
   inject: {
-    doctype: {
+    schemaName: {
       default: null,
     },
     name: {
@@ -60,7 +63,8 @@ export default {
           'px-2 py-1': this.size === 'small',
           'pointer-events-none': this.isReadOnly,
         },
-        'focus:outline-none focus:bg-gray-200 rounded w-full text-gray-900 placeholder-gray-400',
+        'focus:outline-none focus:bg-gray-200 rounded w-full placeholder-gray-400',
+        this.isReadOnly ? 'text-gray-800' : 'text-gray-900',
       ];
 
       return this.getInputClassesFromProp(classes);
@@ -103,9 +107,7 @@ export default {
     parse(value) {
       return value;
     },
-    isNumeric(df) {
-      return ['Int', 'Float', 'Currency'].includes(df.fieldtype);
-    },
+    isNumeric,
   },
 };
 </script>

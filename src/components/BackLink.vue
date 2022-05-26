@@ -1,4 +1,4 @@
-<template #title>
+<template>
   <a
     class="cursor-pointer font-semibold flex items-center"
     @click="$router.back()"
@@ -7,3 +7,4 @@
     <span class="ml-1">{{ t`Back` }}</span>
   </a>
 </template>
+<script></script>

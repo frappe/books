@@ -1,0 +1,80 @@
+{
+  "name": "AccountingLedgerEntry",
+  "label": "Accounting Ledger Entry",
+  "isSingle": false,
+  "isChild": false,
+  "naming": "autoincrement",
+  "fields": [
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Datetime",
+      "readOnly": true
+    },
+    {
+      "fieldname": "account",
+      "label": "Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "party",
+      "label": "Party",
+      "fieldtype": "Link",
+      "target": "Party",
+      "readOnly": true
+    },
+    {
+      "fieldname": "debit",
+      "label": "Debit",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "credit",
+      "label": "Credit",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Ref. Type",
+      "fieldtype": "Data",
+      "readOnly": true
+    },
+    {
+      "fieldname": "referenceName",
+      "label": "Ref. Name",
+      "fieldtype": "DynamicLink",
+      "references": "referenceType",
+      "readOnly": true
+    },
+    {
+      "fieldname": "reverted",
+      "label": "Reverted",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": true
+    },
+    {
+      "fieldname": "reverts",
+      "label": "Reverts",
+      "fieldtype": "Link",
+      "target": "AccountingLedgerEntry",
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": [
+    "date",
+    "account",
+    "party",
+    "debit",
+    "credit",
+    "referenceType",
+    "referenceName",
+    "reverted",
+    "reverts"
+  ]
+}

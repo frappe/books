@@ -1,0 +1,29 @@
+{
+  "name": "child",
+  "fields": [
+    {
+      "fieldname": "idx",
+      "fieldtype": "Int",
+      "required": true,
+      "meta": true
+    },
+    {
+      "fieldname": "parent",
+      "fieldtype": "Data",
+      "required": true,
+      "meta": true
+    },
+    {
+      "fieldname": "parentSchemaName",
+      "fieldtype": "Data",
+      "required": true,
+      "meta": true
+    },
+    {
+      "fieldname": "parentFieldname",
+      "fieldtype": "Data",
+      "required": true,
+      "meta": true
+    }
+  ]
+}

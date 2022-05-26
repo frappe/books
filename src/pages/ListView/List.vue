@@ -1,52 +1,69 @@
 <template>
-  <div class="px-5 pb-16 text-base flex flex-col overflow-y-hidden">
-    <div class="flex px-3">
-      <div class="py-4 mr-3 w-7" v-if="hasImage"></div>
+  <div class="mx-4 text-base flex flex-col overflow-y-hidden">
+    <!-- Title Row -->
+    <div class="flex items-center">
+      <p class="w-8 text-right mr-4 text-gray-700">#</p>
       <Row
-        class="flex-1 text-gray-700"
+        class="flex-1 text-gray-700 border-none"
         :columnCount="columns.length"
         gap="1rem"
       >
         <div
-          v-for="column in columns"
+          v-for="(column, i) in columns"
           :key="column.label"
-          class="py-4 truncate"
-          :class="
-            ['Float', 'Currency'].includes(column.fieldtype) ? 'text-right' : ''
-          "
+          class="py-4 overflow-x-scroll whitespace-nowrap"
+          :class="{
+            'text-right': isNumeric(column.fieldtype),
+            'pr-4': i === columns.length - 1,
+          }"
         >
           {{ column.label }}
         </div>
       </Row>
     </div>
-    <div class="overflow-y-auto" v-if="data.length !== 0">
-      <div
-        class="px-3 flex hover:bg-gray-100 rounded-md"
-        v-for="doc in data"
-        :key="doc.name"
-      >
-        <div class="w-7 py-4 mr-3" v-if="hasImage">
-          <Avatar :imageURL="doc.image" :label="doc.name" />
+    <hr />
+
+    <!-- Data Rows -->
+    <div class="overflow-y-auto" v-if="dataSlice.length !== 0">
+      <div v-for="(doc, i) in dataSlice" :key="doc.name">
+        <!-- Row Content -->
+        <div class="flex hover:bg-gray-100 items-center">
+          <p class="w-8 text-right mr-4 text-gray-900">
+            {{ i + pageStart + 1 }}
+          </p>
+          <Row
+            gap="1rem"
+            class="cursor-pointer text-gray-900 flex-1 border-none"
+            @click="openForm(doc)"
+            :columnCount="columns.length"
+          >
+            <ListCell
+              v-for="(column, c) in columns"
+              :key="column.label"
+              :class="{
+                'text-right': isNumeric(column.fieldtype),
+                'pr-4': c === columns.length - 1,
+              }"
+              :doc="doc"
+              :column="column"
+            />
+          </Row>
         </div>
-        <Row
-          gap="1rem"
-          class="cursor-pointer text-gray-900 flex-1"
-          @click="openForm(doc)"
-          :columnCount="columns.length"
-        >
-          <ListCell
-            v-for="column in columns"
-            :key="column.label"
-            :class="{
-              'text-right': ['Float', 'Currency'].includes(column.fieldtype),
-            }"
-            :doc="doc"
-            :column="column"
-          ></ListCell>
-        </Row>
+        <hr v-if="i !== dataSlice.length - 1" />
       </div>
     </div>
-    <div v-else class="flex flex-col items-center justify-center my-auto">
+
+    <!-- Pagination Footer -->
+    <div class="mt-auto" v-if="data?.length">
+      <hr />
+      <Paginator :item-count="data.length" @index-change="setPageIndices" />
+    </div>
+
+    <!-- Empty State -->
+    <div
+      v-if="!data?.length"
+      class="flex flex-col items-center justify-center my-auto"
+    >
       <img src="@/assets/img/list-empty-state.svg" alt="" class="w-24" />
       <p class="my-3 text-gray-800">{{ t`No entries found` }}</p>
       <Button type="primary" class="text-white" @click="$emit('makeNewDoc')">
@@ -56,94 +73,113 @@
   </div>
 </template>
 <script>
-import Avatar from '@/components/Avatar';
-import Button from '@/components/Button';
-import Row from '@/components/Row';
-import { openQuickEdit, routeTo } from '@/utils';
-import frappe from 'frappe';
+import Button from 'src/components/Button';
+import Paginator from 'src/components/Paginator.vue';
+import Row from 'src/components/Row';
+import { fyo } from 'src/initFyo';
+import { isNumeric } from 'src/utils';
+import { openQuickEdit, routeTo } from 'src/utils/ui';
+import { defineComponent } from 'vue';
 import ListCell from './ListCell';
 
-export default {
+export default defineComponent({
   name: 'List',
-  props: ['listConfig', 'filters'],
+  props: { listConfig: Object, filters: Object, schemaName: String },
   emits: ['makeNewDoc'],
   components: {
     Row,
     ListCell,
-    Avatar,
     Button,
+    Paginator,
   },
   watch: {
-    listConfig(oldValue, newValue) {
-      if (oldValue.doctype !== newValue.doctype) {
-        this.setupColumnsAndData();
+    schemaName(oldValue, newValue) {
+      if (oldValue === newValue) {
+        return;
       }
+
+      this.updateData();
     },
   },
   data() {
     return {
       data: [],
+      pageStart: 0,
+      pageEnd: 0,
     };
   },
   computed: {
+    dataSlice() {
+      return this.data.slice(this.pageStart, this.pageEnd);
+    },
+    count() {
+      return this.pageEnd - this.pageStart + 1;
+    },
     columns() {
-      return this.prepareColumns();
-    },
-    meta() {
-      return frappe.getMeta(this.listConfig.doctype);
-    },
-    hasImage() {
-      return this.meta.hasField('image');
+      let columns = this.listConfig?.columns ?? [];
+
+      if (columns.length === 0) {
+        columns = fyo.schemaMap[this.schemaName].quickEditFields ?? [];
+        columns = [...new Set(['name', ...columns])];
+      }
+
+      return columns
+        .map((fieldname) => {
+          if (typeof fieldname === 'object') {
+            return fieldname;
+          }
+
+          return fyo.getField(this.schemaName, fieldname);
+        })
+        .filter(Boolean);
     },
   },
   async mounted() {
-    await this.setupColumnsAndData();
-    frappe.db.on(`change:${this.listConfig.doctype}`, () => {
-      this.updateData();
-    });
+    await this.updateData();
+    this.setUpdateListeners();
   },
   methods: {
-    async setupColumnsAndData() {
-      this.doctype = this.listConfig.doctype;
-      await this.updateData();
+    isNumeric,
+    setPageIndices({ start, end }) {
+      this.pageStart = start;
+      this.pageEnd = end;
+    },
+    setUpdateListeners() {
+      const listener = () => {
+        this.updateData();
+      };
+
+      if (fyo.schemaMap[this.schemaName].isSubmittable) {
+        fyo.doc.observer.on(`submit:${this.schemaName}`, listener);
+        fyo.doc.observer.on(`revert:${this.schemaName}`, listener);
+      }
+
+      fyo.doc.observer.on(`sync:${this.schemaName}`, listener);
+      fyo.db.observer.on(`delete:${this.schemaName}`, listener);
+      fyo.doc.observer.on(`rename:${this.schemaName}`, listener);
     },
     openForm(doc) {
       if (this.listConfig.formRoute) {
         routeTo(this.listConfig.formRoute(doc.name));
         return;
       }
+
       openQuickEdit({
-        doctype: this.doctype,
+        schemaName: this.schemaName,
         name: doc.name,
       });
     },
     async updateData(filters) {
-      if (!filters) filters = this.getFilters();
-      this.data = await frappe.db.getAll({
-        doctype: this.doctype,
+      if (!filters) {
+        filters = { ...this.filters };
+      }
+
+      this.data = await fyo.db.getAll(this.schemaName, {
         fields: ['*'],
         filters,
-        orderBy: 'creation',
+        orderBy: 'modified',
       });
     },
-    getFilters() {
-      let filters = {};
-      Object.assign(filters, this.listConfig.filters || {});
-      Object.assign(filters, this.filters);
-      return filters;
-    },
-    prepareColumns() {
-      return this.listConfig.columns
-        .map((col) => {
-          if (typeof col === 'string') {
-            const field = this.meta.getField(col);
-            if (!field) return null;
-            return field;
-          }
-          return col;
-        })
-        .filter(Boolean);
-    },
   },
-};
+});
 </script>

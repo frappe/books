@@ -36,6 +36,7 @@
 </template>
 <script>
 import luxon from 'luxon';
+import { fyo } from 'src/initFyo';
 
 export default {
   props: ['entries', 'afterReconcile'],
@@ -66,7 +67,7 @@ export default {
           this.selectedEntries.push(this.entries[i]);
       }
       for (let entry of this.selectedEntries) {
-        const payment = await frappe.getDoc('Payment', entry['Payment Entry']);
+        const payment = await fyo.doc.getDoc('Payment', entry['Payment Entry']);
         const clearanceDate =
           luxon.DateTime.fromFormat(
             entry['Clearance Date'],
@@ -77,7 +78,7 @@ export default {
             'dd/MM/yyyy'
           ).toISO();
         payment.set({ clearanceDate });
-        await payment.update();
+        await payment.sync();
       }
       this.close();
       await this.afterReconcile();

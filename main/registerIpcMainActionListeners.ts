@@ -2,22 +2,29 @@ import { app, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
 import path from 'path';
+import databaseManager from '../backend/database/manager';
 import { Main } from '../main';
-import { getUrlAndTokenString, sendError } from '../src/contactMothership';
-import { getLanguageMap } from '../src/getLanguageMap';
-import { IPC_ACTIONS } from '../src/messages';
-import saveHtmlAsPdf from '../src/saveHtmlAsPdf';
-import { getMainWindowSize } from './helpers';
+import { DatabaseMethod } from '../utils/db/types';
+import { IPC_ACTIONS } from '../utils/messages';
+import { getUrlAndTokenString, sendError } from './contactMothership';
+import { getLanguageMap } from './getLanguageMap';
+import {
+  getConfigFilesWithModified,
+  getErrorHandledReponse,
+  setAndGetCleanedConfigFiles,
+} from './helpers';
+import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW, (event) => {
-    const maximizing = main.mainWindow!.isMaximized();
-    if (maximizing) {
-      main.mainWindow!.maximize();
+    const maximized = main.mainWindow!.isFullScreen();
+    if (maximized) {
+      main.mainWindow?.setFullScreen(false);
+      main.mainWindow?.setSize(main.WIDTH, main.HEIGHT, true);
     } else {
-      main.mainWindow!.unmaximize();
+      main.mainWindow?.setFullScreen(true);
     }
-    return maximizing;
+    return maximized;
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_OPEN_FILEPATH, async (event, options) => {
@@ -26,10 +33,6 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(IPC_ACTIONS.GET_SAVE_FILEPATH, async (event, options) => {
     return await dialog.showSaveDialog(main.mainWindow!, options);
-  });
-
-  ipcMain.handle(IPC_ACTIONS.GET_PRIMARY_DISPLAY_SIZE, (event) => {
-    return getMainWindowSize();
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_DIALOG_RESPONSE, async (event, options) => {
@@ -47,7 +50,7 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(
     IPC_ACTIONS.SAVE_HTML_AS_PDF,
     async (event, html, savePath) => {
-      return await saveHtmlAsPdf(html, savePath);
+      return await saveHtmlAsPdf(html, savePath, app);
     }
   );
 
@@ -70,7 +73,7 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.GET_LANGUAGE_MAP, async (event, code) => {
     const obj = { languageMap: {}, success: true, message: '' };
     try {
-      obj.languageMap = await getLanguageMap(code, main.isDevelopment);
+      obj.languageMap = await getLanguageMap(code);
     } catch (err) {
       obj.success = false;
       obj.message = (err as Error).message;
@@ -115,5 +118,60 @@ export default function registerIpcMainActionListeners(main: Main) {
 
   ipcMain.handle(IPC_ACTIONS.GET_VERSION, (_) => {
     return app.getVersion();
+  });
+
+  ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath) => {
+    await fs.unlink(filePath);
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_DB_LIST, async (_) => {
+    const files = await setAndGetCleanedConfigFiles();
+    return await getConfigFilesWithModified(files);
+  });
+
+  /**
+   * Database Related Actions
+   */
+
+  ipcMain.handle(
+    IPC_ACTIONS.DB_CREATE,
+    async (_, dbPath: string, countryCode: string) => {
+      return await getErrorHandledReponse(async function dbFunc() {
+        return await databaseManager.createNewDatabase(dbPath, countryCode);
+      });
+    }
+  );
+
+  ipcMain.handle(
+    IPC_ACTIONS.DB_CONNECT,
+    async (_, dbPath: string, countryCode?: string) => {
+      return await getErrorHandledReponse(async function dbFunc() {
+        return await databaseManager.connectToDatabase(dbPath, countryCode);
+      });
+    }
+  );
+
+  ipcMain.handle(
+    IPC_ACTIONS.DB_CALL,
+    async (_, method: DatabaseMethod, ...args: unknown[]) => {
+      return await getErrorHandledReponse(async function dbFunc() {
+        return await databaseManager.call(method, ...args);
+      });
+    }
+  );
+
+  ipcMain.handle(
+    IPC_ACTIONS.DB_BESPOKE,
+    async (_, method: string, ...args: unknown[]) => {
+      return await getErrorHandledReponse(async function dbFunc() {
+        return await databaseManager.callBespoke(method, ...args);
+      });
+    }
+  );
+
+  ipcMain.handle(IPC_ACTIONS.DB_SCHEMA, async (_) => {
+    return await getErrorHandledReponse(async function dbFunc() {
+      return await databaseManager.getSchemaMap();
+    });
   });
 }

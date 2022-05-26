@@ -1,0 +1,63 @@
+{
+  "name": "NumberSeries",
+  "label": "Number Series",
+  "isSingle": false,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Prefix",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "start",
+      "label": "Start",
+      "fieldtype": "Int",
+      "default": 1001,
+      "required": true,
+      "minvalue": 0
+    },
+    {
+      "fieldname": "padZeros",
+      "label": "Pad Zeros",
+      "fieldtype": "Int",
+      "default": 4,
+      "required": true
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Reference Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "SalesInvoice",
+          "label": "Invoice"
+        },
+        {
+          "value": "PurchaseInvoice",
+          "label": "Bill"
+        },
+        {
+          "value": "Payment",
+          "label": "Payment"
+        },
+        {
+          "value": "JournalEntry",
+          "label": "Journal Entry"
+        }
+      ],
+      "default": "-",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "current",
+      "label": "Current",
+      "fieldtype": "Int",
+      "required": true,
+      "readOnly": true
+    }
+  ],
+  "quickEditFields": ["referenceType", "start", "padZeros"]
+}

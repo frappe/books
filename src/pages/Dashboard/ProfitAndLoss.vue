@@ -28,14 +28,13 @@
   </div>
 </template>
 <script>
-import frappe from 'frappe';
+import BarChart from 'src/components/Charts/BarChart.vue';
+import { fyo } from 'src/initFyo';
+import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
+import { getDatesAndPeriodList } from 'src/utils/misc';
+import { getValueMapFromList } from 'utils';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
-import ProfitAndLoss from '../../../reports/ProfitAndLoss/ProfitAndLoss';
-import { getDatesAndPeriodicity } from './getDatesAndPeriodicity';
-import BarChart from '@/components/Charts/BarChart.vue';
-import { getYMax, getYMin } from '@/components/Charts/chartUtils';
-import { formatXLabels } from '@/utils';
 
 export default {
   name: 'ProfitAndLoss',
@@ -47,7 +46,7 @@ export default {
   data: () => ({
     period: 'This Year',
     data: [],
-    periodList: [],
+    hasData: false,
   }),
   activated() {
     this.setData();
@@ -57,13 +56,13 @@ export default {
   },
   computed: {
     chartData() {
-      const points = [this.periodList.map((p) => this.data[p])];
+      const points = [this.data.map((d) => d.balance)];
       const colors = [{ positive: '#2490EF', negative: '#B7BFC6' }];
-      const format = (value) => frappe.format(value ?? 0, 'Currency');
+      const format = (value) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
       const yMin = getYMin(points);
       return {
-        xLabels: this.periodList,
+        xLabels: this.data.map((d) => d.yearmonth),
         points,
         format,
         colors,
@@ -72,25 +71,31 @@ export default {
         formatX: formatXLabels,
       };
     },
-    hasData() {
-      return this.periodList.some((key) => this.data[key] !== 0);
-    },
   },
   methods: {
     async setData() {
-      let { fromDate, toDate, periodicity } = await getDatesAndPeriodicity(
+      const { fromDate, toDate, periodList } = await getDatesAndPeriodList(
         this.period
       );
 
-      let pl = new ProfitAndLoss();
-      let res = await pl.run({
-        fromDate,
-        toDate,
-        periodicity,
-      });
+      const data = await fyo.db.getIncomeAndExpenses(
+        fromDate.toISO(),
+        toDate.toISO()
+      );
+      const incomes = getValueMapFromList(data.income, 'yearmonth', 'balance');
+      const expenses = getValueMapFromList(
+        data.expense,
+        'yearmonth',
+        'balance'
+      );
 
-      this.data = res.rows.at(-1);
-      this.periodList = res.columns;
+      this.data = periodList.map((d) => {
+        const key = d.toFormat('yyyy-MM');
+        const inc = incomes[key] ?? 0;
+        const exp = expenses[key] ?? 0;
+        return { yearmonth: key, balance: inc - exp };
+      });
+      this.hasData = data.income.length > 0 || data.expense.length > 0;
     },
   },
 };

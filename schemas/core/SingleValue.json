@@ -1,0 +1,26 @@
+{
+  "name": "SingleValue",
+  "label": "Single Value",
+  "isSingle": false,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "parent",
+      "label": "Parent",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "fieldname",
+      "label": "Fieldname",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "value",
+      "label": "Value",
+      "fieldtype": "Data",
+      "required": true
+    }
+  ]
+}

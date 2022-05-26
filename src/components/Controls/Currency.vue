@@ -17,7 +17,7 @@
     />
     <div
       v-show="!showInput"
-      :class="[inputClasses, 'cursor-text']"
+      :class="[inputClasses, 'cursor-text whitespace-nowrap overflow-x-scroll']"
       @click="activateInput"
       @focus="activateInput"
       tabindex="0"
@@ -28,8 +28,9 @@
 </template>
 
 <script>
-import frappe from 'frappe';
-import Float from './Float';
+import { fyo } from 'src/initFyo';
+import { nextTick } from 'vue';
+import Float from './Float.vue';
 
 export default {
   name: 'Currency',
@@ -48,12 +49,12 @@ export default {
       this.$emit('focus', e);
     },
     parse(value) {
-      return frappe.pesa(value);
+      return fyo.pesa(value);
     },
     onBlur(e) {
       let { value } = e.target;
       if (value !== 0 && !value) {
-        value = frappe.pesa(0).round();
+        value = fyo.pesa(0).round();
       }
 
       this.showInput = false;
@@ -61,14 +62,14 @@ export default {
     },
     activateInput() {
       this.showInput = true;
-      this.$nextTick(() => {
+      nextTick(() => {
         this.focus();
       });
     },
   },
   computed: {
     formattedValue() {
-      return frappe.format(this.value, this.df, this.doc);
+      return fyo.format(this.value, this.df, this.doc);
     },
   },
 };

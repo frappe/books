@@ -1,0 +1,144 @@
+{
+  "name": "Item",
+  "label": "Item",
+  "isSingle": false,
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Item Name",
+      "fieldtype": "Data",
+      "placeholder": "Item Name",
+      "required": true
+    },
+    {
+      "fieldname": "image",
+      "label": "Image",
+      "fieldtype": "AttachImage"
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "placeholder": "Item Description",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldname": "unit",
+      "label": "Unit Type",
+      "fieldtype": "Select",
+      "placeholder": "Unit Type",
+      "default": "Unit",
+      "options": [
+        {
+          "value": "Unit",
+          "label": "Unit"
+        },
+        {
+          "value": "Kg",
+          "label": "Kg"
+        },
+        {
+          "value": "Gram",
+          "label": "Gram"
+        },
+        {
+          "value": "Meter",
+          "label": "Meter"
+        },
+        {
+          "value": "Hour",
+          "label": "Hour"
+        },
+        {
+          "value": "Day",
+          "label": "Day"
+        }
+      ]
+    },
+    {
+      "fieldname": "itemType",
+      "label": "Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "default": "Product",
+      "options": [
+        {
+          "value": "Product",
+          "label": "Product"
+        },
+        {
+          "value": "Service",
+          "label": "Service"
+        }
+      ]
+    },
+    {
+      "fieldname": "for",
+      "label": "For",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Purchases",
+          "label": "Purchases"
+        },
+        {
+          "value": "Sales",
+          "label": "Sales"
+        },
+        {
+          "value": "Both",
+          "label": "Both"
+        }
+      ],
+      "readOnly": true,
+      "required": true,
+      "default": "Both"
+    },
+    {
+      "fieldname": "incomeAccount",
+      "label": "Income",
+      "fieldtype": "Link",
+      "target": "Account",
+      "placeholder": "Income",
+      "required": true
+    },
+    {
+      "fieldname": "expenseAccount",
+      "label": "Expense",
+      "fieldtype": "Link",
+      "target": "Account",
+      "placeholder": "Expense",
+      "required": true
+    },
+    {
+      "fieldname": "tax",
+      "label": "Tax",
+      "fieldtype": "Link",
+      "target": "Tax",
+      "placeholder": "Tax"
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Currency"
+    },
+    {
+      "fieldname": "hsnCode",
+      "label": "HSN/SAC",
+      "fieldtype": "Int",
+      "placeholder": "HSN/SAC Code"
+    }
+  ],
+  "quickEditFields": [
+    "rate",
+    "unit",
+    "itemType",
+    "for",
+    "tax",
+    "description",
+    "incomeAccount",
+    "expenseAccount",
+    "hsnCode"
+  ],
+  "keywordFields": ["name", "itemType", "for"]
+}

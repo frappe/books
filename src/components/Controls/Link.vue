@@ -1,65 +1,99 @@
 <script>
-import Badge from '@/components/Badge';
-import { openQuickEdit } from '@/utils';
-import frappe, { t } from 'frappe';
+import { t } from 'fyo';
+import Badge from 'src/components/Badge.vue';
+import { fyo } from 'src/initFyo';
+import { fuzzyMatch } from 'src/utils';
 import { markRaw } from 'vue';
-import AutoComplete from './AutoComplete';
+import AutoComplete from './AutoComplete.vue';
 
 export default {
   name: 'Link',
   extends: AutoComplete,
   emits: ['new-doc'],
+  data() {
+    return { results: [] };
+  },
+  mounted() {
+    if (this.value) {
+      this.linkValue = this.value;
+    }
+
+    if (this.df.fieldname === 'incomeAccount') {
+      window.l = this;
+    }
+  },
+  watch: {
+    value: {
+      immediate: true,
+      handler(newValue) {
+        this.linkValue = newValue;
+      },
+    },
+  },
   methods: {
-    async getSuggestions(keyword = '') {
-      let doctype = this.getTarget();
-      let meta;
-      try {
-        meta = frappe.getMeta(doctype);
-      } catch (err) {
-        if (err.message.includes('not a registered doctype')) {
-          return [];
-        }
-        throw err;
+    getTargetSchemaName() {
+      return this.df.target;
+    },
+    async getOptions() {
+      const schemaName = this.getTargetSchemaName();
+      if (!schemaName) {
+        return [];
       }
-      let filters = await this.getFilters(keyword);
-      if (keyword && !filters.keywords) {
-        filters.keywords = ['like', keyword];
+
+      if (this.results?.length) {
+        return this.results;
       }
-      let results = await frappe.db.getAll({
-        doctype,
+
+      const schema = fyo.schemaMap[schemaName];
+      const filters = await this.getFilters();
+
+      const fields = [
+        ...new Set(['name', schema.titleField, this.df.groupBy]),
+      ].filter(Boolean);
+
+      const results = await fyo.db.getAll(schemaName, {
         filters,
-        fields: [
-          ...new Set([
-            'name',
-            meta.titleField,
-            this.df.groupBy,
-            ...meta.getKeywordFields(),
-          ]),
-        ].filter(Boolean),
+        fields,
       });
-      let createNewOption = this.getCreateNewOption();
-      let suggestions = results
+
+      return (this.results = results
         .map((r) => {
-          let option = { label: r[meta.titleField], value: r.name };
+          const option = { label: r[schema.titleField], value: r.name };
           if (this.df.groupBy) {
             option.group = r[this.df.groupBy];
           }
           return option;
         })
-        .concat(this.df.disableCreation ? null : createNewOption)
-        .filter(Boolean);
+        .filter(Boolean));
+    },
+    async getSuggestions(keyword = '') {
+      let options = await this.getOptions();
 
-      if (suggestions.length === 0) {
+      if (keyword) {
+        options = options
+          .map((item) => ({ ...fuzzyMatch(keyword, item.label), item }))
+          .filter(({ isMatch }) => isMatch)
+          .sort((a, b) => a.distance - b.distance)
+          .map(({ item }) => item);
+      }
+
+      if (this.doc && this.df.create) {
+        options = options.concat(this.getCreateNewOption());
+      }
+
+      if (options.length === 0 && !this.df.emptyMessage) {
         return [
           {
-            component: {
-              template: '<span class="text-gray-600">No results found</span>',
-            },
+            component: markRaw({
+              template:
+                '<span class="text-gray-600">{{ t`No results found` }}</span>',
+            }),
             action: () => {},
           },
         ];
       }
-      return suggestions;
+
+      return options;
     },
     getCreateNewOption() {
       return {
@@ -82,14 +116,48 @@ export default {
         }),
       };
     },
-    async getFilters(keyword) {
-      const { getFilters } = this.df;
-      if (!getFilters) {
+    async openNewDoc() {
+      const schemaName = this.df.target;
+      const doc = await fyo.doc.getNewDoc(schemaName);
+
+      const filters = await this.getCreateFilters();
+
+      const { openQuickEdit } = await import('src/utils/ui');
+
+      openQuickEdit({
+        schemaName,
+        name: doc.name,
+        defaults: Object.assign({}, filters, {
+          name: this.linkValue,
+        }),
+      });
+
+      doc.once('afterSync', () => {
+        this.$emit('new-doc', doc);
+        this.$router.back();
+      });
+    },
+    async getCreateFilters() {
+      const { schemaName, fieldname } = this.df;
+      const getFilters = fyo.models[schemaName]?.createFilters?.[fieldname];
+      const filters = await getFilters?.(this.doc);
+
+      if (filters === undefined) {
+        return await this.getFilters();
+      }
+
+      return filters;
+    },
+    async getFilters() {
+      const { schemaName, fieldname } = this.df;
+      const getFilters = fyo.models[schemaName]?.filters?.[fieldname];
+
+      if (getFilters === undefined) {
         return {};
       }
 
       if (this.doc) {
-        return (await getFilters(keyword, this.doc)) ?? {};
+        return (await getFilters(this.doc)) ?? {};
       }
 
       try {
@@ -97,25 +165,6 @@ export default {
       } catch {
         return {};
       }
-    },
-    getTarget() {
-      return this.df.target;
-    },
-    async openNewDoc() {
-      let doctype = this.df.target;
-      let doc = await frappe.getNewDoc(doctype);
-      let filters = await this.getFilters();
-      openQuickEdit({
-        doctype,
-        name: doc.name,
-        defaults: Object.assign({}, filters, {
-          name: this.linkValue,
-        }),
-      });
-      doc.once('afterInsert', () => {
-        this.$emit('new-doc', doc);
-        this.$router.back();
-      });
     },
   },
 };

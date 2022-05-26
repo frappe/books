@@ -17,7 +17,7 @@
     :style="{ opacity }"
     v-if="show"
   >
-    <FeatherIcon :name="iconName" class="w-6 h-6 mr-3" :class="iconColor" />
+    <feather-icon :name="iconName" class="w-6 h-6 mr-3" :class="iconColor" />
     <div @click="actionClicked" :class="actionText ? 'cursor-pointer' : ''">
       <p class="text-base">{{ message }}</p>
       <button
@@ -35,7 +35,7 @@
   </div>
 </template>
 <script>
-import { getColorClass } from '../colors';
+import { getColorClass } from 'src/utils/colors';
 import FeatherIcon from './FeatherIcon.vue';
 
 export default {

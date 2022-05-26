@@ -1,18 +1,32 @@
-import { Doc, Field, FieldType, Map } from '@/types/model';
-import frappe from 'frappe';
-import { isNameAutoSet } from 'frappe/model/naming';
-import { parseCSV } from './csvParser';
-import telemetry from './telemetry/telemetry';
-import { Noun, Verb } from './telemetry/types';
+import { Fyo, t } from 'fyo';
+import { Converter } from 'fyo/core/converter';
+import { DocValueMap } from 'fyo/core/types';
+import { Doc } from 'fyo/model/doc';
+import { isNameAutoSet } from 'fyo/model/naming';
+import { Noun, Verb } from 'fyo/telemetry/types';
+import { ModelNameEnum } from 'models/types';
+import {
+  Field,
+  FieldType,
+  FieldTypeEnum,
+  OptionField,
+  SelectOption,
+  TargetField,
+} from 'schemas/types';
+import {
+  getDefaultMapFromList,
+  getMapFromList,
+  getValueMapFromList,
+} from 'utils';
+import { generateCSV, parseCSV } from '../utils/csvParser';
 
 export const importable = [
-  'SalesInvoice',
-  'PurchaseInvoice',
-  'Payment',
-  'JournalEntry',
-  'Customer',
-  'Supplier',
-  'Item',
+  ModelNameEnum.SalesInvoice,
+  ModelNameEnum.PurchaseInvoice,
+  ModelNameEnum.Payment,
+  ModelNameEnum.Party,
+  ModelNameEnum.Item,
+  ModelNameEnum.JournalEntry,
 ];
 
 type Status = {
@@ -21,17 +35,7 @@ type Status = {
   names: string[];
 };
 
-type Exclusion = {
-  [key: string]: string[];
-};
-
-type ObjectMap = {
-  [key: string]: Map;
-};
-
-type LabelTemplateFieldMap = {
-  [key: string]: TemplateField;
-};
+type Exclusion = Record<string, string[]>;
 
 type LoadingStatusCallback = (
   isMakingEntries: boolean,
@@ -43,184 +47,154 @@ interface TemplateField {
   label: string;
   fieldname: string;
   required: boolean;
-  doctype: string;
-  options?: string[];
+  schemaName: string;
+  options?: SelectOption[];
   fieldtype: FieldType;
   parentField: string;
 }
 
-function formatValue(value: string, fieldtype: FieldType): unknown {
-  switch (fieldtype) {
-    case FieldType.Date:
-      if (value === '') {
-        return '';
-      }
-      return new Date(value);
-    case FieldType.Currency:
-      // @ts-ignore
-      return frappe.pesa(value || 0);
-    case FieldType.Int:
-    case FieldType.Float: {
-      const n = parseFloat(value);
-      if (!Number.isNaN(n)) {
-        return n;
-      }
-      return 0;
-    }
-    default:
-      return value;
-  }
-}
-
 const exclusion: Exclusion = {
   Item: ['image'],
-  Supplier: ['address', 'outstandingAmount', 'supplier', 'image', 'customer'],
-  Customer: ['address', 'outstandingAmount', 'supplier', 'image', 'customer'],
+  Party: ['address', 'outstandingAmount', 'image'],
 };
 
 function getFilteredDocFields(
-  df: string | string[]
+  df: string | string[],
+  fyo: Fyo
 ): [TemplateField[], string[][]] {
-  let doctype = df[0];
+  let schemaName = df[0];
   let parentField = df[1] ?? '';
 
   if (typeof df === 'string') {
-    doctype = df;
+    schemaName = df;
     parentField = '';
   }
 
-  // @ts-ignore
-  const primaryFields: Field[] = frappe.models[doctype].fields;
+  const primaryFields: Field[] = fyo.schemaMap[schemaName]!.fields;
   const fields: TemplateField[] = [];
   const tableTypes: string[][] = [];
-  const exclusionFields: string[] = exclusion[doctype] ?? [];
+  const exclusionFields: string[] = exclusion[schemaName] ?? [];
 
-  primaryFields.forEach(
-    ({
-      label,
-      fieldtype,
-      childtype,
-      fieldname,
-      readOnly,
-      required,
-      hidden,
-      options,
-    }) => {
-      if (
-        !(fieldname === 'name' && !parentField) &&
-        (readOnly ||
-          (hidden && typeof hidden === 'number') ||
-          exclusionFields.includes(fieldname))
-      ) {
-        return;
-      }
+  for (const field of primaryFields) {
+    const { label, fieldtype, fieldname, required } = field;
 
-      if (fieldtype === FieldType.Table && childtype) {
-        tableTypes.push([childtype, fieldname]);
-        return;
-      }
-
-      fields.push({
-        label,
-        fieldname,
-        doctype,
-        options,
-        fieldtype,
-        parentField,
-        required: Boolean(required ?? false),
-      });
+    if (shouldSkip(field, exclusionFields, parentField)) {
+      continue;
     }
-  );
+
+    if (fieldtype === FieldTypeEnum.Table) {
+      const { target } = field as TargetField;
+      tableTypes.push([target, fieldname]);
+      continue;
+    }
+
+    const options: SelectOption[] = (field as OptionField).options ?? [];
+
+    fields.push({
+      label,
+      fieldname,
+      schemaName,
+      options,
+      fieldtype,
+      parentField,
+      required: required ?? false,
+    });
+  }
 
   return [fields, tableTypes];
 }
 
-function getTemplateFields(doctype: string): TemplateField[] {
+function shouldSkip(
+  field: Field,
+  exclusionFields: string[],
+  parentField: string
+): boolean {
+  if (field.meta) {
+    return true;
+  }
+
+  if (field.fieldname === 'name' && parentField) {
+    return true;
+  }
+
+  if (field.required) {
+    return false;
+  }
+
+  if (exclusionFields.includes(field.fieldname)) {
+    return true;
+  }
+
+  if (field.hidden || field.readOnly) {
+    return true;
+  }
+
+  return false;
+}
+
+function getTemplateFields(schemaName: string, fyo: Fyo): TemplateField[] {
   const fields: TemplateField[] = [];
-  if (!doctype) {
+  if (!schemaName) {
     return [];
   }
-  const doctypes: string[][] = [[doctype]];
-  while (doctypes.length > 0) {
-    const dt = doctypes.pop();
-    if (!dt) {
+
+  const schemaNames: string[][] = [[schemaName]];
+  while (schemaNames.length > 0) {
+    const sn = schemaNames.pop();
+    if (!sn) {
       break;
     }
 
-    const [templateFields, tableTypes] = getFilteredDocFields(dt);
+    const [templateFields, tableTypes] = getFilteredDocFields(sn, fyo);
     fields.push(...templateFields);
-    doctypes.push(...tableTypes);
+    schemaNames.push(...tableTypes);
   }
   return fields;
 }
 
-function getLabelFieldMap(templateFields: TemplateField[]): Map {
-  const map: Map = {};
-
-  templateFields.reduce((acc, tf) => {
-    const key = tf.label as string;
-    acc[key] = tf.fieldname;
-    return acc;
-  }, map);
-
-  return map;
-}
-
-function getTemplate(templateFields: TemplateField[]): string {
-  const labels = templateFields.map(({ label }) => `"${label}"`).join(',');
-  return [labels, ''].join('\n');
-}
-
 export class Importer {
-  doctype: string;
+  schemaName: string;
   templateFields: TemplateField[];
-  map: Map;
+  labelTemplateFieldMap: Record<string, TemplateField> = {};
   template: string;
   indices: number[] = [];
   parsedLabels: string[] = [];
   parsedValues: string[][] = [];
-  assignedMap: Map = {}; // target: import
-  requiredMap: Map = {};
-  labelTemplateFieldMap: LabelTemplateFieldMap = {};
+  assignedMap: Record<string, string> = {}; // target: import
+  requiredMap: Record<string, boolean> = {};
   shouldSubmit: boolean = false;
   labelIndex: number = -1;
   csv: string[][] = [];
+  fyo: Fyo;
 
-  constructor(doctype: string) {
-    this.doctype = doctype;
-    this.templateFields = getTemplateFields(doctype);
-    this.map = getLabelFieldMap(this.templateFields);
-    this.template = getTemplate(this.templateFields);
-    this.assignedMap = this.assignableLabels.reduce((acc: Map, k) => {
-      acc[k] = '';
-      return acc;
-    }, {});
-    this.requiredMap = this.templateFields.reduce((acc: Map, k) => {
-      acc[k.label] = k.required;
-      return acc;
-    }, {});
-    this.labelTemplateFieldMap = this.templateFields.reduce(
-      (acc: LabelTemplateFieldMap, k) => {
-        acc[k.label] = k;
-        return acc;
-      },
-      {}
-    );
+  constructor(schemaName: string, fyo: Fyo) {
+    this.schemaName = schemaName;
+    this.fyo = fyo;
+    this.templateFields = getTemplateFields(schemaName, this.fyo);
+    this.template = generateCSV([this.templateFields.map((t) => t.label)]);
+    this.labelTemplateFieldMap = getMapFromList(this.templateFields, 'label');
+    this.assignedMap = getDefaultMapFromList(this.templateFields, '', 'label');
+    this.requiredMap = getValueMapFromList(
+      this.templateFields,
+      'label',
+      'required'
+    ) as Record<string, boolean>;
   }
 
   get assignableLabels() {
     const req: string[] = [];
     const nreq: string[] = [];
-    Object.keys(this.map).forEach((k) => {
-      if (this.requiredMap[k]) {
-        req.push(k);
-        return;
+
+    for (const label in this.labelTemplateFieldMap) {
+      if (this.requiredMap[label]) {
+        req.push(label);
+        continue;
       }
 
-      nreq.push(k);
-    });
+      nreq.push(label);
+    }
 
-    return [...req, ...nreq];
+    return [req, nreq].flat();
   }
 
   get unassignedLabels() {
@@ -325,23 +299,23 @@ export class Importer {
     });
   }
 
-  getDocs(): Map[] {
+  getDocs(): DocValueMap[] {
     const fields = this.columnLabels.map((k) => this.labelTemplateFieldMap[k]);
     const nameIndex = fields.findIndex(({ fieldname }) => fieldname === 'name');
 
-    const docMap: ObjectMap = {};
+    const docMap: Record<string, DocValueMap> = {};
 
     const assignedMatrix = this.assignedMatrix;
     for (let r = 0; r < assignedMatrix.length; r++) {
       const row = assignedMatrix[r];
-      const cts: ObjectMap = {};
+      const cts: Record<string, DocValueMap> = {};
       const name = row[nameIndex];
 
       docMap[name] ??= {};
 
       for (let f = 0; f < fields.length; f++) {
         const field = fields[f];
-        const value = formatValue(row[f], field.fieldtype);
+        const value = Converter.toDocValue(row[f], field, this.fyo);
 
         if (field.parentField) {
           cts[field.parentField] ??= {};
@@ -354,7 +328,7 @@ export class Importer {
 
       for (const k of Object.keys(cts)) {
         docMap[name][k] ??= [];
-        (docMap[name][k] as Map[]).push(cts[k]);
+        (docMap[name][k] as DocValueMap[]).push(cts[k]);
       }
     }
 
@@ -363,7 +337,7 @@ export class Importer {
 
   async importData(setLoadingStatus: LoadingStatusCallback): Promise<Status> {
     const status: Status = { success: false, names: [], message: '' };
-    const shouldDeleteName = await isNameAutoSet(this.doctype);
+    const shouldDeleteName = isNameAutoSet(this.schemaName, this.fyo);
     const docObjs = this.getDocs();
 
     let entriesMade = 0;
@@ -382,7 +356,7 @@ export class Importer {
         delete docObj[key];
       }
 
-      const doc: Doc = frappe.getNewDoc(this.doctype, false);
+      const doc: Doc = this.fyo.doc.getNewDoc(this.schemaName, {}, false);
       try {
         await this.makeEntry(doc, docObj);
         entriesMade += 1;
@@ -390,7 +364,7 @@ export class Importer {
       } catch (err) {
         setLoadingStatus(false, entriesMade, docObjs.length);
 
-        telemetry.log(Verb.Imported, this.doctype as Noun, {
+        this.fyo.telemetry.log(Verb.Imported, this.schemaName as Noun, {
           success: false,
           count: entriesMade,
         });
@@ -398,13 +372,13 @@ export class Importer {
         return this.handleError(doc, err as Error, status);
       }
 
-      status.names.push(doc.name);
+      status.names.push(doc.name!);
     }
 
     setLoadingStatus(false, entriesMade, docObjs.length);
     status.success = true;
 
-    telemetry.log(Verb.Imported, this.doctype as Noun, {
+    this.fyo.telemetry.log(Verb.Imported, this.schemaName as Noun, {
       success: true,
       count: entriesMade,
     });
@@ -416,27 +390,26 @@ export class Importer {
     this.parsedValues.push(emptyRow);
   }
 
-  async makeEntry(doc: Doc, docObj: Map) {
-    await doc.set(docObj);
-    await doc.insert();
+  async makeEntry(doc: Doc, docObj: DocValueMap) {
+    await doc.setAndSync(docObj);
     if (this.shouldSubmit) {
       await doc.submit();
     }
   }
 
   handleError(doc: Doc, err: Error, status: Status): Status {
-    const messages = [frappe.t`Could not import ${this.doctype} ${doc.name}.`];
+    const messages = [t`Could not import ${this.schemaName} ${doc.name!}.`];
 
     const message = err.message;
     if (message?.includes('UNIQUE constraint failed')) {
-      messages.push(frappe.t`${doc.name} already exists.`);
+      messages.push(t`${doc.name!} already exists.`);
     } else if (message) {
       messages.push(message);
     }
 
     if (status.names.length) {
       messages.push(
-        frappe.t`The following ${
+        t`The following ${
           status.names.length
         } entries were created: ${status.names.join(', ')}`
       );

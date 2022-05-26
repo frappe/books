@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import Base from './Base';
+import Base from './Base.vue';
 
 export default {
   name: 'Text',

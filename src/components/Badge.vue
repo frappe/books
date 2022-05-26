@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { getBgTextColorClass } from '../colors';
+import { getBgTextColorClass } from 'src/utils/colors';
 
 export default {
   name: 'Badge',

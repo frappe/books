@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import frappe from 'frappe';
-import TwoColumnForm from '@/components/TwoColumnForm';
+import TwoColumnForm from 'src/components/TwoColumnForm';
+import { fyo } from 'src/initFyo';
 
 export default {
   name: 'TabGeneral',
@@ -27,13 +27,16 @@ export default {
     };
   },
   async mounted() {
-    this.doc = await frappe.getDoc('AccountingSettings', 'AccountingSettings', {
-      skipDocumentCache: true,
-    });
+    this.doc = await fyo.doc.getDoc(
+      'AccountingSettings',
+      'AccountingSettings',
+      {
+        skipDocumentCache: true,
+      }
+    );
   },
   computed: {
     fields() {
-      let meta = frappe.getMeta('AccountingSettings');
       return [
         'companyName',
         'country',
@@ -44,7 +47,7 @@ export default {
         'fiscalYearStart',
         'fiscalYearEnd',
         'gstin',
-      ].map((fieldname) => meta.getField(fieldname));
+      ].map((fieldname) => fyo.getField('AccountingSettings', fieldname));
     },
   },
   methods: {
