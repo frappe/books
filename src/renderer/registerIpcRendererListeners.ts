@@ -5,10 +5,6 @@ import { showToast } from 'src/utils/ui';
 import { IPC_CHANNELS, IPC_MESSAGES } from 'utils/messages';
 
 export default function registerIpcRendererListeners() {
-  ipcRenderer.on(IPC_CHANNELS.STORE_ON_WINDOW, (event, message) => {
-    Object.assign(fyo.store, message);
-  });
-
   ipcRenderer.on(IPC_CHANNELS.CHECKING_FOR_UPDATE, (_) => {
     showToast({ message: fyo.t`Checking for updates` });
   });
@@ -48,9 +44,15 @@ export default function registerIpcRendererListeners() {
     });
   });
 
-  ipcRenderer.on(IPC_CHANNELS.UPDATE_ERROR, (_, error) => {
+  ipcRenderer.on(IPC_CHANNELS.UPDATE_ERROR, async (_, error) => {
     error.name = 'Updation Error';
-    handleError(true, error);
+    await handleError(true, error as Error);
+  });
+
+  ipcRenderer.on(IPC_CHANNELS.MAIN_PROCESS_ERROR, async (_, error) => {
+    console.error('main process error');
+    console.error(error);
+    await handleError(true, error as Error);
   });
 
   document.addEventListener('visibilitychange', function () {
