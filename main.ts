@@ -15,7 +15,6 @@ import registerAutoUpdaterListeners from './main/registerAutoUpdaterListeners';
 import registerIpcMainActionListeners from './main/registerIpcMainActionListeners';
 import registerIpcMainMessageListeners from './main/registerIpcMainMessageListeners';
 import registerProcessListeners from './main/registerProcessListeners';
-import { IPC_CHANNELS } from './utils/messages';
 
 export class Main {
   title: string = 'Frappe Books';
@@ -52,6 +51,10 @@ export class Main {
 
   get isDevelopment() {
     return process.env.NODE_ENV !== 'production';
+  }
+
+  get isTest() {
+    return !!process.env.IS_TEST;
   }
 
   get isMac() {
@@ -119,7 +122,7 @@ export class Main {
     this.winURL = process.env.WEBPACK_DEV_SERVER_URL as string;
     this.mainWindow!.loadURL(this.winURL);
 
-    if (!process.env.IS_TEST) {
+    if (this.isDevelopment && !this.isTest) {
       this.mainWindow!.webContents.openDevTools();
     }
   }
@@ -138,6 +141,10 @@ export class Main {
 
     this.mainWindow.on('closed', () => {
       this.mainWindow = null;
+    });
+
+    this.mainWindow.webContents.on('did-fail-load', () => {
+      this.mainWindow!.loadURL(this.winURL);
     });
   }
 }
