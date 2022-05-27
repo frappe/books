@@ -139,16 +139,6 @@ export class Main {
     this.mainWindow.on('closed', () => {
       this.mainWindow = null;
     });
-
-    this.mainWindow.webContents.on('did-finish-load', () => {
-      if (this.mainWindow === null) {
-        return;
-      }
-
-      this.mainWindow.webContents.send(IPC_CHANNELS.STORE_ON_WINDOW, {
-        isDevelopment: this.isDevelopment,
-      });
-    });
   }
 }
 

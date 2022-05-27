@@ -17,6 +17,7 @@ export enum IPC_ACTIONS {
   GET_OPEN_FILEPATH = 'open-dialog',
   GET_SAVE_FILEPATH = 'save-dialog',
   GET_DIALOG_RESPONSE = 'show-message-box',
+  GET_ENV = 'get-env',
   SAVE_HTML_AS_PDF = 'save-html-as-pdf',
   SAVE_DATA = 'save-data',
   SHOW_ERROR = 'show-error',
@@ -25,7 +26,6 @@ export enum IPC_ACTIONS {
   CHECK_FOR_UPDATES = 'check-for-updates',
   GET_FILE = 'get-file',
   GET_CREDS = 'get-creds',
-  GET_VERSION = 'get-version',
   GET_DB_LIST = 'get-db-list',
   DELETE_FILE = 'delete-file',
   // Database messages
@@ -38,12 +38,12 @@ export enum IPC_ACTIONS {
 
 // ipcMain.send(...)
 export enum IPC_CHANNELS {
-  STORE_ON_WINDOW = 'store-on-window',
   CHECKING_FOR_UPDATE = 'checking-for-update',
   UPDATE_AVAILABLE = 'update-available',
   UPDATE_NOT_AVAILABLE = 'update-not-available',
   UPDATE_DOWNLOADED = 'update-downloaded',
   UPDATE_ERROR = 'update-error',
+  MAIN_PROCESS_ERROR = 'main-process-error',
 }
 
 export enum DB_CONN_FAILURE {
