@@ -7,8 +7,6 @@ export enum IPC_MESSAGES {
   RELOAD_MAIN_WINDOW = 'reload-main-window',
   CLOSE_CURRENT_WINDOW = 'close-current-window',
   MINIMIZE_CURRENT_WINDOW = 'minimize-current-window',
-  DOWNLOAD_UPDATE = 'download-update',
-  INSTALL_UPDATE = 'install-update',
 }
 
 // ipcRenderer.invoke(...)
@@ -38,11 +36,6 @@ export enum IPC_ACTIONS {
 
 // ipcMain.send(...)
 export enum IPC_CHANNELS {
-  CHECKING_FOR_UPDATE = 'checking-for-update',
-  UPDATE_AVAILABLE = 'update-available',
-  UPDATE_NOT_AVAILABLE = 'update-not-available',
-  UPDATE_DOWNLOADED = 'update-downloaded',
-  UPDATE_ERROR = 'update-error',
   MAIN_PROCESS_ERROR = 'main-process-error',
   CONSOLE_LOG = 'console-log',
 }

@@ -8,8 +8,8 @@ import { setLanguageMap } from './language';
 import { WindowAction } from './types';
 import { showToast } from './ui';
 
-export async function checkForUpdates(force = false) {
-  await ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES, force);
+export async function checkForUpdates() {
+  await ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES);
   await setLanguageMap();
 }
 
