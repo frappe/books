@@ -116,10 +116,6 @@ export default function registerIpcMainActionListeners(main: Main) {
     return await getUrlAndTokenString();
   });
 
-  ipcMain.handle(IPC_ACTIONS.GET_VERSION, (_) => {
-    return app.getVersion();
-  });
-
   ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath) => {
     await fs.unlink(filePath);
   });
@@ -127,6 +123,14 @@ export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.GET_DB_LIST, async (_) => {
     const files = await setAndGetCleanedConfigFiles();
     return await getConfigFilesWithModified(files);
+  });
+
+  ipcMain.handle(IPC_ACTIONS.GET_ENV, async (_) => {
+    return {
+      isDevelopment: main.isDevelopment,
+      platform: process.platform,
+      version: app.getVersion(),
+    };
   });
 
   /**

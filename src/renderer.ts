@@ -2,7 +2,6 @@ import { ipcRenderer } from 'electron';
 import { ConfigKeys } from 'fyo/core/types';
 import { DateTime } from 'luxon';
 import { IPC_ACTIONS } from 'utils/messages';
-import { Version } from 'utils/version';
 import { App as VueApp, createApp } from 'vue';
 import App from './App.vue';
 import Badge from './components/Badge.vue';
@@ -21,12 +20,18 @@ import { setLanguageMap } from './utils/language';
     await setLanguageMap(language);
   }
 
-  setOnWindow();
-
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
 
   registerIpcRendererListeners();
+  const { isDevelopment, platform, version } = (await ipcRenderer.invoke(
+    IPC_ACTIONS.GET_ENV
+  )) as { isDevelopment: boolean; platform: string; version: string };
+
+  fyo.store.isDevelopment = isDevelopment;
+  fyo.store.appVersion = version;
+
+  setOnWindow(isDevelopment);
 
   const app = createApp({
     template: '<App/>',
@@ -45,7 +50,7 @@ import { setLanguageMap } from './utils/language';
         return fyo;
       },
       platform() {
-        switch (process.platform) {
+        switch (platform) {
           case 'win32':
             return 'Windows';
           case 'darwin':
@@ -63,7 +68,6 @@ import { setLanguageMap } from './utils/language';
     },
   });
 
-  fyo.store.appVersion = await ipcRenderer.invoke(IPC_ACTIONS.GET_VERSION);
   app.mount('body');
 })();
 
@@ -88,25 +92,17 @@ function setErrorHandlers(app: VueApp) {
     handleError(false, err as Error, more);
     console.error(err, vm, info);
   };
-
-  process.on('unhandledRejection', (error) => {
-    handleError(true, error as Error);
-  });
-
-  process.on('uncaughtException', (error) => {
-    handleError(true, error, {}, () => process.exit(1));
-  });
 }
 
-function setOnWindow() {
-  if (process.env.NODE_ENV === 'development') {
-    // @ts-ignore
-    window.router = router;
-    // @ts-ignore
-    window.fyo = fyo;
-    // @ts-ignore
-    window.DateTime = DateTime;
-    // @ts-ignore
-    window.Version = Version;
+function setOnWindow(isDevelopment: boolean) {
+  if (!isDevelopment) {
+    return;
   }
+
+  // @ts-ignore
+  window.router = router;
+  // @ts-ignore
+  window.fyo = fyo;
+  // @ts-ignore
+  window.DateTime = DateTime;
 }

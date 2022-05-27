@@ -21,7 +21,7 @@ function shouldNotStore(error: Error) {
   );
 }
 
-async function reportError(errorLogObj: ErrorLog, cb?: Function) {
+async function reportError(errorLogObj: ErrorLog) {
   if (!errorLogObj.stack) {
     return;
   }
@@ -38,10 +38,9 @@ async function reportError(errorLogObj: ErrorLog, cb?: Function) {
   }
 
   await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, JSON.stringify(body));
-  cb?.();
 }
 
-function getToastProps(errorLogObj: ErrorLog, cb?: Function) {
+function getToastProps(errorLogObj: ErrorLog) {
   const props: ToastOptions = {
     message: errorLogObj.name ?? t`Error`,
     type: 'error',
@@ -68,8 +67,7 @@ export function getErrorLogObject(
 export async function handleError(
   shouldLog: boolean,
   error: Error,
-  more?: Record<string, unknown>,
-  cb?: Function
+  more?: Record<string, unknown>
 ) {
   if (shouldLog) {
     console.error(error);
@@ -81,8 +79,8 @@ export async function handleError(
 
   const errorLogObj = getErrorLogObject(error, more ?? {});
 
-  await reportError(errorLogObj, cb);
-  const toastProps = getToastProps(errorLogObj, cb);
+  await reportError(errorLogObj);
+  const toastProps = getToastProps(errorLogObj);
   await showToast(toastProps);
 }
 
