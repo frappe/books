@@ -55,6 +55,8 @@ export default function registerIpcRendererListeners() {
     await handleError(true, error as Error);
   });
 
+  ipcRenderer.on(IPC_CHANNELS.CONSOLE_LOG, console.log);
+
   document.addEventListener('visibilitychange', function () {
     const { visibilityState } = document;
     if (visibilityState === 'visible' && !fyo.telemetry.started) {

@@ -1,8 +1,10 @@
 import { constants } from 'fs';
 import fs from 'fs/promises';
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
+import { Main } from 'main';
 import config from 'utils/config';
 import { DatabaseResponse } from 'utils/ipc/types';
+import { IPC_CHANNELS } from 'utils/messages';
 
 interface ConfigFilesWithModified extends ConfigFile {
   modified: string;
@@ -65,4 +67,8 @@ export async function getErrorHandledReponse(func: () => Promise<unknown>) {
   }
 
   return response;
+}
+
+export function rendererLog(main: Main, ...args: unknown[]) {
+  main.mainWindow?.webContents.send(IPC_CHANNELS.CONSOLE_LOG, ...args);
 }

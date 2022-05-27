@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import { Main } from '../main';
+import { rendererLog } from './helpers';
 
 export default function registerAppLifecycleListeners(main: Main) {
   app.on('window-all-closed', () => {
@@ -16,17 +17,18 @@ export default function registerAppLifecycleListeners(main: Main) {
   });
 
   app.on('ready', async () => {
-    if (main.isDevelopment && !process.env.IS_TEST) {
-      try {
-        await installExtension(VUEJS3_DEVTOOLS);
-      } catch (e) {
-        console.error(
-          'Vue Devtools failed to install:',
-          (e as Error).toString()
-        );
-      }
+    if (main.isDevelopment && !main.isTest) {
+      await installDevTools(main);
     }
 
     main.createWindow();
   });
+}
+
+async function installDevTools(main: Main) {
+  try {
+    await installExtension(VUEJS3_DEVTOOLS);
+  } catch (e) {
+    rendererLog(main, 'Vue Devtools failed to install', e);
+  }
 }
