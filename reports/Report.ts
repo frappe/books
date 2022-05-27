@@ -57,7 +57,7 @@ export abstract class Report extends Observable<RawValue> {
     return filterMap;
   }
 
-  async set(key: string, value: RawValue) {
+  async set(key: string, value: RawValue, callPostSet: boolean = true) {
     const field = this.filters.find((f) => f.fieldname === key);
     if (field === undefined) {
       return;
@@ -74,6 +74,12 @@ export abstract class Report extends Observable<RawValue> {
       this[key] = value;
     }
 
+    if (callPostSet) {
+      await this.postSet(key);
+    }
+  }
+
+  async postSet(key?: string) {
     await this.setDefaultFilters();
     this.filters = await this.getFilters();
     this.columns = await this.getColumns();
