@@ -83,7 +83,6 @@ async function setOtherSettings(fyo: Fyo) {
   await acc.setAndSync({
     gstin: '27LIN180000A1Z5',
   });
-  console.log(acc.gstin, await fyo.db.getSingleValues('gstin'));
 }
 
 /**
