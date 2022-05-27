@@ -1,7 +1,8 @@
-import { AuthDemuxBase, TelemetryCreds } from 'utils/auth/types';
+import { AuthDemuxBase } from 'utils/auth/types';
+import { Creds } from 'utils/types';
 
 export class DummyAuthDemux extends AuthDemuxBase {
-  async getTelemetryCreds(): Promise<TelemetryCreds> {
-    return { url: '', token: '' };
+  async getCreds(): Promise<Creds> {
+    return { errorLogUrl: '', tokenString: '', telemetryUrl: '' };
   }
 }

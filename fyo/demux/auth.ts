@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
-import { AuthDemuxBase, TelemetryCreds } from 'utils/auth/types';
+import { AuthDemuxBase } from 'utils/auth/types';
 import { IPC_ACTIONS } from 'utils/messages';
+import { Creds } from 'utils/types';
 
 export class AuthDemux extends AuthDemuxBase {
   #isElectron: boolean = false;
@@ -9,14 +10,11 @@ export class AuthDemux extends AuthDemuxBase {
     this.#isElectron = isElectron;
   }
 
-  async getTelemetryCreds(): Promise<TelemetryCreds> {
+  async getCreds(): Promise<Creds> {
     if (this.#isElectron) {
-      const creds = await ipcRenderer.invoke(IPC_ACTIONS.GET_CREDS);
-      const url: string = creds?.telemetryUrl ?? '';
-      const token: string = creds?.tokenString ?? '';
-      return { url, token };
+      return (await ipcRenderer.invoke(IPC_ACTIONS.GET_CREDS)) as Creds;
     } else {
-      return { url: '', token: '' };
+      return { errorLogUrl: '', tokenString: '', telemetryUrl: '' };
     }
   }
 }

@@ -1,12 +1,13 @@
 import { app } from 'electron';
 import fs from 'fs';
-import http from 'http';
-import https from 'https';
+import fetch from 'node-fetch';
 import path from 'path';
+import { Creds } from 'utils/types';
+import { rendererLog } from './helpers';
 
-export function getUrlAndTokenString() {
+export function getUrlAndTokenString(): Creds {
   const inProduction = app.isPackaged;
-  const empty = { url: '', telemetryUrl: '', tokenString: '' };
+  const empty: Creds = { errorLogUrl: '', telemetryUrl: '', tokenString: '' };
   let errLogCredsPath = path.join(
     process.resourcesPath,
     '../creds/log_creds.txt'
@@ -20,9 +21,9 @@ export function getUrlAndTokenString() {
     return empty;
   }
 
-  let apiKey, apiSecret, url, telemetryUrl;
+  let apiKey, apiSecret, errorLogUrl, telemetryUrl;
   try {
-    [apiKey, apiSecret, url, telemetryUrl] = fs
+    [apiKey, apiSecret, errorLogUrl, telemetryUrl] = fs
       .readFileSync(errLogCredsPath, 'utf-8')
       .split('\n')
       .filter((f) => f.length);
@@ -35,53 +36,21 @@ export function getUrlAndTokenString() {
   }
 
   return {
-    url: encodeURI(url),
+    errorLogUrl: encodeURI(errorLogUrl),
     telemetryUrl: encodeURI(telemetryUrl),
     tokenString: `token ${apiKey}:${apiSecret}`,
   };
 }
 
-function post(bodyJson: string) {
-  const inProduction = app.isPackaged;
-  const { url, tokenString } = getUrlAndTokenString();
-  const isHttps = url.split(':')[0].toLowerCase() === 'https';
+export async function sendError(body: string) {
+  const { errorLogUrl, tokenString } = getUrlAndTokenString();
   const headers = {
     Authorization: tokenString,
     Accept: 'application/json',
     'Content-Type': 'application/json',
   };
 
-  const req = (isHttps ? https : http).request(
-    url,
-    {
-      method: 'POST',
-      headers,
-    },
-    (res) => {
-      if (inProduction) {
-        return;
-      }
-
-      console.log(`STATUS: ${res.statusCode}`);
-      console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-
-      res.setEncoding('utf8');
-      res.on('data', (chunk) => {
-        console.log(`BODY: ${chunk}`);
-      });
-    }
-  );
-
-  req.on('error', (e) => {
-    console.log(`ERROR: ${e.message}`);
+  await fetch(errorLogUrl, { method: 'POST', headers, body }).catch((err) => {
+    rendererLog(err);
   });
-  req.write(bodyJson);
-  req.end();
 }
-
-export function sendError(bodyJson: string) {
-  post(bodyJson);
-}
-
-// Nothing nefarious going on here.
-// Just regular old user mandated error logging.

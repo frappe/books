@@ -55,7 +55,13 @@ export default function registerIpcRendererListeners() {
     await handleError(true, error as Error);
   });
 
-  ipcRenderer.on(IPC_CHANNELS.CONSOLE_LOG, console.log);
+  ipcRenderer.on(IPC_CHANNELS.CONSOLE_LOG, (_, ...stuff: unknown[]) => {
+    if (!fyo.store.isDevelopment) {
+      return;
+    }
+
+    console.log(...stuff);
+  });
 
   document.addEventListener('visibilitychange', function () {
     const { visibilityState } = document;

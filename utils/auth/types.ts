@@ -1,5 +1,5 @@
-export type TelemetryCreds = { url: string; token: string };
+import { Creds } from 'utils/types';
 
 export abstract class AuthDemuxBase {
-  abstract getTelemetryCreds(): Promise<TelemetryCreds>
+  abstract getCreds(): Promise<Creds>;
 }

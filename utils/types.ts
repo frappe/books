@@ -16,10 +16,11 @@ export interface CountryInfo {
   locale: string;
 }
 
-
 export interface VersionParts {
   major: number;
   minor: number;
   patch: number;
   beta?: number;
-};
+}
+
+export type Creds = { errorLogUrl: string; telemetryUrl: string; tokenString: string };
