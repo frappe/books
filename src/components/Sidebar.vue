@@ -5,7 +5,7 @@
       'window-drag': platform !== 'Windows',
     }"
   >
-    <div class="window-no-drag">
+    <div>
       <!-- Company name and DB Switcher -->
       <div class="px-2 flex flex-row items-center justify-between mb-6 mt-12">
         <h6
@@ -15,6 +15,7 @@
             whitespace-nowrap
             overflow-scroll
             no-scrollbar
+            select-none
             w-32
           "
         >
@@ -96,7 +97,7 @@
       >
         {{ t`Report Issue` }}
       </button>
-      <p class="pb-3 text-sm text-gray-600">v{{ appVersion }}</p>
+      <p class="pb-3 text-sm text-gray-600 select-none">v{{ appVersion }}</p>
     </div>
   </div>
 </template>
