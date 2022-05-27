@@ -105,6 +105,9 @@ export async function showToast(options: ToastOptions) {
   replaceAndAppendMount(toast, 'toast-target');
 }
 
+// @ts-ignore
+window.st = showToast
+
 function replaceAndAppendMount(app: App<Element>, replaceId: string) {
   const fragment = document.createDocumentFragment();
   const target = document.getElementById(replaceId);

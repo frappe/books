@@ -62,11 +62,10 @@ export default function registerIpcMainActionListeners(main: Main) {
     sendError(bodyJson);
   });
 
-  ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, (event, force) => {
+  ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, () => {
     if (!main.isDevelopment && !main.checkedForUpdate) {
       autoUpdater.checkForUpdates();
-    } else if (force) {
-      autoUpdater.checkForUpdates();
+      main.checkedForUpdate = true;
     }
   });
 

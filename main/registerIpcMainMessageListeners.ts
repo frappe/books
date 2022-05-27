@@ -1,5 +1,4 @@
 import { ipcMain, Menu, shell } from 'electron';
-import { autoUpdater } from 'electron-updater';
 import { Main } from '../main';
 import { IPC_MESSAGES } from '../utils/messages';
 
@@ -21,27 +20,19 @@ export default function registerIpcMainMessageListeners(main: Main) {
     main.mainWindow!.reload();
   });
 
-  ipcMain.on(IPC_MESSAGES.CLOSE_CURRENT_WINDOW, (event) => {
+  ipcMain.on(IPC_MESSAGES.CLOSE_CURRENT_WINDOW, () => {
     main.mainWindow!.close();
   });
 
-  ipcMain.on(IPC_MESSAGES.MINIMIZE_CURRENT_WINDOW, (event) => {
+  ipcMain.on(IPC_MESSAGES.MINIMIZE_CURRENT_WINDOW, () => {
     main.mainWindow!.minimize();
   });
 
-  ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (event, link) => {
+  ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (_, link) => {
     shell.openExternal(link);
   });
 
-  ipcMain.on(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, (event, filePath) => {
+  ipcMain.on(IPC_MESSAGES.SHOW_ITEM_IN_FOLDER, (_, filePath) => {
     return shell.showItemInFolder(filePath);
-  });
-
-  ipcMain.on(IPC_MESSAGES.DOWNLOAD_UPDATE, (event) => {
-    autoUpdater.downloadUpdate();
-  });
-
-  ipcMain.on(IPC_MESSAGES.INSTALL_UPDATE, (event) => {
-    autoUpdater.quitAndInstall(true, true);
   });
 }
