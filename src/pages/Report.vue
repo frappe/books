@@ -47,6 +47,10 @@ import { defineComponent } from 'vue';
 export default defineComponent({
   props: {
     reportClassName: String,
+    defaultFilters: {
+      type: String,
+      default: '{}',
+    },
   },
   data() {
     return {
@@ -62,6 +66,17 @@ export default defineComponent({
   components: { PageHeader, FormControl, ListReport, DropdownWithActions },
   async activated() {
     await this.setReportData();
+
+    const filters = JSON.parse(this.defaultFilters);
+    const filterKeys = Object.keys(filters);
+    for (const key of filterKeys) {
+      await this.report.set(key, filters[key]);
+    }
+
+    if (filterKeys.length) {
+      await this.report.postSet()
+    }
+
     if (fyo.store.isDevelopment) {
       window.rep = this;
     }

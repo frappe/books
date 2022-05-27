@@ -64,12 +64,11 @@ export function getLedgerLinkAction(fyo: Fyo): Action {
       router.push({
         name: 'Report',
         params: {
-          reportName: 'general-ledger',
-          defaultFilters: {
-            // @ts-ignore
+          reportClassName: 'GeneralLedger',
+          defaultFilters: JSON.stringify({
             referenceType: doc.schemaName,
             referenceName: doc.name,
-          },
+          }),
         },
       });
     },
