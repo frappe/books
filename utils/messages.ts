@@ -44,6 +44,7 @@ export enum IPC_CHANNELS {
   UPDATE_DOWNLOADED = 'update-downloaded',
   UPDATE_ERROR = 'update-error',
   MAIN_PROCESS_ERROR = 'main-process-error',
+  CONSOLE_LOG = 'console-log',
 }
 
 export enum DB_CONN_FAILURE {
