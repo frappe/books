@@ -1,6 +1,7 @@
 import { Fyo } from 'fyo';
 import { AuthDemux } from 'fyo/demux/auth';
-import { AuthDemuxBase, TelemetryCreds } from 'utils/auth/types';
+import { AuthDemuxBase } from 'utils/auth/types';
+import { Creds } from 'utils/types';
 import { AuthDemuxConstructor } from './types';
 
 interface AuthConfig {
@@ -19,6 +20,7 @@ export class AuthHandler {
   #session: Session;
   fyo: Fyo;
   #demux: AuthDemuxBase;
+  #creds?: Creds;
 
   constructor(fyo: Fyo, Demux?: AuthDemuxConstructor) {
     this.fyo = fyo;
@@ -111,7 +113,11 @@ export class AuthHandler {
     return this.#config.serverURL || '';
   }
 
-  async getTelemetryCreds(): Promise<TelemetryCreds> {
-    return await this.#demux.getTelemetryCreds();
+  async getCreds(): Promise<Creds> {
+    if (!this.#creds) {
+      this.#creds = await this.#demux.getCreds();
+    }
+
+    return this.#creds;
   }
 }

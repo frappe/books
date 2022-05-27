@@ -42,6 +42,7 @@
     "@types/luxon": "^2.3.1",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.23",
+    "@types/node-fetch": "^2.6.1",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "@vue/cli-plugin-babel": "^4.5.0",

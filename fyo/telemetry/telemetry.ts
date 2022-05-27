@@ -118,9 +118,9 @@ export class TelemetryManager {
       return;
     }
 
-    const { url, token } = await this.fyo.auth.getTelemetryCreds();
-    this.#url = url;
-    this.#token = token;
+    const { telemetryUrl, tokenString } = await this.fyo.auth.getCreds();
+    this.#url = telemetryUrl;
+    this.#token = tokenString;
   }
 
   #getTelemtryData(
