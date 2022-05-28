@@ -230,7 +230,7 @@ export default {
       }
 
       this.creatingDemo = true;
-      const baseCount = fyo.store.isDevelopment ? 1000 : 150;
+      const baseCount = fyo.store.isDevelopment ? 1000 : 100;
 
       const { companyName, instanceId } = await setupDummyInstance(
         filePath,
