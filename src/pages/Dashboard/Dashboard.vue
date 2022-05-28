@@ -2,7 +2,7 @@
   <div class="flex flex-col">
     <PageHeader :title="t`Dashboard`" />
 
-    <div class="mx-4 overflow-y-scroll no-scrollbar flex flex-col gap-8">
+    <div class="mx-4 overflow-y-auto no-scrollbar flex flex-col gap-8">
       <Cashflow class="" />
       <hr />
       <UnpaidInvoices />

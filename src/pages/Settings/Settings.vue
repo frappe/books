@@ -36,7 +36,7 @@
           <div class="mt-2 text-xs">{{ tab.label }}</div>
         </div>
       </div>
-      <div class="flex-1 overflow-y-scroll">
+      <div class="flex-1 overflow-y-auto">
         <component :is="activeTabComponent" @change="handleChange" />
       </div>
     </div>

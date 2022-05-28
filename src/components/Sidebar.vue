@@ -16,7 +16,7 @@
             text-xl
             font-semibold
             whitespace-nowrap
-            overflow-scroll
+            overflow-auto
             no-scrollbar
             select-none
             w-32
