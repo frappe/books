@@ -18,7 +18,7 @@
           @mouseleave="active = null"
         >
           <div class="w-3 h-3 rounded-sm flex-shrink-0" :class="d.class" />
-          <p class="ml-2 overflow-x-scroll whitespace-nowrap no-scrollbar w-28">
+          <p class="ml-2 overflow-x-auto whitespace-nowrap no-scrollbar w-28">
             {{ d.account }} 
           </p>
           <p class="whitespace-nowrap flex-shrink-0 ml-auto">

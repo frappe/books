@@ -26,7 +26,7 @@ export class Main {
   mainWindow: BrowserWindow | null = null;
 
   WIDTH = 1200;
-  HEIGHT = 900;
+  HEIGHT = process.platform === 'win32' ? 926 : 900;
 
   constructor() {
     this.icon = this.isDevelopment
@@ -86,9 +86,17 @@ export class Main {
         contextIsolation: false, // TODO: Switch this off
         nodeIntegration: true,
       },
-      frame: this.isLinux,
+      autoHideMenuBar: true,
+      frame: !this.isMac,
       resizable: true,
     };
+
+    if (!this.isMac) {
+      options.titleBarOverlay = {
+        color: '#FFFFFF',
+        height: 26,
+      };
+    }
 
     if (this.isDevelopment || this.isLinux) {
       Object.assign(options, { icon: this.icon });

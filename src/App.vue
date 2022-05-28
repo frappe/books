@@ -3,8 +3,11 @@
     id="app"
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
-    <WindowsTitleBar v-if="platform === 'Windows'" />
-
+    <WindowsTitleBar
+      v-if="platform === 'Windows'"
+      :db-path="dbPath"
+      :company-name="companyName"
+    />
     <!-- Main Contents -->
     <Desk
       class="flex-1"
@@ -52,6 +55,8 @@ export default {
   data() {
     return {
       activeScreen: null,
+      dbPath: '',
+      companyName: '',
     };
   },
   components: {
@@ -61,8 +66,6 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
-    fyo.telemetry.platform = this.platform;
-
     const lastSelectedFilePath = fyo.config.get(
       ConfigKeys.LastSelectedFilePath,
       null
@@ -76,7 +79,7 @@ export default {
       await this.fileSelected(lastSelectedFilePath, false);
     } catch (err) {
       await handleErrorWithDialog(err, undefined, true, true);
-      await this.showDbSelector()
+      await this.showDbSelector();
     }
   },
   methods: {
@@ -86,6 +89,11 @@ export default {
       const openCount = await incrementOpenCount(filePath);
       await fyo.telemetry.start(openCount);
       await checkForUpdates(false);
+      this.dbPath = filePath;
+      this.companyName = await fyo.getValue(
+        ModelNameEnum.AccountingSettings,
+        'companyName'
+      );
     },
     async fileSelected(filePath, isNew) {
       fyo.config.set(ConfigKeys.LastSelectedFilePath, filePath);
@@ -130,6 +138,8 @@ export default {
       fyo.telemetry.stop();
       fyo.purgeCache();
       this.activeScreen = 'DatabaseSelector';
+      this.dbPath = '';
+      this.companyName = '';
     },
   },
 };

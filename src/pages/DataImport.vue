@@ -127,7 +127,7 @@
       <div v-if="fileName" class="pb-4">
         <h2 class="text-lg font-semibold">{{ t`Assign Imported Labels` }}</h2>
         <div
-          class="gap-2 mt-4 grid grid-flow-col overflow-x-scroll no-scrollbar"
+          class="gap-2 mt-4 grid grid-flow-col overflow-x-auto no-scrollbar"
         >
           <div
             v-for="(f, k) in importer.assignableLabels"
@@ -165,7 +165,7 @@
           {{ t`Verify Imported Data` }}
         </h2>
 
-        <div class="overflow-scroll mt-4 pb-4">
+        <div class="overflow-auto mt-4 pb-4">
           <!-- Column Name Rows  -->
           <div
             class="grid grid-flow-col pb-4 border-b gap-2 sticky top-0 bg-white"
@@ -280,7 +280,7 @@
         <p class="text-lg text-center">
           {{ t`Successfully created the following ${names.length} entries:` }}
         </p>
-        <div class="max-h-96 overflow-y-scroll">
+        <div class="max-h-96 overflow-y-auto">
           <div
             v-for="(n, i) in names"
             :key="'name-' + i"

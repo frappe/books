@@ -30,6 +30,7 @@ import { setLanguageMap } from './utils/language';
 
   fyo.store.isDevelopment = isDevelopment;
   fyo.store.appVersion = version;
+  const platformName = getPlatformName(platform);
 
   setOnWindow(isDevelopment);
 
@@ -50,16 +51,7 @@ import { setLanguageMap } from './utils/language';
         return fyo;
       },
       platform() {
-        switch (platform) {
-          case 'win32':
-            return 'Windows';
-          case 'darwin':
-            return 'Mac';
-          case 'linux':
-            return 'Linux';
-          default:
-            return 'Linux';
-        }
+        return platformName;
       },
     },
     methods: {
@@ -68,6 +60,8 @@ import { setLanguageMap } from './utils/language';
     },
   });
 
+  fyo.telemetry.platform = platformName;
+  await fyo.telemetry.logOpened();
   app.mount('body');
 })();
 
@@ -105,4 +99,17 @@ function setOnWindow(isDevelopment: boolean) {
   window.fyo = fyo;
   // @ts-ignore
   window.DateTime = DateTime;
+}
+
+function getPlatformName(platform: string) {
+  switch (platform) {
+    case 'win32':
+      return 'Windows';
+    case 'darwin':
+      return 'Mac';
+    case 'linux':
+      return 'Linux';
+    default:
+      return 'Linux';
+  }
 }

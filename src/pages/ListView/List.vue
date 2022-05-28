@@ -11,7 +11,7 @@
         <div
           v-for="(column, i) in columns"
           :key="column.label"
-          class="py-4 overflow-x-scroll whitespace-nowrap"
+          class="py-4 overflow-x-auto no-scrollbar whitespace-nowrap"
           :class="{
             'text-right': isNumeric(column.fieldtype),
             'pr-4': i === columns.length - 1,

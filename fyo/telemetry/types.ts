@@ -11,8 +11,8 @@ export enum Verb {
   Cancelled = 'cancelled',
   Imported = 'imported',
   Exported = 'exported',
-  Stopped = 'stopped',
-  Started = 'started',
+  Closed = 'closed',
+  Opened = 'opened',
   Resumed = 'resumed',
 }
 
