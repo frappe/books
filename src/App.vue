@@ -3,8 +3,11 @@
     id="app"
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
   >
-    <WindowsTitleBar v-if="platform === 'Windows'" />
-
+    <WindowsTitleBar
+      v-if="platform === 'Windows'"
+      :db-path="dbPath"
+      :company-name="companyName"
+    />
     <!-- Main Contents -->
     <Desk
       class="flex-1"
@@ -36,7 +39,6 @@
 import { ConfigKeys } from 'fyo/core/types';
 import { ModelNameEnum } from 'models/types';
 import { incrementOpenCount } from 'src/utils/misc';
-import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { fyo, initializeInstance } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector.vue';
@@ -46,12 +48,15 @@ import setupInstance from './setup/setupInstance';
 import './styles/index.css';
 import { checkForUpdates } from './utils/ipcCalls';
 import { routeTo } from './utils/ui';
+import WindowsTitleBar from './components/WindowsTitleBar.vue';
 
 export default {
   name: 'App',
   data() {
     return {
       activeScreen: null,
+      dbPath: '',
+      companyName: '',
     };
   },
   components: {
@@ -76,7 +81,7 @@ export default {
       await this.fileSelected(lastSelectedFilePath, false);
     } catch (err) {
       await handleErrorWithDialog(err, undefined, true, true);
-      await this.showDbSelector()
+      await this.showDbSelector();
     }
   },
   methods: {
@@ -86,6 +91,11 @@ export default {
       const openCount = await incrementOpenCount(filePath);
       await fyo.telemetry.start(openCount);
       await checkForUpdates(false);
+      this.dbPath = filePath;
+      this.companyName = await fyo.getValue(
+        ModelNameEnum.AccountingSettings,
+        'companyName'
+      );
     },
     async fileSelected(filePath, isNew) {
       fyo.config.set(ConfigKeys.LastSelectedFilePath, filePath);
@@ -130,6 +140,8 @@ export default {
       fyo.telemetry.stop();
       fyo.purgeCache();
       this.activeScreen = 'DatabaseSelector';
+      this.dbPath = '';
+      this.companyName = '';
     },
   },
 };
