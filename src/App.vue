@@ -39,6 +39,7 @@
 import { ConfigKeys } from 'fyo/core/types';
 import { ModelNameEnum } from 'models/types';
 import { incrementOpenCount } from 'src/utils/misc';
+import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { fyo, initializeInstance } from './initFyo';
 import DatabaseSelector from './pages/DatabaseSelector.vue';
@@ -48,7 +49,6 @@ import setupInstance from './setup/setupInstance';
 import './styles/index.css';
 import { checkForUpdates } from './utils/ipcCalls';
 import { routeTo } from './utils/ui';
-import WindowsTitleBar from './components/WindowsTitleBar.vue';
 
 export default {
   name: 'App',
@@ -66,8 +66,6 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
-    fyo.telemetry.platform = this.platform;
-
     const lastSelectedFilePath = fyo.config.get(
       ConfigKeys.LastSelectedFilePath,
       null

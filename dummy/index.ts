@@ -29,6 +29,8 @@ export async function setupDummyInstance(
   baseCount: number = 1000,
   notifier?: Notifier
 ) {
+  fyo.store.skipTelemetryLogging = true;
+
   fyo.purgeCache();
   notifier?.(fyo.t`Setting Up Instance`, -1);
   const options = {
@@ -55,6 +57,8 @@ export async function setupDummyInstance(
     ModelNameEnum.SystemSettings,
     'instanceId'
   )) as string;
+
+  fyo.store.skipTelemetryLogging = false;
   return { companyName: options.companyName, instanceId };
 }
 

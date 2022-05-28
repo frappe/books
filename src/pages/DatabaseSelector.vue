@@ -65,8 +65,7 @@
       <hr />
 
       <!-- File List -->
-      <div class="overflow-y-auto" style="max-height: 340px"
-      >
+      <div class="overflow-y-auto" style="max-height: 340px">
         <div
           class="h-18 px-6 flex gap-4 items-center"
           :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
@@ -85,18 +84,31 @@
               bg-gray-200
               text-gray-500
               font-semibold
+              flex-shrink-0
               text-base
             "
           >
             {{ i + 1 }}
           </div>
-          <div>
+          <div class="w-full">
             <p class="font-medium">
               {{ file.companyName }}
             </p>
-            <p class="text-sm text-gray-600">
-              {{ formatDate(file.modified) }}
-            </p>
+            <div
+              class="
+                text-sm text-gray-600
+                flex
+                justify-between
+                overflow-x-scroll
+              "
+            >
+              <p class="whitespace-nowrap mr-2">
+                {{ formatDate(file.modified) }}
+              </p>
+              <p class="text-right" v-if="fyo.store.isDevelopment">
+                {{ file.dbPath }}
+              </p>
+            </div>
           </div>
           <button
             class="
