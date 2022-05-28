@@ -7,7 +7,10 @@
   >
     <div>
       <!-- Company name and DB Switcher -->
-      <div class="px-2 flex flex-row items-center justify-between mb-6 mt-12">
+      <div
+        class="px-2 flex flex-row items-center justify-between mb-4"
+        :class="platform === 'Mac' ? 'mt-10' : 'mt-4'"
+      >
         <h6
           class="
             text-xl
