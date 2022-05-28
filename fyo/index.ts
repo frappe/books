@@ -223,6 +223,7 @@ export class Fyo {
 
   store = {
     isDevelopment: false,
+    skipTelemetryLogging: false,
     appVersion: '',
   };
 }

@@ -63,20 +63,16 @@ export class TelemetryManager {
   }
 
   async start(openCount?: number) {
-    this.#telemetryObject.country ||= getCountry(this.fyo);
-    this.#telemetryObject.language ??= getLanguage(this.fyo);
-    this.#telemetryObject.deviceId ||= getDeviceId(this.fyo);
-    this.#telemetryObject.instanceId ||= await getInstanceId(this.fyo);
-    this.#telemetryObject.version ||= await getVersion(this.fyo);
+    await this.#init();
 
     this.#started = true;
     await this.#setCreds();
 
     if (typeof openCount === 'number') {
       this.#telemetryObject.openCount = openCount;
-      this.log(Verb.Started, 'telemetry');
+      this.log(Verb.Opened, 'instance');
     } else {
-      this.log(Verb.Resumed, 'telemetry');
+      this.log(Verb.Resumed, 'instance');
     }
   }
 
@@ -85,7 +81,7 @@ export class TelemetryManager {
       return;
     }
 
-    this.log(Verb.Stopped, 'telemetry');
+    this.log(Verb.Closed, 'instance');
     this.#started = false;
     this.#clear();
   }
@@ -99,8 +95,14 @@ export class TelemetryManager {
     this.#sendBeacon(verb, noun, more);
   }
 
+  async logOpened() {
+    await this.#init();
+    await this.#setCreds();
+    this.#sendBeacon(Verb.Opened, 'app');
+  }
+
   #sendBeacon(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
-    if (!this.hasCreds) {
+    if (!this.hasCreds || this.fyo.store.skipTelemetryLogging) {
       return;
     }
 
@@ -121,6 +123,21 @@ export class TelemetryManager {
     const { telemetryUrl, tokenString } = await this.fyo.auth.getCreds();
     this.#url = telemetryUrl;
     this.#token = tokenString;
+  }
+
+  async #init() {
+    this.#telemetryObject.language ??= getLanguage(this.fyo);
+    this.#telemetryObject.deviceId ||= getDeviceId(this.fyo);
+    this.#telemetryObject.version = this.fyo.store.appVersion;
+
+    if (this.fyo.db.dbPath) {
+      this.#telemetryObject.country ||= getCountry(this.fyo);
+      this.#telemetryObject.instanceId ||= await getInstanceId(this.fyo);
+      this.#telemetryObject.version = await getVersion(this.fyo);
+    } else {
+      this.#telemetryObject.country ||= '';
+      this.#telemetryObject.instanceId ||= '';
+    }
   }
 
   #getTelemtryData(

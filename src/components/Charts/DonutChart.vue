@@ -77,7 +77,8 @@
           text-xs text-gray-600
           font-semibold
           whitespace-nowrap
-          overflow-x-scroll
+          overflow-x-auto
+          no-scrollbar
         "
       >
         {{

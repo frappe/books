@@ -16,17 +16,6 @@ import {
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 
 export default function registerIpcMainActionListeners(main: Main) {
-  ipcMain.handle(IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW, (event) => {
-    const maximized = main.mainWindow!.isFullScreen();
-    if (maximized) {
-      main.mainWindow?.setFullScreen(false);
-      main.mainWindow?.setSize(main.WIDTH, main.HEIGHT, true);
-    } else {
-      main.mainWindow?.setFullScreen(true);
-    }
-    return maximized;
-  });
-
   ipcMain.handle(IPC_ACTIONS.GET_OPEN_FILEPATH, async (event, options) => {
     return await dialog.showOpenDialog(main.mainWindow!, options);
   });

@@ -5,13 +5,10 @@ export enum IPC_MESSAGES {
   OPEN_EXTERNAL = 'open-external',
   SHOW_ITEM_IN_FOLDER = 'show-item-in-folder',
   RELOAD_MAIN_WINDOW = 'reload-main-window',
-  CLOSE_CURRENT_WINDOW = 'close-current-window',
-  MINIMIZE_CURRENT_WINDOW = 'minimize-current-window',
 }
 
 // ipcRenderer.invoke(...)
 export enum IPC_ACTIONS {
-  TOGGLE_MAXIMIZE_CURRENT_WINDOW = 'toggle-maximize-current-window',
   GET_OPEN_FILEPATH = 'open-dialog',
   GET_SAVE_FILEPATH = 'save-dialog',
   GET_DIALOG_RESPONSE = 'show-message-box',

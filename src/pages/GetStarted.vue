@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader :title="t`Setup Your Workspace`" />
-    <div class="flex-1 mx-4 overflow-y-auto">
+    <div class="flex-1 mx-4 overflow-y-auto overflow-x-hidden">
       <div class="my-4" v-for="section in sections" :key="section.label">
         <h2 class="font-medium">{{ section.label }}</h2>
         <div class="flex mt-4 -mx-2">
@@ -14,7 +14,7 @@
               class="
                 flex flex-col
                 justify-between
-                h-full
+                h-40
                 p-4
                 border
                 rounded-lg
