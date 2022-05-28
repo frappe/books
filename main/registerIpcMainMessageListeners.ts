@@ -20,14 +20,6 @@ export default function registerIpcMainMessageListeners(main: Main) {
     main.mainWindow!.reload();
   });
 
-  ipcMain.on(IPC_MESSAGES.CLOSE_CURRENT_WINDOW, () => {
-    main.mainWindow!.close();
-  });
-
-  ipcMain.on(IPC_MESSAGES.MINIMIZE_CURRENT_WINDOW, () => {
-    main.mainWindow!.minimize();
-  });
-
   ipcMain.on(IPC_MESSAGES.OPEN_EXTERNAL, (_, link) => {
     shell.openExternal(link);
   });

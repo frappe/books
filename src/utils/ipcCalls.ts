@@ -39,26 +39,6 @@ export async function makePDF(html: string, savePath: string) {
   }
 }
 
-export async function runWindowAction(name: WindowAction) {
-  switch (name) {
-    case 'close':
-      ipcRenderer.send(IPC_MESSAGES.CLOSE_CURRENT_WINDOW);
-      break;
-    case 'minimize':
-      ipcRenderer.send(IPC_MESSAGES.MINIMIZE_CURRENT_WINDOW);
-      break;
-    case 'maximize':
-      const maximized = await ipcRenderer.invoke(
-        IPC_ACTIONS.TOGGLE_MAXIMIZE_CURRENT_WINDOW
-      );
-      name = maximized ? 'unmaximize' : name;
-      break;
-    default:
-      throw new Error(`invalid window action ${name}`);
-  }
-  return name;
-}
-
 export function showExportInFolder(message: string, filePath: string) {
   showToast({
     message,
