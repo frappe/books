@@ -20,7 +20,7 @@
     >
       <feather-icon name="search" class="w-4 h-4" />
       <p>{{ t`Search` }}</p>
-      <div v-if="!inputValue" class="text-gray-500 ml-auto">
+      <div v-if="!inputValue" class="text-gray-400 ml-auto text-sm">
         {{ modKey('k') }}
       </div>
     </button>
