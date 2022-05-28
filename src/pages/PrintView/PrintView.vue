@@ -93,16 +93,13 @@ export default {
       const html = document.createElement('html');
       const head = document.createElement('head');
       const body = document.createElement('body');
-      const style = document.getElementsByTagName('style');
-      const styleTags = Array.from(style)
-        .map((s) => s.outerHTML)
-        .join('\n');
+      const style = getAllCSSAsStyleElem();
 
       head.innerHTML = [
         '<meta charset="UTF-8">',
         '<title>Print Window</title>',
-        styleTags,
       ].join('\n');
+      head.append(style);
 
       body.innerHTML = this.$refs.printContainer.innerHTML;
       html.append(head, body);
@@ -112,8 +109,7 @@ export default {
       const savePath = await this.getSavePath();
       if (!savePath) return;
 
-
-      const html = this.constructPrintDocument()
+      const html = this.constructPrintDocument();
       await makePDF(html, savePath);
       fyo.telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
     },
@@ -138,4 +134,21 @@ export default {
     },
   },
 };
+
+function getAllCSSAsStyleElem() {
+  const cssTexts = [];
+  for (const sheet of document.styleSheets) {
+    for (const rule of sheet.cssRules) {
+      cssTexts.push(rule.cssText);
+    }
+
+    for (const rule of sheet.ownerRule ?? []) {
+      cssTexts.push(rule.cssText);
+    }
+  }
+
+  const styleElem = document.createElement('style');
+  styleElem.innerHTML = cssTexts.join('\n');
+  return styleElem;
+}
 </script>
