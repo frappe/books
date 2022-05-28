@@ -65,7 +65,8 @@
       <hr />
 
       <!-- File List -->
-      <div class="overflow-scroll" style="max-height: 340px">
+      <div class="overflow-y-auto" style="max-height: 340px"
+      >
         <div
           class="h-18 px-6 flex gap-4 items-center"
           :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"

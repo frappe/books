@@ -17,7 +17,7 @@
     />
     <div
       v-show="!showInput"
-      :class="[inputClasses, 'cursor-text whitespace-nowrap overflow-x-scroll']"
+      :class="[inputClasses, 'cursor-text whitespace-nowrap overflow-x-auto']"
       @click="activateInput"
       @focus="activateInput"
       tabindex="0"

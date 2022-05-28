@@ -16,7 +16,7 @@
             text-gray-600 text-base
             px-3
             flex-shrink-0
-            overflow-x-scroll
+            overflow-x-auto
             whitespace-nowrap
           "
         >
@@ -50,7 +50,7 @@
                 text-gray-900 text-base
                 px-3
                 flex-shrink-0
-                overflow-x-scroll
+                overflow-x-auto
                 whitespace-nowrap
               "
             >

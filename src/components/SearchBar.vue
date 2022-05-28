@@ -58,7 +58,7 @@
     <hr v-if="suggestions.length" />
 
     <!-- Search List -->
-    <div :style="`max-height: ${49 * 6 - 1}px`" class="overflow-scroll">
+    <div :style="`max-height: ${49 * 6 - 1}px`" class="overflow-auto">
       <div
         v-for="(si, i) in suggestions"
         :key="`${i}-${si.key}`"
