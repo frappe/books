@@ -78,7 +78,7 @@
               {{ si.label }}
             </p>
             <p class="text-gray-600 text-sm ml-3">
-              {{ si.more.join(', ') }}
+              {{ si.more.filter(Boolean).join(', ') }}
             </p>
           </div>
           <p
@@ -113,7 +113,7 @@
     <hr />
     <div class="m-1 flex justify-between flex-col gap-2 text-sm select-none">
       <!-- Group Filters -->
-      <div class="flex justify-between">
+      <div class="flex justify-between" v-if="false">
         <div class="flex gap-2">
           <button
             v-for="g in searchGroups"
@@ -154,11 +154,8 @@
   </Modal>
 </template>
 <script>
-import { t } from 'fyo';
-import { fuzzyMatch } from 'src/utils';
 import { getBgTextColorClass } from 'src/utils/colors';
-import { docSearch, getSearchList, searchGroups } from 'src/utils/search';
-import { routeTo } from 'src/utils/ui';
+import { getGroupLabelMap, searcher, searchGroups } from 'src/utils/search';
 import { useKeys } from 'src/utils/vueUtils';
 import { getIsNullOrUndef } from 'utils/';
 import { nextTick, watch } from 'vue';
@@ -176,7 +173,7 @@ export default {
       openModal: false,
       inputValue: '',
       searchList: [],
-      docSearch: null,
+      searcher: null,
       totalLength: 0,
       groupFilters: {
         List: true,
@@ -189,14 +186,13 @@ export default {
   },
   components: { Modal },
   async mounted() {
-    this.docSearch = docSearch;
-    await this.docSearch.fetchKeywords();
+    this.searcher = searcher;
+    await this.searcher.initializeKeywords();
 
     if (fyo.store.isDevelopment) {
-      window.search = docSearch;
+      window.search = this;
     }
 
-    this.makeSearchList();
     watch(this.keys, (keys) => {
       if (
         keys.size === 2 &&
@@ -260,6 +256,7 @@ export default {
     },
     open() {
       this.openModal = true;
+      this.searcher.updateKeywords();
       nextTick(() => {
         this.$refs.input.focus();
       });
@@ -294,17 +291,6 @@ export default {
       const ref = this.$refs.suggestions[this.idx];
       ref.scrollIntoView({ block: 'nearest' });
     },
-    async makeSearchList() {
-      const searchList = getSearchList();
-      this.searchList = searchList.map((d) => {
-        if (d.route && !d.action) {
-          d.action = () => {
-            routeTo(d.route);
-          };
-        }
-        return d;
-      });
-    },
     getGroupFilterButtonClass(g) {
       const isOn = this.groupFilters[g];
       const color = this.groupColorMap[g];
@@ -317,13 +303,7 @@ export default {
   },
   computed: {
     groupLabelMap() {
-      return {
-        Create: t`Create`,
-        List: t`List`,
-        Report: t`Report`,
-        Docs: t`Docs`,
-        Page: t`Page`,
-      };
+      return getGroupLabelMap();
     },
     groupColorMap() {
       return {
@@ -341,29 +321,10 @@ export default {
       }, {});
     },
     suggestions() {
-      const filters = new Set(
-        this.searchGroups.filter((g) => this.groupFilters[g])
-      );
-
-      const nonDocs = this.searchList
-        .filter((si) => filters.has(si.group))
-        .map((si) => ({
-          ...fuzzyMatch(this.inputValue, `${si.label} ${si.group}`),
-          si,
-        }))
-        .filter(({ isMatch }) => isMatch)
-        .sort((a, b) => a.distance - b.distance)
-        .map(({ si }) => si);
-
-      let docs = [];
-      if (this.groupFilters.Docs && this.inputValue) {
-        docs = this.docSearch.search(this.inputValue);
-      }
-
-      const all = [docs, nonDocs].flat();
+      const suggestions = this.searcher.search(this.inputValue);
       // eslint-disable-next-line
-      this.totalLength = all.length;
-      return all.slice(0, 50);
+      this.totalLength = suggestions.length;
+      return suggestions.slice(0, 50);
     },
   },
 };
