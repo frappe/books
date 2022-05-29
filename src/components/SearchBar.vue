@@ -63,11 +63,35 @@
         v-for="(si, i) in suggestions"
         :key="`${i}-${si.key}`"
         ref="suggestions"
-        class="hover:bg-blue-100 cursor-pointer"
+        class="hover:bg-blue-50 cursor-pointer"
         :class="idx === i ? 'bg-blue-100' : ''"
         @click="select(i)"
       >
+        <!-- Doc Search List Item -->
         <div
+          v-if="si.group === 'Docs'"
+          class="flex w-full justify-between px-3 items-center"
+          style="height: 48px"
+        >
+          <div class="flex items-center">
+            <p class="text-gray-900">
+              {{ si.label }}
+            </p>
+            <p class="text-gray-600 text-sm ml-3">
+              {{ si.more.join(', ') }}
+            </p>
+          </div>
+          <p
+            class="text-sm text-right justify-self-end"
+            :class="`text-${groupColorMap[si.group]}-500`"
+          >
+            {{ si.schemaLabel }}
+          </p>
+        </div>
+
+        <!-- Doc Search List Item -->
+        <div
+          v-else
           class="flex flex-row w-full justify-between px-3 items-center"
           style="height: 48px"
         >
@@ -75,8 +99,8 @@
             {{ si.label }}
           </p>
           <div
-            class="text-base px-2 py-1 rounded-xl flex items-center"
-            :class="groupColorClassMap[si.group]"
+            class="text-sm text-right justify-self-end"
+            :class="`text-${groupColorMap[si.group]}-500`"
           >
             {{ groupLabelMap[si.group] }}
           </div>
@@ -92,18 +116,13 @@
       <div class="flex justify-between">
         <div class="flex gap-2">
           <button
-            v-for="(g, i) in searchGroups"
+            v-for="g in searchGroups"
             :key="g"
             class="border px-1 py-0.5 rounded-lg"
             :class="getGroupFilterButtonClass(g)"
             @click="groupFilters[g] = !groupFilters[g]"
           >
-            {{ groupLabelMap[g]
-            }}<span
-              class="ml-2 whitespace-nowrap brightness-50 tracking-tighter"
-              :class="`text-${groupColorMap[g]}-500`"
-              >{{ modKey(String(i + 1)) }}</span
-            >
+            {{ groupLabelMap[g] }}
           </button>
         </div>
         <button
@@ -172,6 +191,10 @@ export default {
   async mounted() {
     this.docSearch = docSearch;
     await this.docSearch.fetchKeywords();
+
+    if (fyo.store.isDevelopment) {
+      window.search = docSearch;
+    }
 
     this.makeSearchList();
     watch(this.keys, (keys) => {
@@ -333,11 +356,9 @@ export default {
         .map(({ si }) => si);
 
       let docs = [];
-      /*
       if (this.groupFilters.Docs && this.inputValue) {
         docs = this.docSearch.search(this.inputValue);
       }
-      */
 
       const all = [docs, nonDocs].flat();
       // eslint-disable-next-line
