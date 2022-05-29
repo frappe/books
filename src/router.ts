@@ -1,3 +1,4 @@
+import { ModelNameEnum } from 'models/types';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
 import DataImport from 'src/pages/DataImport.vue';
@@ -115,6 +116,20 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
 ];
+
+export function getEntryRoute(schemaName: string, name: string) {
+  if (
+    [
+      ModelNameEnum.SalesInvoice,
+      ModelNameEnum.PurchaseInvoice,
+      ModelNameEnum.JournalEntry,
+    ].includes(schemaName as ModelNameEnum)
+  ) {
+    return `/edit/${schemaName}/${name}`;
+  }
+
+  return `/list/${schemaName}?edit=1&schemaName=${schemaName}&name=${name}`;
+}
 
 const router = createRouter({ routes, history: createWebHistory() });
 

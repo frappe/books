@@ -39,9 +39,9 @@ export function stringifyCircular(
   });
 }
 
-export function fuzzyMatch(keyword: string, candidate: string) {
-  const keywordLetters = [...keyword];
-  const candidateLetters = [...candidate];
+export function fuzzyMatch(input: string, target: string) {
+  const keywordLetters = [...input];
+  const candidateLetters = [...target];
 
   let keywordLetter = keywordLetters.shift();
   let candidateLetter = candidateLetters.shift();
@@ -63,7 +63,7 @@ export function fuzzyMatch(keyword: string, candidate: string) {
   }
 
   if (keywordLetter !== undefined) {
-    distance = -1;
+    distance = Number.MAX_SAFE_INTEGER;
     isMatch = false;
   } else {
     distance += candidateLetters.length;
