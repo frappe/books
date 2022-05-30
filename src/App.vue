@@ -39,6 +39,7 @@
 import { ConfigKeys } from 'fyo/core/types';
 import { ModelNameEnum } from 'models/types';
 import { incrementOpenCount } from 'src/utils/misc';
+import { computed } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
 import { fyo, initializeInstance } from './initFyo';
@@ -48,6 +49,7 @@ import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
 import setupInstance from './setup/setupInstance';
 import './styles/index.css';
 import { checkForUpdates } from './utils/ipcCalls';
+import { Search } from './utils/search';
 import { routeTo } from './utils/ui';
 
 export default {
@@ -57,6 +59,12 @@ export default {
       activeScreen: null,
       dbPath: '',
       companyName: '',
+      searcher: null,
+    };
+  },
+  provide() {
+    return {
+      searcher: computed(() => this.searcher),
     };
   },
   components: {
@@ -94,6 +102,11 @@ export default {
         ModelNameEnum.AccountingSettings,
         'companyName'
       );
+      await this.setSearcher();
+    },
+    async setSearcher() {
+      this.searcher = new Search(fyo);
+      await this.searcher.initializeKeywords();
     },
     async fileSelected(filePath, isNew) {
       fyo.config.set(ConfigKeys.LastSelectedFilePath, filePath);
@@ -139,6 +152,7 @@ export default {
       fyo.purgeCache();
       this.activeScreen = 'DatabaseSelector';
       this.dbPath = '';
+      this.searcher = null;
       this.companyName = '';
     },
   },
