@@ -1,10 +1,9 @@
-import { t } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { RawValueMap } from 'fyo/core/types';
 import { groupBy } from 'lodash';
 import { ModelNameEnum } from 'models/types';
 import { reports } from 'reports';
 import { OptionField } from 'schemas/types';
-import { fyo } from 'src/initFyo';
 import { getEntryRoute } from 'src/router';
 import { GetAllOptions } from 'utils/db/types';
 import { fuzzyMatch } from '.';
@@ -71,7 +70,7 @@ export function getGroupLabelMap() {
   };
 }
 
-async function openQuickEditDoc(schemaName: string) {
+async function openQuickEditDoc(schemaName: string, fyo: Fyo) {
   await routeTo(`/list/${schemaName}`);
   const doc = await fyo.doc.getNewDoc(schemaName);
   const { openQuickEdit } = await import('src/utils/ui');
@@ -82,14 +81,14 @@ async function openQuickEditDoc(schemaName: string) {
   });
 }
 
-async function openFormEditDoc(schemaName: string) {
+async function openFormEditDoc(schemaName: string, fyo: Fyo) {
   const doc = fyo.doc.getNewDoc(schemaName);
   const name = doc.name;
 
   routeTo(`/edit/${schemaName}/${name}`);
 }
 
-function getCreateList(): SearchItem[] {
+function getCreateList(fyo: Fyo): SearchItem[] {
   const quickEditCreateList = [
     ModelNameEnum.Item,
     ModelNameEnum.Party,
@@ -100,7 +99,7 @@ function getCreateList(): SearchItem[] {
         label: fyo.schemaMap[schemaName]?.label,
         group: 'Create',
         action() {
-          openQuickEditDoc(schemaName);
+          openQuickEditDoc(schemaName, fyo);
         },
       } as SearchItem)
   );
@@ -115,7 +114,7 @@ function getCreateList(): SearchItem[] {
         label: fyo.schemaMap[schemaName]?.label,
         group: 'Create',
         action() {
-          openFormEditDoc(schemaName);
+          openFormEditDoc(schemaName, fyo);
         },
       } as SearchItem)
   );
@@ -169,7 +168,7 @@ function getCreateList(): SearchItem[] {
   return [quickEditCreateList, formEditCreateList, filteredCreateList].flat();
 }
 
-function getReportList(): SearchItem[] {
+function getReportList(fyo: Fyo): SearchItem[] {
   const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
   return Object.keys(reports)
     .filter((r) => {
@@ -189,7 +188,7 @@ function getReportList(): SearchItem[] {
     });
 }
 
-function getListViewList(): SearchItem[] {
+function getListViewList(fyo: Fyo): SearchItem[] {
   let schemaNames = [
     ModelNameEnum.Account,
     ModelNameEnum.Party,
@@ -268,8 +267,13 @@ function getSetupList(): SearchItem[] {
   ];
 }
 
-function getNonDocSearchList() {
-  return [getListViewList(), getCreateList(), getReportList(), getSetupList()]
+function getNonDocSearchList(fyo: Fyo) {
+  return [
+    getListViewList(fyo),
+    getCreateList(fyo),
+    getReportList(fyo),
+    getSetupList(),
+  ]
     .flat()
     .map((d) => {
       if (d.route && !d.action) {
@@ -281,8 +285,27 @@ function getNonDocSearchList() {
     });
 }
 
-class Search {
+export class Search {
+  /**
+   * A simple fuzzy searcher.
+   *
+   * How the Search works:
+   * - Pulls `keywordFields` (string columns) from the db.
+   * - `name` or `parent` (parent doc's name) is used as the main
+   *   label.
+   * - The `name`, `keywordFields` and schema label are used as
+   *   search target terms.
+   * - Input is split on `' '` (whitespace) and each part has to completely
+   *   or partially match the search target terms.
+   * - Non matches are ignored.
+   * - Each letter in the input narrows the search using the `this._intermediate`
+   *   object where the incremental searches are stored.
+   * - Search index is marked for updation when a doc is entered or deleted.
+   * - Marked indices are rebuilt when the modal is opened.
+   */
+
   _obsSet: boolean = false;
+  numSearches: number = 0;
   searchables: Record<string, Searchable>;
   keywords: Record<string, Keyword[]>;
   priorityMap: Record<string, number> = {
@@ -307,15 +330,79 @@ class Search {
     skipTransactions: false,
   };
 
+  fyo: Fyo;
+
   _intermediate: SearchIntermediate = { suggestions: [] };
 
   _nonDocSearchList: SearchItem[];
   _groupLabelMap?: Record<SearchGroup, string>;
 
-  constructor() {
+  constructor(fyo: Fyo) {
+    this.fyo = fyo;
     this.keywords = {};
     this.searchables = {};
-    this._nonDocSearchList = getNonDocSearchList();
+    this._nonDocSearchList = getNonDocSearchList(fyo);
+  }
+
+  /**
+   * these getters are used for hacky two way binding between the
+   * `skipT*` filters and the `schemaFilters`.
+   */
+
+  get skipTables() {
+    let value = true;
+    for (const val of Object.values(this.searchables)) {
+      if (!val.isChild) {
+        continue;
+      }
+
+      value &&= !this.filters.schemaFilters[val.schemaName];
+    }
+    return value;
+  }
+
+  get skipTransactions() {
+    let value = true;
+    for (const val of Object.values(this.searchables)) {
+      if (!val.isSubmittable) {
+        continue;
+      }
+
+      value &&= !this.filters.schemaFilters[val.schemaName];
+    }
+    return value;
+  }
+
+  set(filterName: string, value: boolean) {
+    /**
+     * When a filter is set, intermediate is reset
+     * this way the groups are rebuild with the filters
+     * applied.
+     */
+
+    if (filterName in this.filters.groupFilters) {
+      this.filters.groupFilters[filterName as SearchGroup] = value;
+    } else if (filterName in this.searchables) {
+      this.filters.schemaFilters[filterName] = value;
+      this.filters.skipTables = this.skipTables;
+      this.filters.skipTransactions = this.skipTransactions;
+    } else if (filterName === 'skipTables') {
+      Object.values(this.searchables)
+        .filter(({ isChild }) => isChild)
+        .forEach(({ schemaName }) => {
+          this.filters.schemaFilters[schemaName] = !value;
+        });
+      this.filters.skipTables = value;
+    } else if (filterName === 'skipTransactions') {
+      Object.values(this.searchables)
+        .filter(({ isSubmittable }) => isSubmittable)
+        .forEach(({ schemaName }) => {
+          this.filters.schemaFilters[schemaName] = !value;
+        });
+      this.filters.skipTransactions = value;
+    }
+
+    this._setIntermediate([]);
   }
 
   async initializeKeywords() {
@@ -324,6 +411,18 @@ class Search {
     this._setDocObservers();
     this._setSchemaFilters();
     this._groupLabelMap = getGroupLabelMap();
+    this._setFilterDefaults();
+  }
+
+  _setFilterDefaults() {
+    const totalChildKeywords = Object.values(this.searchables)
+      .filter((s) => s.isChild)
+      .map((s) => this.keywords[s.schemaName].length)
+      .reduce((a, b) => a + b);
+
+    if (totalChildKeywords > 2_000) {
+      this.set('skipTables', true);
+    }
   }
 
   _setSchemaFilters() {
@@ -347,13 +446,13 @@ class Search {
         options.orderBy = 'modified';
       }
 
-      const maps = await fyo.db.getAllRaw(searchable.schemaName, options);
+      const maps = await this.fyo.db.getAllRaw(searchable.schemaName, options);
       this._setKeywords(maps, searchable);
       this.searchables[searchable.schemaName].needsUpdate = false;
     }
   }
 
-  searchSuggestions(input: string): SearchItems {
+  _searchSuggestions(input: string): SearchItems {
     const matches: { si: SearchItem | DocSearchItem; distance: number }[] = [];
 
     for (const si of this._intermediate.suggestions) {
@@ -372,12 +471,11 @@ class Search {
 
     matches.sort((a, b) => a.distance - b.distance);
     const suggestions = matches.map((m) => m.si);
-    console.log('here', suggestions.length, input);
-    this.setIntermediate(suggestions, input);
+    this._setIntermediate(suggestions, input);
     return suggestions;
   }
 
-  shouldUseSuggestions(input?: string): boolean {
+  _shouldUseSuggestions(input?: string): boolean {
     if (!input) {
       return false;
     }
@@ -394,31 +492,23 @@ class Search {
     return true;
   }
 
-  setIntermediate(suggestions: SearchItems, previousInput?: string) {
+  _setIntermediate(suggestions: SearchItems, previousInput?: string) {
+    this.numSearches = suggestions.length;
     this._intermediate.suggestions = suggestions;
     this._intermediate.previousInput = previousInput;
   }
 
   search(input?: string): SearchItems {
-    const useSuggestions = this.shouldUseSuggestions(input);
-    /*
-    console.log(
-      input,
-      this._intermediate.previousInput,
-      useSuggestions,
-      this._intermediate.suggestions.length
-    );
-    */
-
+    const useSuggestions = this._shouldUseSuggestions(input);
     /**
      * If the suggestion list is already populated
      * and the input is an extention of the previous
      * then use the suggestions.
      */
     if (useSuggestions) {
-      // return this.searchSuggestions(input!);
+      return this._searchSuggestions(input!);
     } else {
-      this.setIntermediate([]);
+      this._setIntermediate([]);
     }
 
     /**
@@ -439,7 +529,7 @@ class Search {
       }
     }
 
-    this.setIntermediate(array, input);
+    this._setIntermediate(array, input);
     return array;
   }
 
@@ -513,7 +603,7 @@ class Search {
      */
 
     let distance = Number.MAX_SAFE_INTEGER;
-    for (const part of input.split(' ')) {
+    for (const part of input.split(' ').filter(Boolean)) {
       const match = this._getInternalMatch(part, values);
       if (!match.isMatch) {
         return { isMatch: false, distance: Number.MAX_SAFE_INTEGER };
@@ -554,7 +644,7 @@ class Search {
 
   _getDocSearchItemFromKeyword(keyword: Keyword): DocSearchItem {
     const schemaName = keyword.meta.schemaName as string;
-    const schemaLabel = fyo.schemaMap[schemaName]?.label!;
+    const schemaLabel = this.fyo.schemaMap[schemaName]?.label!;
     const route = this._getRouteFromKeyword(keyword);
     return {
       label: keyword.values[0],
@@ -603,8 +693,8 @@ class Search {
   }
 
   _setSearchables() {
-    for (const schemaName of Object.keys(fyo.schemaMap)) {
-      const schema = fyo.schemaMap[schemaName];
+    for (const schemaName of Object.keys(this.fyo.schemaMap)) {
+      const schema = this.fyo.schemaMap[schemaName];
       if (!schema?.keywordFields?.length || this.searchables[schemaName]) {
         continue;
       }
@@ -636,11 +726,11 @@ class Search {
     }
 
     for (const { schemaName } of Object.values(this.searchables)) {
-      fyo.doc.observer.on(`sync:${schemaName}`, () => {
+      this.fyo.doc.observer.on(`sync:${schemaName}`, () => {
         this.searchables[schemaName].needsUpdate = true;
       });
 
-      fyo.doc.observer.on(`delete:${schemaName}`, () => {
+      this.fyo.doc.observer.on(`delete:${schemaName}`, () => {
         this.searchables[schemaName].needsUpdate = true;
       });
     }
@@ -673,7 +763,7 @@ class Search {
     // Set individual field values
     for (const fn of searchable.fields) {
       let value = map[fn] as string | undefined;
-      const field = fyo.getField(searchable.schemaName, fn);
+      const field = this.fyo.getField(searchable.schemaName, fn);
 
       const { options } = field as OptionField;
       if (options) {
@@ -722,5 +812,3 @@ class Search {
     }
   }
 }
-
-export const searcher = new Search();

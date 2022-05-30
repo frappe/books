@@ -20,7 +20,7 @@
     >
       <feather-icon name="search" class="w-4 h-4" />
       <p>{{ t`Search` }}</p>
-      <div v-if="!inputValue" class="text-gray-400 ml-auto text-sm">
+      <div class="text-gray-400 ml-auto text-sm">
         {{ modKey('k') }}
       </div>
     </button>
@@ -58,7 +58,7 @@
     <hr v-if="suggestions.length" />
 
     <!-- Search List -->
-    <div :style="`max-height: ${49 * 6 - 1}px`" class="overflow-auto">
+    <div :style="`max-height: ${49 * 8 - 1}px`" class="overflow-auto">
       <div
         v-for="(si, i) in suggestions"
         :key="`${i}-${si.key}`"
@@ -113,30 +113,64 @@
     <hr />
     <div class="m-1 flex justify-between flex-col gap-2 text-sm select-none">
       <!-- Group Filters -->
-      <div class="flex justify-between" v-if="false">
-        <div class="flex gap-2">
+      <div class="flex justify-between">
+        <div class="flex gap-1">
           <button
             v-for="g in searchGroups"
             :key="g"
             class="border px-1 py-0.5 rounded-lg"
             :class="getGroupFilterButtonClass(g)"
-            @click="groupFilters[g] = !groupFilters[g]"
+            @click="searcher.set(g, !searcher.filters.groupFilters[g])"
           >
             {{ groupLabelMap[g] }}
           </button>
         </div>
         <button
-          class="
-            bg-gray-100
-            hover:bg-gray-200
-            px-2
-            py-0.5
-            rounded
-            text-gray-800
-          "
+          class="hover:bg-gray-100 px-2 py-0.5 rounded text-gray-800"
+          @click="showMore = !showMore"
         >
-          {{ t`More Filters` }}
+          {{ showMore ? t`Less Filters` : t`More Filters` }}
         </button>
+      </div>
+
+      <!-- Additional Filters -->
+      <div v-if="showMore" class="-mt-1">
+        <!-- Group Skip Filters -->
+        <div class="flex gap-1 text-gray-800">
+          <button
+            v-for="s in ['skipTables', 'skipTransactions']"
+            :key="s"
+            class="border px-1 py-0.5 rounded-lg"
+            :class="{ 'bg-gray-200': searcher.filters[s] }"
+            @click="searcher.set(s, !searcher.filters[s])"
+          >
+            {{
+              s === 'skipTables' ? t`Skip Child Tables` : t`Skip Transactions`
+            }}
+          </button>
+        </div>
+
+        <!-- Schema Name Filters -->
+        <div class="flex mt-1 gap-1 text-blue-500 flex-wrap">
+          <button
+            v-for="sf in schemaFilters"
+            :key="sf.value"
+            class="
+              border
+              px-1
+              py-0.5
+              rounded-lg
+              border-blue-100
+              whitespace-nowrap
+            "
+            :class="{ 'bg-blue-100': searcher.filters.schemaFilters[sf.value] }"
+            @click="
+              searcher.set(sf.value, !searcher.filters.schemaFilters[sf.value])
+            "
+          >
+            {{ sf.label }}
+          </button>
+        </div>
       </div>
 
       <!-- Keybindings Help -->
@@ -146,16 +180,37 @@
           <p>↩ {{ t`Select` }}</p>
           <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
         </div>
-        <p v-if="suggestions.length">
-          {{ t`${suggestions.length} out of ${totalLength} shown` }}
+
+        <p v-if="searcher?.numSearches" class="ml-auto mr-2">
+          {{ t`${suggestions.length} out of ${searcher.numSearches}` }}
         </p>
+
+        <div
+          class="border border-gray-100 rounded flex justify-self-end"
+          v-if="(searcher?.numSearches ?? 0) > 50"
+        >
+          <template
+            v-for="c in allowedLimits.filter(
+              (c) => c < searcher.numSearches || c === -1
+            )"
+            :key="c + '-count'"
+          >
+            <button
+              @click="limit = parseInt(c)"
+              class="w-9"
+              :class="limit === c ? 'bg-gray-100' : ''"
+            >
+              {{ c === -1 ? t`All` : c }}
+            </button>
+          </template>
+        </div>
       </div>
     </div>
   </Modal>
 </template>
 <script>
 import { getBgTextColorClass } from 'src/utils/colors';
-import { getGroupLabelMap, searcher, searchGroups } from 'src/utils/search';
+import { getGroupLabelMap, searchGroups } from 'src/utils/search';
 import { useKeys } from 'src/utils/vueUtils';
 import { getIsNullOrUndef } from 'utils/';
 import { nextTick, watch } from 'vue';
@@ -172,23 +227,14 @@ export default {
       searchGroups,
       openModal: false,
       inputValue: '',
-      searchList: [],
-      searcher: null,
-      totalLength: 0,
-      groupFilters: {
-        List: true,
-        Report: true,
-        Create: true,
-        Page: true,
-        Docs: true,
-      },
+      showMore: false,
+      limit: 50,
+      allowedLimits: [50, 100, 500, -1],
     };
   },
+  inject: ['searcher'],
   components: { Modal },
   async mounted() {
-    this.searcher = searcher;
-    await this.searcher.initializeKeywords();
-
     if (fyo.store.isDevelopment) {
       window.search = this;
     }
@@ -240,11 +286,12 @@ export default {
       const digit = matches[1];
       const index = parseInt(digit) - 1;
       const group = searchGroups[index];
-      if (!group || this.groupFilters[group] === undefined) {
+      const value = this.searcher.filters.groupFilters[group];
+      if (!group || typeof value !== 'boolean') {
         return;
       }
 
-      this.groupFilters[group] = !this.groupFilters[group];
+      this.searcher.set(group, !value);
     },
     modKey(key) {
       key = key.toUpperCase();
@@ -266,9 +313,6 @@ export default {
       this.reset();
     },
     reset() {
-      this.searchGroups.forEach((g) => {
-        this.groupFilters[g] = true;
-      });
       this.inputValue = '';
     },
     up() {
@@ -292,7 +336,7 @@ export default {
       ref.scrollIntoView({ block: 'nearest' });
     },
     getGroupFilterButtonClass(g) {
-      const isOn = this.groupFilters[g];
+      const isOn = this.searcher.filters.groupFilters[g];
       const color = this.groupColorMap[g];
       if (isOn) {
         return `${getBgTextColorClass(color)} border-${color}-100`;
@@ -304,6 +348,23 @@ export default {
   computed: {
     groupLabelMap() {
       return getGroupLabelMap();
+    },
+    schemaFilters() {
+      const schemaNames = Object.keys(this.searcher?.searchables) ?? [];
+      return schemaNames
+        .map((sn) => {
+          const schema = fyo.schemaMap[sn];
+          const value = sn;
+          const label = schema.label;
+          let index = 1;
+          if (schema.isSubmittable) {
+            index = 0;
+          } else if (schema.isChild) {
+            index = 2;
+          }
+          return { value, label, index };
+        })
+        .sort((a, b) => a.index - b.index);
     },
     groupColorMap() {
       return {
@@ -322,9 +383,11 @@ export default {
     },
     suggestions() {
       const suggestions = this.searcher.search(this.inputValue);
-      // eslint-disable-next-line
-      this.totalLength = suggestions.length;
-      return suggestions.slice(0, 50);
+      if (this.limit === -1) {
+        return suggestions;
+      }
+
+      return suggestions.slice(0, this.limit);
     },
   },
 };
