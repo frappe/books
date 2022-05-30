@@ -23,9 +23,9 @@ export class BalanceSheet extends AccountReport {
     ];
   }
 
-  async setReportData(filter?: string) {
+  async setReportData(filter?: string, force?: boolean) {
     this.loading = true;
-    if (filter !== 'hideGroupAmounts') {
+    if (force || filter !== 'hideGroupAmounts') {
       await this._setRawData();
     }
 
@@ -86,11 +86,14 @@ export class BalanceSheet extends AccountReport {
         continue;
       }
 
-      const totalNode = await this.getTotalNode(row.rootNode, totalName);
-      const totalRow = this.getRowFromAccountListNode(totalNode);
-
       reportData.push(...row.rows);
-      reportData.push(totalRow);
+
+      if (row.rootNode) {
+        const totalNode = await this.getTotalNode(row.rootNode, totalName);
+        const totalRow = this.getRowFromAccountListNode(totalNode);
+        reportData.push(totalRow);
+      }
+
       reportData.push(emptyRow);
     }
 

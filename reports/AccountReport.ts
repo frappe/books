@@ -50,7 +50,7 @@ export abstract class AccountReport extends LedgerReport {
 
   async setDefaultFilters(): Promise<void> {
     if (this.basedOn === 'Until Date' && !this.toDate) {
-      this.toDate = DateTime.now().toISODate();
+      this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
     }
 
     if (this.basedOn === 'Fiscal Year' && !this.toYear) {

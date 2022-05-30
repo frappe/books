@@ -11,7 +11,7 @@ import { truncate } from 'lodash';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { fyo } from './initFyo';
 import router from './router';
-import { getErrorMessage } from './utils';
+import { getErrorMessage, stringifyCircular } from './utils';
 import { MessageDialogOptions, ToastOptions } from './utils/types';
 import { showMessageDialog, showToast } from './utils/ui';
 
@@ -30,7 +30,7 @@ async function reportError(errorLogObj: ErrorLog) {
     error_name: errorLogObj.name,
     message: errorLogObj.message,
     stack: errorLogObj.stack,
-    more: JSON.stringify(errorLogObj.more ?? {}),
+    more: stringifyCircular(errorLogObj.more ?? {}),
   };
 
   if (fyo.store.isDevelopment) {

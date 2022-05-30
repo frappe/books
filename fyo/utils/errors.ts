@@ -76,3 +76,27 @@ export class NotImplemented extends BaseError {
 export class ValueError extends ValidationError {}
 export class ConflictError extends ValidationError {}
 export class InvalidFieldError extends ValidationError {}
+
+export function getDbError(err: Error) {
+  if (!err.message) {
+    return DatabaseError;
+  }
+
+  if (err.message.includes('SQLITE_ERROR: no such table')) {
+    return NotFoundError;
+  }
+
+  if (err.message.includes('FOREIGN KEY')) {
+    return LinkValidationError;
+  }
+
+  if (err.message.includes('SQLITE_ERROR: cannot commit')) {
+    return CannotCommitError;
+  }
+
+  if (err.message.includes('SQLITE_CONSTRAINT: UNIQUE constraint failed:')) {
+    return DuplicateEntryError;
+  }
+
+  return DatabaseError;
+}

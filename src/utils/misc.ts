@@ -9,7 +9,7 @@ import { fyo } from 'src/initFyo';
 export function getDatesAndPeriodList(
   period: 'This Year' | 'This Quarter' | 'This Month'
 ): { periodList: DateTime[]; fromDate: DateTime; toDate: DateTime } {
-  const toDate: DateTime = DateTime.now();
+  const toDate: DateTime = DateTime.now().plus({ days: 1 });
   let fromDate: DateTime;
 
   if (period === 'This Year') {

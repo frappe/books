@@ -23,9 +23,9 @@ export class ProfitAndLoss extends AccountReport {
     return [AccountRootTypeEnum.Income, AccountRootTypeEnum.Expense];
   }
 
-  async setReportData(filter?: string) {
+  async setReportData(filter?: string, force?: boolean) {
     this.loading = true;
-    if (filter !== 'hideGroupAmounts') {
+    if (force || filter !== 'hideGroupAmounts') {
       await this._setRawData();
     }
 
@@ -77,6 +77,10 @@ export class ProfitAndLoss extends AccountReport {
     incomeRoot: AccountTreeNode,
     expenseRoot: AccountTreeNode
   ): Promise<ReportData> {
+    if (!incomeRoot || !expenseRoot) {
+      return [];
+    }
+
     const totalIncome = await this.getTotalNode(
       incomeRoot,
       t`Total Income (Credit)`
