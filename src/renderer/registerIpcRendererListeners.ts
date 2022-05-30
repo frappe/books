@@ -17,7 +17,9 @@ export default function registerIpcRendererListeners() {
       return;
     }
 
-    console.log(...stuff);
+    if (fyo.store.isDevelopment) {
+      console.log(...stuff);
+    }
   });
 
   document.addEventListener('visibilitychange', function () {

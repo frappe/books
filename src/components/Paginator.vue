@@ -72,7 +72,7 @@ export default defineComponent({
   emits: ['index-change'],
   props: {
     itemCount: { type: Number, default: 0 },
-    allowedCounts: { type: Array, default: () => [20, 100, 500, -1] },
+    allowedCounts: { type: Array, default: () => [50, 100, 500, -1] },
   },
   data() {
     return {
