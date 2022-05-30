@@ -12,9 +12,14 @@
       items-center
     "
     style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(4px)"
+    @click="$emit('closemodal')"
     v-if="openModal"
   >
-    <div class="bg-white rounded-lg shadow-2xl w-form" v-bind="$attrs">
+    <div
+      class="bg-white rounded-lg shadow-2xl w-form"
+      v-bind="$attrs"
+      @click.stop
+    >
       <slot></slot>
     </div>
   </div>
@@ -28,5 +33,6 @@ export default {
       type: Boolean,
     },
   },
+  emits: ['closemodal'],
 };
 </script>
