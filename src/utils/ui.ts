@@ -7,6 +7,7 @@ import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
+import { getDbError, LinkValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
@@ -106,7 +107,7 @@ export async function showToast(options: ToastOptions) {
 }
 
 // @ts-ignore
-window.st = showToast
+window.st = showToast;
 
 function replaceAndAppendMount(app: App<Element>, replaceId: string) {
   const fragment = document.createDocumentFragment();
@@ -162,7 +163,15 @@ export async function deleteDocWithPrompt(doc: Doc) {
             await doc.delete();
             return true;
           } catch (err) {
-            handleErrorWithDialog(err as Error, doc);
+            if (getDbError(err as Error) === LinkValidationError) {
+              showMessageDialog({
+                message: t`Delete Failed`,
+                detail: t`Cannot delete ${schemaLabel} ${doc.name!} because of linked entries.`,
+              });
+            } else {
+              handleErrorWithDialog(err as Error, doc);
+            }
+
             return false;
           }
         },

@@ -37,15 +37,15 @@ export class GeneralLedger extends LedgerReport {
 
   async setDefaultFilters() {
     if (!this.toDate) {
-      this.toDate = DateTime.now().toISODate();
+      this.toDate = DateTime.now().plus({ days: 1 }).toISODate();
       this.fromDate = DateTime.now().minus({ years: 1 }).toISODate();
     }
   }
 
-  async setReportData(filter?: string) {
+  async setReportData(filter?: string, force?: boolean) {
     this.loading = true;
     let sort = true;
-    if (filter !== 'grouped' || this._rawData.length === 0) {
+    if (force || filter !== 'grouped' || this._rawData.length === 0) {
       await this._setRawData();
       sort = false;
     }
@@ -139,6 +139,10 @@ export class GeneralLedger extends LedgerReport {
         value = value ? t`Reverted` : '';
       } else {
         value = String(value);
+      }
+
+      if (fieldname === 'referenceType') {
+        value = this.fyo.schemaMap[value]?.label ?? value;
       }
 
       row.cells.push({

@@ -36,7 +36,6 @@ export function validateOptions(field: OptionField, value: string, doc: Doc) {
     return;
   }
 
-  const labels = options.map((o) => o.label).join(', ');
   throw new ValueError(t`Invalid value ${value} for ${field.label}`);
 }
 

@@ -53,9 +53,9 @@ export class TrialBalance extends AccountReport {
     ];
   }
 
-  async setReportData(filter?: string) {
+  async setReportData(filter?: string, force?: boolean) {
     this.loading = true;
-    if (filter !== 'hideGroupAmounts') {
+    if (force || filter !== 'hideGroupAmounts') {
       await this._setRawData();
     }
 

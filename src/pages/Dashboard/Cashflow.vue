@@ -77,7 +77,7 @@ export default {
       let colors = ['#2490EF', '#B7BFC6'];
       if (!this.hasData) {
         data = dummyData;
-        colors = ['#E9EBED', '#B7BFC6'];
+        colors = ['#E9EBED', '#DFE1E2'];
       }
 
       const xLabels = data.map((cf) => cf['yearmonth']);

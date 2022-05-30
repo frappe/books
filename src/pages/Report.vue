@@ -74,7 +74,7 @@ export default defineComponent({
     }
 
     if (filterKeys.length) {
-      await this.report.postSet()
+      await this.report.postSet();
     }
 
     if (fyo.store.isDevelopment) {
@@ -117,6 +117,8 @@ export default defineComponent({
 
       if (!this.report.reportData.length) {
         await this.report.setReportData();
+      } else if (this.report.shouldRefresh) {
+        await this.report.setReportData(undefined, true);
       }
     },
   },

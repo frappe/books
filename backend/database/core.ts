@@ -1,8 +1,6 @@
 import {
   CannotCommitError,
-  DatabaseError,
-  DuplicateEntryError,
-  LinkValidationError,
+  getDbError,
   NotFoundError,
   ValueError,
 } from 'fyo/utils/errors';
@@ -98,7 +96,7 @@ export default class DatabaseCore extends DatabaseBase {
   async connect() {
     this.knex = knex(this.connectionParams);
     this.knex.on('query-error', (error) => {
-      error.type = this.#getError(error);
+      error.type = getDbError(error);
     });
     await this.knex.raw('PRAGMA foreign_keys=ON');
   }
@@ -116,7 +114,7 @@ export default class DatabaseCore extends DatabaseBase {
     try {
       // await this.knex!.raw('commit');
     } catch (err) {
-      const type = this.#getError(err as Error);
+      const type = getDbError(err as Error);
       if (type !== CannotCommitError) {
         throw err;
       }
@@ -155,7 +153,7 @@ export default class DatabaseCore extends DatabaseBase {
       }
       row = await qb.limit(1);
     } catch (err) {
-      if (this.#getError(err as Error) !== NotFoundError) {
+      if (getDbError(err as Error) !== NotFoundError) {
         throw err;
       }
     }
@@ -293,7 +291,7 @@ export default class DatabaseCore extends DatabaseBase {
     try {
       values = await builder.select('fieldname', 'value', 'parent');
     } catch (err) {
-      if (this.#getError(err as Error) === NotFoundError) {
+      if (getDbError(err as Error) === NotFoundError) {
         return [];
       }
 
@@ -362,23 +360,6 @@ export default class DatabaseCore extends DatabaseBase {
       .map((f) => f.fieldname);
     const tableRows = await this.getAll(schemaName, { fields });
     this.prestigeTheTable(schemaName, tableRows);
-  }
-
-  #getError(err: Error) {
-    let errorType = DatabaseError;
-    if (err.message.includes('SQLITE_ERROR: no such table')) {
-      errorType = NotFoundError;
-    }
-    if (err.message.includes('FOREIGN KEY')) {
-      errorType = LinkValidationError;
-    }
-    if (err.message.includes('SQLITE_ERROR: cannot commit')) {
-      errorType = CannotCommitError;
-    }
-    if (err.message.includes('SQLITE_CONSTRAINT: UNIQUE constraint failed:')) {
-      errorType = DuplicateEntryError;
-    }
-    return errorType;
   }
 
   async prestigeTheTable(schemaName: string, tableRows: FieldValueMap[]) {

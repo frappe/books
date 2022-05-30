@@ -14,6 +14,7 @@ export abstract class Report extends Observable<RawValue> {
   filters: Field[] = [];
   reportData: ReportData;
   usePagination: boolean = false;
+  shouldRefresh: boolean = false;
   abstract loading: boolean;
 
   constructor(fyo: Fyo) {
@@ -75,15 +76,15 @@ export abstract class Report extends Observable<RawValue> {
     }
 
     if (callPostSet) {
-      await this.postSet(key);
+      await this.updateData(key);
     }
   }
 
-  async postSet(key?: string) {
+  async updateData(key?: string, force?: boolean) {
     await this.setDefaultFilters();
     this.filters = await this.getFilters();
     this.columns = await this.getColumns();
-    await this.setReportData(key);
+    await this.setReportData(key, force);
   }
 
   /**
@@ -94,5 +95,5 @@ export abstract class Report extends Observable<RawValue> {
   abstract getActions(): Action[];
   abstract getFilters(): Field[] | Promise<Field[]>;
   abstract getColumns(): ColumnField[] | Promise<ColumnField[]>;
-  abstract setReportData(filter?: string): Promise<void>;
+  abstract setReportData(filter?: string, force?: boolean): Promise<void>;
 }
