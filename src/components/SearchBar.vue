@@ -27,7 +27,7 @@
   </div>
 
   <!-- Search Modal -->
-  <Modal :open-modal="openModal">
+  <Modal :open-modal="openModal" @closemodal="close">
     <!-- Search Input -->
     <div class="p-1">
       <input
