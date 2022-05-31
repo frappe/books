@@ -138,5 +138,6 @@
     "amount",
     "writeoff",
     "for"
-  ]
+  ],
+  "keywordFields": ["name", "party", "paymentType"]
 }

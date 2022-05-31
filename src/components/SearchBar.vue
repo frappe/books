@@ -71,7 +71,7 @@
         <div
           v-if="si.group === 'Docs'"
           class="flex w-full justify-between px-3 items-center"
-          style="height: 48px"
+          style="height: 48px; margin-left: -2px"
         >
           <div class="flex items-center">
             <p class="text-gray-900">
@@ -93,7 +93,7 @@
         <div
           v-else
           class="flex flex-row w-full justify-between px-3 items-center"
-          style="height: 48px"
+          style="height: 48px; margin-left: -2px"
         >
           <p class="text-gray-900">
             {{ si.label }}
