@@ -58,13 +58,13 @@
     <hr v-if="suggestions.length" />
 
     <!-- Search List -->
-    <div :style="`max-height: ${49 * 8 - 1}px`" class="overflow-auto">
+    <div :style="`max-height: ${49 * 6 - 1}px`" class="overflow-auto">
       <div
         v-for="(si, i) in suggestions"
         :key="`${i}-${si.key}`"
         ref="suggestions"
-        class="hover:bg-blue-50 cursor-pointer"
-        :class="idx === i ? 'bg-blue-100' : ''"
+        class="hover:bg-gray-50 cursor-pointer border-l-2 border-white"
+        :class="idx === i ? 'border-blue-500 bg-gray-50 -pl-1' : ''"
         @click="select(i)"
       >
         <!-- Doc Search List Item -->
@@ -209,6 +209,7 @@
   </Modal>
 </template>
 <script>
+import { fyo } from 'src/initFyo';
 import { getBgTextColorClass } from 'src/utils/colors';
 import { getGroupLabelMap, searchGroups } from 'src/utils/search';
 import { useKeys } from 'src/utils/vueUtils';
