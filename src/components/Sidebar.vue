@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-2 h-full flex justify-between flex-col bg-gray-100"
+    class="p-2 h-full flex justify-between flex-col"
     :class="{
       'window-drag': platform !== 'Windows',
     }"

@@ -13,7 +13,7 @@
     </PageHeader>
 
     <!-- Filters -->
-    <div v-if="report" class="mx-4 grid grid-cols-5 gap-2">
+    <div v-if="report" class="grid grid-cols-5 gap-2 p-4 border-b">
       <FormControl
         v-for="field in report.filters"
         size="small"
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Report Body -->
-    <ListReport v-if="report" :report="report" class="mx-4 mt-4" />
+    <ListReport v-if="report" :report="report" class="" />
   </div>
 </template>
 <script>
