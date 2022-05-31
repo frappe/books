@@ -16,15 +16,14 @@
       <!-- Printview Preview -->
       <div
         v-if="doc && printSettings"
-        class="flex justify-center flex-1 -mt-36 overflow-auto relative"
+        class="flex justify-center flex-1 overflow-auto relative"
       >
         <div
-          class="h-full shadow-lg mb-12 absolute"
+          class="h-full shadow my-4 absolute"
           style="
             width: 21cm;
-            min-height: 29.7cm;
-            height: max-content;
-            transform: scale(0.7);
+            height: 29.7cm;
+            transform: scale(0.7) translateY(-240px);
           "
           ref="printContainer"
         >
@@ -39,13 +38,19 @@
 
     <!-- Printview Customizer -->
     <div class="border-l w-80" v-if="showCustomiser">
-      <div class="px-4 flex items-center justify-between h-row-largest border-b">
+      <div
+        class="px-4 flex items-center justify-between h-row-largest border-b"
+      >
         <h2 class="font-semibold">{{ t`Customise` }}</h2>
         <Button :icon="true" @click="showCustomiser = false">
           <feather-icon name="x" class="w-4 h-4" />
         </Button>
       </div>
-      <TwoColumnForm :doc="printSettings" :autosave="true" class="border-none"/>
+      <TwoColumnForm
+        :doc="printSettings"
+        :autosave="true"
+        class="border-none"
+      />
     </div>
   </div>
 </template>

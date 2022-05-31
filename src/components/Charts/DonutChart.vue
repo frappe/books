@@ -53,16 +53,12 @@
           @mouseover="$emit('change', i)"
         />
       </template>
-    </svg>
-    <div
-      class="text-center w-28 relative"
-      :style="{
-        top: `calc(-50% + ${textOffsetY}px)`,
-        left: `calc(50% + ${textOffsetX}px)`,
-        transform: 'translateX(-50%)',
-      }"
-    >
-      <p class="text-base font-bold whitespace-nowrap">
+      <text
+        :x="cx"
+        :y="cy"
+        text-anchor="middle"
+        style="font-size: 6px; font-weight: bold; fill: #415668"
+      >
         {{
           valueFormatter(
             active !== null && sectors.length !== 0
@@ -71,23 +67,20 @@
             'Currency'
           )
         }}
-      </p>
-      <p
-        class="
-          text-xs text-gray-600
-          font-semibold
-          whitespace-nowrap
-          overflow-x-auto
-          no-scrollbar
-        "
+      </text>
+      <text
+        :x="cx"
+        :y="cy + 8"
+        text-anchor="middle"
+        style="font-size: 5px; fill: #a1abb4"
       >
         {{
           active !== null && sectors.length !== 0
             ? sectors[active].label
             : totalLabel
         }}
-      </p>
-    </div>
+      </text>
+    </svg>
   </div>
 </template>
 

@@ -11,7 +11,9 @@
       </template>
     </SectionHeader>
     <BarChart
+      class="mt-4"
       v-if="hasData"
+      :aspect-ratio="2.05"
       :colors="chartData.colors"
       :points="chartData.points"
       :x-labels="chartData.xLabels"

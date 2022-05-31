@@ -6,9 +6,10 @@
         <PeriodSelector :value="period" @change="(value) => (period = value)" />
       </template>
     </SectionHeader>
+
     <div class="flex relative" v-show="hasData">
       <!-- Chart Legend -->
-      <div class="w-1/2 flex flex-col gap-5 mt-8">
+      <div class="w-1/2 flex flex-col gap-4 justify-center">
         <!-- Ledgend Item -->
         <div
           class="flex items-center text-sm"
@@ -19,7 +20,7 @@
         >
           <div class="w-3 h-3 rounded-sm flex-shrink-0" :class="d.class" />
           <p class="ml-2 overflow-x-auto whitespace-nowrap no-scrollbar w-28">
-            {{ d.account }} 
+            {{ d.account }}
           </p>
           <p class="whitespace-nowrap flex-shrink-0 ml-auto">
             {{ fyo.format(d?.total ?? 0, 'Currency') }}
@@ -27,7 +28,7 @@
         </div>
       </div>
       <DonutChart
-        class="w-1/2"
+        class="w-1/2 my-auto"
         :active="active"
         :sectors="sectors"
         :offset-x="3"
@@ -52,6 +53,7 @@
 </template>
 
 <script>
+import { truncate } from 'lodash';
 import { fyo } from 'src/initFyo';
 import theme from 'src/theme';
 import { getDatesAndPeriodList } from 'src/utils/misc';
@@ -72,7 +74,7 @@ export default {
     expenses: [],
   }),
   watch: {
-    period(new_, old) {
+    period() {
       this.setData();
     },
   },
@@ -89,7 +91,7 @@ export default {
     sectors() {
       return this.expenses.map(({ account, color, total }) => ({
         color,
-        label: account,
+        label: truncate(account, { length: 21 }),
         value: total,
       }));
     },
