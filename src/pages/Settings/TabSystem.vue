@@ -9,7 +9,7 @@
       @change="forwardChangeEvent"
     />
     <LanguageSelector
-      class="text-sm w-28 bg-gray-100 rounded-md mb-6 ml-6"
+      class="text-sm w-28 bg-gray-100 rounded-md mb-4 ml-4"
       input-class="py-1.5 bg-transparent"
     />
   </div>

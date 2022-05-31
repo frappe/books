@@ -39,13 +39,13 @@
 
     <!-- Printview Customizer -->
     <div class="border-l w-80" v-if="showCustomiser">
-      <div class="mt-4 px-4 flex items-center justify-between">
+      <div class="px-4 flex items-center justify-between h-row-largest border-b">
         <h2 class="font-semibold">{{ t`Customise` }}</h2>
         <Button :icon="true" @click="showCustomiser = false">
           <feather-icon name="x" class="w-4 h-4" />
         </Button>
       </div>
-      <TwoColumnForm class="mt-4" :doc="printSettings" :autosave="true" />
+      <TwoColumnForm :doc="printSettings" :autosave="true" class="border-none"/>
     </div>
   </div>
 </template>

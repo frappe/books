@@ -15,12 +15,19 @@
       >
     </PageHeader>
 
-    <div
-      class="flex px-4 mt-2 text-base w-full flex-col gap-8"
-      v-if="!complete"
-    >
+    <div class="flex text-base w-full flex-col" v-if="!complete">
       <!-- Type selector -->
-      <div class="flex flex-row justify-start items-center w-full gap-2">
+      <div
+        class="
+          flex flex-row
+          justify-start
+          items-center
+          w-full
+          gap-2
+          border-b
+          p-4
+        "
+      >
         <FormControl
           :df="importableDf"
           input-class="bg-transparent text-gray-900 text-base"
@@ -45,9 +52,9 @@
       </div>
 
       <!-- Settings -->
-      <div v-if="fileName" class="">
+      <div v-if="fileName" class="border-b p-4">
         <h2 class="text-lg font-semibold">{{ t`Importer Settings` }}</h2>
-        <div class="mt-4 flex gap-2">
+        <div class="mt-2 flex gap-2">
           <div
             v-if="file && isSubmittable"
             class="
@@ -124,11 +131,14 @@
       </div>
 
       <!-- Label Assigner -->
-      <div v-if="fileName" class="pb-4">
-        <h2 class="text-lg font-semibold">{{ t`Assign Imported Labels` }}</h2>
-        <div
-          class="gap-2 mt-4 grid grid-flow-col overflow-x-auto no-scrollbar"
-        >
+      <div v-if="fileName" class="p-4 border-b">
+        <div class="flex items-center gap-2">
+          <h2 class="text-lg font-semibold">{{ t`Assign Imported Labels` }}</h2>
+          <p class="text-red-400 text-sm" v-if="isRequiredUnassigned">
+            {{ t`* required fields` }}
+          </p>
+        </div>
+        <div class="gap-2 mt-4 grid grid-flow-col overflow-x-auto no-scrollbar">
           <div
             v-for="(f, k) in importer.assignableLabels"
             :key="'assigner-' + f + '-' + k"
@@ -151,24 +161,24 @@
             />
           </div>
         </div>
-        <p
-          class="text-red-400 text-sm mt-1 -mb-1 p-0 h-0"
-          v-if="isRequiredUnassigned"
-        >
-          {{ t`* required fields` }}
-        </p>
       </div>
 
       <!-- Data Verifier -->
       <div v-if="fileName">
-        <h2 class="-mt-4 text-lg font-semibold pb-1">
-          {{ t`Verify Imported Data` }}
-        </h2>
-
-        <div class="overflow-auto mt-4 pb-4">
+        <div class="overflow-auto border-b">
           <!-- Column Name Rows  -->
           <div
-            class="grid grid-flow-col pb-4 border-b gap-2 sticky top-0 bg-white"
+            class="
+              grid grid-flow-col
+              border-b
+              gap-2
+              sticky
+              top-0
+              bg-white
+              px-4
+              h-row-mid
+              items-center
+            "
             style="width: fit-content"
             v-if="importer.columnLabels.length > 0"
           >
@@ -190,10 +200,17 @@
           <!-- Data Rows -->
           <div
             v-if="importer.columnLabels.length > 0"
-            style="max-height: 400px"
+            style="max-height: 500px"
           >
             <div
-              class="grid grid-flow-col mt-4 pb-4 border-b gap-2 items-center"
+              class="
+                grid grid-flow-col
+                border-b
+                gap-2
+                items-center
+                px-4
+                h-row-mid
+              "
               style="width: fit-content"
               v-for="(r, i) in assignedMatrix"
               :key="'matrix-row-' + i"
@@ -238,13 +255,18 @@
                 :value="c"
               />
             </div>
+
+            <!-- Add Row button -->
             <button
               class="
                 text-gray-600
-                hover:text-gray-900
+                hover:bg-gray-100
                 flex flex-row
                 w-full
-                mt-4
+                px-4
+                h-row-mid
+                border-b
+                items-center
                 outline-none
               "
               @click="

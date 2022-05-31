@@ -1,12 +1,12 @@
 <template>
-  <div class="p-4 flex justify-between window-drag border-b items-center">
+  <div class="px-4 flex justify-between window-drag border-b items-center h-row-largest flex-shrink-0">
     <h1 class="text-xl font-semibold select-none" v-if="title && !backLink">
       {{ title }}
     </h1>
     <BackLink v-if="backLink" class="window-no-drag"/>
     <div class="flex items-stretch window-no-drag gap-2">
       <slot />
-      <SearchBar v-if="!hideSearch"/>
+      <SearchBar v-if="!hideSearch" />
     </div>
   </div>
 </template>
