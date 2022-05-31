@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-4 text-base flex flex-col overflow-y-hidden">
+  <div class="text-base flex flex-col overflow-y-hidden">
     <!-- Title Row -->
     <div class="flex items-center">
       <p class="w-8 text-right mr-4 text-gray-700">#</p>
@@ -56,7 +56,7 @@
     <!-- Pagination Footer -->
     <div class="mt-auto" v-if="data?.length">
       <hr />
-      <Paginator :item-count="data.length" @index-change="setPageIndices" />
+      <Paginator :item-count="data.length" @index-change="setPageIndices" class="px-4"/>
     </div>
 
     <!-- Empty State -->

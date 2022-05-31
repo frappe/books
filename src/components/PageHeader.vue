@@ -1,6 +1,6 @@
 <template>
-  <div class="my-4 mx-4 flex justify-between window-drag">
-    <h1 class="text-2xl font-bold select-none" v-if="title && !backLink">
+  <div class="p-4 flex justify-between window-drag border-b items-center">
+    <h1 class="text-xl font-semibold select-none" v-if="title && !backLink">
       {{ title }}
     </h1>
     <BackLink v-if="backLink" class="window-no-drag"/>

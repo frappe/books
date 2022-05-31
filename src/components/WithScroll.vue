@@ -25,8 +25,8 @@ export default {
 
 <style>
 .scroll-container::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: var(--w-scrollbar);
+  height: var(--w-scrollbar);
 }
 .scroll-container::-webkit-scrollbar-thumb {
   background-color: theme('colors.gray.100');

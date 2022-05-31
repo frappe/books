@@ -61,10 +61,16 @@ html {
   height: 800px;
 }
 
+:root {
+  --w-sidebar: 12rem;
+  --w-desk: calc(100vw - 12rem);
+  --w-scrollbar: 8px;
+}
+
 .w-sidebar {
-  width: 12rem;
+  width: var(--w-sidebar);
 }
 
 .w-desk {
-  width: calc(100vw - 12rem);
+  width: var(--w-desk);
 }
