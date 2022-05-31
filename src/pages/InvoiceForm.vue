@@ -31,7 +31,7 @@
 
     <!-- Invoice Form -->
     <template #body v-if="doc">
-      <div class="p-4 text-2xl font-semibold flex justify-between">
+      <div class="px-4 text-xl font-semibold flex justify-between h-row-large items-center">
         <h1>
           {{ doc.notInserted ? t`New Entry` : doc.name }}
         </h1>
@@ -102,7 +102,7 @@
 
       <div v-if="doc.items?.length ?? 0" class="mt-auto">
         <hr />
-        <div class="flex justify-between text-base m-6 gap-12">
+        <div class="flex justify-between text-base m-4 gap-12">
           <!-- Form Terms-->
           <FormControl
             class="w-1/2 self-end"

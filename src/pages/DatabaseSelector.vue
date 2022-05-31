@@ -1,6 +1,6 @@
 <template>
   <div
-    class="py-10 flex-1 bg-white flex justify-center items-center"
+    class="flex-1 flex justify-center items-center"
     :class="{
       'pointer-events-none': loadingDatabase,
       'window-drag': platform !== 'Windows',
@@ -11,7 +11,7 @@
       style="height: 700px"
     >
       <!-- Welcome to Frappe Books -->
-      <div class="px-6 py-10">
+      <div class="px-4 py-4">
         <h1 class="text-2xl font-semibold select-none">
           {{ t`Welcome to Frappe Books` }}
         </h1>
@@ -27,7 +27,7 @@
       <!-- New File (Blue Icon) -->
       <div
         @click="newDatabase"
-        class="px-6 h-18 flex flex-row items-center gap-4 p-2"
+        class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
         :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
       >
         <div class="w-8 h-8 rounded-full bg-blue-500 relative flex-center">
@@ -47,7 +47,7 @@
       <!-- Existing File (Green Icon) -->
       <div
         @click="existingDatabase"
-        class="px-6 h-18 flex flex-row items-center gap-4 p-2"
+        class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
         :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
       >
         <div class="w-8 h-8 rounded-full bg-green-500 relative flex-center">
@@ -67,7 +67,7 @@
       <!-- File List -->
       <div class="overflow-y-auto" style="max-height: 340px">
         <div
-          class="h-18 px-6 flex gap-4 items-center"
+          class="h-row-largest px-4 flex gap-4 items-center"
           :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
           v-for="(file, i) in files"
           :key="file.dbPath"
@@ -137,8 +137,7 @@
           justify-between
           items-center
           absolute
-          px-6
-          py-6
+          p-4
           text-gray-900
         "
         style="top: 100%; transform: translateY(-100%)"

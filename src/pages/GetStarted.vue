@@ -1,26 +1,21 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
     <PageHeader :title="t`Setup Your Workspace`" />
-    <div class="flex-1 mx-4 overflow-y-auto overflow-x-hidden">
-      <div class="my-4" v-for="section in sections" :key="section.label">
+    <div class="flex-1 overflow-y-auto overflow-x-hidden">
+      <div
+        class="p-4 border-b"
+        v-for="section in sections"
+        :key="section.label"
+      >
         <h2 class="font-medium">{{ section.label }}</h2>
-        <div class="flex mt-4 -mx-2">
+        <div class="flex mt-4 gap-4">
           <div
-            class="flex-shrink-0 w-full px-2 md:w-1/3 sm:w-1/2"
+            class="w-full md:w-1/3 sm:w-1/2"
             v-for="item in section.items"
             :key="item.label"
           >
             <div
-              class="
-                flex flex-col
-                justify-between
-                h-40
-                p-4
-                border
-                rounded-lg
-                cursor-pointer
-                hover:shadow-md
-              "
+              class="flex flex-col justify-between h-40 p-4 border rounded-lg"
               @mouseenter="() => (activeCard = item.key)"
               @mouseleave="() => (activeCard = null)"
             >

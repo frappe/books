@@ -24,7 +24,7 @@
 
     <!-- Journal Entry Form -->
     <template #body v-if="doc">
-      <div class="p-4 text-2xl font-semibold flex justify-between">
+      <div class="px-4 text-xl font-semibold flex justify-between h-row-large items-center">
         <h1>
           {{ doc.notInserted ? t`New Entry` : doc.name }}
         </h1>
@@ -98,7 +98,7 @@
       <!-- Footer -->
       <div v-if="doc.accounts?.length ?? 0" class="mt-auto">
         <hr />
-        <div class="flex justify-between text-base m-6 gap-12">
+        <div class="flex justify-between text-base m-4 gap-12">
           <!-- User Remark -->
           <FormControl
             v-if="!doc.submitted || doc.userRemark"

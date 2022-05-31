@@ -3,31 +3,33 @@
     <PageHeader :title="t`Chart of Accounts`" />
 
     <!-- Chart of Accounts -->
-    <div class="flex-1 flex flex-col mx-4 overflow-y-auto mb-4" v-if="root">
+    <div class="flex-1 flex flex-col overflow-y-auto mb-4" v-if="root">
       <!-- Chart of Accounts Indented List -->
       <template v-for="account in allAccounts" :key="account.name">
         <!-- Account List Item -->
         <div
           class="
-            mt-2
             py-2
             cursor-pointer
             hover:bg-gray-100
             group
             flex
             items-center
+            border-b
+            flex-shrink-0
+            pr-4
           "
           :class="[
             account.level !== 0 ? 'text-base' : 'text-lg',
             isQuickEditOpen(account) ? 'bg-gray-200' : '',
-            `pl-${account.level * 8}`,
           ]"
+          :style="`height: calc(var(--h-row-mid) + 1px); padding-left: calc(1rem + 2rem * ${account.level})`"
           @click="onClick(account)"
         >
-          <component :is="getIconComponent(account)" class="ml-2" />
+          <component :is="getIconComponent(account)" />
           <div class="flex items-baseline">
             <div
-              class="ml-3"
+              class="ml-4"
               :class="[!account.parentAccount && 'font-semibold']"
             >
               {{ account.name }}

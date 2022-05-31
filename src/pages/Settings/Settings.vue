@@ -2,7 +2,7 @@
   <FormContainer :title="t`Settings`">
     <template #body>
       <!-- Icon Tab Bar -->
-      <div class="flex justify-around mb-4 mt-6">
+      <div class="flex justify-around mb-2 mt-4">
         <div
           v-for="(tab, i) in tabs"
           :key="tab.label"

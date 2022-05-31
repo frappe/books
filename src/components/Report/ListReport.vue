@@ -76,6 +76,7 @@
       <hr />
       <Paginator
         :item-count="report?.reportData?.length ?? 0"
+        class="px-4"
         @index-change="setPageIndices"
       />
     </div>

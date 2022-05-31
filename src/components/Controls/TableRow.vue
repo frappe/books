@@ -1,7 +1,10 @@
 <template>
-  <Row :ratio="ratio" class="w-full px-2 border-b hover:bg-brand-100 group">
+  <Row
+    :ratio="ratio"
+    class="w-full px-2 border-b hover:bg-brand-100 group flex items-center"
+  >
     <!-- Index or Remove button -->
-    <div class="flex items-center pl-2 text-gray-600">
+    <div class="flex items-center pl-2 text-gray-600 h-row-mid">
       <span class="hidden group-hover:inline-block">
         <feather-icon
           name="x"
@@ -18,7 +21,7 @@
     <FormControl
       v-for="df in tableFields"
       :size="size"
-      class="py-2"
+      class="py-2 h-row-mid"
       :read-only="readOnly"
       :input-class="{ 'text-right': isNumeric(df), 'bg-transparent': true }"
       :key="df.fieldname"

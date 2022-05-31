@@ -5,16 +5,21 @@
     </div>
 
     <!-- Title Row -->
-    <Row :ratio="ratio" class="border-b px-2 text-gray-600 w-full">
+    <Row
+      :ratio="ratio"
+      class="border-b px-2 text-gray-600 w-full flex items-center"
+    >
       <div class="flex items-center pl-2">#</div>
       <div
+        class="items-center flex px-2 h-row-mid"
         :class="{
-          'px-2 py-3': size === 'small',
-          'px-3 py-4': size !== 'small',
-          'text-right': isNumeric(df),
+          'ml-auto': isNumeric(df),
         }"
         v-for="df in tableFields"
         :key="df.fieldname"
+        :style="{
+          height: ``,
+        }"
       >
         {{ df.label }}
       </div>
@@ -40,29 +45,28 @@
     <!-- Add Row and Row Count -->
     <Row
       :ratio="ratio"
-      class="text-gray-500 cursor-pointer border-transparent px-2 w-full"
+      class="
+        text-gray-500
+        cursor-pointer
+        border-transparent
+        px-2
+        w-full
+        h-row-mid
+        flex
+        items-center
+      "
       v-if="!isReadOnly"
       @click="addRow"
     >
       <div class="flex items-center pl-1">
         <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
       </div>
-      <div
-        class="flex justify-between"
-        :class="{
-          'px-2 py-3': size === 'small',
-          'px-3 py-4': size !== 'small',
-        }"
-      >
+      <div class="flex justify-between px-2">
         {{ t`Add Row` }}
       </div>
       <div v-for="i in ratio.slice(3).length" :key="i"></div>
       <div
-        class="text-right"
-        :class="{
-          'px-2 py-3': size === 'small',
-          'px-3 py-4': size !== 'small',
-        }"
+        class="text-right px-2"
         v-if="
           value && maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow
         "
@@ -161,6 +165,11 @@ export default {
     },
   },
   computed: {
+    height() {
+      if (this.size === 'small') {
+      }
+      return 2;
+    },
     ratio() {
       return [0.3].concat(this.tableFields.map(() => 1));
     },

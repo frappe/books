@@ -1,12 +1,21 @@
 <template>
-  <div class="py-4" v-if="pendingInvoices.length">
-    <div class="px-4 text-sm text-gray-600">
+  <div v-if="pendingInvoices.length">
+    <div
+      class="
+        px-4
+        text-sm text-gray-600
+        border-b
+        flex
+        items-center
+        h-row-smallest
+      "
+    >
       {{ t`Recent Invoices` }}
     </div>
 
     <!-- Invoice List -->
     <div
-      class="px-4 py-3 border-b hover:bg-gray-100 cursor-pointer text-base"
+      class="px-4 py-4 border-b hover:bg-gray-100 cursor-pointer text-base"
       v-for="invoice in pendingInvoices"
       :key="invoice.name"
       @click="routeToForm(invoice)"

@@ -1,7 +1,7 @@
 <template>
   <div class="w-form shadow rounded-lg border relative" style="height: 700px">
     <!-- Slide Title -->
-    <div class="px-6 py-10">
+    <div class="p-4">
       <h1 class="text-2xl font-semibold select-none">
         <slot name="title"></slot>
       </h1>
@@ -15,7 +15,7 @@
 
     <!-- Slide Buttons -->
     <div
-      class="flex justify-between px-6 pb-6 window-no-drag absolute w-form"
+      class="flex justify-between px-4 pb-4 window-no-drag absolute w-form"
       style="top: 100%; transform: translateY(-100%)"
     >
       <Button

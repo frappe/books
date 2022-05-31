@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="py-10 flex-1 bg-white flex justify-center items-center window-drag"
-  >
+  <div class="flex-1 bg-white flex justify-center items-center window-drag">
     <!-- 0: Language Selection Slide -->
     <Slide
       @primary-clicked="handlePrimary"
