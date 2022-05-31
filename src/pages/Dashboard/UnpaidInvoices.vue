@@ -1,8 +1,9 @@
 <template>
-  <div class="flex justify-between gap-8">
+  <div class="flex">
     <div
-      class="flex-col justify-between flex-1"
       v-for="(invoice, i) in invoices"
+      class="flex-col justify-between w-full p-4"
+      :class="i === 0 ? 'border-r' : ''"
       :key="invoice.title"
     >
       <!-- Title and Period Selector -->
@@ -26,9 +27,9 @@
       </SectionHeader>
 
       <!-- Widget Body -->
-      <div>
+      <div class="mt-4">
         <!-- Paid & Unpaid Amounts -->
-        <div class="mt-6 flex justify-between">
+        <div class="flex justify-between">
           <!-- Paid -->
           <div
             class="text-sm bold"

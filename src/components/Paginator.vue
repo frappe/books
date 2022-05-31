@@ -1,7 +1,7 @@
 <template>
   <div
     class="grid grid-cols-3 text-gray-800 text-sm select-none items-center"
-    style="height: 52px"
+    style="height: 50px"
   >
     <!-- Length Display -->
     <div class="justify-self-start">

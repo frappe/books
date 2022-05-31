@@ -2,15 +2,16 @@
   <div class="flex flex-col">
     <PageHeader :title="t`Dashboard`" />
 
-    <div class="mx-4 overflow-y-auto no-scrollbar flex flex-col gap-8">
-      <Cashflow class="" />
+    <div class="overflow-y-hidden no-scrollbar flex flex-col">
+      <Cashflow class="p-4" />
       <hr />
       <UnpaidInvoices />
       <hr />
-      <div class="flex gap-8">
-        <ProfitAndLoss class="w-full" />
-        <Expenses class="w-full" />
+      <div class="flex">
+        <ProfitAndLoss class="w-full p-4 border-r" />
+        <Expenses class="w-full p-4" />
       </div>
+      <hr />
     </div>
   </div>
 </template>
