@@ -24,6 +24,10 @@ const defaultNumberSeriesMap = {
 } as Record<ModelNameEnum, string>;
 
 async function execute(dm: DatabaseManager) {
+  if (dm.db?.dbPath === ':memory:') {
+    return;
+  }
+
   const sourceKnex = dm.db!.knex!;
   const version = (
     await sourceKnex('SingleValue')

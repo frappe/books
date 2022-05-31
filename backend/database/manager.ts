@@ -63,10 +63,10 @@ export class DatabaseManager extends DatabaseDemuxBase {
     } catch (err) {
       console.error(err);
       await this.db!.close();
-      await fs.copyFile(copyPath, dbPath);
+      copyPath && (await fs.copyFile(copyPath, dbPath));
       throw err;
     } finally {
-      await fs.unlink(copyPath);
+      copyPath && (await fs.unlink(copyPath));
     }
   }
 
@@ -154,6 +154,10 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
   async #makeTempCopy() {
     const src = this.db!.dbPath;
+    if (src === ':memory:') {
+      return null;
+    }
+
     const dir = path.parse(src).dir;
     const dest = path.join(dir, '__premigratory_temp.db');
     await fs.copyFile(src, dest);
