@@ -49,10 +49,10 @@
               {{ party.name }}
             </div>
             <div
-              v-if="party && party.addressDisplay"
+              v-if="partyAddress"
               class="mt-1 text-xs text-gray-600 text-right"
             >
-              {{ party.addressDisplay }}
+              {{ partyAddress }}
             </div>
             <div
               v-if="party && party.gstin"

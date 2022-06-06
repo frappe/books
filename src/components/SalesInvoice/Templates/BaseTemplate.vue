@@ -3,7 +3,7 @@ import { fyo } from 'src/initFyo';
 export default {
   name: 'Base',
   props: { doc: Object, printSettings: Object },
-  data: () => ({ party: null, companyAddress: null }),
+  data: () => ({ party: null, companyAddress: null, partyAddress: null }),
   methods: {
     format(row, fieldname) {
       const value = row.get(fieldname);
@@ -11,10 +11,12 @@ export default {
     },
   },
   async mounted() {
-    await this.doc.loadLink('party');
-    this.party = this.doc.getLink('party');
     await this.printSettings.loadLink('address');
     this.companyAddress = this.printSettings.getLink('address');
+
+    await this.doc.loadLink('party');
+    this.party = this.doc.getLink('party');
+    this.partyAddress = this.party.getLink('address')?.addressDisplay ?? null;
   },
   computed: {
     isSalesInvoice() {
