@@ -11,7 +11,14 @@
         <div
           v-for="(column, i) in columns"
           :key="column.label"
-          class="overflow-x-auto no-scrollbar whitespace-nowrap h-row items-center flex"
+          class="
+            overflow-x-auto
+            no-scrollbar
+            whitespace-nowrap
+            h-row
+            items-center
+            flex
+          "
           :class="{
             'ml-auto': isNumeric(column.fieldtype),
             'pr-4': i === columns.length - 1,
@@ -49,14 +56,18 @@
             />
           </Row>
         </div>
-        <hr v-if="i !== dataSlice.length - 1" />
+        <hr v-if="!(i === dataSlice.length - 1 && i > 13)" />
       </div>
     </div>
 
     <!-- Pagination Footer -->
     <div class="mt-auto" v-if="data?.length">
       <hr />
-      <Paginator :item-count="data.length" @index-change="setPageIndices" class="px-4"/>
+      <Paginator
+        :item-count="data.length"
+        @index-change="setPageIndices"
+        class="px-4"
+      />
     </div>
 
     <!-- Empty State -->

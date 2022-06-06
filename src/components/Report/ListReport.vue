@@ -147,7 +147,7 @@ export default defineComponent({
       }
 
       if (cell.italics) {
-        styles['font-style'] = 'italic';
+        styles['font-style'] = 'oblique 15deg';
       }
 
       if (i === 0) {
