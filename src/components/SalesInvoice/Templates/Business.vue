@@ -25,7 +25,10 @@
           </div>
           <div
             class="text-sm text-gray-800"
-            v-if="fyo.singles.AccountingSettings && fyo.singles.AccountingSettings.gstin"
+            v-if="
+              fyo.singles.AccountingSettings &&
+              fyo.singles.AccountingSettings.gstin
+            "
           >
             GSTIN: {{ fyo.singles.AccountingSettings.gstin }}
           </div>
@@ -53,8 +56,8 @@
             <div class="font-semibold">
               {{ party.name }}
             </div>
-            <div>
-              {{ party.addressDisplay }}
+            <div v-if="partyAddress">
+              {{ partyAddress }}
             </div>
             <div v-if="party && party.gstin">GSTIN: {{ party.gstin }}</div>
           </div>
@@ -62,7 +65,7 @@
       </div>
     </div>
     <div class="px-12 py-12 text-lg">
-      <div class="mb-4 flex font-semibold ">
+      <div class="mb-4 flex font-semibold">
         <div class="w-4/12">Item</div>
         <div class="w-2/12 text-right">Quantity</div>
         <div class="w-3/12 text-right">Rate</div>
@@ -93,7 +96,7 @@
               :key="tax.name"
             >
               <div class="text-gray-800">
-                {{ tax.account }} 
+                {{ tax.account }}
               </div>
               <div class="text-xl mt-2">
                 {{ fyo.format(tax.amount, 'Currency') }}
@@ -113,14 +116,10 @@
           </div>
         </div>
         <div class="mt-12" v-if="doc.terms">
-            <div
-              class="text-lg font-semibold"
-            >
-              Notes
-            </div>
-            <div class="mt-4 text-lg whitespace-pre-line">
-              {{ doc.terms }}
-            </div>
+          <div class="text-lg font-semibold">Notes</div>
+          <div class="mt-4 text-lg whitespace-pre-line">
+            {{ doc.terms }}
+          </div>
         </div>
       </div>
     </div>
@@ -132,6 +131,6 @@ import Base from './BaseTemplate.vue';
 
 export default {
   name: 'Business',
-  extends: Base
+  extends: Base,
 };
 </script>

@@ -99,7 +99,7 @@
                 text-sm text-gray-600
                 flex
                 justify-between
-                overflow-x-scroll
+                overflow-x-auto
               "
             >
               <p class="whitespace-nowrap mr-2">

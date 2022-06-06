@@ -30,7 +30,11 @@
           class="font-semibold text-xl"
           :style="{ color: printSettings.color }"
         >
-          {{ doc.schemaName === 'SalesInvoice' ? t`Sales Invoice` : t`Purchase Invoice` }}
+          {{
+            doc.schemaName === 'SalesInvoice'
+              ? t`Sales Invoice`
+              : t`Purchase Invoice`
+          }}
         </div>
         <div>
           {{ doc.name }}
@@ -46,7 +50,7 @@
         </div>
         <div class="mt-4 text-black leading-relaxed text-lg">
           {{ party.name }} <br />
-          {{ party.addressDisplay }}
+          {{ partyAddress ? partyAddress : '' }}
         </div>
         <div
           class="mt-4 text-black leading-relaxed text-lg"
@@ -73,7 +77,10 @@
         </div>
         <div
           class="mt-4 ml-8 text-black leading-relaxed text-lg"
-          v-if="fyo.singles.AccountingSettings && fyo.singles.AccountingSettings.gstin"
+          v-if="
+            fyo.singles.AccountingSettings &&
+            fyo.singles.AccountingSettings.gstin
+          "
         >
           GSTIN: {{ fyo.singles.AccountingSettings.gstin }}
         </div>
