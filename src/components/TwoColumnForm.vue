@@ -61,7 +61,7 @@
 
           height: !['AttachImage', 'Text'].includes(df.fieldtype)
             ? 'calc(var(--h-row-mid) + 1px)'
-            : 'calc(var(--h-row-mid) * 2 + 1px)',
+            : 'calc((var(--h-row-mid) + 1px) * 2)',
         }"
       >
         <div class="py-2 pl-4 flex text-gray-600">
