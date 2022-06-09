@@ -72,22 +72,23 @@
           v-if="account.addingAccount || account.addingGroupAccount"
           class="
             px-4
-            h-row-mid
+            border-b
             cursor-pointer
             hover:bg-gray-50
             group
             flex
             items-center
+            text-base
           "
-          :class="`${account.level !== 0 ? 'text-base' : 'text-lg'} pl-${
-            (account.level + 1) * 8
-          }`"
+          :style="`height: calc(var(--h-row-mid) + 1px); padding-left: calc(1rem + 2rem * ${
+            account.level + 1
+          })`"
           :key="account.name + '-adding-account'"
         >
           <component
             :is="getIconComponent({ isGroup: account.addingGroupAccount })"
           />
-          <div class="flex items-baseline ml-3">
+          <div class="flex ml-4 h-row-mid items-center">
             <input
               class="focus:outline-none bg-transparent"
               :class="{ 'text-gray-600': insertingAccount }"
