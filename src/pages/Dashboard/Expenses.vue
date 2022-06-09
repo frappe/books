@@ -32,7 +32,7 @@
         :active="active"
         :sectors="sectors"
         :offset-x="3"
-        :thickness="11.5"
+        :thickness="10"
         :text-offset-x="6.5"
         :value-formatter="(value) => fyo.format(value, 'Currency')"
         :total-label="t`Total Spending`"
@@ -55,7 +55,7 @@
 <script>
 import { truncate } from 'lodash';
 import { fyo } from 'src/initFyo';
-import theme from 'src/theme';
+import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import DonutChart from '../../components/Charts/DonutChart.vue';
 import PeriodSelector from './PeriodSelector';
@@ -105,11 +105,11 @@ export default {
       );
 
       const shades = [
-        { class: 'bg-gray-800', hex: theme.backgroundColor.gray['800'] },
-        { class: 'bg-gray-600', hex: theme.backgroundColor.gray['600'] },
-        { class: 'bg-gray-400', hex: theme.backgroundColor.gray['400'] },
-        { class: 'bg-gray-300', hex: theme.backgroundColor.gray['300'] },
-        { class: 'bg-gray-200', hex: theme.backgroundColor.gray['200'] },
+        { class: 'bg-pink-500', hex: uicolors.pink['500'] },
+        { class: 'bg-pink-400', hex: uicolors.pink['400'] },
+        { class: 'bg-pink-300', hex: uicolors.pink['300'] },
+        { class: 'bg-pink-200', hex: uicolors.pink['200'] },
+        { class: 'bg-pink-100', hex: uicolors.pink['100'] },
       ];
 
       topExpenses = topExpenses

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex flex-col bg-gray-25">
     <!-- Page Header (Title, Buttons, etc) -->
     <PageHeader :backLink="backLink" :title="title" :border="false">
       <slot name="header" />

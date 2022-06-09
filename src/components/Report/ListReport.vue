@@ -43,7 +43,7 @@
             }"
             :class="[
               r !== pageEnd - 1 ? 'border-b' : '',
-              row.isGroup ? 'hover:bg-gray-100 cursor-pointer' : '',
+              row.isGroup ? 'hover:bg-gray-50 cursor-pointer' : '',
             ]"
             @click="() => onRowClick(row, r)"
           >
