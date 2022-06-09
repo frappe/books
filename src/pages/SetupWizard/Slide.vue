@@ -1,5 +1,5 @@
 <template>
-  <div class="w-form shadow rounded-lg border relative" style="height: 700px">
+  <div class="w-form shadow-lg rounded-lg border relative" style="height: 700px">
     <!-- Slide Title -->
     <div class="p-4">
       <h1 class="text-2xl font-semibold select-none">

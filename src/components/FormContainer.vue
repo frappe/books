@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <!-- Page Header (Title, Buttons, etc) -->
-    <PageHeader :backLink="backLink" :title="title">
+    <PageHeader :backLink="backLink" :title="title" :border="false">
       <slot name="header" />
     </PageHeader>
 
@@ -10,12 +10,12 @@
       class="
         border
         rounded-lg
-        shadow
+        shadow-lg
         flex flex-col
         self-center
         w-form
         h-full
-        my-4
+        mb-4
         bg-white
       "
     >

@@ -7,7 +7,7 @@
     }"
   >
     <div
-      class="w-full w-form shadow rounded-lg border relative"
+      class="w-full w-form shadow-lg rounded-lg border relative"
       style="height: 700px"
     >
       <!-- Welcome to Frappe Books -->
