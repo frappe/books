@@ -174,10 +174,14 @@ export default defineComponent({
         filters = { ...this.filters };
       }
 
+      const orderBy = !!fyo.getField(this.schemaName, 'date')
+        ? 'date'
+        : 'created';
+
       this.data = await fyo.db.getAll(this.schemaName, {
         fields: ['*'],
         filters,
-        orderBy: 'modified',
+        orderBy,
       });
     },
   },
