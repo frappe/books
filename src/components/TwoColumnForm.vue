@@ -49,7 +49,9 @@
         class="grid items-center"
         :class="{
           'border-b': !noBorder,
-          'h-12': !['AttachImage', 'Text'].includes(df.fieldtype),
+          'h-12':
+            !['AttachImage', 'Text'].includes(df.fieldtype) &&
+            !errors[df.fieldname],
         }"
         :key="`${df.fieldname}-regular`"
         :style="style"
