@@ -59,9 +59,7 @@
         :style="{
           ...style,
 
-          height: !['AttachImage', 'Text'].includes(df.fieldtype)
-            ? 'calc(var(--h-row-mid) + 1px)'
-            : 'calc((var(--h-row-mid) + 1px) * 2)',
+          height: getFieldHeight(df),
         }"
       >
         <div class="py-2 pl-4 flex text-gray-600">
@@ -157,6 +155,17 @@ export default {
     }
   },
   methods: {
+    getFieldHeight(df) {
+      if (['AttachImage', 'Text'].includes(df.fieldtype)) {
+        return 'calc((var(--h-row-mid) + 1px) * 2)';
+      }
+
+      if (this.errors[df.fieldname]) {
+        return 'calc((var(--h-row-mid) + 1px) * 2)';
+      }
+
+      return 'calc(var(--h-row-mid) + 1px)';
+    },
     getRegularValue(df) {
       if (!df.inline) {
         return this.doc[df.fieldname];
@@ -307,7 +316,6 @@ export default {
         .join(' ');
       return {
         'grid-template-columns': templateColumns,
-        height: 'calc(var(--h-row-mid) + 1px)',
       };
     },
     submitted() {
