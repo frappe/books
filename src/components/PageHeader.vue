@@ -3,7 +3,7 @@
     <h1 class="text-2xl font-bold select-none" v-if="title && !backLink">
       {{ title }}
     </h1>
-    <BackLink v-if="backLink" />
+    <BackLink v-if="backLink" class="window-no-drag"/>
     <div class="flex items-stretch window-no-drag gap-2">
       <slot />
       <SearchBar v-if="!hideSearch"/>
