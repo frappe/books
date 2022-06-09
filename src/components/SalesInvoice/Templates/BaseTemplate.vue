@@ -22,6 +22,9 @@ export default {
     isSalesInvoice() {
       return this.doc.schemaName === 'SalesInvoice';
     },
+    showHSN() {
+      return this.doc.items.map((i) => i.hsnCode).every(Boolean);
+    },
   },
 };
 </script>
