@@ -108,6 +108,12 @@
         <feather-icon name="database" class="h-4 w-4" />
         <p>{{ t`Change DB` }}</p>
       </button>
+      <p
+        v-if="fyo.store.isDevelopment"
+        class="text-xs text-gray-500 select-none"
+      >
+        dev mode
+      </p>
     </div>
   </div>
 </template>
