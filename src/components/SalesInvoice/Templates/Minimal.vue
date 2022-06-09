@@ -99,12 +99,14 @@
         "
       >
         <div class="w-4/12">Item</div>
+        <div class="w-2/12 text-right" v-if="showHSN">HSN/SAC</div>
         <div class="w-2/12 text-right">Quantity</div>
         <div class="w-3/12 text-right">Rate</div>
         <div class="w-3/12 text-right">Amount</div>
       </div>
       <div class="flex py-1 text-lg" v-for="row in doc.items" :key="row.name">
         <div class="w-4/12">{{ row.item }}</div>
+        <div class="w-2/12 text-right" v-if="showHSN">{{ row.hsnCode }}</div>
         <div class="w-2/12 text-right">{{ format(row, 'quantity') }}</div>
         <div class="w-3/12 text-right">{{ format(row, 'rate') }}</div>
         <div class="w-3/12 text-right">{{ format(row, 'amount') }}</div>
