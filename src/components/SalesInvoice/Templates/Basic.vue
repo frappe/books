@@ -67,6 +67,7 @@
         <div>
           <div class="text-gray-600 w-full flex border-b">
             <div class="py-4 w-5/12">Item</div>
+            <div class="py-4 text-right w-2/12" v-if="showHSN">HSN/SAC</div>
             <div class="py-4 text-right w-1/12">Quantity</div>
             <div class="py-4 text-right w-3/12">Rate</div>
             <div class="py-4 text-right w-3/12">Amount</div>
@@ -77,6 +78,9 @@
             :key="row.name"
           >
             <div class="w-5/12 py-4">{{ row.item }}</div>
+            <div class="w-2/12 text-right py-4" v-if="showHSN">
+              {{ row.hsnCode }}
+            </div>
             <div class="w-1/12 text-right py-4">
               {{ format(row, 'quantity') }}
             </div>
