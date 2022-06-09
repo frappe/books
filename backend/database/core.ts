@@ -786,18 +786,19 @@ export default class DatabaseCore extends DatabaseBase {
     fieldname: string,
     value: RawValue
   ) {
+    const updateKey = {
+      parent: singleSchemaName,
+      fieldname,
+    };
+
     const names: { name: string }[] = await this.knex!('SingleValue')
       .select('name')
-      .where({
-        parent: singleSchemaName,
-        fieldname,
-      });
-    const name = names?.[0]?.name as string | undefined;
+      .where(updateKey);
 
-    if (name === undefined) {
+    if (!names?.length) {
       this.#insertSingleValue(singleSchemaName, fieldname, value);
     } else {
-      return await this.knex!('SingleValue').where({ name }).update({
+      return await this.knex!('SingleValue').where(updateKey).update({
         value,
         modifiedBy: SYSTEM,
         modified: new Date().toISOString(),
