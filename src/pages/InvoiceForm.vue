@@ -5,7 +5,6 @@
       <StatusBadge :status="status" />
       <Button
         v-if="doc?.submitted"
-        class="text-gray-900 text-xs"
         :icon="true"
         @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
       >
@@ -15,7 +14,6 @@
       <Button
         v-if="doc?.notInserted || doc?.dirty"
         type="primary"
-        class="text-white text-xs"
         @click="sync"
       >
         {{ t`Save` }}
@@ -23,7 +21,6 @@
       <Button
         v-if="!doc?.dirty && !doc?.notInserted && !doc?.submitted"
         type="primary"
-        class="text-white text-xs"
         @click="submit"
         >{{ t`Submit` }}</Button
       >
@@ -31,7 +28,17 @@
 
     <!-- Invoice Form -->
     <template #body v-if="doc">
-      <div class="px-4 text-xl font-semibold flex justify-between h-row-large items-center">
+      <div
+        class="
+          px-4
+          text-xl
+          font-semibold
+          flex
+          justify-between
+          h-row-large
+          items-center
+        "
+      >
         <h1>
           {{ doc.notInserted ? t`New Entry` : doc.name }}
         </h1>

@@ -260,7 +260,7 @@
             <button
               class="
                 text-gray-600
-                hover:bg-gray-100
+                hover:bg-gray-50
                 flex flex-row
                 w-full
                 px-4

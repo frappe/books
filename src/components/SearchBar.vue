@@ -4,23 +4,20 @@
     <button
       @click="open"
       class="
-        focus:outline-none
-        shadow-button
-        flex flex-row
-        gap-1
-        text-base text-gray-700
-        bg-gray-100
-        rounded-md
+        px-2
         h-8
-        w-48
-        px-3
+        flex
         items-center
-        hover:bg-gray-200
+        rounded-md
+        text-sm
+        text-gray-900
+        bg-gray-100
       "
+      :padding="false"
     >
-      <feather-icon name="search" class="w-4 h-4" />
+      <feather-icon name="search" class="w-4 h-4 mr-1 text-gray-800" />
       <p>{{ t`Search` }}</p>
-      <div class="text-gray-400 ml-auto text-sm">
+      <div class="text-gray-500 px-1 ml-4 text-sm">
         {{ modKey('k') }}
       </div>
     </button>
