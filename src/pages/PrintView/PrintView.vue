@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <div class="flex flex-col flex-1">
-      <PageHeader :backLink="true" class="bg-white z-10">
+      <PageHeader :backLink="true" class="bg-white z-10" :border="false">
         <Button
           class="text-gray-900 text-xs"
           @click="showCustomiser = !showCustomiser"
@@ -19,11 +19,11 @@
         class="flex justify-center flex-1 overflow-auto relative"
       >
         <div
-          class="h-full shadow my-4 absolute"
+          class="h-full shadow mb-4 absolute"
           style="
             width: 21cm;
             height: 29.7cm;
-            transform: scale(0.7) translateY(-240px);
+            transform: scale(0.65) translateY(-300px);
           "
           ref="printContainer"
         >

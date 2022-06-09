@@ -7,12 +7,7 @@
     right
   >
     <template v-slot="{ toggleDropdown }">
-      <Button
-        class="text-gray-900"
-        :type="type"
-        :icon="true"
-        @click="toggleDropdown()"
-      >
+      <Button :type="type" :icon="icon" @click="toggleDropdown()">
         <slot>
           <feather-icon name="more-horizontal" class="w-4 h-4" />
         </slot>
@@ -30,6 +25,7 @@ export default {
   props: {
     actions: { default: [] },
     type: { type: String, default: 'secondary' },
+    icon: { type: Boolean, default: true },
   },
   inject: {
     doc: { default: null },

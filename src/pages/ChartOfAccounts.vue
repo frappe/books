@@ -11,7 +11,7 @@
           class="
             py-2
             cursor-pointer
-            hover:bg-gray-100
+            hover:bg-gray-50
             group
             flex
             items-center

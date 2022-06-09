@@ -3,6 +3,7 @@
     <PageHeader :title="title">
       <DropdownWithActions
         v-for="group of groupedActions"
+        :icon="false"
         :key="group.label"
         :type="group.type"
         :actions="group.actions"

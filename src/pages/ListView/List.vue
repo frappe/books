@@ -34,7 +34,7 @@
     <div class="overflow-y-auto" v-if="dataSlice.length !== 0">
       <div v-for="(doc, i) in dataSlice" :key="doc.name">
         <!-- Row Content -->
-        <div class="flex hover:bg-gray-100 items-center">
+        <div class="flex hover:bg-gray-50 items-center">
           <p class="w-8 text-right mr-4 text-gray-900">
             {{ i + pageStart + 1 }}
           </p>

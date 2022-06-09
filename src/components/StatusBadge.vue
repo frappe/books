@@ -1,5 +1,5 @@
 <template>
-  <Badge class="text-xs flex-center px-3 ml-2" :color="color" v-if="status">{{
+  <Badge class="text-sm flex-center px-3 ml-2" :color="color" v-if="status">{{
     statusLabel
   }}</Badge>
 </template>

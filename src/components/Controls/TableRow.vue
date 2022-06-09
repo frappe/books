@@ -5,7 +5,7 @@
       w-full
       px-2
       border-b
-      hover:bg-brand-100
+      hover:bg-gray-50
       h-row-mid
       group
       flex
@@ -31,7 +31,6 @@
     <FormControl
       v-for="df in tableFields"
       :size="size"
-      class="py-2"
       :read-only="readOnly"
       :input-class="{ 'text-right': isNumeric(df), 'bg-transparent': true }"
       :key="df.fieldname"
