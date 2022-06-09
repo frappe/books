@@ -94,6 +94,9 @@
 
     <!-- Report Issue and App Version -->
     <div class="px-5 window-no-drag">
+      <p v-if="fyo.store.isDevelopment" class="text-sm text-gray-600">
+        Development
+      </p>
       <button
         class="pb-1 text-sm text-gray-600 hover:text-gray-800 w-full text-left"
         @click="() => reportIssue()"
