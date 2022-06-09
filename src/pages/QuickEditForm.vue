@@ -1,5 +1,8 @@
 <template>
-  <div class="border-l h-full overflow-auto">
+  <div
+    class="border-l h-full overflow-auto"
+    :class="white ? 'bg-white' : 'bg-gray-25'"
+  >
     <!-- Quick edit Tool bar -->
     <div class="flex items-center justify-between px-4 border-b h-row-largest">
       <!-- Close Button and Status Text -->
@@ -57,7 +60,7 @@
         :letter-placeholder="doc[titleField.fieldname]?.[0] ?? null"
       />
       <FormControl
-        input-class="text-center h-8"
+        input-class="text-center h-8 bg-transparent"
         ref="titleControl"
         v-if="titleField"
         :df="titleField"
@@ -101,6 +104,7 @@ export default {
     name: String,
     schemaName: String,
     defaults: String,
+    white: { type: Boolean, default: false },
     hideFields: { type: Array, default: () => [] },
     showFields: { type: Array, default: () => [] },
   },

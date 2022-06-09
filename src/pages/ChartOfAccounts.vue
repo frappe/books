@@ -71,12 +71,10 @@
         <div
           v-if="account.addingAccount || account.addingGroupAccount"
           class="
-            mt-2
             px-4
-            py-2
+            h-row-mid
             cursor-pointer
-            hover:bg-gray-100
-            rounded-md
+            hover:bg-gray-50
             group
             flex
             items-center

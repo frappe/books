@@ -7,11 +7,11 @@
       <!-- Chart Legend -->
       <div class="flex text-base gap-8" v-if="hasData">
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-sm inline-block bg-blue-500" />
+          <span class="w-3 h-3 rounded-sm inline-block bg-blue-400" />
           <span class="text-gray-900">{{ t`Inflow` }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-sm inline-block bg-gray-500" />
+          <span class="w-3 h-3 rounded-sm inline-block bg-pink-400" />
           <span class="text-gray-900">{{ t`Outflow` }}</span>
         </div>
       </div>
@@ -28,7 +28,7 @@
 
     <!-- Line Chart -->
     <LineChart
-    class="mt-4"
+      class="mt-4"
       v-if="chartData.points.length"
       :aspect-ratio="4.15"
       :colors="chartData.colors"
@@ -48,6 +48,7 @@ import { ModelNameEnum } from 'models/types';
 import LineChart from 'src/components/Charts/LineChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax } from 'src/utils/chart';
+import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getMapFromList } from 'utils/';
 import PeriodSelector from './PeriodSelector';
@@ -76,10 +77,10 @@ export default {
   computed: {
     chartData() {
       let data = this.data;
-      let colors = ['#2490EF', '#B7BFC6'];
+      let colors = [uicolors.blue['400'], uicolors.pink['400']];
       if (!this.hasData) {
         data = dummyData;
-        colors = ['#E9EBED', '#DFE1E2'];
+        colors = [uicolors.gray['200'], uicolors.gray['100']];
       }
 
       const xLabels = data.map((cf) => cf['yearmonth']);

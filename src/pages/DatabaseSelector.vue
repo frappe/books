@@ -1,13 +1,13 @@
 <template>
   <div
-    class="flex-1 flex justify-center items-center"
+    class="flex-1 flex justify-center items-center bg-gray-25"
     :class="{
       'pointer-events-none': loadingDatabase,
       'window-drag': platform !== 'Windows',
     }"
   >
     <div
-      class="w-full w-form shadow-lg rounded-lg border relative"
+      class="w-full w-form shadow-lg rounded-lg border relative bg-white"
       style="height: 700px"
     >
       <!-- Welcome to Frappe Books -->
@@ -28,7 +28,7 @@
       <div
         @click="newDatabase"
         class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
-        :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
+        :class="creatingDemo ? '' : 'hover:bg-gray-50 cursor-pointer'"
       >
         <div class="w-8 h-8 rounded-full bg-blue-500 relative flex-center">
           <feather-icon name="plus" class="text-white w-5 h-5" />
@@ -48,7 +48,7 @@
       <div
         @click="existingDatabase"
         class="px-4 h-row-largest flex flex-row items-center gap-4 p-2"
-        :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
+        :class="creatingDemo ? '' : 'hover:bg-gray-50 cursor-pointer'"
       >
         <div class="w-8 h-8 rounded-full bg-green-500 relative flex-center">
           <feather-icon name="upload" class="w-4 h-4 text-white" />
@@ -68,7 +68,7 @@
       <div class="overflow-y-auto" style="max-height: 340px">
         <div
           class="h-row-largest px-4 flex gap-4 items-center"
-          :class="creatingDemo ? '' : 'hover:bg-gray-100 cursor-pointer'"
+          :class="creatingDemo ? '' : 'hover:bg-gray-50 cursor-pointer'"
           v-for="(file, i) in files"
           :key="file.dbPath"
           @click="selectFile(file)"

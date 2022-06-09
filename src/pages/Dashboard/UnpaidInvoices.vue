@@ -64,6 +64,8 @@
             :class="
               invoice.count && invoice.color == 'blue'
                 ? 'bg-blue-200'
+                : invoice.hasData
+                ? 'bg-pink-200'
                 : 'bg-gray-200'
             "
           ></div>
@@ -71,8 +73,10 @@
             class="absolute inset-0 h-4"
             :class="
               invoice.count && invoice.color == 'blue'
-                ? 'bg-blue-500'
-                : 'bg-gray-500'
+                ? 'bg-blue-400'
+                : invoice.hasData
+                ? 'bg-pink-400'
+                : 'bg-gray-400'
             "
             :style="`width: ${invoice.barWidth}%`"
           ></div>
@@ -107,6 +111,7 @@ import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
 import MouseFollower from 'src/components/MouseFollower.vue';
 import { fyo } from 'src/initFyo';
+import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { routeTo } from 'src/utils/ui';
 import PeriodSelector from './PeriodSelector.vue';
@@ -122,7 +127,7 @@ export default {
   },
   data: () => ({
     idx: -1,
-    colors: ['#33A1FF', '#B7BFC6'],
+    colors: [uicolors.blue['400'], uicolors.pink['400']],
     invoices: [
       {
         title: t`Sales Invoices`,

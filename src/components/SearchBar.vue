@@ -1,26 +1,13 @@
 <template>
   <div>
     <!-- Search Bar Button -->
-    <button
-      @click="open"
-      class="
-        px-2
-        h-8
-        flex
-        items-center
-        rounded-md
-        text-sm
-        text-gray-900
-        bg-gray-100
-      "
-      :padding="false"
-    >
+    <Button @click="open" class="px-2" :padding="false">
       <feather-icon name="search" class="w-4 h-4 mr-1 text-gray-800" />
       <p>{{ t`Search` }}</p>
       <div class="text-gray-500 px-1 ml-4 text-sm">
         {{ modKey('k') }}
       </div>
-    </button>
+    </Button>
   </div>
 
   <!-- Search Modal -->
@@ -123,7 +110,7 @@
           </button>
         </div>
         <button
-          class="hover:bg-gray-100 px-2 py-0.5 rounded text-gray-800"
+          class="hover:bg-gray-50 px-2 py-0.5 rounded text-gray-800"
           @click="showMore = !showMore"
         >
           {{ showMore ? t`Less Filters` : t`More Filters` }}
@@ -212,6 +199,7 @@ import { getGroupLabelMap, searchGroups } from 'src/utils/search';
 import { useKeys } from 'src/utils/vueUtils';
 import { getIsNullOrUndef } from 'utils/';
 import { nextTick, watch } from 'vue';
+import Button from './Button.vue';
 import Modal from './Modal.vue';
 
 export default {
@@ -231,7 +219,7 @@ export default {
     };
   },
   inject: ['searcher'],
-  components: { Modal },
+  components: { Modal, Button },
   async mounted() {
     if (fyo.store.isDevelopment) {
       window.search = this;

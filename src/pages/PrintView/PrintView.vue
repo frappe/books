@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
-    <div class="flex flex-col flex-1">
-      <PageHeader :backLink="true" class="bg-white z-10" :border="false">
+    <div class="flex flex-col flex-1 bg-gray-25">
+      <PageHeader :backLink="true" class="z-10" :border="false">
         <Button
           class="text-gray-900 text-xs"
           @click="showCustomiser = !showCustomiser"
@@ -19,7 +19,7 @@
         class="flex justify-center flex-1 overflow-auto relative"
       >
         <div
-          class="h-full shadow mb-4 absolute"
+          class="h-full shadow mb-4 absolute bg-white"
           style="
             width: 21cm;
             height: 29.7cm;

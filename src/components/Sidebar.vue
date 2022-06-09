@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-2 h-full flex justify-between flex-col"
+    class="p-2 h-full flex justify-between flex-col bg-gray-25"
     :class="{
       'window-drag': platform !== 'Windows',
     }"
@@ -34,9 +34,9 @@
             items-center
             rounded-md
             cursor-pointer
-            hover:bg-white
+            hover:bg-gray-100
           "
-          :class="isActiveGroup(group) && !group.items ? 'bg-white' : ''"
+          :class="isActiveGroup(group) && !group.items ? 'bg-gray-100' : ''"
           @click="onGroupClick(group)"
         >
           <Icon
@@ -66,7 +66,7 @@
               pl-10
               rounded
               cursor-pointer
-              hover:bg-white
+              hover:bg-gray-100
             "
             :class="itemActiveClass(item)"
             @click="onItemClick(item)"
@@ -189,7 +189,7 @@ export default {
       let routeMatch = currentRoute === item.route;
       let schemaNameMatch =
         item.schemaName && params.schemaName === item.schemaName;
-      return routeMatch || schemaNameMatch ? 'bg-white text-blue-500' : '';
+      return routeMatch || schemaNameMatch ? 'bg-gray-100 text-blue-500' : '';
     },
     isActiveGroup(group) {
       return this.activeGroup && group.label === this.activeGroup.label;
