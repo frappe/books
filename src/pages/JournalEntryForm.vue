@@ -1,44 +1,30 @@
 <template>
-  <div class="flex flex-col">
+  <FormContainer :backLink="true">
     <!-- Page Header (Title, Buttons, etc) -->
-    <PageHeader :backLink="true">
-      <template v-if="doc">
-        <StatusBadge :status="status" />
-        <DropdownWithActions :actions="actions" />
-        <Button
-          v-if="doc?.notInserted || doc?.dirty"
-          type="primary"
-          class="text-white text-xs"
-          @click="sync"
-        >
-          {{ t`Save` }}
-        </Button>
-        <Button
-          v-else-if="!doc.dirty && !doc.notInserted && !doc.submitted"
-          type="primary"
-          class="text-white text-xs"
-          @click="submit"
-        >
-          {{ t`Submit` }}
-        </Button>
-      </template>
-    </PageHeader>
+    <template #header v-if="doc">
+      <StatusBadge :status="status" />
+      <DropdownWithActions :actions="actions" />
+      <Button
+        v-if="doc?.notInserted || doc?.dirty"
+        type="primary"
+        class="text-white text-xs"
+        @click="sync"
+      >
+        {{ t`Save` }}
+      </Button>
+      <Button
+        v-else-if="!doc.dirty && !doc.notInserted && !doc.submitted"
+        type="primary"
+        class="text-white text-xs"
+        @click="submit"
+      >
+        {{ t`Submit` }}
+      </Button>
+    </template>
 
     <!-- Journal Entry Form -->
-    <div
-      class="
-        self-center
-        border
-        rounded-lg
-        shadow
-        flex flex-col
-        mt-2
-        w-form
-        h-form
-      "
-      v-if="doc"
-    >
-      <div class="p-4 text-2xl font-semibold flex justify-between">
+    <template #body v-if="doc">
+      <div class="px-4 text-xl font-semibold flex justify-between h-row-large items-center">
         <h1>
           {{ doc.notInserted ? t`New Entry` : doc.name }}
         </h1>
@@ -112,7 +98,7 @@
       <!-- Footer -->
       <div v-if="doc.accounts?.length ?? 0" class="mt-auto">
         <hr />
-        <div class="flex justify-between text-base m-6 gap-12">
+        <div class="flex justify-between text-base m-4 gap-12">
           <!-- User Remark -->
           <FormControl
             v-if="!doc.submitted || doc.userRemark"
@@ -139,18 +125,18 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </FormContainer>
 </template>
 <script>
 import { computed } from '@vue/reactivity';
 import { ModelNameEnum } from 'models/types';
-import Button from 'src/components/Button';
+import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import Table from 'src/components/Controls/Table.vue';
-import DropdownWithActions from 'src/components/DropdownWithActions';
-import PageHeader from 'src/components/PageHeader';
-import StatusBadge from 'src/components/StatusBadge';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
+import FormContainer from 'src/components/FormContainer.vue';
+import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import {
 getActionsForDocument,
@@ -163,12 +149,12 @@ export default {
   name: 'JournalEntryForm',
   props: ['name'],
   components: {
-    PageHeader,
     Button,
     DropdownWithActions,
     StatusBadge,
     FormControl,
     Table,
+    FormContainer,
   },
   provide() {
     return {

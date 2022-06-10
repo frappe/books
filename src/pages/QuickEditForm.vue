@@ -1,7 +1,10 @@
 <template>
-  <div class="border-l h-full overflow-auto">
+  <div
+    class="border-l h-full overflow-auto"
+    :class="white ? 'bg-white' : 'bg-gray-25'"
+  >
     <!-- Quick edit Tool bar -->
-    <div class="flex items-center justify-between px-4 pt-4">
+    <div class="flex items-center justify-between px-4 border-b h-row-largest">
       <!-- Close Button and Status Text -->
       <div class="flex items-center">
         <Button :icon="true" @click="routeToPrevious">
@@ -43,7 +46,11 @@
     </div>
 
     <!-- Name and image -->
-    <div class="p-4 gap-2 flex-center flex flex-col items-center" v-if="doc">
+    <div
+      class="px-4 flex-center flex flex-col items-center gap-1.5"
+      style="height: calc(var(--h-row-mid) * 2 + 1px)"
+      v-if="doc"
+    >
       <FormControl
         v-if="imageField"
         :df="imageField"
@@ -53,7 +60,7 @@
         :letter-placeholder="doc[titleField.fieldname]?.[0] ?? null"
       />
       <FormControl
-        input-class="text-center"
+        input-class="text-center h-8 bg-transparent"
         ref="titleControl"
         v-if="titleField"
         :df="titleField"
@@ -97,6 +104,7 @@ export default {
     name: String,
     schemaName: String,
     defaults: String,
+    white: { type: Boolean, default: false },
     hideFields: { type: Array, default: () => [] },
     showFields: { type: Array, default: () => [] },
   },

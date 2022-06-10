@@ -357,6 +357,6 @@ export default {
 
 <style scoped>
 rect:hover {
-  filter: brightness(115%);
+  filter: brightness(105%);
 }
 </style>

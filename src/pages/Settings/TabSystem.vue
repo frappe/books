@@ -8,10 +8,15 @@
       :emit-change="true"
       @change="forwardChangeEvent"
     />
-    <LanguageSelector
-      class="text-sm w-28 bg-gray-100 rounded-md mb-6 ml-6"
-      input-class="py-1.5 bg-transparent"
-    />
+    <div class="flex p-4 justify-between">
+      <LanguageSelector
+        class="text-sm w-28 bg-gray-100 rounded-md"
+        input-class="py-1.5 bg-transparent"
+      />
+      <p class="mt-auto text-gray-600 text-base select-none">
+        {{ `v${fyo.store.appVersion}` }}
+      </p>
+    </div>
   </div>
 </template>
 

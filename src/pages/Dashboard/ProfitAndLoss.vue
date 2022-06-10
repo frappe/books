@@ -11,7 +11,9 @@
       </template>
     </SectionHeader>
     <BarChart
+      class="mt-4"
       v-if="hasData"
+      :aspect-ratio="2.05"
       :colors="chartData.colors"
       :points="chartData.points"
       :x-labels="chartData.xLabels"
@@ -31,6 +33,7 @@
 import BarChart from 'src/components/Charts/BarChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
+import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getValueMapFromList } from 'utils';
 import PeriodSelector from './PeriodSelector';
@@ -57,7 +60,9 @@ export default {
   computed: {
     chartData() {
       const points = [this.data.map((d) => d.balance)];
-      const colors = [{ positive: '#2490EF', negative: '#B7BFC6' }];
+      const colors = [
+        { positive: uicolors.blue['500'], negative: uicolors.pink['500'] },
+      ];
       const format = (value) => fyo.format(value ?? 0, 'Currency');
       const yMax = getYMax(points);
       const yMin = getYMin(points);

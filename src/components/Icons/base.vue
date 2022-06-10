@@ -1,14 +1,16 @@
 <script>
+import { uicolors } from 'src/utils/colors';
+
 export default {
   name: 'IconBase',
   props: ['active'],
   computed: {
     lightColor() {
-      return this.active ? '#8CC0F1' : '#A1ABB4';
+      return this.active ? uicolors.blue['300'] : uicolors.gray['400'];
     },
     darkColor() {
-      return this.active ? '#4794E9' : '#415668';
-    }
-  }
+      return this.active ? uicolors.blue['500'] : uicolors.gray['700'];
+    },
+  },
 };
 </script>

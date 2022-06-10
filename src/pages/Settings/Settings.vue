@@ -1,22 +1,8 @@
 <template>
-  <div class="flex flex-col overflow-hidden">
-    <PageHeader :title="t`Settings`" />
-    <div
-      class="
-        border
-        rounded-lg
-        shadow
-        h-full
-        flex flex-col
-        justify-between
-        self-center
-        mt-2
-        w-form
-        h-form
-      "
-    >
+  <FormContainer :title="t`Settings`">
+    <template #body>
       <!-- Icon Tab Bar -->
-      <div class="flex justify-around mb-4 mt-6">
+      <div class="flex justify-around mb-2 mt-4">
         <div
           v-for="(tab, i) in tabs"
           :key="tab.label"
@@ -39,13 +25,14 @@
       <div class="flex-1 overflow-y-auto">
         <component :is="activeTabComponent" @change="handleChange" />
       </div>
-    </div>
-  </div>
+    </template>
+  </FormContainer>
 </template>
 <script>
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import Button from 'src/components/Button.vue';
+import FormContainer from 'src/components/FormContainer.vue';
 import Icon from 'src/components/Icon.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import Row from 'src/components/Row.vue';
@@ -64,6 +51,7 @@ export default {
     StatusBadge,
     Button,
     Row,
+    FormContainer,
   },
   data() {
     return {

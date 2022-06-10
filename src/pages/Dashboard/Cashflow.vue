@@ -2,17 +2,17 @@
   <div>
     <!-- Title and Period Selector -->
     <div class="flex items-center justify-between">
-      <div class="font-medium">{{ t`Cashflow` }}</div>
+      <div class="font-medium text-base">{{ t`Cashflow` }}</div>
 
       <!-- Chart Legend -->
-      <div class="flex text-base" v-if="hasData">
-        <div class="flex items-center">
-          <span class="w-3 h-3 rounded-sm inline-block bg-blue-500"></span>
-          <span class="ml-2 text-gray-900">{{ t`Inflow` }}</span>
+      <div class="flex text-base gap-8" v-if="hasData">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-sm inline-block bg-blue-500" />
+          <span class="text-gray-900">{{ t`Inflow` }}</span>
         </div>
-        <div class="flex items-center ml-6">
-          <span class="w-3 h-3 rounded-sm inline-block bg-gray-500"></span>
-          <span class="ml-2 text-gray-900">{{ t`Outflow` }}</span>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-sm inline-block bg-pink-500" />
+          <span class="text-gray-900">{{ t`Outflow` }}</span>
         </div>
       </div>
       <div v-else class="w-16 h-5 bg-gray-200 rounded" />
@@ -28,7 +28,9 @@
 
     <!-- Line Chart -->
     <LineChart
+      class="mt-4"
       v-if="chartData.points.length"
+      :aspect-ratio="4.15"
       :colors="chartData.colors"
       :points="chartData.points"
       :x-labels="chartData.xLabels"
@@ -46,6 +48,7 @@ import { ModelNameEnum } from 'models/types';
 import LineChart from 'src/components/Charts/LineChart.vue';
 import { fyo } from 'src/initFyo';
 import { formatXLabels, getYMax } from 'src/utils/chart';
+import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getMapFromList } from 'utils/';
 import PeriodSelector from './PeriodSelector';
@@ -74,10 +77,10 @@ export default {
   computed: {
     chartData() {
       let data = this.data;
-      let colors = ['#2490EF', '#B7BFC6'];
+      let colors = [uicolors.blue['500'], uicolors.pink['500']];
       if (!this.hasData) {
         data = dummyData;
-        colors = ['#E9EBED', '#DFE1E2'];
+        colors = [uicolors.gray['200'], uicolors.gray['100']];
       }
 
       const xLabels = data.map((cf) => cf['yearmonth']);

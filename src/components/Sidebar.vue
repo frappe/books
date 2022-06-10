@@ -1,6 +1,6 @@
 <template>
   <div
-    class="p-2 h-full flex justify-between flex-col bg-gray-100"
+    class="p-2 h-full flex justify-between flex-col bg-gray-25"
     :class="{
       'window-drag': platform !== 'Windows',
     }"
@@ -13,30 +13,15 @@
       >
         <h6
           class="
-            text-xl
             font-semibold
             whitespace-nowrap
             overflow-auto
             no-scrollbar
             select-none
-            w-32
           "
         >
           {{ companyName }}
         </h6>
-        <feather-icon
-          class="
-            w-5
-            h-5
-            ml-1
-            stroke-2
-            cursor-pointer
-            text-gray-600
-            hover:text-gray-800
-          "
-          name="chevron-down"
-          @click="$emit('change-db-file')"
-        />
       </div>
 
       <!-- Sidebar Items -->
@@ -49,9 +34,9 @@
             items-center
             rounded-md
             cursor-pointer
-            hover:bg-white
+            hover:bg-gray-100
           "
-          :class="isActiveGroup(group) && !group.items ? 'bg-white' : ''"
+          :class="isActiveGroup(group) && !group.items ? 'bg-gray-100' : ''"
           @click="onGroupClick(group)"
         >
           <Icon
@@ -81,7 +66,7 @@
               pl-10
               rounded
               cursor-pointer
-              hover:bg-white
+              hover:bg-gray-100
             "
             :class="itemActiveClass(item)"
             @click="onItemClick(item)"
@@ -93,17 +78,42 @@
     </div>
 
     <!-- Report Issue and App Version -->
-    <div class="px-5 window-no-drag">
-      <p v-if="fyo.store.isDevelopment" class="text-sm text-gray-600">
-        Development
-      </p>
+    <div class="window-no-drag flex flex-col gap-2 p-2">
       <button
-        class="pb-1 text-sm text-gray-600 hover:text-gray-800 w-full text-left"
+        class="
+          flex
+          text-sm text-gray-600
+          hover:text-gray-800
+          gap-1
+          items-center
+        "
         @click="() => reportIssue()"
       >
-        {{ t`Report Issue` }}
+        <feather-icon name="flag" class="h-4 w-4" />
+        <p>
+          {{ t`Report Issue` }}
+        </p>
       </button>
-      <p class="pb-3 text-sm text-gray-600 select-none">v{{ appVersion }}</p>
+
+      <button
+        class="
+          flex
+          text-sm text-gray-600
+          hover:text-gray-800
+          gap-1
+          items-center
+        "
+        @click="$emit('change-db-file')"
+      >
+        <feather-icon name="database" class="h-4 w-4" />
+        <p>{{ t`Change DB` }}</p>
+      </button>
+      <p
+        v-if="fyo.store.isDevelopment"
+        class="text-xs text-gray-500 select-none"
+      >
+        dev mode
+      </p>
     </div>
   </div>
 </template>
@@ -179,7 +189,7 @@ export default {
       let routeMatch = currentRoute === item.route;
       let schemaNameMatch =
         item.schemaName && params.schemaName === item.schemaName;
-      return routeMatch || schemaNameMatch ? 'bg-white text-blue-500' : '';
+      return routeMatch || schemaNameMatch ? 'bg-gray-100 text-blue-500' : '';
     },
     isActiveGroup(group) {
       return this.activeGroup && group.label === this.activeGroup.label;

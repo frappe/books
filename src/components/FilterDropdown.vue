@@ -4,7 +4,7 @@
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
           <Icon name="filter" size="12" class="stroke-current text-gray-800" />
-          <span class="ml-2 text-base text-black">
+          <span class="ml-1">
             <template v-if="activeFilterCount > 0">
               {{ filterAppliedMessage }}
             </template>

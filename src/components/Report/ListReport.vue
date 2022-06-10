@@ -4,9 +4,12 @@
     <div class="overflow-hidden" v-if="dataSlice.length">
       <!--Title Row -->
       <div
-        class="w-full overflow-x-hidden flex items-center border-b"
+        class="w-full overflow-x-hidden flex items-center border-b px-4"
         ref="titlerow"
-        :style="{ height: `${hconst}px`, paddingRight: '8px' }"
+        :style="{
+          height: `${hconst}px`,
+          paddingRight: 'calc(var(--w-scrollbar) + 1rem)',
+        }"
       >
         <div
           v-for="(col, c) in report.columns"
@@ -33,11 +36,14 @@
         <template v-for="(row, r) in dataSlice" :key="r + '-row'">
           <div
             v-if="!row.folded"
-            class="flex items-center w-max"
-            :style="{ height: `${hconst}px` }"
+            class="flex items-center w-max px-4"
+            :style="{
+              height: `${hconst}px`,
+              minWidth: `calc(var(--w-desk) - var(--w-scrollbar))`,
+            }"
             :class="[
               r !== pageEnd - 1 ? 'border-b' : '',
-              row.isGroup ? 'hover:bg-gray-100 cursor-pointer' : '',
+              row.isGroup ? 'hover:bg-gray-50 cursor-pointer' : '',
             ]"
             @click="() => onRowClick(row, r)"
           >
@@ -70,6 +76,7 @@
       <hr />
       <Paginator
         :item-count="report?.reportData?.length ?? 0"
+        class="px-4"
         @index-change="setPageIndices"
       />
     </div>
@@ -140,7 +147,7 @@ export default defineComponent({
       }
 
       if (cell.italics) {
-        styles['font-style'] = 'italic';
+        styles['font-style'] = 'oblique 15deg';
       }
 
       if (i === 0) {

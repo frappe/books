@@ -61,9 +61,7 @@ export default {
   },
   async mounted() {
     this.doc = await fyo.doc.getDoc('PrintSettings');
-    this.companyName = (
-      await fyo.doc.getDoc('AccountingSettings')
-    ).companyName;
+    this.companyName = (await fyo.doc.getDoc('AccountingSettings')).companyName;
   },
   computed: {
     fields() {

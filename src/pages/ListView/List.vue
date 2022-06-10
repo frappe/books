@@ -1,19 +1,26 @@
 <template>
-  <div class="mx-4 text-base flex flex-col overflow-y-hidden">
+  <div class="text-base flex flex-col overflow-y-hidden">
     <!-- Title Row -->
     <div class="flex items-center">
       <p class="w-8 text-right mr-4 text-gray-700">#</p>
       <Row
-        class="flex-1 text-gray-700 border-none"
+        class="flex-1 text-gray-700 border-none h-row-mid"
         :columnCount="columns.length"
         gap="1rem"
       >
         <div
           v-for="(column, i) in columns"
           :key="column.label"
-          class="py-4 overflow-x-auto no-scrollbar whitespace-nowrap"
+          class="
+            overflow-x-auto
+            no-scrollbar
+            whitespace-nowrap
+            h-row
+            items-center
+            flex
+          "
           :class="{
-            'text-right': isNumeric(column.fieldtype),
+            'ml-auto': isNumeric(column.fieldtype),
             'pr-4': i === columns.length - 1,
           }"
         >
@@ -27,13 +34,13 @@
     <div class="overflow-y-auto" v-if="dataSlice.length !== 0">
       <div v-for="(doc, i) in dataSlice" :key="doc.name">
         <!-- Row Content -->
-        <div class="flex hover:bg-gray-100 items-center">
+        <div class="flex hover:bg-gray-50 items-center">
           <p class="w-8 text-right mr-4 text-gray-900">
             {{ i + pageStart + 1 }}
           </p>
           <Row
             gap="1rem"
-            class="cursor-pointer text-gray-900 flex-1 border-none"
+            class="cursor-pointer text-gray-900 flex-1 border-none h-row-mid"
             @click="openForm(doc)"
             :columnCount="columns.length"
           >
@@ -49,14 +56,18 @@
             />
           </Row>
         </div>
-        <hr v-if="i !== dataSlice.length - 1" />
+        <hr v-if="!(i === dataSlice.length - 1 && i > 13)" />
       </div>
     </div>
 
     <!-- Pagination Footer -->
     <div class="mt-auto" v-if="data?.length">
       <hr />
-      <Paginator :item-count="data.length" @index-change="setPageIndices" />
+      <Paginator
+        :item-count="data.length"
+        @index-change="setPageIndices"
+        class="px-4"
+      />
     </div>
 
     <!-- Empty State -->

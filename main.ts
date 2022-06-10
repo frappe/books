@@ -26,7 +26,7 @@ export class Main {
   mainWindow: BrowserWindow | null = null;
 
   WIDTH = 1200;
-  HEIGHT = process.platform === 'win32' ? 926 : 900;
+  HEIGHT = process.platform === 'win32' ? 826 : 800;
 
   constructor() {
     this.icon = this.isDevelopment
@@ -77,8 +77,6 @@ export class Main {
     const options: BrowserWindowConstructorOptions = {
       width: this.WIDTH,
       height: this.HEIGHT,
-      minWidth: this.WIDTH,
-      minHeight: this.HEIGHT,
       title: this.title,
       titleBarStyle: 'hidden',
       trafficLightPosition: { x: 16, y: 16 },

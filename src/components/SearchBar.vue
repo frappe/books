@@ -1,29 +1,13 @@
 <template>
   <div>
     <!-- Search Bar Button -->
-    <button
-      @click="open"
-      class="
-        focus:outline-none
-        shadow-button
-        flex flex-row
-        gap-1
-        text-base text-gray-700
-        bg-gray-100
-        rounded-md
-        h-8
-        w-48
-        px-3
-        items-center
-        hover:bg-gray-200
-      "
-    >
-      <feather-icon name="search" class="w-4 h-4" />
+    <Button @click="open" class="px-2" :padding="false">
+      <feather-icon name="search" class="w-4 h-4 mr-1 text-gray-800" />
       <p>{{ t`Search` }}</p>
-      <div class="text-gray-400 ml-auto text-sm">
+      <div class="text-gray-500 px-1 ml-4 text-sm">
         {{ modKey('k') }}
       </div>
-    </button>
+    </Button>
   </div>
 
   <!-- Search Modal -->
@@ -71,7 +55,7 @@
         <div
           v-if="si.group === 'Docs'"
           class="flex w-full justify-between px-3 items-center"
-          style="height: 48px; margin-left: -2px"
+          style="height: var(--h-row-mid); margin-left: -2px"
         >
           <div class="flex items-center">
             <p class="text-gray-900">
@@ -93,7 +77,7 @@
         <div
           v-else
           class="flex flex-row w-full justify-between px-3 items-center"
-          style="height: 48px; margin-left: -2px"
+          style="height: var(--h-row-mid); margin-left: -2px"
         >
           <p class="text-gray-900">
             {{ si.label }}
@@ -126,7 +110,7 @@
           </button>
         </div>
         <button
-          class="hover:bg-gray-100 px-2 py-0.5 rounded text-gray-800"
+          class="hover:bg-gray-50 px-2 py-0.5 rounded text-gray-800"
           @click="showMore = !showMore"
         >
           {{ showMore ? t`Less Filters` : t`More Filters` }}
@@ -215,6 +199,7 @@ import { getGroupLabelMap, searchGroups } from 'src/utils/search';
 import { useKeys } from 'src/utils/vueUtils';
 import { getIsNullOrUndef } from 'utils/';
 import { nextTick, watch } from 'vue';
+import Button from './Button.vue';
 import Modal from './Modal.vue';
 
 export default {
@@ -234,7 +219,7 @@ export default {
     };
   },
   inject: ['searcher'],
-  components: { Modal },
+  components: { Modal, Button },
   async mounted() {
     if (fyo.store.isDevelopment) {
       window.search = this;

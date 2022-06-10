@@ -53,6 +53,22 @@ html {
   display: none;
 }
 
+:root {
+  --w-app: 1200px;
+  --w-sidebar: 12rem;
+  --w-desk: calc(100vw - var(--w-sidebar));
+  --w-desk-fixed: calc(var(--w-app) - var(--w-sidebar));
+  --w-scrollbar: 0.5rem;
+
+  /* Row Heights */
+  --h-row-smallest: 2rem;
+  --h-row-small: 2.5rem;
+  --h-row-mid: 3rem;
+  --h-row-large: 3.5rem;
+  --h-row-largest: 4rem;
+  --h-app: 800px;
+}
+
 .w-form {
   width: 600px;
 }
@@ -61,10 +77,30 @@ html {
   height: 800px;
 }
 
+.h-row-smallest {
+  height: var(--h-row-smallest);
+}
+
+.h-row-small {
+  height: var(--h-row-small);
+}
+
+.h-row-mid {
+  height: var(--h-row-mid);
+}
+
+.h-row-large {
+  height: var(--h-row-large);
+}
+
+.h-row-largest {
+  height: var(--h-row-largest);
+}
+
 .w-sidebar {
-  width: 12rem;
+  width: var(--w-sidebar);
 }
 
 .w-desk {
-  width: calc(100vw - 12rem);
+  width: var(--w-desk);
 }

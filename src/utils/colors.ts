@@ -1,3 +1,7 @@
+import { theme } from '../../tailwind.config';
+
+export const uicolors = theme.extend.colors;
+
 export const indicators = {
   GRAY: 'grey',
   GREY: 'grey',
@@ -34,7 +38,8 @@ const getValidColor = (color: string) => {
 };
 
 export function getBgColorClass(color: string) {
-  return `bg-${getValidColor(color)}-100`;
+  const vcolor = getValidColor(color);
+  return `bg-${vcolor}-100`;
 }
 
 export function getColorClass(color: string, type: 'bg' | 'text', value = 300) {
