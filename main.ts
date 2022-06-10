@@ -77,8 +77,6 @@ export class Main {
     const options: BrowserWindowConstructorOptions = {
       width: this.WIDTH,
       height: this.HEIGHT,
-      minWidth: this.WIDTH,
-      minHeight: this.HEIGHT,
       title: this.title,
       titleBarStyle: 'hidden',
       trafficLightPosition: { x: 16, y: 16 },
