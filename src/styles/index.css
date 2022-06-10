@@ -54,10 +54,11 @@ html {
 }
 
 :root {
+  --w-app: 1200px;
   --w-sidebar: 12rem;
-  --w-desk: calc(100vw - 12rem);
+  --w-desk: calc(100vw - var(--w-sidebar));
+  --w-desk-fixed: calc(var(--w-app) - var(--w-sidebar));
   --w-scrollbar: 0.5rem;
-  
 
   /* Row Heights */
   --h-row-smallest: 2rem;
@@ -65,6 +66,7 @@ html {
   --h-row-mid: 3rem;
   --h-row-large: 3.5rem;
   --h-row-largest: 4rem;
+  --h-app: 800px;
 }
 
 .w-form {

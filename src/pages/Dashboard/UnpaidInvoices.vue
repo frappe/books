@@ -73,9 +73,9 @@
             class="absolute inset-0 h-4"
             :class="
               invoice.count && invoice.color == 'blue'
-                ? 'bg-blue-400'
+                ? 'bg-blue-500'
                 : invoice.hasData
-                ? 'bg-pink-400'
+                ? 'bg-pink-500'
                 : 'bg-gray-400'
             "
             :style="`width: ${invoice.barWidth}%`"

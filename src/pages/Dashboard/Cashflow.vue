@@ -7,11 +7,11 @@
       <!-- Chart Legend -->
       <div class="flex text-base gap-8" v-if="hasData">
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-sm inline-block bg-blue-400" />
+          <span class="w-3 h-3 rounded-sm inline-block bg-blue-500" />
           <span class="text-gray-900">{{ t`Inflow` }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3 h-3 rounded-sm inline-block bg-pink-400" />
+          <span class="w-3 h-3 rounded-sm inline-block bg-pink-500" />
           <span class="text-gray-900">{{ t`Outflow` }}</span>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default {
   computed: {
     chartData() {
       let data = this.data;
-      let colors = [uicolors.blue['400'], uicolors.pink['400']];
+      let colors = [uicolors.blue['500'], uicolors.pink['500']];
       if (!this.hasData) {
         data = dummyData;
         colors = [uicolors.gray['200'], uicolors.gray['100']];

@@ -57,9 +57,7 @@ module.exports = {
         'span-full': '1 / -1',
       },
       colors: {
-        brand: '#2490EF',
-        'brand-100': '#f4f9ff',
-        black: '#112B42',
+        black: '#1E293B',
         gray: {
           25: '#fcfcfd',
           50: '#f8f9fc',
@@ -134,7 +132,7 @@ module.exports = {
           300: '#99d0ff',
           400: '#66b8ff',
           500: '#33a1ff',
-          600: '#0089ff',
+          600: '#2490ef',
           700: '#006ecc',
           800: '#005299',
           900: '#003766',
