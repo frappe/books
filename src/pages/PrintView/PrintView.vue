@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
-    <div class="flex flex-col flex-1">
-      <PageHeader :backLink="true" class="bg-white z-10">
+    <div class="flex flex-col flex-1 bg-gray-25">
+      <PageHeader :backLink="true" class="z-10" :border="false">
         <Button
           class="text-gray-900 text-xs"
           @click="showCustomiser = !showCustomiser"
@@ -16,15 +16,14 @@
       <!-- Printview Preview -->
       <div
         v-if="doc && printSettings"
-        class="flex justify-center flex-1 -mt-36 overflow-auto relative"
+        class="flex justify-center flex-1 overflow-auto relative"
       >
         <div
-          class="h-full shadow-lg mb-12 absolute"
+          class="h-full shadow mb-4 absolute bg-white"
           style="
             width: 21cm;
-            min-height: 29.7cm;
-            height: max-content;
-            transform: scale(0.7);
+            height: 29.7cm;
+            transform: scale(0.65) translateY(-300px);
           "
           ref="printContainer"
         >
@@ -39,13 +38,19 @@
 
     <!-- Printview Customizer -->
     <div class="border-l w-80" v-if="showCustomiser">
-      <div class="mt-4 px-4 flex items-center justify-between">
+      <div
+        class="px-4 flex items-center justify-between h-row-largest border-b"
+      >
         <h2 class="font-semibold">{{ t`Customise` }}</h2>
         <Button :icon="true" @click="showCustomiser = false">
           <feather-icon name="x" class="w-4 h-4" />
         </Button>
       </div>
-      <TwoColumnForm class="mt-4" :doc="printSettings" :autosave="true" />
+      <TwoColumnForm
+        :doc="printSettings"
+        :autosave="true"
+        class="border-none"
+      />
     </div>
   </div>
 </template>

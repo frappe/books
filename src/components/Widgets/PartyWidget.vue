@@ -1,12 +1,21 @@
 <template>
-  <div class="py-4" v-if="pendingInvoices.length">
-    <div class="px-4 text-sm text-gray-600">
+  <div v-if="pendingInvoices.length">
+    <div
+      class="
+        px-4
+        text-sm text-gray-600
+        border-b
+        flex
+        items-center
+        h-row-smallest
+      "
+    >
       {{ t`Recent Invoices` }}
     </div>
 
     <!-- Invoice List -->
     <div
-      class="px-4 py-3 border-b hover:bg-gray-100 cursor-pointer text-base"
+      class="px-4 py-4 border-b hover:bg-gray-50 cursor-pointer text-base"
       v-for="invoice in pendingInvoices"
       :key="invoice.name"
       @click="routeToForm(invoice)"
@@ -22,13 +31,13 @@
       </div>
 
       <!-- Invoice Date & Amount -->
-      <div class="flex justify-between">
+      <div class="flex justify-between text-gray-900">
         <span>
           {{ fyo.format(invoice.date, getInvoiceField(invoice, 'date')) }}
         </span>
         <div>
           <!-- Paid Amount -->
-          <span class="font-medium text-gray-900">
+          <span>
             {{
               fyo.format(
                 amountPaid(invoice),
@@ -38,7 +47,7 @@
           </span>
 
           <!-- Outstanding Amount -->
-          <span class="text-gray-600" v-if="!fullyPaid(invoice)">
+          <span class="text-gray-600 font-medium" v-if="!fullyPaid(invoice)">
             ({{
               fyo.format(
                 invoice.outstandingAmount,

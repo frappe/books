@@ -1,12 +1,23 @@
 <template>
-  <div class="my-4 mx-4 flex justify-between window-drag">
-    <h1 class="text-2xl font-bold select-none" v-if="title && !backLink">
+  <div
+    class="
+      px-4
+      flex
+      justify-between
+      window-drag
+      items-center
+      h-row-largest
+      flex-shrink-0
+    "
+    :class="border ? 'border-b' : ''"
+  >
+    <h1 class="text-xl font-semibold select-none" v-if="title && !backLink">
       {{ title }}
     </h1>
-    <BackLink v-if="backLink" class="window-no-drag"/>
+    <BackLink v-if="backLink" class="window-no-drag" />
     <div class="flex items-stretch window-no-drag gap-2">
       <slot />
-      <SearchBar v-if="!hideSearch"/>
+      <SearchBar v-if="!hideSearch" />
     </div>
   </div>
 </template>
@@ -19,6 +30,7 @@ export default {
     title: { type: String, default: '' },
     backLink: { type: Boolean, default: false },
     hideSearch: { type: Boolean, default: false },
+    border: { type: Boolean, default: true },
   },
   components: { SearchBar, BackLink },
 };

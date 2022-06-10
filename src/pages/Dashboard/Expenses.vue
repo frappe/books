@@ -6,9 +6,10 @@
         <PeriodSelector :value="period" @change="(value) => (period = value)" />
       </template>
     </SectionHeader>
+
     <div class="flex relative" v-show="hasData">
       <!-- Chart Legend -->
-      <div class="w-1/2 flex flex-col gap-5 mt-8">
+      <div class="w-1/2 flex flex-col gap-4 justify-center">
         <!-- Ledgend Item -->
         <div
           class="flex items-center text-sm"
@@ -19,7 +20,7 @@
         >
           <div class="w-3 h-3 rounded-sm flex-shrink-0" :class="d.class" />
           <p class="ml-2 overflow-x-auto whitespace-nowrap no-scrollbar w-28">
-            {{ d.account }} 
+            {{ d.account }}
           </p>
           <p class="whitespace-nowrap flex-shrink-0 ml-auto">
             {{ fyo.format(d?.total ?? 0, 'Currency') }}
@@ -27,11 +28,11 @@
         </div>
       </div>
       <DonutChart
-        class="w-1/2"
+        class="w-1/2 my-auto"
         :active="active"
         :sectors="sectors"
         :offset-x="3"
-        :thickness="11.5"
+        :thickness="10"
         :text-offset-x="6.5"
         :value-formatter="(value) => fyo.format(value, 'Currency')"
         :total-label="t`Total Spending`"
@@ -52,8 +53,9 @@
 </template>
 
 <script>
+import { truncate } from 'lodash';
 import { fyo } from 'src/initFyo';
-import theme from 'src/theme';
+import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import DonutChart from '../../components/Charts/DonutChart.vue';
 import PeriodSelector from './PeriodSelector';
@@ -72,7 +74,7 @@ export default {
     expenses: [],
   }),
   watch: {
-    period(new_, old) {
+    period() {
       this.setData();
     },
   },
@@ -89,7 +91,7 @@ export default {
     sectors() {
       return this.expenses.map(({ account, color, total }) => ({
         color,
-        label: account,
+        label: truncate(account, { length: 21 }),
         value: total,
       }));
     },
@@ -103,11 +105,11 @@ export default {
       );
 
       const shades = [
-        { class: 'bg-gray-800', hex: theme.backgroundColor.gray['800'] },
-        { class: 'bg-gray-600', hex: theme.backgroundColor.gray['600'] },
-        { class: 'bg-gray-400', hex: theme.backgroundColor.gray['400'] },
-        { class: 'bg-gray-300', hex: theme.backgroundColor.gray['300'] },
-        { class: 'bg-gray-200', hex: theme.backgroundColor.gray['200'] },
+        { class: 'bg-pink-500', hex: uicolors.pink['500'] },
+        { class: 'bg-pink-400', hex: uicolors.pink['400'] },
+        { class: 'bg-pink-300', hex: uicolors.pink['300'] },
+        { class: 'bg-pink-200', hex: uicolors.pink['200'] },
+        { class: 'bg-pink-100', hex: uicolors.pink['100'] },
       ];
 
       topExpenses = topExpenses

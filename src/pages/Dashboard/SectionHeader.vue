@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-baseline justify-between">
-    <span class="font-medium"><slot name="title"></slot></span>
+    <span class="font-medium text-base"><slot name="title"></slot></span>
     <slot name="action"></slot>
   </div>
 </template>

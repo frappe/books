@@ -1,15 +1,21 @@
 <template>
-  <div class="flex flex-col">
+  <div class="overflow-hidden h-screen" style="width: var(--w-desk)">
     <PageHeader :title="t`Dashboard`" />
 
-    <div class="mx-4 overflow-y-auto no-scrollbar flex flex-col gap-8">
-      <Cashflow class="" />
-      <hr />
-      <UnpaidInvoices />
-      <hr />
-      <div class="flex gap-8">
-        <ProfitAndLoss class="w-full" />
-        <Expenses class="w-full" />
+    <div class="no-scrollbar overflow-auto h-full">
+      <div
+        style="min-width: var(--w-desk-fixed); min-height: var(--h-app)"
+        class="overflow-auto"
+      >
+        <Cashflow class="p-4" />
+        <hr />
+        <UnpaidInvoices />
+        <hr />
+        <div class="flex">
+          <ProfitAndLoss class="w-full p-4 border-r" />
+          <Expenses class="w-full p-4" />
+        </div>
+        <hr />
       </div>
     </div>
   </div>

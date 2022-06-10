@@ -20,6 +20,8 @@
         :key="`${df.fieldname}-inline`"
       >
         <TwoColumnForm
+          class="overflow-auto"
+          style="max-height: calc((var(--h-row-mid) + 1px) * 3 - 1px)"
           ref="inlineEditForm"
           :doc="inlineEditDoc"
           :fields="getInlineEditFields(df)"
@@ -29,13 +31,16 @@
           :autosave="false"
           @error="(msg) => $emit('error', msg)"
         />
-        <div class="flex px-4 pb-2 gap-2">
-          <Button class="w-1/2 text-gray-900" @click="stopInlineEditing">
+        <div
+          class="flex px-4 py-4 justify-between items-center"
+          style="max-height: calc(var(--h-row-mid) + 1px)"
+        >
+          <Button class="text-gray-900 w-20" @click="stopInlineEditing">
             {{ t`Cancel` }}
           </Button>
           <Button
             type="primary"
-            class="w-1/2 text-white"
+            class="text-white w-20"
             @click="saveInlineEditDoc(df)"
           >
             {{ t`Save` }}
@@ -49,12 +54,13 @@
         class="grid items-center"
         :class="{
           'border-b': !noBorder,
-          'h-12':
-            !['AttachImage', 'Text'].includes(df.fieldtype) &&
-            !errors[df.fieldname],
         }"
         :key="`${df.fieldname}-regular`"
-        :style="style"
+        :style="{
+          ...style,
+
+          height: getFieldHeight(df),
+        }"
       >
         <div class="py-2 pl-4 flex text-gray-600">
           <div class="py-1">
@@ -76,6 +82,7 @@
             :value="getRegularValue(df)"
             :class="{ 'p-2': df.fieldtype === 'Check' }"
             :read-only="evaluateReadOnly(df)"
+            input-class="bg-transparent"
             @change="async (value) => await onChange(df, value)"
             @focus="activateInlineEditing(df)"
             @new-doc="async (newdoc) => await onChange(df, newdoc.name)"
@@ -149,6 +156,17 @@ export default {
     }
   },
   methods: {
+    getFieldHeight(df) {
+      if (['AttachImage', 'Text'].includes(df.fieldtype)) {
+        return 'calc((var(--h-row-mid) + 1px) * 2)';
+      }
+
+      if (this.errors[df.fieldname]) {
+        return 'calc((var(--h-row-mid) + 1px) * 2)';
+      }
+
+      return 'calc(var(--h-row-mid) + 1px)';
+    },
     getRegularValue(df) {
       if (!df.inline) {
         return this.doc[df.fieldname];

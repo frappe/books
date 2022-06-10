@@ -1,7 +1,7 @@
 <template>
   <div class="flex overflow-hidden">
     <Sidebar
-      class="w-sidebar flex-shrink-0"
+      class="w-sidebar flex-shrink-0 border-r"
       @change-db-file="$emit('change-db-file')"
     />
     <div class="flex flex-1 overflow-y-hidden bg-white">

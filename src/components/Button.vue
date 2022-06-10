@@ -1,7 +1,14 @@
 <template>
   <button
-    class="focus:outline-none rounded-md shadow-button flex-center h-8"
-    :style="style"
+    class="
+      focus:outline-none
+      rounded-md
+      flex
+      justify-center
+      items-center
+      h-8
+      text-sm
+    "
     :class="_class"
     v-bind="$attrs"
   >
@@ -30,21 +37,15 @@ export default {
     },
   },
   computed: {
-    style() {
-      return {
-        ...(this.padding
-          ? { padding: this.icon ? '6px 12px' : '6px 24px' }
-          : {}),
-        color: this.type === 'primary' ? '#fff' : '#112B42',
-        'background-image':
-          this.type === 'primary'
-            ? 'linear-gradient(180deg, #2C9AF1 0%, #2490EF 100%)'
-            : 'linear-gradient(180deg, #F9F9FA 0%, #F4F4F6 100%)',
-      };
-    },
     _class() {
       return {
         'opacity-50 cursor-not-allowed pointer-events-none': this.disabled,
+        'text-white': this.type === 'primary',
+        'bg-blue-500': this.type === 'primary',
+        'text-gray-900': this.type !== 'primary',
+        'bg-gray-100': this.type !== 'primary',
+        'px-3': this.padding && this.icon,
+        'px-6': this.padding && !this.icon,
       };
     },
   },

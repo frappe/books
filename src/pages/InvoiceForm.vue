@@ -1,11 +1,10 @@
 <template>
-  <div class="flex flex-col" v-if="doc">
+  <FormContainer :backLink="true">
     <!-- Page Header (Title, Buttons, etc) -->
-    <PageHeader :backLink="true">
+    <template #header v-if="doc">
       <StatusBadge :status="status" />
       <Button
         v-if="doc?.submitted"
-        class="text-gray-900 text-xs"
         :icon="true"
         @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
       >
@@ -15,7 +14,6 @@
       <Button
         v-if="doc?.notInserted || doc?.dirty"
         type="primary"
-        class="text-white text-xs"
         @click="sync"
       >
         {{ t`Save` }}
@@ -23,28 +21,24 @@
       <Button
         v-if="!doc?.dirty && !doc?.notInserted && !doc?.submitted"
         type="primary"
-        class="text-white text-xs"
         @click="submit"
         >{{ t`Submit` }}</Button
       >
-    </PageHeader>
+    </template>
 
     <!-- Invoice Form -->
-    <div
-      class="
-        border
-        rounded-lg
-        shadow
-        h-full
-        flex flex-col
-        mt-2
-        self-center
-        w-form
-        h-form
-      "
-      v-if="doc"
-    >
-      <div class="p-4 text-2xl font-semibold flex justify-between">
+    <template #body v-if="doc">
+      <div
+        class="
+          px-4
+          text-xl
+          font-semibold
+          flex
+          justify-between
+          h-row-large
+          items-center
+        "
+      >
         <h1>
           {{ doc.notInserted ? t`New Entry` : doc.name }}
         </h1>
@@ -115,7 +109,7 @@
 
       <div v-if="doc.items?.length ?? 0" class="mt-auto">
         <hr />
-        <div class="flex justify-between text-base m-6 gap-12">
+        <div class="flex justify-between text-base m-4 gap-12">
           <!-- Form Terms-->
           <FormControl
             class="w-1/2 self-end"
@@ -180,8 +174,8 @@
           </div>
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </FormContainer>
 </template>
 <script>
 import { computed } from '@vue/reactivity';
@@ -191,7 +185,7 @@ import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import Table from 'src/components/Controls/Table.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
-import PageHeader from 'src/components/PageHeader.vue';
+import FormContainer from 'src/components/FormContainer.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import {
@@ -206,12 +200,12 @@ export default {
   name: 'InvoiceForm',
   props: { schemaName: String, name: String },
   components: {
-    PageHeader,
     StatusBadge,
     Button,
     FormControl,
     DropdownWithActions,
     Table,
+    FormContainer,
   },
   provide() {
     return {
@@ -245,9 +239,7 @@ export default {
       await this.handleError(error);
     }
     this.printSettings = await fyo.doc.getDoc('PrintSettings');
-    this.companyName = (
-      await fyo.doc.getDoc('AccountingSettings')
-    ).companyName;
+    this.companyName = (await fyo.doc.getDoc('AccountingSettings')).companyName;
 
     let query = this.$route.query;
     if (query.values && query.schemaName === this.schemaName) {
