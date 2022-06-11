@@ -47,21 +47,23 @@
         v-for="(si, i) in suggestions"
         :key="`${i}-${si.key}`"
         ref="suggestions"
-        class="hover:bg-gray-50 cursor-pointer border-l-2 border-white"
-        :class="idx === i ? 'border-blue-500 bg-gray-50 -pl-1' : ''"
+        class="hover:bg-gray-50 cursor-pointer"
+        :class="idx === i ? 'border-blue-500 bg-gray-50 border-l-4' : ''"
         @click="select(i)"
       >
-        <!-- Doc Search List Item -->
+        <!-- Search List Item -->
         <div
-          v-if="si.group === 'Docs'"
           class="flex w-full justify-between px-3 items-center"
-          style="height: var(--h-row-mid); margin-left: -2px"
+          style="height: var(--h-row-mid)"
         >
           <div class="flex items-center">
-            <p class="text-gray-900">
+            <p
+              :class="idx === i ? 'text-blue-600' : 'text-gray-900'"
+              :style="idx === i ? 'margin-left: -4px' : ''"
+            >
               {{ si.label }}
             </p>
-            <p class="text-gray-600 text-sm ml-3">
+            <p class="text-gray-600 text-sm ml-3" v-if="si.group === 'Docs'">
               {{ si.more.filter(Boolean).join(', ') }}
             </p>
           </div>
@@ -69,26 +71,10 @@
             class="text-sm text-right justify-self-end"
             :class="`text-${groupColorMap[si.group]}-500`"
           >
-            {{ si.schemaLabel }}
+            {{ si.group === 'Docs' ? si.schemaLabel : groupLabelMap[si.group] }}
           </p>
         </div>
 
-        <!-- Doc Search List Item -->
-        <div
-          v-else
-          class="flex flex-row w-full justify-between px-3 items-center"
-          style="height: var(--h-row-mid); margin-left: -2px"
-        >
-          <p class="text-gray-900">
-            {{ si.label }}
-          </p>
-          <div
-            class="text-sm text-right justify-self-end"
-            :class="`text-${groupColorMap[si.group]}-500`"
-          >
-            {{ groupLabelMap[si.group] }}
-          </div>
-        </div>
         <hr v-if="i !== suggestions.length - 1" />
       </div>
     </div>

@@ -88,7 +88,7 @@
       :offset="15"
       :show="idx >= 0"
       placement="top"
-      class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-2"
+      class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-4"
       :style="{ borderColor: colors[idx] }"
     >
       <div class="flex justify-between gap-4">
@@ -127,7 +127,7 @@ export default {
   },
   data: () => ({
     idx: -1,
-    colors: [uicolors.blue['400'], uicolors.pink['400']],
+    colors: [uicolors.blue['500'], uicolors.pink['500']],
     invoices: [
       {
         title: t`Sales Invoices`,
