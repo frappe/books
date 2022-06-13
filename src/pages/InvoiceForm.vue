@@ -216,16 +216,23 @@ export default {
   },
   data() {
     return {
+      chstatus: false,
       doc: null,
-      status: null,
       color: null,
       printSettings: null,
       companyName: null,
     };
   },
+  updated() {
+    this.chstatus = !this.chstatus
+  },
   computed: {
     address() {
       return this.printSettings && this.printSettings.getLink('address');
+    },
+    status() {
+      this.chstatus
+      return getInvoiceStatus(this.doc);
     },
   },
   async mounted() {
@@ -245,14 +252,10 @@ export default {
     if (query.values && query.schemaName === this.schemaName) {
       this.doc.set(this.$router.currentRoute.value.query.values);
     }
-    this.status = getInvoiceStatus(this.doc);
 
     if (fyo.store.isDevelopment) {
       window.inv = this;
     }
-  },
-  updated() {
-    this.status = getInvoiceStatus(this.doc);
   },
   methods: {
     routeTo,
