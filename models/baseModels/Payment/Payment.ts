@@ -13,7 +13,12 @@ import {
   ValidationMap,
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
-import { getLedgerLinkAction } from 'models/helpers';
+import {
+  getDocStatus,
+  getLedgerLinkAction,
+  getStatusMap,
+  statusColor,
+} from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
@@ -449,19 +454,12 @@ export class Payment extends Transactional {
           fieldtype: 'Select',
           size: 'small',
           render(doc) {
-            let status = 'Draft';
-            let color = 'gray';
-            if (doc.submitted) {
-              color = 'green';
-              status = 'Submitted';
-            }
-            if (doc.cancelled) {
-              color = 'red';
-              status = 'Cancelled';
-            }
+            const status = getDocStatus(doc);
+            const color = statusColor[status] ?? 'gray';
+            const label = getStatusMap()[status];
 
             return {
-              template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
+              template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
             };
           },
         },

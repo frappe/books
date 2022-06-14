@@ -16,15 +16,15 @@
       </div>
 
       <!-- Actions, Badge and Status Change Buttons -->
-      <div class="flex items-stretch">
-        <DropdownWithActions :actions="actions" />
+      <div class="flex items-stretch gap-2">
         <StatusBadge :status="status" />
+        <DropdownWithActions :actions="actions" />
         <Button
           :icon="true"
           @click="sync"
           type="primary"
           v-if="doc?.dirty || doc?.notInserted"
-          class="ml-2 text-white text-xs"
+          class="text-white text-xs"
         >
           {{ t`Save` }}
         </Button>
@@ -38,7 +38,7 @@
             !doc?.notInserted &&
             !(doc?.cancelled || false)
           "
-          class="ml-2 text-white text-xs"
+          class="text-white text-xs"
         >
           {{ t`Submit` }}
         </Button>
@@ -89,6 +89,7 @@
 <script>
 import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
+import { getDocStatus } from 'models/helpers';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
@@ -148,11 +149,7 @@ export default {
       return fyo.schemaMap[this.schemaName] ?? null;
     },
     status() {
-      if (this.doc && this.doc.notInserted) {
-        return 'Draft';
-      }
-
-      return '';
+      return getDocStatus(this.doc);
     },
     fields() {
       if (!this.schema) {

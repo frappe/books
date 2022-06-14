@@ -189,11 +189,13 @@ export default defineComponent({
         ? 'date'
         : 'created';
 
-      this.data = await fyo.db.getAll(this.schemaName, {
-        fields: ['*'],
-        filters,
-        orderBy,
-      });
+      this.data = (
+        await fyo.db.getAll(this.schemaName, {
+          fields: ['*'],
+          filters,
+          orderBy,
+        })
+      ).map((d) => ({ ...d, schema: fyo.schemaMap[this.schemaName] }));
     },
   },
 });

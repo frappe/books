@@ -24,7 +24,17 @@
 
     <!-- Journal Entry Form -->
     <template #body v-if="doc">
-      <div class="px-4 text-xl font-semibold flex justify-between h-row-large items-center">
+      <div
+        class="
+          px-4
+          text-xl
+          font-semibold
+          flex
+          justify-between
+          h-row-large
+          items-center
+        "
+      >
         <h1>
           {{ doc.notInserted ? t`New Entry` : doc.name }}
         </h1>
@@ -130,6 +140,7 @@
 </template>
 <script>
 import { computed } from '@vue/reactivity';
+import { getDocStatus } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
@@ -187,11 +198,7 @@ export default {
   },
   computed: {
     status() {
-      if (this.doc.notInserted || !this.doc.submitted) {
-        return 'Draft';
-      }
-
-      return '';
+      return getDocStatus(this.doc);
     },
     totalDebit() {
       let value = 0;

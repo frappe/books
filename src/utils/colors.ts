@@ -14,12 +14,6 @@ export const indicators = {
   BLACK: 'black',
 };
 
-export const statusColor = {
-  Draft: 'gray',
-  Unpaid: 'orange',
-  Paid: 'green',
-  Cancelled: 'red',
-};
 
 const getValidColor = (color: string) => {
   const isValid = [

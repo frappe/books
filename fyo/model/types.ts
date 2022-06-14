@@ -1,6 +1,6 @@
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import SystemSettings from 'fyo/models/SystemSettings';
-import { FieldType, SelectOption } from 'schemas/types';
+import { FieldType, Schema, SelectOption } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
 import { Router } from 'vue-router';
 import { Doc } from './doc';
@@ -69,12 +69,17 @@ export interface Action {
   };
 }
 
+export interface RenderData {
+  schema: Schema,
+  [key: string]: DocValue | Schema
+}
+
 export interface ColumnConfig {
   label: string;
   fieldtype: FieldType;
   fieldname?: string;
   size?: string;
-  render?: (doc: Doc) => { template: string };
+  render?: (doc: RenderData) => { template: string };
   getValue?: (doc: Doc) => string;
 }
 
@@ -88,3 +93,11 @@ export interface TreeViewSettings {
   parentField: string;
   getRootLabel: () => Promise<string>;
 }
+
+export type DocStatus =
+  | ''
+  | 'Draft'
+  | 'Saved'
+  | 'NotSaved'
+  | 'Submitted'
+  | 'Cancelled';
