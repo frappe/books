@@ -1,4 +1,4 @@
-export type InvoiceStatus = 'Draft' | 'Unpaid' | 'Cancelled' | 'Paid';
+export type InvoiceStatus = 'Draft' | 'Saved' | 'Unpaid' | 'Cancelled' | 'Paid';
 export enum ModelNameEnum {
   Account = 'Account',
   AccountingLedgerEntry = 'AccountingLedgerEntry',
@@ -29,4 +29,4 @@ export enum ModelNameEnum {
   SystemSettings = 'SystemSettings',
 }
 
-export type ModelName = keyof typeof ModelNameEnum
+export type ModelName = keyof typeof ModelNameEnum;

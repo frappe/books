@@ -1,6 +1,6 @@
 import { Fyo } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import { Action } from 'fyo/model/types';
+import { Action, DocStatus } from 'fyo/model/types';
 import { Money } from 'pesa';
 import { Field, OptionField, SelectOption } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';

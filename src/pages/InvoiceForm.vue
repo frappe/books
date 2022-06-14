@@ -179,7 +179,7 @@
 </template>
 <script>
 import { computed } from '@vue/reactivity';
-import { getInvoiceStatus } from 'models/helpers';
+import { getDocStatus } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
@@ -189,10 +189,10 @@ import FormContainer from 'src/components/FormContainer.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import {
-getActionsForDocument,
-openSettings,
-routeTo,
-showMessageDialog
+  getActionsForDocument,
+  openSettings,
+  routeTo,
+  showMessageDialog,
 } from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -224,15 +224,15 @@ export default {
     };
   },
   updated() {
-    this.chstatus = !this.chstatus
+    this.chstatus = !this.chstatus;
   },
   computed: {
     address() {
       return this.printSettings && this.printSettings.getLink('address');
     },
     status() {
-      this.chstatus
-      return getInvoiceStatus(this.doc);
+      this.chstatus;
+      return getDocStatus(this.doc);
     },
   },
   async mounted() {

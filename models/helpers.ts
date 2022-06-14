@@ -1,6 +1,6 @@
 import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import { Action, ColumnConfig } from 'fyo/model/types';
+import { Action, ColumnConfig, DocStatus, RenderData } from 'fyo/model/types';
 import { NotFoundError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
 import { Money } from 'pesa';
@@ -76,21 +76,17 @@ export function getLedgerLinkAction(fyo: Fyo): Action {
 }
 
 export function getTransactionStatusColumn(): ColumnConfig {
-  const statusMap = {
-    Unpaid: t`Unpaid`,
-    Paid: t`Paid`,
-    Draft: t`Draft`,
-    Cancelled: t`Cancelled`,
-  };
+  const statusMap = getStatusMap();
 
   return {
     label: t`Status`,
     fieldname: 'status',
     fieldtype: 'Select',
-    render(doc: Doc) {
-      const status = getInvoiceStatus(doc) as InvoiceStatus;
+    render(doc) {
+      const status = getDocStatus(doc) as InvoiceStatus;
       const color = statusColor[status];
       const label = statusMap[status];
+
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
       };
@@ -98,27 +94,97 @@ export function getTransactionStatusColumn(): ColumnConfig {
   };
 }
 
-export const statusColor = {
+export const statusColor: Record<
+  DocStatus | InvoiceStatus,
+  string | undefined
+> = {
+  '': 'gray',
   Draft: 'gray',
   Unpaid: 'orange',
   Paid: 'green',
+  Saved: 'gray',
+  NotSaved: 'gray',
+  Submitted: 'green',
   Cancelled: 'red',
 };
 
-export function getInvoiceStatus(doc: Doc) {
-  let status = 'Unpaid';
-  if (!doc.submitted) {
-    status = 'Draft';
+export function getStatusMap(): Record<DocStatus | InvoiceStatus, string> {
+  return {
+    '': '',
+    Draft: t`Draft`,
+    Unpaid: t`Unpaid`,
+    Paid: t`Paid`,
+    Saved: t`Saved`,
+    NotSaved: t`Not Saved`,
+    Submitted: t`Submitted`,
+    Cancelled: t`Cancelled`,
+  };
+}
+
+export function getDocStatus(
+  doc?: RenderData | Doc
+): DocStatus | InvoiceStatus {
+  if (!doc) {
+    return '';
   }
 
-  if (doc.submitted && (doc.outstandingAmount as Money).isZero()) {
-    status = 'Paid';
+  if (doc.notInserted) {
+    return 'Draft';
+  }
+
+  if (doc.dirty) {
+    return 'NotSaved';
+  }
+
+  if (!doc.schema?.isSubmittable) {
+    return 'Saved';
+  }
+
+  return getSubmittableDocStatus(doc);
+}
+
+function getSubmittableDocStatus(doc: RenderData | Doc) {
+  if (
+    [ModelNameEnum.SalesInvoice, ModelNameEnum.PurchaseInvoice].includes(
+      doc.schema.name as ModelNameEnum
+    )
+  ) {
+    return getInvoiceStatus(doc);
+  }
+
+  if (!!doc.submitted && !doc.cancelled) {
+    return 'Submitted';
+  }
+
+  if (!!doc.submitted && !!doc.cancelled) {
+    return 'Cancelled';
+  }
+
+  return 'Saved';
+}
+
+export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
+  if (
+    doc.submitted &&
+    !doc.cancelled &&
+    (doc.outstandingAmount as Money).isZero()
+  ) {
+    return 'Paid';
+  }
+
+  if (
+    doc.submitted &&
+    !doc.cancelled &&
+    (doc.outstandingAmount as Money).isPositive()
+  ) {
+    return 'Unpaid';
   }
 
   if (doc.cancelled) {
-    status = 'Cancelled';
+    return 'Cancelled';
   }
-  return status;
+
+  return 'Saved';
 }
 
 export async function getExchangeRate({

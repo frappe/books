@@ -4,8 +4,7 @@
   }}</Badge>
 </template>
 <script>
-import { t } from 'fyo';
-import { statusColor } from 'src/utils/colors';
+import { getStatusMap, statusColor } from 'models/helpers';
 import Badge from './Badge.vue';
 
 export default {
@@ -16,14 +15,8 @@ export default {
       return statusColor[this.status];
     },
     statusLabel() {
-      return (
-        {
-          Draft: t`Draft`,
-          Unpaid: t`Unpaid`,
-          Paid: t`Paid`,
-          Cancelled: t`Cancelled`,
-        }[this.status] ?? this.status
-      );
+      const statusMap = getStatusMap();
+      return statusMap[this.status] ?? this.status;
     },
   },
   components: { Badge },

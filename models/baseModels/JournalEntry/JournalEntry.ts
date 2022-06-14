@@ -7,7 +7,12 @@ import {
   ListViewSettings,
 } from 'fyo/model/types';
 import { DateTime } from 'luxon';
-import { getLedgerLinkAction } from 'models/helpers';
+import {
+  getDocStatus,
+  getLedgerLinkAction,
+  getStatusMap,
+  statusColor,
+} from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { Money } from 'pesa';
 import { LedgerPosting } from '../../Transactional/LedgerPosting';
@@ -55,20 +60,12 @@ export class JournalEntry extends Transactional {
           fieldtype: 'Select',
           size: 'small',
           render(doc) {
-            let status = 'Draft';
-            let color = 'gray';
-            if (doc.submitted) {
-              color = 'green';
-              status = 'Submitted';
-            }
-
-            if (doc.cancelled) {
-              color = 'red';
-              status = 'Cancelled';
-            }
+            const status = getDocStatus(doc);
+            const color = statusColor[status] ?? 'gray';
+            const label = getStatusMap()[status];
 
             return {
-              template: `<Badge class="text-xs" color="${color}">${status}</Badge>`,
+              template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
             };
           },
         },

@@ -75,7 +75,7 @@ export default defineComponent({
     }
 
     if (filterKeys.length) {
-      await this.report.postSet();
+      await this.report.updateData();
     }
 
     if (fyo.store.isDevelopment) {
