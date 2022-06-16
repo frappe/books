@@ -118,6 +118,7 @@ export default {
 
         invoices.forEach((i) => {
           i.schemaName = schemaName;
+          i.schema = fyo.schemaMap[schemaName];
         });
 
         pendingInvoices.push(...invoices);
