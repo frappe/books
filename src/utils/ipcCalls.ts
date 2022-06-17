@@ -5,12 +5,15 @@ import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
 import { setLanguageMap } from './language';
-import { WindowAction } from './types';
 import { showToast } from './ui';
 
 export async function checkForUpdates() {
   await ipcRenderer.invoke(IPC_ACTIONS.CHECK_FOR_UPDATES);
   await setLanguageMap();
+}
+
+export async function openLink(link: string) {
+  ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, link);
 }
 
 export async function deleteDb(filePath: string) {

@@ -89,11 +89,25 @@
           gap-1
           items-center
         "
-        @click="() => reportIssue()"
+        @click="$emit('change-db-file')"
       >
-        <feather-icon name="flag" class="h-4 w-4" />
+        <feather-icon name="database" class="h-4 w-4" />
+        <p>{{ t`Change DB` }}</p>
+      </button>
+
+      <button
+        class="
+          flex
+          text-sm text-gray-600
+          hover:text-gray-800
+          gap-1
+          items-center
+        "
+        @click="openDocumentation"
+      >
+        <feather-icon name="help-circle" class="h-4 w-4" />
         <p>
-          {{ t`Report Issue` }}
+          {{ t`Documentation` }}
         </p>
       </button>
 
@@ -105,11 +119,14 @@
           gap-1
           items-center
         "
-        @click="$emit('change-db-file')"
+        @click="() => reportIssue()"
       >
-        <feather-icon name="database" class="h-4 w-4" />
-        <p>{{ t`Change DB` }}</p>
+        <feather-icon name="flag" class="h-4 w-4" />
+        <p>
+          {{ t`Report Issue` }}
+        </p>
       </button>
+
       <p
         v-if="fyo.store.isDevelopment"
         class="text-xs text-gray-500 select-none"
@@ -123,6 +140,7 @@
 import Button from 'src/components/Button.vue';
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
+import { openLink } from 'src/utils/ipcCalls';
 import { getSidebarConfig } from 'src/utils/sidebarConfig';
 import { routeTo } from 'src/utils/ui';
 import router from '../router';
@@ -159,6 +177,9 @@ export default {
   methods: {
     routeTo,
     reportIssue,
+    openDocumentation() {
+      openLink('https://docs.frappebooks.com/');
+    },
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;
       const fallBackGroup = this.activeGroup;

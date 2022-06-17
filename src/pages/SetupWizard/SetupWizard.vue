@@ -91,15 +91,14 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { getErrorMessage } from 'src/utils';
+import { openLink } from 'src/utils/ipcCalls';
 import { getSetupWizardDoc } from 'src/utils/misc';
 import { showMessageDialog } from 'src/utils/ui';
-import { IPC_MESSAGES } from 'utils/messages';
 import Slide from './Slide.vue';
 
 export default {
@@ -141,8 +140,7 @@ export default {
       return this.doc.schema?.fields.find((f) => f.fieldname === fieldname);
     },
     openContributingTranslations() {
-      ipcRenderer.send(
-        IPC_MESSAGES.OPEN_EXTERNAL,
+      openLink(
         'https://github.com/frappe/books/wiki/Contributing-Translations'
       );
     },
