@@ -70,13 +70,12 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron';
 import Button from 'src/components/Button';
 import Icon from 'src/components/Icon';
 import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
 import { getGetStartedConfig } from 'src/utils/getStartedConfig';
-import { IPC_MESSAGES } from 'utils/messages';
+import { openLink } from 'src/utils/ipcCalls';
 import { h } from 'vue';
 
 export default {
@@ -102,7 +101,7 @@ export default {
   methods: {
     async handleDocumentation({ key, documentation }) {
       if (documentation) {
-        ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, documentation);
+        openLink(documentation);
       }
 
       switch (key) {

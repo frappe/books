@@ -9,8 +9,7 @@
   </button>
 </template>
 <script>
-import { IPC_MESSAGES } from 'utils/messages';
-import { ipcRenderer } from 'electron';
+import { openLink } from 'src/utils/ipcCalls';
 import FeatherIcon from './FeatherIcon.vue';
 
 export default {
@@ -23,7 +22,7 @@ export default {
   },
   methods: {
     openHelpLink() {
-      ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, this.link);
+      openLink(this.link);
     },
   },
   components: { FeatherIcon },
