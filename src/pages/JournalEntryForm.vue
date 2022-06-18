@@ -149,7 +149,9 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
+import { docsPathMap } from 'src/utils/misc';
 import {
+docsPath,
 getActionsForDocument,
 routeTo,
 showMessageDialog
@@ -179,6 +181,12 @@ export default {
       schemaName: ModelNameEnum.JournalEntry,
       doc: null,
     };
+  },
+  activated() {
+    docsPath.value = docsPathMap.JournalEntry
+  },
+  deactivated() {
+    docsPath.value = '';
   },
   async mounted() {
     try {

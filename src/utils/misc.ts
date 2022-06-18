@@ -79,3 +79,31 @@ export async function incrementOpenCount(dbPath: string) {
   fyo.config.set(ConfigKeys.Files, files);
   return openCount;
 }
+
+export const docsPathMap: Record<string, string | undefined> = {
+  // Analytics
+  Dashboard: 'analytics/dashboard',
+  Reports: 'analytics/reports',
+  GeneralLedger: 'analytics/general-ledger',
+  ProfitAndLoss: 'analytics/profit-and-loss',
+  BalanceSheet: 'analytics/balance-sheet',
+  TrialBalance: 'analytics/trial-balance',
+
+  // Transactions
+  [ModelNameEnum.SalesInvoice]: 'transactions/sales-invoices',
+  [ModelNameEnum.PurchaseInvoice]: 'transactions/purchase-invoices',
+  [ModelNameEnum.Payment]: 'transactions/payments',
+  [ModelNameEnum.JournalEntry]: 'transactions/journal-entries',
+
+  // Entries
+  Entries: 'entries/entries',
+  [ModelNameEnum.Party]: 'entries/party',
+  [ModelNameEnum.Item]: 'entries/items',
+  [ModelNameEnum.Tax]: 'entries/taxes',
+
+  // Miscellaneous
+  Search: 'miscellaneous/search',
+  NumberSeries: 'miscellaneous/number-series',
+  DataImport: 'miscellaneous/data-import',
+  Settings: 'miscellaneous/settings',
+};

@@ -31,7 +31,8 @@ import Button from 'src/components/Button.vue';
 import FilterDropdown from 'src/components/FilterDropdown.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
-import { routeTo } from 'src/utils/ui';
+import { docsPathMap } from 'src/utils/misc';
+import { docsPath, routeTo } from 'src/utils/ui';
 import List from './List';
 
 export default {
@@ -56,6 +57,10 @@ export default {
     }
 
     this.listConfig = getListConfig(this.schemaName);
+    docsPath.value = docsPathMap[this.schemaName] ?? docsPathMap.Entries;
+  },
+  deactivated() {
+    docsPath.value = '';
   },
   methods: {
     async makeNewDoc() {

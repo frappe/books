@@ -355,7 +355,8 @@ import PageHeader from 'src/components/PageHeader.vue';
 import { importable, Importer } from 'src/dataImport';
 import { fyo } from 'src/initFyo';
 import { getSavePath, saveData } from 'src/utils/ipcCalls';
-import { showMessageDialog } from 'src/utils/ui';
+import { docsPathMap } from 'src/utils/misc';
+import { docsPath, showMessageDialog } from 'src/utils/ui';
 import { IPC_ACTIONS } from 'utils/messages';
 import Loading from '../components/Loading.vue';
 
@@ -484,7 +485,11 @@ export default {
       return !!(this.file || this.importType);
     },
   },
+  activated() {
+    docsPath.value = docsPathMap.DataImport;
+  },
   deactivated() {
+    docsPath.value = '';
     if (!this.complete) {
       return;
     }

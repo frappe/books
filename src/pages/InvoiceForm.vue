@@ -188,11 +188,13 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
+import { docsPathMap } from 'src/utils/misc';
 import {
-  getActionsForDocument,
-  openSettings,
-  routeTo,
-  showMessageDialog,
+docsPath,
+getActionsForDocument,
+openSettings,
+routeTo,
+showMessageDialog
 } from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -234,6 +236,12 @@ export default {
       this.chstatus;
       return getDocStatus(this.doc);
     },
+  },
+  activated() {
+    docsPath.value = docsPathMap[this.schemaName];
+  },
+  deactivated() {
+    docsPath.value = '';
   },
   async mounted() {
     try {
