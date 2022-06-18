@@ -149,6 +149,10 @@
           <p>↑↓ {{ t`Navigate` }}</p>
           <p>↩ {{ t`Select` }}</p>
           <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
+          <button class="flex items-center hover:text-gray-800" @click="openDocs">
+            <feather-icon name="help-circle" class="w-4 h-4 mr-1" />
+            {{ t`Help` }}
+          </button>
         </div>
 
         <p v-if="searcher?.numSearches" class="ml-auto mr-2">
@@ -181,6 +185,8 @@
 <script>
 import { fyo } from 'src/initFyo';
 import { getBgTextColorClass } from 'src/utils/colors';
+import { openLink } from 'src/utils/ipcCalls';
+import { docsPathMap } from 'src/utils/misc';
 import { getGroupLabelMap, searchGroups } from 'src/utils/search';
 import { useKeys } from 'src/utils/vueUtils';
 import { getIsNullOrUndef } from 'utils/';
@@ -241,6 +247,9 @@ export default {
     this.openModal = false;
   },
   methods: {
+    openDocs() {
+      openLink('https://docs.frappebooks.com/' + docsPathMap.Search);
+    },
     setFilter(keys) {
       if (!keys.has('MetaLeft') && !keys.has('ControlLeft')) {
         return;

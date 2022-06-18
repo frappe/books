@@ -13,7 +13,7 @@ import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import router from 'src/router';
 import { IPC_ACTIONS } from 'utils/messages';
-import { App, createApp, h } from 'vue';
+import { App, createApp, h, ref } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
 import {
@@ -22,6 +22,8 @@ import {
   SettingsTab,
   ToastOptions,
 } from './types';
+
+export const docsPath = ref('');
 
 export async function openQuickEdit({
   schemaName,

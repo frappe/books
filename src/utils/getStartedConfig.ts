@@ -53,7 +53,7 @@ export function getGetStartedConfig() {
           },
           fieldname: 'chartOfAccountsReviewed',
           documentation:
-            'https://frappebooks.com/docs/setting-up#1-enter-bank-accounts',
+            'https://docs.frappebooks.com/setting-up/initial-entries.html#add-additional-bank-accounts',
         },
         {
           key: 'Opening Balances',
@@ -62,7 +62,7 @@ export function getGetStartedConfig() {
           fieldname: 'openingBalanceChecked',
           description: t`Setup your opening balances before performing any accounting entries`,
           documentation:
-            'https://frappebooks.com/docs/setting-up#5-setup-opening-balances',
+            'https://docs.frappebooks.com/setting-up/opening-balances.html',
         },
         {
           key: 'Add Taxes',
@@ -71,7 +71,8 @@ export function getGetStartedConfig() {
           fieldname: 'taxesAdded',
           description: t`Setup your tax templates for your sales or purchase transactions`,
           action: () => routeTo('/list/Tax'),
-          documentation: 'https://frappebooks.com/docs/setting-up#2-add-taxes',
+          documentation:
+            'https://docs.frappebooks.com/setting-up/initial-entries.html#add-taxes',
         },
       ],
     },
@@ -86,7 +87,8 @@ export function getGetStartedConfig() {
           description: t`Add products or services that you sell to your customers`,
           action: () => routeTo(`/list/Item/for/Sales/${t`Sales Items`}`),
           fieldname: 'salesItemCreated',
-          documentation: 'https://frappebooks.com/docs/setting-up#3-add-items',
+          documentation:
+            'https://docs.frappebooks.com/setting-up/initial-entries.html#add-sales-items',
         },
         {
           key: 'Add Customers',
@@ -96,16 +98,17 @@ export function getGetStartedConfig() {
           action: () => routeTo(`/list/Party/role/Customer/${t`Customers`}`),
           fieldname: 'customerCreated',
           documentation:
-            'https://frappebooks.com/docs/setting-up#4-add-customers',
+            'https://docs.frappebooks.com/setting-up/initial-entries.html#add-customers',
         },
         {
-          key: 'Create Invoice',
-          label: t`Create Invoice`,
+          key: 'Create Sales Invoice',
+          label: t`Create Sales Invoice`,
           icon: 'sales-invoice',
           description: t`Create your first invoice and mail it to your customer`,
           action: () => routeTo('/list/SalesInvoice'),
           fieldname: 'invoiceCreated',
-          documentation: 'https://frappebooks.com/docs/invoices',
+          documentation:
+            'https://docs.frappebooks.com/transactions/sales-invoices.html',
         },
       ],
     },
@@ -131,13 +134,14 @@ export function getGetStartedConfig() {
           fieldname: 'supplierCreated',
         },
         {
-          key: 'Create Bill',
-          label: t`Create Bill`,
+          key: 'Create Purchase Invoice',
+          label: t`Create Purchase Invoice`,
           icon: 'purchase-invoice',
           description: t`Create your first bill and mail it to your supplier`,
           action: () => routeTo('/list/PurchaseInvoice'),
           fieldname: 'billCreated',
-          documentation: 'https://frappebooks.com/docs/bills',
+          documentation:
+            'https://docs.frappebooks.com/transactions/purchase-invoices.html',
         },
       ],
     },

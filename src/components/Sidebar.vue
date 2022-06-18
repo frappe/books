@@ -89,10 +89,12 @@
           gap-1
           items-center
         "
-        @click="$emit('change-db-file')"
+        @click="openDocumentation"
       >
-        <feather-icon name="database" class="h-4 w-4" />
-        <p>{{ t`Change DB` }}</p>
+        <feather-icon name="help-circle" class="h-4 w-4" />
+        <p>
+          {{ t`Help` }}
+        </p>
       </button>
 
       <button
@@ -103,12 +105,10 @@
           gap-1
           items-center
         "
-        @click="openDocumentation"
+        @click="$emit('change-db-file')"
       >
-        <feather-icon name="help-circle" class="h-4 w-4" />
-        <p>
-          {{ t`Documentation` }}
-        </p>
+        <feather-icon name="database" class="h-4 w-4" />
+        <p>{{ t`Change DB` }}</p>
       </button>
 
       <button
@@ -142,7 +142,7 @@ import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { openLink } from 'src/utils/ipcCalls';
 import { getSidebarConfig } from 'src/utils/sidebarConfig';
-import { routeTo } from 'src/utils/ui';
+import { docsPath, routeTo } from 'src/utils/ui';
 import router from '../router';
 import Icon from './Icon.vue';
 
@@ -178,7 +178,7 @@ export default {
     routeTo,
     reportIssue,
     openDocumentation() {
-      openLink('https://docs.frappebooks.com/');
+      openLink('https://docs.frappebooks.com/' + docsPath.value);
     },
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;

@@ -23,6 +23,7 @@
 
 <script>
 import PageHeader from 'src/components/PageHeader';
+import { docsPath } from 'src/utils/ui';
 import Cashflow from './Cashflow';
 import Expenses from './Expenses';
 import ProfitAndLoss from './ProfitAndLoss';
@@ -36,6 +37,12 @@ export default {
     Cashflow,
     ProfitAndLoss,
     Expenses,
+  },
+  activated() {
+    docsPath.value = 'analytics/dashboard';
+  },
+  deactivated() {
+    docsPath.value = '';
   },
 };
 </script>
