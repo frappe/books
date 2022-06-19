@@ -12,15 +12,7 @@ Free Desktop book-keeping software for small businesses and freelancers.
 
 [frappebooks.com](https://frappebooks.com/)
 
-<img 
-   src="./.github/frappe-books-preview.png"
-   alt="Frappe Books Preview"
-   style="
-      border: solid 1px #ebeff5;
-      border-radius: 12px;
-      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      "
-   />
+<img src="./.github/frappe-books-preview.png" alt="Frappe Books Preview"/>
 
 </div>
 
