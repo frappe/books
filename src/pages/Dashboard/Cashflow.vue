@@ -2,7 +2,7 @@
   <div>
     <!-- Title and Period Selector -->
     <div class="flex items-center justify-between">
-      <div class="font-medium text-base">{{ t`Cashflow` }}</div>
+      <div class="font-semibold text-base">{{ t`Cashflow` }}</div>
 
       <!-- Chart Legend -->
       <div class="flex text-base gap-8" v-if="hasData">
