@@ -32,22 +32,22 @@
         <div class="flex justify-between">
           <!-- Paid -->
           <div
-            class="text-sm bold"
+            class="text-sm font-medium"
             :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.count }"
           >
             {{ fyo.format(invoice.paid, 'Currency') }}
-            <span :class="{ 'text-gray-900': invoice.count }">{{
+            <span :class="{ 'text-gray-900 font-normal': invoice.count }">{{
               t`Paid`
             }}</span>
           </div>
 
           <!-- Unpaid -->
           <div
-            class="text-sm"
+            class="text-sm font-medium"
             :class="{ 'bg-gray-200 text-gray-200 rounded': !invoice.count }"
           >
             {{ fyo.format(invoice.unpaid, 'Currency') }}
-            <span :class="{ 'text-gray-900': invoice.count }">{{
+            <span :class="{ 'text-gray-900 font-normal': invoice.count }">{{
               t`Unpaid`
             }}</span>
           </div>
@@ -153,7 +153,7 @@ export default {
         count: 0,
         unpaidCount: 0,
         paidCount: 0,
-        color: 'gray',
+        color: 'pink',
         periodKey: 'purchaseInvoicePeriod',
         barWidth: 60,
       },
