@@ -106,4 +106,5 @@ export const docsPathMap: Record<string, string | undefined> = {
   NumberSeries: 'miscellaneous/number-series',
   DataImport: 'miscellaneous/data-import',
   Settings: 'miscellaneous/settings',
+  ChartOfAccounts: 'miscellaneous/chart-of-accounts',
 };

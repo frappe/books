@@ -141,7 +141,8 @@ import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
-import { openQuickEdit } from 'src/utils/ui';
+import { docsPathMap } from 'src/utils/misc';
+import { docsPath, openQuickEdit } from 'src/utils/ui';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -163,6 +164,10 @@ export default {
     if (fyo.store.isDevelopment) {
       window.coa = this;
     }
+    docsPath.value = docsPathMap.ChartOfAccounts
+  },
+  deactivated() {
+    docsPath.value = '';
   },
   methods: {
     getBalanceString(account) {
