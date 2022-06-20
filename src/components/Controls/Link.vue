@@ -135,6 +135,7 @@ export default {
       doc.once('afterSync', () => {
         this.$emit('new-doc', doc);
         this.$router.back();
+        this.results = []
       });
     },
     async getCreateFilters() {
