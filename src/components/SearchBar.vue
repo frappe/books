@@ -96,7 +96,7 @@
           </button>
         </div>
         <button
-          class="hover:bg-gray-50 px-2 py-0.5 rounded text-gray-800"
+          class="hover:text-gray-900 py-0.5 rounded text-gray-700"
           @click="showMore = !showMore"
         >
           {{ showMore ? t`Less Filters` : t`More Filters` }}
@@ -155,7 +155,7 @@
           </button>
         </div>
 
-        <p v-if="searcher?.numSearches" class="ml-auto mr-2">
+        <p v-if="searcher?.numSearches" class="ml-auto">
           {{ t`${suggestions.length} out of ${searcher.numSearches}` }}
         </p>
 
