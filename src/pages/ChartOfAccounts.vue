@@ -96,16 +96,27 @@
               :ref="account.name"
               @keydown.esc="cancelAddingAccount(account)"
               @keydown.enter="
-                (e) =>
-                  createNewAccount(
-                    e.target.value,
-                    account,
-                    account.addingGroupAccount
-                  )
+                (e) => createNewAccount(account, account.addingGroupAccount)
               "
               type="text"
+              v-model="newAccountName"
               :disabled="insertingAccount"
+              
             />
+            <button
+              v-if="!insertingAccount"
+              class="
+                ml-4
+                text-xs text-gray-800
+                hover:text-gray-900
+                focus:outline-none
+              "
+              @click="
+                (e) => createNewAccount(account, account.addingGroupAccount)
+              "
+            >
+              {{ t`Save` }}
+            </button>
             <button
               v-if="!insertingAccount"
               class="
@@ -143,6 +154,7 @@ export default {
       root: null,
       accounts: [],
       schemaName: 'Account',
+      newAccountName: '',
       insertingAccount: false,
     };
   },
@@ -233,12 +245,13 @@ export default {
     cancelAddingAccount(parentAccount) {
       parentAccount.addingAccount = 0;
       parentAccount.addingGroupAccount = 0;
+      this.newAccountName = '';
     },
-    async createNewAccount(accountName, parentAccount, isGroup) {
+    async createNewAccount(parentAccount, isGroup) {
       // freeze input
       this.insertingAccount = true;
 
-      accountName = accountName.trim();
+      const accountName = this.newAccountName.trim();
       let account = await fyo.doc.getNewDoc('Account');
       try {
         let { name, rootType, accountType } = parentAccount;
