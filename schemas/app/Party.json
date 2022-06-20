@@ -41,7 +41,8 @@
       "fieldname": "defaultAccount",
       "label": "Default Account",
       "fieldtype": "Link",
-      "target": "Account"
+      "target": "Account",
+      "create": true
     },
     {
       "fieldname": "outstandingAmount",
@@ -53,7 +54,8 @@
       "label": "Currency",
       "fieldtype": "Link",
       "target": "Currency",
-      "placeholder": "INR"
+      "placeholder": "INR",
+      "create": true
     },
     {
       "fieldname": "email",

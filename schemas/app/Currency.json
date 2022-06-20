@@ -30,5 +30,5 @@
       "fieldtype": "Data"
     }
   ],
-  "quickEditFields": ["name", "symbol"]
+  "quickEditFields": ["symbol"]
 }
