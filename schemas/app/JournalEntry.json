@@ -97,6 +97,7 @@
       "label": "Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
+      "create": true,
       "required": true,
       "default": "JV-"
     }

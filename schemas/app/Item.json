@@ -100,6 +100,7 @@
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Income",
+      "create": true,
       "required": true
     },
     {
@@ -108,6 +109,7 @@
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Expense",
+      "create": true,
       "required": true
     },
     {
@@ -115,6 +117,7 @@
       "label": "Tax",
       "fieldtype": "Link",
       "target": "Tax",
+      "create": true,
       "placeholder": "Tax"
     },
     {
