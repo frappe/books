@@ -1,5 +1,5 @@
 <template>
-  <FormContainer :backLink="true">
+  <FormContainer>
     <!-- Page Header (Title, Buttons, etc) -->
     <template #header v-if="doc">
       <StatusBadge :status="status" />
@@ -177,7 +177,7 @@ export default {
     };
   },
   activated() {
-    docsPath.value = docsPathMap.JournalEntry
+    docsPath.value = docsPathMap.JournalEntry;
   },
   deactivated() {
     docsPath.value = '';

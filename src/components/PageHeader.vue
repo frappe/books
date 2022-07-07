@@ -11,12 +11,12 @@
     "
     :class="border ? 'border-b' : ''"
   >
-    <h1 class="text-xl font-semibold select-none" v-if="title && !backLink">
+    <h1 class="text-xl font-semibold select-none" v-if="title">
       {{ title }}
     </h1>
-    <BackLink v-if="backLink" class="window-no-drag" />
-    <div class="flex items-stretch window-no-drag gap-2">
+    <div class="flex items-stretch window-no-drag gap-2 ml-auto">
       <slot />
+      <BackLink v-if="backLink" class="window-no-drag" />
       <SearchBar v-if="!hideSearch" />
     </div>
   </div>
@@ -28,7 +28,7 @@ import SearchBar from './SearchBar.vue';
 export default {
   props: {
     title: { type: String, default: '' },
-    backLink: { type: Boolean, default: false },
+    backLink: { type: Boolean, default: true },
     hideSearch: { type: Boolean, default: false },
     border: { type: Boolean, default: true },
   },
