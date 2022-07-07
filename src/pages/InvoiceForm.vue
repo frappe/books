@@ -1,5 +1,5 @@
 <template>
-  <FormContainer :backLink="true">
+  <FormContainer>
     <!-- Page Header (Title, Buttons, etc) -->
     <template #header v-if="doc">
       <StatusBadge :status="status" />
@@ -190,11 +190,11 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
-docsPath,
-getActionsForDocument,
-openSettings,
-routeTo,
-showMessageDialog
+  docsPath,
+  getActionsForDocument,
+  openSettings,
+  routeTo,
+  showMessageDialog,
 } from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
