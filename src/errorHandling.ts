@@ -179,6 +179,7 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   }
 
   body.push(`**Version**: \`${fyo.store.appVersion}\``);
+  body.push(`**Platform**: \`${fyo.store.platform}\``);
   body.push(`**Path**: \`${router.currentRoute.value.fullPath}\``);
 
   const url = [baseUrl, `body=${body.join('\n')}`].join('&');

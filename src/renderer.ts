@@ -30,6 +30,7 @@ import { setLanguageMap } from './utils/language';
 
   fyo.store.isDevelopment = isDevelopment;
   fyo.store.appVersion = version;
+  fyo.store.platform = platform;
   const platformName = getPlatformName(platform);
 
   setOnWindow(isDevelopment);
