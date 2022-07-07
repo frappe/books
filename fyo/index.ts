@@ -225,6 +225,7 @@ export class Fyo {
     isDevelopment: false,
     skipTelemetryLogging: false,
     appVersion: '',
+    platform: '',
   };
 }
 
