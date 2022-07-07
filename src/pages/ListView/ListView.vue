@@ -13,7 +13,7 @@
         :padding="false"
         class="px-3"
       >
-        <feather-icon name="plus" class="w-4 h-4 text-white" />
+        <feather-icon name="plus" class="w-4 h-4" />
       </Button>
     </PageHeader>
     <List

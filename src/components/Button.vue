@@ -42,8 +42,8 @@ export default {
         'opacity-50 cursor-not-allowed pointer-events-none': this.disabled,
         'text-white': this.type === 'primary',
         'bg-blue-500': this.type === 'primary',
-        'text-gray-900': this.type !== 'primary',
-        'bg-gray-100': this.type !== 'primary',
+        'text-gray-700': this.type !== 'primary',
+        'bg-gray-200': this.type !== 'primary',
         'px-3': this.padding && this.icon,
         'px-6': this.padding && !this.icon,
       };
