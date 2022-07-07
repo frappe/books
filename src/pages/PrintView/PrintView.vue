@@ -1,7 +1,7 @@
 <template>
   <div class="flex">
     <div class="flex flex-col flex-1 bg-gray-25">
-      <PageHeader :backLink="true" class="z-10" :border="false">
+      <PageHeader class="z-10" :border="false">
         <Button
           class="text-gray-900 text-xs"
           @click="showCustomiser = !showCustomiser"
