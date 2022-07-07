@@ -13,9 +13,9 @@
       :readonly="isReadOnly"
       :max="df.maxvalue"
       :min="df.minvalue"
-      @blur="(e) => triggerChange(e.target.value)"
-      @focus="(e) => $emit('focus', e)"
-      @input="(e) => $emit('input', e)"
+      @blur="(e) => !isReadOnly && triggerChange(e.target.value)"
+      @focus="(e) => !isReadOnly && $emit('focus', e)"
+      @input="(e) => !isReadOnly && $emit('input', e)"
     />
   </div>
 </template>
@@ -61,7 +61,6 @@ export default {
         {
           'px-3 py-2': this.size !== 'small',
           'px-2 py-1': this.size === 'small',
-          'pointer-events-none': this.isReadOnly,
         },
         'focus:outline-none focus:bg-gray-200 rounded w-full placeholder-gray-400',
         this.isReadOnly ? 'text-gray-800' : 'text-gray-900',
