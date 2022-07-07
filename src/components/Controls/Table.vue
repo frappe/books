@@ -33,7 +33,6 @@
     >
       <TableRow
         v-for="row in value"
-        :class="{ 'pointer-events-none': isReadOnly }"
         ref="table-row"
         :key="row.name"
         v-bind="{ row, tableFields, size, ratio, isNumeric }"
