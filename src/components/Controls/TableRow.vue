@@ -15,14 +15,14 @@
   >
     <!-- Index or Remove button -->
     <div class="flex items-center pl-2 text-gray-600">
-      <span class="hidden group-hover:inline-block">
+      <span class="hidden" :class="{ 'group-hover:inline-block': !readOnly }">
         <feather-icon
           name="x"
           class="w-4 h-4 -ml-1 cursor-pointer"
           @click="$emit('remove')"
         />
       </span>
-      <span class="group-hover:hidden">
+      <span :class="{ 'group-hover:hidden': !readOnly }">
         {{ row.idx + 1 }}
       </span>
     </div>
