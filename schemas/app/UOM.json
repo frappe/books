@@ -1,0 +1,22 @@
+{
+  "name": "UOM",
+  "label": "UOM",
+  "isSingle": false,
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "UOM",
+      "fieldtype": "Data",
+      "placeholder": "Item Name",
+      "required": true
+    },
+    {
+      "fieldname": "isWhole",
+      "label": "Is Whole",
+      "fieldtype": "Check",
+      "default": false
+    }
+  ],
+  "quickEditFields": ["isWhole"]
+}
