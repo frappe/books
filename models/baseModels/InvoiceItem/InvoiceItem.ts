@@ -2,6 +2,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { FiltersMap, FormulaMap, ValidationMap } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
+import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { Invoice } from '../Invoice/Invoice';
 
@@ -42,6 +43,26 @@ export abstract class InvoiceItem extends Doc {
       formula: () =>
         (this.rate as Money).mul(this.parentdoc!.exchangeRate as number),
       dependsOn: ['item', 'rate'],
+    },
+    quantity: {
+      formula: async () => {
+        if (!this.item) {
+          return this.quantity as number;
+        }
+
+        const itemDoc = await this.fyo.doc.getDoc(
+          ModelNameEnum.Item,
+          this.item as string
+        );
+
+        const unitDoc = itemDoc.getLink('unit');
+        if (unitDoc?.isWhole) {
+          return Math.round(this.quantity as number);
+        }
+
+        return this.quantity as number;
+      },
+      dependsOn: ['quantity'],
     },
     account: {
       formula: () => {

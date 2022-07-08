@@ -457,8 +457,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   async loadLinks() {
     this._links = {};
-    const inlineLinks = this.schema.fields.filter((f) => f.inline);
-    for (const f of inlineLinks) {
+    const linkFields = this.schema.fields.filter(
+      (f) => f.fieldtype === FieldTypeEnum.Link || f.inline
+    );
+
+    for (const f of linkFields) {
       await this.loadLink(f.fieldname);
     }
   }

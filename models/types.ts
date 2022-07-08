@@ -9,6 +9,7 @@ export enum ModelNameEnum {
   Currency = 'Currency',
   GetStarted = 'GetStarted',
   Item = 'Item',
+  UOM = 'UOM',
   JournalEntry = 'JournalEntry',
   JournalEntryAccount = 'JournalEntryAccount',
   NumberSeries = 'NumberSeries',

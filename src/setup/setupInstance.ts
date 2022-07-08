@@ -12,6 +12,7 @@ import { ModelNameEnum } from 'models/types';
 import { initializeInstance } from 'src/initFyo';
 import { createRegionalRecords } from 'src/regional';
 import { getRandomString } from 'utils';
+import { defaultUOMs } from 'utils/defaults';
 import { getCountryCodeFromCountry, getCountryInfo } from 'utils/misc';
 import { CountryInfo } from 'utils/types';
 import { CreateCOA } from './createCOA';
@@ -33,9 +34,19 @@ export default async function setupInstance(
   await createCurrencyRecords(fyo);
   await createAccountRecords(bankName, country, chartOfAccounts, fyo);
   await createRegionalRecords(country, fyo);
+  await createDefaultEntries(fyo);
   await createDefaultNumberSeries(fyo);
 
   await completeSetup(companyName, fyo);
+}
+
+async function createDefaultEntries(fyo: Fyo) {
+  /**
+   * Create default UOM entries
+   */
+  for (const uom of defaultUOMs) {
+    await checkAndCreateDoc(ModelNameEnum.UOM, uom, fyo);
+  }
 }
 
 async function initializeDatabase(dbPath: string, country: string, fyo: Fyo) {
