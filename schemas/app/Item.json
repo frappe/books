@@ -25,35 +25,10 @@
     {
       "fieldname": "unit",
       "label": "Unit Type",
-      "fieldtype": "Select",
-      "placeholder": "Unit Type",
-      "default": "Unit",
-      "options": [
-        {
-          "value": "Unit",
-          "label": "Unit"
-        },
-        {
-          "value": "Kg",
-          "label": "Kg"
-        },
-        {
-          "value": "Gram",
-          "label": "Gram"
-        },
-        {
-          "value": "Meter",
-          "label": "Meter"
-        },
-        {
-          "value": "Hour",
-          "label": "Hour"
-        },
-        {
-          "value": "Day",
-          "label": "Day"
-        }
-      ]
+      "fieldtype": "Link",
+      "target": "UOM",
+      "create": true,
+      "placeholder": "Unit Type"
     },
     {
       "fieldname": "itemType",
