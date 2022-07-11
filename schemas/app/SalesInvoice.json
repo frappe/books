@@ -92,6 +92,25 @@
       "readOnly": true
     },
     {
+      "fieldname": "discountAmount",
+      "label": "Discount Amount",
+      "fieldtype": "Currency",
+      "readOnly": false
+    },
+    {
+      "fieldname": "discountPercent",
+      "label": "Discount Percent",
+      "fieldtype": "Float",
+      "readOnly": false
+    },
+    {
+      "fieldname": "discountAfterTax",
+      "label": "Discount After Tax",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false
+    },
+    {
       "fieldname": "terms",
       "label": "Notes",
       "placeholder": "Add invoice terms",
