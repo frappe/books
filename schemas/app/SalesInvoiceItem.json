@@ -86,5 +86,15 @@
     }
   ],
   "tableFields": ["item", "tax", "quantity", "rate", "amount"],
-  "keywordFields": ["item", "tax"]
+  "keywordFields": ["item", "tax"],
+  "quickEditFields": [
+    "item",
+    "description",
+    "hsnCode",
+    "tax",
+    "quantity",
+    "rate",
+    "itemDiscountAmount",
+    "itemDiscountPercent"
+  ]
 }

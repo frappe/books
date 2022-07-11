@@ -38,6 +38,7 @@
         v-bind="{ row, tableFields, size, ratio, isNumeric }"
         :read-only="isReadOnly"
         @remove="removeRow(row)"
+        :can-edit-row="canEditRow"
       />
     </div>
 
@@ -169,8 +170,17 @@ export default {
       }
       return 2;
     },
+    canEditRow() {
+      return !this.doc?.isSubmitted && this.df.edit;
+    },
     ratio() {
-      return [0.3].concat(this.tableFields.map(() => 1));
+      const ratio = [0.3].concat(this.tableFields.map(() => 1));
+
+      if (this.canEditRow) {
+        return ratio.concat(0.3);
+      }
+
+      return ratio;
     },
     tableFields() {
       const fields = fyo.schemaMap[this.df.target].tableFields ?? [];

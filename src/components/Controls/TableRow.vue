@@ -19,6 +19,7 @@
         <feather-icon
           name="x"
           class="w-4 h-4 -ml-1 cursor-pointer"
+          :button="true"
           @click="$emit('remove')"
         />
       </span>
@@ -39,6 +40,18 @@
       @change="(value) => onChange(df, value)"
       @new-doc="(doc) => row.set(df.fieldname, doc.name)"
     />
+    <Button
+      :icon="true"
+      :padding="false"
+      :background="false"
+      @click="openRowQuickEdit"
+    >
+      <feather-icon
+        name="edit"
+        class="w-4 h-4 text-gray-600"
+        v-if="canEditRow"
+      />
+    </Button>
 
     <!-- Error Display -->
     <div
@@ -53,6 +66,8 @@
 import { Doc } from 'fyo/model/doc';
 import Row from 'src/components/Row.vue';
 import { getErrorMessage } from 'src/utils';
+import { openQuickEdit } from 'src/utils/ui';
+import Button from '../Button.vue';
 import FormControl from './FormControl.vue';
 
 export default {
@@ -64,11 +79,16 @@ export default {
     ratio: Array,
     isNumeric: Function,
     readOnly: Boolean,
+    canEditRow: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['remove'],
   components: {
     Row,
     FormControl,
+    Button,
   },
   data: () => ({ hovering: false, errors: {} }),
   beforeCreate() {
@@ -94,6 +114,16 @@ export default {
     },
     getErrorString() {
       return Object.values(this.errors).filter(Boolean).join(' ');
+    },
+    openRowQuickEdit() {
+      if (!this.row) {
+        return;
+      }
+
+      openQuickEdit({
+        schemaName: this.row.schemaName,
+        name: this.row.name,
+      });
     },
   },
 };
