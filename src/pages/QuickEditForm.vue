@@ -4,7 +4,10 @@
     :class="white ? 'bg-white' : 'bg-gray-25'"
   >
     <!-- Quick edit Tool bar -->
-    <div class="flex items-center justify-between px-4 border-b h-row-largest">
+    <div
+      class="flex items-center justify-between px-4 h-row-largest"
+      :class="{ 'border-b': !isChild }"
+    >
       <!-- Close Button and Status Text -->
       <div class="flex items-center">
         <Button :icon="true" @click="routeToPrevious">
@@ -17,8 +20,8 @@
 
       <!-- Actions, Badge and Status Change Buttons -->
       <div class="flex items-stretch gap-2">
-        <StatusBadge :status="status" />
-        <DropdownWithActions :actions="actions" />
+        <StatusBadge :status="status" v-if="!isChild" />
+        <DropdownWithActions :actions="actions" v-if="!isChild" />
         <Button
           :icon="true"
           @click="sync"
@@ -49,7 +52,7 @@
     <div
       class="px-4 flex-center flex flex-col items-center gap-1.5"
       style="height: calc(var(--h-row-mid) * 2 + 1px)"
-      v-if="doc"
+      v-if="doc && !isChild"
     >
       <FormControl
         v-if="imageField"
@@ -145,6 +148,9 @@ export default {
     await this.fetchFieldsAndDoc();
   },
   computed: {
+    isChild() {
+      return !!this?.doc?.schema?.isChild;
+    },
     schema() {
       return fyo.schemaMap[this.schemaName] ?? null;
     },
