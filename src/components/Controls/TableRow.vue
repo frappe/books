@@ -45,12 +45,9 @@
       :padding="false"
       :background="false"
       @click="openRowQuickEdit"
+      v-if="canEditRow"
     >
-      <feather-icon
-        name="edit"
-        class="w-4 h-4 text-gray-600"
-        v-if="canEditRow"
-      />
+      <feather-icon name="edit" class="w-4 h-4 text-gray-600" />
     </Button>
 
     <!-- Error Display -->
@@ -66,7 +63,6 @@
 import { Doc } from 'fyo/model/doc';
 import Row from 'src/components/Row.vue';
 import { getErrorMessage } from 'src/utils';
-import { openQuickEdit } from 'src/utils/ui';
 import Button from '../Button.vue';
 import FormControl from './FormControl.vue';
 
@@ -120,10 +116,7 @@ export default {
         return;
       }
 
-      openQuickEdit({
-        schemaName: this.row.schemaName,
-        name: this.row.name,
-      });
+      this.$parent.$emit('editrow', this.row);
     },
   },
 };

@@ -101,6 +101,7 @@
           :showHeader="true"
           :max-rows-before-overflow="4"
           @change="(value) => doc.set('items', value)"
+          @editrow="(r) => (row = r)"
           :read-only="doc?.submitted"
         />
       </div>
@@ -175,6 +176,17 @@
         </div>
       </div>
     </template>
+
+    <template #quickedit v-if="row">
+      <QuickEditForm
+        class="w-80"
+        :name="row.name"
+        :source-doc="row"
+        :schema-name="row.schemaName"
+        :route-back="false"
+        @close="row = null"
+      />
+    </template>
   </FormContainer>
 </template>
 <script>
@@ -190,13 +202,13 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
-  docsPath,
-  getActionsForDocument,
-  openSettings,
-  routeTo,
-  showMessageDialog,
+docsPath,
+getActionsForDocument,
+routeTo,
+showMessageDialog
 } from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
+import QuickEditForm from './QuickEditForm.vue';
 
 export default {
   name: 'InvoiceForm',
@@ -208,6 +220,7 @@ export default {
     DropdownWithActions,
     Table,
     FormContainer,
+    QuickEditForm,
   },
   provide() {
     return {
@@ -220,6 +233,7 @@ export default {
     return {
       chstatus: false,
       doc: null,
+      row: null,
       color: null,
       printSettings: null,
       companyName: null,
@@ -308,9 +322,6 @@ export default {
     },
     async handleError(e) {
       await handleErrorWithDialog(e, this.doc);
-    },
-    openInvoiceSettings() {
-      openSettings('Invoice');
     },
     formattedValue(fieldname, doc) {
       if (!doc) {

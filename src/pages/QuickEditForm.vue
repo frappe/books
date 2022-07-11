@@ -19,9 +19,9 @@
       </div>
 
       <!-- Actions, Badge and Status Change Buttons -->
-      <div class="flex items-stretch gap-2">
-        <StatusBadge :status="status" v-if="!isChild" />
-        <DropdownWithActions :actions="actions" v-if="!isChild" />
+      <div class="flex items-stretch gap-2" v-if="!isChild">
+        <StatusBadge :status="status" />
+        <DropdownWithActions :actions="actions" />
         <Button
           :icon="true"
           @click="sync"
@@ -92,6 +92,7 @@
 <script>
 import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
+import { Doc } from 'fyo/model/doc';
 import { getDocStatus } from 'models/helpers';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
@@ -109,6 +110,8 @@ export default {
     schemaName: String,
     defaults: String,
     white: { type: Boolean, default: false },
+    sourceDoc: { type: Doc, default: null },
+    routeBack: { type: Boolean, default: true },
     hideFields: { type: Array, default: () => [] },
     showFields: { type: Array, default: () => [] },
   },
@@ -119,6 +122,7 @@ export default {
     TwoColumnForm,
     DropdownWithActions,
   },
+  emits: ['close'],
   provide() {
     return {
       schemaName: this.schemaName,
@@ -233,6 +237,10 @@ export default {
       }, 300);
     },
     async fetchDoc() {
+      if (this.sourceDoc) {
+        return (this.doc = this.sourceDoc);
+      }
+
       if (!this.schemaName) {
         this.$router.back();
       }
@@ -289,7 +297,12 @@ export default {
       if (this.doc.dirty && !this.doc.notInserted) {
         this.doc.load();
       }
-      this.$router.back();
+
+      if (this.routeBack) {
+        this.$router.back();
+      } else {
+        this.$emit('close');
+      }
     },
     setTitleSize() {
       if (!this.$refs.titleControl) {

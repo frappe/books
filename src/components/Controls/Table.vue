@@ -86,6 +86,7 @@ import TableRow from './TableRow.vue';
 
 export default {
   name: 'Table',
+  emits: ['editrow'],
   extends: Base,
   props: {
     value: { type: Array, default: () => [] },
