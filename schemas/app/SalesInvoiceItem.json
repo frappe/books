@@ -66,6 +66,18 @@
       "readOnly": true
     },
     {
+      "fieldname": "itemDiscountAmount",
+      "label": "Item Discount Amount",
+      "fieldtype": "Currency",
+      "readOnly": false
+    },
+    {
+      "fieldname": "itemDiscountPercent",
+      "label": "Item Discount Percent",
+      "fieldtype": "Float",
+      "readOnly": false
+    },
+    {
       "fieldname": "hsnCode",
       "label": "HSN/SAC",
       "fieldtype": "Int",
