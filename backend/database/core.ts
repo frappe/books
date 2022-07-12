@@ -610,7 +610,9 @@ export default class DatabaseCore extends DatabaseBase {
 
   async #createTable(schemaName: string, tableName?: string) {
     tableName ??= schemaName;
-    const fields = this.schemaMap[schemaName]!.fields;
+    const fields = this.schemaMap[schemaName]!.fields.filter(
+      (f) => !f.computed
+    );
     return await this.#runCreateTableQuery(tableName, fields);
   }
 

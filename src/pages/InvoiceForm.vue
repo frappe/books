@@ -10,6 +10,13 @@
       >
         {{ t`Print` }}
       </Button>
+      <Button
+        :icon="true"
+        v-if="!doc?.isSubmitted && !quickEditDoc"
+        @click="toggleInvoiceSettings"
+      >
+        <feather-icon name="settings" class="w-4 h-4" />
+      </Button>
       <DropdownWithActions :actions="actions()" />
       <Button
         v-if="doc?.notInserted || doc?.dirty"
@@ -60,7 +67,6 @@
             input-class="text-lg font-semibold bg-transparent"
             :df="getField('party')"
             :value="doc.party"
-            :placeholder="getField('party').label"
             @change="(value) => doc.set('party', value)"
             @new-doc="(party) => doc.set('party', party.name)"
             :read-only="doc?.submitted"
@@ -69,7 +75,6 @@
             input-class="bg-gray-100 px-3 py-2 text-base text-right"
             :df="getField('date')"
             :value="doc.date"
-            :placeholder="'Date'"
             @change="(value) => doc.set('date', value)"
             :read-only="doc?.submitted"
           />
@@ -86,8 +91,16 @@
             input-class="px-3 py-2 text-base bg-transparent"
             :df="getField('account')"
             :value="doc.account"
-            :placeholder="'Account'"
             @change="(value) => doc.set('account', value)"
+            :read-only="doc?.submitted"
+          />
+          <FormControl
+            v-if="doc.discountPercent > 0"
+            class="text-base bg-gray-100 rounded"
+            input-class="px-3 py-2 text-base bg-transparent text-right"
+            :df="getField('discountPercent')"
+            :value="doc.discountPercent"
+            @change="(value) => doc.set('discountPercent', value)"
             :read-only="doc?.submitted"
           />
         </div>
@@ -101,7 +114,7 @@
           :showHeader="true"
           :max-rows-before-overflow="4"
           @change="(value) => doc.set('items', value)"
-          @editrow="(r) => (row = r)"
+          @editrow="toggleQuickEditDoc"
           :read-only="doc?.submitted"
         />
       </div>
@@ -177,14 +190,19 @@
       </div>
     </template>
 
-    <template #quickedit v-if="row">
+    <template #quickedit v-if="quickEditDoc">
       <QuickEditForm
-        class="w-80"
-        :name="row.name"
-        :source-doc="row"
-        :schema-name="row.schemaName"
+        class="w-quick-edit"
+        :name="quickEditDoc.name"
+        :show-name="false"
+        :show-save="false"
+        :source-doc="quickEditDoc"
+        :source-fields="quickEditFields"
+        :schema-name="quickEditDoc.schemaName"
+        :white="true"
         :route-back="false"
-        @close="row = null"
+        :load-on-close="false"
+        @close="toggleQuickEditDoc(null)"
       />
     </template>
   </FormContainer>
@@ -227,13 +245,15 @@ export default {
       schemaName: this.schemaName,
       name: this.name,
       doc: computed(() => this.doc),
+      isEditing: computed(() => !!this.quickEditDoc),
     };
   },
   data() {
     return {
       chstatus: false,
       doc: null,
-      row: null,
+      quickEditDoc: null,
+      quickEditFields: [],
       color: null,
       printSettings: null,
       companyName: null,
@@ -281,6 +301,23 @@ export default {
   },
   methods: {
     routeTo,
+    toggleInvoiceSettings() {
+      if (this.quickEditDoc || !this.schemaName) {
+        return;
+      }
+
+      const fields = [
+        'discountAfterTax',
+        'discountAmount',
+        'discountPercent',
+      ].map((fn) => fyo.getField(this.schemaName, fn));
+
+      this.toggleQuickEditDoc(this.doc, fields);
+    },
+    toggleQuickEditDoc(doc, fields = []) {
+      this.quickEditDoc = doc;
+      this.quickEditFields = fields;
+    },
     actions() {
       return getActionsForDocument(this.doc);
     },

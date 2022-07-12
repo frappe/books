@@ -16,6 +16,7 @@
     </h1>
     <div class="flex items-stretch window-no-drag gap-2 ml-auto">
       <slot />
+      <div class="border-r" v-if="showBorder" />
       <BackLink v-if="backLink" class="window-no-drag" />
       <SearchBar v-if="!hideSearch" />
     </div>
@@ -33,5 +34,10 @@ export default {
     border: { type: Boolean, default: true },
   },
   components: { SearchBar, BackLink },
+  computed: {
+    showBorder() {
+      return !!this.$slots.default;
+    },
+  },
 };
 </script>
