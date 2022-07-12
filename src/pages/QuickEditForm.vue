@@ -6,7 +6,7 @@
     <!-- Quick edit Tool bar -->
     <div
       class="flex items-center justify-between px-4 h-row-largest"
-      :class="{ 'border-b': !isChild }"
+      :class="{ 'border-b': showName }"
     >
       <!-- Close Button and Status Text -->
       <div class="flex items-center">
@@ -19,7 +19,7 @@
       </div>
 
       <!-- Actions, Badge and Status Change Buttons -->
-      <div class="flex items-stretch gap-2" v-if="!isChild">
+      <div class="flex items-stretch gap-2" v-if="showSave">
         <StatusBadge :status="status" />
         <DropdownWithActions :actions="actions" />
         <Button
@@ -52,7 +52,7 @@
     <div
       class="px-4 flex-center flex flex-col items-center gap-1.5"
       style="height: calc(var(--h-row-mid) * 2 + 1px)"
-      v-if="doc && !isChild"
+      v-if="doc && showName"
     >
       <FormControl
         v-if="imageField"
@@ -110,8 +110,12 @@ export default {
     schemaName: String,
     defaults: String,
     white: { type: Boolean, default: false },
-    sourceDoc: { type: Doc, default: null },
     routeBack: { type: Boolean, default: true },
+    showName: { type: Boolean, default: true },
+    showSave: { type: Boolean, default: true },
+    sourceDoc: { type: Doc, default: null },
+    loadOnClose: { type: Boolean, default: true },
+    sourceFields: { type: Array, default: () => [] },
     hideFields: { type: Array, default: () => [] },
     showFields: { type: Array, default: () => [] },
   },
@@ -162,6 +166,10 @@ export default {
       return getDocStatus(this.doc);
     },
     fields() {
+      if (this.sourceFields?.length) {
+        return this.sourceFields;
+      }
+
       if (!this.schema) {
         return [];
       }
@@ -294,7 +302,7 @@ export default {
       }
     },
     routeToPrevious() {
-      if (this.doc.dirty && !this.doc.notInserted) {
+      if (this.loadOnClose && this.doc.dirty && !this.doc.notInserted) {
         this.doc.load();
       }
 
