@@ -566,6 +566,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     const formulaFields = Object.keys(this.formulas).map(
       (fn) => this.fieldMap[fn]
     );
+
     changed ||= await this._applyFormulaForFields(
       formulaFields,
       doc,
