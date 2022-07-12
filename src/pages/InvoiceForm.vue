@@ -124,16 +124,22 @@
       <div v-if="doc.items?.length ?? 0" class="mt-auto">
         <hr />
         <div class="flex justify-between text-base m-4 gap-12">
-          <!-- Form Terms-->
-          <FormControl
-            class="w-1/2 self-end"
-            v-if="!doc?.submitted || doc.terms"
-            :df="getField('terms')"
-            :value="doc.terms"
-            input-class="bg-gray-100"
-            @change="(value) => doc.set('terms', value)"
-            :read-only="doc?.submitted"
-          />
+          <div class="w-1/2 relative">
+            <!-- Discount Note -->
+            <p v-if="discountNote?.length" class="text-gray-600">
+              {{ discountNote }}
+            </p>
+            <!-- Form Terms-->
+            <FormControl
+              v-if="!doc?.submitted || doc.terms"
+              :df="getField('terms')"
+              :value="doc.terms"
+              input-class="bg-gray-100"
+              class="absolute bottom-0 w-full"
+              @change="(value) => doc.set('terms', value)"
+              :read-only="doc?.submitted"
+            />
+          </div>
 
           <!-- Totals -->
           <div class="w-1/2 gap-2 flex flex-col self-end ml-auto">
@@ -269,6 +275,28 @@ export default {
     status() {
       this.chstatus;
       return getDocStatus(this.doc);
+    },
+    discountNote() {
+      const zeroInvoiceDiscount =
+        this.doc?.discountAmount?.isZero() && this.doc?.discountPercent === 0;
+
+      const zeroItemDiscount = (this.doc?.items ?? []).every(
+        (i) => i?.itemDiscountAmount?.isZero() && i?.itemDiscountPercent === 0
+      );
+      if (zeroInvoiceDiscount && zeroItemDiscount) {
+        return '';
+      }
+
+      if (!this.doc?.taxes?.length) {
+        return '';
+      }
+
+      let text = this.t`Discount applied before taxation`;
+      if (this.doc.discountAfterTax) {
+        text = this.t`Discount applied after taxation`;
+      }
+
+      return text;
     },
   },
   activated() {

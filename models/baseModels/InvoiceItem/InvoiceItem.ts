@@ -1,6 +1,11 @@
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap, FormulaMap, ValidationMap } from 'fyo/model/types';
+import {
+  FiltersMap,
+  FormulaMap,
+  HiddenMap,
+  ValidationMap,
+} from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -17,6 +22,8 @@ export abstract class InvoiceItem extends Doc {
   rate?: Money;
   quantity?: number;
   tax?: string;
+  itemTaxedTotal?: Money;
+  itemDiscountedTotal?: Money;
 
   get isSales() {
     return this.schemaName === 'SalesInvoiceItem';
@@ -48,113 +55,64 @@ export abstract class InvoiceItem extends Doc {
         )) as string,
       dependsOn: ['item'],
     },
-    itemDiscountAmount: {
-      formula: async (fieldname) => {
-        if (fieldname === 'itemDiscountPercent') {
-          return this.amount!.percent(this.itemDiscountPercent ?? 0);
-        }
-
-        return this.fyo.pesa(0);
-      },
-      dependsOn: ['itemDiscountPercent'],
-    },
-    itemDiscountPercent: {
-      formula: async (fieldname) => {
-        const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
-        if (!this.discountAfterTax) {
-          return itemDiscountAmount.div(this.amount ?? 0).mul(100).float;
-        }
-
-        const totalTaxRate = await this.getTotalTaxRate();
-        const rate = this.rate ?? this.fyo.pesa(0);
-        const quantity = this.quantity ?? 1;
-        const taxedTotal = getTaxedTotalBeforeDiscounting(
-          totalTaxRate,
-          rate,
-          quantity
-        );
-
-        return itemDiscountAmount.div(taxedTotal).mul(100).float;
-      },
-      dependsOn: ['itemDiscountAmount'],
-    },
-    itemDiscountedTotal: {
-      formula: async (fieldname) => {
-        const totalTaxRate = await this.getTotalTaxRate();
-        const rate = this.rate ?? this.fyo.pesa(0);
-        const quantity = this.quantity ?? 1;
-        const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
-        const itemDiscountPercent = this.itemDiscountPercent ?? 0;
-
-        if (!this.discountAfterTax) {
-          return getDiscountedTotalBeforeTaxation(
-            rate,
-            quantity,
-            itemDiscountAmount,
-            itemDiscountPercent,
-            fieldname
-          );
-        }
-
-        return getDiscountedTotalAfterTaxation(
-          totalTaxRate,
-          rate,
-          quantity,
-          itemDiscountAmount,
-          itemDiscountPercent,
-          fieldname
-        );
-      },
-      dependsOn: [
-        'item',
-        'rate',
-        'tax',
-        'quantity',
-        'itemDiscountAmount',
-        'itemDiscountPercent',
-      ],
-    },
-    itemTaxedTotal: {
-      formula: async (fieldname) => {
-        const totalTaxRate = await this.getTotalTaxRate();
-        const rate = this.rate ?? this.fyo.pesa(0);
-        const quantity = this.quantity ?? 1;
-        const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
-        const itemDiscountPercent = this.itemDiscountPercent ?? 0;
-
-        if (!this.discountAfterTax) {
-          return getTaxedTotalAfterDiscounting(
-            totalTaxRate,
-            rate,
-            quantity,
-            itemDiscountAmount,
-            itemDiscountPercent,
-            fieldname
-          );
-        }
-
-        return getTaxedTotalBeforeDiscounting(totalTaxRate, rate, quantity);
-      },
-      dependsOn: [
-        'item',
-        'rate',
-        'tax',
-        'quantity',
-        'itemDiscountAmount',
-        'itemDiscountPercent',
-      ],
-    },
     rate: {
-      formula: async () => {
-        const rate = (await this.fyo.getValue(
+      formula: async (fieldname) => {
+        let rate = (await this.fyo.getValue(
           'Item',
           this.item as string,
           'rate'
         )) as undefined | Money;
+        if (
+          fieldname !== 'itemTaxedTotal' &&
+          fieldname !== 'itemDiscountedTotal'
+        ) {
+          return rate ?? this.fyo.pesa(0);
+        }
 
+        const quantity = this.quantity ?? 0;
+        const taxedTotal = this.itemTaxedTotal ?? this.fyo.pesa(0);
+        const discountedTotal = this.itemDiscountedTotal ?? this.fyo.pesa(0);
+        const totalTaxRate = await this.getTotalTaxRate();
+        const discountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
+
+        if (fieldname === 'itemTaxedTotal' && this.discountAfterTax) {
+          rate = getRateFromTaxedTotalWhenDiscountingAfterTaxation(
+            quantity,
+            taxedTotal,
+            totalTaxRate
+          );
+        } else if (
+          fieldname === 'itemDiscountedTotal' &&
+          this.discountAfterTax
+        ) {
+          rate = getRateFromDiscountedTotalWhenDiscountingAfterTaxation(
+            quantity,
+            discountAmount,
+            discountedTotal,
+            totalTaxRate
+          );
+        } else if (fieldname === 'itemTaxedTotal' && !this.discountAfterTax) {
+          rate = getRateFromTaxedTotalWhenDiscountingBeforeTaxation(
+            quantity,
+            discountAmount,
+            taxedTotal,
+            totalTaxRate
+          );
+        } else if (
+          fieldname === 'itemDiscountedTotal' &&
+          !this.discountAfterTax
+        ) {
+          rate = getRateFromDiscountedTotalWhenDiscountingBeforeTaxation(
+            quantity,
+            discountAmount,
+            discountedTotal
+          );
+        }
+
+        console.log(rate?.float, fieldname, this.discountAfterTax);
         return rate ?? this.fyo.pesa(0);
       },
-      dependsOn: ['item'],
+      dependsOn: ['item', 'itemTaxedTotal', 'itemDiscountedTotal'],
     },
     baseRate: {
       formula: () =>
@@ -215,6 +173,122 @@ export abstract class InvoiceItem extends Doc {
         await this.fyo.getValue('Item', this.item as string, 'hsnCode'),
       dependsOn: ['item'],
     },
+    itemDiscountAmount: {
+      formula: async (fieldname) => {
+        if (fieldname === 'itemDiscountPercent') {
+          return this.amount!.percent(this.itemDiscountPercent ?? 0);
+        }
+
+        return this.fyo.pesa(0);
+      },
+      dependsOn: ['itemDiscountPercent'],
+    },
+    itemDiscountPercent: {
+      formula: async (fieldname) => {
+        const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
+        if (!this.discountAfterTax) {
+          return itemDiscountAmount.div(this.amount ?? 0).mul(100).float;
+        }
+
+        const totalTaxRate = await this.getTotalTaxRate();
+        const rate = this.rate ?? this.fyo.pesa(0);
+        const quantity = this.quantity ?? 1;
+
+        let itemTaxedTotal = this.itemTaxedTotal;
+        if (fieldname !== 'itemTaxedTotal' || !itemTaxedTotal) {
+          itemTaxedTotal = getTaxedTotalBeforeDiscounting(
+            totalTaxRate,
+            rate,
+            quantity
+          );
+        }
+
+        return itemDiscountAmount.div(itemTaxedTotal).mul(100).float;
+      },
+      dependsOn: [
+        'itemDiscountAmount',
+        'item',
+        'rate',
+        'quantity',
+        'itemTaxedTotal',
+        'itemDiscountedTotal',
+      ],
+    },
+    itemDiscountedTotal: {
+      formula: async (fieldname) => {
+        const totalTaxRate = await this.getTotalTaxRate();
+        const rate = this.rate ?? this.fyo.pesa(0);
+        const quantity = this.quantity ?? 1;
+        const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
+        const itemDiscountPercent = this.itemDiscountPercent ?? 0;
+
+        if (
+          this.itemDiscountAmount?.isZero() ||
+          this.itemDiscountPercent === 0
+        ) {
+          return rate.mul(quantity);
+        }
+
+        if (!this.discountAfterTax) {
+          return getDiscountedTotalBeforeTaxation(
+            rate,
+            quantity,
+            itemDiscountAmount,
+            itemDiscountPercent,
+            fieldname
+          );
+        }
+
+        return getDiscountedTotalAfterTaxation(
+          totalTaxRate,
+          rate,
+          quantity,
+          itemDiscountAmount,
+          itemDiscountPercent,
+          fieldname
+        );
+      },
+      dependsOn: [
+        'itemDiscountAmount',
+        'itemDiscountPercent',
+        'itemTaxedTotal',
+        'tax',
+        'rate',
+        'quantity',
+        'item',
+      ],
+    },
+    itemTaxedTotal: {
+      formula: async (fieldname) => {
+        const totalTaxRate = await this.getTotalTaxRate();
+        const rate = this.rate ?? this.fyo.pesa(0);
+        const quantity = this.quantity ?? 1;
+        const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
+        const itemDiscountPercent = this.itemDiscountPercent ?? 0;
+
+        if (!this.discountAfterTax) {
+          return getTaxedTotalAfterDiscounting(
+            totalTaxRate,
+            rate,
+            quantity,
+            itemDiscountAmount,
+            itemDiscountPercent,
+            fieldname
+          );
+        }
+
+        return getTaxedTotalBeforeDiscounting(totalTaxRate, rate, quantity);
+      },
+      dependsOn: [
+        'itemDiscountAmount',
+        'itemDiscountPercent',
+        'itemDiscountedTotal',
+        'tax',
+        'rate',
+        'quantity',
+        'item',
+      ],
+    },
   };
 
   validations: ValidationMap = {
@@ -228,6 +302,15 @@ export abstract class InvoiceItem extends Doc {
           value,
           'Currency'
         )}) cannot be less zero.`
+      );
+    },
+  };
+
+  hidden: HiddenMap = {
+    itemDiscountedTotal: () => {
+      return (
+        !this.discountAfterTax &&
+        (this.itemDiscountAmount?.isZero() || this.itemDiscountPercent === 0)
       );
     },
   };
@@ -253,6 +336,7 @@ export abstract class InvoiceItem extends Doc {
       };
     },
   };
+
   static createFilters: FiltersMap = {
     item: (doc: Doc) => {
       return { for: doc.isSales ? 'Sales' : 'Purchases' };
@@ -343,4 +427,47 @@ function getTaxedTotalBeforeDiscounting(
    */
 
   return rate.mul(quantity).mul(1 + totalTaxRate / 100);
+}
+
+/**
+ * Calculate Rate if any of the final amounts is set
+ */
+function getRateFromDiscountedTotalWhenDiscountingBeforeTaxation(
+  quantity: number,
+  discountAmount: Money,
+  discountedTotal: Money
+) {
+  return discountedTotal.add(discountAmount).div(quantity);
+}
+
+function getRateFromTaxedTotalWhenDiscountingBeforeTaxation(
+  quantity: number,
+  discountAmount: Money,
+  taxedTotal: Money,
+  totalTaxRatio: number
+) {
+  return taxedTotal
+    .div(1 + totalTaxRatio / 100)
+    .add(discountAmount)
+    .div(quantity);
+}
+
+function getRateFromDiscountedTotalWhenDiscountingAfterTaxation(
+  quantity: number,
+  discountAmount: Money,
+  discountedTotal: Money,
+  totalTaxRatio: number
+) {
+  return discountedTotal
+    .add(discountAmount)
+    .div(1 + totalTaxRatio / 100)
+    .div(quantity);
+}
+
+function getRateFromTaxedTotalWhenDiscountingAfterTaxation(
+  quantity: number,
+  taxedTotal: Money,
+  totalTaxRatio: number
+) {
+  return taxedTotal.div(1 + totalTaxRatio / 100).div(quantity);
 }
