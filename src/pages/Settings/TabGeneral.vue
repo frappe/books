@@ -38,6 +38,7 @@ export default {
   computed: {
     fields() {
       return [
+        'fullname',
         'companyName',
         'country',
         'bankName',
@@ -46,6 +47,7 @@ export default {
         'roundOffAccount',
         'fiscalYearStart',
         'fiscalYearEnd',
+        'enableDiscounting',
         'gstin',
       ].map((fieldname) => fyo.getField('AccountingSettings', fieldname));
     },

@@ -94,6 +94,12 @@
       "readOnly": true
     },
     {
+      "fieldname": "setDiscountAmount",
+      "label": "Set Discount Amount",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
       "fieldname": "discountAmount",
       "label": "Discount Amount",
       "fieldtype": "Currency",

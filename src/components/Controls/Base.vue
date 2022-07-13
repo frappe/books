@@ -62,7 +62,7 @@ export default {
           'px-3 py-2': this.size !== 'small',
           'px-2 py-1': this.size === 'small',
         },
-        'focus:outline-none focus:bg-gray-200 rounded w-full placeholder-gray-400',
+        'focus:outline-none focus:bg-gray-200 rounded w-full placeholder-gray-500',
         this.isReadOnly ? 'text-gray-800' : 'text-gray-900',
       ];
 

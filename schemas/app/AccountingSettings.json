@@ -36,7 +36,7 @@
     },
     {
       "fieldname": "fullname",
-      "label": "Name",
+      "label": "Full Name",
       "fieldtype": "Data",
       "required": true
     },
@@ -64,6 +64,12 @@
       "label": "Fiscal Year End Date",
       "fieldtype": "Date",
       "required": true
+    },
+    {
+      "fieldname": "enableDiscounting",
+      "label": "Enable Discounting",
+      "fieldtype": "Check",
+      "default": false
     },
     {
       "fieldname": "setupComplete",

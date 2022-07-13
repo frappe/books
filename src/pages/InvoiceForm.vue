@@ -95,12 +95,21 @@
             :read-only="doc?.submitted"
           />
           <FormControl
-            v-if="doc.discountPercent > 0"
+            v-if="doc.discountPercent > 0 && !doc.setDiscountAmount"
             class="text-base bg-gray-100 rounded"
             input-class="px-3 py-2 text-base bg-transparent text-right"
             :df="getField('discountPercent')"
             :value="doc.discountPercent"
             @change="(value) => doc.set('discountPercent', value)"
+            :read-only="doc?.submitted"
+          />
+          <FormControl
+            v-if="doc.discountAmount.float > 0 && doc.setDiscountAmount"
+            class="text-base bg-gray-100 rounded"
+            input-class="px-3 py-2 text-base bg-transparent text-right"
+            :df="getField('discountAmount')"
+            :value="doc.discountAmount"
+            @change="(value) => doc.set('discountAmount', value)"
             :read-only="doc?.submitted"
           />
         </div>
@@ -357,12 +366,7 @@ export default {
       return this.doc?.discountAmount ?? fyo.pesa(0);
     },
     itemDiscountAmount() {
-      const itemDiscountAmount = (this.doc?.items ?? []).reduce(
-        (acc, i) => acc.add(i.itemDiscountAmount),
-        fyo.pesa(0)
-      );
-
-      return itemDiscountAmount;
+      return this.doc.getItemDiscountAmount();
     },
   },
   activated() {
@@ -402,6 +406,7 @@ export default {
 
       const fields = [
         'discountAfterTax',
+        'setDiscountAmount',
         'discountAmount',
         'discountPercent',
       ].map((fn) => fyo.getField(this.schemaName, fn));

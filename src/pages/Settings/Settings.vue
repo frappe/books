@@ -95,7 +95,8 @@ export default {
     if (
       fieldnames.includes('displayPrecision') ||
       fieldnames.includes('hideGetStarted') ||
-      fieldnames.includes('displayPrecision')
+      fieldnames.includes('displayPrecision') ||
+      fieldnames.includes('enableDiscounting')
     ) {
       this.showReloadToast();
     }

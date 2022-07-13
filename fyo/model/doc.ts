@@ -453,7 +453,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     if (data && data.name) {
-      this._syncValues(data);
+      await this._syncValues(data);
       await this.loadLinks();
     } else {
       throw new NotFoundError(`Not Found: ${this.schemaName} ${this.name}`);
@@ -502,13 +502,37 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return link;
   }
 
-  _syncValues(data: DocValueMap) {
+  async _syncValues(data: DocValueMap) {
     this._clearValues();
     this._setValuesWithoutChecks(data);
+    await this._setComputedValuesFromFormulas();
     this._dirty = false;
     this.trigger('change', {
       doc: this,
     });
+  }
+
+  async _setComputedValuesFromFormulas() {
+    for (const field of this.schema.fields) {
+      await this._setComputedValuesForChildren(field);
+      if (!field.computed) {
+        continue;
+      }
+
+      const value = await this._getValueFromFormula(field, this);
+      this[field.fieldname] = value ?? null;
+    }
+  }
+
+  async _setComputedValuesForChildren(field: Field) {
+    if (field.fieldtype !== 'Table') {
+      return;
+    }
+
+    const childDocs: Doc[] = (this[field.fieldname] as Doc[]) ?? [];
+    for (const doc of childDocs) {
+      await doc._setComputedValuesFromFormulas();
+    }
   }
 
   _clearValues() {
@@ -635,7 +659,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     const validDict = this.getValidDict(false, true);
     const data = await this.fyo.db.insert(this.schemaName, validDict);
-    this._syncValues(data);
+    await this._syncValues(data);
 
     this.fyo.telemetry.log(Verb.Created, this.schemaName);
     return this;
@@ -648,7 +672,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     const data = this.getValidDict(false, true);
     await this.fyo.db.update(this.schemaName, data);
-    this._syncValues(data);
+    await this._syncValues(data);
 
     return this;
   }
