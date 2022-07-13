@@ -50,6 +50,7 @@ export function getMissingMandatoryMessage(doc: Doc) {
       const value = doc.get(f.fieldname);
       const isNullOrUndef = getIsNullOrUndef(value);
 
+      console.log(f.fieldname, value);
       if (f.fieldtype === FieldTypeEnum.Table) {
         return isNullOrUndef || (value as Doc[])?.length === 0;
       }

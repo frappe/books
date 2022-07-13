@@ -65,6 +65,12 @@
       "readOnly": true
     },
     {
+      "fieldname": "setItemDiscountAmount",
+      "label": "Set Discount Amount",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
       "fieldname": "itemDiscountAmount",
       "label": "Discount Amount",
       "fieldtype": "Currency",
@@ -109,6 +115,7 @@
     "quantity",
     "rate",
     "amount",
+    "setItemDiscountAmount",
     "itemDiscountAmount",
     "itemDiscountPercent",
     "itemDiscountedTotal",

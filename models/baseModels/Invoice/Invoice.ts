@@ -1,11 +1,12 @@
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
+import { DefaultMap, FiltersMap, FormulaMap, HiddenMap } from 'fyo/model/types';
 import { getExchangeRate } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { getIsNullOrUndef } from 'utils';
+import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
@@ -15,6 +16,7 @@ export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
 
+  items?: InvoiceItem[];
   party?: string;
   account?: string;
   currency?: string;
@@ -23,12 +25,20 @@ export abstract class Invoice extends Transactional {
   baseGrandTotal?: Money;
   outstandingAmount?: Money;
   exchangeRate?: number;
+  setDiscountAmount?: boolean;
+  discountAmount?: Money;
+  discountPercent?: number;
+  discountAfterTax?: boolean;
 
   submitted?: boolean;
   cancelled?: boolean;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
+  }
+
+  get enableDiscounting() {
+    return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
   }
 
   async afterSubmit() {
@@ -163,9 +173,25 @@ export abstract class Invoice extends Transactional {
   }
 
   async getGrandTotal() {
+    const itemDiscountAmount = this.getItemDiscountAmount();
+    const discountAmount = this.discountAmount ?? this.fyo.pesa(0);
+    const totalDiscount = itemDiscountAmount.add(discountAmount);
+
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
-      .reduce((a, b) => a.add(b), this.netTotal!);
+      .reduce((a, b) => a.add(b), this.netTotal!)
+      .sub(totalDiscount);
+  }
+
+  getItemDiscountAmount() {
+    if (!this?.items?.length) {
+      return this.fyo.pesa(0);
+    }
+
+    return this.items.reduce(
+      (acc, i) => acc.add(i.itemDiscountAmount ?? this.fyo.pesa(0)),
+      this.fyo.pesa(0)
+    );
   }
 
   formulas: FormulaMap = {
@@ -200,6 +226,24 @@ export abstract class Invoice extends Transactional {
       formula: async () => this.netTotal!.mul(this.exchangeRate!),
     },
     taxes: { formula: async () => await this.getTaxSummary() },
+    discountAmount: {
+      formula: async (fieldname) => {
+        if (fieldname !== 'discountPercent') {
+          return this.discountAmount!;
+        }
+
+        return this.getDiscountAmountFromPercent();
+      },
+    },
+    discountPercent: {
+      formula: async (fieldname) => {
+        if (fieldname === 'discountAmount') {
+          return this.getDiscountPercentFromAmount();
+        }
+
+        return this.discountPercent!;
+      },
+    },
     grandTotal: { formula: async () => await this.getGrandTotal() },
     baseGrandTotal: {
       formula: async () => (this.grandTotal as Money).mul(this.exchangeRate!),
@@ -213,6 +257,35 @@ export abstract class Invoice extends Transactional {
         return this.baseGrandTotal!;
       },
     },
+  };
+
+  getDiscountPercentFromAmount() {
+    const discountAmount = this.discountAmount ?? this.fyo.pesa(0);
+    const itemDiscountedAmounts = this.getItemDiscountedAmounts();
+    return discountAmount.mul(100).div(itemDiscountedAmounts).float;
+  }
+
+  getDiscountAmountFromPercent() {
+    const discountPercent = this.discountPercent ?? 0;
+    const itemDiscountedAmounts = this.getItemDiscountedAmounts();
+    return itemDiscountedAmounts.percent(discountPercent);
+  }
+
+  getItemDiscountedAmounts() {
+    let itemDiscountedAmounts = this.fyo.pesa(0);
+    for (const item of this.items ?? []) {
+      itemDiscountedAmounts = itemDiscountedAmounts.add(
+        item.itemDiscountedTotal ?? item.amount!
+      );
+    }
+    return itemDiscountedAmounts;
+  }
+
+  hidden: HiddenMap = {
+    setDiscountAmount: () => !this.enableDiscounting,
+    discountAmount: () => !(this.enableDiscounting && !!this.setDiscountAmount),
+    discountPercent: () => !(this.enableDiscounting && !this.setDiscountAmount),
+    discountAfterTax: () => !this.enableDiscounting,
   };
 
   static defaults: DefaultMap = {

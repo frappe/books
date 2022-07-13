@@ -1,5 +1,10 @@
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap, ListsMap, ValidationMap } from 'fyo/model/types';
+import {
+  FiltersMap,
+  ListsMap,
+  ReadOnlyMap,
+  ValidationMap,
+} from 'fyo/model/types';
 import { validateEmail } from 'fyo/model/validationFunction';
 import { getCountryInfo } from 'utils/misc';
 
@@ -21,5 +26,11 @@ export class AccountingSettings extends Doc {
 
   static lists: ListsMap = {
     country: () => Object.keys(getCountryInfo()),
+  };
+
+  readOnly: ReadOnlyMap = {
+    enableDiscounting: () => {
+      return !!this.enableDiscounting;
+    },
   };
 }

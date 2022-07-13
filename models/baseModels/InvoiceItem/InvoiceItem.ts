@@ -16,14 +16,16 @@ export abstract class InvoiceItem extends Doc {
   amount?: Money;
   baseAmount?: Money;
   exchangeRate?: number;
-  itemDiscountPercent?: number;
-  itemDiscountAmount?: Money;
   parentdoc?: Invoice;
   rate?: Money;
   quantity?: number;
   tax?: string;
-  itemTaxedTotal?: Money;
+
+  setItemDiscountAmount?: boolean;
+  itemDiscountAmount?: Money;
+  itemDiscountPercent?: number;
   itemDiscountedTotal?: Money;
+  itemTaxedTotal?: Money;
 
   get isSales() {
     return this.schemaName === 'SalesInvoiceItem';
@@ -31,6 +33,10 @@ export abstract class InvoiceItem extends Doc {
 
   get discountAfterTax() {
     return !!this?.parentdoc?.discountAfterTax;
+  }
+
+  get enableDiscounting() {
+    return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
   }
 
   async getTotalTaxRate(): Promise<number> {
@@ -313,6 +319,11 @@ export abstract class InvoiceItem extends Doc {
         (this.itemDiscountAmount?.isZero() || this.itemDiscountPercent === 0)
       );
     },
+    setItemDiscountAmount: () => !this.enableDiscounting,
+    itemDiscountAmount: () =>
+      !(this.enableDiscounting && !!this.setItemDiscountAmount),
+    itemDiscountPercent: () =>
+      !(this.enableDiscounting && !this.setItemDiscountAmount),
   };
 
   static filters: FiltersMap = {

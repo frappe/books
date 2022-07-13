@@ -32,7 +32,7 @@
           text-2xl
           focus:outline-none
           w-full
-          placeholder-gray-700
+          placeholder-gray-500
           text-gray-900
           rounded-md
           p-3
