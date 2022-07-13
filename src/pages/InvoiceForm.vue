@@ -124,9 +124,9 @@
       <div v-if="doc.items?.length ?? 0" class="mt-auto">
         <hr />
         <div class="flex justify-between text-base m-4 gap-12">
-          <div class="w-1/2 relative">
+          <div class="w-1/2 flex flex-col justify-between">
             <!-- Discount Note -->
-            <p v-if="discountNote?.length" class="text-gray-600">
+            <p v-if="discountNote?.length" class="text-gray-600 text-sm">
               {{ discountNote }}
             </p>
             <!-- Form Terms-->
@@ -135,7 +135,7 @@
               :df="getField('terms')"
               :value="doc.terms"
               input-class="bg-gray-100"
-              class="absolute bottom-0 w-full"
+              class="mt-auto"
               @change="(value) => doc.set('terms', value)"
               :read-only="doc?.submitted"
             />
@@ -150,23 +150,70 @@
             </div>
             <hr />
 
+            <!-- Discount Applied Before Taxes -->
+            <div
+              v-if="totalDiscount.float > 0 && !doc.discountAfterTax"
+              class="flex flex-col gap-2"
+            >
+              <div
+                class="flex justify-between"
+                v-if="itemDiscountAmount.float > 0"
+              >
+                <div>{{ t`Item Discount` }}</div>
+                <div>
+                  {{ `- ${fyo.format(itemDiscountAmount, 'Currency')}` }}
+                </div>
+              </div>
+              <div class="flex justify-between" v-if="discountAmount.float > 0">
+                <div>{{ t`Invoice Discount` }}</div>
+                <div>{{ `- ${fyo.format(discountAmount, 'Currency')}` }}</div>
+              </div>
+              <hr v-if="doc.taxes?.length" />
+            </div>
+
             <!-- Taxes -->
             <div
-              class="flex justify-between"
-              v-for="tax in doc.taxes"
-              :key="tax.name"
+              v-if="doc.taxes?.length"
+              class="flex flex-col gap-2 max-h-12 overflow-y-auto"
             >
-              <div>{{ tax.account }}</div>
-              <div>
-                {{
-                  fyo.format(tax.amount, {
-                    fieldtype: 'Currency',
-                    currency: doc.currency,
-                  })
-                }}
+              <div
+                class="flex justify-between"
+                v-for="tax in doc.taxes"
+                :key="tax.name"
+              >
+                <div>{{ tax.account }}</div>
+                <div>
+                  {{
+                    fyo.format(tax.amount, {
+                      fieldtype: 'Currency',
+                      currency: doc.currency,
+                    })
+                  }}
+                </div>
               </div>
             </div>
             <hr v-if="doc.taxes?.length" />
+
+            <!-- Discount Applied After Taxes -->
+            <div
+              v-if="totalDiscount.float > 0 && doc.discountAfterTax"
+              class="flex flex-col gap-2"
+            >
+              <div
+                class="flex justify-between"
+                v-if="itemDiscountAmount.float > 0"
+              >
+                <div>{{ t`Item Discount` }}</div>
+                <div>
+                  {{ `- ${fyo.format(itemDiscountAmount, 'Currency')}` }}
+                </div>
+              </div>
+              <div class="flex justify-between" v-if="discountAmount.float > 0">
+                <div>{{ t`Invoice Discount` }}</div>
+                <div>{{ `- ${fyo.format(discountAmount, 'Currency')}` }}</div>
+              </div>
+              <hr />
+            </div>
 
             <!-- Grand Total -->
             <div
@@ -183,9 +230,9 @@
             </div>
 
             <!-- Outstanding Amount -->
-            <hr v-if="doc.outstandingAmount > 0" />
+            <hr v-if="doc.outstandingAmount?.float > 0" />
             <div
-              v-if="doc.outstandingAmount > 0"
+              v-if="doc.outstandingAmount?.float > 0"
               class="flex justify-between text-red-600 font-semibold text-base"
             >
               <div>{{ t`Outstanding Amount` }}</div>
@@ -277,8 +324,7 @@ export default {
       return getDocStatus(this.doc);
     },
     discountNote() {
-      const zeroInvoiceDiscount =
-        this.doc?.discountAmount?.isZero() && this.doc?.discountPercent === 0;
+      const zeroInvoiceDiscount = this.doc?.discountAmount?.isZero();
 
       const zeroItemDiscount = (this.doc?.items ?? []).every(
         (i) => i?.itemDiscountAmount?.isZero() && i?.itemDiscountPercent === 0
@@ -297,6 +343,26 @@ export default {
       }
 
       return text;
+    },
+    totalDiscount() {
+      const discountAmount = this.doc?.discountAmount ?? fyo.pesa(0);
+      const itemDiscount = (this.doc?.items ?? []).reduce(
+        (acc, i) => acc.add(i.itemDiscountAmount),
+        fyo.pesa(0)
+      );
+
+      return discountAmount.add(itemDiscount);
+    },
+    discountAmount() {
+      return this.doc?.discountAmount ?? fyo.pesa(0);
+    },
+    itemDiscountAmount() {
+      const itemDiscountAmount = (this.doc?.items ?? []).reduce(
+        (acc, i) => acc.add(i.itemDiscountAmount),
+        fyo.pesa(0)
+      );
+
+      return itemDiscountAmount;
     },
   },
   activated() {
