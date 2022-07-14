@@ -16,15 +16,13 @@
       "label": "Write Off Account",
       "fieldname": "writeOffAccount",
       "fieldtype": "Link",
-      "target": "Account",
-      "default": "Write Off"
+      "target": "Account"
     },
     {
       "label": "Round Off Account",
       "fieldname": "roundOffAccount",
       "fieldtype": "Link",
-      "target": "Account",
-      "default": "Rounded Off"
+      "target": "Account"
     },
     {
       "fieldname": "country",
@@ -70,6 +68,12 @@
       "label": "Enable Discounting",
       "fieldtype": "Check",
       "default": false
+    },
+    {
+      "label": "Discount Account",
+      "fieldname": "discountAccount",
+      "fieldtype": "Link",
+      "target": "Account"
     },
     {
       "fieldname": "setupComplete",
