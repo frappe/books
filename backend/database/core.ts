@@ -2,7 +2,7 @@ import {
   CannotCommitError,
   getDbError,
   NotFoundError,
-  ValueError,
+  ValueError
 } from 'fyo/utils/errors';
 import { knex, Knex } from 'knex';
 import {
@@ -11,12 +11,12 @@ import {
   RawValue,
   Schema,
   SchemaMap,
-  TargetField,
+  TargetField
 } from '../../schemas/types';
 import {
   getIsNullOrUndef,
   getRandomString,
-  getValueMapFromList,
+  getValueMapFromList
 } from '../../utils';
 import { DatabaseBase, GetAllOptions, QueryFilter } from '../../utils/db/types';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../helpers';
@@ -24,7 +24,7 @@ import {
   ColumnDiff,
   FieldValueMap,
   GetQueryBuilderOptions,
-  SingleValue,
+  SingleValue
 } from './types';
 
 /**
@@ -356,7 +356,7 @@ export default class DatabaseCore extends DatabaseBase {
 
   async #removeColumns(schemaName: string, targetColumns: string[]) {
     const fields = this.schemaMap[schemaName]?.fields
-      .filter((f) => f.fieldtype !== FieldTypeEnum.Table)
+      .filter((f) => f.fieldtype !== FieldTypeEnum.Table && !f.computed)
       .map((f) => f.fieldname);
     const tableRows = await this.getAll(schemaName, { fields });
     this.prestigeTheTable(schemaName, tableRows);
@@ -504,7 +504,9 @@ export default class DatabaseCore extends DatabaseBase {
 
   async #getColumnDiff(schemaName: string): Promise<ColumnDiff> {
     const tableColumns = await this.#getTableColumns(schemaName);
-    const validFields = this.schemaMap[schemaName]!.fields;
+    const validFields = this.schemaMap[schemaName]!.fields.filter(
+      (f) => !f.computed
+    );
     const diff: ColumnDiff = { added: [], removed: [] };
 
     for (const field of validFields) {
