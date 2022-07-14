@@ -1,7 +1,7 @@
 <template>
   <div>
     <label class="flex items-center">
-      <div class="mr-3 text-gray-900 text-sm" v-if="showLabel && !labelRight">
+      <div class="mr-3 text-gray-600 text-sm" v-if="showLabel && !labelRight">
         {{ df.label }}
       </div>
       <div style="width: 14px; height: 14px; overflow: hidden; cursor: pointer">
@@ -61,7 +61,7 @@
           @focus="(e) => $emit('focus', e)"
         />
       </div>
-      <div class="ml-3 text-gray-900 text-sm" v-if="showLabel && labelRight">
+      <div class="ml-3 text-gray-600 text-sm" v-if="showLabel && labelRight">
         {{ df.label }}
       </div>
     </label>
