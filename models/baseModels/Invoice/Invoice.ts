@@ -178,13 +178,30 @@ export abstract class Invoice extends Transactional {
 
   async getGrandTotal() {
     const itemDiscountAmount = this.getItemDiscountAmount();
-    const discountAmount = this.discountAmount ?? this.fyo.pesa(0);
-    const totalDiscount = itemDiscountAmount.add(discountAmount);
+    const invoiceDiscountAmount = this.getInvoiceDiscountAmount();
+    const totalDiscount = itemDiscountAmount.add(invoiceDiscountAmount);
 
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => a.add(b), this.netTotal!)
       .sub(totalDiscount);
+  }
+
+  getInvoiceDiscountAmount() {
+    if (this.setDiscountAmount) {
+      return this.discountAmount ?? this.fyo.pesa(0);
+    }
+
+    let totalItemAmounts = this.fyo.pesa(0);
+    for (const item of this.items ?? []) {
+      if (this.discountAfterTax) {
+        totalItemAmounts = totalItemAmounts.add(item.itemTaxedTotal!);
+      } else {
+        totalItemAmounts = totalItemAmounts.add(item.itemDiscountedTotal!);
+      }
+    }
+
+    return totalItemAmounts.percent(this.discountPercent ?? 0);
   }
 
   getItemDiscountAmount() {
@@ -248,24 +265,6 @@ export abstract class Invoice extends Transactional {
       formula: async () => this.netTotal!.mul(this.exchangeRate!),
     },
     taxes: { formula: async () => await this.getTaxSummary() },
-    discountAmount: {
-      formula: async (fieldname) => {
-        if (fieldname !== 'discountPercent') {
-          return this.discountAmount!;
-        }
-
-        return this.getDiscountAmountFromPercent();
-      },
-    },
-    discountPercent: {
-      formula: async (fieldname) => {
-        if (fieldname === 'discountAmount') {
-          return this.getDiscountPercentFromAmount();
-        }
-
-        return this.discountPercent!;
-      },
-    },
     grandTotal: { formula: async () => await this.getGrandTotal() },
     baseGrandTotal: {
       formula: async () => (this.grandTotal as Money).mul(this.exchangeRate!),
@@ -280,18 +279,6 @@ export abstract class Invoice extends Transactional {
       },
     },
   };
-
-  getDiscountPercentFromAmount() {
-    const discountAmount = this.discountAmount ?? this.fyo.pesa(0);
-    const itemDiscountedAmounts = this.getItemDiscountedAmounts();
-    return discountAmount.mul(100).div(itemDiscountedAmounts).float;
-  }
-
-  getDiscountAmountFromPercent() {
-    const discountPercent = this.discountPercent ?? 0;
-    const itemDiscountedAmounts = this.getItemDiscountedAmounts();
-    return itemDiscountedAmounts.percent(discountPercent);
-  }
 
   getItemDiscountedAmounts() {
     let itemDiscountedAmounts = this.fyo.pesa(0);

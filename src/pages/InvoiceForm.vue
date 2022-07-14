@@ -95,7 +95,26 @@
             :read-only="doc?.submitted"
           />
           <FormControl
-            v-if="doc.discountPercent > 0 && !doc.setDiscountAmount"
+            v-if="doc.enableDiscounting"
+            :show-label="true"
+            :label-right="false"
+            class="
+              text-base
+              bg-gray-100
+              rounded
+              flex
+              items-center
+              justify-center
+              w-ful
+            "
+            input-class="px-3 py-2 text-base bg-transparent text-right"
+            :df="getField('setDiscountAmount')"
+            :value="doc.setDiscountAmount"
+            @change="(value) => doc.set('setDiscountAmount', value)"
+            :read-only="doc?.submitted"
+          />
+          <FormControl
+            v-if="doc.enableDiscounting && !doc.setDiscountAmount"
             class="text-base bg-gray-100 rounded"
             input-class="px-3 py-2 text-base bg-transparent text-right"
             :df="getField('discountPercent')"
@@ -104,7 +123,7 @@
             :read-only="doc?.submitted"
           />
           <FormControl
-            v-if="doc.discountAmount.float > 0 && doc.setDiscountAmount"
+            v-if="doc.enableDiscounting && doc.setDiscountAmount"
             class="text-base bg-gray-100 rounded"
             input-class="px-3 py-2 text-base bg-transparent text-right"
             :df="getField('discountAmount')"
@@ -352,11 +371,10 @@ export default {
       return text;
     },
     totalDiscount() {
-      const discountAmount = this.doc?.discountAmount ?? fyo.pesa(0);
-      return discountAmount.add(this.itemDiscountAmount);
+      return this.discountAmount.add(this.itemDiscountAmount);
     },
     discountAmount() {
-      return this.doc?.discountAmount ?? fyo.pesa(0);
+      return this.doc?.getInvoiceDiscountAmount();
     },
     itemDiscountAmount() {
       return this.doc.getItemDiscountAmount();
@@ -397,12 +415,9 @@ export default {
         return;
       }
 
-      const fields = [
-        'discountAfterTax',
-        'setDiscountAmount',
-        'discountAmount',
-        'discountPercent',
-      ].map((fn) => fyo.getField(this.schemaName, fn));
+      const fields = ['discountAfterTax'].map((fn) =>
+        fyo.getField(this.schemaName, fn)
+      );
 
       this.toggleQuickEditDoc(this.doc, fields);
     },
