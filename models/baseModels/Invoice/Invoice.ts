@@ -133,25 +133,29 @@ export abstract class Invoice extends Transactional {
       }
     > = {};
 
-    for (const row of this.items as Doc[]) {
-      if (!row.tax) {
+    type TaxDetail = { account: string; rate: number };
+
+    for (const item of this.items ?? []) {
+      if (!item.tax) {
         continue;
       }
 
-      const tax = await this.getTax(row.tax as string);
-      for (const d of tax.details as Doc[]) {
-        const account = d.account as string;
-        const rate = d.rate as number;
-
-        taxes[account] = taxes[account] || {
+      const tax = await this.getTax(item.tax!);
+      for (const { account, rate } of tax.details as TaxDetail[]) {
+        taxes[account] ??= {
           account,
           rate,
           amount: this.fyo.pesa(0),
           baseAmount: this.fyo.pesa(0),
         };
 
-        const amount = (row.amount as Money).mul(rate).div(100);
-        taxes[account].amount = taxes[account].amount.add(amount);
+        let amount = item.amount!;
+        if (this.enableDiscounting && !this.discountAfterTax) {
+          amount = item.itemDiscountedTotal!;
+        }
+
+        const taxAmount = amount.mul(rate / 100);
+        taxes[account].amount = taxes[account].amount.add(taxAmount);
       }
     }
 
@@ -188,10 +192,28 @@ export abstract class Invoice extends Transactional {
       return this.fyo.pesa(0);
     }
 
-    return this.items.reduce(
-      (acc, i) => acc.add(i.itemDiscountAmount ?? this.fyo.pesa(0)),
-      this.fyo.pesa(0)
-    );
+    let discountAmount = this.fyo.pesa(0);
+    for (const item of this.items) {
+      if (item.setItemDiscountAmount) {
+        discountAmount = discountAmount.add(
+          item.itemDiscountAmount ?? this.fyo.pesa(0)
+        );
+      } else if (!this.discountAfterTax) {
+        discountAmount = discountAmount.add(
+          (item.amount ?? this.fyo.pesa(0)).mul(
+            (item.itemDiscountPercent ?? 0) / 100
+          )
+        );
+      } else if (this.discountAfterTax) {
+        discountAmount = discountAmount.add(
+          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+            (item.itemDiscountPercent ?? 0) / 100
+          )
+        );
+      }
+    }
+
+    return discountAmount;
   }
 
   formulas: FormulaMap = {
