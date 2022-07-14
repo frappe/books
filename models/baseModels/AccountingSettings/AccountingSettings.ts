@@ -1,14 +1,17 @@
 import { Doc } from 'fyo/model/doc';
 import {
+  ChangeArg,
   FiltersMap,
   ListsMap,
   ReadOnlyMap,
-  ValidationMap,
+  ValidationMap
 } from 'fyo/model/types';
 import { validateEmail } from 'fyo/model/validationFunction';
+import { createDiscountAccount } from 'src/setup/setupInstance';
 import { getCountryInfo } from 'utils/misc';
 
 export class AccountingSettings extends Doc {
+  enableDiscounting?: boolean;
   static filters: FiltersMap = {
     writeOffAccount: () => ({
       isGroup: false,
@@ -17,6 +20,10 @@ export class AccountingSettings extends Doc {
     roundOffAccount: () => ({
       isGroup: false,
       rootType: 'Expense',
+    }),
+    discountAccount: () => ({
+      isGroup: false,
+      rootType: 'Income',
     }),
   };
 
@@ -33,4 +40,14 @@ export class AccountingSettings extends Doc {
       return !!this.enableDiscounting;
     },
   };
+
+  async change(ch: ChangeArg) {
+    const discountingEnabled =
+      ch.changed === 'enableDiscounting' && this.enableDiscounting;
+    const discountAccountNotSet = !this.discountAccount;
+
+    if (discountingEnabled && discountAccountNotSet) {
+      await createDiscountAccount(this.fyo);
+    }
+  }
 }
