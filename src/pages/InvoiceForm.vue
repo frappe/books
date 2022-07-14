@@ -12,7 +12,7 @@
       </Button>
       <Button
         :icon="true"
-        v-if="!doc?.isSubmitted && !quickEditDoc"
+        v-if="!doc?.isSubmitted && !quickEditDoc && doc.enableDiscounting"
         @click="toggleInvoiceSettings"
       >
         <feather-icon name="settings" class="w-4 h-4" />
@@ -334,10 +334,8 @@ export default {
     },
     discountNote() {
       const zeroInvoiceDiscount = this.doc?.discountAmount?.isZero();
+      const zeroItemDiscount = this.itemDiscountAmount?.isZero();
 
-      const zeroItemDiscount = (this.doc?.items ?? []).every(
-        (i) => i?.itemDiscountAmount?.isZero() && i?.itemDiscountPercent === 0
-      );
       if (zeroInvoiceDiscount && zeroItemDiscount) {
         return '';
       }
@@ -355,12 +353,7 @@ export default {
     },
     totalDiscount() {
       const discountAmount = this.doc?.discountAmount ?? fyo.pesa(0);
-      const itemDiscount = (this.doc?.items ?? []).reduce(
-        (acc, i) => acc.add(i.itemDiscountAmount),
-        fyo.pesa(0)
-      );
-
-      return discountAmount.add(itemDiscount);
+      return discountAmount.add(this.itemDiscountAmount);
     },
     discountAmount() {
       return this.doc?.discountAmount ?? fyo.pesa(0);

@@ -4,7 +4,7 @@ import {
   FiltersMap,
   FormulaMap,
   HiddenMap,
-  ValidationMap,
+  ValidationMap
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
@@ -63,11 +63,12 @@ export abstract class InvoiceItem extends Doc {
     },
     rate: {
       formula: async (fieldname) => {
-        let rate = (await this.fyo.getValue(
+        const rate = (await this.fyo.getValue(
           'Item',
           this.item as string,
           'rate'
         )) as undefined | Money;
+
         if (
           fieldname !== 'itemTaxedTotal' &&
           fieldname !== 'itemDiscountedTotal'
@@ -76,49 +77,36 @@ export abstract class InvoiceItem extends Doc {
         }
 
         const quantity = this.quantity ?? 0;
-        const taxedTotal = this.itemTaxedTotal ?? this.fyo.pesa(0);
-        const discountedTotal = this.itemDiscountedTotal ?? this.fyo.pesa(0);
+        const itemDiscountPercent = this.itemDiscountPercent ?? 0;
+        const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
         const totalTaxRate = await this.getTotalTaxRate();
-        const discountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
+        const itemTaxedTotal = this.itemTaxedTotal ?? this.fyo.pesa(0);
+        const itemDiscountedTotal =
+          this.itemDiscountedTotal ?? this.fyo.pesa(0);
+        const isItemTaxedTotal = fieldname === 'itemTaxedTotal';
+        const discountAfterTax = this.discountAfterTax;
+        const setItemDiscountAmount = !!this.setItemDiscountAmount;
 
-        if (fieldname === 'itemTaxedTotal' && this.discountAfterTax) {
-          rate = getRateFromTaxedTotalWhenDiscountingAfterTaxation(
-            quantity,
-            taxedTotal,
-            totalTaxRate
-          );
-        } else if (
-          fieldname === 'itemDiscountedTotal' &&
-          this.discountAfterTax
-        ) {
-          rate = getRateFromDiscountedTotalWhenDiscountingAfterTaxation(
-            quantity,
-            discountAmount,
-            discountedTotal,
-            totalTaxRate
-          );
-        } else if (fieldname === 'itemTaxedTotal' && !this.discountAfterTax) {
-          rate = getRateFromTaxedTotalWhenDiscountingBeforeTaxation(
-            quantity,
-            discountAmount,
-            taxedTotal,
-            totalTaxRate
-          );
-        } else if (
-          fieldname === 'itemDiscountedTotal' &&
-          !this.discountAfterTax
-        ) {
-          rate = getRateFromDiscountedTotalWhenDiscountingBeforeTaxation(
-            quantity,
-            discountAmount,
-            discountedTotal
-          );
-        }
+        const rateFromTotals = getRate(
+          quantity,
+          itemDiscountPercent,
+          itemDiscountAmount,
+          totalTaxRate,
+          itemTaxedTotal,
+          itemDiscountedTotal,
+          isItemTaxedTotal,
+          discountAfterTax,
+          setItemDiscountAmount
+        );
 
-        console.log(rate?.float, fieldname, this.discountAfterTax);
-        return rate ?? this.fyo.pesa(0);
+        return rateFromTotals ?? rate ?? this.fyo.pesa(0);
       },
-      dependsOn: ['item', 'itemTaxedTotal', 'itemDiscountedTotal'],
+      dependsOn: [
+        'item',
+        'itemTaxedTotal',
+        'itemDiscountedTotal',
+        'setItemDiscountAmount',
+      ],
     },
     baseRate: {
       formula: () =>
@@ -179,59 +167,19 @@ export abstract class InvoiceItem extends Doc {
         await this.fyo.getValue('Item', this.item as string, 'hsnCode'),
       dependsOn: ['item'],
     },
-    itemDiscountAmount: {
-      formula: async (fieldname) => {
-        if (fieldname === 'itemDiscountPercent') {
-          return this.amount!.percent(this.itemDiscountPercent ?? 0);
-        }
-
-        return this.fyo.pesa(0);
-      },
-      dependsOn: ['itemDiscountPercent'],
-    },
-    itemDiscountPercent: {
-      formula: async (fieldname) => {
-        const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
-        if (!this.discountAfterTax) {
-          return itemDiscountAmount.div(this.amount ?? 0).mul(100).float;
-        }
-
-        const totalTaxRate = await this.getTotalTaxRate();
-        const rate = this.rate ?? this.fyo.pesa(0);
-        const quantity = this.quantity ?? 1;
-
-        let itemTaxedTotal = this.itemTaxedTotal;
-        if (fieldname !== 'itemTaxedTotal' || !itemTaxedTotal) {
-          itemTaxedTotal = getTaxedTotalBeforeDiscounting(
-            totalTaxRate,
-            rate,
-            quantity
-          );
-        }
-
-        return itemDiscountAmount.div(itemTaxedTotal).mul(100).float;
-      },
-      dependsOn: [
-        'itemDiscountAmount',
-        'item',
-        'rate',
-        'quantity',
-        'itemTaxedTotal',
-        'itemDiscountedTotal',
-      ],
-    },
     itemDiscountedTotal: {
-      formula: async (fieldname) => {
+      formula: async () => {
         const totalTaxRate = await this.getTotalTaxRate();
         const rate = this.rate ?? this.fyo.pesa(0);
         const quantity = this.quantity ?? 1;
         const itemDiscountAmount = this.itemDiscountAmount ?? this.fyo.pesa(0);
         const itemDiscountPercent = this.itemDiscountPercent ?? 0;
 
-        if (
-          this.itemDiscountAmount?.isZero() ||
-          this.itemDiscountPercent === 0
-        ) {
+        if (this.setItemDiscountAmount && this.itemDiscountAmount?.isZero()) {
+          return rate.mul(quantity);
+        }
+
+        if (!this.setItemDiscountAmount && this.itemDiscountPercent === 0) {
           return rate.mul(quantity);
         }
 
@@ -241,7 +189,7 @@ export abstract class InvoiceItem extends Doc {
             quantity,
             itemDiscountAmount,
             itemDiscountPercent,
-            fieldname
+            !!this.setItemDiscountAmount
           );
         }
 
@@ -251,13 +199,14 @@ export abstract class InvoiceItem extends Doc {
           quantity,
           itemDiscountAmount,
           itemDiscountPercent,
-          fieldname
+          !!this.setItemDiscountAmount
         );
       },
       dependsOn: [
         'itemDiscountAmount',
         'itemDiscountPercent',
         'itemTaxedTotal',
+        'setItemDiscountAmount',
         'tax',
         'rate',
         'quantity',
@@ -279,7 +228,7 @@ export abstract class InvoiceItem extends Doc {
             quantity,
             itemDiscountAmount,
             itemDiscountPercent,
-            fieldname
+            !!this.setItemDiscountAmount
           );
         }
 
@@ -289,6 +238,7 @@ export abstract class InvoiceItem extends Doc {
         'itemDiscountAmount',
         'itemDiscountPercent',
         'itemDiscountedTotal',
+        'setItemDiscountAmount',
         'tax',
         'rate',
         'quantity',
@@ -310,14 +260,49 @@ export abstract class InvoiceItem extends Doc {
         )}) cannot be less zero.`
       );
     },
+    itemDiscountAmount: async (value: DocValue) => {
+      if ((value as Money).lte(this.amount!)) {
+        return;
+      }
+
+      throw new ValidationError(
+        this.fyo.t`Discount Amount (${this.fyo.format(
+          value,
+          'Currency'
+        )}) cannot be greated than Amount (${this.fyo.format(
+          this.amount!,
+          'Currency'
+        )}).`
+      );
+    },
+    itemDiscountPercent: async (value: DocValue) => {
+      if ((value as number) < 100) {
+        return;
+      }
+
+      throw new ValidationError(
+        this.fyo.t`Discount Percent (${
+          value as number
+        }) cannot be greater than 100.`
+      );
+    },
   };
 
   hidden: HiddenMap = {
     itemDiscountedTotal: () => {
-      return (
-        !this.discountAfterTax &&
-        (this.itemDiscountAmount?.isZero() || this.itemDiscountPercent === 0)
-      );
+      if (!this.enableDiscounting) {
+        return true;
+      }
+
+      if (!!this.setItemDiscountAmount && this.itemDiscountAmount?.isZero()) {
+        return true;
+      }
+
+      if (!this.setItemDiscountAmount && this.itemDiscountPercent === 0) {
+        return true;
+      }
+
+      return false;
     },
     setItemDiscountAmount: () => !this.enableDiscounting,
     itemDiscountAmount: () =>
@@ -360,7 +345,7 @@ function getDiscountedTotalBeforeTaxation(
   quantity: number,
   itemDiscountAmount: Money,
   itemDiscountPercent: number,
-  fieldname?: string
+  setDiscountAmount: boolean
 ) {
   /**
    * If Discount is applied before taxation
@@ -368,8 +353,9 @@ function getDiscountedTotalBeforeTaxation(
    * - if amount : Quantity * Rate - DiscountAmount
    * - if percent: Quantity * Rate (1 - DiscountPercent / 100)
    */
+
   const amount = rate.mul(quantity);
-  if (fieldname === 'itemDiscountAmount') {
+  if (setDiscountAmount) {
     return amount.sub(itemDiscountAmount);
   }
 
@@ -382,7 +368,7 @@ function getTaxedTotalAfterDiscounting(
   quantity: number,
   itemDiscountAmount: Money,
   itemDiscountPercent: number,
-  fieldname?: string
+  setItemDiscountAmount: boolean
 ) {
   /**
    * If Discount is applied before taxation
@@ -394,7 +380,7 @@ function getTaxedTotalAfterDiscounting(
     quantity,
     itemDiscountAmount,
     itemDiscountPercent,
-    fieldname
+    setItemDiscountAmount
   );
 
   return discountedTotal.mul(1 + totalTaxRate / 100);
@@ -406,7 +392,7 @@ function getDiscountedTotalAfterTaxation(
   quantity: number,
   itemDiscountAmount: Money,
   itemDiscountPercent: number,
-  fieldname?: string
+  setItemDiscountAmount: boolean
 ) {
   /**
    * If Discount is applied after taxation
@@ -420,7 +406,7 @@ function getDiscountedTotalAfterTaxation(
     quantity
   );
 
-  if (fieldname === 'itemDiscountAmount') {
+  if (setItemDiscountAmount) {
     return taxedTotal.sub(itemDiscountAmount);
   }
 
@@ -440,45 +426,62 @@ function getTaxedTotalBeforeDiscounting(
   return rate.mul(quantity).mul(1 + totalTaxRate / 100);
 }
 
-/**
- * Calculate Rate if any of the final amounts is set
- */
-function getRateFromDiscountedTotalWhenDiscountingBeforeTaxation(
+function getRate(
   quantity: number,
-  discountAmount: Money,
-  discountedTotal: Money
+  itemDiscountPercent: number,
+  itemDiscountAmount: Money,
+  totalTaxRate: number,
+  itemTaxedTotal: Money,
+  itemDiscountedTotal: Money,
+  isItemTaxedTotal: boolean,
+  discountAfterTax: boolean,
+  setItemDiscountAmount: boolean
 ) {
-  return discountedTotal.add(discountAmount).div(quantity);
-}
+  const isItemDiscountedTotal = !isItemTaxedTotal;
+  const discountBeforeTax = !discountAfterTax;
 
-function getRateFromTaxedTotalWhenDiscountingBeforeTaxation(
-  quantity: number,
-  discountAmount: Money,
-  taxedTotal: Money,
-  totalTaxRatio: number
-) {
-  return taxedTotal
-    .div(1 + totalTaxRatio / 100)
-    .add(discountAmount)
-    .div(quantity);
-}
+  /**
+   * Rate calculated from  itemDiscountedTotal
+   */
+  if (isItemDiscountedTotal && discountBeforeTax && setItemDiscountAmount) {
+    return itemDiscountedTotal.add(itemDiscountAmount).div(quantity);
+  }
 
-function getRateFromDiscountedTotalWhenDiscountingAfterTaxation(
-  quantity: number,
-  discountAmount: Money,
-  discountedTotal: Money,
-  totalTaxRatio: number
-) {
-  return discountedTotal
-    .add(discountAmount)
-    .div(1 + totalTaxRatio / 100)
-    .div(quantity);
-}
+  if (isItemDiscountedTotal && discountBeforeTax && !setItemDiscountAmount) {
+    return itemDiscountedTotal.div(quantity * (1 - itemDiscountPercent / 100));
+  }
 
-function getRateFromTaxedTotalWhenDiscountingAfterTaxation(
-  quantity: number,
-  taxedTotal: Money,
-  totalTaxRatio: number
-) {
-  return taxedTotal.div(1 + totalTaxRatio / 100).div(quantity);
+  if (isItemDiscountedTotal && discountAfterTax && setItemDiscountAmount) {
+    return itemDiscountedTotal
+      .add(itemDiscountAmount)
+      .div(quantity * (1 + totalTaxRate / 100));
+  }
+
+  if (isItemDiscountedTotal && discountAfterTax && !setItemDiscountAmount) {
+    return itemDiscountedTotal.div(
+      (quantity * (100 - itemDiscountPercent) * (100 + totalTaxRate)) / 100
+    );
+  }
+
+  /**
+   * Rate calculated from  itemTaxedTotal
+   */
+  if (isItemTaxedTotal && discountAfterTax) {
+    return itemTaxedTotal.div(quantity * (1 + totalTaxRate / 100));
+  }
+
+  if (isItemTaxedTotal && discountBeforeTax && setItemDiscountAmount) {
+    return itemTaxedTotal
+      .div(1 + totalTaxRate / 100)
+      .add(itemDiscountAmount)
+      .div(quantity);
+  }
+
+  if (isItemTaxedTotal && discountBeforeTax && !setItemDiscountAmount) {
+    return itemTaxedTotal.div(
+      quantity * (1 - itemDiscountPercent / 100) * (1 + totalTaxRate / 100)
+    );
+  }
+
+  return null;
 }

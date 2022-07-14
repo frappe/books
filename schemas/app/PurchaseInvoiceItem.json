@@ -84,14 +84,14 @@
     },
     {
       "fieldname": "itemDiscountedTotal",
-      "label": "Discounted Total",
+      "label": "Discounted Amount",
       "fieldtype": "Currency",
       "readOnly": false,
       "computed": true
     },
     {
       "fieldname": "itemTaxedTotal",
-      "label": "Taxed Total",
+      "label": "Taxed Amount",
       "fieldtype": "Currency",
       "readOnly": false,
       "computed": true
