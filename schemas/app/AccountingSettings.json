@@ -65,7 +65,7 @@
     },
     {
       "fieldname": "enableDiscounting",
-      "label": "Enable Discounting",
+      "label": "Enable Discount Accounting",
       "fieldtype": "Check",
       "default": false
     },
