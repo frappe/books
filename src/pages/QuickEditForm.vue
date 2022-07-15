@@ -233,8 +233,11 @@ export default {
         return;
       }
 
-      if (readOnly) {
+      if (readOnly && !this?.doc[fieldname]) {
         this.doc.set(fieldname, t`New ${this.schema.label}`);
+      }
+
+      if (this?.doc[fieldname]) {
         return;
       }
 
