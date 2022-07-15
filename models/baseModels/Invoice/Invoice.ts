@@ -187,7 +187,7 @@ export abstract class Invoice extends Transactional {
     return this._taxes[tax];
   }
 
-  async getTotalDiscount() {
+  getTotalDiscount() {
     if (!this.enableDiscounting) {
       return this.fyo.pesa(0);
     }
@@ -198,7 +198,7 @@ export abstract class Invoice extends Transactional {
   }
 
   async getGrandTotal() {
-    const totalDiscount = await this.getTotalDiscount();
+    const totalDiscount = this.getTotalDiscount();
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => a.add(b), this.netTotal!)

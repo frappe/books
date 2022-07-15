@@ -85,18 +85,25 @@
       </div>
       <div class="mt-12">
         <div class="flex -mx-3">
-          <div class="flex justify-end flex-1 p-3 bg-gray-100">
+          <div class="flex justify-end flex-1 py-3 bg-gray-100 gap-8 pr-6">
             <div class="text-right">
               <div class="text-gray-800">{{ t`Subtotal` }}</div>
               <div class="text-xl mt-2">
                 {{ fyo.format(doc.netTotal, 'Currency') }}
               </div>
             </div>
+
             <div
-              class="ml-8 text-right"
-              v-for="tax in doc.taxes"
-              :key="tax.name"
+              class="text-right"
+              v-if="totalDiscount?.float > 0 && !doc.discountAfterTax"
             >
+              <div class="text-gray-800">{{ t`Discount` }}</div>
+              <div class="text-xl mt-2">
+                {{ `- ${fyo.format(totalDiscount, 'Currency')}` }}
+              </div>
+            </div>
+
+            <div class="text-right" v-for="tax in doc.taxes" :key="tax.name">
               <div class="text-gray-800">
                 {{ tax.account }}
               </div>
@@ -104,9 +111,19 @@
                 {{ fyo.format(tax.amount, 'Currency') }}
               </div>
             </div>
+
+            <div
+              class="text-right"
+              v-if="totalDiscount?.float > 0 && !doc.discountAfterTax"
+            >
+              <div class="text-gray-800">{{ t`Discount` }}</div>
+              <div class="text-xl mt-2">
+                {{ `- ${fyo.format(totalDiscount, 'Currency')}` }}
+              </div>
+            </div>
           </div>
           <div
-            class="p-3 text-right text-white"
+            class="py-3 px-4 text-right text-white"
             :style="{ backgroundColor: printSettings.color }"
           >
             <div>
