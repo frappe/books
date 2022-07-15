@@ -94,6 +94,7 @@
             @change="(value) => doc.set('account', value)"
             :read-only="doc?.submitted"
           />
+          <!-- 
           <FormControl
             v-if="doc.enableDiscounting"
             :show-label="true"
@@ -131,6 +132,7 @@
             @change="(value) => doc.set('discountAmount', value)"
             :read-only="doc?.submitted"
           />
+          -->
         </div>
         <hr />
 
@@ -187,7 +189,7 @@
                 class="flex justify-between"
                 v-if="itemDiscountAmount.float > 0"
               >
-                <div>{{ t`Item Discount` }}</div>
+                <div>{{ t`Discount` }}</div>
                 <div>
                   {{ `- ${fyo.format(itemDiscountAmount, 'Currency')}` }}
                 </div>
@@ -231,7 +233,7 @@
                 class="flex justify-between"
                 v-if="itemDiscountAmount.float > 0"
               >
-                <div>{{ t`Item Discount` }}</div>
+                <div>{{ t`Discount` }}</div>
                 <div>
                   {{ `- ${fyo.format(itemDiscountAmount, 'Currency')}` }}
                 </div>

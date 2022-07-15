@@ -201,7 +201,7 @@ export default class DatabaseCore extends DatabaseBase {
     }
 
     if (fields === undefined) {
-      fields = schema.fields.map((f) => f.fieldname);
+      fields = schema.fields.filter((f) => !f.computed).map((f) => f.fieldname);
     }
 
     /**
@@ -756,9 +756,9 @@ export default class DatabaseCore extends DatabaseBase {
       fieldValueMap.name = getRandomString();
     }
 
-    // Non Table Fields
+    // Column fields
     const fields = this.schemaMap[schemaName]!.fields.filter(
-      (f) => f.fieldtype !== FieldTypeEnum.Table
+      (f) => f.fieldtype !== FieldTypeEnum.Table && !f.computed
     );
 
     const validMap: FieldValueMap = {};
@@ -773,8 +773,9 @@ export default class DatabaseCore extends DatabaseBase {
     singleSchemaName: string,
     fieldValueMap: FieldValueMap
   ) {
-    const fields = this.schemaMap[singleSchemaName]!.fields;
-
+    const fields = this.schemaMap[singleSchemaName]!.fields.filter(
+      (f) => !f.computed
+    );
     for (const field of fields) {
       const value = fieldValueMap[field.fieldname] as RawValue | undefined;
       if (value === undefined) {
@@ -864,8 +865,8 @@ export default class DatabaseCore extends DatabaseBase {
     const updateMap = { ...fieldValueMap };
     delete updateMap.name;
     const schema = this.schemaMap[schemaName] as Schema;
-    for (const { fieldname, fieldtype } of schema.fields) {
-      if (fieldtype !== FieldTypeEnum.Table) {
+    for (const { fieldname, fieldtype, computed } of schema.fields) {
+      if (fieldtype !== FieldTypeEnum.Table && !computed) {
         continue;
       }
 

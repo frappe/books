@@ -1,6 +1,7 @@
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { DefaultMap, FiltersMap, FormulaMap, HiddenMap } from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
 import { getExchangeRate } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
@@ -39,6 +40,16 @@ export abstract class Invoice extends Transactional {
 
   get enableDiscounting() {
     return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
+  }
+
+  async validate() {
+    await super.validate();
+    if (
+      this.enableDiscounting &&
+      !this.fyo.singles?.AccountingSettings?.discountAccount
+    ) {
+      throw new ValidationError(this.fyo.t`Discount Account is not set.`);
+    }
   }
 
   async afterSubmit() {
@@ -176,11 +187,18 @@ export abstract class Invoice extends Transactional {
     return this._taxes[tax];
   }
 
-  async getGrandTotal() {
+  async getTotalDiscount() {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
     const itemDiscountAmount = this.getItemDiscountAmount();
     const invoiceDiscountAmount = this.getInvoiceDiscountAmount();
-    const totalDiscount = itemDiscountAmount.add(invoiceDiscountAmount);
+    return itemDiscountAmount.add(invoiceDiscountAmount);
+  }
 
+  async getGrandTotal() {
+    const totalDiscount = await this.getTotalDiscount();
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
       .reduce((a, b) => a.add(b), this.netTotal!)
@@ -188,6 +206,10 @@ export abstract class Invoice extends Transactional {
   }
 
   getInvoiceDiscountAmount() {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
     if (this.setDiscountAmount) {
       return this.discountAmount ?? this.fyo.pesa(0);
     }
@@ -205,6 +227,10 @@ export abstract class Invoice extends Transactional {
   }
 
   getItemDiscountAmount() {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
     if (!this?.items?.length) {
       return this.fyo.pesa(0);
     }
@@ -291,9 +317,11 @@ export abstract class Invoice extends Transactional {
   }
 
   hidden: HiddenMap = {
-    setDiscountAmount: () => !this.enableDiscounting,
-    discountAmount: () => !(this.enableDiscounting && !!this.setDiscountAmount),
-    discountPercent: () => !(this.enableDiscounting && !this.setDiscountAmount),
+    setDiscountAmount: () => true || !this.enableDiscounting,
+    discountAmount: () =>
+      true || !(this.enableDiscounting && !!this.setDiscountAmount),
+    discountPercent: () =>
+      true || !(this.enableDiscounting && !this.setDiscountAmount),
     discountAfterTax: () => !this.enableDiscounting,
   };
 
