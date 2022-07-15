@@ -12,7 +12,7 @@
       </Button>
       <Button
         :icon="true"
-        v-if="!doc?.isSubmitted && !quickEditDoc && doc.enableDiscounting"
+        v-if="!doc?.isSubmitted && doc.enableDiscounting"
         @click="toggleInvoiceSettings"
       >
         <feather-icon name="settings" class="w-4 h-4" />
@@ -308,6 +308,7 @@ getActionsForDocument,
 routeTo,
 showMessageDialog
 } from 'src/utils/ui';
+import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 import QuickEditForm from './QuickEditForm.vue';
 
@@ -328,7 +329,6 @@ export default {
       schemaName: this.schemaName,
       name: this.name,
       doc: computed(() => this.doc),
-      isEditing: computed(() => !!this.quickEditDoc),
     };
   },
   data() {
@@ -413,7 +413,7 @@ export default {
   methods: {
     routeTo,
     toggleInvoiceSettings() {
-      if (this.quickEditDoc || !this.schemaName) {
+      if (!this.schemaName) {
         return;
       }
 
@@ -423,7 +423,13 @@ export default {
 
       this.toggleQuickEditDoc(this.doc, fields);
     },
-    toggleQuickEditDoc(doc, fields = []) {
+    async toggleQuickEditDoc(doc, fields = []) {
+      if (this.quickEditDoc && doc) {
+        this.quickEditDoc = null;
+        this.quickEditFields = [];
+        await nextTick();
+      }
+
       this.quickEditDoc = doc;
       this.quickEditFields = fields;
     },

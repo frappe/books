@@ -10,6 +10,7 @@
       :value="value"
       :placeholder="inputPlaceholder"
       style="vertical-align: top"
+      :readonly="isReadOnly"
       @blur="(e) => triggerChange(e.target.value)"
       @focus="(e) => $emit('focus', e)"
       @input="(e) => $emit('input', e)"

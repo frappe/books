@@ -46,7 +46,6 @@
       :background="false"
       @click="openRowQuickEdit"
       v-if="canEditRow"
-      :disabled="isEditing"
     >
       <feather-icon name="edit" class="w-4 h-4 text-gray-600" />
     </Button>
@@ -97,9 +96,6 @@ export default {
       name: this.row.name,
       doc: this.row,
     };
-  },
-  inject: {
-    isEditing: { default: false },
   },
   methods: {
     onChange(df, value) {
