@@ -233,11 +233,13 @@ export default {
         return;
       }
 
-      if (readOnly && !this?.doc[fieldname]) {
+      const isManual = this.schema.naming === 'manual';
+      const isNumberSeries = fyo.getField(this.schemaName, 'numberSeries');
+      if (readOnly && (!this?.doc[fieldname] || isNumberSeries)) {
         this.doc.set(fieldname, t`New ${this.schema.label}`);
       }
 
-      if (this?.doc[fieldname]) {
+      if (this?.doc[fieldname] && !isManual) {
         return;
       }
 
