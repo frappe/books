@@ -12,14 +12,8 @@
         {{ df.label }}
       </div>
       <div
-        class="
-          flex
-          items-center
-          justify-between
-          focus-within:bg-gray-200
-          pr-2
-          rounded
-        "
+        class="flex items-center justify-between pr-2 rounded"
+        :class="isReadOnly ? '' : 'focus-within:bg-gray-200'"
       >
         <input
           ref="input"

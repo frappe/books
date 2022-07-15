@@ -188,7 +188,7 @@ export default {
         return true;
       }
 
-      if (this.submitted) {
+      if (this.submitted || this.doc.parentdoc?.isSubmitted) {
         return true;
       }
 

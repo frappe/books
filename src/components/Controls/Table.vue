@@ -172,7 +172,7 @@ export default {
       return 2;
     },
     canEditRow() {
-      return !this.doc?.isSubmitted && this.df.edit;
+      return this.df.edit;
     },
     ratio() {
       const ratio = [0.3].concat(this.tableFields.map(() => 1));
