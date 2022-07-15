@@ -10,14 +10,14 @@ import {
   HiddenMap,
   ListViewSettings,
   RequiredMap,
-  ValidationMap,
+  ValidationMap
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import {
   getDocStatus,
   getLedgerLinkAction,
   getStatusMap,
-  statusColor,
+  statusColor
 } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { Transactional } from 'models/Transactional/Transactional';
@@ -366,6 +366,10 @@ export class Payment extends Transactional {
       formula: async () => this.getSum('for', 'amount', false),
       dependsOn: ['for'],
     },
+    amountPaid: {
+      formula: async () => this.amount!.sub(this.writeoff!),
+      dependsOn: ['amount', 'writeoff', 'for'],
+    },
   };
 
   validations: ValidationMap = {
@@ -404,6 +408,7 @@ export class Payment extends Transactional {
   hidden: HiddenMap = {
     referenceId: () => this.paymentMethod === 'Cash',
     clearanceDate: () => this.paymentMethod === 'Cash',
+    amountPaid: () => this.writeoff?.isZero() ?? true,
   };
 
   static filters: FiltersMap = {
