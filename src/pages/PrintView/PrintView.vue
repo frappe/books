@@ -37,7 +37,7 @@
     </div>
 
     <!-- Printview Customizer -->
-    <div class="border-l w-80" v-if="showCustomiser">
+    <div class="border-l w-quick-edit" v-if="showCustomiser">
       <div
         class="px-4 flex items-center justify-between h-row-largest border-b"
       >

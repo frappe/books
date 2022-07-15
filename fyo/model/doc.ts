@@ -384,10 +384,17 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await validator(value);
   }
 
-  getValidDict(filterMeta: boolean = false): DocValueMap {
+  getValidDict(
+    filterMeta: boolean = false,
+    filterComputed: boolean = false
+  ): DocValueMap {
     let fields = this.schema.fields;
     if (filterMeta) {
       fields = this.schema.fields.filter((f) => !f.meta);
+    }
+
+    if (filterComputed) {
+      fields = this.schema.fields.filter((f) => !f.computed);
     }
 
     const data: DocValueMap = {};
@@ -395,7 +402,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
       let value = this[field.fieldname] as DocValue | DocValueMap[];
 
       if (Array.isArray(value)) {
-        value = value.map((doc) => (doc as Doc).getValidDict(filterMeta));
+        value = value.map((doc) =>
+          (doc as Doc).getValidDict(filterMeta, filterComputed)
+        );
       }
 
       if (isPesa(value)) {
@@ -444,7 +453,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     if (data && data.name) {
-      this._syncValues(data);
+      await this._syncValues(data);
       await this.loadLinks();
     } else {
       throw new NotFoundError(`Not Found: ${this.schemaName} ${this.name}`);
@@ -493,13 +502,37 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return link;
   }
 
-  _syncValues(data: DocValueMap) {
+  async _syncValues(data: DocValueMap) {
     this._clearValues();
     this._setValuesWithoutChecks(data);
+    await this._setComputedValuesFromFormulas();
     this._dirty = false;
     this.trigger('change', {
       doc: this,
     });
+  }
+
+  async _setComputedValuesFromFormulas() {
+    for (const field of this.schema.fields) {
+      await this._setComputedValuesForChildren(field);
+      if (!field.computed) {
+        continue;
+      }
+
+      const value = await this._getValueFromFormula(field, this);
+      this[field.fieldname] = value ?? null;
+    }
+  }
+
+  async _setComputedValuesForChildren(field: Field) {
+    if (field.fieldtype !== 'Table') {
+      return;
+    }
+
+    const childDocs: Doc[] = (this[field.fieldname] as Doc[]) ?? [];
+    for (const doc of childDocs) {
+      await doc._setComputedValuesFromFormulas();
+    }
   }
 
   _clearValues() {
@@ -557,6 +590,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     const formulaFields = Object.keys(this.formulas).map(
       (fn) => this.fieldMap[fn]
     );
+
     changed ||= await this._applyFormulaForFields(
       formulaFields,
       doc,
@@ -577,7 +611,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
         continue;
       }
 
-      const newVal = await this._getValueFromFormula(field, doc);
+      const newVal = await this._getValueFromFormula(field, doc, fieldname);
       const previousVal = doc.get(field.fieldname);
       const isSame = areDocValuesEqual(newVal as DocValue, previousVal);
       if (newVal === undefined || isSame) {
@@ -591,7 +625,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return changed;
   }
 
-  async _getValueFromFormula(field: Field, doc: Doc) {
+  async _getValueFromFormula(field: Field, doc: Doc, fieldname?: string) {
     const { formula } = doc.formulas[field.fieldname] ?? {};
     if (formula === undefined) {
       return;
@@ -599,7 +633,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
     let value: FormulaReturn;
     try {
-      value = await formula();
+      value = await formula(fieldname);
     } catch {
       return;
     }
@@ -623,9 +657,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this._setBaseMetaValues();
     await this._preSync();
 
-    const validDict = this.getValidDict();
+    const validDict = this.getValidDict(false, true);
     const data = await this.fyo.db.insert(this.schemaName, validDict);
-    this._syncValues(data);
+    await this._syncValues(data);
 
     this.fyo.telemetry.log(Verb.Created, this.schemaName);
     return this;
@@ -636,9 +670,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this._updateModifiedMetaValues();
     await this._preSync();
 
-    const data = this.getValidDict();
+    const data = this.getValidDict(false, true);
     await this.fyo.db.update(this.schemaName, data);
-    this._syncValues(data);
+    await this._syncValues(data);
 
     return this;
   }
@@ -750,7 +784,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   duplicate(): Doc {
-    const updateMap = this.getValidDict(true);
+    const updateMap = this.getValidDict(true, true);
     for (const field in updateMap) {
       const value = updateMap[field];
       if (!Array.isArray(value)) {

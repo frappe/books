@@ -16,15 +16,13 @@
       "label": "Write Off Account",
       "fieldname": "writeOffAccount",
       "fieldtype": "Link",
-      "target": "Account",
-      "default": "Write Off"
+      "target": "Account"
     },
     {
       "label": "Round Off Account",
       "fieldname": "roundOffAccount",
       "fieldtype": "Link",
-      "target": "Account",
-      "default": "Rounded Off"
+      "target": "Account"
     },
     {
       "fieldname": "country",
@@ -36,7 +34,7 @@
     },
     {
       "fieldname": "fullname",
-      "label": "Name",
+      "label": "Full Name",
       "fieldtype": "Data",
       "required": true
     },
@@ -64,6 +62,18 @@
       "label": "Fiscal Year End Date",
       "fieldtype": "Date",
       "required": true
+    },
+    {
+      "fieldname": "enableDiscounting",
+      "label": "Enable Discounting",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "label": "Discount Account",
+      "fieldname": "discountAccount",
+      "fieldtype": "Link",
+      "target": "Account"
     },
     {
       "fieldname": "setupComplete",

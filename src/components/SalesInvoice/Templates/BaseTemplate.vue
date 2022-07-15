@@ -25,6 +25,9 @@ export default {
     showHSN() {
       return this.doc.items.map((i) => i.hsnCode).every(Boolean);
     },
+    totalDiscount() {
+      return this.doc.getTotalDiscount();
+    },
   },
 };
 </script>

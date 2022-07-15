@@ -8,7 +8,7 @@
       ref="input"
       :class="inputClasses"
       :type="inputType"
-      :value="value.round()"
+      :value="value?.round()"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
       @blur="onBlur"
@@ -69,7 +69,7 @@ export default {
   },
   computed: {
     formattedValue() {
-      return fyo.format(this.value, this.df, this.doc);
+      return fyo.format(this.value ?? fyo.pesa(0), this.df, this.doc);
     },
   },
 };

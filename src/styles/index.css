@@ -58,6 +58,7 @@ html {
   --w-sidebar: 12rem;
   --w-desk: calc(100vw - var(--w-sidebar));
   --w-desk-fixed: calc(var(--w-app) - var(--w-sidebar));
+  --w-quick-edit: 22rem;
   --w-scrollbar: 0.5rem;
 
   /* Row Heights */
@@ -71,6 +72,10 @@ html {
 
 .w-form {
   width: 600px;
+}
+
+.w-quick-edit {
+  width: var(--w-quick-edit)
 }
 
 .h-form {

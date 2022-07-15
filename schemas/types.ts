@@ -33,6 +33,7 @@ export interface BaseField {
   groupBy?: string;              // UI Facing used in dropdowns fields
   meta?: boolean;                // Field is a meta field, i.e. only for the db, not UI
   inline?: boolean;              // UI Facing config, whether to display doc inline.
+  computed?: boolean;            // Computed values are not stored in the database.
 }
 
 export type SelectOption = { value: string; label: string };
@@ -50,6 +51,7 @@ export interface TargetField extends BaseField {
   fieldtype: FieldTypeEnum.Table | FieldTypeEnum.Link;
   target: string;                // Name of the table or group of tables to fetch values
   create?: boolean;              // Whether to show Create in the dropdown
+  edit?: boolean;                // Whether the Table has quick editable columns
 }
 
 export interface DynamicLinkField extends BaseField {
