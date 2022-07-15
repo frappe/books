@@ -105,12 +105,26 @@
           <div>{{ fyo.format(doc.netTotal, 'Currency') }}</div>
         </div>
         <div
+          class="flex pl-2 justify-between py-3 border-b"
+          v-if="totalDiscount?.float > 0 && !doc.discountAfterTax"
+        >
+          <div>{{ t`Discount` }}</div>
+          <div>{{ `- ${fyo.format(totalDiscount, 'Currency')}` }}</div>
+        </div>
+        <div
           class="flex pl-2 justify-between py-3"
           v-for="tax in doc.taxes"
           :key="tax.name"
         >
           <div>{{ tax.account }}</div>
           <div>{{ fyo.format(tax.amount, 'Currency') }}</div>
+        </div>
+        <div
+          class="flex pl-2 justify-between py-3 border-t"
+          v-if="totalDiscount?.float > 0 && doc.discountAfterTax"
+        >
+          <div>{{ t`Discount` }}</div>
+          <div>{{ `- ${fyo.format(totalDiscount, 'Currency')}` }}</div>
         </div>
         <div
           class="
