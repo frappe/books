@@ -121,6 +121,12 @@
       "fieldtype": "Currency"
     },
     {
+      "fieldname": "amountPaid",
+      "label": "Amount Paid",
+      "fieldtype": "Currency",
+      "computed": true
+    },
+    {
       "fieldname": "for",
       "label": "Payment Reference",
       "fieldtype": "Table",
@@ -141,6 +147,7 @@
     "clearanceDate",
     "amount",
     "writeoff",
+    "amountPaid",
     "for"
   ],
   "keywordFields": ["name", "party", "paymentType"]

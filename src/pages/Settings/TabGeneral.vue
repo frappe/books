@@ -37,17 +37,33 @@ export default {
   },
   computed: {
     fields() {
-      return [
+      const fields = [
+        'fullname',
         'companyName',
         'country',
         'bankName',
         'currency',
-        'writeOffAccount',
-        'roundOffAccount',
         'fiscalYearStart',
         'fiscalYearEnd',
-        'gstin',
-      ].map((fieldname) => fyo.getField('AccountingSettings', fieldname));
+        'writeOffAccount',
+        'roundOffAccount',
+      ];
+
+      if (!this.doc.enableDiscounting) {
+        fields.push('enableDiscounting');
+      }
+
+      if (this.doc.enableDiscounting) {
+        fields.push('discountAccount');
+      }
+
+      if (fyo.singles.SystemSettings.countryCode === 'in') {
+        fields.push('gstin');
+      }
+
+      return fields.map((fieldname) =>
+        fyo.getField('AccountingSettings', fieldname)
+      );
     },
   },
   methods: {

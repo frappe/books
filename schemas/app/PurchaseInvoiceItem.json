@@ -65,6 +65,38 @@
       "readOnly": true
     },
     {
+      "fieldname": "setItemDiscountAmount",
+      "label": "Set Discount Amount",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "itemDiscountAmount",
+      "label": "Discount Amount",
+      "fieldtype": "Currency",
+      "readOnly": false
+    },
+    {
+      "fieldname": "itemDiscountPercent",
+      "label": "Discount Percent",
+      "fieldtype": "Float",
+      "readOnly": false
+    },
+    {
+      "fieldname": "itemDiscountedTotal",
+      "label": "Discounted Amount",
+      "fieldtype": "Currency",
+      "readOnly": false,
+      "computed": true
+    },
+    {
+      "fieldname": "itemTaxedTotal",
+      "label": "Taxed Amount",
+      "fieldtype": "Currency",
+      "readOnly": false,
+      "computed": true
+    },
+    {
       "fieldname": "hsnCode",
       "label": "HSN/SAC",
       "fieldtype": "Int",
@@ -73,5 +105,20 @@
     }
   ],
   "tableFields": ["item", "tax", "quantity", "rate", "amount"],
-  "keywordFields": ["item", "tax"]
+  "keywordFields": ["item", "tax"],
+  "quickEditFields": [
+    "item",
+    "account",
+    "description",
+    "hsnCode",
+    "tax",
+    "quantity",
+    "rate",
+    "amount",
+    "setItemDiscountAmount",
+    "itemDiscountAmount",
+    "itemDiscountPercent",
+    "itemDiscountedTotal",
+    "itemTaxedTotal"
+  ]
 }

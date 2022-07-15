@@ -5,8 +5,9 @@ import { createNumberSeries } from 'fyo/model/naming';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
-  DEFAULT_SERIES_START,
+  DEFAULT_SERIES_START
 } from 'fyo/utils/consts';
+import { AccountRootTypeEnum } from 'models/baseModels/Account/types';
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
 import { ModelNameEnum } from 'models/types';
 import { initializeInstance } from 'src/initFyo';
@@ -159,14 +160,65 @@ async function createAccountRecords(
   const createCOA = new CreateCOA(chartOfAccounts, fyo);
   await createCOA.run();
   const parentAccount = await getBankAccountParentName(country, fyo);
-  const docObject = {
+  const bankAccountDoc = {
     name: bankName,
-    rootType: 'Asset',
+    rootType: AccountRootTypeEnum.Asset,
     parentAccount,
     accountType: 'Bank',
     isGroup: false,
   };
-  await checkAndCreateDoc('Account', docObject, fyo);
+
+  await checkAndCreateDoc('Account', bankAccountDoc, fyo);
+  await createDiscountAccount(fyo);
+  await setDefaultAccounts(fyo);
+}
+
+export async function createDiscountAccount(fyo: Fyo) {
+  const incomeAccountName = fyo.t`Indirect Income`;
+  const accountExists = await fyo.db.exists(
+    ModelNameEnum.Account,
+    incomeAccountName
+  );
+
+  if (!accountExists) {
+    return;
+  }
+
+  const discountAccountName = fyo.t`Discounts`;
+  const discountAccountDoc = {
+    name: discountAccountName,
+    rootType: AccountRootTypeEnum.Income,
+    parentAccount: incomeAccountName,
+    accountType: 'Income Account',
+    isGroup: false,
+  };
+
+  await checkAndCreateDoc(ModelNameEnum.Account, discountAccountDoc, fyo);
+  await fyo.singles.AccountingSettings!.setAndSync(
+    'discountAccount',
+    discountAccountName
+  );
+}
+
+async function setDefaultAccounts(fyo: Fyo) {
+  const accountMap: Record<string, string> = {
+    writeOffAccount: fyo.t`Write Off`,
+    roundOffAccount: fyo.t`Rounded Off`,
+  };
+
+  for (const key in accountMap) {
+    const accountName = accountMap[key];
+    const accountExists = await fyo.db.exists(
+      ModelNameEnum.Account,
+      accountName
+    );
+
+    if (!accountExists) {
+      continue;
+    }
+
+    await fyo.singles.AccountingSettings!.setAndSync(key, accountName);
+  }
 }
 
 async function completeSetup(companyName: string, fyo: Fyo) {

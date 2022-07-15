@@ -18,7 +18,7 @@ import { Doc } from './doc';
  * - `Required`: Regular function used to decide if a value is mandatory (there are !notnul in the db).
  */
 export type FormulaReturn = DocValue | DocValueMap[] | undefined | Doc[];
-export type Formula = () => Promise<FormulaReturn> | FormulaReturn;
+export type Formula = (fieldname?: string) => Promise<FormulaReturn> | FormulaReturn;
 export type FormulaConfig = { dependsOn?: string[]; formula: Formula };
 export type Default = () => DocValue;
 export type Validation = (value: DocValue) => Promise<void> | void;

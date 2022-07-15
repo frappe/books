@@ -53,7 +53,8 @@
       "label": "Items",
       "fieldtype": "Table",
       "target": "PurchaseInvoiceItem",
-      "required": true
+      "required": true,
+      "edit": true
     },
     {
       "fieldname": "netTotal",
@@ -91,6 +92,31 @@
       "label": "Outstanding Amount",
       "fieldtype": "Currency",
       "readOnly": true
+    },
+    {
+      "fieldname": "setDiscountAmount",
+      "label": "Set Discount Amount",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "discountAmount",
+      "label": "Discount Amount",
+      "fieldtype": "Currency",
+      "readOnly": false
+    },
+    {
+      "fieldname": "discountPercent",
+      "label": "Discount Percent",
+      "fieldtype": "Float",
+      "readOnly": false
+    },
+    {
+      "fieldname": "discountAfterTax",
+      "label": "Discount After Tax",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false
     },
     {
       "fieldname": "terms",

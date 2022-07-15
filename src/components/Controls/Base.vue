@@ -62,8 +62,10 @@ export default {
           'px-3 py-2': this.size !== 'small',
           'px-2 py-1': this.size === 'small',
         },
-        'focus:outline-none focus:bg-gray-200 rounded w-full placeholder-gray-400',
-        this.isReadOnly ? 'text-gray-800' : 'text-gray-900',
+        'focus:outline-none rounded w-full placeholder-gray-500',
+        this.isReadOnly
+          ? 'text-gray-800 focus:bg-transparent'
+          : 'text-gray-900 focus:bg-gray-200',
       ];
 
       return this.getInputClassesFromProp(classes);

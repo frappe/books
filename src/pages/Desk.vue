@@ -16,7 +16,7 @@
           <keep-alive>
             <component
               :is="Component"
-              class="w-80 flex-1"
+              class="w-quick-edit flex-1"
               :key="$route.query.schemaName + $route.query.name"
             />
           </keep-alive>

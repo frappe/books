@@ -10,6 +10,13 @@
       >
         {{ t`Print` }}
       </Button>
+      <Button
+        :icon="true"
+        v-if="!doc?.isSubmitted && doc.enableDiscounting"
+        @click="toggleInvoiceSettings"
+      >
+        <feather-icon name="settings" class="w-4 h-4" />
+      </Button>
       <DropdownWithActions :actions="actions()" />
       <Button
         v-if="doc?.notInserted || doc?.dirty"
@@ -60,7 +67,6 @@
             input-class="text-lg font-semibold bg-transparent"
             :df="getField('party')"
             :value="doc.party"
-            :placeholder="getField('party').label"
             @change="(value) => doc.set('party', value)"
             @new-doc="(party) => doc.set('party', party.name)"
             :read-only="doc?.submitted"
@@ -69,7 +75,6 @@
             input-class="bg-gray-100 px-3 py-2 text-base text-right"
             :df="getField('date')"
             :value="doc.date"
-            :placeholder="'Date'"
             @change="(value) => doc.set('date', value)"
             :read-only="doc?.submitted"
           />
@@ -86,10 +91,48 @@
             input-class="px-3 py-2 text-base bg-transparent"
             :df="getField('account')"
             :value="doc.account"
-            :placeholder="'Account'"
             @change="(value) => doc.set('account', value)"
             :read-only="doc?.submitted"
           />
+          <!-- 
+          <FormControl
+            v-if="doc.enableDiscounting"
+            :show-label="true"
+            :label-right="false"
+            class="
+              text-base
+              bg-gray-100
+              rounded
+              flex
+              items-center
+              justify-center
+              w-ful
+            "
+            input-class="px-3 py-2 text-base bg-transparent text-right"
+            :df="getField('setDiscountAmount')"
+            :value="doc.setDiscountAmount"
+            @change="(value) => doc.set('setDiscountAmount', value)"
+            :read-only="doc?.submitted"
+          />
+          <FormControl
+            v-if="doc.enableDiscounting && !doc.setDiscountAmount"
+            class="text-base bg-gray-100 rounded"
+            input-class="px-3 py-2 text-base bg-transparent text-right"
+            :df="getField('discountPercent')"
+            :value="doc.discountPercent"
+            @change="(value) => doc.set('discountPercent', value)"
+            :read-only="doc?.submitted"
+          />
+          <FormControl
+            v-if="doc.enableDiscounting && doc.setDiscountAmount"
+            class="text-base bg-gray-100 rounded"
+            input-class="px-3 py-2 text-base bg-transparent text-right"
+            :df="getField('discountAmount')"
+            :value="doc.discountAmount"
+            @change="(value) => doc.set('discountAmount', value)"
+            :read-only="doc?.submitted"
+          />
+          -->
         </div>
         <hr />
 
@@ -101,6 +144,7 @@
           :showHeader="true"
           :max-rows-before-overflow="4"
           @change="(value) => doc.set('items', value)"
+          @editrow="toggleQuickEditDoc"
           :read-only="doc?.submitted"
         />
       </div>
@@ -110,16 +154,22 @@
       <div v-if="doc.items?.length ?? 0" class="mt-auto">
         <hr />
         <div class="flex justify-between text-base m-4 gap-12">
-          <!-- Form Terms-->
-          <FormControl
-            class="w-1/2 self-end"
-            v-if="!doc?.submitted || doc.terms"
-            :df="getField('terms')"
-            :value="doc.terms"
-            input-class="bg-gray-100"
-            @change="(value) => doc.set('terms', value)"
-            :read-only="doc?.submitted"
-          />
+          <div class="w-1/2 flex flex-col justify-between">
+            <!-- Discount Note -->
+            <p v-if="discountNote?.length" class="text-gray-600 text-sm">
+              {{ discountNote }}
+            </p>
+            <!-- Form Terms-->
+            <FormControl
+              v-if="!doc?.submitted || doc.terms"
+              :df="getField('terms')"
+              :value="doc.terms"
+              input-class="bg-gray-100"
+              class="mt-auto"
+              @change="(value) => doc.set('terms', value)"
+              :read-only="doc?.submitted"
+            />
+          </div>
 
           <!-- Totals -->
           <div class="w-1/2 gap-2 flex flex-col self-end ml-auto">
@@ -130,23 +180,70 @@
             </div>
             <hr />
 
+            <!-- Discount Applied Before Taxes -->
+            <div
+              v-if="totalDiscount.float > 0 && !doc.discountAfterTax"
+              class="flex flex-col gap-2"
+            >
+              <div
+                class="flex justify-between"
+                v-if="itemDiscountAmount.float > 0"
+              >
+                <div>{{ t`Discount` }}</div>
+                <div>
+                  {{ `- ${fyo.format(itemDiscountAmount, 'Currency')}` }}
+                </div>
+              </div>
+              <div class="flex justify-between" v-if="discountAmount.float > 0">
+                <div>{{ t`Invoice Discount` }}</div>
+                <div>{{ `- ${fyo.format(discountAmount, 'Currency')}` }}</div>
+              </div>
+              <hr v-if="doc.taxes?.length" />
+            </div>
+
             <!-- Taxes -->
             <div
-              class="flex justify-between"
-              v-for="tax in doc.taxes"
-              :key="tax.name"
+              v-if="doc.taxes?.length"
+              class="flex flex-col gap-2 max-h-12 overflow-y-auto"
             >
-              <div>{{ tax.account }}</div>
-              <div>
-                {{
-                  fyo.format(tax.amount, {
-                    fieldtype: 'Currency',
-                    currency: doc.currency,
-                  })
-                }}
+              <div
+                class="flex justify-between"
+                v-for="tax in doc.taxes"
+                :key="tax.name"
+              >
+                <div>{{ tax.account }}</div>
+                <div>
+                  {{
+                    fyo.format(tax.amount, {
+                      fieldtype: 'Currency',
+                      currency: doc.currency,
+                    })
+                  }}
+                </div>
               </div>
             </div>
             <hr v-if="doc.taxes?.length" />
+
+            <!-- Discount Applied After Taxes -->
+            <div
+              v-if="totalDiscount.float > 0 && doc.discountAfterTax"
+              class="flex flex-col gap-2"
+            >
+              <div
+                class="flex justify-between"
+                v-if="itemDiscountAmount.float > 0"
+              >
+                <div>{{ t`Discount` }}</div>
+                <div>
+                  {{ `- ${fyo.format(itemDiscountAmount, 'Currency')}` }}
+                </div>
+              </div>
+              <div class="flex justify-between" v-if="discountAmount.float > 0">
+                <div>{{ t`Invoice Discount` }}</div>
+                <div>{{ `- ${fyo.format(discountAmount, 'Currency')}` }}</div>
+              </div>
+              <hr />
+            </div>
 
             <!-- Grand Total -->
             <div
@@ -163,9 +260,9 @@
             </div>
 
             <!-- Outstanding Amount -->
-            <hr v-if="doc.outstandingAmount > 0" />
+            <hr v-if="doc.outstandingAmount?.float > 0" />
             <div
-              v-if="doc.outstandingAmount > 0"
+              v-if="doc.outstandingAmount?.float > 0"
               class="flex justify-between text-red-600 font-semibold text-base"
             >
               <div>{{ t`Outstanding Amount` }}</div>
@@ -174,6 +271,22 @@
           </div>
         </div>
       </div>
+    </template>
+
+    <template #quickedit v-if="quickEditDoc">
+      <QuickEditForm
+        class="w-quick-edit"
+        :name="quickEditDoc.name"
+        :show-name="false"
+        :show-save="false"
+        :source-doc="quickEditDoc"
+        :source-fields="quickEditFields"
+        :schema-name="quickEditDoc.schemaName"
+        :white="true"
+        :route-back="false"
+        :load-on-close="false"
+        @close="toggleQuickEditDoc(null)"
+      />
     </template>
   </FormContainer>
 </template>
@@ -190,13 +303,14 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
-  docsPath,
-  getActionsForDocument,
-  openSettings,
-  routeTo,
-  showMessageDialog,
+docsPath,
+getActionsForDocument,
+routeTo,
+showMessageDialog
 } from 'src/utils/ui';
+import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
+import QuickEditForm from './QuickEditForm.vue';
 
 export default {
   name: 'InvoiceForm',
@@ -208,6 +322,7 @@ export default {
     DropdownWithActions,
     Table,
     FormContainer,
+    QuickEditForm,
   },
   provide() {
     return {
@@ -220,6 +335,8 @@ export default {
     return {
       chstatus: false,
       doc: null,
+      quickEditDoc: null,
+      quickEditFields: [],
       color: null,
       printSettings: null,
       companyName: null,
@@ -235,6 +352,34 @@ export default {
     status() {
       this.chstatus;
       return getDocStatus(this.doc);
+    },
+    discountNote() {
+      const zeroInvoiceDiscount = this.doc?.discountAmount?.isZero();
+      const zeroItemDiscount = this.itemDiscountAmount?.isZero();
+
+      if (zeroInvoiceDiscount && zeroItemDiscount) {
+        return '';
+      }
+
+      if (!this.doc?.taxes?.length) {
+        return '';
+      }
+
+      let text = this.t`Discount applied before taxation`;
+      if (this.doc.discountAfterTax) {
+        text = this.t`Discount applied after taxation`;
+      }
+
+      return text;
+    },
+    totalDiscount() {
+      return this.discountAmount.add(this.itemDiscountAmount);
+    },
+    discountAmount() {
+      return this.doc?.getInvoiceDiscountAmount();
+    },
+    itemDiscountAmount() {
+      return this.doc.getItemDiscountAmount();
     },
   },
   activated() {
@@ -267,6 +412,27 @@ export default {
   },
   methods: {
     routeTo,
+    toggleInvoiceSettings() {
+      if (!this.schemaName) {
+        return;
+      }
+
+      const fields = ['discountAfterTax'].map((fn) =>
+        fyo.getField(this.schemaName, fn)
+      );
+
+      this.toggleQuickEditDoc(this.doc, fields);
+    },
+    async toggleQuickEditDoc(doc, fields = []) {
+      if (this.quickEditDoc && doc) {
+        this.quickEditDoc = null;
+        this.quickEditFields = [];
+        await nextTick();
+      }
+
+      this.quickEditDoc = doc;
+      this.quickEditFields = fields;
+    },
     actions() {
       return getActionsForDocument(this.doc);
     },
@@ -308,9 +474,6 @@ export default {
     },
     async handleError(e) {
       await handleErrorWithDialog(e, this.doc);
-    },
-    openInvoiceSettings() {
-      openSettings('Invoice');
     },
     formattedValue(fieldname, doc) {
       if (!doc) {

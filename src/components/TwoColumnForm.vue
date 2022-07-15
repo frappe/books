@@ -62,10 +62,8 @@
           height: getFieldHeight(df),
         }"
       >
-        <div class="py-2 pl-4 flex text-gray-600">
-          <div class="py-1">
-            {{ df.label }}
-          </div>
+        <div class="pl-4 flex text-gray-600">
+          {{ df.label }}
         </div>
 
         <div
@@ -190,7 +188,7 @@ export default {
         return true;
       }
 
-      if (this.submitted) {
+      if (this.submitted || this.doc.parentdoc?.isSubmitted) {
         return true;
       }
 

@@ -1,11 +1,13 @@
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
+import { DefaultMap, FiltersMap, FormulaMap, HiddenMap } from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
 import { getExchangeRate } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { getIsNullOrUndef } from 'utils';
+import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
@@ -15,6 +17,7 @@ export abstract class Invoice extends Transactional {
   _taxes: Record<string, Tax> = {};
   taxes?: TaxSummary[];
 
+  items?: InvoiceItem[];
   party?: string;
   account?: string;
   currency?: string;
@@ -23,12 +26,30 @@ export abstract class Invoice extends Transactional {
   baseGrandTotal?: Money;
   outstandingAmount?: Money;
   exchangeRate?: number;
+  setDiscountAmount?: boolean;
+  discountAmount?: Money;
+  discountPercent?: number;
+  discountAfterTax?: boolean;
 
   submitted?: boolean;
   cancelled?: boolean;
 
   get isSales() {
     return this.schemaName === 'SalesInvoice';
+  }
+
+  get enableDiscounting() {
+    return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
+  }
+
+  async validate() {
+    await super.validate();
+    if (
+      this.enableDiscounting &&
+      !this.fyo.singles?.AccountingSettings?.discountAccount
+    ) {
+      throw new ValidationError(this.fyo.t`Discount Account is not set.`);
+    }
   }
 
   async afterSubmit() {
@@ -123,25 +144,29 @@ export abstract class Invoice extends Transactional {
       }
     > = {};
 
-    for (const row of this.items as Doc[]) {
-      if (!row.tax) {
+    type TaxDetail = { account: string; rate: number };
+
+    for (const item of this.items ?? []) {
+      if (!item.tax) {
         continue;
       }
 
-      const tax = await this.getTax(row.tax as string);
-      for (const d of tax.details as Doc[]) {
-        const account = d.account as string;
-        const rate = d.rate as number;
-
-        taxes[account] = taxes[account] || {
+      const tax = await this.getTax(item.tax!);
+      for (const { account, rate } of tax.details as TaxDetail[]) {
+        taxes[account] ??= {
           account,
           rate,
           amount: this.fyo.pesa(0),
           baseAmount: this.fyo.pesa(0),
         };
 
-        const amount = (row.amount as Money).mul(rate).div(100);
-        taxes[account].amount = taxes[account].amount.add(amount);
+        let amount = item.amount!;
+        if (this.enableDiscounting && !this.discountAfterTax) {
+          amount = item.itemDiscountedTotal!;
+        }
+
+        const taxAmount = amount.mul(rate / 100);
+        taxes[account].amount = taxes[account].amount.add(taxAmount);
       }
     }
 
@@ -162,10 +187,76 @@ export abstract class Invoice extends Transactional {
     return this._taxes[tax];
   }
 
+  getTotalDiscount() {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
+    const itemDiscountAmount = this.getItemDiscountAmount();
+    const invoiceDiscountAmount = this.getInvoiceDiscountAmount();
+    return itemDiscountAmount.add(invoiceDiscountAmount);
+  }
+
   async getGrandTotal() {
+    const totalDiscount = this.getTotalDiscount();
     return ((this.taxes ?? []) as Doc[])
       .map((doc) => doc.amount as Money)
-      .reduce((a, b) => a.add(b), this.netTotal!);
+      .reduce((a, b) => a.add(b), this.netTotal!)
+      .sub(totalDiscount);
+  }
+
+  getInvoiceDiscountAmount() {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
+    if (this.setDiscountAmount) {
+      return this.discountAmount ?? this.fyo.pesa(0);
+    }
+
+    let totalItemAmounts = this.fyo.pesa(0);
+    for (const item of this.items ?? []) {
+      if (this.discountAfterTax) {
+        totalItemAmounts = totalItemAmounts.add(item.itemTaxedTotal!);
+      } else {
+        totalItemAmounts = totalItemAmounts.add(item.itemDiscountedTotal!);
+      }
+    }
+
+    return totalItemAmounts.percent(this.discountPercent ?? 0);
+  }
+
+  getItemDiscountAmount() {
+    if (!this.enableDiscounting) {
+      return this.fyo.pesa(0);
+    }
+
+    if (!this?.items?.length) {
+      return this.fyo.pesa(0);
+    }
+
+    let discountAmount = this.fyo.pesa(0);
+    for (const item of this.items) {
+      if (item.setItemDiscountAmount) {
+        discountAmount = discountAmount.add(
+          item.itemDiscountAmount ?? this.fyo.pesa(0)
+        );
+      } else if (!this.discountAfterTax) {
+        discountAmount = discountAmount.add(
+          (item.amount ?? this.fyo.pesa(0)).mul(
+            (item.itemDiscountPercent ?? 0) / 100
+          )
+        );
+      } else if (this.discountAfterTax) {
+        discountAmount = discountAmount.add(
+          (item.itemTaxedTotal ?? this.fyo.pesa(0)).mul(
+            (item.itemDiscountPercent ?? 0) / 100
+          )
+        );
+      }
+    }
+
+    return discountAmount;
   }
 
   formulas: FormulaMap = {
@@ -213,6 +304,25 @@ export abstract class Invoice extends Transactional {
         return this.baseGrandTotal!;
       },
     },
+  };
+
+  getItemDiscountedAmounts() {
+    let itemDiscountedAmounts = this.fyo.pesa(0);
+    for (const item of this.items ?? []) {
+      itemDiscountedAmounts = itemDiscountedAmounts.add(
+        item.itemDiscountedTotal ?? item.amount!
+      );
+    }
+    return itemDiscountedAmounts;
+  }
+
+  hidden: HiddenMap = {
+    setDiscountAmount: () => true || !this.enableDiscounting,
+    discountAmount: () =>
+      true || !(this.enableDiscounting && !!this.setDiscountAmount),
+    discountPercent: () =>
+      true || !(this.enableDiscounting && !this.setDiscountAmount),
+    discountAfterTax: () => !this.enableDiscounting,
   };
 
   static defaults: DefaultMap = {

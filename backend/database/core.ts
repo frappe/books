@@ -2,7 +2,7 @@ import {
   CannotCommitError,
   getDbError,
   NotFoundError,
-  ValueError,
+  ValueError
 } from 'fyo/utils/errors';
 import { knex, Knex } from 'knex';
 import {
@@ -11,12 +11,12 @@ import {
   RawValue,
   Schema,
   SchemaMap,
-  TargetField,
+  TargetField
 } from '../../schemas/types';
 import {
   getIsNullOrUndef,
   getRandomString,
-  getValueMapFromList,
+  getValueMapFromList
 } from '../../utils';
 import { DatabaseBase, GetAllOptions, QueryFilter } from '../../utils/db/types';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../helpers';
@@ -24,7 +24,7 @@ import {
   ColumnDiff,
   FieldValueMap,
   GetQueryBuilderOptions,
-  SingleValue,
+  SingleValue
 } from './types';
 
 /**
@@ -201,7 +201,7 @@ export default class DatabaseCore extends DatabaseBase {
     }
 
     if (fields === undefined) {
-      fields = schema.fields.map((f) => f.fieldname);
+      fields = schema.fields.filter((f) => !f.computed).map((f) => f.fieldname);
     }
 
     /**
@@ -356,7 +356,7 @@ export default class DatabaseCore extends DatabaseBase {
 
   async #removeColumns(schemaName: string, targetColumns: string[]) {
     const fields = this.schemaMap[schemaName]?.fields
-      .filter((f) => f.fieldtype !== FieldTypeEnum.Table)
+      .filter((f) => f.fieldtype !== FieldTypeEnum.Table && !f.computed)
       .map((f) => f.fieldname);
     const tableRows = await this.getAll(schemaName, { fields });
     this.prestigeTheTable(schemaName, tableRows);
@@ -504,7 +504,9 @@ export default class DatabaseCore extends DatabaseBase {
 
   async #getColumnDiff(schemaName: string): Promise<ColumnDiff> {
     const tableColumns = await this.#getTableColumns(schemaName);
-    const validFields = this.schemaMap[schemaName]!.fields;
+    const validFields = this.schemaMap[schemaName]!.fields.filter(
+      (f) => !f.computed
+    );
     const diff: ColumnDiff = { added: [], removed: [] };
 
     for (const field of validFields) {
@@ -610,7 +612,9 @@ export default class DatabaseCore extends DatabaseBase {
 
   async #createTable(schemaName: string, tableName?: string) {
     tableName ??= schemaName;
-    const fields = this.schemaMap[schemaName]!.fields;
+    const fields = this.schemaMap[schemaName]!.fields.filter(
+      (f) => !f.computed
+    );
     return await this.#runCreateTableQuery(tableName, fields);
   }
 
@@ -752,9 +756,9 @@ export default class DatabaseCore extends DatabaseBase {
       fieldValueMap.name = getRandomString();
     }
 
-    // Non Table Fields
+    // Column fields
     const fields = this.schemaMap[schemaName]!.fields.filter(
-      (f) => f.fieldtype !== FieldTypeEnum.Table
+      (f) => f.fieldtype !== FieldTypeEnum.Table && !f.computed
     );
 
     const validMap: FieldValueMap = {};
@@ -769,8 +773,9 @@ export default class DatabaseCore extends DatabaseBase {
     singleSchemaName: string,
     fieldValueMap: FieldValueMap
   ) {
-    const fields = this.schemaMap[singleSchemaName]!.fields;
-
+    const fields = this.schemaMap[singleSchemaName]!.fields.filter(
+      (f) => !f.computed
+    );
     for (const field of fields) {
       const value = fieldValueMap[field.fieldname] as RawValue | undefined;
       if (value === undefined) {
@@ -860,8 +865,8 @@ export default class DatabaseCore extends DatabaseBase {
     const updateMap = { ...fieldValueMap };
     delete updateMap.name;
     const schema = this.schemaMap[schemaName] as Schema;
-    for (const { fieldname, fieldtype } of schema.fields) {
-      if (fieldtype !== FieldTypeEnum.Table) {
+    for (const { fieldname, fieldtype, computed } of schema.fields) {
+      if (fieldtype !== FieldTypeEnum.Table && !computed) {
         continue;
       }
 
