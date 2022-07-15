@@ -11,7 +11,6 @@ export class PurchaseInvoice extends Invoice {
 
   async getPosting() {
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
-
     await posting.credit(this.account!, this.baseGrandTotal!);
 
     for (const item of this.items!) {
@@ -22,6 +21,13 @@ export class PurchaseInvoice extends Invoice {
       for (const tax of this.taxes) {
         await posting.debit(tax.account!, tax.baseAmount!);
       }
+    }
+
+    const discountAmount = await this.getTotalDiscount();
+    const discountAccount = this.fyo.singles.AccountingSettings
+      ?.discountAccount as string | undefined;
+    if (discountAccount && discountAmount.isPositive()) {
+      await posting.credit(discountAccount, discountAmount);
     }
 
     await posting.makeRoundOffEntry();

@@ -28,6 +28,7 @@
       "fieldtype": "Link",
       "target": "UOM",
       "create": true,
+      "default": "Unit",
       "placeholder": "Unit Type"
     },
     {

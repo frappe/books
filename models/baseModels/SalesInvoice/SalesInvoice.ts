@@ -23,6 +23,13 @@ export class SalesInvoice extends Invoice {
       }
     }
 
+    const discountAmount = await this.getTotalDiscount();
+    const discountAccount = this.fyo.singles.AccountingSettings
+      ?.discountAccount as string | undefined;
+    if (discountAccount && discountAmount.isPositive()) {
+      await posting.debit(discountAccount, discountAmount);
+    }
+
     await posting.makeRoundOffEntry();
     return posting;
   }
