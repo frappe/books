@@ -13,7 +13,7 @@ import { TelemetryManager } from './telemetry/telemetry';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_DISPLAY_PRECISION,
-  DEFAULT_INTERNAL_PRECISION,
+  DEFAULT_INTERNAL_PRECISION
 } from './utils/consts';
 import * as errors from './utils/errors';
 import { format } from './utils/format';
@@ -226,6 +226,10 @@ export class Fyo {
     skipTelemetryLogging: false,
     appVersion: '',
     platform: '',
+    language: '',
+    instanceId: '',
+    deviceId: '',
+    openCount: -1,
   };
 }
 

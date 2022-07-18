@@ -1,4 +1,5 @@
 import { Fyo } from 'fyo';
+import { ConfigFile, ConfigKeys } from 'fyo/core/types';
 import { getRegionalModels, models } from 'models';
 import { ModelNameEnum } from 'models/types';
 import { getRandomString, getValueMapFromList } from 'utils';
@@ -32,7 +33,9 @@ export async function initializeInstance(
   await setSingles(fyo);
   await setCreds(fyo);
   await setVersion(fyo);
+  setDeviceId(fyo);
   await setInstanceId(fyo);
+  await incrementOpenCount(fyo);
   await setCurrencySymbols(fyo);
 }
 
@@ -63,11 +66,25 @@ async function setVersion(fyo: Fyo) {
   }
 }
 
+function setDeviceId(fyo: Fyo) {
+  let deviceId = fyo.config.get(ConfigKeys.DeviceId) as string | undefined;
+  if (deviceId === undefined) {
+    deviceId = getRandomString();
+    fyo.config.set(ConfigKeys.DeviceId, deviceId);
+  }
+
+  fyo.store.deviceId = deviceId;
+}
 async function setInstanceId(fyo: Fyo) {
   const systemSettings = await fyo.doc.getDoc(ModelNameEnum.SystemSettings);
   if (!systemSettings.instanceId) {
     await systemSettings.setAndSync('instanceId', getRandomString());
   }
+
+  fyo.store.instanceId = (await fyo.getValue(
+    ModelNameEnum.SystemSettings,
+    'instanceId'
+  )) as string;
 }
 
 async function setCurrencySymbols(fyo: Fyo) {
@@ -80,4 +97,27 @@ async function setCurrencySymbols(fyo: Fyo) {
     'name',
     'symbol'
   ) as Record<string, string | undefined>;
+}
+
+export async function incrementOpenCount(fyo: Fyo) {
+  const instanceId = (await fyo.getValue(
+    ModelNameEnum.SystemSettings,
+    'instanceId'
+  )) as string;
+
+  let openCount = 0;
+  const files = (fyo.config.get(ConfigKeys.Files) ?? []) as ConfigFile[];
+  for (const file of files) {
+    if (file.id !== instanceId) {
+      continue;
+    }
+
+    file.openCount ??= 0;
+    file.openCount += 1;
+    openCount = file.openCount;
+    break;
+  }
+
+  fyo.config.set(ConfigKeys.Files, files);
+  fyo.store.openCount = openCount;
 }

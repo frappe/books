@@ -27,6 +27,7 @@ export default async function setupInstance(
   const { companyName, country, bankName, chartOfAccounts } =
     setupWizardOptions;
 
+  fyo.store.skipTelemetryLogging = true;
   await initializeDatabase(dbPath, country, fyo);
   await updateSystemSettings(setupWizardOptions, fyo);
   await updateAccountingSettings(setupWizardOptions, fyo);
@@ -39,6 +40,7 @@ export default async function setupInstance(
   await createDefaultNumberSeries(fyo);
 
   await completeSetup(companyName, fyo);
+  fyo.store.skipTelemetryLogging = false;
 }
 
 async function createDefaultEntries(fyo: Fyo) {
