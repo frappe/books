@@ -11,7 +11,6 @@
       items-center
       justify-center
       h-row-mid
-      relative
     "
   >
     <!-- Index or Remove button -->
@@ -53,8 +52,8 @@
 
     <!-- Error Display -->
     <div
-      class="text-xs text-red-600 pl-2 col-span-full absolute"
-      style="bottom: 0px"
+      class="text-xs text-red-600 pl-2 col-span-full relative"
+      style="bottom: 0.75rem; height: 0px"
       v-if="hasErrors"
     >
       {{ getErrorString() }}
