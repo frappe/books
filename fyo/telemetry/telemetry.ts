@@ -1,14 +1,6 @@
 import { Fyo } from 'fyo';
-import { cloneDeep } from 'lodash';
-import { DateTime } from 'luxon';
-import {
-  getCountry,
-  getDeviceId,
-  getInstanceId,
-  getLanguage,
-  getVersion,
-} from './helpers';
-import { Noun, Platform, Telemetry, Verb } from './types';
+import { ConfigKeys } from 'fyo/core/types';
+import { Noun, Telemetry, Verb } from './types';
 
 /**
  * # Telemetry
@@ -19,11 +11,11 @@ import { Noun, Platform, Telemetry, Verb } from './types';
  * Used to initialize state. It should be called before any logging and after an
  * instance has loaded.
  * It is called on three events:
- * 1. When Desk is opened, i.e. when the usage starts, this also sends a started
- *    log.
- * 2. On visibility change if not started, eg: when user minimizeds Books and
+ * 1. When Desk is opened, i.e. when the usage starts, this also sends a
+ *      Opened instance log.
+ * 2. On visibility change if not started, eg: when user minimizes Books and
  *      then comes back later.
- * 3. When `log` is called, but telemetry wasn't initialized.
+ * 3. When `log` is called, but telemetry isn't initialized.
  *
  * ## `log`
  * Used to log activity.
@@ -39,15 +31,10 @@ export class TelemetryManager {
   #url: string = '';
   #token: string = '';
   #started = false;
-  #telemetryObject: Partial<Telemetry> = {};
   fyo: Fyo;
 
   constructor(fyo: Fyo) {
     this.fyo = fyo;
-  }
-
-  set platform(value: Platform) {
-    this.#telemetryObject.platform ||= value;
   }
 
   get hasCreds() {
@@ -58,18 +45,11 @@ export class TelemetryManager {
     return this.#started;
   }
 
-  get telemetryObject(): Readonly<Partial<Telemetry>> {
-    return cloneDeep(this.#telemetryObject);
-  }
-
-  async start(openCount?: number) {
-    await this.#init();
-
+  async start(isOpened?: boolean) {
     this.#started = true;
     await this.#setCreds();
 
-    if (typeof openCount === 'number') {
-      this.#telemetryObject.openCount = openCount;
+    if (isOpened) {
       this.log(Verb.Opened, 'instance');
     } else {
       this.log(Verb.Resumed, 'instance');
@@ -83,7 +63,6 @@ export class TelemetryManager {
 
     this.log(Verb.Closed, 'instance');
     this.#started = false;
-    this.#clear();
   }
 
   log(verb: Verb, noun: Noun, more?: Record<string, unknown>) {
@@ -96,7 +75,6 @@ export class TelemetryManager {
   }
 
   async logOpened() {
-    await this.#init();
     await this.#setCreds();
     this.#sendBeacon(Verb.Opened, 'app');
   }
@@ -125,46 +103,29 @@ export class TelemetryManager {
     this.#token = tokenString;
   }
 
-  async #init() {
-    this.#telemetryObject.language ??= getLanguage(this.fyo);
-    this.#telemetryObject.deviceId ||= getDeviceId(this.fyo);
-    this.#telemetryObject.version = this.fyo.store.appVersion;
-
-    if (this.fyo.db.dbPath) {
-      this.#telemetryObject.country ||= getCountry(this.fyo);
-      this.#telemetryObject.instanceId ||= await getInstanceId(this.fyo);
-      this.#telemetryObject.version = await getVersion(this.fyo);
-    } else {
-      this.#telemetryObject.country ||= '';
-      this.#telemetryObject.instanceId ||= '';
-    }
-  }
-
   #getTelemtryData(
     verb: Verb,
     noun: Noun,
     more?: Record<string, unknown>
   ): Telemetry {
+    const countryCode = this.fyo.singles.SystemSettings?.countryCode as
+      | string
+      | undefined;
+
     return {
-      country: this.#telemetryObject.country!,
-      language: this.#telemetryObject.language!,
-      deviceId: this.#telemetryObject.deviceId!,
-      instanceId: this.#telemetryObject.instanceId!,
-      version: this.#telemetryObject.version!,
-      openCount: this.#telemetryObject.openCount!,
-      timestamp: DateTime.now().toMillis().toString(),
+      country: countryCode ?? '',
+      language: this.fyo.store.language,
+      deviceId:
+        this.fyo.store.deviceId ||
+        (this.fyo.config.get(ConfigKeys.DeviceId) as string),
+      instanceId: this.fyo.store.instanceId,
+      version: this.fyo.store.appVersion,
+      openCount: this.fyo.store.openCount,
+      timestamp: new Date().toISOString().replace('T', ' ').slice(0, -1),
+      platform: this.fyo.store.platform,
       verb,
       noun,
       more,
     };
-  }
-
-  #clear() {
-    delete this.#telemetryObject.country;
-    delete this.#telemetryObject.language;
-    delete this.#telemetryObject.deviceId;
-    delete this.#telemetryObject.instanceId;
-    delete this.#telemetryObject.version;
-    delete this.#telemetryObject.openCount;
   }
 }

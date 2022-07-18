@@ -1,3 +1,4 @@
+import { Fyo } from 'fyo';
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
@@ -57,27 +58,23 @@ export async function getSetupWizardDoc() {
   );
 }
 
-export async function incrementOpenCount(dbPath: string) {
-  const companyName = (await fyo.getValue(
-    ModelNameEnum.AccountingSettings,
-    'companyName'
-  )) as string;
+export function addNewConfigFile(
+  companyName: string,
+  dbPath: string,
+  instanceId: string,
+  files: ConfigFile[],
+  fyo: Fyo
+): ConfigFile {
+  const newFile: ConfigFile = {
+    companyName,
+    dbPath,
+    id: instanceId,
+    openCount: 0,
+  };
 
-  let openCount = 0;
-  const files = fyo.config.get(ConfigKeys.Files) as ConfigFile[];
-  for (const file of files) {
-    if (file.companyName !== companyName || file.dbPath !== dbPath) {
-      continue;
-    }
-
-    file.openCount ??= 0;
-    file.openCount += 1;
-    openCount = file.openCount;
-    break;
-  }
-
+  files.push(newFile);
   fyo.config.set(ConfigKeys.Files, files);
-  return openCount;
+  return newFile;
 }
 
 export const docsPathMap: Record<string, string | undefined> = {

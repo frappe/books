@@ -2,8 +2,6 @@ export type AppVersion = string;
 export type UniqueId = string;
 export type Timestamp = string;
 
-export type Platform = 'Windows' | 'Mac' | 'Linux';
-
 export enum Verb {
   Created = 'created',
   Deleted = 'deleted',
@@ -21,7 +19,7 @@ export type Noun = string;
 export interface Telemetry {
   deviceId: UniqueId;
   instanceId: UniqueId;
-  platform?: Platform;
+  platform?: string;
   country: string;
   language: string;
   version: AppVersion;
@@ -29,5 +27,5 @@ export interface Telemetry {
   openCount: number;
   verb: Verb;
   noun: Noun;
-  more?: Record<string, unknown>
+  more?: Record<string, unknown>;
 }

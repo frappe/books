@@ -95,12 +95,7 @@
               {{ file.companyName }}
             </p>
             <div
-              class="
-                text-sm text-gray-600
-                flex
-                justify-between
-                overflow-x-auto
-              "
+              class="text-sm text-gray-600 flex justify-between overflow-x-auto"
             >
               <p class="whitespace-nowrap mr-2">
                 {{ formatDate(file.modified) }}
@@ -180,13 +175,13 @@ import { setupDummyInstance } from 'dummy';
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
-import { addNewConfigFile } from 'fyo/telemetry/helpers';
 import { DateTime } from 'luxon';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import Loading from 'src/components/Loading.vue';
 import { fyo } from 'src/initFyo';
 import { deleteDb, getSavePath } from 'src/utils/ipcCalls';
+import { addNewConfigFile } from 'src/utils/misc';
 import { showMessageDialog } from 'src/utils/ui';
 import { IPC_ACTIONS } from 'utils/messages';
 

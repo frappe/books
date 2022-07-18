@@ -19,6 +19,7 @@ import { setLanguageMap } from './utils/language';
   if (language) {
     await setLanguageMap(language);
   }
+  fyo.store.language = language || 'English';
 
   ipcRenderer.send = getErrorHandled(ipcRenderer.send);
   ipcRenderer.invoke = getErrorHandled(ipcRenderer.invoke);
@@ -61,7 +62,6 @@ import { setLanguageMap } from './utils/language';
     },
   });
 
-  fyo.telemetry.platform = platformName;
   await fyo.telemetry.logOpened();
   app.mount('body');
 })();
