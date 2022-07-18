@@ -6,11 +6,12 @@
       px-2
       border-b
       hover:bg-gray-50
-      h-row-mid
       group
       flex
       items-center
       justify-center
+      h-row-mid
+      relative
     "
   >
     <!-- Index or Remove button -->
@@ -52,8 +53,9 @@
 
     <!-- Error Display -->
     <div
-      class="text-sm text-red-600 mb-2 pl-2 col-span-full"
-      v-if="Object.values(errors).filter(Boolean).length"
+      class="text-xs text-red-600 pl-2 col-span-full absolute"
+      style="bottom: 0px"
+      v-if="hasErrors"
     >
       {{ getErrorString() }}
     </div>
@@ -96,6 +98,11 @@ export default {
       name: this.row.name,
       doc: this.row,
     };
+  },
+  computed: {
+    hasErrors() {
+      return Object.values(this.errors).filter(Boolean).length;
+    },
   },
   methods: {
     onChange(df, value) {
