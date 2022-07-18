@@ -32,11 +32,12 @@ export default {
     backLink: { type: Boolean, default: true },
     hideSearch: { type: Boolean, default: false },
     border: { type: Boolean, default: true },
+    searchborder: { type: Boolean, default: true },
   },
   components: { SearchBar, BackLink },
   computed: {
     showBorder() {
-      return !!this.$slots.default;
+      return !!this.$slots.default && this.searchborder;
     },
   },
 };

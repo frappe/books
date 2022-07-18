@@ -2,7 +2,7 @@
   <div class="flex bg-gray-25">
     <div class="flex flex-1 flex-col">
       <!-- Page Header (Title, Buttons, etc) -->
-      <PageHeader :title="title" :border="false">
+      <PageHeader :title="title" :border="false" :searchborder="searchborder">
         <slot name="header" />
       </PageHeader>
 
@@ -34,6 +34,7 @@ export default {
   components: { PageHeader },
   props: {
     title: { type: String, default: '' },
+    searchborder: { type: Boolean, default: true },
   },
 };
 </script>
