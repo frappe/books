@@ -1,39 +1,10 @@
 <template>
   <div class="flex-1 bg-gray-25 flex justify-center items-center window-drag">
-    <!-- 0: Language Selection Slide -->
-    <Slide
-      @primary-clicked="handlePrimary"
-      @secondary-clicked="handleSecondary"
-      v-show="index === 0"
-    >
-      <template #title>
-        {{ t`Select your language` }}
-      </template>
-      <template #content>
-        <div class="flex flex-col justify-center items-center h-96">
-          <LanguageSelector class="w-40 mt-8" :dont-reload="true" />
-          <p
-            class="text-sm mt-2 hover:underline cursor-pointer text-gray-700"
-            @click="openContributingTranslations"
-          >
-            {{ t`I can't find my language.` }}
-          </p>
-        </div>
-      </template>
-      <template #secondaryButton>
-        {{ t`Cancel` }}
-      </template>
-      <template #primaryButton>
-        {{ t`Next` }}
-      </template>
-    </Slide>
-
-    <!-- 1: Setup Wizard Slide -->
+    <!-- Setup Wizard Slide -->
     <Slide
       :primary-disabled="!valuesFilled || loading"
       @primary-clicked="handlePrimary"
       @secondary-clicked="handleSecondary"
-      v-show="index === 1"
     >
       <template #title>
         {{ t`Setup your organization` }}
@@ -84,7 +55,7 @@
           <TwoColumnForm :doc="doc" />
         </div>
       </template>
-      <template #secondaryButton>{{ t`Back` }}</template>
+      <template #secondaryButton>{{ t`Cancel` }}</template>
       <template #primaryButton>{{ t`Submit` }}</template>
     </Slide>
   </div>
@@ -92,9 +63,7 @@
 
 <script>
 import FormControl from 'src/components/Controls/FormControl.vue';
-import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
-import { fyo } from 'src/initFyo';
 import { getErrorMessage } from 'src/utils';
 import { openLink } from 'src/utils/ipcCalls';
 import { getSetupWizardDoc } from 'src/utils/misc';
@@ -106,7 +75,6 @@ export default {
   emits: ['setup-complete', 'setup-canceled'],
   data() {
     return {
-      index: 0,
       doc: null,
       loading: false,
       valuesFilled: false,
@@ -123,13 +91,8 @@ export default {
     TwoColumnForm,
     FormControl,
     Slide,
-    LanguageSelector,
   },
   async mounted() {
-    if (fyo.config.get('language') !== undefined) {
-      this.index = 1;
-    }
-
     this.doc = await getSetupWizardDoc();
     this.doc.on('change', () => {
       this.valuesFilled = this.allValuesFilled();
@@ -145,18 +108,10 @@ export default {
       );
     },
     handlePrimary() {
-      if (this.index === 0) {
-        this.index = 1;
-      } else if (this.index === 1) {
-        this.submit();
-      }
+      this.submit();
     },
     handleSecondary() {
-      if (this.index === 1) {
-        this.index = 0;
-      } else if (this.index === 0) {
-        this.$emit('setup-canceled');
-      }
+      this.$emit('setup-canceled');
     },
     setValue(fieldname, value) {
       this.emailError = null;
