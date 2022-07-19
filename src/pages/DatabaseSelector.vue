@@ -168,6 +168,46 @@
       :percent="creationPercent"
       :message="creationMessage"
     />
+
+    <!-- Base Count Selection when Dev -->
+    <Modal :open-modal="openModal" @closemodal="openModal = false">
+      <div class="p-4 text-gray-900">
+        <h2 class="text-xl font-semibold select-none">Set Base Count</h2>
+        <p class="text-base mt-2">
+          Base Count is a lower bound on the number of entries made when
+          creating the dummy instance.
+        </p>
+        <div class="flex my-12 justify-center items-baseline gap-4 text-base">
+          <label for="basecount" class="text-gray-600">Base Count</label>
+          <input
+            type="number"
+            name="basecount"
+            v-model="baseCount"
+            class="
+              bg-gray-100
+              focus:bg-gray-200
+              rounded-md
+              px-2
+              py-1
+              outline-none
+            "
+          />
+        </div>
+        <div class="flex justify-between">
+          <Button @click="openModal = false">Cancel</Button>
+          <Button
+            @click="
+              () => {
+                openModal = false;
+                startDummyInstanceSetup();
+              }
+            "
+            type="primary"
+            >Create</Button
+          >
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 <script>
@@ -176,9 +216,11 @@ import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import { ConfigKeys } from 'fyo/core/types';
 import { DateTime } from 'luxon';
+import Button from 'src/components/Button.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import Loading from 'src/components/Loading.vue';
+import Modal from 'src/components/Modal.vue';
 import { fyo } from 'src/initFyo';
 import { deleteDb, getSavePath } from 'src/utils/ipcCalls';
 import { addNewConfigFile } from 'src/utils/misc';
@@ -190,6 +232,8 @@ export default {
   emits: ['file-selected'],
   data() {
     return {
+      openModal: false,
+      baseCount: 100,
       creationMessage: '',
       creationPercent: 0,
       creatingDemo: false,
@@ -231,19 +275,24 @@ export default {
       });
     },
     async createDemo() {
+      if (!fyo.store.isDevelopment) {
+        this.startDummyInstanceSetup();
+      } else {
+        this.openModal = true;
+      }
+    },
+    async startDummyInstanceSetup() {
       const { filePath, canceled } = await getSavePath('demo', 'db');
       if (canceled || !filePath) {
         return;
       }
 
       this.creatingDemo = true;
-      const baseCount = fyo.store.isDevelopment ? 1000 : 100;
-
       const { companyName, instanceId } = await setupDummyInstance(
         filePath,
         fyo,
         1,
-        baseCount,
+        this.baseCount,
         (message, percent) => {
           this.creationMessage = message;
           this.creationPercent = percent;
@@ -316,6 +365,8 @@ export default {
     LanguageSelector,
     Loading,
     FeatherIcon,
+    Modal,
+    Button,
   },
 };
 </script>
