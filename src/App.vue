@@ -48,6 +48,7 @@ import SetupWizard from './pages/SetupWizard/SetupWizard.vue';
 import setupInstance from './setup/setupInstance';
 import './styles/index.css';
 import { checkForUpdates } from './utils/ipcCalls';
+import { updateConfigFiles } from './utils/misc';
 import { Search } from './utils/search';
 import { routeTo } from './utils/ui';
 
@@ -132,6 +133,7 @@ export default {
       }
 
       await initializeInstance(filePath, false, countryCode, fyo);
+      await updateConfigFiles(fyo);
       await this.setDesk(filePath);
     },
     async setDeskRoute() {

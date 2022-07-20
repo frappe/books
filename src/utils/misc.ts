@@ -58,22 +58,27 @@ export async function getSetupWizardDoc() {
   );
 }
 
-export function addNewConfigFile(
-  companyName: string,
-  dbPath: string,
-  instanceId: string,
-  files: ConfigFile[],
-  fyo: Fyo
-): ConfigFile {
-  const newFile: ConfigFile = {
-    companyName,
-    dbPath,
-    id: instanceId,
-    openCount: 0,
-  };
+export function updateConfigFiles(fyo: Fyo): ConfigFile {
+  const configFiles = fyo.config.get(ConfigKeys.Files, []) as ConfigFile[];
 
-  files.push(newFile);
-  fyo.config.set(ConfigKeys.Files, files);
+  const companyName = fyo.singles.AccountingSettings!.companyName as string;
+  const id = fyo.singles.SystemSettings!.instanceId as string;
+  const dbPath = fyo.db.dbPath!;
+  const openCount = fyo.singles.Misc!.openCount as number;
+
+  const fileIndex = configFiles.findIndex((f) => f.id === id);
+  let newFile = { id, companyName, dbPath, openCount } as ConfigFile;
+
+  if (fileIndex === -1) {
+    configFiles.push(newFile);
+  } else {
+    configFiles[fileIndex].companyName = companyName;
+    configFiles[fileIndex].dbPath = dbPath;
+    configFiles[fileIndex].openCount = openCount;
+    newFile = configFiles[fileIndex];
+  }
+
+  fyo.config.set(ConfigKeys.Files, configFiles);
   return newFile;
 }
 

@@ -1,6 +1,7 @@
 import Account from './app/Account.json';
 import AccountingLedgerEntry from './app/AccountingLedgerEntry.json';
 import AccountingSettings from './app/AccountingSettings.json';
+import Misc from './app/Misc.json';
 import Address from './app/Address.json';
 import Color from './app/Color.json';
 import CompanySettings from './app/CompanySettings.json';
@@ -46,6 +47,7 @@ export const metaSchemas: SchemaStub[] = [
 ];
 
 export const appSchemas: Schema[] | SchemaStub[] = [
+  Misc as Schema,
   SetupWizard as Schema,
   GetStarted as Schema,
 
