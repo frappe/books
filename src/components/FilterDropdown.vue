@@ -1,5 +1,9 @@
 <template>
-  <Popover @close="emitFilterChange" placement="bottom-end">
+  <Popover
+    @close="emitFilterChange"
+    placement="bottom-end"
+    v-if="fields.length"
+  >
     <template #target="{ togglePopover }">
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
@@ -17,72 +21,77 @@
     </template>
     <template #content>
       <div>
-        <div class="p-3">
-          <template v-if="filters.length">
-            <div
-              :key="filter.fieldname + getRandomString()"
-              v-for="(filter, i) in filters"
-              class="flex items-center justify-between text-base"
-              :class="i !== 0 && 'mt-2'"
-            >
-              <div class="flex">
-                <div class="w-24">
-                  <FormControl
-                    size="small"
-                    input-class="bg-gray-100"
-                    :df="{
-                      placeholder: t`Field`,
-                      fieldname: 'fieldname',
-                      fieldtype: 'Select',
-                      options: fieldOptions,
-                    }"
-                    :value="filter.fieldname"
-                    @change="(value) => (filter.fieldname = value)"
-                  />
-                </div>
-                <div class="ml-2 w-24">
-                  <FormControl
-                    size="small"
-                    input-class="bg-gray-100"
-                    :df="{
-                      placeholder: t`Condition`,
-                      fieldname: 'condition',
-                      fieldtype: 'Select',
-                      options: conditions,
-                    }"
-                    :value="filter.condition"
-                    @change="(value) => (filter.condition = value)"
-                  />
-                </div>
-                <div class="ml-2 w-24">
-                  <FormControl
-                    size="small"
-                    input-class="bg-gray-100"
-                    :df="{
-                      placeholder: t`Value`,
-                      fieldname: 'value',
-                      fieldtype: 'Data',
-                    }"
-                    :value="filter.value"
-                    @change="(value) => (filter.value = value)"
-                  />
-                </div>
-              </div>
+        <div class="p-2">
+          <template v-if="explicitFilters.length">
+            <div class="flex flex-col gap-2">
               <div
-                class="
-                  ml-2
-                  cursor-pointer
-                  w-5
-                  h-5
-                  flex-center
-                  hover:bg-gray-100
-                  rounded-md
-                "
+                :key="filter.fieldname + getRandomString()"
+                v-for="(filter, i) in explicitFilters"
+                class="flex items-center justify-between text-base gap-2"
               >
-                <feather-icon
-                  name="x"
-                  class="w-4 h-4"
-                  @click="removeFilter(filter)"
+                <div
+                  class="
+                    cursor-pointer
+                    w-4
+                    h-4
+                    flex
+                    items-center
+                    justify-center
+                    text-gray-600
+                    hover:text-gray-800
+                    rounded-md
+                    group
+                  "
+                >
+                  <span class="hidden group-hover:inline-block">
+                    <feather-icon
+                      name="x"
+                      class="w-4 h-4 cursor-pointer"
+                      :button="true"
+                      @click="removeFilter(filter)"
+                    />
+                  </span>
+                  <span class="group-hover:hidden">
+                    {{ i + 1 }}
+                  </span>
+                </div>
+                <FormControl
+                  size="small"
+                  class="w-24"
+                  input-class="bg-gray-100"
+                  :df="{
+                    placeholder: t`Field`,
+                    fieldname: 'fieldname',
+                    fieldtype: 'Select',
+                    options: fieldOptions,
+                  }"
+                  :value="filter.fieldname"
+                  @change="(value) => (filter.fieldname = value)"
+                />
+                <FormControl
+                  size="small"
+                  class="w-24"
+                  input-class="bg-gray-100"
+                  :df="{
+                    placeholder: t`Condition`,
+                    fieldname: 'condition',
+                    fieldtype: 'Select',
+                    options: conditions,
+                  }"
+                  :value="filter.condition"
+                  @change="(value) => (filter.condition = value)"
+                />
+                <FormControl
+                  size="small"
+                  class="w-24"
+                  input-class="bg-gray-100"
+                  :df="{
+                    placeholder: t`Value`,
+                    fieldname: 'value',
+                    fieldtype: 'Data',
+                  }"
+                  :value="filter.value"
+                  @change="(value) => (filter.value = value)"
                 />
               </div>
             </div>
@@ -97,8 +106,7 @@
           class="
             text-base
             border-t
-            px-3
-            py-2
+            p-2
             flex
             items-center
             text-gray-600
@@ -117,6 +125,8 @@
 
 <script>
 import { t } from 'fyo';
+import { FieldTypeEnum } from 'schemas/types';
+import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
 import Button from './Button';
 import FormControl from './Controls/FormControl.vue';
@@ -142,7 +152,7 @@ export default {
     Icon,
     FormControl,
   },
-  props: ['fields'],
+  props: { schemaName: String },
   emits: ['change'],
   data() {
     return {
@@ -156,19 +166,22 @@ export default {
     getRandomString,
     addNewFilter() {
       let df = this.fields[0];
-      this.addFilter(df.fieldname, 'like', '');
+      this.addFilter(df.fieldname, 'like', '', false);
     },
-    addFilter(fieldname, condition, value) {
-      this.filters.push({ fieldname, condition, value });
+    addFilter(fieldname, condition, value, implicit) {
+      this.filters.push({ fieldname, condition, value, implicit: !!implicit });
     },
     removeFilter(filter) {
       this.filters = this.filters.filter((f) => f !== filter);
     },
-    setFilter(filters) {
+    setFilter(filters, implicit) {
+      console.log(filters);
       this.filters = [];
+
       Object.keys(filters).map((fieldname) => {
         let parts = filters[fieldname];
         let condition, value;
+
         if (Array.isArray(parts)) {
           condition = parts[0];
           value = parts[1];
@@ -176,8 +189,10 @@ export default {
           condition = '=';
           value = parts;
         }
-        this.addFilter(fieldname, condition, value);
+
+        this.addFilter(fieldname, condition, value, implicit);
       });
+
       this.emitFilterChange();
     },
     emitFilterChange() {
@@ -193,6 +208,19 @@ export default {
     },
   },
   computed: {
+    fields() {
+      const excludedFieldsTypes = [
+        FieldTypeEnum.Table,
+        FieldTypeEnum.AttachImage,
+      ];
+      return fyo.schemaMap[this.schemaName].fields.filter(
+        (f) =>
+          !f.computed &&
+          !excludedFieldsTypes.includes(f.fieldtype) &&
+          !f.meta &&
+          !f.readOnly
+      );
+    },
     fieldOptions() {
       return this.fields.map((df) => ({
         label: df.label,
@@ -202,13 +230,17 @@ export default {
     conditions() {
       return conditions;
     },
+    explicitFilters() {
+      return this.filters.filter((f) => !f.implicit);
+    },
     activeFilterCount() {
-      return this.filters.filter((filter) => filter.value).length;
+      return this.explicitFilters.filter((filter) => filter.value).length;
     },
     filterAppliedMessage() {
       if (this.activeFilterCount === 1) {
         return this.t`1 filter applied`;
       }
+
       return this.t`${this.activeFilterCount} filters applied`;
     },
   },

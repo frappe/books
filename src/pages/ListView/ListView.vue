@@ -4,7 +4,7 @@
       <FilterDropdown
         ref="filterDropdown"
         @change="applyFilter"
-        :fields="fields"
+        :schema-name="schemaName"
       />
       <Button
         :icon="true"
@@ -53,7 +53,7 @@ export default {
   },
   async activated() {
     if (typeof this.filters === 'object') {
-      this.$refs.filterDropdown.setFilter(this.filters);
+      this.$refs.filterDropdown.setFilter(this.filters, true);
     }
 
     this.listConfig = getListConfig(this.schemaName);
