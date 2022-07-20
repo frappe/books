@@ -35,13 +35,14 @@ export async function initializeInstance(
   await setVersion(fyo);
   setDeviceId(fyo);
   await setInstanceId(fyo);
-  await incrementOpenCount(fyo);
+  await setOpenCount(fyo);
   await setCurrencySymbols(fyo);
 }
 
 async function setSingles(fyo: Fyo) {
   await fyo.doc.getDoc(ModelNameEnum.AccountingSettings);
   await fyo.doc.getDoc(ModelNameEnum.GetStarted);
+  await fyo.doc.getDoc(ModelNameEnum.Misc);
 }
 
 async function setCreds(fyo: Fyo) {
@@ -75,6 +76,7 @@ function setDeviceId(fyo: Fyo) {
 
   fyo.store.deviceId = deviceId;
 }
+
 async function setInstanceId(fyo: Fyo) {
   const systemSettings = await fyo.doc.getDoc(ModelNameEnum.SystemSettings);
   if (!systemSettings.instanceId) {
@@ -99,25 +101,29 @@ async function setCurrencySymbols(fyo: Fyo) {
   ) as Record<string, string | undefined>;
 }
 
-export async function incrementOpenCount(fyo: Fyo) {
-  const instanceId = (await fyo.getValue(
-    ModelNameEnum.SystemSettings,
-    'instanceId'
-  )) as string;
+async function setOpenCount(fyo: Fyo) {
+  const misc = await fyo.doc.getDoc(ModelNameEnum.Misc);
+  let openCount = misc.openCount as number | null;
 
-  let openCount = 0;
-  const files = (fyo.config.get(ConfigKeys.Files) ?? []) as ConfigFile[];
-  for (const file of files) {
-    if (file.id !== instanceId) {
-      continue;
-    }
-
-    file.openCount ??= 0;
-    file.openCount += 1;
-    openCount = file.openCount;
-    break;
+  if (typeof openCount !== 'number') {
+    openCount = getOpenCountFromFiles(fyo);
   }
 
-  fyo.config.set(ConfigKeys.Files, files);
-  fyo.store.openCount = openCount;
+  if (typeof openCount !== 'number') {
+    openCount = 0;
+  }
+
+  openCount += 1;
+  await misc.setAndSync('openCount', openCount);
+}
+
+function getOpenCountFromFiles(fyo: Fyo) {
+  const configFile = fyo.config.get(ConfigKeys.Files, []) as ConfigFile[];
+  for (const file of configFile) {
+    if (file.id === fyo.singles.SystemSettings?.instanceId) {
+      return file.openCount ?? 0;
+    }
+  }
+
+  return null;
 }

@@ -214,7 +214,6 @@
 import { setupDummyInstance } from 'dummy';
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
-import { ConfigKeys } from 'fyo/core/types';
 import { DateTime } from 'luxon';
 import Button from 'src/components/Button.vue';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
@@ -223,7 +222,7 @@ import Loading from 'src/components/Loading.vue';
 import Modal from 'src/components/Modal.vue';
 import { fyo } from 'src/initFyo';
 import { deleteDb, getSavePath } from 'src/utils/ipcCalls';
-import { addNewConfigFile } from 'src/utils/misc';
+import { updateConfigFiles } from 'src/utils/misc';
 import { showMessageDialog } from 'src/utils/ui';
 import { IPC_ACTIONS } from 'utils/messages';
 
@@ -288,7 +287,7 @@ export default {
       }
 
       this.creatingDemo = true;
-      const { companyName, instanceId } = await setupDummyInstance(
+      await setupDummyInstance(
         filePath,
         fyo,
         1,
@@ -299,14 +298,7 @@ export default {
         }
       );
 
-      addNewConfigFile(
-        companyName,
-        filePath,
-        instanceId,
-        fyo.config.get(ConfigKeys.Files),
-        fyo
-      );
-
+      updateConfigFiles(fyo);
       fyo.purgeCache();
       await this.setFiles();
 
