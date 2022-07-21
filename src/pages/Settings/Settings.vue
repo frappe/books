@@ -121,9 +121,11 @@ export default {
     },
     setActiveTab() {
       const { tab } = this.$route.query;
-      const index = this.tabs.findIndex((i) => i.key === tab || 'Invoice');
+      const index = this.tabs.findIndex((i) => i.key === tab);
       if (index !== -1) {
         this.activeTab = index;
+      } else {
+        this.activeTab = 0;
       }
     },
     getIconComponent(tab) {

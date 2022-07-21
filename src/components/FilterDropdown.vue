@@ -175,7 +175,6 @@ export default {
       this.filters = this.filters.filter((f) => f !== filter);
     },
     setFilter(filters, implicit) {
-      console.log(filters);
       this.filters = [];
 
       Object.keys(filters).map((fieldname) => {
