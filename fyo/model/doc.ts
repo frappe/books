@@ -394,7 +394,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     if (filterComputed) {
-      fields = this.schema.fields.filter((f) => !f.computed);
+      fields = fields.filter((f) => !f.computed);
     }
 
     const data: DocValueMap = {};
