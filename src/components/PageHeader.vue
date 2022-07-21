@@ -1,15 +1,10 @@
 <template>
   <div
-    class="
-      px-4
-      flex
-      justify-between
-      window-drag
-      items-center
-      h-row-largest
-      flex-shrink-0
-    "
-    :class="border ? 'border-b' : ''"
+    class="px-4 flex justify-between items-center h-row-largest flex-shrink-0"
+    :class="[
+      border ? 'border-b' : '',
+      platform !== 'Windows' ? 'window-drag' : '',
+    ]"
   >
     <h1 class="text-xl font-semibold select-none" v-if="title">
       {{ title }}
