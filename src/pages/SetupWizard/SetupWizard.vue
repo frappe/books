@@ -1,5 +1,8 @@
 <template>
-  <div class="flex-1 bg-gray-25 flex justify-center items-center window-drag">
+  <div
+    class="flex-1 bg-gray-25 flex justify-center items-center window-drag"
+    :class="{ 'window-drag': platform !== 'Windows' }"
+  >
     <!-- Setup Wizard Slide -->
     <Slide
       :primary-disabled="!valuesFilled || loading"
