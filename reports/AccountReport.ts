@@ -539,7 +539,9 @@ function pruneAccountTree(accountTree: AccountTree) {
   }
 
   for (const root of Object.keys(accountTree)) {
-    accountTree[root].children = getPrunedChildren(accountTree[root].children!);
+    accountTree[root].children = getPrunedChildren(
+      accountTree[root].children ?? []
+    );
   }
 }
 

@@ -94,7 +94,7 @@ export function getGetStartedConfig() {
           key: 'Add Customers',
           label: t`Add Customers`,
           icon: 'customer',
-          description: t`Add a few customers to create your first invoice`,
+          description: t`Add a few customers to create your first sales invoice`,
           action: () => routeTo(`/list/Party/role/Customer/${t`Customers`}`),
           fieldname: 'customerCreated',
           documentation:
@@ -104,7 +104,7 @@ export function getGetStartedConfig() {
           key: 'Create Sales Invoice',
           label: t`Create Sales Invoice`,
           icon: 'sales-invoice',
-          description: t`Create your first invoice and mail it to your customer`,
+          description: t`Create your first sales invoice for the created customer`,
           action: () => routeTo('/list/SalesInvoice'),
           fieldname: 'invoiceCreated',
           documentation:
@@ -129,7 +129,7 @@ export function getGetStartedConfig() {
           key: 'Add Suppliers',
           label: t`Add Suppliers`,
           icon: 'supplier',
-          description: t`Add a few suppliers to create your first bill`,
+          description: t`Add a few suppliers to create your first purchase invoice`,
           action: () => routeTo(`/list/Party/role/Supplier/${t`Suppliers`}`),
           fieldname: 'supplierCreated',
         },
@@ -137,7 +137,7 @@ export function getGetStartedConfig() {
           key: 'Create Purchase Invoice',
           label: t`Create Purchase Invoice`,
           icon: 'purchase-invoice',
-          description: t`Create your first bill and mail it to your supplier`,
+          description: t`Create your first purchase invoice from the created supplier`,
           action: () => routeTo('/list/PurchaseInvoice'),
           fieldname: 'billCreated',
           documentation:

@@ -74,21 +74,65 @@ export class ProfitAndLoss extends AccountReport {
   async getReportDataFromRows(
     incomeRows: ReportData,
     expenseRows: ReportData,
-    incomeRoot: AccountTreeNode,
-    expenseRoot: AccountTreeNode
+    incomeRoot: AccountTreeNode | undefined,
+    expenseRoot: AccountTreeNode | undefined
   ): Promise<ReportData> {
+    if (incomeRoot && !expenseRoot) {
+      return await this.getIncomeOrExpenseRows(
+        incomeRoot,
+        incomeRows,
+        t`Total Income (Credit)`
+      );
+    }
+
+    if (expenseRoot && !incomeRoot) {
+      return await this.getIncomeOrExpenseRows(
+        expenseRoot,
+        expenseRows,
+        t`Total Income (Credit)`
+      );
+    }
+
     if (!incomeRoot || !expenseRoot) {
       return [];
     }
 
+    return await this.getIncomeAndExpenseRows(
+      incomeRows,
+      expenseRows,
+      incomeRoot,
+      expenseRoot
+    );
+  }
+
+  async getIncomeOrExpenseRows(
+    root: AccountTreeNode,
+    rows: ReportData,
+    totalRowName: string
+  ): Promise<ReportData> {
+    const total = await this.getTotalNode(root, totalRowName);
+    const totalRow = this.getRowFromAccountListNode(total);
+
+    return [rows, totalRow].flat();
+  }
+
+  async getIncomeAndExpenseRows(
+    incomeRows: ReportData,
+    expenseRows: ReportData,
+    incomeRoot: AccountTreeNode,
+    expenseRoot: AccountTreeNode
+  ) {
     const totalIncome = await this.getTotalNode(
       incomeRoot,
       t`Total Income (Credit)`
     );
+    const totalIncomeRow = this.getRowFromAccountListNode(totalIncome);
+
     const totalExpense = await this.getTotalNode(
       expenseRoot,
       t`Total Expense (Debit)`
     );
+    const totalExpenseRow = this.getRowFromAccountListNode(totalExpense);
 
     const totalValueMap: ValueMap = new Map();
     for (const key of totalIncome.valueMap!.keys()) {
@@ -102,9 +146,6 @@ export class ProfitAndLoss extends AccountReport {
       valueMap: totalValueMap,
       level: 0,
     } as AccountListNode;
-
-    const totalIncomeRow = this.getRowFromAccountListNode(totalIncome);
-    const totalExpenseRow = this.getRowFromAccountListNode(totalExpense);
 
     const totalProfitRow = this.getRowFromAccountListNode(totalProfit);
     totalProfitRow.cells.forEach((c) => {
