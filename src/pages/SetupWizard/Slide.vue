@@ -9,13 +9,13 @@
     <hr />
 
     <!-- Slide Content -->
-    <div class="window-no-drag">
+    <div>
       <slot name="content"></slot>
     </div>
 
     <!-- Slide Buttons -->
     <div
-      class="flex justify-between px-4 pb-4 window-no-drag absolute w-form"
+      class="flex justify-between px-4 pb-4 absolute w-form"
       style="top: 100%; transform: translateY(-100%)"
     >
       <Button
