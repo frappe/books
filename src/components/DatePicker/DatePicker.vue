@@ -63,11 +63,11 @@
               {{ d }}
             </div>
           </div>
-          <div v-for="(week, i) in datesAsWeeks" :key="i" class="mt-1">
+          <div v-for="(week, i) in datesAsWeeks" :key="`${i}-${Math.random().toString(36)}`" class="mt-1">
             <div class="flex w-full">
               <div
                 v-for="date in week"
-                :key="toValue(date)"
+                :key="`${toValue(date)}-${Math.random().toString(36)}`"
                 class="
                   w-6
                   h-6
@@ -118,6 +118,7 @@
 </template>
 
 <script>
+import { DateTime } from 'luxon';
 import Popover from '../Popover';
 
 export default {
@@ -255,14 +256,7 @@ export default {
         return '';
       }
 
-      // toISOString is buggy and reduces the day by one
-      // this is because it considers the UTC timestamp
-      // in order to circumvent that we need to use luxon/moment
-      // but that refactor could take some time, so fixing the time difference
-      // as suggested in this answer.
-      // https://stackoverflow.com/a/16084846/3541205
-      date.setHours(0, -date.getTimezoneOffset(), 0, 0);
-      return date.toISOString().slice(0, 10);
+      return DateTime.fromJSDate(date).toISODate()
     },
 
     getDate(...args) {
