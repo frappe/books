@@ -89,7 +89,7 @@ async function setInstanceId(fyo: Fyo) {
   )) as string;
 }
 
-async function setCurrencySymbols(fyo: Fyo) {
+export async function setCurrencySymbols(fyo: Fyo) {
   const currencies = (await fyo.db.getAll(ModelNameEnum.Currency, {
     fields: ['name', 'symbol'],
   })) as { name: string; symbol: string }[];
