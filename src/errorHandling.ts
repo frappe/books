@@ -1,11 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import {
-  MandatoryError,
-  NotFoundError,
-  ValidationError,
-} from 'fyo/utils/errors';
+import { BaseError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
 import { truncate } from 'lodash';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
@@ -16,9 +12,8 @@ import { MessageDialogOptions, ToastOptions } from './utils/types';
 import { showMessageDialog, showToast } from './utils/ui';
 
 function shouldNotStore(error: Error) {
-  return [MandatoryError, ValidationError, NotFoundError].some(
-    (errorClass) => error instanceof errorClass
-  );
+  const shouldLog = (error as BaseError).shouldStore ?? true;
+  return !shouldLog;
 }
 
 async function reportError(errorLogObj: ErrorLog) {
@@ -58,18 +53,17 @@ export function getErrorLogObject(
   const { name, stack, message } = error;
   const errorLogObj = { name, stack, message, more };
 
-  // @ts-ignore
   fyo.errorLog.push(errorLogObj);
 
   return errorLogObj;
 }
 
 export async function handleError(
-  shouldLog: boolean,
+  logToConsole: boolean,
   error: Error,
   more?: Record<string, unknown>
 ) {
-  if (shouldLog) {
+  if (logToConsole) {
     console.error(error);
   }
 
