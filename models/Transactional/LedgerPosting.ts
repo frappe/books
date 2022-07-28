@@ -1,5 +1,5 @@
 import { Fyo, t } from 'fyo';
-import { ValidationError } from 'fyo/utils/errors';
+import { NotFoundError, ValidationError } from 'fyo/utils/errors';
 import { Account } from 'models/baseModels/Account/Account';
 import { AccountingLedgerEntry } from 'models/baseModels/AccountingLedgerEntry/AccountingLedgerEntry';
 import { ModelNameEnum } from 'models/types';
@@ -210,9 +210,20 @@ export class LedgerPosting {
   }
 
   async _getRoundOffAccount() {
-    return (await this.fyo.getValue(
+    const roundOffAccount = (await this.fyo.getValue(
       ModelNameEnum.AccountingSettings,
       'roundOffAccount'
     )) as string;
+
+    if (!roundOffAccount) {
+      const notFoundError = new NotFoundError(
+        t`Please set Round Off Account in the Settings.`,
+        false
+      );
+      notFoundError.name = t`Round Off Account Not Found`;
+      throw notFoundError;
+    }
+
+    return roundOffAccount;
   }
 }
