@@ -10,7 +10,7 @@ import {
 import { AccountRootTypeEnum } from 'models/baseModels/Account/types';
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
 import { ModelNameEnum } from 'models/types';
-import { initializeInstance } from 'src/initFyo';
+import { initializeInstance, setCurrencySymbols } from 'src/initFyo';
 import { createRegionalRecords } from 'src/regional';
 import { getRandomString } from 'utils';
 import { defaultUOMs } from 'utils/defaults';
@@ -40,6 +40,10 @@ export default async function setupInstance(
   await createDefaultNumberSeries(fyo);
 
   await completeSetup(companyName, fyo);
+  if (!Object.keys(fyo.currencySymbols).length) {
+    await setCurrencySymbols(fyo);
+  }
+
   fyo.store.skipTelemetryLogging = false;
 }
 
