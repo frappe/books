@@ -214,10 +214,11 @@ export default {
       ];
       return fyo.schemaMap[this.schemaName].fields.filter(
         (f) =>
-          !f.computed &&
-          !excludedFieldsTypes.includes(f.fieldtype) &&
-          !f.meta &&
-          !f.readOnly
+          f.filter ||
+          (!f.computed &&
+            !excludedFieldsTypes.includes(f.fieldtype) &&
+            !f.meta &&
+            !f.readOnly)
       );
     },
     fieldOptions() {

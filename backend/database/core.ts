@@ -2,7 +2,7 @@ import {
   CannotCommitError,
   getDbError,
   NotFoundError,
-  ValueError
+  ValueError,
 } from 'fyo/utils/errors';
 import { knex, Knex } from 'knex';
 import {
@@ -11,12 +11,12 @@ import {
   RawValue,
   Schema,
   SchemaMap,
-  TargetField
+  TargetField,
 } from '../../schemas/types';
 import {
   getIsNullOrUndef,
   getRandomString,
-  getValueMapFromList
+  getValueMapFromList,
 } from '../../utils';
 import { DatabaseBase, GetAllOptions, QueryFilter } from '../../utils/db/types';
 import { getDefaultMetaFieldValueMap, sqliteTypeMap, SYSTEM } from '../helpers';
@@ -24,7 +24,7 @@ import {
   ColumnDiff,
   FieldValueMap,
   GetQueryBuilderOptions,
-  SingleValue
+  SingleValue,
 } from './types';
 
 /**

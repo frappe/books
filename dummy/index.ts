@@ -29,7 +29,7 @@ export async function setupDummyInstance(
   baseCount: number = 1000,
   notifier?: Notifier
 ) {
-  fyo.purgeCache();
+  await fyo.purgeCache();
   notifier?.(fyo.t`Setting Up Instance`, -1);
   const options = {
     logo: null,

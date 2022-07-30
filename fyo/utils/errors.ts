@@ -1,74 +1,76 @@
 export class BaseError extends Error {
   message: string;
   statusCode: number;
+  shouldStore: boolean;
 
-  constructor(statusCode: number, message: string) {
+  constructor(statusCode: number, message: string, shouldStore: boolean = true) {
     super(message);
     this.name = 'BaseError';
     this.statusCode = statusCode;
     this.message = message;
+    this.shouldStore = shouldStore;
   }
 }
 
 export class ValidationError extends BaseError {
-  constructor(message: string) {
-    super(417, message);
+  constructor(message: string, shouldStore: boolean = false) {
+    super(417, message, shouldStore);
     this.name = 'ValidationError';
   }
 }
 
 export class NotFoundError extends BaseError {
-  constructor(message: string) {
-    super(404, message);
+  constructor(message: string, shouldStore: boolean = true) {
+    super(404, message, shouldStore);
     this.name = 'NotFoundError';
   }
 }
 
 export class ForbiddenError extends BaseError {
-  constructor(message: string) {
-    super(403, message);
+  constructor(message: string, shouldStore: boolean = true) {
+    super(403, message, shouldStore);
     this.name = 'ForbiddenError';
   }
 }
 
 export class DuplicateEntryError extends ValidationError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, shouldStore: boolean = false) {
+    super(message, shouldStore);
     this.name = 'DuplicateEntryError';
   }
 }
 
 export class LinkValidationError extends ValidationError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, shouldStore: boolean = false) {
+    super(message, shouldStore);
     this.name = 'LinkValidationError';
   }
 }
 
 export class MandatoryError extends ValidationError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, shouldStore: boolean = false) {
+    super(message, shouldStore);
     this.name = 'MandatoryError';
   }
 }
 
 export class DatabaseError extends BaseError {
-  constructor(message: string) {
-    super(500, message);
+  constructor(message: string, shouldStore: boolean = true) {
+    super(500, message, shouldStore);
     this.name = 'DatabaseError';
   }
 }
 
 export class CannotCommitError extends DatabaseError {
-  constructor(message: string) {
-    super(message);
+  constructor(message: string, shouldStore: boolean = true) {
+    super(message, shouldStore);
     this.name = 'CannotCommitError';
   }
 }
 
 export class NotImplemented extends BaseError {
-  constructor() {
-    super(501, '');
+  constructor(message: string = '', shouldStore: boolean = false) {
+    super(501, message, shouldStore);
     this.name = 'NotImplemented';
   }
 }
