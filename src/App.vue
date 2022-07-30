@@ -102,6 +102,7 @@ export default {
         'companyName'
       );
       await this.setSearcher();
+      await updateConfigFiles(fyo);
     },
     async setSearcher() {
       this.searcher = new Search(fyo);
@@ -133,7 +134,6 @@ export default {
       }
 
       await initializeInstance(filePath, false, countryCode, fyo);
-      await updateConfigFiles(fyo);
       await this.setDesk(filePath);
     },
     async setDeskRoute() {
