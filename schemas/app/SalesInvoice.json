@@ -90,7 +90,8 @@
       "fieldname": "outstandingAmount",
       "label": "Outstanding Amount",
       "fieldtype": "Currency",
-      "readOnly": true
+      "readOnly": true,
+      "filter": true
     },
     {
       "fieldname": "setDiscountAmount",

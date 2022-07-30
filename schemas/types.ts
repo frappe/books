@@ -33,6 +33,7 @@ export interface BaseField {
   groupBy?: string;              // UI Facing used in dropdowns fields
   meta?: boolean;                // Field is a meta field, i.e. only for the db, not UI
   inline?: boolean;              // UI Facing config, whether to display doc inline.
+  filter?: boolean;               // UI Facing config, whether to be used to filter the List.
   computed?: boolean;            // Computed values are not stored in the database.
 }
 
