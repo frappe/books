@@ -4,7 +4,7 @@
     <template #header v-if="doc">
       <StatusBadge :status="status" />
       <Button
-        v-if="doc?.submitted"
+        v-if="!doc.isCancelled && !doc.dirty"
         :icon="true"
         @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
       >

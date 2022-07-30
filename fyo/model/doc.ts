@@ -126,6 +126,30 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return this._syncing;
   }
 
+  get canDelete() {
+    if (this.notInserted) {
+      return false;
+    }
+
+    if (this.schema.isSingle) {
+      return false;
+    }
+
+    if (!this.schema.isSubmittable) {
+      return true;
+    }
+
+    if (this.schema.isSubmittable && this.isCancelled) {
+      return true;
+    }
+
+    if (this.schema.isSubmittable && !this.isSubmitted) {
+      return true;
+    }
+
+    return false;
+  }
+
   _setValuesWithoutChecks(data: DocValueMap) {
     for (const field of this.schema.fields) {
       const fieldname = field.fieldname;
@@ -694,7 +718,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async delete() {
-    if (this.schema.isSubmittable && !this.isCancelled) {
+    if (!this.canDelete) {
       return;
     }
 
