@@ -34,21 +34,21 @@ export class ForbiddenError extends BaseError {
 }
 
 export class DuplicateEntryError extends ValidationError {
-  constructor(message: string, shouldStore: boolean = true) {
+  constructor(message: string, shouldStore: boolean = false) {
     super(message, shouldStore);
     this.name = 'DuplicateEntryError';
   }
 }
 
 export class LinkValidationError extends ValidationError {
-  constructor(message: string, shouldStore: boolean = true) {
+  constructor(message: string, shouldStore: boolean = false) {
     super(message, shouldStore);
     this.name = 'LinkValidationError';
   }
 }
 
 export class MandatoryError extends ValidationError {
-  constructor(message: string, shouldStore: boolean = true) {
+  constructor(message: string, shouldStore: boolean = false) {
     super(message, shouldStore);
     this.name = 'MandatoryError';
   }
