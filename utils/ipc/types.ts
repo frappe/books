@@ -1,4 +1,4 @@
-export interface DatabaseResponse {
+export interface BackendResponse {
   data?: unknown;
-  error?: { message: string; name: string; stack?: string };
+  error?: { message: string; name: string; stack?: string; code?: string };
 }

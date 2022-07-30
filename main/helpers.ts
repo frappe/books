@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
 import { Main } from 'main';
 import config from 'utils/config';
-import { DatabaseResponse } from 'utils/ipc/types';
+import { BackendResponse } from 'utils/ipc/types';
 import { IPC_CHANNELS } from 'utils/messages';
 
 interface ConfigFilesWithModified extends ConfigFile {
@@ -54,15 +54,16 @@ export async function getConfigFilesWithModified(files: ConfigFile[]) {
 }
 
 export async function getErrorHandledReponse(func: () => Promise<unknown>) {
-  const response: DatabaseResponse = {};
+  const response: BackendResponse = {};
 
   try {
     response.data = await func();
   } catch (err) {
     response.error = {
-      name: (err as Error).name,
-      message: (err as Error).message,
-      stack: (err as Error).stack,
+      name: (err as NodeJS.ErrnoException).name,
+      message: (err as NodeJS.ErrnoException).message,
+      stack: (err as NodeJS.ErrnoException).stack,
+      code: (err as NodeJS.ErrnoException).code,
     };
   }
 
