@@ -85,7 +85,8 @@ export class DatabaseHandler extends DatabaseBase {
     }
   }
 
-  purgeCache() {
+  async purgeCache() {
+    await this.close();
     this.dbPath = undefined;
     this.#schemaMap = {};
     this.fieldValueMap = {};
@@ -214,7 +215,6 @@ export class DatabaseHandler extends DatabaseBase {
 
   async close(): Promise<void> {
     await this.#demux.call('close');
-    this.purgeCache();
   }
 
   /**

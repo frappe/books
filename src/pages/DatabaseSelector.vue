@@ -299,7 +299,7 @@ export default {
       );
 
       updateConfigFiles(fyo);
-      fyo.purgeCache();
+      await fyo.purgeCache();
       await this.setFiles();
 
       this.creatingDemo = false;

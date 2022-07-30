@@ -149,7 +149,7 @@ export default {
     async showDbSelector() {
       fyo.config.set('lastSelectedFilePath', null);
       fyo.telemetry.stop();
-      fyo.purgeCache();
+      await fyo.purgeCache();
       this.activeScreen = 'DatabaseSelector';
       this.dbPath = '';
       this.searcher = null;

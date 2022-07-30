@@ -11,7 +11,7 @@ async function closeDbIfConnected() {
     return;
   }
 
-  await fyo.db.close();
+  await fyo.db.purgeCache();
 }
 
 export async function initializeInstance(

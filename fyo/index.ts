@@ -202,7 +202,7 @@ export class Fyo {
     return value;
   }
 
-  purgeCache() {
+  async purgeCache() {
     this.pesa = getMoneyMaker({
       currency: DEFAULT_CURRENCY,
       precision: DEFAULT_INTERNAL_PRECISION,
@@ -216,9 +216,9 @@ export class Fyo {
     this.currencySymbols = {};
     this.errorLog = [];
     this.temp = {};
-    this.db.purgeCache();
-    this.auth.purgeCache();
-    this.doc.purgeCache();
+    await this.db.purgeCache();
+    await this.auth.purgeCache();
+    await this.doc.purgeCache();
   }
 
   store = {
