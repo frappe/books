@@ -139,7 +139,7 @@ export default function registerIpcMainActionListeners(main: Main) {
   });
 
   ipcMain.handle(IPC_ACTIONS.DELETE_FILE, async (_, filePath) => {
-    await fs.unlink(filePath);
+    return getErrorHandledReponse(async () => await fs.unlink(filePath));
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_DB_LIST, async (_) => {

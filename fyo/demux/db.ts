@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron';
 import { DatabaseError, NotImplemented } from 'fyo/utils/errors';
 import { SchemaMap } from 'schemas/types';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
-import { DatabaseResponse } from 'utils/ipc/types';
+import { BackendResponse } from 'utils/ipc/types';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export class DatabaseDemux extends DatabaseDemuxBase {
@@ -12,7 +12,7 @@ export class DatabaseDemux extends DatabaseDemuxBase {
     this.#isElectron = isElectron;
   }
 
-  async #handleDBCall(func: () => Promise<DatabaseResponse>): Promise<unknown> {
+  async #handleDBCall(func: () => Promise<BackendResponse>): Promise<unknown> {
     const response = await func();
 
     if (response.error?.name) {
