@@ -34,7 +34,7 @@ describe('Fyo Init', function () {
       true,
       'non zero schemas'
     );
-    await fyo.db.close();
+    await fyo.db.purgeCache();
   });
 });
 

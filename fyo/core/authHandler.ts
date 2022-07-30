@@ -107,7 +107,7 @@ export class AuthHandler {
     // TODO: Implement this with auth flow
   }
 
-  purgeCache() {}
+  async purgeCache() {}
 
   #getServerURL() {
     return this.#config.serverURL || '';

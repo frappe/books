@@ -26,7 +26,7 @@ export class DocHandler {
     this.observer = new Observable();
   }
 
-  purgeCache() {
+  async purgeCache() {
     this.init();
   }
 
