@@ -15,7 +15,8 @@ export const languageCodeMap: Record<string, string> = {
   Catalan: 'ca-ES',
   Spanish: 'es',
   Dutch: 'nl',
-  Gujarati: 'gu'
+  Gujarati: 'gu',
+  Turkish: 'tr',
 };
 
 export async function setLanguageMap(
