@@ -101,7 +101,6 @@
               type="text"
               v-model="newAccountName"
               :disabled="insertingAccount"
-              
             />
             <button
               v-if="!insertingAccount"
@@ -164,7 +163,7 @@ export default {
     if (fyo.store.isDevelopment) {
       window.coa = this;
     }
-    docsPath.value = docsPathMap.ChartOfAccounts
+    docsPath.value = docsPathMap.ChartOfAccounts;
   },
   deactivated() {
     docsPath.value = '';
@@ -184,28 +183,44 @@ export default {
       };
       this.accounts = await this.getChildren();
     },
-    onClick(account) {
-      if (!account.isGroup) {
-        openQuickEdit({
-          schemaName: ModelNameEnum.Account,
-          name: account.name,
-        });
-      } else {
-        this.toggleChildren(account);
+    async onClick(account) {
+      let shouldOpen = !account.isGroup;
+      if (account.isGroup) {
+        shouldOpen = !(await this.toggleChildren(account));
       }
+
+      if (!shouldOpen) {
+        return;
+      }
+
+      await openQuickEdit({
+        schemaName: ModelNameEnum.Account,
+        name: account.name,
+      });
+
+      const doc = await fyo.doc.getDoc(ModelNameEnum.Account, account.name);
+      doc.once('afterDelete', () => this.fetchAccounts());
     },
     async toggleChildren(account) {
-      await this.fetchChildren(account);
+      const hasChildren = await this.fetchChildren(account);
+      if (!hasChildren) {
+        return false;
+      }
+
       account.expanded = !account.expanded;
       if (!account.expanded) {
         account.addingAccount = 0;
         account.addingGroupAccount = 0;
       }
+
+      return true;
     },
     async fetchChildren(account, force = false) {
       if (account.children == null || force) {
         account.children = await this.getChildren(account.name);
       }
+
+      return !!account?.children?.length;
     },
     async getChildren(parent = null) {
       const children = await fyo.db.getAll(ModelNameEnum.Account, {
