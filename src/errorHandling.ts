@@ -1,5 +1,6 @@
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
+import { ConfigKeys } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { BaseError } from 'fyo/utils/errors';
 import { ErrorLog } from 'fyo/utils/types';
@@ -175,6 +176,11 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   body.push(`**Version**: \`${fyo.store.appVersion}\``);
   body.push(`**Platform**: \`${fyo.store.platform}\``);
   body.push(`**Path**: \`${router.currentRoute.value.fullPath}\``);
+
+  body.push(`**Language**: \`${fyo.config.get(ConfigKeys.Language)}\``);
+  if (fyo.singles.SystemSettings?.countryCode) {
+    body.push(`**Country**: \`${fyo.singles.SystemSettings.countryCode}\``);
+  }
 
   const url = [baseUrl, `body=${body.join('\n')}`].join('&');
   return encodeURI(url);
