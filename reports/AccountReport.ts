@@ -461,6 +461,10 @@ function setValueMapOnAccountTreeNodes(
   rangeGroupedMap: AccountNameValueMapMap
 ) {
   for (const name of rangeGroupedMap.keys()) {
+    if (!accountTree[name]) {
+      continue;
+    }
+
     const valueMap = rangeGroupedMap.get(name)!;
     accountTree[name].valueMap = valueMap;
     accountTree[name].prune = false;
