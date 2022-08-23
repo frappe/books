@@ -523,7 +523,12 @@ export class Search {
     keys.sort((a, b) => parseFloat(b) - parseFloat(a));
     const array: SearchItems = [];
     for (const key of keys) {
-      this._pushDocSearchItems(groupedKeywords[key], array, input);
+      const keywords = groupedKeywords[key];
+      if (!keywords?.length) {
+        continue;
+      }
+
+      this._pushDocSearchItems(keywords, array, input);
       if (key === '0') {
         this._pushNonDocSearchItems(array, input);
       }
