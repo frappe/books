@@ -26,6 +26,12 @@ async function reportError(errorLogObj: ErrorLog) {
     error_name: errorLogObj.name,
     message: errorLogObj.message,
     stack: errorLogObj.stack,
+    platform: fyo.store.platform,
+    version: fyo.store.appVersion,
+    language: fyo.store.language,
+    instance_id: fyo.store.instanceId,
+    open_count: fyo.store.openCount,
+    country_code: fyo.singles.SystemSettings?.countryCode,
     more: stringifyCircular(errorLogObj.more ?? {}),
   };
 
