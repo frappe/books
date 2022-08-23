@@ -4,7 +4,7 @@ import {
   app,
   BrowserWindow,
   BrowserWindowConstructorOptions,
-  protocol,
+  protocol
 } from 'electron';
 import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
@@ -40,6 +40,13 @@ export class Main {
     if (this.isDevelopment) {
       autoUpdater.logger = console;
     }
+
+    // https://github.com/electron-userland/electron-builder/issues/4987
+    app.commandLine.appendSwitch('disable-http2');
+    autoUpdater.requestHeaders = {
+      'Cache-Control':
+        'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+    };
 
     Store.initRenderer();
 
