@@ -149,7 +149,10 @@
           <p>↑↓ {{ t`Navigate` }}</p>
           <p>↩ {{ t`Select` }}</p>
           <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
-          <button class="flex items-center hover:text-gray-800" @click="openDocs">
+          <button
+            class="flex items-center hover:text-gray-800"
+            @click="openDocs"
+          >
             <feather-icon name="help-circle" class="w-4 h-4 mr-1" />
             {{ t`Help` }}
           </button>
@@ -317,6 +320,10 @@ export default {
       ref.scrollIntoView({ block: 'nearest' });
     },
     getGroupFilterButtonClass(g) {
+      if (!this.searcher) {
+        return '';
+      }
+
       const isOn = this.searcher.filters.groupFilters[g];
       const color = this.groupColorMap[g];
       if (isOn) {
