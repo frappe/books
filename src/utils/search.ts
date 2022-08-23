@@ -418,7 +418,7 @@ export class Search {
     const totalChildKeywords = Object.values(this.searchables)
       .filter((s) => s.isChild)
       .map((s) => this.keywords[s.schemaName]?.length ?? 0)
-      .reduce((a, b) => a + b);
+      .reduce((a, b) => a + b, 0);
 
     if (totalChildKeywords > 2_000) {
       this.set('skipTables', true);
