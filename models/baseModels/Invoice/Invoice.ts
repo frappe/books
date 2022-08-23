@@ -152,7 +152,7 @@ export abstract class Invoice extends Transactional {
       }
 
       const tax = await this.getTax(item.tax!);
-      for (const { account, rate } of tax.details as TaxDetail[]) {
+      for (const { account, rate } of (tax.details ?? []) as TaxDetail[]) {
         taxes[account] ??= {
           account,
           rate,
