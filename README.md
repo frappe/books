@@ -105,16 +105,16 @@ If you want to contribute code then you can fork this repo, make changes and rai
 
 ## Translation Contributors
 
-| Language   | Contributors                                                                   |
-| ---------- | ------------------------------------------------------------------------------ |
-| French     | [DeepL](https://www.deepl.com/)                                                |
-| German     | [DeepL](https://www.deepl.com/), [barredterra](https://github.com/barredterra) |
-| Portuguese | [DeepL](https://www.deepl.com/)                                                |
-| Arabic     | [taha2002](https://github.com/taha2002)                                        |
-| Catalan    | Dídac E. Jiménez                                                               |
-| Dutch      | [FastAct](https://github.com/FastAct)                                          |
-| Spanish    | [talmax1124](https://github.com/talmax1124)                                    |
-| Gujarati   | [dhruvilxcode](https://github.com/dhruvilxcode)                                |
+| Language   | Contributors                                                                       |
+| ---------- | ---------------------------------------------------------------------------------- |
+| French     | [DeepL](https://www.deepl.com/), [mael-chouteau](https://github.com/mael-chouteau) |
+| German     | [DeepL](https://www.deepl.com/), [barredterra](https://github.com/barredterra)     |
+| Portuguese | [DeepL](https://www.deepl.com/)                                                    |
+| Arabic     | [taha2002](https://github.com/taha2002)                                            |
+| Catalan    | Dídac E. Jiménez                                                                   |
+| Dutch      | [FastAct](https://github.com/FastAct)                                              |
+| Spanish    | [talmax1124](https://github.com/talmax1124)                                        |
+| Gujarati   | [dhruvilxcode](https://github.com/dhruvilxcode)                                    |
 
 ## License
 
