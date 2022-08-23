@@ -287,7 +287,7 @@ export default {
     },
     open() {
       this.openModal = true;
-      this.searcher.updateKeywords();
+      this.searcher?.updateKeywords();
       nextTick(() => {
         this.$refs.input.focus();
       });
@@ -370,6 +370,10 @@ export default {
       }, {});
     },
     suggestions() {
+      if (!this.searcher) {
+        return [];
+      }
+
       const suggestions = this.searcher.search(this.inputValue);
       if (this.limit === -1) {
         return suggestions;
