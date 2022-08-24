@@ -33,7 +33,7 @@ function getRegionalSidebar(): SidebarRoot[] {
 
   return [
     {
-      label: 'GST',
+      label: t`GST`,
       name: 'gst',
       icon: 'gst',
       route: '/report/GSTR1',
@@ -162,7 +162,7 @@ function getCompleteSidebar(): SidebarConfig {
     },
     {
       label: t`Reports`,
-      name: t`reports`,
+      name: 'reports',
       icon: 'reports',
       route: '/report/GeneralLedger',
       items: [
@@ -191,7 +191,7 @@ function getCompleteSidebar(): SidebarConfig {
     ...getRegionalSidebar(),
     {
       label: t`Setup`,
-      name: t`setup`,
+      name: 'setup',
       icon: 'settings',
       route: '/chart-of-accounts',
       items: [

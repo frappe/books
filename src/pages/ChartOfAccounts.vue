@@ -135,11 +135,11 @@
   </div>
 </template>
 <script>
+import { fyo } from 'src/initFyo';
 import { t } from 'fyo';
 import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader';
-import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, openQuickEdit } from 'src/utils/ui';
 import { nextTick } from 'vue';
@@ -306,10 +306,7 @@ export default {
     },
     isQuickEditOpen(account) {
       let { edit, schemaName, name } = this.$route.query;
-      if (edit && schemaName === 'Account' && name === account.name) {
-        return true;
-      }
-      return false;
+      return !!(edit && schemaName === 'Account' && name === account.name);
     },
     getIconComponent(account) {
       let icons = {
@@ -346,11 +343,9 @@ export default {
 
       let icon = account.isGroup ? folder : leaf;
 
-      let c = {
+      return {
         template: icons[account.name] || icon,
       };
-
-      return c;
     },
   },
   computed: {
