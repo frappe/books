@@ -188,7 +188,7 @@ export default {
       return emptyMessage;
     },
     async selectItem(d) {
-      if (!d.action) {
+      if (!d?.action) {
         return;
       }
 

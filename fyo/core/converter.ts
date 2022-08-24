@@ -37,6 +37,7 @@ export class Converter {
     schemaName: string,
     rawValueMap: RawValueMap | RawValueMap[]
   ): DocValueMap | DocValueMap[] {
+    rawValueMap ??= {};
     if (Array.isArray(rawValueMap)) {
       return rawValueMap.map((dv) => this.#toDocValueMap(schemaName, dv));
     } else {
@@ -48,6 +49,7 @@ export class Converter {
     schemaName: string,
     docValueMap: DocValueMap | DocValueMap[]
   ): RawValueMap | RawValueMap[] {
+    docValueMap ??= {};
     if (Array.isArray(docValueMap)) {
       return docValueMap.map((dv) => this.#toRawValueMap(schemaName, dv));
     } else {

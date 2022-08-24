@@ -153,8 +153,11 @@ export default {
         .map(({ item }) => item);
     },
     setSuggestion(suggestion) {
-      this.linkValue = suggestion.label;
-      this.triggerChange(suggestion.value);
+      if (suggestion) {
+        this.linkValue = suggestion.label;
+        this.triggerChange(suggestion.value);
+      }
+
       this.toggleDropdown(false);
     },
     onFocus(e, toggleDropdown) {
