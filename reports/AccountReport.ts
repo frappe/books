@@ -551,7 +551,7 @@ function pruneAccountTree(accountTree: AccountTree) {
 
 function getPrunedChildren(children: AccountTreeNode[]): AccountTreeNode[] {
   return children.filter((child) => {
-    if (child.children) {
+    if (child.children?.length) {
       child.children = getPrunedChildren(child.children);
     }
 
