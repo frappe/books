@@ -1,9 +1,14 @@
 export class BaseError extends Error {
+  more: Record<string, unknown> = {};
   message: string;
   statusCode: number;
   shouldStore: boolean;
 
-  constructor(statusCode: number, message: string, shouldStore: boolean = true) {
+  constructor(
+    statusCode: number,
+    message: string,
+    shouldStore: boolean = true
+  ) {
     super(message);
     this.name = 'BaseError';
     this.statusCode = statusCode;
@@ -96,7 +101,7 @@ export function getDbError(err: Error) {
     return CannotCommitError;
   }
 
-  if (err.message.includes('SQLITE_CONSTRAINT: UNIQUE constraint failed:')) {
+  if (err.message.includes('UNIQUE constraint failed:')) {
     return DuplicateEntryError;
   }
 

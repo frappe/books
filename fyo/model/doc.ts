@@ -19,6 +19,7 @@ import { markRaw } from 'vue';
 import { isPesa } from '../utils/index';
 import {
   areDocValuesEqual,
+  getInsertionError,
   getMissingMandatoryMessage,
   getPreDefaultValues,
   setChildDocIdx,
@@ -682,7 +683,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await this._preSync();
 
     const validDict = this.getValidDict(false, true);
-    const data = await this.fyo.db.insert(this.schemaName, validDict);
+    let data: DocValueMap;
+    try {
+      data = await this.fyo.db.insert(this.schemaName, validDict);
+    } catch (err) {
+      throw getInsertionError(err as Error, validDict);
+    }
     await this._syncValues(data);
 
     this.fyo.telemetry.log(Verb.Created, this.schemaName);

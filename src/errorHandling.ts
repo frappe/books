@@ -94,8 +94,8 @@ export async function handleErrorWithDialog(
   const errorMessage = getErrorMessage(error, doc);
   await handleError(false, error, { errorMessage, doc });
 
-  const name = error.name ?? t`Error`;
-  const options: MessageDialogOptions = { message: name, detail: errorMessage };
+  const label = getErrorLabel(error);
+  const options: MessageDialogOptions = { message: label, detail: errorMessage };
 
   if (reportError) {
     options.detail = truncate(options.detail, { length: 128 });
@@ -106,7 +106,7 @@ export async function handleErrorWithDialog(
           reportIssue(getErrorLogObject(error, { errorMessage }));
         },
       },
-      { label: t`OK`, action() {} },
+      { label: t`Cancel`, action() {} },
     ];
   }
 
@@ -195,4 +195,53 @@ function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
 export function reportIssue(errorLogObj?: ErrorLog) {
   const urlQuery = getIssueUrlQuery(errorLogObj);
   ipcRenderer.send(IPC_MESSAGES.OPEN_EXTERNAL, urlQuery);
+}
+
+function getErrorLabel(error: Error) {
+  const name = error.name;
+  if (!name) {
+    return t`Error`;
+  }
+
+  if (name === 'BaseError') {
+    return t`Error`;
+  }
+
+  if (name === 'ValidationError') {
+    return t`Validation Error`;
+  }
+
+  if (name === 'NotFoundError') {
+    return t`Not Found`;
+  }
+
+  if (name === 'ForbiddenError') {
+    return t`Forbidden Error`;
+  }
+
+  if (name === 'DuplicateEntryError') {
+    return t`Duplicate Entry`;
+  }
+
+  if (name === 'LinkValidationError') {
+    return t`Link Validation Error`;
+  }
+
+  if (name === 'MandatoryError') {
+    return t`Mandatory Error`;
+  }
+
+  if (name === 'DatabaseError') {
+    return t`Database Error`;
+  }
+
+  if (name === 'CannotCommitError') {
+    return t`Cannot Commit Error`;
+  }
+
+  if (name === 'NotImplemented') {
+    return t`Error`;
+  }
+
+  return t`Error`;
 }
