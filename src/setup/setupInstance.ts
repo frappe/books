@@ -302,12 +302,7 @@ async function getBankAccountParentName(country: string, fyo: Fyo) {
 
 async function createDefaultNumberSeries(fyo: Fyo) {
   await createNumberSeries('SINV-', 'SalesInvoice', DEFAULT_SERIES_START, fyo);
-  await createNumberSeries(
-    'PINV-',
-    'PurchaseInvoice',
-    DEFAULT_SERIES_START,
-    fyo
-  );
+  await createNumberSeries('PINV-', 'PurchaseInvoice', DEFAULT_SERIES_START, fyo);
   await createNumberSeries('PAY-', 'Payment', DEFAULT_SERIES_START, fyo);
   await createNumberSeries('JV-', 'JournalEntry', DEFAULT_SERIES_START, fyo);
 }
