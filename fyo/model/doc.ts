@@ -17,6 +17,7 @@ import {
 import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
 import { markRaw } from 'vue';
 import { isPesa } from '../utils/index';
+import { getDbSyncError } from './errorHelpers';
 import {
   areDocValuesEqual,
   getMissingMandatoryMessage,
@@ -682,7 +683,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await this._preSync();
 
     const validDict = this.getValidDict(false, true);
-    const data = await this.fyo.db.insert(this.schemaName, validDict);
+    let data: DocValueMap;
+    try {
+      data = await this.fyo.db.insert(this.schemaName, validDict);
+    } catch (err) {
+      throw await getDbSyncError(err as Error, this, this.fyo);
+    }
     await this._syncValues(data);
 
     this.fyo.telemetry.log(Verb.Created, this.schemaName);
@@ -695,7 +701,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
     await this._preSync();
 
     const data = this.getValidDict(false, true);
-    await this.fyo.db.update(this.schemaName, data);
+    try {
+      await this.fyo.db.update(this.schemaName, data);
+    } catch (err) {
+      throw await getDbSyncError(err as Error, this, this.fyo);
+    }
     await this._syncValues(data);
 
     return this;

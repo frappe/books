@@ -461,6 +461,10 @@ function setValueMapOnAccountTreeNodes(
   rangeGroupedMap: AccountNameValueMapMap
 ) {
   for (const name of rangeGroupedMap.keys()) {
+    if (!accountTree[name]) {
+      continue;
+    }
+
     const valueMap = rangeGroupedMap.get(name)!;
     accountTree[name].valueMap = valueMap;
     accountTree[name].prune = false;
@@ -547,7 +551,7 @@ function pruneAccountTree(accountTree: AccountTree) {
 
 function getPrunedChildren(children: AccountTreeNode[]): AccountTreeNode[] {
   return children.filter((child) => {
-    if (child.children) {
+    if (child.children?.length) {
       child.children = getPrunedChildren(child.children);
     }
 

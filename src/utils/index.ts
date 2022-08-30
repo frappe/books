@@ -4,9 +4,14 @@
 import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { isPesa } from 'fyo/utils';
-import { DuplicateEntryError, LinkValidationError } from 'fyo/utils/errors';
+import {
+  BaseError,
+  DuplicateEntryError,
+  LinkValidationError
+} from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
+import { fyo } from 'src/initFyo';
 
 export function stringifyCircular(
   obj: unknown,
@@ -24,7 +29,8 @@ export function stringifyCircular(
     }
 
     if (cacheValue.includes(value)) {
-      const circularKey = cacheKey[cacheValue.indexOf(value)] || '{self}';
+      const circularKey: string =
+        cacheKey[cacheValue.indexOf(value)] || '{self}';
       return ignoreCircular ? undefined : `[Circular:${circularKey}]`;
     }
 
@@ -84,16 +90,23 @@ export function convertPesaValuesToFloat(obj: Record<string, unknown>) {
 }
 
 export function getErrorMessage(e: Error, doc?: Doc): string {
-  let errorMessage = e.message || t`An error occurred.`;
+  const errorMessage = e.message || t`An error occurred.`;
 
-  const { schemaName, name }: { schemaName?: string; name?: string } =
-    doc ?? {};
-  const canElaborate = !!(schemaName && name);
+  let { schemaName, name } = doc ?? {};
+  if (!doc) {
+    schemaName = (e as BaseError).more?.schemaName as string | undefined;
+    name = (e as BaseError).more?.value as string | undefined;
+  }
 
-  if (e instanceof LinkValidationError && canElaborate) {
-    errorMessage = t`${schemaName} ${name} is linked with existing records.`;
-  } else if (e instanceof DuplicateEntryError && canElaborate) {
-    errorMessage = t`${schemaName} ${name} already exists.`;
+  if (!schemaName || !name) {
+    return errorMessage;
+  }
+
+  const label = fyo.db.schemaMap[schemaName]?.label ?? schemaName;
+  if (e instanceof LinkValidationError) {
+    return t`${label} ${name} is linked with existing records.`;
+  } else if (e instanceof DuplicateEntryError) {
+    return t`${label} ${name} already exists.`;
   }
 
   return errorMessage;

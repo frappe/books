@@ -228,8 +228,9 @@ export async function getExchangeRate({
       }
     } catch (error) {
       console.error(error);
-      throw new Error(
-        `Could not fetch exchange rate for ${fromCurrency} -> ${toCurrency}`
+      throw new NotFoundError(
+        `Could not fetch exchange rate for ${fromCurrency} -> ${toCurrency}`,
+        false
       );
     }
   } else {
