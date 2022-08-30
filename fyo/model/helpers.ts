@@ -1,7 +1,6 @@
 import { Fyo } from 'fyo';
-import { DocValue, DocValueMap } from 'fyo/core/types';
+import { DocValue } from 'fyo/core/types';
 import { isPesa } from 'fyo/utils';
-import { DuplicateEntryError } from 'fyo/utils/errors';
 import { isEqual } from 'lodash';
 import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
@@ -114,38 +113,4 @@ export function setChildDocIdx(childDocs: Doc[]) {
   for (const idx in childDocs) {
     childDocs[idx].idx = +idx;
   }
-}
-
-export function getInsertionError(err: Error, validDict: DocValueMap): Error {
-  if (err.message.includes('UNIQUE constraint failed:')) {
-    return getDuplicateEntryError(err, validDict);
-  }
-
-  return err;
-}
-
-export function getDuplicateEntryError(
-  err: Error,
-  validDict: DocValueMap
-): Error | DuplicateEntryError {
-  const matches = err.message.match(/UNIQUE constraint failed:\s(\w+)\.(\w+)$/);
-  if (!matches) {
-    return err;
-  }
-
-  const schemaName = matches[1];
-  const fieldname = matches[2];
-  if (!schemaName || !fieldname) {
-    return err;
-  }
-
-  const duplicateEntryError = new DuplicateEntryError(err.message, false);
-  duplicateEntryError.stack = err.stack;
-  duplicateEntryError.more = {
-    schemaName,
-    fieldname,
-    value: validDict[fieldname],
-  };
-
-  return duplicateEntryError;
 }
