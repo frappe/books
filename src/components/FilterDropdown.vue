@@ -124,9 +124,9 @@
 </template>
 
 <script>
+import { fyo } from 'src/initFyo';
 import { t } from 'fyo';
 import { FieldTypeEnum } from 'schemas/types';
-import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
 import Button from './Button';
 import FormControl from './Controls/FormControl.vue';

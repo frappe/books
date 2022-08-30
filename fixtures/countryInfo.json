@@ -993,7 +993,7 @@
     {
         "code": "fr",
         "currency": "EUR",
-        "currency_fraction": "Cent",
+        "currency_fraction": "Centime",
         "currency_fraction_units": 100,
         "currency_symbol": "€",
         "date_format": "dd/MM/yyyy",
