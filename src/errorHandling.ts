@@ -36,7 +36,7 @@ async function reportError(errorLogObj: ErrorLog) {
   };
 
   if (fyo.store.isDevelopment) {
-    console.log(body);
+    console.log('reportError', body);
   }
 
   await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, JSON.stringify(body));
@@ -95,7 +95,10 @@ export async function handleErrorWithDialog(
   await handleError(false, error, { errorMessage, doc });
 
   const label = getErrorLabel(error);
-  const options: MessageDialogOptions = { message: label, detail: errorMessage };
+  const options: MessageDialogOptions = {
+    message: label,
+    detail: errorMessage,
+  };
 
   if (reportError) {
     options.detail = truncate(options.detail, { length: 128 });
