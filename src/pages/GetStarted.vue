@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col overflow-y-hidden">
-    <PageHeader :title="t`Setup Your Workspace`" />
+    <PageHeader :title="t`Set Up Your Workspace`" />
     <div class="flex-1 overflow-y-auto overflow-x-hidden">
       <div
         class="p-4 border-b"
@@ -47,7 +47,7 @@
                   @click="handleAction(item)"
                 >
                   <span class="text-base text-white">
-                    {{ item.actionLabel || t`Setup` }}
+                    {{ item.actionLabel || t`Set Up` }}
                   </span>
                 </Button>
                 <Button
@@ -77,7 +77,6 @@ import { fyo } from 'src/initFyo';
 import { getGetStartedConfig } from 'src/utils/getStartedConfig';
 import { openLink } from 'src/utils/ipcCalls';
 import { h } from 'vue';
-
 export default {
   name: 'GetStarted',
   components: {
