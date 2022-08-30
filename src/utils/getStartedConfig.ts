@@ -21,7 +21,7 @@ export function getGetStartedConfig() {
           key: 'General',
           label: t`General`,
           icon: 'general',
-          description: t`Setup your company information, email, country and fiscal year`,
+          description: t`Set up your company information, email, country and fiscal year`,
           fieldname: 'companySetup',
           action() {
             openSettings('General');
@@ -60,7 +60,7 @@ export function getGetStartedConfig() {
           label: t`Opening Balances`,
           icon: 'opening-ac',
           fieldname: 'openingBalanceChecked',
-          description: t`Setup your opening balances before performing any accounting entries`,
+          description: t`Set up your opening balances before performing any accounting entries`,
           documentation:
             'https://docs.frappebooks.com/setting-up/opening-balances.html',
         },
@@ -69,7 +69,7 @@ export function getGetStartedConfig() {
           label: t`Add Taxes`,
           icon: 'percentage',
           fieldname: 'taxesAdded',
-          description: t`Setup your tax templates for your sales or purchase transactions`,
+          description: t`Set up your tax templates for your sales or purchase transactions`,
           action: () => routeTo('/list/Tax'),
           documentation:
             'https://docs.frappebooks.com/setting-up/initial-entries.html#add-taxes',

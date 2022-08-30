@@ -11,7 +11,7 @@
       :class="{ 'window-no-drag': platform !== 'Windows' }"
     >
       <template #title>
-        {{ t`Setup your organization` }}
+        {{ t`Set up your organization` }}
       </template>
 
       <template #content>
