@@ -68,7 +68,7 @@ Next, you will need to install [yarn](https://classic.yarnpkg.com/lang/en/docs/i
 ### Clone and Run
 
 Once you are through the Pre-requisites, you can run the following commands to
-get Frappe Books running in development mode:
+setup Frappe Books for development and building:
 
 ```bash
 # clone the repository
