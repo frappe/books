@@ -1,5 +1,5 @@
 import { app, dialog, ipcMain } from 'electron';
-import { autoUpdater, UpdateInfo } from 'electron-updater';
+import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
 import path from 'path';
 import databaseManager from '../backend/database/manager';
@@ -14,40 +14,6 @@ import {
   setAndGetCleanedConfigFiles,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
-
-autoUpdater.autoDownload = false;
-
-autoUpdater.on('error', (error) => {
-  dialog.showErrorBox(
-    'Update Error: ',
-    error == null ? 'unknown' : (error.stack || error).toString()
-  );
-});
-
-autoUpdater.on('update-available', async (info: UpdateInfo) => {
-  const currentVersion = app.getVersion();
-  const nextVersion = info.version;
-  const isCurrentBeta = currentVersion.includes('beta');
-  const isNextBeta = nextVersion.includes('beta');
-
-  let downloadUpdate = true;
-  if (!isCurrentBeta && isNextBeta) {
-    const option = await dialog.showMessageBox({
-      type: 'info',
-      title: `Update Frappe Books?`,
-      message: `Download version ${nextVersion}?`,
-      buttons: ['Yes', 'No'],
-    });
-
-    downloadUpdate = option.response === 0;
-  }
-
-  if (!downloadUpdate) {
-    return;
-  }
-
-  await autoUpdater.downloadUpdate();
-});
 
 export default function registerIpcMainActionListeners(main: Main) {
   ipcMain.handle(IPC_ACTIONS.GET_OPEN_FILEPATH, async (event, options) => {

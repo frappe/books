@@ -418,7 +418,7 @@ export class Search {
     const totalChildKeywords = Object.values(this.searchables)
       .filter((s) => s.isChild)
       .map((s) => this.keywords[s.schemaName]?.length ?? 0)
-      .reduce((a, b) => a + b);
+      .reduce((a, b) => a + b, 0);
 
     if (totalChildKeywords > 2_000) {
       this.set('skipTables', true);
@@ -523,7 +523,12 @@ export class Search {
     keys.sort((a, b) => parseFloat(b) - parseFloat(a));
     const array: SearchItems = [];
     for (const key of keys) {
-      this._pushDocSearchItems(groupedKeywords[key], array, input);
+      const keywords = groupedKeywords[key];
+      if (!keywords?.length) {
+        continue;
+      }
+
+      this._pushDocSearchItems(keywords, array, input);
       if (key === '0') {
         this._pushNonDocSearchItems(array, input);
       }

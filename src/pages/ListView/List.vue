@@ -156,6 +156,10 @@ export default defineComponent({
       this.pageEnd = end;
     },
     setUpdateListeners() {
+      if (!this.schemaName) {
+        return;
+      }
+
       const listener = () => {
         this.updateData();
       };
