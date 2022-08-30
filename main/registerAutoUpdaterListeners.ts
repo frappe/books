@@ -13,7 +13,7 @@ export default function registerAutoUpdaterListeners(main: Main) {
       return;
     }
 
-    main.mainWindow!.webContents.send(IPC_CHANNELS.MAIN_PROCESS_ERROR, error);
+    main.mainWindow!.webContents.send(IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR, error);
     dialog.showErrorBox(
       'Update Error: ',
       error == null ? 'unknown' : (error.stack || error).toString()
