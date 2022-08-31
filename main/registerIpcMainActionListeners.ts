@@ -12,7 +12,8 @@ import { getLanguageMap } from './getLanguageMap';
 import {
   getConfigFilesWithModified,
   getErrorHandledReponse,
-  setAndGetCleanedConfigFiles,
+  isNetworkError,
+  setAndGetCleanedConfigFiles
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 
@@ -60,6 +61,10 @@ export default function registerIpcMainActionListeners(main: Main) {
     try {
       await autoUpdater.checkForUpdates();
     } catch (error) {
+      if (isNetworkError(error as Error)) {
+        return;
+      }
+
       emitMainProcessError(error);
     }
     main.checkedForUpdate = true;
