@@ -1,6 +1,6 @@
-import { emitMainProcessError } from 'backend/helpers';
 import { app, dialog } from 'electron';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
+import { emitMainProcessError } from '../backend/helpers';
 import { Main } from '../main';
 import { isNetworkError } from './helpers';
 

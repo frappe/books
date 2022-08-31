@@ -1,9 +1,9 @@
-import { emitMainProcessError } from 'backend/helpers';
 import { app, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
 import path from 'path';
 import databaseManager from '../backend/database/manager';
+import { emitMainProcessError } from '../backend/helpers';
 import { Main } from '../main';
 import { DatabaseMethod } from '../utils/db/types';
 import { IPC_ACTIONS } from '../utils/messages';
