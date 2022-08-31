@@ -2,14 +2,19 @@ import { emitMainProcessError } from 'backend/helpers';
 import { app, dialog } from 'electron';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
 import { Main } from '../main';
+import { isNetworkError } from './helpers';
 
 export default function registerAutoUpdaterListeners(main: Main) {
   autoUpdater.autoDownload = false;
+  autoUpdater.allowPrerelease = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
   autoUpdater.on('error', (error) => {
     if (!main.checkedForUpdate) {
       main.checkedForUpdate = true;
+    }
+
+    if (isNetworkError(error)) {
       return;
     }
 
