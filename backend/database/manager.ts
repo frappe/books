@@ -1,9 +1,12 @@
-import { constants } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
-import { databaseMethodSet } from '../helpers';
+import {
+  databaseMethodSet,
+  emitMainProcessError,
+  unlinkIfExists,
+} from '../helpers';
 import patches from '../patches';
 import { BespokeQueries } from './bespoke';
 import DatabaseCore from './core';
@@ -22,7 +25,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
   }
 
   async createNewDatabase(dbPath: string, countryCode: string) {
-    await this.#unlinkIfExists(dbPath);
+    await unlinkIfExists(dbPath);
     return await this.connectToDatabase(dbPath, countryCode);
   }
 
@@ -61,12 +64,35 @@ export class DatabaseManager extends DatabaseDemuxBase {
     try {
       await this.#runPatchesAndMigrate();
     } catch (err) {
-      console.error(err);
-      await this.db!.close();
-      copyPath && (await fs.copyFile(copyPath, dbPath));
-      throw err;
+      this.#handleFailedMigration(err, dbPath, copyPath);
     } finally {
-      copyPath && (await fs.unlink(copyPath));
+      await unlinkIfExists(copyPath);
+    }
+  }
+
+  async #handleFailedMigration(
+    error: unknown,
+    dbPath: string,
+    copyPath: string | null
+  ) {
+    await this.db!.close();
+
+    if (copyPath) {
+      await this.#restoreDbCopy(dbPath, copyPath);
+    }
+
+    if (error instanceof Error) {
+      error.message = `failed migration\n${error.message}`;
+    }
+
+    throw error;
+  }
+
+  async #restoreDbCopy(dbPath: string, copyPath: string) {
+    try {
+      await fs.copyFile(copyPath!, dbPath);
+    } catch (err) {
+      emitMainProcessError(err);
     }
   }
 
@@ -130,17 +156,6 @@ export class DatabaseManager extends DatabaseDemuxBase {
     return await queryFunction(this.db!, ...args);
   }
 
-  async #unlinkIfExists(dbPath: string) {
-    const exists = await fs
-      .access(dbPath, constants.W_OK)
-      .then(() => true)
-      .catch(() => false);
-
-    if (exists) {
-      fs.unlink(dbPath);
-    }
-  }
-
   async #getIsFirstRun(): Promise<boolean> {
     if (!this.#isInitialized) {
       return true;
@@ -160,7 +175,14 @@ export class DatabaseManager extends DatabaseDemuxBase {
 
     const dir = path.parse(src).dir;
     const dest = path.join(dir, '__premigratory_temp.db');
-    await fs.copyFile(src, dest);
+
+    try {
+      await fs.copyFile(src, dest);
+    } catch (err) {
+      emitMainProcessError(err);
+      return null;
+    }
+
     return dest;
   }
 }

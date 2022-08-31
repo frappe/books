@@ -57,7 +57,11 @@ export function getErrorLogObject(
   error: Error,
   more: Record<string, unknown>
 ): ErrorLog {
-  const { name, stack, message } = error;
+  const { name, stack, message, cause } = error;
+  if (cause) {
+    more.cause = cause;
+  }
+
   const errorLogObj = { name, stack, message, more };
 
   fyo.errorLog.push(errorLogObj);
