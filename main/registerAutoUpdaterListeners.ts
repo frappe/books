@@ -1,23 +1,24 @@
+import { emitMainProcessError } from 'backend/helpers';
 import { app, dialog } from 'electron';
 import { autoUpdater, UpdateInfo } from 'electron-updater';
 import { Main } from '../main';
-import { IPC_CHANNELS } from '../utils/messages';
+import { isNetworkError } from './helpers';
 
 export default function registerAutoUpdaterListeners(main: Main) {
   autoUpdater.autoDownload = false;
+  autoUpdater.allowPrerelease = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
   autoUpdater.on('error', (error) => {
     if (!main.checkedForUpdate) {
       main.checkedForUpdate = true;
+    }
+
+    if (isNetworkError(error)) {
       return;
     }
 
-    main.mainWindow!.webContents.send(IPC_CHANNELS.MAIN_PROCESS_ERROR, error);
-    dialog.showErrorBox(
-      'Update Error: ',
-      error == null ? 'unknown' : (error.stack || error).toString()
-    );
+    emitMainProcessError(error);
   });
 
   autoUpdater.on('update-available', async (info: UpdateInfo) => {
@@ -30,7 +31,7 @@ export default function registerAutoUpdaterListeners(main: Main) {
     if (!isCurrentBeta && isNextBeta) {
       const option = await dialog.showMessageBox({
         type: 'info',
-        title: `Update Frappe Books?`,
+        title: 'Update Available',
         message: `Download version ${nextVersion}?`,
         buttons: ['Yes', 'No'],
       });
@@ -43,5 +44,20 @@ export default function registerAutoUpdaterListeners(main: Main) {
     }
 
     await autoUpdater.downloadUpdate();
+  });
+
+  autoUpdater.on('update-downloaded', async () => {
+    const option = await dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Downloaded',
+      message: 'Restart Frappe Books to install update?',
+      buttons: ['Yes', 'No'],
+    });
+
+    if (option.response === 1) {
+      return;
+    }
+
+    autoUpdater.quitAndInstall();
   });
 }

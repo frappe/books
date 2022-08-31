@@ -1,3 +1,4 @@
+import { emitMainProcessError } from 'backend/helpers';
 import { app, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
@@ -11,7 +12,8 @@ import { getLanguageMap } from './getLanguageMap';
 import {
   getConfigFilesWithModified,
   getErrorHandledReponse,
-  setAndGetCleanedConfigFiles,
+  isNetworkError,
+  setAndGetCleanedConfigFiles
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 
@@ -52,10 +54,20 @@ export default function registerIpcMainActionListeners(main: Main) {
   });
 
   ipcMain.handle(IPC_ACTIONS.CHECK_FOR_UPDATES, async () => {
-    if (!main.isDevelopment && !main.checkedForUpdate) {
-      await autoUpdater.checkForUpdates();
-      main.checkedForUpdate = true;
+    if (main.isDevelopment || main.checkedForUpdate) {
+      return;
     }
+
+    try {
+      await autoUpdater.checkForUpdates();
+    } catch (error) {
+      if (isNetworkError(error as Error)) {
+        return;
+      }
+
+      emitMainProcessError(error);
+    }
+    main.checkedForUpdate = true;
   });
 
   ipcMain.handle(IPC_ACTIONS.GET_LANGUAGE_MAP, async (event, code) => {

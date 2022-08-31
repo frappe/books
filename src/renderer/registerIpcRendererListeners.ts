@@ -4,13 +4,16 @@ import { fyo } from 'src/initFyo';
 import { IPC_CHANNELS } from 'utils/messages';
 
 export default function registerIpcRendererListeners() {
-  ipcRenderer.on(IPC_CHANNELS.MAIN_PROCESS_ERROR, async (_, error) => {
-    if (fyo.store.isDevelopment) {
-      console.error(error);
-    }
+  ipcRenderer.on(
+    IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR,
+    async (_, error, more) => {
+      if (fyo.store.isDevelopment) {
+        console.error(error);
+      }
 
-    await handleError(true, error as Error);
-  });
+      await handleError(true, error as Error, more);
+    }
+  );
 
   ipcRenderer.on(IPC_CHANNELS.CONSOLE_LOG, (_, ...stuff: unknown[]) => {
     if (!fyo.store.isDevelopment) {

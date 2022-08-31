@@ -1,4 +1,7 @@
+import { constants } from 'fs';
+import fs from 'fs/promises';
 import { DatabaseMethod } from 'utils/db/types';
+import { CUSTOM_EVENTS } from 'utils/messages';
 import { KnexColumnType } from './database/types';
 
 export const sqliteTypeMap: Record<string, KnexColumnType> = {
@@ -47,3 +50,32 @@ export const databaseMethodSet: Set<DatabaseMethod> = new Set([
   'close',
   'exists',
 ]);
+
+export function emitMainProcessError(
+  error: unknown,
+  more?: Record<string, unknown>
+) {
+  (process.emit as Function)(CUSTOM_EVENTS.MAIN_PROCESS_ERROR, error, more);
+}
+
+export async function checkFileAccess(filePath: string, mode?: number) {
+  mode ??= constants.W_OK;
+  return await fs
+    .access(filePath, mode)
+    .then(() => true)
+    .catch(() => false);
+}
+
+export async function unlinkIfExists(filePath: unknown) {
+  if (!filePath || typeof filePath !== 'string') {
+    return false;
+  }
+
+  const exists = await checkFileAccess(filePath);
+  if (exists) {
+    await fs.unlink(filePath);
+    return true;
+  }
+
+  return false;
+}
