@@ -5,7 +5,7 @@ import { getSchemas } from '../../schemas';
 import {
   databaseMethodSet,
   emitMainProcessError,
-  unlinkIfExists
+  unlinkIfExists,
 } from '../helpers';
 import patches from '../patches';
 import { BespokeQueries } from './bespoke';

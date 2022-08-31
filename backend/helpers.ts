@@ -51,8 +51,11 @@ export const databaseMethodSet: Set<DatabaseMethod> = new Set([
   'exists',
 ]);
 
-export function emitMainProcessError(error: unknown) {
-  (process.emit as Function)(CUSTOM_EVENTS.MAIN_PROCESS_ERROR, error);
+export function emitMainProcessError(
+  error: unknown,
+  more?: Record<string, unknown>
+) {
+  (process.emit as Function)(CUSTOM_EVENTS.MAIN_PROCESS_ERROR, error, more);
 }
 
 export async function checkFileAccess(filePath: string, mode?: number) {
