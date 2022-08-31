@@ -17,10 +17,11 @@ export default function registerProcessListeners(main: Main) {
     }
   }
 
-  process.on(CUSTOM_EVENTS.MAIN_PROCESS_ERROR, (error) => {
+  process.on(CUSTOM_EVENTS.MAIN_PROCESS_ERROR, (error, more) => {
     main.mainWindow!.webContents.send(
       IPC_CHANNELS.LOG_MAIN_PROCESS_ERROR,
-      error
+      error,
+      more
     );
   });
 
