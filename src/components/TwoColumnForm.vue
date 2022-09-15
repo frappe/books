@@ -184,14 +184,6 @@ export default {
       );
     },
     evaluateReadOnly(df) {
-      if (df.fieldname === 'numberSeries' && !this.doc.notInserted) {
-        return true;
-      }
-
-      if (this.submitted || this.doc.parentdoc?.isSubmitted) {
-        return true;
-      }
-
       return evaluateReadOnly(df, this.doc);
     },
     async onChange(df, value) {
@@ -316,9 +308,6 @@ export default {
       return {
         'grid-template-columns': templateColumns,
       };
-    },
-    submitted() {
-      return this.doc.isSubmitted;
     },
   },
 };

@@ -6,6 +6,18 @@ export function evaluateReadOnly(field: Field, doc: Doc) {
     return field.readOnly;
   }
 
+  if (field.fieldname === 'numberSeries' && !doc.notInserted) {
+    return true;
+  }
+
+  if (doc.isSubmitted || doc.parentdoc?.isSubmitted) {
+    return true;
+  }
+
+  if (doc.isCancelled || doc.parentdoc?.isCancelled) {
+    return true;
+  }
+
   const readOnlyFunc = doc.readOnly[field.fieldname];
   if (readOnlyFunc !== undefined) {
     return readOnlyFunc();
