@@ -1,6 +1,7 @@
 {
   "label": "Journal Entry",
   "name": "JournalEntry",
+  "naming": "numberSeries",
   "isSubmittable": true,
   "fields": [
     {

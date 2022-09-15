@@ -1,6 +1,7 @@
 {
   "name": "Color",
   "label": "Color",
+  "naming": "manual",
   "fields": [
     {
       "fieldname": "name",

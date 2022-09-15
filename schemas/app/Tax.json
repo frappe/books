@@ -1,6 +1,7 @@
 {
   "name": "Tax",
   "label": "Tax",
+  "naming": "manual",
   "isSingle": false,
   "isChild": false,
   "fields": [

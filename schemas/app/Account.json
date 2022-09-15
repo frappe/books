@@ -1,6 +1,7 @@
 {
   "name": "Account",
   "label": "Account",
+  "naming": "manual",
   "isSingle": false,
   "isTree": true,
   "fields": [
@@ -37,14 +38,13 @@
           "label": "Expense"
         }
       ],
-      "readOnly": true
+      "required": true
     },
     {
       "fieldname": "parentAccount",
       "label": "Parent Account",
       "fieldtype": "Link",
-      "target": "Account",
-      "readOnly": true
+      "target": "Account"
     },
     {
       "fieldname": "accountType",
@@ -140,7 +140,7 @@
       "fieldname": "isGroup",
       "label": "Is Group",
       "fieldtype": "Check",
-      "readOnly": true
+      "default": false
     }
   ],
   "quickEditFields": [

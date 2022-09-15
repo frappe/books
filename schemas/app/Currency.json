@@ -1,6 +1,7 @@
 {
   "name": "Currency",
   "label": "Currency",
+  "naming": "manual",
   "isSingle": false,
   "fields": [
     {

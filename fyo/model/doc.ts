@@ -291,6 +291,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       this[field.fieldname] = defaultValue;
     }
   }
+
   async remove(fieldname: string, idx: number) {
     const childDocs = ((this[fieldname] ?? []) as Doc[]).filter(
       (row, i) => row.idx !== idx || i !== idx
@@ -318,8 +319,25 @@ export class Doc extends Observable<DocValue | Doc[]> {
     this[fieldname] = childDocs;
   }
 
+  _setChildDocsParent() {
+    for (const { fieldname } of this.tableFields) {
+      const value = this.get(fieldname);
+      if (!Array.isArray(value)) {
+        continue;
+      }
+
+      for (const childDoc of value) {
+        if (childDoc.parent) {
+          continue;
+        }
+
+        childDoc.parent = this.name;
+      }
+    }
+  }
+
   _getChildDoc(docValueMap: Doc | DocValueMap, fieldname: string): Doc {
-    if (!this.name) {
+    if (!this.name && this.schema.naming !== 'manual') {
       this.name = getRandomString();
     }
 
@@ -672,6 +690,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   async _preSync() {
     this._setChildDocsIdx();
+    this._setChildDocsParent();
     await this._applyFormula();
     await this._validateSync();
     await this.trigger('validate');
