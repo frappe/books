@@ -5,7 +5,7 @@ import {
   FiltersMap,
   ListViewSettings,
   RequiredMap,
-  TreeViewSettings,
+  TreeViewSettings
 } from 'fyo/model/types';
 import { QueryFilter } from 'utils/db/types';
 import { AccountRootType, AccountRootTypeEnum, AccountType } from './types';
@@ -34,7 +34,7 @@ export class Account extends Doc {
      * added to the schema it will cause NOT NULL errors
      */
 
-    parentAccount: () => true,
+    parentAccount: () => !!this.fyo.singles?.AccountingSettings?.setupComplete,
   };
 
   static defaults: DefaultMap = {
