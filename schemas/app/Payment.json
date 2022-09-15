@@ -1,6 +1,7 @@
 {
   "name": "Payment",
   "label": "Payment",
+  "naming": "numberSeries",
   "isSingle": false,
   "isChild": false,
   "isSubmittable": true,

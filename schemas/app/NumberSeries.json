@@ -1,6 +1,7 @@
 {
   "name": "NumberSeries",
   "label": "Number Series",
+  "naming": "manual",
   "isSingle": false,
   "isChild": false,
   "fields": [

@@ -1,6 +1,7 @@
 {
   "name": "PurchaseInvoice",
   "label": "Purchase Invoice",
+  "naming": "numberSeries",
   "isSingle": false,
   "isChild": false,
   "isSubmittable": true,
