@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+    <div :class="labelClasses" v-if="showLabel">
       {{ df.label }}
     </div>
     <input
       spellcheck="false"
       ref="input"
-      :class="inputClasses"
+      :class="[inputClasses, containerClasses]"
       :type="inputType"
       :value="value"
       :placeholder="inputPlaceholder"
@@ -29,6 +29,7 @@ export default {
     df: Object,
     value: [String, Number, Boolean, Object],
     inputClass: [Function, String, Object],
+    border: { type: Boolean, default: false },
     placeholder: String,
     size: String,
     showLabel: Boolean,
@@ -56,19 +57,54 @@ export default {
     inputType() {
       return 'text';
     },
+    labelClasses() {
+      return 'text-gray-600 text-sm mb-1';
+    },
     inputClasses() {
-      let classes = [
-        {
-          'px-3 py-2': this.size !== 'small',
-          'px-2 py-1': this.size === 'small',
-        },
-        'focus:outline-none rounded w-full placeholder-gray-500',
-        this.isReadOnly
-          ? 'text-gray-800 focus:bg-transparent'
-          : 'text-gray-900 focus:bg-gray-200',
+      /**
+       * These classes will be used by components that extend Base
+       */
+
+      const classes = [
+        'text-base',
+        'focus:outline-none',
+        'w-full',
+        'placeholder-gray-500',
       ];
 
+      if (isNumeric(this.df)) {
+        classes.push('text-right')
+      }
+
+      if (this.size === 'small') {
+        classes.push('px-2 py-1');
+      } else {
+        classes.push('px-3 py-2');
+      }
+
+      if (this.isReadOnly) {
+        classes.push('text-gray-800');
+      } else {
+        classes.push('text-gray-900');
+      }
+
       return this.getInputClassesFromProp(classes);
+    },
+    containerClasses() {
+      /**
+       * Used to accomodate extending compoents where the input is contained in
+       * a div eg * AutoComplete
+       */
+      const classes = ['rounded'];
+      if (!this.isReadOnly) {
+        classes.push('focus-within:bg-gray-100');
+      }
+
+      if (this.border) {
+        classes.push('bg-gray-50');
+      }
+
+      return classes;
     },
     inputPlaceholder() {
       return this.placeholder || this.df.placeholder || this.df.label;
@@ -77,6 +113,7 @@ export default {
       if (this.readOnly != null) {
         return this.readOnly;
       }
+
       return this.df.readOnly;
     },
   },

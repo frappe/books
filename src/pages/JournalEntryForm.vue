@@ -47,43 +47,42 @@
         <div class="m-4 grid grid-cols-3 gap-y-4 gap-x-4">
           <!-- First Column of Fields -->
           <FormControl
+            :border="true"
             :df="getField('numberSeries')"
             :value="doc.numberSeries"
             @change="(value) => doc.set('numberSeries', value)"
-            class="bg-gray-100 rounded"
-            input-class="p-2 text-base bg-transparent"
             :read-only="!doc.notInserted || doc.submitted"
           />
           <FormControl
+            :border="true"
             :df="getField('date')"
             :value="doc.date"
             :placeholder="'Date'"
             @change="(value) => doc.set('date', value)"
-            input-class="bg-gray-100 px-3 py-2 text-base"
             :read-only="doc.submitted"
           />
           <FormControl
+            :border="true"
             :df="getField('entryType')"
             :value="doc.entryType"
             placeholder="Entry Type"
             @change="(value) => doc.set('entryType', value)"
-            input-class="bg-gray-100 px-3 py-2 text-base"
             :read-only="doc.submitted"
           />
           <FormControl
+            :border="true"
             :df="getField('referenceNumber')"
             :value="doc.referenceNumber"
             :placeholder="'Reference Number'"
             @change="(value) => doc.set('referenceNumber', value)"
-            input-class="bg-gray-100 p-2 text-base"
             :read-only="doc.submitted"
           />
           <FormControl
+            :border="true"
             :df="getField('referenceDate')"
             :value="doc.referenceDate"
             :placeholder="'Reference Date'"
             @change="(value) => doc.set('referenceDate', value)"
-            input-class="bg-gray-100 px-3 py-2 text-base"
             :read-only="doc.submitted"
           />
         </div>
@@ -106,9 +105,9 @@
         <div class="flex justify-between text-base m-4 gap-12">
           <!-- User Remark -->
           <FormControl
+            :border="true"
             v-if="!doc.submitted || doc.userRemark"
             class="w-1/2 self-end"
-            input-class="bg-gray-100"
             :df="getField('userRemark')"
             :value="doc.userRemark"
             @change="(value) => doc.set('userRemark', value)"

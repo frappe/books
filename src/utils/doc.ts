@@ -2,10 +2,6 @@ import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 
 export function evaluateReadOnly(field: Field, doc: Doc) {
-  if (field.readOnly !== undefined) {
-    return field.readOnly;
-  }
-
   if (field.fieldname === 'numberSeries' && !doc.notInserted) {
     return true;
   }
@@ -18,23 +14,32 @@ export function evaluateReadOnly(field: Field, doc: Doc) {
     return true;
   }
 
-  const readOnlyFunc = doc.readOnly[field.fieldname];
-  if (readOnlyFunc !== undefined) {
-    return readOnlyFunc();
-  }
-
-  return false;
+  return evaluateFieldMeta(field, doc, 'readOnly');
 }
 
 export function evaluateHidden(field: Field, doc: Doc) {
-  if (field.hidden !== undefined) {
-    return field.hidden;
+  return evaluateFieldMeta(field, doc, 'hidden');
+}
+
+export function evaluateRequired(field: Field, doc: Doc) {
+  return evaluateFieldMeta(field, doc, 'required');
+}
+
+function evaluateFieldMeta(
+  field: Field,
+  doc: Doc,
+  meta: 'required' | 'hidden' | 'readOnly',
+  defaultValue: boolean = false
+) {
+  const value = field[meta];
+  if (value !== undefined) {
+    return value;
   }
 
-  const hiddenFunction = doc.hidden[field.fieldname];
+  const hiddenFunction = doc[meta][field.fieldname];
   if (hiddenFunction !== undefined) {
     return hiddenFunction();
   }
 
-  return false;
+  return defaultValue;
 }
