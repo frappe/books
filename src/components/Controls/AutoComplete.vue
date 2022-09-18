@@ -39,6 +39,7 @@
           style="background: inherit; margin-right: -3px"
           viewBox="0 0 5 10"
           xmlns="http://www.w3.org/2000/svg"
+          @click="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
         >
           <path
             d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"

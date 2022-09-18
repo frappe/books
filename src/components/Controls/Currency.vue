@@ -18,7 +18,7 @@
     />
     <div
       v-show="!showInput"
-      class="cursor-text whitespace-nowrap overflow-x-auto"
+      class="whitespace-nowrap overflow-x-auto"
       :class="[inputClasses, containerClasses, ,]"
       @click="activateInput"
       @focus="activateInput"

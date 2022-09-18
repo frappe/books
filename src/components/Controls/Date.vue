@@ -6,7 +6,11 @@
 
     <DatePicker
       ref="input"
-      :input-class="[inputClasses, 'cursor-text', containerClasses]"
+      :input-class="[
+        'cursor-text bg-transparent',
+        inputClasses,
+        containerClasses,
+      ]"
       :value="value"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"

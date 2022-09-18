@@ -30,7 +30,6 @@
                 :value="doc.companyName"
                 @change="(value) => setValue('companyName', value)"
                 input-class="
-                  bg-transparent
                   font-semibold
                   text-xl
                 "
@@ -40,10 +39,6 @@
                 :df="getField('email')"
                 :value="doc.email"
                 @change="(value) => setValue('email', value)"
-                input-class="
-                  text-base
-                  bg-transparent
-                "
               />
             </div>
           </div>

@@ -73,7 +73,7 @@ export default {
       ];
 
       if (isNumeric(this.df)) {
-        classes.push('text-right')
+        classes.push('text-right');
       }
 
       if (this.size === 'small') {
@@ -83,7 +83,7 @@ export default {
       }
 
       if (this.isReadOnly) {
-        classes.push('text-gray-800');
+        classes.push('text-gray-800 cursor-default');
       } else {
         classes.push('text-gray-900');
       }

@@ -17,7 +17,7 @@
         "
         :class="{
           'pointer-events-none': isReadOnly,
-          'text-gray-400': !value,
+          'text-gray-500': !value,
         }"
         :value="value"
         @change="(e) => triggerChange(e.target.value)"

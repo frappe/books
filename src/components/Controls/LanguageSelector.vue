@@ -3,7 +3,8 @@
     :df="languageDf"
     :value="value"
     @change="onChange"
-    :input-class="'focus:outline-none rounded ' + inputClass"
+    :border="true"
+    :input-class="'rounded py-1.5'"
   />
 </template>
 <script>
@@ -17,11 +18,6 @@ export default {
     setLanguageMap,
   },
   props: {
-    inputClass: {
-      type: String,
-      default:
-        'px-3 py-2 text-base',
-    },
     dontReload: {
       type: Boolean,
       default: false,
