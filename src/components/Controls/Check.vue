@@ -4,7 +4,10 @@
       <div class="mr-3 text-gray-600 text-sm" v-if="showLabel && !labelRight">
         {{ df.label }}
       </div>
-      <div style="width: 14px; height: 14px; overflow: hidden; cursor: pointer">
+      <div
+        style="width: 14px; height: 14px; overflow: hidden"
+        :class="isReadOnly ? 'cursor-default' : 'cursor-pointer'"
+      >
         <svg
           v-if="checked"
           width="14"

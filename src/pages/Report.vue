@@ -17,12 +17,10 @@
     <div v-if="report" class="grid grid-cols-5 gap-2 p-4 border-b">
       <FormControl
         v-for="field in report.filters"
+        :border="true"
         size="small"
         :show-label="field.fieldtype === 'Check'"
         :key="field.fieldname + '-filter'"
-        class="bg-gray-100 rounded"
-        :class="field.fieldtype === 'Check' ? 'flex pl-2 py-1' : ''"
-        input-class="bg-transparent text-sm"
         :df="field"
         :value="report.get(field.fieldname)"
         :read-only="loading"

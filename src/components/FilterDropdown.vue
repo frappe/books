@@ -56,9 +56,9 @@
                   </span>
                 </div>
                 <FormControl
+                  :border="true"
                   size="small"
                   class="w-24"
-                  input-class="bg-gray-100"
                   :df="{
                     placeholder: t`Field`,
                     fieldname: 'fieldname',
@@ -69,9 +69,9 @@
                   @change="(value) => (filter.fieldname = value)"
                 />
                 <FormControl
+                  :border="true"
                   size="small"
                   class="w-24"
-                  input-class="bg-gray-100"
                   :df="{
                     placeholder: t`Condition`,
                     fieldname: 'condition',
@@ -82,9 +82,9 @@
                   @change="(value) => (filter.condition = value)"
                 />
                 <FormControl
+                  :border="true"
                   size="small"
                   class="w-24"
-                  input-class="bg-gray-100"
                   :df="{
                     placeholder: t`Value`,
                     fieldname: 'value',
@@ -124,9 +124,9 @@
 </template>
 
 <script>
-import { fyo } from 'src/initFyo';
 import { t } from 'fyo';
 import { FieldTypeEnum } from 'schemas/types';
+import { fyo } from 'src/initFyo';
 import { getRandomString } from 'utils';
 import Button from './Button';
 import FormControl from './Controls/FormControl.vue';
