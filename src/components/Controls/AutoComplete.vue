@@ -8,17 +8,18 @@
         selectHighlightedItem,
       }"
     >
-      <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+      <div :class="labelClasses" v-if="showLabel">
         {{ df.label }}
       </div>
       <div
         class="flex items-center justify-between pr-2 rounded"
-        :class="isReadOnly ? '' : 'focus-within:bg-gray-200'"
+        :class="containerClasses"
       >
         <input
           ref="input"
           spellcheck="false"
           :class="inputClasses"
+          class="bg-transparent"
           type="text"
           :value="linkValue"
           :placeholder="inputPlaceholder"

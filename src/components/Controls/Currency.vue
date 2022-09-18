@@ -1,12 +1,13 @@
 <template>
   <div>
-    <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+    <div :class="labelClasses" v-if="showLabel">
       {{ df.label }}
     </div>
     <input
       v-show="showInput"
       ref="input"
-      :class="inputClasses"
+      class="text-right"
+      :class="[inputClasses, containerClasses]"
       :type="inputType"
       :value="value?.round()"
       :placeholder="inputPlaceholder"
@@ -17,7 +18,8 @@
     />
     <div
       v-show="!showInput"
-      :class="[inputClasses, 'cursor-text whitespace-nowrap overflow-x-auto']"
+      class="cursor-text whitespace-nowrap overflow-x-auto"
+      :class="[inputClasses, containerClasses, ,]"
       @click="activateInput"
       @focus="activateInput"
       tabindex="0"

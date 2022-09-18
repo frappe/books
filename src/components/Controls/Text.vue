@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+    <div :class="labelClasses" v-if="showLabel">
       {{ df.label }}
     </div>
     <textarea
       ref="input"
       rows="3"
-      :class="['resize-none', inputClasses]"
+      :class="['resize-none', inputClasses, containerClasses]"
       :value="value"
       :placeholder="inputPlaceholder"
       style="vertical-align: top"

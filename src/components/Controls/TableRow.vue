@@ -33,7 +33,7 @@
       v-for="df in tableFields"
       :size="size"
       :read-only="readOnly"
-      :input-class="{ 'text-right': isNumeric(df), 'bg-transparent': true }"
+      input-class="bg-transparent"
       :key="df.fieldname"
       :df="df"
       :value="row[df.fieldname]"

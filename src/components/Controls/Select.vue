@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+    <div :class="labelClasses" v-if="showLabel">
       {{ df.label }}
     </div>
     <div
-      class="flex items-center justify-between focus-within:bg-gray-200"
-      :class="inputClasses"
+      class="flex items-center justify-between"
+      :class="[inputClasses, containerClasses]"
     >
       <select
         class="
