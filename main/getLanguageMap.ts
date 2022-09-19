@@ -76,22 +76,9 @@ async function getContentsIfExists(code: string): Promise<string> {
 }
 
 async function fetchAndStoreFile(code: string, date?: Date) {
-  let res = await fetch(
-    `https://api.github.com/repos/frappe/books/contents/translations/${code}.csv`
-  );
-
-  let contents: string | undefined = undefined;
-  if (res.status === 200) {
-    const resJson = await res.json();
-    contents = Buffer.from(resJson.content, 'base64').toString();
-  } else {
-    res = await fetch(
-      `https://raw.githubusercontent.com/frappe/books/master/translations/${code}.csv`
-    );
-  }
-
-  if (!contents && res.status === 200) {
-    contents = await res.text();
+  let contents = await fetchContentsFromApi(code);
+  if (!contents) {
+    contents = await fetchContentsFromRaw(code);
   }
 
   if (!date && contents) {
@@ -102,7 +89,29 @@ async function fetchAndStoreFile(code: string, date?: Date) {
     contents = [date!.toISOString(), contents].join('\n');
     await storeFile(code, contents);
   }
-  return contents;
+
+  return contents ?? '';
+}
+
+async function fetchContentsFromApi(code: string) {
+  const url = `https://api.github.com/repos/frappe/books/contents/translations/${code}.csv`;
+  const res = await errorHandledFetch(url);
+  if (res === null || res.status !== 200) {
+    return null;
+  }
+
+  const resJson = await res.json();
+  return Buffer.from(resJson.content, 'base64').toString();
+}
+
+async function fetchContentsFromRaw(code: string) {
+  const url = `https://raw.githubusercontent.com/frappe/books/master/translations/${code}.csv`;
+  const res = await errorHandledFetch(url);
+  if (res === null || res.status !== 200) {
+    return null;
+  }
+
+  return await res.text();
 }
 
 async function getUpdatedContent(code: string, contents: string) {
@@ -124,8 +133,12 @@ async function shouldUpdateFile(code: string, contents: string) {
 
 async function getLastUpdated(code: string): Promise<Date> {
   const url = `https://api.github.com/repos/frappe/books/commits?path=translations%2F${code}.csv&page=1&per_page=1`;
-  const resJson = await fetch(url).then((res: Response) => res.json());
+  const res = await errorHandledFetch(url);
+  if (res === null || res.status !== 200) {
+    return new Date(VALENTINES_DAY);
+  }
 
+  const resJson = await res.json();
   try {
     return new Date(resJson[0].commit.author.date);
   } catch {
@@ -170,4 +183,12 @@ async function storeFile(code: string, contents: string) {
   const dirname = path.dirname(filePath);
   await fs.mkdir(dirname, { recursive: true });
   await fs.writeFile(filePath, contents, { encoding: 'utf-8' });
+}
+
+async function errorHandledFetch(url: string) {
+  try {
+    return (await fetch(url)) as Response;
+  } catch {
+    return null;
+  }
 }
