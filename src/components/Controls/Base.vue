@@ -39,6 +39,7 @@ export default {
     size: String,
     showLabel: Boolean,
     autofocus: Boolean,
+    textRight: { type: [null, Boolean], default: null },
     readOnly: { type: [null, Boolean], default: null },
     required: { type: [null, Boolean], default: null },
   },
@@ -78,7 +79,7 @@ export default {
         'placeholder-gray-500',
       ];
 
-      if (isNumeric(this.df)) {
+      if (this.textRight ?? isNumeric(this.df)) {
         classes.push('text-right');
       }
 
