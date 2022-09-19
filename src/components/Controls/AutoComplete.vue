@@ -8,17 +8,18 @@
         selectHighlightedItem,
       }"
     >
-      <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+      <div :class="labelClasses" v-if="showLabel">
         {{ df.label }}
       </div>
       <div
         class="flex items-center justify-between pr-2 rounded"
-        :class="isReadOnly ? '' : 'focus-within:bg-gray-200'"
+        :class="containerClasses"
       >
         <input
           ref="input"
           spellcheck="false"
           :class="inputClasses"
+          class="bg-transparent"
           type="text"
           :value="linkValue"
           :placeholder="inputPlaceholder"
@@ -38,10 +39,12 @@
           style="background: inherit; margin-right: -3px"
           viewBox="0 0 5 10"
           xmlns="http://www.w3.org/2000/svg"
+          @click="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
         >
           <path
             d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
-            stroke="#404040"
+            class="stroke-current"
+            :class="showMandatory ? 'text-red-500' : 'text-gray-500'"
             fill="none"
             fill-rule="evenodd"
             stroke-linecap="round"

@@ -1,15 +1,11 @@
 <template>
   <div
-    class="
-      relative
-      bg-white
-      border
-      rounded-full
-      flex-center
-      overflow-hidden
-      cursor-pointer
-    "
-    :class="{ 'w-20 h-20': size !== 'small', 'w-12 h-12': size === 'small' }"
+    class="relative bg-white border rounded-full flex-center overflow-hidden"
+    :class="{
+      'w-20 h-20': size !== 'small',
+      'w-12 h-12': size === 'small',
+      'cursor-pointer': !isReadOnly,
+    }"
     @mouseover="showEdit = true"
     @mouseleave="showEdit = false"
     @click="openFileSelector"
@@ -48,9 +44,16 @@
     </div>
     <div
       v-show="showEdit"
-      class="absolute bottom-0 text-gray-500 text-center text-xs pt-3 pb-1"
+      class="
+        absolute
+        bottom-0
+        text-gray-500 text-center text-xs
+        pt-3
+        pb-1
+        select-none
+      "
     >
-      {{ t`Edit` }}
+      {{ !isReadOnly ? t`Edit` : '' }}
     </div>
   </div>
 </template>
@@ -72,6 +75,10 @@ export default {
   },
   methods: {
     async openFileSelector() {
+      if (this.isReadOnly) {
+        return;
+      }
+
       const options = {
         title: fyo.t`Select Image`,
         properties: ['openFile'],

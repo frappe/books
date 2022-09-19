@@ -1,12 +1,13 @@
 <template>
   <div>
-    <div class="text-gray-600 text-sm mb-1" v-if="showLabel">
+    <div :class="labelClasses" v-if="showLabel">
       {{ df.label }}
     </div>
 
     <DatePicker
       ref="input"
-      :input-class="[inputClasses, 'cursor-text']"
+      :show-mandatory="showMandatory"
+      :input-class="['bg-transparent', inputClasses, containerClasses]"
       :value="value"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"

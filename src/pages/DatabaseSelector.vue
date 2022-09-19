@@ -137,17 +137,13 @@
         "
         style="top: 100%; transform: translateY(-100%)"
       >
-        <LanguageSelector
-          v-show="!creatingDemo"
-          class="text-sm w-28 bg-gray-100 rounded-md"
-          input-class="py-1.5 bg-transparent"
-        />
+        <LanguageSelector v-show="!creatingDemo" class="text-sm w-28" />
         <button
           class="
             text-sm
             bg-gray-100
             hover:bg-gray-200
-            rounded-md
+            rounded
             px-4
             py-1.5
             w-28
