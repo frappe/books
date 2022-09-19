@@ -44,7 +44,8 @@
       >
         <path
           d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
-          stroke="#404040"
+          class="stroke-current"
+          :class="showMandatory ? 'text-red-500' : 'text-gray-500'"
           fill="none"
           fill-rule="evenodd"
           stroke-linecap="round"

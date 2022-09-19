@@ -23,6 +23,10 @@ html {
   color: theme('colors.black');
 }
 
+input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
+}
+
 .window-drag {
   -webkit-app-region: drag;
 }
@@ -75,7 +79,7 @@ html {
 }
 
 .w-quick-edit {
-  width: var(--w-quick-edit)
+  width: var(--w-quick-edit);
 }
 
 .h-form {
@@ -108,4 +112,14 @@ html {
 
 .w-desk {
   width: var(--w-desk);
+}
+
+.show-mandatory::after {
+  content: '*';
+  display: inline-block;
+  width: 0px;
+  height: 0px;
+  margin-left: -0.875rem;
+  vertical-align: -3px;
+  @apply text-red-500;
 }

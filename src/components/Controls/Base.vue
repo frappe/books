@@ -3,21 +3,23 @@
     <div :class="labelClasses" v-if="showLabel">
       {{ df.label }}
     </div>
-    <input
-      spellcheck="false"
-      ref="input"
-      class="bg-transparent"
-      :class="[inputClasses, containerClasses]"
-      :type="inputType"
-      :value="value"
-      :placeholder="inputPlaceholder"
-      :readonly="isReadOnly"
-      :max="df.maxvalue"
-      :min="df.minvalue"
-      @blur="(e) => !isReadOnly && triggerChange(e.target.value)"
-      @focus="(e) => !isReadOnly && $emit('focus', e)"
-      @input="(e) => !isReadOnly && $emit('input', e)"
-    />
+    <div :class="showMandatory ? 'show-mandatory' : ''">
+      <input
+        spellcheck="false"
+        ref="input"
+        class="bg-transparent"
+        :class="[inputClasses, containerClasses]"
+        :type="inputType"
+        :value="value"
+        :placeholder="inputPlaceholder"
+        :readonly="isReadOnly"
+        :max="df.maxvalue"
+        :min="df.minvalue"
+        @blur="(e) => !isReadOnly && triggerChange(e.target.value)"
+        @focus="(e) => !isReadOnly && $emit('focus', e)"
+        @input="(e) => !isReadOnly && $emit('input', e)"
+      />
+    </div>
   </div>
 </template>
 
@@ -117,6 +119,10 @@ export default {
       return this.isEmpty && this.isRequired;
     },
     isEmpty() {
+      if (Array.isArray(this.value) && !this.value.length) {
+        return true;
+      }
+
       if (typeof this.value === 'string' && !this.value) {
         return true;
       }
@@ -174,9 +180,3 @@ export default {
   },
 };
 </script>
-
-<style>
-input[type='number']::-webkit-inner-spin-button {
-  appearance: none;
-}
-</style>
