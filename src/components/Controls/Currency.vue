@@ -63,6 +63,10 @@ export default {
       this.triggerChange(value);
     },
     activateInput() {
+      if (this.isReadOnly) {
+        return;
+      }
+
       this.showInput = true;
       nextTick(() => {
         this.focus();
