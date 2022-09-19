@@ -10,6 +10,7 @@
         :df="df"
         :value="doc[df.fieldname]"
         @change="async (value) => await onChange(df, value)"
+        :read-only="readOnly"
       />
 
       <!-- Inline Field Form (Eg: Address) -->
@@ -28,6 +29,7 @@
           :no-border="true"
           :focus-first-input="true"
           :autosave="false"
+          :read-only="readOnly"
           @error="(msg) => $emit('error', msg)"
         />
         <div
@@ -78,6 +80,7 @@
             :df="df"
             :value="getRegularValue(df)"
             :class="{ 'p-2': df.fieldtype === 'Check' }"
+            :read-only="readOnly"
             @change="async (value) => await onChange(df, value)"
             @focus="activateInlineEditing(df)"
             @new-doc="async (newdoc) => await onChange(df, newdoc.name)"
@@ -119,6 +122,7 @@ export default {
     },
     noBorder: Boolean,
     focusFirstInput: Boolean,
+    readOnly: { type: [null, Boolean], default: null },
   },
   data() {
     return {
