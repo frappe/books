@@ -6,6 +6,7 @@
     <input
       spellcheck="false"
       ref="input"
+      class="bg-transparent"
       :class="[inputClasses, containerClasses]"
       :type="inputType"
       :value="value"
@@ -22,6 +23,8 @@
 
 <script>
 import { isNumeric } from 'src/utils';
+import { evaluateReadOnly, evaluateRequired } from 'src/utils/doc';
+import { getIsNullOrUndef } from 'utils/index';
 
 export default {
   name: 'Base',
@@ -33,8 +36,9 @@ export default {
     placeholder: String,
     size: String,
     showLabel: Boolean,
-    readOnly: Boolean,
     autofocus: Boolean,
+    readOnly: { type: [null, Boolean], default: null },
+    required: { type: [null, Boolean], default: null },
   },
   emits: ['focus', 'input', 'change'],
   inject: {
@@ -93,7 +97,7 @@ export default {
     containerClasses() {
       /**
        * Used to accomodate extending compoents where the input is contained in
-       * a div eg * AutoComplete
+       * a div eg AutoComplete
        */
       const classes = ['rounded'];
       if (!this.isReadOnly) {
@@ -101,7 +105,7 @@ export default {
       }
 
       if (this.border) {
-        classes.push('bg-gray-50');
+        classes.push('bg-gray-50 border border-gray-200');
       }
 
       return classes;
@@ -109,12 +113,33 @@ export default {
     inputPlaceholder() {
       return this.placeholder || this.df.placeholder || this.df.label;
     },
+    showMandatory() {
+      return this.isEmpty && this.isRequired;
+    },
+    isEmpty() {
+      if (typeof this.value === 'string' && !this.value) {
+        return true;
+      }
+
+      if (getIsNullOrUndef(this.value)) {
+        return true;
+      }
+
+      return false;
+    },
     isReadOnly() {
-      if (this.readOnly != null) {
+      if (typeof this.readOnly === 'boolean') {
         return this.readOnly;
       }
 
-      return this.df.readOnly;
+      return evaluateReadOnly(this.df, this.doc);
+    },
+    isRequired() {
+      if (typeof this.required === 'boolean') {
+        return this.required;
+      }
+
+      return evaluateRequired(this.df, this.doc);
     },
   },
   methods: {

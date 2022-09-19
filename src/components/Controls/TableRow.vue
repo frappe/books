@@ -5,7 +5,7 @@
       w-full
       px-2
       border-b
-      hover:bg-gray-50
+      hover:bg-gray-25
       group
       flex
       items-center
@@ -32,8 +32,6 @@
     <FormControl
       v-for="df in tableFields"
       :size="size"
-      :read-only="readOnly"
-      input-class="bg-transparent"
       :key="df.fieldname"
       :df="df"
       :value="row[df.fieldname]"
