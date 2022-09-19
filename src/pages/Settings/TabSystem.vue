@@ -9,10 +9,7 @@
       @change="forwardChangeEvent"
     />
     <div class="flex p-4 justify-between">
-      <LanguageSelector
-        class="text-sm w-28 bg-gray-100 rounded-md"
-        input-class="py-1.5 bg-transparent"
-      />
+      <LanguageSelector class="text-sm w-28" />
       <p class="mt-auto text-gray-600 text-base select-none">
         {{ `v${fyo.store.appVersion}` }}
       </p>

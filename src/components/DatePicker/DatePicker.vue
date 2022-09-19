@@ -1,15 +1,17 @@
 <template>
   <Popover @open="selectCurrentMonthYear">
     <template #target="{ togglePopover, handleBlur }">
-      <input
-        type="text"
-        :class="inputClass"
-        :value="value && formatValue ? formatValue(value) : value || ''"
-        :placeholder="placeholder"
-        readonly
-        @focus="!readonly ? togglePopover() : null"
-        @blur="handleBlur"
-      />
+      <div :class="showMandatory ? 'show-mandatory' : ''">
+        <input
+          type="text"
+          :class="inputClass"
+          :value="value && formatValue ? formatValue(value) : value || ''"
+          :placeholder="placeholder"
+          readonly
+          @focus="!readonly ? togglePopover() : null"
+          @blur="handleBlur"
+        />
+      </div>
     </template>
     <template #content="{ togglePopover }">
       <div class="text-left p-3 select-none">
@@ -63,7 +65,11 @@
               {{ d }}
             </div>
           </div>
-          <div v-for="(week, i) in datesAsWeeks" :key="`${i}-${Math.random().toString(36)}`" class="mt-1">
+          <div
+            v-for="(week, i) in datesAsWeeks"
+            :key="`${i}-${Math.random().toString(36)}`"
+            class="mt-1"
+          >
             <div class="flex w-full">
               <div
                 v-for="date in week"
@@ -123,7 +129,14 @@ import Popover from '../Popover';
 
 export default {
   name: 'DatePicker',
-  props: ['value', 'placeholder', 'readonly', 'formatValue', 'inputClass'],
+  props: [
+    'value',
+    'placeholder',
+    'readonly',
+    'formatValue',
+    'inputClass',
+    'showMandatory',
+  ],
   emits: ['change'],
   components: {
     Popover,
@@ -256,7 +269,7 @@ export default {
         return '';
       }
 
-      return DateTime.fromJSDate(date).toISODate()
+      return DateTime.fromJSDate(date).toISODate();
     },
 
     getDate(...args) {

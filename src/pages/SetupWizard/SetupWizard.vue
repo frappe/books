@@ -6,8 +6,9 @@
     <!-- Setup Wizard Slide -->
     <Slide
       :primary-disabled="!valuesFilled || loading"
-      @primary-clicked="handlePrimary"
-      @secondary-clicked="handleSecondary"
+      :secondary-disabled="loading"
+      @primary-clicked="submit()"
+      @secondary-clicked="$emit('setup-canceled')"
       :class="{ 'window-no-drag': platform !== 'Windows' }"
     >
       <template #title>
@@ -21,6 +22,7 @@
             <FormControl
               :df="getField('logo')"
               :value="doc.logo"
+              :read-only="loading"
               @change="(value) => setValue('logo', value)"
             />
             <div>
@@ -28,9 +30,9 @@
                 ref="companyField"
                 :df="getField('companyName')"
                 :value="doc.companyName"
+                :read-only="loading"
                 @change="(value) => setValue('companyName', value)"
                 input-class="
-                  bg-transparent
                   font-semibold
                   text-xl
                 "
@@ -39,11 +41,8 @@
               <FormControl
                 :df="getField('email')"
                 :value="doc.email"
+                :read-only="loading"
                 @change="(value) => setValue('email', value)"
-                input-class="
-                  text-base
-                  bg-transparent
-                "
               />
             </div>
           </div>
@@ -56,11 +55,13 @@
             {{ emailError }}
           </p>
 
-          <TwoColumnForm :doc="doc" />
+          <TwoColumnForm :doc="doc" :read-only="loading" />
         </div>
       </template>
       <template #secondaryButton>{{ t`Cancel` }}</template>
-      <template #primaryButton>{{ t`Submit` }}</template>
+      <template #primaryButton>{{
+        loading ? t`Setting up...` : t`Submit`
+      }}</template>
     </Slide>
   </div>
 </template>
@@ -69,7 +70,6 @@
 import FormControl from 'src/components/Controls/FormControl.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { getErrorMessage } from 'src/utils';
-import { openLink } from 'src/utils/ipcCalls';
 import { getSetupWizardDoc } from 'src/utils/misc';
 import { showMessageDialog } from 'src/utils/ui';
 import Slide from './Slide.vue';
@@ -106,17 +106,6 @@ export default {
     getField(fieldname) {
       return this.doc.schema?.fields.find((f) => f.fieldname === fieldname);
     },
-    openContributingTranslations() {
-      openLink(
-        'https://github.com/frappe/books/wiki/Contributing-Translations'
-      );
-    },
-    handlePrimary() {
-      this.submit();
-    },
-    handleSecondary() {
-      this.$emit('setup-canceled');
-    },
     setValue(fieldname, value) {
       this.emailError = null;
       this.doc.set(fieldname, value).catch((e) => {
@@ -140,15 +129,6 @@ export default {
 
       this.loading = true;
       this.$emit('setup-complete', this.doc.getValidDict());
-    },
-  },
-  computed: {
-    buttonText() {
-      if (this.loading) {
-        return this.t`Submit`;
-      }
-
-      return this.t`Setting Up...`;
     },
   },
 };

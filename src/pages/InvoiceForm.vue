@@ -63,8 +63,8 @@
         <!-- Invoice Form Data Entry -->
         <div class="m-4 grid grid-cols-3 gap-4">
           <FormControl
-            class="bg-gray-100 rounded text-base"
-            input-class="text-lg font-semibold bg-transparent"
+            input-class="font-semibold"
+            :border="true"
             :df="getField('party')"
             :value="doc.party"
             @change="(value) => doc.set('party', value)"
@@ -72,67 +72,28 @@
             :read-only="doc?.submitted"
           />
           <FormControl
-            input-class="bg-gray-100 px-3 py-2 text-base text-right"
+            input-class="text-right"
+            :border="true"
             :df="getField('date')"
             :value="doc.date"
             @change="(value) => doc.set('date', value)"
             :read-only="doc?.submitted"
           />
           <FormControl
-            class="text-base bg-gray-100 rounded"
-            input-class="bg-transparent px-3 py-2 text-base text-right"
+            input-class="text-right"
+            :border="true"
             :df="getField('numberSeries')"
             :value="doc.numberSeries"
             @change="(value) => doc.set('numberSeries', value)"
             :read-only="!doc.notInserted || doc?.submitted"
           />
           <FormControl
-            class="text-base bg-gray-100 rounded"
-            input-class="px-3 py-2 text-base bg-transparent"
+            :border="true"
             :df="getField('account')"
             :value="doc.account"
             @change="(value) => doc.set('account', value)"
             :read-only="doc?.submitted"
           />
-          <!-- 
-          <FormControl
-            v-if="doc.enableDiscounting"
-            :show-label="true"
-            :label-right="false"
-            class="
-              text-base
-              bg-gray-100
-              rounded
-              flex
-              items-center
-              justify-center
-              w-ful
-            "
-            input-class="px-3 py-2 text-base bg-transparent text-right"
-            :df="getField('setDiscountAmount')"
-            :value="doc.setDiscountAmount"
-            @change="(value) => doc.set('setDiscountAmount', value)"
-            :read-only="doc?.submitted"
-          />
-          <FormControl
-            v-if="doc.enableDiscounting && !doc.setDiscountAmount"
-            class="text-base bg-gray-100 rounded"
-            input-class="px-3 py-2 text-base bg-transparent text-right"
-            :df="getField('discountPercent')"
-            :value="doc.discountPercent"
-            @change="(value) => doc.set('discountPercent', value)"
-            :read-only="doc?.submitted"
-          />
-          <FormControl
-            v-if="doc.enableDiscounting && doc.setDiscountAmount"
-            class="text-base bg-gray-100 rounded"
-            input-class="px-3 py-2 text-base bg-transparent text-right"
-            :df="getField('discountAmount')"
-            :value="doc.discountAmount"
-            @change="(value) => doc.set('discountAmount', value)"
-            :read-only="doc?.submitted"
-          />
-          -->
         </div>
         <hr />
 
@@ -161,10 +122,10 @@
             </p>
             <!-- Form Terms-->
             <FormControl
+              :border="true"
               v-if="!doc?.submitted || doc.terms"
               :df="getField('terms')"
               :value="doc.terms"
-              input-class="bg-gray-100"
               class="mt-auto"
               @change="(value) => doc.set('terms', value)"
               :read-only="doc?.submitted"

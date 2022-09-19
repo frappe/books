@@ -1,10 +1,13 @@
 <template>
-  <div>
+  <div :class="[inputClasses, containerClasses]">
     <label class="flex items-center">
       <div class="mr-3 text-gray-600 text-sm" v-if="showLabel && !labelRight">
         {{ df.label }}
       </div>
-      <div style="width: 14px; height: 14px; overflow: hidden; cursor: pointer">
+      <div
+        style="width: 14px; height: 14px; overflow: hidden"
+        :class="isReadOnly ? 'cursor-default' : 'cursor-pointer'"
+      >
         <svg
           v-if="checked"
           width="14"
@@ -54,7 +57,6 @@
         <input
           ref="input"
           type="checkbox"
-          :class="inputClasses"
           :checked="value"
           :readonly="isReadOnly"
           @change="(e) => !isReadOnly && triggerChange(e.target.checked)"
@@ -88,9 +90,11 @@ export default {
     };
   },
   computed: {
+    /*
     inputClasses() {
       return this.getInputClassesFromProp([]);
     },
+    */
     checked() {
       return this.value;
     },

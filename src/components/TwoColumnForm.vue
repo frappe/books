@@ -9,8 +9,8 @@
         size="small"
         :df="df"
         :value="doc[df.fieldname]"
-        :read-only="evaluateReadOnly(df)"
         @change="async (value) => await onChange(df, value)"
+        :read-only="readOnly"
       />
 
       <!-- Inline Field Form (Eg: Address) -->
@@ -29,6 +29,7 @@
           :no-border="true"
           :focus-first-input="true"
           :autosave="false"
+          :read-only="readOnly"
           @error="(msg) => $emit('error', msg)"
         />
         <div
@@ -79,8 +80,7 @@
             :df="df"
             :value="getRegularValue(df)"
             :class="{ 'p-2': df.fieldtype === 'Check' }"
-            :read-only="evaluateReadOnly(df)"
-            input-class="bg-transparent"
+            :read-only="readOnly"
             @change="async (value) => await onChange(df, value)"
             @focus="activateInlineEditing(df)"
             @new-doc="async (newdoc) => await onChange(df, newdoc.name)"
@@ -103,7 +103,7 @@ import FormControl from 'src/components/Controls/FormControl.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { getErrorMessage } from 'src/utils';
-import { evaluateHidden, evaluateReadOnly } from 'src/utils/doc';
+import { evaluateHidden } from 'src/utils/doc';
 
 export default {
   name: 'TwoColumnForm',
@@ -122,6 +122,7 @@ export default {
     },
     noBorder: Boolean,
     focusFirstInput: Boolean,
+    readOnly: { type: [null, Boolean], default: null },
   },
   data() {
     return {
@@ -182,9 +183,6 @@ export default {
       return (
         this.inlineEditField?.fieldname === df?.fieldname && this.inlineEditDoc
       );
-    },
-    evaluateReadOnly(df) {
-      return evaluateReadOnly(df, this.doc);
     },
     async onChange(df, value) {
       if (df.inline) {
