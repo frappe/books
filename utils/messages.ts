@@ -46,4 +46,5 @@ export enum DB_CONN_FAILURE {
 // events
 export enum CUSTOM_EVENTS {
   MAIN_PROCESS_ERROR = 'main-process-error',
+  LOG_UNEXPECTED = 'log-unexpected',
 }

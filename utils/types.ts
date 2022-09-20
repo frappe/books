@@ -24,3 +24,10 @@ export interface VersionParts {
 }
 
 export type Creds = { errorLogUrl: string; telemetryUrl: string; tokenString: string };
+
+export type UnexpectedLogObject = {
+  name: string;
+  message: string;
+  stack: string;
+  more: Record<string, unknown>;
+}
