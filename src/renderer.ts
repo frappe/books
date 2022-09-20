@@ -1,12 +1,13 @@
 import { ipcRenderer } from 'electron';
 import { ConfigKeys } from 'fyo/core/types';
 import { DateTime } from 'luxon';
-import { IPC_ACTIONS } from 'utils/messages';
+import { CUSTOM_EVENTS, IPC_ACTIONS } from 'utils/messages';
+import { UnexpectedLogObject } from 'utils/types';
 import { App as VueApp, createApp } from 'vue';
 import App from './App.vue';
 import Badge from './components/Badge.vue';
 import FeatherIcon from './components/FeatherIcon.vue';
-import { getErrorHandled, handleError } from './errorHandling';
+import { getErrorHandled, handleError, sendError } from './errorHandling';
 import { fyo } from './initFyo';
 import { outsideClickDirective } from './renderer/helpers';
 import registerIpcRendererListeners from './renderer/registerIpcRendererListeners';
@@ -71,6 +72,16 @@ function setErrorHandlers(app: VueApp) {
     error = error ?? new Error('triggered in window.onerror');
     handleError(true, error, { message, source, lineno, colno });
   };
+
+  window.onunhandledrejection = (event: PromiseRejectionEvent) => {
+    const error = event.reason;
+    handleError(true, error).catch((err) => console.error(err));
+  };
+
+  window.addEventListener(CUSTOM_EVENTS.LOG_UNEXPECTED, (event) => {
+    const details = (event as CustomEvent)?.detail as UnexpectedLogObject;
+    sendError(details);
+  });
 
   app.config.errorHandler = (err, vm, info) => {
     const more: Record<string, unknown> = {

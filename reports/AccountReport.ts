@@ -29,6 +29,7 @@ import { Field } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
+import { logUnexpected } from 'utils/misc';
 
 export const ACC_NAME_WIDTH = 2;
 export const ACC_BAL_WIDTH = 1.25;
@@ -164,6 +165,14 @@ export abstract class AccountReport extends LedgerReport {
       for (const entry of map.get(account)!) {
         const key = this._getRangeMapKey(entry);
         if (key === null) {
+          continue;
+        }
+
+        if (!accountMap[entry.account]) {
+          logUnexpected({
+            message: 'accountMap[entry.account] is undefined',
+            more: { entry },
+          });
           continue;
         }
 

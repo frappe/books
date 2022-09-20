@@ -17,7 +17,7 @@ function shouldNotStore(error: Error) {
   return !shouldLog;
 }
 
-async function reportError(errorLogObj: ErrorLog) {
+export async function sendError(errorLogObj: ErrorLog) {
   if (!errorLogObj.stack) {
     return;
   }
@@ -30,13 +30,14 @@ async function reportError(errorLogObj: ErrorLog) {
     version: fyo.store.appVersion,
     language: fyo.store.language,
     instance_id: fyo.store.instanceId,
+    device_id: fyo.store.deviceId,
     open_count: fyo.store.openCount,
     country_code: fyo.singles.SystemSettings?.countryCode,
     more: stringifyCircular(errorLogObj.more ?? {}),
   };
 
   if (fyo.store.isDevelopment) {
-    console.log('reportError', body);
+    console.log('sendError', body);
   }
 
   await ipcRenderer.invoke(IPC_ACTIONS.SEND_ERROR, JSON.stringify(body));
@@ -84,7 +85,7 @@ export async function handleError(
 
   const errorLogObj = getErrorLogObject(error, more ?? {});
 
-  await reportError(errorLogObj);
+  await sendError(errorLogObj);
   const toastProps = getToastProps(errorLogObj);
   await showToast(toastProps);
 }
@@ -247,6 +248,10 @@ function getErrorLabel(error: Error) {
   }
 
   if (name === 'NotImplemented') {
+    return t`Error`;
+  }
+
+  if (name === 'ToDebugError') {
     return t`Error`;
   }
 
