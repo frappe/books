@@ -77,10 +77,12 @@ export function rendererLog(main: Main, ...args: unknown[]) {
 export function isNetworkError(error: Error) {
   switch (error?.message) {
     case 'net::ERR_INTERNET_DISCONNECTED':
+    case 'net::ERR_NETWORK_CHANGED':
     case 'net::ERR_PROXY_CONNECTION_FAILED':
     case 'net::ERR_CONNECTION_RESET':
     case 'net::ERR_CONNECTION_CLOSE':
     case 'net::ERR_NAME_NOT_RESOLVED':
+    case 'net::ERR_TIMED_OUT':
     case 'net::ERR_CONNECTION_TIMED_OUT':
       return true;
     default:
