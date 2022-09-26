@@ -322,17 +322,31 @@ export class Payment extends Transactional {
   formulas: FormulaMap = {
     account: {
       formula: async () => {
-        if (this.paymentMethod === 'Cash' && this.paymentType === 'Pay') {
+        const hasCash = await this.fyo.db.exists(ModelNameEnum.Account, 'Cash');
+        if (
+          this.paymentMethod === 'Cash' &&
+          this.paymentType === 'Pay' &&
+          hasCash
+        ) {
           return 'Cash';
         }
+
+        return null;
       },
       dependsOn: ['paymentMethod', 'paymentType'],
     },
     paymentAccount: {
       formula: async () => {
-        if (this.paymentMethod === 'Cash' && this.paymentType === 'Receive') {
+        const hasCash = await this.fyo.db.exists(ModelNameEnum.Account, 'Cash');
+        if (
+          this.paymentMethod === 'Cash' &&
+          this.paymentType === 'Receive' &&
+          hasCash
+        ) {
           return 'Cash';
         }
+
+        return null;
       },
       dependsOn: ['paymentMethod', 'paymentType'],
     },
@@ -353,7 +367,7 @@ export class Payment extends Transactional {
 
         const outstanding = partyDoc.outstandingAmount as Money;
         if (outstanding?.isZero() ?? true) {
-          return '';
+          return this.paymentType;
         }
 
         if (outstanding?.isPositive()) {
