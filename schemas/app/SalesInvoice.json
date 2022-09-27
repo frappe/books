@@ -1,53 +1,10 @@
 {
   "name": "SalesInvoice",
   "label": "Sales Invoice",
+  "extends": "Invoice",
   "naming": "numberSeries",
-  "isSingle": false,
-  "isChild": false,
-  "isSubmittable": true,
+  "showTitle": true,
   "fields": [
-    {
-      "label": "Invoice No",
-      "fieldname": "name",
-      "fieldtype": "Data",
-      "required": true,
-      "readOnly": true
-    },
-    {
-      "fieldname": "date",
-      "label": "Date",
-      "fieldtype": "Date",
-      "required": true
-    },
-    {
-      "fieldname": "party",
-      "label": "Party",
-      "fieldtype": "Link",
-      "target": "Party",
-      "create": true,
-      "required": true
-    },
-    {
-      "fieldname": "account",
-      "label": "Account",
-      "fieldtype": "Link",
-      "target": "Account",
-      "create": true,
-      "required": true
-    },
-    {
-      "fieldname": "currency",
-      "label": "Customer Currency",
-      "fieldtype": "Link",
-      "target": "Currency"
-    },
-    {
-      "fieldname": "exchangeRate",
-      "label": "Exchange Rate",
-      "fieldtype": "Float",
-      "default": 1,
-      "readOnly": true
-    },
     {
       "fieldname": "items",
       "label": "Items",
@@ -55,75 +12,6 @@
       "target": "SalesInvoiceItem",
       "required": true,
       "edit": true
-    },
-    {
-      "fieldname": "netTotal",
-      "label": "Net Total",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
-      "fieldname": "baseNetTotal",
-      "label": "Net Total (Company Currency)",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
-      "fieldname": "taxes",
-      "label": "Taxes",
-      "fieldtype": "Table",
-      "target": "TaxSummary",
-      "readOnly": true
-    },
-    {
-      "fieldname": "grandTotal",
-      "label": "Grand Total",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
-      "fieldname": "baseGrandTotal",
-      "label": "Grand Total (Company Currency)",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
-      "fieldname": "outstandingAmount",
-      "label": "Outstanding Amount",
-      "fieldtype": "Currency",
-      "readOnly": true,
-      "filter": true
-    },
-    {
-      "fieldname": "setDiscountAmount",
-      "label": "Set Discount Amount",
-      "fieldtype": "Check",
-      "default": false
-    },
-    {
-      "fieldname": "discountAmount",
-      "label": "Discount Amount",
-      "fieldtype": "Currency",
-      "readOnly": false
-    },
-    {
-      "fieldname": "discountPercent",
-      "label": "Discount Percent",
-      "fieldtype": "Float",
-      "readOnly": false
-    },
-    {
-      "fieldname": "discountAfterTax",
-      "label": "Discount After Tax",
-      "fieldtype": "Check",
-      "default": false,
-      "readOnly": false
-    },
-    {
-      "fieldname": "terms",
-      "label": "Notes",
-      "placeholder": "Add invoice terms",
-      "fieldtype": "Text"
     },
     {
       "fieldname": "numberSeries",
