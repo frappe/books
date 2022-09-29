@@ -151,13 +151,16 @@ export default {
   },
   methods: {
     getInputClassesFromProp(classes) {
-      if (this.inputClass) {
-        if (typeof this.inputClass === 'function') {
-          classes = this.inputClass(classes);
-        } else {
-          classes.push(this.inputClass);
-        }
+      if (!this.inputClass) {
+        return classes;
       }
+
+      if (typeof this.inputClass === 'function') {
+        classes = this.inputClass(classes);
+      } else {
+        classes.push(this.inputClass);
+      }
+
       return classes;
     },
     focus() {

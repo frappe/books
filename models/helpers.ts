@@ -1,13 +1,12 @@
 import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { Action, ColumnConfig, DocStatus, RenderData } from 'fyo/model/types';
-import { NotFoundError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
 import { Money } from 'pesa';
 import { Router } from 'vue-router';
 import {
   AccountRootType,
-  AccountRootTypeEnum,
+  AccountRootTypeEnum
 } from './baseModels/Account/types';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
@@ -196,14 +195,12 @@ export async function getExchangeRate({
   toCurrency: string;
   date?: string;
 }) {
-  if (!date) {
-    date = DateTime.local().toISODate();
+  if (!fetch) {
+    return 1;
   }
 
-  if (!fromCurrency || !toCurrency) {
-    throw new NotFoundError(
-      'Please provide `fromCurrency` and `toCurrency` to get exchange rate.'
-    );
+  if (!date) {
+    date = DateTime.local().toISODate();
   }
 
   const cacheKey = `currencyExchangeRate:${date}:${fromCurrency}:${toCurrency}`;
@@ -215,26 +212,23 @@ export async function getExchangeRate({
     );
   }
 
-  if (!exchangeRate && fetch) {
-    try {
-      const res = await fetch(
-        ` https://api.vatcomply.com/rates?date=${date}&base=${fromCurrency}&symbols=${toCurrency}`
-      );
-      const data = await res.json();
-      exchangeRate = data.rates[toCurrency];
+  if (exchangeRate && exchangeRate !== 1) {
+    return exchangeRate;
+  }
 
-      if (localStorage) {
-        localStorage.setItem(cacheKey, String(exchangeRate));
-      }
-    } catch (error) {
-      console.error(error);
-      throw new NotFoundError(
-        `Could not fetch exchange rate for ${fromCurrency} -> ${toCurrency}`,
-        false
-      );
-    }
-  } else {
-    exchangeRate = 1;
+  try {
+    const res = await fetch(
+      `https://api.vatcomply.com/rates?date=${date}&base=${fromCurrency}&symbols=${toCurrency}`
+    );
+    const data = await res.json();
+    exchangeRate = data.rates[toCurrency];
+  } catch (error) {
+    console.error(error);
+    exchangeRate ??= 1;
+  }
+
+  if (localStorage) {
+    localStorage.setItem(cacheKey, String(exchangeRate));
   }
 
   return exchangeRate;
@@ -256,3 +250,6 @@ export function isCredit(rootType: AccountRootType) {
       return true;
   }
 }
+
+// @ts-ignore
+window.gex = getExchangeRate;

@@ -12,7 +12,7 @@ import {
   OptionField,
   RawValue,
   Schema,
-  TargetField,
+  TargetField
 } from 'schemas/types';
 import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
 import { markRaw } from 'vue';
@@ -23,7 +23,7 @@ import {
   getMissingMandatoryMessage,
   getPreDefaultValues,
   setChildDocIdx,
-  shouldApplyFormula,
+  shouldApplyFormula
 } from './helpers';
 import { setName } from './naming';
 import {
@@ -41,7 +41,7 @@ import {
   ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
-  ValidationMap,
+  ValidationMap
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
 
@@ -191,6 +191,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (typeof fieldname === 'object') {
       return await this.setMultiple(fieldname as DocValueMap);
     }
+    console.log(fieldname, value);
 
     if (!this._canSet(fieldname, value)) {
       return false;

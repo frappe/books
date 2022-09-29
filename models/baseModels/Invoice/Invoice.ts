@@ -42,6 +42,14 @@ export abstract class Invoice extends Transactional {
     return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
   }
 
+  get isMultiCurrency() {
+    if (!this.currency) {
+      return false;
+    }
+
+    return this.fyo.singles.SystemSettings!.currency !== this.currency;
+  }
+
   async validate() {
     await super.validate();
     if (
@@ -126,10 +134,12 @@ export abstract class Invoice extends Transactional {
     if (this.currency === currency) {
       return 1.0;
     }
-    return await getExchangeRate({
+    const exchangeRate = await getExchangeRate({
       fromCurrency: this.currency!,
       toCurrency: currency as string,
     });
+
+    return parseFloat(exchangeRate.toFixed(2));
   }
 
   async getTaxSummary() {
@@ -285,7 +295,15 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['party'],
     },
-    exchangeRate: { formula: async () => await this.getExchangeRate() },
+    exchangeRate: {
+      formula: async () => {
+        if (this.exchangeRate && this.exchangeRate !== 1) {
+          return this.exchangeRate;
+        }
+
+        return await this.getExchangeRate();
+      },
+    },
     netTotal: { formula: async () => this.getSum('items', 'amount', false) },
     baseNetTotal: {
       formula: async () => this.netTotal!.mul(this.exchangeRate!),
