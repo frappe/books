@@ -3,6 +3,16 @@
     <!-- Page Header (Title, Buttons, etc) -->
     <template #header v-if="doc">
       <StatusBadge :status="status" />
+      <ExchangeRate
+        v-if="doc.isMultiCurrency"
+        :disabled="doc?.isSubmitted || doc?.isCancelled"
+        :from-currency="fromCurrency"
+        :to-currency="toCurrency"
+        :exchange-rate="doc.exchangeRate"
+        @change="
+          async (exchangeRate) => await doc.set('exchangeRate', exchangeRate)
+        "
+      />
       <Button
         v-if="!doc.isCancelled && !doc.dirty"
         :icon="true"
@@ -256,6 +266,7 @@ import { computed } from '@vue/reactivity';
 import { getDocStatus } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
+import ExchangeRate from 'src/components/Controls/ExchangeRate.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import Table from 'src/components/Controls/Table.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
@@ -284,6 +295,7 @@ export default {
     Table,
     FormContainer,
     QuickEditForm,
+    ExchangeRate,
   },
   provide() {
     return {
@@ -342,6 +354,12 @@ export default {
     itemDiscountAmount() {
       return this.doc.getItemDiscountAmount();
     },
+    fromCurrency() {
+      return this.doc?.currency ?? this.toCurrency;
+    },
+    toCurrency() {
+      return fyo.singles.SystemSettings.currency;
+    },
   },
   activated() {
     docsPath.value = docsPathMap[this.schemaName];
@@ -372,6 +390,7 @@ export default {
     }
   },
   methods: {
+    log: console.log,
     routeTo,
     toggleInvoiceSettings() {
       if (!this.schemaName) {
