@@ -1,11 +1,20 @@
-import { DocValue } from 'fyo/core/types';
+import { Fyo } from 'fyo';
+import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { DefaultMap, FiltersMap, FormulaMap, HiddenMap } from 'fyo/model/types';
+import {
+  CurrenciesMap,
+  DefaultMap,
+  FiltersMap,
+  FormulaMap,
+  HiddenMap
+} from 'fyo/model/types';
+import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { getExchangeRate } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
+import { FieldTypeEnum, Schema } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
 import { Party } from '../Party/Party';
@@ -48,6 +57,11 @@ export abstract class Invoice extends Transactional {
     }
 
     return this.fyo.singles.SystemSettings!.currency !== this.currency;
+  }
+
+  constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
+    super(schema, data, fyo);
+    this._setGetCurrencies();
   }
 
   async validate() {
@@ -363,4 +377,22 @@ export abstract class Invoice extends Transactional {
       role: doc.isSales ? 'Customer' : 'Supplier',
     }),
   };
+
+  getCurrencies: CurrenciesMap = {};
+  _getCurrency() {
+    if (this.exchangeRate === 1) {
+      return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
+    }
+
+    return this.currency ?? DEFAULT_CURRENCY;
+  }
+  _setGetCurrencies() {
+    const currencyFields = this.schema.fields.filter(
+      ({ fieldtype }) => fieldtype === FieldTypeEnum.Currency
+    );
+
+    for (const { fieldname } of currencyFields) {
+      this.getCurrencies[fieldname] = this._getCurrency.bind(this);
+    }
+  }
 }
