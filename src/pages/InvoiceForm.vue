@@ -390,7 +390,6 @@ export default {
     }
   },
   methods: {
-    log: console.log,
     routeTo,
     toggleInvoiceSettings() {
       if (!this.schemaName) {

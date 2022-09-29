@@ -191,7 +191,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (typeof fieldname === 'object') {
       return await this.setMultiple(fieldname as DocValueMap);
     }
-    console.log(fieldname, value);
 
     if (!this._canSet(fieldname, value)) {
       return false;
