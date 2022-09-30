@@ -31,12 +31,6 @@
       "required": true
     },
     {
-      "fieldname": "baseRate",
-      "label": "Rate (Company Currency)",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
       "fieldname": "account",
       "label": "Account",
       "fieldtype": "Link",
@@ -53,12 +47,6 @@
     {
       "fieldname": "amount",
       "label": "Amount",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
-      "fieldname": "baseAmount",
-      "label": "Amount (Company Currency)",
       "fieldtype": "Currency",
       "readOnly": true
     },

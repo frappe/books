@@ -59,6 +59,10 @@ export abstract class Invoice extends Transactional {
     return this.fyo.singles.SystemSettings!.currency !== this.currency;
   }
 
+  get companyCurrency() {
+    return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
+  }
+
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
     super(schema, data, fyo);
     this._setGetCurrencies();
@@ -163,7 +167,6 @@ export abstract class Invoice extends Transactional {
         account: string;
         rate: number;
         amount: Money;
-        baseAmount: Money;
         [key: string]: DocValue;
       }
     > = {};
@@ -181,7 +184,6 @@ export abstract class Invoice extends Transactional {
           account,
           rate,
           amount: this.fyo.pesa(0),
-          baseAmount: this.fyo.pesa(0),
         };
 
         let amount = item.amount!;
@@ -196,9 +198,7 @@ export abstract class Invoice extends Transactional {
 
     return Object.keys(taxes)
       .map((account) => {
-        const tax = taxes[account];
-        tax.baseAmount = tax.amount.mul(this.exchangeRate!);
-        return tax;
+        return taxes[account];
       })
       .filter((tax) => !tax.amount.isZero());
   }
@@ -311,6 +311,13 @@ export abstract class Invoice extends Transactional {
     },
     exchangeRate: {
       formula: async () => {
+        if (
+          this.currency ===
+          (this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY)
+        ) {
+          return 1;
+        }
+
         if (this.exchangeRate && this.exchangeRate !== 1) {
           return this.exchangeRate;
         }
@@ -319,13 +326,11 @@ export abstract class Invoice extends Transactional {
       },
     },
     netTotal: { formula: async () => this.getSum('items', 'amount', false) },
-    baseNetTotal: {
-      formula: async () => this.netTotal!.mul(this.exchangeRate!),
-    },
     taxes: { formula: async () => await this.getTaxSummary() },
     grandTotal: { formula: async () => await this.getGrandTotal() },
     baseGrandTotal: {
-      formula: async () => (this.grandTotal as Money).mul(this.exchangeRate!),
+      formula: async () =>
+        (this.grandTotal as Money).mul(this.exchangeRate! ?? 1),
     },
     outstandingAmount: {
       formula: async () => {
@@ -378,10 +383,13 @@ export abstract class Invoice extends Transactional {
     }),
   };
 
-  getCurrencies: CurrenciesMap = {};
+  getCurrencies: CurrenciesMap = {
+    baseGrandTotal: () => this.companyCurrency,
+    outstandingAmount: () => this.companyCurrency,
+  };
   _getCurrency() {
     if (this.exchangeRate === 1) {
-      return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
+      return this.companyCurrency;
     }
 
     return this.currency ?? DEFAULT_CURRENCY;
@@ -392,7 +400,7 @@ export abstract class Invoice extends Transactional {
     );
 
     for (const { fieldname } of currencyFields) {
-      this.getCurrencies[fieldname] = this._getCurrency.bind(this);
+      this.getCurrencies[fieldname] ??= this._getCurrency.bind(this);
     }
   }
 }

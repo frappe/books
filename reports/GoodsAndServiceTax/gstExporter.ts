@@ -218,6 +218,11 @@ async function generateB2bData(report: BaseGSTR): Promise<B2BCustomer[]> {
       ? ModelNameEnum.SalesInvoiceItem
       : ModelNameEnum.PurchaseInvoiceItem;
 
+  const parentSchemaName =
+    report.gstrType === 'GSTR-1'
+      ? ModelNameEnum.SalesInvoice
+      : ModelNameEnum.PurchaseInvoice;
+
   for (const row of report.gstrRows ?? []) {
     const invRecord: B2BInvRecord = {
       inum: row.invNo,
@@ -229,20 +234,29 @@ async function generateB2bData(report: BaseGSTR): Promise<B2BCustomer[]> {
       itms: [],
     };
 
+    const exchangeRate = (
+      await fyo.db.getAllRaw(parentSchemaName, {
+        fields: ['exchangeRate'],
+        filters: { name: invRecord.inum },
+      })
+    )[0].exchangeRate as number;
+
     const items = await fyo.db.getAllRaw(schemaName, {
-      fields: ['baseAmount', 'tax', 'hsnCode'],
-      filters: { parent: invRecord.inum as string },
+      fields: ['amount', 'tax', 'hsnCode'],
+      filters: { parent: invRecord.inum },
     });
 
     items.forEach((item) => {
       const hsnCode = item.hsnCode as number;
       const tax = item.tax as string;
-      const baseAmount = (item.baseAmount ?? 0) as string;
+      const baseAmount = fyo
+        .pesa((item.amount as string) ?? 0)
+        .mul(exchangeRate);
 
       const itemRecord: B2BItmRecord = {
         num: hsnCode,
         itm_det: {
-          txval: fyo.pesa(baseAmount).float,
+          txval: baseAmount.float,
           rt: GST[tax],
           csamt: 0,
           camt: fyo
@@ -292,6 +306,11 @@ async function generateB2clData(
       ? ModelNameEnum.SalesInvoiceItem
       : ModelNameEnum.PurchaseInvoiceItem;
 
+  const parentSchemaName =
+    report.gstrType === 'GSTR-1'
+      ? ModelNameEnum.SalesInvoice
+      : ModelNameEnum.PurchaseInvoice;
+
   for (const row of report.gstrRows ?? []) {
     const invRecord: B2CLInvRecord = {
       inum: row.invNo,
@@ -300,20 +319,29 @@ async function generateB2clData(
       itms: [],
     };
 
+    const exchangeRate = (
+      await fyo.db.getAllRaw(parentSchemaName, {
+        fields: ['exchangeRate'],
+        filters: { name: invRecord.inum },
+      })
+    )[0].exchangeRate as number;
+
     const items = await fyo.db.getAllRaw(schemaName, {
-      fields: ['hsnCode', 'tax', 'baseAmount'],
+      fields: ['amount', 'tax', 'hsnCode'],
       filters: { parent: invRecord.inum },
     });
 
     items.forEach((item) => {
       const hsnCode = item.hsnCode as number;
       const tax = item.tax as string;
-      const baseAmount = (item.baseAmount ?? 0) as string;
+      const baseAmount = fyo
+        .pesa((item.amount as string) ?? 0)
+        .mul(exchangeRate);
 
       const itemRecord: B2CLItmRecord = {
         num: hsnCode,
         itm_det: {
-          txval: fyo.pesa(baseAmount).float,
+          txval: baseAmount.float,
           rt: GST[tax] ?? 0,
           csamt: 0,
           iamt: fyo
