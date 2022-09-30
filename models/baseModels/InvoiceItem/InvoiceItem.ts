@@ -18,7 +18,6 @@ import { Invoice } from '../Invoice/Invoice';
 export abstract class InvoiceItem extends Doc {
   account?: string;
   amount?: Money;
-  baseAmount?: Money;
   parentdoc?: Invoice;
   rate?: Money;
   quantity?: number;
@@ -93,7 +92,7 @@ export abstract class InvoiceItem extends Doc {
           fieldname !== 'itemTaxedTotal' &&
           fieldname !== 'itemDiscountedTotal'
         ) {
-          return rate ?? this.fyo.pesa(0);
+          return rate?.div(this.exchangeRate) ?? this.fyo.pesa(0);
         }
 
         const quantity = this.quantity ?? 0;
@@ -122,16 +121,13 @@ export abstract class InvoiceItem extends Doc {
         return rateFromTotals ?? rate ?? this.fyo.pesa(0);
       },
       dependsOn: [
+        'party',
+        'exchangeRate',
         'item',
         'itemTaxedTotal',
         'itemDiscountedTotal',
         'setItemDiscountAmount',
       ],
-    },
-    baseRate: {
-      formula: () =>
-        (this.rate as Money).mul(this.parentdoc!.exchangeRate as number),
-      dependsOn: ['item', 'rate'],
     },
     quantity: {
       formula: async () => {
@@ -176,11 +172,6 @@ export abstract class InvoiceItem extends Doc {
     amount: {
       formula: () => (this.rate as Money).mul(this.quantity as number),
       dependsOn: ['item', 'rate', 'quantity'],
-    },
-    baseAmount: {
-      formula: () =>
-        (this.amount as Money).mul(this.parentdoc!.exchangeRate as number),
-      dependsOn: ['item', 'amount', 'rate', 'quantity'],
     },
     hsnCode: {
       formula: async () =>
@@ -373,7 +364,7 @@ export abstract class InvoiceItem extends Doc {
     );
 
     for (const { fieldname } of currencyFields) {
-      this.getCurrencies[fieldname] = this._getCurrency.bind(this);
+      this.getCurrencies[fieldname] ??= this._getCurrency.bind(this);
     }
   }
 }

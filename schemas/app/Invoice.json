@@ -55,12 +55,6 @@
       "readOnly": true
     },
     {
-      "fieldname": "baseNetTotal",
-      "label": "Net Total (Company Currency)",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
       "fieldname": "taxes",
       "label": "Taxes",
       "fieldtype": "Table",

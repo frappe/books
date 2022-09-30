@@ -77,8 +77,8 @@
             :border="true"
             :df="getField('party')"
             :value="doc.party"
-            @change="(value) => doc.set('party', value)"
-            @new-doc="(party) => doc.set('party', party.name)"
+            @change="(value) => doc.set('party', value, true)"
+            @new-doc="(party) => doc.set('party', party.name, true)"
             :read-only="doc?.submitted"
           />
           <FormControl
@@ -228,6 +228,21 @@
             >
               <div>{{ t`Grand Total` }}</div>
               <div>{{ formattedValue('grandTotal') }}</div>
+            </div>
+
+            <!-- Base Grand Total -->
+            <div
+              v-if="doc.isMultiCurrency"
+              class="
+                flex
+                justify-between
+                text-green-600
+                font-semibold
+                text-base
+              "
+            >
+              <div>{{ t`Base Grand Total` }}</div>
+              <div>{{ formattedValue('baseGrandTotal') }}</div>
             </div>
 
             <!-- Outstanding Amount -->

@@ -21,12 +21,6 @@
       "label": "Amount",
       "fieldtype": "Currency",
       "required": true
-    },
-    {
-      "fieldname": "baseAmount",
-      "label": "Amount (Company Currency)",
-      "fieldtype": "Currency",
-      "readOnly": true
     }
   ]
 }
