@@ -56,6 +56,12 @@
           </p>
 
           <TwoColumnForm :doc="doc" :read-only="loading" />
+          <Button
+            v-if="fyo.store.isDevelopment"
+            class="m-4 text-sm min-w-28"
+            @click="fill"
+            >Fill</Button
+          >
         </div>
       </template>
       <template #secondaryButton>{{ t`Cancel` }}</template>
@@ -67,6 +73,7 @@
 </template>
 
 <script>
+import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { getErrorMessage } from 'src/utils';
@@ -95,6 +102,7 @@ export default {
     TwoColumnForm,
     FormControl,
     Slide,
+    Button,
   },
   async mounted() {
     this.doc = await getSetupWizardDoc();
@@ -103,6 +111,13 @@ export default {
     });
   },
   methods: {
+    async fill() {
+      await this.doc.set('companyName', "Lin's Things");
+      await this.doc.set('email', 'lin@lthings.com');
+      await this.doc.set('fullname', 'Lin Slovenly');
+      await this.doc.set('bankName', 'Max Finance');
+      await this.doc.set('country', 'India');
+    },
     getField(fieldname) {
       return this.doc.schema?.fields.find((f) => f.fieldname === fieldname);
     },

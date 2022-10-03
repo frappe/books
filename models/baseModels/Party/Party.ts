@@ -87,7 +87,11 @@ export class Party extends Doc {
       dependsOn: ['role'],
     },
     currency: {
-      formula: async () => this.fyo.singles.SystemSettings!.currency as string,
+      formula: async () => {
+        if (!this.currency) {
+          return this.fyo.singles.SystemSettings!.currency as string;
+        }
+      },
     },
   };
 

@@ -12,7 +12,7 @@ import {
   OptionField,
   RawValue,
   Schema,
-  TargetField,
+  TargetField
 } from 'schemas/types';
 import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
 import { markRaw } from 'vue';
@@ -23,7 +23,7 @@ import {
   getMissingMandatoryMessage,
   getPreDefaultValues,
   setChildDocIdx,
-  shouldApplyFormula,
+  shouldApplyFormula
 } from './helpers';
 import { setName } from './naming';
 import {
@@ -41,7 +41,7 @@ import {
   ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
-  ValidationMap,
+  ValidationMap
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
 
@@ -186,7 +186,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
   // set value and trigger change
   async set(
     fieldname: string | DocValueMap,
-    value?: DocValue | Doc[] | DocValueMap[]
+    value?: DocValue | Doc[] | DocValueMap[],
+    retriggerChildDocApplyChange: boolean = false
   ): Promise<boolean> {
     if (typeof fieldname === 'object') {
       return await this.setMultiple(fieldname as DocValueMap);
@@ -216,7 +217,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       await this._applyChange(fieldname);
       await this.parentdoc._applyChange(this.parentFieldname as string);
     } else {
-      await this._applyChange(fieldname);
+      await this._applyChange(fieldname, retriggerChildDocApplyChange);
     }
 
     return true;
@@ -259,8 +260,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return !areDocValuesEqual(currentValue as DocValue, value as DocValue);
   }
 
-  async _applyChange(fieldname: string): Promise<boolean> {
-    await this._applyFormula(fieldname);
+  async _applyChange(
+    fieldname: string,
+    retriggerChildDocApplyChange?: boolean
+  ): Promise<boolean> {
+    await this._applyFormula(fieldname, retriggerChildDocApplyChange);
     await this.trigger('change', {
       doc: this,
       changed: fieldname,
@@ -616,37 +620,62 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
   }
 
-  async _applyFormula(fieldname?: string): Promise<boolean> {
+  async _applyFormula(
+    fieldname?: string,
+    retriggerChildDocApplyChange?: boolean
+  ): Promise<boolean> {
     const doc = this;
-    let changed = false;
+    let changed = await this._callAllTableFieldsApplyFormula(fieldname);
+    changed = (await this._applyFormulaForFields(doc, fieldname)) || changed;
 
-    const childDocs = this.tableFields
-      .map((f) => (this.get(f.fieldname) as Doc[]) ?? [])
-      .flat();
-
-    // children
-    for (const row of childDocs) {
-      changed ||= (await row?._applyFormula()) ?? false;
+    if (changed && retriggerChildDocApplyChange) {
+      await this._callAllTableFieldsApplyFormula(fieldname);
+      await this._applyFormulaForFields(doc, fieldname);
     }
 
-    // parent or child row
+    return changed;
+  }
+
+  async _callAllTableFieldsApplyFormula(
+    changedFieldname?: string
+  ): Promise<boolean> {
+    let changed = false;
+
+    for (const { fieldname } of this.tableFields) {
+      const childDocs = this.get(fieldname) as Doc[];
+      if (!childDocs) {
+        continue;
+      }
+
+      changed =
+        (await this._callChildDocApplyFormula(childDocs, changedFieldname)) ||
+        changed;
+    }
+
+    return changed;
+  }
+
+  async _callChildDocApplyFormula(
+    childDocs: Doc[],
+    fieldname?: string
+  ): Promise<boolean> {
+    let changed: boolean = false;
+    for (const childDoc of childDocs) {
+      if (!childDoc._applyFormula) {
+        continue;
+      }
+
+      changed = (await childDoc._applyFormula(fieldname)) || changed;
+    }
+
+    return changed;
+  }
+
+  async _applyFormulaForFields(doc: Doc, fieldname?: string) {
     const formulaFields = Object.keys(this.formulas).map(
       (fn) => this.fieldMap[fn]
     );
 
-    changed ||= await this._applyFormulaForFields(
-      formulaFields,
-      doc,
-      fieldname
-    );
-    return changed;
-  }
-
-  async _applyFormulaForFields(
-    formulaFields: Field[],
-    doc: Doc,
-    fieldname?: string
-  ) {
     let changed = false;
     for (const field of formulaFields) {
       const shouldApply = shouldApplyFormula(field, doc, fieldname);
@@ -662,7 +691,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       }
 
       doc[field.fieldname] = newVal;
-      changed = true;
+      changed ||= true;
     }
 
     return changed;

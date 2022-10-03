@@ -1,11 +1,20 @@
-import { DocValue } from 'fyo/core/types';
+import { Fyo } from 'fyo';
+import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { DefaultMap, FiltersMap, FormulaMap, HiddenMap } from 'fyo/model/types';
+import {
+  CurrenciesMap,
+  DefaultMap,
+  FiltersMap,
+  FormulaMap,
+  HiddenMap
+} from 'fyo/model/types';
+import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { getExchangeRate } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
+import { FieldTypeEnum, Schema } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
 import { Party } from '../Party/Party';
@@ -40,6 +49,23 @@ export abstract class Invoice extends Transactional {
 
   get enableDiscounting() {
     return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
+  }
+
+  get isMultiCurrency() {
+    if (!this.currency) {
+      return false;
+    }
+
+    return this.fyo.singles.SystemSettings!.currency !== this.currency;
+  }
+
+  get companyCurrency() {
+    return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
+  }
+
+  constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
+    super(schema, data, fyo);
+    this._setGetCurrencies();
   }
 
   async validate() {
@@ -126,10 +152,12 @@ export abstract class Invoice extends Transactional {
     if (this.currency === currency) {
       return 1.0;
     }
-    return await getExchangeRate({
+    const exchangeRate = await getExchangeRate({
       fromCurrency: this.currency!,
       toCurrency: currency as string,
     });
+
+    return parseFloat(exchangeRate.toFixed(2));
   }
 
   async getTaxSummary() {
@@ -139,7 +167,6 @@ export abstract class Invoice extends Transactional {
         account: string;
         rate: number;
         amount: Money;
-        baseAmount: Money;
         [key: string]: DocValue;
       }
     > = {};
@@ -157,7 +184,6 @@ export abstract class Invoice extends Transactional {
           account,
           rate,
           amount: this.fyo.pesa(0),
-          baseAmount: this.fyo.pesa(0),
         };
 
         let amount = item.amount!;
@@ -172,9 +198,7 @@ export abstract class Invoice extends Transactional {
 
     return Object.keys(taxes)
       .map((account) => {
-        const tax = taxes[account];
-        tax.baseAmount = tax.amount.mul(this.exchangeRate!);
-        return tax;
+        return taxes[account];
       })
       .filter((tax) => !tax.amount.isZero());
   }
@@ -285,15 +309,28 @@ export abstract class Invoice extends Transactional {
       },
       dependsOn: ['party'],
     },
-    exchangeRate: { formula: async () => await this.getExchangeRate() },
-    netTotal: { formula: async () => this.getSum('items', 'amount', false) },
-    baseNetTotal: {
-      formula: async () => this.netTotal!.mul(this.exchangeRate!),
+    exchangeRate: {
+      formula: async () => {
+        if (
+          this.currency ===
+          (this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY)
+        ) {
+          return 1;
+        }
+
+        if (this.exchangeRate && this.exchangeRate !== 1) {
+          return this.exchangeRate;
+        }
+
+        return await this.getExchangeRate();
+      },
     },
+    netTotal: { formula: async () => this.getSum('items', 'amount', false) },
     taxes: { formula: async () => await this.getTaxSummary() },
     grandTotal: { formula: async () => await this.getGrandTotal() },
     baseGrandTotal: {
-      formula: async () => (this.grandTotal as Money).mul(this.exchangeRate!),
+      formula: async () =>
+        (this.grandTotal as Money).mul(this.exchangeRate! ?? 1),
     },
     outstandingAmount: {
       formula: async () => {
@@ -345,4 +382,25 @@ export abstract class Invoice extends Transactional {
       role: doc.isSales ? 'Customer' : 'Supplier',
     }),
   };
+
+  getCurrencies: CurrenciesMap = {
+    baseGrandTotal: () => this.companyCurrency,
+    outstandingAmount: () => this.companyCurrency,
+  };
+  _getCurrency() {
+    if (this.exchangeRate === 1) {
+      return this.companyCurrency;
+    }
+
+    return this.currency ?? DEFAULT_CURRENCY;
+  }
+  _setGetCurrencies() {
+    const currencyFields = this.schema.fields.filter(
+      ({ fieldtype }) => fieldtype === FieldTypeEnum.Currency
+    );
+
+    for (const { fieldname } of currencyFields) {
+      this.getCurrencies[fieldname] ??= this._getCurrency.bind(this);
+    }
+  }
 }

@@ -7,6 +7,8 @@ import Color from './app/Color.json';
 import CompanySettings from './app/CompanySettings.json';
 import Currency from './app/Currency.json';
 import GetStarted from './app/GetStarted.json';
+import Invoice from './app/Invoice.json';
+import InvoiceItem from './app/InvoiceItem.json';
 import Item from './app/Item.json';
 import JournalEntry from './app/JournalEntry.json';
 import JournalEntryAccount from './app/JournalEntryAccount.json';
@@ -73,11 +75,13 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   JournalEntry as Schema,
   JournalEntryAccount as Schema,
 
-  PurchaseInvoice as Schema,
-  PurchaseInvoiceItem as Schema,
-
+  Invoice as Schema,
   SalesInvoice as Schema,
-  SalesInvoiceItem as Schema,
+  PurchaseInvoice as Schema,
+
+  InvoiceItem as Schema,
+  SalesInvoiceItem as SchemaStub,
+  PurchaseInvoiceItem as SchemaStub,
 
   Tax as Schema,
   TaxDetail as Schema,

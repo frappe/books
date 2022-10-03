@@ -3,6 +3,16 @@
     <!-- Page Header (Title, Buttons, etc) -->
     <template #header v-if="doc">
       <StatusBadge :status="status" />
+      <ExchangeRate
+        v-if="doc.isMultiCurrency"
+        :disabled="doc?.isSubmitted || doc?.isCancelled"
+        :from-currency="fromCurrency"
+        :to-currency="toCurrency"
+        :exchange-rate="doc.exchangeRate"
+        @change="
+          async (exchangeRate) => await doc.set('exchangeRate', exchangeRate)
+        "
+      />
       <Button
         v-if="!doc.isCancelled && !doc.dirty"
         :icon="true"
@@ -67,8 +77,8 @@
             :border="true"
             :df="getField('party')"
             :value="doc.party"
-            @change="(value) => doc.set('party', value)"
-            @new-doc="(party) => doc.set('party', party.name)"
+            @change="(value) => doc.set('party', value, true)"
+            @new-doc="(party) => doc.set('party', party.name, true)"
             :read-only="doc?.submitted"
           />
           <FormControl
@@ -175,10 +185,14 @@
                 <div>{{ tax.account }}</div>
                 <div>
                   {{
-                    fyo.format(tax.amount, {
-                      fieldtype: 'Currency',
-                      currency: doc.currency,
-                    })
+                    fyo.format(
+                      tax.amount,
+                      {
+                        fieldtype: 'Currency',
+                        fieldname: 'amount',
+                      },
+                      tax
+                    )
                   }}
                 </div>
               </div>
@@ -220,6 +234,21 @@
               <div>{{ formattedValue('grandTotal') }}</div>
             </div>
 
+            <!-- Base Grand Total -->
+            <div
+              v-if="doc.isMultiCurrency"
+              class="
+                flex
+                justify-between
+                text-green-600
+                font-semibold
+                text-base
+              "
+            >
+              <div>{{ t`Base Grand Total` }}</div>
+              <div>{{ formattedValue('baseGrandTotal') }}</div>
+            </div>
+
             <!-- Outstanding Amount -->
             <hr v-if="doc.outstandingAmount?.float > 0" />
             <div
@@ -256,6 +285,7 @@ import { computed } from '@vue/reactivity';
 import { getDocStatus } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
+import ExchangeRate from 'src/components/Controls/ExchangeRate.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import Table from 'src/components/Controls/Table.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
@@ -284,6 +314,7 @@ export default {
     Table,
     FormContainer,
     QuickEditForm,
+    ExchangeRate,
   },
   provide() {
     return {
@@ -341,6 +372,12 @@ export default {
     },
     itemDiscountAmount() {
       return this.doc.getItemDiscountAmount();
+    },
+    fromCurrency() {
+      return this.doc?.currency ?? this.toCurrency;
+    },
+    toCurrency() {
+      return fyo.singles.SystemSettings.currency;
     },
   },
   activated() {
