@@ -185,10 +185,14 @@
                 <div>{{ tax.account }}</div>
                 <div>
                   {{
-                    fyo.format(tax.amount, {
-                      fieldtype: 'Currency',
-                      currency: doc.currency,
-                    })
+                    fyo.format(
+                      tax.amount,
+                      {
+                        fieldtype: 'Currency',
+                        fieldname: 'amount',
+                      },
+                      tax
+                    )
                   }}
                 </div>
               </div>
