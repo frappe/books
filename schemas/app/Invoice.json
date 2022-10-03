@@ -69,7 +69,7 @@
     },
     {
       "fieldname": "baseGrandTotal",
-      "label": "Grand Total (Company Currency)",
+      "label": "Base Grand Total",
       "fieldtype": "Currency",
       "readOnly": true
     },

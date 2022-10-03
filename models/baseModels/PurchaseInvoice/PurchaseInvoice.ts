@@ -47,7 +47,7 @@ export class PurchaseInvoice extends Invoice {
         getTransactionStatusColumn(),
         'party',
         'date',
-        'grandTotal',
+        'baseGrandTotal',
         'outstandingAmount',
       ],
     };
