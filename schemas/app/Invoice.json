@@ -1,0 +1,131 @@
+{
+  "name": "Invoice",
+  "label": "Invoice",
+  "isAbstract": true,
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "fields": [
+    {
+      "label": "Invoice No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "party",
+      "label": "Party",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "account",
+      "label": "Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "currency",
+      "label": "Customer Currency",
+      "fieldtype": "Link",
+      "target": "Currency"
+    },
+    {
+      "fieldname": "exchangeRate",
+      "label": "Exchange Rate",
+      "fieldtype": "Float",
+      "default": 1,
+      "readOnly": true
+    },
+    {
+      "fieldname": "netTotal",
+      "label": "Net Total",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "taxes",
+      "label": "Taxes",
+      "fieldtype": "Table",
+      "target": "TaxSummary",
+      "readOnly": true
+    },
+    {
+      "fieldname": "grandTotal",
+      "label": "Grand Total",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "baseGrandTotal",
+      "label": "Base Grand Total",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "outstandingAmount",
+      "label": "Outstanding Amount",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "setDiscountAmount",
+      "label": "Set Discount Amount",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
+      "fieldname": "discountAmount",
+      "label": "Discount Amount",
+      "fieldtype": "Currency",
+      "readOnly": false
+    },
+    {
+      "fieldname": "discountPercent",
+      "label": "Discount Percent",
+      "fieldtype": "Float",
+      "readOnly": false
+    },
+    {
+      "fieldname": "discountAfterTax",
+      "label": "Discount After Tax",
+      "fieldtype": "Check",
+      "default": false,
+      "readOnly": false
+    },
+    {
+      "fieldname": "entryCurrency",
+      "label": "Entry Currency",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "Party",
+          "label": "Party"
+        },
+        {
+          "value": "Company",
+          "label": "Company"
+        }
+      ],
+      "default": "Party"
+    },
+    {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add invoice terms",
+      "fieldtype": "Text"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

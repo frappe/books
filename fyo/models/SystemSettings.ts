@@ -7,6 +7,16 @@ import { SelectOption } from 'schemas/types';
 import { getCountryInfo } from 'utils/misc';
 
 export default class SystemSettings extends Doc {
+  dateFormat?: string;
+  locale?: string;
+  displayPrecision?: number;
+  internalPrecision?: number;
+  hideGetStarted?: boolean;
+  countryCode?: string;
+  currency?: string;
+  version?: string;
+  instanceId?: string;
+
   validations: ValidationMap = {
     async displayPrecision(value: DocValue) {
       if ((value as number) >= 0 && (value as number) <= 9) {

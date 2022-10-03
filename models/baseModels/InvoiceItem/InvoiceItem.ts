@@ -1,21 +1,23 @@
-import { DocValue } from 'fyo/core/types';
+import { Fyo } from 'fyo';
+import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
+  CurrenciesMap,
   FiltersMap,
   FormulaMap,
   HiddenMap,
   ValidationMap
 } from 'fyo/model/types';
+import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
+import { FieldTypeEnum, Schema } from 'schemas/types';
 import { Invoice } from '../Invoice/Invoice';
 
 export abstract class InvoiceItem extends Doc {
   account?: string;
   amount?: Money;
-  baseAmount?: Money;
-  exchangeRate?: number;
   parentdoc?: Invoice;
   rate?: Money;
   quantity?: number;
@@ -37,6 +39,23 @@ export abstract class InvoiceItem extends Doc {
 
   get enableDiscounting() {
     return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
+  }
+
+  get currency() {
+    return this.parentdoc?.currency ?? DEFAULT_CURRENCY;
+  }
+
+  get exchangeRate() {
+    return this.parentdoc?.exchangeRate ?? 1;
+  }
+
+  get isMultiCurrency() {
+    return this.parentdoc?.isMultiCurrency ?? false;
+  }
+
+  constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
+    super(schema, data, fyo);
+    this._setGetCurrencies();
   }
 
   async getTotalTaxRate(): Promise<number> {
@@ -73,7 +92,7 @@ export abstract class InvoiceItem extends Doc {
           fieldname !== 'itemTaxedTotal' &&
           fieldname !== 'itemDiscountedTotal'
         ) {
-          return rate ?? this.fyo.pesa(0);
+          return rate?.div(this.exchangeRate) ?? this.fyo.pesa(0);
         }
 
         const quantity = this.quantity ?? 0;
@@ -102,16 +121,13 @@ export abstract class InvoiceItem extends Doc {
         return rateFromTotals ?? rate ?? this.fyo.pesa(0);
       },
       dependsOn: [
+        'party',
+        'exchangeRate',
         'item',
         'itemTaxedTotal',
         'itemDiscountedTotal',
         'setItemDiscountAmount',
       ],
-    },
-    baseRate: {
-      formula: () =>
-        (this.rate as Money).mul(this.parentdoc!.exchangeRate as number),
-      dependsOn: ['item', 'rate'],
     },
     quantity: {
       formula: async () => {
@@ -156,11 +172,6 @@ export abstract class InvoiceItem extends Doc {
     amount: {
       formula: () => (this.rate as Money).mul(this.quantity as number),
       dependsOn: ['item', 'rate', 'quantity'],
-    },
-    baseAmount: {
-      formula: () =>
-        (this.amount as Money).mul(this.parentdoc!.exchangeRate as number),
-      dependsOn: ['item', 'amount', 'rate', 'quantity'],
     },
     hsnCode: {
       formula: async () =>
@@ -338,6 +349,24 @@ export abstract class InvoiceItem extends Doc {
       return { for: doc.isSales ? 'Sales' : 'Purchases' };
     },
   };
+
+  getCurrencies: CurrenciesMap = {};
+  _getCurrency() {
+    if (this.exchangeRate === 1) {
+      return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
+    }
+
+    return this.currency;
+  }
+  _setGetCurrencies() {
+    const currencyFields = this.schema.fields.filter(
+      ({ fieldtype }) => fieldtype === FieldTypeEnum.Currency
+    );
+
+    for (const { fieldname } of currencyFields) {
+      this.getCurrencies[fieldname] ??= this._getCurrency.bind(this);
+    }
+  }
 }
 
 function getDiscountedTotalBeforeTaxation(
