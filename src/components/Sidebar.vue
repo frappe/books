@@ -167,7 +167,7 @@ export default {
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
     this.companyName = companyName;
-    this.groups = getSidebarConfig();
+    this.groups = await getSidebarConfig();
 
     this.setActiveGroup();
     router.afterEach(() => {

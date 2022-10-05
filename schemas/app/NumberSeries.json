@@ -46,6 +46,10 @@
         {
           "value": "JournalEntry",
           "label": "Journal Entry"
+        },
+        {
+          "value": "StockMovement",
+          "label": "Stock Movement"
         }
       ],
       "default": "-",

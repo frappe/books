@@ -5,14 +5,17 @@ import {
   Action,
   FiltersMap,
   FormulaMap,
+  HiddenMap,
   ListViewSettings,
-  ValidationMap,
+  ValidationMap
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
 export class Item extends Doc {
+  itemType?: 'Product' | 'Service';
+
   formulas: FormulaMap = {
     incomeAccount: {
       formula: async () => {
@@ -99,4 +102,8 @@ export class Item extends Doc {
       columns: ['name', 'unit', 'tax', 'rate'],
     };
   }
+
+  hidden: HiddenMap = {
+    trackItem: () => this.itemType !== 'Product',
+  };
 }

@@ -17,6 +17,11 @@ import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
+import { Location } from './inventory/Location';
+import { StockLedgerEntry } from './inventory/StockLedgerEntry';
+import { StockMovement } from './inventory/StockMovement';
+import { StockMovementItem } from './inventory/StockMovementItem';
+import { StockQueue } from './inventory/StockQueue';
 
 export const models = {
   Account,
@@ -37,6 +42,12 @@ export const models = {
   SetupWizard,
   Tax,
   TaxSummary,
+  // Inventory Models
+  StockQueue,
+  StockMovement,
+  StockMovementItem,
+  StockLedgerEntry,
+  Location,
 } as ModelMap;
 
 export async function getRegionalModels(

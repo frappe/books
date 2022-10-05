@@ -1,10 +1,19 @@
-import { t } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { fyo } from '../initFyo';
 import { SidebarConfig, SidebarRoot } from './types';
 
-export function getSidebarConfig(): SidebarConfig {
-  const sideBar = getCompleteSidebar();
+export async function getSidebarConfig(): Promise<SidebarConfig> {
+  const sideBar = await getCompleteSidebar();
   return getFilteredSidebar(sideBar);
+}
+
+async function getIsInventoryEnabled(fyo: Fyo) {
+  const values = await fyo.db.getAllRaw('Item', {
+    fields: ['name'],
+    filters: { trackItem: true },
+  });
+
+  return !!values.length;
 }
 
 function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {
@@ -53,19 +62,32 @@ function getRegionalSidebar(): SidebarRoot[] {
   ];
 }
 
-function getInventorySidebar(): SidebarRoot[] {
+async function getInventorySidebar(): Promise<SidebarRoot[]> {
+  const showInventory = await getIsInventoryEnabled(fyo);
+  if (!showInventory) {
+    return [];
+  }
+
   return [
     {
       label: t`Inventory`,
       name: 'inventory',
       icon: 'inventory',
       iconSize: '18',
-      route: '/',
+      route: '/list/StockMovement',
+      items: [
+        {
+          label: t`Stock Movement`,
+          name: 'stock-movement',
+          route: '/list/StockMovement',
+          schemaName: 'StockMovement',
+        },
+      ],
     },
   ];
 }
 
-function getCompleteSidebar(): SidebarConfig {
+async function getCompleteSidebar(): Promise<SidebarConfig> {
   return [
     {
       label: t`Get Started`,
@@ -200,8 +222,8 @@ function getCompleteSidebar(): SidebarConfig {
         },
       ],
     },
-    getInventorySidebar(),
-    getRegionalSidebar(),
+    await getInventorySidebar(),
+    await getRegionalSidebar(),
     {
       label: t`Setup`,
       name: 'setup',

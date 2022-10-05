@@ -1,0 +1,25 @@
+{
+  "name": "Location",
+  "label": "Location",
+  "isSingle": false,
+  "isChild": false,
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "Location Name",
+      "fieldtype": "Data",
+      "required": true
+    },
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "required": true
+    }
+  ],
+  "quickEditFields": [
+    "item"
+  ]
+}

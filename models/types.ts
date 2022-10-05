@@ -30,6 +30,11 @@ export enum ModelNameEnum {
   PatchRun = 'PatchRun',
   SingleValue = 'SingleValue',
   SystemSettings = 'SystemSettings',
+  StockMovement = 'StockMovement',
+  StockQueue = 'StockQueue',
+  StockMovementItem = 'StockMovementItem',
+  StockLedgerEntry = 'StockLedgerEntry',
+  Location = 'Location',
 }
 
 export type ModelName = keyof typeof ModelNameEnum;
