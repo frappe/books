@@ -185,6 +185,7 @@ export default {
     },
     tableFields() {
       const fields = fyo.schemaMap[this.df.target].tableFields ?? [];
+      console.log(this.df, fields);
       return fields.map((fieldname) => fyo.getField(this.df.target, fieldname));
     },
   },

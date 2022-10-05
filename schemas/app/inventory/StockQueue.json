@@ -1,0 +1,41 @@
+{
+  "name": "StockQueue",
+  "label": "Stock Queue",
+  "isSingle": false,
+  "isChild": false,
+  "naming": "random",
+  "fields": [
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "readOnly": true
+    },
+    {
+      "fieldname": "location",
+      "label": "Location",
+      "fieldtype": "Link",
+      "target": "Location",
+      "readOnly": true
+    },
+    {
+      "fieldname": "queue",
+      "label": "Queue",
+      "fieldtype": "Data",
+      "readOnly": true
+    },
+    {
+      "fieldname": "stockValue",
+      "label": "Stock Value",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "valuationRate",
+      "label": "Valuation Rate",
+      "fieldtype": "Currency",
+      "readOnly": true
+    }
+  ]
+}

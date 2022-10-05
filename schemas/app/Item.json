@@ -105,6 +105,12 @@
       "label": "HSN/SAC",
       "fieldtype": "Int",
       "placeholder": "HSN/SAC Code"
+    },
+    {
+      "fieldname": "trackItem",
+      "label": "Track Item",
+      "fieldtype": "Check",
+      "default": false
     }
   ],
   "quickEditFields": [
@@ -116,7 +122,8 @@
     "description",
     "incomeAccount",
     "expenseAccount",
-    "hsnCode"
+    "hsnCode",
+    "trackItem"
   ],
   "keywordFields": ["name", "itemType", "for"]
 }

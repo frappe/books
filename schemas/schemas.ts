@@ -7,6 +7,11 @@ import CompanySettings from './app/CompanySettings.json';
 import Currency from './app/Currency.json';
 import Defaults from './app/Defaults.json';
 import GetStarted from './app/GetStarted.json';
+import Location from './app/inventory/Location.json';
+import StockLedgerEntry from './app/inventory/StockLedgerEntry.json';
+import StockMovement from './app/inventory/StockMovement.json';
+import StockMovementItem from './app/inventory/StockMovementItem.json';
+import StockQueue from './app/inventory/StockQueue.json';
 import Invoice from './app/Invoice.json';
 import InvoiceItem from './app/InvoiceItem.json';
 import Item from './app/Item.json';
@@ -88,4 +93,10 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Tax as Schema,
   TaxDetail as Schema,
   TaxSummary as Schema,
+
+  Location as Schema,
+  StockQueue as Schema,
+  StockLedgerEntry as Schema,
+  StockMovement as Schema,
+  StockMovementItem as Schema,
 ];

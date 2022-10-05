@@ -9,7 +9,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_DATE_FORMAT,
   DEFAULT_DISPLAY_PRECISION,
-  DEFAULT_LOCALE,
+  DEFAULT_LOCALE
 } from './consts';
 
 export function format(
@@ -29,6 +29,10 @@ export function format(
   }
 
   if (field.fieldtype === FieldTypeEnum.Date) {
+    return formatDate(value, fyo);
+  }
+
+  if (field.fieldtype === FieldTypeEnum.Datetime) {
     return formatDate(value, fyo);
   }
 

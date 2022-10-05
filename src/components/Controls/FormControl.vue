@@ -24,6 +24,7 @@ const components = {
   Select,
   Link,
   Date,
+  Datetime: Date,
   Table,
   AutoComplete,
   DynamicLink,
