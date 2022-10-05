@@ -53,6 +53,18 @@ function getRegionalSidebar(): SidebarRoot[] {
   ];
 }
 
+function getInventorySidebar(): SidebarRoot[] {
+  return [
+    {
+      label: t`Inventory`,
+      name: 'inventory',
+      icon: 'inventory',
+      iconSize: '18',
+      route: '/',
+    },
+  ];
+}
+
 function getCompleteSidebar(): SidebarConfig {
   return [
     {
@@ -188,7 +200,8 @@ function getCompleteSidebar(): SidebarConfig {
         },
       ],
     },
-    ...getRegionalSidebar(),
+    getInventorySidebar(),
+    getRegionalSidebar(),
     {
       label: t`Setup`,
       name: 'setup',
@@ -218,5 +231,5 @@ function getCompleteSidebar(): SidebarConfig {
         },
       ],
     },
-  ];
+  ].flat();
 }

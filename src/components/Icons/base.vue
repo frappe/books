@@ -6,7 +6,7 @@ export default {
   props: ['active'],
   computed: {
     lightColor() {
-      return this.active ? uicolors.blue['300'] : uicolors.gray['400'];
+      return this.active ? uicolors.blue['300'] : uicolors.gray['500'];
     },
     darkColor() {
       return this.active ? uicolors.blue['500'] : uicolors.gray['700'];
