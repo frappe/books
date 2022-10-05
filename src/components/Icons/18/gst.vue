@@ -17,7 +17,7 @@
 <script>
 import Base from '../base';
 export default {
-  name: 'IconReports',
+  name: 'IconGST',
   extends: Base,
 };
 </script>
