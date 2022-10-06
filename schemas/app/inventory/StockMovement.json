@@ -15,7 +15,7 @@
     },
     {
       "fieldname": "date",
-      "label": "Posting Date",
+      "label": "Date",
       "fieldtype": "Datetime",
       "required": true
     },
