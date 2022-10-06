@@ -1,5 +1,10 @@
 import { Doc } from 'fyo/model/doc';
-import { DefaultMap, FiltersMap, ListViewSettings } from 'fyo/model/types';
+import {
+  DefaultMap,
+  FiltersMap,
+  FormulaMap,
+  ListViewSettings
+} from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { StockMovementItem } from './StockMovementItem';
@@ -10,8 +15,20 @@ export class StockMovement extends Doc {
   date?: Date;
   numberSeries?: string;
   movementType?: MovementType;
-  items?: StockMovementItem;
+  items?: StockMovementItem[];
   amount?: Money;
+
+  formulas: FormulaMap = {
+    amount: {
+      formula: () => {
+        return this.items?.reduce(
+          (acc, item) => acc.add(item.amount ?? 0),
+          this.fyo.pesa(0)
+        );
+      },
+      dependsOn: ['items'],
+    },
+  };
 
   static filters: FiltersMap = {
     numberSeries: () => ({ referenceType: ModelNameEnum.StockMovement }),

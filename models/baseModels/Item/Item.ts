@@ -7,6 +7,7 @@ import {
   FormulaMap,
   HiddenMap,
   ListViewSettings,
+  ReadOnlyMap,
   ValidationMap
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
@@ -104,6 +105,13 @@ export class Item extends Doc {
   }
 
   hidden: HiddenMap = {
-    trackItem: () => this.itemType !== 'Product',
+    trackItem: () =>
+      this.itemType !== 'Product' || (this.inserted && !this.trackItem),
+  };
+
+  readOnly: ReadOnlyMap = {
+    unit: () => this.inserted,
+    itemType: () => this.inserted,
+    trackItem: () => this.inserted,
   };
 }
