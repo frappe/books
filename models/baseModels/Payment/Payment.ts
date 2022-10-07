@@ -129,7 +129,6 @@ export class Payment extends Transactional {
             ?.label!} does not exist`
         );
       }
-      console.log(refDoc);
 
       if (!refDoc) {
         continue;
@@ -259,8 +258,9 @@ export class Payment extends Transactional {
 
     for (const row of forReferences) {
       this.validateReferenceType(row);
-      await this.validateReferenceOutstanding(row);
     }
+
+    await this.validateReferenceOutstanding();
   }
 
   validateReferenceType(row: PaymentFor) {
@@ -274,13 +274,19 @@ export class Payment extends Transactional {
     }
   }
 
-  async validateReferenceOutstanding(row: PaymentFor) {
-    const referenceDoc = await this.fyo.doc.getDoc(
-      row.referenceType as string,
-      row.referenceName as string
-    );
+  async validateReferenceOutstanding() {
+    let outstandingAmount = this.fyo.pesa(0);
+    for (const row of this.for ?? []) {
+      const referenceDoc = (await this.fyo.doc.getDoc(
+        row.referenceType as string,
+        row.referenceName as string
+      )) as Invoice;
 
-    const outstandingAmount = referenceDoc.outstandingAmount as Money;
+      outstandingAmount = outstandingAmount.add(
+        referenceDoc.outstandingAmount ?? 0
+      );
+    }
+
     const amount = this.amount as Money;
 
     if (amount.gt(0) && amount.lte(outstandingAmount)) {
@@ -317,7 +323,7 @@ export class Payment extends Transactional {
       );
 
       const previousOutstandingAmount = referenceDoc.outstandingAmount as Money;
-      const outstandingAmount = previousOutstandingAmount.sub(this.amount!);
+      const outstandingAmount = previousOutstandingAmount.sub(row.amount!);
       await referenceDoc.setAndSync({ outstandingAmount });
     }
   }
