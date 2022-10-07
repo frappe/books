@@ -93,7 +93,6 @@ export class PaymentFor extends Doc {
 
   validations: ValidationMap = {
     referenceName: async (value: DocValue) => {
-      console.log(value);
       const exists = await this.fyo.db.exists(
         this.referenceType!,
         value as string
