@@ -250,6 +250,3 @@ export function isCredit(rootType: AccountRootType) {
       return true;
   }
 }
-
-// @ts-ignore
-window.gex = getExchangeRate;
