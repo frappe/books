@@ -265,7 +265,12 @@ export default {
         return;
       }
 
-      await this.inlineEditDoc.sync();
+      try {
+        await this.inlineEditDoc.sync();
+      } catch (error) {
+        return await handleErrorWithDialog(error, this.inlineEditDoc)
+      }
+
       await this.onChangeCommon(df, this.inlineEditDoc.name);
       await this.doc.loadLinks();
 

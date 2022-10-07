@@ -7,6 +7,7 @@ import { ConflictError, MandatoryError, NotFoundError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
 import { Money } from 'pesa';
 import {
+  DynamicLinkField,
   Field,
   FieldTypeEnum,
   OptionField,
@@ -60,7 +61,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
   parentFieldname?: string;
   parentSchemaName?: string;
 
-  _links?: Record<string, Doc>;
+  links?: Record<string, Doc>;
   _dirty: boolean = true;
   _notInserted: boolean = true;
 
@@ -512,41 +513,67 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async loadLinks() {
-    this._links = {};
+    this.links ??= {};
     const linkFields = this.schema.fields.filter(
-      (f) => f.fieldtype === FieldTypeEnum.Link || f.inline
+      ({ fieldtype }) =>
+        fieldtype === FieldTypeEnum.Link ||
+        fieldtype === FieldTypeEnum.DynamicLink
     );
 
-    for (const f of linkFields) {
-      await this.loadLink(f.fieldname);
+    for (const field of linkFields) {
+      await this._loadLink(field);
     }
   }
 
-  async loadLink(fieldname: string) {
-    this._links ??= {};
-    const field = this.fieldMap[fieldname] as TargetField;
-    if (field === undefined) {
+  async _loadLink(field: Field) {
+    if (field.fieldtype === FieldTypeEnum.Link) {
+      return await this._loadLinkField(field as TargetField);
+    }
+
+    if (field.fieldtype === FieldTypeEnum.DynamicLink) {
+      return await this._loadDynamicLinkField(field as DynamicLinkField);
+    }
+  }
+
+  async _loadLinkField(field: TargetField) {
+    const { fieldname, target } = field;
+    const value = this.get(fieldname) as string | undefined;
+    if (!value || !target) {
       return;
     }
 
-    const value = this.get(fieldname);
-    if (getIsNullOrUndef(value) || field.target === undefined) {
+    await this._loadLinkDoc(fieldname, target, value);
+  }
+
+  async _loadDynamicLinkField(field: DynamicLinkField) {
+    const { fieldname, references } = field;
+    const value = this.get(fieldname) as string | undefined;
+    const reference = this.get(references) as string | undefined;
+    if (!value || !reference) {
       return;
     }
 
-    this._links[fieldname] = await this.fyo.doc.getDoc(
-      field.target,
-      value as string
-    );
+    await this._loadLinkDoc(fieldname, reference, value);
+  }
+
+  async _loadLinkDoc(fieldname: string, schemaName: string, name: string) {
+    this.links![fieldname] = await this.fyo.doc.getDoc(schemaName, name);
   }
 
   getLink(fieldname: string): Doc | null {
-    const link = this._links?.[fieldname];
-    if (link === undefined) {
+    return this.links?.[fieldname] ?? null;
+  }
+
+  async loadAndGetLink(fieldname: string): Promise<Doc | null> {
+    if (!this?.[fieldname]) {
       return null;
     }
 
-    return link;
+    if (this.links?.[fieldname]?.name !== this[fieldname]) {
+      await this.loadLinks();
+    }
+
+    return this.links?.[fieldname] ?? null;
   }
 
   async _syncValues(data: DocValueMap) {
@@ -672,8 +699,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _applyFormulaForFields(doc: Doc, fieldname?: string) {
-    const formulaFields = Object.keys(this.formulas).map(
-      (fn) => this.fieldMap[fn]
+    const formulaFields = this.schema.fields.filter(
+      ({ fieldname }) => this.formulas?.[fieldname]
     );
 
     let changed = false;

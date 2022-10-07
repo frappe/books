@@ -23,16 +23,22 @@ import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
+import { QueryFilter } from 'utils/db/types';
+import { AccountTypeEnum } from '../Account/types';
 import { Invoice } from '../Invoice/Invoice';
 import { Party } from '../Party/Party';
 import { PaymentFor } from '../PaymentFor/PaymentFor';
 import { PaymentMethod, PaymentType } from './types';
+
+type AccountTypeMap = Record<AccountTypeEnum, string[] | undefined>;
 
 export class Payment extends Transactional {
   party?: string;
   amount?: Money;
   writeoff?: Money;
   paymentType?: PaymentType;
+  for?: PaymentFor[];
+  _accountsMap?: AccountTypeMap;
 
   async change({ changed }: ChangeArg) {
     if (changed === 'for') {
@@ -100,10 +106,42 @@ export class Payment extends Transactional {
       return;
     }
 
+    await this.validateFor();
     this.validateAccounts();
     this.validateTotalReferenceAmount();
     this.validateWriteOffAccount();
     await this.validateReferences();
+  }
+
+  async validateFor() {
+    for (const childDoc of this.for ?? []) {
+      const referenceName = childDoc.referenceName;
+      const referenceType = childDoc.referenceType;
+
+      const refDoc = (await this.fyo.doc.getDoc(
+        childDoc.referenceType!,
+        childDoc.referenceName
+      )) as Invoice;
+
+      if (referenceName && referenceType && !refDoc) {
+        throw new ValidationError(
+          t`${referenceType} of type ${this.fyo.schemaMap?.[referenceType]
+            ?.label!} does not exist`
+        );
+      }
+      console.log(refDoc);
+
+      if (!refDoc) {
+        continue;
+      }
+
+      if (refDoc?.party !== this.party) {
+        throw new ValidationError(
+          t`${refDoc.name!} party ${refDoc.party!} is different from ${this
+            .party!}`
+        );
+      }
+    }
   }
 
   validateAccounts() {
@@ -319,46 +357,118 @@ export class Payment extends Transactional {
 
   static defaults: DefaultMap = { date: () => new Date().toISOString() };
 
+  async _getAccountsMap(): Promise<AccountTypeMap> {
+    if (this._accountsMap) {
+      return this._accountsMap;
+    }
+
+    const accounts = (await this.fyo.db.getAll(ModelNameEnum.Account, {
+      fields: ['name', 'accountType'],
+      filters: {
+        accountType: [
+          'in',
+          [
+            AccountTypeEnum.Bank,
+            AccountTypeEnum.Cash,
+            AccountTypeEnum.Payable,
+            AccountTypeEnum.Receivable,
+          ],
+        ],
+      },
+    })) as { name: string; accountType: AccountTypeEnum }[];
+
+    return (this._accountsMap = accounts.reduce((acc, ac) => {
+      acc[ac.accountType] ??= [];
+      acc[ac.accountType]!.push(ac.name);
+      return acc;
+    }, {} as AccountTypeMap));
+  }
+
+  async _getReferenceAccount() {
+    const account = await this._getAccountFromParty();
+    if (!account) {
+      return await this._getAccountFromFor();
+    }
+
+    return account;
+  }
+
+  async _getAccountFromParty() {
+    const party = (await this.loadAndGetLink('party')) as Party | null;
+    if (!party || party.role === 'Both') {
+      return null;
+    }
+
+    return party.defaultAccount ?? null;
+  }
+
+  async _getAccountFromFor() {
+    const reference = this?.for?.[0];
+    if (!reference) {
+      return null;
+    }
+
+    const refDoc = (await reference.loadAndGetLink(
+      'referenceName'
+    )) as Invoice | null;
+
+    return (refDoc?.account ?? null) as string | null;
+  }
+
   formulas: FormulaMap = {
     account: {
       formula: async () => {
-        const hasCash = await this.fyo.db.exists(ModelNameEnum.Account, 'Cash');
-        if (
-          this.paymentMethod === 'Cash' &&
-          this.paymentType === 'Pay' &&
-          hasCash
-        ) {
-          return 'Cash';
+        const accountsMap = await this._getAccountsMap();
+        if (this.paymentType === 'Receive') {
+          return (
+            (await this._getReferenceAccount()) ??
+            accountsMap[AccountTypeEnum.Receivable]?.[0] ??
+            null
+          );
+        }
+
+        if (this.paymentMethod === 'Cash') {
+          return accountsMap[AccountTypeEnum.Cash]?.[0] ?? null;
+        }
+
+        if (this.paymentMethod !== 'Cash') {
+          return accountsMap[AccountTypeEnum.Bank]?.[0] ?? null;
         }
 
         return null;
       },
-      dependsOn: ['paymentMethod', 'paymentType'],
+      dependsOn: ['paymentMethod', 'paymentType', 'party'],
     },
     paymentAccount: {
       formula: async () => {
-        const hasCash = await this.fyo.db.exists(ModelNameEnum.Account, 'Cash');
-        if (
-          this.paymentMethod === 'Cash' &&
-          this.paymentType === 'Receive' &&
-          hasCash
-        ) {
-          return 'Cash';
+        const accountsMap = await this._getAccountsMap();
+        if (this.paymentType === 'Pay') {
+          return (
+            (await this._getReferenceAccount()) ??
+            accountsMap[AccountTypeEnum.Payable]?.[0] ??
+            null
+          );
+        }
+
+        if (this.paymentMethod === 'Cash') {
+          return accountsMap[AccountTypeEnum.Cash]?.[0] ?? null;
+        }
+
+        if (this.paymentMethod !== 'Cash') {
+          return accountsMap[AccountTypeEnum.Bank]?.[0] ?? null;
         }
 
         return null;
       },
-      dependsOn: ['paymentMethod', 'paymentType'],
+      dependsOn: ['paymentMethod', 'paymentType', 'party'],
     },
     paymentType: {
       formula: async () => {
         if (!this.party) {
           return;
         }
-        const partyDoc = await this.fyo.doc.getDoc(
-          ModelNameEnum.Party,
-          this.party
-        );
+
+        const partyDoc = (await this.loadAndGetLink('party')) as Party;
         if (partyDoc.role === 'Supplier') {
           return 'Pay';
         } else if (partyDoc.role === 'Customer') {
@@ -426,6 +536,18 @@ export class Payment extends Transactional {
   };
 
   static filters: FiltersMap = {
+    party: (doc: Doc) => {
+      const paymentType = (doc as Payment).paymentType;
+      if (paymentType === 'Pay') {
+        return { role: ['in', ['Supplier', 'Both']] } as QueryFilter;
+      }
+
+      if (paymentType === 'Receive') {
+        return { role: ['in', ['Customer', 'Both']] } as QueryFilter;
+      }
+
+      return {};
+    },
     numberSeries: () => {
       return { referenceType: 'Payment' };
     },

@@ -15,6 +15,8 @@ import { Money } from 'pesa';
 import { PartyRole } from './types';
 
 export class Party extends Doc {
+  role?: PartyRole;
+  defaultAccount?: string;
   outstandingAmount?: Money;
   async updateOutstandingAmount() {
     /**

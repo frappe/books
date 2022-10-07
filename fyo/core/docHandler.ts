@@ -70,7 +70,7 @@ export class DocHandler {
       return doc;
     }
 
-    doc = this.getNewDoc(schemaName, { name });
+    doc = this.getNewDoc(schemaName, { name }, false);
     await doc.load();
     this.#addToCache(doc);
 

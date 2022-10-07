@@ -4,10 +4,10 @@ export default {
   props: { doc: Object, printSettings: Object },
   data: () => ({ party: null, companyAddress: null, partyAddress: null }),
   async mounted() {
-    await this.printSettings.loadLink('address');
+    await this.printSettings.loadLinks();
     this.companyAddress = this.printSettings.getLink('address');
 
-    await this.doc.loadLink('party');
+    await this.doc.loadLinks();
     this.party = this.doc.getLink('party');
     this.partyAddress = this.party.getLink('address')?.addressDisplay ?? null;
 

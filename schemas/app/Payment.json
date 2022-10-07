@@ -28,14 +28,6 @@
       "required": true
     },
     {
-      "fieldname": "account",
-      "label": "From Account",
-      "fieldtype": "Link",
-      "target": "Account",
-      "create": true,
-      "required": true
-    },
-    {
       "fieldname": "paymentType",
       "label": "Payment Type",
       "fieldtype": "Select",
@@ -50,15 +42,6 @@
           "label": "Pay"
         }
       ],
-      "required": true
-    },
-    {
-      "fieldname": "paymentAccount",
-      "label": "To Account",
-      "placeholder": "To Account",
-      "fieldtype": "Link",
-      "target": "Account",
-      "create": true,
       "required": true
     },
     {
@@ -90,6 +73,23 @@
         }
       ],
       "default": "Cash",
+      "required": true
+    },
+    {
+      "fieldname": "account",
+      "label": "From Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "paymentAccount",
+      "label": "To Account",
+      "placeholder": "To Account",
+      "fieldtype": "Link",
+      "target": "Account",
+      "create": true,
       "required": true
     },
     {
