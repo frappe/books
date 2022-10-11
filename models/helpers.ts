@@ -34,7 +34,7 @@ export function getInvoiceActions(
         await openQuickEdit({
           schemaName: 'Payment',
           name: payment.name as string,
-          hideFields: ['party', 'date', 'paymentType', 'for'],
+          hideFields: ['party', 'paymentType', 'for'],
           defaults: {
             party,
             [hideAccountField]: doc.account,

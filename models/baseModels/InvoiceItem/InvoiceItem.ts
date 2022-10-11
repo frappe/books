@@ -88,6 +88,10 @@ export abstract class InvoiceItem extends Doc {
           'rate'
         )) as undefined | Money;
 
+        if (!rate?.float && this.rate?.float) {
+          return this.rate;
+        }
+
         if (
           fieldname !== 'itemTaxedTotal' &&
           fieldname !== 'itemDiscountedTotal'
