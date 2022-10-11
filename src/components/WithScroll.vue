@@ -1,12 +1,17 @@
 <template>
-  <div class="scroll-container">
+  <div class="custom-scroll">
     <slot></slot>
   </div>
 </template>
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   name: 'WithScroll',
   emits: ['scroll'],
+  data() {
+    return { listener: undefined } as { listener?: () => void };
+  },
   mounted() {
     this.listener = () => {
       let { scrollLeft, scrollTop } = this.$el;
@@ -15,26 +20,12 @@ export default {
     this.$el.addEventListener('scroll', this.listener);
   },
   beforeUnmount() {
-    if (this.listener) {
-      this.$el.removeEventListener('scroll', this.listener);
-      delete this.listener;
+    if (!this.listener) {
+      return;
     }
-  },
-};
-</script>
 
-<style>
-.scroll-container::-webkit-scrollbar {
-  width: var(--w-scrollbar);
-  height: var(--w-scrollbar);
-}
-.scroll-container::-webkit-scrollbar-thumb {
-  background-color: theme('colors.gray.100');
-}
-.scroll-container::-webkit-scrollbar-thumb:hover {
-  background-color: theme('colors.gray.200');
-}
-.scroll-container::-webkit-scrollbar-track {
-  background-color: white;
-}
-</style>
+    this.$el.removeEventListener('scroll', this.listener);
+    delete this.listener;
+  },
+});
+</script>
