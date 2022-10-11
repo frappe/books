@@ -10,10 +10,10 @@
 </template>
 
 <script>
-import { createPopper } from '@popperjs/core/lib/popper-lite';
 import flip from '@popperjs/core/lib/modifiers/flip';
-import preventOverflow from '@popperjs/core/lib/modifiers/preventOverflow';
 import offset from '@popperjs/core/lib/modifiers/offset';
+import preventOverflow from '@popperjs/core/lib/modifiers/preventOverflow';
+import { createPopper } from '@popperjs/core/lib/popper-lite';
 
 function generateGetBoundingClientRect(x = 0, y = 0) {
   return () => ({

@@ -1,7 +1,12 @@
 <template>
   <div class="text-base flex flex-col overflow-y-hidden">
     <!-- Title Row -->
-    <div class="flex items-center">
+    <div
+      class="flex items-center"
+      :style="{
+        paddingRight: dataSlice.length > 13 ? 'var(--w-scrollbar)' : '',
+      }"
+    >
       <p class="w-8 text-right mr-4 text-gray-700">#</p>
       <Row
         class="flex-1 text-gray-700 border-none h-row-mid"
@@ -31,8 +36,12 @@
     <hr />
 
     <!-- Data Rows -->
-    <div class="overflow-y-auto" v-if="dataSlice.length !== 0">
-      <div v-for="(doc, i) in dataSlice" :key="doc.name">
+    <div class="overflow-y-auto custom-scroll" v-if="dataSlice.length !== 0">
+      <div
+        v-for="(doc, i) in dataSlice"
+        :key="doc.name"
+        style="min-width: calc(var(--w-desk) - var(--w-scrollbar))"
+      >
         <!-- Row Content -->
         <div class="flex hover:bg-gray-50 items-center">
           <p class="w-8 text-right mr-4 text-gray-900">
