@@ -20,7 +20,7 @@
         :key="`${df.fieldname}-inline`"
       >
         <TwoColumnForm
-          class="overflow-auto"
+          class="overflow-auto custom-scroll"
           style="max-height: calc((var(--h-row-mid) + 1px) * 3 - 1px)"
           ref="inlineEditForm"
           :doc="inlineEditDoc"

@@ -10,7 +10,7 @@
     <div
       ref="popover"
       :class="popoverClass"
-      class="bg-white rounded border shadow-md popover-container relative z-10"
+      class="bg-white rounded border shadow-lg popover-container relative z-10"
       v-show="isOpen"
     >
       <slot name="content" :togglePopover="togglePopover"></slot>
@@ -79,6 +79,7 @@ export default {
       if (!this.popper) {
         this.popper = createPopper(this.$refs.reference, this.$refs.popover, {
           placement: this.placement,
+          modifiers: [{ name: 'offset', options: { offset: [0, 8] } }],
         });
       } else {
         this.popper.update();

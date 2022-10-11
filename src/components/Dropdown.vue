@@ -15,8 +15,8 @@
       </div>
     </template>
     <template #content>
-      <div class="bg-white rounded w-full min-w-40">
-        <div class="p-1 max-h-64 overflow-auto text-sm">
+      <div class="bg-white rounded w-full min-w-40 overflow-hidden">
+        <div class="p-1 max-h-64 overflow-auto custom-scroll text-sm">
           <div v-if="isLoading" class="p-2 text-gray-600 italic">
             {{ t`Loading...` }}
           </div>

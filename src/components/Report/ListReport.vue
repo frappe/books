@@ -21,6 +21,7 @@
             flex-shrink-0
             overflow-x-auto
             whitespace-nowrap
+            no-scrollbar
           "
         >
           {{ col.label }}
@@ -58,6 +59,7 @@
                 flex-shrink-0
                 overflow-x-auto
                 whitespace-nowrap
+                no-scrollbar
               "
             >
               {{ cell.value }}
@@ -73,7 +75,6 @@
 
     <!-- Pagination Footer -->
     <div class="mt-auto flex-shrink-0" v-if="report.usePagination">
-      <hr />
       <Paginator
         :item-count="report?.reportData?.length ?? 0"
         class="px-4"

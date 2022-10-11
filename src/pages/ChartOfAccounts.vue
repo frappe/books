@@ -3,7 +3,7 @@
     <PageHeader :title="t`Chart of Accounts`" />
 
     <!-- Chart of Accounts -->
-    <div class="flex-1 flex flex-col overflow-y-auto mb-4" v-if="root">
+    <div class="flex-1 flex flex-col overflow-y-auto mb-4 custom-scroll" v-if="root">
       <!-- Chart of Accounts Indented List -->
       <template v-for="account in allAccounts" :key="account.name">
         <!-- Account List Item -->
@@ -135,11 +135,11 @@
   </div>
 </template>
 <script>
-import { fyo } from 'src/initFyo';
 import { t } from 'fyo';
 import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader';
+import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, openQuickEdit } from 'src/utils/ui';
 import { nextTick } from 'vue';
