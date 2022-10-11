@@ -3,36 +3,55 @@
     class="bg-white border h-full"
     :style="{ 'font-family': printObject.font }"
   >
-    <div class="flex items-center justify-between px-12 py-10 border-b">
-      <div class="flex items-center">
-        <div class="flex items-center rounded h-16">
-          <div class="mr-4" v-if="printObject.displayLogo">
-            <img class="h-12 max-w-32 object-contain" :src="printObject.logo" />
+    <div class="flex flex-col w-full px-12 py-10 border-b">
+      <h2
+        v-if="printObject.displayTaxInvoice"
+        class="
+          font-semibold
+          text-gray-800 text-sm
+          tracking-widest
+          uppercase
+          mb-4
+        "
+      >
+        {{ t`Tax Invoice` }}
+      </h2>
+      <div class="flex items-center justify-between w-full">
+        <div class="flex items-center">
+          <div class="flex items-center rounded h-16">
+            <div class="mr-4" v-if="printObject.displayLogo">
+              <img
+                class="h-12 max-w-32 object-contain"
+                :src="printObject.logo"
+              />
+            </div>
+          </div>
+          <div>
+            <div
+              class="font-semibold text-xl"
+              :style="{ color: printObject.color }"
+            >
+              {{ printObject.companyName }}
+            </div>
+            <div>
+              {{ printObject.date }}
+            </div>
           </div>
         </div>
-        <div>
+        <div class="text-right">
           <div
             class="font-semibold text-xl"
             :style="{ color: printObject.color }"
           >
-            {{ printObject.companyName }}
+            {{
+              printObject.isSalesInvoice
+                ? t`Sales Invoice`
+                : t`Purchase Invoice`
+            }}
           </div>
           <div>
-            {{ printObject.date }}
+            {{ printObject.invoiceName }}
           </div>
-        </div>
-      </div>
-      <div class="text-right">
-        <div
-          class="font-semibold text-xl"
-          :style="{ color: printObject.color }"
-        >
-          {{
-            printObject.isSalesInvoice ? t`Sales Invoice` : t`Purchase Invoice`
-          }}
-        </div>
-        <div>
-          {{ printObject.invoiceName }}
         </div>
       </div>
     </div>
