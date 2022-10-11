@@ -82,6 +82,7 @@ export default {
         color: this.printSettings.color,
         showHSN: this.showHSN,
         displayLogo: this.printSettings.displayLogo,
+        displayTaxInvoice: this.printSettings.displayTaxInvoice,
         discountAfterTax: this.doc.discountAfterTax,
         logo: this.printSettings.logo,
         companyName: this.fyo.singles.AccountingSettings.companyName,

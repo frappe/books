@@ -5,6 +5,12 @@
   >
     <div>
       <div class="px-6 pt-6">
+        <h2
+          v-if="printObject.displayTaxInvoice"
+          class="font-semibold text-black text-2xl mb-4"
+        >
+          {{ t`Tax Invoice` }}
+        </h2>
         <div class="flex text-sm text-gray-900 border-b pb-4">
           <div class="w-1/3">
             <div v-if="printObject.displayLogo">

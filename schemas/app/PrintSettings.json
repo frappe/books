@@ -25,6 +25,11 @@
       "fieldtype": "Check"
     },
     {
+      "fieldname": "displayTaxInvoice",
+      "label": "Display Tax Invoice",
+      "fieldtype": "Check"
+    },
+    {
       "fieldname": "phone",
       "label": "Phone",
       "fieldtype": "Data",
@@ -133,6 +138,7 @@
   "quickEditFields": [
     "logo",
     "displayLogo",
+    "displayTaxInvoice",
     "template",
     "color",
     "font",

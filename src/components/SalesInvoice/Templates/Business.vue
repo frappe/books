@@ -4,6 +4,12 @@
     :style="{ 'font-family': printObject.font }"
   >
     <div class="bg-gray-100 px-12 py-10">
+      <h2
+        v-if="printObject.displayTaxInvoice"
+        class="font-semibold text-gray-900 text-2xl mb-4"
+      >
+        {{ t`Tax Invoice` }}
+      </h2>
       <div class="flex items-center">
         <div class="flex items-center rounded h-16">
           <div class="mr-4" v-if="printObject.displayLogo">
