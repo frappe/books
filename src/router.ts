@@ -112,8 +112,14 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/settings',
     name: 'Settings',
-    component: Settings,
-    props: true,
+    components: {
+      default: Settings,
+      edit: QuickEditForm,
+    },
+    props: {
+      default: true,
+      edit: (route) => route.query,
+    },
   },
 ];
 
