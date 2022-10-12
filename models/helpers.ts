@@ -8,6 +8,10 @@ import {
   AccountRootType,
   AccountRootTypeEnum
 } from './baseModels/Account/types';
+import {
+  Defaults,
+  numberSeriesDefaultsMap
+} from './baseModels/Defaults/Defaults';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
 export function getInvoiceActions(
@@ -249,4 +253,16 @@ export function isCredit(rootType: AccountRootType) {
     default:
       return true;
   }
+}
+
+export function getNumberSeries(schemaName: string, fyo: Fyo) {
+  const numberSeriesKey = numberSeriesDefaultsMap[schemaName];
+  if (!numberSeriesKey) {
+    return undefined;
+  }
+
+  const defaults = fyo.singles.Defaults as Defaults | undefined;
+  const field = fyo.getField(schemaName, 'numberSeries');
+  const value = defaults?.[numberSeriesKey] as string | undefined;
+  return value ?? (field?.default as string | undefined);
 }

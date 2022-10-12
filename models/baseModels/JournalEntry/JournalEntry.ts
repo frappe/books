@@ -4,14 +4,15 @@ import {
   Action,
   DefaultMap,
   FiltersMap,
-  ListViewSettings,
+  ListViewSettings
 } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import {
   getDocStatus,
   getLedgerLinkAction,
+  getNumberSeries,
   getStatusMap,
-  statusColor,
+  statusColor
 } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { Money } from 'pesa';
@@ -39,6 +40,7 @@ export class JournalEntry extends Transactional {
   }
 
   static defaults: DefaultMap = {
+    numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
     date: () => DateTime.local().toISODate(),
   };
 

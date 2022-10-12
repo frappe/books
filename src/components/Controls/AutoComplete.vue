@@ -82,7 +82,7 @@ export default {
     value: {
       immediate: true,
       handler(newValue) {
-        this.linkValue = this.getLabel(newValue);
+        this.linkValue = this.getLinkValue(newValue);
       },
     },
   },
@@ -90,7 +90,7 @@ export default {
     doc: { default: null },
   },
   mounted() {
-    this.linkValue = this.getLabel(this.linkValue || this.value);
+    this.linkValue = this.getLinkValue(this.linkValue || this.value);
   },
   computed: {
     options() {
@@ -102,7 +102,7 @@ export default {
     },
   },
   methods: {
-    getLabel(value) {
+    getLinkValue(value) {
       const oldValue = this.linkValue;
       let option = this.options.find((o) => o.value === value);
       if (option === undefined) {
@@ -110,14 +110,6 @@ export default {
       }
 
       return option?.label ?? oldValue;
-    },
-    getValue(label) {
-      let option = this.options.find((o) => o.label === label);
-      if (option === undefined) {
-        option = this.options.find((o) => o.value === label);
-      }
-
-      return option?.value ?? label;
     },
     async updateSuggestions(keyword) {
       if (typeof keyword === 'string') {
@@ -156,6 +148,11 @@ export default {
         .map(({ item }) => item);
     },
     setSuggestion(suggestion) {
+      if (suggestion?.actionOnly) {
+        this.linkValue = this.value;
+        return;
+      }
+
       if (suggestion) {
         this.linkValue = suggestion.label;
         this.triggerChange(suggestion.value);
