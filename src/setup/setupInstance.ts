@@ -9,6 +9,7 @@ import {
 } from 'fyo/utils/consts';
 import { AccountRootTypeEnum } from 'models/baseModels/Account/types';
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
+import { numberSeriesDefaultsMap } from 'models/baseModels/Defaults/Defaults';
 import { ModelNameEnum } from 'models/types';
 import { initializeInstance, setCurrencySymbols } from 'src/initFyo';
 import { createRegionalRecords } from 'src/regional';
@@ -321,16 +322,10 @@ async function createDefaultNumberSeries(fyo: Fyo) {
     );
 
     const defaultKey = numberSeriesDefaultsMap[schemaName];
-    if (!defaultKey) {
+    if (!defaultKey || fyo.singles.Defaults?.[defaultKey]) {
       continue;
     }
-    await fyo.doc.singles.Defaults?.setAndSync(defaultKey, defaultValue);
+
+    await fyo.singles.Defaults?.setAndSync(defaultKey as string, defaultValue);
   }
 }
-
-const numberSeriesDefaultsMap: Record<string, string | undefined> = {
-  [ModelNameEnum.SalesInvoice]: 'salesInvoiceNumberSeries',
-  [ModelNameEnum.PurchaseInvoice]: 'purchaseInvoiceNumberSeries',
-  [ModelNameEnum.JournalEntry]: 'journalEntryNumberSeries',
-  [ModelNameEnum.Payment]: 'paymentNumberSeries',
-};
