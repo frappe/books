@@ -37,11 +37,7 @@
 
     <!-- Data Rows -->
     <div class="overflow-y-auto custom-scroll" v-if="dataSlice.length !== 0">
-      <div
-        v-for="(doc, i) in dataSlice"
-        :key="doc.name"
-        style="min-width: calc(var(--w-desk) - var(--w-scrollbar))"
-      >
+      <div v-for="(doc, i) in dataSlice" :key="doc.name">
         <!-- Row Content -->
         <div class="flex hover:bg-gray-50 items-center">
           <p class="w-8 text-right mr-4 text-gray-900">
