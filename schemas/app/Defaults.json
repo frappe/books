@@ -1,0 +1,48 @@
+{
+  "name": "Defaults",
+  "label": "Defaults",
+  "isSingle": true,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "salesInvoiceNumberSeries",
+      "label": "Sales Invoice Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true
+    },
+    {
+      "fieldname": "purchaseInvoiceNumberSeries",
+      "label": "Purchase Invoice Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true
+    },
+    {
+      "fieldname": "journalEntryNumberSeries",
+      "label": "Journal Entry Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true
+    },
+    {
+      "fieldname": "paymentNumberSeries",
+      "label": "Payment Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true
+    },
+    {
+      "fieldname": "salesInvoiceTerms",
+      "label": "Sales Invoice Terms",
+      "fieldtype": "Text",
+      "target": "NumberSeries"
+    },
+    {
+      "fieldname": "purchaseInvoiceTerms",
+      "label": "Purchase Invoice Terms",
+      "fieldtype": "Text",
+      "target": "NumberSeries"
+    }
+  ]
+}

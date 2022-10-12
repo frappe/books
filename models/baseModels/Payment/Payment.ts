@@ -16,6 +16,7 @@ import { ValidationError } from 'fyo/utils/errors';
 import {
   getDocStatus,
   getLedgerLinkAction,
+  getNumberSeries,
   getStatusMap,
   statusColor
 } from 'models/helpers';
@@ -361,7 +362,10 @@ export class Payment extends Transactional {
     await partyDoc.updateOutstandingAmount();
   }
 
-  static defaults: DefaultMap = { date: () => new Date().toISOString() };
+  static defaults: DefaultMap = {
+    numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
+    date: () => new Date().toISOString(),
+  };
 
   async _getAccountsMap(): Promise<AccountTypeMap> {
     if (this._accountsMap) {

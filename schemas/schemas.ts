@@ -1,17 +1,18 @@
 import Account from './app/Account.json';
 import AccountingLedgerEntry from './app/AccountingLedgerEntry.json';
 import AccountingSettings from './app/AccountingSettings.json';
-import Misc from './app/Misc.json';
 import Address from './app/Address.json';
 import Color from './app/Color.json';
 import CompanySettings from './app/CompanySettings.json';
 import Currency from './app/Currency.json';
+import Defaults from './app/Defaults.json';
 import GetStarted from './app/GetStarted.json';
 import Invoice from './app/Invoice.json';
 import InvoiceItem from './app/InvoiceItem.json';
 import Item from './app/Item.json';
 import JournalEntry from './app/JournalEntry.json';
 import JournalEntryAccount from './app/JournalEntryAccount.json';
+import Misc from './app/Misc.json';
 import NumberSeries from './app/NumberSeries.json';
 import Party from './app/Party.json';
 import Payment from './app/Payment.json';
@@ -55,6 +56,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
 
   Color as Schema,
   Currency as Schema,
+  Defaults as Schema,
   NumberSeries as Schema,
 
   PrintSettings as Schema,
