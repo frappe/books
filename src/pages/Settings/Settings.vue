@@ -2,27 +2,33 @@
   <FormContainer :title="t`Settings`" :searchborder="false">
     <template #body>
       <!-- Icon Tab Bar -->
-      <div class="flex justify-around mb-2 mt-4">
-        <div
+      <div class="flex m-4 mb-0 gap-8">
+        <button
           v-for="(tab, i) in tabs"
           :key="tab.label"
           class="
-            p-2
-            rounded-md
             hover:bg-white
             flex flex-col
             items-center
             justify-center
             cursor-pointer
+            text-sm
           "
-          :class="i === activeTab && 'text-blue-500'"
+          :class="
+            i === activeTab &&
+            'text-blue-500 font-semibold border-b-2 border-blue-500'
+          "
+          :style="{
+            paddingBottom: i === activeTab ? 'calc(1rem - 2px)' : '1rem',
+          }"
           @click="activeTab = i"
         >
-          <component :is="getIconComponent(tab)" :active="i === activeTab" />
-          <div class="mt-2 text-xs">{{ tab.label }}</div>
-        </div>
+          {{ tab.label }}
+        </button>
       </div>
-      <div class="flex-1 overflow-y-auto">
+
+      <!-- Component -->
+      <div class="flex-1 overflow-y-auto custom-scroll">
         <component :is="activeTabComponent" @change="handleChange" />
       </div>
     </template>
@@ -63,19 +69,16 @@ export default {
         {
           key: 'Invoice',
           label: t`Invoice`,
-          icon: 'invoice',
           component: markRaw(TabInvoice),
         },
         {
           key: 'General',
           label: t`General`,
-          icon: 'general',
           component: markRaw(TabGeneral),
         },
         {
           key: 'System',
           label: t`System`,
-          icon: 'system',
           component: markRaw(TabSystem),
         },
       ],
