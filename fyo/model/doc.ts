@@ -284,7 +284,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       const defaultFunction =
         this.fyo.models[this.schemaName]?.defaults?.[field.fieldname];
       if (defaultFunction !== undefined) {
-        defaultValue = defaultFunction();
+        defaultValue = defaultFunction(this);
       } else if (field.default !== undefined) {
         defaultValue = field.default;
       }

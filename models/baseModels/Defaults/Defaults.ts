@@ -39,3 +39,13 @@ export class Defaults extends Doc {
     }),
   };
 }
+
+export const numberSeriesDefaultsMap: Record<
+  string,
+  keyof Defaults | undefined
+> = {
+  [ModelNameEnum.SalesInvoice]: 'salesInvoiceNumberSeries',
+  [ModelNameEnum.PurchaseInvoice]: 'purchaseInvoiceNumberSeries',
+  [ModelNameEnum.JournalEntry]: 'journalEntryNumberSeries',
+  [ModelNameEnum.Payment]: 'paymentNumberSeries',
+};

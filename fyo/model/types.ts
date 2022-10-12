@@ -20,7 +20,7 @@ import { Doc } from './doc';
 export type FormulaReturn = DocValue | DocValueMap[] | undefined | Doc[];
 export type Formula = (fieldname?: string) => Promise<FormulaReturn> | FormulaReturn;
 export type FormulaConfig = { dependsOn?: string[]; formula: Formula };
-export type Default = () => DocValue;
+export type Default = (doc: Doc) => DocValue;
 export type Validation = (value: DocValue) => Promise<void> | void;
 export type Required = () => boolean;
 export type Hidden = () => boolean;

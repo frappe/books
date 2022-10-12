@@ -2,20 +2,20 @@ import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
-  CurrenciesMap,
-  DefaultMap,
+  CurrenciesMap, DefaultMap,
   FiltersMap,
   FormulaMap,
   HiddenMap
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
-import { getExchangeRate } from 'models/helpers';
+import { getExchangeRate, getNumberSeries } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
+import { Defaults } from '../Defaults/Defaults';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
@@ -363,6 +363,15 @@ export abstract class Invoice extends Transactional {
   };
 
   static defaults: DefaultMap = {
+    numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
+    terms: (doc) => {
+      const defaults = doc.fyo.singles.Defaults as Defaults | undefined;
+      if (doc.schemaName === ModelNameEnum.SalesInvoice) {
+        return defaults?.salesInvoiceTerms ?? '';
+      }
+
+      return defaults?.purchaseInvoiceTerms ?? '';
+    },
     date: () => new Date().toISOString().slice(0, 10),
   };
 

@@ -33,11 +33,11 @@
       "options": [
         {
           "value": "SalesInvoice",
-          "label": "Invoice"
+          "label": "Sales Invoice"
         },
         {
           "value": "PurchaseInvoice",
-          "label": "Bill"
+          "label": "Purchase Invoice"
         },
         {
           "value": "Payment",
