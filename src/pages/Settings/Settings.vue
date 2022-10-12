@@ -47,6 +47,7 @@ import { docsPathMap } from 'src/utils/misc';
 import { docsPath, showToast } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h, markRaw } from 'vue';
+import TabDefaults from './TabDefaults.vue';
 import TabGeneral from './TabGeneral.vue';
 import TabInvoice from './TabInvoice.vue';
 import TabSystem from './TabSystem.vue';
@@ -75,6 +76,11 @@ export default {
           key: 'General',
           label: t`General`,
           component: markRaw(TabGeneral),
+        },
+        {
+          key: 'Defaults',
+          label: t`Defaults`,
+          component: markRaw(TabDefaults),
         },
         {
           key: 'System',

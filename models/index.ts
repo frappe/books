@@ -3,6 +3,7 @@ import { Account } from './baseModels/Account/Account';
 import { AccountingLedgerEntry } from './baseModels/AccountingLedgerEntry/AccountingLedgerEntry';
 import { AccountingSettings } from './baseModels/AccountingSettings/AccountingSettings';
 import { Address } from './baseModels/Address/Address';
+import { Defaults } from './baseModels/Defaults/Defaults';
 import { Item } from './baseModels/Item/Item';
 import { JournalEntry } from './baseModels/JournalEntry/JournalEntry';
 import { JournalEntryAccount } from './baseModels/JournalEntryAccount/JournalEntryAccount';
@@ -22,6 +23,7 @@ export const models = {
   AccountingLedgerEntry,
   AccountingSettings,
   Address,
+  Defaults,
   Item,
   JournalEntry,
   JournalEntryAccount,

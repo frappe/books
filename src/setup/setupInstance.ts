@@ -301,8 +301,36 @@ async function getBankAccountParentName(country: string, fyo: Fyo) {
 }
 
 async function createDefaultNumberSeries(fyo: Fyo) {
-  await createNumberSeries('SINV-', 'SalesInvoice', DEFAULT_SERIES_START, fyo);
-  await createNumberSeries('PINV-', 'PurchaseInvoice', DEFAULT_SERIES_START, fyo);
-  await createNumberSeries('PAY-', 'Payment', DEFAULT_SERIES_START, fyo);
-  await createNumberSeries('JV-', 'JournalEntry', DEFAULT_SERIES_START, fyo);
+  const numberSeriesFields = Object.values(fyo.schemaMap)
+    .map((f) => f?.fields)
+    .flat()
+    .filter((f) => f?.fieldname === 'numberSeries');
+
+  for (const field of numberSeriesFields) {
+    const defaultValue = field?.default as string | undefined;
+    const schemaName = field?.schemaName;
+    if (!defaultValue || !schemaName) {
+      continue;
+    }
+
+    await createNumberSeries(
+      defaultValue,
+      schemaName,
+      DEFAULT_SERIES_START,
+      fyo
+    );
+
+    const defaultKey = numberSeriesDefaultsMap[schemaName];
+    if (!defaultKey) {
+      continue;
+    }
+    await fyo.doc.singles.Defaults?.setAndSync(defaultKey, defaultValue);
+  }
 }
+
+const numberSeriesDefaultsMap: Record<string, string | undefined> = {
+  [ModelNameEnum.SalesInvoice]: 'salesInvoiceNumberSeries',
+  [ModelNameEnum.PurchaseInvoice]: 'purchaseInvoiceNumberSeries',
+  [ModelNameEnum.JournalEntry]: 'journalEntryNumberSeries',
+  [ModelNameEnum.Payment]: 'paymentNumberSeries',
+};

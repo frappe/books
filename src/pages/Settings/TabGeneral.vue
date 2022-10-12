@@ -1,31 +1,12 @@
-<template>
-  <div>
-    <TwoColumnForm
-      v-if="doc"
-      :doc="doc"
-      :fields="fields"
-      :autosave="true"
-      :emit-change="true"
-      @change="forwardChangeEvent"
-    />
-  </div>
-</template>
-
-<script>
-import TwoColumnForm from 'src/components/TwoColumnForm';
+<script lang="ts">
+import { Field } from 'schemas/types';
 import { fyo } from 'src/initFyo';
+import { defineComponent } from 'vue';
+import TabBase from './TabBase.vue';
 
-export default {
+export default defineComponent({
+  extends: TabBase,
   name: 'TabGeneral',
-  emits: ['change'],
-  components: {
-    TwoColumnForm,
-  },
-  data() {
-    return {
-      doc: null,
-    };
-  },
   async mounted() {
     this.doc = await fyo.doc.getDoc(
       'AccountingSettings',
@@ -49,27 +30,22 @@ export default {
         'roundOffAccount',
       ];
 
-      if (!this.doc.enableDiscounting) {
+      if (!this.doc?.enableDiscounting) {
         fields.push('enableDiscounting');
       }
 
-      if (this.doc.enableDiscounting) {
+      if (this.doc?.enableDiscounting) {
         fields.push('discountAccount');
       }
 
-      if (fyo.singles.SystemSettings.countryCode === 'in') {
+      if (fyo.singles.SystemSettings?.countryCode === 'in') {
         fields.push('gstin');
       }
 
-      return fields.map((fieldname) =>
-        fyo.getField('AccountingSettings', fieldname)
-      );
+      return fields
+        .map((fieldname) => fyo.getField('AccountingSettings', fieldname))
+        .filter(Boolean) as Field[];
     },
   },
-  methods: {
-    forwardChangeEvent(...args) {
-      this.$emit('change', ...args);
-    },
-  },
-};
+});
 </script>

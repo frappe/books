@@ -42,6 +42,7 @@ export async function initializeInstance(
 async function setSingles(fyo: Fyo) {
   await fyo.doc.getDoc(ModelNameEnum.AccountingSettings);
   await fyo.doc.getDoc(ModelNameEnum.GetStarted);
+  await fyo.doc.getDoc(ModelNameEnum.Defaults);
   await fyo.doc.getDoc(ModelNameEnum.Misc);
 }
 
