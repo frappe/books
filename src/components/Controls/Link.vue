@@ -17,10 +17,6 @@ export default {
     if (this.value) {
       this.linkValue = this.value;
     }
-
-    if (this.df.fieldname === 'incomeAccount') {
-      window.l = this;
-    }
   },
   watch: {
     value: {
@@ -89,6 +85,7 @@ export default {
                 '<span class="text-gray-600">{{ t`No results found` }}</span>',
             }),
             action: () => {},
+            actionOnly: true,
           },
         ];
       }
@@ -98,8 +95,8 @@ export default {
     getCreateNewOption() {
       return {
         label: t`Create`,
-        value: 'Create',
         action: () => this.openNewDoc(),
+        actionOnly: true,
         component: markRaw({
           template:
             '<div class="flex items-center font-semibold">{{ t`Create` }}' +
