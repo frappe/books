@@ -7,7 +7,7 @@ import { Money } from 'pesa';
 import { Field, FieldTypeEnum, RawValue, TargetField } from 'schemas/types';
 import { getIsNullOrUndef } from 'utils';
 import { DatabaseHandler } from './dbHandler';
-import { DocValue, DocValueMap, RawValueMap } from './types';
+import { Attachment, DocValue, DocValueMap, RawValueMap } from './types';
 
 /**
  * # Converter
@@ -71,6 +71,8 @@ export class Converter {
         return toDocFloat(value, field);
       case FieldTypeEnum.Check:
         return toDocCheck(value, field);
+      case FieldTypeEnum.Attachment:
+        return toDocAttachment(value, field);
       default:
         return toDocString(value, field);
     }
@@ -92,6 +94,8 @@ export class Converter {
         return toRawCheck(value, field);
       case FieldTypeEnum.Link:
         return toRawLink(value, field);
+      case FieldTypeEnum.Attachment:
+        return toRawAttachment(value, field);
       default:
         return toRawString(value, field);
     }
@@ -273,6 +277,24 @@ function toDocCheck(value: RawValue, field: Field): boolean {
   throwError(value, field, 'doc');
 }
 
+function toDocAttachment(value: RawValue, field: Field): null | Attachment {
+  if (!value) {
+    return null;
+  }
+
+  if (typeof value !== 'string') {
+    console.log('being thrown doc1', typeof value, value);
+    throwError(value, field, 'doc');
+  }
+
+  try {
+    return JSON.parse(value) || null;
+  } catch {
+    console.log('being thrown doc2', typeof value, value);
+    throwError(value, field, 'doc');
+  }
+}
+
 function toRawCurrency(value: DocValue, fyo: Fyo, field: Field): string {
   if (isPesa(value)) {
     return (value as Money).store;
@@ -391,6 +413,23 @@ function toRawLink(value: DocValue, field: Field): string | null {
     return value;
   }
 
+  throwError(value, field, 'raw');
+}
+
+function toRawAttachment(value: DocValue, field: Field): null | string {
+  if (!value) {
+    return null;
+  }
+
+  if (
+    (value as Attachment)?.name &&
+    (value as Attachment)?.data &&
+    (value as Attachment)?.type
+  ) {
+    return JSON.stringify(value);
+  }
+
+  console.log('being thrown raw', typeof value, value);
   throwError(value, field, 'raw');
 }
 

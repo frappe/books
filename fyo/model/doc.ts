@@ -1,6 +1,6 @@
 import { Fyo } from 'fyo';
 import { Converter } from 'fyo/core/converter';
-import { DocValue, DocValueMap } from 'fyo/core/types';
+import { DocValue, DocValueMap, RawValueMap } from 'fyo/core/types';
 import { Verb } from 'fyo/telemetry/types';
 import { DEFAULT_USER } from 'fyo/utils/consts';
 import { ConflictError, MandatoryError, NotFoundError } from 'fyo/utils/errors';
@@ -66,7 +66,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
   _notInserted: boolean = true;
 
   _syncing = false;
-  constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
+  constructor(
+    schema: Schema,
+    data: DocValueMap,
+    fyo: Fyo,
+    convertToDocValue: boolean = true
+  ) {
     super();
     this.fyo = markRaw(fyo);
     this.schema = schema;
@@ -77,7 +82,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     this._setDefaults();
-    this._setValuesWithoutChecks(data);
+    this._setValuesWithoutChecks(data, convertToDocValue);
   }
 
   get schemaName(): string {
@@ -152,7 +157,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return false;
   }
 
-  _setValuesWithoutChecks(data: DocValueMap) {
+  _setValuesWithoutChecks(data: DocValueMap, convertToDocValue: boolean) {
     for (const field of this.schema.fields) {
       const fieldname = field.fieldname;
       const value = data[field.fieldname];
@@ -161,6 +166,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
         for (const row of value) {
           this.push(fieldname, row);
         }
+      } else if (value !== undefined && !convertToDocValue) {
+        this[fieldname] = value;
       } else if (value !== undefined) {
         this[fieldname] = Converter.toDocValue(
           value as RawValue,
@@ -362,6 +369,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
     const childDoc = this.fyo.doc.getNewDoc(
       childSchemaName,
       docValueMap,
+      false,
+      undefined,
+      undefined,
       false
     );
     childDoc.parentdoc = this;
@@ -578,7 +588,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   async _syncValues(data: DocValueMap) {
     this._clearValues();
-    this._setValuesWithoutChecks(data);
+    this._setValuesWithoutChecks(data, false);
     await this._setComputedValuesFromFormulas();
     this._dirty = false;
     this.trigger('change', {
@@ -911,7 +921,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
       updateMap.name = updateMap.name + ' CPY';
     }
 
-    return this.fyo.doc.getNewDoc(this.schemaName, updateMap);
+    const rawUpdateMap = this.fyo.db.converter.toRawValueMap(
+      this.schemaName,
+      updateMap
+    ) as RawValueMap;
+
+    return this.fyo.doc.getNewDoc(this.schemaName, rawUpdateMap, true);
   }
 
   /**

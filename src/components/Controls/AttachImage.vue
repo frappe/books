@@ -61,6 +61,7 @@
 <script>
 import { ipcRenderer } from 'electron';
 import { fyo } from 'src/initFyo';
+import { getDataURL } from 'src/utils/misc';
 import { IPC_ACTIONS } from 'utils/messages';
 import Base from './Base';
 
@@ -96,21 +97,10 @@ export default {
         return;
       }
 
-      const dataURL = await this.getDataURL(name, data);
-      this.triggerChange(dataURL);
-    },
-    getDataURL(name, data) {
       const extension = name.split('.').at(-1);
-      const blob = new Blob([data], { type: 'image/' + extension });
-
-      return new Promise((resolve) => {
-        const fr = new FileReader();
-        fr.addEventListener('loadend', () => {
-          resolve(fr.result);
-        });
-
-        fr.readAsDataURL(blob);
-      });
+      const type = 'image/' + extension;
+      const dataURL = await getDataURL(type, data);
+      this.triggerChange(dataURL);
     },
   },
 };
