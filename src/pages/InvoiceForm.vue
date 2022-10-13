@@ -104,6 +104,14 @@
             @change="(value) => doc.set('account', value)"
             :read-only="doc?.submitted"
           />
+          <FormControl
+            v-if="doc.attachment || !(doc.isSubmitted || doc.isCancelled)"
+            :border="true"
+            :df="getField('attachment')"
+            :value="doc.attachment"
+            @change="(value) => doc.set('attachment', value)"
+            :read-only="doc?.submitted"
+          />
         </div>
         <hr />
 
