@@ -29,7 +29,7 @@ describe('Schema Builder', function () {
 
     specify('Field Counts', function () {
       assert.strictEqual(appSchemaMap.Account.fields?.length, 6);
-      assert.strictEqual(appSchemaMap.JournalEntry.fields?.length, 8);
+      assert.strictEqual(appSchemaMap.JournalEntry.fields?.length, 9);
       assert.strictEqual(appSchemaMap.JournalEntryAccount.fields?.length, 3);
       assert.strictEqual(appSchemaMap.Party.fields?.length, 9);
       assert.strictEqual(appSchemaMap.Customer.fields?.length, undefined);
