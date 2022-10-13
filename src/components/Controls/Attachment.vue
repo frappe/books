@@ -61,6 +61,7 @@ export default defineComponent({
       (this.$refs.fileInput as HTMLInputElement).click();
     },
     clear() {
+      (this.$refs.fileInput as HTMLInputElement).value = '';
       // @ts-ignore
       this.triggerChange(null);
     },
