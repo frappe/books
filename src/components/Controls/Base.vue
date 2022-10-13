@@ -72,46 +72,66 @@ export default {
        * These classes will be used by components that extend Base
        */
 
-      const classes = [
+      const classes = [];
+
+      classes.push(this.baseInputClasses);
+      if (this.textRight ?? isNumeric(this.df)) {
+        classes.push('text-right');
+      }
+
+      classes.push(this.sizeClasses);
+      classes.push(this.inputReadOnlyClasses);
+
+      return this.getInputClassesFromProp(classes).filter(Boolean);
+    },
+    baseInputClasses() {
+      return [
         'text-base',
         'focus:outline-none',
         'w-full',
         'placeholder-gray-500',
       ];
-
-      if (this.textRight ?? isNumeric(this.df)) {
-        classes.push('text-right');
-      }
-
+    },
+    sizeClasses() {
       if (this.size === 'small') {
-        classes.push('px-2 py-1');
-      } else {
-        classes.push('px-3 py-2');
+        return 'px-2 py-1';
       }
-
+      return 'px-3 py-2';
+    },
+    inputReadOnlyClasses() {
       if (this.isReadOnly) {
-        classes.push('text-gray-800 cursor-default');
-      } else {
-        classes.push('text-gray-900');
+        return 'text-gray-800 cursor-default';
       }
 
-      return this.getInputClassesFromProp(classes);
+      return 'text-gray-900';
     },
     containerClasses() {
       /**
        * Used to accomodate extending compoents where the input is contained in
        * a div eg AutoComplete
        */
-      const classes = ['rounded'];
+      const classes = [];
+      classes.push(this.baseContainerClasses);
+      classes.push(this.containerReadOnlyClasses);
+      classes.push(this.borderClasses);
+      return classes.filter(Boolean);
+    },
+    baseContainerClasses() {
+      return ['rounded'];
+    },
+    containerReadOnlyClasses() {
       if (!this.isReadOnly) {
-        classes.push('focus-within:bg-gray-100');
+        return 'focus-within:bg-gray-100';
       }
 
+      return '';
+    },
+    borderClasses() {
       if (this.border) {
-        classes.push('bg-gray-50 border border-gray-200');
+        return 'bg-gray-50 border border-gray-200';
       }
 
-      return classes;
+      return '';
     },
     inputPlaceholder() {
       return this.placeholder || this.df.placeholder || this.df.label;

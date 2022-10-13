@@ -21,8 +21,7 @@ export const sqliteTypeMap: Record<string, KnexColumnType> = {
   DynamicLink: 'text',
   Password: 'text',
   Select: 'text',
-  File: 'binary',
-  Attach: 'text',
+  Attachment: 'text',
   AttachImage: 'text',
   Color: 'text',
 };

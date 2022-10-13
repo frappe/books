@@ -77,7 +77,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     this._setDefaults();
-    this._setValuesWithoutChecks(data);
+    this._setValuesWithoutChecks(data, true);
   }
 
   get schemaName(): string {
@@ -152,7 +152,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return false;
   }
 
-  _setValuesWithoutChecks(data: DocValueMap) {
+  _setValuesWithoutChecks(data: DocValueMap, convertToDocValue: boolean) {
     for (const field of this.schema.fields) {
       const fieldname = field.fieldname;
       const value = data[field.fieldname];
@@ -161,6 +161,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
         for (const row of value) {
           this.push(fieldname, row);
         }
+      } else if (value !== undefined && !convertToDocValue) {
+        this[fieldname] = value;
       } else if (value !== undefined) {
         this[fieldname] = Converter.toDocValue(
           value as RawValue,
@@ -578,7 +580,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   async _syncValues(data: DocValueMap) {
     this._clearValues();
-    this._setValuesWithoutChecks(data);
+    this._setValuesWithoutChecks(data, false);
     await this._setComputedValuesFromFormulas();
     this._dirty = false;
     this.trigger('change', {
