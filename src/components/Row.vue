@@ -34,7 +34,7 @@ export default {
       }
       if (this.ratio.length) {
         obj['grid-template-columns'] = this.ratio
-          .map((r) => `${r}fr`)
+          .map((r) => `minmax(0, ${r}fr)`)
           .join(' ');
       }
       if (this.gridTemplateColumns) {

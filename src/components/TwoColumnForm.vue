@@ -307,7 +307,7 @@ export default {
   computed: {
     style() {
       let templateColumns = (this.columnRatio || [1, 1])
-        .map((r) => `${r}fr`)
+        .map((r) => `minmax(0, ${r}fr)`)
         .join(' ');
       return {
         'grid-template-columns': templateColumns,
