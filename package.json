@@ -30,7 +30,7 @@
     "luxon": "^2.0.2",
     "node-fetch": "2",
     "pesa": "^1.1.12",
-    "vue": "^3.2.36",
+    "vue": "^3.2.40",
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
