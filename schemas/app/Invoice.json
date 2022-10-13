@@ -125,6 +125,12 @@
       "label": "Notes",
       "placeholder": "Add invoice terms",
       "fieldtype": "Text"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment"
     }
   ],
   "keywordFields": ["name", "party"]

@@ -1,6 +1,7 @@
 <script>
 import { h } from 'vue';
 import AttachImage from './AttachImage.vue';
+import Attachment from './Attachment.vue';
 import AutoComplete from './AutoComplete.vue';
 import Check from './Check.vue';
 import Color from './Color.vue';
@@ -28,6 +29,7 @@ const components = {
   DynamicLink,
   Int,
   Float,
+  Attachment,
   Currency,
   Text,
 };
