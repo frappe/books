@@ -1,6 +1,6 @@
 import { Fyo } from 'fyo';
 import { Converter } from 'fyo/core/converter';
-import { DocValue, DocValueMap } from 'fyo/core/types';
+import { DocValue, DocValueMap, RawValueMap } from 'fyo/core/types';
 import { Verb } from 'fyo/telemetry/types';
 import { DEFAULT_USER } from 'fyo/utils/consts';
 import { ConflictError, MandatoryError, NotFoundError } from 'fyo/utils/errors';
@@ -66,7 +66,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
   _notInserted: boolean = true;
 
   _syncing = false;
-  constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
+  constructor(
+    schema: Schema,
+    data: DocValueMap,
+    fyo: Fyo,
+    convertToDocValue: boolean = true
+  ) {
     super();
     this.fyo = markRaw(fyo);
     this.schema = schema;
@@ -77,7 +82,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     this._setDefaults();
-    this._setValuesWithoutChecks(data, true);
+    this._setValuesWithoutChecks(data, convertToDocValue);
   }
 
   get schemaName(): string {
@@ -364,6 +369,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
     const childDoc = this.fyo.doc.getNewDoc(
       childSchemaName,
       docValueMap,
+      false,
+      undefined,
+      undefined,
       false
     );
     childDoc.parentdoc = this;
@@ -913,7 +921,12 @@ export class Doc extends Observable<DocValue | Doc[]> {
       updateMap.name = updateMap.name + ' CPY';
     }
 
-    return this.fyo.doc.getNewDoc(this.schemaName, updateMap);
+    const rawUpdateMap = this.fyo.db.converter.toRawValueMap(
+      this.schemaName,
+      updateMap
+    ) as RawValueMap;
+
+    return this.fyo.doc.getNewDoc(this.schemaName, rawUpdateMap, true);
   }
 
   /**
