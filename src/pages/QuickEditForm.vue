@@ -76,6 +76,7 @@
 
     <!-- Rest of the form -->
     <TwoColumnForm
+      class="w-full"
       ref="form"
       v-if="doc"
       :doc="doc"

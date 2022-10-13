@@ -101,6 +101,12 @@
       "create": true,
       "required": true,
       "default": "JV-"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment"
     }
   ],
   "keywordFields": ["name", "entryType"]

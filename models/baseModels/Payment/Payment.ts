@@ -543,6 +543,9 @@ export class Payment extends Transactional {
     referenceId: () => this.paymentMethod === 'Cash',
     clearanceDate: () => this.paymentMethod === 'Cash',
     amountPaid: () => this.writeoff?.isZero() ?? true,
+    attachment: () =>
+      !(this.attachment || !(this.isSubmitted || this.isCancelled)),
+    for: () => !((this.isSubmitted || this.isCancelled) && this.for?.length),
   };
 
   static filters: FiltersMap = {

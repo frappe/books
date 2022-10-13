@@ -133,6 +133,12 @@
       "fieldtype": "Table",
       "target": "PaymentFor",
       "required": false
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment"
     }
   ],
   "quickEditFields": [
@@ -149,6 +155,7 @@
     "amount",
     "writeoff",
     "amountPaid",
+    "attachment",
     "for"
   ],
   "keywordFields": ["name", "party", "paymentType"]
