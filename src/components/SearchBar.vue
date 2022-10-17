@@ -11,7 +11,7 @@
   </div>
 
   <!-- Search Modal -->
-  <Modal :open-modal="openModal" @closemodal="close">
+  <Modal :open-modal="openModal" @closemodal="close" :set-close-listener="false">
     <!-- Search Input -->
     <div class="p-1">
       <input
