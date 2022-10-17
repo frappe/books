@@ -1,111 +1,280 @@
 <template>
-  <div id="exportWizard" class="modal-body">
-    <div class="ml-4 col-6 text-left">
-      <input
-        id="select-cbox"
-        @change="toggleSelect"
-        class="form-check-input"
-        type="checkbox"
-        v-model="selectAllFlag"
+  <div>
+    <!-- Export Wizard Header -->
+    <FormHeader :form-title="label" :form-sub-title="t`Export Wizard`" />
+    <hr />
+
+    <!-- Export Config -->
+    <div class="grid grid-cols-3 p-4 gap-4">
+      <Check
+        v-if="configFields.useListFilters"
+        :df="configFields.useListFilters"
+        :space-between="true"
+        :show-label="true"
+        :label-right="false"
+        :value="useListFilters"
+        :border="true"
+        @change="(value: boolean) => (useListFilters = value)"
+      />
+      <Select
+        v-if="configFields.exportFormat"
+        :df="configFields.exportFormat"
+        :value="exportFormat"
+        :border="true"
+        @change="(value: ExportFormat) => (exportFormat = value)"
+      />
+    </div>
+    <hr />
+
+    <!-- Fields Selection -->
+    <div>
+      <!-- Field Selection Header -->
+      <button
+        class="flex justify-between items-center text-gray-600 p-4 w-full"
+        @click="showFieldSelection = !showFieldSelection"
       >
-      <label class="form-check-label bold ml-2" for="select-cbox">{{ "Select/Clear All" }}</label>
-    </div>
-    <hr width="93%">
-    <div class="row ml-4 mb-4">
-      <div v-for="column in columns" :key="column.id" class="form-check mt-2 col-6">
-        <input :id="column.id" class="form-check-input" type="checkbox" v-model="column.checked">
-        <label class="form-check-label" :for="column.id">{{ column.content }}</label>
+        <p class="text-sm">
+          {{ t`${numSelected} fields selected` }}
+        </p>
+        <feather-icon
+          :name="showFieldSelection ? 'chevron-down' : 'chevron-up'"
+          class="w-4 h-4"
+        />
+      </button>
+
+      <!-- Field Selection Body -->
+      <hr v-if="showFieldSelection" />
+      <div
+        v-if="showFieldSelection"
+        class="max-h-96 overflow-auto custom-scroll"
+      >
+        <!-- Main Fields -->
+        <div class="p-4">
+          <h2 class="text-sm font-semibold text-gray-800">
+            {{ fyo.schemaMap[schemaName]?.label ?? schemaName }}
+          </h2>
+          <div class="grid grid-cols-3 border rounded-md mt-1">
+            <Check
+              v-for="ef of fields"
+              :label-class="
+                ef.fieldtype === 'Table'
+                  ? 'text-sm text-gray-600 font-semibold'
+                  : 'text-sm text-gray-600'
+              "
+              :key="ef.fieldname"
+              :df="getField(ef)"
+              :show-label="true"
+              :value="ef.export"
+              @change="(value: boolean) => setExportFieldValue(ef, value)"
+            />
+          </div>
+        </div>
+
+        <!-- Table Fields -->
+        <div
+          class="p-4"
+          v-for="efs of filteredTableFields"
+          :key="efs.fieldname"
+        >
+          <h2 class="text-sm font-semibold text-gray-800">
+            {{ fyo.schemaMap[efs.target]?.label ?? schemaName }}
+          </h2>
+          <div class="grid grid-cols-3 border rounded-md mt-1">
+            <Check
+              v-for="ef of efs.fields"
+              :key="ef.fieldname"
+              :df="getField(ef)"
+              :show-label="true"
+              :value="ef.export"
+              @change="(value: boolean) => setExportFieldValue(ef, value, efs.target)"
+            />
+          </div>
+        </div>
       </div>
     </div>
-    <div class="row footer-divider mb-3">
-      <div class="col-12" style="border-bottom:1px solid #e9ecef"></div>
-    </div>
-    <div class="row">
-      <div class="col-12 text-right">
-        <f-button primary @click="save">{{ 'Download CSV' }}</f-button>
-      </div>
+
+    <!-- Export Button -->
+    <hr />
+    <div class="p-4 flex justify-between items-center">
+      <p class="text-gray-600 text-sm">{{ t`${numEntries} entries` }}</p>
+      <Button type="primary" @click="exportData">{{ t`Export` }}</Button>
     </div>
   </div>
 </template>
-<script>
-import FileSaver from 'file-saver'
 
-export default {
-  props: ['title', 'rows', 'columnData'],
+<script lang="ts">
+import { t } from 'fyo';
+import { Field, FieldTypeEnum, TargetField } from 'schemas/types';
+import { fyo } from 'src/initFyo';
+import { defineComponent } from 'vue';
+import Button from './Button.vue';
+import Check from './Controls/Check.vue';
+import Select from './Controls/Select.vue';
+import FormHeader from './FormHeader.vue';
+
+interface ExportField {
+  fieldname: string;
+  fieldtype: FieldTypeEnum;
+  label: string;
+  export: boolean;
+}
+
+interface ExportTableField {
+  fieldname: string;
+  label: string;
+  target: string;
+  fields: ExportField[];
+}
+
+type ExportFormat = 'csv' | 'json';
+interface ExportWizardData {
+  numEntries: number;
+  useListFilters: boolean;
+  exportFormat: ExportFormat;
+  showFieldSelection: boolean;
+  fields: ExportField[];
+  tableFields: ExportTableField[];
+}
+
+const excludedFieldTypes = [
+  FieldTypeEnum.AttachImage,
+  FieldTypeEnum.Attachment,
+];
+
+export default defineComponent({
+  props: {
+    schemaName: { type: String, required: true },
+    pageTitle: String,
+  },
   data() {
+    const fields = fyo.schemaMap[this.schemaName]?.fields ?? [];
+    const exportFields = getExportFields(fields);
+    const exportTableFields = getExportTableFields(fields);
+
     return {
-      selectAllFlag: true,
-      columns: this.columnData
-    };
+      numEntries: 0,
+      useListFilters: true,
+      exportFormat: 'csv',
+      fields: exportFields,
+      tableFields: exportTableFields,
+      showFieldSelection: !false,
+    } as ExportWizardData;
   },
   methods: {
-    toggleSelect() {
-      this.columns = this.columns.map(column => {
-        return {
-          id: column.id,
-          content: column.content,
-          checked: this.selectAllFlag
-        };
+    getField(ef: ExportField): Field {
+      return {
+        fieldtype: 'Check',
+        label: ef.label,
+        fieldname: ef.fieldname,
+      };
+    },
+    getExportField(
+      fieldname: string,
+      target?: string
+    ): ExportField | undefined {
+      let fields: ExportField[] | undefined;
+
+      if (!target) {
+        fields = this.fields;
+      } else {
+        fields = this.tableFields.find((f) => f.target === target)?.fields;
+      }
+
+      if (!fields) {
+        return undefined;
+      }
+
+      return fields.find((f) => f.fieldname === fieldname);
+    },
+    setExportFieldValue(ef: ExportField, value: boolean, target?: string) {
+      const field = this.getExportField(ef.fieldname, target);
+      if (!field) {
+        return;
+      }
+
+      field.export = value;
+    },
+    exportData() {
+      console.log('export clicked');
+    },
+  },
+  computed: {
+    label() {
+      if (this.pageTitle) {
+        return this.pageTitle;
+      }
+
+      return fyo.schemaMap?.[this.schemaName]?.label ?? '';
+    },
+    filteredTableFields() {
+      return this.tableFields.filter((f) => {
+        const ef = this.getExportField(f.fieldname);
+        return !!ef?.export;
       });
     },
-    close() {
-      this.$modal.hide();
+    numSelected() {
+      return (
+        this.filteredTableFields.reduce(
+          (acc, f) => f.fields.filter((f) => f.export).length + acc,
+          0
+        ) +
+        this.fields.filter(
+          (f) => f.fieldtype !== FieldTypeEnum.Table && f.export
+        ).length
+      );
     },
-    checkNoneSelected(columns) {
-      for (let column of columns) {
-        if (column.checked) return false;
-      }
-      return true;
+    configFields() {
+      return {
+        useListFilters: {
+          fieldtype: 'Check',
+          label: t`Use List Filters`,
+          fieldname: 'useListFilters',
+        },
+        exportFormat: {
+          fieldtype: 'Select',
+          label: t`Export Format`,
+          fieldname: 'exportFormat',
+          options: [
+            { value: 'json', label: 'JSON' },
+            { value: 'csv', label: 'CSV' },
+          ],
+        },
+      };
     },
-    async save() {
-      if (this.checkNoneSelected(this.columns)) {
-        alert(
-          `No columns have been selected.\n` +
-            `Please select at least one column to perform export.`
-        );
-      } else {
-        let selectedColumnIds = this.columns.map(column => {
-          if (column.checked) return column.id;
-        });
-        let selectedColumns = this.columnData.filter(
-          column => selectedColumnIds.indexOf(column.id) != -1
-        );
-        await this.exportData(this.rows, selectedColumns);
-        this.$modal.hide();
-      }
-    },
-    async exportData(rows = this.rows, columns = this.columnData) {
-      let title = this.title;
-      let columnNames = columns.map(column => column.content).toString();
-      let columnIDs = columns.map(column => column.id);
-      let rowData = rows.map(row => columnIDs.map(id => row[id]).toString());
-      let csvDataArray = [columnNames, ...rowData];
-      let csvData = csvDataArray.join('\n');
-      let d = new Date();
-      let fileName = [
-        title.replace(/\s/g, '-'),
-        [d.getDate(), d.getMonth(), d.getFullYear()].join('-'),
-        `${d.getTime()}.csv`
-      ].join('_');
-      var blob = new Blob([csvData], { type: 'text/plain;charset=utf-8' });
-      await FileSaver.saveAs(blob, fileName);
-    }
-  }
-};
+  },
+  components: { FormHeader, Check, Select, Button },
+});
+
+function getExportFields(fields: Field[]): ExportField[] {
+  return fields
+    .filter((f) => !f.computed && f.label)
+    .map((field) => {
+      const { fieldname, label } = field;
+      const fieldtype = field.fieldtype as FieldTypeEnum;
+      return {
+        fieldname,
+        fieldtype,
+        label,
+        export: !excludedFieldTypes.includes(fieldtype),
+      };
+    });
+}
+
+function getExportTableFields(fields: Field[]): ExportTableField[] {
+  return fields
+    .filter((f) => f.fieldtype === FieldTypeEnum.Table)
+    .map((f) => {
+      const target = (f as TargetField).target;
+      const tableFields = fyo.schemaMap[target]?.fields ?? [];
+      const exportTableFields = getExportFields(tableFields);
+
+      return {
+        fieldname: f.fieldname,
+        label: f.label,
+        target,
+        fields: exportTableFields,
+      };
+    })
+    .filter((f) => !!f.fields.length);
+}
 </script>
-<style scoped>
-.fixed-btn-width {
-  width: 5vw !important;
-}
-.bold {
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-#select-cbox {
-  width: 15px;
-  height: 15px;
-}
-#exportWizard {
-  overflow: hidden;
-}
-</style>

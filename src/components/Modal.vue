@@ -16,7 +16,7 @@
     v-if="openModal"
   >
     <div
-      class="bg-white rounded-lg shadow-2xl w-form"
+      class="bg-white rounded-lg shadow-2xl w-form border overflow-hidden"
       v-bind="$attrs"
       @click.stop
     >
