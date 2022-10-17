@@ -7,8 +7,8 @@ import {
 } from '../../utils/translationHelpers';
 import { ValueError } from './errors';
 
-type TranslationArgs = boolean | number | string;
-type TranslationLiteral = TemplateStringsArray | TranslationArgs;
+export type TranslationArgs = boolean | number | string;
+export type TranslationLiteral = TemplateStringsArray | TranslationArgs;
 
 class TranslationString {
   args: TranslationLiteral[];
