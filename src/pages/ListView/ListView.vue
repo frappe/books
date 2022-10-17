@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col">
     <PageHeader :title="title">
+      <Button :icon="false" @click="openExportModal = true">
+        {{ t`Export` }}
+      </Button>
       <FilterDropdown
         ref="filterDropdown"
         @change="applyFilter"
@@ -22,13 +25,23 @@
       :listConfig="listConfig"
       :filters="filters"
       class="flex-1 flex h-full"
+      @updatedData="updatedData"
       @makeNewDoc="makeNewDoc"
     />
+    <Modal :open-modal="openExportModal" @closemodal="openExportModal = false">
+      <ExportWizard
+        :schema-name="schemaName"
+        :title="pageTitle"
+        :list-filters="listFilters"
+      />
+    </Modal>
   </div>
 </template>
 <script>
 import Button from 'src/components/Button.vue';
+import ExportWizard from 'src/components/ExportWizard.vue';
 import FilterDropdown from 'src/components/FilterDropdown.vue';
+import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
@@ -47,9 +60,15 @@ export default {
     List,
     Button,
     FilterDropdown,
+    Modal,
+    ExportWizard,
   },
   data() {
-    return { listConfig: undefined };
+    return {
+      listConfig: undefined,
+      openExportModal: false,
+      listFilters: {},
+    };
   },
   async activated() {
     if (typeof this.filters === 'object') {
@@ -63,6 +82,9 @@ export default {
     docsPath.value = '';
   },
   methods: {
+    updatedData(listFilters) {
+      this.listFilters = listFilters;
+    },
     async makeNewDoc() {
       const doc = await fyo.doc.getNewDoc(this.schemaName, this.filters ?? {});
       const path = this.getFormPath(doc.name);

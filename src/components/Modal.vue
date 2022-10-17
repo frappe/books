@@ -16,7 +16,7 @@
     v-if="openModal"
   >
     <div
-      class="bg-white rounded-lg shadow-2xl w-form"
+      class="bg-white rounded-lg shadow-2xl w-form border overflow-hidden"
       v-bind="$attrs"
       @click.stop
     >
@@ -25,14 +25,38 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue';
+
+export default defineComponent({
   props: {
     openModal: {
       default: false,
       type: Boolean,
     },
+    setCloseListener: {
+      default: true,
+      type: Boolean,
+    },
   },
   emits: ['closemodal'],
-};
+  watch: {
+    openModal(value: boolean) {
+      if (value) {
+        document.addEventListener('keyup', this.escapeEventListener);
+      } else {
+        document.removeEventListener('keyup', this.escapeEventListener);
+      }
+    },
+  },
+  methods: {
+    escapeEventListener(event: KeyboardEvent) {
+      if (event.code !== 'Escape') {
+        return;
+      }
+
+      this.$emit('closemodal');
+    },
+  },
+});
 </script>
