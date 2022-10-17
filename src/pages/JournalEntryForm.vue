@@ -24,24 +24,10 @@
 
     <!-- Journal Entry Form -->
     <template #body v-if="doc">
-      <div
-        class="
-          px-4
-          text-xl
-          font-semibold
-          flex
-          justify-between
-          h-row-large
-          items-center
-        "
-      >
-        <h1>
-          {{ doc.notInserted ? t`New Entry` : doc.name }}
-        </h1>
-        <p class="text-gray-600">
-          {{ t`Journal Entry` }}
-        </p>
-      </div>
+      <FormHeader
+        :form-title="doc.notInserted ? t`New Entry` : doc.name"
+        :form-sub-title="t`Journal Entry`"
+      />
       <hr />
       <div>
         <div class="m-4 grid grid-cols-3 gap-y-4 gap-x-4">
@@ -148,6 +134,7 @@ import FormControl from 'src/components/Controls/FormControl.vue';
 import Table from 'src/components/Controls/Table.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
+import FormHeader from 'src/components/FormHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
@@ -169,7 +156,8 @@ export default {
     FormControl,
     Table,
     FormContainer,
-  },
+    FormHeader
+},
   provide() {
     return {
       schemaName: this.schemaName,
