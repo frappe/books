@@ -25,10 +25,15 @@
       :listConfig="listConfig"
       :filters="filters"
       class="flex-1 flex h-full"
+      @updatedData="updatedData"
       @makeNewDoc="makeNewDoc"
     />
     <Modal :open-modal="openExportModal" @closemodal="openExportModal = false">
-      <ExportWizard :schema-name="schemaName" :title="pageTitle" />
+      <ExportWizard
+        :schema-name="schemaName"
+        :title="pageTitle"
+        :list-filters="listFilters"
+      />
     </Modal>
   </div>
 </template>
@@ -59,7 +64,11 @@ export default {
     ExportWizard,
   },
   data() {
-    return { listConfig: undefined, openExportModal: !false };
+    return {
+      listConfig: undefined,
+      openExportModal: false,
+      listFilters: {},
+    };
   },
   async activated() {
     if (typeof this.filters === 'object') {
@@ -73,6 +82,9 @@ export default {
     docsPath.value = '';
   },
   methods: {
+    updatedData(listFilters) {
+      this.listFilters = listFilters;
+    },
     async makeNewDoc() {
       const doc = await fyo.doc.getNewDoc(this.schemaName, this.filters ?? {});
       const path = this.getFormPath(doc.name);

@@ -1,3 +1,5 @@
+import { FieldTypeEnum } from "schemas/types";
+
 export interface MessageDialogButton {
   label: string;
   action: () => Promise<unknown> | unknown;
@@ -47,3 +49,20 @@ export interface SidebarItem {
   schemaName?: string;
   hidden?: () => boolean;
 }
+
+
+export interface ExportField {
+  fieldname: string;
+  fieldtype: FieldTypeEnum;
+  label: string;
+  export: boolean;
+}
+
+export interface ExportTableField {
+  fieldname: string;
+  label: string;
+  target: string;
+  fields: ExportField[];
+}
+
+export type ExportFormat = 'csv' | 'json';

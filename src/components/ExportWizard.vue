@@ -7,7 +7,7 @@
     <!-- Export Config -->
     <div class="grid grid-cols-3 p-4 gap-4">
       <Check
-        v-if="configFields.useListFilters"
+        v-if="configFields.useListFilters && Object.keys(listFilters).length"
         :df="configFields.useListFilters"
         :space-between="true"
         :show-label="true"
@@ -23,72 +23,54 @@
         :border="true"
         @change="(value: ExportFormat) => (exportFormat = value)"
       />
+      <Int
+        v-if="configFields.limit"
+        :df="configFields.limit"
+        :value="limit"
+        :border="true"
+        @change="(value: number) => (limit = value)"
+      />
     </div>
     <hr />
 
     <!-- Fields Selection -->
-    <div>
-      <!-- Field Selection Header -->
-      <button
-        class="flex justify-between items-center text-gray-600 p-4 w-full"
-        @click="showFieldSelection = !showFieldSelection"
-      >
-        <p class="text-sm">
-          {{ t`${numSelected} fields selected` }}
-        </p>
-        <feather-icon
-          :name="showFieldSelection ? 'chevron-down' : 'chevron-up'"
-          class="w-4 h-4"
-        />
-      </button>
-
-      <!-- Field Selection Body -->
-      <hr v-if="showFieldSelection" />
-      <div
-        v-if="showFieldSelection"
-        class="max-h-96 overflow-auto custom-scroll"
-      >
-        <!-- Main Fields -->
-        <div class="p-4">
-          <h2 class="text-sm font-semibold text-gray-800">
-            {{ fyo.schemaMap[schemaName]?.label ?? schemaName }}
-          </h2>
-          <div class="grid grid-cols-3 border rounded-md mt-1">
-            <Check
-              v-for="ef of fields"
-              :label-class="
-                ef.fieldtype === 'Table'
-                  ? 'text-sm text-gray-600 font-semibold'
-                  : 'text-sm text-gray-600'
-              "
-              :key="ef.fieldname"
-              :df="getField(ef)"
-              :show-label="true"
-              :value="ef.export"
-              @change="(value: boolean) => setExportFieldValue(ef, value)"
-            />
-          </div>
+    <div class="max-h-80 overflow-auto custom-scroll">
+      <!-- Main Fields -->
+      <div class="p-4">
+        <h2 class="text-sm font-semibold text-gray-800">
+          {{ fyo.schemaMap[schemaName]?.label ?? schemaName }}
+        </h2>
+        <div class="grid grid-cols-3 border rounded mt-1">
+          <Check
+            v-for="ef of fields"
+            :label-class="
+              ef.fieldtype === 'Table'
+                ? 'text-sm text-gray-600 font-semibold'
+                : 'text-sm text-gray-600'
+            "
+            :key="ef.fieldname"
+            :df="getField(ef)"
+            :show-label="true"
+            :value="ef.export"
+            @change="(value: boolean) => setExportFieldValue(ef, value)"
+          />
         </div>
+      </div>
 
-        <!-- Table Fields -->
-        <div
-          class="p-4"
-          v-for="efs of filteredTableFields"
-          :key="efs.fieldname"
-        >
-          <h2 class="text-sm font-semibold text-gray-800">
-            {{ fyo.schemaMap[efs.target]?.label ?? schemaName }}
-          </h2>
-          <div class="grid grid-cols-3 border rounded-md mt-1">
-            <Check
-              v-for="ef of efs.fields"
-              :key="ef.fieldname"
-              :df="getField(ef)"
-              :show-label="true"
-              :value="ef.export"
-              @change="(value: boolean) => setExportFieldValue(ef, value, efs.target)"
-            />
-          </div>
+      <!-- Table Fields -->
+      <div class="p-4" v-for="efs of filteredTableFields" :key="efs.fieldname">
+        <h2 class="text-sm font-semibold text-gray-800">
+          {{ fyo.schemaMap[efs.target]?.label ?? schemaName }}
+        </h2>
+        <div class="grid grid-cols-3 border rounded mt-1">
+          <Check
+            v-for="ef of efs.fields"
+            :key="ef.fieldname"
+            :df="getField(ef)"
+            :show-label="true"
+            :value="ef.export"
+            @change="(value: boolean) => setExportFieldValue(ef, value, efs.target)"
+          />
         </div>
       </div>
     </div>
@@ -96,68 +78,59 @@
     <!-- Export Button -->
     <hr />
     <div class="p-4 flex justify-between items-center">
-      <p class="text-gray-600 text-sm">{{ t`${numEntries} entries` }}</p>
+      <p class="text-sm text-gray-600">
+        {{ t`${numSelected} fields selected` }}
+      </p>
       <Button type="primary" @click="exportData">{{ t`Export` }}</Button>
     </div>
   </div>
 </template>
-
 <script lang="ts">
 import { t } from 'fyo';
-import { Field, FieldTypeEnum, TargetField } from 'schemas/types';
+import { Field, FieldTypeEnum } from 'schemas/types';
 import { fyo } from 'src/initFyo';
-import { defineComponent } from 'vue';
+import {
+getCsvExportData,
+getExportFields,
+getExportTableFields,
+getJsonExportData
+} from 'src/utils/export';
+import { getSavePath, saveData, showExportInFolder } from 'src/utils/ipcCalls';
+import { ExportField, ExportFormat, ExportTableField } from 'src/utils/types';
+import { QueryFilter } from 'utils/db/types';
+import { defineComponent, PropType } from 'vue';
 import Button from './Button.vue';
 import Check from './Controls/Check.vue';
+import Int from './Controls/Int.vue';
 import Select from './Controls/Select.vue';
 import FormHeader from './FormHeader.vue';
 
-interface ExportField {
-  fieldname: string;
-  fieldtype: FieldTypeEnum;
-  label: string;
-  export: boolean;
-}
-
-interface ExportTableField {
-  fieldname: string;
-  label: string;
-  target: string;
-  fields: ExportField[];
-}
-
-type ExportFormat = 'csv' | 'json';
 interface ExportWizardData {
-  numEntries: number;
   useListFilters: boolean;
   exportFormat: ExportFormat;
-  showFieldSelection: boolean;
   fields: ExportField[];
+  limit: number | null;
   tableFields: ExportTableField[];
+  numUnfilteredEntries: number;
 }
-
-const excludedFieldTypes = [
-  FieldTypeEnum.AttachImage,
-  FieldTypeEnum.Attachment,
-];
 
 export default defineComponent({
   props: {
     schemaName: { type: String, required: true },
+    listFilters: { type: Object as PropType<QueryFilter>, default: () => {} },
     pageTitle: String,
   },
   data() {
     const fields = fyo.schemaMap[this.schemaName]?.fields ?? [];
     const exportFields = getExportFields(fields);
-    const exportTableFields = getExportTableFields(fields);
+    const exportTableFields = getExportTableFields(fields, fyo);
 
     return {
-      numEntries: 0,
+      limit: null,
       useListFilters: true,
       exportFormat: 'csv',
       fields: exportFields,
       tableFields: exportTableFields,
-      showFieldSelection: !false,
     } as ExportWizardData;
   },
   methods: {
@@ -194,8 +167,51 @@ export default defineComponent({
 
       field.export = value;
     },
-    exportData() {
-      console.log('export clicked');
+    async exportData() {
+      const filters = JSON.parse(
+        JSON.stringify(this.useListFilters ? this.listFilters : {})
+      );
+
+      let data: string;
+      if (this.exportFormat === 'json') {
+        data = await getJsonExportData(
+          this.schemaName,
+          this.fields,
+          this.tableFields,
+          this.limit,
+          filters,
+          fyo
+        );
+      } else {
+        data = await getCsvExportData(
+          this.schemaName,
+          this.fields,
+          this.tableFields,
+          this.limit,
+          filters,
+          fyo
+        );
+      }
+
+      await this.saveExportData(data);
+    },
+    async saveExportData(data: string) {
+      const fileName = this.getFileName();
+      const { canceled, filePath } = await getSavePath(
+        fileName,
+        this.exportFormat
+      );
+      if (canceled || !filePath) {
+        return;
+      }
+
+      await saveData(data, filePath);
+      showExportInFolder(fyo.t`Export Successful`, filePath);
+    },
+    getFileName() {
+      const fileName = this.label.toLowerCase().replace(/\s/g, '-');
+      const dateString = new Date().toISOString().split('T')[0];
+      return `${fileName}_${dateString}`;
     },
   },
   computed: {
@@ -230,6 +246,12 @@ export default defineComponent({
           label: t`Use List Filters`,
           fieldname: 'useListFilters',
         },
+        limit: {
+          placeholder: 'Limit number of rows',
+          fieldtype: 'Int',
+          label: t`Limit`,
+          fieldname: 'limit',
+        },
         exportFormat: {
           fieldtype: 'Select',
           label: t`Export Format`,
@@ -242,39 +264,6 @@ export default defineComponent({
       };
     },
   },
-  components: { FormHeader, Check, Select, Button },
+  components: { FormHeader, Check, Select, Button, Int },
 });
-
-function getExportFields(fields: Field[]): ExportField[] {
-  return fields
-    .filter((f) => !f.computed && f.label)
-    .map((field) => {
-      const { fieldname, label } = field;
-      const fieldtype = field.fieldtype as FieldTypeEnum;
-      return {
-        fieldname,
-        fieldtype,
-        label,
-        export: !excludedFieldTypes.includes(fieldtype),
-      };
-    });
-}
-
-function getExportTableFields(fields: Field[]): ExportTableField[] {
-  return fields
-    .filter((f) => f.fieldtype === FieldTypeEnum.Table)
-    .map((f) => {
-      const target = (f as TargetField).target;
-      const tableFields = fyo.schemaMap[target]?.fields ?? [];
-      const exportTableFields = getExportFields(tableFields);
-
-      return {
-        fieldname: f.fieldname,
-        label: f.label,
-        target,
-        fields: exportTableFields,
-      };
-    })
-    .filter((f) => !!f.fields.length);
-}
 </script>

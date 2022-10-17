@@ -101,7 +101,7 @@ import ListCell from './ListCell';
 export default defineComponent({
   name: 'List',
   props: { listConfig: Object, filters: Object, schemaName: String },
-  emits: ['makeNewDoc'],
+  emits: ['makeNewDoc', 'updatedData'],
   components: {
     Row,
     ListCell,
@@ -205,6 +205,7 @@ export default defineComponent({
           orderBy,
         })
       ).map((d) => ({ ...d, schema: fyo.schemaMap[this.schemaName] }));
+      this.$emit('updatedData', filters);
     },
   },
 });
