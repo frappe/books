@@ -9,7 +9,7 @@
       items-center
       mb-3
       w-96
-      z-10
+      z-30
       bg-white
       rounded-lg
     "

@@ -1,7 +1,10 @@
 <template>
   <div :class="[inputClasses, containerClasses]">
-    <label class="flex items-center">
-      <div class="mr-3 text-gray-600 text-sm" v-if="showLabel && !labelRight">
+    <label
+      class="flex items-center"
+      :class="spaceBetween ? 'justify-between' : ''"
+    >
+      <div class="mr-3" :class="labelClasses" v-if="showLabel && !labelRight">
         {{ df.label }}
       </div>
       <div
@@ -63,7 +66,7 @@
           @focus="(e) => $emit('focus', e)"
         />
       </div>
-      <div class="ml-3 text-gray-600 text-sm" v-if="showLabel && labelRight">
+      <div class="ml-3" :class="labelClasses" v-if="showLabel && labelRight">
         {{ df.label }}
       </div>
     </label>
@@ -77,10 +80,15 @@ export default {
   extends: Base,
   emits: ['focus'],
   props: {
+    spaceBetween: {
+      default: false,
+      type: Boolean,
+    },
     labelRight: {
       default: true,
       type: Boolean,
     },
+    labelClass: String,
   },
   data() {
     return {
@@ -90,11 +98,13 @@ export default {
     };
   },
   computed: {
-    /*
-    inputClasses() {
-      return this.getInputClassesFromProp([]);
+    labelClasses() {
+      if (this.labelClass) {
+        return this.labelClass;
+      }
+
+      return 'text-gray-600 text-sm';
     },
-    */
     checked() {
       return this.value;
     },
