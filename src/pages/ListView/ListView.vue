@@ -1,6 +1,9 @@
 <template>
   <div class="flex flex-col">
     <PageHeader :title="title">
+      <Button :icon="false" @click="openExportModal = true">
+        {{ t`Export` }}
+      </Button>
       <FilterDropdown
         ref="filterDropdown"
         @change="applyFilter"
@@ -24,11 +27,16 @@
       class="flex-1 flex h-full"
       @makeNewDoc="makeNewDoc"
     />
+    <Modal :open-modal="openExportModal" @closemodal="openExportModal = false">
+      <ExportWizard :schema-name="schemaName" :title="pageTitle" />
+    </Modal>
   </div>
 </template>
 <script>
 import Button from 'src/components/Button.vue';
+import ExportWizard from 'src/components/ExportWizard.vue';
 import FilterDropdown from 'src/components/FilterDropdown.vue';
+import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
@@ -47,9 +55,11 @@ export default {
     List,
     Button,
     FilterDropdown,
+    Modal,
+    ExportWizard,
   },
   data() {
-    return { listConfig: undefined };
+    return { listConfig: undefined, openExportModal: !false };
   },
   async activated() {
     if (typeof this.filters === 'object') {
