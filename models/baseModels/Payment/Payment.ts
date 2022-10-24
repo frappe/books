@@ -564,7 +564,7 @@ export class Payment extends Transactional {
     amountPaid: () => this.writeoff?.isZero() ?? true,
     attachment: () =>
       !(this.attachment || !(this.isSubmitted || this.isCancelled)),
-    for: () => !((this.isSubmitted || this.isCancelled) && this.for?.length),
+    for: () => !!((this.isSubmitted || this.isCancelled) && !this.for?.length),
   };
 
   static filters: FiltersMap = {
