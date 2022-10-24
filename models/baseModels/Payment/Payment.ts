@@ -12,7 +12,7 @@ import {
   RequiredMap,
   ValidationMap
 } from 'fyo/model/types';
-import { ValidationError } from 'fyo/utils/errors';
+import { NotFoundError, ValidationError } from 'fyo/utils/errors';
 import {
   getDocStatus,
   getLedgerLinkAction,
@@ -110,7 +110,6 @@ export class Payment extends Transactional {
     await this.validateFor();
     this.validateAccounts();
     this.validateTotalReferenceAmount();
-    this.validateWriteOffAccount();
     await this.validateReferences();
   }
 
@@ -192,17 +191,36 @@ export class Payment extends Transactional {
     );
   }
 
-  validateWriteOffAccount() {
+  async validateWriteOffAccount() {
     if ((this.writeoff as Money).isZero()) {
       return;
     }
 
-    if (!this.fyo.singles.AccountingSettings!.writeOffAccount) {
-      throw new ValidationError(
-        this.fyo.t`Write Off Account not set.
-          Please set Write Off Account in General Settings`
+    const writeOffAccount = this.fyo.singles.AccountingSettings!
+      .writeOffAccount as string | null | undefined;
+
+    if (!writeOffAccount) {
+      throw new NotFoundError(
+        t`Write Off Account not set.
+          Please set Write Off Account in General Settings`,
+        false
       );
     }
+
+    const exists = await this.fyo.db.exists(
+      ModelNameEnum.Account,
+      writeOffAccount
+    );
+
+    if (exists) {
+      return;
+    }
+
+    throw new NotFoundError(
+      t`Write Off Account ${writeOffAccount} does not exist.
+          Please set Write Off Account in General Settings`,
+      false
+    );
   }
 
   async getPosting() {
@@ -218,6 +236,7 @@ export class Payment extends Transactional {
      * -        account : Cash, Bank, etc
      * - paymentAccount : Creditors, etc
      */
+    await this.validateWriteOffAccount();
     const posting: LedgerPosting = new LedgerPosting(this, this.fyo);
 
     const paymentAccount = this.paymentAccount as string;
