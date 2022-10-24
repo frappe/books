@@ -70,7 +70,7 @@ function formatCurrency(
   doc: Doc | null,
   fyo: Fyo
 ): string {
-  const currency = getCurrency(value as Money, field, doc, fyo);
+  const currency = getCurrency(field, doc, fyo);
 
   let valueString;
   try {
@@ -128,19 +128,9 @@ function getNumberFormatter(fyo: Fyo) {
   }));
 }
 
-function getCurrency(
-  value: Money,
-  field: Field,
-  doc: Doc | null,
-  fyo: Fyo
-): string {
-  const currency = value?.getCurrency?.();
+function getCurrency(field: Field, doc: Doc | null, fyo: Fyo): string {
   const defaultCurrency =
     fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
-
-  if (currency && currency !== defaultCurrency) {
-    return currency;
-  }
 
   let getCurrency = doc?.getCurrencies?.[field.fieldname];
   if (getCurrency !== undefined) {
