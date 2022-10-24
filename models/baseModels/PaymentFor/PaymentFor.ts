@@ -76,14 +76,18 @@ export class PaymentFor extends Doc {
 
   static filters: FiltersMap = {
     referenceName: (doc) => {
+      const zero =
+        '0.' +
+        '0'.repeat(doc.fyo.singles.SystemSettings?.internalPrecision ?? 11);
+
       const baseFilters = {
-        outstandingAmount: ['>', 0],
+        outstandingAmount: ['!=', zero],
         submitted: true,
         cancelled: false,
       };
 
       const party = doc?.parentdoc?.party as undefined | string;
-      if (party === undefined) {
+      if (!party) {
         return baseFilters;
       }
 
