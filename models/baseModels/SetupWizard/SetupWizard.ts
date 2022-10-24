@@ -2,6 +2,7 @@ import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { FormulaMap, ListsMap, ValidationMap } from 'fyo/model/types';
 import { validateEmail } from 'fyo/model/validationFunction';
+import { DateTime } from 'luxon';
 import { getCountryInfo, getFiscalYear } from 'utils/misc';
 
 export function getCOAList() {
@@ -22,7 +23,8 @@ export function getCOAList() {
     { countryCode: 'nl', name: 'Netherlands - Grootboekschema' },
     { countryCode: 'sg', name: 'Singapore - Chart of Accounts' },
     { countryCode: 'fr', name: 'France - Plan comptable' },
-/*  { countryCode: 'th', name: 'Thailand - Chart of Accounts' },
+    /*  
+    { countryCode: 'th', name: 'Thailand - Chart of Accounts' },
     { countryCode: 'us', name: 'United States - Chart of Accounts' },
     { countryCode: 've', name: 'Venezuela - Plan de Cuentas' },
     { countryCode: 'za', name: 'South Africa - Chart of Accounts' },
@@ -40,20 +42,39 @@ export function getCOAList() {
 }
 
 export class SetupWizard extends Doc {
+  fiscalYearEnd?: string;
+  fiscalYearStart?: string;
+
   formulas: FormulaMap = {
     fiscalYearStart: {
-      formula: async () => {
-        if (!this.country) return;
+      formula: async (fieldname?: string) => {
+        if (fieldname === 'fiscalYearEnd' && this.fiscalYearEnd) {
+          return DateTime.fromISO(this.fiscalYearEnd)
+            .minus({ years: 1 })
+            .plus({ days: 1 })
+            .toISODate();
+        }
+
+        if (!this.country) {
+          return;
+        }
 
         const countryInfo = getCountryInfo();
         const fyStart =
           countryInfo[this.country as string]?.fiscal_year_start ?? '';
         return getFiscalYear(fyStart, true);
       },
-      dependsOn: ['country'],
+      dependsOn: ['country', 'fiscalYearEnd'],
     },
     fiscalYearEnd: {
-      formula: async () => {
+      formula: async (fieldname?: string) => {
+        if (fieldname === 'fiscalYearStart' && this.fiscalYearStart) {
+          return DateTime.fromISO(this.fiscalYearStart)
+            .plus({ years: 1 })
+            .minus({ days: 1 })
+            .toISODate();
+        }
+
         if (!this.country) {
           return;
         }
@@ -63,7 +84,7 @@ export class SetupWizard extends Doc {
           countryInfo[this.country as string]?.fiscal_year_end ?? '';
         return getFiscalYear(fyEnd, false);
       },
-      dependsOn: ['country'],
+      dependsOn: ['country', 'fiscalYearStart'],
     },
     currency: {
       formula: async () => {
