@@ -214,7 +214,9 @@ export default {
         await this.selectItem(this.items[0]);
       }
     },
-    highlightItemUp() {
+    highlightItemUp(e) {
+      e?.preventDefault();
+
       this.highlightedIndex -= 1;
       if (this.highlightedIndex < 0) {
         this.highlightedIndex = 0;
@@ -227,7 +229,9 @@ export default {
         this.scrollToHighlighted();
       });
     },
-    highlightItemDown() {
+    highlightItemDown(e) {
+      e?.preventDefault();
+
       this.highlightedIndex += 1;
       if (this.highlightedIndex > this.items.length) {
         this.highlightedIndex = this.items.length;
