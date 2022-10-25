@@ -60,7 +60,7 @@
         :value="doc[imageField.fieldname]"
         @change="(value) => valueChange(imageField, value)"
         size="small"
-        :letter-placeholder="doc[titleField.fieldname]?.[0] ?? null"
+        :letter-placeholder="doc[titleField.fieldname]?.[0] ?? ''"
       />
       <FormControl
         input-class="text-center h-8 bg-transparent"
