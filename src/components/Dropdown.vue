@@ -233,8 +233,8 @@ export default {
       e?.preventDefault();
 
       this.highlightedIndex += 1;
-      if (this.highlightedIndex > this.items.length) {
-        this.highlightedIndex = this.items.length;
+      if (this.highlightedIndex >= this.items.length) {
+        this.highlightedIndex = this.items.length - 1;
       }
 
       nextTick(() => {
