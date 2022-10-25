@@ -2,6 +2,7 @@ import { app, dialog, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs/promises';
 import path from 'path';
+import { SelectFileOptions, SelectFileReturn } from 'utils/types';
 import databaseManager from '../backend/database/manager';
 import { emitMainProcessError } from '../backend/helpers';
 import { Main } from '../main';
@@ -13,7 +14,7 @@ import {
   getConfigFilesWithModified,
   getErrorHandledReponse,
   isNetworkError,
-  setAndGetCleanedConfigFiles
+  setAndGetCleanedConfigFiles,
 } from './helpers';
 import { saveHtmlAsPdf } from './saveHtmlAsPdf';
 
@@ -82,35 +83,38 @@ export default function registerIpcMainActionListeners(main: Main) {
     return obj;
   });
 
-  ipcMain.handle(IPC_ACTIONS.GET_FILE, async (event, options) => {
-    const response = {
-      name: '',
-      filePath: '',
-      success: false,
-      data: Buffer.from('', 'utf-8'),
-      canceled: false,
-    };
-    const { filePaths, canceled } = await dialog.showOpenDialog(
-      main.mainWindow!,
-      options
-    );
+  ipcMain.handle(
+    IPC_ACTIONS.SELECT_FILE,
+    async (_, options: SelectFileOptions): Promise<SelectFileReturn> => {
+      const response: SelectFileReturn = {
+        name: '',
+        filePath: '',
+        success: false,
+        data: Buffer.from('', 'utf-8'),
+        canceled: false,
+      };
+      const { filePaths, canceled } = await dialog.showOpenDialog(
+        main.mainWindow!,
+        { ...options, properties: ['openFile'] }
+      );
 
-    response.filePath = filePaths?.[0];
-    response.canceled = canceled;
+      response.filePath = filePaths?.[0];
+      response.canceled = canceled;
 
-    if (!response.filePath) {
+      if (!response.filePath) {
+        return response;
+      }
+
+      response.success = true;
+      if (canceled) {
+        return response;
+      }
+
+      response.name = path.basename(response.filePath);
+      response.data = await fs.readFile(response.filePath);
       return response;
     }
-
-    response.success = true;
-    if (canceled) {
-      return response;
-    }
-
-    response.name = path.basename(response.filePath);
-    response.data = await fs.readFile(response.filePath);
-    return response;
-  });
+  );
 
   ipcMain.handle(IPC_ACTIONS.GET_CREDS, async (event) => {
     return await getUrlAndTokenString();

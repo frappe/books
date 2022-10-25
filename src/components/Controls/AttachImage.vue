@@ -60,10 +60,9 @@
   </div>
 </template>
 <script lang="ts">
-import { ipcRenderer } from 'electron';
 import { fyo } from 'src/initFyo';
+import { selectFile } from 'src/utils/ipcCalls';
 import { getDataURL } from 'src/utils/misc';
-import { IPC_ACTIONS } from 'utils/messages';
 import { defineComponent } from 'vue';
 import FeatherIcon from '../FeatherIcon.vue';
 import Base from './Base.vue';
@@ -92,15 +91,12 @@ export default defineComponent({
       }
       const options = {
         title: fyo.t`Select Image`,
-        properties: ['openFile'],
         filters: [
           { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] },
         ],
       };
-      const { name, success, data } = await ipcRenderer.invoke(
-        IPC_ACTIONS.SELECT_FILE,
-        options
-      );
+
+      const { name, success, data } = await selectFile(options);
 
       if (!success) {
         return;
