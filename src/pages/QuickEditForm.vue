@@ -68,7 +68,7 @@
       />
       <FormControl
         v-if="titleField"
-        :class="!!imageField ? 'mr-4' : ''"
+        :class="!!imageField ? 'mr-4' : 'w-full mx-4'"
         :input-class="[
           'font-semibold text-xl',
           !!imageField ? '' : 'text-center',
