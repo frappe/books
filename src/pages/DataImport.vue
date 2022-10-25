@@ -345,7 +345,6 @@
   </div>
 </template>
 <script>
-import { ipcRenderer } from 'electron';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
@@ -354,10 +353,9 @@ import HowTo from 'src/components/HowTo.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { importable, Importer } from 'src/dataImport';
 import { fyo } from 'src/initFyo';
-import { getSavePath, saveData } from 'src/utils/ipcCalls';
+import { getSavePath, saveData, selectFile } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, showMessageDialog } from 'src/utils/ui';
-import { IPC_ACTIONS } from 'utils/messages';
 import Loading from '../components/Loading.vue';
 
 export default {
@@ -618,12 +616,12 @@ export default {
     async selectFile() {
       const options = {
         title: this.t`Select File`,
-        properties: ['openFile'],
         filters: [{ name: 'CSV', extensions: ['csv'] }],
       };
 
-      const { success, canceled, filePath, data, name } =
-        await ipcRenderer.invoke(IPC_ACTIONS.GET_FILE, options);
+      const { success, canceled, filePath, data, name } = await selectFile(
+        options
+      );
 
       if (!success && !canceled) {
         return await showMessageDialog({
