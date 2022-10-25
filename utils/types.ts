@@ -31,3 +31,16 @@ export type UnexpectedLogObject = {
   stack: string;
   more: Record<string, unknown>;
 }
+
+export interface SelectFileOptions {
+  title: string;
+  filters?: { name: string; extensions: string[] }[];
+}
+
+export interface SelectFileReturn {
+  name: string;
+  filePath: string;
+  success: boolean;
+  data: Buffer;
+  canceled: boolean;
+}
