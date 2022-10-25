@@ -1,27 +1,33 @@
 <template>
   <div
-    class="relative bg-white border rounded-full flex-center overflow-hidden"
+    class="
+      relative
+      bg-white
+      border
+      rounded-full
+      flex-center
+      overflow-hidden
+      group
+    "
     :class="{
       'w-20 h-20': size !== 'small',
       'w-12 h-12': size === 'small',
-      'cursor-pointer': !isReadOnly,
     }"
-    @mouseover="showEdit = true"
-    @mouseleave="showEdit = false"
-    @click="openFileSelector"
   >
-    <template v-if="!value">
+    <img :src="value" v-if="value" />
+    <div :class="[!isReadOnly ? 'group-hover:opacity-90' : '']" v-else>
       <div
         v-if="letterPlaceholder"
         class="
-          bg-gray-500
           flex
           h-full
           items-center
           justify-center
-          text-white
+          text-gray-400
+          font-semibold
           w-full
           text-4xl
+          select-none
         "
       >
         {{ letterPlaceholder }}
@@ -38,70 +44,76 @@
           fill-rule="nonzero"
         />
       </svg>
-    </template>
-    <div v-else>
-      <img :src="value" />
     </div>
     <div
-      v-show="showEdit"
-      class="
-        absolute
-        bottom-0
-        text-gray-500 text-center text-xs
-        pt-3
-        pb-1
-        select-none
-      "
+      class="hidden w-full h-full absolute justify-center items-end"
+      :class="[!isReadOnly ? 'group-hover:flex' : '']"
+      style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(2px)"
     >
-      {{ !isReadOnly ? t`Edit` : '' }}
+      <button class="bg-gray-300 p-0.5 rounded mb-1" @click="handleClick">
+        <FeatherIcon
+          :name="shouldClear ? 'x' : 'upload'"
+          class="w-4 h-4 text-gray-600"
+        />
+      </button>
     </div>
   </div>
 </template>
-
-<script>
-import { ipcRenderer } from 'electron';
+<script lang="ts">
 import { fyo } from 'src/initFyo';
+import { selectFile } from 'src/utils/ipcCalls';
 import { getDataURL } from 'src/utils/misc';
-import { IPC_ACTIONS } from 'utils/messages';
-import Base from './Base';
+import { defineComponent } from 'vue';
+import FeatherIcon from '../FeatherIcon.vue';
+import Base from './Base.vue';
 
-export default {
+export default defineComponent({
   name: 'AttachImage',
   extends: Base,
-  props: ['letterPlaceholder'],
-  data() {
-    return {
-      showEdit: false,
-    };
+  props: {
+    letterPlaceholder: { type: String, default: '' },
+    value: { type: String, default: '' },
   },
   methods: {
-    async openFileSelector() {
+    async handleClick() {
+      if (this.value) {
+        return await this.clearImage();
+      }
+      return await this.selectImage();
+    },
+    async clearImage() {
+      // @ts-ignore
+      this.triggerChange(null);
+    },
+    async selectImage() {
       if (this.isReadOnly) {
         return;
       }
-
       const options = {
         title: fyo.t`Select Image`,
-        properties: ['openFile'],
         filters: [
           { name: 'Image', extensions: ['png', 'jpg', 'jpeg', 'webp'] },
         ],
       };
 
-      const { name, success, data } = await ipcRenderer.invoke(
-        IPC_ACTIONS.GET_FILE,
-        options
-      );
+      const { name, success, data } = await selectFile(options);
 
       if (!success) {
         return;
       }
-
       const extension = name.split('.').at(-1);
       const type = 'image/' + extension;
       const dataURL = await getDataURL(type, data);
+
+      // @ts-ignore
       this.triggerChange(dataURL);
     },
   },
-};
+  computed: {
+    shouldClear() {
+      return !!this.value;
+    },
+  },
+  components: { FeatherIcon },
+});
 </script>

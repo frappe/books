@@ -50,27 +50,35 @@
 
     <!-- Name and image -->
     <div
-      class="px-4 flex-center flex flex-col items-center gap-1.5"
-      style="height: calc(var(--h-row-mid) * 2 + 1px)"
-      v-if="doc && showName"
+      class="items-center"
+      :class="imageField ? 'grid' : 'flex justify-center'"
+      :style="{
+        height: `calc(var(--h-row-mid) * ${!!imageField ? '2 + 1px' : '1'})`,
+        gridTemplateColumns: `minmax(0, 1.1fr) minmax(0, 2fr)`,
+      }"
+      v-if="doc && showName && (titleField || imageField)"
     >
       <FormControl
         v-if="imageField"
+        class="ml-4"
         :df="imageField"
         :value="doc[imageField.fieldname]"
         @change="(value) => valueChange(imageField, value)"
-        size="small"
-        :letter-placeholder="doc[titleField.fieldname]?.[0] ?? null"
+        :letter-placeholder="doc[titleField.fieldname]?.[0] ?? ''"
       />
       <FormControl
-        input-class="text-center h-8 bg-transparent"
-        ref="titleControl"
         v-if="titleField"
+        :class="!!imageField ? 'mr-4' : 'w-full mx-4'"
+        :input-class="[
+          'font-semibold text-xl',
+          !!imageField ? '' : 'text-center',
+        ]"
+        ref="titleControl"
+        size="small"
         :df="titleField"
         :value="doc[titleField.fieldname]"
-        :read-only="doc.inserted"
+        :read-only="doc.inserted || doc.schema.naming !== 'manual'"
         @change="(value) => valueChange(titleField, value)"
-        @input="setTitleSize"
       />
     </div>
 
@@ -224,9 +232,6 @@ export default {
       if (this.values) {
         this.doc?.set(this.values);
       }
-
-      // set title size
-      this.setTitleSize();
     },
     setTitleField() {
       const { fieldname, readOnly } = this.titleField;
@@ -317,16 +322,6 @@ export default {
       } else {
         this.$emit('close');
       }
-    },
-    setTitleSize() {
-      if (!this.$refs.titleControl) {
-        return;
-      }
-
-      const input = this.$refs.titleControl.getInput();
-      const value = input.value;
-      const valueLength = (value || '').length + 1;
-      input.size = Math.max(valueLength, 15);
     },
   },
 };

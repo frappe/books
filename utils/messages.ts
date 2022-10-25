@@ -19,7 +19,7 @@ export enum IPC_ACTIONS {
   SEND_ERROR = 'send-error',
   GET_LANGUAGE_MAP = 'get-language-map',
   CHECK_FOR_UPDATES = 'check-for-updates',
-  GET_FILE = 'get-file',
+  SELECT_FILE = 'select-file',
   GET_CREDS = 'get-creds',
   GET_DB_LIST = 'get-db-list',
   DELETE_FILE = 'delete-file',
