@@ -3,13 +3,14 @@
   "label": "Stock Queue",
   "isSingle": false,
   "isChild": false,
-  "naming": "random",
+  "naming": "autoincrement",
   "fields": [
     {
       "fieldname": "item",
       "label": "Item",
       "fieldtype": "Link",
       "target": "Item",
+      "required": true,
       "readOnly": true
     },
     {
@@ -17,23 +18,19 @@
       "label": "Location",
       "fieldtype": "Link",
       "target": "Location",
+      "required": true,
       "readOnly": true
     },
     {
       "fieldname": "queue",
       "label": "Queue",
       "fieldtype": "Data",
+      "required": true,
       "readOnly": true
     },
     {
       "fieldname": "stockValue",
       "label": "Stock Value",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
-      "fieldname": "valuationRate",
-      "label": "Valuation Rate",
       "fieldtype": "Currency",
       "readOnly": true
     }
