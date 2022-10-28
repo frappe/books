@@ -31,30 +31,10 @@
       "readOnly": true
     },
     {
-      "fieldname": "fromLocation",
-      "label": "From Location",
+      "fieldname": "location",
+      "label": "Location",
       "fieldtype": "Link",
       "target": "Location",
-      "readOnly": true
-    },
-    {
-      "fieldname": "toLocation",
-      "label": "To Location",
-      "fieldtype": "Link",
-      "target": "Location",
-      "readOnly": true
-    },
-    {
-      "fieldname": "referenceDetailName",
-      "label": "Ref. Detail Name",
-      "fieldtype": "DynamicLink",
-      "references": "referenceDetailType",
-      "readOnly": true
-    },
-    {
-      "fieldname": "referenceDetailType",
-      "label": "Ref. Detail Type",
-      "fieldtype": "Data",
       "readOnly": true
     },
     {
@@ -71,14 +51,14 @@
       "readOnly": true
     },
     {
-      "fieldname": "stockValue",
-      "label": "Stock Value",
+      "fieldname": "stockValueBefore",
+      "label": "Stock Value Before",
       "fieldtype": "Currency",
       "readOnly": true
     },
     {
-      "fieldname": "stockValueDifference",
-      "label": "Stock Value Difference",
+      "fieldname": "stockValueAfter",
+      "label": "Stock Value After",
       "fieldtype": "Currency",
       "readOnly": true
     }
