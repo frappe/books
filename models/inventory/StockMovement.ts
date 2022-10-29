@@ -52,38 +52,31 @@ export class StockMovement extends Doc {
   }
 
   async _transferStock() {
-    const stockManagers = this._getStockManagers();
-    for (const sm of stockManagers) {
-      sm.transferStock(this.isCancelled);
-    }
-
-    for (const sm of stockManagers) {
-      await sm.sync();
-    }
+    const stockManager = this._getStockManager();
+    this._makeTransfers(stockManager);
+    await stockManager.sync();
   }
 
-  _getStockManagers(): StockManager[] {
-    const stockManagers: StockManager[] = [];
+  _makeTransfers(stockManager: StockManager) {
     for (const row of this.items ?? []) {
-      const stockManager = this._getStockManager(row);
-      stockManagers.push(stockManager);
-    }
-
-    return stockManagers;
-  }
-
-  _getStockManager(row: StockMovementItem): StockManager {
-    return new StockManager(
-      {
-        date: this.date!,
+      stockManager.transferStock({
         item: row.item!,
         rate: row.rate!,
         quantity: row.quantity!,
-        referenceName: this.name!,
-        referenceType: this.schemaName,
         fromLocation: row.fromLocation,
         toLocation: row.toLocation,
+      });
+    }
+  }
+
+  _getStockManager(): StockManager {
+    return new StockManager(
+      {
+        date: this.date!,
+        referenceName: this.name!,
+        referenceType: this.schemaName,
       },
+      this.isCancelled,
       this.fyo
     );
   }
