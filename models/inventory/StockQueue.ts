@@ -1,7 +1,6 @@
 import { Doc } from 'fyo/model/doc';
 import { Money } from 'pesa';
-
-type StockQueueItem = { rate: Money; quantity: number };
+import { StockQueueItem } from './types';
 
 export class StockQueue extends Doc {
   item?: string;
@@ -12,8 +11,12 @@ export class StockQueue extends Doc {
   /**
    * Stock Queue
    *
-   * Used to keep track of inward rates for
-   * stock valuation purposes.
+   * Used to keep track of inward rates for stock
+   * valuation purposes.
+   *
+   * Stock Queue uses autoincrement as PK as opposed
+   * to (item, location, ...) to prevent NULL value
+   * primary keys.
    */
 
   get quantity(): number {
