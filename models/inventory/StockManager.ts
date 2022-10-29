@@ -5,11 +5,49 @@ import { Money } from 'pesa';
 import { getStockQueue } from './helpers';
 import { StockLedgerEntry } from './StockLedgerEntry';
 import { StockQueue } from './StockQueue';
-import { SMDetails } from './types';
+import { SMDetails, SMIDetails, SMTransferDetails } from './types';
 
 export class StockManager {
   /**
-   * The Stock Manager is used to move stock to and from a location. It
+   * The Stock Manager manages a group of Stock Manager Items
+   * all of which would belong to a single transaction such as a
+   * single Stock Movement entry.
+   */
+
+  items: StockManagerItem[];
+  details: SMDetails;
+
+  isCancelled: boolean;
+  fyo: Fyo;
+
+  constructor(details: SMDetails, isCancelled: boolean, fyo: Fyo) {
+    this.items = [];
+    this.details = details;
+    this.isCancelled = isCancelled;
+    this.fyo = fyo;
+  }
+
+  async transferStock(transferDetails: SMTransferDetails) {
+    const details = this.#getSMIDetails(transferDetails);
+    const item = new StockManagerItem(details, this.fyo);
+    await item.transferStock(this.isCancelled);
+    this.items.push(item);
+  }
+
+  async sync() {
+    for (const item of this.items) {
+      await item.sync();
+    }
+  }
+
+  #getSMIDetails(transferDetails: SMTransferDetails): SMIDetails {
+    return Object.assign({}, this.details, transferDetails);
+  }
+}
+
+export class StockManagerItem {
+  /**
+   * The Stock Manager Item is used to move stock to and from a location. It
    * updates the Stock Queue and creates Stock Ledger Entries.
    *
    * 1. Get existing stock Queue
@@ -35,7 +73,7 @@ export class StockManager {
 
   fyo: Fyo;
 
-  constructor(details: SMDetails, fyo: Fyo) {
+  constructor(details: SMIDetails, fyo: Fyo) {
     this.date = details.date;
     this.item = details.item;
     this.rate = details.rate;
