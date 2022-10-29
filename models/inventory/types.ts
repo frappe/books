@@ -15,3 +15,5 @@ export interface SMDetails {
   fromLocation?: string;
   toLocation?: string;
 }
+
+export type StockQueueItem = { rate: Money; quantity: number };
