@@ -1,78 +1,66 @@
-import * as assert from 'assert';
-import { DatabaseManager } from 'backend/database/manager';
 import { assertDoesNotThrow } from 'backend/database/tests/helpers';
-import { Fyo } from 'fyo';
-import { DummyAuthDemux } from 'fyo/tests/helpers';
-import 'mocha';
 import setupInstance from 'src/setup/setupInstance';
 import { SetupWizardOptions } from 'src/setup/types';
+import test from 'tape';
 import { getValueMapFromList } from 'utils';
-import { getTestDbPath, getTestSetupWizardOptions } from './helpers';
+import {
+  getTestDbPath,
+  getTestFyo,
+  getTestSetupWizardOptions
+} from './helpers';
 
-describe('setupInstance', function () {
-  const dbPath = getTestDbPath();
-  const setupOptions = getTestSetupWizardOptions();
+const dbPath = getTestDbPath();
+const setupOptions = getTestSetupWizardOptions();
+const fyo = getTestFyo();
 
-  let fyo: Fyo;
+test('setupInstance', async () => {
+  await assertDoesNotThrow(async () => {
+    await setupInstance(dbPath, setupOptions, fyo);
+  }, 'setup instance failed');
+});
 
-  this.beforeAll(function () {
-    fyo = new Fyo({
-      DatabaseDemux: DatabaseManager,
-      AuthDemux: DummyAuthDemux,
-      isTest: true,
-      isElectron: false,
-    });
-  });
+test('check setup Singles', async (t) => {
+  const setupFields = [
+    'companyName',
+    'country',
+    'fullname',
+    'email',
+    'bankName',
+    'fiscalYearStart',
+    'fiscalYearEnd',
+    'currency',
+  ];
 
-  this.afterAll(async function () {
-    await fyo.close();
-  });
+  const setupSingles = await fyo.db.getSingleValues(...setupFields);
+  const singlesMap = getValueMapFromList(setupSingles, 'fieldname', 'value');
 
-  specify('setupInstance', async function () {
-    await assertDoesNotThrow(async () => {
-      await setupInstance(dbPath, setupOptions, fyo);
-    }, 'setup instance failed');
-  });
+  for (const field of setupFields) {
+    let dbValue = singlesMap[field];
+    const optionsValue = setupOptions[field as keyof SetupWizardOptions];
 
-  specify('check setup Singles', async function () {
-    const setupFields = [
-      'companyName',
-      'country',
-      'fullname',
-      'email',
-      'bankName',
-      'fiscalYearStart',
-      'fiscalYearEnd',
-      'currency',
-    ];
-
-    const setupSingles = await fyo.db.getSingleValues(...setupFields);
-    const singlesMap = getValueMapFromList(setupSingles, 'fieldname', 'value');
-
-    for (const field of setupFields) {
-      let dbValue = singlesMap[field];
-      const optionsValue = setupOptions[field as keyof SetupWizardOptions];
-
-      if (dbValue instanceof Date) {
-        dbValue = dbValue.toISOString().split('T')[0];
-      }
-
-      assert.strictEqual(
-        dbValue as string,
-        optionsValue,
-        `${field} mismatch (${dbValue},${optionsValue})`
-      );
+    if (dbValue instanceof Date) {
+      dbValue = dbValue.toISOString().split('T')[0];
     }
-  });
 
-  specify('check null singles', async function () {
-    const nullFields = ['gstin', 'logo', 'phone', 'address'];
-    const nullSingles = await fyo.db.getSingleValues(...nullFields);
-
-    assert.strictEqual(
-      nullSingles.length,
-      0,
-      `null singles found ${JSON.stringify(nullSingles)}`
+    t.equal(
+      dbValue as string,
+      optionsValue,
+      `${field}: (${dbValue}, ${optionsValue})`
     );
-  });
+  }
+});
+
+test('check null singles', async (t) => {
+  const nullFields = ['gstin', 'logo', 'phone', 'address'];
+  const nullSingles = await fyo.db.getSingleValues(...nullFields);
+
+  t.equal(
+    nullSingles.length,
+    0,
+    `null singles: ${JSON.stringify(nullSingles)}`
+  );
+});
+
+test.onFinish(async () => {
+  await fyo.close();
 });

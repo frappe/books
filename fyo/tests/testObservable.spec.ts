@@ -1,131 +1,84 @@
-import * as assert from 'assert';
+import { strictEqual } from 'assert';
 import Observable from 'fyo/utils/observable';
-import 'mocha';
+import test from 'tape';
 
 enum ObsEvent {
   A = 'event-a',
   B = 'event-b',
 }
 
-describe('Observable', function () {
-  const obs = new Observable();
-  let counter = 0;
-  const params = { aOne: 18, aTwo: 21, b: 42 };
+const obs = new Observable();
+let counter = 0;
+const params = { aOne: 18, aTwo: 21, b: 42 };
 
-  const listenerAOnce = (value: number) => {
-    assert.strictEqual(params.aOne, value, 'listenerAOnce');
-  };
+const listenerAOnce = (value: number) => {
+  strictEqual(params.aOne, value, 'listenerAOnce');
+};
 
-  const listenerAEvery = (value: number) => {
-    if (counter === 0) {
-      assert.strictEqual(params.aOne, value, 'listenerAEvery 0');
-    } else if (counter === 1) {
-      assert.strictEqual(params.aTwo, value, 'listenerAEvery 1');
-    } else {
-      throw new Error("this shouldn't run");
-    }
-    counter += 1;
-  };
+const listenerAEvery = (value: number) => {
+  if (counter === 0) {
+    strictEqual(params.aOne, value, 'listenerAEvery 0');
+  } else if (counter === 1) {
+    strictEqual(params.aTwo, value, 'listenerAEvery 1');
+  } else {
+    throw new Error("this shouldn't run");
+  }
+  counter += 1;
+};
 
-  const listenerBOnce = (value: number) => {
-    assert.strictEqual(params.b, value, 'listenerBOnce');
-  };
+const listenerBOnce = (value: number) => {
+  strictEqual(params.b, value, 'listenerBOnce');
+};
 
-  specify('set A One', function () {
-    assert.strictEqual(obs.hasListener(ObsEvent.A), false, 'pre');
+test('set A One', function (t) {
+  t.equal(obs.hasListener(ObsEvent.A), false, 'pre');
 
-    obs.once(ObsEvent.A, listenerAOnce);
-    assert.strictEqual(obs.hasListener(ObsEvent.A), true, 'non specific');
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerAOnce),
-      true,
-      'specific once'
-    );
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerAEvery),
-      false,
-      'specific every'
-    );
-  });
+  obs.once(ObsEvent.A, listenerAOnce);
+  t.equal(obs.hasListener(ObsEvent.A), true, 'non specific');
+  t.equal(obs.hasListener(ObsEvent.A, listenerAOnce), true, 'specific once');
+  t.equal(obs.hasListener(ObsEvent.A, listenerAEvery), false, 'specific every');
+  t.end()
+});
 
-  specify('set A Two', function () {
-    obs.on(ObsEvent.A, listenerAEvery);
-    assert.strictEqual(obs.hasListener(ObsEvent.A), true, 'non specific');
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerAOnce),
-      true,
-      'specific once'
-    );
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerAEvery),
-      true,
-      'specific every'
-    );
-  });
+test('set A Two', function (t) {
+  obs.on(ObsEvent.A, listenerAEvery);
+  t.equal(obs.hasListener(ObsEvent.A), true, 'non specific');
+  t.equal(obs.hasListener(ObsEvent.A, listenerAOnce), true, 'specific once');
+  t.equal(obs.hasListener(ObsEvent.A, listenerAEvery), true, 'specific every');
+  t.end()
+});
 
-  specify('set B', function () {
-    assert.strictEqual(obs.hasListener(ObsEvent.B), false, 'pre');
+test('set B', function (t) {
+  t.equal(obs.hasListener(ObsEvent.B), false, 'pre');
 
-    obs.once(ObsEvent.B, listenerBOnce);
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerBOnce),
-      false,
-      'specific false'
-    );
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.B, listenerBOnce),
-      true,
-      'specific true'
-    );
-  });
+  obs.once(ObsEvent.B, listenerBOnce);
+  t.equal(obs.hasListener(ObsEvent.A, listenerBOnce), false, 'specific false');
+  t.equal(obs.hasListener(ObsEvent.B, listenerBOnce), true, 'specific true');
+  t.end()
+});
 
-  specify('trigger A 0', async function () {
-    await obs.trigger(ObsEvent.A, params.aOne);
-    assert.strictEqual(obs.hasListener(ObsEvent.A), true, 'non specific');
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerAOnce),
-      false,
-      'specific'
-    );
-  });
+test('trigger A 0', async function (t) {
+  await obs.trigger(ObsEvent.A, params.aOne);
+  t.equal(obs.hasListener(ObsEvent.A), true, 'non specific');
+  t.equal(obs.hasListener(ObsEvent.A, listenerAOnce), false, 'specific');
+});
 
-  specify('trigger A 1', async function () {
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerAEvery),
-      true,
-      'specific pre'
-    );
-    await obs.trigger(ObsEvent.A, params.aTwo);
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerAEvery),
-      true,
-      'specific post'
-    );
-  });
+test('trigger A 1', async function (t) {
+  t.equal(obs.hasListener(ObsEvent.A, listenerAEvery), true, 'specific pre');
+  await obs.trigger(ObsEvent.A, params.aTwo);
+  t.equal(obs.hasListener(ObsEvent.A, listenerAEvery), true, 'specific post');
+});
 
-  specify('trigger B', async function () {
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.B, listenerBOnce),
-      true,
-      'specific pre'
-    );
-    await obs.trigger(ObsEvent.B, params.b);
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.B, listenerBOnce),
-      false,
-      'specific post'
-    );
-  });
+test('trigger B', async function (t) {
+  t.equal(obs.hasListener(ObsEvent.B, listenerBOnce), true, 'specific pre');
+  await obs.trigger(ObsEvent.B, params.b);
+  t.equal(obs.hasListener(ObsEvent.B, listenerBOnce), false, 'specific post');
+});
 
-  specify('remove A', async function () {
-    obs.off(ObsEvent.A, listenerAEvery);
-    assert.strictEqual(
-      obs.hasListener(ObsEvent.A, listenerAEvery),
-      false,
-      'specific pre'
-    );
+test('remove A', async function (t) {
+  obs.off(ObsEvent.A, listenerAEvery);
+  t.equal(obs.hasListener(ObsEvent.A, listenerAEvery), false, 'specific pre');
 
-    assert.strictEqual(counter, 2, 'incorrect counter');
-    await obs.trigger(ObsEvent.A, 777);
-  });
+  t.equal(counter, 2, 'incorrect counter');
+  await obs.trigger(ObsEvent.A, 777);
 });
