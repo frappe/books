@@ -1,13 +1,17 @@
-name: Build
+name: Test
 
 on:
+  push:
+    branches: [$default-branch]
+    paths-ignore:
+      - '**.md'
   pull_request:
     paths-ignore:
       - '**.md'
   workflow_dispatch:
 
 jobs:
-  setup_and_build:
+  setup_and_test:
     runs-on: macos-11
     steps:
       - name: Setup node
@@ -24,11 +28,5 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Install RPM
-        run: HOMEBREW_NO_AUTO_UPDATE=1 brew install rpm
-
-      - name: Run build
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-          APPLE_NOTARIZE: 0
-        run: yarn electron:build -mwl --publish never
+      - name: Yarn Tests
+        run: yarn test

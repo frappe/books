@@ -14,7 +14,7 @@ jobs:
       - name: Checkout Books
         uses: actions/checkout@v2
 
-      - name: Setup Books
+      - name: Install Dependencies
         run: |
           yarn set version 1.22.18
           yarn
@@ -65,7 +65,7 @@ jobs:
       - name: Checkout Books
         uses: actions/checkout@v2
 
-      - name: Setup Books
+      - name: Install Dependencies
         run: |
           yarn set version 1.22.18
           yarn
@@ -113,7 +113,7 @@ jobs:
       - name: Checkout Books
         uses: actions/checkout@v2
 
-      - name: Setup Books
+      - name: Install Dependencies
         run: yarn
 
       - name: Set Error Log Creds
