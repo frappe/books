@@ -1,6 +1,10 @@
-name: Build
+name: Test
 
 on:
+  push:
+    branches: [$default-branch]
+    paths-ignore:
+      - '**.md'
   pull_request:
     paths-ignore:
       - '**.md'
@@ -21,14 +25,8 @@ jobs:
       - name: Checkout Books
         uses: actions/checkout@v2
 
-      - name: Setup Books
+      - name: Install Dependencies
         run: yarn
 
-      - name: Install RPM
-        run: HOMEBREW_NO_AUTO_UPDATE=1 brew install rpm
-
-      - name: Run build
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-          APPLE_NOTARIZE: 0
-        run: yarn electron:build -mwl --publish never
+      - name: Yarn Tests
+        run: yarn test
