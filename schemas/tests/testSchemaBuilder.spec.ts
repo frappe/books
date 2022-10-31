@@ -1,224 +1,212 @@
-import * as assert from 'assert';
 import { cloneDeep, isEqual } from 'lodash';
-import { describe } from 'mocha';
+import test from 'tape';
 import { getMapFromList } from 'utils';
 import {
   addMetaFields,
   cleanSchemas,
   getAbstractCombinedSchemas,
   getRegionalCombinedSchemas,
-  setSchemaNameOnFields,
+  setSchemaNameOnFields
 } from '../index';
 import { metaSchemas } from '../schemas';
 import {
   everyFieldExists,
   getTestSchemaMap,
   someFieldExists,
-  subtract,
+  subtract
 } from './helpers';
 
-describe('Schema Builder', function () {
-  const { appSchemaMap, regionalSchemaMap } = getTestSchemaMap();
-  describe('Raw Schemas', function () {
-    specify('Meta Properties', function () {
-      assert.strictEqual(appSchemaMap.Party.isAbstract, true);
-      assert.strictEqual(appSchemaMap.Customer.extends, 'Party');
-      assert.strictEqual(appSchemaMap.Account.isTree, true);
-      assert.strictEqual(appSchemaMap.JournalEntryAccount.isChild, true);
-    });
+const { appSchemaMap, regionalSchemaMap } = getTestSchemaMap();
+test('Meta Properties', function (t) {
+  t.equal(appSchemaMap.Party.isAbstract, true);
+  t.equal(appSchemaMap.Customer.extends, 'Party');
+  t.equal(appSchemaMap.Account.isTree, true);
+  t.equal(appSchemaMap.JournalEntryAccount.isChild, true);
+  t.end();
+});
 
-    specify('Field Counts', function () {
-      assert.strictEqual(appSchemaMap.Account.fields?.length, 6);
-      assert.strictEqual(appSchemaMap.JournalEntry.fields?.length, 9);
-      assert.strictEqual(appSchemaMap.JournalEntryAccount.fields?.length, 3);
-      assert.strictEqual(appSchemaMap.Party.fields?.length, 9);
-      assert.strictEqual(appSchemaMap.Customer.fields?.length, undefined);
-      assert.strictEqual(regionalSchemaMap.Party.fields?.length, 2);
-    });
+test('Field Counts', function (t) {
+  t.equal(appSchemaMap.Account.fields?.length, 6);
+  t.equal(appSchemaMap.JournalEntry.fields?.length, 9);
+  t.equal(appSchemaMap.JournalEntryAccount.fields?.length, 3);
+  t.equal(appSchemaMap.Party.fields?.length, 9);
+  t.equal(appSchemaMap.Customer.fields?.length, undefined);
+  t.equal(regionalSchemaMap.Party.fields?.length, 2);
+  t.end();
+});
 
-    specify('Quick Edit Field Counts', function () {
-      assert.strictEqual(appSchemaMap.Party.quickEditFields?.length, 5);
-      assert.strictEqual(regionalSchemaMap.Party.quickEditFields?.length, 8);
-    });
-  });
+test('Quick Edit Field Counts', function (t) {
+  t.equal(appSchemaMap.Party.quickEditFields?.length, 5);
+  t.equal(regionalSchemaMap.Party.quickEditFields?.length, 8);
+  t.end();
+});
 
-  const regionalCombined = getRegionalCombinedSchemas(
-    appSchemaMap,
-    regionalSchemaMap
+const regionalCombined = getRegionalCombinedSchemas(
+  appSchemaMap,
+  regionalSchemaMap
+);
+
+test('Field Counts', function (t) {
+  t.equal(regionalCombined.Party.fields?.length, 11);
+  t.end();
+});
+
+test('Quick Edit Field Counts', function (t) {
+  t.equal(regionalSchemaMap.Party.quickEditFields?.length, 8);
+  t.end();
+});
+
+test('Schema Equality with App Schemas', function (t) {
+  t.equal(isEqual(regionalCombined.Account, appSchemaMap.Account), true);
+  t.equal(
+    isEqual(regionalCombined.JournalEntry, appSchemaMap.JournalEntry),
+    true
   );
-  describe('Regional Combined Schemas', function () {
-    specify('Field Counts', function () {
-      assert.strictEqual(regionalCombined.Party.fields?.length, 11);
-    });
-
-    specify('Quick Edit Field Counts', function () {
-      assert.strictEqual(regionalSchemaMap.Party.quickEditFields?.length, 8);
-    });
-
-    specify('Schema Equality with App Schemas', function () {
-      assert.strictEqual(
-        isEqual(regionalCombined.Account, appSchemaMap.Account),
-        true
-      );
-      assert.strictEqual(
-        isEqual(regionalCombined.JournalEntry, appSchemaMap.JournalEntry),
-        true
-      );
-      assert.strictEqual(
-        isEqual(
-          regionalCombined.JournalEntryAccount,
-          appSchemaMap.JournalEntryAccount
-        ),
-        true
-      );
-      assert.strictEqual(
-        isEqual(regionalCombined.Customer, appSchemaMap.Customer),
-        true
-      );
-      assert.strictEqual(
-        isEqual(regionalCombined.Party, appSchemaMap.Party),
-        false
-      );
-    });
-  });
-
-  const abstractCombined = cleanSchemas(
-    getAbstractCombinedSchemas(regionalCombined)
+  t.equal(
+    isEqual(
+      regionalCombined.JournalEntryAccount,
+      appSchemaMap.JournalEntryAccount
+    ),
+    true
   );
-  describe('Abstract Combined Schemas', function () {
-    specify('Meta Properties', function () {
-      assert.strictEqual(abstractCombined.Customer!.extends, undefined);
-    });
+  t.equal(isEqual(regionalCombined.Customer, appSchemaMap.Customer), true);
+  t.equal(isEqual(regionalCombined.Party, appSchemaMap.Party), false);
+  t.end();
+});
 
-    specify('Abstract Schema Existance', function () {
-      assert.strictEqual(abstractCombined.Party, undefined);
-    });
+const abstractCombined = cleanSchemas(
+  getAbstractCombinedSchemas(regionalCombined)
+);
 
-    specify('Field Counts', function () {
-      assert.strictEqual(abstractCombined.Customer!.fields?.length, 11);
-    });
+test('Meta Properties', function (t) {
+  t.equal(abstractCombined.Customer!.extends, undefined);
+  t.end();
+});
 
-    specify('Quick Edit Field Counts', function () {
-      assert.strictEqual(abstractCombined.Customer!.quickEditFields?.length, 8);
-    });
+test('Abstract Schema Existance', function (t) {
+  t.equal(abstractCombined.Party, undefined);
+  t.end();
+});
 
-    specify('Schema Equality with App Schemas', function () {
-      assert.strictEqual(
-        isEqual(abstractCombined.Account, appSchemaMap.Account),
-        true
-      );
-      assert.strictEqual(
-        isEqual(abstractCombined.JournalEntry, appSchemaMap.JournalEntry),
-        true
-      );
-      assert.strictEqual(
-        isEqual(
-          abstractCombined.JournalEntryAccount,
-          appSchemaMap.JournalEntryAccount
-        ),
-        true
-      );
-      assert.strictEqual(
-        isEqual(abstractCombined.Customer, appSchemaMap.Customer),
-        false
-      );
-    });
+test('Field Counts', function (t) {
+  t.equal(abstractCombined.Customer!.fields?.length, 11);
+  t.end();
+});
 
-    specify('Schema Field Existance', function () {
-      assert.strictEqual(
-        everyFieldExists(
-          regionalSchemaMap.Party.quickEditFields ?? [],
-          abstractCombined.Customer!
-        ),
-        true
-      );
-    });
-  });
+test('Quick Edit Field Counts', function (t) {
+  t.equal(abstractCombined.Customer!.quickEditFields?.length, 8);
+  t.end();
+});
 
-  let almostFinalSchemas = cloneDeep(abstractCombined);
-  almostFinalSchemas = addMetaFields(almostFinalSchemas);
-  const finalSchemas = setSchemaNameOnFields(almostFinalSchemas);
-  const metaSchemaMap = getMapFromList(metaSchemas, 'name');
-  const baseFieldNames = metaSchemaMap.base.fields!.map((f) => f.fieldname);
-  const childFieldNames = metaSchemaMap.child.fields!.map((f) => f.fieldname);
-  const treeFieldNames = metaSchemaMap.tree.fields!.map((f) => f.fieldname);
-  const submittableFieldNames = metaSchemaMap.submittable.fields!.map(
-    (f) => f.fieldname
+test('Schema Equality with App Schemas', function (t) {
+  t.equal(isEqual(abstractCombined.Account, appSchemaMap.Account), true);
+  t.equal(
+    isEqual(abstractCombined.JournalEntry, appSchemaMap.JournalEntry),
+    true
   );
-  const allFieldNames = [
-    ...baseFieldNames,
-    ...childFieldNames,
-    ...treeFieldNames,
-    ...submittableFieldNames,
-  ];
+  t.equal(
+    isEqual(
+      abstractCombined.JournalEntryAccount,
+      appSchemaMap.JournalEntryAccount
+    ),
+    true
+  );
+  t.equal(isEqual(abstractCombined.Customer, appSchemaMap.Customer), false);
+  t.end();
+});
 
-  describe('Final Schemas', function () {
-    specify('Schema Name Existsance', function () {
-      for (const schemaName in finalSchemas) {
-        for (const field of finalSchemas[schemaName]?.fields!) {
-          assert.strictEqual(field.schemaName, schemaName);
-        }
-      }
-    });
+test('Schema Field Existance', function (t) {
+  t.equal(
+    everyFieldExists(
+      regionalSchemaMap.Party.quickEditFields ?? [],
+      abstractCombined.Customer!
+    ),
+    true
+  );
+  t.end();
+});
 
-    specify('Schema Field Existance', function () {
-      assert.strictEqual(
-        everyFieldExists(baseFieldNames, finalSchemas.Customer!),
-        true
-      );
+let almostFinalSchemas = cloneDeep(abstractCombined);
+almostFinalSchemas = addMetaFields(almostFinalSchemas);
+const finalSchemas = setSchemaNameOnFields(almostFinalSchemas);
+const metaSchemaMap = getMapFromList(metaSchemas, 'name');
+const baseFieldNames = metaSchemaMap.base.fields!.map((f) => f.fieldname);
+const childFieldNames = metaSchemaMap.child.fields!.map((f) => f.fieldname);
+const treeFieldNames = metaSchemaMap.tree.fields!.map((f) => f.fieldname);
+const submittableFieldNames = metaSchemaMap.submittable.fields!.map(
+  (f) => f.fieldname
+);
+const allFieldNames = [
+  ...baseFieldNames,
+  ...childFieldNames,
+  ...treeFieldNames,
+  ...submittableFieldNames,
+];
 
-      assert.strictEqual(
-        someFieldExists(
-          subtract(allFieldNames, baseFieldNames),
-          finalSchemas.Customer!
-        ),
-        false
-      );
+test('Schema Name Existsance', function (t) {
+  for (const schemaName in finalSchemas) {
+    for (const field of finalSchemas[schemaName]?.fields!) {
+      t.equal(field.schemaName, schemaName);
+    }
+  }
+  t.end();
+});
 
-      assert.strictEqual(
-        everyFieldExists(
-          [...baseFieldNames, ...submittableFieldNames],
-          finalSchemas.JournalEntry!
-        ),
-        true
-      );
+test('Schema Field Existance', function (t) {
+  t.equal(everyFieldExists(baseFieldNames, finalSchemas.Customer!), true);
 
-      assert.strictEqual(
-        someFieldExists(
-          subtract(allFieldNames, baseFieldNames, submittableFieldNames),
-          finalSchemas.JournalEntry!
-        ),
-        false
-      );
+  t.equal(
+    someFieldExists(
+      subtract(allFieldNames, baseFieldNames),
+      finalSchemas.Customer!
+    ),
+    false
+  );
 
-      assert.strictEqual(
-        everyFieldExists(childFieldNames, finalSchemas.JournalEntryAccount!),
-        true
-      );
+  t.equal(
+    everyFieldExists(
+      [...baseFieldNames, ...submittableFieldNames],
+      finalSchemas.JournalEntry!
+    ),
+    true
+  );
 
-      assert.strictEqual(
-        someFieldExists(
-          subtract(allFieldNames, childFieldNames),
-          finalSchemas.JournalEntryAccount!
-        ),
-        false
-      );
+  t.equal(
+    someFieldExists(
+      subtract(allFieldNames, baseFieldNames, submittableFieldNames),
+      finalSchemas.JournalEntry!
+    ),
+    false
+  );
 
-      assert.strictEqual(
-        everyFieldExists(
-          [...treeFieldNames, ...baseFieldNames],
-          finalSchemas.Account!
-        ),
-        true
-      );
+  t.equal(
+    everyFieldExists(childFieldNames, finalSchemas.JournalEntryAccount!),
+    true
+  );
 
-      assert.strictEqual(
-        someFieldExists(
-          subtract(allFieldNames, treeFieldNames, baseFieldNames),
-          finalSchemas.Account!
-        ),
-        false
-      );
-    });
-  });
+  t.equal(
+    someFieldExists(
+      subtract(allFieldNames, childFieldNames),
+      finalSchemas.JournalEntryAccount!
+    ),
+    false
+  );
+
+  t.equal(
+    everyFieldExists(
+      [...treeFieldNames, ...baseFieldNames],
+      finalSchemas.Account!
+    ),
+    true
+  );
+
+  t.equal(
+    someFieldExists(
+      subtract(allFieldNames, treeFieldNames, baseFieldNames),
+      finalSchemas.Account!
+    ),
+    false
+  );
+
+  t.end();
 });
