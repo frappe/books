@@ -1,9 +1,10 @@
 import { Money } from 'pesa';
 
-export type MovementType =
-  | 'MaterialIssue'
-  | 'MaterialReceipt'
-  | 'MaterialTransfer';
+export enum MovementType {
+  'MaterialIssue' = 'MaterialIssue',
+  'MaterialReceipt' = 'MaterialReceipt',
+  'MaterialTransfer' = 'MaterialTransfer',
+}
 
 export interface SMDetails {
   date: Date;
@@ -20,5 +21,3 @@ export interface SMTransferDetails {
 }
 
 export interface SMIDetails extends SMDetails, SMTransferDetails {}
-
-
