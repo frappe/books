@@ -21,7 +21,6 @@ import { Location } from './inventory/Location';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
-import { StockQueue } from './inventory/StockQueue';
 
 export const models = {
   Account,
@@ -43,7 +42,6 @@ export const models = {
   Tax,
   TaxSummary,
   // Inventory Models
-  StockQueue,
   StockMovement,
   StockMovementItem,
   StockLedgerEntry,

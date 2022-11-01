@@ -2,9 +2,7 @@ import { Fyo, t } from 'fyo';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { getStockQueue } from './helpers';
 import { StockLedgerEntry } from './StockLedgerEntry';
-import { StockQueue } from './StockQueue';
 import { SMDetails, SMIDetails, SMTransferDetails } from './types';
 
 export class StockManager {
@@ -51,11 +49,7 @@ export class StockManagerItem {
    * updates the Stock Queue and creates Stock Ledger Entries.
    *
    * 1. Get existing stock Queue
-   * 2. Get Stock Value Before from Stock Queue
-   * 3. Update Stock Queue
-   * 4. Get Stock Value After from Stock Queue
    * 5. Create Stock Ledger Entry
-   * 6. Save Stock Queue
    * 7. Insert Stock Ledger Entry
    */
 
@@ -68,7 +62,6 @@ export class StockManagerItem {
   fromLocation?: string;
   toLocation?: string;
 
-  stockQueues?: StockQueue[];
   stockLedgerEntries?: StockLedgerEntry[];
 
   fyo: Fyo;
@@ -93,10 +86,6 @@ export class StockManagerItem {
   }
 
   async sync() {
-    for (const sq of this.stockQueues ?? []) {
-      await sq.sync();
-    }
-
     for (const sle of this.stockLedgerEntries ?? []) {
       await sle.sync();
     }
@@ -134,69 +123,26 @@ export class StockManagerItem {
       quantity = -quantity;
     }
 
-    // Stock Queue Changes
-    const { stockQueue, stockValueBefore, stockValueAfter } =
-      await this.#makeStockQueueChange(location, isOutward);
-    this.stockQueues?.push(stockQueue);
-
     // Stock Ledger Entry
     if (!isCancelled) {
-      const stockLedgerEntry = this.#getStockLedgerEntry(
-        location,
-        quantity,
-        stockValueBefore,
-        stockValueAfter
-      );
+      const stockLedgerEntry = this.#getStockLedgerEntry(location, quantity);
       this.stockLedgerEntries?.push(stockLedgerEntry);
     }
   }
 
-  #getStockLedgerEntry(
-    location: string,
-    quantity: number,
-    stockValueBefore: Money,
-    stockValueAfter: Money
-  ) {
+  #getStockLedgerEntry(location: string, quantity: number) {
     return this.fyo.doc.getNewDoc(ModelNameEnum.StockLedgerEntry, {
       date: this.date,
       item: this.item,
       rate: this.rate,
       quantity,
       location,
-      stockValueBefore,
-      stockValueAfter,
       referenceName: this.referenceName,
       referenceType: this.referenceType,
     }) as StockLedgerEntry;
   }
 
-  async #makeStockQueueChange(location: string, isOutward: boolean) {
-    const stockQueue = await getStockQueue(this.item!, location, this.fyo);
-    const stockValueBefore = stockQueue.stockValue!;
-    let isSuccess;
-
-    if (isOutward) {
-      isSuccess = stockQueue.outward(-this.quantity!);
-    } else {
-      isSuccess = stockQueue.inward(this.rate!, this.quantity!);
-    }
-
-    if (!isSuccess && isOutward) {
-      throw new ValidationError(
-        t`Stock Manager: Insufficient quantity ${
-          stockQueue.quantity
-        } at ${location} of ${this
-          .item!} for outward transaction. Quantity required ${this.quantity!}.`
-      );
-    }
-
-    const stockValueAfter = stockQueue.stockValue!;
-
-    return { stockQueue, stockValueBefore, stockValueAfter };
-  }
-
   #clear() {
-    this.stockQueues = [];
     this.stockLedgerEntries = [];
   }
 

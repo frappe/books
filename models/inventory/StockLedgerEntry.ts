@@ -10,6 +10,4 @@ export class StockLedgerEntry extends Doc {
   location?: string;
   referenceName?: string;
   referenceType?: string;
-  stockValueBefore?: Money;
-  stockValueAfter?: Money;
 }

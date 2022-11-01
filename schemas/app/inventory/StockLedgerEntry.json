@@ -49,18 +49,6 @@
       "label": "Ref. Type",
       "fieldtype": "Data",
       "readOnly": true
-    },
-    {
-      "fieldname": "stockValueBefore",
-      "label": "Stock Value Before",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
-      "fieldname": "stockValueAfter",
-      "label": "Stock Value After",
-      "fieldtype": "Currency",
-      "readOnly": true
     }
   ]
 }
