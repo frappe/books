@@ -22,4 +22,3 @@ export interface SMTransferDetails {
 export interface SMIDetails extends SMDetails, SMTransferDetails {}
 
 
-export type StockQueueItem = { rate: Money; quantity: number };
