@@ -13,10 +13,10 @@ import { StockMovement } from './StockMovement';
 const locationFilter: FilterFunction = (doc: Doc) => {
   const item = doc.item;
   if (!doc.item) {
-    return {};
+    return { item: null };
   }
 
-  return { item } as QueryFilter;
+  return { item: ['in', [null, item]] } as QueryFilter;
 };
 
 export class StockMovementItem extends Doc {
@@ -38,7 +38,6 @@ export class StockMovementItem extends Doc {
   formulas: FormulaMap = {
     rate: {
       formula: async () => {
-        console.log('called', this.item);
         if (!this.item) {
           return this.rate;
         }

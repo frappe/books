@@ -484,6 +484,14 @@ export default class DatabaseCore extends DatabaseBase {
 
       if (operator === '=') {
         builder.where(field, comparisonValue);
+      } else if (
+        operator === 'in' &&
+        (comparisonValue as (string | null)[]).includes(null)
+      ) {
+        const nonNulls = (comparisonValue as (string | null)[]).filter(
+          Boolean
+        ) as string[];
+        builder.where(field, operator, nonNulls).orWhere(field, null);
       } else {
         builder.where(field, operator as string, comparisonValue as string);
       }

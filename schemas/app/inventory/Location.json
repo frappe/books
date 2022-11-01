@@ -15,9 +15,7 @@
       "fieldname": "item",
       "label": "Item",
       "fieldtype": "Link",
-      "target": "Item",
-      "required": true,
-      "readOnly": true
+      "target": "Item"
     }
   ],
   "quickEditFields": ["item"]
