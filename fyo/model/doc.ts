@@ -129,7 +129,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return !!this.submitted && !!this.cancelled;
   }
 
-  get syncing() {
+  get isSyncing() {
     return this._syncing;
   }
 
@@ -159,13 +159,18 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
   _setValuesWithoutChecks(data: DocValueMap, convertToDocValue: boolean) {
     for (const field of this.schema.fields) {
-      const fieldname = field.fieldname;
+      const { fieldname, fieldtype } = field;
       const value = data[field.fieldname];
 
       if (Array.isArray(value)) {
         for (const row of value) {
           this.push(fieldname, row, convertToDocValue);
         }
+      } else if (
+        fieldtype === FieldTypeEnum.Currency &&
+        typeof value === 'number'
+      ) {
+        this[fieldname] = this.fyo.pesa(value);
       } else if (value !== undefined && !convertToDocValue) {
         this[fieldname] = value;
       } else if (value !== undefined) {
@@ -269,13 +274,13 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _applyChange(
-    fieldname: string,
+    changedFieldname: string,
     retriggerChildDocApplyChange?: boolean
   ): Promise<boolean> {
-    await this._applyFormula(fieldname, retriggerChildDocApplyChange);
+    await this._applyFormula(changedFieldname, retriggerChildDocApplyChange);
     await this.trigger('change', {
       doc: this,
-      changed: fieldname,
+      changed: changedFieldname,
     });
 
     return true;
@@ -666,16 +671,17 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _applyFormula(
-    fieldname?: string,
+    changedFieldname?: string,
     retriggerChildDocApplyChange?: boolean
   ): Promise<boolean> {
     const doc = this;
-    let changed = await this._callAllTableFieldsApplyFormula(fieldname);
-    changed = (await this._applyFormulaForFields(doc, fieldname)) || changed;
+    let changed = await this._callAllTableFieldsApplyFormula(changedFieldname);
+    changed =
+      (await this._applyFormulaForFields(doc, changedFieldname)) || changed;
 
     if (changed && retriggerChildDocApplyChange) {
-      await this._callAllTableFieldsApplyFormula(fieldname);
-      await this._applyFormulaForFields(doc, fieldname);
+      await this._callAllTableFieldsApplyFormula(changedFieldname);
+      await this._applyFormulaForFields(doc, changedFieldname);
     }
 
     return changed;

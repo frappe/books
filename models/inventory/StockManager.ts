@@ -25,17 +25,33 @@ export class StockManager {
     this.fyo = fyo;
   }
 
-  async transferStock(transferDetails: SMTransferDetails) {
-    const details = this.#getSMIDetails(transferDetails);
-    const item = new StockManagerItem(details, this.fyo);
-    await item.transferStock(this.isCancelled);
-    this.items.push(item);
+  async createTransfers(transferDetails: SMTransferDetails[]) {
+    for (const detail of transferDetails) {
+      await this.#createTransfer(detail);
+    }
+
+    await this.#sync();
   }
 
-  async sync() {
+  async cancelTransfers() {
+    const { referenceName, referenceType } = this.details;
+    await this.fyo.db.deleteAll(ModelNameEnum.StockLedgerEntry, {
+      referenceType,
+      referenceName,
+    });
+  }
+
+  async #sync() {
     for (const item of this.items) {
       await item.sync();
     }
+  }
+
+  async #createTransfer(transferDetails: SMTransferDetails) {
+    const details = this.#getSMIDetails(transferDetails);
+    const item = new StockManagerItem(details, this.fyo);
+    await item.transferStock();
+    this.items.push(item);
   }
 
   #getSMIDetails(transferDetails: SMTransferDetails): SMIDetails {
@@ -43,7 +59,7 @@ export class StockManager {
   }
 }
 
-export class StockManagerItem {
+class StockManagerItem {
   /**
    * The Stock Manager Item is used to move stock to and from a location. It
    * updates the Stock Queue and creates Stock Ledger Entries.
@@ -80,9 +96,9 @@ export class StockManagerItem {
     this.fyo = fyo;
   }
 
-  async transferStock(isCancelled: boolean) {
+  transferStock() {
     this.#clear();
-    await this.#moveStockForBothLocations(isCancelled);
+    this.#moveStockForBothLocations();
   }
 
   async sync() {
@@ -91,29 +107,17 @@ export class StockManagerItem {
     }
   }
 
-  async #moveStockForBothLocations(isCancelled: boolean) {
+  #moveStockForBothLocations() {
     if (this.fromLocation) {
-      await this.#moveStockForSingleLocation(
-        this.fromLocation,
-        isCancelled ? false : true,
-        isCancelled
-      );
+      this.#moveStockForSingleLocation(this.fromLocation, true);
     }
 
     if (this.toLocation) {
-      await this.#moveStockForSingleLocation(
-        this.toLocation,
-        isCancelled ? true : false,
-        isCancelled
-      );
+      this.#moveStockForSingleLocation(this.toLocation, false);
     }
   }
 
-  async #moveStockForSingleLocation(
-    location: string,
-    isOutward: boolean,
-    isCancelled: boolean
-  ) {
+  #moveStockForSingleLocation(location: string, isOutward: boolean) {
     let quantity = this.quantity!;
     if (quantity === 0) {
       return;
@@ -124,10 +128,8 @@ export class StockManagerItem {
     }
 
     // Stock Ledger Entry
-    if (!isCancelled) {
-      const stockLedgerEntry = this.#getStockLedgerEntry(location, quantity);
-      this.stockLedgerEntries?.push(stockLedgerEntry);
-    }
+    const stockLedgerEntry = this.#getStockLedgerEntry(location, quantity);
+    this.stockLedgerEntries?.push(stockLedgerEntry);
   }
 
   #getStockLedgerEntry(location: string, quantity: number) {
