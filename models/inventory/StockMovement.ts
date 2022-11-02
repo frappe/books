@@ -44,29 +44,22 @@ export class StockMovement extends Doc {
   }
 
   async afterSubmit(): Promise<void> {
-    await this._transferStock();
+    const transferDetails = this._getTransferDetails();
+    await this._getStockManager().createTransfers(transferDetails);
   }
 
   async afterCancel(): Promise<void> {
-    await this._transferStock();
+    await this._getStockManager().cancelTransfers();
   }
 
-  async _transferStock() {
-    const stockManager = this._getStockManager();
-    this._makeTransfers(stockManager);
-    await stockManager.sync();
-  }
-
-  _makeTransfers(stockManager: StockManager) {
-    for (const row of this.items ?? []) {
-      stockManager.transferStock({
-        item: row.item!,
-        rate: row.rate!,
-        quantity: row.quantity!,
-        fromLocation: row.fromLocation,
-        toLocation: row.toLocation,
-      });
-    }
+  _getTransferDetails() {
+    return (this.items ?? []).map((row) => ({
+      item: row.item!,
+      rate: row.rate!,
+      quantity: row.quantity!,
+      fromLocation: row.fromLocation,
+      toLocation: row.toLocation,
+    }));
   }
 
   _getStockManager(): StockManager {
