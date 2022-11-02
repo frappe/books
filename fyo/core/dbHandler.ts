@@ -6,7 +6,12 @@ import Observable from 'fyo/utils/observable';
 import { translateSchema } from 'fyo/utils/translation';
 import { Field, RawValue, SchemaMap } from 'schemas/types';
 import { getMapFromList } from 'utils';
-import { DatabaseBase, DatabaseDemuxBase, GetAllOptions } from 'utils/db/types';
+import {
+  DatabaseBase,
+  DatabaseDemuxBase,
+  GetAllOptions,
+  QueryFilter,
+} from 'utils/db/types';
 import { schemaTranslateables } from 'utils/translationHelpers';
 import { LanguageMap } from 'utils/types';
 import { Converter } from './converter';
@@ -205,6 +210,16 @@ export class DatabaseHandler extends DatabaseBase {
   async delete(schemaName: string, name: string): Promise<void> {
     await this.#demux.call('delete', schemaName, name);
     this.observer.trigger(`delete:${schemaName}`, name);
+  }
+
+  async deleteAll(schemaName: string, filters: QueryFilter): Promise<number> {
+    const count = (await this.#demux.call(
+      'deleteAll',
+      schemaName,
+      filters
+    )) as number;
+    this.observer.trigger(`deleteAll:${schemaName}`, filters);
+    return count;
   }
 
   // Other
