@@ -549,3 +549,78 @@ test('CRUD dependent schema', async function (t) {
 
   await db.close();
 });
+
+test('db deleteAll', async (t) => {
+  const db = await getDb();
+
+  const emailOne = 'one@temp.com';
+  const emailTwo = 'two@temp.com';
+  const emailThree = 'three@temp.com';
+
+  const phoneOne = '1';
+  const phoneTwo = '2';
+
+  const customers = [
+    { name: 'customer-a', phone: phoneOne, email: emailOne },
+    { name: 'customer-b', phone: phoneOne, email: emailOne },
+    { name: 'customer-c', phone: phoneOne, email: emailTwo },
+    { name: 'customer-d', phone: phoneOne, email: emailTwo },
+    { name: 'customer-e', phone: phoneTwo, email: emailTwo },
+    { name: 'customer-f', phone: phoneTwo, email: emailThree },
+    { name: 'customer-g', phone: phoneTwo, email: emailThree },
+  ];
+
+  for (const { name, email, phone } of customers) {
+    await db.insert('Customer', {
+      name,
+      email,
+      phone,
+      ...getDefaultMetaFieldValueMap(),
+    });
+  }
+
+  // Get total count
+  t.equal((await db.getAll('Customer')).length, customers.length);
+
+  // Single filter
+  t.equal(
+    await db.deleteAll('Customer', { email: emailOne }),
+    customers.filter((c) => c.email === emailOne).length
+  );
+  t.equal(
+    (await db.getAll('Customer', { filters: { email: emailOne } })).length,
+    0
+  );
+
+  // Multiple filters
+  t.equal(
+    await db.deleteAll('Customer', { email: emailTwo, phone: phoneTwo }),
+    customers.filter(
+      ({ phone, email }) => email === emailTwo && phone === phoneTwo
+    ).length
+  );
+  t.equal(
+    await db.deleteAll('Customer', { email: emailTwo, phone: phoneTwo }),
+    0
+  );
+
+  // Includes filters
+  t.equal(
+    await db.deleteAll('Customer', { email: ['in', [emailTwo, emailThree]] }),
+    customers.filter(
+      ({ email, phone }) =>
+        [emailTwo, emailThree].includes(email) &&
+        !(phone === phoneTwo && email === emailTwo)
+    ).length
+  );
+  t.equal(
+    (
+      await db.getAll('Customer', {
+        filters: { email: ['in', [emailTwo, emailThree]] },
+      })
+    ).length,
+    0
+  );
+
+  await db.close();
+});

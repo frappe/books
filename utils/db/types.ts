@@ -43,6 +43,8 @@ export abstract class DatabaseBase {
 
   // Delete
   abstract delete(schemaName: string, name: string): Promise<void>;
+  
+  abstract deleteAll(schemaName:string, filters:QueryFilter): Promise<number>;
 
   // Other
   abstract close(): Promise<void>;
