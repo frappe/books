@@ -1,5 +1,9 @@
+import {
+  assertDoesNotThrow,
+  assertThrows
+} from 'backend/database/tests/helpers';
 import { ModelNameEnum } from 'models/types';
-import test from 'tape';
+import { default as tape, default as test } from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { StockMovement } from '../StockMovement';
 import { MovementType } from '../types';
@@ -54,6 +58,7 @@ test('create stock movement, material receipt', async (t) => {
   const amount = rate * quantity;
   const stockMovement = await getStockMovement(
     MovementType.MaterialReceipt,
+    new Date('2022-11-03T09:57:04.528'),
     [
       {
         item: itemMap.Ink.name,
@@ -82,6 +87,7 @@ test('create stock movement, material receipt', async (t) => {
   t.equal(parseFloat(sle.rate), rate);
   t.equal(sle.quantity, quantity);
   t.equal(sle.location, locationMap.LocationOne);
+  t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), quantity);
 });
 
 test('create stock movement, material transfer', async (t) => {
@@ -90,6 +96,7 @@ test('create stock movement, material transfer', async (t) => {
 
   const stockMovement = await getStockMovement(
     MovementType.MaterialTransfer,
+    new Date('2022-11-03T09:58:04.528'),
     [
       {
         item: itemMap.Ink.name,
@@ -121,6 +128,12 @@ test('create stock movement, material transfer', async (t) => {
       t.ok(false, 'no-op');
     }
   }
+
+  t.equal(
+    await fyo.db.getStockQuantity(itemMap.Ink.name, locationMap.LocationOne),
+    0
+  );
+  t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), quantity);
 });
 
 test('create stock movement, material issue', async (t) => {
@@ -129,6 +142,7 @@ test('create stock movement, material issue', async (t) => {
 
   const stockMovement = await getStockMovement(
     MovementType.MaterialIssue,
+    new Date('2022-11-03T09:59:04.528'),
     [
       {
         item: itemMap.Ink.name,
@@ -152,6 +166,7 @@ test('create stock movement, material issue', async (t) => {
   t.equal(parseFloat(sle.rate), rate);
   t.equal(sle.quantity, -quantity);
   t.equal(sle.location, locationMap.LocationTwo);
+  t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), 0);
 });
 
 /**
@@ -180,10 +195,180 @@ test('cancel stock movement', async (t) => {
     const slesAfter = await getSLEs(name, ModelNameEnum.StockMovement, fyo);
     t.equal(slesAfter.length, 0);
   }
+
+  t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), null);
 });
 
 /**
  * Section 4: Test Invalid entries
  */
+
+async function runEntries(
+  item: string,
+  entries: {
+    type: MovementType;
+    date: Date;
+    valid: boolean;
+    postQuantity: number;
+    items: {
+      item: string;
+      to?: string;
+      from?: string;
+      quantity: number;
+      rate: number;
+    }[];
+  }[],
+  t: tape.Test
+) {
+  for (const { type, date, items, valid, postQuantity } of entries) {
+    const stockMovement = await getStockMovement(type, date, items, fyo);
+    await stockMovement.sync();
+
+    if (valid) {
+      await assertDoesNotThrow(async () => await stockMovement.submit());
+    } else {
+      await assertThrows(async () => await stockMovement.submit());
+    }
+
+    t.equal(await fyo.db.getStockQuantity(item), postQuantity);
+  }
+}
+
+test('create stock movements, invalid entries, in sequence', async (t) => {
+  const { name: item, rate } = itemMap.Ink;
+  const quantity = 10;
+  await runEntries(
+    item,
+    [
+      {
+        type: MovementType.MaterialReceipt,
+        date: new Date('2022-11-03T09:58:04.528'),
+        valid: true,
+        postQuantity: quantity,
+        items: [
+          {
+            item,
+            to: locationMap.LocationOne,
+            quantity,
+            rate,
+          },
+        ],
+      },
+      {
+        type: MovementType.MaterialTransfer,
+        date: new Date('2022-11-03T09:58:05.528'),
+        valid: false,
+        postQuantity: quantity,
+        items: [
+          {
+            item,
+            from: locationMap.LocationOne,
+            to: locationMap.LocationTwo,
+            quantity: quantity + 1,
+            rate,
+          },
+        ],
+      },
+      {
+        type: MovementType.MaterialIssue,
+        date: new Date('2022-11-03T09:58:06.528'),
+        valid: false,
+        postQuantity: quantity,
+        items: [
+          {
+            item,
+            from: locationMap.LocationOne,
+            quantity: quantity + 1,
+            rate,
+          },
+        ],
+      },
+      {
+        type: MovementType.MaterialTransfer,
+        date: new Date('2022-11-03T09:58:07.528'),
+        valid: true,
+        postQuantity: quantity,
+        items: [
+          {
+            item,
+            from: locationMap.LocationOne,
+            to: locationMap.LocationTwo,
+            quantity,
+            rate,
+          },
+        ],
+      },
+      {
+        type: MovementType.MaterialIssue,
+        date: new Date('2022-11-03T09:58:08.528'),
+        valid: true,
+        postQuantity: 0,
+        items: [
+          {
+            item,
+            from: locationMap.LocationTwo,
+            quantity,
+            rate,
+          },
+        ],
+      },
+    ],
+    t
+  );
+});
+
+test('create stock movements, invalid entries, out of sequence', async (t) => {
+  const { name: item, rate } = itemMap.Ink;
+  const quantity = 10;
+  await runEntries(
+    item,
+    [
+      {
+        type: MovementType.MaterialReceipt,
+        date: new Date('2022-11-15'),
+        valid: true,
+        postQuantity: quantity,
+        items: [
+          {
+            item,
+            to: locationMap.LocationOne,
+            quantity,
+            rate,
+          },
+        ],
+      },
+      {
+        type: MovementType.MaterialIssue,
+        date: new Date('2022-11-17'),
+        valid: true,
+        postQuantity: quantity - 5,
+        items: [
+          {
+            item,
+            from: locationMap.LocationOne,
+            quantity: quantity - 5,
+            rate,
+          },
+        ],
+      },
+      {
+        type: MovementType.MaterialTransfer,
+        date: new Date('2022-11-16'),
+        valid: false,
+        postQuantity: quantity - 5,
+        items: [
+          {
+            item,
+            from: locationMap.LocationOne,
+            to: locationMap.LocationTwo,
+            quantity,
+            rate,
+          },
+        ],
+      },
+    ],
+    t
+  );
+});
 
 closeTestFyo(fyo, __filename);

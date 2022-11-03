@@ -26,11 +26,13 @@ export function getItem(name: string, rate: number) {
 
 export async function getStockMovement(
   movementType: MovementType,
+  date: Date,
   transfers: Transfer[],
   fyo: Fyo
 ): Promise<StockMovement> {
   const doc = fyo.doc.getNewDoc(ModelNameEnum.StockMovement, {
     movementType,
+    date,
   }) as StockMovement;
 
   for (const {

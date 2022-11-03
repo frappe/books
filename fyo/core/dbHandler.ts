@@ -19,7 +19,7 @@ import {
   DatabaseDemuxConstructor,
   DocValue,
   DocValueMap,
-  RawValueMap
+  RawValueMap,
 } from './types';
 
 // Return types of Bespoke Queries
@@ -304,6 +304,21 @@ export class DatabaseHandler extends DatabaseBase {
     return (await this.#demux.callBespoke(
       'getTotalCreditAndDebit'
     )) as TotalCreditAndDebit[];
+  }
+
+  async getStockQuantity(
+    item: string,
+    location?: string,
+    fromDate?: string,
+    toDate?: string
+  ): Promise<number | null> {
+    return (await this.#demux.callBespoke(
+      'getStockQuantity',
+      item,
+      location,
+      fromDate,
+      toDate
+    )) as number | null;
   }
 
   /**
