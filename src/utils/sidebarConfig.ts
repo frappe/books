@@ -87,6 +87,47 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
   ];
 }
 
+async function getReportSidebar() {
+  const reports = {
+    label: t`Reports`,
+    name: 'reports',
+    icon: 'reports',
+    route: '/report/GeneralLedger',
+    items: [
+      {
+        label: t`General Ledger`,
+        name: 'general-ledger',
+        route: '/report/GeneralLedger',
+      },
+      {
+        label: t`Profit And Loss`,
+        name: 'profit-and-loss',
+        route: '/report/ProfitAndLoss',
+      },
+      {
+        label: t`Balance Sheet`,
+        name: 'balance-sheet',
+        route: '/report/BalanceSheet',
+      },
+      {
+        label: t`Trial Balance`,
+        name: 'trial-balance',
+        route: '/report/TrialBalance',
+      },
+    ],
+  };
+
+  if (await getIsInventoryEnabled(fyo)) {
+    reports.items.push({
+      label: t`Stock Ledger`,
+      name: 'stock-ledger',
+      route: '/report/StockLedger',
+    });
+  }
+
+  return reports;
+}
+
 async function getCompleteSidebar(): Promise<SidebarConfig> {
   return [
     {
@@ -194,34 +235,7 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
         },
       ],
     },
-    {
-      label: t`Reports`,
-      name: 'reports',
-      icon: 'reports',
-      route: '/report/GeneralLedger',
-      items: [
-        {
-          label: t`General Ledger`,
-          name: 'general-ledger',
-          route: '/report/GeneralLedger',
-        },
-        {
-          label: t`Profit And Loss`,
-          name: 'profit-and-loss',
-          route: '/report/ProfitAndLoss',
-        },
-        {
-          label: t`Balance Sheet`,
-          name: 'balance-sheet',
-          route: '/report/BalanceSheet',
-        },
-        {
-          label: t`Trial Balance`,
-          name: 'trial-balance',
-          route: '/report/TrialBalance',
-        },
-      ],
-    },
+    await getReportSidebar(),
     await getInventorySidebar(),
     await getRegionalSidebar(),
     {
