@@ -26,8 +26,13 @@ export class StockManager {
   }
 
   async createTransfers(transferDetails: SMTransferDetails[]) {
-    for (const detail of transferDetails) {
-      await this.#createTransfer(detail);
+    const detailsList = transferDetails.map((d) => this.#getSMIDetails(d));
+    for (const details of detailsList) {
+      await this.#validate(details);
+    }
+
+    for (const details of detailsList) {
+      await this.#createTransfer(details);
     }
 
     await this.#sync();
@@ -47,15 +52,110 @@ export class StockManager {
     }
   }
 
-  async #createTransfer(transferDetails: SMTransferDetails) {
-    const details = this.#getSMIDetails(transferDetails);
+  async #createTransfer(details: SMIDetails) {
     const item = new StockManagerItem(details, this.fyo);
-    await item.transferStock();
+    item.transferStock();
     this.items.push(item);
   }
 
   #getSMIDetails(transferDetails: SMTransferDetails): SMIDetails {
     return Object.assign({}, this.details, transferDetails);
+  }
+
+  async #validate(details: SMIDetails) {
+    this.#validateRate(details);
+    this.#validateQuantity(details);
+    this.#validateLocation(details);
+    await this.#validateStockAvailability(details);
+  }
+
+  #validateQuantity(details: SMIDetails) {
+    if (!details.quantity) {
+      throw new ValidationError(t`Quantity needs to be set`);
+    }
+
+    if (details.quantity <= 0) {
+      throw new ValidationError(
+        t`Quantity (${details.quantity}) has to be greater than zero`
+      );
+    }
+  }
+
+  #validateRate(details: SMIDetails) {
+    if (!details.rate) {
+      throw new ValidationError(t`Rate needs to be set`);
+    }
+
+    if (details.rate.lte(0)) {
+      throw new ValidationError(
+        t`Rate (${details.rate.float}) has to be greater than zero`
+      );
+    }
+  }
+
+  #validateLocation(details: SMIDetails) {
+    if (details.fromLocation) {
+      return;
+    }
+
+    if (details.toLocation) {
+      return;
+    }
+
+    throw new ValidationError(t`Both From and To Location cannot be undefined`);
+  }
+
+  async #validateStockAvailability(details: SMIDetails) {
+    if (!details.fromLocation) {
+      return;
+    }
+
+    const quantityBefore =
+      (await this.fyo.db.getStockQuantity(
+        details.item,
+        details.fromLocation,
+        undefined,
+        details.date.toISOString()
+      )) ?? 0;
+    const formattedDate = this.fyo.format(details.date, 'Datetime');
+
+    if (quantityBefore < details.quantity) {
+      throw new ValidationError(
+        [
+          t`Insufficient Quantity.`,
+          t`Additional quantity (${
+            details.quantity - quantityBefore
+          }) required to make outward transfer of item ${details.item} from ${
+            details.fromLocation
+          } on ${formattedDate}`,
+        ].join('\n')
+      );
+    }
+
+    const quantityAfter = await this.fyo.db.getStockQuantity(
+      details.item,
+      details.fromLocation,
+      details.date.toISOString()
+    );
+    if (quantityAfter === null) {
+      // No future transactions
+      return;
+    }
+
+    const quantityRemaining = quantityBefore - details.quantity;
+    if (quantityAfter < quantityRemaining) {
+      throw new ValidationError(
+        [
+          t`Insufficient Quantity.`,
+          t`Transfer will cause future entries to have negative stock.`,
+          t`Additional quantity (${
+            quantityAfter - quantityRemaining
+          }) required to make outward transfer of item ${details.item} from ${
+            details.fromLocation
+          } on ${formattedDate}`,
+        ].join('\n')
+      );
+    }
   }
 }
 
@@ -91,7 +191,6 @@ class StockManagerItem {
     this.toLocation = details.toLocation;
     this.referenceName = details.referenceName;
     this.referenceType = details.referenceType;
-    this.#validate();
 
     this.fyo = fyo;
   }
@@ -102,8 +201,15 @@ class StockManagerItem {
   }
 
   async sync() {
-    for (const sle of this.stockLedgerEntries ?? []) {
-      await sle.sync();
+    const sles = [
+      this.stockLedgerEntries?.filter((s) => s.quantity! <= 0),
+      this.stockLedgerEntries?.filter((s) => s.quantity! > 0),
+    ]
+      .flat()
+      .filter(Boolean);
+
+    for (const sle of sles) {
+      await sle!.sync();
     }
   }
 
@@ -146,49 +252,5 @@ class StockManagerItem {
 
   #clear() {
     this.stockLedgerEntries = [];
-  }
-
-  #validate() {
-    this.#validateRate();
-    this.#validateQuantity();
-    this.#validateLocation();
-  }
-
-  #validateQuantity() {
-    if (!this.quantity) {
-      throw new ValidationError(t`Stock Manager: quantity needs to be set`);
-    }
-
-    if (this.quantity <= 0) {
-      throw new ValidationError(
-        t`Stock Manager: quantity (${this.quantity}) has to be greater than zero`
-      );
-    }
-  }
-
-  #validateRate() {
-    if (!this.rate) {
-      throw new ValidationError(t`Stock Manager: rate needs to be set`);
-    }
-
-    if (this.rate.lte(0)) {
-      throw new ValidationError(
-        t`Stock Manager: rate (${this.rate.float}) has to be greater than zero`
-      );
-    }
-  }
-
-  #validateLocation() {
-    if (this.fromLocation) {
-      return;
-    }
-
-    if (this.toLocation) {
-      return;
-    }
-
-    throw new ValidationError(
-      t`Stock Manager: both From and To Location cannot be undefined`
-    );
   }
 }

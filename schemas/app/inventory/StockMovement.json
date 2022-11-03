@@ -50,7 +50,7 @@
     },
     {
       "fieldname": "amount",
-      "label": "Amount",
+      "label": "Total Amount",
       "fieldtype": "Currency",
       "readOnly": true
     },
