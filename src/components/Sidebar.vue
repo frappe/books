@@ -150,7 +150,7 @@
       "
       @click="$emit('toggle-sidebar')"
     >
-      <feather-icon name="chevrons-left" class="w-5 h-5" />
+      <feather-icon name="chevrons-left" class="w-4 h-4" />
     </button>
   </div>
 </template>
