@@ -1,6 +1,6 @@
 <template>
   <div
-    class="py-2 h-full flex justify-between flex-col bg-gray-25"
+    class="py-2 h-full flex justify-between flex-col bg-gray-25 relative"
     :class="{
       'window-drag': platform !== 'Windows',
     }"
@@ -36,6 +36,7 @@
           @click="onGroupClick(group)"
         >
           <Icon
+            class="flex-shrink-0"
             :name="group.icon"
             :size="group.iconSize || '18'"
             :height="group.iconHeight"
@@ -91,7 +92,7 @@
         "
         @click="openDocumentation"
       >
-        <feather-icon name="help-circle" class="h-4 w-4" />
+        <feather-icon name="help-circle" class="h-4 w-4 flex-shrink-0" />
         <p>
           {{ t`Help` }}
         </p>
@@ -107,7 +108,7 @@
         "
         @click="$emit('change-db-file')"
       >
-        <feather-icon name="database" class="h-4 w-4" />
+        <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
         <p>{{ t`Change DB` }}</p>
       </button>
 
@@ -121,7 +122,7 @@
         "
         @click="() => reportIssue()"
       >
-        <feather-icon name="flag" class="h-4 w-4" />
+        <feather-icon name="flag" class="h-4 w-4 flex-shrink-0" />
         <p>
           {{ t`Report Issue` }}
         </p>
@@ -134,6 +135,23 @@
         dev mode
       </p>
     </div>
+
+    <!-- Hide Sidebar Button -->
+    <button
+      class="
+        absolute
+        bottom-0
+        right-0
+        text-gray-600
+        hover:bg-gray-100
+        rounded
+        p-1
+        m-4
+      "
+      @click="$emit('toggle-sidebar')"
+    >
+      <feather-icon name="chevrons-left" class="w-5 h-5" />
+    </button>
   </div>
 </template>
 <script>
@@ -148,7 +166,7 @@ import Icon from './Icon.vue';
 
 export default {
   components: [Button],
-  emits: ['change-db-file'],
+  emits: ['change-db-file', 'toggle-sidebar'],
   data() {
     return {
       companyName: '',
