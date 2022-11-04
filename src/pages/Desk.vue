@@ -3,8 +3,7 @@
     <Transition name="sidebar">
       <Sidebar
         v-show="sidebar"
-        class="flex-shrink-0 border-r whitespace-nowrap"
-        :class="sidebar ? 'w-sidebar' : ''"
+        class="flex-shrink-0 border-r whitespace-nowrap w-sidebar"
         @change-db-file="$emit('change-db-file')"
         @toggle-sidebar="sidebar = !sidebar"
       />
@@ -17,17 +16,18 @@
         </keep-alive>
       </router-view>
 
-      <div class="flex" v-if="showQuickEdit">
-        <router-view name="edit" v-slot="{ Component }">
+      <router-view name="edit" v-slot="{ Component, route }">
+        <Transition name="quickedit">
           <keep-alive>
-            <component
-              :is="Component"
-              class="w-quick-edit flex-1"
-              :key="$route.query.schemaName + $route.query.name"
-            />
+            <div v-if="route?.query?.edit">
+              <component
+                :is="Component"
+                :key="route.query.schemaName + route.query.name"
+              />
+            </div>
           </keep-alive>
-        </router-view>
-      </div>
+        </Transition>
+      </router-view>
     </div>
 
     <!-- Show Sidebar Button -->
@@ -43,18 +43,17 @@
         p-1
         m-4
         opacity-0
-        hover:opacity-100
-        hover:shadow-md
+        hover:opacity-100 hover:shadow-md
       "
       @click="sidebar = !sidebar"
     >
-      <feather-icon name="chevrons-right" class="w-5 h-5" />
+      <feather-icon name="chevrons-right" class="w-4 h-4" />
     </button>
   </div>
 </template>
 <script>
 import { computed } from '@vue/reactivity';
-import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/Sidebar.vue';
 export default {
   name: 'Desk',
   emits: ['change-db-file'],
@@ -67,15 +66,6 @@ export default {
   components: {
     Sidebar,
   },
-  computed: {
-    showQuickEdit() {
-      return (
-        this.$route.query.edit &&
-        this.$route.query.schemaName &&
-        this.$route.query.name
-      );
-    },
-  },
 };
 </script>
 
@@ -83,17 +73,38 @@ export default {
 .sidebar-enter-from,
 .sidebar-leave-to {
   opacity: 0;
+  transform: translateX(calc(-1 * var(--w-sidebar)));
   width: 0px;
 }
 
 .sidebar-enter-to,
 .sidebar-leave-from {
   opacity: 1;
+  transform: translateX(0px);
   width: var(--w-sidebar);
 }
 
 .sidebar-enter-active,
 .sidebar-leave-active {
+  transition: all 250ms ease-out;
+}
+
+.quickedit-enter-from,
+.quickedit-leave-to {
+  transform: translateX(var(--w-quick-edit));
+  width: 0px;
+  opacity: 0;
+}
+
+.quickedit-enter-to,
+.quickedit-leave-from {
+  transform: translateX(0px);
+  width: var(--w-quick-edit);
+  opacity: 1;
+}
+
+.quickedit-enter-active,
+.quickedit-leave-active {
   transition: all 250ms ease-out;
 }
 </style>
