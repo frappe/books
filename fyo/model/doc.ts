@@ -13,7 +13,7 @@ import {
   OptionField,
   RawValue,
   Schema,
-  TargetField
+  TargetField,
 } from 'schemas/types';
 import { getIsNullOrUndef, getMapFromList, getRandomString } from 'utils';
 import { markRaw } from 'vue';
@@ -24,7 +24,7 @@ import {
   getMissingMandatoryMessage,
   getPreDefaultValues,
   setChildDocIdx,
-  shouldApplyFormula
+  shouldApplyFormula,
 } from './helpers';
 import { setName } from './naming';
 import {
@@ -42,7 +42,7 @@ import {
   ReadOnlyMap,
   RequiredMap,
   TreeViewSettings,
-  ValidationMap
+  ValidationMap,
 } from './types';
 import { validateOptions, validateRequired } from './validationFunction';
 
@@ -164,7 +164,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
 
       if (Array.isArray(value)) {
         for (const row of value) {
-          this.push(fieldname, row);
+          this.push(fieldname, row, convertToDocValue);
         }
       } else if (value !== undefined && !convertToDocValue) {
         this[fieldname] = value;
@@ -321,10 +321,14 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return await this._applyChange(fieldname);
   }
 
-  push(fieldname: string, docValueMap: Doc | DocValueMap = {}) {
+  push(
+    fieldname: string,
+    docValueMap: Doc | DocValueMap | RawValueMap = {},
+    convertToDocValue: boolean = false
+  ) {
     const childDocs = [
       (this[fieldname] ?? []) as Doc[],
-      this._getChildDoc(docValueMap, fieldname),
+      this._getChildDoc(docValueMap, fieldname, convertToDocValue),
     ].flat();
 
     setChildDocIdx(childDocs);
@@ -348,7 +352,11 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
   }
 
-  _getChildDoc(docValueMap: Doc | DocValueMap, fieldname: string): Doc {
+  _getChildDoc(
+    docValueMap: Doc | DocValueMap | RawValueMap,
+    fieldname: string,
+    convertToDocValue: boolean = false
+  ): Doc {
     if (!this.name && this.schema.naming !== 'manual') {
       this.name = getRandomString();
     }
@@ -372,7 +380,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       false,
       undefined,
       undefined,
-      false
+      convertToDocValue
     );
     childDoc.parentdoc = this;
     return childDoc;
