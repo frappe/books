@@ -1,629 +1,629 @@
-${0} ${1} already exists.,${0} ${1} ÒÑ¾­´æÔÚ¡£
-${0} ${1} has been modified after loading,${0} ${1} ¼ÓÔØºóÒÑĞŞ¸Ä
-${0} ${1} is linked with existing records.,${0} ${1} ÓëÏÖÓĞ¼ÇÂ¼Ïà¹ØÁª¡£
-${0} already exists.,${0} ÒÑ¾­´æÔÚ¡£
-${0} filters applied,${0} ÒÑÓ¦ÓÃ¹ıÂËÆ÷
-${0} rows,${0} ĞĞ
-* required fields,* ±ØÌî×Ö¶Î
+${0} ${1} already exists.,${0} ${1} å·²ç»å­˜åœ¨ã€‚
+${0} ${1} has been modified after loading,${0} ${1} åŠ è½½åå·²ä¿®æ”¹
+${0} ${1} is linked with existing records.,${0} ${1} ä¸ç°æœ‰è®°å½•ç›¸å…³è”ã€‚
+${0} already exists.,${0} å·²ç»å­˜åœ¨ã€‚
+${0} filters applied,${0} å·²åº”ç”¨è¿‡æ»¤å™¨
+${0} rows,${0} è¡Œ
+* required fields,* å¿…å¡«å­—æ®µ
 0%,0%
 03-23-2022,03-23-2022
 03/23/2022,03/23/2022
-1 filter applied,ÒÑÓ¦ÓÃ 1 ¸ö¹ıÂËÆ÷
+1 filter applied,å·²åº”ç”¨ 1 ä¸ªè¿‡æ»¤å™¨
 2022/3/23,2022/3/23
 "23 Mar, 2022","23 Mar, 2022"
 23-03-2022,23-03-2022
 23/03/2022,23/03/2022
 9888900000,9888900000
-Account,ÕÊ»§
-Account Entries,ÕÊ»§ÌõÄ¿
-Account Name,ÕÊ»§Ãû³Æ
-Account Type,ÕÊ»§ÀàĞÍ
-Accounting Ledger Entry,»á¼Æ·ÖÀàÕÊÊäÈë
-Accounting Settings,»á¼ÆÉèÖÃ
-Accounts,ÕË»§
-Accounts Payable,Ó¦¸¶ÕË¿î
-Accounts Receivable,Ó¦ÊÕÕË¿î
-Accumulated Depreciation,ÀÛ¼ÆÕÛ¾É
-Add Account,Ìí¼ÓÕÊ»§
-Add Customers,Ìí¼Ó¿Í»§
-Add Group,Ìí¼Ó×é
-Add Items,Ìí¼ÓÏîÄ¿
-Add Row,Ìí¼ÓĞĞ
-Add Suppliers,Ìí¼Ó¹©Ó¦ÉÌ
-Add Taxes,¼ÓË°
-Add a few customers to create your first invoice,Ìí¼ÓÒ»Ğ©¿Í»§À´´´½¨ÄúµÄµÚÒ»¸ö·¢Æ±
-Add a few suppliers to create your first bill,Ìí¼ÓÒ»Ğ©¹©Ó¦ÉÌÀ´´´½¨ÄúµÄµÚÒ»¸öÕËµ¥
-Add a filter,Ìí¼Ó¹ıÂËÆ÷
-Add a remark,Ìí¼Ó±¸×¢
-Add invoice terms,Ìí¼Ó·¢Æ±Ìõ¿î
-Add products or services that you buy from your suppliers,Ìí¼ÓÄú´Ó¹©Ó¦ÉÌ´¦¹ºÂòµÄ²úÆ·»ò·şÎñ
-Add products or services that you sell to your customers,Ìí¼ÓÄúÏò¿Í»§ÏúÊÛµÄ²úÆ·»ò·şÎñ
-Address,µØÖ·
-Address Display,µØÖ·ÏÔÊ¾
-Address Line 1,µØÖ·µÚ 1 ĞĞ
-Address Line 2,µØÖ·µÚ 2 ĞĞ
-Administrative Expenses,ĞĞÕş¿ªÖ§
-All,È«²¿
-Amount,×Ü¼Æ
-Amount (Company Currency),½ğ¶î£¨¹«Ë¾»õ±Ò£©
-Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.,½ğ¶î£º${0} ºÍ×¢Ïú£º${1} ÉÙÓÚ·ÖÅä¸ø²Î¿¼µÄ×Ü½ğ¶î£º${2}¡£
-Amount: ${0} is less than the total amount allocated to references: ${1}.,½ğ¶î£º${0} Ğ¡ÓÚ·ÖÅä¸ø²Î¿¼µÄ×Ü½ğ¶î£º${1}¡£
-An error occurred.,·¢Éú´íÎó¡£
-Application of Funds (Assets),×Ê½ğ£¨×Ê²ú£©Ó¦ÓÃ
+Account,å¸æˆ·
+Account Entries,å¸æˆ·æ¡ç›®
+Account Name,å¸æˆ·åç§°
+Account Type,å¸æˆ·ç±»å‹
+Accounting Ledger Entry,ä¼šè®¡åˆ†ç±»å¸è¾“å…¥
+Accounting Settings,ä¼šè®¡è®¾ç½®
+Accounts,è´¦æˆ·
+Accounts Payable,åº”ä»˜è´¦æ¬¾
+Accounts Receivable,åº”æ”¶è´¦æ¬¾
+Accumulated Depreciation,ç´¯è®¡æŠ˜æ—§
+Add Account,æ·»åŠ å¸æˆ·
+Add Customers,æ·»åŠ å®¢æˆ·
+Add Group,æ·»åŠ ç»„
+Add Items,æ·»åŠ é¡¹ç›®
+Add Row,æ·»åŠ è¡Œ
+Add Suppliers,æ·»åŠ ä¾›åº”å•†
+Add Taxes,åŠ ç¨
+Add a few customers to create your first invoice,æ·»åŠ ä¸€äº›å®¢æˆ·æ¥åˆ›å»ºæ‚¨çš„ç¬¬ä¸€ä¸ªå‘ç¥¨
+Add a few suppliers to create your first bill,æ·»åŠ ä¸€äº›ä¾›åº”å•†æ¥åˆ›å»ºæ‚¨çš„ç¬¬ä¸€ä¸ªè´¦å•
+Add a filter,æ·»åŠ è¿‡æ»¤å™¨
+Add a remark,æ·»åŠ å¤‡æ³¨
+Add invoice terms,æ·»åŠ å‘ç¥¨æ¡æ¬¾
+Add products or services that you buy from your suppliers,æ·»åŠ æ‚¨ä»ä¾›åº”å•†å¤„è´­ä¹°çš„äº§å“æˆ–æœåŠ¡
+Add products or services that you sell to your customers,æ·»åŠ æ‚¨å‘å®¢æˆ·é”€å”®çš„äº§å“æˆ–æœåŠ¡
+Address,åœ°å€
+Address Display,åœ°å€æ˜¾ç¤º
+Address Line 1,åœ°å€ç¬¬ 1 è¡Œ
+Address Line 2,åœ°å€ç¬¬ 2 è¡Œ
+Administrative Expenses,è¡Œæ”¿å¼€æ”¯
+All,å…¨éƒ¨
+Amount,æ€»è®¡
+Amount (Company Currency),é‡‘é¢ï¼ˆå…¬å¸è´§å¸ï¼‰
+Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.,é‡‘é¢ï¼š${0} å’Œæ³¨é”€ï¼š${1} å°‘äºåˆ†é…ç»™å‚è€ƒçš„æ€»é‡‘é¢ï¼š${2}ã€‚
+Amount: ${0} is less than the total amount allocated to references: ${1}.,é‡‘é¢ï¼š${0} å°äºåˆ†é…ç»™å‚è€ƒçš„æ€»é‡‘é¢ï¼š${1}ã€‚
+An error occurred.,å‘ç”Ÿé”™è¯¯ã€‚
+Application of Funds (Assets),èµ„é‡‘ï¼ˆèµ„äº§ï¼‰åº”ç”¨
 Arial,Arial
-Ascending Order,ÉıĞò
-Asset,×Ê²ú
-Assign Imported Labels,·ÖÅäµ¼ÈëµÄ±êÇ©
-Back,ºóÍË
-Bad import data.,µ¼ÈëÊı¾İ´íÎó¡£
-Balance,Æ½ºâ
-Balance Sheet,×Ê²ú¸ºÕ®±í
-Bank,ÒøĞĞ
-Bank Accounts,ÒøĞĞÕË»§
-Bank Entry,ÒøĞĞÌõÄ¿
-Bank Name,ÒøĞĞÃû³Æ
-Bank Overdraft Account,ÒøĞĞÍ¸Ö§ÕË»§
-Based On,»ùÓÚ
-Basic,»ù´¡
-Basic I,»ù´¡ I
-Basic II,»ù´¡ II
-Bill,ÕËµ¥
-Bill Created,ÕËµ¥ÒÑ´´½¨
-Bill No,ÕÊµ¥±àºÅ
-Black,ºÚÉ«
-Blue,À¶É«
-Both,Á½Õß
-Buildings,½¨ÖşÎï
-Business,ÉÌÒµ
-Cancel,È¡Ïû
-Cancel ${0} ${1}?,È¡Ïû ${0} ${1}£¿
-Cancelled,È¡Ïû
-Capital Equipments,×Ê±¾Éè±¸
-Capital Stock,×Ê±¾´æÁ¿
-Cash,ÏÖ½ğ
-Cash Entry,ÏÖ½ğÈëÕË
-Cash In Hand,ÊÖÍ·ÏÖ½ğ
-Cashflow,ÏÖ½ğÖÜ×ª
-Central Tax,ÖĞÑëË°ÊÕ
-Change File,¸ü¸ÄÎÄ¼ş
-Change Ref Type,¸ü¸ÄÒıÓÃÀàĞÍ
-Chargeable,ÊÕ·Ñ
-Chart Of Accounts Reviewed,ÒÑÉóºËµÄ»á¼Æ¿ÆÄ¿±í
-Chart of Accounts,»á¼Æ¿ÆÄ¿±í
-Check for Updates,¼ì²é¸üĞÂ
-Checking for updates,²éÑ¯¸üĞÂ
-Cheque,¼ì²é
-City / Town,³ÇÊĞ/³ÇÕò
-Clear,Çå³ı
-Clearance Date,Çå²ÖÈÕÆÚ
-Click to create,µã»÷´´½¨
-Close,¹Ø±Õ
-Closing,ÕıÔÚ¹Ø±Õ
-Closing (Cr),ÕıÔÚ¹Ø±Õ (´û·½)
-Closing (Dr),ÕıÔÚ¹Ø±Õ (½è·½)
-Color,ÑÕÉ«
-Commission on Sales,ÏúÊÛÓ¶½ğ
-Common,³£ÓÃ
-Common Items,³£ÓÃÎïÆ·
-Company Address,¹«Ë¾µØÖ·
-Company Logo,¹«Ë¾±êÖ¾
-Company Name,¹«Ë¾Ãû³Æ
-Company Settings,¹«Ë¾ÉèÖÃ
-Company Setup,¹«Ë¾ÉèÖÃ
-Completed,ÒÑÍê³É
-Condition,Ìõ¼ş
-Consolidate Columns,ºÏ²¢ÁĞ
-Contains,°üº¬
-Contra Entry,·´¶Ô½øÈë
-Cost of Goods Sold,ÉÌÆ·ÏúÊÛ³É±¾
-Could not import ${0} ${1}.,ÎŞ·¨µ¼Èë ${0} ${1}¡£
-Could not select file.,ÎŞ·¨Ñ¡ÔñÎÄ¼ş¡£
-Country,¹ú¼Ò
-Country Code,¹ú¼Ò´úÂë
-Country code used to initialize regional settings.,ÓÃÓÚ³õÊ¼»¯ÇøÓòÉèÖÃµÄ¹ú¼Ò/µØÇø´úÂë¡£
-Courier,¿ìµİ
-Cr.,´û·½
-Create,´´½¨
-Create Bill,´´½¨ÕËµ¥
-Create Demo,´´½¨ÑİÊ¾
-Create Invoice,´´½¨·¢Æ±
-Create Purchase,´´½¨²É¹º
-Create Sale,´´½¨ÏúÊÛ
-Create a new file and store it in your computer.,´´½¨Ò»¸öĞÂÎÄ¼ş²¢½«Æä´æ´¢ÔÚÄúµÄ¼ÆËã»úÖĞ¡£
-Create a new file or select an existing one from your computer,´´½¨Ò»¸öĞÂÎÄ¼ş»ò´ÓÄúµÄ¼ÆËã»úÖĞÑ¡ÔñÒ»¸öÏÖÓĞÎÄ¼ş
-Create your first bill and mail it to your supplier,´´½¨ÄúµÄµÚÒ»¸öÕËµ¥²¢½«ÆäÓÊ¼Ä¸øÄúµÄ¹©Ó¦ÉÌ
-Create your first invoice and mail it to your customer,´´½¨ÄúµÄµÚÒ»ÕÅ·¢Æ±²¢½«ÆäÓÊ¼Ä¸øÄúµÄ¿Í»§
-Created,ÒÑ´´½¨
-Created By,´´½¨Õß
-Creating Items and Parties,´´½¨ÎïÆ·ºÍÅÉ¶Ô
-Creating Journal Entries,´´½¨ÈÕ¼ÇÕÊ·ÖÂ¼
-Creating Purchase Invoices,´´½¨²É¹º·¢Æ±
-Credit,ĞÅÓÃ
-Credit Card Entry,ĞÅÓÃ¿¨Èë¿Ú
-Credit Note,ĞÅÓÃÆ±¾İ
-Creditors,Õ®È¨ÈË
-Currency,»õ±Ò
-Currency Name,»õ±ÒÃû³Æ
-Current,µ±Ç°
-Current Assets,µ±Ç°×Ê²ú
-Current Liabilities,Á÷¶¯¸ºÕ®
-Custom Hex,×Ô¶¨ÒåÊ®Áù½øÖÆ
-Customer,¿Í»§
-Customer Created,¿Í»§´´½¨
-Customer Currency,¿Í»§»õ±Ò
-Customers,¿Í»§
-Customise,×Ô¶¨Òå
-Customize your invoices by adding a logo and address details,Í¨¹ıÌí¼Ó»Õ±êºÍµØÖ·ÏêÏ¸ĞÅÏ¢×Ô¶¨ÒåÄúµÄ·¢Æ±
-Dashboard,ÒÇ±í°å
-Data Import,Êı¾İµ¼Èë
-Database file: ${0},Êı¾İ¿âÎÄ¼ş£º${0}
-Date,ÈÕÆÚ
-Date Format,ÈÕÆÚ¸ñÊ½
-Day,Ìì
-Debit,½è¼Ç
-Debit Note,½è¼Çµ¥
-Debtors,Õ®ÎñÈË
-Default Account,Ä¬ÈÏÕÊ»§
-Delete,É¾³ı
-Delete ${0} ${1}?,É¾³ı ${0} ${1}£¿
-Delete ${0}?,É¾³ı ${0}£¿
-Depreciation,ÕÛ¾É
-Depreciation Entry,ÕÛ¾ÉÌõÄ¿
-Description,ÃèÊö
-Details,ÏêÏ¸ĞÅÏ¢
-Direct Expenses,Ö±½Ó¿ªÖ§
-Direct Income,Ö±½ÓÊÕÈë
-Display Logo in Invoice,ÔÚ·¢Æ±ÉÏÏÔÊ¾±êÖ¾
-Display Precision,ÏÔÊ¾¾«¶È
-Display Precision should have a value between 0 and 9.,ÏÔÊ¾¾«¶ÈÓ¦¾ßÓĞ½éÓÚ 0 ºÍ 9 Ö®¼äµÄÖµ¡£
-Dividends Paid,ÒÑÖ§¸¶¹ÉÏ¢
-Docs,ÎÄµµ
-Documentation,ÎÄµµ
-Does Not Contain,²»°üº¬
-Download Update,ÏÂÔØ¸üĞÂ
-Downloading update,ÏÂÔØ¸üĞÂ
-Dr.,½è·½
-Draft,²İ¸å
-Duplicate,ÖØ¸´
-Duplicate ${0} ${1}?,ÖØ¸´ ${0} ${1}£¿
-Duties and Taxes,¹ØË°ºÍË°ÊÕ
-Earnest Money,¶¨½ğ
-Edit,±à¼­
-Electronic Equipments,µç×ÓÉè±¸
-Email,µç×ÓÓÊ¼ş
-Email Address,µç×ÓÓÊ¼şµØÖ·
-Empty,¿ÕµÄ
-Enter Country to load States,ÊäÈë¹ú¼ÒÒÔ¼ÓÔØ×´Ì¬
-Enter State,ÊäÈë×´Ì¬
-Entertainment Expenses,ÒµÎñÕĞ´ı·Ñ
-Entry No,ÊäÈë±àºÅ
-Entry Type,ÊäÈëÀàĞÍ
-Equity,¹ÉÈ¨
-Error,´íÎó
-Exchange Gain/Loss,»ã¶ÒÊÕÒæ/¿÷Ëğ
-Exchange Rate,»ãÂÊ
-Excise Entry,Ïû·ÑË°ÌõÄ¿
-Existing File,ÏÖÓĞÎÄ¼ş
-Expense,·ÑÓÃ
-Expense Account,·ÑÓÃÕË»§
-Expenses,»¨·Ñ
-Expenses Included In Valuation,¼Æ¼Û·ÑÓÃ
-Export,µ¼³ö
-Export Failed,µ¼³öÊ§°Ü
-Export Successful,µ¼³ö³É¹¦
-Fax,´«Õæ
-Field,×Ö¶Î
-Fieldname,×Ö¶ÎÃû³Æ
-File selection failed.,ÎÄ¼şÑ¡ÔñÊ§°Ü¡£
-Filter,¹ıÂËÆ÷
-Fiscal Year,²ÆÕşÄê¶È
-Fiscal Year End Date,²ÆÕşÄê¶È½áÊøÈÕÆÚ
-Fiscal Year Start Date,²ÆÕşÄê¶È¿ªÊ¼ÈÕÆÚ
-Fixed Asset,¹Ì¶¨×Ê²ú
-Fixed Assets,¹Ì¶¨×Ê²ú
-Font,×ÖÌå
-For,¶ÔÓÚ
-Fraction,·ÖÊı
-Fraction Units,·ÖÊıµ¥Î»
-Freight and Forwarding Charges,ÔË·ÑºÍ×ªÔË·ÑÓÃ
-From Account,´ÓÕÊ»§
-From Date,´ÓÈÕÆÚ
-From Year,´ÓÄê·İ
-Full Name,È«Ãû
-Furnitures and Fixtures,¼Ò¾ßºÍ¹Ì¶¨Éè±¸
-GSTIN No.,GSTIN ±àºÅ
+Ascending Order,å‡åº
+Asset,èµ„äº§
+Assign Imported Labels,åˆ†é…å¯¼å…¥çš„æ ‡ç­¾
+Back,åé€€
+Bad import data.,å¯¼å…¥æ•°æ®é”™è¯¯ã€‚
+Balance,å¹³è¡¡
+Balance Sheet,èµ„äº§è´Ÿå€ºè¡¨
+Bank,é“¶è¡Œ
+Bank Accounts,é“¶è¡Œè´¦æˆ·
+Bank Entry,é“¶è¡Œæ¡ç›®
+Bank Name,é“¶è¡Œåç§°
+Bank Overdraft Account,é“¶è¡Œé€æ”¯è´¦æˆ·
+Based On,åŸºäº
+Basic,åŸºç¡€
+Basic I,åŸºç¡€ I
+Basic II,åŸºç¡€ II
+Bill,è´¦å•
+Bill Created,è´¦å•å·²åˆ›å»º
+Bill No,å¸å•ç¼–å·
+Black,é»‘è‰²
+Blue,è“è‰²
+Both,ä¸¤è€…
+Buildings,å»ºç­‘ç‰©
+Business,å•†ä¸š
+Cancel,å–æ¶ˆ
+Cancel ${0} ${1}?,å–æ¶ˆ ${0} ${1}ï¼Ÿ
+Cancelled,å–æ¶ˆ
+Capital Equipments,èµ„æœ¬è®¾å¤‡
+Capital Stock,èµ„æœ¬å­˜é‡
+Cash,ç°é‡‘
+Cash Entry,ç°é‡‘å…¥è´¦
+Cash In Hand,æ‰‹å¤´ç°é‡‘
+Cashflow,ç°é‡‘å‘¨è½¬
+Central Tax,ä¸­å¤®ç¨æ”¶
+Change File,æ›´æ”¹æ–‡ä»¶
+Change Ref Type,æ›´æ”¹å¼•ç”¨ç±»å‹
+Chargeable,æ”¶è´¹
+Chart Of Accounts Reviewed,å·²å®¡æ ¸çš„ä¼šè®¡ç§‘ç›®è¡¨
+Chart of Accounts,ä¼šè®¡ç§‘ç›®è¡¨
+Check for Updates,æ£€æŸ¥æ›´æ–°
+Checking for updates,æŸ¥è¯¢æ›´æ–°
+Cheque,æ£€æŸ¥
+City / Town,åŸå¸‚/åŸé•‡
+Clear,æ¸…é™¤
+Clearance Date,æ¸…ä»“æ—¥æœŸ
+Click to create,ç‚¹å‡»åˆ›å»º
+Close,å…³é—­
+Closing,æ­£åœ¨å…³é—­
+Closing (Cr),æ­£åœ¨å…³é—­ (è´·æ–¹)
+Closing (Dr),æ­£åœ¨å…³é—­ (å€Ÿæ–¹)
+Color,é¢œè‰²
+Commission on Sales,é”€å”®ä½£é‡‘
+Common,å¸¸ç”¨
+Common Items,å¸¸ç”¨ç‰©å“
+Company Address,å…¬å¸åœ°å€
+Company Logo,å…¬å¸æ ‡å¿—
+Company Name,å…¬å¸åç§°
+Company Settings,å…¬å¸è®¾ç½®
+Company Setup,å…¬å¸è®¾ç½®
+Completed,å·²å®Œæˆ
+Condition,æ¡ä»¶
+Consolidate Columns,åˆå¹¶åˆ—
+Contains,åŒ…å«
+Contra Entry,åå¯¹è¿›å…¥
+Cost of Goods Sold,å•†å“é”€å”®æˆæœ¬
+Could not import ${0} ${1}.,æ— æ³•å¯¼å…¥ ${0} ${1}ã€‚
+Could not select file.,æ— æ³•é€‰æ‹©æ–‡ä»¶ã€‚
+Country,å›½å®¶
+Country Code,å›½å®¶ä»£ç 
+Country code used to initialize regional settings.,ç”¨äºåˆå§‹åŒ–åŒºåŸŸè®¾ç½®çš„å›½å®¶/åœ°åŒºä»£ç ã€‚
+Courier,å¿«é€’
+Cr.,è´·æ–¹
+Create,åˆ›å»º
+Create Bill,åˆ›å»ºè´¦å•
+Create Demo,åˆ›å»ºæ¼”ç¤º
+Create Invoice,åˆ›å»ºå‘ç¥¨
+Create Purchase,åˆ›å»ºé‡‡è´­
+Create Sale,åˆ›å»ºé”€å”®
+Create a new file and store it in your computer.,åˆ›å»ºä¸€ä¸ªæ–°æ–‡ä»¶å¹¶å°†å…¶å­˜å‚¨åœ¨æ‚¨çš„è®¡ç®—æœºä¸­ã€‚
+Create a new file or select an existing one from your computer,åˆ›å»ºä¸€ä¸ªæ–°æ–‡ä»¶æˆ–ä»æ‚¨çš„è®¡ç®—æœºä¸­é€‰æ‹©ä¸€ä¸ªç°æœ‰æ–‡ä»¶
+Create your first bill and mail it to your supplier,åˆ›å»ºæ‚¨çš„ç¬¬ä¸€ä¸ªè´¦å•å¹¶å°†å…¶é‚®å¯„ç»™æ‚¨çš„ä¾›åº”å•†
+Create your first invoice and mail it to your customer,åˆ›å»ºæ‚¨çš„ç¬¬ä¸€å¼ å‘ç¥¨å¹¶å°†å…¶é‚®å¯„ç»™æ‚¨çš„å®¢æˆ·
+Created,å·²åˆ›å»º
+Created By,åˆ›å»ºè€…
+Creating Items and Parties,åˆ›å»ºç‰©å“å’Œæ´¾å¯¹
+Creating Journal Entries,åˆ›å»ºæ—¥è®°å¸åˆ†å½•
+Creating Purchase Invoices,åˆ›å»ºé‡‡è´­å‘ç¥¨
+Credit,ä¿¡ç”¨
+Credit Card Entry,ä¿¡ç”¨å¡å…¥å£
+Credit Note,ä¿¡ç”¨ç¥¨æ®
+Creditors,å€ºæƒäºº
+Currency,è´§å¸
+Currency Name,è´§å¸åç§°
+Current,å½“å‰
+Current Assets,å½“å‰èµ„äº§
+Current Liabilities,æµåŠ¨è´Ÿå€º
+Custom Hex,è‡ªå®šä¹‰åå…­è¿›åˆ¶
+Customer,å®¢æˆ·
+Customer Created,å®¢æˆ·åˆ›å»º
+Customer Currency,å®¢æˆ·è´§å¸
+Customers,å®¢æˆ·
+Customise,è‡ªå®šä¹‰
+Customize your invoices by adding a logo and address details,é€šè¿‡æ·»åŠ å¾½æ ‡å’Œåœ°å€è¯¦ç»†ä¿¡æ¯è‡ªå®šä¹‰æ‚¨çš„å‘ç¥¨
+Dashboard,ä»ªè¡¨æ¿
+Data Import,æ•°æ®å¯¼å…¥
+Database file: ${0},æ•°æ®åº“æ–‡ä»¶ï¼š${0}
+Date,æ—¥æœŸ
+Date Format,æ—¥æœŸæ ¼å¼
+Day,å¤©
+Debit,å€Ÿè®°
+Debit Note,å€Ÿè®°å•
+Debtors,å€ºåŠ¡äºº
+Default Account,é»˜è®¤å¸æˆ·
+Delete,åˆ é™¤
+Delete ${0} ${1}?,åˆ é™¤ ${0} ${1}ï¼Ÿ
+Delete ${0}?,åˆ é™¤ ${0}ï¼Ÿ
+Depreciation,æŠ˜æ—§
+Depreciation Entry,æŠ˜æ—§æ¡ç›®
+Description,æè¿°
+Details,è¯¦ç»†ä¿¡æ¯
+Direct Expenses,ç›´æ¥å¼€æ”¯
+Direct Income,ç›´æ¥æ”¶å…¥
+Display Logo in Invoice,åœ¨å‘ç¥¨ä¸Šæ˜¾ç¤ºæ ‡å¿—
+Display Precision,æ˜¾ç¤ºç²¾åº¦
+Display Precision should have a value between 0 and 9.,æ˜¾ç¤ºç²¾åº¦åº”å…·æœ‰ä»‹äº 0 å’Œ 9 ä¹‹é—´çš„å€¼ã€‚
+Dividends Paid,å·²æ”¯ä»˜è‚¡æ¯
+Docs,æ–‡æ¡£
+Documentation,æ–‡æ¡£
+Does Not Contain,ä¸åŒ…å«
+Download Update,ä¸‹è½½æ›´æ–°
+Downloading update,ä¸‹è½½æ›´æ–°
+Dr.,å€Ÿæ–¹
+Draft,è‰ç¨¿
+Duplicate,é‡å¤
+Duplicate ${0} ${1}?,é‡å¤ ${0} ${1}ï¼Ÿ
+Duties and Taxes,å…³ç¨å’Œç¨æ”¶
+Earnest Money,å®šé‡‘
+Edit,ç¼–è¾‘
+Electronic Equipments,ç”µå­è®¾å¤‡
+Email,ç”µå­é‚®ä»¶
+Email Address,ç”µå­é‚®ä»¶åœ°å€
+Empty,ç©ºçš„
+Enter Country to load States,è¾“å…¥å›½å®¶ä»¥åŠ è½½çŠ¶æ€
+Enter State,è¾“å…¥çŠ¶æ€
+Entertainment Expenses,ä¸šåŠ¡æ‹›å¾…è´¹
+Entry No,è¾“å…¥ç¼–å·
+Entry Type,è¾“å…¥ç±»å‹
+Equity,è‚¡æƒ
+Error,é”™è¯¯
+Exchange Gain/Loss,æ±‡å…‘æ”¶ç›Š/äºæŸ
+Exchange Rate,æ±‡ç‡
+Excise Entry,æ¶ˆè´¹ç¨æ¡ç›®
+Existing File,ç°æœ‰æ–‡ä»¶
+Expense,è´¹ç”¨
+Expense Account,è´¹ç”¨è´¦æˆ·
+Expenses,èŠ±è´¹
+Expenses Included In Valuation,è®¡ä»·è´¹ç”¨
+Export,å¯¼å‡º
+Export Failed,å¯¼å‡ºå¤±è´¥
+Export Successful,å¯¼å‡ºæˆåŠŸ
+Fax,ä¼ çœŸ
+Field,å­—æ®µ
+Fieldname,å­—æ®µåç§°
+File selection failed.,æ–‡ä»¶é€‰æ‹©å¤±è´¥ã€‚
+Filter,è¿‡æ»¤å™¨
+Fiscal Year,è´¢æ”¿å¹´åº¦
+Fiscal Year End Date,è´¢æ”¿å¹´åº¦ç»“æŸæ—¥æœŸ
+Fiscal Year Start Date,è´¢æ”¿å¹´åº¦å¼€å§‹æ—¥æœŸ
+Fixed Asset,å›ºå®šèµ„äº§
+Fixed Assets,å›ºå®šèµ„äº§
+Font,å­—ä½“
+For,å¯¹äº
+Fraction,åˆ†æ•°
+Fraction Units,åˆ†æ•°å•ä½
+Freight and Forwarding Charges,è¿è´¹å’Œè½¬è¿è´¹ç”¨
+From Account,ä»å¸æˆ·
+From Date,ä»æ—¥æœŸ
+From Year,ä»å¹´ä»½
+Full Name,å…¨å
+Furnitures and Fixtures,å®¶å…·å’Œå›ºå®šè®¾å¤‡
+GSTIN No.,GSTIN ç¼–å·
 GSTR1,GSTR1
 GSTR2,GSTR2
-Gain/Loss on Asset Disposal,×Ê²ú´¦ÖÃËğÒæ
-General,³£¹æ
-General Ledger,×ÜÕÊ
-Get Started,¿ªÊ¼Ê¹ÓÃ
-Gram,¿Ë
-Grand Total,×Ü¼Æ
-Grand Total (Company Currency),×Ü¼Æ£¨¹«Ë¾»õ±Ò£©
-Greater Than,´óÓÚ
-Green,ÂÌÉ«
-Group By,°´·Ö×é
+Gain/Loss on Asset Disposal,èµ„äº§å¤„ç½®æŸç›Š
+General,å¸¸è§„
+General Ledger,æ€»å¸
+Get Started,å¼€å§‹ä½¿ç”¨
+Gram,å…‹
+Grand Total,æ€»è®¡
+Grand Total (Company Currency),æ€»è®¡ï¼ˆå…¬å¸è´§å¸ï¼‰
+Greater Than,å¤§äº
+Green,ç»¿è‰²
+Group By,æŒ‰åˆ†ç»„
 HSN/SAC,HSN/SAC
-HSN/SAC Code,HSN/SAC ´úÂë
-Half Yearly,Ã¿°ëÄê
-Half Years,°ëÄêºó
-Hex Value,Ê®Áù½øÖÆÖµ
-Hide Get Started,Òş²ØÈëÃÅ
-Hide Group Amounts,Òş²Ø×é½ğ¶î
-Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.,´Ó±ßÀ¸ÖĞÒş²Ø¡°ÈëÃÅ¡±²¿·Ö¡£ ¸ü¸Ä½«ÔÚÖØĞÂÆô¶¯»òË¢ĞÂÓ¦ÓÃ³ÌĞòÊ±¿É¼û¡£
-Hour,Ğ¡Ê±
-How to Use Data Import,ÈçºÎÊ¹ÓÃÊı¾İµ¼Èë
-I can't find my language.,ÎÒÎŞ·¨ÕÒµ½ÎÒµÄÓïÑÔ¡£
+HSN/SAC Code,HSN/SAC ä»£ç 
+Half Yearly,æ¯åŠå¹´
+Half Years,åŠå¹´å
+Hex Value,åå…­è¿›åˆ¶å€¼
+Hide Get Started,éšè—å…¥é—¨
+Hide Group Amounts,éšè—ç»„é‡‘é¢
+Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.,ä»è¾¹æ ä¸­éšè—â€œå…¥é—¨â€éƒ¨åˆ†ã€‚ æ›´æ”¹å°†åœ¨é‡æ–°å¯åŠ¨æˆ–åˆ·æ–°åº”ç”¨ç¨‹åºæ—¶å¯è§ã€‚
+Hour,å°æ—¶
+How to Use Data Import,å¦‚ä½•ä½¿ç”¨æ•°æ®å¯¼å…¥
+I can't find my language.,æˆ‘æ— æ³•æ‰¾åˆ°æˆ‘çš„è¯­è¨€ã€‚
 INR,INR
-Image,Í¼Ïñ
-Import Data,µ¼ÈëÊı¾İ
-Import Failed,µ¼ÈëÊ§°Ü
-Import More,µ¼Èë¸ü¶à
-Import Success,µ¼Èë³É¹¦
-Import Type,µ¼ÈëÀàĞÍ
-Importer Settings,µ¼ÈëÉèÖÃ
-Include Cancelled,°üÀ¨ÒÑÈ¡Ïû
-Income,ÊÕÈë
-Income Account,ÊÕÈëÕË»§
-Indigo,µåÀ¶
-Indirect Expenses,¼ä½Ó¿ªÖ§
-Indirect Income,¼ä½ÓÊÕÈë
-Inflow,Á÷Èë
-Install Update,°²×°¸üĞÂ
-Instance Id,ÊµÀı ID
-Intergrated Tax,×ÛºÏËùµÃË°
-Internal Precision,ÄÚ²¿¾«¶È
-Invalid value ${0} for ${1},${1} µÄÖµ ${0} ÎŞĞ§
-Investments,Í¶×Ê
-Invoice,·¢Æ±
-Invoice Created,ÒÑ´´½¨·¢Æ±
-Invoice Date,·¢Æ±ÈÕÆÚ
-Invoice No,·¢Æ±ºÅÂë
-Invoice No.,·¢Æ±ºÅÂë
-Invoice Setup,·¢Æ±ÉèÖÃ
-Invoice Value,·¢Æ±Ãæ¶î
-Invoices,·¢Æ±
-Is,ÊÇ
-Is Empty,ÊÇ¿ÕµÄ
-Is Group,ÊÇ×é
-Is Not,²»ÊÇ
-Is Not Empty,²»Îª¿Õ
-Item,ÏîÄ¿
-Item Description,ÏîÄ¿ÃèÊö
-Item Name,ÏîÄ¿Ãû³Æ
-Items,ÏîÄ¿
+Image,å›¾åƒ
+Import Data,å¯¼å…¥æ•°æ®
+Import Failed,å¯¼å…¥å¤±è´¥
+Import More,å¯¼å…¥æ›´å¤š
+Import Success,å¯¼å…¥æˆåŠŸ
+Import Type,å¯¼å…¥ç±»å‹
+Importer Settings,å¯¼å…¥è®¾ç½®
+Include Cancelled,åŒ…æ‹¬å·²å–æ¶ˆ
+Income,æ”¶å…¥
+Income Account,æ”¶å…¥è´¦æˆ·
+Indigo,é›è“
+Indirect Expenses,é—´æ¥å¼€æ”¯
+Indirect Income,é—´æ¥æ”¶å…¥
+Inflow,æµå…¥
+Install Update,å®‰è£…æ›´æ–°
+Instance Id,å®ä¾‹ ID
+Intergrated Tax,ç»¼åˆæ‰€å¾—ç¨
+Internal Precision,å†…éƒ¨ç²¾åº¦
+Invalid value ${0} for ${1},${1} çš„å€¼ ${0} æ— æ•ˆ
+Investments,æŠ•èµ„
+Invoice,å‘ç¥¨
+Invoice Created,å·²åˆ›å»ºå‘ç¥¨
+Invoice Date,å‘ç¥¨æ—¥æœŸ
+Invoice No,å‘ç¥¨å·ç 
+Invoice No.,å‘ç¥¨å·ç 
+Invoice Setup,å‘ç¥¨è®¾ç½®
+Invoice Value,å‘ç¥¨é¢é¢
+Invoices,å‘ç¥¨
+Is,æ˜¯
+Is Empty,æ˜¯ç©ºçš„
+Is Group,æ˜¯ç»„
+Is Not,ä¸æ˜¯
+Is Not Empty,ä¸ä¸ºç©º
+Item,é¡¹ç›®
+Item Description,é¡¹ç›®æè¿°
+Item Name,é¡¹ç›®åç§°
+Items,é¡¹ç›®
 John Doe,John Doe
-Journal Entries,ÈÕ¼ÇÕÊ·ÖÂ¼
-Journal Entry,ÈÕ¼ÇÕÊ·ÖÂ¼
-Journal Entry Account,ÈÕ¼ÇÕÊ·ÖÂ¼ÕÊ»§
-Kg,Ç§¿Ë
-Label Index,±êÇ©Ë÷Òı
-Language,ÓïÑÔ
-Ledger Entries,·ÖÀàÕÊÌõÄ¿
-Left Index,×óË÷Òı
-Legal Expenses,·¨ÂÉ¿ªÖ§
-Less Than,ÉÙÓÚ
-Liability,¸ºÕ®
-List,ÁĞ±í
-Load an existing .db file from your computer.,´ÓÄúµÄ¼ÆËã»ú¼ÓÔØÏÖÓĞµÄ .db ÎÄ¼ş¡£
-Loading Report...,ÕıÔÚ¼ÓÔØ±¨¸æ...
-Loading...,ÕıÔÚ¼ÓÔØ...
-Loans (Liabilities),´û¿î£¨¸ºÕ®£©
-Loans and Advances (Assets),´û¿îºÍµæ¿î£¨×Ê²ú£©
-Locale,ÇøÓòÉèÖÃ
-Logo,»Õ±ê
-Make Entry,½øĞĞÌõÄ¿
-Make Payment,½øĞĞÖ§¸¶
+Journal Entries,æ—¥è®°å¸åˆ†å½•
+Journal Entry,æ—¥è®°å¸åˆ†å½•
+Journal Entry Account,æ—¥è®°å¸åˆ†å½•å¸æˆ·
+Kg,åƒå…‹
+Label Index,æ ‡ç­¾ç´¢å¼•
+Language,è¯­è¨€
+Ledger Entries,åˆ†ç±»å¸æ¡ç›®
+Left Index,å·¦ç´¢å¼•
+Legal Expenses,æ³•å¾‹å¼€æ”¯
+Less Than,å°‘äº
+Liability,è´Ÿå€º
+List,åˆ—è¡¨
+Load an existing .db file from your computer.,ä»æ‚¨çš„è®¡ç®—æœºåŠ è½½ç°æœ‰çš„ .db æ–‡ä»¶ã€‚
+Loading Report...,æ­£åœ¨åŠ è½½æŠ¥å‘Š...
+Loading...,æ­£åœ¨åŠ è½½...
+Loans (Liabilities),è´·æ¬¾ï¼ˆè´Ÿå€ºï¼‰
+Loans and Advances (Assets),è´·æ¬¾å’Œå«æ¬¾ï¼ˆèµ„äº§ï¼‰
+Locale,åŒºåŸŸè®¾ç½®
+Logo,å¾½æ ‡
+Make Entry,è¿›è¡Œæ¡ç›®
+Make Payment,è¿›è¡Œæ”¯ä»˜
 23-Mar-22,23-Mar-22
-Marketing Expenses,ÓªÏú·ÑÓÃ
+Marketing Expenses,è¥é”€è´¹ç”¨
 Merriweather,Merriweather
-Meter,Ã×
-Minimal,×îĞ¡
-Miscellaneous Expenses,ÔÓÏî·ÑÓÃ
-Modern,ÏÖ´ú
-Modified,ÒÑĞŞ¸Ä
-Modified By,ĞŞ¸ÄÕß
-Monthly,Ã¿ÔÂÒ»´Î
-Months,ÔÂ·İ
+Meter,ç±³
+Minimal,æœ€å°
+Miscellaneous Expenses,æ‚é¡¹è´¹ç”¨
+Modern,ç°ä»£
+Modified,å·²ä¿®æ”¹
+Modified By,ä¿®æ”¹è€…
+Monthly,æ¯æœˆä¸€æ¬¡
+Months,æœˆä»½
 Montserrat,Montserrat
-Name,Ãû³Æ
-Navigate,µ¼º½
-Net Total,¾»×ÜÖµ
-Net Total (Company Currency),¾»×Ü¶î£¨¹«Ë¾»õ±Ò£©
-New ${0},ĞÂ½¨ ${0}
-New Account,ĞÂ½¨ÕË»§
-New File,ĞÂ½¨ÎÄ¼ş
-New Journal Entry,ĞÂ½¨ÈÕ¼ÇÕÊ·ÖÂ¼
-New Purchase,ĞÂ½¨¹ºÂò
-New Purchase Invoice,ĞÂ½¨²É¹º·¢Æ±
-New Sale,ĞÂ½¨ÏúÊÛ
-New Sales Invoice,ĞÂ½¨ÏúÊÛ·¢Æ±
-New version available,ĞÂ°æ±¾¿ÉÓÃ
-Next,ÏÂÒ»²½
-No,·ñ
-No Data to Import,ÎŞÊı¾İ¿Éµ¼Èë
-No Values to be Displayed,ÎŞÖµÏÔÊ¾
-No entries found,Ã»ÓĞ·¢ÏÖ¼ÇÂ¼
-No expenses in this period,ÕâÆÚ¼äÃ»ÓĞÈÎºÎ·ÑÓÃ
-No filters selected,Ã»ÓĞÑ¡Ôñ¹ıÂËÆ÷
-No labels have been assigned.,Ã»ÓĞ±êÇ©¡£
-No results found,Ã»ÓĞÕÒµ½½á¹û
-No transactions yet,Ã»ÓĞ½»Ò×
-No updates available,Ã»ÓĞ¿ÉÓÃµÄ¸üĞÂ
-None,ÎŞ
-Notes,±Ê¼Ç
-Number Series,ÏµÁĞºÅ
-Number of ${0},${0} µÄÊıÁ¿
-Office Equipments,°ì¹«Éè±¸
-Office Maintenance Expenses,°ì¹«ÊÒÎ¬ĞŞ·ÑÓÃ
-Office Rent,°ì¹«ÊÒ×â½ğ
-Onboarding Complete,ÈëÖ°Íê³É
-Open Folder,´ò¿ªÎÄ¼ş¼Ğ
+Name,åç§°
+Navigate,å¯¼èˆª
+Net Total,å‡€æ€»å€¼
+Net Total (Company Currency),å‡€æ€»é¢ï¼ˆå…¬å¸è´§å¸ï¼‰
+New ${0},æ–°å»º ${0}
+New Account,æ–°å»ºè´¦æˆ·
+New File,æ–°å»ºæ–‡ä»¶
+New Journal Entry,æ–°å»ºæ—¥è®°å¸åˆ†å½•
+New Purchase,æ–°å»ºè´­ä¹°
+New Purchase Invoice,æ–°å»ºé‡‡è´­å‘ç¥¨
+New Sale,æ–°å»ºé”€å”®
+New Sales Invoice,æ–°å»ºé”€å”®å‘ç¥¨
+New version available,æ–°ç‰ˆæœ¬å¯ç”¨
+Next,ä¸‹ä¸€æ­¥
+No,å¦
+No Data to Import,æ— æ•°æ®å¯å¯¼å…¥
+No Values to be Displayed,æ— å€¼æ˜¾ç¤º
+No entries found,æ²¡æœ‰å‘ç°è®°å½•
+No expenses in this period,è¿™æœŸé—´æ²¡æœ‰ä»»ä½•è´¹ç”¨
+No filters selected,æ²¡æœ‰é€‰æ‹©è¿‡æ»¤å™¨
+No labels have been assigned.,æ²¡æœ‰æ ‡ç­¾ã€‚
+No results found,æ²¡æœ‰æ‰¾åˆ°ç»“æœ
+No transactions yet,æ²¡æœ‰äº¤æ˜“
+No updates available,æ²¡æœ‰å¯ç”¨çš„æ›´æ–°
+None,æ— 
+Notes,ç¬”è®°
+Number Series,ç³»åˆ—å·
+Number of ${0},${0} çš„æ•°é‡
+Office Equipments,åŠå…¬è®¾å¤‡
+Office Maintenance Expenses,åŠå…¬å®¤ç»´ä¿®è´¹ç”¨
+Office Rent,åŠå…¬å®¤ç§Ÿé‡‘
+Onboarding Complete,å…¥èŒå®Œæˆ
+Open Folder,æ‰“å¼€æ–‡ä»¶å¤¹
 Open Sans,Open Sans
-Opening (Cr),ÕıÔÚ´ò¿ª (´û·½)
-Opening (Dr),ÕıÔÚ´ò¿ª (½è·½)
-Opening Balance Equity,ÆÚ³õÓà¶îÈ¨Òæ
-Opening Balances,ÆÚ³õÓà¶î
-Opening Entry,´ò¿ªÌõÄ¿
-Orange,³ÈÉ«
-Organisation,»ú¹¹
-Outflow,Á÷³ö
-Outstanding Amount,Î´½á½ğ¶î
+Opening (Cr),æ­£åœ¨æ‰“å¼€ (è´·æ–¹)
+Opening (Dr),æ­£åœ¨æ‰“å¼€ (å€Ÿæ–¹)
+Opening Balance Equity,æœŸåˆä½™é¢æƒç›Š
+Opening Balances,æœŸåˆä½™é¢
+Opening Entry,æ‰“å¼€æ¡ç›®
+Orange,æ©™è‰²
+Organisation,æœºæ„
+Outflow,æµå‡º
+Outstanding Amount,æœªç»“é‡‘é¢
 Oxygen,Oxygen
-Pad Zeros,Ìî³äÁã
-Page,Ò³Ãæ
-Paid,ÓĞ³¥
-Parent,¸¸Ä¸
-Parent Account,¸¸ÕÊ»§
-Party,¾Û»á
-Patch Run,ĞŞ²¹³ÌĞòÔËĞĞ
-Pay,Ö§¸¶
-Payable,Ó¦¸¶
-Payment,Ö§¸¶
-Payment For,¸¶¿î·½Ê½
-Payment Method,¸¶¿î·½Ê½
-Payment No,¸¶¿îºÅ
-Payment Reference,¸¶¿îÆ¾¾İ
-Payment Type,¸¶¿î·½Ê½
-Payment amount cannot be ${0}.,¸¶¿î½ğ¶î²»ÄÜÎª ${0}¡£
-Payment amount cannot be less than zero.,¸¶¿î½ğ¶î²»ÄÜĞ¡ÓÚÁã¡£
-Payment amount cannot exceed ${0}.,¸¶¿î½ğ¶î²»ÄÜ³¬¹ı ${0}¡£
-Payment amount: ${0} should be greater than 0.,¸¶¿î½ğ¶î£º${0} Ó¦´óÓÚ 0¡£
-Payment amount: ${0} should be less than Outstanding amount: ${1}.,¸¶¿î½ğ¶î£º${0} Ó¦Ğ¡ÓÚÎ´½á½ğ¶î£º${1}¡£
-Payments,¸¶¿î
-Payroll Payable,Ó¦¸¶¹¤×Ê
-Periodicity,ÖÜÆÚĞÔ
-Phone,µç»°
-Pink,·ÛºìÉ«
-Place,³¡Ëù
-Place of supply,¹©Ó¦µØ
-Plants and Machineries,Éè±¸ºÍ»úĞµ
-Please Wait,ÇëÉÔµÈ
-Please assign the following fields ${0},Çë·ÖÅäÒÔÏÂ×Ö¶Î ${0}
-Please fill all values,ÇëÌîĞ´ËùÓĞÖµ
-Please select a file with data to import.,ÇëÑ¡ÔñÒ»¸ö°üº¬Òªµ¼ÈëÊı¾İµÄÎÄ¼ş¡£
-Please select a valid reference type.,ÇëÑ¡ÔñÓĞĞ§µÄÒıÓÃÀàĞÍ¡£
-Postal Code,ÓÊÕş±àÂë
-Postal Expenses,ÓÊÕş·ÑÓÃ
-Posting Date,·¢²¼ÈÕÆÚ
-Prefix,Ç°×º
-Prime Bank,Ö÷ÒªÒøĞĞ
-Print,´òÓ¡
-Print Settings,´òÓ¡ÉèÖÃ
-Print and Stationery,´òÓ¡ºÍÎÄ¾ß
-Product,²úÆ·
-Profit And Loss,ÊÕÒæÓëËğÊ§
-Profit and Loss,ÊÕÒæÓëËğÊ§
-Purchase,²É¹º
-Purchase Invoice,²É¹º·¢Æ±
-Purchase Invoice Item,²É¹º·¢Æ±ÏîÄ¿
-Purchase Invoices,²É¹º·¢Æ±
-Purchase Item Created,ÒÑ´´½¨²É¹ºÏîÄ¿
-Purchase Items,²É¹ºÏîÄ¿
-Purchase Payments,²É¹º¿îÏî
-Purchases,²É¹º
-Purple,×ÏÉ«
-Quantity,ÊıÁ¿
-Quarterly,Ã¿¼¾
-Quarters,ËÄ·ÖÖ®Ò»
-Rate,·ÑÂÊ
-Rate (${0}) cannot be less zero.,·ÑÂÊ (${0}) ²»ÄÜĞ¡ÓÚÁã¡£
-Rate (Company Currency),·ÑÂÊ£¨¹«Ë¾»õ±Ò£©
-Rate can't be negative.,·ÑÂÊ²»ÄÜÎª¸º¡£
-Receivable,Ó¦ÊÕÕË¿î
-Receive,ÊÕµ½
-Recent Invoices,½üÆÚ·¢Æ±
-Red,ºìÉ«
-Ref Name,ÒıÓÃÃû³Æ
-Ref Type,ÒıÓÃÀàĞÍ
-Ref. / Cheque No.,ÒıÓÃ /¼ì²éºÅÂë
-Ref. Date,ÒıÓÃÈÕÆÚ
-Ref. Name,ÒıÓÃĞÕÃû
-Ref. Type,ÒıÓÃÀàĞÍ
-Reference,ÒıÓÃ
-Reference Date,ÒıÓÃÈÕÆÚ
-Reference Number,ÒıÓÃ±àºÅ
-Reference Type,ÒıÓÃÀàĞÍ
-Reload App,ÖØĞÂ¼ÓÔØÓ¦ÓÃ³ÌĞò
-Report,±¨¸æ
-Report Error,±¨¸æ´íÎó
-Report Issue,±¨¸æÎÊÌâ
-Reports,±¨¸æ
-Required Fields not Assigned,Î´·ÖÅä±ØÌî×Ö¶Î
-Reset,ÖØÖÃ
-Retained Earnings,±£ÁôÊÕÒæ
-Reverse Chrg.,·´ÏòÕ÷ÊÕ»úÖÆ
-Reverted,ÒÑ»Ö¸´
-Reverts,»Ö¸´
-Review Accounts,ÉóºËÕÊ»§
-"Review your chart of accounts, add any account or tax heads as needed",²é¿´ÄúµÄ¿ÆÄ¿±í£¬¸ù¾İĞèÒªÌí¼ÓÈÎºÎ¿ÆÄ¿»òË°Ä¿
-Right Index,ÓÒË÷Òı
-Role,½ÇÉ«
-Root Type,¸ùÀàĞÍ
-Round Off,ËÄÉáÎåÈë
-Round Off Account,ËÄÉáÎåÈëÕÊ»§
-Salary,Ğ½Ë®
-Sales,ÏúÊÛ¶î
-Sales Expenses,ÏúÊÛ·ÑÓÃ
-Sales Invoice,ÏúÊÛ·¢Æ±
-Sales Invoice Item,ÏúÊÛ·¢Æ±ÏîÄ¿
-Sales Invoice Settings,ÏúÊÛ·¢Æ±ÉèÖÃ
-Sales Invoices,ÏúÊÛ·¢Æ±
-Sales Invoice,ÏúÊÛ·¢Æ±
-Sales Item Created,ÒÑ´´½¨ÏúÊÛÏîÄ¿
-Sales Items,ÏúÊÛÏîÄ¿
-Sales Payments,ÏúÊÛ¸¶¿î
-Save,±£´æ
-Save Template,±£´æÄ£°å
-Save as PDF,Áí´æÎª PDF
-Save as PDF Successful,Áí´æÎª PDF ³É¹¦
-Saving,±£´æ
-Search,ËÑË÷
-Secured Loans,µ£±£´û¿î
-Securities and Deposits,Ö¤È¯ºÍ´æ¿î
-Select,Ñ¡Ôñ
-Select CoA,Ñ¡Ôñ CoA
-Select Color,Ñ¡ÔñÑÕÉ«
-Select Country,Ñ¡Ôñ¹ú¼Ò
-Select File,Ñ¡ÔñÎÄ¼ş
-Select Folder,Ñ¡ÔñÎÄ¼ş¼Ğ
-Select Image,Ñ¡ÔñÍ¼Æ¬
-Select Logo,Ñ¡Ôñ»Õ±ê
-Select a file for import,Ñ¡ÔñÒªµ¼ÈëµÄÎÄ¼ş
-Select file,Ñ¡ÔñÎÄ¼ş
-Select folder,Ñ¡ÔñÎÄ¼ş¼Ğ
-Select your language,Ñ¡ÔñÄúµÄÓïÑÔ
-Selected file,ËùÑ¡ÎÄ¼ş
-Service,·şÎñ
-Set an Import Type,ÉèÖÃµ¼ÈëÀàĞÍ
-Set the display language.,ÉèÖÃÏÔÊ¾ÓïÑÔ¡£
-Set the local code. This is used for number formatting.,ÉèÖÃ±¾µØ´úÂë¡£ ÕâÓÃÓÚÊı×Ö¸ñÊ½¡£
-Sets how many digits are shown after the decimal point.,ÉèÖÃĞ¡ÊıµãºóÏÔÊ¾µÄÎ»Êı¡£
-Sets the app-wide date display format.,ÉèÖÃÓ¦ÓÃ·¶Î§µÄÈÕÆÚÏÔÊ¾¸ñÊ½¡£
-Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.,ÉèÖÃÓÃÓÚ»õ±Ò¼ÆËãµÄÄÚ²¿¾«¶È¡£ ¶ÔÓÚ´ó¶àÊı»õ±ÒÀ´Ëµ£¬6 ÒÔÉÏÓ¦¸Ã×ã¹»ÁË¡£
-Setting Up Instance,ÉèÖÃÊµÀı
-Setting Up...,ÅäÖÃ...
-Settings,ÉèÖÃ
-Settings changes will be visible on reload,ÉèÖÃ¸ü¸Ä½«ÔÚÖØĞÂ¼ÓÔØÊ±¿É¼û
-Setup,ÉèÖÃ
-Setup Complete,ÉèÖÃÍê³É
-Setup Wizard,°²×°Ïòµ¼
-Set Up Your Workspace,ÉèÖÃÄúµÄ¹¤×÷Çø
-Setup system defaults like date format and display precision,ÉèÖÃÏµÍ³Ä¬ÈÏÖµ£¬ÈçÈÕÆÚ¸ñÊ½ºÍÏÔÊ¾¾«¶È
-"Set up your company information, email, country and fiscal year",ÉèÖÃÄúµÄ¹«Ë¾ĞÅÏ¢¡¢µç×ÓÓÊ¼ş¡¢¹ú¼ÒºÍ²ÆÕşÄê¶È
-Set up your opening balances before performing any accounting entries,ÔÚÖ´ĞĞÈÎºÎ»á¼Æ·ÖÂ¼Ö®Ç°ÉèÖÃÄúµÄÆÚ³õÓà¶î
-Set up your organization,ÉèÖÃÄúµÄ×éÖ¯
-Set up your tax templates for your sales or purchase transactions,ÎªÄúµÄÏúÊÛ»ò²É¹º½»Ò×ÉèÖÃË°ÎñÄ£°å
-Show Me,¸øÎÒ¿´¿´
-Single Value,µ¥Öµ
-Smallest Currency Fraction Value,×îĞ¡»õ±Ò·ÖÊıÖµ
-Softwares,Èí¼ş
-Something has gone terribly wrong. Please check the console and raise an issue.,·¢ÉúÁËÑÏÖØµÄ´íÎó¡£ Çë¼ì²é¿ØÖÆÌ¨²¢Ìá³öÎÊÌâ¡£
-Source of Funds (Liabilities),×Ê½ğÀ´Ô´£¨¸ºÕ®£©
-Standard Chart of Accounts,±ê×¼»á¼Æ¿ÆÄ¿±í
-Start,¿ªÊ¼
-State,×´Ì¬
-State Tax,¹ú¼ÒË°ÊÕ
-Status,×´Ì¬
-Stock,¹ÉÆ±
-Stock Adjustment,¹ÉÆ±µ÷Õû
-Stock Assets,¹ÉÆ±×Ê²ú
-Stock Expenses,¹ÉÆ±·ÑÓÃ
-Stock In Hand,ÏÖÓĞ¹ÉÆ±
-Stock Liabilities,¹ÉÆ±¸ºÕ®
-Stock Received But Not Billed,¹ÉÆ±ÒÑÊÕµ½µ«Î´¿ªÆ±
-Submit,Ìá½»
-Submit Journal Entry?,Ìá½»ÈÕ¼ÇÕÊ·ÖÂ¼£¿
-Submit Purchase Invoice?,Ìá½»²É¹º·¢Æ±£¿
-Submit Sales Invoice?,Ìá½»ÏúÊÛ·¢Æ±£¿
-Submit on Import,µ¼ÈëÊ±Ìá½»
-Submitted,ÒÑÌá½»
-Submitting,Ìá½»
-Subtotal,Ğ¡¼Æ
-Successfully created the following ${0} entries:,³É¹¦´´½¨ÁËÒÔÏÂ ${0} ÌõÄ¿£º
-Supplier,¹©Ó¦ÉÌ
-Supplier Created,¹©Ó¦ÉÌ´´½¨
-Supplier Currency,¹©Ó¦ÉÌ»õ±Ò
-Suppliers,¹©Ó¦ÉÌ
-Symbol,·ûºÅ
-System,ÏµÍ³
-System Settings,ÏµÍ³ÉèÖÃ
-System Setup,ÏµÍ³ÉèÖÃ
-Tax,Ë°ÊÕ
-Tax Account,Ë°ÎñÕË»§
-Tax Assets,Ë°ÊÕ×Ê²ú
-Tax Detail,Ë°ÎñÏêÏ¸ĞÅÏ¢
-Tax ID,Ë°ºÅ
-Tax Summary,Ë°ÎñÕªÒª
-Taxable Value,Ó¦Ë°Öµ
-Taxes,Ë°ÊÕ
-Teal,À¶ÂÌÉ«
-Telephone Expenses,µç»°·Ñ
-Template,Ä£°å
-Temporary,ÔİÊ±
-Temporary Accounts,ÁÙÊ±ÕË»§
-Temporary Opening,ÁÙÊ±¿ª·Å
-Terms,Ìõ¿î
-The following ${0} entries were created: ${1},´´½¨ÁËÒÔÏÂ ${0} ¸öÌõÄ¿£º${1}
-Theme Color,Ö÷ÌâÑÕÉ«
-This Month,±¾ÔÂ
-This Quarter,±¾¼¾¶È
-This Year,½ñÄê
-This action is permanent,´Ë²Ù×÷ÊÇÓÀ¾ÃĞÔµÄ
-This action is permanent and will cancel the following payment: ${0},´Ë²Ù×÷ÊÇÓÀ¾ÃĞÔµÄ£¬²¢½«È¡ÏûÒÔÏÂ¸¶¿î£º${0}
-This action is permanent and will cancel the following payments: ${0},´Ë²Ù×÷ÊÇÓÀ¾ÃĞÔµÄ£¬²¢½«È¡ÏûÒÔÏÂ¸¶¿î£º${0}
-This action is permanent and will delete associated ledger entries.,´Ë²Ù×÷ÊÇÓÀ¾ÃĞÔµÄ£¬²¢½«É¾³ıÏà¹ØµÄ·ÖÀàÕÊÌõÄ¿¡£
-This action is permanent.,´Ë²Ù×÷ÊÇÓÀ¾ÃĞÔµÄ¡£
+Pad Zeros,å¡«å……é›¶
+Page,é¡µé¢
+Paid,æœ‰å¿
+Parent,çˆ¶æ¯
+Parent Account,çˆ¶å¸æˆ·
+Party,èšä¼š
+Patch Run,ä¿®è¡¥ç¨‹åºè¿è¡Œ
+Pay,æ”¯ä»˜
+Payable,åº”ä»˜
+Payment,æ”¯ä»˜
+Payment For,ä»˜æ¬¾æ–¹å¼
+Payment Method,ä»˜æ¬¾æ–¹å¼
+Payment No,ä»˜æ¬¾å·
+Payment Reference,ä»˜æ¬¾å‡­æ®
+Payment Type,ä»˜æ¬¾æ–¹å¼
+Payment amount cannot be ${0}.,ä»˜æ¬¾é‡‘é¢ä¸èƒ½ä¸º ${0}ã€‚
+Payment amount cannot be less than zero.,ä»˜æ¬¾é‡‘é¢ä¸èƒ½å°äºé›¶ã€‚
+Payment amount cannot exceed ${0}.,ä»˜æ¬¾é‡‘é¢ä¸èƒ½è¶…è¿‡ ${0}ã€‚
+Payment amount: ${0} should be greater than 0.,ä»˜æ¬¾é‡‘é¢ï¼š${0} åº”å¤§äº 0ã€‚
+Payment amount: ${0} should be less than Outstanding amount: ${1}.,ä»˜æ¬¾é‡‘é¢ï¼š${0} åº”å°äºæœªç»“é‡‘é¢ï¼š${1}ã€‚
+Payments,ä»˜æ¬¾
+Payroll Payable,åº”ä»˜å·¥èµ„
+Periodicity,å‘¨æœŸæ€§
+Phone,ç”µè¯
+Pink,ç²‰çº¢è‰²
+Place,åœºæ‰€
+Place of supply,ä¾›åº”åœ°
+Plants and Machineries,è®¾å¤‡å’Œæœºæ¢°
+Please Wait,è¯·ç¨ç­‰
+Please assign the following fields ${0},è¯·åˆ†é…ä»¥ä¸‹å­—æ®µ ${0}
+Please fill all values,è¯·å¡«å†™æ‰€æœ‰å€¼
+Please select a file with data to import.,è¯·é€‰æ‹©ä¸€ä¸ªåŒ…å«è¦å¯¼å…¥æ•°æ®çš„æ–‡ä»¶ã€‚
+Please select a valid reference type.,è¯·é€‰æ‹©æœ‰æ•ˆçš„å¼•ç”¨ç±»å‹ã€‚
+Postal Code,é‚®æ”¿ç¼–ç 
+Postal Expenses,é‚®æ”¿è´¹ç”¨
+Posting Date,å‘å¸ƒæ—¥æœŸ
+Prefix,å‰ç¼€
+Prime Bank,ä¸»è¦é“¶è¡Œ
+Print,æ‰“å°
+Print Settings,æ‰“å°è®¾ç½®
+Print and Stationery,æ‰“å°å’Œæ–‡å…·
+Product,äº§å“
+Profit And Loss,æ”¶ç›Šä¸æŸå¤±
+Profit and Loss,æ”¶ç›Šä¸æŸå¤±
+Purchase,é‡‡è´­
+Purchase Invoice,é‡‡è´­å‘ç¥¨
+Purchase Invoice Item,é‡‡è´­å‘ç¥¨é¡¹ç›®
+Purchase Invoices,é‡‡è´­å‘ç¥¨
+Purchase Item Created,å·²åˆ›å»ºé‡‡è´­é¡¹ç›®
+Purchase Items,é‡‡è´­é¡¹ç›®
+Purchase Payments,é‡‡è´­æ¬¾é¡¹
+Purchases,é‡‡è´­
+Purple,ç´«è‰²
+Quantity,æ•°é‡
+Quarterly,æ¯å­£
+Quarters,å››åˆ†ä¹‹ä¸€
+Rate,è´¹ç‡
+Rate (${0}) cannot be less zero.,è´¹ç‡ (${0}) ä¸èƒ½å°äºé›¶ã€‚
+Rate (Company Currency),è´¹ç‡ï¼ˆå…¬å¸è´§å¸ï¼‰
+Rate can't be negative.,è´¹ç‡ä¸èƒ½ä¸ºè´Ÿã€‚
+Receivable,åº”æ”¶è´¦æ¬¾
+Receive,æ”¶åˆ°
+Recent Invoices,è¿‘æœŸå‘ç¥¨
+Red,çº¢è‰²
+Ref Name,å¼•ç”¨åç§°
+Ref Type,å¼•ç”¨ç±»å‹
+Ref. / Cheque No.,å¼•ç”¨ /æ£€æŸ¥å·ç 
+Ref. Date,å¼•ç”¨æ—¥æœŸ
+Ref. Name,å¼•ç”¨å§“å
+Ref. Type,å¼•ç”¨ç±»å‹
+Reference,å¼•ç”¨
+Reference Date,å¼•ç”¨æ—¥æœŸ
+Reference Number,å¼•ç”¨ç¼–å·
+Reference Type,å¼•ç”¨ç±»å‹
+Reload App,é‡æ–°åŠ è½½åº”ç”¨ç¨‹åº
+Report,æŠ¥å‘Š
+Report Error,æŠ¥å‘Šé”™è¯¯
+Report Issue,æŠ¥å‘Šé—®é¢˜
+Reports,æŠ¥å‘Š
+Required Fields not Assigned,æœªåˆ†é…å¿…å¡«å­—æ®µ
+Reset,é‡ç½®
+Retained Earnings,ä¿ç•™æ”¶ç›Š
+Reverse Chrg.,åå‘å¾æ”¶æœºåˆ¶
+Reverted,å·²æ¢å¤
+Reverts,æ¢å¤
+Review Accounts,å®¡æ ¸å¸æˆ·
+"Review your chart of accounts, add any account or tax heads as needed",æŸ¥çœ‹æ‚¨çš„ç§‘ç›®è¡¨ï¼Œæ ¹æ®éœ€è¦æ·»åŠ ä»»ä½•ç§‘ç›®æˆ–ç¨ç›®
+Right Index,å³ç´¢å¼•
+Role,è§’è‰²
+Root Type,æ ¹ç±»å‹
+Round Off,å››èˆäº”å…¥
+Round Off Account,å››èˆäº”å…¥å¸æˆ·
+Salary,è–ªæ°´
+Sales,é”€å”®é¢
+Sales Expenses,é”€å”®è´¹ç”¨
+Sales Invoice,é”€å”®å‘ç¥¨
+Sales Invoice Item,é”€å”®å‘ç¥¨é¡¹ç›®
+Sales Invoice Settings,é”€å”®å‘ç¥¨è®¾ç½®
+Sales Invoices,é”€å”®å‘ç¥¨
+Sales Invoice,é”€å”®å‘ç¥¨
+Sales Item Created,å·²åˆ›å»ºé”€å”®é¡¹ç›®
+Sales Items,é”€å”®é¡¹ç›®
+Sales Payments,é”€å”®ä»˜æ¬¾
+Save,ä¿å­˜
+Save Template,ä¿å­˜æ¨¡æ¿
+Save as PDF,å¦å­˜ä¸º PDF
+Save as PDF Successful,å¦å­˜ä¸º PDF æˆåŠŸ
+Saving,ä¿å­˜
+Search,æœç´¢
+Secured Loans,æ‹…ä¿è´·æ¬¾
+Securities and Deposits,è¯åˆ¸å’Œå­˜æ¬¾
+Select,é€‰æ‹©
+Select CoA,é€‰æ‹© CoA
+Select Color,é€‰æ‹©é¢œè‰²
+Select Country,é€‰æ‹©å›½å®¶
+Select File,é€‰æ‹©æ–‡ä»¶
+Select Folder,é€‰æ‹©æ–‡ä»¶å¤¹
+Select Image,é€‰æ‹©å›¾ç‰‡
+Select Logo,é€‰æ‹©å¾½æ ‡
+Select a file for import,é€‰æ‹©è¦å¯¼å…¥çš„æ–‡ä»¶
+Select file,é€‰æ‹©æ–‡ä»¶
+Select folder,é€‰æ‹©æ–‡ä»¶å¤¹
+Select your language,é€‰æ‹©æ‚¨çš„è¯­è¨€
+Selected file,æ‰€é€‰æ–‡ä»¶
+Service,æœåŠ¡
+Set an Import Type,è®¾ç½®å¯¼å…¥ç±»å‹
+Set the display language.,è®¾ç½®æ˜¾ç¤ºè¯­è¨€ã€‚
+Set the local code. This is used for number formatting.,è®¾ç½®æœ¬åœ°ä»£ç ã€‚ è¿™ç”¨äºæ•°å­—æ ¼å¼ã€‚
+Sets how many digits are shown after the decimal point.,è®¾ç½®å°æ•°ç‚¹åæ˜¾ç¤ºçš„ä½æ•°ã€‚
+Sets the app-wide date display format.,è®¾ç½®åº”ç”¨èŒƒå›´çš„æ—¥æœŸæ˜¾ç¤ºæ ¼å¼ã€‚
+Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.,è®¾ç½®ç”¨äºè´§å¸è®¡ç®—çš„å†…éƒ¨ç²¾åº¦ã€‚ å¯¹äºå¤§å¤šæ•°è´§å¸æ¥è¯´ï¼Œ6 ä»¥ä¸Šåº”è¯¥è¶³å¤Ÿäº†ã€‚
+Setting Up Instance,è®¾ç½®å®ä¾‹
+Setting Up...,é…ç½®...
+Settings,è®¾ç½®
+Settings changes will be visible on reload,è®¾ç½®æ›´æ”¹å°†åœ¨é‡æ–°åŠ è½½æ—¶å¯è§
+Setup,è®¾ç½®
+Setup Complete,è®¾ç½®å®Œæˆ
+Setup Wizard,å®‰è£…å‘å¯¼
+Set Up Your Workspace,è®¾ç½®æ‚¨çš„å·¥ä½œåŒº
+Setup system defaults like date format and display precision,è®¾ç½®ç³»ç»Ÿé»˜è®¤å€¼ï¼Œå¦‚æ—¥æœŸæ ¼å¼å’Œæ˜¾ç¤ºç²¾åº¦
+"Set up your company information, email, country and fiscal year",è®¾ç½®æ‚¨çš„å…¬å¸ä¿¡æ¯ã€ç”µå­é‚®ä»¶ã€å›½å®¶å’Œè´¢æ”¿å¹´åº¦
+Set up your opening balances before performing any accounting entries,åœ¨æ‰§è¡Œä»»ä½•ä¼šè®¡åˆ†å½•ä¹‹å‰è®¾ç½®æ‚¨çš„æœŸåˆä½™é¢
+Set up your organization,è®¾ç½®æ‚¨çš„ç»„ç»‡
+Set up your tax templates for your sales or purchase transactions,ä¸ºæ‚¨çš„é”€å”®æˆ–é‡‡è´­äº¤æ˜“è®¾ç½®ç¨åŠ¡æ¨¡æ¿
+Show Me,ç»™æˆ‘çœ‹çœ‹
+Single Value,å•å€¼
+Smallest Currency Fraction Value,æœ€å°è´§å¸åˆ†æ•°å€¼
+Softwares,è½¯ä»¶
+Something has gone terribly wrong. Please check the console and raise an issue.,å‘ç”Ÿäº†ä¸¥é‡çš„é”™è¯¯ã€‚ è¯·æ£€æŸ¥æ§åˆ¶å°å¹¶æå‡ºé—®é¢˜ã€‚
+Source of Funds (Liabilities),èµ„é‡‘æ¥æºï¼ˆè´Ÿå€ºï¼‰
+Standard Chart of Accounts,æ ‡å‡†ä¼šè®¡ç§‘ç›®è¡¨
+Start,å¼€å§‹
+State,çŠ¶æ€
+State Tax,å›½å®¶ç¨æ”¶
+Status,çŠ¶æ€
+Stock,è‚¡ç¥¨
+Stock Adjustment,è‚¡ç¥¨è°ƒæ•´
+Stock Assets,è‚¡ç¥¨èµ„äº§
+Stock Expenses,è‚¡ç¥¨è´¹ç”¨
+Stock In Hand,ç°æœ‰è‚¡ç¥¨
+Stock Liabilities,è‚¡ç¥¨è´Ÿå€º
+Stock Received But Not Billed,è‚¡ç¥¨å·²æ”¶åˆ°ä½†æœªå¼€ç¥¨
+Submit,æäº¤
+Submit Journal Entry?,æäº¤æ—¥è®°å¸åˆ†å½•ï¼Ÿ
+Submit Purchase Invoice?,æäº¤é‡‡è´­å‘ç¥¨ï¼Ÿ
+Submit Sales Invoice?,æäº¤é”€å”®å‘ç¥¨ï¼Ÿ
+Submit on Import,å¯¼å…¥æ—¶æäº¤
+Submitted,å·²æäº¤
+Submitting,æäº¤
+Subtotal,å°è®¡
+Successfully created the following ${0} entries:,æˆåŠŸåˆ›å»ºäº†ä»¥ä¸‹ ${0} æ¡ç›®ï¼š
+Supplier,ä¾›åº”å•†
+Supplier Created,ä¾›åº”å•†åˆ›å»º
+Supplier Currency,ä¾›åº”å•†è´§å¸
+Suppliers,ä¾›åº”å•†
+Symbol,ç¬¦å·
+System,ç³»ç»Ÿ
+System Settings,ç³»ç»Ÿè®¾ç½®
+System Setup,ç³»ç»Ÿè®¾ç½®
+Tax,ç¨æ”¶
+Tax Account,ç¨åŠ¡è´¦æˆ·
+Tax Assets,ç¨æ”¶èµ„äº§
+Tax Detail,ç¨åŠ¡è¯¦ç»†ä¿¡æ¯
+Tax ID,ç¨å·
+Tax Summary,ç¨åŠ¡æ‘˜è¦
+Taxable Value,åº”ç¨å€¼
+Taxes,ç¨æ”¶
+Teal,è“ç»¿è‰²
+Telephone Expenses,ç”µè¯è´¹
+Template,æ¨¡æ¿
+Temporary,æš‚æ—¶
+Temporary Accounts,ä¸´æ—¶è´¦æˆ·
+Temporary Opening,ä¸´æ—¶å¼€æ”¾
+Terms,æ¡æ¬¾
+The following ${0} entries were created: ${1},åˆ›å»ºäº†ä»¥ä¸‹ ${0} ä¸ªæ¡ç›®ï¼š${1}
+Theme Color,ä¸»é¢˜é¢œè‰²
+This Month,æœ¬æœˆ
+This Quarter,æœ¬å­£åº¦
+This Year,ä»Šå¹´
+This action is permanent,æ­¤æ“ä½œæ˜¯æ°¸ä¹…æ€§çš„
+This action is permanent and will cancel the following payment: ${0},æ­¤æ“ä½œæ˜¯æ°¸ä¹…æ€§çš„ï¼Œå¹¶å°†å–æ¶ˆä»¥ä¸‹ä»˜æ¬¾ï¼š${0}
+This action is permanent and will cancel the following payments: ${0},æ­¤æ“ä½œæ˜¯æ°¸ä¹…æ€§çš„ï¼Œå¹¶å°†å–æ¶ˆä»¥ä¸‹ä»˜æ¬¾ï¼š${0}
+This action is permanent and will delete associated ledger entries.,æ­¤æ“ä½œæ˜¯æ°¸ä¹…æ€§çš„ï¼Œå¹¶å°†åˆ é™¤ç›¸å…³çš„åˆ†ç±»å¸æ¡ç›®ã€‚
+This action is permanent.,æ­¤æ“ä½œæ˜¯æ°¸ä¹…æ€§çš„ã€‚
 Times New Roman,Times New Roman
-To Account,µ½ÕË
-To Account and From Account can't be the same: ${0},µ½ÕË»§ºÍ´ÓÕÊ»§²»ÄÜÏàÍ¬£º${0}
-To Date,µ½ÈÕÆÚ
-To Year,µ½Äê
-Top Expenses,×î¸ß·ÑÓÃ
-Total,¹²¼Æ
-Total Asset (Debit),×Ü×Ê²ú£¨½è·½£©
-Total Credit,´û·½×Ü¶î
-Total Debit,½è·½×Ü¶î
-Total Debit: ${0} must be equal to Total Credit: ${1},×Ü½è·½£º${0} ±ØĞëµÈÓÚ×Ü´û·½£º${1}
-Total Equity (Credit),×ÜÈ¨Òæ£¨ĞÅÓÃ£©
-Total Expense (Debit),×Ü·ÑÓÃ£¨½è·½£©
-Total Income (Credit),×ÜÊÕÈë£¨´û·½£©
-Total Liability (Credit),×Ü¸ºÕ®£¨´û·½£©
-Total Profit,×ÜÀûÈó
-Total Spending,×ÜÖ§³ö
-Transfer,×ªÒÆ
-Transfer Type,×ªÒÆÀàĞÍ
-Travel Expenses,ÂÃĞĞ¿ªÖ§
-Trial Balance,ÊÔËãÆ½ºâ±í
-Type,ÀàĞÍ
-Type to search...,ÊäÈëËÑË÷...
-Unit,µ¥Ôª
-Unit Type,µ¥Î»ÀàĞÍ
-Unpaid,Î´¸¶
-Unsecured Loans,ÎŞµÖÑº´û¿î
-Until Date,½ØÖ¹ÈÕÆÚ
-Update downloaded,ÒÑÏÂÔØ¸üĞÂ
-User Remark,ÓÃ»§±¸×¢
-Utility Expenses,Ë®µç·Ñ
-Value,Öµ
-Value missing for ${0},${0} µÄÖµÈ±Ê§
-Verify Imported Data,${0} µÄÖµÈ±Ê§
-Version,°æ±¾
-Version ${0} available,°æ±¾ ${0} ¿ÉÓÃ
-View Purchases,²é¿´²É¹º
-View Sales,²é¿´ÏúÊÛ
-Welcome to Frappe Books,»¶Ó­Ê¹ÓÃ Frappe Books
-Write Off,×¢Ïú
-Write Off Account,×¢ÏúÕË»§
-Write Off Account not set. Please set Write Off Account in General Settings,Î´ÉèÖÃ×¢ÏúÕÊ»§¡£ ÇëÔÚÍ¨ÓÃÉèÖÃÖĞÉèÖÃ×¢ÏúÕË»§
-Write Off Entry,×¢ÏúÌõÄ¿
-Yearly,Ã¿Äê
-Years,Äê
-Yellow,»ÆÉ«
-Yes,ÊÇ
-Your Name,ÄúµÄÃû×Ö
+To Account,åˆ°è´¦
+To Account and From Account can't be the same: ${0},åˆ°è´¦æˆ·å’Œä»å¸æˆ·ä¸èƒ½ç›¸åŒï¼š${0}
+To Date,åˆ°æ—¥æœŸ
+To Year,åˆ°å¹´
+Top Expenses,æœ€é«˜è´¹ç”¨
+Total,å…±è®¡
+Total Asset (Debit),æ€»èµ„äº§ï¼ˆå€Ÿæ–¹ï¼‰
+Total Credit,è´·æ–¹æ€»é¢
+Total Debit,å€Ÿæ–¹æ€»é¢
+Total Debit: ${0} must be equal to Total Credit: ${1},æ€»å€Ÿæ–¹ï¼š${0} å¿…é¡»ç­‰äºæ€»è´·æ–¹ï¼š${1}
+Total Equity (Credit),æ€»æƒç›Šï¼ˆä¿¡ç”¨ï¼‰
+Total Expense (Debit),æ€»è´¹ç”¨ï¼ˆå€Ÿæ–¹ï¼‰
+Total Income (Credit),æ€»æ”¶å…¥ï¼ˆè´·æ–¹ï¼‰
+Total Liability (Credit),æ€»è´Ÿå€ºï¼ˆè´·æ–¹ï¼‰
+Total Profit,æ€»åˆ©æ¶¦
+Total Spending,æ€»æ”¯å‡º
+Transfer,è½¬ç§»
+Transfer Type,è½¬ç§»ç±»å‹
+Travel Expenses,æ—…è¡Œå¼€æ”¯
+Trial Balance,è¯•ç®—å¹³è¡¡è¡¨
+Type,ç±»å‹
+Type to search...,è¾“å…¥æœç´¢...
+Unit,å•å…ƒ
+Unit Type,å•ä½ç±»å‹
+Unpaid,æœªä»˜
+Unsecured Loans,æ— æŠµæŠ¼è´·æ¬¾
+Until Date,æˆªæ­¢æ—¥æœŸ
+Update downloaded,å·²ä¸‹è½½æ›´æ–°
+User Remark,ç”¨æˆ·å¤‡æ³¨
+Utility Expenses,æ°´ç”µè´¹
+Value,å€¼
+Value missing for ${0},${0} çš„å€¼ç¼ºå¤±
+Verify Imported Data,${0} çš„å€¼ç¼ºå¤±
+Version,ç‰ˆæœ¬
+Version ${0} available,ç‰ˆæœ¬ ${0} å¯ç”¨
+View Purchases,æŸ¥çœ‹é‡‡è´­
+View Sales,æŸ¥çœ‹é”€å”®
+Welcome to Frappe Books,æ¬¢è¿ä½¿ç”¨ Frappe Books
+Write Off,æ³¨é”€
+Write Off Account,æ³¨é”€è´¦æˆ·
+Write Off Account not set. Please set Write Off Account in General Settings,æœªè®¾ç½®æ³¨é”€å¸æˆ·ã€‚ è¯·åœ¨é€šç”¨è®¾ç½®ä¸­è®¾ç½®æ³¨é”€è´¦æˆ·
+Write Off Entry,æ³¨é”€æ¡ç›®
+Yearly,æ¯å¹´
+Years,å¹´
+Yellow,é»„è‰²
+Yes,æ˜¯
+Your Name,æ‚¨çš„åå­—
 john@doe.com,john@doe.com
-reports,±¨¸æ
-setup,ÉèÖÃ
-verify the imported data and click on,ÑéÖ¤µ¼ÈëµÄÊı¾İ²¢µã»÷
+reports,æŠ¥å‘Š
+setup,è®¾ç½®
+verify the imported data and click on,éªŒè¯å¯¼å…¥çš„æ•°æ®å¹¶ç‚¹å‡»

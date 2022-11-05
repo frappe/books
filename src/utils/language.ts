@@ -18,6 +18,7 @@ export const languageCodeMap: Record<string, string> = {
   Gujarati: 'gu',
   Turkish: 'tr',
   Korean: 'ko',
+  'Simplified Chinese': 'zh-CN',
 };
 
 export async function setLanguageMap(
