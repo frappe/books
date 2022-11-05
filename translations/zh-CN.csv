@@ -1,0 +1,629 @@
+${0} ${1} already exists.,${0} ${1} 已经存在。
+${0} ${1} has been modified after loading,${0} ${1} 加载后已修改
+${0} ${1} is linked with existing records.,${0} ${1} 与现有记录相关联。
+${0} already exists.,${0} 已经存在。
+${0} filters applied,${0} 已应用过滤器
+${0} rows,${0} 行
+* required fields,* 必填字段
+0%,0%
+03-23-2022,03-23-2022
+03/23/2022,03/23/2022
+1 filter applied,已应用 1 个过滤器
+2022/3/23,2022/3/23
+"23 Mar, 2022","23 Mar, 2022"
+23-03-2022,23-03-2022
+23/03/2022,23/03/2022
+9888900000,9888900000
+Account,帐户
+Account Entries,帐户条目
+Account Name,帐户名称
+Account Type,帐户类型
+Accounting Ledger Entry,会计分类帐输入
+Accounting Settings,会计设置
+Accounts,账户
+Accounts Payable,应付账款
+Accounts Receivable,应收账款
+Accumulated Depreciation,累计折旧
+Add Account,添加帐户
+Add Customers,添加客户
+Add Group,添加组
+Add Items,添加项目
+Add Row,添加行
+Add Suppliers,添加供应商
+Add Taxes,加税
+Add a few customers to create your first invoice,添加一些客户来创建您的第一个发票
+Add a few suppliers to create your first bill,添加一些供应商来创建您的第一个账单
+Add a filter,添加过滤器
+Add a remark,添加备注
+Add invoice terms,添加发票条款
+Add products or services that you buy from your suppliers,添加您从供应商处购买的产品或服务
+Add products or services that you sell to your customers,添加您向客户销售的产品或服务
+Address,地址
+Address Display,地址显示
+Address Line 1,地址第 1 行
+Address Line 2,地址第 2 行
+Administrative Expenses,行政开支
+All,全部
+Amount,总计
+Amount (Company Currency),金额（公司货币）
+Amount: ${0} and writeoff: ${1} is less than the total amount allocated to references: ${2}.,金额：${0} 和注销：${1} 少于分配给参考的总金额：${2}。
+Amount: ${0} is less than the total amount allocated to references: ${1}.,金额：${0} 小于分配给参考的总金额：${1}。
+An error occurred.,发生错误。
+Application of Funds (Assets),资金（资产）应用
+Arial,Arial
+Ascending Order,升序
+Asset,资产
+Assign Imported Labels,分配导入的标签
+Back,后退
+Bad import data.,导入数据错误。
+Balance,平衡
+Balance Sheet,资产负债表
+Bank,银行
+Bank Accounts,银行账户
+Bank Entry,银行条目
+Bank Name,银行名称
+Bank Overdraft Account,银行透支账户
+Based On,基于
+Basic,基础
+Basic I,基础 I
+Basic II,基础 II
+Bill,账单
+Bill Created,账单已创建
+Bill No,帐单编号
+Black,黑色
+Blue,蓝色
+Both,两者
+Buildings,建筑物
+Business,商业
+Cancel,取消
+Cancel ${0} ${1}?,取消 ${0} ${1}？
+Cancelled,取消
+Capital Equipments,资本设备
+Capital Stock,资本存量
+Cash,现金
+Cash Entry,现金入账
+Cash In Hand,手头现金
+Cashflow,现金周转
+Central Tax,中央税收
+Change File,更改文件
+Change Ref Type,更改引用类型
+Chargeable,收费
+Chart Of Accounts Reviewed,已审核的会计科目表
+Chart of Accounts,会计科目表
+Check for Updates,检查更新
+Checking for updates,查询更新
+Cheque,检查
+City / Town,城市/城镇
+Clear,清除
+Clearance Date,清仓日期
+Click to create,点击创建
+Close,关闭
+Closing,正在关闭
+Closing (Cr),正在关闭 (贷方)
+Closing (Dr),正在关闭 (借方)
+Color,颜色
+Commission on Sales,销售佣金
+Common,常用
+Common Items,常用物品
+Company Address,公司地址
+Company Logo,公司标志
+Company Name,公司名称
+Company Settings,公司设置
+Company Setup,公司设置
+Completed,已完成
+Condition,条件
+Consolidate Columns,合并列
+Contains,包含
+Contra Entry,反对进入
+Cost of Goods Sold,商品销售成本
+Could not import ${0} ${1}.,无法导入 ${0} ${1}。
+Could not select file.,无法选择文件。
+Country,国家
+Country Code,国家代码
+Country code used to initialize regional settings.,用于初始化区域设置的国家/地区代码。
+Courier,快递
+Cr.,贷方
+Create,创建
+Create Bill,创建账单
+Create Demo,创建演示
+Create Invoice,创建发票
+Create Purchase,创建采购
+Create Sale,创建销售
+Create a new file and store it in your computer.,创建一个新文件并将其存储在您的计算机中。
+Create a new file or select an existing one from your computer,创建一个新文件或从您的计算机中选择一个现有文件
+Create your first bill and mail it to your supplier,创建您的第一个账单并将其邮寄给您的供应商
+Create your first invoice and mail it to your customer,创建您的第一张发票并将其邮寄给您的客户
+Created,已创建
+Created By,创建者
+Creating Items and Parties,创建物品和派对
+Creating Journal Entries,创建日记帐分录
+Creating Purchase Invoices,创建采购发票
+Credit,信用
+Credit Card Entry,信用卡入口
+Credit Note,信用票据
+Creditors,债权人
+Currency,货币
+Currency Name,货币名称
+Current,当前
+Current Assets,当前资产
+Current Liabilities,流动负债
+Custom Hex,自定义十六进制
+Customer,客户
+Customer Created,客户创建
+Customer Currency,客户货币
+Customers,客户
+Customise,自定义
+Customize your invoices by adding a logo and address details,通过添加徽标和地址详细信息自定义您的发票
+Dashboard,仪表板
+Data Import,数据导入
+Database file: ${0},数据库文件：${0}
+Date,日期
+Date Format,日期格式
+Day,天
+Debit,借记
+Debit Note,借记单
+Debtors,债务人
+Default Account,默认帐户
+Delete,删除
+Delete ${0} ${1}?,删除 ${0} ${1}？
+Delete ${0}?,删除 ${0}？
+Depreciation,折旧
+Depreciation Entry,折旧条目
+Description,描述
+Details,详细信息
+Direct Expenses,直接开支
+Direct Income,直接收入
+Display Logo in Invoice,在发票上显示标志
+Display Precision,显示精度
+Display Precision should have a value between 0 and 9.,显示精度应具有介于 0 和 9 之间的值。
+Dividends Paid,已支付股息
+Docs,文档
+Documentation,文档
+Does Not Contain,不包含
+Download Update,下载更新
+Downloading update,下载更新
+Dr.,借方
+Draft,草稿
+Duplicate,重复
+Duplicate ${0} ${1}?,重复 ${0} ${1}？
+Duties and Taxes,关税和税收
+Earnest Money,定金
+Edit,编辑
+Electronic Equipments,电子设备
+Email,电子邮件
+Email Address,电子邮件地址
+Empty,空的
+Enter Country to load States,输入国家以加载状态
+Enter State,输入状态
+Entertainment Expenses,业务招待费
+Entry No,输入编号
+Entry Type,输入类型
+Equity,股权
+Error,错误
+Exchange Gain/Loss,汇兑收益/亏损
+Exchange Rate,汇率
+Excise Entry,消费税条目
+Existing File,现有文件
+Expense,费用
+Expense Account,费用账户
+Expenses,花费
+Expenses Included In Valuation,计价费用
+Export,导出
+Export Failed,导出失败
+Export Successful,导出成功
+Fax,传真
+Field,字段
+Fieldname,字段名称
+File selection failed.,文件选择失败。
+Filter,过滤器
+Fiscal Year,财政年度
+Fiscal Year End Date,财政年度结束日期
+Fiscal Year Start Date,财政年度开始日期
+Fixed Asset,固定资产
+Fixed Assets,固定资产
+Font,字体
+For,对于
+Fraction,分数
+Fraction Units,分数单位
+Freight and Forwarding Charges,运费和转运费用
+From Account,从帐户
+From Date,从日期
+From Year,从年份
+Full Name,全名
+Furnitures and Fixtures,家具和固定设备
+GSTIN No.,GSTIN 编号
+GSTR1,GSTR1
+GSTR2,GSTR2
+Gain/Loss on Asset Disposal,资产处置损益
+General,常规
+General Ledger,总帐
+Get Started,开始使用
+Gram,克
+Grand Total,总计
+Grand Total (Company Currency),总计（公司货币）
+Greater Than,大于
+Green,绿色
+Group By,按分组
+HSN/SAC,HSN/SAC
+HSN/SAC Code,HSN/SAC 代码
+Half Yearly,每半年
+Half Years,半年后
+Hex Value,十六进制值
+Hide Get Started,隐藏入门
+Hide Group Amounts,隐藏组金额
+Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.,从边栏中隐藏“入门”部分。 更改将在重新启动或刷新应用程序时可见。
+Hour,小时
+How to Use Data Import,如何使用数据导入
+I can't find my language.,我无法找到我的语言。
+INR,INR
+Image,图像
+Import Data,导入数据
+Import Failed,导入失败
+Import More,导入更多
+Import Success,导入成功
+Import Type,导入类型
+Importer Settings,导入设置
+Include Cancelled,包括已取消
+Income,收入
+Income Account,收入账户
+Indigo,靛蓝
+Indirect Expenses,间接开支
+Indirect Income,间接收入
+Inflow,流入
+Install Update,安装更新
+Instance Id,实例 ID
+Intergrated Tax,综合所得税
+Internal Precision,内部精度
+Invalid value ${0} for ${1},${1} 的值 ${0} 无效
+Investments,投资
+Invoice,发票
+Invoice Created,已创建发票
+Invoice Date,发票日期
+Invoice No,发票号码
+Invoice No.,发票号码
+Invoice Setup,发票设置
+Invoice Value,发票面额
+Invoices,发票
+Is,是
+Is Empty,是空的
+Is Group,是组
+Is Not,不是
+Is Not Empty,不为空
+Item,项目
+Item Description,项目描述
+Item Name,项目名称
+Items,项目
+John Doe,John Doe
+Journal Entries,日记帐分录
+Journal Entry,日记帐分录
+Journal Entry Account,日记帐分录帐户
+Kg,千克
+Label Index,标签索引
+Language,语言
+Ledger Entries,分类帐条目
+Left Index,左索引
+Legal Expenses,法律开支
+Less Than,少于
+Liability,负债
+List,列表
+Load an existing .db file from your computer.,从您的计算机加载现有的 .db 文件。
+Loading Report...,正在加载报告...
+Loading...,正在加载...
+Loans (Liabilities),贷款（负债）
+Loans and Advances (Assets),贷款和垫款（资产）
+Locale,区域设置
+Logo,徽标
+Make Entry,进行条目
+Make Payment,进行支付
+23-Mar-22,23-Mar-22
+Marketing Expenses,营销费用
+Merriweather,Merriweather
+Meter,米
+Minimal,最小
+Miscellaneous Expenses,杂项费用
+Modern,现代
+Modified,已修改
+Modified By,修改者
+Monthly,每月一次
+Months,月份
+Montserrat,Montserrat
+Name,名称
+Navigate,导航
+Net Total,净总值
+Net Total (Company Currency),净总额（公司货币）
+New ${0},新建 ${0}
+New Account,新建账户
+New File,新建文件
+New Journal Entry,新建日记帐分录
+New Purchase,新建购买
+New Purchase Invoice,新建采购发票
+New Sale,新建销售
+New Sales Invoice,新建销售发票
+New version available,新版本可用
+Next,下一步
+No,否
+No Data to Import,无数据可导入
+No Values to be Displayed,无值显示
+No entries found,没有发现记录
+No expenses in this period,这期间没有任何费用
+No filters selected,没有选择过滤器
+No labels have been assigned.,没有标签。
+No results found,没有找到结果
+No transactions yet,没有交易
+No updates available,没有可用的更新
+None,无
+Notes,笔记
+Number Series,系列号
+Number of ${0},${0} 的数量
+Office Equipments,办公设备
+Office Maintenance Expenses,办公室维修费用
+Office Rent,办公室租金
+Onboarding Complete,入职完成
+Open Folder,打开文件夹
+Open Sans,Open Sans
+Opening (Cr),正在打开 (贷方)
+Opening (Dr),正在打开 (借方)
+Opening Balance Equity,期初余额权益
+Opening Balances,期初余额
+Opening Entry,打开条目
+Orange,橙色
+Organisation,机构
+Outflow,流出
+Outstanding Amount,未结金额
+Oxygen,Oxygen
+Pad Zeros,填充零
+Page,页面
+Paid,有偿
+Parent,父母
+Parent Account,父帐户
+Party,聚会
+Patch Run,修补程序运行
+Pay,支付
+Payable,应付
+Payment,支付
+Payment For,付款方式
+Payment Method,付款方式
+Payment No,付款号
+Payment Reference,付款凭据
+Payment Type,付款方式
+Payment amount cannot be ${0}.,付款金额不能为 ${0}。
+Payment amount cannot be less than zero.,付款金额不能小于零。
+Payment amount cannot exceed ${0}.,付款金额不能超过 ${0}。
+Payment amount: ${0} should be greater than 0.,付款金额：${0} 应大于 0。
+Payment amount: ${0} should be less than Outstanding amount: ${1}.,付款金额：${0} 应小于未结金额：${1}。
+Payments,付款
+Payroll Payable,应付工资
+Periodicity,周期性
+Phone,电话
+Pink,粉红色
+Place,场所
+Place of supply,供应地
+Plants and Machineries,设备和机械
+Please Wait,请稍等
+Please assign the following fields ${0},请分配以下字段 ${0}
+Please fill all values,请填写所有值
+Please select a file with data to import.,请选择一个包含要导入数据的文件。
+Please select a valid reference type.,请选择有效的引用类型。
+Postal Code,邮政编码
+Postal Expenses,邮政费用
+Posting Date,发布日期
+Prefix,前缀
+Prime Bank,主要银行
+Print,打印
+Print Settings,打印设置
+Print and Stationery,打印和文具
+Product,产品
+Profit And Loss,收益与损失
+Profit and Loss,收益与损失
+Purchase,采购
+Purchase Invoice,采购发票
+Purchase Invoice Item,采购发票项目
+Purchase Invoices,采购发票
+Purchase Item Created,已创建采购项目
+Purchase Items,采购项目
+Purchase Payments,采购款项
+Purchases,采购
+Purple,紫色
+Quantity,数量
+Quarterly,每季
+Quarters,四分之一
+Rate,费率
+Rate (${0}) cannot be less zero.,费率 (${0}) 不能小于零。
+Rate (Company Currency),费率（公司货币）
+Rate can't be negative.,费率不能为负。
+Receivable,应收账款
+Receive,收到
+Recent Invoices,近期发票
+Red,红色
+Ref Name,引用名称
+Ref Type,引用类型
+Ref. / Cheque No.,引用 /检查号码
+Ref. Date,引用日期
+Ref. Name,引用姓名
+Ref. Type,引用类型
+Reference,引用
+Reference Date,引用日期
+Reference Number,引用编号
+Reference Type,引用类型
+Reload App,重新加载应用程序
+Report,报告
+Report Error,报告错误
+Report Issue,报告问题
+Reports,报告
+Required Fields not Assigned,未分配必填字段
+Reset,重置
+Retained Earnings,保留收益
+Reverse Chrg.,反向征收机制
+Reverted,已恢复
+Reverts,恢复
+Review Accounts,审核帐户
+"Review your chart of accounts, add any account or tax heads as needed",查看您的科目表，根据需要添加任何科目或税目
+Right Index,右索引
+Role,角色
+Root Type,根类型
+Round Off,四舍五入
+Round Off Account,四舍五入帐户
+Salary,薪水
+Sales,销售额
+Sales Expenses,销售费用
+Sales Invoice,销售发票
+Sales Invoice Item,销售发票项目
+Sales Invoice Settings,销售发票设置
+Sales Invoices,销售发票
+Sales Invoice,销售发票
+Sales Item Created,已创建销售项目
+Sales Items,销售项目
+Sales Payments,销售付款
+Save,保存
+Save Template,保存模板
+Save as PDF,另存为 PDF
+Save as PDF Successful,另存为 PDF 成功
+Saving,保存
+Search,搜索
+Secured Loans,担保贷款
+Securities and Deposits,证券和存款
+Select,选择
+Select CoA,选择 CoA
+Select Color,选择颜色
+Select Country,选择国家
+Select File,选择文件
+Select Folder,选择文件夹
+Select Image,选择图片
+Select Logo,选择徽标
+Select a file for import,选择要导入的文件
+Select file,选择文件
+Select folder,选择文件夹
+Select your language,选择您的语言
+Selected file,所选文件
+Service,服务
+Set an Import Type,设置导入类型
+Set the display language.,设置显示语言。
+Set the local code. This is used for number formatting.,设置本地代码。 这用于数字格式。
+Sets how many digits are shown after the decimal point.,设置小数点后显示的位数。
+Sets the app-wide date display format.,设置应用范围的日期显示格式。
+Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.,设置用于货币计算的内部精度。 对于大多数货币来说，6 以上应该足够了。
+Setting Up Instance,设置实例
+Setting Up...,配置...
+Settings,设置
+Settings changes will be visible on reload,设置更改将在重新加载时可见
+Setup,设置
+Setup Complete,设置完成
+Setup Wizard,安装向导
+Set Up Your Workspace,设置您的工作区
+Setup system defaults like date format and display precision,设置系统默认值，如日期格式和显示精度
+"Set up your company information, email, country and fiscal year",设置您的公司信息、电子邮件、国家和财政年度
+Set up your opening balances before performing any accounting entries,在执行任何会计分录之前设置您的期初余额
+Set up your organization,设置您的组织
+Set up your tax templates for your sales or purchase transactions,为您的销售或采购交易设置税务模板
+Show Me,给我看看
+Single Value,单值
+Smallest Currency Fraction Value,最小货币分数值
+Softwares,软件
+Something has gone terribly wrong. Please check the console and raise an issue.,发生了严重的错误。 请检查控制台并提出问题。
+Source of Funds (Liabilities),资金来源（负债）
+Standard Chart of Accounts,标准会计科目表
+Start,开始
+State,状态
+State Tax,国家税收
+Status,状态
+Stock,股票
+Stock Adjustment,股票调整
+Stock Assets,股票资产
+Stock Expenses,股票费用
+Stock In Hand,现有股票
+Stock Liabilities,股票负债
+Stock Received But Not Billed,股票已收到但未开票
+Submit,提交
+Submit Journal Entry?,提交日记帐分录？
+Submit Purchase Invoice?,提交采购发票？
+Submit Sales Invoice?,提交销售发票？
+Submit on Import,导入时提交
+Submitted,已提交
+Submitting,提交
+Subtotal,小计
+Successfully created the following ${0} entries:,成功创建了以下 ${0} 条目：
+Supplier,供应商
+Supplier Created,供应商创建
+Supplier Currency,供应商货币
+Suppliers,供应商
+Symbol,符号
+System,系统
+System Settings,系统设置
+System Setup,系统设置
+Tax,税收
+Tax Account,税务账户
+Tax Assets,税收资产
+Tax Detail,税务详细信息
+Tax ID,税号
+Tax Summary,税务摘要
+Taxable Value,应税值
+Taxes,税收
+Teal,蓝绿色
+Telephone Expenses,电话费
+Template,模板
+Temporary,暂时
+Temporary Accounts,临时账户
+Temporary Opening,临时开放
+Terms,条款
+The following ${0} entries were created: ${1},创建了以下 ${0} 个条目：${1}
+Theme Color,主题颜色
+This Month,本月
+This Quarter,本季度
+This Year,今年
+This action is permanent,此操作是永久性的
+This action is permanent and will cancel the following payment: ${0},此操作是永久性的，并将取消以下付款：${0}
+This action is permanent and will cancel the following payments: ${0},此操作是永久性的，并将取消以下付款：${0}
+This action is permanent and will delete associated ledger entries.,此操作是永久性的，并将删除相关的分类帐条目。
+This action is permanent.,此操作是永久性的。
+Times New Roman,Times New Roman
+To Account,到账
+To Account and From Account can't be the same: ${0},到账户和从帐户不能相同：${0}
+To Date,到日期
+To Year,到年
+Top Expenses,最高费用
+Total,共计
+Total Asset (Debit),总资产（借方）
+Total Credit,贷方总额
+Total Debit,借方总额
+Total Debit: ${0} must be equal to Total Credit: ${1},总借方：${0} 必须等于总贷方：${1}
+Total Equity (Credit),总权益（信用）
+Total Expense (Debit),总费用（借方）
+Total Income (Credit),总收入（贷方）
+Total Liability (Credit),总负债（贷方）
+Total Profit,总利润
+Total Spending,总支出
+Transfer,转移
+Transfer Type,转移类型
+Travel Expenses,旅行开支
+Trial Balance,试算平衡表
+Type,类型
+Type to search...,输入搜索...
+Unit,单元
+Unit Type,单位类型
+Unpaid,未付
+Unsecured Loans,无抵押贷款
+Until Date,截止日期
+Update downloaded,已下载更新
+User Remark,用户备注
+Utility Expenses,水电费
+Value,值
+Value missing for ${0},${0} 的值缺失
+Verify Imported Data,${0} 的值缺失
+Version,版本
+Version ${0} available,版本 ${0} 可用
+View Purchases,查看采购
+View Sales,查看销售
+Welcome to Frappe Books,欢迎使用 Frappe Books
+Write Off,注销
+Write Off Account,注销账户
+Write Off Account not set. Please set Write Off Account in General Settings,未设置注销帐户。 请在通用设置中设置注销账户
+Write Off Entry,注销条目
+Yearly,每年
+Years,年
+Yellow,黄色
+Yes,是
+Your Name,您的名字
+john@doe.com,john@doe.com
+reports,报告
+setup,设置
+verify the imported data and click on,验证导入的数据并点击
