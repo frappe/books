@@ -119,4 +119,15 @@ export class BespokeQueries {
 
     return { income, expense };
   }
+
+  static async getTotalCreditAndDebit(db: DatabaseCore) {
+    return await db.knex!.raw(`
+    select 
+	    account, 
+      sum(cast(credit as real)) as totalCredit, 
+      sum(cast(debit as real)) as totalDebit
+    from AccountingLedgerEntry
+    group by account
+    `);
+  }
 }
