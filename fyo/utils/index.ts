@@ -1,9 +1,9 @@
 import { Fyo } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import { Action, DocStatus } from 'fyo/model/types';
+import { Action } from 'fyo/model/types';
 import { Money } from 'pesa';
 import { Field, OptionField, SelectOption } from 'schemas/types';
-import { getIsNullOrUndef } from 'utils';
+import { getIsNullOrUndef, safeParseInt } from 'utils';
 
 export function slug(str: string) {
   return str
@@ -24,7 +24,7 @@ export function unique<T>(list: T[], key = (it: T) => String(it)) {
 export function getDuplicates(array: unknown[]) {
   const duplicates: unknown[] = [];
   for (const i in array) {
-    const previous = array[parseInt(i) - 1];
+    const previous = array[safeParseInt(i) - 1];
     const current = array[i];
 
     if (current === previous) {

@@ -1,4 +1,5 @@
 <script>
+import { safeParseFloat } from 'utils/index';
 import Int from './Int.vue';
 
 export default {
@@ -11,8 +12,7 @@ export default {
   },
   methods: {
     parse(value) {
-      const parsedValue = parseFloat(value);
-      return isNaN(parsedValue) ? 0 : parsedValue;
+      return safeParseFloat(value)
     },
   },
 };
