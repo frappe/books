@@ -26,7 +26,7 @@ test('Meta Properties', function (t) {
 });
 
 test('Field Counts', function (t) {
-  t.equal(appSchemaMap.Account.fields?.length, 6);
+  t.equal(appSchemaMap.Account.fields?.length, 5);
   t.equal(appSchemaMap.JournalEntry.fields?.length, 9);
   t.equal(appSchemaMap.JournalEntryAccount.fields?.length, 3);
   t.equal(appSchemaMap.Party.fields?.length, 9);

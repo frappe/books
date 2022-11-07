@@ -1,11 +1,12 @@
 import fs from 'fs/promises';
+import { DatabaseError } from 'fyo/utils/errors';
 import path from 'path';
 import { DatabaseDemuxBase, DatabaseMethod } from 'utils/db/types';
 import { getSchemas } from '../../schemas';
 import {
   databaseMethodSet,
   emitMainProcessError,
-  unlinkIfExists,
+  unlinkIfExists
 } from '../helpers';
 import patches from '../patches';
 import { BespokeQueries } from './bespoke';
@@ -148,7 +149,7 @@ export class DatabaseManager extends DatabaseDemuxBase {
     }
 
     if (!BespokeQueries.hasOwnProperty(method)) {
-      return;
+      throw new DatabaseError(`invalid bespoke db function ${method}`);
     }
 
     // @ts-ignore

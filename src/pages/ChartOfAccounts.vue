@@ -3,7 +3,10 @@
     <PageHeader :title="t`Chart of Accounts`" />
 
     <!-- Chart of Accounts -->
-    <div class="flex-1 flex flex-col overflow-y-auto mb-4 custom-scroll" v-if="root">
+    <div
+      class="flex-1 flex flex-col overflow-y-auto mb-4 custom-scroll"
+      v-if="root"
+    >
       <!-- Chart of Accounts Indented List -->
       <template v-for="account in allAccounts" :key="account.name">
         <!-- Account List Item -->
@@ -142,6 +145,7 @@ import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, openQuickEdit } from 'src/utils/ui';
+import { getMapFromList } from 'utils/index';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -156,7 +160,15 @@ export default {
       schemaName: 'Account',
       newAccountName: '',
       insertingAccount: false,
+      totals: {},
+      refetchTotals: false,
     };
+  },
+  async mounted() {
+    await this.setTotalDebitAndCredit();
+    fyo.doc.observer.on('sync:AccountingLedgerEntry', () => {
+      this.refetchTotals = true;
+    });
   },
   async activated() {
     this.fetchAccounts();
@@ -164,14 +176,38 @@ export default {
       window.coa = this;
     }
     docsPath.value = docsPathMap.ChartOfAccounts;
+
+    if (this.refetchTotals) {
+      await this.setTotalDebitAndCredit();
+      this.refetchTotals = false;
+    }
   },
   deactivated() {
     docsPath.value = '';
   },
   methods: {
+    getBalance(account) {
+      const total = this.totals[account.name];
+      if (!total) {
+        return 0;
+      }
+
+      const { totalCredit, totalDebit } = total;
+
+      if (isCredit(account.rootType)) {
+        return totalCredit - totalDebit;
+      }
+
+      return totalDebit - totalCredit;
+    },
     getBalanceString(account) {
       const suffix = isCredit(account.rootType) ? t`Cr.` : t`Dr.`;
-      return `${fyo.format(account.balance, 'Currency')} ${suffix}`;
+      const balance = this.getBalance(account);
+      return `${fyo.format(balance, 'Currency')} ${suffix}`;
+    },
+    async setTotalDebitAndCredit() {
+      const totals = await this.fyo.db.getTotalCreditAndDebit();
+      this.totals = getMapFromList(totals, 'account');
     },
     async fetchAccounts() {
       this.settings = fyo.models[ModelNameEnum.Account].getTreeSettings(fyo);
@@ -231,7 +267,6 @@ export default {
           'name',
           'parentAccount',
           'isGroup',
-          'balance',
           'rootType',
           'accountType',
         ],

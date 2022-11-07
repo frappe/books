@@ -14,7 +14,7 @@ import {
   DatabaseDemuxConstructor,
   DocValue,
   DocValueMap,
-  RawValueMap,
+  RawValueMap
 } from './types';
 
 // Return types of Bespoke Queries
@@ -23,6 +23,11 @@ type TotalOutstanding = { total: number; outstanding: number };
 type Cashflow = { inflow: number; outflow: number; yearmonth: string }[];
 type Balance = { balance: number; yearmonth: string }[];
 type IncomeExpense = { income: Balance; expense: Balance };
+type TotalCreditAndDebit = {
+  account: string;
+  totalCredit: number;
+  totalDebit: number;
+};
 
 export class DatabaseHandler extends DatabaseBase {
   #fyo: Fyo;
@@ -278,6 +283,12 @@ export class DatabaseHandler extends DatabaseBase {
       fromDate,
       toDate
     )) as IncomeExpense;
+  }
+
+  async getTotalCreditAndDebit(): Promise<unknown> {
+    return (await this.#demux.callBespoke(
+      'getTotalCreditAndDebit'
+    )) as TotalCreditAndDebit[];
   }
 
   /**

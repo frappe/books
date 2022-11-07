@@ -54,7 +54,6 @@ export class CreateCOA {
         parentAccount,
         isGroup,
         rootType,
-        balance: 0,
         accountType,
       });
 
