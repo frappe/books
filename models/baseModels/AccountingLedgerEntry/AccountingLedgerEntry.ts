@@ -11,7 +11,6 @@ export class AccountingLedgerEntry extends Doc {
   credit?: Money;
   referenceType?: string;
   referenceName?: string;
-  balance?: Money;
   reverted?: boolean;
 
   async revert() {
@@ -46,7 +45,6 @@ export class AccountingLedgerEntry extends Doc {
         'party',
         'debit',
         'credit',
-        'balance',
         'referenceName',
         'reverted',
       ],
