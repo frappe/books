@@ -131,12 +131,6 @@
       ]
     },
     {
-      "fieldname": "balance",
-      "label": "Balance",
-      "fieldtype": "Currency",
-      "readOnly": true
-    },
-    {
       "fieldname": "isGroup",
       "label": "Is Group",
       "fieldtype": "Check",
