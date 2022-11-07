@@ -157,3 +157,32 @@ export function deleteKeys<T>(
 
   return dest;
 }
+
+function safeParseNumber(value: unknown, parser: (v: string) => number) {
+  let parsed: number;
+  switch (typeof value) {
+    case 'string':
+      parsed = parser(value);
+      break;
+    case 'number':
+      parsed = value;
+      break;
+    default:
+      parsed = Number(value);
+      break;
+  }
+
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+
+  return parsed;
+}
+
+export function safeParseFloat(value: unknown): number {
+  return safeParseNumber(value, parseFloat);
+}
+
+export function safeParseInt(value: unknown): number {
+  return safeParseNumber(value, parseInt);
+}

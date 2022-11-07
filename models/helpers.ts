@@ -3,6 +3,7 @@ import { Doc } from 'fyo/model/doc';
 import { Action, ColumnConfig, DocStatus, RenderData } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import { Money } from 'pesa';
+import { safeParseFloat } from 'utils/index';
 import { Router } from 'vue-router';
 import {
   AccountRootType,
@@ -211,7 +212,7 @@ export async function getExchangeRate({
 
   let exchangeRate = 0;
   if (localStorage) {
-    exchangeRate = parseFloat(
+    exchangeRate = safeParseFloat(
       localStorage.getItem(cacheKey as string) as string
     );
   }

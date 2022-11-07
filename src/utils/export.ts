@@ -3,7 +3,7 @@ import { RawValueMap } from 'fyo/core/types';
 import { Field, FieldTypeEnum, RawValue, TargetField } from 'schemas/types';
 import { generateCSV } from 'utils/csvParser';
 import { GetAllOptions, QueryFilter } from 'utils/db/types';
-import { getMapFromList } from 'utils/index';
+import { getMapFromList, safeParseFloat } from 'utils/index';
 import { ExportField, ExportTableField } from './types';
 
 const excludedFieldTypes = [
@@ -328,7 +328,7 @@ function convertRawPesaToFloat(data: RawValueMap[], fields: Field[]) {
 
   for (const row of data) {
     for (const { fieldname } of currencyFields) {
-      row[fieldname] = parseFloat((row[fieldname] ?? '0') as string);
+      row[fieldname] = safeParseFloat((row[fieldname] ?? '0') as string);
     }
   }
 }

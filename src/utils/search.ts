@@ -6,6 +6,7 @@ import { reports } from 'reports';
 import { OptionField } from 'schemas/types';
 import { getEntryRoute } from 'src/router';
 import { GetAllOptions } from 'utils/db/types';
+import { safeParseFloat } from 'utils/index';
 import { fuzzyMatch } from '.';
 import { routeTo } from './ui';
 
@@ -520,7 +521,7 @@ export class Search {
       keys.push('0');
     }
 
-    keys.sort((a, b) => parseFloat(b) - parseFloat(a));
+    keys.sort((a, b) => safeParseFloat(b) - safeParseFloat(a));
     const array: SearchItems = [];
     for (const key of keys) {
       const keywords = groupedKeywords[key];

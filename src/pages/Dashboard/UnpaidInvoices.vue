@@ -114,6 +114,7 @@ import { fyo } from 'src/initFyo';
 import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { routeTo } from 'src/utils/ui';
+import { safeParseFloat } from 'utils/index';
 import PeriodSelector from './PeriodSelector.vue';
 import SectionHeader from './SectionHeader.vue';
 
@@ -213,7 +214,7 @@ export default {
       });
 
       const isOutstanding = outstandingAmounts.map((o) =>
-        parseFloat(o.outstandingAmount)
+        safeParseFloat(o.outstandingAmount)
       );
 
       return {

@@ -35,6 +35,7 @@
   </div>
 </template>
 <script>
+import { safeParseFloat } from 'utils/index';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -58,7 +59,7 @@ export default defineComponent({
         value = e.target.value;
       }
 
-      value = parseFloat(value);
+      value = safeParseFloat(value);
 
       let exchangeRate = value / this.fromValue;
       if (this.isSwapped) {

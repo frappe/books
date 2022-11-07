@@ -8,7 +8,7 @@ import { PurchaseInvoice } from 'models/baseModels/PurchaseInvoice/PurchaseInvoi
 import { SalesInvoice } from 'models/baseModels/SalesInvoice/SalesInvoice';
 import { ModelNameEnum } from 'models/types';
 import setupInstance from 'src/setup/setupInstance';
-import { getMapFromList } from 'utils';
+import { getMapFromList, safeParseInt } from 'utils';
 import { getFiscalYear } from 'utils/misc';
 import {
   flow,
@@ -256,7 +256,7 @@ async function getSalesInvoices(
 
     notifier?.(
       `Creating Sales Invoices, ${d} out of ${dates.length}`,
-      parseInt(d) / dates.length
+      safeParseInt(d) / dates.length
     );
     const customer = sample(customers);
 
@@ -531,7 +531,7 @@ async function syncAndSubmit(docs: Doc[], notifier?: Notifier) {
     const doc = docs[i];
     notifier?.(
       `Syncing ${nameMap[doc.schemaName]}, ${i} out of ${total}`,
-      parseInt(i) / total
+      safeParseInt(i) / total
     );
     await doc.sync();
     await doc.submit();
