@@ -193,6 +193,7 @@ import { docsPathMap } from 'src/utils/misc';
 import { getGroupLabelMap, searchGroups } from 'src/utils/search';
 import { useKeys } from 'src/utils/vueUtils';
 import { getIsNullOrUndef } from 'utils/';
+import { safeParseInt } from 'utils/index';
 import { nextTick, watch } from 'vue';
 import Button from './Button.vue';
 import Modal from './Modal.vue';
@@ -268,7 +269,7 @@ export default {
       }
 
       const digit = matches[1];
-      const index = parseInt(digit) - 1;
+      const index = safeParseInt(digit) - 1;
       const group = searchGroups[index];
       const value = this.searcher.filters.groupFilters[group];
       if (!group || typeof value !== 'boolean') {

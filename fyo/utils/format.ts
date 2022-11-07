@@ -4,7 +4,7 @@ import { Doc } from 'fyo/model/doc';
 import { DateTime } from 'luxon';
 import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
-import { getIsNullOrUndef } from 'utils';
+import { getIsNullOrUndef, safeParseFloat } from 'utils';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_DATE_FORMAT,
@@ -95,11 +95,11 @@ function formatNumber(value: DocValue, fyo: Fyo): string {
   }
 
   if ((value as Money).round) {
-    const floatValue = parseFloat((value as Money).round());
+    const floatValue = safeParseFloat((value as Money).round());
     return numberFormatter.format(floatValue);
   }
 
-  const floatValue = parseFloat(value as string);
+  const floatValue = safeParseFloat(value as string);
   const formattedNumber = numberFormatter.format(floatValue);
 
   if (formattedNumber === 'NaN') {

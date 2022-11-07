@@ -5,7 +5,7 @@ import { ValueError } from 'fyo/utils/errors';
 import { DateTime } from 'luxon';
 import { Money } from 'pesa';
 import { Field, FieldTypeEnum, RawValue, TargetField } from 'schemas/types';
-import { getIsNullOrUndef } from 'utils';
+import { getIsNullOrUndef, safeParseFloat, safeParseInt } from 'utils';
 import { DatabaseHandler } from './dbHandler';
 import { Attachment, DocValue, DocValueMap, RawValueMap } from './types';
 
@@ -231,7 +231,7 @@ function toDocInt(value: RawValue, field: Field): number {
   }
 
   if (typeof value === 'string') {
-    value = parseInt(value);
+    value = safeParseInt(value);
   }
 
   return toDocFloat(value, field);
@@ -247,7 +247,7 @@ function toDocFloat(value: RawValue, field: Field): number {
   }
 
   if (typeof value === 'string') {
-    value = parseFloat(value);
+    value = safeParseFloat(value);
   }
 
   if (value === null) {
@@ -267,7 +267,7 @@ function toDocCheck(value: RawValue, field: Field): boolean {
   }
 
   if (typeof value === 'string') {
-    return !!parseFloat(value);
+    return !!safeParseFloat(value);
   }
 
   if (typeof value === 'number') {
@@ -317,7 +317,7 @@ function toRawCurrency(value: DocValue, fyo: Fyo, field: Field): string {
 
 function toRawInt(value: DocValue, field: Field): number {
   if (typeof value === 'string') {
-    return parseInt(value);
+    return safeParseInt(value);
   }
 
   if (getIsNullOrUndef(value)) {
@@ -333,7 +333,7 @@ function toRawInt(value: DocValue, field: Field): number {
 
 function toRawFloat(value: DocValue, field: Field): number {
   if (typeof value === 'string') {
-    return parseFloat(value);
+    return safeParseFloat(value);
   }
 
   if (getIsNullOrUndef(value)) {

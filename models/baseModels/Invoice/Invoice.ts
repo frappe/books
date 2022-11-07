@@ -14,7 +14,7 @@ import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
-import { getIsNullOrUndef } from 'utils';
+import { getIsNullOrUndef, safeParseFloat } from 'utils';
 import { Defaults } from '../Defaults/Defaults';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
 import { Party } from '../Party/Party';
@@ -157,7 +157,7 @@ export abstract class Invoice extends Transactional {
       toCurrency: currency as string,
     });
 
-    return parseFloat(exchangeRate.toFixed(2));
+    return safeParseFloat(exchangeRate.toFixed(2));
   }
 
   async getTaxSummary() {
