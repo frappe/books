@@ -88,23 +88,4 @@ export default {
 .sidebar-leave-active {
   transition: all 250ms ease-out;
 }
-
-.quickedit-enter-from,
-.quickedit-leave-to {
-  transform: translateX(var(--w-quick-edit));
-  width: 0px;
-  opacity: 0;
-}
-
-.quickedit-enter-to,
-.quickedit-leave-from {
-  transform: translateX(0px);
-  width: var(--w-quick-edit);
-  opacity: 1;
-}
-
-.quickedit-enter-active,
-.quickedit-leave-active {
-  transition: all 250ms ease-out;
-}
 </style>

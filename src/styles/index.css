@@ -145,3 +145,26 @@ input[type='number']::-webkit-inner-spin-button {
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background: theme('colors.gray.400');
 }
+
+/* 
+  Transitions
+ */
+
+.quickedit-enter-from,
+.quickedit-leave-to {
+  transform: translateX(var(--w-quick-edit));
+  width: 0px;
+  opacity: 0;
+}
+
+.quickedit-enter-to,
+.quickedit-leave-from {
+  transform: translateX(0px);
+  width: var(--w-quick-edit);
+  opacity: 1;
+}
+
+.quickedit-enter-active,
+.quickedit-leave-active {
+  transition: all 250ms ease-out;
+}
