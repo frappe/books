@@ -37,21 +37,23 @@
     </div>
 
     <!-- Printview Customizer -->
-    <div class="border-l w-quick-edit" v-if="showCustomiser">
-      <div
-        class="px-4 flex items-center justify-between h-row-largest border-b"
-      >
-        <h2 class="font-semibold">{{ t`Customise` }}</h2>
-        <Button :icon="true" @click="showCustomiser = false">
-          <feather-icon name="x" class="w-4 h-4" />
-        </Button>
+    <Transition name="quickedit">
+      <div class="border-l w-quick-edit" v-if="showCustomiser">
+        <div
+          class="px-4 flex items-center justify-between h-row-largest border-b"
+        >
+          <h2 class="font-semibold">{{ t`Customise` }}</h2>
+          <Button :icon="true" @click="showCustomiser = false">
+            <feather-icon name="x" class="w-4 h-4" />
+          </Button>
+        </div>
+        <TwoColumnForm
+          :doc="printSettings"
+          :autosave="true"
+          class="border-none"
+        />
       </div>
-      <TwoColumnForm
-        :doc="printSettings"
-        :autosave="true"
-        class="border-none"
-      />
-    </div>
+    </Transition>
   </div>
 </template>
 <script>
