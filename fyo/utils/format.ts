@@ -33,7 +33,7 @@ export function format(
   }
 
   if (field.fieldtype === FieldTypeEnum.Datetime) {
-    return formatDate(value, fyo);
+    return formatDatetime(value, fyo);
   }
 
   if (field.fieldtype === FieldTypeEnum.Check) {
@@ -47,18 +47,33 @@ export function format(
   return String(value);
 }
 
+function toDatetime(value: DocValue) {
+  if (typeof value === 'string') {
+    return DateTime.fromISO(value);
+  } else if (value instanceof Date) {
+    return DateTime.fromJSDate(value);
+  } else {
+    return DateTime.fromSeconds(value as number);
+  }
+}
+
+function formatDatetime(value: DocValue, fyo: Fyo): string {
+  const dateFormat =
+    (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
+  const formattedDatetime = toDatetime(value).toFormat(`${dateFormat} HH:mm:ss`);
+
+  if (value === 'Invalid DateTime') {
+    return '';
+  }
+
+  return formattedDatetime;
+}
+
 function formatDate(value: DocValue, fyo: Fyo): string {
   const dateFormat =
     (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
 
-  let dateValue: DateTime;
-  if (typeof value === 'string') {
-    dateValue = DateTime.fromISO(value);
-  } else if (value instanceof Date) {
-    dateValue = DateTime.fromJSDate(value);
-  } else {
-    dateValue = DateTime.fromSeconds(value as number);
-  }
+  const dateValue: DateTime = toDatetime(value);
 
   const formattedDate = dateValue.toFormat(dateFormat);
   if (value === 'Invalid DateTime') {
