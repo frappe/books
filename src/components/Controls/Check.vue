@@ -103,7 +103,7 @@ export default {
         return this.labelClass;
       }
 
-      return 'text-gray-600 text-sm';
+      return 'text-gray-600 text-base';
     },
     checked() {
       return this.value;
