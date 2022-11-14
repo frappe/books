@@ -1,0 +1,27 @@
+{
+  "name": "PurchaseReceipt",
+  "label": "Purchase Receipt",
+  "extends": "StockTransfer",
+  "naming": "numberSeries",
+  "showTitle": true,
+  "fields": [
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "PurchaseReceiptItem",
+      "required": true,
+      "edit": true
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "PREC-"
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

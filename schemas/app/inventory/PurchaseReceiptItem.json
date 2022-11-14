@@ -1,0 +1,14 @@
+{
+  "name": "PurchaseReceiptItem",
+  "label": "Purchase Receipt Item",
+  "extends": "StockTransferItem",
+  "fields": [
+    {
+      "fieldname": "location",
+      "label": "Dest.",
+      "fieldtype": "Link",
+      "target": "Location",
+      "required": true
+    }
+  ]
+}

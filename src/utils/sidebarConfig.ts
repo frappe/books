@@ -82,6 +82,18 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
           route: '/list/StockMovement',
           schemaName: 'StockMovement',
         },
+        {
+          label: t`Shipment`,
+          name: 'shipment',
+          route: '/list/Shipment',
+          schemaName: 'Shipment',
+        },
+        {
+          label: t`Purchase Receipt`,
+          name: 'purchase-receipt',
+          route: '/list/PurchaseReceipt',
+          schemaName: 'PurchaseReceipt',
+        },
       ],
     },
   ];

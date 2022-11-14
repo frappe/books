@@ -1,0 +1,14 @@
+{
+  "name": "ShipmentItem",
+  "label": "Shipment Item",
+  "extends": "StockTransferItem",
+  "fields": [
+    {
+      "fieldname": "location",
+      "label": "Source",
+      "fieldtype": "Link",
+      "target": "Location",
+      "required": true
+    }
+  ]
+}

@@ -102,7 +102,7 @@ export class Converter {
   }
 
   #toDocValueMap(schemaName: string, rawValueMap: RawValueMap): DocValueMap {
-    const fieldValueMap = this.db.fieldValueMap[schemaName];
+    const fieldValueMap = this.db.fieldMap[schemaName];
     const docValueMap: DocValueMap = {};
 
     for (const fieldname in rawValueMap) {
@@ -130,7 +130,7 @@ export class Converter {
   }
 
   #toRawValueMap(schemaName: string, docValueMap: DocValueMap): RawValueMap {
-    const fieldValueMap = this.db.fieldValueMap[schemaName];
+    const fieldValueMap = this.db.fieldMap[schemaName];
     const rawValueMap: RawValueMap = {};
 
     for (const fieldname in docValueMap) {
