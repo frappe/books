@@ -18,7 +18,7 @@ const childTableColumnMap = {
 
 const defaultNumberSeriesMap = {
   [ModelNameEnum.Payment]: 'PAY-',
-  [ModelNameEnum.JournalEntry]: 'JE-',
+  [ModelNameEnum.JournalEntry]: 'JV-',
   [ModelNameEnum.SalesInvoice]: 'SINV-',
   [ModelNameEnum.PurchaseInvoice]: 'PINV-',
 } as Record<ModelNameEnum, string>;
