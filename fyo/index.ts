@@ -84,6 +84,10 @@ export class Fyo {
     return this.db.schemaMap;
   }
 
+  get fieldMap() {
+    return this.db.fieldMap;
+  }
+
   format(value: DocValue, field: string | Field, doc?: Doc) {
     return format(value, field, doc ?? null, this);
   }
@@ -163,8 +167,7 @@ export class Fyo {
   }
 
   getField(schemaName: string, fieldname: string) {
-    const schema = this.schemaMap[schemaName];
-    return schema?.fields.find((f) => f.fieldname === fieldname);
+    return this.fieldMap[schemaName][fieldname];
   }
 
   async getValue(

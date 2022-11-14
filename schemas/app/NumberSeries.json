@@ -50,6 +50,14 @@
         {
           "value": "StockMovement",
           "label": "Stock Movement"
+        },
+        {
+          "value": "Shipment",
+          "label": "Shipment"
+        },
+        {
+          "value": "PurchaseReceipt",
+          "label": "Purchase Receipt"
         }
       ],
       "default": "-",

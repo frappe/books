@@ -38,6 +38,9 @@ const components = {
 export default {
   name: 'FormControl',
   render() {
+    if (!this.$attrs.df) {
+      console.log(this);
+    }
     const fieldtype = this.$attrs.df.fieldtype;
     const component = components[fieldtype] ?? Data;
 

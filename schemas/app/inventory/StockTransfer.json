@@ -1,0 +1,50 @@
+{
+  "name": "StockTransfer",
+  "label": "StockTransfer",
+  "isAbstract": true,
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "fields": [
+    {
+      "label": "Transfer No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Date",
+      "required": true
+    },
+    {
+      "fieldname": "party",
+      "label": "Party",
+      "fieldtype": "Link",
+      "target": "Party",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add transfer terms",
+      "fieldtype": "Text"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment"
+    },
+    {
+      "fieldname": "grandTotal",
+      "label": "Grand Total",
+      "fieldtype": "Currency",
+      "readOnly": true
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}
