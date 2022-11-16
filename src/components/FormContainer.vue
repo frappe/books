@@ -16,6 +16,7 @@
           self-center
           w-form
           h-full
+          overflow-auto
           mb-4
           bg-white
         "
