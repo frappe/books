@@ -1,23 +1,15 @@
 import { Doc } from 'fyo/model/doc';
 import {
-  FilterFunction,
   FiltersMap,
   FormulaMap,
+  ReadOnlyMap,
   RequiredMap
 } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { QueryFilter } from 'utils/db/types';
+import { locationFilter } from './helpers';
 import { StockMovement } from './StockMovement';
-
-const locationFilter: FilterFunction = (doc: Doc) => {
-  const item = doc.item;
-  if (!doc.item) {
-    return { item: null };
-  }
-
-  return { item: ['in', [null, item]] } as QueryFilter;
-};
+import { MovementType } from './types';
 
 export class StockMovementItem extends Doc {
   name?: string;
@@ -50,6 +42,20 @@ export class StockMovementItem extends Doc {
       formula: () => this.rate!.mul(this.quantity!),
       dependsOn: ['item', 'rate', 'quantity'],
     },
+    fromLocation: {
+      formula: () => {
+        if (this.parentdoc?.movementType === MovementType.MaterialReceipt) {
+          return null;
+        }
+      },
+    },
+    toLocation: {
+      formula: () => {
+        if (this.parentdoc?.movementType === MovementType.MaterialIssue) {
+          return null;
+        }
+      },
+    },
   };
 
   required: RequiredMap = {
@@ -59,6 +65,13 @@ export class StockMovementItem extends Doc {
     toLocation: () =>
       this.parentdoc?.movementType === 'MaterialReceipt' ||
       this.parentdoc?.movementType === 'MaterialTransfer',
+  };
+
+  readOnly: ReadOnlyMap = {
+    fromLocation: () =>
+      this.parentdoc?.movementType === MovementType.MaterialReceipt,
+    toLocation: () =>
+      this.parentdoc?.movementType === MovementType.MaterialIssue,
   };
 
   static createFilters: FiltersMap = {

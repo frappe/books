@@ -129,3 +129,12 @@ export async function convertFileToDataURL(file: File, type: string) {
   const array = new Uint8Array(buffer);
   return await getDataURL(type, array);
 }
+
+export async function getIsInventoryEnabled(fyo: Fyo) {
+  const values = await fyo.db.getAllRaw('Item', {
+    fields: ['name'],
+    filters: { trackItem: true },
+  });
+
+  return !!values.length;
+}

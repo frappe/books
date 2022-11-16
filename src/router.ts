@@ -149,7 +149,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
 ];
-console.log(routes);
 
 export function getEntryRoute(schemaName: string, name: string) {
   if (

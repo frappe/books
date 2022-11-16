@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap } from 'fyo/model/types';
+import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 
 export class Defaults extends Doc {
@@ -42,6 +42,18 @@ export class Defaults extends Doc {
 
   static filters: FiltersMap = this.commonFilters;
   static createFilters: FiltersMap = this.commonFilters;
+
+  hideInventoryDefaults(): boolean {
+    return !this.fyo.store.appFlags.getIsInventoryEnabled;
+  }
+
+  hidden: HiddenMap = {
+    stockMovementNumberSeries: this.hideInventoryDefaults.bind(this),
+    shipmentNumberSeries: this.hideInventoryDefaults.bind(this),
+    purchaseReceiptNumberSeries: this.hideInventoryDefaults.bind(this),
+    shipmentTerms: this.hideInventoryDefaults.bind(this),
+    purchaseReceiptTerms: this.hideInventoryDefaults.bind(this),
+  };
 }
 
 export const numberSeriesDefaultsMap: Record<
