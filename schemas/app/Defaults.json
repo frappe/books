@@ -33,6 +33,27 @@
       "create": true
     },
     {
+      "fieldname": "stockMovementNumberSeries",
+      "label": "Stock Movement Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true
+    },
+    {
+      "fieldname": "shipmentNumberSeries",
+      "label": "Shipment Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true
+    },
+    {
+      "fieldname": "purchaseReceiptNumberSeries",
+      "label": "Purchase Receipt Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true
+    },
+    {
       "fieldname": "salesInvoiceTerms",
       "label": "Sales Invoice Terms",
       "fieldtype": "Text",
@@ -41,6 +62,18 @@
     {
       "fieldname": "purchaseInvoiceTerms",
       "label": "Purchase Invoice Terms",
+      "fieldtype": "Text",
+      "target": "NumberSeries"
+    },
+    {
+      "fieldname": "shipmentTerms",
+      "label": "Shipment Terms",
+      "fieldtype": "Text",
+      "target": "NumberSeries"
+    },
+    {
+      "fieldname": "purchaseReceiptTerms",
+      "label": "Purchase Receipt Terms",
       "fieldtype": "Text",
       "target": "NumberSeries"
     }
