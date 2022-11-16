@@ -233,6 +233,7 @@ export class Fyo {
     instanceId: '',
     deviceId: '',
     openCount: -1,
+    appFlags: {} as Record<string, boolean>,
   };
 }
 

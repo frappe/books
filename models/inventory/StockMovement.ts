@@ -5,6 +5,7 @@ import {
   FormulaMap,
   ListViewSettings
 } from 'fyo/model/types';
+import { getDocStatusListColumn } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { StockManager } from './StockManager';
@@ -40,15 +41,25 @@ export class StockMovement extends Doc {
   };
 
   static getListViewSettings(): ListViewSettings {
-    return { columns: ['name', 'date', 'movementType'] };
+    return {
+      columns: ['name', getDocStatusListColumn(), 'date', 'movementType'],
+    };
+  }
+
+  async beforeSubmit(): Promise<void> {
+    await super.beforeSubmit();
+    const transferDetails = this._getTransferDetails();
+    await this._getStockManager().validateTransfers(transferDetails);
   }
 
   async afterSubmit(): Promise<void> {
+    await super.afterSubmit();
     const transferDetails = this._getTransferDetails();
     await this._getStockManager().createTransfers(transferDetails);
   }
 
   async afterCancel(): Promise<void> {
+    await super.afterCancel();
     await this._getStockManager().cancelTransfers();
   }
 

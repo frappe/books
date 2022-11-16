@@ -267,3 +267,21 @@ export function getNumberSeries(schemaName: string, fyo: Fyo) {
   const value = defaults?.[numberSeriesKey] as string | undefined;
   return value ?? (field?.default as string | undefined);
 }
+
+export function getDocStatusListColumn(): ColumnConfig {
+  return {
+    label: t`Status`,
+    fieldname: 'status',
+    fieldtype: 'Select',
+    size: 'small',
+    render(doc) {
+      const status = getDocStatus(doc);
+      const color = statusColor[status] ?? 'gray';
+      const label = getStatusMap()[status];
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+      };
+    },
+  };
+}

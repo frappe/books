@@ -1,19 +1,11 @@
-import { Fyo, t } from 'fyo';
+import { t } from 'fyo';
 import { fyo } from '../initFyo';
+import { getIsInventoryEnabled } from './misc';
 import { SidebarConfig, SidebarRoot } from './types';
 
 export async function getSidebarConfig(): Promise<SidebarConfig> {
   const sideBar = await getCompleteSidebar();
   return getFilteredSidebar(sideBar);
-}
-
-async function getIsInventoryEnabled(fyo: Fyo) {
-  const values = await fyo.db.getAllRaw('Item', {
-    fields: ['name'],
-    filters: { trackItem: true },
-  });
-
-  return !!values.length;
 }
 
 function getFilteredSidebar(sideBar: SidebarConfig): SidebarConfig {

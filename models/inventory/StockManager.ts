@@ -25,6 +25,13 @@ export class StockManager {
     this.fyo = fyo;
   }
 
+  async validateTransfers(transferDetails: SMTransferDetails[]) {
+    const detailsList = transferDetails.map((d) => this.#getSMIDetails(d));
+    for (const details of detailsList) {
+      await this.#validate(details);
+    }
+  }
+
   async createTransfers(transferDetails: SMTransferDetails[]) {
     const detailsList = transferDetails.map((d) => this.#getSMIDetails(d));
     for (const details of detailsList) {
