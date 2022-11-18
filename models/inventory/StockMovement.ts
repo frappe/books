@@ -1,24 +1,32 @@
-import { Doc } from 'fyo/model/doc';
 import {
   DefaultMap,
   FiltersMap,
   FormulaMap,
-  ListViewSettings
+  ListViewSettings,
 } from 'fyo/model/types';
 import { getDocStatusListColumn } from 'models/helpers';
+import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { StockManager } from './StockManager';
 import { StockMovementItem } from './StockMovementItem';
+import { Transfer } from './Transfer';
 import { MovementType } from './types';
 
-export class StockMovement extends Doc {
+export class StockMovement extends Transfer {
   name?: string;
   date?: Date;
   numberSeries?: string;
   movementType?: MovementType;
   items?: StockMovementItem[];
   amount?: Money;
+
+  override get isTransactional(): boolean {
+    return false;
+  }
+
+  override async getPosting(): Promise<LedgerPosting | null> {
+    return null;
+  }
 
   formulas: FormulaMap = {
     amount: {
@@ -46,23 +54,6 @@ export class StockMovement extends Doc {
     };
   }
 
-  async beforeSubmit(): Promise<void> {
-    await super.beforeSubmit();
-    const transferDetails = this._getTransferDetails();
-    await this._getStockManager().validateTransfers(transferDetails);
-  }
-
-  async afterSubmit(): Promise<void> {
-    await super.afterSubmit();
-    const transferDetails = this._getTransferDetails();
-    await this._getStockManager().createTransfers(transferDetails);
-  }
-
-  async afterCancel(): Promise<void> {
-    await super.afterCancel();
-    await this._getStockManager().cancelTransfers();
-  }
-
   _getTransferDetails() {
     return (this.items ?? []).map((row) => ({
       item: row.item!,
@@ -71,17 +62,5 @@ export class StockMovement extends Doc {
       fromLocation: row.fromLocation,
       toLocation: row.toLocation,
     }));
-  }
-
-  _getStockManager(): StockManager {
-    return new StockManager(
-      {
-        date: this.date!,
-        referenceName: this.name!,
-        referenceType: this.schemaName,
-      },
-      this.isCancelled,
-      this.fyo
-    );
   }
 }

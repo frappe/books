@@ -94,12 +94,10 @@ export class StockLedger extends Report {
       }
 
       if (toDate && row.date > toDate) {
-        console.log('here');
         continue;
       }
 
       if (fromDate && row.date < fromDate) {
-        console.log('here');
         continue;
       }
 

@@ -25,15 +25,19 @@
       "fieldname": "stockInHand",
       "label": "Stock In Hand Acc.",
       "fieldtype": "Link",
-      "target": "Account",
-      "create": true
+      "target": "Account"
     },
     {
       "fieldname": "stockReceivedButNotBilled",
       "label": "Stock Received But Not Billed Acc.",
       "fieldtype": "Link",
-      "target": "Account",
-      "create": true
+      "target": "Account"
+    },
+    {
+      "fieldname": "costOfGoodsSold",
+      "label": "Cost Of Goods Sold",
+      "fieldtype": "Link",
+      "target": "Account"
     }
   ]
 }

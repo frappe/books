@@ -52,10 +52,6 @@ export default defineComponent({
   },
   computed: {
     fields() {
-      console.log(
-        'changed',
-        this.doc?.schema.fields.map(({ fieldname }) => fieldname).join(',')
-      );
       return this.doc?.schema.fields;
     },
   },
