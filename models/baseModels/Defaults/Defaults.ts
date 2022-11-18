@@ -43,16 +43,16 @@ export class Defaults extends Doc {
   static filters: FiltersMap = this.commonFilters;
   static createFilters: FiltersMap = this.commonFilters;
 
-  hideInventoryDefaults(): boolean {
-    return !this.fyo.store.appFlags.getIsInventoryEnabled;
+  getInventoryHidden() {
+    return () => !this.fyo.store.appFlags.isInventoryEnabled;
   }
 
   hidden: HiddenMap = {
-    stockMovementNumberSeries: this.hideInventoryDefaults.bind(this),
-    shipmentNumberSeries: this.hideInventoryDefaults.bind(this),
-    purchaseReceiptNumberSeries: this.hideInventoryDefaults.bind(this),
-    shipmentTerms: this.hideInventoryDefaults.bind(this),
-    purchaseReceiptTerms: this.hideInventoryDefaults.bind(this),
+    stockMovementNumberSeries: this.getInventoryHidden(),
+    shipmentNumberSeries: this.getInventoryHidden(),
+    purchaseReceiptNumberSeries: this.getInventoryHidden(),
+    shipmentTerms: this.getInventoryHidden(),
+    purchaseReceiptTerms: this.getInventoryHidden(),
   };
 }
 

@@ -5,14 +5,23 @@ import { createNumberSeries } from 'fyo/model/naming';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
-  DEFAULT_SERIES_START
+  DEFAULT_SERIES_START,
 } from 'fyo/utils/consts';
-import { AccountRootTypeEnum } from 'models/baseModels/Account/types';
+import { ValueError } from 'fyo/utils/errors';
+import {
+  AccountRootTypeEnum,
+  AccountTypeEnum,
+} from 'models/baseModels/Account/types';
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
 import { numberSeriesDefaultsMap } from 'models/baseModels/Defaults/Defaults';
+import { InventorySettings } from 'models/inventory/InventorySettings';
+import { valuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import { createRegionalRecords } from 'src/regional';
-import { initializeInstance, setCurrencySymbols } from 'src/utils/initialization';
+import {
+  initializeInstance,
+  setCurrencySymbols,
+} from 'src/utils/initialization';
 import { getRandomString } from 'utils';
 import { defaultUOMs } from 'utils/defaults';
 import { getCountryCodeFromCountry, getCountryInfo } from 'utils/misc';
@@ -39,6 +48,7 @@ export default async function setupInstance(
   await createRegionalRecords(country, fyo);
   await createDefaultEntries(fyo);
   await createDefaultNumberSeries(fyo);
+  await updateInventorySettings(fyo);
 
   await completeSetup(companyName, fyo);
   if (!Object.keys(fyo.currencySymbols).length) {
@@ -328,4 +338,41 @@ async function createDefaultNumberSeries(fyo: Fyo) {
 
     await fyo.singles.Defaults?.setAndSync(defaultKey as string, defaultValue);
   }
+}
+
+async function updateInventorySettings(fyo: Fyo) {
+  const inventorySettings = (await fyo.doc.getDoc(
+    ModelNameEnum.InventorySettings
+  )) as InventorySettings;
+
+  if (!inventorySettings.valuationMethod) {
+    await inventorySettings.set('valuationMethod', valuationMethod.FIFO);
+  }
+
+  const stockAccounts = (await fyo.db.getAllRaw('Account', {
+    filters: { accountType: AccountTypeEnum.Stock, isGroup: false },
+  })) as { name: string }[];
+
+  if (stockAccounts.length && !inventorySettings.stockInHand) {
+    await inventorySettings.set('stockInHand', stockAccounts[0].name);
+  }
+
+  const stockReceivedButNotBilled = (await fyo.db.getAllRaw('Account', {
+    filters: {
+      accountType: AccountTypeEnum['Stock Received But Not Billed'],
+      isGroup: false,
+    },
+  })) as { name: string }[];
+
+  if (
+    stockReceivedButNotBilled.length &&
+    !inventorySettings.stockInReceivedButNotBilled
+  ) {
+    await inventorySettings.set(
+      'stockInReceivedButNotBilled',
+      stockAccounts[0].name
+    );
+  }
+
+  await inventorySettings.sync();
 }

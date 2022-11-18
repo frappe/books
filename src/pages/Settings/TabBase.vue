@@ -12,14 +12,38 @@
 </template>
 <script lang="ts">
 import { Doc } from 'fyo/model/doc';
-import { Field } from 'schemas/types';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'TabGeneral',
   emits: ['change'],
+  props: { schemaName: String },
   components: {
     TwoColumnForm,
+  },
+  async mounted() {
+    await this.setDoc();
+  },
+  watch: {
+    async schemaName() {
+      await this.setDoc();
+    },
+  },
+  methods: {
+    async setDoc() {
+      if (this.doc && this.schemaName === this.doc.schemaName) {
+        return;
+      }
+
+      if (!this.schemaName) {
+        return;
+      }
+
+      this.doc = await this.fyo.doc.getDoc(this.schemaName, this.schemaName, {
+        skipDocumentCache: true,
+      });
+    },
   },
   data() {
     return {
@@ -28,8 +52,12 @@ export default {
   },
   computed: {
     fields() {
-      return [] as Field[];
+      console.log(
+        'changed',
+        this.doc?.schema.fields.map(({ fieldname }) => fieldname).join(',')
+      );
+      return this.doc?.schema.fields;
     },
   },
-};
+});
 </script>
