@@ -1,5 +1,10 @@
 import { Money } from 'pesa';
 
+export enum ValuationMethod {
+  'FIFO' = 'FIFO',
+  'MovingAverage' = 'MovingAverage',
+}
+
 export enum MovementType {
   'MaterialIssue' = 'MaterialIssue',
   'MaterialReceipt' = 'MaterialReceipt',

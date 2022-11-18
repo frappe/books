@@ -858,6 +858,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     await this.trigger('beforeCancel');
+    await this.trigger('beforeCancel');
     await this.setAndSync('cancelled', true);
     await this.trigger('afterCancel');
 
@@ -908,6 +909,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     if (convertToFloat) {
       return sum.float;
     }
+
     return sum;
   }
 

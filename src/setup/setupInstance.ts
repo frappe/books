@@ -15,7 +15,7 @@ import {
 import { AccountingSettings } from 'models/baseModels/AccountingSettings/AccountingSettings';
 import { numberSeriesDefaultsMap } from 'models/baseModels/Defaults/Defaults';
 import { InventorySettings } from 'models/inventory/InventorySettings';
-import { valuationMethod } from 'models/inventory/types';
+import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import { createRegionalRecords } from 'src/regional';
 import {
@@ -346,32 +346,26 @@ async function updateInventorySettings(fyo: Fyo) {
   )) as InventorySettings;
 
   if (!inventorySettings.valuationMethod) {
-    await inventorySettings.set('valuationMethod', valuationMethod.FIFO);
+    await inventorySettings.set('valuationMethod', ValuationMethod.FIFO);
   }
+  const accountTypeDefaultMap = {
+    [AccountTypeEnum.Stock]: 'stockInHand',
+    [AccountTypeEnum['Stock Received But Not Billed']]:
+      'stockReceivedButNotBilled',
+    [AccountTypeEnum['Cost of Goods Sold']]: 'costOfGoodsSold',
+  } as Record<string, string>;
 
-  const stockAccounts = (await fyo.db.getAllRaw('Account', {
-    filters: { accountType: AccountTypeEnum.Stock, isGroup: false },
-  })) as { name: string }[];
+  for (const accountType in accountTypeDefaultMap) {
+    const accounts = (await fyo.db.getAllRaw('Account', {
+      filters: { accountType, isGroup: false },
+    })) as { name: string }[];
 
-  if (stockAccounts.length && !inventorySettings.stockInHand) {
-    await inventorySettings.set('stockInHand', stockAccounts[0].name);
-  }
+    if (!accounts.length) {
+      continue;
+    }
 
-  const stockReceivedButNotBilled = (await fyo.db.getAllRaw('Account', {
-    filters: {
-      accountType: AccountTypeEnum['Stock Received But Not Billed'],
-      isGroup: false,
-    },
-  })) as { name: string }[];
-
-  if (
-    stockReceivedButNotBilled.length &&
-    !inventorySettings.stockInReceivedButNotBilled
-  ) {
-    await inventorySettings.set(
-      'stockInReceivedButNotBilled',
-      stockAccounts[0].name
-    );
+    const settingName = accountTypeDefaultMap[accountType]!;
+    inventorySettings.set(settingName, accounts[0].name);
   }
 
   await inventorySettings.sync();

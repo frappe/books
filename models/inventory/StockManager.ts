@@ -1,5 +1,6 @@
 import { Fyo, t } from 'fyo';
 import { ValidationError } from 'fyo/utils/errors';
+import { DateTime } from 'luxon';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { StockLedgerEntry } from './StockLedgerEntry';
@@ -51,6 +52,19 @@ export class StockManager {
       referenceType,
       referenceName,
     });
+  }
+
+  async validateCancel(transferDetails: SMTransferDetails[]) {
+    const reverseTransferDetails = transferDetails.map(
+      ({ item, rate, quantity, fromLocation, toLocation }) => ({
+        item,
+        rate,
+        quantity,
+        fromLocation: toLocation,
+        toLocation: fromLocation,
+      })
+    );
+    await this.validateTransfers(reverseTransferDetails);
   }
 
   async #sync() {
@@ -117,14 +131,20 @@ export class StockManager {
       return;
     }
 
-    const quantityBefore =
+    const date = details.date.toISOString();
+    let quantityBefore =
       (await this.fyo.db.getStockQuantity(
         details.item,
         details.fromLocation,
         undefined,
-        details.date.toISOString()
+        date
       )) ?? 0;
+
     const formattedDate = this.fyo.format(details.date, 'Datetime');
+
+    if (this.isCancelled) {
+      quantityBefore += details.quantity;
+    }
 
     if (quantityBefore < details.quantity) {
       throw new ValidationError(
