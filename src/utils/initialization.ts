@@ -44,10 +44,13 @@ async function closeDbIfConnected(fyo: Fyo) {
 }
 
 async function setSingles(fyo: Fyo) {
-  await fyo.doc.getDoc(ModelNameEnum.AccountingSettings);
-  await fyo.doc.getDoc(ModelNameEnum.GetStarted);
-  await fyo.doc.getDoc(ModelNameEnum.Defaults);
-  await fyo.doc.getDoc(ModelNameEnum.Misc);
+  for (const schema of Object.values(fyo.schemaMap)) {
+    if (!schema?.isSingle || schema.name === ModelNameEnum.SetupWizard) {
+      continue;
+    }
+
+    await fyo.doc.getDoc(schema.name);
+  }
 }
 
 async function setCreds(fyo: Fyo) {

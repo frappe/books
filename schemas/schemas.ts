@@ -45,6 +45,7 @@ import child from './meta/child.json';
 import submittable from './meta/submittable.json';
 import tree from './meta/tree.json';
 import { Schema, SchemaStub } from './types';
+import InventorySettings from './app/inventory/InventorySettings.json';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -99,6 +100,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   TaxDetail as Schema,
   TaxSummary as Schema,
 
+  InventorySettings as Schema,
   Location as Schema,
   StockLedgerEntry as Schema,
   StockMovement as Schema,

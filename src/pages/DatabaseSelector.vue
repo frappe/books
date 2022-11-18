@@ -301,7 +301,9 @@ export default {
       this.creatingDemo = false;
     },
     async setFiles() {
-      this.files = await ipcRenderer.invoke(IPC_ACTIONS.GET_DB_LIST);
+      this.files = (await ipcRenderer.invoke(IPC_ACTIONS.GET_DB_LIST))?.sort(
+        (a, b) => Date.parse(b.modified) - Date.parse(a.modified)
+      );
     },
     async newDatabase() {
       if (this.creatingDemo) {
