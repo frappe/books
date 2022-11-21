@@ -2,6 +2,7 @@ import { Fyo, t } from 'fyo';
 import { Action } from 'fyo/model/types';
 import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
+import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import getCommonExportActions from 'reports/commonExporter';
 import { Report } from 'reports/Report';
@@ -76,8 +77,13 @@ export class StockLedger extends Report {
   }
 
   async _setRawData() {
+    const valuationMethod =
+      (this.fyo.singles.InventorySettings?.valuationMethod as
+        | ValuationMethod
+        | undefined) ?? ValuationMethod.FIFO;
+
     const rawSLEs = await getRawStockLedgerEntries(this.fyo);
-    this._rawData = getStockLedgerEntries(rawSLEs);
+    this._rawData = getStockLedgerEntries(rawSLEs, valuationMethod);
   }
 
   _getFilteredRawData(rawData: ComputedStockLedgerEntry[]) {

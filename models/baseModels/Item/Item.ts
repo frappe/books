@@ -8,13 +8,14 @@ import {
   HiddenMap,
   ListViewSettings,
   ReadOnlyMap,
-  ValidationMap
+  ValidationMap,
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
 export class Item extends Doc {
+  trackItem?: boolean;
   itemType?: 'Product' | 'Service';
 
   formulas: FormulaMap = {
@@ -32,6 +33,11 @@ export class Item extends Doc {
     },
     expenseAccount: {
       formula: async () => {
+        if (this.trackItem) {
+          return this.fyo.singles.InventorySettings
+            ?.stockReceivedButNotBilled as string;
+        }
+
         const cogs = await this.fyo.db.getAllRaw('Account', {
           filters: {
             accountType: AccountTypeEnum['Cost of Goods Sold'],
@@ -44,7 +50,7 @@ export class Item extends Doc {
           return cogs[0].name as string;
         }
       },
-      dependsOn: ['itemType'],
+      dependsOn: ['itemType', 'trackItem'],
     },
   };
 
@@ -53,9 +59,11 @@ export class Item extends Doc {
       isGroup: false,
       rootType: AccountRootTypeEnum.Income,
     }),
-    expenseAccount: () => ({
+    expenseAccount: (doc) => ({
       isGroup: false,
-      rootType: AccountRootTypeEnum.Expense,
+      rootType: doc.trackItem
+        ? AccountRootTypeEnum.Liability
+        : AccountRootTypeEnum.Expense,
     }),
   };
 
