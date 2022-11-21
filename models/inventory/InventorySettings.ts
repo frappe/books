@@ -4,6 +4,7 @@ import { AccountTypeEnum } from 'models/baseModels/Account/types';
 import { ValuationMethod } from './types';
 
 export class InventorySettings extends Doc {
+  defaultLocation?: string;
   stockInHand?: string;
   valuationMethod?: ValuationMethod;
   stockReceivedButNotBilled?: string;

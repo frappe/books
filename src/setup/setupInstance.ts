@@ -7,7 +7,6 @@ import {
   DEFAULT_LOCALE,
   DEFAULT_SERIES_START,
 } from 'fyo/utils/consts';
-import { ValueError } from 'fyo/utils/errors';
 import {
   AccountRootTypeEnum,
   AccountTypeEnum,
@@ -23,7 +22,7 @@ import {
   setCurrencySymbols,
 } from 'src/utils/initialization';
 import { getRandomString } from 'utils';
-import { defaultUOMs } from 'utils/defaults';
+import { getDefaultLocations, getDefaultUOMs } from 'utils/defaults';
 import { getCountryCodeFromCountry, getCountryInfo } from 'utils/misc';
 import { CountryInfo } from 'utils/types';
 import { CreateCOA } from './createCOA';
@@ -62,8 +61,12 @@ async function createDefaultEntries(fyo: Fyo) {
   /**
    * Create default UOM entries
    */
-  for (const uom of defaultUOMs) {
+  for (const uom of getDefaultUOMs(fyo)) {
     await checkAndCreateDoc(ModelNameEnum.UOM, uom, fyo);
+  }
+
+  for (const loc of getDefaultLocations(fyo)) {
+    await checkAndCreateDoc(ModelNameEnum.Location, loc, fyo);
   }
 }
 
@@ -366,6 +369,11 @@ async function updateInventorySettings(fyo: Fyo) {
 
     const settingName = accountTypeDefaultMap[accountType]!;
     inventorySettings.set(settingName, accounts[0].name);
+  }
+
+  const location = fyo.t`Stores`;
+  if (await fyo.db.exists(ModelNameEnum.Location, location)) {
+    inventorySettings.set('defaultLocation', location);
   }
 
   await inventorySettings.sync();

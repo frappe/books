@@ -2,7 +2,6 @@ import { Doc } from 'fyo/model/doc';
 import { FiltersMap, FormulaMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { locationFilter } from './helpers';
 
 export class StockTransferItem extends Doc {
   item?: string;
@@ -94,6 +93,20 @@ export class StockTransferItem extends Doc {
       },
       dependsOn: ['item'],
     },
+    location: {
+      formula: () => {
+        if (this.location) {
+          return;
+        }
+
+        const defaultLocation = this.fyo.singles.InventorySettings
+          ?.defaultLocation as string | undefined;
+
+        if (defaultLocation && !this.location) {
+          return defaultLocation;
+        }
+      },
+    },
   };
 
   static filters: FiltersMap = {
@@ -105,6 +118,5 @@ export class StockTransferItem extends Doc {
 
       return { for: ['not in', [itemNotFor]], trackItem: true };
     },
-    location: locationFilter,
   };
 }

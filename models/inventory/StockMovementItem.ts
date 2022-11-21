@@ -3,11 +3,10 @@ import {
   FiltersMap,
   FormulaMap,
   ReadOnlyMap,
-  RequiredMap
+  RequiredMap,
 } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { locationFilter } from './helpers';
 import { StockMovement } from './StockMovement';
 import { MovementType } from './types';
 
@@ -21,10 +20,20 @@ export class StockMovementItem extends Doc {
   amount?: Money;
   parentdoc?: StockMovement;
 
+  get isIssue() {
+    return this.parentdoc?.movementType === MovementType.MaterialIssue;
+  }
+
+  get isReceipt() {
+    return this.parentdoc?.movementType === MovementType.MaterialReceipt;
+  }
+
+  get isTransfer() {
+    return this.parentdoc?.movementType === MovementType.MaterialTransfer;
+  }
+
   static filters: FiltersMap = {
     item: () => ({ trackItem: true }),
-    toLocation: locationFilter,
-    fromLocation: locationFilter,
   };
 
   formulas: FormulaMap = {
@@ -43,40 +52,50 @@ export class StockMovementItem extends Doc {
       dependsOn: ['item', 'rate', 'quantity'],
     },
     fromLocation: {
-      formula: () => {
-        if (this.parentdoc?.movementType === MovementType.MaterialReceipt) {
+      formula: (fn) => {
+        if (this.isReceipt || this.isTransfer) {
           return null;
         }
+
+        const defaultLocation = this.fyo.singles.InventorySettings
+          ?.defaultLocation as string | undefined;
+        if (defaultLocation && !this.location && this.isIssue) {
+          return defaultLocation;
+        }
+
+        return this.toLocation;
       },
+      dependsOn: ['movementType'],
     },
     toLocation: {
-      formula: () => {
-        if (this.parentdoc?.movementType === MovementType.MaterialIssue) {
+      formula: (fn) => {
+        if (this.isIssue || this.isTransfer) {
           return null;
         }
+
+        const defaultLocation = this.fyo.singles.InventorySettings
+          ?.defaultLocation as string | undefined;
+        if (defaultLocation && !this.location && this.isReceipt) {
+          return defaultLocation;
+        }
+
+        return this.toLocation;
       },
+      dependsOn: ['movementType'],
     },
   };
 
   required: RequiredMap = {
-    fromLocation: () =>
-      this.parentdoc?.movementType === 'MaterialIssue' ||
-      this.parentdoc?.movementType === 'MaterialTransfer',
-    toLocation: () =>
-      this.parentdoc?.movementType === 'MaterialReceipt' ||
-      this.parentdoc?.movementType === 'MaterialTransfer',
+    fromLocation: () => this.isIssue || this.isTransfer,
+    toLocation: () => this.isReceipt || this.isTransfer,
   };
 
   readOnly: ReadOnlyMap = {
-    fromLocation: () =>
-      this.parentdoc?.movementType === MovementType.MaterialReceipt,
-    toLocation: () =>
-      this.parentdoc?.movementType === MovementType.MaterialIssue,
+    fromLocation: () => this.isReceipt,
+    toLocation: () => this.isIssue,
   };
 
   static createFilters: FiltersMap = {
     item: () => ({ trackItem: true, itemType: 'Product' }),
-    fromLocation: (doc: Doc) => ({ item: (doc.item ?? '') as string }),
-    toLocation: (doc: Doc) => ({ item: (doc.item ?? '') as string }),
   };
 }

@@ -12,11 +12,13 @@
       "required": true
     },
     {
-      "fieldname": "item",
-      "label": "Item",
+      "fieldname": "address",
+      "label": "Address",
       "fieldtype": "Link",
-      "target": "Item"
+      "target": "Address",
+      "placeholder": "Click to create",
+      "inline": true
     }
   ],
-  "quickEditFields": ["item"]
+  "quickEditFields": ["item", "address"]
 }
