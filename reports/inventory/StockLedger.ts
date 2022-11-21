@@ -20,6 +20,8 @@ type ReferenceType =
 export class StockLedger extends Report {
   static title = t`Stock Ledger`;
   static reportName = 'stock-ledger';
+  static isInventory = true;
+
   usePagination: boolean = true;
 
   _rawData?: ComputedStockLedgerEntry[];

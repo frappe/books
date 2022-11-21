@@ -8,6 +8,7 @@ import { ColumnField, ReportData } from './types';
 export abstract class Report extends Observable<RawValue> {
   static title: string;
   static reportName: string;
+  static isInventory: boolean = false;
 
   fyo: Fyo;
   columns: ColumnField[] = [];
