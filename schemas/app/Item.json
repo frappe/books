@@ -71,7 +71,7 @@
     },
     {
       "fieldname": "incomeAccount",
-      "label": "Income",
+      "label": "Sales Acc.",
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Income",
@@ -80,7 +80,7 @@
     },
     {
       "fieldname": "expenseAccount",
-      "label": "Expense",
+      "label": "Purchase Acc.",
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Expense",
