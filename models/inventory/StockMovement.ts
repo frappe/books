@@ -1,10 +1,12 @@
+import { Fyo } from 'fyo';
 import {
+  Action,
   DefaultMap,
   FiltersMap,
   FormulaMap,
-  ListViewSettings,
+  ListViewSettings
 } from 'fyo/model/types';
-import { getDocStatusListColumn } from 'models/helpers';
+import { getDocStatusListColumn, getLedgerLinkAction } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -62,5 +64,9 @@ export class StockMovement extends Transfer {
       fromLocation: row.fromLocation,
       toLocation: row.toLocation,
     }));
+  }
+
+  static getActions(fyo: Fyo): Action[] {
+    return [getLedgerLinkAction(fyo, true)];
   }
 }

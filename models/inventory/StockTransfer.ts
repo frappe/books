@@ -1,10 +1,10 @@
-import { t } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { Attachment } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
-import { NotFoundError, ValidationError } from 'fyo/utils/errors';
+import { Action, DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
 import { Defaults } from 'models/baseModels/Defaults/Defaults';
-import { getNumberSeries } from 'models/helpers';
+import { getLedgerLinkAction, getNumberSeries } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -100,7 +100,7 @@ export abstract class StockTransfer extends Transfer {
       await posting.credit(stockReceivedButNotBilled, amount);
     }
 
-    await posting.makeRoundOffEntry()
+    await posting.makeRoundOffEntry();
     return posting;
   }
 
@@ -132,5 +132,9 @@ export abstract class StockTransfer extends Transfer {
     if (messages.length) {
       throw new ValidationError(messages.join(' '));
     }
+  }
+
+  static getActions(fyo: Fyo): Action[] {
+    return [getLedgerLinkAction(fyo, false), getLedgerLinkAction(fyo, true)];
   }
 }

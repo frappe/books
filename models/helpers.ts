@@ -7,11 +7,11 @@ import { safeParseFloat } from 'utils/index';
 import { Router } from 'vue-router';
 import {
   AccountRootType,
-  AccountRootTypeEnum
+  AccountRootTypeEnum,
 } from './baseModels/Account/types';
 import {
   Defaults,
-  numberSeriesDefaultsMap
+  numberSeriesDefaultsMap,
 } from './baseModels/Defaults/Defaults';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
@@ -60,15 +60,27 @@ export function getInvoiceActions(
   ];
 }
 
-export function getLedgerLinkAction(fyo: Fyo): Action {
+export function getLedgerLinkAction(
+  fyo: Fyo,
+  isStock: boolean = false
+): Action {
+
+  let label = fyo.t`Ledger Entries`;
+  let reportClassName = 'GeneralLedger';
+
+  if (isStock) {
+    label = fyo.t`Stock Entries`;
+    reportClassName = 'StockLedger';
+  }
+
   return {
-    label: fyo.t`Ledger Entries`,
+    label,
     condition: (doc: Doc) => doc.isSubmitted,
     action: async (doc: Doc, router: Router) => {
       router.push({
         name: 'Report',
         params: {
-          reportClassName: 'GeneralLedger',
+          reportClassName,
           defaultFilters: JSON.stringify({
             referenceType: doc.schemaName,
             referenceName: doc.name,

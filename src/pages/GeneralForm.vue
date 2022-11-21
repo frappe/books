@@ -28,7 +28,7 @@
       <hr />
 
       <div>
-        <!-- Invoice Form Data Entry -->
+        <!-- Form Data Entry -->
         <div class="m-4 grid grid-cols-3 gap-4">
           <FormControl
             input-class="font-semibold"
@@ -66,7 +66,7 @@
         </div>
         <hr />
 
-        <!-- Invoice Items Table -->
+        <!-- Items Table -->
         <Table
           class="text-base"
           :df="getField('items')"
@@ -79,8 +79,7 @@
         />
       </div>
 
-      <!-- Invoice Form Footer -->
-
+      <!-- Form Footer -->
       <div v-if="doc.items?.length ?? 0" class="mt-auto">
         <hr />
         <div class="flex justify-between text-base m-4 gap-12">
@@ -95,6 +94,21 @@
               @change="(value) => doc.set('terms', value)"
               :read-only="doc?.submitted"
             />
+          </div>
+          <div class="w-1/2" v-if="doc.grandTotal">
+            <!-- Grand Total -->
+            <div
+              class="
+                flex
+                justify-between
+                text-green-600
+                font-semibold
+                text-base
+              "
+            >
+              <div>{{ t`Grand Total` }}</div>
+              <div>{{ formattedValue('grandTotal') }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -119,6 +133,7 @@
 </template>
 <script>
 import { computed } from '@vue/reactivity';
+import { t } from 'fyo';
 import { getDocStatus } from 'models/helpers';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
@@ -235,7 +250,7 @@ export default {
         message,
         buttons: [
           {
-            label: this.t`Yes`,
+            label: t`Yes`,
             async action() {
               try {
                 await ref.doc.submit();
@@ -245,7 +260,7 @@ export default {
             },
           },
           {
-            label: this.t`No`,
+            label: t`No`,
             action() {},
           },
         ],

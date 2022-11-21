@@ -11,6 +11,12 @@ import { isNumeric } from 'src/utils';
 import { getRawStockLedgerEntries, getStockLedgerEntries } from './helpers';
 import { ComputedStockLedgerEntry } from './types';
 
+type ReferenceType =
+  | ModelNameEnum.StockMovement
+  | ModelNameEnum.Shipment
+  | ModelNameEnum.PurchaseReceipt
+  | 'All';
+
 export class StockLedger extends Report {
   static title = t`Stock Ledger`;
   static reportName = 'stock-ledger';
@@ -25,6 +31,9 @@ export class StockLedger extends Report {
   fromDate?: string;
   toDate?: string;
   ascending?: boolean;
+  referenceType?: ReferenceType = 'All';
+  referenceName?: string;
+
   groupBy: 'none' | 'item' | 'location' = 'none';
 
   constructor(fyo: Fyo) {
@@ -98,6 +107,17 @@ export class StockLedger extends Report {
       }
 
       if (fromDate && row.date < fromDate) {
+        continue;
+      }
+
+      if (
+        this.referenceType !== 'All' &&
+        row.referenceType !== this.referenceType
+      ) {
+        continue;
+      }
+
+      if (this.referenceName && row.referenceName !== this.referenceName) {
         continue;
       }
 
@@ -265,14 +285,14 @@ export class StockLedger extends Report {
 
   getFilters(): Field[] {
     return [
-      /*
       {
         fieldtype: 'Select',
         options: [
           { label: t`All`, value: 'All' },
           { label: t`Stock Movements`, value: 'StockMovement' },
+          { label: t`Shipment`, value: 'Shipment' },
+          { label: t`Purchase Receipt`, value: 'PurchaseReceipt' },
         ],
-
         label: t`Ref Type`,
         fieldname: 'referenceType',
         placeholder: t`Ref Type`,
@@ -285,7 +305,6 @@ export class StockLedger extends Report {
         emptyMessage: t`Change Ref Type`,
         fieldname: 'referenceName',
       },
-      */
       {
         fieldtype: 'Link',
         target: 'Item',
