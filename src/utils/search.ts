@@ -90,10 +90,12 @@ async function openFormEditDoc(schemaName: string, fyo: Fyo) {
 }
 
 function getCreateList(fyo: Fyo): SearchItem[] {
+  const hasInventory = fyo.store.appFlags.isInventoryEnabled;
   const quickEditCreateList = [
     ModelNameEnum.Item,
     ModelNameEnum.Party,
     ModelNameEnum.Payment,
+    ...(hasInventory ? [ModelNameEnum.StockMovement] : []),
   ].map(
     (schemaName) =>
       ({
@@ -109,6 +111,9 @@ function getCreateList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.SalesInvoice,
     ModelNameEnum.PurchaseInvoice,
     ModelNameEnum.JournalEntry,
+    ...(hasInventory
+      ? [ModelNameEnum.Shipment, ModelNameEnum.PurchaseReceipt]
+      : []),
   ].map(
     (schemaName) =>
       ({
@@ -171,9 +176,14 @@ function getCreateList(fyo: Fyo): SearchItem[] {
 
 function getReportList(fyo: Fyo): SearchItem[] {
   const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
+  const hasInventory = fyo.store.appFlags.isInventoryEnabled;
   return Object.keys(reports)
     .filter((r) => {
       const report = reports[r];
+      if (report.isInventory && !hasInventory) {
+        return false;
+      }
+
       if (report.title.startsWith('GST') && !hasGstin) {
         return false;
       }
@@ -199,6 +209,14 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.SalesInvoice,
     ModelNameEnum.Tax,
   ];
+
+  if (fyo.store.appFlags.isInventoryEnabled) {
+    schemaNames.push(
+      ModelNameEnum.StockMovement,
+      ModelNameEnum.Shipment,
+      ModelNameEnum.PurchaseReceipt
+    );
+  }
 
   if (fyo.store.isDevelopment) {
     schemaNames = Object.keys(fyo.schemaMap) as ModelNameEnum[];
@@ -313,6 +331,9 @@ export class Search {
     [ModelNameEnum.SalesInvoice]: 125,
     [ModelNameEnum.PurchaseInvoice]: 100,
     [ModelNameEnum.Payment]: 75,
+    [ModelNameEnum.StockMovement]: 75,
+    [ModelNameEnum.Shipment]: 75,
+    [ModelNameEnum.PurchaseReceipt]: 75,
     [ModelNameEnum.Item]: 50,
     [ModelNameEnum.Party]: 50,
     [ModelNameEnum.JournalEntry]: 50,
