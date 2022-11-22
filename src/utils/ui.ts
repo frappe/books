@@ -7,7 +7,7 @@ import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
-import { getDbError, LinkValidationError } from 'fyo/utils/errors';
+import { getDbError, LinkValidationError, ValueError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
@@ -26,12 +26,22 @@ import {
 export const docsPath = ref('');
 
 export async function openQuickEdit({
+  doc,
   schemaName,
   name,
   hideFields = [],
   showFields = [],
   defaults = {},
 }: QuickEditOptions) {
+  if (doc) {
+    schemaName = doc.schemaName;
+    name = doc.name;
+  }
+
+  if (!doc && (!schemaName || !name)) {
+    throw new ValueError(t`Schema Name or Name not passed to Open Quick Edit`);
+  }
+
   const currentRoute = router.currentRoute.value;
   const query = currentRoute.query;
   let method: 'push' | 'replace' = 'push';
@@ -74,6 +84,9 @@ export async function openQuickEdit({
   });
 }
 
+// @ts-ignore
+window.openqe = openQuickEdit;
+
 export async function showMessageDialog({
   message,
   detail,
@@ -107,9 +120,6 @@ export async function showToast(options: ToastOptions) {
   });
   replaceAndAppendMount(toast, 'toast-target');
 }
-
-// @ts-ignore
-window.st = showToast;
 
 function replaceAndAppendMount(app: App<Element>, replaceId: string) {
   const fragment = document.createDocumentFragment();

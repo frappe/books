@@ -87,6 +87,12 @@
       "label": "HSN/SAC",
       "fieldtype": "Int",
       "placeholder": "HSN/SAC Code"
+    },
+    {
+      "fieldname": "stockNotTransferred",
+      "label": "Stock Not Transferred",
+      "fieldtype": "Float",
+      "readOnly": true
     }
   ],
   "tableFields": ["item", "tax", "quantity", "rate", "amount"],

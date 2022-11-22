@@ -21,6 +21,13 @@
       "create": true,
       "required": true,
       "default": "SHPM-"
+    },
+    {
+      "fieldname": "backReference",
+      "label": "Back Reference",
+      "fieldtype": "Link",
+      "target": "SalesInvoice",
+      "readOnly": true
     }
   ],
   "keywordFields": ["name", "party"]

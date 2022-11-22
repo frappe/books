@@ -1,8 +1,6 @@
-import { Fyo } from 'fyo';
-import { Action, ListViewSettings } from 'fyo/model/types';
+import { ListViewSettings } from 'fyo/model/types';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
-import { ModelNameEnum } from 'models/types';
-import { getInvoiceActions, getTransactionStatusColumn } from '../../helpers';
+import { getTransactionStatusColumn } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
 import { PurchaseInvoiceItem } from '../PurchaseInvoiceItem/PurchaseInvoiceItem';
 
@@ -33,10 +31,6 @@ export class PurchaseInvoice extends Invoice {
 
     await posting.makeRoundOffEntry();
     return posting;
-  }
-
-  static getActions(fyo: Fyo): Action[] {
-    return getInvoiceActions(ModelNameEnum.PurchaseInvoice, fyo);
   }
 
   static getListViewSettings(): ListViewSettings {

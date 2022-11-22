@@ -289,10 +289,10 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
-docsPath,
-getActionsForDocument,
-routeTo,
-showMessageDialog
+  docsPath,
+  getActionsForDocument,
+  routeTo,
+  showMessageDialog,
 } from 'src/utils/ui';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
@@ -425,6 +425,15 @@ export default {
       }
 
       this.quickEditDoc = doc;
+      if (
+        doc?.schemaName?.includes('InvoiceItem') &&
+        doc?.stockNotTransferred
+      ) {
+        fields = [...doc.schema.quickEditFields, 'stockNotTransferred'].map(
+          (f) => fyo.getField(doc.schemaName, f)
+        );
+      }
+
       this.quickEditFields = fields;
     },
     actions() {
