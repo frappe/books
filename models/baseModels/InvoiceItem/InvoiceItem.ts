@@ -6,7 +6,7 @@ import {
   FiltersMap,
   FormulaMap,
   HiddenMap,
-  ValidationMap
+  ValidationMap,
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
@@ -14,14 +14,17 @@ import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
 import { Invoice } from '../Invoice/Invoice';
+import { Item } from '../Item/Item';
 
 export abstract class InvoiceItem extends Doc {
+  item?: string;
   account?: string;
   amount?: Money;
   parentdoc?: Invoice;
   rate?: Money;
   quantity?: number;
   tax?: string;
+  stockNotTransferred?: number;
 
   setItemDiscountAmount?: boolean;
   itemDiscountAmount?: Money;
@@ -259,6 +262,21 @@ export abstract class InvoiceItem extends Doc {
         'quantity',
         'item',
       ],
+    },
+    stockNotTransferred: {
+      formula: async () => {
+        if (this.parentdoc?.isSubmitted) {
+          return;
+        }
+
+        const item = (await this.loadAndGetLink('item')) as Item;
+        if (!item.trackItem) {
+          return 0;
+        }
+
+        return this.quantity;
+      },
+      dependsOn: ['item', 'quantity'],
     },
   };
 

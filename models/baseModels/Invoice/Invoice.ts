@@ -2,14 +2,23 @@ import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
-  CurrenciesMap, DefaultMap,
+  Action,
+  CurrenciesMap,
+  DefaultMap,
   FiltersMap,
   FormulaMap,
-  HiddenMap
+  HiddenMap,
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
-import { getExchangeRate, getNumberSeries } from 'models/helpers';
+import {
+  getExchangeRate,
+  getInvoiceActions,
+  getNumberSeries,
+} from 'models/helpers';
+import { InventorySettings } from 'models/inventory/InventorySettings';
+import { StockTransfer } from 'models/inventory/StockTransfer';
+import { getStockTransfer } from 'models/inventory/tests/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -17,6 +26,7 @@ import { FieldTypeEnum, Schema } from 'schemas/types';
 import { getIsNullOrUndef, safeParseFloat } from 'utils';
 import { Defaults } from '../Defaults/Defaults';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
+import { Item } from '../Item/Item';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
@@ -39,6 +49,7 @@ export abstract class Invoice extends Transactional {
   discountAmount?: Money;
   discountPercent?: number;
   discountAfterTax?: boolean;
+  stockNotTransferred?: number;
 
   submitted?: boolean;
   cancelled?: boolean;
@@ -341,7 +352,24 @@ export abstract class Invoice extends Transactional {
         return this.baseGrandTotal!;
       },
     },
+    stockNotTransferred: {
+      formula: async () => {
+        if (this.submitted) {
+          return;
+        }
+
+        return this.getStockNotTransferred();
+      },
+      dependsOn: ['items'],
+    },
   };
+
+  getStockNotTransferred() {
+    return (this.items ?? []).reduce(
+      (acc, item) => (item.stockNotTransferred ?? 0) + acc,
+      0
+    );
+  }
 
   getItemDiscountedAmounts() {
     let itemDiscountedAmounts = this.fyo.pesa(0);
@@ -411,5 +439,106 @@ export abstract class Invoice extends Transactional {
     for (const { fieldname } of currencyFields) {
       this.getCurrencies[fieldname] ??= this._getCurrency.bind(this);
     }
+  }
+
+  static getActions(fyo: Fyo): Action[] {
+    return getInvoiceActions(fyo);
+  }
+
+  getPayment(): Payment | null {
+    if (!this.isSubmitted) {
+      return null;
+    }
+
+    const outstandingAmount = this.outstandingAmount;
+    if (!outstandingAmount) {
+      return null;
+    }
+
+    if (this.outstandingAmount?.isZero()) {
+      return null;
+    }
+
+    const accountField = this.isSales ? 'account' : 'paymentAccount';
+    const data = {
+      party: this.party,
+      date: new Date().toISOString().slice(0, 10),
+      paymentType: this.isSales ? 'Receive' : 'Pay',
+      amount: this.outstandingAmount,
+      [accountField]: this.account,
+      for: [
+        {
+          referenceType: this.schemaName,
+          referenceName: this.name,
+          amount: this.outstandingAmount,
+        },
+      ],
+    };
+
+    return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
+  }
+
+  async getStockTransfer(): Promise<StockTransfer | null> {
+    if (!this.isSubmitted) {
+      return null;
+    }
+
+    if (!this.stockNotTransferred) {
+      return null;
+    }
+
+    const schemaName = this.isSales
+      ? ModelNameEnum.Shipment
+      : ModelNameEnum.PurchaseReceipt;
+
+    const defaults = (this.fyo.singles.Defaults as Defaults) ?? {};
+    let terms;
+    if (this.isSales) {
+      terms = defaults.shipmentTerms ?? '';
+    } else {
+      terms = defaults.purchaseReceiptTerms ?? '';
+    }
+
+    const data = {
+      party: this.party,
+      date: new Date().toISOString(),
+      terms,
+      backReference: this.name,
+    };
+    console.log(data.backReference);
+
+    const location =
+      (this.fyo.singles.InventorySettings as InventorySettings)
+        .defaultLocation ?? null;
+
+    const transfer = this.fyo.doc.getNewDoc(schemaName, data) as StockTransfer;
+    for (const row of this.items ?? []) {
+      if (!row.item) {
+        continue;
+      }
+
+      const itemDoc = (await row.loadAndGetLink('item')) as Item;
+      const item = row.item;
+      const quantity = row.stockNotTransferred;
+      const trackItem = itemDoc.trackItem;
+      const rate = row.rate;
+
+      if (!quantity || !trackItem) {
+        continue;
+      }
+
+      await transfer.append('items', {
+        item,
+        quantity,
+        location,
+        rate,
+      });
+    }
+
+    if (!transfer.items?.length) {
+      return null;
+    }
+
+    return transfer;
   }
 }

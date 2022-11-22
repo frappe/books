@@ -13,58 +13,62 @@ import {
   Defaults,
   numberSeriesDefaultsMap,
 } from './baseModels/Defaults/Defaults';
+import { Invoice } from './baseModels/Invoice/Invoice';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
-export function getInvoiceActions(
-  schemaName: ModelNameEnum.PurchaseInvoice | ModelNameEnum.SalesInvoice,
-  fyo: Fyo
-): Action[] {
+export function getInvoiceActions(fyo: Fyo): Action[] {
   return [
-    {
-      label: fyo.t`Make Payment`,
-      condition: (doc: Doc) =>
-        doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
-      action: async function makePayment(doc: Doc) {
-        const payment = fyo.doc.getNewDoc('Payment');
-        payment.once('afterSync', async () => {
-          await payment.submit();
-        });
-
-        const isSales = schemaName === 'SalesInvoice';
-        const party = doc.party as string;
-        const paymentType = isSales ? 'Receive' : 'Pay';
-        const hideAccountField = isSales ? 'account' : 'paymentAccount';
-
-        const { openQuickEdit } = await import('src/utils/ui');
-        await openQuickEdit({
-          schemaName: 'Payment',
-          name: payment.name as string,
-          hideFields: ['party', 'paymentType', 'for'],
-          defaults: {
-            party,
-            [hideAccountField]: doc.account,
-            date: new Date().toISOString().slice(0, 10),
-            paymentType,
-            for: [
-              {
-                referenceType: doc.schemaName,
-                referenceName: doc.name,
-                amount: doc.outstandingAmount,
-              },
-            ],
-          },
-        });
-      },
-    },
+    getMakePaymentAction(fyo),
+    getMakeStockTransferAction(fyo),
     getLedgerLinkAction(fyo),
   ];
+}
+
+export function getMakeStockTransferAction(fyo: Fyo): Action {
+  return {
+    label: fyo.t`Make Stock Transfer`,
+    condition: (doc: Doc) => doc.isSubmitted && !!doc.stockNotTransferred,
+    action: async (doc: Doc) => {
+      const transfer = await (doc as Invoice).getStockTransfer();
+      if (!transfer) {
+        return;
+      }
+
+      const { routeTo } = await import('src/utils/ui');
+      const path = `/edit/${transfer.schemaName}/${transfer.name}`;
+      await routeTo(path);
+    },
+  };
+}
+
+export function getMakePaymentAction(fyo: Fyo): Action {
+  return {
+    label: fyo.t`Make Payment`,
+    condition: (doc: Doc) =>
+      doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
+    action: async (doc: Doc) => {
+      const payment = (doc as Invoice).getPayment();
+      if (!payment) {
+        return;
+      }
+
+      payment.once('afterSync', async () => {
+        await payment.submit();
+      });
+
+      const { openQuickEdit } = await import('src/utils/ui');
+      await openQuickEdit({
+        doc: payment,
+        hideFields: ['party', 'paymentType', 'for'],
+      });
+    },
+  };
 }
 
 export function getLedgerLinkAction(
   fyo: Fyo,
   isStock: boolean = false
 ): Action {
-
   let label = fyo.t`Ledger Entries`;
   let reportClassName = 'GeneralLedger';
 

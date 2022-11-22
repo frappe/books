@@ -56,6 +56,13 @@
             :read-only="!doc.notInserted || doc?.submitted"
           />
           <FormControl
+            v-if="doc.backReference"
+            :border="true"
+            :df="getField('backReference')"
+            :value="doc.backReference"
+            :read-only="true"
+          />
+          <FormControl
             v-if="doc.attachment || !(doc.isSubmitted || doc.isCancelled)"
             :border="true"
             :df="getField('attachment')"
