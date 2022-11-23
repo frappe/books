@@ -18,7 +18,6 @@ import {
 } from 'models/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
-import { getStockTransfer } from 'models/inventory/tests/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -72,6 +71,12 @@ export abstract class Invoice extends Transactional {
 
   get companyCurrency() {
     return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
+  }
+
+  get stockTransferSchemaName() {
+    return this.isSales
+      ? ModelNameEnum.Shipment
+      : ModelNameEnum.PurchaseReceipt;
   }
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
@@ -487,9 +492,7 @@ export abstract class Invoice extends Transactional {
       return null;
     }
 
-    const schemaName = this.isSales
-      ? ModelNameEnum.Shipment
-      : ModelNameEnum.PurchaseReceipt;
+    const schemaName = this.stockTransferSchemaName;
 
     const defaults = (this.fyo.singles.Defaults as Defaults) ?? {};
     let terms;
@@ -505,7 +508,6 @@ export abstract class Invoice extends Transactional {
       terms,
       backReference: this.name,
     };
-    console.log(data.backReference);
 
     const location =
       (this.fyo.singles.InventorySettings as InventorySettings)
@@ -521,7 +523,11 @@ export abstract class Invoice extends Transactional {
       const item = row.item;
       const quantity = row.stockNotTransferred;
       const trackItem = itemDoc.trackItem;
-      const rate = row.rate;
+      let rate = row.rate as Money;
+
+      if (this.exchangeRate && this.exchangeRate > 1) {
+        rate = rate.mul(this.exchangeRate);
+      }
 
       if (!quantity || !trackItem) {
         continue;
@@ -540,5 +546,55 @@ export abstract class Invoice extends Transactional {
     }
 
     return transfer;
+  }
+
+  async beforeCancel(): Promise<void> {
+    await super.beforeCancel();
+    await this._validateStockTransferCancelled();
+  }
+
+  async beforeDelete(): Promise<void> {
+    await super.beforeCancel();
+    await this._validateStockTransferCancelled();
+    await this._deleteCancelledStockTransfers();
+  }
+
+  async _deleteCancelledStockTransfers() {
+    const schemaName = this.stockTransferSchemaName;
+    const transfers = await this._getLinkedStockTransferNames(true);
+
+    for (const { name } of transfers) {
+      const st = await this.fyo.doc.getDoc(schemaName, name);
+      await st.delete();
+    }
+  }
+
+  async _validateStockTransferCancelled() {
+    const schemaName = this.stockTransferSchemaName;
+    const transfers = await this._getLinkedStockTransferNames(false);
+    if (!transfers?.length) {
+      return;
+    }
+
+    const names = transfers.map(({ name }) => name).join(', ');
+    const label = this.fyo.schemaMap[schemaName]?.label ?? schemaName;
+    throw new ValidationError(
+      this.fyo.t`Cannot cancel ${this.schema.label} ${this
+        .name!} because of the following ${label}: ${names}`
+    );
+  }
+
+  async _getLinkedStockTransferNames(cancelled: boolean) {
+    const name = this.name;
+    if (!name) {
+      throw new ValidationError(`Name not found for ${this.schema.label}`);
+    }
+
+    const schemaName = this.stockTransferSchemaName;
+    const transfers = (await this.fyo.db.getAllRaw(schemaName, {
+      fields: ['name'],
+      filters: { backReference: this.name!, cancelled },
+    })) as { name: string }[];
+    return transfers;
   }
 }

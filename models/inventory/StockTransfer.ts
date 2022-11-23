@@ -9,7 +9,6 @@ import { getLedgerLinkAction, getNumberSeries } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { getMapFromList } from 'utils/index';
 import { StockTransferItem } from './StockTransferItem';
 import { Transfer } from './Transfer';
 
@@ -176,7 +175,10 @@ export abstract class StockTransfer extends Transfer {
       const notTransferred = (row.stockNotTransferred as number) ?? 0;
 
       const transferred = transferMap[item];
-      if (!transferred || !notTransferred) {
+      if (
+        typeof transferred !== 'number' ||
+        typeof notTransferred !== 'number'
+      ) {
         continue;
       }
 
@@ -217,5 +219,11 @@ export abstract class StockTransfer extends Transfer {
 
       return acc;
     }, {} as Record<string, number>);
+  }
+
+  override duplicate(): Doc {
+    const doc = super.duplicate() as StockTransfer;
+    doc.backReference = undefined;
+    return doc;
   }
 }
