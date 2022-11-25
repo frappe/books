@@ -1,3 +1,4 @@
+import { ModelNameEnum } from "models/types";
 
 export interface RawStockLedgerEntry {
   name: string;
@@ -31,3 +32,31 @@ export interface ComputedStockLedgerEntry{
   referenceName: string;
   referenceType: string;
 }
+
+
+export interface StockBalanceEntry{
+  name: number;
+
+  item: string;
+  location:string;
+
+  balanceQuantity: number;
+  balanceValue: number;
+  
+  openingQuantity: number;
+  openingValue:number;
+  
+  incomingQuantity:number;
+  incomingValue:number;
+  
+  outgoingQuantity:number;
+  outgoingValue:number;
+
+  valuationRate:number;
+}
+
+export type ReferenceType =
+  | ModelNameEnum.StockMovement
+  | ModelNameEnum.Shipment
+  | ModelNameEnum.PurchaseReceipt
+  | 'All';

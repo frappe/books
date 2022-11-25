@@ -3,7 +3,14 @@ import { StockQueue } from 'models/inventory/stockQueue';
 import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import { safeParseFloat, safeParseInt } from 'utils/index';
-import { ComputedStockLedgerEntry, RawStockLedgerEntry } from './types';
+import {
+  ComputedStockLedgerEntry,
+  RawStockLedgerEntry,
+  StockBalanceEntry,
+} from './types';
+
+type Item = string;
+type Location = string;
 
 export async function getRawStockLedgerEntries(fyo: Fyo) {
   const fieldnames = [
@@ -28,9 +35,6 @@ export function getStockLedgerEntries(
   rawSLEs: RawStockLedgerEntry[],
   valuationMethod: ValuationMethod
 ): ComputedStockLedgerEntry[] {
-  type Item = string;
-  type Location = string;
-
   const computedSLEs: ComputedStockLedgerEntry[] = [];
   const stockQueues: Record<Item, Record<Location, StockQueue>> = {};
 
@@ -94,4 +98,102 @@ export function getStockLedgerEntries(
   }
 
   return computedSLEs;
+}
+
+export function getStockBalanceEntries(
+  computedSLEs: ComputedStockLedgerEntry[],
+  filters: {
+    item?: string;
+    location?: string;
+    fromDate?: string;
+    toDate?: string;
+  }
+): StockBalanceEntry[] {
+  const sbeMap: Record<Item, Record<Location, StockBalanceEntry>> = {};
+
+  const fromDate = filters.fromDate ? Date.parse(filters.fromDate) : null;
+  const toDate = filters.toDate ? Date.parse(filters.toDate) : null;
+
+  for (const sle of computedSLEs) {
+    if (filters.item && sle.item !== filters.item) {
+      continue;
+    }
+
+    if (filters.location && sle.location !== filters.location) {
+      continue;
+    }
+
+    sbeMap[sle.item] ??= {};
+    sbeMap[sle.item][sle.location] ??= getSBE(sle.item, sle.location);
+    const date = sle.date.valueOf();
+
+    if (fromDate && date < fromDate) {
+      const sbe = sbeMap[sle.item][sle.location]!;
+      updateOpeningBalances(sbe, sle);
+      continue;
+    }
+
+    if (toDate && date > toDate) {
+      continue;
+    }
+
+    const sbe = sbeMap[sle.item][sle.location]!;
+    updateCurrentBalances(sbe, sle);
+  }
+
+  return Object.values(sbeMap)
+    .map((sbes) => Object.values(sbes))
+    .flat();
+}
+
+function getSBE(item: string, location: string): StockBalanceEntry {
+  return {
+    name: 0,
+
+    item,
+    location,
+
+    balanceQuantity: 0,
+    balanceValue: 0,
+
+    openingQuantity: 0,
+    openingValue: 0,
+
+    incomingQuantity: 0,
+    incomingValue: 0,
+
+    outgoingQuantity: 0,
+    outgoingValue: 0,
+
+    valuationRate: 0,
+  };
+}
+
+function updateOpeningBalances(
+  sbe: StockBalanceEntry,
+  sle: ComputedStockLedgerEntry
+) {
+  sbe.openingQuantity += sle.quantity;
+  sbe.openingValue += sle.valueChange;
+
+  sbe.balanceQuantity += sle.quantity;
+  sbe.balanceValue += sle.valueChange;
+}
+
+function updateCurrentBalances(
+  sbe: StockBalanceEntry,
+  sle: ComputedStockLedgerEntry
+) {
+  sbe.balanceQuantity += sle.quantity;
+  sbe.balanceValue += sle.valueChange;
+
+  if (sle.quantity > 0) {
+    sbe.incomingQuantity += sle.quantity;
+    sbe.incomingValue += sle.valueChange;
+  } else {
+    sbe.outgoingQuantity -= sle.quantity;
+    sbe.outgoingValue -= sle.valueChange;
+  }
+
+  sbe.valuationRate = sle.valuationRate;
 }

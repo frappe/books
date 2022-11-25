@@ -122,11 +122,18 @@ async function getReportSidebar() {
   };
 
   if (await getIsInventoryEnabled(fyo)) {
-    reports.items.push({
-      label: t`Stock Ledger`,
-      name: 'stock-ledger',
-      route: '/report/StockLedger',
-    });
+    reports.items.push(
+      {
+        label: t`Stock Ledger`,
+        name: 'stock-ledger',
+        route: '/report/StockLedger',
+      },
+      {
+        label: t`Stock Balance`,
+        name: 'stock-balance',
+        route: '/report/StockBalance',
+      }
+    );
   }
 
   return reports;
