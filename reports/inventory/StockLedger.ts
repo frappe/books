@@ -1,4 +1,5 @@
 import { Fyo, t } from 'fyo';
+import { RawValueMap } from 'fyo/core/types';
 import { Action } from 'fyo/model/types';
 import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
@@ -7,16 +8,10 @@ import { ModelNameEnum } from 'models/types';
 import getCommonExportActions from 'reports/commonExporter';
 import { Report } from 'reports/Report';
 import { ColumnField, ReportCell, ReportData, ReportRow } from 'reports/types';
-import { Field } from 'schemas/types';
+import { Field, RawValue } from 'schemas/types';
 import { isNumeric } from 'src/utils';
 import { getRawStockLedgerEntries, getStockLedgerEntries } from './helpers';
-import { ComputedStockLedgerEntry } from './types';
-
-type ReferenceType =
-  | ModelNameEnum.StockMovement
-  | ModelNameEnum.Shipment
-  | ModelNameEnum.PurchaseReceipt
-  | 'All';
+import { ComputedStockLedgerEntry, ReferenceType } from './types';
 
 export class StockLedger extends Report {
   static title = t`Stock Ledger`;
@@ -73,7 +68,12 @@ export class StockLedger extends Report {
     const filtered = this._getFilteredRawData(rawData);
     const grouped = this._getGroupedRawData(filtered);
 
-    return grouped.map((row) => this._convertRawDataRowToReportRow(row));
+    return grouped.map((row) =>
+      this._convertRawDataRowToReportRow(row as RawValueMap, {
+        quantity: null,
+        valueChange: null,
+      })
+    );
   }
 
   async _setRawData() {
@@ -92,8 +92,8 @@ export class StockLedger extends Report {
       return [];
     }
 
-    const fromDate = this.fromDate ? new Date(this.fromDate) : null;
-    const toDate = this.toDate ? new Date(this.toDate) : null;
+    const fromDate = this.fromDate ? Date.parse(this.fromDate) : null;
+    const toDate = this.toDate ? Date.parse(this.toDate) : null;
 
     if (!this.ascending) {
       rawData.reverse();
@@ -110,11 +110,12 @@ export class StockLedger extends Report {
         continue;
       }
 
-      if (toDate && row.date > toDate) {
+      const date = row.date.valueOf();
+      if (toDate && date > toDate) {
         continue;
       }
 
-      if (fromDate && row.date < fromDate) {
+      if (fromDate && date < fromDate) {
         continue;
       }
 
@@ -171,7 +172,8 @@ export class StockLedger extends Report {
   }
 
   _convertRawDataRowToReportRow(
-    row: ComputedStockLedgerEntry | { name: null }
+    row: RawValueMap,
+    colouredMap: Record<string, 'red' | 'green' | null>
   ): ReportRow {
     const cells: ReportCell[] = [];
     const columns = this.getColumns();
@@ -191,16 +193,19 @@ export class StockLedger extends Report {
       const fieldname = col.fieldname as keyof ComputedStockLedgerEntry;
       const fieldtype = col.fieldtype;
 
-      const rawValue = row[fieldname];
+      const rawValue = row[fieldname] as RawValue;
       const value = this.fyo.format(rawValue, fieldtype);
       const align = isNumeric(fieldtype) ? 'right' : 'left';
-      const isColoured =
-        fieldname === 'quantity' || fieldname === 'valueChange';
 
+      const isColoured = fieldname in colouredMap;
+      const isNumber = typeof rawValue === 'number';
       let color: 'red' | 'green' | undefined = undefined;
-      if (isColoured && rawValue > 0) {
+
+      if (isColoured && colouredMap[fieldname]) {
+        color = colouredMap[fieldname]!;
+      } else if (isColoured && isNumber && rawValue > 0) {
         color = 'green';
-      } else if (isColoured && rawValue < 0) {
+      } else if (isColoured && isNumber && rawValue < 0) {
         color = 'red';
       }
 
@@ -265,7 +270,7 @@ export class StockLedger extends Report {
       },
       {
         fieldname: 'valuationRate',
-        label: 'Valuation rate',
+        label: 'Valuation Rate',
         fieldtype: 'Currency',
       },
       {
