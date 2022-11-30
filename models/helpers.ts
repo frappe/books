@@ -26,7 +26,8 @@ export function getInvoiceActions(fyo: Fyo): Action[] {
 
 export function getMakeStockTransferAction(fyo: Fyo): Action {
   return {
-    label: fyo.t`Make Stock Transfer`,
+    label: fyo.t`Stock Transfer`,
+    group: fyo.t`Create`,
     condition: (doc: Doc) => doc.isSubmitted && !!doc.stockNotTransferred,
     action: async (doc: Doc) => {
       const transfer = await (doc as Invoice).getStockTransfer();
@@ -43,7 +44,8 @@ export function getMakeStockTransferAction(fyo: Fyo): Action {
 
 export function getMakePaymentAction(fyo: Fyo): Action {
   return {
-    label: fyo.t`Make Payment`,
+    label: fyo.t`Payment`,
+    group: fyo.t`Create`,
     condition: (doc: Doc) =>
       doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
     action: async (doc: Doc) => {
@@ -79,6 +81,7 @@ export function getLedgerLinkAction(
 
   return {
     label,
+    group: fyo.t`View`,
     condition: (doc: Doc) => doc.isSubmitted,
     action: async (doc: Doc, router: Router) => {
       router.push({
