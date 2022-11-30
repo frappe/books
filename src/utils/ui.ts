@@ -257,7 +257,7 @@ export async function cancelDocWithPrompt(doc: Doc) {
   });
 }
 
-export function getActionsForDocument(doc?: Doc): Action[] {
+export function getActionsForDoc(doc?: Doc): Action[] {
   if (!doc) return [];
 
   const actions: Action[] = [
@@ -279,7 +279,7 @@ export function getActionsForDocument(doc?: Doc): Action[] {
     });
 }
 
-export function getGroupedActionsForDocument(doc?: Doc) {
+export function getGroupedActionsForDoc(doc?: Doc) {
   type Group = {
     group: string;
     label: string;
@@ -287,7 +287,7 @@ export function getGroupedActionsForDocument(doc?: Doc) {
     actions: Action[];
   };
 
-  const actions = getActionsForDocument(doc);
+  const actions = getActionsForDoc(doc);
   const actionsMap = actions.reduce((acc, ac) => {
     if (!ac.group) {
       ac.group = '';
@@ -309,7 +309,7 @@ export function getGroupedActionsForDocument(doc?: Doc) {
     .sort()
     .map((k) => actionsMap[k]);
 
-  return [grouped, actionsMap['']].flat();
+  return [grouped, actionsMap['']].flat().filter(Boolean);
 }
 
 function getCancelAction(doc: Doc): Action {
@@ -396,4 +396,16 @@ function getDuplicateAction(doc: Doc): Action {
       });
     },
   };
+}
+
+export function getStatus(entry: { cancelled?: boolean; submitted?: boolean }) {
+  if (entry.cancelled) {
+    return 'Cancelled';
+  }
+
+  if (entry.submitted) {
+    return 'Submitted';
+  }
+
+  return 'Saved';
 }

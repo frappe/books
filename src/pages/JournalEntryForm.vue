@@ -4,7 +4,7 @@
     <template #header v-if="doc">
       <StatusBadge :status="status" />
       <DropdownWithActions
-        v-for="group of groupedActions()"
+        v-for="group of groupedActions"
         :key="group.label"
         :type="group.type"
         :actions="group.actions"
@@ -150,8 +150,7 @@ import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
   docsPath,
-  getActionsForDocument,
-  getGroupedActionsForDocument,
+  getGroupedActionsForDoc,
   routeTo,
   showMessageDialog,
 } from 'src/utils/ui';
@@ -222,13 +221,13 @@ export default {
       }
       return fyo.format(value, 'Currency');
     },
+    groupedActions() {
+      return getGroupedActionsForDoc(this.doc);
+    },
   },
   methods: {
     getField(fieldname) {
       return fyo.getField(ModelNameEnum.JournalEntry, fieldname);
-    },
-    groupedActions() {
-      return getGroupedActionsForDocument(this.doc);
     },
     async sync() {
       try {

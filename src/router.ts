@@ -156,6 +156,8 @@ export function getEntryRoute(schemaName: string, name: string) {
       ModelNameEnum.SalesInvoice,
       ModelNameEnum.PurchaseInvoice,
       ModelNameEnum.JournalEntry,
+      ModelNameEnum.Shipment,
+      ModelNameEnum.PurchaseReceipt,
     ].includes(schemaName as ModelNameEnum)
   ) {
     return `/edit/${schemaName}/${name}`;

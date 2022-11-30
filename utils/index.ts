@@ -186,3 +186,34 @@ export function safeParseFloat(value: unknown): number {
 export function safeParseInt(value: unknown): number {
   return safeParseNumber(value, parseInt);
 }
+
+export function joinMapLists<A, B>(
+  listA: A[],
+  listB: B[],
+  keyA: keyof A,
+  keyB: keyof B
+): (A & B)[] {
+  const mapA = getMapFromList(listA, keyA);
+  const mapB = getMapFromList(listB, keyB);
+
+  const keyListA = listA
+    .map((i) => i[keyA])
+    .filter((k) => (k as unknown as string) in mapB);
+
+  const keyListB = listB
+    .map((i) => i[keyB])
+    .filter((k) => (k as unknown as string) in mapA);
+
+  const keys = new Set([keyListA, keyListB].flat().sort());
+
+  const joint: (A & B)[] = [];
+  for (const k of keys) {
+    const a = mapA[k as unknown as string];
+    const b = mapB[k as unknown as string];
+    const c = { ...a, ...b };
+
+    joint.push(c);
+  }
+
+  return joint;
+}

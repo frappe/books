@@ -28,7 +28,7 @@
         <feather-icon name="settings" class="w-4 h-4" />
       </Button>
       <DropdownWithActions
-        v-for="group of groupedActions()"
+        v-for="group of groupedActions"
         :key="group.label"
         :type="group.type"
         :actions="group.actions"
@@ -267,8 +267,9 @@
       </div>
     </template>
 
-    <template #quickedit v-if="quickEditDoc">
+    <template #quickedit v-if="quickEditDoc || linked">
       <QuickEditForm
+        v-if="quickEditDoc && !linked"
         class="w-quick-edit"
         :name="quickEditDoc.name"
         :show-name="false"
@@ -280,6 +281,12 @@
         :route-back="false"
         :load-on-close="false"
         @close="toggleQuickEditDoc(null)"
+      />
+
+      <LinkedEntryWidget
+        v-if="linked && !quickEditDoc"
+        :linked="linked"
+        @close-widget="linked = null"
       />
     </template>
   </FormContainer>
@@ -296,11 +303,13 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
+import LinkedEntryWidget from 'src/components/Widgets/LinkedEntryWidget.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
   docsPath,
-  getGroupedActionsForDocument,
+  getGroupedActionsForDoc,
+  getStatus,
   routeTo,
   showMessageDialog,
 } from 'src/utils/ui';
@@ -321,6 +330,7 @@ export default {
     QuickEditForm,
     ExchangeRate,
     FormHeader,
+    LinkedEntryWidget,
   },
   provide() {
     return {
@@ -338,12 +348,42 @@ export default {
       color: null,
       printSettings: null,
       companyName: null,
+      linked: null,
     };
   },
   updated() {
     this.chstatus = !this.chstatus;
   },
   computed: {
+    groupedActions() {
+      const actions = getGroupedActionsForDoc(this.doc);
+      const group = this.t`View`;
+      const viewgroup = actions.find((f) => f.group === group);
+
+      if (viewgroup && this.doc?.hasLinkedPayments) {
+        viewgroup.actions.push({
+          label: this.t`Payments`,
+          group,
+          condition: (doc) => doc.hasLinkedPayments,
+          action: async () => this.setlinked(ModelNameEnum.Payment),
+        });
+      }
+
+      if (viewgroup && this.doc?.hasLinkedTransfers) {
+        const label = this.doc.isSales
+          ? this.t`Shipments`
+          : this.t`Purchase Receipts`;
+
+        viewgroup.actions.push({
+          label,
+          group,
+          condition: (doc) => doc.hasLinkedTransfers,
+          action: async () => this.setlinked(this.doc.stockTransferSchemaName),
+        });
+      }
+
+      return actions;
+    },
     address() {
       return this.printSettings && this.printSettings.getLink('address');
     },
@@ -416,6 +456,26 @@ export default {
   },
   methods: {
     routeTo,
+    async setlinked(schemaName) {
+      let entries = [];
+      let title = '';
+
+      if (schemaName === ModelNameEnum.Payment) {
+        title = this.t`Payments`;
+        entries = await this.doc.getLinkedPayments();
+      } else {
+        title = this.doc.isSales
+          ? this.t`Shipments`
+          : this.t`Purchase Receipts`;
+        entries = await this.doc.getLinkedStockTransfers();
+      }
+
+      if (this.quickEditDoc) {
+        this.toggleQuickEditDoc(null);
+      }
+
+      this.linked = { entries, schemaName, title };
+    },
     toggleInvoiceSettings() {
       if (!this.schemaName) {
         return;
@@ -445,9 +505,6 @@ export default {
       }
 
       this.quickEditFields = fields;
-    },
-    groupedActions() {
-      return getGroupedActionsForDocument(this.doc);
     },
     getField(fieldname) {
       return fyo.getField(this.schemaName, fieldname);
