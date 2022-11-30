@@ -24,6 +24,14 @@ export function format(
 
   const field: Field = getField(df);
 
+  if (field.fieldtype === FieldTypeEnum.Float) {
+    return Number(value).toFixed(fyo.singles.SystemSettings?.displayPrecision);
+  }
+
+  if (field.fieldtype === FieldTypeEnum.Int) {
+    return Math.trunc(Number(value)).toString();
+  }
+
   if (field.fieldtype === FieldTypeEnum.Currency) {
     return formatCurrency(value, field, doc, fyo);
   }
@@ -60,7 +68,9 @@ function toDatetime(value: DocValue) {
 function formatDatetime(value: DocValue, fyo: Fyo): string {
   const dateFormat =
     (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
-  const formattedDatetime = toDatetime(value).toFormat(`${dateFormat} HH:mm:ss`);
+  const formattedDatetime = toDatetime(value).toFormat(
+    `${dateFormat} HH:mm:ss`
+  );
 
   if (value === 'Invalid DateTime') {
     return '';

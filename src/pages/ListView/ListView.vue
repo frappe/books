@@ -46,7 +46,7 @@ import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, routeTo } from 'src/utils/ui';
-import List from './List';
+import List from './List.vue';
 
 export default {
   name: 'ListView',
