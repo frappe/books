@@ -65,6 +65,8 @@ export default {
     FormContainer,
   },
   data() {
+    const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
+
     return {
       activeTab: 0,
       updated: false,
@@ -88,12 +90,16 @@ export default {
           schemaName: 'Defaults',
           component: markRaw(TabBase),
         },
-        {
-          key: 'Inventory',
-          label: t`Inventory`,
-          schemaName: 'InventorySettings',
-          component: markRaw(TabBase),
-        },
+        ...(hasInventory
+          ? [
+              {
+                key: 'Inventory',
+                label: t`Inventory`,
+                schemaName: 'InventorySettings',
+                component: markRaw(TabBase),
+              },
+            ]
+          : []),
         {
           key: 'System',
           label: t`System`,
@@ -118,7 +124,8 @@ export default {
       fieldnames.includes('displayPrecision') ||
       fieldnames.includes('hideGetStarted') ||
       fieldnames.includes('displayPrecision') ||
-      fieldnames.includes('enableDiscounting')
+      fieldnames.includes('enableDiscounting') ||
+      fieldnames.includes('enableInventory')
     ) {
       this.showReloadToast();
     }

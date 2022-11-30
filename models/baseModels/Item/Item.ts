@@ -114,7 +114,9 @@ export class Item extends Doc {
 
   hidden: HiddenMap = {
     trackItem: () =>
-      this.itemType !== 'Product' || (this.inserted && !this.trackItem),
+      !this.fyo.singles.AccountingSettings?.enableInventory ||
+      this.itemType !== 'Product' ||
+      (this.inserted && !this.trackItem),
   };
 
   readOnly: ReadOnlyMap = {

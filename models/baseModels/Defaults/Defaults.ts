@@ -44,7 +44,7 @@ export class Defaults extends Doc {
   static createFilters: FiltersMap = this.commonFilters;
 
   getInventoryHidden() {
-    return () => !this.fyo.store.appFlags.isInventoryEnabled;
+    return () => !this.fyo.singles.AccountingSettings?.enableInventory;
   }
 
   hidden: HiddenMap = {
