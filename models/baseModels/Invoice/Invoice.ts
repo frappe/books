@@ -7,14 +7,14 @@ import {
   DefaultMap,
   FiltersMap,
   FormulaMap,
-  HiddenMap,
+  HiddenMap
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import {
   getExchangeRate,
   getInvoiceActions,
-  getNumberSeries,
+  getNumberSeries
 } from 'models/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
@@ -22,7 +22,10 @@ import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
-import { getIsNullOrUndef, safeParseFloat } from 'utils';
+import {
+  getIsNullOrUndef, joinMapLists,
+  safeParseFloat
+} from 'utils';
 import { Defaults } from '../Defaults/Defaults';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
 import { Item } from '../Item/Item';
@@ -77,6 +80,22 @@ export abstract class Invoice extends Transactional {
     return this.isSales
       ? ModelNameEnum.Shipment
       : ModelNameEnum.PurchaseReceipt;
+  }
+
+  get hasLinkedTransfers() {
+    if (!this.submitted) {
+      return false;
+    }
+
+    return this.getStockTransferred() > 0;
+  }
+
+  get hasLinkedPayments() {
+    if (!this.submitted) {
+      return false;
+    }
+
+    return !this.baseGrandTotal?.eq(this.outstandingAmount!);
   }
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
@@ -369,6 +388,14 @@ export abstract class Invoice extends Transactional {
     },
   };
 
+  getStockTransferred() {
+    return (this.items ?? []).reduce(
+      (acc, item) =>
+        (item.quantity ?? 0) - (item.stockNotTransferred ?? 0) + acc,
+      0
+    );
+  }
+
   getStockNotTransferred() {
     return (this.items ?? []).reduce(
       (acc, item) => (item.stockNotTransferred ?? 0) + acc,
@@ -596,5 +623,79 @@ export abstract class Invoice extends Transactional {
       filters: { backReference: this.name!, cancelled },
     })) as { name: string }[];
     return transfers;
+  }
+
+  async getLinkedPayments() {
+    if (!this.hasLinkedPayments) {
+      return [];
+    }
+
+    const paymentFors = (await this.fyo.db.getAllRaw('PaymentFor', {
+      fields: ['parent', 'amount'],
+      filters: { referenceName: this.name!, referenceType: this.schemaName },
+    })) as { parent: string; amount: string }[];
+
+    const payments = (await this.fyo.db.getAllRaw('Payment', {
+      fields: ['name', 'date', 'submitted', 'cancelled'],
+      filters: { name: ['in', paymentFors.map((p) => p.parent)] },
+    })) as {
+      name: string;
+      date: string;
+      submitted: number;
+      cancelled: number;
+    }[];
+
+    return joinMapLists(payments, paymentFors, 'name', 'parent')
+      .map((j) => ({
+        name: j.name,
+        date: new Date(j.date),
+        submitted: !!j.submitted,
+        cancelled: !!j.cancelled,
+        amount: this.fyo.pesa(j.amount),
+      }))
+      .sort((a, b) => a.date.valueOf() - b.date.valueOf());
+  }
+
+  async getLinkedStockTransfers() {
+    if (!this.hasLinkedTransfers) {
+      return [];
+    }
+
+    const schemaName = this.stockTransferSchemaName;
+    const transfers = (await this.fyo.db.getAllRaw(schemaName, {
+      fields: ['name', 'date', 'submitted', 'cancelled'],
+      filters: { backReference: this.name! },
+    })) as {
+      name: string;
+      date: string;
+      submitted: number;
+      cancelled: number;
+    }[];
+
+    const itemSchemaName = schemaName + 'Item';
+    const transferItems = (await this.fyo.db.getAllRaw(itemSchemaName, {
+      fields: ['parent', 'quantity', 'location', 'amount'],
+      filters: {
+        parent: ['in', transfers.map((t) => t.name)],
+        item: ['in', this.items!.map((i) => i.item!)],
+      },
+    })) as {
+      parent: string;
+      quantity: number;
+      location: string;
+      amount: string;
+    }[];
+
+    return joinMapLists(transfers, transferItems, 'name', 'parent')
+      .map((j) => ({
+        name: j.name,
+        date: new Date(j.date),
+        submitted: !!j.submitted,
+        cancelled: !!j.cancelled,
+        amount: this.fyo.pesa(j.amount),
+        location: j.location,
+        quantity: j.quantity,
+      }))
+      .sort((a, b) => a.date.valueOf() - b.date.valueOf());
   }
 }

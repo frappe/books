@@ -110,7 +110,7 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { getQuickEditWidget } from 'src/utils/quickEditWidgets';
-import { getActionsForDocument, openQuickEdit } from 'src/utils/ui';
+import { getActionsForDoc, openQuickEdit } from 'src/utils/ui';
 
 export default {
   name: 'QuickEditForm',
@@ -198,7 +198,7 @@ export default {
       return fieldnames.map((f) => fyo.getField(this.schemaName, f));
     },
     actions() {
-      return getActionsForDocument(this.doc);
+      return getActionsForDoc(this.doc);
     },
     quickEditWidget() {
       if (this.doc?.notInserted ?? true) {

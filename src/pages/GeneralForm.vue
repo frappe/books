@@ -4,7 +4,7 @@
     <template #header v-if="doc">
       <StatusBadge :status="status" />
       <DropdownWithActions
-        v-for="group of groupedActions()"
+        v-for="group of groupedActions"
         :key="group.label"
         :type="group.type"
         :actions="group.actions"
@@ -163,8 +163,7 @@ import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
   docsPath,
-  getActionsForDocument,
-  getGroupedActionsForDocument,
+  getGroupedActionsForDoc,
   routeTo,
   showMessageDialog,
 } from 'src/utils/ui';
@@ -209,6 +208,9 @@ export default {
       this.chstatus;
       return getDocStatus(this.doc);
     },
+    groupedActions() {
+      return getGroupedActionsForDoc(this.doc);
+    },
   },
   activated() {
     docsPath.value = docsPathMap[this.schemaName];
@@ -247,9 +249,6 @@ export default {
 
       this.quickEditDoc = doc;
       this.quickEditFields = fields;
-    },
-    groupedActions() {
-      return getGroupedActionsForDocument(this.doc);
     },
     getField(fieldname) {
       return fyo.getField(this.schemaName, fieldname);

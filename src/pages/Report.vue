@@ -103,7 +103,7 @@ export default defineComponent({
         acc[ac.group] ??= {
           group: ac.group,
           label: ac.label ?? '',
-          type: ac.type,
+      e: ac.type,
           actions: [],
         };
 

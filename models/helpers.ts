@@ -99,8 +99,6 @@ export function getLedgerLinkAction(
 }
 
 export function getTransactionStatusColumn(): ColumnConfig {
-  const statusMap = getStatusMap();
-
   return {
     label: t`Status`,
     fieldname: 'status',
@@ -108,7 +106,7 @@ export function getTransactionStatusColumn(): ColumnConfig {
     render(doc) {
       const status = getDocStatus(doc) as InvoiceStatus;
       const color = statusColor[status];
-      const label = statusMap[status];
+      const label = getStatusText(status);
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
@@ -131,17 +129,25 @@ export const statusColor: Record<
   Cancelled: 'red',
 };
 
-export function getStatusMap(): Record<DocStatus | InvoiceStatus, string> {
-  return {
-    '': '',
-    Draft: t`Draft`,
-    Unpaid: t`Unpaid`,
-    Paid: t`Paid`,
-    Saved: t`Saved`,
-    NotSaved: t`Not Saved`,
-    Submitted: t`Submitted`,
-    Cancelled: t`Cancelled`,
-  };
+export function getStatusText(status: DocStatus | InvoiceStatus): string {
+  switch (status) {
+    case 'Draft':
+      return t`Draft`;
+    case 'Saved':
+      return t`Saved`;
+    case 'NotSaved':
+      return t`NotSaved`;
+    case 'Submitted':
+      return t`Submitted`;
+    case 'Cancelled':
+      return t`Cancelled`;
+    case 'Paid':
+      return t`Paid`;
+    case 'Unpaid':
+      return t`Unpaid`;
+    default:
+      return '';
+  }
 }
 
 export function getDocStatus(
@@ -296,7 +302,7 @@ export function getDocStatusListColumn(): ColumnConfig {
     render(doc) {
       const status = getDocStatus(doc);
       const color = statusColor[status] ?? 'gray';
-      const label = getStatusMap()[status];
+      const label = getStatusText(status);
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
