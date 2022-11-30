@@ -130,10 +130,15 @@
         <hr />
         <div class="flex justify-between text-base m-4 gap-12">
           <div class="w-1/2 flex flex-col justify-between">
-            <!-- Discount Note -->
+            <!-- Info Note -->
             <p v-if="discountNote?.length" class="text-gray-600 text-sm">
               {{ discountNote }}
             </p>
+
+            <p v-if="stockTransferText?.length" class="text-gray-600 text-sm">
+              {{ stockTransferText }}
+            </p>
+
             <!-- Form Terms-->
             <FormControl
               :border="true"
@@ -309,7 +314,6 @@ import { docsPathMap } from 'src/utils/misc';
 import {
   docsPath,
   getGroupedActionsForDoc,
-  getStatus,
   routeTo,
   showMessageDialog,
 } from 'src/utils/ui';
@@ -355,6 +359,27 @@ export default {
     this.chstatus = !this.chstatus;
   },
   computed: {
+    stockTransferText() {
+      if (!this.fyo.singles.AccountingSettings.enableInventory) {
+        return '';
+      }
+
+      if (!this.doc.submitted) {
+        return '';
+      }
+
+      const totalQuantity = this.doc.getTotalQuantity();
+      const stockNotTransferred = this.doc.stockNotTransferred;
+
+      if (stockNotTransferred === 0) {
+        return this.t`Stock has been transferred`;
+      }
+
+      const stn = this.fyo.format(stockNotTransferred, 'Float');
+      const tq = this.fyo.format(totalQuantity, 'Float');
+
+      return this.t`Stock qty. ${stn} out of ${tq} left to transfer`;
+    },
     groupedActions() {
       const actions = getGroupedActionsForDoc(this.doc);
       const group = this.t`View`;

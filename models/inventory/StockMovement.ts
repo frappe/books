@@ -4,7 +4,7 @@ import {
   DefaultMap,
   FiltersMap,
   FormulaMap,
-  ListViewSettings
+  ListViewSettings,
 } from 'fyo/model/types';
 import { getDocStatusListColumn, getLedgerLinkAction } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
@@ -50,9 +50,32 @@ export class StockMovement extends Transfer {
     date: () => new Date(),
   };
 
-  static getListViewSettings(): ListViewSettings {
+  static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
-      columns: ['name', getDocStatusListColumn(), 'date', 'movementType'],
+      columns: [
+        'name',
+        getDocStatusListColumn(),
+        'date',
+        {
+          label: fyo.t`Movement Type`,
+          fieldname: 'movementType',
+          fieldtype: 'Select',
+          size: 'small',
+          render(doc) {
+            const movementType = doc.movementType as MovementType;
+            const label =
+              {
+                [MovementType.MaterialIssue]: fyo.t`Material Issue`,
+                [MovementType.MaterialReceipt]: fyo.t`Material Receipt`,
+                [MovementType.MaterialTransfer]: fyo.t`Material Transfer`,
+              }[movementType] ?? '';
+
+            return {
+              template: `<span>${label}</span>`,
+            };
+          },
+        },
+      ],
     };
   }
 

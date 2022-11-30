@@ -85,13 +85,23 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
           route: '/list/PurchaseReceipt',
           schemaName: 'PurchaseReceipt',
         },
+        {
+          label: t`Stock Ledger`,
+          name: 'stock-ledger',
+          route: '/report/StockLedger',
+        },
+        {
+          label: t`Stock Balance`,
+          name: 'stock-balance',
+          route: '/report/StockBalance',
+        },
       ],
     },
   ];
 }
 
 async function getReportSidebar() {
-  const reports = {
+  return {
     label: t`Reports`,
     name: 'reports',
     icon: 'reports',
@@ -119,24 +129,6 @@ async function getReportSidebar() {
       },
     ],
   };
-
-  const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
-  if (hasInventory) {
-    reports.items.push(
-      {
-        label: t`Stock Ledger`,
-        name: 'stock-ledger',
-        route: '/report/StockLedger',
-      },
-      {
-        label: t`Stock Balance`,
-        name: 'stock-balance',
-        route: '/report/StockBalance',
-      }
-    );
-  }
-
-  return reports;
 }
 
 async function getCompleteSidebar(): Promise<SidebarConfig> {

@@ -7,14 +7,14 @@ import {
   DefaultMap,
   FiltersMap,
   FormulaMap,
-  HiddenMap
+  HiddenMap,
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import {
   getExchangeRate,
   getInvoiceActions,
-  getNumberSeries
+  getNumberSeries,
 } from 'models/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
@@ -22,10 +22,7 @@ import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
-import {
-  getIsNullOrUndef, joinMapLists,
-  safeParseFloat
-} from 'utils';
+import { getIsNullOrUndef, joinMapLists, safeParseFloat } from 'utils';
 import { Defaults } from '../Defaults/Defaults';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
 import { Item } from '../Item/Item';
@@ -392,6 +389,13 @@ export abstract class Invoice extends Transactional {
     return (this.items ?? []).reduce(
       (acc, item) =>
         (item.quantity ?? 0) - (item.stockNotTransferred ?? 0) + acc,
+      0
+    );
+  }
+
+  getTotalQuantity() {
+    return (this.items ?? []).reduce(
+      (acc, item) => acc + (item.quantity ?? 0),
       0
     );
   }
