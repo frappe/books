@@ -3,7 +3,17 @@
     <!-- Page Header (Title, Buttons, etc) -->
     <template #header v-if="doc">
       <StatusBadge :status="status" />
-      <DropdownWithActions :actions="actions()" />
+      <DropdownWithActions
+        v-for="group of groupedActions()"
+        :key="group.label"
+        :type="group.type"
+        :actions="group.actions"
+      >
+        <p v-if="group.group">
+          {{ group.group }}
+        </p>
+        <feather-icon v-else name="more-horizontal" class="w-4 h-4" />
+      </DropdownWithActions>
       <Button
         v-if="doc?.notInserted || doc?.dirty"
         type="primary"
@@ -154,6 +164,7 @@ import { docsPathMap } from 'src/utils/misc';
 import {
   docsPath,
   getActionsForDocument,
+  getGroupedActionsForDocument,
   routeTo,
   showMessageDialog,
 } from 'src/utils/ui';
@@ -237,8 +248,8 @@ export default {
       this.quickEditDoc = doc;
       this.quickEditFields = fields;
     },
-    actions() {
-      return getActionsForDocument(this.doc);
+    groupedActions() {
+      return getGroupedActionsForDocument(this.doc);
     },
     getField(fieldname) {
       return fyo.getField(this.schemaName, fieldname);

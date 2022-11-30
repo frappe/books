@@ -271,11 +271,45 @@ export function getActionsForDocument(doc?: Doc): Action[] {
     .filter((d) => d.condition?.(doc) ?? true)
     .map((d) => {
       return {
+        group: d.group,
         label: d.label,
         component: d.component,
         action: d.action,
       };
     });
+}
+
+export function getGroupedActionsForDocument(doc?: Doc) {
+  type Group = {
+    group: string;
+    label: string;
+    type: string;
+    actions: Action[];
+  };
+
+  const actions = getActionsForDocument(doc);
+  const actionsMap = actions.reduce((acc, ac) => {
+    if (!ac.group) {
+      ac.group = '';
+    }
+
+    acc[ac.group] ??= {
+      group: ac.group,
+      label: ac.label ?? '',
+      type: ac.type ?? 'secondary',
+      actions: [],
+    };
+
+    acc[ac.group].actions.push(ac);
+    return acc;
+  }, {} as Record<string, Group>);
+
+  const grouped = Object.keys(actionsMap)
+    .filter(Boolean)
+    .sort()
+    .map((k) => actionsMap[k]);
+
+  return [grouped, actionsMap['']].flat();
 }
 
 function getCancelAction(doc: Doc): Action {
@@ -329,6 +363,7 @@ function getDuplicateAction(doc: Doc): Action {
   const isSubmittable = !!doc.schema.isSubmittable;
   return {
     label: t`Duplicate`,
+    group: t`Create`,
     condition: (doc: Doc) =>
       !!(
         ((isSubmittable && doc.submitted) || !isSubmittable) &&
