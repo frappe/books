@@ -1,6 +1,5 @@
 import { t } from 'fyo';
 import { fyo } from '../initFyo';
-import { getIsInventoryEnabled } from './misc';
 import { SidebarConfig, SidebarRoot } from './types';
 
 export async function getSidebarConfig(): Promise<SidebarConfig> {
@@ -55,8 +54,8 @@ function getRegionalSidebar(): SidebarRoot[] {
 }
 
 async function getInventorySidebar(): Promise<SidebarRoot[]> {
-  const showInventory = await getIsInventoryEnabled(fyo);
-  if (!showInventory) {
+  const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
+  if (!hasInventory) {
     return [];
   }
 
@@ -121,7 +120,8 @@ async function getReportSidebar() {
     ],
   };
 
-  if (await getIsInventoryEnabled(fyo)) {
+  const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
+  if (hasInventory) {
     reports.items.push(
       {
         label: t`Stock Ledger`,

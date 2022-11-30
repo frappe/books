@@ -90,7 +90,7 @@ async function openFormEditDoc(schemaName: string, fyo: Fyo) {
 }
 
 function getCreateList(fyo: Fyo): SearchItem[] {
-  const hasInventory = fyo.store.appFlags.isInventoryEnabled;
+  const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;
   const quickEditCreateList = [
     ModelNameEnum.Item,
     ModelNameEnum.Party,
@@ -176,7 +176,7 @@ function getCreateList(fyo: Fyo): SearchItem[] {
 
 function getReportList(fyo: Fyo): SearchItem[] {
   const hasGstin = !!fyo.singles?.AccountingSettings?.gstin;
-  const hasInventory = fyo.store.appFlags.isInventoryEnabled;
+  const hasInventory = !!fyo.singles?.AccountingSettings?.enableInventory;
   return Object.keys(reports)
     .filter((r) => {
       const report = reports[r];
@@ -210,7 +210,8 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.Tax,
   ];
 
-  if (fyo.store.appFlags.isInventoryEnabled) {
+  const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;
+  if (hasInventory) {
     schemaNames.push(
       ModelNameEnum.StockMovement,
       ModelNameEnum.Shipment,

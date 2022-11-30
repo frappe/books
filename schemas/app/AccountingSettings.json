@@ -70,10 +70,16 @@
       "default": false
     },
     {
-      "label": "Discount Account",
       "fieldname": "discountAccount",
+      "label": "Discount Account",
       "fieldtype": "Link",
       "target": "Account"
+    },
+    {
+      "fieldname": "enableInventory",
+      "label": "Enable Inventory",
+      "fieldtype": "Check",
+      "default": false
     },
     {
       "fieldname": "setupComplete",

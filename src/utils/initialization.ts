@@ -3,7 +3,6 @@ import { ConfigFile, ConfigKeys } from 'fyo/core/types';
 import { getRegionalModels, models } from 'models/index';
 import { ModelNameEnum } from 'models/types';
 import { getRandomString, getValueMapFromList } from 'utils/index';
-import { getIsInventoryEnabled } from './misc';
 
 export async function initializeInstance(
   dbPath: string,
@@ -28,11 +27,6 @@ export async function initializeInstance(
   await setInstanceId(fyo);
   await setOpenCount(fyo);
   await setCurrencySymbols(fyo);
-  await setAppFlags(fyo);
-}
-
-async function setAppFlags(fyo: Fyo) {
-  fyo.store.appFlags.isInventoryEnabled = await getIsInventoryEnabled(fyo);
 }
 
 async function closeDbIfConnected(fyo: Fyo) {
