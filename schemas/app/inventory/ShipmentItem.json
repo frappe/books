@@ -5,10 +5,11 @@
   "fields": [
     {
       "fieldname": "location",
-      "label": "Source",
+      "label": "From Loc.",
       "fieldtype": "Link",
       "target": "Location",
-      "required": true
+      "required": true,
+      "create": true
     }
   ]
 }
