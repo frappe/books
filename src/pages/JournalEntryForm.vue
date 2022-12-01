@@ -3,7 +3,17 @@
     <!-- Page Header (Title, Buttons, etc) -->
     <template #header v-if="doc">
       <StatusBadge :status="status" />
-      <DropdownWithActions :actions="actions" />
+      <DropdownWithActions
+        v-for="group of groupedActions"
+        :key="group.label"
+        :type="group.type"
+        :actions="group.actions"
+      >
+        <p v-if="group.group">
+          {{ group.group }}
+        </p>
+        <feather-icon v-else name="more-horizontal" class="w-4 h-4" />
+      </DropdownWithActions>
       <Button
         v-if="doc?.notInserted || doc?.dirty"
         type="primary"
@@ -139,10 +149,10 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
-docsPath,
-getActionsForDocument,
-routeTo,
-showMessageDialog
+  docsPath,
+  getGroupedActionsForDoc,
+  routeTo,
+  showMessageDialog,
 } from 'src/utils/ui';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -156,8 +166,8 @@ export default {
     FormControl,
     Table,
     FormContainer,
-    FormHeader
-},
+    FormHeader,
+  },
   provide() {
     return {
       schemaName: this.schemaName,
@@ -211,8 +221,8 @@ export default {
       }
       return fyo.format(value, 'Currency');
     },
-    actions() {
-      return getActionsForDocument(this.doc);
+    groupedActions() {
+      return getGroupedActionsForDoc(this.doc);
     },
   },
   methods: {

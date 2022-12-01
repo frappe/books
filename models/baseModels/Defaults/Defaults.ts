@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap } from 'fyo/model/types';
+import { FiltersMap, HiddenMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
 
 export class Defaults extends Doc {
@@ -7,24 +7,16 @@ export class Defaults extends Doc {
   purchaseInvoiceNumberSeries?: string;
   journalEntryNumberSeries?: string;
   paymentNumberSeries?: string;
+  stockMovementNumberSeries?: string;
+  shipmentNumberSeries?: string;
+  purchaseReceiptNumberSeries?: string;
 
   salesInvoiceTerms?: string;
   purchaseInvoiceTerms?: string;
+  shipmentTerms?: string;
+  purchaseReceiptTerms?: string;
 
-  static filters: FiltersMap = {
-    salesInvoiceNumberSeries: () => ({
-      referenceType: ModelNameEnum.SalesInvoice,
-    }),
-    purchaseInvoiceNumberSeries: () => ({
-      referenceType: ModelNameEnum.PurchaseInvoice,
-    }),
-    journalEntryNumberSeries: () => ({
-      referenceType: ModelNameEnum.JournalEntry,
-    }),
-    paymentNumberSeries: () => ({ referenceType: ModelNameEnum.Payment }),
-  };
-
-  static createFilters: FiltersMap = {
+  static commonFilters = {
     salesInvoiceNumberSeries: () => ({
       referenceType: ModelNameEnum.SalesInvoice,
     }),
@@ -37,6 +29,30 @@ export class Defaults extends Doc {
     paymentNumberSeries: () => ({
       referenceType: ModelNameEnum.Payment,
     }),
+    stockMovementNumberSeries: () => ({
+      referenceType: ModelNameEnum.StockMovement,
+    }),
+    shipmentNumberSeries: () => ({
+      referenceType: ModelNameEnum.Shipment,
+    }),
+    purchaseReceiptNumberSeries: () => ({
+      referenceType: ModelNameEnum.PurchaseReceipt,
+    }),
+  };
+
+  static filters: FiltersMap = this.commonFilters;
+  static createFilters: FiltersMap = this.commonFilters;
+
+  getInventoryHidden() {
+    return () => !this.fyo.singles.AccountingSettings?.enableInventory;
+  }
+
+  hidden: HiddenMap = {
+    stockMovementNumberSeries: this.getInventoryHidden(),
+    shipmentNumberSeries: this.getInventoryHidden(),
+    purchaseReceiptNumberSeries: this.getInventoryHidden(),
+    shipmentTerms: this.getInventoryHidden(),
+    purchaseReceiptTerms: this.getInventoryHidden(),
   };
 }
 
@@ -48,4 +64,7 @@ export const numberSeriesDefaultsMap: Record<
   [ModelNameEnum.PurchaseInvoice]: 'purchaseInvoiceNumberSeries',
   [ModelNameEnum.JournalEntry]: 'journalEntryNumberSeries',
   [ModelNameEnum.Payment]: 'paymentNumberSeries',
+  [ModelNameEnum.StockMovement]: 'stockMovementNumberSeries',
+  [ModelNameEnum.Shipment]: 'shipmentNumberSeries',
+  [ModelNameEnum.PurchaseReceipt]: 'purchaseReceiptNumberSeries',
 };

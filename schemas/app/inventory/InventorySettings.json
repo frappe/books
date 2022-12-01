@@ -1,0 +1,50 @@
+{
+  "name": "InventorySettings",
+  "label": "Inventory Settings",
+  "isSingle": true,
+  "isChild": false,
+  "fields": [
+    {
+      "fieldname": "valuationMethod",
+      "label": "Valuation Method",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "FIFO",
+          "label": "FIFO"
+        },
+        {
+          "value": "MovingAverage",
+          "label": "Moving Average"
+        }
+      ],
+      "default": "FIFO",
+      "required": true
+    },
+    {
+      "fieldname": "defaultLocation",
+      "label": "Default Location",
+      "fieldtype": "Link",
+      "target": "Location",
+      "create": true
+    },
+    {
+      "fieldname": "stockInHand",
+      "label": "Stock In Hand Acc.",
+      "fieldtype": "Link",
+      "target": "Account"
+    },
+    {
+      "fieldname": "stockReceivedButNotBilled",
+      "label": "Stock Received But Not Billed Acc.",
+      "fieldtype": "Link",
+      "target": "Account"
+    },
+    {
+      "fieldname": "costOfGoodsSold",
+      "label": "Cost Of Goods Sold Acc.",
+      "fieldtype": "Link",
+      "target": "Account"
+    }
+  ]
+}

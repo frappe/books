@@ -1,12 +1,12 @@
 import assert from 'assert';
 import { cloneDeep } from 'lodash';
-import { SchemaMap, SchemaStub, SchemaStubMap } from 'schemas/types';
 import {
   addMetaFields,
   cleanSchemas,
   getAbstractCombinedSchemas,
 } from '../../../schemas';
 import SingleValue from '../../../schemas/core/SingleValue.json';
+import { SchemaMap, SchemaStub, SchemaStubMap } from '../../../schemas/types';
 
 const Customer = {
   name: 'Customer',
@@ -188,7 +188,7 @@ export async function assertThrows(
   } finally {
     if (!threw) {
       throw new assert.AssertionError({
-        message: `Missing expected exception: ${message}`,
+        message: `Missing expected exception${message ? `: ${message}` : ''}`,
       });
     }
   }
@@ -202,9 +202,9 @@ export async function assertDoesNotThrow(
     await func();
   } catch (err) {
     throw new assert.AssertionError({
-      message: `Got unwanted exception: ${message}\nError: ${
-        (err as Error).message
-      }\n${(err as Error).stack}`,
+      message: `Got unwanted exception${
+        message ? `: ${message}` : ''
+      }\nError: ${(err as Error).message}\n${(err as Error).stack}`,
     });
   }
 }

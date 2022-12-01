@@ -4,7 +4,7 @@ import {
   FiltersMap,
   ListsMap,
   ReadOnlyMap,
-  ValidationMap
+  ValidationMap,
 } from 'fyo/model/types';
 import { validateEmail } from 'fyo/model/validationFunction';
 import { createDiscountAccount } from 'src/setup/setupInstance';
@@ -12,6 +12,8 @@ import { getCountryInfo } from 'utils/misc';
 
 export class AccountingSettings extends Doc {
   enableDiscounting?: boolean;
+  enableInventory?: boolean;
+
   static filters: FiltersMap = {
     writeOffAccount: () => ({
       isGroup: false,
@@ -38,6 +40,9 @@ export class AccountingSettings extends Doc {
   readOnly: ReadOnlyMap = {
     enableDiscounting: () => {
       return !!this.enableDiscounting;
+    },
+    enableInventory: () => {
+      return !!this.enableInventory;
     },
   };
 

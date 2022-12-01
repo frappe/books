@@ -167,7 +167,7 @@ export default {
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
     this.companyName = companyName;
-    this.groups = getSidebarConfig();
+    this.groups = await getSidebarConfig();
 
     this.setActiveGroup();
     router.afterEach(() => {
@@ -208,11 +208,18 @@ export default {
       }
     },
     isItemActive(item) {
-      let { path: currentRoute, params } = this.$route;
-      let routeMatch = currentRoute === item.route;
-      let schemaNameMatch =
+      const { path: currentRoute, params } = this.$route;
+      const routeMatch = currentRoute === item.route;
+
+      const schemaNameMatch =
         item.schemaName && params.schemaName === item.schemaName;
-      return routeMatch || schemaNameMatch;
+
+      const isMatch = routeMatch || schemaNameMatch;
+      if (params.name && item.schemaName && !isMatch) {
+        return currentRoute.includes(`${item.schemaName}/${params.name}`);
+      }
+
+      return isMatch;
     },
     isGroupActive(group) {
       return this.activeGroup && group.label === this.activeGroup.label;

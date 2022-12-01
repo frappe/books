@@ -7,7 +7,7 @@ import { t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
-import { getDbError, LinkValidationError } from 'fyo/utils/errors';
+import { getDbError, LinkValidationError, ValueError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
@@ -26,12 +26,22 @@ import {
 export const docsPath = ref('');
 
 export async function openQuickEdit({
+  doc,
   schemaName,
   name,
   hideFields = [],
   showFields = [],
   defaults = {},
 }: QuickEditOptions) {
+  if (doc) {
+    schemaName = doc.schemaName;
+    name = doc.name;
+  }
+
+  if (!doc && (!schemaName || !name)) {
+    throw new ValueError(t`Schema Name or Name not passed to Open Quick Edit`);
+  }
+
   const currentRoute = router.currentRoute.value;
   const query = currentRoute.query;
   let method: 'push' | 'replace' = 'push';
@@ -74,6 +84,9 @@ export async function openQuickEdit({
   });
 }
 
+// @ts-ignore
+window.openqe = openQuickEdit;
+
 export async function showMessageDialog({
   message,
   detail,
@@ -107,9 +120,6 @@ export async function showToast(options: ToastOptions) {
   });
   replaceAndAppendMount(toast, 'toast-target');
 }
-
-// @ts-ignore
-window.st = showToast;
 
 function replaceAndAppendMount(app: App<Element>, replaceId: string) {
   const fragment = document.createDocumentFragment();
@@ -247,7 +257,7 @@ export async function cancelDocWithPrompt(doc: Doc) {
   });
 }
 
-export function getActionsForDocument(doc?: Doc): Action[] {
+export function getActionsForDoc(doc?: Doc): Action[] {
   if (!doc) return [];
 
   const actions: Action[] = [
@@ -261,11 +271,45 @@ export function getActionsForDocument(doc?: Doc): Action[] {
     .filter((d) => d.condition?.(doc) ?? true)
     .map((d) => {
       return {
+        group: d.group,
         label: d.label,
         component: d.component,
         action: d.action,
       };
     });
+}
+
+export function getGroupedActionsForDoc(doc?: Doc) {
+  type Group = {
+    group: string;
+    label: string;
+    type: string;
+    actions: Action[];
+  };
+
+  const actions = getActionsForDoc(doc);
+  const actionsMap = actions.reduce((acc, ac) => {
+    if (!ac.group) {
+      ac.group = '';
+    }
+
+    acc[ac.group] ??= {
+      group: ac.group,
+      label: ac.label ?? '',
+      type: ac.type ?? 'secondary',
+      actions: [],
+    };
+
+    acc[ac.group].actions.push(ac);
+    return acc;
+  }, {} as Record<string, Group>);
+
+  const grouped = Object.keys(actionsMap)
+    .filter(Boolean)
+    .sort()
+    .map((k) => actionsMap[k]);
+
+  return [grouped, actionsMap['']].flat().filter(Boolean);
 }
 
 function getCancelAction(doc: Doc): Action {
@@ -319,6 +363,7 @@ function getDuplicateAction(doc: Doc): Action {
   const isSubmittable = !!doc.schema.isSubmittable;
   return {
     label: t`Duplicate`,
+    group: t`Create`,
     condition: (doc: Doc) =>
       !!(
         ((isSubmittable && doc.submitted) || !isSubmittable) &&
@@ -351,4 +396,16 @@ function getDuplicateAction(doc: Doc): Action {
       });
     },
   };
+}
+
+export function getStatus(entry: { cancelled?: boolean; submitted?: boolean }) {
+  if (entry.cancelled) {
+    return 'Cancelled';
+  }
+
+  if (entry.submitted) {
+    return 'Submitted';
+  }
+
+  return 'Saved';
 }

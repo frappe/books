@@ -1,5 +1,6 @@
 import { Patch } from '../database/types';
 import addUOMs from './addUOMs';
+import createInventoryNumberSeries from './createInventoryNumberSeries';
 import fixRoundOffAccount from './fixRoundOffAccount';
 import testPatch from './testPatch';
 import updateSchemas from './updateSchemas';
@@ -20,6 +21,11 @@ export default [
   {
     name: 'fixRoundOffAccount',
     version: '0.6.3-beta.0',
-    patch: fixRoundOffAccount
+    patch: fixRoundOffAccount,
+  },
+  {
+    name: 'createInventoryNumberSeries',
+    version: '0.6.6-beta.0',
+    patch: createInventoryNumberSeries,
   },
 ] as Patch[];

@@ -266,6 +266,12 @@ export default class DatabaseCore extends DatabaseBase {
     )) as FieldValueMap[];
   }
 
+  async deleteAll(schemaName: string, filters: QueryFilter): Promise<number> {
+    const builder = this.knex!(schemaName);
+    this.#applyFiltersToBuilder(builder, filters);
+    return await builder.delete();
+  }
+
   async getSingleValues(
     ...fieldnames: ({ fieldname: string; parent?: string } | string)[]
   ): Promise<SingleValue<RawValue>> {
@@ -444,10 +450,35 @@ export default class DatabaseCore extends DatabaseBase {
     // {"date": [">=", "2017-09-09", "<=", "2017-11-01"]}
     // => `date >= 2017-09-09 and date <= 2017-11-01`
 
-    const filtersArray = [];
+    const filtersArray = this.#getFiltersArray(filters);
+    for (const i in filtersArray) {
+      const filter = filtersArray[i];
+      const field = filter[0] as string;
+      const operator = filter[1];
+      const comparisonValue = filter[2];
+      const type = i === '0' ? 'where' : 'andWhere';
 
+      if (operator === '=') {
+        builder[type](field, comparisonValue);
+      } else if (
+        operator === 'in' &&
+        (comparisonValue as (string | null)[]).includes(null)
+      ) {
+        const nonNulls = (comparisonValue as (string | null)[]).filter(
+          Boolean
+        ) as string[];
+        builder[type](field, operator, nonNulls).orWhere(field, null);
+      } else {
+        builder[type](field, operator as string, comparisonValue as string);
+      }
+    }
+  }
+
+  #getFiltersArray(filters: QueryFilter) {
+    const filtersArray = [];
     for (const field in filters) {
       const value = filters[field];
+
       let operator: string | number = '=';
       let comparisonValue = value as string | number | (string | number)[];
 
@@ -477,17 +508,7 @@ export default class DatabaseCore extends DatabaseBase {
       }
     }
 
-    filtersArray.map((filter) => {
-      const field = filter[0] as string;
-      const operator = filter[1];
-      const comparisonValue = filter[2];
-
-      if (operator === '=') {
-        builder.where(field, comparisonValue);
-      } else {
-        builder.where(field, operator as string, comparisonValue as string);
-      }
-    });
+    return filtersArray;
   }
 
   async #getColumnDiff(schemaName: string): Promise<ColumnDiff> {

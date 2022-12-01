@@ -2,21 +2,30 @@ import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
-  CurrenciesMap, DefaultMap,
+  Action,
+  CurrenciesMap,
+  DefaultMap,
   FiltersMap,
   FormulaMap,
-  HiddenMap
+  HiddenMap,
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
-import { getExchangeRate, getNumberSeries } from 'models/helpers';
+import {
+  getExchangeRate,
+  getInvoiceActions,
+  getNumberSeries,
+} from 'models/helpers';
+import { InventorySettings } from 'models/inventory/InventorySettings';
+import { StockTransfer } from 'models/inventory/StockTransfer';
 import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
-import { getIsNullOrUndef, safeParseFloat } from 'utils';
+import { getIsNullOrUndef, joinMapLists, safeParseFloat } from 'utils';
 import { Defaults } from '../Defaults/Defaults';
 import { InvoiceItem } from '../InvoiceItem/InvoiceItem';
+import { Item } from '../Item/Item';
 import { Party } from '../Party/Party';
 import { Payment } from '../Payment/Payment';
 import { Tax } from '../Tax/Tax';
@@ -39,6 +48,7 @@ export abstract class Invoice extends Transactional {
   discountAmount?: Money;
   discountPercent?: number;
   discountAfterTax?: boolean;
+  stockNotTransferred?: number;
 
   submitted?: boolean;
   cancelled?: boolean;
@@ -61,6 +71,28 @@ export abstract class Invoice extends Transactional {
 
   get companyCurrency() {
     return this.fyo.singles.SystemSettings?.currency ?? DEFAULT_CURRENCY;
+  }
+
+  get stockTransferSchemaName() {
+    return this.isSales
+      ? ModelNameEnum.Shipment
+      : ModelNameEnum.PurchaseReceipt;
+  }
+
+  get hasLinkedTransfers() {
+    if (!this.submitted) {
+      return false;
+    }
+
+    return this.getStockTransferred() > 0;
+  }
+
+  get hasLinkedPayments() {
+    if (!this.submitted) {
+      return false;
+    }
+
+    return !this.baseGrandTotal?.eq(this.outstandingAmount!);
   }
 
   constructor(schema: Schema, data: DocValueMap, fyo: Fyo) {
@@ -341,7 +373,39 @@ export abstract class Invoice extends Transactional {
         return this.baseGrandTotal!;
       },
     },
+    stockNotTransferred: {
+      formula: async () => {
+        if (this.submitted) {
+          return;
+        }
+
+        return this.getStockNotTransferred();
+      },
+      dependsOn: ['items'],
+    },
   };
+
+  getStockTransferred() {
+    return (this.items ?? []).reduce(
+      (acc, item) =>
+        (item.quantity ?? 0) - (item.stockNotTransferred ?? 0) + acc,
+      0
+    );
+  }
+
+  getTotalQuantity() {
+    return (this.items ?? []).reduce(
+      (acc, item) => acc + (item.quantity ?? 0),
+      0
+    );
+  }
+
+  getStockNotTransferred() {
+    return (this.items ?? []).reduce(
+      (acc, item) => (item.stockNotTransferred ?? 0) + acc,
+      0
+    );
+  }
 
   getItemDiscountedAmounts() {
     let itemDiscountedAmounts = this.fyo.pesa(0);
@@ -411,5 +475,227 @@ export abstract class Invoice extends Transactional {
     for (const { fieldname } of currencyFields) {
       this.getCurrencies[fieldname] ??= this._getCurrency.bind(this);
     }
+  }
+
+  getPayment(): Payment | null {
+    if (!this.isSubmitted) {
+      return null;
+    }
+
+    const outstandingAmount = this.outstandingAmount;
+    if (!outstandingAmount) {
+      return null;
+    }
+
+    if (this.outstandingAmount?.isZero()) {
+      return null;
+    }
+
+    const accountField = this.isSales ? 'account' : 'paymentAccount';
+    const data = {
+      party: this.party,
+      date: new Date().toISOString().slice(0, 10),
+      paymentType: this.isSales ? 'Receive' : 'Pay',
+      amount: this.outstandingAmount,
+      [accountField]: this.account,
+      for: [
+        {
+          referenceType: this.schemaName,
+          referenceName: this.name,
+          amount: this.outstandingAmount,
+        },
+      ],
+    };
+
+    return this.fyo.doc.getNewDoc(ModelNameEnum.Payment, data) as Payment;
+  }
+
+  async getStockTransfer(): Promise<StockTransfer | null> {
+    if (!this.isSubmitted) {
+      return null;
+    }
+
+    if (!this.stockNotTransferred) {
+      return null;
+    }
+
+    const schemaName = this.stockTransferSchemaName;
+
+    const defaults = (this.fyo.singles.Defaults as Defaults) ?? {};
+    let terms;
+    if (this.isSales) {
+      terms = defaults.shipmentTerms ?? '';
+    } else {
+      terms = defaults.purchaseReceiptTerms ?? '';
+    }
+
+    const data = {
+      party: this.party,
+      date: new Date().toISOString(),
+      terms,
+      backReference: this.name,
+    };
+
+    const location =
+      (this.fyo.singles.InventorySettings as InventorySettings)
+        .defaultLocation ?? null;
+
+    const transfer = this.fyo.doc.getNewDoc(schemaName, data) as StockTransfer;
+    for (const row of this.items ?? []) {
+      if (!row.item) {
+        continue;
+      }
+
+      const itemDoc = (await row.loadAndGetLink('item')) as Item;
+      const item = row.item;
+      const quantity = row.stockNotTransferred;
+      const trackItem = itemDoc.trackItem;
+      let rate = row.rate as Money;
+
+      if (this.exchangeRate && this.exchangeRate > 1) {
+        rate = rate.mul(this.exchangeRate);
+      }
+
+      if (!quantity || !trackItem) {
+        continue;
+      }
+
+      await transfer.append('items', {
+        item,
+        quantity,
+        location,
+        rate,
+      });
+    }
+
+    if (!transfer.items?.length) {
+      return null;
+    }
+
+    return transfer;
+  }
+
+  async beforeCancel(): Promise<void> {
+    await super.beforeCancel();
+    await this._validateStockTransferCancelled();
+  }
+
+  async beforeDelete(): Promise<void> {
+    await super.beforeCancel();
+    await this._validateStockTransferCancelled();
+    await this._deleteCancelledStockTransfers();
+  }
+
+  async _deleteCancelledStockTransfers() {
+    const schemaName = this.stockTransferSchemaName;
+    const transfers = await this._getLinkedStockTransferNames(true);
+
+    for (const { name } of transfers) {
+      const st = await this.fyo.doc.getDoc(schemaName, name);
+      await st.delete();
+    }
+  }
+
+  async _validateStockTransferCancelled() {
+    const schemaName = this.stockTransferSchemaName;
+    const transfers = await this._getLinkedStockTransferNames(false);
+    if (!transfers?.length) {
+      return;
+    }
+
+    const names = transfers.map(({ name }) => name).join(', ');
+    const label = this.fyo.schemaMap[schemaName]?.label ?? schemaName;
+    throw new ValidationError(
+      this.fyo.t`Cannot cancel ${this.schema.label} ${this
+        .name!} because of the following ${label}: ${names}`
+    );
+  }
+
+  async _getLinkedStockTransferNames(cancelled: boolean) {
+    const name = this.name;
+    if (!name) {
+      throw new ValidationError(`Name not found for ${this.schema.label}`);
+    }
+
+    const schemaName = this.stockTransferSchemaName;
+    const transfers = (await this.fyo.db.getAllRaw(schemaName, {
+      fields: ['name'],
+      filters: { backReference: this.name!, cancelled },
+    })) as { name: string }[];
+    return transfers;
+  }
+
+  async getLinkedPayments() {
+    if (!this.hasLinkedPayments) {
+      return [];
+    }
+
+    const paymentFors = (await this.fyo.db.getAllRaw('PaymentFor', {
+      fields: ['parent', 'amount'],
+      filters: { referenceName: this.name!, referenceType: this.schemaName },
+    })) as { parent: string; amount: string }[];
+
+    const payments = (await this.fyo.db.getAllRaw('Payment', {
+      fields: ['name', 'date', 'submitted', 'cancelled'],
+      filters: { name: ['in', paymentFors.map((p) => p.parent)] },
+    })) as {
+      name: string;
+      date: string;
+      submitted: number;
+      cancelled: number;
+    }[];
+
+    return joinMapLists(payments, paymentFors, 'name', 'parent')
+      .map((j) => ({
+        name: j.name,
+        date: new Date(j.date),
+        submitted: !!j.submitted,
+        cancelled: !!j.cancelled,
+        amount: this.fyo.pesa(j.amount),
+      }))
+      .sort((a, b) => a.date.valueOf() - b.date.valueOf());
+  }
+
+  async getLinkedStockTransfers() {
+    if (!this.hasLinkedTransfers) {
+      return [];
+    }
+
+    const schemaName = this.stockTransferSchemaName;
+    const transfers = (await this.fyo.db.getAllRaw(schemaName, {
+      fields: ['name', 'date', 'submitted', 'cancelled'],
+      filters: { backReference: this.name! },
+    })) as {
+      name: string;
+      date: string;
+      submitted: number;
+      cancelled: number;
+    }[];
+
+    const itemSchemaName = schemaName + 'Item';
+    const transferItems = (await this.fyo.db.getAllRaw(itemSchemaName, {
+      fields: ['parent', 'quantity', 'location', 'amount'],
+      filters: {
+        parent: ['in', transfers.map((t) => t.name)],
+        item: ['in', this.items!.map((i) => i.item!)],
+      },
+    })) as {
+      parent: string;
+      quantity: number;
+      location: string;
+      amount: string;
+    }[];
+
+    return joinMapLists(transfers, transferItems, 'name', 'parent')
+      .map((j) => ({
+        name: j.name,
+        date: new Date(j.date),
+        submitted: !!j.submitted,
+        cancelled: !!j.cancelled,
+        amount: this.fyo.pesa(j.amount),
+        location: j.location,
+        quantity: j.quantity,
+      }))
+      .sort((a, b) => a.date.valueOf() - b.date.valueOf());
   }
 }

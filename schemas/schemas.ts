@@ -7,6 +7,16 @@ import CompanySettings from './app/CompanySettings.json';
 import Currency from './app/Currency.json';
 import Defaults from './app/Defaults.json';
 import GetStarted from './app/GetStarted.json';
+import Location from './app/inventory/Location.json';
+import PurchaseReceipt from './app/inventory/PurchaseReceipt.json';
+import PurchaseReceiptItem from './app/inventory/PurchaseReceiptItem.json';
+import Shipment from './app/inventory/Shipment.json';
+import ShipmentItem from './app/inventory/ShipmentItem.json';
+import StockLedgerEntry from './app/inventory/StockLedgerEntry.json';
+import StockMovement from './app/inventory/StockMovement.json';
+import StockMovementItem from './app/inventory/StockMovementItem.json';
+import StockTransfer from './app/inventory/StockTransfer.json';
+import StockTransferItem from './app/inventory/StockTransferItem.json';
 import Invoice from './app/Invoice.json';
 import InvoiceItem from './app/InvoiceItem.json';
 import Item from './app/Item.json';
@@ -35,6 +45,7 @@ import child from './meta/child.json';
 import submittable from './meta/submittable.json';
 import tree from './meta/tree.json';
 import { Schema, SchemaStub } from './types';
+import InventorySettings from './app/inventory/InventorySettings.json';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -88,4 +99,17 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Tax as Schema,
   TaxDetail as Schema,
   TaxSummary as Schema,
+
+  InventorySettings as Schema,
+  Location as Schema,
+  StockLedgerEntry as Schema,
+  StockMovement as Schema,
+  StockMovementItem as Schema,
+
+  StockTransfer as Schema,
+  StockTransferItem as Schema,
+  Shipment as Schema,
+  ShipmentItem as Schema,
+  PurchaseReceipt as Schema,
+  PurchaseReceiptItem as Schema,
 ];

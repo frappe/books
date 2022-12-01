@@ -23,7 +23,6 @@ import { ModelNameEnum } from 'models/types';
 import LanguageSelector from 'src/components/Controls/LanguageSelector.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm';
 import { fyo } from 'src/initFyo';
-import { getCountryInfo } from 'utils/misc';
 
 export default {
   name: 'TabSystem',
@@ -42,7 +41,6 @@ export default {
     this.doc = fyo.singles.SystemSettings;
     this.companyName = fyo.singles.AccountingSettings.companyName;
     this.telemetry = fyo.config.get(ConfigKeys.Telemetry);
-    window.gci = getCountryInfo;
   },
   computed: {
     fields() {

@@ -14,7 +14,10 @@
     </PageHeader>
 
     <!-- Filters -->
-    <div v-if="report" class="grid grid-cols-5 gap-4 p-4 border-b">
+    <div
+      v-if="report && report.filters.length"
+      class="grid grid-cols-5 gap-4 p-4 border-b"
+    >
       <FormControl
         v-for="field in report.filters"
         :border="true"
@@ -100,7 +103,7 @@ export default defineComponent({
         acc[ac.group] ??= {
           group: ac.group,
           label: ac.label ?? '',
-          type: ac.type,
+      e: ac.type,
           actions: [],
         };
 

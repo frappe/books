@@ -17,7 +17,7 @@
     "electron:serve": "vue-cli-service electron:serve",
     "script:translate": "scripts/runner.sh scripts/generateTranslations.ts",
     "script:profile": "scripts/profile.sh",
-    "test": "scripts/runner.sh ./node_modules/.bin/tape ./**/tests/**/*.spec.ts | tap-spec"
+    "test": "scripts/test.sh"
   },
   "dependencies": {
     "@popperjs/core": "^2.10.2",

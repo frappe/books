@@ -29,7 +29,16 @@ export enum ModelNameEnum {
   TaxSummary = 'TaxSummary',
   PatchRun = 'PatchRun',
   SingleValue = 'SingleValue',
+  InventorySettings = 'InventorySettings',
   SystemSettings = 'SystemSettings',
+  StockMovement = 'StockMovement',
+  StockMovementItem = 'StockMovementItem',
+  StockLedgerEntry = 'StockLedgerEntry',
+  Shipment = 'Shipment',
+  ShipmentItem = 'ShipmentItem',
+  PurchaseReceipt = 'PurchaseReceipt',
+  PurchaseReceiptItem = 'PurchaseReceiptItem',
+  Location = 'Location',
 }
 
 export type ModelName = keyof typeof ModelNameEnum;

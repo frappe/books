@@ -6,7 +6,12 @@ import Observable from 'fyo/utils/observable';
 import { translateSchema } from 'fyo/utils/translation';
 import { Field, RawValue, SchemaMap } from 'schemas/types';
 import { getMapFromList } from 'utils';
-import { DatabaseBase, DatabaseDemuxBase, GetAllOptions } from 'utils/db/types';
+import {
+  DatabaseBase,
+  DatabaseDemuxBase,
+  GetAllOptions,
+  QueryFilter
+} from 'utils/db/types';
 import { schemaTranslateables } from 'utils/translationHelpers';
 import { LanguageMap } from 'utils/types';
 import { Converter } from './converter';
@@ -28,6 +33,7 @@ type TotalCreditAndDebit = {
   totalCredit: number;
   totalDebit: number;
 };
+type FieldMap = Record<string, Record<string, Field>>;
 
 export class DatabaseHandler extends DatabaseBase {
   #fyo: Fyo;
@@ -35,8 +41,8 @@ export class DatabaseHandler extends DatabaseBase {
   #demux: DatabaseDemuxBase;
   dbPath?: string;
   #schemaMap: SchemaMap = {};
+  #fieldMap: FieldMap = {};
   observer: Observable<never> = new Observable();
-  fieldValueMap: Record<string, Record<string, Field>> = {};
 
   constructor(fyo: Fyo, Demux?: DatabaseDemuxConstructor) {
     super();
@@ -52,6 +58,10 @@ export class DatabaseHandler extends DatabaseBase {
 
   get schemaMap(): Readonly<SchemaMap> {
     return this.#schemaMap;
+  }
+
+  get fieldMap(): Readonly<FieldMap> {
+    return this.#fieldMap;
   }
 
   get isConnected() {
@@ -74,11 +84,7 @@ export class DatabaseHandler extends DatabaseBase {
 
   async init() {
     this.#schemaMap = (await this.#demux.getSchemaMap()) as SchemaMap;
-
-    for (const schemaName in this.schemaMap) {
-      const fields = this.schemaMap[schemaName]!.fields!;
-      this.fieldValueMap[schemaName] = getMapFromList(fields, 'fieldname');
-    }
+    this.#setFieldMap();
     this.observer = new Observable();
   }
 
@@ -87,6 +93,7 @@ export class DatabaseHandler extends DatabaseBase {
       translateSchema(this.#schemaMap, languageMap, schemaTranslateables);
     } else {
       this.#schemaMap = (await this.#demux.getSchemaMap()) as SchemaMap;
+      this.#setFieldMap();
     }
   }
 
@@ -94,7 +101,7 @@ export class DatabaseHandler extends DatabaseBase {
     await this.close();
     this.dbPath = undefined;
     this.#schemaMap = {};
-    this.fieldValueMap = {};
+    this.#fieldMap = {};
   }
 
   async insert(
@@ -161,7 +168,7 @@ export class DatabaseHandler extends DatabaseBase {
 
     const docSingleValue: SingleValue<DocValue> = [];
     for (const sv of rawSingleValue) {
-      const field = this.fieldValueMap[sv.parent][sv.fieldname];
+      const field = this.fieldMap[sv.parent][sv.fieldname];
       const value = Converter.toDocValue(sv.value, field, this.#fyo);
 
       docSingleValue.push({
@@ -205,6 +212,16 @@ export class DatabaseHandler extends DatabaseBase {
   async delete(schemaName: string, name: string): Promise<void> {
     await this.#demux.call('delete', schemaName, name);
     this.observer.trigger(`delete:${schemaName}`, name);
+  }
+
+  async deleteAll(schemaName: string, filters: QueryFilter): Promise<number> {
+    const count = (await this.#demux.call(
+      'deleteAll',
+      schemaName,
+      filters
+    )) as number;
+    this.observer.trigger(`deleteAll:${schemaName}`, filters);
+    return count;
   }
 
   // Other
@@ -291,6 +308,21 @@ export class DatabaseHandler extends DatabaseBase {
     )) as TotalCreditAndDebit[];
   }
 
+  async getStockQuantity(
+    item: string,
+    location?: string,
+    fromDate?: string,
+    toDate?: string
+  ): Promise<number | null> {
+    return (await this.#demux.callBespoke(
+      'getStockQuantity',
+      item,
+      location,
+      fromDate,
+      toDate
+    )) as number | null;
+  }
+
   /**
    * Internal methods
    */
@@ -303,5 +335,16 @@ export class DatabaseHandler extends DatabaseBase {
       schemaName,
       options
     )) as RawValueMap[];
+  }
+
+  #setFieldMap() {
+    this.#fieldMap = Object.values(this.schemaMap).reduce((acc, sch) => {
+      if (!sch?.name) {
+        return acc;
+      }
+
+      acc[sch?.name] = getMapFromList(sch?.fields, 'fieldname');
+      return acc;
+    }, {} as FieldMap);
   }
 }

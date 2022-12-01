@@ -61,17 +61,20 @@
       <div class="flex items-center pl-1">
         <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
       </div>
-      <div class="flex justify-between px-2">
-        {{ t`Add Row` }}
-      </div>
-      <div v-for="i in ratio.slice(3).length" :key="i"></div>
-      <div
-        class="text-right px-2"
-        v-if="
-          value && maxRowsBeforeOverflow && value.length > maxRowsBeforeOverflow
-        "
-      >
-        {{ t`${value.length} rows` }}
+      <div class="flex justify-between px-2" :style="`grid-column: 2 / ${ratio.length + 1}`">
+        <p>
+          {{ t`Add Row` }}
+        </p>
+        <p
+          class="text-right px-2"
+          v-if="
+            value &&
+            maxRowsBeforeOverflow &&
+            value.length > maxRowsBeforeOverflow
+          "
+        >
+          {{ t`${value.length} rows` }}
+        </p>
       </div>
     </Row>
   </div>

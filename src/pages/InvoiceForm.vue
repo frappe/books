@@ -27,7 +27,17 @@
       >
         <feather-icon name="settings" class="w-4 h-4" />
       </Button>
-      <DropdownWithActions :actions="actions()" />
+      <DropdownWithActions
+        v-for="group of groupedActions"
+        :key="group.label"
+        :type="group.type"
+        :actions="group.actions"
+      >
+        <p v-if="group.group">
+          {{ group.group }}
+        </p>
+        <feather-icon v-else name="more-horizontal" class="w-4 h-4" />
+      </DropdownWithActions>
       <Button
         v-if="doc?.notInserted || doc?.dirty"
         type="primary"
@@ -120,10 +130,15 @@
         <hr />
         <div class="flex justify-between text-base m-4 gap-12">
           <div class="w-1/2 flex flex-col justify-between">
-            <!-- Discount Note -->
+            <!-- Info Note -->
             <p v-if="discountNote?.length" class="text-gray-600 text-sm">
               {{ discountNote }}
             </p>
+
+            <p v-if="stockTransferText?.length" class="text-gray-600 text-sm">
+              {{ stockTransferText }}
+            </p>
+
             <!-- Form Terms-->
             <FormControl
               :border="true"
@@ -257,8 +272,9 @@
       </div>
     </template>
 
-    <template #quickedit v-if="quickEditDoc">
+    <template #quickedit v-if="quickEditDoc || linked">
       <QuickEditForm
+        v-if="quickEditDoc && !linked"
         class="w-quick-edit"
         :name="quickEditDoc.name"
         :show-name="false"
@@ -270,6 +286,12 @@
         :route-back="false"
         :load-on-close="false"
         @close="toggleQuickEditDoc(null)"
+      />
+
+      <LinkedEntryWidget
+        v-if="linked && !quickEditDoc"
+        :linked="linked"
+        @close-widget="linked = null"
       />
     </template>
   </FormContainer>
@@ -286,13 +308,14 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
+import LinkedEntryWidget from 'src/components/Widgets/LinkedEntryWidget.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import {
-docsPath,
-getActionsForDocument,
-routeTo,
-showMessageDialog
+  docsPath,
+  getGroupedActionsForDoc,
+  routeTo,
+  showMessageDialog,
 } from 'src/utils/ui';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
@@ -311,6 +334,7 @@ export default {
     QuickEditForm,
     ExchangeRate,
     FormHeader,
+    LinkedEntryWidget,
   },
   provide() {
     return {
@@ -328,12 +352,63 @@ export default {
       color: null,
       printSettings: null,
       companyName: null,
+      linked: null,
     };
   },
   updated() {
     this.chstatus = !this.chstatus;
   },
   computed: {
+    stockTransferText() {
+      if (!this.fyo.singles.AccountingSettings.enableInventory) {
+        return '';
+      }
+
+      if (!this.doc.submitted) {
+        return '';
+      }
+
+      const totalQuantity = this.doc.getTotalQuantity();
+      const stockNotTransferred = this.doc.stockNotTransferred;
+
+      if (stockNotTransferred === 0) {
+        return this.t`Stock has been transferred`;
+      }
+
+      const stn = this.fyo.format(stockNotTransferred, 'Float');
+      const tq = this.fyo.format(totalQuantity, 'Float');
+
+      return this.t`Stock qty. ${stn} out of ${tq} left to transfer`;
+    },
+    groupedActions() {
+      const actions = getGroupedActionsForDoc(this.doc);
+      const group = this.t`View`;
+      const viewgroup = actions.find((f) => f.group === group);
+
+      if (viewgroup && this.doc?.hasLinkedPayments) {
+        viewgroup.actions.push({
+          label: this.t`Payments`,
+          group,
+          condition: (doc) => doc.hasLinkedPayments,
+          action: async () => this.setlinked(ModelNameEnum.Payment),
+        });
+      }
+
+      if (viewgroup && this.doc?.hasLinkedTransfers) {
+        const label = this.doc.isSales
+          ? this.t`Shipments`
+          : this.t`Purchase Receipts`;
+
+        viewgroup.actions.push({
+          label,
+          group,
+          condition: (doc) => doc.hasLinkedTransfers,
+          action: async () => this.setlinked(this.doc.stockTransferSchemaName),
+        });
+      }
+
+      return actions;
+    },
     address() {
       return this.printSettings && this.printSettings.getLink('address');
     },
@@ -406,6 +481,26 @@ export default {
   },
   methods: {
     routeTo,
+    async setlinked(schemaName) {
+      let entries = [];
+      let title = '';
+
+      if (schemaName === ModelNameEnum.Payment) {
+        title = this.t`Payments`;
+        entries = await this.doc.getLinkedPayments();
+      } else {
+        title = this.doc.isSales
+          ? this.t`Shipments`
+          : this.t`Purchase Receipts`;
+        entries = await this.doc.getLinkedStockTransfers();
+      }
+
+      if (this.quickEditDoc) {
+        this.toggleQuickEditDoc(null);
+      }
+
+      this.linked = { entries, schemaName, title };
+    },
     toggleInvoiceSettings() {
       if (!this.schemaName) {
         return;
@@ -425,10 +520,16 @@ export default {
       }
 
       this.quickEditDoc = doc;
+      if (
+        doc?.schemaName?.includes('InvoiceItem') &&
+        doc?.stockNotTransferred
+      ) {
+        fields = [...doc.schema.quickEditFields, 'stockNotTransferred'].map(
+          (f) => fyo.getField(doc.schemaName, f)
+        );
+      }
+
       this.quickEditFields = fields;
-    },
-    actions() {
-      return getActionsForDocument(this.doc);
     },
     getField(fieldname) {
       return fyo.getField(this.schemaName, fieldname);

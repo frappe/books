@@ -1,0 +1,54 @@
+{
+  "name": "StockLedgerEntry",
+  "label": "Stock Ledger Entry",
+  "isSingle": false,
+  "isChild": false,
+  "naming": "autoincrement",
+  "fields": [
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Datetime",
+      "readOnly": true
+    },
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "readOnly": true
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "quantity",
+      "label": "Quantity",
+      "fieldtype": "Float",
+      "readOnly": true
+    },
+    {
+      "fieldname": "location",
+      "label": "Location",
+      "fieldtype": "Link",
+      "target": "Location",
+      "readOnly": true
+    },
+    {
+      "fieldname": "referenceName",
+      "label": "Ref. Name",
+      "fieldtype": "DynamicLink",
+      "references": "referenceType",
+      "readOnly": true
+    },
+    {
+      "fieldname": "referenceType",
+      "label": "Ref. Type",
+      "fieldtype": "Data",
+      "readOnly": true
+    }
+  ]
+}

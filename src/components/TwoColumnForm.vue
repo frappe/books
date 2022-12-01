@@ -125,6 +125,11 @@ export default {
     focusFirstInput: Boolean,
     readOnly: { type: [null, Boolean], default: null },
   },
+  watch: {
+    doc() {
+      this.setFormFields();
+    },
+  },
   data() {
     return {
       inlineEditDoc: null,
@@ -268,7 +273,7 @@ export default {
       try {
         await this.inlineEditDoc.sync();
       } catch (error) {
-        return await handleErrorWithDialog(error, this.inlineEditDoc)
+        return await handleErrorWithDialog(error, this.inlineEditDoc);
       }
 
       await this.onChangeCommon(df, this.inlineEditDoc.name);

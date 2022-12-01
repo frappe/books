@@ -131,6 +131,12 @@
       "placeholder": "Add attachment",
       "label": "Attachment",
       "fieldtype": "Attachment"
+    },
+    {
+      "fieldname": "stockNotTransferred",
+      "label": "Stock Not Transferred",
+      "fieldtype": "Float",
+      "readOnly": true
     }
   ],
   "keywordFields": ["name", "party"]
