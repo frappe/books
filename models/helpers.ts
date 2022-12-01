@@ -16,17 +16,28 @@ import {
 import { Invoice } from './baseModels/Invoice/Invoice';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
-export function getInvoiceActions(fyo: Fyo): Action[] {
+export function getInvoiceActions(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
+): Action[] {
   return [
     getMakePaymentAction(fyo),
-    getMakeStockTransferAction(fyo),
+    getMakeStockTransferAction(fyo, schemaName),
     getLedgerLinkAction(fyo),
   ];
 }
 
-export function getMakeStockTransferAction(fyo: Fyo): Action {
+export function getMakeStockTransferAction(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
+): Action {
+  let label = fyo.t`Shipment`;
+  if (schemaName === ModelNameEnum.PurchaseInvoice) {
+    label = fyo.t`Purchase Receipt`;
+  }
+
   return {
-    label: fyo.t`Stock Transfer`,
+    label,
     group: fyo.t`Create`,
     condition: (doc: Doc) => doc.isSubmitted && !!doc.stockNotTransferred,
     action: async (doc: Doc) => {
@@ -71,7 +82,7 @@ export function getLedgerLinkAction(
   fyo: Fyo,
   isStock: boolean = false
 ): Action {
-  let label = fyo.t`Ledger Entries`;
+  let label = fyo.t`Accounting Entries`;
   let reportClassName = 'GeneralLedger';
 
   if (isStock) {

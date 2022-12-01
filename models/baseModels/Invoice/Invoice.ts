@@ -477,10 +477,6 @@ export abstract class Invoice extends Transactional {
     }
   }
 
-  static getActions(fyo: Fyo): Action[] {
-    return getInvoiceActions(fyo);
-  }
-
   getPayment(): Payment | null {
     if (!this.isSubmitted) {
       return null;

@@ -194,7 +194,14 @@ export class StockLedger extends Report {
       const fieldtype = col.fieldtype;
 
       const rawValue = row[fieldname] as RawValue;
-      const value = this.fyo.format(rawValue, fieldtype);
+
+      let value;
+      if (col.fieldname === 'referenceType' && typeof rawValue === 'string') {
+        value = this.fyo.schemaMap[rawValue]?.label ?? rawValue;
+      } else {
+        value = this.fyo.format(rawValue, fieldtype);
+      }
+
       const align = isNumeric(fieldtype) ? 'right' : 'left';
 
       const isColoured = fieldname in colouredMap;
@@ -352,6 +359,7 @@ export class StockLedger extends Report {
           { label: t`None`, value: 'none' },
           { label: t`Item`, value: 'item' },
           { label: t`Location`, value: 'location' },
+          { label: t`Reference`, value: 'referenceName' },
         ],
       },
       {

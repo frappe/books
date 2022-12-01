@@ -226,4 +226,10 @@ export abstract class StockTransfer extends Transfer {
     doc.backReference = undefined;
     return doc;
   }
+
+  static createFilters: FiltersMap = {
+    party: (doc: Doc) => ({
+      role: doc.isSales ? 'Customer' : 'Supplier',
+    }),
+  };
 }

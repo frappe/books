@@ -1,6 +1,8 @@
-import { ListViewSettings } from 'fyo/model/types';
+import { Fyo } from 'fyo';
+import { Action, ListViewSettings } from 'fyo/model/types';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
-import { getTransactionStatusColumn } from '../../helpers';
+import { ModelNameEnum } from 'models/types';
+import { getInvoiceActions, getTransactionStatusColumn } from '../../helpers';
 import { Invoice } from '../Invoice/Invoice';
 import { SalesInvoiceItem } from '../SalesInvoiceItem/SalesInvoiceItem';
 
@@ -45,5 +47,9 @@ export class SalesInvoice extends Invoice {
         'outstandingAmount',
       ],
     };
+  }
+
+  static getActions(fyo: Fyo): Action[] {
+    return getInvoiceActions(fyo, ModelNameEnum.SalesInvoice);
   }
 }

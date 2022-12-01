@@ -42,7 +42,7 @@
     },
     {
       "fieldname": "costOfGoodsSold",
-      "label": "Cost Of Goods Sold",
+      "label": "Cost Of Goods Sold Acc.",
       "fieldtype": "Link",
       "target": "Account"
     }
