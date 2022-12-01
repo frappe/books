@@ -1,3 +1,4 @@
+import { Doc } from "fyo/model/doc";
 import { FieldTypeEnum } from "schemas/types";
 
 export interface MessageDialogButton {
@@ -23,8 +24,9 @@ export type WindowAction = 'close' | 'minimize' | 'maximize' | 'unmaximize';
 export type SettingsTab = 'Invoice' | 'General' | 'System';
 
 export interface QuickEditOptions {
-  schemaName: string;
-  name: string;
+  doc?: Doc;
+  schemaName?: string;
+  name?: string;
   hideFields?: string[];
   showFields?: string[];
   defaults?: Record<string, unknown>;

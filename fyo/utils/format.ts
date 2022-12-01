@@ -9,7 +9,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_DATE_FORMAT,
   DEFAULT_DISPLAY_PRECISION,
-  DEFAULT_LOCALE,
+  DEFAULT_LOCALE
 } from './consts';
 
 export function format(
@@ -24,12 +24,24 @@ export function format(
 
   const field: Field = getField(df);
 
+  if (field.fieldtype === FieldTypeEnum.Float) {
+    return Number(value).toFixed(fyo.singles.SystemSettings?.displayPrecision);
+  }
+
+  if (field.fieldtype === FieldTypeEnum.Int) {
+    return Math.trunc(Number(value)).toString();
+  }
+
   if (field.fieldtype === FieldTypeEnum.Currency) {
     return formatCurrency(value, field, doc, fyo);
   }
 
   if (field.fieldtype === FieldTypeEnum.Date) {
     return formatDate(value, fyo);
+  }
+
+  if (field.fieldtype === FieldTypeEnum.Datetime) {
+    return formatDatetime(value, fyo);
   }
 
   if (field.fieldtype === FieldTypeEnum.Check) {
@@ -43,18 +55,35 @@ export function format(
   return String(value);
 }
 
+function toDatetime(value: DocValue) {
+  if (typeof value === 'string') {
+    return DateTime.fromISO(value);
+  } else if (value instanceof Date) {
+    return DateTime.fromJSDate(value);
+  } else {
+    return DateTime.fromSeconds(value as number);
+  }
+}
+
+function formatDatetime(value: DocValue, fyo: Fyo): string {
+  const dateFormat =
+    (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
+  const formattedDatetime = toDatetime(value).toFormat(
+    `${dateFormat} HH:mm:ss`
+  );
+
+  if (value === 'Invalid DateTime') {
+    return '';
+  }
+
+  return formattedDatetime;
+}
+
 function formatDate(value: DocValue, fyo: Fyo): string {
   const dateFormat =
     (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
 
-  let dateValue: DateTime;
-  if (typeof value === 'string') {
-    dateValue = DateTime.fromISO(value);
-  } else if (value instanceof Date) {
-    dateValue = DateTime.fromJSDate(value);
-  } else {
-    dateValue = DateTime.fromSeconds(value as number);
-  }
+  const dateValue: DateTime = toDatetime(value);
 
   const formattedDate = dateValue.toFormat(dateFormat);
   if (value === 'Invalid DateTime') {

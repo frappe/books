@@ -10,8 +10,7 @@ import { DateTime } from 'luxon';
 import {
   getDocStatus,
   getLedgerLinkAction,
-  getNumberSeries,
-  getStatusMap,
+  getNumberSeries, getStatusText,
   statusColor
 } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
@@ -64,7 +63,7 @@ export class JournalEntry extends Transactional {
           render(doc) {
             const status = getDocStatus(doc);
             const color = statusColor[status] ?? 'gray';
-            const label = getStatusMap()[status];
+            const label = getStatusText(status);
 
             return {
               template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,

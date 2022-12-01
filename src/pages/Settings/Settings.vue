@@ -29,7 +29,11 @@
 
       <!-- Component -->
       <div class="flex-1 overflow-y-auto custom-scroll">
-        <component :is="activeTabComponent" @change="handleChange" />
+        <component
+          :is="tabs[activeTab].component"
+          :schema-name="tabs[activeTab].schemaName"
+          @change="handleChange"
+        />
       </div>
     </template>
   </FormContainer>
@@ -47,11 +51,10 @@ import { docsPathMap } from 'src/utils/misc';
 import { docsPath, showToast } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h, markRaw } from 'vue';
-import TabDefaults from './TabDefaults.vue';
+import TabBase from './TabBase.vue';
 import TabGeneral from './TabGeneral.vue';
 import TabInvoice from './TabInvoice.vue';
 import TabSystem from './TabSystem.vue';
-
 export default {
   name: 'Settings',
   components: {
@@ -62,6 +65,8 @@ export default {
     FormContainer,
   },
   data() {
+    const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
+
     return {
       activeTab: 0,
       updated: false,
@@ -70,21 +75,35 @@ export default {
         {
           key: 'Invoice',
           label: t`Invoice`,
+          schemaName: 'PrintSettings',
           component: markRaw(TabInvoice),
         },
         {
           key: 'General',
           label: t`General`,
+          schemaName: 'AccountingSettings',
           component: markRaw(TabGeneral),
         },
         {
           key: 'Defaults',
           label: t`Defaults`,
-          component: markRaw(TabDefaults),
+          schemaName: 'Defaults',
+          component: markRaw(TabBase),
         },
+        ...(hasInventory
+          ? [
+              {
+                key: 'Inventory',
+                label: t`Inventory`,
+                schemaName: 'InventorySettings',
+                component: markRaw(TabBase),
+              },
+            ]
+          : []),
         {
           key: 'System',
           label: t`System`,
+          schemaName: 'SystemSettings',
           component: markRaw(TabSystem),
         },
       ],
@@ -105,7 +124,8 @@ export default {
       fieldnames.includes('displayPrecision') ||
       fieldnames.includes('hideGetStarted') ||
       fieldnames.includes('displayPrecision') ||
-      fieldnames.includes('enableDiscounting')
+      fieldnames.includes('enableDiscounting') ||
+      fieldnames.includes('enableInventory')
     ) {
       this.showReloadToast();
     }
@@ -152,11 +172,6 @@ export default {
           });
         },
       };
-    },
-  },
-  computed: {
-    activeTabComponent() {
-      return this.tabs[this.activeTab].component;
     },
   },
 };

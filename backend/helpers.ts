@@ -46,6 +46,7 @@ export const databaseMethodSet: Set<DatabaseMethod> = new Set([
   'rename',
   'update',
   'delete',
+  'deleteAll',
   'close',
   'exists',
 ]);

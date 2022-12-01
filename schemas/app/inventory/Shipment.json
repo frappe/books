@@ -1,0 +1,34 @@
+{
+  "name": "Shipment",
+  "label": "Shipment",
+  "extends": "StockTransfer",
+  "naming": "numberSeries",
+  "showTitle": true,
+  "fields": [
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "ShipmentItem",
+      "required": true,
+      "edit": true
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "SHPM-"
+    },
+    {
+      "fieldname": "backReference",
+      "label": "Back Reference",
+      "fieldtype": "Link",
+      "target": "SalesInvoice",
+      "readOnly": true
+    }
+  ],
+  "keywordFields": ["name", "party"]
+}

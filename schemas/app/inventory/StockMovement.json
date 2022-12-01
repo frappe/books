@@ -1,0 +1,73 @@
+{
+  "name": "StockMovement",
+  "label": "Stock Movement",
+  "naming": "numberSeries",
+  "isSingle": false,
+  "isChild": false,
+  "isSubmittable": true,
+  "fields": [
+    {
+      "label": "Stock Movement No.",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Datetime",
+      "required": true
+    },
+    {
+      "fieldname": "movementType",
+      "label": "Movement Type",
+      "fieldtype": "Select",
+      "options": [
+        {
+          "value": "MaterialIssue",
+          "label": "Material Issue"
+        },
+        {
+          "value": "MaterialReceipt",
+          "label": "Material Receipt"
+        },
+        {
+          "value": "MaterialTransfer",
+          "label": "Material Transfer"
+        }
+      ],
+      "required": true
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "SMOV-"
+    },
+    {
+      "fieldname": "amount",
+      "label": "Total Amount",
+      "fieldtype": "Currency",
+      "readOnly": true
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "StockMovementItem",
+      "required": true
+    }
+  ],
+  "quickEditFields": [
+    "numberSeries",
+    "date",
+    "movementType",
+    "amount",
+    "items"
+  ],
+  "keywordFields": ["name", "movementType"]
+}

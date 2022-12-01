@@ -34,7 +34,6 @@
           "label": "Customer"
         }
       ],
-      "readOnly": true,
       "required": true
     },
     {

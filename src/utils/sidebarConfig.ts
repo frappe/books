@@ -2,8 +2,8 @@ import { t } from 'fyo';
 import { fyo } from '../initFyo';
 import { SidebarConfig, SidebarRoot } from './types';
 
-export function getSidebarConfig(): SidebarConfig {
-  const sideBar = getCompleteSidebar();
+export async function getSidebarConfig(): Promise<SidebarConfig> {
+  const sideBar = await getCompleteSidebar();
   return getFilteredSidebar(sideBar);
 }
 
@@ -53,7 +53,85 @@ function getRegionalSidebar(): SidebarRoot[] {
   ];
 }
 
-function getCompleteSidebar(): SidebarConfig {
+async function getInventorySidebar(): Promise<SidebarRoot[]> {
+  const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
+  if (!hasInventory) {
+    return [];
+  }
+
+  return [
+    {
+      label: t`Inventory`,
+      name: 'inventory',
+      icon: 'inventory',
+      iconSize: '18',
+      route: '/list/StockMovement',
+      items: [
+        {
+          label: t`Stock Movement`,
+          name: 'stock-movement',
+          route: '/list/StockMovement',
+          schemaName: 'StockMovement',
+        },
+        {
+          label: t`Shipment`,
+          name: 'shipment',
+          route: '/list/Shipment',
+          schemaName: 'Shipment',
+        },
+        {
+          label: t`Purchase Receipt`,
+          name: 'purchase-receipt',
+          route: '/list/PurchaseReceipt',
+          schemaName: 'PurchaseReceipt',
+        },
+        {
+          label: t`Stock Ledger`,
+          name: 'stock-ledger',
+          route: '/report/StockLedger',
+        },
+        {
+          label: t`Stock Balance`,
+          name: 'stock-balance',
+          route: '/report/StockBalance',
+        },
+      ],
+    },
+  ];
+}
+
+async function getReportSidebar() {
+  return {
+    label: t`Reports`,
+    name: 'reports',
+    icon: 'reports',
+    route: '/report/GeneralLedger',
+    items: [
+      {
+        label: t`General Ledger`,
+        name: 'general-ledger',
+        route: '/report/GeneralLedger',
+      },
+      {
+        label: t`Profit And Loss`,
+        name: 'profit-and-loss',
+        route: '/report/ProfitAndLoss',
+      },
+      {
+        label: t`Balance Sheet`,
+        name: 'balance-sheet',
+        route: '/report/BalanceSheet',
+      },
+      {
+        label: t`Trial Balance`,
+        name: 'trial-balance',
+        route: '/report/TrialBalance',
+      },
+    ],
+  };
+}
+
+async function getCompleteSidebar(): Promise<SidebarConfig> {
   return [
     {
       label: t`Get Started`,
@@ -160,35 +238,9 @@ function getCompleteSidebar(): SidebarConfig {
         },
       ],
     },
-    {
-      label: t`Reports`,
-      name: 'reports',
-      icon: 'reports',
-      route: '/report/GeneralLedger',
-      items: [
-        {
-          label: t`General Ledger`,
-          name: 'general-ledger',
-          route: '/report/GeneralLedger',
-        },
-        {
-          label: t`Profit And Loss`,
-          name: 'profit-and-loss',
-          route: '/report/ProfitAndLoss',
-        },
-        {
-          label: t`Balance Sheet`,
-          name: 'balance-sheet',
-          route: '/report/BalanceSheet',
-        },
-        {
-          label: t`Trial Balance`,
-          name: 'trial-balance',
-          route: '/report/TrialBalance',
-        },
-      ],
-    },
-    ...getRegionalSidebar(),
+    await getReportSidebar(),
+    await getInventorySidebar(),
+    await getRegionalSidebar(),
     {
       label: t`Setup`,
       name: 'setup',
@@ -218,5 +270,5 @@ function getCompleteSidebar(): SidebarConfig {
         },
       ],
     },
-  ];
+  ].flat();
 }

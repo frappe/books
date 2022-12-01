@@ -35,10 +35,6 @@ export class SalesInvoice extends Invoice {
     return posting;
   }
 
-  static getActions(fyo: Fyo): Action[] {
-    return getInvoiceActions(ModelNameEnum.SalesInvoice, fyo);
-  }
-
   static getListViewSettings(): ListViewSettings {
     return {
       formRoute: (name) => `/edit/SalesInvoice/${name}`,
@@ -51,5 +47,9 @@ export class SalesInvoice extends Invoice {
         'outstandingAmount',
       ],
     };
+  }
+
+  static getActions(fyo: Fyo): Action[] {
+    return getInvoiceActions(fyo, ModelNameEnum.SalesInvoice);
   }
 }

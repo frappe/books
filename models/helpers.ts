@@ -7,68 +7,98 @@ import { safeParseFloat } from 'utils/index';
 import { Router } from 'vue-router';
 import {
   AccountRootType,
-  AccountRootTypeEnum
+  AccountRootTypeEnum,
 } from './baseModels/Account/types';
 import {
   Defaults,
-  numberSeriesDefaultsMap
+  numberSeriesDefaultsMap,
 } from './baseModels/Defaults/Defaults';
+import { Invoice } from './baseModels/Invoice/Invoice';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
 export function getInvoiceActions(
-  schemaName: ModelNameEnum.PurchaseInvoice | ModelNameEnum.SalesInvoice,
-  fyo: Fyo
+  fyo: Fyo,
+  schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
 ): Action[] {
   return [
-    {
-      label: fyo.t`Make Payment`,
-      condition: (doc: Doc) =>
-        doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
-      action: async function makePayment(doc: Doc) {
-        const payment = fyo.doc.getNewDoc('Payment');
-        payment.once('afterSync', async () => {
-          await payment.submit();
-        });
-
-        const isSales = schemaName === 'SalesInvoice';
-        const party = doc.party as string;
-        const paymentType = isSales ? 'Receive' : 'Pay';
-        const hideAccountField = isSales ? 'account' : 'paymentAccount';
-
-        const { openQuickEdit } = await import('src/utils/ui');
-        await openQuickEdit({
-          schemaName: 'Payment',
-          name: payment.name as string,
-          hideFields: ['party', 'paymentType', 'for'],
-          defaults: {
-            party,
-            [hideAccountField]: doc.account,
-            date: new Date().toISOString().slice(0, 10),
-            paymentType,
-            for: [
-              {
-                referenceType: doc.schemaName,
-                referenceName: doc.name,
-                amount: doc.outstandingAmount,
-              },
-            ],
-          },
-        });
-      },
-    },
+    getMakePaymentAction(fyo),
+    getMakeStockTransferAction(fyo, schemaName),
     getLedgerLinkAction(fyo),
   ];
 }
 
-export function getLedgerLinkAction(fyo: Fyo): Action {
+export function getMakeStockTransferAction(
+  fyo: Fyo,
+  schemaName: ModelNameEnum.SalesInvoice | ModelNameEnum.PurchaseInvoice
+): Action {
+  let label = fyo.t`Shipment`;
+  if (schemaName === ModelNameEnum.PurchaseInvoice) {
+    label = fyo.t`Purchase Receipt`;
+  }
+
   return {
-    label: fyo.t`Ledger Entries`,
+    label,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) => doc.isSubmitted && !!doc.stockNotTransferred,
+    action: async (doc: Doc) => {
+      const transfer = await (doc as Invoice).getStockTransfer();
+      if (!transfer) {
+        return;
+      }
+
+      const { routeTo } = await import('src/utils/ui');
+      const path = `/edit/${transfer.schemaName}/${transfer.name}`;
+      await routeTo(path);
+    },
+  };
+}
+
+export function getMakePaymentAction(fyo: Fyo): Action {
+  return {
+    label: fyo.t`Payment`,
+    group: fyo.t`Create`,
+    condition: (doc: Doc) =>
+      doc.isSubmitted && !(doc.outstandingAmount as Money).isZero(),
+    action: async (doc: Doc) => {
+      const payment = (doc as Invoice).getPayment();
+      if (!payment) {
+        return;
+      }
+
+      payment.once('afterSync', async () => {
+        await payment.submit();
+      });
+
+      const { openQuickEdit } = await import('src/utils/ui');
+      await openQuickEdit({
+        doc: payment,
+        hideFields: ['party', 'paymentType', 'for'],
+      });
+    },
+  };
+}
+
+export function getLedgerLinkAction(
+  fyo: Fyo,
+  isStock: boolean = false
+): Action {
+  let label = fyo.t`Accounting Entries`;
+  let reportClassName = 'GeneralLedger';
+
+  if (isStock) {
+    label = fyo.t`Stock Entries`;
+    reportClassName = 'StockLedger';
+  }
+
+  return {
+    label,
+    group: fyo.t`View`,
     condition: (doc: Doc) => doc.isSubmitted,
     action: async (doc: Doc, router: Router) => {
       router.push({
         name: 'Report',
         params: {
-          reportClassName: 'GeneralLedger',
+          reportClassName,
           defaultFilters: JSON.stringify({
             referenceType: doc.schemaName,
             referenceName: doc.name,
@@ -80,8 +110,6 @@ export function getLedgerLinkAction(fyo: Fyo): Action {
 }
 
 export function getTransactionStatusColumn(): ColumnConfig {
-  const statusMap = getStatusMap();
-
   return {
     label: t`Status`,
     fieldname: 'status',
@@ -89,7 +117,7 @@ export function getTransactionStatusColumn(): ColumnConfig {
     render(doc) {
       const status = getDocStatus(doc) as InvoiceStatus;
       const color = statusColor[status];
-      const label = statusMap[status];
+      const label = getStatusText(status);
 
       return {
         template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
@@ -112,17 +140,25 @@ export const statusColor: Record<
   Cancelled: 'red',
 };
 
-export function getStatusMap(): Record<DocStatus | InvoiceStatus, string> {
-  return {
-    '': '',
-    Draft: t`Draft`,
-    Unpaid: t`Unpaid`,
-    Paid: t`Paid`,
-    Saved: t`Saved`,
-    NotSaved: t`Not Saved`,
-    Submitted: t`Submitted`,
-    Cancelled: t`Cancelled`,
-  };
+export function getStatusText(status: DocStatus | InvoiceStatus): string {
+  switch (status) {
+    case 'Draft':
+      return t`Draft`;
+    case 'Saved':
+      return t`Saved`;
+    case 'NotSaved':
+      return t`NotSaved`;
+    case 'Submitted':
+      return t`Submitted`;
+    case 'Cancelled':
+      return t`Cancelled`;
+    case 'Paid':
+      return t`Paid`;
+    case 'Unpaid':
+      return t`Unpaid`;
+    default:
+      return '';
+  }
 }
 
 export function getDocStatus(
@@ -266,4 +302,22 @@ export function getNumberSeries(schemaName: string, fyo: Fyo) {
   const field = fyo.getField(schemaName, 'numberSeries');
   const value = defaults?.[numberSeriesKey] as string | undefined;
   return value ?? (field?.default as string | undefined);
+}
+
+export function getDocStatusListColumn(): ColumnConfig {
+  return {
+    label: t`Status`,
+    fieldname: 'status',
+    fieldtype: 'Select',
+    size: 'small',
+    render(doc) {
+      const status = getDocStatus(doc);
+      const color = statusColor[status] ?? 'gray';
+      const label = getStatusText(status);
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+      };
+    },
+  };
 }

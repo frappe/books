@@ -10,15 +10,13 @@ import {
   HiddenMap,
   ListViewSettings,
   RequiredMap,
-  ValidationMap
+  ValidationMap,
 } from 'fyo/model/types';
 import { NotFoundError, ValidationError } from 'fyo/utils/errors';
 import {
-  getDocStatus,
+  getDocStatusListColumn,
   getLedgerLinkAction,
   getNumberSeries,
-  getStatusMap,
-  statusColor
 } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { Transactional } from 'models/Transactional/Transactional';
@@ -619,27 +617,7 @@ export class Payment extends Transactional {
 
   static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
-      columns: [
-        'name',
-        {
-          label: t`Status`,
-          fieldname: 'status',
-          fieldtype: 'Select',
-          size: 'small',
-          render(doc) {
-            const status = getDocStatus(doc);
-            const color = statusColor[status] ?? 'gray';
-            const label = getStatusMap()[status];
-
-            return {
-              template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
-            };
-          },
-        },
-        'party',
-        'date',
-        'amount',
-      ],
+      columns: ['name', getDocStatusListColumn(), 'party', 'date', 'amount'],
     };
   }
 }

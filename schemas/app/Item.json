@@ -66,13 +66,12 @@
           "label": "Both"
         }
       ],
-      "readOnly": true,
       "required": true,
       "default": "Both"
     },
     {
       "fieldname": "incomeAccount",
-      "label": "Income",
+      "label": "Sales Acc.",
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Income",
@@ -81,7 +80,7 @@
     },
     {
       "fieldname": "expenseAccount",
-      "label": "Expense",
+      "label": "Purchase Acc.",
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Expense",
@@ -106,6 +105,12 @@
       "label": "HSN/SAC",
       "fieldtype": "Int",
       "placeholder": "HSN/SAC Code"
+    },
+    {
+      "fieldname": "trackItem",
+      "label": "Track Item",
+      "fieldtype": "Check",
+      "default": false
     }
   ],
   "quickEditFields": [
@@ -117,7 +122,8 @@
     "description",
     "incomeAccount",
     "expenseAccount",
-    "hsnCode"
+    "hsnCode",
+    "trackItem"
   ],
   "keywordFields": ["name", "itemType", "for"]
 }

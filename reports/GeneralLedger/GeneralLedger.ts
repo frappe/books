@@ -17,6 +17,8 @@ type ReferenceType =
   | ModelNameEnum.PurchaseInvoice
   | ModelNameEnum.Payment
   | ModelNameEnum.JournalEntry
+  | ModelNameEnum.Shipment
+  | ModelNameEnum.PurchaseReceipt
   | 'All';
 
 export class GeneralLedger extends LedgerReport {
@@ -272,17 +274,25 @@ export class GeneralLedger extends LedgerReport {
   }
 
   getFilters() {
+    const refTypeOptions = [
+      { label: t`All`, value: 'All' },
+      { label: t`Sales Invoices`, value: 'SalesInvoice' },
+      { label: t`Purchase Invoices`, value: 'PurchaseInvoice' },
+      { label: t`Payments`, value: 'Payment' },
+      { label: t`Journal Entries`, value: 'JournalEntry' },
+    ];
+
+    if (!this.fyo.singles.AccountingSettings?.enableInventory) {
+      refTypeOptions.push(
+        { label: t`Shipment`, value: 'Shipment' },
+        { label: t`Purchase Receipt`, value: 'PurchaseReceipt' }
+      );
+    }
+
     return [
       {
         fieldtype: 'Select',
-        options: [
-          { label: t`All`, value: 'All' },
-          { label: t`Sales Invoices`, value: 'SalesInvoice' },
-          { label: t`Purchase Invoices`, value: 'PurchaseInvoice' },
-          { label: t`Payments`, value: 'Payment' },
-          { label: t`Journal Entries`, value: 'JournalEntry' },
-        ],
-
+        options: refTypeOptions,
         label: t`Ref Type`,
         fieldname: 'referenceType',
         placeholder: t`Ref Type`,

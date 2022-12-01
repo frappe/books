@@ -1,3 +1,4 @@
+import { ModelNameEnum } from '../../models/types';
 import DatabaseCore from './core';
 import { BespokeFunction } from './types';
 
@@ -129,5 +130,36 @@ export class BespokeQueries {
     from AccountingLedgerEntry
     group by account
     `);
+  }
+
+  static async getStockQuantity(
+    db: DatabaseCore,
+    item: string,
+    location?: string,
+    fromDate?: string,
+    toDate?: string
+  ): Promise<number | null> {
+    const query = db.knex!(ModelNameEnum.StockLedgerEntry)
+      .sum('quantity')
+      .where('item', item);
+
+    if (location) {
+      query.andWhere('location', location);
+    }
+
+    if (fromDate) {
+      query.andWhereRaw('datetime(date) > datetime(?)', [fromDate]);
+    }
+
+    if (toDate) {
+      query.andWhereRaw('datetime(date) < datetime(?)', [toDate]);
+    }
+
+    const value = (await query) as Record<string, number | null>[];
+    if (!value.length) {
+      return null;
+    }
+
+    return value[0][Object.keys(value[0])[0]];
   }
 }
