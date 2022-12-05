@@ -40,7 +40,7 @@ export class JournalEntry extends Transactional {
 
   static defaults: DefaultMap = {
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
-    date: () => DateTime.local().toISODate(),
+    date: () => new Date(),
   };
 
   static filters: FiltersMap = {
