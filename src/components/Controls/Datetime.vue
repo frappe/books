@@ -33,17 +33,13 @@
     </template>
 
     <!-- Datetime Input Popover -->
-    <template #content="{ togglePopover }">
+    <template #content>
       <DatetimePicker
+        :show-clear="!isRequired"
         :select-time="selectTime"
         :model-value="internalValue"
         :format-value="formatValue"
-        @update:model-value="
-          (value) => {
-            triggerChange(value);
-            togglePopover();
-          }
-        "
+        @update:model-value="(value) => triggerChange(value)"
       />
     </template>
   </Popover>

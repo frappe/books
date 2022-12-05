@@ -2,10 +2,7 @@
   <div>
     <!-- Datetime header -->
     <div class="flex justify-between items-center text-sm px-4 pt-4">
-      <div
-        class="text-blue-500 cursor-pointer"
-        @click="selectMonthYear = !selectMonthYear"
-      >
+      <div class="text-blue-500">
         {{ datetimeString }}
       </div>
 
@@ -88,7 +85,10 @@
         class="border-l flex flex-col justify-between"
       >
         <!-- Month Selector -->
-        <div class="flex flex-col gap-2 overflow-auto h-40 p-4">
+        <div
+          class="flex flex-col gap-2 overflow-auto m-4"
+          style="height: calc(248px - 79.5px - 1px - 2rem)"
+        >
           <div
             v-for="(m, i) of months"
             :key="m"
@@ -170,6 +170,7 @@
       </button>
 
       <button
+        v-if="showClear"
         class="text-xs text-gray-600 hover:text-gray-600 ml-auto"
         @click="clearClicked"
       >
@@ -204,6 +205,7 @@ export default defineComponent({
   props: {
     modelValue: { type: Date },
     selectTime: { type: Boolean, default: true },
+    showClear: { type: Boolean, default: true },
     formatValue: { type: Function as PropType<(value: Date | null) => string> },
   },
   mounted() {
