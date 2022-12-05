@@ -8,6 +8,7 @@ import Color from './Color.vue';
 import Currency from './Currency.vue';
 import Data from './Data.vue';
 import Date from './Date.vue';
+import Datetime from './Datetime.vue';
 import DynamicLink from './DynamicLink.vue';
 import Float from './Float.vue';
 import Int from './Int.vue';
@@ -24,7 +25,7 @@ const components = {
   Select,
   Link,
   Date,
-  Datetime: Date,
+  Datetime,
   Table,
   AutoComplete,
   DynamicLink,
