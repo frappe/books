@@ -1,42 +1,11 @@
-<template>
-  <div>
-    <div :class="labelClasses" v-if="showLabel">
-      {{ df.label }}
-    </div>
+<script lang="ts">
+import { defineComponent } from 'vue';
+import Datetime from './Datetime.vue';
 
-    <DatePicker
-      ref="input"
-      :show-mandatory="showMandatory"
-      :input-class="['bg-transparent', inputClasses, containerClasses]"
-      :value="value"
-      :placeholder="inputPlaceholder"
-      :readonly="isReadOnly"
-      :format-value="formatValue"
-      @change="(value) => triggerChange(value)"
-    />
-  </div>
-</template>
-
-<script>
-import { fyo } from 'src/initFyo';
-import DatePicker from '../DatePicker/DatePicker';
-import Base from './Base';
-
-export default {
-  name: 'Date',
-  extends: Base,
-  components: {
-    DatePicker,
+export default defineComponent({
+  data() {
+    return { selectTime: false };
   },
-  computed: {
-    inputType() {
-      return 'date';
-    },
-  },
-  methods: {
-    formatValue(value) {
-      return fyo.format(value, this.df);
-    },
-  },
-};
+  extends: Datetime,
+});
 </script>

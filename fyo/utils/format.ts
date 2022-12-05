@@ -9,7 +9,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_DATE_FORMAT,
   DEFAULT_DISPLAY_PRECISION,
-  DEFAULT_LOCALE
+  DEFAULT_LOCALE,
 } from './consts';
 
 export function format(
@@ -66,6 +66,10 @@ function toDatetime(value: DocValue) {
 }
 
 function formatDatetime(value: DocValue, fyo: Fyo): string {
+  if (value == null) {
+    return '';
+  }
+
   const dateFormat =
     (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
   const formattedDatetime = toDatetime(value).toFormat(
@@ -80,6 +84,10 @@ function formatDatetime(value: DocValue, fyo: Fyo): string {
 }
 
 function formatDate(value: DocValue, fyo: Fyo): string {
+  if (value == null) {
+    return '';
+  }
+
   const dateFormat =
     (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
 
