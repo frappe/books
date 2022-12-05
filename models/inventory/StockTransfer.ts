@@ -43,7 +43,7 @@ export abstract class StockTransfer extends Transfer {
 
       return defaults?.purchaseReceiptTerms ?? '';
     },
-    date: () => new Date().toISOString().slice(0, 10),
+    date: () => new Date(),
   };
 
   static filters: FiltersMap = {

@@ -381,7 +381,7 @@ export class Payment extends Transactional {
 
   static defaults: DefaultMap = {
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
-    date: () => new Date().toISOString(),
+    date: () => new Date(),
   };
 
   async _getAccountsMap(): Promise<AccountTypeMap> {
