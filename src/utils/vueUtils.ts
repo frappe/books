@@ -1,19 +1,81 @@
-import { onMounted, onUnmounted, Ref, ref } from 'vue';
+import { onMounted, onUnmounted, Ref, ref, watch } from 'vue';
 
-export function useKeys(callback?: (keys: Set<string>) => void) {
-  const keys: Ref<Set<string>> = ref(new Set());
+interface Keys {
+  pressed: Set<string>;
+  alt: boolean;
+  ctrl: boolean;
+  meta: boolean;
+  shift: boolean;
+  repeat: boolean;
+}
+
+export class Shortcuts {
+  keys: Ref<Keys>;
+  shortcuts: Map<string, Function>;
+
+  constructor(keys?: Ref<Keys>) {
+    this.keys = keys ?? useKeys();
+    this.shortcuts = new Map();
+
+    watch(this.keys, (keys) => {
+      this.#trigger(keys);
+    });
+  }
+
+  #trigger(keys: Keys) {
+    const key = Array.from(keys.pressed).sort().join('+');
+    this.shortcuts.get(key)?.();
+  }
+
+  has(shortcut: string[]) {
+    const key = shortcut.sort().join('+');
+    return this.shortcuts.has(key);
+  }
+
+  set(shortcut: string[], callback: Function, removeIfSet: boolean = true) {
+    const key = shortcut.sort().join('+');
+    if (removeIfSet) {
+      this.shortcuts.delete(key);
+    }
+
+    if (this.shortcuts.has(key)) {
+      throw new Error(`Shortcut ${key} already exists.`);
+    }
+
+    this.shortcuts.set(key, callback);
+  }
+
+  delete(shortcut: string[]) {
+    const key = shortcut.sort().join('+');
+    this.shortcuts.delete(key);
+  }
+}
+
+export function useKeys() {
+  const keys: Ref<Keys> = ref({
+    pressed: new Set<string>(),
+    alt: false,
+    ctrl: false,
+    meta: false,
+    shift: false,
+    repeat: false,
+  });
 
   const keydownListener = (e: KeyboardEvent) => {
-    keys.value.add(e.code);
-    callback?.(keys.value);
+    keys.value.pressed.add(e.code);
+    keys.value.alt = e.altKey;
+    keys.value.ctrl = e.ctrlKey;
+    keys.value.meta = e.metaKey;
+    keys.value.shift = e.shiftKey;
+    keys.value.repeat = e.repeat;
   };
 
   const keyupListener = (e: KeyboardEvent) => {
-    keys.value.delete(e.code);
+    keys.value.pressed.delete(e.code);
 
     // Key up won't trigger on macOS for other keys.
     if (e.code === 'MetaLeft') {
-      keys.value.clear();
+      keys.value.pressed.clear();
     }
   };
 
@@ -46,4 +108,12 @@ export function useMouseLocation() {
   });
 
   return loc;
+}
+
+export function getModKeyCode(platform: 'Windows' | 'Linux' | 'Mac') {
+  if (platform === 'Mac') {
+    return 'MetaLeft';
+  }
+
+  return 'CtrlLeft';
 }
