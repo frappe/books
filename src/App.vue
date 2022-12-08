@@ -52,20 +52,27 @@ import { checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
 import { Search } from './utils/search';
 import { routeTo } from './utils/ui';
+import { Shortcuts, useKeys } from './utils/vueUtils';
 
 export default {
   name: 'App',
+  setup() {
+    return { keys: useKeys() };
+  },
   data() {
     return {
       activeScreen: null,
       dbPath: '',
       companyName: '',
       searcher: null,
+      shortcuts: null,
     };
   },
   provide() {
     return {
       searcher: computed(() => this.searcher),
+      shortcuts: computed(() => this.shortcuts),
+      keys: computed(() => this.keys),
     };
   },
   components: {
@@ -75,6 +82,7 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
+    this.shortcuts = new Shortcuts(this.keys);
     const lastSelectedFilePath = fyo.config.get(
       ConfigKeys.LastSelectedFilePath,
       null

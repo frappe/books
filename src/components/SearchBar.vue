@@ -11,7 +11,11 @@
   </div>
 
   <!-- Search Modal -->
-  <Modal :open-modal="openModal" @closemodal="close" :set-close-listener="false">
+  <Modal
+    :open-modal="openModal"
+    @closemodal="close"
+    :set-close-listener="false"
+  >
     <!-- Search Input -->
     <div class="p-1">
       <input
@@ -191,18 +195,13 @@ import { getBgTextColorClass } from 'src/utils/colors';
 import { openLink } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { getGroupLabelMap, searchGroups } from 'src/utils/search';
-import { useKeys } from 'src/utils/vueUtils';
-import { getIsNullOrUndef } from 'utils/';
+import { getModKeyCode } from 'src/utils/vueUtils';
 import { safeParseInt } from 'utils/index';
 import { nextTick, watch } from 'vue';
 import Button from './Button.vue';
 import Modal from './Modal.vue';
 
 export default {
-  setup() {
-    const keys = useKeys();
-    return { keys };
-  },
   data() {
     return {
       idx: 0,
@@ -214,69 +213,62 @@ export default {
       allowedLimits: [50, 100, 500, -1],
     };
   },
-  inject: ['searcher'],
+  inject: ['searcher', 'shortcuts'],
   components: { Modal, Button },
   async mounted() {
     if (fyo.store.isDevelopment) {
       window.search = this;
     }
 
-    watch(this.keys, (keys) => {
-      if (
-        keys.size === 2 &&
-        keys.has('KeyK') &&
-        (keys.has('MetaLeft') || keys.has('ControlLeft'))
-      ) {
-        this.open();
-      }
-
-      if (!this.openModal) {
-        return;
-      }
-
-      if (keys.size === 1 && keys.has('Escape')) {
-        this.close();
-      }
-
-      const input = this.$refs.input;
-      if (!getIsNullOrUndef(input) && document.activeElement !== input) {
-        input.focus();
-      }
-
-      this.setFilter(keys);
-    });
     this.openModal = false;
   },
   activated() {
+    this.setShortcuts();
     this.openModal = false;
+  },
+  deactivated() {
+    this.deleteShortcuts();
   },
   methods: {
     openDocs() {
       openLink('https://docs.frappebooks.com/' + docsPathMap.Search);
     },
-    setFilter(keys) {
-      if (!keys.has('MetaLeft') && !keys.has('ControlLeft')) {
-        return;
+    getShortcuts() {
+      const modKey = getModKeyCode(this.platform);
+      const ifOpen = (cb) => () => this.openModal && cb();
+      const ifClose = (cb) => () => !this.openModal && cb();
+
+      const shortcuts = [
+        { shortcut: ['KeyK', modKey], callback: ifClose(() => this.open()) },
+        { shortcut: ['Escape'], callback: ifOpen(() => this.close()) },
+      ];
+
+      for (const i in searchGroups) {
+        shortcuts.push({
+          shortcut: [modKey, `Digit${Number(i) + 1}`],
+          callback: ifOpen(() => {
+            const group = searchGroups[i];
+            const value = this.searcher.filters.groupFilters[group];
+            if (typeof value !== 'boolean') {
+              return;
+            }
+
+            this.searcher.set(group, !value);
+          }),
+        });
       }
 
-      if (!keys.size === 2) {
-        return;
+      return shortcuts;
+    },
+    setShortcuts() {
+      for (const { shortcut, callback } of this.getShortcuts()) {
+        this.shortcuts.set(shortcut, callback);
       }
-
-      const matches = [...keys].join(',').match(/Digit(\d+)/);
-      if (!matches) {
-        return;
+    },
+    deleteShortcuts() {
+      for (const { shortcut } of this.getShortcuts()) {
+        this.shortcuts.delete(shortcut);
       }
-
-      const digit = matches[1];
-      const index = safeParseInt(digit) - 1;
-      const group = searchGroups[index];
-      const value = this.searcher.filters.groupFilters[group];
-      if (!group || typeof value !== 'boolean') {
-        return;
-      }
-
-      this.searcher.set(group, !value);
     },
     modKey(key) {
       key = key.toUpperCase();
