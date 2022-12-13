@@ -19,6 +19,7 @@ mac:
     - github
 win:
   publisherName: Frappe Technologies Pvt. Ltd.
+  signDlls: true
   icon: build/icon.ico
   publish:
     - github
