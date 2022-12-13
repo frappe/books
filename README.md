@@ -1,6 +1,6 @@
 <div align="center" markdown="1">
 
-<img src=".github/logo.png" alt="Frappe Books logo" width="384"/>
+<img src="https://user-images.githubusercontent.com/29507195/207267672-d422db6c-d89a-4bbe-9822-468a55c15053.png" alt="Frappe Books logo" width="384"/>
 
 ---
 
@@ -12,7 +12,7 @@ Free Desktop book-keeping software for small businesses and freelancers.
 
 [frappebooks.com](https://frappebooks.com/)
 
-<img src="./.github/frappe-books-preview.png" alt="Frappe Books Preview"/>
+<img src="https://user-images.githubusercontent.com/29507195/207267857-4ae48890-3fb2-4046-80cf-3256b46c72a0.png" alt="Frappe Books Preview"/>
 
 </div>
 
