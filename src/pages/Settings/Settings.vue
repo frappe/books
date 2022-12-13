@@ -47,6 +47,7 @@ import Icon from 'src/components/Icon.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import Row from 'src/components/Row.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
+import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, showToast } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
