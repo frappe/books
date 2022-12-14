@@ -78,7 +78,8 @@ export class Item extends Doc {
   static getActions(fyo: Fyo): Action[] {
     return [
       {
-        label: fyo.t`New Sale`,
+        group: fyo.t`Create`,
+        label: fyo.t`Sales Invoice`,
         condition: (doc) => !doc.notInserted && doc.for !== 'Purchases',
         action: async (doc, router) => {
           const invoice = await fyo.doc.getNewDoc('SalesInvoice');
@@ -91,7 +92,8 @@ export class Item extends Doc {
         },
       },
       {
-        label: fyo.t`New Purchase`,
+        group: fyo.t`Create`,
+        label: fyo.t`Purchase Invoice`,
         condition: (doc) => !doc.notInserted && doc.for !== 'Sales',
         action: async (doc, router) => {
           const invoice = await fyo.doc.getNewDoc('PurchaseInvoice');

@@ -40,7 +40,7 @@
           </div>
           <div class="mt-3 w-28">
             <input
-              type="text"
+              type="color"
               :placeholder="t`Custom Hex`"
               :class="[inputClasses, containerClasses]"
               :value="value"

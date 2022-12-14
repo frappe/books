@@ -231,11 +231,8 @@ export default {
       if (this.highlightedIndex < 0) {
         this.highlightedIndex = 0;
       }
+
       nextTick(() => {
-        let index = this.highlightedIndex;
-        if (index !== 0) {
-          index -= 1;
-        }
         this.scrollToHighlighted();
       });
     },
