@@ -283,14 +283,12 @@ function toDocAttachment(value: RawValue, field: Field): null | Attachment {
   }
 
   if (typeof value !== 'string') {
-    console.log('being thrown doc1', typeof value, value);
     throwError(value, field, 'doc');
   }
 
   try {
     return JSON.parse(value) || null;
   } catch {
-    console.log('being thrown doc2', typeof value, value);
     throwError(value, field, 'doc');
   }
 }
@@ -429,7 +427,6 @@ function toRawAttachment(value: DocValue, field: Field): null | string {
     return JSON.stringify(value);
   }
 
-  console.log('being thrown raw', typeof value, value);
   throwError(value, field, 'raw');
 }
 
