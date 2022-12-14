@@ -26,7 +26,7 @@
           :icon="true"
           @click="sync"
           type="primary"
-          v-if="doc.canSave"
+          v-if="doc?.canSave"
           class="text-white text-xs"
         >
           {{ t`Save` }}
@@ -35,7 +35,7 @@
           :icon="true"
           @click="submit"
           type="primary"
-          v-else-if="doc.canSubmit"
+          v-else-if="doc?.canSubmit"
           class="text-white text-xs"
         >
           {{ t`Submit` }}

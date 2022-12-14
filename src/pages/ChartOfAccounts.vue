@@ -145,7 +145,7 @@ import PageHeader from 'src/components/PageHeader';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, openQuickEdit } from 'src/utils/ui';
-import { getMapFromList } from 'utils/index';
+import { getMapFromList, removeAtIndex } from 'utils/index';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
 
@@ -175,6 +175,7 @@ export default {
     if (fyo.store.isDevelopment) {
       window.coa = this;
     }
+
     docsPath.value = docsPathMap.ChartOfAccounts;
 
     if (this.refetchTotals) {
@@ -229,13 +230,52 @@ export default {
         return;
       }
 
-      await openQuickEdit({
-        schemaName: ModelNameEnum.Account,
-        name: account.name,
-      });
-
       const doc = await fyo.doc.getDoc(ModelNameEnum.Account, account.name);
-      doc.once('afterDelete', () => this.fetchAccounts());
+      this.setOpenAccountDocListener(doc, account);
+      await openQuickEdit({ doc });
+    },
+    setOpenAccountDocListener(doc, account, parentAccount) {
+      if (doc.hasListener('afterDelete')) {
+        return;
+      }
+
+      doc.once('afterDelete', () => {
+        this.removeAccount(doc.name, account, parentAccount);
+      });
+    },
+    removeAccount(name, account, parentAccount) {
+      if (account == null && parentAccount == null) {
+        return;
+      }
+
+      if (account == null) {
+        account = parentAccount.children.find((ch) => ch.name === name);
+      }
+
+      if (account == null) {
+        return;
+      }
+
+      const indices = account.location.slice(1).map((i) => Number(i));
+
+      let i = Number(account.location[0]);
+      let parent = this.accounts[i];
+      let children = this.accounts[i].children;
+
+      while (indices.length > 1) {
+        i = indices.shift();
+
+        parent = children[i];
+        children = children[i].children;
+      }
+
+      i = indices[0];
+
+      if (children[i].name !== name) {
+        return;
+      }
+
+      parent.children = removeAtIndex(children, i);
     },
     async toggleChildren(account) {
       const hasChildren = await this.fetchChildren(account);
@@ -263,13 +303,7 @@ export default {
         filters: {
           parentAccount: parent,
         },
-        fields: [
-          'name',
-          'parentAccount',
-          'isGroup',
-          'rootType',
-          'accountType',
-        ],
+        fields: ['name', 'parentAccount', 'isGroup', 'rootType', 'accountType'],
         orderBy: 'name',
         order: 'asc',
       });
@@ -307,17 +341,17 @@ export default {
       this.insertingAccount = true;
 
       const accountName = this.newAccountName.trim();
-      let account = await fyo.doc.getNewDoc('Account');
+      const doc = await fyo.doc.getNewDoc('Account');
       try {
         let { name, rootType, accountType } = parentAccount;
-        await account.set({
+        await doc.set({
           name: accountName,
           parentAccount: name,
           rootType,
           accountType,
           isGroup,
         });
-        await account.sync();
+        await doc.sync();
 
         // turn off editing
         parentAccount.addingAccount = 0;
@@ -327,16 +361,16 @@ export default {
         await this.fetchChildren(parentAccount, true);
 
         // open quick edit
-        await openQuickEdit({
-          schemaName: 'Account',
-          name: account.name,
-        });
+        await openQuickEdit({ doc });
+        this.setOpenAccountDocListener(doc, null, parentAccount);
+
         // unfreeze input
         this.insertingAccount = false;
+        this.newAccountName = '';
       } catch (e) {
         // unfreeze input
         this.insertingAccount = false;
-        await handleErrorWithDialog(e, account);
+        await handleErrorWithDialog(e, doc);
       }
     },
     isQuickEditOpen(account) {
@@ -385,19 +419,23 @@ export default {
   },
   computed: {
     allAccounts() {
-      let allAccounts = [];
-      getAccounts(this.accounts, 0);
-      return allAccounts;
+      const allAccounts = [];
 
-      function getAccounts(accounts, level) {
-        for (let account of accounts) {
+      (function getAccounts(accounts, level, location) {
+        for (let i in accounts) {
+          const account = accounts[i];
+
           account.level = level;
+          account.location = [...location, i];
           allAccounts.push(account);
+
           if (account.children != null && account.expanded) {
-            getAccounts(account.children, level + 1);
+            getAccounts(account.children, level + 1, account.location);
           }
         }
-      }
+      })(this.accounts, 0, []);
+
+      return allAccounts;
     },
   },
 };

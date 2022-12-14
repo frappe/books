@@ -8,7 +8,7 @@
       <div
         :class="[containerClasses, sizeClasses]"
         class="flex"
-        @click="togglePopover"
+        @click="() => !isReadOnly && togglePopover()"
       >
         <p
           :class="[baseInputClasses]"
