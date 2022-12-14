@@ -137,14 +137,31 @@ export default {
     },
     async getCreateFilters() {
       const { schemaName, fieldname } = this.df;
-      const getFilters = fyo.models[schemaName]?.createFilters?.[fieldname];
-      const filters = await getFilters?.(this.doc);
+      const getCreateFilters =
+        fyo.models[schemaName]?.createFilters?.[fieldname];
+      let createFilters = await getCreateFilters?.(this.doc);
 
-      if (filters === undefined) {
-        return await this.getFilters();
+      if (createFilters !== undefined) {
+        return createFilters;
       }
 
-      return filters;
+      createFilters = {};
+
+      const filters = await this.getFilters();
+      for (const key of Object.keys(filters)) {
+        const value = filters[key];
+        if (value === undefined) {
+          continue;
+        }
+
+        if (Array.isArray(value)) {
+          continue;
+        }
+
+        createFilters[key] = value;
+      }
+
+      return createFilters;
     },
     async getFilters() {
       const { schemaName, fieldname } = this.df;
