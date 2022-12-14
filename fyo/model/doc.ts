@@ -157,6 +157,74 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return false;
   }
 
+  get canSave() {
+    if (!!this.submitted) {
+      return false;
+    }
+
+    if (!!this.cancelled) {
+      return false;
+    }
+
+    if (!this.dirty) {
+      return false;
+    }
+
+    if (!this.notInserted) {
+      return false;
+    }
+
+    return true;
+  }
+
+  get canSubmit() {
+    if (!this.schema.isSubmittable) {
+      return false;
+    }
+
+    if (this.dirty) {
+      return false;
+    }
+
+    if (this.notInserted) {
+      return false;
+    }
+
+    if (!!this.submitted) {
+      return false;
+    }
+
+    if (!!this.cancelled) {
+      return false;
+    }
+
+    return true;
+  }
+
+  get canCancel() {
+    if (!this.schema.isSubmittable) {
+      return false;
+    }
+
+    if (this.dirty) {
+      return false;
+    }
+
+    if (this.notInserted) {
+      return false;
+    }
+
+    if (!!this.cancelled) {
+      return false;
+    }
+
+    if (!this.submitted) {
+      return false;
+    }
+
+    return true;
+  }
+
   _setValuesWithoutChecks(data: DocValueMap, convertToDocValue: boolean) {
     for (const field of this.schema.fields) {
       const { fieldname, fieldtype } = field;

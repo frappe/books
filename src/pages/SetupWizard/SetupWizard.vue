@@ -109,6 +109,10 @@ export default {
     this.doc.on('change', () => {
       this.valuesFilled = this.allValuesFilled();
     });
+
+    if (this.fyo.store.isDevelopment) {
+      window.sw = this;
+    }
   },
   methods: {
     async fill() {

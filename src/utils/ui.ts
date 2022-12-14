@@ -318,7 +318,7 @@ function getCancelAction(doc: Doc): Action {
     component: {
       template: '<span class="text-red-700">{{ t`Cancel` }}</span>',
     },
-    condition: (doc: Doc) => doc.isSubmitted,
+    condition: (doc: Doc) => doc.canCancel,
     async action() {
       const res = await cancelDocWithPrompt(doc);
 

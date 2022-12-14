@@ -16,7 +16,7 @@
           :key="c + '-col'"
           :style="getCellStyle(col, c)"
           class="
-            text-gray-600 text-base
+            text-base
             px-3
             flex-shrink-0
             overflow-x-auto
@@ -54,13 +54,14 @@
               :key="`${c}-${r}-cell`"
               :style="getCellStyle(cell, c)"
               class="
-                text-gray-900 text-base
+                text-base
                 px-3
                 flex-shrink-0
                 overflow-x-auto
                 whitespace-nowrap
                 no-scrollbar
               "
+              :class="[getCellColorClass(cell)]"
             >
               {{ cell.value }}
             </div>
@@ -174,13 +175,33 @@ export default defineComponent({
         styles['padding-left'] = `${cell.indent * 2}rem`;
       }
 
+      return styles;
+    },
+    getCellColorClass(cell) {
       if (cell.color === 'red') {
-        styles['color'] = '#e53e3e';
+        return 'text-red-600';
       } else if (cell.color === 'green') {
-        styles['color'] = '#38a169';
+        return 'text-green-600';
       }
 
-      return styles;
+      if (!cell.rawValue) {
+        return 'text-gray-600';
+      }
+
+      if (typeof cell.rawValue !== 'number') {
+        return 'text-gray-900';
+      }
+
+      if (cell.rawValue === 0) {
+        return 'text-gray-600';
+      }
+
+      const prec = this.fyo?.singles?.displayPrecision ?? 2;
+      if (Number(cell.rawValue.toFixed(prec)) === 0) {
+        return 'text-gray-600';
+      }
+
+      return 'text-gray-900';
     },
   },
   components: { Paginator, WithScroll },

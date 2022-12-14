@@ -17,8 +17,8 @@ export function getTestSetupWizardOptions(): SetupWizardOptions {
     email: 'test@testmyfantasy.com',
     bankName: 'Test Bank of Scriptia',
     currency: 'INR',
-    fiscalYearStart: getFiscalYear('04-01', true),
-    fiscalYearEnd: getFiscalYear('04-01', false),
+    fiscalYearStart: getFiscalYear('04-01', true)!.toISOString().split('T')[0],
+    fiscalYearEnd: getFiscalYear('04-01', false)!.toISOString().split('T')[0],
     chartOfAccounts: 'India - Chart of Accounts',
   };
 }
@@ -30,16 +30,16 @@ export function getTestDbPath(dbPath?: string) {
 
 /**
  * Test Boilerplate
- * 
+ *
  * The bottom three functions are test boilerplate for when
  * an initialized fyo object is to be used.
- * 
+ *
  * They are required because top level await is not supported.
  *
- * Therefore setup and cleanup of the fyo object is wrapped 
+ * Therefore setup and cleanup of the fyo object is wrapped
  * in tests which are executed serially (and awaited in order)
  * by tape.
- * 
+ *
  * If `closeTestFyo` is not called the test process won't exit.
  */
 
