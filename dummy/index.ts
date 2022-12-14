@@ -14,7 +14,7 @@ import {
   flow,
   getFlowConstant,
   getRandomDates,
-  purchaseItemPartyMap
+  purchaseItemPartyMap,
 } from './helpers';
 import items from './items.json';
 import logo from './logo';
@@ -39,8 +39,8 @@ export async function setupDummyInstance(
     email: 'lin@flosclothes.com',
     bankName: 'Supreme Bank',
     currency: 'INR',
-    fiscalYearStart: getFiscalYear('04-01', true),
-    fiscalYearEnd: getFiscalYear('04-01', false),
+    fiscalYearStart: getFiscalYear('04-01', true)!.toISOString(),
+    fiscalYearEnd: getFiscalYear('04-01', false)!.toISOString(),
     chartOfAccounts: 'India - Chart of Accounts',
   };
   await setupInstance(dbPath, options, fyo);

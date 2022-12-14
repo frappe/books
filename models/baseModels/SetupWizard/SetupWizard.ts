@@ -42,17 +42,21 @@ export function getCOAList() {
 }
 
 export class SetupWizard extends Doc {
-  fiscalYearEnd?: string;
-  fiscalYearStart?: string;
+  fiscalYearEnd?: Date;
+  fiscalYearStart?: Date;
 
   formulas: FormulaMap = {
     fiscalYearStart: {
       formula: async (fieldname?: string) => {
-        if (fieldname === 'fiscalYearEnd' && this.fiscalYearEnd) {
-          return DateTime.fromISO(this.fiscalYearEnd)
+        if (
+          fieldname === 'fiscalYearEnd' &&
+          this.fiscalYearEnd &&
+          !this.fiscalYearStart
+        ) {
+          return DateTime.fromJSDate(this.fiscalYearEnd)
             .minus({ years: 1 })
             .plus({ days: 1 })
-            .toISODate();
+            .toJSDate();
         }
 
         if (!this.country) {
@@ -68,11 +72,15 @@ export class SetupWizard extends Doc {
     },
     fiscalYearEnd: {
       formula: async (fieldname?: string) => {
-        if (fieldname === 'fiscalYearStart' && this.fiscalYearStart) {
-          return DateTime.fromISO(this.fiscalYearStart)
+        if (
+          fieldname === 'fiscalYearStart' &&
+          this.fiscalYearStart &&
+          !this.fiscalYearEnd
+        ) {
+          return DateTime.fromJSDate(this.fiscalYearStart)
             .plus({ years: 1 })
             .minus({ days: 1 })
-            .toISODate();
+            .toJSDate();
         }
 
         if (!this.country) {

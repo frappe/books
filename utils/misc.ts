@@ -18,9 +18,12 @@ export function getCountryCodeFromCountry(countryName: string): string {
   return countryInfo.code;
 }
 
-export function getFiscalYear(date: string, isStart: boolean) {
+export function getFiscalYear(
+  date: string,
+  isStart: boolean
+): undefined | Date {
   if (!date) {
-    return '';
+    return undefined;
   }
 
   const today = DateTime.local();
@@ -28,12 +31,12 @@ export function getFiscalYear(date: string, isStart: boolean) {
   if (isStart) {
     return dateTime
       .plus({ year: [1, 2, 3].includes(today.month) ? -1 : 0 })
-      .toISODate();
+      .toJSDate();
   }
 
   return dateTime
     .plus({ year: [1, 2, 3].includes(today.month) ? 0 : 1 })
-    .toISODate();
+    .toJSDate();
 }
 
 export function logUnexpected(detail: Partial<UnexpectedLogObject>) {

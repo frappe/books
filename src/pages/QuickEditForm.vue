@@ -26,7 +26,7 @@
           :icon="true"
           @click="sync"
           type="primary"
-          v-if="doc?.dirty || doc?.notInserted"
+          v-if="doc?.canSave"
           class="text-white text-xs"
         >
           {{ t`Save` }}
@@ -35,12 +35,7 @@
           :icon="true"
           @click="submit"
           type="primary"
-          v-if="
-            schema?.isSubmittable &&
-            !doc?.submitted &&
-            !doc?.notInserted &&
-            !(doc?.cancelled || false)
-          "
+          v-else-if="doc?.canSubmit"
           class="text-white text-xs"
         >
           {{ t`Submit` }}

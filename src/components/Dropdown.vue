@@ -141,11 +141,21 @@ export default {
 
         let items = [];
         let i = 0;
+
+        const noGroupItems = itemsByGroup[''];
+        if (noGroupItems?.length) {
+          items = items.concat(
+            noGroupItems.map((d) => {
+              d.index = i++;
+              return d;
+            })
+          );
+        }
+
         for (let group of this.sortedGroups) {
           let groupItems = itemsByGroup[group];
           groupItems = groupItems.map((d) => {
-            d.index = i;
-            i++;
+            d.index = i++;
             return d;
           });
           items = items.concat(
@@ -221,11 +231,8 @@ export default {
       if (this.highlightedIndex < 0) {
         this.highlightedIndex = 0;
       }
+
       nextTick(() => {
-        let index = this.highlightedIndex;
-        if (index !== 0) {
-          index -= 1;
-        }
         this.scrollToHighlighted();
       });
     },
