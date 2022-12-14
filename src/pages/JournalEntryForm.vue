@@ -15,7 +15,7 @@
         <feather-icon v-else name="more-horizontal" class="w-4 h-4" />
       </DropdownWithActions>
       <Button
-        v-if="doc.canSave"
+        v-if="doc?.canSave"
         type="primary"
         class="text-white text-xs"
         @click="sync"
