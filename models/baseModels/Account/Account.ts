@@ -5,7 +5,8 @@ import {
   FiltersMap,
   ListViewSettings,
   RequiredMap,
-  TreeViewSettings
+  TreeViewSettings,
+  ReadOnlyMap,
 } from 'fyo/model/types';
 import { QueryFilter } from 'utils/db/types';
 import { AccountRootType, AccountRootTypeEnum, AccountType } from './types';
@@ -87,5 +88,12 @@ export class Account extends Doc {
 
       return filter;
     },
+  };
+
+  readOnly: ReadOnlyMap = {
+    rootType: () => this.inserted,
+    parentAccount: () => this.inserted,
+    accountType: () => !!this.accountType && this.inserted,
+    isGroup: () => this.inserted,
   };
 }
