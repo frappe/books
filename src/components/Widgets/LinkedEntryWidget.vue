@@ -80,7 +80,6 @@ export default defineComponent({
   methods: {
     getStatus,
     async openEntry(name: string) {
-      console.log('op', name);
       const route = getEntryRoute(this.linked.schemaName, name);
       await routeTo(route);
     },
