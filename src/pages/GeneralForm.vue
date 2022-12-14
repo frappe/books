@@ -14,19 +14,12 @@
         </p>
         <feather-icon v-else name="more-horizontal" class="w-4 h-4" />
       </DropdownWithActions>
-      <Button
-        v-if="doc?.notInserted || doc?.dirty"
-        type="primary"
-        @click="sync"
-      >
+      <Button v-if="doc.canSave" type="primary" @click="sync">
         {{ t`Save` }}
       </Button>
-      <Button
-        v-if="!doc?.dirty && !doc?.notInserted && !doc?.submitted"
-        type="primary"
-        @click="submit"
-        >{{ t`Submit` }}</Button
-      >
+      <Button v-else-if="doc.canSubmit" type="primary" @click="submit">{{
+        t`Submit`
+      }}</Button>
     </template>
 
     <!-- Form Header -->
