@@ -5,7 +5,11 @@
       <div :class="labelClasses" v-if="showLabel">
         {{ df?.label }}
       </div>
-      <div :class="[containerClasses, sizeClasses]" class="flex">
+      <div
+        :class="[containerClasses, sizeClasses]"
+        class="flex"
+        @click="togglePopover"
+      >
         <p
           :class="[baseInputClasses]"
           class="overflow-auto no-scrollbar whitespace-nowrap"
