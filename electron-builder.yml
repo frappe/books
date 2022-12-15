@@ -1,6 +1,7 @@
 productName: Frappe Books
 appId: io.frappe.books
 afterSign: build/notarize.js
+asarUnpack: '**/*.node'
 extraResources:
   [
     { from: 'log_creds.txt', to: '../creds/log_creds.txt' },
