@@ -197,7 +197,7 @@ export class TrialBalance extends AccountReport {
   async setDefaultFilters(): Promise<void> {
     if (!this.toDate || !this.fromDate) {
       const { year } = DateTime.now();
-      const endpoints = await getFiscalEndpoints(year + 1, year);
+      const endpoints = await getFiscalEndpoints(year + 1, year, this.fyo);
 
       this.fromDate = endpoints.fromDate;
       this.toDate = DateTime.fromISO(endpoints.toDate)

@@ -1,4 +1,4 @@
-import { t } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
 import { AccountRootType } from 'models/baseModels/Account/types';
@@ -26,7 +26,6 @@ import {
   ValueMap,
 } from 'reports/types';
 import { Field } from 'schemas/types';
-import { fyo } from 'src/initFyo';
 import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
 import { logUnexpected } from 'utils/misc';
@@ -154,7 +153,9 @@ export abstract class AccountReport extends LedgerReport {
     map: GroupedMap
   ): Promise<AccountNameValueMapMap> {
     const accountValueMap: AccountNameValueMapMap = new Map();
-    const accountMap = await this._getAccountMap();
+    if (!this.accountMap) {
+      await this._getAccountMap();
+    }
 
     for (const account of map.keys()) {
       const valueMap: ValueMap = new Map();
@@ -168,17 +169,13 @@ export abstract class AccountReport extends LedgerReport {
           continue;
         }
 
-        if (!accountMap[entry.account]) {
-          logUnexpected({
-            message: 'accountMap[entry.account] is undefined',
-            more: { entry },
-          });
-          continue;
+        if (!this.accountMap?.[entry.account]) {
+          this._getAccountMap(true);
         }
 
         const totalBalance = valueMap.get(key!)?.balance ?? 0;
         const balance = (entry.debit ?? 0) - (entry.credit ?? 0);
-        const rootType = accountMap[entry.account].rootType;
+        const rootType = this.accountMap![entry.account]?.rootType;
 
         if (isCredit(rootType)) {
           valueMap.set(key!, { balance: totalBalance - balance });
@@ -204,8 +201,8 @@ export abstract class AccountReport extends LedgerReport {
     return accountTree;
   }
 
-  async _getAccountMap() {
-    if (this.accountMap) {
+  async _getAccountMap(force: boolean = false) {
+    if (this.accountMap && !force) {
       return this.accountMap;
     }
 
@@ -285,7 +282,11 @@ export abstract class AccountReport extends LedgerReport {
       const months = monthsMap[this.periodicity] * Math.max(this.count ?? 1, 1);
       fromDate = DateTime.fromISO(toDate).minus({ months }).toISODate();
     } else {
-      const fy = await getFiscalEndpoints(this.toYear!, this.fromYear!);
+      const fy = await getFiscalEndpoints(
+        this.toYear!,
+        this.fromYear!,
+        this.fyo
+      );
       toDate = fy.toDate;
       fromDate = fy.fromDate;
     }
@@ -423,7 +424,11 @@ export abstract class AccountReport extends LedgerReport {
   metaFilters: string[] = ['basedOn'];
 }
 
-export async function getFiscalEndpoints(toYear: number, fromYear: number) {
+export async function getFiscalEndpoints(
+  toYear: number,
+  fromYear: number,
+  fyo: Fyo
+) {
   const fys = (await fyo.getValue(
     ModelNameEnum.AccountingSettings,
     'fiscalYearStart'
