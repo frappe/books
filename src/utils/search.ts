@@ -767,7 +767,7 @@ export class Search {
   }
 
   _setKeywords(maps: RawValueMap[], searchable: Searchable) {
-    if (!maps.length) {
+    if (!maps?.length) {
       return;
     }
 
