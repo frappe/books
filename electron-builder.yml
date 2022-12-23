@@ -29,7 +29,7 @@ win:
     - nsis
 nsis:
   oneClick: false
-  perMachine: true
+  perMachine: false
   allowToChangeInstallationDirectory: true
   installerIcon: build/installericon.ico
   uninstallerIcon: build/uninstallericon.ico
