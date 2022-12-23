@@ -22,6 +22,9 @@ export async function sendError(errorLogObj: ErrorLog) {
     return;
   }
 
+  errorLogObj.more ??= {};
+  errorLogObj.more!.path ??= router.currentRoute.value.fullPath;
+
   const body = {
     error_name: errorLogObj.name,
     message: errorLogObj.message,
@@ -33,7 +36,7 @@ export async function sendError(errorLogObj: ErrorLog) {
     device_id: fyo.store.deviceId,
     open_count: fyo.store.openCount,
     country_code: fyo.singles.SystemSettings?.countryCode,
-    more: stringifyCircular(errorLogObj.more ?? {}),
+    more: stringifyCircular(errorLogObj.more!),
   };
 
   if (fyo.store.isDevelopment) {

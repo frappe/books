@@ -216,7 +216,6 @@ export default {
       }
     },
     async selectHighlightedItem() {
-      console.log('here');
       if (![-1, this.items.length].includes(this.highlightedIndex)) {
         // valid selection
         let item = this.items[this.highlightedIndex];
