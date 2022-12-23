@@ -170,10 +170,6 @@ export class Doc extends Observable<DocValue | Doc[]> {
       return false;
     }
 
-    if (!this.notInserted) {
-      return false;
-    }
-
     return true;
   }
 

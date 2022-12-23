@@ -72,7 +72,6 @@ export default {
   data() {
     return {
       linkValue: '',
-      showDropdown: false,
       isLoading: false,
       suggestions: [],
       highlightedIndex: -1,
