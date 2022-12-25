@@ -652,7 +652,7 @@ Submit ${0},Skicka ${0}
 Submit Journal Entry?,Skicka journalpost?
 Submit Purchase Invoice?,Skicka in köpfaktura?
 Submit Sales Invoice?,Skicka in försäljningsfaktura?
-Submit on Import,Skicka på import
+Submit on Import,Skicka vid import
 Submitted,Lämnats
 Submitting,Inlämnande
 Subtotal,Delsumma
@@ -664,27 +664,27 @@ Symbol,Symbol
 System,Systemet
 System Settings,Systeminställningar
 System Setup,Systeminställning
-Tax,Beskatta
+Tax, Skatt
 Tax Account,Skattekonto
 Tax Assets,Skatteuppgångar
 Tax Detail,Skatteuppgifter
-Tax ID,Skatte ID
+Tax ID, Skatte ID
 Tax Invoice,Skatte faktura
 Tax Summary,Skatteöversikt
 Taxable Value,Skattepliktigt värde
 Taxed Amount,Beskattat belopp
 Taxes,Skatter
-Teal,Kricka
-Telephone Expenses,Telefonutgifter
+Teal,
+Telephone Expenses,Utgifter för telefoni
 Template,Mall
 Temporary,Tillfällig
 Temporary Accounts,Tillfälliga konton
 Temporary Opening,Tillfällig
 Th,Th
 The following ${0} entries were created: ${1},Följande ${0} poster skapades: ${1}
-This Month,Den här månaden
-This Quarter,Det här kvartalet
-This Year,Det här året
+This Month,Innestående månaden
+This Quarter,Innestående kvartalet
+This Year,Innestående året
 This action is permanent,Denna åtgärd är permanent
 This action is permanent and will cancel the following payment: ${0},Denna åtgärd är permanent och avbryter följande betalning: ${0}
 This action is permanent and will cancel the following payments: ${0},Denna åtgärd är permanent och avbryter följande betalningar: ${0}
@@ -693,7 +693,7 @@ This action is permanent.,Denna åtgärd är permanent.
 Times New Roman,Times New Roman
 To,Till
 To Account,Till konto
-To Account and From Account can't be the same: ${0},Att konto och från konto kan inte vara detsamma: ${0}
+To Account and From Account can't be the same: ${0},till- och frånkonto kan inte vara detsamma: ${0}
 To Date,Hittills
 To Loc.,Till loc.
 To Year,Till år
@@ -751,5 +751,3 @@ Yes,Ja
 Your Name,Ditt namn
 john@doe.com,john@doe.com
 verify the imported data and click on,verifiera de importerade uppgifterna och klicka på
-,
-Hej,
