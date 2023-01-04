@@ -147,7 +147,7 @@ export function getStatusText(status: DocStatus | InvoiceStatus): string {
     case 'Saved':
       return t`Saved`;
     case 'NotSaved':
-      return t`NotSaved`;
+      return t`Not Saved`;
     case 'Submitted':
       return t`Submitted`;
     case 'Cancelled':

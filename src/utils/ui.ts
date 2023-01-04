@@ -142,7 +142,6 @@ export function openSettings(tab: SettingsTab) {
 }
 
 export async function routeTo(route: string | RouteLocationRaw) {
-  const routeOptions = route;
   if (
     typeof route === 'string' &&
     route === router.currentRoute.value.fullPath
@@ -150,11 +149,7 @@ export async function routeTo(route: string | RouteLocationRaw) {
     return;
   }
 
-  if (typeof route === 'string') {
-    return await router.push(route);
-  }
-
-  return await router.push(routeOptions);
+  return await router.push(route);
 }
 
 export async function deleteDocWithPrompt(doc: Doc) {

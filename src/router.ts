@@ -80,7 +80,7 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: '/list/:schemaName/:fieldname?/:value?/:pageTitle?',
+    path: '/list/:schemaName/:pageTitle?',
     name: 'ListView',
     components: {
       default: ListView,
@@ -88,18 +88,19 @@ const routes: RouteRecordRaw[] = [
     },
     props: {
       default: (route) => {
-        const { schemaName, fieldname, value, pageTitle } = route.params;
-        let { filters } = route.params;
+        const { schemaName } = route.params;
+        const pageTitle = route.params.pageTitle ?? '';
 
-        if (filters === undefined && fieldname && value) {
-          // @ts-ignore
-          filters = { [fieldname as string]: value };
+        const filters = {};
+        const filterString = route.query.filters;
+        if (typeof filterString === 'string') {
+          Object.assign(filters, JSON.parse(filterString));
         }
 
         return {
           schemaName,
           filters,
-          pageTitle: pageTitle ?? '',
+          pageTitle,
         };
       },
       edit: (route) => {

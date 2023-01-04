@@ -6,6 +6,7 @@ import { ModelNameEnum } from 'models/types';
 import SetupWizardSchema from 'schemas/app/SetupWizard.json';
 import { Schema } from 'schemas/types';
 import { fyo } from 'src/initFyo';
+import { QueryFilter } from 'utils/db/types';
 
 export function getDatesAndPeriodList(
   period: 'This Year' | 'This Quarter' | 'This Month'
@@ -96,7 +97,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   [ModelNameEnum.PurchaseInvoice]: 'transactions/purchase-invoices',
   [ModelNameEnum.Payment]: 'transactions/payments',
   [ModelNameEnum.JournalEntry]: 'transactions/journal-entries',
-  
+
   // Inventory
   [ModelNameEnum.StockMovement]: 'inventory/stock-movement',
   [ModelNameEnum.Shipment]: 'inventory/shipment',
@@ -135,4 +136,24 @@ export async function convertFileToDataURL(file: File, type: string) {
   const buffer = await file.arrayBuffer();
   const array = new Uint8Array(buffer);
   return await getDataURL(type, array);
+}
+
+export function getCreateFiltersFromListViewFilters(filters: QueryFilter) {
+  const createFilters: Record<string, string | number | boolean | null> = {};
+
+  for (const key in filters) {
+    let value: typeof filters[string] | undefined | number = filters[key];
+
+    if (Array.isArray(value) && value[0] === 'in' && Array.isArray(value[1])) {
+      value = value[1].filter((v) => v !== 'Both')[0];
+    }
+
+    if (value === undefined || Array.isArray(value)) {
+      continue;
+    }
+
+    createFilters[key] = value;
+  }
+
+  return createFilters;
 }
