@@ -139,7 +139,8 @@ If you want to contribute code then you can fork this repo, make changes and rai
 | Spanish            | [talmax1124](https://github.com/talmax1124)                                        |
 | Gujarati           | [dhruvilxcode](https://github.com/dhruvilxcode)                                    |
 | Korean             | [Isaac-Kwon](https://github.com/Isaac-Kwon)                                        |
-| Simplified Chinese  | [wcxu21](https://github.com/wcxu21)                                                |
+| Simplified Chinese | [wcxu21](https://github.com/wcxu21)                                                |
+| Swedish            | [papplo](https://github.com/papplo)                                                |
 
 ## License
 
