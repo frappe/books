@@ -1,5 +1,6 @@
 import { Doc } from "fyo/model/doc";
 import { FieldTypeEnum } from "schemas/types";
+import { QueryFilter } from "utils/db/types";
 
 export interface MessageDialogButton {
   label: string;
@@ -42,6 +43,7 @@ export interface SidebarRoot {
   iconHeight?: string;
   hidden?: () => boolean;
   items?: SidebarItem[];
+  filters?: QueryFilter
 }
 
 export interface SidebarItem {

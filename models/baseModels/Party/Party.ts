@@ -153,7 +153,10 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Customer',
         action: async (partyDoc, router) => {
-          router.push(`/list/PurchaseInvoice/party/${partyDoc.name}`);
+          await router.push({
+            path: '/list/PurchaseInvoice',
+            query: { filters: JSON.stringify({ party: partyDoc.name }) },
+          });
         },
       },
       {
@@ -161,11 +164,12 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
-          const doc = await fyo.doc.getNewDoc('SalesInvoice', {
+          const doc = fyo.doc.getNewDoc('SalesInvoice', {
             party: partyDoc.name,
             account: partyDoc.defaultAccount as string,
           });
-          router.push({
+
+          await router.push({
             path: `/edit/SalesInvoice/${doc.name}`,
             query: {
               schemaName: 'SalesInvoice',
@@ -182,7 +186,10 @@ export class Party extends Doc {
         condition: (doc: Doc) =>
           !doc.notInserted && (doc.role as PartyRole) !== 'Supplier',
         action: async (partyDoc, router) => {
-          router.push(`/list/SalesInvoice/party/${partyDoc.name}`);
+          router.push({
+            path: '/list/SalesInvoice',
+            query: { filters: JSON.stringify({ party: partyDoc.name }) },
+          });
         },
       },
     ];

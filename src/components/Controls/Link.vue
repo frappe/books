@@ -3,6 +3,7 @@ import { t } from 'fyo';
 import Badge from 'src/components/Badge.vue';
 import { fyo } from 'src/initFyo';
 import { fuzzyMatch } from 'src/utils';
+import { getCreateFiltersFromListViewFilters } from 'src/utils/misc';
 import { markRaw } from 'vue';
 import AutoComplete from './AutoComplete.vue';
 
@@ -145,23 +146,8 @@ export default {
         return createFilters;
       }
 
-      createFilters = {};
-
       const filters = await this.getFilters();
-      for (const key of Object.keys(filters)) {
-        const value = filters[key];
-        if (value === undefined) {
-          continue;
-        }
-
-        if (Array.isArray(value)) {
-          continue;
-        }
-
-        createFilters[key] = value;
-      }
-
-      return createFilters;
+      return getCreateFiltersFromListViewFilters(filters);
     },
     async getFilters() {
       const { schemaName, fieldname } = this.df;

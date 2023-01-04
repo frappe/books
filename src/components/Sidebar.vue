@@ -230,16 +230,25 @@ export default {
       }
 
       if (group.route) {
-        routeTo(group.route);
+        routeTo(this.getPath(group));
       }
     },
     onItemClick(item) {
       if (item.action) {
         item.action();
       }
+
       if (item.route) {
-        routeTo(item.route);
+        routeTo(this.getPath(item));
       }
+    },
+    getPath(item) {
+      const { route: path, filters } = item;
+      if (!filters) {
+        return path;
+      }
+
+      return { path, query: { filters: JSON.stringify(filters) } };
     },
   },
 };

@@ -89,13 +89,15 @@
   </div>
 </template>
 <script>
+import { clone } from 'lodash';
 import Button from 'src/components/Button';
 import Paginator from 'src/components/Paginator.vue';
 import Row from 'src/components/Row';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
 import { openQuickEdit, routeTo } from 'src/utils/ui';
-import { defineComponent } from 'vue';
+import { objectForEach } from 'utils/index';
+import { defineComponent, toRaw } from 'vue';
 import ListCell from './ListCell';
 
 export default defineComponent({
@@ -193,6 +195,8 @@ export default defineComponent({
       if (!filters) {
         filters = { ...this.filters };
       }
+
+      filters = objectForEach(clone(filters), toRaw);
 
       const orderBy = !!fyo.getField(this.schemaName, 'date')
         ? 'date'

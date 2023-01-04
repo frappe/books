@@ -153,9 +153,11 @@ function getCreateList(fyo: Fyo): SearchItem[] {
     },
   ].map(({ label, filter, schemaName }) => {
     const fk = Object.keys(filter)[0] as 'for' | 'role';
-    const ep = `${fk}/${filter[fk]}`;
+    const route = {
+      path: `/list/${schemaName}/${label}`,
+      query: { filters: JSON.stringify({ [fk]: filter[fk] }) },
+    };
 
-    const route = `/list/${schemaName}/${ep}/${label}`;
     return {
       label,
       group: 'Create',
@@ -235,29 +237,47 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     );
 
   const filteredLists = [
-    { label: t`Customers`, route: `/list/Party/role/Customer/${t`Customers`}` },
-    { label: t`Suppliers`, route: `/list/Party/role/Supplier/${t`Suppliers`}` },
+    {
+      label: t`Customers`,
+      route: `/list/Party/${t`Customers`}`,
+      filters: { role: ['Customer', 'Both'] },
+    },
+    {
+      label: t`Suppliers`,
+      route: `/list/Party/${t`Suppliers`}`,
+      filters: { role: ['Supplier', 'Both'] },
+    },
     {
       label: t`Sales Items`,
-      route: `/list/Item/for/Sales/${t`Sales Items`}`,
+      route: `/list/Item/${t`Sales Items`}`,
+      filters: { for: ['in', ['Sales', 'Both']] },
     },
     {
       label: t`Sales Payments`,
-      route: `/list/Payment/paymentType/Receive/${t`Sales Payments`}`,
+      route: `/list/Payment/${t`Sales Payments`}`,
+      filters: { paymentType: 'Receive' },
     },
     {
       label: t`Purchase Items`,
-      route: `/list/Item/for/Purchases/${t`Purchase Items`}`,
+      route: `/list/Item/${t`Purchase Items`}`,
+      filters: { for: ['in', ['Purchases', 'Both']] },
     },
     {
       label: t`Common Items`,
-      route: `/list/Item/for/Both/${t`Common Items`}`,
+      route: `/list/Item/${t`Common Items`}`,
+      filters: { for: 'Both' },
     },
     {
       label: t`Purchase Payments`,
-      route: `/list/Payment/paymentType/Pay/${t`Purchase Payments`}`,
+      route: `/list/Payment/${t`Purchase Payments`}`,
+      filters: { paymentType: 'Pay' },
     },
-  ].map((i) => ({ ...i, group: 'List' } as SearchItem));
+  ].map((i) => {
+    const label = i.label;
+    const route = encodeURI(`${i.route}?filters=${JSON.stringify(i.filters)}`);
+
+    return { label, route, group: 'List' } as SearchItem;
+  });
 
   return [standardLists, filteredLists].flat();
 }

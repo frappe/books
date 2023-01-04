@@ -44,7 +44,7 @@ import FilterDropdown from 'src/components/FilterDropdown.vue';
 import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
-import { docsPathMap } from 'src/utils/misc';
+import { docsPathMap, getCreateFiltersFromListViewFilters } from 'src/utils/misc';
 import { docsPath, routeTo } from 'src/utils/ui';
 import List from './List.vue';
 
@@ -77,6 +77,10 @@ export default {
 
     this.listConfig = getListConfig(this.schemaName);
     docsPath.value = docsPathMap[this.schemaName] ?? docsPathMap.Entries;
+
+    if (this.fyo.store.isDevelopment) {
+      window.lv = this;
+    }
   },
   deactivated() {
     docsPath.value = '';
@@ -86,10 +90,11 @@ export default {
       this.listFilters = listFilters;
     },
     async makeNewDoc() {
-      const doc = await fyo.doc.getNewDoc(this.schemaName, this.filters ?? {});
+      const filters = getCreateFiltersFromListViewFilters(this.filters ?? {});
+      const doc = fyo.doc.getNewDoc(this.schemaName, filters);
       const path = this.getFormPath(doc.name);
 
-      routeTo(path);
+      await routeTo(path);
       doc.on('afterSync', () => {
         const path = this.getFormPath(doc.name);
         this.$router.replace(path);

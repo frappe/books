@@ -225,3 +225,18 @@ export function removeAtIndex<T>(array: T[], index: number): T[] {
 
   return [...array.slice(0, index), ...array.slice(index + 1)];
 }
+
+export function objectForEach<T extends object | unknown>(
+  obj: T,
+  func: Function
+) {
+  if (typeof obj !== 'object' || obj === null) {
+    return func(obj);
+  }
+
+  for (const key in obj) {
+    obj[key] = objectForEach(obj[key], func);
+  }
+
+  return func(obj);
+}
