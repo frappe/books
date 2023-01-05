@@ -20,7 +20,7 @@
       <PeriodSelector
         :value="period"
         @change="(value) => (period = value)"
-        :options="['This Year', 'This Quarter']"
+        :options="periodOptions"
         v-if="hasData"
       />
       <div v-else class="w-20 h-5 bg-gray-200 rounded" />
@@ -51,23 +51,22 @@ import { formatXLabels, getYMax } from 'src/utils/chart';
 import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getMapFromList } from 'utils/';
-import PeriodSelector from './PeriodSelector';
+import DashboardChartBase from './BaseDashboardChart.vue';
+import PeriodSelector from './PeriodSelector.vue';
 
 export default {
   name: 'Cashflow',
+  extends: DashboardChartBase,
   components: {
     PeriodSelector,
     LineChart,
   },
   data: () => ({
-    period: 'This Year',
     data: [],
     periodList: [],
+    periodOptions: ['This Year', 'This Quarter'],
     hasData: false,
   }),
-  watch: {
-    period: 'setData',
-  },
   async activated() {
     await this.setData();
     if (!this.hasData) {
