@@ -58,26 +58,22 @@ import { fyo } from 'src/initFyo';
 import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import DonutChart from '../../components/Charts/DonutChart.vue';
-import PeriodSelector from './PeriodSelector';
-import SectionHeader from './SectionHeader';
+import DashboardChartBase from './BaseDashboardChart.vue';
+import PeriodSelector from './PeriodSelector.vue';
+import SectionHeader from './SectionHeader.vue';
 
 export default {
   name: 'Expenses',
+  extends: DashboardChartBase,
   components: {
     DonutChart,
     PeriodSelector,
     SectionHeader,
   },
   data: () => ({
-    period: 'This Year',
     active: null,
     expenses: [],
   }),
-  watch: {
-    period() {
-      this.setData();
-    },
-  },
   activated() {
     this.setData();
   },

@@ -1,19 +1,61 @@
 <template>
   <div class="overflow-hidden h-screen" style="width: var(--w-desk)">
-    <PageHeader :title="t`Dashboard`" />
+    <PageHeader :title="t`Dashboard`">
+      <div
+        class="
+          border
+          rounded
+          bg-gray-50
+          focus-within:bg-gray-100
+          flex
+          items-center
+        "
+      >
+        <PeriodSelector
+          class="px-3"
+          :value="period"
+          :options="['This Year', 'This Quarter', 'This Month']"
+          @change="(value) => (period = value)"
+        />
+      </div>
+    </PageHeader>
 
     <div class="no-scrollbar overflow-auto h-full">
       <div
         style="min-width: var(--w-desk-fixed); min-height: var(--h-app)"
         class="overflow-auto"
       >
-        <Cashflow class="p-4" />
+        <Cashflow
+          class="p-4"
+          :common-period="period"
+          @period-change="handlePeriodChange"
+        />
         <hr />
-        <UnpaidInvoices />
+        <div class="flex w-full">
+          <UnpaidInvoices
+            :schema-name="'SalesInvoice'"
+            :common-period="period"
+            @period-change="handlePeriodChange"
+            class="border-r"
+          />
+          <UnpaidInvoices
+            :schema-name="'PurchaseInvoice'"
+            :common-period="period"
+            @period-change="handlePeriodChange"
+          />
+        </div>
         <hr />
         <div class="flex">
-          <ProfitAndLoss class="w-full p-4 border-r" />
-          <Expenses class="w-full p-4" />
+          <ProfitAndLoss
+            class="w-full p-4 border-r"
+            :common-period="period"
+            @period-change="handlePeriodChange"
+          />
+          <Expenses
+            class="w-full p-4"
+            :common-period="period"
+            @period-change="handlePeriodChange"
+          />
         </div>
         <hr />
       </div>
@@ -22,27 +64,41 @@
 </template>
 
 <script>
-import PageHeader from 'src/components/PageHeader';
+import PageHeader from 'src/components/PageHeader.vue';
 import { docsPath } from 'src/utils/ui';
-import Cashflow from './Cashflow';
-import Expenses from './Expenses';
-import ProfitAndLoss from './ProfitAndLoss';
-import UnpaidInvoices from './UnpaidInvoices';
+import UnpaidInvoices from './UnpaidInvoices.vue';
+import Cashflow from './Cashflow.vue';
+import Expenses from './Expenses.vue';
+import PeriodSelector from './PeriodSelector.vue';
+import ProfitAndLoss from './ProfitAndLoss.vue';
 
 export default {
   name: 'Dashboard',
   components: {
     PageHeader,
-    UnpaidInvoices,
     Cashflow,
     ProfitAndLoss,
     Expenses,
+    PeriodSelector,
+    UnpaidInvoices,
+  },
+  data() {
+    return { period: 'This Year' };
   },
   activated() {
     docsPath.value = 'analytics/dashboard';
   },
   deactivated() {
     docsPath.value = '';
+  },
+  methods: {
+    handlePeriodChange(period) {
+      if (period === this.period) {
+        return;
+      }
+
+      this.period = '';
+    },
   },
 };
 </script>
