@@ -26,7 +26,7 @@ export async function getRawStockLedgerEntries(fyo: Fyo) {
 
   return (await fyo.db.getAllRaw(ModelNameEnum.StockLedgerEntry, {
     fields: fieldnames,
-    orderBy: 'date',
+    orderBy: ['date', 'created', 'name'],
     order: 'asc',
   })) as RawStockLedgerEntry[];
 }

@@ -59,8 +59,8 @@ export interface GetAllOptions {
   filters?: QueryFilter;
   offset?: number;
   limit?: number;
-  groupBy?: string;
-  orderBy?: string;
+  groupBy?: string | string[];
+  orderBy?: string | string[];
   order?: 'asc' | 'desc';
 }
 

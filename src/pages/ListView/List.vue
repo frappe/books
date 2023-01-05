@@ -198,9 +198,10 @@ export default defineComponent({
 
       filters = objectForEach(clone(filters), toRaw);
 
-      const orderBy = !!fyo.getField(this.schemaName, 'date')
-        ? 'date'
-        : 'created';
+      const orderBy = ['created'];
+      if (fyo.db.fieldMap[this.schemaName]['date']) {
+        orderBy.unshift('date');
+      }
 
       this.data = (
         await fyo.db.getAll(this.schemaName, {

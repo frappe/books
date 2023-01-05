@@ -422,12 +422,21 @@ export default class DatabaseCore extends DatabaseBase {
 
     this.#applyFiltersToBuilder(builder, filters);
 
-    if (options.orderBy) {
-      builder.orderBy(options.orderBy, options.order);
+    const { orderBy, groupBy, order } = options;
+    if (Array.isArray(orderBy)) {
+      builder.orderBy(orderBy.map((column) => ({ column, order })));
     }
 
-    if (options.groupBy) {
-      builder.groupBy(options.groupBy);
+    if (typeof orderBy === 'string') {
+      builder.orderBy(orderBy, order);
+    }
+
+    if (Array.isArray(groupBy)) {
+      builder.groupBy(...groupBy);
+    }
+
+    if (typeof groupBy === 'string') {
+      builder.groupBy(groupBy);
     }
 
     if (options.offset) {
