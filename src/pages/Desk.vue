@@ -86,6 +86,6 @@ export default {
 
 .sidebar-enter-active,
 .sidebar-leave-active {
-  transition: all 250ms ease-out;
+  transition: all 150ms ease-out;
 }
 </style>
