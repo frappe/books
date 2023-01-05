@@ -74,7 +74,7 @@ export async function openQuickEdit({
 
   router[method]({
     query: {
-      edit: 1,
+      edit: '1',
       schemaName,
       name,
       showFields,

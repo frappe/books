@@ -2,19 +2,16 @@ import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
-  Action,
   CurrenciesMap,
   DefaultMap,
   FiltersMap,
   FormulaMap,
-  HiddenMap,
+  HiddenMap
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import {
-  getExchangeRate,
-  getInvoiceActions,
-  getNumberSeries,
+  getExchangeRate, getNumberSeries
 } from 'models/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';

@@ -95,7 +95,7 @@ export abstract class LedgerReport extends Report {
       {
         fields,
         filters,
-        orderBy: 'date',
+        orderBy: ['date', 'created'],
         order: this.ascending ? 'asc' : 'desc',
       }
     )) as RawLedgerEntry[];
