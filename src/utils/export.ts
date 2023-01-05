@@ -260,9 +260,11 @@ async function getParentData(
   limit: number | null,
   fyo: Fyo
 ) {
-  const orderBy = !!fields.find((f) => f.fieldname === 'date')
-    ? 'date'
-    : 'created';
+  const orderBy = ['created'];
+  if (fyo.db.fieldMap[schemaName]['date']) {
+    orderBy.unshift('date');
+  }
+
   const options: GetAllOptions = { filters, orderBy, order: 'desc' };
   if (limit) {
     options.limit = limit;

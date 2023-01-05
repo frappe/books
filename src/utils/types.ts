@@ -70,3 +70,4 @@ export interface ExportTableField {
 }
 
 export type ExportFormat = 'csv' | 'json';
+export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month'

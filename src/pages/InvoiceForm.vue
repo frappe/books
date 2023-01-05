@@ -265,27 +265,31 @@
       </div>
     </template>
 
-    <template #quickedit v-if="quickEditDoc || linked">
-      <QuickEditForm
-        v-if="quickEditDoc && !linked"
-        class="w-quick-edit"
-        :name="quickEditDoc.name"
-        :show-name="false"
-        :show-save="false"
-        :source-doc="quickEditDoc"
-        :source-fields="quickEditFields"
-        :schema-name="quickEditDoc.schemaName"
-        :white="true"
-        :route-back="false"
-        :load-on-close="false"
-        @close="toggleQuickEditDoc(null)"
-      />
+    <template #quickedit>
+      <Transition name="quickedit">
+        <QuickEditForm
+          v-if="quickEditDoc && !linked"
+          class="w-quick-edit"
+          :name="quickEditDoc.name"
+          :show-name="false"
+          :show-save="false"
+          :source-doc="quickEditDoc"
+          :source-fields="quickEditFields"
+          :schema-name="quickEditDoc.schemaName"
+          :white="true"
+          :route-back="false"
+          :load-on-close="false"
+          @close="toggleQuickEditDoc(null)"
+        />
+      </Transition>
 
-      <LinkedEntryWidget
-        v-if="linked && !quickEditDoc"
-        :linked="linked"
-        @close-widget="linked = null"
-      />
+      <Transition name="quickedit">
+        <LinkedEntryWidget
+          v-if="linked && !quickEditDoc"
+          :linked="linked"
+          @close-widget="linked = null"
+        />
+      </Transition>
     </template>
   </FormContainer>
 </template>

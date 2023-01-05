@@ -1,6 +1,11 @@
 <template>
   <div class="flex flex-col h-full">
-    <PageHeader :title="t`Chart of Accounts`" />
+    <PageHeader :title="t`Chart of Accounts`">
+      <Button v-if="!isAllExpanded" @click="expand">{{ t`Expand` }}</Button>
+      <Button v-if="!isAllCollapsed" @click="collapse">{{
+        t`Collapse`
+      }}</Button>
+    </PageHeader>
 
     <!-- Chart of Accounts -->
     <div
@@ -141,20 +146,24 @@
 import { t } from 'fyo';
 import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
-import PageHeader from 'src/components/PageHeader';
+import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, openQuickEdit } from 'src/utils/ui';
 import { getMapFromList, removeAtIndex } from 'utils/index';
 import { nextTick } from 'vue';
+import Button from '../components/Button.vue';
 import { handleErrorWithDialog } from '../errorHandling';
 
 export default {
   components: {
+    Button,
     PageHeader,
   },
   data() {
     return {
+      isAllCollapsed: true,
+      isAllExpanded: false,
       root: null,
       accounts: [],
       schemaName: 'Account',
@@ -187,6 +196,33 @@ export default {
     docsPath.value = '';
   },
   methods: {
+    async expand() {
+      await this.toggleAll(this.accounts, true);
+      this.isAllCollapsed = false;
+      this.isAllExpanded = true;
+    },
+    async collapse() {
+      await this.toggleAll(this.accounts, false);
+      this.isAllExpanded = false;
+      this.isAllCollapsed = true;
+    },
+    async toggleAll(accounts, expand) {
+      if (!Array.isArray(accounts)) {
+        await this.toggle(accounts, expand);
+        accounts = accounts.children ?? [];
+      }
+
+      for (const account of accounts) {
+        await this.toggleAll(account, expand);
+      }
+    },
+    async toggle(account, expand) {
+      if (account.expanded === expand || !account.isGroup) {
+        return;
+      }
+
+      await this.toggleChildren(account);
+    },
     getBalance(account) {
       const total = this.totals[account.name];
       if (!total) {
@@ -224,6 +260,14 @@ export default {
       let shouldOpen = !account.isGroup;
       if (account.isGroup) {
         shouldOpen = !(await this.toggleChildren(account));
+      }
+
+      if (account.isGroup && account.expanded) {
+        this.isAllCollapsed = false;
+      }
+
+      if (account.isGroup && !account.expanded) {
+        this.isAllExpanded = false;
       }
 
       if (!shouldOpen) {

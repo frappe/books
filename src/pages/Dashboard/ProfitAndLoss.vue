@@ -5,7 +5,7 @@
       <template #action>
         <PeriodSelector
           :value="period"
-          :options="['This Year', 'This Quarter']"
+          :options="periodOptions"
           @change="(value) => (period = value)"
         />
       </template>
@@ -36,26 +36,25 @@ import { formatXLabels, getYMax, getYMin } from 'src/utils/chart';
 import { uicolors } from 'src/utils/colors';
 import { getDatesAndPeriodList } from 'src/utils/misc';
 import { getValueMapFromList } from 'utils';
+import DashboardChartBase from './BaseDashboardChart.vue';
 import PeriodSelector from './PeriodSelector';
 import SectionHeader from './SectionHeader';
 
 export default {
   name: 'ProfitAndLoss',
+  extends: DashboardChartBase,
   components: {
     PeriodSelector,
     SectionHeader,
     BarChart,
   },
   data: () => ({
-    period: 'This Year',
     data: [],
     hasData: false,
+    periodOptions: ['This Year', 'This Quarter'],
   }),
   activated() {
     this.setData();
-  },
-  watch: {
-    period: 'setData',
   },
   computed: {
     chartData() {

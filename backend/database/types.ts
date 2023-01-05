@@ -5,8 +5,8 @@ import { DatabaseManager } from './manager';
 export interface GetQueryBuilderOptions {
   offset?: number;
   limit?: number;
-  groupBy?: string;
-  orderBy?: string;
+  groupBy?: string | string[];
+  orderBy?: string | string[];
   order?: 'desc' | 'asc';
 }
 
