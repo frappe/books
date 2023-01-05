@@ -230,7 +230,7 @@ export abstract class AccountReport extends LedgerReport {
       const toDate = dr.toDate.toMillis();
       const fromDate = dr.fromDate.toMillis();
 
-      if (fromDate < entryDate && entryDate <= toDate) {
+      if (entryDate >= fromDate && entryDate < toDate) {
         return dr;
       }
     }
@@ -278,9 +278,9 @@ export abstract class AccountReport extends LedgerReport {
     let fromDate: string;
 
     if (this.basedOn === 'Until Date') {
-      toDate = this.toDate!;
+      toDate = DateTime.fromISO(this.toDate!).plus({ days: 1 }).toISODate();
       const months = monthsMap[this.periodicity] * Math.max(this.count ?? 1, 1);
-      fromDate = DateTime.fromISO(toDate).minus({ months }).toISODate();
+      fromDate = DateTime.fromISO(this.toDate!).minus({ months }).toISODate();
     } else {
       const fy = await getFiscalEndpoints(
         this.toYear!,
@@ -299,7 +299,7 @@ export abstract class AccountReport extends LedgerReport {
     const { fromDate, toDate } = await this._getFromAndToDates();
 
     const dateFilter: string[] = [];
-    dateFilter.push('<=', toDate);
+    dateFilter.push('<', toDate);
     dateFilter.push('>=', fromDate);
 
     filters.date = dateFilter;
@@ -342,17 +342,17 @@ export abstract class AccountReport extends LedgerReport {
     let dateFilters = [
       {
         fieldtype: 'Int',
-        fieldname: 'toYear',
-        placeholder: t`To Year`,
-        label: t`To Year`,
+        fieldname: 'fromYear',
+        placeholder: t`From Year`,
+        label: t`From Year`,
         minvalue: 2000,
         required: true,
       },
       {
         fieldtype: 'Int',
-        fieldname: 'fromYear',
-        placeholder: t`From Year`,
-        label: t`From Year`,
+        fieldname: 'toYear',
+        placeholder: t`To Year`,
+        label: t`To Year`,
         minvalue: 2000,
         required: true,
       },
@@ -407,16 +407,18 @@ export abstract class AccountReport extends LedgerReport {
 
     const dateColumns = this._dateRanges!.sort(
       (a, b) => b.toDate.toMillis() - a.toDate.toMillis()
-    ).map(
-      (d) =>
-        ({
-          label: this.fyo.format(d.toDate.toJSDate(), 'Date'),
-          fieldtype: 'Data',
-          fieldname: 'toDate',
-          align: 'right',
-          width: ACC_BAL_WIDTH,
-        } as ColumnField)
-    );
+    ).map((d) => {
+      const toDate = d.toDate.minus({ days: 1 });
+      const label = this.fyo.format(toDate.toJSDate(), 'Date');
+
+      return {
+        label,
+        fieldtype: 'Data',
+        fieldname: 'toDate',
+        align: 'right',
+        width: ACC_BAL_WIDTH,
+      } as ColumnField;
+    });
 
     return [columns, dateColumns].flat();
   }
