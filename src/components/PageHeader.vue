@@ -69,6 +69,6 @@ export default {
 
 .spacer-enter-active,
 .spacer-leave-active {
-  transition: all 250ms ease-out;
+  transition: all 150ms ease-out;
 }
 </style>
