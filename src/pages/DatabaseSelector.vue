@@ -107,7 +107,7 @@
           </div>
           <button
             class="
-              ml-auto
+              ms-auto
               p-2
               hover:bg-red-200
               rounded-full

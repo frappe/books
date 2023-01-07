@@ -8,7 +8,7 @@
       <Button :icon="true" @click="togglePopover()">
         <span class="flex items-center">
           <Icon name="filter" size="12" class="stroke-current text-gray-700" />
-          <span class="ml-1">
+          <span class="ms-1">
             <template v-if="activeFilterCount > 0">
               {{ filterAppliedMessage }}
             </template>
@@ -116,7 +116,7 @@
           @click="addNewFilter"
         >
           <feather-icon name="plus" class="w-4 h-4" />
-          <span class="ml-2">{{ t`Add a filter` }}</span>
+          <span class="ms-2">{{ t`Add a filter` }}</span>
         </div>
       </div>
     </template>

@@ -145,7 +145,7 @@
           </div>
 
           <!-- Totals -->
-          <div class="w-1/2 gap-2 flex flex-col self-end ml-auto">
+          <div class="w-1/2 gap-2 flex flex-col self-end ms-auto">
             <!-- Subtotal -->
             <div class="flex justify-between">
               <div>{{ t`Subtotal` }}</div>

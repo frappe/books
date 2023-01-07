@@ -44,7 +44,7 @@
             :class="isGroupActive(group) && !group.items ? '-ml-1' : ''"
           />
           <div
-            class="ml-2 text-lg text-gray-900"
+            class="ms-2 text-lg text-gray-900"
             :class="isGroupActive(group) && !group.items && 'text-blue-600'"
           >
             {{ group.label }}
@@ -59,7 +59,7 @@
             class="
               text-base text-gray-800
               h-10
-              pl-10
+              ps-10
               cursor-pointer
               flex
               items-center
@@ -141,12 +141,13 @@
       class="
         absolute
         bottom-0
-        right-0
+        end-0
         text-gray-600
         hover:bg-gray-100
         rounded
         p-1
         m-4
+        rtl-rotate-180
       "
       @click="$emit('toggle-sidebar')"
     >

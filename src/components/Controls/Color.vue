@@ -13,7 +13,7 @@
           <div class="flex items-center">
             <div
               v-if="value"
-              class="w-3 h-3 rounded mr-1"
+              class="w-3 h-3 rounded me-1"
               :style="{ backgroundColor: value }"
             ></div>
             <span v-if="value">

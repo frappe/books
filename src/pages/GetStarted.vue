@@ -53,7 +53,7 @@
                 <Button
                   v-if="item.documentation"
                   class="leading-tight"
-                  :class="{ 'ml-4': item.action }"
+                  :class="{ 'ms-4': item.action }"
                   @click="handleDocumentation(item)"
                 >
                   <span class="text-base">

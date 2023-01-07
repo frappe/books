@@ -119,7 +119,7 @@
           />
 
           <!-- Debit and Credit -->
-          <div class="w-1/2 gap-2 flex flex-col self-end font-semibold ml-auto">
+          <div class="w-1/2 gap-2 flex flex-col self-end font-semibold ms-auto">
             <div class="flex justify-between text-green-600">
               <div>{{ t`Total Debit` }}</div>
               <div>{{ totalDebit }}</div>

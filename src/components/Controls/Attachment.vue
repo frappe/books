@@ -17,7 +17,7 @@
     />
 
     <!-- Buttons -->
-    <div class="mr-2 flex gap-2">
+    <div class="me-2 flex gap-2">
       <!-- Upload Button -->
       <button v-if="!value" class="bg-gray-300 p-0.5 rounded" @click="upload">
         <FeatherIcon name="upload" class="h-4 w-4 text-gray-600" />

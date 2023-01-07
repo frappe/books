@@ -9,7 +9,7 @@
       :ratio="ratio"
       class="border-b px-2 text-gray-600 w-full flex items-center"
     >
-      <div class="flex items-center pl-2">#</div>
+      <div class="flex items-center ps-2">#</div>
       <div
         class="items-center flex px-2 h-row-mid"
         :class="{
@@ -58,7 +58,7 @@
       v-if="!isReadOnly"
       @click="addRow"
     >
-      <div class="flex items-center pl-1">
+      <div class="flex items-center ps-1">
         <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
       </div>
       <div class="flex justify-between px-2" :style="`grid-column: 2 / ${ratio.length + 1}`">

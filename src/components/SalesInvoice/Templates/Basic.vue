@@ -104,19 +104,19 @@
         </div>
       </div>
       <div class="w-1/2">
-        <div class="flex pl-2 justify-between py-3 border-b">
+        <div class="flex ps-2 justify-between py-3 border-b">
           <div>{{ t`Subtotal` }}</div>
           <div>{{ printObject.netTotal }}</div>
         </div>
         <div
-          class="flex pl-2 justify-between py-3 border-b"
+          class="flex ps-2 justify-between py-3 border-b"
           v-if="printObject.totalDiscount && !printObject.discountAfterTax"
         >
           <div>{{ t`Discount` }}</div>
           <div>{{ printObject.totalDiscount }}</div>
         </div>
         <div
-          class="flex pl-2 justify-between py-3"
+          class="flex ps-2 justify-between py-3"
           v-for="tax in printObject.taxes"
           :key="tax.name"
         >
@@ -124,7 +124,7 @@
           <div>{{ tax.amount }}</div>
         </div>
         <div
-          class="flex pl-2 justify-between py-3 border-t"
+          class="flex ps-2 justify-between py-3 border-t"
           v-if="printObject.totalDiscount && printObject.discountAfterTax"
         >
           <div>{{ t`Discount` }}</div>
@@ -133,7 +133,7 @@
         <div
           class="
             flex
-            pl-2
+            ps-2
             justify-between
             py-3
             border-t
