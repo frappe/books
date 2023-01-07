@@ -7,7 +7,7 @@
         paddingRight: dataSlice.length > 13 ? 'var(--w-scrollbar)' : '',
       }"
     >
-      <p class="w-8 text-right mr-4 text-gray-700">#</p>
+      <p class="w-8 text-right me-4 text-gray-700">#</p>
       <Row
         class="flex-1 text-gray-700 border-none h-row-mid"
         :columnCount="columns.length"
@@ -40,7 +40,7 @@
       <div v-for="(doc, i) in dataSlice" :key="doc.name">
         <!-- Row Content -->
         <div class="flex hover:bg-gray-50 items-center">
-          <p class="w-8 text-right mr-4 text-gray-900">
+          <p class="w-8 text-right me-4 text-gray-900">
             {{ i + pageStart + 1 }}
           </p>
           <Row

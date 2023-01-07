@@ -71,7 +71,7 @@
           class="py-2 pe-4"
           @click="activateInlineEditing(df)"
           :class="{
-            'pl-2': df.fieldtype === 'AttachImage',
+            'ps-2': df.fieldtype === 'AttachImage',
           }"
         >
           <FormControl
