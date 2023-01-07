@@ -17,7 +17,7 @@
     :style="{ opacity }"
     v-if="show"
   >
-    <feather-icon :name="iconName" class="w-6 h-6 mr-3" :class="iconColor" />
+    <feather-icon :name="iconName" class="w-6 h-6 me-3" :class="iconColor" />
     <div @click="actionClicked" :class="actionText ? 'cursor-pointer' : ''">
       <p class="text-base">{{ message }}</p>
       <button
@@ -29,7 +29,7 @@
     </div>
     <feather-icon
       name="x"
-      class="w-4 h-4 ml-auto text-gray-600 cursor-pointer hover:text-gray-800"
+      class="w-4 h-4 ms-auto text-gray-600 cursor-pointer hover:text-gray-800"
       @click="closeToast"
     />
   </div>

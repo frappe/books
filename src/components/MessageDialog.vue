@@ -1,6 +1,6 @@
 <template>
   <div class="p-3 d-flex align-items-center">
-    <indicator :color="indicatorColor" class="mr-2 ml-1" />
+    <indicator :color="indicatorColor" class="me-2 ms-1" />
     {{ message }}
   </div>
 </template>

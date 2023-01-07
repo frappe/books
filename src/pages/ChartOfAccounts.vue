@@ -25,7 +25,7 @@
             items-center
             border-b
             flex-shrink-0
-            pr-4
+            pe-4
           "
           :class="[
             account.level !== 0 ? 'text-base' : 'text-lg',
@@ -37,14 +37,14 @@
           <component :is="getIconComponent(account)" />
           <div class="flex items-baseline">
             <div
-              class="ml-4"
+              class="ms-4"
               :class="[!account.parentAccount && 'font-semibold']"
             >
               {{ account.name }}
             </div>
 
             <!-- Add Account Buttons on Group Hover -->
-            <div v-if="account.isGroup" class="ml-6 hidden group-hover:block">
+            <div v-if="account.isGroup" class="ms-6 hidden group-hover:block">
               <button
                 class="
                   text-xs text-gray-800
@@ -57,7 +57,7 @@
               </button>
               <button
                 class="
-                  ml-3
+                  ms-3
                   text-xs text-gray-800
                   hover:text-gray-900
                   focus:outline-none
@@ -70,7 +70,7 @@
           </div>
 
           <!-- Account Balance String -->
-          <p class="ml-auto text-base text-gray-800" v-if="!account.isGroup">
+          <p class="ms-auto text-base text-gray-800" v-if="!account.isGroup">
             {{ getBalanceString(account) }}
           </p>
         </div>
@@ -96,7 +96,7 @@
           <component
             :is="getIconComponent({ isGroup: account.addingGroupAccount })"
           />
-          <div class="flex ml-4 h-row-mid items-center">
+          <div class="flex ms-4 h-row-mid items-center">
             <input
               class="focus:outline-none bg-transparent"
               :class="{ 'text-gray-600': insertingAccount }"
@@ -113,7 +113,7 @@
             <button
               v-if="!insertingAccount"
               class="
-                ml-4
+                ms-4
                 text-xs text-gray-800
                 hover:text-gray-900
                 focus:outline-none
@@ -127,7 +127,7 @@
             <button
               v-if="!insertingAccount"
               class="
-                ml-4
+                ms-4
                 text-xs text-gray-800
                 hover:text-gray-900
                 focus:outline-none

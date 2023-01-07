@@ -10,16 +10,16 @@
       <div
         v-if="!sidebar && platform === 'Mac'"
         class="h-full"
-        :class="sidebar ? '' : 'w-tl mr-4 border-r'"
+        :class="sidebar ? '' : 'w-tl me-4 border-r'"
       />
     </Transition>
     <h1 class="text-xl font-semibold select-none" v-if="title">
       {{ title }}
     </h1>
-    <div class="flex items-stretch window-no-drag gap-2 ml-auto">
+    <div class="flex items-stretch window-no-drag gap-2 ms-auto">
       <slot />
       <div class="border-r" v-if="showBorder" />
-      <BackLink v-if="backLink" class="window-no-drag" />
+      <BackLink v-if="backLink" class="window-no-drag rtl-rotate-180" />
       <SearchBar v-if="!hideSearch" />
     </div>
   </div>

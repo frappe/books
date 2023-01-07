@@ -171,7 +171,7 @@
 
       <button
         v-if="showClear"
-        class="text-xs text-gray-600 hover:text-gray-600 ml-auto"
+        class="text-xs text-gray-600 hover:text-gray-600 ms-auto"
         @click="clearClicked"
       >
         {{ t`Clear` }}

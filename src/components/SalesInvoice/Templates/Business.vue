@@ -12,7 +12,7 @@
       </h2>
       <div class="flex items-center">
         <div class="flex items-center rounded h-16">
-          <div class="mr-4" v-if="printObject.displayLogo">
+          <div class="me-4" v-if="printObject.displayLogo">
             <img class="h-12 max-w-32 object-contain" :src="printObject.logo" />
           </div>
         </div>
@@ -86,7 +86,7 @@
       </div>
       <div class="mt-12">
         <div class="flex -mx-3">
-          <div class="flex justify-end flex-1 py-3 bg-gray-100 gap-8 pr-6">
+          <div class="flex justify-end flex-1 py-3 bg-gray-100 gap-8 pe-6">
             <div class="text-right">
               <div class="text-gray-800">{{ t`Subtotal` }}</div>
               <div class="text-xl mt-2">

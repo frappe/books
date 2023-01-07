@@ -1,8 +1,8 @@
 <template>
   <button @click="openHelpLink" class="flex items-center z-10">
-    <p class="mr-1"><slot></slot></p>
+    <p class="me-1"><slot></slot></p>
     <FeatherIcon
-      class="h-5 w-5 ml-3 text-blue-400"
+      class="h-5 w-5 ms-3 text-blue-400"
       name="help-circle"
       v-if="icon"
     />

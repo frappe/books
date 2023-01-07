@@ -3,7 +3,7 @@
     class="window-drag flex items-center border-b text-gray-900 border-gray-100"
     style="height: 28px"
   >
-    <Fb class="ml-2" />
+    <Fb class="ms-2" />
     <p class="mx-auto text-sm" v-if="companyName && dbPath">
       {{ companyName }} - {{ dbPath }}
     </p>

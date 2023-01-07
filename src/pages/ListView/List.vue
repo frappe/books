@@ -25,7 +25,7 @@
             flex
           "
           :class="{
-            'ml-auto': isNumeric(column.fieldtype),
+            'ms-auto': isNumeric(column.fieldtype),
             'pr-4': i === columns.length - 1,
           }"
         >

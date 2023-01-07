@@ -168,3 +168,11 @@ input[type='number']::-webkit-inner-spin-button {
 .quickedit-leave-active {
   transition: all 150ms ease-out;
 }
+
+/* 
+  RTL
+ */
+ 
+[dir="rtl"] .rtl-rotate-180{
+  transform: rotate(180deg);
+}
