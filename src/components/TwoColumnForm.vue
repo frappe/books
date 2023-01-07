@@ -81,7 +81,7 @@
             :value="getRegularValue(df)"
             :class="{ 'p-2': df.fieldtype === 'Check' }"
             :read-only="readOnly"
-            :text-right="false"
+            :text-end="false"
             @change="async (value) => await onChange(df, value)"
             @focus="activateInlineEditing(df)"
             @new-doc="async (newdoc) => await onChange(df, newdoc.name)"

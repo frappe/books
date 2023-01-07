@@ -10,7 +10,7 @@
       <div
         v-if="!sidebar && platform === 'Mac'"
         class="h-full"
-        :class="sidebar ? '' : 'w-tl me-4 border-r'"
+        :class="sidebar ? '' : 'w-tl me-4 border-e'"
       />
     </Transition>
     <h1 class="text-xl font-semibold select-none" v-if="title">
@@ -18,7 +18,7 @@
     </h1>
     <div class="flex items-stretch window-no-drag gap-2 ms-auto">
       <slot />
-      <div class="border-r" v-if="showBorder" />
+      <div class="border-e" v-if="showBorder" />
       <BackLink v-if="backLink" class="window-no-drag rtl-rotate-180" />
       <SearchBar v-if="!hideSearch" />
     </div>
@@ -56,7 +56,7 @@ export default {
   opacity: 0;
   width: 0px;
   margin-right: 0px;
-  border-right-width: 0px;
+  border-eight-width: 0px;
 }
 
 .spacer-enter-to,
@@ -64,7 +64,7 @@ export default {
   opacity: 1;
   width: var(--w-trafficlights);
   margin-right: 1rem;
-  border-right-width: 1px;
+  border-eight-width: 1px;
 }
 
 .spacer-enter-active,

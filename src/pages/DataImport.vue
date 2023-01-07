@@ -105,7 +105,7 @@
                 py-1
                 rounded-md
                 w-10
-                text-right
+                text-end
               "
               min="1"
               :max="importer.csv.length - 1"
@@ -309,7 +309,7 @@
             class="grid grid-cols-2 gap-2 border-b pb-2 mb-2 pe-4 text-lg w-60"
             style="grid-template-columns: 2rem auto"
           >
-            <p class="text-right">{{ i + 1 }}.</p>
+            <p class="text-end">{{ i + 1 }}.</p>
             <p>
               {{ n }}
             </p>

@@ -38,7 +38,7 @@
 
     <!-- Printview Customizer -->
     <Transition name="quickedit">
-      <div class="border-l w-quick-edit" v-if="showCustomiser">
+      <div class="border-s w-quick-edit" v-if="showCustomiser">
         <div
           class="px-4 flex items-center justify-between h-row-largest border-b"
         >

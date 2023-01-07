@@ -30,7 +30,7 @@
           class="px-4 flex items-center cursor-pointer hover:bg-gray-100 h-10"
           :class="
             isGroupActive(group) && !group.items
-              ? 'bg-gray-100 border-l-4 border-blue-500'
+              ? 'bg-gray-100 border-s-4 border-blue-500'
               : ''
           "
           @click="onGroupClick(group)"
@@ -67,7 +67,7 @@
             "
             :class="
               isItemActive(item)
-                ? 'bg-gray-100 text-blue-600 border-l-4 border-blue-500'
+                ? 'bg-gray-100 text-blue-600 border-s-4 border-blue-500'
                 : ''
             "
             @click="onItemClick(item)"

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-quick-edit border-l bg-white flex flex-col">
+  <div class="w-quick-edit border-s bg-white flex flex-col">
     <!-- Linked Entry Title -->
     <div class="flex items-center justify-between px-4 h-row-largest border-b">
       <Button :icon="true" @click="$emit('close-widget')">

@@ -14,7 +14,7 @@
     <div class="flex gap-1 items-center justify-self-center">
       <feather-icon
         name="chevron-left"
-        class="w-4 h-4"
+        class="w-4 h-4 rtl-rotate-180"
         :class="
           pageNo > 1 ? 'text-gray-600 cursor-pointer' : 'text-transparent'
         "
@@ -23,7 +23,7 @@
       <div class="flex gap-1 bg-gray-100 rounded">
         <input
           type="number"
-          class="w-7 text-right outline-none bg-transparent focus:text-gray-900"
+          class="w-7 text-end outline-none bg-transparent focus:text-gray-900"
           :value="pageNo"
           @change="(e) => setPageNo(e.target.value)"
           @input="(e) => setPageNo(e.target.value)"
@@ -37,7 +37,7 @@
       </div>
       <feather-icon
         name="chevron-right"
-        class="w-4 h-4"
+        class="w-4 h-4 rtl-rotate-180"
         :class="
           pageNo < maxPages
             ? 'text-gray-600 cursor-pointer'

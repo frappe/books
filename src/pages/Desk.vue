@@ -3,7 +3,7 @@
     <Transition name="sidebar">
       <Sidebar
         v-show="sidebar"
-        class="flex-shrink-0 border-r whitespace-nowrap w-sidebar"
+        class="flex-shrink-0 border-e whitespace-nowrap w-sidebar"
         @change-db-file="$emit('change-db-file')"
         @toggle-sidebar="sidebar = !sidebar"
       />
