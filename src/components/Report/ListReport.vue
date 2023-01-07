@@ -95,6 +95,7 @@ import WithScroll from '../WithScroll.vue';
 export default defineComponent({
   props: {
     report: Report,
+    direction: String,
   },
   data() {
     return {
@@ -140,9 +141,9 @@ export default defineComponent({
     getCellStyle(cell, i) {
       const styles = {};
       const width = cell.width ?? 1;
-      const align = cell.align ?? 'left';
+      // const align = cell.align ?? this.direction == 'rtl' ? 'right' : 'left';
       styles['width'] = `${width * this.wconst}rem`;
-      styles['text-align'] = align;
+      styles['text-align'] = this.direction == 'rtl' ? 'right' : 'left';
 
       if (cell.bold) {
         styles['font-weight'] = 'bold';
@@ -153,7 +154,11 @@ export default defineComponent({
       }
 
       if (i === 0) {
-        styles['padding-left'] = '0px';
+        if(this.direction == 'rtl'){
+          styles['padding-right'] = '0px'; 
+        }else{
+          styles['padding-left'] = '0px';
+        }
       }
 
       if (
@@ -164,15 +169,23 @@ export default defineComponent({
           FieldTypeEnum.Float,
         ].includes(cell.fieldtype)
       ) {
-        styles['text-align'] = 'right';
+        styles['text-align'] = this.direction == 'rtl' ? 'right' : 'left';
       }
 
       if (i === this.report.columns.length - 1) {
-        styles['padding-right'] = '0px';
+        if(this.direction == 'rtl'){
+          styles['padding-left'] = '0px';
+        }else{
+          styles['padding-right'] = '0px';
+        }
       }
 
       if (cell.indent) {
-        styles['padding-left'] = `${cell.indent * 2}rem`;
+        if(this.direction == 'rtl'){
+          styles['padding-right'] = `${cell.indent * 2}rem`;
+        }else{
+          styles['padding-left'] = `${cell.indent * 2}rem`;
+        }
       }
 
       return styles;
