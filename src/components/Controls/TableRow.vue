@@ -18,7 +18,7 @@
       <span class="hidden" :class="{ 'group-hover:inline-block': !readOnly }">
         <feather-icon
           name="x"
-          class="w-4 h-4 -ml-1 cursor-pointer"
+          class="w-4 h-4 -ms-1 cursor-pointer"
           :button="true"
           @click="$emit('remove')"
         />

@@ -13,7 +13,7 @@
       <div
         class="items-center flex px-2 h-row-mid"
         :class="{
-          'ml-auto': isNumeric(df),
+          'ms-auto': isNumeric(df),
         }"
         v-for="df in tableFields"
         :key="df.fieldname"

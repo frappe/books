@@ -41,7 +41,7 @@
             :size="group.iconSize || '18'"
             :height="group.iconHeight"
             :active="isGroupActive(group)"
-            :class="isGroupActive(group) && !group.items ? '-ml-1' : ''"
+            :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"
           />
           <div
             class="ms-2 text-lg text-gray-900"

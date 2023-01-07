@@ -97,7 +97,7 @@
             <div
               class="text-sm text-gray-600 flex justify-between overflow-x-auto"
             >
-              <p class="whitespace-nowrap mr-2">
+              <p class="whitespace-nowrap me-2">
                 {{ formatDate(file.modified) }}
               </p>
               <p class="text-right" v-if="fyo.store.isDevelopment">
