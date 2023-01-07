@@ -8,7 +8,7 @@
       <div class="col-12" style="border-bottom:1px solid #e9ecef"></div>
     </div>
     <div class="row">
-      <div class="col-12 text-right">
+      <div class="col-12 text-end">
         <f-button primary @click="importCSV">{{ 'Import' }}</f-button>
       </div>
     </div>

@@ -26,7 +26,7 @@
     </div>
 
     <button
-      class="bg-green100 px-2 ms-1 -me-0.5 h-full border-l"
+      class="bg-green100 px-2 ms-1 -me-0.5 h-full border-s"
       @click="swap"
       v-if="!disabled"
     >

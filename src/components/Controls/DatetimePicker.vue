@@ -82,7 +82,7 @@
       <!-- Month and Year Selectors -->
       <div
         v-if="selectMonthYear"
-        class="border-l flex flex-col justify-between"
+        class="border-s flex flex-col justify-between"
       >
         <!-- Month Selector -->
         <div

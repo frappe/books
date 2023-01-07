@@ -46,18 +46,18 @@
             </div>
           </div>
           <div class="w-1/3" v-if="printObject.partyName">
-            <div class="py-1 text-right text-lg font-semibold">
+            <div class="py-1 text-end text-lg font-semibold">
               {{ printObject.partyName }}
             </div>
             <div
               v-if="printObject.partyAddress"
-              class="mt-1 text-xs text-gray-600 text-right"
+              class="mt-1 text-xs text-gray-600 text-end"
             >
               {{ printObject.partyAddress }}
             </div>
             <div
               v-if="printObject.partyGSTIN"
-              class="mt-1 text-xs text-gray-600 text-right"
+              class="mt-1 text-xs text-gray-600 text-end"
             >
               GSTIN: {{ printObject.partyGSTIN }}
             </div>
@@ -68,12 +68,12 @@
         <div>
           <div class="text-gray-600 w-full flex border-b">
             <div class="py-4 w-5/12">Item</div>
-            <div class="py-4 text-right w-2/12" v-if="printObject.showHSN">
+            <div class="py-4 text-end w-2/12" v-if="printObject.showHSN">
               HSN/SAC
             </div>
-            <div class="py-4 text-right w-1/12">Quantity</div>
-            <div class="py-4 text-right w-3/12">Rate</div>
-            <div class="py-4 text-right w-3/12">Amount</div>
+            <div class="py-4 text-end w-1/12">Quantity</div>
+            <div class="py-4 text-end w-3/12">Rate</div>
+            <div class="py-4 text-end w-3/12">Amount</div>
           </div>
           <div
             class="flex py-1 text-gray-900 w-full border-b"
@@ -81,12 +81,12 @@
             :key="row.name"
           >
             <div class="w-5/12 py-4">{{ row.item }}</div>
-            <div class="w-2/12 text-right py-4" v-if="printObject.showHSN">
+            <div class="w-2/12 text-end py-4" v-if="printObject.showHSN">
               {{ row.hsnCode }}
             </div>
-            <div class="w-1/12 text-right py-4">{{ row.quantity }}</div>
-            <div class="w-3/12 text-right py-4">{{ row.rate }}</div>
-            <div class="w-3/12 text-right py-4">{{ row.amount }}</div>
+            <div class="w-1/12 text-end py-4">{{ row.quantity }}</div>
+            <div class="w-3/12 text-end py-4">{{ row.rate }}</div>
+            <div class="w-3/12 text-end py-4">{{ row.amount }}</div>
           </div>
         </div>
       </div>

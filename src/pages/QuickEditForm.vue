@@ -1,6 +1,6 @@
 <template>
   <div
-    class="border-l h-full overflow-auto w-quick-edit"
+    class="border-s h-full overflow-auto w-quick-edit"
     :class="white ? 'bg-white' : 'bg-gray-25'"
   >
     <!-- Quick edit Tool bar -->

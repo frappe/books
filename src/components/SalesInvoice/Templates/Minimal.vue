@@ -38,7 +38,7 @@
             </div>
           </div>
         </div>
-        <div class="text-right">
+        <div class="text-end">
           <div
             class="font-semibold text-xl"
             :style="{ color: printObject.color }"
@@ -110,10 +110,10 @@
         "
       >
         <div class="w-4/12">Item</div>
-        <div class="w-2/12 text-right" v-if="printObject.showHSN">HSN/SAC</div>
-        <div class="w-2/12 text-right">Quantity</div>
-        <div class="w-3/12 text-right">Rate</div>
-        <div class="w-3/12 text-right">Amount</div>
+        <div class="w-2/12 text-end" v-if="printObject.showHSN">HSN/SAC</div>
+        <div class="w-2/12 text-end">Quantity</div>
+        <div class="w-3/12 text-end">Rate</div>
+        <div class="w-3/12 text-end">Amount</div>
       </div>
       <div
         class="flex py-1 text-lg"
@@ -121,12 +121,12 @@
         :key="row.name"
       >
         <div class="w-4/12">{{ row.item }}</div>
-        <div class="w-2/12 text-right" v-if="printObject.showHSN">
+        <div class="w-2/12 text-end" v-if="printObject.showHSN">
           {{ row.hsnCode }}
         </div>
-        <div class="w-2/12 text-right">{{ row.quantity }}</div>
-        <div class="w-3/12 text-right">{{ row.rate }}</div>
-        <div class="w-3/12 text-right">{{ row.amount }}</div>
+        <div class="w-2/12 text-end">{{ row.quantity }}</div>
+        <div class="w-3/12 text-end">{{ row.rate }}</div>
+        <div class="w-3/12 text-end">{{ row.amount }}</div>
       </div>
     </div>
     <div class="flex px-12 py-10">

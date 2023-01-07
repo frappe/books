@@ -61,7 +61,7 @@
       :offset="15"
       :show="show"
       placement="top"
-      class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-l-4"
+      class="text-sm shadow-md px-2 py-1 bg-white text-gray-900 border-s-4"
       :style="{ borderColor: colors }"
     >
       <div class="flex justify-between gap-4">

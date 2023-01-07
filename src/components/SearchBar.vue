@@ -52,7 +52,7 @@
         :key="`${i}-${si.key}`"
         ref="suggestions"
         class="hover:bg-gray-50 cursor-pointer"
-        :class="idx === i ? 'border-blue-500 bg-gray-50 border-l-4' : ''"
+        :class="idx === i ? 'border-blue-500 bg-gray-50 border-s-4' : ''"
         @click="select(i)"
       >
         <!-- Search List Item -->
@@ -72,7 +72,7 @@
             </p>
           </div>
           <p
-            class="text-sm text-right justify-self-end"
+            class="text-sm text-end justify-self-end"
             :class="`text-${groupColorMap[si.group]}-500`"
           >
             {{ si.group === 'Docs' ? si.schemaLabel : groupLabelMap[si.group] }}

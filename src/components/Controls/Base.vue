@@ -76,7 +76,7 @@ export default {
 
       classes.push(this.baseInputClasses);
       if (this.textRight ?? isNumeric(this.df)) {
-        classes.push('text-right');
+        classes.push('text-end');
       }
 
       classes.push(this.sizeClasses);

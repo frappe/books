@@ -66,7 +66,7 @@
           {{ t`Add Row` }}
         </p>
         <p
-          class="text-right px-2"
+          class="text-end px-2"
           v-if="
             value &&
             maxRowsBeforeOverflow &&

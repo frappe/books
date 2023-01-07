@@ -100,7 +100,7 @@
               <p class="whitespace-nowrap me-2">
                 {{ formatDate(file.modified) }}
               </p>
-              <p class="text-right" v-if="fyo.store.isDevelopment">
+              <p class="text-end" v-if="fyo.store.isDevelopment">
                 {{ file.dbPath }}
               </p>
             </div>
