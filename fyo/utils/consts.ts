@@ -7,3 +7,16 @@ export const DEFAULT_CURRENCY = 'INR';
 export const DEFAULT_LANGUAGE = 'English';
 export const DEFAULT_SERIES_START = 1001;
 export const DEFAULT_USER = 'Admin';
+export const RTL_LAGNUAGES = [
+    "Arabic",
+    "Aramaic",
+    "Azeri",
+    "Dhivehi",
+    "Maldivian",
+    "Hebrew",
+    "Kurdish",
+    "Sorani",
+    "Persian",
+    "Farsi",
+    "Urdu"
+];
