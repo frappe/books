@@ -26,7 +26,7 @@
           "
           :class="{
             'ms-auto': isNumeric(column.fieldtype),
-            'pr-4': i === columns.length - 1,
+            'pe-4': i === columns.length - 1,
           }"
         >
           {{ column.label }}
@@ -54,7 +54,7 @@
               :key="column.label"
               :class="{
                 'text-right': isNumeric(column.fieldtype),
-                'pr-4': c === columns.length - 1,
+                'pe-4': c === columns.length - 1,
               }"
               :doc="doc"
               :column="column"
