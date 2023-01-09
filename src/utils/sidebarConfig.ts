@@ -1,4 +1,5 @@
 import { t } from 'fyo';
+import { routeFilters } from 'src/utils/filters';
 import { fyo } from '../initFyo';
 import { SidebarConfig, SidebarRoot } from './types';
 
@@ -165,21 +166,21 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           name: 'payments',
           route: `/list/Payment/${t`Sales Payments`}`,
           schemaName: 'Payment',
-          filters: { paymentType: 'Receive' },
+          filters: routeFilters.SalesPayments,
         },
         {
           label: t`Customers`,
           name: 'customers',
           route: `/list/Party/${t`Customers`}`,
           schemaName: 'Party',
-          filters: { role: ['in', ['Customer', 'Both']] },
+          filters: routeFilters.Customers,
         },
         {
           label: t`Sales Items`,
           name: 'sales-items',
           route: `/list/Item/${t`Sales Items`}`,
           schemaName: 'Item',
-          filters: { for: ['in', ['Sales', 'Both']] },
+          filters: routeFilters.SalesItems,
         },
       ],
     },
@@ -200,21 +201,21 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           name: 'payments',
           route: `/list/Payment/${t`Purchase Payments`}`,
           schemaName: 'Payment',
-          filters: { paymentType: 'Pay' },
+          filters: routeFilters.PurchasePayments,
         },
         {
           label: t`Suppliers`,
           name: 'suppliers',
           route: `/list/Party/${t`Suppliers`}`,
           schemaName: 'Party',
-          filters: { role: ['in', ['Supplier', 'Both']] },
+          filters: routeFilters.Suppliers,
         },
         {
           label: t`Purchase Items`,
           name: 'purchase-items',
           route: `/list/Item/${t`Purchase Items`}`,
           schemaName: 'Item',
-          filters: { for: ['in', ['Purchases', 'Both']] },
+          filters: routeFilters.PurchaseItems,
         },
       ],
     },
@@ -238,9 +239,9 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           filters: { role: 'Both' },
         },
         {
-          label: t`Common Items`,
+          label: t`Items`,
           name: 'common-items',
-          route: `/list/Item/${t`Common Items`}`,
+          route: `/list/Item/${t`Items`}`,
           schemaName: 'Item',
           filters: { for: 'Both' },
         },

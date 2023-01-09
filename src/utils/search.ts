@@ -4,9 +4,11 @@ import { groupBy } from 'lodash';
 import { ModelNameEnum } from 'models/types';
 import { reports } from 'reports';
 import { OptionField } from 'schemas/types';
-import { getEntryRoute } from 'src/router';
+import { getCreateRoute } from 'src/router';
+import { createFilters, routeFilters } from 'src/utils/filters';
 import { GetAllOptions } from 'utils/db/types';
 import { safeParseFloat } from 'utils/index';
+import { RouteLocationRaw } from 'vue-router';
 import { fuzzyMatch } from '.';
 import { routeTo } from './ui';
 
@@ -92,9 +94,6 @@ async function openFormEditDoc(schemaName: string, fyo: Fyo) {
 function getCreateList(fyo: Fyo): SearchItem[] {
   const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;
   const quickEditCreateList = [
-    ModelNameEnum.Item,
-    ModelNameEnum.Party,
-    ModelNameEnum.Payment,
     ...(hasInventory ? [ModelNameEnum.StockMovement] : []),
   ].map(
     (schemaName) =>
@@ -127,35 +126,59 @@ function getCreateList(fyo: Fyo): SearchItem[] {
 
   const filteredCreateList = [
     {
+      label: t`Sales Payments`,
+      schemaName: ModelNameEnum.Payment,
+      route: `/list/Payment/${t`Sales Payments`}`,
+      create: createFilters.SalesPayments,
+      filter: routeFilters.SalesPayments,
+    },
+    {
+      label: t`Purchase Payments`,
+      schemaName: ModelNameEnum.Payment,
+      route: `/list/Payment/${t`Purchase Payments`}`,
+      create: createFilters.PurchasePayments,
+      filter: routeFilters.PurchasePayments,
+    },
+    {
       label: t`Customers`,
       schemaName: ModelNameEnum.Party,
-      filter: { role: 'Customer' },
+      create: createFilters.Customers,
+      filter: routeFilters.Customers,
     },
     {
       label: t`Suppliers`,
       schemaName: ModelNameEnum.Party,
-      filter: { role: 'Supplier' },
+      create: createFilters.Suppliers,
+      filter: routeFilters.Suppliers,
+    },
+    {
+      label: t`Party`,
+      schemaName: ModelNameEnum.Party,
+      create: createFilters.Party,
+      filter: routeFilters.Party,
     },
     {
       label: t`Sales Items`,
       schemaName: ModelNameEnum.Item,
-      filter: { for: 'Sales' },
+      create: createFilters.SalesItems,
+      filter: routeFilters.SalesItems,
     },
     {
       label: t`Purchase Items`,
       schemaName: ModelNameEnum.Item,
-      filter: { for: 'Purchases' },
+      create: createFilters.PurchaseItems,
+      filter: routeFilters.PurchaseItems,
     },
     {
-      label: t`Common Items`,
+      label: t`Items`,
       schemaName: ModelNameEnum.Item,
-      filter: { for: 'Both' },
+      create: createFilters.Items,
+      filter: routeFilters.Items,
     },
-  ].map(({ label, filter, schemaName }) => {
-    const fk = Object.keys(filter)[0] as 'for' | 'role';
+  ].map(({ label, filter, create, schemaName }) => {
     const route = {
       path: `/list/${schemaName}/${label}`,
-      query: { filters: JSON.stringify({ [fk]: filter[fk] }) },
+      query: { filters: JSON.stringify(filter) },
     };
 
     return {
@@ -163,11 +186,12 @@ function getCreateList(fyo: Fyo): SearchItem[] {
       group: 'Create',
       async action() {
         await routeTo(route);
-        const doc = await fyo.doc.getNewDoc(schemaName, filter);
+        const doc = fyo.doc.getNewDoc(schemaName, create);
         const { openQuickEdit } = await import('src/utils/ui');
         await openQuickEdit({
           schemaName,
           name: doc.name as string,
+          listFilters: filter,
         });
       },
     } as SearchItem;
@@ -204,8 +228,6 @@ function getReportList(fyo: Fyo): SearchItem[] {
 function getListViewList(fyo: Fyo): SearchItem[] {
   let schemaNames = [
     ModelNameEnum.Account,
-    ModelNameEnum.Party,
-    ModelNameEnum.Payment,
     ModelNameEnum.JournalEntry,
     ModelNameEnum.PurchaseInvoice,
     ModelNameEnum.SalesInvoice,
@@ -224,6 +246,7 @@ function getListViewList(fyo: Fyo): SearchItem[] {
   if (fyo.store.isDevelopment) {
     schemaNames = Object.keys(fyo.schemaMap) as ModelNameEnum[];
   }
+
   const standardLists = schemaNames
     .map((s) => fyo.schemaMap[s])
     .filter((s) => s && !s.isChild && !s.isSingle)
@@ -240,37 +263,42 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     {
       label: t`Customers`,
       route: `/list/Party/${t`Customers`}`,
-      filters: { role: ['Customer', 'Both'] },
+      filters: routeFilters.Customers,
     },
     {
       label: t`Suppliers`,
       route: `/list/Party/${t`Suppliers`}`,
-      filters: { role: ['Supplier', 'Both'] },
+      filters: routeFilters.Suppliers,
+    },
+    {
+      label: t`Party`,
+      route: `/list/Party/${t`Party`}`,
+      filters: routeFilters.Party,
     },
     {
       label: t`Sales Items`,
       route: `/list/Item/${t`Sales Items`}`,
-      filters: { for: ['in', ['Sales', 'Both']] },
+      filters: routeFilters.SalesItems,
     },
     {
       label: t`Sales Payments`,
       route: `/list/Payment/${t`Sales Payments`}`,
-      filters: { paymentType: 'Receive' },
+      filters: routeFilters.SalesPayments,
     },
     {
       label: t`Purchase Items`,
       route: `/list/Item/${t`Purchase Items`}`,
-      filters: { for: ['in', ['Purchases', 'Both']] },
+      filters: routeFilters.PurchaseItems,
     },
     {
-      label: t`Common Items`,
-      route: `/list/Item/${t`Common Items`}`,
-      filters: { for: 'Both' },
+      label: t`Items`,
+      route: `/list/Item/${t`Items`}`,
+      filters: routeFilters.Items,
     },
     {
       label: t`Purchase Payments`,
       route: `/list/Payment/${t`Purchase Payments`}`,
-      filters: { paymentType: 'Pay' },
+      filters: routeFilters.PurchasePayments,
     },
   ].map((i) => {
     const label = i.label;
@@ -705,13 +733,13 @@ export class Search {
     };
   }
 
-  _getRouteFromKeyword(keyword: Keyword): string {
+  _getRouteFromKeyword(keyword: Keyword): RouteLocationRaw {
     const { parent, parentSchemaName, schemaName } = keyword.meta;
     if (parent && parentSchemaName) {
-      return getEntryRoute(parentSchemaName as string, parent as string);
+      return getCreateRoute(parentSchemaName as string, parent as string);
     }
 
-    return getEntryRoute(schemaName as string, keyword.values[0]);
+    return getCreateRoute(schemaName as string, keyword.values[0]);
   }
 
   _getGroupedKeywords() {

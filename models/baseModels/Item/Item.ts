@@ -17,6 +17,7 @@ import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 export class Item extends Doc {
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
+  for?: 'Purchases' | 'Sales' | 'Both';
 
   formulas: FormulaMap = {
     incomeAccount: {

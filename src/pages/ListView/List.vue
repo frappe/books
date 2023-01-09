@@ -46,7 +46,7 @@
           <Row
             gap="1rem"
             class="cursor-pointer text-gray-900 flex-1 border-none h-row-mid"
-            @click="openForm(doc)"
+            @click="$emit('openDoc', doc.name)"
             :columnCount="columns.length"
           >
             <ListCell
@@ -103,7 +103,7 @@ import ListCell from './ListCell';
 export default defineComponent({
   name: 'List',
   props: { listConfig: Object, filters: Object, schemaName: String },
-  emits: ['makeNewDoc', 'updatedData'],
+  emits: ['openDoc', 'makeNewDoc', 'updatedData'],
   components: {
     Row,
     ListCell,
@@ -179,17 +179,6 @@ export default defineComponent({
       fyo.doc.observer.on(`sync:${this.schemaName}`, listener);
       fyo.db.observer.on(`delete:${this.schemaName}`, listener);
       fyo.doc.observer.on(`rename:${this.schemaName}`, listener);
-    },
-    openForm(doc) {
-      if (this.listConfig.formRoute) {
-        routeTo(this.listConfig.formRoute(doc.name));
-        return;
-      }
-
-      openQuickEdit({
-        schemaName: this.schemaName,
-        name: doc.name,
-      });
     },
     async updateData(filters) {
       if (!filters) {

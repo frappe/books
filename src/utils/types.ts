@@ -31,6 +31,7 @@ export interface QuickEditOptions {
   hideFields?: string[];
   showFields?: string[];
   defaults?: Record<string, unknown>;
+  listFilters?: QueryFilter
 }
 
 export type SidebarConfig = SidebarRoot[];

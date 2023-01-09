@@ -11,7 +11,12 @@ import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
-import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import {
+  createRouter,
+  createWebHistory,
+  RouteLocationRaw,
+  RouteRecordRaw,
+} from 'vue-router';
 
 function getGeneralFormItems(): RouteRecordRaw[] {
   return [ModelNameEnum.Shipment, ModelNameEnum.PurchaseReceipt].map(
@@ -151,7 +156,10 @@ const routes: RouteRecordRaw[] = [
   },
 ];
 
-export function getEntryRoute(schemaName: string, name: string) {
+export function getCreateRoute(
+  schemaName: string,
+  name: string
+): RouteLocationRaw {
   if (
     [
       ModelNameEnum.SalesInvoice,

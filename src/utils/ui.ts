@@ -32,6 +32,7 @@ export async function openQuickEdit({
   hideFields = [],
   showFields = [],
   defaults = {},
+  listFilters = {},
 }: QuickEditOptions) {
   if (doc) {
     schemaName = doc.schemaName;
@@ -74,12 +75,13 @@ export async function openQuickEdit({
 
   router[method]({
     query: {
-      edit: '1',
+      edit: 1,
       schemaName,
       name,
       showFields,
       hideFields,
       defaults: stringifyCircular(defaults),
+      filters: JSON.stringify(listFilters),
     },
   });
 }
@@ -141,7 +143,7 @@ export function openSettings(tab: SettingsTab) {
   routeTo({ path: '/settings', query: { tab } });
 }
 
-export async function routeTo(route: string | RouteLocationRaw) {
+export async function routeTo(route: RouteLocationRaw) {
   if (
     typeof route === 'string' &&
     route === router.currentRoute.value.fullPath
