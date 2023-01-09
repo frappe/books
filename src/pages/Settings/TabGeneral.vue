@@ -28,15 +28,9 @@ export default defineComponent({
         'fiscalYearEnd',
         'writeOffAccount',
         'roundOffAccount',
+        'enableDiscounting',
+        'enableInventory',
       ];
-
-      if (!this.doc?.enableDiscounting) {
-        fields.push('enableDiscounting');
-      }
-
-      if (!this.doc?.enableInventory) {
-        fields.push('enableInventory');
-      }
 
       if (this.doc?.enableDiscounting) {
         fields.push('discountAccount');
