@@ -25,6 +25,7 @@
       :listConfig="listConfig"
       :filters="filters"
       class="flex-1 flex h-full"
+      @openDoc="openDoc"
       @updatedData="updatedData"
       @makeNewDoc="makeNewDoc"
     />
@@ -44,8 +45,12 @@ import FilterDropdown from 'src/components/FilterDropdown.vue';
 import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
-import { docsPathMap, getCreateFiltersFromListViewFilters } from 'src/utils/misc';
-import { docsPath, routeTo } from 'src/utils/ui';
+import { getRouteData } from 'src/utils/filters';
+import {
+  docsPathMap,
+  getCreateFiltersFromListViewFilters,
+} from 'src/utils/misc';
+import { docsPath, openQuickEdit, routeTo } from 'src/utils/ui';
 import List from './List.vue';
 
 export default {
@@ -89,32 +94,52 @@ export default {
     updatedData(listFilters) {
       this.listFilters = listFilters;
     },
+    async openDoc(name) {
+      const doc = await this.fyo.doc.getDoc(this.schemaName, name);
+
+      if (this.listConfig.formRoute) {
+        return await routeTo(this.listConfig.formRoute(doc));
+      }
+
+      const { routeFilter } = getRouteData({ doc });
+
+      openQuickEdit({
+        doc,
+        listFilters: routeFilter,
+      });
+    },
     async makeNewDoc() {
       const filters = getCreateFiltersFromListViewFilters(this.filters ?? {});
       const doc = fyo.doc.getNewDoc(this.schemaName, filters);
-      const path = this.getFormPath(doc.name);
+      const path = this.getFormPath(doc);
 
       await routeTo(path);
       doc.on('afterSync', () => {
-        const path = this.getFormPath(doc.name);
+        const path = this.getFormPath(doc);
         this.$router.replace(path);
       });
     },
     applyFilter(filters) {
       this.$refs.list.updateData(filters);
     },
-    getFormPath(name) {
+    getFormPath(doc) {
+      const { label, routeFilter } = getRouteData({ doc });
       let path = {
-        path: `/list/${this.schemaName}`,
+        path: `/list/${this.schemaName}/${label}`,
         query: {
           edit: 1,
           schemaName: this.schemaName,
-          name,
+          name: doc.name,
+          filters: JSON.stringify(routeFilter),
         },
       };
 
       if (this.listConfig.formRoute) {
-        path = this.listConfig.formRoute(name);
+        path = this.listConfig.formRoute(doc);
+      }
+
+      if (typeof path === 'object') {
+        return path;
       }
 
       // Maintain filter if present

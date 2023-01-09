@@ -2,7 +2,7 @@ import { DocValue, DocValueMap } from 'fyo/core/types';
 import SystemSettings from 'fyo/models/SystemSettings';
 import { FieldType, Schema, SelectOption } from 'schemas/types';
 import { QueryFilter } from 'utils/db/types';
-import { Router } from 'vue-router';
+import { RouteLocationRaw, Router } from 'vue-router';
 import { Doc } from './doc';
 
 /**
@@ -87,7 +87,7 @@ export interface ColumnConfig {
 
 export type ListViewColumn = string | ColumnConfig;
 export interface ListViewSettings {
-  formRoute?: (name: string) => string;
+  formRoute?: (doc: Doc) => RouteLocationRaw;
   columns?: ListViewColumn[];
 }
 

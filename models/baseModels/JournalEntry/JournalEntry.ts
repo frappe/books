@@ -4,14 +4,15 @@ import {
   Action,
   DefaultMap,
   FiltersMap,
-  ListViewSettings
+  ListViewSettings,
 } from 'fyo/model/types';
 import { DateTime } from 'luxon';
 import {
   getDocStatus,
   getLedgerLinkAction,
-  getNumberSeries, getStatusText,
-  statusColor
+  getNumberSeries,
+  getStatusText,
+  statusColor,
 } from 'models/helpers';
 import { Transactional } from 'models/Transactional/Transactional';
 import { Money } from 'pesa';
@@ -53,7 +54,7 @@ export class JournalEntry extends Transactional {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      formRoute: (name) => `/edit/JournalEntry/${name}`,
+      formRoute: ({ name }) => `/edit/JournalEntry/${name}`,
       columns: [
         'name',
         {

@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import { Money } from 'pesa';
-import { getEntryRoute } from 'src/router';
+import { getCreateRoute } from 'src/router';
 import { getStatus, routeTo } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 import Button from '../Button.vue';
@@ -80,7 +80,7 @@ export default defineComponent({
   methods: {
     getStatus,
     async openEntry(name: string) {
-      const route = getEntryRoute(this.linked.schemaName, name);
+      const route = getCreateRoute(this.linked.schemaName, name);
       await routeTo(route);
     },
   },
