@@ -87,7 +87,7 @@
 </template>
 <script>
 import { Report } from 'reports/Report';
-import { FieldTypeEnum } from 'schemas/types';
+import { isNumeric } from 'src/utils';
 import { defineComponent } from 'vue';
 import Paginator from '../Paginator.vue';
 import WithScroll from '../WithScroll.vue';
@@ -95,8 +95,8 @@ import WithScroll from '../WithScroll.vue';
 export default defineComponent({
   props: {
     report: Report,
-    direction: String,
   },
+  inject: ['languageDirection'],
   data() {
     return {
       wconst: 8,
@@ -141,9 +141,14 @@ export default defineComponent({
     getCellStyle(cell, i) {
       const styles = {};
       const width = cell.width ?? 1;
-      // const align = cell.align ?? this.direction == 'rtl' ? 'right' : 'left';
+
+      let align = cell.align ?? 'left';
+      if (this.languageDirection === 'rtl') {
+        align = this.languageDirection === 'rtl' ? 'right' : 'left';
+      }
+
       styles['width'] = `${width * this.wconst}rem`;
-      styles['text-align'] = this.direction == 'rtl' ? 'right' : 'left';
+      styles['text-align'] = align;
 
       if (cell.bold) {
         styles['font-weight'] = 'bold';
@@ -154,36 +159,29 @@ export default defineComponent({
       }
 
       if (i === 0) {
-        if(this.direction == 'rtl'){
-          styles['padding-right'] = '0px'; 
-        }else{
+        if (this.languageDirection === 'rtl') {
+          styles['padding-right'] = '0px';
+        } else {
           styles['padding-left'] = '0px';
         }
       }
 
-      if (
-        !cell.align &&
-        [
-          FieldTypeEnum.Currency,
-          FieldTypeEnum.Int,
-          FieldTypeEnum.Float,
-        ].includes(cell.fieldtype)
-      ) {
-        styles['text-align'] = this.direction == 'rtl' ? 'right' : 'left';
+      if (!cell.align && isNumeric(cell.fieldtype)) {
+        styles['text-align'] = 'right';
       }
 
       if (i === this.report.columns.length - 1) {
-        if(this.direction == 'rtl'){
+        if (this.languageDirection === 'rtl') {
           styles['padding-left'] = '0px';
-        }else{
+        } else {
           styles['padding-right'] = '0px';
         }
       }
 
       if (cell.indent) {
-        if(this.direction == 'rtl'){
+        if (this.languageDirection === 'rtl') {
           styles['padding-right'] = `${cell.indent * 2}rem`;
-        }else{
+        } else {
           styles['padding-left'] = `${cell.indent * 2}rem`;
         }
       }

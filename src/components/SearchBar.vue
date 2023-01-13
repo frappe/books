@@ -196,8 +196,7 @@ import { openLink } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { getGroupLabelMap, searchGroups } from 'src/utils/search';
 import { getModKeyCode } from 'src/utils/vueUtils';
-import { safeParseInt } from 'utils/index';
-import { nextTick, watch } from 'vue';
+import { nextTick } from 'vue';
 import Button from './Button.vue';
 import Modal from './Modal.vue';
 

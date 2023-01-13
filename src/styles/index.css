@@ -172,11 +172,11 @@ input[type='number']::-webkit-inner-spin-button {
 /* 
   RTL
  */
- 
-[dir="rtl"] .rtl-rotate-180{
+
+[dir='rtl'] .rtl-rotate-180 {
   transform: rotate(180deg);
 }
 
-[dir="rtl"] .custom-scroll::-webkit-scrollbar-track:vertical {
+[dir='rtl'] .custom-scroll::-webkit-scrollbar-track:vertical {
   border-right: solid 1px theme('colors.gray.200');
 }

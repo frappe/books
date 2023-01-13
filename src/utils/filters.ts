@@ -33,7 +33,6 @@ export function getRouteData({ doc, uiname }: { doc?: Doc; uiname?: string }) {
   if (doc) {
     uiname = getUiName(doc);
   }
-  console.log(uiname);
 
   if (!uiname) {
     throw new ValueError(`Doc and uiname not passed to getFilters`);
