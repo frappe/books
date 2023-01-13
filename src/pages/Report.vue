@@ -33,7 +33,7 @@
     </div>
 
     <!-- Report Body -->
-    <ListReport v-if="report" :report="report" class="" />
+    <ListReport v-if="report" :report="report" class="" :direction="direction" />
   </div>
 </template>
 <script>
@@ -45,6 +45,7 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import ListReport from 'src/components/Report/ListReport.vue';
 import { fyo } from 'src/initFyo';
+import { RTL_LAGNUAGES } from 'fyo/utils/consts';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath } from 'src/utils/ui';
 import { defineComponent } from 'vue';
@@ -61,6 +62,7 @@ export default defineComponent({
     return {
       loading: false,
       report: null,
+      direction: 'ltr',
     };
   },
   provide() {
@@ -117,6 +119,8 @@ export default defineComponent({
   },
   methods: {
     async setReportData() {
+      const language = fyo.config.get("language");
+      this.direction = RTL_LAGNUAGES.includes(language) ? 'rtl' : 'ltr';
       const Report = reports[this.reportClassName];
 
       if (this.report === null) {

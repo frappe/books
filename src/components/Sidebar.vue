@@ -30,7 +30,7 @@
           class="px-4 flex items-center cursor-pointer hover:bg-gray-100 h-10"
           :class="
             isGroupActive(group) && !group.items
-              ? 'bg-gray-100 border-l-4 border-blue-500'
+              ? 'bg-gray-100 border-s-4 border-blue-500'
               : ''
           "
           @click="onGroupClick(group)"
@@ -41,10 +41,10 @@
             :size="group.iconSize || '18'"
             :height="group.iconHeight"
             :active="isGroupActive(group)"
-            :class="isGroupActive(group) && !group.items ? '-ml-1' : ''"
+            :class="isGroupActive(group) && !group.items ? '-ms-1' : ''"
           />
           <div
-            class="ml-2 text-lg text-gray-900"
+            class="ms-2 text-lg text-gray-900"
             :class="isGroupActive(group) && !group.items && 'text-blue-600'"
           >
             {{ group.label }}
@@ -59,7 +59,7 @@
             class="
               text-base text-gray-800
               h-10
-              pl-10
+              ps-10
               cursor-pointer
               flex
               items-center
@@ -67,7 +67,7 @@
             "
             :class="
               isItemActive(item)
-                ? 'bg-gray-100 text-blue-600 border-l-4 border-blue-500'
+                ? 'bg-gray-100 text-blue-600 border-s-4 border-blue-500'
                 : ''
             "
             @click="onItemClick(item)"
@@ -141,12 +141,13 @@
       class="
         absolute
         bottom-0
-        right-0
+        end-0
         text-gray-600
         hover:bg-gray-100
         rounded
         p-1
         m-4
+        rtl-rotate-180
       "
       @click="$emit('toggle-sidebar')"
     >

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="border-l h-full overflow-auto w-quick-edit"
+    class="border-s h-full overflow-auto w-quick-edit"
     :class="white ? 'bg-white' : 'bg-gray-25'"
   >
     <!-- Quick edit Tool bar -->
@@ -13,7 +13,7 @@
         <Button :icon="true" @click="routeToPrevious">
           <feather-icon name="x" class="w-4 h-4" />
         </Button>
-        <span v-if="statusText" class="ml-2 text-base text-gray-600">{{
+        <span v-if="statusText" class="ms-2 text-base text-gray-600">{{
           statusText
         }}</span>
       </div>
@@ -55,7 +55,7 @@
     >
       <FormControl
         v-if="imageField"
-        class="ml-4"
+        class="ms-4"
         :df="imageField"
         :value="doc[imageField.fieldname]"
         @change="(value) => valueChange(imageField, value)"
@@ -63,7 +63,7 @@
       />
       <FormControl
         v-if="titleField"
-        :class="!!imageField ? 'mr-4' : 'w-full mx-4'"
+        :class="!!imageField ? 'me-4' : 'w-full mx-4'"
         :input-class="[
           'font-semibold text-xl',
           !!imageField ? '' : 'text-center',

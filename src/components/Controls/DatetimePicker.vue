@@ -82,7 +82,7 @@
       <!-- Month and Year Selectors -->
       <div
         v-if="selectMonthYear"
-        class="border-l flex flex-col justify-between"
+        class="border-s flex flex-col justify-between"
       >
         <!-- Month Selector -->
         <div
@@ -171,7 +171,7 @@
 
       <button
         v-if="showClear"
-        class="text-xs text-gray-600 hover:text-gray-600 ml-auto"
+        class="text-xs text-gray-600 hover:text-gray-600 ms-auto"
         @click="clearClicked"
       >
         {{ t`Clear` }}

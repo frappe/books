@@ -14,11 +14,11 @@
     "
   >
     <!-- Index or Remove button -->
-    <div class="flex items-center pl-2 text-gray-600">
+    <div class="flex items-center ps-2 text-gray-600">
       <span class="hidden" :class="{ 'group-hover:inline-block': !readOnly }">
         <feather-icon
           name="x"
-          class="w-4 h-4 -ml-1 cursor-pointer"
+          class="w-4 h-4 -ms-1 cursor-pointer"
           :button="true"
           @click="$emit('remove')"
         />
@@ -50,7 +50,7 @@
 
     <!-- Error Display -->
     <div
-      class="text-xs text-red-600 pl-2 col-span-full relative"
+      class="text-xs text-red-600 ps-2 col-span-full relative"
       style="bottom: 0.75rem; height: 0px"
       v-if="hasErrors"
     >

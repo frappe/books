@@ -23,7 +23,7 @@
 
         <button
           v-if="!isReadOnly"
-          class="p-0.5 rounded -mr-1 ml-1"
+          class="p-0.5 rounded -me-1 ms-1"
           :class="showMandatory ? 'bg-red-300' : 'bg-gray-300'"
           @click="togglePopover"
         >

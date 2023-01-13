@@ -71,7 +71,7 @@
             :read-only="doc?.submitted"
           />
           <FormControl
-            input-class="text-right"
+            input-class="text-end"
             :border="true"
             :df="getField('date')"
             :value="doc.date"
@@ -79,7 +79,7 @@
             :read-only="doc?.submitted"
           />
           <FormControl
-            input-class="text-right"
+            input-class="text-end"
             :border="true"
             :df="getField('numberSeries')"
             :value="doc.numberSeries"
@@ -145,7 +145,7 @@
           </div>
 
           <!-- Totals -->
-          <div class="w-1/2 gap-2 flex flex-col self-end ml-auto">
+          <div class="w-1/2 gap-2 flex flex-col self-end ms-auto">
             <!-- Subtotal -->
             <div class="flex justify-between">
               <div>{{ t`Subtotal` }}</div>

@@ -36,7 +36,7 @@
             :schema-name="'SalesInvoice'"
             :common-period="period"
             @period-change="handlePeriodChange"
-            class="border-r"
+            class="border-e"
           />
           <UnpaidInvoices
             :schema-name="'PurchaseInvoice'"
@@ -47,7 +47,7 @@
         <hr />
         <div class="flex">
           <ProfitAndLoss
-            class="w-full p-4 border-r"
+            class="w-full p-4 border-e"
             :common-period="period"
             @period-change="handlePeriodChange"
           />

@@ -38,7 +38,7 @@
         />
 
         <p
-          class="text-base ml-2"
+          class="text-base ms-2"
           :class="fileName ? 'text-gray-900 font-semibold' : 'text-gray-700'"
         >
           <span v-if="fileName" class="font-normal"
@@ -88,7 +88,7 @@
               items-center
               gap-2
               bg-gray-100
-              pl-2
+              ps-2
               rounded
               text-gray-900
               w-40
@@ -105,7 +105,7 @@
                 py-1
                 rounded-md
                 w-10
-                text-right
+                text-end
               "
               min="1"
               :max="importer.csv.length - 1"
@@ -277,7 +277,7 @@
               "
             >
               <FeatherIcon name="plus" class="w-4 h-4" />
-              <p class="pl-4">
+              <p class="ps-4">
                 {{ t`Add Row` }}
               </p>
             </button>
@@ -306,10 +306,10 @@
           <div
             v-for="(n, i) in names"
             :key="'name-' + i"
-            class="grid grid-cols-2 gap-2 border-b pb-2 mb-2 pr-4 text-lg w-60"
+            class="grid grid-cols-2 gap-2 border-b pb-2 mb-2 pe-4 text-lg w-60"
             style="grid-template-columns: 2rem auto"
           >
-            <p class="text-right">{{ i + 1 }}.</p>
+            <p class="text-end">{{ i + 1 }}.</p>
             <p>
               {{ n }}
             </p>

@@ -4,7 +4,7 @@
       class="flex items-center"
       :class="spaceBetween ? 'justify-between' : ''"
     >
-      <div class="mr-3" :class="labelClasses" v-if="showLabel && !labelRight">
+      <div class="me-3" :class="labelClasses" v-if="showLabel && !labelRight">
         {{ df.label }}
       </div>
       <div
@@ -66,7 +66,7 @@
           @focus="(e) => $emit('focus', e)"
         />
       </div>
-      <div class="ml-3" :class="labelClasses" v-if="showLabel && labelRight">
+      <div class="ms-3" :class="labelClasses" v-if="showLabel && labelRight">
         {{ df.label }}
       </div>
     </label>

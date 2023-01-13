@@ -63,15 +63,15 @@
           height: getFieldHeight(df),
         }"
       >
-        <div class="pl-4 flex text-gray-600">
+        <div class="ps-4 flex text-gray-600">
           {{ df.label }}
         </div>
 
         <div
-          class="py-2 pr-4"
+          class="py-2 pe-4"
           @click="activateInlineEditing(df)"
           :class="{
-            'pl-2': df.fieldtype === 'AttachImage',
+            'ps-2': df.fieldtype === 'AttachImage',
           }"
         >
           <FormControl
@@ -81,13 +81,13 @@
             :value="getRegularValue(df)"
             :class="{ 'p-2': df.fieldtype === 'Check' }"
             :read-only="readOnly"
-            :text-right="false"
+            :text-end="false"
             @change="async (value) => await onChange(df, value)"
             @focus="activateInlineEditing(df)"
             @new-doc="async (newdoc) => await onChange(df, newdoc.name)"
           />
           <div
-            class="text-sm text-red-600 mt-2 pl-2"
+            class="text-sm text-red-600 mt-2 ps-2"
             v-if="errors[df.fieldname]"
           >
             {{ errors[df.fieldname] }}
