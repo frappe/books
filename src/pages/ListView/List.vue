@@ -1,5 +1,5 @@
 <template>
-  <div class="text-base flex flex-col overflow-y-hidden">
+  <div class="text-base flex flex-col overflow-hidden">
     <!-- Title Row -->
     <div
       class="flex items-center"

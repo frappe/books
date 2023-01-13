@@ -88,7 +88,7 @@
             items-center
             text-base
           "
-          :style="getGroupStyle(account.level+1)"
+          :style="getGroupStyle(account.level + 1)"
           :key="account.name + '-adding-account'"
         >
           <component
@@ -146,7 +146,6 @@ import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
-import { RTL_LAGNUAGES } from 'fyo/utils/consts';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, openQuickEdit } from 'src/utils/ui';
 import { getMapFromList, removeAtIndex } from 'utils/index';
@@ -170,12 +169,10 @@ export default {
       insertingAccount: false,
       totals: {},
       refetchTotals: false,
-      direction: 'ltr'
     };
   },
+  inject: ['languageDirection'],
   async mounted() {
-    const language = fyo.config.get("language");
-    this.direction = RTL_LAGNUAGES.includes(language) ? 'rtl' : 'ltr';
     await this.setTotalDebitAndCredit();
     fyo.doc.observer.on('sync:AccountingLedgerEntry', () => {
       this.refetchTotals = true;
@@ -462,28 +459,28 @@ export default {
         template: icons[account.name] || icon,
       };
     },
-    getItemStyle(level){
+    getItemStyle(level) {
       const styles = {
-        "height": "calc(var(--h-row-mid) + 1px)"
+        height: 'calc(var(--h-row-mid) + 1px)',
       };
-      if(this.direction == 'rtl'){
+      if (this.languageDirection === 'rtl') {
         styles['padding-right'] = `calc(1rem + 2rem * ${level})`;
-      }else{
+      } else {
         styles['padding-left'] = `calc(1rem + 2rem * ${level})`;
       }
-      return styles
+      return styles;
     },
-    getGroupStyle(level){
+    getGroupStyle(level) {
       const styles = {
-        "height": "height: calc(var(--h-row-mid) + 1px)"
+        height: 'height: calc(var(--h-row-mid) + 1px)',
       };
-      if(this.direction == 'rtl'){
+      if (this.languageDirection === 'rtl') {
         styles['padding-right'] = `calc(1rem + 2rem * ${level})`;
-      }else{
+      } else {
         styles['padding-left'] = `calc(1rem + 2rem * ${level})`;
       }
-      return styles
-    }
+      return styles;
+    },
   },
   computed: {
     allAccounts() {
