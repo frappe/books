@@ -2,6 +2,8 @@
   <div
     id="app"
     class="h-screen flex flex-col font-sans overflow-hidden antialiased"
+    :dir="direction"
+    :language="language"
   >
     <WindowsTitleBar
       v-if="platform === 'Windows'"
@@ -27,7 +29,7 @@
     <!-- Render target for toasts -->
     <div
       id="toast-container"
-      class="absolute bottom-0 flex flex-col items-end mb-3 pr-6"
+      class="absolute bottom-0 flex flex-col items-end mb-3 pe-6"
       style="width: 100%"
     >
       <div id="toast-target" />
@@ -37,6 +39,7 @@
 
 <script>
 import { ConfigKeys } from 'fyo/core/types';
+import { RTL_LAGNUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
 import { computed } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
@@ -66,6 +69,8 @@ export default {
       companyName: '',
       searcher: null,
       shortcuts: null,
+      direction: 'ltr',
+      language: '',
     };
   },
   provide() {
@@ -82,6 +87,8 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
+    this.language = fyo.config.get("language");
+    this.direction = RTL_LAGNUAGES.includes(this.language) ? 'rtl' : 'ltr';
     this.shortcuts = new Shortcuts(this.keys);
     const lastSelectedFilePath = fyo.config.get(
       ConfigKeys.LastSelectedFilePath,

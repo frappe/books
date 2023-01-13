@@ -2,9 +2,9 @@
   <div>
     <!-- Search Bar Button -->
     <Button @click="open" class="px-2" :padding="false">
-      <feather-icon name="search" class="w-4 h-4 mr-1 text-gray-800" />
+      <feather-icon name="search" class="w-4 h-4 me-1 text-gray-800" />
       <p>{{ t`Search` }}</p>
-      <div class="text-gray-500 px-1 ml-4 text-sm">
+      <div class="text-gray-500 px-1 ms-4 text-sm">
         {{ modKey('k') }}
       </div>
     </Button>
@@ -52,7 +52,7 @@
         :key="`${i}-${si.key}`"
         ref="suggestions"
         class="hover:bg-gray-50 cursor-pointer"
-        :class="idx === i ? 'border-blue-500 bg-gray-50 border-l-4' : ''"
+        :class="idx === i ? 'border-blue-500 bg-gray-50 border-s-4' : ''"
         @click="select(i)"
       >
         <!-- Search List Item -->
@@ -67,12 +67,12 @@
             >
               {{ si.label }}
             </p>
-            <p class="text-gray-600 text-sm ml-3" v-if="si.group === 'Docs'">
+            <p class="text-gray-600 text-sm ms-3" v-if="si.group === 'Docs'">
               {{ si.more.filter(Boolean).join(', ') }}
             </p>
           </div>
           <p
-            class="text-sm text-right justify-self-end"
+            class="text-sm text-end justify-self-end"
             :class="`text-${groupColorMap[si.group]}-500`"
           >
             {{ si.group === 'Docs' ? si.schemaLabel : groupLabelMap[si.group] }}
@@ -157,17 +157,17 @@
             class="flex items-center hover:text-gray-800"
             @click="openDocs"
           >
-            <feather-icon name="help-circle" class="w-4 h-4 mr-1" />
+            <feather-icon name="help-circle" class="w-4 h-4 me-1" />
             {{ t`Help` }}
           </button>
         </div>
 
-        <p v-if="searcher?.numSearches" class="ml-auto">
+        <p v-if="searcher?.numSearches" class="ms-auto">
           {{ t`${suggestions.length} out of ${searcher.numSearches}` }}
         </p>
 
         <div
-          class="border border-gray-100 rounded flex justify-self-end ml-2"
+          class="border border-gray-100 rounded flex justify-self-end ms-2"
           v-if="(searcher?.numSearches ?? 0) > 50"
         >
           <template

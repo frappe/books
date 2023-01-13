@@ -19,7 +19,7 @@
       <div class="flex items-center justify-between w-full">
         <div class="flex items-center">
           <div class="flex items-center rounded h-16">
-            <div class="mr-4" v-if="printObject.displayLogo">
+            <div class="me-4" v-if="printObject.displayLogo">
               <img
                 class="h-12 max-w-32 object-contain"
                 :src="printObject.logo"
@@ -38,7 +38,7 @@
             </div>
           </div>
         </div>
-        <div class="text-right">
+        <div class="text-end">
           <div
             class="font-semibold text-xl"
             :style="{ color: printObject.color }"
@@ -81,16 +81,16 @@
             font-semibold
             tracking-widest
             text-gray-800
-            ml-8
+            ms-8
           "
         >
           {{ printObject.isSalesInvoice ? 'From' : 'To' }}
         </div>
-        <div class="mt-4 ml-8 text-black leading-relaxed text-lg">
+        <div class="mt-4 ms-8 text-black leading-relaxed text-lg">
           {{ printObject.address }}
         </div>
         <div
-          class="mt-4 ml-8 text-black leading-relaxed text-lg"
+          class="mt-4 ms-8 text-black leading-relaxed text-lg"
           v-if="printObject.gstin"
         >
           GSTIN: {{ printObject.gstin }}
@@ -110,10 +110,10 @@
         "
       >
         <div class="w-4/12">Item</div>
-        <div class="w-2/12 text-right" v-if="printObject.showHSN">HSN/SAC</div>
-        <div class="w-2/12 text-right">Quantity</div>
-        <div class="w-3/12 text-right">Rate</div>
-        <div class="w-3/12 text-right">Amount</div>
+        <div class="w-2/12 text-end" v-if="printObject.showHSN">HSN/SAC</div>
+        <div class="w-2/12 text-end">Quantity</div>
+        <div class="w-3/12 text-end">Rate</div>
+        <div class="w-3/12 text-end">Amount</div>
       </div>
       <div
         class="flex py-1 text-lg"
@@ -121,12 +121,12 @@
         :key="row.name"
       >
         <div class="w-4/12">{{ row.item }}</div>
-        <div class="w-2/12 text-right" v-if="printObject.showHSN">
+        <div class="w-2/12 text-end" v-if="printObject.showHSN">
           {{ row.hsnCode }}
         </div>
-        <div class="w-2/12 text-right">{{ row.quantity }}</div>
-        <div class="w-3/12 text-right">{{ row.rate }}</div>
-        <div class="w-3/12 text-right">{{ row.amount }}</div>
+        <div class="w-2/12 text-end">{{ row.quantity }}</div>
+        <div class="w-3/12 text-end">{{ row.rate }}</div>
+        <div class="w-3/12 text-end">{{ row.amount }}</div>
       </div>
     </div>
     <div class="flex px-12 py-10">
@@ -141,19 +141,19 @@
         </div>
       </div>
       <div class="w-1/2 text-lg">
-        <div class="flex pl-2 justify-between py-1">
+        <div class="flex ps-2 justify-between py-1">
           <div>{{ t`Subtotal` }}</div>
           <div>{{ printObject.netTotal }}</div>
         </div>
         <div
-          class="flex pl-2 justify-between py-1"
+          class="flex ps-2 justify-between py-1"
           v-if="printObject.totalDiscount && !printObject.discountAfterTax"
         >
           <div>{{ t`Discount` }}</div>
           <div>{{ printObject.totalDiscount }}</div>
         </div>
         <div
-          class="flex pl-2 justify-between py-1"
+          class="flex ps-2 justify-between py-1"
           v-for="tax in printObject.taxes"
           :key="tax.name"
         >
@@ -161,14 +161,14 @@
           <div>{{ tax.amount }}</div>
         </div>
         <div
-          class="flex pl-2 justify-between py-1"
+          class="flex ps-2 justify-between py-1"
           v-if="printObject.totalDiscount && printObject.discountAfterTax"
         >
           <div>{{ t`Discount` }}</div>
           <div>{{ printObject.totalDiscount }}</div>
         </div>
         <div
-          class="flex pl-2 justify-between py-1 font-semibold"
+          class="flex ps-2 justify-between py-1 font-semibold"
           :style="{ color: printObject.color }"
         >
           <div>{{ t`Grand Total` }}</div>

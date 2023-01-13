@@ -26,7 +26,7 @@
     </div>
 
     <button
-      class="bg-green100 px-2 ml-1 -mr-0.5 h-full border-l"
+      class="bg-green100 px-2 ms-1 -me-0.5 h-full border-s"
       @click="swap"
       v-if="!disabled"
     >
@@ -93,7 +93,7 @@ input[type='number'] {
 }
 
 .rate-container {
-  @apply flex items-center rounded-md border  border-gray-100 text-gray-900 
+  @apply flex items-center rounded-md border  border-gray-100 text-gray-900
    text-sm outline-none focus-within:bg-gray-50 px-1  focus-within:border-gray-200;
 }
 

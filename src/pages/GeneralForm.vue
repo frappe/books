@@ -43,7 +43,7 @@
             :read-only="doc?.submitted"
           />
           <FormControl
-            input-class="text-right"
+            input-class="text-end"
             :border="true"
             :df="getField('date')"
             :value="doc.date"
@@ -51,7 +51,7 @@
             :read-only="doc?.submitted"
           />
           <FormControl
-            input-class="text-right"
+            input-class="text-end"
             :border="true"
             :df="getField('numberSeries')"
             :value="doc.numberSeries"

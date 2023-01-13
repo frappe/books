@@ -25,26 +25,26 @@
             items-center
             border-b
             flex-shrink-0
-            pr-4
+            pe-4
           "
           :class="[
             account.level !== 0 ? 'text-base' : 'text-lg',
             isQuickEditOpen(account) ? 'bg-gray-200' : '',
           ]"
-          :style="`height: calc(var(--h-row-mid) + 1px); padding-left: calc(1rem + 2rem * ${account.level})`"
+          :style="getItemStyle(account.level)"
           @click="onClick(account)"
         >
           <component :is="getIconComponent(account)" />
           <div class="flex items-baseline">
             <div
-              class="ml-4"
+              class="ms-4"
               :class="[!account.parentAccount && 'font-semibold']"
             >
               {{ account.name }}
             </div>
 
             <!-- Add Account Buttons on Group Hover -->
-            <div v-if="account.isGroup" class="ml-6 hidden group-hover:block">
+            <div v-if="account.isGroup" class="ms-6 hidden group-hover:block">
               <button
                 class="
                   text-xs text-gray-800
@@ -57,7 +57,7 @@
               </button>
               <button
                 class="
-                  ml-3
+                  ms-3
                   text-xs text-gray-800
                   hover:text-gray-900
                   focus:outline-none
@@ -70,7 +70,7 @@
           </div>
 
           <!-- Account Balance String -->
-          <p class="ml-auto text-base text-gray-800" v-if="!account.isGroup">
+          <p class="ms-auto text-base text-gray-800" v-if="!account.isGroup">
             {{ getBalanceString(account) }}
           </p>
         </div>
@@ -88,15 +88,13 @@
             items-center
             text-base
           "
-          :style="`height: calc(var(--h-row-mid) + 1px); padding-left: calc(1rem + 2rem * ${
-            account.level + 1
-          })`"
+          :style="getGroupStyle(account.level+1)"
           :key="account.name + '-adding-account'"
         >
           <component
             :is="getIconComponent({ isGroup: account.addingGroupAccount })"
           />
-          <div class="flex ml-4 h-row-mid items-center">
+          <div class="flex ms-4 h-row-mid items-center">
             <input
               class="focus:outline-none bg-transparent"
               :class="{ 'text-gray-600': insertingAccount }"
@@ -113,7 +111,7 @@
             <button
               v-if="!insertingAccount"
               class="
-                ml-4
+                ms-4
                 text-xs text-gray-800
                 hover:text-gray-900
                 focus:outline-none
@@ -127,7 +125,7 @@
             <button
               v-if="!insertingAccount"
               class="
-                ml-4
+                ms-4
                 text-xs text-gray-800
                 hover:text-gray-900
                 focus:outline-none
@@ -148,6 +146,7 @@ import { isCredit } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
+import { RTL_LAGNUAGES } from 'fyo/utils/consts';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPath, openQuickEdit } from 'src/utils/ui';
 import { getMapFromList, removeAtIndex } from 'utils/index';
@@ -171,9 +170,12 @@ export default {
       insertingAccount: false,
       totals: {},
       refetchTotals: false,
+      direction: 'ltr'
     };
   },
   async mounted() {
+    const language = fyo.config.get("language");
+    this.direction = RTL_LAGNUAGES.includes(language) ? 'rtl' : 'ltr';
     await this.setTotalDebitAndCredit();
     fyo.doc.observer.on('sync:AccountingLedgerEntry', () => {
       this.refetchTotals = true;
@@ -460,6 +462,28 @@ export default {
         template: icons[account.name] || icon,
       };
     },
+    getItemStyle(level){
+      const styles = {
+        "height": "calc(var(--h-row-mid) + 1px)"
+      };
+      if(this.direction == 'rtl'){
+        styles['padding-right'] = `calc(1rem + 2rem * ${level})`;
+      }else{
+        styles['padding-left'] = `calc(1rem + 2rem * ${level})`;
+      }
+      return styles
+    },
+    getGroupStyle(level){
+      const styles = {
+        "height": "height: calc(var(--h-row-mid) + 1px)"
+      };
+      if(this.direction == 'rtl'){
+        styles['padding-right'] = `calc(1rem + 2rem * ${level})`;
+      }else{
+        styles['padding-left'] = `calc(1rem + 2rem * ${level})`;
+      }
+      return styles
+    }
   },
   computed: {
     allAccounts() {
