@@ -12,6 +12,7 @@ export class StockTransferItem extends Doc {
   unit?: string;
   description?: string;
   hsnCode?: number;
+  batchNumber?: string
 
   formulas: FormulaMap = {
     description: {

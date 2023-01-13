@@ -18,6 +18,11 @@
       "required": true
     },
     {
+      "fieldname": "batchNumber",
+      "label": "Batch No",
+      "fieldtype": "Data"
+    },
+    {
       "fieldname": "quantity",
       "label": "Quantity",
       "fieldtype": "Float",

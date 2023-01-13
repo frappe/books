@@ -11,6 +11,7 @@ export class PurchaseReceipt extends StockTransfer {
       formRoute: ({ name }) => `/edit/PurchaseReceipt/${name}`,
       columns: [
         'name',
+        'batchNumber',
         getTransactionStatusColumn(),
         'party',
         'date',
