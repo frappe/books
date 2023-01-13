@@ -49,6 +49,13 @@
       "label": "Ref. Type",
       "fieldtype": "Data",
       "readOnly": true
+    },
+    {
+      "fieldname": "batchNumber",
+      "label": "Batch No",
+      "fieldtype": "Data",
+      "create": true,
+      "placeholder": "Batch No"
     }
   ]
 }

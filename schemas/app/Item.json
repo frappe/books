@@ -32,6 +32,12 @@
       "placeholder": "Unit Type"
     },
     {
+      "fieldname": "hasBatchNumber",
+      "label": "Has Batch No",
+      "fieldtype": "Check",
+      "default": false
+    },
+    {
       "fieldname": "itemType",
       "label": "Type",
       "placeholder": "Type",
@@ -116,6 +122,7 @@
   "quickEditFields": [
     "rate",
     "unit",
+    "hasBatchNumber",
     "itemType",
     "for",
     "tax",

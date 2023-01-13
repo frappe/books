@@ -93,9 +93,16 @@
       "label": "Stock Not Transferred",
       "fieldtype": "Float",
       "readOnly": true
+    },
+    {
+      "fieldname": "batchNumber",
+      "label": "Batch No",
+      "fieldtype": "Data",
+      "create": true,
+      "placeholder": "Batch No"
     }
   ],
-  "tableFields": ["item", "tax", "quantity", "rate", "amount"],
+  "tableFields": ["item", "tax", "quantity", "rate", "amount", "batchNumber"],
   "keywordFields": ["item", "tax"],
   "quickEditFields": [
     "item",
@@ -110,6 +117,7 @@
     "itemDiscountAmount",
     "itemDiscountPercent",
     "itemDiscountedTotal",
-    "itemTaxedTotal"
+    "itemTaxedTotal",
+    "batchNumber"
   ]
 }

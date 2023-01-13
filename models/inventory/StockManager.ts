@@ -204,6 +204,7 @@ class StockManagerItem {
   referenceType: string;
   fromLocation?: string;
   toLocation?: string;
+  batchNumber?: string;
 
   stockLedgerEntries?: StockLedgerEntry[];
 
@@ -218,6 +219,7 @@ class StockManagerItem {
     this.toLocation = details.toLocation;
     this.referenceName = details.referenceName;
     this.referenceType = details.referenceType;
+    this.batchNumber = details.batchNumber;
 
     this.fyo = fyo;
   }
@@ -270,6 +272,7 @@ class StockManagerItem {
       date: this.date,
       item: this.item,
       rate: this.rate,
+      batchNumber: this.batchNumber,
       quantity,
       location,
       referenceName: this.referenceName,

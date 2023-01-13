@@ -18,6 +18,8 @@ export class Item extends Doc {
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
+  hasBatchNumber?: boolean;
+  batchNumber?:string;
 
   formulas: FormulaMap = {
     incomeAccount: {
