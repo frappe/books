@@ -19,7 +19,6 @@ export class Item extends Doc {
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatchNumber?: boolean;
-  batchNumber?:string;
 
   formulas: FormulaMap = {
     incomeAccount: {
@@ -122,6 +121,7 @@ export class Item extends Doc {
       !this.fyo.singles.AccountingSettings?.enableInventory ||
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
+    batchNumber: () => (!this.hasBatchNumber),
   };
 
   readOnly: ReadOnlyMap = {

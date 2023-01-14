@@ -27,6 +27,13 @@
       "create": true
     },
     {
+      "fieldname": "batchNumber",
+      "label": "Batch No",
+      "fieldtype": "Link",
+      "target": "BatchNumber",
+      "create": true
+    },
+    {
       "fieldname": "quantity",
       "label": "Quantity",
       "fieldtype": "Float",
@@ -46,12 +53,13 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "fromLocation", "toLocation", "quantity", "rate"],
-  "keywordFields": ["item"],
+  "tableFields": ["item", "fromLocation", "toLocation", "batchNumber", "quantity", "rate"],
+  "keywordFields": ["item", "batchNumber"],
   "quickEditFields": [
     "item",
     "fromLocation",
     "toLocation",
+    "batchNumber",
     "quantity",
     "rate",
     "amount"
