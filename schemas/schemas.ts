@@ -46,6 +46,7 @@ import submittable from './meta/submittable.json';
 import tree from './meta/tree.json';
 import { Schema, SchemaStub } from './types';
 import InventorySettings from './app/inventory/InventorySettings.json';
+import BatchNumber from './app/BatchNumber.json'
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -112,4 +113,6 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   ShipmentItem as Schema,
   PurchaseReceipt as Schema,
   PurchaseReceiptItem as Schema,
+
+  BatchNumber as Schema
 ];

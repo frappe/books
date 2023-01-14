@@ -26,12 +26,14 @@ import { ShipmentItem } from './inventory/ShipmentItem';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
+import { BatchNumber } from './baseModels/BatchNumber/BatchNumber';
 
 export const models = {
   Account,
   AccountingLedgerEntry,
   AccountingSettings,
   Address,
+  BatchNumber,
   Defaults,
   Item,
   JournalEntry,

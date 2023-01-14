@@ -97,8 +97,9 @@
     {
       "fieldname": "batchNumber",
       "label": "Batch No",
-      "fieldtype": "Data",
+      "fieldtype": "Link",
       "create": true,
+      "target": "BatchNumber",
       "placeholder": "Batch No"
     }
   ],
