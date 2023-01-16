@@ -36,7 +36,7 @@ export function getDuplicates(array: unknown[]) {
   return duplicates;
 }
 
-export function isPesa(value: unknown): boolean {
+export function isPesa(value: unknown): value is Money {
   return value instanceof Money;
 }
 
