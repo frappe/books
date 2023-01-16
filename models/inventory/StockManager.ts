@@ -138,15 +138,38 @@ export class StockManager {
         details.fromLocation,
         undefined,
         date,
-        details.batchNumber
+        undefined
       )) ?? 0;
-    console.log(quantityBefore);
 
 
     const formattedDate = this.fyo.format(details.date, 'Datetime');
 
     if (this.isCancelled) {
       quantityBefore += details.quantity;
+    }
+
+    // batch-wise stock validation
+    let itemsInBatch =
+      (await this.fyo.db.getStockQuantity(
+        details.item,
+        details.fromLocation,
+        undefined,
+        date,
+        details.batchNumber
+      )) ?? 0;
+
+    
+    let ifItemHasBatchNumber= await this.fyo.getValue('Item', details.item, 'hasBatchNumber');
+      
+    if ((ifItemHasBatchNumber && details.batchNumber) && details.quantity > itemsInBatch) {
+      throw new ValidationError(
+        [
+          t`Insufficient Quantity in Batch ${details.batchNumber}`,
+          t`Additional quantity (${details.quantity - itemsInBatch
+            }) is required in batch ${details.batchNumber} to make the outward transfer of item ${details.item} from ${details.fromLocation
+            } on ${formattedDate}`,
+        ].join('\n')
+      );
     }
 
     if (quantityBefore < details.quantity) {
@@ -165,7 +188,7 @@ export class StockManager {
       details.fromLocation,
       details.date.toISOString(),
       undefined,
-      details.batchNumber
+      undefined
     );
     if (quantityAfter === null) {
       // No future transactions
