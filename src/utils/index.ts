@@ -7,7 +7,7 @@ import { isPesa } from 'fyo/utils';
 import {
   BaseError,
   DuplicateEntryError,
-  LinkValidationError
+  LinkValidationError,
 } from 'fyo/utils/errors';
 import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
@@ -85,7 +85,7 @@ export function convertPesaValuesToFloat(obj: Record<string, unknown>) {
       return;
     }
 
-    obj[key] = (value as Money).float;
+    obj[key] = value.float;
   });
 }
 
