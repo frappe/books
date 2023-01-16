@@ -126,7 +126,8 @@ export default {
       fieldnames.includes('hideGetStarted') ||
       fieldnames.includes('displayPrecision') ||
       fieldnames.includes('enableDiscounting') ||
-      fieldnames.includes('enableInventory')
+      fieldnames.includes('enableInventory') ||
+      fieldnames.includes('enableBarcodes')
     ) {
       this.showReloadToast();
     }
