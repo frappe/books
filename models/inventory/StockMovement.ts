@@ -6,7 +6,7 @@ import {
   FormulaMap,
   ListViewSettings,
 } from 'fyo/model/types';
-import { getDocStatusListColumn, getLedgerLinkAction } from 'models/helpers';
+import { addItem, getDocStatusListColumn, getLedgerLinkAction } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -91,5 +91,9 @@ export class StockMovement extends Transfer {
 
   static getActions(fyo: Fyo): Action[] {
     return [getLedgerLinkAction(fyo, true)];
+  }
+
+  async addItem(name: string) {
+    return await addItem(name, this);
   }
 }

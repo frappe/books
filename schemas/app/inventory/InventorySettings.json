@@ -45,6 +45,11 @@
       "label": "Cost Of Goods Sold Acc.",
       "fieldtype": "Link",
       "target": "Account"
+    },
+    {
+      "fieldname": "enableBarcodes",
+      "label": "Enable Barcodes",
+      "fieldtype": "Check"
     }
   ]
 }
