@@ -261,6 +261,11 @@ export class StockLedger extends Report {
         fieldtype: 'Link',
       },
       {
+        fieldname: 'batchNumber',
+        label: 'Batch No.',
+        fieldtype: 'Link',
+      },
+      {
         fieldname: 'quantity',
         label: 'Quantity',
         fieldtype: 'Float',
