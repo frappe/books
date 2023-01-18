@@ -17,7 +17,7 @@
     :set-close-listener="false"
   >
     <!-- Search Input -->
-    <div class="p-1">
+    <div class="p-1 w-form">
       <input
         ref="input"
         type="search"

@@ -3,6 +3,10 @@
     <!-- Page Header (Title, Buttons, etc) -->
     <template #header v-if="doc">
       <StatusBadge :status="status" />
+      <Barcode
+        v-if="showBarcode"
+        @item-selected="(name) => doc.addItem(name)"
+      />
       <DropdownWithActions
         v-for="group of groupedActions"
         :key="group.label"
@@ -145,7 +149,9 @@
 import { computed } from '@vue/reactivity';
 import { t } from 'fyo';
 import { getDocStatus } from 'models/helpers';
+import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
+import Barcode from 'src/components/Controls/Barcode.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import Table from 'src/components/Controls/Table.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
@@ -176,6 +182,7 @@ export default {
     FormContainer,
     QuickEditForm,
     FormHeader,
+    Barcode,
   },
   provide() {
     return {
@@ -203,6 +210,25 @@ export default {
     },
     groupedActions() {
       return getGroupedActionsForDoc(this.doc);
+    },
+    showBarcode() {
+      if (!this.doc) {
+        return false;
+      }
+
+      if (!this.doc.canEdit) {
+        return false;
+      }
+
+      if (!fyo.singles.InventorySettings?.enableBarcodes) {
+        return false;
+      }
+
+      return [
+        ModelNameEnum.Shipment,
+        ModelNameEnum.PurchaseReceipt,
+        ModelNameEnum.StockMovement,
+      ].includes(this.schemaName);
     },
   },
   activated() {

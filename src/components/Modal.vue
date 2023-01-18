@@ -21,7 +21,6 @@
           bg-white
           rounded-lg
           shadow-2xl
-          w-form
           border
           overflow-hidden
           inner
@@ -42,10 +41,6 @@ export default defineComponent({
   props: {
     openModal: {
       default: false,
-      type: Boolean,
-    },
-    setCloseListener: {
-      default: true,
       type: Boolean,
     },
   },
