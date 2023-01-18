@@ -325,6 +325,12 @@ export class DatabaseHandler extends DatabaseBase {
     )) as number | null;
   }
 
+  async itemHasTransactions(item: string): Promise<boolean | null> {
+    return (await this.#demux.callBespoke('itemHasTransactions', item)) as
+      | boolean
+      | null;
+  }
+
   /**
    * Internal methods
    */
