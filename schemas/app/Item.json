@@ -122,7 +122,6 @@
   "quickEditFields": [
     "rate",
     "unit",
-    "hasBatchNumber",
     "itemType",
     "for",
     "tax",
@@ -130,7 +129,8 @@
     "incomeAccount",
     "expenseAccount",
     "hsnCode",
-    "trackItem"
+    "trackItem",
+    "hasBatchNumber"
   ],
   "keywordFields": ["name", "itemType", "for"]
 }
