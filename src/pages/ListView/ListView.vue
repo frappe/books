@@ -31,6 +31,7 @@
     />
     <Modal :open-modal="openExportModal" @closemodal="openExportModal = false">
       <ExportWizard
+        class="w-form"
         :schema-name="schemaName"
         :title="pageTitle"
         :list-filters="listFilters"

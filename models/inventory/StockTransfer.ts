@@ -5,7 +5,7 @@ import { Action, DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { Defaults } from 'models/baseModels/Defaults/Defaults';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
-import { getLedgerLinkAction, getNumberSeries } from 'models/helpers';
+import { addItem, getLedgerLinkAction, getNumberSeries } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -233,4 +233,8 @@ export abstract class StockTransfer extends Transfer {
       role: doc.isSales ? 'Customer' : 'Supplier',
     }),
   };
+
+  async addItem(name: string) {
+    return await addItem(name, this);
+  }
 }

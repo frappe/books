@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center bg-gray-100 rounded-md textsm px-1">
+  <div class="flex items-center bg-gray-50 rounded-md textsm px-1 border">
     <div
       class="rate-container"
       :class="disabled ? 'bg-gray-100' : 'bg-gray-25'"
@@ -89,12 +89,11 @@ export default defineComponent({
 </script>
 <style scoped>
 input[type='number'] {
-  @apply w-12 outline-none bg-transparent p-0.5;
+  @apply w-12 bg-transparent p-0.5;
 }
 
 .rate-container {
-  @apply flex items-center rounded-md border  border-gray-100 text-gray-900
-   text-sm outline-none focus-within:bg-gray-50 px-1  focus-within:border-gray-200;
+  @apply flex items-center rounded-md  border-gray-100 text-gray-900 text-sm  px-1  focus-within:border-gray-200 bg-transparent;
 }
 
 .rate-container > p {

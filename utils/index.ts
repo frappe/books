@@ -83,7 +83,7 @@ export function getListFromMap<T>(map: Record<string, T>): T[] {
   return Object.keys(map).map((n) => map[n]);
 }
 
-export function getIsNullOrUndef(value: unknown): boolean {
+export function getIsNullOrUndef(value: unknown): value is null | undefined {
   return value === null || value === undefined;
 }
 

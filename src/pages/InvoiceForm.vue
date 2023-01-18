@@ -13,6 +13,10 @@
           async (exchangeRate) => await doc.set('exchangeRate', exchangeRate)
         "
       />
+      <Barcode
+        v-if="doc.canEdit && fyo.singles.InventorySettings?.enableBarcodes"
+        @item-selected="(name) => doc.addItem(name)"
+      />
       <Button
         v-if="!doc.isCancelled && !doc.dirty"
         :icon="true"
@@ -298,6 +302,7 @@ import { computed } from '@vue/reactivity';
 import { getDocStatus } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
+import Barcode from 'src/components/Controls/Barcode.vue';
 import ExchangeRate from 'src/components/Controls/ExchangeRate.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import Table from 'src/components/Controls/Table.vue';
@@ -332,6 +337,7 @@ export default {
     ExchangeRate,
     FormHeader,
     LinkedEntryWidget,
+    Barcode,
   },
   provide() {
     return {

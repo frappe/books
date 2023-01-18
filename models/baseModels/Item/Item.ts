@@ -147,6 +147,7 @@ export class Item extends Doc {
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
     hasBatchNumber: () => !this.trackItem || false,
+    barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
   };
 
   readOnly: ReadOnlyMap = {

@@ -157,6 +157,22 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return false;
   }
 
+  get canEdit() {
+    if (!this.schema.isSubmittable) {
+      return true;
+    }
+
+    if (this.submitted) {
+      return false;
+    }
+
+    if (this.cancelled) {
+      return false;
+    }
+
+    return true;
+  }
+
   get canSave() {
     if (!!this.submitted) {
       return false;
@@ -543,7 +559,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
       }
 
       if (isPesa(value)) {
-        value = (value as Money).copy();
+        value = value.copy();
       }
 
       if (value === null && this.schema.isSingle) {
@@ -966,7 +982,8 @@ export class Doc extends Observable<DocValue | Doc[]> {
             throw err;
           }
         }
-        return value as Money;
+
+        return value;
       })
       .reduce((a, b) => a.add(b), this.fyo.pesa(0));
 
