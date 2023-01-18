@@ -25,5 +25,6 @@
             "required": false
         }
     ],
-    "quickEditFields": ["batchNumber", "expiryDate", "manufactureDate"]
+    "quickEditFields": ["batchNumber", "expiryDate", "manufactureDate"],
+    "keywordFields": ["name"]
 }

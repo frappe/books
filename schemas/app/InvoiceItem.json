@@ -103,7 +103,7 @@
       "placeholder": "Batch No"
     }
   ],
-  "tableFields": ["item", "tax", "quantity", "rate", "amount", "batchNumber"],
+  "tableFields": ["item", "tax", "batchNumber", "quantity", "rate", "amount"],
   "keywordFields": ["item", "tax"],
   "quickEditFields": [
     "item",
@@ -111,6 +111,7 @@
     "description",
     "hsnCode",
     "tax",
+    "batchNumber",
     "quantity",
     "rate",
     "amount",
@@ -118,7 +119,6 @@
     "itemDiscountAmount",
     "itemDiscountPercent",
     "itemDiscountedTotal",
-    "itemTaxedTotal",
-    "batchNumber"
+    "itemTaxedTotal"
   ]
 }

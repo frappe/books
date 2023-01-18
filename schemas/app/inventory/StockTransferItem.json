@@ -20,7 +20,8 @@
     {
       "fieldname": "batchNumber",
       "label": "Batch No",
-      "fieldtype": "Data"
+      "fieldtype": "Link",
+      "target": "BatchNumber"
     },
     {
       "fieldname": "quantity",
@@ -62,13 +63,14 @@
       "placeholder": "HSN/SAC Code"
     }
   ],
-  "tableFields": ["item", "location", "quantity", "rate", "amount"],
+  "tableFields": ["item", "location", "batchNumber", "quantity", "rate", "amount"],
   "quickEditFields": [
     "item",
     "unit",
     "description",
     "hsnCode",
     "location",
+    "batchNumber",
     "quantity",
     "rate",
     "amount"
