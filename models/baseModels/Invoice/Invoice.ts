@@ -6,13 +6,11 @@ import {
   DefaultMap,
   FiltersMap,
   FormulaMap,
-  HiddenMap
+  HiddenMap,
 } from 'fyo/model/types';
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
-import {
-  getExchangeRate, getNumberSeries
-} from 'models/helpers';
+import { addItem, getExchangeRate, getNumberSeries } from 'models/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { Transactional } from 'models/Transactional/Transactional';
@@ -694,5 +692,9 @@ export abstract class Invoice extends Transactional {
         quantity: j.quantity,
       }))
       .sort((a, b) => a.date.valueOf() - b.date.valueOf());
+  }
+
+  async addItem(name: string) {
+    return await addItem(name, this);
   }
 }

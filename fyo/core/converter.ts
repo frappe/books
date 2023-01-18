@@ -295,7 +295,7 @@ function toDocAttachment(value: RawValue, field: Field): null | Attachment {
 
 function toRawCurrency(value: DocValue, fyo: Fyo, field: Field): string {
   if (isPesa(value)) {
-    return (value as Money).store;
+    return value.store;
   }
 
   if (getIsNullOrUndef(value)) {

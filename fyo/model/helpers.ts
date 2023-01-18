@@ -17,7 +17,7 @@ export function areDocValuesEqual(
 
   if (isPesa(dvOne)) {
     try {
-      return (dvOne as Money).eq(dvTwo as string | number);
+      return dvOne.eq(dvTwo as string | number);
     } catch {
       return false;
     }
@@ -134,7 +134,7 @@ function shouldApplyFormulaPreSync(
 
 export function isDocValueTruthy(docValue: DocValue | Doc[]) {
   if (isPesa(docValue)) {
-    return !(docValue as Money).isZero();
+    return !docValue.isZero();
   }
 
   if (Array.isArray(docValue)) {
