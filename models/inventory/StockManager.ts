@@ -82,12 +82,13 @@ export class StockManager {
   #getSMIDetails(transferDetails: SMTransferDetails): SMIDetails {
     return Object.assign({}, this.details, transferDetails);
   }
-  // flag
+
   async #validate(details: SMIDetails) {
     this.#validateRate(details);
     this.#validateQuantity(details);
     this.#validateLocation(details);
     await this.#validateStockAvailability(details);
+    await this.#validateBatchWiseStockAvailability(details);
   }
 
   #validateQuantity(details: SMIDetails) {
@@ -125,7 +126,59 @@ export class StockManager {
 
     throw new ValidationError(t`Both From and To Location cannot be undefined`);
   }
-  // flag
+
+  async #validateBatchWiseStockAvailability(details: SMIDetails) {
+    /*
+     * Checks if hasBatchNumber is enabled in the item
+     * If user has not entered batchNumber raises a ValidationError
+     * If entered quantity is greater than the available quantity in the batch, raises a ValidationError
+     */
+
+    if (!details.fromLocation) {
+      return;
+    }
+
+    const ifItemHasBatchNumber = await this.fyo.getValue(
+      'Item',
+      details.item,
+      'hasBatchNumber'
+    );
+    const date = details.date.toISOString();
+    const formattedDate = this.fyo.format(details.date, 'Datetime');
+
+    if (ifItemHasBatchNumber) {
+      if (!details.batchNumber) {
+        throw new ValidationError(
+          t`Please enter Batch Number for ${details.item}`
+        );
+      }
+
+      const itemsInBatch =
+        (await this.fyo.db.getStockQuantity(
+          details.item,
+          details.fromLocation,
+          undefined,
+          date,
+          details.batchNumber
+        )) ?? 0;
+
+      if (details.quantity > itemsInBatch) {
+        throw new ValidationError(
+          [
+            t`Insufficient Quantity in Batch ${details.batchNumber}`,
+            t`Additional quantity (${
+              details.quantity - itemsInBatch
+            }) is required in batch ${
+              details.batchNumber
+            } to make the outward transfer of item ${details.item} from ${
+              details.fromLocation
+            } on ${formattedDate}`,
+          ].join('\n')
+        );
+      }
+    }
+  }
+
   async #validateStockAvailability(details: SMIDetails) {
     if (!details.fromLocation) {
       return;
@@ -141,44 +194,21 @@ export class StockManager {
         undefined
       )) ?? 0;
 
-
     const formattedDate = this.fyo.format(details.date, 'Datetime');
 
     if (this.isCancelled) {
       quantityBefore += details.quantity;
     }
 
-    // batch-wise stock validation
-    let itemsInBatch =
-      (await this.fyo.db.getStockQuantity(
-        details.item,
-        details.fromLocation,
-        undefined,
-        date,
-        details.batchNumber
-      )) ?? 0;
-
-    
-    let ifItemHasBatchNumber= await this.fyo.getValue('Item', details.item, 'hasBatchNumber');
-      
-    if ((ifItemHasBatchNumber && details.batchNumber) && details.quantity > itemsInBatch) {
-      throw new ValidationError(
-        [
-          t`Insufficient Quantity in Batch ${details.batchNumber}`,
-          t`Additional quantity (${details.quantity - itemsInBatch
-            }) is required in batch ${details.batchNumber} to make the outward transfer of item ${details.item} from ${details.fromLocation
-            } on ${formattedDate}`,
-        ].join('\n')
-      );
-    }
-
     if (quantityBefore < details.quantity) {
       throw new ValidationError(
         [
           t`Insufficient Quantity.`,
-          t`Additional quantity (${details.quantity - quantityBefore
-            }) required to make outward transfer of item ${details.item} from ${details.fromLocation
-            } on ${formattedDate}`,
+          t`Additional quantity (${
+            details.quantity - quantityBefore
+          }) required to make outward transfer of item ${details.item} from ${
+            details.fromLocation
+          } on ${formattedDate}`,
         ].join('\n')
       );
     }
@@ -201,16 +231,16 @@ export class StockManager {
         [
           t`Insufficient Quantity.`,
           t`Transfer will cause future entries to have negative stock.`,
-          t`Additional quantity (${quantityAfter - quantityRemaining
-            }) required to make outward transfer of item ${details.item} from ${details.fromLocation
-            } on ${formattedDate}`,
+          t`Additional quantity (${
+            quantityAfter - quantityRemaining
+          }) required to make outward transfer of item ${details.item} from ${
+            details.fromLocation
+          } on ${formattedDate}`,
         ].join('\n')
       );
     }
   }
 }
-
-// 
 
 class StockManagerItem {
   /**
