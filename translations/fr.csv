@@ -1,4 +1,4 @@
-"${0} ${1} already exists.",Personnalisez vos factures en y ajoutant votre logo et adresse,
+"${0} ${1} already exists.","${0} ${1} existe déjà.",
 "${0} ${1} has been modified after loading","${0} ${1} a été modifié après le chargement.",
 "${0} ${1} is linked with existing records.","${0} ${1} est lié à des enregistrements existants.",
 "${0} already exists.","${0} existe déjà.",
