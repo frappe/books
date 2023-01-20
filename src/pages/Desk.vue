@@ -36,15 +36,16 @@
       class="
         absolute
         bottom-0
-        left-0
+        start-0
         text-gray-600
         bg-gray-100
         rounded
+        rtl-rotate-180
         p-1
         m-4
-        opacity-0
         hover:opacity-100 hover:shadow-md
       "
+
       @click="sidebar = !sidebar"
     >
       <feather-icon name="chevrons-right" class="w-4 h-4" />
@@ -74,6 +75,11 @@ export default {
 .sidebar-leave-to {
   opacity: 0;
   transform: translateX(calc(-1 * var(--w-sidebar)));
+  width: 0px;
+}
+[dir='rtl'] .sidebar-leave-to {
+  opacity: 0;
+  transform: translateX(calc(1 * var(--w-sidebar)));
   width: 0px;
 }
 

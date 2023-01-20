@@ -157,6 +157,22 @@ export class Doc extends Observable<DocValue | Doc[]> {
     return false;
   }
 
+  get canEdit() {
+    if (!this.schema.isSubmittable) {
+      return true;
+    }
+
+    if (this.submitted) {
+      return false;
+    }
+
+    if (this.cancelled) {
+      return false;
+    }
+
+    return true;
+  }
+
   get canSave() {
     if (!!this.submitted) {
       return false;

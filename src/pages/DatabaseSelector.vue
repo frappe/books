@@ -167,7 +167,7 @@
 
     <!-- Base Count Selection when Dev -->
     <Modal :open-modal="openModal" @closemodal="openModal = false">
-      <div class="p-4 text-gray-900">
+      <div class="p-4 text-gray-900 w-form">
         <h2 class="text-xl font-semibold select-none">Set Base Count</h2>
         <p class="text-base mt-2">
           Base Count is a lower bound on the number of entries made when

@@ -4,7 +4,7 @@
       class="
         fixed
         top-0
-        left-0
+        start-0
         w-screen
         h-screen
         z-20
@@ -21,7 +21,6 @@
           bg-white
           rounded-lg
           shadow-2xl
-          w-form
           border
           overflow-hidden
           inner
@@ -42,10 +41,6 @@ export default defineComponent({
   props: {
     openModal: {
       default: false,
-      type: Boolean,
-    },
-    setCloseListener: {
-      default: true,
       type: Boolean,
     },
   },

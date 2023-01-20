@@ -107,6 +107,12 @@
       "placeholder": "HSN/SAC Code"
     },
     {
+      "fieldname": "barcode",
+      "label": "Barcode",
+      "fieldtype": "Data",
+      "placeholder": "Barcode"
+    },
+    {
       "fieldname": "trackItem",
       "label": "Track Item",
       "fieldtype": "Check",
@@ -122,6 +128,7 @@
     "description",
     "incomeAccount",
     "expenseAccount",
+    "barcode",
     "hsnCode",
     "trackItem"
   ],
