@@ -9,6 +9,7 @@ export class InventorySettings extends Doc {
   valuationMethod?: ValuationMethod;
   stockReceivedButNotBilled?: string;
   costOfGoodsSold?: string;
+  enableBarcodes?: boolean;
 
   static filters: FiltersMap = {
     stockInHand: () => ({

@@ -14,6 +14,8 @@ import {
   numberSeriesDefaultsMap,
 } from './baseModels/Defaults/Defaults';
 import { Invoice } from './baseModels/Invoice/Invoice';
+import { StockMovement } from './inventory/StockMovement';
+import { StockTransfer } from './inventory/StockTransfer';
 import { InvoiceStatus, ModelNameEnum } from './types';
 
 export function getInvoiceActions(
@@ -320,4 +322,28 @@ export function getDocStatusListColumn(): ColumnConfig {
       };
     },
   };
+}
+
+type ModelsWithItems = Invoice | StockTransfer | StockMovement;
+export async function addItem<M extends ModelsWithItems>(name: string, doc: M) {
+  if (!doc.canEdit) {
+    return;
+  }
+
+  const items = (doc.items ?? []) as NonNullable<M['items']>[number][];
+
+  let item = items.find((i) => i.item === name);
+  if (item) {
+    const q = item.quantity ?? 0;
+    await item.set('quantity', q + 1);
+    return;
+  }
+
+  await doc.append('items');
+  item = doc.items?.at(-1);
+  if (!item) {
+    return;
+  }
+
+  await item.set('item', name);
 }
