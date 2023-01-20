@@ -1,7 +1,6 @@
-import { onMounted, onUnmounted, Ref, ref, watch } from 'vue';
+import { onMounted, onUnmounted, reactive, ref, unref, watch } from 'vue';
 
-interface Keys {
-  pressed: Set<string>;
+interface ModMap {
   alt: boolean;
   ctrl: boolean;
   meta: boolean;
@@ -9,11 +8,23 @@ interface Keys {
   repeat: boolean;
 }
 
-export class Shortcuts {
-  keys: Ref<Keys>;
-  shortcuts: Map<string, Function>;
+type Mod = keyof ModMap;
 
-  constructor(keys?: Ref<Keys>) {
+interface Keys extends ModMap {
+  pressed: Set<string>;
+}
+
+type ShortcutFunction = () => void;
+
+const mods: Readonly<Mod[]> = ['alt', 'ctrl', 'meta', 'repeat', 'shift'];
+
+export class Shortcuts {
+  keys: Keys;
+  shortcuts: Map<string, ShortcutFunction>;
+  modMap: Partial<Record<Mod, boolean>>;
+
+  constructor(keys?: Keys) {
+    this.modMap = {};
     this.keys = keys ?? useKeys();
     this.shortcuts = new Map();
 
@@ -23,17 +34,22 @@ export class Shortcuts {
   }
 
   #trigger(keys: Keys) {
-    const key = Array.from(keys.pressed).sort().join('+');
+    const key = this.getKey(Array.from(keys.pressed), keys);
     this.shortcuts.get(key)?.();
   }
 
   has(shortcut: string[]) {
-    const key = shortcut.sort().join('+');
+    const key = this.getKey(shortcut);
     return this.shortcuts.has(key);
   }
 
-  set(shortcut: string[], callback: Function, removeIfSet: boolean = true) {
-    const key = shortcut.sort().join('+');
+  set(
+    shortcut: string[],
+    callback: ShortcutFunction,
+    removeIfSet: boolean = true
+  ) {
+    const key = this.getKey(shortcut);
+
     if (removeIfSet) {
       this.shortcuts.delete(key);
     }
@@ -46,13 +62,59 @@ export class Shortcuts {
   }
 
   delete(shortcut: string[]) {
-    const key = shortcut.sort().join('+');
+    const key = this.getKey(shortcut);
     this.shortcuts.delete(key);
+  }
+
+  getKey(shortcut: string[], modMap?: Partial<ModMap>): string {
+    const _modMap = modMap || this.modMap;
+    this.modMap = {};
+
+    const shortcutString = shortcut.sort().join('+');
+    const modString = mods.filter((k) => _modMap[k]).join('+');
+    if (shortcutString && modString) {
+      return modString + '+' + shortcutString;
+    }
+
+    if (!modString) {
+      return shortcutString;
+    }
+
+    if (!shortcutString) {
+      return modString;
+    }
+
+    return '';
+  }
+
+  get alt() {
+    this.modMap['alt'] = true;
+    return this;
+  }
+
+  get ctrl() {
+    this.modMap['ctrl'] = true;
+    return this;
+  }
+
+  get meta() {
+    this.modMap['meta'] = true;
+    return this;
+  }
+
+  get shift() {
+    this.modMap['shift'] = true;
+    return this;
+  }
+
+  get repeat() {
+    this.modMap['repeat'] = true;
+    return this;
   }
 }
 
 export function useKeys() {
-  const keys: Ref<Keys> = ref({
+  const keys: Keys = reactive({
     pressed: new Set<string>(),
     alt: false,
     ctrl: false,
@@ -62,20 +124,20 @@ export function useKeys() {
   });
 
   const keydownListener = (e: KeyboardEvent) => {
-    keys.value.pressed.add(e.code);
-    keys.value.alt = e.altKey;
-    keys.value.ctrl = e.ctrlKey;
-    keys.value.meta = e.metaKey;
-    keys.value.shift = e.shiftKey;
-    keys.value.repeat = e.repeat;
+    keys.pressed.add(e.code);
+    keys.alt = e.altKey;
+    keys.ctrl = e.ctrlKey;
+    keys.meta = e.metaKey;
+    keys.shift = e.shiftKey;
+    keys.repeat = e.repeat;
   };
 
   const keyupListener = (e: KeyboardEvent) => {
-    keys.value.pressed.delete(e.code);
+    keys.pressed.delete(e.code);
 
     // Key up won't trigger on macOS for other keys.
     if (e.code === 'MetaLeft') {
-      keys.value.pressed.clear();
+      keys.pressed.clear();
     }
   };
 

@@ -55,7 +55,7 @@ import { checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
 import { Search } from './utils/search';
 import { routeTo, systemLanguage } from './utils/ui';
-import { Shortcuts, useKeys } from './utils/vueUtils';
+import { getModKeyCode, Shortcuts, useKeys } from './utils/vueUtils';
 
 export default {
   name: 'App',
@@ -69,6 +69,7 @@ export default {
       companyName: '',
       searcher: null,
       shortcuts: null,
+      modKey: '',
     };
   },
   provide() {
@@ -76,6 +77,7 @@ export default {
       languageDirection: computed(() => this.languageDirection),
       searcher: computed(() => this.searcher),
       shortcuts: computed(() => this.shortcuts),
+      modKey: computed(() => this.modKey),
       keys: computed(() => this.keys),
     };
   },
@@ -86,6 +88,7 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
+    this.modKey = getModKeyCode(this.platform);
     this.shortcuts = new Shortcuts(this.keys);
     const lastSelectedFilePath = fyo.config.get(
       ConfigKeys.LastSelectedFilePath,

@@ -5,7 +5,7 @@
       <feather-icon name="search" class="w-4 h-4 me-1 text-gray-800" />
       <p>{{ t`Search` }}</p>
       <div class="text-gray-500 px-1 ms-4 text-sm">
-        {{ modKey('k') }}
+        {{ modKeyText('k') }}
       </div>
     </Button>
   </div>
@@ -195,7 +195,6 @@ import { getBgTextColorClass } from 'src/utils/colors';
 import { openLink } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { getGroupLabelMap, searchGroups } from 'src/utils/search';
-import { getModKeyCode } from 'src/utils/vueUtils';
 import { nextTick } from 'vue';
 import Button from './Button.vue';
 import Modal from './Modal.vue';
@@ -212,7 +211,7 @@ export default {
       allowedLimits: [50, 100, 500, -1],
     };
   },
-  inject: ['searcher', 'shortcuts'],
+  inject: ['searcher', 'shortcuts', 'modKey'],
   components: { Modal, Button },
   async mounted() {
     if (fyo.store.isDevelopment) {
@@ -233,18 +232,20 @@ export default {
       openLink('https://docs.frappebooks.com/' + docsPathMap.Search);
     },
     getShortcuts() {
-      const modKey = getModKeyCode(this.platform);
       const ifOpen = (cb) => () => this.openModal && cb();
       const ifClose = (cb) => () => !this.openModal && cb();
 
       const shortcuts = [
-        { shortcut: ['KeyK', modKey], callback: ifClose(() => this.open()) },
+        {
+          shortcut: ['KeyK', this.modKey],
+          callback: ifClose(() => this.open()),
+        },
         { shortcut: ['Escape'], callback: ifOpen(() => this.close()) },
       ];
 
       for (const i in searchGroups) {
         shortcuts.push({
-          shortcut: [modKey, `Digit${Number(i) + 1}`],
+          shortcut: [this.modKey, `Digit${Number(i) + 1}`],
           callback: ifOpen(() => {
             const group = searchGroups[i];
             const value = this.searcher.filters.groupFilters[group];
@@ -261,15 +262,15 @@ export default {
     },
     setShortcuts() {
       for (const { shortcut, callback } of this.getShortcuts()) {
-        this.shortcuts.set(shortcut, callback);
+        this.shortcuts.meta.set(shortcut, callback);
       }
     },
     deleteShortcuts() {
       for (const { shortcut } of this.getShortcuts()) {
-        this.shortcuts.delete(shortcut);
+        this.shortcuts.meta.delete(shortcut);
       }
     },
-    modKey(key) {
+    modKeyText(key) {
       key = key.toUpperCase();
       if (this.platform === 'Mac') {
         return `⌘ ${key}`;
