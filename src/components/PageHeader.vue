@@ -16,7 +16,9 @@
     <h1 class="text-xl font-semibold select-none" v-if="title">
       {{ title }}
     </h1>
-    <div class="flex items-stretch window-no-drag gap-2 ms-auto">
+    <div
+      class="flex items-stretch window-no-drag gap-2 ms-auto"
+      :class="platform === 'Mac' && languageDirection === 'rtl' ? 'me-20' : ''">
       <slot />
       <div class="border-e" v-if="showBorder" />
       <BackLink v-if="backLink" class="window-no-drag rtl-rotate-180" />
@@ -28,6 +30,8 @@
 import { Transition } from 'vue';
 import BackLink from './BackLink.vue';
 import SearchBar from './SearchBar.vue';
+import { fyo } from 'src/initFyo';
+import { RTL_LANGUAGES } from 'fyo/utils/consts';
 
 export default {
   inject: ['sidebar'],
@@ -43,6 +47,13 @@ export default {
     showBorder() {
       return !!this.$slots.default && this.searchborder;
     },
+    languageDirection(){
+      const language = fyo.config.get('language');
+      const languageDirection = RTL_LANGUAGES.includes(language)
+        ? 'rtl'
+        : 'ltr';
+      return languageDirection;
+    }
   },
 };
 </script>
