@@ -4,7 +4,7 @@
       class="
         fixed
         top-0
-        left-0
+        start-0
         w-screen
         h-screen
         z-20
