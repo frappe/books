@@ -138,9 +138,6 @@ export class BespokeQueries {
   ): Promise<boolean> {
   /*
     * to check if an item of given name is present in the SLE
-    * taking the count of items from SLE which has the given item name
-    * if the count is greater than 0 considers item exists in SLE, returns true 
-    * if the count is lesser than 0 considers item does not exist in SLE, returns false
   */
     const query = db.knex!(ModelNameEnum.StockLedgerEntry)
       .select('item')
