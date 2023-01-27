@@ -145,7 +145,7 @@ export class BespokeQueries {
 
     const value = (await query) as Record<string, string | null>[];
 
-    if (!value) return false;
+    if (!value || value.length == 0) return false;
     return true;
   }
 
