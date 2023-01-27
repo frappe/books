@@ -27,17 +27,19 @@ export class Item extends Doc {
       * allowing users to change the value of Has Batch No of the items which already did
         transactions will result in incorect SLEs 
     */
-    const ifItemHasBatchNumber = await Boolean(
-      this.fyo.db.get('Item', this.name! || '', 'hasBatchNumber')
+    const ifItemHasBatchNumber = await this.fyo.db.get(
+      'Item',
+      this.name!,
+      'hasBatchNumber'
     );
 
-    if (this.hasBatchNumber == ifItemHasBatchNumber) {
+    if (this.hasBatchNumber == ifItemHasBatchNumber.hasBatchNumber) {
       return;
     }
 
     const isItemExistsInSLE = await this.fyo.db.itemHasTransactions(this.name!);
 
-    if (ifItemHasBatchNumber && isItemExistsInSLE) {
+    if (isItemExistsInSLE) {
       throw new ValidationError(
         this.fyo.t`Cannot change value of Has Batch No as ${this
           .name!} already has transactions against it. `
