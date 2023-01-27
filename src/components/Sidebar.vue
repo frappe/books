@@ -9,7 +9,9 @@
       <!-- Company name and DB Switcher -->
       <div
         class="px-4 flex flex-row items-center justify-between mb-4"
-        :class="platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'"
+        :class="
+          platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'
+        "
       >
         <h6
           class="
@@ -164,10 +166,10 @@ import { getSidebarConfig } from 'src/utils/sidebarConfig';
 import { docsPath, routeTo } from 'src/utils/ui';
 import router from '../router';
 import Icon from './Icon.vue';
-import { RTL_LANGUAGES } from 'fyo/utils/consts';
 
 export default {
   components: [Button],
+  inject: ['languageDirection'],
   emits: ['change-db-file', 'toggle-sidebar'],
   data() {
     return {
@@ -180,13 +182,6 @@ export default {
     appVersion() {
       return fyo.store.appVersion;
     },
-    languageDirection(){
-      const language = fyo.config.get('language');
-      const languageDirection = RTL_LANGUAGES.includes(language)
-        ? 'rtl'
-        : 'ltr';
-      return languageDirection;
-    }
   },
   components: {
     Icon,
