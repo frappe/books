@@ -54,7 +54,7 @@ import { initializeInstance } from './utils/initialization';
 import { checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
 import { Search } from './utils/search';
-import { routeTo } from './utils/ui';
+import { routeTo, systemLanguage } from './utils/ui';
 import { Shortcuts, useKeys } from './utils/vueUtils';
 
 export default {
@@ -69,8 +69,6 @@ export default {
       companyName: '',
       searcher: null,
       shortcuts: null,
-      languageDirection: 'ltr',
-      language: '',
     };
   },
   provide() {
@@ -88,10 +86,6 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
-    this.language = fyo.config.get('language');
-    this.languageDirection = RTL_LANGUAGES.includes(this.language)
-      ? 'rtl'
-      : 'ltr';
     this.shortcuts = new Shortcuts(this.keys);
     const lastSelectedFilePath = fyo.config.get(
       ConfigKeys.LastSelectedFilePath,
@@ -108,6 +102,14 @@ export default {
       await handleErrorWithDialog(err, undefined, true, true);
       await this.showDbSelector();
     }
+  },
+  computed: {
+    language() {
+      return systemLanguage.value;
+    },
+    languageDirection() {
+      return RTL_LANGUAGES.includes(this.language) ? 'rtl' : 'ltr';
+    },
   },
   methods: {
     async setDesk(filePath) {

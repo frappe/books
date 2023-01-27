@@ -9,7 +9,9 @@
       <!-- Company name and DB Switcher -->
       <div
         class="px-4 flex flex-row items-center justify-between mb-4"
-        :class="platform === 'Mac' ? 'mt-10' : 'mt-2'"
+        :class="
+          platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'
+        "
       >
         <h6
           class="
@@ -167,6 +169,7 @@ import Icon from './Icon.vue';
 
 export default {
   components: [Button],
+  inject: ['languageDirection'],
   emits: ['change-db-file', 'toggle-sidebar'],
   data() {
     return {
