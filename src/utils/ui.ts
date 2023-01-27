@@ -24,6 +24,7 @@ import {
 } from './types';
 
 export const docsPath = ref('');
+export const systemLanguage = ref('');
 
 export async function openQuickEdit({
   doc,
