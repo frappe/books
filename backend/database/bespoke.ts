@@ -136,9 +136,9 @@ export class BespokeQueries {
     db: DatabaseCore,
     item: string
   ): Promise<boolean> {
-  /*
-    * to check if an item of given name is present in the SLE
-  */
+    /*
+     * to check if an item of given name is present in the SLE
+     */
     const query = db.knex!(ModelNameEnum.StockLedgerEntry)
       .select('item')
       .where('item', item);
@@ -147,6 +147,24 @@ export class BespokeQueries {
 
     if (!value || value.length == 0) return false;
     return true;
+  }
+
+  static async getBatchWiseStockBalanceEntries(
+    db: DatabaseCore
+  ): Promise<object | null> {
+    /*
+     * to get stock balance entries from SLE grouped by location, item and batchNumber
+     */
+    return await db.knex!.raw(`
+      SELECT 
+        item, date, batchNumber, location, name, quantity, SUM(quantity) AS sumOfQuantity 
+      FROM 
+        StockLedgerEntry 
+      WHERE 
+        batchNumber IS NOT NULL 
+      GROUP BY 
+        location, item, batchNumber; 
+    `);
   }
 
   static async getStockQuantity(

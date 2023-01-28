@@ -7,6 +7,7 @@ import { StockBalance } from './inventory/StockBalance';
 import { ProfitAndLoss } from './ProfitAndLoss/ProfitAndLoss';
 import { Report } from './Report';
 import { TrialBalance } from './TrialBalance/TrialBalance';
+import { BatchWiseStockBalance } from './inventory/BatchWiseStockBalance';
 
 export const reports = {
   GeneralLedger,
@@ -17,4 +18,5 @@ export const reports = {
   GSTR2,
   StockLedger,
   StockBalance,
+  BatchWiseStockBalance,
 } as Record<string, typeof Report>;

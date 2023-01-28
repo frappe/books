@@ -31,6 +31,7 @@ export class StockLedger extends Report {
   ascending?: boolean;
   referenceType?: ReferenceType = 'All';
   referenceName?: string;
+  batchNumber?: string;
 
   groupBy: 'none' | 'item' | 'location' = 'none';
 

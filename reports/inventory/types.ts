@@ -24,6 +24,7 @@ export interface ComputedStockLedgerEntry{
   batchNumber: string;
   quantity: number;
   balanceQuantity: number;
+  sumOfQuantity?:number;
 
   incomingRate: number;
   valuationRate:number;
@@ -42,6 +43,30 @@ export interface StockBalanceEntry{
   item: string;
   location:string;
 
+  balanceQuantity: number;
+  balanceValue: number;
+  
+  openingQuantity: number;
+  openingValue:number;
+  
+  incomingQuantity:number;
+  incomingValue:number;
+  
+  outgoingQuantity:number;
+  outgoingValue:number;
+
+  valuationRate:number;
+}
+
+export interface BatchWiseStockBalanceEntry{
+  name: number;
+  date?: Date;
+
+  item: string;
+  location:string;
+
+  batchNumber: string;
+  sumOfQuantity: number;
   balanceQuantity: number;
   balanceValue: number;
   

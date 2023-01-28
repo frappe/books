@@ -4,6 +4,7 @@ import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import { safeParseFloat, safeParseInt } from 'utils/index';
 import {
+  BatchWiseStockBalanceEntry,
   ComputedStockLedgerEntry,
   RawStockLedgerEntry,
   StockBalanceEntry,
@@ -159,6 +160,64 @@ export function getStockBalanceEntries(
     .flat();
 }
 
+export function getBatchWiseStockBalanceEntries(
+  computedSLEs: ComputedStockLedgerEntry[],
+  filters: {
+    item?: string;
+    location?: string;
+    fromDate?: string;
+    toDate?: string;
+    batchNumber?: string;
+  }
+): StockBalanceEntry[] {
+  const sbeMap: Record<Item, Record<Location, StockBalanceEntry>> = {};
+
+  const fromDate = filters.fromDate ? Date.parse(filters.fromDate) : null;
+  const toDate = filters.toDate ? Date.parse(filters.toDate) : null;
+
+  for (const sle of computedSLEs) {
+    if (filters.item && sle.item !== filters.item) {
+      continue;
+    }
+
+    if (filters.location && sle.location !== filters.location) {
+      continue;
+    }
+
+    if (filters.batchNumber && sle.batchNumber !== filters.batchNumber) {
+      continue;
+    }
+
+    sbeMap[sle.item] ??= {};
+    sle.balanceQuantity = sle.sumOfQuantity ?? 0;
+    sbeMap[sle.item][sle.location] ??= getBatchWiseSBE(
+      sle.item,
+      sle.location,
+      sle.batchNumber,
+      sle.balanceQuantity
+    );
+
+    const date = sle.date!.valueOf();
+
+    if (fromDate && date < fromDate) {
+      const sbe = sbeMap[sle.item][sle.location]!;
+      updateOpeningBalances(sbe, sle);
+      continue;
+    }
+
+    if (toDate && date > toDate) {
+      continue;
+    }
+
+    const sbe = sbeMap[sle.item][sle.location]!;
+    updateBatchWiseCurrentBalances(sbe, sle);
+  }
+
+  return Object.values(sbeMap)
+    .map((sbes) => Object.values(sbes))
+    .flat();
+}
+
 function getSBE(
   item: string,
   location: string,
@@ -169,6 +228,37 @@ function getSBE(
 
     item,
     location,
+
+    balanceQuantity: 0,
+    balanceValue: 0,
+
+    openingQuantity: 0,
+    openingValue: 0,
+
+    incomingQuantity: 0,
+    incomingValue: 0,
+
+    outgoingQuantity: 0,
+    outgoingValue: 0,
+
+    valuationRate: 0,
+  };
+}
+
+function getBatchWiseSBE(
+  item: string,
+  location: string,
+  batchNumber: string,
+  sumOfQuantity: number
+): BatchWiseStockBalanceEntry {
+  return {
+    name: 0,
+
+    item,
+    location,
+
+    batchNumber,
+    sumOfQuantity,
 
     balanceQuantity: 0,
     balanceValue: 0,
@@ -211,6 +301,26 @@ function updateCurrentBalances(
     sbe.outgoingQuantity -= sle.quantity;
     sbe.outgoingValue -= sle.valueChange;
   }
+
+  sbe.valuationRate = sle.valuationRate;
+}
+
+function updateBatchWiseCurrentBalances(
+  sbe: StockBalanceEntry,
+  sle: ComputedStockLedgerEntry
+) {
+  sbe.balanceQuantity = sle.balanceQuantity;
+  sbe.balanceValue += sle.valueChange;
+
+  if (sle.quantity > 0) {
+    sbe.incomingQuantity += sle.quantity;
+    sbe.incomingValue += sle.valueChange;
+  } else {
+    sbe.outgoingQuantity -= sle.quantity;
+    sbe.outgoingValue -= sle.valueChange;
+  }
+
+  sbe.outgoingQuantity = sbe.incomingQuantity - sle.balanceQuantity;
 
   sbe.valuationRate = sle.valuationRate;
 }
