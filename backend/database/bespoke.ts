@@ -155,16 +155,12 @@ export class BespokeQueries {
     /*
      * to get stock balance entries from SLE grouped by location, item and batchNumber
      */
-    return await db.knex!.raw(`
-      SELECT 
-        item, date, batchNumber, location, name, quantity, SUM(quantity) AS sumOfQuantity 
-      FROM 
-        StockLedgerEntry 
-      WHERE 
-        batchNumber IS NOT NULL 
-      GROUP BY 
-        location, item, batchNumber; 
-    `);
+
+    return await db.knex!(ModelNameEnum.StockLedgerEntry)
+      .select('item', 'date', 'batchNumber', 'location', 'name', 'quantity')
+      .sum('quantity as sumOfQuantity')
+      .whereNotNull('batchNumber')
+      .groupBy('location', 'item', 'batchNumber');
   }
 
   static async getStockQuantity(
