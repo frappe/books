@@ -5,7 +5,6 @@ import { Verb } from 'fyo/telemetry/types';
 import { DEFAULT_USER } from 'fyo/utils/consts';
 import { ConflictError, MandatoryError, NotFoundError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
-import { Money } from 'pesa';
 import {
   DynamicLinkField,
   Field,
@@ -142,6 +141,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
       return false;
     }
 
+    if (this.schema.isChild) {
+      return false;
+    }
+
     if (!this.schema.isSubmittable) {
       return true;
     }
@@ -183,6 +186,14 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     if (!this.dirty) {
+      return false;
+    }
+
+    if (this.schema.isSingle) {
+      return false;
+    }
+
+    if (this.schema.isChild) {
       return false;
     }
 

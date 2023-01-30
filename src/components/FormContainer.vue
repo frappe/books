@@ -1,5 +1,5 @@
 <template>
-  <div class="flex bg-gray-25">
+  <div class="flex bg-gray-25 overflow-x-auto">
     <div class="flex flex-1 flex-col">
       <!-- Page Header (Title, Buttons, etc) -->
       <PageHeader :title="title" :border="false" :searchborder="searchborder">

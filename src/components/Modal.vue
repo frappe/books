@@ -17,14 +17,7 @@
       v-if="openModal"
     >
       <div
-        class="
-          bg-white
-          rounded-lg
-          shadow-2xl
-          border
-          overflow-hidden
-          inner
-        "
+        class="bg-white rounded-lg shadow-2xl border overflow-hidden inner"
         v-bind="$attrs"
         @click.stop
       >
