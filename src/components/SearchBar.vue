@@ -237,15 +237,14 @@ export default {
 
       const shortcuts = [
         {
-          shortcut: ['KeyK', this.modKey],
+          shortcut: 'KeyK',
           callback: ifClose(() => this.open()),
         },
-        { shortcut: ['Escape'], callback: ifOpen(() => this.close()) },
       ];
 
       for (const i in searchGroups) {
         shortcuts.push({
-          shortcut: [this.modKey, `Digit${Number(i) + 1}`],
+          shortcut: `Digit${Number(i) + 1}`,
           callback: ifOpen(() => {
             const group = searchGroups[i];
             const value = this.searcher.filters.groupFilters[group];
@@ -262,12 +261,20 @@ export default {
     },
     setShortcuts() {
       for (const { shortcut, callback } of this.getShortcuts()) {
-        this.shortcuts.meta.set(shortcut, callback);
+        if (this.platform === 'Mac') {
+          this.shortcuts.meta.set([shortcut], callback);
+        } else {
+          this.shortcuts.ctrl.set([shortcut], callback);
+        }
       }
     },
     deleteShortcuts() {
       for (const { shortcut } of this.getShortcuts()) {
-        this.shortcuts.meta.delete(shortcut);
+        if (this.platform === 'Mac') {
+          this.shortcuts.meta.delete([shortcut]);
+        } else {
+          this.shortcuts.ctrl.delete([shortcut]);
+        }
       }
     },
     modKeyText(key) {
@@ -305,7 +312,7 @@ export default {
     },
     select(idx) {
       this.idx = idx ?? this.idx;
-      this.suggestions[this.idx]?.action();
+      this.suggestionsthis.idx?.action();
       this.close();
     },
     scrollToHighlighted() {

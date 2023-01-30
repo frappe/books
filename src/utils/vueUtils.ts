@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, reactive, ref, unref, watch } from 'vue';
+import { onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 
 interface ModMap {
   alt: boolean;
@@ -114,6 +114,7 @@ export class Shortcuts {
 }
 
 export function useKeys() {
+  const isMac = navigator.userAgent.indexOf('Mac') !== -1;
   const keys: Keys = reactive({
     pressed: new Set<string>(),
     alt: false,
@@ -124,21 +125,32 @@ export function useKeys() {
   });
 
   const keydownListener = (e: KeyboardEvent) => {
-    keys.pressed.add(e.code);
     keys.alt = e.altKey;
     keys.ctrl = e.ctrlKey;
     keys.meta = e.metaKey;
     keys.shift = e.shiftKey;
     keys.repeat = e.repeat;
+
+    const { code } = e;
+    if (
+      code.startsWith('Alt') ||
+      code.startsWith('Ctrl') ||
+      code.startsWith('Meta') ||
+      code.startsWith('Shift')
+    ) {
+      return;
+    }
+
+    keys.pressed.add(code);
   };
 
   const keyupListener = (e: KeyboardEvent) => {
-    keys.pressed.delete(e.code);
-
-    // Key up won't trigger on macOS for other keys.
-    if (e.code === 'MetaLeft') {
-      keys.pressed.clear();
+    const { code } = e;
+    if (code.startsWith('Meta') && isMac) {
+      return keys.pressed.clear();
     }
+
+    keys.pressed.delete(code);
   };
 
   onMounted(() => {
