@@ -49,7 +49,8 @@ import Row from 'src/components/Row.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
-import { docsPath, showToast } from 'src/utils/ui';
+import { docsPathRef } from 'src/utils/refs';
+import { showToast } from 'src/utils/ui';
 import { IPC_MESSAGES } from 'utils/messages';
 import { h, markRaw } from 'vue';
 import TabBase from './TabBase.vue';
@@ -112,10 +113,10 @@ export default {
   },
   activated() {
     this.setActiveTab();
-    docsPath.value = docsPathMap.Settings;
+    docsPathRef.value = docsPathMap.Settings;
   },
   deactivated() {
-    docsPath.value = '';
+    docsPathRef.value = '';
     if (this.fieldsChanged.length === 0) {
       return;
     }

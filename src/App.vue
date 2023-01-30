@@ -41,6 +41,7 @@
 import { ConfigKeys } from 'fyo/core/types';
 import { RTL_LANGUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
+import { systemLanguageRef } from 'src/utils/refs';
 import { computed } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
@@ -54,8 +55,9 @@ import { initializeInstance } from './utils/initialization';
 import { checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
 import { Search } from './utils/search';
-import { routeTo, systemLanguage } from './utils/ui';
-import { getModKeyCode, Shortcuts, useKeys } from './utils/vueUtils';
+import { setGlobalShortcuts } from './utils/shortcuts';
+import { routeTo } from './utils/ui';
+import { Shortcuts, useKeys } from './utils/vueUtils';
 
 export default {
   name: 'App',
@@ -69,7 +71,6 @@ export default {
       companyName: '',
       searcher: null,
       shortcuts: null,
-      modKey: '',
     };
   },
   provide() {
@@ -77,7 +78,6 @@ export default {
       languageDirection: computed(() => this.languageDirection),
       searcher: computed(() => this.searcher),
       shortcuts: computed(() => this.shortcuts),
-      modKey: computed(() => this.modKey),
       keys: computed(() => this.keys),
     };
   },
@@ -88,8 +88,8 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
-    this.modKey = getModKeyCode(this.platform);
-    this.shortcuts = new Shortcuts(this.keys);
+    const shortcuts = new Shortcuts(this.keys);
+    this.shortcuts = shortcuts;
     const lastSelectedFilePath = fyo.config.get(
       ConfigKeys.LastSelectedFilePath,
       null
@@ -105,10 +105,12 @@ export default {
       await handleErrorWithDialog(err, undefined, true, true);
       await this.showDbSelector();
     }
+
+    setGlobalShortcuts(shortcuts);
   },
   computed: {
     language() {
-      return systemLanguage.value;
+      return systemLanguageRef.value;
     },
     languageDirection() {
       return RTL_LANGUAGES.includes(this.language) ? 'rtl' : 'ltr';

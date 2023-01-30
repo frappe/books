@@ -162,8 +162,9 @@ import Button from 'src/components/Button.vue';
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { openLink } from 'src/utils/ipcCalls';
+import { docsPathRef } from 'src/utils/refs';
 import { getSidebarConfig } from 'src/utils/sidebarConfig';
-import { docsPath, routeTo } from 'src/utils/ui';
+import { routeTo } from 'src/utils/ui';
 import router from '../router';
 import Icon from './Icon.vue';
 
@@ -200,7 +201,7 @@ export default {
     routeTo,
     reportIssue,
     openDocumentation() {
-      openLink('https://docs.frappebooks.com/' + docsPath.value);
+      openLink('https://docs.frappebooks.com/' + docsPathRef.value);
     },
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;

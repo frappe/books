@@ -147,7 +147,8 @@ import { ModelNameEnum } from 'models/types';
 import PageHeader from 'src/components/PageHeader.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
-import { docsPath, openQuickEdit } from 'src/utils/ui';
+import { docsPathRef } from 'src/utils/refs';
+import { openQuickEdit } from 'src/utils/ui';
 import { getMapFromList, removeAtIndex } from 'utils/index';
 import { nextTick } from 'vue';
 import Button from '../components/Button.vue';
@@ -184,7 +185,7 @@ export default {
       window.coa = this;
     }
 
-    docsPath.value = docsPathMap.ChartOfAccounts;
+    docsPathRef.value = docsPathMap.ChartOfAccounts;
 
     if (this.refetchTotals) {
       await this.setTotalDebitAndCredit();
@@ -192,7 +193,7 @@ export default {
     }
   },
   deactivated() {
-    docsPath.value = '';
+    docsPathRef.value = '';
   },
   methods: {
     async expand() {
