@@ -355,7 +355,8 @@ import { importable, Importer } from 'src/dataImport';
 import { fyo } from 'src/initFyo';
 import { getSavePath, saveData, selectFile } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
-import { docsPath, showMessageDialog } from 'src/utils/ui';
+import { docsPathRef } from 'src/utils/refs';
+import { showMessageDialog } from 'src/utils/ui';
 import Loading from '../components/Loading.vue';
 
 export default {
@@ -484,10 +485,10 @@ export default {
     },
   },
   activated() {
-    docsPath.value = docsPathMap.DataImport;
+    docsPathRef.value = docsPathMap.DataImport;
   },
   deactivated() {
-    docsPath.value = '';
+    docsPathRef.value = '';
     if (!this.complete) {
       return;
     }

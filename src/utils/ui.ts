@@ -4,7 +4,7 @@
  */
 import { ipcRenderer } from 'electron';
 import { t } from 'fyo';
-import { Doc } from 'fyo/model/doc';
+import type { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
 import { getDbError, LinkValidationError, ValueError } from 'fyo/utils/errors';
@@ -22,9 +22,6 @@ import {
   SettingsTab,
   ToastOptions,
 } from './types';
-
-export const docsPath = ref('');
-export const systemLanguage = ref('');
 
 export async function openQuickEdit({
   doc,

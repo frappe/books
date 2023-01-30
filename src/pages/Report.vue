@@ -46,7 +46,7 @@ import PageHeader from 'src/components/PageHeader.vue';
 import ListReport from 'src/components/Report/ListReport.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
-import { docsPath } from 'src/utils/ui';
+import { docsPathRef } from 'src/utils/refs';
 import { defineComponent } from 'vue';
 
 export default defineComponent({
@@ -70,7 +70,7 @@ export default defineComponent({
   },
   components: { PageHeader, FormControl, ListReport, DropdownWithActions },
   async activated() {
-    docsPath.value = docsPathMap[this.reportClassName] ?? docsPathMap.Reports;
+    docsPathRef.value = docsPathMap[this.reportClassName] ?? docsPathMap.Reports;
     await this.setReportData();
 
     const filters = JSON.parse(this.defaultFilters);
@@ -88,7 +88,7 @@ export default defineComponent({
     }
   },
   deactivated() {
-    docsPath.value = '';
+    docsPathRef.value = '';
   },
   computed: {
     title() {
