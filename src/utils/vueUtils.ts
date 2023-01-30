@@ -144,7 +144,7 @@ export function useKeys() {
     const { code } = e;
     if (
       code.startsWith('Alt') ||
-      code.startsWith('Ctrl') ||
+      code.startsWith('Control') ||
       code.startsWith('Meta') ||
       code.startsWith('Shift')
     ) {
