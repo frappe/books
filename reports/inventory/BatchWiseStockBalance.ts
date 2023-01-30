@@ -10,8 +10,8 @@ import { StockLedger } from './StockLedger';
 import { ComputedStockLedgerEntry, ReferenceType } from './types';
 
 export class BatchWiseStockBalance extends StockLedger {
-  static title = t`Stock Balance`;
-  static reportName = 'stock-balance';
+  static title = t`Batch Wise Stock Balance`;
+  static reportName = 'batch-wise-stock-balance';
   static isInventory = true;
 
   override ascending: boolean = true;
