@@ -65,12 +65,12 @@
 
 <script>
 import PageHeader from 'src/components/PageHeader.vue';
-import { docsPath } from 'src/utils/ui';
 import UnpaidInvoices from './UnpaidInvoices.vue';
 import Cashflow from './Cashflow.vue';
 import Expenses from './Expenses.vue';
 import PeriodSelector from './PeriodSelector.vue';
 import ProfitAndLoss from './ProfitAndLoss.vue';
+import { docsPathRef } from 'src/utils/refs';
 
 export default {
   name: 'Dashboard',
@@ -86,10 +86,10 @@ export default {
     return { period: 'This Year' };
   },
   activated() {
-    docsPath.value = 'analytics/dashboard';
+    docsPathRef.value = 'analytics/dashboard';
   },
   deactivated() {
-    docsPath.value = '';
+    docsPathRef.value = '';
   },
   methods: {
     handlePeriodChange(period) {

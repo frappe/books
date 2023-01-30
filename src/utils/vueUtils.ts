@@ -20,6 +20,7 @@ const mods: Readonly<Mod[]> = ['alt', 'ctrl', 'meta', 'repeat', 'shift'];
 
 export class Shortcuts {
   keys: Keys;
+  isMac: boolean;
   shortcuts: Map<string, ShortcutFunction>;
   modMap: Partial<Record<Mod, boolean>>;
 
@@ -27,6 +28,7 @@ export class Shortcuts {
     this.modMap = {};
     this.keys = keys ?? useKeys();
     this.shortcuts = new Map();
+    this.isMac = getIsMac();
 
     watch(this.keys, (keys) => {
       this.#trigger(keys);
@@ -111,10 +113,18 @@ export class Shortcuts {
     this.modMap['repeat'] = true;
     return this;
   }
+
+  get pmod() {
+    if (this.isMac) {
+      return this.meta;
+    } else {
+      return this.ctrl;
+    }
+  }
 }
 
 export function useKeys() {
-  const isMac = navigator.userAgent.indexOf('Mac') !== -1;
+  const isMac = getIsMac();
   const keys: Keys = reactive({
     pressed: new Set<string>(),
     alt: false,
@@ -184,10 +194,6 @@ export function useMouseLocation() {
   return loc;
 }
 
-export function getModKeyCode(platform: 'Windows' | 'Linux' | 'Mac') {
-  if (platform === 'Mac') {
-    return 'MetaLeft';
-  }
-
-  return 'CtrlLeft';
+function getIsMac() {
+  return navigator.userAgent.indexOf('Mac') !== -1;
 }

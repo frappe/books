@@ -1,5 +1,6 @@
 import { Fyo } from 'fyo';
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
+import { Doc } from 'fyo/model/doc';
 import { DateTime } from 'luxon';
 import { SetupWizard } from 'models/baseModels/SetupWizard/SetupWizard';
 import { ModelNameEnum } from 'models/types';
@@ -159,4 +160,46 @@ export function getCreateFiltersFromListViewFilters(filters: QueryFilter) {
   }
 
   return createFilters;
+}
+
+export class FocusedDocContextSet {
+  set: Doc[];
+  constructor() {
+    this.set = [];
+  }
+
+  add(doc: unknown) {
+    if (!(doc instanceof Doc)) {
+      return;
+    }
+
+    const index = this.findIndex(doc);
+    if (index !== -1) {
+      this.delete(index);
+    }
+
+    return this.set.push(doc);
+  }
+
+  delete(index: Doc | number) {
+    if (typeof index !== 'number') {
+      index = this.findIndex(index);
+    }
+
+    if (index === -1) {
+      return;
+    }
+
+    this.set = this.set.filter((_, i) => i !== index);
+  }
+
+  last() {
+    return this.set.at(-1);
+  }
+
+  findIndex(doc: Doc) {
+    return this.set.findIndex(
+      (d) => d.name === doc.name && d.schemaName === doc.schemaName
+    );
+  }
 }
