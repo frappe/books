@@ -2,9 +2,19 @@ import { getDefaultMetaFieldValueMap } from '../../backend/helpers';
 import { DatabaseManager } from '../database/manager';
 
 async function execute(dm: DatabaseManager) {
+  const s = (await dm.db?.getAll('SingleValue', {
+    fields: ['value'],
+    filters: { fieldname: 'setupComplete' },
+  })) as { value: string }[];
+
+  if (!Number(s?.[0]?.value ?? '0')) {
+    return;
+  }
+
   const names: Record<string, string> = {
     StockMovement: 'SMOV-',
-    Shipment: 'SHP-',
+    PurchaseReceipt: 'PREC-',
+    Shipment: 'SHPM-',
   };
 
   for (const referenceType in names) {

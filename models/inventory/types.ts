@@ -9,6 +9,7 @@ export enum MovementType {
   'MaterialIssue' = 'MaterialIssue',
   'MaterialReceipt' = 'MaterialReceipt',
   'MaterialTransfer' = 'MaterialTransfer',
+  'Manufacture' = 'Manufacture',
 }
 
 export interface SMDetails {
