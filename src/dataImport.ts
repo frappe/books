@@ -20,15 +20,6 @@ import {
 } from 'utils';
 import { generateCSV, parseCSV } from '../utils/csvParser';
 
-export const importable = [
-  ModelNameEnum.SalesInvoice,
-  ModelNameEnum.PurchaseInvoice,
-  ModelNameEnum.Payment,
-  ModelNameEnum.Party,
-  ModelNameEnum.Item,
-  ModelNameEnum.JournalEntry,
-];
-
 type Status = {
   success: boolean;
   message: string;
@@ -265,7 +256,7 @@ export class Importer {
     return true;
   }
 
-  initialize(labelIndex: number, force: boolean) {
+  initialize(labelIndex: number, force: boolean = false) {
     if (
       (typeof labelIndex !== 'number' && !labelIndex) ||
       (labelIndex === this.labelIndex && !force)
