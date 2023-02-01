@@ -7,6 +7,12 @@
         v-if="(canCancel || importType) && !complete"
       />
       <Button
+        v-if="(canCancel || importType) && !complete && hasImporter"
+        class="text-sm"
+        @click="saveTemplate"
+        >{{ t`Save Template` }}</Button
+      >
+      <Button
         v-if="importType && !complete"
         type="primary"
         class="text-sm"
@@ -52,7 +58,7 @@
       </div>
 
       <!-- Settings -->
-      <div v-if="fileName" class="border-b p-4">
+      <div v-if="fileName && hasImporter" class="border-b p-4">
         <h2 class="text-lg font-semibold">{{ t`Importer Settings` }}</h2>
         <div class="mt-2 flex gap-2">
           <div
@@ -131,7 +137,7 @@
       </div>
 
       <!-- Label Assigner -->
-      <div v-if="fileName" class="p-4 border-b">
+      <div v-if="fileName && hasImporter" class="p-4 border-b">
         <div class="flex items-center gap-2">
           <h2 class="text-lg font-semibold">{{ t`Assign Imported Labels` }}</h2>
           <p class="text-red-400 text-sm" v-if="isRequiredUnassigned">
@@ -164,7 +170,7 @@
       </div>
 
       <!-- Data Verifier -->
-      <div v-if="fileName">
+      <div v-if="fileName && hasImporter">
         <div class="overflow-auto border-b">
           <!-- Column Name Rows  -->
           <div
@@ -285,6 +291,8 @@
         </div>
       </div>
     </div>
+
+    <!-- Post Complete Success -->
     <div v-if="complete" class="flex justify-center h-full items-center">
       <div
         class="
@@ -344,22 +352,43 @@
     />
   </div>
 </template>
-<script>
+<script lang="ts">
+import { Action as BaseAction } from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
+import { ModelNameEnum } from 'models/types';
+import { FieldTypeEnum, OptionField } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FeatherIcon from 'src/components/FeatherIcon.vue';
 import HowTo from 'src/components/HowTo.vue';
 import PageHeader from 'src/components/PageHeader.vue';
-import { importable, Importer } from 'src/dataImport';
+import { Importer } from 'src/dataImport';
 import { fyo } from 'src/initFyo';
 import { getSavePath, saveData, selectFile } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { showMessageDialog } from 'src/utils/ui';
+import { defineComponent } from 'vue';
 import Loading from '../components/Loading.vue';
 
-export default {
+type Action = Pick<BaseAction, 'condition' | 'component'> & {
+  action: Function;
+};
+
+type DataImportData = {
+  canReset: boolean;
+  complete: boolean;
+  names: string[];
+  file: null | { name: string; filePath: string; text: string };
+  nullOrImporter: null | Importer;
+  importType: string;
+  isMakingEntries: boolean;
+  percentLoading: number;
+  messageLoading: string;
+};
+
+export default defineComponent({
   components: {
     PageHeader,
     FormControl,
@@ -375,44 +404,67 @@ export default {
       complete: false,
       names: ['Bat', 'Baseball', 'Other Shit'],
       file: null,
-      importer: null,
+      nullOrImporter: null,
       importType: '',
       isMakingEntries: false,
       percentLoading: 0,
       messageLoading: '',
-    };
+    } as DataImportData;
   },
   mounted() {
     if (fyo.store.isDevelopment) {
+      // @ts-ignore
       window.di = this;
     }
   },
   computed: {
-    labelIndex() {
-      return this.importer.labelIndex;
+    hasImporter(): boolean {
+      return !!this.nullOrImporter;
     },
-    requiredUnassigned() {
+    importer(): Importer {
+      if (!this.nullOrImporter) {
+        throw new ValidationError(this.t`Importer not set, reload tool`, false);
+      }
+
+      return this.nullOrImporter as Importer;
+    },
+    importables(): ModelNameEnum[] {
+      const importables = [
+        ModelNameEnum.SalesInvoice,
+        ModelNameEnum.PurchaseInvoice,
+        ModelNameEnum.Payment,
+        ModelNameEnum.Party,
+        ModelNameEnum.Item,
+        ModelNameEnum.JournalEntry,
+      ];
+
+      const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;
+      if (hasInventory) {
+        importables.push(
+          ModelNameEnum.StockMovement,
+          ModelNameEnum.Shipment,
+          ModelNameEnum.PurchaseReceipt
+        );
+      }
+
+      return importables;
+    },
+    labelIndex(): number {
+      return this.importer.labelIndex ?? 0;
+    },
+    requiredUnassigned(): string[] {
       return this.importer.assignableLabels.filter(
         (k) => this.importer.requiredMap[k] && !this.importer.assignedMap[k]
       );
     },
-    isRequiredUnassigned() {
+    isRequiredUnassigned(): boolean {
       return this.requiredUnassigned.length > 0;
     },
-    assignedMatrix() {
-      return this.importer.assignedMatrix;
+    assignedMatrix(): string[][] {
+      return this.nullOrImporter?.assignedMatrix ?? [];
     },
-    actions() {
-      const actions = [];
-
-      const secondaryAction = {
-        component: {
-          template: '<span>{{ t`Save Template` }}</span>',
-        },
-        condition: () => true,
-        action: this.handleSecondaryClick,
-      };
-      actions.push(secondaryAction);
+    actions(): Action[] {
+      const actions: Action[] = [];
 
       if (this.file) {
         actions.push({
@@ -436,13 +488,13 @@ export default {
       return actions;
     },
 
-    fileName() {
+    fileName(): string {
       if (!this.file) {
         return '';
       }
       return this.file.name;
     },
-    helperText() {
+    helperText(): string {
       if (!this.importType) {
         return this.t`Set an Import Type`;
       } else if (!this.fileName) {
@@ -450,44 +502,44 @@ export default {
       }
       return this.fileName;
     },
-    primaryLabel() {
+    primaryLabel(): string {
       return this.file ? this.t`Import Data` : this.t`Select File`;
     },
-    isSubmittable() {
-      const schemaName = this.importer?.schemaName;
-      if (schemaName) {
-        return fyo.schemaMap[schemaName].isSubmittable ?? false;
-      }
-      return false;
+    isSubmittable(): boolean {
+      const schemaName = this.importer.schemaName;
+      return fyo.schemaMap[schemaName]?.isSubmittable ?? false;
     },
-    importableDf() {
+    importableDf(): OptionField {
       return {
         fieldname: 'importType',
         label: this.t`Import Type`,
-        fieldtype: 'AutoComplete',
+        fieldtype: FieldTypeEnum.AutoComplete,
         placeholder: this.t`Import Type`,
-        options: Object.keys(this.labelSchemaNameMap),
+        options: Object.keys(this.labelSchemaNameMap).map((k) => ({
+          value: k,
+          label: k,
+        })),
       };
     },
-    labelSchemaNameMap() {
-      return importable
+    labelSchemaNameMap(): Record<string, string> {
+      return this.importables
         .map((i) => ({
           name: i,
-          label: fyo.schemaMap[i].label,
+          label: fyo.schemaMap[i]?.label ?? i,
         }))
         .reduce((acc, { name, label }) => {
           acc[label] = name;
           return acc;
-        }, {});
+        }, {} as Record<string, string>);
     },
-    canCancel() {
+    canCancel(): boolean {
       return !!(this.file || this.importType);
     },
   },
-  activated() {
-    docsPathRef.value = docsPathMap.DataImport;
+  activated(): void {
+    docsPathRef.value = docsPathMap.DataImport ?? '';
   },
-  deactivated() {
+  deactivated(): void {
     docsPathRef.value = '';
     if (!this.complete) {
       return;
@@ -496,15 +548,15 @@ export default {
     this.clear();
   },
   methods: {
-    showMe() {
+    showMe(): void {
       const schemaName = this.importer.schemaName;
       this.clear();
       this.$router.push(`/list/${schemaName}`);
     },
-    clear() {
+    clear(): void {
       this.file = null;
       this.names = [];
-      this.importer = null;
+      this.nullOrImporter = null;
       this.importType = '';
       this.complete = false;
       this.canReset = false;
@@ -512,57 +564,52 @@ export default {
       this.percentLoading = 0;
       this.messageLoading = '';
     },
-    handlePrimaryClick() {
+    async handlePrimaryClick(): Promise<void> {
       if (!this.file) {
-        this.selectFile();
+        await this.selectFile();
         return;
       }
 
-      this.importData();
+      await this.importData();
     },
-    handleSecondaryClick() {
-      if (!this.importer) {
-        return;
-      }
-
-      this.saveTemplate();
+    setLabelIndex(e: Event): void {
+      const target = e.target as HTMLInputElement;
+      const labelIndex = Number(target?.value ?? '1') - 1;
+      this.nullOrImporter?.initialize(labelIndex);
     },
-    setLabelIndex(e) {
-      const labelIndex = (e.target.value ?? 1) - 1;
-      this.importer.initialize(labelIndex);
-    },
-    async saveTemplate() {
+    async saveTemplate(): Promise<void> {
       const template = this.importer.template;
       const templateName = this.importType + ' ' + this.t`Template`;
-      const { cancelled, filePath } = await getSavePath(templateName, 'csv');
+      const { canceled, filePath } = await getSavePath(templateName, 'csv');
 
-      if (cancelled || filePath === '') {
+      if (canceled || !filePath) {
         return;
       }
+
       await saveData(template, filePath);
     },
-    getAssignerField(targetLabel) {
+    getAssignerField(targetLabel: string): OptionField {
       const assigned = this.importer.assignedMap[targetLabel];
       return {
         fieldname: 'assignerField',
         label: targetLabel,
         placeholder: `Select Label`,
-        fieldtype: 'Select',
+        fieldtype: FieldTypeEnum.Select,
         options: [
           '',
           ...(assigned ? [assigned] : []),
           ...this.importer.unassignedLabels,
-        ],
+        ].map((i) => ({ value: i, label: i })),
         default: assigned ?? '',
       };
     },
-    onAssignedChange(target, value) {
+    onAssignedChange(target: string, value: string): void {
       this.importer.assignedMap[target] = value;
     },
-    onValueChange(event, i, j) {
-      this.importer.updateValue(event.target.value, i, j);
+    onValueChange(event: Event, i: number, j: number): void {
+      this.importer.updateValue((event.target as HTMLInputElement).value, i, j);
     },
-    async importData() {
+    async importData(): Promise<unknown> {
       if (this.isMakingEntries || this.complete) {
         return;
       }
@@ -597,24 +644,28 @@ export default {
       this.names = names;
       this.complete = true;
     },
-    setImportType(importType) {
+    setImportType(importType: string): void {
       if (this.importType) {
         this.clear();
       }
       this.importType = importType;
-      this.importer = new Importer(
+      this.nullOrImporter = new Importer(
         this.labelSchemaNameMap[this.importType],
         fyo
       );
     },
-    setLoadingStatus(isMakingEntries, entriesMade, totalEntries) {
+    setLoadingStatus(
+      isMakingEntries: boolean,
+      entriesMade: number,
+      totalEntries: number
+    ): void {
       this.isMakingEntries = isMakingEntries;
       this.percentLoading = entriesMade / totalEntries;
       this.messageLoading = isMakingEntries
         ? `${entriesMade} entries made out of ${totalEntries}...`
         : '';
     },
-    async selectFile() {
+    async selectFile(): Promise<unknown> {
       const options = {
         title: this.t`Select File`,
         filters: [{ name: 'CSV', extensions: ['csv'] }],
@@ -650,5 +701,5 @@ export default {
       };
     },
   },
-};
+});
 </script>
