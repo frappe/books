@@ -306,7 +306,7 @@ export class Importer {
 
       for (let f = 0; f < fields.length; f++) {
         const field = fields[f];
-        const value = Converter.toDocValue(row[f], field, this.fyo);
+        const value = Converter.toDocValue(row[f], field as Field, this.fyo);
 
         if (field.parentField) {
           cts[field.parentField] ??= {};

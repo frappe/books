@@ -1,28 +1,56 @@
-export enum FieldTypeEnum {
-  Data = 'Data',
-  Select = 'Select',
-  Link = 'Link',
-  Date = 'Date',
-  Datetime = 'Datetime',
-  Table = 'Table',
-  AutoComplete = 'AutoComplete',
-  Check = 'Check',
-  AttachImage = 'AttachImage',
-  DynamicLink = 'DynamicLink',
-  Int = 'Int',
-  Float = 'Float',
-  Currency = 'Currency',
-  Text = 'Text',
-  Color = 'Color',
-  Attachment = 'Attachment',
-}
+import { PropertyEnum } from "utils/types";
 
-export type FieldType = keyof typeof FieldTypeEnum;
+export type FieldType =
+  | 'Data'
+  | 'Select'
+  | 'Link'
+  | 'Date'
+  | 'Datetime'
+  | 'Table'
+  | 'AutoComplete'
+  | 'Check'
+  | 'AttachImage'
+  | 'DynamicLink'
+  | 'Int'
+  | 'Float'
+  | 'Currency'
+  | 'Text'
+  | 'Color'
+  | 'Attachment';
+
+export const FieldTypeEnum: PropertyEnum<Record<FieldType, FieldType>> = {
+  Data: 'Data',
+  Select: 'Select',
+  Link: 'Link',
+  Date: 'Date',
+  Datetime: 'Datetime',
+  Table: 'Table',
+  AutoComplete: 'AutoComplete',
+  Check: 'Check',
+  AttachImage: 'AttachImage',
+  DynamicLink: 'DynamicLink',
+  Int: 'Int',
+  Float: 'Float',
+  Currency: 'Currency',
+  Text: 'Text',
+  Color: 'Color',
+  Attachment: 'Attachment',
+};
+
+type OptionFieldType = 'Select' | 'AutoComplete' | 'Color';
+type TargetFieldType = 'Table' | 'Link';
+type NumberFieldType = 'Int' | 'Float';
+type DynamicLinkFieldType = 'DynamicLink';
+type BaseFieldType = Exclude<
+  FieldType,
+  TargetFieldType | DynamicLinkFieldType | OptionFieldType | NumberFieldType
+>;
+
 export type RawValue = string | number | boolean | null;
 
 export interface BaseField {
-  fieldname: string;             // Column name in the db
-  fieldtype: FieldType;          // UI Descriptive field types that map to column types
+  fieldname: string;              // Column name in the db
+  fieldtype: BaseFieldType;       // UI Descriptive field types that map to column types
   label: string;                 // Translateable UI facing name
   schemaName?: string;           // Convenient access to schemaName incase just the field is passed
   required?: boolean;            // Implies Not Null
@@ -39,31 +67,28 @@ export interface BaseField {
 }
 
 export type SelectOption = { value: string; label: string };
-export interface OptionField extends BaseField {
-  fieldtype:
-    | FieldTypeEnum.Select
-    | FieldTypeEnum.AutoComplete
-    | FieldTypeEnum.Color;
+export interface OptionField extends Omit<BaseField, 'fieldtype'> {
+  fieldtype: OptionFieldType;
   options: SelectOption[];
   emptyMessage?: string;
   allowCustom?: boolean;
 }
 
-export interface TargetField extends BaseField {
-  fieldtype: FieldTypeEnum.Table | FieldTypeEnum.Link;
+export interface TargetField extends Omit<BaseField, 'fieldtype'> {
+  fieldtype: TargetFieldType;
   target: string;                // Name of the table or group of tables to fetch values
   create?: boolean;              // Whether to show Create in the dropdown
   edit?: boolean;                // Whether the Table has quick editable columns
 }
 
-export interface DynamicLinkField extends BaseField {
-  fieldtype: FieldTypeEnum.DynamicLink;
+export interface DynamicLinkField extends Omit<BaseField, 'fieldtype'> {
+  fieldtype: DynamicLinkFieldType;
   emptyMessage?: string;
   references: string;            // Reference to an option field that links to schema
 }
 
-export interface NumberField extends BaseField {
-  fieldtype: FieldTypeEnum.Float | FieldTypeEnum.Int;
+export interface NumberField extends Omit<BaseField, 'fieldtype'> {
+  fieldtype: NumberFieldType;
   minvalue?: number;             // UI Facing used to restrict lower bound
   maxvalue?: number;             // UI Facing used to restrict upper bound
 }
@@ -80,7 +105,7 @@ export type Naming = 'autoincrement' | 'random' | 'numberSeries' | 'manual';
 export interface Schema {
   name: string;                  // Table name
   label: string;                 // Translateable UI facing name
-  fields: Field[];               // Maps to database columns
+  fields: Field[];                // Maps to database columns
   isTree?: boolean;              // Used for nested set, eg for Chart of Accounts
   extends?: string;              // Value points to an Abstract schema. Indicates Subclass schema
   isChild?: boolean;             // Indicates a child table, i.e table with "parent" FK column
