@@ -12,7 +12,7 @@ import {
 } from 'schemas/types';
 import { generateCSV, parseCSV } from 'utils/csvParser';
 
-type TemplateField = Field & {
+export type TemplateField = Field & {
   schemaName: string;
   schemaLabel: string;
   fieldKey: string;
@@ -32,7 +32,7 @@ const skippedFieldsTypes: FieldType[] = [
 ];
 
 /**
- * Tool that 
+ * Tool that
  * - Can make bulk entries for any kind of Doc
  * - Takes in unstructured CSV data, converts it into Docs
  * - Saves and or Submits the converted Docs
@@ -45,7 +45,7 @@ export class Importer {
    * List of template fields that have been assigned a column, in
    * the order they have been assigned.
    */
-  assignedTemplateFields: string[];
+  assignedTemplateFields: (string | null)[];
 
   /**
    * Map of all the template fields that can be imported.
@@ -58,11 +58,6 @@ export class Importer {
    * - Fields for which values will be provided
    */
   templateFieldsPicked: Map<string, boolean>;
-
-  /**
-   * Map of Fields that have been assigned columns
-   */
-  templateFieldsAssigned: Map<string, number>;
 
   /**
    * Whether the schema type being imported has table fields
@@ -91,12 +86,10 @@ export class Importer {
     this.assignedTemplateFields = templateFields.map((f) => f.fieldKey);
     this.templateFieldsMap = new Map();
     this.templateFieldsPicked = new Map();
-    this.templateFieldsAssigned = new Map();
 
     templateFields.forEach((f, i) => {
       this.templateFieldsMap.set(f.fieldKey, f);
       this.templateFieldsPicked.set(f.fieldKey, true);
-      this.templateFieldsAssigned.set(f.fieldKey, i);
     });
   }
 
@@ -115,6 +108,7 @@ export class Importer {
   addRow() {
     const valueRow: ValueMatrix[number] = this.assignedTemplateFields.map(
       (key) => {
+        key ??= '';
         const { fieldtype } = this.templateFieldsMap.get(key) ?? {};
         let value = null;
         if (fieldtype) {
