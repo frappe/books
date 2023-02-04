@@ -7,15 +7,25 @@
         v-if="hasImporter && !complete"
         class="text-sm"
         @click="saveTemplate"
-        >{{ t`Save Template` }}</Button
       >
+        {{ t`Save Template` }}
+      </Button>
       <Button
-        v-if="importType && !complete"
+        v-if="canImportData"
         type="primary"
         class="text-sm"
-        @click="handlePrimaryClick"
-        >{{ primaryLabel }}</Button
+        @click="importData"
       >
+        {{ t`Import Data` }}
+      </Button>
+      <Button
+        v-if="importType && !canImportData"
+        type="primary"
+        class="text-sm"
+        @click="selectFile"
+      >
+        {{ t`Select File` }}
+      </Button>
     </PageHeader>
 
     <!-- Main Body of the Wizard -->
@@ -108,9 +118,8 @@
           >
             <!-- Grid Title Row Cells, Allow Column Selection -->
             <AutoComplete
-              class="flex-shrink-0"
-              :class="importer.assignedTemplateFields[index] ? '' : ''"
               v-for="index in columnIterator"
+              class="flex-shrink-0"
               size="small"
               :border="true"
               :key="index"
@@ -122,7 +131,7 @@
             <!-- Grid Value Row Cells, Allow Editing Values -->
             <template v-for="(row, ridx) of importer.valueMatrix">
               <template
-                v-for="(val, cidx) of row"
+                v-for="(val, cidx) of row.slice(0, columnCount)"
                 :key="`cell-${ridx}-${cidx}`"
               >
                 <!-- Raw Data Field if Column is Not Assigned -->
@@ -384,14 +393,31 @@ export default defineComponent({
       // @ts-ignore
       window.iw = this;
       this.setImportType('Item');
-      this.showColumnPicker = true;
     }
   },
   computed: {
+    canImportData(): boolean {
+      if (this.file) {
+        return true;
+      }
+
+      if (this.hasImporter && this.importer.valueMatrix.length) {
+        return true;
+      }
+
+      return false;
+    },
+    canSelectFile(): boolean {
+      return !this.file;
+    },
     columnCount(): number {
       let vmColumnCount = 0;
       if (this.importer.valueMatrix.length) {
         vmColumnCount = this.importer.valueMatrix[0].length;
+      }
+
+      if (!this.file) {
+        return this.numColumnsPicked;
       }
 
       return Math.max(this.numColumnsPicked, vmColumnCount);
@@ -458,32 +484,19 @@ export default defineComponent({
 
       return importables;
     },
-    /*
-    labelIndex(): number {
-      return this.importer.labelIndex ?? 0;
-    },
-    requiredUnassigned(): string[] {
-      return this.importer.assignableLabels.filter(
-        (k) => this.importer.requiredMap[k] && !this.importer.assignedMap[k]
-      );
-    },
-
-    isRequiredUnassigned(): boolean {
-      return this.requiredUnassigned.length > 0;
-    },
-    assignedMatrix(): string[][] {
-      return this.nullOrImporter?.assignedMatrix ?? [];
-    },
-    */
     actions(): Action[] {
       const actions: Action[] = [];
 
+      let selectFileLabel = this.t`Select File`;
       if (this.file) {
+        selectFileLabel = this.t`Change File`;
+      }
+
+      if (this.canImportData) {
         actions.push({
           component: {
-            template: '<span>{{ t`Change File` }}</span>',
+            template: `<span>{{ "${selectFileLabel}" }}</span>`,
           },
-          condition: () => true,
           action: this.selectFile,
         });
       }
@@ -492,7 +505,6 @@ export default defineComponent({
         component: {
           template: '<span>{{ t`Pick Import Columns` }}</span>',
         },
-        condition: () => true,
         action: () => (this.showColumnPicker = true),
       };
 
@@ -500,7 +512,6 @@ export default defineComponent({
         component: {
           template: '<span class="text-red-700" >{{ t`Cancel` }}</span>',
         },
-        condition: () => true,
         action: this.clear,
       };
       actions.push(pickColumnsAction, cancelAction);
@@ -518,13 +529,10 @@ export default defineComponent({
       if (!this.importType) {
         return this.t`Set an Import Type`;
       } else if (!this.fileName) {
-        return this.t`Select a file for import`;
+        return this.t`Select a file or add rows`;
       }
 
       return this.fileName;
-    },
-    primaryLabel(): string {
-      return this.file ? this.t`Import Data` : this.t`Select File`;
     },
     isSubmittable(): boolean {
       const schemaName = this.importer.schemaName;
@@ -583,6 +591,26 @@ export default defineComponent({
 
       if (idx >= 0) {
         this.importer.assignedTemplateFields[idx] = null;
+        this.reassignTemplateFields();
+      }
+    },
+    reassignTemplateFields() {
+      if (this.importer.valueMatrix.length) {
+        return;
+      }
+
+      for (const idx in this.importer.assignedTemplateFields) {
+        this.importer.assignedTemplateFields[idx] = null;
+      }
+
+      let idx = 0;
+      for (const [fieldKey, value] of this.importer.templateFieldsPicked) {
+        if (!value) {
+          continue;
+        }
+
+        this.importer.assignedTemplateFields[idx] = fieldKey;
+        idx += 1;
       }
     },
     showMe(): void {
@@ -601,20 +629,6 @@ export default defineComponent({
       this.percentLoading = 0;
       this.messageLoading = '';
     },
-    async handlePrimaryClick(): Promise<void> {
-      if (!this.file) {
-        return await this.selectFile();
-      }
-
-      await this.importData();
-    },
-    /*
-    setLabelIndex(e: Event): void {
-      const target = e.target as HTMLInputElement;
-      const labelIndex = Number(target?.value ?? '1') - 1;
-      this.nullOrImporter?.initialize(labelIndex);
-    },
-    */
     async saveTemplate(): Promise<void> {
       const template = this.importer.getCSVTemplate();
       const templateName = this.importType + ' ' + this.t`Template`;
@@ -626,29 +640,6 @@ export default defineComponent({
 
       await saveData(template, filePath);
     },
-    /*
-    getAssignerField(targetLabel: string): OptionField {
-      const assigned = this.importer.assignedMap[targetLabel];
-      return {
-        fieldname: 'assignerField',
-        label: targetLabel,
-        placeholder: `Select Label`,
-        fieldtype: FieldTypeEnum.Select,
-        options: [
-          '',
-          ...(assigned ? [assigned] : []),
-          ...this.importer.unassignedLabels,
-        ].map((i) => ({ value: i, label: i })),
-        default: assigned ?? '',
-      };
-    },
-    onAssignedChange(target: string, value: string): void {
-      this.importer.assignedMap[target] = value;
-    },
-    onValueChange(event: Event, i: number, j: number): void {
-      this.importer.updateValue((event.target as HTMLInputElement).value, i, j);
-    },
-    */
     async importData(): Promise<void> {
       /*
       if (this.isMakingEntries || this.complete) {
@@ -745,9 +736,4 @@ export default defineComponent({
     },
   },
 });
-
-/**
- * TODO: Show some indication if the value has an error
- * TODO: Check if links exist
- */
 </script>
