@@ -1,7 +1,6 @@
 import { Doc } from 'fyo/model/doc';
 import { Money } from 'pesa';
 
-
 export class StockLedgerEntry extends Doc {
   date?: Date;
   item?: string;
@@ -10,4 +9,5 @@ export class StockLedgerEntry extends Doc {
   location?: string;
   referenceName?: string;
   referenceType?: string;
+  serialNumber?: string;
 }

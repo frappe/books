@@ -46,6 +46,7 @@ import submittable from './meta/submittable.json';
 import tree from './meta/tree.json';
 import { Schema, SchemaStub } from './types';
 import InventorySettings from './app/inventory/InventorySettings.json';
+import SerialNumber from './app/SerialNumber.json';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -102,6 +103,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
 
   InventorySettings as Schema,
   Location as Schema,
+  SerialNumber as Schema,
   StockLedgerEntry as Schema,
   StockMovement as Schema,
   StockMovementItem as Schema,

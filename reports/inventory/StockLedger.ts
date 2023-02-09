@@ -271,6 +271,11 @@ export class StockLedger extends Report {
         fieldtype: 'Float',
       },
       {
+        fieldname: 'serialNumber',
+        label: 'Serial No.',
+        fieldtype: 'Data',
+      },
+      {
         fieldname: 'incomingRate',
         label: 'Incoming rate',
         fieldtype: 'Currency',

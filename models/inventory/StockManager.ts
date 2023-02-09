@@ -48,6 +48,19 @@ export class StockManager {
 
   async cancelTransfers() {
     const { referenceName, referenceType } = this.details;
+
+    // updating serialNumber status to Inactive
+    const serialNumbers = (await this.fyo.db.getSNFromSLEByReferenceName(
+      referenceName
+    )) as [];
+
+    for (const serial of serialNumbers) {
+      await this.fyo.db.update(ModelNameEnum.SerialNumber, {
+        name: serial,
+        status: 'Inactive',
+      });
+    }
+
     await this.fyo.db.deleteAll(ModelNameEnum.StockLedgerEntry, {
       referenceType,
       referenceName,
@@ -88,6 +101,7 @@ export class StockManager {
     this.#validateQuantity(details);
     this.#validateLocation(details);
     await this.#validateStockAvailability(details);
+    await this.#validateSerialNumberWiseStockAvailability(details);
   }
 
   #validateQuantity(details: SMIDetails) {
@@ -184,6 +198,72 @@ export class StockManager {
       );
     }
   }
+
+  async #validateSerialNumberWiseStockAvailability(details: SMIDetails) {
+    const { hasSerialNumber } = await this.fyo.db.get(
+      ModelNameEnum.Item,
+      details.item,
+      'hasSerialNumber'
+    );
+
+    // If item has a serial number, then it will check if the document is not cancelled
+    if (hasSerialNumber && !this.isCancelled) {
+      if (!details.serialNumber)
+        throw new ValidationError(t`Serial Number not provided`);
+
+      // splits the serialNumbers by newLine
+      const serialNumbers = details.serialNumber!.split('\n');
+
+      // checking if number of serial numbers not equals the entered quantity
+      if (serialNumbers.length !== details.quantity)
+        throw new ValidationError(
+          t`${details.quantity} Serial Numbers required for ${details.item}. You have provided ${serialNumbers.length}.`
+        );
+
+      // looping through serial Numbers
+      for (const serial of serialNumbers) {
+        // checking if serialNumber exists
+        const isSerialNumberExists = await this.fyo.db.exists(
+          ModelNameEnum.SerialNumber,
+          serial
+        );
+
+        // Shipment Validations
+        if (['Shipment'].includes(details.referenceType)) {
+          if (!isSerialNumberExists)
+            throw new ValidationError(
+              t`Serial Number ${serial} does not exist`
+            );
+
+          const { status } = await this.fyo.db.get(
+            ModelNameEnum.SerialNumber,
+            serial,
+            'status'
+          );
+
+          if (status !== 'Active')
+            throw new ValidationError(
+              t`Serial Number ${serial} status is not Active`
+            );
+        }
+
+        if (isSerialNumberExists) {
+          const serialNumberItem = await this.fyo.db.get(
+            ModelNameEnum.SerialNumber,
+            serial,
+            ['item']
+          );
+
+          // checking if given serialNumber belongs to the item
+          if (details.item !== serialNumberItem.item) {
+            throw new ValidationError(
+              t`Serial Number ${serial} can not be given to ${details.item!}`
+            );
+          }
+        }
+      }
+    }
+  }
 }
 
 class StockManagerItem {
@@ -204,6 +284,7 @@ class StockManagerItem {
   referenceType: string;
   fromLocation?: string;
   toLocation?: string;
+  serialNumber?: string;
 
   stockLedgerEntries?: StockLedgerEntry[];
 
@@ -218,6 +299,7 @@ class StockManagerItem {
     this.toLocation = details.toLocation;
     this.referenceName = details.referenceName;
     this.referenceType = details.referenceType;
+    this.serialNumber = details.serialNumber;
 
     this.fyo = fyo;
   }
@@ -260,16 +342,39 @@ class StockManagerItem {
       quantity = -quantity;
     }
 
+    const serialNumbers = this.serialNumber
+      ? this.serialNumber.split('\n')
+      : null;
+
+    if (['Shipment'].includes(this.referenceType)) {
+      // changing serialNumber status to Delivered
+      for (const serial of serialNumbers!) {
+        this.fyo.db.update(ModelNameEnum.SerialNumber, {
+          name: serial,
+          status: 'Delivered',
+        });
+      }
+    }
+
     // Stock Ledger Entry
-    const stockLedgerEntry = this.#getStockLedgerEntry(location, quantity);
+    const stockLedgerEntry = this.#getStockLedgerEntry(
+      location,
+      quantity,
+      serialNumbers?.join(' ')
+    );
     this.stockLedgerEntries?.push(stockLedgerEntry);
   }
 
-  #getStockLedgerEntry(location: string, quantity: number) {
+  #getStockLedgerEntry(
+    location: string,
+    quantity: number,
+    serialNumber: string | null = null
+  ) {
     return this.fyo.doc.getNewDoc(ModelNameEnum.StockLedgerEntry, {
       date: this.date,
       item: this.item,
       rate: this.rate,
+      serialNumber,
       quantity,
       location,
       referenceName: this.referenceName,

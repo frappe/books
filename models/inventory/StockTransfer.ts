@@ -68,6 +68,7 @@ export abstract class StockTransfer extends Transfer {
         item: row.item!,
         rate: row.rate!,
         quantity: row.quantity!,
+        serialNumber: row.serialNumber!,
         fromLocation,
         toLocation,
       };

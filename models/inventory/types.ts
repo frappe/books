@@ -22,6 +22,7 @@ export interface SMTransferDetails {
   item: string;
   rate: Money;
   quantity: number;
+  serialNumber?: string;
   fromLocation?: string;
   toLocation?: string;
 }

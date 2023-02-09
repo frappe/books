@@ -10,7 +10,7 @@ import {
   DatabaseBase,
   DatabaseDemuxBase,
   GetAllOptions,
-  QueryFilter
+  QueryFilter,
 } from 'utils/db/types';
 import { schemaTranslateables } from 'utils/translationHelpers';
 import { LanguageMap } from 'utils/types';
@@ -19,7 +19,7 @@ import {
   DatabaseDemuxConstructor,
   DocValue,
   DocValueMap,
-  RawValueMap
+  RawValueMap,
 } from './types';
 
 // Return types of Bespoke Queries
@@ -312,15 +312,33 @@ export class DatabaseHandler extends DatabaseBase {
     item: string,
     location?: string,
     fromDate?: string,
-    toDate?: string
+    toDate?: string,
+    serialNumber?: string
   ): Promise<number | null> {
     return (await this.#demux.callBespoke(
       'getStockQuantity',
       item,
       location,
       fromDate,
-      toDate
+      toDate,
+      serialNumber
     )) as number | null;
+  }
+
+  async isSerialNumberHasTransactions(serialNumber: string): Promise<Boolean> {
+    return (await this.#demux.callBespoke(
+      'isSerialNumberHasTransactions',
+      serialNumber
+    )) as Boolean;
+  }
+
+  async getSNFromSLEByReferenceName(
+    referenceName: string
+  ): Promise<RawValueMap[]> {
+    return (await this.#demux.callBespoke(
+      'getSNFromSLEByReferenceName',
+      referenceName
+    )) as RawValueMap[];
   }
 
   /**

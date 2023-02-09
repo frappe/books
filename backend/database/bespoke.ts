@@ -132,12 +132,38 @@ export class BespokeQueries {
     `);
   }
 
+  static async isSerialNumberHasTransactions(
+    db: DatabaseCore,
+    serialNumber: string
+  ): Promise<Boolean> {
+    const query = await db.knex!(ModelNameEnum.StockLedgerEntry)
+      .select('serialNumber')
+      .whereLike('serialNumber', `%${serialNumber}%`);
+    for (const row of query) {
+      for (const serial of row.serialNumber.split(' '))
+        if (serial === serialNumber) return true;
+    }
+    return false;
+  }
+
+  // to select serial number from SLE with a given reference name.
+  static async getSNFromSLEByReferenceName(
+    db: DatabaseCore,
+    referenceName: string
+  ) {
+    const query = await db.knex!(ModelNameEnum.StockLedgerEntry)
+      .select('serialNumber')
+      .where('referenceName', referenceName);
+    return query.map((row) => row.serialNumber.split(' ')).flat();
+  }
+
   static async getStockQuantity(
     db: DatabaseCore,
     item: string,
     location?: string,
     fromDate?: string,
-    toDate?: string
+    toDate?: string,
+    serialNumber?: string
   ): Promise<number | null> {
     const query = db.knex!(ModelNameEnum.StockLedgerEntry)
       .sum('quantity')
@@ -153,6 +179,10 @@ export class BespokeQueries {
 
     if (toDate) {
       query.andWhereRaw('datetime(date) < datetime(?)', [toDate]);
+    }
+
+    if (serialNumber) {
+      query.andWhere('serialNumber', serialNumber);
     }
 
     const value = (await query) as Record<string, number | null>[];
