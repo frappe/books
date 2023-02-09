@@ -34,6 +34,11 @@
       "default": 1
     },
     {
+      "fieldname": "serialNumber",
+      "label": "Serial No",
+      "fieldtype": "Text"
+    },
+    {
       "fieldname": "rate",
       "label": "Rate",
       "fieldtype": "Currency",
@@ -46,13 +51,21 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "fromLocation", "toLocation", "quantity", "rate"],
+  "tableFields": [
+    "item",
+    "fromLocation",
+    "toLocation",
+    "quantity",
+    "serialNumber",
+    "rate"
+  ],
   "keywordFields": ["item"],
   "quickEditFields": [
     "item",
     "fromLocation",
     "toLocation",
     "quantity",
+    "serialNumber",
     "rate",
     "amount"
   ]

@@ -117,6 +117,12 @@
       "label": "Track Item",
       "fieldtype": "Check",
       "default": false
+    },
+    {
+      "fieldname": "hasSerialNumber",
+      "label": "Has Serial No",
+      "fieldtype": "Check",
+      "default": false
     }
   ],
   "quickEditFields": [
@@ -130,7 +136,8 @@
     "expenseAccount",
     "barcode",
     "hsnCode",
-    "trackItem"
+    "trackItem",
+    "hasSerialNumber"
   ],
   "keywordFields": ["name", "itemType", "for"]
 }

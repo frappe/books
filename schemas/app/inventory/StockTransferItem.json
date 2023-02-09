@@ -25,6 +25,11 @@
       "default": 1
     },
     {
+      "fieldname": "serialNumber",
+      "label": "Serial No",
+      "fieldtype": "Text"
+    },
+    {
       "fieldname": "rate",
       "label": "Rate",
       "fieldtype": "Currency",
@@ -57,7 +62,14 @@
       "placeholder": "HSN/SAC Code"
     }
   ],
-  "tableFields": ["item", "location", "quantity", "rate", "amount"],
+  "tableFields": [
+    "item",
+    "location",
+    "quantity",
+    "serialNumber",
+    "rate",
+    "amount"
+  ],
   "quickEditFields": [
     "item",
     "unit",

@@ -49,6 +49,12 @@
       "label": "Ref. Type",
       "fieldtype": "Data",
       "readOnly": true
+    },
+    {
+      "fieldname": "serialNumber",
+      "label": "Serial No",
+      "fieldtype": "Text",
+      "placeholder": "Serial Number"
     }
   ]
 }
