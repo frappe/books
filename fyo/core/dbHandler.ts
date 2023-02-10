@@ -4,13 +4,14 @@ import { DatabaseDemux } from 'fyo/demux/db';
 import { ValueError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
 import { translateSchema } from 'fyo/utils/translation';
+import { ComputedStockLedgerEntry } from 'reports/inventory/types';
 import { Field, RawValue, SchemaMap } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import {
   DatabaseBase,
   DatabaseDemuxBase,
   GetAllOptions,
-  QueryFilter
+  QueryFilter,
 } from 'utils/db/types';
 import { schemaTranslateables } from 'utils/translationHelpers';
 import { LanguageMap } from 'utils/types';
@@ -19,7 +20,7 @@ import {
   DatabaseDemuxConstructor,
   DocValue,
   DocValueMap,
-  RawValueMap
+  RawValueMap,
 } from './types';
 
 // Return types of Bespoke Queries
@@ -329,6 +330,12 @@ export class DatabaseHandler extends DatabaseBase {
     return (await this.#demux.callBespoke('itemHasTransactions', item)) as
       | boolean
       | null;
+  }
+
+  async getBatchWiseStockBalance(): Promise<ComputedStockLedgerEntry[]> {
+    return (await this.#demux.callBespoke(
+      'getBatchWiseStockBalanceEntries'
+    )) as ComputedStockLedgerEntry[];
   }
 
   /**

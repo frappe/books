@@ -4,7 +4,10 @@ import { Action } from 'fyo/model/types';
 import getCommonExportActions from 'reports/commonExporter';
 import { ColumnField, ReportData } from 'reports/types';
 import { Field } from 'schemas/types';
-import { getStockBalanceEntries } from './helpers';
+import {
+  getBatchWiseStockBalanceEntries,
+  getStockBalanceEntries,
+} from './helpers';
 import { StockLedger } from './StockLedger';
 import { ReferenceType } from './types';
 
@@ -13,11 +16,15 @@ export class StockBalance extends StockLedger {
   static reportName = 'stock-balance';
   static isInventory = true;
 
+  showBatchWiseItem?: Boolean = false;
+  batchNumber?: string;
+
   override ascending: boolean = true;
   override referenceType: ReferenceType = 'All';
   override referenceName: string = '';
 
   override async _getReportData(force?: boolean): Promise<ReportData> {
+    let rawData;
     if (this.shouldRefresh || force || !this._rawData?.length) {
       await this._setRawData();
     }
@@ -27,8 +34,17 @@ export class StockBalance extends StockLedger {
       location: this.location,
       fromDate: this.fromDate,
       toDate: this.toDate,
+      batchNumber: this.batchNumber,
     };
-    const rawData = getStockBalanceEntries(this._rawData ?? [], filters);
+
+    if (this.showBatchWiseItem) {
+      rawData = await getBatchWiseStockBalanceEntries(
+        (await this.fyo.db.getBatchWiseStockBalance()) ?? [],
+        filters
+      );
+    } else {
+      rawData = getStockBalanceEntries(this._rawData ?? [], filters);
+    }
 
     return rawData.map((sbe, i) => {
       const row = { ...sbe, name: i + 1 } as RawValueMap;
@@ -68,11 +84,23 @@ export class StockBalance extends StockLedger {
         label: t`To Date`,
         fieldname: 'toDate',
       },
+      {
+        fieldtype: 'Link',
+        target: 'BatchNumber',
+        placeholder: t`Batch Number`,
+        label: t`Batch Number`,
+        fieldname: 'batchNumber',
+      },
+      {
+        fieldtype: 'Check',
+        label: t`Show Batch-Wise Item`,
+        fieldname: 'showBatchWiseItem',
+      },
     ] as Field[];
   }
 
   getColumns(): ColumnField[] {
-    return [
+    let columns = [
       {
         fieldname: 'name',
         label: '#',
@@ -87,6 +115,11 @@ export class StockBalance extends StockLedger {
       {
         fieldname: 'location',
         label: 'Location',
+        fieldtype: 'Link',
+      },
+      {
+        fieldname: 'batchNumber',
+        label: 'Batch Number',
         fieldtype: 'Link',
       },
       {
@@ -134,7 +167,23 @@ export class StockBalance extends StockLedger {
         label: 'Valuation rate',
         fieldtype: 'Currency',
       },
-    ];
+    ] as ColumnField[];
+
+    if (!this.showBatchWiseItem) {
+      columns = columns.filter((f) => f.fieldname !== 'batchNumber');
+    } else if (this.showBatchWiseItem) {
+      columns = columns.filter(
+        (f) =>
+          ![
+            'valuationRate',
+            'balanceValue',
+            'openingValue',
+            'incomingValue',
+            'outgoingValue',
+          ].includes(f.fieldname)
+      );
+    }
+    return columns;
   }
 
   getActions(): Action[] {

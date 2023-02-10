@@ -2,8 +2,10 @@ import { Fyo } from 'fyo';
 import { StockQueue } from 'models/inventory/stockQueue';
 import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
+import { fyo } from 'src/initFyo';
 import { safeParseFloat, safeParseInt } from 'utils/index';
 import {
+  BatchWiseStockBalanceEntry,
   ComputedStockLedgerEntry,
   RawStockLedgerEntry,
   StockBalanceEntry,
@@ -159,6 +161,86 @@ export function getStockBalanceEntries(
     .flat();
 }
 
+export async function getBatchWiseStockBalanceEntries(
+  computedSLEs: ComputedStockLedgerEntry[],
+  filters: {
+    item?: string;
+    location?: string;
+    fromDate?: string;
+    toDate?: string;
+    batchNumber?: string;
+  }
+) {
+  const data: BatchWiseStockBalanceEntry[] = [];
+
+  const toDate = filters.toDate ? Date.parse(filters.toDate) : null;
+
+  for (const sle of computedSLEs) {
+    if (filters.item && sle.item !== filters.item) {
+      continue;
+    }
+
+    if (filters.item && sle.item !== filters.item) {
+      continue;
+    }
+    if (filters.item && sle.item !== filters.item) {
+      continue;
+    }
+
+    if (filters.batchNumber && sle.batchNumber !== filters.batchNumber) {
+      continue;
+    }
+
+    if (filters.location && sle.location !== filters.location) {
+      continue;
+    }
+
+    const date = sle.date.valueOf();
+
+    if (toDate && date > toDate) {
+      continue;
+    }
+
+    const openingQuantity =
+      (await fyo.db.getStockQuantity(
+        sle.item,
+        sle.location,
+        undefined,
+        filters.fromDate,
+        sle.batchNumber
+      )) ?? 0;
+
+    const balanceQuantity = sle.balanceQuantity;
+
+    const incomingQuantity =
+      (await fyo.db.getStockQuantity(
+        sle.item,
+        sle.location,
+        undefined,
+        undefined,
+        sle.batchNumber
+      )) ?? 0;
+
+    const bwsbe = {
+      name: sle.name,
+
+      item: sle.item,
+      location: sle.location,
+
+      batchNumber: sle.batchNumber,
+
+      balanceQuantity: balanceQuantity,
+      openingQuantity: openingQuantity,
+
+      incomingQuantity: incomingQuantity,
+      outgoingQuantity: sle.quantity - balanceQuantity,
+    };
+    data.push(bwsbe);
+  }
+
+  return data;
+}
+
 function getSBE(
   item: string,
   location: string,
@@ -169,6 +251,8 @@ function getSBE(
 
     item,
     location,
+
+    batchNumber,
 
     balanceQuantity: 0,
     balanceValue: 0,

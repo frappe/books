@@ -35,12 +35,13 @@ export interface ComputedStockLedgerEntry{
   referenceType: string;
 }
 
-
 export interface StockBalanceEntry{
   name: number;
 
   item: string;
   location:string;
+
+  batchNumber?:string;
 
   balanceQuantity: number;
   balanceValue: number;
@@ -55,6 +56,21 @@ export interface StockBalanceEntry{
   outgoingValue:number;
 
   valuationRate:number;
+}
+
+export interface BatchWiseStockBalanceEntry{
+  name: number;
+
+  item: string;
+  location:string;
+
+  batchNumber?:string;
+
+  balanceQuantity: number;
+  openingQuantity: number;
+
+  incomingQuantity:number;
+  outgoingQuantity:number;
 }
 
 export type ReferenceType =
