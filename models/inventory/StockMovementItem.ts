@@ -99,7 +99,7 @@ export class StockMovementItem extends Doc {
 
       if (value && this.toLocation) {
         throw new ValidationError(
-          this.fyo.t`Only From or To can be set for Manucature`
+          this.fyo.t`Only From or To can be set for Manufacture`
         );
       }
     },
