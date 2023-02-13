@@ -91,7 +91,7 @@
               gap-4
             "
           >
-            <div class="h-6">#</div>
+            <div class="flex items-center h-6">#</div>
             <div
               v-for="(_, i) of importer.valueMatrix"
               :key="i"
@@ -125,7 +125,7 @@
               :key="index"
               :df="gridColumnTitleDf"
               :value="importer.assignedTemplateFields[index]"
-              @change="(v: string | null) => importer.assignedTemplateFields[index] = v"
+              @change="(value: string | null) => importer.setTemplateField(index, value)"
             />
 
             <!-- Grid Value Row Cells, Allow Editing Values -->
@@ -137,7 +137,7 @@
                 <!-- Raw Data Field if Column is Not Assigned -->
                 <Data
                   v-if="!importer.assignedTemplateFields[cidx]"
-                  :title="val.rawValue ?? val.value"
+                  :title="getFieldTitle(val)"
                   :df="{
                     fieldname: 'tempField',
                     label: t`Temporary`,
@@ -145,14 +145,20 @@
                   }"
                   size="small"
                   :border="true"
-                  :value="val.value == null ? '' : String(val.value)"
+                  :value="
+                    val.value != null
+                      ? String(val.value)
+                      : val.rawValue != null
+                      ? String(val.rawValue)
+                      : ''
+                  "
                   :read-only="true"
                 />
 
                 <!-- FormControl Field if Column is Assigned -->
                 <FormControl
                   v-else
-                  :title="val.error ? val.rawValue ?? val.value : val.value"
+                  :title="getFieldTitle(val)"
                   :df="
                     importer.templateFieldsMap.get(
                       importer.assignedTemplateFields[cidx]!
@@ -320,6 +326,7 @@
 </template>
 <script lang="ts">
 import { DocValue } from 'fyo/core/types';
+import { RawValue } from 'schemas/types';
 import { Action as BaseAction } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
@@ -579,6 +586,29 @@ export default defineComponent({
   },
   methods: {
     log: console.log,
+    getFieldTitle(vmi: {
+      value?: DocValue;
+      rawValue?: RawValue;
+      error?: boolean;
+    }) {
+      const title: string[] = [];
+      if (vmi.value != null) {
+        title.push(this.t`Value: ${String(vmi.value)}`);
+      }
+
+      if (vmi.rawValue != null) {
+        title.push(this.t`Raw Value: ${String(vmi.rawValue)}`);
+      }
+
+      if (vmi.error) {
+        title.push(this.t`Conversion Error`);
+      }
+
+      if (!title.length) {
+        return '';
+      }
+      return title.join(', ');
+    },
     pickColumn(fieldKey: string, value: boolean): void {
       this.importer.templateFieldsPicked.set(fieldKey, value);
       if (value) {

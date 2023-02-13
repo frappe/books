@@ -1,4 +1,5 @@
 import { Fyo } from 'fyo';
+import { Converter } from 'fyo/core/converter';
 import { DocValue } from 'fyo/core/types';
 import { getEmptyValuesByFieldTypes } from 'fyo/utils';
 import { ValidationError } from 'fyo/utils/errors';
@@ -19,11 +20,15 @@ export type TemplateField = Field & {
   parentSchemaChildField?: TargetField;
 };
 
-type ValueMatrix = {
-  value: DocValue;
-  rawValue?: RawValue;
-  error?: boolean;
-}[][];
+type ValueMatrixItem =
+  | {
+      value: DocValue;
+      rawValue?: RawValue;
+      error?: boolean;
+    }
+  | { value?: DocValue; rawValue: RawValue; error?: boolean };
+
+type ValueMatrix = ValueMatrixItem[][];
 
 const skippedFieldsTypes: FieldType[] = [
   FieldTypeEnum.AttachImage,
@@ -96,6 +101,7 @@ export class Importer {
   selectFile(data: string): boolean {
     try {
       const parsed = parseCSV(data);
+      this.selectParsed(parsed);
     } catch {
       return false;
     }
@@ -103,7 +109,145 @@ export class Importer {
     return true;
   }
 
-  // createValueMatrixFromParsedCSV() {}
+  selectParsed(parsed: string[][]): void {
+    if (!parsed?.length) {
+      return;
+    }
+
+    let startIndex = -1;
+    let templateFieldsAssigned;
+
+    for (let i = 3; i >= 0; i--) {
+      const row = parsed[i];
+      if (!row?.length) {
+        continue;
+      }
+
+      templateFieldsAssigned = this.assignTemplateFieldsFromParsedRow(row);
+      if (templateFieldsAssigned) {
+        startIndex = i + 1;
+        break;
+      }
+    }
+
+    if (!templateFieldsAssigned) {
+      this.clearAndResizeAssignedTemplateFields(parsed[0].length);
+    }
+
+    if (startIndex === -1) {
+      startIndex = 0;
+    }
+
+    this.assignValueMatrixFromParsed(parsed.slice(startIndex));
+  }
+
+  clearAndResizeAssignedTemplateFields(size: number) {
+    for (let i = 0; i < size; i++) {
+      if (i >= this.assignedTemplateFields.length) {
+        this.assignedTemplateFields.push(null);
+      } else {
+        this.assignedTemplateFields[i] = null;
+      }
+    }
+  }
+
+  assignValueMatrixFromParsed(parsed: string[][]) {
+    if (!parsed?.length) {
+      return;
+    }
+
+    for (const row of parsed) {
+      this.pushToValueMatrixFromParsedRow(row);
+    }
+  }
+
+  pushToValueMatrixFromParsedRow(row: string[]) {
+    const vmRow: ValueMatrix[number] = [];
+    for (const i in row) {
+      const rawValue = row[i];
+      const index = Number(i);
+
+      if (index >= this.assignedTemplateFields.length) {
+        this.assignedTemplateFields.push(null);
+      }
+
+      vmRow.push(this.getValueMatrixItem(index, rawValue));
+    }
+
+    this.valueMatrix.push(vmRow);
+  }
+
+  setTemplateField(index: number, key: string | null) {
+    if (index >= this.assignedTemplateFields.length) {
+      this.assignedTemplateFields.push(key);
+    } else {
+      this.assignedTemplateFields[index] = key;
+    }
+
+    this.updateValueMatrixColumn(index);
+  }
+
+  updateValueMatrixColumn(index: number) {
+    for (const row of this.valueMatrix) {
+      const vmi = this.getValueMatrixItem(index, row[index].rawValue ?? null);
+
+      if (index >= row.length) {
+        row.push(vmi);
+      } else {
+        row[index] = vmi;
+      }
+    }
+  }
+
+  getValueMatrixItem(index: number, rawValue: RawValue) {
+    const vmi: ValueMatrixItem = { rawValue };
+    const key = this.assignedTemplateFields[index];
+    if (!key) {
+      return vmi;
+    }
+
+    const tf = this.templateFieldsMap.get(key);
+    if (!tf) {
+      return vmi;
+    }
+
+    try {
+      vmi.value = Converter.toDocValue(rawValue, tf, this.fyo);
+    } catch {
+      vmi.error = true;
+    }
+
+    return vmi;
+  }
+
+  assignTemplateFieldsFromParsedRow(row: string[]): boolean {
+    const isKeyRow = row.some((key) => this.templateFieldsMap.has(key));
+    if (!isKeyRow) {
+      return false;
+    }
+
+    for (const i in row) {
+      const value = row[i];
+      const tf = this.templateFieldsMap.get(value);
+      let key: string | null = value;
+
+      if (!tf) {
+        key = null;
+      }
+
+      if (key !== null && !this.templateFieldsPicked.get(value)) {
+        key = null;
+      }
+
+      if (Number(i) >= this.assignedTemplateFields.length) {
+        this.assignedTemplateFields.push(key);
+      } else {
+        this.assignedTemplateFields[i] = key;
+      }
+    }
+
+    return true;
+  }
 
   addRow() {
     const valueRow: ValueMatrix[number] = this.assignedTemplateFields.map(
