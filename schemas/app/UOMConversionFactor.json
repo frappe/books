@@ -1,0 +1,29 @@
+{
+  "name": "UOMConversionFactor",
+  "label": "UOM Conversion Factor",
+  "naming": "manual",
+  "fields": [
+    {
+      "fieldname": "name",
+      "label": "UOM",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "item",
+      "label": "Item",
+      "fieldtype": "Link",
+      "target": "Item",
+      "required": true
+    },
+    {
+      "fieldname": "value",
+      "label": "Value",
+      "fieldtype": "Float",
+      "required": true
+    }
+  ],
+  "quickEditFields": ["item", "value"]
+}
