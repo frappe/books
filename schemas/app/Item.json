@@ -32,6 +32,13 @@
       "placeholder": "Unit Type"
     },
     {
+      "fieldname": "UOM",
+      "label": "UOM Conversion Factor",
+      "fieldtype": "Link",
+      "target": "UOMConversionFactor",
+      "create": true
+    },
+    {
       "fieldname": "itemType",
       "label": "Type",
       "placeholder": "Type",
@@ -122,6 +129,7 @@
   "quickEditFields": [
     "rate",
     "unit",
+    "UOM",
     "itemType",
     "for",
     "tax",
