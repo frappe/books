@@ -1,6 +1,7 @@
 import { Fyo } from 'fyo';
 import { Converter } from 'fyo/core/converter';
-import { DocValue } from 'fyo/core/types';
+import { DocValue, DocValueMap } from 'fyo/core/types';
+import { Doc } from 'fyo/model/doc';
 import { getEmptyValuesByFieldTypes } from 'fyo/utils';
 import { ValidationError } from 'fyo/utils/errors';
 import {
@@ -75,6 +76,12 @@ export class Importer {
    */
   valueMatrix: ValueMatrix;
 
+  /**
+   * Data from the valueMatrix rows will be converted into Docs
+   * which will be stored in this array.
+   */
+  docs: Doc[];
+
   constructor(schemaName: string, fyo: Fyo) {
     if (!fyo.schemaMap[schemaName]) {
       throw new ValidationError(
@@ -85,6 +92,7 @@ export class Importer {
     this.hasChildTables = false;
     this.schemaName = schemaName;
     this.fyo = fyo;
+    this.docs = [];
     this.valueMatrix = [];
 
     const templateFields = getTemplateFields(schemaName, fyo, this);
@@ -96,6 +104,124 @@ export class Importer {
       this.templateFieldsMap.set(f.fieldKey, f);
       this.templateFieldsPicked.set(f.fieldKey, true);
     });
+  }
+
+  pushFromValueMatrixToDocs() {
+    const { dataMap, childTableMap } =
+      this.getDataAndChildTableMapFromValueMatrix();
+
+    const schema = this.fyo.db.schemaMap[this.schemaName];
+    const targetFieldnameMap = schema?.fields
+      .filter((f) => f.fieldtype === FieldTypeEnum.Table)
+      .reduce((acc, f) => {
+        const { target, fieldname } = f as TargetField;
+        acc[target] = fieldname;
+        return acc;
+      }, {} as Record<string, string>);
+
+    for (const [name, data] of dataMap.entries()) {
+      const doc = this.fyo.doc.getNewDoc(this.schemaName, data, false);
+      for (const schemaName in targetFieldnameMap) {
+        const fieldname = targetFieldnameMap[schemaName];
+        const childTable = childTableMap[name][schemaName];
+        if (!childTable) {
+          continue;
+        }
+
+        for (const childData of childTable.values()) {
+          doc.push(fieldname, childData);
+        }
+      }
+
+      this.docs.push(doc);
+    }
+  }
+
+  getDataAndChildTableMapFromValueMatrix() {
+    /**
+     * Record key is the doc.name value
+     */
+    const dataMap: Map<string, DocValueMap> = new Map();
+
+    /**
+     * Record key is doc.name, childSchemaName, childDoc.name
+     */
+    const childTableMap: Record<
+      string,
+      Record<string, Map<string, DocValueMap>>
+    > = {};
+
+    const nameIndices = this.assignedTemplateFields
+      .map((key, index) => ({ key, index }))
+      .filter((f) => f.key?.endsWith('.name'))
+      .reduce((acc, f) => {
+        if (f.key == null) {
+          return acc;
+        }
+
+        const schemaName = f.key.split('.')[0];
+        acc[schemaName] = f.index;
+        return acc;
+      }, {} as Record<string, number>);
+
+    const nameIndex = nameIndices?.[this.schemaName];
+    if (nameIndex < 0) {
+      return { dataMap, childTableMap };
+    }
+
+    for (const i in this.valueMatrix) {
+      const row = this.valueMatrix[i];
+      const name = row[nameIndex].value;
+      if (typeof name !== 'string') {
+        continue;
+      }
+
+      for (const j in row) {
+        const key = this.assignedTemplateFields[j];
+        const tf = this.templateFieldsMap.get(key ?? '');
+        if (!tf || !key) {
+          continue;
+        }
+
+        const isChild = this.fyo.schemaMap[tf.schemaName]?.isChild;
+        const vmi = row[j];
+        if (vmi.value == null) {
+          continue;
+        }
+
+        if (!isChild && !dataMap.has(name)) {
+          dataMap.set(name, {});
+        }
+
+        if (!isChild) {
+          dataMap.get(name)![tf.fieldname] = vmi.value;
+          continue;
+        }
+
+        const childNameIndex = nameIndices[tf.schemaName];
+        let childName = row[childNameIndex].value;
+        if (typeof childName !== 'string') {
+          childName = `${tf.schemaName}-${i}`;
+        }
+
+        childTableMap[name] ??= {};
+        childTableMap[name][tf.schemaName] ??= new Map();
+
+        const childMap = childTableMap[name][tf.schemaName];
+        if (!childMap.has(childName)) {
+          childMap.set(childName, {});
+        }
+
+        const childDocValueMap = childMap.get(childName);
+        if (!childDocValueMap) {
+          continue;
+        }
+
+        childDocValueMap[tf.fieldname] = vmi.value;
+      }
+    }
+
+    return { dataMap, childTableMap };
   }
 
   selectFile(data: string): boolean {

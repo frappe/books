@@ -223,11 +223,13 @@
       >
         <h2 class="text-xl font-semibold mt-4">{{ t`Import Success` }} 🎉</h2>
         <p class="text-lg text-center">
-          {{ t`Successfully created the following ${names.length} entries:` }}
+          {{
+            t`Successfully created the following ${succeeded.length} entries:`
+          }}
         </p>
         <div class="max-h-96 overflow-y-auto">
           <div
-            v-for="(n, i) in names"
+            v-for="(n, i) in succeeded"
             :key="'name-' + i"
             class="grid grid-cols-2 gap-2 border-b pb-2 mb-2 pe-4 text-lg w-60"
             style="grid-template-columns: 2rem auto"
@@ -358,7 +360,8 @@ type DataImportData = {
   showColumnPicker: boolean;
   canReset: boolean;
   complete: boolean;
-  names: string[];
+  succeeded: string[];
+  failed: { name: string; error: Error }[];
   file: null | { name: string; filePath: string; text: string };
   nullOrImporter: null | Importer;
   importType: string;
@@ -386,7 +389,8 @@ export default defineComponent({
       showColumnPicker: false,
       canReset: false,
       complete: false,
-      names: ['Bat', 'Baseball', 'Other Shit'],
+      succeeded: [],
+      failed: [],
       file: null,
       nullOrImporter: null,
       importType: '',
@@ -404,15 +408,11 @@ export default defineComponent({
   },
   computed: {
     canImportData(): boolean {
-      if (this.file) {
-        return true;
+      if (!this.hasImporter) {
+        return false;
       }
 
-      if (this.hasImporter && this.importer.valueMatrix.length) {
-        return true;
-      }
-
-      return false;
+      return this.importer.valueMatrix.length > 0;
     },
     canSelectFile(): boolean {
       return !this.file;
@@ -650,7 +650,8 @@ export default defineComponent({
     },
     clear(): void {
       this.file = null;
-      this.names = [];
+      this.succeeded = [];
+      this.failed = [];
       this.nullOrImporter = null;
       this.importType = '';
       this.complete = false;
@@ -671,41 +672,29 @@ export default defineComponent({
       await saveData(template, filePath);
     },
     async importData(): Promise<void> {
-      /*
       if (this.isMakingEntries || this.complete) {
         return;
       }
 
-      if (this.isRequiredUnassigned) {
-        return await showMessageDialog({
-          message: this.t`Required Fields not Assigned`,
-          detail: this
-            .t`Please assign the following fields ${this.requiredUnassigned.join(
-            ', '
-          )}`,
-        });
+      this.importer.pushFromValueMatrixToDocs();
+
+      let doneCount = 0;
+      for (const doc of this.importer.docs) {
+        this.setLoadingStatus(doneCount, this.importer.docs.length);
+        try {
+          await doc.sync();
+          doneCount += 1;
+
+          this.succeeded.push(doc.name!);
+        } catch (error) {
+          if (error instanceof Error) {
+            this.failed.push({ name: doc.name!, error });
+          }
+        }
       }
 
-      if (this.importer.assignedMatrix.length === 0) {
-        return await showMessageDialog({
-          message: this.t`No Data to Import`,
-          detail: this.t`Please select a file with data to import.`,
-        });
-      }
-
-      const { success, names, message } = await this.importer.importData(
-        this.setLoadingStatus
-      );
-      if (!success) {
-        return await showMessageDialog({
-          message: this.t`Import Failed`,
-          detail: message,
-        });
-      }
-
-      this.names = names;
+      this.isMakingEntries = false;
       this.complete = true;
-    */
     },
     setImportType(importType: string): void {
       this.clear();
@@ -716,14 +705,9 @@ export default defineComponent({
       this.importType = importType;
       this.nullOrImporter = new Importer(importType, fyo);
     },
-    setLoadingStatus(
-      isMakingEntries: boolean,
-      entriesMade: number,
-      totalEntries: number
-    ): void {
-      this.isMakingEntries = isMakingEntries;
+    setLoadingStatus(entriesMade: number, totalEntries: number): void {
       this.percentLoading = entriesMade / totalEntries;
-      this.messageLoading = isMakingEntries
+      this.messageLoading = this.isMakingEntries
         ? `${entriesMade} entries made out of ${totalEntries}...`
         : '';
     },
