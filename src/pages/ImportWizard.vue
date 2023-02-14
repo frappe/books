@@ -2,18 +2,36 @@
   <div class="flex flex-col overflow-hidden w-full">
     <!-- Header -->
     <PageHeader :title="t`Import Wizard`">
-      <DropdownWithActions :actions="actions" v-if="hasImporter && !complete" />
+      <DropdownWithActions
+        :actions="actions"
+        v-if="hasImporter && !complete"
+        :title="t`More`"
+      />
       <Button
         v-if="hasImporter && !complete"
-        class="text-sm"
-        @click="saveTemplate"
+        :title="t`Add Row`"
+        @click="
+          () => {
+            importer.addRow();
+            canReset = true;
+          }
+        "
+        :icon="true"
       >
-        {{ t`Save Template` }}
+        <feather-icon name="plus" class="w-4 h-4" />
+      </Button>
+      <Button
+        v-if="hasImporter && !complete"
+        :title="t`Save Template`"
+        @click="saveTemplate"
+        :icon="true"
+      >
+        <feather-icon name="download" class="w-4 h-4" />
       </Button>
       <Button
         v-if="canImportData"
+        :title="t`Import Data`"
         type="primary"
-        class="text-sm"
         @click="importData"
         :disabled="errorMessage.length > 0"
       >
@@ -21,8 +39,8 @@
       </Button>
       <Button
         v-if="importType && !canImportData"
+        :title="t`Select File`"
         type="primary"
-        class="text-sm"
         @click="selectFile"
       >
         {{ t`Select File` }}
@@ -34,6 +52,7 @@
       <!-- Select Import Type -->
       <div
         class="
+          h-row-largest
           flex flex-row
           justify-start
           items-center
@@ -81,7 +100,10 @@
 
       <!-- Bulk Entries Grid -->
       <div v-if="hasImporter">
-        <div class="flex justify-start">
+        <div
+          class="flex justify-start"
+          style="max-height: calc(100vh - (2 * var(--h-row-largest)) - 2px)"
+        >
           <!-- Index Column -->
           <div
             class="
@@ -96,11 +118,11 @@
               gap-4
             "
           >
-            <div class="flex items-center h-6">#</div>
+            <div class="flex items-center h-7 flex-shrink-0">#</div>
             <div
               v-for="(_, i) of importer.valueMatrix"
               :key="i"
-              class="flex items-center group h-6"
+              class="flex items-center group h-7 flex-shrink-0"
             >
               <span class="hidden group-hover:inline-block">
                 <feather-icon
@@ -118,7 +140,7 @@
 
           <!-- Grid -->
           <div
-            class="overflow-x-scroll gap-4 p-4 grid"
+            class="overflow-auto gap-4 p-4 grid"
             :style="`grid-template-columns: repeat(${columnCount}, 10rem)`"
           >
             <!-- Grid Title Row Cells, Allow Column Selection -->
@@ -184,32 +206,6 @@
           </div>
         </div>
         <hr />
-
-        <!-- Add Row Button -->
-        <button
-          class="
-            text-gray-600
-            hover:bg-gray-50
-            flex flex-row
-            w-full
-            px-4
-            h-row-mid
-            border-b
-            items-center
-            outline-none
-          "
-          @click="
-            () => {
-              importer.addRow();
-              canReset = true;
-            }
-          "
-        >
-          <FeatherIcon name="plus" class="w-4 h-4" />
-          <p class="ps-4">
-            {{ t`Add Row` }}
-          </p>
-        </button>
       </div>
     </div>
 
