@@ -15,6 +15,7 @@
         type="primary"
         class="text-sm"
         @click="importData"
+        :disabled="errorMessage.length > 0"
       >
         {{ t`Import Data` }}
       </Button>
@@ -60,14 +61,18 @@
           @change="setImportType"
         />
 
+        <p v-if="errorMessage.length > 0" class="text-base ms-2 text-red-500">
+          {{ errorMessage }}
+        </p>
         <p
+          v-else
           class="text-base ms-2"
           :class="fileName ? 'text-gray-900 font-semibold' : 'text-gray-700'"
         >
           <span v-if="fileName" class="font-normal"
             >{{ t`Selected file` }}
           </span>
-          {{ helperText }}{{ fileName ? ',' : '' }}
+          {{ helperMessage }}{{ fileName ? ',' : '' }}
           <span v-if="fileName" class="font-normal">
             {{ t`verify the imported data and click on` }} </span
           >{{ ' ' }}<span v-if="fileName">{{ t`Import Data` }}</span>
@@ -158,6 +163,7 @@
                 <!-- FormControl Field if Column is Assigned -->
                 <FormControl
                   v-else
+                  :class="val.error ? 'border border-red-300 rounded-md' : ''"
                   :title="getFieldTitle(val)"
                   :df="
                     importer.templateFieldsMap.get(
@@ -343,7 +349,7 @@ import FormHeader from 'src/components/FormHeader.vue';
 import HowTo from 'src/components/HowTo.vue';
 import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
-import { Importer, TemplateField } from 'src/importer';
+import { getColumnLabel, Importer, TemplateField } from 'src/importer';
 import { fyo } from 'src/initFyo';
 import { getSavePath, saveData, selectFile } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
@@ -407,6 +413,53 @@ export default defineComponent({
     }
   },
   computed: {
+    duplicates(): string[] {
+      if (!this.hasImporter) {
+        return [];
+      }
+
+      const dupes = new Set<string>();
+      const assignedSet = new Set<string>();
+
+      for (const key of this.importer.assignedTemplateFields) {
+        if (!key) {
+          continue;
+        }
+
+        const tf = this.importer.templateFieldsMap.get(key);
+        if (assignedSet.has(key) && tf) {
+          dupes.add(getColumnLabel(tf));
+        }
+
+        assignedSet.add(key);
+      }
+
+      return Array.from(dupes);
+    },
+    requiredNotSelected(): string[] {
+      if (!this.hasImporter) {
+        return [];
+      }
+
+      const assigned = new Set(this.importer.assignedTemplateFields);
+      return [...this.importer.templateFieldsMap.values()]
+        .filter((f) => f.required && !assigned.has(f.fieldKey))
+        .map((f) => getColumnLabel(f));
+    },
+    errorMessage(): string {
+      if (this.duplicates.length) {
+        return this.t`Duplicate columns found: ${this.duplicates.join(', ')}`;
+      }
+
+      if (this.requiredNotSelected.length) {
+        return this
+          .t`Required fields not selected: ${this.requiredNotSelected.join(
+          ', '
+        )}`;
+      }
+
+      return '';
+    },
     canImportData(): boolean {
       if (!this.hasImporter) {
         return false;
@@ -458,9 +511,6 @@ export default defineComponent({
       }
 
       return map;
-    },
-    requiredColumnsNotPicked(): string[] {
-      return [];
     },
     importer(): Importer {
       if (!this.nullOrImporter) {
@@ -532,7 +582,7 @@ export default defineComponent({
 
       return this.file.name;
     },
-    helperText(): string {
+    helperMessage(): string {
       if (!this.importType) {
         return this.t`Set an Import Type`;
       } else if (!this.fileName) {
@@ -553,10 +603,7 @@ export default defineComponent({
           continue;
         }
 
-        let label = field.label;
-        if (field.parentSchemaChildField) {
-          label = `${label} (${field.parentSchemaChildField.label})`;
-        }
+        const label = getColumnLabel(field);
 
         options.push({ value, label });
       }
@@ -585,12 +632,11 @@ export default defineComponent({
     this.clear();
   },
   methods: {
-    log: console.log,
     getFieldTitle(vmi: {
       value?: DocValue;
       rawValue?: RawValue;
       error?: boolean;
-    }) {
+    }): string {
       const title: string[] = [];
       if (vmi.value != null) {
         title.push(this.t`Value: ${String(vmi.value)}`);
@@ -605,8 +651,9 @@ export default defineComponent({
       }
 
       if (!title.length) {
-        return '';
+        return this.t`No Value`;
       }
+
       return title.join(', ');
     },
     pickColumn(fieldKey: string, value: boolean): void {
@@ -624,7 +671,7 @@ export default defineComponent({
         this.reassignTemplateFields();
       }
     },
-    reassignTemplateFields() {
+    reassignTemplateFields(): void {
       if (this.importer.valueMatrix.length) {
         return;
       }
@@ -671,8 +718,41 @@ export default defineComponent({
 
       await saveData(template, filePath);
     },
+    async preImportValidations(): Promise<boolean> {
+      const message = this.t`Cannot Import`;
+      if (this.errorMessage.length) {
+        await showMessageDialog({
+          message,
+          detail: this.errorMessage,
+        });
+        return false;
+      }
+
+      const cellErrors = this.importer.checkCellErrors();
+      if (cellErrors.length) {
+        await showMessageDialog({
+          message,
+          detail: this.t`Following cells have errors: ${cellErrors.join(', ')}`,
+        });
+        return false;
+      }
+
+      const absentLinks = await this.importer.checkLinks();
+      if (absentLinks.length) {
+        await showMessageDialog({
+          message,
+          detail: this.t`Following links do not exist: ${absentLinks
+            .map((l) => `(${l.schemaLabel}, ${l.name})`)
+            .join(', ')}`,
+        });
+        return false;
+      }
+
+      return true;
+    },
     async importData(): Promise<void> {
-      if (this.isMakingEntries || this.complete) {
+      const isValid = await this.preImportValidations();
+      if (!isValid || this.isMakingEntries || this.complete) {
         return;
       }
 

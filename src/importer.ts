@@ -168,6 +168,36 @@ export class Importer {
     return doesNotExist;
   }
 
+  checkCellErrors() {
+    const assigned = this.assignedTemplateFields
+      .map((key, index) => ({
+        key,
+        index,
+        tf: this.templateFieldsMap.get(key ?? ''),
+      }))
+      .filter(({ key, tf }) => !!key && !!tf) as {
+      key: string;
+      index: number;
+      tf: TemplateField;
+    }[];
+
+    const cellErrors = [];
+    for (const i in this.valueMatrix) {
+      const row = this.valueMatrix[i];
+      for (const { tf, index } of assigned) {
+        if (!row[index]?.error) {
+          continue;
+        }
+
+        const rowLabel = this.fyo.t`Row ${i + 1}`;
+        const columnLabel = getColumnLabel(tf);
+        cellErrors.push(`(${rowLabel}, ${columnLabel})`);
+      }
+    }
+
+    return cellErrors;
+  }
+
   populateDocs() {
     const { dataMap, childTableMap } =
       this.getDataAndChildTableMapFromValueMatrix();
@@ -535,4 +565,12 @@ function getTemplateFields(
   }
 
   return fields;
+}
+
+export function getColumnLabel(field: TemplateField): string {
+  if (field.parentSchemaChildField) {
+    return `${field.label} (${field.parentSchemaChildField.label})`;
+  }
+
+  return field.label;
 }
