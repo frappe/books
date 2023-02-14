@@ -362,7 +362,7 @@ type Action = Pick<BaseAction, 'condition' | 'component'> & {
   action: Function;
 };
 
-type DataImportData = {
+type ImportWizardData = {
   showColumnPicker: boolean;
   canReset: boolean;
   complete: boolean;
@@ -403,7 +403,7 @@ export default defineComponent({
       isMakingEntries: false,
       percentLoading: 0,
       messageLoading: '',
-    } as DataImportData;
+    } as ImportWizardData;
   },
   mounted() {
     if (fyo.store.isDevelopment) {
@@ -621,7 +621,7 @@ export default defineComponent({
     },
   },
   activated(): void {
-    docsPathRef.value = docsPathMap.DataImport ?? '';
+    docsPathRef.value = docsPathMap.ImportWizard ?? '';
   },
   deactivated(): void {
     docsPathRef.value = '';

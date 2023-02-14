@@ -118,7 +118,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   // Miscellaneous
   Search: 'miscellaneous/search',
   NumberSeries: 'miscellaneous/number-series',
-  DataImport: 'miscellaneous/data-import',
+  ImportWizard: 'miscellaneous/import-wizard',
   Settings: 'miscellaneous/settings',
   ChartOfAccounts: 'miscellaneous/chart-of-accounts',
 };

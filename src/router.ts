@@ -1,7 +1,6 @@
 import { ModelNameEnum } from 'models/types';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
-import DataImport from 'src/pages/DataImport.vue';
 import ImportWizard from 'src/pages/ImportWizard.vue';
 import GeneralForm from 'src/pages/GeneralForm.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
@@ -137,11 +136,6 @@ const routes: RouteRecordRaw[] = [
       default: true,
       edit: (route) => route.query,
     },
-  },
-  {
-    path: '/data-import',
-    name: 'Data Import',
-    component: DataImport,
   },
   {
     path: '/import-wizard',
