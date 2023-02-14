@@ -106,11 +106,73 @@ export class Importer {
     });
   }
 
-  pushFromValueMatrixToDocs() {
+  selectFile(data: string): boolean {
+    try {
+      const parsed = parseCSV(data);
+      this.selectParsed(parsed);
+    } catch {
+      return false;
+    }
+
+    return true;
+  }
+
+  async checkLinks() {
+    const tfKeys = this.assignedTemplateFields
+      .map((key, index) => ({
+        key,
+        index,
+        tf: this.templateFieldsMap.get(key ?? ''),
+      }))
+      .filter(({ key, tf }) => {
+        if (!key || !tf) {
+          return false;
+        }
+
+        return tf.fieldtype === FieldTypeEnum.Link;
+      }) as { key: string; index: number; tf: TemplateField }[];
+
+    const linksNames: Map<string, Set<string>> = new Map();
+    for (const row of this.valueMatrix) {
+      for (const { tf, index } of tfKeys) {
+        const target = (tf as TargetField).target;
+        const value = row[index]?.value;
+        if (typeof value !== 'string' || !value) {
+          continue;
+        }
+
+        if (!linksNames.has(target)) {
+          linksNames.set(target, new Set());
+        }
+
+        linksNames.get(target)?.add(value);
+      }
+    }
+
+    const doesNotExist = [];
+    for (const [target, values] of linksNames.entries()) {
+      for (const value of values) {
+        const exists = await this.fyo.db.exists(target, value);
+        if (exists) {
+          continue;
+        }
+
+        doesNotExist.push({
+          schemaName: target,
+          schemaLabel: this.fyo.schemaMap[this.schemaName]?.label,
+          name: value,
+        });
+      }
+    }
+
+    return doesNotExist;
+  }
+
+  populateDocs() {
     const { dataMap, childTableMap } =
       this.getDataAndChildTableMapFromValueMatrix();
 
-    const schema = this.fyo.db.schemaMap[this.schemaName];
+    const schema = this.fyo.schemaMap[this.schemaName];
     const targetFieldnameMap = schema?.fields
       .filter((f) => f.fieldtype === FieldTypeEnum.Table)
       .reduce((acc, f) => {
@@ -171,7 +233,7 @@ export class Importer {
 
     for (const i in this.valueMatrix) {
       const row = this.valueMatrix[i];
-      const name = row[nameIndex].value;
+      const name = row[nameIndex]?.value;
       if (typeof name !== 'string') {
         continue;
       }
@@ -199,7 +261,7 @@ export class Importer {
         }
 
         const childNameIndex = nameIndices[tf.schemaName];
-        let childName = row[childNameIndex].value;
+        let childName = row[childNameIndex]?.value;
         if (typeof childName !== 'string') {
           childName = `${tf.schemaName}-${i}`;
         }
@@ -222,17 +284,6 @@ export class Importer {
     }
 
     return { dataMap, childTableMap };
-  }
-
-  selectFile(data: string): boolean {
-    try {
-      const parsed = parseCSV(data);
-      this.selectParsed(parsed);
-    } catch {
-      return false;
-    }
-
-    return true;
   }
 
   selectParsed(parsed: string[][]): void {
@@ -337,6 +388,11 @@ export class Importer {
       return vmi;
     }
 
+    if (vmi.rawValue === '') {
+      vmi.value = null;
+      return vmi;
+    }
+
     try {
       vmi.value = Converter.toDocValue(rawValue, tf, this.fyo);
     } catch {
@@ -437,7 +493,12 @@ function getTemplateFields(
     }
 
     for (const field of schema.fields) {
-      if (field.computed || field.meta || field.hidden) {
+      if (
+        field.computed ||
+        field.meta ||
+        field.hidden ||
+        (field.readOnly && !field.required)
+      ) {
         continue;
       }
 
@@ -453,12 +514,10 @@ function getTemplateFields(
         continue;
       }
 
-      if (field.readOnly && field.required) {
-        field.readOnly = false;
-      }
+      const tf = { ...field };
 
-      if (field.readOnly) {
-        continue;
+      if (tf.readOnly) {
+        tf.readOnly = false;
       }
 
       const schemaName = schema.name;
@@ -466,7 +525,7 @@ function getTemplateFields(
       const fieldKey = `${schema.name}.${field.fieldname}`;
 
       fields.push({
-        ...field,
+        ...tf,
         schemaName,
         schemaLabel,
         fieldKey,

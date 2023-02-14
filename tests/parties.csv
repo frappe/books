@@ -1,0 +1,8 @@
+Name,Role,"Default Account","Outstanding Amount",Currency,Email,Phone,Address,"GSTIN No.","GST Registration","Created By","Modified By",Created,Modified
+Party.name,Party.role,Party.defaultAccount,Party.outstandingAmount,Party.currency,Party.email,Party.phone,Party.address,Party.gstin,Party.gstType,Party.createdBy,Party.modifiedBy,Party.created,Party.modified
+Randoe,Both,,259.6,INR,,,,,Unregistered,lin@to.co,lin@to.co,2023-01-09T04:58:16.050Z,2023-01-09T10:46:46.128Z
+Saipan,Customer,Debtors,299.99999999921,USD,sai@pan.co,,,,Unregistered,lin@to.co,lin@to.co,2022-07-18T17:07:35.103Z,2023-01-30T14:36:50.058Z
+Lordham,Customer,Debtors,851.8,INR,lo@gamil.com,8989004444,,,Unregistered,Administrator,lin@to.co,2022-02-04T06:35:19.404Z,2022-07-18T17:05:42.976Z
+Lyn,Customer,Debtors,100,INR,lyn@to.co,,,,Consumer,Administrator,Administrator,2022-02-04T06:21:19.069Z,2022-02-28T05:18:32.743Z
+Bølèn,Customer,Debtors,0,INR,bo@len.co,,,22ABCIK123401Z5,"Registered Regular",Administrator,Administrator,2022-01-12T08:44:58.879Z,2022-01-12T08:45:26.714Z
+Bé,Customer,Debtors,46,INR,bey@more.tips,6969969600,,,Consumer,Administrator,Administrator,2021-12-16T11:32:11.595Z,2021-12-16T12:00:28.558Z

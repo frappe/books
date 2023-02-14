@@ -676,7 +676,7 @@ export default defineComponent({
         return;
       }
 
-      this.importer.pushFromValueMatrixToDocs();
+      this.importer.populateDocs();
 
       let doneCount = 0;
       for (const doc of this.importer.docs) {
