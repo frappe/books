@@ -1,0 +1,13 @@
+"Item Name",Description,"Unit Type",Type,For,"Sales Acc.","Purchase Acc.",Tax,Rate,HSN/SAC,Barcode,"Track Item","Created By","Modified By",Created,Modified
+Item.name,Item.description,Item.unit,Item.itemType,Item.for,Item.incomeAccount,Item.expenseAccount,Item.tax,Item.rate,Item.hsnCode,Item.barcode,Item.trackItem,Item.createdBy,Item.modifiedBy,Item.created,Item.modified
+"Final Item","A final item made from raw items",Unit,Product,Both,Sales,"Stock Received But Not Billed",,500,0,,1,lin@to.co,lin@to.co,2023-01-31T06:46:00.200Z,2023-01-31T06:46:00.200Z
+"Raw Two","Another Raw item used to make a final item",Unit,Product,Both,Sales,"Stock Received But Not Billed",,200,0,,1,lin@to.co,lin@to.co,2023-01-31T06:45:32.449Z,2023-01-31T06:45:32.449Z
+"Raw One","A raw item used to make a final item.",Unit,Product,Both,Sales,"Stock Received But Not Billed",,100,0,,1,lin@to.co,lin@to.co,2023-01-31T06:44:58.047Z,2023-01-31T06:44:58.047Z
+"Test One",,Unit,Product,Both,Sales,"Stock Received But Not Billed",GST-18,200,0,,1,lin@to.co,lin@to.co,2023-01-09T10:46:02.217Z,2023-01-09T10:46:02.217Z
+Stuff,"Some stuff.",Unit,Product,Both,Sales,"Stock Received But Not Billed",GST-18,200,101192,,1,lin@to.co,lin@to.co,2023-01-09T07:14:12.208Z,2023-01-09T07:14:12.208Z
+"Something Sellable",,Unit,Product,Sales,Sales,"Cost of Goods Sold",,300,0,,0,lin@to.co,lin@to.co,2022-10-11T09:15:15.724Z,2023-01-16T08:49:49.267Z
+Ball,"Just a ball..",Unit,Product,Both,Sales,"Cost of Goods Sold",,30,0,,0,Administrator,Administrator,2022-02-24T04:38:09.181Z,2022-02-24T04:38:09.181Z
+Bat,"Regular old bat...",Unit,Product,Both,Sales,"Cost of Goods Sold",,129,0,,0,Administrator,Administrator,2022-02-24T04:38:09.174Z,2022-02-24T04:38:09.174Z
+"Holy Icon","The holiest of icons.",Unit,Product,Both,Sales,"Cost of Goods Sold",GST-3,330,0,,0,Administrator,Administrator,2022-02-11T11:32:33.342Z,2022-02-11T11:32:33.342Z
+"Flower Pot","Just a flower pot.",Unit,Product,Both,Sales,"Cost of Goods Sold",GST-12,200,,,0,Administrator,Administrator,2021-12-16T07:04:08.233Z,2021-12-16T07:04:08.233Z
+Flow,"Used to test the flow of operations.",Unit,Product,Both,Sales,"Cost of Goods Sold",GST-12,100,,,0,Administrator,Administrator,2021-12-16T05:42:02.081Z,2021-12-16T05:48:48.203Z
