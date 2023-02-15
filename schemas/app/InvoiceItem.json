@@ -25,6 +25,30 @@
       "default": 1
     },
     {
+      "fieldname": "transferQty",
+      "label": "Qty as per Stock UOM",
+      "fieldtype": "Float",
+      "required": true
+    },
+    {
+      "fieldname": "stockUOM",
+      "label": "Stock UOM",
+      "fieldtype": "Data",
+      "readOnly": true
+    },
+    {
+      "fieldname": "uom",
+      "label": "UOMs",
+      "fieldtype": "Link",
+      "target": "UOM"
+    },
+    {
+      "fieldname": "UOMConversionFactor",
+      "label": "Conversion Factor",
+      "fieldtype": "Float",
+      "required": "true"
+    },
+    {
       "fieldname": "rate",
       "label": "Rate",
       "fieldtype": "Currency",
@@ -95,7 +119,17 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "tax", "quantity", "rate", "amount"],
+  "tableFields": [
+    "item",
+    "tax",
+    "stockUOM",
+    "uom",
+    "UOMConversionFactor",
+    "transferQty",
+    "quantity",
+    "rate",
+    "amount"
+  ],
   "keywordFields": ["item", "tax"],
   "quickEditFields": [
     "item",
@@ -103,6 +137,10 @@
     "description",
     "hsnCode",
     "tax",
+    "stockUOM",
+    "uom",
+    "UOMConversionFactor",
+    "transferQty",
     "quantity",
     "rate",
     "amount",

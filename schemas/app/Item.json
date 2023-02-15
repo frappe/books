@@ -32,11 +32,10 @@
       "placeholder": "Unit Type"
     },
     {
-      "fieldname": "UOM",
-      "label": "UOM Conversion Factor",
-      "fieldtype": "Link",
-      "target": "UOMConversionFactor",
-      "create": true
+      "fieldname": "uom",
+      "label": "UOM",
+      "fieldtype": "Table",
+      "target": "UOMConversionFactor"
     },
     {
       "fieldname": "itemType",
@@ -129,7 +128,6 @@
   "quickEditFields": [
     "rate",
     "unit",
-    "UOM",
     "itemType",
     "for",
     "tax",
@@ -138,7 +136,8 @@
     "expenseAccount",
     "barcode",
     "hsnCode",
-    "trackItem"
+    "trackItem",
+    "uom"
   ],
   "keywordFields": ["name", "itemType", "for"]
 }
