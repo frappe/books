@@ -1,10 +1,10 @@
 {
   "name": "UOMConversionFactor",
   "label": "UOM Conversion Factor",
-  "naming": "manual",
+  "isChild": true,
   "fields": [
     {
-      "fieldname": "name",
+      "fieldname": "uom",
       "label": "UOM",
       "fieldtype": "Link",
       "target": "UOM",
@@ -12,18 +12,13 @@
       "required": true
     },
     {
-      "fieldname": "item",
-      "label": "Item",
-      "fieldtype": "Link",
-      "target": "Item",
-      "required": true
-    },
-    {
       "fieldname": "value",
       "label": "Value",
       "fieldtype": "Float",
+      "default": 1,
       "required": true
     }
   ],
-  "quickEditFields": ["item", "value"]
+  "tableFields": ["uom", "value"],
+  "quickEditFields": ["uom", "value"]
 }

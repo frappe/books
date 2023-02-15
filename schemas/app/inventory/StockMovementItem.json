@@ -27,17 +27,17 @@
       "create": true
     },
     {
+      "fieldname": "transferQty",
+      "label": "Qty as per Stock UOM",
+      "fieldtype": "Float",
+      "required": true
+    },
+    {
       "fieldname": "quantity",
       "label": "Quantity",
       "fieldtype": "Float",
       "required": true,
       "default": 1
-    },
-    {
-      "fieldname": "transferQty",
-      "label": "Qty as per UOM",
-      "fieldtype": "Float",
-      "required": true
     },
     {
       "fieldname": "stockUOM",
@@ -46,10 +46,10 @@
       "readOnly": true
     },
     {
-      "fieldname": "UOMs",
+      "fieldname": "uom",
       "label": "UOMs",
       "fieldtype": "Link",
-      "target": "UOMConversionFactor"
+      "target": "UOM"
     },
     {
       "fieldname": "UOMConversionFactor",
@@ -75,10 +75,10 @@
     "fromLocation",
     "toLocation",
     "stockUOM",
-    "UOMs",
+    "uom",
     "UOMConversionFactor",
-    "quantity",
     "transferQty",
+    "quantity",
     "rate"
   ],
   "keywordFields": ["item"],
@@ -87,10 +87,10 @@
     "fromLocation",
     "toLocation",
     "stockUOM",
-    "UOMs",
+    "uom",
     "UOMConversionFactor",
-    "quantity",
     "transferQty",
+    "quantity",
     "rate",
     "amount"
   ]
