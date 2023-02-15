@@ -87,144 +87,124 @@
           class="text-base ms-2"
           :class="fileName ? 'text-gray-900 font-semibold' : 'text-gray-700'"
         >
-          <span v-if="fileName" class="font-normal"
-            >{{ t`Selected file` }}
-          </span>
+          <span v-if="fileName" class="font-normal">{{ t`Selected` }} </span>
           {{ helperMessage }}{{ fileName ? ',' : '' }}
           <span v-if="fileName" class="font-normal">
-            {{ t`verify data and click on` }} </span
+            {{ t`check values and click on` }} </span
           >{{ ' ' }}<span v-if="fileName">{{ t`Import Data.` }}</span>
           <span
             v-if="hasImporter && importer.valueMatrix.length > 0"
             class="font-normal"
-            >{{ ' ' + t`${importer.valueMatrix.length} rows added.` }}</span
+            >{{
+              ' ' +
+              (importer.valueMatrix.length === 2
+                ? t`${importer.valueMatrix.length} row added.`
+                : t`${importer.valueMatrix.length} rows added.`)
+            }}</span
           >
         </p>
       </div>
 
-      <!-- Bulk Entries Grid -->
-      <div v-if="hasImporter">
+      <!-- Assignment Row and Value Grid container -->
+      <div
+        v-if="hasImporter"
+        class="overflow-auto custom-scroll"
+        style="max-height: calc(100vh - (2 * var(--h-row-largest)) - 2px)"
+      >
+        <!-- Column Assignment Row -->
         <div
-          class="flex justify-start"
-          style="max-height: calc(100vh - (2 * var(--h-row-largest)) - 2px)"
+          class="grid sticky top-0 py-4 pe-4 bg-white border-b gap-4"
+          style="z-index: 1; width: fit-content"
+          :style="gridTemplateColumn"
         >
-          <!-- Index Column -->
-          <div
-            class="
-              w-12
-              p-4
-              border-e
-              flex-shrink-0
-              text-gray-600
-              grid grid-cols-1
-              items-center
-              justify-items-center
-              gap-4
-            "
-          >
-            <div class="flex items-center h-7 flex-shrink-0">#</div>
+          <div class="index-cell">#</div>
+          <AutoComplete
+            v-for="index in columnIterator"
+            class="flex-shrink-0"
+            size="small"
+            :border="true"
+            :key="index"
+            :df="gridColumnTitleDf"
+            :value="importer.assignedTemplateFields[index]"
+            @change="(value: string | null) => importer.setTemplateField(index, value)"
+          />
+        </div>
+
+        <!-- Values Grid -->
+        <div
+          v-if="importer.valueMatrix.length"
+          class="grid py-4 pe-4 bg-white gap-4"
+          style="width: fit-content"
+          :style="gridTemplateColumn"
+        >
+          <!-- Grid Value Row Cells, Allow Editing Values -->
+          <template v-for="(row, ridx) of importer.valueMatrix" :key="ridx">
             <div
-              v-for="(_, i) of importer.valueMatrix"
-              :key="i"
-              class="flex items-center group h-7 flex-shrink-0"
+              class="index-cell group cursor-pointer"
+              @click="importer.removeRow(ridx)"
             >
-              <span class="hidden group-hover:inline-block">
-                <feather-icon
-                  name="x"
-                  class="w-4 h-4 -ms-1 cursor-pointer"
-                  :button="true"
-                  @click="importer.removeRow(i)"
-                />
-              </span>
+              <feather-icon
+                name="x"
+                class="w-4 h-4 hidden group-hover:inline-block -me-1"
+                :button="true"
+              />
               <span class="group-hover:hidden">
-                {{ i + 1 }}
+                {{ ridx + 1 }}
               </span>
             </div>
-          </div>
 
-          <!-- Grid -->
-          <div
-            class="overflow-auto gap-4 p-4 grid"
-            :style="`grid-template-columns: repeat(${columnCount}, 10rem)`"
-          >
-            <!-- Grid Title Row Cells, Allow Column Selection -->
-            <AutoComplete
-              v-for="index in columnIterator"
-              class="flex-shrink-0"
-              size="small"
-              :border="true"
-              :key="index"
-              :df="gridColumnTitleDf"
-              :value="importer.assignedTemplateFields[index]"
-              @change="(value: string | null) => importer.setTemplateField(index, value)"
-            />
+            <template
+              v-for="(val, cidx) of row.slice(0, columnCount)"
+              :key="`cell-${ridx}-${cidx}`"
+            >
+              <!-- Raw Data Field if Column is Not Assigned -->
+              <Data
+                v-if="!importer.assignedTemplateFields[cidx]"
+                :title="getFieldTitle(val)"
+                :df="{
+                  fieldname: 'tempField',
+                  label: t`Temporary`,
+                  placeholder: t`Select column`,
+                }"
+                size="small"
+                :border="true"
+                :value="
+                  val.value != null
+                    ? String(val.value)
+                    : val.rawValue != null
+                    ? String(val.rawValue)
+                    : ''
+                "
+                :read-only="true"
+              />
 
-            <!-- Grid Value Row Cells, Allow Editing Values -->
-            <template v-for="(row, ridx) of importer.valueMatrix">
-              <template
-                v-for="(val, cidx) of row.slice(0, columnCount)"
-                :key="`cell-${ridx}-${cidx}`"
-              >
-                <!-- Raw Data Field if Column is Not Assigned -->
-                <Data
-                  v-if="!importer.assignedTemplateFields[cidx]"
-                  :title="getFieldTitle(val)"
-                  :df="{
-                    fieldname: 'tempField',
-                    label: t`Temporary`,
-                    placeholder: t`Select column`,
-                  }"
-                  size="small"
-                  :border="true"
-                  :value="
-                    val.value != null
-                      ? String(val.value)
-                      : val.rawValue != null
-                      ? String(val.rawValue)
-                      : ''
-                  "
-                  :read-only="true"
-                />
-
-                <!-- FormControl Field if Column is Assigned -->
-                <FormControl
-                  v-else
-                  :class="val.error ? 'border border-red-300 rounded-md' : ''"
-                  :title="getFieldTitle(val)"
-                  :df="
+              <!-- FormControl Field if Column is Assigned -->
+              <FormControl
+                v-else
+                :class="val.error ? 'border border-red-300 rounded-md' : ''"
+                :title="getFieldTitle(val)"
+                :df="
                     importer.templateFieldsMap.get(
                       importer.assignedTemplateFields[cidx]!
                     )
                   "
-                  size="small"
-                  :rows="1"
-                  :border="true"
-                  :value="val.error ? null : val.value"
-                  @change="(value: DocValue)=> {
+                size="small"
+                :rows="1"
+                :border="true"
+                :value="val.error ? null : val.value"
+                @change="(value: DocValue)=> {
                     importer.valueMatrix[ridx][cidx]!.error = false
                     importer.valueMatrix[ridx][cidx]!.value = value
                   }"
-                />
-              </template>
+              />
             </template>
-          </div>
+          </template>
         </div>
-        <hr />
-      </div>
-    </div>
 
-    <!-- How to Use Link -->
-    <!-- Not shown cause video is outdated -->
-    <div
-      v-if="false"
-      class="flex justify-center h-full w-full items-center mb-16"
-    >
-      <HowTo
-        link="https://youtu.be/ukHAgcnVxTQ"
-        class="text-gray-900 rounded-lg text-base border px-3 py-2"
-      >
-        {{ t`How to Use the Import Wizard` }}
-      </HowTo>
+        <div v-else class="p-4 text-gray-700 sticky left-0">
+          {{ t`No rows added. Select a file or add rows.` }}
+        </div>
+      </div>
     </div>
 
     <!-- Loading Bar when Saving Docs -->
@@ -397,7 +377,6 @@ import Data from 'src/components/Controls/Data.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormHeader from 'src/components/FormHeader.vue';
-import HowTo from 'src/components/HowTo.vue';
 import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { getColumnLabel, Importer, TemplateField } from 'src/importer';
@@ -433,7 +412,6 @@ export default defineComponent({
     FormControl,
     Button,
     DropdownWithActions,
-    HowTo,
     Loading,
     AutoComplete,
     Data,
@@ -464,6 +442,9 @@ export default defineComponent({
     }
   },
   computed: {
+    gridTemplateColumn(): string {
+      return `grid-template-columns: 4rem repeat(${this.columnCount}, 10rem)`;
+    },
     duplicates(): string[] {
       if (!this.hasImporter) {
         return [];
@@ -637,7 +618,7 @@ export default defineComponent({
       if (!this.importType) {
         return this.t`Set an Import Type`;
       } else if (!this.fileName) {
-        return this.t`Select a file or add rows.`;
+        return '';
       }
 
       return this.fileName;
@@ -935,3 +916,8 @@ export default defineComponent({
   },
 });
 </script>
+<style scoped>
+.index-cell {
+  @apply flex pe-4 justify-end items-center border-e  bg-white sticky left-0 -my-4 text-gray-600;
+}
+</style>
