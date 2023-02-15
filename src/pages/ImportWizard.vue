@@ -13,7 +13,6 @@
         @click="
           () => {
             importer.addRow();
-            canReset = true;
           }
         "
         :icon="true"
@@ -215,8 +214,9 @@
     </div>
 
     <!-- How to Use Link -->
+    <!-- Not shown cause video is outdated -->
     <div
-      v-if="!importType"
+      v-if="false"
       class="flex justify-center h-full w-full items-center mb-16"
     >
       <HowTo
@@ -415,9 +415,9 @@ type Action = Pick<BaseAction, 'condition' | 'component'> & {
 
 type ImportWizardData = {
   showColumnPicker: boolean;
-  canReset: boolean;
   complete: boolean;
   success: string[];
+  successOldName: string[];
   failed: { name: string; error: Error }[];
   file: null | { name: string; filePath: string; text: string };
   nullOrImporter: null | Importer;
@@ -444,9 +444,9 @@ export default defineComponent({
   data() {
     return {
       showColumnPicker: false,
-      canReset: false,
       complete: false,
       success: [],
+      successOldName: [],
       failed: [],
       file: null,
       nullOrImporter: null,
@@ -749,11 +749,11 @@ export default defineComponent({
     clear(): void {
       this.file = null;
       this.success = [];
+      this.successOldName = [];
       this.failed = [];
       this.nullOrImporter = null;
       this.importType = '';
       this.complete = false;
-      this.canReset = false;
       this.isMakingEntries = false;
       this.percentLoading = 0;
       this.messageLoading = '';
@@ -810,14 +810,21 @@ export default defineComponent({
       this.isMakingEntries = true;
       this.importer.populateDocs();
 
+      const shouldSubmit = await this.askShouldSubmit();
+
       let doneCount = 0;
       for (const doc of this.importer.docs) {
         this.setLoadingStatus(doneCount, this.importer.docs.length);
+        const oldName = doc.name ?? '';
         try {
           await doc.sync();
+          if (shouldSubmit) {
+            await doc.submit();
+          }
           doneCount += 1;
 
           this.success.push(doc.name!);
+          this.successOldName.push(oldName);
         } catch (error) {
           if (error instanceof Error) {
             this.failed.push({ name: doc.name!, error });
@@ -828,9 +835,50 @@ export default defineComponent({
       this.isMakingEntries = false;
       this.complete = true;
     },
+    async askShouldSubmit(): Promise<boolean> {
+      if (!this.fyo.schemaMap[this.importType]?.isSubmittable) {
+        return false;
+      }
+
+      let shouldSubmit = false;
+      await showMessageDialog({
+        message: this.t`Should entries be submitted after syncing?`,
+        buttons: [
+          {
+            label: this.t`Yes`,
+            action() {
+              shouldSubmit = true;
+            },
+          },
+          {
+            label: this.t`No`,
+            action() {},
+          },
+        ],
+      });
+
+      return shouldSubmit;
+    },
     clearSuccessfullyImportedEntries() {
-      this.complete = false;
-      // TODO: Clear Successful entries
+      const schemaName = this.importer.schemaName;
+      const nameFieldKey = `${schemaName}.name`;
+      const nameIndex = this.importer.assignedTemplateFields.findIndex(
+        (n) => n === nameFieldKey
+      );
+
+      const failedEntriesValueMatrix = this.importer.valueMatrix.filter(
+        (row) => {
+          const value = row[nameIndex].value;
+          if (typeof value !== 'string') {
+            return false;
+          }
+
+          return !this.successOldName.includes(value);
+        }
+      );
+
+      this.setImportType(this.importType);
+      this.importer.valueMatrix = failedEntriesValueMatrix;
     },
     setImportType(importType: string): void {
       this.clear();
