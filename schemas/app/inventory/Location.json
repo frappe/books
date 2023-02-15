@@ -16,7 +16,6 @@
       "label": "Address",
       "fieldtype": "Link",
       "target": "Address",
-      "placeholder": "Click to create",
       "inline": true
     }
   ],
