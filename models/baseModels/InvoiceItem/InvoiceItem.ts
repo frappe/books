@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
@@ -13,6 +13,7 @@ import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
+import { safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
 
@@ -23,6 +24,10 @@ export abstract class InvoiceItem extends Doc {
   parentdoc?: Invoice;
   rate?: Money;
   quantity?: number;
+  transferQty?: number;
+  stockUOM?: string;
+  uom?: string;
+  UOMConversionFactor?: number;
   tax?: string;
   stockNotTransferred?: number;
 
@@ -146,15 +151,38 @@ export abstract class InvoiceItem extends Doc {
           ModelNameEnum.Item,
           this.item as string
         );
-
-        const unitDoc = itemDoc.getLink('unit');
+        const unitDoc = itemDoc.getLink('uom');
         if (unitDoc?.isWhole) {
-          return Math.round(this.quantity as number);
+          return Math.round(this.transferQty! * this.UOMConversionFactor!);
         }
 
-        return this.quantity as number;
+        return safeParseFloat(this.transferQty! * this.UOMConversionFactor!);
       },
-      dependsOn: ['quantity'],
+      dependsOn: ['quantity', 'transferQty', 'UOMConversionFactor'],
+    },
+    stockUOM: {
+      formula: async () => {
+        const { unit } = await this.fyo.db.get(
+          ModelNameEnum.Item,
+          this.item!,
+          'unit'
+        );
+        return unit;
+      },
+      dependsOn: ['item'],
+    },
+    UOMConversionFactor: {
+      formula: async () => {
+        const conversionFactor = await this.fyo.db.getAll(
+          ModelNameEnum.UOMConversionFactor,
+          {
+            fields: ['value'],
+            filters: { parent: this.item! },
+          }
+        );
+        return safeParseFloat(conversionFactor[0].value);
+      },
+      dependsOn: ['uom'],
     },
     account: {
       formula: () => {
@@ -318,6 +346,16 @@ export abstract class InvoiceItem extends Doc {
           value as number
         }) cannot be greater than 100.`
       );
+    },
+    uom: async (value: DocValue) => {
+      const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionFactor, {
+        fields: ['parent'],
+        filters: { uom: value as string, parent: this.item! },
+      });
+      if (item.length < 1)
+        throw new ValidationError(
+          t`UOM ${value as string} is not applicable for item ${this.item!}`
+        );
     },
   };
 
