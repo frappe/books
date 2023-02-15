@@ -323,8 +323,8 @@ function getSetupList(): SearchItem[] {
       group: 'Page',
     },
     {
-      label: t`Data Import`,
-      route: '/data-import',
+      label: t`Import Wizard`,
+      route: '/import-wizard',
       group: 'Page',
     },
     {

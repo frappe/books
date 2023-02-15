@@ -268,9 +268,9 @@ async function getCompleteSidebar(): Promise<SidebarConfig> {
           schemaName: 'Tax',
         },
         {
-          label: t`Data Import`,
-          name: 'data-import',
-          route: '/data-import',
+          label: t`Import Wizard`,
+          name: 'import-wizard',
+          route: '/import-wizard',
         },
         {
           label: t`Settings`,

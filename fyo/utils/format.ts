@@ -188,7 +188,7 @@ function getField(df: string | Field): Field {
       label: '',
       fieldname: '',
       fieldtype: df as FieldType,
-    };
+    } as Field;
   }
 
   return df;

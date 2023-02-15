@@ -12,7 +12,11 @@
         justify-center
         items-center
       "
-      style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(4px)"
+      :style="
+        useBackdrop
+          ? 'background: rgba(0, 0, 0, 0.1); backdrop-filter: blur(2px)'
+          : ''
+      "
       @click="$emit('closemodal')"
       v-if="openModal"
     >
@@ -34,6 +38,10 @@ export default defineComponent({
   props: {
     openModal: {
       default: false,
+      type: Boolean,
+    },
+    useBackdrop: {
+      default: true,
       type: Boolean,
     },
   },

@@ -6,7 +6,7 @@
     <div :class="showMandatory ? 'show-mandatory' : ''">
       <textarea
         ref="input"
-        rows="3"
+        :rows="rows"
         :class="['resize-none', inputClasses, containerClasses]"
         :value="value"
         :placeholder="inputPlaceholder"
@@ -27,5 +27,6 @@ export default {
   name: 'Text',
   extends: Base,
   emits: ['focus', 'input'],
+  props: { rows: { type: Number, default: 3 } },
 };
 </script>

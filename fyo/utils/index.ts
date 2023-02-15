@@ -1,8 +1,9 @@
 import { Fyo } from 'fyo';
+import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { Money } from 'pesa';
-import { Field, OptionField, SelectOption } from 'schemas/types';
+import { Field, FieldType, OptionField, SelectOption } from 'schemas/types';
 import { getIsNullOrUndef, safeParseInt } from 'utils';
 
 export function slug(str: string) {
@@ -108,4 +109,35 @@ function getRawOptionList(field: Field, doc: Doc | undefined | null) {
   }
 
   return getList(doc!);
+}
+
+export function getEmptyValuesByFieldTypes(
+  fieldtype: FieldType,
+  fyo: Fyo
+): DocValue {
+  switch (fieldtype) {
+    case 'Date':
+    case 'Datetime':
+      return new Date();
+    case 'Float':
+    case 'Int':
+      return 0;
+    case 'Currency':
+      return fyo.pesa(0);
+    case 'Check':
+      return false;
+    case 'DynamicLink':
+    case 'Link':
+    case 'Select':
+    case 'AutoComplete':
+    case 'Text':
+    case 'Data':
+    case 'Color':
+      return null;
+    case 'Table':
+    case 'Attachment':
+    case 'AttachImage':
+    default:
+      return null;
+  }
 }

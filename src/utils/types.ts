@@ -1,5 +1,5 @@
 import { Doc } from "fyo/model/doc";
-import { FieldTypeEnum } from "schemas/types";
+import { FieldType } from "schemas/types";
 import { QueryFilter } from "utils/db/types";
 
 export interface MessageDialogButton {
@@ -58,7 +58,7 @@ export interface SidebarItem {
 
 export interface ExportField {
   fieldname: string;
-  fieldtype: FieldTypeEnum;
+  fieldtype: FieldType;
   label: string;
   export: boolean;
 }
