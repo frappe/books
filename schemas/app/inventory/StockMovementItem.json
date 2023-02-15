@@ -47,7 +47,7 @@
     },
     {
       "fieldname": "uom",
-      "label": "UOMs",
+      "label": "UOM",
       "fieldtype": "Link",
       "target": "UOM"
     },
