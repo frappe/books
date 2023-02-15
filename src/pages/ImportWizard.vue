@@ -93,8 +93,13 @@
           </span>
           {{ helperMessage }}{{ fileName ? ',' : '' }}
           <span v-if="fileName" class="font-normal">
-            {{ t`verify the imported data and click on` }} </span
-          >{{ ' ' }}<span v-if="fileName">{{ t`Import Data` }}</span>
+            {{ t`verify data and click on` }} </span
+          >{{ ' ' }}<span v-if="fileName">{{ t`Import Data.` }}</span>
+          <span
+            v-if="hasImporter && importer.valueMatrix.length > 0"
+            class="font-normal"
+            >{{ ' ' + t`${importer.valueMatrix.length} rows added.` }}</span
+          >
         </p>
       </div>
 
@@ -209,50 +214,6 @@
       </div>
     </div>
 
-    <!-- Post Complete Success -->
-    <div v-if="complete" class="flex justify-center h-full items-center">
-      <div
-        class="
-          flex flex-col
-          justify-center
-          items-center
-          gap-8
-          rounded-lg
-          shadow-md
-          p-6
-        "
-        style="width: 450px"
-      >
-        <h2 class="text-xl font-semibold mt-4">{{ t`Import Success` }} 🎉</h2>
-        <p class="text-lg text-center">
-          {{
-            t`Successfully created the following ${succeeded.length} entries:`
-          }}
-        </p>
-        <div class="max-h-96 overflow-y-auto">
-          <div
-            v-for="(n, i) in succeeded"
-            :key="'name-' + i"
-            class="grid grid-cols-2 gap-2 border-b pb-2 mb-2 pe-4 text-lg w-60"
-            style="grid-template-columns: 2rem auto"
-          >
-            <p class="text-end">{{ i + 1 }}.</p>
-            <p>
-              {{ n }}
-            </p>
-          </div>
-        </div>
-        <div class="flex w-full justify-between">
-          <Button type="secondary" class="text-sm w-32" @click="clear">{{
-            t`Import More`
-          }}</Button>
-          <Button type="primary" class="text-sm w-32" @click="showMe">{{
-            t`Show Me`
-          }}</Button>
-        </div>
-      </div>
-    </div>
-
     <!-- How to Use Link -->
     <div
       v-if="!importType"
@@ -326,6 +287,100 @@
         </div>
       </div>
     </Modal>
+
+    <!-- Import Completed Modal -->
+    <Modal :open-modal="complete" @closemodal="clear">
+      <div class="w-form">
+        <!-- Import Completed Header -->
+        <FormHeader :form-title="t`Import Complete`" />
+        <hr />
+        <!-- Success -->
+        <div v-if="success.length > 0">
+          <!-- Success Section Header -->
+          <div class="flex justify-between px-4 pt-4 pb-1">
+            <p class="text-base font-semibold">{{ t`Success` }}</p>
+            <p class="text-sm text-gray-600">
+              {{
+                success.length === 1
+                  ? t`${success.length} entry imported`
+                  : t`${success.length} entries imported`
+              }}
+            </p>
+          </div>
+          <!-- Success Body -->
+          <div class="max-h-40 overflow-auto text-gray-900">
+            <div
+              v-for="(name, i) of success"
+              :key="name"
+              class="px-4 py-1 grid grid-cols-2 text-base gap-4"
+              style="grid-template-columns: 1rem auto"
+            >
+              <div class="text-end">{{ i + 1 }}.</div>
+              <p class="whitespace-nowrap overflow-auto no-scrollbar">
+                {{ name }}
+              </p>
+            </div>
+          </div>
+          <hr />
+        </div>
+
+        <!-- Failed -->
+        <div v-if="failed.length > 0">
+          <!-- Failed Section Header -->
+          <div class="flex justify-between px-4 pt-4 pb-1">
+            <p class="text-base font-semibold">{{ t`Failed` }}</p>
+            <p class="text-sm text-gray-600">
+              {{
+                failed.length === 1
+                  ? t`${failed.length} entry failed`
+                  : t`${failed.length} entries failed`
+              }}
+            </p>
+          </div>
+          <!-- Failed Body -->
+          <div class="max-h-40 overflow-auto text-gray-900">
+            <div
+              v-for="(f, i) of failed"
+              :key="f.name"
+              class="px-4 py-1 grid grid-cols-2 text-base gap-4"
+              style="grid-template-columns: 1rem 8rem auto"
+            >
+              <div class="text-end">{{ i + 1 }}.</div>
+              <p class="whitespace-nowrap overflow-auto no-scrollbar">
+                {{ f.name }}
+              </p>
+              <p class="whitespace-nowrap overflow-auto no-scrollbar">
+                {{ f.error.message }}
+              </p>
+            </div>
+          </div>
+          <hr />
+        </div>
+
+        <!-- Fallback Div -->
+        <div
+          v-if="failed.length === 0 && success.length === 0"
+          class="p-4 text-base"
+        >
+          {{ t`No entries were imported.` }}
+        </div>
+
+        <!-- Footer Button -->
+        <div class="flex justify-between p-4">
+          <Button
+            v-if="failed.length > 0"
+            @click="clearSuccessfullyImportedEntries"
+            >{{ t`Fix Failed` }}</Button
+          >
+          <Button
+            v-if="failed.length === 0 && success.length > 0"
+            @click="showMe"
+            >{{ t`Show Me` }}</Button
+          >
+          <Button @click="clear">{{ t`Done` }}</Button>
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 <script lang="ts">
@@ -362,7 +417,7 @@ type ImportWizardData = {
   showColumnPicker: boolean;
   canReset: boolean;
   complete: boolean;
-  succeeded: string[];
+  success: string[];
   failed: { name: string; error: Error }[];
   file: null | { name: string; filePath: string; text: string };
   nullOrImporter: null | Importer;
@@ -391,7 +446,7 @@ export default defineComponent({
       showColumnPicker: false,
       canReset: false,
       complete: false,
-      succeeded: [],
+      success: [],
       failed: [],
       file: null,
       nullOrImporter: null,
@@ -582,7 +637,7 @@ export default defineComponent({
       if (!this.importType) {
         return this.t`Set an Import Type`;
       } else if (!this.fileName) {
-        return this.t`Select a file or add rows`;
+        return this.t`Select a file or add rows.`;
       }
 
       return this.fileName;
@@ -693,7 +748,7 @@ export default defineComponent({
     },
     clear(): void {
       this.file = null;
-      this.succeeded = [];
+      this.success = [];
       this.failed = [];
       this.nullOrImporter = null;
       this.importType = '';
@@ -752,6 +807,7 @@ export default defineComponent({
         return;
       }
 
+      this.isMakingEntries = true;
       this.importer.populateDocs();
 
       let doneCount = 0;
@@ -761,7 +817,7 @@ export default defineComponent({
           await doc.sync();
           doneCount += 1;
 
-          this.succeeded.push(doc.name!);
+          this.success.push(doc.name!);
         } catch (error) {
           if (error instanceof Error) {
             this.failed.push({ name: doc.name!, error });
@@ -771,6 +827,10 @@ export default defineComponent({
 
       this.isMakingEntries = false;
       this.complete = true;
+    },
+    clearSuccessfullyImportedEntries() {
+      this.complete = false;
+      // TODO: Clear Successful entries
     },
     setImportType(importType: string): void {
       this.clear();
