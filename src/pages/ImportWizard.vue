@@ -5,16 +5,14 @@
       <DropdownWithActions
         :actions="actions"
         v-if="hasImporter && !complete"
+        :disabled="isMakingEntries"
         :title="t`More`"
       />
       <Button
         v-if="hasImporter && !complete"
         :title="t`Add Row`"
-        @click="
-          () => {
-            importer.addRow();
-          }
-        "
+        @click="() => importer.addRow()"
+        :disabled="isMakingEntries"
         :icon="true"
       >
         <feather-icon name="plus" class="w-4 h-4" />
@@ -32,7 +30,7 @@
         :title="t`Import Data`"
         type="primary"
         @click="importData"
-        :disabled="errorMessage.length > 0"
+        :disabled="errorMessage.length > 0 || isMakingEntries"
       >
         {{ t`Import Data` }}
       </Button>
@@ -118,7 +116,7 @@
           :style="gridTemplateColumn"
         >
           <div class="index-cell">#</div>
-          <AutoComplete
+          <Select
             v-for="index in columnIterator"
             class="flex-shrink-0"
             size="small"
@@ -201,7 +199,11 @@
           </template>
         </div>
 
-        <div v-else class="p-4 text-gray-700 sticky left-0">
+        <div
+          v-else
+          class="ps-4 text-gray-700 sticky left-0 flex items-center"
+          style="height: 62.5px"
+        >
           {{ t`No rows added. Select a file or add rows.` }}
         </div>
       </div>
@@ -387,6 +389,8 @@ import { docsPathRef } from 'src/utils/refs';
 import { showMessageDialog } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import Loading from '../components/Loading.vue';
+import Select from 'src/components/Controls/Select.vue';
+import { isWeakMap } from 'lodash';
 
 type Action = Pick<BaseAction, 'condition' | 'component'> & {
   action: Function;
@@ -418,6 +422,7 @@ export default defineComponent({
     Modal,
     FormHeader,
     Check,
+    Select,
   },
   data() {
     return {
@@ -440,6 +445,22 @@ export default defineComponent({
       window.iw = this;
       this.setImportType('Item');
     }
+  },
+  watch: {
+    columnCount(val) {
+      if (!this.hasImporter) {
+        return;
+      }
+
+      const possiblyAssigned = this.importer.assignedTemplateFields.length;
+      if (val >= this.importer.assignedTemplateFields.length) {
+        return;
+      }
+
+      for (let i = val; i < possiblyAssigned; i++) {
+        this.importer.assignedTemplateFields[i] = null;
+      }
+    },
   },
   computed: {
     gridTemplateColumn(): string {
@@ -503,16 +524,23 @@ export default defineComponent({
       return !this.file;
     },
     columnCount(): number {
-      let vmColumnCount = 0;
-      if (this.importer.valueMatrix.length) {
-        vmColumnCount = this.importer.valueMatrix[0].length;
+      if (!this.hasImporter) {
+        return 0;
       }
 
       if (!this.file) {
         return this.numColumnsPicked;
       }
 
-      return Math.max(this.numColumnsPicked, vmColumnCount);
+      let vmColumnCount = 0;
+      if (this.importer.valueMatrix.length) {
+        vmColumnCount = this.importer.valueMatrix[0].length;
+      }
+
+      return Math.min(
+        this.importer.assignedTemplateFields.length,
+        vmColumnCount
+      );
     },
     columnIterator(): number[] {
       return Array(this.columnCount)
@@ -640,9 +668,10 @@ export default defineComponent({
         options.push({ value, label });
       }
 
+      options.push({ value: '', label: this.t`None` });
       return {
         fieldname: 'col',
-        fieldtype: 'AutoComplete',
+        fieldtype: 'Select',
         options,
       } as OptionField;
     },
