@@ -6,7 +6,7 @@ export function getValueMapFromList<T, K extends keyof T, V extends keyof T>(
   key: K,
   valueKey: V,
   filterUndefined: boolean = true
-): Record<string, unknown> {
+): Record<string, T[V]> {
   if (filterUndefined) {
     list = list.filter(
       (f) =>
@@ -20,7 +20,7 @@ export function getValueMapFromList<T, K extends keyof T, V extends keyof T>(
     const value = f[valueKey];
     acc[keyValue] = value;
     return acc;
-  }, {} as Record<string, unknown>);
+  }, {} as Record<string, T[V]>);
 }
 
 export function getRandomString(): string {
