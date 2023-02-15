@@ -4,12 +4,12 @@
     <PageHeader :title="t`Import Wizard`">
       <DropdownWithActions
         :actions="actions"
-        v-if="hasImporter && !complete"
+        v-if="hasImporter"
         :disabled="isMakingEntries"
         :title="t`More`"
       />
       <Button
-        v-if="hasImporter && !complete"
+        v-if="hasImporter"
         :title="t`Add Row`"
         @click="() => importer.addRow()"
         :disabled="isMakingEntries"
@@ -18,7 +18,7 @@
         <feather-icon name="plus" class="w-4 h-4" />
       </Button>
       <Button
-        v-if="hasImporter && !complete"
+        v-if="hasImporter"
         :title="t`Save Template`"
         @click="saveTemplate"
         :icon="true"
@@ -45,7 +45,7 @@
     </PageHeader>
 
     <!-- Main Body of the Wizard -->
-    <div class="flex text-base w-full flex-col" v-if="!complete">
+    <div class="flex text-base w-full flex-col">
       <!-- Select Import Type -->
       <div
         class="
@@ -367,16 +367,16 @@
 </template>
 <script lang="ts">
 import { DocValue } from 'fyo/core/types';
-import { RawValue } from 'schemas/types';
 import { Action as BaseAction } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
-import { OptionField, SelectOption } from 'schemas/types';
+import { OptionField, RawValue, SelectOption } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import AutoComplete from 'src/components/Controls/AutoComplete.vue';
 import Check from 'src/components/Controls/Check.vue';
 import Data from 'src/components/Controls/Data.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import Select from 'src/components/Controls/Select.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import Modal from 'src/components/Modal.vue';
@@ -389,8 +389,6 @@ import { docsPathRef } from 'src/utils/refs';
 import { showMessageDialog } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import Loading from '../components/Loading.vue';
-import Select from 'src/components/Controls/Select.vue';
-import { isWeakMap } from 'lodash';
 
 type Action = Pick<BaseAction, 'condition' | 'component'> & {
   action: Function;
@@ -443,7 +441,6 @@ export default defineComponent({
     if (fyo.store.isDevelopment) {
       // @ts-ignore
       window.iw = this;
-      this.setImportType('Item');
     }
   },
   watch: {
@@ -532,14 +529,13 @@ export default defineComponent({
         return this.numColumnsPicked;
       }
 
-      let vmColumnCount = 0;
-      if (this.importer.valueMatrix.length) {
-        vmColumnCount = this.importer.valueMatrix[0].length;
+      if (!this.importer.valueMatrix.length) {
+        return this.importer.assignedTemplateFields.length;
       }
 
       return Math.min(
         this.importer.assignedTemplateFields.length,
-        vmColumnCount
+        this.importer.valueMatrix[0].length
       );
     },
     columnIterator(): number[] {
@@ -587,6 +583,10 @@ export default defineComponent({
         ModelNameEnum.Party,
         ModelNameEnum.Item,
         ModelNameEnum.JournalEntry,
+        ModelNameEnum.Tax,
+        ModelNameEnum.Account,
+        ModelNameEnum.Address,
+        ModelNameEnum.NumberSeries,
       ];
 
       const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;

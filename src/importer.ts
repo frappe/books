@@ -8,13 +8,17 @@ import {
   Field,
   FieldType,
   FieldTypeEnum,
+  OptionField,
   RawValue,
   Schema,
   TargetField,
 } from 'schemas/types';
 import { generateCSV, parseCSV } from 'utils/csvParser';
+import { getValueMapFromList } from 'utils/index';
 
-export type TemplateField = Field & {
+export type TemplateField = Field & TemplateFieldProps;
+
+type TemplateFieldProps = {
   schemaName: string;
   schemaLabel: string;
   fieldKey: string;
@@ -82,6 +86,15 @@ export class Importer {
    */
   docs: Doc[];
 
+  /**
+   * Used if an options field is imported where the import data
+   * provided maybe the label and not the value
+   */
+  optionsMap: {
+    values: Record<string, Set<string>>;
+    labelValueMap: Record<string, Record<string, string>>;
+  };
+
   constructor(schemaName: string, fyo: Fyo) {
     if (!fyo.schemaMap[schemaName]) {
       throw new ValidationError(
@@ -94,6 +107,10 @@ export class Importer {
     this.fyo = fyo;
     this.docs = [];
     this.valueMatrix = [];
+    this.optionsMap = {
+      values: {},
+      labelValueMap: {},
+    };
 
     const templateFields = getTemplateFields(schemaName, fyo, this);
     this.assignedTemplateFields = templateFields.map((f) => f.fieldKey);
@@ -423,6 +440,10 @@ export class Importer {
       return vmi;
     }
 
+    if ('options' in tf && typeof vmi.rawValue === 'string') {
+      return this.getOptionFieldVmi(vmi, tf);
+    }
+
     try {
       vmi.value = Converter.toDocValue(rawValue, tf, this.fyo);
     } catch {
@@ -430,6 +451,39 @@ export class Importer {
     }
 
     return vmi;
+  }
+
+  getOptionFieldVmi(
+    { rawValue }: ValueMatrixItem,
+    tf: OptionField & TemplateFieldProps
+  ): ValueMatrixItem {
+    if (typeof rawValue !== 'string') {
+      return { error: true, value: null, rawValue };
+    }
+
+    if (!tf?.options.length) {
+      return { value: null, rawValue };
+    }
+
+    if (!this.optionsMap.labelValueMap[tf.fieldKey]) {
+      const values = new Set(tf.options.map(({ value }) => value));
+      const labelValueMap = getValueMapFromList(tf.options, 'label', 'value');
+
+      this.optionsMap.labelValueMap[tf.fieldKey] = labelValueMap;
+      this.optionsMap.values[tf.fieldKey] = values;
+    }
+
+    const hasValue = this.optionsMap.values[tf.fieldKey].has(rawValue);
+    if (hasValue) {
+      return { value: rawValue, rawValue };
+    }
+
+    const value = this.optionsMap.labelValueMap[tf.fieldKey][rawValue];
+    if (value) {
+      return { value, rawValue };
+    }
+
+    return { error: true, value: null, rawValue };
   }
 
   assignTemplateFieldsFromParsedRow(row: string[]): boolean {
@@ -548,6 +602,10 @@ function getTemplateFields(
 
       if (tf.readOnly) {
         tf.readOnly = false;
+      }
+
+      if (schema.isChild && tf.fieldname === 'name') {
+        tf.required = false;
       }
 
       const schemaName = schema.name;
