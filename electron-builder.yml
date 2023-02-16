@@ -1,6 +1,5 @@
 productName: Frappe Books
 appId: io.frappe.books
-afterSign: build/notarize.js
 asarUnpack: '**/*.node'
 extraResources:
   [
@@ -11,7 +10,8 @@ mac:
   type: distribution
   category: public.app-category.finance
   icon: build/icon.icns
-  notarize: false
+  notarize:
+    appBundleId: io.frappe.books
   hardenedRuntime: true
   gatekeeperAssess: false
   darkModeSupport: false
