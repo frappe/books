@@ -11,6 +11,7 @@ mac:
   type: distribution
   category: public.app-category.finance
   icon: build/icon.icns
+  notarize: false
   hardenedRuntime: true
   gatekeeperAssess: false
   darkModeSupport: false

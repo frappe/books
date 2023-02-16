@@ -121,8 +121,7 @@ If you want to contribute code then you can fork this repo, make changes and rai
 
 ## Links
 
-- [Telegram Group](https://t.me/frappebooks): Used for discussions regarding features, issues, changes, etc. This group is also be used to make decisions regarding project direction.
-- [Project Board](https://github.com/frappe/books/projects/1): Roadmap that is updated with acceptable latency.
+- [Telegram Group](https://t.me/frappebooks): Used for discussions and decisions regarding everything Frappe Books.
 - [GitHub Discussions](https://github.com/frappe/books/discussions): Used for discussions around a specific topic.
 - [Frappe Books Blog](https://tech.frappebooks.com/): Sporadically updated dev blog regarding the development of this project.
 
