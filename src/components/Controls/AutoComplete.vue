@@ -108,6 +108,10 @@ export default {
         option = this.options.find((o) => o.label === value);
       }
 
+      if (!value && option === undefined) {
+        return null;
+      }
+
       return option?.label ?? oldValue;
     },
     async updateSuggestions(keyword) {

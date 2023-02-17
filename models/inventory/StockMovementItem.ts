@@ -4,7 +4,9 @@ import {
   FormulaMap,
   ReadOnlyMap,
   RequiredMap,
+  ValidationMap,
 } from 'fyo/model/types';
+import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { StockMovement } from './StockMovement';
@@ -33,6 +35,10 @@ export class StockMovementItem extends Doc {
     return this.parentdoc?.movementType === MovementType.MaterialTransfer;
   }
 
+  get isManufacture() {
+    return this.parentdoc?.movementType === MovementType.Manufacture;
+  }
+
   static filters: FiltersMap = {
     item: () => ({ trackItem: true }),
   };
@@ -53,14 +59,14 @@ export class StockMovementItem extends Doc {
       dependsOn: ['item', 'rate', 'quantity'],
     },
     fromLocation: {
-      formula: (fn) => {
-        if (this.isReceipt || this.isTransfer) {
+      formula: () => {
+        if (this.isReceipt || this.isTransfer || this.isManufacture) {
           return null;
         }
 
         const defaultLocation = this.fyo.singles.InventorySettings
           ?.defaultLocation as string | undefined;
-        if (defaultLocation && !this.location && this.isIssue) {
+        if (defaultLocation && !this.fromLocation && this.isIssue) {
           return defaultLocation;
         }
 
@@ -69,20 +75,45 @@ export class StockMovementItem extends Doc {
       dependsOn: ['movementType'],
     },
     toLocation: {
-      formula: (fn) => {
-        if (this.isIssue || this.isTransfer) {
+      formula: () => {
+        if (this.isIssue || this.isTransfer || this.isManufacture) {
           return null;
         }
 
         const defaultLocation = this.fyo.singles.InventorySettings
           ?.defaultLocation as string | undefined;
-        if (defaultLocation && !this.location && this.isReceipt) {
+        if (defaultLocation && !this.toLocation && this.isReceipt) {
           return defaultLocation;
         }
 
         return this.toLocation;
       },
       dependsOn: ['movementType'],
+    },
+  };
+
+  validations: ValidationMap = {
+    fromLocation: (value) => {
+      if (!this.isManufacture) {
+        return;
+      }
+
+      if (value && this.toLocation) {
+        throw new ValidationError(
+          this.fyo.t`Only From or To can be set for Manucature`
+        );
+      }
+    },
+    toLocation: (value) => {
+      if (!this.isManufacture) {
+        return;
+      }
+
+      if (value && this.fromLocation) {
+        throw new ValidationError(
+          this.fyo.t`Only From or To can be set for Manufacture`
+        );
+      }
     },
   };
 

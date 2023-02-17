@@ -323,8 +323,8 @@ function getSetupList(): SearchItem[] {
       group: 'Page',
     },
     {
-      label: t`Data Import`,
-      route: '/data-import',
+      label: t`Import Wizard`,
+      route: '/import-wizard',
       group: 'Page',
     },
     {
@@ -594,10 +594,7 @@ export class Search {
     keys.sort((a, b) => safeParseFloat(b) - safeParseFloat(a));
     const array: SearchItems = [];
     for (const key of keys) {
-      const keywords = groupedKeywords[key];
-      if (!keywords?.length) {
-        continue;
-      }
+      const keywords = groupedKeywords[key] ?? [];
 
       this._pushDocSearchItems(keywords, array, input);
       if (key === '0') {

@@ -23,7 +23,7 @@
         @change="(e) => triggerChange(e.target.value)"
         @focus="(e) => $emit('focus', e)"
       >
-        <option value="" disabled selected>
+        <option value="" disabled selected v-if="inputPlaceholder">
           {{ inputPlaceholder }}
         </option>
         <option
