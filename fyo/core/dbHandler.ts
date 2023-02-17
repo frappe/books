@@ -10,7 +10,7 @@ import {
   DatabaseBase,
   DatabaseDemuxBase,
   GetAllOptions,
-  QueryFilter
+  QueryFilter,
 } from 'utils/db/types';
 import { schemaTranslateables } from 'utils/translationHelpers';
 import { LanguageMap } from 'utils/types';
@@ -19,7 +19,7 @@ import {
   DatabaseDemuxConstructor,
   DocValue,
   DocValueMap,
-  RawValueMap
+  RawValueMap,
 } from './types';
 
 // Return types of Bespoke Queries
@@ -323,12 +323,6 @@ export class DatabaseHandler extends DatabaseBase {
       toDate,
       batchNumber
     )) as number | null;
-  }
-
-  async itemHasTransactions(item: string): Promise<boolean | null> {
-    return (await this.#demux.callBespoke('itemHasTransactions', item)) as
-      | boolean
-      | null;
   }
 
   /**

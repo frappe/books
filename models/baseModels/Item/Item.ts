@@ -20,33 +20,6 @@ export class Item extends Doc {
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatchNumber?: boolean;
 
-  async beforeSync() {
-    /*
-      * This code block is to prevent users from changing the value of Has Batch No Checkbox
-        of the items which already did transactions
-      * allowing users to change the value of Has Batch No of the items which already did
-        transactions will result in incorect SLEs 
-    */
-    const ifItemHasBatchNumber = await this.fyo.db.get(
-      'Item',
-      this.name!,
-      'hasBatchNumber'
-    );
-
-    if (this.hasBatchNumber == ifItemHasBatchNumber.hasBatchNumber) {
-      return;
-    }
-
-    const isItemExistsInSLE = await this.fyo.db.itemHasTransactions(this.name!);
-
-    if (isItemExistsInSLE) {
-      throw new ValidationError(
-        this.fyo.t`Cannot change value of Has Batch No as ${this
-          .name!} already has transactions against it. `
-      );
-    }
-  }
-
   formulas: FormulaMap = {
     incomeAccount: {
       formula: async () => {
@@ -148,7 +121,7 @@ export class Item extends Doc {
       !this.fyo.singles.AccountingSettings?.enableInventory ||
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
-    hasBatchNumber: () => !this.trackItem || false,
+    hasBatchNumber: () => !this.trackItem,
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
   };
 
@@ -156,5 +129,6 @@ export class Item extends Doc {
     unit: () => this.inserted,
     itemType: () => this.inserted,
     trackItem: () => this.inserted,
+    hasBatchNumber: () => this.inserted,
   };
 }

@@ -132,23 +132,6 @@ export class BespokeQueries {
     `);
   }
 
-  static async itemHasTransactions(
-    db: DatabaseCore,
-    item: string
-  ): Promise<boolean> {
-  /*
-    * to check if an item of given name is present in the SLE
-  */
-    const query = db.knex!(ModelNameEnum.StockLedgerEntry)
-      .select('item')
-      .where('item', item);
-
-    const value = (await query) as Record<string, string | null>[];
-
-    if (!value || value.length == 0) return false;
-    return true;
-  }
-
   static async getStockQuantity(
     db: DatabaseCore,
     item: string,
