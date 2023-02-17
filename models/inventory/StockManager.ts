@@ -128,12 +128,6 @@ export class StockManager {
   }
 
   async #validateBatchWiseStockAvailability(details: SMIDetails) {
-    /*
-     * Checks if hasBatchNumber is enabled in the item
-     * If user has not entered batchNumber raises a ValidationError
-     * If entered quantity is greater than the available quantity in the batch, raises a ValidationError
-     */
-
     if (!details.fromLocation) {
       return;
     }
