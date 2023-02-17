@@ -20,8 +20,8 @@ export interface ComputedStockLedgerEntry{
 
   item: string;
   location:string;
-
   batchNumber: string;
+
   quantity: number;
   balanceQuantity: number;
 
@@ -41,6 +41,7 @@ export interface StockBalanceEntry{
 
   item: string;
   location:string;
+  batchNumber: string;
 
   balanceQuantity: number;
   balanceValue: number;

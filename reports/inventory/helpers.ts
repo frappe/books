@@ -169,6 +169,7 @@ function getSBE(
 
     item,
     location,
+    batchNumber,
 
     balanceQuantity: 0,
     balanceValue: 0,
