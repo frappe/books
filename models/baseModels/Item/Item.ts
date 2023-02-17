@@ -11,6 +11,7 @@ import {
   ValidationMap,
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
+import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
@@ -19,33 +20,6 @@ export class Item extends Doc {
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
   hasBatchNumber?: boolean;
-
-  async beforeSync() {
-    /*
-      * This code block is to prevent users from changing the value of Has Batch No Checkbox
-        of the items which already did transactions
-      * allowing users to change the value of Has Batch No of the items which already did
-        transactions will result in incorect SLEs 
-    */
-    const ifItemHasBatchNumber = await this.fyo.db.get(
-      'Item',
-      this.name!,
-      'hasBatchNumber'
-    );
-
-    if (this.hasBatchNumber == ifItemHasBatchNumber.hasBatchNumber) {
-      return;
-    }
-
-    const isItemExistsInSLE = await this.fyo.db.itemHasTransactions(this.name!);
-
-    if (isItemExistsInSLE) {
-      throw new ValidationError(
-        this.fyo.t`Cannot change value of Has Batch No as ${this
-          .name!} already has transactions against it. `
-      );
-    }
-  }
 
   formulas: FormulaMap = {
     incomeAccount: {
@@ -100,6 +74,29 @@ export class Item extends Doc {
     rate: async (value: DocValue) => {
       if ((value as Money).isNegative()) {
         throw new ValidationError(this.fyo.t`Rate can't be negative.`);
+      }
+    },
+    hasBatchNumber: async (value: DocValue) => {
+      const { hasBatchNumber } = await this.fyo.db.get(
+        'Item',
+        this.name!,
+        'hasBatchNumber'
+      );
+
+      if (hasBatchNumber && value !== hasBatchNumber) {
+        const itemEntriesInSLE = await this.fyo.db.count(
+          ModelNameEnum.StockLedgerEntry,
+          {
+            filters: { item: this.name! },
+          }
+        );
+
+        if (itemEntriesInSLE > 0) {
+          throw new ValidationError(
+            this.fyo.t`Cannot change value of Has Batch No as Item ${this
+              .name!} already has transactions against it. `
+          );
+        }
       }
     },
   };
