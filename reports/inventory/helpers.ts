@@ -88,8 +88,8 @@ export function getStockLedgerEntries(
 
       item,
       location,
-
       batchNumber,
+
       quantity,
       balanceQuantity,
 
