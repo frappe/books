@@ -132,44 +132,45 @@ export class StockManager {
       return;
     }
 
-    const ifItemHasBatchNumber = await this.fyo.getValue(
+    const isItemHasBatchNumber = await this.fyo.getValue(
       'Item',
       details.item,
       'hasBatchNumber'
     );
+
+    if (!isItemHasBatchNumber) return;
+    
     const date = details.date.toISOString();
     const formattedDate = this.fyo.format(details.date, 'Datetime');
 
-    if (ifItemHasBatchNumber) {
-      if (!details.batchNumber) {
-        throw new ValidationError(
-          t`Please enter Batch Number for ${details.item}`
-        );
-      }
+    if (!details.batchNumber) {
+      throw new ValidationError(
+        t`Please enter Batch Number for ${details.item}`
+      );
+    }
 
-      const itemsInBatch =
-        (await this.fyo.db.getStockQuantity(
-          details.item,
-          details.fromLocation,
-          undefined,
-          date,
-          details.batchNumber
-        )) ?? 0;
+    const itemsInBatch =
+      (await this.fyo.db.getStockQuantity(
+        details.item,
+        details.fromLocation,
+        undefined,
+        date,
+        details.batchNumber
+      )) ?? 0;
 
-      if (details.quantity > itemsInBatch) {
-        throw new ValidationError(
-          [
-            t`Insufficient Quantity in Batch ${details.batchNumber}`,
-            t`Additional quantity (${
-              details.quantity - itemsInBatch
-            }) is required in batch ${
-              details.batchNumber
-            } to make the outward transfer of item ${details.item} from ${
-              details.fromLocation
-            } on ${formattedDate}`,
-          ].join('\n')
-        );
-      }
+    if (details.quantity > itemsInBatch) {
+      throw new ValidationError(
+        [
+          t`Insufficient Quantity in Batch ${details.batchNumber}`,
+          t`Additional quantity (${
+            details.quantity - itemsInBatch
+          }) is required in batch ${
+            details.batchNumber
+          } to make the outward transfer of item ${details.item} from ${
+            details.fromLocation
+          } on ${formattedDate}`,
+        ].join('\n')
+      );
     }
   }
 
