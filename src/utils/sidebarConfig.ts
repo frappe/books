@@ -95,11 +95,6 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
           label: t`Stock Balance`,
           name: 'stock-balance',
           route: '/report/StockBalance',
-        },
-        {
-          label: t`Batch`,
-          name: 'batch-number',
-          route: '/list/BatchNumber',
         }
       ],
     },
