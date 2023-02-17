@@ -8,6 +8,7 @@
       justify-between
       h-row-large
       items-center
+      flex-shrink-0
     "
   >
     <h1>{{ formTitle }}</h1>
