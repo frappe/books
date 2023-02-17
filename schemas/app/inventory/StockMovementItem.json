@@ -54,7 +54,7 @@
     }
   ],
   "tableFields": ["item", "fromLocation", "toLocation", "batchNumber", "quantity", "rate"],
-  "keywordFields": ["item", "batchNumber"],
+  "keywordFields": ["item"],
   "quickEditFields": [
     "item",
     "fromLocation",
