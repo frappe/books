@@ -88,7 +88,6 @@ export class StockManager {
     this.#validateQuantity(details);
     this.#validateLocation(details);
     await this.#validateStockAvailability(details);
-    await this.#validateBatchWiseStockAvailability(details);
   }
 
   #validateQuantity(details: SMIDetails) {
@@ -127,58 +126,51 @@ export class StockManager {
     throw new ValidationError(t`Both From and To Location cannot be undefined`);
   }
 
-  async #validateBatchWiseStockAvailability(details: SMIDetails) {
-    if (!details.fromLocation) {
-      return;
-    }
-
-    const isItemHasBatchNumber = await this.fyo.getValue(
-      'Item',
-      details.item,
-      'hasBatchNumber'
-    );
-
-    if (!isItemHasBatchNumber) return;
-
-    if (!details.batchNumber) {
-      throw new ValidationError(
-        t`Please enter Batch Number for ${details.item}`
-      );
-    }
-
-    const date = details.date.toISOString();
-    const itemsInBatch =
-      (await this.fyo.db.getStockQuantity(
-        details.item,
-        details.fromLocation,
-        undefined,
-        date,
-        details.batchNumber
-      )) ?? 0;
-
-    if (details.quantity < itemsInBatch) return;
-
-    const formattedDate = this.fyo.format(details.date, 'Datetime');
-    throw new ValidationError(
-      [
-        t`Insufficient Quantity in Batch ${details.batchNumber}`,
-        t`Additional quantity (${
-          details.quantity - itemsInBatch
-        }) is required in batch ${
-          details.batchNumber
-        } to make the outward transfer of item ${details.item} from ${
-          details.fromLocation
-        } on ${formattedDate}`,
-      ].join('\n')
-    );
-  }
-
   async #validateStockAvailability(details: SMIDetails) {
     if (!details.fromLocation) {
       return;
     }
 
     const date = details.date.toISOString();
+    const isItemHasBatchNumber = await this.fyo.getValue(
+      'Item',
+      details.item,
+      'hasBatchNumber'
+    );
+
+    if (isItemHasBatchNumber) {
+      if (!details.batchNumber) {
+        throw new ValidationError(
+          t`Please enter Batch Number for ${details.item}`
+        );
+      }
+
+      const itemsInBatch =
+        (await this.fyo.db.getStockQuantity(
+          details.item,
+          details.fromLocation,
+          undefined,
+          date,
+          details.batchNumber
+        )) ?? 0;
+
+      if (details.quantity < itemsInBatch) return;
+
+      const formattedDate = this.fyo.format(details.date, 'Datetime');
+      throw new ValidationError(
+        [
+          t`Insufficient Quantity in Batch ${details.batchNumber}`,
+          t`Additional quantity (${
+            details.quantity - itemsInBatch
+          }) is required in batch ${
+            details.batchNumber
+          } to make the outward transfer of item ${details.item} from ${
+            details.fromLocation
+          } on ${formattedDate}`,
+        ].join('\n')
+      );
+    }
+
     let quantityBefore =
       (await this.fyo.db.getStockQuantity(
         details.item,
