@@ -8,7 +8,7 @@
   >
     <Transition name="spacer">
       <div
-        v-if="!sidebar && platform === 'Mac'"
+        v-if="!sidebar && platform === 'Mac' && languageDirection !== 'rtl'"
         class="h-full"
         :class="sidebar ? '' : 'w-tl me-4 border-e'"
       />
@@ -16,7 +16,10 @@
     <h1 class="text-xl font-semibold select-none" v-if="title">
       {{ title }}
     </h1>
-    <div class="flex items-stretch window-no-drag gap-2 ms-auto">
+    <div
+      class="flex items-stretch window-no-drag gap-2 ms-auto"
+      :class="platform === 'Mac' && languageDirection === 'rtl' ? 'me-18' : ''"
+    >
       <slot />
       <div class="border-e" v-if="showBorder" />
       <BackLink v-if="backLink" class="window-no-drag rtl-rotate-180" />
@@ -30,7 +33,7 @@ import BackLink from './BackLink.vue';
 import SearchBar from './SearchBar.vue';
 
 export default {
-  inject: ['sidebar'],
+  inject: ['sidebar', 'languageDirection'],
   props: {
     title: { type: String, default: '' },
     backLink: { type: Boolean, default: true },

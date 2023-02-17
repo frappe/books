@@ -3,6 +3,7 @@ import { DEFAULT_LANGUAGE } from 'fyo/utils/consts';
 import { setLanguageMapOnTranslationString } from 'fyo/utils/translation';
 import { fyo } from 'src/initFyo';
 import { IPC_ACTIONS, IPC_MESSAGES } from 'utils/messages';
+import { systemLanguageRef } from './refs';
 import { showToast } from './ui';
 
 // Language: Language Code in books/translations
@@ -42,6 +43,7 @@ export async function setLanguageMap(
 
   if (success && !usingDefault) {
     fyo.config.set('language', language);
+    systemLanguageRef.value = language;
   }
 
   if (!dontReload && success && initLanguage !== oldLanguage) {

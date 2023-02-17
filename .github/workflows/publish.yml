@@ -34,13 +34,12 @@ jobs:
       - name: Run build
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_IDENTITY_AUTO_DISCOVERY: true
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          APPLE_NOTARIZE: 1
         run: |
           yarn set version 1.22.18
           yarn electron:build --mac --publish always

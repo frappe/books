@@ -41,6 +41,7 @@
 import { ConfigKeys } from 'fyo/core/types';
 import { RTL_LANGUAGES } from 'fyo/utils/consts';
 import { ModelNameEnum } from 'models/types';
+import { systemLanguageRef } from 'src/utils/refs';
 import { computed } from 'vue';
 import WindowsTitleBar from './components/WindowsTitleBar.vue';
 import { handleErrorWithDialog } from './errorHandling';
@@ -54,6 +55,7 @@ import { initializeInstance } from './utils/initialization';
 import { checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
 import { Search } from './utils/search';
+import { setGlobalShortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
 import { Shortcuts, useKeys } from './utils/vueUtils';
 
@@ -69,8 +71,6 @@ export default {
       companyName: '',
       searcher: null,
       shortcuts: null,
-      languageDirection: 'ltr',
-      language: '',
     };
   },
   provide() {
@@ -88,11 +88,8 @@ export default {
     WindowsTitleBar,
   },
   async mounted() {
-    this.language = fyo.config.get('language');
-    this.languageDirection = RTL_LANGUAGES.includes(this.language)
-      ? 'rtl'
-      : 'ltr';
-    this.shortcuts = new Shortcuts(this.keys);
+    const shortcuts = new Shortcuts(this.keys);
+    this.shortcuts = shortcuts;
     const lastSelectedFilePath = fyo.config.get(
       ConfigKeys.LastSelectedFilePath,
       null
@@ -108,6 +105,16 @@ export default {
       await handleErrorWithDialog(err, undefined, true, true);
       await this.showDbSelector();
     }
+
+    setGlobalShortcuts(shortcuts);
+  },
+  computed: {
+    language() {
+      return systemLanguageRef.value;
+    },
+    languageDirection() {
+      return RTL_LANGUAGES.includes(this.language) ? 'rtl' : 'ltr';
+    },
   },
   methods: {
     async setDesk(filePath) {

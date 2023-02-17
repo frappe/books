@@ -4,8 +4,8 @@
     <Button @click="open" class="px-2" :padding="false">
       <feather-icon name="search" class="w-4 h-4 me-1 text-gray-800" />
       <p>{{ t`Search` }}</p>
-      <div class="text-gray-500 px-1 ms-4 text-sm">
-        {{ modKey('k') }}
+      <div class="text-gray-500 px-1 ms-4 text-sm whitespace-nowrap">
+        {{ modKeyText('k') }}
       </div>
     </Button>
   </div>
@@ -16,174 +16,183 @@
     @closemodal="close"
     :set-close-listener="false"
   >
-    <!-- Search Input -->
-    <div class="p-1 w-form">
-      <input
-        ref="input"
-        type="search"
-        autocomplete="off"
-        spellcheck="false"
-        :placeholder="t`Type to search...`"
-        v-model="inputValue"
-        @focus="search"
-        @input="search"
-        @keydown.up="up"
-        @keydown.down="down"
-        @keydown.enter="() => select()"
-        @keydown.esc="close"
-        class="
-          bg-gray-100
-          text-2xl
-          focus:outline-none
-          w-full
-          placeholder-gray-500
-          text-gray-900
-          rounded-md
-          p-3
-        "
-      />
-    </div>
-    <hr v-if="suggestions.length" />
+    <div class="w-form">
+      <!-- Search Input -->
+      <div class="p-1">
+        <input
+          ref="input"
+          type="search"
+          autocomplete="off"
+          spellcheck="false"
+          :placeholder="t`Type to search...`"
+          v-model="inputValue"
+          @focus="search"
+          @input="search"
+          @keydown.up="up"
+          @keydown.down="down"
+          @keydown.enter="() => select()"
+          @keydown.esc="close"
+          class="
+            bg-gray-100
+            text-2xl
+            focus:outline-none
+            w-full
+            placeholder-gray-500
+            text-gray-900
+            rounded-md
+            p-3
+          "
+        />
+      </div>
+      <hr v-if="suggestions.length" />
 
-    <!-- Search List -->
-    <div :style="`max-height: ${49 * 6 - 1}px`" class="overflow-auto">
-      <div
-        v-for="(si, i) in suggestions"
-        :key="`${i}-${si.key}`"
-        ref="suggestions"
-        class="hover:bg-gray-50 cursor-pointer"
-        :class="idx === i ? 'border-blue-500 bg-gray-50 border-s-4' : ''"
-        @click="select(i)"
-      >
-        <!-- Search List Item -->
+      <!-- Search List -->
+      <div :style="`max-height: ${49 * 6 - 1}px`" class="overflow-auto">
         <div
-          class="flex w-full justify-between px-3 items-center"
-          style="height: var(--h-row-mid)"
+          v-for="(si, i) in suggestions"
+          :key="`${i}-${si.key}`"
+          ref="suggestions"
+          class="hover:bg-gray-50 cursor-pointer"
+          :class="idx === i ? 'border-blue-500 bg-gray-50 border-s-4' : ''"
+          @click="select(i)"
         >
-          <div class="flex items-center">
+          <!-- Search List Item -->
+          <div
+            class="flex w-full justify-between px-3 items-center"
+            style="height: var(--h-row-mid)"
+          >
+            <div class="flex items-center">
+              <p
+                :class="idx === i ? 'text-blue-600' : 'text-gray-900'"
+                :style="idx === i ? 'margin-left: -4px' : ''"
+              >
+                {{ si.label }}
+              </p>
+              <p class="text-gray-600 text-sm ms-3" v-if="si.group === 'Docs'">
+                {{ si.more.filter(Boolean).join(', ') }}
+              </p>
+            </div>
             <p
-              :class="idx === i ? 'text-blue-600' : 'text-gray-900'"
-              :style="idx === i ? 'margin-left: -4px' : ''"
+              class="text-sm text-end justify-self-end"
+              :class="`text-${groupColorMap[si.group]}-500`"
             >
-              {{ si.label }}
-            </p>
-            <p class="text-gray-600 text-sm ms-3" v-if="si.group === 'Docs'">
-              {{ si.more.filter(Boolean).join(', ') }}
+              {{
+                si.group === 'Docs' ? si.schemaLabel : groupLabelMap[si.group]
+              }}
             </p>
           </div>
-          <p
-            class="text-sm text-end justify-self-end"
-            :class="`text-${groupColorMap[si.group]}-500`"
-          >
-            {{ si.group === 'Docs' ? si.schemaLabel : groupLabelMap[si.group] }}
-          </p>
-        </div>
 
-        <hr v-if="i !== suggestions.length - 1" />
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <hr />
-    <div class="m-1 flex justify-between flex-col gap-2 text-sm select-none">
-      <!-- Group Filters -->
-      <div class="flex justify-between">
-        <div class="flex gap-1">
-          <button
-            v-for="g in searchGroups"
-            :key="g"
-            class="border px-1 py-0.5 rounded-lg"
-            :class="getGroupFilterButtonClass(g)"
-            @click="searcher.set(g, !searcher.filters.groupFilters[g])"
-          >
-            {{ groupLabelMap[g] }}
-          </button>
-        </div>
-        <button
-          class="hover:text-gray-900 py-0.5 rounded text-gray-700"
-          @click="showMore = !showMore"
-        >
-          {{ showMore ? t`Less Filters` : t`More Filters` }}
-        </button>
-      </div>
-
-      <!-- Additional Filters -->
-      <div v-if="showMore" class="-mt-1">
-        <!-- Group Skip Filters -->
-        <div class="flex gap-1 text-gray-800">
-          <button
-            v-for="s in ['skipTables', 'skipTransactions']"
-            :key="s"
-            class="border px-1 py-0.5 rounded-lg"
-            :class="{ 'bg-gray-200': searcher.filters[s] }"
-            @click="searcher.set(s, !searcher.filters[s])"
-          >
-            {{
-              s === 'skipTables' ? t`Skip Child Tables` : t`Skip Transactions`
-            }}
-          </button>
-        </div>
-
-        <!-- Schema Name Filters -->
-        <div class="flex mt-1 gap-1 text-blue-500 flex-wrap">
-          <button
-            v-for="sf in schemaFilters"
-            :key="sf.value"
-            class="
-              border
-              px-1
-              py-0.5
-              rounded-lg
-              border-blue-100
-              whitespace-nowrap
-            "
-            :class="{ 'bg-blue-100': searcher.filters.schemaFilters[sf.value] }"
-            @click="
-              searcher.set(sf.value, !searcher.filters.schemaFilters[sf.value])
-            "
-          >
-            {{ sf.label }}
-          </button>
+          <hr v-if="i !== suggestions.length - 1" />
         </div>
       </div>
 
-      <!-- Keybindings Help -->
-      <div class="flex text-sm text-gray-500 justify-between items-baseline">
-        <div class="flex gap-4">
-          <p>↑↓ {{ t`Navigate` }}</p>
-          <p>↩ {{ t`Select` }}</p>
-          <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
-          <button
-            class="flex items-center hover:text-gray-800"
-            @click="openDocs"
-          >
-            <feather-icon name="help-circle" class="w-4 h-4 me-1" />
-            {{ t`Help` }}
-          </button>
-        </div>
-
-        <p v-if="searcher?.numSearches" class="ms-auto">
-          {{ t`${suggestions.length} out of ${searcher.numSearches}` }}
-        </p>
-
-        <div
-          class="border border-gray-100 rounded flex justify-self-end ms-2"
-          v-if="(searcher?.numSearches ?? 0) > 50"
-        >
-          <template
-            v-for="c in allowedLimits.filter(
-              (c) => c < searcher.numSearches || c === -1
-            )"
-            :key="c + '-count'"
-          >
+      <!-- Footer -->
+      <hr />
+      <div class="m-1 flex justify-between flex-col gap-2 text-sm select-none">
+        <!-- Group Filters -->
+        <div class="flex justify-between">
+          <div class="flex gap-1">
             <button
-              @click="limit = parseInt(c)"
-              class="w-9"
-              :class="limit === c ? 'bg-gray-100' : ''"
+              v-for="g in searchGroups"
+              :key="g"
+              class="border px-1 py-0.5 rounded-lg"
+              :class="getGroupFilterButtonClass(g)"
+              @click="searcher.set(g, !searcher.filters.groupFilters[g])"
             >
-              {{ c === -1 ? t`All` : c }}
+              {{ groupLabelMap[g] }}
             </button>
-          </template>
+          </div>
+          <button
+            class="hover:text-gray-900 py-0.5 rounded text-gray-700"
+            @click="showMore = !showMore"
+          >
+            {{ showMore ? t`Less Filters` : t`More Filters` }}
+          </button>
+        </div>
+
+        <!-- Additional Filters -->
+        <div v-if="showMore" class="-mt-1">
+          <!-- Group Skip Filters -->
+          <div class="flex gap-1 text-gray-800">
+            <button
+              v-for="s in ['skipTables', 'skipTransactions']"
+              :key="s"
+              class="border px-1 py-0.5 rounded-lg"
+              :class="{ 'bg-gray-200': searcher.filters[s] }"
+              @click="searcher.set(s, !searcher.filters[s])"
+            >
+              {{
+                s === 'skipTables' ? t`Skip Child Tables` : t`Skip Transactions`
+              }}
+            </button>
+          </div>
+
+          <!-- Schema Name Filters -->
+          <div class="flex mt-1 gap-1 text-blue-500 flex-wrap">
+            <button
+              v-for="sf in schemaFilters"
+              :key="sf.value"
+              class="
+                border
+                px-1
+                py-0.5
+                rounded-lg
+                border-blue-100
+                whitespace-nowrap
+              "
+              :class="{
+                'bg-blue-100': searcher.filters.schemaFilters[sf.value],
+              }"
+              @click="
+                searcher.set(
+                  sf.value,
+                  !searcher.filters.schemaFilters[sf.value]
+                )
+              "
+            >
+              {{ sf.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Keybindings Help -->
+        <div class="flex text-sm text-gray-500 justify-between items-baseline">
+          <div class="flex gap-4">
+            <p>↑↓ {{ t`Navigate` }}</p>
+            <p>↩ {{ t`Select` }}</p>
+            <p><span class="tracking-tighter">esc</span> {{ t`Close` }}</p>
+            <button
+              class="flex items-center hover:text-gray-800"
+              @click="openDocs"
+            >
+              <feather-icon name="help-circle" class="w-4 h-4 me-1" />
+              {{ t`Help` }}
+            </button>
+          </div>
+
+          <p v-if="searcher?.numSearches" class="ms-auto">
+            {{ t`${suggestions.length} out of ${searcher.numSearches}` }}
+          </p>
+
+          <div
+            class="border border-gray-100 rounded flex justify-self-end ms-2"
+            v-if="(searcher?.numSearches ?? 0) > 50"
+          >
+            <template
+              v-for="c in allowedLimits.filter(
+                (c) => c < searcher.numSearches || c === -1
+              )"
+              :key="c + '-count'"
+            >
+              <button
+                @click="limit = parseInt(c)"
+                class="w-9"
+                :class="limit === c ? 'bg-gray-100' : ''"
+              >
+                {{ c === -1 ? t`All` : c }}
+              </button>
+            </template>
+          </div>
         </div>
       </div>
     </div>
@@ -195,7 +204,6 @@ import { getBgTextColorClass } from 'src/utils/colors';
 import { openLink } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { getGroupLabelMap, searchGroups } from 'src/utils/search';
-import { getModKeyCode } from 'src/utils/vueUtils';
 import { nextTick } from 'vue';
 import Button from './Button.vue';
 import Modal from './Modal.vue';
@@ -233,18 +241,19 @@ export default {
       openLink('https://docs.frappebooks.com/' + docsPathMap.Search);
     },
     getShortcuts() {
-      const modKey = getModKeyCode(this.platform);
       const ifOpen = (cb) => () => this.openModal && cb();
       const ifClose = (cb) => () => !this.openModal && cb();
 
       const shortcuts = [
-        { shortcut: ['KeyK', modKey], callback: ifClose(() => this.open()) },
-        { shortcut: ['Escape'], callback: ifOpen(() => this.close()) },
+        {
+          shortcut: 'KeyK',
+          callback: ifClose(() => this.open()),
+        },
       ];
 
       for (const i in searchGroups) {
         shortcuts.push({
-          shortcut: [modKey, `Digit${Number(i) + 1}`],
+          shortcut: `Digit${Number(i) + 1}`,
           callback: ifOpen(() => {
             const group = searchGroups[i];
             const value = this.searcher.filters.groupFilters[group];
@@ -261,15 +270,15 @@ export default {
     },
     setShortcuts() {
       for (const { shortcut, callback } of this.getShortcuts()) {
-        this.shortcuts.set(shortcut, callback);
+        this.shortcuts.pmod.set([shortcut], callback);
       }
     },
     deleteShortcuts() {
       for (const { shortcut } of this.getShortcuts()) {
-        this.shortcuts.delete(shortcut);
+        this.shortcuts.pmod.delete([shortcut]);
       }
     },
-    modKey(key) {
+    modKeyText(key) {
       key = key.toUpperCase();
       if (this.platform === 'Mac') {
         return `⌘ ${key}`;

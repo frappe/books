@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 import { AccountRootType } from 'models/baseModels/Account/types';
-import { BaseField, RawValue } from 'schemas/types';
+import { BaseField, FieldType, RawValue } from 'schemas/types';
 
 export type ExportExtention = 'csv' | 'json';
 
@@ -24,7 +24,8 @@ export interface ReportRow {
   foldedBelow?: boolean;
 }
 export type ReportData = ReportRow[];
-export interface ColumnField extends BaseField {
+export interface ColumnField extends Omit<BaseField, 'fieldtype'> {
+  fieldtype: FieldType;
   align?: 'left' | 'right' | 'center';
   width?: number;
 }

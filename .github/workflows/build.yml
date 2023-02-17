@@ -24,11 +24,8 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Install RPM
-        run: HOMEBREW_NO_AUTO_UPDATE=1 brew install rpm
-
       - name: Run build
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           APPLE_NOTARIZE: 0
-        run: yarn electron:build -mwl --publish never
+        run: yarn electron:build -mw --publish never

@@ -9,7 +9,9 @@
       <!-- Company name and DB Switcher -->
       <div
         class="px-4 flex flex-row items-center justify-between mb-4"
-        :class="platform === 'Mac' ? 'mt-10' : 'mt-2'"
+        :class="
+          platform === 'Mac' && languageDirection === 'ltr' ? 'mt-10' : 'mt-2'
+        "
       >
         <h6
           class="
@@ -106,6 +108,20 @@
           gap-1
           items-center
         "
+        @click="viewShortcuts = true"
+      >
+        <feather-icon name="command" class="h-4 w-4 flex-shrink-0" />
+        <p>{{ t`Shortcuts` }}</p>
+      </button>
+
+      <button
+        class="
+          flex
+          text-sm text-gray-600
+          hover:text-gray-800
+          gap-1
+          items-center
+        "
         @click="$emit('change-db-file')"
       >
         <feather-icon name="database" class="h-4 w-4 flex-shrink-0" />
@@ -153,6 +169,10 @@
     >
       <feather-icon name="chevrons-left" class="w-4 h-4" />
     </button>
+
+    <Modal :open-modal="viewShortcuts" @closemodal="viewShortcuts = false">
+      <ShortcutsHelper class="w-form" />
+    </Modal>
   </div>
 </template>
 <script>
@@ -160,18 +180,23 @@ import Button from 'src/components/Button.vue';
 import { reportIssue } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { openLink } from 'src/utils/ipcCalls';
+import { docsPathRef } from 'src/utils/refs';
 import { getSidebarConfig } from 'src/utils/sidebarConfig';
-import { docsPath, routeTo } from 'src/utils/ui';
+import { routeTo } from 'src/utils/ui';
 import router from '../router';
 import Icon from './Icon.vue';
+import Modal from './Modal.vue';
+import ShortcutsHelper from './ShortcutsHelper.vue';
 
 export default {
   components: [Button],
+  inject: ['languageDirection', 'shortcuts'],
   emits: ['change-db-file', 'toggle-sidebar'],
   data() {
     return {
       companyName: '',
       groups: [],
+      viewShortcuts: false,
       activeGroup: null,
     };
   },
@@ -182,6 +207,8 @@ export default {
   },
   components: {
     Icon,
+    Modal,
+    ShortcutsHelper,
   },
   async mounted() {
     const { companyName } = await fyo.doc.getDoc('AccountingSettings');
@@ -192,12 +219,23 @@ export default {
     router.afterEach(() => {
       this.setActiveGroup();
     });
+
+    this.shortcuts.shift.set(['KeyH'], () => {
+      if (document.body === document.activeElement) {
+        this.$emit('toggle-sidebar');
+      }
+    });
+    this.shortcuts.set(['F1'], () => this.openDocumentation());
+  },
+  unmounted() {
+    this.shortcuts.alt.delete(['KeyH']);
+    this.shortcuts.delete(['F1']);
   },
   methods: {
     routeTo,
     reportIssue,
     openDocumentation() {
-      openLink('https://docs.frappebooks.com/' + docsPath.value);
+      openLink('https://docs.frappebooks.com/' + docsPathRef.value);
     },
     setActiveGroup() {
       const { fullPath } = this.$router.currentRoute.value;

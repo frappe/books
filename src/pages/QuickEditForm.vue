@@ -105,6 +105,7 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { getQuickEditWidget } from 'src/utils/quickEditWidgets';
+import { focusedDocsRef } from 'src/utils/refs';
 import { getActionsForDoc, openQuickEdit } from 'src/utils/ui';
 
 export default {
@@ -131,6 +132,7 @@ export default {
     DropdownWithActions,
   },
   emits: ['close'],
+  inject: ['shortcuts'],
   provide() {
     return {
       schemaName: this.schemaName,
@@ -147,17 +149,26 @@ export default {
       statusText: null,
     };
   },
-  mounted() {
+  async mounted() {
     if (this.defaults) {
       this.values = JSON.parse(this.defaults);
     }
+
+    await this.fetchFieldsAndDoc();
+    focusedDocsRef.add(this.doc);
 
     if (fyo.store.isDevelopment) {
       window.qef = this;
     }
   },
-  async created() {
-    await this.fetchFieldsAndDoc();
+  activated() {
+    focusedDocsRef.add(this.doc);
+  },
+  deactivated() {
+    focusedDocsRef.delete(this.doc);
+  },
+  unmounted() {
+    focusedDocsRef.delete(this.doc);
   },
   computed: {
     isChild() {
