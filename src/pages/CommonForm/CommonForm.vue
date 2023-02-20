@@ -1,11 +1,35 @@
 <template>
   <FormContainer>
+    <template #header v-if="hasDoc">
+      <StatusBadge :status="status" />
+      <DropdownWithActions
+        v-for="group of groupedActions"
+        :key="group.label"
+        :type="group.type"
+        :actions="group.actions"
+      >
+        <p v-if="group.group">
+          {{ group.group }}
+        </p>
+        <feather-icon v-else name="more-horizontal" class="w-4 h-4" />
+      </DropdownWithActions>
+      <Button v-if="doc?.canSave" type="primary" @click="() => doc.sync()">
+        {{ t`Save` }}
+      </Button>
+      <Button
+        v-else-if="doc?.canSubmit"
+        type="primary"
+        @click="() => doc.submit()"
+        >{{ t`Submit` }}</Button
+      >
+    </template>
     <template #body>
       <FormHeader
         :form-title="title"
         :form-sub-title="schema.label"
         class="sticky top-0 bg-white border-b"
-      />
+      >
+      </FormHeader>
 
       <!-- Section Container -->
       <div v-if="hasDoc" class="overflow-auto custom-scroll">
@@ -61,19 +85,33 @@
 <script lang="ts">
 import { Doc } from 'fyo/model/doc';
 import { ValidationError } from 'fyo/utils/errors';
+import { getDocStatus } from 'models/helpers';
 import { ModelNameEnum } from 'models/types';
 import { Field, Schema } from 'schemas/types';
+import Button from 'src/components/Button.vue';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
-import { defineComponent } from 'vue';
+import StatusBadge from 'src/components/StatusBadge.vue';
+import { ActionGroup, UIGroupedFields } from 'src/utils/types';
+import {
+  getFieldsGroupedByTabAndSection,
+  getGroupedActionsForDoc,
+} from 'src/utils/ui';
+import { computed, defineComponent } from 'vue';
 import CommonFormSection from './CommonFormSection.vue';
-
-type UIGroupedFields = Map<string, Map<string, Field[]>>;
 
 export default defineComponent({
   props: {
     name: { type: String, default: 'PAY-1008' },
     schemaName: { type: String, default: ModelNameEnum.Payment },
+  },
+  provide() {
+    return {
+      schemaName: computed(() => this.docOrNull?.schemaName),
+      name: computed(() => this.docOrNull?.name),
+      doc: computed(() => this.docOrNull),
+    };
   },
   data() {
     return {
@@ -82,18 +120,23 @@ export default defineComponent({
     } as { docOrNull: null | Doc; activeTab: string };
   },
   async mounted() {
-    if (this.name && !this.docOrNull) {
-      this.docOrNull = await this.fyo.doc.getDoc(this.schemaName, this.name);
-    }
-
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore
       window.cf = this;
     }
+
+    await this.setDoc();
   },
   computed: {
     hasDoc(): boolean {
       return !!this.docOrNull;
+    },
+    status(): string {
+      if (!this.hasDoc) {
+        return '';
+      }
+
+      return getDocStatus(this.doc);
     },
     doc(): Doc {
       const doc = this.docOrNull as Doc | null;
@@ -105,9 +148,10 @@ export default defineComponent({
       return doc;
     },
     title(): string {
-      if (this.schema.isSubmittable && !this.docOrNull?.notInserted) {
+      if (this.schema.isSubmittable && this.docOrNull?.notInserted) {
         return this.t`New Entry`;
       }
+
       return this.docOrNull?.name!;
     },
     schema(): Schema {
@@ -131,27 +175,34 @@ export default defineComponent({
     allGroups(): UIGroupedFields {
       return getFieldsGroupedByTabAndSection(this.schema);
     },
+    groupedActions(): ActionGroup[] {
+      if (!this.hasDoc) {
+        return [];
+      }
+
+      return getGroupedActionsForDoc(this.doc);
+    },
   },
-  components: { FormContainer, FormHeader, CommonFormSection },
+  methods: {
+    async setDoc() {
+      if (this.hasDoc) {
+        return;
+      }
+
+      if (this.name) {
+        this.docOrNull = await this.fyo.doc.getDoc(this.schemaName, this.name);
+      } else {
+        this.docOrNull = this.fyo.doc.getNewDoc(this.schemaName);
+      }
+    },
+  },
+  components: {
+    FormContainer,
+    FormHeader,
+    CommonFormSection,
+    StatusBadge,
+    Button,
+    DropdownWithActions,
+  },
 });
-
-function getFieldsGroupedByTabAndSection(schema: Schema): UIGroupedFields {
-  const grouped: UIGroupedFields = new Map();
-  for (const field of schema?.fields ?? []) {
-    const tab = field.tab ?? 'Default';
-    const section = field.section ?? 'Default';
-    if (!grouped.has(tab)) {
-      grouped.set(tab, new Map());
-    }
-
-    const tabbed = grouped.get(tab)!;
-    if (!tabbed.has(section)) {
-      tabbed.set(section, []);
-    }
-
-    tabbed.get(section)!.push(field);
-  }
-
-  return grouped;
-}
 </script>
