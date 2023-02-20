@@ -24,6 +24,7 @@
         :key="field.fieldname"
         :df="field"
         :value="doc[field.fieldname]"
+        @editrow="(doc:Doc) => $emit('editrow', doc)"
         @change="async (value) => await doc.set(field.fieldname, value)"
       />
     </div>
@@ -37,6 +38,7 @@ import { evaluateHidden } from 'src/utils/doc';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
+  emits: ['editrow'],
   props: {
     title: String,
     showTitle: Boolean,
@@ -48,9 +50,19 @@ export default defineComponent({
   },
   computed: {
     filteredFields(): Field[] {
-      return (this.fields ?? []).filter(
-        (f) => !evaluateHidden(f, this.doc) && !f.meta
-      );
+      const fields: Field[] = [];
+      for (const field of this.fields ?? []) {
+        if (evaluateHidden(field, this.doc)) {
+          continue;
+        }
+
+        if (field.meta) {
+          continue;
+        }
+
+        fields.push(field);
+      }
+      return fields;
     },
   },
   components: { FormControl },

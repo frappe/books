@@ -35,6 +35,7 @@
       <div v-if="hasDoc" class="overflow-auto custom-scroll">
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
+          @editrow="(doc: Doc) => toggleQuickEditDoc(doc)"
           :key="name + idx"
           ref="section"
           class="p-4"
@@ -60,10 +61,10 @@
           bottom-0
           bg-white
         "
-        v-if="true || allGroups.size > 1"
+        v-if="groupedFields.size > 1"
       >
         <div
-          v-for="key of allGroups.keys()"
+          v-for="key of groupedFields.keys()"
           :key="key"
           @click="activeTab = key"
           class="text-sm cursor-pointer"
@@ -79,6 +80,22 @@
           {{ key }}
         </div>
       </div>
+    </template>
+    <template #quickedit>
+      <Transition name="quickedit">
+        <QuickEditForm
+          v-if="hasQeDoc"
+          :name="qeDoc.name"
+          :show-name="false"
+          :show-save="false"
+          :source-doc="qeDoc"
+          :schema-name="qeDoc.schemaName"
+          :white="true"
+          :route-back="false"
+          :load-on-close="false"
+          @close="() => toggleQuickEditDoc(null)"
+        />
+      </Transition>
     </template>
   </FormContainer>
 </template>
@@ -98,13 +115,14 @@ import {
   getFieldsGroupedByTabAndSection,
   getGroupedActionsForDoc,
 } from 'src/utils/ui';
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, nextTick } from 'vue';
+import QuickEditForm from '../QuickEditForm.vue';
 import CommonFormSection from './CommonFormSection.vue';
 
 export default defineComponent({
   props: {
-    name: { type: String, default: 'PAY-1008' },
-    schemaName: { type: String, default: ModelNameEnum.Payment },
+    name: { type: String, default: '' },
+    schemaName: { type: String, default: ModelNameEnum.StockMovement },
   },
   provide() {
     return {
@@ -117,7 +135,12 @@ export default defineComponent({
     return {
       docOrNull: null,
       activeTab: 'Default',
-    } as { docOrNull: null | Doc; activeTab: string };
+      quickEditDoc: null,
+    } as {
+      docOrNull: null | Doc;
+      activeTab: string;
+      quickEditDoc: null | Doc;
+    };
   },
   async mounted() {
     if (this.fyo.store.isDevelopment) {
@@ -130,6 +153,9 @@ export default defineComponent({
   computed: {
     hasDoc(): boolean {
       return !!this.docOrNull;
+    },
+    hasQeDoc(): boolean {
+      return !!this.quickEditDoc;
     },
     status(): string {
       if (!this.hasDoc) {
@@ -147,12 +173,21 @@ export default defineComponent({
       }
       return doc;
     },
+    qeDoc(): Doc {
+      const doc = this.quickEditDoc as Doc | null;
+      if (!doc) {
+        throw new ValidationError(
+          this.t`Doc ${this.schema.label} ${this.name} not set`
+        );
+      }
+      return doc;
+    },
     title(): string {
       if (this.schema.isSubmittable && this.docOrNull?.notInserted) {
         return this.t`New Entry`;
       }
 
-      return this.docOrNull?.name!;
+      return this.docOrNull?.name!?? this.t`New Entry`;
     },
     schema(): Schema {
       const schema = this.fyo.schemaMap[this.schemaName];
@@ -163,7 +198,7 @@ export default defineComponent({
       return schema;
     },
     activeGroup(): Map<string, Field[]> {
-      const group = this.allGroups.get(this.activeTab);
+      const group = this.groupedFields.get(this.activeTab);
       if (!group) {
         throw new ValidationError(
           `Tab group ${this.activeTab} has no value set`
@@ -172,7 +207,7 @@ export default defineComponent({
 
       return group;
     },
-    allGroups(): UIGroupedFields {
+    groupedFields(): UIGroupedFields {
       return getFieldsGroupedByTabAndSection(this.schema);
     },
     groupedActions(): ActionGroup[] {
@@ -195,6 +230,14 @@ export default defineComponent({
         this.docOrNull = this.fyo.doc.getNewDoc(this.schemaName);
       }
     },
+    async toggleQuickEditDoc(doc: Doc | null) {
+      if (this.quickEditDoc && doc) {
+        this.quickEditDoc = null;
+        await nextTick();
+      }
+
+      this.quickEditDoc = doc;
+    },
   },
   components: {
     FormContainer,
@@ -203,6 +246,7 @@ export default defineComponent({
     StatusBadge,
     Button,
     DropdownWithActions,
+    QuickEditForm,
   },
 });
 </script>
