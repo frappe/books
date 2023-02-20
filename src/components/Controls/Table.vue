@@ -33,7 +33,8 @@
         v-if="value"
       >
         <TableRow
-          v-for="row in value"
+          v-for="(row, idx) of value"
+          :class="idx < value.length - 1 ? 'border-b' : ''"
           ref="table-row"
           :key="row.name"
           v-bind="{ row, tableFields, size, ratio, isNumeric }"
@@ -49,13 +50,13 @@
         class="
           text-gray-500
           cursor-pointer
-          border-transparent
           px-2
           w-full
           h-row-mid
           flex
           items-center
         "
+        :class="value.length > 0 ? 'border-t' : ''"
         v-if="!isReadOnly"
         @click="addRow"
       >

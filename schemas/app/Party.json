@@ -46,7 +46,8 @@
     {
       "fieldname": "outstandingAmount",
       "label": "Outstanding Amount",
-      "fieldtype": "Currency"
+      "fieldtype": "Currency",
+      "hidden": true
     },
     {
       "fieldname": "currency",

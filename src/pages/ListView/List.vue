@@ -9,7 +9,7 @@
     >
       <p class="w-8 text-end me-4 text-gray-700">#</p>
       <Row
-        class="flex-1 text-gray-700 border-none h-row-mid"
+        class="flex-1 text-gray-700 h-row-mid"
         :columnCount="columns.length"
         gap="1rem"
       >
@@ -45,7 +45,7 @@
           </p>
           <Row
             gap="1rem"
-            class="cursor-pointer text-gray-900 flex-1 border-none h-row-mid"
+            class="cursor-pointer text-gray-900 flex-1 h-row-mid"
             @click="$emit('openDoc', doc.name)"
             :columnCount="columns.length"
           >

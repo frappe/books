@@ -14,9 +14,11 @@ export class DocHandler {
   singles: SinglesMap = {};
   docs: Observable<DocMap | undefined> = new Observable();
   observer: Observable<never> = new Observable();
+  #temporaryNameCounters: Record<string, number>;
 
   constructor(fyo: Fyo) {
     this.fyo = fyo;
+    this.#temporaryNameCounters = {};
   }
 
   init() {
@@ -97,12 +99,25 @@ export class DocHandler {
     }
 
     const doc = new Model!(schema, data, this.fyo, isRawValueMap);
-    doc.name ??= getRandomString();
+    doc.name ??= this.#getTemporaryName(schema);
     if (cacheDoc) {
       this.#addToCache(doc);
     }
 
     return doc;
+  }
+
+  #getTemporaryName(schema: Schema): string {
+    if (schema.naming === 'random') {
+      return getRandomString();
+    }
+
+    this.#temporaryNameCounters[schema.name] ??= 1;
+
+    const idx = this.#temporaryNameCounters[schema.name];
+    this.#temporaryNameCounters[schema.name] = idx + 1;
+
+    return this.fyo.t`New ${schema.label ?? schema.name} - Temp No. ${idx}`;
   }
 
   /**
