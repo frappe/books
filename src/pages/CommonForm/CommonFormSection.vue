@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="filteredFields.length > 0">
     <div
       v-if="showTitle && title"
       class="flex justify-between items-center cursor-pointer select-none"
@@ -48,7 +48,9 @@ export default defineComponent({
   },
   computed: {
     filteredFields(): Field[] {
-      return (this.fields ?? []).filter((f) => !evaluateHidden(f, this.doc));
+      return (this.fields ?? []).filter(
+        (f) => !evaluateHidden(f, this.doc) && !f.meta
+      );
     },
   },
   components: { FormControl },

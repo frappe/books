@@ -9,6 +9,7 @@ import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
 import { getDbError, LinkValidationError, ValueError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
+import { Schema } from 'schemas/types';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import router from 'src/router';
@@ -17,10 +18,12 @@ import { App, createApp, h, ref } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
 import {
+  ActionGroup,
   MessageDialogOptions,
   QuickEditOptions,
   SettingsTab,
   ToastOptions,
+  UIGroupedFields,
 } from './types';
 
 export async function openQuickEdit({
@@ -274,14 +277,7 @@ export function getActionsForDoc(doc?: Doc): Action[] {
     });
 }
 
-export function getGroupedActionsForDoc(doc?: Doc) {
-  type Group = {
-    group: string;
-    label: string;
-    type: string;
-    actions: Action[];
-  };
-
+export function getGroupedActionsForDoc(doc?: Doc): ActionGroup[] {
   const actions = getActionsForDoc(doc);
   const actionsMap = actions.reduce((acc, ac) => {
     if (!ac.group) {
@@ -297,7 +293,7 @@ export function getGroupedActionsForDoc(doc?: Doc) {
 
     acc[ac.group].actions.push(ac);
     return acc;
-  }, {} as Record<string, Group>);
+  }, {} as Record<string, ActionGroup>);
 
   const grouped = Object.keys(actionsMap)
     .filter(Boolean)
@@ -393,14 +389,24 @@ function getDuplicateAction(doc: Doc): Action {
   };
 }
 
-export function getStatus(entry: { cancelled?: boolean; submitted?: boolean }) {
-  if (entry.cancelled) {
-    return 'Cancelled';
+export function getFieldsGroupedByTabAndSection(
+  schema: Schema
+): UIGroupedFields {
+  const grouped: UIGroupedFields = new Map();
+  for (const field of schema?.fields ?? []) {
+    const tab = field.tab ?? 'Default';
+    const section = field.section ?? 'Default';
+    if (!grouped.has(tab)) {
+      grouped.set(tab, new Map());
+    }
+
+    const tabbed = grouped.get(tab)!;
+    if (!tabbed.has(section)) {
+      tabbed.set(section, []);
+    }
+
+    tabbed.get(section)!.push(field);
   }
 
-  if (entry.submitted) {
-    return 'Submitted';
-  }
-
-  return 'Saved';
+  return grouped;
 }
