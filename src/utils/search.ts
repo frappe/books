@@ -230,7 +230,8 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     schemaNames.push(
       ModelNameEnum.StockMovement,
       ModelNameEnum.Shipment,
-      ModelNameEnum.PurchaseReceipt
+      ModelNameEnum.PurchaseReceipt,
+      ModelNameEnum.UOMConversion
     );
   }
 

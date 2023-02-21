@@ -26,6 +26,7 @@ import { ShipmentItem } from './inventory/ShipmentItem';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
+import { UOMConversion } from './inventory/UOMConversion';
 
 export const models = {
   Account,
@@ -48,6 +49,7 @@ export const models = {
   TaxSummary,
   // Inventory Models
   InventorySettings,
+  UOMConversion,
   StockMovement,
   StockMovementItem,
   StockLedgerEntry,

@@ -1,0 +1,31 @@
+{
+  "name": "UOMConversion",
+  "label": "UOM Conversion",
+  "naming": "autoincrement",
+  "fields": [
+    {
+      "fieldname": "fromUOM",
+      "label": "From UOM",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "toUOM",
+      "label": "To UOM",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "conversionFactor",
+      "label": "Conversion Factor",
+      "fieldtype": "Float",
+      "default": 1,
+      "required": true
+    }
+  ],
+  "quickEditFields": ["fromUOM", "toUOM", "conversionFactor"]
+}

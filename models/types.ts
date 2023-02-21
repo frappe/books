@@ -39,6 +39,7 @@ export enum ModelNameEnum {
   PurchaseReceipt = 'PurchaseReceipt',
   PurchaseReceiptItem = 'PurchaseReceiptItem',
   Location = 'Location',
+  UOMConversion = 'UOMConversion'
 }
 
 export type ModelName = keyof typeof ModelNameEnum;
