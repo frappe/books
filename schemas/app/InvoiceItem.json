@@ -34,6 +34,7 @@
       "fieldname": "transferQuantity",
       "label": "Qty. in Transfer Unit",
       "fieldtype": "Float",
+      "default": 1,
       "required": true
     },
     {
@@ -56,7 +57,8 @@
       "fieldname": "unitConversionFactor",
       "label": "Conversion Factor",
       "fieldtype": "Float",
-      "required": true
+      "required": true,
+      "default": 1
     },
     {
       "fieldname": "account",

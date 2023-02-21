@@ -23,11 +23,13 @@ export abstract class InvoiceItem extends Doc {
   amount?: Money;
   parentdoc?: Invoice;
   rate?: Money;
+
+  unit?: string;
+  transferUnit?: string;
   quantity?: number;
-  transferQty?: number;
-  stockUOM?: string;
-  uom?: string;
-  UOMConversionFactor?: number;
+  transferQuantity?: number;
+  unitConversionFactor?: number;
+
   tax?: string;
   stockNotTransferred?: number;
 
@@ -47,6 +49,10 @@ export abstract class InvoiceItem extends Doc {
 
   get enableDiscounting() {
     return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
+  }
+
+  get enableInventory() {
+    return !!this.fyo.singles?.AccountingSettings?.enableInventory;
   }
 
   get currency() {
@@ -141,6 +147,34 @@ export abstract class InvoiceItem extends Doc {
         'setItemDiscountAmount',
       ],
     },
+    unit: {
+      formula: async () =>
+        (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'unit'
+        )) as string,
+      dependsOn: ['item'],
+    },
+    transferUnit: {
+      formula: async () =>
+        (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'unit'
+        )) as string,
+      dependsOn: ['item'],
+    },
+    transferQuantity: {
+      formula: async () => {
+        if (this.unit === this.transferUnit) {
+          return this.quantity;
+        }
+
+        return this.transferQuantity;
+      },
+      dependsOn: ['item'],
+    },
     quantity: {
       formula: async () => {
         if (!this.item) {
@@ -153,36 +187,34 @@ export abstract class InvoiceItem extends Doc {
         );
         const unitDoc = itemDoc.getLink('uom');
         if (unitDoc?.isWhole) {
-          return Math.round(this.transferQty! * this.UOMConversionFactor!);
+          return Math.round(
+            this.transferQuantity! * this.unitConversionFactor!
+          );
         }
 
-        return safeParseFloat(this.transferQty! * this.UOMConversionFactor!);
-      },
-      dependsOn: ['quantity', 'transferQty', 'UOMConversionFactor'],
-    },
-    stockUOM: {
-      formula: async () => {
-        const { unit } = await this.fyo.db.get(
-          ModelNameEnum.Item,
-          this.item!,
-          'unit'
+        return safeParseFloat(
+          this.transferQuantity! * this.unitConversionFactor!
         );
-        return unit;
       },
-      dependsOn: ['item'],
+      dependsOn: ['quantity', 'transferQuantity', 'unitConversionFactor'],
     },
-    UOMConversionFactor: {
+    unitConversionFactor: {
       formula: async () => {
+        if (this.unit === this.transferUnit) {
+          return 1;
+        }
+
         const conversionFactor = await this.fyo.db.getAll(
-          ModelNameEnum.UOMConversionFactor,
+          ModelNameEnum.UOMConversionItem,
           {
-            fields: ['value'],
+            fields: ['conversionFactor'],
             filters: { parent: this.item! },
           }
         );
-        return safeParseFloat(conversionFactor[0].value);
+
+        return safeParseFloat(conversionFactor[0]?.conversionFactor ?? 1);
       },
-      dependsOn: ['uom'],
+      dependsOn: ['transferUnit'],
     },
     account: {
       formula: () => {
@@ -347,14 +379,20 @@ export abstract class InvoiceItem extends Doc {
         }) cannot be greater than 100.`
       );
     },
-    uom: async (value: DocValue) => {
-      const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionFactor, {
+    transferUnit: async (value: DocValue) => {
+      if (!this.item) {
+        return;
+      }
+
+      const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionItem, {
         fields: ['parent'],
         filters: { uom: value as string, parent: this.item! },
       });
+
       if (item.length < 1)
         throw new ValidationError(
-          t`UOM ${value as string} is not applicable for item ${this.item!}`
+          t`Transfer Unit ${value as string} is not applicable for Item ${this
+            .item!}`
         );
     },
   };
@@ -380,6 +418,8 @@ export abstract class InvoiceItem extends Doc {
       !(this.enableDiscounting && !!this.setItemDiscountAmount),
     itemDiscountPercent: () =>
       !(this.enableDiscounting && !this.setItemDiscountAmount),
+    transferUnit: () => !this.enableInventory,
+    transferQuantity: () => !this.enableInventory,
   };
 
   static filters: FiltersMap = {
