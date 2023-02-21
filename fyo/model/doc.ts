@@ -868,9 +868,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _insert() {
-    await setName(this, this.fyo);
     this._setBaseMetaValues();
     await this._preSync();
+    await setName(this, this.fyo);
 
     const validDict = this.getValidDict(false, true);
     let data: DocValueMap;

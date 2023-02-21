@@ -1,5 +1,5 @@
 <template>
-  <div v-if="filteredFields.length > 0">
+  <div v-if="(fields ?? []).length > 0">
     <div
       v-if="showTitle && title"
       class="flex justify-between items-center cursor-pointer select-none"
@@ -15,55 +15,47 @@
       />
     </div>
     <div class="grid gap-4 gap-x-8 grid-cols-2" v-if="!collapsed">
-      <FormControl
-        v-for="field of filteredFields"
-        class="mt-auto"
-        :class="field.fieldtype === 'Table' ? 'col-span-2 text-base' : ''"
-        :show-label="true"
-        :border="true"
+      <div
+        v-for="field of fields"
         :key="field.fieldname"
-        :df="field"
-        :value="doc[field.fieldname]"
-        @editrow="(doc:Doc) => $emit('editrow', doc)"
-        @change="async (value) => await doc.set(field.fieldname, value)"
-      />
+        class="mb-auto"
+        :class="field.fieldtype === 'Table' ? 'col-span-2 text-base' : ''"
+      >
+        <FormControl
+          :show-label="true"
+          :border="true"
+          :df="field"
+          :value="doc[field.fieldname]"
+          @editrow="(doc: Doc) => $emit('editrow', doc)"
+          @change="(value: DocValue) => $emit('value-change', field, value)"
+        />
+        <div v-if="errors?.[field.fieldname]" class="text-sm text-red-600">
+          {{ errors[field.fieldname] }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script lang="ts">
+import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
-import { evaluateHidden } from 'src/utils/doc';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
-  emits: ['editrow'],
+  emits: ['editrow', 'value-change'],
   props: {
     title: String,
+    errors: Object as PropType<Record<string, string>>,
     showTitle: Boolean,
     doc: { type: Object as PropType<Doc>, required: true },
     fields: Array as PropType<Field[]>,
   },
   data() {
-    return { collapsed: false };
-  },
-  computed: {
-    filteredFields(): Field[] {
-      const fields: Field[] = [];
-      for (const field of this.fields ?? []) {
-        if (evaluateHidden(field, this.doc)) {
-          continue;
-        }
-
-        if (field.meta) {
-          continue;
-        }
-
-        fields.push(field);
-      }
-      return fields;
-    },
+    return { collapsed: false } as {
+      collapsed: boolean;
+    };
   },
   components: { FormControl },
 });

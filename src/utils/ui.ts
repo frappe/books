@@ -17,6 +17,7 @@ import { IPC_ACTIONS } from 'utils/messages';
 import { App, createApp, h, ref } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
+import { evaluateHidden } from './doc';
 import {
   ActionGroup,
   MessageDialogOptions,
@@ -73,6 +74,7 @@ export async function openQuickEdit({
   if (forWhat[0] === 'not in' && forWhat[1] === 'Sales') {
     defaults = Object.assign({ for: 'Purchases' });
   }
+  console.log(method, schemaName, name);
 
   router[method]({
     query: {
@@ -390,7 +392,8 @@ function getDuplicateAction(doc: Doc): Action {
 }
 
 export function getFieldsGroupedByTabAndSection(
-  schema: Schema
+  schema: Schema,
+  doc: Doc
 ): UIGroupedFields {
   const grouped: UIGroupedFields = new Map();
   for (const field of schema?.fields ?? []) {
@@ -403,6 +406,14 @@ export function getFieldsGroupedByTabAndSection(
     const tabbed = grouped.get(tab)!;
     if (!tabbed.has(section)) {
       tabbed.set(section, []);
+    }
+
+    if (field.meta) {
+      continue;
+    }
+
+    if (evaluateHidden(field, doc)) {
+      continue;
     }
 
     tabbed.get(section)!.push(field);

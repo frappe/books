@@ -117,7 +117,10 @@ export class DocHandler {
     const idx = this.#temporaryNameCounters[schema.name];
     this.#temporaryNameCounters[schema.name] = idx + 1;
 
-    return this.fyo.t`New ${schema.label ?? schema.name} - Temp No. ${idx}`;
+    return this.fyo.t`New ${schema.label ?? schema.name} ${String(idx).padStart(
+      2,
+      '0'
+    )}`;
   }
 
   /**

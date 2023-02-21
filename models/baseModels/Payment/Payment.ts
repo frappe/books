@@ -617,6 +617,7 @@ export class Payment extends Transactional {
 
   static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
+      formRoute: ({ name }) => `/edit/Payment/${name}`,
       columns: ['name', getDocStatusListColumn(), 'party', 'date', 'amount'],
     };
   }
