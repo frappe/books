@@ -5,48 +5,18 @@
   "naming": "manual",
   "fields": [
     {
+      "fieldname": "image",
+      "label": "Image",
+      "section": "Default",
+      "fieldtype": "AttachImage"
+    },
+    {
       "fieldname": "name",
       "label": "Item Name",
       "fieldtype": "Data",
       "placeholder": "Item Name",
+      "section": "Default",
       "required": true
-    },
-    {
-      "fieldname": "image",
-      "label": "Image",
-      "fieldtype": "AttachImage"
-    },
-    {
-      "fieldname": "description",
-      "label": "Description",
-      "placeholder": "Item Description",
-      "fieldtype": "Text"
-    },
-    {
-      "fieldname": "unit",
-      "label": "Unit Type",
-      "fieldtype": "Link",
-      "target": "UOM",
-      "create": true,
-      "default": "Unit",
-      "placeholder": "Unit Type"
-    },
-    {
-      "fieldname": "itemType",
-      "label": "Type",
-      "placeholder": "Type",
-      "fieldtype": "Select",
-      "default": "Product",
-      "options": [
-        {
-          "value": "Product",
-          "label": "Product"
-        },
-        {
-          "value": "Service",
-          "label": "Service"
-        }
-      ]
     },
     {
       "fieldname": "for",
@@ -67,7 +37,49 @@
         }
       ],
       "required": true,
+      "section": "Default",
       "default": "Both"
+    },
+    {
+      "fieldname": "itemType",
+      "label": "Type",
+      "placeholder": "Type",
+      "fieldtype": "Select",
+      "default": "Product",
+      "section": "Default",
+      "options": [
+        {
+          "value": "Product",
+          "label": "Product"
+        },
+        {
+          "value": "Service",
+          "label": "Service"
+        }
+      ]
+    },
+    {
+      "fieldname": "unit",
+      "label": "Unit Type",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "create": true,
+      "default": "Unit",
+      "section": "Details",
+      "placeholder": "Unit Type"
+    },
+    {
+      "fieldname": "rate",
+      "label": "Rate",
+      "section": "Details",
+      "fieldtype": "Currency"
+    },
+    {
+      "fieldname": "description",
+      "label": "Description",
+      "placeholder": "Item Description",
+      "section": "Details",
+      "fieldtype": "Text"
     },
     {
       "fieldname": "incomeAccount",
@@ -75,6 +87,7 @@
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Income",
+      "section": "Accounts",
       "create": true,
       "required": true
     },
@@ -84,6 +97,7 @@
       "fieldtype": "Link",
       "target": "Account",
       "placeholder": "Expense",
+      "section": "Accounts",
       "create": true,
       "required": true
     },
@@ -92,31 +106,30 @@
       "label": "Tax",
       "fieldtype": "Link",
       "target": "Tax",
+      "section": "Accounts",
       "create": true,
       "placeholder": "Tax"
-    },
-    {
-      "fieldname": "rate",
-      "label": "Rate",
-      "fieldtype": "Currency"
     },
     {
       "fieldname": "hsnCode",
       "label": "HSN/SAC",
       "fieldtype": "Int",
-      "placeholder": "HSN/SAC Code"
+      "placeholder": "HSN/SAC Code",
+      "section": "Inventory"
     },
     {
       "fieldname": "barcode",
       "label": "Barcode",
       "fieldtype": "Data",
-      "placeholder": "Barcode"
+      "placeholder": "Barcode",
+      "section": "Inventory"
     },
     {
       "fieldname": "trackItem",
       "label": "Track Item",
       "fieldtype": "Check",
-      "default": false
+      "default": false,
+      "section": "Inventory"
     }
   ],
   "quickEditFields": [

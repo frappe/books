@@ -1,41 +1,50 @@
 <template>
-  <div :class="containerClasses" class="flex gap-2 items-center">
-    <label
-      for="attachment"
-      class="block whitespace-nowrap overflow-auto no-scrollbar"
-      :class="[inputClasses, !value ? 'text-gray-600' : 'cursor-default']"
-      >{{ label }}</label
-    >
-    <input
-      ref="fileInput"
-      id="attachment"
-      type="file"
-      accept="image/*,.pdf"
-      class="hidden"
-      :disabled="!!value"
-      @input="selectFile"
-    />
-
-    <!-- Buttons -->
-    <div class="me-2 flex gap-2">
-      <!-- Upload Button -->
-      <button v-if="!value" class="bg-gray-300 p-0.5 rounded" @click="upload">
-        <FeatherIcon name="upload" class="h-4 w-4 text-gray-600" />
-      </button>
-
-      <!-- Download Button -->
-      <button v-if="value" class="bg-gray-300 p-0.5 rounded" @click="download">
-        <FeatherIcon name="download" class="h-4 w-4 text-gray-600" />
-      </button>
-
-      <!-- Clear Button -->
-      <button
-        v-if="value && !isReadOnly"
-        class="bg-gray-300 p-0.5 rounded"
-        @click="clear"
+  <div>
+    <div :class="labelClasses" v-if="showLabel && df">
+      {{ df.label }}
+    </div>
+    <div :class="containerClasses" class="flex gap-2 items-center">
+      <label
+        for="attachment"
+        class="block whitespace-nowrap overflow-auto no-scrollbar"
+        :class="[inputClasses, !value ? 'text-gray-600' : 'cursor-default']"
+        >{{ label }}</label
       >
-        <FeatherIcon name="x" class="h-4 w-4 text-gray-600" />
-      </button>
+      <input
+        ref="fileInput"
+        id="attachment"
+        type="file"
+        accept="image/*,.pdf"
+        class="hidden"
+        :disabled="!!value"
+        @input="selectFile"
+      />
+
+      <!-- Buttons -->
+      <div class="me-2 flex gap-2">
+        <!-- Upload Button -->
+        <button v-if="!value" class="bg-gray-300 p-0.5 rounded" @click="upload">
+          <FeatherIcon name="upload" class="h-4 w-4 text-gray-600" />
+        </button>
+
+        <!-- Download Button -->
+        <button
+          v-if="value"
+          class="bg-gray-300 p-0.5 rounded"
+          @click="download"
+        >
+          <FeatherIcon name="download" class="h-4 w-4 text-gray-600" />
+        </button>
+
+        <!-- Clear Button -->
+        <button
+          v-if="value && !isReadOnly"
+          class="bg-gray-300 p-0.5 rounded"
+          @click="clear"
+        >
+          <FeatherIcon name="x" class="h-4 w-4 text-gray-600" />
+        </button>
+      </div>
     </div>
   </div>
 </template>

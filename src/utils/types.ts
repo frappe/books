@@ -1,6 +1,7 @@
-import { Doc } from "fyo/model/doc";
-import { FieldType } from "schemas/types";
-import { QueryFilter } from "utils/db/types";
+import type { Doc } from 'fyo/model/doc';
+import type { Action } from 'fyo/model/types';
+import type { Field, FieldType } from 'schemas/types';
+import type { QueryFilter } from 'utils/db/types';
 
 export interface MessageDialogButton {
   label: string;
@@ -31,7 +32,7 @@ export interface QuickEditOptions {
   hideFields?: string[];
   showFields?: string[];
   defaults?: Record<string, unknown>;
-  listFilters?: QueryFilter
+  listFilters?: QueryFilter;
 }
 
 export type SidebarConfig = SidebarRoot[];
@@ -44,7 +45,7 @@ export interface SidebarRoot {
   iconHeight?: string;
   hidden?: () => boolean;
   items?: SidebarItem[];
-  filters?: QueryFilter
+  filters?: QueryFilter;
 }
 
 export interface SidebarItem {
@@ -54,7 +55,6 @@ export interface SidebarItem {
   schemaName?: string;
   hidden?: () => boolean;
 }
-
 
 export interface ExportField {
   fieldname: string;
@@ -70,5 +70,13 @@ export interface ExportTableField {
   fields: ExportField[];
 }
 
+export type ActionGroup = {
+  group: string;
+  label: string;
+  type: string;
+  actions: Action[];
+};
+
+export type UIGroupedFields = Map<string, Map<string, Field[]>>;
 export type ExportFormat = 'csv' | 'json';
-export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month'
+export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month';
