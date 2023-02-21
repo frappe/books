@@ -136,6 +136,7 @@ export class Item extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
+      formRoute: ({ name }) => `/edit/Item/${name}`,
       columns: ['name', 'unit', 'tax', 'rate'],
     };
   }
@@ -147,6 +148,7 @@ export class Item extends Doc {
       (this.inserted && !this.trackItem),
     hasBatchNumber: () => !this.trackItem,
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
+    uomConversions: () => !this.fyo.singles.AccountingSettings?.enableInventory,
   };
 
   readOnly: ReadOnlyMap = {

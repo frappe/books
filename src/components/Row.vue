@@ -1,5 +1,5 @@
 <template>
-  <div class="inline-grid border-b" :style="style" v-bind="$attrs">
+  <div class="inline-grid" :style="style" v-bind="$attrs">
     <slot></slot>
   </div>
 </template>

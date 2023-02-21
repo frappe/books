@@ -1,3 +1,5 @@
+import { t } from 'fyo';
+import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
   FiltersMap,
@@ -9,6 +11,7 @@ import {
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
+import { safeParseFloat } from 'utils/index';
 import { StockMovement } from './StockMovement';
 import { MovementType } from './types';
 
@@ -17,7 +20,13 @@ export class StockMovementItem extends Doc {
   item?: string;
   fromLocation?: string;
   toLocation?: string;
+
+  unit?: string;
+  transferUnit?: string;
   quantity?: number;
+  transferQuantity?: number;
+  unitConversionFactor?: number;
+
   rate?: Money;
   amount?: Money;
   parentdoc?: StockMovement;
@@ -90,6 +99,87 @@ export class StockMovementItem extends Doc {
       },
       dependsOn: ['movementType'],
     },
+    unit: {
+      formula: async () =>
+        (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'unit'
+        )) as string,
+      dependsOn: ['item'],
+    },
+    transferUnit: {
+      formula: async (fieldname) => {
+        if (fieldname === 'quantity' || fieldname === 'unit') {
+          return this.unit;
+        }
+
+        return (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'unit'
+        )) as string;
+      },
+      dependsOn: ['item', 'unit'],
+    },
+    transferQuantity: {
+      formula: async (fieldname) => {
+        if (fieldname === 'quantity' || this.unit === this.transferUnit) {
+          return this.quantity;
+        }
+
+        return this.transferQuantity;
+      },
+      dependsOn: ['item', 'quantity'],
+    },
+    quantity: {
+      formula: async (fieldname) => {
+        if (!this.item) {
+          return this.quantity as number;
+        }
+
+        const itemDoc = await this.fyo.doc.getDoc(
+          ModelNameEnum.Item,
+          this.item as string
+        );
+        const unitDoc = itemDoc.getLink('uom');
+
+        let quantity: number = this.quantity ?? 1;
+        if (fieldname === 'transferQuantity') {
+          quantity = this.transferQuantity! * this.unitConversionFactor!;
+        }
+
+        if (unitDoc?.isWhole) {
+          return Math.round(quantity);
+        }
+
+        return safeParseFloat(quantity);
+      },
+      dependsOn: [
+        'quantity',
+        'transferQuantity',
+        'transferUnit',
+        'unitConversionFactor',
+      ],
+    },
+    unitConversionFactor: {
+      formula: async () => {
+        if (this.unit === this.transferUnit) {
+          return 1;
+        }
+
+        const conversionFactor = await this.fyo.db.getAll(
+          ModelNameEnum.UOMConversionItem,
+          {
+            fields: ['conversionFactor'],
+            filters: { parent: this.item! },
+          }
+        );
+
+        return safeParseFloat(conversionFactor[0]?.conversionFactor ?? 1);
+      },
+      dependsOn: ['transferUnit'],
+    },
   };
 
   validations: ValidationMap = {
@@ -100,7 +190,7 @@ export class StockMovementItem extends Doc {
 
       if (value && this.toLocation) {
         throw new ValidationError(
-          this.fyo.t`Only From or To can be set for Manucature`
+          this.fyo.t`Only From or To can be set for Manufacture`
         );
       }
     },
@@ -114,6 +204,22 @@ export class StockMovementItem extends Doc {
           this.fyo.t`Only From or To can be set for Manufacture`
         );
       }
+    },
+    transferUnit: async (value: DocValue) => {
+      if (!this.item) {
+        return;
+      }
+
+      const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionItem, {
+        fields: ['parent'],
+        filters: { uom: value as string, parent: this.item! },
+      });
+
+      if (item.length < 1)
+        throw new ValidationError(
+          t`Transfer Unit ${value as string} is not applicable for Item ${this
+            .item!}`
+        );
     },
   };
 

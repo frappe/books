@@ -18,6 +18,44 @@
       "fieldtype": "Text"
     },
     {
+      "fieldname": "rate",
+      "label": "Rate",
+      "fieldtype": "Currency",
+      "required": true
+    },
+    {
+      "fieldname": "transferUnit",
+      "label": "Transfer Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit"
+    },
+    {
+      "fieldname": "transferQuantity",
+      "label": "Qty. in Transfer Unit",
+      "fieldtype": "Float",
+      "default": 1,
+      "required": true
+    },
+    {
+      "fieldname": "unit",
+      "label": "Stock Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit",
+      "readOnly": true
+    },
+    {
+      "fieldname": "batchNumber",
+      "label": "Batch No",
+      "fieldtype": "Link",
+      "create": true,
+      "target": "BatchNumber",
+      "placeholder": "Batch No"
+    },
+    {
       "fieldname": "quantity",
       "label": "Quantity",
       "fieldtype": "Float",
@@ -25,10 +63,11 @@
       "default": 1
     },
     {
-      "fieldname": "rate",
-      "label": "Rate",
-      "fieldtype": "Currency",
-      "required": true
+      "fieldname": "unitConversionFactor",
+      "label": "Conversion Factor",
+      "fieldtype": "Float",
+      "required": true,
+      "default": 1
     },
     {
       "fieldname": "account",
@@ -93,14 +132,6 @@
       "label": "Stock Not Transferred",
       "fieldtype": "Float",
       "readOnly": true
-    },
-    {
-      "fieldname": "batchNumber",
-      "label": "Batch No",
-      "fieldtype": "Link",
-      "create": true,
-      "target": "BatchNumber",
-      "placeholder": "Batch No"
     }
   ],
   "tableFields": ["item", "tax", "batchNumber", "quantity", "rate", "amount"],
@@ -111,9 +142,15 @@
     "description",
     "hsnCode",
     "tax",
+    "rate",
+
+    "transferQuantity",
+    "transferUnit",
     "batchNumber",
     "quantity",
-    "rate",
+    "unit",
+    "unitConversionFactor",
+
     "amount",
     "setItemDiscountAmount",
     "itemDiscountAmount",

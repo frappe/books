@@ -11,13 +11,18 @@
       "fieldname": "name",
       "fieldtype": "Data",
       "required": true,
-      "readOnly": true
+      "readOnly": true,
+      "section": "Default"
     },
     {
-      "fieldname": "date",
-      "label": "Date",
-      "fieldtype": "Datetime",
-      "required": true
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "SMOV-",
+      "section": "Default"
     },
     {
       "fieldname": "movementType",
@@ -41,29 +46,31 @@
           "label": "Manufacture"
         }
       ],
-      "required": true
-    },
-    {
-      "fieldname": "numberSeries",
-      "label": "Number Series",
-      "fieldtype": "Link",
-      "target": "NumberSeries",
-      "create": true,
       "required": true,
-      "default": "SMOV-"
+      "section": "Default"
     },
     {
-      "fieldname": "amount",
-      "label": "Total Amount",
-      "fieldtype": "Currency",
-      "readOnly": true
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Datetime",
+      "required": true,
+      "section": "Default"
     },
     {
       "fieldname": "items",
       "label": "Items",
       "fieldtype": "Table",
       "target": "StockMovementItem",
-      "required": true
+      "required": true,
+      "edit": true,
+      "section": "Items"
+    },
+    {
+      "fieldname": "amount",
+      "label": "Total Amount",
+      "fieldtype": "Currency",
+      "readOnly": true,
+      "section": "Items"
     }
   ],
   "quickEditFields": [

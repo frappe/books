@@ -28,7 +28,7 @@
       <template #content>
         <div class="text-sm p-2 text-center">
           <div>
-            <Row class="border-none" :column-count="5" gap="0.5rem">
+            <Row :column-count="5" gap="0.5rem">
               <div
                 v-for="color in colors"
                 :key="color.value"

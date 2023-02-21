@@ -4,7 +4,6 @@
     class="
       w-full
       px-2
-      border-b
       hover:bg-gray-25
       group
       flex

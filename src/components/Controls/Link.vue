@@ -116,7 +116,7 @@ export default {
     },
     async openNewDoc() {
       const schemaName = this.df.target;
-      const doc = await fyo.doc.getNewDoc(schemaName);
+      const doc = fyo.doc.getNewDoc(schemaName);
 
       const filters = await this.getCreateFilters();
 
