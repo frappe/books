@@ -11,13 +11,13 @@
       "fieldname": "name",
       "fieldtype": "Data",
       "required": true,
-      "readOnly": true
+      "readOnly": true,
+      "section": "Default"
     },
     {
-      "fieldname": "date",
-      "label": "Date",
-      "fieldtype": "Datetime",
-      "required": true
+      "abstract": true,
+      "fieldname": "numberSeries",
+      "section": "Default"
     },
     {
       "fieldname": "party",
@@ -25,25 +25,46 @@
       "fieldtype": "Link",
       "target": "Party",
       "create": true,
-      "required": true
+      "required": true,
+      "section": "Default"
     },
     {
-      "fieldname": "terms",
-      "label": "Notes",
-      "placeholder": "Add transfer terms",
-      "fieldtype": "Text"
+      "fieldname": "date",
+      "label": "Date",
+      "fieldtype": "Datetime",
+      "required": true,
+      "section": "Default"
     },
     {
-      "fieldname": "attachment",
-      "placeholder": "Add attachment",
-      "label": "Attachment",
-      "fieldtype": "Attachment"
+      "abstract": true,
+      "fieldname": "items",
+      "section": "Items"
     },
     {
       "fieldname": "grandTotal",
       "label": "Grand Total",
       "fieldtype": "Currency",
-      "readOnly": true
+      "readOnly": true,
+      "section": "Items"
+    },
+    {
+      "fieldname": "terms",
+      "label": "Notes",
+      "placeholder": "Add transfer terms",
+      "fieldtype": "Text",
+      "section": "References"
+    },
+    {
+      "fieldname": "attachment",
+      "placeholder": "Add attachment",
+      "label": "Attachment",
+      "fieldtype": "Attachment",
+      "section": "References"
+    },
+    {
+      "abstract": true,
+      "fieldname": "backReference",
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "party"]
