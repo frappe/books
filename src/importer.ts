@@ -232,7 +232,7 @@ export class Importer {
       const doc = this.fyo.doc.getNewDoc(this.schemaName, data, false);
       for (const schemaName in targetFieldnameMap) {
         const fieldname = targetFieldnameMap[schemaName];
-        const childTable = childTableMap[name][schemaName];
+        const childTable = childTableMap[name]?.[schemaName];
         if (!childTable) {
           continue;
         }
