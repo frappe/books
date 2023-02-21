@@ -4,79 +4,85 @@
       {{ df.label }}
     </div>
 
-    <!-- Title Row -->
-    <Row
-      :ratio="ratio"
-      class="border-b px-2 text-gray-600 w-full flex items-center"
-    >
-      <div class="flex items-center ps-2">#</div>
-      <div
-        class="items-center flex px-2 h-row-mid"
-        :class="{
-          'ms-auto': isNumeric(df),
-        }"
-        v-for="df in tableFields"
-        :key="df.fieldname"
-        :style="{
-          height: ``,
-        }"
+    <div :class="border ? 'border rounded-md' : ''">
+      <!-- Title Row -->
+      <Row
+        :ratio="ratio"
+        class="border-b px-2 text-gray-600 w-full flex items-center"
       >
-        {{ df.label }}
-      </div>
-    </Row>
-
-    <!-- Data Rows -->
-    <div
-      class="overflow-auto"
-      :style="{ 'max-height': maxHeight }"
-      v-if="value"
-    >
-      <TableRow
-        v-for="row in value"
-        ref="table-row"
-        :key="row.name"
-        v-bind="{ row, tableFields, size, ratio, isNumeric }"
-        :read-only="isReadOnly"
-        @remove="removeRow(row)"
-        :can-edit-row="canEditRow"
-      />
-    </div>
-
-    <!-- Add Row and Row Count -->
-    <Row
-      :ratio="ratio"
-      class="
-        text-gray-500
-        cursor-pointer
-        border-transparent
-        px-2
-        w-full
-        h-row-mid
-        flex
-        items-center
-      "
-      v-if="!isReadOnly"
-      @click="addRow"
-    >
-      <div class="flex items-center ps-1">
-        <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
-      </div>
-      <div class="flex justify-between px-2" :style="`grid-column: 2 / ${ratio.length + 1}`">
-        <p>
-          {{ t`Add Row` }}
-        </p>
-        <p
-          class="text-end px-2"
-          v-if="
-            value &&
-            maxRowsBeforeOverflow &&
-            value.length > maxRowsBeforeOverflow
-          "
+        <div class="flex items-center ps-2">#</div>
+        <div
+          class="items-center flex px-2 h-row-mid"
+          :class="{
+            'ms-auto': isNumeric(df),
+          }"
+          v-for="df in tableFields"
+          :key="df.fieldname"
+          :style="{
+            height: ``,
+          }"
         >
-          {{ t`${value.length} rows` }}
-        </p>
+          {{ df.label }}
+        </div>
+      </Row>
+
+      <!-- Data Rows -->
+      <div
+        class="overflow-auto"
+        :style="{ 'max-height': maxHeight }"
+        v-if="value"
+      >
+        <TableRow
+          v-for="(row, idx) of value"
+          :class="idx < value.length - 1 ? 'border-b' : ''"
+          ref="table-row"
+          :key="row.name"
+          v-bind="{ row, tableFields, size, ratio, isNumeric }"
+          :read-only="isReadOnly"
+          @remove="removeRow(row)"
+          :can-edit-row="canEditRow"
+        />
       </div>
-    </Row>
+
+      <!-- Add Row and Row Count -->
+      <Row
+        :ratio="ratio"
+        class="
+          text-gray-500
+          cursor-pointer
+          px-2
+          w-full
+          h-row-mid
+          flex
+          items-center
+        "
+        :class="value.length > 0 ? 'border-t' : ''"
+        v-if="!isReadOnly"
+        @click="addRow"
+      >
+        <div class="flex items-center ps-1">
+          <feather-icon name="plus" class="w-4 h-4 text-gray-500" />
+        </div>
+        <div
+          class="flex justify-between px-2"
+          :style="`grid-column: 2 / ${ratio.length + 1}`"
+        >
+          <p>
+            {{ t`Add Row` }}
+          </p>
+          <p
+            class="text-end px-2"
+            v-if="
+              value &&
+              maxRowsBeforeOverflow &&
+              value.length > maxRowsBeforeOverflow
+            "
+          >
+            {{ t`${value.length} rows` }}
+          </p>
+        </div>
+      </Row>
+    </div>
   </div>
 </template>
 
@@ -100,6 +106,10 @@ export default {
     maxRowsBeforeOverflow: {
       type: Number,
       default: 3,
+    },
+    border: {
+      type: Boolean,
+      default: false,
     },
   },
   components: {

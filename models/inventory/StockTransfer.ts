@@ -1,7 +1,13 @@
 import { Fyo, t } from 'fyo';
 import { Attachment } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { Action, DefaultMap, FiltersMap, FormulaMap } from 'fyo/model/types';
+import {
+  Action,
+  DefaultMap,
+  FiltersMap,
+  FormulaMap,
+  HiddenMap,
+} from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { Defaults } from 'models/baseModels/Defaults/Defaults';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
@@ -31,6 +37,14 @@ export abstract class StockTransfer extends Transfer {
       formula: () => this.getSum('items', 'amount', false),
       dependsOn: ['items'],
     },
+  };
+
+  hidden: HiddenMap = {
+    backReference: () =>
+      !(this.backReference || !(this.isSubmitted || this.isCancelled)),
+    terms: () => !(this.terms || !(this.isSubmitted || this.isCancelled)),
+    attachment: () =>
+      !(this.attachment || !(this.isSubmitted || this.isCancelled)),
   };
 
   static defaults: DefaultMap = {

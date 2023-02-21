@@ -64,6 +64,9 @@ export interface BaseField {
   inline?: boolean;              // UI Facing config, whether to display doc inline.
   filter?: boolean;               // UI Facing config, whether to be used to filter the List.
   computed?: boolean;            // Computed values are not stored in the database.
+  section?: string;              // UI Facing config, for grouping by sections
+  tab?: string;                  // UI Facing config, for grouping by tabs
+  abstract?: string;             // Uused to mark the location of a field in an Abstract schema 
 }
 
 export type SelectOption = { value: string; label: string };

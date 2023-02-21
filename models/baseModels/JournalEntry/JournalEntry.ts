@@ -4,9 +4,9 @@ import {
   Action,
   DefaultMap,
   FiltersMap,
+  HiddenMap,
   ListViewSettings,
 } from 'fyo/model/types';
-import { DateTime } from 'luxon';
 import {
   getDocStatus,
   getLedgerLinkAction,
@@ -38,6 +38,17 @@ export class JournalEntry extends Transactional {
 
     return posting;
   }
+
+  hidden: HiddenMap = {
+    referenceNumber: () =>
+      !(this.referenceNumber || !(this.isSubmitted || this.isCancelled)),
+    referenceDate: () =>
+      !(this.referenceDate || !(this.isSubmitted || this.isCancelled)),
+    userRemark: () =>
+      !(this.userRemark || !(this.isSubmitted || this.isCancelled)),
+    attachment: () =>
+      !(this.attachment || !(this.isSubmitted || this.isCancelled)),
+  };
 
   static defaults: DefaultMap = {
     numberSeries: (doc) => getNumberSeries(doc.schemaName, doc.fyo),
