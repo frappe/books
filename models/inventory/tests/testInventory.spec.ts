@@ -159,7 +159,7 @@ test('Batch Enabled : create stock movement, material receipt', async (t) => {
   t.equal(
     await fyo.db.getStockQuantity(
       itemMap.Pen.name,
-      undefined,
+      locationMap.LocationOne,
       undefined,
       undefined,
       batchNumber
@@ -265,7 +265,16 @@ test('Batch Enabled create stock movement, material transfer', async (t) => {
     ),
     0
   );
-  t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), quantity);
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      locationMap.LocationTwo,
+      undefined,
+      undefined,
+      batchNumber
+    ),
+    quantity
+  );
 });
 
 test('create stock movement, material issue', async (t) => {
