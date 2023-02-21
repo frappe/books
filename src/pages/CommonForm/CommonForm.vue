@@ -289,7 +289,6 @@ export default defineComponent({
     },
     async onValueChange(field: Field, value: DocValue) {
       const { fieldname } = field;
-      console.log(fieldname, value);
       delete this.errors[fieldname];
 
       try {
