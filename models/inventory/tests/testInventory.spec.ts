@@ -1,6 +1,6 @@
 import {
   assertDoesNotThrow,
-  assertThrows
+  assertThrows,
 } from 'backend/database/tests/helpers';
 import { ModelNameEnum } from 'models/types';
 import { default as tape, default as test } from 'tape';
@@ -17,10 +17,12 @@ const itemMap = {
   Pen: {
     name: 'Pen',
     rate: 700,
+    hasBatchNumber: true,
   },
   Ink: {
     name: 'Ink',
     rate: 50,
+    hasBatchNumber: false,
   },
 };
 
@@ -29,14 +31,22 @@ const locationMap = {
   LocationTwo: 'LocationTwo',
 };
 
+const batchNumberMap = {
+  batchNumberOne: {
+    name: 'IK-AB001',
+    manufactureDate: '2022-11-03T09:57:04.528',
+    expiryDate: '2023-11-03T09:57:04.528',
+  },
+};
+
 /**
  * Section 1: Test Creation of Items and Locations
  */
 
 test('create dummy items & locations', async (t) => {
   // Create Items
-  for (const { name, rate } of Object.values(itemMap)) {
-    const item = getItem(name, rate);
+  for (const { name, rate, hasBatchNumber } of Object.values(itemMap)) {
+    const item = getItem(name, rate, hasBatchNumber);
     await fyo.doc.getNewDoc(ModelNameEnum.Item, item).sync();
     t.ok(await fyo.db.exists(ModelNameEnum.Item, name), `${name} exists`);
   }
@@ -45,6 +55,25 @@ test('create dummy items & locations', async (t) => {
   for (const name of Object.values(locationMap)) {
     await fyo.doc.getNewDoc(ModelNameEnum.Location, { name }).sync();
     t.ok(await fyo.db.exists(ModelNameEnum.Location, name), `${name} exists`);
+  }
+});
+
+test('create dummy batch numbers', async (t) => {
+  // create batchNumber
+  for (const { name, manufactureDate, expiryDate } of Object.values(
+    batchNumberMap
+  )) {
+    await fyo.doc
+      .getNewDoc(ModelNameEnum.BatchNumber, {
+        name,
+        expiryDate,
+        manufactureDate,
+      })
+      .sync();
+    t.ok(
+      await fyo.db.exists(ModelNameEnum.BatchNumber, name),
+      `${name} exists`
+    );
   }
 });
 
@@ -88,6 +117,55 @@ test('create stock movement, material receipt', async (t) => {
   t.equal(sle.quantity, quantity);
   t.equal(sle.location, locationMap.LocationOne);
   t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), quantity);
+});
+
+test('Batch Enabled : create stock movement, material receipt', async (t) => {
+  const { rate } = itemMap.Pen;
+  const quantity = 2;
+  const batchNumber = batchNumberMap.batchNumberOne.name;
+  const amount = rate * quantity;
+  const stockMovement = await getStockMovement(
+    MovementType.MaterialReceipt,
+    new Date('2022-11-03T09:57:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        to: locationMap.LocationOne,
+        quantity,
+        batchNumber,
+        rate,
+      },
+    ],
+    fyo
+  );
+
+  await (await stockMovement.sync()).submit();
+  t.ok(stockMovement.name?.startsWith('SMOV-'));
+  t.equal(stockMovement.amount?.float, amount);
+  t.equal(stockMovement.items?.[0].amount?.float, amount);
+
+  const name = stockMovement.name!;
+
+  const sles = await getSLEs(name, ModelNameEnum.StockMovement, fyo);
+  t.equal(sles.length, 1);
+
+  const sle = sles[0];
+  t.notEqual(new Date(sle.date).toString(), 'Invalid Date');
+  t.equal(parseInt(sle.name), 2);
+  t.equal(sle.item, itemMap.Pen.name);
+  t.equal(parseFloat(sle.rate), rate);
+  t.equal(sle.quantity, quantity);
+  t.equal(sle.location, locationMap.LocationOne);
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      undefined,
+      undefined,
+      undefined,
+      batchNumber
+    ),
+    quantity
+  );
 });
 
 test('create stock movement, material transfer', async (t) => {
@@ -136,6 +214,60 @@ test('create stock movement, material transfer', async (t) => {
   t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), quantity);
 });
 
+test('Batch Enabled create stock movement, material transfer', async (t) => {
+  const { rate } = itemMap.Pen;
+  const quantity = 2;
+  const batchNumber = batchNumberMap.batchNumberOne.name;
+
+  const stockMovement = await getStockMovement(
+    MovementType.MaterialTransfer,
+    new Date('2022-11-03T09:58:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        from: locationMap.LocationOne,
+        to: locationMap.LocationTwo,
+        batchNumber,
+        quantity,
+        rate,
+      },
+    ],
+    fyo
+  );
+
+  await (await stockMovement.sync()).submit();
+  const name = stockMovement.name!;
+
+  const sles = await getSLEs(name, ModelNameEnum.StockMovement, fyo);
+  t.equal(sles.length, 2);
+
+  for (const sle of sles) {
+    t.notEqual(new Date(sle.date).toString(), 'Invalid Date');
+    t.equal(sle.item, itemMap.Pen.name);
+    t.equal(parseFloat(sle.rate), rate);
+
+    if (sle.location === locationMap.LocationOne) {
+      t.equal(sle.quantity, -quantity);
+    } else if (sle.location === locationMap.LocationTwo) {
+      t.equal(sle.quantity, quantity);
+    } else {
+      t.ok(false, 'no-op');
+    }
+  }
+
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      locationMap.LocationOne,
+      undefined,
+      undefined,
+      batchNumber
+    ),
+    0
+  );
+  t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), quantity);
+});
+
 test('create stock movement, material issue', async (t) => {
   const { rate } = itemMap.Ink;
   const quantity = 2;
@@ -167,6 +299,50 @@ test('create stock movement, material issue', async (t) => {
   t.equal(sle.quantity, -quantity);
   t.equal(sle.location, locationMap.LocationTwo);
   t.equal(await fyo.db.getStockQuantity(itemMap.Ink.name), 0);
+});
+
+test('Batch Enabled create stock movement, material issue', async (t) => {
+  const { rate } = itemMap.Pen;
+  const quantity = 2;
+  const batchNumber = batchNumberMap.batchNumberOne.name;
+
+  const stockMovement = await getStockMovement(
+    MovementType.MaterialIssue,
+    new Date('2022-11-03T09:59:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        from: locationMap.LocationTwo,
+        batchNumber,
+        quantity,
+        rate,
+      },
+    ],
+    fyo
+  );
+
+  await (await stockMovement.sync()).submit();
+  const name = stockMovement.name!;
+
+  const sles = await getSLEs(name, ModelNameEnum.StockMovement, fyo);
+  t.equal(sles.length, 1);
+
+  const sle = sles[0];
+  t.notEqual(new Date(sle.date).toString(), 'Invalid Date');
+  t.equal(sle.item, itemMap.Pen.name);
+  t.equal(parseFloat(sle.rate), rate);
+  t.equal(sle.quantity, -quantity);
+  t.equal(sle.location, locationMap.LocationTwo);
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      undefined,
+      undefined,
+      undefined,
+      batchNumber
+    ),
+    0
+  );
 });
 
 /**
@@ -214,6 +390,7 @@ async function runEntries(
       item: string;
       to?: string;
       from?: string;
+      batchNumber?: string;
       quantity: number;
       rate: number;
     }[];
@@ -235,7 +412,7 @@ async function runEntries(
 }
 
 test('create stock movements, invalid entries, in sequence', async (t) => {
-  const { name: item, rate } = itemMap.Ink;
+  const { name: item, rate } = itemMap.Pen;
   const quantity = 10;
   await runEntries(
     item,
@@ -249,6 +426,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
           {
             item,
             to: locationMap.LocationOne,
+            batchNumber: batchNumberMap.batchNumberOne.name,
             quantity,
             rate,
           },
@@ -264,6 +442,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
             item,
             from: locationMap.LocationOne,
             to: locationMap.LocationTwo,
+            batchNumber: batchNumberMap.batchNumberOne.name,
             quantity: quantity + 1,
             rate,
           },
@@ -278,6 +457,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
           {
             item,
             from: locationMap.LocationOne,
+            batchNumber: batchNumberMap.batchNumberOne.name,
             quantity: quantity + 1,
             rate,
           },
@@ -292,6 +472,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
           {
             item,
             from: locationMap.LocationOne,
+            batchNumber: batchNumberMap.batchNumberOne.name,
             to: locationMap.LocationTwo,
             quantity,
             rate,
@@ -307,6 +488,7 @@ test('create stock movements, invalid entries, in sequence', async (t) => {
           {
             item,
             from: locationMap.LocationTwo,
+            batchNumber: batchNumberMap.batchNumberOne.name,
             quantity,
             rate,
           },
@@ -369,6 +551,30 @@ test('create stock movements, invalid entries, out of sequence', async (t) => {
     ],
     t
   );
+});
+
+test('create stock movements, material issue, insufficient quantity', async (t) => {
+  const { name, rate } = itemMap.Pen;
+  const quantity = 2;
+  const batchNumber = batchNumberMap.batchNumberOne.name;
+
+  const stockMovement = await getStockMovement(
+    MovementType.MaterialIssue,
+    new Date('2022-11-03T09:59:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        from: locationMap.LocationTwo,
+        batchNumber,
+        quantity,
+        rate,
+      },
+    ],
+    fyo
+  );
+
+  await assertThrows(async () => (await stockMovement.sync()).submit());
+  t.equal(await fyo.db.getStockQuantity(name), 0);
 });
 
 closeTestFyo(fyo, __filename);

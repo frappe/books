@@ -132,13 +132,14 @@ export class StockManager {
     }
 
     const date = details.date.toISOString();
+    const formattedDate = this.fyo.format(details.date, 'Datetime');
     const isItemHasBatchNumber = await this.fyo.getValue(
       'Item',
       details.item,
       'hasBatchNumber'
     );
 
-    if (isItemHasBatchNumber) {
+    if (isItemHasBatchNumber && !this.isCancelled) {
       if (!details.batchNumber) {
         throw new ValidationError(
           t`Please enter Batch Number for ${details.item}`
@@ -154,12 +155,11 @@ export class StockManager {
           details.batchNumber
         )) ?? 0;
 
-      if (details.quantity < itemsInBatch) return;
+      if (details.quantity <= itemsInBatch) return;
 
-      const formattedDate = this.fyo.format(details.date, 'Datetime');
       throw new ValidationError(
         [
-          t`Insufficient Quantity in Batch ${details.batchNumber}`,
+          t`Insufficient Quantity`,
           t`Additional quantity (${
             details.quantity - itemsInBatch
           }) is required in batch ${
@@ -179,8 +179,6 @@ export class StockManager {
         date,
         undefined
       )) ?? 0;
-
-    const formattedDate = this.fyo.format(details.date, 'Datetime');
 
     if (this.isCancelled) {
       quantityBefore += details.quantity;
