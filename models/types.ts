@@ -11,7 +11,7 @@ export enum ModelNameEnum {
   Defaults = 'Defaults',
   Item = 'Item',
   UOM = 'UOM',
-  UOMConversionFactor = 'UOMConversionFactor',
+  UOMConversionItem = 'UOMConversionItem',
   JournalEntry = 'JournalEntry',
   JournalEntryAccount = 'JournalEntryAccount',
   Misc = 'Misc',
