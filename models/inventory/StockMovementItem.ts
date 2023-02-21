@@ -20,11 +20,13 @@ export class StockMovementItem extends Doc {
   item?: string;
   fromLocation?: string;
   toLocation?: string;
+
+  unit?: string;
+  transferUnit?: string;
   quantity?: number;
-  transferQty?: number;
-  stockUOM?: string;
-  uom?: string;
-  UOMConversionFactor?: number;
+  transferQuantity?: number;
+  unitConversionFactor?: number;
+
   rate?: Money;
   amount?: Money;
   parentdoc?: StockMovement;
@@ -96,29 +98,33 @@ export class StockMovementItem extends Doc {
       },
       dependsOn: ['movementType'],
     },
-    stockUOM: {
-      formula: async () => {
-        const { unit } = await this.fyo.db.get(
-          ModelNameEnum.Item,
-          this.item!,
+    unit: {
+      formula: async () =>
+        (await this.fyo.getValue(
+          'Item',
+          this.item as string,
           'unit'
-        );
-        return unit;
-      },
+        )) as string,
       dependsOn: ['item'],
     },
-    UOMConversionFactor: {
+    transferUnit: {
+      formula: async () =>
+        (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'unit'
+        )) as string,
+      dependsOn: ['item'],
+    },
+    transferQuantity: {
       formula: async () => {
-        const conversionFactor = await this.fyo.db.getAll(
-          ModelNameEnum.UOMConversionFactor,
-          {
-            fields: ['value'],
-            filters: { parent: this.item! },
-          }
-        );
-        return safeParseFloat(conversionFactor[0].value);
+        if (this.unit === this.transferUnit) {
+          return this.quantity;
+        }
+
+        return this.transferQuantity;
       },
-      dependsOn: ['uom'],
+      dependsOn: ['item'],
     },
     quantity: {
       formula: async () => {
@@ -132,12 +138,34 @@ export class StockMovementItem extends Doc {
         );
         const unitDoc = itemDoc.getLink('uom');
         if (unitDoc?.isWhole) {
-          return Math.round(this.transferQty! * this.UOMConversionFactor!);
+          return Math.round(
+            this.transferQuantity! * this.unitConversionFactor!
+          );
         }
 
-        return safeParseFloat(this.transferQty! * this.UOMConversionFactor!);
+        return safeParseFloat(
+          this.transferQuantity! * this.unitConversionFactor!
+        );
       },
-      dependsOn: ['quantity', 'transferQty', 'UOMConversionFactor'],
+      dependsOn: ['quantity', 'transferQuantity', 'unitConversionFactor'],
+    },
+    unitConversionFactor: {
+      formula: async () => {
+        if (this.unit === this.transferUnit) {
+          return 1;
+        }
+
+        const conversionFactor = await this.fyo.db.getAll(
+          ModelNameEnum.UOMConversionItem,
+          {
+            fields: ['conversionFactor'],
+            filters: { parent: this.item! },
+          }
+        );
+
+        return safeParseFloat(conversionFactor[0]?.conversionFactor ?? 1);
+      },
+      dependsOn: ['transferUnit'],
     },
   };
 
@@ -164,14 +192,20 @@ export class StockMovementItem extends Doc {
         );
       }
     },
-    uom: async (value: DocValue) => {
-      const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionFactor, {
+    transferUnit: async (value: DocValue) => {
+      if (!this.item) {
+        return;
+      }
+
+      const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionItem, {
         fields: ['parent'],
         filters: { uom: value as string, parent: this.item! },
       });
+
       if (item.length < 1)
         throw new ValidationError(
-          t`UOM ${value as string} is not applicable for item ${this.item!}`
+          t`Transfer Unit ${value as string} is not applicable for Item ${this
+            .item!}`
         );
     },
   };
