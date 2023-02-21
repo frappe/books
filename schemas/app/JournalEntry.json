@@ -5,6 +5,24 @@
   "isSubmittable": true,
   "fields": [
     {
+      "label": "Entry No",
+      "fieldname": "name",
+      "fieldtype": "Data",
+      "required": true,
+      "readOnly": true,
+      "section": "Default"
+    },
+    {
+      "fieldname": "numberSeries",
+      "label": "Number Series",
+      "fieldtype": "Link",
+      "target": "NumberSeries",
+      "create": true,
+      "required": true,
+      "default": "JV-",
+      "section": "Default"
+    },
+    {
       "fieldname": "entryType",
       "label": "Entry Type",
       "fieldtype": "Select",
@@ -55,58 +73,49 @@
           "label": "Depreciation Entry"
         }
       ],
-      "required": true
-    },
-    {
-      "label": "Entry No",
-      "fieldname": "name",
-      "fieldtype": "Data",
       "required": true,
-      "readOnly": true
+      "section": "Default"
     },
     {
       "fieldname": "date",
       "label": "Date",
       "fieldtype": "Date",
-      "required": true
+      "required": true,
+      "section": "Default"
     },
     {
       "fieldname": "accounts",
       "label": "Account Entries",
       "fieldtype": "Table",
       "target": "JournalEntryAccount",
-      "required": true
+      "required": true,
+      "section": "Accounts"
     },
     {
       "fieldname": "referenceNumber",
       "label": "Reference Number",
-      "fieldtype": "Data"
+      "fieldtype": "Data",
+      "section": "References"
     },
     {
       "fieldname": "referenceDate",
       "label": "Reference Date",
-      "fieldtype": "Date"
+      "fieldtype": "Date",
+      "section": "References"
     },
     {
       "fieldname": "userRemark",
       "label": "User Remark",
       "fieldtype": "Text",
-      "placeholder": "Add a remark"
-    },
-    {
-      "fieldname": "numberSeries",
-      "label": "Number Series",
-      "fieldtype": "Link",
-      "target": "NumberSeries",
-      "create": true,
-      "required": true,
-      "default": "JV-"
+      "placeholder": "Add a remark",
+      "section": "References"
     },
     {
       "fieldname": "attachment",
       "placeholder": "Add attachment",
       "label": "Attachment",
-      "fieldtype": "Attachment"
+      "fieldtype": "Attachment",
+      "section": "References"
     }
   ],
   "keywordFields": ["name", "entryType"]

@@ -99,7 +99,7 @@ export class DocHandler {
     }
 
     const doc = new Model!(schema, data, this.fyo, isRawValueMap);
-    doc.name ??= this.#getTemporaryName(schema);
+    doc.name ??= this.getTemporaryName(schema);
     if (cacheDoc) {
       this.#addToCache(doc);
     }
@@ -107,7 +107,7 @@ export class DocHandler {
     return doc;
   }
 
-  #getTemporaryName(schema: Schema): string {
+  getTemporaryName(schema: Schema): string {
     if (schema.naming === 'random') {
       return getRandomString();
     }

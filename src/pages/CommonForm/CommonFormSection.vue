@@ -18,10 +18,11 @@
       <div
         v-for="field of fields"
         :key="field.fieldname"
-        class="mb-auto"
         :class="field.fieldtype === 'Table' ? 'col-span-2 text-base' : ''"
+        class="mb-auto"
       >
         <FormControl
+          :ref="field.fieldname === 'name' ? 'nameField' : 'fields'"
           :show-label="true"
           :border="true"
           :df="field"
@@ -29,7 +30,7 @@
           @editrow="(doc: Doc) => $emit('editrow', doc)"
           @change="(value: DocValue) => $emit('value-change', field, value)"
         />
-        <div v-if="errors?.[field.fieldname]" class="text-sm text-red-600">
+        <div v-if="errors?.[field.fieldname]" class="text-sm text-red-600 mt-1">
           {{ errors[field.fieldname] }}
         </div>
       </div>
@@ -56,6 +57,24 @@ export default defineComponent({
     return { collapsed: false } as {
       collapsed: boolean;
     };
+  },
+  mounted() {
+    this.focusOnNameField();
+  },
+  methods: {
+    focusOnNameField() {
+      const naming = this.fyo.schemaMap[this.doc.schemaName]?.naming;
+      if (naming !== 'manual') {
+        return;
+      }
+
+      const nameField = (this.$refs.nameField as { focus: Function }[])?.[0];
+      if (!nameField) {
+        return;
+      }
+
+      nameField.focus();
+    },
   },
   components: { FormControl },
 });

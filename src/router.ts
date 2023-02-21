@@ -1,22 +1,21 @@
 import { ModelNameEnum } from 'models/types';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
+import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
-import ImportWizard from 'src/pages/ImportWizard.vue';
 import GeneralForm from 'src/pages/GeneralForm.vue';
 import GetStarted from 'src/pages/GetStarted.vue';
+import ImportWizard from 'src/pages/ImportWizard.vue';
 import InvoiceForm from 'src/pages/InvoiceForm.vue';
-import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
 import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
-import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
 import {
   createRouter,
   createWebHistory,
   RouteLocationRaw,
-  RouteRecordRaw,
+  RouteRecordRaw
 } from 'vue-router';
 
 function getGeneralFormItems(): RouteRecordRaw[] {
@@ -46,6 +45,7 @@ function getGeneralFormItems(): RouteRecordRaw[] {
 
 function getCommonFormItems(): RouteRecordRaw[] {
   return [
+    ModelNameEnum.JournalEntry,
     ModelNameEnum.Payment,
     ModelNameEnum.StockMovement,
     ModelNameEnum.Item,
@@ -82,25 +82,6 @@ const routes: RouteRecordRaw[] = [
   },
   ...getGeneralFormItems(),
   ...getCommonFormItems(),
-  {
-    path: '/edit/JournalEntry/:name',
-    name: 'JournalEntryForm',
-    components: {
-      default: JournalEntryForm,
-      edit: QuickEditForm,
-    },
-    props: {
-      default: (route) => {
-        // for sidebar item active state
-        route.params.schemaName = 'JournalEntry';
-        return {
-          schemaName: 'JournalEntry',
-          name: route.params.name,
-        };
-      },
-      edit: (route) => route.query,
-    },
-  },
   {
     path: '/edit/:schemaName/:name',
     name: 'InvoiceForm',

@@ -155,7 +155,7 @@ export default defineComponent({
     }
 
     await this.setDoc();
-    this.groupedFields = this.getGroupedFields();
+    this.updateGroupedFields();
   },
   computed: {
     hasDoc(): boolean {
@@ -227,16 +227,20 @@ export default defineComponent({
     },
   },
   methods: {
-    getGroupedFields(): UIGroupedFields {
+    updateGroupedFields(): void {
       if (!this.hasDoc) {
-        return new Map();
+        return;
       }
 
-      return getFieldsGroupedByTabAndSection(this.schema, this.doc);
+      this.groupedFields = getFieldsGroupedByTabAndSection(
+        this.schema,
+        this.doc
+      );
     },
     async sync() {
       try {
         await this.doc.sync();
+        this.updateGroupedFields();
       } catch (err) {
         if (!(err instanceof Error)) {
           return;
@@ -248,6 +252,7 @@ export default defineComponent({
     async submit() {
       try {
         await this.doc.submit();
+        this.updateGroupedFields();
       } catch (err) {
         if (!(err instanceof Error)) {
           return;
@@ -297,7 +302,7 @@ export default defineComponent({
         this.errors[fieldname] = getErrorMessage(err, this.doc);
       }
 
-      this.groupedFields = this.getGroupedFields();
+      this.updateGroupedFields();
     },
   },
   components: {
