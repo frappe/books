@@ -14,7 +14,7 @@ import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import router from 'src/router';
 import { IPC_ACTIONS } from 'utils/messages';
-import { App, createApp, h, ref } from 'vue';
+import { App, createApp, h } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
 import { evaluateHidden } from './doc';
@@ -74,7 +74,6 @@ export async function openQuickEdit({
   if (forWhat[0] === 'not in' && forWhat[1] === 'Sales') {
     defaults = Object.assign({ for: 'Purchases' });
   }
-  console.log(method, schemaName, name);
 
   router[method]({
     query: {
