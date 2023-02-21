@@ -42,26 +42,31 @@ export class StockTransferItem extends Doc {
       dependsOn: ['item'],
     },
     transferUnit: {
-      formula: async () =>
-        (await this.fyo.getValue(
+      formula: async (fieldname) => {
+        if (fieldname === 'quantity' || fieldname === 'unit') {
+          return this.unit;
+        }
+
+        return (await this.fyo.getValue(
           'Item',
           this.item as string,
           'unit'
-        )) as string,
-      dependsOn: ['item'],
+        )) as string;
+      },
+      dependsOn: ['item', 'unit'],
     },
     transferQuantity: {
-      formula: async () => {
-        if (this.unit === this.transferUnit) {
+      formula: async (fieldname) => {
+        if (fieldname === 'quantity' || this.unit === this.transferUnit) {
           return this.quantity;
         }
 
         return this.transferQuantity;
       },
-      dependsOn: ['item'],
+      dependsOn: ['item', 'quantity'],
     },
     quantity: {
-      formula: async () => {
+      formula: async (fieldname) => {
         if (!this.item) {
           return this.quantity as number;
         }
@@ -71,17 +76,24 @@ export class StockTransferItem extends Doc {
           this.item as string
         );
         const unitDoc = itemDoc.getLink('uom');
-        if (unitDoc?.isWhole) {
-          return Math.round(
-            this.transferQuantity! * this.unitConversionFactor!
-          );
+
+        let quantity: number = this.quantity ?? 1;
+        if (fieldname === 'transferQuantity') {
+          quantity = this.transferQuantity! * this.unitConversionFactor!;
         }
 
-        return safeParseFloat(
-          this.transferQuantity! * this.unitConversionFactor!
-        );
+        if (unitDoc?.isWhole) {
+          return Math.round(quantity);
+        }
+
+        return safeParseFloat(quantity);
       },
-      dependsOn: ['quantity', 'transferQuantity', 'unitConversionFactor'],
+      dependsOn: [
+        'quantity',
+        'transferQuantity',
+        'transferUnit',
+        'unitConversionFactor',
+      ],
     },
     unitConversionFactor: {
       formula: async () => {

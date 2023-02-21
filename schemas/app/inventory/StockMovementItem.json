@@ -31,6 +31,7 @@
       "label": "Transfer Unit",
       "fieldtype": "Link",
       "target": "UOM",
+      "default": "Unit",
       "placeholder": "Unit"
     },
     {
@@ -51,7 +52,7 @@
     },
     {
       "fieldname": "quantity",
-      "label": "Qty. in Stock Unit",
+      "label": "Quantity",
       "fieldtype": "Float",
       "required": true,
       "default": 1
@@ -82,11 +83,13 @@
     "item",
     "fromLocation",
     "toLocation",
-    "transferUnit",
+
     "transferQuantity",
-    "unit",
+    "transferUnit",
     "quantity",
+    "unit",
     "unitConversionFactor",
+
     "rate",
     "amount"
   ]

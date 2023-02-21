@@ -28,6 +28,7 @@
       "label": "Transfer Unit",
       "fieldtype": "Link",
       "target": "UOM",
+      "default": "Unit",
       "placeholder": "Unit"
     },
     {
@@ -48,7 +49,7 @@
     },
     {
       "fieldname": "quantity",
-      "label": "Qty. in Stock Unit",
+      "label": "Quantity",
       "fieldtype": "Float",
       "required": true,
       "default": 1
@@ -134,11 +135,13 @@
     "hsnCode",
     "tax",
     "rate",
-    "transferUnit",
+
     "transferQuantity",
-    "unit",
+    "transferUnit",
     "quantity",
+    "unit",
     "unitConversionFactor",
+
     "amount",
     "setItemDiscountAmount",
     "itemDiscountAmount",
