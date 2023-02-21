@@ -1,6 +1,6 @@
 {
-  "name": "UOMConversionFactor",
-  "label": "UOM Conversion Factor",
+  "name": "UOMConversionItem",
+  "label": "UOM Conversion Item",
   "isChild": true,
   "fields": [
     {
@@ -12,13 +12,12 @@
       "required": true
     },
     {
-      "fieldname": "value",
-      "label": "Value",
+      "fieldname": "conversionFactor",
+      "label": "Conversion Factor",
       "fieldtype": "Float",
       "default": 1,
       "required": true
     }
   ],
-  "tableFields": ["uom", "value"],
-  "quickEditFields": ["uom", "value"]
+  "tableFields": ["uom", "conversionFactor"]
 }

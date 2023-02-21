@@ -27,35 +27,39 @@
       "create": true
     },
     {
-      "fieldname": "transferQty",
-      "label": "Qty as per Stock UOM",
+      "fieldname": "transferUnit",
+      "label": "Transfer Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "placeholder": "Unit"
+    },
+    {
+      "fieldname": "transferQuantity",
+      "label": "Qty. in Transfer Unit",
       "fieldtype": "Float",
       "required": true
     },
     {
+      "fieldname": "unit",
+      "label": "Stock Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit",
+      "readOnly": true
+    },
+    {
       "fieldname": "quantity",
-      "label": "Quantity",
+      "label": "Qty. in Stock Unit",
       "fieldtype": "Float",
       "required": true,
       "default": 1
     },
     {
-      "fieldname": "stockUOM",
-      "label": "Stock UOM",
-      "fieldtype": "Data",
-      "readOnly": true
-    },
-    {
-      "fieldname": "uom",
-      "label": "UOM",
-      "fieldtype": "Link",
-      "target": "UOM"
-    },
-    {
-      "fieldname": "UOMConversionFactor",
+      "fieldname": "unitConversionFactor",
       "label": "Conversion Factor",
       "fieldtype": "Float",
-      "required": "true"
+      "required": true
     },
     {
       "fieldname": "rate",
@@ -70,27 +74,17 @@
       "readOnly": true
     }
   ],
-  "tableFields": [
-    "item",
-    "fromLocation",
-    "toLocation",
-    "stockUOM",
-    "uom",
-    "UOMConversionFactor",
-    "transferQty",
-    "quantity",
-    "rate"
-  ],
+  "tableFields": ["item", "fromLocation", "toLocation", "quantity", "rate"],
   "keywordFields": ["item"],
   "quickEditFields": [
     "item",
     "fromLocation",
     "toLocation",
-    "stockUOM",
-    "uom",
-    "UOMConversionFactor",
-    "transferQty",
+    "transferUnit",
+    "transferQuantity",
+    "unit",
     "quantity",
+    "unitConversionFactor",
     "rate",
     "amount"
   ]
