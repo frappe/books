@@ -1,0 +1,23 @@
+{
+  "name": "UOMConversionItem",
+  "label": "UOM Conversion Item",
+  "isChild": true,
+  "fields": [
+    {
+      "fieldname": "uom",
+      "label": "UOM",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "create": true,
+      "required": true
+    },
+    {
+      "fieldname": "conversionFactor",
+      "label": "Conversion Factor",
+      "fieldtype": "Float",
+      "default": 1,
+      "required": true
+    }
+  ],
+  "tableFields": ["uom", "conversionFactor"]
+}
