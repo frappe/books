@@ -1,8 +1,14 @@
 import { Fyo } from 'fyo';
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
+import { Doc } from 'fyo/model/doc';
 import { getRegionalModels, models } from 'models/index';
 import { ModelNameEnum } from 'models/types';
-import { getRandomString, getValueMapFromList } from 'utils/index';
+import { TargetField } from 'schemas/types';
+import {
+  getMapFromList,
+  getRandomString,
+  getValueMapFromList,
+} from 'utils/index';
 
 export async function initializeInstance(
   dbPath: string,
@@ -20,6 +26,7 @@ export async function initializeInstance(
   const regionalModels = await getRegionalModels(countryCode);
   await fyo.initializeAndRegister(models, regionalModels);
 
+  await checkSingleLinks(fyo);
   await setSingles(fyo);
   await setCreds(fyo);
   await setVersion(fyo);
@@ -44,6 +51,56 @@ async function setSingles(fyo: Fyo) {
     }
 
     await fyo.doc.getDoc(schema.name);
+  }
+}
+
+async function checkSingleLinks(fyo: Fyo) {
+  /**
+   * Required cause SingleValue tables don't maintain
+   * referential integrity. Hence values Linked in the
+   * Singles table can be deleted.
+   *
+   * These deleted links can prevent the db from loading.
+   */
+
+  const linkFields = Object.values(fyo.db.schemaMap)
+    .filter((schema) => schema?.isSingle)
+    .map((schema) => schema!.fields)
+    .flat()
+    .filter((field) => field.fieldtype === 'Link' && field.target)
+    .map((field) => ({
+      fieldKey: `${field.schemaName}.${field.fieldname}`,
+      target: (field as TargetField).target,
+    }));
+  const linkFieldsMap = getMapFromList(linkFields, 'fieldKey');
+
+  const singleValues = (await fyo.db.getAllRaw('SingleValue', {
+    fields: ['name', 'parent', 'fieldname', 'value'],
+  })) as { name: string; parent: string; fieldname: string; value: string }[];
+
+  const exists: Record<string, Record<string, boolean>> = {};
+
+  for (const { name, fieldname, parent, value } of singleValues) {
+    const fieldKey = `${parent}.${fieldname}`;
+    if (!linkFieldsMap[fieldKey]) {
+      continue;
+    }
+
+    const { target } = linkFieldsMap[fieldKey];
+    if (typeof value !== 'string' || !value || !target) {
+      continue;
+    }
+
+    exists[target] ??= {};
+    if (exists[target][value] === undefined) {
+      exists[target][value] = await fyo.db.exists(target, value);
+    }
+
+    if (exists[target][value]) {
+      continue;
+    }
+
+    await fyo.db.delete('SingleValue', name);
   }
 }
 
