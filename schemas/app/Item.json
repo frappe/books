@@ -128,18 +128,15 @@
       "fieldname": "trackItem",
       "label": "Track Item",
       "fieldtype": "Check",
-<<<<<<< HEAD
-      "default": false,
-      "section": "Inventory"
-=======
+      "section": "Inventory",
       "default": false
     },
     {
       "fieldname": "uomConversions",
       "label": "UOM Conversions",
       "fieldtype": "Table",
-      "target": "UOMConversionItem"
->>>>>>> f5cca273 (fix: unit conversion related schema names)
+      "target": "UOMConversionItem",
+      "section": "Inventory"
     }
   ],
   "quickEditFields": [
