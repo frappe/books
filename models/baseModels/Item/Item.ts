@@ -122,6 +122,7 @@ export class Item extends Doc {
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
+    uomConversions: () => !this.fyo.singles.AccountingSettings?.enableInventory,
   };
 
   readOnly: ReadOnlyMap = {
