@@ -128,7 +128,14 @@
       "fieldname": "trackItem",
       "label": "Track Item",
       "fieldtype": "Check",
-      "default": false,
+      "section": "Inventory",
+      "default": false
+    },
+    {
+      "fieldname": "uomConversions",
+      "label": "UOM Conversions",
+      "fieldtype": "Table",
+      "target": "UOMConversionItem",
       "section": "Inventory"
     }
   ],
@@ -143,7 +150,8 @@
     "expenseAccount",
     "barcode",
     "hsnCode",
-    "trackItem"
+    "trackItem",
+    "uom"
   ],
   "keywordFields": ["name", "itemType", "for"]
 }

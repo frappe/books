@@ -18,8 +18,39 @@
       "required": true
     },
     {
+      "fieldname": "transferUnit",
+      "label": "Transfer Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit"
+    },
+    {
+      "fieldname": "transferQuantity",
+      "label": "Qty. in Transfer Unit",
+      "fieldtype": "Float",
+      "default": 1,
+      "required": true
+    },
+    {
+      "fieldname": "unit",
+      "label": "Stock Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit",
+      "readOnly": true
+    },
+    {
       "fieldname": "quantity",
       "label": "Quantity",
+      "fieldtype": "Float",
+      "required": true,
+      "default": 1
+    },
+    {
+      "fieldname": "unitConversionFactor",
+      "label": "Conversion Factor",
       "fieldtype": "Float",
       "required": true,
       "default": 1
@@ -37,14 +68,6 @@
       "readOnly": true
     },
     {
-      "fieldname": "unit",
-      "label": "Unit Type",
-      "fieldtype": "Link",
-      "target": "UOM",
-      "default": "Unit",
-      "placeholder": "Unit Type"
-    },
-    {
       "fieldname": "description",
       "label": "Description",
       "placeholder": "Item Description",
@@ -60,11 +83,16 @@
   "tableFields": ["item", "location", "quantity", "rate", "amount"],
   "quickEditFields": [
     "item",
+
+    "transferQuantity",
+    "transferUnit",
+    "quantity",
     "unit",
+    "unitConversionFactor",
+
     "description",
     "hsnCode",
     "location",
-    "quantity",
     "rate",
     "amount"
   ]

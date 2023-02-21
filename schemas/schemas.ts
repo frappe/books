@@ -37,6 +37,7 @@ import Tax from './app/Tax.json';
 import TaxDetail from './app/TaxDetail.json';
 import TaxSummary from './app/TaxSummary.json';
 import UOM from './app/UOM.json';
+import UOMConversionItem from './app/inventory/UOMConversionItem.json';
 import PatchRun from './core/PatchRun.json';
 import SingleValue from './core/SingleValue.json';
 import SystemSettings from './core/SystemSettings.json';
@@ -81,6 +82,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   Address as Schema,
   Item as Schema,
   UOM as Schema,
+  UOMConversionItem as Schema,
 
   Payment as Schema,
   PaymentFor as Schema,

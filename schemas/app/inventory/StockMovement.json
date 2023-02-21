@@ -62,6 +62,7 @@
       "fieldtype": "Table",
       "target": "StockMovementItem",
       "required": true,
+      "edit": true,
       "section": "Items"
     },
     {
