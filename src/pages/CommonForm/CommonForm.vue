@@ -13,15 +13,12 @@
         </p>
         <feather-icon v-else name="more-horizontal" class="w-4 h-4" />
       </DropdownWithActions>
-      <Button v-if="doc?.canSave" type="primary" @click="() => doc.sync()">
+      <Button v-if="doc?.canSave" type="primary" @click="sync">
         {{ t`Save` }}
       </Button>
-      <Button
-        v-else-if="doc?.canSubmit"
-        type="primary"
-        @click="() => doc.submit()"
-        >{{ t`Submit` }}</Button
-      >
+      <Button v-else-if="doc?.canSubmit" type="primary" @click="submit">{{
+        t`Submit`
+      }}</Button>
     </template>
     <template #body>
       <FormHeader
@@ -44,6 +41,8 @@
           :title="name"
           :fields="fields"
           :doc="doc"
+          :errors="errors"
+          @value-change="onValueChange"
         />
       </div>
 
@@ -61,7 +60,7 @@
           bottom-0
           bg-white
         "
-        v-if="groupedFields.size > 1"
+        v-if="groupedFields && groupedFields.size > 1"
       >
         <div
           v-for="key of groupedFields.keys()"
@@ -100,6 +99,7 @@
   </FormContainer>
 </template>
 <script lang="ts">
+import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { ValidationError } from 'fyo/utils/errors';
 import { getDocStatus } from 'models/helpers';
@@ -110,6 +110,8 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import FormContainer from 'src/components/FormContainer.vue';
 import FormHeader from 'src/components/FormHeader.vue';
 import StatusBadge from 'src/components/StatusBadge.vue';
+import { handleErrorWithDialog } from 'src/errorHandling';
+import { getErrorMessage } from 'src/utils';
 import { ActionGroup, UIGroupedFields } from 'src/utils/types';
 import {
   getFieldsGroupedByTabAndSection,
@@ -122,7 +124,7 @@ import CommonFormSection from './CommonFormSection.vue';
 export default defineComponent({
   props: {
     name: { type: String, default: '' },
-    schemaName: { type: String, default: ModelNameEnum.StockMovement },
+    schemaName: { type: String, default: ModelNameEnum.SalesInvoice },
   },
   provide() {
     return {
@@ -133,12 +135,16 @@ export default defineComponent({
   },
   data() {
     return {
+      errors: {},
       docOrNull: null,
       activeTab: 'Default',
+      groupedFields: null,
       quickEditDoc: null,
     } as {
+      errors: Record<string, string>;
       docOrNull: null | Doc;
       activeTab: string;
+      groupedFields: null | UIGroupedFields;
       quickEditDoc: null | Doc;
     };
   },
@@ -149,6 +155,7 @@ export default defineComponent({
     }
 
     await this.setDoc();
+    this.groupedFields = this.getGroupedFields();
   },
   computed: {
     hasDoc(): boolean {
@@ -187,7 +194,7 @@ export default defineComponent({
         return this.t`New Entry`;
       }
 
-      return this.docOrNull?.name!?? this.t`New Entry`;
+      return this.docOrNull?.name! ?? this.t`New Entry`;
     },
     schema(): Schema {
       const schema = this.fyo.schemaMap[this.schemaName];
@@ -198,6 +205,10 @@ export default defineComponent({
       return schema;
     },
     activeGroup(): Map<string, Field[]> {
+      if (!this.groupedFields) {
+        return new Map();
+      }
+
       const group = this.groupedFields.get(this.activeTab);
       if (!group) {
         throw new ValidationError(
@@ -206,9 +217,6 @@ export default defineComponent({
       }
 
       return group;
-    },
-    groupedFields(): UIGroupedFields {
-      return getFieldsGroupedByTabAndSection(this.schema);
     },
     groupedActions(): ActionGroup[] {
       if (!this.hasDoc) {
@@ -219,14 +227,50 @@ export default defineComponent({
     },
   },
   methods: {
+    getGroupedFields(): UIGroupedFields {
+      if (!this.hasDoc) {
+        return new Map();
+      }
+
+      return getFieldsGroupedByTabAndSection(this.schema, this.doc);
+    },
+    async sync() {
+      try {
+        await this.doc.sync();
+      } catch (err) {
+        if (!(err instanceof Error)) {
+          return;
+        }
+
+        await handleErrorWithDialog(err, this.doc);
+      }
+    },
+    async submit() {
+      try {
+        await this.doc.submit();
+      } catch (err) {
+        if (!(err instanceof Error)) {
+          return;
+        }
+
+        await handleErrorWithDialog(err, this.doc);
+      }
+    },
     async setDoc() {
       if (this.hasDoc) {
         return;
       }
 
       if (this.name) {
-        this.docOrNull = await this.fyo.doc.getDoc(this.schemaName, this.name);
+        await this.setDocFromName(this.name);
       } else {
+        this.docOrNull = this.fyo.doc.getNewDoc(this.schemaName);
+      }
+    },
+    async setDocFromName(name: string) {
+      try {
+        this.docOrNull = await this.fyo.doc.getDoc(this.schemaName, name);
+      } catch (err) {
         this.docOrNull = this.fyo.doc.getNewDoc(this.schemaName);
       }
     },
@@ -237,6 +281,23 @@ export default defineComponent({
       }
 
       this.quickEditDoc = doc;
+    },
+    async onValueChange(field: Field, value: DocValue) {
+      const { fieldname } = field;
+      console.log(fieldname, value);
+      delete this.errors[fieldname];
+
+      try {
+        await this.doc.set(fieldname, value);
+      } catch (err) {
+        if (!(err instanceof Error)) {
+          return;
+        }
+
+        this.errors[fieldname] = getErrorMessage(err, this.doc);
+      }
+
+      this.groupedFields = this.getGroupedFields();
     },
   },
   components: {

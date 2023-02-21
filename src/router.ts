@@ -9,6 +9,7 @@ import JournalEntryForm from 'src/pages/JournalEntryForm.vue';
 import ListView from 'src/pages/ListView/ListView.vue';
 import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
+import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
 import {
@@ -43,6 +44,33 @@ function getGeneralFormItems(): RouteRecordRaw[] {
   );
 }
 
+function getCommonFormItems(): RouteRecordRaw[] {
+  return [
+    ModelNameEnum.Payment,
+    ModelNameEnum.StockMovement,
+    ModelNameEnum.Item,
+  ].map((schemaName) => {
+    return {
+      path: `/edit/${schemaName}/:name`,
+      name: `${schemaName}Form`,
+      components: {
+        default: CommonForm,
+        edit: QuickEditForm,
+      },
+      props: {
+        default: (route) => {
+          route.params.schemaName = schemaName;
+          return {
+            schemaName,
+            name: route.params.name,
+          };
+        },
+        edit: (route) => route.query,
+      },
+    };
+  });
+}
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
@@ -53,6 +81,7 @@ const routes: RouteRecordRaw[] = [
     component: GetStarted,
   },
   ...getGeneralFormItems(),
+  ...getCommonFormItems(),
   {
     path: '/edit/JournalEntry/:name',
     name: 'JournalEntryForm',
@@ -167,6 +196,9 @@ export function getCreateRoute(
       ModelNameEnum.JournalEntry,
       ModelNameEnum.Shipment,
       ModelNameEnum.PurchaseReceipt,
+      ModelNameEnum.StockMovement,
+      ModelNameEnum.Payment,
+      ModelNameEnum.Item,
     ].includes(schemaName as ModelNameEnum)
   ) {
     return `/edit/${schemaName}/${name}`;

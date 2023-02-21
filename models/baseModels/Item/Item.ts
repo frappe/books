@@ -111,6 +111,7 @@ export class Item extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
+      formRoute: ({ name }) => `/edit/Item/${name}`,
       columns: ['name', 'unit', 'tax', 'rate'],
     };
   }

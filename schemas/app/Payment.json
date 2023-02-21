@@ -101,6 +101,27 @@
       "section": "Details"
     },
     {
+      "fieldname": "clearanceDate",
+      "label": "Clearance Date",
+      "placeholder": "Clearance Date",
+      "fieldtype": "Date",
+      "section": "Details"
+    },
+    {
+      "fieldname": "referenceId",
+      "label": "Ref. / Cheque No.",
+      "placeholder": "Ref. / Cheque No.",
+      "fieldtype": "Data",
+      "section": "Details"
+    },
+    {
+      "fieldname": "referenceDate",
+      "label": "Reference Date",
+      "placeholder": "Ref. Date",
+      "fieldtype": "Date",
+      "section": "Details"
+    },
+    {
       "fieldname": "amount",
       "label": "Amount",
       "fieldtype": "Currency",
@@ -119,27 +140,6 @@
       "fieldtype": "Currency",
       "computed": true,
       "section": "Amounts"
-    },
-    {
-      "fieldname": "referenceId",
-      "label": "Ref. / Cheque No.",
-      "placeholder": "Ref. / Cheque No.",
-      "fieldtype": "Data",
-      "section": "References"
-    },
-    {
-      "fieldname": "referenceDate",
-      "label": "Reference Date",
-      "placeholder": "Ref. Date",
-      "fieldtype": "Date",
-      "section": "References"
-    },
-    {
-      "fieldname": "clearanceDate",
-      "label": "Clearance Date",
-      "placeholder": "Clearance Date",
-      "fieldtype": "Date",
-      "section": "References"
     },
     {
       "fieldname": "for",
