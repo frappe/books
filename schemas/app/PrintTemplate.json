@@ -13,20 +13,22 @@
     {
       "fieldname": "type",
       "label": "Template Type",
-      "fieldtype": "Select",
+      "fieldtype": "AutoComplete",
+      "default": "SalesInvoice",
       "required": true
     },
     {
       "fieldname": "template",
       "label": "Template",
-      "fieldtype": "Data",
+      "fieldtype": "Text",
       "required": true
     },
     {
       "fieldname": "isCustom",
       "label": "Is Custom",
       "fieldtype": "Check",
-      "default": false
+      "default": false,
+      "readOnly": true
     }
   ]
 }

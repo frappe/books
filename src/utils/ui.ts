@@ -450,3 +450,18 @@ export function getFormRoute(
 
   return `/list/${schemaName}?edit=1&schemaName=${schemaName}&name=${name}`;
 }
+
+export async function getDocFromNameIfExistsElseNew(
+  schemaName: string,
+  name?: string
+) {
+  if (!name) {
+    return fyo.doc.getNewDoc(schemaName);
+  }
+
+  try {
+    return await fyo.doc.getDoc(schemaName, name);
+  } catch {
+    return fyo.doc.getNewDoc(schemaName);
+  }
+}
