@@ -30,6 +30,11 @@
       "fieldtype": "Check"
     },
     {
+      "fieldname": "displayBatchNumber",
+      "label": "Display Batch Number",
+      "fieldtype": "Check"
+    },
+    {
       "fieldname": "phone",
       "label": "Phone",
       "fieldtype": "Data",
@@ -138,6 +143,7 @@
     "logo",
     "displayLogo",
     "displayTaxInvoice",
+    "displayBatchNumber",
     "template",
     "color",
     "font",

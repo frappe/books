@@ -83,6 +83,7 @@ export default {
         showHSN: this.showHSN,
         displayLogo: this.printSettings.displayLogo,
         displayTaxInvoice: this.printSettings.displayTaxInvoice,
+        displayBatchNumber: this.printSettings.displayBatchNumber,
         discountAfterTax: this.doc.discountAfterTax,
         logo: this.printSettings.logo,
         companyName: this.fyo.singles.AccountingSettings.companyName,
