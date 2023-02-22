@@ -21,6 +21,7 @@ export enum ModelNameEnum {
   Payment = 'Payment',
   PaymentFor = 'PaymentFor',
   PrintSettings = 'PrintSettings',
+  PrintTemplate = 'PrintTemplate',
   PurchaseInvoice = 'PurchaseInvoice',
   PurchaseInvoiceItem = 'PurchaseInvoiceItem',
   SalesInvoice = 'SalesInvoice',
