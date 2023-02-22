@@ -129,9 +129,10 @@ const routes: RouteRecordRaw[] = [
     component: ImportWizard,
   },
   {
-    path: '/template-builder',
+    path: '/template-builder/:name',
     name: 'Template Builder',
     component: TemplateBuilder,
+    props: true,
   },
   {
     path: '/settings',
