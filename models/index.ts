@@ -30,6 +30,7 @@ import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
 
+import { PrintTemplate } from './baseModels/PrintTemplate';
 export const models = {
   Account,
   AccountingLedgerEntry,
@@ -50,6 +51,7 @@ export const models = {
   SalesInvoiceItem,
   SerialNo,
   SetupWizard,
+  PrintTemplate,
   Tax,
   TaxSummary,
   // Inventory Models
