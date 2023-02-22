@@ -51,7 +51,8 @@ import {
   docsPathMap,
   getCreateFiltersFromListViewFilters,
 } from 'src/utils/misc';
-import { docsPath, openQuickEdit, routeTo } from 'src/utils/ui';
+import { docsPathRef } from 'src/utils/refs';
+import { openQuickEdit, routeTo } from 'src/utils/ui';
 import List from './List.vue';
 
 export default {
@@ -82,14 +83,14 @@ export default {
     }
 
     this.listConfig = getListConfig(this.schemaName);
-    docsPath.value = docsPathMap[this.schemaName] ?? docsPathMap.Entries;
+    docsPathRef.value = docsPathMap[this.schemaName] ?? docsPathMap.Entries;
 
     if (this.fyo.store.isDevelopment) {
       window.lv = this;
     }
   },
   deactivated() {
-    docsPath.value = '';
+    docsPathRef.value = '';
   },
   methods: {
     updatedData(listFilters) {

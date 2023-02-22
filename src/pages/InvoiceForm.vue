@@ -273,7 +273,6 @@
       <Transition name="quickedit">
         <QuickEditForm
           v-if="quickEditDoc && !linked"
-          class="w-quick-edit"
           :name="quickEditDoc.name"
           :show-name="false"
           :show-save="false"
@@ -313,8 +312,8 @@ import StatusBadge from 'src/components/StatusBadge.vue';
 import LinkedEntryWidget from 'src/components/Widgets/LinkedEntryWidget.vue';
 import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
+import { docsPathRef, focusedDocsRef } from 'src/utils/refs';
 import {
-  docsPath,
   getGroupedActionsForDoc,
   routeTo,
   showMessageDialog,
@@ -339,6 +338,7 @@ export default {
     LinkedEntryWidget,
     Barcode,
   },
+  inject: ['shortcuts'],
   provide() {
     return {
       schemaName: this.schemaName,
@@ -455,14 +455,17 @@ export default {
     },
   },
   activated() {
-    docsPath.value = docsPathMap[this.schemaName];
+    docsPathRef.value = docsPathMap[this.schemaName];
+    focusedDocsRef.add(this.doc);
   },
   deactivated() {
-    docsPath.value = '';
+    docsPathRef.value = '';
+    focusedDocsRef.delete(this.doc);
   },
   async mounted() {
     try {
       this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
+      focusedDocsRef.add(this.doc);
     } catch (error) {
       if (error instanceof fyo.errors.NotFoundError) {
         routeTo(`/list/${this.schemaName}`);

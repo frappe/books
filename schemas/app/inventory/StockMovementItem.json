@@ -27,6 +27,30 @@
       "create": true
     },
     {
+      "fieldname": "transferUnit",
+      "label": "Transfer Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit"
+    },
+    {
+      "fieldname": "transferQuantity",
+      "label": "Qty. in Transfer Unit",
+      "fieldtype": "Float",
+      "default": 1,
+      "required": true
+    },
+    {
+      "fieldname": "unit",
+      "label": "Stock Unit",
+      "fieldtype": "Link",
+      "target": "UOM",
+      "default": "Unit",
+      "placeholder": "Unit",
+      "readOnly": true
+    },
+    {
       "fieldname": "batchNumber",
       "label": "Batch No",
       "fieldtype": "Link",
@@ -36,6 +60,13 @@
     {
       "fieldname": "quantity",
       "label": "Quantity",
+      "fieldtype": "Float",
+      "required": true,
+      "default": 1
+    },
+    {
+      "fieldname": "unitConversionFactor",
+      "label": "Conversion Factor",
       "fieldtype": "Float",
       "required": true,
       "default": 1
@@ -54,13 +85,19 @@
     }
   ],
   "tableFields": ["item", "fromLocation", "toLocation", "batchNumber", "quantity", "rate"],
-  "keywordFields": ["item", "batchNumber"],
+  "keywordFields": ["item"],
   "quickEditFields": [
     "item",
     "fromLocation",
     "toLocation",
+
+    "transferQuantity",
+    "transferUnit",
     "batchNumber",
     "quantity",
+    "unit",
+    "unitConversionFactor",
+
     "rate",
     "amount"
   ]

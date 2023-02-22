@@ -44,3 +44,7 @@ export interface SelectFileReturn {
   data: Buffer;
   canceled: boolean;
 }
+
+export type PropertyEnum<T extends Record<string, any>> = {
+  [key in keyof Required<T>]: key;
+};

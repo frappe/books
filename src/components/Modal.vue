@@ -4,7 +4,7 @@
       class="
         fixed
         top-0
-        left-0
+        start-0
         w-screen
         h-screen
         z-20
@@ -12,19 +12,16 @@
         justify-center
         items-center
       "
-      style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(4px)"
+      :style="
+        useBackdrop
+          ? 'background: rgba(0, 0, 0, 0.1); backdrop-filter: blur(2px)'
+          : ''
+      "
       @click="$emit('closemodal')"
       v-if="openModal"
     >
       <div
-        class="
-          bg-white
-          rounded-lg
-          shadow-2xl
-          border
-          overflow-hidden
-          inner
-        "
+        class="bg-white rounded-lg shadow-2xl border overflow-hidden inner"
         v-bind="$attrs"
         @click.stop
       >
@@ -41,6 +38,10 @@ export default defineComponent({
   props: {
     openModal: {
       default: false,
+      type: Boolean,
+    },
+    useBackdrop: {
+      default: true,
       type: Boolean,
     },
   },

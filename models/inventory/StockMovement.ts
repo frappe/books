@@ -6,7 +6,12 @@ import {
   FormulaMap,
   ListViewSettings,
 } from 'fyo/model/types';
-import { addItem, getDocStatusListColumn, getLedgerLinkAction } from 'models/helpers';
+import { ValidationError } from 'fyo/utils/errors';
+import {
+  addItem,
+  getDocStatusListColumn,
+  getLedgerLinkAction,
+} from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -42,6 +47,24 @@ export class StockMovement extends Transfer {
     },
   };
 
+  async validate() {
+    await super.validate();
+    if (this.movementType !== MovementType.Manufacture) {
+      return;
+    }
+
+    const hasFrom = this.items?.findIndex((f) => f.fromLocation) !== -1;
+    const hasTo = this.items?.findIndex((f) => f.toLocation) !== -1;
+
+    if (!hasFrom) {
+      throw new ValidationError(this.fyo.t`Item with From location not found`);
+    }
+
+    if (!hasTo) {
+      throw new ValidationError(this.fyo.t`Item with To location not found`);
+    }
+  }
+
   static filters: FiltersMap = {
     numberSeries: () => ({ referenceType: ModelNameEnum.StockMovement }),
   };
@@ -52,6 +75,7 @@ export class StockMovement extends Transfer {
 
   static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
+      formRoute: ({ name }) => `/edit/StockMovement/${name}`,
       columns: [
         'name',
         getDocStatusListColumn(),
@@ -68,6 +92,7 @@ export class StockMovement extends Transfer {
                 [MovementType.MaterialIssue]: fyo.t`Material Issue`,
                 [MovementType.MaterialReceipt]: fyo.t`Material Receipt`,
                 [MovementType.MaterialTransfer]: fyo.t`Material Transfer`,
+                [MovementType.Manufacture]: fyo.t`Manufacture`,
               }[movementType] ?? '';
 
             return {

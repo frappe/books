@@ -5,7 +5,6 @@ import { Verb } from 'fyo/telemetry/types';
 import { DEFAULT_USER } from 'fyo/utils/consts';
 import { ConflictError, MandatoryError, NotFoundError } from 'fyo/utils/errors';
 import Observable from 'fyo/utils/observable';
-import { Money } from 'pesa';
 import {
   DynamicLinkField,
   Field,
@@ -142,6 +141,10 @@ export class Doc extends Observable<DocValue | Doc[]> {
       return false;
     }
 
+    if (this.schema.isChild) {
+      return false;
+    }
+
     if (!this.schema.isSubmittable) {
       return true;
     }
@@ -183,6 +186,14 @@ export class Doc extends Observable<DocValue | Doc[]> {
     }
 
     if (!this.dirty) {
+      return false;
+    }
+
+    if (this.schema.isSingle) {
+      return false;
+    }
+
+    if (this.schema.isChild) {
       return false;
     }
 
@@ -443,7 +454,7 @@ export class Doc extends Observable<DocValue | Doc[]> {
     convertToDocValue: boolean = false
   ): Doc {
     if (!this.name && this.schema.naming !== 'manual') {
-      this.name = getRandomString();
+      this.name = this.fyo.doc.getTemporaryName(this.schema);
     }
 
     docValueMap.name ??= getRandomString();
@@ -857,9 +868,9 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   async _insert() {
-    await setName(this, this.fyo);
     this._setBaseMetaValues();
     await this._preSync();
+    await setName(this, this.fyo);
 
     const validDict = this.getValidDict(false, true);
     let data: DocValueMap;

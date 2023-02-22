@@ -56,7 +56,7 @@
 <script lang="ts">
 import { Money } from 'pesa';
 import { getCreateRoute } from 'src/router';
-import { getStatus, routeTo } from 'src/utils/ui';
+import { routeTo } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 import Button from '../Button.vue';
 import StatusBadge from '../StatusBadge.vue';
@@ -78,7 +78,17 @@ export default defineComponent({
     linked: { type: Object as PropType<Linked>, required: true },
   },
   methods: {
-    getStatus,
+    getStatus(entry: { cancelled?: boolean; submitted?: boolean }) {
+      if (entry.cancelled) {
+        return 'Cancelled';
+      }
+
+      if (entry.submitted) {
+        return 'Submitted';
+      }
+
+      return 'Saved';
+    },
     async openEntry(name: string) {
       const route = getCreateRoute(this.linked.schemaName, name);
       await routeTo(route);

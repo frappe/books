@@ -93,25 +93,16 @@ async function openFormEditDoc(schemaName: string, fyo: Fyo) {
 
 function getCreateList(fyo: Fyo): SearchItem[] {
   const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;
-  const quickEditCreateList = [
-    ...(hasInventory ? [ModelNameEnum.StockMovement] : []),
-  ].map(
-    (schemaName) =>
-      ({
-        label: fyo.schemaMap[schemaName]?.label,
-        group: 'Create',
-        action() {
-          openQuickEditDoc(schemaName, fyo);
-        },
-      } as SearchItem)
-  );
-
   const formEditCreateList = [
     ModelNameEnum.SalesInvoice,
     ModelNameEnum.PurchaseInvoice,
     ModelNameEnum.JournalEntry,
     ...(hasInventory
-      ? [ModelNameEnum.Shipment, ModelNameEnum.PurchaseReceipt]
+      ? [
+          ModelNameEnum.Shipment,
+          ModelNameEnum.PurchaseReceipt,
+          ModelNameEnum.StockMovement,
+        ]
       : []),
   ].map(
     (schemaName) =>
@@ -197,7 +188,7 @@ function getCreateList(fyo: Fyo): SearchItem[] {
     } as SearchItem;
   });
 
-  return [quickEditCreateList, formEditCreateList, filteredCreateList].flat();
+  return [formEditCreateList, filteredCreateList].flat();
 }
 
 function getReportList(fyo: Fyo): SearchItem[] {
@@ -323,8 +314,8 @@ function getSetupList(): SearchItem[] {
       group: 'Page',
     },
     {
-      label: t`Data Import`,
-      route: '/data-import',
+      label: t`Import Wizard`,
+      route: '/import-wizard',
       group: 'Page',
     },
     {
@@ -594,10 +585,7 @@ export class Search {
     keys.sort((a, b) => safeParseFloat(b) - safeParseFloat(a));
     const array: SearchItems = [];
     for (const key of keys) {
-      const keywords = groupedKeywords[key];
-      if (!keywords?.length) {
-        continue;
-      }
+      const keywords = groupedKeywords[key] ?? [];
 
       this._pushDocSearchItems(keywords, array, input);
       if (key === '0') {

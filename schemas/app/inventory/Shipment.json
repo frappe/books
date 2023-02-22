@@ -6,28 +6,31 @@
   "showTitle": true,
   "fields": [
     {
-      "fieldname": "items",
-      "label": "Items",
-      "fieldtype": "Table",
-      "target": "ShipmentItem",
-      "required": true,
-      "edit": true
-    },
-    {
       "fieldname": "numberSeries",
       "label": "Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
       "create": true,
       "required": true,
-      "default": "SHPM-"
+      "default": "SHPM-",
+      "section": "Default"
     },
     {
       "fieldname": "backReference",
       "label": "Back Reference",
       "fieldtype": "Link",
       "target": "SalesInvoice",
-      "readOnly": true
+      "readOnly": true,
+      "section": "References"
+    },
+    {
+      "fieldname": "items",
+      "label": "Items",
+      "fieldtype": "Table",
+      "target": "ShipmentItem",
+      "required": true,
+      "edit": true,
+      "section": "Items"
     }
   ],
   "keywordFields": ["name", "party"]

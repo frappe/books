@@ -82,6 +82,7 @@ input[type='number']::-webkit-inner-spin-button {
 
 .w-quick-edit {
   width: var(--w-quick-edit);
+  flex-shrink: 0;
 }
 
 .h-form {

@@ -46,7 +46,8 @@
     {
       "fieldname": "outstandingAmount",
       "label": "Outstanding Amount",
-      "fieldtype": "Currency"
+      "fieldtype": "Currency",
+      "hidden": true
     },
     {
       "fieldname": "currency",
@@ -73,7 +74,6 @@
       "label": "Address",
       "fieldtype": "Link",
       "target": "Address",
-      "placeholder": "Click to create",
       "inline": true
     },
     {

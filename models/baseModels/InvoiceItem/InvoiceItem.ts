@@ -1,4 +1,4 @@
-import { Fyo } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import {
@@ -13,6 +13,7 @@ import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
+import { safeParseFloat } from 'utils/index';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
 
@@ -22,7 +23,13 @@ export abstract class InvoiceItem extends Doc {
   amount?: Money;
   parentdoc?: Invoice;
   rate?: Money;
+
+  unit?: string;
+  transferUnit?: string;
   quantity?: number;
+  transferQuantity?: number;
+  unitConversionFactor?: number;
+
   tax?: string;
   stockNotTransferred?: number;
 
@@ -42,6 +49,10 @@ export abstract class InvoiceItem extends Doc {
 
   get enableDiscounting() {
     return !!this.fyo.singles?.AccountingSettings?.enableDiscounting;
+  }
+
+  get enableInventory() {
+    return !!this.fyo.singles?.AccountingSettings?.enableInventory;
   }
 
   get currency() {
@@ -136,8 +147,41 @@ export abstract class InvoiceItem extends Doc {
         'setItemDiscountAmount',
       ],
     },
+    unit: {
+      formula: async () =>
+        (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'unit'
+        )) as string,
+      dependsOn: ['item'],
+    },
+    transferUnit: {
+      formula: async (fieldname) => {
+        if (fieldname === 'quantity' || fieldname === 'unit') {
+          return this.unit;
+        }
+
+        return (await this.fyo.getValue(
+          'Item',
+          this.item as string,
+          'unit'
+        )) as string;
+      },
+      dependsOn: ['item', 'unit'],
+    },
+    transferQuantity: {
+      formula: async (fieldname) => {
+        if (fieldname === 'quantity' || this.unit === this.transferUnit) {
+          return this.quantity;
+        }
+
+        return this.transferQuantity;
+      },
+      dependsOn: ['item', 'quantity'],
+    },
     quantity: {
-      formula: async () => {
+      formula: async (fieldname) => {
         if (!this.item) {
           return this.quantity as number;
         }
@@ -146,15 +190,43 @@ export abstract class InvoiceItem extends Doc {
           ModelNameEnum.Item,
           this.item as string
         );
+        const unitDoc = itemDoc.getLink('uom');
 
-        const unitDoc = itemDoc.getLink('unit');
-        if (unitDoc?.isWhole) {
-          return Math.round(this.quantity as number);
+        let quantity: number = this.quantity ?? 1;
+        if (fieldname === 'transferQuantity') {
+          quantity = this.transferQuantity! * this.unitConversionFactor!;
         }
 
-        return this.quantity as number;
+        if (unitDoc?.isWhole) {
+          return Math.round(quantity);
+        }
+
+        return safeParseFloat(quantity);
       },
-      dependsOn: ['quantity'],
+      dependsOn: [
+        'quantity',
+        'transferQuantity',
+        'transferUnit',
+        'unitConversionFactor',
+      ],
+    },
+    unitConversionFactor: {
+      formula: async () => {
+        if (this.unit === this.transferUnit) {
+          return 1;
+        }
+
+        const conversionFactor = await this.fyo.db.getAll(
+          ModelNameEnum.UOMConversionItem,
+          {
+            fields: ['conversionFactor'],
+            filters: { parent: this.item! },
+          }
+        );
+
+        return safeParseFloat(conversionFactor[0]?.conversionFactor ?? 1);
+      },
+      dependsOn: ['transferUnit'],
     },
     account: {
       formula: () => {
@@ -319,6 +391,22 @@ export abstract class InvoiceItem extends Doc {
         }) cannot be greater than 100.`
       );
     },
+    transferUnit: async (value: DocValue) => {
+      if (!this.item) {
+        return;
+      }
+
+      const item = await this.fyo.db.getAll(ModelNameEnum.UOMConversionItem, {
+        fields: ['parent'],
+        filters: { uom: value as string, parent: this.item! },
+      });
+
+      if (item.length < 1)
+        throw new ValidationError(
+          t`Transfer Unit ${value as string} is not applicable for Item ${this
+            .item!}`
+        );
+    },
   };
 
   hidden: HiddenMap = {
@@ -342,6 +430,9 @@ export abstract class InvoiceItem extends Doc {
       !(this.enableDiscounting && !!this.setItemDiscountAmount),
     itemDiscountPercent: () =>
       !(this.enableDiscounting && !this.setItemDiscountAmount),
+    transferUnit: () => !this.enableInventory,
+    transferQuantity: () => !this.enableInventory,
+    unitConversionFactor: () => !this.enableInventory,
   };
 
   static filters: FiltersMap = {

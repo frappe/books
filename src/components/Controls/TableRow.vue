@@ -4,7 +4,6 @@
     class="
       w-full
       px-2
-      border-b
       hover:bg-gray-25
       group
       flex
@@ -62,6 +61,7 @@
 import { Doc } from 'fyo/model/doc';
 import Row from 'src/components/Row.vue';
 import { getErrorMessage } from 'src/utils';
+import { nextTick } from 'vue';
 import Button from '../Button.vue';
 import FormControl from './FormControl.vue';
 
@@ -102,15 +102,18 @@ export default {
     },
   },
   methods: {
-    onChange(df, value) {
-      if (value == null) {
-        return;
-      }
+    async onChange(df, value) {
+      const fieldname = df.fieldname;
+      this.errors[fieldname] = null;
+      const oldValue = this.row[fieldname];
 
-      this.errors[df.fieldname] = null;
-      this.row.set(df.fieldname, value).catch((e) => {
-        this.errors[df.fieldname] = getErrorMessage(e, this.row);
-      });
+      try {
+        await this.row.set(fieldname, value);
+      } catch (e) {
+        this.errors[fieldname] = getErrorMessage(e, this.row);
+        this.row[fieldname] = '';
+        nextTick(() => (this.row[fieldname] = oldValue));
+      }
     },
     getErrorString() {
       return Object.values(this.errors).filter(Boolean).join(' ');

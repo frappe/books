@@ -1,12 +1,18 @@
 import { Fyo } from 'fyo';
 import { RawValueMap } from 'fyo/core/types';
-import { Field, FieldTypeEnum, RawValue, TargetField } from 'schemas/types';
+import {
+  Field,
+  FieldType,
+  FieldTypeEnum,
+  RawValue,
+  TargetField,
+} from 'schemas/types';
 import { generateCSV } from 'utils/csvParser';
 import { GetAllOptions, QueryFilter } from 'utils/db/types';
 import { getMapFromList, safeParseFloat } from 'utils/index';
 import { ExportField, ExportTableField } from './types';
 
-const excludedFieldTypes = [
+const excludedFieldTypes: FieldType[] = [
   FieldTypeEnum.AttachImage,
   FieldTypeEnum.Attachment,
 ];
@@ -26,7 +32,7 @@ export function getExportFields(
     .filter((f) => !f.computed && f.label && !exclude.includes(f.fieldname))
     .map((field) => {
       const { fieldname, label } = field;
-      const fieldtype = field.fieldtype as FieldTypeEnum;
+      const fieldtype = field.fieldtype as FieldType;
       return {
         fieldname,
         fieldtype,
@@ -323,7 +329,7 @@ async function getChildTableData(
   return data;
 }
 
-function convertRawPesaToFloat(data: RawValueMap[], fields: Field[]) {
+function convertRawPesaToFloat(data: RawValueMap[], fields: ExportField[]) {
   const currencyFields = fields.filter(
     (f) => f.fieldtype === FieldTypeEnum.Currency
   );
