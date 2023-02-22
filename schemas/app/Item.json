@@ -135,7 +135,8 @@
       "fieldname": "hasBatchNumber",
       "label": "Has Batch No",
       "fieldtype": "Check",
-      "default": false
+      "default": false,
+      "section": "Inventory"
     },
     {
       "fieldname": "uomConversions",
