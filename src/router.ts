@@ -1,4 +1,5 @@
 import { ModelNameEnum } from 'models/types';
+import TemplateBuilder from 'src/pages/TemplateBuilder.vue';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
@@ -126,6 +127,11 @@ const routes: RouteRecordRaw[] = [
     path: '/import-wizard',
     name: 'Import Wizard',
     component: ImportWizard,
+  },
+  {
+    path: '/template-builder',
+    name: 'Template Builder',
+    component: TemplateBuilder,
   },
   {
     path: '/settings',
