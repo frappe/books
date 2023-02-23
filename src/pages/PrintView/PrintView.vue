@@ -65,6 +65,10 @@ import InvoiceTemplate from 'src/components/SalesInvoice/InvoiceTemplate.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { makePDF } from 'src/utils/ipcCalls';
+import {
+  constructPrintDocument,
+  getPathAndMakePDF,
+} from 'src/utils/printTemplates';
 import { IPC_ACTIONS } from 'utils/messages';
 
 export default {
@@ -96,66 +100,11 @@ export default {
     },
   },
   methods: {
-    constructPrintDocument() {
-      const html = document.createElement('html');
-      const head = document.createElement('head');
-      const body = document.createElement('body');
-      const style = getAllCSSAsStyleElem();
-
-      head.innerHTML = [
-        '<meta charset="UTF-8">',
-        '<title>Print Window</title>',
-      ].join('\n');
-      head.append(style);
-
-      body.innerHTML = this.$refs.printContainer.innerHTML;
-      html.append(head, body);
-      return html.outerHTML;
-    },
     async makePDF() {
-      const savePath = await this.getSavePath();
-      if (!savePath) return;
-
-      const html = this.constructPrintDocument();
-      await makePDF(html, savePath);
+      const innerHTML = this.$refs.printContainer.innerHTML;
+      await getPathAndMakePDF(this.name, innerHTML);
       fyo.telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
-    },
-    async getSavePath() {
-      const options = {
-        title: this.t`Select folder`,
-        defaultPath: `${this.name}.pdf`,
-      };
-
-      let { filePath } = await ipcRenderer.invoke(
-        IPC_ACTIONS.GET_SAVE_FILEPATH,
-        options
-      );
-
-      if (filePath) {
-        if (!filePath.endsWith('.pdf')) {
-          filePath = filePath + '.pdf';
-        }
-      }
-
-      return filePath;
     },
   },
 };
-
-function getAllCSSAsStyleElem() {
-  const cssTexts = [];
-  for (const sheet of document.styleSheets) {
-    for (const rule of sheet.cssRules) {
-      cssTexts.push(rule.cssText);
-    }
-
-    for (const rule of sheet.ownerRule ?? []) {
-      cssTexts.push(rule.cssText);
-    }
-  }
-
-  const styleElem = document.createElement('style');
-  styleElem.innerHTML = cssTexts.join('\n');
-  return styleElem;
-}
 </script>

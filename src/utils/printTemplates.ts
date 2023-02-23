@@ -3,6 +3,7 @@ import { Doc } from 'fyo/model/doc';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { ModelNameEnum } from 'models/types';
 import { FieldTypeEnum, Schema, TargetField } from 'schemas/types';
+import { getSavePath, makePDF } from './ipcCalls';
 
 type PrintTemplateData = Record<string, unknown>;
 
@@ -202,4 +203,49 @@ async function getPrintTemplateDocValues(doc: Doc, fieldnames?: string[]) {
     values.links = links;
   }
   return values;
+}
+
+export async function getPathAndMakePDF(name: string, innerHTML: string) {
+  const { filePath } = await getSavePath(name, 'pdf');
+  if (!filePath) {
+    return;
+  }
+
+  const html = constructPrintDocument(innerHTML);
+  await makePDF(html, filePath);
+}
+
+function constructPrintDocument(innerHTML: string) {
+  const html = document.createElement('html');
+  const head = document.createElement('head');
+  const body = document.createElement('body');
+  const style = getAllCSSAsStyleElem();
+
+  head.innerHTML = [
+    '<meta charset="UTF-8">',
+    '<title>Print Window</title>',
+  ].join('\n');
+  head.append(style);
+
+  body.innerHTML = innerHTML;
+  html.append(head, body);
+  return html.outerHTML;
+}
+
+function getAllCSSAsStyleElem() {
+  const cssTexts = [];
+  for (const sheet of document.styleSheets) {
+    for (const rule of sheet.cssRules) {
+      cssTexts.push(rule.cssText);
+    }
+
+    // @ts-ignore
+    for (const rule of sheet.ownerRule ?? []) {
+      cssTexts.push(rule.cssText);
+    }
+  }
+
+  const styleElem = document.createElement('style');
+  styleElem.innerHTML = cssTexts.join('\n');
+  return styleElem;
 }
