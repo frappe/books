@@ -1,5 +1,5 @@
 import { ModelNameEnum } from 'models/types';
-import TemplateBuilder from 'src/pages/TemplateBuilder.vue';
+import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
