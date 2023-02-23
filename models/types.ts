@@ -7,7 +7,6 @@ export enum ModelNameEnum {
   Address = 'Address',
   Batch= 'Batch',
   Color = 'Color',
-  CompanySettings = 'CompanySettings',
   Currency = 'Currency',
   GetStarted = 'GetStarted',
   Defaults = 'Defaults',
