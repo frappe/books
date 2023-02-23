@@ -4,7 +4,6 @@ import AccountingSettings from './app/AccountingSettings.json';
 import Address from './app/Address.json';
 import Batch from './app/Batch.json';
 import Color from './app/Color.json';
-import CompanySettings from './app/CompanySettings.json';
 import Currency from './app/Currency.json';
 import Defaults from './app/Defaults.json';
 import GetStarted from './app/GetStarted.json';
@@ -75,7 +74,6 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   NumberSeries as Schema,
 
   PrintSettings as Schema,
-  CompanySettings as Schema,
 
   Account as Schema,
   AccountingSettings as Schema,

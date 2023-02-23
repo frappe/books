@@ -4,7 +4,15 @@
     <!-- Template Builder Body -->
     <div class="w-full h-full flex" v-if="doc">
       <!-- Print View Container -->
-      <div></div>
+      <div>
+        <!-- Display Hints -->
+        <div v-if="!displayDoc" class="p-4 text-sm text-gray-700">
+          <div v-if="!doc.type">{{ t`Select a Template Type` }}</div>
+          <div v-else-if="!displayDoc">
+            {{ t`Select a Display Doc to view the Template` }}
+          </div>
+        </div>
+      </div>
 
       <!-- Template Builder Controls -->
       <div class="w-quick-edit h-full right-0 ml-auto border-l flex flex-col">
@@ -116,6 +124,10 @@ import { ModelNameEnum } from 'models/types';
 import { Field, TargetField } from 'schemas/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import PageHeader from 'src/components/PageHeader.vue';
+import {
+  getPrintTemplatePropHints,
+  getPrintTemplatePropValues,
+} from 'src/utils/printTemplates';
 import { getDocFromNameIfExistsElseNew } from 'src/utils/ui';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
@@ -147,6 +159,11 @@ export default defineComponent({
     if (!this.doc?.template) {
       this.helpersCollapsed = false;
     }
+
+    // @ts-ignore
+    window.hints = getPrintTemplatePropHints;
+    // @ts-ignore
+    window.values = getPrintTemplatePropValues;
   },
   methods: {
     async setDoc() {
