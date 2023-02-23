@@ -338,10 +338,21 @@ function getDeleteAction(doc: Doc): Action {
 }
 
 async function openEdit(doc: Doc) {
+  const listConfig = fyo.models[doc.schemaName]?.getListViewSettings?.(fyo);
+  const formRoute = listConfig?.formRoute;
+  if (formRoute) {
+    return await routeTo(formRoute(doc));
+  }
+
   const isFormEdit = [
     ModelNameEnum.SalesInvoice,
     ModelNameEnum.PurchaseInvoice,
     ModelNameEnum.JournalEntry,
+    ModelNameEnum.Shipment,
+    ModelNameEnum.PurchaseReceipt,
+    ModelNameEnum.StockMovement,
+    ModelNameEnum.Payment,
+    ModelNameEnum.Item,
   ].includes(doc.schemaName as ModelNameEnum);
 
   if (isFormEdit) {
@@ -369,7 +380,7 @@ function getDuplicateAction(doc: Doc): Action {
             label: t`Yes`,
             async action() {
               try {
-                const dupe = await doc.duplicate();
+                const dupe = doc.duplicate();
                 await openEdit(dupe);
                 return true;
               } catch (err) {
