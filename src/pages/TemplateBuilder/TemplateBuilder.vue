@@ -1,6 +1,10 @@
 <template>
   <div>
-    <PageHeader :title="t`Template Builder`">Hi</PageHeader>
+    <PageHeader :title="t`Template Builder`"
+      ><Button v-if="displayDoc" @click="showHint = true">{{
+        t`Show Hint`
+      }}</Button></PageHeader
+    >
     <!-- Template Builder Body -->
     <div class="w-full h-full flex" v-if="doc">
       <!-- Print View Container -->
@@ -116,13 +120,35 @@
         </div>
       </div>
     </div>
+
+    <!-- Hint Modal -->
+    <Modal
+      @closemodal="() => (showHint = false)"
+      :open-modal="showHint"
+      v-if="displayDoc && hint"
+    >
+      <div class="w-form">
+        <!-- Hint Modal Header -->
+        <FormHeader
+          :form-title="t`Hint`"
+          :form-sub-title="displayDoc.schema.label"
+        />
+        <hr />
+        <div class="p-4 max-h-96 overflow-auto custom-scroll">
+          <TemplateBuilderHint :hint="hint" />
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 <script lang="ts">
 import { PrintTemplate } from 'models/baseModels/PrintTemplate';
 import { ModelNameEnum } from 'models/types';
 import { Field, TargetField } from 'schemas/types';
+import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import FormHeader from 'src/components/FormHeader.vue';
+import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import {
   getPrintTemplatePropHints,
@@ -131,39 +157,61 @@ import {
 import { getDocFromNameIfExistsElseNew } from 'src/utils/ui';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
+import TemplateBuilderHint from './TemplateBuilderHint.vue';
 
 export default defineComponent({
   props: { name: String },
-  components: { PageHeader, FormControl },
+  components: {
+    PageHeader,
+    FormControl,
+    Button,
+    Modal,
+    FormHeader,
+    TemplateBuilderHint,
+  },
   provide() {
     return { doc: computed(() => this.doc) };
   },
   data() {
     return {
       doc: null,
+      showHint: false,
+      hint: null,
+      values: null,
       templateCollapsed: false,
       helpersCollapsed: true,
       displayDoc: null,
     } as {
+      hint: null | Record<string, unknown>;
+      values: null | Record<string, unknown>;
       doc: PrintTemplate | null;
+      showHint: boolean;
       displayDoc: PrintTemplate | null;
       templateCollapsed: boolean;
       helpersCollapsed: boolean;
     };
   },
   async mounted() {
-    // @ts-ignore
-    window.tb = this;
     await this.setDoc();
 
     if (!this.doc?.template) {
       this.helpersCollapsed = false;
     }
 
+    if (!this.fyo.store.isDevelopment) {
+      return;
+    }
+
+    // @ts-ignore
+    window.tb = this;
+
     // @ts-ignore
     window.hints = getPrintTemplatePropHints;
+
     // @ts-ignore
     window.values = getPrintTemplatePropValues;
+
+    this.setDisplayDoc('SINV-1001');
   },
   methods: {
     async setDoc() {
@@ -178,6 +226,8 @@ export default defineComponent({
     },
     async setDisplayDoc(value: string) {
       if (!value) {
+        this.hint = null;
+        this.values = null;
         this.displayDoc = null;
         return;
       }
@@ -186,8 +236,10 @@ export default defineComponent({
       if (!schemaName) {
         return;
       }
-
-      this.displayDoc = await getDocFromNameIfExistsElseNew(schemaName, value);
+      const displayDoc = await getDocFromNameIfExistsElseNew(schemaName, value);
+      this.hint = getPrintTemplatePropHints(displayDoc);
+      this.values = await getPrintTemplatePropValues(displayDoc);
+      this.displayDoc = displayDoc;
     },
   },
   computed: {
