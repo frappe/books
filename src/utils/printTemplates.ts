@@ -23,6 +23,8 @@ export async function getPrintTemplatePropValues(doc: Doc) {
   const fyo = doc.fyo;
   const values: PrintTemplateData = {};
   values.doc = await getPrintTemplateDocValues(doc);
+  (values.doc as PrintTemplateData).entryType = doc.schema.name;
+  (values.doc as PrintTemplateData).entryLabel = doc.schema.label;
 
   const printSettings = await fyo.doc.getDoc(ModelNameEnum.PrintSettings);
   const printValues = await getPrintTemplateDocValues(
@@ -56,6 +58,8 @@ export function getPrintTemplatePropHints(doc: Doc) {
   const hints: PrintTemplateData = {};
   const fyo = doc.fyo;
   hints.doc = getPrintTemplateDocHints(doc.schema, doc.fyo);
+  (hints.doc as PrintTemplateData).entryType = doc.fyo.t`Entry Type`;
+  (hints.doc as PrintTemplateData).entryLabel = doc.fyo.t`Entry Label`;
 
   const printSettingsHints = getPrintTemplateDocHints(
     fyo.schemaMap[ModelNameEnum.PrintSettings]!,

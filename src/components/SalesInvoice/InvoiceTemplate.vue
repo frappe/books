@@ -4,7 +4,6 @@
 
 <script>
 import Basic from './Templates/Basic';
-import Minimal from './Templates/Minimal';
 import Business from './Templates/Business';
 
 export default {
@@ -15,14 +14,13 @@ export default {
       let type = this.printSettings.template;
       let templates = {
         Basic,
-        Minimal,
-        Business
+        Business,
       };
       if (!(type in templates)) {
         type = 'Basic';
       }
       return templates[type];
-    }
-  }
+    },
+  },
 };
 </script>
