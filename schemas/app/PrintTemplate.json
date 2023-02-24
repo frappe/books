@@ -27,7 +27,7 @@
       "fieldname": "isCustom",
       "label": "Is Custom",
       "fieldtype": "Check",
-      "default": false,
+      "default": true,
       "readOnly": true
     }
   ]

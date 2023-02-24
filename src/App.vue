@@ -166,6 +166,10 @@ export default {
       const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
       const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
 
+      if (fyo.store.isDevelopment) {
+        return routeTo('/list/PrintTemplate');
+      }
+
       if (hideGetStarted || onboardingComplete) {
         routeTo('/');
       } else {

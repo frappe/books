@@ -13,6 +13,7 @@
         :value="value"
         :placeholder="inputPlaceholder"
         :readonly="isReadOnly"
+        :step="step"
         :max="df.maxvalue"
         :min="df.minvalue"
         @blur="(e) => !isReadOnly && triggerChange(e.target.value)"
@@ -32,6 +33,7 @@ export default {
   name: 'Base',
   props: {
     df: Object,
+    step: { type: Number, default: 1 },
     value: [String, Number, Boolean, Object],
     inputClass: [Function, String, Object],
     border: { type: Boolean, default: false },
