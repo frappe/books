@@ -60,4 +60,10 @@ export class PrintTemplate extends Doc {
       }));
     },
   };
+
+  override duplicate(): Doc {
+    const doc = super.duplicate() as PrintTemplate;
+    doc.isCustom = true;
+    return doc;
+  }
 }

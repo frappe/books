@@ -57,19 +57,13 @@
   </div>
 </template>
 <script>
-import { ipcRenderer } from 'electron';
 import { Verb } from 'fyo/telemetry/types';
 import Button from 'src/components/Button.vue';
 import PageHeader from 'src/components/PageHeader.vue';
-import InvoiceTemplate from 'src/components/SalesInvoice/InvoiceTemplate.vue';
 import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { makePDF } from 'src/utils/ipcCalls';
-import {
-  constructPrintDocument,
-  getPathAndMakePDF,
-} from 'src/utils/printTemplates';
-import { IPC_ACTIONS } from 'utils/messages';
+import { getPathAndMakePDF } from 'src/utils/printTemplates';
 
 export default {
   name: 'PrintView',
@@ -96,7 +90,7 @@ export default {
   },
   computed: {
     printTemplate() {
-      return InvoiceTemplate;
+      return { template: '<div>Hello</div>' };
     },
   },
   methods: {
