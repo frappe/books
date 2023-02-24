@@ -1,9 +1,6 @@
 <template>
   <div>
     <PageHeader :title="t`Template Builder`">
-      <Button v-if="displayDoc" @click="showHint = true">{{
-        t`Show Hint`
-      }}</Button>
       <Button v-if="displayDoc && doc?.template" @click="makePDF">
         {{ t`Save as PDF` }}
       </Button>
@@ -180,62 +177,62 @@
       </div>
     </div>
 
-    <!-- Hint Modal -->
-    <Modal
-      @closemodal="() => (showHint = false)"
-      :open-modal="showHint"
-      v-if="displayDoc && hint"
-    >
-      <div class="w-form">
-        <!-- Hint Modal Header -->
-        <FormHeader
-          :form-title="t`Hint`"
-          :form-sub-title="displayDoc.schema.label"
-        />
-        <hr />
-        <div class="p-4 max-h-96 overflow-auto custom-scroll">
-          <TemplateBuilderHint :hint="hint" />
-        </div>
-      </div>
-    </Modal>
-
     <!-- Editor Modal -->
     <Modal
       v-if="doc"
       @closemodal="() => (showEditor = false)"
       :open-modal="showEditor"
     >
-      <div>
-        <!-- Hint Modal Header -->
-        <FormHeader :form-title="t`Template Editor`" />
-        <hr />
-        <div class="p-4">
-          <textarea
-            v-if="!templateCollapsed"
-            style="
-              font-family: monospace;
-              white-space: pre;
-              overflow-wrap: normal;
-              resize: both;
-            "
-            :value="doc.template ?? ''"
-            :spellcheck="false"
-            cols="74"
-            rows="30"
-            class="
-              overflow-auto
-              p-2
-              border
-              rounded
-              text-sm text-gray-900
-              focus-within:bg-gray-100
-              outline-none
-              bg-gray-50
-            "
-            @change="
+      <div class="flex">
+        <!-- Hint Section Header -->
+        <div class="border-r" v-if="hint">
+          <h2 class="text-base font-semibold p-4 border-b">
+            {{ t`Value Keys` }}
+          </h2>
+          <div
+            class="overflow-auto custom-scroll p-4"
+            style="max-height: 80vh; width: 25vw"
+          >
+            <TemplateBuilderHint :hint="hint" />
+          </div>
+        </div>
+
+        <!-- Template Editor Section -->
+        <div>
+          <h2 class="text-base font-semibold p-4 border-b">
+            {{ t`Template` }}
+          </h2>
+          <div
+            class="overflow-auto custom-scroll p-4"
+            style="max-height: 80vh; max-width: 65vw"
+          >
+            <textarea
+              v-if="!templateCollapsed"
+              style="
+                font-family: monospace;
+                white-space: pre;
+                overflow-wrap: normal;
+                resize: both;
+              "
+              :value="doc.template ?? ''"
+              :spellcheck="false"
+              cols="74"
+              rows="31"
+              class="
+                overflow-auto
+                p-2
+                border
+                rounded
+                text-sm text-gray-900
+                focus-within:bg-gray-100
+                outline-none
+                bg-gray-50
+              "
+              @change="
               async (e: Event) => await doc?.set('template', (e.target as HTMLTextAreaElement).value)
             "
-          ></textarea>
+            ></textarea>
+          </div>
         </div>
       </div>
     </Modal>
@@ -283,7 +280,6 @@ export default defineComponent({
   data() {
     return {
       doc: null,
-      showHint: false,
       showEditor: false,
       hint: null,
       values: null,
@@ -296,7 +292,6 @@ export default defineComponent({
       values: null | Record<string, unknown>;
       doc: PrintTemplate | null;
       showEditor: boolean;
-      showHint: boolean;
       displayDoc: PrintTemplate | null;
       templateCollapsed: boolean;
       helpersCollapsed: boolean;
