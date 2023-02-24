@@ -59,7 +59,7 @@
         "
       >
         <!-- Print Template Fields -->
-        <div class="p-4 flex flex-col gap-4">
+        <div class="p-4 flex flex-col gap-4 sticky top-0 bg-white border-b">
           <FormControl
             class="w-full mx-auto"
             size="small"
@@ -73,7 +73,7 @@
         </div>
 
         <!-- Controls Section -->
-        <div class="p-4 border-t">
+        <div class="p-4">
           <div
             class="flex justify-between items-center cursor-pointer select-none"
             :class="helpersCollapsed ? '' : 'mb-4'"
@@ -143,32 +143,39 @@
           </div>
 
           <!-- Template Editor -->
-          <textarea
-            v-if="!templateCollapsed"
-            style="
-              font-family: monospace;
-              white-space: pre;
-              overflow-wrap: normal;
-            "
-            :value="doc.template ?? ''"
-            :spellcheck="false"
-            rows="20"
-            class="
-              overflow-auto
-              mt-4
-              p-2
-              w-full
-              border
-              rounded
-              text-sm text-gray-900
-              focus-within:bg-gray-100
-              outline-none
-              bg-gray-50
-            "
-            @change="
+          <div class="mt-4 relative">
+            <textarea
+              v-if="!templateCollapsed"
+              style="
+                font-family: monospace;
+                white-space: pre;
+                overflow-wrap: normal;
+              "
+              :value="doc.template ?? ''"
+              :spellcheck="false"
+              rows="10"
+              class="
+                overflow-auto
+                p-2
+                w-full
+                border
+                rounded
+                text-sm text-gray-900
+                focus-within:bg-gray-100
+                outline-none
+                bg-gray-50
+              "
+              @change="
               async (e: Event) => await doc?.set('template', (e.target as HTMLTextAreaElement).value)
             "
-          />
+            />
+            <button
+              class="bg-gray-200 p-0.5 rounded absolute bottom-4 left-2"
+              @click="showEditor = true"
+            >
+              <feather-icon name="maximize" class="h-4 w-4 text-gray-600" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -188,6 +195,47 @@
         <hr />
         <div class="p-4 max-h-96 overflow-auto custom-scroll">
           <TemplateBuilderHint :hint="hint" />
+        </div>
+      </div>
+    </Modal>
+
+    <!-- Editor Modal -->
+    <Modal
+      v-if="doc"
+      @closemodal="() => (showEditor = false)"
+      :open-modal="showEditor"
+    >
+      <div>
+        <!-- Hint Modal Header -->
+        <FormHeader :form-title="t`Template Editor`" />
+        <hr />
+        <div class="p-4">
+          <textarea
+            v-if="!templateCollapsed"
+            style="
+              font-family: monospace;
+              white-space: pre;
+              overflow-wrap: normal;
+              resize: both;
+            "
+            :value="doc.template ?? ''"
+            :spellcheck="false"
+            cols="74"
+            rows="30"
+            class="
+              overflow-auto
+              p-2
+              border
+              rounded
+              text-sm text-gray-900
+              focus-within:bg-gray-100
+              outline-none
+              bg-gray-50
+            "
+            @change="
+              async (e: Event) => await doc?.set('template', (e.target as HTMLTextAreaElement).value)
+            "
+          ></textarea>
         </div>
       </div>
     </Modal>
@@ -236,6 +284,7 @@ export default defineComponent({
     return {
       doc: null,
       showHint: false,
+      showEditor: false,
       hint: null,
       values: null,
       templateCollapsed: false,
@@ -246,6 +295,7 @@ export default defineComponent({
       hint: null | Record<string, unknown>;
       values: null | Record<string, unknown>;
       doc: PrintTemplate | null;
+      showEditor: boolean;
       showHint: boolean;
       displayDoc: PrintTemplate | null;
       templateCollapsed: boolean;
@@ -263,8 +313,9 @@ export default defineComponent({
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore
       window.tb = this;
-      this.setDisplayDoc('SINV-1001');
     }
+
+    await this.setInitialDoc();
   },
   methods: {
     async makePDF() {
@@ -280,6 +331,26 @@ export default defineComponent({
       }
 
       await getPathAndMakePDF(displayDoc.name!, innerHTML);
+    },
+    async setInitialDoc() {
+      const schemaName = this.doc?.type;
+      if (!schemaName || this.displayDoc?.schemaName === schemaName) {
+        return;
+      }
+
+      const names = (await this.fyo.db.getAll(schemaName, {
+        limit: 1,
+        order: 'desc',
+        orderBy: 'created',
+        filters: { cancelled: false },
+      })) as { name: string }[];
+
+      const name = names[0]?.name;
+      if (!name) {
+        return;
+      }
+
+      await this.setDisplayDoc(name);
     },
     async sync() {
       const doc = this.doc;
@@ -319,6 +390,7 @@ export default defineComponent({
       if (!schemaName) {
         return;
       }
+
       const displayDoc = await getDocFromNameIfExistsElseNew(schemaName, value);
       this.hint = getPrintTemplatePropHints(displayDoc);
       this.values = await getPrintTemplatePropValues(displayDoc);
