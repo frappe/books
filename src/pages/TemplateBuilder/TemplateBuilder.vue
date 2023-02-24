@@ -14,40 +14,50 @@
     </PageHeader>
     <!-- Template Builder Body -->
     <div
-      class="w-full h-full bg-gray-25 grid"
-      style="grid-template-columns: auto var(--w-quick-edit)"
+      class="w-full overflowauto bg-gray-25 grid"
+      style="
+        grid-template-columns: auto var(--w-quick-edit);
+        height: calc(100vh - var(--h-row-largest) - 1px);
+      "
       v-if="doc"
     >
-      <!-- Print View Container -->
-      <div class="overflow-auto custom-scroll">
+      <!-- Template Display Area -->
+      <div class="overflow-auto custom-scroll p-4">
         <!-- Display Hints -->
-        <div v-if="helperText" class="p-4 text-sm text-gray-700">
+        <div v-if="helperText" class="text-sm text-gray-700">
           {{ helperText }}
         </div>
 
-        <div
-          v-if="doc.template && values && !helperText"
-          ref="printContainer"
-          class="h-full shadow-lg border bg-white"
-          style="
-            width: 21cm;
-            height: 29.7cm;
-            transform: scale(0.65);
-            margin-top: -150px;
-            margin-left: -100px;
-          "
+        <!-- Template Container -->
+        <ScaledContainer
+          v-if="doc.template && values"
+          :scale="Math.max(scale, 0.1)"
+          ref="scaledContainer"
+          class="mx-auto shadow-lg border"
         >
+          <!-- Template -->
           <component
-            class="flex-1"
+            class="flex-1 bg-white"
             :doc="values.doc"
             :print="values.print"
             :is="{ template: doc.template, props: ['doc', 'print'] }"
           />
-        </div>
+        </ScaledContainer>
       </div>
 
       <!-- Template Builder Controls -->
-      <div class="h-full w-full ml-auto border-l flex flex-col bg-white">
+      <div
+        class="
+          h-full
+          w-full
+          ml-auto
+          border-l
+          flex flex-col
+          bg-white
+          overflow-auto
+          custom-scroll
+        "
+      >
         <!-- Print Template Fields -->
         <div class="p-4 flex flex-col gap-4">
           <FormControl
@@ -62,7 +72,7 @@
           />
         </div>
 
-        <!-- Controls -->
+        <!-- Controls Section -->
         <div class="p-4 border-t">
           <div
             class="flex justify-between items-center cursor-pointer select-none"
@@ -99,18 +109,25 @@
             />
 
             <FormControl
-              v-if="doc.isCustom"
+              v-if="displayDoc && doc.template"
               size="small"
-              :df="fields.isCustom"
+              :step="0.01"
+              :df="{
+                fieldtype: 'Float',
+                label: t`Display Scale`,
+                fieldname: 'displayScale',
+                maxvalue: 10,
+                minvalue: 0.1,
+              }"
               :show-label="true"
               :border="true"
-              :read-only="true"
-              :value="doc.get('isCustom')"
+              :value="scale"
+              @change="(value: number) => scale = value"
             />
           </div>
         </div>
 
-        <!-- Template -->
+        <!-- Template Section -->
         <div class="p-4 border-t" v-if="doc.type">
           <div
             class="flex justify-between items-center cursor-pointer select-none"
@@ -125,7 +142,7 @@
             />
           </div>
 
-          <!-- Template Container -->
+          <!-- Template Editor -->
           <textarea
             v-if="!templateCollapsed"
             style="
@@ -197,6 +214,7 @@ import {
 import { getActionsForDoc, getDocFromNameIfExistsElseNew } from 'src/utils/ui';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
+import ScaledContainer from './ScaledContainer.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
 
 export default defineComponent({
@@ -209,6 +227,7 @@ export default defineComponent({
     FormHeader,
     TemplateBuilderHint,
     DropdownWithActions,
+    ScaledContainer,
   },
   provide() {
     return { doc: computed(() => this.doc) };
@@ -222,6 +241,7 @@ export default defineComponent({
       templateCollapsed: false,
       helpersCollapsed: true,
       displayDoc: null,
+      scale: 0.65,
     } as {
       hint: null | Record<string, unknown>;
       values: null | Record<string, unknown>;
@@ -230,6 +250,7 @@ export default defineComponent({
       displayDoc: PrintTemplate | null;
       templateCollapsed: boolean;
       helpersCollapsed: boolean;
+      scale: number;
     };
   },
   async mounted() {
@@ -239,20 +260,11 @@ export default defineComponent({
       this.helpersCollapsed = false;
     }
 
-    if (!this.fyo.store.isDevelopment) {
-      return;
+    if (this.fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.tb = this;
+      this.setDisplayDoc('SINV-1001');
     }
-
-    // @ts-ignore
-    window.tb = this;
-
-    // @ts-ignore
-    window.hints = getPrintTemplatePropHints;
-
-    // @ts-ignore
-    window.values = getPrintTemplatePropValues;
-
-    this.setDisplayDoc('SINV-1001');
   },
   methods: {
     async makePDF() {
@@ -261,7 +273,12 @@ export default defineComponent({
         return;
       }
 
-      const innerHTML = (this.$refs.printContainer as HTMLDivElement).innerHTML;
+      // @ts-ignore
+      const innerHTML = this.$refs.scaledContainer.$el.children[0].innerHTML;
+      if (!innerHTML) {
+        return;
+      }
+
       await getPathAndMakePDF(displayDoc.name!, innerHTML);
     },
     async sync() {
