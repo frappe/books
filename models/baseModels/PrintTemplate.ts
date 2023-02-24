@@ -42,6 +42,7 @@ export class PrintTemplate extends Doc {
       const models = [
         ModelNameEnum.SalesInvoice,
         ModelNameEnum.PurchaseInvoice,
+        ModelNameEnum.JournalEntry,
         ModelNameEnum.Payment,
       ];
 
