@@ -9,6 +9,14 @@ export class PrintTemplate extends Doc {
   template?: string;
   isCustom?: boolean;
 
+  override get canDelete(): boolean {
+    if (this.isCustom === false) {
+      return false;
+    }
+
+    return super.canDelete;
+  }
+
   static getListViewSettings(): ListViewSettings {
     return {
       formRoute: ({ name }) => `/template-builder/${name}`,
