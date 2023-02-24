@@ -140,9 +140,8 @@
           </div>
 
           <!-- Template Editor -->
-          <div class="mt-4 relative">
+          <div class="mt-4 relative" v-if="!templateCollapsed">
             <textarea
-              v-if="!templateCollapsed"
               style="
                 font-family: monospace;
                 white-space: pre;
