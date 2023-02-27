@@ -93,7 +93,7 @@ export class Item extends Doc {
 
         if (itemEntriesInSLE > 0) {
           throw new ValidationError(
-            this.fyo.t`Cannot change value of Has Batch No as Item ${this
+            this.fyo.t`Cannot change value of Has Batch Number as Item ${this
               .name!} already has transactions against it. `
           );
         }

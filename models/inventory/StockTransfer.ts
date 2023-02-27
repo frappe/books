@@ -15,6 +15,7 @@ import { addItem, getLedgerLinkAction, getNumberSeries } from 'models/helpers';
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
+import { validateBatchNumber } from './helpers';
 import { StockTransferItem } from './StockTransferItem';
 import { Transfer } from './Transfer';
 
@@ -149,6 +150,11 @@ export abstract class StockTransfer extends Transfer {
     if (messages.length) {
       throw new ValidationError(messages.join(' '));
     }
+  }
+
+  override async validate(): Promise<void> {
+    await super.validate();
+    await validateBatchNumber(this);
   }
 
   static getActions(fyo: Fyo): Action[] {
