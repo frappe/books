@@ -546,6 +546,7 @@ export abstract class Invoice extends Transactional {
       const item = row.item;
       const quantity = row.stockNotTransferred;
       const trackItem = itemDoc.trackItem;
+      const batchNumber = row.batchNumber || null;
       let rate = row.rate as Money;
 
       if (this.exchangeRate && this.exchangeRate > 1) {
@@ -561,6 +562,7 @@ export abstract class Invoice extends Transactional {
         quantity,
         location,
         rate,
+        batchNumber,
       });
     }
 

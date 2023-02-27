@@ -29,6 +29,7 @@ export abstract class InvoiceItem extends Doc {
   quantity?: number;
   transferQuantity?: number;
   unitConversionFactor?: number;
+  batchNumber?: string;
 
   tax?: string;
   stockNotTransferred?: number;
