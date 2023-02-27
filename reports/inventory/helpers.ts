@@ -17,6 +17,7 @@ export async function getRawStockLedgerEntries(fyo: Fyo) {
     'name',
     'date',
     'item',
+    'batchNumber',
     'rate',
     'quantity',
     'location',
@@ -42,7 +43,14 @@ export function getStockLedgerEntries(
     const name = safeParseInt(sle.name);
     const date = new Date(sle.date);
     const rate = safeParseFloat(sle.rate);
-    const { item, location, quantity, referenceName, referenceType } = sle;
+    const {
+      item,
+      location,
+      batchNumber,
+      quantity,
+      referenceName,
+      referenceType,
+    } = sle;
 
     if (quantity === 0) {
       continue;
@@ -80,6 +88,7 @@ export function getStockLedgerEntries(
 
       item,
       location,
+      batchNumber,
 
       quantity,
       balanceQuantity,
@@ -124,7 +133,11 @@ export function getStockBalanceEntries(
     }
 
     sbeMap[sle.item] ??= {};
-    sbeMap[sle.item][sle.location] ??= getSBE(sle.item, sle.location);
+    sbeMap[sle.item][sle.location] ??= getSBE(
+      sle.item,
+      sle.location,
+      sle.batchNumber
+    );
     const date = sle.date.valueOf();
 
     if (fromDate && date < fromDate) {
@@ -146,12 +159,17 @@ export function getStockBalanceEntries(
     .flat();
 }
 
-function getSBE(item: string, location: string): StockBalanceEntry {
+function getSBE(
+  item: string,
+  location: string,
+  batchNumber: string
+): StockBalanceEntry {
   return {
     name: 0,
 
     item,
     location,
+    batchNumber,
 
     balanceQuantity: 0,
     balanceValue: 0,

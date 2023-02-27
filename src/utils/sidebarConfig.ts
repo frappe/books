@@ -95,7 +95,7 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
           label: t`Stock Balance`,
           name: 'stock-balance',
           route: '/report/StockBalance',
-        },
+        }
       ],
     },
   ];

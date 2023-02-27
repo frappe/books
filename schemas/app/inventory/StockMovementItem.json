@@ -51,6 +51,13 @@
       "readOnly": true
     },
     {
+      "fieldname": "batchNumber",
+      "label": "Batch No",
+      "fieldtype": "Link",
+      "target": "BatchNumber",
+      "create": true
+    },
+    {
       "fieldname": "quantity",
       "label": "Quantity",
       "fieldtype": "Float",
@@ -77,7 +84,7 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "fromLocation", "toLocation", "quantity", "rate"],
+  "tableFields": ["item", "fromLocation", "toLocation", "batchNumber", "quantity", "rate"],
   "keywordFields": ["item"],
   "quickEditFields": [
     "item",
@@ -86,6 +93,7 @@
 
     "transferQuantity",
     "transferUnit",
+    "batchNumber",
     "quantity",
     "unit",
     "unitConversionFactor",

@@ -11,6 +11,7 @@ import {
   ValidationMap,
 } from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
+import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { AccountRootTypeEnum, AccountTypeEnum } from '../Account/types';
 
@@ -18,6 +19,7 @@ export class Item extends Doc {
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
+  hasBatchNumber?: boolean;
 
   formulas: FormulaMap = {
     incomeAccount: {
@@ -74,6 +76,29 @@ export class Item extends Doc {
         throw new ValidationError(this.fyo.t`Rate can't be negative.`);
       }
     },
+    hasBatchNumber: async (value: DocValue) => {
+      const { hasBatchNumber } = await this.fyo.db.get(
+        'Item',
+        this.name!,
+        'hasBatchNumber'
+      );
+
+      if (hasBatchNumber && value !== hasBatchNumber) {
+        const itemEntriesInSLE = await this.fyo.db.count(
+          ModelNameEnum.StockLedgerEntry,
+          {
+            filters: { item: this.name! },
+          }
+        );
+
+        if (itemEntriesInSLE > 0) {
+          throw new ValidationError(
+            this.fyo.t`Cannot change value of Has Batch No as Item ${this
+              .name!} already has transactions against it. `
+          );
+        }
+      }
+    },
   };
 
   static getActions(fyo: Fyo): Action[] {
@@ -121,6 +146,7 @@ export class Item extends Doc {
       !this.fyo.singles.AccountingSettings?.enableInventory ||
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
+    hasBatchNumber: () => !this.trackItem,
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
     uomConversions: () => !this.fyo.singles.AccountingSettings?.enableInventory,
   };
@@ -129,5 +155,6 @@ export class Item extends Doc {
     unit: () => this.inserted,
     itemType: () => this.inserted,
     trackItem: () => this.inserted,
+    hasBatchNumber: () => this.inserted,
   };
 }

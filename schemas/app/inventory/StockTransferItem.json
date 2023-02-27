@@ -42,6 +42,12 @@
       "readOnly": true
     },
     {
+      "fieldname": "batchNumber",
+      "label": "Batch No",
+      "fieldtype": "Link",
+      "target": "BatchNumber"
+    },
+    {
       "fieldname": "quantity",
       "label": "Quantity",
       "fieldtype": "Float",
@@ -80,12 +86,13 @@
       "placeholder": "HSN/SAC Code"
     }
   ],
-  "tableFields": ["item", "location", "quantity", "rate", "amount"],
+  "tableFields": ["item", "location", "batchNumber", "quantity", "rate", "amount"],
   "quickEditFields": [
     "item",
 
     "transferQuantity",
     "transferUnit",
+    "batchNumber",
     "quantity",
     "unit",
     "unitConversionFactor",
