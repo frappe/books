@@ -117,7 +117,10 @@ export function getStockBalanceEntries(
     toDate?: string;
   }
 ): StockBalanceEntry[] {
-  const sbeMap: Record<Item, Record<Location, StockBalanceEntry>> = {};
+  const sbeMap: Record<
+    Item,
+    Record<Location, Record<BatchNo, StockBalanceEntry>>
+  > = {};
 
   const fromDate = filters.fromDate ? Date.parse(filters.fromDate) : null;
   const toDate = filters.toDate ? Date.parse(filters.toDate) : null;
@@ -131,16 +134,19 @@ export function getStockBalanceEntries(
       continue;
     }
 
+    const batchNumber = sle.batchNumber || '';
+
     sbeMap[sle.item] ??= {};
-    sbeMap[sle.item][sle.location] ??= getSBE(
+    sbeMap[sle.item][sle.location] ??= {};
+    sbeMap[sle.item][sle.location][batchNumber] ??= getSBE(
       sle.item,
       sle.location,
-      sle.batchNumber
+      batchNumber
     );
     const date = sle.date.valueOf();
 
     if (fromDate && date < fromDate) {
-      const sbe = sbeMap[sle.item][sle.location]!;
+      const sbe = sbeMap[sle.item][sle.location][batchNumber];
       updateOpeningBalances(sbe, sle);
       continue;
     }
@@ -149,13 +155,15 @@ export function getStockBalanceEntries(
       continue;
     }
 
-    const sbe = sbeMap[sle.item][sle.location]!;
+    const sbe = sbeMap[sle.item][sle.location][batchNumber];
     updateCurrentBalances(sbe, sle);
   }
 
   return Object.values(sbeMap)
-    .map((sbes) => Object.values(sbes))
-    .flat();
+    .map((sbeBatched) =>
+      Object.values(sbeBatched).map((sbes) => Object.values(sbes))
+    )
+    .flat(2);
 }
 
 function getSBE(
