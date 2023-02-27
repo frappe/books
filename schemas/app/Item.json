@@ -133,7 +133,7 @@
     },
     {
       "fieldname": "hasBatchNumber",
-      "label": "Has Batch No",
+      "label": "Has Batch Number",
       "fieldtype": "Check",
       "default": false,
       "section": "Inventory"

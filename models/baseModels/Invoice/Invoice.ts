@@ -11,6 +11,7 @@ import {
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { addItem, getExchangeRate, getNumberSeries } from 'models/helpers';
+import { validateBatchNumber } from 'models/inventory/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { Transactional } from 'models/Transactional/Transactional';
