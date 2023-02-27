@@ -50,6 +50,16 @@
       "fieldname": "enableBarcodes",
       "label": "Enable Barcodes",
       "fieldtype": "Check"
+    },
+    {
+      "fieldname": "enableBatches",
+      "label": "Enable Batches",
+      "fieldtype": "Check"
+    },
+    {
+      "fieldname": "enableUomConversions",
+      "label": "Enable UOM Conversion",
+      "fieldtype": "Check"
     }
   ]
 }

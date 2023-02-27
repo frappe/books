@@ -158,7 +158,6 @@
     "barcode",
     "hsnCode",
     "trackItem",
-    "hasBatchNumber",
     "uom"
   ],
   "keywordFields": ["name", "itemType", "for"]

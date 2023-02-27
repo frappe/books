@@ -84,7 +84,7 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "fromLocation", "toLocation", "batchNumber", "quantity", "rate"],
+  "tableFields": ["item", "fromLocation", "toLocation", "quantity", "rate"],
   "keywordFields": ["item"],
   "quickEditFields": [
     "item",
