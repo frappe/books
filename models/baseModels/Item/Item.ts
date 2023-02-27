@@ -146,9 +146,11 @@ export class Item extends Doc {
       !this.fyo.singles.AccountingSettings?.enableInventory ||
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
-    hasBatchNumber: () => !this.trackItem,
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    uomConversions: () => !this.fyo.singles.AccountingSettings?.enableInventory,
+    hasBatchNumber: () =>
+      !(this.fyo.singles.InventorySettings?.enableBatches && this.trackItem),
+    uomConversions: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
   };
 
   readOnly: ReadOnlyMap = {

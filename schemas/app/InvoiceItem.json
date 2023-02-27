@@ -134,7 +134,7 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "tax", "batchNumber", "quantity", "rate", "amount"],
+  "tableFields": ["item", "tax", "quantity", "rate", "amount"],
   "keywordFields": ["item", "tax"],
   "quickEditFields": [
     "item",

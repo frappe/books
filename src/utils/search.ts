@@ -234,6 +234,11 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     );
   }
 
+  const hasBatch = fyo.doc.singles.InventorySettings?.enableBatches;
+  if (hasBatch) {
+    schemaNames.push(ModelNameEnum.BatchNumber);
+  }
+
   if (fyo.store.isDevelopment) {
     schemaNames = Object.keys(fyo.schemaMap) as ModelNameEnum[];
   }

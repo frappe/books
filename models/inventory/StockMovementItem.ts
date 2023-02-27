@@ -4,6 +4,7 @@ import { Doc } from 'fyo/model/doc';
 import {
   FiltersMap,
   FormulaMap,
+  HiddenMap,
   ReadOnlyMap,
   RequiredMap,
   ValidationMap,
@@ -231,6 +232,16 @@ export class StockMovementItem extends Doc {
   readOnly: ReadOnlyMap = {
     fromLocation: () => this.isReceipt,
     toLocation: () => this.isIssue,
+  };
+
+  override hidden: HiddenMap = {
+    batchNumber: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    transferUnit: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+    transferQuantity: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+    unitConversionFactor: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
   };
 
   static createFilters: FiltersMap = {

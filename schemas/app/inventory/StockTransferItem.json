@@ -86,7 +86,7 @@
       "placeholder": "HSN/SAC Code"
     }
   ],
-  "tableFields": ["item", "location", "batchNumber", "quantity", "rate", "amount"],
+  "tableFields": ["item", "location", "quantity", "rate", "amount"],
   "quickEditFields": [
     "item",
 
