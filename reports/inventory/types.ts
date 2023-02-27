@@ -5,7 +5,7 @@ export interface RawStockLedgerEntry {
   date: string;
   item: string;
   rate: string;
-  batchNumber: string;
+  batchNumber: string | null;
   quantity: number;
   location: string;
   referenceName: string;

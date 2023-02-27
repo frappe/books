@@ -11,6 +11,7 @@ import {
 
 type Item = string;
 type Location = string;
+type BatchNo = string;
 
 export async function getRawStockLedgerEntries(fyo: Fyo) {
   const fieldnames = [
@@ -37,29 +38,27 @@ export function getStockLedgerEntries(
   valuationMethod: ValuationMethod
 ): ComputedStockLedgerEntry[] {
   const computedSLEs: ComputedStockLedgerEntry[] = [];
-  const stockQueues: Record<Item, Record<Location, StockQueue>> = {};
+  const stockQueues: Record<
+    Item,
+    Record<Location, Record<BatchNo, StockQueue>>
+  > = {};
 
   for (const sle of rawSLEs) {
     const name = safeParseInt(sle.name);
     const date = new Date(sle.date);
     const rate = safeParseFloat(sle.rate);
-    const {
-      item,
-      location,
-      batchNumber,
-      quantity,
-      referenceName,
-      referenceType,
-    } = sle;
+    const { item, location, quantity, referenceName, referenceType } = sle;
+    const batchNumber = sle.batchNumber ?? '';
 
     if (quantity === 0) {
       continue;
     }
 
     stockQueues[item] ??= {};
-    stockQueues[item][location] ??= new StockQueue();
+    stockQueues[item][location] ??= {};
+    stockQueues[item][location][batchNumber] ??= new StockQueue();
 
-    const q = stockQueues[item][location];
+    const q = stockQueues[item][location][batchNumber];
     const initialValue = q.value;
 
     let incomingRate: number | null;
