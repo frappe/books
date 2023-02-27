@@ -76,29 +76,6 @@ export class Item extends Doc {
         throw new ValidationError(this.fyo.t`Rate can't be negative.`);
       }
     },
-    hasBatchNumber: async (value: DocValue) => {
-      const { hasBatchNumber } = await this.fyo.db.get(
-        'Item',
-        this.name!,
-        'hasBatchNumber'
-      );
-
-      if (hasBatchNumber && value !== hasBatchNumber) {
-        const itemEntriesInSLE = await this.fyo.db.count(
-          ModelNameEnum.StockLedgerEntry,
-          {
-            filters: { item: this.name! },
-          }
-        );
-
-        if (itemEntriesInSLE > 0) {
-          throw new ValidationError(
-            this.fyo.t`Cannot change value of Has Batch Number as Item ${this
-              .name!} already has transactions against it. `
-          );
-        }
-      }
-    },
   };
 
   static getActions(fyo: Fyo): Action[] {
