@@ -18,9 +18,10 @@ export async function validateBatchNumber(
 async function validateItemRowBatchNumber(
   doc: StockMovementItem | StockTransferItem | InvoiceItem
 ) {
+  const idx = doc.idx ?? 0 + 1;
   const item = doc.item;
   const batchNumber = doc.batchNumber;
-  if (!item || batchNumber) {
+  if (!item) {
     return;
   }
 
@@ -30,11 +31,21 @@ async function validateItemRowBatchNumber(
     'hasBatchNumber'
   );
 
-  if (hasBatchNumber && batchNumber) {
-    return;
+  if (!hasBatchNumber && batchNumber) {
+    throw new ValidationError(
+      [
+        doc.fyo.t`Batch Number set for row ${idx}.`,
+        doc.fyo.t`Item ${item} is not a batched item`,
+      ].join(' ')
+    );
   }
 
-  throw new ValidationError(
-    [`Batch Number not set.`, `Item ${item} is a batched item`].join(' ')
-  );
+  if (hasBatchNumber && !batchNumber) {
+    throw new ValidationError(
+      [
+        doc.fyo.t`Batch Number not set for row ${idx}.`,
+        doc.fyo.t`Item ${item} is a batched item`,
+      ].join(' ')
+    );
+  }
 }
