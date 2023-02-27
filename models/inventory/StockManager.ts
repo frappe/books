@@ -132,15 +132,53 @@ export class StockManager {
     }
 
     const date = details.date.toISOString();
+    const formattedDate = this.fyo.format(details.date, 'Datetime');
+    const isItemHasBatchNumber = await this.fyo.getValue(
+      'Item',
+      details.item,
+      'hasBatchNumber'
+    );
+
+    if (isItemHasBatchNumber && !this.isCancelled) {
+      if (!details.batchNumber) {
+        throw new ValidationError(
+          t`Please enter Batch Number for ${details.item}`
+        );
+      }
+
+      const itemsInBatch =
+        (await this.fyo.db.getStockQuantity(
+          details.item,
+          details.fromLocation,
+          undefined,
+          date,
+          details.batchNumber
+        )) ?? 0;
+
+      if (details.quantity <= itemsInBatch) return;
+
+      throw new ValidationError(
+        [
+          t`Insufficient Quantity`,
+          t`Additional quantity (${
+            details.quantity - itemsInBatch
+          }) is required in batch ${
+            details.batchNumber
+          } to make the outward transfer of item ${details.item} from ${
+            details.fromLocation
+          } on ${formattedDate}`,
+        ].join('\n')
+      );
+    }
+
     let quantityBefore =
       (await this.fyo.db.getStockQuantity(
         details.item,
         details.fromLocation,
         undefined,
-        date
+        date,
+        undefined
       )) ?? 0;
-
-    const formattedDate = this.fyo.format(details.date, 'Datetime');
 
     if (this.isCancelled) {
       quantityBefore += details.quantity;
@@ -162,7 +200,9 @@ export class StockManager {
     const quantityAfter = await this.fyo.db.getStockQuantity(
       details.item,
       details.fromLocation,
-      details.date.toISOString()
+      details.date.toISOString(),
+      undefined,
+      undefined
     );
     if (quantityAfter === null) {
       // No future transactions
@@ -204,6 +244,7 @@ class StockManagerItem {
   referenceType: string;
   fromLocation?: string;
   toLocation?: string;
+  batchNumber?: string;
 
   stockLedgerEntries?: StockLedgerEntry[];
 
@@ -218,6 +259,7 @@ class StockManagerItem {
     this.toLocation = details.toLocation;
     this.referenceName = details.referenceName;
     this.referenceType = details.referenceType;
+    this.batchNumber = details.batchNumber;
 
     this.fyo = fyo;
   }
@@ -270,6 +312,7 @@ class StockManagerItem {
       date: this.date,
       item: this.item,
       rate: this.rate,
+      batchNumber: this.batchNumber,
       quantity,
       location,
       referenceName: this.referenceName,

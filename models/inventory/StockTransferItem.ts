@@ -21,6 +21,7 @@ export class StockTransferItem extends Doc {
   amount?: Money;
   description?: string;
   hsnCode?: number;
+  batchNumber?: string
 
   formulas: FormulaMap = {
     description: {

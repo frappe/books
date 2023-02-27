@@ -71,7 +71,13 @@
             <div class="py-4 text-end w-2/12" v-if="printObject.showHSN">
               HSN/SAC
             </div>
-            <div class="py-4 text-end w-1/12">Quantity</div>
+            <div class="py-4 text-end w-2/12">Quantity</div>
+            <div
+              class="w-3/12 text-end py-4"
+              v-if="printObject.displayBatchNumber"
+            >
+              Batch No
+            </div>
             <div class="py-4 text-end w-3/12">Rate</div>
             <div class="py-4 text-end w-3/12">Amount</div>
           </div>
@@ -84,7 +90,13 @@
             <div class="w-2/12 text-end py-4" v-if="printObject.showHSN">
               {{ row.hsnCode }}
             </div>
-            <div class="w-1/12 text-end py-4">{{ row.quantity }}</div>
+            <div class="w-2/12 text-end py-4">{{ row.quantity }}</div>
+            <div
+              class="w-3/12 text-end py-4"
+              v-if="printObject.displayBatchNumber"
+            >
+              {{ row.batchNumber }}
+            </div>
             <div class="w-3/12 text-end py-4">{{ row.rate }}</div>
             <div class="w-3/12 text-end py-4">{{ row.amount }}</div>
           </div>

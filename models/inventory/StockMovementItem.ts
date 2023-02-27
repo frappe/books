@@ -30,6 +30,7 @@ export class StockMovementItem extends Doc {
   rate?: Money;
   amount?: Money;
   parentdoc?: StockMovement;
+  batchNumber?: string;
 
   get isIssue() {
     return this.parentdoc?.movementType === MovementType.MaterialIssue;

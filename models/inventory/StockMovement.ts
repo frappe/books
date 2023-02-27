@@ -109,6 +109,7 @@ export class StockMovement extends Transfer {
       item: row.item!,
       rate: row.rate!,
       quantity: row.quantity!,
+      batchNumber: row.batchNumber!,
       fromLocation: row.fromLocation,
       toLocation: row.toLocation,
     }));

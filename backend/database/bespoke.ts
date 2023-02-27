@@ -137,7 +137,8 @@ export class BespokeQueries {
     item: string,
     location?: string,
     fromDate?: string,
-    toDate?: string
+    toDate?: string,
+    batchNumber?: string
   ): Promise<number | null> {
     const query = db.knex!(ModelNameEnum.StockLedgerEntry)
       .sum('quantity')
@@ -145,6 +146,10 @@ export class BespokeQueries {
 
     if (location) {
       query.andWhere('location', location);
+    }
+
+    if (batchNumber) {
+      query.andWhere('batchNumber', batchNumber);
     }
 
     if (fromDate) {
