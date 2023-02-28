@@ -3,6 +3,7 @@ import { RawValueMap } from 'fyo/core/types';
 import { Action } from 'fyo/model/types';
 import { cloneDeep } from 'lodash';
 import { DateTime } from 'luxon';
+import { InventorySettings } from 'models/inventory/InventorySettings';
 import { ValuationMethod } from 'models/inventory/types';
 import { ModelNameEnum } from 'models/types';
 import getCommonExportActions from 'reports/commonExporter';
@@ -26,6 +27,7 @@ export class StockLedger extends Report {
 
   item?: string;
   location?: string;
+  batch?: string;
   fromDate?: string;
   toDate?: string;
   ascending?: boolean;
@@ -33,6 +35,11 @@ export class StockLedger extends Report {
   referenceName?: string;
 
   groupBy: 'none' | 'item' | 'location' = 'none';
+
+  get hasBatches(): boolean {
+    return !!(this.fyo.singles.InventorySettings as InventorySettings)
+      .enableBatches;
+  }
 
   constructor(fyo: Fyo) {
     super(fyo);
@@ -107,6 +114,10 @@ export class StockLedger extends Report {
       }
 
       if (this.location && row.location !== this.location) {
+        continue;
+      }
+
+      if (this.batch && row.batch !== this.batch) {
         continue;
       }
 
@@ -260,11 +271,11 @@ export class StockLedger extends Report {
         label: 'Location',
         fieldtype: 'Link',
       },
-      {
-        fieldname: 'batchNumber',
-        label: 'Batch No.',
-        fieldtype: 'Link',
-      },
+      ...(this.hasBatches
+        ? ([
+            { fieldname: 'batch', label: 'Batch', fieldtype: 'Link' },
+          ] as ColumnField[])
+        : []),
       {
         fieldname: 'quantity',
         label: 'Quantity',
@@ -344,6 +355,17 @@ export class StockLedger extends Report {
         label: t`Location`,
         fieldname: 'location',
       },
+      ...(this.hasBatches
+        ? ([
+            {
+              fieldtype: 'Link',
+              target: 'Batch',
+              placeholder: t`Batch`,
+              label: t`Batch`,
+              fieldname: 'batch',
+            },
+          ] as Field[])
+        : []),
       {
         fieldtype: 'Date',
         placeholder: t`From Date`,

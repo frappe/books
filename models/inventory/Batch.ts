@@ -3,7 +3,7 @@ import {
   ListViewSettings,
 } from 'fyo/model/types';
 
-export class BatchNumber extends Doc {
+export class Batch extends Doc {
   static getListViewSettings(): ListViewSettings {
     return {
       columns: ["name", "expiryDate", "manufactureDate"],

@@ -1,12 +1,12 @@
 {
-  "name": "BatchNumber",
-  "label": "Batch Number",
+  "name": "Batch",
+  "label": "Batch",
   "naming": "manual",
   "fields": [
     {
       "fieldname": "name",
       "fieldtype": "Data",
-      "label": "Batch Number",
+      "label": "Batch",
       "required": true
     },
     {

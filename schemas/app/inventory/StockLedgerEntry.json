@@ -51,10 +51,10 @@
       "readOnly": true
     },
     {
-      "fieldname": "batchNumber",
-      "label": "Batch No",
+      "fieldname": "batch",
+      "label": "Batch",
       "fieldtype": "Link",
-      "target": "BatchNumber",
+      "target": "Batch",
       "readOnly": true
     }
   ]

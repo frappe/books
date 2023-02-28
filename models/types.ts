@@ -4,7 +4,7 @@ export enum ModelNameEnum {
   AccountingLedgerEntry = 'AccountingLedgerEntry',
   AccountingSettings = 'AccountingSettings',
   Address = 'Address',
-  BatchNumber= 'BatchNumber',
+  Batch= 'Batch',
   Color = 'Color',
   CompanySettings = 'CompanySettings',
   Currency = 'Currency',

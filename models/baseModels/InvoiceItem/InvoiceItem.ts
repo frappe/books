@@ -29,6 +29,7 @@ export abstract class InvoiceItem extends Doc {
   quantity?: number;
   transferQuantity?: number;
   unitConversionFactor?: number;
+  batch?: string;
 
   tax?: string;
   stockNotTransferred?: number;
@@ -430,9 +431,13 @@ export abstract class InvoiceItem extends Doc {
       !(this.enableDiscounting && !!this.setItemDiscountAmount),
     itemDiscountPercent: () =>
       !(this.enableDiscounting && !this.setItemDiscountAmount),
-    transferUnit: () => !this.enableInventory,
-    transferQuantity: () => !this.enableInventory,
-    unitConversionFactor: () => !this.enableInventory,
+    batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    transferUnit: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+    transferQuantity: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+    unitConversionFactor: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
   };
 
   static filters: FiltersMap = {

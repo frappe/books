@@ -1,7 +1,12 @@
 import { t } from 'fyo';
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap, FormulaMap, ValidationMap } from 'fyo/model/types';
+import {
+  FiltersMap,
+  FormulaMap,
+  HiddenMap,
+  ValidationMap,
+} from 'fyo/model/types';
 import { ValidationError } from 'fyo/utils/errors';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
@@ -21,7 +26,7 @@ export class StockTransferItem extends Doc {
   amount?: Money;
   description?: string;
   hsnCode?: number;
-  batchNumber?: string
+  batch?: string;
 
   formulas: FormulaMap = {
     description: {
@@ -199,5 +204,15 @@ export class StockTransferItem extends Doc {
 
       return { for: ['not in', [itemNotFor]], trackItem: true };
     },
+  };
+
+  override hidden: HiddenMap = {
+    batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    transferUnit: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+    transferQuantity: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
+    unitConversionFactor: () =>
+      !this.fyo.singles.InventorySettings?.enableUomConversions,
   };
 }

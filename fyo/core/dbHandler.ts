@@ -313,7 +313,7 @@ export class DatabaseHandler extends DatabaseBase {
     location?: string,
     fromDate?: string,
     toDate?: string,
-    batchNumber?: string
+    batch?: string
   ): Promise<number | null> {
     return (await this.#demux.callBespoke(
       'getStockQuantity',
@@ -321,7 +321,7 @@ export class DatabaseHandler extends DatabaseBase {
       location,
       fromDate,
       toDate,
-      batchNumber
+      batch
     )) as number | null;
   }
 
