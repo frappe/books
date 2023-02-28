@@ -230,8 +230,14 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     schemaNames.push(
       ModelNameEnum.StockMovement,
       ModelNameEnum.Shipment,
-      ModelNameEnum.PurchaseReceipt
+      ModelNameEnum.PurchaseReceipt,
+      ModelNameEnum.Location
     );
+  }
+
+  const hasBatch = fyo.doc.singles.InventorySettings?.enableBatches;
+  if (hasBatch) {
+    schemaNames.push(ModelNameEnum.Batch);
   }
 
   if (fyo.store.isDevelopment) {

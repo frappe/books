@@ -48,12 +48,12 @@
       "readOnly": true
     },
     {
-      "fieldname": "batchNumber",
-      "label": "Batch No",
+      "fieldname": "batch",
+      "label": "Batch",
       "fieldtype": "Link",
       "create": true,
-      "target": "BatchNumber",
-      "placeholder": "Batch No"
+      "target": "Batch",
+      "placeholder": "Batch"
     },
     {
       "fieldname": "quantity",
@@ -134,7 +134,7 @@
       "readOnly": true
     }
   ],
-  "tableFields": ["item", "tax", "batchNumber", "quantity", "rate", "amount"],
+  "tableFields": ["item", "tax", "quantity", "rate", "amount"],
   "keywordFields": ["item", "tax"],
   "quickEditFields": [
     "item",
@@ -146,7 +146,7 @@
 
     "transferQuantity",
     "transferUnit",
-    "batchNumber",
+    "batch",
     "quantity",
     "unit",
     "unitConversionFactor",

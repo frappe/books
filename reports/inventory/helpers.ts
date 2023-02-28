@@ -11,13 +11,14 @@ import {
 
 type Item = string;
 type Location = string;
+type Batch = string;
 
 export async function getRawStockLedgerEntries(fyo: Fyo) {
   const fieldnames = [
     'name',
     'date',
     'item',
-    'batchNumber',
+    'batch',
     'rate',
     'quantity',
     'location',
@@ -37,29 +38,27 @@ export function getStockLedgerEntries(
   valuationMethod: ValuationMethod
 ): ComputedStockLedgerEntry[] {
   const computedSLEs: ComputedStockLedgerEntry[] = [];
-  const stockQueues: Record<Item, Record<Location, StockQueue>> = {};
+  const stockQueues: Record<
+    Item,
+    Record<Location, Record<Batch, StockQueue>>
+  > = {};
 
   for (const sle of rawSLEs) {
     const name = safeParseInt(sle.name);
     const date = new Date(sle.date);
     const rate = safeParseFloat(sle.rate);
-    const {
-      item,
-      location,
-      batchNumber,
-      quantity,
-      referenceName,
-      referenceType,
-    } = sle;
+    const { item, location, quantity, referenceName, referenceType } = sle;
+    const batch = sle.batch ?? '';
 
     if (quantity === 0) {
       continue;
     }
 
     stockQueues[item] ??= {};
-    stockQueues[item][location] ??= new StockQueue();
+    stockQueues[item][location] ??= {};
+    stockQueues[item][location][batch] ??= new StockQueue();
 
-    const q = stockQueues[item][location];
+    const q = stockQueues[item][location][batch];
     const initialValue = q.value;
 
     let incomingRate: number | null;
@@ -88,7 +87,7 @@ export function getStockLedgerEntries(
 
       item,
       location,
-      batchNumber,
+      batch,
 
       quantity,
       balanceQuantity,
@@ -116,9 +115,13 @@ export function getStockBalanceEntries(
     location?: string;
     fromDate?: string;
     toDate?: string;
+    batch?: string;
   }
 ): StockBalanceEntry[] {
-  const sbeMap: Record<Item, Record<Location, StockBalanceEntry>> = {};
+  const sbeMap: Record<
+    Item,
+    Record<Location, Record<Batch, StockBalanceEntry>>
+  > = {};
 
   const fromDate = filters.fromDate ? Date.parse(filters.fromDate) : null;
   const toDate = filters.toDate ? Date.parse(filters.toDate) : null;
@@ -132,16 +135,23 @@ export function getStockBalanceEntries(
       continue;
     }
 
+    if (filters.batch && sle.batch !== filters.batch) {
+      continue;
+    }
+
+    const batch = sle.batch || '';
+
     sbeMap[sle.item] ??= {};
-    sbeMap[sle.item][sle.location] ??= getSBE(
+    sbeMap[sle.item][sle.location] ??= {};
+    sbeMap[sle.item][sle.location][batch] ??= getSBE(
       sle.item,
       sle.location,
-      sle.batchNumber
+      batch
     );
     const date = sle.date.valueOf();
 
     if (fromDate && date < fromDate) {
-      const sbe = sbeMap[sle.item][sle.location]!;
+      const sbe = sbeMap[sle.item][sle.location][batch];
       updateOpeningBalances(sbe, sle);
       continue;
     }
@@ -150,26 +160,28 @@ export function getStockBalanceEntries(
       continue;
     }
 
-    const sbe = sbeMap[sle.item][sle.location]!;
+    const sbe = sbeMap[sle.item][sle.location][batch];
     updateCurrentBalances(sbe, sle);
   }
 
   return Object.values(sbeMap)
-    .map((sbes) => Object.values(sbes))
-    .flat();
+    .map((sbeBatched) =>
+      Object.values(sbeBatched).map((sbes) => Object.values(sbes))
+    )
+    .flat(2);
 }
 
 function getSBE(
   item: string,
   location: string,
-  batchNumber: string
+  batch: string
 ): StockBalanceEntry {
   return {
     name: 0,
 
     item,
     location,
-    batchNumber,
+    batch,
 
     balanceQuantity: 0,
     balanceValue: 0,

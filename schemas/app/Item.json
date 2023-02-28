@@ -132,8 +132,8 @@
       "default": false
     },
     {
-      "fieldname": "hasBatchNumber",
-      "label": "Has Batch No",
+      "fieldname": "hasBatch",
+      "label": "Has Batch",
       "fieldtype": "Check",
       "default": false,
       "section": "Inventory"
@@ -158,7 +158,6 @@
     "barcode",
     "hsnCode",
     "trackItem",
-    "hasBatchNumber",
     "uom"
   ],
   "keywordFields": ["name", "itemType", "for"]

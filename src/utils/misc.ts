@@ -108,6 +108,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   [ModelNameEnum.PurchaseReceipt]: 'inventory/purchase-receipt',
   StockLedger: 'inventory/stock-ledger',
   StockBalance: 'inventory/stock-balance',
+  [ModelNameEnum.Batch]: 'inventory/batches',
 
   // Entries
   Entries: 'entries/entries',

@@ -1,6 +1,5 @@
 import { Fyo, t } from 'fyo';
 import { ValidationError } from 'fyo/utils/errors';
-import { DateTime } from 'luxon';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { StockLedgerEntry } from './StockLedgerEntry';
@@ -133,43 +132,7 @@ export class StockManager {
 
     const date = details.date.toISOString();
     const formattedDate = this.fyo.format(details.date, 'Datetime');
-    const isItemHasBatchNumber = await this.fyo.getValue(
-      'Item',
-      details.item,
-      'hasBatchNumber'
-    );
-
-    if (isItemHasBatchNumber && !this.isCancelled) {
-      if (!details.batchNumber) {
-        throw new ValidationError(
-          t`Please enter Batch Number for ${details.item}`
-        );
-      }
-
-      const itemsInBatch =
-        (await this.fyo.db.getStockQuantity(
-          details.item,
-          details.fromLocation,
-          undefined,
-          date,
-          details.batchNumber
-        )) ?? 0;
-
-      if (details.quantity <= itemsInBatch) return;
-
-      throw new ValidationError(
-        [
-          t`Insufficient Quantity`,
-          t`Additional quantity (${
-            details.quantity - itemsInBatch
-          }) is required in batch ${
-            details.batchNumber
-          } to make the outward transfer of item ${details.item} from ${
-            details.fromLocation
-          } on ${formattedDate}`,
-        ].join('\n')
-      );
-    }
+    const batch = details.batch || undefined;
 
     let quantityBefore =
       (await this.fyo.db.getStockQuantity(
@@ -177,12 +140,14 @@ export class StockManager {
         details.fromLocation,
         undefined,
         date,
-        undefined
+        batch
       )) ?? 0;
 
     if (this.isCancelled) {
       quantityBefore += details.quantity;
     }
+
+    const batchMessage = !!batch ? t` in Batch ${batch}` : '';
 
     if (quantityBefore < details.quantity) {
       throw new ValidationError(
@@ -190,9 +155,9 @@ export class StockManager {
           t`Insufficient Quantity.`,
           t`Additional quantity (${
             details.quantity - quantityBefore
-          }) required to make outward transfer of item ${details.item} from ${
-            details.fromLocation
-          } on ${formattedDate}`,
+          }) required${batchMessage} to make outward transfer of item ${
+            details.item
+          } from ${details.fromLocation} on ${formattedDate}`,
         ].join('\n')
       );
     }
@@ -202,8 +167,9 @@ export class StockManager {
       details.fromLocation,
       details.date.toISOString(),
       undefined,
-      undefined
+      batch
     );
+
     if (quantityAfter === null) {
       // No future transactions
       return;
@@ -217,9 +183,9 @@ export class StockManager {
           t`Transfer will cause future entries to have negative stock.`,
           t`Additional quantity (${
             quantityAfter - quantityRemaining
-          }) required to make outward transfer of item ${details.item} from ${
-            details.fromLocation
-          } on ${formattedDate}`,
+          }) required${batchMessage} to make outward transfer of item ${
+            details.item
+          } from ${details.fromLocation} on ${formattedDate}`,
         ].join('\n')
       );
     }
@@ -244,7 +210,7 @@ class StockManagerItem {
   referenceType: string;
   fromLocation?: string;
   toLocation?: string;
-  batchNumber?: string;
+  batch?: string;
 
   stockLedgerEntries?: StockLedgerEntry[];
 
@@ -259,7 +225,7 @@ class StockManagerItem {
     this.toLocation = details.toLocation;
     this.referenceName = details.referenceName;
     this.referenceType = details.referenceType;
-    this.batchNumber = details.batchNumber;
+    this.batch = details.batch;
 
     this.fyo = fyo;
   }
@@ -312,7 +278,7 @@ class StockManagerItem {
       date: this.date,
       item: this.item,
       rate: this.rate,
-      batchNumber: this.batchNumber,
+      batch: this.batch || null,
       quantity,
       location,
       referenceName: this.referenceName,

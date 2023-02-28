@@ -25,9 +25,11 @@ export class StockBalance extends StockLedger {
     const filters = {
       item: this.item,
       location: this.location,
+      batch: this.batch,
       fromDate: this.fromDate,
       toDate: this.toDate,
     };
+
     const rawData = getStockBalanceEntries(this._rawData ?? [], filters);
 
     return rawData.map((sbe, i) => {
@@ -41,7 +43,7 @@ export class StockBalance extends StockLedger {
   }
 
   getFilters(): Field[] {
-    return [
+    const filters = [
       {
         fieldtype: 'Link',
         target: 'Item',
@@ -56,6 +58,17 @@ export class StockBalance extends StockLedger {
         label: t`Location`,
         fieldname: 'location',
       },
+      ...(this.hasBatches
+        ? [
+            {
+              fieldtype: 'Link',
+              target: 'Batch',
+              placeholder: t`Batch`,
+              label: t`Batch`,
+              fieldname: 'batch',
+            },
+          ]
+        : []),
       {
         fieldtype: 'Date',
         placeholder: t`From Date`,
@@ -69,6 +82,8 @@ export class StockBalance extends StockLedger {
         fieldname: 'toDate',
       },
     ] as Field[];
+
+    return filters;
   }
 
   getColumns(): ColumnField[] {
@@ -89,6 +104,11 @@ export class StockBalance extends StockLedger {
         label: 'Location',
         fieldtype: 'Link',
       },
+      ...(this.hasBatches
+        ? ([
+            { fieldname: 'batch', label: 'Batch', fieldtype: 'Link' },
+          ] as ColumnField[])
+        : []),
       {
         fieldname: 'balanceQuantity',
         label: 'Balance Qty.',

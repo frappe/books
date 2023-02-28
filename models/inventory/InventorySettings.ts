@@ -1,5 +1,5 @@
 import { Doc } from 'fyo/model/doc';
-import { FiltersMap } from 'fyo/model/types';
+import { FiltersMap, ReadOnlyMap } from 'fyo/model/types';
 import { AccountTypeEnum } from 'models/baseModels/Account/types';
 import { ValuationMethod } from './types';
 
@@ -10,6 +10,8 @@ export class InventorySettings extends Doc {
   stockReceivedButNotBilled?: string;
   costOfGoodsSold?: string;
   enableBarcodes?: boolean;
+  enableBatches?: boolean;
+  enableUomConversions?: boolean;
 
   static filters: FiltersMap = {
     stockInHand: () => ({
@@ -24,5 +26,17 @@ export class InventorySettings extends Doc {
       isGroup: false,
       accountType: AccountTypeEnum['Cost of Goods Sold'],
     }),
+  };
+
+  readOnly: ReadOnlyMap = {
+    enableBarcodes: () => {
+      return !!this.enableBarcodes;
+    },
+    enableBatches: () => {
+      return !!this.enableBatches;
+    },
+    enableUomConversions: () => {
+      return !!this.enableUomConversions;
+    },
   };
 }
