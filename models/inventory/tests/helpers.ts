@@ -1,5 +1,5 @@
 import { Fyo } from 'fyo';
-import { BatchNumber } from 'models/baseModels/BatchNumber/BatchNumber';
+import { Batch } from 'models/inventory/Batch';
 import { ModelNameEnum } from 'models/types';
 import { StockMovement } from '../StockMovement';
 import { StockTransfer } from '../StockTransfer';
@@ -27,7 +27,7 @@ type Transfer = {
   item: string;
   from?: string;
   to?: string;
-  batchNumber?: string;
+  batch?: string;
   quantity: number;
   rate: number;
 };
@@ -36,26 +36,22 @@ interface TransferTwo extends Omit<Transfer, 'from' | 'to'> {
   location: string;
 }
 
-export function getItem(
-  name: string,
-  rate: number,
-  hasBatchNumber: boolean = false
-) {
-  return { name, rate, trackItem: true, hasBatchNumber };
+export function getItem(name: string, rate: number, hasBatch: boolean = false) {
+  return { name, rate, trackItem: true, hasBatch };
 }
 
-export async function getBatchNumber(
-  schemaName: ModelNameEnum.BatchNumber,
-  batchNumber: string,
+export async function getBatch(
+  schemaName: ModelNameEnum.Batch,
+  batch: string,
   expiryDate: Date,
   manufactureDate: Date,
   fyo: Fyo
-): Promise<BatchNumber> {
+): Promise<Batch> {
   const doc = fyo.doc.getNewDoc(schemaName, {
-    batchNumber,
+    batch,
     expiryDate,
     manufactureDate,
-  }) as BatchNumber;
+  }) as Batch;
   return doc;
 }
 
@@ -87,7 +83,7 @@ export async function getStockMovement(
     item,
     from: fromLocation,
     to: toLocation,
-    batchNumber,
+    batch,
     quantity,
     rate,
   } of transfers) {
@@ -95,7 +91,7 @@ export async function getStockMovement(
       item,
       fromLocation,
       toLocation,
-      batchNumber,
+      batch,
       rate,
       quantity,
     });

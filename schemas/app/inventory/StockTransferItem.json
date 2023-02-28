@@ -42,10 +42,10 @@
       "readOnly": true
     },
     {
-      "fieldname": "batchNumber",
-      "label": "Batch No",
+      "fieldname": "batch",
+      "label": "Batch",
       "fieldtype": "Link",
-      "target": "BatchNumber"
+      "target": "Batch"
     },
     {
       "fieldname": "quantity",
@@ -92,7 +92,7 @@
 
     "transferQuantity",
     "transferUnit",
-    "batchNumber",
+    "batch",
     "quantity",
     "unit",
     "unitConversionFactor",

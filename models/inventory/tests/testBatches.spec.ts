@@ -54,10 +54,10 @@ test('create dummy items, locations & batches', async (t) => {
 
   // Create Batches
   for (const batch of Object.values(batchMap)) {
-    const doc = fyo.doc.getNewDoc(ModelNameEnum.BatchNumber, batch);
+    const doc = fyo.doc.getNewDoc(ModelNameEnum.Batch, batch);
     await doc.sync();
 
-    const exists = await fyo.db.exists(ModelNameEnum.BatchNumber, batch.name);
+    const exists = await fyo.db.exists(ModelNameEnum.Batch, batch.name);
     t.ok(exists, `${batch.name} exists`);
   }
 });
@@ -72,14 +72,14 @@ test('batched item, create stock movement, material receipt', async (t) => {
         item: itemMap.Pen.name,
         to: locationMap.LocationOne,
         quantity: 2,
-        batchNumber: batchMap.batchOne.name,
+        batch: batchMap.batchOne.name,
         rate,
       },
       {
         item: itemMap.Pen.name,
         to: locationMap.LocationOne,
         quantity: 1,
-        batchNumber: batchMap.batchTwo.name,
+        batch: batchMap.batchTwo.name,
         rate,
       },
     ],
@@ -139,7 +139,7 @@ test('batched item, create stock movement, material receipt', async (t) => {
 test('batched item, create stock movement, material issue', async (t) => {
   const { rate } = itemMap.Pen;
   const quantity = 2;
-  const batchNumber = batchMap.batchOne.name;
+  const batch = batchMap.batchOne.name;
 
   const stockMovement = await getStockMovement(
     MovementType.MaterialIssue,
@@ -148,7 +148,7 @@ test('batched item, create stock movement, material issue', async (t) => {
       {
         item: itemMap.Pen.name,
         from: locationMap.LocationOne,
-        batchNumber,
+        batch,
         quantity,
         rate,
       },
@@ -163,7 +163,7 @@ test('batched item, create stock movement, material issue', async (t) => {
       locationMap.LocationOne,
       undefined,
       undefined,
-      batchNumber
+      batch
     ),
     0,
     'batch one quantity transacted out'
@@ -185,7 +185,7 @@ test('batched item, create stock movement, material issue', async (t) => {
 test('batched item, create stock movement, material transfer', async (t) => {
   const { rate } = itemMap.Pen;
   const quantity = 1;
-  const batchNumber = batchMap.batchTwo.name;
+  const batch = batchMap.batchTwo.name;
 
   const stockMovement = await getStockMovement(
     MovementType.MaterialTransfer,
@@ -195,7 +195,7 @@ test('batched item, create stock movement, material transfer', async (t) => {
         item: itemMap.Pen.name,
         from: locationMap.LocationOne,
         to: locationMap.LocationTwo,
-        batchNumber,
+        batch,
         quantity,
         rate,
       },
@@ -210,7 +210,7 @@ test('batched item, create stock movement, material transfer', async (t) => {
       locationMap.LocationOne,
       undefined,
       undefined,
-      batchNumber
+      batch
     ),
     0,
     'location one batch transacted out'
@@ -222,7 +222,7 @@ test('batched item, create stock movement, material transfer', async (t) => {
       locationMap.LocationTwo,
       undefined,
       undefined,
-      batchNumber
+      batch
     ),
     quantity,
     'location two batch transacted in'
@@ -251,7 +251,7 @@ test('batched item, create invalid stock movements', async (t) => {
       {
         item: itemMap.Pen.name,
         from: locationMap.LocationTwo,
-        batchNumber: batchMap.batchOne.name,
+        batch: batchMap.batchOne.name,
         quantity,
         rate,
       },

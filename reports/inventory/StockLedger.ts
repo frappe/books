@@ -117,7 +117,7 @@ export class StockLedger extends Report {
         continue;
       }
 
-      if (this.batch && row.batchNumber !== this.batch) {
+      if (this.batch && row.batch !== this.batch) {
         continue;
       }
 
@@ -359,7 +359,7 @@ export class StockLedger extends Report {
         ? ([
             {
               fieldtype: 'Link',
-              target: 'BatchNumber',
+              target: 'Batch',
               placeholder: t`Batch`,
               label: t`Batch`,
               fieldname: 'batch',

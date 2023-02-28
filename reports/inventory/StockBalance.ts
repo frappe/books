@@ -62,7 +62,7 @@ export class StockBalance extends StockLedger {
         ? [
             {
               fieldtype: 'Link',
-              target: 'BatchNumber',
+              target: 'Batch',
               placeholder: t`Batch`,
               label: t`Batch`,
               fieldname: 'batch',

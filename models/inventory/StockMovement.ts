@@ -15,7 +15,7 @@ import {
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { validateBatchNumber } from './helpers';
+import { validateBatch } from './helpers';
 import { StockMovementItem } from './StockMovementItem';
 import { Transfer } from './Transfer';
 import { MovementType } from './types';
@@ -51,7 +51,7 @@ export class StockMovement extends Transfer {
   async validate() {
     await super.validate();
     this.validateManufacture();
-    await validateBatchNumber(this);
+    await validateBatch(this);
   }
 
   validateManufacture() {
@@ -115,7 +115,7 @@ export class StockMovement extends Transfer {
       item: row.item!,
       rate: row.rate!,
       quantity: row.quantity!,
-      batchNumber: row.batchNumber!,
+      batch: row.batch!,
       fromLocation: row.fromLocation,
       toLocation: row.toLocation,
     }));

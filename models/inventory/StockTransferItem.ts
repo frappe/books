@@ -26,7 +26,7 @@ export class StockTransferItem extends Doc {
   amount?: Money;
   description?: string;
   hsnCode?: number;
-  batchNumber?: string;
+  batch?: string;
 
   formulas: FormulaMap = {
     description: {
@@ -207,7 +207,7 @@ export class StockTransferItem extends Doc {
   };
 
   override hidden: HiddenMap = {
-    batchNumber: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
     transferUnit: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
     transferQuantity: () =>

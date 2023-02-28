@@ -132,8 +132,8 @@
       "default": false
     },
     {
-      "fieldname": "hasBatchNumber",
-      "label": "Has Batch Number",
+      "fieldname": "hasBatch",
+      "label": "Has Batch",
       "fieldtype": "Check",
       "default": false,
       "section": "Inventory"

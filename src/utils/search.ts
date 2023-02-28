@@ -236,7 +236,7 @@ function getListViewList(fyo: Fyo): SearchItem[] {
 
   const hasBatch = fyo.doc.singles.InventorySettings?.enableBatches;
   if (hasBatch) {
-    schemaNames.push(ModelNameEnum.BatchNumber);
+    schemaNames.push(ModelNameEnum.Batch);
   }
 
   if (fyo.store.isDevelopment) {

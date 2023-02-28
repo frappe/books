@@ -132,7 +132,7 @@ export class StockManager {
 
     const date = details.date.toISOString();
     const formattedDate = this.fyo.format(details.date, 'Datetime');
-    const batchNumber = details.batchNumber || undefined;
+    const batch = details.batch || undefined;
 
     let quantityBefore =
       (await this.fyo.db.getStockQuantity(
@@ -140,14 +140,14 @@ export class StockManager {
         details.fromLocation,
         undefined,
         date,
-        batchNumber
+        batch
       )) ?? 0;
 
     if (this.isCancelled) {
       quantityBefore += details.quantity;
     }
 
-    const batchNumberMessage = !!batchNumber ? t` in Batch ${batchNumber}` : '';
+    const batchMessage = !!batch ? t` in Batch ${batch}` : '';
 
     if (quantityBefore < details.quantity) {
       throw new ValidationError(
@@ -155,7 +155,7 @@ export class StockManager {
           t`Insufficient Quantity.`,
           t`Additional quantity (${
             details.quantity - quantityBefore
-          }) required${batchNumberMessage} to make outward transfer of item ${
+          }) required${batchMessage} to make outward transfer of item ${
             details.item
           } from ${details.fromLocation} on ${formattedDate}`,
         ].join('\n')
@@ -167,7 +167,7 @@ export class StockManager {
       details.fromLocation,
       details.date.toISOString(),
       undefined,
-      batchNumber
+      batch
     );
 
     if (quantityAfter === null) {
@@ -183,7 +183,7 @@ export class StockManager {
           t`Transfer will cause future entries to have negative stock.`,
           t`Additional quantity (${
             quantityAfter - quantityRemaining
-          }) required${batchNumberMessage} to make outward transfer of item ${
+          }) required${batchMessage} to make outward transfer of item ${
             details.item
           } from ${details.fromLocation} on ${formattedDate}`,
         ].join('\n')
@@ -210,7 +210,7 @@ class StockManagerItem {
   referenceType: string;
   fromLocation?: string;
   toLocation?: string;
-  batchNumber?: string;
+  batch?: string;
 
   stockLedgerEntries?: StockLedgerEntry[];
 
@@ -225,7 +225,7 @@ class StockManagerItem {
     this.toLocation = details.toLocation;
     this.referenceName = details.referenceName;
     this.referenceType = details.referenceType;
-    this.batchNumber = details.batchNumber;
+    this.batch = details.batch;
 
     this.fyo = fyo;
   }
@@ -278,7 +278,7 @@ class StockManagerItem {
       date: this.date,
       item: this.item,
       rate: this.rate,
-      batchNumber: this.batchNumber || null,
+      batch: this.batch || null,
       quantity,
       location,
       referenceName: this.referenceName,
