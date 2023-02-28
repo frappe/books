@@ -115,6 +115,7 @@ export function getStockBalanceEntries(
     location?: string;
     fromDate?: string;
     toDate?: string;
+    batch?: string;
   }
 ): StockBalanceEntry[] {
   const sbeMap: Record<
@@ -131,6 +132,10 @@ export function getStockBalanceEntries(
     }
 
     if (filters.location && sle.location !== filters.location) {
+      continue;
+    }
+
+    if (filters.batch && sle.batch !== filters.batch) {
       continue;
     }
 
