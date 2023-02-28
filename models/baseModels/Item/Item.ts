@@ -19,7 +19,7 @@ export class Item extends Doc {
   trackItem?: boolean;
   itemType?: 'Product' | 'Service';
   for?: 'Purchases' | 'Sales' | 'Both';
-  hasBatchNumber?: boolean;
+  hasBatch?: boolean;
 
   formulas: FormulaMap = {
     incomeAccount: {
@@ -124,7 +124,7 @@ export class Item extends Doc {
       this.itemType !== 'Product' ||
       (this.inserted && !this.trackItem),
     barcode: () => !this.fyo.singles.InventorySettings?.enableBarcodes,
-    hasBatchNumber: () =>
+    hasBatch: () =>
       !(this.fyo.singles.InventorySettings?.enableBatches && this.trackItem),
     uomConversions: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
@@ -134,6 +134,6 @@ export class Item extends Doc {
     unit: () => this.inserted,
     itemType: () => this.inserted,
     trackItem: () => this.inserted,
-    hasBatchNumber: () => this.inserted,
+    hasBatch: () => this.inserted,
   };
 }

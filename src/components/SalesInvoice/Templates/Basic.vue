@@ -74,9 +74,9 @@
             <div class="py-4 text-end w-2/12">Quantity</div>
             <div
               class="w-3/12 text-end py-4"
-              v-if="printObject.displayBatchNumber"
+              v-if="printObject.displayBatch"
             >
-              Batch No
+              Batch
             </div>
             <div class="py-4 text-end w-3/12">Rate</div>
             <div class="py-4 text-end w-3/12">Amount</div>
@@ -93,9 +93,9 @@
             <div class="w-2/12 text-end py-4">{{ row.quantity }}</div>
             <div
               class="w-3/12 text-end py-4"
-              v-if="printObject.displayBatchNumber"
+              v-if="printObject.displayBatch"
             >
-              {{ row.batchNumber }}
+              {{ row.batch }}
             </div>
             <div class="w-3/12 text-end py-4">{{ row.rate }}</div>
             <div class="w-3/12 text-end py-4">{{ row.amount }}</div>

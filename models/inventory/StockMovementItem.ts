@@ -31,7 +31,7 @@ export class StockMovementItem extends Doc {
   rate?: Money;
   amount?: Money;
   parentdoc?: StockMovement;
-  batchNumber?: string;
+  batch?: string;
 
   get isIssue() {
     return this.parentdoc?.movementType === MovementType.MaterialIssue;
@@ -235,7 +235,7 @@ export class StockMovementItem extends Doc {
   };
 
   override hidden: HiddenMap = {
-    batchNumber: () => !this.fyo.singles.InventorySettings?.enableBatches,
+    batch: () => !this.fyo.singles.InventorySettings?.enableBatches,
     transferUnit: () =>
       !this.fyo.singles.InventorySettings?.enableUomConversions,
     transferQuantity: () =>

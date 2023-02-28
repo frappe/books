@@ -7,43 +7,43 @@ import { StockMovementItem } from './StockMovementItem';
 import { StockTransfer } from './StockTransfer';
 import { StockTransferItem } from './StockTransferItem';
 
-export async function validateBatchNumber(
+export async function validateBatch(
   doc: StockMovement | StockTransfer | Invoice
 ) {
   for (const row of doc.items ?? []) {
-    await validateItemRowBatchNumber(row);
+    await validateItemRowBatch(row);
   }
 }
 
-async function validateItemRowBatchNumber(
+async function validateItemRowBatch(
   doc: StockMovementItem | StockTransferItem | InvoiceItem
 ) {
   const idx = doc.idx ?? 0 + 1;
   const item = doc.item;
-  const batchNumber = doc.batchNumber;
+  const batch = doc.batch;
   if (!item) {
     return;
   }
 
-  const hasBatchNumber = await doc.fyo.getValue(
+  const hasBatch = await doc.fyo.getValue(
     ModelNameEnum.Item,
     item,
-    'hasBatchNumber'
+    'hasBatch'
   );
 
-  if (!hasBatchNumber && batchNumber) {
+  if (!hasBatch && batch) {
     throw new ValidationError(
       [
-        doc.fyo.t`Batch Number set for row ${idx}.`,
+        doc.fyo.t`Batch set for row ${idx}.`,
         doc.fyo.t`Item ${item} is not a batched item`,
       ].join(' ')
     );
   }
 
-  if (hasBatchNumber && !batchNumber) {
+  if (hasBatch && !batch) {
     throw new ValidationError(
       [
-        doc.fyo.t`Batch Number not set for row ${idx}.`,
+        doc.fyo.t`Batch not set for row ${idx}.`,
         doc.fyo.t`Item ${item} is a batched item`,
       ].join(' ')
     );

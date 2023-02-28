@@ -11,7 +11,7 @@ import {
 import { DEFAULT_CURRENCY } from 'fyo/utils/consts';
 import { ValidationError } from 'fyo/utils/errors';
 import { addItem, getExchangeRate, getNumberSeries } from 'models/helpers';
-import { validateBatchNumber } from 'models/inventory/helpers';
+import { validateBatch } from 'models/inventory/helpers';
 import { InventorySettings } from 'models/inventory/InventorySettings';
 import { StockTransfer } from 'models/inventory/StockTransfer';
 import { Transactional } from 'models/Transactional/Transactional';
@@ -546,7 +546,7 @@ export abstract class Invoice extends Transactional {
       const item = row.item;
       const quantity = row.stockNotTransferred;
       const trackItem = itemDoc.trackItem;
-      const batchNumber = row.batchNumber || null;
+      const batch = row.batch || null;
       let rate = row.rate as Money;
 
       if (this.exchangeRate && this.exchangeRate > 1) {
@@ -562,7 +562,7 @@ export abstract class Invoice extends Transactional {
         quantity,
         location,
         rate,
-        batchNumber,
+        batch,
       });
     }
 
