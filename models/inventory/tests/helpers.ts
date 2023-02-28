@@ -36,7 +36,11 @@ interface TransferTwo extends Omit<Transfer, 'from' | 'to'> {
   location: string;
 }
 
-export function getItem(name: string, rate: number, hasBatchNumber?: boolean) {
+export function getItem(
+  name: string,
+  rate: number,
+  hasBatchNumber: boolean = false
+) {
   return { name, rate, trackItem: true, hasBatchNumber };
 }
 
@@ -83,7 +87,7 @@ export async function getStockMovement(
     item,
     from: fromLocation,
     to: toLocation,
-    batchNumber: batchNumber,
+    batchNumber,
     quantity,
     rate,
   } of transfers) {

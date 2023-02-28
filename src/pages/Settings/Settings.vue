@@ -120,16 +120,26 @@ export default {
     if (this.fieldsChanged.length === 0) {
       return;
     }
-    const fieldnames = this.fieldsChanged.map(({ fieldname }) => fieldname);
 
-    if (
-      fieldnames.includes('displayPrecision') ||
-      fieldnames.includes('hideGetStarted') ||
-      fieldnames.includes('displayPrecision') ||
-      fieldnames.includes('enableDiscounting') ||
-      fieldnames.includes('enableInventory') ||
-      fieldnames.includes('enableBarcodes')
-    ) {
+    const shouleShowReload = this.fieldsChanged
+      .map(({ fieldname }) => fieldname)
+      .some((f) => {
+        if (f.startsWith('enable')) {
+          return true;
+        }
+
+        if (f === 'displayPrecision') {
+          return true;
+        }
+
+        if (f === 'hideGetStarted') {
+          return true;
+        }
+
+        return false;
+      });
+
+    if (shouleShowReload) {
       this.showReloadToast();
     }
   },
