@@ -6,46 +6,36 @@
     {
       "fieldname": "logo",
       "label": "Logo",
-      "fieldtype": "AttachImage"
+      "fieldtype": "AttachImage",
+      "section": "Default"
     },
     {
       "fieldname": "companyName",
       "label": "Company Name",
-      "fieldtype": "Data"
+      "fieldtype": "Data",
+      "section": "Default"
     },
     {
       "fieldname": "email",
       "label": "Email",
       "fieldtype": "Data",
-      "placeholder": "john@doe.com"
-    },
-    {
-      "fieldname": "displayLogo",
-      "label": "Display Logo in Invoice",
-      "fieldtype": "Check"
-    },
-    {
-      "fieldname": "displayTaxInvoice",
-      "label": "Display Tax Invoice",
-      "fieldtype": "Check"
-    },
-    {
-      "fieldname": "displayBatch",
-      "label": "Display Batch",
-      "fieldtype": "Check"
+      "placeholder": "john@doe.com",
+      "section": "Contacts"
     },
     {
       "fieldname": "phone",
       "label": "Phone",
       "fieldtype": "Data",
-      "placeholder": "9888900000"
+      "placeholder": "9888900000",
+      "section": "Contacts"
     },
     {
       "fieldname": "address",
       "label": "Address",
       "fieldtype": "Link",
       "target": "Address",
-      "inline": true
+      "inline": true,
+      "section": "Contacts"
     },
     {
       "fieldname": "template",
@@ -66,7 +56,8 @@
           "label": "Business"
         }
       ],
-      "default": "Basic"
+      "default": "Basic",
+      "section": "Customizations"
     },
     {
       "fieldname": "color",
@@ -115,7 +106,8 @@
           "label": "Black",
           "value": "#112B42"
         }
-      ]
+      ],
+      "section": "Customizations"
     },
     {
       "fieldname": "font",
@@ -136,7 +128,26 @@
           "label": "Courier"
         }
       ],
-      "default": "Arial"
+      "default": "Arial",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "displayLogo",
+      "label": "Display Logo in Invoice",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "displayTaxInvoice",
+      "label": "Display Tax Invoice",
+      "fieldtype": "Check",
+      "section": "Customizations"
+    },
+    {
+      "fieldname": "displayBatch",
+      "label": "Display Batch",
+      "fieldtype": "Check",
+      "section": "Customizations"
     }
   ],
   "quickEditFields": [
