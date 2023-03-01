@@ -82,7 +82,7 @@ import { evaluateHidden } from 'src/utils/doc';
 import { reloadWindow } from 'src/utils/ipcCalls';
 import { UIGroupedFields } from 'src/utils/types';
 import { showToast } from 'src/utils/ui';
-import { defineComponent, nextTick } from 'vue';
+import { computed, defineComponent, nextTick } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
 
 export default defineComponent({
@@ -102,15 +102,19 @@ export default defineComponent({
       quickEditDoc: null | Doc;
     };
   },
+  provide() {
+    return { doc: computed(() => this.doc) };
+  },
   mounted() {
-    this.updateGroupedFields();
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore
       window.settings = this;
     }
+
+    this.update();
   },
   methods: {
-    async sync() {
+    async sync(): Promise<void> {
       const syncableDocs = this.schemas
         .map(({ name }) => this.fyo.singles[name])
         .filter((doc) => doc?.canSave) as Doc[];
@@ -127,7 +131,7 @@ export default defineComponent({
         action: reloadWindow,
       });
     },
-    async syncDoc(doc: Doc) {
+    async syncDoc(doc: Doc): Promise<void> {
       try {
         await doc.sync();
         this.updateGroupedFields();
@@ -139,7 +143,7 @@ export default defineComponent({
         await handleErrorWithDialog(err, doc);
       }
     },
-    async toggleQuickEditDoc(doc: Doc | null) {
+    async toggleQuickEditDoc(doc: Doc | null): Promise<void> {
       if (this.quickEditDoc && doc) {
         this.quickEditDoc = null;
         await nextTick();
@@ -147,7 +151,7 @@ export default defineComponent({
 
       this.quickEditDoc = doc;
     },
-    async onValueChange(field: Field, value: DocValue) {
+    async onValueChange(field: Field, value: DocValue): Promise<void> {
       const { fieldname } = field;
       delete this.errors[fieldname];
 
@@ -163,16 +167,16 @@ export default defineComponent({
 
       this.update();
     },
-    update() {
+    update(): void {
       this.updateCanSave();
       this.updateGroupedFields();
     },
-    updateCanSave() {
+    updateCanSave(): void {
       this.canSave = this.schemas
         .map(({ name }) => this.fyo.singles[name]?.canSave)
         .some(Boolean);
     },
-    updateGroupedFields() {
+    updateGroupedFields(): void {
       const grouped: UIGroupedFields = new Map();
       const fields: Field[] = this.schemas.map((s) => s.fields).flat();
 
@@ -183,7 +187,7 @@ export default defineComponent({
         }
 
         const tabbed = grouped.get(schemaName)!;
-        const section = field.section ?? this.t`Misc`;
+        const section = field.section ?? this.t`Miscellaneous`;
         if (!tabbed.has(section)) {
           tabbed.set(section, []);
         }
@@ -214,7 +218,7 @@ export default defineComponent({
     },
     tabLabels(): Record<string, string> {
       return {
-        [ModelNameEnum.AccountingSettings]: this.t`Accounting`,
+        [ModelNameEnum.AccountingSettings]: this.t`General`,
         [ModelNameEnum.PrintSettings]: this.t`Print`,
         [ModelNameEnum.InventorySettings]: this.t`Inventory`,
         [ModelNameEnum.Defaults]: this.t`Defaults`,
@@ -227,9 +231,9 @@ export default defineComponent({
 
       return [
         ModelNameEnum.AccountingSettings,
-        ModelNameEnum.PrintSettings,
         ModelNameEnum.InventorySettings,
         ModelNameEnum.Defaults,
+        ModelNameEnum.PrintSettings,
         ModelNameEnum.SystemSettings,
       ]
         .filter((s) =>
@@ -237,7 +241,7 @@ export default defineComponent({
         )
         .map((s) => this.fyo.schemaMap[s]!);
     },
-    activeGroup() {
+    activeGroup(): Map<string, Field[]> {
       if (!this.groupedFields) {
         return new Map();
       }
