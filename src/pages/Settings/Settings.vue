@@ -80,6 +80,8 @@ import { handleErrorWithDialog } from 'src/errorHandling';
 import { getErrorMessage } from 'src/utils';
 import { evaluateHidden } from 'src/utils/doc';
 import { reloadWindow } from 'src/utils/ipcCalls';
+import { docsPathMap } from 'src/utils/misc';
+import { docsPathRef } from 'src/utils/refs';
 import { UIGroupedFields } from 'src/utils/types';
 import { showToast } from 'src/utils/ui';
 import { computed, defineComponent, nextTick } from 'vue';
@@ -112,6 +114,12 @@ export default defineComponent({
     }
 
     this.update();
+  },
+  activated(): void {
+    docsPathRef.value = docsPathMap.Settings ?? '';
+  },
+  deactivated(): void {
+    docsPathRef.value = '';
   },
   methods: {
     async sync(): Promise<void> {

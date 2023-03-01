@@ -132,7 +132,6 @@ export default {
     DropdownWithActions,
   },
   emits: ['close'],
-  inject: ['shortcuts'],
   provide() {
     return {
       schemaName: this.schemaName,
