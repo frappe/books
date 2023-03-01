@@ -45,7 +45,23 @@
       "default": "MMM d, y",
       "required": true,
       "allowCustom": true,
-      "description": "Sets the app-wide date display format."
+      "description": "Sets the app-wide date display format.",
+      "section": "Default"
+    },
+    {
+      "fieldname": "hideGetStarted",
+      "label": "Hide Get Started",
+      "fieldtype": "Check",
+      "default": false,
+      "description": "Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app.",
+      "section": "Default"
+    },
+    {
+      "fieldname": "version",
+      "label": "Version",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "section": "Default"
     },
     {
       "fieldname": "locale",
@@ -54,7 +70,8 @@
       "default": "en-IN",
       "required": true,
       "allowCustom": true,
-      "description": "Set the local code. This is used for number formatting."
+      "description": "Set the local code. This is used for number formatting.",
+      "section": "Number Display"
     },
     {
       "fieldname": "displayPrecision",
@@ -64,29 +81,8 @@
       "required": true,
       "minvalue": 0,
       "maxvalue": 9,
-      "description": "Sets how many digits are shown after the decimal point."
-    },
-    {
-      "fieldname": "internalPrecision",
-      "label": "Internal Precision",
-      "fieldtype": "Int",
-      "minvalue": 0,
-      "default": 11,
-      "description": "Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies."
-    },
-    {
-      "fieldname": "hideGetStarted",
-      "label": "Hide Get Started",
-      "fieldtype": "Check",
-      "default": false,
-      "description": "Hides the Get Started section from the sidebar. Change will be visible on restart or refreshing the app."
-    },
-    {
-      "fieldname": "countryCode",
-      "label": "Country Code",
-      "fieldtype": "Data",
-      "default": "in",
-      "description": "Country code used to initialize regional settings."
+      "description": "Sets how many digits are shown after the decimal point.",
+      "section": "Number Display"
     },
     {
       "fieldname": "currency",
@@ -94,19 +90,32 @@
       "fieldtype": "AutoComplete",
       "default": "INR",
       "readOnly": true,
-      "required": true
+      "required": true,
+      "section": "Number Display"
     },
     {
-      "fieldname": "version",
-      "label": "Version",
+      "fieldname": "internalPrecision",
+      "label": "Internal Precision",
+      "fieldtype": "Int",
+      "minvalue": 0,
+      "default": 11,
+      "description": "Sets the internal precision used for monetary calculations. Above 6 should be sufficient for most currencies.",
+      "hidden": true
+    },
+    {
+      "fieldname": "countryCode",
+      "label": "Country Code",
       "fieldtype": "Data",
-      "readOnly": true
+      "default": "in",
+      "description": "Country code used to initialize regional settings.",
+      "hidden": true
     },
     {
       "fieldname": "instanceId",
       "label": "Instance Id",
       "fieldtype": "Data",
-      "readOnly": true
+      "readOnly": true,
+      "hidden": true
     }
   ],
   "quickEditFields": [

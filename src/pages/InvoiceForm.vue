@@ -338,7 +338,6 @@ export default {
     LinkedEntryWidget,
     Barcode,
   },
-  inject: ['shortcuts'],
   provide() {
     return {
       schemaName: this.schemaName,

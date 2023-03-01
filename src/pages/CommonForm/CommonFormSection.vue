@@ -18,8 +18,10 @@
       <div
         v-for="field of fields"
         :key="field.fieldname"
-        :class="field.fieldtype === 'Table' ? 'col-span-2 text-base' : ''"
-        class="mb-auto"
+        :class="[
+          field.fieldtype === 'Table' ? 'col-span-2 text-base' : '',
+          field.fieldtype === 'Check' ? 'mt-auto' : 'mb-auto',
+        ]"
       >
         <FormControl
           :ref="field.fieldname === 'name' ? 'nameField' : 'fields'"

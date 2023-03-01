@@ -1,191 +1,268 @@
 <template>
-  <FormContainer :title="t`Settings`" :searchborder="false">
+  <FormContainer>
+    <template #header>
+      <Button v-if="canSave" type="primary" @click="sync">
+        {{ t`Save` }}
+      </Button>
+    </template>
     <template #body>
-      <!-- Icon Tab Bar -->
-      <div class="flex m-4 mb-0 gap-8">
-        <button
-          v-for="(tab, i) in tabs"
-          :key="tab.label"
-          class="
-            hover:bg-white
-            flex flex-col
-            items-center
-            justify-center
-            cursor-pointer
-            text-sm
-          "
-          :class="
-            i === activeTab &&
-            'text-blue-500 font-semibold border-b-2 border-blue-500'
-          "
-          :style="{
-            paddingBottom: i === activeTab ? 'calc(1rem - 2px)' : '1rem',
-          }"
-          @click="activeTab = i"
-        >
-          {{ tab.label }}
-        </button>
+      <FormHeader
+        :form-title="tabLabels[activeTab] ?? ''"
+        :form-sub-title="t`Settings`"
+        class="sticky top-0 bg-white border-b"
+      >
+      </FormHeader>
+      <!-- Section Container -->
+
+      <div class="overflow-auto custom-scroll" v-if="doc">
+        <CommonFormSection
+          v-for="([name, fields], idx) in activeGroup.entries()"
+          @editrow="(doc: Doc) => toggleQuickEditDoc(doc)"
+          :key="name + idx"
+          ref="section"
+          class="p-4"
+          :class="idx !== 0 && activeGroup.size > 1 ? 'border-t' : ''"
+          :show-title="activeGroup.size > 1 && name !== t`Default`"
+          :title="name"
+          :fields="fields"
+          :doc="doc"
+          :errors="errors"
+          @value-change="onValueChange"
+        />
       </div>
 
-      <!-- Component -->
-      <div class="flex-1 overflow-y-auto custom-scroll">
-        <component
-          :is="tabs[activeTab].component"
-          :schema-name="tabs[activeTab].schemaName"
-          @change="handleChange"
-        />
+      <!-- Tab Bar -->
+      <div
+        class="
+          mt-auto
+          px-4
+          pb-4
+          flex
+          gap-8
+          border-t
+          flex-shrink-0
+          sticky
+          bottom-0
+          bg-white
+        "
+        v-if="groupedFields && groupedFields.size > 1"
+      >
+        <div
+          v-for="key of groupedFields.keys()"
+          :key="key"
+          @click="activeTab = key"
+          class="text-sm cursor-pointer"
+          :class="
+            key === activeTab
+              ? 'text-blue-500 font-semibold border-t-2 border-blue-500'
+              : ''
+          "
+          :style="{
+            paddingTop: key === activeTab ? 'calc(1rem - 2px)' : '1rem',
+          }"
+        >
+          {{ tabLabels[key] }}
+        </div>
       </div>
     </template>
   </FormContainer>
 </template>
-<script>
-import { ipcRenderer } from 'electron';
-import { t } from 'fyo';
+<script lang="ts">
+import { DocValue } from 'fyo/core/types';
+import { Doc } from 'fyo/model/doc';
+import { ValidationError } from 'fyo/utils/errors';
+import { ModelNameEnum } from 'models/types';
+import { Field, Schema } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormContainer from 'src/components/FormContainer.vue';
-import Icon from 'src/components/Icon.vue';
-import PageHeader from 'src/components/PageHeader.vue';
-import Row from 'src/components/Row.vue';
-import StatusBadge from 'src/components/StatusBadge.vue';
-import { fyo } from 'src/initFyo';
+import FormHeader from 'src/components/FormHeader.vue';
+import { handleErrorWithDialog } from 'src/errorHandling';
+import { getErrorMessage } from 'src/utils';
+import { evaluateHidden } from 'src/utils/doc';
+import { reloadWindow } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
+import { UIGroupedFields } from 'src/utils/types';
 import { showToast } from 'src/utils/ui';
-import { IPC_MESSAGES } from 'utils/messages';
-import { h, markRaw } from 'vue';
-import TabBase from './TabBase.vue';
-import TabGeneral from './TabGeneral.vue';
-import TabInvoice from './TabInvoice.vue';
-import TabSystem from './TabSystem.vue';
-export default {
-  name: 'Settings',
-  components: {
-    PageHeader,
-    StatusBadge,
-    Button,
-    Row,
-    FormContainer,
-  },
-  data() {
-    const hasInventory = !!fyo.singles.AccountingSettings?.enableInventory;
+import { computed, defineComponent, nextTick } from 'vue';
+import CommonFormSection from '../CommonForm/CommonFormSection.vue';
 
+export default defineComponent({
+  components: { FormContainer, Button, FormHeader, CommonFormSection },
+  data() {
     return {
-      activeTab: 0,
-      updated: false,
-      fieldsChanged: [],
-      tabs: [
-        {
-          key: 'Invoice',
-          label: t`Invoice`,
-          schemaName: 'PrintSettings',
-          component: markRaw(TabInvoice),
-        },
-        {
-          key: 'General',
-          label: t`General`,
-          schemaName: 'AccountingSettings',
-          component: markRaw(TabGeneral),
-        },
-        {
-          key: 'Defaults',
-          label: t`Defaults`,
-          schemaName: 'Defaults',
-          component: markRaw(TabBase),
-        },
-        ...(hasInventory
-          ? [
-              {
-                key: 'Inventory',
-                label: t`Inventory`,
-                schemaName: 'InventorySettings',
-                component: markRaw(TabBase),
-              },
-            ]
-          : []),
-        {
-          key: 'System',
-          label: t`System`,
-          schemaName: 'SystemSettings',
-          component: markRaw(TabSystem),
-        },
-      ],
+      errors: {},
+      canSave: false,
+      activeTab: ModelNameEnum.AccountingSettings,
+      groupedFields: null,
+      quickEditDoc: null,
+    } as {
+      errors: Record<string, string>;
+      canSave: boolean;
+      activeTab: string;
+      groupedFields: null | UIGroupedFields;
+      quickEditDoc: null | Doc;
     };
   },
-  activated() {
-    this.setActiveTab();
-    docsPathRef.value = docsPathMap.Settings;
+  provide() {
+    return { doc: computed(() => this.doc) };
   },
-  deactivated() {
+  mounted() {
+    if (this.fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.settings = this;
+    }
+
+    this.update();
+  },
+  activated(): void {
+    docsPathRef.value = docsPathMap.Settings ?? '';
+  },
+  deactivated(): void {
     docsPathRef.value = '';
-    if (this.fieldsChanged.length === 0) {
-      return;
-    }
-
-    const shouleShowReload = this.fieldsChanged
-      .map(({ fieldname }) => fieldname)
-      .some((f) => {
-        if (f.startsWith('enable')) {
-          return true;
-        }
-
-        if (f === 'displayPrecision') {
-          return true;
-        }
-
-        if (f === 'hideGetStarted') {
-          return true;
-        }
-
-        return false;
-      });
-
-    if (shouleShowReload) {
-      this.showReloadToast();
-    }
   },
   methods: {
-    showReloadToast() {
-      showToast({
-        message: t`Settings changes will be visible on reload`,
-        actionText: t`Reload App`,
-        type: 'info',
-        action: async () => {
-          ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
-        },
-      });
-    },
-    handleChange(df, newValue, oldValue) {
-      if (!df) {
-        return;
+    async sync(): Promise<void> {
+      const syncableDocs = this.schemas
+        .map(({ name }) => this.fyo.singles[name])
+        .filter((doc) => doc?.canSave) as Doc[];
+
+      for (const doc of syncableDocs) {
+        await this.syncDoc(doc);
       }
 
-      this.fieldsChanged.push(df);
+      this.update();
+      await showToast({
+        message: this.t`Changes will be visible on reload`,
+        actionText: this.t`Reload App`,
+        type: 'info',
+        action: reloadWindow,
+      });
     },
-    setActiveTab() {
-      const { tab } = this.$route.query;
-      const index = this.tabs.findIndex((i) => i.key === tab);
-      if (index !== -1) {
-        this.activeTab = index;
-      } else {
-        this.activeTab = 0;
+    async syncDoc(doc: Doc): Promise<void> {
+      try {
+        await doc.sync();
+        this.updateGroupedFields();
+      } catch (err) {
+        if (!(err instanceof Error)) {
+          return;
+        }
+
+        await handleErrorWithDialog(err, doc);
       }
     },
-    getIconComponent(tab) {
-      return {
-        render() {
-          return h(Icon, {
-            class: 'w-6 h-6',
-            ...Object.assign(
-              {
-                name: tab.icon,
-                size: '24',
-              },
-              this.$attrs
-            ),
-          });
-        },
-      };
+    async toggleQuickEditDoc(doc: Doc | null): Promise<void> {
+      if (this.quickEditDoc && doc) {
+        this.quickEditDoc = null;
+        await nextTick();
+      }
+
+      this.quickEditDoc = doc;
+    },
+    async onValueChange(field: Field, value: DocValue): Promise<void> {
+      const { fieldname } = field;
+      delete this.errors[fieldname];
+
+      try {
+        await this.doc?.set(fieldname, value);
+      } catch (err) {
+        if (!(err instanceof Error)) {
+          return;
+        }
+
+        this.errors[fieldname] = getErrorMessage(err, this.doc ?? undefined);
+      }
+
+      this.update();
+    },
+    update(): void {
+      this.updateCanSave();
+      this.updateGroupedFields();
+    },
+    updateCanSave(): void {
+      this.canSave = this.schemas
+        .map(({ name }) => this.fyo.singles[name]?.canSave)
+        .some(Boolean);
+    },
+    updateGroupedFields(): void {
+      const grouped: UIGroupedFields = new Map();
+      const fields: Field[] = this.schemas.map((s) => s.fields).flat();
+
+      for (const field of fields) {
+        const schemaName = field.schemaName!;
+        if (!grouped.has(schemaName)) {
+          grouped.set(schemaName, new Map());
+        }
+
+        const tabbed = grouped.get(schemaName)!;
+        const section = field.section ?? this.t`Miscellaneous`;
+        if (!tabbed.has(section)) {
+          tabbed.set(section, []);
+        }
+
+        if (field.meta) {
+          continue;
+        }
+
+        const doc = this.fyo.singles[schemaName];
+        if (evaluateHidden(field, doc)) {
+          continue;
+        }
+
+        tabbed.get(section)!.push(field);
+      }
+
+      this.groupedFields = grouped;
     },
   },
-};
+  computed: {
+    doc(): Doc | null {
+      const doc = this.fyo.singles[this.activeTab];
+      if (!doc) {
+        return null;
+      }
+
+      return doc;
+    },
+    tabLabels(): Record<string, string> {
+      return {
+        [ModelNameEnum.AccountingSettings]: this.t`General`,
+        [ModelNameEnum.PrintSettings]: this.t`Print`,
+        [ModelNameEnum.InventorySettings]: this.t`Inventory`,
+        [ModelNameEnum.Defaults]: this.t`Defaults`,
+        [ModelNameEnum.SystemSettings]: this.t`System`,
+      };
+    },
+    schemas(): Schema[] {
+      const enableInventory =
+        !!this.fyo.singles.AccountingSettings?.enableInventory;
+
+      return [
+        ModelNameEnum.AccountingSettings,
+        ModelNameEnum.InventorySettings,
+        ModelNameEnum.Defaults,
+        ModelNameEnum.PrintSettings,
+        ModelNameEnum.SystemSettings,
+      ]
+        .filter((s) =>
+          s === ModelNameEnum.InventorySettings ? enableInventory : true
+        )
+        .map((s) => this.fyo.schemaMap[s]!);
+    },
+    activeGroup(): Map<string, Field[]> {
+      if (!this.groupedFields) {
+        return new Map();
+      }
+
+      const group = this.groupedFields.get(this.activeTab);
+      if (!group) {
+        throw new ValidationError(
+          `Tab group ${this.activeTab} has no value set`
+        );
+      }
+
+      return group;
+    },
+  },
+});
 </script>

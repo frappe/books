@@ -10,6 +10,10 @@ import { SelectFileOptions, SelectFileReturn } from 'utils/types';
 import { setLanguageMap } from './language';
 import { showMessageDialog, showToast } from './ui';
 
+export function reloadWindow() {
+  return ipcRenderer.send(IPC_MESSAGES.RELOAD_MAIN_WINDOW);
+}
+
 export async function selectFile(
   options: SelectFileOptions
 ): Promise<SelectFileReturn> {
