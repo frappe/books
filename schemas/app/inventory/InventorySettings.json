@@ -19,47 +19,55 @@
         }
       ],
       "default": "FIFO",
-      "required": true
+      "required": true,
+      "section": "Default"
     },
     {
       "fieldname": "defaultLocation",
       "label": "Default Location",
       "fieldtype": "Link",
       "target": "Location",
-      "create": true
+      "create": true,
+      "section": "Default"
     },
     {
       "fieldname": "stockInHand",
       "label": "Stock In Hand Acc.",
       "fieldtype": "Link",
-      "target": "Account"
+      "target": "Account",
+      "section": "Accounts"
     },
     {
       "fieldname": "stockReceivedButNotBilled",
       "label": "Stock Received But Not Billed Acc.",
       "fieldtype": "Link",
-      "target": "Account"
+      "target": "Account",
+      "section": "Accounts"
     },
     {
       "fieldname": "costOfGoodsSold",
       "label": "Cost Of Goods Sold Acc.",
       "fieldtype": "Link",
-      "target": "Account"
+      "target": "Account",
+      "section": "Accounts"
     },
     {
       "fieldname": "enableBarcodes",
       "label": "Enable Barcodes",
-      "fieldtype": "Check"
+      "fieldtype": "Check",
+      "section": "Feature Flags"
     },
     {
       "fieldname": "enableBatches",
       "label": "Enable Batches",
-      "fieldtype": "Check"
+      "fieldtype": "Check",
+      "section": "Feature Flags"
     },
     {
       "fieldname": "enableUomConversions",
       "label": "Enable UOM Conversion",
-      "fieldtype": "Check"
+      "fieldtype": "Check",
+      "section": "Feature Flags"
     }
   ]
 }

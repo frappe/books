@@ -9,73 +9,80 @@
       "label": "Sales Invoice Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
-      "create": true
+      "create": true,
+      "section": "Number Series"
     },
     {
       "fieldname": "purchaseInvoiceNumberSeries",
       "label": "Purchase Invoice Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
-      "create": true
+      "create": true,
+      "section": "Number Series"
     },
     {
       "fieldname": "journalEntryNumberSeries",
       "label": "Journal Entry Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
-      "create": true
+      "create": true,
+      "section": "Number Series"
     },
     {
       "fieldname": "paymentNumberSeries",
       "label": "Payment Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
-      "create": true
+      "create": true,
+      "section": "Number Series"
     },
     {
       "fieldname": "stockMovementNumberSeries",
       "label": "Stock Movement Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
-      "create": true
+      "create": true,
+      "section": "Number Series"
     },
     {
       "fieldname": "shipmentNumberSeries",
       "label": "Shipment Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
-      "create": true
+      "create": true,
+      "section": "Number Series"
     },
     {
       "fieldname": "purchaseReceiptNumberSeries",
       "label": "Purchase Receipt Number Series",
       "fieldtype": "Link",
       "target": "NumberSeries",
-      "create": true
+      "create": true,
+      "section": "Number Series"
     },
     {
       "fieldname": "salesInvoiceTerms",
       "label": "Sales Invoice Terms",
       "fieldtype": "Text",
-      "target": "NumberSeries"
+      "section": "Terms"
     },
     {
       "fieldname": "purchaseInvoiceTerms",
       "label": "Purchase Invoice Terms",
       "fieldtype": "Text",
-      "target": "NumberSeries"
+      "section": "Terms"
     },
     {
       "fieldname": "shipmentTerms",
       "label": "Shipment Terms",
       "fieldtype": "Text",
-      "target": "NumberSeries"
+      "section": "Terms"
     },
     {
       "fieldname": "purchaseReceiptTerms",
       "label": "Purchase Receipt Terms",
       "fieldtype": "Text",
-      "target": "NumberSeries"
+      "section": "Terms"
     }
   ]
 }
