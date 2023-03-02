@@ -83,7 +83,7 @@ import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { UIGroupedFields } from 'src/utils/types';
 import { showToast } from 'src/utils/ui';
-import { computed, defineComponent, nextTick } from 'vue';
+import { computed, defineComponent } from 'vue';
 import CommonFormSection from '../CommonForm/CommonFormSection.vue';
 
 export default defineComponent({
@@ -113,6 +113,11 @@ export default defineComponent({
     this.update();
   },
   activated(): void {
+    const tab = this.$route.query.tab;
+    if (typeof tab === 'string' && this.tabLabels[tab]) {
+      this.activeTab = tab;
+    }
+
     docsPathRef.value = docsPathMap.Settings ?? '';
   },
   async deactivated(): Promise<void> {
