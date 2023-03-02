@@ -34,7 +34,6 @@
       "label": "Address",
       "fieldtype": "Link",
       "target": "Address",
-      "inline": true,
       "create": true,
       "section": "Contacts"
     },
