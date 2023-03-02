@@ -175,15 +175,19 @@ export function getErrorHandledSync(func: Function) {
 function getIssueUrlQuery(errorLogObj?: ErrorLog): string {
   const baseUrl = 'https://github.com/frappe/books/issues/new?labels=bug';
 
-  const body = ['<h2>Description</h2>', 'Add some description...', ''];
+  const body = [
+    '<h2>Description</h2>',
+    'Add some description...',
+    '',
+    '<h2>Steps to Reproduce</h2>',
+    'Add steps to reproduce the error...',
+    '',
+    '<h2>Info</h2>',
+    '',
+  ];
 
   if (errorLogObj) {
-    body.push(
-      '<h2>Error Info</h2>',
-      '',
-      `**Error**: _${errorLogObj.name}: ${errorLogObj.message}_`,
-      ''
-    );
+    body.push(`**Error**: _${errorLogObj.name}: ${errorLogObj.message}_`, '');
   }
 
   if (errorLogObj?.stack) {

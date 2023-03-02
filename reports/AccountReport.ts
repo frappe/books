@@ -28,7 +28,6 @@ import {
 import { Field } from 'schemas/types';
 import { getMapFromList } from 'utils';
 import { QueryFilter } from 'utils/db/types';
-import { logUnexpected } from 'utils/misc';
 
 export const ACC_NAME_WIDTH = 2;
 export const ACC_BAL_WIDTH = 1.25;
