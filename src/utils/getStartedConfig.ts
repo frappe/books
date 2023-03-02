@@ -1,4 +1,5 @@
 import { t } from 'fyo';
+import { ModelNameEnum } from 'models/types';
 import { openSettings, routeTo } from './ui';
 
 export function getGetStartedConfig() {
@@ -8,23 +9,23 @@ export function getGetStartedConfig() {
 
       items: [
         {
-          key: 'Invoice',
-          label: t`Invoice`,
-          icon: 'invoice',
-          description: t`Customize your invoices by adding a logo and address details`,
-          fieldname: 'invoiceSetup',
-          action() {
-            openSettings('Invoice');
-          },
-        },
-        {
           key: 'General',
           label: t`General`,
           icon: 'general',
           description: t`Set up your company information, email, country and fiscal year`,
           fieldname: 'companySetup',
           action() {
-            openSettings('General');
+            openSettings(ModelNameEnum.AccountingSettings);
+          },
+        },
+        {
+          key: 'Print',
+          label: t`Print`,
+          icon: 'invoice',
+          description: t`Customize your invoices by adding a logo and address details`,
+          fieldname: 'printSetup',
+          action() {
+            openSettings(ModelNameEnum.PrintSettings);
           },
         },
         {
@@ -34,7 +35,7 @@ export function getGetStartedConfig() {
           description: t`Setup system defaults like date format and display precision`,
           fieldname: 'systemSetup',
           action() {
-            openSettings('System');
+            openSettings(ModelNameEnum.SystemSettings);
           },
         },
       ],

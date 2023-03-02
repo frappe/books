@@ -116,8 +116,8 @@ export default {
       }
 
       switch (key) {
-        case 'Invoice':
-          await this.updateChecks({ invoiceSetup: true });
+        case 'Print':
+          await this.updateChecks({ printSetup: true });
           break;
         case 'General':
           await this.updateChecks({ companySetup: true });
