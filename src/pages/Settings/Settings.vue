@@ -12,12 +12,11 @@
         class="sticky top-0 bg-white border-b"
       >
       </FormHeader>
-      <!-- Section Container -->
 
+      <!-- Section Container -->
       <div class="overflow-auto custom-scroll" v-if="doc">
         <CommonFormSection
           v-for="([name, fields], idx) in activeGroup.entries()"
-          @editrow="(doc: Doc) => toggleQuickEditDoc(doc)"
           :key="name + idx"
           ref="section"
           class="p-4"
@@ -95,13 +94,11 @@ export default defineComponent({
       canSave: false,
       activeTab: ModelNameEnum.AccountingSettings,
       groupedFields: null,
-      quickEditDoc: null,
     } as {
       errors: Record<string, string>;
       canSave: boolean;
       activeTab: string;
       groupedFields: null | UIGroupedFields;
-      quickEditDoc: null | Doc;
     };
   },
   provide() {
@@ -118,10 +115,26 @@ export default defineComponent({
   activated(): void {
     docsPathRef.value = docsPathMap.Settings ?? '';
   },
-  deactivated(): void {
+  async deactivated(): Promise<void> {
     docsPathRef.value = '';
+
+    if (!this.canSave) {
+      return;
+    }
+    await this.reset();
   },
   methods: {
+    async reset() {
+      const resetableDocs = this.schemas
+        .map(({ name }) => this.fyo.singles[name])
+        .filter((doc) => doc?.dirty) as Doc[];
+
+      for (const doc of resetableDocs) {
+        await doc.load();
+      }
+
+      this.update();
+    },
     async sync(): Promise<void> {
       const syncableDocs = this.schemas
         .map(({ name }) => this.fyo.singles[name])
@@ -150,14 +163,6 @@ export default defineComponent({
 
         await handleErrorWithDialog(err, doc);
       }
-    },
-    async toggleQuickEditDoc(doc: Doc | null): Promise<void> {
-      if (this.quickEditDoc && doc) {
-        this.quickEditDoc = null;
-        await nextTick();
-      }
-
-      this.quickEditDoc = doc;
     },
     async onValueChange(field: Field, value: DocValue): Promise<void> {
       const { fieldname } = field;

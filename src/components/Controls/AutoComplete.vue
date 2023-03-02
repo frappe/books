@@ -25,6 +25,7 @@
           :placeholder="inputPlaceholder"
           :readonly="isReadOnly"
           @focus="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
+          @click="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
           @blur="(e) => !isReadOnly && onBlur(e.target.value)"
           @input="onInput"
           @keydown.up="highlightItemUp"
@@ -55,7 +56,6 @@
     </template>
   </Dropdown>
 </template>
-
 <script>
 import { getOptionList } from 'fyo/utils';
 import Dropdown from 'src/components/Dropdown.vue';
@@ -81,7 +81,7 @@ export default {
     value: {
       immediate: true,
       handler(newValue) {
-        this.linkValue = this.getLinkValue(newValue);
+        this.setLinkValue(this.getLinkValue(newValue));
       },
     },
   },
@@ -89,7 +89,8 @@ export default {
     doc: { default: null },
   },
   mounted() {
-    this.linkValue = this.getLinkValue(this.linkValue || this.value);
+    const value = this.linkValue || this.value;
+    this.setLinkValue(this.getLinkValue(value));
   },
   computed: {
     options() {
@@ -101,6 +102,9 @@ export default {
     },
   },
   methods: {
+    setLinkValue(value) {
+      this.linkValue = value;
+    },
     getLinkValue(value) {
       const oldValue = this.linkValue;
       let option = this.options.find((o) => o.value === value);
@@ -116,7 +120,7 @@ export default {
     },
     async updateSuggestions(keyword) {
       if (typeof keyword === 'string') {
-        this.linkValue = keyword;
+        this.setLinkValue(keyword, true);
       }
 
       this.isLoading = true;
@@ -152,12 +156,12 @@ export default {
     },
     setSuggestion(suggestion) {
       if (suggestion?.actionOnly) {
-        this.linkValue = this.value;
+        this.setLinkValue(this.value);
         return;
       }
 
       if (suggestion) {
-        this.linkValue = suggestion.label;
+        this.setLinkValue(suggestion.label);
         this.triggerChange(suggestion.value);
       }
 
