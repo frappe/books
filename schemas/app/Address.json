@@ -1,8 +1,15 @@
 {
   "name": "Address",
   "label": "Address",
+  "naming": "manual",
   "isSingle": false,
   "fields": [
+    {
+      "fieldname": "name",
+      "label": "Address Name",
+      "fieldtype": "Data",
+      "required": true
+    },
     {
       "fieldname": "addressLine1",
       "label": "Address Line 1",
@@ -69,6 +76,7 @@
     }
   ],
   "quickEditFields": [
+    "name",
     "addressLine1",
     "addressLine2",
     "city",
@@ -76,5 +84,5 @@
     "country",
     "postalCode"
   ],
-  "inlineEditDisplayField": "addressDisplay"
+  "linkDisplayField": "addressDisplay"
 }

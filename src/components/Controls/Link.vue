@@ -16,18 +16,42 @@ export default {
   },
   mounted() {
     if (this.value) {
-      this.linkValue = this.value;
+      this.setLinkValue();
     }
   },
   watch: {
     value: {
       immediate: true,
       handler(newValue) {
-        this.linkValue = newValue;
+        this.setLinkValue(newValue);
       },
     },
   },
   methods: {
+    async setLinkValue(newValue, isInput) {
+      if (isInput) {
+        return (this.linkValue = newValue || '');
+      }
+
+      const value = newValue ?? this.value;
+      const { fieldname, target } = this.df ?? {};
+      const displayField = fyo.schemaMap[target ?? '']?.linkDisplayField;
+
+      if (!displayField) {
+        return (this.linkValue = value);
+      }
+
+      let displayValue = this.docs?.links?.[fieldname]?.get(displayField);
+      if (!displayValue) {
+        displayValue = await fyo.getValue(
+          target,
+          this.value ?? '',
+          displayField
+        );
+      }
+
+      this.linkValue = displayValue;
+    },
     getTargetSchemaName() {
       return this.df.target;
     },
@@ -104,10 +128,11 @@ export default {
             '<Badge color="blue" class="ms-2" v-if="isNewValue">{{ linkValue }}</Badge>' +
             '</div>',
           computed: {
+            value: () => this.value,
             linkValue: () => this.linkValue,
             isNewValue: () => {
               let values = this.suggestions.map((d) => d.value);
-              return this.linkValue && !values.includes(this.linkValue);
+              return this.value && !values.includes(this.value);
             },
           },
           components: { Badge },
@@ -134,6 +159,7 @@ export default {
         this.$emit('new-doc', doc);
         this.$router.back();
         this.results = [];
+        this.triggerChange(doc.name);
       });
     },
     async getCreateFilters() {

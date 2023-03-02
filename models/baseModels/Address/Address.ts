@@ -1,6 +1,11 @@
-import { t } from 'fyo';
+import { Fyo, t } from 'fyo';
 import { Doc } from 'fyo/model/doc';
-import { EmptyMessageMap, FormulaMap, ListsMap } from 'fyo/model/types';
+import {
+  EmptyMessageMap,
+  FormulaMap,
+  ListsMap,
+  ListViewSettings,
+} from 'fyo/model/types';
 import { codeStateMap } from 'regional/in';
 import { getCountryInfo } from 'utils/misc';
 
@@ -54,4 +59,10 @@ export class Address extends Doc {
       return t`Enter Country to load States`;
     },
   };
+
+  static override getListViewSettings(): ListViewSettings {
+    return {
+      columns: ['name', 'addressLine1', 'city', 'state', 'country'],
+    };
+  }
 }

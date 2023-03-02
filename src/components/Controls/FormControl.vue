@@ -48,6 +48,12 @@ export default {
     });
   },
   methods: {
+    clear() {
+      const input = this.$refs.control.$refs.input;
+      if (input instanceof HTMLInputElement) {
+        input.value = '';
+      }
+    },
     focus() {
       this.$refs.control.focus();
     },

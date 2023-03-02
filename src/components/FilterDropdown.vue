@@ -165,7 +165,11 @@ export default {
   methods: {
     getRandomString,
     addNewFilter() {
-      let df = this.fields[0];
+      const df = this.fields[0];
+      if (!df) {
+        return;
+      }
+
       this.addFilter(df.fieldname, 'like', '', false);
     },
     addFilter(fieldname, condition, value, implicit) {
