@@ -2,7 +2,14 @@ import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 
 export function evaluateReadOnly(field: Field, doc?: Doc) {
-  if (field.fieldname === 'numberSeries' && !doc?.notInserted) {
+  if (doc?.inserted && field.fieldname === 'numberSeries') {
+    return true;
+  }
+
+  if (
+    field.fieldname === 'name' &&
+    (doc?.inserted || doc?.schema.naming !== 'manual')
+  ) {
     return true;
   }
 
