@@ -66,15 +66,19 @@ export default defineComponent({
   methods: {
     focusOnNameField() {
       const naming = this.fyo.schemaMap[this.doc.schemaName]?.naming;
-      if (naming !== 'manual') {
+      if (naming !== 'manual' || this.doc.inserted) {
         return;
       }
 
-      const nameField = (this.$refs.nameField as { focus: Function }[])?.[0];
+      const nameField = (
+        this.$refs.nameField as { focus: Function; clear: Function }[]
+      )?.[0];
+
       if (!nameField) {
         return;
       }
 
+      nameField.clear();
       nameField.focus();
     },
   },

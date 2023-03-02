@@ -50,8 +50,8 @@ function removeFields(schemaMap: SchemaMap): SchemaMap {
         (fn) => fn !== fieldname
       );
 
-      if (schema.inlineEditDisplayField === fieldname) {
-        delete schema.inlineEditDisplayField;
+      if (schema.linkDisplayField === fieldname) {
+        delete schema.linkDisplayField;
       }
     }
 

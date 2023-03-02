@@ -223,6 +223,10 @@ function getListViewList(fyo: Fyo): SearchItem[] {
     ModelNameEnum.PurchaseInvoice,
     ModelNameEnum.SalesInvoice,
     ModelNameEnum.Tax,
+    ModelNameEnum.UOM,
+    ModelNameEnum.Address,
+    ModelNameEnum.AccountingLedgerEntry,
+    ModelNameEnum.Currency,
   ];
 
   const hasInventory = fyo.doc.singles.AccountingSettings?.enableInventory;
@@ -231,7 +235,8 @@ function getListViewList(fyo: Fyo): SearchItem[] {
       ModelNameEnum.StockMovement,
       ModelNameEnum.Shipment,
       ModelNameEnum.PurchaseReceipt,
-      ModelNameEnum.Location
+      ModelNameEnum.Location,
+      ModelNameEnum.StockLedgerEntry
     );
   }
 
