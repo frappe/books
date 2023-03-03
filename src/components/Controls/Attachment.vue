@@ -21,25 +21,21 @@
       />
 
       <!-- Buttons -->
-      <div class="me-2 flex gap-2">
+      <div class="me-2 flex gap-1">
         <!-- Upload Button -->
-        <button v-if="!value" class="bg-gray-300 p-0.5 rounded" @click="upload">
+        <button v-if="!value" class="p-0.5 rounded" @click="upload">
           <FeatherIcon name="upload" class="h-4 w-4 text-gray-600" />
         </button>
 
         <!-- Download Button -->
-        <button
-          v-if="value"
-          class="bg-gray-300 p-0.5 rounded"
-          @click="download"
-        >
+        <button v-if="value" class="p-0.5 rounded" @click="download">
           <FeatherIcon name="download" class="h-4 w-4 text-gray-600" />
         </button>
 
         <!-- Clear Button -->
         <button
           v-if="value && !isReadOnly"
-          class="bg-gray-300 p-0.5 rounded"
+          class="p-0.5 rounded"
           @click="clear"
         >
           <FeatherIcon name="x" class="h-4 w-4 text-gray-600" />
