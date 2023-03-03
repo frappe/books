@@ -35,7 +35,7 @@
           @keydown.esc="toggleDropdown(false)"
         />
         <svg
-          v-if="!isReadOnly"
+          v-if="!isReadOnly && !canLink"
           class="w-3 h-3"
           style="background: inherit; margin-right: -3px"
           viewBox="0 0 5 10"
@@ -45,19 +45,27 @@
           <path
             d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
             class="stroke-current"
-            :class="showMandatory ? 'text-red-500' : 'text-gray-500'"
+            :class="showMandatory ? 'text-red-400' : 'text-gray-400'"
             fill="none"
             fill-rule="evenodd"
             stroke-linecap="round"
             stroke-linejoin="round"
           />
         </svg>
+        <button
+          v-if="canLink"
+          class="p-0.5 rounded -me1 bg-transparent"
+          @click="routeToLinkedDoc"
+        >
+          <FeatherIcon name="chevron-right" class="w-4 h-4 text-gray-600" />
+        </button>
       </div>
     </template>
   </Dropdown>
 </template>
 <script>
 import { getOptionList } from 'fyo/utils';
+import { FieldTypeEnum } from 'schemas/types';
 import Dropdown from 'src/components/Dropdown.vue';
 import { fuzzyMatch } from 'src/utils';
 import Base from './Base.vue';
@@ -100,8 +108,51 @@ export default {
 
       return getOptionList(this.df, this.doc);
     },
+    canLink() {
+      if (!this.value || !this.df) {
+        return false;
+      }
+
+      const fieldtype = this.df?.fieldtype;
+      const isLink = fieldtype === FieldTypeEnum.Link;
+      const isDynamicLink = fieldtype === FieldTypeEnum.DynamicLink;
+
+      if (!isLink && !isDynamicLink) {
+        return false;
+      }
+
+      if (isLink && this.df.target) {
+        return true;
+      }
+
+      const references = this.df.references;
+      if (!references) {
+        return false;
+      }
+
+      if (!this.doc?.[references]) {
+        return false;
+      }
+
+      return true;
+    },
   },
   methods: {
+    routeToLinkedDoc() {
+      let schemaName = this.df?.target;
+      const name = this.value;
+
+      if (!schemaName) {
+        const references = this.df?.references ?? '';
+        schemaName = this.doc?.[references];
+      }
+
+      if (!schemaName || !name) {
+        return;
+      }
+
+      console.log(`routing to: ${schemaName}.${name}`);
+    },
     setLinkValue(value) {
       this.linkValue = value;
     },
