@@ -37,7 +37,7 @@ export class SalesInvoice extends Invoice {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      formRoute: ({ name }) => `/edit/SalesInvoice/${name}`,
+      formRoute: (name) => `/edit/SalesInvoice/${name}`,
       columns: [
         'name',
         getTransactionStatusColumn(),

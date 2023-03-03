@@ -100,7 +100,7 @@ export default {
       const doc = await this.fyo.doc.getDoc(this.schemaName, name);
 
       if (this.listConfig.formRoute) {
-        return await routeTo(this.listConfig.formRoute(doc));
+        return await routeTo(this.listConfig.formRoute(name));
       }
 
       const { routeFilter } = getRouteData({ doc });
@@ -137,7 +137,7 @@ export default {
       };
 
       if (this.listConfig.formRoute) {
-        path = this.listConfig.formRoute(doc);
+        path = this.listConfig.formRoute(doc.name);
       }
 
       if (typeof path === 'object') {
