@@ -68,6 +68,7 @@ import { getOptionList } from 'fyo/utils';
 import { FieldTypeEnum } from 'schemas/types';
 import Dropdown from 'src/components/Dropdown.vue';
 import { fuzzyMatch } from 'src/utils';
+import { getFormRoute, routeTo } from 'src/utils/ui';
 import Base from './Base.vue';
 
 export default {
@@ -138,7 +139,7 @@ export default {
     },
   },
   methods: {
-    routeToLinkedDoc() {
+    async routeToLinkedDoc() {
       let schemaName = this.df?.target;
       const name = this.value;
 
@@ -151,7 +152,8 @@ export default {
         return;
       }
 
-      console.log(`routing to: ${schemaName}.${name}`);
+      const route = getFormRoute(schemaName, name);
+      await routeTo(route);
     },
     setLinkValue(value) {
       this.linkValue = value;

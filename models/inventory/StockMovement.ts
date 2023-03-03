@@ -81,7 +81,7 @@ export class StockMovement extends Transfer {
 
   static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
-      formRoute: ({ name }) => `/edit/StockMovement/${name}`,
+      formRoute: (name) => `/edit/StockMovement/${name}`,
       columns: [
         'name',
         getDocStatusListColumn(),
