@@ -87,7 +87,7 @@ export interface ColumnConfig {
 
 export type ListViewColumn = string | ColumnConfig;
 export interface ListViewSettings {
-  formRoute?: (doc: Doc) => RouteLocationRaw;
+  formRoute?: (name: string) => RouteLocationRaw;
   columns?: ListViewColumn[];
 }
 

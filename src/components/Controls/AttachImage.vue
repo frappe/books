@@ -50,7 +50,7 @@
       :class="[!isReadOnly ? 'group-hover:flex' : '']"
       style="background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(2px)"
     >
-      <button class="bg-gray-300 p-0.5 rounded mb-1" @click="handleClick">
+      <button class="bg-gray-100 p-0.5 rounded mb-1" @click="handleClick">
         <FeatherIcon
           :name="shouldClear ? 'x' : 'upload'"
           class="w-4 h-4 text-gray-600"

@@ -21,12 +21,7 @@
           {{ inputPlaceholder }}
         </p>
 
-        <button
-          v-if="!isReadOnly"
-          class="p-0.5 rounded -me-1 ms-1"
-          :class="showMandatory ? 'bg-red-300' : 'bg-gray-300'"
-          @click="togglePopover"
-        >
+        <button v-if="!isReadOnly" class="p-0.5 rounded -me-1 ms-1">
           <FeatherIcon
             name="calendar"
             class="w-4 h-4"

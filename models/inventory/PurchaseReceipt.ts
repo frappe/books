@@ -8,7 +8,7 @@ export class PurchaseReceipt extends StockTransfer {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      formRoute: ({ name }) => `/edit/PurchaseReceipt/${name}`,
+      formRoute: (name) => `/edit/PurchaseReceipt/${name}`,
       columns: [
         'name',
         getTransactionStatusColumn(),

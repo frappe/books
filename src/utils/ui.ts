@@ -420,3 +420,33 @@ export function getFieldsGroupedByTabAndSection(
 
   return grouped;
 }
+
+export function getFormRoute(
+  schemaName: string,
+  name: string
+): RouteLocationRaw {
+  const route = fyo.models[schemaName]
+    ?.getListViewSettings(fyo)
+    ?.formRoute?.(name);
+
+  if (typeof route === 'string') {
+    return route;
+  }
+
+  if (
+    [
+      ModelNameEnum.SalesInvoice,
+      ModelNameEnum.PurchaseInvoice,
+      ModelNameEnum.JournalEntry,
+      ModelNameEnum.Shipment,
+      ModelNameEnum.PurchaseReceipt,
+      ModelNameEnum.StockMovement,
+      ModelNameEnum.Payment,
+      ModelNameEnum.Item,
+    ].includes(schemaName as ModelNameEnum)
+  ) {
+    return `/edit/${schemaName}/${name}`;
+  }
+
+  return `/list/${schemaName}?edit=1&schemaName=${schemaName}&name=${name}`;
+}

@@ -4,13 +4,12 @@ import { groupBy } from 'lodash';
 import { ModelNameEnum } from 'models/types';
 import { reports } from 'reports';
 import { OptionField } from 'schemas/types';
-import { getCreateRoute } from 'src/router';
 import { createFilters, routeFilters } from 'src/utils/filters';
 import { GetAllOptions } from 'utils/db/types';
 import { safeParseFloat } from 'utils/index';
 import { RouteLocationRaw } from 'vue-router';
 import { fuzzyMatch } from '.';
-import { routeTo } from './ui';
+import { getFormRoute, routeTo } from './ui';
 
 export const searchGroups = ['Docs', 'List', 'Create', 'Report', 'Page'];
 enum SearchGroupEnum {
@@ -71,17 +70,6 @@ export function getGroupLabelMap() {
     Docs: t`Docs`,
     Page: t`Page`,
   };
-}
-
-async function openQuickEditDoc(schemaName: string, fyo: Fyo) {
-  await routeTo(`/list/${schemaName}`);
-  const doc = await fyo.doc.getNewDoc(schemaName);
-  const { openQuickEdit } = await import('src/utils/ui');
-
-  await openQuickEdit({
-    schemaName,
-    name: doc.name as string,
-  });
 }
 
 async function openFormEditDoc(schemaName: string, fyo: Fyo) {
@@ -735,10 +723,10 @@ export class Search {
   _getRouteFromKeyword(keyword: Keyword): RouteLocationRaw {
     const { parent, parentSchemaName, schemaName } = keyword.meta;
     if (parent && parentSchemaName) {
-      return getCreateRoute(parentSchemaName as string, parent as string);
+      return getFormRoute(parentSchemaName as string, parent as string);
     }
 
-    return getCreateRoute(schemaName as string, keyword.values[0]);
+    return getFormRoute(schemaName as string, keyword.values[0]);
   }
 
   _getGroupedKeywords() {
