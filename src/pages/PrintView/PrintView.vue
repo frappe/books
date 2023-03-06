@@ -2,89 +2,56 @@
   <div class="flex">
     <div class="flex flex-col flex-1 bg-gray-25">
       <PageHeader class="z-10" :border="false">
-        <Button
-          class="text-gray-900 text-xs"
-          @click="showCustomiser = !showCustomiser"
-        >
-          {{ t`Customise` }}
+        <Button class="text-xs" @click="openPrintSettings">
+          {{ t`Settings` }}
         </Button>
-        <Button class="text-gray-900 text-xs" @click="makePDF">
+        <Button class="text-xs" type="primary" @click="makePDF">
           {{ t`Save as PDF` }}
         </Button>
       </PageHeader>
 
       <!-- Printview Preview -->
-      <div
-        v-if="doc && printSettings"
-        class="flex justify-center flex-1 overflow-auto relative"
-      >
+      <div v-if="doc" class="flex justify-center flex-1 overflow-auto relative">
         <div
           class="h-full shadow mb-4 absolute bg-white"
-          style="
-            width: 21cm;
-            height: 29.7cm;
-            transform: scale(0.65) translateY(-300px);
-          "
           ref="printContainer"
-        >
-          <component
-            class="flex-1"
-            :is="printTemplate"
-            v-bind="{ doc, printSettings }"
-          />
-        </div>
+        ></div>
       </div>
     </div>
-
-    <!-- Printview Customizer -->
-    <Transition name="quickedit">
-      <div class="border-s w-quick-edit" v-if="showCustomiser">
-        <div
-          class="px-4 flex items-center justify-between h-row-largest border-b"
-        >
-          <h2 class="font-semibold">{{ t`Customise` }}</h2>
-          <Button :icon="true" @click="showCustomiser = false">
-            <feather-icon name="x" class="w-4 h-4" />
-          </Button>
-        </div>
-        <TwoColumnForm
-          :doc="printSettings"
-          :autosave="true"
-          class="border-none"
-        />
-      </div>
-    </Transition>
   </div>
 </template>
-<script>
+<script lang="ts">
+import { Doc } from 'fyo/model/doc';
 import { Verb } from 'fyo/telemetry/types';
+import { ModelNameEnum } from 'models/types';
 import Button from 'src/components/Button.vue';
 import PageHeader from 'src/components/PageHeader.vue';
-import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { makePDF } from 'src/utils/ipcCalls';
 import { getPathAndMakePDF } from 'src/utils/printTemplates';
+import { openSettings } from 'src/utils/ui';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'PrintView',
-  props: { schemaName: String, name: String },
+  props: {
+    schemaName: { type: String, required: true },
+    name: { type: String, required: true },
+  },
   components: {
     PageHeader,
     Button,
-    TwoColumnForm,
   },
   data() {
     return {
       doc: null,
-      showCustomiser: false,
-      printSettings: null,
-    };
+    } as { doc: null | Doc };
   },
   async mounted() {
     this.doc = await fyo.doc.getDoc(this.schemaName, this.name);
-    this.printSettings = await fyo.doc.getDoc('PrintSettings');
 
     if (fyo.store.isDevelopment) {
+      // @ts-ignore
       window.pv = this;
     }
   },
@@ -94,11 +61,15 @@ export default {
     },
   },
   methods: {
+    async openPrintSettings() {
+      await openSettings(ModelNameEnum.PrintSettings);
+    },
     async makePDF() {
+      // @ts-ignore
       const innerHTML = this.$refs.printContainer.innerHTML;
       await getPathAndMakePDF(this.name, innerHTML);
       fyo.telemetry.log(Verb.Exported, 'SalesInvoice', { extension: 'pdf' });
     },
   },
-};
+});
 </script>

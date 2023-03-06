@@ -19,7 +19,7 @@ export class PrintTemplate extends Doc {
 
   static getListViewSettings(): ListViewSettings {
     return {
-      formRoute: ({ name }) => `/template-builder/${name}`,
+      formRoute: (name) => `/template-builder/${name}`,
       columns: ['name', 'type', 'isCustom'],
     };
   }

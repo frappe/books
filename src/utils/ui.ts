@@ -141,8 +141,8 @@ function replaceAndAppendMount(app: App<Element>, replaceId: string) {
   parent!.append(clone);
 }
 
-export function openSettings(tab: SettingsTab) {
-  routeTo({ path: '/settings', query: { tab } });
+export async function openSettings(tab: SettingsTab) {
+  await routeTo({ path: '/settings', query: { tab } });
 }
 
 export async function routeTo(route: RouteLocationRaw) {
@@ -337,11 +337,24 @@ function getDeleteAction(doc: Doc): Action {
   };
 }
 
-async function openEdit(doc: Doc) {
+async function openEdit({ name, schemaName }: Doc) {
+  if (!name) {
+    return;
+  }
+
+  const route = getFormRoute(schemaName, name);
+  return await routeTo(route);
+
+  /*
   const listConfig = fyo.models[doc.schemaName]?.getListViewSettings?.(fyo);
   const formRoute = listConfig?.formRoute;
+  if (!doc.name) {
+    return;
+  }
+
   if (formRoute) {
-    return await routeTo(formRoute(doc));
+    const route = formRoute(doc.name);
+    return await routeTo(route);
   }
 
   const isFormEdit = [
@@ -356,10 +369,11 @@ async function openEdit(doc: Doc) {
   ].includes(doc.schemaName as ModelNameEnum);
 
   if (isFormEdit) {
-    return await routeTo(`/edit/${doc.schemaName}/${doc.name!}`);
+    return await routeTo(`/edit/${doc.schemaName}/${doc.name}`);
   }
 
-  await openQuickEdit({ schemaName: doc.schemaName, name: doc.name! });
+  await openQuickEdit({ schemaName: doc.schemaName, name: doc.name });
+  */
 }
 
 function getDuplicateAction(doc: Doc): Action {

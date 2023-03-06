@@ -3,6 +3,9 @@
     <div class="flex flex-1 flex-col">
       <!-- Page Header (Title, Buttons, etc) -->
       <PageHeader :title="title" :border="false" :searchborder="searchborder">
+        <template #left>
+          <slot name="header-left" />
+        </template>
         <slot name="header" />
       </PageHeader>
 

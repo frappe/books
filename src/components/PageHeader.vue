@@ -16,6 +16,9 @@
     <h1 class="text-xl font-semibold select-none" v-if="title">
       {{ title }}
     </h1>
+    <div class="flex items-stretch window-no-drag gap-2">
+      <slot name="left" />
+    </div>
     <div
       class="flex items-stretch window-no-drag gap-2 ms-auto"
       :class="platform === 'Mac' && languageDirection === 'rtl' ? 'me-18' : ''"
@@ -59,7 +62,7 @@ export default {
   opacity: 0;
   width: 0px;
   margin-right: 0px;
-  border-eight-width: 0px;
+  border-right-width: 0px;
 }
 
 .spacer-enter-to,
@@ -67,7 +70,7 @@ export default {
   opacity: 1;
   width: var(--w-trafficlights);
   margin-right: 1rem;
-  border-eight-width: 1px;
+  border-right-width: 1px;
 }
 
 .spacer-enter-active,
