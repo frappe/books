@@ -98,8 +98,9 @@ export default defineComponent({
       window.pv = this;
     }
 
-    if (this.templateList.length) {
-      this.onTemplateNameChange(this.templateList[0]);
+    await this.setTemplateFromDefault();
+    if (!this.templateDoc && this.templateList.length) {
+      await this.onTemplateNameChange(this.templateList[0]);
     }
 
     if (this.doc) {
@@ -223,6 +224,18 @@ export default defineComponent({
       }
 
       printContainer.savePDF(this.doc?.name);
+    },
+    async setTemplateFromDefault() {
+      const defaultName =
+        this.schemaName[0].toLowerCase() +
+        this.schemaName.slice(1) +
+        ModelNameEnum.PrintTemplate;
+      const name = this.fyo.singles.Defaults?.get(defaultName);
+      if (typeof name !== 'string') {
+        return;
+      }
+
+      await this.onTemplateNameChange(name);
     },
   },
 });

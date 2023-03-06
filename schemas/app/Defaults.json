@@ -83,6 +83,55 @@
       "label": "Purchase Receipt Terms",
       "fieldtype": "Text",
       "section": "Terms"
+    },
+    {
+      "fieldname": "salesInvoicePrintTemplate",
+      "label": "Sales Invoice Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "purchaseInvoicePrintTemplate",
+      "label": "Purchase Invoice Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "journalEntryPrintTemplate",
+      "label": "Journal Entry Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "paymentPrintTemplate",
+      "label": "Payment Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "shipmentPrintTemplate",
+      "label": "Shipment Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "purchaseReceiptPrintTemplate",
+      "label": "Purchase Receipt Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
+    },
+    {
+      "fieldname": "stockMovementPrintTemplate",
+      "label": "Stock Movement Print Template",
+      "fieldtype": "Link",
+      "target": "PrintTemplate",
+      "section": "Print Templates"
     }
   ]
 }

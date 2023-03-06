@@ -4,6 +4,13 @@
       <StatusBadge :status="status" class="h-8" />
     </template>
     <template #header v-if="hasDoc">
+      <Button
+        v-if="!doc.isCancelled && !doc.dirty && isPrintable"
+        :icon="true"
+        @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
+      >
+        {{ t`Print` }}
+      </Button>
       <DropdownWithActions
         v-for="group of groupedActions"
         :key="group.label"
@@ -121,6 +128,8 @@ import {
   getDocFromNameIfExistsElseNew,
   getFieldsGroupedByTabAndSection,
   getGroupedActionsForDoc,
+  isPrintable,
+  routeTo,
 } from 'src/utils/ui';
 import { computed, defineComponent, nextTick } from 'vue';
 import QuickEditForm from '../QuickEditForm.vue';
@@ -145,12 +154,14 @@ export default defineComponent({
       activeTab: 'Default',
       groupedFields: null,
       quickEditDoc: null,
+      isPrintable: false,
     } as {
       errors: Record<string, string>;
       docOrNull: null | Doc;
       activeTab: string;
       groupedFields: null | UIGroupedFields;
       quickEditDoc: null | Doc;
+      isPrintable: boolean;
     };
   },
   async mounted() {
@@ -162,6 +173,7 @@ export default defineComponent({
     await this.setDoc();
     focusedDocsRef.add(this.docOrNull);
     this.updateGroupedFields();
+    this.isPrintable = await isPrintable(this.schemaName);
   },
   activated(): void {
     docsPathRef.value = docsPathMap[this.schemaName] ?? '';
@@ -241,6 +253,7 @@ export default defineComponent({
     },
   },
   methods: {
+    routeTo,
     updateGroupedFields(): void {
       if (!this.hasDoc) {
         return;
