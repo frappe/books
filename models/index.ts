@@ -27,6 +27,7 @@ import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
 import { Batch } from './inventory/Batch';
+import { SerialNo } from './inventory/SerialNo';
 
 export const models = {
   Account,
@@ -45,6 +46,7 @@ export const models = {
   PurchaseInvoiceItem,
   SalesInvoice,
   SalesInvoiceItem,
+  SerialNo,
   SetupWizard,
   Tax,
   TaxSummary,

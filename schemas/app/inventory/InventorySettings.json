@@ -57,6 +57,11 @@
       "fieldtype": "Check"
     },
     {
+      "fieldname": "enableSerialNo",
+      "label": "Enable Serial No",
+      "fieldtype": "Check"
+    },
+    {
       "fieldname": "enableUomConversions",
       "label": "Enable UOM Conversion",
       "fieldtype": "Check"

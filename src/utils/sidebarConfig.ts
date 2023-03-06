@@ -60,7 +60,7 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
     return [];
   }
 
-  return [
+  const inventorySidebarConfig = [
     {
       label: t`Inventory`,
       name: 'inventory',
@@ -95,10 +95,21 @@ async function getInventorySidebar(): Promise<SidebarRoot[]> {
           label: t`Stock Balance`,
           name: 'stock-balance',
           route: '/report/StockBalance',
-        }
+        },
       ],
     },
   ];
+
+  if (!!fyo.singles.InventorySettings?.enableSerialNo) {
+    inventorySidebarConfig[0].items.push({
+      label: t`Serial No`,
+      name: 'serial-no',
+      route: `/list/SerialNo`,
+      schemaName: 'SerialNo',
+    });
+  }
+
+  return inventorySidebarConfig;
 }
 
 async function getReportSidebar() {

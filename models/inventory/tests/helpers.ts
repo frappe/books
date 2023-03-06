@@ -28,6 +28,7 @@ type Transfer = {
   from?: string;
   to?: string;
   batch?: string;
+  serialNo?: string;
   quantity: number;
   rate: number;
 };
@@ -36,8 +37,13 @@ interface TransferTwo extends Omit<Transfer, 'from' | 'to'> {
   location: string;
 }
 
-export function getItem(name: string, rate: number, hasBatch: boolean = false) {
-  return { name, rate, trackItem: true, hasBatch };
+export function getItem(
+  name: string,
+  rate: number,
+  hasBatch: boolean = false,
+  hasSerialNo: boolean = false
+) {
+  return { name, rate, trackItem: true, hasBatch, hasSerialNo };
 }
 
 export async function getBatch(
@@ -84,6 +90,7 @@ export async function getStockMovement(
     from: fromLocation,
     to: toLocation,
     batch,
+    serialNo,
     quantity,
     rate,
   } of transfers) {
@@ -92,6 +99,7 @@ export async function getStockMovement(
       fromLocation,
       toLocation,
       batch,
+      serialNo,
       rate,
       quantity,
     });

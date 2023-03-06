@@ -16,7 +16,7 @@ import {
 import { Invoice } from './baseModels/Invoice/Invoice';
 import { StockMovement } from './inventory/StockMovement';
 import { StockTransfer } from './inventory/StockTransfer';
-import { InvoiceStatus, ModelNameEnum } from './types';
+import { InvoiceStatus, SerialNoStatus, ModelNameEnum } from './types';
 
 export function getInvoiceActions(
   fyo: Fyo,
@@ -227,6 +227,45 @@ export function getInvoiceStatus(doc: RenderData | Doc): InvoiceStatus {
   }
 
   return 'Saved';
+}
+
+export function getSerialNoStatusColumn(): ColumnConfig {
+  return {
+    label: t`Status`,
+    fieldname: 'status',
+    fieldtype: 'Select',
+    render(doc) {
+      const status = doc.status as SerialNoStatus;
+      const color = serialNoStatusColor[status];
+      const label = getSerialNoStatusText(status as string);
+
+      return {
+        template: `<Badge class="text-xs" color="${color}">${label}</Badge>`,
+      };
+    },
+  };
+}
+
+export const serialNoStatusColor: Record<SerialNoStatus, string | undefined> = {
+  Inactive: 'gray',
+  Active: 'green',
+  Delivered: 'green',
+  Expired: 'red',
+};
+
+export function getSerialNoStatusText(status: string): string {
+  switch (status) {
+    case 'Inactive':
+      return t`Inactive`;
+    case 'Active':
+      return t`Active`;
+    case 'Delivered':
+      return t`Delivered`;
+    case 'Expired':
+      return t`Expired`;
+    default:
+      return t`Inactive`;
+  }
 }
 
 export async function getExchangeRate({

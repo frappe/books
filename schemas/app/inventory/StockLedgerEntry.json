@@ -56,6 +56,13 @@
       "fieldtype": "Link",
       "target": "Batch",
       "readOnly": true
+    },
+    {
+      "fieldname": "serialNo",
+      "label": "Serial No",
+      "fieldtype": "Link",
+      "target": "SerialNo",
+      "readOnly": true
     }
   ]
 }

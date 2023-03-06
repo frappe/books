@@ -15,7 +15,12 @@ import {
 import { LedgerPosting } from 'models/Transactional/LedgerPosting';
 import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
-import { validateBatch } from './helpers';
+import {
+  getSerialNumbers,
+  updateSerialNoStatus,
+  validateBatch,
+  validateSerialNo,
+} from './helpers';
 import { StockMovementItem } from './StockMovementItem';
 import { Transfer } from './Transfer';
 import { MovementType } from './types';
@@ -52,6 +57,7 @@ export class StockMovement extends Transfer {
     await super.validate();
     this.validateManufacture();
     await validateBatch(this);
+    await validateSerialNo(this);
   }
 
   validateManufacture() {
@@ -69,6 +75,26 @@ export class StockMovement extends Transfer {
     if (!hasTo) {
       throw new ValidationError(this.fyo.t`Item with To location not found`);
     }
+  }
+
+  async afterSubmit(): Promise<void> {
+    await super.afterSubmit();
+    await updateSerialNoStatus(this, this.items!, 'Active');
+  }
+
+  async afterCancel(): Promise<void> {
+    for (const item of this.items!) {
+      if (!item.serialNo) break;
+      const serialNos = getSerialNumbers(item.serialNo!);
+
+      for (const serialNo of serialNos) {
+        await this.fyo.db.update(ModelNameEnum.SerialNo, {
+          name: serialNo,
+          status: 'Inactive',
+        });
+      }
+    }
+    await super.afterCancel();
   }
 
   static filters: FiltersMap = {
@@ -116,6 +142,7 @@ export class StockMovement extends Transfer {
       rate: row.rate!,
       quantity: row.quantity!,
       batch: row.batch!,
+      serialNo: row.serialNo!,
       fromLocation: row.fromLocation,
       toLocation: row.toLocation,
     }));
