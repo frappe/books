@@ -256,10 +256,6 @@ export default defineComponent({
         await this.doc.sync();
         this.updateGroupedFields();
       } catch (err) {
-        if (!(err instanceof Error)) {
-          return;
-        }
-
         await handleErrorWithDialog(err, this.doc);
       }
     },
@@ -268,10 +264,6 @@ export default defineComponent({
         await this.doc.submit();
         this.updateGroupedFields();
       } catch (err) {
-        if (!(err instanceof Error)) {
-          return;
-        }
-
         await handleErrorWithDialog(err, this.doc);
       }
     },
