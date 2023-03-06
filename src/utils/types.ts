@@ -85,3 +85,8 @@ export type ActionGroup = {
 export type UIGroupedFields = Map<string, Map<string, Field[]>>;
 export type ExportFormat = 'csv' | 'json';
 export type PeriodKey = 'This Year' | 'This Quarter' | 'This Month';
+
+export type PrintValues = {
+  print: Record<string, unknown>;
+  doc: Record<string, unknown>;
+};

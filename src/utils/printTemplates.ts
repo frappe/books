@@ -4,6 +4,7 @@ import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { ModelNameEnum } from 'models/types';
 import { FieldTypeEnum, Schema, TargetField } from 'schemas/types';
 import { getSavePath, makePDF } from './ipcCalls';
+import { PrintValues } from './types';
 
 type PrintTemplateData = Record<string, unknown>;
 
@@ -19,9 +20,11 @@ const printSettingsFields = [
 ];
 const accountingSettingsFields = ['companyName', 'gstin'];
 
-export async function getPrintTemplatePropValues(doc: Doc) {
+export async function getPrintTemplatePropValues(
+  doc: Doc
+): Promise<PrintValues> {
   const fyo = doc.fyo;
-  const values: PrintTemplateData = {};
+  const values: PrintValues = { doc: {}, print: {} };
   values.doc = await getPrintTemplateDocValues(doc);
   (values.doc as PrintTemplateData).entryType = doc.schema.name;
   (values.doc as PrintTemplateData).entryLabel = doc.schema.label;

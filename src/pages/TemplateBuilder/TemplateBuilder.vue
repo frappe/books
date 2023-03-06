@@ -1,7 +1,7 @@
 <template>
   <div>
     <PageHeader :title="t`Template Builder`">
-      <Button v-if="displayDoc && doc?.template" @click="makePDF">
+      <Button v-if="displayDoc && doc?.template" @click="savePDF">
         {{ t`Save as PDF` }}
       </Button>
       <DropdownWithActions v-if="doc?.inserted" :actions="actions" />
@@ -21,25 +21,18 @@
       <!-- Template Display Area -->
       <div class="overflow-auto custom-scroll p-4">
         <!-- Display Hints -->
-        <div v-if="helperText" class="text-sm text-gray-700">
-          {{ helperText }}
+        <div v-if="helperMessage" class="text-sm text-gray-700">
+          {{ helperMessage }}
         </div>
 
         <!-- Template Container -->
-        <ScaledContainer
+        <PrintContainer
+          ref="printContainer"
           v-if="doc.template && values"
-          :scale="Math.max(scale, 0.1)"
-          ref="scaledContainer"
-          class="mx-auto shadow-lg border"
-        >
-          <!-- Template -->
-          <component
-            class="flex-1 bg-white"
-            :doc="values.doc"
-            :print="values.print"
-            :is="{ template: doc.template, props: ['doc', 'print'] }"
-          />
-        </ScaledContainer>
+          :template="doc.template"
+          :values="values"
+          :scale="scale"
+        />
       </div>
 
       <!-- Template Builder Controls -->
@@ -245,20 +238,18 @@ import { Field, TargetField } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
-import FormHeader from 'src/components/FormHeader.vue';
 import Modal from 'src/components/Modal.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
-import { makePDF } from 'src/utils/ipcCalls';
 import {
-  getPathAndMakePDF,
   getPrintTemplatePropHints,
   getPrintTemplatePropValues,
 } from 'src/utils/printTemplates';
+import { PrintValues } from 'src/utils/types';
 import { getActionsForDoc, getDocFromNameIfExistsElseNew } from 'src/utils/ui';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
-import ScaledContainer from './ScaledContainer.vue';
+import PrintContainer from './PrintContainer.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
 
 export default defineComponent({
@@ -268,10 +259,9 @@ export default defineComponent({
     FormControl,
     Button,
     Modal,
-    FormHeader,
     TemplateBuilderHint,
     DropdownWithActions,
-    ScaledContainer,
+    PrintContainer,
   },
   provide() {
     return { doc: computed(() => this.doc) };
@@ -288,7 +278,7 @@ export default defineComponent({
       scale: 0.65,
     } as {
       hint: null | Record<string, unknown>;
-      values: null | Record<string, unknown>;
+      values: null | PrintValues;
       doc: PrintTemplate | null;
       showEditor: boolean;
       displayDoc: PrintTemplate | null;
@@ -312,19 +302,16 @@ export default defineComponent({
     await this.setInitialDoc();
   },
   methods: {
-    async makePDF() {
-      const displayDoc = this.displayDoc;
-      if (!displayDoc) {
+    async savePDF() {
+      const printContainer = this.$refs.printContainer as {
+        savePDF: (name?: string) => void;
+      };
+
+      if (!printContainer?.savePDF) {
         return;
       }
 
-      // @ts-ignore
-      const innerHTML = this.$refs.scaledContainer.$el.children[0].innerHTML;
-      if (!innerHTML) {
-        return;
-      }
-
-      await getPathAndMakePDF(displayDoc.name!, innerHTML);
+      printContainer.savePDF(this.displayDoc?.name);
     },
     async setInitialDoc() {
       const schemaName = this.doc?.type;
@@ -354,12 +341,8 @@ export default defineComponent({
 
       try {
         await doc.sync();
-      } catch (err) {
-        if (!(err instanceof Error)) {
-          return;
-        }
-
-        await handleErrorWithDialog(err, doc as Doc);
+      } catch (error) {
+        await handleErrorWithDialog(error, doc as Doc);
       }
     },
     async setDoc() {
@@ -414,7 +397,7 @@ export default defineComponent({
         target,
       };
     },
-    helperText() {
+    helperMessage() {
       if (!this.doc) {
         return '';
       }

@@ -128,7 +128,7 @@ export default {
         'companyName'
       );
       await this.setSearcher();
-      await updateConfigFiles(fyo);
+      updateConfigFiles(fyo);
     },
     async setSearcher() {
       this.searcher = new Search(fyo);
@@ -165,10 +165,6 @@ export default {
     async setDeskRoute() {
       const { onboardingComplete } = await fyo.doc.getDoc('GetStarted');
       const { hideGetStarted } = await fyo.doc.getDoc('SystemSettings');
-
-      if (fyo.store.isDevelopment) {
-        return routeTo('/list/PrintTemplate');
-      }
 
       if (hideGetStarted || onboardingComplete) {
         routeTo('/');
