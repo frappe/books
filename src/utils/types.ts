@@ -1,5 +1,6 @@
 import type { Doc } from 'fyo/model/doc';
 import type { Action } from 'fyo/model/types';
+import { ModelNameEnum } from 'models/types';
 import type { Field, FieldType } from 'schemas/types';
 import type { QueryFilter } from 'utils/db/types';
 
@@ -23,7 +24,11 @@ export interface ToastOptions {
 }
 
 export type WindowAction = 'close' | 'minimize' | 'maximize' | 'unmaximize';
-export type SettingsTab = 'Invoice' | 'General' | 'System';
+export type SettingsTab =
+  | ModelNameEnum.AccountingSettings
+  | ModelNameEnum.Defaults
+  | ModelNameEnum.PrintSettings
+  | ModelNameEnum.SystemSettings;
 
 export interface QuickEditOptions {
   doc?: Doc;

@@ -10,6 +10,7 @@ import { JournalEntryAccount } from './baseModels/JournalEntryAccount/JournalEnt
 import { Party } from './baseModels/Party/Party';
 import { Payment } from './baseModels/Payment/Payment';
 import { PaymentFor } from './baseModels/PaymentFor/PaymentFor';
+import { PrintSettings } from './baseModels/PrintSettings/PrintSettings';
 import { PurchaseInvoice } from './baseModels/PurchaseInvoice/PurchaseInvoice';
 import { PurchaseInvoiceItem } from './baseModels/PurchaseInvoiceItem/PurchaseInvoiceItem';
 import { SalesInvoice } from './baseModels/SalesInvoice/SalesInvoice';
@@ -17,6 +18,8 @@ import { SalesInvoiceItem } from './baseModels/SalesInvoiceItem/SalesInvoiceItem
 import { SetupWizard } from './baseModels/SetupWizard/SetupWizard';
 import { Tax } from './baseModels/Tax/Tax';
 import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
+import { Batch } from './inventory/Batch';
+import { SerialNo } from './inventory/SerialNo';
 import { InventorySettings } from './inventory/InventorySettings';
 import { Location } from './inventory/Location';
 import { PurchaseReceipt } from './inventory/PurchaseReceipt';
@@ -26,8 +29,6 @@ import { ShipmentItem } from './inventory/ShipmentItem';
 import { StockLedgerEntry } from './inventory/StockLedgerEntry';
 import { StockMovement } from './inventory/StockMovement';
 import { StockMovementItem } from './inventory/StockMovementItem';
-import { Batch } from './inventory/Batch';
-import { SerialNo } from './inventory/SerialNo';
 
 export const models = {
   Account,
@@ -42,6 +43,7 @@ export const models = {
   Party,
   Payment,
   PaymentFor,
+  PrintSettings,
   PurchaseInvoice,
   PurchaseInvoiceItem,
   SalesInvoice,

@@ -61,7 +61,6 @@ export interface BaseField {
   placeholder?: string;          // UI Facing config, form field placeholder
   groupBy?: string;              // UI Facing used in dropdowns fields
   meta?: boolean;                // Field is a meta field, i.e. only for the db, not UI
-  inline?: boolean;              // UI Facing config, whether to display doc inline.
   filter?: boolean;               // UI Facing config, whether to be used to filter the List.
   computed?: boolean;            // Computed values are not stored in the database.
   section?: string;              // UI Facing config, for grouping by sections
@@ -118,7 +117,7 @@ export interface Schema {
   isSubmittable?: boolean;       // For transactional types, values considered only after submit
   keywordFields?: string[];      // Used to get fields that are to be used for search.
   quickEditFields?: string[];    // Used to get fields for the quickEditForm
-  inlineEditDisplayField?:string;// Display field if inline editable
+  linkDisplayField?:string;// Display field if inline editable
   naming?: Naming;               // Used for assigning name, default is 'random' else 'numberSeries' if present
   titleField?: string;           // Main display field
   removeFields?: string[];       // Used by the builder to remove fields.

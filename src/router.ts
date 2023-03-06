@@ -141,28 +141,6 @@ const routes: RouteRecordRaw[] = [
   },
 ];
 
-export function getCreateRoute(
-  schemaName: string,
-  name: string
-): RouteLocationRaw {
-  if (
-    [
-      ModelNameEnum.SalesInvoice,
-      ModelNameEnum.PurchaseInvoice,
-      ModelNameEnum.JournalEntry,
-      ModelNameEnum.Shipment,
-      ModelNameEnum.PurchaseReceipt,
-      ModelNameEnum.StockMovement,
-      ModelNameEnum.Payment,
-      ModelNameEnum.Item,
-    ].includes(schemaName as ModelNameEnum)
-  ) {
-    return `/edit/${schemaName}/${name}`;
-  }
-
-  return `/list/${schemaName}?edit=1&schemaName=${schemaName}&name=${name}`;
-}
-
 const router = createRouter({ routes, history: createWebHistory() });
 
 export default router;

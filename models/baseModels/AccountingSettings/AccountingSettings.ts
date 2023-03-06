@@ -2,6 +2,7 @@ import { Doc } from 'fyo/model/doc';
 import {
   ChangeArg,
   FiltersMap,
+  HiddenMap,
   ListsMap,
   ReadOnlyMap,
   ValidationMap,
@@ -44,6 +45,11 @@ export class AccountingSettings extends Doc {
     enableInventory: () => {
       return !!this.enableInventory;
     },
+  };
+
+  override hidden: HiddenMap = {
+    discountAccount: () => !this.enableDiscounting,
+    gstin: () => this.fyo.singles.SystemSettings?.countryCode !== 'in',
   };
 
   async change(ch: ChangeArg) {

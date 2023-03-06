@@ -25,6 +25,7 @@
           :placeholder="inputPlaceholder"
           :readonly="isReadOnly"
           @focus="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
+          @click="(e) => !isReadOnly && onFocus(e, toggleDropdown)"
           @blur="(e) => !isReadOnly && onBlur(e.target.value)"
           @input="onInput"
           @keydown.up="highlightItemUp"
@@ -34,7 +35,7 @@
           @keydown.esc="toggleDropdown(false)"
         />
         <svg
-          v-if="!isReadOnly"
+          v-if="!isReadOnly && !canLink"
           class="w-3 h-3"
           style="background: inherit; margin-right: -3px"
           viewBox="0 0 5 10"
@@ -44,22 +45,30 @@
           <path
             d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
             class="stroke-current"
-            :class="showMandatory ? 'text-red-500' : 'text-gray-500'"
+            :class="showMandatory ? 'text-red-400' : 'text-gray-400'"
             fill="none"
             fill-rule="evenodd"
             stroke-linecap="round"
             stroke-linejoin="round"
           />
         </svg>
+        <button
+          v-if="canLink"
+          class="p-0.5 rounded -me1 bg-transparent"
+          @click="routeToLinkedDoc"
+        >
+          <FeatherIcon name="chevron-right" class="w-4 h-4 text-gray-600" />
+        </button>
       </div>
     </template>
   </Dropdown>
 </template>
-
 <script>
 import { getOptionList } from 'fyo/utils';
+import { FieldTypeEnum } from 'schemas/types';
 import Dropdown from 'src/components/Dropdown.vue';
 import { fuzzyMatch } from 'src/utils';
+import { getFormRoute, routeTo } from 'src/utils/ui';
 import Base from './Base.vue';
 
 export default {
@@ -81,7 +90,7 @@ export default {
     value: {
       immediate: true,
       handler(newValue) {
-        this.linkValue = this.getLinkValue(newValue);
+        this.setLinkValue(this.getLinkValue(newValue));
       },
     },
   },
@@ -89,7 +98,8 @@ export default {
     doc: { default: null },
   },
   mounted() {
-    this.linkValue = this.getLinkValue(this.linkValue || this.value);
+    const value = this.linkValue || this.value;
+    this.setLinkValue(this.getLinkValue(value));
   },
   computed: {
     options() {
@@ -99,8 +109,55 @@ export default {
 
       return getOptionList(this.df, this.doc);
     },
+    canLink() {
+      if (!this.value || !this.df) {
+        return false;
+      }
+
+      const fieldtype = this.df?.fieldtype;
+      const isLink = fieldtype === FieldTypeEnum.Link;
+      const isDynamicLink = fieldtype === FieldTypeEnum.DynamicLink;
+
+      if (!isLink && !isDynamicLink) {
+        return false;
+      }
+
+      if (isLink && this.df.target) {
+        return true;
+      }
+
+      const references = this.df.references;
+      if (!references) {
+        return false;
+      }
+
+      if (!this.doc?.[references]) {
+        return false;
+      }
+
+      return true;
+    },
   },
   methods: {
+    async routeToLinkedDoc() {
+      let schemaName = this.df?.target;
+      const name = this.value;
+
+      if (!schemaName) {
+        const references = this.df?.references ?? '';
+        schemaName = this.doc?.[references];
+      }
+
+      if (!schemaName || !name) {
+        return;
+      }
+
+      const route = getFormRoute(schemaName, name);
+      await routeTo(route);
+    },
+    setLinkValue(value) {
+      this.linkValue = value;
+    },
     getLinkValue(value) {
       const oldValue = this.linkValue;
       let option = this.options.find((o) => o.value === value);
@@ -116,7 +173,7 @@ export default {
     },
     async updateSuggestions(keyword) {
       if (typeof keyword === 'string') {
-        this.linkValue = keyword;
+        this.setLinkValue(keyword, true);
       }
 
       this.isLoading = true;
@@ -152,12 +209,12 @@ export default {
     },
     setSuggestion(suggestion) {
       if (suggestion?.actionOnly) {
-        this.linkValue = this.value;
+        this.setLinkValue(this.value);
         return;
       }
 
       if (suggestion) {
-        this.linkValue = suggestion.label;
+        this.setLinkValue(suggestion.label);
         this.triggerChange(suggestion.value);
       }
 

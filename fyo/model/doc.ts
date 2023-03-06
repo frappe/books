@@ -177,19 +177,16 @@ export class Doc extends Observable<DocValue | Doc[]> {
   }
 
   get canSave() {
-    if (!!this.submitted) {
+    const isSubmittable = this.schema.isSubmittable;
+    if (isSubmittable && !!this.submitted) {
       return false;
     }
 
-    if (!!this.cancelled) {
+    if (isSubmittable && !!this.cancelled) {
       return false;
     }
 
     if (!this.dirty) {
-      return false;
-    }
-
-    if (this.schema.isSingle) {
       return false;
     }
 

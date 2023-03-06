@@ -6,86 +6,99 @@
   "isSubmittable": false,
   "fields": [
     {
+      "label": "Full Name",
+      "fieldname": "fullname",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Default"
+    },
+    {
       "label": "Company Name",
       "fieldname": "companyName",
       "fieldtype": "Data",
       "readOnly": true,
-      "required": true
+      "required": true,
+      "section": "Default"
     },
     {
-      "label": "Write Off Account",
-      "fieldname": "writeOffAccount",
-      "fieldtype": "Link",
-      "target": "Account"
+      "label": "Bank Name",
+      "fieldname": "bankName",
+      "fieldtype": "Data",
+      "readOnly": true,
+      "required": true,
+      "section": "Default"
     },
     {
-      "label": "Round Off Account",
-      "fieldname": "roundOffAccount",
-      "fieldtype": "Link",
-      "target": "Account"
-    },
-    {
-      "fieldname": "country",
       "label": "Country",
+      "fieldname": "country",
       "fieldtype": "AutoComplete",
       "placeholder": "Select Country",
       "readOnly": true,
-      "required": true
-    },
-    {
-      "fieldname": "fullname",
-      "label": "Full Name",
-      "fieldtype": "Data",
-      "required": true
+      "required": true,
+      "section": "Default"
     },
     {
       "fieldname": "email",
       "label": "Email",
       "fieldtype": "Data",
-      "required": true
+      "required": true,
+      "section": "Default"
     },
     {
-      "fieldname": "bankName",
-      "label": "Bank Name",
-      "fieldtype": "Data",
-      "readOnly": true,
-      "required": true
+      "label": "Write Off Account",
+      "fieldname": "writeOffAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "section": "Accounts"
     },
     {
-      "fieldname": "fiscalYearStart",
-      "label": "Fiscal Year Start Date",
-      "fieldtype": "Date",
-      "required": true
+      "label": "Round Off Account",
+      "fieldname": "roundOffAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "section": "Accounts"
     },
     {
-      "fieldname": "fiscalYearEnd",
-      "label": "Fiscal Year End Date",
-      "fieldtype": "Date",
-      "required": true
+      "label": "Discount Account",
+      "fieldname": "discountAccount",
+      "fieldtype": "Link",
+      "target": "Account",
+      "section": "Accounts"
     },
     {
       "fieldname": "enableDiscounting",
       "label": "Enable Discount Accounting",
       "fieldtype": "Check",
-      "default": false
-    },
-    {
-      "fieldname": "discountAccount",
-      "label": "Discount Account",
-      "fieldtype": "Link",
-      "target": "Account"
+      "default": false,
+      "section": "Feature Flags"
     },
     {
       "fieldname": "enableInventory",
       "label": "Enable Inventory",
       "fieldtype": "Check",
-      "default": false
+      "default": false,
+      "section": "Feature Flags"
+    },
+    {
+      "fieldname": "fiscalYearStart",
+      "label": "Fiscal Year Start Date",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Fiscal Year"
+    },
+    {
+      "fieldname": "fiscalYearEnd",
+      "label": "Fiscal Year End Date",
+      "fieldtype": "Date",
+      "required": true,
+      "section": "Fiscal Year"
     },
     {
       "fieldname": "setupComplete",
       "label": "Setup Complete",
       "fieldtype": "Check",
-      "default": false
+      "default": false,
+      "hidden": true
     }
   ],
   "quickEditFields": [

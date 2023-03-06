@@ -23,7 +23,12 @@
         @change="(e) => triggerChange(e.target.value)"
         @focus="(e) => $emit('focus', e)"
       >
-        <option value="" disabled selected v-if="inputPlaceholder">
+        <option
+          value=""
+          disabled
+          selected
+          v-if="inputPlaceholder && !showLabel"
+        >
           {{ inputPlaceholder }}
         </option>
         <option
@@ -45,7 +50,7 @@
         <path
           d="M1 2.636L2.636 1l1.637 1.636M1 7.364L2.636 9l1.637-1.636"
           class="stroke-current"
-          :class="showMandatory ? 'text-red-500' : 'text-gray-500'"
+          :class="showMandatory ? 'text-red-400' : 'text-gray-400'"
           fill="none"
           fill-rule="evenodd"
           stroke-linecap="round"
