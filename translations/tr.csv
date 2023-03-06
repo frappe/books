@@ -608,22 +608,22 @@ User Remark,Kullanıcı Açıklaması
 Utility Expenses,Hizmet Giderleri
 Value,Değer
 Value missing for ${0},${0} için eksik değer
-Verify Imported Data,
-Version,
-Version ${0} available,
-View Purchases,
-View Sales,
-Welcome to Frappe Books,
-Write Off,
-Write Off Account,
-Write Off Account not set. Please set Write Off Account in General Settings,
-Write Off Entry,
-Yearly,
-Years,
-Yellow,
-Yes,
-Your Name,
+Verify Imported Data,İçe Aktarılan Verileri Doğrulayın
+Version, Sürüm
+Version ${0} available,Sürüm ${0} mevcut
+View Purchases,Satın Alımları Görüntüle
+View Sales,Satışları Görüntüle
+Welcome to Frappe Books,Frappe Books'a hoş geldiniz
+Write Off,Askıya Al
+Write Off Account,Hesabı Askıya Al
+Write Off Account not set. Please set Write Off Account in General Settings,Hesab Askıya alınmadı. Lütfen Genel Ayarlar'da Hesap Kapatma ayarını yapın,
+Write Off Entry,Kayıt Dışı Giriş
+Yearly,Yıllık
+Years,Yıllar
+Yellow,Sarı
+Yes,Evet
+Your Name,Senin Adın
 john@doe.com,
-reports,
-setup,
-verify the imported data and click on,
+reports,raporlar
+setup,kurulum
+verify the imported data and click on,içe aktarılan verileri doğrulayın ve üzerine tıklayın
