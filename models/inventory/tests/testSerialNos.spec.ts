@@ -3,7 +3,7 @@ import { ModelNameEnum } from 'models/types';
 import test from 'tape';
 import { closeTestFyo, getTestFyo, setupTestFyo } from 'tests/helpers';
 import { MovementType } from '../types';
-import { getItem, getSLEs, getStockMovement } from './helpers';
+import { getItem, getStockMovement } from './helpers';
 
 const fyo = getTestFyo();
 
@@ -25,6 +25,10 @@ const locationMap = {
   LocationTwo: 'LocationTwo',
 };
 
+const partyMap = {
+  partyOne: { name: 'Someone', Role: 'Both' },
+};
+
 const serialNoMap = {
   serialOne: {
     name: 'PN-AB001',
@@ -40,7 +44,7 @@ const serialNoMap = {
   },
 };
 
-test('create dummy items, locations & serialNos', async (t) => {
+test('create dummy items, locations, party & serialNos', async (t) => {
   // Create Items
   for (const { name, rate } of Object.values(itemMap)) {
     const item = getItem(name, rate, false, true);
@@ -52,18 +56,36 @@ test('create dummy items, locations & serialNos', async (t) => {
     await fyo.doc.getNewDoc(ModelNameEnum.Location, { name }).sync();
   }
 
+  // Create Party
+  await fyo.doc.getNewDoc(ModelNameEnum.Party, partyMap.partyOne).sync();
+
+  t.ok(
+    await fyo.db.exists(ModelNameEnum.Party, partyMap.partyOne.name),
+    'party created'
+  );
+
   // Create SerialNos
   for (const serialNo of Object.values(serialNoMap)) {
     const doc = fyo.doc.getNewDoc(ModelNameEnum.SerialNo, serialNo);
     await doc.sync();
 
-    const exists = await fyo.db.exists(ModelNameEnum.SerialNo, serialNo.name);
-    t.ok(exists, `${serialNo.name} exists`);
+    const status = await fyo.getValue(
+      ModelNameEnum.SerialNo,
+      serialNo.name,
+      'status'
+    );
+    t.equal(
+      status,
+      'Inactive',
+      `${serialNo.name} exists and inital status Inactive`
+    );
   }
 });
 
 test('serialNo enabled item, create stock movement, material receipt', async (t) => {
   const { rate } = itemMap.Pen;
+  const serialNo =
+    serialNoMap.serialOne.name + '\n' + serialNoMap.serialTwo.name;
   const stockMovement = await getStockMovement(
     MovementType.MaterialReceipt,
     new Date('2022-11-03T09:57:04.528'),
@@ -72,8 +94,7 @@ test('serialNo enabled item, create stock movement, material receipt', async (t)
         item: itemMap.Pen.name,
         to: locationMap.LocationOne,
         quantity: 2,
-        serialNo:
-          serialNoMap.serialOne.name + '\n' + serialNoMap.serialTwo.name,
+        serialNo,
         rate,
       },
     ],
@@ -81,6 +102,7 @@ test('serialNo enabled item, create stock movement, material receipt', async (t)
   );
 
   await (await stockMovement.sync()).submit();
+
   t.equal(
     await fyo.db.getStockQuantity(
       itemMap.Pen.name,
@@ -134,7 +156,7 @@ test('serialNo enabled item, create stock movement, material receipt', async (t)
   );
 });
 
-test('serial item, create stock movement, material issue', async (t) => {
+test('serialNo enabled item, create stock movement, material issue', async (t) => {
   const { rate } = itemMap.Pen;
   const quantity = 1;
 
@@ -180,4 +202,111 @@ test('serial item, create stock movement, material issue', async (t) => {
     'serialNo two quantity intact'
   );
 });
+
+test('serialNo enabled item, create stock movement, material transfer', async (t) => {
+  const { rate } = itemMap.Pen;
+  const quantity = 1;
+  const serialNo = serialNoMap.serialTwo.name;
+
+  const stockMovement = await getStockMovement(
+    MovementType.MaterialTransfer,
+    new Date('2022-11-03T09:58:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        from: locationMap.LocationOne,
+        to: locationMap.LocationTwo,
+        serialNo,
+        quantity,
+        rate,
+      },
+    ],
+    fyo
+  );
+
+  await (await stockMovement.sync()).submit();
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      locationMap.LocationOne,
+      undefined,
+      undefined,
+      undefined,
+      serialNo
+    ),
+    0,
+    'location one serialNoTwo transacted out'
+  );
+
+  t.equal(
+    await fyo.db.getStockQuantity(
+      itemMap.Pen.name,
+      locationMap.LocationTwo,
+      undefined,
+      undefined,
+      undefined,
+      serialNo
+    ),
+    quantity,
+    'location two serialNo transacted in'
+  );
+});
+
+test('serialNo enabled item, create invalid stock movements', async (t) => {
+  const { name, rate } = itemMap.Pen;
+  const quantity = await fyo.db.getStockQuantity(
+    itemMap.Pen.name,
+    locationMap.LocationTwo,
+    undefined,
+    undefined,
+    undefined,
+    serialNoMap.serialTwo.name
+  );
+
+  t.equal(quantity, 1, 'location two, serialNo one has quantity');
+  if (!quantity) {
+    return;
+  }
+
+  let stockMovement = await getStockMovement(
+    MovementType.MaterialIssue,
+    new Date('2022-11-03T09:59:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        from: locationMap.LocationTwo,
+        serialNo: serialNoMap.serialOne.name,
+        quantity,
+        rate,
+      },
+    ],
+    fyo
+  );
+
+  await assertThrows(
+    async () => (await stockMovement.sync()).submit(),
+    'invalid stockMovement with insufficient quantity did not throw'
+  );
+
+  stockMovement = await getStockMovement(
+    MovementType.MaterialIssue,
+    new Date('2022-11-03T09:59:04.528'),
+    [
+      {
+        item: itemMap.Pen.name,
+        from: locationMap.LocationTwo,
+        quantity,
+        rate,
+      },
+    ],
+    fyo
+  );
+
+  await assertThrows(
+    async () => (await stockMovement.sync()).submit(),
+    'invalid stockMovement without serialNo did not throw'
+  );
+  t.equal(await fyo.db.getStockQuantity(name), 1, 'item still has quantity');
+});
+
 closeTestFyo(fyo, __filename);
