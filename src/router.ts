@@ -1,5 +1,4 @@
 import { ModelNameEnum } from 'models/types';
-import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
 import ChartOfAccounts from 'src/pages/ChartOfAccounts.vue';
 import CommonForm from 'src/pages/CommonForm/CommonForm.vue';
 import Dashboard from 'src/pages/Dashboard/Dashboard.vue';
@@ -11,12 +10,8 @@ import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
-import {
-  createRouter,
-  createWebHistory,
-  RouteLocationRaw,
-  RouteRecordRaw,
-} from 'vue-router';
+import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 function getCommonFormItems(): RouteRecordRaw[] {
   return [

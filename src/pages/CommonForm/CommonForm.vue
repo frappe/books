@@ -1,7 +1,9 @@
 <template>
   <FormContainer>
+    <template #header-left v-if="hasDoc">
+      <StatusBadge :status="status" class="h-8" />
+    </template>
     <template #header v-if="hasDoc">
-      <StatusBadge :status="status" />
       <DropdownWithActions
         v-for="group of groupedActions"
         :key="group.label"
