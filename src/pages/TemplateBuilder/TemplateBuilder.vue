@@ -157,6 +157,7 @@
               @change="
               async (e: Event) => await doc?.set('template', (e.target as HTMLTextAreaElement).value)
             "
+              :disabled="!doc?.isCustom"
             />
             <button
               class="bg-gray-200 p-0.5 rounded absolute bottom-4 left-2"
@@ -223,6 +224,7 @@
               @change="
               async (e: Event) => await doc?.set('template', (e.target as HTMLTextAreaElement).value)
             "
+              :disabled="!doc?.isCustom"
             ></textarea>
           </div>
         </div>
@@ -246,7 +248,11 @@ import {
   getPrintTemplatePropValues,
 } from 'src/utils/printTemplates';
 import { PrintValues } from 'src/utils/types';
-import { getActionsForDoc, getDocFromNameIfExistsElseNew } from 'src/utils/ui';
+import {
+  getActionsForDoc,
+  getDocFromNameIfExistsElseNew,
+  openSettings,
+} from 'src/utils/ui';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
 import PrintContainer from './PrintContainer.vue';
@@ -380,7 +386,16 @@ export default defineComponent({
         return [];
       }
 
-      return getActionsForDoc(this.doc as Doc);
+      const actions = getActionsForDoc(this.doc as Doc);
+      actions.push({
+        label: this.t`Print Settings`,
+        group: this.t`View`,
+        async action() {
+          await openSettings(ModelNameEnum.PrintSettings);
+        },
+      });
+
+      return actions;
     },
     fields(): Record<string, Field> {
       return getMapFromList(
