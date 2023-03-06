@@ -1,4 +1,5 @@
 import { t } from 'fyo';
+import { DocValueMap } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { ValidationError } from 'fyo/utils/errors';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
@@ -116,52 +117,35 @@ async function validateItemRowSerialNo(
     );
 
     if (movementType == 'MaterialIssue') {
-      if (doc.isCancelled) return;
-
-      if (!name)
-        throw new ValidationError(t`Serial Number ${serialNo} does not exist.`);
-
-      if (status !== 'Active')
-        throw new ValidationError(
-          t`Serial Number ${serialNo} status is not Active`
-        );
-      if (doc.item !== item) {
-        throw new ValidationError(
-          t`Serial Number ${serialNo} does not belong to the item ${doc.item!}`
-        );
-      }
+      await validateSNMaterialIssue(
+        doc,
+        name as string,
+        item as string,
+        serialNo,
+        status as string
+      );
     }
 
     if (movementType == 'MaterialReceipt') {
-      if (name === undefined) {
-        const values = {
-          name: serialNo,
-          item: doc.item,
-          party: doc.parentdoc?.party as string,
-        };
-        (
-          await doc.fyo.doc.getNewDoc(ModelNameEnum.SerialNo, values).sync()
-        ).submit();
-      }
-
-      if (status && status !== 'Inactive') {
-        throw new ValidationError(
-          t`SerialNo ${serialNo} status is not Inactive`
-        );
-      }
+      await validateSNMaterialReceipt(
+        doc,
+        name as string,
+        serialNo,
+        status as string
+      );
     }
 
     if (movementType === 'Shipment') {
-      const { status } = await doc.fyo.db.get(
-        ModelNameEnum.SerialNo,
-        serialNo,
-        'status'
-      );
+      await validateSNShipment(doc, serialNo);
+    }
 
-      if (status !== 'Active')
-        throw new ValidationError(
-          t`Serial No ${serialNo} status is not Active`
-        );
+    if (doc.parentSchemaName === 'PurchaseReceipt') {
+      await validateSNPurchaseReceipt(
+        doc,
+        name as string,
+        serialNo,
+        status as string
+      );
     }
   }
 }
@@ -186,4 +170,89 @@ export const updateSerialNoStatus = async (
       });
     }
   }
+};
+
+const validateSNMaterialReceipt = async (
+  doc: Doc,
+  name: string,
+  serialNo: string,
+  status: string
+) => {
+  if (name === undefined) {
+    const values = {
+      name: serialNo,
+      item: doc.item,
+      party: doc.parentdoc?.party as string,
+    };
+    (
+      await doc.fyo.doc
+        .getNewDoc(ModelNameEnum.SerialNo, values as DocValueMap)
+        .sync()
+    ).submit();
+  }
+
+  if (status && status !== 'Inactive') {
+    throw new ValidationError(t`SerialNo ${serialNo} status is not Inactive`);
+  }
+};
+
+const validateSNPurchaseReceipt = async (
+  doc: Doc,
+  name: string,
+  serialNo: string,
+  status: string
+) => {
+  if (name === undefined) {
+    const values = {
+      name: serialNo,
+      item: doc.item,
+      party: doc.parentdoc?.party as string,
+      status: 'Inactive',
+    };
+    (
+      await doc.fyo.doc
+        .getNewDoc(ModelNameEnum.SerialNo, values as DocValueMap)
+        .sync()
+    ).submit();
+  }
+
+  if (status && status !== 'Inactive') {
+    throw new ValidationError(t`SerialNo ${serialNo} status is not Inactive`);
+  }
+};
+
+const validateSNMaterialIssue = async (
+  doc: Doc,
+  name: string,
+  item: string,
+  serialNo: string,
+  status: string
+) => {
+  if (doc.isCancelled) return;
+
+  if (!name)
+    throw new ValidationError(t`Serial Number ${serialNo} does not exist.`);
+
+  if (status !== 'Active')
+    throw new ValidationError(
+      t`Serial Number ${serialNo} status is not Active`
+    );
+  if (doc.item !== item) {
+    throw new ValidationError(
+      t`Serial Number ${serialNo} does not belong to the item ${
+        doc.item! as string
+      }`
+    );
+  }
+};
+
+const validateSNShipment = async (doc: Doc, serialNo: string) => {
+  const { status } = await doc.fyo.db.get(
+    ModelNameEnum.SerialNo,
+    serialNo,
+    'status'
+  );
+
+  if (status !== 'Active')
+    throw new ValidationError(t`Serial No ${serialNo} status is not Active`);
 };
