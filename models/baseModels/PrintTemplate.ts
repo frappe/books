@@ -25,9 +25,9 @@ export class PrintTemplate extends Doc {
   }
 
   readOnly: ReadOnlyMap = {
-    name: () => !!this.isCustom,
-    type: () => !!this.isCustom,
-    template: () => !!this.isCustom,
+    name: () => !this.isCustom,
+    type: () => !this.isCustom,
+    template: () => !this.isCustom,
   };
 
   static lists: ListsMap = {
