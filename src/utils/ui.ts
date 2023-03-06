@@ -490,3 +490,10 @@ export async function getDocFromNameIfExistsElseNew(
     return fyo.doc.getNewDoc(schemaName);
   }
 }
+
+export async function isPrintable(schemaName: string) {
+  const numTemplates = await fyo.db.count(ModelNameEnum.PrintTemplate, {
+    filters: { type: schemaName },
+  });
+  return numTemplates > 0;
+}
