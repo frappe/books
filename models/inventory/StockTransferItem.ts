@@ -36,12 +36,6 @@ export class StockTransferItem extends Doc {
     return this.schemaName === ModelNameEnum.ShipmentItem;
   }
 
-  parentdoc?: StockTransfer;
-
-  get isSales() {
-    return this.schemaName === ModelNameEnum.ShipmentItem;
-  }
-
   formulas: FormulaMap = {
     description: {
       formula: async () =>

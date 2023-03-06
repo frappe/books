@@ -45,6 +45,13 @@
       "section": "Details"
     },
     {
+      "fieldname": "serialNo",
+      "label": "Serial No",
+      "fieldtype": "Link",
+      "target": "SerialNo",
+      "readOnly": true
+    },
+    {
       "fieldname": "item",
       "label": "Item",
       "fieldtype": "Link",
