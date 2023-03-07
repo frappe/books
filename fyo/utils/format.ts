@@ -1,10 +1,9 @@
 import { Fyo } from 'fyo';
-import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { DateTime } from 'luxon';
 import { Money } from 'pesa';
 import { Field, FieldType, FieldTypeEnum } from 'schemas/types';
-import { getIsNullOrUndef, safeParseFloat } from 'utils';
+import { getIsNullOrUndef, safeParseFloat, titleCase } from 'utils';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_DATE_FORMAT,
@@ -13,7 +12,7 @@ import {
 } from './consts';
 
 export function format(
-  value: DocValue,
+  value: unknown,
   df: string | Field | null,
   doc: Doc | null,
   fyo: Fyo
@@ -45,7 +44,7 @@ export function format(
   }
 
   if (field.fieldtype === FieldTypeEnum.Check) {
-    return Boolean(value).toString();
+    return titleCase(Boolean(value).toString());
   }
 
   if (getIsNullOrUndef(value)) {
@@ -55,26 +54,31 @@ export function format(
   return String(value);
 }
 
-function toDatetime(value: DocValue) {
+function toDatetime(value: unknown): DateTime | null {
   if (typeof value === 'string') {
     return DateTime.fromISO(value);
   } else if (value instanceof Date) {
     return DateTime.fromJSDate(value);
-  } else {
+  } else if (typeof value === 'number') {
     return DateTime.fromSeconds(value as number);
   }
+
+  return null;
 }
 
-function formatDatetime(value: DocValue, fyo: Fyo): string {
+function formatDatetime(value: unknown, fyo: Fyo): string {
   if (value == null) {
     return '';
   }
 
   const dateFormat =
     (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
-  const formattedDatetime = toDatetime(value).toFormat(
-    `${dateFormat} HH:mm:ss`
-  );
+  const dateTime = toDatetime(value);
+  if (!dateTime) {
+    return '';
+  }
+
+  const formattedDatetime = dateTime.toFormat(`${dateFormat} HH:mm:ss`);
 
   if (value === 'Invalid DateTime') {
     return '';
@@ -83,7 +87,7 @@ function formatDatetime(value: DocValue, fyo: Fyo): string {
   return formattedDatetime;
 }
 
-function formatDate(value: DocValue, fyo: Fyo): string {
+function formatDate(value: unknown, fyo: Fyo): string {
   if (value == null) {
     return '';
   }
@@ -91,9 +95,12 @@ function formatDate(value: DocValue, fyo: Fyo): string {
   const dateFormat =
     (fyo.singles.SystemSettings?.dateFormat as string) ?? DEFAULT_DATE_FORMAT;
 
-  const dateValue: DateTime = toDatetime(value);
+  const dateTime = toDatetime(value);
+  if (!dateTime) {
+    return '';
+  }
 
-  const formattedDate = dateValue.toFormat(dateFormat);
+  const formattedDate = dateTime.toFormat(dateFormat);
   if (value === 'Invalid DateTime') {
     return '';
   }
@@ -102,7 +109,7 @@ function formatDate(value: DocValue, fyo: Fyo): string {
 }
 
 function formatCurrency(
-  value: DocValue,
+  value: unknown,
   field: Field,
   doc: Doc | null,
   fyo: Fyo
@@ -125,7 +132,7 @@ function formatCurrency(
   return valueString;
 }
 
-function formatNumber(value: DocValue, fyo: Fyo): string {
+function formatNumber(value: unknown, fyo: Fyo): string {
   const numberFormatter = getNumberFormatter(fyo);
   if (typeof value === 'number') {
     value = fyo.pesa(value.toFixed(20));

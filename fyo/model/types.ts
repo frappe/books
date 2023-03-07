@@ -1,3 +1,4 @@
+import { Fyo } from 'fyo';
 import { DocValue, DocValueMap } from 'fyo/core/types';
 import SystemSettings from 'fyo/models/SystemSettings';
 import { FieldType, Schema, SelectOption } from 'schemas/types';
@@ -76,13 +77,12 @@ export interface RenderData {
   [key: string]: DocValue | Schema
 }
 
-export interface ColumnConfig {
+export type ColumnConfig = {
   label: string;
   fieldtype: FieldType;
-  fieldname?: string;
-  size?: string;
+  fieldname: string;
   render?: (doc: RenderData) => { template: string };
-  getValue?: (doc: Doc) => string;
+  display?: (value: unknown, fyo: Fyo) => string;
 }
 
 export type ListViewColumn = string | ColumnConfig;
