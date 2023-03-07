@@ -1,11 +1,14 @@
+<script setup lang="ts">
+import { showSidebar } from 'src/utils/refs';
+import { toggleSidebar } from 'src/utils/ui';
+</script>
 <template>
   <div class="flex overflow-hidden">
     <Transition name="sidebar">
       <Sidebar
-        v-show="sidebar"
+        v-show="showSidebar"
         class="flex-shrink-0 border-e whitespace-nowrap w-sidebar"
         @change-db-file="$emit('change-db-file')"
-        @toggle-sidebar="sidebar = !sidebar"
       />
     </Transition>
 
@@ -32,7 +35,7 @@
 
     <!-- Show Sidebar Button -->
     <button
-      v-show="!sidebar"
+      v-show="!showSidebar"
       class="
         absolute
         bottom-0
@@ -45,29 +48,22 @@
         m-4
         hover:opacity-100 hover:shadow-md
       "
-
-      @click="sidebar = !sidebar"
+      @click="() => toggleSidebar()"
     >
       <feather-icon name="chevrons-right" class="w-4 h-4" />
     </button>
   </div>
 </template>
-<script>
-import { computed } from '@vue/reactivity';
+<script lang="ts">
+import { defineComponent } from 'vue';
 import Sidebar from '../components/Sidebar.vue';
-export default {
+export default defineComponent({
   name: 'Desk',
   emits: ['change-db-file'],
-  data() {
-    return { sidebar: true };
-  },
-  provide() {
-    return { sidebar: computed(() => this.sidebar) };
-  },
   components: {
     Sidebar,
   },
-};
+});
 </script>
 
 <style scoped>
