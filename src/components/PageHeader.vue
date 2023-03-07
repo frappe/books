@@ -8,9 +8,9 @@
   >
     <Transition name="spacer">
       <div
-        v-if="!sidebar && platform === 'Mac' && languageDirection !== 'rtl'"
+        v-if="!showSidebar && platform === 'Mac' && languageDirection !== 'rtl'"
         class="h-full"
-        :class="sidebar ? '' : 'w-tl me-4 border-e'"
+        :class="showSidebar ? '' : 'w-tl me-4 border-e'"
       />
     </Transition>
     <h1 class="text-xl font-semibold select-none" v-if="title">
@@ -31,12 +31,13 @@
   </div>
 </template>
 <script>
+import { showSidebar } from 'src/utils/refs';
 import { Transition } from 'vue';
 import BackLink from './BackLink.vue';
 import SearchBar from './SearchBar.vue';
 
 export default {
-  inject: ['sidebar', 'languageDirection'],
+  inject: ['languageDirection'],
   props: {
     title: { type: String, default: '' },
     backLink: { type: Boolean, default: true },
@@ -45,6 +46,9 @@ export default {
     searchborder: { type: Boolean, default: true },
   },
   components: { SearchBar, BackLink, Transition },
+  setup() {
+    return { showSidebar };
+  },
   computed: {
     showBorder() {
       return !!this.$slots.default && this.searchborder;
