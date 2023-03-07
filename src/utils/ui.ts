@@ -18,6 +18,7 @@ import { App, createApp, h } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
 import { evaluateHidden } from './doc';
+import { showSidebar } from './refs';
 import {
   ActionGroup,
   MessageDialogOptions,
@@ -466,4 +467,12 @@ export async function isPrintable(schemaName: string) {
     filters: { type: schemaName },
   });
   return numTemplates > 0;
+}
+
+export function toggleSidebar(value?: boolean) {
+  if (typeof value !== 'boolean') {
+    value = !showSidebar.value;
+  }
+
+  showSidebar.value = value;
 }
