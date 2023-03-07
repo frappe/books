@@ -96,6 +96,13 @@ export class StockMovement extends Transfer {
   };
 
   static getListViewSettings(fyo: Fyo): ListViewSettings {
+    const movementTypeMap = {
+      [MovementType.MaterialIssue]: fyo.t`Material Issue`,
+      [MovementType.MaterialReceipt]: fyo.t`Material Receipt`,
+      [MovementType.MaterialTransfer]: fyo.t`Material Transfer`,
+      [MovementType.Manufacture]: fyo.t`Manufacture`,
+    };
+
     return {
       formRoute: (name) => `/edit/StockMovement/${name}`,
       columns: [
@@ -106,20 +113,8 @@ export class StockMovement extends Transfer {
           label: fyo.t`Movement Type`,
           fieldname: 'movementType',
           fieldtype: 'Select',
-          size: 'small',
-          render(doc) {
-            const movementType = doc.movementType as MovementType;
-            const label =
-              {
-                [MovementType.MaterialIssue]: fyo.t`Material Issue`,
-                [MovementType.MaterialReceipt]: fyo.t`Material Receipt`,
-                [MovementType.MaterialTransfer]: fyo.t`Material Transfer`,
-                [MovementType.Manufacture]: fyo.t`Manufacture`,
-              }[movementType] ?? '';
-
-            return {
-              template: `<span>${label}</span>`,
-            };
+          display(value): string {
+            return movementTypeMap[value as MovementType] ?? '';
           },
         },
       ],

@@ -350,7 +350,6 @@ export function getDocStatusListColumn(): ColumnConfig {
     label: t`Status`,
     fieldname: 'status',
     fieldtype: 'Select',
-    size: 'small',
     render(doc) {
       const status = getDocStatus(doc);
       const color = statusColor[status] ?? 'gray';

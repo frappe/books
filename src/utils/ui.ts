@@ -344,36 +344,6 @@ async function openEdit({ name, schemaName }: Doc) {
 
   const route = getFormRoute(schemaName, name);
   return await routeTo(route);
-
-  /*
-  const listConfig = fyo.models[doc.schemaName]?.getListViewSettings?.(fyo);
-  const formRoute = listConfig?.formRoute;
-  if (!doc.name) {
-    return;
-  }
-
-  if (formRoute) {
-    const route = formRoute(doc.name);
-    return await routeTo(route);
-  }
-
-  const isFormEdit = [
-    ModelNameEnum.SalesInvoice,
-    ModelNameEnum.PurchaseInvoice,
-    ModelNameEnum.JournalEntry,
-    ModelNameEnum.Shipment,
-    ModelNameEnum.PurchaseReceipt,
-    ModelNameEnum.StockMovement,
-    ModelNameEnum.Payment,
-    ModelNameEnum.Item,
-  ].includes(doc.schemaName as ModelNameEnum);
-
-  if (isFormEdit) {
-    return await routeTo(`/edit/${doc.schemaName}/${doc.name}`);
-  }
-
-  await openQuickEdit({ schemaName: doc.schemaName, name: doc.name });
-  */
 }
 
 function getDuplicateAction(doc: Doc): Action {
