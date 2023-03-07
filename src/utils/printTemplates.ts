@@ -3,10 +3,14 @@ import { Doc } from 'fyo/model/doc';
 import { Invoice } from 'models/baseModels/Invoice/Invoice';
 import { ModelNameEnum } from 'models/types';
 import { FieldTypeEnum, Schema, TargetField } from 'schemas/types';
-import { getSavePath, makePDF } from './ipcCalls';
+import { getValueMapFromList } from 'utils/index';
+import { TemplateFile } from 'utils/types';
+import { getSavePath, getTemplates, makePDF } from './ipcCalls';
 import { PrintValues } from './types';
+import { getDocFromNameIfExistsElseNew } from './ui';
 
 type PrintTemplateData = Record<string, unknown>;
+type TemplateUpdateItem = { name: string; template: string; type: string };
 
 const printSettingsFields = [
   'logo',
@@ -255,4 +259,93 @@ function getAllCSSAsStyleElem() {
   const styleElem = document.createElement('style');
   styleElem.innerHTML = cssTexts.join('\n');
   return styleElem;
+}
+
+export async function updatePrintTemplates(fyo: Fyo) {
+  const templateFiles = await getTemplates();
+  const existingTemplates = (await fyo.db.getAll(ModelNameEnum.PrintTemplate, {
+    fields: ['name', 'modified'],
+    filters: { isCustom: false },
+  })) as { name: string; modified: Date }[];
+
+  const nameModifiedMap = getValueMapFromList(
+    existingTemplates,
+    'name',
+    'modified'
+  );
+
+  const updateList: TemplateUpdateItem[] = [];
+  for (const templateFile of templateFiles) {
+    const updates = getPrintTemplateUpdateList(
+      templateFile,
+      nameModifiedMap,
+      fyo
+    );
+
+    updateList.push(...updates);
+  }
+
+  for (const { name, type, template } of updateList) {
+    const doc = await getDocFromNameIfExistsElseNew(
+      ModelNameEnum.PrintTemplate,
+      name
+    );
+
+    await doc.set({ name, type, template, isCustom: false });
+    await doc.sync();
+  }
+}
+
+function getPrintTemplateUpdateList(
+  { file, template, modified: modifiedString }: TemplateFile,
+  nameModifiedMap: Record<string, Date>,
+  fyo: Fyo
+): TemplateUpdateItem[] {
+  const templateList: TemplateUpdateItem[] = [];
+  const dbModified = new Date(modifiedString);
+
+  for (const { name, type } of getNameAndTypeFromTemplateFile(file, fyo)) {
+    const fileModified = nameModifiedMap[name];
+    if (fileModified && dbModified.valueOf() >= fileModified.valueOf()) {
+      continue;
+    }
+
+    templateList.push({
+      name,
+      type,
+      template,
+    });
+  }
+  return templateList;
+}
+
+function getNameAndTypeFromTemplateFile(
+  file: string,
+  fyo: Fyo
+): { name: string; type: string }[] {
+  /**
+   * Template File Name Format:
+   * TemplateName[.SchemaName].template.html
+   *
+   * If the SchemaName is absent then it is assumed
+   * that the SchemaName is:
+   * - SalesInvoice
+   * - PurchaseInvoice
+   */
+
+  const fileName = file.split('.template.html')[0];
+  const name = fileName.split('.')[0];
+  const schemaName = fileName.split('.')[1];
+
+  if (schemaName) {
+    const label = fyo.schemaMap[schemaName]?.label ?? schemaName;
+    return [{ name: `${name} - ${label}`, type: schemaName }];
+  }
+
+  return [ModelNameEnum.SalesInvoice, ModelNameEnum.PurchaseInvoice].map(
+    (schemaName) => {
+      const label = fyo.schemaMap[schemaName]?.label ?? schemaName;
+      return { name: `${name} - ${label}`, type: schemaName };
+    }
+  );
 }

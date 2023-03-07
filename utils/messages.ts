@@ -22,6 +22,7 @@ export enum IPC_ACTIONS {
   SELECT_FILE = 'select-file',
   GET_CREDS = 'get-creds',
   GET_DB_LIST = 'get-db-list',
+  GET_TEMPLATES = 'get-templates',
   DELETE_FILE = 'delete-file',
   // Database messages
   DB_CREATE = 'db-create',
