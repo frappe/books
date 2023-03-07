@@ -161,7 +161,7 @@ export const updateSerialNoStatus = async (
 ) => {
   for (const item of items) {
     const serialNos = getSerialNumbers(item.serialNo!);
-    if (!serialNos.length) return;
+    if (!serialNos.length) break;
 
     for (const serialNo of serialNos) {
       await doc.fyo.db.update(ModelNameEnum.SerialNo, {

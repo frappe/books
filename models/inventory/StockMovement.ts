@@ -83,18 +83,8 @@ export class StockMovement extends Transfer {
   }
 
   async afterCancel(): Promise<void> {
-    for (const item of this.items!) {
-      if (!item.serialNo) break;
-      const serialNos = getSerialNumbers(item.serialNo!);
-
-      for (const serialNo of serialNos) {
-        await this.fyo.db.update(ModelNameEnum.SerialNo, {
-          name: serialNo,
-          status: 'Inactive',
-        });
-      }
-    }
     await super.afterCancel();
+    await updateSerialNoStatus(this, this.items!, 'Inactive');
   }
 
   static filters: FiltersMap = {
