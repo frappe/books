@@ -2,6 +2,7 @@ import { Doc } from 'fyo/model/doc';
 import { SchemaMap } from 'schemas/types';
 import { ListsMap, ListViewSettings, ReadOnlyMap } from 'fyo/model/types';
 import { ModelNameEnum } from 'models/types';
+import { Fyo } from 'fyo';
 
 export class PrintTemplate extends Doc {
   name?: string;
@@ -17,10 +18,21 @@ export class PrintTemplate extends Doc {
     return super.canDelete;
   }
 
-  static getListViewSettings(): ListViewSettings {
+  static getListViewSettings(fyo: Fyo): ListViewSettings {
     return {
       formRoute: (name) => `/template-builder/${name}`,
-      columns: ['name', 'type', 'isCustom'],
+      columns: [
+        'name',
+        {
+          label: fyo.t`Type`,
+          fieldtype: 'AutoComplete',
+          fieldname: 'type',
+          display(value) {
+            return fyo.schemaMap[value as string]?.label ?? '';
+          },
+        },
+        'isCustom',
+      ],
     };
   }
 
