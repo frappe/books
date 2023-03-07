@@ -4,7 +4,7 @@ import {
   app,
   BrowserWindow,
   BrowserWindowConstructorOptions,
-  protocol
+  protocol,
 } from 'electron';
 import Store from 'electron-store';
 import { autoUpdater } from 'electron-updater';
