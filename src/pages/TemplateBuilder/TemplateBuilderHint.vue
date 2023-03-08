@@ -34,9 +34,9 @@
         <div
           v-else
           class="
-            text-green-600
-            bg-green-50
-            border-green-200 border
+            text-pink-600
+            bg-pink-50
+            border-pink-200 border
             tracking-tighter
             rounded
             text-xs
