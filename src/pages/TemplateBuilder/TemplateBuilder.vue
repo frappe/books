@@ -195,16 +195,13 @@
           <h2 class="text-base font-semibold p-4 border-b">
             {{ t`Template` }}
           </h2>
-          <div
+          <TemplateEditor
             class="overflow-auto custom-scroll"
             style="max-height: 80vh; width: 65vw"
-          >
-            <TemplateEditor
-              v-if="!templateCollapsed && typeof doc.template === 'string'"
-              v-model.lazy="doc.template"
-              :disabled="!doc.isCustom"
-            />
-          </div>
+            v-if="!templateCollapsed && typeof doc.template === 'string'"
+            v-model.lazy="doc.template"
+            :disabled="!doc.isCustom"
+          />
         </div>
       </div>
     </Modal>

@@ -1,13 +1,15 @@
 <template>
-  <div ref="container"></div>
+  <div ref="container" class="bg-white text-gray-900"></div>
 </template>
 <script lang="ts">
 import { vue } from '@codemirror/lang-vue';
+import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { Compartment, EditorState } from '@codemirror/state';
-import { ViewUpdate, EditorView } from '@codemirror/view';
+import { EditorView, ViewUpdate } from '@codemirror/view';
+import { tags } from '@lezer/highlight';
 import { basicSetup } from 'codemirror';
-import { defineComponent } from 'vue';
-import { markRaw } from 'vue';
+import { uicolors } from 'src/utils/colors';
+import { defineComponent, markRaw } from 'vue';
 
 export default defineComponent({
   data() {
@@ -33,14 +35,23 @@ export default defineComponent({
     if (!this.view) {
       this.init();
     }
-
-    // @ts-ignore
-    window.vte = this;
   },
   methods: {
     init() {
       const readOnly = new Compartment();
       const editable = new Compartment();
+
+      const highlightStyle = HighlightStyle.define([
+        { tag: tags.typeName, color: uicolors.pink[600] },
+        { tag: tags.angleBracket, color: uicolors.pink[600] },
+        { tag: tags.attributeName, color: uicolors.gray[700] },
+        { tag: tags.attributeValue, color: uicolors.blue[700] },
+        { tag: tags.comment, color: uicolors.gray[500] },
+        { tag: tags.keyword, color: uicolors.blue[500] },
+        { tag: tags.variableName, color: uicolors.yellow[600] },
+        { tag: tags.string, color: uicolors.pink[700] },
+        { tag: tags.content, color: uicolors.gray[700] },
+      ]);
 
       const view = new EditorView({
         doc: this.modelValue,
@@ -50,6 +61,7 @@ export default defineComponent({
           editable.of(EditorView.editable.of(!this.disabled)),
           basicSetup,
           vue(),
+          syntaxHighlighting(highlightStyle),
         ],
         parent: this.container,
       });
@@ -96,3 +108,17 @@ export default defineComponent({
   },
 });
 </script>
+<style>
+.cm-gutter {
+  @apply bg-gray-50;
+}
+
+.cm-gutters {
+  border: none !important;
+}
+
+.cm-activeLine,
+.cm-activeLineGutter {
+  background-color: #e5f3ff67 !important;
+}
+</style>
