@@ -196,36 +196,14 @@
             {{ t`Template` }}
           </h2>
           <div
-            class="overflow-auto custom-scroll p-4"
-            style="max-height: 80vh; max-width: 65vw"
+            class="overflow-auto custom-scroll"
+            style="max-height: 80vh; width: 65vw"
           >
-            <textarea
-              v-if="!templateCollapsed"
-              style="
-                font-family: monospace;
-                white-space: pre;
-                overflow-wrap: normal;
-                resize: both;
-              "
-              :value="doc.template ?? ''"
-              :spellcheck="false"
-              cols="74"
-              rows="31"
-              class="
-                overflow-auto
-                p-2
-                border
-                rounded
-                text-sm text-gray-900
-                focus-within:bg-gray-100
-                outline-none
-                bg-gray-50
-              "
-              @change="
-              async (e: Event) => await doc?.set('template', (e.target as HTMLTextAreaElement).value)
-            "
-              :disabled="!doc?.isCustom"
-            ></textarea>
+            <TemplateEditor
+              v-if="!templateCollapsed && typeof doc.template === 'string'"
+              v-model.lazy="doc.template"
+              :disabled="!doc.isCustom"
+            />
           </div>
         </div>
       </div>
@@ -257,6 +235,7 @@ import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
 import PrintContainer from './PrintContainer.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
+import TemplateEditor from './TemplateEditor.vue';
 
 export default defineComponent({
   props: { name: String },
@@ -268,6 +247,7 @@ export default defineComponent({
     TemplateBuilderHint,
     DropdownWithActions,
     PrintContainer,
+    TemplateEditor,
   },
   provide() {
     return { doc: computed(() => this.doc) };
@@ -300,12 +280,16 @@ export default defineComponent({
       this.helpersCollapsed = false;
     }
 
+    if (this.doc?.template == null) {
+      await this.doc?.set('template', '');
+    }
+
+    await this.setDisplayInitialDoc();
+
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore
       window.tb = this;
     }
-
-    await this.setInitialDoc();
   },
   methods: {
     async savePDF() {
@@ -319,7 +303,7 @@ export default defineComponent({
 
       printContainer.savePDF(this.displayDoc?.name);
     },
-    async setInitialDoc() {
+    async setDisplayInitialDoc() {
       const schemaName = this.doc?.type;
       if (!schemaName || this.displayDoc?.schemaName === schemaName) {
         return;
