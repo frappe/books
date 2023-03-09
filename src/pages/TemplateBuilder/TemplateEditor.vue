@@ -18,16 +18,14 @@ import { defineComponent, markRaw } from 'vue';
 
 export default defineComponent({
   data() {
-    return { state: null, view: null, compartments: {}, changed: false } as {
+    return { state: null, view: null, compartments: {} } as {
       state: EditorState | null;
       view: EditorView | null;
       compartments: Record<string, Compartment>;
-      changed: boolean;
     };
   },
   props: {
-    modelModifiers: { type: Object, default: () => ({}) },
-    modelValue: { type: String, required: true },
+    initialValue: { type: String, required: true },
     disabled: { type: Boolean, default: false },
     hints: { type: Object },
   },
@@ -36,10 +34,15 @@ export default defineComponent({
       this.setDisabled(value);
     },
   },
-  emits: ['update:modelValue'],
+  emits: ['input', 'blur'],
   mounted() {
     if (!this.view) {
       this.init();
+    }
+
+    if (this.fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.te = this;
     }
   },
   methods: {
@@ -61,7 +64,7 @@ export default defineComponent({
       const completions = getCompletionsFromHints(this.hints ?? {});
 
       const view = new EditorView({
-        doc: this.modelValue,
+        doc: this.initialValue,
         extensions: [
           EditorView.updateListener.of(this.updateListener),
           readOnly.of(EditorState.readOnly.of(this.disabled)),
@@ -80,19 +83,12 @@ export default defineComponent({
     },
     updateListener(update: ViewUpdate) {
       if (update.docChanged) {
-        this.changed = true;
+        this.$emit('input', this.view?.state.doc.toString() ?? '');
       }
 
-      if (this.modelModifiers.lazy && !update.focusChanged) {
-        return;
+      if (update.focusChanged && !this.view?.hasFocus) {
+        this.$emit('blur', this.view?.state.doc.toString() ?? '');
       }
-
-      if (!this.changed) {
-        return;
-      }
-
-      this.$emit('update:modelValue', this.view?.state.doc.toString() ?? '');
-      this.changed = false;
     },
     setDisabled(value: boolean) {
       const { readOnly, editable } = this.compartments;

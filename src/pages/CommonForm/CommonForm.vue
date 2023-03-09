@@ -181,7 +181,9 @@ export default defineComponent({
   },
   deactivated(): void {
     docsPathRef.value = '';
-    focusedDocsRef.add(this.docOrNull);
+    if (this.docOrNull) {
+      focusedDocsRef.delete(this.doc);
+    }
   },
   computed: {
     hasDoc(): boolean {

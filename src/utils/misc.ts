@@ -115,6 +115,7 @@ export const docsPathMap: Record<string, string | undefined> = {
   [ModelNameEnum.Party]: 'entries/party',
   [ModelNameEnum.Item]: 'entries/items',
   [ModelNameEnum.Tax]: 'entries/taxes',
+  [ModelNameEnum.PrintTemplate]: 'miscellaneous/print-templates',
 
   // Miscellaneous
   Search: 'miscellaneous/search',

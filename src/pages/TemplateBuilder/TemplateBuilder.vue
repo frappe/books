@@ -139,11 +139,13 @@
         <!-- Template Editor -->
         <div class="min-h-0">
           <TemplateEditor
+            v-if="typeof doc.template === 'string' && hints"
+            ref="templateEditor"
             class="overflow-auto custom-scroll h-full"
-            v-if="typeof doc.template === 'string'"
-            v-model.lazy="doc.template"
+            :initial-value="doc.template"
             :disabled="!doc.isCustom"
-            :hints="hints ?? undefined"
+            :hints="hints"
+            @blur="(value: string) => setTemplate(value)"
           />
         </div>
 
@@ -184,6 +186,7 @@
   </div>
 </template>
 <script lang="ts">
+import { EditorView } from 'codemirror';
 import { Doc } from 'fyo/model/doc';
 import { PrintTemplate } from 'models/baseModels/PrintTemplate';
 import { ModelNameEnum } from 'models/types';
@@ -194,12 +197,13 @@ import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import HorizontalResizer from 'src/components/HorizontalResizer.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
+import { docsPathMap } from 'src/utils/misc';
 import {
   baseTemplate,
   getPrintTemplatePropHints,
   getPrintTemplatePropValues,
 } from 'src/utils/printTemplates';
-import { showSidebar } from 'src/utils/refs';
+import { docsPathRef, focusedDocsRef, showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
 import {
   getActionsForDoc,
@@ -207,6 +211,7 @@ import {
   openSettings,
   showToast,
 } from 'src/utils/ui';
+import { Shortcuts } from 'src/utils/vueUtils';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
 import PrintContainer from './PrintContainer.vue';
@@ -225,6 +230,7 @@ export default defineComponent({
     FormControl,
     TemplateBuilderHint,
   },
+  inject: { shortcutManager: { from: 'shortcuts' } },
   provide() {
     return { doc: computed(() => this.doc) };
   },
@@ -234,10 +240,8 @@ export default defineComponent({
       editMode: false,
       showHints: false,
       wasSidebarShown: true,
-      showEditor: false,
       hints: undefined,
       values: null,
-      helpersCollapsed: true,
       displayDoc: null,
       scale: 0.65,
       panelWidth: 22 /** rem */ * 16 /** px */,
@@ -248,7 +252,6 @@ export default defineComponent({
       hints?: Record<string, unknown>;
       values: null | PrintValues;
       doc: PrintTemplate | null;
-      showEditor: boolean;
       displayDoc: PrintTemplate | null;
       scale: number;
       panelWidth: number;
@@ -256,6 +259,7 @@ export default defineComponent({
   },
   async mounted() {
     await this.setDoc();
+    focusedDocsRef.add(this.doc);
 
     if (this.doc?.template == null) {
       await this.doc?.set('template', baseTemplate);
@@ -270,7 +274,39 @@ export default defineComponent({
 
     this.wasSidebarShown = showSidebar.value;
   },
+  activated(): void {
+    docsPathRef.value = docsPathMap.PrintTemplate ?? '';
+    this.shortcuts.ctrl.set(['Enter'], this.setTemplate);
+    this.shortcuts.ctrl.set(['KeyE'], this.toggleEditMode);
+  },
+  deactivated(): void {
+    docsPathRef.value = '';
+    if (this.doc instanceof Doc) {
+      focusedDocsRef.delete(this.doc);
+    }
+    this.shortcuts.ctrl.delete(['Enter']);
+    this.shortcuts.ctrl.delete(['KeyE']);
+  },
   methods: {
+    getTemplateEditorState() {
+      const fallback = this.doc?.template ?? '';
+
+      // @ts-ignore
+      const { view } = this.$refs.templateEditor ?? {};
+      if (!(view instanceof EditorView)) {
+        return fallback;
+      }
+
+      return view.state.doc.toString();
+    },
+    async setTemplate(value?: string) {
+      if (!this.doc?.isCustom) {
+        return;
+      }
+
+      value ??= this.getTemplateEditorState();
+      await this.doc?.set('template', value);
+    },
     setScale({ target }: Event) {
       if (!(target instanceof HTMLInputElement)) {
         return;
@@ -279,7 +315,16 @@ export default defineComponent({
       const scale = Number(target.value);
       this.scale = Math.max(Math.min(scale, 10), 0.15);
     },
-    toggleEditMode() {
+    async toggleEditMode() {
+      if (!this.doc?.isCustom) {
+        return;
+      }
+
+      let message = this.t`Please set a Display Doc`;
+      if (!this.displayDoc) {
+        return showToast({ type: 'warning', message, duration: 1000 });
+      }
+
       this.editMode = !this.editMode;
 
       if (this.editMode) {
@@ -288,7 +333,7 @@ export default defineComponent({
         showSidebar.value = this.wasSidebarShown;
       }
 
-      let message = this.t`Edit Mode Enabled`;
+      message = this.t`Edit Mode Enabled`;
       if (!this.editMode) {
         message = this.t`Edit Mode Disabled`;
       }
@@ -376,6 +421,16 @@ export default defineComponent({
     },
   },
   computed: {
+    shortcuts(): Shortcuts {
+      // @ts-ignore
+      const shortcutManager = this.shortcutManager;
+      if (shortcutManager instanceof Shortcuts) {
+        return shortcutManager;
+      }
+
+      // no-op (hopefully)
+      throw Error('Shortcuts Not Found');
+    },
     maxWidth() {
       return window.innerWidth - 12 * 16 - 100;
     },
