@@ -349,3 +349,17 @@ function getNameAndTypeFromTemplateFile(
     }
   );
 }
+
+export const baseTemplate = `<main class="h-full w-full bg-white">
+  <header class="p-4 flex justify-between bg-gray-50">
+    <h2 
+      class="font-semibold text-2xl" 
+      :style="{ color: print.color }"
+    >
+      {{ print.companyName }}
+    </h2>
+    <h2 class="font-semibold text-2xl" >
+      {{ doc.name }}
+    </h2>
+  </header>
+</main>`;
