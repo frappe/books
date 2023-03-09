@@ -215,7 +215,8 @@ function getCompletionOption(
 }
 
 .cm-gutters {
-  border: none !important;
+  border: none black !important;
+  border-right: 1px solid theme('colors.gray.200') !important;
 }
 
 .cm-activeLine,
