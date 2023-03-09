@@ -152,9 +152,30 @@ export default defineComponent({
           },
         ],
       },
+      {
+        label: t`Template Builder`,
+        description: t`Applicable when Template Builder is open`,
+        collapsed: false,
+        shortcuts: [
+          {
+            shortcut: [this.ctrl, 'Enter'],
+            description: t`Apply and view changes made to the print template`,
+          },
+          {
+            shortcut: [this.ctrl, 'E'],
+            description: t`Toggle Edit Mode`,
+          },
+        ],
+      },
     ];
   },
   computed: {
+    ctrl() {
+      if (this.isMac) {
+        return 'control';
+      }
+      return 'Ctrl';
+    },
     pmod() {
       if (this.isMac) {
         return '⌘';
