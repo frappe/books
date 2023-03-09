@@ -21,24 +21,85 @@
     <!-- Template Builder Body -->
     <div
       v-if="doc"
-      class="w-full overflowauto bg-gray-25 grid"
+      class="w-full bg-gray-25 grid"
       :style="templateBuilderBodyStyles"
     >
       <!-- Template Display Area -->
-      <div class="overflow-auto custom-scroll p-4">
+      <div
+        class="overflow-auto custom-scroll flex flex-col"
+        style="height: calc(100vh - var(--h-row-largest) - 1px)"
+      >
         <!-- Display Hints -->
-        <div v-if="helperMessage" class="text-sm text-gray-700">
+        <p v-if="helperMessage" class="text-sm text-gray-700 p-4">
           {{ helperMessage }}
-        </div>
+        </p>
 
-        <!-- Template Container -->
-        <PrintContainer
-          ref="printContainer"
-          v-if="doc.template && values"
-          :template="doc.template"
-          :values="values"
-          :scale="scale"
-        />
+        <div
+          v-else-if="doc.template && values"
+          class="p-4 overflow-auto custom-scroll"
+        >
+          <!-- Template Container -->
+          <PrintContainer
+            ref="printContainer"
+            :template="doc.template"
+            :values="values"
+            :scale="scale"
+          />
+        </div>
+        <div
+          class="
+            w-full
+            sticky
+            bottom-0
+            flex
+            bg-white
+            border-t
+            mt-auto
+            flex-shrink-0
+          "
+        >
+          <FormControl
+            :title="fields.type.label"
+            class="w-40 border-r flex-shrink-0"
+            :df="fields.type"
+            :border="false"
+            :value="doc.get('type')"
+            @change="async (value) => await setType(value)"
+          />
+
+          <FormControl
+            v-if="doc.type"
+            :title="displayDocField.label"
+            class="w-40 border-r flex-shrink-0"
+            :df="displayDocField"
+            :border="false"
+            :value="displayDoc?.name"
+            @change="(value: string) => setDisplayDoc(value)"
+          />
+
+          <div
+            class="flex ml-auto gap-2 px-2 w-36 justify-between flex-shrink-0"
+          >
+            <p class="text-sm text-gray-600 my-auto">{{ t`Display Scale` }}</p>
+            <input
+              type="number"
+              class="
+                my-auto
+                w-10
+                text-base text-end
+                bg-transparent
+                text-gray-800
+                focus:text-gray-900
+              "
+              :value="scale"
+              @change="setScale"
+              @input="setScale"
+              min="0.1"
+              max="10"
+              step="0.05"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Input Panel Resizer -->
@@ -199,6 +260,14 @@ export default defineComponent({
     this.wasSidebarShown = showSidebar.value;
   },
   methods: {
+    setScale({ target }: Event) {
+      if (!(target instanceof HTMLInputElement)) {
+        return;
+      }
+
+      const scale = Number(target.value);
+      this.scale = Math.max(Math.min(scale, 10), 0.15);
+    },
     toggleEditMode() {
       this.editMode = !this.editMode;
 
@@ -267,6 +336,14 @@ export default defineComponent({
         ModelNameEnum.PrintTemplate,
         this.name
       )) as PrintTemplate;
+    },
+    async setType(value: unknown) {
+      if (typeof value !== 'string') {
+        return;
+      }
+
+      await this.doc?.set('type', value);
+      await this.setDisplayInitialDoc();
     },
     async setDisplayDoc(value: string) {
       if (!value) {
