@@ -4,19 +4,25 @@
       <Button v-if="displayDoc && doc?.template" @click="savePDF">
         {{ t`Save as PDF` }}
       </Button>
+      <Button
+        v-if="doc && displayDoc"
+        :title="t`Toggle Edit Mode`"
+        :icon="true"
+        @click="toggleEditMode"
+      >
+        <feather-icon name="edit" class="w-4 h-4" />
+      </Button>
       <DropdownWithActions v-if="doc?.inserted" :actions="actions" />
       <Button v-if="doc?.canSave" type="primary" @click="sync()">
         {{ t`Save` }}
       </Button>
     </PageHeader>
+
     <!-- Template Builder Body -->
     <div
-      class="w-full overflowauto bg-gray-25 grid"
-      style="
-        grid-template-columns: auto var(--w-quick-edit);
-        height: calc(100vh - var(--h-row-largest) - 1px);
-      "
       v-if="doc"
+      class="w-full overflowauto bg-gray-25 grid"
+      :style="templateBuilderBodyStyles"
     >
       <!-- Template Display Area -->
       <div class="overflow-auto custom-scroll p-4">
@@ -35,177 +41,74 @@
         />
       </div>
 
-      <!-- Template Builder Controls -->
+      <!-- Input Panel Resizer -->
+      <HorizontalResizer
+        class="z-20"
+        :initial-x="panelWidth"
+        :min-x="22 * 16"
+        @resize="(_: number, value: number) => panelWidth = value"
+      />
+
+      <!-- Input Panel -->
       <div
-        class="
-          h-full
-          w-full
-          ml-auto
-          border-l
-          flex flex-col
-          bg-white
-          overflow-auto
-          custom-scroll
-        "
+        class="border-l bg-white flex flex-col"
+        style="height: calc(100vh - var(--h-row-largest) - 1px)"
       >
-        <!-- Print Template Fields -->
-        <div class="p-4 flex flex-col gap-4 sticky top-0 bg-white border-b">
-          <FormControl
-            class="w-full mx-auto"
-            size="small"
-            :input-class="['font-semibold text-xl', 'text-center']"
-            :df="fields.name"
-            :border="!doc.inserted"
-            :value="doc.get('name')"
-            :read-only="doc.inserted"
-            @change="async (value) => await doc?.set('name', value)"
+        <!-- Template Name -->
+        <FormControl
+          class="w-full border-b z-10 flex-shrink-0"
+          size="small"
+          :input-class="['font-semibold text-xl']"
+          :input-styles="{ 'border-radius': '0px', padding: '0.5rem' }"
+          :df="fields.name"
+          :border="false"
+          :value="doc.get('name')"
+          :read-only="doc.inserted"
+          @change="async (value) => await doc?.set('name', value)"
+        />
+
+        <!-- Template Editor -->
+        <div class="min-h-0">
+          <TemplateEditor
+            class="overflow-auto custom-scroll h-full"
+            v-if="typeof doc.template === 'string'"
+            v-model.lazy="doc.template"
+            :disabled="!doc.isCustom"
+            :hints="hints ?? undefined"
           />
         </div>
 
-        <!-- Controls Section -->
-        <div class="p-4">
+        <!-- Value Key Hints -->
+        <div class="border-t mt-auto flex-shrink-0" v-if="hints">
           <div
-            class="flex justify-between items-center cursor-pointer select-none"
-            :class="helpersCollapsed ? '' : 'mb-4'"
-            @click="helpersCollapsed = !helpersCollapsed"
+            class="
+              flex
+              justify-between
+              items-center
+              cursor-pointer
+              select-none
+              p-2
+            "
+            @click="showHints = !showHints"
           >
             <h2 class="text-base text-gray-900 font-semibold">
-              {{ t`Controls` }}
+              {{ t`Value Keys` }}
             </h2>
             <feather-icon
-              :name="helpersCollapsed ? 'chevron-up' : 'chevron-down'"
+              :name="showHints ? 'chevron-up' : 'chevron-down'"
               class="w-4 h-4 text-gray-600 resize-none"
             />
           </div>
-
-          <div v-if="!helpersCollapsed" class="w-full flex flex-col gap-4">
-            <FormControl
-              size="small"
-              :df="fields.type"
-              :show-label="true"
-              :border="true"
-              :value="doc.get('type')"
-              @change="async (value) => await doc?.set('type', value)"
-            />
-
-            <FormControl
-              v-if="doc.type"
-              size="small"
-              :df="displayDocField"
-              :show-label="true"
-              :border="true"
-              :value="displayDoc?.name"
-              @change="(value: string) => setDisplayDoc(value)"
-            />
-
-            <FormControl
-              v-if="displayDoc && doc.template"
-              size="small"
-              :step="0.01"
-              :df="{
-                fieldtype: 'Float',
-                label: t`Display Scale`,
-                fieldname: 'displayScale',
-                maxvalue: 10,
-                minvalue: 0.1,
-              }"
-              :show-label="true"
-              :border="true"
-              :value="scale"
-              @change="(value: number) => scale = value"
-            />
-          </div>
-        </div>
-
-        <!-- Template Section -->
-        <div class="p-4 border-t" v-if="doc.type">
           <div
-            class="flex justify-between items-center cursor-pointer select-none"
-            @click="templateCollapsed = !templateCollapsed"
-          >
-            <h2 class="text-base text-gray-900 font-semibold">
-              {{ t`Template` }}
-            </h2>
-            <feather-icon
-              :name="templateCollapsed ? 'chevron-up' : 'chevron-down'"
-              class="w-4 h-4 text-gray-600"
-            />
-          </div>
-
-          <!-- Template Editor -->
-          <div class="mt-4 relative" v-if="!templateCollapsed">
-            <textarea
-              style="
-                font-family: monospace;
-                white-space: pre;
-                overflow-wrap: normal;
-              "
-              :value="doc.template ?? ''"
-              :spellcheck="false"
-              rows="10"
-              class="
-                overflow-auto
-                p-2
-                w-full
-                border
-                rounded
-                text-sm text-gray-900
-                focus-within:bg-gray-100
-                outline-none
-                bg-gray-50
-              "
-              @change="
-              async (e: Event) => await doc?.set('template', (e.target as HTMLTextAreaElement).value)
-            "
-              :disabled="!doc?.isCustom"
-            />
-            <button
-              class="bg-gray-200 p-0.5 rounded absolute bottom-4 left-2"
-              @click="showEditor = true"
-            >
-              <feather-icon name="maximize" class="h-4 w-4 text-gray-600" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Editor Modal -->
-    <Modal
-      v-if="doc"
-      @closemodal="() => (showEditor = false)"
-      :open-modal="showEditor"
-    >
-      <div class="flex">
-        <!-- Hint Section Header -->
-        <div class="border-r" v-if="hints">
-          <h2 class="text-base font-semibold p-4 border-b">
-            {{ t`Value Keys` }}
-          </h2>
-          <div
-            class="overflow-auto custom-scroll p-4"
-            style="max-height: 80vh; width: 25vw"
+            v-if="showHints"
+            class="overflow-auto custom-scroll p-2 border-t"
+            style="max-height: 30vh"
           >
             <TemplateBuilderHint :hints="hints" />
           </div>
         </div>
-
-        <!-- Template Editor Section -->
-        <div>
-          <h2 class="text-base font-semibold p-4 border-b">
-            {{ t`Template` }}
-          </h2>
-          <TemplateEditor
-            v-if="!templateCollapsed && typeof doc.template === 'string'"
-            v-model.lazy="doc.template"
-            :disabled="!doc.isCustom"
-            :hints="hints ?? undefined"
-            class="overflow-auto custom-scroll"
-            style="max-height: 80vh; width: 65vw"
-          />
-        </div>
       </div>
-    </Modal>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -216,18 +119,21 @@ import { Field, TargetField } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
-import Modal from 'src/components/Modal.vue';
+import HorizontalResizer from 'src/components/HorizontalResizer.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
 import {
+  baseTemplate,
   getPrintTemplatePropHints,
   getPrintTemplatePropValues,
 } from 'src/utils/printTemplates';
+import { showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
 import {
   getActionsForDoc,
   getDocFromNameIfExistsElseNew,
   openSettings,
+  showToast,
 } from 'src/utils/ui';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
@@ -239,13 +145,13 @@ export default defineComponent({
   props: { name: String },
   components: {
     PageHeader,
-    FormControl,
     Button,
-    Modal,
-    TemplateBuilderHint,
     DropdownWithActions,
     PrintContainer,
+    HorizontalResizer,
     TemplateEditor,
+    FormControl,
+    TemplateBuilderHint,
   },
   provide() {
     return { doc: computed(() => this.doc) };
@@ -253,33 +159,34 @@ export default defineComponent({
   data() {
     return {
       doc: null,
+      editMode: false,
+      showHints: false,
+      wasSidebarShown: true,
       showEditor: false,
       hints: undefined,
       values: null,
-      templateCollapsed: false,
       helpersCollapsed: true,
       displayDoc: null,
       scale: 0.65,
+      panelWidth: 22 /** rem */ * 16 /** px */,
     } as {
+      editMode: boolean;
+      showHints: boolean;
+      wasSidebarShown: boolean;
       hints?: Record<string, unknown>;
       values: null | PrintValues;
       doc: PrintTemplate | null;
       showEditor: boolean;
       displayDoc: PrintTemplate | null;
-      templateCollapsed: boolean;
-      helpersCollapsed: boolean;
       scale: number;
+      panelWidth: number;
     };
   },
   async mounted() {
     await this.setDoc();
 
-    if (!this.doc?.template) {
-      this.helpersCollapsed = false;
-    }
-
     if (this.doc?.template == null) {
-      await this.doc?.set('template', '');
+      await this.doc?.set('template', baseTemplate);
     }
 
     await this.setDisplayInitialDoc();
@@ -288,8 +195,26 @@ export default defineComponent({
       // @ts-ignore
       window.tb = this;
     }
+
+    this.wasSidebarShown = showSidebar.value;
   },
   methods: {
+    toggleEditMode() {
+      this.editMode = !this.editMode;
+
+      if (this.editMode) {
+        showSidebar.value = false;
+      } else {
+        showSidebar.value = this.wasSidebarShown;
+      }
+
+      let message = this.t`Edit Mode Enabled`;
+      if (!this.editMode) {
+        message = this.t`Edit Mode Disabled`;
+      }
+
+      showToast({ type: 'info', message, duration: 1000 });
+    },
     async savePDF() {
       const printContainer = this.$refs.printContainer as {
         savePDF: (name?: string) => void;
@@ -412,6 +337,14 @@ export default defineComponent({
       }
 
       return '';
+    },
+    templateBuilderBodyStyles(): Record<string, string> {
+      const styles: Record<string, string> = {};
+
+      styles['grid-template-columns'] = `auto 0px ${this.panelWidth}px`;
+      styles['height'] = 'calc(100vh - var(--h-row-largest) - 1px)';
+
+      return styles;
     },
   },
 });
