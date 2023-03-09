@@ -98,6 +98,14 @@
             :read-only="doc?.submitted"
           />
           <FormControl
+            v-if="enablePriceList"
+            :border="true"
+            :df="getField('priceList')"
+            :value="doc.priceList"
+            @change="(value) => doc.set('priceList', value)"
+            :read-only="doc?.submitted"
+          />
+          <FormControl
             v-if="doc.attachment || !(doc.isSubmitted || doc.isCancelled)"
             :border="true"
             :df="getField('attachment')"
@@ -451,6 +459,9 @@ export default {
     },
     toCurrency() {
       return fyo.singles.SystemSettings.currency;
+    },
+    enablePriceList() {
+      return fyo.singles.InventorySettings.enablePriceList;
     },
   },
   activated() {

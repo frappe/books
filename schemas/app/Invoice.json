@@ -42,6 +42,13 @@
       "target": "Currency"
     },
     {
+      "fieldname": "priceList",
+      "label": "Price List",
+      "fieldtype": "Link",
+      "target": "PriceList",
+      "create": true
+    },
+    {
       "fieldname": "exchangeRate",
       "label": "Exchange Rate",
       "fieldtype": "Float",

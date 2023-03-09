@@ -14,6 +14,7 @@ import { ModelNameEnum } from 'models/types';
 import { Money } from 'pesa';
 import { FieldTypeEnum, Schema } from 'schemas/types';
 import { safeParseFloat } from 'utils/index';
+import { getItemRate, getPriceListRate } from '../helpers';
 import { Invoice } from '../Invoice/Invoice';
 import { Item } from '../Item/Item';
 
@@ -40,6 +41,14 @@ export abstract class InvoiceItem extends Doc {
   itemDiscountedTotal?: Money;
   itemTaxedTotal?: Money;
 
+  get party() {
+    return this.parentdoc?.party;
+  }
+
+  get date() {
+    return this.parentdoc?.date;
+  }
+
   get isSales() {
     return this.schemaName === 'SalesInvoiceItem';
   }
@@ -58,6 +67,10 @@ export abstract class InvoiceItem extends Doc {
 
   get currency() {
     return this.parentdoc?.currency ?? DEFAULT_CURRENCY;
+  }
+
+  get priceList() {
+    return this.parentdoc?.priceList ?? undefined;
   }
 
   get exchangeRate() {
@@ -97,11 +110,9 @@ export abstract class InvoiceItem extends Doc {
     },
     rate: {
       formula: async (fieldname) => {
-        const rate = (await this.fyo.getValue(
-          'Item',
-          this.item as string,
-          'rate'
-        )) as undefined | Money;
+        const rate =
+          (await getPriceListRate(this, this.isSales)) ||
+          (await getItemRate(this));
 
         if (!rate?.float && this.rate?.float) {
           return this.rate;
@@ -140,6 +151,7 @@ export abstract class InvoiceItem extends Doc {
         return rateFromTotals ?? rate ?? this.fyo.pesa(0);
       },
       dependsOn: [
+        'priceList',
         'party',
         'exchangeRate',
         'item',

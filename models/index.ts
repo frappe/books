@@ -21,6 +21,8 @@ import { TaxSummary } from './baseModels/TaxSummary/TaxSummary';
 import { Batch } from './inventory/Batch';
 import { InventorySettings } from './inventory/InventorySettings';
 import { Location } from './inventory/Location';
+import { PriceList } from './inventory/PriceList';
+import { ItemPrice } from './inventory/ItemPrice';
 import { PurchaseReceipt } from './inventory/PurchaseReceipt';
 import { PurchaseReceiptItem } from './inventory/PurchaseReceiptItem';
 import { Shipment } from './inventory/Shipment';
@@ -42,6 +44,7 @@ export const models = {
   Party,
   Payment,
   PaymentFor,
+
   PrintSettings,
   PurchaseInvoice,
   PurchaseInvoiceItem,
@@ -58,6 +61,8 @@ export const models = {
   Location,
   Shipment,
   ShipmentItem,
+  PriceList,
+  ItemPrice,
   PurchaseReceipt,
   PurchaseReceiptItem,
 } as ModelMap;

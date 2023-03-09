@@ -27,6 +27,8 @@ import NumberSeries from './app/NumberSeries.json';
 import Party from './app/Party.json';
 import Payment from './app/Payment.json';
 import PaymentFor from './app/PaymentFor.json';
+import PriceList from './app/inventory/PriceList.json';
+import ItemPrice from './app/inventory/ItemPrice.json';
 import PrintSettings from './app/PrintSettings.json';
 import PurchaseInvoice from './app/PurchaseInvoice.json';
 import PurchaseInvoiceItem from './app/PurchaseInvoiceItem.json';
@@ -47,7 +49,7 @@ import submittable from './meta/submittable.json';
 import tree from './meta/tree.json';
 import { Schema, SchemaStub } from './types';
 import InventorySettings from './app/inventory/InventorySettings.json';
-import Batch from './app/Batch.json'
+import Batch from './app/Batch.json';
 
 export const coreSchemas: Schema[] = [
   PatchRun as Schema,
@@ -116,5 +118,7 @@ export const appSchemas: Schema[] | SchemaStub[] = [
   PurchaseReceipt as Schema,
   PurchaseReceiptItem as Schema,
 
-  Batch as Schema
+  Batch as Schema,
+  PriceList as Schema,
+  ItemPrice as Schema,
 ];

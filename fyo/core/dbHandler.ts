@@ -325,6 +325,31 @@ export class DatabaseHandler extends DatabaseBase {
     )) as number | null;
   }
 
+  async getItemPrice(
+    item: string,
+    priceList: string,
+    date: Date | undefined,
+    isSales: boolean,
+    party: string,
+    unit: string,
+    batch?: string,
+    validFrom?: Date,
+    validUpto?: Date
+  ) {
+    return await this.#demux.callBespoke(
+      'getItemPrice',
+      item,
+      priceList,
+      date,
+      isSales,
+      party,
+      unit,
+      batch,
+      validFrom,
+      validUpto
+    );
+  }
+
   /**
    * Internal methods
    */

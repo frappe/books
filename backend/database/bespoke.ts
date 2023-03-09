@@ -167,4 +167,66 @@ export class BespokeQueries {
 
     return value[0][Object.keys(value[0])[0]];
   }
+
+  static async getItemPrice(
+    db: DatabaseCore,
+    item: string,
+    priceList: string,
+    date: Date,
+    isSales: boolean,
+    party: string,
+    unit?: string,
+    batch?: string,
+    validFrom?: Date,
+    validUpto?: Date
+  ): Promise<string | boolean> {
+    if (
+      !priceList ||
+      !item ||
+      !party ||
+      (!date && (!validFrom || !validUpto))
+    ) {
+      return false;
+    }
+
+    const priceListQuery = db.knex!(ModelNameEnum.PriceList)
+      .select(['isUomDependent'])
+      .where('name', priceList)
+      .andWhere('enabled', true);
+
+    isSales
+      ? priceListQuery.andWhere('selling', true)
+      : priceListQuery.andWhere('buying', true);
+
+    if (!(await priceListQuery)) return false;
+
+    const { isUomDependent } = Object.values(await priceListQuery)[0];
+
+    const itemPriceQuery = db.knex!(ModelNameEnum.ItemPrice)
+      .select(['name'])
+      .where('item', item)
+      .andWhere('priceList', priceList)
+      .andWhereRaw('datetime(validFrom) <= datetime(?)', [
+        date ? date.toISOString() : validFrom?.toISOString(),
+      ])
+      .andWhereRaw('datetime(validUpto) >= datetime(?)', [
+        date ? date.toISOString() : validUpto?.toISOString(),
+      ]);
+
+    isSales
+      ? itemPriceQuery.andWhere('selling', true)
+      : itemPriceQuery.andWhere('buying', true);
+
+    if (isUomDependent) {
+      itemPriceQuery.andWhere('unit', unit);
+    }
+
+    if (batch) {
+      itemPriceQuery.andWhere('batch', batch);
+    }
+
+    if (!(await itemPriceQuery).length) return false;
+
+    return Object.values(await itemPriceQuery)[0]['name'];
+  }
 }
