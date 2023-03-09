@@ -16,7 +16,7 @@
         :step="step"
         :max="df.maxvalue"
         :min="df.minvalue"
-        :style="inputStyles"
+        :style="containerStyles"
         @blur="(e) => !isReadOnly && triggerChange(e.target.value)"
         @focus="(e) => !isReadOnly && $emit('focus', e)"
         @input="(e) => !isReadOnly && $emit('input', e)"
@@ -42,7 +42,7 @@ export default {
     size: String,
     showLabel: Boolean,
     autofocus: Boolean,
-    inputStyles: { type: Object, default: () => ({}) },
+    containerStyles: { type: Object, default: () => ({}) },
     textRight: { type: [null, Boolean], default: null },
     readOnly: { type: [null, Boolean], default: null },
     required: { type: [null, Boolean], default: null },

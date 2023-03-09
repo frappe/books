@@ -31,11 +31,16 @@ import MouseFollower from './MouseFollower.vue';
 
 export default defineComponent({
   emits: ['resize'],
-  props: { initialX: Number, minX: Number, maxX: Number },
+  props: {
+    initialX: { type: Number, required: true },
+    minX: Number,
+    maxX: Number,
+  },
   data() {
     return {
       x: 0,
       delta: 0,
+      xOnMouseDown: 0,
       resizing: false,
       listener: null,
     };
@@ -43,9 +48,9 @@ export default defineComponent({
   methods: {
     onMouseDown(e: MouseEvent) {
       e.preventDefault();
-      const { clientX } = e;
 
-      this.setX(clientX);
+      this.x = e.clientX;
+      this.xOnMouseDown = this.initialX;
       this.setResizing(true);
 
       document.addEventListener('mousemove', this.mouseMoveListener);
@@ -53,18 +58,17 @@ export default defineComponent({
     },
     mouseUpListener(e: MouseEvent) {
       e.preventDefault();
-      const { clientX } = e;
 
-      this.setX(clientX);
+      this.x = e.clientX;
       this.setResizing(false);
 
-      this.emitValue(this.x - clientX);
+      this.$emit('resize', this.value);
       this.removeListeners();
     },
     mouseMoveListener(e: MouseEvent) {
       e.preventDefault();
-      const { clientX } = e;
-      this.delta = this.x - clientX;
+      this.delta = this.x - e.clientX;
+      this.$emit('resize', this.value);
     },
     removeListeners() {
       document.removeEventListener('mousemove', this.mouseMoveListener);
@@ -80,36 +84,10 @@ export default defineComponent({
         document.body.style.cursor = '';
       }
     },
-    setX(x?: number): void {
-      if (typeof x === 'number') {
-        this.x = x;
-        return;
-      }
-      const hr = this.$refs.hr;
-      if (!(hr instanceof HTMLDivElement)) {
-        return;
-      }
-      this.x = hr.getBoundingClientRect().x;
-    },
-    emitValue(delta: number) {
-      if (typeof this.minDelta === 'number') {
-        delta = Math.max(delta, this.minDelta);
-      }
-
-      if (typeof this.maxDelta === 'number') {
-        delta = Math.min(delta, this.maxDelta);
-      }
-
-      this.$emit('resize', delta, this.value);
-    },
   },
   computed: {
     value() {
-      if (typeof this.initialX !== 'number') {
-        return this.delta;
-      }
-
-      let value = this.delta + this.initialX;
+      let value = this.delta + this.xOnMouseDown;
       if (typeof this.minX === 'number') {
         value = Math.max(this.minX, value);
       }
@@ -121,14 +99,14 @@ export default defineComponent({
       return value;
     },
     minDelta() {
-      if (typeof this.minX !== 'number' || typeof this.initialX !== 'number') {
+      if (typeof this.minX !== 'number') {
         return null;
       }
 
       return this.initialX - this.minX;
     },
     maxDelta() {
-      if (typeof this.maxX !== 'number' || typeof this.initialX !== 'number') {
+      if (typeof this.maxX !== 'number') {
         return null;
       }
 
