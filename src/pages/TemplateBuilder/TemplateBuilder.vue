@@ -178,7 +178,7 @@
     >
       <div class="flex">
         <!-- Hint Section Header -->
-        <div class="border-r" v-if="hint">
+        <div class="border-r" v-if="hints">
           <h2 class="text-base font-semibold p-4 border-b">
             {{ t`Value Keys` }}
           </h2>
@@ -186,7 +186,7 @@
             class="overflow-auto custom-scroll p-4"
             style="max-height: 80vh; width: 25vw"
           >
-            <TemplateBuilderHint :hint="hint" />
+            <TemplateBuilderHint :hints="hints" />
           </div>
         </div>
 
@@ -196,11 +196,12 @@
             {{ t`Template` }}
           </h2>
           <TemplateEditor
-            class="overflow-auto custom-scroll"
-            style="max-height: 80vh; width: 65vw"
             v-if="!templateCollapsed && typeof doc.template === 'string'"
             v-model.lazy="doc.template"
             :disabled="!doc.isCustom"
+            :hints="hints ?? undefined"
+            class="overflow-auto custom-scroll"
+            style="max-height: 80vh; width: 65vw"
           />
         </div>
       </div>
@@ -253,14 +254,14 @@ export default defineComponent({
     return {
       doc: null,
       showEditor: false,
-      hint: null,
+      hints: undefined,
       values: null,
       templateCollapsed: false,
       helpersCollapsed: true,
       displayDoc: null,
       scale: 0.65,
     } as {
-      hint: null | Record<string, unknown>;
+      hints?: Record<string, unknown>;
       values: null | PrintValues;
       doc: PrintTemplate | null;
       showEditor: boolean;
@@ -344,7 +345,7 @@ export default defineComponent({
     },
     async setDisplayDoc(value: string) {
       if (!value) {
-        this.hint = null;
+        delete this.hints;
         this.values = null;
         this.displayDoc = null;
         return;
@@ -356,7 +357,7 @@ export default defineComponent({
       }
 
       const displayDoc = await getDocFromNameIfExistsElseNew(schemaName, value);
-      this.hint = getPrintTemplatePropHints(displayDoc);
+      this.hints = getPrintTemplatePropHints(displayDoc);
       this.values = await getPrintTemplatePropValues(displayDoc);
       this.displayDoc = displayDoc;
     },
