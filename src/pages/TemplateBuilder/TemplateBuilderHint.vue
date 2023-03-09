@@ -55,7 +55,7 @@
       <div v-if="!r.collapsed && typeof r.value === 'object'">
         <TemplateBuilderHint
           :prefix="getKey(r)"
-          :hint="Array.isArray(r.value) ? r.value[0] : r.value"
+          :hints="Array.isArray(r.value) ? r.value[0] : r.value"
           :level="level + 1"
         />
       </div>
@@ -74,7 +74,7 @@ export default defineComponent({
   name: 'TemplateBuilderHint',
   props: {
     prefix: { type: String, default: '' },
-    hint: { type: Object, required: true },
+    hints: { type: Object, required: true },
     level: { type: Number, default: 0 },
   },
   data() {
@@ -83,7 +83,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    this.rows = Object.entries(this.hint)
+    this.rows = Object.entries(this.hints)
       .map(([key, value]) => ({
         key,
         value,

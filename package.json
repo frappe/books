@@ -20,6 +20,7 @@
     "test": "scripts/test.sh"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.4.2",
     "@codemirror/lang-vue": "^0.1.1",
     "@popperjs/core": "^2.10.2",
     "better-sqlite3": "^7.5.3",
