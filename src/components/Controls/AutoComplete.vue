@@ -13,6 +13,7 @@
       </div>
       <div
         class="flex items-center justify-between pe-2 rounded"
+        :style="containerStyles"
         :class="containerClasses"
       >
         <input
