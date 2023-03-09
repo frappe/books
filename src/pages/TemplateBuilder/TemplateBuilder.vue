@@ -34,11 +34,11 @@
           {{ helperMessage }}
         </p>
 
+        <!-- Template Container -->
         <div
           v-else-if="doc.template && values"
           class="p-4 overflow-auto custom-scroll"
         >
-          <!-- Template Container -->
           <PrintContainer
             ref="printContainer"
             :template="doc.template"
@@ -46,6 +46,8 @@
             :scale="scale"
           />
         </div>
+
+        <!-- Bottom Bar -->
         <div
           class="
             w-full
@@ -58,15 +60,18 @@
             flex-shrink-0
           "
         >
+          <!-- Entry Type -->
           <FormControl
             :title="fields.type.label"
             class="w-40 border-r flex-shrink-0"
             :df="fields.type"
             :border="false"
             :value="doc.get('type')"
+            :container-styles="{ 'border-radius': '0px' }"
             @change="async (value) => await setType(value)"
           />
 
+          <!-- Display Doc -->
           <FormControl
             v-if="doc.type"
             :title="displayDocField.label"
@@ -74,9 +79,11 @@
             :df="displayDocField"
             :border="false"
             :value="displayDoc?.name"
+            :container-styles="{ 'border-radius': '0px' }"
             @change="(value: string) => setDisplayDoc(value)"
           />
 
+          <!-- Display Scale -->
           <div
             class="flex ml-auto gap-2 px-2 w-36 justify-between flex-shrink-0"
           >
@@ -107,20 +114,21 @@
         class="z-20"
         :initial-x="panelWidth"
         :min-x="22 * 16"
-        @resize="(_: number, value: number) => panelWidth = value"
+        :max-x="maxWidth"
+        @resize="(x: number) => panelWidth = x"
       />
 
-      <!-- Input Panel -->
+      <!-- Template Panel -->
       <div
         class="border-l bg-white flex flex-col"
         style="height: calc(100vh - var(--h-row-largest) - 1px)"
       >
         <!-- Template Name -->
         <FormControl
-          class="w-full border-b z-10 flex-shrink-0"
+          class="w-full border-b flex-shrink-0"
           size="small"
-          :input-class="['font-semibold text-xl']"
-          :input-styles="{ 'border-radius': '0px', padding: '0.5rem' }"
+          :input-class="['font-semibold text-xl text-center']"
+          :container-styles="{ 'border-radius': '0px', padding: '0.5rem' }"
           :df="fields.name"
           :border="false"
           :value="doc.get('name')"
@@ -139,8 +147,9 @@
           />
         </div>
 
-        <!-- Value Key Hints -->
+        <!-- Value Key Hints Container -->
         <div class="border-t mt-auto flex-shrink-0" v-if="hints">
+          <!-- Value Key Toggle -->
           <div
             class="
               flex
@@ -160,6 +169,8 @@
               class="w-4 h-4 text-gray-600 resize-none"
             />
           </div>
+
+          <!-- Value Key Hints -->
           <div
             v-if="showHints"
             class="overflow-auto custom-scroll p-2 border-t"
@@ -365,6 +376,9 @@ export default defineComponent({
     },
   },
   computed: {
+    maxWidth() {
+      return window.innerWidth - 12 * 16 - 100;
+    },
     actions() {
       if (!this.doc) {
         return [];
