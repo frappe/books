@@ -46,6 +46,7 @@ import { toggleSidebar } from 'src/utils/ui';
         rtl-rotate-180
         p-1
         m-4
+        opacity-0
         hover:opacity-100 hover:shadow-md
       "
       @click="() => toggleSidebar()"

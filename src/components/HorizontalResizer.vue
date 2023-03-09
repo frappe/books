@@ -10,12 +10,14 @@
       :show="resizing"
       placement="left"
       class="
-        p-1
-        bg-white
+        px-1
+        py-0.5
         border
-        rounded
+        rounded-md
         shadow
-        text-sm text-center text-gray-800
+        text-sm text-center
+        bg-gray-900
+        text-gray-100
       "
       style="min-width: 2rem"
     >
