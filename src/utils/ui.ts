@@ -476,3 +476,23 @@ export function toggleSidebar(value?: boolean) {
 
   showSidebar.value = value;
 }
+
+export function clearAndFocusFormControl(doc: Doc, ref: any) {
+  const naming = doc.fyo.schemaMap[doc.schemaName]?.naming;
+  if (naming !== 'manual' || doc.inserted) {
+    return;
+  }
+
+  if (Array.isArray(ref) && ref.length > 0) {
+    ref = ref[0];
+  }
+
+  doc.name = '';
+  if (typeof ref?.clear === 'function') {
+    ref.clear();
+  }
+
+  if (typeof ref?.focus === 'function') {
+    ref.focus();
+  }
+}
