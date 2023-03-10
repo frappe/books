@@ -477,7 +477,11 @@ export function toggleSidebar(value?: boolean) {
   showSidebar.value = value;
 }
 
-export function clearAndFocusFormControl(doc: Doc, ref: any) {
+export function focusOrSelectFormControl(
+  doc: Doc,
+  ref: any,
+  clear: boolean = true
+) {
   const naming = doc.fyo.schemaMap[doc.schemaName]?.naming;
   if (naming !== 'manual' || doc.inserted) {
     return;
@@ -487,7 +491,11 @@ export function clearAndFocusFormControl(doc: Doc, ref: any) {
     ref = ref[0];
   }
 
-  doc.name = '';
+  if (!clear && typeof ref?.select === 'function') {
+    ref.select();
+    return;
+  }
+
   if (typeof ref?.clear === 'function') {
     ref.clear();
   }
@@ -495,4 +503,6 @@ export function clearAndFocusFormControl(doc: Doc, ref: any) {
   if (typeof ref?.focus === 'function') {
     ref.focus();
   }
+
+  doc.name = '';
 }
