@@ -165,6 +165,14 @@ export default defineComponent({
             shortcut: [this.ctrl, 'E'],
             description: t`Toggle Edit Mode`,
           },
+          {
+            shortcut: [this.ctrl, '+'],
+            description: t`Increase print template display scale`,
+          },
+          {
+            shortcut: [this.ctrl, '-'],
+            description: t`Decrease print template display scale`,
+          },
         ],
       },
     ];

@@ -103,7 +103,7 @@
               @input="setScale"
               min="0.1"
               max="10"
-              step="0.05"
+              step="0.1"
             />
           </div>
         </div>
@@ -125,13 +125,14 @@
       >
         <!-- Template Name -->
         <FormControl
+          ref="nameField"
           class="w-full border-b flex-shrink-0"
           size="small"
           :input-class="['font-semibold text-xl text-center']"
           :container-styles="{ 'border-radius': '0px', padding: '0.5rem' }"
           :df="fields.name"
           :border="false"
-          :value="doc.get('name')"
+          :value="doc.name"
           :read-only="doc.inserted"
           @change="async (value) => await doc?.set('name', value)"
         />
@@ -206,6 +207,7 @@ import {
 import { docsPathRef, focusedDocsRef, showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
 import {
+  clearAndFocusFormControl,
   getActionsForDoc,
   getDocFromNameIfExistsElseNew,
   openSettings,
@@ -243,7 +245,7 @@ export default defineComponent({
       hints: undefined,
       values: null,
       displayDoc: null,
-      scale: 0.65,
+      scale: 0.6,
       panelWidth: 22 /** rem */ * 16 /** px */,
     } as {
       editMode: boolean;
@@ -259,6 +261,7 @@ export default defineComponent({
   },
   async mounted() {
     await this.setDoc();
+    clearAndFocusFormControl(this.doc as Doc, this.$refs.nameField);
     focusedDocsRef.add(this.doc);
 
     if (this.doc?.template == null) {
@@ -278,6 +281,8 @@ export default defineComponent({
     docsPathRef.value = docsPathMap.PrintTemplate ?? '';
     this.shortcuts.ctrl.set(['Enter'], this.setTemplate);
     this.shortcuts.ctrl.set(['KeyE'], this.toggleEditMode);
+    this.shortcuts.ctrl.set(['Equal'], () => this.setScale(this.scale + 0.1));
+    this.shortcuts.ctrl.set(['Minus'], () => this.setScale(this.scale - 0.1));
   },
   deactivated(): void {
     docsPathRef.value = '';
@@ -286,6 +291,8 @@ export default defineComponent({
     }
     this.shortcuts.ctrl.delete(['Enter']);
     this.shortcuts.ctrl.delete(['KeyE']);
+    this.shortcuts.ctrl.delete(['Equal']);
+    this.shortcuts.ctrl.delete(['Minus']);
   },
   methods: {
     getTemplateEditorState() {
@@ -307,13 +314,15 @@ export default defineComponent({
       value ??= this.getTemplateEditorState();
       await this.doc?.set('template', value);
     },
-    setScale({ target }: Event) {
-      if (!(target instanceof HTMLInputElement)) {
-        return;
+    setScale(e: Event | number) {
+      let value = this.scale;
+      if (typeof e === 'number') {
+        value = Number(e.toFixed(2));
+      } else if (e instanceof Event && e.target instanceof HTMLInputElement) {
+        value = Number(e.target.value);
       }
 
-      const scale = Number(target.value);
-      this.scale = Math.max(Math.min(scale, 10), 0.15);
+      this.scale = Math.max(Math.min(value, 10), 0.15);
     },
     async toggleEditMode() {
       if (!this.doc?.isCustom) {
