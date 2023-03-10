@@ -44,6 +44,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
+import { clearAndFocusFormControl } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
@@ -61,26 +62,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    this.focusOnNameField();
-  },
-  methods: {
-    focusOnNameField() {
-      const naming = this.fyo.schemaMap[this.doc.schemaName]?.naming;
-      if (naming !== 'manual' || this.doc.inserted) {
-        return;
-      }
-
-      const nameField = (
-        this.$refs.nameField as { focus: Function; clear: Function }[]
-      )?.[0];
-
-      if (!nameField) {
-        return;
-      }
-
-      nameField.clear();
-      nameField.focus();
-    },
+    clearAndFocusFormControl(this.doc, this.$refs.nameField);
   },
   components: { FormControl },
 });
