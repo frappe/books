@@ -44,7 +44,7 @@ import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
 import { Field } from 'schemas/types';
 import FormControl from 'src/components/Controls/FormControl.vue';
-import { clearAndFocusFormControl } from 'src/utils/ui';
+import { focusOrSelectFormControl } from 'src/utils/ui';
 import { defineComponent, PropType } from 'vue';
 
 export default defineComponent({
@@ -62,7 +62,7 @@ export default defineComponent({
     };
   },
   mounted() {
-    clearAndFocusFormControl(this.doc, this.$refs.nameField);
+    focusOrSelectFormControl(this.doc, this.$refs.nameField);
   },
   components: { FormControl },
 });

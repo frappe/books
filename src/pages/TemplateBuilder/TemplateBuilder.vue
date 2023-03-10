@@ -1,6 +1,19 @@
 <template>
   <div>
-    <PageHeader :title="t`Template Builder`">
+    <PageHeader :title="doc && doc.inserted ? doc.name : ''">
+      <!-- Template Name -->
+      <template #left v-if="doc && !doc.inserted">
+        <FormControl
+          ref="nameField"
+          class="w-60 flex-shrink-0"
+          size="small"
+          :input-class="['font-semibold text-xl']"
+          :df="fields.name"
+          :border="true"
+          :value="doc!.name"
+          @change="async (value) => await doc?.set('name', value)"
+        />
+      </template>
       <Button v-if="displayDoc && doc?.template" @click="savePDF">
         {{ t`Save as PDF` }}
       </Button>
@@ -123,20 +136,6 @@
         class="border-l bg-white flex flex-col"
         style="height: calc(100vh - var(--h-row-largest) - 1px)"
       >
-        <!-- Template Name -->
-        <FormControl
-          ref="nameField"
-          class="w-full border-b flex-shrink-0"
-          size="small"
-          :input-class="['font-semibold text-xl text-center']"
-          :container-styles="{ 'border-radius': '0px', padding: '0.5rem' }"
-          :df="fields.name"
-          :border="false"
-          :value="doc.name"
-          :read-only="doc.inserted"
-          @change="async (value) => await doc?.set('name', value)"
-        />
-
         <!-- Template Editor -->
         <div class="min-h-0">
           <TemplateEditor
@@ -207,7 +206,7 @@ import {
 import { docsPathRef, focusedDocsRef, showSidebar } from 'src/utils/refs';
 import { PrintValues } from 'src/utils/types';
 import {
-  clearAndFocusFormControl,
+  focusOrSelectFormControl,
   getActionsForDoc,
   getDocFromNameIfExistsElseNew,
   openSettings,
@@ -241,27 +240,35 @@ export default defineComponent({
       doc: null,
       editMode: false,
       showHints: false,
-      wasSidebarShown: true,
       hints: undefined,
       values: null,
       displayDoc: null,
       scale: 0.6,
       panelWidth: 22 /** rem */ * 16 /** px */,
+      preEditMode: {
+        scale: 0.6,
+        showSidebar: true,
+        panelWidth: 22 * 16,
+      },
     } as {
       editMode: boolean;
       showHints: boolean;
-      wasSidebarShown: boolean;
       hints?: Record<string, unknown>;
       values: null | PrintValues;
       doc: PrintTemplate | null;
       displayDoc: PrintTemplate | null;
       scale: number;
       panelWidth: number;
+      preEditMode: {
+        scale: number;
+        showSidebar: boolean;
+        panelWidth: number;
+      };
     };
   },
   async mounted() {
     await this.setDoc();
-    clearAndFocusFormControl(this.doc as Doc, this.$refs.nameField);
+    focusOrSelectFormControl(this.doc as Doc, this.$refs.nameField, false);
     focusedDocsRef.add(this.doc);
 
     if (this.doc?.template == null) {
@@ -274,8 +281,6 @@ export default defineComponent({
       // @ts-ignore
       window.tb = this;
     }
-
-    this.wasSidebarShown = showSidebar.value;
   },
   activated(): void {
     docsPathRef.value = docsPathMap.PrintTemplate ?? '';
@@ -298,13 +303,11 @@ export default defineComponent({
     getTemplateEditorState() {
       const fallback = this.doc?.template ?? '';
 
-      // @ts-ignore
-      const { view } = this.$refs.templateEditor ?? {};
-      if (!(view instanceof EditorView)) {
+      if (!this.view) {
         return fallback;
       }
 
-      return view.state.doc.toString();
+      return this.view.state.doc.toString();
     },
     async setTemplate(value?: string) {
       if (!this.doc?.isCustom) {
@@ -337,17 +340,50 @@ export default defineComponent({
       this.editMode = !this.editMode;
 
       if (this.editMode) {
-        showSidebar.value = false;
-      } else {
-        showSidebar.value = this.wasSidebarShown;
+        return this.enableEditMode();
       }
 
-      message = this.t`Edit Mode Enabled`;
-      if (!this.editMode) {
-        message = this.t`Edit Mode Disabled`;
+      this.disableEditMode();
+    },
+    enableEditMode() {
+      this.preEditMode.showSidebar = showSidebar.value;
+      this.preEditMode.panelWidth = this.panelWidth;
+      this.preEditMode.scale = this.scale;
+
+      this.panelWidth = Math.max(window.innerWidth / 2, this.panelWidth);
+      showSidebar.value = false;
+      this.scale = this.getEditModeScale();
+      this.view?.focus();
+      showToast({
+        type: 'info',
+        message: this.t`Edit Mode enabled`,
+        duration: 1000,
+      });
+    },
+    disableEditMode() {
+      showSidebar.value = this.preEditMode.showSidebar;
+      this.panelWidth = this.preEditMode.panelWidth;
+      this.scale = this.preEditMode.scale;
+
+      showToast({
+        type: 'info',
+        message: this.t`Edit Mode disabled`,
+        duration: 1000,
+      });
+    },
+    getEditModeScale(): number {
+      // @ts-ignore
+      const div = this.$refs.printContainer.$el;
+      if (!(div instanceof HTMLDivElement)) {
+        return this.scale;
       }
 
-      showToast({ type: 'info', message, duration: 1000 });
+      const padding = 16 * 2 /** p-4 */ + 16 * 0.6; /** w-scrollbar */
+      const targetWidth = window.innerWidth / 2 - padding;
+      const currentWidth = div.getBoundingClientRect().width;
+      const targetScale = (targetWidth * this.scale) / currentWidth;
+
+      return Number(targetScale.toFixed(2));
     },
     async savePDF() {
       const printContainer = this.$refs.printContainer as {
@@ -430,6 +466,16 @@ export default defineComponent({
     },
   },
   computed: {
+    view(): EditorView | null {
+      // @ts-ignore
+      const { view } = this.$refs.templateEditor ?? {};
+      if (view instanceof EditorView) {
+        return view;
+      }
+
+      return null;
+    },
+
     shortcuts(): Shortcuts {
       // @ts-ignore
       const shortcutManager = this.shortcutManager;
