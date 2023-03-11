@@ -7,7 +7,9 @@ import {
   RequiredMap,
   TreeViewSettings,
   ReadOnlyMap,
+  FormulaMap,
 } from 'fyo/model/types';
+import { ModelNameEnum } from 'models/types';
 import { QueryFilter } from 'utils/db/types';
 import { AccountRootType, AccountRootTypeEnum, AccountType } from './types';
 
@@ -75,6 +77,22 @@ export class Account extends Doc {
       },
     };
   }
+
+  formulas: FormulaMap = {
+    rootType: {
+      formula: async () => {
+        if (!this.parentAccount) {
+          return;
+        }
+
+        return await this.fyo.getValue(
+          ModelNameEnum.Account,
+          this.parentAccount,
+          'rootType'
+        );
+      },
+    },
+  };
 
   static filters: FiltersMap = {
     parentAccount: (doc: Doc) => {

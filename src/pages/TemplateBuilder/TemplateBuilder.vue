@@ -34,12 +34,12 @@
     <!-- Template Builder Body -->
     <div
       v-if="doc"
-      class="w-full bg-gray-25 grid"
+      class="w-full bg-gray-50 grid"
       :style="templateBuilderBodyStyles"
     >
       <!-- Template Display Area -->
       <div
-        class="overflow-auto custom-scroll flex flex-col"
+        class="overflow-auto no-scrollbar flex flex-col"
         style="height: calc(100vh - var(--h-row-largest) - 1px)"
       >
         <!-- Display Hints -->
@@ -173,13 +173,15 @@
           </div>
 
           <!-- Value Key Hints -->
-          <div
-            v-if="showHints"
-            class="overflow-auto custom-scroll p-2 border-t"
-            style="max-height: 30vh"
-          >
-            <TemplateBuilderHint :hints="hints" />
-          </div>
+          <Transition name="hints">
+            <div
+              v-if="showHints"
+              class="overflow-auto custom-scroll p-2 border-t"
+              style="max-height: 30vh"
+            >
+              <TemplateBuilderHint :hints="hints" />
+            </div>
+          </Transition>
         </div>
       </div>
     </div>
@@ -354,22 +356,11 @@ export default defineComponent({
       showSidebar.value = false;
       this.scale = this.getEditModeScale();
       this.view?.focus();
-      showToast({
-        type: 'info',
-        message: this.t`Edit Mode enabled`,
-        duration: 1000,
-      });
     },
     disableEditMode() {
       showSidebar.value = this.preEditMode.showSidebar;
       this.panelWidth = this.preEditMode.panelWidth;
       this.scale = this.preEditMode.scale;
-
-      showToast({
-        type: 'info',
-        message: this.t`Edit Mode disabled`,
-        duration: 1000,
-      });
     },
     getEditModeScale(): number {
       // @ts-ignore
@@ -550,3 +541,21 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.hints-enter-from,
+.hints-leave-to {
+  opacity: 0;
+  height: 0px;
+}
+.hints-enter-to,
+.hints-leave-from {
+  opacity: 1;
+  height: 30vh;
+}
+
+.hints-enter-active,
+.hints-leave-active {
+  transition: all 150ms ease-out;
+}
+</style>
