@@ -52,7 +52,7 @@ async function exportReport(extention: ExportExtention, report: Report) {
     return;
   }
 
-  await saveExportData(data, filePath, report.fyo);
+  await saveExportData(data, filePath);
   report.fyo.telemetry.log(Verb.Exported, report.reportName, { extention });
 }
 
@@ -178,7 +178,12 @@ function getValueFromCell(cell: ReportCell, displayPrecision: number) {
   return rawValue;
 }
 
-export async function saveExportData(data: string, filePath: string, fyo: Fyo) {
+export async function saveExportData(
+  data: string,
+  filePath: string,
+  message?: string
+) {
   await saveData(data, filePath);
-  showExportInFolder(fyo.t`Export Successful`, filePath);
+  message ??= t`Export Successful`;
+  showExportInFolder(message, filePath);
 }

@@ -25,7 +25,7 @@
       >
         <feather-icon name="edit" class="w-4 h-4" />
       </Button>
-      <DropdownWithActions v-if="doc?.inserted" :actions="actions" />
+      <DropdownWithActions v-if="actions.length" :actions="actions" />
       <Button v-if="doc?.canSave" type="primary" @click="sync()">
         {{ t`Save` }}
       </Button>
@@ -124,10 +124,10 @@
 
       <!-- Input Panel Resizer -->
       <HorizontalResizer
-        class="z-20"
         :initial-x="panelWidth"
         :min-x="22 * 16"
         :max-x="maxWidth"
+        style="z-index: 5"
         @resize="(x: number) => panelWidth = x"
       />
 
@@ -145,12 +145,24 @@
             :initial-value="doc.template"
             :disabled="!doc.isCustom"
             :hints="hints"
+            @input="() => (templateChanged = true)"
             @blur="(value: string) => setTemplate(value)"
           />
         </div>
+        <div
+          v-if="templateChanged"
+          class="flex gap-2 p-2 text-sm text-gray-600 items-center mt-auto"
+        >
+          <ShortcutKeys :keys="applyChangesShortcut" :simple="true" />
+          {{ t` to apply changes` }}
+        </div>
 
         <!-- Value Key Hints Container -->
-        <div class="border-t mt-auto flex-shrink-0" v-if="hints">
+        <div
+          class="border-t flex-shrink-0"
+          :class="templateChanged ? '' : 'mt-auto'"
+          v-if="hints"
+        >
           <!-- Value Key Toggle -->
           <div
             class="
@@ -161,10 +173,10 @@
               select-none
               p-2
             "
-            @click="showHints = !showHints"
+            @click="toggleShowHints"
           >
             <h2 class="text-base text-gray-900 font-semibold">
-              {{ t`Value Keys` }}
+              {{ t`Key Hints` }}
             </h2>
             <feather-icon
               :name="showHints ? 'chevron-up' : 'chevron-down'"
@@ -192,13 +204,16 @@ import { EditorView } from 'codemirror';
 import { Doc } from 'fyo/model/doc';
 import { PrintTemplate } from 'models/baseModels/PrintTemplate';
 import { ModelNameEnum } from 'models/types';
+import { saveExportData } from 'reports/commonExporter';
 import { Field, TargetField } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormControl from 'src/components/Controls/FormControl.vue';
 import DropdownWithActions from 'src/components/DropdownWithActions.vue';
 import HorizontalResizer from 'src/components/HorizontalResizer.vue';
 import PageHeader from 'src/components/PageHeader.vue';
+import ShortcutKeys from 'src/components/ShortcutKeys.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
+import { getSavePath } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import {
   baseTemplate,
@@ -212,6 +227,8 @@ import {
   getActionsForDoc,
   getDocFromNameIfExistsElseNew,
   openSettings,
+  selectTextFile,
+  ShortcutKey,
   showToast,
 } from 'src/utils/ui';
 import { Shortcuts } from 'src/utils/vueUtils';
@@ -232,6 +249,7 @@ export default defineComponent({
     TemplateEditor,
     FormControl,
     TemplateBuilderHint,
+    ShortcutKeys,
   },
   inject: { shortcutManager: { from: 'shortcuts' } },
   provide() {
@@ -247,6 +265,7 @@ export default defineComponent({
       displayDoc: null,
       scale: 0.6,
       panelWidth: 22 /** rem */ * 16 /** px */,
+      templateChanged: false,
       preEditMode: {
         scale: 0.6,
         showSidebar: true,
@@ -261,6 +280,7 @@ export default defineComponent({
       displayDoc: PrintTemplate | null;
       scale: number;
       panelWidth: number;
+      templateChanged: boolean;
       preEditMode: {
         scale: number;
         showSidebar: boolean;
@@ -288,6 +308,7 @@ export default defineComponent({
     docsPathRef.value = docsPathMap.PrintTemplate ?? '';
     this.shortcuts.ctrl.set(['Enter'], this.setTemplate);
     this.shortcuts.ctrl.set(['KeyE'], this.toggleEditMode);
+    this.shortcuts.ctrl.set(['KeyH'], this.toggleShowHints);
     this.shortcuts.ctrl.set(['Equal'], () => this.setScale(this.scale + 0.1));
     this.shortcuts.ctrl.set(['Minus'], () => this.setScale(this.scale - 0.1));
   },
@@ -298,6 +319,7 @@ export default defineComponent({
     }
     this.shortcuts.ctrl.delete(['Enter']);
     this.shortcuts.ctrl.delete(['KeyE']);
+    this.shortcuts.ctrl.delete(['KeyH']);
     this.shortcuts.ctrl.delete(['Equal']);
     this.shortcuts.ctrl.delete(['Minus']);
   },
@@ -312,6 +334,7 @@ export default defineComponent({
       return this.view.state.doc.toString();
     },
     async setTemplate(value?: string) {
+      this.templateChanged = false;
       if (!this.doc?.isCustom) {
         return;
       }
@@ -328,6 +351,9 @@ export default defineComponent({
       }
 
       this.scale = Math.max(Math.min(value, 10), 0.15);
+    },
+    toggleShowHints() {
+      this.showHints = !this.showHints;
     },
     async toggleEditMode() {
       if (!this.doc?.isCustom) {
@@ -455,8 +481,69 @@ export default defineComponent({
       this.values = await getPrintTemplatePropValues(displayDoc);
       this.displayDoc = displayDoc;
     },
+    async selectFile() {
+      const { name: fileName, text } = await selectTextFile([
+        { name: 'Template', extensions: ['template.html', 'html'] },
+      ]);
+
+      if (!text) {
+        return;
+      }
+
+      await this.doc?.set('template', text);
+      this.view?.dispatch({
+        changes: { from: 0, to: this.view.state.doc.length, insert: text },
+      });
+
+      if (this.doc?.inserted) {
+        return;
+      }
+
+      let name: string | null = null;
+      if (fileName.endsWith('.template.html')) {
+        name = fileName.split('.template.html')[0];
+      }
+
+      if (!name && fileName.endsWith('.html')) {
+        name = fileName.split('.html')[0];
+      }
+
+      if (!name) {
+        return;
+      }
+
+      await this.doc?.set('name', name);
+    },
+    async saveFile() {
+      const name = this.doc?.name;
+      const template = this.getTemplateEditorState();
+
+      if (!name) {
+        return await showToast({
+          type: 'warning',
+          message: this.t`Print Template Name not set`,
+        });
+      }
+
+      if (!template) {
+        return await showToast({
+          type: 'warning',
+          message: this.t`Print Template is empty`,
+        });
+      }
+
+      const { canceled, filePath } = await getSavePath(name, 'template.html');
+      if (canceled || !filePath) {
+        return;
+      }
+
+      await saveExportData(template, filePath, this.t`Template file saved`);
+    },
   },
   computed: {
+    applyChangesShortcut() {
+      return [ShortcutKey.ctrl, ShortcutKey.enter];
+    },
     view(): EditorView | null {
       // @ts-ignore
       const { view } = this.$refs.templateEditor ?? {};
@@ -489,9 +576,23 @@ export default defineComponent({
       actions.push({
         label: this.t`Print Settings`,
         group: this.t`View`,
-        async action() {
+        action: async () => {
           await openSettings(ModelNameEnum.PrintSettings);
         },
+      });
+
+      if (this.doc.isCustom) {
+        actions.push({
+          label: this.t`Select Template File`,
+          group: this.t`Action`,
+          action: this.selectFile,
+        });
+      }
+
+      actions.push({
+        label: this.t`Save Template File`,
+        group: this.t`Action`,
+        action: this.saveFile,
       });
 
       return actions;

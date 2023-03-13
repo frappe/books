@@ -14,10 +14,12 @@ import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import router from 'src/router';
 import { IPC_ACTIONS } from 'utils/messages';
+import { SelectFileOptions } from 'utils/types';
 import { App, createApp, h } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
 import { evaluateHidden } from './doc';
+import { selectFile } from './ipcCalls';
 import { showSidebar } from './refs';
 import {
   ActionGroup,
@@ -505,4 +507,67 @@ export function focusOrSelectFormControl(
   }
 
   doc.name = '';
+}
+
+export async function selectTextFile(filters?: SelectFileOptions['filters']) {
+  const options = {
+    title: t`Select File`,
+    filters,
+  };
+  const { success, canceled, filePath, data, name } = await selectFile(options);
+
+  if (canceled || !success) {
+    await showToast({
+      type: 'error',
+      message: t`File selection failed`,
+    });
+    return {};
+  }
+
+  const text = new TextDecoder().decode(data);
+  if (!text) {
+    await showToast({
+      type: 'error',
+      message: t`Empty file selected`,
+    });
+
+    return {};
+  }
+
+  return { text, filePath, name };
+}
+
+export enum ShortcutKey {
+  enter = 'enter',
+  ctrl = 'ctrl',
+  pmod = 'pmod',
+  shift = 'shift',
+  alt = 'alt',
+  delete = 'delete',
+  esc = 'esc',
+}
+
+export function getShortcutKeyMap(
+  platform: string
+): Record<ShortcutKey, string> {
+  if (platform === 'Mac') {
+    return {
+      [ShortcutKey.alt]: '⌥',
+      [ShortcutKey.ctrl]: '⌃',
+      [ShortcutKey.pmod]: '⌘',
+      [ShortcutKey.shift]: 'shift',
+      [ShortcutKey.delete]: 'delete',
+      [ShortcutKey.esc]: 'esc',
+      [ShortcutKey.enter]: 'return',
+    };
+  }
+  return {
+    [ShortcutKey.alt]: 'Alt',
+    [ShortcutKey.ctrl]: 'Ctrl',
+    [ShortcutKey.pmod]: 'Ctrl',
+    [ShortcutKey.shift]: '⇧',
+    [ShortcutKey.delete]: 'Backspace',
+    [ShortcutKey.esc]: 'Esc',
+    [ShortcutKey.enter]: 'Enter',
+  };
 }
