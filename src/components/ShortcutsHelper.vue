@@ -22,29 +22,7 @@
               class="grid gap-4 items-start"
               style="grid-template-columns: 6rem auto"
             >
-              <!-- <div class="w-2 text-base">{{ i + 1 }}.</div> -->
-              <div
-                class="
-                  text-base
-                  font-medium
-                  flex-shrink-0 flex
-                  items-center
-                  gap-1
-                  bg-gray-200
-                  text-gray-700
-                  px-1.5
-                  py-0.5
-                  rounded
-                "
-                style="width: fit-content"
-              >
-                <span
-                  v-for="k in s.shortcut"
-                  :key="k"
-                  class="tracking-tighter"
-                  >{{ k }}</span
-                >
-              </div>
+              <ShortcutKeys class="text-base" :keys="s.shortcut" />
               <div class="whitespace-normal text-base">{{ s.description }}</div>
             </div>
           </div>
@@ -63,8 +41,10 @@
 </template>
 <script lang="ts">
 import { t } from 'fyo';
+import { ShortcutKey } from 'src/utils/ui';
 import { defineComponent } from 'vue';
 import FormHeader from './FormHeader.vue';
+import ShortcutKeys from './ShortcutKeys.vue';
 
 type Group = {
   label: string;
@@ -85,15 +65,15 @@ export default defineComponent({
         collapsed: false,
         shortcuts: [
           {
-            shortcut: [this.pmod, 'K'],
+            shortcut: [ShortcutKey.pmod, 'K'],
             description: t`Open Quick Search`,
           },
           {
-            shortcut: [this.del],
+            shortcut: [ShortcutKey.delete],
             description: t`Go back to the previous page`,
           },
           {
-            shortcut: [this.shift, 'H'],
+            shortcut: [ShortcutKey.shift, 'H'],
             description: t`Toggle sidebar`,
           },
           {
@@ -108,14 +88,14 @@ export default defineComponent({
         collapsed: false,
         shortcuts: [
           {
-            shortcut: [this.pmod, 'S'],
+            shortcut: [ShortcutKey.pmod, 'S'],
             description: [
               t`Save or Submit a doc.`,
               t`A doc is submitted only if it is submittable and is in the saved state.`,
             ].join(' '),
           },
           {
-            shortcut: [this.pmod, this.del],
+            shortcut: [ShortcutKey.pmod, ShortcutKey.delete],
             description: [
               t`Cancel or Delete a doc.`,
               t`A doc is cancelled only if it is in the submitted state.`,
@@ -129,25 +109,25 @@ export default defineComponent({
         description: t`Applicable when Quick Search is open`,
         collapsed: false,
         shortcuts: [
-          { shortcut: [this.esc], description: t`Close Quick Search` },
+          { shortcut: [ShortcutKey.esc], description: t`Close Quick Search` },
           {
-            shortcut: [this.pmod, '1'],
+            shortcut: [ShortcutKey.pmod, '1'],
             description: t`Toggle the Docs filter`,
           },
           {
-            shortcut: [this.pmod, '2'],
+            shortcut: [ShortcutKey.pmod, '2'],
             description: t`Toggle the List filter`,
           },
           {
-            shortcut: [this.pmod, '3'],
+            shortcut: [ShortcutKey.pmod, '3'],
             description: t`Toggle the Create filter`,
           },
           {
-            shortcut: [this.pmod, '4'],
+            shortcut: [ShortcutKey.pmod, '4'],
             description: t`Toggle the Report filter`,
           },
           {
-            shortcut: [this.pmod, '5'],
+            shortcut: [ShortcutKey.pmod, '5'],
             description: t`Toggle the Page filter`,
           },
         ],
@@ -158,71 +138,29 @@ export default defineComponent({
         collapsed: false,
         shortcuts: [
           {
-            shortcut: [this.ctrl, 'Enter'],
+            shortcut: [ShortcutKey.ctrl, ShortcutKey.enter],
             description: t`Apply and view changes made to the print template`,
           },
           {
-            shortcut: [this.ctrl, 'E'],
+            shortcut: [ShortcutKey.ctrl, 'E'],
             description: t`Toggle Edit Mode`,
           },
           {
-            shortcut: [this.ctrl, '+'],
+            shortcut: [ShortcutKey.ctrl, 'H'],
+            description: t`Toggle Key Hints`,
+          },
+          {
+            shortcut: [ShortcutKey.ctrl, '+'],
             description: t`Increase print template display scale`,
           },
           {
-            shortcut: [this.ctrl, '-'],
+            shortcut: [ShortcutKey.ctrl, '-'],
             description: t`Decrease print template display scale`,
           },
         ],
       },
     ];
   },
-  computed: {
-    ctrl() {
-      if (this.isMac) {
-        return 'control';
-      }
-      return 'Ctrl';
-    },
-    pmod() {
-      if (this.isMac) {
-        return '⌘';
-      }
-
-      return 'Ctrl';
-    },
-    shift() {
-      if (this.isMac) {
-        return 'shift';
-      }
-
-      return '⇧';
-    },
-    alt() {
-      if (this.isMac) {
-        return '⌥';
-      }
-
-      return 'Alt';
-    },
-    del() {
-      if (this.isMac) {
-        return 'delete';
-      }
-
-      return 'Backspace';
-    },
-    esc() {
-      if (this.isMac) {
-        return 'esc';
-      }
-
-      return 'Esc';
-    },
-    isMac() {
-      return this.platform === 'Mac';
-    },
-  },
-  components: { FormHeader },
+  components: { FormHeader, ShortcutKeys },
 });
 </script>
