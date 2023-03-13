@@ -114,18 +114,6 @@
       "label": "Display Logo in Invoice",
       "fieldtype": "Check",
       "section": "Customizations"
-    },
-    {
-      "fieldname": "displayTaxInvoice",
-      "label": "Display Tax Invoice",
-      "fieldtype": "Check",
-      "section": "Customizations"
-    },
-    {
-      "fieldname": "displayBatch",
-      "label": "Display Batch",
-      "fieldtype": "Check",
-      "section": "Customizations"
     }
   ]
 }

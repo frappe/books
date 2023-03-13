@@ -78,6 +78,21 @@ export default defineComponent({
   },
   methods: {
     compile(template: string) {
+      /**
+       * Note: This is a hacky method to prevent
+       * broken templates from reaching the `<component />`
+       * element.
+       * 
+       * It's required because the CompilerOptions doesn't
+       * have an option to capture the errors.
+       *
+       * The compile function returns a code that can be
+       * converted into a render function.
+       *
+       * This render function can be used instead
+       * of passing the template to the `<component />` element
+       * where it gets compiled again.
+       */
       this.error = null;
       return compile(template, {
         hoistStatic: true,

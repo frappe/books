@@ -145,7 +145,7 @@
       </button>
 
       <p
-        v-if="fyo.store.isDevelopment"
+        v-if="!fyo.store.isDevelopment"
         class="text-xs text-gray-500 select-none"
       >
         dev mode

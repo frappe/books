@@ -15,7 +15,6 @@ type TemplateUpdateItem = { name: string; template: string; type: string };
 const printSettingsFields = [
   'logo',
   'displayLogo',
-  'displayTaxInvoice',
   'color',
   'font',
   'email',
