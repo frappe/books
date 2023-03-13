@@ -8,7 +8,6 @@ import {
   getRandomString,
   getValueMapFromList,
 } from 'utils/index';
-import { updatePrintTemplates } from './printTemplates';
 
 export async function initializeInstance(
   dbPath: string,
@@ -34,7 +33,6 @@ export async function initializeInstance(
   await setInstanceId(fyo);
   await setOpenCount(fyo);
   await setCurrencySymbols(fyo);
-  await updatePrintTemplates(fyo);
 }
 
 async function closeDbIfConnected(fyo: Fyo) {

@@ -351,7 +351,9 @@ function getNameAndTypeFromTemplateFile(
 }
 
 export const baseTemplate = `<main class="h-full w-full bg-white">
-  <header class="p-4 flex justify-between bg-gray-50">
+
+  <!-- Edit This Code -->
+  <header class="p-4 flex justify-between border-b">
     <h2 
       class="font-semibold text-2xl" 
       :style="{ color: print.color }"
@@ -362,4 +364,11 @@ export const baseTemplate = `<main class="h-full w-full bg-white">
       {{ doc.name }}
     </h2>
   </header>
-</main>`;
+
+  <div class="p-4 text-gray-600">
+    Edit the code in the Template Editor on the right
+    to create your own personalized custom template.
+  </div>
+
+</main>
+`;

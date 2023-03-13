@@ -7,7 +7,7 @@
 }
 
 * {
-  outline-color: theme('colors.pink.500');
+  outline-color: theme('colors.pink.400');
   font-variation-settings: 'slnt' 0deg;
 }
 .italic {
