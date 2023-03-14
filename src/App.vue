@@ -54,6 +54,7 @@ import './styles/index.css';
 import { initializeInstance } from './utils/initialization';
 import { checkForUpdates } from './utils/ipcCalls';
 import { updateConfigFiles } from './utils/misc';
+import { updatePrintTemplates } from './utils/printTemplates';
 import { Search } from './utils/search';
 import { setGlobalShortcuts } from './utils/shortcuts';
 import { routeTo } from './utils/ui';
@@ -128,7 +129,7 @@ export default {
         'companyName'
       );
       await this.setSearcher();
-      await updateConfigFiles(fyo);
+      updateConfigFiles(fyo);
     },
     async setSearcher() {
       this.searcher = new Search(fyo);
@@ -160,6 +161,7 @@ export default {
       }
 
       await initializeInstance(filePath, false, countryCode, fyo);
+      await updatePrintTemplates(fyo);
       await this.setDesk(filePath);
     },
     async setDeskRoute() {

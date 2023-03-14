@@ -20,8 +20,11 @@
     "test": "scripts/test.sh"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.4.2",
+    "@codemirror/lang-vue": "^0.1.1",
     "@popperjs/core": "^2.10.2",
     "better-sqlite3": "^7.5.3",
+    "codemirror": "^6.0.1",
     "core-js": "^3.19.0",
     "electron-store": "^8.0.1",
     "feather-icons": "^4.28.0",

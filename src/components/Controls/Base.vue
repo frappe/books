@@ -13,8 +13,10 @@
         :value="value"
         :placeholder="inputPlaceholder"
         :readonly="isReadOnly"
+        :step="step"
         :max="df.maxvalue"
         :min="df.minvalue"
+        :style="containerStyles"
         @blur="(e) => !isReadOnly && triggerChange(e.target.value)"
         @focus="(e) => !isReadOnly && $emit('focus', e)"
         @input="(e) => !isReadOnly && $emit('input', e)"
@@ -32,6 +34,7 @@ export default {
   name: 'Base',
   props: {
     df: Object,
+    step: { type: Number, default: 1 },
     value: [String, Number, Boolean, Object],
     inputClass: [Function, String, Object],
     border: { type: Boolean, default: false },
@@ -39,6 +42,7 @@ export default {
     size: String,
     showLabel: Boolean,
     autofocus: Boolean,
+    containerStyles: { type: Object, default: () => ({}) },
     textRight: { type: [null, Boolean], default: null },
     readOnly: { type: [null, Boolean], default: null },
     required: { type: [null, Boolean], default: null },

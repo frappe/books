@@ -8,14 +8,17 @@
   >
     <Transition name="spacer">
       <div
-        v-if="!sidebar && platform === 'Mac' && languageDirection !== 'rtl'"
+        v-if="!showSidebar && platform === 'Mac' && languageDirection !== 'rtl'"
         class="h-full"
-        :class="sidebar ? '' : 'w-tl me-4 border-e'"
+        :class="showSidebar ? '' : 'w-tl me-4 border-e'"
       />
     </Transition>
     <h1 class="text-xl font-semibold select-none" v-if="title">
       {{ title }}
     </h1>
+    <div class="flex items-stretch window-no-drag gap-2">
+      <slot name="left" />
+    </div>
     <div
       class="flex items-stretch window-no-drag gap-2 ms-auto"
       :class="platform === 'Mac' && languageDirection === 'rtl' ? 'me-18' : ''"
@@ -28,12 +31,13 @@
   </div>
 </template>
 <script>
+import { showSidebar } from 'src/utils/refs';
 import { Transition } from 'vue';
 import BackLink from './BackLink.vue';
 import SearchBar from './SearchBar.vue';
 
 export default {
-  inject: ['sidebar', 'languageDirection'],
+  inject: ['languageDirection'],
   props: {
     title: { type: String, default: '' },
     backLink: { type: Boolean, default: true },
@@ -42,6 +46,9 @@ export default {
     searchborder: { type: Boolean, default: true },
   },
   components: { SearchBar, BackLink, Transition },
+  setup() {
+    return { showSidebar };
+  },
   computed: {
     showBorder() {
       return !!this.$slots.default && this.searchborder;
@@ -59,7 +66,7 @@ export default {
   opacity: 0;
   width: 0px;
   margin-right: 0px;
-  border-eight-width: 0px;
+  border-right-width: 0px;
 }
 
 .spacer-enter-to,
@@ -67,7 +74,7 @@ export default {
   opacity: 1;
   width: var(--w-trafficlights);
   margin-right: 1rem;
-  border-eight-width: 1px;
+  border-right-width: 1px;
 }
 
 .spacer-enter-active,

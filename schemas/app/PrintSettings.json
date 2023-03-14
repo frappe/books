@@ -38,28 +38,6 @@
       "section": "Contacts"
     },
     {
-      "fieldname": "template",
-      "label": "Template",
-      "placeholder": "Template",
-      "fieldtype": "Select",
-      "options": [
-        {
-          "value": "Basic",
-          "label": "Basic"
-        },
-        {
-          "value": "Minimal",
-          "label": "Minimal"
-        },
-        {
-          "value": "Business",
-          "label": "Business"
-        }
-      ],
-      "default": "Basic",
-      "section": "Customizations"
-    },
-    {
       "fieldname": "color",
       "label": "Color",
       "placeholder": "Select Color",
@@ -136,30 +114,6 @@
       "label": "Display Logo in Invoice",
       "fieldtype": "Check",
       "section": "Customizations"
-    },
-    {
-      "fieldname": "displayTaxInvoice",
-      "label": "Display Tax Invoice",
-      "fieldtype": "Check",
-      "section": "Customizations"
-    },
-    {
-      "fieldname": "displayBatch",
-      "label": "Display Batch",
-      "fieldtype": "Check",
-      "section": "Customizations"
     }
-  ],
-  "quickEditFields": [
-    "logo",
-    "displayLogo",
-    "displayTaxInvoice",
-    "displayBatch",
-    "template",
-    "color",
-    "font",
-    "email",
-    "phone",
-    "address"
   ]
 }

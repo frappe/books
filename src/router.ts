@@ -10,12 +10,8 @@ import PrintView from 'src/pages/PrintView/PrintView.vue';
 import QuickEditForm from 'src/pages/QuickEditForm.vue';
 import Report from 'src/pages/Report.vue';
 import Settings from 'src/pages/Settings/Settings.vue';
-import {
-  createRouter,
-  createWebHistory,
-  RouteLocationRaw,
-  RouteRecordRaw,
-} from 'vue-router';
+import TemplateBuilder from 'src/pages/TemplateBuilder/TemplateBuilder.vue';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 function getCommonFormItems(): RouteRecordRaw[] {
   return [
@@ -126,6 +122,12 @@ const routes: RouteRecordRaw[] = [
     path: '/import-wizard',
     name: 'Import Wizard',
     component: ImportWizard,
+  },
+  {
+    path: '/template-builder/:name',
+    name: 'Template Builder',
+    component: TemplateBuilder,
+    props: true,
   },
   {
     path: '/settings',

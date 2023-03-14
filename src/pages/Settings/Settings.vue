@@ -161,12 +161,8 @@ export default defineComponent({
       try {
         await doc.sync();
         this.updateGroupedFields();
-      } catch (err) {
-        if (!(err instanceof Error)) {
-          return;
-        }
-
-        await handleErrorWithDialog(err, doc);
+      } catch (error) {
+        await handleErrorWithDialog(error, doc);
       }
     },
     async onValueChange(field: Field, value: DocValue): Promise<void> {

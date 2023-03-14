@@ -47,9 +47,9 @@ function evaluateFieldMeta(
     return value;
   }
 
-  const hiddenFunction = doc?.[meta]?.[field.fieldname];
-  if (hiddenFunction !== undefined) {
-    return hiddenFunction();
+  const evalFunction = doc?.[meta]?.[field.fieldname];
+  if (evalFunction !== undefined) {
+    return evalFunction();
   }
 
   return defaultValue;

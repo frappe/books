@@ -14,10 +14,13 @@ import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import router from 'src/router';
 import { IPC_ACTIONS } from 'utils/messages';
+import { SelectFileOptions } from 'utils/types';
 import { App, createApp, h } from 'vue';
 import { RouteLocationRaw } from 'vue-router';
 import { stringifyCircular } from './';
 import { evaluateHidden } from './doc';
+import { selectFile } from './ipcCalls';
+import { showSidebar } from './refs';
 import {
   ActionGroup,
   MessageDialogOptions,
@@ -141,8 +144,8 @@ function replaceAndAppendMount(app: App<Element>, replaceId: string) {
   parent!.append(clone);
 }
 
-export function openSettings(tab: SettingsTab) {
-  routeTo({ path: '/settings', query: { tab } });
+export async function openSettings(tab: SettingsTab) {
+  await routeTo({ path: '/settings', query: { tab } });
 }
 
 export async function routeTo(route: RouteLocationRaw) {
@@ -337,18 +340,13 @@ function getDeleteAction(doc: Doc): Action {
   };
 }
 
-async function openEdit(doc: Doc) {
-  const isFormEdit = [
-    ModelNameEnum.SalesInvoice,
-    ModelNameEnum.PurchaseInvoice,
-    ModelNameEnum.JournalEntry,
-  ].includes(doc.schemaName as ModelNameEnum);
-
-  if (isFormEdit) {
-    return await routeTo(`/edit/${doc.schemaName}/${doc.name!}`);
+async function openEdit({ name, schemaName }: Doc) {
+  if (!name) {
+    return;
   }
 
-  await openQuickEdit({ schemaName: doc.schemaName, name: doc.name! });
+  const route = getFormRoute(schemaName, name);
+  return await routeTo(route);
 }
 
 function getDuplicateAction(doc: Doc): Action {
@@ -369,7 +367,7 @@ function getDuplicateAction(doc: Doc): Action {
             label: t`Yes`,
             async action() {
               try {
-                const dupe = await doc.duplicate();
+                const dupe = doc.duplicate();
                 await openEdit(dupe);
                 return true;
               } catch (err) {
@@ -449,4 +447,127 @@ export function getFormRoute(
   }
 
   return `/list/${schemaName}?edit=1&schemaName=${schemaName}&name=${name}`;
+}
+
+export async function getDocFromNameIfExistsElseNew(
+  schemaName: string,
+  name?: string
+) {
+  if (!name) {
+    return fyo.doc.getNewDoc(schemaName);
+  }
+
+  try {
+    return await fyo.doc.getDoc(schemaName, name);
+  } catch {
+    return fyo.doc.getNewDoc(schemaName);
+  }
+}
+
+export async function isPrintable(schemaName: string) {
+  const numTemplates = await fyo.db.count(ModelNameEnum.PrintTemplate, {
+    filters: { type: schemaName },
+  });
+  return numTemplates > 0;
+}
+
+export function toggleSidebar(value?: boolean) {
+  if (typeof value !== 'boolean') {
+    value = !showSidebar.value;
+  }
+
+  showSidebar.value = value;
+}
+
+export function focusOrSelectFormControl(
+  doc: Doc,
+  ref: any,
+  clear: boolean = true
+) {
+  const naming = doc.fyo.schemaMap[doc.schemaName]?.naming;
+  if (naming !== 'manual' || doc.inserted) {
+    return;
+  }
+
+  if (Array.isArray(ref) && ref.length > 0) {
+    ref = ref[0];
+  }
+
+  if (!clear && typeof ref?.select === 'function') {
+    ref.select();
+    return;
+  }
+
+  if (typeof ref?.clear === 'function') {
+    ref.clear();
+  }
+
+  if (typeof ref?.focus === 'function') {
+    ref.focus();
+  }
+
+  doc.name = '';
+}
+
+export async function selectTextFile(filters?: SelectFileOptions['filters']) {
+  const options = {
+    title: t`Select File`,
+    filters,
+  };
+  const { success, canceled, filePath, data, name } = await selectFile(options);
+
+  if (canceled || !success) {
+    await showToast({
+      type: 'error',
+      message: t`File selection failed`,
+    });
+    return {};
+  }
+
+  const text = new TextDecoder().decode(data);
+  if (!text) {
+    await showToast({
+      type: 'error',
+      message: t`Empty file selected`,
+    });
+
+    return {};
+  }
+
+  return { text, filePath, name };
+}
+
+export enum ShortcutKey {
+  enter = 'enter',
+  ctrl = 'ctrl',
+  pmod = 'pmod',
+  shift = 'shift',
+  alt = 'alt',
+  delete = 'delete',
+  esc = 'esc',
+}
+
+export function getShortcutKeyMap(
+  platform: string
+): Record<ShortcutKey, string> {
+  if (platform === 'Mac') {
+    return {
+      [ShortcutKey.alt]: '⌥',
+      [ShortcutKey.ctrl]: '⌃',
+      [ShortcutKey.pmod]: '⌘',
+      [ShortcutKey.shift]: 'shift',
+      [ShortcutKey.delete]: 'delete',
+      [ShortcutKey.esc]: 'esc',
+      [ShortcutKey.enter]: 'return',
+    };
+  }
+  return {
+    [ShortcutKey.alt]: 'Alt',
+    [ShortcutKey.ctrl]: 'Ctrl',
+    [ShortcutKey.pmod]: 'Ctrl',
+    [ShortcutKey.shift]: '⇧',
+    [ShortcutKey.delete]: 'Backspace',
+    [ShortcutKey.esc]: 'Esc',
+    [ShortcutKey.enter]: 'Enter',
+  };
 }

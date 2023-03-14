@@ -37,7 +37,7 @@
 
     <!-- Data Rows -->
     <div class="overflow-y-auto custom-scroll" v-if="dataSlice.length !== 0">
-      <div v-for="(doc, i) in dataSlice" :key="doc.name">
+      <div v-for="(row, i) in dataSlice" :key="row.name">
         <!-- Row Content -->
         <div class="flex hover:bg-gray-50 items-center">
           <p class="w-8 text-end me-4 text-gray-900">
@@ -46,7 +46,7 @@
           <Row
             gap="1rem"
             class="cursor-pointer text-gray-900 flex-1 h-row-mid"
-            @click="$emit('openDoc', doc.name)"
+            @click="$emit('openDoc', row.name)"
             :columnCount="columns.length"
           >
             <ListCell
@@ -56,7 +56,7 @@
                 'text-end': isNumeric(column.fieldtype),
                 'pe-4': c === columns.length - 1,
               }"
-              :doc="doc"
+              :row="row"
               :column="column"
             />
           </Row>
@@ -95,7 +95,6 @@ import Paginator from 'src/components/Paginator.vue';
 import Row from 'src/components/Row';
 import { fyo } from 'src/initFyo';
 import { isNumeric } from 'src/utils';
-import { openQuickEdit, routeTo } from 'src/utils/ui';
 import { objectForEach } from 'utils/index';
 import { defineComponent, toRaw } from 'vue';
 import ListCell from './ListCell';

@@ -1,6 +1,5 @@
 import { Fyo } from 'fyo';
 import { ConfigFile, ConfigKeys } from 'fyo/core/types';
-import { Doc } from 'fyo/model/doc';
 import { getRegionalModels, models } from 'models/index';
 import { ModelNameEnum } from 'models/types';
 import { TargetField } from 'schemas/types';

@@ -1,0 +1,685 @@
+<template>
+  <div>
+    <PageHeader :title="doc && doc.inserted ? doc.name : ''">
+      <!-- Template Name -->
+      <template #left v-if="doc && !doc.inserted">
+        <FormControl
+          ref="nameField"
+          class="w-60 flex-shrink-0"
+          size="small"
+          :input-class="['font-semibold text-xl']"
+          :df="fields.name"
+          :border="true"
+          :value="doc!.name"
+          @change="async (value) => await doc?.set('name', value)"
+        />
+      </template>
+      <Button v-if="displayDoc && doc?.template" @click="savePDF">
+        {{ t`Save as PDF` }}
+      </Button>
+      <Button
+        v-if="doc && displayDoc"
+        :title="t`Toggle Edit Mode`"
+        :icon="true"
+        @click="toggleEditMode"
+      >
+        <feather-icon name="edit" class="w-4 h-4" />
+      </Button>
+      <DropdownWithActions v-if="actions.length" :actions="actions" />
+      <Button v-if="doc?.canSave" type="primary" @click="sync()">
+        {{ t`Save` }}
+      </Button>
+    </PageHeader>
+
+    <!-- Template Builder Body -->
+    <div
+      v-if="doc"
+      class="w-full bg-gray-50 grid"
+      :style="templateBuilderBodyStyles"
+    >
+      <!-- Template Display Area -->
+      <div
+        class="overflow-auto no-scrollbar flex flex-col"
+        style="height: calc(100vh - var(--h-row-largest) - 1px)"
+      >
+        <!-- Template Container -->
+        <div v-if="canDisplayPreview" class="p-4 overflow-auto custom-scroll">
+          <PrintContainer
+            ref="printContainer"
+            :template="doc.template!"
+            :values="values!"
+            :scale="scale"
+          />
+        </div>
+
+        <!-- Display Hints -->
+        <p v-else-if="helperMessage" class="text-sm text-gray-700 p-4">
+          {{ helperMessage }}
+        </p>
+
+        <!-- Bottom Bar -->
+        <div
+          class="
+            w-full
+            sticky
+            bottom-0
+            flex
+            bg-white
+            border-t
+            mt-auto
+            flex-shrink-0
+          "
+        >
+          <!-- Entry Type -->
+          <FormControl
+            :title="fields.type.label"
+            class="w-40 border-r flex-shrink-0"
+            :df="fields.type"
+            :border="false"
+            :value="doc.get('type')"
+            :container-styles="{ 'border-radius': '0px' }"
+            @change="async (value) => await setType(value)"
+          />
+
+          <!-- Display Doc -->
+          <FormControl
+            v-if="doc.type"
+            :title="displayDocField.label"
+            class="w-40 border-r flex-shrink-0"
+            :df="displayDocField"
+            :border="false"
+            :value="displayDoc?.name"
+            :container-styles="{ 'border-radius': '0px' }"
+            @change="(value: string) => setDisplayDoc(value)"
+          />
+
+          <!-- Display Scale -->
+          <div
+            v-if="canDisplayPreview"
+            class="flex ml-auto gap-2 px-2 w-36 justify-between flex-shrink-0"
+          >
+            <p class="text-sm text-gray-600 my-auto">{{ t`Display Scale` }}</p>
+            <input
+              type="number"
+              class="
+                my-auto
+                w-10
+                text-base text-end
+                bg-transparent
+                text-gray-800
+                focus:text-gray-900
+              "
+              :value="scale"
+              @change="setScale"
+              @input="setScale"
+              min="0.1"
+              max="10"
+              step="0.1"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Panel Resizer -->
+      <HorizontalResizer
+        :initial-x="panelWidth"
+        :min-x="22 * 16"
+        :max-x="maxWidth"
+        style="z-index: 5"
+        @resize="(x: number) => panelWidth = x"
+      />
+
+      <!-- Template Panel -->
+      <div
+        class="border-l bg-white flex flex-col"
+        style="height: calc(100vh - var(--h-row-largest) - 1px)"
+      >
+        <!-- Template Editor -->
+        <div class="min-h-0">
+          <TemplateEditor
+            v-if="typeof doc.template === 'string' && hints"
+            ref="templateEditor"
+            class="overflow-auto custom-scroll h-full"
+            :initial-value="doc.template"
+            :disabled="!doc.isCustom"
+            :hints="hints"
+            @input="() => (templateChanged = true)"
+            @blur="(value: string) => setTemplate(value)"
+          />
+        </div>
+        <div
+          v-if="templateChanged"
+          class="flex gap-2 p-2 text-sm text-gray-600 items-center mt-auto"
+        >
+          <ShortcutKeys :keys="applyChangesShortcut" :simple="true" />
+          {{ t` to apply changes` }}
+        </div>
+
+        <!-- Value Key Hints Container -->
+        <div
+          class="border-t flex-shrink-0"
+          :class="templateChanged ? '' : 'mt-auto'"
+          v-if="hints"
+        >
+          <!-- Value Key Toggle -->
+          <div
+            class="
+              flex
+              justify-between
+              items-center
+              cursor-pointer
+              select-none
+              p-2
+            "
+            @click="toggleShowHints"
+          >
+            <h2 class="text-base text-gray-900 font-semibold">
+              {{ t`Key Hints` }}
+            </h2>
+            <feather-icon
+              :name="showHints ? 'chevron-up' : 'chevron-down'"
+              class="w-4 h-4 text-gray-600 resize-none"
+            />
+          </div>
+
+          <!-- Value Key Hints -->
+          <Transition name="hints">
+            <div
+              v-if="showHints"
+              class="overflow-auto custom-scroll p-2 border-t"
+              style="max-height: 30vh"
+            >
+              <TemplateBuilderHint :hints="hints" />
+            </div>
+          </Transition>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script lang="ts">
+import { EditorView } from 'codemirror';
+import { Doc } from 'fyo/model/doc';
+import { PrintTemplate } from 'models/baseModels/PrintTemplate';
+import { ModelNameEnum } from 'models/types';
+import { saveExportData } from 'reports/commonExporter';
+import { Field, TargetField } from 'schemas/types';
+import Button from 'src/components/Button.vue';
+import FormControl from 'src/components/Controls/FormControl.vue';
+import DropdownWithActions from 'src/components/DropdownWithActions.vue';
+import HorizontalResizer from 'src/components/HorizontalResizer.vue';
+import PageHeader from 'src/components/PageHeader.vue';
+import ShortcutKeys from 'src/components/ShortcutKeys.vue';
+import { handleErrorWithDialog } from 'src/errorHandling';
+import { getSavePath } from 'src/utils/ipcCalls';
+import { docsPathMap } from 'src/utils/misc';
+import {
+  baseTemplate,
+  getPrintTemplatePropHints,
+  getPrintTemplatePropValues,
+} from 'src/utils/printTemplates';
+import { docsPathRef, focusedDocsRef, showSidebar } from 'src/utils/refs';
+import { PrintValues } from 'src/utils/types';
+import {
+  focusOrSelectFormControl,
+  getActionsForDoc,
+  getDocFromNameIfExistsElseNew,
+  openSettings,
+  selectTextFile,
+  ShortcutKey,
+  showMessageDialog,
+  showToast,
+} from 'src/utils/ui';
+import { Shortcuts } from 'src/utils/vueUtils';
+import { getMapFromList } from 'utils/index';
+import { computed, defineComponent } from 'vue';
+import PrintContainer from './PrintContainer.vue';
+import TemplateBuilderHint from './TemplateBuilderHint.vue';
+import TemplateEditor from './TemplateEditor.vue';
+
+export default defineComponent({
+  props: { name: String },
+  components: {
+    PageHeader,
+    Button,
+    DropdownWithActions,
+    PrintContainer,
+    HorizontalResizer,
+    TemplateEditor,
+    FormControl,
+    TemplateBuilderHint,
+    ShortcutKeys,
+  },
+  inject: { shortcutManager: { from: 'shortcuts' } },
+  provide() {
+    return { doc: computed(() => this.doc) };
+  },
+  data() {
+    return {
+      doc: null,
+      editMode: false,
+      showHints: false,
+      hints: undefined,
+      values: null,
+      displayDoc: null,
+      scale: 0.6,
+      panelWidth: 22 /** rem */ * 16 /** px */,
+      templateChanged: false,
+      preEditMode: {
+        scale: 0.6,
+        showSidebar: true,
+        panelWidth: 22 * 16,
+      },
+    } as {
+      editMode: boolean;
+      showHints: boolean;
+      hints?: Record<string, unknown>;
+      values: null | PrintValues;
+      doc: PrintTemplate | null;
+      displayDoc: PrintTemplate | null;
+      scale: number;
+      panelWidth: number;
+      templateChanged: boolean;
+      preEditMode: {
+        scale: number;
+        showSidebar: boolean;
+        panelWidth: number;
+      };
+    };
+  },
+  async mounted() {
+    await this.initialize();
+    focusedDocsRef.add(this.doc);
+    if (this.fyo.store.isDevelopment) {
+      // @ts-ignore
+      window.tb = this;
+    }
+  },
+  async activated(): Promise<void> {
+    docsPathRef.value = docsPathMap.PrintTemplate ?? '';
+    this.shortcuts.ctrl.set(['Enter'], this.setTemplate);
+    this.shortcuts.ctrl.set(['KeyE'], this.toggleEditMode);
+    this.shortcuts.ctrl.set(['KeyH'], this.toggleShowHints);
+    this.shortcuts.ctrl.set(['Equal'], () => this.setScale(this.scale + 0.1));
+    this.shortcuts.ctrl.set(['Minus'], () => this.setScale(this.scale - 0.1));
+  },
+  deactivated(): void {
+    docsPathRef.value = '';
+    if (this.doc instanceof Doc) {
+      focusedDocsRef.delete(this.doc);
+    }
+    this.shortcuts.ctrl.delete(['Enter']);
+    this.shortcuts.ctrl.delete(['KeyE']);
+    this.shortcuts.ctrl.delete(['KeyH']);
+    this.shortcuts.ctrl.delete(['Equal']);
+    this.shortcuts.ctrl.delete(['Minus']);
+  },
+  methods: {
+    async initialize() {
+      await this.setDoc();
+      if (this.doc?.type) {
+        this.hints = getPrintTemplatePropHints(this.doc.type, this.fyo);
+      }
+
+      focusOrSelectFormControl(this.doc as Doc, this.$refs.nameField, false);
+
+      if (!this.doc?.template) {
+        await this.doc?.set('template', baseTemplate);
+      }
+
+      await this.setDisplayInitialDoc();
+    },
+    getTemplateEditorState() {
+      const fallback = this.doc?.template ?? '';
+
+      if (!this.view) {
+        return fallback;
+      }
+
+      return this.view.state.doc.toString();
+    },
+    async setTemplate(value?: string) {
+      this.templateChanged = false;
+      if (!this.doc?.isCustom) {
+        return;
+      }
+
+      value ??= this.getTemplateEditorState();
+      await this.doc?.set('template', value);
+    },
+    setScale(e: Event | number) {
+      let value = this.scale;
+      if (typeof e === 'number') {
+        value = Number(e.toFixed(2));
+      } else if (e instanceof Event && e.target instanceof HTMLInputElement) {
+        value = Number(e.target.value);
+      }
+
+      this.scale = Math.max(Math.min(value, 10), 0.15);
+    },
+    toggleShowHints() {
+      this.showHints = !this.showHints;
+    },
+    async toggleEditMode() {
+      if (!this.doc?.isCustom) {
+        return;
+      }
+
+      let message = this.t`Please set a Display Doc`;
+      if (!this.displayDoc) {
+        return showToast({ type: 'warning', message, duration: 1000 });
+      }
+
+      this.editMode = !this.editMode;
+
+      if (this.editMode) {
+        return this.enableEditMode();
+      }
+
+      this.disableEditMode();
+    },
+    enableEditMode() {
+      this.preEditMode.showSidebar = showSidebar.value;
+      this.preEditMode.panelWidth = this.panelWidth;
+      this.preEditMode.scale = this.scale;
+
+      this.panelWidth = Math.max(window.innerWidth / 2, this.panelWidth);
+      showSidebar.value = false;
+      this.scale = this.getEditModeScale();
+      this.view?.focus();
+    },
+    disableEditMode() {
+      showSidebar.value = this.preEditMode.showSidebar;
+      this.panelWidth = this.preEditMode.panelWidth;
+      this.scale = this.preEditMode.scale;
+    },
+    getEditModeScale(): number {
+      // @ts-ignore
+      const div = this.$refs.printContainer.$el;
+      if (!(div instanceof HTMLDivElement)) {
+        return this.scale;
+      }
+
+      const padding = 16 * 2 /** p-4 */ + 16 * 0.6; /** w-scrollbar */
+      const targetWidth = window.innerWidth / 2 - padding;
+      const currentWidth = div.getBoundingClientRect().width;
+      const targetScale = (targetWidth * this.scale) / currentWidth;
+
+      return Number(targetScale.toFixed(2));
+    },
+    async savePDF() {
+      const printContainer = this.$refs.printContainer as {
+        savePDF: (name?: string) => void;
+      };
+
+      if (!printContainer?.savePDF) {
+        return;
+      }
+
+      printContainer.savePDF(this.displayDoc?.name);
+    },
+    async setDisplayInitialDoc() {
+      const schemaName = this.doc?.type;
+      if (!schemaName || this.displayDoc?.schemaName === schemaName) {
+        return;
+      }
+
+      const names = (await this.fyo.db.getAll(schemaName, {
+        limit: 1,
+        order: 'desc',
+        orderBy: 'created',
+        filters: { cancelled: false },
+      })) as { name: string }[];
+
+      const name = names[0]?.name;
+      if (!name) {
+        const label = this.fyo.schemaMap[schemaName]?.label ?? schemaName;
+        await showMessageDialog({
+          message: this.t`No Display Entries Found`,
+          detail: this
+            .t`Please create a ${label} entry to view Template Preview`,
+        });
+
+        return;
+      }
+
+      await this.setDisplayDoc(name);
+    },
+    async sync() {
+      const doc = this.doc;
+      if (!doc) {
+        return;
+      }
+
+      try {
+        await doc.sync();
+      } catch (error) {
+        await handleErrorWithDialog(error, doc as Doc);
+      }
+    },
+    async setDoc() {
+      if (this.doc) {
+        return;
+      }
+
+      this.doc = (await getDocFromNameIfExistsElseNew(
+        ModelNameEnum.PrintTemplate,
+        this.name
+      )) as PrintTemplate;
+    },
+    async setType(value: unknown) {
+      if (typeof value !== 'string') {
+        return;
+      }
+
+      await this.doc?.set('type', value);
+      await this.setDisplayInitialDoc();
+    },
+    async setDisplayDoc(value: string) {
+      if (!value) {
+        delete this.hints;
+        this.values = null;
+        this.displayDoc = null;
+        return;
+      }
+
+      const schemaName = this.doc?.type;
+      if (!schemaName) {
+        return;
+      }
+
+      const displayDoc = await getDocFromNameIfExistsElseNew(schemaName, value);
+      this.hints = getPrintTemplatePropHints(schemaName, this.fyo);
+      this.values = await getPrintTemplatePropValues(displayDoc);
+      this.displayDoc = displayDoc;
+    },
+    async selectFile() {
+      const { name: fileName, text } = await selectTextFile([
+        { name: 'Template', extensions: ['template.html', 'html'] },
+      ]);
+
+      if (!text) {
+        return;
+      }
+
+      await this.doc?.set('template', text);
+      this.view?.dispatch({
+        changes: { from: 0, to: this.view.state.doc.length, insert: text },
+      });
+
+      if (this.doc?.inserted) {
+        return;
+      }
+
+      let name: string | null = null;
+      if (fileName.endsWith('.template.html')) {
+        name = fileName.split('.template.html')[0];
+      }
+
+      if (!name && fileName.endsWith('.html')) {
+        name = fileName.split('.html')[0];
+      }
+
+      if (!name) {
+        return;
+      }
+
+      await this.doc?.set('name', name);
+    },
+    async saveFile() {
+      const name = this.doc?.name;
+      const template = this.getTemplateEditorState();
+
+      if (!name) {
+        return await showToast({
+          type: 'warning',
+          message: this.t`Print Template Name not set`,
+        });
+      }
+
+      if (!template) {
+        return await showToast({
+          type: 'warning',
+          message: this.t`Print Template is empty`,
+        });
+      }
+
+      const { canceled, filePath } = await getSavePath(name, 'template.html');
+      if (canceled || !filePath) {
+        return;
+      }
+
+      await saveExportData(template, filePath, this.t`Template file saved`);
+    },
+  },
+  computed: {
+    canDisplayPreview(): boolean {
+      if (!this.displayDoc || !this.values) {
+        return false;
+      }
+
+      if (!this.doc?.template) {
+        return false;
+      }
+
+      return true;
+    },
+    applyChangesShortcut() {
+      return [ShortcutKey.ctrl, ShortcutKey.enter];
+    },
+    view(): EditorView | null {
+      // @ts-ignore
+      const { view } = this.$refs.templateEditor ?? {};
+      if (view instanceof EditorView) {
+        return view;
+      }
+
+      return null;
+    },
+
+    shortcuts(): Shortcuts {
+      // @ts-ignore
+      const shortcutManager = this.shortcutManager;
+      if (shortcutManager instanceof Shortcuts) {
+        return shortcutManager;
+      }
+
+      // no-op (hopefully)
+      throw Error('Shortcuts Not Found');
+    },
+    maxWidth() {
+      return window.innerWidth - 12 * 16 - 100;
+    },
+    actions() {
+      if (!this.doc) {
+        return [];
+      }
+
+      const actions = getActionsForDoc(this.doc as Doc);
+      actions.push({
+        label: this.t`Print Settings`,
+        group: this.t`View`,
+        action: async () => {
+          await openSettings(ModelNameEnum.PrintSettings);
+        },
+      });
+
+      if (this.doc.isCustom) {
+        actions.push({
+          label: this.t`Select Template File`,
+          group: this.t`Action`,
+          action: this.selectFile,
+        });
+      }
+
+      actions.push({
+        label: this.t`Save Template File`,
+        group: this.t`Action`,
+        action: this.saveFile,
+      });
+
+      return actions;
+    },
+    fields(): Record<string, Field> {
+      return getMapFromList(
+        this.fyo.schemaMap.PrintTemplate?.fields ?? [],
+        'fieldname'
+      );
+    },
+    displayDocField(): TargetField {
+      const target = this.doc?.type ?? ModelNameEnum.SalesInvoice;
+      return {
+        fieldname: 'displayDoc',
+        label: this.t`Display Doc`,
+        fieldtype: 'Link',
+        target,
+      };
+    },
+    helperMessage() {
+      if (!this.doc) {
+        return '';
+      }
+
+      if (!this.doc.type) {
+        return this.t`Select a Template type`;
+      }
+
+      if (!this.displayDoc) {
+        return this.t`Select a Display Doc to view the Template`;
+      }
+
+      if (!this.doc.template) {
+        return this.t`Set a Template value to see the Print Template`;
+      }
+
+      return '';
+    },
+    templateBuilderBodyStyles(): Record<string, string> {
+      const styles: Record<string, string> = {};
+
+      styles['grid-template-columns'] = `auto 0px ${this.panelWidth}px`;
+      styles['height'] = 'calc(100vh - var(--h-row-largest) - 1px)';
+
+      return styles;
+    },
+  },
+});
+</script>
+
+<style scoped>
+.hints-enter-from,
+.hints-leave-to {
+  opacity: 0;
+  height: 0px;
+}
+.hints-enter-to,
+.hints-leave-from {
+  opacity: 1;
+  height: 30vh;
+}
+
+.hints-enter-active,
+.hints-leave-active {
+  transition: all 150ms ease-out;
+}
+</style>
