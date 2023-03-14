@@ -94,11 +94,11 @@
         text-gray-800
       "
     >
-      <div class="w-4/12 text-left">Item</div>
-      <div class="w-2/12 text-right" v-if="doc.showHSN">HSN/SAC</div>
-      <div class="w-2/12 text-right">Quantity</div>
-      <div class="w-3/12 text-right">Rate</div>
-      <div class="w-3/12 text-right">Amount</div>
+      <div class="w-4/12 text-left">{{ t`Item` }}</div>
+      <div class="w-2/12 text-right" v-if="doc.showHSN">{{ t`HSN/SAC` }}</div>
+      <div class="w-2/12 text-right">{{ t`Quantity` }}</div>
+      <div class="w-3/12 text-right">{{ t`Rate` }}</div>
+      <div class="w-3/12 text-right">{{ t`Amount`}}</div>
     </section>
 
     <!-- Body Rows -->
@@ -116,7 +116,7 @@
     <!-- Invoice Terms -->
     <section class="w-1/2" v-if="doc.terms">
       <h3 class="uppercase text-sm tracking-widest font-semibold text-gray-800">
-        Notes
+        {{ t`Notes` }}
       </h3>
       <p class="mt-4 text-lg whitespace-pre-line">{{ doc.terms }}</p>
     </section>

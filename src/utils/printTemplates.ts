@@ -116,9 +116,9 @@ function getPrintTemplateDocHints(
   schema: Schema,
   fyo: Fyo,
   fieldnames?: string[],
-  isLink?: boolean
+  linkLevel?: number
 ): PrintTemplateData {
-  isLink ??= false;
+  linkLevel ??= 0;
   const hints: PrintTemplateData = {};
   const links: PrintTemplateData = {};
 
@@ -134,17 +134,14 @@ function getPrintTemplateDocHints(
     }
 
     hints[fieldname] = label ?? fieldname;
-    if (fieldtype === FieldTypeEnum.Table) {
-    }
-
     const { target } = field as TargetField;
     const targetSchema = fyo.schemaMap[target];
-    if (fieldtype === FieldTypeEnum.Link && targetSchema && !isLink) {
+    if (fieldtype === FieldTypeEnum.Link && targetSchema && linkLevel < 2) {
       links[fieldname] = getPrintTemplateDocHints(
         targetSchema,
         fyo,
         undefined,
-        true
+        linkLevel + 1
       );
     }
 
