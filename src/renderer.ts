@@ -111,6 +111,8 @@ function setOnWindow(isDevelopment: boolean) {
   window.fyo = fyo;
   // @ts-ignore
   window.DateTime = DateTime;
+  // @ts-ignore
+  window.ipcRenderer = ipcRenderer;
 }
 
 function getPlatformName(platform: string) {

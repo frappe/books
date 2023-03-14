@@ -13,7 +13,7 @@ import { TelemetryManager } from './telemetry/telemetry';
 import {
   DEFAULT_CURRENCY,
   DEFAULT_DISPLAY_PRECISION,
-  DEFAULT_INTERNAL_PRECISION
+  DEFAULT_INTERNAL_PRECISION,
 } from './utils/consts';
 import * as errors from './utils/errors';
 import { format } from './utils/format';
@@ -88,7 +88,7 @@ export class Fyo {
     return this.db.fieldMap;
   }
 
-  format(value: DocValue, field: string | Field, doc?: Doc) {
+  format(value: unknown, field: string | Field, doc?: Doc) {
     return format(value, field, doc ?? null, this);
   }
 

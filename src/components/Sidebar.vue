@@ -145,7 +145,7 @@
       </button>
 
       <p
-        v-if="fyo.store.isDevelopment"
+        v-if="!fyo.store.isDevelopment"
         class="text-xs text-gray-500 select-none"
       >
         dev mode
@@ -165,7 +165,7 @@
         m-4
         rtl-rotate-180
       "
-      @click="$emit('toggle-sidebar')"
+      @click="() => toggleSidebar()"
     >
       <feather-icon name="chevrons-left" class="w-4 h-4" />
     </button>
@@ -182,7 +182,7 @@ import { fyo } from 'src/initFyo';
 import { openLink } from 'src/utils/ipcCalls';
 import { docsPathRef } from 'src/utils/refs';
 import { getSidebarConfig } from 'src/utils/sidebarConfig';
-import { routeTo } from 'src/utils/ui';
+import { routeTo, toggleSidebar } from 'src/utils/ui';
 import router from '../router';
 import Icon from './Icon.vue';
 import Modal from './Modal.vue';
@@ -191,7 +191,7 @@ import ShortcutsHelper from './ShortcutsHelper.vue';
 export default {
   components: [Button],
   inject: ['languageDirection', 'shortcuts'],
-  emits: ['change-db-file', 'toggle-sidebar'],
+  emits: ['change-db-file'],
   data() {
     return {
       companyName: '',
@@ -222,7 +222,7 @@ export default {
 
     this.shortcuts.shift.set(['KeyH'], () => {
       if (document.body === document.activeElement) {
-        this.$emit('toggle-sidebar');
+        this.toggleSidebar();
       }
     });
     this.shortcuts.set(['F1'], () => this.openDocumentation());
@@ -234,6 +234,7 @@ export default {
   methods: {
     routeTo,
     reportIssue,
+    toggleSidebar,
     openDocumentation() {
       openLink('https://docs.frappebooks.com/' + docsPathRef.value);
     },

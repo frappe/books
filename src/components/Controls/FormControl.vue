@@ -54,6 +54,9 @@ export default {
         input.value = '';
       }
     },
+    select() {
+      this.$refs.control.$refs?.input?.select()
+    },
     focus() {
       this.$refs.control.focus();
     },

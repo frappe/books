@@ -1,0 +1,148 @@
+<main class="bg-white h-full px-6" :style="{ 'font-family': print.font }">
+  <!-- Invoice Header -->
+  <header class="py-6 flex text-sm text-gray-900 border-b">
+    <!-- Company Logo & Name -->
+    <section class="w-1/3">
+      <img
+        v-if="print.displayLogo"
+        class="h-12 max-w-32 object-contain"
+        :src="print.logo"
+      />
+      <div class="text-xl text-gray-700 font-semibold" v-else>
+        {{ print.companyName }}
+      </div>
+    </section>
+
+    <!-- Company Contacts -->
+    <section class="w-1/3">
+      <div>{{ print.email }}</div>
+      <div class="mt-1">{{ print.phone }}</div>
+    </section>
+
+    <!-- Company Address & GSTIN -->
+    <section class="w-1/3">
+      <div v-if="print.address">{{ print.links.address.addressDisplay }}</div>
+      <div v-if="print.gstin">GSTIN: {{ print.gstin }}</div>
+    </section>
+  </header>
+
+  <!-- Sub Heading Section -->
+  <section class="mt-8 flex justify-between">
+    <!-- Invoice Details -->
+    <section class="w-1/3">
+      <h2 class="text-2xl font-semibold">{{ doc.name }}</h2>
+      <p class="py-2 text-base">{{ doc.date }}</p>
+    </section>
+
+    <!-- Party Details -->
+    <section class="w-1/3" v-if="doc.party">
+      <h2 class="py-1 text-right text-lg font-semibold">{{ doc.party }}</h2>
+      <p
+        v-if="doc.links.party.address"
+        class="mt-1 text-xs text-gray-600 text-right"
+      >
+        {{ doc.links.party.links.address.addressDisplay }}
+      </p>
+      <p
+        v-if="doc.links.party.gstin"
+        class="mt-1 text-xs text-gray-600 text-right"
+      >
+        GSTIN: {{ doc.partyGSTIN }}
+      </p>
+    </section>
+  </section>
+
+  <!-- Items Table -->
+  <section class="mt-8 text-base">
+    <!-- Heading Row -->
+    <section class="text-gray-600 w-full flex border-b">
+      <div class="py-4 w-5/12">{{ t`Item` }}</div>
+      <div class="py-4 text-right w-2/12" v-if="doc.showHSN">
+        {{ t`HSN/SAC` }}
+      </div>
+      <div class="py-4 text-right w-1/12">{{ t`Quantity` }}</div>
+      <div class="py-4 text-right w-3/12">{{ t`Rate` }}</div>
+      <div class="py-4 text-right w-3/12">{{ t`Amount` }}</div>
+    </section>
+
+    <!-- Body Rows -->
+    <section
+      class="flex py-1 text-gray-900 w-full border-b"
+      v-for="row in doc.items"
+      :key="row.name"
+    >
+      <div class="w-5/12 py-4">{{ row.item }}</div>
+      <div class="w-2/12 text-right py-4" v-if="doc.showHSN">
+        {{ row.hsnCode }}
+      </div>
+      <div class="w-1/12 text-right py-4">{{ row.quantity }}</div>
+      <div class="w-3/12 text-right py-4">{{ row.rate }}</div>
+      <div class="w-3/12 text-right py-4">{{ row.amount }}</div>
+    </section>
+  </section>
+
+  <!-- Invoice Footer -->
+  <footer class="mt-8 flex justify-end text-base">
+    <!-- Invoice Terms -->
+    <section class="w-1/2">
+      <h3 class="text-sm tracking-widest text-gray-600 mt-2" v-if="doc.terms">
+        {{ t`Notes` }}
+      </h3>
+      <p class="my-4 text-lg whitespace-pre-line">{{ doc.terms }}</p>
+    </section>
+
+    <!-- Totaled Amounts -->
+    <section class="w-1/2">
+      <!-- Subtotal -->
+      <div class="flex pl-2 justify-between py-3 border-b">
+        <h3>{{ t`Subtotal` }}</h3>
+        <p>{{ doc.netTotal }}</p>
+      </div>
+
+      <!-- Discount (if applied before tax) -->
+      <div
+        class="flex pl-2 justify-between py-3 border-b"
+        v-if="doc.totalDiscount && !doc.discountAfterTax"
+      >
+        <h3>{{ t`Discount` }}</h3>
+        <p>{{ doc.totalDiscount }}</p>
+      </div>
+
+      <!-- Tax Breakdown -->
+      <div
+        class="flex pl-2 justify-between py-3"
+        v-for="tax in doc.taxes"
+        :key="tax.name"
+      >
+        <h3>{{ tax.account }}</h3>
+        <p>{{ tax.amount }}</p>
+      </div>
+
+      <!-- Discount (if applied after tax) -->
+      <div
+        class="flex pl-2 justify-between py-3 border-t"
+        v-if="doc.totalDiscount && doc.discountAfterTax"
+      >
+        <h3>{{ t`Discount` }}</h3>
+        <p>{{ doc.totalDiscount }}</p>
+      </div>
+
+      <!-- Grand Total -->
+      <div
+        class="
+          flex
+          pl-2
+          justify-between
+          py-3
+          border-t
+          text-green-600
+          font-semibold
+          text-base
+        "
+      >
+        <h3>{{ t`Grand Total` }}</h3>
+        <p>{{ doc.grandTotal }}</p>
+      </div>
+    </section>
+  </footer>
+</main>

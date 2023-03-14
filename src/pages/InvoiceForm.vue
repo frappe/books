@@ -1,8 +1,15 @@
 <template>
   <FormContainer>
     <!-- Page Header (Title, Buttons, etc) -->
+    <template #header-left v-if="doc">
+      <StatusBadge :status="status" class="h-8" />
+      <Barcode
+        class="h-8"
+        v-if="doc.canEdit && fyo.singles.InventorySettings?.enableBarcodes"
+        @item-selected="(name) => doc.addItem(name)"
+      />
+    </template>
     <template #header v-if="doc">
-      <StatusBadge :status="status" />
       <ExchangeRate
         v-if="doc.isMultiCurrency"
         :disabled="doc?.isSubmitted || doc?.isCancelled"
@@ -12,10 +19,6 @@
         @change="
           async (exchangeRate) => await doc.set('exchangeRate', exchangeRate)
         "
-      />
-      <Barcode
-        v-if="doc.canEdit && fyo.singles.InventorySettings?.enableBarcodes"
-        @item-selected="(name) => doc.addItem(name)"
       />
       <Button
         v-if="!doc.isCancelled && !doc.dirty"

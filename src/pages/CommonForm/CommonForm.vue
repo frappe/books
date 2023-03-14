@@ -1,7 +1,16 @@
 <template>
   <FormContainer>
+    <template #header-left v-if="hasDoc">
+      <StatusBadge :status="status" class="h-8" />
+    </template>
     <template #header v-if="hasDoc">
-      <StatusBadge :status="status" />
+      <Button
+        v-if="!doc.isCancelled && !doc.dirty && isPrintable"
+        :icon="true"
+        @click="routeTo(`/print/${doc.schemaName}/${doc.name}`)"
+      >
+        {{ t`Print` }}
+      </Button>
       <DropdownWithActions
         v-for="group of groupedActions"
         :key="group.label"
@@ -116,8 +125,11 @@ import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef, focusedDocsRef } from 'src/utils/refs';
 import { ActionGroup, UIGroupedFields } from 'src/utils/types';
 import {
+  getDocFromNameIfExistsElseNew,
   getFieldsGroupedByTabAndSection,
   getGroupedActionsForDoc,
+  isPrintable,
+  routeTo,
 } from 'src/utils/ui';
 import { computed, defineComponent, nextTick } from 'vue';
 import QuickEditForm from '../QuickEditForm.vue';
@@ -142,12 +154,14 @@ export default defineComponent({
       activeTab: 'Default',
       groupedFields: null,
       quickEditDoc: null,
+      isPrintable: false,
     } as {
       errors: Record<string, string>;
       docOrNull: null | Doc;
       activeTab: string;
       groupedFields: null | UIGroupedFields;
       quickEditDoc: null | Doc;
+      isPrintable: boolean;
     };
   },
   async mounted() {
@@ -159,6 +173,7 @@ export default defineComponent({
     await this.setDoc();
     focusedDocsRef.add(this.docOrNull);
     this.updateGroupedFields();
+    this.isPrintable = await isPrintable(this.schemaName);
   },
   activated(): void {
     docsPathRef.value = docsPathMap[this.schemaName] ?? '';
@@ -166,7 +181,9 @@ export default defineComponent({
   },
   deactivated(): void {
     docsPathRef.value = '';
-    focusedDocsRef.add(this.docOrNull);
+    if (this.docOrNull) {
+      focusedDocsRef.delete(this.doc);
+    }
   },
   computed: {
     hasDoc(): boolean {
@@ -238,6 +255,7 @@ export default defineComponent({
     },
   },
   methods: {
+    routeTo,
     updateGroupedFields(): void {
       if (!this.hasDoc) {
         return;
@@ -253,10 +271,6 @@ export default defineComponent({
         await this.doc.sync();
         this.updateGroupedFields();
       } catch (err) {
-        if (!(err instanceof Error)) {
-          return;
-        }
-
         await handleErrorWithDialog(err, this.doc);
       }
     },
@@ -265,10 +279,6 @@ export default defineComponent({
         await this.doc.submit();
         this.updateGroupedFields();
       } catch (err) {
-        if (!(err instanceof Error)) {
-          return;
-        }
-
         await handleErrorWithDialog(err, this.doc);
       }
     },
@@ -277,18 +287,10 @@ export default defineComponent({
         return;
       }
 
-      if (this.name) {
-        await this.setDocFromName(this.name);
-      } else {
-        this.docOrNull = this.fyo.doc.getNewDoc(this.schemaName);
-      }
-    },
-    async setDocFromName(name: string) {
-      try {
-        this.docOrNull = await this.fyo.doc.getDoc(this.schemaName, name);
-      } catch (err) {
-        this.docOrNull = this.fyo.doc.getNewDoc(this.schemaName);
-      }
+      this.docOrNull = await getDocFromNameIfExistsElseNew(
+        this.schemaName,
+        this.name
+      );
     },
     async toggleQuickEditDoc(doc: Doc | null) {
       if (this.quickEditDoc && doc) {
