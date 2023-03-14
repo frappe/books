@@ -80,7 +80,7 @@
     "tslib": "^2.3.1",
     "typescript": "^4.6.2",
     "vue-cli-plugin-electron-builder": "https://github.com/nklayman/vue-cli-plugin-electron-builder#ebb9183f4913f927d4e4f4eb1fbab61a960f7a09",
-    "webpack": "^5.66.0"
+    "webpack": "^5.76.0"
   },
   "resolutions": {
     "electron-builder": "24.0.0-alpha.12"
