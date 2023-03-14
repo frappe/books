@@ -60,21 +60,21 @@ export async function getPrintTemplatePropValues(
   return values;
 }
 
-export function getPrintTemplatePropHints(doc: Doc) {
+export function getPrintTemplatePropHints(schemaName: string, fyo: Fyo) {
   const hints: PrintTemplateData = {};
-  const fyo = doc.fyo;
-  hints.doc = getPrintTemplateDocHints(doc.schema, doc.fyo);
-  (hints.doc as PrintTemplateData).entryType = doc.fyo.t`Entry Type`;
-  (hints.doc as PrintTemplateData).entryLabel = doc.fyo.t`Entry Label`;
+  const schema = fyo.schemaMap[schemaName]!;
+  hints.doc = getPrintTemplateDocHints(schema, fyo);
+  (hints.doc as PrintTemplateData).entryType = fyo.t`Entry Type`;
+  (hints.doc as PrintTemplateData).entryLabel = fyo.t`Entry Label`;
 
   const printSettingsHints = getPrintTemplateDocHints(
     fyo.schemaMap[ModelNameEnum.PrintSettings]!,
-    doc.fyo,
+    fyo,
     printSettingsFields
   );
   const accountingSettingsHints = getPrintTemplateDocHints(
     fyo.schemaMap[ModelNameEnum.AccountingSettings]!,
-    doc.fyo,
+    fyo,
     accountingSettingsFields
   );
 
@@ -83,7 +83,7 @@ export function getPrintTemplatePropHints(doc: Doc) {
     ...accountingSettingsHints,
   };
 
-  if (doc.schemaName?.endsWith('Invoice')) {
+  if (schemaName?.endsWith('Invoice')) {
     (hints.doc as PrintTemplateData).totalDiscount = fyo.t`Total Discount`;
     (hints.doc as PrintTemplateData).showHSN = fyo.t`Show HSN`;
   }

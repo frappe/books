@@ -42,23 +42,20 @@
         class="overflow-auto no-scrollbar flex flex-col"
         style="height: calc(100vh - var(--h-row-largest) - 1px)"
       >
-        <!-- Display Hints -->
-        <p v-if="helperMessage" class="text-sm text-gray-700 p-4">
-          {{ helperMessage }}
-        </p>
-
         <!-- Template Container -->
-        <div
-          v-else-if="doc.template && values"
-          class="p-4 overflow-auto custom-scroll"
-        >
+        <div v-if="canDisplayPreview" class="p-4 overflow-auto custom-scroll">
           <PrintContainer
             ref="printContainer"
-            :template="doc.template"
-            :values="values"
+            :template="doc.template!"
+            :values="values!"
             :scale="scale"
           />
         </div>
+
+        <!-- Display Hints -->
+        <p v-else-if="helperMessage" class="text-sm text-gray-700 p-4">
+          {{ helperMessage }}
+        </p>
 
         <!-- Bottom Bar -->
         <div
@@ -98,6 +95,7 @@
 
           <!-- Display Scale -->
           <div
+            v-if="canDisplayPreview"
             class="flex ml-auto gap-2 px-2 w-36 justify-between flex-shrink-0"
           >
             <p class="text-sm text-gray-600 my-auto">{{ t`Display Scale` }}</p>
@@ -229,6 +227,7 @@ import {
   openSettings,
   selectTextFile,
   ShortcutKey,
+  showMessageDialog,
   showToast,
 } from 'src/utils/ui';
 import { Shortcuts } from 'src/utils/vueUtils';
@@ -289,22 +288,14 @@ export default defineComponent({
     };
   },
   async mounted() {
-    await this.setDoc();
-    focusOrSelectFormControl(this.doc as Doc, this.$refs.nameField, false);
+    await this.initialize();
     focusedDocsRef.add(this.doc);
-
-    if (this.doc?.template == null) {
-      await this.doc?.set('template', baseTemplate);
-    }
-
-    await this.setDisplayInitialDoc();
-
     if (this.fyo.store.isDevelopment) {
       // @ts-ignore
       window.tb = this;
     }
   },
-  activated(): void {
+  async activated(): Promise<void> {
     docsPathRef.value = docsPathMap.PrintTemplate ?? '';
     this.shortcuts.ctrl.set(['Enter'], this.setTemplate);
     this.shortcuts.ctrl.set(['KeyE'], this.toggleEditMode);
@@ -324,6 +315,20 @@ export default defineComponent({
     this.shortcuts.ctrl.delete(['Minus']);
   },
   methods: {
+    async initialize() {
+      await this.setDoc();
+      if (this.doc?.type) {
+        this.hints = getPrintTemplatePropHints(this.doc.type, this.fyo);
+      }
+
+      focusOrSelectFormControl(this.doc as Doc, this.$refs.nameField, false);
+
+      if (!this.doc?.template) {
+        await this.doc?.set('template', baseTemplate);
+      }
+
+      await this.setDisplayInitialDoc();
+    },
     getTemplateEditorState() {
       const fallback = this.doc?.template ?? '';
 
@@ -428,6 +433,13 @@ export default defineComponent({
 
       const name = names[0]?.name;
       if (!name) {
+        const label = this.fyo.schemaMap[schemaName]?.label ?? schemaName;
+        await showMessageDialog({
+          message: this.t`No Display Entries Found`,
+          detail: this
+            .t`Please create a ${label} entry to view Template Preview`,
+        });
+
         return;
       }
 
@@ -477,7 +489,7 @@ export default defineComponent({
       }
 
       const displayDoc = await getDocFromNameIfExistsElseNew(schemaName, value);
-      this.hints = getPrintTemplatePropHints(displayDoc);
+      this.hints = getPrintTemplatePropHints(schemaName, this.fyo);
       this.values = await getPrintTemplatePropValues(displayDoc);
       this.displayDoc = displayDoc;
     },
@@ -541,6 +553,17 @@ export default defineComponent({
     },
   },
   computed: {
+    canDisplayPreview(): boolean {
+      if (!this.displayDoc || !this.values) {
+        return false;
+      }
+
+      if (!this.doc?.template) {
+        return false;
+      }
+
+      return true;
+    },
     applyChangesShortcut() {
       return [ShortcutKey.ctrl, ShortcutKey.enter];
     },
