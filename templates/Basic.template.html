@@ -56,11 +56,13 @@
   <section class="mt-8 text-base">
     <!-- Heading Row -->
     <section class="text-gray-600 w-full flex border-b">
-      <div class="py-4 w-5/12">Item</div>
-      <div class="py-4 text-right w-2/12" v-if="doc.showHSN">HSN/SAC</div>
-      <div class="py-4 text-right w-1/12">Quantity</div>
-      <div class="py-4 text-right w-3/12">Rate</div>
-      <div class="py-4 text-right w-3/12">Amount</div>
+      <div class="py-4 w-5/12">{{ t`Item` }}</div>
+      <div class="py-4 text-right w-2/12" v-if="doc.showHSN">
+        {{ t`HSN/SAC` }}
+      </div>
+      <div class="py-4 text-right w-1/12">{{ t`Quantity` }}</div>
+      <div class="py-4 text-right w-3/12">{{ t`Rate` }}</div>
+      <div class="py-4 text-right w-3/12">{{ t`Amount` }}</div>
     </section>
 
     <!-- Body Rows -->
@@ -84,7 +86,7 @@
     <!-- Invoice Terms -->
     <section class="w-1/2">
       <h3 class="text-sm tracking-widest text-gray-600 mt-2" v-if="doc.terms">
-        Notes
+        {{ t`Notes` }}
       </h3>
       <p class="my-4 text-lg whitespace-pre-line">{{ doc.terms }}</p>
     </section>
