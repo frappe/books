@@ -10,7 +10,6 @@
         :df="df"
         :value="doc[df.fieldname]"
         @change="async (value) => await onChange(df, value)"
-        :read-only="readOnly"
       />
 
       <!-- Regular Field Form -->
@@ -39,7 +38,6 @@
             :df="df"
             :value="doc[df.fieldname]"
             :class="{ 'p-2': df.fieldtype === 'Check' }"
-            :read-only="readOnly"
             :text-end="false"
             @change="async (value) => await onChange(df, value)"
             @new-doc="async (newdoc) => await onChange(df, newdoc.name)"
@@ -58,7 +56,6 @@
 <script>
 import { Doc } from 'fyo/model/doc';
 import FormControl from 'src/components/Controls/FormControl.vue';
-import { handleErrorWithDialog } from 'src/errorHandling';
 import { fyo } from 'src/initFyo';
 import { getErrorMessage } from 'src/utils';
 import { evaluateHidden } from 'src/utils/doc';
@@ -66,21 +63,13 @@ import Table from './Controls/Table.vue';
 
 export default {
   name: 'TwoColumnForm',
-  emits: ['error', 'change'],
   props: {
     doc: Doc,
     fields: { type: Array, default: () => [] },
-    autosave: Boolean,
     columnRatio: {
       type: Array,
       default: () => [1, 1],
     },
-    emitChange: {
-      type: Boolean,
-      default: false,
-    },
-    focusFirstInput: Boolean,
-    readOnly: { type: [null, Boolean], default: null },
   },
   watch: {
     doc() {
@@ -106,10 +95,6 @@ export default {
   },
   mounted() {
     this.setFormFields();
-    if (this.focusFirstInput) {
-      this.$refs['controls']?.[0].focus();
-    }
-
     if (fyo.store.isDevelopment) {
       window.tcf = this;
     }
@@ -131,7 +116,6 @@ export default {
       delete this.errors[fieldname];
 
       let isSet = false;
-      const oldValue = this.doc.get(fieldname);
       try {
         isSet = await this.doc.set(fieldname, value);
       } catch (err) {
@@ -143,35 +127,7 @@ export default {
       }
 
       if (isSet) {
-        await this.handlePostSet(field, value, oldValue);
-      }
-    },
-    async handlePostSet(df, value, oldValue) {
-      this.setFormFields();
-      if (this.emitChange) {
-        this.$emit('change', df, value, oldValue);
-      }
-
-      if (df.fieldtype === 'Table' || !this.doc.dirty || !this.autosave) {
-        return;
-      }
-
-      await this.doc.sync();
-    },
-    async sync() {
-      try {
-        await this.doc.sync();
         this.setFormFields();
-      } catch (err) {
-        await handleErrorWithDialog(err, this.doc);
-      }
-    },
-    async submit() {
-      try {
-        await this.doc.submit();
-        this.setFormFields();
-      } catch (err) {
-        await handleErrorWithDialog(err, this.doc);
       }
     },
     setFormFields() {
