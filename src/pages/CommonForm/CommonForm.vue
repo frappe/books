@@ -125,6 +125,8 @@ import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef, focusedDocsRef } from 'src/utils/refs';
 import { ActionGroup, UIGroupedFields } from 'src/utils/types';
 import {
+  commonDocSubmit,
+  commonDocSync,
   getDocFromNameIfExistsElseNew,
   getFieldsGroupedByTabAndSection,
   getGroupedActionsForDoc,
@@ -270,19 +272,13 @@ export default defineComponent({
       );
     },
     async sync() {
-      try {
-        await this.doc.sync();
+      if (await commonDocSync(this.doc)) {
         this.updateGroupedFields();
-      } catch (err) {
-        await handleErrorWithDialog(err, this.doc);
       }
     },
     async submit() {
-      try {
-        await this.doc.submit();
+      if (await commonDocSubmit(this.doc)) {
         this.updateGroupedFields();
-      } catch (err) {
-        await handleErrorWithDialog(err, this.doc);
       }
     },
     async setDoc() {
