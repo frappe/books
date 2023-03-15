@@ -151,7 +151,7 @@ export default defineComponent({
     return {
       errors: {},
       docOrNull: null,
-      activeTab: 'Default',
+      activeTab: this.t`Default`,
       groupedFields: null,
       quickEditDoc: null,
       isPrintable: false,
@@ -173,6 +173,9 @@ export default defineComponent({
     await this.setDoc();
     focusedDocsRef.add(this.docOrNull);
     this.updateGroupedFields();
+    if (this.groupedFields) {
+      this.activeTab = [...this.groupedFields.keys()][0];
+    }
     this.isPrintable = await isPrintable(this.schemaName);
   },
   activated(): void {

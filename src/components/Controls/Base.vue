@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :title="df.label">
     <div :class="labelClasses" v-if="showLabel">
       {{ df.label }}
     </div>
