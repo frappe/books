@@ -10,6 +10,7 @@
         :schema-name="schemaName"
       />
       <Button
+        v-if="canCreate"
         :icon="true"
         type="primary"
         @click="makeNewDoc"
@@ -40,6 +41,7 @@
   </div>
 </template>
 <script>
+import { thisExpression } from '@babel/types';
 import Button from 'src/components/Button.vue';
 import ExportWizard from 'src/components/ExportWizard.vue';
 import FilterDropdown from 'src/components/FilterDropdown.vue';
@@ -159,6 +161,9 @@ export default {
     },
     fields() {
       return fyo.schemaMap[this.schemaName].fields;
+    },
+    canCreate() {
+      return fyo.schemaMap[this.schemaName].create !== false;
     },
   },
 };

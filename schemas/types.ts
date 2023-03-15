@@ -107,7 +107,7 @@ export type Naming = 'autoincrement' | 'random' | 'numberSeries' | 'manual';
 export interface Schema {
   name: string;                  // Table name
   label: string;                 // Translateable UI facing name
-  fields: Field[];                // Maps to database columns
+  fields: Field[];               // Maps to database columns
   isTree?: boolean;              // Used for nested set, eg for Chart of Accounts
   extends?: string;              // Value points to an Abstract schema. Indicates Subclass schema
   isChild?: boolean;             // Indicates a child table, i.e table with "parent" FK column
@@ -117,7 +117,8 @@ export interface Schema {
   isSubmittable?: boolean;       // For transactional types, values considered only after submit
   keywordFields?: string[];      // Used to get fields that are to be used for search.
   quickEditFields?: string[];    // Used to get fields for the quickEditForm
-  linkDisplayField?:string;// Display field if inline editable
+  linkDisplayField?:string;      // Display field if inline editable
+  create?: boolean               // Whether the user can create an entry from the ListView
   naming?: Naming;               // Used for assigning name, default is 'random' else 'numberSeries' if present
   titleField?: string;           // Main display field
   removeFields?: string[];       // Used by the builder to remove fields.
