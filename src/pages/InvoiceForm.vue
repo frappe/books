@@ -317,9 +317,10 @@ import { fyo } from 'src/initFyo';
 import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef, focusedDocsRef } from 'src/utils/refs';
 import {
+  commonDocSync,
+  commonDocSubmit,
   getGroupedActionsForDoc,
   routeTo,
-  showMessageDialog,
 } from 'src/utils/ui';
 import { nextTick } from 'vue';
 import { handleErrorWithDialog } from '../errorHandling';
@@ -543,37 +544,10 @@ export default {
       return fyo.getField(this.schemaName, fieldname);
     },
     async sync() {
-      try {
-        await this.doc.sync();
-      } catch (err) {
-        await this.handleError(err);
-      }
+      await commonDocSync(this.doc);
     },
     async submit() {
-      const message =
-        this.schemaName === ModelNameEnum.SalesInvoice
-          ? this.t`Submit Sales Invoice?`
-          : this.t`Submit Purchase Invoice?`;
-      const ref = this;
-      await showMessageDialog({
-        message,
-        buttons: [
-          {
-            label: this.t`Yes`,
-            async action() {
-              try {
-                await ref.doc.submit();
-              } catch (err) {
-                await ref.handleError(err);
-              }
-            },
-          },
-          {
-            label: this.t`No`,
-            action() {},
-          },
-        ],
-      });
+      await commonDocSubmit(this.doc);
     },
     async handleError(e) {
       await handleErrorWithDialog(e, this.doc);

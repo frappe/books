@@ -89,12 +89,11 @@
 
     <!-- Rest of the form -->
     <TwoColumnForm
+      v-if="doc"
       class="w-full"
       ref="form"
-      v-if="doc"
       :doc="doc"
       :fields="fields"
-      :autosave="false"
       :column-ratio="[1.1, 2]"
     />
 
@@ -116,7 +115,12 @@ import TwoColumnForm from 'src/components/TwoColumnForm.vue';
 import { fyo } from 'src/initFyo';
 import { getQuickEditWidget } from 'src/utils/quickEditWidgets';
 import { focusedDocsRef } from 'src/utils/refs';
-import { getActionsForDoc, openQuickEdit } from 'src/utils/ui';
+import {
+  commonDocSubmit,
+  commonDocSync,
+  getActionsForDoc,
+  openQuickEdit,
+} from 'src/utils/ui';
 
 export default {
   name: 'QuickEditForm',
@@ -305,27 +309,17 @@ export default {
     },
     async sync() {
       this.statusText = t`Saving`;
-      try {
-        await this.$refs.form.sync();
-        setTimeout(() => {
-          this.statusText = null;
-        }, 300);
-      } catch (err) {
+      await commonDocSync(this.doc);
+      setTimeout(() => {
         this.statusText = null;
-        console.error(err);
-      }
+      }, 300);
     },
     async submit() {
       this.statusText = t`Submitting`;
-      try {
-        await this.$refs.form.submit();
-        setTimeout(() => {
-          this.statusText = null;
-        }, 300);
-      } catch (err) {
+      await commonDocSubmit(this.doc);
+      setTimeout(() => {
         this.statusText = null;
-        console.error(err);
-      }
+      }, 300);
     },
     routeToPrevious() {
       if (this.loadOnClose && this.doc.dirty && !this.doc.notInserted) {

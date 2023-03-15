@@ -71,7 +71,6 @@
 <script lang="ts">
 import { DocValue } from 'fyo/core/types';
 import { Doc } from 'fyo/model/doc';
-import { ValidationError } from 'fyo/utils/errors';
 import { Field } from 'schemas/types';
 import Button from 'src/components/Button.vue';
 import FormContainer from 'src/components/FormContainer.vue';
