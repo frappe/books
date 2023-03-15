@@ -72,11 +72,12 @@ export function getGroupLabelMap() {
   };
 }
 
-async function openFormEditDoc(schemaName: string, fyo: Fyo) {
-  const doc = fyo.doc.getNewDoc(schemaName);
-  const name = doc.name;
-
-  routeTo(`/edit/${schemaName}/${name}`);
+function getCreateAction(fyo: Fyo, schemaName: string, initData?: RawValueMap) {
+  return async function action() {
+    const doc = fyo.doc.getNewDoc(schemaName, initData);
+    const route = getFormRoute(schemaName, doc.name!);
+    await routeTo(route);
+  };
 }
 
 function getCreateList(fyo: Fyo): SearchItem[] {
@@ -97,9 +98,7 @@ function getCreateList(fyo: Fyo): SearchItem[] {
       ({
         label: fyo.schemaMap[schemaName]?.label,
         group: 'Create',
-        action() {
-          openFormEditDoc(schemaName, fyo);
-        },
+        action: getCreateAction(fyo, schemaName),
       } as SearchItem)
   );
 
@@ -107,16 +106,12 @@ function getCreateList(fyo: Fyo): SearchItem[] {
     {
       label: t`Sales Payments`,
       schemaName: ModelNameEnum.Payment,
-      route: `/list/Payment/${t`Sales Payments`}`,
       create: createFilters.SalesPayments,
-      filter: routeFilters.SalesPayments,
     },
     {
       label: t`Purchase Payments`,
       schemaName: ModelNameEnum.Payment,
-      route: `/list/Payment/${t`Purchase Payments`}`,
       create: createFilters.PurchasePayments,
-      filter: routeFilters.PurchasePayments,
     },
     {
       label: t`Customers`,
@@ -140,30 +135,28 @@ function getCreateList(fyo: Fyo): SearchItem[] {
       label: t`Sales Items`,
       schemaName: ModelNameEnum.Item,
       create: createFilters.SalesItems,
-      filter: routeFilters.SalesItems,
     },
     {
       label: t`Purchase Items`,
       schemaName: ModelNameEnum.Item,
       create: createFilters.PurchaseItems,
-      filter: routeFilters.PurchaseItems,
     },
     {
       label: t`Items`,
       schemaName: ModelNameEnum.Item,
       create: createFilters.Items,
-      filter: routeFilters.Items,
     },
   ].map(({ label, filter, create, schemaName }) => {
-    const route = {
-      path: `/list/${schemaName}/${label}`,
-      query: { filters: JSON.stringify(filter) },
-    };
+    let action: Function;
+    if (!filter) {
+      action = getCreateAction(fyo, schemaName, create);
+    } else {
+      const route = {
+        path: `/list/${schemaName}/${label}`,
+        query: { filters: JSON.stringify(filter) },
+      };
 
-    return {
-      label,
-      group: 'Create',
-      async action() {
+      action = async () => {
         await routeTo(route);
         const doc = fyo.doc.getNewDoc(schemaName, create);
         const { openQuickEdit } = await import('src/utils/ui');
@@ -172,7 +165,13 @@ function getCreateList(fyo: Fyo): SearchItem[] {
           name: doc.name as string,
           listFilters: filter,
         });
-      },
+      };
+    }
+
+    return {
+      label,
+      group: 'Create',
+      action,
     } as SearchItem;
   });
 

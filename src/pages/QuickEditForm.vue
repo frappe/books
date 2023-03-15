@@ -5,7 +5,17 @@
   >
     <!-- Quick edit Tool bar -->
     <div
-      class="flex items-center justify-between px-4 h-row-largest"
+      class="
+        flex
+        items-center
+        justify-between
+        px-4
+        h-row-largest
+        sticky
+        top-0
+        bg-white
+      "
+      style="z-index: 1"
       :class="{ 'border-b': showName }"
     >
       <!-- Close Button and Status Text -->
