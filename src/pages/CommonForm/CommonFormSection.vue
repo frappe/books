@@ -2,14 +2,15 @@
   <div v-if="(fields ?? []).length > 0">
     <div
       v-if="showTitle && title"
-      class="flex justify-between items-center cursor-pointer select-none"
-      :class="collapsed ? '' : 'mb-4'"
-      @click="collapsed = !collapsed"
+      class="flex justify-between items-center select-none"
+      :class="[collapsed ? '' : 'mb-4', collapsible ? 'cursor-pointer' : '']"
+      @click="toggleCollapsed"
     >
       <h2 class="text-base text-gray-900 font-semibold">
         {{ title }}
       </h2>
       <feather-icon
+        v-if="collapsible"
         :name="collapsed ? 'chevron-up' : 'chevron-down'"
         class="w-4 h-4 text-gray-600"
       />
@@ -54,6 +55,7 @@ export default defineComponent({
     errors: Object as PropType<Record<string, string>>,
     showTitle: Boolean,
     doc: { type: Object as PropType<Doc>, required: true },
+    collapsible: { type: Boolean, default: true },
     fields: Array as PropType<Field[]>,
   },
   data() {
@@ -63,6 +65,15 @@ export default defineComponent({
   },
   mounted() {
     focusOrSelectFormControl(this.doc, this.$refs.nameField);
+  },
+  methods: {
+    toggleCollapsed() {
+      if (!this.collapsible) {
+        return;
+      }
+
+      this.collapsed = !this.collapsed;
+    },
   },
   components: { FormControl },
 });
