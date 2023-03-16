@@ -72,6 +72,7 @@
           v-for="(file, i) in files"
           :key="file.dbPath"
           @click="selectFile(file)"
+          :title="t`${file.companyName} stored at ${file.dbPath}`"
         >
           <div
             class="
@@ -91,19 +92,24 @@
             {{ i + 1 }}
           </div>
           <div class="w-full">
-            <p class="font-medium">
-              {{ file.companyName }}
-            </p>
-            <div
-              class="text-sm text-gray-600 flex justify-between overflow-x-auto"
-            >
-              <p class="whitespace-nowrap me-2">
+            <div class="flex justify-between overflow-x-auto items-baseline">
+              <h2 class="font-medium">
+                {{ file.companyName }}
+              </h2>
+              <p class="whitespace-nowrap text-sm text-gray-600">
                 {{ formatDate(file.modified) }}
               </p>
-              <p class="text-end" v-if="fyo.store.isDevelopment">
-                {{ file.dbPath }}
-              </p>
             </div>
+            <p
+              class="
+                text-sm text-gray-600
+                overflow-x-auto
+                no-scrollbar
+                whitespace-nowrap
+              "
+            >
+              {{ truncate(file.dbPath) }}
+            </p>
           </div>
           <button
             class="
@@ -244,6 +250,13 @@ export default {
     }
   },
   methods: {
+    truncate(value) {
+      if (value.length < 72) {
+        return value;
+      }
+
+      return '...' + value.slice(value.length - 72);
+    },
     formatDate(isoDate) {
       return DateTime.fromISO(isoDate).toRelative();
     },

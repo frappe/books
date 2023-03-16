@@ -85,7 +85,7 @@ export function getLedgerLinkAction(
   isStock: boolean = false
 ): Action {
   let label = fyo.t`Accounting Entries`;
-  let reportClassName = 'GeneralLedger';
+  let reportClassName: 'GeneralLedger' | 'StockLedger' = 'GeneralLedger';
 
   if (isStock) {
     label = fyo.t`Stock Entries`;
@@ -97,16 +97,24 @@ export function getLedgerLinkAction(
     group: fyo.t`View`,
     condition: (doc: Doc) => doc.isSubmitted,
     action: async (doc: Doc, router: Router) => {
-      router.push({
-        name: 'Report',
-        params: {
-          reportClassName,
-          defaultFilters: JSON.stringify({
-            referenceType: doc.schemaName,
-            referenceName: doc.name,
-          }),
-        },
-      });
+      const route = getLedgerLink(doc, reportClassName);
+      router.push(route);
+    },
+  };
+}
+
+export function getLedgerLink(
+  doc: Doc,
+  reportClassName: 'GeneralLedger' | 'StockLedger'
+) {
+  return {
+    name: 'Report',
+    params: {
+      reportClassName,
+      defaultFilters: JSON.stringify({
+        referenceType: doc.schemaName,
+        referenceName: doc.name,
+      }),
     },
   };
 }

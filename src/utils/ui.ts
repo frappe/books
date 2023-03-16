@@ -8,6 +8,9 @@ import type { Doc } from 'fyo/model/doc';
 import { Action } from 'fyo/model/types';
 import { getActions } from 'fyo/utils';
 import { getDbError, LinkValidationError, ValueError } from 'fyo/utils/errors';
+import { getLedgerLink } from 'models/helpers';
+import { Transfer } from 'models/inventory/Transfer';
+import { Transactional } from 'models/Transactional/Transactional';
 import { ModelNameEnum } from 'models/types';
 import { Schema } from 'schemas/types';
 import { handleErrorWithDialog } from 'src/errorHandling';
@@ -316,10 +319,11 @@ function getCancelAction(doc: Doc): Action {
     condition: (doc: Doc) => doc.canCancel,
     async action() {
       const res = await cancelDocWithPrompt(doc);
-
-      if (res) {
-        router.push(`/list/${doc.schemaName}`);
+      if (!res) {
+        return;
       }
+
+      showActionToast(doc, 'cancel');
     },
   };
 }
@@ -333,9 +337,12 @@ function getDeleteAction(doc: Doc): Action {
     condition: (doc: Doc) => doc.canDelete,
     async action() {
       const res = await deleteDocWithPrompt(doc);
-      if (res) {
-        router.back();
+      if (!res) {
+        return;
       }
+
+      showActionToast(doc, 'delete');
+      router.back();
     },
   };
 }
@@ -360,30 +367,12 @@ function getDuplicateAction(doc: Doc): Action {
         !doc.notInserted
       ),
     async action() {
-      await showMessageDialog({
-        message: t`Duplicate ${doc.schemaName} ${doc.name!}?`,
-        buttons: [
-          {
-            label: t`Yes`,
-            async action() {
-              try {
-                const dupe = doc.duplicate();
-                await openEdit(dupe);
-                return true;
-              } catch (err) {
-                handleErrorWithDialog(err as Error, doc);
-                return false;
-              }
-            },
-          },
-          {
-            label: t`No`,
-            action() {
-              return false;
-            },
-          },
-        ],
-      });
+      try {
+        const dupe = doc.duplicate();
+        await openEdit(dupe);
+      } catch (err) {
+        handleErrorWithDialog(err as Error, doc);
+      }
     },
   };
 }
@@ -570,4 +559,116 @@ export function getShortcutKeyMap(
     [ShortcutKey.esc]: 'Esc',
     [ShortcutKey.enter]: 'Enter',
   };
+}
+
+export async function commonDocSync(doc: Doc): Promise<boolean> {
+  try {
+    await doc.sync();
+  } catch (error) {
+    handleErrorWithDialog(error, doc);
+    return false;
+  }
+
+  showActionToast(doc, 'sync');
+  return true;
+}
+
+export async function commonDocSubmit(doc: Doc): Promise<boolean> {
+  const success = await showSubmitDialog(doc);
+  if (!success) {
+    return false;
+  }
+
+  showSubmitToast(doc);
+  return true;
+}
+
+async function showSubmitDialog(doc: Doc) {
+  const label = doc.schema.label ?? doc.schemaName;
+  const message = t`Submit ${label}?`;
+  const yesAction = async () => {
+    try {
+      await doc.submit();
+    } catch (error) {
+      handleErrorWithDialog(error, doc);
+      return false;
+    }
+
+    return true;
+  };
+
+  const buttons = [
+    {
+      label: t`Yes`,
+      action: yesAction,
+    },
+    {
+      label: t`No`,
+      action: () => false,
+    },
+  ];
+
+  return await showMessageDialog({
+    message,
+    buttons,
+  });
+}
+
+function showActionToast(doc: Doc, type: 'sync' | 'cancel' | 'delete') {
+  const label = getToastLabel(doc);
+  const message = {
+    sync: t`${label} saved`,
+    cancel: t`${label} cancelled`,
+    delete: t`${label} deleted`,
+  }[type];
+
+  showToast({ type: 'success', message, duration: 2500 });
+}
+
+function showSubmitToast(doc: Doc) {
+  const label = getToastLabel(doc);
+  const message = t`${label} submitted`;
+  const toastOption: ToastOptions = {
+    type: 'success',
+    message,
+    duration: 5000,
+    ...getSubmitSuccessToastAction(doc),
+  };
+  showToast(toastOption);
+}
+
+function getToastLabel(doc: Doc) {
+  const label = doc.schema.label ?? doc.schemaName;
+  if (doc.schema.naming === 'random') {
+    return label;
+  }
+
+  return doc.name ?? label;
+}
+
+function getSubmitSuccessToastAction(doc: Doc) {
+  const isStockTransfer = doc instanceof Transfer;
+  const isTransactional = doc instanceof Transactional;
+
+  if (isStockTransfer) {
+    return {
+      async action() {
+        const route = getLedgerLink(doc, 'StockLedger');
+        await routeTo(route);
+      },
+      actionText: t`View Stock Entries`,
+    };
+  }
+
+  if (isTransactional) {
+    return {
+      async action() {
+        const route = getLedgerLink(doc, 'GeneralLedger');
+        await routeTo(route);
+      },
+      actionText: t`View Accounting Entries`,
+    };
+  }
+
+  return {};
 }

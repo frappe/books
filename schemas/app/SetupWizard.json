@@ -8,18 +8,20 @@
     {
       "fieldname": "logo",
       "label": "Company Logo",
-      "fieldtype": "AttachImage"
+      "fieldtype": "AttachImage",
+      "section": "Default"
     },
     {
-      "fieldname": "country",
-      "label": "Country",
-      "fieldtype": "AutoComplete",
-      "placeholder": "Select Country",
-      "required": true
+      "fieldname": "companyName",
+      "label": "Company Name",
+      "placeholder": "Company Name",
+      "fieldtype": "Data",
+      "required": true,
+      "section": "Default"
     },
     {
       "fieldname": "fullname",
-      "label": "Your Name",
+      "label": "Full Name",
       "fieldtype": "Data",
       "placeholder": "John Doe",
       "required": true
@@ -32,31 +34,11 @@
       "required": true
     },
     {
-      "fieldname": "companyName",
-      "label": "Company Name",
-      "placeholder": "Company Name",
-      "fieldtype": "Data",
-      "required": true
-    },
-    {
-      "fieldname": "bankName",
-      "label": "Bank Name",
-      "fieldtype": "Data",
-      "placeholder": "Prime Bank",
-      "required": true
-    },
-    {
-      "fieldname": "fiscalYearStart",
-      "label": "Fiscal Year Start Date",
-      "placeholder": "Fiscal Year Start Date",
-      "fieldtype": "Date",
-      "required": true
-    },
-    {
-      "fieldname": "fiscalYearEnd",
-      "label": "Fiscal Year End Date",
-      "placeholder": "Fiscal Year End Date",
-      "fieldtype": "Date",
+      "fieldname": "country",
+      "label": "Country",
+      "fieldtype": "AutoComplete",
+      "placeholder": "Select Country",
+      "section": "Locale",
       "required": true
     },
     {
@@ -64,6 +46,15 @@
       "label": "Currency",
       "fieldtype": "Data",
       "placeholder": "Currency",
+      "section": "Locale",
+      "required": true
+    },
+    {
+      "fieldname": "bankName",
+      "label": "Bank Name",
+      "fieldtype": "Data",
+      "placeholder": "Prime Bank",
+      "section": "Accounting",
       "required": true
     },
     {
@@ -71,12 +62,30 @@
       "label": "Chart of Accounts",
       "fieldtype": "AutoComplete",
       "placeholder": "Select CoA",
+      "section": "Accounting",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearStart",
+      "label": "Fiscal Year Start Date",
+      "placeholder": "Fiscal Year Start Date",
+      "fieldtype": "Date",
+      "section": "Accounting",
+      "required": true
+    },
+    {
+      "fieldname": "fiscalYearEnd",
+      "label": "Fiscal Year End Date",
+      "placeholder": "Fiscal Year End Date",
+      "fieldtype": "Date",
+      "section": "Accounting",
       "required": true
     },
     {
       "fieldname": "completed",
       "label": "Completed",
       "fieldtype": "Check",
+      "hidden": true,
       "readOnly": true
     }
   ],

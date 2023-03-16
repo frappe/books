@@ -12,6 +12,7 @@
       :value="value?.round()"
       :placeholder="inputPlaceholder"
       :readonly="isReadOnly"
+      :tabindex="isReadOnly ? '-1' : '0'"
       @blur="onBlur"
       @focus="onFocus"
       @input="(e) => $emit('input', e)"

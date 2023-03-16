@@ -125,6 +125,8 @@ import { docsPathMap } from 'src/utils/misc';
 import { docsPathRef, focusedDocsRef } from 'src/utils/refs';
 import { ActionGroup, UIGroupedFields } from 'src/utils/types';
 import {
+  commonDocSubmit,
+  commonDocSync,
   getDocFromNameIfExistsElseNew,
   getFieldsGroupedByTabAndSection,
   getGroupedActionsForDoc,
@@ -151,7 +153,7 @@ export default defineComponent({
     return {
       errors: {},
       docOrNull: null,
-      activeTab: 'Default',
+      activeTab: this.t`Default`,
       groupedFields: null,
       quickEditDoc: null,
       isPrintable: false,
@@ -173,6 +175,9 @@ export default defineComponent({
     await this.setDoc();
     focusedDocsRef.add(this.docOrNull);
     this.updateGroupedFields();
+    if (this.groupedFields) {
+      this.activeTab = [...this.groupedFields.keys()][0];
+    }
     this.isPrintable = await isPrintable(this.schemaName);
   },
   activated(): void {
@@ -267,19 +272,13 @@ export default defineComponent({
       );
     },
     async sync() {
-      try {
-        await this.doc.sync();
+      if (await commonDocSync(this.doc)) {
         this.updateGroupedFields();
-      } catch (err) {
-        await handleErrorWithDialog(err, this.doc);
       }
     },
     async submit() {
-      try {
-        await this.doc.submit();
+      if (await commonDocSubmit(this.doc)) {
         this.updateGroupedFields();
-      } catch (err) {
-        await handleErrorWithDialog(err, this.doc);
       }
     },
     async setDoc() {
