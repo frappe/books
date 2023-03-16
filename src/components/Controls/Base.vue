@@ -20,6 +20,7 @@
         @blur="(e) => !isReadOnly && triggerChange(e.target.value)"
         @focus="(e) => !isReadOnly && $emit('focus', e)"
         @input="(e) => !isReadOnly && $emit('input', e)"
+        :tabindex="isReadOnly ? '-1' : '0'"
       />
     </div>
   </div>
@@ -131,11 +132,17 @@ export default {
       return '';
     },
     borderClasses() {
-      if (this.border) {
-        return 'bg-gray-50 border border-gray-200';
+      if (!this.border) {
+        return '';
       }
 
-      return '';
+      const border = 'border border-gray-200';
+      let background = 'bg-gray-25';
+      if (this.isReadOnly) {
+        background = 'bg-gray-50';
+      }
+
+      return border + ' ' + background;
     },
     inputPlaceholder() {
       return this.placeholder || this.df.placeholder || this.df.label;
