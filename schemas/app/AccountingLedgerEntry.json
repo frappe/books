@@ -1,6 +1,7 @@
 {
   "name": "AccountingLedgerEntry",
   "label": "Accounting Ledger Entry",
+  "create": false,
   "isSingle": false,
   "isChild": false,
   "naming": "autoincrement",

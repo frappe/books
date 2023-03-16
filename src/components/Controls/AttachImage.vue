@@ -13,6 +13,7 @@
       'w-20 h-20': size !== 'small',
       'w-12 h-12': size === 'small',
     }"
+    :title="df?.label"
   >
     <img :src="value" v-if="value" />
     <div :class="[!isReadOnly ? 'group-hover:opacity-90' : '']" v-else>
@@ -60,10 +61,11 @@
   </div>
 </template>
 <script lang="ts">
+import { Field } from 'schemas/types';
 import { fyo } from 'src/initFyo';
 import { selectFile } from 'src/utils/ipcCalls';
 import { getDataURL } from 'src/utils/misc';
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import FeatherIcon from '../FeatherIcon.vue';
 import Base from './Base.vue';
 
@@ -73,6 +75,7 @@ export default defineComponent({
   props: {
     letterPlaceholder: { type: String, default: '' },
     value: { type: String, default: '' },
+    df: { type: Object as PropType<Field> },
   },
   methods: {
     async handleClick() {

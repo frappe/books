@@ -2,6 +2,7 @@
   "name": "Account",
   "label": "Account",
   "naming": "manual",
+  "create": false,
   "isSingle": false,
   "isTree": true,
   "fields": [
