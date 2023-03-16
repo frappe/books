@@ -34,6 +34,7 @@
           @keydown.enter="selectHighlightedItem"
           @keydown.tab="toggleDropdown(false)"
           @keydown.esc="toggleDropdown(false)"
+          :tabindex="isReadOnly ? '-1' : '0'"
         />
         <svg
           v-if="!isReadOnly && !canLink"
