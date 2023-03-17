@@ -149,7 +149,7 @@
         </div>
         <div
           v-if="templateChanged"
-          class="flex gap-2 p-2 text-sm text-gray-600 items-center mt-auto"
+          class="flex gap-2 p-2 text-sm text-gray-600 items-center mt-auto border-t"
         >
           <ShortcutKeys :keys="applyChangesShortcut" :simple="true" />
           {{ t` to apply changes` }}
