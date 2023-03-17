@@ -4,14 +4,19 @@
     ref="scaledContainer"
     class="mx-auto shadow-lg border"
   >
-    <!-- Template -->
-    <component
+    <ErrorBoundary
       v-if="!error"
-      class="flex-1 bg-white"
-      :doc="values.doc"
-      :print="values.print"
-      :is="templateComponent"
-    />
+      @error-captured="handleErrorCaptured"
+      :propagate="false"
+    >
+      <!-- Template -->
+      <component
+        class="flex-1 bg-white"
+        :doc="values.doc"
+        :print="values.print"
+        :is="templateComponent"
+      />
+    </ErrorBoundary>
 
     <!-- Compilation Error -->
     <div
@@ -26,11 +31,11 @@
       "
     >
       <h1 class="text-4xl font-bold text-red-500 p-4 border-b border-red-200">
-        {{ t`Template Compilation Error` }}
+        {{ error.name }}
       </h1>
       <p class="px-4 font-semibold">{{ error.message }}</p>
-      <pre v-if="error.codeframe" class="px-4 text-xl text-gray-700">{{
-        error.codeframe
+      <pre v-if="error.detail" class="px-4 text-xl text-gray-700">{{
+        error.detail
       }}</pre>
     </div>
   </ScaledContainer>
@@ -42,6 +47,7 @@ import {
   generateCodeFrame,
   SourceLocation,
 } from '@vue/compiler-dom';
+import ErrorBoundary from 'src/components/ErrorBoundary.vue';
 import { getPathAndMakePDF } from 'src/utils/printTemplates';
 import { PrintValues } from 'src/utils/types';
 import { defineComponent, PropType } from 'vue';
@@ -57,7 +63,7 @@ export const baseSafeTemplate = `<main class="h-full w-full bg-white">
 export default defineComponent({
   data() {
     return { error: null } as {
-      error: null | { codeframe: string; message: string };
+      error: null | { name: string; message: string; detail?: string };
     };
   },
   props: {
@@ -82,7 +88,7 @@ export default defineComponent({
        * Note: This is a hacky method to prevent
        * broken templates from reaching the `<component />`
        * element.
-       * 
+       *
        * It's required because the CompilerOptions doesn't
        * have an option to capture the errors.
        *
@@ -100,9 +106,29 @@ export default defineComponent({
         onError: this.onError,
       });
     },
+    handleErrorCaptured(error: unknown) {
+      if (!(error instanceof Error)) {
+        throw error;
+      }
+
+      const message = error.message;
+      let name = error.name;
+      let detail = '';
+      if (name === 'TypeError' && message.includes('Cannot read')) {
+        name = this.t`Invalid Key Error`;
+        detail = this.t`Please check Key Hints for valid key names`;
+      }
+
+      this.error = { name, message, detail };
+    },
     onError({ message, loc }: CompilerError) {
       const codeframe = loc ? this.getCodeFrame(loc) : '';
-      this.error = { codeframe, message };
+
+      this.error = {
+        name: this.t`Template Compilation Error`,
+        detail: codeframe,
+        message,
+      };
     },
     getCodeFrame(loc: SourceLocation) {
       return generateCodeFrame(this.template, loc.start.offset, loc.end.offset);
@@ -142,6 +168,6 @@ export default defineComponent({
       };
     },
   },
-  components: { ScaledContainer },
+  components: { ScaledContainer, ErrorBoundary },
 });
 </script>
