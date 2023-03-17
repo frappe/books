@@ -5,11 +5,10 @@
       <template #title>{{ title }}</template>
       <template #action>
         <PeriodSelector
-          v-if="hasData"
           :value="period"
           @change="(value) => (period = value)"
         />
-        <Button v-else :icon="true" type="primary" @click="newInvoice()">
+        <Button v-if="!hasData" :icon="true" type="primary" @click="newInvoice()">
           <feather-icon name="plus" class="w-4 h-4 text-white" />
         </Button>
       </template>
