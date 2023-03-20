@@ -27,6 +27,7 @@ export default {
   emits: ['open', 'close'],
   props: {
     showPopup: {
+      type: [Boolean, null],
       default: null,
     },
     right: Boolean,
