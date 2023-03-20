@@ -107,6 +107,12 @@ export class DocHandler {
     return doc;
   }
 
+  isTemporaryName(name: string, schema: Schema): boolean {
+    const label = schema.label ?? schema.name;
+    const template = this.fyo.t`New ${label} `;
+    return name.includes(template);
+  }
+
   getTemporaryName(schema: Schema): string {
     if (schema.naming === 'random') {
       return getRandomString();
@@ -116,11 +122,9 @@ export class DocHandler {
 
     const idx = this.#temporaryNameCounters[schema.name];
     this.#temporaryNameCounters[schema.name] = idx + 1;
+    const label = schema.label ?? schema.name;
 
-    return this.fyo.t`New ${schema.label ?? schema.name} ${String(idx).padStart(
-      2,
-      '0'
-    )}`;
+    return this.fyo.t`New ${label} ${String(idx).padStart(2, '0')}`;
   }
 
   /**

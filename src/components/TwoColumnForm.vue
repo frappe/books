@@ -40,7 +40,6 @@
             :class="{ 'p-2': df.fieldtype === 'Check' }"
             :text-end="false"
             @change="async (value) => await onChange(df, value)"
-            @new-doc="async (newdoc) => await onChange(df, newdoc.name)"
           />
           <div
             class="text-sm text-red-600 mt-2 ps-2"

@@ -35,7 +35,6 @@
       :df="df"
       :value="row[df.fieldname]"
       @change="(value) => onChange(df, value)"
-      @new-doc="(doc) => row.set(df.fieldname, doc.name)"
     />
     <Button
       :icon="true"

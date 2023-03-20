@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <PageHeader :title="title">
-      <Button :icon="false" @click="openExportModal = true">
+      <Button :icon="false" @click="openExportModal = true" ref="exportButton">
         {{ t`Export` }}
       </Button>
       <FilterDropdown
@@ -16,6 +16,7 @@
         @click="makeNewDoc"
         :padding="false"
         class="px-3"
+        ref="makeNewDocButton"
       >
         <feather-icon name="plus" class="w-4 h-4" />
       </Button>
@@ -41,7 +42,6 @@
   </div>
 </template>
 <script>
-import { thisExpression } from '@babel/types';
 import Button from 'src/components/Button.vue';
 import ExportWizard from 'src/components/ExportWizard.vue';
 import FilterDropdown from 'src/components/FilterDropdown.vue';
@@ -93,11 +93,17 @@ export default {
       window.lv = this;
     }
 
-    this.shortcuts.pmod.set(['KeyN'], this.makeNewDoc);
+    this.shortcuts.pmod.set(['KeyN'], () =>
+      this.$refs.makeNewDocButton.$el.click()
+    );
+    this.shortcuts.pmod.set(['KeyE'], () =>
+      this.$refs.exportButton.$el.click()
+    );
   },
   deactivated() {
     docsPathRef.value = '';
     this.shortcuts.pmod.delete(['KeyN']);
+    this.shortcuts.pmod.delete(['KeyE']);
   },
   methods: {
     updatedData(listFilters) {

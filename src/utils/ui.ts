@@ -473,8 +473,16 @@ export function focusOrSelectFormControl(
   ref: any,
   clear: boolean = true
 ) {
+  if (!doc?.fyo) {
+    return;
+  }
+
   const naming = doc.fyo.schemaMap[doc.schemaName]?.naming;
   if (naming !== 'manual' || doc.inserted) {
+    return;
+  }
+
+  if (!doc.fyo.doc.isTemporaryName(doc.name ?? '', doc.schema)) {
     return;
   }
 
