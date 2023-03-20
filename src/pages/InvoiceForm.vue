@@ -74,7 +74,6 @@
             :df="getField('party')"
             :value="doc.party"
             @change="(value) => doc.set('party', value, true)"
-            @new-doc="(party) => doc.set('party', party.name, true)"
             :read-only="doc?.submitted"
           />
           <FormControl

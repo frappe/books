@@ -118,6 +118,7 @@ import { focusedDocsRef } from 'src/utils/refs';
 import {
   commonDocSubmit,
   commonDocSync,
+  focusOrSelectFormControl,
   getActionsForDoc,
   openQuickEdit,
 } from 'src/utils/ui';
@@ -168,6 +169,7 @@ export default {
     }
 
     await this.fetchFieldsAndDoc();
+    focusOrSelectFormControl(this.doc, this.$refs.titleControl, false);
     focusedDocsRef.add(this.doc);
 
     if (fyo.store.isDevelopment) {
@@ -243,36 +245,10 @@ export default {
       this.imageField = fyo.getField(this.schemaName, 'image');
 
       await this.fetchDoc();
-
-      // setup the title field
-      this.setTitleField();
-
       // set default values
       if (this.values) {
         this.doc?.set(this.values);
       }
-    },
-    setTitleField() {
-      const { fieldname, readOnly } = this.titleField;
-      if (!this.doc?.notInserted || !this?.doc[fieldname]) {
-        return;
-      }
-
-      const isManual = this.schema.naming === 'manual';
-      const isNumberSeries = fyo.getField(this.schemaName, 'numberSeries');
-      if (readOnly && (!this?.doc[fieldname] || isNumberSeries)) {
-        this.doc.set(fieldname, t`New ${this.schema.label}`);
-      }
-
-      if (this?.doc[fieldname] && !isManual) {
-        return;
-      }
-
-      this.doc.set(fieldname, '');
-
-      setTimeout(() => {
-        this.$refs.titleControl?.focus();
-      }, 300);
     },
     async fetchDoc() {
       if (this.sourceDoc) {
