@@ -72,7 +72,6 @@ export type SelectOption = { value: string; label: string };
 export interface OptionField extends Omit<BaseField, 'fieldtype'> {
   fieldtype: OptionFieldType;
   options: SelectOption[];
-  emptyMessage?: string;
   allowCustom?: boolean;
 }
 
@@ -85,7 +84,6 @@ export interface TargetField extends Omit<BaseField, 'fieldtype'> {
 
 export interface DynamicLinkField extends Omit<BaseField, 'fieldtype'> {
   fieldtype: DynamicLinkFieldType;
-  emptyMessage?: string;
   references: string;            // Reference to an option field that links to schema
 }
 

@@ -55,6 +55,7 @@ import {
 } from 'src/utils/misc';
 import { docsPathRef } from 'src/utils/refs';
 import { openQuickEdit, routeTo } from 'src/utils/ui';
+import { Shortcuts } from 'src/utils/vueUtils';
 import List from './List.vue';
 
 export default {
@@ -79,6 +80,7 @@ export default {
       listFilters: {},
     };
   },
+  inject: { shortcutManager: { from: 'shortcuts' } },
   async activated() {
     if (typeof this.filters === 'object') {
       this.$refs.filterDropdown.setFilter(this.filters, true);
@@ -90,9 +92,12 @@ export default {
     if (this.fyo.store.isDevelopment) {
       window.lv = this;
     }
+
+    this.shortcuts.pmod.set(['KeyN'], this.makeNewDoc);
   },
   deactivated() {
     docsPathRef.value = '';
+    this.shortcuts.pmod.delete(['KeyN']);
   },
   methods: {
     updatedData(listFilters) {
@@ -113,6 +118,10 @@ export default {
       });
     },
     async makeNewDoc() {
+      if (!this.canCreate) {
+        return;
+      }
+
       const filters = getCreateFiltersFromListViewFilters(this.filters ?? {});
       const doc = fyo.doc.getNewDoc(this.schemaName, filters);
       const path = this.getFormPath(doc);
@@ -164,6 +173,16 @@ export default {
     },
     canCreate() {
       return fyo.schemaMap[this.schemaName].create !== false;
+    },
+    shortcuts() {
+      // @ts-ignore
+      const shortcutManager = this.shortcutManager;
+      if (shortcutManager instanceof Shortcuts) {
+        return shortcutManager;
+      }
+
+      // no-op (hopefully)
+      throw Error('Shortcuts Not Found');
     },
   },
 };
