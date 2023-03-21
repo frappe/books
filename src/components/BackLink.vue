@@ -15,4 +15,7 @@
     <feather-icon name="chevron-left" class="w-4 h-4" />
   </a>
 </template>
-<script></script>
+<script lang="ts">
+import { defineComponent } from 'vue';
+export default defineComponent({});
+</script>
