@@ -219,6 +219,7 @@ import HorizontalResizer from 'src/components/HorizontalResizer.vue';
 import PageHeader from 'src/components/PageHeader.vue';
 import ShortcutKeys from 'src/components/ShortcutKeys.vue';
 import { handleErrorWithDialog } from 'src/errorHandling';
+import { shortcutsKey } from 'src/utils/injectionKeys';
 import { getSavePath } from 'src/utils/ipcCalls';
 import { docsPathMap } from 'src/utils/misc';
 import {
@@ -238,12 +239,12 @@ import {
   showMessageDialog,
   showToast,
 } from 'src/utils/ui';
-import { Shortcuts } from 'src/utils/vueUtils';
 import { getMapFromList } from 'utils/index';
 import { computed, defineComponent } from 'vue';
 import PrintContainer from './PrintContainer.vue';
 import TemplateBuilderHint from './TemplateBuilderHint.vue';
 import TemplateEditor from './TemplateEditor.vue';
+import { inject } from 'vue';
 
 export default defineComponent({
   props: { name: String },
@@ -258,7 +259,11 @@ export default defineComponent({
     TemplateBuilderHint,
     ShortcutKeys,
   },
-  inject: { shortcutManager: { from: 'shortcuts' } },
+  setup() {
+    return {
+      shortcuts: inject(shortcutsKey),
+    };
+  },
   provide() {
     return { doc: computed(() => this.doc) };
   },
@@ -304,21 +309,28 @@ export default defineComponent({
   },
   async activated(): Promise<void> {
     docsPathRef.value = docsPathMap.PrintTemplate ?? '';
-    this.shortcuts.ctrl.set(['Enter'], this.setTemplate);
-    this.shortcuts.ctrl.set(['KeyE'], this.toggleEditMode);
-    this.shortcuts.ctrl.set(['KeyH'], this.toggleShowHints);
-    this.shortcuts.ctrl.set(['Equal'], () => this.setScale(this.scale + 0.1));
-    this.shortcuts.ctrl.set(['Minus'], () => this.setScale(this.scale - 0.1));
+    this.setShortcuts;
   },
   deactivated(): void {
     docsPathRef.value = '';
-    this.shortcuts.ctrl.delete(['Enter']);
-    this.shortcuts.ctrl.delete(['KeyE']);
-    this.shortcuts.ctrl.delete(['KeyH']);
-    this.shortcuts.ctrl.delete(['Equal']);
-    this.shortcuts.ctrl.delete(['Minus']);
+    this.shortcuts?.delete(this);
   },
   methods: {
+    setShortcuts() {
+      if (!this.shortcuts) {
+        return;
+      }
+
+      this.shortcuts.ctrl.set(this, ['Enter'], this.setTemplate);
+      this.shortcuts.ctrl.set(this, ['KeyE'], this.toggleEditMode);
+      this.shortcuts.ctrl.set(this, ['KeyH'], this.toggleShowHints);
+      this.shortcuts.ctrl.set(this, ['Equal'], () =>
+        this.setScale(this.scale + 0.1)
+      );
+      this.shortcuts.ctrl.set(this, ['Minus'], () =>
+        this.setScale(this.scale - 0.1)
+      );
+    },
     async initialize() {
       await this.setDoc();
       if (this.doc?.type) {
@@ -579,17 +591,6 @@ export default defineComponent({
       }
 
       return null;
-    },
-
-    shortcuts(): Shortcuts {
-      // @ts-ignore
-      const shortcutManager = this.shortcutManager;
-      if (shortcutManager instanceof Shortcuts) {
-        return shortcutManager;
-      }
-
-      // no-op (hopefully)
-      throw Error('Shortcuts Not Found');
     },
     maxWidth() {
       return window.innerWidth - 12 * 16 - 100;
